@@ -29,7 +29,7 @@ class RulesConfigurationController < ApplicationController
   RULE_PRIORITIES = Sonar::RulePriority.as_options.reverse
 
   # GETs should be safe (see http://www.w3.org/2001/tag/doc/whenToUseGet.html)
-  verify :method => :post, :only => ['activate_rule', 'update_param', 'bulk_edit', 'create', 'update', 'delete'], :redirect_to => { :action => 'index' }
+  verify :method => :post, :only => ['activate_rule', 'update_param', 'bulk_edit', 'create', 'update', 'delete', 'backup'], :redirect_to => { :action => 'index' }
 
   before_filter :admin_required, :except => [ 'index', 'export' ]
 
@@ -51,13 +51,13 @@ class RulesConfigurationController < ApplicationController
     
     init_params()
     
-    @select_plugins = ANY_SELECTION + java_facade.getPluginsByRuleLanguage(@profile.language).collect { |plugin| [plugin.getName(), plugin.getKey()]}.sort
+    @select_plugins = ANY_SELECTION + java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| [repo.getName(true), repo.getKey()]}.sort
     @select_categories = ANY_SELECTION + RulesCategory.all.collect {|rc| [ rc.name, rc.name ] }.sort
     @select_priority = ANY_SELECTION + RULE_PRIORITIES
     @select_status = [['Any',''], ["Active", STATUS_ACTIVE], ["Inactive", STATUS_INACTIVE]]
 
     if @plugins.include?('')
-      plugins_to_search = java_facade.getPluginsByRuleLanguage(@profile.language).collect { |plugin| plugin.getKey() }
+      plugins_to_search = java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| repo.getKey() }
     else
       plugins_to_search = @plugins
     end
@@ -90,6 +90,7 @@ class RulesConfigurationController < ApplicationController
     result = java_facade.exportConfiguration(plugin_key, profile.id)
     send_data(result, :type => 'text/xml', :disposition => 'inline')
   end
+
 
   #
   #
@@ -261,6 +262,18 @@ class RulesConfigurationController < ApplicationController
 
     url_parameters=request.query_parameters.merge({:action => 'index', :bulk_action => nil, :bulk_rule_ids => nil, :id => profile.id, :rule_status => status})
     redirect_to url_parameters
+  end
+
+
+  #
+  #
+  # POST /rules_configuration/backup?id=<profile_id>
+  #
+  #
+  def backup
+    profile = RulesProfile.find(params[:id])
+    xml = java_facade.exportProfile(profile.id)
+    send_data(xml, :type => 'text/xml', :disposition => "attachment; filename=#{profile.name}_#{profile.language}.xml")
   end
 
 

@@ -29,7 +29,7 @@ class Api::RulesController < Api::RestController
     if params[:plugins]
       options[:plugins] = params[:plugins].split(',') 
     else
-      options[:plugins] = java_facade.getPluginsByRuleLanguage(language).collect { |plugin| plugin.getKey() }
+      options[:plugins] = java_facade.getRuleRepositoriesByLanguage(language).collect { |repo| repo.getKey() }
     end
     options[:categories]=params[:categories].split(',') if params[:categories]
     options[:priorities]=params[:priorities].split(',') if params[:priorities]
