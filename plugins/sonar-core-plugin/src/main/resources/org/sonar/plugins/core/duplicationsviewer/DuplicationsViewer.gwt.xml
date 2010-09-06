@@ -1,0 +1,13 @@
+<module>
+  <inherits name="com.google.gwt.xml.XML"/>
+  <inherits name="com.google.gwt.user.User"/>
+  <inherits name="com.google.gwt.json.JSON"/>
+  <inherits name="com.google.gwt.http.HTTP"/>
+  <inherits name="org.sonar.Sonar"/>
+  <inherits name="com.google.gwt.gen2.table.Table"/>
+
+  <stylesheet src="DuplicationsViewer.css"/>
+
+  <entry-point class="org.sonar.plugins.core.duplicationsviewer.client.DuplicationsViewer"/>
+
+</module>

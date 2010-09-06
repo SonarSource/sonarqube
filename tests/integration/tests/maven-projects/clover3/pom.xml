@@ -1,0 +1,55 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.sonar.tests.clover3</groupId>
+  <artifactId>parent</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>Sonar tests - clover3</name>
+  <description>foo</description>
+  <modules>
+    <module>module1</module>
+    <module>module2</module>
+  </modules>
+  <build>
+	<pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+        </configuration>
+      </plugin>
+    
+      <plugin>
+        <groupId>com.atlassian.maven.plugins</groupId>
+        <artifactId>maven-clover2-plugin</artifactId>
+        <version>3.0.1</version>
+        <configuration>
+	      <license><![CDATA[ONQOnjJexXXewfuckQlojiQGMqMVnhtAbhxwjjoVkHbWgx
+			mi2KrURzVJmEZQD1l0T>JBJk2Ke7ZrTZvmO00u366sv9IY
+			rqqMuWRPpRNNRompPqrtwqnoPpMoqqprMrVVvVXXVtVppQ
+			RrnmqmUUnorrvrtommmmmUUnorrvrtommmmmUUJlkXoUUn
+			mmmm]]></license>
+		</configuration>
+      </plugin>
+    </plugins>
+</pluginManagement>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.7</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <properties>
+    <sonar.profile>turbo</sonar.profile>
+    <sonar.core.codeCoveragePlugin>clover</sonar.core.codeCoveragePlugin>
+  </properties>
+</project>

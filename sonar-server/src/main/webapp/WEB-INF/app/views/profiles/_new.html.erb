@@ -1,0 +1,56 @@
+<div class="admin">
+<% form_tag({:action => 'create'}, {:multipart => true, :id => 'form_create_profile'}) do -%>
+  <table class="spaced">
+    <tr>
+      <td align="left" nowrap="nowrap" width="1%">
+        Name
+      </td>
+      <td align="left">
+        <input type="text" name="name"/>
+      </td>
+    </tr>
+    <tr>
+      <td align="left" nowrap="nowrap">
+        Language
+      </td>
+      <td align="left">
+        <% languages_select=languages.collect do |language|
+              [language.getName(), language.getKey()]
+           end
+       %>
+        <%= select_tag :language, options_for_select(languages_select), :onClick => 'changeLanguage();' %>
+      </td>
+    </tr>
+  </table>
+
+  <% languages.each do |language| %>
+    <% if @plugins_by_language[language.getKey()] %>
+    <table class="spaced language_class" id="<%= language.getKey() %>" style="display:none">
+      <% @plugins_by_language[language.getKey()].each do |plugin| %>
+      <tr>
+        <td align="left" style="vertical-align: top;"  nowrap="nowrap" width="1%">
+          <%= image_tag'bullet.png' %> <%= plugin.getName() %> XML (optional)
+        </td>
+        <td align="left">
+          <%= file_field_tag plugin.getKey() %>
+        </td>
+      </tr>
+      <% end %>
+    </table>
+    <% end %>
+  <% end %>
+
+  <table class="spaced">
+    <tr>
+      <td colspan="2" align="left">
+        <%= submit_tag 'create' %>
+        <a href="<%= url_for :controller => 'profiles', :action => 'index' -%>" class="action">cancel</a>
+      </td>
+    </tr>
+  </table>
+<% end %>
+</div>
+
+<script type="text/javascript">
+    changeLanguage();
+</script>

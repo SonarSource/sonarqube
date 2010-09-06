@@ -1,0 +1,50 @@
+<%
+measures = @snapshot.async_measures.select{ |m|
+  m.metric and m.metric.enabled==true and m.metric.user_managed?
+}.sort{ |m1,m2| 
+  m1.metric.name <=> m2.metric.name
+}
+%>
+<% if is_admin?(@snapshot) || measures.size>0 %>
+<div class="widget">
+<%
+	  measures.each do |m|
+	     html_name_id = "review_name_#{m.metric.short_name}"
+	     html_value_id = "review_value_#{m.metric.short_name}"
+	     html_date_id = "review_date_#{m.metric.short_name}"
+%>
+<div class="dashbox">
+	  <h3 id='<%= html_name_id %>'><%= m.metric.short_name %></h3>
+	  <p><span id='<%= html_value_id %>' class="big">
+	     <%= format_measure(m, :suffix => '', :url => m.url) -%>
+	      </span></p>
+	    <% if m.measure_date %>
+	    <p><span id='<%= html_date_id %>'><%= l(m.measure_date.to_date) %></span>
+	      <% if m.review? && is_admin?(@snapshot) %>
+	      <%= link_to 'delete',
+	        {:action => 'delete_review', :id => m.id, :sid => @snapshot.id}, :method => 'delete', :confirm => 'Delete this measure ?',
+	        :class => 'action', :id => "delete_review_#{m.metric_key}" %>
+	      <% end %>
+	    </p>
+	    <% end %>
+	    <% unless m.description.blank? %>
+	    <p><%= m.description %></p>
+	    <% end %>
+</div>
+<% end %>
+<% if is_admin?(@snapshot) %>
+	      <div id="add_review_form">
+	        <p>
+	          <% if @review %>
+	            <%= render :partial => 'dashboard_edit_review' %>
+	          <% else %>
+	            <%= link_to_remote 'Add a measure',
+	              {:url => {:action => 'edit_review', :sid => @snapshot.id}, :update => 'add_review_form'},
+	              {:class => 'action', :id => 'add_review'} %>
+	          <% end %>
+	        </p>
+	      </div>
+<% end %>
+  <div class="clear"></div>
+</div>
+<% end %>

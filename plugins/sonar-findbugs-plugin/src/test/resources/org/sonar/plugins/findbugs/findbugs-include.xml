@@ -1,0 +1,36 @@
+<FindBugsFilter>
+   <Match>
+     <Class name="com.foobar.ClassNotToBeAnalyzed" />
+   </Match>
+
+   <Match>
+     <Class name="com.foobar.ClassWithSomeBugsMatched" />
+     <Bug code="FB1" />
+     <Priority value="2" />
+   </Match>
+
+   <Match>
+     <Class name="com.foobar.MyClass" />
+     <Method name="someMethod" />
+     <Local name="maxArgs" />
+     <Bug pattern="FB1_IMPORT_TEST_3" />
+     <Priority value="1" />
+   </Match>
+
+   <Match>
+     <Bug pattern="FB1_IMPORT_TEST_3" />
+     <Priority value="3" />
+     <Field name="~ajc\$.*" />
+   </Match>
+
+   <Match>
+     <Package name="~com\.foobar\.fooproject\.ui.*" />
+     <Or>
+       <Method name="nonOverloadedMethod" />
+       <Method name="frob" params="int,java.lang.String" returns="void" />
+       <Method name="blat" params="" returns="boolean" />
+     </Or>
+     <Bug category="MT_CORRECTNESS" />
+     <Priority value="3" />
+   </Match>
+ </FindBugsFilter>

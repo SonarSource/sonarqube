@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Sonar PMD rules generated configuration -->
+<ruleset language="My language" name="My name">
+  <description>Sonar PMD rules</description>
+  <exclude-pattern>to exclude</exclude-pattern>
+  <include-pattern>to include</include-pattern>
+  <rule ref="rulesets/coupling.xml/CouplingBetweenObjects" externalInfoUrl="String" typeResolution="false" dfa="true"
+        name="ID_1" message="String" since="String">
+    <description>rule description</description>
+    <priority>2</priority>
+    <properties>
+      <property name="threshold" value="20"/>
+    </properties>
+    <exclude name="NMTOKEN"/>
+    <example>an example</example>
+  </rule>
+  <rule ref="rulesets/coupling.xml/ExcessiveImports">
+    <priority>3</priority>
+    <properties>
+      <property name="max" value="30" pluginname="plugin name" description="property description"/>
+    </properties>
+  </rule>
+  <rule ref="rulesets/design.xml/UseNotifyAllInsteadOfNotify">
+    <priority>4</priority>
+  </rule>
+</ruleset>
+
+  

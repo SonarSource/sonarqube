@@ -1,0 +1,27 @@
+<script type="text/javascript">
+  var pages = [
+  {"id": "dashboard", "name": "Dashboard", "gwt": false, "url": "/project/index?hd=false&layout=false&id=", "m":[], "s":['PRJ','DIR'], "q": [], "l": []},
+    <%
+      gwt_pages=[]
+      page_index=0
+      controller.java_facade.getResourceTabs().each do |tab|
+        show_page=false
+        tab.getUserRoles().each do |role|
+          if has_role?(role, resource)
+            show_page=true
+          end
+        end
+        if show_page
+          gwt_pages<<tab if tab.isGwt()
+    %>
+    <%= ',' if page_index>0 -%>{"id": "<%= tab.getId() -%>", "name": "<%= tab.getTitle() -%>", "gwt": <%= tab.isGwt() -%>, "d":<%= tab.isDefaultTab() -%>,"m":[<%= tab.getDefaultTabForMetrics().map{|s| "\"#{s}\""}.join(',') -%>], "s":[<%= tab.getResourceScopes().map{|s| "\"#{s}\""}.join(',') -%>], "q": [<%= tab.getResourceQualifiers().map{|s| "\"#{s}\""}.join(',') -%>], "l": [<%= tab.getResourceLanguages().map{|s| "\"#{s}\""}.join(',') -%>]}
+    <%
+          page_index+=1
+        end
+      end %>
+  ];
+</script>
+<script src="<%= ApplicationController.root_context -%>/deploy/gwt/org.sonar.plugins.core.ui.pageselector.PageSelector/org.sonar.plugins.core.ui.pageselector.PageSelector.nocache.js?<%= sonar_version -%>"></script>
+<% gwt_pages.each do |gwt_page| %>
+<script src="<%= ApplicationController.root_context -%>/deploy/gwt/<%= gwt_page.getId() -%>/<%= gwt_page.getId() -%>.nocache.js?<%= sonar_version -%>"></script>
+<% end %>

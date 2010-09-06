@@ -1,0 +1,76 @@
+<ehcache>
+  <!--ehcache config ref
+
+      name:
+       Sets the name of the cache. This is used to identify the cache. It must be unique.
+
+      maxElementsInMemory:
+       Sets the maximum number of objects that will be created in memory
+
+      maxElementsOnDisk:
+       Sets the maximum number of objects that will be maintained in the DiskStore
+       The default value is zero, meaning unlimited.
+
+      eternal:
+       Sets whether elements are eternal. If eternal,  timeouts are ignored and the
+       element is never expired.
+
+      overflowToDisk:
+       Sets whether elements can overflow to disk when the memory store
+       has reached the maxInMemory limit.
+
+      The following attributes are optional.
+
+      timeToIdleSeconds:
+       Sets the time to idle for an element before it expires.
+       i.e. The maximum amount of time between accesses before an element expires
+       Is only used if the element is not eternal.
+       Optional attribute. A value of 0 means that an Element can idle for infinity.
+       The default value is 0.
+
+      timeToLiveSeconds:
+       Sets the time to live for an element before it expires.
+       i.e. The maximum time between creation time and when an element expires.
+       Is only used if the element is not eternal.
+       Optional attribute. A value of 0 means that and Element can live for infinity.
+       The default value is 0.
+
+      diskPersistent:
+       Whether the disk store persists between restarts of the Virtual Machine.
+       The default value is false.
+
+      diskExpiryThreadIntervalSeconds:
+       The number of seconds between runs of the disk expiry thread. The default value
+       is 120 seconds.
+
+      memoryStoreEvictionPolicy:
+       Policy would be enforced upon reaching the maxElementsInMemory limit. Default
+       policy is Least Recently Used (specified as LRU). Other policies available -
+       First In First Out (specified as FIFO) and Less Frequently Used
+       (specified as LFU)
+  -->
+
+  <defaultCache
+      maxElementsInMemory="4096"
+      eternal="false"
+      timeToIdleSeconds="300"
+      timeToLiveSeconds="1200"
+      overflowToDisk="false"
+      memoryStoreEvictionPolicy="LRU"/>
+
+  <cache
+      name="org.sonar.api.measures.Metric"
+      maxElementsInMemory="256"
+      eternal="false"
+      overflowToDisk="false"/>
+  <cache
+      name="org.sonar.api.rules.Rule"
+      maxElementsInMemory="4096"
+      eternal="false"
+      overflowToDisk="false"/>
+  <cache
+      name="org.sonar.api.rules.RulesCategory"
+      maxElementsInMemory="32"
+      eternal="true"
+      overflowToDisk="false"/>
+</ehcache>

@@ -1,0 +1,28 @@
+<script>
+  function showPlugin(key) {
+    $('show-' + key).hide();
+    $('detail-' + key).show();
+    return false;
+  }
+  function checkTermsConditions(key) {
+    var tc=$('tc-' + key)
+    if (tc!=null && !tc.checked) {
+      alert('Please accept the Terms and Conditions');
+      return false;
+    }
+    return true;
+  }
+</script>
+
+
+<% if @downloads.size>0 %>
+<form action="<%= ApplicationController.root_context -%>/plugins/cancel" method="post" class="warning">
+<p>Sonar needs to be restarted in order to install the following plugins: <ul>
+  <% @downloads.each do |download| -%>
+    <li><%= download -%></li>
+  <% end %>
+  </ul>
+  <input type="submit" value="Cancel downloads"></input>
+</p>
+</form>
+<% end %>

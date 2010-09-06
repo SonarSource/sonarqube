@@ -1,0 +1,27 @@
+<script>
+  function reset_criterion(id) {
+    Form.Element.clear('metric-' + id);
+    Form.Element.clear('op-' + id);
+    Form.Element.clear('val-' + id);
+  }
+</script>
+<select name="criteria[<%= id -%>][metric_id]" id="metric-<%= id -%>">
+  <option value="">Select a metric</option>
+  <% Metric.domains.each do |domain| %>
+    <optgroup label="<%= h domain -%>">
+    <% Metric.by_domain(domain).select{|m| !m.data? && !m.hidden?}.each do |metric| %>
+      <option value="<%= metric.id -%>" <%= 'selected' if (criterion && criterion.metric==metric) -%>><%= metric.short_name %></option>
+    <% end %>
+    </optgroup>
+  <% end %>
+</select>
+<select name="criteria[<%= id -%>][operator]" id="op-<%= id -%>">
+  <option value=""></option>
+  <option value="<" <%= 'selected' if (criterion && criterion.operator=='<') -%>>Less than</option>
+  <option value="<=" <%= 'selected' if (criterion && criterion.operator=='<=') -%>>Less or equals</option>
+  <option value="=" <%= 'selected' if (criterion && criterion.operator=='=') -%>>Equals</option>
+  <option value=">" <%= 'selected' if (criterion && criterion.operator=='>') -%>>Greater than</option>
+  <option value=">=" <%= 'selected' if (criterion && criterion.operator=='>=') -%>>Greater or equals</option>
+</select>
+<input type="text" name="criteria[<%= id -%>][value]" size="5" value="<%= criterion.value if criterion -%>" id="val-<%= id -%>"></input>
+<a href="#" onClick="reset_criterion(<%= id -%>);return false;">Reset</a>

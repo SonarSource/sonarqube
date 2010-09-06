@@ -1,0 +1,62 @@
+<!-- this maven file is used by sonar only. Project is built with ant (see build.xml). -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.sonar.tests</groupId>
+  <artifactId>ant-dynamic-cobertura</artifactId>
+  <name>ant-dynamic-cobertura</name>
+  <version>1.0</version>
+
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+
+    <!-- ant compiles sources into this directory -->
+    <outputDirectory>build/classes</outputDirectory>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+          <failOnError>false</failOnError>
+          <excludes>
+            <exclude>**/*</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <!--
+  Findbugs needs the auxiliary classpath to get results as accurate as possible. It avoids getting warnings like :
+
+  The following classes needed for analysis were missing:
+    junit.framework.TestCase
+  -->
+  <dependencies>
+    <dependency>
+      <groupId>deps</groupId>
+      <artifactId>dep1</artifactId>
+      <version>0.1</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/log4j-1.2.13.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>deps</groupId>
+      <artifactId>dep2</artifactId>
+      <version>0.1</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/junit-3.8.2.jar</systemPath>
+    </dependency>
+  </dependencies>
+
+  <properties>
+    <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+    <sonar.exclusions>**/*Test.java</sonar.exclusions>
+    <sonar.cobertura.reportPath>reports/cobertura/xml/coverage.xml</sonar.cobertura.reportPath>
+    <sonar.surefire.reportsPath>reports/junit/xml</sonar.surefire.reportsPath>
+  </properties>
+</project>

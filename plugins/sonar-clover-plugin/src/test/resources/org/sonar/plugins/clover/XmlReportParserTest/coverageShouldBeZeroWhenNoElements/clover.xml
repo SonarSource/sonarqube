@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1171026251154" clover="1.3.12">
+   <project timestamp="1171026228045" name="Sample">
+      <metrics coveredelements="0" packages="2" coveredconditionals="0" ncloc="531" statements="138" loc="780" files="13" conditionals="12" coveredmethods="21" coveredstatements="49" methods="90" classes="14" elements="0"/>
+      <package name="ch.hortis.sonar.model">
+         <metrics coveredelements="0" files="6" coveredconditionals="0" conditionals="0" ncloc="126" statements="28" coveredstatements="0" coveredmethods="0" loc="203" methods="28" classes="7" elements="0"/>
+         <file name="/sonar/sonar-commons/src/main/java/ch/hortis/sonar/model/MetricsClassType.java">
+            <metrics coveredelements="0" coveredconditionals="0" conditionals="0" ncloc="11" statements="2" coveredstatements="0" coveredmethods="0" loc="20" methods="2" classes="1" elements="0"/>
+         </file>
+      </package>
+   </project>
+</coverage>

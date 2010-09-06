@@ -1,0 +1,23 @@
+<p>
+  <b>Name:</b>
+  <%=h @event.name %>
+</p>
+
+<p>
+  <b>Description:</b>
+  <%=h @event.description %>
+</p>
+
+<p>
+  <b>Project:</b>
+  <%=h @event.project_id %>
+</p>
+
+<p>
+  <b>Created at:</b>
+  <%= l @event.created_at.to_date %>
+</p>
+
+
+<%= link_to 'Edit', edit_event_path(@event) %> |
+<%= link_to 'Back', events_path %>

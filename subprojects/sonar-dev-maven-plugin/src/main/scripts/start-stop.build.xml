@@ -1,0 +1,451 @@
+<project>
+  <property name="tmpdir" value="${java.io.tmpdir}/sonar"/>
+  <property name="tomcat6.home" value="${tmpdir}/tomcat6"/>
+
+  <taskdef resource="cargo.tasks"/>
+  <taskdef name="httpmpost" classname="net.sf.fikin.ant.httpclientanttask.AntMultipartPostMethod"/>
+  <taskdef name="httppost" classname="net.sf.fikin.ant.httpclientanttask.AntPostMethod"/>
+  <taskdef resource="net/sf/antcontrib/antlib.xml"/>
+
+  <!-- entry points : start and stop -->
+  <target name="start" depends="expand-database-profile,prepare-standalone-configuration,drop-database,configure-sonar">
+    <parallel>
+      <antcall target="start-standalone"/>
+      <antcall target="setup"/>
+    </parallel>
+  </target>
+
+  <target name="stop" depends="prepare-standalone-configuration,stop-standalone"/>
+
+  <target name="prepare-standalone-configuration">
+    <condition property="sonar.bin.path" value="bin/macosx-universal-64/sonar.sh">
+      <os family="mac"/>
+    </condition>
+    <condition property="sonar.bin.path" value="bin/windows-x86-32/StartSonar.bat">
+      <os family="windows"/>
+    </condition>
+    <condition property="sonar.bin.path" value="bin/linux-x86-32/sonar.sh">
+      <os family="unix"/>
+    </condition>
+  </target>
+
+  <!--
+
+       DATABASE PROFILES 
+
+   -->
+  <target name="expand-database-profile">
+    <!-- derby -->
+    <condition property="sonar.jdbc.url" value="jdbc:derby://localhost:1527/sonar;create=true">
+      <and>
+        <equals arg1="${sonar.database}" arg2="derby"/>
+        <not>
+          <isset property="sonar.jdbc.url"/>
+        </not>
+      </and>
+    </condition>
+    <condition property="sonar.jdbc.driver" value="org.apache.derby.jdbc.ClientDriver">
+      <and>
+        <equals arg1="${sonar.database}" arg2="derby"/>
+        <not>
+          <isset property="sonar.jdbc.driver"/>
+        </not>
+      </and>
+    </condition>
+
+    <!-- mysql -->
+    <condition property="sonar.jdbc.url"
+               value="jdbc:mysql://localhost:3306/sonar?useUnicode=true&amp;characterEncoding=utf8">
+      <and>
+        <equals arg1="${sonar.database}" arg2="mysql"/>
+        <not>
+          <isset property="sonar.jdbc.url"/>
+        </not>
+      </and>
+    </condition>
+    <condition property="sonar.jdbc.driver" value="com.mysql.jdbc.Driver">
+      <and>
+        <equals arg1="${sonar.database}" arg2="mysql"/>
+        <not>
+          <isset property="sonar.jdbc.driver"/>
+        </not>
+      </and>
+    </condition>
+
+    <!-- postgresql -->
+    <condition property="sonar.jdbc.url" value="jdbc:postgresql://localhost/sonar">
+      <and>
+        <equals arg1="${sonar.database}" arg2="postgresql"/>
+        <not>
+          <isset property="sonar.jdbc.url"/>
+        </not>
+      </and>
+    </condition>
+    <condition property="sonar.jdbc.driver" value="org.postgresql.Driver">
+      <and>
+        <equals arg1="${sonar.database}" arg2="postgresql"/>
+        <not>
+          <isset property="sonar.jdbc.driver"/>
+        </not>
+      </and>
+    </condition>
+
+    <!-- oracle -->
+    <condition property="sonar.jdbc.url" value="jdbc:oracle:thin:@localhost/XE">
+      <and>
+        <equals arg1="${sonar.database}" arg2="oracle"/>
+        <not>
+          <isset property="sonar.jdbc.url"/>
+        </not>
+      </and>
+    </condition>
+    <condition property="sonar.jdbc.driver" value="oracle.jdbc.driver.OracleDriver">
+      <and>
+        <equals arg1="${sonar.database}" arg2="oracle"/>
+        <not>
+          <isset property="sonar.jdbc.driver"/>
+        </not>
+      </and>
+    </condition>
+
+    <!-- SQLServer -->
+    <condition property="sonar.jdbc.url" value="jdbc:jtds:sqlserver://localhost;databaseName=SONAR;SelectMethod=Cursor">
+      <and>
+        <equals arg1="${sonar.database}" arg2="mssql"/>
+        <not>
+          <isset property="sonar.jdbc.url"/>
+        </not>
+      </and>
+    </condition>
+    <condition property="sonar.jdbc.driver" value="net.sourceforge.jtds.jdbc.Driver">
+      <and>
+        <equals arg1="${sonar.database}" arg2="mssql"/>
+        <not>
+          <isset property="sonar.jdbc.driver"/>
+        </not>
+      </and>
+    </condition>
+  </target>
+
+
+  <target name="start-war" depends="expand-database-profile,drop-database,configure-sonar">
+    <parallel>
+      <antcall target="start-tomcat"/>
+      <antcall target="setup"/>
+    </parallel>
+  </target>
+
+  <target name="stop-war" depends="stop-tomcat"/>
+
+  <!-- STEP 1 : initialize the database -->
+  <target name="drop-database">
+    <condition property="execute.drop.database">
+      <istrue value="${sonar.dropDatabase}"/>
+    </condition>
+    <antcall target="do-drop-database"/>
+  </target>
+
+  <target name="do-drop-database" if="execute.drop.database">
+    <sql driver="${sonar.jdbc.driver}"
+         url="${sonar.jdbc.rootUrl}"
+         userid="${sonar.jdbc.rootUsername}"
+         password="${sonar.jdbc.rootPassword}"
+         onerror="continue"
+         autocommit="true"
+         expandProperties="true">
+      <resources>
+        <javaresource name="database/${sonar.database}/drop-db.sql"/>
+        <javaresource name="database/${sonar.database}/drop-user.sql"/>
+        <javaresource name="database/${sonar.database}/create-user.sql"/>
+        <javaresource name="database/${sonar.database}/create-db.sql"/>
+      </resources>
+    </sql>
+
+    <echo>Database is ready</echo>
+  </target>
+
+
+  <!-- STEP 2 : install Sonar -->
+  <target name="clean-sonar-home" if="execute.sonar.clean">
+    <delete dir="${tmpdir}/sonar-${sonar.runtimeVersion}"/>
+    <mkdir dir="${tmpdir}"/>
+  </target>
+
+
+  <target name="prepare-sonar-home" unless="is.installed">
+    <copy tofile="${tmpdir}/sonar-${sonar.runtimeVersion}.zip" overwrite="true" verbose="true" flatten="true"
+          failonerror="false"
+          file="${settings.localRepository}/org/codehaus/sonar/sonar-application/${sonar.runtimeVersion}/sonar-application-${sonar.runtimeVersion}.zip">
+    </copy>
+    <condition property="execute.download-sonar">
+      <not>
+        <available file="${tmpdir}/sonar-${sonar.runtimeVersion}.zip"/>
+      </not>
+    </condition>
+    <antcall target="download-sonar"/>
+    <unzip src="${tmpdir}/sonar-${sonar.runtimeVersion}.zip" dest="${tmpdir}"/>
+  </target>
+
+
+  <target name="download-sonar" if="execute.download-sonar">
+    <echo>Downloading sonar</echo>
+    <get src="http://dist.sonar.codehaus.org/sonar-${sonar.runtimeVersion}.zip"
+         dest="${tmpdir}/sonar-${sonar.runtimeVersion}.zip"/>
+    <echo>Installing to local maven repo</echo>
+    <mvninstall groupId="org.codehaus.sonar"
+                artifactId="sonar-application"
+                version="${sonar.runtimeVersion}"
+                packaging="zip"
+                file="${tmpdir}/sonar-${sonar.runtimeVersion}.zip"/>
+  </target>
+
+  <target name="copy-extensions" if="has.extensions">
+    <echo>Copy extensions...</echo>
+    <copy todir="${tmpdir}/sonar-${sonar.runtimeVersion}/extensions" overwrite="true" verbose="true" flatten="false">
+      <fileset dir="${sonar.extensionsDir}"/>
+    </copy>
+  </target>
+
+
+  <target name="copy-plugin-artifact" if="has.plugin.artifact">
+    <echo>Copy plugin artifact...</echo>
+    <copy todir="${tmpdir}/sonar-${sonar.runtimeVersion}/extensions/plugins" overwrite="true" verbose="true"
+          flatten="true"
+          file="${sonar.pluginArtifact}">
+    </copy>
+  </target>
+
+
+  <target name="configure-sonar">
+    <condition property="execute.sonar.clean" value="true">
+      <istrue value="${sonar.clean}"/>
+    </condition>
+    <antcall target="clean-sonar-home" />
+
+    <available property="is.installed" file="${tmpdir}/sonar-${sonar.runtimeVersion}/conf/sonar.properties"/>
+    <antcall target="prepare-sonar-home"/>
+
+    <copy todir="${tmpdir}/sonar-${sonar.runtimeVersion}/conf/" overwrite="true" verbose="true" flatten="true">
+      <resources>
+        <javaresource name="server/sonar.properties"/>
+        <javaresource name="server/wrapper.conf"/>
+      </resources>
+    </copy>
+
+    <available property="has.extensions" file="${sonar.extensionsDir}"/>
+    <antcall target="copy-extensions"/>
+
+    <available file="${sonar.pluginArtifact}" property="has.plugin.artifact"/>
+    <antcall target="copy-plugin-artifact"/>
+
+  </target>
+
+
+  <!-- STEP 3 : start web server -->
+  <target name="start-standalone">
+    <echo>Start server</echo>
+
+    <chmod perm="777" type="file">
+      <fileset dir="${tmpdir}/sonar-${sonar.runtimeVersion}/bin">
+        <include name="**/*"/>
+      </fileset>
+    </chmod>
+
+    <condition property="windows">
+      <os family="windows"/>
+    </condition>
+    
+    <antcall target="start-standalone-windows" />
+    <antcall target="start-standalone-unix" />
+  </target>
+  
+  <target name="start-standalone-windows" if="windows">   
+<!--    <condition property="sonar.command" value="restart" else="console">
+      <istrue value="${sonar.background}"/>
+    </condition>-->
+    <exec executable="${tmpdir}/sonar-${sonar.runtimeVersion}/${sonar.bin.path}">
+      <env key="sonar.jdbc.url" value="${sonar.jdbc.url}"/>
+      <env key="sonar.jdbc.driverClassName" value="${sonar.jdbc.driver}"/>
+      <env key="sonar.jdbc.username" value="${sonar.jdbc.username}"/>
+      <env key="sonar.jdbc.password" value="${sonar.jdbc.password}"/>
+    </exec>
+  </target>
+  
+  <target name="start-standalone-unix" unless="windows">   
+    <condition property="sonar.command" value="restart" else="console">
+      <istrue value="${sonar.background}"/>
+    </condition>
+    <exec executable="${tmpdir}/sonar-${sonar.runtimeVersion}/${sonar.bin.path}">
+      <arg line="${sonar.command}"/>
+      <env key="sonar.jdbc.url" value="${sonar.jdbc.url}"/>
+      <env key="sonar.jdbc.driverClassName" value="${sonar.jdbc.driver}"/>
+      <env key="sonar.jdbc.username" value="${sonar.jdbc.username}"/>
+      <env key="sonar.jdbc.password" value="${sonar.jdbc.password}"/>
+    </exec>
+  </target>
+
+  <target name="stop-standalone">
+    <exec executable="${tmpdir}/sonar-${sonar.runtimeVersion}/${sonar.bin.path}">
+      <arg line="stop"/>
+    </exec>
+  </target>
+
+
+  <target name="start-tomcat">
+    <echo>Build WAR</echo>
+    <ant dir="${tmpdir}/sonar-${sonar.runtimeVersion}/war/" inheritAll="false"/>
+
+    <mkdir dir="${tomcat6.home}"/>
+    <mkdir dir="${tmpdir}/sonar-${sonar.runtimeVersion}/logs"/>
+
+    <condition property="sonar.wait" value="true" else="false">
+      <isfalse value="${sonar.background}"/>
+    </condition>
+    <echo>Start tomcat, background mode: ${sonar.background}</echo>
+
+    <cargo containerId="tomcat6x" action="start" wait="${sonar.wait}" id="tmptmct6-${sonar.runtimeVersion}"
+           output="${tmpdir}/sonar-${sonar.runtimeVersion}/logs/output.log"
+           log="${tmpdir}/sonar-${sonar.runtimeVersion}/logs/cargo.log">
+      <zipurlinstaller
+          installurl="http://archive.apache.org/dist/tomcat/tomcat-6/v6.0.26/bin/apache-tomcat-6.0.26.zip"/>
+      <configuration type="standalone" home="${tomcat6.home}">
+        <property name="cargo.jvmargs"
+                  value="-Xmx1024m -XX:MaxPermSize=256m -server -Dsonar.jdbc.url=${sonar.jdbc.url} -Dsonar.jdbc.driverClassName=${sonar.jdbc.driver} -Dsonar.jdbc.username=${sonar.jdbc.username} -Dsonar.jdbc.password=${sonar.jdbc.password}"/>
+        <property name="cargo.servlet.port" value="9000"/>
+        <property name="cargo.remote.username" value="admin"/>
+        <property name="cargo.remote.password" value=""/>
+        <deployable type="war" file="${tmpdir}/sonar-${sonar.runtimeVersion}/war/sonar.war">
+          <property name="context" value="ROOT"/>
+        </deployable>
+      </configuration>
+    </cargo>
+    <antcall target="wait-for-server"/>
+  </target>
+
+  <target name="stop-tomcat">
+    <echo>Stopping tomcat</echo>
+    <cargo containerId="tomcat6x" action="stop" wait="true" id="tmptmct6-${sonar.runtimeVersion}">
+      <zipurlinstaller
+          installurl="http://archive.apache.org/dist/tomcat/tomcat-6/v6.0.26/bin/apache-tomcat-6.0.26.zip"/>
+      <configuration type="standalone" home="${tomcat6.home}">
+        <property name="cargo.jvmargs" value="-Xmx512m -server"/>
+        <property name="cargo.servlet.port" value="9000"/>
+        <property name="cargo.remote.username" value="admin"/>
+        <property name="cargo.remote.password" value=""/>
+      </configuration>
+    </cargo>
+  </target>
+
+  <!-- STEP 4 : setup sonar -->
+
+  <target name="wait-for-server">
+    <waitfor maxwait="5" maxwaitunit="minute" checkevery="10" checkeveryunit="second">
+      <http url="http://localhost:9000"/>
+    </waitfor>
+  </target>
+
+  <target name="setup" depends="wait-for-server">
+    <httppost url="http://localhost:9000/setup/setup_database" logLevel="none"/>
+    <echo message="Database is up."/>
+
+    <condition property="execute.restore.backup" value="true">
+      <isset property="sonar.configBackup"/>
+    </condition>
+    <antcall target="restore-backup"/>
+  </target>
+
+
+  <target name="restore-backup" if="execute.restore.backup">
+    <echo message="Restoring sonar backup"/>
+
+    <httppost url="http://localhost:9000/sessions/login" logLevel="none">
+      <post name="login" value="admin"/>
+      <post name="password" value="admin"/>
+    </httppost>
+    <echo message="Logged in."/>
+
+    <httpmpost url="http://localhost:9000/backup/import" logLevel="none">
+      <postFile name="file" file="${sonar.configBackup}"/>
+    </httpmpost>
+    <echo message="Backup is restored."/>
+  </target>
+
+
+  <!-- STEP 5 : analyze projects -->
+
+  <target name="analyze" depends="expand-database-profile">
+    <for param="pom">
+      <path>
+        <fileset dir="${sonar.projectsDir}" includes="*/pom.xml"/>
+      </path>
+      <sequential>
+        <mvn pom="@{pom}" failonerror="false" args="clean install -DskipTests"/>
+        <mvnsonar pom="@{pom}"/>
+      </sequential>
+    </for>
+  </target>
+
+
+  <macrodef name="mvn">
+    <attribute name="failonerror" default="true"/>
+    <attribute name="pom"/>
+    <attribute name="args" default=""/>
+
+    <sequential>
+      <exec failonerror="@{failonerror}" executable="mvn.bat" osfamily="Windows">
+        <arg line="-f @{pom}"/>
+        <arg line="@{args}"/>
+      </exec>
+      <exec failonerror="@{failonerror}" executable="mvn" osfamily="unix">
+        <arg line="-f @{pom}"/>
+        <arg line="@{args} "/>
+      </exec>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mvnsonar">
+    <attribute name="failonerror" default="true"/>
+    <attribute name="args" default=""/>
+    <attribute name="pom"/>
+
+    <sequential>
+      <exec failonerror="@{failonerror}" executable="${maven.home}/bin/mvn.bat" osfamily="Windows">
+        <arg line="org.codehaus.mojo:sonar-maven-plugin:1.0-beta-1:sonar @{args} -B -e"/>
+        <arg line="-f @{pom}"/>
+        <arg value='-Dsonar.jdbc.url="${sonar.jdbc.url}"'/>
+        <!-- double quotes for windows -->
+        <arg value="-Dsonar.jdbc.driver=${sonar.jdbc.driver}"/>
+        <arg value="-Dsonar.jdbc.username=${sonar.jdbc.username}"/>
+        <arg value="-Dsonar.jdbc.password=${sonar.jdbc.password}"/>
+      </exec>
+      <exec failonerror="@{failonerror}" executable="${maven.home}/bin/mvn" osfamily="unix">
+        <arg line="org.codehaus.mojo:sonar-maven-plugin:1.0-beta-1:sonar @{args} -B -e"/>
+        <arg line="-f @{pom}"/>
+        <arg value='-Dsonar.jdbc.url=${sonar.jdbc.url}'/>
+        <arg value="-Dsonar.jdbc.driver=${sonar.jdbc.driver}"/>
+        <arg value="-Dsonar.jdbc.username=${sonar.jdbc.username}"/>
+        <arg value="-Dsonar.jdbc.password=${sonar.jdbc.password}"/>
+      </exec>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mvninstall">
+    <attribute name="failonerror" default="false"/>
+    <attribute name="groupId"/>
+    <attribute name="artifactId"/>
+    <attribute name="version"/>
+    <attribute name="packaging" default="jar"/>
+    <attribute name="file"/>
+
+    <sequential>
+      <exec failonerror="@{failonerror}" executable="mvn.bat" osfamily="Windows">
+        <arg
+            line="install:install-file -DgroupId=@{groupId} -DartifactId=@{artifactId} -Dversion=@{version} -Dpackaging=@{packaging} -Dfile=@{file}"/>
+      </exec>
+      <exec failonerror="@{failonerror}" executable="mvn" osfamily="unix">
+        <arg
+            line="install:install-file -DgroupId=@{groupId} -DartifactId=@{artifactId} -Dversion=@{version} -Dpackaging=@{packaging} -Dfile=@{file}"/>
+      </exec>
+    </sequential>
+  </macrodef>
+</project>

@@ -1,0 +1,7 @@
+<p class="notes">
+  <% if @center.nil? %>
+    <p>Not connected to update center. Please check your internet connection and logs.</p>
+  <% else %>
+    Updated on <%= @center.getDate() %>. <%= link_to 'Refresh', :action => action, :reload => true %>
+  <% end %>
+</p>

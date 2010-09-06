@@ -1,0 +1,73 @@
+<ul class="tabs">
+  <li>
+    <a href="<%= url_for :action => 'index' -%>">Installed</a>
+  </li>
+  <li>
+    <a href="<%= url_for :action => 'updates' -%>" class="selected">Updates</a>
+  </li>
+  <li>
+    <a href="<%= url_for :action => 'available' -%>">Available</a>
+  </li>
+</ul>
+<div class="tabs-panel">
+<%= render :partial => 'plugins/downloads' %>
+
+<% if @center %>
+  <table class="data2 width100" id="plugin-updates">
+    <thead>
+        <tr>
+          <th colspan="3"><h2>User-installed plugins</h2></th>
+        </tr>
+    </thead>
+    <tbody>
+    <% if @plugin_updates.empty? %>
+      <tr class="even">
+        <td colspan="3" >No updates</td>
+      </tr>
+    <% end %>
+    <% @plugin_updates.each do |update|
+    %>
+      <tr class="<%= cycle('even','odd', :name => 'user-plugins') -%>">
+        <td><%= h(update.getPlugin().getName()) -%></td>
+        <td>
+
+        </td>
+        <td>
+
+        </td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+  <br/>
+  <table class="data2 width100" id="system-updates">
+    <thead>
+        <tr>
+          <th colspan="2"><h2>System</h2></th>
+        </tr>
+    </thead>
+    <tbody>
+    <%
+      if @sonar_updates.empty? %>
+      <tr class="even">
+        <td colspan="3" >No updates</td>
+      </tr>
+    <% end %>
+    <% @sonar_updates.each do |update|
+         sonar_release=update.getRelease()
+    %>
+      <tr class="<%= cycle('even','odd', :name => 'system') -%>">
+        <td>Sonar <%= sonar_release.getVersion() -%></td>
+        <td><%= sonar_release.getDescription() -%></td>
+        <td>
+          <%= link_to 'Release Notes', sonar_release.getChangelogUrl(), :class => 'external' if sonar_release.getChangelogUrl() %> &nbsp;
+          <%= link_to 'Download', sonar_release.getDownloadUrl(), :class => 'external' if sonar_release.getDownloadUrl() %>
+        </td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+  <br/>
+<% end %>
+<%= render :partial => 'plugins/status', :locals => {:action => 'updates' } %>
+</div>

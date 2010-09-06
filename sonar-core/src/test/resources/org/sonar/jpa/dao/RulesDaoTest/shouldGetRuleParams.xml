@@ -1,0 +1,19 @@
+<dataset>
+
+  <rules_categories id="1" name="category one" description="[null]"/>
+
+  <!-- Rules -->
+  <rules id="1" name="new1" rules_category_id="1" description="test1" plugin_config_key="checker/new1"
+         plugin_rule_key="checkstyle.new1" plugin_name="PLUGIN_KEY" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+  <rules id="2" name="new2" rules_category_id="1" description="test2" plugin_config_key="checker/new2"
+         plugin_rule_key="checkstyle.new2" plugin_name="PLUGIN_KEY" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+
+  <!-- Rules parameters -->
+  <rules_parameters id="1" rule_id="1" name="rule1_param1" description="rule1_desc1" param_type="r"
+      />
+  <rules_parameters id="2" rule_id="1" name="rule1_param2" description="rule1_desc2" param_type="r"
+      />
+  <rules_parameters id="3" rule_id="2" name="rule2_param1" description="rule2_desc1" param_type="r"
+      />
+
+</dataset>

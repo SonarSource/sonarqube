@@ -1,0 +1,16 @@
+import java.io.*;
+import java.util.zip.*;
+
+File file = new File( basedir, "target/test-1.0.jar" );
+if (!file.isFile()) {
+  throw new FileNotFoundException( "Could not find generated JAR: " + file );
+}
+
+ZipFile zipFile = new ZipFile(file);
+try {
+  if (zipFile.getEntry("META-INF/lib/commons-lang-2.5.jar")!=null) {
+    throw new FileNotFoundException("The dependency commons-lang must not be copied in the plugin");
+  }
+} finally {
+  zipFile.close();
+}

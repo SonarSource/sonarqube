@@ -1,0 +1,13 @@
+<div name="settings">
+
+<%= render :partial => 'project/settings/plugins' %>
+<br/>
+<%= render :partial => 'project/settings/exclusions' %>
+<% if @project.project? %>
+<br/>
+<%= render :partial => 'project/settings/links' %>
+<br/>
+<%= render :partial => 'project/settings/delete_project' %>
+<% end %>
+
+</div>

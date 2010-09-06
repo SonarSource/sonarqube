@@ -1,0 +1,15 @@
+<h2>Database settings.</h2>
+<table>
+  <tr>
+    <td>URL: &nbsp;&nbsp;</td>
+    <td><%= configuration('sonar.jdbc.url', '') -%>
+  </tr>
+  <tr>
+    <td>Login: &nbsp;&nbsp;</td>
+    <td><%= configuration('sonar.jdbc.username', '') -%>
+  </tr>
+  <tr>
+    <td>Driver: &nbsp;&nbsp;</td>
+    <td><%= configuration('sonar.jdbc.driverClassName', '') -%>
+  </tr>
+</table>

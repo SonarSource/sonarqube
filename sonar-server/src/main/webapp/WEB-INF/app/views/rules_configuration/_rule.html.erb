@@ -1,0 +1,61 @@
+<td nowrap valign="top" class="left" x="<%= active_rule.failure_level if active_rule -%>" width="1%">
+  <form id="levels_<%= rule.id -%>" action="">
+      <% enable_modification = is_admin && !profile.provided?
+         select_box_id = "levels_select_#{rule.id}"
+         check_box_id = "levels_check_#{rule.id}"
+         rule_select_box = "$('#{select_box_id}')"
+         rule_check_box = "$('#{check_box_id}')"
+         changel_level = remote_function(
+             :url => { :action => 'activate_rule', :rule_id => rule.id, :id => profile.id},
+                 :loading => "$('levels_#{rule.id}').replace('<img src=\"#{ApplicationController.root_context}/images/loading.gif\"/>');",
+                 :with => "'level=' + #{rule_select_box}.value", :condition => "#{rule_check_box}.checked")
+         activate_rule = remote_function(
+             :url => { :action => 'activate_rule', :rule_id => rule.id, :id => profile.id},
+                 :loading => "$('levels_#{rule.id}').replace('<img src=\"#{ApplicationController.root_context}/images/loading.gif\"/>');",
+                 :with => "'level=' + get_level_for_rule(#{rule_select_box},#{rule_check_box})")
+      %>
+      <%= check_box_tag(check_box_id, 'yes', (!active_rule.nil?), :onclick => activate_rule, :disabled => !enable_modification) %>
+      <%= select_tag(select_box_id, options_for_select(RulesConfigurationController::RULE_PRIORITIES, (active_rule.nil? ? rule.priority_text : active_rule.priority_text)),
+            {:onchange => changel_level, :disabled => (!(enable_modification) || active_rule.nil?)}) %>
+
+  </form>
+</td>
+<td valign="top" class="left">
+  <%= link_to_function("#{h rule.name}", nil, :class => "") do |page|
+        page.toggle "desc_#{rule.id}"
+      end
+  %>
+  <br/>
+  <div id="desc_<%= rule.id -%>" class="rule_desc" style="display:none">
+    <%= rule.description %>
+    <% if rule.parameters.size>0 %>
+          <table >
+              <% rule.parameters.each do |parameter|
+                active_parameter = active_rule.active_param_by_param_id(parameter.id) if active_rule
+              %>
+                  <tbody id="param_<%= parameter.id -%>">
+                  <%= render :partial => 'rule_param', :object => nil,
+                    :locals => {:parameter => parameter, :active_parameter => active_parameter, :profile => profile, :active_rule => active_rule, :is_admin => is_admin } %>
+                  </tbody>
+              <% end %>
+          </table>
+      <% end %>
+      <br/><span class="gray">Key: <%= rule.plugin_rule_key -%></span>
+      <% if is_admin %>
+        <br/>
+        <% if rule.template? %>
+        <a href="<%= url_for :action => 'new', :id => profile.id, :rule_id => rule.id -%>">Create new rule from this template</a>
+        <% end %>
+        <% if rule.editable? %>
+        <a href="<%= url_for :action => 'edit', :id => profile.id, :rule_id => rule.id -%>">Edit rule</a>
+        <% end %>
+      <% end %>
+    </div>
+</td>
+<td valign="top" class="right rule_plugin">
+<%= rule.plugin_name.capitalize %>
+</td>
+<td valign="top" class="right rule_category" width="1%" nowrap><%= rule.category.name %></td>
+<script type="text/javascript">
+    Form.reset($('levels_<%= rule.id -%>'));
+</script>

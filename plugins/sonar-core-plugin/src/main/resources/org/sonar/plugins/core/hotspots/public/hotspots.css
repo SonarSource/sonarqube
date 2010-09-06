@@ -1,0 +1,102 @@
+.gwt-Hotspots {
+  width: 780px;
+}
+
+.gwt-Hotspots td {
+  width: 380px;
+  vertical-align: top;
+}
+
+.gwt-HotspotPanel {
+  width: 100%;
+}
+
+.gwt-HotspotPanel .header {
+  color: #333;
+  font-size: 93%;
+  font-weight: bold;
+  padding: 3px 0px 3px 5px;
+  white-space: nowrap;
+}
+.hotspotcol {
+  vertical-align: top;
+}
+
+.gwt-Hotspot {
+  border: 1px solid #ccc;
+  border-top-width: 2px;
+  border-bottom-width: 2px;
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-bottom: 10px;
+  width: 390px;
+}
+
+.gwt-Hotspot td {
+  padding: 3px 4px;
+  line-height: 18px;
+}
+
+.gwt-Hotspot td.small {
+  padding: 3px 1px;
+}
+
+.gwt-Hotspot .header {
+  color: #333;
+  font-size: 93%;
+  font-weight: bold;
+  padding: 4px 0 3px 9px;
+}
+
+.gwt-Hotspot .resourceCell {
+  width: 99%;
+}
+
+.gwt-Hotspot .ccResourceCell {
+  width: 60%;
+}
+
+.gwt-Hotspot .resultCell {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+  border-right: none;
+}
+
+.gwt-Hotspot .ccResultCell {
+  border-right: 1px solid #C0C0C0;
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.gwt-Hotspot .graphCell {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+  border-left: none;
+}
+
+.gwt-Hotspot .header.ccHeaderResource {
+  width: 60%;
+}
+
+.gwt-Hotspot .header.headerResource {
+  width: 70%;
+}
+
+.gwt-Hotspot .header.headerEmptyResults {
+  width: 100%;
+}
+
+.gwt-Hotspot .header.headerResult {
+  width: 20%;
+}
+
+.gwt-Hotspot .header.ccHeaderResult {
+  width: 30%;
+}
+
+.gwt-Hotspot .header.headerGraph {
+  width: 10%;
+}

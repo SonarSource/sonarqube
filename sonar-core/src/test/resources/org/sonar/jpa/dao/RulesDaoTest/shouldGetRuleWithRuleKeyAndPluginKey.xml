@@ -1,0 +1,8 @@
+<dataset>
+
+  <rules_categories id="1" name="category one" description="[null]"/>
+
+  <rules id="1" name="foo" rules_category_id="1" description="test" plugin_config_key="checker/foo"
+         plugin_rule_key="checkstyle.rule1" plugin_name="plugin" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+
+</dataset>

@@ -1,0 +1,33 @@
+<dataset>
+  <rules_categories id="1" name="category one" description="[null]"/>
+  <rules id="1" name="foo" rules_category_id="1" plugin_config_key="checker/foo" plugin_rule_key="checkstyle.rule1"
+         plugin_name="maven-checkstyle-plugin" description="description" cardinality="SINGLE" parent_id="[null]"/>
+
+  <metrics id="1" name="ncloc" val_type="INT" description="[null]"  domain="[null]"
+           short_name="" qualitative="false" user_managed="false" enabled="true" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="false"/>
+
+  <!-- project -->
+  <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="mygroup:myartifact" name="project"
+            root_id="[null]"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]"/>
+
+  <!-- package -->
+  <projects long_name="[null]" id="2" scope="DIR" qualifier="PAC" kee="mygroup:myartifact:my.package" name="package"
+            root_id="[null]"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]"/>
+
+  <!-- file -->
+  <projects long_name="[null]" id="3" scope="FIL" qualifier="CLA" kee="mygroup:myartifact:my.package.Class1"
+            name="class" root_id="[null]"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]"/>
+
+  <!-- project copy for views -->
+  <projects long_name="[null]" id="4" scope="FIL" qualifier="TRK" kee="cp-mygroup:myartifact" name="project"
+            root_id="[null]"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="1"/>
+
+</dataset>

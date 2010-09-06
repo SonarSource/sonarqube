@@ -1,0 +1,75 @@
+<% if is_admin? %>
+<div id="page-operations">
+  <ul class="operations">
+      <li>Customize
+      <% if configuring? %>
+        <span class="green"><b>ON</b></span> |
+        <a class="action" href="<%= url_for :overwrite_params => {:configuring => nil} -%>" id="configure-off">OFF</a>
+      <% else %>
+        <a class="action" href="<%= url_for :overwrite_params => {:configuring => 'true'} -%>" id="configure-on">ON</a>
+        | <span class="red"><b>OFF</b></span>
+      <% end %>     
+      </li>
+  </ul>
+</div>
+<% end %>
+
+<% if has_role?(:admin) && configuring? %>
+  <%= render :partial => 'list_edit_mode_controls', :locals => {:configured_columns => @columns, :dashboard_configuration => @dashboard_configuration}%>
+<% end %>
+<% if @snapshots.empty? && @project.nil? %>
+<h3>No projects have been analysed.</h3>
+<p>If Maven and Sonar are installed with default parameters on the same box, just launch the command <code>mvn sonar:sonar</code> to analyse your first project. In any other case, please refer to the <a href="http://www.sonarsource.org/documentation">documentation</a>.</p>
+<% else %>
+<table width="100%">
+  <tr>
+    <td align="left" valign="top">
+      <table id="components" class="data sortable">
+        <%= render :partial => 'list_table_header', :locals => {:configured_columns => @columns} if !configuring? || ( !is_admin? && configuring? ) %>
+        <%= render :partial => 'list_table_header_edit_mode', :locals => {:configured_columns => @columns} if configuring? && is_admin? %>
+        <tbody>
+        <% if @snapshots.empty? %>
+          <tr><td colspan="<%= @columns.size + 2 -%>">No components</td></tr>
+        <% else
+            @snapshots.each do |snapshot| %>
+            <% project = snapshot.project %>
+            <tr id="project_<%= project.id -%>">
+             <% alert_status_measure=search_measure(@measures_by_snapshot[snapshot], Metric::ALERT_STATUS)
+                alert_status_x=(alert_status_measure ? alert_status_measure.data : '')
+             %>
+              <td x="<%= alert_status_x -%>" width="1%" nowrap><%= html_measure(alert_status_measure, nil, true, nil, nil, nil) %></td>
+              <td width="1%" nowrap>
+                <% if logged_in? %><%= link_to_favourite(project) -%><% end %>
+                <%= link_to_resource(project, image_tag('zoom.png')) %>
+              </td>
+              <td class="left" x="<%= u(snapshot.project.name) -%>">
+                <%= qualifier_icon(snapshot) %>
+                <% if snapshot.project.display_dashboard? %>
+                  <a href="<%= ApplicationController.root_context + "/project/index/#{snapshot.project.copy_resource_id || snapshot.project.id}" -%>"><%= snapshot.project.name -%></a>
+                <% else %>
+                  <%= snapshot.project.name %>
+                <% end %>
+              </td>
+              <% @columns.each do |column| %>
+                <%= get_column_content(column, snapshot, @measures_by_snapshot) -%>
+              <% end %>
+           </tr>
+           <% end %>
+        <% end %>
+        </tbody>
+    </table>
+    <script>TableKit.Sortable.init('components');</script>
+    <p>&nbsp;</p>
+    </td>
+    <% if @treemap %>
+      <td width="10px">&nbsp;</td>
+      <td  width="<%= @treemap.width -%>" valign="top">
+        <div id="treemap" class="treemap" style="height:<%= @treemap.height %>px">
+          <%= @treemap.generate_html() %>
+        </div>
+        <%= render :partial => 'components/treemap_settings', :locals => {:action => 'treemap'} %>
+      </td>
+    <% end %>
+  </tr>
+</table>
+<% end %>

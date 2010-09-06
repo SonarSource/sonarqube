@@ -1,0 +1,22 @@
+<dataset>
+  <projects long_name="[null]" id="10" scope="PRJ" kee="group:artifact" qualifier="TRK" name="my project"
+            root_id="[null]"
+            description="[null]" enabled="true" profile_id="[null]" language="java" copy_resource_id="[null]"/>
+
+  <projects long_name="[null]" id="11" scope="DIR" kee="group:artifact:org.sonar.source" qualifier="PAC"
+            name="org.sonar.source"
+            root_id="[null]"
+            description="[null]" enabled="true" profile_id="[null]" language="java" copy_resource_id="[null]"/>
+
+  <projects long_name="[null]" id="12" scope="DIR" kee="group:artifact:org.sonar.target" qualifier="PAC"
+            name="org.sonar.target"
+            root_id="[null]"
+            description="[null]" enabled="true" profile_id="[null]" language="java" copy_resource_id="[null]"/>
+
+
+  <snapshots id="1" created_at="2008-12-25 00:00:00.00" version="1.0" project_id="10" scope="PRJ" qualifier="TRK"
+             root_project_id="10" root_snapshot_id="[null]" parent_snapshot_id="[null]" STATUS="U" ISLAST="false"
+             path=""
+             depth="0"/>
+
+</dataset>

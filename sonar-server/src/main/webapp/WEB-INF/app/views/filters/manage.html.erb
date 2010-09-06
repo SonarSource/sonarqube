@@ -1,0 +1,80 @@
+<%= render :partial => 'filters/tabs', :locals => {:selected_tab => nil} %>
+
+<h1>My filters</h1>
+<br/>
+<table class="data" id="actives">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Author</th>
+      <th>Shared</th>
+      <th>Order</th>
+      <th>Operations</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% if @actives.nil? || @actives.empty? %>
+  <tr class="even"><td colspan="5">No filters</td></tr>
+
+  <%
+    else
+      @actives.each_with_index do |active,index| %>
+      <tr id="active-<%= u active.name -%>" class="<%= cycle('even','odd', :name => 'actives') -%>">
+        <td><%= active.name %></td>
+        <td>
+          <%= h(active.author_name) %>
+        </td>
+        <td>
+          <%= boolean_icon(active.filter.shared, {:display_false => false}) -%>
+        </td>
+        <td>
+          <% if index>0 %>
+            <%= link_to image_tag('blue-up.png'), {:action => :up, :id => active.id}, :method => :post, :id => "up-#{u active.name}" %>
+          <% else %>
+            <%= image_tag('transparent_16.gif') %>
+          <% end %>
+          <% if index<@actives.size-1 %>
+            <%= link_to image_tag('blue-down.png'), {:action => :down, :id => active.id}, :method => :post, :id => "down-#{u active.name}" %>
+          <% end %>
+        </td>
+        <td>
+          <% if editable_filter?(active.filter) %>
+            <%= link_to 'Edit', {:action => 'edit', :id => active.filter_id}, :id => "edit-#{u active.name}"  %> |
+            <%= link_to 'Delete', {:action => 'deactivate', :id => active.filter_id}, :method => :post, :confirm => 'Do you want to delete this filter ?', :id => "delete-#{u active.name}" %>
+          <% else %>
+            <%= link_to 'Unfollow', {:action => 'deactivate', :id => active.filter_id}, :method => :post, :confirm => 'Do you want to stop following this filter ?', :id => "unfollow-#{u active.name}" %>
+          <% end %>
+        </td>
+      </tr>
+  <%  end
+    end
+  %>
+  </tbody>
+</table>
+
+<br/><br/><br/>
+<h1>Shared filters</h1>
+<p>These filters are shared by administrators and can be followed without copying them.</p>
+<br/>
+<table class="data" id="shared">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Author</th>
+      <th>Operations</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% if @shared_filters.nil? || @shared_filters.empty? %>
+    <tr class="even"><td colspan="3">No results.</td></tr>
+  <% else %>
+    <% @shared_filters.each do |filter| %>
+      <tr class="<%= cycle('even', 'odd') -%>">
+        <td><%= h(filter.name) -%></td>
+        <td><%= h(filter.user.name) if filter.user -%></td>
+        <td><%= link_to 'Follow', {:action => 'activate', :id => filter.id}, :method => :post, :id => "add-#{u filter.name}" %></td>
+      </tr>
+    <% end %>
+  <% end %>
+  </tbody>
+</table>

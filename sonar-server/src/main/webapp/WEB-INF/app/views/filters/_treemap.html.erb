@@ -1,0 +1,23 @@
+<div class="tabs-panel">
+<%
+metrics=treemap_metrics(@filter)
+size_metric=metrics[0]
+color_metric=metrics[1]
+%>
+<div id="treemap_loading">
+  <%= image_tag 'loading.gif' %>
+</div>
+<div id="treemap"> </div>
+<script>
+var treemap_width = $('treemap').getDimensions().width - 15;
+var treemap_height = document.viewport.getDimensions().height - 220;
+function load_treemap(size_metric, color_metric, hide_form) {
+  $('treemap_loading').show();
+  $('treemap').hide();
+  <%= remote_function :update => 'treemap', :url => {:action => 'treemap', :id => @filter.id},
+   :complete => "$('treemap_loading').hide();$('treemap').show();",
+   :with => "'width=' + treemap_width + '&height=' + treemap_height + '&size_metric=' + size_metric + '&color_metric=' + color_metric + '&hide_form=' + hide_form" %>
+}
+load_treemap('<%= size_metric.key -%>', '<%= color_metric.key -%>', <%= edit_mode -%>);
+</script>
+</div>

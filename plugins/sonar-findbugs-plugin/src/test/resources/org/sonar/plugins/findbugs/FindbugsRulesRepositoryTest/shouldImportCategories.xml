@@ -1,0 +1,6 @@
+<FindBugsFilter>
+  <Match>
+    <Bug category="CORRECTNESS,MT_CORRECTNESS" />
+    <Priority value="3"/>
+  </Match>
+</FindBugsFilter>

@@ -1,0 +1,70 @@
+<h4><%= link_to 'Dashboard', :controller => 'project', :action => 'index', :id => @snapshot.project_id  %> &raquo; Measures drilldown</h4>
+<%= render :partial => 'gwt/base', :locals => {:resource => @highlighted_resource, :popup => false, :metric => @metric.key} %>
+<%= render :partial => 'gwt/resource_viewers', :locals => {:resource => @drilldown.highlighted_resource || @project} %>
+<div class="dashbox">
+  <% if @characteristic %>
+    <h3><%= @highlighted_metric.short_name -%> / <%= h(@characteristic.name(true)) -%></h3>
+    <p class="big"><%= html_measure(@snapshot.characteristic_measure(@highlighted_metric, @characteristic), nil, true, nil, '', false) %></p>
+  <% else %>
+    <h3><%= @highlighted_metric.short_name -%></h3>
+    <p class="big"><%= html_measure(@snapshot.measure(@highlighted_metric.key), nil, true, nil, '', false) %></p>
+  <% end %>
+</div>
+<div class="clear"> </div>
+<table width="100%" id="drilldown">
+<% if @highlighted_metric!=@metric %>
+<tr>
+<td colspan="<%= @drilldown.columns.size -%>">Drilldown on <b><span id="m_<%= u @metric.key -%>"><%= @snapshot.f_measure(@metric.key) -%><span> <%= @metric.short_name -%></b></h3></td>
+</tr>
+<tr>
+<% end
+
+  rids=[]
+  @drilldown.columns.each_with_index do |column, index|
+%>
+<td class="column <%= 'first' if index==0 -%>"  nowrap>
+  <div class="scrollable" id="col_<%= column.scope -%>">
+  <table class="spaced">
+  <% column.measures.each do |measure|
+	  resource=column.resource(measure)
+      clazz = cycle("even hoverable", "odd hoverable", :name => "col_#{column.scope}")
+      clazz = clazz + ' selected' if column.selected_snapshot && column.selected_snapshot.project_id==resource.id
+    %>
+      <tr class="<%= clazz -%>">
+        <td nowrap>
+          <%
+          if resource.entity?
+            if resource.copy_resource_id %>
+              <%= qualifier_icon(resource) %>
+              <%= link_to(resource.name, {:only_path => true, :overwrite_params => {:rids => nil, :id => resource.copy_resource_id}}) -%>
+            <% else %>
+              <%= qualifier_icon(resource) %>
+              <a href="#" onclick="sr('<%= resource.id -%>');" alt="<%= resource.name(true) -%>" title="<%= resource.name(true) -%>"><%= resource.name(false) -%></a>
+          <%   end
+          else %>
+            <%= link_to(image_tag('zoom.png'), {:id => resource.id, :metric => @metric.id}, {:class => 'nolink'})  %>
+            <%= qualifier_icon(resource) %>
+            <%= link_to(resource.name, {:only_path => true, :overwrite_params => {:rids => rids + [resource.id]}}) -%>
+          <% end %>
+        </td>
+        <td class="right last" >
+           <%= measure.formatted_value -%>
+           <!--[if IE]> &nbsp; &nbsp; <![endif]-->
+        </td>
+      </tr>
+    <% end %>
+  </table>
+ </div>
+</td>
+<%
+    rids<<column.selected_snapshot.project_id if column.selected_snapshot
+  end
+%>
+</tr>
+</table>
+<script>
+<% @drilldown.columns.each do |column| %>
+$$('#col_<%= column.scope -%> tr.selected').each(function(item) {item.scrollIntoView(true);});
+<% end %>
+</script>
+<div id="pageselector"> </div>

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>$groupId</groupId>
+  <artifactId>$artifactId</artifactId>
+  <packaging>sonar-plugin</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <name>My Sonar GWT plugin</name>
+  <description>GWT Sample description</description>
+
+  <!-- optional -->
+  <organization>
+    <name>My company</name>
+    <url>http://www.mycompany.com</url>
+  </organization>
+
+  <repositories>
+    <repository>
+      <!-- for gwt-incubator -->
+      <id>sonar</id>
+      <name>Sonar</name>
+      <url>http://repository.sonarsource.org/content/repositories/sonar</url>
+      <releases>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-plugin-api</artifactId>
+      <version>${sonarTargetVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-gwt-api</artifactId>
+      <version>${sonarTargetVersion}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.gwt</groupId>
+      <artifactId>gwt-user</artifactId>
+      <version>2.0.3</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.gwt</groupId>
+      <artifactId>gwt-incubator</artifactId>
+      <version>20100204-r1747</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- unit tests -->
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-testing-harness</artifactId>
+      <version>${sonarTargetVersion}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.7</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/java</directory>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.sonar</groupId>
+        <artifactId>sonar-packaging-maven-plugin</artifactId>
+        <version>0.1</version>
+        <extensions>true</extensions>
+        <configuration>
+          <pluginKey>gwt-sample</pluginKey>
+          <pluginName>GWT Sample</pluginName>
+          <pluginClass>${package}.GwtSamplePlugin</pluginClass>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>gwt-maven-plugin</artifactId>
+        <version>1.2</version>
+        <executions>
+          <execution>
+            <configuration>
+              <modules>
+                <module>${package}.resourcetab.SampleResourceTab</module>
+                <module>${package}.page.SamplePage</module>
+              </modules>
+              <webappDirectory>target/classes</webappDirectory>
+              <!-- do not break the following property on two lines -->
+              <extraJvmArgs>-Xmx512m -Dgwt.jjs.permutationWorkerFactory=com.google.gwt.dev.ThreadedPermutationWorkerFactory</extraJvmArgs>
+            </configuration>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.0.2</version>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

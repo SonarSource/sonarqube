@@ -1,0 +1,65 @@
+<dataset>
+  <metrics id="1" NAME="ncloc" VAL_TYPE="INT" DESCRIPTION="[null]"  domain="[null]" short_name=""
+           enabled="true" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="false"/>
+  <metrics id="2" NAME="coverage" VAL_TYPE="INT" DESCRIPTION="[null]"  domain="[null]" short_name=""
+           enabled="true" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="false"/>
+
+  <projects long_name="[null]" id="1" scope="PRJ" kee="group:artifact" qualifier="TRK" name="my project"
+            root_id="[null]"
+            description="[null]" enabled="true" profile_id="[null]" language="java" copy_resource_id="[null]"/>
+  <projects long_name="[null]" id="2" scope="DIR" kee="group:artifact:org.sonar" qualifier="PAC" name="org.sonar"
+            root_id="2"
+            description="[null]" enabled="true" profile_id="[null]" language="java" copy_resource_id="[null]"/>
+
+
+  <!-- Project : 3 snapshots -->
+  <snapshots id="1" created_at="2008-12-25 00:00:00.00" version="1.0" project_id="1" scope="PRJ" qualifier="TRK"
+             root_project_id="[null]" root_snapshot_id="[null]" parent_snapshot_id="[null]" STATUS="P" ISLAST="false"
+             path=""
+             depth="0"/>
+  <snapshots id="2" created_at="2009-02-25 13:58:00.00" version="2.0" project_id="1" scope="PRJ" qualifier="TRK"
+             root_project_id="[null]" root_snapshot_id="[null]" parent_snapshot_id="[null]" STATUS="P" ISLAST="false"
+             path=""
+             depth="0"/>
+  <snapshots id="3" created_at="2009-02-26 15:00:00.00" version="[null]" project_id="1" scope="PRJ" qualifier="TRK"
+             root_project_id="[null]" root_snapshot_id="[null]" parent_snapshot_id="[null]" STATUS="P" ISLAST="true"
+             path="" depth="0"/>
+
+  <!-- unprocessed snapshot -->
+  <snapshots id="4" created_at="2009-02-28 15:00:00.00" version="[null]" project_id="1" scope="PRJ" qualifier="TRK"
+             root_project_id="[null]" root_snapshot_id="[null]" parent_snapshot_id="[null]" STATUS="U" ISLAST="false"
+             path="" depth="0"/>
+
+  <!-- first snapshot measures -->
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" id="1" VALUE="200" METRIC_ID="1" SNAPSHOT_ID="1" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" id="2" VALUE="80" METRIC_ID="2" SNAPSHOT_ID="1" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+
+  <!-- second snapshot measures -->
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" id="3" VALUE="230" METRIC_ID="1" SNAPSHOT_ID="2" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" id="4" VALUE="85" METRIC_ID="2" SNAPSHOT_ID="2" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+
+
+  <!-- third snapshot measures : no coverage -->
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" id="5" VALUE="180" METRIC_ID="1" SNAPSHOT_ID="3" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+
+</dataset>

@@ -1,0 +1,83 @@
+
+CREATE OR REPLACE PACKAGE SONAR002 AS
+
+-- ----------------------------------------------------------------------------
+-- package version
+FUNCTION VERSION RETURN VARCHAR2;
+  PRAGMA RESTRICT_REFERENCES (VERSION, WNDS, WNPS, RNPS);
+
+
+TYPE        T_trans IS TABLE OF VARCHAR2(250) INDEX BY BINARY_INTEGER;
+A_trans     T_trans;
+w_origine   VARCHAR2(160);
+w_sqlerrm   VARCHAR2(255);
+
+header_c_langue  VARCHAR2(2);
+
+TYPE T_TAG IS RECORD ( NOM_TAG VARCHAR2(50)
+                      ,VALEUR  VARCHAR2(32000)); 
+                      
+TYPE TT_TAGS IS TABLE OF T_TAG INDEX BY BINARY_INTEGER;
+
+tb_TAGS  TT_TAGS;
+
+
+TYPE ControleData IS RECORD
+        ( pourcent           NUMBER,
+          bande              VARCHAR2(40),
+          nb_ligne           NUMBER,
+          typ_avis           VARCHAR2(25),
+          nb_brique          NUMBER,
+          no_op              operation.no_op%TYPE,
+          no_op_pere         operation.no_op%TYPE,
+          no_op_doss         operation.no_op%TYPE,
+          c_typ_contrat      operation.c_typ_contrat%TYPE,
+          ref_op             operation.ref_op%TYPE,
+          c_op_param         type_oper_param.c_op_param%TYPE,
+          c_serv             operation.c_serv%TYPE,
+          c_dev              operation.c_dev%TYPE,
+          d_op               operation.d_op%TYPE,
+          c_op_param_role    VARCHAR2(4),
+          c_phase            VARCHAR2(4),
+          c_phase_real       VARCHAR2(4),
+          id_avis            NUMBER,
+          c_form             VARCHAR2(10),
+          c_teneur_envoi     VARCHAR2(10),
+          Spool              VARCHAR2(320),
+          spool_tmp          VARCHAR2(320),
+          old_elt            VARCHAR2(10),
+          new_elt            VARCHAR2(10),
+          old_ligne          NUMBER,
+          new_ligne          NUMBER,
+          old_ordre          NUMBER,
+          new_tag            VARCHAR2(3),
+          old_tag            VARCHAR2(3),
+          new_ordre          NUMBER,
+          mode_fusion        VARCHAR2(1),
+          TRACE              VARCHAR2(80),
+          taux_cent_mille    NUMBER,
+          caractere_taux     VARCHAR2(1),
+          chemin_avis        VARCHAR2(20),
+          nbr_dec_doss       NUMBER,
+          c_dev_doss         VARCHAR2(3),
+          mt_cpta_bloc_2     NUMBER,
+          regr_aff_dest      VARCHAR2(1),
+          no_seq             NUMBER(8),
+          no_seq_pere        NUMBER(8),
+          id_envoi           NUMBER(8),
+          id_envoi_pere      NUMBER(8),
+          id_message         NUMBER(8),
+          generation         VARCHAR2(1),
+          c_uti              VARCHAR2(6),
+          c_uti_cre          VARCHAR2(6),
+          no_swift           VARCHAR2(1),
+          c_trait_202        VARCHAR2(5),
+          envoi_pere_202     VARCHAR2(5),
+          f_envoi_ga_java    VARCHAR2(1),
+          avec_templ_perso   VARCHAR2(1),
+          f_comm_prises      VARCHAR2(1),
+          liab_reduc_with_pmt VARCHAR2(1)); 
+Controle ControleData;
+
+END SONAR002;
+

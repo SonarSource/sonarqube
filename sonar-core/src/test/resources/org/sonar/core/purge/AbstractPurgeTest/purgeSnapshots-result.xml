@@ -1,0 +1,111 @@
+<dataset>
+  <rules_categories id="1" name="category one" description="[null]"/>
+  <rules id="1" name="foo" rules_category_id="1" plugin_config_key="checker/foo" plugin_rule_key="checkstyle.rule1"
+         plugin_name="maven-checkstyle-plugin" description="description" cardinality="SINGLE" parent_id="[null]" />
+
+  <metrics id="1" name="ncloc" val_type="INT" description="[null]"  domain="[null]"
+           short_name="" qualitative="false" user_managed="false" enabled="true" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="false"/>
+
+  <!-- project -->
+  <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="mygroup:myartifact" name="project"
+            root_id="[null]"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]"/>
+
+  <!-- package -->
+  <projects long_name="[null]" id="2" scope="DIR" qualifier="PAC" kee="mygroup:myartifact:my.package" name="package"
+            root_id="1"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]"/>
+
+  <!-- files -->
+  <projects long_name="[null]" id="3" scope="FIL" qualifier="CLA" kee="mygroup:myartifact:my.package.Class1"
+            name="class" root_id="1"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]"/>
+
+  <projects long_name="[null]" id="4" scope="FIL" qualifier="CLA" kee="mygroup:myartifact:my.package.Class2"
+            name="class" root_id="1"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]"/>
+
+
+  <snapshots depth="[null]" id="1" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" version="[null]"
+             project_id="1"
+             parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"
+             path="[null]"/>
+
+  <snapshots depth="[null]" id="2" scope="DIR" qualifier="PAC" created_at="2008-12-02 13:58:00.00" version="[null]"
+             project_id="2"
+             parent_snapshot_id="2" root_project_id="[null]" root_snapshot_id="1" status="P" islast="false"
+             path="[null]"/>
+
+
+  <!--<snapshots depth="[null]" id="3" scope="FIL" qualifier="CLA" created_at="2008-12-02 13:58:00.00" version="[null]"-->
+             <!--project_id="3"-->
+             <!--parent_snapshot_id="2" root_project_id="[null]" root_snapshot_id="1" status="P" islast="false"-->
+             <!--path="[null]"/>-->
+
+  <!--<snapshots depth="[null]" id="4" scope="FIL" qualifier="CLA" created_at="2008-12-02 13:58:00.00" version="[null]"-->
+             <!--project_id="4"-->
+             <!--parent_snapshot_id="2" root_project_id="[null]" root_snapshot_id="1" status="P" islast="false"-->
+             <!--path="[null]"/>-->
+
+
+  <SNAPSHOT_SOURCES ID="1" SNAPSHOT_ID="30" DATA="some sources"/>
+  <!--<SNAPSHOT_SOURCES ID="2" SNAPSHOT_ID="4" DATA="some sources"/>-->
+
+
+  <RULE_FAILURES ID="1" SNAPSHOT_ID="1" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg1" LINE="[null]"/>
+  <RULE_FAILURES ID="2" SNAPSHOT_ID="2" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg2" LINE="[null]"/>
+  <!--<RULE_FAILURES ID="3" SNAPSHOT_ID="3" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg3" LINE="[null]"/>-->
+  <!--<RULE_FAILURES ID="4" SNAPSHOT_ID="4" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg4" LINE="[null]"/>-->
+
+
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="1" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="1" RULES_CATEGORY_ID="1"
+                    RULE_ID="1"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="2" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="2" RULES_CATEGORY_ID="1"
+                    RULE_ID="1"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+
+  <!--<project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"-->
+                    <!--rule_priority="[null]"-->
+                    <!--alert_text="[null]" ID="3" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="3" RULES_CATEGORY_ID="1"-->
+                    <!--RULE_ID="1"-->
+                    <!--text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"-->
+                    <!--alert_status="[null]" description="[null]"/>-->
+
+  <!--<project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"-->
+                    <!--rule_priority="[null]"-->
+                    <!--alert_text="[null]" ID="4" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="4" RULES_CATEGORY_ID="1"-->
+                    <!--RULE_ID="1"-->
+                    <!--text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"-->
+                    <!--alert_status="[null]" description="[null]"/>-->
+
+
+  <measure_data id="1" measure_id="1" snapshot_id="1" data="[null]"/>
+  <measure_data id="2" measure_id="2" snapshot_id="2" data="[null]"/>
+  <!--<measure_data id="3" measure_id="3" snapshot_id="3" data="[null]"/>-->
+  <!--<measure_data id="4" measure_id="4" snapshot_id="4" data="[null]"/>-->
+
+  <dependencies id="1" from_resource_id="1" from_snapshot_id="1" to_resource_id="30" to_snapshot_id="30"
+                parent_dependency_id="[null]" project_snapshot_id="1"
+                dep_usage="USES" dep_weight="1" from_scope="PRJ" to_scope="LIB"/>
+
+  <!--<dependencies id="2" from_resource_id="3" from_snapshot_id="3" to_resource_id="40" to_snapshot_id="40"-->
+                <!--parent_dependency_id="[null]" project_snapshot_id="1"-->
+                <!--dep_usage="INHERITS" dep_weight="1" from_scope="FIL" to_scope="FIL"/>-->
+
+  <!--<dependencies id="3" from_resource_id="50" from_snapshot_id="50" to_resource_id="3" to_snapshot_id="3"-->
+                <!--parent_dependency_id="[null]" project_snapshot_id="1"-->
+                <!--dep_usage="INHERITS" dep_weight="1" from_scope="FIL" to_scope="FIL"/>-->
+
+</dataset>

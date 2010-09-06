@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.codehaus.sonar</groupId>
+  <artifactId>sonar</artifactId>
+  <packaging>pom</packaging>
+  <version>1.8-SNAPSHOT</version>
+  <url>http://sonar.codehaus.org</url>
+
+  <organization>
+    <name>SonarSource SA</name>
+    <url>http://www.sonarsource.com</url>
+  </organization>
+  <inceptionYear>2009</inceptionYear>
+
+  <issueManagement>
+    <system>jira</system>
+    <url>http://jira.codehaus.org/browse/SONAR</url>
+  </issueManagement>
+
+  <mailingLists>
+    <mailingList>
+      <name>Sonar users mailing list</name>
+      <subscribe>http://xircles.codehaus.org/projects/sonar/lists</subscribe>
+      <unsubscribe>http://xircles.codehaus.org/projects/sonar/lists</unsubscribe>
+      <post>user@sonar.codehaus.org</post>
+      <archive>http://www.nabble.com/Sonar-f30151.html</archive>
+    </mailingList>
+  </mailingLists>
+
+  <scm>
+    <connection>scm:svn:http://svn.codehaus.org/sonar/trunk</connection>
+    <developerConnection>scm:svn:https://svn.codehaus.org/sonar/trunk</developerConnection>
+    <url>http://svn.sonar.codehaus.org</url>
+  </scm>
+
+  <ciManagement>
+    <system>bamboo</system>
+    <url>http://bamboo.ci.codehaus.org/browse/SONAR/</url>
+  </ciManagement>
+
+  <licenses>
+    <license>
+      <name>GNU Lesser General Public License (LGPL), v.3</name>
+      <url>http://www.gnu.org/licenses/lgpl.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+</project>

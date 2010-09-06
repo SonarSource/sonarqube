@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:9000/" />
+<title>SONAR-300-tests_details</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">SONAR-300-tests_details</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/drilldown/measures/org.sonar.tests.test-failures:moduleB?metric=skipped_tests&amp;resource=org.sonar.tests.test-failures:moduleB:ch.hortis.sonar.samples.testFailures.moduleB.SkippedTest</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTextPresent</td>
+	<td>Unit test name</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>pageselector</td>
+	<td>glob:*SkippedTest*</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>gwtpage-org.sonar.plugins.core.testdetailsviewer.TestsViewer</td>
+	<td>glob:*normalTest*</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>gwtpage-org.sonar.plugins.core.testdetailsviewer.TestsViewer</td>
+	<td>glob:*skippedTest*</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>gwtpage-org.sonar.plugins.core.testdetailsviewer.TestsViewer</td>
+	<td>glob:*1*+1 skipped*</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>gwtpage-org.sonar.plugins.core.testdetailsviewer.TestsViewer</td>
+	<td>glob:*100%*</td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/drilldown/measures/org.sonar.tests.test-failures:moduleA?metric=test_success_density&amp;resource=org.sonar.tests.test-failures:moduleA:ch.hortis.sonar.samples.testFailures.moduleA.FailTest</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTextPresent</td>
+	<td>Unit test name</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>gwtpage-org.sonar.plugins.core.testdetailsviewer.TestsViewer</td>
+	<td>glob:*3*</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>gwtpage-org.sonar.plugins.core.testdetailsviewer.TestsViewer</td>
+	<td>glob:*1/1*</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>gwtpage-org.sonar.plugins.core.testdetailsviewer.TestsViewer</td>
+	<td>glob:*33.3%*</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=expand</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>gwtpage-org.sonar.plugins.core.testdetailsviewer.TestsViewer</td>
+	<td>glob:*junit.framework.AssertionFailedError*</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=collapse</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertNotText</td>
+	<td>gwtpage-org.sonar.plugins.core.testdetailsviewer.TestsViewer</td>
+	<td>glob:*junit.framework.AssertionFailedError*</td>
+</tr>
+
+</tbody></table>
+</body>
+</html>

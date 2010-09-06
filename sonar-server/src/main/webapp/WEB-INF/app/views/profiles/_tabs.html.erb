@@ -1,0 +1,20 @@
+<%=
+  new_tab = nil unless defined?(:new_tab)
+  selected_tab = nil unless defined?(:selected_tab)
+%>
+<ul class="tabs">
+  <li>
+    <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile.id %>" <%= "class='selected'" if selected_tab=='Coding rules' -%>>Coding rules</a>
+  </li>
+  <li>
+    <a href="<%= profile_alerts_path @profile.id -%>" <%= "class='selected'" if selected_tab=='Alerts' -%>>Alerts</a>
+  </li>
+  <li>
+    <a href="<%= url_for :controller => 'profiles', :action => 'projects', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='Projects' -%>>Projects</a>
+  </li>
+  <% if new_tab %>
+  <li>
+    <a href="#" class='selected'><%= new_tab -%></a>
+  </li>
+  <% end %>
+</ul>

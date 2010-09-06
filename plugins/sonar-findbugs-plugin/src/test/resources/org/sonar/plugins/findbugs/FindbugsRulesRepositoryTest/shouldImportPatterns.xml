@@ -1,0 +1,9 @@
+<FindBugsFilter>
+  <Match>
+    <Or>
+      <Bug pattern="FB1_IMPORT_TEST_1"/>
+      <Bug pattern="FB2_IMPORT_TEST_4"/>
+    </Or>
+    <Priority value="2"/>
+  </Match>
+</FindBugsFilter>

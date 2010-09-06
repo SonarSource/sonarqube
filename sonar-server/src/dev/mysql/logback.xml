@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<configuration>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <pattern>
+        %d{HH:mm:ss.SSS} %-5level %logger{15} %X - %msg%n
+      </pattern>
+    </layout>
+  </appender>
+
+  <logger name="org.hibernate.SQL">
+  	<level value="ERROR"/>
+  </logger>
+
+  <logger name="org.hibernate.cache.ReadWriteCache">
+    <!-- removing "An item was expired by the cache while it was locked (increase your cache timeout)" msg -->
+  	<level value="ERROR"/>
+  </logger>
+
+  <logger name="org.hibernate.cache.EhCacheProvider">
+    <!-- removing "org.hibernate.cache.EhCacheProvider - Could not find configuratio)" message -->
+  	<level value="ERROR"/>
+  </logger>
+
+  <logger name="org.sonar.DBSTATISTICS">
+  	<level value="INFO"/>
+  </logger>
+
+  <logger name="org.sonar.INFO">
+  	<level value="INFO"/>
+  </logger>
+
+  <logger name="net.sf.ehcache">
+  	<level value="INFO"/>
+  </logger>
+
+
+  <logger name="rails.sonar">
+  	<level value="INFO"/>
+  </logger>
+
+  <root>
+    <level value="INFO"/>
+    <appender-ref ref="STDOUT"/>
+  </root>
+
+</configuration>

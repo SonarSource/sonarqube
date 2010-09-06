@@ -1,0 +1,26 @@
+<dataset>
+
+  <projects long_name="[null]" id="100" scope="PRJ" qualifier="TRK" kee="mygroup:myproject" name="[null]"
+            root_id="[null]"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]"/>
+
+  <projects long_name="[null]" id="101" scope="PRJ" qualifier="BRC" kee="mygroup:mymodule" name="[null]"
+            root_id="[null]"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]"/>
+
+  <!-- global properties -->
+  <properties prop_key="key1" resource_id="[null]" text_value="value_1"/>
+  <properties prop_key="key2" resource_id="[null]" text_value="value_2"/>
+
+  <!-- project properties -->
+  <properties prop_key="key1" resource_id="100" text_value="project_value_1"/>
+  <properties prop_key="key3" resource_id="100" text_value="project_value_3"/>
+
+  <!-- module properties -->
+  <properties prop_key="key3" resource_id="101" text_value="module_value_3"/>
+  <properties prop_key="key4" resource_id="101" text_value="module_value_4"/>
+
+
+</dataset>

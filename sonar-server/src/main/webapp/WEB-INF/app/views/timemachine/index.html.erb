@@ -1,0 +1,266 @@
+<div id="timemachine">
+<style type="text/css">
+    #calContainer { display:none; position:absolute; }
+</style>
+
+<script type="text/javascript">
+    var selectedSnapshots = new Array();
+
+
+    function selectTimeMachineSnapshot(id) {
+      if (id != null && id != '' && selectedSnapshots.indexOf(id) == -1) {
+        var snapshotDate = snapshots[id];
+        snapshotsCalendar.select(snapshotDate);
+        snapshotsCalendar.render();
+        selectSnapshot(id, false);
+      }
+      if ($('select_label')) {
+        $('select_label').options[0].selected = true;
+      }
+    }
+
+    function selectSnapshot(id, refresh) {
+      if (id != null && id != '') {
+        selectedSnapshots = selectedSnapshots.without(id);
+        selectedSnapshots.push(id);
+        if (refresh) {
+          refreshTimeMachinePage();
+        }
+      }
+    }
+
+    function unselectSnapshot(id, refresh) {
+      selectedSnapshots = selectedSnapshots.without(id);
+      if (refresh) {
+        refreshTimeMachinePage();
+      }
+    }
+
+    function collectSelectedMetrics() {
+      var metrics_tab = new Array();
+      for (var i = 0; i < $('metrics_form').metric.length; i++) {
+        if ($('metrics_form').metric[i].checked) {
+          metrics_tab.push($('metrics_form').metric[i].value);
+        }
+      }
+      $('timemachine_form_metrics').value = metrics_tab;
+      $('chart_defaults_form_metrics').value = metrics_tab;
+      return metrics_tab;
+    }
+
+    function refreshTimeMachinePage() {
+      $('sid').value = selectedSnapshots;
+      $('timemachine_form').submit();
+    }
+
+    function refreshTimeMachineChart(jumpToChart) {
+      var url="<%= url_for :controller => 'charts', :action => 'trends', :id => @project.id, :locale => I18n.locale -%>&sids=" + selectedSnapshots + "&metrics=" + collectSelectedMetrics() + "&format=png&ts=" + (new Date()).getTime();
+      
+      $('timemachine_chart').src=url;
+      if (jumpToChart) {
+        location.href='#chart_anchor';
+      }
+      return false;
+    }
+</script>
+<center>
+<a name="chart_anchor" class="nolink"><img id="timemachine_chart" src="" alt="" height="<%= ChartsController::DEFAULT_TRENDS_HEIGHT -%>px" width="<%= ChartsController::DEFAULT_TRENDS_WIDTH -%>px"/></a>
+</center>
+<br/><br/>
+
+<% form_for( :compare, :html => { :id => 'timemachine_form', :method => 'get' }, :url => { :controller => 'timemachine', :action => 'index', :id => @project.id}) do |form| %>
+    <input type="hidden" name="sid" id="sid" value=""/>
+    <input type="hidden" name="metrics" id="timemachine_form_metrics" value=""/>
+<% end %>
+<% form_for( :compare, :html => { :id => 'chart_defaults_form', :method => 'post' }, :url => { :controller => 'timemachine', :action => 'set_default_chart_metrics', :id => @project.id}) do |form| %>
+    <input type="hidden" name="metrics" id="chart_defaults_form_metrics" value=""/>
+<% end %>
+<table id="timemachine_matrix" class="matrix">
+<thead>
+    <tr>
+        <th valign="top" nowrap="nowrap" style="text-align: left">
+        Show date
+        <div class="yui-skin-sam" style="display: inline;">
+            <a href="#" id="calendar_link" class="nolink"><%= image_tag('calendar_view_day.png', :alt => 'Calendar') %></a>
+            <div id="calContainer"> </div>
+        </div><br/>
+            <%
+               selectable_events = @project.events_with_snapshot.select{|event| !(@sids.include?(event.snapshot_id))}
+               unless selectable_events.empty?
+            %>
+            Show event
+            <select id="select_label"  onchange="selectSnapshot(this.options[this.selectedIndex].value, true)">
+                <option value=""> </option>
+                <%
+                   selectable_events.each do |event|
+
+                %>
+                    <option value="<%= event.snapshot_id -%>"><%= event.fullname %></option>
+                <% end %>
+            </select>
+            <% end %>
+        </th>
+        <% @snapshots.each do |snapshot| %>
+            <th nowrap="nowrap" align="right" valign="top">
+                <%= l snapshot.created_at.to_date %>
+                <br/>
+                <% snapshot.user_events.each do |event| %>
+                    <b><%= event.fullname %></b>
+                    <br/>
+                <% end %>
+                <a href="#" onClick="unselectSnapshot(<%= snapshot.id -%>, true)" class="action">hide</a>
+            </th>
+        <% end %>
+        <th> </th>
+    </tr>
+</thead>
+
+    <form name="metrics_form" id="metrics_form" onsubmit="refreshTimeMachineChart(true);return false;">
+    <tbody>
+        <%
+           previous_domain=''
+           @rows.select{|row| row.metric.val_type != Metric::VALUE_TYPE_DISTRIB}.each do |row|
+             if previous_domain != row.domain %>
+                <tr>
+                    <td class="title" colspan="<%= @snapshots.size + 2 -%>" align="left"><br/><%= row.domain %></td>
+                </tr>
+            <% end
+               previous_domain = row.domain %>
+                <tr class="<%= cycle("even", "odd", :name => row.domain) -%>">
+                    <td width="1%" nowrap="nowrap" valign="top">
+                        <% if row.metric.numeric? %>
+                            <input type="checkbox" name="metric" value="<%= row.metric.key -%>" <%= 'checked' if @metric_keys.include?(row.metric.key)  -%>/>
+                        <% end %>
+                        <%= row.metric.short_name %>
+                    </td>
+                    <% @snapshots.each do |snapshot|
+                      measure=row.measure(snapshot)
+                    %>
+                        <td align="right" width="1%" nowrap="nowrap"><%= html_measure(measure, nil, true, nil, nil, nil, true) %></td>
+                    <% end %>
+                    <td>
+                        <%
+                           sparkline_url=row.sparkline_url
+                           if sparkline_url
+                        %>
+                            <%= image_tag(sparkline_url) %>
+                        <%
+                           end
+                        %>
+                    </td>
+                </tr>
+        <% end %>
+      <tr>
+          <td class="title"><br/>Distributions</td>
+          <% @snapshots.each_with_index do |snapshot, index| %>
+              <td align="right" valign="bottom">
+                  <% current_color = ChartsController::CHART_COLORS[index % ChartsController::CHART_COLORS.size ] %>
+                  <div style="width:10px; height:10px; background-color:#<%= current_color -%>"> </div>
+              </td>
+          <% end %>
+          <td> </td>
+      </tr>
+  <tr><td colspan="<%= @snapshots.size + 2 -%>">
+<% 
+  @rows.select{|row| row.metric.val_type == Metric::VALUE_TYPE_DISTRIB}.each do |row|
+    values=[]
+    colors=[]
+    @snapshots.each_with_index do |snapshot, index|
+      if row.measure(snapshot) and row.measure(snapshot).data
+        values<<u(row.measure(snapshot).data)
+      else
+        values<<''
+      end
+      colors<<ChartsController::CHART_COLORS[index % ChartsController::CHART_COLORS.size ]
+    end
+    chart_url = "ck=distarea&v=" + values.join('|') + "&w=360&h=150&c=" + colors.join(',')
+    chart_id = "distribution_#{row.metric.key}"
+%>
+<div style="float:left;width: 400px;text-align:center;padding-bottom: 25px;">
+    <%= chart(chart_url, :id => chart_id, :alt => 'Distribution chart', :width => 360, :height => 150) -%><br/>
+    <b><%= row.metric.short_name -%></b>
+</div>
+<% end %>
+</td></tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="<%= @snapshots.size + 2 -%>">
+                <input type="submit" value="Compare on chart" />
+            <% if is_admin? %>
+              <a href="#" onClick="collectSelectedMetrics();$('chart_defaults_form').submit();return false;" class="action">Set as default (for all users)</a>
+            <% end %>
+            </td>
+        </tr>
+        </tfoot>
+    </form>
+</table>
+</div>
+
+<script type="text/javascript">
+    var snapshots = new Hash();
+    <% @project.processed_snapshots.each do |snapshot|
+         date = snapshot.created_at
+         js_date = date.year.to_s + "," + (date.month - 1).to_s + "," + date.day.to_s %>
+         snapshots.set(<%= snapshot.id.to_s %>,new Date(<%= js_date %>));
+    <% end %>
+
+    snapshotsCalendar = new YAHOO.widget.Calendar("cal2", "calContainer", { multi_select:true, navigator:true, START_WEEKDAY:1, close:true });
+
+    snapshotCellRenderer = function(workingDate, cell) {
+      snapshotId = findSnapshotIdPerDate(workingDate.getFullYear(), workingDate.getMonth(), workingDate.getDate());
+      if (snapshotId == null) {
+        cell.innerHTML = "x";
+        return YAHOO.widget.Calendar.STOP_RENDER;
+      }
+    }
+    days = [1,2,3,4,5,6,7];
+    days.each(function(date) {
+      snapshotsCalendar.addWeekdayRenderer(date, snapshotCellRenderer);
+    });
+
+    snapshotSelectHandler = function(type, args, obj) {
+      toggleSnapshotSelection(this._toDate(args[0][0]));
+      compareSnapshots();
+      refreshTimeMachinePageChart();
+    };
+
+    snapshotDeselectHandler = function(type, args, obj) {
+      toggleSnapshotSelection(this._toDate(args[0]));
+    };
+
+    <% @snapshots.each do |snapshot| %>
+    <%= "selectTimeMachineSnapshot(#{snapshot.id});" %>
+    <% end %>
+
+    snapshotsCalendar.selectEvent.subscribe(snapshotSelectHandler, snapshotsCalendar, true);
+    snapshotsCalendar.deselectEvent.subscribe(snapshotDeselectHandler, snapshotsCalendar, true);
+    snapshotsCalendar.render();
+
+    function toggleSnapshotSelection(date) {
+      var snapshotId = findSnapshotIdPerDate(date.getFullYear(), date.getMonth(), date.getDate());
+      if ($('l_' + snapshotId)) {
+        unselectSnapshot(snapshotId, true);
+      } else {
+        selectSnapshot(snapshotId, true);
+      }
+    }
+
+    function findSnapshotIdPerDate(year, month, date) {
+      snapshotId = null;
+      snapshots.each(function(pair) {
+        snapshotDate = pair.value;
+        if (snapshotDate.getFullYear() == year && snapshotDate.getMonth() == month && snapshotDate.getDate() == date) {
+          snapshotId = pair.key;
+          return;
+        }
+      });
+      return snapshotId;
+    }
+
+    Event.observe($("calendar_link"), 'click', function() {
+      snapshotsCalendar.show();
+    });
+
+    refreshTimeMachineChart(false);
+</script>

@@ -1,0 +1,12 @@
+<module>
+  <inherits name="com.google.gwt.user.User"/>
+  <inherits name="com.google.gwt.json.JSON"/>
+  <inherits name="com.google.gwt.http.HTTP"/>
+  <inherits name="org.sonar.Sonar"/>
+  <stylesheet src="design.css"/>
+  
+  <entry-point class="org.sonar.plugins.design.ui.page.client.DesignPage"/>
+
+  <extend-property name="locale" values="en"/>
+  <extend-property name="locale" values="fr"/>
+</module>

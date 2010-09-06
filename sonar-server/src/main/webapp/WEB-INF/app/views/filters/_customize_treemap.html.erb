@@ -1,0 +1,28 @@
+<%
+  metrics=treemap_metrics(@filter)
+  size_metric=metrics[0]
+  color_metric=metrics[1]
+%>
+<form class="admin" action="<%= url_for :action => 'set_columns', :id => @filter.id -%>" method="POST">
+  <tr>
+    <td class="first">Size:</td>
+    <td>
+      <%= select_tag 'columns[]', options_grouped_by_domain(Sonar::TreemapBuilder.size_metrics({:exclude_user_managed => true}), size_metric.key),
+        :id => 'size_metric' %>
+    </td>
+  </tr>
+  <tr>
+    <td class="first">Color:</td>
+    <td>
+      <%= select_tag 'columns[]', options_grouped_by_domain(Sonar::TreemapBuilder.color_metrics, color_metric.key),
+        :id => 'color_metric' %>
+      <span class="comments"><%= render :partial => 'components/treemap_gradient', :locals => {:color_metric => color_metric} %></span>
+    </td>
+  </tr>
+  <tr>
+    <td class="first"> </td>
+    <td>
+      <input type="submit" value="Change">
+    </td>
+  </tr>
+</form>

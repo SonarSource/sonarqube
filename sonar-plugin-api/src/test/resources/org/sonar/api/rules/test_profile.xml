@@ -1,0 +1,7 @@
+<profile name="Sonar way" language='java'>
+  <rule key="2006" priority="warning"/>
+  <rule key="2007" priority="error">
+    <property name="toto" value="titi"/>
+  </rule>
+  <rule key="2008" priority="critical"/>
+</profile>

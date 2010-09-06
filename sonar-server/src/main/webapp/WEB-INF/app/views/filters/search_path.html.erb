@@ -1,0 +1,50 @@
+<h1>Search</h1>
+<br/>
+
+<form action="<%= url_for :action => :search_path -%>" method="post" id="search_form">
+  <input type="text" name="search" id="search" value="<%= params[:search] -%>"></input>
+  <input type="submit" value="Search" id="search_submit" /><br/>
+  <p class="note">Search by name</p>
+</form>
+<br/>
+
+<% if @snapshots %>
+<script>
+  function selectPath(pid, label) {
+    window.opener.document.getElementById('path_id').value=pid;
+    window.opener.document.getElementById('path_name').innerText=label;
+    window.opener.document.getElementById('path_name').textContent=label;
+    window.close();
+  }
+</script>
+
+<table id="results" class="data">
+  <thead>
+    <tr>
+      <th width="16"> </th>
+      <th> </th>
+      <th> </th>
+    </tr>
+  </thead>
+  <tbody>
+  <% if @snapshots.empty? %>
+  <tr class="even"><td colspan="3">No results</td></tr>
+
+  <% else
+       @snapshots.each do |snapshot| %>
+  <tr class="<%= cycle('even','odd') -%>">
+    <td><%= qualifier_icon(snapshot) -%></td>
+    <td>
+      <% path_name=snapshot.path_name %>
+      <%= path_name -%>
+    </td>
+    <td><a href="#" onClick="selectPath(<%= snapshot.project_id-%>, '<%= escape_javascript(path_name) -%>')">Select</a></td>
+  </tr>
+  <% end
+  end %>
+  </tbody>
+</table>
+<% end %>
+<script>
+  $('search').focus();
+</script>

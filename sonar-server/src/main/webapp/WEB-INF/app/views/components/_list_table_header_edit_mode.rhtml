@@ -1,0 +1,27 @@
+<thead>
+<tr>
+    <th></th>
+    <th></th>
+    <th>Name</th>
+    <% configured_columns.each do |column| %>
+   	  <th class="<%= column.get_table_header_css_no_sort %>">
+        <span id="project_title_<%= column.id %>"><%= column.name %></span>
+      </th>
+    <% end %>
+</tr>
+<tr class="admin">
+    <td></td>
+    <td></td>
+    <th></td>
+    <% configured_columns.each do |column| %>
+   	  <th class="right nosort" nowrap="nowrap">
+        <%= link_to( image_tag("controls/resultset_previous.png", :alt => "Move left", :id => "move_left_" + column.id),
+       			               {:controller => "columns", :action => "left", :id => column.id, :rid => @project.id}, :class => 'nolink') if column.position > 0 %>
+        <%= link_to( image_tag("bin_closed.png", :alt => "Remove column", :id => "remove_" + column.id),
+	  	                     {:controller => "columns", :action => "delete", :id => column.id, :rid => @project.id}, :class => 'nolink') %>
+ 		    <%= link_to( image_tag("controls/resultset_next.png", :alt => "Move right", :id => "move_right_" + column.id),
+       			               {:controller => "columns", :action => "right", :id => column.id, :rid => @project.id}, :class => 'nolink') if column.position != configured_columns.size - 1 %>
+      </th>
+    <% end %>
+</tr>
+</thead>

@@ -1,0 +1,193 @@
+<%= render :partial => 'filters/tabs', :locals => {:selected_tab=> (@filter.id ? @filter.id : 'new')} %>
+<style>
+table#columns td {
+  text-align: left;
+   padding: 0 5px;
+   font-weight: normal;
+}
+</style>
+<script>
+  function searchPopup(elt, text) {
+    newwindow=window.open(elt.href,'search','height=500,width=700,scrollbars=1,resizable=1');
+    if (window.focus) {
+      newwindow.focus();
+    }
+    return false;
+  }
+</script>
+<h1>Settings</h1>
+<div class="admin">
+  <form id="filter_form" name="filter_form" action="<%= url_for :action => (@filter.id ? 'update' : 'create'), :id => @filter.id -%>" method="post">
+    <input type="hidden" name="preview" value="" />
+    <%= error_messages_for 'filter', :header_message => nil, :class => 'formError', :message => nil %>
+    <table class="form">
+      <tbody>
+      <tr>
+        <td class="first">Name:</td>
+        <td>
+          <input type="text" name="name" id="name" value="<%= @filter.name -%>" class="spaced"></input>
+          <% if is_admin? %>
+          <span class="spacer"></span>
+          <label for="shared">Shared:</label>
+          <input type="checkbox" name="shared" id="shared" <%= 'checked' if @filter.shared -%>></input>
+          <% end %>
+        </td>
+      </tr>
+      </tbody>
+      <tbody id="simple-form">
+        <tr>
+          <td class="first">Path:</td>
+          <td>
+            <b><span id="path_name"><%= @filter.resource ? @filter.resource.path_name : params[:path_name] -%></span></b>
+            <input type="hidden" name="path_id" id="path_id" value="<%= @filter.resource ? @filter.resource.id : params[:path_id] -%>"></input>
+            <a onclick="searchPopup(this);return false;" href="<%= url_for :action => :search_path, :search => (@filter.resource ? @filter.resource.name : nil) -%>">Search</a>
+            <a href="#" onClick="$('path_name').innerText='';$('path_name').innerHTML='';Form.Element.clear('path_id');return false;">Reset</a>
+          </td>
+        </tr>
+        <tr>
+          <td class="first">Type:</td>
+          <td>
+            <% qualifiers=(@filter.criterion('qualifier') ? @filter.criterion('qualifier').text_values : []) %>
+
+              <% if controller.java_facade.hasPlugin('views') %>
+                <input type="checkbox" name="qualifiers[]" value="VW" <%= 'checked' if qualifiers.include?('VW') -%> id="q-VW"></input> <label for="q-VW">Views</label>
+                <span class="spacer"> </span>
+
+                <input type="checkbox" name="qualifiers[]" value="SVW" <%= 'checked' if qualifiers.include?('SVW') -%> id="q-SVW"></input> <label for="q-SVW">Sub-views</label>
+                <span class="spacer"> </span>
+              <% end %>
+
+              <input type="checkbox" name="qualifiers[]" value="TRK" <%= 'checked' if qualifiers.include?('TRK') -%> id="q-TRK"></input> <label for="q-TRK">Projects</label>
+              <span class="spacer"> </span>
+
+              <input type="checkbox" name="qualifiers[]" value="BRC" <%= 'checked' if qualifiers.include?('BRC') -%> id="q-BRC"></input> <label for="q-BRC">Sub-projects</label>
+              <span class="spacer"> </span>
+
+              <input type="checkbox" name="qualifiers[]" value="DIR,PAC" <%= 'checked' if qualifiers.include?('DIR') -%> id="q-DIR"></input> <label for="q-DIR">Directories/Packages</label>
+              <span class="spacer"> </span>
+
+              <input type="checkbox" name="qualifiers[]" value="FIL,CLA" <%= 'checked' if qualifiers.include?('FIL') -%> id="q-FIL"></input> <label for="q-FIL">Files/Classes</label>
+              <span class="spacer"> </span>
+
+              <input type="checkbox" name="qualifiers[]" value="UTS" <%= 'checked' if qualifiers.include?('UTS') -%> id="q-UTS"></input> <label for="q-UTS">Unit tests</label>
+              <span class="spacer"> </span>
+          </td>
+        </tr>
+        <tr>
+          <td class="first">Criteria:</td>
+          <td>
+            <%= render :partial => 'filters/criterion', :locals => {:id => '0', :criterion => (@filter.measure_criteria.size>0 ? @filter.measure_criteria[0] : nil)} %>
+          </td>
+        </tr>
+        <tr>
+          <td class="first">and: </td>
+          <td>
+            <%= render :partial => 'filters/criterion', :locals => {:id => '1', :criterion => (@filter.measure_criteria.size>1 ? @filter.measure_criteria[1] : nil) } %>
+          </td>
+        </tr>
+        <tr>
+          <td class="first">and: </td>
+          <td>
+            <%= render :partial => 'filters/criterion', :locals => {:id => '2', :criterion => (@filter.measure_criteria.size>2 ? @filter.measure_criteria[2] : nil) } %>
+          </td>
+        </tr>
+        <% unless @filter.advanced_search? %>
+        <tr id="advanced-search-link">
+          <td align="right"><a href="#" onClick="$('advanced-search').show();$('advanced-search-link').hide();return false;">Advanced search</a></td>
+          <td></td>
+        </tr>
+        <% end %>
+      </tbody>
+      <tbody id="advanced-search" style="<%= 'display: none' unless @filter.advanced_search? -%>">
+        <tr>
+          <td class="first">Language:</td>
+          <td>
+            <% languages=(@filter.criterion('language') ? @filter.criterion('language').text_values : []) %>
+            <% controller.java_facade.getLanguages().each do |language| %>
+                <input type="checkbox" name="languages[]" value="<%= language.getKey() -%>" <%= 'checked' if languages.include?(language.getKey()) -%> id="lang-<%= language.getKey() -%>"> </input> <label for="lang-<%= language.getKey() -%>"><%= language.getName() -%></label>
+            <% end %>
+            <span class="comments">When no language is selected, no filter will apply</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="first"><%= image_tag 'star.png' %> <label for="favourites">Favourites only:</label></td>
+          <td>
+            <input type="checkbox" name="favourites" id="favourites" <%= 'checked' if @filter.favourites -%>></input>
+          </td>
+        </tr>
+        <tr>
+          <td class="first"><label for="key_regexp">Resource key like:</label></td>
+          <td>
+            <% key_regexp_criterion=@filter.criterion('key') %>
+            <input type="text" name="key_regexp" id="key_regexp" value="<%= key_regexp_criterion.text_value if key_regexp_criterion -%>"></input>
+            <span class="comments">Use the character * to match zero or more characters.</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="first"><label for="name_regexp">Resource name like:</label></td>
+          <td>
+            <% name_regexp_criterion=@filter.criterion('name') %>
+            <input type="text" name="name_regexp" id="name_regexp" value="<%= name_regexp_criterion.text_value if name_regexp_criterion -%>"></input>
+            <span class="comments">Use the character * to match zero or more characters.</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="first"><label for="date">Build date:</label></td>
+          <td>
+            <% date_criterion = @filter.criterion('date') %>
+            <select id="date_operator" name="date_operator">
+              <option value=""></option>
+              <option value="<" <%= 'selected' if (date_criterion && date_criterion.operator=='<') -%>>Prior to last</value>
+              <option value=">=" <%= 'selected' if (date_criterion && date_criterion.operator=='>=') -%>>During last</value>
+            </select>
+            <input type="text" name="date_value" id="date_value" size="3" value="<%= date_criterion.value.to_i if date_criterion -%>"></input> days
+          </td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr>
+          <td colspan="2">
+            <input type="submit" value="Save & Preview" onclick="filter_form.preview.value='true';return true;"/>
+            <span class="spacer"> </span>
+            <input type="submit" value="Save & Close" />
+            <span class="spacer"> </span>
+            <% if @filter.id %>
+              <%= link_to "Delete", {:action => 'delete', :id => @filter.id}, :method => :post, :confirm => 'Do you want to delete this filter ?' %>
+              <span class="spacer"> </span>
+              <a href="<%= url_for :action => 'index', :name => @filter.name -%>">Cancel</a>
+            <% else %>
+              <a href="<%= url_for :action => 'index' -%>">Cancel</a>
+            <% end %>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+</form>
+</div>
+<script>
+$('name').focus();
+</script>
+<br/>
+
+<% if @data %>
+  <h1>Display</h1>
+  <div class="admin">
+    <table class="form" id="view-form">
+      <tr>
+        <td class="first">Display as:</td>
+        <td>
+          <form action="<%= url_for :action => :set_view, :id => @filter.id -%>" method="POST">
+            <input type="radio" name="view" value="list" <%= 'checked' if @filter.default_view==::Filter::VIEW_LIST -%> id="view-list" onClick="$('view-loading').show();submit();"></input> <label for="view-list">Table</label>
+            <span class="spacer"> </span>
+            <input type="radio" name="view" value="treemap" <%= 'checked' if @filter.default_view==::Filter::VIEW_TREEMAP -%> id="view-treemap" onClick="$('view-loading').show();submit();"></input> <label for="view-treemap">Treemap</label>
+            <span class="spacer"> </span>
+            <%= image_tag 'loading.gif', :id => 'view-loading', :style=>'display: none' %>
+          </form>
+        </td>
+      </tr>
+      <%= render :partial => "filters/customize_#{@filter.default_view}" %>
+    </table>
+  </div>
+  <br/>
+  <%= render :partial => "filters/#{@filter.default_view}", :locals => {:data => @data, :edit_mode => true} %>
+<% end %>

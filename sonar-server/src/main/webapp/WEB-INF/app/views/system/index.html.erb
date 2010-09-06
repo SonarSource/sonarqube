@@ -1,0 +1,99 @@
+<ul style="float: right" class="horizontal">
+  <li class="csv marginleft10">
+    <a href="<%= ApplicationController.root_context -%>/system/index?format=csv" id="download-link" class="action">Download</a>
+  </li>
+</ul>
+
+<table class="data2 width100" id="system_info">
+<thead>
+  <tr>
+    <th colspan="2"><h2>System Info</h2></th>
+  </tr>
+</thead>
+<tbody>
+  <% @server.system_info.each do |data| %>
+    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'system' } %>
+  <% end %>
+</thead>
+<tbody>
+</table>
+
+<br/>
+
+<table class="data2 width100" id="sonar">
+<thead>
+  <tr>
+    <th colspan="2"><h2>Sonar Info</h2></th>
+  </tr>
+</thead>
+<tbody>
+  <% @server.sonar_info.each do |data| %>
+    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'sonar' } %>
+  <% end %>
+</thead>
+<tbody>
+</table>
+
+<br/>
+
+<table class="data2 width100" id="memory">
+<thead>
+  <tr>
+    <th colspan="2"><h2>Java VM Statistics</h2></th>
+  </tr>
+</thead>
+<tbody>
+  <% @server.system_statistics.each do |data| %>
+    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'memory' } %>
+  <% end %>
+</thead>
+<tbody>
+</table>
+
+<br/>
+
+<table class="data2 width100" id="database">
+<thead>
+  <tr>
+    <th colspan="2"><h2>Database Statistics</h2></th>
+  </tr>
+</thead>
+<tbody>
+  <% @server.database_statistics.each do |data| %>
+    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'database' } %>
+  <% end %>
+</thead>
+<tbody>
+</table>
+
+<br/>
+
+<table class="data2 width100" id="plugins">
+<thead>
+  <tr>
+    <th colspan="2"><h2>Sonar Plugins</h2></th>
+  </tr>
+</thead>
+<tbody>
+  <% @server.sonar_plugins.each do |data| %>
+    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'plugins' } %>
+  <% end %>
+</thead>
+<tbody>
+</table>
+
+<br/>
+
+<table class="data2 width100" id="system_properties">
+<thead>
+  <tr>
+    <th colspan="2"><h2>System Properties</h2></th>
+  </tr>
+</thead>
+<tbody>
+  <% @server.system_properties.each do |data| %>
+    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'system_properties' } %>
+  <% end %>
+</thead>
+<tbody>
+</table>

@@ -1,0 +1,6 @@
+<profile name="" language='java'>
+  <rule key="2006" priority="warning"/>
+  <rule key="2007" priority="error">
+    <property name="toto" value="titi"/>
+  </rule>
+</profile>

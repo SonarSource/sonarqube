@@ -1,0 +1,102 @@
+<style>
+.drilldown_col {
+  float: left;
+  margin: 10px 15px 15px 0;
+}
+.drilldown_col div.col {
+max-height: 35em;
+overflow-x: hidden;
+overflow-y: auto;
+border-top: 1px solid #ccc;
+border-bottom: 1px solid #ccc;
+margin-right: 17px; // scrollbar width
+}
+.drilldown_col h3 {
+padding: 5px;
+}
+.drilldown_col div.col table {
+  
+}
+.drilldown_col div.col td {
+  padding: 3px 7px;
+  min-width: 15em;
+  white-space: nowrap; 
+}
+</style>
+<form action="<%= ApplicationController.root_context -%>/dependencies/index" id="search_form">
+  <input type="text" name="search" value="<%= params[:search] -%>" id="search_input"> </input>
+  <input type="submit" value="Search library" id="search_submit"></input><br/>
+  <p class="small gray">Find out which projects depend on a given library.<br/>
+  Search by group, artifact or name. E.g.: org.apache.struts, struts-core or Struts</p>
+</form>
+
+<div id="deps_drilldown">
+  <% if @resources %>
+  <div id="artifacts_col" class="drilldown_col">
+    <h3>Select library :</h3>
+    <div class="col">
+    <table>
+      <tbody>
+      <% if @resources.empty? %>
+      <tr class="even"><td>No data</td></tr>
+      <% end %>
+     <% @resources.each do |resource|%>
+      <tr class="<%= cycle('even', 'odd', :name => 'lib') -%> <%= 'selected' if resource==@resource -%>">
+        <td ><%= qualifier_icon(resource) %> <a href="<%= url_for :action => 'index', :overwrite_params => {:version => nil, :resource => resource.kee} -%>"><%= h resource.name(true) -%></a><br/><span class="small gray"><%= resource.kee -%></span></td>
+      </tr>
+      <% end %>
+      </tbody>
+    </table>
+    </div>
+  </div>
+  <% end %>
+
+  <% if @versions %>
+  <div id="versions_col" class="drilldown_col">
+    <h3>Select version :</h3>
+    <div class="col">
+    <table>
+      <tbody>
+      <% if @versions.size>1 %>
+        <tr class="<%= cycle('even', 'odd', :name => 'version') -%> <%= 'selected' if @version.blank? -%>">
+          <td><a href="<%= url_for :action => 'index', :overwrite_params => {:version => nil, :resource => @resource.kee} -%>">All</a></td>
+        </tr>
+      <% end %>
+     <% @versions.each do |version|%>
+      <tr class="<%= cycle('even', 'odd', :name => 'version') -%> <%= 'selected' if version==@version-%>">
+        <td><a href="<%= url_for :action => 'index', :overwrite_params => {:version => version, :resource => @resource.kee} -%>"><%= version -%></a></td>
+      </tr>
+      <% end %>
+      </tbody>
+    </table>
+    </div>
+  </div>
+  <% end %>
+
+  <% if @project_snapshots %>
+  <div id="results_col" class="drilldown_col">
+    <h3>Used by :</h3>
+    <div class="col">
+    <table>
+      <tbody>
+      <% if @project_snapshots.empty? %>
+      <tr class="even"><td>Not used</td></tr>
+      <% end %>
+     <% @project_snapshots.each do |project_snapshot|%>
+      <tr class="<%= cycle('even', 'odd', :name => 'dep') -%>">
+        <td>
+        <%= qualifier_icon(project_snapshot.project) %> <%= link_to project_snapshot.project.name(true), "#{ApplicationController.root_context}/plugins/resource/#{project_snapshot.project_id}?page=org.sonar.plugins.design.ui.libraries.LibrariesPage&filter=#{@resource.kee}" -%><br/>
+        <span class="small gray"><%= project_snapshot.project.kee -%></span></td>
+      </tr>
+      <% end %>
+      </tbody>
+    </table>
+    </div>
+  </div>
+  <% end %>
+</div>
+<script>
+$$('#artifacts_col tr.selected').each(function(item) {item.scrollIntoView(true);});
+$$('#versions_col tr.selected').each(function(item) {item.scrollIntoView(true);});
+$$('#results_col tr.selected').each(function(item) {item.scrollIntoView(true);});
+</script>

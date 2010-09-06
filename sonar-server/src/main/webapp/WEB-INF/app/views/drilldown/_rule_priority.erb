@@ -1,0 +1,15 @@
+<tr class="<%= css -%> <%= 'selected' if @priority_id==priority_id -%>">
+	<td><%= image_tag "priority/#{priority_id}.png" %></td>
+    <td>
+		<%= link_to label,
+                  {:controller => 'drilldown', :action => 'violations', :id => @project.id, :categ_id => nil, :priority => Sonar::RulePriority.to_s(priority_id)} %>
+
+    </td>
+    <td style="padding-left: 10px;" align="right">
+	    <% measure = measures.select{|m| m.rule_priority==priority_id}.first %>
+        <%= format_measure(measure) -%>
+      </td>
+      <td align="left">
+  	    <%= barchart(:width => 60, :percent => (measure ? (100 * measure.value / max).to_i : 0), :color => '#777') if max>0  %>
+      </td>
+</tr>

@@ -1,0 +1,20 @@
+<h1>Editing profile</h1>
+
+<% form_for(@profile) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </p>
+  <p>
+    <%= f.label :active %><br />
+    <%= f.check_box :active %>
+  </p>
+  <p>
+    <%= f.submit "Update" %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', @profile %> |
+<%= link_to 'Back', profiles_path %>

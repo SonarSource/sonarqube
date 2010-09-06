@@ -1,0 +1,180 @@
+<?xml version="1.0"?>
+<!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
+
+<coverage line-rate="0.37142857142857144" branch-rate="0.25" lines-covered="13" lines-valid="35" branches-covered="1"
+          branches-valid="4" complexity="1.3076923076923077" version="1.9.2" timestamp="1253274062754">
+  <sources>
+    <source>/Users/simon/projects/sonar/trunk/tests/integration/reference-projects/reference/src/main/java</source>
+    <source>--source</source>
+  </sources>
+  <packages>
+    <package name="org.sonar.samples" line-rate="0.37142857142857144" branch-rate="0.25"
+             complexity="1.3076923076923077">
+      <classes>
+        <class name="org.sonar.samples.InnerClass" filename="org/sonar/samples/InnerClass.java"
+               line-rate="0.5384615384615384" branch-rate="0.5" complexity="1.3076923076923077">
+          <methods>
+            <method name="&lt;init&gt;" signature="()V" line-rate="1.0" branch-rate="1.0">
+              <lines>
+                <line number="22" hits="2" branch="false"/>
+                <line number="44" hits="2" branch="false"/>
+              </lines>
+            </method>
+            <method name="methodOne" signature="()V" line-rate="0.0" branch-rate="1.0">
+              <lines>
+                <line number="25" hits="0" branch="false"/>
+                <line number="26" hits="0" branch="false"/>
+              </lines>
+            </method>
+            <method name="methodReturnThree" signature="()I" line-rate="0.8333333333333334" branch-rate="0.5">
+              <lines>
+                <line number="34" hits="1" branch="false"/>
+                <line number="35" hits="1" branch="false"/>
+                <line number="36" hits="1" branch="true" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="0" type="jump" coverage="50%"/>
+                  </conditions>
+                </line>
+                <line number="37" hits="0" branch="false"/>
+                <line number="39" hits="1" branch="false"/>
+                <line number="41" hits="1" branch="false"/>
+              </lines>
+            </method>
+            <method name="methodTwo" signature="()V" line-rate="0.0" branch-rate="1.0">
+              <lines>
+                <line number="29" hits="0" branch="false"/>
+                <line number="30" hits="0" branch="false"/>
+                <line number="31" hits="0" branch="false"/>
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="22" hits="2" branch="false"/>
+            <line number="25" hits="0" branch="false"/>
+            <line number="26" hits="0" branch="false"/>
+            <line number="29" hits="0" branch="false"/>
+            <line number="30" hits="0" branch="false"/>
+            <line number="31" hits="0" branch="false"/>
+            <line number="34" hits="1" branch="false"/>
+            <line number="35" hits="1" branch="false"/>
+            <line number="36" hits="1" branch="true" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="0" type="jump" coverage="50%"/>
+              </conditions>
+            </line>
+            <line number="37" hits="0" branch="false"/>
+            <line number="39" hits="1" branch="false"/>
+            <line number="41" hits="1" branch="false"/>
+            <line number="44" hits="2" branch="false"/>
+          </lines>
+        </class>
+        <class name="org.sonar.samples.InnerClass$InnerClassInside" filename="org/sonar/samples/InnerClass.java"
+               line-rate="0.2727272727272727" branch-rate="0.0" complexity="1.3076923076923077">
+          <methods>
+            <method name="&lt;init&gt;" signature="(Lorg/sonar/samples/InnerClass;)V" line-rate="1.0" branch-rate="1.0">
+              <lines>
+                <line number="46" hits="1" branch="false"/>
+                <line number="47" hits="1" branch="false"/>
+              </lines>
+            </method>
+            <method name="innerMethodOne" signature="()V" line-rate="0.0" branch-rate="0.0">
+              <lines>
+                <line number="50" hits="0" branch="false"/>
+                <line number="51" hits="0" branch="false"/>
+                <line number="52" hits="0" branch="true" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="0" type="jump" coverage="0%"/>
+                  </conditions>
+                </line>
+                <line number="53" hits="0" branch="false"/>
+                <line number="55" hits="0" branch="false"/>
+                <line number="57" hits="0" branch="false"/>
+              </lines>
+            </method>
+            <method name="innerMethodTwo" signature="()V" line-rate="0.0" branch-rate="1.0">
+              <lines>
+                <line number="60" hits="0" branch="false"/>
+                <line number="61" hits="0" branch="false"/>
+              </lines>
+            </method>
+            <method name="methodReturnFour" signature="()I" line-rate="1.0" branch-rate="1.0">
+              <lines>
+                <line number="64" hits="1" branch="false"/>
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="46" hits="1" branch="false"/>
+            <line number="47" hits="1" branch="false"/>
+            <line number="50" hits="0" branch="false"/>
+            <line number="51" hits="0" branch="false"/>
+            <line number="52" hits="0" branch="true" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="0" type="jump" coverage="0%"/>
+              </conditions>
+            </line>
+            <line number="53" hits="0" branch="false"/>
+            <line number="55" hits="0" branch="false"/>
+            <line number="57" hits="0" branch="false"/>
+            <line number="60" hits="0" branch="false"/>
+            <line number="61" hits="0" branch="false"/>
+            <line number="64" hits="1" branch="false"/>
+          </lines>
+        </class>
+        <class name="org.sonar.samples.PrivateClass" filename="org/sonar/samples/InnerClass.java"
+               line-rate="0.2727272727272727" branch-rate="1.0" complexity="1.3076923076923077">
+          <methods>
+            <method name="&lt;init&gt;" signature="()V" line-rate="1.0" branch-rate="1.0">
+              <lines>
+                <line number="71" hits="1" branch="false"/>
+                <line number="73" hits="1" branch="false"/>
+              </lines>
+            </method>
+            <method name="innerMethodFive" signature="()V" line-rate="0.0" branch-rate="1.0">
+              <lines>
+                <line number="85" hits="0" branch="false"/>
+                <line number="87" hits="0" branch="false"/>
+              </lines>
+            </method>
+            <method name="innerMethodFour" signature="()V" line-rate="0.0" branch-rate="1.0">
+              <lines>
+                <line number="80" hits="0" branch="false"/>
+                <line number="81" hits="0" branch="false"/>
+              </lines>
+            </method>
+            <method name="innerMethodSix" signature="()V" line-rate="0.0" branch-rate="1.0">
+              <lines>
+                <line number="91" hits="0" branch="false"/>
+                <line number="93" hits="0" branch="false"/>
+              </lines>
+            </method>
+            <method name="innerMethodThree" signature="()V" line-rate="0.0" branch-rate="1.0">
+              <lines>
+                <line number="76" hits="0" branch="false"/>
+                <line number="77" hits="0" branch="false"/>
+              </lines>
+            </method>
+            <method name="methodReturnfive" signature="()I" line-rate="1.0" branch-rate="1.0">
+              <lines>
+                <line number="96" hits="1" branch="false"/>
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="71" hits="1" branch="false"/>
+            <line number="73" hits="1" branch="false"/>
+            <line number="76" hits="0" branch="false"/>
+            <line number="77" hits="0" branch="false"/>
+            <line number="80" hits="0" branch="false"/>
+            <line number="81" hits="0" branch="false"/>
+            <line number="85" hits="0" branch="false"/>
+            <line number="87" hits="0" branch="false"/>
+            <line number="91" hits="0" branch="false"/>
+            <line number="93" hits="0" branch="false"/>
+            <line number="96" hits="1" branch="false"/>
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>

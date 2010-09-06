@@ -1,0 +1,1 @@
+DROP DATABASE IF EXISTS ${sonar.jdbc.username};

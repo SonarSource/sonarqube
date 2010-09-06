@@ -1,0 +1,46 @@
+<style>
+#setupform {
+  padding: 10px;
+  border: 2px solid #FFD324;
+  background-color: #FFF6B6;
+}
+#setupform td {
+  padding-right: 10px;
+  
+}
+#setupformlogo {
+  float: right;
+  padding-left: 20px;
+}
+</style>
+
+<div id="setupform">
+<div id="setupformlogo"><a href="http://www.sonarsource.org"><%= image_tag('sonar.png', :class => 'png') -%></a></div>
+<h1>Upgrade database.</h1>
+<p>It is recommended to <b>backup database</b> before.</p>
+<br/>
+<p>
+<h3>Database connection:</h3>
+<table>
+  <tr>
+    <td width="1%" nowrap>URL: </td>
+    <td><%= configuration('sonar.jdbc.url', '') -%>
+  </tr>
+  <tr>
+    <td width="1%" nowrap>Login: </td>
+    <td><%= configuration('sonar.jdbc.username', '') -%>
+  </tr>
+  <tr>
+    <td width="1%" nowrap>Driver: </td>
+    <td><%= configuration('sonar.jdbc.driverClassName', '') -%>
+  </tr>
+</table>
+</p>
+<br/>
+<p>
+  WARNING : DO NOT REFRESH THIS PAGE UNTIL THE SETUP IS FINISHED. It can take several minutes.
+  <form id="submit_form" method="POST" action="<%= url_for :action => 'setup_database' -%>" onsubmit="Form.disable('submit_form');">
+    <input type="submit" value="Setup database" id="submit_setup" />
+  </form>
+</p>
+</div>

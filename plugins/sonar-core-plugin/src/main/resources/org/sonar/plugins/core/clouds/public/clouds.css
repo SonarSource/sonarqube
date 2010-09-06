@@ -1,0 +1,29 @@
+.tag {
+  padding: 0px;
+  cursor: pointer;
+}
+
+.inline{
+  display: inline;
+}
+
+a {
+  border-bottom: 0 none;
+}
+
+.tab_title {
+  white-space: nowrap;
+}
+
+.metricSelectBox {
+	float: right;
+}
+
+.metricSelectBox .labelText {
+  padding-top: 2px;
+  padding-right: 5px;
+  
+}
+
+
+

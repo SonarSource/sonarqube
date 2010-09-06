@@ -1,0 +1,1793 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1242823817306" clover="2.3.2">
+   <project timestamp="1242823810334" name="Sonar Squid">
+      <metrics coveredelements="961" packages="5" coveredconditionals="202" ncloc="1508" statements="612" loc="2456" complexity="381" files="27" conditionals="226" coveredstatements="571" coveredmethods="188" methods="205" classes="34" elements="1043"/>
+      <package name="org.sonar.squid.sensors">
+         <metrics coveredelements="425" coveredconditionals="107" ncloc="628" statements="253" loc="1091" complexity="167" files="15" conditionals="122" coveredstatements="246" coveredmethods="72" methods="73" classes="16" elements="448"/>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/sensors/ASTSensor.java" name="ASTSensor.java">
+            <metrics coveredelements="75" coveredconditionals="13" conditionals="18" ncloc="128" statements="42" coveredmethods="25" coveredstatements="37" loc="184" methods="26" classes="1" complexity="37" elements="86"/>
+            <class name="ASTSensor">
+               <metrics coveredelements="75" coveredconditionals="13" conditionals="18" statements="42" coveredmethods="25" coveredstatements="37" methods="26" complexity="37" elements="86"/>
+            </class>
+            <line num="43" signature="setFileContents(FileContents) : void" type="method" complexity="1" count="1"/>
+            <line num="44" type="stmt" count="1"/>
+            <line num="47" signature="getFileContents() : FileContents" type="method" complexity="1" count="1"/>
+            <line num="48" type="stmt" count="1"/>
+            <line num="51" signature="getWantedTokens() : List&lt;Integer&gt;" type="method" complexity="1" count="1"/>
+            <line num="52" type="stmt" count="1"/>
+            <line num="55" signature="setResourcesStack(Stack&lt;Resource&gt;) : void" type="method" complexity="1" count="1"/>
+            <line num="56" type="stmt" count="1"/>
+            <line num="59" signature="addResource(Resource) : void" type="method" complexity="1" count="1"/>
+            <line num="60" type="stmt" count="1"/>
+            <line num="61" type="stmt" count="1"/>
+            <line num="64" signature="popResource() : void" type="method" complexity="1" count="1"/>
+            <line num="65" type="stmt" count="1"/>
+            <line num="68" signature="peekResource() : Resource" type="method" complexity="1" count="1"/>
+            <line num="69" type="stmt" count="1"/>
+            <line num="72" signature="visitFile(DetailAST) : void" type="method" complexity="1" count="1"/>
+            <line num="75" signature="visitToken(DetailAST) : void" type="method" complexity="1" count="1"/>
+            <line num="78" signature="leaveToken(DetailAST) : void" type="method" complexity="1" count="1"/>
+            <line num="81" signature="leaveFile(DetailAST) : void" type="method" complexity="1" count="1"/>
+            <line num="84" signature="findType(DetailAST) : AST" type="method" complexity="2" count="1"/>
+            <line num="85" type="stmt" count="1"/>
+            <line num="86" type="stmt" count="1"/>
+            <line falsecount="0" num="86" type="cond" truecount="1"/>
+            <line num="87" type="stmt" count="1"/>
+            <line num="89" type="stmt" count="0"/>
+            <line num="92" signature="isClassVariable(DetailAST) : boolean" type="method" complexity="1" count="1"/>
+            <line num="93" type="stmt" count="1"/>
+            <line num="98" signature="isClass(DetailAST) : boolean" type="method" complexity="1" count="1"/>
+            <line num="99" type="stmt" count="1"/>
+            <line num="104" signature="isInterfaceVariable(DetailAST) : boolean" type="method" complexity="1" count="1"/>
+            <line num="105" type="stmt" count="1"/>
+            <line num="110" signature="isInterface(DetailAST) : boolean" type="method" complexity="1" count="1"/>
+            <line num="111" type="stmt" count="1"/>
+            <line num="114" signature="isFinal(DetailAST) : boolean" type="method" complexity="1" count="1"/>
+            <line num="115" type="stmt" count="1"/>
+            <line num="118" signature="isStatic(DetailAST) : boolean" type="method" complexity="1" count="1"/>
+            <line num="119" type="stmt" count="1"/>
+            <line num="122" signature="isModifier(DetailAST,int) : boolean" type="method" complexity="4" count="1"/>
+            <line num="123" type="stmt" count="1"/>
+            <line num="124" type="stmt" count="1"/>
+            <line falsecount="0" num="124" type="cond" truecount="1"/>
+            <line num="125" type="stmt" count="1"/>
+            <line num="126" type="stmt" count="1"/>
+            <line falsecount="1" num="126" type="cond" truecount="0"/>
+            <line num="128" type="stmt" count="0"/>
+            <line num="130" type="stmt" count="1"/>
+            <line num="132" type="stmt" count="0"/>
+            <line num="135" signature="getScope(DetailAST) : Scope" type="method" complexity="5" count="1"/>
+            <line num="136" type="stmt" count="1"/>
+            <line num="137" type="stmt" count="1"/>
+            <line falsecount="0" num="137" type="cond" truecount="1"/>
+            <line num="138" type="stmt" count="1"/>
+            <line falsecount="1" num="138" type="cond" truecount="1"/>
+            <line num="142" type="stmt" count="1"/>
+            <line falsecount="1" num="142" type="cond" truecount="1"/>
+            <line num="144" type="stmt" count="1"/>
+            <line num="147" signature="isScope(Scope,Scope) : boolean" type="method" complexity="1" count="1"/>
+            <line num="148" type="stmt" count="1"/>
+            <line num="151" signature="isType(DetailAST,int) : boolean" type="method" complexity="1" count="1"/>
+            <line num="152" type="stmt" count="1"/>
+            <line num="155" signature="findParent(DetailAST,int) : DetailAST" type="method" complexity="3" count="1"/>
+            <line num="156" type="stmt" count="1"/>
+            <line num="157" type="stmt" count="1"/>
+            <line falsecount="1" num="157" type="cond" truecount="1"/>
+            <line num="158" type="stmt" count="1"/>
+            <line falsecount="1" num="158" type="cond" truecount="1"/>
+            <line num="159" type="stmt" count="1"/>
+            <line num="161" type="stmt" count="1"/>
+            <line num="164" type="stmt" count="1"/>
+            <line num="167" signature="ensureResourceType(Resource,Type) : void" type="method" complexity="2" count="1"/>
+            <line num="168" type="stmt" count="1"/>
+            <line falsecount="1" num="168" type="cond" truecount="0"/>
+            <line num="169" type="stmt" count="0"/>
+            <line num="173" signature="hashCode() : int" type="method" complexity="1" count="0"/>
+            <line num="175" type="stmt" count="0"/>
+            <line num="178" signature="equals(Object) : boolean" type="method" complexity="1" count="1"/>
+            <line num="180" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/sensors/PublicApiSensor.java" name="PublicApiSensor.java">
+            <metrics coveredelements="17" coveredconditionals="6" conditionals="6" ncloc="28" statements="9" coveredmethods="2" coveredstatements="9" loc="56" methods="2" classes="1" complexity="9" elements="17"/>
+            <class name="PublicApiSensor">
+               <metrics coveredelements="17" coveredconditionals="6" conditionals="6" statements="9" coveredmethods="2" coveredstatements="9" methods="2" complexity="9" elements="17"/>
+            </class>
+            <line num="33" signature="getWantedTokens() : List&lt;Integer&gt;" type="method" complexity="1" count="1"/>
+            <line num="35" type="stmt" count="1"/>
+            <line num="39" signature="visitToken(DetailAST) : void" type="method" complexity="8" count="1"/>
+            <line num="41" type="stmt" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line falsecount="1" num="42" type="cond" truecount="1"/>
+            <line num="45" type="stmt" count="1"/>
+            <line falsecount="1" num="45" type="cond" truecount="1"/>
+            <line num="46" type="stmt" count="1"/>
+            <line num="48" type="stmt" count="1"/>
+            <line num="49" type="stmt" count="1"/>
+            <line num="50" type="stmt" count="1"/>
+            <line falsecount="1" num="50" type="cond" truecount="1"/>
+            <line num="51" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/sensors/StatementSensor.java" name="StatementSensor.java">
+            <metrics coveredelements="47" coveredconditionals="10" conditionals="10" ncloc="63" statements="34" coveredmethods="5" coveredstatements="32" loc="124" methods="5" classes="1" complexity="19" elements="49"/>
+            <class name="StatementSensor">
+               <metrics coveredelements="47" coveredconditionals="10" conditionals="10" statements="34" coveredmethods="5" coveredstatements="32" methods="5" complexity="19" elements="49"/>
+            </class>
+            <line num="30" signature="getWantedTokens() : List&lt;Integer&gt;" type="method" complexity="1" count="1"/>
+            <line num="32" type="stmt" count="1"/>
+            <line num="39" signature="visitToken(DetailAST) : void" type="method" complexity="2" count="1"/>
+            <line num="41" type="stmt" count="1"/>
+            <line falsecount="1" num="41" type="cond" truecount="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line num="53" signature="isCountable(DetailAST) : boolean" type="method" complexity="3" count="1"/>
+            <line num="54" type="stmt" count="1"/>
+            <line num="56" type="stmt" count="1"/>
+            <line num="59" type="stmt" count="1"/>
+            <line falsecount="1" num="59" type="cond" truecount="1"/>
+            <line num="60" type="stmt" count="1"/>
+            <line num="63" type="stmt" count="1"/>
+            <line falsecount="1" num="63" type="cond" truecount="1"/>
+            <line num="64" type="stmt" count="1"/>
+            <line num="66" type="stmt" count="1"/>
+            <line num="75" signature="isVariableDefCountable(DetailAST) : boolean" type="method" complexity="5" count="1"/>
+            <line num="76" type="stmt" count="1"/>
+            <line num="77" type="stmt" count="1"/>
+            <line falsecount="1" num="77" type="cond" truecount="1"/>
+            <line num="80" type="stmt" count="1"/>
+            <line num="81" type="stmt" count="1"/>
+            <line falsecount="1" num="81" type="cond" truecount="1"/>
+            <line num="82" type="stmt" count="1"/>
+            <line num="87" type="stmt" count="1"/>
+            <line num="90" type="stmt" count="1"/>
+            <line num="99" signature="isExpressionCountable(DetailAST) : boolean" type="method" complexity="8" count="1"/>
+            <line num="100" type="stmt" count="1"/>
+            <line num="105" type="stmt" count="1"/>
+            <line num="106" type="stmt" count="1"/>
+            <line num="107" type="stmt" count="1"/>
+            <line num="108" type="stmt" count="0"/>
+            <line num="109" type="stmt" count="0"/>
+            <line num="110" type="stmt" count="1"/>
+            <line num="111" type="stmt" count="1"/>
+            <line num="112" type="stmt" count="1"/>
+            <line num="113" type="stmt" count="1"/>
+            <line num="115" type="stmt" count="1"/>
+            <line num="116" type="stmt" count="1"/>
+            <line num="117" type="stmt" count="1"/>
+            <line num="118" type="stmt" count="1"/>
+            <line num="119" type="stmt" count="1"/>
+            <line num="120" type="stmt" count="1"/>
+            <line num="122" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/sensors/PackageSensor.java" name="PackageSensor.java">
+            <metrics coveredelements="18" coveredconditionals="4" conditionals="4" ncloc="27" statements="11" coveredmethods="3" coveredstatements="11" loc="53" methods="3" classes="1" complexity="5" elements="18"/>
+            <class name="PackageSensor">
+               <metrics coveredelements="18" coveredconditionals="4" conditionals="4" statements="11" coveredmethods="3" coveredstatements="11" methods="3" complexity="5" elements="18"/>
+            </class>
+            <line num="30" signature="visitFile(DetailAST) : void" type="method" complexity="2" count="1"/>
+            <line num="31" type="stmt" count="1"/>
+            <line num="33" type="stmt" count="1"/>
+            <line falsecount="1" num="33" type="cond" truecount="1"/>
+            <line num="34" type="stmt" count="1"/>
+            <line num="36" type="stmt" count="1"/>
+            <line num="39" signature="leaveFile(DetailAST) : void" type="method" complexity="1" count="1"/>
+            <line num="40" type="stmt" count="1"/>
+            <line num="43" signature="extractPackage(DetailAST) : Resource" type="method" complexity="2" count="1"/>
+            <line num="44" type="stmt" count="1"/>
+            <line num="45" type="stmt" count="1"/>
+            <line falsecount="1" num="45" type="cond" truecount="1"/>
+            <line num="46" type="stmt" count="1"/>
+            <line num="48" type="stmt" count="1"/>
+            <line num="49" type="stmt" count="1"/>
+            <line num="51" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/sensors/MethodSensor.java" name="MethodSensor.java">
+            <metrics coveredelements="36" coveredconditionals="8" conditionals="10" ncloc="51" statements="23" coveredmethods="5" coveredstatements="23" loc="79" methods="5" classes="1" complexity="10" elements="38"/>
+            <class name="MethodSensor">
+               <metrics coveredelements="36" coveredconditionals="8" conditionals="10" statements="23" coveredmethods="5" coveredstatements="23" methods="5" complexity="10" elements="38"/>
+            </class>
+            <line num="35" signature="getWantedTokens() : List&lt;Integer&gt;" type="method" complexity="1" count="1"/>
+            <line num="37" type="stmt" count="1"/>
+            <line num="40" signature="visitToken(DetailAST) : void" type="method" complexity="1" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line num="43" type="stmt" count="1"/>
+            <line num="46" signature="leaveToken(DetailAST) : void" type="method" complexity="1" count="1"/>
+            <line num="47" type="stmt" count="1"/>
+            <line num="50" signature="extractMethodName(DetailAST) : String" type="method" complexity="3" count="1"/>
+            <line num="51" type="stmt" count="1"/>
+            <line num="52" type="stmt" count="1"/>
+            <line num="53" type="stmt" count="1"/>
+            <line num="54" type="stmt" count="1"/>
+            <line falsecount="1" num="54" type="cond" truecount="1"/>
+            <line num="55" type="stmt" count="1"/>
+            <line num="56" type="stmt" count="1"/>
+            <line falsecount="1" num="56" type="cond" truecount="1"/>
+            <line num="57" type="stmt" count="1"/>
+            <line num="60" type="stmt" count="1"/>
+            <line num="61" type="stmt" count="1"/>
+            <line num="64" signature="extractMethodParameters(DetailAST) : List&lt;String&gt;" type="method" complexity="4" count="1"/>
+            <line num="65" type="stmt" count="1"/>
+            <line num="66" type="stmt" count="1"/>
+            <line falsecount="1" num="66" type="cond" truecount="1"/>
+            <line num="67" type="stmt" count="1"/>
+            <line num="69" type="stmt" count="1"/>
+            <line num="70" type="stmt" count="1"/>
+            <line num="71" type="stmt" count="1"/>
+            <line num="72" type="stmt" count="1"/>
+            <line falsecount="0" num="72" type="cond" truecount="0"/>
+            <line num="73" type="stmt" count="1"/>
+            <line falsecount="1" num="73" type="cond" truecount="1"/>
+            <line num="74" type="stmt" count="1"/>
+            <line num="77" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/sensors/AccessorSensor.java" name="AccessorSensor.java">
+            <metrics coveredelements="103" coveredconditionals="34" conditionals="42" ncloc="116" statements="58" coveredmethods="11" coveredstatements="58" loc="151" methods="11" classes="1" complexity="39" elements="111"/>
+            <class name="AccessorSensor">
+               <metrics coveredelements="103" coveredconditionals="34" conditionals="42" statements="58" coveredmethods="11" coveredstatements="58" methods="11" complexity="39" elements="111"/>
+            </class>
+            <line num="34" signature="getWantedTokens() : List&lt;Integer&gt;" type="method" complexity="1" count="1"/>
+            <line num="36" type="stmt" count="1"/>
+            <line num="39" signature="visitToken(DetailAST) : void" type="method" complexity="3" count="1"/>
+            <line num="41" type="stmt" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line num="43" type="stmt" count="1"/>
+            <line num="44" type="stmt" count="1"/>
+            <line falsecount="0" num="44" type="cond" truecount="1"/>
+            <line num="45" type="stmt" count="1"/>
+            <line falsecount="1" num="45" type="cond" truecount="1"/>
+            <line num="46" type="stmt" count="1"/>
+            <line num="51" signature="isAccessor(DetailAST,String) : boolean" type="method" complexity="1" count="1"/>
+            <line num="52" type="stmt" count="1"/>
+            <line num="53" type="stmt" count="1"/>
+            <line num="58" signature="isValidBooleanGetter(DetailAST,String,boolean) : boolean" type="method" complexity="4" count="1"/>
+            <line num="59" type="stmt" count="1"/>
+            <line falsecount="1" num="59" type="cond" truecount="1"/>
+            <line num="60" type="stmt" count="1"/>
+            <line num="61" type="stmt" count="1"/>
+            <line falsecount="0" num="61" type="cond" truecount="1"/>
+            <line num="62" type="stmt" count="1"/>
+            <line num="65" type="stmt" count="1"/>
+            <line num="68" signature="isValidSetter(DetailAST,String,boolean) : boolean" type="method" complexity="7" count="1"/>
+            <line num="69" type="stmt" count="1"/>
+            <line falsecount="1" num="69" type="cond" truecount="1"/>
+            <line num="70" type="stmt" count="1"/>
+            <line num="71" type="stmt" count="1"/>
+            <line falsecount="0" num="71" type="cond" truecount="1"/>
+            <line num="72" type="stmt" count="1"/>
+            <line num="73" type="stmt" count="1"/>
+            <line falsecount="1" num="73" type="cond" truecount="1"/>
+            <line num="74" type="stmt" count="1"/>
+            <line num="75" type="stmt" count="1"/>
+            <line falsecount="0" num="75" type="cond" truecount="1"/>
+            <line num="76" type="stmt" count="1"/>
+            <line num="81" type="stmt" count="1"/>
+            <line num="84" signature="isValidGetter(DetailAST,String,boolean) : boolean" type="method" complexity="6" count="1"/>
+            <line num="85" type="stmt" count="1"/>
+            <line falsecount="1" num="85" type="cond" truecount="1"/>
+            <line num="86" type="stmt" count="1"/>
+            <line num="87" type="stmt" count="1"/>
+            <line falsecount="1" num="87" type="cond" truecount="1"/>
+            <line num="88" type="stmt" count="1"/>
+            <line num="89" type="stmt" count="1"/>
+            <line falsecount="1" num="89" type="cond" truecount="1"/>
+            <line num="90" type="stmt" count="1"/>
+            <line num="94" type="stmt" count="1"/>
+            <line num="97" signature="inspectGetterMethodBody(DetailAST,AST,DetailAST) : boolean" type="method" complexity="5" count="1"/>
+            <line num="98" type="stmt" count="1"/>
+            <line num="99" type="stmt" count="1"/>
+            <line falsecount="0" num="99" type="cond" truecount="1"/>
+            <line num="100" type="stmt" count="1"/>
+            <line num="101" type="stmt" count="1"/>
+            <line falsecount="0" num="101" type="cond" truecount="1"/>
+            <line num="102" type="stmt" count="1"/>
+            <line num="103" type="stmt" count="1"/>
+            <line falsecount="1" num="103" type="cond" truecount="1"/>
+            <line num="104" type="stmt" count="1"/>
+            <line num="108" type="stmt" count="1"/>
+            <line num="111" signature="inspectSetterMethodBody(DetailAST,AST,DetailAST,DetailAST) : boolean" type="method" complexity="5" count="1"/>
+            <line num="112" type="stmt" count="1"/>
+            <line num="113" type="stmt" count="1"/>
+            <line falsecount="0" num="113" type="cond" truecount="1"/>
+            <line num="114" type="stmt" count="1"/>
+            <line num="115" type="stmt" count="1"/>
+            <line falsecount="1" num="115" type="cond" truecount="1"/>
+            <line num="116" type="stmt" count="1"/>
+            <line num="117" type="stmt" count="1"/>
+            <line num="118" type="stmt" count="1"/>
+            <line num="120" type="stmt" count="1"/>
+            <line falsecount="1" num="120" type="cond" truecount="1"/>
+            <line num="121" type="stmt" count="1"/>
+            <line falsecount="0" num="121" type="cond" truecount="1"/>
+            <line num="122" type="stmt" count="1"/>
+            <line num="126" type="stmt" count="1"/>
+            <line num="129" signature="findPrivateClassVariable(DetailAST,String) : boolean" type="method" complexity="5" count="1"/>
+            <line num="130" type="stmt" count="1"/>
+            <line num="131" type="stmt" count="1"/>
+            <line falsecount="1" num="131" type="cond" truecount="1"/>
+            <line num="132" type="stmt" count="1"/>
+            <line falsecount="1" num="132" type="cond" truecount="1"/>
+            <line num="133" type="stmt" count="1"/>
+            <line num="134" type="stmt" count="1"/>
+            <line falsecount="1" num="134" type="cond" truecount="1"/>
+            <line num="136" type="stmt" count="1"/>
+            <line num="140" type="stmt" count="1"/>
+            <line num="143" signature="isVoidMethodReturn(AST) : boolean" type="method" complexity="1" count="1"/>
+            <line num="144" type="stmt" count="1"/>
+            <line num="147" signature="isAstType(AST,int) : boolean" type="method" complexity="1" count="1"/>
+            <line num="148" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/sensors/FileSensor.java" name="FileSensor.java">
+            <metrics coveredelements="13" coveredconditionals="2" conditionals="2" ncloc="21" statements="8" coveredmethods="3" coveredstatements="8" loc="47" methods="3" classes="1" complexity="4" elements="13"/>
+            <class name="FileSensor">
+               <metrics coveredelements="13" coveredconditionals="2" conditionals="2" statements="8" coveredmethods="3" coveredstatements="8" methods="3" complexity="4" elements="13"/>
+            </class>
+            <line num="30" signature="visitFile(DetailAST) : void" type="method" complexity="1" count="1"/>
+            <line num="31" type="stmt" count="1"/>
+            <line num="32" type="stmt" count="1"/>
+            <line num="35" signature="leaveFile(DetailAST) : void" type="method" complexity="1" count="1"/>
+            <line num="36" type="stmt" count="1"/>
+            <line num="39" signature="extractFileNameFromFilePath(String) : String" type="method" complexity="2" count="1"/>
+            <line num="40" type="stmt" count="1"/>
+            <line num="41" type="stmt" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line falsecount="1" num="42" type="cond" truecount="1"/>
+            <line num="43" type="stmt" count="1"/>
+            <line num="45" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/sensors/BaseCommentsSensor.java" name="BaseCommentsSensor.java">
+            <metrics coveredelements="26" coveredconditionals="8" conditionals="8" ncloc="37" statements="14" coveredmethods="4" coveredstatements="14" loc="65" methods="4" classes="2" complexity="8" elements="26"/>
+            <class name="BaseCommentsSensor">
+               <metrics coveredelements="20" coveredconditionals="8" conditionals="8" statements="11" coveredmethods="1" coveredstatements="11" methods="1" complexity="5" elements="20"/>
+            </class>
+            <class name="BaseCommentsSensor.CommentLinesCounter">
+               <metrics coveredelements="6" coveredconditionals="0" conditionals="0" statements="3" coveredmethods="3" coveredstatements="3" methods="3" complexity="3" elements="6"/>
+            </class>
+            <line num="27" signature="countCommentLines(TextBlock,CommentLinesCounter,FileContents) : void" type="method" complexity="5" count="1"/>
+            <line num="28" type="stmt" count="1"/>
+            <line falsecount="1" num="28" type="cond" truecount="1"/>
+            <line num="29" type="stmt" count="1"/>
+            <line num="30" type="stmt" count="1"/>
+            <line num="31" type="stmt" count="1"/>
+            <line falsecount="1" num="31" type="cond" truecount="1"/>
+            <line num="32" type="stmt" count="1"/>
+            <line num="34" type="stmt" count="1"/>
+            <line num="37" type="stmt" count="1"/>
+            <line falsecount="1" num="37" type="cond" truecount="1"/>
+            <line num="38" type="stmt" count="1"/>
+            <line num="39" type="stmt" count="1"/>
+            <line num="40" type="stmt" count="1"/>
+            <line falsecount="1" num="40" type="cond" truecount="1"/>
+            <line num="41" type="stmt" count="1"/>
+            <line num="52" signature="getCommentsLines() : int" type="method" complexity="1" count="1"/>
+            <line num="53" type="stmt" count="1"/>
+            <line num="56" signature="getBlankCommentLines() : int" type="method" complexity="1" count="1"/>
+            <line num="57" type="stmt" count="1"/>
+            <line num="60" signature="getCommentLinesOnLineOfCode() : int" type="method" complexity="1" count="1"/>
+            <line num="61" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/sensors/LocSensor.java" name="LocSensor.java">
+            <metrics coveredelements="2" coveredconditionals="0" conditionals="0" ncloc="7" statements="1" coveredmethods="1" coveredstatements="1" loc="29" methods="1" classes="1" complexity="1" elements="2"/>
+            <class name="LocSensor">
+               <metrics coveredelements="2" coveredconditionals="0" conditionals="0" statements="1" coveredmethods="1" coveredstatements="1" methods="1" complexity="1" elements="2"/>
+            </class>
+            <line num="26" signature="visitFile(DetailAST) : void" type="method" complexity="1" count="1"/>
+            <line num="27" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/sensors/HeaderCommentSensor.java" name="HeaderCommentSensor.java">
+            <metrics coveredelements="22" coveredconditionals="6" conditionals="6" ncloc="33" statements="13" coveredmethods="3" coveredstatements="13" loc="60" methods="3" classes="1" complexity="10" elements="22"/>
+            <class name="HeaderCommentSensor">
+               <metrics coveredelements="22" coveredconditionals="6" conditionals="6" statements="13" coveredmethods="3" coveredstatements="13" methods="3" complexity="10" elements="22"/>
+            </class>
+            <line num="33" signature="getWantedTokens() : List&lt;Integer&gt;" type="method" complexity="1" count="1"/>
+            <line num="35" type="stmt" count="1"/>
+            <line num="38" signature="visitToken(DetailAST) : void" type="method" complexity="3" count="1"/>
+            <line num="39" type="stmt" count="1"/>
+            <line num="40" type="stmt" count="1"/>
+            <line falsecount="1" num="40" type="cond" truecount="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line num="46" signature="calculateHeaderCommentsLines(int) : int" type="method" complexity="6" count="1"/>
+            <line num="47" type="stmt" count="1"/>
+            <line num="48" type="stmt" count="1"/>
+            <line falsecount="1" num="48" type="cond" truecount="1"/>
+            <line num="49" type="stmt" count="1"/>
+            <line num="51" type="stmt" count="1"/>
+            <line num="52" type="stmt" count="1"/>
+            <line falsecount="1" num="52" type="cond" truecount="1"/>
+            <line num="53" type="stmt" count="1"/>
+            <line num="54" type="stmt" count="1"/>
+            <line num="55" type="stmt" count="1"/>
+            <line num="58" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/sensors/ClassSensor.java" name="ClassSensor.java">
+            <metrics coveredelements="11" coveredconditionals="2" conditionals="2" ncloc="22" statements="6" coveredmethods="3" coveredstatements="6" loc="48" methods="3" classes="1" complexity="4" elements="11"/>
+            <class name="ClassSensor">
+               <metrics coveredelements="11" coveredconditionals="2" conditionals="2" statements="6" coveredmethods="3" coveredstatements="6" methods="3" complexity="4" elements="11"/>
+            </class>
+            <line num="32" signature="getWantedTokens() : List&lt;Integer&gt;" type="method" complexity="1" count="1"/>
+            <line num="34" type="stmt" count="1"/>
+            <line num="37" signature="visitToken(DetailAST) : void" type="method" complexity="2" count="1"/>
+            <line num="38" type="stmt" count="1"/>
+            <line num="39" type="stmt" count="1"/>
+            <line falsecount="1" num="39" type="cond" truecount="1"/>
+            <line num="40" type="stmt" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line num="45" signature="leaveToken(DetailAST) : void" type="method" complexity="1" count="1"/>
+            <line num="46" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/sensors/ComplexitySensor.java" name="ComplexitySensor.java">
+            <metrics coveredelements="5" coveredconditionals="0" conditionals="0" ncloc="18" statements="3" coveredmethods="2" coveredstatements="3" loc="42" methods="2" classes="1" complexity="2" elements="5"/>
+            <class name="ComplexitySensor">
+               <metrics coveredelements="5" coveredconditionals="0" conditionals="0" statements="3" coveredmethods="2" coveredstatements="3" methods="2" complexity="2" elements="5"/>
+            </class>
+            <line num="31" signature="getWantedTokens() : List&lt;Integer&gt;" type="method" complexity="1" count="1"/>
+            <line num="33" type="stmt" count="1"/>
+            <line num="37" signature="leaveToken(DetailAST) : void" type="method" complexity="1" count="1"/>
+            <line num="39" type="stmt" count="1"/>
+            <line num="40" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/sensors/CommentSensors.java" name="CommentSensors.java">
+            <metrics coveredelements="9" coveredconditionals="0" conditionals="0" ncloc="20" statements="8" coveredmethods="1" coveredstatements="8" loc="45" methods="1" classes="1" complexity="4" elements="9"/>
+            <class name="CommentSensors">
+               <metrics coveredelements="9" coveredconditionals="0" conditionals="0" statements="8" coveredmethods="1" coveredstatements="8" methods="1" complexity="4" elements="9"/>
+            </class>
+            <line num="30" signature="visitFile(DetailAST) : void" type="method" complexity="4" count="1"/>
+            <line num="31" type="stmt" count="1"/>
+            <line num="32" type="stmt" count="1"/>
+            <line num="33" type="stmt" count="1"/>
+            <line num="34" type="stmt" count="1"/>
+            <line num="37" type="stmt" count="1"/>
+            <line num="38" type="stmt" count="1"/>
+            <line num="39" type="stmt" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/sensors/BlankLineSensor.java" name="BlankLineSensor.java">
+            <metrics coveredelements="25" coveredconditionals="8" conditionals="8" ncloc="31" statements="15" coveredmethods="2" coveredstatements="15" loc="57" methods="2" classes="1" complexity="9" elements="25"/>
+            <class name="BlankLineSensor">
+               <metrics coveredelements="25" coveredconditionals="8" conditionals="8" statements="15" coveredmethods="2" coveredstatements="15" methods="2" complexity="9" elements="25"/>
+            </class>
+            <line num="30" signature="visitFile(DetailAST) : void" type="method" complexity="5" count="1"/>
+            <line num="31" type="stmt" count="1"/>
+            <line num="32" type="stmt" count="1"/>
+            <line num="33" type="stmt" count="1"/>
+            <line falsecount="1" num="33" type="cond" truecount="1"/>
+            <line num="34" type="stmt" count="1"/>
+            <line num="36" type="stmt" count="1"/>
+            <line num="37" type="stmt" count="1"/>
+            <line falsecount="1" num="37" type="cond" truecount="1"/>
+            <line num="38" type="stmt" count="1"/>
+            <line falsecount="1" num="38" type="cond" truecount="1"/>
+            <line num="39" type="stmt" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line num="45" signature="markLinesOutsideCBlock(boolean[]) : void" type="method" complexity="4" count="1"/>
+            <line num="46" type="stmt" count="1"/>
+            <line num="47" type="stmt" count="1"/>
+            <line num="48" type="stmt" count="1"/>
+            <line num="49" type="stmt" count="1"/>
+            <line num="50" type="stmt" count="1"/>
+            <line falsecount="1" num="50" type="cond" truecount="1"/>
+            <line num="51" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/sensors/BranchSensor.java" name="BranchSensor.java">
+            <metrics coveredelements="16" coveredconditionals="6" conditionals="6" ncloc="26" statements="8" coveredmethods="2" coveredstatements="8" loc="51" methods="2" classes="1" complexity="6" elements="16"/>
+            <class name="BranchSensor">
+               <metrics coveredelements="16" coveredconditionals="6" conditionals="6" statements="8" coveredmethods="2" coveredstatements="8" methods="2" complexity="6" elements="16"/>
+            </class>
+            <line num="30" signature="getWantedTokens() : List&lt;Integer&gt;" type="method" complexity="1" count="1"/>
+            <line num="32" type="stmt" count="1"/>
+            <line num="37" signature="visitToken(DetailAST) : void" type="method" complexity="5" count="1"/>
+            <line num="39" type="stmt" count="1"/>
+            <line falsecount="1" num="39" type="cond" truecount="1"/>
+            <line num="41" type="stmt" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line falsecount="1" num="42" type="cond" truecount="1"/>
+            <line num="43" type="stmt" count="1"/>
+            <line num="44" type="stmt" count="1"/>
+            <line falsecount="1" num="44" type="cond" truecount="1"/>
+            <line num="45" type="stmt" count="1"/>
+            <line num="49" type="stmt" count="1"/>
+         </file>
+      </package>
+      <package name="org.sonar.squid.utils">
+         <metrics coveredelements="36" coveredconditionals="12" ncloc="52" statements="22" loc="113" complexity="13" files="2" conditionals="14" coveredstatements="21" coveredmethods="3" methods="4" classes="2" elements="40"/>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/utils/CountDistribution.java" name="CountDistribution.java">
+            <metrics coveredelements="21" coveredconditionals="7" conditionals="8" ncloc="30" statements="13" coveredmethods="2" coveredstatements="12" loc="58" methods="2" classes="1" complexity="7" elements="23"/>
+            <class name="CountDistribution">
+               <metrics coveredelements="21" coveredconditionals="7" conditionals="8" statements="13" coveredmethods="2" coveredstatements="12" methods="2" complexity="7" elements="23"/>
+            </class>
+            <line num="31" signature="count(int[],int[]) : Map&lt;Integer,Integer&gt;" type="method" complexity="4" count="1"/>
+            <line num="33" type="stmt" count="1"/>
+            <line falsecount="1" num="33" type="cond" truecount="0"/>
+            <line num="34" type="stmt" count="0"/>
+            <line num="36" type="stmt" count="1"/>
+            <line num="37" type="stmt" count="1"/>
+            <line num="38" type="stmt" count="1"/>
+            <line num="41" type="stmt" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line falsecount="1" num="42" type="cond" truecount="1"/>
+            <line num="43" type="stmt" count="1"/>
+            <line num="46" type="stmt" count="1"/>
+            <line num="49" signature="getRangeIndex(int,int[]) : Integer" type="method" complexity="3" count="1"/>
+            <line num="50" type="stmt" count="1"/>
+            <line falsecount="1" num="50" type="cond" truecount="1"/>
+            <line num="51" type="stmt" count="1"/>
+            <line falsecount="1" num="51" type="cond" truecount="1"/>
+            <line num="52" type="stmt" count="1"/>
+            <line num="55" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/utils/FilesDiscovery.java" name="FilesDiscovery.java">
+            <metrics coveredelements="15" coveredconditionals="5" conditionals="6" ncloc="22" statements="9" coveredmethods="1" coveredstatements="9" loc="55" methods="2" classes="1" complexity="6" elements="17"/>
+            <class name="FilesDiscovery">
+               <metrics coveredelements="15" coveredconditionals="5" conditionals="6" statements="9" coveredmethods="1" coveredstatements="9" methods="2" complexity="6" elements="17"/>
+            </class>
+            <line num="31" signature="FilesDiscovery()" type="method" complexity="1" count="0"/>
+            <line num="41" signature="traverse(File) : List&lt;File&gt;" type="method" complexity="5" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line num="43" type="stmt" count="1"/>
+            <line falsecount="1" num="43" type="cond" truecount="1"/>
+            <line num="44" type="stmt" count="1"/>
+            <line falsecount="1" num="44" type="cond" truecount="1"/>
+            <line num="45" type="stmt" count="1"/>
+            <line num="46" type="stmt" count="1"/>
+            <line num="47" type="stmt" count="1"/>
+            <line num="49" type="stmt" count="1"/>
+            <line falsecount="0" num="49" type="cond" truecount="1"/>
+            <line num="50" type="stmt" count="1"/>
+            <line num="53" type="stmt" count="1"/>
+         </file>
+      </package>
+      <package name="org.sonar.squid.handlers">
+         <metrics coveredelements="241" coveredconditionals="43" ncloc="412" statements="164" loc="644" complexity="91" files="6" conditionals="46" coveredstatements="152" coveredmethods="46" methods="48" classes="11" elements="258"/>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/handlers/JavaCheckstyleSquidBridge.java" name="JavaCheckstyleSquidBridge.java">
+            <metrics coveredelements="40" coveredconditionals="8" conditionals="8" ncloc="73" statements="30" coveredmethods="6" coveredstatements="26" loc="109" methods="6" classes="1" complexity="18" elements="44"/>
+            <class name="JavaCheckstyleSquidBridge">
+               <metrics coveredelements="40" coveredconditionals="8" conditionals="8" statements="30" coveredmethods="6" coveredstatements="26" methods="6" complexity="18" elements="44"/>
+            </class>
+            <line num="40" signature="setASTVisitors(List&lt;ASTSensor&gt;) : void" type="method" complexity="3" count="1"/>
+            <line num="41" type="stmt" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line num="43" type="stmt" count="1"/>
+            <line num="44" type="stmt" count="1"/>
+            <line num="45" type="stmt" count="1"/>
+            <line num="46" type="stmt" count="1"/>
+            <line num="48" type="stmt" count="1"/>
+            <line num="49" type="stmt" count="1"/>
+            <line num="54" signature="getDefaultTokens() : int[]" type="method" complexity="1" count="1"/>
+            <line num="56" type="stmt" count="1"/>
+            <line num="59" signature="beginTree(DetailAST) : void" type="method" complexity="3" count="1"/>
+            <line num="60" type="stmt" count="1"/>
+            <line num="61" type="stmt" count="1"/>
+            <line num="62" type="stmt" count="1"/>
+            <line num="63" type="stmt" count="1"/>
+            <line num="67" type="stmt" count="0"/>
+            <line num="71" signature="visitToken(DetailAST) : void" type="method" complexity="4" count="1"/>
+            <line num="72" type="stmt" count="1"/>
+            <line num="73" type="stmt" count="1"/>
+            <line num="74" type="stmt" count="1"/>
+            <line falsecount="1" num="74" type="cond" truecount="1"/>
+            <line num="75" type="stmt" count="1"/>
+            <line num="80" type="stmt" count="0"/>
+            <line num="84" signature="leaveToken(DetailAST) : void" type="method" complexity="4" count="1"/>
+            <line num="85" type="stmt" count="1"/>
+            <line num="86" type="stmt" count="1"/>
+            <line falsecount="1" num="86" type="cond" truecount="1"/>
+            <line num="87" type="stmt" count="1"/>
+            <line num="88" type="stmt" count="1"/>
+            <line falsecount="1" num="88" type="cond" truecount="1"/>
+            <line num="89" type="stmt" count="1"/>
+            <line num="94" type="stmt" count="0"/>
+            <line num="98" signature="finishTree(DetailAST) : void" type="method" complexity="3" count="1"/>
+            <line num="99" type="stmt" count="1"/>
+            <line num="100" type="stmt" count="1"/>
+            <line falsecount="1" num="100" type="cond" truecount="1"/>
+            <line num="101" type="stmt" count="1"/>
+            <line num="102" type="stmt" count="1"/>
+            <line num="106" type="stmt" count="0"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/handlers/Handler.java" name="Handler.java">
+            <metrics coveredelements="0" coveredconditionals="0" conditionals="0" ncloc="8" statements="0" coveredmethods="0" coveredstatements="0" loc="32" methods="0" classes="1" complexity="0" elements="0"/>
+            <class name="Handler">
+               <metrics coveredelements="0" coveredconditionals="0" conditionals="0" statements="0" coveredmethods="0" coveredstatements="0" methods="0" complexity="0" elements="0"/>
+            </class>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/handlers/JavaBasicHandler.java" name="JavaBasicHandler.java">
+            <metrics coveredelements="4" coveredconditionals="0" conditionals="0" ncloc="11" statements="2" coveredmethods="2" coveredstatements="2" loc="34" methods="2" classes="1" complexity="2" elements="4"/>
+            <class name="JavaBasicHandler">
+               <metrics coveredelements="4" coveredconditionals="0" conditionals="0" statements="2" coveredmethods="2" coveredstatements="2" methods="2" complexity="2" elements="4"/>
+            </class>
+            <line num="27" signature="getMultiLinesCommentDelimiters() : List&lt;MultiLinesCommentDelimiters&gt;" type="method" complexity="1" count="1"/>
+            <line num="28" type="stmt" count="1"/>
+            <line num="31" signature="getSingleLineCommentDelimiter() : List&lt;SingleLineCommentDelimiter&gt;" type="method" complexity="1" count="1"/>
+            <line num="32" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/handlers/PlsqlBasicHandler.java" name="PlsqlBasicHandler.java">
+            <metrics coveredelements="4" coveredconditionals="0" conditionals="0" ncloc="13" statements="2" coveredmethods="2" coveredstatements="2" loc="36" methods="2" classes="1" complexity="2" elements="4"/>
+            <class name="PlsqlBasicHandler">
+               <metrics coveredelements="4" coveredconditionals="0" conditionals="0" statements="2" coveredmethods="2" coveredstatements="2" methods="2" complexity="2" elements="4"/>
+            </class>
+            <line num="27" signature="getMultiLinesCommentDelimiters() : List&lt;MultiLinesCommentDelimiters&gt;" type="method" complexity="1" count="1"/>
+            <line num="28" type="stmt" count="1"/>
+            <line num="31" signature="getSingleLineCommentDelimiter() : List&lt;SingleLineCommentDelimiter&gt;" type="method" complexity="1" count="1"/>
+            <line num="32" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/handlers/JavaCheckstyleHandler.java" name="JavaCheckstyleHandler.java">
+            <metrics coveredelements="75" coveredconditionals="9" conditionals="10" ncloc="135" statements="53" coveredmethods="16" coveredstatements="50" loc="202" methods="17" classes="3" complexity="24" elements="80"/>
+            <class name="JavaCheckstyleHandler">
+               <metrics coveredelements="49" coveredconditionals="4" conditionals="4" statements="39" coveredmethods="7" coveredstatements="38" methods="7" complexity="11" elements="50"/>
+            </class>
+            <class name="JavaCheckstyleHandler.ErrorsListener">
+               <metrics coveredelements="12" coveredconditionals="2" conditionals="2" statements="5" coveredmethods="6" coveredstatements="4" methods="7" complexity="8" elements="14"/>
+            </class>
+            <class name="JavaCheckstyleHandler.StreamLogger">
+               <metrics coveredelements="14" coveredconditionals="3" conditionals="4" statements="9" coveredmethods="3" coveredstatements="8" methods="3" complexity="5" elements="16"/>
+            </class>
+            <line num="49" signature="JavaCheckstyleHandler(boolean)" type="method" complexity="1" count="1"/>
+            <line num="50" type="stmt" count="1"/>
+            <line num="61" signature="launchCheckstyleEngine(Collection&lt;File&gt;,Charset) : void" type="method" complexity="2" count="1"/>
+            <line num="62" type="stmt" count="1"/>
+            <line num="63" type="stmt" count="1"/>
+            <line num="64" type="stmt" count="1"/>
+            <line num="65" type="stmt" count="1"/>
+            <line num="66" type="stmt" count="1"/>
+            <line num="67" type="stmt" count="1"/>
+            <line num="68" type="stmt" count="1"/>
+            <line falsecount="1" num="68" type="cond" truecount="1"/>
+            <line num="69" type="stmt" count="1"/>
+            <line num="78" signature="createChecker(Charset,ErrorsListener) : Checker" type="method" complexity="2" count="1"/>
+            <line num="79" type="stmt" count="1"/>
+            <line num="80" type="stmt" count="1"/>
+            <line num="82" type="stmt" count="1"/>
+            <line num="83" type="stmt" count="1"/>
+            <line num="84" type="stmt" count="1"/>
+            <line num="85" type="stmt" count="1"/>
+            <line num="87" type="stmt" count="1"/>
+            <line num="88" type="stmt" count="1"/>
+            <line num="90" type="stmt" count="1"/>
+            <line num="92" type="stmt" count="1"/>
+            <line num="93" signature="log(String) : void" type="method" complexity="1" count="1"/>
+            <line num="95" type="stmt" count="1"/>
+            <line num="98" type="stmt" count="1"/>
+            <line num="99" signature="log(String) : void" type="method" complexity="1" count="1"/>
+            <line num="101" type="stmt" count="1"/>
+            <line num="105" type="stmt" count="1"/>
+            <line num="106" type="stmt" count="1"/>
+            <line num="107" type="stmt" count="1"/>
+            <line num="109" type="stmt" count="0"/>
+            <line num="119" signature="addError(AuditEvent) : void" type="method" complexity="2" count="1"/>
+            <line num="123" type="stmt" count="1"/>
+            <line num="123" type="stmt" count="1"/>
+            <line falsecount="1" num="123" type="cond" truecount="1"/>
+            <line num="124" type="stmt" count="1"/>
+            <line num="127" signature="addException(AuditEvent,Throwable) : void" type="method" complexity="1" count="0"/>
+            <line num="128" type="stmt" count="0"/>
+            <line num="131" signature="auditFinished(AuditEvent) : void" type="method" complexity="1" count="1"/>
+            <line num="134" signature="auditStarted(AuditEvent) : void" type="method" complexity="1" count="1"/>
+            <line num="137" signature="fileFinished(AuditEvent) : void" type="method" complexity="1" count="1"/>
+            <line num="140" signature="fileStarted(AuditEvent) : void" type="method" complexity="1" count="1"/>
+            <line num="143" signature="getErrors() : List&lt;AnalysisException&gt;" type="method" complexity="1" count="1"/>
+            <line num="144" type="stmt" count="1"/>
+            <line num="153" signature="write(int) : void" type="method" complexity="2" count="1"/>
+            <line num="155" type="stmt" count="1"/>
+            <line num="156" type="stmt" count="1"/>
+            <line falsecount="1" num="156" type="cond" truecount="1"/>
+            <line num="157" type="stmt" count="1"/>
+            <line num="159" type="stmt" count="1"/>
+            <line num="163" signature="logAndResetBuffer() : void" type="method" complexity="1" count="1"/>
+            <line num="164" type="stmt" count="1"/>
+            <line num="165" type="stmt" count="1"/>
+            <line num="170" signature="close() : void" type="method" complexity="2" count="1"/>
+            <line num="172" type="stmt" count="1"/>
+            <line falsecount="1" num="172" type="cond" truecount="0"/>
+            <line num="173" type="stmt" count="0"/>
+            <line num="175" type="stmt" count="1"/>
+            <line num="179" signature="analyzeSources(Resource,Collection&lt;File&gt;,Charset) : void" type="method" complexity="2" count="1"/>
+            <line num="180" type="stmt" count="1"/>
+            <line num="181" type="stmt" count="1"/>
+            <line num="182" type="stmt" count="1"/>
+            <line num="183" type="stmt" count="1"/>
+            <line num="184" type="stmt" count="1"/>
+            <line num="186" type="stmt" count="1"/>
+            <line num="187" type="stmt" count="1"/>
+            <line num="188" type="stmt" count="1"/>
+            <line num="191" signature="getVisitors() : List&lt;ASTSensor&gt;" type="method" complexity="2" count="1"/>
+            <line num="192" type="stmt" count="1"/>
+            <line num="193" type="stmt" count="1"/>
+            <line num="197" type="stmt" count="1"/>
+            <line falsecount="1" num="197" type="cond" truecount="1"/>
+            <line num="198" type="stmt" count="1"/>
+            <line num="200" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/handlers/BasicHandler.java" name="BasicHandler.java">
+            <metrics coveredelements="118" coveredconditionals="26" conditionals="28" ncloc="172" statements="77" coveredmethods="20" coveredstatements="72" loc="231" methods="21" classes="4" complexity="45" elements="126"/>
+            <class name="BasicHandler">
+               <metrics coveredelements="87" coveredconditionals="24" conditionals="26" statements="60" coveredmethods="8" coveredstatements="55" methods="9" complexity="32" elements="95"/>
+            </class>
+            <class name="BasicHandler.AnalyzeState">
+               <metrics coveredelements="20" coveredconditionals="2" conditionals="2" statements="11" coveredmethods="7" coveredstatements="11" methods="7" complexity="8" elements="20"/>
+            </class>
+            <class name="BasicHandler.MultiLinesCommentDelimiters">
+               <metrics coveredelements="7" coveredconditionals="0" conditionals="0" statements="4" coveredmethods="3" coveredstatements="4" methods="3" complexity="3" elements="7"/>
+            </class>
+            <class name="BasicHandler.SingleLineCommentDelimiter">
+               <metrics coveredelements="4" coveredconditionals="0" conditionals="0" statements="2" coveredmethods="2" coveredstatements="2" methods="2" complexity="2" elements="4"/>
+            </class>
+            <line num="40" signature="analyzeSources(Resource,Collection&lt;File&gt;,Charset) : void" type="method" complexity="2" count="1"/>
+            <line num="41" type="stmt" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line num="44" type="stmt" count="1"/>
+            <line num="47" signature="analyzeFile(File,Charset) : Resource" type="method" complexity="4" count="1"/>
+            <line num="49" type="stmt" count="1"/>
+            <line num="50" type="stmt" count="1"/>
+            <line num="51" type="stmt" count="1"/>
+            <line num="52" type="stmt" count="1"/>
+            <line num="53" type="stmt" count="1"/>
+            <line num="54" type="stmt" count="1"/>
+            <line falsecount="1" num="54" type="cond" truecount="1"/>
+            <line num="55" type="stmt" count="1"/>
+            <line num="58" type="stmt" count="1"/>
+            <line num="59" type="stmt" count="1"/>
+            <line num="60" type="stmt" count="1"/>
+            <line num="61" type="stmt" count="1"/>
+            <line num="62" type="stmt" count="1"/>
+            <line num="65" type="stmt" count="0"/>
+            <line num="68" type="stmt" count="0"/>
+            <line num="71" type="stmt" count="1"/>
+            <line num="75" signature="analyzeLine(String,AnalyzeState) : void" type="method" complexity="12" count="1"/>
+            <line num="76" type="stmt" count="1"/>
+            <line num="77" type="stmt" count="1"/>
+            <line num="79" type="stmt" count="1"/>
+            <line num="81" type="stmt" count="1"/>
+            <line falsecount="1" num="81" type="cond" truecount="1"/>
+            <line num="82" type="stmt" count="1"/>
+            <line num="83" type="stmt" count="1"/>
+            <line num="86" type="stmt" count="1"/>
+            <line falsecount="1" num="86" type="cond" truecount="1"/>
+            <line num="87" type="stmt" count="1"/>
+            <line falsecount="1" num="87" type="cond" truecount="1"/>
+            <line num="88" type="stmt" count="1"/>
+            <line num="89" type="stmt" count="1"/>
+            <line falsecount="1" num="89" type="cond" truecount="1"/>
+            <line num="90" type="stmt" count="1"/>
+            <line num="91" type="stmt" count="1"/>
+            <line num="92" type="stmt" count="1"/>
+            <line falsecount="1" num="92" type="cond" truecount="1"/>
+            <line num="93" type="stmt" count="1"/>
+            <line num="94" type="stmt" count="1"/>
+            <line num="95" type="stmt" count="1"/>
+            <line num="96" type="stmt" count="1"/>
+            <line falsecount="1" num="96" type="cond" truecount="1"/>
+            <line num="98" type="stmt" count="1"/>
+            <line num="101" type="stmt" count="1"/>
+            <line falsecount="1" num="101" type="cond" truecount="1"/>
+            <line num="102" type="stmt" count="1"/>
+            <line num="106" signature="isBlankCharacter(char) : boolean" type="method" complexity="1" count="1"/>
+            <line num="107" type="stmt" count="1"/>
+            <line num="110" signature="substringEquals(String,int,String) : boolean" type="method" complexity="2" count="1"/>
+            <line num="111" type="stmt" count="1"/>
+            <line falsecount="1" num="111" type="cond" truecount="1"/>
+            <line num="112" type="stmt" count="1"/>
+            <line num="114" type="stmt" count="1"/>
+            <line num="117" signature="singleLinesCommentStart(String,int) : boolean" type="method" complexity="3" count="1"/>
+            <line num="118" type="stmt" count="1"/>
+            <line num="119" type="stmt" count="1"/>
+            <line num="120" type="stmt" count="1"/>
+            <line falsecount="1" num="120" type="cond" truecount="1"/>
+            <line num="121" type="stmt" count="1"/>
+            <line num="124" type="stmt" count="1"/>
+            <line num="127" signature="multiLinesCommentStart(String,int) : boolean" type="method" complexity="3" count="1"/>
+            <line num="128" type="stmt" count="1"/>
+            <line num="129" type="stmt" count="1"/>
+            <line num="130" type="stmt" count="1"/>
+            <line falsecount="1" num="130" type="cond" truecount="1"/>
+            <line num="131" type="stmt" count="1"/>
+            <line num="134" type="stmt" count="1"/>
+            <line num="137" signature="multiLinesCommentStop(String,int) : boolean" type="method" complexity="3" count="1"/>
+            <line num="138" type="stmt" count="1"/>
+            <line num="139" type="stmt" count="1"/>
+            <line num="140" type="stmt" count="1"/>
+            <line falsecount="1" num="140" type="cond" truecount="1"/>
+            <line num="141" type="stmt" count="1"/>
+            <line num="144" type="stmt" count="1"/>
+            <line num="147" signature="chartAt(String,int) : char" type="method" complexity="2" count="0"/>
+            <line num="148" type="stmt" count="0"/>
+            <line falsecount="0" num="148" type="cond" truecount="0"/>
+            <line num="149" type="stmt" count="0"/>
+            <line num="151" type="stmt" count="0"/>
+            <line num="166" signature="newLine() : void" type="method" complexity="2" count="1"/>
+            <line num="167" type="stmt" count="1"/>
+            <line num="168" type="stmt" count="1"/>
+            <line falsecount="1" num="168" type="cond" truecount="1"/>
+            <line num="169" type="stmt" count="1"/>
+            <line num="173" signature="incrementLoc() : void" type="method" complexity="1" count="1"/>
+            <line num="174" type="stmt" count="1"/>
+            <line num="177" signature="startSingleLineComment() : void" type="method" complexity="1" count="1"/>
+            <line num="178" type="stmt" count="1"/>
+            <line num="179" type="stmt" count="1"/>
+            <line num="182" signature="startMultiLinesComment() : void" type="method" complexity="1" count="1"/>
+            <line num="183" type="stmt" count="1"/>
+            <line num="184" type="stmt" count="1"/>
+            <line num="187" signature="stopMultiLinesComment() : void" type="method" complexity="1" count="1"/>
+            <line num="188" type="stmt" count="1"/>
+            <line num="191" signature="stopSingleLineComment() : void" type="method" complexity="1" count="1"/>
+            <line num="192" type="stmt" count="1"/>
+            <line num="195" signature="incrementBlankLines() : void" type="method" complexity="1" count="1"/>
+            <line num="196" type="stmt" count="1"/>
+            <line num="205" signature="MultiLinesCommentDelimiters(String,String)" type="method" complexity="1" count="1"/>
+            <line num="206" type="stmt" count="1"/>
+            <line num="207" type="stmt" count="1"/>
+            <line num="210" signature="getStartWith() : String" type="method" complexity="1" count="1"/>
+            <line num="211" type="stmt" count="1"/>
+            <line num="214" signature="getEndWith() : String" type="method" complexity="1" count="1"/>
+            <line num="215" type="stmt" count="1"/>
+            <line num="222" signature="SingleLineCommentDelimiter(String)" type="method" complexity="1" count="1"/>
+            <line num="223" type="stmt" count="1"/>
+            <line num="226" signature="getStartWith() : String" type="method" complexity="1" count="1"/>
+            <line num="227" type="stmt" count="1"/>
+         </file>
+      </package>
+      <package name="org.sonar.squid.entities">
+         <metrics coveredelements="239" coveredconditionals="38" ncloc="366" statements="159" loc="502" complexity="99" files="2" conditionals="42" coveredstatements="141" coveredmethods="60" methods="70" classes="3" elements="271"/>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/entities/Measures.java" name="Measures.java">
+            <metrics coveredelements="155" coveredconditionals="20" conditionals="22" ncloc="235" statements="103" coveredmethods="41" coveredstatements="94" loc="321" methods="49" classes="1" complexity="62" elements="174"/>
+            <class name="Measures">
+               <metrics coveredelements="155" coveredconditionals="20" conditionals="22" statements="103" coveredmethods="41" coveredstatements="94" methods="49" complexity="62" elements="174"/>
+            </class>
+            <line num="55" signature="Measures(Resource)" type="method" complexity="5" count="1"/>
+            <line num="56" type="stmt" count="1"/>
+            <line num="57" type="stmt" count="1"/>
+            <line falsecount="1" num="57" type="cond" truecount="1"/>
+            <line num="58" type="stmt" count="1"/>
+            <line num="59" type="stmt" count="1"/>
+            <line falsecount="1" num="59" type="cond" truecount="1"/>
+            <line num="60" type="stmt" count="1"/>
+            <line num="61" type="stmt" count="1"/>
+            <line falsecount="1" num="61" type="cond" truecount="1"/>
+            <line num="62" type="stmt" count="1"/>
+            <line num="63" type="stmt" count="1"/>
+            <line falsecount="1" num="63" type="cond" truecount="1"/>
+            <line num="64" type="stmt" count="1"/>
+            <line num="68" signature="getMethodsComplexity() : int[]" type="method" complexity="1" count="1"/>
+            <line num="69" type="stmt" count="1"/>
+            <line num="72" signature="getMethodsComplexityDistribution(int) : Map&lt;Integer, Integer&gt;" type="method" complexity="1" count="0"/>
+            <line num="73" type="stmt" count="0"/>
+            <line num="76" signature="getClassesComplexity() : int[]" type="method" complexity="1" count="1"/>
+            <line num="77" type="stmt" count="1"/>
+            <line num="80" signature="getClassesComplexityDistribution(int) : Map&lt;Integer, Integer&gt;" type="method" complexity="1" count="0"/>
+            <line num="81" type="stmt" count="0"/>
+            <line num="84" signature="getLoc() : int" type="method" complexity="1" count="1"/>
+            <line num="85" type="stmt" count="1"/>
+            <line num="88" signature="getNcloc() : int" type="method" complexity="2" count="1"/>
+            <line num="89" type="stmt" count="1"/>
+            <line falsecount="1" num="89" type="cond" truecount="1"/>
+            <line num="90" type="stmt" count="1"/>
+            <line num="92" type="stmt" count="1"/>
+            <line num="95" signature="setNcloc(int) : void" type="method" complexity="1" count="1"/>
+            <line num="96" type="stmt" count="1"/>
+            <line num="99" signature="getBlankLines() : int" type="method" complexity="1" count="1"/>
+            <line num="100" type="stmt" count="1"/>
+            <line num="103" signature="getStatements() : int" type="method" complexity="1" count="1"/>
+            <line num="104" type="stmt" count="1"/>
+            <line num="107" signature="addStatement() : void" type="method" complexity="1" count="1"/>
+            <line num="108" type="stmt" count="1"/>
+            <line num="111" signature="getCommentLines() : int" type="method" complexity="1" count="1"/>
+            <line num="112" type="stmt" count="1"/>
+            <line num="115" signature="setCommentLines(int) : void" type="method" complexity="1" count="1"/>
+            <line num="116" type="stmt" count="1"/>
+            <line num="119" signature="getCommentLinesOnLineOfCode() : int" type="method" complexity="1" count="1"/>
+            <line num="120" type="stmt" count="1"/>
+            <line num="123" signature="setCommentLinesOnLineOfCode(int) : void" type="method" complexity="1" count="0"/>
+            <line num="124" type="stmt" count="0"/>
+            <line num="127" signature="getRealCommentLines() : int" type="method" complexity="1" count="1"/>
+            <line num="129" type="stmt" count="1"/>
+            <line num="132" signature="getComplexity() : int" type="method" complexity="1" count="1"/>
+            <line num="133" type="stmt" count="1"/>
+            <line num="136" signature="setComplexity(int) : void" type="method" complexity="3" count="1"/>
+            <line num="137" type="stmt" count="1"/>
+            <line num="138" type="stmt" count="1"/>
+            <line falsecount="1" num="138" type="cond" truecount="1"/>
+            <line num="139" type="stmt" count="1"/>
+            <line num="140" type="stmt" count="1"/>
+            <line falsecount="1" num="140" type="cond" truecount="1"/>
+            <line num="141" type="stmt" count="1"/>
+            <line num="145" signature="getBranches() : int" type="method" complexity="1" count="1"/>
+            <line num="146" type="stmt" count="1"/>
+            <line num="149" signature="addBranch() : void" type="method" complexity="1" count="1"/>
+            <line num="150" type="stmt" count="1"/>
+            <line num="153" signature="addPublicApi() : void" type="method" complexity="1" count="1"/>
+            <line num="154" type="stmt" count="1"/>
+            <line num="157" signature="addPublicDocumentedApi() : void" type="method" complexity="1" count="1"/>
+            <line num="158" type="stmt" count="1"/>
+            <line num="161" signature="getMethods() : int" type="method" complexity="1" count="1"/>
+            <line num="162" type="stmt" count="1"/>
+            <line num="165" signature="setMethods(int) : void" type="method" complexity="1" count="1"/>
+            <line num="166" type="stmt" count="1"/>
+            <line num="169" signature="getClasses() : int" type="method" complexity="1" count="1"/>
+            <line num="170" type="stmt" count="1"/>
+            <line num="173" signature="setClasses(int) : void" type="method" complexity="1" count="1"/>
+            <line num="174" type="stmt" count="1"/>
+            <line num="177" signature="getFiles() : int" type="method" complexity="1" count="1"/>
+            <line num="178" type="stmt" count="1"/>
+            <line num="181" signature="getPackages() : int" type="method" complexity="1" count="1"/>
+            <line num="182" type="stmt" count="1"/>
+            <line num="185" signature="getBlankCommentLines() : int" type="method" complexity="1" count="1"/>
+            <line num="186" type="stmt" count="1"/>
+            <line num="189" signature="setBlankCommentLines(int) : void" type="method" complexity="1" count="0"/>
+            <line num="190" type="stmt" count="0"/>
+            <line num="193" signature="addComplexity(int[],int[]) : int[]" type="method" complexity="2" count="1"/>
+            <line num="194" type="stmt" count="1"/>
+            <line falsecount="1" num="194" type="cond" truecount="1"/>
+            <line num="195" type="stmt" count="1"/>
+            <line num="196" type="stmt" count="1"/>
+            <line num="197" type="stmt" count="1"/>
+            <line num="198" type="stmt" count="1"/>
+            <line num="199" type="stmt" count="1"/>
+            <line num="202" signature="consolidate() : void" type="method" complexity="5" count="1"/>
+            <line num="203" type="stmt" count="1"/>
+            <line num="204" type="stmt" count="1"/>
+            <line num="206" type="stmt" count="1"/>
+            <line num="207" type="stmt" count="1"/>
+            <line num="209" type="stmt" count="1"/>
+            <line num="210" type="stmt" count="1"/>
+            <line num="211" type="stmt" count="1"/>
+            <line num="213" type="stmt" count="1"/>
+            <line num="214" type="stmt" count="1"/>
+            <line num="215" type="stmt" count="1"/>
+            <line num="217" type="stmt" count="1"/>
+            <line num="218" type="stmt" count="1"/>
+            <line num="219" type="stmt" count="1"/>
+            <line num="221" type="stmt" count="1"/>
+            <line num="222" type="stmt" count="1"/>
+            <line num="223" type="stmt" count="1"/>
+            <line num="224" type="stmt" count="1"/>
+            <line num="226" type="stmt" count="1"/>
+            <line num="227" type="stmt" count="1"/>
+            <line num="230" type="stmt" count="1"/>
+            <line num="231" type="stmt" count="1"/>
+            <line falsecount="1" num="231" type="cond" truecount="1"/>
+            <line num="232" type="stmt" count="1"/>
+            <line num="233" type="stmt" count="1"/>
+            <line num="234" type="stmt" count="1"/>
+            <line num="235" type="stmt" count="1"/>
+            <line num="236" type="stmt" count="1"/>
+            <line num="238" type="stmt" count="1"/>
+            <line num="239" type="stmt" count="1"/>
+            <line num="240" type="stmt" count="1"/>
+            <line num="241" type="stmt" count="1"/>
+            <line num="245" signature="getAttrAccessorMethods() : int" type="method" complexity="1" count="1"/>
+            <line num="246" type="stmt" count="1"/>
+            <line num="249" signature="setAttrAccessorMethod() : void" type="method" complexity="1" count="1"/>
+            <line num="250" type="stmt" count="1"/>
+            <line num="253" signature="isAttrAccessorMethod() : boolean" type="method" complexity="1" count="1"/>
+            <line num="254" type="stmt" count="1"/>
+            <line num="257" signature="setStatements(int) : Measures" type="method" complexity="1" count="1"/>
+            <line num="258" type="stmt" count="1"/>
+            <line num="259" type="stmt" count="1"/>
+            <line num="262" signature="setCommentsBlock(int,int,int) : void" type="method" complexity="1" count="1"/>
+            <line num="263" type="stmt" count="1"/>
+            <line num="264" type="stmt" count="1"/>
+            <line num="265" type="stmt" count="1"/>
+            <line num="268" signature="getHeaderCommentLines() : int" type="method" complexity="1" count="1"/>
+            <line num="269" type="stmt" count="1"/>
+            <line num="272" signature="setHeaderCommentLines(int) : void" type="method" complexity="1" count="1"/>
+            <line num="273" type="stmt" count="1"/>
+            <line num="276" signature="setFiles(int) : void" type="method" complexity="1" count="0"/>
+            <line num="277" type="stmt" count="0"/>
+            <line num="280" signature="setPackages(int) : void" type="method" complexity="1" count="0"/>
+            <line num="281" type="stmt" count="0"/>
+            <line num="284" signature="setLoc(int) : void" type="method" complexity="1" count="1"/>
+            <line num="285" type="stmt" count="1"/>
+            <line num="288" signature="setBlankLines(int) : void" type="method" complexity="1" count="1"/>
+            <line num="289" type="stmt" count="1"/>
+            <line num="292" signature="setBranches(int) : void" type="method" complexity="1" count="0"/>
+            <line num="293" type="stmt" count="0"/>
+            <line num="296" signature="getPublicApi() : int" type="method" complexity="1" count="1"/>
+            <line num="297" type="stmt" count="1"/>
+            <line num="300" signature="getPublicDocumentedApi() : int" type="method" complexity="1" count="1"/>
+            <line num="301" type="stmt" count="1"/>
+            <line num="304" signature="getPercentOfApiDoc() : double" type="method" complexity="1" count="1"/>
+            <line num="305" type="stmt" count="1"/>
+            <line falsecount="0" num="305" type="cond" truecount="1"/>
+            <line num="308" signature="getPercentOfCommentLines() : double" type="method" complexity="2" count="1"/>
+            <line num="309" type="stmt" count="1"/>
+            <line falsecount="0" num="309" type="cond" truecount="1"/>
+            <line num="310" type="stmt" count="1"/>
+            <line num="311" type="stmt" count="1"/>
+            <line num="313" type="stmt" count="0"/>
+            <line num="317" signature="toString() : String" type="method" complexity="1" count="0"/>
+            <line num="318" type="stmt" count="0"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/entities/Resource.java" name="Resource.java">
+            <metrics coveredelements="84" coveredconditionals="18" conditionals="20" ncloc="131" statements="56" coveredmethods="19" coveredstatements="47" loc="181" methods="21" classes="2" complexity="37" elements="97"/>
+            <class name="Resource">
+               <metrics coveredelements="84" coveredconditionals="18" conditionals="20" statements="56" coveredmethods="19" coveredstatements="47" methods="21" complexity="37" elements="97"/>
+            </class>
+            <class name="Resource.Type">
+               <metrics coveredelements="0" coveredconditionals="0" conditionals="0" statements="0" coveredmethods="0" coveredstatements="0" methods="0" complexity="0" elements="0"/>
+            </class>
+            <line num="47" signature="Resource(String,Type)" type="method" complexity="1" count="1"/>
+            <line num="48" type="stmt" count="1"/>
+            <line num="49" type="stmt" count="1"/>
+            <line num="50" type="stmt" count="1"/>
+            <line num="53" signature="addChild(Resource) : void" type="method" complexity="2" count="1"/>
+            <line num="54" type="stmt" count="1"/>
+            <line num="55" type="stmt" count="1"/>
+            <line falsecount="1" num="55" type="cond" truecount="1"/>
+            <line num="56" type="stmt" count="1"/>
+            <line num="60" signature="getMeasures() : Measures" type="method" complexity="1" count="1"/>
+            <line num="61" type="stmt" count="1"/>
+            <line num="64" signature="getFirstChild() : Resource" type="method" complexity="1" count="1"/>
+            <line num="65" type="stmt" count="1"/>
+            <line num="68" signature="getLastChild() : Resource" type="method" complexity="1" count="0"/>
+            <line num="69" type="stmt" count="0"/>
+            <line num="72" signature="setParent(Resource) : void" type="method" complexity="1" count="1"/>
+            <line num="73" type="stmt" count="1"/>
+            <line num="76" signature="compareTo(Resource) : int" type="method" complexity="1" count="1"/>
+            <line num="77" type="stmt" count="1"/>
+            <line num="80" signature="getName() : String" type="method" complexity="1" count="1"/>
+            <line num="81" type="stmt" count="1"/>
+            <line num="84" signature="getFullName() : String" type="method" complexity="3" count="1"/>
+            <line num="85" type="stmt" count="1"/>
+            <line falsecount="1" num="85" type="cond" truecount="1"/>
+            <line num="86" type="stmt" count="1"/>
+            <line num="88" type="stmt" count="1"/>
+            <line num="91" signature="getType() : Type" type="method" complexity="1" count="1"/>
+            <line num="92" type="stmt" count="1"/>
+            <line num="95" signature="getParent() : Resource" type="method" complexity="1" count="1"/>
+            <line num="96" type="stmt" count="1"/>
+            <line num="99" signature="getChildren() : Set&lt;Resource&gt;" type="method" complexity="1" count="1"/>
+            <line num="100" type="stmt" count="1"/>
+            <line num="103" signature="equals(Object) : boolean" type="method" complexity="2" count="1"/>
+            <line num="104" type="stmt" count="1"/>
+            <line falsecount="1" num="104" type="cond" truecount="1"/>
+            <line num="105" type="stmt" count="1"/>
+            <line num="107" type="stmt" count="1"/>
+            <line num="108" type="stmt" count="1"/>
+            <line num="111" signature="hashCode() : int" type="method" complexity="1" count="1"/>
+            <line num="112" type="stmt" count="1"/>
+            <line num="115" signature="toString() : String" type="method" complexity="3" count="0"/>
+            <line num="116" type="stmt" count="0"/>
+            <line num="117" type="stmt" count="0"/>
+            <line num="118" type="stmt" count="0"/>
+            <line num="119" type="stmt" count="0"/>
+            <line num="120" type="stmt" count="0"/>
+            <line num="121" type="stmt" count="0"/>
+            <line falsecount="0" num="121" type="cond" truecount="0"/>
+            <line num="122" type="stmt" count="0"/>
+            <line num="126" type="stmt" count="0"/>
+            <line num="129" signature="contains(Resource,boolean) : boolean" type="method" complexity="5" count="1"/>
+            <line num="130" type="stmt" count="1"/>
+            <line falsecount="1" num="130" type="cond" truecount="1"/>
+            <line num="131" type="stmt" count="1"/>
+            <line num="133" type="stmt" count="1"/>
+            <line falsecount="1" num="133" type="cond" truecount="1"/>
+            <line num="134" type="stmt" count="1"/>
+            <line num="135" type="stmt" count="1"/>
+            <line falsecount="1" num="135" type="cond" truecount="1"/>
+            <line num="136" type="stmt" count="1"/>
+            <line num="140" type="stmt" count="1"/>
+            <line num="143" signature="find(Resource) : Resource" type="method" complexity="4" count="1"/>
+            <line num="144" type="stmt" count="1"/>
+            <line falsecount="1" num="144" type="cond" truecount="1"/>
+            <line num="145" type="stmt" count="1"/>
+            <line num="147" type="stmt" count="1"/>
+            <line num="148" type="stmt" count="1"/>
+            <line num="149" type="stmt" count="1"/>
+            <line falsecount="1" num="149" type="cond" truecount="1"/>
+            <line num="150" type="stmt" count="1"/>
+            <line num="153" type="stmt" count="1"/>
+            <line num="156" signature="find(String,Resource.Type) : Resource" type="method" complexity="1" count="1"/>
+            <line num="157" type="stmt" count="1"/>
+            <line num="160" signature="find(Resource.Type) : Collection&lt;Resource&gt;" type="method" complexity="1" count="1"/>
+            <line num="161" type="stmt" count="1"/>
+            <line num="162" type="stmt" count="1"/>
+            <line num="163" type="stmt" count="1"/>
+            <line num="166" signature="find(Collection&lt;Resource&gt;,Resource.Type) : void" type="method" complexity="3" count="1"/>
+            <line num="167" type="stmt" count="1"/>
+            <line falsecount="1" num="167" type="cond" truecount="1"/>
+            <line num="168" type="stmt" count="1"/>
+            <line num="170" type="stmt" count="1"/>
+            <line num="171" type="stmt" count="1"/>
+            <line num="175" signature="compute() : void" type="method" complexity="2" count="1"/>
+            <line num="176" type="stmt" count="1"/>
+            <line num="177" type="stmt" count="1"/>
+            <line num="179" type="stmt" count="1"/>
+         </file>
+      </package>
+      <package name="org.sonar.squid">
+         <metrics coveredelements="20" coveredconditionals="2" ncloc="50" statements="14" loc="106" complexity="11" files="2" conditionals="2" coveredstatements="11" coveredmethods="7" methods="10" classes="2" elements="26"/>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/AnalysisException.java" name="AnalysisException.java">
+            <metrics coveredelements="2" coveredconditionals="0" conditionals="0" ncloc="12" statements="3" coveredmethods="1" coveredstatements="1" loc="37" methods="3" classes="1" complexity="3" elements="6"/>
+            <class name="AnalysisException">
+               <metrics coveredelements="2" coveredconditionals="0" conditionals="0" statements="3" coveredmethods="1" coveredstatements="1" methods="3" complexity="3" elements="6"/>
+            </class>
+            <line num="24" signature="AnalysisException(String,Throwable)" type="method" complexity="1" count="0"/>
+            <line num="25" type="stmt" count="0"/>
+            <line num="29" signature="AnalysisException(String)" type="method" complexity="1" count="1"/>
+            <line num="30" type="stmt" count="1"/>
+            <line num="33" signature="AnalysisException(Throwable)" type="method" complexity="1" count="0"/>
+            <line num="34" type="stmt" count="0"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/main/java/org/sonar/squid/Squid.java" name="Squid.java">
+            <metrics coveredelements="18" coveredconditionals="2" conditionals="2" ncloc="38" statements="11" coveredmethods="6" coveredstatements="10" loc="69" methods="7" classes="1" complexity="8" elements="20"/>
+            <class name="Squid">
+               <metrics coveredelements="18" coveredconditionals="2" conditionals="2" statements="11" coveredmethods="6" coveredstatements="10" methods="7" complexity="8" elements="20"/>
+            </class>
+            <line num="35" signature="setAnaylsePropertyAccessors(boolean) : void" type="method" complexity="1" count="1"/>
+            <line num="36" type="stmt" count="1"/>
+            <line num="39" signature="analyze(File) : Resource" type="method" complexity="1" count="1"/>
+            <line num="40" type="stmt" count="1"/>
+            <line num="43" signature="analyze(File,Handler) : Resource" type="method" complexity="1" count="1"/>
+            <line num="44" type="stmt" count="1"/>
+            <line num="47" signature="analyze(File,Charset) : Resource" type="method" complexity="2" count="1"/>
+            <line num="48" type="stmt" count="1"/>
+            <line falsecount="1" num="48" type="cond" truecount="1"/>
+            <line num="49" type="stmt" count="1"/>
+            <line num="51" type="stmt" count="1"/>
+            <line num="55" signature="analyze(Collection&lt;File&gt;) : Resource" type="method" complexity="1" count="1"/>
+            <line num="56" type="stmt" count="1"/>
+            <line num="59" signature="analyze(Collection&lt;File&gt;,Charset) : Resource" type="method" complexity="1" count="0"/>
+            <line num="60" type="stmt" count="0"/>
+            <line num="63" signature="analyze(Collection&lt;File&gt;,Charset,Handler) : Resource" type="method" complexity="1" count="1"/>
+            <line num="64" type="stmt" count="1"/>
+            <line num="65" type="stmt" count="1"/>
+            <line num="66" type="stmt" count="1"/>
+         </file>
+      </package>
+   </project>
+   <testproject timestamp="1242823810334" name="Sonar Squid">
+      <metrics coveredelements="513" packages="5" coveredconditionals="1" ncloc="844" statements="443" loc="1453" complexity="73" files="21" conditionals="2" coveredstatements="441" coveredmethods="71" methods="71" classes="21" elements="516"/>
+      <package name="org.sonar.squid.sensors">
+         <metrics coveredelements="236" coveredconditionals="0" ncloc="425" statements="197" loc="761" complexity="39" files="13" conditionals="0" coveredstatements="197" coveredmethods="39" methods="39" classes="13" elements="236"/>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/sensors/ClassSensorTest.java" name="ClassSensorTest.java">
+            <metrics coveredelements="38" coveredconditionals="0" conditionals="0" ncloc="56" statements="34" coveredmethods="4" coveredstatements="34" loc="87" methods="4" classes="1" complexity="4" elements="38"/>
+            <class name="ClassSensorTest">
+               <metrics coveredelements="38" coveredconditionals="0" conditionals="0" statements="34" coveredmethods="4" coveredstatements="34" methods="4" complexity="4" elements="38"/>
+            </class>
+            <line num="33" signature="analyseTest003() : void" type="method" complexity="1" count="1"/>
+            <line num="35" type="stmt" count="1"/>
+            <line num="36" type="stmt" count="1"/>
+            <line num="37" type="stmt" count="1"/>
+            <line num="38" type="stmt" count="1"/>
+            <line num="40" type="stmt" count="1"/>
+            <line num="41" type="stmt" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line num="43" type="stmt" count="1"/>
+            <line num="44" type="stmt" count="1"/>
+            <line num="45" type="stmt" count="1"/>
+            <line num="46" type="stmt" count="1"/>
+            <line num="48" type="stmt" count="1"/>
+            <line num="49" type="stmt" count="1"/>
+            <line num="50" type="stmt" count="1"/>
+            <line num="53" signature="analyseClassCounterEnum() : void" type="method" complexity="1" count="1"/>
+            <line num="55" type="stmt" count="1"/>
+            <line num="56" type="stmt" count="1"/>
+            <line num="57" type="stmt" count="1"/>
+            <line num="60" signature="analyseAnnotationDefinition() : void" type="method" complexity="1" count="1"/>
+            <line num="62" type="stmt" count="1"/>
+            <line num="63" type="stmt" count="1"/>
+            <line num="64" type="stmt" count="1"/>
+            <line num="65" type="stmt" count="1"/>
+            <line num="68" signature="analysePrivateInnerClass() : void" type="method" complexity="1" count="1"/>
+            <line num="70" type="stmt" count="1"/>
+            <line num="71" type="stmt" count="1"/>
+            <line num="72" type="stmt" count="1"/>
+            <line num="73" type="stmt" count="1"/>
+            <line num="74" type="stmt" count="1"/>
+            <line num="76" type="stmt" count="1"/>
+            <line num="77" type="stmt" count="1"/>
+            <line num="78" type="stmt" count="1"/>
+            <line num="79" type="stmt" count="1"/>
+            <line num="81" type="stmt" count="1"/>
+            <line num="82" type="stmt" count="1"/>
+            <line num="83" type="stmt" count="1"/>
+            <line num="84" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/sensors/CommentSensorTest.java" name="CommentSensorTest.java">
+            <metrics coveredelements="10" coveredconditionals="0" conditionals="0" ncloc="22" statements="8" coveredmethods="2" coveredstatements="8" loc="47" methods="2" classes="1" complexity="2" elements="10"/>
+            <class name="CommentSensorTest">
+               <metrics coveredelements="10" coveredconditionals="0" conditionals="0" statements="8" coveredmethods="2" coveredstatements="8" methods="2" complexity="2" elements="10"/>
+            </class>
+            <line num="30" signature="analyseTest002() : void" type="method" complexity="1" count="1"/>
+            <line num="32" type="stmt" count="1"/>
+            <line num="33" type="stmt" count="1"/>
+            <line num="34" type="stmt" count="1"/>
+            <line num="35" type="stmt" count="1"/>
+            <line num="38" signature="analyseTest001() : void" type="method" complexity="1" count="1"/>
+            <line num="40" type="stmt" count="1"/>
+            <line num="41" type="stmt" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line num="43" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/sensors/AccessorSensorTest.java" name="AccessorSensorTest.java">
+            <metrics coveredelements="29" coveredconditionals="0" conditionals="0" ncloc="47" statements="25" coveredmethods="4" coveredstatements="25" loc="74" methods="4" classes="1" complexity="4" elements="29"/>
+            <class name="AccessorSensorTest">
+               <metrics coveredelements="29" coveredconditionals="0" conditionals="0" statements="25" coveredmethods="4" coveredstatements="25" methods="4" complexity="4" elements="29"/>
+            </class>
+            <line num="32" signature="enableAttrAccessorAnalysis() : void" type="method" complexity="1" count="1"/>
+            <line num="34" type="stmt" count="1"/>
+            <line num="37" signature="disableAttrAccessorAnalysis() : void" type="method" complexity="1" count="1"/>
+            <line num="39" type="stmt" count="1"/>
+            <line num="42" signature="analyseVarAccessors() : void" type="method" complexity="1" count="1"/>
+            <line num="44" type="stmt" count="1"/>
+            <line num="45" type="stmt" count="1"/>
+            <line num="46" type="stmt" count="1"/>
+            <line num="48" type="stmt" count="1"/>
+            <line num="49" type="stmt" count="1"/>
+            <line num="52" signature="analyseVarAccessorsImpactOnOtherMeasures() : void" type="method" complexity="1" count="1"/>
+            <line num="54" type="stmt" count="1"/>
+            <line num="55" type="stmt" count="1"/>
+            <line num="56" type="stmt" count="1"/>
+            <line num="57" type="stmt" count="1"/>
+            <line num="58" type="stmt" count="1"/>
+            <line num="59" type="stmt" count="1"/>
+            <line num="60" type="stmt" count="1"/>
+            <line num="61" type="stmt" count="1"/>
+            <line num="62" type="stmt" count="1"/>
+            <line num="64" type="stmt" count="1"/>
+            <line num="65" type="stmt" count="1"/>
+            <line num="66" type="stmt" count="1"/>
+            <line num="67" type="stmt" count="1"/>
+            <line num="68" type="stmt" count="1"/>
+            <line num="69" type="stmt" count="1"/>
+            <line num="70" type="stmt" count="1"/>
+            <line num="71" type="stmt" count="1"/>
+            <line num="72" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/sensors/NclocSensorTest.java" name="NclocSensorTest.java">
+            <metrics coveredelements="19" coveredconditionals="0" conditionals="0" ncloc="33" statements="16" coveredmethods="3" coveredstatements="16" loc="57" methods="3" classes="1" complexity="3" elements="19"/>
+            <class name="NclocSensorTest">
+               <metrics coveredelements="19" coveredconditionals="0" conditionals="0" statements="16" coveredmethods="3" coveredstatements="16" methods="3" complexity="3" elements="19"/>
+            </class>
+            <line num="30" signature="analyseTestNcloc() : void" type="method" complexity="1" count="1"/>
+            <line num="32" type="stmt" count="1"/>
+            <line num="33" type="stmt" count="1"/>
+            <line num="34" type="stmt" count="1"/>
+            <line num="35" type="stmt" count="1"/>
+            <line num="38" signature="analyseTestNclocWithClassComment() : void" type="method" complexity="1" count="1"/>
+            <line num="40" type="stmt" count="1"/>
+            <line num="41" type="stmt" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line num="43" type="stmt" count="1"/>
+            <line num="44" type="stmt" count="1"/>
+            <line num="45" type="stmt" count="1"/>
+            <line num="48" signature="analyseTestNclocWithHeader() : void" type="method" complexity="1" count="1"/>
+            <line num="50" type="stmt" count="1"/>
+            <line num="51" type="stmt" count="1"/>
+            <line num="52" type="stmt" count="1"/>
+            <line num="53" type="stmt" count="1"/>
+            <line num="54" type="stmt" count="1"/>
+            <line num="55" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/sensors/ComplexitySensorTest.java" name="ComplexitySensorTest.java">
+            <metrics coveredelements="11" coveredconditionals="0" conditionals="0" ncloc="25" statements="8" coveredmethods="3" coveredstatements="8" loc="50" methods="3" classes="1" complexity="3" elements="11"/>
+            <class name="ComplexitySensorTest">
+               <metrics coveredelements="11" coveredconditionals="0" conditionals="0" statements="8" coveredmethods="3" coveredstatements="8" methods="3" complexity="3" elements="11"/>
+            </class>
+            <line num="30" signature="testNoBranches() : void" type="method" complexity="1" count="1"/>
+            <line num="32" type="stmt" count="1"/>
+            <line num="33" type="stmt" count="1"/>
+            <line num="36" signature="testSimpleBranches() : void" type="method" complexity="1" count="1"/>
+            <line num="38" type="stmt" count="1"/>
+            <line num="39" type="stmt" count="1"/>
+            <line num="41" type="stmt" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line num="45" signature="testInstanceAndStaticInitBlocks() : void" type="method" complexity="1" count="1"/>
+            <line num="47" type="stmt" count="1"/>
+            <line num="48" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/sensors/BlankLineSensorTest.java" name="BlankLineSensorTest.java">
+            <metrics coveredelements="11" coveredconditionals="0" conditionals="0" ncloc="25" statements="8" coveredmethods="3" coveredstatements="8" loc="51" methods="3" classes="1" complexity="3" elements="11"/>
+            <class name="BlankLineSensorTest">
+               <metrics coveredelements="11" coveredconditionals="0" conditionals="0" statements="8" coveredmethods="3" coveredstatements="8" methods="3" complexity="3" elements="11"/>
+            </class>
+            <line num="30" signature="analyseTest002() : void" type="method" complexity="1" count="1"/>
+            <line num="32" type="stmt" count="1"/>
+            <line num="33" type="stmt" count="1"/>
+            <line num="36" signature="analyseTest001() : void" type="method" complexity="1" count="1"/>
+            <line num="38" type="stmt" count="1"/>
+            <line num="39" type="stmt" count="1"/>
+            <line num="43" signature="analyseClassWithHeaderAndBlankLines() : void" type="method" complexity="1" count="1"/>
+            <line num="45" type="stmt" count="1"/>
+            <line num="46" type="stmt" count="1"/>
+            <line num="47" type="stmt" count="1"/>
+            <line num="48" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/sensors/LocSensorTest.java" name="LocSensorTest.java">
+            <metrics coveredelements="6" coveredconditionals="0" conditionals="0" ncloc="18" statements="4" coveredmethods="2" coveredstatements="4" loc="42" methods="2" classes="1" complexity="2" elements="6"/>
+            <class name="LocSensorTest">
+               <metrics coveredelements="6" coveredconditionals="0" conditionals="0" statements="4" coveredmethods="2" coveredstatements="4" methods="2" complexity="2" elements="6"/>
+            </class>
+            <line num="30" signature="analyseTest001() : void" type="method" complexity="1" count="1"/>
+            <line num="33" type="stmt" count="1"/>
+            <line num="34" type="stmt" count="1"/>
+            <line num="37" signature="analyseTest002() : void" type="method" complexity="1" count="1"/>
+            <line num="39" type="stmt" count="1"/>
+            <line num="40" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/sensors/PublicApiSensorTest.java" name="PublicApiSensorTest.java">
+            <metrics coveredelements="50" coveredconditionals="0" conditionals="0" ncloc="70" statements="44" coveredmethods="6" coveredstatements="44" loc="100" methods="6" classes="1" complexity="6" elements="50"/>
+            <class name="PublicApiSensorTest">
+               <metrics coveredelements="50" coveredconditionals="0" conditionals="0" statements="44" coveredmethods="6" coveredstatements="44" methods="6" complexity="6" elements="50"/>
+            </class>
+            <line num="30" signature="analyseClassWithCommentsOnLineOfCode() : void" type="method" complexity="1" count="1"/>
+            <line num="32" type="stmt" count="1"/>
+            <line num="33" type="stmt" count="1"/>
+            <line num="34" type="stmt" count="1"/>
+            <line num="35" type="stmt" count="1"/>
+            <line num="36" type="stmt" count="1"/>
+            <line num="39" signature="analyseVars() : void" type="method" complexity="1" count="1"/>
+            <line num="41" type="stmt" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line num="43" type="stmt" count="1"/>
+            <line num="44" type="stmt" count="1"/>
+            <line num="45" type="stmt" count="1"/>
+            <line num="46" type="stmt" count="1"/>
+            <line num="47" type="stmt" count="1"/>
+            <line num="48" type="stmt" count="1"/>
+            <line num="49" type="stmt" count="1"/>
+            <line num="50" type="stmt" count="1"/>
+            <line num="53" signature="analyseConstants() : void" type="method" complexity="1" count="1"/>
+            <line num="55" type="stmt" count="1"/>
+            <line num="57" type="stmt" count="1"/>
+            <line num="58" type="stmt" count="1"/>
+            <line num="59" type="stmt" count="1"/>
+            <line num="60" type="stmt" count="1"/>
+            <line num="61" type="stmt" count="1"/>
+            <line num="62" type="stmt" count="1"/>
+            <line num="63" type="stmt" count="1"/>
+            <line num="64" type="stmt" count="1"/>
+            <line num="68" signature="analyseApiDocCounter() : void" type="method" complexity="1" count="1"/>
+            <line num="70" type="stmt" count="1"/>
+            <line num="71" type="stmt" count="1"/>
+            <line num="72" type="stmt" count="1"/>
+            <line num="73" type="stmt" count="1"/>
+            <line num="74" type="stmt" count="1"/>
+            <line num="75" type="stmt" count="1"/>
+            <line num="77" type="stmt" count="1"/>
+            <line num="78" type="stmt" count="1"/>
+            <line num="81" signature="analyseJavaDocCounterOnAnnotation() : void" type="method" complexity="1" count="1"/>
+            <line num="83" type="stmt" count="1"/>
+            <line num="84" type="stmt" count="1"/>
+            <line num="85" type="stmt" count="1"/>
+            <line num="86" type="stmt" count="1"/>
+            <line num="87" type="stmt" count="1"/>
+            <line num="90" signature="analyseInterfaceComments() : void" type="method" complexity="1" count="1"/>
+            <line num="92" type="stmt" count="1"/>
+            <line num="93" type="stmt" count="1"/>
+            <line num="94" type="stmt" count="1"/>
+            <line num="95" type="stmt" count="1"/>
+            <line num="96" type="stmt" count="1"/>
+            <line num="97" type="stmt" count="1"/>
+            <line num="98" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/sensors/BrancheSensorTest.java" name="BrancheSensorTest.java">
+            <metrics coveredelements="9" coveredconditionals="0" conditionals="0" ncloc="23" statements="6" coveredmethods="3" coveredstatements="6" loc="47" methods="3" classes="1" complexity="3" elements="9"/>
+            <class name="BrancheSensorTest">
+               <metrics coveredelements="9" coveredconditionals="0" conditionals="0" statements="6" coveredmethods="3" coveredstatements="6" methods="3" complexity="3" elements="9"/>
+            </class>
+            <line num="30" signature="testNoBranches() : void" type="method" complexity="1" count="1"/>
+            <line num="32" type="stmt" count="1"/>
+            <line num="33" type="stmt" count="1"/>
+            <line num="36" signature="testSimpleBranches() : void" type="method" complexity="1" count="1"/>
+            <line num="38" type="stmt" count="1"/>
+            <line num="39" type="stmt" count="1"/>
+            <line num="42" signature="testComplexBranches() : void" type="method" complexity="1" count="1"/>
+            <line num="44" type="stmt" count="1"/>
+            <line num="45" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/sensors/MethodSensorTest.java" name="MethodSensorTest.java">
+            <metrics coveredelements="4" coveredconditionals="0" conditionals="0" ncloc="14" statements="3" coveredmethods="1" coveredstatements="3" loc="36" methods="1" classes="1" complexity="1" elements="4"/>
+            <class name="MethodSensorTest">
+               <metrics coveredelements="4" coveredconditionals="0" conditionals="0" statements="3" coveredmethods="1" coveredstatements="3" methods="1" complexity="1" elements="4"/>
+            </class>
+            <line num="30" signature="analyseClassWithStaticMethods() : void" type="method" complexity="1" count="1"/>
+            <line num="32" type="stmt" count="1"/>
+            <line num="33" type="stmt" count="1"/>
+            <line num="34" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/sensors/FileSensorTest.java" name="FileSensorTest.java">
+            <metrics coveredelements="13" coveredconditionals="0" conditionals="0" ncloc="28" statements="11" coveredmethods="2" coveredstatements="11" loc="54" methods="2" classes="1" complexity="2" elements="13"/>
+            <class name="FileSensorTest">
+               <metrics coveredelements="13" coveredconditionals="0" conditionals="0" statements="11" coveredmethods="2" coveredstatements="11" methods="2" complexity="2" elements="13"/>
+            </class>
+            <line num="34" signature="testExtractFileNameFromFilePath() : void" type="method" complexity="1" count="1"/>
+            <line num="36" type="stmt" count="1"/>
+            <line num="37" type="stmt" count="1"/>
+            <line num="40" signature="analyseTest003() : void" type="method" complexity="1" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line num="43" type="stmt" count="1"/>
+            <line num="44" type="stmt" count="1"/>
+            <line num="45" type="stmt" count="1"/>
+            <line num="47" type="stmt" count="1"/>
+            <line num="48" type="stmt" count="1"/>
+            <line num="49" type="stmt" count="1"/>
+            <line num="50" type="stmt" count="1"/>
+            <line num="51" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/sensors/StatementSensorTest.java" name="StatementSensorTest.java">
+            <metrics coveredelements="5" coveredconditionals="0" conditionals="0" ncloc="15" statements="4" coveredmethods="1" coveredstatements="4" loc="38" methods="1" classes="1" complexity="1" elements="5"/>
+            <class name="StatementSensorTest">
+               <metrics coveredelements="5" coveredconditionals="0" conditionals="0" statements="4" coveredmethods="1" coveredstatements="4" methods="1" complexity="1" elements="5"/>
+            </class>
+            <line num="30" signature="testNoStatements() : void" type="method" complexity="1" count="1"/>
+            <line num="32" type="stmt" count="1"/>
+            <line num="33" type="stmt" count="1"/>
+            <line num="35" type="stmt" count="1"/>
+            <line num="36" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/sensors/HeaderCommentSensorTest.java" name="HeaderCommentSensorTest.java">
+            <metrics coveredelements="31" coveredconditionals="0" conditionals="0" ncloc="49" statements="26" coveredmethods="5" coveredstatements="26" loc="78" methods="5" classes="1" complexity="5" elements="31"/>
+            <class name="HeaderCommentSensorTest">
+               <metrics coveredelements="31" coveredconditionals="0" conditionals="0" statements="26" coveredmethods="5" coveredstatements="26" methods="5" complexity="5" elements="31"/>
+            </class>
+            <line num="30" signature="analyseHeaderCommentsStandard() : void" type="method" complexity="1" count="1"/>
+            <line num="32" type="stmt" count="1"/>
+            <line num="33" type="stmt" count="1"/>
+            <line num="34" type="stmt" count="1"/>
+            <line num="35" type="stmt" count="1"/>
+            <line num="36" type="stmt" count="1"/>
+            <line num="39" signature="analyseHeaderCommentsAndNoPackage() : void" type="method" complexity="1" count="1"/>
+            <line num="41" type="stmt" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line num="43" type="stmt" count="1"/>
+            <line num="44" type="stmt" count="1"/>
+            <line num="45" type="stmt" count="1"/>
+            <line num="48" signature="analyseHeaderCommentsAndNoPackageNoImports() : void" type="method" complexity="1" count="1"/>
+            <line num="50" type="stmt" count="1"/>
+            <line num="51" type="stmt" count="1"/>
+            <line num="52" type="stmt" count="1"/>
+            <line num="53" type="stmt" count="1"/>
+            <line num="54" type="stmt" count="1"/>
+            <line num="58" signature="analyseJavadocHeader() : void" type="method" complexity="1" count="1"/>
+            <line num="60" type="stmt" count="1"/>
+            <line num="61" type="stmt" count="1"/>
+            <line num="62" type="stmt" count="1"/>
+            <line num="63" type="stmt" count="1"/>
+            <line num="64" type="stmt" count="1"/>
+            <line num="65" type="stmt" count="1"/>
+            <line num="68" signature="analyseJavadocHeaderAndPackage() : void" type="method" complexity="1" count="1"/>
+            <line num="70" type="stmt" count="1"/>
+            <line num="71" type="stmt" count="1"/>
+            <line num="72" type="stmt" count="1"/>
+            <line num="73" type="stmt" count="1"/>
+            <line num="74" type="stmt" count="1"/>
+         </file>
+      </package>
+      <package name="org.sonar.squid.utils">
+         <metrics coveredelements="13" coveredconditionals="0" ncloc="21" statements="12" loc="48" complexity="1" files="1" conditionals="0" coveredstatements="12" coveredmethods="1" methods="1" classes="1" elements="13"/>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/utils/CountDistributionTest.java" name="CountDistributionTest.java">
+            <metrics coveredelements="13" coveredconditionals="0" conditionals="0" ncloc="21" statements="12" coveredmethods="1" coveredstatements="12" loc="48" methods="1" classes="1" complexity="1" elements="13"/>
+            <class name="CountDistributionTest">
+               <metrics coveredelements="13" coveredconditionals="0" conditionals="0" statements="12" coveredmethods="1" coveredstatements="12" methods="1" complexity="1" elements="13"/>
+            </class>
+            <line num="29" signature="testDistributionCount() : void" type="method" complexity="1" count="1"/>
+            <line num="31" type="stmt" count="1"/>
+            <line num="33" type="stmt" count="1"/>
+            <line num="35" type="stmt" count="1"/>
+            <line num="37" type="stmt" count="1"/>
+            <line num="38" type="stmt" count="1"/>
+            <line num="39" type="stmt" count="1"/>
+            <line num="40" type="stmt" count="1"/>
+            <line num="41" type="stmt" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line num="43" type="stmt" count="1"/>
+            <line num="44" type="stmt" count="1"/>
+            <line num="45" type="stmt" count="1"/>
+         </file>
+      </package>
+      <package name="org.sonar.squid.handlers">
+         <metrics coveredelements="97" coveredconditionals="1" ncloc="163" statements="87" loc="255" complexity="13" files="3" conditionals="2" coveredstatements="85" coveredmethods="11" methods="11" classes="3" elements="100"/>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/handlers/JavaBasicHandlerTest.java" name="JavaBasicHandlerTest.java">
+            <metrics coveredelements="8" coveredconditionals="0" conditionals="0" ncloc="19" statements="7" coveredmethods="1" coveredstatements="7" loc="43" methods="1" classes="1" complexity="1" elements="8"/>
+            <class name="JavaBasicHandlerTest">
+               <metrics coveredelements="8" coveredconditionals="0" conditionals="0" statements="7" coveredmethods="1" coveredstatements="7" methods="1" complexity="1" elements="8"/>
+            </class>
+            <line num="32" signature="testJavaBasicHandler() : void" type="method" complexity="1" count="1"/>
+            <line num="34" type="stmt" count="1"/>
+            <line num="36" type="stmt" count="1"/>
+            <line num="37" type="stmt" count="1"/>
+            <line num="38" type="stmt" count="1"/>
+            <line num="39" type="stmt" count="1"/>
+            <line num="40" type="stmt" count="1"/>
+            <line num="41" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/handlers/JavaCheckstyleHandlerTest.java" name="JavaCheckstyleHandlerTest.java">
+            <metrics coveredelements="81" coveredconditionals="1" conditionals="2" ncloc="125" statements="73" coveredmethods="9" coveredstatements="71" loc="170" methods="9" classes="1" complexity="11" elements="84"/>
+            <class name="JavaCheckstyleHandlerTest">
+               <metrics coveredelements="81" coveredconditionals="1" conditionals="2" statements="73" coveredmethods="9" coveredstatements="71" methods="9" complexity="11" elements="84"/>
+            </class>
+            <line num="43" signature="setupI18nStrings() : void" type="method" complexity="1" count="1"/>
+            <line num="46" type="stmt" count="1"/>
+            <line num="48" type="stmt" count="1"/>
+            <line num="49" type="stmt" count="1"/>
+            <line num="50" type="stmt" count="1"/>
+            <line num="54" signature="testAnalyseCommonsCollections321() : void" type="method" complexity="1" count="1"/>
+            <line num="56" type="stmt" count="1"/>
+            <line num="58" type="stmt" count="1"/>
+            <line num="59" type="stmt" count="1"/>
+            <line num="60" type="stmt" count="1"/>
+            <line num="61" type="stmt" count="1"/>
+            <line num="63" type="stmt" count="1"/>
+            <line num="64" type="stmt" count="1"/>
+            <line num="65" type="stmt" count="1"/>
+            <line num="66" type="stmt" count="1"/>
+            <line num="67" type="stmt" count="1"/>
+            <line num="68" type="stmt" count="1"/>
+            <line num="70" type="stmt" count="1"/>
+            <line num="72" type="stmt" count="1"/>
+            <line num="73" type="stmt" count="1"/>
+            <line num="74" type="stmt" count="1"/>
+            <line num="76" type="stmt" count="1"/>
+            <line num="78" type="stmt" count="1"/>
+            <line num="79" type="stmt" count="1"/>
+            <line num="81" type="stmt" count="1"/>
+            <line num="82" type="stmt" count="1"/>
+            <line num="85" signature="testMacRomanEncoding() : void" type="method" complexity="1" count="1"/>
+            <line num="87" type="stmt" count="1"/>
+            <line num="88" type="stmt" count="1"/>
+            <line num="89" type="stmt" count="1"/>
+            <line num="90" type="stmt" count="1"/>
+            <line num="91" type="stmt" count="1"/>
+            <line num="92" type="stmt" count="1"/>
+            <line num="95" signature="testCP1252EncodingWithWrongDefined() : void" type="method" complexity="1" count="1"/>
+            <line num="97" type="stmt" count="1"/>
+            <line num="100" signature="testCheckstyleParsingBug() : void" type="method" complexity="2" count="1"/>
+            <line num="103" type="stmt" count="1"/>
+            <line num="104" type="stmt" count="1"/>
+            <line num="105" type="stmt" count="1"/>
+            <line num="107" type="stmt" count="0"/>
+            <line num="111" signature="testEncodingWithSystemSetting() : void" type="method" complexity="2" count="1"/>
+            <line num="113" type="stmt" count="1"/>
+            <line num="114" type="stmt" count="1"/>
+            <line num="115" type="stmt" count="1"/>
+            <line num="117" type="stmt" count="1"/>
+            <line num="118" type="stmt" count="1"/>
+            <line num="119" type="stmt" count="1"/>
+            <line num="120" type="stmt" count="1"/>
+            <line falsecount="1" num="120" type="cond" truecount="0"/>
+            <line num="121" type="stmt" count="0"/>
+            <line num="123" type="stmt" count="1"/>
+            <line num="124" type="stmt" count="1"/>
+            <line num="125" type="stmt" count="1"/>
+            <line num="126" type="stmt" count="1"/>
+            <line num="128" type="stmt" count="1"/>
+            <line num="131" type="stmt" count="1"/>
+            <line num="132" type="stmt" count="1"/>
+            <line num="133" type="stmt" count="1"/>
+            <line num="134" type="stmt" count="1"/>
+            <line num="135" type="stmt" count="1"/>
+            <line num="137" type="stmt" count="1"/>
+            <line num="138" type="stmt" count="1"/>
+            <line num="139" type="stmt" count="1"/>
+            <line num="140" type="stmt" count="1"/>
+            <line num="141" type="stmt" count="1"/>
+            <line num="144" signature="testCP1252Encoding() : void" type="method" complexity="1" count="1"/>
+            <line num="146" type="stmt" count="1"/>
+            <line num="147" type="stmt" count="1"/>
+            <line num="148" type="stmt" count="1"/>
+            <line num="149" type="stmt" count="1"/>
+            <line num="150" type="stmt" count="1"/>
+            <line num="151" type="stmt" count="1"/>
+            <line num="154" signature="testInterfaceWithAnnotations() : void" type="method" complexity="1" count="1"/>
+            <line num="156" type="stmt" count="1"/>
+            <line num="157" type="stmt" count="1"/>
+            <line num="158" type="stmt" count="1"/>
+            <line num="159" type="stmt" count="1"/>
+            <line num="160" type="stmt" count="1"/>
+            <line num="161" type="stmt" count="1"/>
+            <line num="164" signature="testClassesWithGenerics() : void" type="method" complexity="1" count="1"/>
+            <line num="166" type="stmt" count="1"/>
+            <line num="167" type="stmt" count="1"/>
+            <line num="168" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/handlers/PlsqlBasicHandlerTest.java" name="PlsqlBasicHandlerTest.java">
+            <metrics coveredelements="8" coveredconditionals="0" conditionals="0" ncloc="19" statements="7" coveredmethods="1" coveredstatements="7" loc="42" methods="1" classes="1" complexity="1" elements="8"/>
+            <class name="PlsqlBasicHandlerTest">
+               <metrics coveredelements="8" coveredconditionals="0" conditionals="0" statements="7" coveredmethods="1" coveredstatements="7" methods="1" complexity="1" elements="8"/>
+            </class>
+            <line num="31" signature="testPlsqlBasicHandler() : void" type="method" complexity="1" count="1"/>
+            <line num="33" type="stmt" count="1"/>
+            <line num="35" type="stmt" count="1"/>
+            <line num="36" type="stmt" count="1"/>
+            <line num="37" type="stmt" count="1"/>
+            <line num="38" type="stmt" count="1"/>
+            <line num="39" type="stmt" count="1"/>
+            <line num="40" type="stmt" count="1"/>
+         </file>
+      </package>
+      <package name="org.sonar.squid.entities">
+         <metrics coveredelements="161" coveredconditionals="0" ncloc="214" statements="144" loc="316" complexity="17" files="2" conditionals="0" coveredstatements="144" coveredmethods="17" methods="17" classes="2" elements="161"/>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/entities/ResourceTest.java" name="ResourceTest.java">
+            <metrics coveredelements="35" coveredconditionals="0" conditionals="0" ncloc="67" statements="28" coveredmethods="7" coveredstatements="28" loc="100" methods="7" classes="1" complexity="7" elements="35"/>
+            <class name="ResourceTest">
+               <metrics coveredelements="35" coveredconditionals="0" conditionals="0" statements="28" coveredmethods="7" coveredstatements="28" methods="7" complexity="7" elements="35"/>
+            </class>
+            <line num="43" signature="before() : void" type="method" complexity="1" count="1"/>
+            <line num="45" type="stmt" count="1"/>
+            <line num="46" type="stmt" count="1"/>
+            <line num="47" type="stmt" count="1"/>
+            <line num="48" type="stmt" count="1"/>
+            <line num="51" signature="testAddChild() : void" type="method" complexity="1" count="1"/>
+            <line num="53" type="stmt" count="1"/>
+            <line num="54" type="stmt" count="1"/>
+            <line num="55" type="stmt" count="1"/>
+            <line num="58" signature="testEqualsAndHashCode() : void" type="method" complexity="1" count="1"/>
+            <line num="60" type="stmt" count="1"/>
+            <line num="61" type="stmt" count="1"/>
+            <line num="62" type="stmt" count="1"/>
+            <line num="64" type="stmt" count="1"/>
+            <line num="65" type="stmt" count="1"/>
+            <line num="66" type="stmt" count="1"/>
+            <line num="69" signature="testGetFullName() : void" type="method" complexity="1" count="1"/>
+            <line num="71" type="stmt" count="1"/>
+            <line num="74" signature="testContains() : void" type="method" complexity="1" count="1"/>
+            <line num="76" type="stmt" count="1"/>
+            <line num="77" type="stmt" count="1"/>
+            <line num="78" type="stmt" count="1"/>
+            <line num="81" signature="testFindByType() : void" type="method" complexity="1" count="1"/>
+            <line num="83" type="stmt" count="1"/>
+            <line num="84" type="stmt" count="1"/>
+            <line num="85" type="stmt" count="1"/>
+            <line num="86" type="stmt" count="1"/>
+            <line num="88" type="stmt" count="1"/>
+            <line num="89" type="stmt" count="1"/>
+            <line num="90" type="stmt" count="1"/>
+            <line num="91" type="stmt" count="1"/>
+            <line num="94" signature="testFindResource() : void" type="method" complexity="1" count="1"/>
+            <line num="96" type="stmt" count="1"/>
+            <line num="97" type="stmt" count="1"/>
+            <line num="98" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/entities/MeasuresTest.java" name="MeasuresTest.java">
+            <metrics coveredelements="126" coveredconditionals="0" conditionals="0" ncloc="147" statements="116" coveredmethods="10" coveredstatements="116" loc="216" methods="10" classes="1" complexity="10" elements="126"/>
+            <class name="MeasuresTest">
+               <metrics coveredelements="126" coveredconditionals="0" conditionals="0" statements="116" coveredmethods="10" coveredstatements="116" methods="10" complexity="10" elements="126"/>
+            </class>
+            <line num="31" signature="addMethodMeasures() : void" type="method" complexity="1" count="1"/>
+            <line num="34" type="stmt" count="1"/>
+            <line num="35" type="stmt" count="1"/>
+            <line num="36" type="stmt" count="1"/>
+            <line num="38" type="stmt" count="1"/>
+            <line num="39" type="stmt" count="1"/>
+            <line num="40" type="stmt" count="1"/>
+            <line num="42" type="stmt" count="1"/>
+            <line num="43" type="stmt" count="1"/>
+            <line num="44" type="stmt" count="1"/>
+            <line num="46" type="stmt" count="1"/>
+            <line num="47" type="stmt" count="1"/>
+            <line num="48" type="stmt" count="1"/>
+            <line num="49" type="stmt" count="1"/>
+            <line num="51" type="stmt" count="1"/>
+            <line num="53" type="stmt" count="1"/>
+            <line num="54" type="stmt" count="1"/>
+            <line num="57" signature="createTestMethod(Resource) : Resource" type="method" complexity="1" count="1"/>
+            <line num="58" type="stmt" count="1"/>
+            <line num="59" type="stmt" count="1"/>
+            <line num="60" type="stmt" count="1"/>
+            <line num="63" signature="createTestClass() : Resource" type="method" complexity="1" count="1"/>
+            <line num="64" type="stmt" count="1"/>
+            <line num="67" signature="createTestPackage() : Resource" type="method" complexity="1" count="1"/>
+            <line num="68" type="stmt" count="1"/>
+            <line num="71" signature="createTestProject() : Resource" type="method" complexity="1" count="1"/>
+            <line num="72" type="stmt" count="1"/>
+            <line num="75" signature="createTestFile() : Resource" type="method" complexity="1" count="1"/>
+            <line num="76" type="stmt" count="1"/>
+            <line num="79" signature="createTestComplexityMethod(Resource,int) : Resource" type="method" complexity="1" count="1"/>
+            <line num="80" type="stmt" count="1"/>
+            <line num="81" type="stmt" count="1"/>
+            <line num="82" type="stmt" count="1"/>
+            <line num="85" signature="classMethodComplexityDistribution() : void" type="method" complexity="1" count="1"/>
+            <line num="87" type="stmt" count="1"/>
+            <line num="89" type="stmt" count="1"/>
+            <line num="90" type="stmt" count="1"/>
+            <line num="91" type="stmt" count="1"/>
+            <line num="93" type="stmt" count="1"/>
+            <line num="95" type="stmt" count="1"/>
+            <line num="97" type="stmt" count="1"/>
+            <line num="98" type="stmt" count="1"/>
+            <line num="99" type="stmt" count="1"/>
+            <line num="100" type="stmt" count="1"/>
+            <line num="104" signature="projectMethodAndClassComplexityDistribution() : void" type="method" complexity="1" count="1"/>
+            <line num="106" type="stmt" count="1"/>
+            <line num="107" type="stmt" count="1"/>
+            <line num="108" type="stmt" count="1"/>
+            <line num="109" type="stmt" count="1"/>
+            <line num="110" type="stmt" count="1"/>
+            <line num="113" type="stmt" count="1"/>
+            <line num="114" type="stmt" count="1"/>
+            <line num="115" type="stmt" count="1"/>
+            <line num="116" type="stmt" count="1"/>
+            <line num="117" type="stmt" count="1"/>
+            <line num="120" type="stmt" count="1"/>
+            <line num="121" type="stmt" count="1"/>
+            <line num="122" type="stmt" count="1"/>
+            <line num="123" type="stmt" count="1"/>
+            <line num="124" type="stmt" count="1"/>
+            <line num="127" type="stmt" count="1"/>
+            <line num="128" type="stmt" count="1"/>
+            <line num="129" type="stmt" count="1"/>
+            <line num="130" type="stmt" count="1"/>
+            <line num="131" type="stmt" count="1"/>
+            <line num="134" type="stmt" count="1"/>
+            <line num="135" type="stmt" count="1"/>
+            <line num="136" type="stmt" count="1"/>
+            <line num="137" type="stmt" count="1"/>
+            <line num="140" type="stmt" count="1"/>
+            <line num="141" type="stmt" count="1"/>
+            <line num="143" type="stmt" count="1"/>
+            <line num="144" type="stmt" count="1"/>
+            <line num="146" type="stmt" count="1"/>
+            <line num="148" type="stmt" count="1"/>
+            <line num="149" type="stmt" count="1"/>
+            <line num="150" type="stmt" count="1"/>
+            <line num="151" type="stmt" count="1"/>
+            <line num="152" type="stmt" count="1"/>
+            <line num="154" type="stmt" count="1"/>
+            <line num="155" type="stmt" count="1"/>
+            <line num="156" type="stmt" count="1"/>
+            <line num="157" type="stmt" count="1"/>
+            <line num="159" type="stmt" count="1"/>
+            <line num="161" type="stmt" count="1"/>
+            <line num="163" type="stmt" count="1"/>
+            <line num="164" type="stmt" count="1"/>
+            <line num="165" type="stmt" count="1"/>
+            <line num="166" type="stmt" count="1"/>
+            <line num="167" type="stmt" count="1"/>
+            <line num="168" type="stmt" count="1"/>
+            <line num="169" type="stmt" count="1"/>
+            <line num="170" type="stmt" count="1"/>
+            <line num="171" type="stmt" count="1"/>
+            <line num="173" type="stmt" count="1"/>
+            <line num="175" type="stmt" count="1"/>
+            <line num="176" type="stmt" count="1"/>
+            <line num="177" type="stmt" count="1"/>
+            <line num="178" type="stmt" count="1"/>
+            <line num="179" type="stmt" count="1"/>
+            <line num="180" type="stmt" count="1"/>
+            <line num="184" signature="addPackageMeasures() : void" type="method" complexity="1" count="1"/>
+            <line num="186" type="stmt" count="1"/>
+            <line num="187" type="stmt" count="1"/>
+            <line num="188" type="stmt" count="1"/>
+            <line num="189" type="stmt" count="1"/>
+            <line num="190" type="stmt" count="1"/>
+            <line num="192" type="stmt" count="1"/>
+            <line num="193" type="stmt" count="1"/>
+            <line num="194" type="stmt" count="1"/>
+            <line num="195" type="stmt" count="1"/>
+            <line num="196" type="stmt" count="1"/>
+            <line num="198" type="stmt" count="1"/>
+            <line num="199" type="stmt" count="1"/>
+            <line num="200" type="stmt" count="1"/>
+            <line num="201" type="stmt" count="1"/>
+            <line num="202" type="stmt" count="1"/>
+            <line num="204" type="stmt" count="1"/>
+            <line num="205" type="stmt" count="1"/>
+            <line num="206" type="stmt" count="1"/>
+            <line num="207" type="stmt" count="1"/>
+            <line num="209" type="stmt" count="1"/>
+            <line num="211" type="stmt" count="1"/>
+            <line num="212" type="stmt" count="1"/>
+            <line num="213" type="stmt" count="1"/>
+            <line num="214" type="stmt" count="1"/>
+         </file>
+      </package>
+      <package name="org.sonar.squid">
+         <metrics coveredelements="6" coveredconditionals="0" ncloc="21" statements="3" loc="73" complexity="3" files="2" conditionals="0" coveredstatements="3" coveredmethods="3" methods="3" classes="2" elements="6"/>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/SquidTestUtils.java" name="SquidTestUtils.java">
+            <metrics coveredelements="2" coveredconditionals="0" conditionals="0" ncloc="7" statements="1" coveredmethods="1" coveredstatements="1" loc="32" methods="1" classes="1" complexity="1" elements="2"/>
+            <class name="SquidTestUtils">
+               <metrics coveredelements="2" coveredconditionals="0" conditionals="0" statements="1" coveredmethods="1" coveredstatements="1" methods="1" complexity="1" elements="2"/>
+            </class>
+            <line num="28" signature="getFile(String) : File" type="method" complexity="1" count="1"/>
+            <line num="29" type="stmt" count="1"/>
+         </file>
+         <file path="/Users/cmunger/dev/workspace/sonar/sonar-squid/src/test/java/org/sonar/squid/SquidTest.java" name="SquidTest.java">
+            <metrics coveredelements="4" coveredconditionals="0" conditionals="0" ncloc="14" statements="2" coveredmethods="2" coveredstatements="2" loc="41" methods="2" classes="1" complexity="2" elements="4"/>
+            <class name="SquidTest">
+               <metrics coveredelements="4" coveredconditionals="0" conditionals="0" statements="2" coveredmethods="2" coveredstatements="2" methods="2" complexity="2" elements="4"/>
+            </class>
+            <line num="30" signature="testAnalyseWrongFile() : void" type="method" complexity="1" count="1"/>
+            <line num="32" type="stmt" count="1"/>
+            <line num="35" signature="testAnalyseNullFil() : void" type="method" complexity="1" count="1"/>
+            <line num="37" type="stmt" count="1"/>
+         </file>
+      </package>
+   </testproject>
+</coverage>

@@ -1,0 +1,27 @@
+<dataset>
+
+  <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="mygroup:myartifact" name="project"
+            root_id="[null]"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]" profile_id="[null]" />
+
+  <!-- existing project -->
+  <user_roles id="1" user_id="30" resource_id="1" role="admin" />
+  <user_roles id="2" user_id="31" resource_id="1" role="user" />
+
+  <!-- deleted project -->
+  <!--<user_roles id="3" user_id="30" resource_id="90" role="admin" />-->
+  <!--<user_roles id="4" user_id="31" resource_id="90" role="user" />-->
+
+
+  <!-- existing project -->
+  <group_roles id="1" group_id="40" resource_id="1" role="admin" />
+  <group_roles id="2" group_id="44" resource_id="1" role="user" />
+
+  <!-- deleted project -->
+  <!--<group_roles id="3" group_id="60" resource_id="90" role="admin" />-->
+  <!--<group_roles id="4" group_id="61" resource_id="90" role="user" />-->
+
+  <!-- global roles -->
+  <group_roles id="5" group_id="60" resource_id="[null]" role="admin" />
+</dataset>

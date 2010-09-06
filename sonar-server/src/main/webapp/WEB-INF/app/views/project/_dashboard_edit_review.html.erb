@@ -1,0 +1,73 @@
+<%= render :partial => 'layouts/flashes', :object => 'reviews_flashes' %>
+
+<% form_for :review, @review, :url => { :action => 'add_review', :sid => @snapshot.id }, :method => 'post'  do |f| %>
+  <table class="spaced admin" style="padding: 5px">
+      
+      <%  review_metrics = [''] + @review_types.collect do |metric|
+            ["#{metric.short_name}", metric.id]
+          end
+          if review_metrics.size>0 %>
+       <tr>
+          <td align="left" colspan="2" nowrap>
+              <span class="comments">Metric (<%= link_to 'configure', {:controller => 'metrics', :action => 'index'}, {:class => 'action'} %>)</span><br/>
+              <%= f.select( :metric_id, review_metrics, {}, {:onChange => "selectReviewMetric();"}) %></td>
+       </tr>
+       <tr>
+          <td colspan="2">
+            <% @review_types.each do |metric| %>
+              <span id='review_description_<%= metric.id %>' style='display:none' class='review_description_update comments'>
+               <%= metric.description %>
+              </span>
+            <% end %>
+          <td>
+       </tr>
+       <tr>
+          <td align="left"><span class="comments">Date*</span><br/>
+              <%= f.date_select :measure_date %>
+          </td>
+          <td align="left" nowrap>
+              <span class="comments">Value*</span>
+              <% @review_types.each do |metric| -%>
+                <span id='review_value_<%= metric.id %>' style='display:none' class='review_description_update comments'>
+                 (<%= metric.value_type_name -%>)
+                </span>
+              <% end -%>
+              <br/>
+              <%= f.text_field :value, :size => 10 %>
+          </td>
+       </tr>
+       <tr>
+          <td align="left" colspan="2"><span class="comments">Description</span><br/>
+              <%= text_area_tag :description, '', :rows => 3, :cols => 40 %></td>
+       </tr>
+       <tr>
+          <td align="left" colspan="2"><span class="comments">Link</span><br/>
+              <%= text_field_tag :url, '', :size => 40 %>
+          </td>
+       </tr>
+       <tr>
+          <td align="left" colspan="2">
+              <%= submit_tag( "Submit", :id => 'save_review' ) %>
+              <%= link_to 'cancel', {:action => 'index', :id => @snapshot.project.id} ,
+                {:id => 'cancel_add_review', :class => 'action'}%>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2"><span class="comments">* required fields</span></td>
+        </tr>
+      <% else %>
+        <tr>
+          <td align="left" colspan="2">
+            <p><img src="../../images/controls/error.gif" />&nbsp;
+                Please
+                <%= link_to 'create metrics.', {:controller => 'metrics', :action => 'index'}, {:class => 'action'} %>
+            </p>
+          </td>
+        </tr>
+      <% end %>
+  </table>
+<% end %>
+
+
+
+

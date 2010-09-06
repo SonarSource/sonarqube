@@ -1,0 +1,24 @@
+<h1><%= @rule.name %></h1>
+<div class="subtitle">
+Plugin: <%= @rule.plugin_name -%>&nbsp;&nbsp;&nbsp;
+Key: <%= @rule.plugin_rule_key %></div>
+<div class="doc">
+  <p><%= @rule.description %></p>
+</div>
+
+<% unless @rule.parameters.empty? %>
+<table>
+	<thead>
+		<tr><th colspan="3"><b>Parameters</b></th></tr>
+	</thead>
+	<tbody>
+	<% @rule.parameters.each do |parameter| %>
+	<tr>
+		<td><code><%= parameter.name -%>:</code></td>
+		<td class="sep"> </td>
+		<td><Value><%= parameter.description -%></td>
+	</tr>
+	<% end %>
+	</tbody>
+</table>	
+<% end %>

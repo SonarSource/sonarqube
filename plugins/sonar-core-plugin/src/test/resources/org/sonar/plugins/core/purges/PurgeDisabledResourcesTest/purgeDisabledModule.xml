@@ -1,0 +1,78 @@
+<dataset>
+
+  <!-- project -->
+  <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="mygroup:myartifact" name="project"
+            root_id="[null]"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]"/>
+
+  <!-- disabled module -->
+  <projects long_name="[null]" id="2" scope="PRJ" qualifier="BRC" kee="mygroup:mymoduleartifact" name="module"
+            root_id="[null]"
+            description="[null]"
+            enabled="false" language="java" copy_resource_id="[null]"/>
+
+  <!-- package -->
+  <projects long_name="[null]" id="3" scope="DIR" qualifier="PAC" kee="mygroup:myartifact:my.package" name="package"
+            root_id="[null]"
+            description="[null]"
+            enabled="false" language="java" copy_resource_id="[null]"/>
+
+  <!-- class -->
+  <projects long_name="[null]" id="4" scope="FIL" qualifier="CLA" kee="mygroup:myartifact:my.package.Class1"
+            name="Class1" root_id="[null]"
+            description="[null]"
+            enabled="false" language="java" copy_resource_id="1"/>
+
+
+  <snapshots depth="0" id="1" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" version="[null]"
+             project_id="1"
+             parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"
+             path=""/>
+
+  <snapshots depth="1" id="2" scope="PRJ" qualifier="BRC" created_at="2008-12-02 13:58:00.00" version="[null]"
+             project_id="2"
+             parent_snapshot_id="1" root_project_id="[null]" root_snapshot_id="1" status="P" islast="false"
+             path="1."/>
+
+  <snapshots depth="2" id="3" scope="DIR" qualifier="PAC" created_at="2008-12-02 13:58:00.00" version="[null]"
+             project_id="3"
+             parent_snapshot_id="2" root_project_id="[null]" root_snapshot_id="1" status="P" islast="false"
+             path="1.2."/>
+
+  <snapshots depth="3" id="4" scope="FIL" qualifier="CLA" created_at="2008-12-02 13:58:00.00" version="[null]"
+             project_id="4"
+             parent_snapshot_id="3" root_project_id="[null]" root_snapshot_id="1" status="P" islast="false"
+             path="1.2.3."/>
+
+
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="1" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="1" RULES_CATEGORY_ID="1"
+                    RULE_ID="1"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="2" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="2" RULES_CATEGORY_ID="1"
+                    RULE_ID="1"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="3" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="3" RULES_CATEGORY_ID="1"
+                    RULE_ID="1"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="4" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="4" RULES_CATEGORY_ID="1"
+                    RULE_ID="1"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+
+
+</dataset>

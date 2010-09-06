@@ -1,0 +1,9 @@
+<samples>
+  <sample id="1" name="one">
+    <foo>bar</foo>
+  </sample>
+
+  <sample id="2" name="two">
+    <foo>toto</foo>
+  </sample>
+</samples>

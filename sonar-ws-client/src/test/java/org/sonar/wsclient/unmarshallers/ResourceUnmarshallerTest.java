@@ -1,0 +1,108 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2009 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
+package org.sonar.wsclient.unmarshallers;
+
+import org.apache.commons.io.IOUtils;
+import org.junit.Test;
+import org.sonar.wsclient.services.Resource;
+
+import java.io.IOException;
+import java.util.List;
+
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertThat;
+
+public class ResourceUnmarshallerTest {
+
+  @Test
+  public void singleResource() throws IOException {
+    String json = loadFile("/resources/single-resource.json");
+    assertSonar(new ResourceUnmarshaller().toModel(json));
+
+    List<Resource> resources = new ResourceUnmarshaller().toModels(json);
+    assertThat(resources.size(), is(1));
+    assertSonar(resources.get(0));
+  }
+
+  @Test
+  public void singleResourceWithMeasures() throws IOException {
+    Resource resource = new ResourceUnmarshaller().toModel(loadFile("/resources/single-resource-with-measures.json"));
+    assertSonar(resource);
+
+    assertThat(resource.getMeasures().size(), is(2));
+    assertThat(resource.getMeasureIntValue("lines"), is(47798));
+    assertThat(resource.getMeasureIntValue("ncloc"), is(27066));
+    assertThat(resource.getMeasureIntValue("unknown"), nullValue());
+  }
+
+  @Test
+  public void singleResourceWithTrends() throws IOException {
+    Resource resource = new ResourceUnmarshaller().toModel(loadFile("/resources/single-resource-with-trends.json"));
+    assertSonar(resource);
+
+    assertThat(resource.getMeasures().size(), is(2));
+    assertThat(resource.getMeasureIntValue("lines"), is(47798));
+    assertThat(resource.getMeasureIntValue("ncloc"), is(27066));
+    assertThat(resource.getMeasure("lines").getTrend(), is(0));
+    assertThat(resource.getMeasure("lines").getVar(), is(2));
+    assertThat(resource.getMeasure("ncloc").getTrend(), is(1));
+    assertThat(resource.getMeasure("ncloc").getVar(), is(1));
+  }
+
+  @Test
+  public void manyResources() throws IOException {
+    List<Resource> resources = new ResourceUnmarshaller().toModels(loadFile("/resources/many-resources.json"));
+
+    assertThat(resources.size(), is(19));
+    for (Resource resource : resources) {
+      assertThat(resource.getKey(), not(nullValue()));
+      assertThat(resource.getId(), not(nullValue()));
+      assertThat(resource.getMeasures().isEmpty(), is(true));
+    }
+  }
+
+  @Test
+  public void manyResourcesWithMeasures() throws IOException {
+    List<Resource> resources = new ResourceUnmarshaller().toModels(loadFile("/resources/many-resources-with-measures.json"));
+
+    assertThat(resources.size(), is(17));
+    for (Resource resource : resources) {
+      assertThat(resource.getKey(), not(nullValue()));
+      assertThat(resource.getId(), not(nullValue()));
+      assertThat(resource.getMeasures().size(), is(2));
+    }
+  }
+
+  private void assertSonar(Resource resource) {
+    assertThat(resource.getId(), is(48569));
+    assertThat(resource.getKey(), is("org.codehaus.sonar:sonar"));
+    assertThat(resource.getName(), is("Sonar"));
+    assertThat(resource.getScope(), is("PRJ"));
+    assertThat(resource.getQualifier(), is("TRK"));
+    assertThat(resource.getLanguage(), is("java"));
+    assertThat(resource.getDescription(), is("Embrace Quality"));
+  }
+
+  private static String loadFile(String path) throws IOException {
+    return IOUtils.toString(ResourceUnmarshallerTest.class.getResourceAsStream(path));
+  }
+}

@@ -1,0 +1,57 @@
+<h2>Exclude sources from code analysis</h2>
+<div class="yui-g widget" id="widget_exclusions">
+
+
+  <div class="yui-u first">
+    <p>Changes will be applied during next code analysis.</p>
+    <% form_for( 'set_exclusions', :url => { :action => 'set_exclusions', :id => @project.id } ) do |form| 
+	   pattern_index=0
+	%>
+    <table class="spaced">
+      <% patterns = Property.value('sonar.exclusions', @project.id, '').split(',')
+         patterns.each do |pattern|
+      %>
+      <tr>
+        <td class=left>
+          <input id="exclusion_pattern_<%= pattern_index -%>" name="patterns[]" size="50" value="<%= pattern -%>" type="text">
+        </td>
+      </tr>
+      <%  pattern_index += 1
+         end
+      %>
+      <tr><td class=left>
+        <input name="patterns[]" size="50" value="" type="text" id="exclusion_pattern_<%= pattern_index-%>">
+      </td></tr>
+      <tr><td class=left>
+        <input name="patterns[]" size="50" value="" type="text" id="exclusion_pattern_<%= pattern_index + 1-%>"><br/>
+        <span class="note"><ul><li>com/mycompany/**/*.java</li><li>**/*Dummy.java</li></ul></span>
+      </td></tr>
+      <tr><td class=left>
+        <%= submit_tag( "Save filters", :id => 'submit_exclusions') %>
+        <%= link_to 'Delete all filters', {:action => 'delete_exclusions', :id => @project.id}, :method => 'POST', :confirm => "Are you sure you want to delete all exclusion filters ?", :id => 'delete_exclusions' %>
+        </td></tr>
+    </table>
+    <% end %>
+  </div>
+
+  <div class="yui-u">
+    <div class="help">
+      <h2>Wildcards</h2>
+      <table class="data">
+        <thead><tr><th colspan="2"></th></tr></thead>
+        <tr class="odd">
+          <td>*</td>
+          <td>Match zero or more characters</td>
+        </tr>
+        <tr class="even">
+          <td>**</td>
+          <td>Match zero or more directories</td>
+        </tr>
+        <tr class="odd">
+          <td>?</td>
+          <td>Match a single character</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>

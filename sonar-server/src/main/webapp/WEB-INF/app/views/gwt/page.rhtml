@@ -1,0 +1,7 @@
+<%= render :partial => 'gwt/base', :locals => {:resource => @project, :popup => false, :metric => nil} %>
+<div id="gwtpage"> </div>
+
+<!-- for SmartGWT -->
+<script> var isomorphicDir = "<%= "#{ApplicationController.root_context}/deploy/gwt/#{@gwt_id}" -%>/sc/";</script>
+
+<script type="text/javascript" src="<%= "#{ApplicationController.root_context}/deploy/gwt/#{@gwt_id}/#{@gwt_id}.nocache.js?#{sonar_version}" -%>"></script>

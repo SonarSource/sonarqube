@@ -1,0 +1,68 @@
+h1. Internal Changes to code
+
+As always, this is just a copy-and-pasted version of the CHANGELOG file in the source code tree.
+
+h2. Changes for the May, 2008 version of restful-authentication
+
+h3. Changes to user model
+
+* recently_activated? belongs only if stateful
+* Gave migration a 40-char limit on remember_token & an index on users by login
+* **Much** stricter login and email validation
+* put length constraints in migration too
+* password in 6, 40
+* salt and remember_token now much less predictability
+
+h3. Changes to session_controller
+
+* use uniform logout function
+* use uniform remember_cookie functions
+* avoid calling logged_in? which will auto-log-you-in (safe in the face of
+  logout! call, but idiot-proof)
+* Moved reset_session into only the "now logged in" branch
+** wherever it goes, it has to be in front of the current_user= call
+** See more in README-Tradeoffs.txt
+* made a place to take action on failed login attempt
+* recycle login and remember_me setting on failed login
+* nil'ed out the password field in 'new' view
+
+h3. Changes to users_controller
+
+* use uniform logout function
+* use uniform remember_cookie functions
+* Moved reset_session into only the "now logged in" branch
+** wherever it goes, it has to be in front of the current_user= call
+** See more in README-Tradeoffs.txt
+* made the implicit login only happen for non-activationed sites
+* On a failed signup, kick you back to the signin screen (but strip out the password & confirmation)
+* more descriptive error messages in activate()
+
+h3. users_helper
+
+* link_to_user, link_to_current_user, link_to_signin_with_IP 
+* if_authorized(action, resource, &block) view function (with appropriate
+  warning)
+
+h3. authenticated_system
+
+* Made authorized? take optional arguments action=nil, resource=nil, *args
+  This makes its signature better match traditional approaches to access control
+  eg Reference Monitor in "Security Patterns":http://www.securitypatterns.org/patterns.html)
+* authorized? should be a helper too
+* added uniform logout! methods
+* format.any (as found in access_denied) doesn't work until
+  http://dev.rubyonrails.org/changeset/8987 lands.
+* cookies are now refreshed each time we cross the logged out/in barrier, as 
+  "best":http://palisade.plynt.com/issues/2004Jul/safe-auth-practices/
+  "practice":http://www.owasp.org/index.php/Session_Management#Regeneration_of_Session_Tokens
+
+h3. Other
+
+* Used escapes <%= %> in email templates (among other reasons, so courtenay's
+  "'dumbass' test":http://tinyurl.com/684g9t doesn't complain)
+* Added site key to generator, users.yml.
+* Made site key generation idempotent in the most crude and hackish way
+* 100% coverage apart from the stateful code. (needed some access_control
+  checks, and the http_auth stuff)
+* Stories!
+

@@ -1,0 +1,9 @@
+<% if @snapshot.root? %>
+<h2>Delete project</h2>
+<div class="yui-g widget" id="widget_delete_project">
+  <div class="warning">
+    This operation can not be undone.
+    <%= button_to( "Delete project", { :action => "delete", :id => @project.id }, :confirm => "Are you sure you want to delete this project?", :method => :delete) %>
+  </div>
+</div>
+<% end %>

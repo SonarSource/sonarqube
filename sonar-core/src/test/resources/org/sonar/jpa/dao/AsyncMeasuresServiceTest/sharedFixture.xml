@@ -1,0 +1,13 @@
+<dataset>
+
+  <metrics id="1" name="foo" val_type="INT" description="[null]"  domain="[null]"
+           short_name="" qualitative="false" user_managed="false" enabled="false" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="false"/>
+  <metrics id="2" name="bar" val_type="INT" description="[null]"  domain="[null]"
+           short_name="" qualitative="false" user_managed="false" enabled="false" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="false"/>
+
+  <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="mygroup:myartifact" name="[null]"
+            root_id="[null]"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]"/>
+
+</dataset>

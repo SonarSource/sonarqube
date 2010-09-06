@@ -1,0 +1,31 @@
+<% #locals : parameter, active_parameter, active_rule, is_admin
+    active_param_id = nil
+    param_value = parameter.default_value || ''
+    if active_parameter
+      active_param_id = active_parameter.id
+      param_value = active_parameter.value unless active_parameter.value.blank?
+    end
+    active_rule_id = active_rule.id if active_rule
+    enable_modification = is_admin && !profile.provided?
+%>
+<tr>
+    <td width="10%" nowrap class="left">
+          <%= image_tag 'bullet.png' %>
+          <%= parameter.name %>
+    </td>
+    <td width="90%" nowrap class="left">
+        <%= form_remote_tag :url => {:action => 'update_param', :id => active_param_id, :profile_id => profile.id, :param_id => parameter.id, :active_rule_id => active_rule_id},
+            :update => "param_#{parameter.id}",
+            :loading => "$('param_loading_#{parameter.id}').show();" %>
+        <input name="value" type="text" size="<%= parameter.input_box_size -%>" value="<%= h param_value -%>" <%= 'disabled' unless active_rule && enable_modification %> />
+        <% if active_rule && enable_modification %>
+            <%= submit_tag 'update' %>
+            <img src="<%= ApplicationController.root_context -%>/images/loading.gif" style="display:none;" id="param_loading_<%= parameter.id -%>">
+            <% if active_parameter and active_parameter.errors.size>0 %>
+              <span class="error"><%= active_parameter.errors.on 'value' %></span>
+            <% end %>
+        <% end %>
+        <span class="note"><%= h parameter.description -%></span>
+        </form>
+    </td>
+</tr>

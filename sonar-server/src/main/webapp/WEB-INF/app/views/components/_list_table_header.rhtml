@@ -1,0 +1,35 @@
+<thead>
+<% if @snapshot %>
+  <tr >
+    <th></th>
+    <th class="nosort"></th>
+    <th class="left text <%= 'sortfirstasc' if @dashboard_configuration.sorted_by_project_name? -%>">Name</th>
+    <% configured_columns.each do |column| %>
+       <th class="<%= column.get_table_header_css %>"  style="padding-right: 15px"><%= column.name %></th>
+    <% end %>
+  </tr>
+  <tr class="total" id="project_<%= @snapshot.project_id -%>">
+    <%  alert_status_measure=@snapshot.measure(Metric::ALERT_STATUS)
+        alert_status_x=(alert_status_measure ? alert_status_measure.data : '')
+     %>
+    <th x="<%= alert_status_x -%>"><%= html_measure(alert_status_measure, nil, true, nil, nil, nil) %></th>
+    <th><% if logged_in? %><%= link_to_favourite(@snapshot.project) -%><% end %></th>
+    <th class="left text <%= 'sortfirstasc' if @dashboard_configuration.sorted_by_project_name? -%>">
+      <%= qualifier_icon(@snapshot) -%>
+      <a x="<%= u(@snapshot.project.name) -%>" href="<%= ApplicationController.root_context + "/project/index/#{@snapshot.project.copy_resource_id || @snapshot.project.id}" -%>"><%= @snapshot.project.name -%></a>
+    </th>
+    <% @columns.each do |column| %>
+      <%= get_header_content(column, @snapshot) -%>
+    <% end %>
+  </tr>
+  <tr class="blank"><th colspan="<%= @columns.size + 2 -%>">&nbsp;</th></tr>
+<% end %>
+<tr>
+  <th></th>
+  <th class="nosort"></th>
+  <th class="left text <%= 'sortfirstasc' if @dashboard_configuration.sorted_by_project_name? -%>">Name</th>
+  <% configured_columns.each do |column| %>
+     <th class="<%= column.get_table_header_css %>"><%= column.name %></th>
+  <% end %>
+</tr>
+</thead>

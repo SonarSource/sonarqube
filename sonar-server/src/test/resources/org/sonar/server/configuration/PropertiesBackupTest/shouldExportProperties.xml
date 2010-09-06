@@ -1,0 +1,4 @@
+<dataset>
+  <properties id="1" prop_key="key1" text_value="value1" resource_id="[null]" user_id="[null]"/>
+  <properties id="2" prop_key="key2" text_value="value2" resource_id="[null]" user_id="[null]"/>
+</dataset>

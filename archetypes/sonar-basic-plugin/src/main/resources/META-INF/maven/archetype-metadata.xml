@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><archetype-descriptor name="sonar-basic-plugin">
+  <fileSets>
+    <fileSet filtered="true" packaged="true" encoding="UTF-8">
+      <directory>src/main/java</directory>
+      <includes>
+        <include>**/*.java</include>
+      </includes>
+    </fileSet>
+    <fileSet encoding="UTF-8">
+      <directory>src/main/resources</directory>
+      <includes>
+        <include>**/*.erb</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+</archetype-descriptor>

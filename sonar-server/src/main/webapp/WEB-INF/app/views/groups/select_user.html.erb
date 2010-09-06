@@ -1,0 +1,44 @@
+
+<div class="subtitle">&raquo; <a href="<%= url_for :action => 'index'%>">Back to user groups</a></div>
+<h1>Group: <%= @group.name %></h1>
+<br/>
+<div id="main_content">
+  <form action="<%= url_for :action => 'set_users'%>" method="post">
+    <input name="id" value="<%= @group.id%>" type="hidden">
+    <table>
+      <tbody>
+        <tr>
+          <td style="padding: 5px 0pt;" valign="top">
+            <h2>Non-members</h2>
+            <select name="from" id="from" size="10" style="margin: 5px 0pt; width: 300px;" multiple="multiple">
+              <% @group.available_users.each do |user| %>
+                <option value="<%= user.id -%>"><%= user.login %></option>
+              <% end %>
+            </select>
+          </td>
+          <td style="padding: 0pt 10px;" align="center">
+            <button id="select_right" onclick="SelectBox.move('from', 'to');SelectBox.sort('to');SelectBox.redisplay('to');return false;">select >></button><br>
+            <button id="select_right_all" onclick="SelectBox.move_all('from', 'to');return false;">select all >></button><br><br>
+            <button id="select_left" onclick="SelectBox.move('to', 'from');return false;"><< unselect</button><br>
+            <button id="select_left_all" onclick="SelectBox.move_all('to', 'from');return false;"><< unselect all</button>
+          </td>
+          <td class="box" style="padding: 5px 10px;" valign="top">
+            <h2>Members</h2>
+
+            <select name="users[]" id="to" size="10" multiple="multiple" style="margin: 5px 0pt; width: 300px;">
+              <%= options_from_collection_for_select(@group.users, "id", "login") %>
+            </select><br>
+
+            <div style="padding: 5px 0pt;">
+              <input id="save" value="Save" onclick="SelectBox.select_all('to');submit();return false;" type="submit">
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+  <script>
+    SelectBox.init('from');
+    SelectBox.init('to');
+  </script>
+</div>

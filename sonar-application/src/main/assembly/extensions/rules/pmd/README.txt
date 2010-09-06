@@ -1,0 +1,1 @@
+PMD extensions. See http://docs.codehaus.org/display/SONAR/Extend+coding+rules

@@ -1,0 +1,80 @@
+<table width="100%">
+  <tr>
+    <td valign="top">
+      <h1 class="marginbottom10">Users</h1>
+      <table class="data2 width100 sortable" id="users">
+        <thead>
+          <tr>
+            <th class="left">Login</th>
+            <th class="left">Name</th>
+            <th class="left nosort">Groups</th>
+            <th class="left nosort" nowrap>Operations</th>
+          </tr>
+        </thead>
+        <tbody >
+          <% @users.each do |user|%>
+            <% clazz = cycle("even", "odd", :name => 'index_user') %>
+            <tr id="user-<%= u user.login -%>">
+              <td class="left" valign="top"><%=user.login %></td>
+              <td class="left" valign="top"><%=user.name %></td>
+              <td class="left" valign="top">
+                <%= user.groups.sort.map(&:name).join(', ') %> (<%= link_to "select", {:action => 'select_group', :id => user.id}, :id => "select-#{u user.login}" %>)
+              </td>
+              <td class="left" valign="top">
+                <%= link_to "edit", { :id => user.id, :action => 'edit'}, :id => "edit-#{u user.login}" %> |
+                <%= link_to "delete", {:action => 'destroy', :id => user.id}, {:confirm => "Warning : are you sure to delete this user ?", :method => 'delete', :id => "delete-#{u user.login}"} %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <script>TableKit.Sortable.init('users');</script>
+    </td>
+    <td class="sep"> </td>
+    <td valign="top" align="right" width="210">
+        <%
+        action_name = 'create'
+        title='Add new user'
+        if @user.id
+          action_name = 'update'
+          title='Edit user'
+        end
+         %>
+    <% form_for :user, @user, :url => { :id => @user.id, :action => action_name}, :html => { :method => @user.id.nil?? :post : :put } do |f| %>
+      <table class="admintable" width="100%">
+        <tr>
+            <td class="left" valign="top"><h1><%= title %></h1></td>
+          </tr>
+        <tr>
+          <td class="left" valign="top">Login:
+            <% if @user.id %>
+              <%= @user.login %>
+              <%= f.hidden_field :login %>
+
+            <% else %>
+              <br/><%= f.text_field :login, :size => 30, :maxLength => 40 %>
+            <% end %>
+          </td>
+
+        </tr>
+        <tr>
+          <td class="left" valign="top">Name:<br/><%= f.text_field :name, :size => 30, :maxLength => 200 %></td>
+        </tr>
+        <tr>
+          <td class="left" valign="top">Password:<br/><%= f.password_field :password, :size => 30, :maxLength => 50 %></td>
+        </tr>
+        <tr>
+          <td class="left" valign="top">Confirm password:<br/><%= f.password_field :password_confirmation, :size => 30, :maxLength => 50 %></td>
+          </tr>
+        <tr>
+          <td class="left"  nowrap="nowrap" valign="top" colspan="2">
+            <%= submit_tag @user.id.nil?? 'Create':'Update' %>
+            <%= link_to 'cancel', { :controller => 'users', :action => 'index'}, { :class => 'action' } %><br/>
+          </td>
+        </tr>
+
+      </table>
+        <% end %>
+    </td>
+  </tr>
+</table>

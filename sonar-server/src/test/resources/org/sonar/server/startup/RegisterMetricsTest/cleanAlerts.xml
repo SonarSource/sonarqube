@@ -1,0 +1,23 @@
+<dataset>
+
+  <metrics id="1" name="key1" val_type="INT" description="description"  domain="domain"
+           short_name="name1" qualitative="false" user_managed="false" enabled="true" origin="JAV" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="1" hidden="false"/>
+
+  <metrics id="2" name="disabledkey2" val_type="INT" description="description"  domain="domain"
+           short_name="name2" qualitative="false" user_managed="false" enabled="false" origin="JAV" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="1" hidden="false"/>
+
+
+  <rules_profiles id="1" name="profile1" default_profile="true" provided="true" language="JAV"/>
+  <rules_profiles id="2" name="profile2" default_profile="false" provided="false" language="JAV"/>
+
+  <!-- ok -->
+  <alerts id="1" profile_id="1" metric_id="1" operator=">" value_error="30" value_warning="[null]"/>
+  <alerts id="2" profile_id="2" metric_id="1" operator=">" value_error="[null]" value_warning="150"/>
+
+  <!-- disabled metric -->
+  <alerts id="3" profile_id="1" metric_id="2" operator=">" value_error="30" value_warning="[null]"/>
+
+  <!-- unknown metric -->
+  <alerts id="4" profile_id="1" metric_id="999" operator=">" value_error="30" value_warning="[null]"/>
+
+</dataset>

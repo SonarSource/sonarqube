@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>create-advanced-filter</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">create-advanced-filter</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/sessions/logout</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sessions/login</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>store</td>
+	<td>javascript{new Date().getTime()}</td>
+	<td>name</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Add filter</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name</td>
+	<td>${name}</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>q-DIR</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>q-TRK</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>metric-0</td>
+	<td>label=Lines of code</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>op-0</td>
+	<td>label=Greater than</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>val-0</td>
+	<td>100</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>metric-1</td>
+	<td>label=Complexity /class</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>op-1</td>
+	<td>label=Less or equals</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>val-1</td>
+	<td>20</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Advanced search</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>lang-java</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>key_regexp</td>
+	<td>org.apache.*</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>date_operator</td>
+	<td>label=During last</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>date_value</td>
+	<td>20</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//input[@value='Save &amp; Preview']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>results</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>results</td>
+	<td>glob:*org.apache.struts.*</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>results-head</td>
+	<td>glob:*Lines of code*Complexity*</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Delete</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertConfirmation</td>
+	<td>Do you want to delete this filter ?</td>
+	<td></td>
+</tr>
+</tbody></table>
+</body>
+</html>

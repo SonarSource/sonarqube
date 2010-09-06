@@ -1,0 +1,45 @@
+<h1 class="marginbottom10">Project roles</h1>
+<table class="data2 width100">
+  <thead>
+  <tr>
+    <th>Role</th>
+    <th width="35%">Users</th>
+    <th width="35%">Groups</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="even" >
+    <td valign="top"><b>Administrators</b><br/><span class="small gray">Ability to perform administration functions for a project by accessing its settings.</span></td>
+    <td valign="top" style="word-break:break-all;width:35%;">
+      <span><%= users('admin', params[:resource]).map(&:login).join(', ') %></span>
+      (<%= link_to "select", {:action => 'edit_users', :resource => @project.id, :role => 'admin'}, :class => 'action' %>)
+    </td>
+    <td valign="top" style="word-break:break-all;width:35%;">
+      <span><%= groups('admin', params[:resource]).map{|g| group_name(g)}.join(', ') %></span>
+      (<%= link_to "select", {:action => 'edit_groups', :resource => @project.id, :role => 'admin'}, :class => 'action' %>)
+    </td>
+  </tr>
+  <tr class="odd">
+    <td valign="top"><b>Users</b><br/><span class="small gray">Ability to navigate through every service of a project, except viewing source code and settings.</span></td>
+    <td valign="top" style="word-break:break-all;width:35%;">
+      <span><%= users('user', params[:resource]).map(&:login).join(', ') %></span>
+      (<%= link_to "select", {:action => 'edit_users', :resource => @project.id, :role => 'user'}, :class => 'action' %>)
+    </td>
+    <td valign="top" style="word-break:break-all;width:35%;">
+      <span><%= groups('user', params[:resource]).map{|g| group_name(g)}.join(', ') %></span>
+      (<%= link_to "select", {:action => 'edit_groups', :resource => @project.id, :role => 'user'}, :class => 'action' %>)
+    </td>
+  </tr>
+  <tr class="even" >
+    <td valign="top"><b>Code viewers</b><br/><span class="small gray">Ability to view source code of a project.</span></td>
+    <td valign="top" style="word-break:break-all;width:35%;">
+      <span><%= users('codeviewer', params[:resource]).map(&:login).join(', ') %></span>
+      (<%= link_to "select", {:action => 'edit_users', :resource => @project.id, :role => 'codeviewer'}, :class => 'action' %>)
+    </td>
+    <td valign="top" style="word-break:break-all;width:35%;">
+      <span><%= groups('codeviewer', params[:resource]).map{|g| group_name(g)}.join(', ') %></span>
+      (<%= link_to "select", {:action => 'edit_groups', :resource => @project.id, :role => 'codeviewer'}, :class => 'action' %>)
+    </td>
+  </tr>
+  </tbody>
+</table>

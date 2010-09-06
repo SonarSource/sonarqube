@@ -1,0 +1,38 @@
+<%
+  package_tangle_index=measure('package_tangle_index')
+  if package_tangle_index
+%>
+<table width="100%">
+  <tbody>
+    <tr>
+    <%
+      if package_tangle_index
+        package_cycles=measure('package_cycles')
+        package_feedback_edges=measure('package_feedback_edges')
+        package_tangles=measure('package_tangles')
+    %>
+      <td valign="top">
+        <div class="dashbox">
+          <p class="title">Package tangle index</p>
+          <p><span class="big"><%= format_measure(package_tangle_index, :suffix => '', :default => '-', :url => url_for_drilldown('package_tangle_index')) %> <%= tendency_icon(package_tangle_index, false) %></span></p>
+          <% if package_cycles %>
+          <p>> <%= format_measure(package_cycles, :suffix => ' cycles', :url => url_for_drilldown('package_cycles')) %></p>
+          <% end %>
+        </div>
+      </td>
+      <td valign="top">
+        <% if package_feedback_edges || package_tangles %>
+        <div class="dashbox">
+          <p class="title">Dependencies to cut</p>
+          <p><%= format_measure(package_feedback_edges, :suffix => ' between packages', :url => url_for_drilldown('package_feedback_edges')) %> <%= tendency_icon(package_feedback_edges) %></p>
+          <p><%= format_measure(package_tangles, :suffix => ' between files', :url => url_for_drilldown('package_tangles')) %> <%= tendency_icon(package_tangles) %></p>
+        </div>
+        <% end %>
+      </td>
+    <% end %>
+    </tr>
+  </tbody>
+</table>
+<%
+  end
+%>

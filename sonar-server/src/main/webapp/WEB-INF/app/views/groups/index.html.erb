@@ -1,0 +1,70 @@
+<table width="100%">
+  <tr>
+    <td valign="top">
+      <h1 class="marginbottom10">Groups</h1>
+
+      <table class="data2 width100" id="groups">
+        <thead>
+          <tr>
+            <th class="left">Name</th>
+            <th class="left">Description</th>
+            <th class="left">Members</th>
+            <th class="left" nowrap>Operations</th>
+          </tr>
+        </thead>
+        <tbody >
+        <% @groups.each do |group|%>
+        <% clazz = cycle("even", "odd", :name => 'index_user') %>
+          <tr class="<%= clazz %>" id="group-<%= u group.name -%>">
+            <td class="left"><%= group.name %></td>
+            <td class="left" style="word-break:break-all"><%=group.description%></td>
+            <td class="left">
+              <span id="count-<%= u group.name -%>"><%= group.users.count %></span> (<%= link_to "select", { :action => 'select_user', :id => group.id}, :id => "select-#{u group.name}" %>)
+            </td>
+            <td class="left">
+              <%= link_to "edit", { :action => 'index', :id => group.id}, :class => 'action',
+              :method => :get, :id => "edit-#{u group.name}" %> | 
+              <%= link_to "delete", { :action => 'destroy', :id => group.id}, {:confirm => "Are you sure to delete this group ? Members will not be deleted.", :class => 'action', :method => 'get', :id => "delete-#{u group.name}"} %>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </td>
+    <td class="sep"> </td>
+    <td valign="top" align="right" width="210">
+      <%
+        action_name = 'create'
+        title="Add new group"
+        if @group.id
+          action_name = 'update'
+          title='Edit group'
+        end
+      %>
+      <table class="admintable"  width="100%">
+        <% form_for :group, @group, :url => { :action => action_name, :id => @group.id} do |f| %>
+        <tbody>
+        <tr>
+          <td><h1><%= title %></h1></td>
+        </tr>
+        <tr>
+          <td class="left">
+            Name:<br/>
+            <%= f.text_field :name, :size => 25 %><br/>
+            <span class="desc">Ex: my-group</span></td>
+        </tr>
+        <tr>
+          <td class="left" valign="top">Description:<br/><%= f.text_area :description, :rows => 3, :cols => 25 %></td>
+        </tr>
+        <tr>
+          <td class="left"  nowrap="nowrap" valign="top" colspan="2">
+            <%= submit_tag @group.id.nil? ? 'Create':'Update' %>
+            <%= link_to 'cancel', { :controller => 'groups', :action => 'index', :id => nil}, { :class => 'action' } %><br/>
+          </td>
+        </tr>
+      </tbody>
+      <% end %>
+      </table>
+    </td>
+  </tr>
+</table>

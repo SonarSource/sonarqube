@@ -1,0 +1,8 @@
+<dataset>
+  <quality_models id="1" name="initial" />
+  
+  <characteristics id="1" kee="FAKE1" name="fake1" quality_model_id="1" rule_id="[null]"  characteristic_order="1" depth="1"/>
+  <characteristics id="2" kee="FAKE2" name="fake2" quality_model_id="1" rule_id="[null]" characteristic_order="2" depth="1" />
+
+  <characteristic_edges child_id="2" parent_id="1"/>
+</dataset>

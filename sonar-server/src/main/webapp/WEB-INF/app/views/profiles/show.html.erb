@@ -1,0 +1,13 @@
+<p>
+  <b>Name:</b>
+  <%=h @profile.name %>
+</p>
+
+<p>
+  <b>Active:</b>
+  <%=h @profile.active %>
+</p>
+
+
+<%= link_to 'Edit', edit_profile_path(@profile) %> |
+<%= link_to 'Back', profiles_path %>

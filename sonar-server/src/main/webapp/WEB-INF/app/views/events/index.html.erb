@@ -1,0 +1,28 @@
+<table class="sortable data" id="events">
+<thead><tr><th> </th><th class="sortfirstdesc">Date</th><th>Event</th><th>Name</th></tr></thead>
+<% if is_admin?(@resource) %>
+<tfoot>
+    <tr><td colspan="4" style="text-align:left">
+<%= link_to_remote "Add an event", {:url => { :controller => 'events', :action => "new", :rid => params['rid'] },
+    :update => "event_form"}, {:class => 'action'} %>
+    </td></tr>
+</tfoot>
+<% end %>
+<tbody>
+<% @events.each do |event| %>
+<tr>
+    <td>
+        <% if is_admin?(@resource) %>
+        <%= link_to 'Edit', edit_event_path(event) %>
+        <%= link_to 'Destroy', event, :confirm => 'Are you sure?', :method => :delete %>
+        <% end %>
+    </td>
+    <td><%= l event.event_date.to_date %></td>
+    <td><%= event.category %></td>
+    <td><%= event.name %></td>
+</tr>
+<% end %>
+</tbody>
+</table>
+<script>TableKit.Sortable.init('events');</script>
+<div id="event_form" />

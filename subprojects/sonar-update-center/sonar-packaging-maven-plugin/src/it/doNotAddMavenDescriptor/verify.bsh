@@ -1,0 +1,22 @@
+import java.io.*;
+import java.util.zip.*;
+
+File file = new File( basedir, "target/test-1.0.jar" );
+if (!file.isFile()) {
+  throw new FileNotFoundException( "Could not find generated JAR: " + file );
+}
+
+ZipFile zipFile = new ZipFile(file);
+try {
+  if (zipFile.getEntry("META-INF/MANIFEST.MF")==null) {
+    throw new FileNotFoundException("Could not find manifest");
+  }
+  if (zipFile.getEntry("META-INF/maven/org.codehaus.sonar/test/pom.xml")!=null) {
+    throw new FileNotFoundException("The maven descriptor (pom.xml) has not been removed");
+  }
+  if (zipFile.getEntry("META-INF/maven/org.codehaus.sonar/test/pom.properties")!=null) {
+    throw new FileNotFoundException("The maven descriptor (pom.properties) has not been removed");
+  }
+} finally {
+  zipFile.close();
+}

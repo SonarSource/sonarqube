@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset>
+  <description>Custom PMD rules</description>
+  <rule ref="rulesets/logging-java.xml/SystemPrintln">
+    <priority>5</priority>
+  </rule>
+  <rule ref="rulesets/strings.xml/UselessStringValueOf">
+    <priority>3</priority>
+  </rule>
+</ruleset>

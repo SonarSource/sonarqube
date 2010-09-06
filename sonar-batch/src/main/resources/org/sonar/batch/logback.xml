@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<configuration debug="false">
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <pattern>[%level] %X{module} %msg%n</pattern>
+    </layout>
+  </appender>
+
+  <logger name="org.hibernate">
+    <level value="WARN"/>
+  </logger>
+
+  <!-- set INFO to activate SQL logs. NOT RECOMMENDED  -->
+  <logger name="org.hibernate.SQL">
+    <level value="ERROR"/>
+  </logger>
+
+  <!-- set INFO to activate SQL statistics. NOT RECOMMENDED  -->
+  <logger name="org.sonar.DBSTATISTICS">
+    <level value="ERROR"/>
+  </logger>
+
+  <logger name="net.sf.ehcache">
+    <level value="WARN"/>
+  </logger>
+
+  <logger name="org.hibernate.cache.ReadWriteCache">
+    <!-- removing "An item was expired by the cache while it was locked (increase your cache timeout)" msg -->
+    <level value="ERROR"/>
+  </logger>
+  <logger name="org.hibernate.cache.EhCacheProvider">
+    <!-- removing "org.hibernate.cache.EhCacheProvider - Could not find configuratio)" message -->
+    <level value="ERROR"/>
+  </logger>
+
+  <!-- see org.sonar.mojo.InternalMojo#initLogging -->
+  <root>
+    <level value="${ROOT_LOGGER_LEVEL}"/>
+    <appender-ref ref="STDOUT"/>
+  </root>
+
+</configuration>

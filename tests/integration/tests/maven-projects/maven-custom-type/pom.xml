@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Licensed to the Apache Software Foundation (ASF) under one or more
+	contributor license agreements.  See the NOTICE file distributed with
+	this work for additional information regarding copyright ownership.
+	The ASF licenses this file to You under the Apache License, Version 2.0
+	(the "License"); you may not use this file except in compliance with
+	the License.  You may obtain a copy of the License at
+	
+	http://www.apache.org/licenses/LICENSE-2.0
+	
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+	
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.sonar.tests</groupId>
+	<artifactId>maven-custom-type</artifactId>
+	<packaging>amp</packaging>
+	<name>Maven custom type</name>
+	<version>0.1-SNAPSHOT</version>
+	<description>SONAR-308 Maven custom type</description>
+	<repositories>
+		<repository>
+			<id>ss-public</id>
+			<url>http://repository.sourcesense.com/nexus/content/groups/public</url>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>ss-public</id>
+			<url>http://repository.sourcesense.com/nexus/content/groups/public</url>
+		</pluginRepository>
+	</pluginRepositories>
+	<properties>
+	    <sonar.profile>turbo</sonar.profile>
+	
+		<env>local</env>
+		<webapp.name>mymodule-webapp</webapp.name>
+		<alfresco.data.location>./alf_data_jetty</alfresco.data.location>
+		<alfresco.db.name>alf_jetty</alfresco.db.name>
+		<webapp.log.level>error</webapp.log.level>
+		<webapp.log.dir>${project.build.directory}/</webapp.log.dir>
+		<module.log.level>debug</module.log.level>
+	</properties>
+	<dependencies>
+			<dependency>
+				<groupId>org.alfresco</groupId>
+				<artifactId>alfresco-repository</artifactId>
+				<version>2.1.0</version>
+				<classifier>labs</classifier>
+			</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring</artifactId>
+			<version>2.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.0.3</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.alfresco.maven.plugin</groupId>
+				<artifactId>maven-amp-plugin</artifactId>
+				<version>2.0.1</version>
+				<extensions>true</extensions>
+				<configuration>
+					<archive>
+						<addMavenDescriptor>false</addMavenDescriptor>
+					</archive>
+					<overlays>
+						<!-- This sample adds records management module in the finally built AMP
+						<overlay>
+							<groupId>org.alfresco.community</groupId>
+							<artifactId>recordsmanagement</artifactId>
+							<version>2.1.0</version>
+							<type>amp</type>
+						</overlay>
+						-->
+						<!-- The current AMP is always last in order to overwrite other modules' modules.properties
+						<overlay></overlay>
+						-->
+					</overlays>
+				</configuration>
+			</plugin>
+		</plugins>
+		<!-- Copies and filters resources in build folder so maven-amp-plugin can pick them up  -->
+		<resources>
+			<resource>
+				<filtering>true</filtering>
+				<directory>src/main/resources</directory>
+				<excludes>
+					<exclude>**README-*</exclude>
+				</excludes>
+			</resource>
+			<!-- Copies and filters AMP config in the proper package 'alfresco/module/mycompany.com.mymodule' so to enforce 
+				 full module naming single sourcing from POM properties  -->
+			<resource>
+				<filtering>true</filtering>
+				<directory>src/main/config</directory>
+				<targetPath>alfresco/module/mycompany.com.mymodule</targetPath>
+				<excludes>
+					<exclude>**README-*</exclude>
+				</excludes>
+			</resource>
+		</resources>
+	</build>
+	<profiles>
+		<!-- Profile used to trigger war creation and integration within Jetty embedded -->
+		<profile>
+			<id>webapp</id>
+			<build>
+				<filters><filter>src/test/properties/${env}/application.properties</filter></filters>
+				<defaultGoal>jetty:run-exploded</defaultGoal>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>unpack-amps</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>unpack-dependencies</goal>
+								</goals>
+								<configuration>
+									<includeTypes>amp</includeTypes>
+									<outputDirectory>${build.directory}/${webapp.name}</outputDirectory>
+									<excludes>META*</excludes>
+								</configuration>
+							</execution>
+						</executions>
+						<dependencies>
+							<!-- This is required to be re-defined explicitly at plugin level as otherwise the 'amp' extension
+								unArchiver won't be available to the maven-dependency-plugin  -->
+							<dependency>
+								<groupId>org.alfresco.maven.plugin</groupId>
+								<artifactId>maven-amp-plugin</artifactId>
+								<version>2.0.0</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-war-plugin</artifactId>
+						<executions>
+							<!-- Runs war packaging when 'integration-test' phase is called -->
+							<execution>
+								<id>it</id>
+								<phase>package</phase>
+								<goals>
+									<goal>exploded</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<primaryArtifact>false</primaryArtifact>
+							<!-- Don't remove the following line otherwise WAR and AMP builds will be done in the same folder, with unexpected results -->
+							<webappDirectory>${build.directory}/${webapp.name}</webappDirectory>
+							<archive>
+								<addMavenDescriptor>false</addMavenDescriptor>
+							</archive>
+							<warSourceExcludes>licenses/**</warSourceExcludes>
+							<webResources></webResources>
+							<webResources>
+								<resource>
+									<directory>${build.testOutputDirectory}</directory>
+									<targetPath>WEB-INF/classes</targetPath>
+									<filtering>true</filtering>
+									<includes>
+										<include>**</include>
+									</includes>
+								</resource>
+								<!-- Here we add default this AMP web/ resources-->
+								<resource>
+									<directory>src/main/webapp</directory>
+									<targetPath>WEB-INF/licenses</targetPath>
+									<includes>
+										<include>licenses/*.*</include>
+									</includes>
+									<filtering>false</filtering>
+								</resource>
+							</webResources>
+						</configuration>
+						<dependencies>
+							<!-- This is required to be re-defined explicitly at plugin level as otherwise the 'amp' extension
+								unArchiver won't be available to the maven-war-plugin  -->
+							<dependency>
+								<groupId>org.alfresco.maven.plugin</groupId>
+								<artifactId>maven-amp-plugin</artifactId>
+								<version>2.0.0</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+					<plugin>
+						<groupId>org.mortbay.jetty</groupId>
+						<artifactId>maven-jetty-plugin</artifactId>
+						<executions>
+							<!-- Runs jetty when 'integration-test' phase is called -->
+							<execution>
+								<id>it</id>
+								<phase>integration-test</phase>
+								<goals>
+									<goal>run-exploded</goal>
+								</goals>
+								<configuration>
+									<contextPath>/${webapp.name}</contextPath>
+									<webApp>${pom.build.directory}/${webapp.name}</webApp>
+									<scanIntervalSeconds>10</scanIntervalSeconds>
+									<connectors>
+										<connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+											<port>8080</port>
+											<maxIdleTime>60000</maxIdleTime>
+										</connector>
+									</connectors>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+				<!-- When invoking 'mvn integration-test', the following alf configs are added to the test war in order to be able to run it seamlessly.
+					NB: the application.properties file is filtered with alfresco.db.name and alf.data.location POM properties as default configuration
+				-->
+				<testResources>
+					<testResource>
+						<filtering>true</filtering>
+						<directory>src/test/resources</directory>
+					</testResource>
+					<!-- Includes default properties  for alfresco test war -->
+					<testResource>
+						<filtering>true</filtering>
+						<directory>src/test/properties/${env}</directory>
+						<targetPath>alfresco/extension</targetPath>
+					</testResource>
+					<!-- src/main/config/ is copied into  ==> target/test-classes/alfresco/module/mycompany.com.mymodule to
+						be picked up by the maven-war plugin
+						Best practice tacken from recordsmanagement.amp, is enforced troughout the whole archetype. 
+						This convention is also used for module.properties filtering.
+					-->
+					<testResource>
+						<filtering>true</filtering>
+						<directory>.</directory>
+						<includes>
+							<include>module.properties</include>
+						</includes>
+						<targetPath>alfresco/module/mycompany.com.mymodule</targetPath>
+					</testResource>
+				</testResources>
+			</build>
+			<!-- Here you can add test dependencies you want to have included in the the WAR (not in the AMP, built in the main profile) 
+				|
+				| Typical use case: add here additional AMPs that you want to test compatibility of with the current module
+				|
+			-->
+			<dependencies>
+				<!-- This is the alfresco version you're testing the AMP against. Don't remove if you want jetty to be able to deploy a WAR :) -->
+				<dependency>
+					<groupId>alfresco.community</groupId>
+					<artifactId>alfresco</artifactId>
+					<version>2.1.0</version>
+					<type>war</type>
+				</dependency>
+			</dependencies>
+		</profile>
+
+	</profiles>
+</project>

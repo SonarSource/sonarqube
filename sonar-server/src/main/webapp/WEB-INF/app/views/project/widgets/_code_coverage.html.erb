@@ -1,0 +1,47 @@
+<%
+code_coverage_measure=measure(Metric::COVERAGE)
+tests_measure=measure(Metric::TESTS)
+if code_coverage_measure || tests_measure %>
+<div class="widget">
+<div class="yui-g">
+	<div class="yui-u first">
+<div class="dashbox">
+  <p class="title">Code coverage</p>
+  <p><span class="big"><%= format_measure(code_coverage_measure, :suffix => '', :url => url_for_drilldown(Metric::COVERAGE), :default => '-') %> <%= tendency_icon(code_coverage_measure, false) %></span></p>
+  <% line_coverage=measure(Metric::LINE_COVERAGE)
+    if line_coverage %>
+    <p><%= format_measure(line_coverage, :suffix => ' line coverage', :url => url_for_drilldown(Metric::UNCOVERED_LINES, :highlight =>  Metric::LINE_COVERAGE)) %> <%= tendency_icon(line_coverage) %></p>
+  <% end %>
+  <% branch_coverage=measure(Metric::BRANCH_COVERAGE)
+    if branch_coverage %>
+    <p><%= format_measure(branch_coverage, :suffix => ' branch coverage', :url => url_for_drilldown(Metric::UNCOVERED_CONDITIONS, :highlight =>  Metric::BRANCH_COVERAGE)) %> <%= tendency_icon(branch_coverage) %></p>
+  <% end %>
+  <p><%= format_measure(tests_measure, :suffix => ' tests', :url => url_for_drilldown(Metric::TESTS)) %> <%= tendency_icon(tests_measure) %></p>
+  <% skipped_measure=measure(Metric::SKIPPED_TESTS)
+     if skipped_measure && skipped_measure.value>0
+  %>
+  <p>+<%= format_measure(skipped_measure, :suffix => ' skipped', :url => url_for_drilldown(Metric::SKIPPED_TESTS)) %> <%= tendency_icon(skipped_measure) %></p>
+  <% end %>
+  <p><%= format_measure(Metric::TEST_EXECUTION_TIME, :suffix => '', :url => url_for_drilldown(Metric::TEST_EXECUTION_TIME)) %> <%= tendency_icon(measure(Metric::TEST_EXECUTION_TIME)) %></p>
+</div>
+</div>
+<div class="yui-u">
+	<%
+	success_percentage=measure(Metric::TEST_SUCCESS_DENSITY)
+	if success_percentage
+	%>
+	<div class="dashbox">
+	  	<h3>Test success</h3>
+	    <p><span class="big"><%= format_measure(success_percentage, :suffix => '', :url => url_for_drilldown(success_percentage)) %> <%= tendency_icon(measure(Metric::TEST_SUCCESS_DENSITY), false) %></span></p>
+	  	<p>
+	  	  <%= format_measure(Metric::TEST_FAILURES, :suffix => ' failures', :url => url_for_drilldown(Metric::TEST_FAILURES)) %> <%= tendency_icon(measure(Metric::TEST_FAILURES)) %>
+	   	</p>
+	    <p>
+	      <%= format_measure(Metric::TEST_ERRORS, :suffix => ' errors', :url => url_for_drilldown(Metric::TEST_ERRORS)) %> <%= tendency_icon(measure(Metric::TEST_ERRORS)) %>
+	   	</p>
+	</div>
+	<% end %>
+</div>
+</div>
+</div>
+<% end %>

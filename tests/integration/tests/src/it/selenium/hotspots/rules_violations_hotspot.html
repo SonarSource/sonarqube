@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://192.168.1.31:9000/" />
+<title>rules_violations_hotspot</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">rules_violations_hotspot</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/plugins/resource/org.sonar.tests:reference?page=org.sonar.plugins.core.hotspots.GwtHotspots</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>violated-files-hotspot</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>violated-files-hotspot</td>
+	<td>glob:*Utf8Characters*0*0*8*</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=#violated-files-hotspot a:contains('Utf8Characters')</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectWindow</td>
+	<td>resource</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>pageselector</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTextPresent</td>
+	<td>Violations</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>pageselector</td>
+	<td>glob:*Unused local variable*</td>
+</tr>
+<tr>
+	<td>close</td>
+	<td>resource</td>
+	<td></td>
+</tr>
+
+</tbody></table>
+</body>
+</html>

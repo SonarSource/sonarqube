@@ -1,0 +1,71 @@
+<project name="Volumetry tests" basedir=".">
+  <property environment="env"/>
+
+  <taskdef resource="net/sf/antcontrib/antlib.xml">
+    <classpath>
+      <pathelement location="${basedir}/lib/ant-contrib-1.0b3.jar"/>
+    </classpath>
+  </taskdef>
+
+  <target name="analyze-projects">
+    <exec executable="ruby" failonerror="true" dir="${basedir}">
+      <!-- >1000 in order to test SONAR-1339 : pb with Oracle when more than 1000 projects -->
+      <arg line="duplicate_project.rb ${projectsCount} ${packagesCount} ${classesCount}"/>
+    </exec>
+
+    <mvn args="clean install" dir="${basedir}/project" />
+    <mvnsonar pom="${basedir}/project/pom.xml"/>
+
+    <for param="pom">
+      <path>
+        <fileset dir="${basedir}/project" includes="pom.xml.*"/>
+      </path>
+      <sequential>
+        <mvnsonar pom="@{pom}"/>
+      </sequential>
+    </for>
+  </target>
+
+
+  <macrodef name="mvn">
+    <attribute name="failonerror" default="true"/>
+    <attribute name="args" default=""/>
+    <attribute name="dir"/>
+
+    <sequential>
+      <echo>Executing ${maven.home}/bin/mvn @{args}</echo>
+      <exec dir="@{dir}" failonerror="@{failonerror}" executable="${maven.home}/bin/mvn.bat" osfamily="Windows">
+        <arg line="@{args} -B -e"/>
+      </exec>
+      <exec dir="@{dir}" failonerror="@{failonerror}" executable="${maven.home}/bin/mvn" osfamily="unix">
+        <arg line="@{args} -B -e"/>
+      </exec>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mvnsonar">
+    <attribute name="failonerror" default="true"/>
+    <attribute name="args" default=""/>
+    <attribute name="pom"/>
+
+    <sequential>
+      <exec failonerror="@{failonerror}" executable="${maven.home}/bin/mvn.bat" osfamily="Windows">
+        <arg line="org.codehaus.mojo:sonar-maven-plugin:1.0-beta-1:sonar @{args} -B -e"/>
+        <arg line="-f @{pom}"/>
+        <arg value='-Dsonar.jdbc.url="${jdbcUrl}"'/>
+        <arg value="-Dsonar.jdbc.driver=${jdbcDriver}"/>
+        <arg value="-Dsonar.jdbc.username=${jdbcUsername}"/>
+        <arg value="-Dsonar.jdbc.password=${jdbcPassword}"/>
+      </exec>
+      <exec failonerror="@{failonerror}" executable="${maven.home}/bin/mvn" osfamily="unix">
+        <arg line="org.codehaus.mojo:sonar-maven-plugin:1.0-beta-1:sonar @{args} -B -e"/>
+        <arg line="-f @{pom}"/>
+        <arg value='-Dsonar.jdbc.url=${jdbcUrl}'/>
+        <arg value="-Dsonar.jdbc.driver=${jdbcDriver}"/>
+        <arg value="-Dsonar.jdbc.username=${jdbcUsername}"/>
+        <arg value="-Dsonar.jdbc.password=${jdbcPassword}"/>
+      </exec>
+    </sequential>
+  </macrodef>
+
+</project>

@@ -1,0 +1,2136 @@
+<rules>
+  <!-- PMD 4.2.5 -->
+  <rule key="AvoidThrowingNewInstanceOfSameException" priority="MAJOR">
+    <name><![CDATA[Strict Exception - Avoid throwing new instance of same exception]]></name>
+    <configKey>rulesets/strictexception.xml/AvoidThrowingNewInstanceOfSameException</configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[Catch blocks that merely rethrow a caught exception wrapped inside a new instance of the same type only add to code size and runtime complexity. Example :
+<pre>
+public class Foo {
+  void bar() {
+    try {
+      // do something
+    }  catch (SomeException se) {
+      // harmless comment
+      throw new SomeException(se);
+    }
+  }
+}
+</pre>]]></description>
+  </rule>
+
+  <rule key="CallSuperFirst" priority="MAJOR">
+    <name><![CDATA[Android - call super first]]></name>
+    <configKey>rulesets/android.xml/CallSuperFirst</configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[Super should be called at the start of the method. Example :
+<pre>
+public class DummyActivity extends Activity {
+  public void onCreate(Bundle bundle) {
+    // missing call to super.onCreate(bundle)
+    foo();
+  }
+}
+</pre>]]></description>
+  </rule>
+
+  <rule key="CallSuperLast" priority="MAJOR">
+    <name><![CDATA[Android - call super last]]></name>
+    <configKey>rulesets/android.xml/CallSuperLast</configKey>
+    <category name="Efficiency"/>
+    <description>
+      <![CDATA[Super should be called at the end of the method. Example :
+<pre>
+public class DummyActivity extends Activity {
+  public void onPause() {
+    foo();
+    // missing call to super.onPause()
+  }
+}
+</pre>]]></description>
+  </rule>
+
+  <rule key="ProtectLogD" priority="MAJOR">
+    <name><![CDATA[Android - Protect LOGD]]></name>
+    <configKey>rulesets/android.xml/ProtectLogD</configKey>
+    <category name="Efficiency"/>
+    <description>
+      <![CDATA[Log.d calls should be protected by checking Config.LOGD first. Example :
+<pre>
+public class DummyActivity extends Activity {
+  public void foo() {
+    Log.d("TAG", "msg1"); // Bad
+
+    bar();
+
+    if (Config.LOGD) Log.d("TAG", "msg1"); // Good
+  }
+}
+</pre>]]></description>
+  </rule>
+
+  <rule key="ProtectLogV" priority="MAJOR">
+    <name><![CDATA[Android - Protect LOGV]]></name>
+    <configKey>rulesets/android.xml/ProtectLogV</configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[Log.v calls should be protected by checking Config.LOGV first. Example :
+<pre>
+public class DummyActivity extends Activity {
+  public void foo() {
+    Log.v("TAG", "msg1"); // Bad
+    bar();
+    if (Config.LOGV) Log.v("TAG", "msg1"); // Good
+  }
+}
+</pre>]]></description>
+  </rule>
+  
+
+
+  <!-- PMD 4.2.3 -->
+  <rule key="EmptyInitializer" priority="MAJOR">
+    <name><![CDATA[Basic - Empty Initializer]]></name>
+    <configKey>rulesets/basic.xml/EmptyInitializer</configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[An empty initializer was found. Example :
+<pre>
+public class Foo {
+
+   static {} // Why ?
+
+   {} // Again, why ?
+
+}
+</pre>]]></description>
+  </rule>
+
+
+
+
+  <!-- PMD 4.2.2 -->
+  <rule key="CyclomaticComplexity" priority="MAJOR">
+    <name><![CDATA[Code size - cyclomatic complexity]]></name>
+    <configKey>rulesets/codesize.xml/CyclomaticComplexity</configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[Complexity is determined by the number of decision points in a method plus one for the method entry. The decision points are 'if', 'while', 'for', and 'case labels'. Generally, 1-4 is low complexity, 5-7 indicates moderate complexity, 8-10 is high complexity, and 11+ is very high complexity.]]></description>
+    <param key="reportLevel" type="i">
+      <description><![CDATA[The Cyclomatic Complexity reporting threshold. Default is 10.]]></description>
+    </param>
+    <param key="showClassesComplexity" type="b">
+      <description>
+        <![CDATA[Indicate if class average violation should be added to the report. Default is true.]]></description>
+
+    </param>
+    <param key="showMethodsComplexity" type="b">
+      <description>
+        <![CDATA[Indicate if method average violation should be added to the report. Default is true.]]></description>
+
+    </param>
+  </rule>
+
+  <rule key="AvoidStringBufferField" priority="MAJOR">
+    <name><![CDATA[Avoid StringBuffer field]]></name>
+    <configKey>rulesets/strings.xml/AvoidStringBufferField</configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[StringBuffers can grow quite a lot, and so may become a source of memory leak (if the owning class has a long life time). Example :
+<pre>
+class Foo {
+	private StringBuffer memoryLeak;
+}
+</pre>]]></description>
+  </rule>
+
+  <rule key="DoNotThrowExceptionInFinally" priority="MAJOR">
+    <name><![CDATA[Strict Exception - Do not throw exception in finally]]></name>
+    <configKey><![CDATA[rulesets/strictexception.xml/DoNotThrowExceptionInFinally]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[Throwing exception in a finally block is confusing. It may mask exception or a defect of the code, it also render code cleanup uninstable. Example :
+<pre>
+public class Foo
+{
+  public void bar()
+	{
+	  try {
+		// Here do some stuff
+		}
+		catch( Exception e) {
+		// Handling the issue
+		}
+		finally
+		{
+		  // is this really a good idea ?
+			throw new Exception();
+	  }
+  }
+}
+</pre>
+]]></description>
+  </rule>
+
+  <rule key="TooManyMethods" priority="MAJOR">
+    <name><![CDATA[Too many methods]]></name>
+    <configKey><![CDATA[rulesets/codesize.xml/TooManyMethods]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[A class with too many methods is probably a good suspect for refactoring, in order to reduce its complexity and find a way to have more fine grained objects.]]></description>
+    <param key="maxmethods" type="i">
+      <description><![CDATA[The method count reporting threshold. Default is 10.]]></description>
+
+    </param>
+  </rule>
+
+  <rule key="ReturnEmptyArrayRatherThanNull" priority="MINOR">
+    <name><![CDATA[Return empty array rather than null]]></name>
+    <configKey><![CDATA[rulesets/design.xml/ReturnEmptyArrayRatherThanNull]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[For any method that returns an array, it's a better behavior to return an empty array rather than a null reference. Example :
+<pre>
+public class Example
+{
+  // Not a good idea...
+  public int []badBehavior()
+  {
+    // ...
+    return null;
+  }
+
+  // Good behavior
+  public String[] bonnePratique()
+  {
+    //...
+    return new String[0];
+  }
+}
+</pre>
+]]></description>
+  </rule>
+
+  <rule key="TooFewBranchesForASwitchStatement" priority="MINOR">
+    <name><![CDATA[Too few branches for a switch statement]]></name>
+    <configKey><![CDATA[rulesets/design.xml/TooFewBranchesForASwitchStatement]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Swith are designed complex branches, and allow branches to share treatement. Using a switch for only a few branches is ill advised, as switches are not as easy to understand as if. In this case, it's most likely is a good idea to use a if statement instead, at least to increase code readability. Example :
+<pre>
+// With a minimumNumberCaseForASwitch of 3
+public class Foo {
+  public void bar() {
+    switch (condition) {
+      case ONE:
+        instruction;
+        break;
+      default:
+        break; // not enough for a 'switch' stmt,
+               // a simple 'if' stmt would have been more appropriate
+    }
+  }
+}
+</pre>
+]]></description>
+    <param key="minimumNumberCaseForASwitch" type="i">
+      <description><![CDATA[Minimum number of branches for a switch. Default is 3.]]></description>
+    </param>
+  </rule>
+
+  <rule key="AbstractClassWithoutAnyMethod" priority="MAJOR">
+    <name><![CDATA[Abstract class without any methods]]></name>
+    <configKey><![CDATA[rulesets/design.xml/AbstractClassWithoutAnyMethod]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[If the abstract class does not provides any methods, it may be just a data container that is not to be instantiated. In this case, it's probably better to use a private or a protected constructor in order to prevent instantiation than make the class misleadingly abstract. Example :
+<pre>
+public class abstract Example {
+	String field;
+	int otherField;
+}
+</pre>
+]]></description>
+
+  </rule>
+
+  <rule key="DoNotCallGarbageCollectionExplicitly" priority="CRITICAL">
+    <name><![CDATA[Do not call garbage collection explicitly]]></name>
+    <configKey><![CDATA[rulesets/controversial.xml/DoNotCallGarbageCollectionExplicitly]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[Calls to System.gc(), Runtime.getRuntime().gc(), and System.runFinalization() are not advised. Code should have the same behavior whether the garbage collection is disabled using the option -Xdisableexplicitgc or not. Moreover, "modern" jvms do a very good job handling garbage collections. If memory usage issues unrelated to memory leaks develop within an application, it should be dealt with JVM options rather than within the code itself. Example :
+<pre>
+ public class GCCall
+{
+  public GCCall()
+  {
+  // Explicit gc call !
+    System.gc();
+  }
+	public void doSomething()
+	{
+		// Explicit gc call !
+		Runtime.getRuntime().gc();
+	}
+
+  public explicitGCcall() { // Explicit gc call ! System.gc(); }
+
+  public void doSomething() { // Explicit gc call ! Runtime.getRuntime().gc(); }
+}
+</pre>]]></description>
+  </rule>
+
+  <rule key="AvoidMultipleUnaryOperators" priority="MAJOR">
+    <name><![CDATA[Avoid Multiple Unary Operators]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/AvoidMultipleUnaryOperators]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[Using multiple unary operators may be a bug, and/or is confusing. Check the usage is not a bug, or consider simplifying the expression. Example :
+<pre>
+// These are typo bugs, or at best needlessly complex and confusing:
+int i = - -1;
+int j = + - +1;
+int z = ~~2;
+boolean b = !!true;
+boolean c = !!!true;
+
+// These are better:
+int i = 1;
+int j = -1;
+int z = 2;
+boolean b = true;
+boolean c = false;
+
+// And these just make your brain hurt:
+int i = ~-2;
+int j = -~7;
+</pre> ]]></description>
+  </rule>
+
+
+  <rule key="DoubleCheckedLocking" priority="MAJOR">
+    <name><![CDATA[Double checked locking]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/DoubleCheckedLocking]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[Partially created objects can be returned by the Double Checked Locking pattern when used in Java. An optimizing JRE may assign a reference to the baz variable before it creates the object the reference is intended to point to. <a href="http://www.javaworld.com/javaworld/jw-02-2001/jw-0209-double.html">More details</a>. Example :
+<pre>
+public class Foo {
+  Object baz;
+  Object bar() {
+    if(baz == null) { //baz may be non-null yet not fully created
+      synchronized(this){
+        if(baz == null){
+          baz = new Object();
+        }
+      }
+    }
+    return baz;
+  }
+}
+</pre> ]]></description>
+  </rule>
+
+  <rule key="NPathComplexity" priority="MAJOR">
+    <name><![CDATA[NPath complexity]]></name>
+    <configKey><![CDATA[rulesets/codesize.xml/NPathComplexity]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[The NPath complexity of a method is the number of acyclic execution paths through that method. A threshold of 200 is generally considered the point where measures should be taken to reduce complexity. Example :
+<pre>
+public class Foo {
+  void bar() {
+   // lots of complicated code
+  }
+ }
+</pre> ]]></description>
+    <param key="minimum" type="i">
+      <description><![CDATA[The npath reporting threshold. Default is 200.]]></description>
+
+    </param>
+  </rule>
+
+
+  <rule key="SimplifyBooleanReturns" priority="MINOR">
+    <name><![CDATA[Simplify boolean returns]]></name>
+    <configKey><![CDATA[rulesets/design.xml/SimplifyBooleanReturns]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[Avoid unnecessary if..then..else statements when returning a boolean. Example :
+<pre>
+public class Foo {
+  private int bar =2;
+  public boolean isBarEqualsTo(int x) {
+    // this bit of code
+    if (bar == x) {
+     return true;
+    } else {
+     return false;
+    }
+    // can be replaced with a simple
+    // return bar == x;
+  }
+}
+</pre>
+      ]]></description>
+  </rule>
+
+  <rule key="SimplifyBooleanExpressions" priority="MAJOR">
+    <name><![CDATA[Avoid unnecessary comparisons in boolean expressions]]></name>
+    <configKey><![CDATA[rulesets/design.xml/SimplifyBooleanExpressions]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[Avoid unnecessary comparisons in boolean expressions - this complicates simple code. Example :
+<pre>
+public class Bar {
+ // can be simplified to
+ // bar = isFoo();
+ private boolean bar = (isFoo() == true);
+
+ public isFoo() { return false;}
+}
+</pre>
+      ]]></description>
+  </rule>
+  
+  <rule key="SwitchStmtsShouldHaveDefault" priority="MAJOR">
+    <name><![CDATA[Switch statements should have default]]></name>
+    <configKey><![CDATA[rulesets/design.xml/SwitchStmtsShouldHaveDefault]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[Switch statements should have a default label. Example :
+<pre>
+public class Foo {
+ public void bar() {
+  int x = 2;
+  switch (x) {
+   case 2: int j = 8;
+  }
+ }
+}
+</pre>
+      ]]></description>
+  </rule>
+
+  <rule key="DefaultLabelNotLastInSwitchStmt" priority="MAJOR">
+    <name><![CDATA[Default label not last in switch statement]]></name>
+    <configKey><![CDATA[rulesets/design.xml/DefaultLabelNotLastInSwitchStmt]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[Switch statements should have a default label. Example :
+  <pre>
+public class Foo {
+ void bar(int a) {
+  switch (a) {
+   case 1:  // do something
+      break;
+   default:  // the default case should be last, by convention
+      break;
+   case 2:
+      break;
+  }
+ }
+}
+  </pre>]]></description>
+  </rule>
+
+
+  <rule key="ClassWithOnlyPrivateConstructorsShouldBeFinal" priority="MAJOR">
+    <name><![CDATA[Class with only private constructors should be final]]></name>
+    <configKey><![CDATA[rulesets/design.xml/ClassWithOnlyPrivateConstructorsShouldBeFinal]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[A class with only private constructors should be final, unless the private constructor is called by a inner class. Example :
+  <pre>
+public class Foo {  //Should be final
+    private Foo() { }
+}
+  </pre>]]></description>
+  </rule>
+
+  <rule key="AvoidFinalLocalVariable" priority="MAJOR">
+    <name><![CDATA[Avoid Final Local Variable]]></name>
+    <configKey><![CDATA[rulesets/controversial.xml/AvoidFinalLocalVariable]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[Avoid using final local variables, turn them into fields. Example :
+<pre>
+public class MyClass {
+    public void foo() {
+        final String finalLocalVariable;
+    }
+}
+  </pre>]]></description>
+  </rule>
+
+  <rule key="UnnecessaryParentheses" priority="MINOR">
+    <name><![CDATA[Unnecessary parentheses]]></name>
+    <configKey><![CDATA[rulesets/controversial.xml/UnnecessaryParentheses]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[Sometimes expressions are wrapped in unnecessary parentheses, making them look like a function call. Example :
+<pre>
+public class Foo {
+  boolean bar() {
+    return (true);
+  }
+}
+  </pre>]]></description>
+  </rule>
+
+  <rule key="OverrideBothEqualsAndHashcode" priority="CRITICAL">
+    <name><![CDATA[Override both equals and hashcode]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/OverrideBothEqualsAndHashcode]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[Override both public boolean Object.equals(Object other), and public int Object.hashCode(), or override neither. Even if you are inheriting a hashCode() from a parent class, consider implementing hashCode and explicitly delegating to your superclass. Example :
+<pre>
+// this is bad
+public class Bar {
+  public boolean equals(Object o) {
+      // do some comparison
+  }
+}
+
+// and so is this
+public class Baz {
+  public int hashCode() {
+      // return some hash value
+  }
+}
+
+// this is OK
+public class Foo {
+  public boolean equals(Object other) {
+      // do some comparison
+  }
+  public int hashCode() {
+      // return some hash value
+  }
+}
+</pre>]]></description>
+  </rule>
+
+
+  <rule key="UnusedImports" priority="INFO">
+    <name><![CDATA[Unused imports]]></name>
+    <configKey><![CDATA[rulesets/imports.xml/UnusedImports]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[Avoid unused import statements. Example :
+  <pre>
+// this is bad
+import java.io.File;
+public class Foo {}  
+  </pre>]]></description>
+  </rule>
+
+  <rule key="LocalVariableCouldBeFinal" priority="MINOR">
+    <name><![CDATA[Local variable could be final]]></name>
+    <configKey><![CDATA[rulesets/optimizations.xml/LocalVariableCouldBeFinal]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[A local variable assigned only once can be declared final. Example :
+  <pre>
+public class Bar {
+ public void foo () {
+  String a = "a"; //if a will not be assigned again it is better to do this:
+  final String b = "b";
+ }
+}
+  </pre>]]></description>
+  </rule>
+
+
+  <rule key="AbstractNaming" priority="MAJOR">
+    <name><![CDATA[Abstract naming]]></name>
+    <configKey><![CDATA[rulesets/naming.xml/AbstractNaming]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[Abstract classes should be named 'AbstractXXX'. Example :
+  <pre>
+public abstract class Foo { // should be AbstractFoo
+}
+  </pre>]]></description>
+  </rule>
+
+  <rule key="NoPackage" priority="MAJOR">
+    <name><![CDATA[No package]]></name>
+    <configKey><![CDATA[rulesets/naming.xml/NoPackage]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[Detects when a class or interface does not have a package definition. Example :
+  <pre>
+// no package declaration
+public class ClassInDefaultPackage {
+}
+  </pre>]]></description>
+  </rule>
+
+
+  <rule key="PackageCase" priority="MAJOR">
+    <name><![CDATA[Package case]]></name>
+    <configKey><![CDATA[rulesets/naming.xml/PackageCase]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[ Detects when a package definition contains upper case characters. Example :
+<pre>
+package com.MyCompany;  // <- should be lower case name
+public class SomeClass {
+}
+</pre>]]></description>
+  </rule>
+
+  <rule key="ByteInstantiation" priority="MAJOR">
+    <name><![CDATA[Java5 migration - Byte instantiation]]></name>
+    <configKey><![CDATA[rulesets/migrating.xml/ByteInstantiation]]></configKey>
+    <category name="Efficiency"/>
+    <description>
+      <![CDATA[In JDK 1.5, calling new Byte() causes memory allocation. Byte.valueOf() is more memory friendly. Example :
+<pre>
+public class Foo {
+private Byte i = new Byte(0); // change to Byte i =
+Byte.valueOf(0);
+}
+</pre>]]></description>
+  </rule>
+
+  <rule key="ShortInstantiation" priority="MAJOR">
+    <name><![CDATA[Java5 migration - Short instantiation]]></name>
+    <configKey><![CDATA[rulesets/migrating.xml/ShortInstantiation]]></configKey>
+    <category name="Efficiency"/>
+    <description>
+      <![CDATA[In JDK 1.5, calling new Short() causes memory allocation. Short.valueOf() is more memory friendly.  Example :
+  <pre>
+public class Foo {
+private Short i = new Short(0); // change to Short i =
+Short.valueOf(0);
+}
+  </pre>]]></description>
+  </rule>
+
+
+  <rule key="LongInstantiation" priority="MAJOR">
+    <name><![CDATA[Java5 migration - Long instantiation]]></name>
+    <configKey><![CDATA[rulesets/migrating.xml/LongInstantiation]]></configKey>
+    <category name="Efficiency"/>
+    <description>
+      <![CDATA[In JDK 1.5, calling new Long() causes memory allocation. Long.valueOf() is more memory friendly. Example :
+  <pre>
+public class Foo {
+private Long i = new Long(0); // change to Long i =
+Long.valueOf(0);
+}
+  </pre>]]></description>
+  </rule>
+
+  <rule key="ProperCloneImplementation" priority="CRITICAL">
+    <name><![CDATA[Proper clone implementation]]></name>
+    <configKey><![CDATA[rulesets/clone.xml/ProperCloneImplementation]]></configKey>
+    <category name="Efficiency"/>
+    <description>
+      <![CDATA[Object clone() should be implemented with super.clone(). Example :
+  <pre>
+class Foo{
+    public Object clone(){
+        return new Foo(); // This is bad
+    }
+}
+  </pre>]]></description>
+  </rule>
+
+
+
+
+
+
+
+  <!-- PMD <= 4.1.1 -->
+  <rule key="EmptyFinalizer" priority="MAJOR">
+    <name><![CDATA[Empty Finalizer]]></name>
+    <configKey><![CDATA[rulesets/finalizers.xml/EmptyFinalizer]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[If the finalize() method is empty, then it does not need to exist.]]></description>
+  </rule>
+  <rule key="FinalizeOnlyCallsSuperFinalize" priority="MAJOR">
+    <name><![CDATA[Finalize Only Calls Super Finalize]]></name>
+    <configKey><![CDATA[rulesets/finalizers.xml/FinalizeOnlyCallsSuperFinalize]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[If the finalize() is implemented, it should do something besides just calling super.finalize().]]></description>
+  </rule>
+  <rule key="FinalizeOverloaded" priority="MAJOR">
+    <name><![CDATA[Finalize Overloaded]]></name>
+    <configKey><![CDATA[rulesets/finalizers.xml/FinalizeOverloaded]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[Methods named finalize() should not have parameters. It is confusing and probably a bug to overload finalize(). It will not be called by the VM.]]></description>
+  </rule>
+  <rule key="FinalizeDoesNotCallSuperFinalize" priority="MAJOR">
+    <name><![CDATA[Finalize Does Not Call Super Finalize]]></name>
+    <configKey><![CDATA[rulesets/finalizers.xml/FinalizeDoesNotCallSuperFinalize]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[If the finalize() is implemented, its last action should be to call super.finalize.]]></description>
+  </rule>
+  <rule key="FinalizeShouldBeProtected" priority="MAJOR">
+    <name><![CDATA[Finalize Should Be Protected]]></name>
+    <configKey><![CDATA[rulesets/finalizers.xml/FinalizeShouldBeProtected]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[If you override finalize(), make it protected. If you make it public, other classes may call it.]]></description>
+  </rule>
+  <rule key="AvoidCallingFinalize" priority="MAJOR">
+    <name><![CDATA[Avoid Calling Finalize]]></name>
+    <configKey><![CDATA[rulesets/finalizers.xml/AvoidCallingFinalize]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[Object.finalize() is called by the garbage collector on an object when garbage collection determines that there are no more references to the object. ]]></description>
+  </rule>
+  <rule key="DontNestJsfInJstlIteration" priority="MAJOR">
+    <name><![CDATA[Dont Nest Jsf In Jstl Iteration]]></name>
+    <configKey><![CDATA[rulesets/basic-jsf.xml/DontNestJsfInJstlIteration]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[Do not nest JSF component custom actions inside a custom action that iterates over its body.]]></description>
+  </rule>
+  <rule key="UnusedPrivateField" priority="MAJOR">
+    <name><![CDATA[Unused Private Field]]></name>
+    <configKey><![CDATA[rulesets/unusedcode.xml/UnusedPrivateField]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Detects when a private field is declared and/or assigned a value, but not used.]]></description>
+  </rule>
+  <rule key="UnusedLocalVariable" priority="MAJOR">
+    <name><![CDATA[Unused local variable]]></name>
+    <configKey><![CDATA[rulesets/unusedcode.xml/UnusedLocalVariable]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Detects when a local variable is declared and/or assigned, but not used.]]></description>
+  </rule>
+  <rule key="UnusedPrivateMethod" priority="MAJOR">
+    <name><![CDATA[Unused private method]]></name>
+    <configKey><![CDATA[rulesets/unusedcode.xml/UnusedPrivateMethod]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Unused Private Method detects when a private method is declared but is unused. This PMD rule should be switched off and replaced by its equivalent from Squid that is more effective : it generates less false-positives and detects more dead code.]]></description>
+  </rule>
+  <rule key="UnusedFormalParameter" priority="MAJOR">
+    <name><![CDATA[Unused formal parameter]]></name>
+    <configKey><![CDATA[rulesets/unusedcode.xml/UnusedFormalParameter]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Avoid passing parameters to methods or constructors and then not using those parameters. ]]></description>
+  </rule>
+  <rule key="UnnecessaryConstructor" priority="MAJOR">
+    <name><![CDATA[Unnecessary constructor]]></name>
+    <configKey><![CDATA[rulesets/controversial.xml/UnnecessaryConstructor]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[This rule detects when a constructor is not necessary; i.e., when there's only one constructor, it's public, has an empty body, and takes no arguments.]]></description>
+  </rule>
+  <rule key="NullAssignment" priority="MAJOR">
+    <name><![CDATA[Null Assignment]]></name>
+    <configKey><![CDATA[rulesets/controversial.xml/NullAssignment]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[Assigning a null to a variable (outside of its declaration) is usually bad form. Some times, the assignment is an indication that the programmer doesn't completely understand what is going on in the code. NOTE: This sort of assignment may in rare cases be useful to encourage garbage collection. If that's what you're using it for, by all means, disregard this rule :-)]]></description>
+  </rule>
+  <rule key="OnlyOneReturn" priority="MINOR">
+    <name><![CDATA[Only One Return]]></name>
+    <configKey><![CDATA[rulesets/controversial.xml/OnlyOneReturn]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[A method should have only one exit point, and that should be the last statement in the method.]]></description>
+  </rule>
+  <rule key="UnusedModifier" priority="INFO">
+    <name><![CDATA[Unused Modifier]]></name>
+    <configKey><![CDATA[rulesets/controversial.xml/UnusedModifier]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[Fields in interfaces are automatically public static final, and methods are public abstract. Classes or interfaces nested in an interface are automatically public and static (all nested interfaces are automatically static). For historical reasons, modifiers which are implied by the context are accepted by the compiler, but are superfluous.]]></description>
+  </rule>
+  <rule key="AssignmentInOperand" priority="MAJOR">
+    <name><![CDATA[Assignment In Operand]]></name>
+    <configKey><![CDATA[rulesets/controversial.xml/AssignmentInOperand]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Avoid assignments in operands; this can make code more complicated and harder to read.]]></description>
+  </rule>
+  <rule key="AtLeastOneConstructor" priority="MAJOR">
+    <name><![CDATA[At Least One Constructor]]></name>
+    <configKey><![CDATA[rulesets/controversial.xml/AtLeastOneConstructor]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Each class should declare at least one constructor.]]></description>
+  </rule>
+  <rule key="DontImportSun" priority="MINOR">
+    <name><![CDATA[Dont Import Sun]]></name>
+    <configKey><![CDATA[rulesets/controversial.xml/DontImportSun]]></configKey>
+    <category name="Portability"/>
+    <description><![CDATA[Avoid importing anything from the 'sun.*' packages. These packages are not portable and are likely to change.]]></description>
+  </rule>
+  <rule key="SuspiciousOctalEscape" priority="MAJOR">
+    <name><![CDATA[Suspicious Octal Escape]]></name>
+    <configKey><![CDATA[rulesets/controversial.xml/SuspiciousOctalEscape]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[A suspicious octal escape sequence was found inside a String literal. The Java language specification (section 3.10.6) says an octal escape sequence inside a literal String shall consist of a backslash followed by: OctalDigit | OctalDigit OctalDigit | ZeroToThree OctalDigit OctalDigit Any octal escape sequence followed by non-octal digits can be confusing, e.g. "\038" is interpreted as the octal escape sequence "\03" followed by the literal character 8.]]></description>
+  </rule>
+  <rule key="CallSuperInConstructor" priority="MINOR">
+    <name><![CDATA[Call Super In Constructor]]></name>
+    <configKey><![CDATA[rulesets/controversial.xml/CallSuperInConstructor]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[It is a good practice to call super() in a constructor. If super() is not called but another constructor (such as an overloaded constructor) is called, this rule will not report it.]]></description>
+  </rule>
+  <rule key="SingularField" priority="MINOR">
+    <name><![CDATA[Singular Field]]></name>
+    <configKey><![CDATA[rulesets/design.xml/SingularField]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[A field that's only used by one method could perhaps be replaced by a local variable.]]></description>
+  </rule>
+  <rule key="DefaultPackage" priority="MINOR">
+    <name><![CDATA[Default Package]]></name>
+    <configKey><![CDATA[rulesets/controversial.xml/DefaultPackage]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Use explicit scoping instead of the default package private level.]]></description>
+  </rule>
+  <rule key="BooleanInversion" priority="MAJOR">
+    <name><![CDATA[Boolean Inversion]]></name>
+    <configKey><![CDATA[rulesets/controversial.xml/BooleanInversion]]></configKey>
+    <category name="Efficiency"/>
+    <description>
+      <![CDATA[Use bitwise inversion to invert boolean values - it's the fastest way to do this. See http://www.javaspecialists.co.za/archive/newsletter.do?issue=042&locale=en_US for specific details]]></description>
+  </rule>
+  <rule key="DataflowAnomalyAnalysis" priority="MAJOR">
+    <name><![CDATA[Dataflow Anomaly Analysis]]></name>
+    <configKey><![CDATA[rulesets/controversial.xml/DataflowAnomalyAnalysis]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[The dataflow analysis tracks local definitions, undefinitions and references to variables on different paths on the data flow. From those informations there can be found various problems. 1. UR - Anomaly: There is a reference to a variable that was not defined before. This is a bug and leads to an error. 2. DU - Anomaly: A recently defined variable is undefined. These anomalies may appear in normal source text. 3. DD - Anomaly: A recently defined variable is redefined. This is ominous but don't have to be a bug. ]]></description>
+    <param key="maxviolations" type="i">
+      <description><![CDATA[The maximum number of violations per class. Default is 100.]]></description>
+
+    </param>
+    <param key="maxpaths" type="i">
+      <description>
+        <![CDATA[The maximum number of checked paths per method. A lower value will increase the performance of the rule but may decrease the number of found anomalies. Default is 1000.]]></description>
+
+    </param>
+  </rule>
+  <rule key="CouplingBetweenObjects" priority="MAJOR">
+    <name><![CDATA[Coupling between objects]]></name>
+    <configKey><![CDATA[rulesets/coupling.xml/CouplingBetweenObjects]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[This rule counts unique attributes, local variables and return types within an object. A number higher than specified threshold can indicate a high degree of coupling.]]></description>
+    <param key="threshold" type="i">
+      <description><![CDATA[The unique type reporting threshold. Default is 20.]]></description>
+
+    </param>
+  </rule>
+  <rule key="ExcessiveImports" priority="MAJOR">
+    <name><![CDATA[Coupling - excessive imports]]></name>
+    <configKey><![CDATA[rulesets/coupling.xml/ExcessiveImports]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[A high number of imports can indicate a high degree of coupling within an object. Rule counts the number of unique imports and reports a violation if the count is above the user defined threshold.]]></description>
+    <param key="minimum" type="i">
+      <description><![CDATA[The import count reporting threshold. Default is 30.]]></description>
+
+    </param>
+  </rule>
+  <rule key="LooseCoupling" priority="MAJOR">
+    <name><![CDATA[Loose coupling]]></name>
+    <configKey><![CDATA[rulesets/coupling.xml/LooseCoupling]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Avoid using implementation types (i.e., HashSet); use the interface (i.e, Set) instead]]></description>
+  </rule>
+  <rule key="MethodArgumentCouldBeFinal" priority="MINOR">
+    <name><![CDATA[Method Argument Could Be Final]]></name>
+    <configKey><![CDATA[rulesets/optimizations.xml/MethodArgumentCouldBeFinal]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[A method argument that is never assigned can be declared final.]]></description>
+  </rule>
+  <rule key="AvoidInstantiatingObjectsInLoops" priority="MINOR">
+    <name><![CDATA[Avoid instantiating objects in loops]]></name>
+    <configKey><![CDATA[rulesets/optimizations.xml/AvoidInstantiatingObjectsInLoops]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[Detects when a new object is created inside a loop]]></description>
+  </rule>
+  <rule key="UseArrayListInsteadOfVector" priority="MAJOR">
+    <name><![CDATA[Use Array List Instead Of Vector]]></name>
+    <configKey><![CDATA[rulesets/optimizations.xml/UseArrayListInsteadOfVector]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[ArrayList is a much better Collection implementation than Vector.]]></description>
+  </rule>
+  <rule key="SimplifyStartsWith" priority="MINOR">
+    <name><![CDATA[Simplify Starts With]]></name>
+    <configKey><![CDATA[rulesets/optimizations.xml/SimplifyStartsWith]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[Since it passes in a literal of length 1, this call to String.startsWith can be rewritten using String.charAt(0) to save some time.]]></description>
+  </rule>
+  <rule key="UseStringBufferForStringAppends" priority="MAJOR">
+    <name><![CDATA[Use String Buffer For String Appends]]></name>
+    <configKey><![CDATA[rulesets/optimizations.xml/UseStringBufferForStringAppends]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[Finds usages of += for appending strings.]]></description>
+  </rule>
+  <rule key="UseArraysAsList" priority="MAJOR">
+    <name><![CDATA[Use Arrays As List]]></name>
+    <configKey><![CDATA[rulesets/optimizations.xml/UseArraysAsList]]></configKey>
+    <category name="Efficiency"/>
+    <description>
+      <![CDATA[The class java.util.Arrays has a asList method that should be use when you want to create a new List from an array of objects. It is faster than executing a loop to cpy all the elements of the array one by one]]></description>
+  </rule>
+  <rule key="AvoidArrayLoops" priority="MAJOR">
+    <name><![CDATA[Avoid Array Loops]]></name>
+    <configKey><![CDATA[rulesets/optimizations.xml/AvoidArrayLoops]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[Instead of copying data between two arrays, use System.arrayCopy method]]></description>
+  </rule>
+  <rule key="UnnecessaryWrapperObjectCreation" priority="MAJOR">
+    <name><![CDATA[Unnecessary Wrapper Object Creation]]></name>
+    <configKey><![CDATA[rulesets/optimizations.xml/UnnecessaryWrapperObjectCreation]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[Parsing method should be called directy instead. ]]></description>
+  </rule>
+  <rule key="UseProperClassLoader" priority="CRITICAL">
+    <name><![CDATA[Use Proper Class Loader]]></name>
+    <configKey><![CDATA[rulesets/j2ee.xml/UseProperClassLoader]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[In J2EE getClassLoader() might not work as expected. Use Thread.currentThread().getContextClassLoader() instead.]]></description>
+  </rule>
+  <rule key="EmptyCatchBlock" priority="CRITICAL">
+    <name><![CDATA[Empty Catch Block]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/EmptyCatchBlock]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[Empty Catch Block finds instances where an exception is caught, but nothing is done. In most circumstances, this swallows an exception which should either be acted on or reported.]]></description>
+    <param key="allowCommentedBlocks" type="b">
+      <description><![CDATA[Empty blocks containing comments will be skipped. Default is false.]]></description>
+
+    </param>
+  </rule>
+  <rule key="EmptyIfStmt" priority="CRITICAL">
+    <name><![CDATA[Empty If Stmt]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/EmptyIfStmt]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Empty If Statement finds instances where a condition is checked but nothing is done about it.]]></description>
+  </rule>
+  <rule key="EmptyWhileStmt" priority="CRITICAL">
+    <name><![CDATA[Empty While Stmt]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/EmptyWhileStmt]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[Empty While Statement finds all instances where a while statement does nothing. If it is a timing loop, then you should use Thread.sleep() for it; if it's a while loop that does a lot in the exit expression, rewrite it to make it clearer.]]></description>
+  </rule>
+  <rule key="EmptyTryBlock" priority="MAJOR">
+    <name><![CDATA[Empty Try Block]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/EmptyTryBlock]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Avoid empty try blocks - what's the point?]]></description>
+  </rule>
+  <rule key="EmptyFinallyBlock" priority="CRITICAL">
+    <name><![CDATA[Empty Finally Block]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/EmptyFinallyBlock]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Avoid empty finally blocks - these can be deleted.]]></description>
+  </rule>
+  <rule key="EmptySwitchStatements" priority="MAJOR">
+    <name><![CDATA[Empty Switch Statements]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/EmptySwitchStatements]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Avoid empty switch statements.]]></description>
+  </rule>
+  <rule key="JumbledIncrementer" priority="MAJOR">
+    <name><![CDATA[Jumbled Incrementer]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/JumbledIncrementer]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[Avoid jumbled loop incrementers - it's usually a mistake, and it's confusing even if it's what's intended.
+    <br>Example : 
+    <pre>
+public class JumbledIncrementerRule1 {
+  public void foo() {
+   for (int i = 0; i < 10; i++) {
+    for (int k = 0; k < 20; i++) {
+     System.out.println("Hello");
+    }
+   }
+  }
+}</pre>]]></description>
+  </rule>
+  <rule key="ForLoopShouldBeWhileLoop" priority="MINOR">
+    <name><![CDATA[For Loop Should Be While Loop]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/ForLoopShouldBeWhileLoop]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Some for loops can be simplified to while loops - this makes them more concise.]]></description>
+  </rule>
+  <rule key="UnnecessaryConversionTemporary" priority="MAJOR">
+    <name><![CDATA[Unnecessary Conversion Temporary]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/UnnecessaryConversionTemporary]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[Avoid unnecessary temporaries when converting primitives to Strings]]></description>
+  </rule>
+  <rule key="ReturnFromFinallyBlock" priority="MAJOR">
+    <name><![CDATA[Return From Finally Block]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/ReturnFromFinallyBlock]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[Avoid returning from a finally block - this can discard exceptions.]]></description>
+  </rule>
+  <rule key="EmptySynchronizedBlock" priority="CRITICAL">
+    <name><![CDATA[Empty Synchronized Block]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/EmptySynchronizedBlock]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Avoid empty synchronized blocks - they're useless.]]></description>
+  </rule>
+  <rule key="UnnecessaryReturn" priority="MINOR">
+    <name><![CDATA[Unnecessary Return]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/UnnecessaryReturn]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Avoid unnecessary return statements]]></description>
+  </rule>
+  <rule key="EmptyStaticInitializer" priority="MAJOR">
+    <name><![CDATA[Empty Static Initializer]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/EmptyStaticInitializer]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[An empty static initializer was found.]]></description>
+  </rule>
+  <rule key="UnconditionalIfStatement" priority="CRITICAL">
+    <name><![CDATA[Unconditional If Statement]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/UnconditionalIfStatement]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Do not use if statements that are always true or always false.]]></description>
+  </rule>
+  <rule key="EmptyStatementNotInLoop" priority="MAJOR">
+    <name><![CDATA[Empty Statement Not In Loop]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/EmptyStatementNotInLoop]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[An empty statement (aka a semicolon by itself) that is not used as the sole body of a for loop or while loop is probably a bug. It could also be a double semicolon, which is useless and should be removed.]]></description>
+  </rule>
+  <rule key="BooleanInstantiation" priority="MAJOR">
+    <name><![CDATA[Boolean Instantiation]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/BooleanInstantiation]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[Avoid instantiating Boolean objects; you can reference Boolean.TRUE, Boolean.FALSE, or call Boolean.valueOf() instead.]]></description>
+  </rule>
+  <rule key="UnnecessaryFinalModifier" priority="INFO">
+    <name><![CDATA[Unnecessary Final Modifier]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/UnnecessaryFinalModifier]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[When a class has the final modifier, all the methods are automatically final.]]></description>
+  </rule>
+  <rule key="CollapsibleIfStatements" priority="MINOR">
+    <name><![CDATA[Collapsible If Statements]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/CollapsibleIfStatements]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Sometimes two 'if' statements can be consolidated by separating their conditions with a boolean short-circuit operator.]]></description>
+  </rule>
+  <rule key="UselessOverridingMethod" priority="MAJOR">
+    <name><![CDATA[Useless Overriding Method]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/UselessOverridingMethod]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[The overriding method merely calls the same method defined in a superclass]]></description>
+  </rule>
+  <rule key="ClassCastExceptionWithToArray" priority="MAJOR">
+    <name><![CDATA[Class Cast Exception With To Array]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/ClassCastExceptionWithToArray]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[if you need to get an array of a class from your Collection, you should pass an array of the desidered class as the parameter of the toArray method. Otherwise you will get a ClassCastException.]]></description>
+  </rule>
+  <rule key="AvoidDecimalLiteralsInBigDecimalConstructor" priority="MAJOR">
+    <name><![CDATA[Avoid Decimal Literals In Big Decimal Constructor]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/AvoidDecimalLiteralsInBigDecimalConstructor]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[One might assume that new BigDecimal(.1) is exactly equal to .1, but it is actually equal to .1000000000000000055511151231257827021181583404541015625. This is so because .1 cannot be represented exactly as a double (or, for that matter, as a binary fraction of any finite length). Thus, the long value that is being passed in to the constructor is not exactly equal to .1, appearances notwithstanding. The (String) constructor, on the other hand, is perfectly predictable: 'new BigDecimal(.1)' is exactly equal to .1, as one would expect. Therefore, it is generally recommended that the (String) constructor be used in preference to this one.]]></description>
+  </rule>
+  <rule key="UselessOperationOnImmutable" priority="CRITICAL">
+    <name><![CDATA[Useless Operation On Immutable]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/UselessOperationOnImmutable]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[An operation on an Immutable object (BigDecimal or BigInteger) won't change the object itself. The result of the operation is a new object. Therefore, ignoring the operation result is an error.]]></description>
+  </rule>
+  <rule key="MisplacedNullCheck" priority="CRITICAL">
+    <name><![CDATA[Misplaced Null Check]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/MisplacedNullCheck]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[The null check here is misplaced. if the variable is null you'll get a NullPointerException. 
+      Either the check is useless (the variable will never be null) or it's incorrect.
+      <br>Example : 
+      <pre>
+if (object1!=null && object2.equals(object1)) { 
+  ...
+}      
+      </pre>]]></description>
+  </rule>
+  <rule key="UnusedNullCheckInEquals" priority="MAJOR">
+    <name><![CDATA[Unused Null Check In Equals]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/UnusedNullCheckInEquals]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[After checking an object reference for null, you should invoke equals() on that object rather than passing it to another object's equals() method.]]></description>
+  </rule>
+  <rule key="AvoidThreadGroup" priority="CRITICAL">
+    <name><![CDATA[Avoid Thread Group]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/AvoidThreadGroup]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[Avoid using ThreadGroup; although it is intended to be used in a threaded environment it contains methods that are not thread safe.]]></description>
+  </rule>
+  <rule key="BrokenNullCheck" priority="CRITICAL">
+    <name><![CDATA[Broken Null Check]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/BrokenNullCheck]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[The null check is broken since it will throw a Nullpointer itself. The reason is that a method is called on the object when it is null. It is likely that you used || instead of && or vice versa.]]></description>
+  </rule>
+  <rule key="BigIntegerInstantiation" priority="MAJOR">
+    <name><![CDATA[Big Integer Instantiation]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/BigIntegerInstantiation]]></configKey>
+    <category name="Efficiency"/>
+    <description>
+      <![CDATA[Don't create instances of already existing BigInteger (BigInteger.ZERO, BigInteger.ONE) and for 1.5 on, BigInteger.TEN and BigDecimal (BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.TEN)]]></description>
+  </rule>
+  <rule key="AvoidUsingOctalValues" priority="MAJOR">
+    <name><![CDATA[Avoid Using Octal Values]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/AvoidUsingOctalValues]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[Integer literals should not start with zero. Zero means that the rest of literal will be interpreted as an octal value. ]]></description>
+  </rule>
+  <rule key="UseSingleton" priority="MAJOR">
+    <name><![CDATA[Use Singleton]]></name>
+    <configKey><![CDATA[rulesets/design.xml/UseSingleton]]></configKey>
+    <category name="Efficiency"/>
+    <description>
+      <![CDATA[If you have a class that has nothing but static methods, consider making it a Singleton. Note that this doesn't apply to abstract classes, since their subclasses may well include non-static methods. Also, if you want this class to be a Singleton, remember to add a private constructor to prevent instantiation.]]></description>
+  </rule>
+  <rule key="AvoidDeeplyNestedIfStmts" priority="MAJOR">
+    <name><![CDATA[Avoid Deeply Nested If Stmts]]></name>
+    <configKey><![CDATA[rulesets/design.xml/AvoidDeeplyNestedIfStmts]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Deeply nested if..then statements are hard to read.]]></description>
+    <param key="problemDepth" type="i">
+      <description><![CDATA[The if statement depth reporting threshold. Default is 3.]]></description>
+
+    </param>
+  </rule>
+  <rule key="AvoidReassigningParameters" priority="MAJOR">
+    <name><![CDATA[Avoid Reassigning Parameters]]></name>
+    <configKey><![CDATA[rulesets/design.xml/AvoidReassigningParameters]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Reassigning values to parameters is a questionable practice. Use a temporary local variable instead.]]></description>
+  </rule>
+  <rule key="SwitchDensity" priority="MAJOR">
+    <name><![CDATA[Switch Density]]></name>
+    <configKey><![CDATA[rulesets/design.xml/SwitchDensity]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[A high ratio of statements to labels in a switch statement implies that the switch statement is doing too much work. Consider moving the statements into new methods, or creating subclasses based on the switch variable.]]></description>
+    <param key="minimum" type="i">
+      <description><![CDATA[The switch statement ratio reporting threshold. Default is 10.]]></description>
+
+    </param>
+  </rule>
+  <rule key="ConstructorCallsOverridableMethod" priority="MAJOR">
+    <name><![CDATA[Constructor Calls Overridable Method]]></name>
+    <configKey><![CDATA[rulesets/design.xml/ConstructorCallsOverridableMethod]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[Calling overridable methods during construction poses a risk of invoking methods on an incompletely constructed object 
+      and can be difficult to discern. It may leave the sub-class unable to construct its superclass or forced to replicate 
+      the construction process completely within itself, losing the ability to call super(). 
+      If the default constructor contains a call to an overridable method, the subclass may be completely uninstantiable. 
+      Note that this includes method calls throughout the control flow graph - i.e., if a constructor Foo() calls 
+      a private method bar() that calls a public method buz(), this denotes a problem. 
+      <br/>Example :
+<pre>
+public class SeniorClass {
+  public SeniorClass(){
+      toString(); //may throw NullPointerException if overridden
+  }
+  public String toString(){
+    return "IAmSeniorClass";
+  }
+}
+public class JuniorClass extends SeniorClass {
+  private String name;
+  public JuniorClass(){
+    super(); //Automatic call leads to NullPointerException
+    name = "JuniorClass";
+  }
+  public String toString(){
+    return name.toUpperCase();
+  }
+}
+</pre>]]></description>
+  </rule>
+  <rule key="AccessorClassGeneration" priority="MAJOR">
+    <name><![CDATA[Accessor Class Generation]]></name>
+    <configKey><![CDATA[rulesets/design.xml/AccessorClassGeneration]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[Instantiation by way of private constructors from outside of the constructor's class often causes the generation of an accessor. A factory method, or non-privitization of the constructor can eliminate this situation. The generated class file is actually an interface. It gives the accessing class the ability to invoke a new hidden package scope constructor that takes the interface as a supplementary parameter. This turns a private constructor effectively into one with package scope, and is challenging to discern.]]></description>
+  </rule>
+  <rule key="FinalFieldCouldBeStatic" priority="MINOR">
+    <name><![CDATA[Final Field Could Be Static]]></name>
+    <configKey><![CDATA[rulesets/design.xml/FinalFieldCouldBeStatic]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[If a final field is assigned to a compile-time constant, it could be made static, thus saving overhead in each object at runtime.]]></description>
+  </rule>
+  <rule key="CloseResource" priority="MAJOR">
+    <name><![CDATA[Close Resource]]></name>
+    <configKey><![CDATA[rulesets/design.xml/CloseResource]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[Ensure that resources (like Connection, Statement, and ResultSet objects) are always closed after use. It does this by looking for code patterned like :
+<pre>
+Connection c = openConnection();
+try {
+  // do stuff, and maybe catch something
+} finally {
+  c.close();
+}
+</pre>
+]]></description>
+    <param key="types" type="s">
+      <description><![CDATA[Resources to check. Default value is 'Connection,Statement,ResultSet',]]></description>
+    </param>
+      <param key="closeTargets" type="s">
+      <description><![CDATA[Methods which may close this resource. Default is 'close'.]]></description>
+    </param>
+  </rule>
+  <rule key="NonStaticInitializer" priority="MAJOR">
+    <name><![CDATA[Non Static Initializer]]></name>
+    <configKey><![CDATA[rulesets/design.xml/NonStaticInitializer]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[A nonstatic initializer block will be called any time a constructor is invoked (just prior to invoking the constructor). While this is a valid language construct, it is rarely used and is confusing. Example :<br/><code>public class MyClass {<br/>// this block gets run before any call to a constructor {<br/>System.out.println("I am about to construct myself");<br/>}<br/>}</code>]]></description>
+  </rule>
+  <rule key="NonCaseLabelInSwitchStatement" priority="MAJOR">
+    <name><![CDATA[Non Case Label In Switch Statement]]></name>
+    <configKey><![CDATA[rulesets/design.xml/NonCaseLabelInSwitchStatement]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[A non-case label (e.g. a named break/continue label) was present in a switch statement. This legal, but confusing. It is easy to mix up the case labels and the non-case labels.]]></description>
+  </rule>
+  <rule key="OptimizableToArrayCall" priority="MAJOR">
+    <name><![CDATA[Optimizable To Array Call]]></name>
+    <configKey><![CDATA[rulesets/design.xml/OptimizableToArrayCall]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[A call to Collection.toArray can use the Collection's size vs an empty Array of the desired type.]]></description>
+  </rule>
+  <rule key="BadComparison" priority="MAJOR">
+    <name><![CDATA[Bad Comparison]]></name>
+    <configKey><![CDATA[rulesets/design.xml/BadComparison]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[Avoid equality comparisons with Double.NaN - these are likely to be logic errors.]]></description>
+  </rule>
+  <rule key="EqualsNull" priority="CRITICAL">
+    <name><![CDATA[Equals Null]]></name>
+    <configKey><![CDATA[rulesets/design.xml/EqualsNull]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[Inexperienced programmers sometimes confuse comparison concepts and use equals() to compare to null.]]></description>
+  </rule>
+  <rule key="ConfusingTernary" priority="MAJOR">
+    <name><![CDATA[Confusing Ternary]]></name>
+    <configKey><![CDATA[rulesets/design.xml/ConfusingTernary]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[In an if expression with an else clause, avoid negation in the test. For example, rephrase: if (x != y) diff(); else same(); as: if (x == y) same(); else diff(); Most if (x != y) cases without an else are often return cases, so consistent use of this rule makes the code easier to read. Also, this resolves trivial ordering problems, such as does the error case go first? or does the common case go first?.]]></description>
+  </rule>
+  <rule key="InstantiationToGetClass" priority="MAJOR">
+    <name><![CDATA[Instantiation To Get Class]]></name>
+    <configKey><![CDATA[rulesets/design.xml/InstantiationToGetClass]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[Avoid instantiating an object just to call getClass() on it; use the .class public member instead. Example : replace <code>Class c = new String().getClass();</code> with <code>Class c = String.class;</code>]]></description>
+  </rule>
+  <rule key="IdempotentOperations" priority="MAJOR">
+    <name><![CDATA[Idempotent Operations]]></name>
+    <configKey><![CDATA[rulesets/design.xml/IdempotentOperations]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[Avoid idempotent operations - they are have no effect. Example : <br/><code>int x = 2;<br/> x = x;</code>]]></description>
+  </rule>
+  <rule key="SimpleDateFormatNeedsLocale" priority="MAJOR">
+    <name><![CDATA[Simple Date Format Needs Locale]]></name>
+    <configKey><![CDATA[rulesets/design.xml/SimpleDateFormatNeedsLocale]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[Be sure to specify a Locale when creating a new instance of SimpleDateFormat.]]></description>
+  </rule>
+  <rule key="ImmutableField" priority="MAJOR">
+    <name><![CDATA[Immutable Field]]></name>
+    <configKey><![CDATA[rulesets/design.xml/ImmutableField]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[Identifies private fields whose values never change once they are initialized either in the declaration of the field or by a constructor. This aids in converting existing classes to immutable classes.]]></description>
+  </rule>
+  <rule key="UseLocaleWithCaseConversions" priority="MAJOR">
+    <name><![CDATA[Use Locale With Case Conversions]]></name>
+    <configKey><![CDATA[rulesets/design.xml/UseLocaleWithCaseConversions]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[When doing a String.toLowerCase()/toUpperCase() call, use a Locale. This avoids problems with certain locales, i.e. Turkish.]]></description>
+  </rule>
+  <rule key="AvoidProtectedFieldInFinalClass" priority="MAJOR">
+    <name><![CDATA[Avoid Protected Field In Final Class]]></name>
+    <configKey><![CDATA[rulesets/design.xml/AvoidProtectedFieldInFinalClass]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[Do not use protected fields in final classes since they cannot be subclassed. Clarify your intent by using private or package access modifiers instead.]]></description>
+  </rule>
+  <rule key="AssignmentToNonFinalStatic" priority="MAJOR">
+    <name><![CDATA[Assignment To Non Final Static]]></name>
+    <configKey><![CDATA[rulesets/design.xml/AssignmentToNonFinalStatic]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[Identifies a possible unsafe usage of a static field.]]></description>
+  </rule>
+  <rule key="MissingStaticMethodInNonInstantiatableClass" priority="MAJOR">
+    <name><![CDATA[Missing Static Method In Non Instantiatable Class]]></name>
+    <configKey><![CDATA[rulesets/design.xml/MissingStaticMethodInNonInstantiatableClass]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[A class that has private constructors and does not have any static methods or fields cannot be used.]]></description>
+  </rule>
+  <rule key="AvoidSynchronizedAtMethodLevel" priority="MAJOR">
+    <name><![CDATA[Avoid Synchronized At Method Level]]></name>
+    <configKey><![CDATA[rulesets/design.xml/AvoidSynchronizedAtMethodLevel]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[Method level synchronization can backfire when new code is added to the method. Block-level synchronization helps to ensure that only the code that needs synchronization gets it.]]></description>
+  </rule>
+  <rule key="MissingBreakInSwitch" priority="CRITICAL">
+    <name><![CDATA[Missing Break In Switch]]></name>
+    <configKey><![CDATA[rulesets/design.xml/MissingBreakInSwitch]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[A switch statement without an enclosed break statement may be a bug.]]></description>
+  </rule>
+  <rule key="UseNotifyAllInsteadOfNotify" priority="MAJOR">
+    <name><![CDATA[Use Notify All Instead Of Notify]]></name>
+    <configKey><![CDATA[rulesets/design.xml/UseNotifyAllInsteadOfNotify]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[Thread.notify() awakens a thread monitoring the object. If more than one thread is monitoring, then only one is chosen. The thread chosen is arbitrary; thus it's usually safer to call notifyAll() instead.]]></description>
+  </rule>
+  <rule key="AvoidInstanceofChecksInCatchClause" priority="MINOR">
+    <name><![CDATA[Avoid Instanceof Checks In Catch Clause]]></name>
+    <configKey><![CDATA[rulesets/design.xml/AvoidInstanceofChecksInCatchClause]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Each caught exception type should be handled in its own catch clause.]]></description>
+  </rule>
+  <rule key="AbstractClassWithoutAbstractMethod" priority="MAJOR">
+    <name><![CDATA[Abstract Class Without Abstract Method]]></name>
+    <configKey><![CDATA[rulesets/design.xml/AbstractClassWithoutAbstractMethod]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[The abstract class does not contain any abstract methods. An abstract class suggests an incomplete implementation, which is to be completed by subclasses implementing the abstract methods. If the class is intended to be used as a base class only (not to be instantiated direcly) a protected constructor can be provided prevent direct instantiation.]]></description>
+  </rule>
+  <rule key="SimplifyConditional" priority="MAJOR">
+    <name><![CDATA[Simplify Conditional]]></name>
+    <configKey><![CDATA[rulesets/design.xml/SimplifyConditional]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[No need to check for null before an instanceof; the instanceof keyword returns false when given a null argument.]]></description>
+  </rule>
+  <rule key="CompareObjectsWithEquals" priority="MAJOR">
+    <name><![CDATA[Compare Objects With Equals]]></name>
+    <configKey><![CDATA[rulesets/design.xml/CompareObjectsWithEquals]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[Use equals() to compare object references; avoid comparing them with ==.]]></description>
+  </rule>
+  <rule key="PositionLiteralsFirstInComparisons" priority="MAJOR">
+    <name><![CDATA[Position Literals First In Comparisons]]></name>
+    <configKey><![CDATA[rulesets/design.xml/PositionLiteralsFirstInComparisons]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[Position literals first in String comparisons - that way if the String is null you won't get a NullPointerException, it'll just return false.]]></description>
+  </rule>
+  <rule key="UnnecessaryLocalBeforeReturn" priority="MAJOR">
+    <name><![CDATA[Unnecessary Local Before Return]]></name>
+    <configKey><![CDATA[rulesets/design.xml/UnnecessaryLocalBeforeReturn]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[Avoid unnecessarily creating local variables]]></description>
+  </rule>
+  <rule key="NonThreadSafeSingleton" priority="MAJOR">
+    <name><![CDATA[Non Thread Safe Singleton]]></name>
+    <configKey><![CDATA[rulesets/design.xml/NonThreadSafeSingleton]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[Non-thread safe singletons can result in bad state changes. Eliminate static singletons if possible by instantiating the object directly. Static singletons are usually not needed as only a single instance exists anyway. Other possible fixes are to synchronize the entire method or to use an initialize-on-demand holder class (do not use the double-check idiom). See Effective Java, item 48.]]></description>
+    <param key="checkNonStaticMethods" type="b" priority="MAJOR">
+      <description><![CDATA[Do not set this to false and checkNonStaticFields to true. Default is true.]]></description>
+
+    </param>
+    <param key="checkNonStaticFields" type="b" priority="MAJOR">
+      <description><![CDATA[Do not set this to true and checkNonStaticMethods to false. Default is false.]]></description>
+
+    </param>
+  </rule>
+  <rule key="UncommentedEmptyMethod" priority="MAJOR">
+    <name><![CDATA[Uncommented Empty Method]]></name>
+    <configKey><![CDATA[rulesets/design.xml/UncommentedEmptyMethod]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[Uncommented Empty Method finds instances where a method does not contain statements, but there is no comment. By explicitly commenting empty methods it is easier to distinguish between intentional (commented) and unintentional empty methods.]]></description>
+  </rule>
+  <rule key="UncommentedEmptyConstructor" priority="MAJOR">
+    <name><![CDATA[Uncommented Empty Constructor]]></name>
+    <configKey><![CDATA[rulesets/design.xml/UncommentedEmptyConstructor]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[Uncommented Empty Constructor finds instances where a constructor does not contain statements, but there is no comment. By explicitly commenting empty constructors it is easier to distinguish between intentional (commented) and unintentional empty constructors.]]></description>
+    <param key="ignoreExplicitConstructorInvocation" type="b">
+      <description><![CDATA[Ignore explicit constructor invocation when deciding whether constructor is empty or not. Default is false.]]></description>
+
+    </param>
+  </rule>
+  <rule key="AvoidConstantsInterface" priority="MAJOR">
+    <name><![CDATA[Avoid Constants Interface]]></name>
+    <configKey><![CDATA[rulesets/design.xml/AvoidConstantsInterface]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[An interface should be used only to model a behaviour of a class: using an interface as a container of constants is a poor usage pattern.]]></description>
+  </rule>
+  <rule key="UnsynchronizedStaticDateFormatter" priority="MAJOR">
+    <name><![CDATA[Unsynchronized Static Date Formatter]]></name>
+    <configKey><![CDATA[rulesets/design.xml/UnsynchronizedStaticDateFormatter]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[SimpleDateFormat is not synchronized. Sun recomends separate format instances for each thread. If multiple threads must access a static formatter, the formatter must be synchronized either on method or block level.]]></description>
+  </rule>
+  <rule key="PreserveStackTrace" priority="MAJOR">
+    <name><![CDATA[Preserve Stack Trace]]></name>
+    <configKey><![CDATA[rulesets/design.xml/PreserveStackTrace]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[Throwing a new exception from a catch block without passing the original exception into the new Exception will cause the true stack trace to be lost, and can make it difficult to debug effectively.]]></description>
+  </rule>
+  <rule key="UseCollectionIsEmpty" priority="MINOR">
+    <name><![CDATA[Use Collection Is Empty]]></name>
+    <configKey><![CDATA[rulesets/design.xml/UseCollectionIsEmpty]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[The isEmpty() method on java.util.Collection is provided to see if a collection has any elements. Comparing the value of size() to 0 merely duplicates existing behavior. ]]></description>
+  </rule>
+  <rule key="MethodReturnsInternalArray" priority="CRITICAL">
+    <name><![CDATA[Security - Method returns internal array]]></name>
+    <configKey><![CDATA[rulesets/sunsecure.xml/MethodReturnsInternalArray]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[Exposing internal arrays directly allows the user to modify some code that could be critical. It is safer to return a copy of the array.]]></description>
+  </rule>
+  <rule key="ArrayIsStoredDirectly" priority="CRITICAL">
+    <name><![CDATA[Security - Array is stored directly]]></name>
+    <configKey><![CDATA[rulesets/sunsecure.xml/ArrayIsStoredDirectly]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[Constructors and methods receiving arrays should clone objects and store the copy. This prevents that future changes from the user affect the internal functionality. ]]></description>
+  </rule>
+  <rule key="AvoidCatchingThrowable" priority="CRITICAL">
+    <name><![CDATA[Avoid Catching Throwable]]></name>
+    <configKey><![CDATA[rulesets/strictexception.xml/AvoidCatchingThrowable]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[This is dangerous because it casts too wide a net; it can catch things like OutOfMemoryError.]]></description>
+  </rule>
+  <rule key="SignatureDeclareThrowsException" priority="MAJOR">
+    <name><![CDATA[Signature Declare Throws Exception]]></name>
+    <configKey><![CDATA[rulesets/strictexception.xml/SignatureDeclareThrowsException]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[It is unclear which exceptions that can be thrown from the methods. It might be difficult to document and understand the vague interfaces. Use either a class derived from RuntimeException or a checked exception.]]></description>
+  </rule>
+  <rule key="ExceptionAsFlowControl" priority="MAJOR">
+    <name><![CDATA[Exception As Flow Control]]></name>
+    <configKey><![CDATA[rulesets/strictexception.xml/ExceptionAsFlowControl]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Using Exceptions as flow control leads to GOTOish code and obscures true exceptions when debugging.]]></description>
+  </rule>
+  <rule key="AvoidCatchingNPE" priority="MAJOR">
+    <name><![CDATA[Avoid Catching NPE]]></name>
+    <configKey><![CDATA[rulesets/strictexception.xml/AvoidCatchingNPE]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[Code should never throw NPE under normal circumstances. A catch block may hide the original error, causing other more subtle errors in its wake.]]></description>
+  </rule>
+  <rule key="AvoidThrowingRawExceptionTypes" priority="MAJOR">
+    <name><![CDATA[Avoid Throwing Raw Exception Types]]></name>
+    <configKey><![CDATA[rulesets/strictexception.xml/AvoidThrowingRawExceptionTypes]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[Avoid throwing certain exception types. Rather than throw a raw RuntimeException, Throwable, Exception, or Error, use a subclassed exception or error instead.]]></description>
+  </rule>
+  <rule key="AvoidThrowingNullPointerException" priority="MAJOR">
+    <name><![CDATA[Avoid Throwing Null Pointer Exception]]></name>
+    <configKey><![CDATA[rulesets/strictexception.xml/AvoidThrowingNullPointerException]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[Avoid throwing a NullPointerException - it's confusing because most people will assume that the virtual machine threw it. Consider using an IllegalArgumentException instead; this will be clearly seen as a programmer-initiated exception.]]></description>
+  </rule>
+  <rule key="AvoidRethrowingException" priority="MAJOR">
+    <name><![CDATA[Avoid Rethrowing Exception]]></name>
+    <configKey><![CDATA[rulesets/strictexception.xml/AvoidRethrowingException]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Catch blocks that merely rethrow a caught exception only add to code size and runtime complexity.]]></description>
+  </rule>
+  <rule key="BeanMembersShouldSerialize" priority="MAJOR">
+    <name><![CDATA[Bean Members Should Serialize]]></name>
+    <configKey><![CDATA[rulesets/javabeans.xml/BeanMembersShouldSerialize]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[If a class is a bean, or is referenced by a bean directly or indirectly it needs to be serializable. Member variables need to be marked as transient, static, or have accessor methods in the class. Marking variables as transient is the safest and easiest modification. Accessor methods should follow the Java naming conventions, i.e.if you have a variable foo, you should provide getFoo and setFoo methods.]]></description>
+    <param key="prefix" type="s">
+      <description><![CDATA[A variable prefix to skip, i.e., m_]]></description>
+
+    </param>
+  </rule>
+  <rule key="MissingSerialVersionUID" priority="MAJOR">
+    <name><![CDATA[Missing Serial Version UID]]></name>
+    <configKey><![CDATA[rulesets/javabeans.xml/MissingSerialVersionUID]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[Classes that are serializable should provide a serialVersionUID field. ]]></description>
+  </rule>
+  <rule key="CloneMethodMustImplementCloneable" priority="MAJOR">
+    <name><![CDATA[Clone method must implement Cloneable]]></name>
+    <configKey><![CDATA[rulesets/clone.xml/CloneMethodMustImplementCloneable]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[The method clone() should only be implemented if the class implements the Cloneable interface with the exception of a final method that only throws CloneNotSupportedException. This version uses PMD's type resolution facilities, and can detect if the class implements or extends a Cloneable class ]]></description>
+  </rule>
+  <rule key="AvoidDuplicateLiterals" priority="MAJOR">
+    <name><![CDATA[Avoid Duplicate Literals]]></name>
+    <configKey><![CDATA[rulesets/strings.xml/AvoidDuplicateLiterals]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Code containing duplicate String literals can usually be improved by declaring the String as a constant field. Example :
+<pre>
+public class Foo {
+ private void bar() {
+    buz("Howdy");
+    buz("Howdy");
+    buz("Howdy");
+    buz("Howdy");
+ }
+ private void buz(String x) {}
+}
+</pre>]]></description>
+    <param key="threshold" type="i">
+      <description><![CDATA[The number of duplicate literals reporting threshold. Default is 4.]]></description>
+
+    </param>
+    <param key="skipAnnotations" type="b">
+      <description><![CDATA[Skip literals within Annotations. Default is false.]]></description>
+    </param>
+    <param key="exceptionlist" type="s">
+      <description><![CDATA[Strings in that list are skipped.]]></description>
+    </param>
+    <param key="separator" type="s">
+      <description><![CDATA[Separator used in the exceptionlist. Default is ,]]></description>
+
+    </param>
+    <param key="exceptionfile" type="s">
+      <description><![CDATA[File containing strings to skip (one string per line), only used if exceptionlist is not set.]]></description>
+    </param>
+  </rule>
+  <rule key="StringInstantiation" priority="MAJOR">
+    <name><![CDATA[String Instantiation]]></name>
+    <configKey><![CDATA[rulesets/strings.xml/StringInstantiation]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[Avoid instantiating String objects; this is usually unnecessary.]]></description>
+  </rule>
+  <rule key="StringToString" priority="MAJOR">
+    <name><![CDATA[String To String]]></name>
+    <configKey><![CDATA[rulesets/strings.xml/StringToString]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Avoid calling toString() on String objects; this is unnecessary.]]></description>
+  </rule>
+  <rule key="InefficientStringBuffering" priority="MAJOR">
+    <name><![CDATA[Inefficient String Buffering]]></name>
+    <configKey><![CDATA[rulesets/strings.xml/InefficientStringBuffering]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[Avoid concatenating non literals in a StringBuffer constructor or append().]]></description>
+  </rule>
+  <rule key="UnnecessaryCaseChange" priority="MINOR">
+    <name><![CDATA[Unnecessary Case Change]]></name>
+    <configKey><![CDATA[rulesets/strings.xml/UnnecessaryCaseChange]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[Using equalsIgnoreCase() is faster than using toUpperCase/toLowerCase().equals()]]></description>
+  </rule>
+  <rule key="UseStringBufferLength" priority="MINOR">
+    <name><![CDATA[Use String Buffer Length]]></name>
+    <configKey><![CDATA[rulesets/strings.xml/UseStringBufferLength]]></configKey>
+    <category name="Efficiency"/>
+    <description>
+      <![CDATA[Use StringBuffer.length() to determine StringBuffer length rather than using StringBuffer.toString().equals() or StringBuffer.toString().length() ==.]]></description>
+  </rule>
+  <rule key="AppendCharacterWithChar" priority="MINOR">
+    <name><![CDATA[Append Character With Char]]></name>
+    <configKey><![CDATA[rulesets/strings.xml/AppendCharacterWithChar]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[Avoid concatenating characters as strings in StringBuffer.append.]]></description>
+  </rule>
+  <rule key="ConsecutiveLiteralAppends" priority="MINOR">
+    <name><![CDATA[Consecutive Literal Appends]]></name>
+    <configKey><![CDATA[rulesets/strings.xml/ConsecutiveLiteralAppends]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[Consecutively calling StringBuffer.append with String literals]]></description>
+    <param key="threshold" type="i">
+      <description><![CDATA[The report threshold. Default is 1.]]></description>
+
+    </param>
+  </rule>
+  <rule key="UseIndexOfChar" priority="MAJOR">
+    <name><![CDATA[Use Index Of Char]]></name>
+    <configKey><![CDATA[rulesets/strings.xml/UseIndexOfChar]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[Use String.indexOf(char) when checking for the index of a single character; it executes faster.]]></description>
+  </rule>
+  <rule key="InefficientEmptyStringCheck" priority="MAJOR">
+    <name><![CDATA[Inefficient Empty String Check]]></name>
+    <configKey><![CDATA[rulesets/strings.xml/InefficientEmptyStringCheck]]></configKey>
+    <category name="Efficiency"/>
+    <description>
+      <![CDATA[String.trim().length() is an inefficient way to check if a String is really empty, as it creates a new String object just to check its size. Consider creating a static function that loops through a string, checking Character.isWhitespace() on each character and returning false if a non-whitespace character is found.]]></description>
+  </rule>
+  <rule key="InsufficientStringBufferDeclaration" priority="MAJOR">
+    <name><![CDATA[Insufficient String Buffer Declaration]]></name>
+    <configKey><![CDATA[rulesets/strings.xml/InsufficientStringBufferDeclaration]]></configKey>
+    <category name="Efficiency"/>
+    <description>
+      <![CDATA[Failing to pre-size a StringBuffer properly could cause it to re-size many times during runtime. This rule checks the characters that are actually passed into StringBuffer.append(), but represents a best guess worst case scenario. An empty StringBuffer constructor initializes the object to 16 characters. This default is assumed if the length of the constructor can not be determined.]]></description>
+  </rule>
+  <rule key="UselessStringValueOf" priority="MINOR">
+    <name><![CDATA[Useless String Value Of]]></name>
+    <configKey><![CDATA[rulesets/strings.xml/UselessStringValueOf]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[No need to call String.valueOf to append to a string; just use the valueOf() argument directly.]]></description>
+  </rule>
+  <rule key="StringBufferInstantiationWithChar" priority="MAJOR">
+    <name><![CDATA[String Buffer Instantiation With Char]]></name>
+    <configKey><![CDATA[rulesets/strings.xml/StringBufferInstantiationWithChar]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[StringBuffer sb = new StringBuffer('c'); The char will be converted into int to intialize StringBuffer size. ]]></description>
+  </rule>
+  <rule key="ExcessiveMethodLength" priority="MAJOR">
+    <name><![CDATA[Excessive Method Length]]></name>
+    <configKey><![CDATA[rulesets/codesize.xml/ExcessiveMethodLength]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[Violations of this rule usually indicate that the method is doing too much. Try to reduce the method size by creating helper methods and removing any copy/pasted code.]]></description>
+    <param key="minimum" type="i">
+      <description><![CDATA[The method size reporting threshold. Default is 100.]]></description>
+
+    </param>
+  </rule>
+  <rule key="ExcessiveParameterList" priority="MAJOR">
+    <name><![CDATA[Excessive Parameter List]]></name>
+    <configKey><![CDATA[rulesets/codesize.xml/ExcessiveParameterList]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[Long parameter lists can indicate that a new object should be created to wrap the numerous parameters. Basically, try to group the parameters together.]]></description>
+    <param key="minimum" type="i">
+      <description><![CDATA[The parameter count reporting threshold. Default is 10.]]></description>
+
+    </param>
+  </rule>
+  <rule key="ExcessiveClassLength" priority="MAJOR">
+    <name><![CDATA[Excessive Class Length]]></name>
+    <configKey><![CDATA[rulesets/codesize.xml/ExcessiveClassLength]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[Long Class files are indications that the class may be trying to do too much. Try to break it down, and reduce the size to something manageable.]]></description>
+    <param key="minimum" type="i">
+      <description><![CDATA[The class size reporting threshold. Default is 1000.]]></description>
+
+    </param>
+  </rule>
+  <rule key="ExcessivePublicCount" priority="MAJOR">
+    <name><![CDATA[Excessive Public Count]]></name>
+    <configKey><![CDATA[rulesets/codesize.xml/ExcessivePublicCount]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[A large number of public methods and attributes declared in a class can indicate the class may need to be broken up as increased effort will be required to thoroughly test it.]]></description>
+    <param key="minimum" type="i">
+      <description><![CDATA[The public item reporting threshold. Default is 45.]]></description>
+
+    </param>
+  </rule>
+  <rule key="TooManyFields" priority="MAJOR">
+    <name><![CDATA[Too Many Fields]]></name>
+    <configKey><![CDATA[rulesets/codesize.xml/TooManyFields]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[Classes that have too many fields could be redesigned to have fewer fields, possibly through some nested object grouping of some of the information. For example, a class with city/state/zip fields could instead have one Address field.]]></description>
+    <param key="maxfields" type="i">
+      <description><![CDATA[The field count reporting threshold. Default is 15.]]></description>
+
+    </param>
+  </rule>
+  <rule key="NcssMethodCount" priority="MAJOR">
+    <name><![CDATA[Ncss Method Count]]></name>
+    <configKey><![CDATA[rulesets/codesize.xml/NcssMethodCount]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[This rule uses the NCSS (Non Commenting Source Statements) algorithm to determine the number of lines of code for a given method. NCSS ignores comments, and counts actual statements. Using this algorithm, lines of code that are split are counted as one.]]></description>
+    <param key="minimum" type="i">
+      <description><![CDATA[The method NCSS count reporting threshold. Default is 100.]]></description>
+    </param>
+  </rule>
+  <rule key="NcssTypeCount" priority="MAJOR">
+    <name><![CDATA[Ncss Type Count]]></name>
+    <configKey><![CDATA[rulesets/codesize.xml/NcssTypeCount]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[This rule uses the NCSS (Non Commenting Source Statements) algorithm to determine the number of lines of code for a given type. NCSS ignores comments, and counts actual statements. Using this algorithm, lines of code that are split are counted as one.]]></description>
+    <param key="minimum" type="i">
+      <description><![CDATA[The type NCSS count reporting threshold. Default is 1500.]]></description>
+    </param>
+  </rule>
+  <rule key="NcssConstructorCount" priority="MAJOR">
+    <name><![CDATA[Ncss Constructor Count]]></name>
+    <configKey><![CDATA[rulesets/codesize.xml/NcssConstructorCount]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[This rule uses the NCSS (Non Commenting Source Statements) algorithm to determine the number of lines of code for a given constructor. NCSS ignores comments, and counts actual statements. Using this algorithm, lines of code that are split are counted as one.]]></description>
+    <param key="minimum" type="i">
+      <description><![CDATA[The constructor NCSS count reporting threshold. Default is 100.]]></description>
+    </param>
+  </rule>
+  <rule key="DuplicateImports" priority="MINOR">
+    <name><![CDATA[Duplicate Imports]]></name>
+    <configKey><![CDATA[rulesets/imports.xml/DuplicateImports]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Avoid duplicate import statements.]]></description>
+  </rule>
+  <rule key="DontImportJavaLang" priority="MINOR">
+    <name><![CDATA[Dont Import Java Lang]]></name>
+    <configKey><![CDATA[rulesets/imports.xml/DontImportJavaLang]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[Avoid importing anything from the package 'java.lang'. These classes are automatically imported (JLS 7.5.3).]]></description>
+  </rule>
+  <rule key="ImportFromSamePackage" priority="MINOR">
+    <name><![CDATA[Import From Same Package]]></name>
+    <configKey><![CDATA[rulesets/imports.xml/ImportFromSamePackage]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[No need to import a type that lives in the same package.]]></description>
+  </rule>
+  <rule key="CloneThrowsCloneNotSupportedException" priority="MAJOR">
+    <name><![CDATA[Clone Throws Clone Not Supported Exception]]></name>
+    <configKey><![CDATA[rulesets/clone.xml/CloneThrowsCloneNotSupportedException]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[The method clone() should throw a CloneNotSupportedException.]]></description>
+  </rule>
+  <rule key="UseCorrectExceptionLogging" priority="MAJOR">
+    <name><![CDATA[Use Correct Exception Logging]]></name>
+    <configKey><![CDATA[rulesets/logging-jakarta-commons.xml/UseCorrectExceptionLogging]]></configKey>
+    <category name="Maintainability"/>
+    <description><![CDATA[To make sure the full stacktrace is printed out, use the logging statement with 2 arguments: a String and a Throwable.]]></description>
+  </rule>
+  <rule key="ProperLogger" priority="MAJOR">
+    <name><![CDATA[Proper Logger]]></name>
+    <configKey><![CDATA[rulesets/logging-jakarta-commons.xml/ProperLogger]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[Logger should normally be defined private static final and have the correct class. Private final Log log; is also allowed for rare cases when loggers need to be passed around, but the logger needs to be passed into the constructor. ]]></description>
+    <param key="staticLoggerName" type="s">
+      <description><![CDATA[Default is LOG]]></description>
+
+    </param>
+  </rule>
+  <rule key="ShortVariable" priority="MAJOR">
+    <name><![CDATA[Short Variable]]></name>
+    <configKey><![CDATA[rulesets/naming.xml/ShortVariable]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Detects when a field, local, or parameter has a very short name.]]></description>
+  </rule>
+  <rule key="LongVariable" priority="MAJOR">
+    <name><![CDATA[Long Variable]]></name>
+    <configKey><![CDATA[rulesets/naming.xml/LongVariable]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Detects when a field, formal or local variable is declared with a long name.]]></description>
+    <param key="minimum" type="i">
+      <description><![CDATA[The variable length reporting threshold. Default is 17.]]></description>
+
+    </param>
+  </rule>
+  <rule key="ShortMethodName" priority="MAJOR">
+    <name><![CDATA[Naming - Short method name]]></name>
+    <configKey><![CDATA[rulesets/naming.xml/ShortMethodName]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Detects when very short method names are used. Example :
+<pre>
+public class ShortMethod {
+  public void a( int i ) { // Violation
+  }
+}
+</pre>]]></description>
+  </rule>
+  <rule key="VariableNamingConventions" priority="MAJOR">
+    <name><![CDATA[Naming - Variable naming conventions]]></name>
+    <configKey><![CDATA[rulesets/naming.xml/VariableNamingConventions]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[A variable naming conventions rule - customize this to your liking. Currently, it checks for final variables that should be fully capitalized and non-final variables that should not include underscores.]]></description>
+    <param key="staticPrefix" type="s">
+      <description><![CDATA[A prefix for static variables]]></description>
+
+    </param>
+    <param key="staticSuffix" type="s">
+      <description><![CDATA[A suffix for static variables]]></description>
+
+    </param>
+    <param key="memberPrefix" type="s">
+      <description><![CDATA[A prefix for member variables]]></description>
+
+    </param>
+    <param key="memberSuffix" type="s">
+      <description><![CDATA[A suffix for member variables]]></description>
+
+    </param>
+  </rule>
+  <rule key="MethodNamingConventions" priority="MAJOR">
+    <name><![CDATA[Naming - Method naming conventions]]></name>
+    <configKey>rulesets/naming.xml/MethodNamingConventions</configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[Method names should always begin with a lower case character, and should not contain underscores. Example :
+<pre>
+public class Foo {
+  public void fooStuff() {
+  }
+}]]></description>
+  </rule>
+  <rule key="ClassNamingConventions" priority="MAJOR">
+    <name><![CDATA[Naming - Class naming conventions]]></name>
+    <configKey><![CDATA[rulesets/naming.xml/ClassNamingConventions]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Class names should always begin with an upper case character.]]></description>
+  </rule>
+  <rule key="AvoidDollarSigns" priority="MINOR">
+    <name><![CDATA[Naming - Avoid dollar signs]]></name>
+    <configKey><![CDATA[rulesets/naming.xml/AvoidDollarSigns]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Avoid using dollar signs in variable/method/class/interface names.]]></description>
+  </rule>
+  <rule key="MethodWithSameNameAsEnclosingClass" priority="MAJOR">
+    <name><![CDATA[Naming - Method with same name as enclosing class]]></name>
+    <configKey><![CDATA[rulesets/naming.xml/MethodWithSameNameAsEnclosingClass]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Non-constructor methods should not have the same name as the enclosing class. Example :
+<pre>
+public class MyClass {
+  // this is bad because it is a method
+  public void MyClass() {}
+  // this is OK because it is a constructor
+  public MyClass() {}
+}
+</pre>]]></description>
+  </rule>
+  <rule key="SuspiciousHashcodeMethodName" priority="MAJOR">
+    <name><![CDATA[Naming - Suspicious Hashcode method name]]></name>
+    <configKey><![CDATA[rulesets/naming.xml/SuspiciousHashcodeMethodName]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[The method name and return type are suspiciously close to hashCode(), which may mean you are intending to override the hashCode() method. Example :
+<pre>
+public class Foo {
+  public int hashcode() {
+  // oops, this probably was supposed to be hashCode
+  }
+}</pre>]]></description>
+  </rule>
+  <rule key="SuspiciousConstantFieldName" priority="MAJOR">
+    <name><![CDATA[Naming - Suspicious constant field name]]></name>
+    <configKey><![CDATA[rulesets/naming.xml/SuspiciousConstantFieldName]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[A field name is all in uppercase characters, which in Sun's Java naming conventions indicate a constant. However, the field is not final. Example :
+<pre>
+public class Foo {
+  // this is bad, since someone could accidentally
+  // do PI = 2.71828; which is actualy e
+  // final double PI = 3.16; is ok
+  double PI = 3.16;
+}
+</pre>]]></description>
+  </rule>
+  <rule key="SuspiciousEqualsMethodName" priority="CRITICAL">
+    <name><![CDATA[Naming - Suspicious equals method name]]></name>
+    <configKey><![CDATA[rulesets/naming.xml/SuspiciousEqualsMethodName]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[The method name and parameter number are suspiciously close to equals(Object), which may mean you are intending to override the equals(Object) method. Example :
+<pre>
+public class Foo {
+  public int equals(Object o) {
+  // oops, this probably was supposed to be boolean equals
+  }
+  public boolean equals(String s) {
+  // oops, this probably was supposed to be equals(Object)
+  }
+}
+</pre>]]></description>
+  </rule>
+  <rule key="AvoidFieldNameMatchingTypeName" priority="MAJOR">
+    <name><![CDATA[Naming - Avoid field name matching type name]]></name>
+    <configKey><![CDATA[rulesets/naming.xml/AvoidFieldNameMatchingTypeName]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[It is somewhat confusing to have a field name matching the declaring class name. This probably means that type and or field names could be more precise. Example :
+<pre>
+public class Foo extends Bar {
+  // There's probably a better name for foo
+  int foo;
+}
+</pre>]]></description>
+  </rule>
+  <rule key="AvoidFieldNameMatchingMethodName" priority="MAJOR">
+    <name><![CDATA[Naming - Avoid field name matching method name]]></name>
+    <configKey><![CDATA[rulesets/naming.xml/AvoidFieldNameMatchingMethodName]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[It is somewhat confusing to have a field name with the same name as a method. While this is totally legal, having information (field) and actions (method) is not clear naming. Example :
+<pre>
+public class Foo {
+  Object bar;
+  // bar is data or an action or both?
+  void bar() {
+  }
+}
+</pre>]]></description>
+  </rule>
+  <rule key="MisleadingVariableName" priority="MAJOR">
+    <name><![CDATA[Naming - Misleading variable name]]></name>
+    <configKey><![CDATA[rulesets/naming.xml/MisleadingVariableName]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Detects when a non-field has a name starting with 'm_'. This usually indicates a field and thus is confusing. Example :
+<pre>
+public class Foo {
+  private int m_foo; // OK
+  public void bar(String m_baz) {  // Bad
+    int m_boz = 42; // Bad
+  }
+}
+</pre>]]></description>
+  </rule>
+  <rule key="ReplaceVectorWithList" priority="MAJOR">
+    <name><![CDATA[Replace Vector With List]]></name>
+    <configKey><![CDATA[rulesets/migrating.xml/ReplaceVectorWithList]]></configKey>
+    <category name="Portability"/>
+    <description><![CDATA[Consider replacing Vector usages with the newer java.util.ArrayList if expensive threadsafe operation is not required.]]></description>
+  </rule>
+  <rule key="ReplaceHashtableWithMap" priority="MAJOR">
+    <name><![CDATA[Replace Hashtable With Map]]></name>
+    <configKey><![CDATA[rulesets/migrating.xml/ReplaceHashtableWithMap]]></configKey>
+    <category name="Portability"/>
+    <description><![CDATA[Consider replacing this Hashtable with the newer java.util.Map]]></description>
+  </rule>
+  <rule key="ReplaceEnumerationWithIterator" priority="MAJOR">
+    <name><![CDATA[Replace Enumeration With Iterator]]></name>
+    <configKey><![CDATA[rulesets/migrating.xml/ReplaceEnumerationWithIterator]]></configKey>
+    <category name="Portability"/>
+    <description><![CDATA[Consider replacing this Enumeration with the newer java.util.Iterator]]></description>
+  </rule>
+  <rule key="AvoidEnumAsIdentifier" priority="MAJOR">
+    <name><![CDATA[Avoid Enum As Identifier]]></name>
+    <configKey><![CDATA[rulesets/migrating.xml/AvoidEnumAsIdentifier]]></configKey>
+    <category name="Portability"/>
+    <description><![CDATA[Finds all places 'enum' is used as an identifier is used.]]></description>
+  </rule>
+  <rule key="AvoidAssertAsIdentifier" priority="MAJOR">
+    <name><![CDATA[Avoid Assert As Identifier]]></name>
+    <configKey><![CDATA[rulesets/migrating.xml/AvoidAssertAsIdentifier]]></configKey>
+    <category name="Portability"/>
+    <description><![CDATA[Finds all places 'assert' is used as an identifier is used.]]></description>
+  </rule>
+  <rule key="IntegerInstantiation" priority="MAJOR">
+    <name><![CDATA[Integer Instantiation]]></name>
+    <configKey><![CDATA[rulesets/migrating.xml/IntegerInstantiation]]></configKey>
+    <category name="Portability"/>
+    <description><![CDATA[In JDK 1.5, calling new Integer() causes memory allocation. Integer.valueOf() is more memory friendly.]]></description>
+  </rule>
+  <rule key="MoreThanOneLogger" priority="MAJOR">
+    <name><![CDATA[More Than One Logger]]></name>
+    <configKey><![CDATA[rulesets/logging-java.xml/MoreThanOneLogger]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Normally only one logger is used in each class.]]></description>
+  </rule>
+  <rule key="LoggerIsNotStaticFinal" priority="MAJOR">
+    <name><![CDATA[Logger Is Not Static Final]]></name>
+    <configKey><![CDATA[rulesets/logging-java.xml/LoggerIsNotStaticFinal]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[In most cases, the Logger can be declared static and final.]]></description>
+  </rule>
+  <rule key="SystemPrintln" priority="MAJOR">
+    <name><![CDATA[System Println]]></name>
+    <configKey><![CDATA[rulesets/logging-java.xml/SystemPrintln]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[System.(out|err).print is used, consider using a logger.]]></description>
+  </rule>
+  <rule key="AvoidPrintStackTrace" priority="MAJOR">
+    <name><![CDATA[Avoid Print Stack Trace]]></name>
+    <configKey><![CDATA[rulesets/logging-java.xml/AvoidPrintStackTrace]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Avoid printStackTrace(); use a logger call instead.]]></description>
+  </rule>
+  <rule key="IfStmtsMustUseBraces" priority="MAJOR">
+    <name><![CDATA[If Stmts Must Use Braces]]></name>
+    <configKey><![CDATA[rulesets/braces.xml/IfStmtsMustUseBraces]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Avoid using if statements without using curly braces.]]></description>
+  </rule>
+  <rule key="WhileLoopsMustUseBraces" priority="MAJOR">
+    <name><![CDATA[While Loops Must Use Braces]]></name>
+    <configKey><![CDATA[rulesets/braces.xml/WhileLoopsMustUseBraces]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Avoid using 'while' statements without using curly braces.]]></description>
+  </rule>
+  <rule key="IfElseStmtsMustUseBraces" priority="MAJOR">
+    <name><![CDATA[If Else Stmts Must Use Braces]]></name>
+    <configKey><![CDATA[rulesets/braces.xml/IfElseStmtsMustUseBraces]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Avoid using if..else statements without using curly braces.]]></description>
+  </rule>
+  <rule key="ForLoopsMustUseBraces" priority="MAJOR">
+    <name><![CDATA[For Loops Must Use Braces]]></name>
+    <configKey><![CDATA[rulesets/braces.xml/ForLoopsMustUseBraces]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Avoid using 'for' statements without using curly braces, like <code>for (int i=0; i<42;i++) foo();</code>]]></description>
+  </rule>
+  <rule key="AvoidUsingHardCodedIP" priority="MAJOR">
+    <name><![CDATA[Avoid Using Hard Coded IP]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/AvoidUsingHardCodedIP]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[An application with hard coded IP may become impossible to deploy in some case. It never hurts to externalize IP adresses.]]></description>
+    <param key="pattern" type="r">
+      <description><![CDATA[Regular Expression. Default is ^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$]]></description>
+
+    </param>
+  </rule>
+  <rule key="CheckResultSet" priority="MAJOR">
+    <name><![CDATA[Check ResultSet]]></name>
+    <configKey><![CDATA[rulesets/basic.xml/CheckResultSet]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[Always check the return of one of the navigation method (next,previous,first,last) of a ResultSet. Indeed, if the value return is "false", the developer should deal with it !]]></description>
+  </rule>
+  <rule key="AvoidUsingShortType" priority="MAJOR">
+    <name><![CDATA[Avoid Using Short Type]]></name>
+    <configKey><![CDATA[rulesets/controversial.xml/AvoidUsingShortType]]></configKey>
+    <category name="Efficiency"/>
+    <description>
+      <![CDATA[Java uses the short type to reduce memory usage, not to optimize calculation. On the contrary, the jvm does not has an arithmetic capabilities with the type short. So, the P-code must convert the short into int, then do the proper caculation and then again, convert int to short. So, use of the "short" type may have a great effect on memory usage.]]></description>
+  </rule>
+  <rule key="AvoidUsingVolatile" priority="MAJOR">
+    <name><![CDATA[Avoid Using Volatile]]></name>
+    <configKey><![CDATA[rulesets/controversial.xml/AvoidUsingVolatile]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[Use of the keyword "volatile" is general used to fine tune a Java application, and therefore, requires a good expertise of the Java Memory Model. Morover, its range of action is somewhat misknown. Therefore, the volatile keyword should not be used for maintenance purpose and portability.]]></description>
+  </rule>
+  <rule key="AvoidUsingNativeCode" priority="MAJOR">
+    <name><![CDATA[Avoid Using Native Code]]></name>
+    <configKey><![CDATA[rulesets/controversial.xml/AvoidUsingNativeCode]]></configKey>
+    <category name="Portability"/>
+    <description>
+      <![CDATA[As JVM and Java language offer already many help in creating application, it should be very rare to have to rely on non-java code. Even though, it is rare to actually have to use Java Native Interface (JNI). As the use of JNI make application less portable, and harder to maintain, it is not recommended.]]></description>
+  </rule>
+  <rule key="AvoidAccessibilityAlteration" priority="MAJOR">
+    <name><![CDATA[Avoid Accessibility Alteration]]></name>
+    <configKey><![CDATA[rulesets/controversial.xml/AvoidAccessibilityAlteration]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[Methods such as getDeclaredConstructors(), getDeclaredConstructor(Class[]) and setAccessible(), as the interface PrivilegedAction, allow to alter, at runtime, the visilibilty of variable, classes, or methods, even if they are private. Obviously, no one should do so, as such behavior is against everything encapsulation principal stands for.]]></description>
+  </rule>
+  <rule key="EmptyMethodInAbstractClassShouldBeAbstract" priority="MAJOR">
+    <name><![CDATA[Empty Method In Abstract Class Should Be Abstract]]></name>
+    <configKey><![CDATA[rulesets/design.xml/EmptyMethodInAbstractClassShouldBeAbstract]]></configKey>
+    <category name="Usability"/>
+    <description>
+      <![CDATA[An empty method in an abstract class should be abstract instead, as developer may rely on this empty implementation rather than code the appropriate one.
+  <pre>
+public abstract class ShouldBeAbstract
+{
+  public Object couldBeAbstract()
+	{
+	// Should be abstract method ?
+	  return null;
+	}
+
+	public void couldBeAbstract()
+	{
+	}
+}
+</pre>]]></description>
+  </rule>
+  <rule key="TooManyStaticImports" priority="MAJOR">
+    <name><![CDATA[Too Many Static Imports]]></name>
+    <configKey><![CDATA[rulesets/imports.xml/TooManyStaticImports]]></configKey>
+    <category name="Maintainability"/>
+    <description>
+      <![CDATA[If you overuse the static import feature, it can make your program unreadable and  unmaintainable, polluting its namespace with all the static members you import. Readers of your code (including you, a few months after you wrote it) will not know which class a static member comes from (Sun 1.5 Language Guide).]]></description>
+    <param key="maximumStaticImports" type="i">
+      <description><![CDATA[All static imports can be disallowed by setting this to 0. Default is 4.]]></description>
+
+    </param>
+  </rule>
+  <rule key="DoNotCallSystemExit" priority="MAJOR">
+    <name><![CDATA[Do Not Call System Exit]]></name>
+    <configKey><![CDATA[rulesets/j2ee.xml/DoNotCallSystemExit]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[Web applications should not call System.exit(), since only the web container or the application server should stop the JVM.]]></description>
+  </rule>
+  <rule key="StaticEJBFieldShouldBeFinal" priority="MAJOR">
+    <name><![CDATA[Static EJB Field Should Be Final]]></name>
+    <configKey><![CDATA[rulesets/j2ee.xml/StaticEJBFieldShouldBeFinal]]></configKey>
+    <category name="Reliability"/>
+    <description>
+      <![CDATA[According to the J2EE specification (p.494), an EJB should not have any static fields with write access. However, static read only fields are allowed. This ensures proper behavior especially when instances are distributed by the container on several JREs.]]></description>
+  </rule>
+  <rule key="DoNotUseThreads" priority="MAJOR">
+    <name><![CDATA[Do Not Use Threads]]></name>
+    <configKey><![CDATA[rulesets/j2ee.xml/DoNotUseThreads]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[The J2EE specification explicitly forbid use of threads.]]></description>
+  </rule>
+  <rule key="MDBAndSessionBeanNamingConvention" priority="MAJOR">
+    <name><![CDATA[Message Driven Bean And Session Bean Naming Convention]]></name>
+    <configKey><![CDATA[rulesets/j2ee.xml/MDBAndSessionBeanNamingConvention]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[The EJB Specification state that any MessageDrivenBean or SessionBean should be suffixed by Bean.]]></description>
+  </rule>
+  <rule key="RemoteSessionInterfaceNamingConvention" priority="MAJOR">
+    <name><![CDATA[Remote Session Interface Naming Convention]]></name>
+    <configKey><![CDATA[rulesets/j2ee.xml/RemoteSessionInterfaceNamingConvention]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Remote Home interface of a Session EJB should be suffixed by "Home".]]></description>
+  </rule>
+  <rule key="LocalInterfaceSessionNamingConvention" priority="MAJOR">
+    <name><![CDATA[Local Interface Session Naming Convention]]></name>
+    <configKey><![CDATA[rulesets/j2ee.xml/LocalInterfaceSessionNamingConvention]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[The Local Interface of a Session EJB should be suffixed by "Local".]]></description>
+  </rule>
+  <rule key="LocalHomeNamingConvention" priority="MAJOR">
+    <name><![CDATA[Local Home Naming Convention]]></name>
+    <configKey><![CDATA[rulesets/j2ee.xml/LocalHomeNamingConvention]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[The Local Home interface of a Session EJB should be suffixed by "LocalHome".]]></description>
+  </rule>
+  <rule key="RemoteInterfaceNamingConvention" priority="MAJOR">
+    <name><![CDATA[Remote Interface Naming Convention]]></name>
+    <configKey><![CDATA[rulesets/j2ee.xml/RemoteInterfaceNamingConvention]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Remote Interface of a Session EJB should NOT be suffixed.]]></description>
+  </rule>
+  <rule key="UseEqualsToCompareStrings" priority="MAJOR">
+    <name><![CDATA[Use Equals To Compare Strings]]></name>
+    <configKey><![CDATA[rulesets/strings.xml/UseEqualsToCompareStrings]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[Using "==" or "!=" to compare strings only works if intern version is used on both sides.]]></description>
+  </rule>
+  <rule key="DoNotExtendJavaLangError" priority="MAJOR">
+    <name><![CDATA[Do Not Extend Java Lang Error]]></name>
+    <configKey><![CDATA[rulesets/strictexception.xml/DoNotExtendJavaLangError]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[Errors are system exceptions. Do not extend them.]]></description>
+  </rule>
+  <rule key="AddEmptyString" priority="MAJOR">
+    <name><![CDATA[Add Empty String]]></name>
+    <configKey><![CDATA[rulesets/optimizations.xml/AddEmptyString]]></configKey>
+    <category name="Efficiency"/>
+    <description><![CDATA[Finds empty string literals which are being added. This is an inefficient way to convert any type to a String.]]></description>
+  </rule>
+  <rule key="BooleanGetMethodName" priority="MAJOR">
+    <name><![CDATA[Boolean Get Method Name]]></name>
+    <configKey><![CDATA[rulesets/naming.xml/BooleanGetMethodName]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[Looks for methods named "getX()" with "boolean" as the return type. The convention is to name these methods "isX()".]]></description>
+    <param key="checkParameterizedMethods" type="b">
+      <description><![CDATA[Check parameterized methods. Default is false.]]></description>
+
+    </param>
+  </rule>
+</rules>

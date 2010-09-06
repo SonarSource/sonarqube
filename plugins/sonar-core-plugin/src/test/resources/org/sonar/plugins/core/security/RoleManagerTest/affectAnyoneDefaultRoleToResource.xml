@@ -1,0 +1,16 @@
+<dataset>
+
+  <!-- GROUPS ***************** -->
+  <!-- global roles -->
+  <group_roles id="1" group_id="1" role="admin" resource_id="[null]" />
+  <group_roles id="2" group_id="2" role="viewer" resource_id="[null]" />
+
+  <!-- default project roles -->
+  <group_roles id="3" group_id="[null]" role="default-admin" resource_id="[null]" />
+  <group_roles id="4" group_id="[null]" role="default-viewer" resource_id="[null]" />
+
+  <!-- existing project roles -->
+  <group_roles id="5" group_id="5" role="admin" resource_id="7" />
+
+
+</dataset>

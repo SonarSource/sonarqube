@@ -1,0 +1,1 @@
+CREATE DATABASE ${sonar.jdbc.username};

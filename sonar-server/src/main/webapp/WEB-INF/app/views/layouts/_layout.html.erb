@@ -1,0 +1,105 @@
+<% selected_section = controller.class::SECTION %>
+<div id="container">
+  <div id="hd">
+    <%= render :partial => 'layouts/breadcrumb' %>
+    <ol id="nav">
+      <li><input type="text" autocomplete="off" size="15" name="search" id="projectSearch" onFocus="this.size=30;this.value='';autocompleteProjects('<%= ApplicationController.root_context -%>/api/resources?scopes=<%= Project::SCOPE_SET -%>&qualifiers=<%= Project::QUALIFIER_VIEW-%>,<%= Project::QUALIFIER_SUBVIEW-%>,<%= Project::QUALIFIER_PROJECT-%>', '<%= ApplicationController.root_context -%>/project/index/', this, $('projectResults'));return true;" onBlur="javacript:this.size=15" value="Search"/><div id="projectResults" style="display:none"></div></li>
+      <li>
+        <a href="javascript:window.print()"><img src="<%= ApplicationController.root_context -%>/images/print.gif" alt="Print" title="Print" /></a>
+        <% if @project %><a href="<%= url_for :overwrite_params => {:id => @project.key}-%>" id="permalink"><img src="<%= ApplicationController.root_context -%>/images/permalink.gif" alt="Permalink" title="Permalink" /></a><% end %>
+      </li>
+      <% if logged_in? %>
+      <li>
+      <img src="<%= ApplicationController.root_context -%>/images/user.gif"/><a href="<%= ApplicationController.root_context -%>/account/index"><%= current_user.name(true) -%></a>
+      &raquo; <a href="<%= ApplicationController.root_context -%>/sessions/logout">Log out</a>
+      </li>
+      <% else %>
+      <li><a href="<%= ApplicationController.root_context -%>/sessions/new">Log in</a></li>
+      <% end %>
+      <li><a href="<%= ApplicationController.root_context -%>/profiles">Configuration</a></li>
+    </ol>
+
+  </div>
+  <div id="body" class="with_sidebar">
+     <div id="sb">
+       <div id="sidebar">
+        <ul>
+        <% if selected_section==Navigation::SECTION_HOME %>
+          <li class="<%= 'selected' if controller.controller_path=='filters' -%>"><a href="<%= ApplicationController.root_context -%>/filters/index">Filters</a></li>
+          <li class="<%= 'selected' if controller.controller_path=='dependencies' -%>"><a href="<%= ApplicationController.root_context -%>/dependencies/index">Dependencies</a></li>
+
+          <% controller.java_facade.getPages(Navigation::SECTION_HOME, nil, nil, nil).each do |page|
+               selected=request.request_uri.include?("/plugins/home/#{page.getId()}") %>
+          <li class="<%= 'selected' if selected -%>"><a href="<%= ApplicationController.root_context -%>/plugins/home/<%= page.getId() -%>"><%= page.getTitle()-%></a></li>
+          <% end %>
+
+        <% elsif (selected_section==Navigation::SECTION_RESOURCE) %>
+
+          <li class="<%= 'selected' if request.request_uri.include?('/project/index')  || request.request_uri.include?('/drilldown/measures') -%>"><a href="<%= ApplicationController.root_context -%>/project/index/<%= @project.id -%>">Dashboard</a></li>
+          <li class="<%= 'selected' if request.request_uri.include?('/components/index') -%>"><a href="<%= ApplicationController.root_context -%>/components/index/<%= @project.id -%>">Components</a></li>
+          <li class="<%= 'selected' if request.request_uri.include?('/drilldown/violations') -%>"><a href="<%= ApplicationController.root_context -%>/drilldown/violations/<%= @project.id -%>">Violations drilldown</a></li>
+          <li class="<%= 'selected' if controller.controller_path=='timemachine' -%>"><a href="<%= ApplicationController.root_context -%>/timemachine/index/<%= @project.id -%>">Time machine</a></li>
+          <% controller.java_facade.getPages(Navigation::SECTION_RESOURCE, @project.scope, @project.qualifier, @project.language).each do |page| %>
+          <li class="<%= 'selected' if request.request_uri.include?("page=#{page.getId()}") -%>"><a href="<%= ApplicationController.root_context -%>/plugins/resource/<%= @project.id-%>?page=<%= page.getId() -%>"><%= page.getTitle() %></a></li>
+          <% end %>
+          <% if has_role?(:admin, @project) && @project.set? %>
+            <li class="h2">System</li>
+            <% if (@project.project? || @project.module?) %>
+              <li class="<%= 'selected' if request.request_uri.include?('/project/settings') -%>"><a href="<%= ApplicationController.root_context -%>/project/settings/<%= @project.id -%>">Settings</a></li>
+            <% end %>
+            <% if (@project.project? || @project.view? || @project.subview?) %>
+              <li class="<%= 'selected' if request.request_uri.include?('/project_roles') -%>"><a href="<%= ApplicationController.root_context -%>/project_roles/index?resource=<%= @project.id -%>">Project roles</a></li>
+            <% end %>
+          <% end %>
+
+        <% elsif selected_section==Navigation::SECTION_CONFIGURATION %>
+
+          <li class="<%= 'selected' if request.request_uri.include?('/profiles') || request.request_uri.include?('/rules_configuration') -%>"><a href="<%= ApplicationController.root_context -%>/profiles">Quality profiles</a></li>
+            <% if is_admin? %>
+              <li class="<%= 'selected' if controller.controller_path=='event_categories' -%>"><a href="<%= ApplicationController.root_context -%>/event_categories/index">Event categories</a></li>
+              <li class="<%= 'selected' if controller.controller_path=='metrics' -%>"><a href="<%= ApplicationController.root_context -%>/metrics/index">Manual metrics</a></li>
+              <li class="<%= 'selected' if controller.controller_path=='admin_filters' -%>"><a href="<%= ApplicationController.root_context -%>/admin_filters/index">Default filters</a></li>
+              <li class="<%= 'selected' if controller.controller_path=='account' -%>"><a href="<%= ApplicationController.root_context -%>/account/index">My profile</a></li>
+              <% controller.java_facade.getPages(Navigation::SECTION_CONFIGURATION, nil,nil, nil).each do |page| %>
+                <li class="<%= 'selected' if request.request_uri.include?("plugins/configuration/#{page.getId()}") -%>"><a href="<%= ApplicationController.root_context -%>/plugins/configuration/<%= page.getId() -%>"><%= page.getTitle() %></a></li>
+              <% end %>
+
+              <li class="h2">Security</li>
+              <li class="<%= 'selected' if request.request_uri.include?('/users') -%>"><a href="<%= ApplicationController.root_context -%>/users">Users</a></li>
+              <li class="<%= 'selected' if request.request_uri.include?('/groups') -%>"><a href="<%= ApplicationController.root_context -%>/groups/index">Groups</a></li>
+              <li class="<%= 'selected' if request.request_uri.include?('/roles/global') -%>"><a href="<%= ApplicationController.root_context -%>/roles/global">Global roles</a></li>
+              <li class="<%= 'selected' if request.request_uri.include?('/roles/projects') -%>"><a href="<%= ApplicationController.root_context -%>/roles/projects">Project roles</a></li>
+
+              <li class="h2">System</li>
+              <li class="<%= 'selected' if request.request_uri.include?('/settings') -%>"><a href="<%= ApplicationController.root_context -%>/settings/index">Settings</a></li>
+              <li class="<%= 'selected' if controller.controller_path=='backup' -%>"><a href="<%= ApplicationController.root_context -%>/backup">Backup</a></li>
+              <li class="<%= 'selected' if controller.controller_path=='system' -%>"><a href="<%= ApplicationController.root_context -%>/system">System info</a></li>
+              <li class="<%= 'selected' if controller.controller_path=='plugins' -%>"><a href="<%= ApplicationController.root_context -%>/plugins">Upgrades (BETA)</a></li>
+            <% end %>
+
+        <% end %>
+        </ul>
+        <div id="logo"><center><a href="http://www.sonarsource.org/"><%= image_tag('sonar.png', :alt => 'Embrace Quality', :class => 'png') -%></a></center></div>
+        </div>
+
+      <% if @sidebar %><div id="sidebarconf"><%= render :partial => @sidebar %></div><% else %><div id="sidebarconf" class="hidden"> </div><% end %>
+
+     </div>
+     <div id="content">
+       <% if @project %><div class="print"><h2><%= @project.name(true) %></h2></div><% end %>
+       <div class="error" id="error" style="display:none"><span id="errormsg"></span> &nbsp;&nbsp;[<a href="#" onclick="javascript:$('error').hide();return false;">hide</a>]</div>
+       <div class="warning" id="warning" style="display:none"><span id="warningmsg"></span> &nbsp;&nbsp;[<a href="#" onclick="javascript:$('warning').hide();return false;">hide</a>]</div>
+       <div class="notice" id="info" style="display:none"><span id="infomsg"></span> &nbsp;&nbsp;[<a href="#" onclick="javascript:$('info').hide();return false;">hide</a>]</div>
+       <%= yield %>
+     </div>
+  </div>
+</div>
+
+<% unless params[:hd]=='false' %>
+<div id="ft">
+<% controller.java_facade.getWebFooters().each do |footer| %>
+<% if footer.getHtml() %><div><%= footer.getHtml().to_s %></div><% end %>
+<% end %>
+<div id="ftlinks">Powered by <a href="http://www.sonarsource.com" target="SonarSource" class="external">SonarSource</a> - Open Source <a href="http://www.sonarsource.org/documentation/license/" target="license" class="external">LGPL</a> - v.<%= sonar_version -%> - <a href="http://sonar-plugins.codehaus.org" class="external" target="plugins">Plugins</a> - <a href="http://sonar.codehaus.org/documentation" class="external" target="sonar_doc" class="external">Documentation</a> - <a href="http://sonar.codehaus.org/support/" target="support" class="external">Ask a question</a> - <a href="http://jira.codehaus.org/browse/SONAR" target="issuetracker" class="external">Bug/feature request</a></div>
+</div>
+<% end %>

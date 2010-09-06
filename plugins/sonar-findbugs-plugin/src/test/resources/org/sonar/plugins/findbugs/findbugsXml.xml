@@ -1,0 +1,48 @@
+<BugCollection timestamp='1282919233000' analysisTimestamp='1282919402891' sequence='0' release='' version='1.3.9'>
+  <Project projectName=''>
+    <Jar>/Users/freddy/Documents/sonar_projects/sonar/sonar-commons/target/classes</Jar>
+    <AuxClasspathEntry>/Users/freddy/.m2/repository/org/apache/maven/reporting/maven-reporting-impl/2.0/maven-reporting-impl-2.0.jar</AuxClasspathEntry>
+    <SrcDir>/Users/freddy/Documents/sonar_projects/sonar/sonar-commons/src/main/java</SrcDir>
+    <WrkDir>/Users/freddy/Documents/sonar_projects/sonar/sonar-commons/target</WrkDir>
+  </Project>
+  <BugInstance category='BAD_PRACTICE' instanceHash='65c6770c9055a84db4899b95826e4edd' instanceOccurrenceNum='0' priority='2' abbrev='AM' type='AM_CREATES_EMPTY_ZIP_FILE_ENTRY' instanceOccurrenceMax='0'>
+    <ShortMessage>Creates an empty zip file entry</ShortMessage>
+    <LongMessage>Empty zip file entry created in org.sonar.commons.ZipUtils._zip(String, File, ZipOutputStream)</LongMessage>
+    <Class classname='org.sonar.commons.ZipUtils' primary='true'>
+      <SourceLine start='33' classname='org.sonar.commons.ZipUtils' sourcepath='org/sonar/commons/ZipUtils.java' sourcefile='ZipUtils.java' end='139'>
+        <Message>At ZipUtils.java:[lines 33-139]</Message>
+      </SourceLine>
+      <Message>In class org.sonar.commons.ZipUtils</Message>
+    </Class>
+    <Method isStatic='true' classname='org.sonar.commons.ZipUtils' name='_zip' primary='true' signature='(Ljava/lang/String;Ljava/io/File;Ljava/util/zip/ZipOutputStream;)V'>
+      <SourceLine endBytecode='353' startBytecode='0' start='103' classname='org.sonar.commons.ZipUtils' sourcepath='org/sonar/commons/ZipUtils.java' sourcefile='ZipUtils.java' end='124'></SourceLine>
+      <Message>In method org.sonar.commons.ZipUtils._zip(String, File, ZipOutputStream)</Message>
+    </Method>
+    <SourceLine endBytecode='42' startBytecode='42' start='107' classname='org.sonar.commons.ZipUtils' primary='true' sourcepath='org/sonar/commons/ZipUtils.java' sourcefile='ZipUtils.java' end='107'>
+      <Message>At ZipUtils.java:[line 107]</Message>
+    </SourceLine>
+    <SourceLine endBytecode='65' startBytecode='65' start='112' classname='org.sonar.commons.ZipUtils' primary='true' sourcepath='org/sonar/commons/ZipUtils.java' sourcefile='ZipUtils.java' end='124'>
+      <Message>At ZipUtils.java:[line 107]</Message>
+    </SourceLine>    
+  </BugInstance>
+  <BugInstance category='PERFORMANCE' instanceHash='6ba81067bf4e178b360e52be449b1b60' instanceOccurrenceNum='0' priority='3' abbrev='SIC' type='SIC_INNER_SHOULD_BE_STATIC_ANON' instanceOccurrenceMax='0'>
+    <ShortMessage>Could be refactored into a named static inner class</ShortMessage>
+    <LongMessage>The class org.sonar.commons.resources.MeasuresDao$1 could be refactored into a named _static_ inner class</LongMessage>
+    <Class classname='org.sonar.commons.resources.MeasuresDao$1' primary='true'>
+      <SourceLine start='56' classname='org.sonar.commons.resources.MeasuresDao$1' sourcepath='org/sonar/commons/resources/MeasuresDao.java' sourcefile='MeasuresDao.java' end='57'>
+        <Message>At MeasuresDao.java:[lines 56-57]</Message>
+      </SourceLine>
+      <Message>In class org.sonar.commons.resources.MeasuresDao$1</Message>
+    </Class>
+    <SourceLine start='56' classname='org.sonar.commons.resources.MeasuresDao$1' sourcepath='org/sonar/commons/resources/MeasuresDao.java' synthetic='true' sourcefile='MeasuresDao.java' end='57'>
+      <Message>At MeasuresDao.java:[lines 56-57]</Message>
+    </SourceLine>
+  </BugInstance>  
+  <FindBugsSummary>
+    <FindBugsProfile>
+      <ClassProfile avgMicrosecondsPerInvocation='398' maxMicrosecondsPerInvocation='107179' name='edu.umd.cs.findbugs.OpcodeStack$JumpInfoFactory' invocations='4722' totalMilliseconds='1881' standardDeviationMircosecondsPerInvocation='3050'></ClassProfile>
+    </FindBugsProfile>
+  </FindBugsSummary>
+  <ClassFeatures></ClassFeatures>
+  <History></History>
+</BugCollection>  

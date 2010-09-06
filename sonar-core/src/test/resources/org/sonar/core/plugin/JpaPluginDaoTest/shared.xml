@@ -1,0 +1,7 @@
+<dataset>
+  <plugins id="1" name="Checkstyle" plugin_key="checkstyle" organization="[null]" organization_url="[null]" license="[null]" homepage="[null]"
+           description="[null]" installation_date="[null]" plugin_class="[null]" core="true" version="2.2" />
+
+  <plugin_files id="1" plugin_id="1" filename="checkstyle.jar"/>
+  <plugin_files id="2" plugin_id="1" filename="checkstyle-extension.jar"/>
+</dataset>

@@ -1,0 +1,17 @@
+<profile>
+  <name>one</name>
+  <language>java</language>
+    <check>
+      <repository>checkstyle</repository>
+      <template>C1</template>
+      <priority>MINOR</priority>
+      <property>
+        <key>min</key>
+        <value>1</value>
+      </property>
+      <property>
+        <key>max</key>
+        <value>3</value>
+      </property>
+    </check>
+</profile>

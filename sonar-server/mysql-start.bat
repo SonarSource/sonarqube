@@ -1,0 +1,1 @@
+mvn clean jetty:run -Pdev,mysql

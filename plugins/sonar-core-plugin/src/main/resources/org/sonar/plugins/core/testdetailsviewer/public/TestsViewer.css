@@ -1,0 +1,88 @@
+.gwt-TestDetailsPanel {
+  width: 100%;
+}
+
+.gwt-TestDetailsPanel .error {
+  background-image: url("images/error.png");
+  background-position: 4px 2px;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  border: none;
+  margin: 0 0 2px;
+  padding: 2px;
+  vertical-align: top;
+}
+
+.gwt-TestDetailsPanel .failure {
+  background-image: url("images/failure.png");
+  background-position: 4px 2px;
+  background-repeat: no-repeat;
+  margin: 0 0 2px;
+  padding: 2px;
+  vertical-align: top;
+}
+
+.gwt-TestDetailsPanel .skipped {
+  background-image: url("images/skipped.png");
+  background-position: 4px 2px;
+  background-repeat: no-repeat;
+  margin: 0 0 2px;
+  padding: 2px;
+  vertical-align: top;
+}
+
+.gwt-TestDetailsPanel .ok {
+  background-image: url("images/ok.png");
+  background-position: 4px 2px;
+  background-repeat: no-repeat;
+  margin: 0 0 2px;
+  padding: 2px;
+  vertical-align: top;
+}
+
+.detailsTable {
+  border: 1px solid #C0C0C0;
+  width: 100%;
+  vertical-align: top;
+}
+
+.detailsTable td {
+  vertical-align: top;
+  text-align: left;
+  padding: 3px;
+}
+
+.detailsTable .header {
+  background-color: #EFEFEF;
+  font-weight: bold;
+  color: #333;
+  vertical-align: top;
+}
+
+.detailsTable #iCol {
+  width: 25px;
+}
+
+.detailsTable #dCol {
+  width: 70px;
+}
+
+.detailsTable #expandCollapseCol {
+  width: 60px;
+  text-align: right;
+}
+
+.detailsTable #noLinkExpandCollapseCol {
+  width: 0px;
+  padding: 0px;
+}
+
+.stackPanel {
+  padding: 5px;
+  border: 1px solid #C0C0C0;
+}
+
+.expandCollapseLink {
+	text-align: right;
+  margin-right: 5px;
+}

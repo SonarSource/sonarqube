@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="4.1">
+  <file name="\test\src\main\java\ClassWithoutPackage.java">
+    <error line="2" column="1" severity="warning" message="Line contains a tab character." source="com.puppycrawl.tools.checkstyle.checks.whitespace.TabCharacterCheck"/>
+    <error line="3" column="1" severity="warning" message="Line contains a tab character." source="com.puppycrawl.tools.checkstyle.checks.whitespace.TabCharacterCheck"/>
+    <error line="4" column="1" severity="warning" message="Line contains a tab character." source="com.puppycrawl.tools.checkstyle.checks.whitespace.TabCharacterCheck"/>
+    <error line="4" column="26" severity="error" message="Assignment of parameter &apos;i&apos; is not allowed."
+           source="com.puppycrawl.tools.checkstyle.checks.coding.ParameterAssignmentCheck"/>
+    <error line="5" column="1" severity="warning" message="Line contains a tab character." source="com.puppycrawl.tools.checkstyle.checks.whitespace.TabCharacterCheck"/>
+    <error line="6" column="1" severity="warning" message="Line contains a tab character." source="com.puppycrawl.tools.checkstyle.checks.whitespace.TabCharacterCheck"/>
+    <error line="7" column="1" severity="warning" message="Line contains a tab character." source="com.puppycrawl.tools.checkstyle.checks.whitespace.TabCharacterCheck"/>
+    <error line="8" column="1" severity="warning" message="Line contains a tab character." source="com.puppycrawl.tools.checkstyle.checks.whitespace.TabCharacterCheck"/>
+    <error line="9" column="1" severity="warning" message="Line contains a tab character." source="com.puppycrawl.tools.checkstyle.checks.whitespace.TabCharacterCheck"/>
+  </file>
+</checkstyle>

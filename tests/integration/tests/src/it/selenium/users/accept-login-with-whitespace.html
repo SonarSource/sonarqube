@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:9000/" />
+<title>accept-login-with-whitespace</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">accept-login-with-whitespace</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/sessions/new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/users</td>
+	<td></td>
+</tr>
+<tr>
+	<td>store</td>
+	<td>javascript{'user ' + new Date().getTime()}</td>
+	<td>userId</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>user_login</td>
+	<td>${userId}</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>user_name</td>
+	<td>Name of ${userId}</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>user_password</td>
+	<td>password</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>user_password_confirmation</td>
+	<td>password</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTextPresent</td>
+	<td>glob:User*created</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Log out</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Log in</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>${userId}</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>password</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTextPresent</td>
+	<td>Logged in</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>nav</td>
+	<td>glob:*Name of ${userId}*</td>
+</tr>
+
+</tbody></table>
+</body>
+</html>

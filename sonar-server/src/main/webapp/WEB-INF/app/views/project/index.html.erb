@@ -1,0 +1,57 @@
+<div id='dashboard'>
+<%= render :partial => 'project/snapshot_title' %>
+<table><tr>
+  <td width="390px" valign="top" style="padding: 0 4px 0 0">
+    <%= render :partial => 'project/widgets/static_analysis' %>
+    <%= render :partial => 'project/widgets/comments_duplications' %>
+    <%= render :partial => 'project/widgets/extended_analysis' %>
+    <%= render :partial => 'project/widgets/code_coverage' %>
+    <%= render :partial => 'project/widgets/events' %>
+     <%= render :partial => 'project/widgets/description' %>
+  </td>
+  <td width="390px" valign="top" style="padding: 0 0 0 4px">
+   <%= render :partial => 'project/widgets/rules' %>
+   <%= render :partial => 'project/widgets/alerts' %>
+
+<% @widgets.each do |widget|
+  begin
+    widget_body=render :inline => widget.getTarget().getTemplate()
+  rescue => error
+    logger.error("Can not render widget #{widget.getId()}: " + error)
+    logger.error(error.backtrace.join("\n"))
+    widget_body="<p>Can not render widget #{widget.getTitle()}. See logs.</p>"  
+  end
+  if widget_body.include? '<'
+%>
+<div id="<%= widget.getId() -%>" class="widget">
+<%= widget_body %>
+<div class="clear"></div>
+</div>
+<% else %>
+<div id="<%= widget.getId() -%>" ></div>
+<% end 
+end %>
+    <%= render :partial => 'project/widgets/custom_measures' %>
+  </td>
+</tr></table>
+<script type="text/javascript">
+  function selectReviewMetric(){
+    $$('.review_description_update').each(function(element) {
+      element.hide();
+    });
+    review = $('review_metric_id').value;
+    $('review_description_'+review).show();
+    $('review_value_'+review).show();
+  }
+
+  function selectEventCateg(){
+    $$('#event_cat_desc .comments').each(function(elt) {
+      elt.hide();
+    });
+    selected_categ = $('event_category').value;
+    if (selected_categ!=null && selected_categ!='') {
+      $('event_cat_desc_'+selected_categ).show();
+    }
+  }
+</script>
+</div>

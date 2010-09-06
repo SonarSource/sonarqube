@@ -1,0 +1,227 @@
+.dsm {
+  border-collapse: separate;
+  background-color: #fff;
+  font-family: sans-serif;
+  font-size: 9pt;
+  color: #222;
+  margin-bottom: 10px;
+  padding: 5px 10px;
+}
+
+/*------- LEGEND */
+
+#dsmlegend {
+  padding: 5px;
+  margin: 0 0 5px 5px;
+}
+#dsmlegend td {
+  white-space: nowrap;
+}
+#dsmlegend .square {
+  width: 11px;
+  height: 14px;
+  display: inline-block;
+  vertical-align: bottom;
+  padding-left: 3px;
+  margin-bottom: 1px;
+  margin-right: 5px;
+}
+#dsmlegend .gwt-Label {
+  padding-right: 5px;
+}
+#dsmhelp {
+  margin: 0 0 5px 5px;
+}
+#dsmhelp img {
+  margin-right: 4px;
+}
+
+.dsm .gray {
+  background-color: #ddd;
+}
+.dsm .red {
+  background-color: #c13333;
+}
+.dsm .green {
+  background-color: #46c557;
+  background-image:url('green-stripes.png');
+}
+.dsm .blue {
+  background-color: #4B9FD5;
+}
+.dsm .yellow {
+  background-color: #d49e37;
+}
+.dsm .space {
+  display: inline-block;
+  width: 12px;
+}
+
+
+
+/*------- LEFT HEADER */
+
+/* header table */
+.dsm .htable {
+  padding: 1px;
+  border-top: 1px solid #676b9a;
+  border-right: 1px solid #676b9a;
+}
+
+/* header title */
+.dsm .ht {
+  background-color: #CAE3F2;
+  color: #434343;
+  height: 16px;
+  padding: 2px 0 3px 5px;
+  border-bottom: 1px solid #676b9a;
+  border-left: 1px solid #676b9a;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.dsm .ht-s {
+  background-color: #4B9FD5;
+  color: #efefef;
+}
+.dsm .ht img {
+  vertical-align: text-bottom;
+}
+
+/* header indicator */
+.dsm .hi {
+  background-color: #CAE3F2;
+  width: 8px;
+  height: 21px;
+  border-bottom: 1px solid #676b9a;
+}
+.dsm .hi-s {
+  background-color: #4B9FD5;
+}
+.dsm .hi-h {
+  background-color: #46c557;
+  background-image:url('green-stripes.png');
+}
+.dsm .hi-l {
+  background-color: #d49e37;
+}
+
+
+
+/*------- GRID */
+
+.dsm .gtable {
+  padding: 1px;
+  border-top: 1px solid #ccc;
+  
+}
+
+/* cell on bottom left */
+.dsm .cbl {
+  height: 16px;
+  width: 23px;
+  padding-top: 5px;
+  background-color: #fff;
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  color: #434343;
+  text-align: center;
+  cursor: pointer;
+}
+.dsm .cbl span {
+  background-color: #ddd;
+  padding: 2px 2px 0 2px;
+}
+
+/*
+  cell on top right : has feedback edge
+  total height: height + padding-top + 2*border = 25px
+*/
+.dsm .ctr {
+  height: 16px;
+  width: 23px;
+  padding-top: 5px;
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  font-weight: normal;
+  text-align: center;
+  cursor: pointer;
+}
+.dsm .ctr span {
+  background-color: #c13333;
+  color: #fff;
+  padding: 2px 2px 0 2px;
+}
+
+/* cell on diagonal */
+.dsm .cd {
+  height: 16px;
+  width: 23px;
+  padding-top: 5px;
+  background-color: #fff;
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  color: #434343;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* selected cell, mode 1 */
+.dsm .cbl-s1, .dsm .ctr-s1, .dsm .cd-s1 {
+  background-color: #b580c9;
+}
+
+/* selected cell, mode 2 */
+.dsm .cbl-s2 {
+  background-color: #CAE3F2;
+}
+.dsm .ctr-s2 {
+  background-color: #CAE3F2;
+}
+.dsm .cd-s2 {
+  background-color: #4B9FD5;
+  color: #efefef;
+}
+
+/* comb 1 */
+.dsm .cbl-c1, .dsm .ctr-c1, .dsm .cd-c1 {
+  background-color: #46c557;
+  background-image:url('green-stripes.png');
+}
+
+/* comb 2 */
+.dsm .cbl-c2, .dsm .ctr-c2, .dsm .cd-c2 {
+  background-color: #d49e37;
+}
+
+
+/*---------- DEPENDENCY INFO */
+.depInfo {
+  background-color: #fff;
+  border-top-width: 0;
+  border-bottom: 2px solid #ccc;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  width: 100%;
+}
+.depInfo td {
+  padding: 3px 2px;
+}
+.link {
+  text-decoration:underline;
+  cursor: pointer;
+}
+.newwindow {
+  text-decoration:underline;
+  cursor: pointer;
+  padding: 3px;
+  color: #777;
+}
+.depInfoHeader {
+  background-color: #efefef;
+  border-top: 2px solid #ccc;
+  border-bottom: 2px solid #ccc;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  padding: 5px;
+  width: 100%;
+}

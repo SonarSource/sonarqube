@@ -1,0 +1,14 @@
+<rules>
+  <rule key="org.sonar.it.checkstyle.MethodsCountCheck">
+    <name>Methods Count Check</name>
+    <configKey>Checker/TreeWalker/org.sonar.it.checkstyle.MethodsCountCheck</configKey>
+    <category name="Usability"/>
+    <description>Count methods.</description>
+      <param key="minMethodsCount" type="i">
+        <description>Le nombre minimum de méthodes. 10 par défaut.</description>
+
+        <!-- defaultValue is no more used since sonar 1.5. We keep it in this file to test backward compatibility -->
+        <defaultValue>10</defaultValue>
+      </param>
+  </rule>
+ </rules>

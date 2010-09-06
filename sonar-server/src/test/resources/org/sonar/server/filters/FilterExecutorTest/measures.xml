@@ -1,0 +1,68 @@
+<dataset>
+  <metrics id="1" name="lines" val_type="FLOAT" description="Lines"  domain="Size"
+           short_name="Lines"   qualitative="false"  user_managed="false" enabled="true" origin="JAV" worst_value="[null]"
+           optimized_best_value="[null]" best_value="[null]" direction="1" hidden="false"/>
+
+  <metrics id="2" name="coverage" val_type="PERCENT" description="Coverage"  domain="Tests"
+           short_name="Coverage"   qualitative="true"  user_managed="false" enabled="true" origin="JAV" worst_value="[null]"
+           optimized_best_value="[null]" best_value="[null]" direction="1" hidden="false"/>
+
+  <metrics id="3" name="duplicated_lines" val_type="INT" description="Duplicated lines"  domain="Duplications"
+           short_name="Duplications"   qualitative="false"  user_managed="false" enabled="true" origin="JAV" worst_value="[null]"
+           optimized_best_value="[null]" best_value="[null]" direction="1" hidden="false"/>
+
+
+  <!-- Java classes -->
+  <projects long_name="org.sonar.foo:File1" id="4" scope="FIL" kee="project:java:org.sonar.foo:File1" qualifier="CLA" name="File1"
+            root_id="1"
+            description="[null]" enabled="true" profile_id="[null]" language="java" copy_resource_id="[null]"/>
+
+  <projects long_name="org.sonar.foo:File2" id="5" scope="FIL" kee="project:java:org.sonar.foo:File2" qualifier="CLA" name="File2"
+            root_id="1"
+            description="[null]" enabled="true" profile_id="[null]" language="java" copy_resource_id="[null]"/>
+
+
+  <snapshots id="5" created_at="2008-12-25 01:00:01.00" version="1.0" project_id="4" scope="FIL" qualifier="CLA"
+             root_project_id="1" root_snapshot_id="2" parent_snapshot_id="4" STATUS="P" ISLAST="true"
+             path="2.4."
+             depth="2"/>
+
+  <snapshots id="6" created_at="2008-12-25 01:00:01.00" version="1.0" project_id="5" scope="FIL" qualifier="CLA"
+             root_project_id="1" root_snapshot_id="2" parent_snapshot_id="4" STATUS="P" ISLAST="true"
+             path="2.4."
+             depth="2"/>
+
+
+  <!-- SNAPSHOT 5 : 500 lines and coverage 80.5% -->
+  <project_measures characteristic_id="[null]" id="1" metric_id="1" value="500" snapshot_id="5"
+                    url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+
+  <project_measures characteristic_id="[null]" id="2" metric_id="2" value="80.5" snapshot_id="5"
+                    url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+
+
+  <!-- SNAPSHOT 6 : 30 lines, coverage 20.6% and 10 duplicated lines -->
+  <project_measures characteristic_id="[null]" id="3" metric_id="1" value="30" snapshot_id="6"
+                    url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+
+  <project_measures characteristic_id="[null]" id="4" metric_id="2" value="20.6" snapshot_id="6"
+                    url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+
+  <project_measures characteristic_id="[null]" id="5" metric_id="3" value="10" snapshot_id="6"
+                    url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+</dataset>

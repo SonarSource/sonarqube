@@ -1,0 +1,66 @@
+<ul class="tabs">
+<li>
+<a href="<%= url_for :action => 'index' -%>" class="selected">Installed</a>
+</li>
+<li>
+<a href="<%= url_for :action => 'updates' -%>">Updates</a>
+</li>
+<li>
+<a href="<%= url_for :action => 'available' -%>">Available</a>
+</li>
+</ul>
+<div class="tabs-panel">
+
+<h2>User-installed plugins</h2>
+<table class="data2 width100" id="user-plugins">
+  <thead>
+    <tr>
+      <th>Plugin</th>
+      <th>Version</th>
+      <th>Description</th>
+      <th>Organization</th>
+      <th>Links</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% if @user_plugins.empty? %>
+    <tr class="even"><td colspan="5">No plugins</td></tr>
+  <% else
+       @user_plugins.each do |plugin|
+  %>
+        <tr class="<%= cycle('even','odd', :name => 'user') -%> id="<%= u plugin.plugin_key -%>">
+          <td width="1%" nowrap><b><%= h(plugin.name) -%></b></td>
+          <td><%= plugin.version || '-'  %></td>
+          <td><%= plugin.description %></td>
+
+          <td>
+            <% if plugin.organization %>
+              <%= link_to_if plugin.organization_url, plugin.organization, plugin.organization_url, :class=>'external'  %>
+            <% end %>
+          </td>
+          <td><%= link_to 'Details', plugin.homepage, :class => 'external' if plugin.homepage %></td>
+        </tr>
+      <%  end %>
+    <%  end %>
+  </tbody>
+</table>
+<div class="break30"> </div>
+
+<h2>System plugins</h2>
+<table class="data2 width100" id="core-plugins">
+  <thead><tr>
+    <th>Plugin</th>
+    <th>Description</th>
+  </tr></thead>
+  <tbody>
+  <%
+    @core_plugins.each do |plugin|
+  %>
+	  <tr class="<%= cycle('even','odd', :name => 'core') -%>" id="<%= u plugin.plugin_key -%>">
+		  <td width="1%" nowrap><b><%= plugin.name -%></b></td>
+      <td><%= plugin.description %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+</div>

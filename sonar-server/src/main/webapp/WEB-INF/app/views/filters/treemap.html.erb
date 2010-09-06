@@ -1,0 +1,24 @@
+<% unless params[:hide_form]=='true' %>
+<form>
+<table>
+  <tr>
+    <td>
+      <span class="comments">Size:</span><br/>
+      <%= select_tag 'size_metric', options_grouped_by_domain(Sonar::TreemapBuilder.size_metrics({:exclude_user_managed => true}), @size_metric.key),
+        :id => 'size_metric', :class => 'small', :onchange => "load_treemap(this.form.size_metric.value,this.form.color_metric.value, false);return false;" %>
+    </td>
+    <td class="sep"> </td>
+    <td>
+      <span class="comments">Color: <%= render :partial => 'components/treemap_gradient', :locals => {:color_metric => @color_metric} %></span>
+      <br/>
+      <%= select_tag 'color_metric', options_grouped_by_domain(Sonar::TreemapBuilder.color_metrics, @color_metric.key),
+        :id => 'color_metric', :class => 'small', :onchange => "load_treemap(this.form.size_metric.value,this.form.color_metric.value, false);return false;" %>
+    </td>
+  </tr>
+</table>
+</form>
+<br/>
+<% end %>
+<div class="treemap" style="height:<%= @treemap.height %>px">
+  <%= @treemap.generate_html() %>
+</div>

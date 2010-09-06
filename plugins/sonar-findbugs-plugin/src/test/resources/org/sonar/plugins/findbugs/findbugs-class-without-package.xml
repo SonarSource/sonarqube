@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BugCollection version="1.2.1" threshold="Normal" effort="Max" >
+<file classname="ClassOnDefaultPackage" >
+<BugInstance type="DLS_DEAD_LOCAL_STORE" priority="High" category="STYLE" message="DLS: Dead store to i in ClassOnDefaultPackage.ClassOnDefaultPackage(int)" lineNumber="4" />
+<BugInstance type="DLS_DEAD_LOCAL_STORE" priority="Normal" category="STYLE" message="DLS: Dead store to j in ClassOnDefaultPackage.ClassOnDefaultPackage(int)" lineNumber="4" />
+</file>
+</BugCollection>

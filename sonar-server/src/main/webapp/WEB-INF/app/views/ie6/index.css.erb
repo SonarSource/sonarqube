@@ -1,0 +1,49 @@
+* html .png{
+position:relative;
+behavior: expression((this.runtimeStyle.behavior="none")&&(this.pngSet?this.pngSet=true:(this.nodeName == "IMG" && this.src.toLowerCase().indexOf('.png')>-1?(this.runtimeStyle.backgroundImage = "none",
+this.runtimeStyle.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + this.src + "', sizingMethod='image')",
+this.src = "<%= ApplicationController.root_context -%>/images/transparent.gif"):(this.origBg = this.origBg? this.origBg :this.currentStyle.backgroundImage.toString().replace('url("','').replace('")',''),
+this.runtimeStyle.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + this.origBg + "', sizingMethod='crop')",
+this.runtimeStyle.backgroundImage = "none")),this.pngSet=true)
+);
+}
+div#page {
+  overflow-x: auto;
+}
+#hdadmin img {
+  padding-top: 8px;
+}
+
+.tabs {
+  border-bottom: 0;
+}
+
+.tabs .tab {
+  vertical-align: bottom;
+  border-style: solid;
+  border-width: 1px;
+  padding-top: 1px;
+  padding-right: 5px;
+  padding-left: 6px;
+  padding-bottom: 5px;
+}
+
+.tabs .tab.selected {
+  vertical-align: bottom;
+  border-style: solid;
+  border-width: 1px;
+  padding-top: 1px;
+  padding-right: 5px;
+  padding-left: 6px;
+  padding-bottom: 5px;
+}
+
+.tabs .tab.selected a {
+  background-color: #eee;
+  color: #333333;
+}
+
+.smalltabs .tab.selected a {
+  background-color: #eee;
+  color: #333333;
+}

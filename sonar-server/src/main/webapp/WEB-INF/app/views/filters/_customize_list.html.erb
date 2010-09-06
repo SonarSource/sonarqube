@@ -1,0 +1,58 @@
+<tr>
+  <td class="first">
+    Add column:
+  </td>
+  <td>
+    <form id="add_column_form" action="<%= url_for :action => 'add_column', :id => @filter.id -%>" method="post">
+    <select name="column" id="select_column">
+      <option value="" selected></option>
+      <% Metric.domains.each do |domain| %>
+        <optgroup label="<%= domain -%>">
+          <% Metric.by_domain(domain).each do |metric| %>
+            <% if metric.display? && !(@filter.column('metric',metric.name)) %><option value="metric,<%= metric.id -%>"><%= metric.short_name -%></option><% end %>
+          <% end %>
+          <% if domain=='General' %>
+            <% unless @filter.column('date') %><option value="date">Build date</option><% end %>
+            <% unless @filter.column('key') %><option value="key">Key</option><% end %>
+            <% unless @filter.column('language') %><option value="language">Language</option><% end %>
+            <% unless @filter.column('links') %><option value="links">Links</option><% end %>
+            <% unless @filter.column('name') %><option value="name">Name</option><% end %>
+            <% unless @filter.column('version') %><option value="version">Version</option><% end %>
+          <% end %>
+        </optgroup>
+      <% end %>
+    </select>
+    <input type="submit" id="add_column_button" value="Add"></input>
+    </form>
+  </td>
+</tr>
+<tr>
+  <td class="first">Default sorted column:</td>
+  <td>
+    <form id="sorted_column_form" action="<%= url_for :action => 'set_sorted_column' -%>" method="post">
+      <select name="id">
+      <%
+        default_sorted_column=@filter.sorted_column
+        @filter.columns.each do |column|
+      %>
+        <option value="<%= column.id -%>" <%= 'selected' if column==default_sorted_column -%>><%= column.name -%></option>
+      <% end %>
+      </select>
+      <select name="sort">
+        <option value="ASC" <%= 'selected' if default_sorted_column && default_sorted_column.ascending? -%>>Ascending</option>
+        <option value="DESC" <%= 'selected' if default_sorted_column && default_sorted_column.descending? -%>>Descending</option>
+      </select>
+        <input type="submit" id="add_column_submit" value="Change" />
+      </form>
+   </td>
+</tr>
+<tr>
+  <td class="first">Page size:</td>
+  <td>
+    <form id="page_size_form" action="<%= url_for :action => 'set_page_size' -%>" method="post">
+      <input type="hidden" name="id" value="<%= @filter.id -%>"></input>
+      <input type="text" name="size" value="<%= @filter.page_size -%>" maxsize="3" size="3"></input>
+      <input type="submit" id="set_page_size_submit" value="Change"/>
+      <span class="comments">Min <%= ::Filter::MIN_PAGE_SIZE -%>, max <%= ::Filter::MAX_PAGE_SIZE -%></span>
+   </td>
+</tr>

@@ -1,0 +1,36 @@
+<table class="spaced">
+  <tr>
+    <td align="center">
+      <div id="login_form">
+        <form action="<%= url_for :controller => 'users', :action => 'signup' -%>" method="post">
+          <h3><%= label_tag 'user_login', 'Login' %></h3>
+          <p>
+            <input id="user_login" name="user[login]" size="30" type="text" ></input>
+            <br/><span class="desc"><%= link_to 'Log in', :controller => 'sessions', :action => 'new' -%> if you already have an account.</span>
+          </p>
+
+          <h3><%= label_tag 'user_name', 'Name' %></h3>
+          <p>
+            <input id="user_name" name="user[name]" size="30" type="text" ></input>
+          </p>
+          <h3><%= label_tag 'user_password', 'Password' %></h3>
+          <p><input id="user_password" maxLength="50" name="user[password]" size="30" type="password"></input></p>
+
+          <h3><%= label_tag 'user_password_confirmation', 'Confirm password' %></h3>
+          <p>
+            <input id="user_password_confirmation" maxLength="50" name="user[password_confirmation]" size="30" type="password"></input>
+          </p>
+          <p>
+            <%= submit_tag 'Sign up' %> <a href="<%= home_path -%>" class="action">cancel</a>
+          </p>
+        </form>
+        <%= error_messages_for :user, :class => 'error', :header_message => nil, :message => nil %>
+      </div>
+    </td>
+  </tr>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+    $('login').activate();
+//]]>
+</script>

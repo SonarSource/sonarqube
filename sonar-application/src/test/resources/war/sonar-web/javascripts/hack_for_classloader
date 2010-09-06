@@ -1,0 +1,163 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.codehaus.sonar</groupId>
+    <artifactId>sonar</artifactId>
+    <version>1.3-SNAPSHOT</version>
+  </parent>
+  <artifactId>sonar-application</artifactId>
+  <packaging>jar</packaging>
+  <name>Sonar application</name>
+  <description>Package the standalone distribution</description>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.1</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>attached</goal>
+            </goals>
+            <configuration>
+              <appendAssemblyId>false</appendAssemblyId>
+              <finalName>sonar-${project.version}</finalName>
+              <descriptors>
+                <descriptor>assembly.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>sonar-server</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>sonar-core</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mortbay.jetty</groupId>
+      <artifactId>jetty-plus</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mortbay.jetty</groupId>
+      <artifactId>jetty-naming</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mortbay.jetty</groupId>
+      <artifactId>jetty</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+    <!-- for jetty logging trough logback -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl104-over-slf4j</artifactId>
+      <version>1.4.3</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${logback.version}</version>
+    </dependency>
+    <!-- logback filter needed dependency -->
+    <dependency>
+      <groupId>janino</groupId>
+      <artifactId>janino</artifactId>
+      <version>2.5.10</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-configuration</groupId>
+      <artifactId>commons-configuration</artifactId>
+      <version>1.5</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.3</version>
+    </dependency>
+  </dependencies>
+  
+  <profiles>
+    <profile>
+      <id>ci-integrate</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <configuration>
+              <tasks>
+                
+                <fail unless="project.build.directory" message="provide a project.build.directory property to indicate where the sonar archive can be found" />
+                <fail unless="ci.deploy.target" message="provide a ci.deploy.target property to indicate where the application will be deployed" />
+                <fail unless="ci.nt.service.name" message="provide a ci.nt.service.name property to indicate the nt service name to start-stop" />
+                <available property="sonar.zip.archive" file="${project.build.directory}/sonar-${project.version}.zip" />
+                <fail unless="sonar.zip.archive" message="sonar archive ${project.build.directory}/sonar-${project.version}.zip not found" />
+                
+                <echo message="Java OS Property=${os.name}" />
+                <echo message="Sonar NT service name=${os.name}" />
+                <property name="windows.os.name" value="Windows 2003" />
+                
+                <exec executable="net" failonerror="false" os="${windows.os.name}">
+                  <arg value="stop" />
+                  <arg value="${ci.nt.service.name}" />
+                </exec>
+                
+                <mkdir dir="${ci.deploy.target}" />
+                <delete dir="${ci.deploy.target}/ci-tmp" />
+                <delete includeemptydirs="true">
+                  <fileset dir="${ci.deploy.target}">
+                    <include name="**" />
+                    <exclude name="conf/**" />
+                    <exclude name="data/**" />
+                    <exclude name="extensions/**" />
+                  </fileset>
+                </delete>
+                
+                <echo message="Deploying ${project.build.directory}/sonar-${project.version}.zip to ${ci.deploy.target}" />
+                <unzip src="${project.build.directory}/sonar-${project.version}.zip" dest="${ci.deploy.target}/ci-tmp" />
+                
+                <move todir="${ci.deploy.target}" overwrite="false">
+                  <fileset dir="${ci.deploy.target}/ci-tmp/sonar-${project.version}">
+                    <include name="**" />
+                    <exclude name="conf/**" />
+                    <exclude name="data/**" />
+                    <exclude name="extensions/**" />
+                  </fileset>
+                </move>
+                
+                <delete dir="${ci.deploy.target}/ci-tmp" />
+                
+                <exec executable="cmd" dir="${ci.deploy.target}/bin" failonerror="false" os="${windows.os.name}">
+                  <arg value="/c" />
+                  <arg value="UninstallNTService.bat" />
+                </exec>
+                <exec executable="cmd" dir="${ci.deploy.target}/bin" failonerror="true" os="${windows.os.name}">
+                  <arg value="/c" />
+                  <arg value="InstallNTService.bat" />
+                </exec>
+                
+                <exec executable="net" failonerror="true" os="${windows.os.name}">
+                  <arg value="start" />
+                  <arg value="${ci.nt.service.name}" />
+                </exec>
+
+              </tasks>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

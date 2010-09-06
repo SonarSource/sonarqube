@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="" />
+<title>reviews_should_not_create_review_in_futur</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">reviews_should_not_create_review_in_futur</td></tr>
+</thead><tbody>
+<tr>
+	<td>store</td>
+	<td>javascript{'type_'+(new Date()).getTime()}</td>
+	<td>REVIEW_TYPE_NAME</td>
+</tr>
+<tr>
+	<td>store</td>
+	<td>javascript{'description_'+(new Date()).getTime()}</td>
+	<td>REVIEW_TYPE_DESCRIPTION</td>
+</tr>
+<tr>
+	<td>store</td>
+	<td>org.sonar.tests:reference</td>
+	<td>PROJECT_KEY</td>
+</tr>
+<tr>
+	<td>store</td>
+	<td>Sonar tests - reference</td>
+	<td>PROJECT_NAME</td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sessions/logout</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sessions/new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/metrics</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>metric_short_name</td>
+	<td>${REVIEW_TYPE_NAME}</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>metric_description</td>
+	<td>${REVIEW_TYPE_DESCRIPTION}</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>metric_val_type</td>
+	<td>label=Percent</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/project/index/${PROJECT_KEY}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>add_review</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>review_metric_id</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>review_metric_id</td>
+	<td>label=${REVIEW_TYPE_NAME}</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>review_value</td>
+	<td>35.5</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>review_measure_date_1i</td>
+	<td>label=2014</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>save_review</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>error</td>
+	<td></td>
+</tr>
+
+</tbody></table>
+</body>
+</html>

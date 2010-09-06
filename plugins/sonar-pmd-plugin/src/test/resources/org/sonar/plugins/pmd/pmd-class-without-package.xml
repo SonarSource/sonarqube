@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmd version="4.1" timestamp="2008-06-30T10:23:14.369">
+  <file name="/test/src/main/java/ClassOnDefaultPackage.java">
+    <violation beginline="3" endline="5" begincolumn="16" endcolumn="9" rule="UnusedFormalParameter"
+               ruleset="Unused Code Rules" class="ClassOnDefaultPackage"
+               externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedFormalParameter" priority="1">
+      Avoid unused constructor parameters such as 'j'.
+    </violation>
+    <violation beginline="4" endline="4" begincolumn="21" endcolumn="21" rule="UnusedLocalVariable"
+               ruleset="Unused Code Rules" class="ClassOnDefaultPackage" variable="j"
+               externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedLocalVariable" priority="1">
+      Avoid unused local variables such as 'j'.
+    </violation>
+    <violation beginline="7" endline="7" begincolumn="24" endcolumn="33" rule="UnusedPrivateMethod"
+               ruleset="Unused Code Rules" class="ClassOnDefaultPackage" method="myMethod"
+               externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateMethod" priority="1">
+      Avoid unused private methods such as 'myMethod()'.
+    </violation>
+  </file>
+</pmd>

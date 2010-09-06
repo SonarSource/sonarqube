@@ -1,0 +1,87 @@
+<h2>Project links</h2>
+<div class="yui-g widget" id="widget_links">
+
+<% form_for( 'set_links', :url => { :action => 'set_links', :project_id => @project.id } ) do |form|
+     links_by_key={}
+     @project.links.each do |link|
+       links_by_key[link.link_type]=link  
+     end
+%>
+   <div class="yui-u first">
+  <table class="data">
+    <thead><tr><th>Title</th><th>URL</th></tr></thead>
+
+    <tr class="even">
+      <td align="left" nowrap width="1%">
+        <%= image_tag("links/homepage.png") -%> Home</td>
+        <td>
+            <input type="hidden" name="key_homepage" value="homepage" />
+            <input type="hidden" name="name_homepage" value="Home" />
+            <%= text_field_tag( "url_homepage", links_by_key['homepage'] ? links_by_key['homepage'].href : '', :readonly => true, :size => 30  ) -%>
+        </td>
+     </tr>
+     <tr class="odd">
+      <td align="left" nowrap width="1%">
+        <%= image_tag("links/ci.png") -%> Continuous integration</td>
+        <td>
+           <input type="hidden" name="key_ci" value="ci" />
+           <input type="hidden" name="name_ci" value="Continuous integration" />
+            <%= text_field_tag( "url_ci", links_by_key['ci'] ? links_by_key['ci'].href : '', :readonly => true, :size => 30 ) -%>
+        </td>
+     </tr>
+     <tr class="even">
+      <td align="left" nowrap width="1%">
+        <%= image_tag("links/issue.png") -%> Issue tracker</td>
+        <td>
+           <input type="hidden" name="key_issue" value="issue" />
+           <input type="hidden" name="name_issue" value="Issues" />
+            <%= text_field_tag( "url_issue", links_by_key['issue'] ? links_by_key['issue'].href : '', :readonly => true, :size => 30  ) -%>
+        </td>
+     </tr>
+     <tr class="odd">
+      <td align="left" nowrap width="1%">
+        <%= image_tag("links/scm.png") -%> Sources</td>
+        <td>
+           <input type="hidden" name="key_scm" value="scm" />
+           <input type="hidden" name="name_scm" value="Sources" />
+            <%= text_field_tag( "url_scm", links_by_key['scm'] ? links_by_key['scm'].href : '', :readonly => true, :size => 30  ) -%>
+        </td>
+     </tr>
+     <tr class="even">
+      <td align="left" nowrap width="1%">
+        <%= image_tag("links/scm_dev.png") -%> Developer connection</td>
+        <td>
+           <input type="hidden" name="key_scm_dev" value="scm_dev" />
+           <input type="hidden" name="name_scm_dev" value="Developer connection" />
+            <%= text_field_tag( "url_scm_dev", links_by_key['scm_dev'] ? links_by_key['scm_dev'].href : '', :readonly => true, :size => 30  ) -%>
+        </td>
+     </tr>
+<tr><td colspan="2" class="even"><%= submit_tag( "Save links" ) %></td></tr>
+   </table>
+ </div>
+    <div class="yui-u">
+      <table class="data">
+        <thead><tr><th>Title</th><th>URL</th></tr></thead>
+       <% index = 0
+         @project.custom_links.each do |custom_link|
+           index += 1 %>
+        <tr class="<%= cycle('even','odd') -%>">
+          <td align="left">
+            <%= image_tag("links/external.png") -%> <%= text_field_tag( "name_#{index}", h(custom_link.name), :size => 15 ) -%>
+          </td>
+          <td>
+            <%= text_field_tag( "url_#{index}", custom_link.href, :size => 30 ) -%>
+          </td>
+        </tr>
+      <% end %>
+      <% index += 1
+         for var in index..5 %>
+        <tr class="<%= cycle('even','odd') -%>">
+            <td align="left"><%= image_tag("links/external.png") -%>  <%= text_field_tag( "name_#{var}", '', :size => 15) %></td>
+            <td><%= text_field_tag( "url_#{var}", '', :size => 30 ) %></td>
+        </tr>
+      <% end %>
+      </table>
+    </div>
+<% end %>
+</div>

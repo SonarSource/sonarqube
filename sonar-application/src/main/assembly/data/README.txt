@@ -1,0 +1,1 @@
+This directory contains data of embedded database (Apache Derby). It's recommended for tests and demos only.

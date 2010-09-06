@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Sonar Findbugs rules generated configuration -->
+<!-- Do NEVER specify a rule priority in the export file !! -->
+<FindBugsFilter>
+  <Match>
+    <Bug pattern="DLS_DEAD_LOCAL_STORE" />
+  </Match>
+  <Match>
+    <Bug pattern="URF_UNREAD_FIELD" />
+  </Match>
+</FindBugsFilter>

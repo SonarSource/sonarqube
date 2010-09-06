@@ -1,0 +1,1 @@
+mvn gwt:run -DrunTarget=org.sonar.plugins.core.testdetailsviewer.TestsViewer/test.html

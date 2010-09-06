@@ -1,0 +1,91 @@
+<!--
+Copyright (C) 2009 SonarSource SA
+mailto:contact AT sonarsource DOT com
+
+Sonar is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 3 of the License, or (at your option) any later version.
+
+Sonar is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with Sonar; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+-->
+<project name="Sonar WAR builder" basedir="." default="war">
+   <pathconvert targetos="unix" property="sonarHome">
+      <path location="${basedir}/.."/>
+    </pathconvert>
+    
+  <target name="war" depends="clean">
+    <mkdir dir="build/sonar-server"/>
+    <copy todir="build/sonar-server">
+      <fileset dir="sonar-server"/>
+    </copy>
+
+    <!-- add JDBC driver to classpath -->
+    <copy todir="build/sonar-server/WEB-INF/lib" flatten="true">
+      <fileset dir="../extensions/jdbc-driver" includes="**/*.jar"/>
+    </copy>
+
+    <!-- sonar properties -->
+    <copy todir="build/sonar-server/WEB-INF/classes/conf" file="../conf/sonar.properties" overwrite="true"
+          failonerror="true"/>
+
+    <condition property="sonarhome.found">
+      <isfileselected file="build/sonar-server/WEB-INF/classes/conf/sonar.properties">
+        <contains text="sonar.home"/>
+      </isfileselected>
+    </condition>
+
+    <antcall target="append-sonar-home"/>
+
+    <!-- copy the logback config -->
+    <copy todir="build/sonar-server/WEB-INF/classes">
+      <fileset dir="../conf" includes="logback.xml"/>
+    </copy>
+
+    <!-- changing the loggers defaut appender to the SONAR_WAR appender -->
+    <replace file="build/sonar-server/WEB-INF/classes/logback.xml">
+      <replacetoken><![CDATA[<appender-ref ref="SONAR_FILE"/>]]></replacetoken>
+      <replacevalue><![CDATA[<appender-ref ref="SONAR_WAR"/>]]></replacevalue>
+    </replace>
+
+    <war destfile="sonar.war" webxml="build/sonar-server/WEB-INF/web.xml">
+      <fileset dir="build/sonar-server"/>
+    </war>
+
+    <echo>
+    -----------------------------------------------------------------------------------------------------------
+    sonar.war is ready to be deployed. It is linked to the Sonar home directory:
+    ${sonarHome}
+    
+    IMPORTANT NOTES :
+    * supported web servers are Jetty and Tomcat 5.x/6.x
+    * the web application uses the Sonar home directory. For this reason it must be deployed on this host only.
+    * the war file must be rebuilt when :
+        - configuration is updated (files in the directory conf/)
+        - the Sonar home directory is moved to other location
+        - sonar is upgraded to a new version
+      It does not have to be rebuilt when a plugin is removed or installed.
+    -----------------------------------------------------------------------------------------------------------
+    </echo>
+  </target>
+
+  <target name="clean">
+    <delete dir="build"/>
+    <delete file="sonar.war"/>
+  </target>
+
+  <target name="append-sonar-home" unless="sonarhome.found">
+    <echo>Setting home to: ${sonarHome}</echo>
+    <echo file="build/sonar-server/WEB-INF/classes/conf/sonar.properties" append="yes">
+      sonar.home=${sonarHome}
+    </echo>
+  </target>
+
+</project>

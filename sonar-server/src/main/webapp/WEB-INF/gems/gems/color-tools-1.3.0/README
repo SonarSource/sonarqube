@@ -1,0 +1,82 @@
+= color-tools README
+color-tools is a Ruby library to provide RGB, CMYK, and other colourspace
+support to applications that require it. It also provides 152 named RGB
+colours. It offers 152 named RGB colours (184 with spelling variations)
+that are commonly supported and used in HTML, SVG, and X11 applications. A
+technique for generating a monochromatic contrasting palette is also
+included.
+
+Version 1.3 offers significant enhancements over color-tools 1.2, and a
+plan for an incompatible change to the library.
+
+* Colours that were defined in the Color namespace (e.g., Color::Red,
+  Color::AliceBlue) are now defined in Color::RGB (e.g., Color::RGB::Red,
+  Color::RGB::AliceBlue). They are added back to the Color namespace on
+  the first use of the old colours and a warning is printed. In version
+  1.4, this warning will be printed on every use of the old colours. In
+  version 1.5, the backwards compatible support for colours like
+  Color::Red will be removed completely.
+
+* A CSS colour name module has been added. It is based on the Color::RGB
+  predefined colours. It is called with "Color::CSS[color]". The provided
+  colour name will be looked up ignoring case so that "DarkSalmon" and
+  "darksalmon" (and :darksalmon) are the same value. This makes it easier
+  on web or SVG developers who wish to be able to manipulate a colour
+  based on a CSS colour name.
+
+* A new predefined colour namespace has been added for RGB metallic
+  colours (Color::Metallic, in color/rgb/metallic), suggested by Jim
+  Freeze <jfn@freeze.org>.
+
+* A new colour space, Color::HSL (hue, saturation, and luminosity) has
+  been added with some helper methods to Color::RGB for colour
+  manipulation.
+
+* Added unit tests and fixed various little bugs.
+
+== Copyright
+Copyright 2005 by Austin Ziegler
+
+Color::Palette was developed based on techniques described by Andy
+"Malarkey" Clarke[1], implemented in JavaScript by Steve G. Chipman at
+SlayerOffice[2] and by Patrick Fitzgerald of BarelyFitz[3] in PHP.
+
+== Licence
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Soft-
+ware"), to deal in the Software without restriction, including without
+limitation the rights to use, copy, modify, merge, publish, distribute,
+sublicense, and/or sell copies of the Software, and to permit persons to
+whom the Software is furnished to do so, subject to the following
+conditions:
+
+* The names of its contributors may not be used to endorse or promote
+  products derived from this software without specific prior written
+  permission.
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+
+[1] http://www.stuffandnonsense.co.uk/archives/creating_colour_palettes.html 
+[2] http://slayeroffice.com/tools/color_palette/
+[3] http://www.barelyfitz.com/projects/csscolor/
+
+#--
+# Colour management with Ruby.
+#
+# Copyright 2005 Austin Ziegler
+#   http://rubyforge.org/ruby-pdf/
+#
+#   Licensed under a MIT-style licence.
+#
+# $Id: README,v 1.9 2005/08/08 02:44:17 austin Exp $
+#++
+# vim: sts=2 sw=2 ts=4 et ai tw=74

@@ -1,0 +1,11 @@
+<rules>
+  <rule>
+    <key>com.puppycrawl.tools.checkstyle.checks.naming.LocalVariableNameCheck</key>
+    <priority>BLOCKER</priority>
+    <configKey>Checker/TreeWalker/LocalVariableName</configKey>
+    <name>M &amp; M</name>
+    <description>
+      <![CDATA[éà&]]>
+    </description>
+  </rule>
+</rules>

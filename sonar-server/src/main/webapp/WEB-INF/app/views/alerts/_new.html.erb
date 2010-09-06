@@ -1,0 +1,58 @@
+<h3>Create alert</h3>
+<% remote_form_for [@profile, @alert] do |f| %>
+<table class="spaced">
+<tr>
+  <td valign="top">
+  <script type="text/javascript">
+    //<![CDATA[
+    function selectMetric() {
+      <%= remote_function(:url => {:controller => 'alerts', :action => 'new', :profile_id => @profile.id}, :with => "'alert[metric_id]=' + $('alert_metric_id').value", :method => 'get') %>;
+    }
+    //]]>
+  </script>
+
+  <select id="alert_metric_id" name="alert[metric_id]" onChange="javascript:selectMetric()">
+    <option value="" <%= 'selected' if @alert.metric.nil? %>>Select a metric</option>
+  <% Metric.domains.each do |domain| %>
+  <optgroup label="<%= h domain -%>">
+    <% Metric.by_domain(domain).select{|m| m.alertable? }.each do |metric| %>
+      <option value="<%= metric.id -%>" <%= 'selected' if @alert.metric_id==metric.id -%>><%= metric.short_name %></option>
+    <% end %>
+  </optgroup>
+  <% end %>
+  </select>
+  </td>
+
+  <td width="10%"  valign="top">
+    <%= f.select 'operator', operators_for_select(@alert), :selected => default_operator(@alert) %>
+  </td>
+
+  <td width="20%" valign="top">
+    <%= image_tag 'levels/warn.png', :alt => 'A warning is triggered when this value is reached.' %>
+    <%= value_field(f, @alert, 'value_warning') %>
+    <%= @alert.metric.suffix if @alert.metric %><br/>
+    <span class="note">Warning threshold</span>
+  </td>
+
+  <td width="20%" valign="top">
+    <%= image_tag 'levels/error.png', :alt => 'An error is triggered when this value is reached.' %>
+    <%= value_field(f, @alert, 'value_error') %>
+    <%= @alert.metric.suffix if @alert.metric %><br/>
+    <span class="note">Error threshold</span>
+  </td>
+
+  <td width="120px" nowrap valign="top">
+    <%= f.submit 'Create', :id =>"submit_create" %>
+  </td>
+</tr>
+</table>
+<% unless @alert.errors.empty? %>
+<div class="error" style="margin: 5px;">
+  <ul>
+     <% @alert.errors.full_messages.each do |message| %>
+     <li><%= h message %></li>
+     <% end %>
+  </ul>
+</div>
+<% end %>
+<% end %>

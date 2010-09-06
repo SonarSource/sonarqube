@@ -1,0 +1,48 @@
+.gwt-DuplicationsPanel {
+  width: 100%;
+}
+
+.duplicationsTable {
+  border: 1px solid #C0C0C0;
+  width: 100%;
+  vertical-align: top;
+}
+
+.duplicationsTable td {
+  vertical-align: top;
+  text-align: left;
+  padding: 3px;
+  white-space: nowrap;
+}
+
+.duplicationsTable #expandCollapseCol {
+  width: 60px;
+}
+
+.duplicationsTable #nbLineCol {
+  width: 80px;
+}
+
+.duplicationsTable #lineFromCol {
+  width: 80px;
+}
+
+.duplicationsTable #fileCol {
+  width: 80px;
+}
+
+.duplicationsTable .header {
+  background-color: #EFEFEF;
+  font-weight: bold;
+  color: #333;
+  vertical-align: top;
+}
+
+.expandCollapseLink {
+  margin-left: 5px;
+}
+
+.gwt-SourcePanel table.sources td {
+  vertical-align: top;
+  padding: 0px;
+}

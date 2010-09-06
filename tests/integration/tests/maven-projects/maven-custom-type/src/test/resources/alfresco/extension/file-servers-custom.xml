@@ -1,0 +1,152 @@
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+    
+    http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    
+-->
+ <!--
+ 	| Default property based configuration.
+ 	| Example configurations are also provided.
+ 	| 
+	 -->
+ <alfresco-config area="file-servers">
+
+   <!-- To override the default Alfresco filesystem use replace="true", to -->
+   <!-- add additional filesystems remove the replace="true" attribute     -->
+
+
+   <!-- Sample passtrhu Novel authentication
+   <config evaluator="string-compare" condition="Filesystem Security" replace="true">  
+     <authenticator type="passthru">
+		<Server>passtrhu1.mycompany.com,passthru2.mycompany.com</Server>	
+     </authenticator>
+   </config>
+   -->
+
+   <!-- Sample kerberos configuration. Untested.
+	
+	config evaluator="string-compare" condition="Filesystem Security" replace="true">  
+     <authenticator type="enterprise">
+     <KDC>authserver.company.com</KDC>
+     <Realm>MYCOMPANY.COM</Realm>
+     <Password>secret</Password>
+     <LoginEntry>AlfCommon</LoginEntry>
+     </authenticator>
+   </config-->
+
+	<config evaluator="string-compare" condition="Filesystem Security" replace="true">  
+     <authenticator type="alfresco"/>
+	</config>
+
+   	<config evaluator="string-compare" condition="CIFS Server" replace="true">
+          <serverEnable enabled="${smb.server.enabled}"/>
+      <host name="${smb.server.name}" domain="${smb.server.domain}"/>
+      <comment>Alfresco CIFS Server</comment>
+
+      <!-- Set to the broadcast mask for the subnet -->
+      <broadcast>255.255.255.0</broadcast>
+
+      <!-- Use Java socket based NetBIOS over TCP/IP and native SMB on linux -->
+      <tcpipSMB platforms="linux,solaris,macosx"/>
+      <netBIOSSMB platforms="linux,solaris,macosx"/>
+      <!-- bind to the frontend facing interface of this server -->
+      <bindto>${smb.server.bindto}</bindto>
+
+      <!-- Can be mapped to non-privileged ports, then use firewall rules to forward requests from the standard ports -->
+   
+        <tcpipSMB port="${smb.tcpip.port}" platforms="linux,solaris,macosx"/>
+        <netBIOSSMB sessionPort="${netbios.session.port}" namePort="${netbios.name.port}" datagramPort="${netbios.datagram.port}" platforms="linux,solaris,macosx"/>
+	    
+      <hostAnnounce interval="5"/>
+
+      <!-- Use Win32 NetBIOS interface on Windows -->
+      <Win32NetBIOS/>
+      <Win32Announce interval="5"/>
+
+      <!--
+        <WINS>
+           <primary>1.2.3.4</primary>
+           <secondary>5.6.7.8</secondary>
+        </WINS>
+      -->
+      <sessionDebug flags="Negotiate,Socket"/>
+   </config>
+
+	<config evaluator="string-compare" condition="FTP Server">
+          <serverEnable enabled="${ftp.server.enabled}"/>
+          <port>${ftp.port}</port>
+          
+      <!-- FTP authentication -->
+      <authenticator type="${ftp.authenticator}"/>
+      <!--      <debug flags="File,Search,Error,Directory,Info,DataPort"/> -->
+   </config>
+
+
+   <config evaluator="string-compare" condition="Filesystems" replace="true">
+      <filesystems>
+
+         <filesystem name="Alfresco">
+            <store>workspace://SpacesStore</store>
+            <rootPath>/app:company_home</rootPath>
+
+            <!-- Add a URL file to each folder that links back to the web client -->
+            <urlFile>
+               <filename>__Alfresco.url</filename>
+               <webpath>http://${localname}/</webpath>
+            </urlFile>
+
+            <!-- Mark locked files as offline -->
+            <offlineFiles/>
+
+            <!-- Desktop actions -->
+
+            <desktopActions>
+               <global>
+                  <path>alfresco/desktop/Alfresco.exe</path>
+                  <webpath>http://${localname}/</webpath>
+               </global>
+               <action>
+                  <class>org.alfresco.filesys.smb.server.repo.desk.CheckInOutDesktopAction</class>
+                  <name>CheckInOut</name>
+                  <filename>__CheckInOut.exe</filename>
+               </action>
+               <action>
+                  <class>org.alfresco.filesys.smb.server.repo.desk.JavaScriptDesktopAction</class>
+                  <name>JavaScriptURL</name>
+                  <filename>__ShowDetails.exe</filename>
+                  <script>alfresco/desktop/showDetails.js</script>
+                  <attributes>anyFiles</attributes>
+                  <preprocess>copyToTarget</preprocess>
+               </action>
+
+            </desktopActions>
+
+<!--
+            <accessControl default="Write">
+               <user name="admin" access="Write"/>
+               <address subnet="90.${version}.0" mask="255.255.0.0" access="Write"/>
+            </accessControl>
+-->
+
+         </filesystem>
+		  
+		 <!-- AVM virtualization view of all stores/versions for WCM -->
+         <avmfilesystem name="AVM">
+            <virtualView/>
+         </avmfilesystem>
+		  
+      </filesystems>
+   </config>
+
+</alfresco-config>

@@ -1,0 +1,20 @@
+</body><script type="text/javascript">
+Event.observe(window, 'load', function(){
+$$('.tipable').each(function(element){
+title = element.readAttribute('title');
+if(!element.rel.blank()) {
+if(title ==null) {
+new Tip(element, element.rel);
+} else {
+new Tip(element, element.rel, {title: title});
+}
+} else if (title!=null && !title.blank()) {
+new Tip(element, title);
+}
+});
+});
+<% if flash[:notice] %>info('<%=escape_javascript(flash[:notice])-%>');<% end %>
+<% if flash[:warning] %>warning('<%=escape_javascript(flash[:warning])-%>');<% end %>
+<% if flash[:error] %>error('<%=escape_javascript(flash[:error])-%>');<% end %>
+</script>
+</html>

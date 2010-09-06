@@ -1,0 +1,39 @@
+= HttpAcceptLanguage
+
+A small effort in making a plugin which helps you detect the users preferred language, as sent by the HTTP header.
+
+= Features
+
+* Splits the http-header into languages specified by the user
+* Returns empty array if header is illformed.
+* Corrects case to xx-XX
+* Sorted by priority given, as much as possible.
+* Gives you the most important language
+* Gives compatible languages
+See also: http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
+
+= Example
+
+  class SomeController < ApplicationController
+    def some_action
+      
+      request.user_preferred_languages
+      # => [ 'nl-NL', 'nl-BE', 'nl', 'en-US', 'en' ]
+      
+      available = %w{en en-US nl-BE}
+      request.preferred_language_from(available)
+      # => 'nl-BE'
+      
+      request.user_preferred_languages
+      # => [ 'en-GB']
+      available = %w{en-US}
+      request.compatible_language_from(available)
+      # => 'en-US'
+    end
+  end
+
+= Changenotes
+
+2009-03-12: Rails 2.3 compatible
+
+Copyright (c) 2008 Iain Hecker, released under the MIT license

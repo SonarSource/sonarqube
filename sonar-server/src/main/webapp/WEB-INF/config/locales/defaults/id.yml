@@ -1,0 +1,122 @@
+# Bahasa Indonesia translations for Ruby on Rails 
+# by wynst (wynst.uei@gmail.com)
+
+id:
+  date:
+    formats:
+      default: "%d %B %Y"
+      long: "%A, %d %B %Y"
+      short: "%d.%m.%Y"
+ 
+    day_names: [Minggu,Senin, Selasa, Rabu, Kamis, Jum'at, Sabtu]
+    abbr_day_names: [Minggu,Senin, Selasa, Rabu, Kamis, Jum'at, Sabtu]
+    month_names: [~, Januari, Februari, Maret, April, Mei, Juni, Juli, Agustus, September, Oktober, November, Desember]
+    abbr_month_names: [~, Jan, Feb, Mar, Apr, Mei, Jun, Jul, Agu, Sep, Okt, Nov, Des]
+    order: [:day, :month, :year]
+
+  time:
+    formats:
+      default: "%a, %d %b %Y %H.%M.%S %z"
+      short: "%d %b %H.%M"
+      long: "%d %B %Y %H.%M"
+    am: "am"
+    pm: "pm"
+
+  support:
+    array:
+      sentence_connector: "dan"
+      skip_last_comma: true
+
+  number:
+    format:
+      separator: ","
+      delimiter: "."
+      precision: 3
+    
+    currency:
+      format:
+        format: "%n. %u"
+        unit: "Rp"
+        separator: ","
+        delimiter: "."
+        precision: 2
+        
+    percentage:
+      format:
+        # separator:
+        delimiter: ""
+        # precision: 
+
+    precision:
+      format:
+        # separator:
+        delimiter: ""
+        # precision:
+        
+    human:
+      format:
+        delimiter: ""
+        precision: 1
+      storage_units: [Byte, KB, MB, GB, TB]
+ 
+  datetime:
+    distance_in_words:
+      half_a_minute: "setengah menit"
+      less_than_x_seconds:
+        one:   "kurang dari 1 detik"
+        other: "kurang dari {{count}} detik"
+      x_seconds:
+        one:   "1 detik"
+        other: "{{count}} detik"
+      less_than_x_minutes:
+        one:   "kurang dari 1 menit"
+        other: "kurang dari  {{count}} menit"
+      x_minutes:
+        one:   "menit"
+        other: "{{count}} menit"
+      about_x_hours:
+        one:   "sekitar 1 jam"
+        other: "sekitar {{count}} jam"
+      x_days:
+        one:   "sehari"
+        other: "{{count}} hari"
+      about_x_months:
+        one:   "sekitar sebulan"
+        other: "sekitar {{count}} bulan"
+      x_months:
+        one:   "sebulan"
+        other: "{{count}} bulan"
+      about_x_years:
+        one:   "tahun"
+        other: "noin {{count}} tahun"
+      over_x_years:
+        one:   "lebih dari setahun"
+        other: "lebih dari {{count}} tahun"
+ 
+  activerecord:
+    errors:
+      template:
+        header:
+          one:    "1 kesalahan mengakibatkan {{model}} ini tidak bisa disimpan"
+          other:  "{{count}} kesalahan mengakibatkan {{model}} ini tidak bisa disimpan"
+        body: "Ada persoalan dengan field berikut:"
+      messages:
+        inclusion: "tidak terikut di daftar"
+        exclusion: "sudah dipanjar"
+        invalid: "tidak valid"
+        confirmation: "tidak sesuai dengan konfirmasi"
+        accepted: "harus diterima"
+        empty: "tidak bisa kosong"
+        blank: "tidak bisa kosong"
+        too_long: "terlalu panjang (maksimum {{count}} karakter)"
+        too_short: "terlalu pendek (maksimum {{count}} karakter)"
+        wrong_length: "dengan panjang tidak sama (seharusnya {{count}} karakter)"
+        taken: "sudah dipanjar"
+        not_a_number: "bukan nomor"
+        greater_than: "harus lebih besar dari {{count}}"
+        greater_than_or_equal_to: "harus sama atau lebih besar dari {{count}}"
+        equal_to: "harus sama dengan {{count}}"
+        less_than: "harus lebih kecil dari {{count}}"
+        less_than_or_equal_to: "harus sama atau lebih kecil dari {{count}}"
+        odd: "harus ganjil"
+        even: "harus genap"

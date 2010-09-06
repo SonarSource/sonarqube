@@ -1,0 +1,125 @@
+<script type="text/javascript">
+  var localModifications=false;
+
+  function get_level_for_rule(rule_select_box,rule_check_box) {
+    return rule_check_box.checked ? rule_select_box.value : '';
+  }
+  function submitBulkForm() {
+    if (localModifications) {
+      alert("Please refresh the search results before.");
+      $('bulk-form').reset();
+    } else {
+      $('bulk-form').submit();
+    }
+    return !localModifications;
+  }
+  function downloadCsv() {
+    if (localModifications) {
+      alert("Please refresh the search results before.");
+    }
+    return !localModifications;
+  }
+  function toggle_rules(){
+    $$('.rule_desc').each(function(element) {
+      element.toggle();
+    });
+  }
+</script>
+
+<h1 class="marginbottom10"><%= link_to 'Quality profiles', profiles_path %> / <%= h @profile.language -%> / <%= h @profile.name %></h1>
+
+<%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'Coding rules'} %>
+
+<% enable_modification = is_admin? && !@profile.provided? %>
+<div class="tabs-panel marginbottom10 background-gray">
+
+  <% if is_admin? && @profile.provided? %>
+  <div class="line-info note marginbottom10">
+    This profile can not be updated but it can be used as a template for your own configuration. Just copy it from the profiles page.
+  </div>
+  <% end %>
+
+<% form_tag({:action => 'index'}, {:method => 'get'}) do %>
+    <% hidden_field_tag "id", @id %>
+   <table class="spaced" id="search_table">
+     <tr>
+       <td class="left" valign="top" width="1%" nowrap>
+         <span class="note">Name/Key</span><br/>
+         <%= text_field_tag "searchtext", @searchtext, :id => 'searchtext' %>
+       </td>
+       <td class="left" valign="top" width="1%" nowrap>
+         <span class="note">Plugin</span><br/>
+         <%= select_tag "plugins", options_for_select(@select_plugins, @plugins), :id => 'search_plugin', :multiple => true, :size => 6 %>
+       </td>
+       <td class="left" valign="top" width="1%" nowrap>
+         <span class="note">Category</span><br/>
+         <%= select_tag "categories", options_for_select(@select_categories, @categories), :id => 'search_category', :multiple => true, :size => 6 %>
+       </td>
+       <td class="left" valign="top" width="1%" nowrap>
+         <span class="note">Priority</span><br/>
+         <%= select_tag "priorities", options_for_select(@select_priority, @priorities), :id => 'search_priority', :multiple => true, :size => 6 %>
+       </td>
+       <td class="left" valign="top" width="1%" nowrap>
+         <span class="note">Status</span><br/>
+         <%= select_tag "rule_status", options_for_select(@select_status, @status), :id => 'search_status', :size => 6 %>
+       </td>
+       <td class="left" valign="top" >
+         <br/>
+         <%= submit_tag "Search", :id => 'submit_search' %>
+       </td>
+     </tr>
+   </table>
+<% end %>
+</div>
+<div class="line-block marginbottom10">
+  <ul style="float: right" class="horizontal">
+    <li class="marginleft10">
+      <div class="csv">
+      <a href="<%= url_for(:controller => 'api/rules', :action => 'index', :language => @profile.language, :profile => @profile.name, :plugins => @plugins.join(','), :rule_status => @status, :searchtext => @searchtext, :priorities => @priorities.join(','), :categories => @categories.join(','), :format => 'csv') -%>" onClick="return downloadCsv()" id="download-link" class="">Download</a>
+      </div>
+    </li>
+    <% if enable_modification %>
+      <li class="marginleft10">
+        <div class="bulk-edit">Bulk Change:
+        <% rule_ids_string=@rules.map{|r| r.id}.join(',') %>
+        <form action="<%= url_for params.merge({:action => 'bulk_edit', :id => @profile.id, :bulk_rule_ids => rule_ids_string})-%>" method="POST" style="display: inline;vertical-align: middle" id="bulk-form">
+          <select name="bulk_action" onChange="submitBulkForm()" style="height: 16px;margin: 0; padding: 0;vertical-align: top">
+            <option value="" selected></option>
+            <option value="activate">Activate all</option>
+            <option value="deactivate">Deactivate all</option>
+          </select>
+        </form>
+        <div>
+      </li>
+    <% end %>
+  </ul>
+  <h2><%= @rules.size %> results
+     <% if @hidden_actives && @hidden_actives>0 %><span class="small">[<a href="<%= url_for params.merge({:rule_status => ''}) -%>" id="active-rules-link">+<%= @hidden_actives -%> found in active rules</a>]</span><% end %>
+     <% if @hidden_inactives && @hidden_inactives>0 %><span class="small">[<a href="<%= url_for params.merge({:rule_status => ''}) -%>" id="inactive-rules-link">+<%= @hidden_inactives -%> found in inactive rules</a>]</span><% end %>
+  </h2>
+</div>
+<table class="data2 width100 marginbottom10" id="result_table">
+  <thead>
+    <tr>
+        <th class="left" nowrap>Active/Priority</th>
+        <th class="left">Name [<%= link_to_function("expand/collapse", "toggle_rules()") %>]</th>
+        <th class="right">Plugin</th>
+        <th class="right">Category</th>
+    </tr>
+</thead>
+<tbody>
+<% if @rules.empty? %>
+<tr><td colspan="4" class="even">No results.</td></tr>
+<% end %>
+<%
+  # avoid executing several times the method is_admin?()
+  is_admin=is_admin?()
+  @rules.each do |rule|
+    active_rule = @profile.active_by_rule_id(rule.id)
+%>
+  <tr id="rule_<%= rule.id -%>" class="<%= cycle('even','odd') -%>">
+      <%= render :partial => 'rule', :object => rule, :locals => {:profile => @profile, :active_rule => active_rule, :is_admin => is_admin} %>
+  </tr>
+<% end %>
+</tbody>
+</table>

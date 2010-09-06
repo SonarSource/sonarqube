@@ -1,0 +1,253 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2009 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
+package org.sonar.plugins.core.sensors;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.profiles.Alert;
+
+public class AlertUtilsTest {
+  private Metric metric;
+  private Measure measure;
+  private Metric metric2;
+  private Measure measure2;
+  private Alert alert;
+
+  @Before
+  public void setup() {
+    metric = new Metric("test-metric");
+    measure = new Measure();
+    measure.setMetric(metric);
+
+    metric2 = new Metric("test-metric2");
+    measure2 = new Measure();
+    measure2.setMetric(metric2);
+
+    alert = new Alert();
+  }
+
+  @Test
+  public void testInputNumbers() {
+    metric.setType(Metric.ValueType.FLOAT);
+    measure.setValue(10.2d);
+    alert.setOperator(Alert.OPERATOR_SMALLER);
+    alert.setMetric(metric);
+
+    try {
+      metric.setType(Metric.ValueType.FLOAT);
+      alert.setValueError("20");
+      AlertUtils.getLevel(alert, measure);
+    } catch (NumberFormatException ex) {
+      Assert.fail();
+    }
+
+    try {
+      metric.setType(Metric.ValueType.INT);
+      alert.setValueError("20.1");
+      AlertUtils.getLevel(alert, measure);
+    } catch (NumberFormatException ex) {
+      Assert.fail();
+    }
+
+    try {
+      metric.setType(Metric.ValueType.PERCENT);
+      alert.setValueError("20.1");
+      AlertUtils.getLevel(alert, measure);
+    } catch (NumberFormatException ex) {
+      Assert.fail();
+    }
+  }
+
+  @Test
+  public void testEquals() {
+
+    metric.setType(Metric.ValueType.FLOAT);
+    measure.setValue(10.2d);
+    alert.setOperator(Alert.OPERATOR_EQUALS);
+    alert.setMetric(metric);
+
+    alert.setValueError("10.2");
+    Assert.assertEquals(Metric.Level.ERROR, AlertUtils.getLevel(alert, measure));
+
+    alert.setValueError("10.1");
+    Assert.assertEquals(Metric.Level.OK, AlertUtils.getLevel(alert, measure));
+
+    metric.setType(Metric.ValueType.STRING);
+    measure.setData("TEST");
+    measure.setValue(null);
+
+    alert.setValueError("TEST");
+    Assert.assertEquals(Metric.Level.ERROR, AlertUtils.getLevel(alert, measure));
+
+    alert.setValueError("TEST2");
+    Assert.assertEquals(Metric.Level.OK, AlertUtils.getLevel(alert, measure));
+
+  }
+
+  @Test
+  public void testNotEquals() {
+
+    metric.setType(Metric.ValueType.FLOAT);
+    measure.setValue(10.2d);
+    alert.setOperator(Alert.OPERATOR_NOT_EQUALS);
+    alert.setMetric(metric);
+
+    alert.setValueError("10.2");
+    Assert.assertEquals(Metric.Level.OK, AlertUtils.getLevel(alert, measure));
+
+    alert.setValueError("10.1");
+    Assert.assertEquals(Metric.Level.ERROR, AlertUtils.getLevel(alert, measure));
+
+    metric.setType(Metric.ValueType.STRING);
+    measure.setData("TEST");
+    measure.setValue(null);
+
+    alert.setValueError("TEST");
+    Assert.assertEquals(Metric.Level.OK, AlertUtils.getLevel(alert, measure));
+
+    alert.setValueError("TEST2");
+    Assert.assertEquals(Metric.Level.ERROR, AlertUtils.getLevel(alert, measure));
+
+  }
+
+  @Test
+  public void testGreater() {
+    metric.setType(Metric.ValueType.FLOAT);
+    measure.setValue(10.2d);
+    alert.setOperator(Alert.OPERATOR_GREATER);
+    alert.setMetric(metric);
+
+    alert.setValueError("10.1");
+    Assert.assertEquals(Metric.Level.ERROR, AlertUtils.getLevel(alert, measure));
+
+    alert.setValueError("10.3");
+    Assert.assertEquals(Metric.Level.OK, AlertUtils.getLevel(alert, measure));
+  }
+
+  @Test
+  public void testSmaller() {
+    metric.setType(Metric.ValueType.FLOAT);
+    measure.setValue(10.2d);
+    alert.setOperator(Alert.OPERATOR_SMALLER);
+    alert.setMetric(metric);
+
+    alert.setValueError("10.1");
+    Assert.assertEquals(Metric.Level.OK, AlertUtils.getLevel(alert, measure));
+
+    alert.setValueError("10.3");
+    Assert.assertEquals(Metric.Level.ERROR, AlertUtils.getLevel(alert, measure));
+  }
+
+  @Test
+  public void testPercent() {
+    metric.setType(Metric.ValueType.PERCENT);
+    measure.setValue(10.2d);
+    alert.setOperator(Alert.OPERATOR_EQUALS);
+    alert.setMetric(metric);
+
+    alert.setValueError("10.2");
+    Assert.assertEquals(Metric.Level.ERROR, AlertUtils.getLevel(alert, measure));
+  }
+
+  @Test
+  public void testFloat() {
+    metric.setType(Metric.ValueType.FLOAT);
+    measure.setValue(10.2d);
+    alert.setOperator(Alert.OPERATOR_EQUALS);
+    alert.setMetric(metric);
+
+    alert.setValueError("10.2");
+    Assert.assertEquals(Metric.Level.ERROR, AlertUtils.getLevel(alert, measure));
+  }
+
+  @Test
+  public void testInteger() {
+    metric.setType(Metric.ValueType.INT);
+    measure.setValue(10.2d);
+    alert.setOperator(Alert.OPERATOR_EQUALS);
+    alert.setMetric(metric);
+
+    alert.setValueError("10");
+    Assert.assertEquals(Metric.Level.ERROR, AlertUtils.getLevel(alert, measure));
+
+    alert.setValueError("10.2");
+    Assert.assertEquals(Metric.Level.ERROR, AlertUtils.getLevel(alert, measure));
+  }
+
+  @Test
+  public void testLevel() {
+    metric.setType(Metric.ValueType.LEVEL);
+    measure.setData(Metric.Level.ERROR.toString());
+    alert.setOperator(Alert.OPERATOR_EQUALS);
+    alert.setMetric(metric);
+
+    alert.setValueError(Metric.Level.ERROR.toString());
+    Assert.assertEquals(Metric.Level.ERROR, AlertUtils.getLevel(alert, measure));
+
+    alert.setValueError(Metric.Level.OK.toString());
+    Assert.assertEquals(Metric.Level.OK, AlertUtils.getLevel(alert, measure));
+
+    alert.setOperator(Alert.OPERATOR_NOT_EQUALS);
+    Assert.assertEquals(Metric.Level.ERROR, AlertUtils.getLevel(alert, measure));
+  }
+
+  @Test
+  public void testBooleans() {
+    metric.setType(Metric.ValueType.BOOL);
+    measure.setValue(0d);
+    alert.setOperator(Alert.OPERATOR_EQUALS);
+    alert.setMetric(metric);
+
+    alert.setValueError("true");
+    Assert.assertEquals(Metric.Level.OK, AlertUtils.getLevel(alert, measure));
+
+    alert.setValueError("false");
+    Assert.assertEquals(Metric.Level.ERROR, AlertUtils.getLevel(alert, measure));
+
+    alert.setOperator(Alert.OPERATOR_NOT_EQUALS);
+    alert.setValueError("true");
+    Assert.assertEquals(Metric.Level.ERROR, AlertUtils.getLevel(alert, measure));
+
+    alert.setValueError("false");
+    Assert.assertEquals(Metric.Level.OK, AlertUtils.getLevel(alert, measure));
+  }
+
+  @Test
+  public void testErrorAndWarningLevel() {
+
+    metric.setType(Metric.ValueType.FLOAT);
+    measure.setValue(10.2d);
+    alert.setOperator(Alert.OPERATOR_EQUALS);
+    alert.setMetric(metric);
+
+    alert.setValueError("10.2");
+    Assert.assertEquals(Metric.Level.ERROR, AlertUtils.getLevel(alert, measure));
+
+    alert.setValueError("10.1");
+    Assert.assertEquals(Metric.Level.OK, AlertUtils.getLevel(alert, measure));
+
+    alert.setValueError("10.3");
+    alert.setValueWarning("10.2");
+    Assert.assertEquals(Metric.Level.WARN, AlertUtils.getLevel(alert, measure));
+  }
+}

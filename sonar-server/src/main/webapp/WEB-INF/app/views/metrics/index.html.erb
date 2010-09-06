@@ -1,0 +1,80 @@
+<table width="100%">
+  <tr>
+    <td valign="top">
+      <table class="sortable data2 width100" id="metrics">
+        <thead>
+          <tr>
+            <th class="left">Name</th>
+            <th class="left">Description</th>
+            <th class="left">Domain</th>
+            <th class="left">Type</th>
+            <th class="left nosort" colspan="2">Operations</th>
+          </tr>
+        </thead>
+        <tbody>
+      <% @metrics.each do |metric| %>
+        <tr>
+          <td class="left" nowrap><%= h metric.short_name %></td>
+          <td class="left"><%= h metric.description %></td>
+          <td class="left" ><%= metric.domain %></td>
+          <td class="left" ><%= metric.value_type_name %></td>
+            <td class="left" width="1%" nowrap>
+            <% if is_admin? && metric.updatable_online? %>
+              <%= button_to 'Edit', {:action => 'index', :id => metric.id}, {:class => 'action', :id => "edit_#{h(metric.short_name)}", :method => 'get'} %>
+            <% end %>
+          </td>
+          <td class="left">
+            <% if is_admin? && metric.updatable_online? %>
+              <%= button_to 'Delete', {:action => 'delete_from_web', :id => metric.id}, {:confirm => "Warning : all the measures will be deleted.", :class => 'action', :id => "delete_#{h(metric.short_name)}"} %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+    <script>TableKit.Sortable.init('metrics');</script>
+  </td>
+<% if is_admin? %>
+  <td class="sep"> </td>
+  <td valign="top" align="right" width="210">
+    <table class="admintable"  width="100%">
+    <% form_for :metric, @metric, :url => { :action => 'save_from_web', :id => @metric.id } do |f| %>
+    <tbody>
+      <tr>
+        <td class="left" valign="top">
+          Name:<br/><%= f.text_field :short_name %><br/>
+          <span class="desc">Ex. : Configuration management</span>
+        </td>
+      </tr>
+      <tr>
+        <td class="left" valign="top">
+          Description:<br/>
+          <%= f.text_area :description, :size => 40, :cols => 25, :rows => 2 %><br/>
+          <span class="desc">Ex. : Respect level of the configuration management procedure (branch, label, ...), from 0% (worst) to 100% (best).</span>
+        </td>
+      </tr>
+      <tr>
+        <td class="left" valign="top">
+          Domain:<br/>
+          <%= f.select( :domain, @domains, :include_blank => true) %>
+          <span class="desc">or</span> <input id="newdomain" name="newdomain" size="15" type="text">
+        </td>
+      </tr>
+      <tr>
+        <td class="left" valign="top">
+          Type:<br/>
+          <%= f.select( :val_type, Metric.value_type_names.invert) %>
+        </td>
+      </tr>
+      <tr>
+        <td class="left" valign="top">
+        <%= submit_tag @metric.id.nil? ? 'Create' : 'Update' %>
+        </td>
+      </tr>
+    </tbody>
+    <% end %>
+    </table>
+  </td>
+<% end %>
+  </tr>
+</table>

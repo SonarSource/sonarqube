@@ -1,0 +1,65 @@
+<h1>My profile</h1>
+<br/>
+
+<table>
+  <tr>
+    <td><b>Login:</b></td>
+    <td class="sep"> </td>
+    <td id="login"><%= current_user.login %></td>
+  </tr>
+  <tr>
+    <td><b>Name:</b></td>
+    <td class="sep"> </td>
+    <td id="name"><%= current_user.name %></td>
+  </tr>
+  <tr>
+    <td><b>Groups:</b></td>
+    <td class="sep"> </td>
+    <td id="groups"><%= current_user.groups.sort.map(&:name).join(', ') %></td>
+  </tr>
+</table>
+<br/>
+
+<% if User.editable_password? %>
+<h1>Change password</h1>
+<br/>
+  <% form_tag( {:action => 'change_password' }, :id => 'pass_form_tag', :name => 'pass_form_tag') do -%>
+	<table>
+		<tr>
+			<td nowrap>
+        <label for="old_password"><b>Old value:</b></label>
+      </td>
+      <td class="sep"> </td>
+      <td align="left">
+        <%= password_field_tag 'old_password' %>
+      </td>
+    </tr>
+    <tr>
+	    <td nowrap>
+        <label for="password"><b>New value:</b></label>
+      </td>
+      <td class="sep"> </td>
+      <td align="left">
+        <%= password_field_tag 'password' %>
+      </td>
+     </tr>
+     <tr>
+		 	<td nowrap>
+         <label for="password_confirmation"><b>Confirm new value:</b></label>
+      </td>
+      <td class="sep"> </td>
+      <td align="left">
+                <%= password_field_tag 'password_confirmation' %>
+            </td>
+      </tr>
+
+	</table>
+	<br/>
+	<%= submit_tag 'Change password' %>
+  <% end %>
+	<script type="text/javascript">
+	//<![CDATA[
+    $('pass_form_tag').focusFirstElement();
+  //]]>
+	</script>
+<% end -%>

@@ -1,0 +1,13 @@
+#set( $symbol_pound = '#' )
+#set( $symbol_dollar = '$' )
+#set( $symbol_escape = '\' )
+<module>
+
+  <inherits name='com.google.gwt.user.User'/>
+  <inherits name="com.google.gwt.json.JSON"/>
+  <inherits name="com.google.gwt.http.HTTP"/>
+  <inherits name="org.sonar.Sonar"/>
+
+  <entry-point class='${package}.resourcetab.client.SampleResourceTab'/>
+
+</module>

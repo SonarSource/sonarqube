@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="" />
+<title>rule_search_verify_form_values_on_first_call</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">rule_search_verify_form_values_on_first_call</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/profiles</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>rules_java_Sonar%20way</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>//select[@id=&quot;search_plugin&quot;]/option[@selected=&quot;selected&quot;]/@value</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>//select[@id=&quot;search_category&quot;]/option[@selected=&quot;selected&quot;]/@value</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>//select[@id=&quot;search_status&quot;]/option[@selected=&quot;selected&quot;]/@value</td>
+	<td>ACTIVE</td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>//select[@id=&quot;search_priority&quot;]/option[@selected=&quot;selected&quot;]/@value</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>//input[@id=&quot;searchtext&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>//table[@id=&quot;result_table&quot;]//tr[100]</td>
+	<td></td>
+</tr>
+
+</tbody></table>
+</body>
+</html>

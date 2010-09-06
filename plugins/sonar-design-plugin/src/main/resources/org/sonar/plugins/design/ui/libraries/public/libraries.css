@@ -1,0 +1,22 @@
+.libs {
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+  margin-top: 5px;
+}
+.libs .gwt-Tree img {
+  /* hack to align rows */
+  margin-left: 6px;
+}
+.libFilter input {
+  margin-right: 3px;
+}
+.libFilter {
+  
+}
+.libFilter td {
+  padding-right: 15px;
+}
+.nolibs {
+  padding: 0 0 0 20px;
+  font-size: 93%;
+}

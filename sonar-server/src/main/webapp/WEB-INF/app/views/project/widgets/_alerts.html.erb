@@ -1,0 +1,12 @@
+<% m=measure(Metric::ALERT_STATUS)
+   if m && !m.alert_status.blank?
+	 css_class = "widget color_#{m.alert_status}"
+	 if m.alert_status==Metric::TYPE_LEVEL_OK
+	   label = '<b>No alerts</b>.'	
+	 else
+	   label = "<b>Alerts</b> : #{h(m.alert_text)}."
+	 end
+%><div class="<%= css_class -%>" id="alerts_widget">
+  <div><%= format_measure(m) -%> <%= label -%></div>
+</div>
+<% end %>

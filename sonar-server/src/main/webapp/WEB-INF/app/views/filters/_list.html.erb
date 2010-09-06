@@ -1,0 +1,96 @@
+<% filter=data.filter %>
+<div class="tabs-panel marginbottom10">
+<table class="data2 width100" id="results">
+  <thead id="results-head">
+    <tr>
+      <th width="1%"></th>
+      <% filter.columns.each do |column| %>
+        <th <%= 'width=1% nowrap' if column.small_width? -%> class="<%= column_align(column) -%>">
+          <%= column_title(column, filter) %>
+        </th>
+    <% end %>
+    </tr>
+    <% if edit_mode %>
+    <tr class="admin"><th></th>
+    <% filter.columns.each do |column| %>
+      <th nowrap class="<%= column_align(column) -%>">
+        <%= link_to image_tag("controls/resultset_previous.png"), {:action => 'left_column', :id => column.id}, :title => 'Move left', :method => :post if filter.first_column!=column %>
+        <%= link_to image_tag("bin_closed.png"), {:action => 'delete_column', :id => column.id}, :title => 'Remove this column', :method => :post if column.deletable? %>
+        <%= link_to image_tag("controls/resultset_next.png"), {:action => 'right_column', :id => column.id}, :title => 'Move right', :method => :post if filter.last_column!=column %>
+      </th>
+    <% end %>
+    </tr>
+    <% end %>
+  </thead>
+
+  <tfoot>
+    <tr>
+      <td colspan="<%= filter.columns.size + 1 -%>">
+        <span id="results_count"><%= pluralize(data.size, 'result') %></span>
+
+        <% if data.page_count>1 %>
+          |
+          <%= link_to_if data.page_id>1, 'previous', {:overwrite_params => {:page_id => data.page_id-1}} %>
+          <% for index in 1..data.page_count %>
+            <%= link_to_unless index==data.page_id, index.to_s, {:overwrite_params => {:page_id => index}} %>
+          <% end %>
+          <%= link_to_if data.page_id<data.page_count, 'next', {:overwrite_params => {:page_id => 1+data.page_id}} %>
+        <% end %>
+      </td>
+    </tr>
+  </tfoot>
+
+  <tbody>
+  <% if @masterproject %>
+    <tr class="highlight">
+      <td><% if logged_in? %><%= link_to_favourite(@masterproject.project) -%><% end %></td>
+      <% filter.columns.each do |column| %>
+      <td class="<%= column_align(column) -%>">
+        <% if column.on_metric? %><%= html_measure(@masterproject.measure(column.metric), nil, true, nil, nil, true, false) %>
+        <% elsif column.on_name? %><%= qualifier_icon(@masterproject) %> <%= link_to_resource(@masterproject.project, h(@masterproject.project.name(true)), {:dashboard => true, :title => @masterproject.project.key}) %>
+        <% elsif column.on_date? %><%= human_short_date(@masterproject.created_at) %>
+        <% end %>
+      </td>
+      <% end %>
+    </tr>
+  <% end %>
+  <% if data.empty? %>
+    <tr class="even"><td colspan="<%= 1+filter.columns.size -%>">No results.</td></tr>
+  <% else %>
+    <%
+        data.page_sorted_snapshot_ids.each do |snapshot_id|
+          snapshot=data.snapshot(snapshot_id)
+    %>
+    <tr class="<%= cycle('even','odd') -%>">
+      <td><% if logged_in? %><%= link_to_favourite(snapshot.project) -%><% end %></td>
+      <% filter.columns.each do |column| %>
+      <td class="<%= column_align(column) -%>">
+        <% if column.on_metric? %>
+          <%= html_measure(data.measure(snapshot, column.metric), nil, true, nil, nil, true, false) %>
+        <% elsif column.on_name? %>
+          <%= qualifier_icon(snapshot) %> <%= link_to_resource(snapshot.project, snapshot.project.name(true), {:dashboard => true, :title => snapshot.project.key}) %>
+        <% elsif column.on_version? %><%= h snapshot.version %>
+        <% elsif column.on_language? %><%= snapshot.project.language %>
+        <% elsif column.on_date? %><%= human_short_date(snapshot.created_at) %>
+        <% elsif column.on_key? %><span class="small"><%= snapshot.project.kee -%></span>
+        <% elsif column.on_links?
+             data.links(snapshot.project_id).each do |link| %>
+          <%= link_to(image_tag(link.icon, :alt => link.name), link.href, :class => 'nolink', :popup => true) unless link.custom? %>
+        <%   end
+           end %>
+      </td>
+      <% end %>
+    </tr>
+    <% end %>
+  <% end %>
+  </tbody>
+</table>
+<br/>
+<% if @filter.projects_homepage? %>
+  <a href="<%= url_for :controller => :feeds, :action => 'projects', :id => EventCategory::KEY_ALERT -%>" class="nolink"><%= image_tag 'feed-icon-14x14.png' %></a>
+  <a href="<%= url_for :controller => :feeds, :action => 'projects', :id => EventCategory::KEY_ALERT -%>" class="action">Alerts feed</a>
+<% end %>
+<% if data.security_exclusions? %>
+  <p class="notes">Due to security settings, some results are not being displayed.</p>
+<% end %>
+</div>

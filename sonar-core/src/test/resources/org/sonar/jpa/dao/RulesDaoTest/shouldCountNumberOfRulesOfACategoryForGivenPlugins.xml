@@ -1,0 +1,17 @@
+<dataset>
+
+  <rules_categories id="1" name="category one" description="[null]"/>
+  <rules_categories id="2" name="category two" description="[null]"/>
+
+  <rules id="1" name="rule one" rules_category_id="1" description="desc" plugin_config_key="config"
+         plugin_rule_key="rule_one" plugin_name="plugin1" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+
+  <rules id="2" name="rule two" rules_category_id="1" description="desc" plugin_config_key="config"
+         plugin_rule_key="rule_two" plugin_name="plugin2" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+  <rules id="3" name="rule three" rules_category_id="1" description="desc" plugin_config_key="config"
+         plugin_rule_key="rule_three" plugin_name="plugin2" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+
+  <rules id="4" name="rule 4" rules_category_id="2" description="desc" plugin_config_key="config"
+         plugin_rule_key="rule_4" plugin_name="plugin2" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+
+</dataset>

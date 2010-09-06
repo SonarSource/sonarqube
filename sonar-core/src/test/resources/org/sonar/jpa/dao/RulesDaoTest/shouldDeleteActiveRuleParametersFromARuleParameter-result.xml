@@ -1,0 +1,22 @@
+<dataset>
+
+  <rules_categories id="1" name="category one" description="[null]"/>
+
+  <rules id="1" name="rule1" rules_category_id="1" description="desc" plugin_config_key="config"
+         plugin_rule_key="key1" plugin_name="plugin" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+
+  <rules_parameters id="1" rule_id="1" name="param1" description="[null]" param_type="r"/>
+  <rules_parameters id="2" rule_id="1" name="param2" description="[null]" param_type="r"/>
+
+  <rules_profiles id="1" provided="true" name="profile1" default_profile="1" language="java"/>
+  <rules_profiles id="2" provided="true" name="profile2" default_profile="1" language="OTHER"/>
+
+  <active_rules id="1" profile_id="1" rule_id="1" failure_level="2"/>
+  <active_rules id="2" profile_id="2" rule_id="1" failure_level="2"/>
+
+  <!-- deleted -->
+  <!--<active_rule_parameters id="1" active_rule_id="1" rules_parameter_id="1" value="20"/>-->
+  <!--<active_rule_parameters id="2" active_rule_id="2" rules_parameter_id="1" value="15"/>-->
+  <active_rule_parameters id="3" active_rule_id="2" rules_parameter_id="2" value="15"/>
+
+</dataset>

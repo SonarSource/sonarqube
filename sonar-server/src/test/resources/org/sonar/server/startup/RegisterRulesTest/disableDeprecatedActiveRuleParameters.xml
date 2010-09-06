@@ -1,0 +1,23 @@
+<dataset>
+
+  <rules_categories id="1" name="Efficiency" description="[null]"/>
+
+  <rules id="1" plugin_rule_key="rule1" plugin_name="fake" plugin_config_key="old_config_key" name="old name" description="old description"
+                   rules_category_id="[null]" enabled="true" priority="2" cardinality="SINGLE" parent_id="[null]" />
+
+  <rules_parameters id="1" rule_id="1" name="param1" description="[null]" param_type="[null]"/>
+  <rules_parameters id="2" rule_id="1" name="param2" description="[null]" param_type="[null]"/>
+
+  <!-- to be removed -->
+  <rules_parameters id="3" rule_id="1" name="param3" description="[null]" param_type="[null]"/>
+
+
+  <rules_profiles id="1" name="profile name" language="java" default_profile="false" provided="false" />
+  <active_rules id="1" rule_id="1" profile_id="1" failure_level="4" />
+  <active_rule_parameters id="1" active_rule_id="1" rules_parameter_id="1" value="one" />
+  <active_rule_parameters id="2" active_rule_id="1" rules_parameter_id="2" value="two" />
+
+  <!-- to be removed -->
+  <active_rule_parameters id="3" active_rule_id="1" rules_parameter_id="3" value="three" />
+
+</dataset>

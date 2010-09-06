@@ -1,0 +1,130 @@
+# French (Switzerland) translations for Ruby on Rails 
+# by Yann Lugrin (yann.lugrin@sans-savoir.net, http://github.com/yannlugrin)
+#
+# original translation into French by Christian Lescuyer
+# contributor: Sebastien Grosjean - ZenCocoon.com
+
+# HTML codes
+# e accent aigu : &eacute;
+# e accent grave : &egrave;
+# a grave : &agrave;
+# u circonflexe : &ucirc;
+# e circonflexe : &ecirc;
+
+fr-CH:
+  date:
+    formats:
+      default: "%d.%m.%Y"
+      short: "%e. %b"
+      long: "%e. %B %Y"
+      long_ordinal: "%e %B %Y"
+      only_day: "%e"
+
+    day_names: [dimanche, lundi, mardi, mercredi, jeudi, vendredi, samedi]
+    abbr_day_names: [dim, lun, mar, mer, jeu, ven, sam]
+    month_names: [~, janvier, f&eacute;vrier, mars, avril, mai, juin, juillet, ao&ucirc;t, septembre, octobre, novembre, d&eacute;cembre]
+    abbr_month_names: [~, jan., f&eacute;v., mar., avr., mai, juin, juil., ao&ucirc;t, sept., oct., nov., d&eacute;c.]
+    order: [ :day, :month, :year ]
+  
+  time:
+    formats:
+      default: "%d %B %Y %H:%M"
+      time: "%H:%M"
+      short: "%d. %b %H:%M"
+      long: "%A, %d. %B %Y %H:%M:%S %Z"
+      long_ordinal: "%A %d %B %Y %H:%M:%S %Z"
+      only_second: "%S"
+    am: 'am'
+    pm: 'pm'
+
+  datetime:
+    distance_in_words:
+      half_a_minute: "une demi-minute"
+      less_than_x_seconds:
+        one:   "moins d'une�seconde"
+        other: "moins de {{count}}�secondes"
+      x_seconds:
+        one:   "1�seconde"
+        other: "{{count}} secondes"
+      less_than_x_minutes:
+        one:   "moins d'une minute"
+        other: "moins de {{count}} minutes"
+      x_minutes:
+        one:   "1 minute"
+        other: "{{count}} minutes"
+      about_x_hours:
+        one:   "environ une heure"
+        other: "environ {{count}} heures"
+      x_days:
+        one:   "1 jour"
+        other: "{{count}} jours"
+      about_x_months:
+        one:   "environ un mois"
+        other: "environ {{count}} mois"
+      x_months:
+        one:   "1 mois"
+        other: "{{count}} mois"
+      about_x_years:
+        one:   "environ un an"
+        other: "environ {{count}} ans"
+      over_x_years:
+        one:   "plus d'un an"
+        other: "plus de {{count}} ans"
+    prompts:
+      year:   "Année"
+      month:  "Mois"
+      day:    "Jour"
+      hour:   "Heure"
+      minute: "Minute"
+      second: "Seconde"
+  
+  number:
+    format:
+      precision: 3
+      separator: '.'
+      delimiter: "'"
+    currency:
+      format:
+        unit: 'CHF'
+        precision: 2
+        format: '%n %u'
+    human:
+      format:
+        precision: 2
+      storage_units: [ Octet, ko, Mo, Go, To ]
+  
+  support:
+    array:
+      sentence_connector: 'et'
+      skip_last_comma: true
+      word_connector: ", "
+      two_words_connector: " et "
+      last_word_connector: " et "
+  
+  activerecord:
+    errors:
+      template:
+        header: 
+          one: "Impossible d'enregistrer {{model}}: 1 erreur"
+          other: "Impossible d'enregistrer {{model}}: {{count}} erreurs."
+        body: "Veuillez vérifier les champs suivants :"
+      messages:
+        inclusion: "n'est pas inclus(e) dans la liste"
+        exclusion: "n'est pas disponible"
+        invalid: "n'est pas valide"
+        confirmation: "ne concorde pas avec la confirmation"
+        accepted: "doit être accepté(e)"
+        empty: "doit être rempli(e)"
+        blank: "doit être rempli(e)"
+        too_long: "est trop long (pas plus de {{count}} caractères)"
+        too_short: "est trop court (au moins {{count}} caractères)"
+        wrong_length: "ne fait pas la bonne longueur (doit comporter {{count}} caractères)"
+        taken: "n'est pas disponible"
+        not_a_number: "n'est pas un nombre"
+        greater_than: "doit être supérieur à {{count}}"
+        greater_than_or_equal_to: "doit être supérieur ou égal à {{count}}"
+        equal_to: "doit être égal à {{count}}"
+        less_than: "doit être inférieur à {{count}}"
+        less_than_or_equal_to: "doit être inférieur ou égal à {{count}}"
+        odd: "doit être impair"
+        even: "doit être pair"

@@ -1,0 +1,99 @@
+<h1 class="marginbottom10">Default roles for new projects</h1>
+
+<table class="data2 width100" id="default-project-roles">
+  <thead>
+  <tr >
+    <th>Role</th>
+    <th width="35%">Users</th>
+    <th width="35%">Groups</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr class="even" >
+      <td valign="top"><b>Administrators</b><br/><span class="small gray">Ability to perform administration functions for a project by accessing its settings.</span></td>
+      <td valign="top" style="word-break:break-all;width:35%;">
+      <div style="vertical-align:top">
+        <span><%= users('default-admin').map(&:login).join(', ') %></span>
+        (<%= link_to "select", {:action => 'edit_users', :role => 'default-admin', :redirect => 'projects'}, :class => 'action' %>)
+        </div>
+      </td>
+      <td valign="top" style="word-break:break-all;width:35%;">
+        <span><%= groups('default-admin').map{|g| group_name(g)}.join(', ') %></span>
+      (<%= link_to "select", {:action => 'edit_groups', :role => 'default-admin', :redirect => 'projects'}, :class => 'action' %>)
+      </td>
+    </tr>
+    <tr class="odd" >
+      <td valign="top"><b>Users</b><br/><span class="small gray">Ability to navigate through every service of a project, except viewing source code and settings.</span></td>
+      <td valign="top" style="word-break:break-all;width:35%;">
+        <span><%= users('default-user').map(&:login).join(', ') %></span>
+        (<%= link_to "select", {:action => 'edit_users', :role => 'default-user', :redirect => 'projects'}, :class => 'action' %>)
+      </td>
+      <td valign="top" style="word-break:break-all;width:35%;">
+        <span><%= groups('default-user').map{|g| group_name(g)}.join(', ') %></span>
+        (<%= link_to "select", {:action => 'edit_groups', :role => 'default-user', :redirect => 'projects'}, :class => 'action' %>)
+      </td>
+    </tr>
+    <tr class="even" >
+      <td valign="top"><b>Code viewers</b><br/><span class="small gray">Ability to view source code of a project.</span></td>
+      <td valign="top" style="word-break:break-all;width:35%;">
+        <span><%= users('default-codeviewer').map(&:login).join(', ') %></span>
+        (<%= link_to "select", {:action => 'edit_users', :role => 'default-codeviewer', :redirect => 'projects'}, :class => 'action' %>)
+      </td>
+      <td valign="top" style="word-break:break-all;width:35%;">
+        <span><%= groups('default-codeviewer').map{|g| group_name(g)}.join(', ') %></span>
+      (<%= link_to "select", {:action => 'edit_groups', :role => 'default-codeviewer', :redirect => 'projects'}, :class => 'action' %>)
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br/><br/>
+
+<h1 class="marginbottom10">Projects</h1>
+
+<table class="data2 width100" >
+  <thead>
+  <tr >
+    <th>Project</th>
+    <th>Role: Administrators</th>
+    <th>Role: Users</th>
+    <th>Role: Code viewers</th>
+  </tr>
+  </thead>
+  <tbody>
+    <% if @projects.empty? %>
+      <tr class="even"><td colspan="4" align="left">No data</td></tr>
+    <% else
+      @projects.each do |project| %>
+      <tr class="<%= cycle('even', 'odd') -%>">
+        <td valign="top"><b><%= h project.name %></b><br/>
+          <span class="small gray"><%= project.key -%></span>
+        </td>
+        <td valign="top">
+          <%
+            users=project.user_roles.select{|ur| ur.role=='admin'}.map{|ur| ur.user.login}
+            groups=project.group_roles.select{|gr| gr.role=='admin'}.map{|gr| group_name(gr.group) }
+          %>
+          <%= users.join(', ') %> (<%= link_to "select users", {:action => 'edit_users', :role => 'admin', :resource => project.id, :redirect => 'projects'}, :class => 'action' %>)<br/>
+          <%= groups.join(', ') %> (<%= link_to "select groups", {:action => 'edit_groups', :role => 'admin', :resource => project.id, :redirect => 'projects'}, :class => 'action' %>)
+        </td>
+        <td valign="top">
+          <%
+            users=project.user_roles.select{|ur| ur.role=='user'}.map{|ur| ur.user.login}
+            groups=project.group_roles.select{|gr| gr.role=='user'}.map{|gr| group_name(gr.group) }
+          %>
+          <%= users.join(', ') %> (<%= link_to "select users", {:action => 'edit_users', :role => 'user', :resource => project.id, :redirect => 'projects'}, :class => 'action' %>)<br/>
+          <%= groups.join(', ') %> (<%= link_to "select groups", {:action => 'edit_groups', :role => 'user', :resource => project.id, :redirect => 'projects'}, :class => 'action' %>)
+        </td>
+        <td valign="top">
+          <%
+            users=project.user_roles.select{|ur| ur.role=='codeviewer'}.map{|ur| ur.user.login}
+            groups=project.group_roles.select{|gr| gr.role=='codeviewer'}.map{|gr| group_name(gr.group) }
+          %>
+          <%= users.join(', ') %> (<%= link_to "select users", {:action => 'edit_users', :role => 'codeviewer', :resource => project.id, :redirect => 'projects'}, :class => 'action' %>)<br/>
+          <%= groups.join(', ') %> (<%= link_to "select groups", {:action => 'edit_groups', :role => 'codeviewer', :resource => project.id, :redirect => 'projects'}, :class => 'action' %>)
+        </td>
+      </tr>
+    <% end
+    end %>
+  </tbody>
+</table>

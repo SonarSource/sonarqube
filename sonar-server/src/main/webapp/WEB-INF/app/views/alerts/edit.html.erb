@@ -1,0 +1,20 @@
+<h1>Editing alert</h1>
+
+<% form_for([@profile, @alert]) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.label :profile_id %><br />
+    <%= f.text_field :profile_id %>
+  </p>
+  <p>
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </p>
+  <p>
+    <%= f.submit "Update" %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', [@profile, @alert] %> |
+<%= link_to 'Back', profile_alerts_path(@profile) %>

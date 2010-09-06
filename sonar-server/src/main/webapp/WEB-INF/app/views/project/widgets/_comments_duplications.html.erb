@@ -1,0 +1,39 @@
+<% if measure(Metric::LINES) || measure(Metric::NCLOC) %>
+<div class="widget">
+<table width="100%">
+	<tr>
+		<td valign="top" width="48%" nowrap>
+			<% if (measure(Metric::COMMENT_LINES)) %>
+		    <div class="dashbox">
+		      <h3>Comments</h3>
+		      <p><span class="big"><%= format_measure(Metric::COMMENT_LINES_DENSITY, :suffix => '', :url => url_for_drilldown(Metric::COMMENT_LINES_DENSITY)) -%> <%= tendency_icon(Metric::COMMENT_LINES_DENSITY, false) -%></span></p>
+		      <p><%= format_measure(Metric::COMMENT_LINES, :suffix => ' lines', :url => url_for_drilldown(Metric::COMMENT_LINES)) -%> <%= tendency_icon(Metric::COMMENT_LINES) -%></p>
+		      <%
+  		      comment_blank_lines=measure('comment_blank_lines')
+	  	      if comment_blank_lines && comment_blank_lines.value>0
+		      %>
+		      <p>+<%= format_measure(comment_blank_lines, :suffix => ' blank', :url => url_for_drilldown(comment_blank_lines)) -%> <%= tendency_icon(comment_blank_lines) -%></p>
+		      <% end %>		      
+		      <p><%= format_measure(Metric::PUBLIC_DOCUMENTED_API_DENSITY, :suffix => ' docu. API', :url => url_for_drilldown(Metric::PUBLIC_UNDOCUMENTED_API, :highlight => Metric::PUBLIC_DOCUMENTED_API_DENSITY)) -%> <%= tendency_icon(Metric::PUBLIC_DOCUMENTED_API_DENSITY) -%></p>
+		      <p><%= format_measure(Metric::PUBLIC_UNDOCUMENTED_API, :suffix => ' undocu. API', :url => url_for_drilldown(Metric::PUBLIC_UNDOCUMENTED_API, :highlight => Metric::PUBLIC_UNDOCUMENTED_API)) -%> <%= tendency_icon(Metric::PUBLIC_UNDOCUMENTED_API) -%></p>
+		      <p><%= format_measure(Metric::COMMENTED_OUT_CODE_LINES, :suffix => ' commented LOCs', :url => url_for_drilldown(Metric::COMMENTED_OUT_CODE_LINES, :highlight => Metric::COMMENTED_OUT_CODE_LINES)) -%> <%= tendency_icon(Metric::COMMENTED_OUT_CODE_LINES) -%></p>
+		    </div>
+		    <% end %>
+		</td>
+		<td width="10"> </td>
+		<td valign="top">
+		    <% if (measure(Metric::DUPLICATED_LINES_DENSITY)) %>
+		    <div class="dashbox">
+		      <h3>Duplications</h3>
+		      <p><span class="big"><%= format_measure(Metric::DUPLICATED_LINES_DENSITY, :suffix => '', :url => url_for_drilldown(Metric::DUPLICATED_LINES, :highlight =>  Metric::DUPLICATED_LINES_DENSITY)) -%> <%= tendency_icon(Metric::DUPLICATED_LINES_DENSITY, false) -%></span></p>
+		      <p><%= format_measure(Metric::DUPLICATED_LINES, :suffix => ' lines', :url => url_for_drilldown(Metric::DUPLICATED_LINES)) -%> <%= tendency_icon(Metric::DUPLICATED_LINES) -%></p>
+		      <p><%= format_measure(Metric::DUPLICATED_BLOCKS, :suffix => ' blocks', :url => url_for_drilldown(Metric::DUPLICATED_BLOCKS)) -%> <%= tendency_icon(Metric::DUPLICATED_BLOCKS) -%></p>
+		      <p><%= format_measure(Metric::DUPLICATED_FILES, :suffix => ' files', :url => url_for_drilldown(Metric::DUPLICATED_FILES)) -%> <%= tendency_icon(Metric::DUPLICATED_FILES) -%></p>
+		    </div>
+		    <% end %>
+			
+		</td>
+	</tr>
+</table>
+</div>
+<% end %>

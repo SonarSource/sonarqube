@@ -1,0 +1,6 @@
+<% if @project.project? %>
+<div class="widget" id="widget_events"><div id="events_portlet"></div></div>
+<script>
+<%= remote_function(:update => "events_portlet", :url => { :action => :events, :id => @snapshot.id }, :method => 'get') %>
+</script>
+<% end %>

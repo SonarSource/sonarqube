@@ -1,0 +1,135 @@
+<% if measure(Metric::LINES) %>
+<div class="widget" id="widget_rules">
+	<table width="100%">
+		<tr>
+  		  <td valign="top">
+				<div class="dashbox">
+				    <h3>Rules compliance</h3>
+				    <div class="big">
+				      <%= format_measure(Metric::VIOLATIONS_DENSITY, :url => url_for_drilldown(Metric::WEIGHTED_VIOLATIONS, {:highlight => Metric::WEIGHTED_VIOLATIONS})) -%> <%= tendency_icon(Metric::VIOLATIONS_DENSITY) -%>
+				    </div>
+					  <%
+				     maintainability=@snapshot.measure(Metric::MAINTAINABILITY)
+				     efficiency=@snapshot.measure(Metric::EFFICIENCY)
+				  	  usability=@snapshot.measure(Metric::USABILITY)
+				  	  reliability=@snapshot.measure(Metric::RELIABILITY)
+				  	  portability=@snapshot.measure(Metric::PORTABILITY)
+				    %>
+				    <div class="mandatory">
+						  <a class="tip" href="<%= url_for :controller => 'drilldown', :action => 'violations', :id => @project.id, :filter => 'category' -%>">
+						    <img width="140" height="110" alt="" src="<%= ApplicationController.root_context -%>/chart?ck=xradar&w=140&h=110&c=777777|F8A036&m=100&g=0.25&l=Eff.,Mai.,Por.,Rel.,Usa.&v=<%= efficiency ? efficiency.value : 0 -%>,<%= maintainability ? maintainability.value : 0 -%>,<%= portability ? portability.value : 0 -%>,<%= reliability ? reliability.value : 0 -%>,<%= usability ? usability.value : 0 -%>">
+						    <span>
+				          <table>
+				            <tr>
+				              <td align="left" nowrap>Efficiency &nbsp;</td>
+				              <td align="right" id="m_efficiency"><%=  formatted_value(efficiency) %></td>
+				              <td nowrap> &nbsp;<%= tendency_icon(efficiency) -%></td>
+				            </tr>
+				            <tr>
+				              <td align="left" nowrap>Maintainability  &nbsp;</td>
+				              <td align="right" id="m_maintainability"><%=  formatted_value(maintainability) %></td>
+				              <td nowrap> &nbsp;<%= tendency_icon(maintainability) -%></td>
+				            </tr>
+				            <tr>
+				              <td align="left" nowrap>Portability  &nbsp;</td>
+				              <td align="right" id="m_portability"><%=  formatted_value(portability) %></td>
+				              <td nowrap> &nbsp;<%= tendency_icon(portability) -%></td>
+				            </tr>
+				            <tr>
+				              <td align="left" nowrap>Reliability  &nbsp;</td>
+				              <td align="right" id="m_reliability"><%=  formatted_value(reliability) %></td>
+				              <td nowrap> &nbsp;<%= tendency_icon(reliability) -%></td>
+				            </tr>
+				            <tr>
+				              <td align="left" nowrap>Usability  &nbsp;</td>
+				              <td align="right" id="m_usability"><%=  formatted_value(usability) %></td>
+				              <td nowrap> &nbsp;<%= tendency_icon(usability) -%></td>
+				            </tr>
+				          </table>
+				        </span>
+						  </a>
+				    </div>
+				  </div>
+		</td>
+		<td width="10"> </td>
+		<td valign="top">
+			  <div class="dashbox">
+			    <h3>Violations</h3>
+			    <div class="big">
+			      <%= format_measure(Metric::VIOLATIONS, :url => url_for(:controller => 'drilldown', :action => 'violations', :id => @project.key)) -%> <%= tendency_icon(Metric::VIOLATIONS) -%>
+			    </div>
+			<% 
+			blocker_violations = @snapshot.measure(Metric::BLOCKER_VIOLATIONS)
+			critical_violations = @snapshot.measure(Metric::CRITICAL_VIOLATIONS)
+			major_violations = @snapshot.measure(Metric::MAJOR_VIOLATIONS)
+			minor_violations = @snapshot.measure(Metric::MINOR_VIOLATIONS)
+			info_violations = @snapshot.measure(Metric::INFO_VIOLATIONS)
+			max = 0
+			[blocker_violations,critical_violations,major_violations,minor_violations,info_violations].each do |m| 
+				max = m.value if m and m.value and m.value>max
+			end
+			%>
+			    <table>
+			      <tr>
+			        <td><%= image_tag 'priority/BLOCKER.png'%></td>
+			        <td> &nbsp;<%= link_to 'Blocker', {:controller => 'drilldown', :action => 'violations', :id => @project.key, :priority => 'BLOCKER'} %></td>
+			        <td style="padding-left: 10px;" align="right">
+			          <%= format_measure(blocker_violations) -%>
+			        </td>
+			        <td width="1%"><%= tendency_icon(blocker_violations) -%></td>
+			        <td align="left" style="padding-bottom:2px; padding-top:2px;">
+			         <%= barchart(:width => 60, :percent => (blocker_violations ? (100 * blocker_violations.value / max).to_i : 0), :color => '#777777') if max>0 %>
+			        </td>
+			      </tr>
+			      <tr>
+			        <td><%= image_tag 'priority/CRITICAL.png'  %></td>
+			        <td> &nbsp;<%= link_to 'Critical', {:controller => 'drilldown', :action => 'violations', :id => @project.key, :priority => 'CRITICAL'} %></td>
+			        <td style="padding-left: 10px;" align="right">
+			            <%= format_measure(critical_violations) -%>
+			        </td>
+			        <td width="1%"><%= tendency_icon(critical_violations) -%></td>
+			        <td align="left" style="padding-bottom:2px; padding-top:2px;">
+			          <%= barchart(:width => 60, :percent => (critical_violations ? (100 * critical_violations.value / max).to_i : 0), :color => '#777777') if max>0 %>
+			        </td>
+			      </tr>
+			      <tr>
+			      <td><%= image_tag 'priority/MAJOR.png'  %></td>
+			        <td> &nbsp;<%= link_to 'Major', {:controller => 'drilldown', :action => 'violations', :id => @project.key, :priority => 'MAJOR'} %></td>
+			        <td style="padding-left: 10px;" align="right">
+			          <%= format_measure(major_violations) -%>
+			       </td>
+			       <td width="1%"><%= tendency_icon(major_violations) -%></td>
+			       <td align="left" style="padding-bottom:2px; padding-top:2px;">
+			          <%= barchart(:width => 60, :percent => (major_violations ? (100 * major_violations.value / max).to_i : 0), :color => '#777777') if max>0 %>
+			        </td>
+			      </tr>
+			      <tr>
+			      <td><%= image_tag 'priority/MINOR.png'  %></td>
+			        <td> &nbsp;<%= link_to 'Minor', {:controller => 'drilldown', :action => 'violations', :id => @project.key, :priority => 'MINOR'} %></td>
+			        <td style="padding-left: 10px;" align="right">
+			            <%= format_measure(minor_violations) -%>
+			       </td>
+			       <td width="1%"><%= tendency_icon(minor_violations) -%></td>
+			       <td align="left" style="padding-bottom:2px; padding-top:2px;">
+			          <%= barchart(:width => 60, :percent => (minor_violations ? (100 * minor_violations.value / max).to_i : 0), :color => '#777777') if max>0 %>
+			        </td>
+			      </tr>
+			      <tr>
+			      <td><%= image_tag 'priority/INFO.png'  %></td>
+			        <td> &nbsp;<%= link_to 'Info', {:controller => 'drilldown', :action => 'violations', :id => @project.key, :priority => 'INFO'} %></td>
+			        <td style="padding-left: 10px;" align="right">
+					      <%= format_measure(info_violations) -%>
+			       </td>
+			       <td width="1%"><%= tendency_icon(info_violations) -%></td>
+			       <td align="left" style="padding-bottom:2px; padding-top:2px;">
+			          <%= barchart(:width => 60, :percent => (info_violations ? (100 * info_violations.value / max).to_i : 0), :color => '#777777') if max>0 %>
+			        </td>
+			      </tr>
+			    </table>
+			  </div>
+	    </td>
+	  </tr>
+    </table>
+ 
+</div>
+<% end %>

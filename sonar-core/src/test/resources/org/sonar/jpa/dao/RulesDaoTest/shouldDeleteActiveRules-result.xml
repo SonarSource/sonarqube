@@ -1,0 +1,19 @@
+<dataset>
+
+  <rules_categories id="1" name="category one" description="[null]"/>
+
+  <rules_profiles id="1" provided="true" name="profile one" default_profile="1" language="java"/>
+  <rules_profiles id="2" provided="true" name="profile two" default_profile="0" language="java"/>
+
+  <rules id="1" name="foo" rules_category_id="1" description="test" plugin_config_key="checker/foo"
+         plugin_rule_key="checkstyle.rule1" plugin_name="plugin" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+  <rules id="2" name="bar" rules_category_id="1" description="test" plugin_config_key="checker/bar"
+         plugin_rule_key="checkstyle.rule2" plugin_name="plugin" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+  <rules id="3" name="baz" rules_category_id="1" description="test" plugin_config_key="checker/baz"
+         plugin_rule_key="checkstyle.rule3" plugin_name="plugin" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+
+  <active_rules id="1" profile_id="1" rule_id="1" failure_level="2"/>
+  <active_rules id="2" profile_id="1" rule_id="2" failure_level="2"/>
+  <active_rules id="3" profile_id="1" rule_id="3" failure_level="2"/>
+
+</dataset>

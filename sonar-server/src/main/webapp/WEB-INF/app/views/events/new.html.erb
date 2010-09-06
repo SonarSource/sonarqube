@@ -1,0 +1,44 @@
+<% remote_form_for(@event, :url => "#{ApplicationController.root_context}/events/create") do |f| %>
+    <input type="hidden" name="rid" value="<%= @event.resource_id -%>"/>
+    <%= f.hidden_field :resource_id %>
+    <%= f.hidden_field :snapshot_id %>
+    <table class="admin spaced">
+        <tr>
+            <td colspan="2"><div id="event_form_errors" class="error" style="display:none"> </div></td>
+        </tr>
+        <tr>
+            <td class="left" nowrap="nowrap" valign="top" width="1%">
+                <span class="comments">Name (required)</span><br>
+                <%= f.text_field :name %>
+            </td>
+            <td class="left" nowrap="nowrap" valign="top">
+                <span class="comments">Category (<%= link_to 'configure', {:controller=> 'event_categories', :action => 'index'}, :class => 'action' %>)</span><br>
+                <%= f.select(:category, @categories.collect {|c| [ c.name, c.name ] }, {:include_blank => true}, {:onChange => "selectEventCateg()"}) %>
+            </td>
+        </tr>
+        <tr>
+          <td colspan="2" id="event_cat_desc">
+          <% @categories.each do |categ| %>
+              <span id='event_cat_desc_<%= categ.name -%>' style="display:none;" class='comments'><%= categ.description -%></span>
+          <% end %>
+          <td>
+       </tr>
+        <tr>
+            <td class="left" nowrap="nowrap" valign="top" colspan="2">
+                <span class="comments">Date</span><br>
+                <%= f.date_select :event_date %>
+            </td>
+        </tr>
+        <tr>
+            <td class="left" nowrap="nowrap" valign="top" colspan="2">
+                <span class="comments">Description</span><br>
+                <%= f.text_area :description, :cols => 50, :rows => 3 %>
+            </td>
+        </tr>
+        <tr>
+            <td class="left" nowrap="nowrap" valign="top" colspan="2">
+              <%= f.submit "Create" %> <a href="#" onclick="$('event_form').hide()" class="action">cancel</a>
+            </td>
+        </tr>
+    </table>
+<% end %>

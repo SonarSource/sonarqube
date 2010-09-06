@@ -1,0 +1,20 @@
+<%
+if color_metric && color_metric.worst_value && color_metric.best_value
+  min=0
+  max=0
+  if color_metric.worst_value<color_metric.best_value
+    min=color_metric.worst_value
+    max=color_metric.best_value
+    image = 'treemap_gradient.png'
+    id = 'treemap_gradient_direction_positive'
+  else
+    min=color_metric.best_value
+    max=color_metric.worst_value
+    image = 'treemap_gradient_inverted.png'
+    id = 'treemap_gradient_direction_negative'
+  end
+%>
+  <%= min -%><%= color_metric.suffix -%> <img id="<%= id -%>" src="<%= image_path image -%>" style="border: 1px solid #000; vertical-align:middle"> <%= max -%><%= color_metric.suffix -%>
+<%
+end
+%>

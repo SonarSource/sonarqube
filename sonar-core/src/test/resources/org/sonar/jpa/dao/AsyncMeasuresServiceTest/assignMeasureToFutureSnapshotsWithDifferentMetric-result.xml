@@ -1,0 +1,59 @@
+<dataset>
+
+  <snapshots depth="[null]" id="1" scope="PRJ" qualifier="TRK" created_at="2008-12-03 12:00:00.00" version="[null]"
+             project_id="1"
+              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="true"
+             path="[null]"/>
+  <snapshots depth="[null]" id="2" scope="PRJ" qualifier="TRK" created_at="2008-12-04 12:00:00.00" version="[null]"
+             project_id="1"
+              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="true"
+             path="[null]"/>
+  <snapshots depth="[null]" id="3" scope="PRJ" qualifier="TRK" created_at="2008-12-05 12:00:00.00" version="[null]"
+             project_id="1"
+              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="true"
+             path="[null]"/>
+  <snapshots depth="[null]" id="4" scope="PRJ" qualifier="TRK" created_at="2008-12-06 12:00:00.00" version="[null]"
+             project_id="1"
+              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="true"
+             path="[null]"/>
+
+  <!-- Assigned to snapshot 1, 2 and 3 -->
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" id="1" project_id="1" metric_id="1" value="1"
+                    measure_date="2008-12-03 08:00:00.00" rule_id="[null]"
+                    snapshot_id="[null]" rules_category_id="[null]" text_value="[null]" tendency="[null]"/>
+  <!-- Assigned to snapshot 4 -->
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" id="2" project_id="1" metric_id="1" value="8"
+                    measure_date="2008-12-06 08:00:00.00" rule_id="[null]"
+                    snapshot_id="[null]" rules_category_id="[null]" text_value="[null]" tendency="[null]"/>
+  <!-- To be assigned only to snapshot 2 and 3 -->
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" id="3" project_id="1" metric_id="1" value="8"
+                    measure_date="2008-12-04 08:00:00.00" rule_id="[null]"
+                    snapshot_id="[null]" rules_category_id="[null]" text_value="[null]" tendency="[null]"/>
+
+
+  <async_measure_snapshots id="1" project_measure_id="1" snapshot_id="1" measure_date="2008-12-03 08:00:00.00"
+                           snapshot_date="2008-12-03 12:00:00.00" metric_id="1" project_id="1"/>
+  <!-- Now assigned to no snapshot -->
+  <async_measure_snapshots id="2" project_measure_id="1" snapshot_id="[null]" measure_date="2008-12-03 08:00:00.00"
+                           snapshot_date="[null]" metric_id="1" project_id="1"/>
+  <!-- Now assigned to no snapshot -->
+  <async_measure_snapshots id="3" project_measure_id="1" snapshot_id="[null]" measure_date="2008-12-03 08:00:00.00"
+                           snapshot_date="[null]" metric_id="1" project_id="1"/>
+  <async_measure_snapshots id="4" project_measure_id="2" snapshot_id="4" measure_date="2008-12-06 08:00:00.00"
+                           snapshot_date="2008-12-06 12:00:00.00" metric_id="1" project_id="1"/>
+
+  <!-- Now assigned to review 3 -->
+  <async_measure_snapshots id="5" project_measure_id="3" snapshot_id="2" measure_date="2008-12-04 08:00:00.00"
+                           snapshot_date="2008-12-04 12:00:00.00" metric_id="1" project_id="1"/>
+  <!-- Now assigned to review 3 -->
+  <async_measure_snapshots id="6" project_measure_id="3" snapshot_id="3" measure_date="2008-12-04 08:00:00.00"
+                           snapshot_date="2008-12-05 12:00:00.00" metric_id="1" project_id="1"/>
+
+
+</dataset>

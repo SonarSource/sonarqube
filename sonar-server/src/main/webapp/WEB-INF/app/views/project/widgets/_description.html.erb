@@ -1,0 +1,31 @@
+<div class="widget box" id="widget_description">
+  <% if not @project.description.blank? %>
+  <%= h @project.description %><br/>
+  <% end %>
+
+  <%= @project.name %>
+
+  Key : <%= @project.key %><br/>
+<% if @project.language %>
+  Language : <%= @project.language %><br/>
+<% end %>
+
+  <table width="100%">
+  <%  links_count=@project.project_links.size
+      if links_count > 0 %>
+    <tr><td width="50%">
+      <% @project.project_links.sort.each_with_index do |link, index| %>
+      <% if index==links_count/2 %></td><td width="50%"><% end %>
+      <%= link_to(image_tag(link.icon, :alt => link.name), link.href , :popup => true, :class => 'nolink') -%>
+      <%= link_to(h(link.name), link.href, :popup => true) -%><br/>
+    <% end %>
+    </td></tr>
+  <% end %>
+  <% if Project::SCOPE_SET==@project.scope %>
+  <tr><td colspan="2">
+     <a href="<%= url_for :controller => :feeds, :action => 'project', :id => @project.key, :category => EventCategory::KEY_ALERT -%>" class="nolink"><%= image_tag 'feed-icon-14x14.png' %></a>
+     <a href="<%= url_for :controller => :feeds, :action => 'project', :id => @project.key, :category => EventCategory::KEY_ALERT -%>" class="action">Alerts feed</a>
+  </td></tr>   
+  <% end %>
+  </table>
+</div>

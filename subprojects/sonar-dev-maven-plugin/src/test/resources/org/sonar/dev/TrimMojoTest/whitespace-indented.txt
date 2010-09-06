@@ -1,0 +1,9 @@
+                    many spaces
+                before and after
+                        white spaces should be  kept  in   the   line
+
+
+
+
+
+                    

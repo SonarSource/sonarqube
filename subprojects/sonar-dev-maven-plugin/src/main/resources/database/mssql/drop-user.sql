@@ -1,0 +1,1 @@
+drop login ${sonar.jdbc.username};

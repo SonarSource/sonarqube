@@ -1,0 +1,2 @@
+<%= render :partial => 'filters/tabs', :locals => {:selected_tab=> (@active && @active.filter ? @active.filter.id : nil) } %>
+<%= render :partial => "filters/#{@filter.default_view}", :locals => {:data => @data, :edit_mode => false } if @filter %>

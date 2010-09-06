@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+#--
+# Colour management with Ruby.
+#
+# Copyright 2005 Austin Ziegler
+#   http://rubyforge.org/ruby-pdf/
+#
+#   Licensed under a MIT-style licence.
+#
+# $Id: metaconfig,v 1.2 2005/08/05 23:07:20 austin Exp $
+#++
+# vim: sts=2 sw=2 ts=4 et ai tw=77
+

@@ -1,0 +1,17 @@
+<rules>
+  <rule key="MaximumMethodsCountCheck">
+    <name>Maximum Methods Count Check</name>
+    <configKey>rulesets/extensions.xml/MaximumMethodsCountCheck</configKey>
+    <category name="Usability"/>
+    <description>Maximum number of methods authorised</description>
+      <param key="maxAuthorisedMethodsCount" type="i">
+        <description>Maximum number of methods authorised. Default is 2.</description>
+      </param>
+  </rule>
+  <rule key="AvoidIfWithoutBrace">
+    <name>Avoid if without using brace</name>
+    <configKey>rulesets/extensions.xml/AvoidIfWithoutBrace</configKey>
+    <category name="Usability"/>
+    <description>éviter les if sans crochet.</description>
+  </rule>
+ </rules>

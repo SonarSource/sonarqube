@@ -1,0 +1,111 @@
+
+<% 
+  file_complexity=measure('file_complexity')
+  function_complexity=measure('function_complexity')
+  class_complexity=measure('class_complexity')
+  paragraph_complexity=measure('paragraph_complexity')
+ 
+  if file_complexity || function_complexity || class_complexity || paragraph_complexity
+	complexity=measure('complexity')
+%>
+<div class="widget">
+<div class="dashbox" >
+  <h3>Complexity</h3>
+  <% if function_complexity %>
+    <p>
+      <span class="big"><%= format_measure(function_complexity, :suffix => '', :url => url_for_drilldown(function_complexity)) -%> <%= tendency_icon(function_complexity, false) -%></span>/ method
+    </p>
+  <% end %>
+  <% if paragraph_complexity %>
+    <p>
+       <span class="big"><%= format_measure(paragraph_complexity, :suffix => '', :url => url_for_drilldown(paragraph_complexity)) -%> <%= tendency_icon(paragraph_complexity, false) -%></span>/ paragraph
+    </p>
+  <% end %>
+  <% if class_complexity %>
+    <p>
+      <span class="big"><%= format_measure(class_complexity, :suffix => '', :url => url_for_drilldown(class_complexity)) -%> <%= tendency_icon(class_complexity, false) -%></span>/ class
+    </p>
+  <% end %>
+  <% if file_complexity %>
+    <p>
+       <span class="big"><%= format_measure(file_complexity, :suffix => '', :url => url_for_drilldown(file_complexity)) -%> <%= tendency_icon(file_complexity, false) -%></span>/ file
+    </p>
+  <% end %>
+  <% if complexity %>
+  <p>
+    Total: <%= format_measure(complexity, :url => url_for_drilldown(complexity)) -%> <%= tendency_icon(complexity) -%>
+  </p>
+  <% end %>
+</div>
+
+
+<% 
+  function_distribution=measure('function_complexity_distribution')
+  paragraph_distribution=measure('paragraph_complexity_distribution')
+  class_distribution=measure('class_complexity_distribution')
+  file_distribution=measure('file_complexity_distribution')
+  distributions=[function_distribution,paragraph_distribution,class_distribution,file_distribution].compact
+  selected_distribution=nil
+  if distributions.size>0 
+    selected_distribution=distributions.first
+  end
+  if selected_distribution 
+%>
+<div class="dashbox" id="cmp_charts" style="float:right">
+  <script type='text/javascript'>
+    //<![CDATA[
+    function selectComplexity(metric) {
+      $$('#cmp_charts .chart').each(function(chart) {
+        chart.hide();
+      });
+      $('chart_' + metric).show();
+    }
+  </script>
+  <style>
+    #cmp_charts form {
+	  font-size: 93%;padding-left: 30px;
+    }
+	#cmp_charts form label {
+	  padding-right: 5px;
+    }
+  </style>
+  <% distributions.each do |distribution_measure| %>
+    <%= render :partial => 'project/widgets/complexity_chart', :locals => { :metric => distribution_measure.metric.key, :title => distribution_measure.metric.description, :visible => (selected_distribution==distribution_measure) } %>
+  <% end %>
+
+  <form>
+  <%
+  count_dist=0
+  if function_distribution
+    count_dist+=1
+  %>
+	<input type="radio" name="cmp_dist" value="function_complexity_distribution" id="cmp_dist_function_complexity_distribution" onClick="selectComplexity('function_complexity_distribution');" <%= 'checked' if function_distribution==selected_distribution -%>></input> <label for="cmp_dist_function_complexity_distribution">Methods</label>
+	<%
+	end
+	if paragraph_distribution
+	  count_dist+=1
+	%>
+	<input type="radio" name="cmp_dist" value="paragraph_complexity_distribution" id="cmp_dist_paragraph_complexity_distribution" onClick="selectComplexity('paragraph_complexity_distribution');" <%= 'checked' if paragraph_distribution==selected_distribution -%>></input> <label for="cmp_dist_paragraph_complexity_distribution">Paragraphs</label><%= '<br/>' if count_dist==2 %>
+	<%
+	end
+	if class_distribution
+	  count_dist+=1
+	%>
+	<input type="radio" name="cmp_dist" value="class_complexity_distribution" id="cmp_dist_class_complexity_distribution" onClick="selectComplexity('class_complexity_distribution');" <%= 'checked' if class_distribution==selected_distribution -%>></input> <label for="cmp_dist_class_complexity_distribution">Classes</label><%= '<br/>' if count_dist==2 %>
+	<%
+	end
+	if file_distribution
+	   count_dist+=1
+	%>
+	<input type="radio" name="cmp_dist" value="file_complexity_distribution" id="cmp_dist_file_complexity_distribution" onClick="selectComplexity('file_complexity_distribution');" <%= 'checked' if file_distribution==selected_distribution -%>></input> <label for="cmp_dist_file_complexity_distribution">Files</label>
+	<% end %>
+	
+  </form>
+
+</div>
+<% end %>
+
+<div class="clear"></div>
+</div>
+<% end %>
+

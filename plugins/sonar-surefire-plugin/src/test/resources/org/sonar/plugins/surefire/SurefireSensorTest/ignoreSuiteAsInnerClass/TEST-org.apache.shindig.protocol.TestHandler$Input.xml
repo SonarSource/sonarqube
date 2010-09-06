@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" skipped="1" tests="1" time="0" failures="0" name="org.apache.shindig.protocol.TestHandler$Input">
+  <properties>
+    <property value="Java(TM) 2 Runtime Environment, Standard Edition" name="java.runtime.name"/>
+    <property value="/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Libraries" name="sun.boot.library.path"/>
+    <property value="1.5.0_19-137" name="java.vm.version"/>
+    <property value="true" name="awt.nativeDoubleBuffering"/>
+    <property value="false" name="gopherProxySet"/>
+    <property value="Apple Inc." name="java.vm.vendor"/>
+    <property value="http://www.apple.com/" name="java.vendor.url"/>
+    <property value=":" name="path.separator"/>
+    <property value="Java HotSpot(TM) Client VM" name="java.vm.name"/>
+    <property value="sun.io" name="file.encoding.pkg"/>
+    <property value="target/test-classes/logging.properties" name="java.util.logging.config.file"/>
+    <property value="US" name="user.country"/>
+    <property value="SUN_STANDARD" name="sun.java.launcher"/>
+    <property value="unknown" name="sun.os.patch.level"/>
+    <property value="Java Virtual Machine Specification" name="java.vm.specification.name"/>
+    <property value="/Users/simon/projects/shindig/java/common" name="user.dir"/>
+    <property value="1.5.0_19-b02-304" name="java.runtime.version"/>
+    <property value="apple.awt.CGraphicsEnvironment" name="java.awt.graphicsenv"/>
+    <property value="/Users/simon/projects/shindig/java/common" name="basedir"/>
+    <property value="/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/lib/endorsed" name="java.endorsed.dirs"/>
+    <property value="i386" name="os.arch"/>
+    <property value="/var/folders/uV/uVfBAWUpFX0gPfeUuu2yaU+++TI/-Tmp-/surefirebooter4356411895122546772.jar" name="surefire.real.class.path"/>
+    <property value="/var/folders/uV/uVfBAWUpFX0gPfeUuu2yaU+++TI/-Tmp-/" name="java.io.tmpdir"/>
+    <property value="
+" name="line.separator"/>
+    <property value="Sun Microsystems Inc." name="java.vm.specification.vendor"/>
+    <property value="Mac OS X" name="os.name"/>
+    <property value="MacRoman" name="sun.jnu.encoding"/>
+    <property value="/Applications/jprofiler5/bin/macos:.:/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java" name="java.library.path"/>
+    <property value="/Users/simon/projects/shindig/java/common/target/test-classes:/Users/simon/projects/shindig/java/common/target/generated-classes/cobertura:/Users/simon/.m2/repository/net/oauth/core/oauth/20090531/oauth-20090531.jar:/Users/simon/.m2/repository/commons-codec/commons-codec/1.3/commons-codec-1.3.jar:/Users/simon/.m2/repository/aopalliance/aopalliance/1.0/aopalliance-1.0.jar:/Users/simon/.m2/repository/commons-lang/commons-lang/2.4/commons-lang-2.4.jar:/Users/simon/.m2/repository/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar:/Users/simon/.m2/repository/net/sourceforge/cobertura/cobertura/1.9/cobertura-1.9.jar:/Users/simon/.m2/repository/org/apache/ant/ant/1.7.0/ant-1.7.0.jar:/Users/simon/.m2/repository/org/apache/ant/ant-launcher/1.7.0/ant-launcher-1.7.0.jar:/Users/simon/.m2/repository/joda-time/joda-time/1.6/joda-time-1.6.jar:/Users/simon/.m2/repository/net/sf/ehcache/ehcache/1.6.1/ehcache-1.6.1.jar:/Users/simon/.m2/repository/xml-apis/xml-apis/1.3.04/xml-apis-1.3.04.jar:/Users/simon/.m2/repository/de/odysseus/juel/juel-impl/2.1.2/juel-impl-2.1.2.jar:/Users/simon/.m2/repository/de/odysseus/juel/juel-api/2.1.2/juel-api-2.1.2.jar:/Users/simon/.m2/repository/commons-fileupload/commons-fileupload/1.2/commons-fileupload-1.2.jar:/Users/simon/.m2/repository/org/json/json/20070829/json-20070829.jar:/Users/simon/.m2/repository/commons-io/commons-io/1.4/commons-io-1.4.jar:/Users/simon/.m2/repository/com/thoughtworks/xstream/xstream/1.3.1/xstream-1.3.1.jar:/Users/simon/.m2/repository/xpp3/xpp3_min/1.1.4c/xpp3_min-1.1.4c.jar:/Users/simon/.m2/repository/xmlunit/xmlunit/1.2/xmlunit-1.2.jar:/Users/simon/.m2/repository/org/easymock/easymockclassextension/2.4/easymockclassextension-2.4.jar:/Users/simon/.m2/repository/org/easymock/easymock/2.5.1/easymock-2.5.1.jar:/Users/simon/.m2/repository/cglib/cglib-nodep/2.1_3/cglib-nodep-2.1_3.jar:/Users/simon/.m2/repository/junit/junit/4.5/junit-4.5.jar:/Users/simon/.m2/repository/junit-addons/junit-addons/1.4/junit-addons-1.4.jar:/Users/simon/.m2/repository/xerces/xercesImpl/2.9.1/xercesImpl-2.9.1.jar:/Users/simon/.m2/repository/xerces/xmlParserAPIs/2.6.2/xmlParserAPIs-2.6.2.jar:/Users/simon/.m2/repository/com/google/collections/google-collections/1.0-rc2/google-collections-1.0-rc2.jar:/Users/simon/.m2/repository/com/google/code/guice/guice/2.0/guice-2.0.jar:/Users/simon/.m2/repository/commons-betwixt/commons-betwixt/0.8/commons-betwixt-0.8.jar:/Users/simon/.m2/repository/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar:/Users/simon/.m2/repository/commons-beanutils/commons-beanutils-core/1.7.0/commons-beanutils-core-1.7.0.jar:/Users/simon/.m2/repository/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar:/Users/simon/.m2/repository/commons-digester/commons-digester/1.7/commons-digester-1.7.jar:/Users/simon/.m2/repository/commons-beanutils/commons-beanutils/1.6/commons-beanutils-1.6.jar:" name="surefire.test.class.path"/>
+    <property value="Java Platform API Specification" name="java.specification.name"/>
+    <property value="49.0" name="java.class.version"/>
+    <property value="HotSpot Client Compiler" name="sun.management.compiler"/>
+    <property value="10.5.8" name="os.version"/>
+    <property value="local|*.local|169.254/16|*.169.254/16" name="http.nonProxyHosts"/>
+    <property value="/Users/simon" name="user.home"/>
+    <property value="Europe/Zurich" name="user.timezone"/>
+    <property value="apple.awt.CPrinterJob" name="java.awt.printerjob"/>
+    <property value="1.5" name="java.specification.version"/>
+    <property value="MacRoman" name="file.encoding"/>
+    <property value="simon" name="user.name"/>
+    <property value="/Users/simon/projects/shindig/java/common/target/test-classes:/Users/simon/projects/shindig/java/common/target/generated-classes/cobertura:/Users/simon/.m2/repository/net/oauth/core/oauth/20090531/oauth-20090531.jar:/Users/simon/.m2/repository/commons-codec/commons-codec/1.3/commons-codec-1.3.jar:/Users/simon/.m2/repository/aopalliance/aopalliance/1.0/aopalliance-1.0.jar:/Users/simon/.m2/repository/commons-lang/commons-lang/2.4/commons-lang-2.4.jar:/Users/simon/.m2/repository/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar:/Users/simon/.m2/repository/net/sourceforge/cobertura/cobertura/1.9/cobertura-1.9.jar:/Users/simon/.m2/repository/org/apache/ant/ant/1.7.0/ant-1.7.0.jar:/Users/simon/.m2/repository/org/apache/ant/ant-launcher/1.7.0/ant-launcher-1.7.0.jar:/Users/simon/.m2/repository/joda-time/joda-time/1.6/joda-time-1.6.jar:/Users/simon/.m2/repository/net/sf/ehcache/ehcache/1.6.1/ehcache-1.6.1.jar:/Users/simon/.m2/repository/xml-apis/xml-apis/1.3.04/xml-apis-1.3.04.jar:/Users/simon/.m2/repository/de/odysseus/juel/juel-impl/2.1.2/juel-impl-2.1.2.jar:/Users/simon/.m2/repository/de/odysseus/juel/juel-api/2.1.2/juel-api-2.1.2.jar:/Users/simon/.m2/repository/commons-fileupload/commons-fileupload/1.2/commons-fileupload-1.2.jar:/Users/simon/.m2/repository/org/json/json/20070829/json-20070829.jar:/Users/simon/.m2/repository/commons-io/commons-io/1.4/commons-io-1.4.jar:/Users/simon/.m2/repository/com/thoughtworks/xstream/xstream/1.3.1/xstream-1.3.1.jar:/Users/simon/.m2/repository/xpp3/xpp3_min/1.1.4c/xpp3_min-1.1.4c.jar:/Users/simon/.m2/repository/xmlunit/xmlunit/1.2/xmlunit-1.2.jar:/Users/simon/.m2/repository/org/easymock/easymockclassextension/2.4/easymockclassextension-2.4.jar:/Users/simon/.m2/repository/org/easymock/easymock/2.5.1/easymock-2.5.1.jar:/Users/simon/.m2/repository/cglib/cglib-nodep/2.1_3/cglib-nodep-2.1_3.jar:/Users/simon/.m2/repository/junit/junit/4.5/junit-4.5.jar:/Users/simon/.m2/repository/junit-addons/junit-addons/1.4/junit-addons-1.4.jar:/Users/simon/.m2/repository/xerces/xercesImpl/2.9.1/xercesImpl-2.9.1.jar:/Users/simon/.m2/repository/xerces/xmlParserAPIs/2.6.2/xmlParserAPIs-2.6.2.jar:/Users/simon/.m2/repository/com/google/collections/google-collections/1.0-rc2/google-collections-1.0-rc2.jar:/Users/simon/.m2/repository/com/google/code/guice/guice/2.0/guice-2.0.jar:/Users/simon/.m2/repository/commons-betwixt/commons-betwixt/0.8/commons-betwixt-0.8.jar:/Users/simon/.m2/repository/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar:/Users/simon/.m2/repository/commons-beanutils/commons-beanutils-core/1.7.0/commons-beanutils-core-1.7.0.jar:/Users/simon/.m2/repository/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar:/Users/simon/.m2/repository/commons-digester/commons-digester/1.7/commons-digester-1.7.jar:/Users/simon/.m2/repository/commons-beanutils/commons-beanutils/1.6/commons-beanutils-1.6.jar:" name="java.class.path"/>
+    <property value="1.0" name="java.vm.specification.version"/>
+    <property value="32" name="sun.arch.data.model"/>
+    <property value="/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home" name="java.home"/>
+    <property value="Sun Microsystems Inc." name="java.specification.vendor"/>
+    <property value="en" name="user.language"/>
+    <property value="apple.awt.CToolkit" name="awt.toolkit"/>
+    <property value="mixed mode, sharing" name="java.vm.info"/>
+    <property value="1.5.0_19" name="java.version"/>
+    <property value="/Library/Java/Extensions:/System/Library/Java/Extensions:/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/lib/ext" name="java.ext.dirs"/>
+    <property value="/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/jsfd.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/classes.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/ui.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/laf.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/sunrsasign.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/jsse.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/jce.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/charsets.jar" name="sun.boot.class.path"/>
+    <property value="Apple Inc." name="java.vendor"/>
+    <property value="/Users/simon/.m2/repository" name="localRepository"/>
+    <property value="/" name="file.separator"/>
+    <property value="http://bugreport.apple.com/" name="java.vendor.url.bug"/>
+    <property value="little" name="sun.cpu.endian"/>
+    <property value="UnicodeLittle" name="sun.io.unicode.encoding"/>
+    <property value="1050.1.5.0_19-304" name="mrj.version"/>
+    <property value="local|*.local|169.254/16|*.169.254/16" name="socksNonProxyHosts"/>
+    <property value="local|*.local|169.254/16|*.169.254/16" name="ftp.nonProxyHosts"/>
+    <property value="" name="sun.cpu.isalist"/>
+  </properties>
+  <testcase classname="org.apache.shindig.protocol.TestHandler$Input" time="0.007" name="org.apache.shindig.protocol.TestHandler$Input">
+    <skipped/>
+  </testcase>
+</testsuite>

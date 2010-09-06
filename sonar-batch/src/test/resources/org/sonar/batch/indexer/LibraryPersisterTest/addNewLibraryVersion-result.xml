@@ -1,0 +1,23 @@
+<dataset>
+
+  <projects long_name="my project" id="1" scope="PRJ" kee="my:project" qualifier="TRK" name="my project"
+            root_id="[null]"
+            description="[null]" enabled="true" profile_id="[null]" language="java" copy_resource_id="[null]"/>
+
+  <projects long_name="Commons Lang" id="2" scope="PRJ" kee="commons-lang:commons-lang" qualifier="LIB" name="Commons Lang"
+            root_id="[null]"
+            description="[null]" enabled="true" profile_id="[null]" language="[null]" copy_resource_id="[null]"/>
+
+  <snapshots id="1" created_at="2008-12-25 00:00:00.00" version="1.0" project_id="1" scope="PRJ" qualifier="TRK"
+             root_project_id="1" root_snapshot_id="[null]" parent_snapshot_id="[null]" STATUS="U" ISLAST="false"
+             path="" depth="0"/>
+
+  <snapshots id="2" created_at="2010-05-18 17:00:00.00" version="1.1" project_id="2" scope="PRJ" qualifier="LIB"
+             root_project_id="2" root_snapshot_id="[null]" parent_snapshot_id="[null]" STATUS="P" ISLAST="false"
+             path="" depth="0"/>
+
+  <snapshots id="3" created_at="2010-05-18 17:00:00.00" version="1.2" project_id="2" scope="PRJ" qualifier="LIB"
+             root_project_id="2" root_snapshot_id="[null]" parent_snapshot_id="[null]" STATUS="P" ISLAST="false"
+             path="" depth="0"/>
+
+</dataset>

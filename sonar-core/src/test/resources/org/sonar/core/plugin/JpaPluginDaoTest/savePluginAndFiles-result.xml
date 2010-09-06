@@ -1,0 +1,15 @@
+<dataset>
+  <plugins id="1" name="Checkstyle" plugin_key="checkstyle" organization="[null]" organization_url="[null]" license="[null]" homepage="[null]"
+           description="[null]" installation_date="[null]" plugin_class="[null]" core="true" version="2.2"/>
+
+  <plugins id="2" name="PMD" plugin_key="pmd" organization="[null]" organization_url="[null]" license="[null]" homepage="[null]"
+           description="[null]" installation_date="[null]" plugin_class="org.sonar.pmd.Main" core="false" version="2.2" />
+
+  <plugin_files id="1" plugin_id="1" filename="checkstyle.jar"/>
+  <plugin_files id="2" plugin_id="1" filename="checkstyle-extension.jar"/>
+
+  <plugin_files id="3" plugin_id="2" filename="sonar-pmd-plugin-2.2.jar"/>
+  <plugin_files id="4" plugin_id="2" filename="pmd-extension.jar"/>
+  <plugin_files id="5" plugin_id="2" filename="pmd-extension2.jar"/>
+
+</dataset>

@@ -1,0 +1,13 @@
+Temporary release notes - waiting for a dedicated project/component in JIRA
+
+-------------------------------------------------------------------------------
+Upgrade from sonar-dev-mojo 2.2-SNAPSHOT to sonar-dev-maven-plugin 1.0-SNAPSHOT
+-------------------------------------------------------------------------------
+* Remove the parameter 'environment'
+* The goal 'stop' requires the parameter 'sonar.runtimeVersion'
+* The goals 'start' and 'stop' now use the standalone mode (Jetty)
+* Add the goals 'start-war' and 'stop-war' to use the WAR mode (Tomcat)
+* Increase allocated memory (needed for Derby tests)
+* Add predefined database profiles. For example selecting database=mysql sets default url and driver for MySQL. 
+* Add the goal "analyze" with required parameter "sonar.projectsDir". It replaces the parameters "mavenProjectsDir" and "analyzeProjects"
+

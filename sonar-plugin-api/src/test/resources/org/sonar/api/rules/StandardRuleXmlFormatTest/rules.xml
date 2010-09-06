@@ -1,0 +1,39 @@
+<rules>
+  <rule>
+    <!-- with exhaustive fields -->
+    <key>com.puppycrawl.tools.checkstyle.checks.naming.LocalVariableNameCheck</key>
+    <name>Local Variable Name</name>
+    <description>
+      <![CDATA[Checks that local, non-final variable names conform to a format specified by the format property.]]>
+    </description>
+    <isoCategory>Efficiency</isoCategory>
+    <configKey>Checker/TreeWalker/LocalVariableName</configKey>
+    <priority>BLOCKER</priority>
+    <cardinality>MULTIPLE</cardinality>
+    <param>
+      <key>tokens</key>
+      <description>
+        <![CDATA[
+          Controls whether the check applies to variable declarations or catch clause parameters
+          ]]>
+      </description>
+    </param>
+    <param>
+      <key>ignore</key>
+      <description>
+        Ignore ?
+      </description>
+    </param>
+  </rule>
+
+
+  <rule>
+    <!-- with only required fields -->
+    <key>com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck</key>
+    <name>Magic Number</name>
+    <description>
+      <![CDATA[Checks for magic numbers.]]>
+    </description>
+    <isoCategory>Maintainability</isoCategory>
+  </rule>
+</rules>

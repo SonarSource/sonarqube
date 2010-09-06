@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>$groupId</groupId>
+  <artifactId>$artifactId</artifactId>
+  <version>$version</version>
+  <packaging>$packaging</packaging>
+  <distributionManagement>
+    <status>deployed</status>
+  </distributionManagement>
+  <dependencies>
+    $dependencies
+  </dependencies>
+</project>

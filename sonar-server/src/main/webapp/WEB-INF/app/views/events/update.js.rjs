@@ -1,0 +1,6 @@
+if @event.errors.empty?
+  page.redirect_to(:controller => 'project', :action => 'index', :id => @event.resource_id)
+else
+  page.replace_html('event_form_errors', @event.errors.full_messages.join('<br/>'))
+  page.show('event_form_errors')
+end

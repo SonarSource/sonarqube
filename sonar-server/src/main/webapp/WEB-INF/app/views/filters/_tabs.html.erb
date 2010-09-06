@@ -1,0 +1,21 @@
+<% if logged_in? %>
+<div id="page-operations">
+  <ul class="operations">
+    <li><a href="<%= url_for :action => 'new' -%>" >Add filter</a></li>
+    <% if @filter && @filter.id && editable_filter?(@filter) %>
+      <li><a href="<%= url_for :action => 'edit', :id => @filter.id -%>">Edit filter</a></li>
+    <% end %>
+    <li class="last"><%= link_to 'Manage filters', {:action => 'manage'} -%></li>
+  </ul>
+</div>
+<% end %>
+
+<% if selected_tab && @actives && !@actives.empty? %>
+<ul class="tabs" id="filter-tabs">
+<% @actives.each do |active| %>
+  <li>
+    <a href="<%= url_for :action => 'index', :id => active.filter.id -%>" class="<%= 'selected' if selected_tab==active.filter.id -%>"><%= active.name -%></a>
+  </li>
+<% end %>
+</ul>
+<% end %>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?><archetype>
+  <id>sonar-basic-plugin</id>
+  <sources>
+    <source>src/main/java/SampleDashboardWidget.java</source>
+    <source>src/main/java/SampleMetrics.java</source>
+    <source>src/main/java/SamplePlugin.java</source>
+    <source>src/main/java/SampleSensor.java</source>
+  </sources>
+  <resources>
+    <resource>src/main/resources/sample_dashboard_widget.html.erb</resource>
+  </resources>
+</archetype>

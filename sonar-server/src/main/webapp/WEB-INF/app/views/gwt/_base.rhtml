@@ -1,0 +1,29 @@
+<script type="text/javascript">
+  var config = {
+    "sonar_url":"<%= url_for(:controller => '/', :action => '', :only_path => true, :trailing_slash => false)[0...-2] -%>",
+    "version":"<%= sonar_version -%>",
+    "popup":<%= popup -%>
+<% if metric %>
+    ,"metric": "<%= metric -%>"
+<% end
+   if resource
+%>
+    ,"resource_key": "<%= resource.id -%>",
+    "resource":[{"id": <%= resource.id -%>, "key":"<%= resource.key -%>","scope": "<%= resource.scope -%>", "qualifier": "<%= resource.qualifier -%>", "name": "<%= resource.name -%>", "lang":"<%= resource.language -%>"}]
+    <% end %>
+  };
+
+  var rp = {
+  <%
+    index=0
+    params.each do |key,value|  
+  %>
+    <%= ',' if index>0 -%>"<%= key -%>":"<%= value -%>"
+  <%
+      index+=1
+    end
+  %>
+  };
+
+  var modules = new Object();
+</script>

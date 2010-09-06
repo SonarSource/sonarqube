@@ -1,0 +1,195 @@
+<%= render :partial => 'project/snapshot_title' -%>
+<%= render :partial => 'gwt/base', :locals => {:resource => @highlighted_resource, :popup => false, :metric => 'violations'} %>
+<%= render :partial => 'gwt/resource_viewers', :locals => {:resource => @project} %>
+
+<table width="100%" cellpadding="0" cellspacing="0" id="columns">
+<tr>
+  <td align="left" width="1%" nowrap class="column first">
+	<% if @filter=='category' %>
+	<ul class="tabs">
+	  <li>
+	    <%= link_to 'Priority',
+	                  {:controller => 'drilldown', :action => 'violations', :id => @project.id, :filter => nil, :categ_id => nil, :priority => nil} %>
+	  </li>
+	  <li>
+	    <%= link_to 'Category',
+	                  {:controller => 'drilldown', :action => 'violations', :id => @project.id, :filter => 
+		'category', :categ_id => nil, :priority => nil}, :class => 'selected' %>
+	  </li>
+	</ul>
+	<table id="col_categories" class="spacedicon" style="border: 1px solid #ccc;">
+		<% 
+			rule_category_measures = @snapshot.rule_category_measures(Metric::VIOLATIONS) 
+			max = 0
+			rule_category_measures.each do |m| 
+				max = m.value if m.value and m.value>max
+			end
+			RulesCategory.all.each do |category|
+				
+		%>
+        <tr class="<%= cycle('even','odd', :name => 'category') -%> <%= 'selected' if @categ_id==category.id -%>">
+	      <td>	<%= link_to h(category.name),
+	                  {:controller => 'drilldown', :action => 'violations', :id => @project.id, :filter => 'category', :categ_id => category.id, :priority => nil} %></td>
+	      <td style="padding-left: 10px;" align="right">
+		    <% measure = rule_category_measures.select{|m| m.rules_category_id==category.id}.first %>
+	        <%= format_measure(measure) -%>
+	      </td>
+	      <td align="left">
+	  	    <%= barchart(:width => 60, :percent => (measure ? (100 * measure.value / max).to_i : 0), :color => '#777') if max>0  %>
+	      </td>
+	    </tr>
+		<%  end %>
+	</table>
+	<% else %>
+	<% 
+		rule_priority_measures = @snapshot.rule_priority_measures(Metric::VIOLATIONS)
+		max = 0
+		rule_priority_measures.each do |m|
+			max = m.value if m.value and m.value>max
+		end
+	%>
+    <ul class="tabs">
+	  <li>
+	    <%= link_to 'Priority',
+	                  {:controller => 'drilldown', :action => 'violations', :id => @project.id, :filter => nil, :categ_id => nil, :priority => nil}, :class => 'selected' %>
+	  </li>
+	  <li>
+	    <%= link_to 'Category',
+	                  {:controller => 'drilldown', :action => 'violations', :id => @project.id, :filter => 
+		'category', :categ_id => nil, :priority => nil} %>
+	  </li>
+	</ul>
+    <table class="spacedicon" style="border: 1px solid #ccc;">
+	  <%= render :partial => 'rule_priority', :locals => {:label => 'Blocker', :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_BLOCKER, :max => max, :measures => rule_priority_measures }%>
+	<%= render :partial => 'rule_priority', :locals => {:label => 'Critical', :css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_CRITICAL, :max => max, :measures => rule_priority_measures }%>
+	<%= render :partial => 'rule_priority', :locals => {:label => 'Major', :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_MAJOR, :max => max, :measures => rule_priority_measures }%>
+	<%= render :partial => 'rule_priority', :locals => {:label => 'Minor', :css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_MINOR, :max => max, :measures => rule_priority_measures }%>
+	<%= render :partial => 'rule_priority', :locals => {:label => 'Info', :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_INFO, :max => max, :measures => rule_priority_measures }%>
+    </table>
+    <% end %>
+  </td>
+  <td class="column" align="left" style="white-space: normal;">
+   <h3>Rule</h3>
+   <div class="scrollable">
+       <table class="spacedicon" width="100%" id="col_rules">
+	      <%
+	        rule_measures=@snapshot.rule_measures(Metric.by_key(Metric::VIOLATIONS), @categ_id, @priority_id)
+	        max=0
+	        rule_index=0
+			rule_measures.each { |m| max=m.value if m.value>max }
+	        rule_ids=rule_measures.collect{ |measure| measure.rule_id}.uniq
+	        rules = (rule_ids.empty? ? [] : Rule.find(rule_ids))
+		    rules_hash={}
+		    rules.each { |rule| rules_hash[rule.id]=rule }
+	        rule_measures.sort do|x,y|
+				val=y.rule_priority<=>x.rule_priority
+				val==0 ? y.value <=> x.value : val
+		    end.each do |rule_measure|
+		      next if rule_measure.value==0
+              rule=rules_hash[rule_measure.rule_id]
+              clazz = cycle('even', 'odd', :name => 'rules')
+              clazz = clazz + ' selected' if @rule_id and @rule_id==rule_measure.rule_id
+              rule_index+=1
+		   %>
+               <tr class="<%= clazz -%>">
+	               <td width="1%" nowrap>
+                    <a id="<%= "rule#{rule_index}" -%>" title="Click for more on <%= rule.plugin_name -%>: <%= rule.plugin_rule_key -%>" onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => rule.key, :layout => 'false' -%>"><img src="<%= ApplicationController.root_context -%>/images/priority/<%= rule_measure.rule_priority -%>.png"></img></a>
+		           </td>
+	               <td>
+	                  <%= link_to(rule.name, {:overwrite_params => {:rule => rule.key, :sid => nil, :categ_id => @categ_id, :priority => Sonar::RulePriority.to_s(@priority_id)}}, :title => "#{rule.plugin_name}: #{rule.plugin_rule_key}") %>
+                   </td>
+                   <td class="right" nowrap="nowrap">
+                       <span><%= rule_measure.formatted_value %></span>
+                   </td>
+                   <td class="left last">
+	                  <%= barchart(:width => 70, :percent => (100 * rule_measure.value / max).to_i, :color => '#777')  if max>0 %>
+	                  <!--[if IE]> &nbsp; &nbsp; <![endif]-->
+	               </td>
+               </tr>
+           <% end %>
+           <% if rule_measures.empty? %>
+           <tr class="even"><td>No violations</td></tr>
+           <% end %>
+       </table>
+   </div>
+</td>
+</tr>
+</table>
+<br/>
+<table width="100%">
+<tr>
+<%
+   paths=[]
+   rids=[]
+   column_width=(100/@drilldown.columns.size).to_i if @drilldown.columns.size>0
+   @drilldown.columns.each_with_index do |column, index|
+%><td class="column <%= 'first' if index==0 -%>" nowrap width="<%= column_width -%>%">
+<div class="scrollable" id="col_<%= column.scope -%>">
+<table class="spaced">
+ <%
+ column.measures.each do |measure|
+   resource=column.resource(measure)
+   clazz = cycle('even', 'odd', :name => "col_#{column.scope}")
+   if column.selected_snapshot && column.selected_snapshot.project_id==resource.id
+     clazz += ' selected'
+     paths << [h(resource.name), @selected_rids-[resource.id]]
+   end
+ %>
+ <tr class="<%= clazz -%>">
+   <td nowrap>
+   <%
+   if resource.entity?
+     if resource.copy_resource_id %>
+       <%= qualifier_icon(resource) %>
+       <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => nil, :id => resource.copy_resource_id}}) -%>
+     <% else %>
+       <%= qualifier_icon(resource) %>
+       <a href="#" onclick="sr('<%= resource.id -%>');" alt="<%= resource.name(true) -%>" title="<%= resource.name(true) -%>"><%= resource.name(false) %></a>
+   <%
+     end
+   else %>
+     <%= link_to(image_tag('zoom.png'), {:id => resource.id}, {:class => 'nolink'}) %>
+     <%= qualifier_icon(resource) %>
+     <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => rids + [resource.id]}}) -%>
+   <% end %>
+   </td>
+   <td class="right last" nowrap>
+       <%= measure.formatted_value -%>
+       <!--[if IE]> &nbsp; &nbsp; <![endif]-->
+   </td>
+</tr>
+<% end %>
+</table>
+</div>
+</td>
+<%
+     rids<<column.selected_snapshot.project_id if column.selected_snapshot
+   end %>
+</tr>
+</table>
+<br/>
+<div style="font-size: 90%;background-color: #eee;color: #777;padding: 4px 5px;border: 1px solid #ccc;">
+<b>Path:</b>
+<% if @priority_id %>
+<%= Sonar::RulePriority.to_s(@priority_id) %> <%= link_to 'clear', {:overwrite_params => {:priority => nil}} %>
+<% elsif @categ_id %>
+<%= h(RulesCategory.by_id(@categ_id).name) %> <%= link_to 'clear', {:overwrite_params => {:categ_id => nil}} %>
+<% else %>
+Any <%= @filter %>
+<% end %>&nbsp;&raquo;&nbsp;
+<% if @rule_id %>
+<%= h Rule.find(@rule_id).name %> <%= link_to 'clear', {:overwrite_params => {:rule => nil}} %>
+<% else %>
+Any rule
+<% end %>&nbsp;&raquo;&nbsp;
+<% paths.each do |path| %>
+<%= path[0] %> <%= link_to 'clear', {:overwrite_params => {:rids => path[1]}} %>&nbsp;&raquo;&nbsp;
+<% end %>
+</div>
+<script>
+$$('#col_rules tr.selected').each(function(item) {item.scrollIntoView(true);});
+<% @drilldown.columns.each do |column| %>
+$$('#col_<%= column.scope -%> tr.selected').each(function(item) {item.scrollIntoView(true);});
+<% end %>
+</script>
+<div id="pageselector"> </div>

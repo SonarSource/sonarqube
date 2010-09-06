@@ -1,0 +1,53 @@
+<h1 class="marginbottom10"><%= link_to 'Quality profiles', profiles_path %> / <%= h @profile.language -%> / <%= h @profile.name %></h1>
+
+<%= render :partial => 'profiles/tabs', :locals => {:new_tab => 'New rule'} %>
+
+<div class="tabs-panel marginbottom10 background-gray">
+
+<form method="POST" action="<%= url_for :action => 'create', :id => @profile.id, :rule_id => @rule.id -%>">
+<table width="100%" class="spaced">
+  <tr>
+    <td width="1%" nowrap>Template:</td>
+    <td class="sep"> </td>
+    <td><%= h @rule.name -%></td>
+  </tr>
+  <tr>
+    <td width="1%" nowrap>Name:</td>
+    <td class="sep"> </td>
+    <td><input type="text" name="rule[name]" size="80"></input></td>
+  </tr>
+  <tr>
+    <td width="1%" nowrap>Default priority:</td>
+    <td class="sep"> </td>
+    <td>
+      <select name="rule[priority]">
+        <%= options_for_select(Sonar::RulePriority.as_options) %>
+      </select>
+    </td>
+  </tr>
+  <% @rule.parameters.sort{|x,y| x.name <=> y.name}.each do |parameter| %>
+    <tr>
+      <td width="1%" nowrap><%= parameter.name %>:</td>
+      <td class="sep"> </td>
+      <td>
+        <input type="text" name="rule_param[<%= parameter.name -%>]" value=""></input>
+        <span class="small"><%= parameter.description %></span>
+      </td>
+    </tr>
+  <% end %>
+  <tr>
+    <td width="1%" nowrap style="vertical-align: top">Description:</td>
+    <td class="sep"> </td>
+    <td valign="top">
+      <textarea name="rule[description]" cols="80" rows="10" style="vertical-align: baseline"></textarea>
+      <span class="small">HTML is allowed.</span>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      <input type="submit" value="Create"></input> <a href="<%= url_for :action => 'index', :id => @profile.id -%>">Cancel</a>
+    </td>
+  </tr>
+</table>
+</form>
+</div>

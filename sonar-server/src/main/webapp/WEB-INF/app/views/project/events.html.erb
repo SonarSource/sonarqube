@@ -1,0 +1,60 @@
+<% show_admin_actions=is_admin?(@snapshot) %>
+<h3>Events &nbsp;&nbsp;
+<select class="small" id="select_category" onchange="<%= remote_function(:update => 'events_portlet', :url => { :action => :events, :id => @snapshot.id },
+  :with => "'category=' + $F('select_category')", :method => 'get') -%>">
+<option value="">All</option>
+<% @categories.each do |categ| %>
+<option value="<%= h categ.name -%>" <%= 'selected' if @category==categ.name -%>><%= h categ.name %></option>
+<% end %>
+</select></h3>
+
+<table id="events" class="spaced data">
+<thead>
+<tr>
+  <th colspan="5">
+  </th>
+</tr>
+</thead>
+<%
+   max_rows=10
+   index=0
+   @events.each do |event|
+     if index==max_rows
+%><tbody style="display:none" id="all_events"><%
+     end
+%>
+<tr class="<%= cycle 'even','odd' -%>">
+    <td x="<%= event.event_date -%>"><%= l(event.event_date.to_date) %></td>
+    <td><%= event.category %></td>
+    <td><%= event.name %></td>
+    <td>
+        <% unless event.description.blank? %>
+<a href="#" class="nolink" title="<%= h event.description -%>" alt="<%= h event.description -%>"><img src="<%= ApplicationController.root_context -%>/images/information.png" /></a>
+        <% end %>
+    </td>
+    <td>
+        <% if show_admin_actions %>
+        <%= link_to_remote 'Edit', {:url => edit_event_path(event), :method => :get, :update => "event_form", :complete => "$('event_form').show();"}, :class => 'action', :id => "edit_event_#{h event.name}" %>
+        <%= link_to 'Delete', event, :confirm => 'Are you sure ?', :method => :delete, :class => 'action',:id => "delete_event_#{h event.name}" %>
+        <% end %>
+    </td>
+</tr>
+<%   index+=1
+   end
+   if index>=max_rows
+%></tbody><%
+   end
+%>
+
+</table>
+
+<% if index>=max_rows %>
+      <a href="#" onclick="$('all_events').show();$('show_more_events').hide()" id="show_more_events" class="action">Show more</a>
+<% end %>
+
+
+<% if show_admin_actions %>
+<%= link_to_remote "Add an event", {:url => { :controller => 'events', :action => "new", :rid => @snapshot.project_id, :sid => @snapshot.id },
+    :update => "event_form", :success => "$('event_form').show();"}, {:class => 'action'} %>
+<% end %>
+<div id="event_form" />

@@ -1,0 +1,49 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.sonar.tests</groupId>
+  <artifactId>reuse-rules-config</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>[SONAR-583] reuse-rules-config</name>
+  <description>see http://jira.codehaus.org/browse/SONAR-583</description>
+	<build>
+	  <plugins>
+	    <plugin>
+	      <groupId>org.apache.maven.plugins</groupId>
+	      <artifactId>maven-compiler-plugin</artifactId>
+	      <configuration>
+	        <source>1.5</source>
+	        <target>1.5</target>
+	      </configuration>
+	    </plugin>
+	    <plugin>
+	      <groupId>org.apache.maven.plugins</groupId>
+	      <artifactId>maven-checkstyle-plugin</artifactId>
+	      <configuration>
+	        <configLocation>rules/checkstyle.xml</configLocation>
+	      </configuration>
+      	</plugin>
+      	<plugin>
+	      <groupId>org.apache.maven.plugins</groupId>
+	      <artifactId>maven-pmd-plugin</artifactId>
+	      <configuration>
+	        <rulesets>
+	          <ruleset>rules/pmd.xml</ruleset>
+	        </rulesets>
+	      </configuration>
+	    </plugin>
+	    <plugin>
+	      <groupId>org.codehaus.mojo</groupId>
+	      <artifactId>findbugs-maven-plugin</artifactId>
+	      <configuration>
+	        <includeFilterFile>rules/findbugs.xml</includeFilterFile>
+	      </configuration>
+	    </plugin>
+	  </plugins>	
+   </build>
+   
+   <properties>
+     <sonar.profile>Empty profile</sonar.profile>
+     <sonar.reuseExistingRulesConfiguration>true</sonar.reuseExistingRulesConfiguration>
+   </properties>
+</project>

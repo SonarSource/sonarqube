@@ -1,0 +1,9 @@
+<dataset>
+
+  <properties id="1" prop_key="other" resource_id="[null]" text_value="some text" user_id="[null]"/>
+
+  <properties id="2" prop_key="sonar.core.id" resource_id="[null]" text_value="65" user_id="[null]"/>
+  <properties id="3" prop_key="sonar.core.version" resource_id="[null]" text_value="1.9" user_id="[null]"/>
+  <properties id="4" prop_key="sonar.core.startTime" resource_id="[null]" text_value="2008-04-18T17:59:00+0000" user_id="[null]"/>
+
+</dataset>

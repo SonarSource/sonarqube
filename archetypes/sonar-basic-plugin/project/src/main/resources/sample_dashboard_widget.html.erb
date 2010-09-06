@@ -1,0 +1,23 @@
+<div class="dashbox">
+  <h3><span title="<%= metric('random').description -%>"></span></h3>
+  <p>
+    <span class="big">
+      <%= format_measure('random') -%> <%= tendency_icon(measure('random')) %>
+    </span>
+  </p>
+  <p><%= format_measure('message') -%></p>
+  <p>
+    <%= format_measure('ncloc', :suffix => ' lines', :url => url_for_drilldown('ncloc')) -%>
+  </p>
+</div>
+<div class="dashbox">
+	<h3>Help</h3>
+	  <p>
+      Read configuration : <%= configuration('sonar.jdbc.username') -%>
+    </p>
+
+   	<p>
+	    Sample of Jfree Eastwood chart : <br/>
+		<%= gchart('cht=bhs&chco=FF0000,00FF00,0000FF&chs=200x125&chd=s:FOE,THE,Bar&chxt=x,y&chxl=1:|Dec|Nov|Oct|0:||20K||60K||100K|') -%>
+	  </p>
+</div>

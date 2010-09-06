@@ -1,0 +1,16 @@
+<% java = Java::OrgSonarServerUi::JRubyFacade.new %>
+development:
+  adapter: jdbc
+  jndi: <%= java.getConfigurationValue("sonar.jdbc.jndiName") || 'jdbc/sonar' %>
+  pool: 10
+  timeout: 5000
+  dialect: <%= java.getDialect().getActiveRecordDialectCode() %>
+  driver: none
+  
+production:
+  adapter: jdbc
+  jndi: <%= java.getConfigurationValue("sonar.jdbc.jndiName") || 'jdbc/sonar' %>
+  pool: 10
+  timeout: 5000
+  dialect: <%= java.getDialect().getActiveRecordDialectCode() %>
+  driver: none

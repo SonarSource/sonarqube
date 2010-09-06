@@ -1,0 +1,19 @@
+<dataset>
+
+  <rules_profiles id="1" provided="true" name="profile" default_profile="1" language="java"/>
+
+  <rules_categories id="1" name="category one" description="[null]"/>
+
+  <rules id="1" name="rule1" rules_category_id="1" description="desc" plugin_config_key="config1"
+         plugin_rule_key="key1" plugin_name="plugin" priority="1" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+
+  <rules_parameters id="1" rule_id="1" name="param1" description="foo" param_type="r"/>
+
+  <!-- Active rule created -->
+  <active_rules id="1" profile_id="1" rule_id="1" failure_level="2"/>
+
+  <!-- Active rule param created -->
+  <active_rule_parameters id="1" active_rule_id="1" rules_parameter_id="1" value="20"/>
+
+
+</dataset>

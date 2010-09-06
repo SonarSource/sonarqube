@@ -1,0 +1,50 @@
+= color-tools Change Log
+
+== color-utils 1.3.0
+* Added new metallic colours suggested by Jim Freeze <jfn@freeze.org>. These
+  are in the namespace Color::Metallic.
+* Colours that were defined in the Color namespace (e.g., Color::Red,
+  Color::AliceBlue) are now defined in Color::RGB (e.g., Color::RGB::Red,
+  Color::RGB::AliceBlue). They are added back to the Color namespace on the
+  first use of the old colours and a warning is printed. In version 1.4, this
+  warning will be printed on every use of the old colours. In version 1.5,
+  the backwards compatible support for colours like Color::Red will be
+  removed completely.
+* Added the Color::CSS module, color/css or Color::CSS that provides a name
+  lookup of Color::RGB-namespaced constants with Color::CSS[name]. Most of
+  these colours (which are mirrored from the Color::RGB default colours) are
+  only "officially" recognised under the CSS3 colour module or SVG.
+* Added the Color::HSL colour space and some helper utilities to Color::RGB
+  for colour manipulation using the HSL value.
+* Controlled internal value replacement to be between 0 and 1 for all
+  colours.
+* Updated Color::Palette::Gimp to more meaningfully deal with duplicate named
+  colours. Named colours now return an array of colours.
+* Indicated the plans for some methods and constants out to color-tools 2.0.
+* Added unit tests and fixed a number of hidden bugs because of them.
+
+== color-utils 1.2.0
+* Changed installer from a custom-written install.rb to setup.rb
+  3.3.1-modified.
+* Added Color::GreyScale (or Color::GrayScale).
+* Added Color::YIQ. This colour definition is incomplete; it does not have
+  conversions from YIQ to other colour spaces.
+
+== color-utils 1.1.0
+* Added color/palette/gimp to support the reading and use of GIMP color
+  palettes.
+
+== color-utils 1.0.0
+* Initial release.
+
+#--
+# Colour management with Ruby.
+#
+# Copyright 2005 Austin Ziegler
+#   http://rubyforge.org/ruby-pdf/
+#
+#   Licensed under a MIT-style licence.
+#
+# $Id: Changelog,v 1.8 2005/08/08 02:44:17 austin Exp $
+#++
+# vim: sts=2 sw=2 ts=4 et ai tw=77

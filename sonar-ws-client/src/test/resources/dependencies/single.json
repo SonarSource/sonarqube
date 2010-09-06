@@ -1,0 +1,15 @@
+[
+  {
+    "id":"1649",
+    "fi": 33,
+    "ti": 45,
+    "fk":"org.apache.shiro:shiro-core:org.apache.shiro.authc.pam",
+    "tk":"org.apache.shiro:shiro-core:org.apache.shiro.realm",
+    "u":"USES",
+    "w":5,
+    "fn": "pam",
+    "fq": "PAC",
+    "tn": "realm",
+    "tq": "PAC"
+  }
+]

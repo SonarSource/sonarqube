@@ -1,0 +1,11 @@
+<dataset>
+
+  <async_measure_snapshots id="1" project_measure_id="1" snapshot_id="[null]" measure_date="2008-12-03 08:00:00.00"
+                           snapshot_date="[null]" metric_id="1" project_id="1"/>
+  <async_measure_snapshots id="2" project_measure_id="1" snapshot_id="2" measure_date="2008-12-03 08:00:00.00"
+                           snapshot_date="[null]" metric_id="1" project_id="1"/>
+  <async_measure_snapshots id="3" project_measure_id="1" snapshot_id="[null]" measure_date="2008-12-03 08:00:00.00"
+                           snapshot_date="[null]" metric_id="1" project_id="1"/>
+  <async_measure_snapshots id="4" project_measure_id="2" snapshot_id="[null]" measure_date="2008-12-03 08:00:00.00"
+                           snapshot_date="[null]" metric_id="2" project_id="1"/>
+</dataset>

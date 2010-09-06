@@ -1,0 +1,21 @@
+<h1>Database down.</h1>
+<div class="error">
+  Database connection cannot be established. Check that you have a database running
+  and configured for the following settings :
+  <table>
+  <tr>
+    <td>URL: &nbsp;&nbsp;</td>
+    <td><%= configuration('sonar.jdbc.url', '') -%>
+  </tr>
+  <tr>
+    <td>Login: &nbsp;&nbsp;</td>
+    <td><%= configuration('sonar.jdbc.username', '') -%>
+  </tr>
+  <tr>
+    <td>Driver: &nbsp;&nbsp;</td>
+    <td><%= configuration('sonar.jdbc.driverClassName', '') -%>
+  </tr>
+</table>
+  <br/><br/>
+<%= button_to "Try again", { :action => "index" }, :method => :get %>
+</div>

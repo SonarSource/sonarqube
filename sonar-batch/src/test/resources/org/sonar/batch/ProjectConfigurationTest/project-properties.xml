@@ -1,0 +1,17 @@
+<dataset>
+
+  <projects long_name="[null]" id="100" scope="PRJ" qualifier="TRK" kee="mygroup:myproject" name="[null]"
+            root_id="[null]"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]"/>
+
+  <!-- global properties -->
+  <properties prop_key="key1" resource_id="[null]" text_value="value1"/>
+  <properties prop_key="key2" resource_id="[null]" text_value="value2"/>
+
+  <!-- specific properties -->
+  <properties prop_key="key1" resource_id="100" text_value="overriden_value1"/>
+  <properties prop_key="key3" resource_id="100" text_value="value3"/>
+
+
+</dataset>

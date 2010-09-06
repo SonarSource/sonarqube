@@ -1,0 +1,32 @@
+<%
+  file_tangle_index=measure('file_tangle_index')
+  if file_tangle_index
+    file_cycles=measure('file_cycles')
+    file_feedback_edges=measure('file_feedback_edges')
+%>
+<table width="100%">
+  <tbody>
+    <tr>
+      <td valign="top">
+        <div class="dashbox">
+          <p class="title">File tangle index</p>
+          <p><span class="big"><%= format_measure(file_tangle_index, :suffix => '', :default => '-', :url => url_for_drilldown('file_tangle_index')) %> <%= tendency_icon(file_tangle_index, false) %></span></p>
+          <% if file_cycles %>
+          <p>> <%= format_measure(file_cycles, :suffix => ' cycles', :url => url_for_drilldown('file_cycles')) %></p>
+          <% end %>
+        </div>
+      </td>
+      <td valign="top">
+        <% if file_feedback_edges %>
+        <div class="dashbox">
+          <p class="title">Suspect file dependencies</p>
+          <p><span class="big"><%= format_measure(file_feedback_edges, :url => url_for_drilldown('file_feedback_edges')) %> <%= tendency_icon(file_feedback_edges) %></span></p>
+        </div>
+        <% end %>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<%
+  end
+%>
