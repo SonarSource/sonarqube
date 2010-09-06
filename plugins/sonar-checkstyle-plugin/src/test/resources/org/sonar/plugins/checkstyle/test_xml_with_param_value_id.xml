@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Sonar Checkstyle rules generated configuration -->
-<module name="Checker">
-  <module name="Test">
-    <property name="id" value="[QP-COD-0000]"/>
-  </module>
-</module>
