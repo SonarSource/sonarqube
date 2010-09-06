@@ -31,17 +31,12 @@ import java.io.Writer;
 /**
  * @since 2.3
  */
-public final class XMLProfileExporter extends ProfileExporter {
-
-  private XMLProfileExporter() {
-    // support all repositories
-  }
+public final class XMLProfileExporter  {
 
   public static XMLProfileExporter create() {
     return new XMLProfileExporter();
   }
 
-  @Override
   public void exportProfile(RulesProfile profile, Writer writer) {
     try {
       appendHeader(writer);

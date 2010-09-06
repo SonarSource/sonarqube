@@ -32,8 +32,8 @@ public abstract class ProfileDefinition implements ServerExtension {
   protected ProfileDefinition() {
   }
 
-  protected ProfileDefinition(String name, String language) {
-    this.name = name;
+  protected ProfileDefinition(String profileName, String language) {
+    this.name = profileName;
     this.language = language;
   }
 

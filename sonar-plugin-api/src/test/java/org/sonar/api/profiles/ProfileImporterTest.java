@@ -31,31 +31,31 @@ public class ProfileImporterTest {
 
   @Test
   public void testSupportedRepositories() {
-    ProfileImporter inmporter = new ProfileImporter() {
+    ProfileImporter inmporter = new ProfileImporter("all", "All") {
       @Override
       public ProfilePrototype importProfile(Reader reader, ValidationMessages messages) {
         return null;
       }
     };
-    inmporter.setSupportedRepositories("checkstyle", "pmd");
+    inmporter.setSupportedLanguages("java", "php");
 
-    assertThat(inmporter.getSupportedRepositories().length, is(2));
-    assertThat(inmporter.getSupportedRepositories()[0], is("checkstyle"));
-    assertThat(inmporter.getSupportedRepositories()[1], is("pmd"));
+    assertThat(inmporter.getSupportedLanguages().length, is(2));
+    assertThat(inmporter.getSupportedLanguages()[0], is("java"));
+    assertThat(inmporter.getSupportedLanguages()[1], is("php"));
   }
 
   @Test
   public void supportAllRepositories() {
-    ProfileImporter importer = new ProfileImporter() {
+    ProfileImporter importer = new ProfileImporter("all", "All") {
       @Override
       public ProfilePrototype importProfile(Reader reader, ValidationMessages messages) {
         return null;
       }
     };
 
-    assertThat(importer.getSupportedRepositories().length, is(0));
+    assertThat(importer.getSupportedLanguages().length, is(0));
 
-    importer.setSupportedRepositories(null);
-    assertThat(importer.getSupportedRepositories().length, is(0));
+    importer.setSupportedLanguages(null);
+    assertThat(importer.getSupportedLanguages().length, is(0));
   }
 }

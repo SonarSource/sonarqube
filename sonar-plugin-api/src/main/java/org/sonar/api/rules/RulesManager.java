@@ -65,22 +65,6 @@ public abstract class RulesManager {
   public abstract List<Plugin> getPlugins(Language language);
 
   /**
-   * Gets count of rules by categories defined for a given language
-   *
-   * @param language the language
-   * @return a Map with the category as key and the count as value
-   */
-  public abstract Map<String, Long> countRulesByCategory(Language language);
-
-
-  /**
-   * Get the list of rules plugin that implement a mechanism of export for a given language
-   *
-   * @param language the language
-   * @return the list of plugins
-   */
-  public abstract List<Plugin> getExportablePlugins(Language language);
-  /**
    * Get the list of rules plugin that implement a mechanism of import for a given language
    *
    * @param language the language

@@ -27,14 +27,6 @@ class ProfilesController < ApplicationController
   def index
     @profiles = Profile.find(:all, :order => 'name')
     
-    @rules_count_by_language = {}
-    java_facade.getLanguages().collect { |language| language.getKey() }.each do |language|
-      @rules_count_by_language[language] = 0        
-      java_facade.getRulesCountByCategory(language).each do |category, nb_rules|
-        @rules_count_by_language[language] += nb_rules
-      end
-    end
-
     respond_to do |format|
       format.html # index.html.erb
       format.xml  { render :xml => @profiles }

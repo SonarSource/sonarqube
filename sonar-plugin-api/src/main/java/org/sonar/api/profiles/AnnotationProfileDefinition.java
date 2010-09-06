@@ -20,32 +20,27 @@
 package org.sonar.api.profiles;
 
 import org.sonar.api.rules.RulePriority;
-import org.sonar.api.utils.ValidationMessages;
 import org.sonar.check.AnnotationIntrospector;
 import org.sonar.check.BelongsToProfile;
 
-import java.io.Reader;
 import java.util.Collection;
 
 /**
  * @since 2.3
  */
-public final class AnnotationProfileImporter extends ProfileImporter {
+public abstract class AnnotationProfileDefinition extends ProfileDefinition {
 
   private String repositoryKey;
   private Collection<Class> annotatedClasses;
 
-  AnnotationProfileImporter(String repositoryKey, Collection<Class> annotatedClasses) {
+  protected AnnotationProfileDefinition(String repositoryKey, String profileName, String language, Collection<Class> annotatedClasses) {
+    super(profileName, language);
     this.repositoryKey = repositoryKey;
     this.annotatedClasses = annotatedClasses;
   }
 
-  public static AnnotationProfileImporter create(String repositoryKey, Collection<Class> annotatedClasses) {
-    return new AnnotationProfileImporter(repositoryKey, annotatedClasses);
-  }
-
   @Override
-  public ProfilePrototype importProfile(Reader reader, ValidationMessages messages) {
+  public ProfilePrototype createPrototype() {
     ProfilePrototype profile = ProfilePrototype.create();
     if (annotatedClasses != null) {
       for (Class aClass : annotatedClasses) {

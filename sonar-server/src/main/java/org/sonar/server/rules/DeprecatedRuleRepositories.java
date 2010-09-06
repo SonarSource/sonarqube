@@ -21,6 +21,8 @@ package org.sonar.server.rules;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.CharEncoding;
+import org.sonar.api.Plugin;
+import org.sonar.api.Plugins;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RuleRepository;
@@ -33,15 +35,45 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Bridge for the deprecated extension "org.sonar.api.rules.RulesRepository"
- */
-public final class DeprecatedRuleBridge extends RuleRepository {
+public final class DeprecatedRuleRepositories {
+
+  private RulesRepository<?>[] repositories;
+  private DefaultServerFileSystem fileSystem;
+  private Plugins plugins;
+
+  public DeprecatedRuleRepositories(DefaultServerFileSystem fileSystem, Plugins plugins) {
+    this.fileSystem = fileSystem;
+    this.plugins = plugins;
+    this.repositories = new RulesRepository[0];
+  }
+
+  public DeprecatedRuleRepositories(DefaultServerFileSystem fileSystem, Plugins plugins, RulesRepository[] repositories) {
+    this.fileSystem = fileSystem;
+    this.plugins = plugins;
+    this.repositories = repositories;
+  }
+
+  public List<DeprecatedRuleRepository> create() {
+    List<DeprecatedRuleRepository> repositories = new ArrayList<DeprecatedRuleRepository>();
+    for (RulesRepository repository : this.repositories) {
+      Plugin plugin = getPlugin(repository);
+      repositories.add(new DeprecatedRuleRepository(plugin.getKey(), plugin.getName(), repository, fileSystem));
+    }
+    return repositories;
+  }
+
+  private Plugin getPlugin(RulesRepository repository) {
+    return plugins.getPluginByExtension(repository);
+  }
+}
+
+
+class DeprecatedRuleRepository extends RuleRepository {
 
   private RulesRepository deprecatedRepository;
   private DefaultServerFileSystem fileSystem;
 
-  public DeprecatedRuleBridge(String repositoryKey, String repositoryName, RulesRepository deprecatedRepository, DefaultServerFileSystem fileSystem) {
+  public DeprecatedRuleRepository(String repositoryKey, String repositoryName, RulesRepository deprecatedRepository, DefaultServerFileSystem fileSystem) {
     super(repositoryKey, deprecatedRepository.getLanguage().getKey());
     this.deprecatedRepository = deprecatedRepository;
     this.fileSystem = fileSystem;

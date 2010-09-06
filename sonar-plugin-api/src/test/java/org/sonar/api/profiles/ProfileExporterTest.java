@@ -30,29 +30,29 @@ public class ProfileExporterTest {
 
   @Test
   public void testSupportedRepositories() {
-    ProfileExporter exporter = new ProfileExporter() {
+    ProfileExporter exporter = new ProfileExporter("all", "All") {
       @Override
       public void exportProfile(RulesProfile profile, Writer writer) {
       }
     };
-    exporter.setSupportedRepositories("checkstyle", "pmd");
+    exporter.setSupportedLanguages("java", "php");
 
-    assertThat(exporter.getSupportedRepositories().length, is(2));
-    assertThat(exporter.getSupportedRepositories()[0], is("checkstyle"));
-    assertThat(exporter.getSupportedRepositories()[1], is("pmd"));
+    assertThat(exporter.getSupportedLanguages().length, is(2));
+    assertThat(exporter.getSupportedLanguages()[0], is("java"));
+    assertThat(exporter.getSupportedLanguages()[1], is("php"));
   }
 
   @Test
   public void supportAllRepositories() {
-    ProfileExporter exporter = new ProfileExporter() {
+    ProfileExporter exporter = new ProfileExporter("all", "All") {
       @Override
       public void exportProfile(RulesProfile profile, Writer writer) {
       }
     };
 
-    assertThat(exporter.getSupportedRepositories().length, is(0));
+    assertThat(exporter.getSupportedLanguages().length, is(0));
 
-    exporter.setSupportedRepositories(null);
-    assertThat(exporter.getSupportedRepositories().length, is(0));
+    exporter.setSupportedLanguages(null);
+    assertThat(exporter.getSupportedLanguages().length, is(0));
   }
 }

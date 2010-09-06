@@ -25,7 +25,7 @@ import org.sonar.api.rules.*;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.jpa.session.DatabaseSessionFactory;
-import org.sonar.server.rules.DeprecatedRuleBridges;
+import org.sonar.server.rules.DeprecatedRuleRepositories;
 
 import java.util.*;
 
@@ -34,16 +34,16 @@ public final class RegisterRules {
   private DatabaseSessionFactory sessionFactory;
   private List<RuleRepository> repositories = new ArrayList<RuleRepository>();
 
-  public RegisterRules(DatabaseSessionFactory sessionFactory, DeprecatedRuleBridges bridges, RuleRepository[] repos) {
+  public RegisterRules(DatabaseSessionFactory sessionFactory, DeprecatedRuleRepositories repositories, RuleRepository[] repos) {
     this.sessionFactory = sessionFactory;
     this.repositories.addAll(Arrays.asList(repos));
-    if (bridges != null) {
-      this.repositories.addAll(bridges.createBridges());
+    if (repositories != null) {
+      this.repositories.addAll(repositories.create());
     }
   }
 
-  public RegisterRules(DatabaseSessionFactory sessionFactory, DeprecatedRuleBridges bridges) {
-    this(sessionFactory, bridges, new RuleRepository[0]);
+  public RegisterRules(DatabaseSessionFactory sessionFactory, DeprecatedRuleRepositories repositories) {
+    this(sessionFactory, repositories, new RuleRepository[0]);
   }
 
   public void start() {

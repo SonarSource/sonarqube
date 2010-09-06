@@ -28,8 +28,6 @@ import org.sonar.api.Plugins;
 import org.sonar.api.database.configuration.DatabaseConfiguration;
 import org.sonar.api.platform.Environment;
 import org.sonar.api.platform.Server;
-import org.sonar.api.profiles.XMLProfileExporter;
-import org.sonar.api.profiles.XMLProfileImporter;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.utils.HttpDownloader;
@@ -51,10 +49,7 @@ import org.sonar.server.database.JndiDatabaseConnector;
 import org.sonar.server.filters.FilterExecutor;
 import org.sonar.server.mavendeployer.MavenRepository;
 import org.sonar.server.plugins.*;
-import org.sonar.server.rules.DeprecatedRuleBridges;
-import org.sonar.server.rules.DeprecatedRuleProfileBridge;
-import org.sonar.server.rules.ProfileBackuper;
-import org.sonar.server.rules.RuleRepositories;
+import org.sonar.server.rules.*;
 import org.sonar.server.startup.*;
 import org.sonar.server.ui.AuthenticatorFactory;
 import org.sonar.server.ui.CodeColorizers;
@@ -179,12 +174,12 @@ public final class Platform {
     servicesContainer.as(Characteristics.CACHE).addComponent(AuthenticatorFactory.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(ServerLifecycleNotifier.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(DefaultRuleProvider.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(DeprecatedRuleBridges.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(RuleRepositories.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(XMLProfileExporter.create());
-    servicesContainer.as(Characteristics.CACHE).addComponent(XMLProfileImporter.create());
-    servicesContainer.as(Characteristics.CACHE).addComponent(ProfileBackuper.class);
-
+    servicesContainer.as(Characteristics.CACHE).addComponent(DeprecatedRuleRepositories.class);
+    servicesContainer.as(Characteristics.CACHE).addComponent(DeprecatedProfiles.class);
+    servicesContainer.as(Characteristics.CACHE).addComponent(DeprecatedProfileExporters.class);
+    servicesContainer.as(Characteristics.CACHE).addComponent(ProfilesConsole.class);
+    servicesContainer.as(Characteristics.CACHE).addComponent(RulesConsole.class);
+    
     servicesContainer.start();
   }
 
@@ -195,7 +190,6 @@ public final class Platform {
       startupContainer.as(Characteristics.CACHE).addComponent(GwtPublisher.class);
       startupContainer.as(Characteristics.CACHE).addComponent(RegisterMetrics.class);
       startupContainer.as(Characteristics.CACHE).addComponent(RegisterRules.class);
-      startupContainer.as(Characteristics.CACHE).addComponent(DeprecatedRuleProfileBridge.class);
       startupContainer.as(Characteristics.CACHE).addComponent(RegisterProvidedProfiles.class);
       startupContainer.as(Characteristics.CACHE).addComponent(ActivateDefaultProfiles.class);
       startupContainer.as(Characteristics.CACHE).addComponent(JdbcDriverDeployer.class);

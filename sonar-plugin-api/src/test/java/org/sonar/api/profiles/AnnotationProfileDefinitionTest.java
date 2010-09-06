@@ -28,18 +28,18 @@ import org.sonar.check.IsoCategory;
 import org.sonar.check.Priority;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class AnnotationProfileImporterTest {
+public class AnnotationProfileDefinitionTest {
 
   @Test
   public void importProfile() {
-    AnnotationProfileImporter importer = AnnotationProfileImporter.create("checkstyle", Arrays.<Class>asList(FakeRule.class));
-    ValidationMessages validation = ValidationMessages.create();
-    ProfilePrototype profile = importer.importProfile(null, validation);
-    assertThat(profile.getRule("checkstyle", "fake").getPriority(), is(RulePriority.BLOCKER));
+    ProfileDefinition definition = new FakeDefinition();
+    ProfilePrototype profile = definition.createPrototype();
+    assertThat(profile.getRule("squid", "fake").getPriority(), is(RulePriority.BLOCKER));
   }
 }
 
@@ -47,4 +47,12 @@ public class AnnotationProfileImporterTest {
 @Check(key = "fake", isoCategory = IsoCategory.Efficiency, priority = Priority.CRITICAL)
 class FakeRule {
 
+}
+
+
+class FakeDefinition extends AnnotationProfileDefinition {
+
+  public FakeDefinition() {
+    super("squid", "sonar way", "java", Arrays.<Class>asList(FakeRule.class));
+  }
 }

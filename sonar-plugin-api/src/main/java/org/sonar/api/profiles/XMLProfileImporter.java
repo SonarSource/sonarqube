@@ -36,7 +36,7 @@ import java.util.List;
 /**
  * @since 2.3
  */
-public final class XMLProfileImporter extends ProfileImporter {
+public final class XMLProfileImporter {
 
   private XMLProfileImporter() {
     // support all repositories
@@ -46,7 +46,6 @@ public final class XMLProfileImporter extends ProfileImporter {
     return new XMLProfileImporter();
   }
 
-  @Override
   public ProfilePrototype importProfile(Reader reader, ValidationMessages messages) {
     ProfilePrototype profile = ProfilePrototype.create();
 

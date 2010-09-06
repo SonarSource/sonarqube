@@ -1,13 +1,16 @@
-<% languages.each do |language| %>
+<%
+  languages.each do |language|
+    exporters=controller.java_facade.getProfileExportersForLanguage(language.getKey())   
+%>
 
-<table class="data2 width100" id="profiles_<%= language.getKey() -%>">
+<table class="data2 width100 marginbottom10" id="profiles_<%= language.getKey() -%>">
     <thead>
       <tr>
         <th><h2><%= language.getName() %></h2></th>
-        <th class="right"><%= @rules_count_by_language[language.getKey()] %> coding rules</th>
-        <th class="right">Export XML</th>
+        <th class="right"></th>
+        <th class="right">Export</th>
         <th class="right">Alerts</th>
-		<th class="right">Default</th>
+    		<th class="right">Default</th>
         <th class="right">Projects</th>
         <th width="1%"> </th>
         <th width="1%"> </th>
@@ -21,24 +24,24 @@
       <td align="right">
         <% activated_rules=profile.active_rules_by_category_and_level(nil, nil).size %>
         <a id="rules_<%= u profile.key -%>" href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => profile.id -%>">
-          <span id="activated_rules_<%= u profile.key -%>"><%= activated_rules %> activated rules</span>
+          <span id="activated_rules_<%= u profile.key -%>"><%= activated_rules %> rules</span>
         </a>
       </td>
+      
       <td align="right">
-        <% exportable_plugins=exportable_plugins_by_language[profile.language] || []
-           exportable_plugins.each do |plugin| %>
-             <%= link_to plugin.getName(),
+        <% exporters.each do |exporter| %>
+             <%= link_to exporter.getName(),
               {:controller => 'rules_configuration', :action => 'export', :language => profile.language,
-                :name => url_encode(profile.name), :plugin => plugin.getKey(), :format => 'xml'},
-              :id => "export_" + plugin.getKey().to_s + "_" + u(profile.key) %>
+                :name => url_encode(profile.name), :format => exporter.getKey()},
+                :id => "export_" + exporter.getKey().to_s + "_" + u(profile.key) %>
         <% end %>
       </td>
 
-	<td align="right"><%= link_to pluralize(profile.alerts.size, 'alert'), profile_alerts_path(profile), :id => "alerts_#{u profile.key}" %></td>
+	    <td align="right"><%= link_to pluralize(profile.alerts.size, 'alert'), profile_alerts_path(profile), :id => "alerts_#{u profile.key}" %></td>
       
-	<td align="right">
+    	<td align="right">
       <% if (!profile.default_profile? && is_admin?) %>
-      <%= button_to 'set as default', { :action => 'set_as_default', :id => profile.id }, :class => 'action',
+      <%= button_to 'Set as default', { :action => 'set_as_default', :id => profile.id }, :class => 'action',
                       :id => "activate_#{u profile.key}",
                       :confirm => "Are you sure that you want to set the profile '#{profile.name}' as default ?",
                       :method => :post %>
@@ -70,14 +73,14 @@
         <% if (is_admin?) %>
            <% form_tag(:action => 'copy', :id => profile.id) do -%>
             <%= hidden_field_tag 'copy_' + profile.id.to_s %>
-            <input type="button" name="button_copy" id="copy_<%= u profile.key %>" value="copy" onClick='var name=prompt("Name for the new profile"); if (name!=null) {$("copy_<%= profile.id %>").value=name; submit();} else {return false;}'>
+            <input type="button" name="button_copy" id="copy_<%= u profile.key %>" value="Copy" onClick='var name=prompt("Name for the new profile"); if (name!=null) {$("copy_<%= profile.id %>").value=name; submit();} else {return false;}'>
           <% end
           end %>
       </td>
 
       <td>
           <% if (!(profile.provided?) && !(profile.default_profile?) && is_admin?) %>
-          <%= button_to "delete", { :action => 'destroy', :id => profile.id }, :class => 'action',
+          <%= button_to "Delete", { :action => 'destroy', :id => profile.id }, :class => 'action',
                       :id => "delete_#{u profile.key}",
                       :confirm => "Are you sure that you want to delete the profile '#{profile.name}' ?",
                       :method => :delete %>
@@ -86,7 +89,6 @@
     </tr>
     <% end %>
 </table>
-<br/>
 <% end %>
 
 <% if is_admin? %>

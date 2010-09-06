@@ -78,19 +78,6 @@ class RulesConfigurationController < ApplicationController
 
   end
 
-  def export
-    name = CGI::unescape(params[:name])
-    language = params[:language]
-    plugin_key = params[:plugin]
-    if (name != 'active')
-      profile = RulesProfile.find_by_name_and_language(name, language)
-    else
-      profile = RulesProfile.find_active_profile_by_language(language)
-    end
-    result = java_facade.exportConfiguration(plugin_key, profile.id)
-    send_data(result, :type => 'text/xml', :disposition => 'inline')
-  end
-
 
   #
   #
@@ -272,8 +259,28 @@ class RulesConfigurationController < ApplicationController
   #
   def backup
     profile = RulesProfile.find(params[:id])
-    xml = java_facade.exportProfile(profile.id)
+    xml = java_facade.backupProfile(profile.id)
     send_data(xml, :type => 'text/xml', :disposition => "attachment; filename=#{profile.name}_#{profile.language}.xml")
+  end
+
+
+
+  #
+  #
+  # GET /rules_configuration/export?name=<profile name>&language=<language>&format<exporter key>
+  #
+  #
+  def export
+    name = CGI::unescape(params[:name])
+    language = params[:language]
+    if (name != 'active')
+      profile = RulesProfile.find_by_name_and_language(name, language)
+    else
+      profile = RulesProfile.find_active_profile_by_language(language)
+    end
+    exporter_key = params[:format]
+    result = java_facade.exportProfile(profile.id, exporter_key)
+    send_data(result, :type => java_facade.getProfileExporterMimeType(exporter_key), :disposition => 'inline')
   end
 
 

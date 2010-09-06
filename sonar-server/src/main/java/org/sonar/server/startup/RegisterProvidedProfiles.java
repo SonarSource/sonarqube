@@ -31,7 +31,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleProvider;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.jpa.session.DatabaseSessionFactory;
-import org.sonar.server.rules.DeprecatedRuleProfileBridge;
+import org.sonar.server.rules.DeprecatedProfiles;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +47,7 @@ public final class RegisterProvidedProfiles {
   private List<ProfileDefinition> definitions = new ArrayList<ProfileDefinition>();
 
   public RegisterProvidedProfiles(RuleProvider ruleProvider, DatabaseSessionFactory sessionFactory,
-                                  DeprecatedRuleProfileBridge deprecatedBridge, RegisterRules registerRulesBefore,
+                                  DeprecatedProfiles deprecatedBridge, RegisterRules registerRulesBefore,
                                   ProfileDefinition[] definitions) {
     this.ruleProvider = ruleProvider;
     this.sessionFactory = sessionFactory;
@@ -58,7 +58,7 @@ public final class RegisterProvidedProfiles {
   }
 
   public RegisterProvidedProfiles(RuleProvider ruleProvider, DatabaseSessionFactory sessionFactory,
-                                  DeprecatedRuleProfileBridge deprecatedBridge, RegisterRules registerRulesBefore) {
+                                  DeprecatedProfiles deprecatedBridge, RegisterRules registerRulesBefore) {
     this.ruleProvider = ruleProvider;
     this.sessionFactory = sessionFactory;
     if (deprecatedBridge != null) {

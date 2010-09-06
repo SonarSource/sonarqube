@@ -36,35 +36,35 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public final class DeprecatedRuleProfileBridge {
+public final class DeprecatedProfiles {
 
   private RulesRepository[] deprecatedRepositories;
   private Plugins plugins;
   private CheckProfile[] deprecatedCheckProfiles;
   private CheckProfileProvider[] deprecatedCheckProfileProviders;
 
-  public DeprecatedRuleProfileBridge(Plugins plugins, RulesRepository[] r, CheckProfile[] deprecatedCheckProfiles, CheckProfileProvider[] deprecatedCheckProfileProviders) {
+  public DeprecatedProfiles(Plugins plugins, RulesRepository[] r, CheckProfile[] deprecatedCheckProfiles, CheckProfileProvider[] deprecatedCheckProfileProviders) {
     this.deprecatedRepositories = r;
     this.plugins = plugins;
     this.deprecatedCheckProfiles = deprecatedCheckProfiles;
     this.deprecatedCheckProfileProviders = deprecatedCheckProfileProviders;
   }
 
-  public DeprecatedRuleProfileBridge(Plugins plugins, RulesRepository[] r, CheckProfile[] deprecatedCheckProfiles) {
+  public DeprecatedProfiles(Plugins plugins, RulesRepository[] r, CheckProfile[] deprecatedCheckProfiles) {
     this.deprecatedRepositories = r;
     this.plugins = plugins;
     this.deprecatedCheckProfiles = deprecatedCheckProfiles;
     this.deprecatedCheckProfileProviders = new CheckProfileProvider[0];
   }
 
-  public DeprecatedRuleProfileBridge(Plugins plugins, RulesRepository[] r, CheckProfileProvider[] deprecatedCheckProfileProviders) {
+  public DeprecatedProfiles(Plugins plugins, RulesRepository[] r, CheckProfileProvider[] deprecatedCheckProfileProviders) {
     this.deprecatedRepositories = r;
     this.plugins = plugins;
     this.deprecatedCheckProfiles = new CheckProfile[0];
     this.deprecatedCheckProfileProviders = deprecatedCheckProfileProviders;
   }
 
-  public DeprecatedRuleProfileBridge(Plugins plugins, RulesRepository[] r) {
+  public DeprecatedProfiles(Plugins plugins, RulesRepository[] r) {
     this.deprecatedRepositories = r;
     this.plugins = plugins;
     this.deprecatedCheckProfiles = new CheckProfile[0];

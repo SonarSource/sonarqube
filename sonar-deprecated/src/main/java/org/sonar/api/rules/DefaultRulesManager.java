@@ -137,53 +137,6 @@ public class DefaultRulesManager extends RulesManager {
     return Collections.emptyList();
   }
 
-  /**
-   * Gets count of rules by categories defined for a given language
-   *
-   * @param language the language
-   * @return a Map with the category as key and the count as value
-   */
-  public Map<String, Long> countRulesByCategory(Language language) {
-    return countRulesByCategory(language, rulesDao);
-  }
-
-  protected Map<String, Long> countRulesByCategory(Language language, RulesDao rulesDao) {
-    Map<String, Long> countByCategory = new HashMap<String, Long>();
-    List<Plugin> result = getPlugins(language);
-    if (!CollectionUtils.isEmpty(result)) {
-      List<String> keys = getPluginKeys(getPlugins(language));
-      for (RulesCategory rulesCategory : rulesDao.getCategories()) {
-        Long rulesCount = rulesDao.countRules(keys, rulesCategory.getName());
-        countByCategory.put(rulesCategory.getName(), rulesCount);
-      }
-    }
-    return countByCategory;
-  }
-
-  private List<String> getPluginKeys(List<Plugin> plugins) {
-    ArrayList<String> keys = new ArrayList<String>();
-    for (Plugin plugin : plugins) {
-      keys.add(plugin.getKey());
-    }
-    return keys;
-  }
-
-  /**
-   * Get the list of rules plugin that implement a mechanism of export for a given language
-   *
-   * @param language the language
-   * @return the list of plugins
-   */
-  public List<Plugin> getExportablePlugins(Language language) {
-    List<Plugin> targets = new ArrayList<Plugin>();
-    List<RulesRepository<?>> rulesRepositories = getRulesRepositories(language);
-    for (RulesRepository<?> repository : rulesRepositories) {
-      if (repository instanceof ConfigurationExportable) {
-        targets.add(plugins.getPluginByExtension(repository));
-      }
-    }
-    return targets;
-  }
 
   /**
    * Get the list of rules plugin that implement a mechanism of import for a given language

@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugin;
 import org.sonar.api.Plugins;
 import org.sonar.api.Property;
+import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rules.DefaultRulesManager;
@@ -43,8 +44,8 @@ import org.sonar.server.platform.Platform;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.UpdateFinder;
 import org.sonar.server.plugins.UpdateFinderFactory;
-import org.sonar.server.rules.ProfileBackuper;
-import org.sonar.server.rules.RuleRepositories;
+import org.sonar.server.rules.ProfilesConsole;
+import org.sonar.server.rules.RulesConsole;
 import org.sonar.updatecenter.common.Version;
 
 import java.util.Collection;
@@ -122,24 +123,28 @@ public class JRubyFacade {
     return getContainer().getComponent(Plugins.class).getPlugins();
   }
 
-  public List<Plugin> getPluginsWithConfigurationExportable(Language language) {
-    return getRulesManager().getExportablePlugins(language);
-  }
-
   public List<Plugin> getPluginsWithConfigurationImportable(Language language) {
     return getRulesManager().getImportablePlugins(language);
   }
 
   public List<RuleRepository> getRuleRepositoriesByLanguage(String languageKey) {
-    return getContainer().getComponent(RuleRepositories.class).getRepositoriesByLanguage(languageKey);
+    return getContainer().getComponent(RulesConsole.class).getRepositoriesByLanguage(languageKey);
   }
 
-  public String exportProfile(int profileId) {
-    return getContainer().getComponent(ProfileBackuper.class).exportProfile(profileId);
+  public String backupProfile(int profileId) {
+    return getContainer().getComponent(ProfilesConsole.class).backupProfile(profileId);
   }
 
-  public String exportConfiguration(String pluginKey, long profileId) {
-    return getProfilesManager().exportProfile(pluginKey, (int) profileId);
+  public List<ProfileExporter> getProfileExportersForLanguage(String language) {
+    return getContainer().getComponent(ProfilesConsole.class).getProfileExportersForLanguage(language);
+  }
+
+  public String exportProfile(int profileId, String exporterKey) {
+    return getContainer().getComponent(ProfilesConsole.class).exportProfile(profileId, exporterKey);
+  }
+
+  public String getProfileExporterMimeType(String exporterKey) {
+    return getContainer().getComponent(ProfilesConsole.class).getProfileExporter(exporterKey).getMimeType();
   }
 
   public void importConfiguration(String pluginKey, long profileId, String configuration) {
@@ -152,11 +157,6 @@ public class JRubyFacade {
 
   public void deleteProfile(long profileId) {
     getProfilesManager().deleteProfile((int) profileId);
-  }
-
-  public Map<String, Long> getRulesCountByCategory(String languageKey) {
-    Language language = getContainer().getComponent(Languages.class).get(languageKey);
-    return getRulesManager().countRulesByCategory(language);
   }
 
   public List<Footer> getWebFooters() {

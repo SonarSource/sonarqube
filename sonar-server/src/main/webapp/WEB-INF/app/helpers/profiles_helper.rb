@@ -22,21 +22,16 @@ module ProfilesHelper
     controller.java_facade.getLanguages()
   end
 
-  def exportable_plugins_by_language
-    hash = {}
-    controller.java_facade.getLanguages().each do |language|
-      hash[language.getKey()] = controller.java_facade.getPluginsWithConfigurationExportable(language)
-    end
-    hash
-  end
-  
   def projects_tooltip(profile)
-    return nil if profile.projects.empty?
-    html='<ul>'
-    profile.projects.each do |project|
-      html+="<li style='white-space: nowrap'>#{escape_javascript project.name}</li>"
+    html=nil
+    if profile.projects.size>0
+      html='<ul>'
+      profile.projects.each do |project|
+        html+="<li style='white-space: nowrap'>#{escape_javascript project.name}</li>"
+      end
+      html+='</ul>'
+      html
     end
-    html+='</ul>'
     html
   end
 end

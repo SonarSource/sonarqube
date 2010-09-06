@@ -54,16 +54,6 @@ public class ProfilesManager extends BaseDao {
     getSession().commit();
   }
 
-  public String exportProfile(String pluginKey, int profileId) {
-    for (RulesRepository rulesRepository : rulesManager.getRulesRepositories()) {
-      Plugin plugin = plugins.getPluginByExtension(rulesRepository);
-      if (rulesRepository instanceof ConfigurationExportable && pluginKey.equals(plugin.getKey())) {
-        RulesProfile profile = rulesDao.getProfileById(profileId);
-        return ((ConfigurationExportable) rulesRepository).exportConfiguration(profile);
-      }
-    }
-    return null;
-  }
 
   public void importProfile(String pluginKey, int profileId, String configuration) {
     for (RulesRepository rulesRepository : rulesManager.getRulesRepositories()) {

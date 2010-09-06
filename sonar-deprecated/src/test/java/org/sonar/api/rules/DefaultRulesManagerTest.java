@@ -38,24 +38,6 @@ import static org.mockito.Mockito.when;
 public class DefaultRulesManagerTest {
 
   @Test
-  public void shouldReturnsZeroRulesByCategoryWhenNoPluginsForALanguage() {
-    DefaultRulesManager rulesManager = createRulesManagerForAlanguageWithNoPlugins();
-
-    Language language = mock(Language.class);
-    Map<String, Long> result = rulesManager.countRulesByCategory(language);
-    assertThat(result.size(), is(0));
-  }
-
-  @Test
-  public void shouldReturnsZeroExportablePluginsWhenLanguageHasNoRulesPlugin() {
-    DefaultRulesManager rulesManager = createRulesManagerForAlanguageWithNoPlugins();
-
-    Language language = mock(Language.class);
-    List<Plugin> result = rulesManager.getExportablePlugins(language);
-    assertThat(result.size(), is(0));
-  }
-
-  @Test
   public void shouldReturnsZeroImportablePluginsWhenLanguageHasNoRulesPlugin() {
     DefaultRulesManager rulesManager = createRulesManagerForAlanguageWithNoPlugins();
 
