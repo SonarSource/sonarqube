@@ -20,6 +20,7 @@
 package org.sonar.plugins.checkstyle;
 
 import com.puppycrawl.tools.checkstyle.api.AuditEvent;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -29,6 +30,9 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.internal.matchers.StringContains.containsString;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.*;
 
@@ -47,8 +51,20 @@ public class CheckstyleExecutorTest {
     verify(listener, times(1)).fileFinished(argThat(newFilenameMatcher("Hello.java")));
     verify(listener, times(1)).fileStarted(argThat(newFilenameMatcher("World.java")));
     verify(listener, times(1)).fileFinished(argThat(newFilenameMatcher("World.java")));
-
     verify(listener, atLeast(1)).addError(argThat(newErrorMatcher("Hello.java", "com.puppycrawl.tools.checkstyle.checks.coding.EmptyStatementCheck")));
+  }
+
+  @Test
+  public void canGenerateXMLReport() throws Exception {
+    CheckstyleConfiguration conf = mockConf();
+    File report = new File("target/test-tmp/checkstyle-report.xml");
+    when(conf.getTargetXMLReport()).thenReturn(report);
+    CheckstyleAuditListener listener = mockListener();
+    CheckstyleExecutor executor = new CheckstyleExecutor(conf, listener, getClass().getClassLoader());
+    executor.execute();
+
+    assertThat(report.exists(), is(true));
+    assertThat(FileUtils.readFileToString(report), containsString("<error"));
   }
 
   private BaseMatcher<AuditEvent> newErrorMatcher(final String filename, final String rule) {

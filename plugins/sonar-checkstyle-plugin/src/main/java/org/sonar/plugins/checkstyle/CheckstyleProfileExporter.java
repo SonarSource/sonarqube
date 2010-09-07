@@ -31,7 +31,6 @@ import org.sonar.api.resources.Java;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.RuleParam;
-import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.SonarException;
 
 import java.io.IOException;
@@ -140,7 +139,7 @@ public class CheckstyleProfileExporter extends ProfileExporter {
     if (manyInstances) {
       appendModuleProperty(writer, "id", activeRule.getRuleKey());
     }
-    appendModuleProperty(writer, "severity", toCheckstyleSeverity(activeRule.getPriority()));
+    appendModuleProperty(writer, "severity", CheckstyleSeverityUtils.toSeverity(activeRule.getPriority()));
     appendRuleParameters(writer, activeRule);
     writer.append("</module>");
   }
@@ -170,16 +169,5 @@ public class CheckstyleProfileExporter extends ProfileExporter {
     }
   }
 
-  static String toCheckstyleSeverity(RulePriority priority) {
-    if (RulePriority.BLOCKER.equals(priority) || RulePriority.CRITICAL.equals(priority)) {
-      return "error";
-    }
-    if (RulePriority.MAJOR.equals(priority)) {
-      return "warning";
-    }
-    if (RulePriority.MINOR.equals(priority) || RulePriority.INFO.equals(priority)) {
-      return "info";
-    }
-    throw new IllegalArgumentException("Priority not supported: " + priority);
-  }
+  
 }

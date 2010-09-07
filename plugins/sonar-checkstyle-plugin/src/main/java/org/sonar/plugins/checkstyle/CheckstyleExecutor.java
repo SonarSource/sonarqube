@@ -22,15 +22,16 @@ package org.sonar.plugins.checkstyle;
 import com.puppycrawl.tools.checkstyle.Checker;
 import com.puppycrawl.tools.checkstyle.PackageNamesLoader;
 import com.puppycrawl.tools.checkstyle.XMLLogger;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.ProjectClasspath;
+import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.OutputStream;
 
 public class CheckstyleExecutor implements BatchExtension {
@@ -73,7 +74,7 @@ public class CheckstyleExecutor implements BatchExtension {
       File xmlReport = configuration.getTargetXMLReport();
       if (xmlReport != null) {
         LOG.info("Checkstyle output report: " + xmlReport.getAbsolutePath());
-        xmlOutput = new FileOutputStream(xmlReport);
+        xmlOutput = FileUtils.openOutputStream(xmlReport);
         checker.addListener(new XMLLogger(xmlOutput, true));
       }
 
@@ -84,7 +85,7 @@ public class CheckstyleExecutor implements BatchExtension {
       profiler.stop();
 
     } catch (Exception e) {
-      throw new RuntimeException("Can not execute Checkstyle", e);
+      throw new SonarException("Can not execute Checkstyle", e);
 
     } finally {
       if (checker != null) {

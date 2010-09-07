@@ -23,9 +23,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.profiles.XMLProfileDefinition;
-import org.sonar.api.resources.Java;
 
 import java.util.Arrays;
 import java.util.List;
@@ -60,6 +57,7 @@ public class CheckstylePlugin implements Plugin {
         CheckstyleExecutor.class,
         CheckstyleAuditListener.class,
         CheckstyleProfileExporter.class,
+        CheckstyleProfileImporter.class,
         CheckstyleRuleRepository.class,
         SonarWayProfile.class,
         SunConventionsProfile.class,

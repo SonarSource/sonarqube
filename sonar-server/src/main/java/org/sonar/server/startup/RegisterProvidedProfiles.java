@@ -29,6 +29,7 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleProvider;
+import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.rules.DeprecatedProfiles;
@@ -107,7 +108,7 @@ public final class RegisterProvidedProfiles {
       RulesProfile profile = findOrCreate(definition, session);
 
       for (ProfilePrototype.RulePrototype rulePrototype : prototype.getRules()) {
-        Rule rule = ruleProvider.findByKey(rulePrototype.getRepositoryKey(), rulePrototype.getKey());
+        Rule rule = findRule(rulePrototype);
         if (rule == null) {
           LOGGER.warn("The profile " + definition + " defines an unknown rule: " + rulePrototype);
 
@@ -122,6 +123,16 @@ public final class RegisterProvidedProfiles {
       session.commit();
       profiler.stop();
     }
+  }
+
+  private Rule findRule(ProfilePrototype.RulePrototype rulePrototype) {
+    if (StringUtils.isNotBlank(rulePrototype.getKey())) {
+      return ruleProvider.findByKey(rulePrototype.getRepositoryKey(), rulePrototype.getKey());
+    }
+    if (StringUtils.isNotBlank(rulePrototype.getConfigKey())) {
+      return ruleProvider.find(RuleQuery.create().withRepositoryKey(rulePrototype.getRepositoryKey()).withConfigKey(rulePrototype.getConfigKey()));
+    }
+    return null;
   }
 
   private RulesProfile findOrCreate(ProfileDefinition definition, DatabaseSession session) {

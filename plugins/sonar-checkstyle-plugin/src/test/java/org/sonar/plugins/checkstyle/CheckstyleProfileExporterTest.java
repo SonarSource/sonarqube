@@ -31,9 +31,6 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.io.StringWriter;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-
 public class CheckstyleProfileExporterTest {
 
   @Test
@@ -141,14 +138,5 @@ public class CheckstyleProfileExporterTest {
     TestUtils.assertSimilarXml(
         TestUtils.getResourceContent("/org/sonar/plugins/checkstyle/CheckstyleProfileExporterTest/addCustomFilters.xml"),
         writer.toString());
-  }
-
-  @Test
-  public void testPriorityMappings() {
-    assertThat(CheckstyleProfileExporter.toCheckstyleSeverity(RulePriority.BLOCKER), is("error"));
-    assertThat(CheckstyleProfileExporter.toCheckstyleSeverity(RulePriority.CRITICAL), is("error"));
-    assertThat(CheckstyleProfileExporter.toCheckstyleSeverity(RulePriority.MAJOR), is("warning"));
-    assertThat(CheckstyleProfileExporter.toCheckstyleSeverity(RulePriority.MINOR), is("info"));
-    assertThat(CheckstyleProfileExporter.toCheckstyleSeverity(RulePriority.INFO), is("info"));
   }
 }

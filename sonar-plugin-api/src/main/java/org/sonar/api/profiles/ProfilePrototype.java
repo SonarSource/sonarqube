@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * BETA
  * @since 2.3
  */
 public final class ProfilePrototype {
@@ -65,6 +64,15 @@ public final class ProfilePrototype {
     return null;
   }
 
+  public RulePrototype getRuleByConfigKey(String repositoryKey, String configKey) {
+    for (RulePrototype rule : rules) {
+      if (StringUtils.equals(repositoryKey, rule.getRepositoryKey()) && StringUtils.equals(configKey, rule.getConfigKey())) {
+        return rule;
+      }
+    }
+    return null;
+  }
+
   /**
    *
    * @param repositoryKey
@@ -87,6 +95,7 @@ public final class ProfilePrototype {
   public static final class RulePrototype {
     private String repositoryKey;
     private String key;
+    private String configKey;
     private RulePriority priority = null;
     private Map<String, String> parameters = new HashMap<String, String>();
 
@@ -99,6 +108,10 @@ public final class ProfilePrototype {
 
     public static RulePrototype create(String repositoryKey, String key) {
       return new RulePrototype().setRepositoryKey(repositoryKey).setKey(key);
+    }
+
+    public static RulePrototype createByConfigKey(String repositoryKey, String configKey) {
+      return new RulePrototype().setRepositoryKey(repositoryKey).setConfigKey(configKey);
     }
 
     public String getRepositoryKey() {
@@ -116,6 +129,15 @@ public final class ProfilePrototype {
 
     public RulePrototype setKey(String s) {
       this.key = s;
+      return this;
+    }
+
+    public String getConfigKey() {
+      return configKey;
+    }
+
+    public RulePrototype setConfigKey(String s) {
+      this.configKey = s;
       return this;
     }
 

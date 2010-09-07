@@ -30,8 +30,6 @@ import org.sonar.api.utils.ValidationMessages;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import java.io.Reader;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @since 2.3
