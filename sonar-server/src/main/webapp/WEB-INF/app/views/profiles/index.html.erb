@@ -1,5 +1,5 @@
 <%
-  languages.each do |language|
+  languages.sort{|x,y| x.getName() <=> y.getName()}.each do |language|
     exporters=controller.java_facade.getProfileExportersForLanguage(language.getKey())
     importers=controller.java_facade.getProfileImportersForLanguage(language.getKey())
 %>

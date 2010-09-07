@@ -75,7 +75,7 @@
   <ul style="float: right" class="horizontal">
     <li class="marginleft10">
       <div class="csv">
-      <a href="<%= url_for(:controller => 'api/rules', :action => 'index', :language => @profile.language, :profile => @profile.name, :plugins => @plugins.join(','), :rule_status => @status, :searchtext => @searchtext, :priorities => @priorities.join(','), :categories => @categories.join(','), :format => 'csv') -%>" onClick="return downloadCsv()" id="download-link" class="">Download</a>
+      <a href="<%= url_for(:controller => 'api/rules', :action => 'index', :language => @profile.language, :profile => @profile.name, :plugins => @plugins.join(','), :status => @status, :searchtext => @searchtext, :priorities => @priorities.join(','), :categories => @categories.join(','), :format => 'csv') -%>" onClick="return downloadCsv()" id="download-link" class="">Download</a>
       </div>
     </li>
     <% if enable_modification %>

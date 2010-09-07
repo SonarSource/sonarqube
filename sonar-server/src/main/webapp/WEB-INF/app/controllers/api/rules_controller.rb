@@ -26,10 +26,11 @@ class Api::RulesController < Api::RestController
     set_backward_compatibility_params
     language = params[:language] || ''
     options= {}
-    if params[:plugins]
-      options[:plugins] = params[:plugins].split(',') 
-    else
+    if params[:plugins].blank?
       options[:plugins] = java_facade.getRuleRepositoriesByLanguage(language).collect { |repo| repo.getKey() }
+
+    else
+      options[:plugins] = params[:plugins].split(',')
     end
     options[:categories]=params[:categories].split(',') if params[:categories]
     options[:priorities]=params[:priorities].split(',') if params[:priorities]
@@ -39,7 +40,7 @@ class Api::RulesController < Api::RestController
     
 
     if params[:profile]
-      profile = RulesProfile.find_by_name_and_language(params[:profile], language)
+      profile = Profile.find_by_name_and_language(params[:profile], language)
       if profile.nil?
         rest_render([])
       else

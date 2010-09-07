@@ -23,6 +23,8 @@ class Profile < ActiveRecord::Base
   has_many :alerts, :dependent => :delete_all
   has_many :active_rules, :class_name => 'ActiveRule', :foreign_key => 'profile_id', :dependent => :destroy, :include => ['rule']
   has_many :projects, :order => 'name asc'
+  has_many :active_rules_with_params, :class_name => 'ActiveRule', :foreign_key => 'profile_id',
+      :include => ['active_rule_parameters']
 
   validates_uniqueness_of :name, :scope => :language, :case_sensitive => false
   validates_presence_of :name
@@ -72,5 +74,30 @@ class Profile < ActiveRecord::Base
       profile.save
     end
     self
+  end
+
+  def active_by_rule_id(rule_id)
+    active_hash_by_rule_id[rule_id]
+  end
+
+  def self.options_for_select
+    array=[]
+    RulesProfile.find(:all, :order => 'name').each do |profile|
+      label = profile.name
+      label = label + ' (active)' if profile.default_profile?
+      array<<[label, profile.id]
+    end
+    array
+  end
+
+  @active_hash_by_rule_id=nil
+  def active_hash_by_rule_id
+    if @active_hash_by_rule_id.nil?
+      @active_hash_by_rule_id={}
+      active_rules_with_params.each do |active_rule|
+        @active_hash_by_rule_id[active_rule.rule_id]=active_rule
+      end
+    end
+    @active_hash_by_rule_id
   end
 end

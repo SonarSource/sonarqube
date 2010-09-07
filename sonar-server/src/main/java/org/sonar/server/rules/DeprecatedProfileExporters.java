@@ -52,7 +52,7 @@ public final class DeprecatedProfileExporters implements ServerComponent {
     List<ProfileExporter> result = new ArrayList<ProfileExporter>();
     for (RulesRepository repo : deprecatedRepositories) {
       if (repo instanceof ConfigurationExportable) {
-        result.add(new DeprecatedProfileExporter(getPlugin(repo), (ConfigurationExportable)repo));
+        result.add(new DeprecatedProfileExporter(getPlugin(repo), repo));
       }
     }
     return result;
@@ -64,18 +64,19 @@ public final class DeprecatedProfileExporters implements ServerComponent {
 }
 
 class DeprecatedProfileExporter extends ProfileExporter {
-  private ConfigurationExportable repository;
+  private RulesRepository exportableRepository;
 
-  protected DeprecatedProfileExporter(Plugin plugin, ConfigurationExportable repository) {
+  protected DeprecatedProfileExporter(Plugin plugin, RulesRepository exportableRepository) {
     super(plugin.getKey(), plugin.getName());
-    this.repository = repository;
+    this.exportableRepository = exportableRepository;
+    setSupportedLanguages(exportableRepository.getLanguage().getKey());
     setMimeType("application/xml");
   }
 
 
   @Override
   public void exportProfile(RulesProfile profile, Writer writer) {
-    String xml = repository.exportConfiguration(profile);
+    String xml = ((ConfigurationExportable)exportableRepository).exportConfiguration(profile);
     if (xml != null) {
       try {
         writer.append(xml);
