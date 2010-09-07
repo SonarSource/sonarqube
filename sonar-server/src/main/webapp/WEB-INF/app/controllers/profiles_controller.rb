@@ -142,7 +142,8 @@ class ProfilesController < ApplicationController
   def backup
     profile = Profile.find(params[:id])
     xml = java_facade.backupProfile(profile.id)
-    send_data(xml, :type => 'text/xml', :disposition => "attachment; filename=#{profile.name}_#{profile.language}.xml")
+    filename=profile.name.gsub(' ', '_')
+    send_data(xml, :type => 'text/xml', :disposition => "attachment; filename=#{filename}_#{profile.language}.xml")
   end
 
 
