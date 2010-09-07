@@ -32,13 +32,12 @@ import org.sonar.api.utils.TimeProfiler;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.net.URLClassLoader;
 
 public class CheckstyleExecutor implements BatchExtension {
   private static Logger LOG = LoggerFactory.getLogger(CheckstyleExecutor.class);
 
   private CheckstyleConfiguration configuration;
-  private URLClassLoader projectClassloader;
+  private ClassLoader projectClassloader;
   private CheckstyleAuditListener listener;
 
   public CheckstyleExecutor(CheckstyleConfiguration configuration, CheckstyleAuditListener listener, ProjectClasspath classpath) {
@@ -48,7 +47,7 @@ public class CheckstyleExecutor implements BatchExtension {
   }
 
 
-  CheckstyleExecutor(CheckstyleConfiguration configuration, CheckstyleAuditListener listener, URLClassLoader projectClassloader) {
+  CheckstyleExecutor(CheckstyleConfiguration configuration, CheckstyleAuditListener listener, ClassLoader projectClassloader) {
     this.configuration = configuration;
     this.listener = listener;
     this.projectClassloader = projectClassloader;

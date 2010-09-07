@@ -109,9 +109,13 @@ public class CheckstyleConfiguration implements BatchExtension {
     File xmlConfig = getXMLDefinitionFile();
 
     LOG.info("Checkstyle configuration: " + xmlConfig.getAbsolutePath());
-    Configuration configuration = ConfigurationLoader.loadConfiguration(xmlConfig.getAbsolutePath(), new PropertiesExpander(new Properties()));
+    Configuration configuration = toCheckstyleConfiguration(xmlConfig);
     defineCharset(configuration);
     return configuration;
+  }
+
+  static Configuration toCheckstyleConfiguration(File xmlConfig) throws CheckstyleException {
+    return ConfigurationLoader.loadConfiguration(xmlConfig.getAbsolutePath(), new PropertiesExpander(new Properties()));
   }
 
 

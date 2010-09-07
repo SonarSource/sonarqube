@@ -141,9 +141,14 @@ public class CheckstyleProfileExporter extends ProfileExporter {
       appendModuleProperty(writer, "id", activeRule.getRuleKey());
     }
     appendModuleProperty(writer, "severity", toCheckstyleSeverity(activeRule.getPriority()));
+    appendRuleParameters(writer, activeRule);
+    writer.append("</module>");
+  }
+
+  private void appendRuleParameters(Writer writer, ActiveRule activeRule) throws IOException {
     for (RuleParam ruleParam : activeRule.getRule().getParams()) {
       ActiveRuleParam activeParam = activeRule.getParameter(ruleParam.getKey());
-      String value = null;
+      String value;
       if (activeParam == null) {
         value = ruleParam.getDefaultValue();
       } else {
@@ -153,7 +158,6 @@ public class CheckstyleProfileExporter extends ProfileExporter {
         appendModuleProperty(writer, ruleParam.getKey(), value);
       }
     }
-    writer.append("</module>");
   }
 
   private void appendModuleProperty(Writer writer, String propertyKey, String propertyValue) throws IOException {
