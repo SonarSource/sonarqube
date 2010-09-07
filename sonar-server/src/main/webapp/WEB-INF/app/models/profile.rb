@@ -48,20 +48,6 @@ class Profile < ActiveRecord::Base
     new_rule_profile.errors
   end
 
-  def active_rules_by_category_and_level(categ_id=nil, level=nil)
-    result=[]
-    active_rules.each do |active_rule|
-      if categ_id.nil?
-        result<<active_rule if active_rule.level==level or level.nil?
-      elsif level.nil?
-        result<<active_rule if active_rule.rule.rules_category_id==categ_id
-      else
-        result<<active_rule if active_rule.level==level and active_rule.rule.rules_category_id==categ_id
-      end
-    end
-    result
-  end
-
   def self.default_profile
     Profile.find(:first, :conditions => {:default_profile => true})
   end

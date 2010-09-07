@@ -30,6 +30,14 @@ module ApplicationHelper
     Java::OrgSonarServerPlatform::Platform.getServer().getVersion()
   end
 
+  # shortcut for the method is_admin?() without parameters. Result is kept in cache.
+  def administrator?
+    @is_administrator ||=
+      begin
+        is_admin?
+      end
+  end
+
   def qualifier_icon(object)
     qualifier=(object.respond_to?('qualifier') ? object.qualifier : object.to_s)
     if qualifier

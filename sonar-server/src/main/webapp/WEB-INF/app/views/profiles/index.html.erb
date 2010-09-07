@@ -22,9 +22,8 @@
       <td><a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => profile.id -%>"><%= h profile.name %></a></td>
       
       <td align="right">
-        <% activated_rules=profile.active_rules_by_category_and_level(nil, nil).size %>
         <a id="rules_<%= u profile.key -%>" href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => profile.id -%>">
-          <span id="activated_rules_<%= u profile.key -%>"><%= activated_rules %> rules</span>
+          <span id="activated_rules_<%= u profile.key -%>"><%= profile.active_rules.count -%> rules</span>
         </a>
       </td>
       
@@ -40,7 +39,7 @@
 	    <td align="right"><%= link_to pluralize(profile.alerts.size, 'alert'), profile_alerts_path(profile), :id => "alerts_#{u profile.key}" %></td>
       
     	<td align="right">
-      <% if (!profile.default_profile? && is_admin?) %>
+      <% if (!profile.default_profile? && administrator?) %>
       <%= button_to 'Set as default', { :action => 'set_as_default', :id => profile.id }, :class => 'action',
                       :id => "activate_#{u profile.key}",
                       :confirm => "Are you sure that you want to set the profile '#{profile.name}' as default ?",
@@ -61,7 +60,7 @@
       </td>
 
         <td align="right">
-        <% if (!profile.provided? && is_admin?) %>
+        <% if (!profile.provided? && administrator?) %>
            <% form_tag(:controller => 'rules_configuration', :action => 'backup', :id => profile.id) do -%>
             <%= hidden_field_tag 'backup_' + profile.id.to_s %>
             <input type="submit" name="button_backup" id="backup_<%= u profile.key %>" value="Backup"></input>
@@ -70,7 +69,7 @@
       </td>
 
       <td align="right">
-        <% if (is_admin?) %>
+        <% if administrator? %>
            <% form_tag(:action => 'copy', :id => profile.id) do -%>
             <%= hidden_field_tag 'copy_' + profile.id.to_s %>
             <input type="button" name="button_copy" id="copy_<%= u profile.key %>" value="Copy" onClick='var name=prompt("Name for the new profile"); if (name!=null) {$("copy_<%= profile.id %>").value=name; submit();} else {return false;}'>
@@ -79,7 +78,7 @@
       </td>
 
       <td>
-          <% if (!(profile.provided?) && !(profile.default_profile?) && is_admin?) %>
+          <% if (!(profile.provided?) && !(profile.default_profile?) && administrator?) %>
           <%= button_to "Delete", { :action => 'destroy', :id => profile.id }, :class => 'action',
                       :id => "delete_#{u profile.key}",
                       :confirm => "Are you sure that you want to delete the profile '#{profile.name}' ?",
@@ -91,7 +90,7 @@
 </table>
 <% end %>
 
-<% if is_admin? %>
+<% if administrator? %>
 <div id="create_profile_row">
     <% form_remote_tag :url => {:action => 'new'} do %>
       <%= submit_tag 'Create profile', :id => 'create_profile' %>

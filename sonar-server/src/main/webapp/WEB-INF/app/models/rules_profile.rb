@@ -56,20 +56,6 @@ class RulesProfile < ActiveRecord::Base
     provided
   end
 
-  def active_rules_by_category_and_level(categ_id=nil, level=nil)
-    result=[]
-    active_rules.each do |active_rule|
-      if categ_id.nil?
-        result<<active_rule if active_rule.level==level or level.nil?
-      elsif level.nil?
-        result<<active_rule if active_rule.rule.rules_category_id==categ_id
-      else
-        result<<active_rule if active_rule.level==level and active_rule.rule.rules_category_id==categ_id
-      end
-    end
-    result
-  end
-
   def active_by_rule_id(rule_id)
     active_hash_by_rule_id[rule_id]
   end
@@ -88,7 +74,6 @@ class RulesProfile < ActiveRecord::Base
     name + "_" + language
   end
   
-#  protected
 
   @active_hash_by_rule_id=nil
   def active_hash_by_rule_id
