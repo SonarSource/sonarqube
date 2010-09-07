@@ -165,7 +165,14 @@ public final class ProfilePrototype {
 
     @Override
     public String toString() {
-      return new StringBuilder().append("[repository=").append(repositoryKey).append(",key=").append(key).append("]").toString();
+      StringBuilder sb = new StringBuilder().append("[repository=").append(repositoryKey);
+      if (StringUtils.isNotBlank(key)) {
+        sb.append(",key=").append(key);
+      }
+      if (StringUtils.isNotBlank(configKey)) {
+        sb.append(",configKey=").append(configKey);
+      }
+      return sb.append("]").toString();
     }
   }
 }

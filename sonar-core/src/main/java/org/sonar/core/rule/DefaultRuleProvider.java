@@ -20,6 +20,7 @@
 package org.sonar.core.rule;
 
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleProvider;
 import org.sonar.api.rules.RuleQuery;
@@ -43,30 +44,33 @@ public class DefaultRuleProvider implements RuleProvider {
   }
 
   public Rule find(RuleQuery query) {
-    return (Rule) createHqlQuery(query).getSingleResult();
+    DatabaseSession session = sessionFactory.getSession();
+    return (Rule)session.getSingleResult(createHqlQuery(session, query), null);
+
   }
 
   public Collection<Rule> findAll(RuleQuery query) {
-    return createHqlQuery(query).getResultList();
+    DatabaseSession session = sessionFactory.getSession();
+    return createHqlQuery(session, query).getResultList();
   }
 
-  private Query createHqlQuery(RuleQuery query) {
+  private Query createHqlQuery(DatabaseSession session, RuleQuery query) {
     StringBuilder hql = new StringBuilder().append("from ").append(Rule.class.getSimpleName()).append(" where enabled=true ");
     Map<String,Object> params = new HashMap<String,Object>();
     if (StringUtils.isNotBlank(query.getRepositoryKey())) {
-      hql.append("AND pluginName=:repositoryKey");
+      hql.append("AND pluginName=:repositoryKey ");
       params.put("repositoryKey", query.getRepositoryKey());
     }
     if (StringUtils.isNotBlank(query.getKey())) {
-      hql.append("AND key=:key");
+      hql.append("AND key=:key ");
       params.put("key", query.getKey());
     }
     if (StringUtils.isNotBlank(query.getConfigKey())) {
-      hql.append("AND configKey=:configKey");
+      hql.append("AND configKey=:configKey ");
       params.put("configKey", query.getConfigKey());
     }
 
-    Query hqlQuery = sessionFactory.getSession().createQuery(hql.toString());
+    Query hqlQuery = session.createQuery(hql.toString());
     for (Map.Entry<String, Object> entry : params.entrySet()) {
       hqlQuery.setParameter(entry.getKey(), entry.getValue());
     }

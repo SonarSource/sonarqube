@@ -32,6 +32,7 @@ import java.io.StringReader;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 public class CheckstyleProfileImporterTest {
@@ -102,4 +103,16 @@ public class CheckstyleProfileImporterTest {
     importer.importProfile(reader, messages);
     assertThat(messages.getErrors().size(), is(1));
   }
+
+  @Test
+  public void importingFiltersIsNotSupported() {
+    Reader reader = new StringReader(TestUtils.getResourceContent("/org/sonar/plugins/checkstyle/CheckstyleProfileImporterTest/importingFiltersIsNotSupported.xml"));
+    ProfilePrototype profile = importer.importProfile(reader, messages);
+
+    assertNull(profile.getRuleByConfigKey("checkstyle", "Checker/SuppressionCommentFilter"));
+    assertNull(profile.getRuleByConfigKey("checkstyle", "Checker/TreeWalker/FileContentsHolder"));
+    assertThat(profile.getRules().size(), is(2));
+    assertThat(messages.getWarnings().size(), is(1)); // no warning for FileContentsHolder
+  }
+
 }

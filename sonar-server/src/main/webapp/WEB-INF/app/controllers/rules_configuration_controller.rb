@@ -29,7 +29,7 @@ class RulesConfigurationController < ApplicationController
   RULE_PRIORITIES = Sonar::RulePriority.as_options.reverse
 
   # GETs should be safe (see http://www.w3.org/2001/tag/doc/whenToUseGet.html)
-  verify :method => :post, :only => ['activate_rule', 'update_param', 'bulk_edit', 'create', 'update', 'delete', 'backup'], :redirect_to => { :action => 'index' }
+  verify :method => :post, :only => ['activate_rule', 'update_param', 'bulk_edit', 'create', 'update', 'delete'], :redirect_to => { :action => 'index' }
 
   before_filter :admin_required, :except => [ 'index', 'export' ]
 
@@ -251,37 +251,6 @@ class RulesConfigurationController < ApplicationController
     redirect_to url_parameters
   end
 
-
-  #
-  #
-  # POST /rules_configuration/backup?id=<profile_id>
-  #
-  #
-  def backup
-    profile = RulesProfile.find(params[:id])
-    xml = java_facade.backupProfile(profile.id)
-    send_data(xml, :type => 'text/xml', :disposition => "attachment; filename=#{profile.name}_#{profile.language}.xml")
-  end
-
-
-
-  #
-  #
-  # GET /rules_configuration/export?name=<profile name>&language=<language>&format<exporter key>
-  #
-  #
-  def export
-    name = CGI::unescape(params[:name])
-    language = params[:language]
-    if (name != 'active')
-      profile = RulesProfile.find_by_name_and_language(name, language)
-    else
-      profile = RulesProfile.find_active_profile_by_language(language)
-    end
-    exporter_key = params[:format]
-    result = java_facade.exportProfile(profile.id, exporter_key)
-    send_data(result, :type => java_facade.getProfileExporterMimeType(exporter_key), :disposition => 'inline')
-  end
 
 
   def update_param

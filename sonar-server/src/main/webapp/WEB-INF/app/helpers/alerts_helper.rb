@@ -25,7 +25,7 @@ module AlertsHelper
 
   def operators_for_select(alert)
     if alert.metric.nil?
-      []
+      {}
     elsif alert.metric.numeric?
       NUMERIC_THRESOLD_OPERATORS
 
@@ -38,7 +38,7 @@ module AlertsHelper
     elsif alert.metric.val_type==Metric::VALUE_TYPE_LEVEL
       LEVEL_THRESOLD_OPERATORS
     else
-      []
+      {}
     end
   end
 
@@ -68,23 +68,23 @@ module AlertsHelper
   end
 
 
-  def value_field(form, alert, fieldname)
+  def value_field(alert, value, fieldname)
     if alert.metric.nil?
-      form.text_field fieldname, :size => 5
+      text_field_tag fieldname, value, :size => 5
       
     elsif alert.metric.numeric?
-      form.text_field fieldname, :size => 5
+      text_field_tag fieldname, value, :size => 5
 
     elsif alert.metric.val_type==Metric::VALUE_TYPE_BOOLEAN
-      form.select fieldname, {'' => '', 'Yes' => '1', 'No' => '0'}
+      select_tag fieldname, {'' => '', 'Yes' => '1', 'No' => '0'}
 
     elsif alert.metric.val_type==Metric::VALUE_TYPE_STRING
-      form.text_field fieldname, :size => 5
+      text_field_tag fieldname, value, :size => 5
 
     elsif alert.metric.val_type==Metric::VALUE_TYPE_LEVEL
-      form.select fieldname, {'' => '', 'OK' => Metric::TYPE_LEVEL_OK, 'Error' => Metric::TYPE_LEVEL_ERROR, 'Warning' => Metric::TYPE_LEVEL_WARN}
+      select_tag fieldname, {'' => '', 'OK' => Metric::TYPE_LEVEL_OK, 'Error' => Metric::TYPE_LEVEL_ERROR, 'Warning' => Metric::TYPE_LEVEL_WARN}
     else
-      form.hidden_field fieldname
+      hidden_field_tag fieldname, value
     end
   end
 

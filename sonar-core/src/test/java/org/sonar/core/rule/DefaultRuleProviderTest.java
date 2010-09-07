@@ -45,6 +45,14 @@ public class DefaultRuleProviderTest extends AbstractDbUnitTestCase {
   }
 
   @Test
+  public void findReturnsNullIfNoResults() {
+    setupData("shared");
+    DefaultRuleProvider provider = new DefaultRuleProvider(getSessionFactory());
+    assertNull(provider.findByKey("checkstyle", "unknown"));
+    assertNull(provider.find(RuleQuery.create().withRepositoryKey("checkstyle").withConfigKey("unknown")));
+  }
+
+  @Test
   public void findRepositoryRules() {
     setupData("shared");
     DefaultRuleProvider provider = new DefaultRuleProvider(getSessionFactory());

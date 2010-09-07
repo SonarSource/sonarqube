@@ -19,16 +19,13 @@
  */
 package org.sonar.server.configuration;
 
-import org.sonar.api.Plugin;
 import org.sonar.api.Plugins;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.jpa.dao.RulesDao;
-import org.sonar.jpa.dao.BaseDao;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.*;
-
-import java.util.List;
+import org.sonar.api.rules.DefaultRulesManager;
+import org.sonar.jpa.dao.BaseDao;
+import org.sonar.jpa.dao.RulesDao;
 
 public class ProfilesManager extends BaseDao {
 
@@ -52,19 +49,6 @@ public class ProfilesManager extends BaseDao {
     ProfilesBackup pb = new ProfilesBackup(getSession());
     pb.importProfile(rulesDao, toImport);
     getSession().commit();
-  }
-
-
-  public void importProfile(String pluginKey, int profileId, String configuration) {
-    for (RulesRepository rulesRepository : rulesManager.getRulesRepositories()) {
-      Plugin plugin = plugins.getPluginByExtension(rulesRepository);
-      if (rulesRepository instanceof ConfigurationImportable && pluginKey.equals(plugin.getKey())) {
-        List<ActiveRule> activeRules = ((ConfigurationImportable) rulesRepository).importConfiguration(configuration, rulesDao.getRulesByPlugin(pluginKey));
-        rulesDao.addActiveRulesToProfile(activeRules, profileId, pluginKey);
-        getSession().commit();
-        break;
-      }
-    }
   }
 
   public void deleteProfile(int profileId) {

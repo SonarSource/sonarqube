@@ -13,9 +13,6 @@ ActionController::Routing::Routes.draw do |map|
     api.resources :favorites, :only => [:index, :show, :create, :destroy], :requirements => { :id => /.*/ }
   end
   
-  map.resources :alerts
-  map.resources :profiles, :has_many => :alerts
-
   map.connect 'api/metrics', :controller => 'api/metrics', :action => 'index', :conditions => { :method => :get }
   map.connect 'api/metrics/:id', :controller => 'api/metrics', :action => 'show', :conditions => { :method => :get }
   map.connect 'api/metrics/:id', :controller => 'api/metrics', :action => 'create', :conditions => { :method => :post }

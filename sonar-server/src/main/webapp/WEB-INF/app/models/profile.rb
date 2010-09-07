@@ -48,6 +48,14 @@ class Profile < ActiveRecord::Base
     new_rule_profile.errors
   end
 
+  def self.find_by_name_and_language(name, language)
+    Profile.find(:first, :conditions => {:name => name, :language => language})
+  end
+
+  def self.find_active_profile_by_language(language)
+    Profile.find(:first, :conditions => {:default_profile => true, :language => language})
+  end
+
   def self.default_profile
     Profile.find(:first, :conditions => {:default_profile => true})
   end

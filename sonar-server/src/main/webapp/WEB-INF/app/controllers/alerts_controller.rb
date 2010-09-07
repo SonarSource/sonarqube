@@ -20,45 +20,39 @@
 class AlertsController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
 
+  verify :method => :post, :only => ['create', 'update', 'delete'], :redirect_to => { :action => 'index' }
   before_filter :admin_required, :except => [ 'index' ]
-  before_filter :load_profile
-  
-  protected
-  
-  def load_profile
-    @profile = Profile.find(params[:profile_id])
-  end
-  
-  public
-  
-  # GET /profiles/:profile_id/alerts
-  # GET /profiles/:profile_id/alerts.xml
+
+
+  #
+  #
+  # GET /alerts/index/<profile_id>
+  #
+  #
   def index
+    @profile = Profile.find(params[:id])
     @alerts = @profile.alerts.sort
     @alert=Alert.new
-    
-    respond_to do |format|
-      format.html # index.html.erb
-      format.xml  { render :xml => @alerts }
-    end
   end
 
-  # GET /profiles/:profile_id/alerts/1
-  # GET /profiles/:profile_id/alerts/1.xml
+  #
+  #
+  # GET /alerts/show/<alert id>
+  #
+  #
   def show
     @alert = @profile.alerts.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.xml  { render :xml => @alert }
-    end
   end
 
-  # GET /profiles/:profile_id/alerts/new
-  # GET /profiles/:profile_id/alerts/new.xml
-  def new
-    @alert = @profile.alerts.build(params[:alert])
 
+  #
+  #
+  # GET /alerts/new?profile_id=<profile id>
+  #
+  #
+  def new
+    @profile = Profile.find(params[:profile_id])
+    @alert = @profile.alerts.build(params[:alert])
     respond_to do |format|
       format.js {
         render :update do |page|
@@ -70,23 +64,32 @@ class AlertsController < ApplicationController
     end
   end
 
-  # GET /profiles/:profile_id/alerts/edit
+
+  #
+  #
+  # GET /alerts/edit/<alert id>
+  #
+  #
   def edit
     @alert = @profile.alerts.find(params[:id])
   end
 
-  # POST /profiles/:profile_id/alerts
-  # POST /profiles/:profile_id/alerts.xml
+
+  #
+  #
+  # POST /alerts/create?profile_id=<profile id>&...
+  #
+  #
   def create
+    @profile = Profile.find(params[:profile_id])
     @alert = @profile.alerts.build(params[:alert])
     
     respond_to do |format|
       if @alert.save
         flash[:notice] = 'Alert is created.'
-        format.html { redirect_to profile_alerts_path(@profile) }
-        format.xml  { render :xml => @alert, :status => :created, :location => profile_alert_path(profile, @alert) }
+        format.html { redirect_to :action => 'index', :id=>@profile.id }
         format.js { render :update do |page|
-          page.redirect_to profile_alerts_path(@profile)
+          page.redirect_to :action => 'index', :id=>@profile.id
         end}
       else
 
@@ -101,18 +104,22 @@ class AlertsController < ApplicationController
     end
   end
 
-  # PUT /profiles/:profile_id/alerts/1
-  # PUT /profiles/:profile_id/alerts/1.xml
+  #
+  #
+  # POST /alerts/update/<alert id>?profile_id=<profile id>
+  #
+  #
   def update
+    @profile = Profile.find(params[:profile_id])
     @alerts=@profile.alerts
     alert = @alerts.find(params[:id])
 
     respond_to do |format|
       if alert.update_attributes(params[:alert])
         flash[:notice] = 'Alert is updated.'
-        format.html { redirect_to profile_alerts_path(@profile) }
+        format.html { redirect_to :action => 'index', :id=>@profile.id }
         format.xml  { head :ok }
-        format.js { render :update do |page| page.redirect_to profile_alerts_path(@profile) end}
+        format.js { render :update do |page| page.redirect_to :action => 'index', :id=>@profile.id end}
       else
         @alert=Alert.new
         format.html { render :action => "index" }
@@ -124,16 +131,21 @@ class AlertsController < ApplicationController
     end
   end
 
-  # DELETE /profiles/:profile_id/alerts/1
-  # DELETE /profiles/:profile_id/alerts/1.xml
-  def destroy
+  #
+  #
+  # POST /alerts/delete/<alert id>?profile_id=<profile id>
+  #
+  #
+  def delete
+    @profile = Profile.find(params[:profile_id])
     @alert = @profile.alerts.find(params[:id])
     @alert.destroy
     flash[:notice] = 'Alert is deleted.'
 
     respond_to do |format|
-      format.html { redirect_to(profile_alerts_path(@profile)) }
+      format.html { redirect_to(:action => 'index', :id=>@profile.id) }
       format.xml  { head :ok }
     end
   end
+
 end

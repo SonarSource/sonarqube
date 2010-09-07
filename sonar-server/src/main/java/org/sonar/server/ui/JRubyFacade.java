@@ -26,10 +26,11 @@ import org.sonar.api.Plugin;
 import org.sonar.api.Plugins;
 import org.sonar.api.Property;
 import org.sonar.api.profiles.ProfileExporter;
+import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.rules.RuleRepository;
+import org.sonar.api.utils.ValidationMessages;
 import org.sonar.api.web.*;
 import org.sonar.jpa.dao.AsyncMeasuresService;
 import org.sonar.jpa.dialect.Dialect;
@@ -50,7 +51,6 @@ import org.sonar.updatecenter.common.Version;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 public class JRubyFacade {
 
@@ -123,9 +123,10 @@ public class JRubyFacade {
     return getContainer().getComponent(Plugins.class).getPlugins();
   }
 
-  public List<Plugin> getPluginsWithConfigurationImportable(Language language) {
-    return getRulesManager().getImportablePlugins(language);
-  }
+
+
+
+  /* PROFILES CONSOLE : RULES AND METRIC THRESHOLDS */
 
   public List<RuleRepository> getRuleRepositoriesByLanguage(String languageKey) {
     return getContainer().getComponent(RulesConsole.class).getRepositoriesByLanguage(languageKey);
@@ -135,20 +136,28 @@ public class JRubyFacade {
     return getContainer().getComponent(ProfilesConsole.class).backupProfile(profileId);
   }
 
+  public ValidationMessages restoreProfile(String profileName, String language, String xmlBackup) {
+    return getContainer().getComponent(ProfilesConsole.class).restoreProfile(profileName, language, xmlBackup);
+  }
+
   public List<ProfileExporter> getProfileExportersForLanguage(String language) {
     return getContainer().getComponent(ProfilesConsole.class).getProfileExportersForLanguage(language);
+  }
+
+  public List<ProfileImporter> getProfileImportersForLanguage(String language) {
+    return getContainer().getComponent(ProfilesConsole.class).getProfileImportersForLanguage(language);
   }
 
   public String exportProfile(int profileId, String exporterKey) {
     return getContainer().getComponent(ProfilesConsole.class).exportProfile(profileId, exporterKey);
   }
 
-  public String getProfileExporterMimeType(String exporterKey) {
-    return getContainer().getComponent(ProfilesConsole.class).getProfileExporter(exporterKey).getMimeType();
+  public ValidationMessages importProfile(int profileId, String importerKey, String fileContent) {
+    return getContainer().getComponent(ProfilesConsole.class).importProfile(profileId, importerKey, fileContent);
   }
 
-  public void importConfiguration(String pluginKey, long profileId, String configuration) {
-    getProfilesManager().importProfile(pluginKey, (int) profileId, configuration);
+  public String getProfileExporterMimeType(String exporterKey) {
+    return getContainer().getComponent(ProfilesConsole.class).getProfileExporter(exporterKey).getMimeType();
   }
 
   public void copyProfile(long profileId, String newProfileName) {

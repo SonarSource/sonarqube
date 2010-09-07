@@ -19,114 +19,90 @@
 #
 class ProfilesController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
-  
+
+  verify :method => :post, :only => ['create', 'delete', 'copy', 'set_as_default', 'restore', 'backup', 'set_projects'], :redirect_to => { :action => 'index' }
   before_filter :admin_required, :except => [ 'index', 'show', 'projects' ]
 
-  # GET /profiles
-  # GET /profiles.xml
+  #
+  #
+  # GET /profiles/index
+  #
+  #
   def index
-    @profiles = Profile.find(:all, :order => 'name')
-    
-    respond_to do |format|
-      format.html # index.html.erb
-      format.xml  { render :xml => @profiles }
-    end
+    @profiles = Profile.find(:all, :order => 'name')   
   end
 
-  # GET /profiles/1
-  # GET /profiles/1.xml
+
+  #
+  #
+  # GET /profiles/show/<id>
+  #
+  #
   def show
     @profile = Profile.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.xml  { render :xml => @profile }
-    end
   end
 
-  # GET /profiles/new
-  # GET /profiles/new.xml
-  def new
-    @profile = Profile.new
-    @plugins_by_language = {}
-    java_facade.getLanguages().each do |language|
-      @plugins_by_language[language.getKey()] = java_facade.getPluginsWithConfigurationImportable(language)
-    end
 
-    respond_to do |format|
-      format.js {
-        render :update do |page|
-          page.replace_html('create_profile_row', :partial => 'new')
-        end
-      }
-      format.html # new.html.erb
-      format.xml  { render :xml => @profile }
-    end
-  end
 
-  # GET /profiles/1/edit
-  def edit
-    @profile = Profile.find(params[:id])
-  end
-
+  #
+  #
+  # POST /profiles/create?name=<profile name>&language=<language>
+  #
+  #
   def create
-    profile = RulesProfile.new(:name => params[:name], :language => params[:language], :default_profile => false)
-    profile.save
-    if profile.errors.empty?
-      java_facade.getLanguages().select{|l| l.getKey()==profile.language}.each do |language|
-        java_facade.getPluginsWithConfigurationImportable(language).each do |plugin|
-          file = params[plugin.getKey()]
-          configuration = read_configuration(file)
-          if not configuration.nil?
-            import_configuration(profile.id, configuration, plugin.getKey())
+    profile_name=params[:name]
+    language=params[:language]
+    if profile_name.blank?|| language.blank?
+      flash[:warning]='Please type a profile name.'
+    else
+      profile=Profile.find(:first, :conditions => {:name => profile_name, :language => language})
+      if profile
+        flash[:error]="This profile already exists: #{profile_name}"
+
+      else
+        profile = Profile.create(:name => profile_name, :language => language, :default_profile => false)
+        ok=profile.errors.empty?
+        if ok && params[:backup]
+          params[:backup].each_pair do |importer_key, file|
+            if !file.blank? && ok
+              messages = java_facade.importProfile(profile.id, importer_key, read_file_param(file))
+              flash_validation_messages(messages)
+              ok &= !messages.hasErrors()
+            end
           end
         end
+        if ok
+          flash[:notice]= "Profile '#{profile.name}' created. Set it as default or link it to a project to use it for next measures."
+        else
+          profile.reload
+          profile.destroy
+        end
       end
-      flash[:notice]= "Profile '#{profile.name}' created. Set it as default or link it to a project to use it for next measures."
-    else
-      flash[:error] = profile.errors.full_messages.first
     end
-    redirect_to :action => 'index'
-
-  rescue NativeException
-    profile.destroy
-    flash[:error] = "No profile created. Please check your configuration files."
     redirect_to :action => 'index'
   end
 
 
-  # PUT /profiles/1
-  # PUT /profiles/1.xml
-  def update
-    @profile = Profile.find(params[:id])
-
-    respond_to do |format|
-      if @profile.update_attributes(params[:profile])
-        flash[:notice] = 'Profile was successfully updated.'
-        format.html { redirect_to(@profile) }
-        format.xml  { head :ok }
-      else
-        format.html { render :action => "edit" }
-        format.xml  { render :xml => @profile.errors, :status => :unprocessable_entity }
-      end
-    end
-  end
-
-  # DELETE /profiles/1
-  # DELETE /profiles/1.xml
-  def destroy
+  #
+  #
+  # POST /profiles/delete/<id>
+  #
+  #
+  def delete
     @profile = Profile.find(params[:id])
     if @profile && !@profile.provided? && !@profile.default_profile?
       java_facade.deleteProfile(@profile.id)
       flash[:notice]="Profile '#{@profile.name}' is deleted."
     end
-
-    respond_to do |format|
-      format.html { redirect_to(:controller => 'profiles', :action => 'index') }
-      format.xml  { head :ok }
-    end
+    redirect_to(:controller => 'profiles', :action => 'index')
   end
 
+
+  #
+  #
+  # POST /profiles/set_as_default/<id>
+  #
+  #
   def set_as_default
     profile = Profile.find(params[:id])
     profile.set_as_default
@@ -134,6 +110,13 @@ class ProfilesController < ApplicationController
     redirect_to :action => 'index'
   end
 
+
+
+  #
+  #
+  # POST /profiles/copy/<id>?name=<name of new profile>
+  #
+  #
   def copy
     profile = Profile.find(params[:id])
     name = params['copy_' + profile.id.to_s]
@@ -149,6 +132,67 @@ class ProfilesController < ApplicationController
     redirect_to :action => 'index'
   end
 
+
+
+  #
+  #
+  # POST /profiles/backup/<id>
+  #
+  #
+  def backup
+    profile = Profile.find(params[:id])
+    xml = java_facade.backupProfile(profile.id)
+    send_data(xml, :type => 'text/xml', :disposition => "attachment; filename=#{profile.name}_#{profile.language}.xml")
+  end
+
+
+
+  #
+  #
+  # POST /profiles/restore/<id>
+  #
+  #
+  def restore
+    profile_name=params[:name]
+    language=params[:language]
+    profile=Profile.find(:first, :conditions => {:name => profile_name, :language => language})
+    if profile
+      flash[:error]='An existing profile can not be restored. Please delete it before.'
+    elsif params[:backup].blank?
+      flash[:warning]='Please upload a backup file.'
+    else
+      messages=java_facade.restoreProfile(profile_name, language, read_file_param(params[:backup]))
+      flash_validation_messages(messages)
+    end
+    redirect_to :action => 'index'
+  end
+
+
+
+  #
+  #
+  # GET /profiles/export?name=<profile name>&language=<language>&format<exporter key>
+  #
+  #
+  def export
+    name = CGI::unescape(params[:name])
+    language = params[:language]
+    if (name != 'active')
+      profile = Profile.find_by_name_and_language(name, language)
+    else
+      profile = Profile.find_active_profile_by_language(language)
+    end
+    exporter_key = params[:format]
+    result = java_facade.exportProfile(profile.id, exporter_key)
+    send_data(result, :type => java_facade.getProfileExporterMimeType(exporter_key), :disposition => 'inline')
+  end
+
+
+  #
+  #
+  # GET /profiles/projects/<id>
+  #
+  #
   def projects
     @profile = Profile.find(params[:id])
     @available_projects=Project.find(:all, 
@@ -158,7 +202,13 @@ class ProfilesController < ApplicationController
     @available_projects-=@profile.projects
   end
 
-  
+
+
+  #
+  #
+  # POST /profiles/set_projects/<id>?projects=<project ids>
+  #
+  #
   def set_projects
     @profile = Profile.find(params[:id])
     @profile.projects.clear
@@ -169,17 +219,10 @@ class ProfilesController < ApplicationController
     redirect_to :action => 'projects', :id => @profile.id
   end
 
+
   private
 
-  def language_names_by_key
-    languages_by_key = {}
-    java_facade.getLanguages().each do |language|
-      languages_by_key[language.getKey()] = language.getName()
-    end
-    languages_by_key
-  end
-  
-  def read_configuration(configuration_file)
+  def read_file_param(configuration_file)
     # configuration file is a StringIO
     if configuration_file.respond_to?(:read)
       return configuration_file.read
@@ -188,7 +231,15 @@ class ProfilesController < ApplicationController
     nil
   end
 
-  def import_configuration(profile_id, configuration, plugin_key)
-    java_facade.importConfiguration(plugin_key, profile_id, configuration)
+  def flash_validation_messages(messages)
+    if messages.hasErrors()
+      flash[:error]=messages.getErrors().map{|m| m.getLabel()}.join('<br/>')
+    end
+    if messages.hasWarnings()
+      flash[:warning]=messages.getWarnings().map{|m| m.getLabel()}.join('<br/>')
+    end
+    if messages.hasInfos()
+      flash[:notice]=messages.getInfos().map{|m| m.getLabel()}.join('<br/>')
+    end
   end
 end

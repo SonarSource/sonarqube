@@ -38,16 +38,9 @@ public final class ValidationMessages {
   public boolean hasErrors() {
     return !errors.isEmpty();
   }
+
   public List<Message> getErrors() {
     return errors;
-  }
-
-  public List<Message> getWarnings() {
-    return warnings;
-  }
-
-  public List<Message> getInfos() {
-    return infos;
   }
 
   public ValidationMessages addError(String key, String label) {
@@ -55,9 +48,25 @@ public final class ValidationMessages {
     return this;
   }
 
+  public List<Message> getWarnings() {
+    return warnings;
+  }
+
+  public boolean hasWarnings() {
+    return !warnings.isEmpty();
+  }
+
   public ValidationMessages addWarning(String key, String label) {
     warnings.add(new Message(key, label));
     return this;
+  }
+
+  public List<Message> getInfos() {
+    return infos;
+  }
+
+  public boolean hasInfos() {
+    return !infos.isEmpty();
   }
 
   public ValidationMessages addInfo(String key, String label) {

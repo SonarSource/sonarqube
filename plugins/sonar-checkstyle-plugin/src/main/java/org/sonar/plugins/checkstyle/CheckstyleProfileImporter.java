@@ -64,7 +64,7 @@ public class CheckstyleProfileImporter extends ProfileImporter {
         }
       }
     } catch (XMLStreamException e) {
-      messages.addError("unvalidXml", "XML is not valid: " + e.getMessage());
+      messages.addError("checkstyle.import.unvalidXml", "XML is not valid: " + e.getMessage());
     }
     return profile;
   }
@@ -80,23 +80,42 @@ public class CheckstyleProfileImporter extends ProfileImporter {
   }
 
   private void processModule(ProfilePrototype profile, String path, SMInputCursor moduleCursor, ValidationMessages messages) throws XMLStreamException {
-    String configKey = path + moduleCursor.getAttrValue("name");
-    ProfilePrototype.RulePrototype rule = ProfilePrototype.RulePrototype.createByConfigKey(CheckstyleConstants.REPOSITORY_KEY, configKey);
+    String configKey = moduleCursor.getAttrValue("name");
+    if (isFilter(configKey)) {
+      messages.addWarning("checkstyle.import.filtersNotSupported", "Checkstyle filters are not imported: " + configKey);
 
+    } else if (isIgnored(configKey)) {
+
+    } else {
+      ProfilePrototype.RulePrototype rule = ProfilePrototype.RulePrototype.createByConfigKey(CheckstyleConstants.REPOSITORY_KEY, path + configKey);
+      processProperties(moduleCursor, messages, rule);
+      profile.activateRule(rule);
+    }
+  }
+
+  static boolean isIgnored(String configKey) {
+    return StringUtils.equals(configKey, "FileContentsHolder");
+  }
+
+  static boolean isFilter(String configKey) {
+    return StringUtils.equals(configKey, "SuppressionCommentFilter") ||
+        StringUtils.equals(configKey, "SeverityMatchFilter") ||
+        StringUtils.equals(configKey, "SuppressionFilter") ||
+        StringUtils.equals(configKey, "SuppressWithNearbyCommentFilter");
+  }
+
+  private void processProperties(SMInputCursor moduleCursor, ValidationMessages messages, ProfilePrototype.RulePrototype rule) throws XMLStreamException {
     SMInputCursor propertyCursor = moduleCursor.childElementCursor("property");
     while (propertyCursor.getNext() != null) {
       processProperty(rule, propertyCursor, messages);
     }
-
-    profile.activateRule(rule);
-
   }
 
   private void processProperty(ProfilePrototype.RulePrototype rule, SMInputCursor propertyCursor, ValidationMessages messages) throws XMLStreamException {
     String key = propertyCursor.getAttrValue("name");
     String value = propertyCursor.getAttrValue("value");
     if (StringUtils.equals("id", key)) {
-      messages.addWarning("checkstyle.idPropertyNotSupported", "The property 'id' is not supported.");
+      messages.addWarning("checkstyle.import.idPropertyNotSupported", "The checkstyle property 'id' is not supported in the rule: " + rule.getConfigKey());
 
     } else if (StringUtils.equals("severity", key)) {
       rule.setPriority(CheckstyleSeverityUtils.fromSeverity(value));

@@ -1,5 +1,5 @@
 <h3>Create alert</h3>
-<% remote_form_for [@profile, @alert] do |f| %>
+<%= form_remote_tag :url => {:action => 'create', :profile_id => @profile.id}, :html => {:id => 'new_alert_form'} %>
 <table class="spaced">
 <tr>
   <td valign="top">
@@ -24,25 +24,31 @@
   </td>
 
   <td width="10%"  valign="top">
-    <%= f.select 'operator', operators_for_select(@alert), :selected => default_operator(@alert) %>
+    <select id="alert_operator" name="alert[operator]">
+      <%
+        default_op=default_operator(@alert)
+        operators_for_select(@alert).each_pair do |name, key| %>
+        <option value="<%= key -%>" <%= 'selected' if default_op==key -%>><%= name -%></option>
+      <% end %>
+    </select>
   </td>
 
   <td width="20%" valign="top">
     <%= image_tag 'levels/warn.png', :alt => 'A warning is triggered when this value is reached.' %>
-    <%= value_field(f, @alert, 'value_warning') %>
+    <%= value_field(@alert, '', 'alert[value_warning]') %>
     <%= @alert.metric.suffix if @alert.metric %><br/>
     <span class="note">Warning threshold</span>
   </td>
 
   <td width="20%" valign="top">
     <%= image_tag 'levels/error.png', :alt => 'An error is triggered when this value is reached.' %>
-    <%= value_field(f, @alert, 'value_error') %>
+    <%= value_field(@alert, '', 'alert[value_error]') %>
     <%= @alert.metric.suffix if @alert.metric %><br/>
     <span class="note">Error threshold</span>
   </td>
 
   <td width="120px" nowrap valign="top">
-    <%= f.submit 'Create', :id =>"submit_create" %>
+    <input type="submit" value="Create" id="submit_create"></input>
   </td>
 </tr>
 </table>
@@ -55,4 +61,4 @@
   </ul>
 </div>
 <% end %>
-<% end %>
+</form>
