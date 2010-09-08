@@ -30,7 +30,7 @@ class Rule < ActiveRecord::Base
   def parameters
     rules_parameters
   end
-  
+
   def parameter(name)
     result=nil
     parameters.each do |param|
@@ -69,13 +69,13 @@ class Rule < ActiveRecord::Base
   def editable?
     !parent_id.nil?
   end
-  
+
   def <=>(rule)
     name<=>rule.name
   end
-  
+
   def self.to_i(key_or_id)
-    id=key_or_id.to_i 
+    id=key_or_id.to_i
     if id<=0 and key_or_id
       parts=key_or_id.split(':')
       if parts.size==2
@@ -149,21 +149,35 @@ class Rule < ActiveRecord::Base
   end
 
 
-  # options : :categories => [], :plugins => [], :searchtext => '', :profile => nil, :priorities => [], :status => 
-  def self.search(options={})
+  # options :language => nil, :categories => [], :plugins => [], :searchtext => '', :profile => nil, :priorities => [], :status =>
+  def self.search(java_facade, options={})
     conditions = ['enabled=:enabled']
     values = {:enabled => true}
 
+    plugins=nil
     if remove_blank(options[:plugins])
-      conditions << "plugin_name IN (:plugin_names)"
-      values[:plugin_names] = options[:plugins]
+      plugins = options[:plugins]
+      unless options[:language].blank?
+        plugins = plugins & java_facade.getRuleRepositoriesByLanguage(options[:language]).collect{ |repo| repo.getKey() }
+      end
+    elsif !options[:language].blank?
+      plugins = java_facade.getRuleRepositoriesByLanguage(options[:language]).collect{ |repo| repo.getKey() }
+    end
+
+    if plugins
+      if plugins.empty?
+        conditions << "plugin_name IS NULL"
+      else
+        conditions << "plugin_name IN (:plugin_names)"
+        values[:plugin_names] = plugins
+      end
     end
 
     if remove_blank(options[:categories])
       conditions << "rules_category_id IN (:category_ids)"
       values[:category_ids] = RulesCategory.find(:all, :select => 'id', :conditions => { :name => options[:categories] }).map(&:id)
     end
-    
+
     unless options[:searchtext].blank?
       conditions << "(UPPER(rules.name) LIKE :searchtext OR plugin_rule_key = :key)"
       searchtext = options[:searchtext].to_s.strip
@@ -177,7 +191,7 @@ class Rule < ActiveRecord::Base
 
     filter(rules, options)
   end
-  
+
   def self.remove_blank(array)
     if array
       array = array - ['']
@@ -186,7 +200,7 @@ class Rule < ActiveRecord::Base
       nil
     end
   end
-  
+
   def self.filter(rules, options)
     priorities = remove_blank(options[:priorities])
     profile = options[:profile]
@@ -205,7 +219,7 @@ class Rule < ActiveRecord::Base
           (active_rule and priorities.include?(active_rule.priority_text)) or (active_rule.nil? and priorities.include?(rule.priority_text))
         end
       end
-      
+
     elsif priorities
       rules = rules.select do |rule|
         priorities.include?(rule.priority_text)

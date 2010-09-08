@@ -56,23 +56,20 @@ class RulesConfigurationController < ApplicationController
     @select_priority = ANY_SELECTION + RULE_PRIORITIES
     @select_status = [['Any',''], ["Active", STATUS_ACTIVE], ["Inactive", STATUS_INACTIVE]]
 
-    if @plugins.include?('')
-      plugins_to_search = java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| repo.getKey() }
-    else
-      plugins_to_search = @plugins
-    end
-    
-    @rules = Rule.search(:profile => @profile, :categories => @categories, 
-      :status => @status, :priorities => @priorities, :plugins =>  plugins_to_search, :searchtext => @searchtext, :include_parameters => true)
+    @rules = Rule.search(java_facade, {
+        :profile => @profile, :categories => @categories, :status => @status, :priorities => @priorities,
+        :plugins =>  @plugins, :searchtext => @searchtext, :include_parameters => true, :language => @profile.language})
 
     unless @searchtext.blank?
       if @status==STATUS_ACTIVE
-        @hidden_inactives=Rule.search(:profile => @profile, :categories => @categories,
-          :status => STATUS_INACTIVE, :priorities => @priorities, :plugins =>  plugins_to_search, :searchtext => @searchtext, :include_parameters => false).size
+        @hidden_inactives=Rule.search(java_facade, {
+            :profile => @profile, :categories => @categories, :status => STATUS_INACTIVE, :priorities => @priorities,
+            :plugins =>  @plugins, :language => @profile.language, :searchtext => @searchtext, :include_parameters => false}).size
 
       elsif @status==STATUS_INACTIVE
-        @hidden_actives=Rule.search(:profile => @profile, :categories => @categories,
-          :status => STATUS_ACTIVE, :priorities => @priorities, :plugins =>  plugins_to_search, :searchtext => @searchtext, :include_parameters => false).size
+        @hidden_actives=Rule.search(java_facade, {
+            :profile => @profile, :categories => @categories, :status => STATUS_ACTIVE, :priorities => @priorities,
+            :plugins =>  @plugins, :language => @profile.language, :searchtext => @searchtext, :include_parameters => false}).size
       end
     end
 
@@ -316,19 +313,18 @@ class RulesConfigurationController < ApplicationController
 
   def init_params
     @id = params[:id]
-    @priorities = params[:priorities] || ['']
-    @plugins = params[:plugins] || ['']
-    @categories=params[:categories] || ['']
+    @priorities = filter_any(params[:priorities]) || ['']
+    @plugins=filter_any(params[:plugins]) || ['']
+    @categories=filter_any(params[:categories]) || ['']
     @status=params[:rule_status] || STATUS_ACTIVE
     @searchtext=params[:searchtext]
   end
-  
-  def unselect_any_if_necessary(array)
-    array = array - [''] if array.size > 1 and array.include?("")
+
+  def filter_any(array)
+    if array && array.size>1 && array.include?('')
+      array=['']  #keep only 'any'
+    end
     array
   end
-  
-  def array_for_search(array)
-    array ? array - [''] : nil
-  end
+
 end

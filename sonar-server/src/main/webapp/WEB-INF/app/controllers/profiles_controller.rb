@@ -258,14 +258,15 @@ class ProfilesController < ApplicationController
   end
 
   def flash_validation_messages(messages)
+    # only 4 messages are kept each time to avoid cookie overflow.
     if messages.hasErrors()
-      flash[:error]=messages.getErrors().map{|m| m.getLabel()}.join('<br/>')
+      flash[:error]=messages.getErrors()[0...4].map{|m| m.getLabel()}.join('<br/>')
     end
     if messages.hasWarnings()
-      flash[:warning]=messages.getWarnings().map{|m| m.getLabel()}.join('<br/>')
+      flash[:warning]=messages.getWarnings()[0...4].map{|m| m.getLabel()}.join('<br/>')
     end
     if messages.hasInfos()
-      flash[:notice]=messages.getInfos().map{|m| m.getLabel()}.join('<br/>')
+      flash[:notice]=messages.getInfos()[0...4].map{|m| m.getLabel()}.join('<br/>')
     end
   end
 end
