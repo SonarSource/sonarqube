@@ -97,7 +97,12 @@ public final class ProfilesConsole implements ServerComponent {
       } else {
         ActiveRule activeRule = profile.activateRule(rule, rulePrototype.getPriority());
         for (Map.Entry<String, String> entry : rulePrototype.getParameters().entrySet()) {
-          activeRule.setParameter(entry.getKey(), entry.getValue());
+          if (rule.getParam(entry.getKey())==null) {
+            messages.addWarning("profiles.missingRuleParameter", "The rule " + rulePrototype + " has no parameter named '" + entry.getKey() + "'.");
+
+          } else {
+            activeRule.setParameter(entry.getKey(), entry.getValue());
+          }
         }
       }
     }

@@ -26,7 +26,7 @@ import org.sonar.api.resources.Java;
 public class SonarWayWithFindbugsProfile extends XMLProfileDefinition {
 
   public SonarWayWithFindbugsProfile() {
-    super(RulesProfile.SONAR_WAY_NAME, Java.KEY, SunConventionsProfile.class.getClassLoader(), "org/sonar/plugins/checkstyle/profile-sonar-way.xml");
+    super(RulesProfile.SONAR_WAY_FINDBUGS_NAME, Java.KEY, SonarWayWithFindbugsProfile.class.getClassLoader(), "org/sonar/plugins/checkstyle/profile-sonar-way.xml");
   }
 }
 
