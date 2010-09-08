@@ -20,7 +20,7 @@
 class ProfilesController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
 
-  verify :method => :post, :only => ['create', 'delete', 'copy', 'set_as_default', 'restore', 'backup', 'set_projects'], :redirect_to => { :action => 'index' }
+  verify :method => :post, :only => ['create', 'delete', 'copy', 'set_as_default', 'restore', 'backup', 'set_projects', 'rename'], :redirect_to => { :action => 'index' }
   before_filter :admin_required, :except => [ 'index', 'show', 'projects' ]
 
   #
@@ -213,11 +213,36 @@ class ProfilesController < ApplicationController
   def set_projects
     @profile = Profile.find(params[:id])
     @profile.projects.clear
-    
+
     projects=Project.find(params[:projects] || [])
     @profile.projects=projects
     flash[:notice]="Profile '#{@profile.name}' associated to #{projects.size} projects."
     redirect_to :action => 'projects', :id => @profile.id
+  end
+
+
+
+  #
+  #
+  # POST /profiles/rename/<id>?name=<new name>
+  #
+  #
+  def rename
+    profile = Profile.find(params[:id])
+    name = params['rename_' + profile.id.to_s]
+
+    if name.blank?
+      flash[:warning]='Profile name can not be blank.'
+    else
+      existing=Profile.find(:first, :conditions => {:name => name, :language => profile.language})
+      if existing
+        flash[:warning]='This profile name already exists.'
+      elsif !profile.provided?
+        profile.name=name
+        profile.save
+      end
+    end
+    redirect_to :action => 'index'
   end
 
 
