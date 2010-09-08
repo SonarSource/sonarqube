@@ -1,4 +1,4 @@
 <dataset>
   <quality_models id="1" name="initial" />
-  <characteristics id="1" kee="FAKE" name="fake" quality_model_id="1" rule_id="[null]" characteristic_order="1" depth="1" />
+  <characteristics id="1" kee="FAKE" name="fake" quality_model_id="1" rule_id="[null]" characteristic_order="1" depth="1" description="[null]" />
 </dataset>

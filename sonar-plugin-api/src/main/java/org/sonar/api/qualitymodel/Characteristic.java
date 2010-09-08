@@ -26,8 +26,10 @@ import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
 import org.sonar.api.rules.Rule;
 
-import java.util.*;
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @since 2.3
@@ -62,6 +64,9 @@ public final class Characteristic implements Comparable<Characteristic> {
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "rule_id")
   private Rule rule;
+
+  @Column(name = "description", nullable = true, length = 4000)
+  private String description;
 
 
   @ManyToMany
@@ -211,6 +216,15 @@ public final class Characteristic implements Comparable<Characteristic> {
     return this;
   }
 
+  public String getDescription() {
+    return description;
+  }
+
+  public Characteristic setDescription(String s) {
+    this.description = s;
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -243,6 +257,7 @@ public final class Characteristic implements Comparable<Characteristic> {
         .append("key", key)
         .append("name", name)
         .append("rule", rule)
+        .append("description", description)
         .toString();
   }
 
