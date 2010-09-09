@@ -21,7 +21,7 @@ class ProfilesController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
 
   verify :method => :post, :only => ['create', 'delete', 'copy', 'set_as_default', 'restore', 'backup', 'set_projects', 'rename'], :redirect_to => { :action => 'index' }
-  before_filter :admin_required, :except => [ 'index', 'show', 'projects' ]
+  before_filter :admin_required, :except => [ 'index', 'show', 'projects', 'permalinks', 'export' ]
 
   #
   #
