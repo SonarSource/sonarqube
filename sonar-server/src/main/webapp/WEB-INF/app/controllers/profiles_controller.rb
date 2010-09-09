@@ -191,6 +191,16 @@ class ProfilesController < ApplicationController
 
   #
   #
+  # GET /profiles/permalinks?id=<profile id>
+  #
+  #
+  def permalinks
+    @profile = Profile.find(params[:id])
+  end
+
+
+  #
+  #
   # GET /profiles/projects/<id>
   #
   #
@@ -260,13 +270,13 @@ class ProfilesController < ApplicationController
   def flash_validation_messages(messages)
     # only 4 messages are kept each time to avoid cookie overflow.
     if messages.hasErrors()
-      flash[:error]=messages.getErrors()[0...4].map{|m| m.getLabel()}.join('<br/>')
+      flash[:error]=messages.getErrors().to_a[0...4].map{|m| m.getLabel()}.join('<br/>')
     end
     if messages.hasWarnings()
-      flash[:warning]=messages.getWarnings()[0...4].map{|m| m.getLabel()}.join('<br/>')
+      flash[:warning]=messages.getWarnings().to_a[0...4].map{|m| m.getLabel()}.join('<br/>')
     end
     if messages.hasInfos()
-      flash[:notice]=messages.getInfos()[0...4].map{|m| m.getLabel()}.join('<br/>')
+      flash[:notice]=messages.getInfos().to_a[0...4].map{|m| m.getLabel()}.join('<br/>')
     end
   end
 end

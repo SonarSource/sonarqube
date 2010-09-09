@@ -228,7 +228,7 @@ class RulesConfigurationController < ApplicationController
   #
   #
   def bulk_edit
-    profile = RulesProfile.find(params[:id].to_i)
+    profile = Profile.find(params[:id].to_i)
     rule_ids = params[:bulk_rule_ids].split(',').map{|id| id.to_i}
     status=params[:rule_status]
     
@@ -283,9 +283,8 @@ class RulesConfigurationController < ApplicationController
       rules_to_activate=Rule.find(:all, :conditions => {:enabled=>true, :id => rule_ids_to_activate})
       count = rules_to_activate.size
       rules_to_activate.each do |rule|
-        profile.active_rules.build(:rule => rule, :failure_level => rule.priority)
+        profile.active_rules.create(:rule => rule, :failure_level => rule.priority)
       end
-      profile.save!
     end
     count
   end

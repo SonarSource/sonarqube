@@ -1,52 +1,94 @@
 <%
   languages.sort{|x,y| x.getName() <=> y.getName()}.each do |language|
-    exporters=controller.java_facade.getProfileExportersForLanguage(language.getKey())
     importers=controller.java_facade.getProfileImportersForLanguage(language.getKey())
 %>
+<div class="line-block marginbottom10">
+  <ul style="float: right" class="horizontal">
+    <li class="marginleft10 add">
+      <a href="#" onClick="$('create-form-<%= language.getKey() -%>').show();return false;">Create</a>
+    </li>
+    <li class="marginleft10 restore">
+      <a href="#" onclick="$('restore-form-<%= language.getKey() -%>').show();return false;">Restore</a>
+    </li>
+  </ul>
+  <h2><%= language.getName() %> profiles</h2>
+</div>
+
+<% if administrator? %>
+  <form class="admin" id="create-form-<%= language.getKey()-%>" action="<%= url_for :action => 'create' -%>" style="display: none" enctype="multipart/form-data" method="post">
+    <input type="hidden" name="language" value="<%= language.getKey() -%>"></input>
+    <table class="spaced width100">
+      <tr>
+        <td width="1%" nowrap>Name: </td>
+        <td><input type="text" name="name"></input></td>
+      </tr>
+      <% importers.each do |importer| %>
+      <tr>
+        <td width="1%" nowrap><%= importer.getName() -%>: </td>
+        <td>
+          <%= file_field_tag "backup[#{importer.getKey()}]" %></input>
+          <span class="note">Optional configuration file</span>
+        </td>
+      </tr>
+      <% end %>
+
+      <tr>
+        <td colspan="2">
+          <input type="submit" value="Create <%= language.getName() %> profile"></input>
+          <a href="#" onclick="$('create-form-<%= language.getKey()-%>').reset();$('create-form-<%= language.getKey()-%>').hide();return false;">Cancel</a>
+        </td>
+      </tr>
+    </table>
+  </form>
+  <form class="admin" id="restore-form-<%= language.getKey()-%>" action="<%= url_for :action => 'restore' -%>" enctype="multipart/form-data" style="display: none" method="post">
+    <input type="hidden" name="language" value="<%= language.getKey() -%>"></input>
+    <table class="spaced width100">
+      <tr>
+        <td width="1%" nowrap>Name: </td>
+        <td><input type="text" name="name"></input></td>
+      </tr>
+      <tr>
+        <td width="1%" nowrap>Backup: </td>
+        <td><%= file_field_tag 'backup' %></td>
+      </tr>
+
+      <tr>
+        <td colspan="2">
+          <input type="submit" value="Restore <%= language.getName() %> profile"></input>
+          <a href="#" onclick="$('restore-form-<%= language.getKey()-%>').reset();$('restore-form-<%= language.getKey()-%>').hide();return false;">Cancel</a>
+        </td>
+      </tr>
+    </table>
+  </form>
+<% end %>
 
 <table class="data2 width100 marginbottom10" id="profiles_<%= language.getKey() -%>">
     <thead>
       <tr>
-        <th><h2><%= language.getName() %></h2></th>
-        <th class="right"></th>
-        <th class="right"></th>
-        <th class="right">Export</th>
-    		<th class="right">Default</th>
+        <th class="left">Name</th>
+        <th class="right">Rules</th>
+        <th class="right">Alerts</th>
         <th class="right">Projects</th>
+        <th class="right">Default</th>
         <th width="1%" class="right" colspan="4">Operations</th>
       </tr>
     </thead>
-    <% if administrator? %>
-    <tfoot id="footer-<%= language.getKey() -%>">
-      <tr>
-        <td colspan="10">
-          <a href="#" onClick="$('footer-<%= language.getKey() -%>').hide();$('create-form-<%= language.getKey() -%>').show();return false;">Create <%= language.getName() -%> profile</a>
-          |
-          <a href="#" onclick="$('footer-<%= language.getKey() -%>').hide();$('restore-form-<%= language.getKey() -%>').show();return false;">Restore <%= language.getName() -%> profile</a>
-        </td>
-      </tr>
-    </tfoot>
-    <% end %>
     <tbody>
     <% @profiles.select{|p| p.language==language.getKey()}.each do |profile| %>
     <tr class="<%= cycle 'even', 'odd', :name => language.getKey() -%>" id="<%= u profile.key %>">
       <td><a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => profile.id -%>"><%= h profile.name %></a></td>
       
       <td align="right">
-        <a id="rules_<%= u profile.key -%>" href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => profile.id -%>">
-          <span id="activated_rules_<%= u profile.key -%>"><%= profile.active_rules.count -%> rules</span>
-        </a>
+        <span id="activated_rules_<%= u profile.key -%>"><%= profile.active_rules.count -%></span>
       </td>
 
-      <td align="right"><%= link_to pluralize(profile.alerts.size, 'alert'), url_for(:controller => 'alerts', :action => 'index', :id => profile.id), :id => "alerts_#{u profile.key}" %></td>
+      <td align="right"><span id="alerts_<%= u profile.key -%>"><%= profile.alerts.size -%></span></td>
       
       <td align="right">
-        <% exporters.each do |exporter| %>
-             <%= link_to exporter.getName(),
-              {:action => 'export', :language => profile.language, :name => url_encode(profile.name), :format => exporter.getKey()}, :id => "export_" + exporter.getKey().to_s + "_" + u(profile.key) %>
+        <% unless profile.default_profile? %>
+          <span id="projects_<%= u profile.key -%>"><%= profile.projects.size -%></span>
         <% end %>
       </td>
-
 
     	<td align="right">
       <% if (!profile.default_profile? && administrator?) %>
@@ -61,13 +103,7 @@
       </td>
 
 
-      <td align="right">
-        <% unless profile.default_profile? %>
-           <%= link_to pluralize(profile.projects.size, 'project'), 
-              {:action => 'projects', :id => profile.id},
-              {:id => "projects_#{u profile.key}", :class => 'tipable', :rel => projects_tooltip(profile) } %>
-        <% end %>
-      </td>
+
 
         <td align="right">
         <% if (!profile.provided? && administrator?) %>
@@ -107,52 +143,4 @@
     <% end %>
     </tbody>
 </table>
-
-  <% if administrator? %>
-  <form class="admin" id="create-form-<%= language.getKey()-%>" action="<%= url_for :action => 'create' -%>" style="display: none" enctype="multipart/form-data" method="post">
-    <input type="hidden" name="language" value="<%= language.getKey() -%>"></input>
-    <table class="spaced width100">
-      <tr>
-        <td width="1%" nowrap>Name: </td>
-        <td><input type="text" name="name"></input></td>
-      </tr>
-      <% importers.each do |importer| %>
-      <tr>
-        <td width="1%" nowrap><%= importer.getName() -%>: </td>
-        <td>
-          <%= file_field_tag "backup[#{importer.getKey()}]" %></input>
-          <span class="note">Optional configuration file</span>
-        </td>
-      </tr>
-      <% end %>
-
-      <tr>
-        <td colspan="2">
-          <input type="submit" value="Create <%= language.getName() %> profile"></input>
-          <a href="#" onclick="$('create-form-<%= language.getKey()-%>').reset();$('create-form-<%= language.getKey()-%>').hide();$('footer-<%= language.getKey()-%>').show();return false;">Cancel</a>
-        </td>
-      </tr>
-    </table>
-  </form>
-  <form class="admin" id="restore-form-<%= language.getKey()-%>" action="<%= url_for :action => 'restore' -%>" enctype="multipart/form-data" style="display: none" method="post">
-    <input type="hidden" name="language" value="<%= language.getKey() -%>"></input>
-    <table class="spaced width100">
-      <tr>
-        <td width="1%" nowrap>Name: </td>
-        <td><input type="text" name="name"></input></td>
-      </tr>
-      <tr>
-        <td width="1%" nowrap>Backup: </td>
-        <td><%= file_field_tag 'backup' %></td>
-      </tr>
-
-      <tr>
-        <td colspan="2">
-          <input type="submit" value="Restore <%= language.getName() %> profile"></input>
-          <a href="#" onclick="$('restore-form-<%= language.getKey()-%>').reset();$('restore-form-<%= language.getKey()-%>').hide();$('footer-<%= language.getKey()-%>').show();return false;">Cancel</a>
-        </td>
-      </tr>
-    </table>
-  </form>
-  <% end %>
 <% end %>

@@ -1423,6 +1423,9 @@ ul.horizontal li {
 table.data2 {
   border-collapse: collapse;
 }
+table.without-header {
+  border-top: 1px solid #ddd;
+}
 table.data2 tbody tr {
   border-left: 1px solid #ddd;
   border-right: 1px solid #ddd;
@@ -1441,7 +1444,7 @@ table.data2 td {
   vertical-align: middle;
 }
 table.data2 th {
-  font-weight: normal;
+  font-weight: bold;
 }
 table.data2 tfoot td {
   border-bottom: 0;
@@ -1458,10 +1461,20 @@ table.data2 td, table.data2 td a, table.data2 th, table.data2 th a {
 .bulk-edit {
   display: block;
   background: url("../images/bulk-edit.png") no-repeat scroll left 50% transparent;
-  padding: 2px 0 2px 18px;
+  padding: 2px 0 2px 20px;
 }
 .csv {
   display: block;
   background: url("../images/csv.png") no-repeat scroll left 50% transparent;
-  padding: 2px 0 2px 18px;
+  padding: 2px 0 2px 20px;
+}
+.add {
+  display: block;
+  background: url("../images/add.png") no-repeat scroll left 50% transparent;
+  padding: 2px 0 2px 20px;
+}
+.restore {
+  display: block;
+  background: url("../images/restore.gif") no-repeat scroll left 50% transparent;
+  padding: 2px 0 2px 20px;
 }
