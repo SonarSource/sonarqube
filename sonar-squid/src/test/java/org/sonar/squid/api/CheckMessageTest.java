@@ -19,10 +19,10 @@
  */
 package org.sonar.squid.api;
 
-import org.junit.Test;
-
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+
+import org.junit.Test;
 
 public class CheckMessageTest {
 
@@ -32,4 +32,10 @@ public class CheckMessageTest {
     assertThat(message.formatDefaultMessage(), is("Value is 3, expected value is 7."));
   }
 
+  @Test
+  public void testNotFormatMessageWithoutParameters() {
+    CheckMessage message = new CheckMessage(null, "public void main(){."); // This message can't be used as a pattern by the MessageFormat
+                                                                           // class
+    assertThat(message.formatDefaultMessage(), is("public void main(){."));
+  }
 }

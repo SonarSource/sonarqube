@@ -73,11 +73,15 @@ public class CheckMessage implements Message {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this).append("source", sourceCode).append("check", codeCheck).append("msg", defaultMessage).append("line",
-        line).toString();
+    return new ToStringBuilder(this).append("source", sourceCode).append("check", codeCheck).append("msg", defaultMessage)
+        .append("line", line).toString();
   }
 
   public String formatDefaultMessage() {
-    return MessageFormat.format(defaultMessage, messageArguments);
+    if (messageArguments.length == 0) {
+      return defaultMessage;
+    } else {
+      return MessageFormat.format(defaultMessage, messageArguments);
+    }
   }
 }
