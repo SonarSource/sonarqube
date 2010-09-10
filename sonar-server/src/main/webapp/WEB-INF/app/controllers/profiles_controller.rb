@@ -178,10 +178,10 @@ class ProfilesController < ApplicationController
   def export
     name = CGI::unescape(params[:name])
     language = params[:language]
-    if (name != 'active')
-      profile = Profile.find_by_name_and_language(name, language)
-    else
+    if (name.blank?)
       profile = Profile.find_active_profile_by_language(language)
+    else
+      profile = Profile.find_by_name_and_language(name, language)
     end
     exporter_key = params[:format]
     result = java_facade.exportProfile(profile.id, exporter_key)
