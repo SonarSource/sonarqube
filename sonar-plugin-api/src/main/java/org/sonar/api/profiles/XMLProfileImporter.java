@@ -46,15 +46,7 @@ public final class XMLProfileImporter {
 
   public ProfilePrototype importProfile(Reader reader, ValidationMessages messages) {
     ProfilePrototype profile = ProfilePrototype.create();
-
-    XMLInputFactory xmlFactory = XMLInputFactory2.newInstance();
-    xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
-    xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
-    // just so it won't try to load DTD in if there's DOCTYPE
-    xmlFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
-    xmlFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
-
-    SMInputFactory inputFactory = new SMInputFactory(xmlFactory);
+    SMInputFactory inputFactory = initStax();
     try {
       SMHierarchicCursor rootC = inputFactory.rootElementCursor(reader);
       rootC.advance(); // <profile>
@@ -70,6 +62,17 @@ public final class XMLProfileImporter {
       messages.addErrorText("XML is not valid: " + e.getMessage());
     }
     return profile;
+  }
+
+  private SMInputFactory initStax() {
+    XMLInputFactory xmlFactory = XMLInputFactory2.newInstance();
+    xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
+    xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
+    // just so it won't try to load DTD in if there's DOCTYPE
+    xmlFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
+    xmlFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
+    SMInputFactory inputFactory = new SMInputFactory(xmlFactory);
+    return inputFactory;
   }
 
   private void processRules(SMInputCursor rulesCursor, ProfilePrototype profile) throws XMLStreamException {

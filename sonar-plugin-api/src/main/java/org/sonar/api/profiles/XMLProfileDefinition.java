@@ -47,17 +47,12 @@ public abstract class XMLProfileDefinition extends ProfileDefinition {
   }
 
   @Override
-  public final ProfilePrototype createPrototype() {
+  public final ProfilePrototype createPrototype(ValidationMessages validation) {
     Reader reader = new InputStreamReader(classloader.getResourceAsStream(xmlClassPath), Charset.forName(CharEncoding.UTF_8));
     try {
-      ValidationMessages validation = ValidationMessages.create();
       ProfilePrototype profile = XMLProfileImporter.create().importProfile(reader, validation);
       profile.setName(name);
       profile.setLanguage(language);
-      if (validation.hasErrors()) {
-        // TODO do not loose messages
-        throw new SonarException("Fail to parse the file: " + xmlClassPath);
-      }
       return profile;
 
     } finally {

@@ -19,8 +19,10 @@
  */
 package org.sonar.plugins.checkstyle;
 
+import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.profiles.ProfilePrototype;
+import org.sonar.api.utils.ValidationMessages;
 
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
@@ -29,8 +31,8 @@ public class SonarWayWithFindbugsProfileTest {
 
   @Test
   public void sameAsSonarWay() {
-    ProfilePrototype withFindbugs = new SonarWayWithFindbugsProfile().createPrototype();
-    ProfilePrototype withoutFindbugs = new SonarWayProfile().createPrototype();
+    ProfilePrototype withFindbugs = new SonarWayWithFindbugsProfile().createPrototype(ValidationMessages.create());
+    ProfilePrototype withoutFindbugs = new SonarWayProfile().createPrototype(ValidationMessages.create());
     assertThat(withFindbugs.getRules().size(), is(withoutFindbugs.getRules().size()));
   }
 }

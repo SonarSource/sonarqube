@@ -21,6 +21,7 @@ package org.sonar.api.rules;
 
 import org.sonar.api.profiles.RulesProfile;
 
+@Deprecated
 public interface ConfigurationExportable {
 
   String exportConfiguration(RulesProfile profile);

@@ -32,12 +32,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
-public class DefaultRuleProviderTest extends AbstractDbUnitTestCase {
+public class DefaultRuleFinderTest extends AbstractDbUnitTestCase {
 
   @Test
   public void findByKey() {
     setupData("shared");
-    DefaultRuleProvider provider = new DefaultRuleProvider(getSessionFactory());
+    DefaultRuleFinder provider = new DefaultRuleFinder(getSessionFactory());
     Rule rule = provider.findByKey("checkstyle", "com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck");
     assertNotNull(rule);
     assertThat(rule.getKey(), is("com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck"));
@@ -47,7 +47,7 @@ public class DefaultRuleProviderTest extends AbstractDbUnitTestCase {
   @Test
   public void findReturnsNullIfNoResults() {
     setupData("shared");
-    DefaultRuleProvider provider = new DefaultRuleProvider(getSessionFactory());
+    DefaultRuleFinder provider = new DefaultRuleFinder(getSessionFactory());
     assertNull(provider.findByKey("checkstyle", "unknown"));
     assertNull(provider.find(RuleQuery.create().withRepositoryKey("checkstyle").withConfigKey("unknown")));
   }
@@ -55,7 +55,7 @@ public class DefaultRuleProviderTest extends AbstractDbUnitTestCase {
   @Test
   public void findRepositoryRules() {
     setupData("shared");
-    DefaultRuleProvider provider = new DefaultRuleProvider(getSessionFactory());
+    DefaultRuleFinder provider = new DefaultRuleFinder(getSessionFactory());
     Collection<Rule> rules = provider.findAll(RuleQuery.create().withRepositoryKey("checkstyle"));
     assertNotNull(rules);
     assertThat(rules.size(), is(2)); // only enabled checkstyle rules
@@ -64,7 +64,7 @@ public class DefaultRuleProviderTest extends AbstractDbUnitTestCase {
   @Test
   public void findAllEnabled() {
     setupData("shared");
-    DefaultRuleProvider provider = new DefaultRuleProvider(getSessionFactory());
+    DefaultRuleFinder provider = new DefaultRuleFinder(getSessionFactory());
     Collection<Rule> rules = provider.findAll(RuleQuery.create());
     assertNotNull(rules);
     assertThat(rules.size(), is(3)); // only enabled checkstyle+pmd rules
@@ -76,7 +76,7 @@ public class DefaultRuleProviderTest extends AbstractDbUnitTestCase {
   @Test
   public void doNotFindDisabledRules() {
     setupData("shared");
-    DefaultRuleProvider provider = new DefaultRuleProvider(getSessionFactory());
+    DefaultRuleFinder provider = new DefaultRuleFinder(getSessionFactory());
     Rule rule = provider.findByKey("checkstyle", "DisabledCheck");
     assertNull(rule);
   }
@@ -84,7 +84,7 @@ public class DefaultRuleProviderTest extends AbstractDbUnitTestCase {
   @Test
   public void doNotFindUnknownRules() {
     setupData("shared");
-    DefaultRuleProvider provider = new DefaultRuleProvider(getSessionFactory());
+    DefaultRuleFinder provider = new DefaultRuleFinder(getSessionFactory());
     Collection<Rule> rules = provider.findAll(RuleQuery.create().withRepositoryKey("unknown_repository"));
     assertThat(rules.size(), is(0));
   }

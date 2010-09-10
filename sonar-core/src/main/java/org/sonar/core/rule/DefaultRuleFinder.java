@@ -22,7 +22,7 @@ package org.sonar.core.rule;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleProvider;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
@@ -31,11 +31,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DefaultRuleProvider implements RuleProvider {
+public class DefaultRuleFinder implements RuleFinder {
 
   private DatabaseSessionFactory sessionFactory;
 
-  public DefaultRuleProvider(DatabaseSessionFactory sessionFactory) {
+  public DefaultRuleFinder(DatabaseSessionFactory sessionFactory) {
     this.sessionFactory = sessionFactory;
   }
 

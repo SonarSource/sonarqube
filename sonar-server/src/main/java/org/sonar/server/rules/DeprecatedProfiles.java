@@ -31,6 +31,7 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RulesRepository;
+import org.sonar.api.utils.ValidationMessages;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -140,7 +141,7 @@ public final class DeprecatedProfiles {
     }
 
     @Override
-    public ProfilePrototype createPrototype() {
+    public ProfilePrototype createPrototype(ValidationMessages validation) {
       return prototype;
     }
 

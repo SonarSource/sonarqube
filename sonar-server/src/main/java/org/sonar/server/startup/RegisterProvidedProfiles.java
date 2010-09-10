@@ -28,9 +28,10 @@ import org.sonar.api.profiles.ProfilePrototype;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleProvider;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.ValidationMessages;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.rules.DeprecatedProfiles;
 
@@ -43,14 +44,14 @@ public final class RegisterProvidedProfiles {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RegisterProvidedProfiles.class);
 
-  private RuleProvider ruleProvider;
+  private RuleFinder ruleFinder;
   private DatabaseSessionFactory sessionFactory;
   private List<ProfileDefinition> definitions = new ArrayList<ProfileDefinition>();
 
-  public RegisterProvidedProfiles(RuleProvider ruleProvider, DatabaseSessionFactory sessionFactory,
+  public RegisterProvidedProfiles(RuleFinder ruleFinder, DatabaseSessionFactory sessionFactory,
                                   DeprecatedProfiles deprecatedBridge, RegisterRules registerRulesBefore,
                                   ProfileDefinition[] definitions) {
-    this.ruleProvider = ruleProvider;
+    this.ruleFinder = ruleFinder;
     this.sessionFactory = sessionFactory;
     this.definitions.addAll(Arrays.asList(definitions));
     if (deprecatedBridge != null) {
@@ -58,9 +59,9 @@ public final class RegisterProvidedProfiles {
     }
   }
 
-  public RegisterProvidedProfiles(RuleProvider ruleProvider, DatabaseSessionFactory sessionFactory,
+  public RegisterProvidedProfiles(RuleFinder ruleFinder, DatabaseSessionFactory sessionFactory,
                                   DeprecatedProfiles deprecatedBridge, RegisterRules registerRulesBefore) {
-    this.ruleProvider = ruleProvider;
+    this.ruleFinder = ruleFinder;
     this.sessionFactory = sessionFactory;
     if (deprecatedBridge != null) {
       this.definitions.addAll(deprecatedBridge.getProfiles());
@@ -80,7 +81,12 @@ public final class RegisterProvidedProfiles {
   List<ProfilePrototype> createPrototypes() {
     List<ProfilePrototype> result = new ArrayList<ProfilePrototype>();
     for (ProfileDefinition definition : definitions) {
-      result.add(definition.createPrototype());
+      ValidationMessages validation = ValidationMessages.create();
+      ProfilePrototype prototype = definition.createPrototype(validation);
+      validation.log(LOGGER);
+      if (prototype != null && !validation.hasErrors()) {
+        result.add(prototype);
+      }
     }
     return result;
   }
@@ -136,10 +142,10 @@ public final class RegisterProvidedProfiles {
 
   private Rule findRule(ProfilePrototype.RulePrototype rulePrototype) {
     if (StringUtils.isNotBlank(rulePrototype.getKey())) {
-      return ruleProvider.findByKey(rulePrototype.getRepositoryKey(), rulePrototype.getKey());
+      return ruleFinder.findByKey(rulePrototype.getRepositoryKey(), rulePrototype.getKey());
     }
     if (StringUtils.isNotBlank(rulePrototype.getConfigKey())) {
-      return ruleProvider.find(RuleQuery.create().withRepositoryKey(rulePrototype.getRepositoryKey()).withConfigKey(rulePrototype.getConfigKey()));
+      return ruleFinder.find(RuleQuery.create().withRepositoryKey(rulePrototype.getRepositoryKey()).withConfigKey(rulePrototype.getConfigKey()));
     }
     return null;
   }

@@ -22,7 +22,9 @@ package org.sonar.plugins.checkstyle;
 import org.junit.Test;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.ProfilePrototype;
+import org.sonar.api.utils.ValidationMessages;
 
+import static org.hamcrest.core.Is.is;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertThat;
 
@@ -31,8 +33,10 @@ public class SonarWayProfileTest {
   @Test
   public void create() {
     ProfileDefinition sonarWay = new SonarWayProfile();
-    ProfilePrototype prototype = sonarWay.createPrototype();
+    ValidationMessages validation = ValidationMessages.create();
+    ProfilePrototype prototype = sonarWay.createPrototype(validation);
     assertThat(prototype.getRulesByRepositoryKey(CheckstyleConstants.REPOSITORY_KEY).size(), greaterThan(1));
+    assertThat(validation.hasErrors(), is(false));
   }
 
 }

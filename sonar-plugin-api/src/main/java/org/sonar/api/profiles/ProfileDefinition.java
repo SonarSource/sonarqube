@@ -20,12 +20,13 @@
 package org.sonar.api.profiles;
 
 import org.sonar.api.ServerExtension;
+import org.sonar.api.utils.ValidationMessages;
 
 /**
  * @since 2.3
  */
 public abstract class ProfileDefinition implements ServerExtension {
 
-  public abstract ProfilePrototype createPrototype();
+  public abstract ProfilePrototype createPrototype(ValidationMessages validation);
 
 }

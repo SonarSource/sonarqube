@@ -27,7 +27,7 @@ import java.util.Collection;
 /**
  * @since 2.3
  */
-public interface RuleProvider extends BatchComponent, ServerComponent {
+public interface RuleFinder extends BatchComponent, ServerComponent {
 
   Rule findByKey(String repositoryKey, String key);
   Rule find(RuleQuery query);

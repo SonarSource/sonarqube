@@ -21,6 +21,7 @@ package org.sonar.server.rules;
 
 import org.junit.Test;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.utils.ValidationMessages;
 import org.sonar.server.rules.DeprecatedProfiles;
 
 import static org.hamcrest.Matchers.is;
@@ -31,8 +32,8 @@ public class DeprecatedProfilesTest {
   @Test
   public void testCreate() {
     DeprecatedProfiles.DefaultProfileDefinition def = DeprecatedProfiles.DefaultProfileDefinition.create("sonar way", "java");
-    assertThat(def.createPrototype().getName(), is("sonar way"));
-    assertThat(def.createPrototype().getLanguage(), is("java"));
+    assertThat(def.createPrototype(ValidationMessages.create()).getName(), is("sonar way"));
+    assertThat(def.createPrototype(ValidationMessages.create()).getLanguage(), is("java"));
   }
 
   @Test

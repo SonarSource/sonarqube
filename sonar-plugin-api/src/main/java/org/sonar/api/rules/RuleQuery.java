@@ -28,6 +28,9 @@ public final class RuleQuery {
   private String key = null;
   private String configKey = null;
 
+  /**
+   * Use the factory method <code>create()</code>
+   */
   RuleQuery() {
   }
 

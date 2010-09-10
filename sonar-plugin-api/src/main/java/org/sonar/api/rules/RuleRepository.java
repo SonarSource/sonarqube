@@ -20,6 +20,8 @@
 package org.sonar.api.rules;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.ServerExtension;
 
 import java.util.List;
@@ -64,21 +66,12 @@ public abstract class RuleRepository implements ServerExtension {
 
   public abstract List<Rule> createRules();
 
-
   @Override
-  public final boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    RuleRepository that = (RuleRepository)o;
-    return key.equals(that.key);
-  }
-
-  @Override
-  public final int hashCode() {
-    return key.hashCode();
+  public String toString() {
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+        .append("key", key)
+        .append("language", language)
+        .append("name", name)
+        .toString();
   }
 }

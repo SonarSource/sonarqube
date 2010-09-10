@@ -29,6 +29,7 @@ import org.sonar.api.utils.SonarException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class StandardProfileXmlParser {
 
   private final List<Rule> rules;

@@ -26,6 +26,7 @@ import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 @XStreamAlias("profile")
 public class Profile {
 

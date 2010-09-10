@@ -19,6 +19,7 @@
  */
 package org.sonar.api.rules;
 
+@Deprecated
 public interface RulePriorityMapper<IN_TYPE, OUT_TYPE> {
 
   RulePriority from(IN_TYPE priority);

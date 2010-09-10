@@ -35,7 +35,7 @@ import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.plugin.JpaPluginDao;
 import org.sonar.core.qualitymodel.DefaultModelProvider;
-import org.sonar.core.rule.DefaultRuleProvider;
+import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.jpa.dao.*;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.jpa.session.DatabaseSessionProvider;
@@ -173,7 +173,7 @@ public final class Platform {
     servicesContainer.as(Characteristics.NO_CACHE).addComponent(Backup.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(AuthenticatorFactory.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(ServerLifecycleNotifier.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(DefaultRuleProvider.class);
+    servicesContainer.as(Characteristics.CACHE).addComponent(DefaultRuleFinder.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(DeprecatedRuleRepositories.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(DeprecatedProfiles.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(DeprecatedProfileExporters.class);

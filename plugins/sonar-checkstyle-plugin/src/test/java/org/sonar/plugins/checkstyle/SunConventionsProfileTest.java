@@ -19,9 +19,11 @@
  */
 package org.sonar.plugins.checkstyle;
 
+import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.ProfilePrototype;
+import org.sonar.api.utils.ValidationMessages;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
@@ -31,10 +33,12 @@ public class SunConventionsProfileTest {
   @Test
   public void create() {
     ProfileDefinition sunConventionsProfile = new SunConventionsProfile();
-    ProfilePrototype prototype = sunConventionsProfile.createPrototype();
+    ValidationMessages validation = ValidationMessages.create();
+    ProfilePrototype prototype = sunConventionsProfile.createPrototype(validation);
     assertThat(prototype.getRulesByRepositoryKey(CheckstyleConstants.REPOSITORY_KEY).size(), greaterThan(1));
     assertThat(
         prototype.getRule(CheckstyleConstants.REPOSITORY_KEY, "com.puppycrawl.tools.checkstyle.checks.NewlineAtEndOfFileCheck").getParameter("lineSeparator"),
         is("system"));
+    assertThat(validation.hasErrors(), Is.is(false));
   }
 }

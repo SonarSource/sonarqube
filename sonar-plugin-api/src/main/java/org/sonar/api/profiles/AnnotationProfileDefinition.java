@@ -20,6 +20,7 @@
 package org.sonar.api.profiles;
 
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.utils.ValidationMessages;
 import org.sonar.check.AnnotationIntrospector;
 import org.sonar.check.BelongsToProfile;
 
@@ -43,7 +44,7 @@ public abstract class AnnotationProfileDefinition extends ProfileDefinition {
   }
 
   @Override
-  public ProfilePrototype createPrototype() {
+  public ProfilePrototype createPrototype(ValidationMessages validation) {
     ProfilePrototype profile = ProfilePrototype.create(name, language);
     if (annotatedClasses != null) {
       for (Class aClass : annotatedClasses) {

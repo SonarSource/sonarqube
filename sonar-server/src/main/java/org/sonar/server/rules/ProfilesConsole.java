@@ -26,7 +26,7 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.*;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleProvider;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.jpa.session.DatabaseSessionFactory;
@@ -42,14 +42,14 @@ import java.util.Map;
 public final class ProfilesConsole implements ServerComponent {
 
   private DatabaseSessionFactory sessionFactory;
-  private RuleProvider ruleProvider;
+  private RuleFinder ruleFinder;
   private List<ProfileExporter> profileExporters = new ArrayList<ProfileExporter>();
   private List<ProfileImporter> profileImporters = new ArrayList<ProfileImporter>();
 
-  public ProfilesConsole(DatabaseSessionFactory sessionFactory, RuleProvider ruleProvider,
+  public ProfilesConsole(DatabaseSessionFactory sessionFactory, RuleFinder ruleFinder,
                          ProfileExporter[] exporters, DeprecatedProfileExporters deprecatedExporters,
                          ProfileImporter[] importers) {
-    this.ruleProvider = ruleProvider;
+    this.ruleFinder = ruleFinder;
     this.sessionFactory = sessionFactory;
     initProfileExporters(exporters, deprecatedExporters);
     this.profileImporters.addAll(Arrays.asList(importers));
@@ -110,10 +110,10 @@ public final class ProfilesConsole implements ServerComponent {
 
   private Rule findRule(ProfilePrototype.RulePrototype rulePrototype) {
     if (StringUtils.isNotBlank(rulePrototype.getKey())) {
-      return ruleProvider.findByKey(rulePrototype.getRepositoryKey(), rulePrototype.getKey());
+      return ruleFinder.findByKey(rulePrototype.getRepositoryKey(), rulePrototype.getKey());
     }
     if (StringUtils.isNotBlank(rulePrototype.getConfigKey())) {
-      return ruleProvider.find(RuleQuery.create().withRepositoryKey(rulePrototype.getRepositoryKey()).withConfigKey(rulePrototype.getConfigKey()));
+      return ruleFinder.find(RuleQuery.create().withRepositoryKey(rulePrototype.getRepositoryKey()).withConfigKey(rulePrototype.getConfigKey()));
     }
     return null;
   }

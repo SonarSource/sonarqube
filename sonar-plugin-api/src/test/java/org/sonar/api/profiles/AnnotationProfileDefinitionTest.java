@@ -38,8 +38,10 @@ public class AnnotationProfileDefinitionTest {
   @Test
   public void importProfile() {
     ProfileDefinition definition = new FakeDefinition();
-    ProfilePrototype profile = definition.createPrototype();
+    ValidationMessages validation = ValidationMessages.create();
+    ProfilePrototype profile = definition.createPrototype(validation);
     assertThat(profile.getRule("squid", "fake").getPriority(), is(RulePriority.BLOCKER));
+    assertThat(validation.hasErrors(), is(false));
   }
 }
 

@@ -21,6 +21,7 @@ package org.sonar.api.rules;
 
 import java.util.List;
 
+@Deprecated
 public interface ConfigurationImportable {
 
   List<ActiveRule> importConfiguration(String configuration, List<Rule> rules);
