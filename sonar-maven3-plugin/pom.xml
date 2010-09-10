@@ -16,6 +16,10 @@
     <maven>3.0</maven>
   </prerequisites>-->
 
+  <properties>
+    <maven.version>3.0-beta-3</maven.version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
@@ -38,25 +42,19 @@
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
-      <version>3.0-beta-1</version>
+      <version>${maven.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-core</artifactId>
-      <version>3.0-beta-1</version>
+      <version>${maven.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-settings</artifactId>
-      <version>3.0-beta-1</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-project</artifactId>
-      <version>3.0-alpha-2</version>
+      <version>${maven.version}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
