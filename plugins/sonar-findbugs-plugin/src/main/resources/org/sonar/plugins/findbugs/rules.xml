@@ -152,8 +152,6 @@
     <category name="Reliability"/>
     <description><![CDATA[<p>This field is never written.  All reads of it will return the default value. Check for errors (should it have been initialized?), or remove it if it is useless.</p>]]></description>
   </rule>
-
-
   <rule key="SKIPPED_CLASS_TOO_BIG" priority="MINOR">
     <name><![CDATA[Dodgy - Class too big for analysis]]></name>
     <configKey><![CDATA[SKIPPED_CLASS_TOO_BIG]]></configKey>
@@ -880,8 +878,8 @@ Don't do it.
   </p>]]></description>
   </rule>
 
-  <!-- deactivated : http://sourceforge.net/tracker/?func=detail&aid=2786054&group_id=96405&atid=614693 -->
-  <!--<rule key="EQ_DOESNT_OVERRIDE_EQUALS">
+  <!-- warning : http://sourceforge.net/tracker/?func=detail&aid=2786054&group_id=96405&atid=614693 -->
+  <rule key="EQ_DOESNT_OVERRIDE_EQUALS">
     <name><![CDATA[Dodgy - Class doesn't override equals in superclass]]></name>
     <configKey><![CDATA[EQ_DOESNT_OVERRIDE_EQUALS]]></configKey>
     <category name="Usability"/>
@@ -893,7 +891,7 @@ the equals method, consider overriding it anyway to document the fact
 that the equals method for the subclass just return the result of
 invoking super.equals(o).
   </p>]]></description>
-  </rule>-->
+  </rule>
   <rule key="EQ_SELF_NO_OBJECT" priority="MAJOR">
     <name><![CDATA[Bad practice - Covariant equals() method defined]]></name>
     <configKey><![CDATA[EQ_SELF_NO_OBJECT]]></configKey>
@@ -4302,15 +4300,91 @@ public @NonNegative Integer example(@Negative Integer value) {
       break or return at the end of the previous case.
       </p>]]></description>
   </rule>   
-  <rule key="SF_DEAD_STORE_DUE_TO_SWITCH_FALLTHROUGH_TO_THROW" priority="CRITICAL">
+  <rule key="NM_CLASS_NAMING_CONVENTION" priority="MAJOR">
     <name>
-      <![CDATA[Dead store due to switch statement fall through to throw]]></name>
-    <configKey><![CDATA[SF_DEAD_STORE_DUE_TO_SWITCH_FALLTHROUGH_TO_THROW]]></configKey>
+      <![CDATA[Class names should start with an upper case letter]]></name>
+    <configKey><![CDATA[NM_CLASS_NAMING_CONVENTION]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[<p>
+      Class names should be nouns, in mixed case with the first letter of each internal word capitalized. 
+      Try to keep your class names simple and descriptive. Use whole words-avoid acronyms and abbreviations 
+      (unless the abbreviation is much more widely used than the long form, such as URL or HTML).
+      </p>]]></description>
+  </rule> 
+  <rule key="NM_FIELD_NAMING_CONVENTION" priority="MAJOR">
+    <name>
+      <![CDATA[Field names should start with a lower case letter]]></name>
+    <configKey><![CDATA[NM_FIELD_NAMING_CONVENTION]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[<p>
+      Names of fields that are not final should be in mixed case 
+      with a lowercase first letter and the first letters of subsequent words capitalized.
+      </p>]]></description>
+  </rule> 
+  <rule key="NM_METHOD_NAMING_CONVENTION" priority="MAJOR">
+    <name>
+      <![CDATA[Method names should start with a lower case letter]]></name>
+    <configKey><![CDATA[NM_METHOD_NAMING_CONVENTION]]></configKey>
+    <category name="Usability"/>
+    <description><![CDATA[<p>
+      Methods should be verbs, in mixed case with the first letter lowercase, 
+      with the first letter of each internal word capitalized.
+      </p>]]></description>
+  </rule>  
+  <rule key="SE_BAD_FIELD" priority="MAJOR">
+    <name>
+      <![CDATA[Non-transient non-serializable instance field in serializable class]]></name>
+    <configKey><![CDATA[SE_BAD_FIELD]]></configKey>
     <category name="Reliability"/>
     <description><![CDATA[<p>
-      A value stored in the previous switch case is ignored here due 
-      to a switch fall through to a place where an exception is thrown. 
-      It is likely that you forgot to put a break or return at the end of the previous case.
+      This Serializable class defines a non-primitive instance field which is neither transient, 
+      Serializable, or <code>java.lang.Object</code>, and does not appear to implement the <code>Externalizable</code> 
+      interface or the <code>readObject()</code> and <code>writeObject()</code> methods.  
+      Objects of this class will not be deserialized correctly if a non-Serializable object is stored in this field.
       </p>]]></description>
-  </rule>       
+  </rule>    
+  <rule key="NM_BAD_EQUAL" priority="CRITICAL">
+    <name>
+      <![CDATA[Class defines equal(Object); should it be equals(Object)?]]></name>
+    <configKey><![CDATA[NM_BAD_EQUAL]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[<p>
+      This class defines a method <code>equal(Object)</code>.  
+      This method does not override the <code>equals(Object)</code> method 
+      in <code>java.lang.Object</code>, which is probably what was intended.
+      </p>]]></description>
+  </rule>         
+ <rule key="NM_LCASE_HASHCODE" priority="CRITICAL">
+    <name>
+      <![CDATA[Class defines hashcode(); should it be hashCode()?]]></name>
+    <configKey><![CDATA[NM_LCASE_HASHCODE]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[<p>
+      This class defines a method called <code>hashcode()</code>.  
+      This method does not override the <code>hashCode()</code> 
+      method in <code>java.lang.Object</code>, which is probably what was intended.
+      </p>]]></description>
+  </rule>  
+ <rule key="NM_LCASE_TOSTRING" priority="MAJOR">
+    <name>
+      <![CDATA[Class defines tostring(); should it be toString()?]]></name>
+    <configKey><![CDATA[NM_LCASE_TOSTRING]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[<p>
+      This class defines a method called <code>tostring()</code>.  
+      This method does not override the <code>toString()</code> 
+      method in <code>java.lang.Object</code>, which is probably what was intended.
+      </p>]]></description>
+  </rule>   
+ <rule key="NM_LCASE_TOSTRING" priority="MAJOR">
+    <name>
+      <![CDATA[Class defines tostring(); should it be toString()?]]></name>
+    <configKey><![CDATA[NM_LCASE_TOSTRING]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[<p>
+      This class defines a method called <code>tostring()</code>.  
+      This method does not override the <code>toString()</code> 
+      method in <code>java.lang.Object</code>, which is probably what was intended.
+      </p>]]></description>
+  </rule>            
 </rules>
