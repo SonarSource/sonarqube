@@ -96,6 +96,9 @@ public abstract class AbstractSourceImporter implements Sensor {
     org.sonar.api.resources.File resource = org.sonar.api.resources.File.fromIOFile(file, sourceDirs);
     if (resource != null) {
       resource.setLanguage(language);
+      if (unitTest) {
+        resource.setQualifier(Resource.QUALIFIER_UNIT_TEST_CLASS);
+      }
     }
     return resource;
   }

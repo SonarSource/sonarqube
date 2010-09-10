@@ -19,14 +19,15 @@
  */
 package org.sonar.api.resources;
 
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.utils.WildcardPattern;
 
-import java.util.List;
-
 /**
  * This class is an implementation of a resource of type FILE
+ * 
  * @since 1.10
  */
 public class File extends Resource<Directory> {
@@ -35,12 +36,12 @@ public class File extends Resource<Directory> {
   private String filename;
   private Language language;
   private Directory parent;
+  private String qualifier = Resource.QUALIFIER_FILE;
 
   /**
-   * File in project. Key is the path relative to project source directories. It is not the absolute path
-   * and it does not include the path to source directories. Example : <code>new File("org/sonar/foo.sql")</code>. The
-   * absolute path may be c:/myproject/src/main/sql/org/sonar/foo.sql. Project root is c:/myproject and source dir
-   * is src/main/sql.
+   * File in project. Key is the path relative to project source directories. It is not the absolute path and it does not include the path
+   * to source directories. Example : <code>new File("org/sonar/foo.sql")</code>. The absolute path may be
+   * c:/myproject/src/main/sql/org/sonar/foo.sql. Project root is c:/myproject and source dir is src/main/sql.
    */
   public File(String key) {
     if (key == null) {
@@ -88,11 +89,11 @@ public class File extends Resource<Directory> {
     this.language = language;
   }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @see Resource#getParent()
-     */
+  /**
+   * {@inheritDoc}
+   * 
+   * @see Resource#getParent()
+   */
   public Directory getParent() {
     if (parent == null) {
       parent = new Directory(directoryKey);
@@ -112,7 +113,7 @@ public class File extends Resource<Directory> {
 
   /**
    * {@inheritDoc}
-   *
+   * 
    * @see Resource#matchFilePattern(String)
    */
   public boolean matchFilePattern(String antPattern) {
@@ -140,7 +141,7 @@ public class File extends Resource<Directory> {
 
   /**
    * {@inheritDoc}
-   *
+   * 
    * @see Resource#getName()
    */
   public String getName() {
@@ -149,7 +150,7 @@ public class File extends Resource<Directory> {
 
   /**
    * {@inheritDoc}
-   *
+   * 
    * @see Resource#getLongName()
    */
   public String getLongName() {
@@ -158,7 +159,7 @@ public class File extends Resource<Directory> {
 
   /**
    * {@inheritDoc}
-   *
+   * 
    * @see Resource#getDescription()
    */
   public String getDescription() {
@@ -167,7 +168,7 @@ public class File extends Resource<Directory> {
 
   /**
    * {@inheritDoc}
-   *
+   * 
    * @see Resource#getLanguage()
    */
   public Language getLanguage() {
@@ -189,10 +190,16 @@ public class File extends Resource<Directory> {
   }
 
   /**
-   * @return QUALIFIER_FILE
+   * Returns the qualifier associated to this File. Should be QUALIFIER_FILE or
+   * 
+   * @return QUALIFIER_UNIT_TEST_CLASS
    */
   public String getQualifier() {
-    return Resource.QUALIFIER_FILE;
+    return qualifier;
+  }
+
+  public void setQualifier(String qualifier) {
+    this.qualifier = qualifier;
   }
 
   @Override
