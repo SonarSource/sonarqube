@@ -30,12 +30,12 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
-public class DefaultModelProviderTest extends AbstractDbUnitTestCase {
+public class DefaultModelFinderTest extends AbstractDbUnitTestCase {
 
   @Test
   public void reset() {
     setupData("shared");
-    DefaultModelProvider provider = new DefaultModelProvider(getSessionFactory());
+    DefaultModelFinder provider = new DefaultModelFinder(getSessionFactory());
 
     Model model = Model.createByName("M1");
     Characteristic c1 = model.createCharacteristicByName("NEWM1C1");
@@ -55,7 +55,7 @@ public class DefaultModelProviderTest extends AbstractDbUnitTestCase {
   @Test
   public void findByName() {
     setupData("shared");
-    DefaultModelProvider provider = new DefaultModelProvider(getSessionFactory());
+    DefaultModelFinder provider = new DefaultModelFinder(getSessionFactory());
     Model model = provider.findByName("M1");
     assertNotNull(model);
     assertNotNull(model.getCharacteristicByName("M1C1"));
@@ -64,14 +64,14 @@ public class DefaultModelProviderTest extends AbstractDbUnitTestCase {
   @Test
   public void findByNameNotFound() {
     setupData("shared");
-    DefaultModelProvider provider = new DefaultModelProvider(getSessionFactory());
+    DefaultModelFinder provider = new DefaultModelFinder(getSessionFactory());
     assertNull(provider.findByName("UNKNOWN"));
   }
 
   @Test
   public void noDefinitionsToRegister() {
     setupData("shared");
-    DefaultModelProvider provider = new DefaultModelProvider(getSessionFactory());
+    DefaultModelFinder provider = new DefaultModelFinder(getSessionFactory());
     provider.registerDefinitions();
 
     // same state
@@ -87,7 +87,7 @@ public class DefaultModelProviderTest extends AbstractDbUnitTestCase {
     ModelDefinition newDefinition = new FakeDefinition("NEWMODEL");
 
     ModelDefinition[] definitions = new ModelDefinition[]{existingDefinition, newDefinition};
-    DefaultModelProvider provider = new DefaultModelProvider(getSessionFactory(), definitions);
+    DefaultModelFinder provider = new DefaultModelFinder(getSessionFactory(), definitions);
     provider.registerDefinitions();
 
     List<Model> models = getSession().getResults(Model.class);
@@ -97,13 +97,13 @@ public class DefaultModelProviderTest extends AbstractDbUnitTestCase {
   @Test
   public void exists() {
     setupData("shared");
-    assertTrue(DefaultModelProvider.exists(getSession(), "M1"));
+    assertTrue(DefaultModelFinder.exists(getSession(), "M1"));
   }
 
   @Test
   public void notExists() {
     setupData("shared");
-    assertFalse(DefaultModelProvider.exists(getSession(), "UNKNOWN"));
+    assertFalse(DefaultModelFinder.exists(getSession(), "UNKNOWN"));
   }
 }
 

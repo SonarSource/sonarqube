@@ -3,33 +3,37 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="selenium.base" href="" />
-<title>login_cancel</title>
+<title>do-not-create-profile-with-existing-name</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">login_cancel</td></tr>
+<tr><td rowspan="1" colspan="3">do-not-create-profile-with-existing-name</td></tr>
 </thead><tbody>
 <tr>
 	<td>open</td>
-	<td>/sessions/logout</td>
+	<td>/profiles</td>
 	<td></td>
 </tr>
 <tr>
-	<td>open</td>
-	<td>/sessions/login</td>
+	<td>click</td>
+	<td>create-link-java</td>
 	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name</td>
+	<td>Sonar way</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>link=Cancel</td>
+	<td>create-submit-java</td>
 	<td></td>
 </tr>
 <tr>
 	<td>assertText</td>
-	<td>link=Log in</td>
-	<td>Log in</td>
+	<td>errormsg</td>
+	<td>glob:*already exist*</td>
 </tr>
 
 </tbody></table>

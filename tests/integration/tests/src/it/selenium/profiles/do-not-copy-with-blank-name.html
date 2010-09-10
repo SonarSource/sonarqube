@@ -3,17 +3,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="selenium.base" href="http://localhost:9000/" />
-<title>profile_duplication_success</title>
+<link rel="selenium.base" href="" />
+<title>do-not-copy-with-blank-name</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">profile_duplication_success</td></tr>
+<tr><td rowspan="1" colspan="3">do-not-copy-with-blank-name</td></tr>
 </thead><tbody>
 <tr>
 	<td>store</td>
-	<td>javascript{'copied_'+(new Date()).getTime()}</td>
+	<td>javascript{'test_profile_java'+(new Date()).getTime()}</td>
 	<td>PROFILE</td>
 </tr>
 <tr>
@@ -47,13 +47,13 @@
 	<td></td>
 </tr>
 <tr>
-	<td>storeText</td>
-	<td>activated_rules_java_Sonar%20way</td>
-	<td>RULES_COUNT</td>
+	<td>answerOnNextPrompt</td>
+	<td></td>
+	<td></td>
 </tr>
 <tr>
-	<td>answerOnNextPrompt</td>
-	<td>${PROFILE}</td>
+	<td>assertNotVisible</td>
+	<td>errormsg</td>
 	<td></td>
 </tr>
 <tr>
@@ -62,33 +62,13 @@
 	<td></td>
 </tr>
 <tr>
-	<td>answerOnNextPrompt</td>
-	<td>${PROFILE}</td>
+	<td>assertPromptPresent</td>
+	<td>Name for the new profile</td>
 	<td></td>
 </tr>
 <tr>
-	<td>assertElementPresent</td>
-	<td>activated_rules_java_${PROFILE}</td>
-	<td></td>
-</tr>
-<tr>
-	<td>assertText</td>
-	<td>activated_rules_java_${PROFILE}</td>
-	<td>${RULES_COUNT}</td>
-</tr>
-<tr>
-	<td>chooseOkOnNextConfirmation</td>
-	<td></td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>delete_java_${PROFILE}</td>
-	<td></td>
-</tr>
-<tr>
-	<td>assertConfirmation</td>
-	<td>Are you sure that you want to delete the profile '${PROFILE}' ?</td>
+	<td>assertVisible</td>
+	<td>errormsg</td>
 	<td></td>
 </tr>
 

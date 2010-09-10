@@ -34,7 +34,7 @@ import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.plugin.JpaPluginDao;
-import org.sonar.core.qualitymodel.DefaultModelProvider;
+import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.jpa.dao.*;
 import org.sonar.jpa.session.DatabaseSessionFactory;
@@ -154,7 +154,7 @@ public final class Platform {
     ServerPluginRepository pluginRepository = servicesContainer.getComponent(ServerPluginRepository.class);
     pluginRepository.registerPlugins(servicesContainer);
 
-    servicesContainer.as(Characteristics.CACHE).addComponent(DefaultModelProvider.class); // depends on plugins
+    servicesContainer.as(Characteristics.CACHE).addComponent(DefaultModelFinder.class); // depends on plugins
     servicesContainer.as(Characteristics.CACHE).addComponent(Plugins.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(ChartFactory.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(Languages.class);

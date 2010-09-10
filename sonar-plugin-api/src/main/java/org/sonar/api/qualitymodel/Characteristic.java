@@ -68,7 +68,6 @@ public final class Characteristic implements Comparable<Characteristic> {
   @Column(name = "description", nullable = true, length = 4000)
   private String description;
 
-
   @ManyToMany
   @JoinTable(
       name = "characteristic_edges",
@@ -81,6 +80,7 @@ public final class Characteristic implements Comparable<Characteristic> {
   @Sort(type = SortType.NATURAL)
   @ManyToMany(mappedBy = "parents", cascade = CascadeType.ALL)
   private List<Characteristic> children = new ArrayList<Characteristic>();
+
 
   Characteristic() {
   }

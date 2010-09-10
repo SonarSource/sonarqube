@@ -33,7 +33,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.utils.IocContainer;
 import org.sonar.batch.indexer.DefaultSonarIndex;
-import org.sonar.core.qualitymodel.DefaultModelProvider;
+import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.jpa.dao.*;
 
@@ -88,7 +88,7 @@ public class ProjectBatch {
     batchContainer.as(Characteristics.CACHE).addComponent(ViolationsDao.class);
     batchContainer.as(Characteristics.CACHE).addComponent(ViolationFilters.class);
     batchContainer.as(Characteristics.CACHE).addComponent(ResourceFilters.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(DefaultModelProvider.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(DefaultModelFinder.class);
     batchContainer.as(Characteristics.CACHE).addComponent(DefaultRuleFinder.class);
     batchContainer.addAdapter(new ProfileProvider());
     batchContainer.addAdapter(new CheckProfileProvider());

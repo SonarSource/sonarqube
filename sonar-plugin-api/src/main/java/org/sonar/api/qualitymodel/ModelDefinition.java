@@ -19,6 +19,8 @@
  */
 package org.sonar.api.qualitymodel;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.ServerExtension;
 
 /**
@@ -31,7 +33,7 @@ public abstract class ModelDefinition implements ServerExtension {
 
   private String name;
 
-  public ModelDefinition(String name) {
+  protected ModelDefinition(String name) {
     this.name = name;
   }
 
@@ -57,5 +59,12 @@ public abstract class ModelDefinition implements ServerExtension {
   @Override
   public final int hashCode() {
     return name.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+        .append("name", name)
+        .toString();
   }
 }

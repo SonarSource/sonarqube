@@ -21,6 +21,7 @@ package org.sonar.api.qualitymodel;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rules.Rule;
 
 import java.util.ArrayList;
@@ -45,6 +46,9 @@ public final class Model implements Comparable<Model> {
   @OneToMany(mappedBy = "model", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private List<Characteristic> characteristics = new ArrayList<Characteristic>();
 
+  /**
+   * Use the factory method <code>Model</code>
+   */
   Model() {
   }
 
@@ -155,7 +159,7 @@ public final class Model implements Comparable<Model> {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this)
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
         .append("id", id)
         .append("name", name)
         .toString();

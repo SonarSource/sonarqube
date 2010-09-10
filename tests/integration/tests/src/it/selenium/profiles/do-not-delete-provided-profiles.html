@@ -4,18 +4,13 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="http://localhost:9000/" />
-<title>profile_creation_with_cancelling</title>
+<title>do-not-delete-provided-profiles</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">profile_creation_with_cancelling</td></tr>
+<tr><td rowspan="1" colspan="3">do-not-delete-provided-profiles</td></tr>
 </thead><tbody>
-<tr>
-	<td>store</td>
-	<td>javascript{'test_profile_'+(new Date()).getTime()}</td>
-	<td>PROFILE</td>
-</tr>
 <tr>
 	<td>open</td>
 	<td>/sessions/logout</td>
@@ -46,25 +41,9 @@
 	<td>/profiles</td>
 	<td></td>
 </tr>
-
 <tr>
-	<td>click</td>
-	<td>create_profile</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForValue</td>
-	<td>name</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=cancel</td>
-	<td></td>
-</tr>
-<tr>
-	<td>assertTextNotPresent</td>
-	<td>Profile '${PROFILE}' created. Do not forget to activate the profile in order to use it for next measures.</td>
+	<td>assertElementNotPresent</td>
+	<td>delete_java_Sonar%20way</td>
 	<td></td>
 </tr>
 

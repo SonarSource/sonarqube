@@ -24,27 +24,27 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.qualitymodel.Model;
 import org.sonar.api.qualitymodel.ModelDefinition;
-import org.sonar.api.qualitymodel.ModelProvider;
+import org.sonar.api.qualitymodel.ModelFinder;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import javax.persistence.Query;
 
-public class DefaultModelProvider implements ModelProvider {
+public class DefaultModelFinder implements ModelFinder {
 
   private ModelDefinition[] definitions;
   private DatabaseSessionFactory sessionFactory;
 
-  public DefaultModelProvider(DatabaseSessionFactory sessionFactory, ModelDefinition[] definitions) {
+  public DefaultModelFinder(DatabaseSessionFactory sessionFactory, ModelDefinition[] definitions) {
     this.sessionFactory = sessionFactory;
     this.definitions = definitions;
   }
 
   /**
-   * this constructor is used when there are no templates
+   * This constructor is used when there are no templates
    */
-  public DefaultModelProvider(DatabaseSessionFactory sessionFactory) {
+  public DefaultModelFinder(DatabaseSessionFactory sessionFactory) {
     this.sessionFactory = sessionFactory;
     this.definitions = new ModelDefinition[0];
   }

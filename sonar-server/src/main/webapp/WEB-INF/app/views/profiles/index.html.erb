@@ -6,10 +6,10 @@
   <% if administrator? %>
   <ul style="float: right" class="horizontal">
     <li class="marginleft10 add">
-      <a href="#" onClick="$('create-form-<%= language.getKey() -%>').show();return false;">Create</a>
+      <a href="#" onClick="$('create-form-<%= language.getKey() -%>').show();return false;" id="create-link-<%= language.getKey() -%>">Create</a>
     </li>
     <li class="marginleft10 restore">
-      <a href="#" onclick="$('restore-form-<%= language.getKey() -%>').show();return false;">Restore</a>
+      <a href="#" onclick="$('restore-form-<%= language.getKey() -%>').show();return false;" id="restore-link-<%= language.getKey() -%>">Restore</a>
     </li>
   </ul>
   <% end %>
@@ -36,7 +36,7 @@
 
       <tr>
         <td colspan="2">
-          <input type="submit" value="Create <%= language.getName() %> profile"></input>
+          <input type="submit" value="Create <%= language.getName() %> profile" id="create-submit-<%= language.getKey() -%>"></input>
           <a href="#" onclick="$('create-form-<%= language.getKey()-%>').reset();$('create-form-<%= language.getKey()-%>').hide();return false;">Cancel</a>
         </td>
       </tr>

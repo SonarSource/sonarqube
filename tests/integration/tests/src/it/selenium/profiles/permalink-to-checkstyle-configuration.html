@@ -4,36 +4,26 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="" />
-<title>no_actions_when_anonymous</title>
+<title>permalink-to-checkstyle-configuration</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">no_actions_when_anonymous</td></tr>
+<tr><td rowspan="1" colspan="3">permalink-to-checkstyle-configuration</td></tr>
 </thead><tbody>
 <tr>
 	<td>open</td>
-	<td>/sessions/logout</td>
+	<td>/profiles/export?format=checkstyle&amp;language=java&amp;name=Sonar%2520way</td>
 	<td></td>
 </tr>
 <tr>
-	<td>open</td>
-	<td>/profiles</td>
+	<td>waitForElementPresent</td>
+	<td>//module[@name='Checker']</td>
 	<td></td>
 </tr>
 <tr>
-	<td>assertElementNotPresent</td>
-	<td>activate_java_Sun%20checks</td>
-	<td></td>
-</tr>
-<tr>
-	<td>assertElementNotPresent</td>
-	<td>copy_java_Sun%20checks</td>
-	<td></td>
-</tr>
-<tr>
-	<td>assertElementNotPresent</td>
-	<td>create_profile</td>
+	<td>assertElementPresent</td>
+	<td>//module[@name='Checker']/module[@name='TreeWalker']</td>
 	<td></td>
 </tr>
 

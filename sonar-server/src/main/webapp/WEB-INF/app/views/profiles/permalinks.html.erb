@@ -7,7 +7,7 @@
 	  <p>No permalinks</p>
 	<% else %>
 	  <br/>
-	  <table class="data2 without-header marginbottom10 ">
+	  <table class="data2 without-header marginbottom10" id="permalinks-table">
 	    <tbody>
 	    <% exporters.each do |exporter| %>
 	      <tr class="<%= cycle('even','odd') -%>">

@@ -4,18 +4,13 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="" />
-<title>profile_duplication_with_blank_name</title>
+<title>display-permalinks-to-tools</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">profile_duplication_with_blank_name</td></tr>
+<tr><td rowspan="1" colspan="3">display-permalinks-to-tools</td></tr>
 </thead><tbody>
-<tr>
-	<td>store</td>
-	<td>javascript{'test_profile_java'+(new Date()).getTime()}</td>
-	<td>PROFILE</td>
-</tr>
 <tr>
 	<td>open</td>
 	<td>/sessions/logout</td>
@@ -23,53 +18,28 @@
 </tr>
 <tr>
 	<td>open</td>
-	<td>/sessions/login</td>
-	<td></td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>login</td>
-	<td>admin</td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>password</td>
-	<td>admin</td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>commit</td>
-	<td></td>
-</tr>
-<tr>
-	<td>open</td>
-	<td>/profiles</td>
-	<td></td>
-</tr>
-<tr>
-	<td>answerOnNextPrompt</td>
-	<td></td>
-	<td></td>
-</tr>
-<tr>
-	<td>assertNotVisible</td>
-	<td>errormsg</td>
+	<td>/profiles/index</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>copy_java_Sonar%20way</td>
+	<td>link=Sonar way</td>
 	<td></td>
 </tr>
 <tr>
-	<td>assertPromptPresent</td>
-	<td>Name for the new profile</td>
+	<td>click</td>
+	<td>//div[@id='content']/div[4]/table/tbody/tr[1]/td[1]</td>
 	<td></td>
 </tr>
 <tr>
-	<td>assertVisible</td>
-	<td>errormsg</td>
+	<td>clickAndWait</td>
+	<td>link=Permalinks</td>
 	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>permalinks-table</td>
+	<td>glob:*Checkstyle*Findbugs*PMD*</td>
 </tr>
 
 </tbody></table>

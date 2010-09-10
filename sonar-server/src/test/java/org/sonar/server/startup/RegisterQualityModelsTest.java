@@ -20,7 +20,7 @@
 package org.sonar.server.startup;
 
 import org.junit.Test;
-import org.sonar.core.qualitymodel.DefaultModelProvider;
+import org.sonar.core.qualitymodel.DefaultModelFinder;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -29,7 +29,7 @@ public class RegisterQualityModelsTest {
 
   @Test
   public void isASimpleBridgeOverProvider() {
-    DefaultModelProvider provider = mock(DefaultModelProvider.class);
+    DefaultModelFinder provider = mock(DefaultModelFinder.class);
     RegisterQualityModels startup = new RegisterQualityModels(provider, null);
     startup.start();
     verify(provider).registerDefinitions();

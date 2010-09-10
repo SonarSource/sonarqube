@@ -4,12 +4,12 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="" />
-<title>login_cancel</title>
+<title>read-only-mode-when-anonymous-user</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">login_cancel</td></tr>
+<tr><td rowspan="1" colspan="3">read-only-mode-when-anonymous-user</td></tr>
 </thead><tbody>
 <tr>
 	<td>open</td>
@@ -18,18 +18,33 @@
 </tr>
 <tr>
 	<td>open</td>
-	<td>/sessions/login</td>
+	<td>/profiles</td>
 	<td></td>
 </tr>
 <tr>
-	<td>clickAndWait</td>
-	<td>link=Cancel</td>
+	<td>assertElementNotPresent</td>
+	<td>activate_java_Sun%20checks</td>
 	<td></td>
 </tr>
 <tr>
-	<td>assertText</td>
-	<td>link=Log in</td>
-	<td>Log in</td>
+	<td>assertElementNotPresent</td>
+	<td>copy_java_Sun%20checks</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTextNotPresent</td>
+	<td>Create</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertNotText</td>
+	<td>profiles_java</td>
+	<td>glob:*Copy*</td>
+</tr>
+<tr>
+	<td>assertNotText</td>
+	<td>profiles_java</td>
+	<td>glob:*Delete*</td>
 </tr>
 
 </tbody></table>

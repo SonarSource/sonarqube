@@ -28,8 +28,7 @@ class Profile < ActiveRecord::Base
 
   validates_uniqueness_of :name, :scope => :language, :case_sensitive => false
   validates_presence_of :name
-  validates_exclusion_of :name, :in => %w( active ), :message => "reserved"
-
+  
   DEFAULT_PROFILE_NAME = 'Sun checks'
   
   def active?

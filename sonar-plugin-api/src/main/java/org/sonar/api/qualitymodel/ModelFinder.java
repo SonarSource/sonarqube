@@ -25,7 +25,7 @@ import org.sonar.api.ServerComponent;
 /**
  * @since 2.3
  */
-public interface ModelProvider extends BatchComponent, ServerComponent {
+public interface ModelFinder extends BatchComponent, ServerComponent {
 
   /**
    * @return null if the name is not found
