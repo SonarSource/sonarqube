@@ -20,6 +20,9 @@
 package org.sonar.api.profiles;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.rules.RulePriority;
 
 import java.util.ArrayList;
@@ -30,8 +33,10 @@ import java.util.Map;
 /**
  * @since 2.3
  */
-public final class ProfilePrototype {
+public final class ProfilePrototype implements BatchComponent {
 
+  private String name;
+  private String language;
   private List<RulePrototype> rules = new ArrayList<RulePrototype>();
 
   private ProfilePrototype() {
@@ -39,6 +44,28 @@ public final class ProfilePrototype {
 
   public static ProfilePrototype create() {
     return new ProfilePrototype();
+  }
+
+  public static ProfilePrototype create(String name, String language) {
+    return new ProfilePrototype().setName(name).setLanguage(language);
+  }
+
+  public final String getName() {
+    return name;
+  }
+
+  public final ProfilePrototype setName(String s) {
+    this.name = s;
+    return this;
+  }
+
+  public final String getLanguage() {
+    return language;
+  }
+
+  public final ProfilePrototype setLanguage(String s) {
+    this.language = s;
+    return this;
   }
 
   public List<RulePrototype> getRules() {
@@ -57,7 +84,8 @@ public final class ProfilePrototype {
 
   public RulePrototype getRule(String repositoryKey, String key) {
     for (RulePrototype rule : rules) {
-      if (StringUtils.equals(repositoryKey, rule.getRepositoryKey()) && StringUtils.equals(key, rule.getKey())) {
+      if (StringUtils.equals(repositoryKey, rule.getRepositoryKey()) &&
+          StringUtils.equals(key, rule.getKey())) {
         return rule;
       }
     }
@@ -66,7 +94,8 @@ public final class ProfilePrototype {
 
   public RulePrototype getRuleByConfigKey(String repositoryKey, String configKey) {
     for (RulePrototype rule : rules) {
-      if (StringUtils.equals(repositoryKey, rule.getRepositoryKey()) && StringUtils.equals(configKey, rule.getConfigKey())) {
+      if (StringUtils.equals(repositoryKey, rule.getRepositoryKey()) &&
+          StringUtils.equals(configKey, rule.getConfigKey())) {
         return rule;
       }
     }
@@ -74,7 +103,6 @@ public final class ProfilePrototype {
   }
 
   /**
-   *
    * @param repositoryKey
    * @param key
    * @param nullablePriority if null, then the default rule priority is used.
@@ -92,11 +120,23 @@ public final class ProfilePrototype {
     return rule;
   }
 
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+        .append("name", name)
+        .append("language", language)
+        .toString();
+  }
+
   public static final class RulePrototype {
     private String repositoryKey;
+
     private String key;
+
     private String configKey;
+
     private RulePriority priority = null;
+
     private Map<String, String> parameters = new HashMap<String, String>();
 
     private RulePrototype() {

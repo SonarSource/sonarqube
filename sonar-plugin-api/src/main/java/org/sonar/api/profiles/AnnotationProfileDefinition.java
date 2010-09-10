@@ -30,18 +30,21 @@ import java.util.Collection;
  */
 public abstract class AnnotationProfileDefinition extends ProfileDefinition {
 
+  private String name;
+  private String language;
   private String repositoryKey;
   private Collection<Class> annotatedClasses;
 
   protected AnnotationProfileDefinition(String repositoryKey, String profileName, String language, Collection<Class> annotatedClasses) {
-    super(profileName, language);
+    this.name = profileName;
+    this.language = language;
     this.repositoryKey = repositoryKey;
     this.annotatedClasses = annotatedClasses;
   }
 
   @Override
   public ProfilePrototype createPrototype() {
-    ProfilePrototype profile = ProfilePrototype.create();
+    ProfilePrototype profile = ProfilePrototype.create(name, language);
     if (annotatedClasses != null) {
       for (Class aClass : annotatedClasses) {
         BelongsToProfile belongsToProfile = (BelongsToProfile) aClass.getAnnotation(BelongsToProfile.class);

@@ -118,7 +118,7 @@
         </td>
 
         <td align="right">
-          <% if !profile.provided? %>
+          <% if !(profile.provided?) %>
              <% form_tag(:action => 'rename', :id => profile.id) do -%>
               <%= hidden_field_tag 'rename_' + profile.id.to_s %>
               <input type="button" name="button_rename" id="rename_<%= u profile.key %>" value="Rename" onClick='var name=prompt("New name"); if (name!=null) {$("rename_<%= profile.id %>").value=name; submit();} else {return false;}'>
@@ -130,7 +130,7 @@
              <% form_tag(:action => 'copy', :id => profile.id) do -%>
               <%= hidden_field_tag 'copy_' + profile.id.to_s %>
               <input type="button" name="button_copy" id="copy_<%= u profile.key %>" value="Copy" onClick='var name=prompt("Name for the new profile"); if (name!=null) {$("copy_<%= profile.id %>").value=name; submit();} else {return false;}'>
-            <% end
+            <% end %>
         </td>
 
         <td>

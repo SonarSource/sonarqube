@@ -67,7 +67,7 @@ public final class XMLProfileImporter {
         }
       }
     } catch (XMLStreamException e) {
-      messages.addError("unvalidXml", "XML is not valid: " + e.getMessage());
+      messages.addErrorText("XML is not valid: " + e.getMessage());
     }
     return profile;
   }

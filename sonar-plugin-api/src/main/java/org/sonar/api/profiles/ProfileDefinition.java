@@ -26,40 +26,6 @@ import org.sonar.api.ServerExtension;
  */
 public abstract class ProfileDefinition implements ServerExtension {
 
-  private String name;
-  private String language;
-
-  protected ProfileDefinition() {
-  }
-
-  protected ProfileDefinition(String profileName, String language) {
-    this.name = profileName;
-    this.language = language;
-  }
-
-  public final String getName() {
-    return name;
-  }
-
-  public final ProfileDefinition setName(String s) {
-    this.name = s;
-    return this;
-  }
-
-  public final String getLanguage() {
-    return language;
-  }
-
-  public final ProfileDefinition setLanguage(String s) {
-    this.language = s;
-    return this;
-  }
-
   public abstract ProfilePrototype createPrototype();
 
-
-  @Override
-  public final String toString() {
-    return new StringBuilder().append("[name=").append(name).append(",language=").append(language).append("]").toString();
-  }
 }

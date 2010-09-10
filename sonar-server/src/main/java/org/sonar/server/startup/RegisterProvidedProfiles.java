@@ -69,19 +69,29 @@ public final class RegisterProvidedProfiles {
 
   public void start() {
     TimeProfiler profiler = new TimeProfiler().start("Load provided profiles");
+
+    List<ProfilePrototype> prototypes = createPrototypes();
     DatabaseSession session = sessionFactory.getSession();
-    deleteDeprecatedProfiles(session);
-    saveProvidedProfiles(session);
+    deleteDeprecatedProfiles(prototypes, session);
+    saveProvidedProfiles(prototypes, session);
     profiler.stop();
   }
 
-  void deleteDeprecatedProfiles(DatabaseSession session) {
+  List<ProfilePrototype> createPrototypes() {
+    List<ProfilePrototype> result = new ArrayList<ProfilePrototype>();
+    for (ProfileDefinition definition : definitions) {
+      result.add(definition.createPrototype());
+    }
+    return result;
+  }
+
+  void deleteDeprecatedProfiles(List<ProfilePrototype> prototypes, DatabaseSession session) {
     TimeProfiler profiler = new TimeProfiler().start("Delete deprecated profiles");
     List<RulesProfile> existingProfiles = session.getResults(RulesProfile.class, "provided", true);
     for (RulesProfile existingProfile : existingProfiles) {
       boolean isDeprecated = true;
-      for (ProfileDefinition definition : definitions) {
-        if (StringUtils.equals(existingProfile.getName(), definition.getName()) && StringUtils.equals(existingProfile.getLanguage(), definition.getLanguage())) {
+      for (ProfilePrototype profile: prototypes) {
+        if (StringUtils.equals(existingProfile.getName(), profile.getName()) && StringUtils.equals(existingProfile.getLanguage(), profile.getLanguage())) {
           isDeprecated = false;
           break;
         }
@@ -101,16 +111,15 @@ public final class RegisterProvidedProfiles {
   }
 
 
-  void saveProvidedProfiles(DatabaseSession session) {
-    for (ProfileDefinition definition : definitions) {
-      TimeProfiler profiler = new TimeProfiler().start("Save profile " + definition);
-      ProfilePrototype prototype = definition.createPrototype();
-      RulesProfile profile = findOrCreate(definition, session);
+  void saveProvidedProfiles(List<ProfilePrototype> prototypes, DatabaseSession session) {
+    for (ProfilePrototype prototype : prototypes) {
+      TimeProfiler profiler = new TimeProfiler().start("Save profile " + prototype);
+      RulesProfile profile = findOrCreate(prototype, session);
 
       for (ProfilePrototype.RulePrototype rulePrototype : prototype.getRules()) {
         Rule rule = findRule(rulePrototype);
         if (rule == null) {
-          LOGGER.warn("The profile " + definition + " defines an unknown rule: " + rulePrototype);
+          LOGGER.warn("The profile " + prototype + " defines an unknown rule: " + rulePrototype);
 
         } else {
           ActiveRule activeRule = profile.activateRule(rule, rulePrototype.getPriority());
@@ -135,10 +144,10 @@ public final class RegisterProvidedProfiles {
     return null;
   }
 
-  private RulesProfile findOrCreate(ProfileDefinition definition, DatabaseSession session) {
-    RulesProfile profile = session.getSingleResult(RulesProfile.class, "name", definition.getName(), "language", definition.getLanguage());
+  private RulesProfile findOrCreate(ProfilePrototype prototype, DatabaseSession session) {
+    RulesProfile profile = session.getSingleResult(RulesProfile.class, "name", prototype.getName(), "language", prototype.getLanguage());
     if (profile == null) {
-      profile = RulesProfile.create(definition.getName(), definition.getLanguage());
+      profile = RulesProfile.create(prototype.getName(), prototype.getLanguage());
       profile.setProvided(true);
       profile.setDefaultProfile(false);
     }

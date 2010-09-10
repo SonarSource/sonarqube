@@ -132,8 +132,7 @@ public final class DeprecatedProfiles {
     private ProfilePrototype prototype;
 
     DefaultProfileDefinition(String name, String language) {
-      super(name, language);
-      this.prototype = ProfilePrototype.create();
+      this.prototype = ProfilePrototype.create(name, language);
     }
 
     public static DefaultProfileDefinition create(String name, String language) {

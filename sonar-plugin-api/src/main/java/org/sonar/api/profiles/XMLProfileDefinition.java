@@ -34,11 +34,14 @@ import java.util.List;
  */
 public abstract class XMLProfileDefinition extends ProfileDefinition {
 
+  private String name;
+  private String language;
   private ClassLoader classloader;
   private String xmlClassPath;
 
   protected XMLProfileDefinition(String name, String language, ClassLoader classloader, String xmlClassPath) {
-    super(name, language);
+    this.name = name;
+    this.language = language;
     this.classloader = classloader;
     this.xmlClassPath = xmlClassPath;
   }
@@ -49,6 +52,8 @@ public abstract class XMLProfileDefinition extends ProfileDefinition {
     try {
       ValidationMessages validation = ValidationMessages.create();
       ProfilePrototype profile = XMLProfileImporter.create().importProfile(reader, validation);
+      profile.setName(name);
+      profile.setLanguage(language);
       if (validation.hasErrors()) {
         // TODO do not loose messages
         throw new SonarException("Fail to parse the file: " + xmlClassPath);
@@ -59,8 +64,4 @@ public abstract class XMLProfileDefinition extends ProfileDefinition {
       IOUtils.closeQuietly(reader);
     }
   }
-
-//  public static XMLProfileDefinition create(String name, String language, ClassLoader classloader, String xmlClassloaderPath) {
-//    return new XMLProfileDefinition(name, language).setClassloader(classloader).setXmlClassPath(xmlClassloaderPath);
-//  }
 }

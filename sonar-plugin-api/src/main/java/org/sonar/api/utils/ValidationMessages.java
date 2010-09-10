@@ -19,15 +19,22 @@
  */
 package org.sonar.api.utils;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.slf4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public final class ValidationMessages {
 
-  private List<Message> errors = new ArrayList<Message>();
-  private List<Message> warnings = new ArrayList<Message>();
-  private List<Message> infos = new ArrayList<Message>();
+  private List<String> errors = new ArrayList<String>();
+  private List<String> warnings = new ArrayList<String>();
+  private List<String> infos = new ArrayList<String>();
 
+  /**
+   * Use the factory method <code>create()</code>
+   */
   ValidationMessages() {
   }
 
@@ -39,16 +46,16 @@ public final class ValidationMessages {
     return !errors.isEmpty();
   }
 
-  public List<Message> getErrors() {
+  public List<String> getErrors() {
     return errors;
   }
 
-  public ValidationMessages addError(String key, String label) {
-    errors.add(new Message(key, label));
+  public ValidationMessages addErrorText(String text) {
+    errors.add(text);
     return this;
   }
 
-  public List<Message> getWarnings() {
+  public List<String> getWarnings() {
     return warnings;
   }
 
@@ -56,12 +63,12 @@ public final class ValidationMessages {
     return !warnings.isEmpty();
   }
 
-  public ValidationMessages addWarning(String key, String label) {
-    warnings.add(new Message(key, label));
+  public ValidationMessages addWarningText(String text) {
+    warnings.add(text);
     return this;
   }
 
-  public List<Message> getInfos() {
+  public List<String> getInfos() {
     return infos;
   }
 
@@ -69,26 +76,29 @@ public final class ValidationMessages {
     return !infos.isEmpty();
   }
 
-  public ValidationMessages addInfo(String key, String label) {
-    infos.add(new Message(key, label));
+  public ValidationMessages addInfoText(String text) {
+    infos.add(text);
     return this;
   }
 
-  public static final class Message {
-    private String key;
-    private String label;
-
-    private Message(String key, String label) {
-      this.key = key;
-      this.label = label;
+  public void log(Logger logger) {
+    for (String error : getErrors()) {
+      logger.error(error);
     }
-
-    public String getKey() {
-      return key;
+    for (String warning : getWarnings()) {
+      logger.warn(warning);
     }
-
-    public String getLabel() {
-      return label;
+    for (String info : getInfos()) {
+      logger.info(info);
     }
+  }
+
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+        .append("errors", errors)
+        .append("warnings", warnings)
+        .append("infos", infos)
+        .toString();
   }
 }

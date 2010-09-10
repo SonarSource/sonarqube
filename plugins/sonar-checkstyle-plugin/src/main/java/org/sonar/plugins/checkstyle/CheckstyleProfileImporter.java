@@ -64,7 +64,7 @@ public class CheckstyleProfileImporter extends ProfileImporter {
         }
       }
     } catch (XMLStreamException e) {
-      messages.addError("checkstyle.import.unvalidXml", "XML is not valid: " + e.getMessage());
+      messages.addErrorText("XML is not valid: " + e.getMessage());
     }
     return profile;
   }
@@ -82,7 +82,7 @@ public class CheckstyleProfileImporter extends ProfileImporter {
   private void processModule(ProfilePrototype profile, String path, SMInputCursor moduleCursor, ValidationMessages messages) throws XMLStreamException {
     String configKey = moduleCursor.getAttrValue("name");
     if (isFilter(configKey)) {
-      messages.addWarning("checkstyle.import.filtersNotSupported", "Checkstyle filters are not imported: " + configKey);
+      messages.addWarningText("Checkstyle filters are not imported: " + configKey);
 
     } else if (isIgnored(configKey)) {
 
@@ -115,7 +115,7 @@ public class CheckstyleProfileImporter extends ProfileImporter {
     String key = propertyCursor.getAttrValue("name");
     String value = propertyCursor.getAttrValue("value");
     if (StringUtils.equals("id", key)) {
-      messages.addWarning("checkstyle.import.idPropertyNotSupported", "The checkstyle property 'id' is not supported in the rule: " + rule.getConfigKey());
+      messages.addWarningText("The checkstyle property 'id' is not supported in the rule: " + rule.getConfigKey());
 
     } else if (StringUtils.equals("severity", key)) {
       rule.setPriority(CheckstyleSeverityUtils.fromSeverity(value));

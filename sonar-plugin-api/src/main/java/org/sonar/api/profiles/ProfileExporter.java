@@ -20,6 +20,8 @@
 package org.sonar.api.profiles;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
 
@@ -101,5 +103,15 @@ public abstract class ProfileExporter implements BatchExtension, ServerExtension
   @Override
   public final int hashCode() {
     return key != null ? key.hashCode() : 0;
+  }
+
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+        .append("key", key)
+        .append("name", name)
+        .append("mimeType", mimeType)
+        .append("languages", supportedLanguages)
+        .toString();
   }
 }

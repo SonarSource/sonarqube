@@ -31,8 +31,8 @@ public class DeprecatedProfilesTest {
   @Test
   public void testCreate() {
     DeprecatedProfiles.DefaultProfileDefinition def = DeprecatedProfiles.DefaultProfileDefinition.create("sonar way", "java");
-    assertThat(def.getName(), is("sonar way"));
-    assertThat(def.getLanguage(), is("java"));
+    assertThat(def.createPrototype().getName(), is("sonar way"));
+    assertThat(def.createPrototype().getLanguage(), is("java"));
   }
 
   @Test
