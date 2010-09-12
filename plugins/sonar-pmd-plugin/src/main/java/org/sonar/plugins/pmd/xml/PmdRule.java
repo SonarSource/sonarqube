@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @XStreamAlias("rule")
-public class Rule implements Comparable<String> {
+public class PmdRule implements Comparable<String> {
 
   @XStreamAsAttribute
   private String ref;
@@ -49,11 +49,11 @@ public class Rule implements Comparable<String> {
   @XStreamAlias(value = "class")
   private String clazz;//NOSONAR unused private field
 
-  public Rule(String ref) {
+  public PmdRule(String ref) {
     this(ref, null);
   }
 
-  public Rule(String ref, String priority) {
+  public PmdRule(String ref, String priority) {
     this.ref = ref;
     this.priority = priority;
   }

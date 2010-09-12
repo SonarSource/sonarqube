@@ -19,26 +19,12 @@
  */
 package org.sonar.plugins.pmd;
 
-import java.util.Arrays;
-import java.util.List;
+import org.sonar.api.CoreProperties;
 
-import org.sonar.api.Plugin;
+public final class PmdConstants {
 
-public class PmdPlugin implements Plugin {
-
-  public String getKey() {
-    return PmdConstants.PLUGIN_KEY;
-  }
-
-  public String getName() {
-    return PmdConstants.PLUGIN_NAME;
-  }
-
-  public String getDescription() {
-    return "PMD is a tool that looks for potential problems like possible bugs, dead code, suboptimal code,  overcomplicated expressions or duplicate code. You can find more by going to the <a href='http://pmd.sourceforge.net'>PMD web site</a>.";
-  }
-
-  public List getExtensions() {
-    return Arrays.asList(PmdSensor.class, PmdConfiguration.class, PmdExecutor.class, PmdRulesRepository.class);
-  }
+  public static final String REPOSITORY_KEY = CoreProperties.PMD_PLUGIN;
+  public static final String REPOSITORY_NAME = "PMD";
+  public static final String PLUGIN_NAME = "PMD";
+  public static final String PLUGIN_KEY = CoreProperties.PMD_PLUGIN;
 }

@@ -27,12 +27,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @XStreamAlias("ruleset")
-public class Ruleset {
+public class PmdRuleset {
 
   private String description;
 
   @XStreamImplicit
-  private List<Rule> rules = new ArrayList<Rule>();
+  private List<PmdRule> rules = new ArrayList<PmdRule>();
 
   @XStreamOmitField
   @XStreamAlias(value = "exclude-pattern")
@@ -42,18 +42,18 @@ public class Ruleset {
   @XStreamAlias(value = "include-pattern")
   private String includePattern;//NOSONAR unused private field
 
-  public Ruleset() {
+  public PmdRuleset() {
   }
 
-  public Ruleset(String description) {
+  public PmdRuleset(String description) {
     this.description = description;
   }
 
-  public List<Rule> getRules() {
+  public List<PmdRule> getRules() {
     return rules;
   }
 
-  public void setRules(List<Rule> rules) {
+  public void setRules(List<PmdRule> rules) {
     this.rules = rules;
   }
 
@@ -65,7 +65,7 @@ public class Ruleset {
     this.description = description;
   }
 
-  public void addRule(Rule rule) {
+  public void addRule(PmdRule rule) {
     rules.add(rule);
   }
 

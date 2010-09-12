@@ -32,8 +32,8 @@ import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.plugins.pmd.xml.Property;
-import org.sonar.plugins.pmd.xml.Rule;
-import org.sonar.plugins.pmd.xml.Ruleset;
+import org.sonar.plugins.pmd.xml.PmdRule;
+import org.sonar.plugins.pmd.xml.PmdRuleset;
 import org.sonar.test.TestUtils;
 import org.xml.sax.SAXException;
 
@@ -87,11 +87,11 @@ public class PmdRulesRepositoryTest {
     ActiveRule activeRule = new ActiveRule(null, dbRule, RulePriority.MAJOR);
     activeRule.setActiveRuleParams(Arrays.asList(new ActiveRuleParam(activeRule, ruleParam, "Connection,Statement,ResultSet")));
 
-    Ruleset ruleset = repository.buildModuleTree(Arrays.asList(activeRule));
+    PmdRuleset ruleset = repository.buildModuleTree(Arrays.asList(activeRule));
 
     assertThat(ruleset.getRules().size(), is(1));
 
-    Rule rule = ruleset.getRules().get(0);
+    PmdRule rule = ruleset.getRules().get(0);
     assertThat(rule.getRef(), is("rulesets/design.xml/CloseResource"));
     assertThat(rule.getProperties().size(), is(1));
 
@@ -114,7 +114,7 @@ public class PmdRulesRepositoryTest {
     rule2.setConfigKey("rulesets/braces.xml/IfElseStmtsMustUseBraces");
     ActiveRule activeRule2 = new ActiveRule(null, rule2, RulePriority.MAJOR);
 
-    Ruleset ruleset = repository.buildModuleTree(Arrays.asList(activeRule1, activeRule2));
+    PmdRuleset ruleset = repository.buildModuleTree(Arrays.asList(activeRule1, activeRule2));
 
     assertThat(ruleset.getRules().size(), is(2));
     assertThat(ruleset.getRules().get(0).getRef(), is("rulesets/design.xml/CloseResource"));
@@ -124,11 +124,11 @@ public class PmdRulesRepositoryTest {
   @Test
   public void shouldBuilModuleTreeFromXml() throws IOException {
     InputStream input = getClass().getResourceAsStream("/org/sonar/plugins/pmd/test_module_tree.xml");
-    Ruleset ruleset = repository.buildModuleTreeFromXml(IOUtils.toString(input));
+    PmdRuleset ruleset = repository.buildModuleTreeFromXml(IOUtils.toString(input));
 
     assertThat(ruleset.getRules().size(), is(3));
 
-    Rule rule1 = ruleset.getRules().get(0);
+    PmdRule rule1 = ruleset.getRules().get(0);
     assertThat(rule1.getRef(), is("rulesets/coupling.xml/CouplingBetweenObjects"));
     assertThat(rule1.getPriority(), is("2"));
     assertThat(rule1.getProperties().size(), is(1));
@@ -137,7 +137,7 @@ public class PmdRulesRepositoryTest {
     assertThat(module1Property.getName(), is("threshold"));
     assertThat(module1Property.getValue(), is("20"));
 
-    Rule rule2 = ruleset.getRules().get(1);
+    PmdRule rule2 = ruleset.getRules().get(1);
     assertThat(rule2.getRef(), is("rulesets/coupling.xml/ExcessiveImports"));
     assertThat(rule2.getPriority(), is("3"));
     assertThat(rule2.getProperties().size(), is(1));
@@ -146,7 +146,7 @@ public class PmdRulesRepositoryTest {
     assertThat(module2Property.getName(), is("max"));
     assertThat(module2Property.getValue(), is("30"));
 
-    Rule rule3 = ruleset.getRules().get(2);
+    PmdRule rule3 = ruleset.getRules().get(2);
     assertThat(rule3.getRef(), is("rulesets/design.xml/UseNotifyAllInsteadOfNotify"));
     assertThat(rule3.getPriority(), is("4"));
     assertNull(rule3.getProperties());
@@ -155,16 +155,16 @@ public class PmdRulesRepositoryTest {
   @Test
   public void shouldBuilModuleTreeFromXmlInUtf8() throws IOException {
     InputStream input = getClass().getResourceAsStream("/org/sonar/plugins/pmd/test_xml_utf8.xml");
-    Ruleset ruleset = repository.buildModuleTreeFromXml(IOUtils.toString(input, CharEncoding.UTF_8));
+    PmdRuleset ruleset = repository.buildModuleTreeFromXml(IOUtils.toString(input, CharEncoding.UTF_8));
 
-    Rule rule1 = ruleset.getRules().get(0);
+    PmdRule rule1 = ruleset.getRules().get(0);
     assertThat(rule1.getRef(), is("rulesets/coupling.xml/CouplingBetweenObjects"));
     assertThat(rule1.getProperties().get(0).getValue(), is("\u00E9"));
   }
 
   @Test
   public void shouldBuilXmlFromModuleTree() throws IOException, SAXException {
-    Ruleset ruleset = buildModuleTreeFixture();
+    PmdRuleset ruleset = buildModuleTreeFixture();
     String xml = repository.buildXmlFromModuleTree(ruleset);
     assertXmlAreSimilar(xml, "test_module_tree.xml");
   }
@@ -221,7 +221,7 @@ public class PmdRulesRepositoryTest {
     List<ActiveRule> activeRulesExpected = buildActiveRulesFixture(inputRules);
 
     List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
-    Ruleset ruleset = buildModuleTreeFixture();
+    PmdRuleset ruleset = buildModuleTreeFixture();
     repository.buildActiveRulesFromModuleTree(ruleset, activeRules, inputRules);
 
     assertThat(activeRulesExpected.size(), is(activeRules.size()));
@@ -246,15 +246,6 @@ public class PmdRulesRepositoryTest {
     assertTrue(profile3.getActiveRules().size() + "", profile3.getActiveRules().size() > 1);
   }
 
-  @Test
-  public void shouldExportConfiguration() throws IOException, SAXException {
-    List<ActiveRule> activeRulesExpected = buildActiveRulesFixture(buildRulesFixture());
-    RulesProfile activeProfile = new RulesProfile();
-    activeProfile.setActiveRules(activeRulesExpected);
-    activeProfile.setName("A test profile");
-    String xml = repository.exportConfiguration(activeProfile);
-    assertXmlAreSimilar(xml, "test_xml_complete.xml");
-  }
 
   @Test
   public void shouldAddHeaderToXml() throws IOException, SAXException {
@@ -271,13 +262,13 @@ public class PmdRulesRepositoryTest {
     rule2.setPluginName("not-a-pmd-plugin");
     ActiveRule activeRule2 = new ActiveRule(null, rule1, RulePriority.CRITICAL);
 
-    Ruleset tree = repository.buildModuleTree(Arrays.asList(activeRule1, activeRule2));
+    PmdRuleset tree = repository.buildModuleTree(Arrays.asList(activeRule1, activeRule2));
     assertThat(tree.getRules().size(), is(0));
   }
 
   @Test
   public void shouldBuildOnlyOneModuleWhenNoActiveRules() {
-    Ruleset tree = repository.buildModuleTree(Collections.<ActiveRule>emptyList());
+    PmdRuleset tree = repository.buildModuleTree(Collections.<ActiveRule>emptyList());
     assertThat(tree.getRules().size(), is(0));
   }
 
@@ -292,13 +283,13 @@ public class PmdRulesRepositoryTest {
     dbRule2.setConfigKey("rulesets/coupling.xml/CouplingBetweenObjects");
     ActiveRule activeRule2 = new ActiveRule(null, dbRule2, RulePriority.CRITICAL);
 
-    Ruleset tree = repository.buildModuleTree(Arrays.asList(activeRule1, activeRule2));
+    PmdRuleset tree = repository.buildModuleTree(Arrays.asList(activeRule1, activeRule2));
     assertThat(tree.getRules().size(), is(2));
 
-    Rule rule1 = tree.getRules().get(0);
+    PmdRule rule1 = tree.getRules().get(0);
     assertThat(rule1.getRef(), is("rulesets/coupling.xml/CouplingBetweenObjects"));
 
-    Rule rule2 = tree.getRules().get(1);
+    PmdRule rule2 = tree.getRules().get(1);
     assertThat(rule2.getRef(), is("rulesets/coupling.xml/CouplingBetweenObjects"));
   }
 
@@ -312,19 +303,19 @@ public class PmdRulesRepositoryTest {
     TestUtils.assertSimilarXml(xmlToFind, xml);
   }
 
-  private Ruleset buildModuleTreeFixture() {
-    Ruleset ruleset = new Ruleset();
+  private PmdRuleset buildModuleTreeFixture() {
+    PmdRuleset ruleset = new PmdRuleset();
     ruleset.setDescription("Sonar PMD rules");
 
-    Rule rule1 = new Rule("rulesets/coupling.xml/CouplingBetweenObjects", "2");
+    PmdRule rule1 = new PmdRule("rulesets/coupling.xml/CouplingBetweenObjects", "2");
     rule1.addProperty(new Property("threshold", "20"));
     ruleset.addRule(rule1);
 
-    Rule rule2 = new Rule("rulesets/coupling.xml/ExcessiveImports", "3");
+    PmdRule rule2 = new PmdRule("rulesets/coupling.xml/ExcessiveImports", "3");
     rule2.addProperty(new Property("max", "30"));
     ruleset.addRule(rule2);
 
-    Rule rule3 = new Rule("rulesets/design.xml/UseNotifyAllInsteadOfNotify", "4");
+    PmdRule rule3 = new PmdRule("rulesets/design.xml/UseNotifyAllInsteadOfNotify", "4");
     ruleset.addRule(rule3);
 
     return ruleset;
@@ -398,7 +389,7 @@ public class PmdRulesRepositoryTest {
 
   @Test
   public void shouldUseTheProfileNameWhenBuildingTheRulesSet() {
-    Ruleset tree = repository.buildModuleTree(Collections.<ActiveRule>emptyList(), "aprofile");
+    PmdRuleset tree = repository.buildModuleTree(Collections.<ActiveRule>emptyList(), "aprofile");
     assertThat(tree.getDescription(), is("aprofile"));
   }
 

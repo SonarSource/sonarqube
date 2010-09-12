@@ -60,7 +60,7 @@ public class PmdExecutor implements BatchExtension {
       ruleContext.setReport(report);
 
       RuleSets rulesets = createRulesets();
-
+      
       for (File file : project.getFileSystem().getSourceFiles(Java.INSTANCE)) {
         ruleContext.setSourceCodeFilename(file.getAbsolutePath());
         Reader fileReader = new InputStreamReader(new FileInputStream(file), project.getFileSystem().getSourceCharset());

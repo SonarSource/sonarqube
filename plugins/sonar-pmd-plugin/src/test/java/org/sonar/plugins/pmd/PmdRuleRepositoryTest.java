@@ -19,26 +19,24 @@
  */
 package org.sonar.plugins.pmd;
 
-import java.util.Arrays;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+
 import java.util.List;
 
-import org.sonar.api.Plugin;
+import org.junit.Test;
+import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.api.rules.Rule;
 
-public class PmdPlugin implements Plugin {
+public class PmdRuleRepositoryTest {
 
-  public String getKey() {
-    return PmdConstants.PLUGIN_KEY;
+  @Test
+  public void testLoadRepositoryFromXml() {
+    ServerFileSystem fileSystem = mock(ServerFileSystem.class);
+    PmdRuleRepository repository = new PmdRuleRepository(fileSystem);
+    List<Rule> rules = repository.createRules();
+    assertThat(rules.size(), greaterThan(100));
   }
 
-  public String getName() {
-    return PmdConstants.PLUGIN_NAME;
-  }
-
-  public String getDescription() {
-    return "PMD is a tool that looks for potential problems like possible bugs, dead code, suboptimal code,  overcomplicated expressions or duplicate code. You can find more by going to the <a href='http://pmd.sourceforge.net'>PMD web site</a>.";
-  }
-
-  public List getExtensions() {
-    return Arrays.asList(PmdSensor.class, PmdConfiguration.class, PmdExecutor.class, PmdRulesRepository.class);
-  }
 }
