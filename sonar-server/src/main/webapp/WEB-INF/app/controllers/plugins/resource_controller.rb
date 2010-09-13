@@ -20,6 +20,7 @@
 class Plugins::ResourceController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
+  helper :project
 
   def index
     @project = ::Project.by_key(params[:id])

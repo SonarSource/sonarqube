@@ -79,43 +79,11 @@ public final class ProfilesConsole implements ServerComponent {
     if (profile != null) {
       session.remove(session);
     }
-    profile = RulesProfile.create(profileName, language);
     ValidationMessages messages = ValidationMessages.create();
-    ProfilePrototype prototype = XMLProfileImporter.create().importProfile(new StringReader(xmlBackup), messages);
-    completeProfileWithPrototype(profile, prototype, messages);
+    profile = XMLProfileImporter.create(ruleFinder).importProfile(new StringReader(xmlBackup), messages);
     session.saveWithoutFlush(profile);
     session.commit();
     return messages;
-  }
-
-  private void completeProfileWithPrototype(RulesProfile profile, ProfilePrototype prototype, ValidationMessages messages) {
-    for (ProfilePrototype.RulePrototype rulePrototype : prototype.getRules()) {
-      Rule rule = findRule(rulePrototype);
-      if (rule == null) {
-        messages.addWarningText("The following rule has been ignored: " + rulePrototype);
-
-      } else {
-        ActiveRule activeRule = profile.activateRule(rule, rulePrototype.getPriority());
-        for (Map.Entry<String, String> entry : rulePrototype.getParameters().entrySet()) {
-          if (rule.getParam(entry.getKey())==null) {
-            messages.addWarningText("The rule " + rulePrototype + " has no parameter named '" + entry.getKey() + "'.");
-
-          } else {
-            activeRule.setParameter(entry.getKey(), entry.getValue());
-          }
-        }
-      }
-    }
-  }
-
-  private Rule findRule(ProfilePrototype.RulePrototype rulePrototype) {
-    if (StringUtils.isNotBlank(rulePrototype.getKey())) {
-      return ruleFinder.findByKey(rulePrototype.getRepositoryKey(), rulePrototype.getKey());
-    }
-    if (StringUtils.isNotBlank(rulePrototype.getConfigKey())) {
-      return ruleFinder.find(RuleQuery.create().withRepositoryKey(rulePrototype.getRepositoryKey()).withConfigKey(rulePrototype.getConfigKey()));
-    }
-    return null;
   }
 
   private RulesProfile loadProfile(DatabaseSession session, int profileId) {
@@ -154,14 +122,15 @@ public final class ProfilesConsole implements ServerComponent {
     return null;
   }
 
-  public ValidationMessages importProfile(int profileId, String importerKey, String profileDefinition) {
+  /**
+   * Important : the ruby controller has already removed existing profile with same name/language.
+   */
+  public ValidationMessages importProfile(String profileName, String language, String importerKey, String profileDefinition) {
     ValidationMessages messages = ValidationMessages.create();
     ProfileImporter importer = getProfileImporter(importerKey);
-    ProfilePrototype prototype = importer.importProfile(new StringReader(profileDefinition), messages);
+    RulesProfile profile = importer.importProfile(new StringReader(profileDefinition), messages);
     if (!messages.hasErrors()) {
       DatabaseSession session = sessionFactory.getSession();
-      RulesProfile profile = loadProfile(session, profileId); // the profile has been create in the ruby controller
-      completeProfileWithPrototype(profile, prototype, messages);
       session.saveWithoutFlush(profile);
       session.commit();
     }

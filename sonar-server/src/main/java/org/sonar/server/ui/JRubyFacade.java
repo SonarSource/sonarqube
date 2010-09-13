@@ -152,8 +152,8 @@ public class JRubyFacade {
     return getContainer().getComponent(ProfilesConsole.class).exportProfile(profileId, exporterKey);
   }
 
-  public ValidationMessages importProfile(int profileId, String importerKey, String fileContent) {
-    return getContainer().getComponent(ProfilesConsole.class).importProfile(profileId, importerKey, fileContent);
+  public ValidationMessages importProfile(String profileName, String language, String importerKey, String fileContent) {
+    return getContainer().getComponent(ProfilesConsole.class).importProfile(profileName, language, importerKey, fileContent);
   }
 
   public String getProfileExporterMimeType(String exporterKey) {

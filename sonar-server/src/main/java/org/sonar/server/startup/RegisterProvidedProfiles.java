@@ -24,12 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.ProfileDefinition;
-import org.sonar.api.profiles.ProfilePrototype;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.rules.RuleQuery;
+import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.jpa.session.DatabaseSessionFactory;
@@ -38,65 +35,62 @@ import org.sonar.server.rules.DeprecatedProfiles;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public final class RegisterProvidedProfiles {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RegisterProvidedProfiles.class);
 
-  private RuleFinder ruleFinder;
   private DatabaseSessionFactory sessionFactory;
   private List<ProfileDefinition> definitions = new ArrayList<ProfileDefinition>();
+  private DeprecatedProfiles deprecatedProfiles = null;
 
-  public RegisterProvidedProfiles(RuleFinder ruleFinder, DatabaseSessionFactory sessionFactory,
+  public RegisterProvidedProfiles(DatabaseSessionFactory sessionFactory,
                                   DeprecatedProfiles deprecatedBridge, RegisterRules registerRulesBefore,
                                   ProfileDefinition[] definitions) {
-    this.ruleFinder = ruleFinder;
     this.sessionFactory = sessionFactory;
     this.definitions.addAll(Arrays.asList(definitions));
-    if (deprecatedBridge != null) {
-      this.definitions.addAll(deprecatedBridge.getProfiles());
-    }
+    this.deprecatedProfiles = deprecatedBridge;
   }
 
-  public RegisterProvidedProfiles(RuleFinder ruleFinder, DatabaseSessionFactory sessionFactory,
+  public RegisterProvidedProfiles(DatabaseSessionFactory sessionFactory,
                                   DeprecatedProfiles deprecatedBridge, RegisterRules registerRulesBefore) {
-    this.ruleFinder = ruleFinder;
     this.sessionFactory = sessionFactory;
-    if (deprecatedBridge != null) {
-      this.definitions.addAll(deprecatedBridge.getProfiles());
-    }
+    this.deprecatedProfiles = deprecatedBridge;
   }
 
   public void start() {
     TimeProfiler profiler = new TimeProfiler().start("Load provided profiles");
 
-    List<ProfilePrototype> prototypes = createPrototypes();
+    List<RulesProfile> profiles = createProfiles();
     DatabaseSession session = sessionFactory.getSession();
-    deleteDeprecatedProfiles(prototypes, session);
-    saveProvidedProfiles(prototypes, session);
+    cleanProvidedProfiles(profiles, session);
+    saveProvidedProfiles(profiles, session);
     profiler.stop();
   }
 
-  List<ProfilePrototype> createPrototypes() {
-    List<ProfilePrototype> result = new ArrayList<ProfilePrototype>();
+  List<RulesProfile> createProfiles() {
+    List<RulesProfile> result = new ArrayList<RulesProfile>();
+
+    // this must not be moved in the constructor, because rules are still not saved
+    definitions.addAll(deprecatedProfiles.getProfiles());
+
     for (ProfileDefinition definition : definitions) {
       ValidationMessages validation = ValidationMessages.create();
-      ProfilePrototype prototype = definition.createPrototype(validation);
+      RulesProfile profile = definition.createProfile(validation);
       validation.log(LOGGER);
-      if (prototype != null && !validation.hasErrors()) {
-        result.add(prototype);
+      if (profile != null && !validation.hasErrors()) {
+        result.add(profile);
       }
     }
     return result;
   }
 
-  void deleteDeprecatedProfiles(List<ProfilePrototype> prototypes, DatabaseSession session) {
-    TimeProfiler profiler = new TimeProfiler().start("Delete deprecated profiles");
+  void cleanProvidedProfiles(List<RulesProfile> profiles, DatabaseSession session) {
+    TimeProfiler profiler = new TimeProfiler().start("Clean provided profiles");
     List<RulesProfile> existingProfiles = session.getResults(RulesProfile.class, "provided", true);
     for (RulesProfile existingProfile : existingProfiles) {
       boolean isDeprecated = true;
-      for (ProfilePrototype profile: prototypes) {
+      for (RulesProfile profile : profiles) {
         if (StringUtils.equals(existingProfile.getName(), profile.getName()) && StringUtils.equals(existingProfile.getLanguage(), profile.getLanguage())) {
           isDeprecated = false;
           break;
@@ -117,43 +111,29 @@ public final class RegisterProvidedProfiles {
   }
 
 
-  void saveProvidedProfiles(List<ProfilePrototype> prototypes, DatabaseSession session) {
-    for (ProfilePrototype prototype : prototypes) {
-      TimeProfiler profiler = new TimeProfiler().start("Save profile " + prototype);
-      RulesProfile profile = findOrCreate(prototype, session);
+  void saveProvidedProfiles(List<RulesProfile> profiles, DatabaseSession session) {
+    for (RulesProfile profile : profiles) {
+      TimeProfiler profiler = new TimeProfiler().start("Save profile " + profile);
+      RulesProfile persistedProfile = findOrCreate(profile.getName(), profile.getLanguage(), session);
 
-      for (ProfilePrototype.RulePrototype rulePrototype : prototype.getRules()) {
-        Rule rule = findRule(rulePrototype);
-        if (rule == null) {
-          LOGGER.warn("The profile " + prototype + " defines an unknown rule: " + rulePrototype);
-
-        } else {
-          ActiveRule activeRule = profile.activateRule(rule, rulePrototype.getPriority());
-          for (Map.Entry<String, String> entry : rulePrototype.getParameters().entrySet()) {
-            activeRule.setParameter(entry.getKey(), entry.getValue());
-          }
+      for (ActiveRule activeRule : profile.getActiveRules()) {
+        ActiveRule persistedRule = persistedProfile.activateRule(activeRule.getRule(), activeRule.getPriority());
+        for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
+          persistedRule.setParameter(param.getKey(), param.getValue());
         }
       }
-      session.saveWithoutFlush(profile);
+
+      session.saveWithoutFlush(persistedProfile);
       session.commit();
       profiler.stop();
     }
+
   }
 
-  private Rule findRule(ProfilePrototype.RulePrototype rulePrototype) {
-    if (StringUtils.isNotBlank(rulePrototype.getKey())) {
-      return ruleFinder.findByKey(rulePrototype.getRepositoryKey(), rulePrototype.getKey());
-    }
-    if (StringUtils.isNotBlank(rulePrototype.getConfigKey())) {
-      return ruleFinder.find(RuleQuery.create().withRepositoryKey(rulePrototype.getRepositoryKey()).withConfigKey(rulePrototype.getConfigKey()));
-    }
-    return null;
-  }
-
-  private RulesProfile findOrCreate(ProfilePrototype prototype, DatabaseSession session) {
-    RulesProfile profile = session.getSingleResult(RulesProfile.class, "name", prototype.getName(), "language", prototype.getLanguage());
+  private RulesProfile findOrCreate(String name, String language, DatabaseSession session) {
+    RulesProfile profile = session.getSingleResult(RulesProfile.class, "name", name, "language", language);
     if (profile == null) {
-      profile = RulesProfile.create(prototype.getName(), prototype.getLanguage());
+      profile = RulesProfile.create(name, language);
       profile.setProvided(true);
       profile.setDefaultProfile(false);
     }

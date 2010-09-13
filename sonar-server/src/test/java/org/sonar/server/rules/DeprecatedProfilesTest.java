@@ -20,6 +20,7 @@
 package org.sonar.server.rules;
 
 import org.junit.Test;
+import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.server.rules.DeprecatedProfiles;
@@ -32,15 +33,15 @@ public class DeprecatedProfilesTest {
   @Test
   public void testCreate() {
     DeprecatedProfiles.DefaultProfileDefinition def = DeprecatedProfiles.DefaultProfileDefinition.create("sonar way", "java");
-    assertThat(def.createPrototype(ValidationMessages.create()).getName(), is("sonar way"));
-    assertThat(def.createPrototype(ValidationMessages.create()).getLanguage(), is("java"));
+    assertThat(def.createProfile(ValidationMessages.create()).getName(), is("sonar way"));
+    assertThat(def.createProfile(ValidationMessages.create()).getLanguage(), is("java"));
   }
 
   @Test
   public void testActivateRule() {
     DeprecatedProfiles.DefaultProfileDefinition def = DeprecatedProfiles.DefaultProfileDefinition.create("sonar way", "java");
-    def.activateRule("checkstyle", "IllegalRegexp", RulePriority.BLOCKER);
-    def.activateRule("pmd", "NullPointer", RulePriority.INFO);
+    def.activateRule(Rule.create("checkstyle", "IllegalRegexp", "Illegal Regexp"), RulePriority.BLOCKER);
+    def.activateRule(Rule.create("pmd", "NullPointer", "Null Pointer"), RulePriority.INFO);
 
     assertThat(def.getRules().size(), is(2));
     assertThat(def.getRulesByRepositoryKey("checkstyle").size(), is(1));
@@ -50,7 +51,7 @@ public class DeprecatedProfilesTest {
   @Test
   public void priorityIsOptional() {
     DeprecatedProfiles.DefaultProfileDefinition def = DeprecatedProfiles.DefaultProfileDefinition.create("sonar way", "java");
-    def.activateRule("checkstyle", "IllegalRegexp", null);
-    assertThat(def.getRules().get(0).getPriority(), nullValue());
+    def.activateRule(Rule.create("checkstyle", "IllegalRegexp", "Illegal regexp").setPriority(RulePriority.BLOCKER), null);
+    assertThat(def.getRules().get(0).getPriority(), is(RulePriority.BLOCKER));
   }
 }

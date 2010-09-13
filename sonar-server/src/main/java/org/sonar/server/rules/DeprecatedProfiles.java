@@ -25,12 +25,8 @@ import org.sonar.api.checks.profiles.Check;
 import org.sonar.api.checks.profiles.CheckProfile;
 import org.sonar.api.checks.profiles.CheckProfileProvider;
 import org.sonar.api.profiles.ProfileDefinition;
-import org.sonar.api.profiles.ProfilePrototype;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.ActiveRuleParam;
-import org.sonar.api.rules.RulePriority;
-import org.sonar.api.rules.RulesRepository;
+import org.sonar.api.rules.*;
 import org.sonar.api.utils.ValidationMessages;
 
 import java.util.ArrayList;
@@ -41,33 +37,38 @@ public final class DeprecatedProfiles {
 
   private RulesRepository[] deprecatedRepositories;
   private Plugins plugins;
+  private RuleFinder ruleFinder;
   private CheckProfile[] deprecatedCheckProfiles;
   private CheckProfileProvider[] deprecatedCheckProfileProviders;
 
-  public DeprecatedProfiles(Plugins plugins, RulesRepository[] r, CheckProfile[] deprecatedCheckProfiles, CheckProfileProvider[] deprecatedCheckProfileProviders) {
+  public DeprecatedProfiles(Plugins plugins, RuleFinder ruleFinder, RulesRepository[] r, CheckProfile[] deprecatedCheckProfiles, CheckProfileProvider[] deprecatedCheckProfileProviders) {
     this.deprecatedRepositories = r;
     this.plugins = plugins;
+    this.ruleFinder = ruleFinder;
     this.deprecatedCheckProfiles = deprecatedCheckProfiles;
     this.deprecatedCheckProfileProviders = deprecatedCheckProfileProviders;
   }
 
-  public DeprecatedProfiles(Plugins plugins, RulesRepository[] r, CheckProfile[] deprecatedCheckProfiles) {
+  public DeprecatedProfiles(Plugins plugins, RuleFinder ruleFinder, RulesRepository[] r, CheckProfile[] deprecatedCheckProfiles) {
     this.deprecatedRepositories = r;
     this.plugins = plugins;
+    this.ruleFinder = ruleFinder;
     this.deprecatedCheckProfiles = deprecatedCheckProfiles;
     this.deprecatedCheckProfileProviders = new CheckProfileProvider[0];
   }
 
-  public DeprecatedProfiles(Plugins plugins, RulesRepository[] r, CheckProfileProvider[] deprecatedCheckProfileProviders) {
+  public DeprecatedProfiles(Plugins plugins, RuleFinder ruleFinder, RulesRepository[] r, CheckProfileProvider[] deprecatedCheckProfileProviders) {
     this.deprecatedRepositories = r;
     this.plugins = plugins;
+    this.ruleFinder = ruleFinder;
     this.deprecatedCheckProfiles = new CheckProfile[0];
     this.deprecatedCheckProfileProviders = deprecatedCheckProfileProviders;
   }
 
-  public DeprecatedProfiles(Plugins plugins, RulesRepository[] r) {
+  public DeprecatedProfiles(Plugins plugins, RuleFinder ruleFinder, RulesRepository[] r) {
     this.deprecatedRepositories = r;
     this.plugins = plugins;
+    this.ruleFinder = ruleFinder;
     this.deprecatedCheckProfiles = new CheckProfile[0];
     this.deprecatedCheckProfileProviders = new CheckProfileProvider[0];
   }
@@ -94,14 +95,17 @@ public final class DeprecatedProfiles {
     for (int index = 0; index < repository.getProvidedProfiles().size(); index++) {
       RulesProfile deprecated = (RulesProfile) repository.getProvidedProfiles().get(index);
       DefaultProfileDefinition providedProfile = DefaultProfileDefinition.create(deprecated.getName(), repository.getLanguage().getKey());
-      for (ActiveRule activeRule : deprecated.getActiveRules()) {
-        String repositoryKey = activeRule.getRepositoryKey();
+      for (ActiveRule deprecatedActiveRule : deprecated.getActiveRules()) {
+        String repositoryKey = deprecatedActiveRule.getRepositoryKey();
         if (StringUtils.isBlank(repositoryKey)) {
           repositoryKey = getPluginKey(repository);
         }
-        ProfilePrototype.RulePrototype rule = providedProfile.activateRule(repositoryKey, activeRule.getRuleKey(), activeRule.getPriority());
-        for (ActiveRuleParam arp : activeRule.getActiveRuleParams()) {
-          rule.setParameter(arp.getKey(), arp.getValue());
+        Rule rule = ruleFinder.findByKey(repositoryKey, deprecatedActiveRule.getRuleKey());
+        if (rule != null) {
+          ActiveRule activeRule = providedProfile.activateRule(rule, deprecatedActiveRule.getPriority());
+          for (ActiveRuleParam arp : deprecatedActiveRule.getActiveRuleParams()) {
+            activeRule.setParameter(arp.getKey(), arp.getValue());
+          }
         }
       }
       result.add(providedProfile);
@@ -116,9 +120,12 @@ public final class DeprecatedProfiles {
       if (check.getPriority() != null) {
         priority = RulePriority.fromCheckPriority(check.getPriority());
       }
-      ProfilePrototype.RulePrototype rule = definition.activateRule(check.getRepositoryKey(), check.getTemplateKey(), priority);
-      for (Map.Entry<String, String> entry : rule.getParameters().entrySet()) {
-        rule.setParameter(entry.getKey(), entry.getValue());
+      Rule rule = ruleFinder.findByKey(check.getRepositoryKey(), check.getTemplateKey());
+      if (rule != null) {
+        ActiveRule activeRule = definition.activateRule(rule, priority);
+        for (Map.Entry<String, String> entry : check.getProperties().entrySet()) {
+          activeRule.setParameter(entry.getKey(), entry.getValue());
+        }
       }
     }
     return definition;
@@ -130,10 +137,10 @@ public final class DeprecatedProfiles {
 
   public static class DefaultProfileDefinition extends ProfileDefinition {
 
-    private ProfilePrototype prototype;
+    private RulesProfile profile;
 
     DefaultProfileDefinition(String name, String language) {
-      this.prototype = ProfilePrototype.create(name, language);
+      this.profile = RulesProfile.create(name, language);
     }
 
     public static DefaultProfileDefinition create(String name, String language) {
@@ -141,20 +148,21 @@ public final class DeprecatedProfiles {
     }
 
     @Override
-    public ProfilePrototype createPrototype(ValidationMessages validation) {
-      return prototype;
+    public RulesProfile createProfile(ValidationMessages validation) {
+      return profile;
     }
 
-    public List<ProfilePrototype.RulePrototype> getRules() {
-      return prototype.getRules();
+    public List<ActiveRule> getRules() {
+      return profile.getActiveRules();
     }
 
-    public List<ProfilePrototype.RulePrototype> getRulesByRepositoryKey(String repositoryKey) {
-      return prototype.getRulesByRepositoryKey(repositoryKey);
+
+    public List<ActiveRule> getRulesByRepositoryKey(String repositoryKey) {
+      return profile.getActiveRulesByRepository(repositoryKey);
     }
 
-    public ProfilePrototype.RulePrototype activateRule(String repositoryKey, String key, RulePriority nullablePriority) {
-      return prototype.activateRule(repositoryKey, key, nullablePriority);
+    public ActiveRule activateRule(Rule rule, RulePriority nullablePriority) {
+      return profile.activateRule(rule, nullablePriority);
     }
   }
 
