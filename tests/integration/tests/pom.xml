@@ -27,7 +27,7 @@
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-dev-maven-plugin</artifactId>
-        <version>0.3</version>
+        <version>0.4</version>
         <executions>
           <execution>
             <id>start-server</id>
