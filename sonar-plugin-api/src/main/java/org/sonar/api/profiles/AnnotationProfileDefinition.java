@@ -19,6 +19,8 @@
  */
 package org.sonar.api.profiles;
 
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.check.AnnotationIntrospector;
@@ -35,34 +37,42 @@ public abstract class AnnotationProfileDefinition extends ProfileDefinition {
   private String language;
   private String repositoryKey;
   private Collection<Class> annotatedClasses;
+  private RuleFinder ruleFinder;
 
-  protected AnnotationProfileDefinition(String repositoryKey, String profileName, String language, Collection<Class> annotatedClasses) {
+  protected AnnotationProfileDefinition(String repositoryKey, String profileName, String language, Collection<Class> annotatedClasses, RuleFinder ruleFinder) {
     this.name = profileName;
     this.language = language;
     this.repositoryKey = repositoryKey;
     this.annotatedClasses = annotatedClasses;
+    this.ruleFinder = ruleFinder;
   }
 
   @Override
-  public ProfilePrototype createPrototype(ValidationMessages validation) {
-    ProfilePrototype profile = ProfilePrototype.create(name, language);
+  public RulesProfile createProfile(ValidationMessages validation) {
+    RulesProfile profile = RulesProfile.create(name, language);
     if (annotatedClasses != null) {
       for (Class aClass : annotatedClasses) {
         BelongsToProfile belongsToProfile = (BelongsToProfile) aClass.getAnnotation(BelongsToProfile.class);
-        registerRule(aClass, belongsToProfile, profile);
+        registerRule(aClass, belongsToProfile, profile, validation);
       }
     }
-
     return profile;
   }
 
-  private void registerRule(Class aClass, BelongsToProfile belongsToProfile, ProfilePrototype profile) {
+  private void registerRule(Class aClass, BelongsToProfile belongsToProfile, RulesProfile profile, ValidationMessages validation) {
     if (belongsToProfile != null) {
-      RulePriority priority = null;
-      if (belongsToProfile.priority() != null) {
-        priority = RulePriority.fromCheckPriority(belongsToProfile.priority());
+      String ruleKey = AnnotationIntrospector.getCheckKey(aClass);
+      Rule rule = ruleFinder.findByKey(repositoryKey, ruleKey);
+      if (rule == null) {
+        validation.addErrorText("Rule not found: [repository=" + repositoryKey + ", key=" + ruleKey + "]");
+
+      } else {
+        RulePriority priority = null;
+        if (belongsToProfile.priority() != null) {
+          priority = RulePriority.fromCheckPriority(belongsToProfile.priority());
+        }
+        profile.activateRule(rule, priority);
       }
-      profile.activateRule(repositoryKey, AnnotationIntrospector.getCheckKey(aClass), priority);
     }
   }
 }

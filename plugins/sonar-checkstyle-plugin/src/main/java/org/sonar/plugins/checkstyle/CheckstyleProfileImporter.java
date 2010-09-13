@@ -25,8 +25,12 @@ import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.profiles.ProfileImporter;
-import org.sonar.api.profiles.ProfilePrototype;
+import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.ValidationMessages;
 
 import javax.xml.stream.XMLInputFactory;
@@ -38,16 +42,18 @@ public class CheckstyleProfileImporter extends ProfileImporter {
   private static final String CHECKER_MODULE = "Checker";
   private static final String TREEWALKER_MODULE = "TreeWalker";
   private static final String MODULE_NODE = "module";
+  private final RuleFinder ruleFinder;
 
-  public CheckstyleProfileImporter() {
+  public CheckstyleProfileImporter(RuleFinder ruleFinder) {
     super(CheckstyleConstants.REPOSITORY_KEY, CheckstyleConstants.PLUGIN_NAME);
     setSupportedLanguages(Java.KEY);
+    this.ruleFinder = ruleFinder;
   }
 
   @Override
-  public ProfilePrototype importProfile(Reader reader, ValidationMessages messages) {
+  public RulesProfile importProfile(Reader reader, ValidationMessages messages) {
     SMInputFactory inputFactory = initStax();
-    ProfilePrototype profile = ProfilePrototype.create();
+    RulesProfile profile = RulesProfile.create();
     try {
       SMHierarchicCursor rootC = inputFactory.rootElementCursor(reader);
       rootC.advance(); // <module name="Checker">
@@ -79,17 +85,23 @@ public class CheckstyleProfileImporter extends ProfileImporter {
     return inputFactory;
   }
 
-  private void processModule(ProfilePrototype profile, String path, SMInputCursor moduleCursor, ValidationMessages messages) throws XMLStreamException {
+  private void processModule(RulesProfile profile, String path, SMInputCursor moduleCursor, ValidationMessages messages) throws XMLStreamException {
     String configKey = moduleCursor.getAttrValue("name");
     if (isFilter(configKey)) {
       messages.addWarningText("Checkstyle filters are not imported: " + configKey);
 
     } else if (isIgnored(configKey)) {
+      // ignore !
 
     } else {
-      ProfilePrototype.RulePrototype rule = ProfilePrototype.RulePrototype.createByConfigKey(CheckstyleConstants.REPOSITORY_KEY, path + configKey);
-      processProperties(moduleCursor, messages, rule);
-      profile.activateRule(rule);
+      Rule rule = ruleFinder.find(RuleQuery.create().withRepositoryKey(CheckstyleConstants.REPOSITORY_KEY).withConfigKey(path + configKey));
+      if (rule == null) {
+        messages.addWarningText("Checkstyle rule not found: " + path + configKey);
+        
+      } else {
+        ActiveRule activeRule = profile.activateRule(rule, null);
+        processProperties(moduleCursor, messages, activeRule);
+      }
     }
   }
 
@@ -104,24 +116,24 @@ public class CheckstyleProfileImporter extends ProfileImporter {
         StringUtils.equals(configKey, "SuppressWithNearbyCommentFilter");
   }
 
-  private void processProperties(SMInputCursor moduleCursor, ValidationMessages messages, ProfilePrototype.RulePrototype rule) throws XMLStreamException {
+  private void processProperties(SMInputCursor moduleCursor, ValidationMessages messages, ActiveRule activeRule) throws XMLStreamException {
     SMInputCursor propertyCursor = moduleCursor.childElementCursor("property");
     while (propertyCursor.getNext() != null) {
-      processProperty(rule, propertyCursor, messages);
+      processProperty(activeRule, propertyCursor, messages);
     }
   }
 
-  private void processProperty(ProfilePrototype.RulePrototype rule, SMInputCursor propertyCursor, ValidationMessages messages) throws XMLStreamException {
+  private void processProperty(ActiveRule activeRule, SMInputCursor propertyCursor, ValidationMessages messages) throws XMLStreamException {
     String key = propertyCursor.getAttrValue("name");
     String value = propertyCursor.getAttrValue("value");
     if (StringUtils.equals("id", key)) {
-      messages.addWarningText("The checkstyle property 'id' is not supported in the rule: " + rule.getConfigKey());
+      messages.addWarningText("The property 'id' is not supported in the Checkstyle rule: " + activeRule.getConfigKey());
 
     } else if (StringUtils.equals("severity", key)) {
-      rule.setPriority(CheckstyleSeverityUtils.fromSeverity(value));
+      activeRule.setPriority(CheckstyleSeverityUtils.fromSeverity(value));
 
     } else {
-      rule.setParameter(key, value);
+      activeRule.setParameter(key, value);
     }
   }
 }

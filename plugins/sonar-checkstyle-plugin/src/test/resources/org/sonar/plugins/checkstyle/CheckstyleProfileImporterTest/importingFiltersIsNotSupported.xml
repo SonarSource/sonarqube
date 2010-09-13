@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module name="Checker">
   <module name="SuppressionCommentFilter"/>
-  <module name="NewlineAtEndOfFile"/>
+  <module name="JavadocPackage"/>
   <module name="TreeWalker">
     <module name="FileContentsHolder"/>
-    <module name="InterfaceIsType"/>
+    <module name="EqualsHashCode"/>
   </module>
 </module>

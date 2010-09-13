@@ -22,10 +22,11 @@ package org.sonar.plugins.checkstyle;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.profiles.XMLProfileDefinition;
 import org.sonar.api.resources.Java;
+import org.sonar.api.rules.RuleFinder;
 
 public final class SunConventionsProfile extends XMLProfileDefinition {
 
-  public SunConventionsProfile() {
-    super(RulesProfile.SUN_CONVENTIONS_NAME, Java.KEY, SunConventionsProfile.class.getClassLoader(), "org/sonar/plugins/checkstyle/profile-sun-conventions.xml");
+  public SunConventionsProfile(RuleFinder ruleFinder) {
+    super(SunConventionsProfile.class.getClassLoader(), "org/sonar/plugins/checkstyle/profile-sun-conventions.xml", ruleFinder);
   }
 }

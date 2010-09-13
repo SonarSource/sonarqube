@@ -21,6 +21,7 @@ package org.sonar.api.profiles;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharEncoding;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.ValidationMessages;
 
@@ -34,26 +35,21 @@ import java.util.List;
  */
 public abstract class XMLProfileDefinition extends ProfileDefinition {
 
-  private String name;
-  private String language;
+  private RuleFinder ruleFinder;
   private ClassLoader classloader;
   private String xmlClassPath;
 
-  protected XMLProfileDefinition(String name, String language, ClassLoader classloader, String xmlClassPath) {
-    this.name = name;
-    this.language = language;
+  protected XMLProfileDefinition(ClassLoader classloader, String xmlClassPath, RuleFinder ruleFinder) {
+    this.ruleFinder = ruleFinder;
     this.classloader = classloader;
     this.xmlClassPath = xmlClassPath;
   }
 
   @Override
-  public final ProfilePrototype createPrototype(ValidationMessages validation) {
+  public final RulesProfile createProfile(ValidationMessages validation) {
     Reader reader = new InputStreamReader(classloader.getResourceAsStream(xmlClassPath), Charset.forName(CharEncoding.UTF_8));
     try {
-      ProfilePrototype profile = XMLProfileImporter.create().importProfile(reader, validation);
-      profile.setName(name);
-      profile.setLanguage(language);
-      return profile;
+      return XMLProfileImporter.create(ruleFinder).importProfile(reader, validation);
 
     } finally {
       IOUtils.closeQuietly(reader);

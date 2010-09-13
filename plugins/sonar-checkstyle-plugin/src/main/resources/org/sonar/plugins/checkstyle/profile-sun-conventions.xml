@@ -1,4 +1,6 @@
 <profile>
+  <name>Sun checks</name>
+  <language>java</language>
   <rules>
     <rule>
       <repositoryKey>checkstyle</repositoryKey>

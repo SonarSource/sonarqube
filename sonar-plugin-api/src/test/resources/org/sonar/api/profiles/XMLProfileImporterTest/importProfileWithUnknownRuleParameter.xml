@@ -7,7 +7,13 @@
     <rule>
       <repositoryKey>checkstyle</repositoryKey>
       <key>IllegalRegexp</key>
-      <priority>CRITICAL</priority>
+      <priority>BLOCKER</priority>
+      <parameters>
+        <parameter>
+          <key>unknown</key>
+          <value>foo</value>
+        </parameter>
+      </parameters>
     </rule>
   </rules>
 </profile>

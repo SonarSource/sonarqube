@@ -1,4 +1,6 @@
 <profile>
+  <name>Sonar way</name>
+  <language>java</language>
   <rules>
     <rule>
       <repositoryKey>checkstyle</repositoryKey>

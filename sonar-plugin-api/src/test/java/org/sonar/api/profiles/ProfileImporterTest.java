@@ -30,10 +30,10 @@ import static org.junit.Assert.assertThat;
 public class ProfileImporterTest {
 
   @Test
-  public void testSupportedRepositories() {
+  public void testSupportedLanguages() {
     ProfileImporter inmporter = new ProfileImporter("all", "All") {
       @Override
-      public ProfilePrototype importProfile(Reader reader, ValidationMessages messages) {
+      public RulesProfile importProfile(Reader reader, ValidationMessages messages) {
         return null;
       }
     };
@@ -45,10 +45,10 @@ public class ProfileImporterTest {
   }
 
   @Test
-  public void supportAllRepositories() {
+  public void supportAllLanguages() {
     ProfileImporter importer = new ProfileImporter("all", "All") {
       @Override
-      public ProfilePrototype importProfile(Reader reader, ValidationMessages messages) {
+      public RulesProfile importProfile(Reader reader, ValidationMessages messages) {
         return null;
       }
     };

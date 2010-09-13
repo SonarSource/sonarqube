@@ -19,6 +19,8 @@
  */
 package org.sonar.api.profiles;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.utils.ValidationMessages;
 
@@ -30,31 +32,31 @@ import java.io.Reader;
 public abstract class ProfileImporter implements ServerExtension {
 
   private String[] supportedLanguages = new String[0];
-  private String key;
-  private String name;
+  private String importerKey;
+  private String importerName;
 
   protected ProfileImporter(String key, String name) {
-    this.key = key;
-    this.name = name;
+    this.importerKey = key;
+    this.importerName = name;
   }
 
-  public abstract ProfilePrototype importProfile(Reader reader, ValidationMessages messages);
+  public abstract RulesProfile importProfile(Reader reader, ValidationMessages messages);
 
   public final String getKey() {
-    return key;
+    return importerKey;
   }
 
   public final ProfileImporter setKey(String s) {
-    this.key = s;
+    this.importerKey = s;
     return this;
   }
 
   public final String getName() {
-    return name;
+    return importerName;
   }
 
   public final ProfileImporter setName(String s) {
-    this.name = s;
+    this.importerName = s;
     return this;
   }
 
@@ -79,7 +81,7 @@ public abstract class ProfileImporter implements ServerExtension {
       return false;
     }
     ProfileImporter that = (ProfileImporter) o;
-    if (key != null ? !key.equals(that.key) : that.key != null) {
+    if (importerKey != null ? !importerKey.equals(that.importerKey) : that.importerKey != null) {
       return false;
     }
     return true;
@@ -87,6 +89,15 @@ public abstract class ProfileImporter implements ServerExtension {
 
   @Override
   public final int hashCode() {
-    return key != null ? key.hashCode() : 0;
+    return importerKey != null ? importerKey.hashCode() : 0;
+  }
+
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+        .append("key", importerKey)
+        .append("name", importerName)
+        .append("languages", supportedLanguages)
+        .toString();
   }
 }

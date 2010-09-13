@@ -27,6 +27,6 @@ import org.sonar.api.utils.ValidationMessages;
  */
 public abstract class ProfileDefinition implements ServerExtension {
 
-  public abstract ProfilePrototype createPrototype(ValidationMessages validation);
+  public abstract RulesProfile createProfile(ValidationMessages validation);
 
 }

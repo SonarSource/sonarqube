@@ -24,28 +24,35 @@ import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import java.io.Reader;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @since 2.3
  */
 public final class XMLProfileImporter {
 
-  private XMLProfileImporter() {
-    // support all repositories
+  private RuleFinder ruleFinder;
+
+  private XMLProfileImporter(RuleFinder ruleFinder) {
+    this.ruleFinder = ruleFinder;
   }
 
-  public static XMLProfileImporter create() {
-    return new XMLProfileImporter();
+  public static XMLProfileImporter create(RuleFinder ruleFinder) {
+    return new XMLProfileImporter(ruleFinder);
   }
 
-  public ProfilePrototype importProfile(Reader reader, ValidationMessages messages) {
-    ProfilePrototype profile = ProfilePrototype.create();
+  public RulesProfile importProfile(Reader reader, ValidationMessages messages) {
+    RulesProfile profile = RulesProfile.create();
     SMInputFactory inputFactory = initStax();
     try {
       SMHierarchicCursor rootC = inputFactory.rootElementCursor(reader);
@@ -55,7 +62,13 @@ public final class XMLProfileImporter {
         String nodeName = cursor.getLocalName();
         if (StringUtils.equals("rules", nodeName)) {
           SMInputCursor rulesCursor = cursor.childElementCursor("rule");
-          processRules(rulesCursor, profile);
+          processRules(rulesCursor, profile, messages);
+
+        } else if (StringUtils.equals("name", nodeName)) {
+          profile.setName(StringUtils.trim(cursor.collectDescendantText(false)));
+
+        } else if (StringUtils.equals("language", nodeName)) {
+          profile.setLanguage(StringUtils.trim(cursor.collectDescendantText(false)));
         }
       }
     } catch (XMLStreamException e) {
@@ -75,33 +88,51 @@ public final class XMLProfileImporter {
     return inputFactory;
   }
 
-  private void processRules(SMInputCursor rulesCursor, ProfilePrototype profile) throws XMLStreamException {
+  private void processRules(SMInputCursor rulesCursor, RulesProfile profile, ValidationMessages messages) throws XMLStreamException {
+    Map<String, String> parameters = new HashMap<String, String>();
     while (rulesCursor.getNext() != null) {
       SMInputCursor ruleCursor = rulesCursor.childElementCursor();
-      ProfilePrototype.RulePrototype rule = ProfilePrototype.RulePrototype.create();
-      profile.activateRule(rule);
+
+      String repositoryKey = null, key = null;
+      RulePriority priority = null;
+      parameters.clear();
 
       while (ruleCursor.getNext() != null) {
         String nodeName = ruleCursor.getLocalName();
 
         if (StringUtils.equals("repositoryKey", nodeName)) {
-          rule.setRepositoryKey(StringUtils.trim(ruleCursor.collectDescendantText(false)));
+          repositoryKey = StringUtils.trim(ruleCursor.collectDescendantText(false));
 
         } else if (StringUtils.equals("key", nodeName)) {
-          rule.setKey(StringUtils.trim(ruleCursor.collectDescendantText(false)));
+          key = StringUtils.trim(ruleCursor.collectDescendantText(false));
 
         } else if (StringUtils.equals("priority", nodeName)) {
-          rule.setPriority(RulePriority.valueOf(StringUtils.trim(ruleCursor.collectDescendantText(false))));
+          priority = RulePriority.valueOf(StringUtils.trim(ruleCursor.collectDescendantText(false)));
 
         } else if (StringUtils.equals("parameters", nodeName)) {
           SMInputCursor propsCursor = ruleCursor.childElementCursor("parameter");
-          processParameters(propsCursor, rule);
+          processParameters(propsCursor, parameters);
+        }
+      }
+
+      Rule rule = ruleFinder.findByKey(repositoryKey, key);
+      if (rule == null) {
+        messages.addWarningText("Rule not found: [repository=" + repositoryKey + ", key=" + key + "]");
+
+      } else {
+        ActiveRule activeRule = profile.activateRule(rule, priority);
+        for (Map.Entry<String, String> entry : parameters.entrySet()) {
+          if (rule.getParam(entry.getKey()) == null) {
+            messages.addWarningText("The parameter '" + entry.getKey() + "' does not exist in the rule: [repository=" + repositoryKey + ", key=" + key + "]");
+          } else {
+            activeRule.setParameter(entry.getKey(), entry.getValue());
+          }
         }
       }
     }
   }
 
-  private void processParameters(SMInputCursor propsCursor, ProfilePrototype.RulePrototype rule) throws XMLStreamException {
+  private void processParameters(SMInputCursor propsCursor, Map<String, String> parameters) throws XMLStreamException {
     while (propsCursor.getNext() != null) {
       SMInputCursor propCursor = propsCursor.childElementCursor();
       String key = null;
@@ -116,7 +147,7 @@ public final class XMLProfileImporter {
         }
       }
       if (key != null) {
-        rule.setParameter(key, value);
+        parameters.put(key, value);
       }
     }
   }

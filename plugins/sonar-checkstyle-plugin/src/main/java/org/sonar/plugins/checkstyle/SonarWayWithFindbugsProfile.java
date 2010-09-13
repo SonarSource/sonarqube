@@ -19,14 +19,27 @@
  */
 package org.sonar.plugins.checkstyle;
 
+import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.profiles.XMLProfileDefinition;
 import org.sonar.api.resources.Java;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.utils.ValidationMessages;
 
-public class SonarWayWithFindbugsProfile extends XMLProfileDefinition {
+public class SonarWayWithFindbugsProfile extends ProfileDefinition {
 
-  public SonarWayWithFindbugsProfile() {
-    super(RulesProfile.SONAR_WAY_FINDBUGS_NAME, Java.KEY, SonarWayWithFindbugsProfile.class.getClassLoader(), "org/sonar/plugins/checkstyle/profile-sonar-way.xml");
+  private SonarWayProfile sonarWay;
+
+  public SonarWayWithFindbugsProfile(SonarWayProfile sonarWay) {
+    this.sonarWay = sonarWay;
+  }
+
+
+  @Override
+  public RulesProfile createProfile(ValidationMessages validationMessages) {
+    RulesProfile profile = sonarWay.createProfile(validationMessages);
+    profile.setName(RulesProfile.SONAR_WAY_FINDBUGS_NAME);
+    return profile;
   }
 }
 

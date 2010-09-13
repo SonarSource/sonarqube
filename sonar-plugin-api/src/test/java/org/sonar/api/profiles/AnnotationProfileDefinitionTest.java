@@ -20,6 +20,10 @@
 package org.sonar.api.profiles;
 
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.check.BelongsToProfile;
@@ -32,15 +36,25 @@ import java.util.Collection;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class AnnotationProfileDefinitionTest {
 
   @Test
   public void importProfile() {
-    ProfileDefinition definition = new FakeDefinition();
+    RuleFinder ruleFinder = mock(RuleFinder.class);
+    when(ruleFinder.findByKey(anyString(), anyString())).thenAnswer(new Answer<Rule>(){
+      public Rule answer(InvocationOnMock iom) throws Throwable {
+        return Rule.create((String)iom.getArguments()[0], (String)iom.getArguments()[1], (String)iom.getArguments()[1]);
+      }
+    });
+
+    ProfileDefinition definition = new FakeDefinition(ruleFinder);
     ValidationMessages validation = ValidationMessages.create();
-    ProfilePrototype profile = definition.createPrototype(validation);
-    assertThat(profile.getRule("squid", "fake").getPriority(), is(RulePriority.BLOCKER));
+    RulesProfile profile = definition.createProfile(validation);
+    assertThat(profile.getActiveRule("squid", "fake").getPriority(), is(RulePriority.BLOCKER));
     assertThat(validation.hasErrors(), is(false));
   }
 }
@@ -54,7 +68,7 @@ class FakeRule {
 
 class FakeDefinition extends AnnotationProfileDefinition {
 
-  public FakeDefinition() {
-    super("squid", "sonar way", "java", Arrays.<Class>asList(FakeRule.class));
+  public FakeDefinition(RuleFinder ruleFinder) {
+    super("squid", "sonar way", "java", Arrays.<Class>asList(FakeRule.class), ruleFinder);
   }
 }

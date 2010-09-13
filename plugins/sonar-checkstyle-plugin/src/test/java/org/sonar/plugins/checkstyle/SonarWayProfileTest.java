@@ -20,23 +20,39 @@
 package org.sonar.plugins.checkstyle;
 
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.sonar.api.profiles.ProfileDefinition;
-import org.sonar.api.profiles.ProfilePrototype;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SonarWayProfileTest {
 
   @Test
   public void create() {
-    ProfileDefinition sonarWay = new SonarWayProfile();
+    ProfileDefinition sonarWay = new SonarWayProfile(newRuleFinder());
     ValidationMessages validation = ValidationMessages.create();
-    ProfilePrototype prototype = sonarWay.createPrototype(validation);
-    assertThat(prototype.getRulesByRepositoryKey(CheckstyleConstants.REPOSITORY_KEY).size(), greaterThan(1));
+    RulesProfile profile = sonarWay.createProfile(validation);
+    assertThat(profile.getActiveRulesByRepository(CheckstyleConstants.REPOSITORY_KEY).size(), greaterThan(1));
     assertThat(validation.hasErrors(), is(false));
   }
 
+  private RuleFinder newRuleFinder() {
+    RuleFinder ruleFinder = mock(RuleFinder.class);
+    when(ruleFinder.findByKey(anyString(), anyString())).thenAnswer(new Answer<Rule>(){
+      public Rule answer(InvocationOnMock iom) throws Throwable {
+        return Rule.create((String) iom.getArguments()[0], (String) iom.getArguments()[1], (String) iom.getArguments()[1]);
+      }
+    });
+    return ruleFinder;
+  }
 }

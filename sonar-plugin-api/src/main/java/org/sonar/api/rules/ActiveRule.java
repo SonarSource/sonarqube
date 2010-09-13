@@ -142,12 +142,22 @@ public class ActiveRule implements Cloneable {
     return this;
   }
 
-  public ActiveRuleParam getParameter(String key) {
+  public String getParameter(String key) {
+    return getParameter(key, false);
+  }
+  
+  public String getParameter(String key, boolean useDefaultValueIfNeeded) {
     if (activeRuleParams != null) {
       for (ActiveRuleParam param : activeRuleParams) {
         if (StringUtils.equals(key, param.getKey())) {
-          return param;
+          return param.getValue(useDefaultValueIfNeeded);
         }
+      }
+    }
+    if (useDefaultValueIfNeeded && rule.getParams()!=null) {
+      RuleParam param = rule.getParam(key);
+      if (param != null) {
+        return param.getDefaultValue();
       }
     }
     return null;
