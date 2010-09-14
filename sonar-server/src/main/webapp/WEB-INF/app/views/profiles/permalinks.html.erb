@@ -9,7 +9,7 @@
 	  <br/>
 	  <table class="data2 without-header marginbottom10" id="permalinks-table">
 	    <tbody>
-	    <% exporters.each do |exporter| %>
+	    <% exporters.to_a.sort{|x,y| x.getName() <=> y.getName()}.each do |exporter| %>
 	      <tr class="<%= cycle('even','odd') -%>">
 	        <td width="1%" nowrap>
 	          <%= h exporter.getName() -%>

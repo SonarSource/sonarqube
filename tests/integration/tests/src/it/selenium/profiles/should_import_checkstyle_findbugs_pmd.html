@@ -11,32 +11,31 @@
 <thead>
 <tr><td rowspan="1" colspan="3">should_import_checkstyle_findbugs_pmd</td></tr>
 </thead><tbody>
-	<tr>
-		<td>open</td>
-		<td>/sessions/logout</td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>open</td>
-		<td>/sessions/login</td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>type</td>
-		<td>login</td>
-		<td>admin</td>
-	</tr>
-	<tr>
-		<td>type</td>
-		<td>password</td>
-		<td>admin</td>
-	</tr>
-	<tr>
-		<td>clickAndWait</td>
-		<td>commit</td>
-		<td></td>
-	</tr>
-	
+<tr>
+	<td>open</td>
+	<td>/sessions/logout</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sessions/login</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
 <tr>
 	<td>open</td>
 	<td>/profiles</td>
@@ -44,33 +43,18 @@
 </tr>
 <tr>
 	<td>click</td>
-	<td>create_profile</td>
+	<td>create-link-java</td>
 	<td></td>
 </tr>
 <tr>
-	<td>waitForText</td>
-	<td>form_create_profile</td>
-	<td>glob:*Name*</td>
-</tr>
-<tr>
-	<td>assertSelectedLabel</td>
-	<td>language</td>
-	<td>Java</td>
+	<td>waitForValue</td>
+	<td>name</td>
+	<td></td>
 </tr>
 <tr>
 	<td>assertText</td>
-	<td>form_create_profile</td>
-	<td>glob:*PMD*</td>
-</tr>
-<tr>
-	<td>assertText</td>
-	<td>form_create_profile</td>
-	<td>glob:*Checkstyle*</td>
-</tr>
-<tr>
-	<td>assertText</td>
-	<td>form_create_profile</td>
-	<td>glob:*Findbugs*</td>
+	<td>create-form-java</td>
+	<td>glob:*Checkstyle*Findbugs*PMD*</td>
 </tr>
 
 </tbody></table>
