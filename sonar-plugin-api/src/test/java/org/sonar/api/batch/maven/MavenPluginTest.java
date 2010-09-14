@@ -21,13 +21,15 @@ package org.sonar.api.batch.maven;
 
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.test.MavenTestUtils;
 
 import java.util.Collection;
+
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertThat;
 
 public class MavenPluginTest {
 
@@ -53,14 +55,12 @@ public class MavenPluginTest {
   @Test
   public void shouldWriteAndReadSimpleConfiguration() {
     fakePlugin.setParameter("abc", "test");
-
     assertThat(fakePlugin.getParameter("abc"), is("test"));
   }
 
   @Test
   public void shouldWriteAndReadComplexConfiguration() {
     fakePlugin.setParameter("abc/def/ghi", "test");
-
     assertThat(fakePlugin.getParameter("abc/def/ghi"), is("test"));
   }
 
@@ -151,6 +151,44 @@ public class MavenPluginTest {
     assertThat(fakePlugin.toString(), fakePlugin.getParameters("excludes/exclude"), is(new String[]{"abc", "def"}));
   }
 
+  @Test
+  public void defaultParameterIndexIsZero() {
+    fakePlugin.addParameter("items/item/entry", "value1");
+    fakePlugin.addParameter("items/item/entry", "value2");
+
+    assertThat(fakePlugin.toString(), fakePlugin.getParameters("items/item/entry"), is(new String[]{"value1", "value2"}));
+    assertThat(fakePlugin.toString(), fakePlugin.getParameters("items/item[0]/entry"), is(new String[]{"value1", "value2"}));
+  }
+  
+
+  @Test
+  public void addIndexedParameters() {
+    fakePlugin.addParameter("items/item[0]/entry", "value1");
+    fakePlugin.addParameter("items/item[1]/entry", "value2");
+
+    assertThat(fakePlugin.getParameter("items/item[0]/entry"), is("value1"));
+    assertThat(fakePlugin.getParameters("items/item[0]/entry"), is(new String[]{"value1"}));
+
+    assertThat(fakePlugin.getParameter("items/item[1]/entry"), is("value2"));
+    assertThat(fakePlugin.getParameters("items/item[1]/entry"), is(new String[]{"value2"}));
+
+    //ensure that indexes aren't serialized to real configuration
+    assertThat(fakePlugin.getPlugin().getConfiguration().toString(), not(containsString("item[0]")));
+    assertThat(fakePlugin.getPlugin().getConfiguration().toString(), not(containsString("item[1]")));
+  }
+
+  @Test
+  public void removeIndexedParameter(){
+    fakePlugin.addParameter("items/item[0]/entry", "value1");
+    fakePlugin.addParameter("items/item[1]/entry", "value2");
+
+    fakePlugin.removeParameter("items/item[1]");
+    fakePlugin.removeParameter("items/notExists");
+
+    assertThat(fakePlugin.getParameter("items/item[0]/entry"), notNullValue());
+    assertThat(fakePlugin.getParameter("items/item[1]/entry"), nullValue());
+    assertThat(fakePlugin.getParameter("items/notExists"), nullValue());
+  }
 
   @Test
   public void registerNewPlugin() {

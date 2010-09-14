@@ -21,7 +21,6 @@ package org.sonar.api.batch.maven;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.ReportPlugin;
 import org.apache.maven.project.MavenProject;
@@ -103,7 +102,8 @@ public class MavenPlugin {
   /**
    * Gets a list of parameters of the plugin from a param key
    *
-   * @param key the param key
+   * @param key param key with option-index snippet: e.g. item[0], item[1]. If no index snippet is passed, then
+   *            0 is default (index <=> index[0])
    * @return an array of parameters if any, an empty array otherwise
    */
   public String[] getParameters(String key) {
@@ -162,7 +162,8 @@ public class MavenPlugin {
   /**
    * Adds a parameter to the maven plugin
    *
-   * @param key the param key
+   * @param key the param key with option-index snippet: e.g. item[0], item[1]. If no index snippet is passed, then
+   *            0 is default (index <=> index[0])
    * @param value the param value
    * @return this
    */
@@ -179,18 +180,35 @@ public class MavenPlugin {
   }
 
   private static Xpp3Dom getOrCreateChild(Xpp3Dom node, String key) {
-    Xpp3Dom child = node.getChild(key);
-    if (child == null) {
-      child = new Xpp3Dom(key);
+    int childIndex = getIndex(key);
+
+    if (node.getChildren(removeIndexSnippet(key)).length <= childIndex) {
+      Xpp3Dom child = new Xpp3Dom(removeIndexSnippet(key));
       node.addChild(child);
+      return child;
     }
-    return child;
+    return node.getChildren(removeIndexSnippet(key))[childIndex];
+
+  }
+
+  private static int getIndex(String key) {
+    //parsing index-syntax (e.g. item[1])
+    if (key.matches(".*?\\[\\d+\\]")) {
+      return Integer.parseInt(StringUtils.substringBetween(key, "[", "]"));
+    }
+    // for down-compatibility of api we fallback to default 0
+    return 0;
+  }
+
+  private static String removeIndexSnippet(String key) {
+    return StringUtils.substringBefore(key, "[");
   }
 
   /**
    * Remove a parameter from the maven plugin based on its key
    *
-   * @param key the param key
+   * @param key param key with option-index snippet: e.g. item[0], item[1]. If no index snippet is passed, then
+   *            0 is default (index <=> index[0])
    */
   public void removeParameter(String key) {
     Xpp3Dom node = findNodeWith(key);
@@ -204,7 +222,12 @@ public class MavenPlugin {
     String[] keyParts = key.split("/");
     Xpp3Dom node = configuration;
     for (String keyPart : keyParts) {
-      node = node.getChild(keyPart);
+
+      if(node.getChildren(removeIndexSnippet(keyPart)).length <= getIndex(keyPart)) {
+        return null;
+      }
+
+      node = node.getChildren(removeIndexSnippet(keyPart))[getIndex(keyPart)];
       if (node == null) {
         return null;
       }
@@ -224,7 +247,7 @@ public class MavenPlugin {
   }
 
   /**
-   * @return whether the maven plugin has got configuration 
+   * @return whether the maven plugin has got configuration
    */
   public boolean hasConfiguration() {
     return configuration.getChildCount()>0;
@@ -270,7 +293,7 @@ public class MavenPlugin {
    * Returns a plugin from a pom based on its group id and artifact id
    * <p/>
    * <p>It searches in the build section, then the reporting section and finally the pluginManagement section</p>
-   * 
+   *
    * @param pom the project pom
    * @param groupId the plugin group id
    * @param artifactId the plugin artifact id
