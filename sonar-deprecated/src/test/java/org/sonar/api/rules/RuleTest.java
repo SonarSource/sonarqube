@@ -21,6 +21,9 @@ package org.sonar.api.rules;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
+
+import org.hamcrest.core.Is;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -32,7 +35,7 @@ public class RuleTest {
   public void descriptionShouldBeCleaned() {
     Rule rule = new Rule();
     rule.setDescription("    my description         ");
-    assertEquals("my description", rule.getDescription());
+    Assert.assertEquals("my description", rule.getDescription());
 
     rule.setDescription(null);
     assertNull(rule.getDescription());
@@ -68,19 +71,19 @@ public class RuleTest {
   @Test
   public void defaultPriorityIsMajor() {
     Rule rule = new Rule();
-    assertThat(rule.getPriority(), is(RulePriority.MAJOR));
+    assertThat(rule.getPriority(), Is.is(RulePriority.MAJOR));
 
     rule = new Rule("name", "key");
-    assertThat(rule.getPriority(), is(RulePriority.MAJOR));
+    assertThat(rule.getPriority(), Is.is(RulePriority.MAJOR));
 
     rule = new Rule("pkey", "key", "name", Iso9126RulesCategories.EFFICIENCY, null, null);
-    assertThat(rule.getPriority(), is(RulePriority.MAJOR));
+    assertThat(rule.getPriority(), Is.is(RulePriority.MAJOR));
 
     rule.setPriority(RulePriority.BLOCKER);
-    assertThat(rule.getPriority(), is(RulePriority.BLOCKER));
+    assertThat(rule.getPriority(), Is.is(RulePriority.BLOCKER));
 
     rule.setPriority(null);
-    assertThat(rule.getPriority(), is(RulePriority.MAJOR));
+    assertThat(rule.getPriority(), Is.is(RulePriority.MAJOR));
   }
 
 

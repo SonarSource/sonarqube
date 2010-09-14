@@ -19,6 +19,7 @@
  */
 package org.sonar.api.rules;
 
+import org.hamcrest.core.Is;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -38,8 +39,8 @@ public class RuleAnnotationUtilsTest {
     assertThat(rule.getConfigKey(), nullValue());
     assertThat(rule.getParams().size(), is(0));
     assertThat(rule.getDescription(), is("Description"));
-    assertThat(rule.getCardinality(), is(Rule.Cardinality.SINGLE));
-    assertThat(rule.getRulesCategory().getName(), is(Iso9126RulesCategories.RELIABILITY.getName()));
+    assertThat(rule.getCardinality(), Is.is(Rule.Cardinality.SINGLE));
+    assertThat(rule.getRulesCategory().getName(), Is.is(Iso9126RulesCategories.RELIABILITY.getName()));
   }
 
   @Test

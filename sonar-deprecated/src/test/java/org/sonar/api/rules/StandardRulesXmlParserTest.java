@@ -23,6 +23,8 @@ import org.apache.commons.io.IOUtils;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
+
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
@@ -36,14 +38,14 @@ public class StandardRulesXmlParserTest {
     assertEquals(1, rules.size());
 
     Rule rule = rules.get(0);
-    assertEquals("key1", rule.getKey());
-    assertEquals("my name", rule.getName());
-    assertEquals("my_config_key", rule.getConfigKey());
-    assertEquals("my description", rule.getDescription());
-    assertEquals(2, rule.getParams().size());
-    assertEquals("param1", rule.getParams().get(0).getKey());
-    assertEquals("s", rule.getParams().get(0).getType());
-    assertEquals("param description", rule.getParams().get(0).getDescription());
+    Assert.assertEquals("key1", rule.getKey());
+    Assert.assertEquals("my name", rule.getName());
+    Assert.assertEquals("my_config_key", rule.getConfigKey());
+    Assert.assertEquals("my description", rule.getDescription());
+    Assert.assertEquals(2, rule.getParams().size());
+    Assert.assertEquals("param1", rule.getParams().get(0).getKey());
+    Assert.assertEquals("s", rule.getParams().get(0).getType());
+    Assert.assertEquals("param description", rule.getParams().get(0).getDescription());
   }
 
   @Test
@@ -52,7 +54,7 @@ public class StandardRulesXmlParserTest {
     String xml = "<rules><rule><category name='cat1' /></rule></rules>";
     List<Rule> rules = parser.parse(xml);
     assertNotNull(rules.get(0).getRulesCategory());
-    assertEquals("cat1", rules.get(0).getRulesCategory().getName());
+    Assert.assertEquals("cat1", rules.get(0).getRulesCategory().getName());
     assertNull(rules.get(0).getRulesCategory().getId());
     assertNull(rules.get(0).getRulesCategory().getDescription());
   }
@@ -63,7 +65,7 @@ public class StandardRulesXmlParserTest {
     String xml = "<rules><rule key='1' priority='CRITICAL'><category name='cat1'/></rule></rules>";
     List<Rule> rules = parser.parse(xml);
     assertNotNull(rules.get(0).getRulesCategory());
-    assertEquals(RulePriority.CRITICAL, rules.get(0).getPriority());
+    Assert.assertEquals(RulePriority.CRITICAL, rules.get(0).getPriority());
     assertNull(rules.get(0).getRulesCategory().getId());
     assertNull(rules.get(0).getRulesCategory().getDescription());
   }
@@ -73,7 +75,7 @@ public class StandardRulesXmlParserTest {
     StandardRulesXmlParser parser = new StandardRulesXmlParser();
     String xml = "<rules><rule key='1'><category name='cat1'/></rule></rules>";
     List<Rule> rules = parser.parse(xml);
-    assertEquals(RulePriority.MAJOR, rules.get(0).getPriority());
+    Assert.assertEquals(RulePriority.MAJOR, rules.get(0).getPriority());
   }
 
   @Test
@@ -82,8 +84,8 @@ public class StandardRulesXmlParserTest {
     String xml = "<rules><rule key='key1' category='cat1' /><rule key='key2' category='cat1' /></rules>";
     List<Rule> rules = parser.parse(xml);
     assertEquals(2, rules.size());
-    assertEquals("key1", rules.get(0).getKey());
-    assertEquals("key2", rules.get(1).getKey());
+    Assert.assertEquals("key1", rules.get(0).getKey());
+    Assert.assertEquals("key2", rules.get(1).getKey());
   }
 
   @Test
@@ -102,7 +104,7 @@ public class StandardRulesXmlParserTest {
     String xml = "<rules><rule key='key1' category='cat1'><description>   <![CDATA[<xml> </nodes> and accents Žˆ˜  ]]>  </description></rule></rules>";
     List<Rule> rules = parser.parse(xml);
     assertEquals(1, rules.size());
-    assertEquals("<xml> </nodes> and accents Žˆ˜", rules.get(0).getDescription());
+    Assert.assertEquals("<xml> </nodes> and accents Žˆ˜", rules.get(0).getDescription());
   }
 
   @Test
@@ -113,9 +115,9 @@ public class StandardRulesXmlParserTest {
     assertEquals(1, rules.size());
 
     Rule rule = rules.get(0);
-    assertEquals("key1", rule.getKey());
-    assertEquals(1, rule.getParams().size());
-    assertEquals("param1", rule.getParams().get(0).getKey());
+    Assert.assertEquals("key1", rule.getKey());
+    Assert.assertEquals(1, rule.getParams().size());
+    Assert.assertEquals("param1", rule.getParams().get(0).getKey());
   }
 
   @Test

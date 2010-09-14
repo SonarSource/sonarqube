@@ -27,6 +27,8 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import org.mockito.Matchers;
 import org.sonar.api.CoreProperties;
 
 import java.util.Map;
@@ -36,7 +38,7 @@ public class RuleUtilsTest {
   @Test
   public void getPriorityWeights() {
     Configuration conf = mock(Configuration.class);
-    when(conf.getString(eq(CoreProperties.CORE_RULE_WEIGHTS_PROPERTY), anyString())).thenReturn("info=0;minor=1;major=2;critical=5;blocker=10");
+    when(conf.getString(Matchers.eq(CoreProperties.CORE_RULE_WEIGHTS_PROPERTY), anyString())).thenReturn("info=0;minor=1;major=2;critical=5;blocker=10");
 
     final Map<RulePriority, Integer> map = RuleUtils.getPriorityWeights(conf);
 
@@ -50,7 +52,7 @@ public class RuleUtilsTest {
   @Test
   public void loadMissingWeights() {
     Configuration conf = mock(Configuration.class);
-    when(conf.getString(eq(CoreProperties.CORE_RULE_WEIGHTS_PROPERTY), anyString())).thenReturn("foo=0;bar=1;CRITICAL=5");
+    when(conf.getString(Matchers.eq(CoreProperties.CORE_RULE_WEIGHTS_PROPERTY), anyString())).thenReturn("foo=0;bar=1;CRITICAL=5");
 
     final Map<RulePriority, Integer> map = RuleUtils.getPriorityWeights(conf);
 

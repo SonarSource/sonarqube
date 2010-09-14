@@ -43,7 +43,9 @@ import org.sonar.api.utils.StaxParser;
 
 /**
  * @since 1.10
+ * @deprecated since 2.3. Too much "black-box".
  */
+@Deprecated
 public abstract class AbstractViolationsStaxParser {
 
   protected RulesManager rulesManager;

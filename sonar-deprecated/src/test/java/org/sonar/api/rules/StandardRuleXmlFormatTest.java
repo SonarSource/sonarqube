@@ -19,6 +19,7 @@
  */
 package org.sonar.api.rules;
 
+import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.utils.SonarException;
 
@@ -40,8 +41,8 @@ public class StandardRuleXmlFormatTest {
     Rule rule = rules.get(0);
     assertThat(rule.getName(), is("Local Variable Name"));
     assertThat(rule.getDescription(), is("Checks that local, non-final variable names conform to a format specified by the format property."));
-    assertThat(rule.getPriority(), is(RulePriority.BLOCKER));
-    assertThat(rule.getCardinality(), is(Rule.Cardinality.MULTIPLE));
+    assertThat(rule.getPriority(), Is.is(RulePriority.BLOCKER));
+    assertThat(rule.getCardinality(), Is.is(Rule.Cardinality.MULTIPLE));
     assertThat(rule.getConfigKey(), is("Checker/TreeWalker/LocalVariableName"));
 
     assertThat(rule.getParams().size(), is(2));
@@ -83,7 +84,7 @@ public class StandardRuleXmlFormatTest {
     List<Rule> rules = StandardRuleXmlFormat.parseXml(getClass().getResourceAsStream("/org/sonar/api/rules/StandardRuleXmlFormatTest/deprecated.xml"));
     assertThat(rules.size(), is(1));
     Rule rule = rules.get(0);
-    assertThat(rule.getPriority(), is(RulePriority.CRITICAL));
+    assertThat(rule.getPriority(), Is.is(RulePriority.CRITICAL));
     assertThat(rule.getKey(), is("org.sonar.it.checkstyle.MethodsCountCheck"));
     assertThat(rule.getParam("minMethodsCount"), not(nullValue()));
   }

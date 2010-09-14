@@ -19,42 +19,12 @@
  */
 package org.sonar.api.rules;
 
-import org.sonar.api.BatchExtension;
-import org.sonar.api.ServerExtension;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.Language;
-
 import java.util.List;
+import org.sonar.api.rules.Rule;
 
-/**
- * The interface to implement to create a repository of rules
- *
- * @param <LANG>
- */
 @Deprecated
-public interface RulesRepository<LANG extends Language> extends BatchExtension, ServerExtension {
+public interface ConfigurationImportable {
 
-  /**
-   * @return the language the repository is associated
-   */
-  LANG getLanguage();
-
-  /**
-   * @return the list of rules of the repository
-   */
-  List<Rule> getInitialReferential();
-
-  /**
-   * The method to parse the base referential of rules and return a list of rules
-   *
-   * @param fileContent the initial referential
-   * @return a list of rules
-   */
-  List<Rule> parseReferential(String fileContent);
-
-  /**
-   * @return a list of profiles that are provided with the referential
-   */
-  List<RulesProfile> getProvidedProfiles();
+  List<ActiveRule> importConfiguration(String configuration, List<Rule> rules);
 
 }

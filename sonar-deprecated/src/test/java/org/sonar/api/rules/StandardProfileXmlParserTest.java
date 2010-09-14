@@ -22,6 +22,9 @@ package org.sonar.api.rules;
 import org.apache.commons.io.IOUtils;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
+
+import org.hamcrest.CoreMatchers;
+import org.junit.Assert;
 import org.junit.Test;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.xml.Profile;
@@ -107,7 +110,7 @@ public class StandardProfileXmlParserTest {
     RulesProfile profile = standardProfileXmlParser.importConfiguration(IOUtils.toString(input));
     List<ActiveRule> results = profile.getActiveRules();
 
-    assertThat("Sonar way", is(profile.getName()));
+    assertThat("Sonar way", CoreMatchers.is(profile.getName()));
     assertThat(results.size(), is(activeRulesExpected.size()));
     assertActiveRulesAreEquals(results, activeRulesExpected);
   }
@@ -156,7 +159,7 @@ public class StandardProfileXmlParserTest {
       ActiveRule activeRule2 = activeRules2.get(i);
       assertTrue(activeRule1.getRule().equals(activeRule2.getRule()) && activeRule1.getPriority().equals(activeRule2.getPriority()));
 
-      assertEquals(activeRule1.getActiveRuleParams().size(), (activeRule2.getActiveRuleParams().size()));
+      Assert.assertEquals(activeRule1.getActiveRuleParams().size(), (activeRule2.getActiveRuleParams().size()));
       for (int j = 0; j < activeRule1.getActiveRuleParams().size(); j++) {
         ActiveRuleParam activeRuleParam1 = activeRule1.getActiveRuleParams().get(j);
         ActiveRuleParam activeRuleParam2 = activeRule2.getActiveRuleParams().get(j);

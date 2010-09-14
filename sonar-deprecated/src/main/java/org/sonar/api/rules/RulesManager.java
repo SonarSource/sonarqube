@@ -28,9 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Manage and access rules defined in Sonar.
- *
- *  @deprecated UGLY COMPONENT - WILL BE COMPLETELY REFACTORED IN SONAR 2.3
+ *  @deprecated since 2.3
  */
 @Deprecated
 public abstract class RulesManager {

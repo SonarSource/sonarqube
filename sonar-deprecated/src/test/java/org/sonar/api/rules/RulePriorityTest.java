@@ -20,18 +20,20 @@
 package org.sonar.api.rules;
 
 import static junit.framework.Assert.assertEquals;
+
+import junit.framework.Assert;
 import org.junit.Test;
 
 public class RulePriorityTest {
 
   @Test
   public void testValueOfString() {
-    assertEquals(RulePriority.INFO, RulePriority.valueOfString("info"));
-    assertEquals(RulePriority.MAJOR, RulePriority.valueOfString("MAJOR"));
-    assertEquals(RulePriority.MAJOR, RulePriority.valueOfString("ERROR"));
-    assertEquals(RulePriority.INFO, RulePriority.valueOfString("WARNING"));
-    assertEquals(RulePriority.MAJOR, RulePriority.valueOfString("ErRor"));
-    assertEquals(RulePriority.INFO, RulePriority.valueOfString("WaRnInG"));
+    Assert.assertEquals(RulePriority.INFO, RulePriority.valueOfString("info"));
+    Assert.assertEquals(RulePriority.MAJOR, RulePriority.valueOfString("MAJOR"));
+    Assert.assertEquals(RulePriority.MAJOR, RulePriority.valueOfString("ERROR"));
+    Assert.assertEquals(RulePriority.INFO, RulePriority.valueOfString("WARNING"));
+    Assert.assertEquals(RulePriority.MAJOR, RulePriority.valueOfString("ErRor"));
+    Assert.assertEquals(RulePriority.INFO, RulePriority.valueOfString("WaRnInG"));
   }
 
   @Test(expected = IllegalArgumentException.class)
