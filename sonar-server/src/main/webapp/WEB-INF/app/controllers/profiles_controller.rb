@@ -154,15 +154,10 @@ class ProfilesController < ApplicationController
   #
   #
   def restore
-    profile_name=params[:name]
-    language=params[:language]
-    profile=Profile.find(:first, :conditions => {:name => profile_name, :language => language})
-    if profile
-      flash[:error]='An existing profile can not be restored. Please delete it before.'
-    elsif params[:backup].blank?
+    if params[:backup].blank?
       flash[:warning]='Please upload a backup file.'
     else
-      messages=java_facade.restoreProfile(profile_name, language, read_file_param(params[:backup]))
+      messages=java_facade.restoreProfile(read_file_param(params[:backup]))
       flash_validation_messages(messages)
     end
     redirect_to :action => 'index'
@@ -269,13 +264,13 @@ class ProfilesController < ApplicationController
   def flash_validation_messages(messages)
     # only 4 messages are kept each time to avoid cookie overflow.
     if messages.hasErrors()
-      flash[:error]=messages.getErrors().to_a[0...4].map{|m| m.getLabel()}.join('<br/>')
+      flash[:error]=messages.getErrors().to_a[0...4].join('<br/>')
     end
     if messages.hasWarnings()
-      flash[:warning]=messages.getWarnings().to_a[0...4].map{|m| m.getLabel()}.join('<br/>')
+      flash[:warning]=messages.getWarnings().to_a[0...4].join('<br/>')
     end
     if messages.hasInfos()
-      flash[:notice]=messages.getInfos().to_a[0...4].map{|m| m.getLabel()}.join('<br/>')
+      flash[:notice]=messages.getInfos().to_a[0...4].join('<br/>')
     end
   end
 end

@@ -1,3 +1,29 @@
+<% if administrator? %>
+<div class="line-block marginbottom10">
+  <ul style="float: right" class="horizontal">
+    <li class="marginleft10 restore">
+      <a href="#" onclick="$('restore-form').show();return false;" id="restore-link">Restore profile</a>
+    </li>
+  </ul>
+</div>
+<form class="admin marginbottom10" id="restore-form" action="<%= url_for :action => 'restore' -%>" enctype="multipart/form-data" style="display: none" method="post">
+    <table class="spaced width100">
+      <tr>
+        <td width="1%" nowrap>Backup: </td>
+        <td><%= file_field_tag 'backup' %></td>
+      </tr>
+
+      <tr>
+        <td colspan="2">
+          <input type="submit" value="Restore profile"></input>
+          <a href="#" onclick="$('restore-form').reset();$('restore-form').hide();return false;">Cancel</a>
+        </td>
+      </tr>
+    </table>
+  </form>
+<% end %>
+
+
 <%
   languages.sort{|x,y| x.getName() <=> y.getName()}.each do |language|
     importers=controller.java_facade.getProfileImportersForLanguage(language.getKey())
@@ -7,9 +33,6 @@
   <ul style="float: right" class="horizontal">
     <li class="marginleft10 add">
       <a href="#" onClick="$('create-form-<%= language.getKey() -%>').show();return false;" id="create-link-<%= language.getKey() -%>">Create</a>
-    </li>
-    <li class="marginleft10 restore">
-      <a href="#" onclick="$('restore-form-<%= language.getKey() -%>').show();return false;" id="restore-link-<%= language.getKey() -%>">Restore</a>
     </li>
   </ul>
   <% end %>
@@ -38,26 +61,6 @@
         <td colspan="2">
           <input type="submit" value="Create <%= language.getName() %> profile" id="create-submit-<%= language.getKey() -%>"></input>
           <a href="#" onclick="$('create-form-<%= language.getKey()-%>').reset();$('create-form-<%= language.getKey()-%>').hide();return false;">Cancel</a>
-        </td>
-      </tr>
-    </table>
-  </form>
-  <form class="admin" id="restore-form-<%= language.getKey()-%>" action="<%= url_for :action => 'restore' -%>" enctype="multipart/form-data" style="display: none" method="post">
-    <input type="hidden" name="language" value="<%= language.getKey() -%>"></input>
-    <table class="spaced width100">
-      <tr>
-        <td width="1%" nowrap>Name: </td>
-        <td><input type="text" name="name"></input></td>
-      </tr>
-      <tr>
-        <td width="1%" nowrap>Backup: </td>
-        <td><%= file_field_tag 'backup' %></td>
-      </tr>
-
-      <tr>
-        <td colspan="2">
-          <input type="submit" value="Restore <%= language.getName() %> profile"></input>
-          <a href="#" onclick="$('restore-form-<%= language.getKey()-%>').reset();$('restore-form-<%= language.getKey()-%>').hide();return false;">Cancel</a>
         </td>
       </tr>
     </table>

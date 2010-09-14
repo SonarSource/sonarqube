@@ -24,10 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.*;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
@@ -37,7 +34,6 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public final class ProfilesConsole implements ServerComponent {
 
@@ -73,16 +69,19 @@ public final class ProfilesConsole implements ServerComponent {
     return null;
   }
 
-  public ValidationMessages restoreProfile(String profileName, String language, String xmlBackup) {
-    DatabaseSession session = sessionFactory.getSession();
-    RulesProfile profile = session.getSingleResult(RulesProfile.class, "name", profileName, "language", language);
-    if (profile != null) {
-      session.remove(session);
-    }
+  public ValidationMessages restoreProfile(String xmlBackup) {
     ValidationMessages messages = ValidationMessages.create();
-    profile = XMLProfileImporter.create(ruleFinder).importProfile(new StringReader(xmlBackup), messages);
-    session.saveWithoutFlush(profile);
-    session.commit();
+    RulesProfile profile = XMLProfileImporter.create(ruleFinder).importProfile(new StringReader(xmlBackup), messages);
+    if (profile != null) {
+      DatabaseSession session = sessionFactory.getSession();
+      RulesProfile existingProfile = session.getSingleResult(RulesProfile.class, "name", profile.getName(), "language", profile.getLanguage());
+      if (existingProfile != null) {
+        messages.addErrorText("The profile " + profile + " already exists. Please delete it before restoring.");
+      } else if (!messages.hasErrors()) {
+        session.saveWithoutFlush(profile);
+        session.commit();
+      }
+    }
     return messages;
   }
 
