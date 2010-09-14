@@ -33,22 +33,26 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class is badly named. It should be "QualityProfile". Indeed it does not relate only to rules but to metric
+ * thresholds too.
+ */
 @Entity
 @Table(name = "rules_profiles")
 public class RulesProfile implements Cloneable {
 
   /**
-   * The profile key for the embedded profile Sonar Way
+   * Name of the default profile "Sonar Way"
    */
   public static final String SONAR_WAY_NAME = "Sonar way";
 
   /**
-   * The profile key for the embedded profile Sonar Way with Findbugs
+   * Name of the default java profile "Sonar way with Findbugs"
    */
   public static final String SONAR_WAY_FINDBUGS_NAME = "Sonar way with Findbugs";
 
   /**
-   * The profile key for the embedded profile Sun checks
+   * Name of the default java profile "Sun checks"
    */
   public static final String SUN_CONVENTIONS_NAME = "Sun checks";
 
@@ -86,11 +90,7 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * <p>Creates a profile of rules with empty active rules, empty alerts and empty project lists.</p>
-   *
-   * @param name     the name to be used to access the profile, will be used as a key and display name
-   * @param language the language to which this profile applies
-   * @deprecated use the factory method create()
+   * @deprecated since 2.3. Use the factory method create()
    */
   @Deprecated
   public RulesProfile(String name, String language) {
@@ -102,12 +102,7 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * <p>Creates a profile of rules with empty active rules, empty alerts and empty project lists.</p>
-   *
-   * @param name           the name to be used to access the profile, will be used as a key and display name
-   * @param language       the language to which this profile applies
-   * @param defaultProfile whether this is the default profile for the language
-   * @param provided       whether the profile is embarked in core Sonar
+   * @deprecated since 2.3. Use the factory method create()
    */
   @Deprecated
   public RulesProfile(String name, String language, boolean defaultProfile, boolean provided) {
@@ -121,14 +116,14 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * @return the name of the profile
+   * @return the profile name, unique by language.
    */
   public String getName() {
     return name;
   }
 
   /**
-   * Sets the name of the profile
+   * Set the profile name.
    */
   public RulesProfile setName(String s) {
     this.name = s;
@@ -143,7 +138,7 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * Sets the list of active rules
+   * Set the list of active rules
    */
   public void setActiveRules(List<ActiveRule> activeRules) {
     this.activeRules = activeRules;
@@ -157,35 +152,37 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * Sets whether this is the default profile for the language
+   * Set whether this is the default profile for the language. The default profile is used when none is explicitly
+   * defined when auditing a project.
    */
   public void setDefaultProfile(Boolean b) {
     this.defaultProfile = b;
   }
 
   /**
-   * @return whether the profile ships with Sonar core
+   * @return whether the profile is defined in a plugin. Provided profiles are automatically restored during
+   * server startup and can not be updated by end users.
    */
   public Boolean getProvided() {
     return provided;
   }
 
   /**
-   * Sets wether the profile ships with Sonar core
+   * Set whether the profile is provided by a plugin
    */
-  public void setProvided(Boolean provided) {
-    this.provided = provided;
+  public void setProvided(Boolean b) {
+    this.provided = b;
   }
 
   /**
-   * @return the language of the profile
+   * @return the profile language
    */
   public String getLanguage() {
     return language;
   }
 
   /**
-   * Sets the language for the profile
+   * Set the profile language
    */
   public RulesProfile setLanguage(String s) {
     this.language = s;
@@ -234,7 +231,7 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * @deprecated use getActiveRulesByRepository()
+   * @deprecated since 2.3. Use getActiveRulesByRepository().
    */
   @Deprecated
   public List<ActiveRule> getActiveRulesByPlugin(String repositoryKey) {
