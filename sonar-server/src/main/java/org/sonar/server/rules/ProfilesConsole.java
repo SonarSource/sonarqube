@@ -24,6 +24,8 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.*;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.jpa.session.DatabaseSessionFactory;
@@ -39,22 +41,29 @@ public final class ProfilesConsole implements ServerComponent {
 
   private DatabaseSessionFactory sessionFactory;
   private RuleFinder ruleFinder;
-  private List<ProfileExporter> profileExporters = new ArrayList<ProfileExporter>();
-  private List<ProfileImporter> profileImporters = new ArrayList<ProfileImporter>();
+  private List<ProfileExporter> exporters = new ArrayList<ProfileExporter>();
+  private List<ProfileImporter> importers = new ArrayList<ProfileImporter>();
 
   public ProfilesConsole(DatabaseSessionFactory sessionFactory, RuleFinder ruleFinder,
                          ProfileExporter[] exporters, DeprecatedProfileExporters deprecatedExporters,
-                         ProfileImporter[] importers) {
+                         ProfileImporter[] importers, DeprecatedProfileImporters deprecatedImporters) {
     this.ruleFinder = ruleFinder;
     this.sessionFactory = sessionFactory;
     initProfileExporters(exporters, deprecatedExporters);
-    this.profileImporters.addAll(Arrays.asList(importers));
+    initProfileImporters(importers, deprecatedImporters);
   }
 
   private void initProfileExporters(ProfileExporter[] exporters, DeprecatedProfileExporters deprecatedExporters) {
-    this.profileExporters.addAll(Arrays.asList(exporters));
+    this.exporters.addAll(Arrays.asList(exporters));
     for (ProfileExporter exporter : deprecatedExporters.create()) {
-      this.profileExporters.add(exporter);
+      this.exporters.add(exporter);
+    }
+  }
+
+  private void initProfileImporters(ProfileImporter[] importers, DeprecatedProfileImporters deprecatedImporters) {
+    this.importers.addAll(Arrays.asList(importers));
+    for (ProfileImporter importer : deprecatedImporters.create()) {
+      this.importers.add(importer);
     }
   }
 
@@ -91,7 +100,7 @@ public final class ProfilesConsole implements ServerComponent {
 
   public List<ProfileExporter> getProfileExportersForLanguage(String language) {
     List<ProfileExporter> result = new ArrayList<ProfileExporter>();
-    for (ProfileExporter exporter : profileExporters) {
+    for (ProfileExporter exporter : exporters) {
       if (exporter.getSupportedLanguages() == null || exporter.getSupportedLanguages().length == 0 || ArrayUtils.contains(exporter.getSupportedLanguages(), language)) {
         result.add(exporter);
       }
@@ -101,7 +110,7 @@ public final class ProfilesConsole implements ServerComponent {
 
   public List<ProfileImporter> getProfileImportersForLanguage(String language) {
     List<ProfileImporter> result = new ArrayList<ProfileImporter>();
-    for (ProfileImporter importer : profileImporters) {
+    for (ProfileImporter importer : importers) {
       if (importer.getSupportedLanguages() == null || importer.getSupportedLanguages().length == 0 || ArrayUtils.contains(importer.getSupportedLanguages(), language)) {
         result.add(importer);
       }
@@ -122,24 +131,29 @@ public final class ProfilesConsole implements ServerComponent {
   }
 
   /**
-   * Important : the ruby controller has already removed existing profile with same name/language.
+   * Important : the ruby controller has already create the profile
    */
   public ValidationMessages importProfile(String profileName, String language, String importerKey, String profileDefinition) {
     ValidationMessages messages = ValidationMessages.create();
     ProfileImporter importer = getProfileImporter(importerKey);
     RulesProfile profile = importer.importProfile(new StringReader(profileDefinition), messages);
     if (!messages.hasErrors()) {
-      profile.setName(profileName);
-      profile.setLanguage(language);
       DatabaseSession session = sessionFactory.getSession();
-      session.saveWithoutFlush(profile);
+      RulesProfile persistedProfile = session.getSingleResult(RulesProfile.class, "name", profileName, "language", language);
+      for (ActiveRule activeRule : profile.getActiveRules()) {
+        ActiveRule persistedActiveRule = persistedProfile.activateRule(activeRule.getRule(), activeRule.getPriority());
+        for (ActiveRuleParam activeRuleParam : activeRule.getActiveRuleParams()) {
+          persistedActiveRule.setParameter(activeRuleParam.getKey(), activeRuleParam.getValue());
+        }
+      }
+      session.saveWithoutFlush(persistedProfile);
       session.commit();
     }
     return messages;
   }
 
   public ProfileExporter getProfileExporter(String exporterKey) {
-    for (ProfileExporter exporter : profileExporters) {
+    for (ProfileExporter exporter : exporters) {
       if (StringUtils.equals(exporterKey, exporter.getKey())) {
         return exporter;
       }
@@ -148,7 +162,7 @@ public final class ProfilesConsole implements ServerComponent {
   }
 
   public ProfileImporter getProfileImporter(String exporterKey) {
-    for (ProfileImporter importer : profileImporters) {
+    for (ProfileImporter importer : importers) {
       if (StringUtils.equals(exporterKey, importer.getKey())) {
         return importer;
       }

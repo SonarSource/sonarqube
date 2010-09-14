@@ -177,6 +177,7 @@ public final class Platform {
     servicesContainer.as(Characteristics.CACHE).addComponent(DeprecatedRuleRepositories.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(DeprecatedProfiles.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(DeprecatedProfileExporters.class);
+    servicesContainer.as(Characteristics.CACHE).addComponent(DeprecatedProfileImporters.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(ProfilesConsole.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(RulesConsole.class);
     

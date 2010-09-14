@@ -65,7 +65,7 @@ class ProfilesController < ApplicationController
         if ok && params[:backup]
           params[:backup].each_pair do |importer_key, file|
             if !file.blank? && ok
-              messages = java_facade.importProfile(profile.id, importer_key, read_file_param(file))
+              messages = java_facade.importProfile(profile_name, language, importer_key, read_file_param(file))
               flash_validation_messages(messages)
               ok &= !messages.hasErrors()
             end
