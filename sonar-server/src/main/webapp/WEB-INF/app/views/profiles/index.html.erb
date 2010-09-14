@@ -47,7 +47,7 @@
         <td width="1%" nowrap>Name: </td>
         <td><input type="text" name="name"></input></td>
       </tr>
-      <% importers.each do |importer| %>
+      <% importers.to_a.sort{|x,y| x.getName() <=> y.getName()}.each do |importer| %>
       <tr>
         <td width="1%" nowrap><%= importer.getName() -%>: </td>
         <td>
