@@ -36,8 +36,10 @@ import java.io.Writer;
 import java.util.Map;
 
 /**
- * EXPERIMENTAL - will be used in version 2.3
+ * @since 2.1 (experimental)
+ * @deprecated since 2.3
  */
+@Deprecated
 public final class CheckProfileXmlMarshaller {
 
   public static void toXml(CheckProfile profile, Writer writer) {

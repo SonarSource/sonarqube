@@ -22,10 +22,10 @@ package org.sonar.api.checks.templates;
 import java.util.Locale;
 
 /**
- * EXPERIMENTAL - will be used in version 2.2
- * 
- * @since 2.1
+ * @since 2.1 (experimental)
+ * @deprecated since 2.3
  */
+@Deprecated
 public abstract class CheckTemplateProperty implements Comparable<CheckTemplateProperty> {
 
   protected String key;

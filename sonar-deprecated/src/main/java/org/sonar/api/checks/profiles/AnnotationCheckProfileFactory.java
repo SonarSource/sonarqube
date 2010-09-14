@@ -27,6 +27,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @since 2.1 (experimental)
+ * @deprecated since 2.3
+ */
+@Deprecated
 public final class AnnotationCheckProfileFactory {
 
   private AnnotationCheckProfileFactory() {

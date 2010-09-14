@@ -30,8 +30,10 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Load templates from class annotations (see the library sonar-check-api)
+ * @since 2.1 (experimental)
+ * @deprecated since 2.3
  */
+@Deprecated
 public class AnnotationCheckTemplateFactory {
 
   private static final Logger LOG = LoggerFactory.getLogger(AnnotationCheckTemplateFactory.class);

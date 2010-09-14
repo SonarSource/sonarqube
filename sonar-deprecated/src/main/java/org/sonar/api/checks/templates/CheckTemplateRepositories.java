@@ -26,8 +26,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @since 2.1
+ * @since 2.1 (experimental)
+ * @deprecated since 2.3
  */
+@Deprecated
 public class CheckTemplateRepositories implements ServerExtension {
 
   private Map<String, CheckTemplateRepository> repositoriesByKey = new HashMap<String, CheckTemplateRepository>();

@@ -29,10 +29,10 @@ import java.io.InputStream;
 import java.util.*;
 
 /**
- * EXPERIMENTAL - will be used in version 2.3
- *
- * @since 2.1
+ * @since 2.1 (experimental)
+ * @deprecated since 2.3
  */
+@Deprecated
 public class CheckTemplateRepository implements RulesRepository {
 
   private String key;

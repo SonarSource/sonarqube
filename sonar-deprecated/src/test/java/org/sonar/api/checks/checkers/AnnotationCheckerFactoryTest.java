@@ -1,22 +1,3 @@
-/*
- * Sonar, open source software quality management tool.
- * Copyright (C) 2009 SonarSource SA
- * mailto:contact AT sonarsource DOT com
- *
- * Sonar is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * Sonar is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Sonar; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
- */
 package org.sonar.api.checks.checkers;
 
 import org.junit.Before;
@@ -129,7 +110,7 @@ public class AnnotationCheckerFactoryTest {
     Map map = new HashMap();
     map.put("max", "300");
     when(check.getProperties()).thenReturn(map);
-    
+
     factory.instantiate(check, CheckWithUnsupportedPropertyType.class);
   }
 
@@ -153,59 +134,6 @@ public class AnnotationCheckerFactoryTest {
     when(check.getTemplateKey()).thenReturn(checkerClass.getCanonicalName());
     return check;
   }
-}
-
-@Check(isoCategory = IsoCategory.Efficiency, priority = Priority.CRITICAL)
-class CheckerWithoutProperties {
-
-}
-
-@Check(isoCategory = IsoCategory.Efficiency, priority = Priority.CRITICAL)
-class CheckerWithStringProperty {
-
-  @CheckProperty(key = "maiximum")
-  private String max;
-
-  public String getMax() {
-    return max;
-  }
-}
-
-@Check(isoCategory = IsoCategory.Efficiency, priority = Priority.CRITICAL)
-class CheckerWithPrimitiveProperties {
-
-  @CheckProperty(description = "Maximum threshold")
-  private int max = 50;
-
-  @CheckProperty
-  private boolean active;
-
-  public int getMax() {
-    return max;
-  }
-
-  public boolean isActive() {
-    return active;
-  }
-}
-
-@Check(isoCategory = IsoCategory.Efficiency, priority = Priority.CRITICAL)
-class CheckerWithIntegerProperty {
-
-  @CheckProperty
-  private Integer max;
-
-  public Integer getMax() {
-    return max;
-  }
-}
-
-@Check(isoCategory = IsoCategory.Efficiency, priority = Priority.CRITICAL)
-class CheckWithUnsupportedPropertyType {
-
-  @CheckProperty
-  private StringBuilder max = null;
-
 }
 
 @Check(isoCategory = IsoCategory.Efficiency, priority = Priority.CRITICAL)

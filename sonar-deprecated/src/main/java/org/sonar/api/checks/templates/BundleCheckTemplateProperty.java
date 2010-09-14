@@ -21,6 +21,11 @@ package org.sonar.api.checks.templates;
 
 import java.util.Locale;
 
+/**
+ * @since 2.1 (experimental)
+ * @deprecated since 2.3
+ */
+@Deprecated
 public class BundleCheckTemplateProperty extends CheckTemplateProperty {
 
   private BundleCheckTemplate check;

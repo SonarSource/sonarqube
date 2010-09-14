@@ -129,6 +129,8 @@ public final class ProfilesConsole implements ServerComponent {
     ProfileImporter importer = getProfileImporter(importerKey);
     RulesProfile profile = importer.importProfile(new StringReader(profileDefinition), messages);
     if (!messages.hasErrors()) {
+      profile.setName(profileName);
+      profile.setLanguage(language);
       DatabaseSession session = sessionFactory.getSession();
       session.saveWithoutFlush(profile);
       session.commit();

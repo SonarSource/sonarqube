@@ -17,17 +17,26 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.checks.profiles;
-
-import org.sonar.api.ServerExtension;
-
-import java.util.Collection;
+package org.sonar.api.checks.checkers;
 
 /**
- * EXPERIMENTAL - will be used in version 2.2
+ * @since 2.1 (experimental)
+ * @deprecated since 2.3
  */
-public abstract class CheckProfileProvider implements ServerExtension {
+@Deprecated
+public class UnvalidCheckerException extends RuntimeException {
+  public UnvalidCheckerException() {
+  }
 
-  public abstract Collection<CheckProfile> provide();
+  public UnvalidCheckerException(String message) {
+    super(message);
+  }
 
+  public UnvalidCheckerException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
+  public UnvalidCheckerException(Throwable cause) {
+    super(cause);
+  }
 }

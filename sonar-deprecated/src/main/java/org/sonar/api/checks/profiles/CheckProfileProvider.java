@@ -17,15 +17,19 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.checks.checkers;
+package org.sonar.api.checks.profiles;
 
-import org.sonar.api.checks.profiles.Check;
+import org.sonar.api.ServerExtension;
 
-import java.util.Map;
+import java.util.Collection;
 
 /**
- * @since 2.1
+ * @since 2.1 (experimental)
+ * @deprecated since 2.3
  */
-public abstract class CheckerFactory<CHECKER> {
-  public abstract Map<Check, CHECKER> create();
+@Deprecated
+public abstract class CheckProfileProvider implements ServerExtension {
+
+  public abstract Collection<CheckProfile> provide();
+
 }

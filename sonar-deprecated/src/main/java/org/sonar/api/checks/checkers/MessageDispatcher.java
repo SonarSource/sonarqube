@@ -33,6 +33,11 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * @since 2.1 (experimental)
+ * @deprecated since 2.3
+ */
+@Deprecated
 public class MessageDispatcher {
 
   private Map<Check, Object> checkersByCheck;

@@ -27,10 +27,10 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /**
- * Internationalized check template. Translations are loaded from resource bundles (properties files in the classpath)
- *
- * @since 2.1
+ * @since 2.1 (experimental)
+ * @deprecated since 2.3
  */
+@Deprecated
 public class BundleCheckTemplate extends CheckTemplate {
   private static final Logger LOG = LoggerFactory.getLogger(BundleCheckTemplate.class);
 

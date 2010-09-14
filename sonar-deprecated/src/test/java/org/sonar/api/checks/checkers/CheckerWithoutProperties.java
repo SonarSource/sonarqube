@@ -17,16 +17,13 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.checks.templates;
+package org.sonar.api.checks.checkers;
 
-import java.util.Collection;
+import org.sonar.check.Check;
+import org.sonar.check.IsoCategory;
+import org.sonar.check.Priority;
 
-/**
- * EXPERIMENTAL - will be used in version 2.2
- * @since 2.1
- */
-public abstract class CheckTemplateFactory {
-
-  public abstract Collection<CheckTemplate> create();
+@Check(isoCategory = IsoCategory.Efficiency, priority = Priority.CRITICAL)
+class CheckerWithoutProperties {
 
 }

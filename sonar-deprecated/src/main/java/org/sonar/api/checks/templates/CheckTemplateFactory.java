@@ -17,21 +17,17 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.checks.checkers;
+package org.sonar.api.checks.templates;
 
-public class UnvalidCheckerException extends RuntimeException {
-  public UnvalidCheckerException() {
-  }
+import java.util.Collection;
 
-  public UnvalidCheckerException(String message) {
-    super(message);
-  }
+/**
+ * @since 2.1 (experimental)
+ * @deprecated since 2.3
+ */
+@Deprecated
+public abstract class CheckTemplateFactory {
 
-  public UnvalidCheckerException(String message, Throwable cause) {
-    super(message, cause);
-  }
+  public abstract Collection<CheckTemplate> create();
 
-  public UnvalidCheckerException(Throwable cause) {
-    super(cause);
-  }
 }

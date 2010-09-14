@@ -26,6 +26,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * @since 2.1 (experimental)
+ * @deprecated since 2.3
+ */
+@Deprecated
 public class CheckProfile implements BatchExtension, ServerExtension {
 
   private String name;

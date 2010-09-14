@@ -26,8 +26,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * EXPERIMENTAL - will be used in version 2.2
+ * @since 2.1 (experimental)
+ * @deprecated since 2.3
  */
+@Deprecated
 public class Check {
 
   private String repositoryKey;
