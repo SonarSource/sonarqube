@@ -11,45 +11,35 @@
 <thead>
 <tr><td rowspan="1" colspan="3">SONAR-1000_quality_profile_with_space_or_dot</td></tr>
 </thead><tbody>
-	<tr>
-	    <td>open</td>
-	    <td>/sessions/logout</td>
-	    <td></td>
-	  </tr>
-	  <tr>
-	    <td>open</td>
-	    <td>/sessions/login</td>
-	    <td></td>
-	  </tr>
-	<tr>
-		<td>type</td>
-		<td>login</td>
-		<td>admin</td>
-	</tr>
-	  <tr>
-	    <td>type</td>
-	    <td>password</td>
-	    <td>admin</td>
-	  </tr>
-	  <tr>
-	    <td>clickAndWait</td>
-	    <td>commit</td>
-	    <td></td>
-	  </tr>
+<tr>
+	<td>store</td>
+	<td>javascript{'space dot. '+(new Date()).getTime()}</td>
+	<td>PROFILE</td>
+</tr>
 <tr>
 	<td>open</td>
-	<td>/profiles</td>
+	<td>/sessions/logout</td>
 	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sessions/login</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>admin</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>link=Sonar way</td>
+	<td>commit</td>
 	<td></td>
-</tr>
-<tr>
-	<td>assertText</td>
-	<td>//a[contains(@href,'Sonar+way')]</td>
-	<td>Download</td>
 </tr>
 <tr>
 	<td>open</td>
@@ -58,33 +48,33 @@
 </tr>
 <tr>
 	<td>click</td>
-	<td>create_profile</td>
+	<td>create-link-java</td>
 	<td></td>
 </tr>
 <tr>
-	<td>waitForVisible</td>
-	<td>form_create_profile</td>
+	<td>waitForValue</td>
+	<td>name</td>
 	<td></td>
 </tr>
 <tr>
 	<td>type</td>
 	<td>name</td>
-	<td>test . dot</td>
+	<td>${PROFILE}</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>commit</td>
+	<td>create-submit-java</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>link=test . dot</td>
+	<td>link=${PROFILE}</td>
 	<td></td>
 </tr>
 <tr>
-	<td>assertText</td>
-	<td>//a[contains(@href,'test+.+dot')]</td>
-	<td>Download</td>
+	<td>assertTextPresent</td>
+	<td>Quality profiles / java / ${PROFILE}</td>
+	<td></td>
 </tr>
 
 </tbody></table>
