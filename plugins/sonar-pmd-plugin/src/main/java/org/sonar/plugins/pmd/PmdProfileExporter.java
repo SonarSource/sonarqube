@@ -20,10 +20,16 @@
 package org.sonar.plugins.pmd;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jdom.CDATA;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.RulesProfile;
@@ -34,8 +40,6 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.pmd.xml.PmdProperty;
 import org.sonar.plugins.pmd.xml.PmdRule;
 import org.sonar.plugins.pmd.xml.PmdRuleset;
-
-import com.thoughtworks.xstream.XStream;
 
 public class PmdProfileExporter extends ProfileExporter {
 
@@ -83,18 +87,58 @@ public class PmdProfileExporter extends ProfileExporter {
       rule.setMessage(rule.getProperty(PmdConstants.XPATH_MESSAGE_PARAM).getValue());
       rule.removeProperty(PmdConstants.XPATH_MESSAGE_PARAM);
       PmdProperty xpathExp = rule.getProperty(PmdConstants.XPATH_EXPRESSION_PARAM);
-      xpathExp.setValue("" + xpathExp.getValue() + "");
+      xpathExp.setCdataValue(xpathExp.getValue());
       rule.setClazz(PmdConstants.XPATH_CLASS);
       rule.setName(sonarRuleKey);
     }
   }
 
-  protected String exportPmdRulesetToXml(PmdRuleset tree) {
-    XStream xstream = new XStream();
-    xstream.setClassLoader(getClass().getClassLoader());
-    xstream.processAnnotations(PmdRuleset.class);
-    xstream.processAnnotations(PmdRule.class);
-    xstream.processAnnotations(PmdProperty.class);
-    return xstream.toXML(tree);
+  protected String exportPmdRulesetToXml(PmdRuleset pmdRuleset) {
+    Element eltRuleset = new Element("resultset");
+    for (PmdRule pmdRule : pmdRuleset.getPmdRules()) {
+      Element eltRule = new Element("rule");
+      addAttribute(eltRule, "ref", pmdRule.getRef());
+      addAttribute(eltRule, "class", pmdRule.getClazz());
+      addAttribute(eltRule, "message", pmdRule.getMessage());
+      addAttribute(eltRule, "name", pmdRule.getName());
+      addChild(eltRule, "priority", pmdRule.getPriority());
+      if (pmdRule.hasProperties()) {
+        Element eltProperties = new Element("properties");
+        eltRule.addContent(eltProperties);
+        for (PmdProperty prop : pmdRule.getProperties()) {
+          Element eltProperty = new Element("property");
+          eltProperty.setAttribute("name", prop.getName());
+          if (prop.isCdataValue()) {
+            Element eltValue = new Element("value");
+            eltValue.addContent(new CDATA(prop.getCdataValue()));
+            eltProperty.addContent(eltValue);
+          } else {
+            eltProperty.setAttribute("value", prop.getValue());
+          }
+          eltProperties.addContent(eltProperty);
+        }
+      }
+      eltRuleset.addContent(eltRule);
+    }
+    XMLOutputter serializer = new XMLOutputter(Format.getPrettyFormat());
+    StringWriter xml = new StringWriter();
+    try {
+      serializer.output(new Document(eltRuleset), xml);
+    } catch (IOException e) {
+      throw new SonarException("A exception occured while generating the PMD configuration file.", e);
+    }
+    return xml.toString();
+  }
+
+  private void addChild(Element elt, String name, String text) {
+    if (text != null) {
+      elt.addContent(new Element(name).setText(text));
+    }
+  }
+
+  private void addAttribute(Element elt, String name, String value) {
+    if (value != null) {
+      elt.setAttribute(name, value);
+    }
   }
 }

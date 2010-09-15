@@ -19,17 +19,13 @@
  */
 package org.sonar.plugins.pmd.xml;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-
-@XStreamAlias("property")
 public class PmdProperty {
 
-  @XStreamAsAttribute
   private String name;
 
-  @XStreamAsAttribute
   private String value;
+  
+  private String cdataValue;
 
   public PmdProperty(String name, String value) {
     this.name = name;
@@ -43,8 +39,20 @@ public class PmdProperty {
   public String getValue() {
     return value;
   }
+  
+  public String getCdataValue() {
+    return cdataValue;
+  }
+  
+  public boolean isCdataValue(){
+    return cdataValue != null;
+  }
 
   public void setValue(String value) {
     this.value = value;
+  }
+  
+  public void setCdataValue(String cdataValue) {
+    this.cdataValue = cdataValue;
   }
 }

@@ -22,37 +22,18 @@ package org.sonar.plugins.pmd.xml;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
-
-@XStreamAlias("rule")
 public class PmdRule implements Comparable<String> {
 
-  @XStreamAsAttribute
   private String ref;
 
   private String priority;
 
-  @XStreamAsAttribute
   private String name;
 
-  @XStreamAsAttribute
   private String message;
 
   private List<PmdProperty> properties = new ArrayList<PmdProperty>();
 
-  @XStreamOmitField
-  private String description; // NOSONAR unused private field
-
-  @XStreamOmitField
-  private String exclude;// NOSONAR unused private field
-
-  @XStreamOmitField
-  private String example;// NOSONAR unused private field
-
-  @XStreamAsAttribute
-  @XStreamAlias(value = "class")
   private String clazz;// NOSONAR unused private field
 
   public PmdRule(String ref) {
@@ -135,5 +116,9 @@ public class PmdRule implements Comparable<String> {
 
   public String getName() {
     return name;
+  }
+
+  public boolean hasProperties() {
+    return properties != null && !properties.isEmpty();
   }
 }

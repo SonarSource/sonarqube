@@ -19,28 +19,14 @@
  */
 package org.sonar.plugins.pmd.xml;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
-
 import java.util.ArrayList;
 import java.util.List;
 
-@XStreamAlias("ruleset")
 public class PmdRuleset {
 
   private String description;
 
-  @XStreamImplicit
   private List<PmdRule> rules = new ArrayList<PmdRule>();
-
-  @XStreamOmitField
-  @XStreamAlias(value = "exclude-pattern")
-  private String excludePattern;//NOSONAR unused private field
-
-  @XStreamOmitField
-  @XStreamAlias(value = "include-pattern")
-  private String includePattern;//NOSONAR unused private field
 
   public PmdRuleset() {
   }

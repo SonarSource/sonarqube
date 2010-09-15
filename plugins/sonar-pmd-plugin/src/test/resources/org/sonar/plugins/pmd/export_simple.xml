@@ -1,8 +1,9 @@
-<ruleset>
+<?xml version="1.0" encoding="UTF-8"?>
+<resultset>
   <rule ref="rulesets/coupling.xml/CouplingBetweenObjects">
     <priority>2</priority>
     <properties>
-      <property name="threshold" value="20"/>
+      <property name="threshold" value="20" />
     </properties>
   </rule>
   <rule ref="rulesets/coupling.xml/ExcessiveImports">
@@ -11,4 +12,5 @@
   <rule ref="rulesets/design.xml/UseNotifyAllInsteadOfNotify">
     <priority>4</priority>
   </rule>
-</ruleset>
+</resultset>
+

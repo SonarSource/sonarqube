@@ -13,6 +13,7 @@ import java.io.StringWriter;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.profiles.RulesProfile;
@@ -25,6 +26,8 @@ import org.sonar.plugins.pmd.xml.PmdProperty;
 import org.sonar.plugins.pmd.xml.PmdRule;
 import org.sonar.test.TestUtils;
 import org.xml.sax.SAXException;
+
+import com.thoughtworks.xstream.io.xml.JDomReader;
 
 public class PmdProfileExporterTest {
 
@@ -43,7 +46,7 @@ public class PmdProfileExporterTest {
 
     StringWriter xmlOutput = new StringWriter();
     exporter.exportProfile(rulesProfile, xmlOutput);
-    assertEquals(TestUtils.getResourceContent("/org/sonar/plugins/pmd/export_simple.xml"), xmlOutput.toString());
+    assertEquals(TestUtils.getResourceContent("/org/sonar/plugins/pmd/export_simple.xml"), StringUtils.remove(xmlOutput.toString(), '\r'));
   }
 
   @Test
@@ -58,7 +61,7 @@ public class PmdProfileExporterTest {
     xpath.setParameter(PmdConstants.XPATH_EXPRESSION_PARAM, "//FieldDeclaration");
     xpath.setParameter(PmdConstants.XPATH_MESSAGE_PARAM, "This is bad");
     exporter.exportProfile(profile, xmlOutput);
-    assertEquals(TestUtils.getResourceContent("/org/sonar/plugins/pmd/export_xpath_rules.xml"), xmlOutput.toString());
+    assertEquals(TestUtils.getResourceContent("/org/sonar/plugins/pmd/export_xpath_rules.xml"), StringUtils.remove(xmlOutput.toString(), '\r'));
   }
 
   @Test

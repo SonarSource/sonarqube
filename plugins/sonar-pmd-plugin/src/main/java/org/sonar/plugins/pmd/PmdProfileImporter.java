@@ -20,7 +20,12 @@
 package org.sonar.plugins.pmd;
 
 import java.io.Reader;
+import java.util.List;
 
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.Namespace;
+import org.jdom.input.SAXBuilder;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
@@ -32,8 +37,6 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.plugins.pmd.xml.PmdProperty;
 import org.sonar.plugins.pmd.xml.PmdRule;
 import org.sonar.plugins.pmd.xml.PmdRuleset;
-
-import com.thoughtworks.xstream.XStream;
 
 public class PmdProfileImporter extends ProfileImporter {
 
@@ -76,15 +79,43 @@ public class PmdProfileImporter extends ProfileImporter {
 
   protected PmdRuleset parsePmdRuleset(Reader pmdConfigurationFile, ValidationMessages messages) {
     try {
-      XStream xstream = new XStream();
-      xstream.setClassLoader(getClass().getClassLoader());
-      xstream.processAnnotations(PmdRuleset.class);
-      xstream.processAnnotations(PmdRule.class);
-      xstream.processAnnotations(PmdProperty.class);
-      return (PmdRuleset) xstream.fromXML(pmdConfigurationFile);
-    } catch (RuntimeException e) {
-      messages.addErrorText("The PMD configuration file is not valide: " + e.getMessage());
+      SAXBuilder parser = new SAXBuilder();
+      Document dom = parser.build(pmdConfigurationFile);
+      Element eltResultset = dom.getRootElement();
+      Namespace namespace = eltResultset.getNamespace();
+      PmdRuleset pmdResultset = new PmdRuleset();
+      for (Element eltRule : getChildren(eltResultset, "rule", namespace)) {
+        PmdRule pmdRule = new PmdRule(eltRule.getAttributeValue("ref"));
+        parsePmdPriority(eltRule, pmdRule, namespace);
+        parsePmdProperties(eltRule, pmdRule, namespace);
+        pmdResultset.addRule(pmdRule);
+      }
+      return pmdResultset;
+    } catch (Exception e) {
+      messages.addErrorText("The PMD configuration file is not valid : " + e.getMessage());
       return new PmdRuleset();
+    }
+  }
+
+  private List<Element> getChildren(Element parent, String childName, Namespace namespace) {
+    if (namespace == null) {
+      return (List<Element>) parent.getChildren(childName);
+    } else {
+      return (List<Element>) parent.getChildren(childName, namespace);
+    }
+  }
+
+  private void parsePmdProperties(Element eltRule, PmdRule pmdRule, Namespace namespace) {
+    for (Element eltProperties : getChildren(eltRule, "properties", namespace)) {
+      for (Element eltProperty : getChildren(eltProperties, "property", namespace)) {
+        pmdRule.addProperty(new PmdProperty(eltProperty.getAttributeValue("name"), eltProperty.getAttributeValue("value")));
+      }
+    }
+  }
+
+  private void parsePmdPriority(Element eltRule, PmdRule pmdRule, Namespace namespace) {
+    for (Element eltPriority : getChildren(eltRule, "priority", namespace)) {
+      pmdRule.setPriority(eltPriority.getValue());
     }
   }
 }
