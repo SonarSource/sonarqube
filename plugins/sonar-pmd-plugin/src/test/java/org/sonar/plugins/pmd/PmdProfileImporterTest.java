@@ -75,6 +75,15 @@ public class PmdProfileImporterTest {
   }
 
   @Test
+  public void testImportingProfileWithXPathRule() {
+    Reader reader = new StringReader(TestUtils.getResourceContent("/org/sonar/plugins/pmd/export_xpath_rules.xml"));
+    RulesProfile profile = importer.importProfile(reader, messages);
+
+    assertThat(profile.getActiveRules().size(), is(0));
+    assertThat(messages.hasWarnings(), is(true));
+  }
+
+  @Test
   public void testImportingParameters() {
     Reader reader = new StringReader(TestUtils.getResourceContent("/org/sonar/plugins/pmd/simple.xml"));
     RulesProfile profile = importer.importProfile(reader, messages);

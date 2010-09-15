@@ -58,6 +58,16 @@ public class PmdProfileImporter extends ProfileImporter {
   protected RulesProfile createRuleProfile(PmdRuleset pmdRuleset, ValidationMessages messages) {
     RulesProfile profile = RulesProfile.create();
     for (PmdRule pmdRule : pmdRuleset.getPmdRules()) {
+      if (PmdConstants.XPATH_CLASS.equals(pmdRule.getClazz())) {
+        messages.addWarningText("PMD XPath rule '" + pmdRule.getName()
+            + "' can't be imported automatically. The rule must be created manually through the Sonar web interface.");
+        continue;
+      }
+      if (pmdRule.getRef() == null) {
+        messages.addWarningText("A PMD rule without 'ref' attribute can't be imported. see '" + pmdRule.getClazz()
+            + "'");
+        continue;
+      }
       Rule rule = ruleFinder.find(RuleQuery.create().withRepositoryKey(PmdConstants.REPOSITORY_KEY).withConfigKey(pmdRule.getRef()));
       if (rule != null) {
         ActiveRule activeRule = profile.activateRule(rule, PmdLevelUtils.fromLevel(pmdRule.getPriority()));
@@ -86,6 +96,9 @@ public class PmdProfileImporter extends ProfileImporter {
       PmdRuleset pmdResultset = new PmdRuleset();
       for (Element eltRule : getChildren(eltResultset, "rule", namespace)) {
         PmdRule pmdRule = new PmdRule(eltRule.getAttributeValue("ref"));
+        pmdRule.setClazz(eltRule.getAttributeValue("class"));
+        pmdRule.setName(eltRule.getAttributeValue("name"));
+        pmdRule.setMessage(eltRule.getAttributeValue("message"));
         parsePmdPriority(eltRule, pmdRule, namespace);
         parsePmdProperties(eltRule, pmdRule, namespace);
         pmdResultset.addRule(pmdRule);
