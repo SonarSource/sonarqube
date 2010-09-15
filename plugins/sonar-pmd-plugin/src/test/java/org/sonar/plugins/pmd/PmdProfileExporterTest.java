@@ -58,7 +58,6 @@ public class PmdProfileExporterTest {
     xpath.setParameter(PmdConstants.XPATH_EXPRESSION_PARAM, "//FieldDeclaration");
     xpath.setParameter(PmdConstants.XPATH_MESSAGE_PARAM, "This is bad");
     exporter.exportProfile(profile, xmlOutput);
-    System.out.println(xmlOutput.toString());
     assertEquals(TestUtils.getResourceContent("/org/sonar/plugins/pmd/export_xpath_rules.xml"), xmlOutput.toString());
   }
 
