@@ -96,7 +96,7 @@ public class ViolationQuery extends Query<Violation> {
         .append("&");
 
     if (depth != 0) {
-      url.append("depth").append(depth).append("&");
+      url.append("depth=").append(depth).append("&");
     }
     append(url, "scopes", scopes);
     append(url, "qualifiers", qualifiers);

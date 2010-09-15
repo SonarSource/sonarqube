@@ -41,6 +41,6 @@ public class ViolationQueryTest {
         .setPriorities("MAJOR", "BLOCKER")
         .setQualifiers("FIL")
         .setRuleKeys("checkstyle:foo", "pmd:bar");
-    assertThat(query.getUrl(), is("/api/violations?resource=myproject&depth-1&qualifiers=FIL&rules=checkstyle:foo,pmd:bar&priorities=MAJOR,BLOCKER&"));
+    assertThat(query.getUrl(), is("/api/violations?resource=myproject&depth=-1&qualifiers=FIL&rules=checkstyle:foo,pmd:bar&priorities=MAJOR,BLOCKER&"));
   }
 }
