@@ -2133,4 +2133,38 @@ public abstract class ShouldBeAbstract
 
     </param>
   </rule>
+  <rule key="XPathRule" priority="MAJOR">
+    <name><![CDATA[XPath rule template]]></name>
+    <configKey><![CDATA[net.sourceforge.pmd.rules.XPathRule]]></configKey>
+    <category name="Maintainability"/>
+    <cardinality>MULTIPLE</cardinality>
+    <description>
+    <![CDATA[PMD provides a very handy method for creating new rules by writing an XPath query. When the XPath query finds a match, a violation is created.
+    Let's take a simple example : assume we have a Factory class that must be always declared final. 
+    We'd like to report a violation each time a declaration of Factory is not declared final. Consider the following class: :
+<pre>
+public class a {
+	Factory f1;
+
+	void myMethod() {
+		Factory f2;
+		int a;
+	}
+}
+</pre>
+	The following expression does the magic we need:
+<pre>
+//VariableDeclarator
+ [../Type/ReferenceType/ClassOrInterfaceType
+  [@Image = 'Factory'] and ..[@Final='false']]
+</pre>
+	See the <a href="http://pmd.sourceforge.net/xpathruletutorial.html">XPath rule tutorial</a> for more information.]]>
+    </description>
+    <param key="xpath" type="s">
+      <description><![CDATA[XPath expressions.]]></description>
+    </param>
+    <param key="message" type="s">
+      <description><![CDATA[Message to display when a violation occurs.]]></description>
+    </param>    
+  </rule>  
 </rules>

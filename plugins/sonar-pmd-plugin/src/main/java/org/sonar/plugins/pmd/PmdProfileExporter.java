@@ -30,7 +30,6 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
-import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.pmd.xml.PmdProperty;
 import org.sonar.plugins.pmd.xml.PmdRule;
@@ -49,15 +48,15 @@ public class PmdProfileExporter extends ProfileExporter {
   @Override
   public void exportProfile(RulesProfile profile, Writer writer) {
     try {
-      PmdRuleset tree = buildModuleTree(profile.getActiveRulesByRepository(PmdConstants.REPOSITORY_KEY), profile.getName());
-      String xmlModules = buildXmlFromModuleTree(tree);
+      PmdRuleset tree = createPmdRuleset(profile.getActiveRulesByRepository(PmdConstants.REPOSITORY_KEY), profile.getName());
+      String xmlModules = exportPmdRulesetToXml(tree);
       writer.append(xmlModules);
     } catch (IOException e) {
       throw new SonarException("Fail to export the profile " + profile, e);
     }
   }
 
-  protected PmdRuleset buildModuleTree(List<ActiveRule> activeRules, String profileName) {
+  protected PmdRuleset createPmdRuleset(List<ActiveRule> activeRules, String profileName) {
     PmdRuleset ruleset = new PmdRuleset(profileName);
     for (ActiveRule activeRule : activeRules) {
       if (activeRule.getRule().getPluginName().equals(CoreProperties.PMD_PLUGIN)) {
@@ -72,12 +71,25 @@ public class PmdProfileExporter extends ProfileExporter {
         }
         rule.setProperties(properties);
         ruleset.addRule(rule);
+        processXPathRule(activeRule.getRuleKey(), rule);
       }
     }
     return ruleset;
   }
 
-  protected String buildXmlFromModuleTree(PmdRuleset tree) {
+  protected void processXPathRule(String sonarRuleKey, PmdRule rule) {
+    if (PmdConstants.XPATH_CLASS.equals(rule.getRef())) {
+      rule.setRef(null);
+      rule.setMessage(rule.getProperty(PmdConstants.XPATH_MESSAGE_PARAM).getValue());
+      rule.removeProperty(PmdConstants.XPATH_MESSAGE_PARAM);
+      PmdProperty xpathExp = rule.getProperty(PmdConstants.XPATH_EXPRESSION_PARAM);
+      xpathExp.setValue("" + xpathExp.getValue() + "");
+      rule.setClazz(PmdConstants.XPATH_CLASS);
+      rule.setName(sonarRuleKey);
+    }
+  }
+
+  protected String exportPmdRulesetToXml(PmdRuleset tree) {
     XStream xstream = new XStream();
     xstream.setClassLoader(getClass().getClassLoader());
     xstream.processAnnotations(PmdRuleset.class);

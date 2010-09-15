@@ -1,0 +1,8 @@
+<ruleset>
+  <rule name="MyOwnRule" message="This is bad" class="net.sourceforge.pmd.rules.XPathRule">
+    <priority>3</priority>
+    <properties>
+      <property name="xpath" value="//FieldDeclaration"/>
+    </properties>
+  </rule>
+</ruleset>

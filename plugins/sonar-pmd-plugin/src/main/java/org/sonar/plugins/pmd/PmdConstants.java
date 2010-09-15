@@ -27,4 +27,7 @@ public final class PmdConstants {
   public static final String REPOSITORY_NAME = "PMD";
   public static final String PLUGIN_NAME = "PMD";
   public static final String PLUGIN_KEY = CoreProperties.PMD_PLUGIN;
+  public static final String XPATH_CLASS ="net.sourceforge.pmd.rules.XPathRule";
+  public static final String XPATH_EXPRESSION_PARAM ="xpath";
+  public static final String XPATH_MESSAGE_PARAM ="message";
 }

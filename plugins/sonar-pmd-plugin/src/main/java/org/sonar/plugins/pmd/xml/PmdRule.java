@@ -19,12 +19,12 @@
  */
 package org.sonar.plugins.pmd.xml;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @XStreamAlias("rule")
 public class PmdRule implements Comparable<String> {
@@ -34,20 +34,26 @@ public class PmdRule implements Comparable<String> {
 
   private String priority;
 
+  @XStreamAsAttribute
+  private String name;
+
+  @XStreamAsAttribute
+  private String message;
+
   private List<PmdProperty> properties = new ArrayList<PmdProperty>();
 
   @XStreamOmitField
-  private String description; //NOSONAR unused private field
+  private String description; // NOSONAR unused private field
 
   @XStreamOmitField
-  private String exclude;//NOSONAR unused private field
+  private String exclude;// NOSONAR unused private field
 
   @XStreamOmitField
-  private String example;//NOSONAR unused private field
+  private String example;// NOSONAR unused private field
 
-  @XStreamOmitField
+  @XStreamAsAttribute
   @XStreamAlias(value = "class")
-  private String clazz;//NOSONAR unused private field
+  private String clazz;// NOSONAR unused private field
 
   public PmdRule(String ref) {
     this(ref, null);
@@ -70,6 +76,15 @@ public class PmdRule implements Comparable<String> {
     return properties;
   }
 
+  public PmdProperty getProperty(String propertyName) {
+    for (PmdProperty prop : properties) {
+      if (propertyName.equals(prop.getName())) {
+        return prop;
+      }
+    }
+    return null;
+  }
+
   public int compareTo(String o) {
     return o.compareTo(ref);
   }
@@ -89,4 +104,36 @@ public class PmdRule implements Comparable<String> {
     properties.add(property);
   }
 
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
+
+  public String getMessage() {
+    return message;
+  }
+
+  public String getClazz() {
+    return clazz;
+  }
+
+  public void setRef(String ref) {
+    this.ref = ref;
+  }
+
+  public void removeProperty(String propertyName) {
+    PmdProperty prop = getProperty(propertyName);
+    properties.remove(prop);
+  }
+
+  public void setClazz(String clazz) {
+    this.clazz = clazz;
+  }
+
+  public String getName() {
+    return name;
+  }
 }
