@@ -19,6 +19,12 @@
  */
 package org.sonar.plugins.pmd;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.List;
+
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.maven.MavenPlugin;
@@ -26,19 +32,14 @@ import org.sonar.api.batch.maven.MavenUtils;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
 public class PmdConfiguration implements BatchExtension {
 
-  private PmdRulesRepository pmdRulesRepository;
+  private PmdProfileExporter pmdProfileExporter;
   private RulesProfile rulesProfile;
   private Project project;
 
-  public PmdConfiguration(PmdRulesRepository pmdRulesRepository, RulesProfile rulesProfile, Project project) {
-    this.pmdRulesRepository = pmdRulesRepository;
+  public PmdConfiguration(PmdProfileExporter pmdRulesRepository, RulesProfile rulesProfile, Project project) {
+    this.pmdProfileExporter = pmdRulesRepository;
     this.rulesProfile = rulesProfile;
     this.project = project;
   }
@@ -60,15 +61,17 @@ public class PmdConfiguration implements BatchExtension {
       }
     }
     if (rulesets == null || rulesets.isEmpty()) {
-      throw new RuntimeException("The PMD configuration to reuse can not be found. Check the property " + CoreProperties.REUSE_RULES_CONFIGURATION_PROPERTY + " or add the property rulesets/ruleset to the Maven PMD plugin");
+      throw new RuntimeException("The PMD configuration to reuse can not be found. Check the property "
+          + CoreProperties.REUSE_RULES_CONFIGURATION_PROPERTY + " or add the property rulesets/ruleset to the Maven PMD plugin");
     }
     return rulesets;
   }
 
   private File saveXmlFile() {
     try {
-      String xml = pmdRulesRepository.exportConfiguration(rulesProfile);
-      return project.getFileSystem().writeToWorkingDirectory(xml, "pmd.xml");
+      StringWriter pmdConfiguration = new StringWriter();
+      pmdProfileExporter.exportProfile(rulesProfile, pmdConfiguration);
+      return project.getFileSystem().writeToWorkingDirectory(pmdConfiguration.toString(), "pmd.xml");
 
     } catch (IOException e) {
       throw new RuntimeException("Fail to save the PMD configuration", e);

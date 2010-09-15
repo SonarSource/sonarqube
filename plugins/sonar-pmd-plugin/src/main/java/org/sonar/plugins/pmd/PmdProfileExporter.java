@@ -32,7 +32,7 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.SonarException;
-import org.sonar.plugins.pmd.xml.Property;
+import org.sonar.plugins.pmd.xml.PmdProperty;
 import org.sonar.plugins.pmd.xml.PmdRule;
 import org.sonar.plugins.pmd.xml.PmdRuleset;
 
@@ -62,12 +62,12 @@ public class PmdProfileExporter extends ProfileExporter {
     for (ActiveRule activeRule : activeRules) {
       if (activeRule.getRule().getPluginName().equals(CoreProperties.PMD_PLUGIN)) {
         String configKey = activeRule.getRule().getConfigKey();
-        PmdRule rule = new PmdRule(configKey, to(activeRule.getPriority()));
-        List<Property> properties = null;
+        PmdRule rule = new PmdRule(configKey, PmdLevelUtils.toLevel(activeRule.getPriority()));
+        List<PmdProperty> properties = null;
         if (activeRule.getActiveRuleParams() != null && !activeRule.getActiveRuleParams().isEmpty()) {
-          properties = new ArrayList<Property>();
+          properties = new ArrayList<PmdProperty>();
           for (ActiveRuleParam activeRuleParam : activeRule.getActiveRuleParams()) {
-            properties.add(new Property(activeRuleParam.getRuleParam().getKey(), activeRuleParam.getValue()));
+            properties.add(new PmdProperty(activeRuleParam.getRuleParam().getKey(), activeRuleParam.getValue()));
           }
         }
         rule.setProperties(properties);
@@ -82,27 +82,7 @@ public class PmdProfileExporter extends ProfileExporter {
     xstream.setClassLoader(getClass().getClassLoader());
     xstream.processAnnotations(PmdRuleset.class);
     xstream.processAnnotations(PmdRule.class);
-    xstream.processAnnotations(Property.class);
+    xstream.processAnnotations(PmdProperty.class);
     return xstream.toXML(tree);
   }
-
-  private String to(RulePriority priority) {
-    if (priority.equals(RulePriority.BLOCKER)) {
-      return "1";
-    }
-    if (priority.equals(RulePriority.CRITICAL)) {
-      return "2";
-    }
-    if (priority.equals(RulePriority.MAJOR)) {
-      return "3";
-    }
-    if (priority.equals(RulePriority.MINOR)) {
-      return "4";
-    }
-    if (priority.equals(RulePriority.INFO)) {
-      return "5";
-    }
-    throw new IllegalArgumentException("Level not supported: " + priority);
-  }
-
 }

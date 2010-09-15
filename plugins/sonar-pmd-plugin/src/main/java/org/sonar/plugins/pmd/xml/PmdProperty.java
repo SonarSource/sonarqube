@@ -23,7 +23,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 
 @XStreamAlias("property")
-public class Property {
+public class PmdProperty {
 
   @XStreamAsAttribute
   private String name;
@@ -31,7 +31,7 @@ public class Property {
   @XStreamAsAttribute
   private String value;
 
-  public Property(String name, String value) {
+  public PmdProperty(String name, String value) {
     this.name = name;
     this.value = value;
   }

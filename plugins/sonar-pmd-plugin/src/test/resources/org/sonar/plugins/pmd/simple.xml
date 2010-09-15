@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <ruleset>
     <description>Sonar PMD rules</description>
     <rule ref="rulesets/coupling.xml/CouplingBetweenObjects">
@@ -7,7 +8,6 @@
         </properties>
     </rule>
     <rule ref="rulesets/coupling.xml/ExcessiveImports">
-        <priority>3</priority>
         <properties>
             <property name="max" value="30"/>
         </properties>

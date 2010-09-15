@@ -39,6 +39,16 @@ public class PmdPlugin implements Plugin {
   }
 
   public List getExtensions() {
-    return Arrays.asList(PmdSensor.class, PmdConfiguration.class, PmdExecutor.class, PmdRulesRepository.class);
+    return Arrays.asList(
+        PmdSensor.class, 
+        PmdConfiguration.class, 
+        PmdExecutor.class, 
+        PmdRuleRepository.class,
+        PmdProfileExporter.class,
+        PmdProfileImporter.class,        
+        SonarWayProfile.class,
+        SonarWayWithFindbugsProfile.class,
+        SunConventionsProfile.class
+    );
   }
 }

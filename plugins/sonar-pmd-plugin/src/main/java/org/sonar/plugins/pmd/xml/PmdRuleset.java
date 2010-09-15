@@ -49,7 +49,7 @@ public class PmdRuleset {
     this.description = description;
   }
 
-  public List<PmdRule> getRules() {
+  public List<PmdRule> getPmdRules() {
     return rules;
   }
 

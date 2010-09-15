@@ -34,7 +34,7 @@ public class PmdRule implements Comparable<String> {
 
   private String priority;
 
-  private List<Property> properties;
+  private List<PmdProperty> properties = new ArrayList<PmdProperty>();
 
   @XStreamOmitField
   private String description; //NOSONAR unused private field
@@ -62,11 +62,11 @@ public class PmdRule implements Comparable<String> {
     return ref;
   }
 
-  public void setProperties(List<Property> properties) {
+  public void setProperties(List<PmdProperty> properties) {
     this.properties = properties;
   }
 
-  public List<Property> getProperties() {
+  public List<PmdProperty> getProperties() {
     return properties;
   }
 
@@ -82,9 +82,9 @@ public class PmdRule implements Comparable<String> {
     this.priority = priority;
   }
 
-  public void addProperty(Property property) {
+  public void addProperty(PmdProperty property) {
     if (properties == null) {
-      properties = new ArrayList<Property>();
+      properties = new ArrayList<PmdProperty>();
     }
     properties.add(property);
   }
