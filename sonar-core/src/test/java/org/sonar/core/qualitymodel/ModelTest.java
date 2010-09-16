@@ -24,6 +24,7 @@ import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.qualitymodel.Model;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;

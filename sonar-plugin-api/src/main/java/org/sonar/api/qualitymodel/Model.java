@@ -25,9 +25,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rules.Rule;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * @since 2.3
@@ -100,7 +99,7 @@ public final class Model implements Comparable<Model> {
 
   private Characteristic addCharacteristic(Characteristic c) {
     c.setModel(this);
-    c.setOrder(characteristics.size()+1);
+    c.setOrder(characteristics.size() + 1);
     characteristics.add(c);
     return c;
   }
@@ -143,7 +142,7 @@ public final class Model implements Comparable<Model> {
   public List<Characteristic> getCharacteristicsByDepth(int depth) {
     List<Characteristic> result = Lists.newArrayList();
     for (Characteristic c : characteristics) {
-      if (c.getEnabled() && c.getDepth()==depth) {
+      if (c.getEnabled() && c.getDepth() == depth) {
         result.add(c);
       }
     }
