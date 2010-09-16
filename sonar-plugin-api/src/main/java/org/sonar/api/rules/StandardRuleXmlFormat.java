@@ -29,11 +29,11 @@ import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.utils.SonarException;
 
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
 
 /**
  * @since 2.3
@@ -183,6 +183,9 @@ public final class StandardRuleXmlFormat {
 
       } else if (StringUtils.equalsIgnoreCase("type", propNodeName)) {
         param.setType(propText);
+
+      } else if (StringUtils.equalsIgnoreCase("defaultValue", propNodeName)) {
+        param.setDefaultValue(propText);
       }
     }
     if (StringUtils.isEmpty(param.getKey())) {
