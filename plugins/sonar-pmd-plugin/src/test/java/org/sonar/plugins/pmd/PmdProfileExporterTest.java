@@ -27,8 +27,6 @@ import org.sonar.plugins.pmd.xml.PmdRule;
 import org.sonar.test.TestUtils;
 import org.xml.sax.SAXException;
 
-import com.thoughtworks.xstream.io.xml.JDomReader;
-
 public class PmdProfileExporterTest {
 
   private PmdProfileExporter exporter = new PmdProfileExporter();
@@ -61,7 +59,8 @@ public class PmdProfileExporterTest {
     xpath.setParameter(PmdConstants.XPATH_EXPRESSION_PARAM, "//FieldDeclaration");
     xpath.setParameter(PmdConstants.XPATH_MESSAGE_PARAM, "This is bad");
     exporter.exportProfile(profile, xmlOutput);
-    assertEquals(TestUtils.getResourceContent("/org/sonar/plugins/pmd/export_xpath_rules.xml"), StringUtils.remove(xmlOutput.toString(), '\r'));
+    assertEquals(TestUtils.getResourceContent("/org/sonar/plugins/pmd/export_xpath_rules.xml"),
+        StringUtils.remove(xmlOutput.toString(), '\r'));
   }
 
   @Test

@@ -50,6 +50,7 @@ public class PmdExecutorTest {
     File root = new File(getClass().getResource("/org/sonar/plugins/pmd/PmdExecutorTest/executeOnManySourceDirs/").toURI());
     when(fs.getSourceFiles(Java.INSTANCE)).thenReturn(Arrays.asList(new File(root, "src1/FirstClass.java"), new File(root, "src2/SecondClass.java")));
     when(fs.getSourceCharset()).thenReturn(Charset.forName("UTF-8"));
+    when(fs.getSonarWorkingDirectory()).thenReturn(new File("target"));
     project.setFileSystem(fs);
 
     PmdConfiguration conf = mock(PmdConfiguration.class);
@@ -74,6 +75,7 @@ public class PmdExecutorTest {
     ProjectFileSystem fs = mock(ProjectFileSystem.class);
     when(fs.getSourceFiles(Java.INSTANCE)).thenReturn(Arrays.asList(new File("test-resources/ignorePmdFailures/DoesNotCompile.java")));
     when(fs.getSourceCharset()).thenReturn(Charset.forName("UTF-8"));
+    when(fs.getSonarWorkingDirectory()).thenReturn(new File("target"));
     project.setFileSystem(fs);
 
     PmdConfiguration conf = mock(PmdConfiguration.class);
