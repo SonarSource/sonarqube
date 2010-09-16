@@ -19,6 +19,7 @@
  */
 package org.sonar.api.qualitymodel;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -44,7 +45,7 @@ public final class Model implements Comparable<Model> {
   private String name;
 
   @OneToMany(mappedBy = "model", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private List<Characteristic> characteristics = new ArrayList<Characteristic>();
+  private List<Characteristic> characteristics = Lists.newArrayList();
 
   /**
    * Use the factory method <code>Model</code>
@@ -104,32 +105,57 @@ public final class Model implements Comparable<Model> {
     return c;
   }
 
+  /**
+   * @return enabled characteristics
+   */
   public List<Characteristic> getCharacteristics() {
-    return characteristics;
+    return getCharacteristics(true);
   }
 
+  public List<Characteristic> getCharacteristics(boolean onlyEnabled) {
+    if (!onlyEnabled) {
+      return characteristics;
+    }
+    List<Characteristic> result = Lists.newArrayList();
+    for (Characteristic characteristic : characteristics) {
+      if (characteristic.getEnabled()) {
+        result.add(characteristic);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Search for an ENABLED characteristic by its key.
+   */
   public Characteristic getCharacteristicByKey(String key) {
-    for (Characteristic characteristic : getCharacteristics()) {
-      if (StringUtils.equals(key, characteristic.getKey())) {
+    for (Characteristic characteristic : characteristics) {
+      if (characteristic.getEnabled() && StringUtils.equals(key, characteristic.getKey())) {
         return characteristic;
       }
     }
     return null;
   }
 
+  /**
+   * Search for ENABLED characteristics by their depth.
+   */
   public List<Characteristic> getCharacteristicsByDepth(int depth) {
-    List<Characteristic> result = new ArrayList<Characteristic>();
+    List<Characteristic> result = Lists.newArrayList();
     for (Characteristic c : characteristics) {
-      if (c.getDepth()==depth) {
+      if (c.getEnabled() && c.getDepth()==depth) {
         result.add(c);
       }
     }
     return result;
   }
 
+  /**
+   * Search for an ENABLED characteristic by its name.
+   */
   public Characteristic getCharacteristicByName(String name) {
-    for (Characteristic characteristic : getCharacteristics()) {
-      if (StringUtils.equals(name, characteristic.getName())) {
+    for (Characteristic characteristic : characteristics) {
+      if (characteristic.getEnabled() && StringUtils.equals(name, characteristic.getName())) {
         return characteristic;
       }
     }

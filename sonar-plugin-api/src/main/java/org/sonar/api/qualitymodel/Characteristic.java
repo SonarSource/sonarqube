@@ -68,6 +68,9 @@ public final class Characteristic implements Comparable<Characteristic> {
   @Column(name = "description", nullable = true, length = 4000)
   private String description;
 
+  @Column(name = "enabled", updatable = true, nullable = true)
+  private Boolean enabled = Boolean.TRUE;
+
   @ManyToMany
   @JoinTable(
       name = "characteristic_edges",
@@ -131,6 +134,15 @@ public final class Characteristic implements Comparable<Characteristic> {
 
   public Characteristic setRule(Rule r) {
     this.rule = r;
+    return this;
+  }
+
+  public Boolean getEnabled() {
+    return enabled;
+  }
+
+  public Characteristic setEnabled(Boolean b) {
+    this.enabled = b;
     return this;
   }
 

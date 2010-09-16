@@ -28,6 +28,10 @@ class Characteristic < ActiveRecord::Base
 
   belongs_to :rule
   belongs_to :quality_model
+  
+  validates_uniqueness_of :name, :scope => :quality_model_id, :case_sensitive => false, :if => Proc.new { |c| c.rule_id.nil? }
+  validates_length_of :name, :in => 1..100, :allow_blank => false, :if => Proc.new { |c| c.rule_id.nil? }
+  validates_presence_of :quality_model
 
   def root?
     depth==1

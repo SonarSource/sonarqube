@@ -17,10 +17,11 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class AddCharacteristicDescription < ActiveRecord::Migration
+class AddCharacteristicEnabled < ActiveRecord::Migration
 
   def self.up
-    add_column 'characteristics', 'description', :string, :null => true, :limit => 4000
+    add_column 'characteristics', 'enabled', :boolean, :null => true
+    Characteristic.reset_column_information
   end
 
 end
