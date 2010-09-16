@@ -23,6 +23,7 @@
       <description>
         Ignore ?
       </description>
+      <defaultValue>false</defaultValue>
     </param>
   </rule>
 

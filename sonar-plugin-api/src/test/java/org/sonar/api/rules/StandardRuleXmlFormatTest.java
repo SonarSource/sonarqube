@@ -49,6 +49,7 @@ public class StandardRuleXmlFormatTest {
     RuleParam prop = rule.getParam("ignore");
     assertThat(prop.getKey(), is("ignore"));
     assertThat(prop.getDescription(), is("Ignore ?"));
+    assertThat(prop.getDefaultValue(), is("false"));
 
     Rule minimalRule = rules.get(1);
     assertThat(minimalRule.getKey(), is("com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"));
