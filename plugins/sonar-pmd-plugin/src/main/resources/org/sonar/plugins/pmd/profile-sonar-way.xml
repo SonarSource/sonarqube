@@ -32,7 +32,7 @@
   <rule ref="rulesets/basic.xml/EmptyWhileStmt" />
   <rule ref="rulesets/basic.xml/CollapsibleIfStatements" />
   <rule ref="rulesets/basic.xml/UselessOperationOnImmutable" />
-  <rule ref="rulesets/typeresolution.xml/CloneMethodMustImplementCloneable" />
+  <rule ref="rulesets/clone.xml/CloneMethodMustImplementCloneable" />
   <rule ref="rulesets/basic.xml/UselessOverridingMethod" />
   <rule ref="rulesets/controversial.xml/UnusedModifier" />
   <rule ref="rulesets/design.xml/PreserveStackTrace" />
