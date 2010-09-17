@@ -45,7 +45,7 @@ public class PmdConfigurationTest {
     assertThat(rulesets.size(), is(1));
     File xmlFile = new File(rulesets.get(0));
     assertThat(xmlFile.exists(), is(true));
-    assertThat(FileUtils.readFileToString(xmlFile), is("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<resultset />\r\n\r\n"));
+    assertThat(FileUtils.readFileToString(xmlFile), is("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<ruleset />\r\n\r\n"));
   }
 
   @Test

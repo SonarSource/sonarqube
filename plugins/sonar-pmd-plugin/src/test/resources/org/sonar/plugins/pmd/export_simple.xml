@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<resultset>
+<ruleset>
   <rule ref="rulesets/coupling.xml/CouplingBetweenObjects">
     <priority>2</priority>
     <properties>
@@ -12,5 +12,5 @@
   <rule ref="rulesets/design.xml/UseNotifyAllInsteadOfNotify">
     <priority>4</priority>
   </rule>
-</resultset>
+</ruleset>
 

@@ -94,7 +94,7 @@ public class PmdProfileExporter extends ProfileExporter {
   }
 
   protected String exportPmdRulesetToXml(PmdRuleset pmdRuleset) {
-    Element eltRuleset = new Element("resultset");
+    Element eltRuleset = new Element("ruleset");
     for (PmdRule pmdRule : pmdRuleset.getPmdRules()) {
       Element eltRule = new Element("rule");
       addAttribute(eltRule, "ref", pmdRule.getRef());
