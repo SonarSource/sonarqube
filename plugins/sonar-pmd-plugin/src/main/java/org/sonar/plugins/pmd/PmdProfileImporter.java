@@ -26,6 +26,8 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
@@ -41,6 +43,7 @@ import org.sonar.plugins.pmd.xml.PmdRuleset;
 public class PmdProfileImporter extends ProfileImporter {
 
   private final RuleFinder ruleFinder;
+  private static Logger LOG = LoggerFactory.getLogger(PmdProfileImporter.class);
 
   public PmdProfileImporter(RuleFinder ruleFinder) {
     super(PmdConstants.REPOSITORY_KEY, PmdConstants.PLUGIN_NAME);
@@ -64,8 +67,7 @@ public class PmdProfileImporter extends ProfileImporter {
         continue;
       }
       if (pmdRule.getRef() == null) {
-        messages.addWarningText("A PMD rule without 'ref' attribute can't be imported. see '" + pmdRule.getClazz()
-            + "'");
+        messages.addWarningText("A PMD rule without 'ref' attribute can't be imported. see '" + pmdRule.getClazz() + "'");
         continue;
       }
       Rule rule = ruleFinder.find(RuleQuery.create().withRepositoryKey(PmdConstants.REPOSITORY_KEY).withConfigKey(pmdRule.getRef()));
@@ -105,7 +107,9 @@ public class PmdProfileImporter extends ProfileImporter {
       }
       return pmdResultset;
     } catch (Exception e) {
-      messages.addErrorText("The PMD configuration file is not valid : " + e.getMessage());
+      String errorMessage = "The PMD configuration file is not valid";
+      messages.addErrorText(errorMessage + " : " + e.getMessage());
+      LOG.error(errorMessage, e);
       return new PmdRuleset();
     }
   }
