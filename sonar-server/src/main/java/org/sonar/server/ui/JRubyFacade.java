@@ -128,6 +128,14 @@ public class JRubyFacade {
 
   /* PROFILES CONSOLE : RULES AND METRIC THRESHOLDS */
 
+  public List<RuleRepository> getRuleRepositories() {
+    return getContainer().getComponent(RulesConsole.class).getRepositories();
+  }
+
+  public RuleRepository getRuleRepository(String repositoryKey) {
+    return getContainer().getComponent(RulesConsole.class).getRepository(repositoryKey);
+  }
+
   public List<RuleRepository> getRuleRepositoriesByLanguage(String languageKey) {
     return getContainer().getComponent(RulesConsole.class).getRepositoriesByLanguage(languageKey);
   }

@@ -21,17 +21,4 @@ module ProfilesHelper
   def languages
     controller.java_facade.getLanguages()
   end
-
-  def projects_tooltip(profile)
-    html=nil
-    if profile.projects.size>0
-      html='<ul>'
-      profile.projects.each do |project|
-        html+="<li style='white-space: nowrap'>#{escape_javascript project.name}</li>"
-      end
-      html+='</ul>'
-      html
-    end
-    html
-  end
 end

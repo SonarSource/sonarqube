@@ -21,17 +21,19 @@ package org.sonar.server.rules;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import org.apache.commons.lang.StringUtils;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rules.RuleRepository;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public final class RulesConsole implements ServerComponent {
 
-  private List<RuleRepository> repositories = new ArrayList<RuleRepository>();
+  private List<RuleRepository> repositories = Lists.newArrayList();
+  private Map<String, RuleRepository> repositoryByKey = Maps.newHashMap();
   private ListMultimap<String, RuleRepository> repositoriesByLanguage = ArrayListMultimap.create();
 
 
@@ -46,6 +48,7 @@ public final class RulesConsole implements ServerComponent {
     }
     for (RuleRepository repository : this.repositories) {
       repositoriesByLanguage.put(repository.getLanguage(), repository);
+      repositoryByKey.put(repository.getKey(), repository);
     }
   }
 
@@ -53,12 +56,11 @@ public final class RulesConsole implements ServerComponent {
     return repositoriesByLanguage.get(language);
   }
 
+  public List<RuleRepository> getRepositories() {
+    return repositories;
+  }
+
   public RuleRepository getRepository(String key) {
-    for (RuleRepository repository : repositories) {
-      if (StringUtils.equals(key, repository.getKey())) {
-        return repository;
-      }
-    }
-    return null;
+    return repositoryByKey.get(key);
   }
 }
