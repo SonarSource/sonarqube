@@ -11,6 +11,8 @@ import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
 
 /**
@@ -20,13 +22,13 @@ public class CheckstyleAuditListener implements AuditListener, BatchExtension {
 
   private final SensorContext context;
   private final Project project;
-  private final RulesProfile profile;
+  private final RuleFinder ruleFinder;
   private Resource currentResource = null;
 
-  public CheckstyleAuditListener(SensorContext context, Project project, RulesProfile profile) {
+  public CheckstyleAuditListener(SensorContext context, Project project, RuleFinder ruleFinder) {
     this.context = context;
     this.project = project;
-    this.profile = profile;
+    this.ruleFinder = ruleFinder;
   }
 
   public void auditStarted(AuditEvent event) {
@@ -48,10 +50,10 @@ public class CheckstyleAuditListener implements AuditListener, BatchExtension {
   public void addError(AuditEvent event) {
     String ruleKey = getRuleKey(event);
     if (ruleKey != null) {
-      ActiveRule activeRule = profile.getActiveRule(CheckstyleConstants.REPOSITORY_KEY, ruleKey);
-      if (activeRule != null) {
+      Rule rule = ruleFinder.findByKey(CheckstyleConstants.REPOSITORY_KEY, ruleKey);
+      if (rule != null) {
         initResource(event);
-        Violation violation = new Violation(activeRule.getRule(), currentResource)
+        Violation violation = new Violation(rule, currentResource)
             .setLineId(getLineId(event))
             .setMessage(getMessage(event));
         context.saveViolation(violation);
