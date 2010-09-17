@@ -29,6 +29,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RulePriorityMapper;
+import org.sonar.plugins.findbugs.FindbugsLevelUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,7 +70,7 @@ public class FindBugsFilter {
     matchs.add(child);
   }
 
-  public Map<String, RulePriority> getPatternLevels(RulePriorityMapper priorityMapper) {
+  public Map<String, RulePriority> getPatternLevels(FindbugsLevelUtils priorityMapper) {
     BugInfoSplitter splitter = new BugInfoSplitter() {
       public String getSeparator() {
         return PATTERN_SEPARATOR;
@@ -82,7 +83,7 @@ public class FindBugsFilter {
     return processMatches(priorityMapper, splitter);
   }
 
-  public Map<String, RulePriority> getCodeLevels(RulePriorityMapper priorityMapper) {
+  public Map<String, RulePriority> getCodeLevels(FindbugsLevelUtils priorityMapper) {
     BugInfoSplitter splitter = new BugInfoSplitter() {
       public String getSeparator() {
         return CODE_SEPARATOR;
@@ -95,7 +96,7 @@ public class FindBugsFilter {
     return processMatches(priorityMapper, splitter);
   }
 
-  public Map<String, RulePriority> getCategoryLevels(RulePriorityMapper priorityMapper) {
+  public Map<String, RulePriority> getCategoryLevels(FindbugsLevelUtils priorityMapper) {
     BugInfoSplitter splitter = new BugInfoSplitter() {
       public String getSeparator() {
         return CATEGORY_SEPARATOR;
@@ -108,11 +109,11 @@ public class FindBugsFilter {
     return processMatches(priorityMapper, splitter);
   }
 
-  private RulePriority getRulePriority(Priority priority, RulePriorityMapper priorityMapper) {
+  private RulePriority getRulePriority(Priority priority, FindbugsLevelUtils priorityMapper) {
     return priority != null ? priorityMapper.from(priority.getValue()) : null;
   }
 
-  private Map<String, RulePriority> processMatches(RulePriorityMapper priorityMapper, BugInfoSplitter splitter) {
+  private Map<String, RulePriority> processMatches(FindbugsLevelUtils priorityMapper, BugInfoSplitter splitter) {
     Map<String, RulePriority> result = new HashMap<String, RulePriority>();
     for (Match child : getChildren()) {
       if (child.getOrs() != null) {
@@ -127,7 +128,7 @@ public class FindBugsFilter {
     return result;
   }
 
-  private void completeLevels(Map<String, RulePriority> result, List<Bug> bugs, Priority priority, RulePriorityMapper priorityMapper, BugInfoSplitter splitter) {
+  private void completeLevels(Map<String, RulePriority> result, List<Bug> bugs, Priority priority, FindbugsLevelUtils priorityMapper, BugInfoSplitter splitter) {
     if (bugs == null) {
       return;
     }
@@ -174,33 +175,4 @@ public class FindBugsFilter {
     xstream.processAnnotations(OrFilter.class);
     return xstream;
   }
-
-  public static FindBugsFilter fromXml(String xml) {
-    try {
-      XStream xStream = createXStream();
-      InputStream inputStream = IOUtils.toInputStream(xml, CharEncoding.UTF_8);
-      return (FindBugsFilter) xStream.fromXML(inputStream);
-
-    } catch (IOException e) {
-      throw new RuntimeException("can't read configuration file", e);
-    }
-  }
-
-  public static FindBugsFilter fromActiveRules(List<ActiveRule> activeRules) {
-    FindBugsFilter root = new FindBugsFilter();
-    for (ActiveRule activeRule : activeRules) {
-      if (CoreProperties.FINDBUGS_PLUGIN.equals(activeRule.getPluginName())) {
-        Match child = createChild(activeRule);
-        root.addMatch(child);
-      }
-    }
-    return root;
-  }
-
-  private static Match createChild(ActiveRule activeRule) {
-    Match child = new Match();
-    child.setBug(new Bug(activeRule.getConfigKey()));
-    return child;
-  }
-
 }

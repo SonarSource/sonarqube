@@ -19,45 +19,44 @@
  */
 package org.sonar.plugins.findbugs;
 
-import org.apache.commons.io.IOUtils;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RulePriority;
-import org.sonar.api.rules.RulesManager;
-import org.sonar.test.TestUtils;
-import org.xml.sax.SAXException;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Java;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RulePriority;
+import org.sonar.api.rules.RuleQuery;
+import org.sonar.api.rules.RulesManager;
+import org.sonar.test.TestUtils;
+import org.xml.sax.SAXException;
+
 public abstract class FindbugsTests {
 
   protected void assertXmlAreSimilar(String actualContent, String expectedFileName) throws IOException, SAXException {
-    InputStream input = getClass().getResourceAsStream("/org/sonar/plugins/findbugs/" + expectedFileName);
-    String expectedContent = IOUtils.toString(input);
+    String expectedContent = TestUtils.getResourceContent("/org/sonar/plugins/findbugs/" + expectedFileName);
     TestUtils.assertSimilarXml(expectedContent, actualContent);
   }
 
   protected List<Rule> buildRulesFixture() {
     List<Rule> rules = new ArrayList<Rule>();
 
-    Rule rule1 = new Rule("DLS: Dead store to local variable", "DLS_DEAD_LOCAL_STORE",
-        "DLS_DEAD_LOCAL_STORE", null, CoreProperties.FINDBUGS_PLUGIN, null);
+    Rule rule1 = new Rule("DLS: Dead store to local variable", "DLS_DEAD_LOCAL_STORE", "DLS_DEAD_LOCAL_STORE", null,
+        CoreProperties.FINDBUGS_PLUGIN, null);
 
-    Rule rule2 = new Rule("UrF: Unread field", "URF_UNREAD_FIELD",
-        "URF_UNREAD_FIELD", null, CoreProperties.FINDBUGS_PLUGIN, null);
+    Rule rule2 = new Rule("UrF: Unread field", "URF_UNREAD_FIELD", "URF_UNREAD_FIELD", null, CoreProperties.FINDBUGS_PLUGIN, null);
 
     rules.add(rule1);
     rules.add(rule2);
@@ -74,11 +73,11 @@ public abstract class FindbugsTests {
     return activeRules;
   }
 
-
   protected RulesManager createRulesManager() {
     RulesManager rulesManager = mock(RulesManager.class);
 
     when(rulesManager.getPluginRule(eq(CoreProperties.FINDBUGS_PLUGIN), anyString())).thenAnswer(new Answer<Rule>() {
+
       public Rule answer(InvocationOnMock invocationOnMock) throws Throwable {
         Object[] args = invocationOnMock.getArguments();
         Rule rule = new Rule();
@@ -91,25 +90,13 @@ public abstract class FindbugsTests {
   }
 
   protected RulesProfile createRulesProfileWithActiveRules() {
-    RulesProfile rulesProfile = mock(RulesProfile.class);
-    when(rulesProfile.getActiveRule(eq(CoreProperties.FINDBUGS_PLUGIN), anyString())).thenAnswer(new Answer<ActiveRule>() {
-      public ActiveRule answer(InvocationOnMock invocationOnMock) throws Throwable {
-        Object[] args = invocationOnMock.getArguments();
-        ActiveRule activeRule = mock(ActiveRule.class);
-        when(activeRule.getPluginName()).thenReturn((String) args[0]);
-        when(activeRule.getRuleKey()).thenReturn((String) args[1]);
-        when(activeRule.getPriority()).thenReturn(RulePriority.CRITICAL);
-        return activeRule;
-      }
-    });
-    when(rulesProfile.getActiveRulesByPlugin(CoreProperties.FINDBUGS_PLUGIN)).thenReturn(Arrays.asList(new ActiveRule()));
-    return rulesProfile;
-  }
-
-  protected RulesProfile createRulesProfileWithoutActiveRules() {
-    RulesProfile rulesProfile = new RulesProfile();
-    List<ActiveRule> list = new ArrayList<ActiveRule>();
-    rulesProfile.setActiveRules(list);
-    return rulesProfile;
+    RulesProfile profile = RulesProfile.create();
+    profile.setName(RulesProfile.SONAR_WAY_FINDBUGS_NAME);
+    profile.setLanguage(Java.KEY);
+    for (Rule rule : new FindbugsRuleRepository().createRules()) {
+      rule.setRepositoryKey(FindbugsConstants.REPOSITORY_KEY);
+      profile.activateRule(rule, null);
+    }
+    return profile;
   }
 }

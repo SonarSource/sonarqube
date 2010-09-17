@@ -21,6 +21,7 @@ package org.sonar.plugins.findbugs;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
@@ -37,11 +38,11 @@ import org.sonar.plugins.findbugs.xml.Match;
 public class FindbugsMavenPluginHandler implements MavenPluginHandler {
 
   private RulesProfile profile;
-  private FindbugsRulesRepository findbugsRulesRepository;
+  private FindbugsProfileExporter exporter;
 
-  public FindbugsMavenPluginHandler(RulesProfile profile, FindbugsRulesRepository findbugsRulesRepository) {
+  public FindbugsMavenPluginHandler(RulesProfile profile, FindbugsProfileExporter exporter) {
     this.profile = profile;
-    this.findbugsRulesRepository = findbugsRulesRepository;
+    this.exporter = exporter;
   }
 
   public String getGroupId() {
@@ -121,8 +122,9 @@ public class FindbugsMavenPluginHandler implements MavenPluginHandler {
   }
 
   private File saveIncludeConfigXml(Project project) throws IOException {
-    String configuration = findbugsRulesRepository.exportConfiguration(profile);
-    return project.getFileSystem().writeToWorkingDirectory(configuration, "findbugs-include.xml");
+    StringWriter conf = new StringWriter();
+    exporter.exportProfile(profile, conf);
+    return project.getFileSystem().writeToWorkingDirectory(conf.toString(), "findbugs-include.xml");
   }
 
   private File saveExcludeConfigXml(Project project) throws IOException {

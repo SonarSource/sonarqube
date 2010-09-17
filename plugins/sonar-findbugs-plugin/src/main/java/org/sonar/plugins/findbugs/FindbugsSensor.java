@@ -35,19 +35,19 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RulesManager;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
 
 public class FindbugsSensor implements Sensor, DependsUponMavenPlugin, GeneratesViolations {
 
   private RulesProfile profile;
-  private RulesManager rulesManager;
+  private RuleFinder ruleFinder;
   private FindbugsMavenPluginHandler pluginHandler;
   private static Logger LOG = LoggerFactory.getLogger(FindbugsSensor.class);
 
-  public FindbugsSensor(RulesProfile profile, RulesManager rulesManager, FindbugsMavenPluginHandler pluginHandler) {
+  public FindbugsSensor(RulesProfile profile, RuleFinder ruleFinder, FindbugsMavenPluginHandler pluginHandler) {
     this.profile = profile;
-    this.rulesManager = rulesManager;
+    this.ruleFinder = ruleFinder;
     this.pluginHandler = pluginHandler;
   }
 
@@ -57,12 +57,10 @@ public class FindbugsSensor implements Sensor, DependsUponMavenPlugin, Generates
     FindbugsXmlReportParser reportParser = new FindbugsXmlReportParser(report);
     List<FindbugsXmlReportParser.Violation> fbViolations = reportParser.getViolations();
     for (FindbugsXmlReportParser.Violation fbViolation : fbViolations) {
-      Rule rule = rulesManager.getPluginRule(CoreProperties.FINDBUGS_PLUGIN, fbViolation.getType());
+      Rule rule = ruleFinder.findByKey(FindbugsConstants.REPOSITORY_KEY, fbViolation.getType());
       JavaFile resource = new JavaFile(fbViolation.getSonarJavaFileKey());
       if (context.getResource(resource) != null) {
-        Violation violation = new Violation(rule, resource)
-            .setLineId(fbViolation.getStart())
-            .setMessage(fbViolation.getLongMessage());
+        Violation violation = new Violation(rule, resource).setLineId(fbViolation.getStart()).setMessage(fbViolation.getLongMessage());
         context.saveViolation(violation);
       }
     }
@@ -76,9 +74,9 @@ public class FindbugsSensor implements Sensor, DependsUponMavenPlugin, Generates
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return project.getFileSystem().hasJavaSourceFiles() &&
-        ( !profile.getActiveRulesByPlugin(CoreProperties.FINDBUGS_PLUGIN).isEmpty() || project.getReuseExistingRulesConfig()) &&
-        project.getPom() != null && !StringUtils.equalsIgnoreCase(project.getPom().getPackaging(), "ear");
+    return project.getFileSystem().hasJavaSourceFiles()
+        && ( !profile.getActiveRulesByRepository(FindbugsConstants.REPOSITORY_KEY).isEmpty() || project.getReuseExistingRulesConfig())
+        && project.getPom() != null && !StringUtils.equalsIgnoreCase(project.getPom().getPackaging(), "ear");
   }
 
   public MavenPluginHandler getMavenPluginHandler(Project project) {

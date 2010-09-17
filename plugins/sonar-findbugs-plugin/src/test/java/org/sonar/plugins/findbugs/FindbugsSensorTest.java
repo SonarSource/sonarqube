@@ -38,6 +38,7 @@ import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.DefaultProjectFileSystem;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
@@ -49,22 +50,21 @@ public class FindbugsSensorTest extends FindbugsTests {
 
   @Test
   public void shouldExecuteWhenSomeRulesAreActive() throws Exception {
-    FindbugsSensor sensor = new FindbugsSensor(createRulesProfileWithActiveRules(), createRulesManager(), null);
+    FindbugsSensor sensor = new FindbugsSensor(createRulesProfileWithActiveRules(), new FindbugsRuleFinder(), null);
     Project project = createProject();
     assertTrue(sensor.shouldExecuteOnProject(project));
   }
 
   @Test
   public void shouldNotExecuteWhenNoRulesAreActive() throws Exception {
-    FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithoutActiveRules(), createRulesManager(), null);
+    FindbugsSensor analyser = new FindbugsSensor(RulesProfile.create(), new FindbugsRuleFinder(), null);
     Project pom = createProject();
     assertFalse(analyser.shouldExecuteOnProject(pom));
   }
 
   @Test
   public void testGetMavenPluginHandlerWhenFindbugsReportPathExists() throws Exception {
-    FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithoutActiveRules(), createRulesManager(),
-        mock(FindbugsMavenPluginHandler.class));
+    FindbugsSensor analyser = new FindbugsSensor(RulesProfile.create(), new FindbugsRuleFinder(), mock(FindbugsMavenPluginHandler.class));
     Project pom = createProject();
     Configuration conf = mock(Configuration.class);
     when(conf.getString(CoreProperties.FINDBUGS_REPORT_PATH)).thenReturn("pathToFindbugsReport");
@@ -74,8 +74,7 @@ public class FindbugsSensorTest extends FindbugsTests {
 
   @Test
   public void testGetFindbugsReport() {
-    FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithActiveRules(), createRulesManager(),
-        null);
+    FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithActiveRules(), new FindbugsRuleFinder(), null);
     Project pom = createProject();
     Configuration conf = mock(Configuration.class);
     when(pom.getConfiguration()).thenReturn(conf);
@@ -89,7 +88,7 @@ public class FindbugsSensorTest extends FindbugsTests {
   public void shouldNotExecuteOnEar() {
     Project project = createProject();
     when(project.getPom().getPackaging()).thenReturn("ear");
-    FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithActiveRules(), createRulesManager(), null);
+    FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithActiveRules(), new FindbugsRuleFinder(), null);
     assertFalse(analyser.shouldExecuteOnProject(project));
   }
 
@@ -104,21 +103,18 @@ public class FindbugsSensorTest extends FindbugsTests {
     when(project.getConfiguration()).thenReturn(conf);
     when(context.getResource(any(Resource.class))).thenReturn(new JavaFile("org.sonar.MyClass"));
 
-    FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithoutActiveRules(), createRulesManager(),
-        null);
+    FindbugsSensor analyser = new FindbugsSensor(RulesProfile.create(), new FindbugsRuleFinder(), null);
     analyser.analyse(project, context);
 
     verify(context, times(3)).saveViolation(any(Violation.class));
 
-    Violation wanted = new Violation(null, new JavaFile("org.sonar.commons.ZipUtils"))
-        .setMessage("Empty zip file entry created in org.sonar.commons.ZipUtils._zip(String, File, ZipOutputStream)")
-        .setLineId(107);
+    Violation wanted = new Violation(null, new JavaFile("org.sonar.commons.ZipUtils")).setMessage(
+        "Empty zip file entry created in org.sonar.commons.ZipUtils._zip(String, File, ZipOutputStream)").setLineId(107);
 
     verify(context).saveViolation(argThat(new IsViolation(wanted)));
 
-    wanted = new Violation(null, new JavaFile("org.sonar.commons.resources.MeasuresDao"))
-        .setMessage("The class org.sonar.commons.resources.MeasuresDao$1 could be refactored into a named _static_ inner class")
-        .setLineId(56);
+    wanted = new Violation(null, new JavaFile("org.sonar.commons.resources.MeasuresDao")).setMessage(
+        "The class org.sonar.commons.resources.MeasuresDao$1 could be refactored into a named _static_ inner class").setLineId(56);
 
     verify(context).saveViolation(argThat(new IsViolation(wanted)));
   }

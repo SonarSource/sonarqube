@@ -5,7 +5,7 @@
 
    <Match>
      <Class name="com.foobar.ClassWithSomeBugsMatched" />
-     <Bug code="FB1" />
+     <Bug code="NP_CLOSING_NULL" />
      <Priority value="2" />
    </Match>
 
@@ -13,7 +13,7 @@
      <Class name="com.foobar.MyClass" />
      <Method name="someMethod" />
      <Local name="maxArgs" />
-     <Bug pattern="FB1_IMPORT_TEST_3" />
+     <Bug pattern="RC_REF_COMPARISON_BAD_PRACTICE" />
      <Priority value="1" />
    </Match>
 
@@ -30,7 +30,7 @@
        <Method name="frob" params="int,java.lang.String" returns="void" />
        <Method name="blat" params="" returns="boolean" />
      </Or>
-     <Bug category="MT_CORRECTNESS" />
+     <Bug category="SECURITY" />
      <Priority value="3" />
    </Match>
  </FindBugsFilter>

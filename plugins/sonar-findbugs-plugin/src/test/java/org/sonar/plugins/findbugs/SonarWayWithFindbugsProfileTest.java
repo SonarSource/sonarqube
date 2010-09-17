@@ -19,26 +19,23 @@
  */
 package org.sonar.plugins.findbugs;
 
-import java.util.HashMap;
-import java.util.Map;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.junit.Assert.assertThat;
 
-public final class Category {
-  private final static Map<String, String> findbugsToSonar = new HashMap<String, String>();
+import org.junit.Test;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.utils.ValidationMessages;
 
-  static {
-    findbugsToSonar.put("BAD_PRACTICE", "Bad practice");
-    findbugsToSonar.put("CORRECTNESS", "Correctness");
-    findbugsToSonar.put("MT_CORRECTNESS", "Multithreaded correctness");
-    findbugsToSonar.put("I18N", "Internationalization");
-    findbugsToSonar.put("EXPERIMENTAL", "Experimental");
-    findbugsToSonar.put("MALICIOUS_CODE", "Malicious code");
-    findbugsToSonar.put("PERFORMANCE", "Performance");
-    findbugsToSonar.put("SECURITY", "Security");
-    findbugsToSonar.put("STYLE", "Style");
-  }
+public class SonarWayWithFindbugsProfileTest {
 
-
-  public static String findbugsToSonar(String findbugsCategKey) {
-    return findbugsToSonar.get(findbugsCategKey);
+  @Test
+  public void create() {
+    FindbugsProfileImporter importer = new FindbugsProfileImporter(new FindbugsRuleFinder());
+    SonarWayWithFindbugsProfile sonarWayWithFindbugs = new SonarWayWithFindbugsProfile(importer);
+    ValidationMessages validation = ValidationMessages.create();
+    RulesProfile profile = sonarWayWithFindbugs.createProfile(validation);
+    assertThat(profile.getActiveRulesByRepository(FindbugsConstants.REPOSITORY_KEY).size(), greaterThan(300));
+    assertThat(validation.hasErrors(), is(false));
   }
 }

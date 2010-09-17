@@ -52,7 +52,6 @@ public class FindbugsMavenPluginHandlerTest {
   private Project project;
   private ProjectFileSystem fs;
   private File fakeSonarConfig;
-  private FindbugsRulesRepository repo;
   private MavenPlugin plugin;
   private FindbugsMavenPluginHandler handler;
 
@@ -61,7 +60,6 @@ public class FindbugsMavenPluginHandlerTest {
     project = mock(Project.class);
     fs = mock(ProjectFileSystem.class);
     fakeSonarConfig = mock(File.class);
-    repo = mock(FindbugsRulesRepository.class);
     plugin = mock(MavenPlugin.class);
     handler = createMavenPluginHandler();
   }
@@ -173,8 +171,7 @@ public class FindbugsMavenPluginHandlerTest {
   }
 
   private FindbugsMavenPluginHandler createMavenPluginHandler() {
-    when(repo.exportConfiguration((RulesProfile) anyObject())).thenReturn("<test/>");
-    return new FindbugsMavenPluginHandler(new RulesProfile(), repo);
+    return new FindbugsMavenPluginHandler(RulesProfile.create(), new FindbugsProfileExporter());
   }
 
   private void mockProject(String effort) throws URISyntaxException, IOException {

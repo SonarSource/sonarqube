@@ -20,9 +20,8 @@
 package org.sonar.plugins.findbugs;
 
 import org.sonar.api.rules.RulePriority;
-import org.sonar.api.rules.RulePriorityMapper;
 
-public class FindbugsRulePriorityMapper implements RulePriorityMapper<String, String> {
+public class FindbugsLevelUtils {
 
   public RulePriority from(String priority) {
     if (priority.equals("1")) {
@@ -36,18 +35,4 @@ public class FindbugsRulePriorityMapper implements RulePriorityMapper<String, St
     }
     throw new IllegalArgumentException("Priority not supported: " + priority);
   }
-
-  public String to(RulePriority priority) {
-    if (priority.equals(RulePriority.BLOCKER) || priority.equals(RulePriority.CRITICAL)) {
-      return "1";
-    }
-    if (priority.equals(RulePriority.MAJOR)) {
-      return "2";
-    }
-    if (priority.equals(RulePriority.INFO) || priority.equals(RulePriority.MINOR)) {
-      return "3";
-    }
-    throw new IllegalArgumentException("Priority not supported: " + priority);
-  }
-
 }
