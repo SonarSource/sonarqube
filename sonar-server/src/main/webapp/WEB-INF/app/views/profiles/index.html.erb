@@ -32,7 +32,7 @@
   <% if administrator? %>
   <ul style="float: right" class="horizontal">
     <li class="marginleft10 add">
-      <a href="#" onClick="$('create-form-<%= language.getKey() -%>').show();return false;" id="create-link-<%= language.getKey() -%>">Create</a>
+      <a href="#" onClick="$('create-form-<%= language.getKey() -%>').show();$('create-form-<%= language.getKey() -%>-name').focus();return false;" id="create-link-<%= language.getKey() -%>">Create</a>
     </li>
   </ul>
   <% end %>
@@ -45,7 +45,7 @@
     <table class="spaced width100">
       <tr>
         <td width="1%" nowrap>Name: </td>
-        <td><input type="text" name="name"></input></td>
+        <td><input type="text" name="name" id="create-form-<%= language.getKey()-%>-name"></input></td>
       </tr>
       <% importers.to_a.sort{|x,y| x.getName() <=> y.getName()}.each do |importer| %>
       <tr>

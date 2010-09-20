@@ -98,6 +98,9 @@ class RulesConfigurationController < ApplicationController
         # activate the rule
         if active_rule.nil?
           active_rule = ActiveRule.new(:profile_id => profile.id, :rule => rule)
+          rule.parameters.select{|p| p.default_value.present?}.each do |p|
+            active_rule.active_rule_parameters.build(:rules_parameter => p, :value => p.default_value)
+          end
         end
         active_rule.failure_level=Sonar::RulePriority.id(priority)
         active_rule.save!

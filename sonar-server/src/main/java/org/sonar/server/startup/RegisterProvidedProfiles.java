@@ -25,8 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.ActiveRuleParam;
+import org.sonar.api.rules.*;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.jpa.session.DatabaseSessionFactory;
@@ -43,17 +42,20 @@ public final class RegisterProvidedProfiles {
   private DatabaseSessionFactory sessionFactory;
   private List<ProfileDefinition> definitions = new ArrayList<ProfileDefinition>();
   private DeprecatedProfiles deprecatedProfiles = null;
+  private RuleFinder ruleFinder;
 
-  public RegisterProvidedProfiles(DatabaseSessionFactory sessionFactory,
+  public RegisterProvidedProfiles(RuleFinder ruleFinder, DatabaseSessionFactory sessionFactory,
                                   DeprecatedProfiles deprecatedBridge, RegisterRules registerRulesBefore,
                                   ProfileDefinition[] definitions) {
+    this.ruleFinder = ruleFinder;
     this.sessionFactory = sessionFactory;
     this.definitions.addAll(Arrays.asList(definitions));
     this.deprecatedProfiles = deprecatedBridge;
   }
 
-  public RegisterProvidedProfiles(DatabaseSessionFactory sessionFactory,
+  public RegisterProvidedProfiles(RuleFinder ruleFinder, DatabaseSessionFactory sessionFactory,
                                   DeprecatedProfiles deprecatedBridge, RegisterRules registerRulesBefore) {
+    this.ruleFinder = ruleFinder;
     this.sessionFactory = sessionFactory;
     this.deprecatedProfiles = deprecatedBridge;
   }
@@ -117,9 +119,13 @@ public final class RegisterProvidedProfiles {
       RulesProfile persistedProfile = findOrCreate(profile.getName(), profile.getLanguage(), session);
 
       for (ActiveRule activeRule : profile.getActiveRules()) {
-        ActiveRule persistedRule = persistedProfile.activateRule(activeRule.getRule(), activeRule.getPriority());
-        for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
-          persistedRule.setParameter(param.getKey(), param.getValue());
+        Rule rule = getPersistedRule(activeRule);
+        ActiveRule persistedRule = persistedProfile.activateRule(rule, activeRule.getPriority());
+        for (RuleParam param : rule.getParams()) {
+          String value = StringUtils.defaultString(activeRule.getParameter(param.getKey()), param.getDefaultValue());
+          if (value != null) {
+            persistedRule.setParameter(param.getKey(), value);
+          }
         }
       }
 
@@ -128,6 +134,19 @@ public final class RegisterProvidedProfiles {
       profiler.stop();
     }
 
+  }
+
+  Rule getPersistedRule(ActiveRule activeRule) {
+    Rule rule = activeRule.getRule();
+    if (rule!=null && rule.getId()==null) {
+      if (rule.getKey()!=null) {
+        rule = ruleFinder.findByKey(rule.getRepositoryKey(), rule.getKey());
+
+      } else if (rule.getConfigKey()!=null) {
+        rule = ruleFinder.find(RuleQuery.create().withRepositoryKey(rule.getRepositoryKey()).withConfigKey(rule.getConfigKey()));
+      }
+    }
+    return rule;
   }
 
   private RulesProfile findOrCreate(String name, String language, DatabaseSession session) {
