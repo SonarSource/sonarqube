@@ -59,6 +59,7 @@
           <pluginKey>google-analytics</pluginKey>
           <pluginName>Google analytics</pluginName>
           <pluginClass>org.sonar.plugins.googleanalytics.GoogleAnalyticsPlugin</pluginClass>
+          <pluginDescription><![CDATA[Monitor what people are exploring with <a href="http://www.google.com/analytics/">Google Analytics</a>.]]></pluginDescription>
         </configuration>
       </plugin>
       <plugin>

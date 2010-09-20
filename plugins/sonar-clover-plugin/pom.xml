@@ -11,7 +11,6 @@
   <artifactId>sonar-clover-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
   <name>Sonar :: Plugins :: Clover</name>
-  <description>Get code coverage with Atlassian Clover</description>
 
   <build>
     <testResources>
@@ -31,6 +30,7 @@
           <pluginKey>clover</pluginKey>
           <pluginName>Clover</pluginName>
           <pluginClass>org.sonar.plugins.clover.CloverPlugin</pluginClass>
+          <pluginDescription><![CDATA[Get code coverage with <a href="http://www.atlassian.com/software/clover/">Atlassian Clover</a>.]]></pluginDescription>
         </configuration>
       </plugin>
       <plugin>

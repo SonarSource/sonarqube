@@ -11,7 +11,7 @@
   <artifactId>sonar-cobertura-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
   <name>Sonar :: Plugins :: Cobertura</name>
-  
+
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
@@ -43,6 +43,7 @@
           <pluginKey>cobertura</pluginKey>
           <pluginName>Cobertura</pluginName>
           <pluginClass>org.sonar.plugins.cobertura.CoberturaPlugin</pluginClass>
+          <pluginDescription><![CDATA[Get code coverage with <a href="http://cobertura.sourceforge.net/">Cobertura</a>.]]></pluginDescription>
         </configuration>
       </plugin>
       <plugin>
