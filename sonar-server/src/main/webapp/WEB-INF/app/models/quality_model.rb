@@ -37,8 +37,27 @@ class QualityModel < ActiveRecord::Base
     @characteristics_with_rule ||=
       begin
         characteristics.select do |c|
-          c.rule
+          !c.rule_id.nil?
         end
       end
+  end
+
+  def characteristics_without_rule
+    @characteristics_without_rule ||=
+      begin
+        characteristics.select do |c|
+          c.rule_id.nil?
+        end
+      end
+  end
+
+  def characteristic(id)
+    @characteristics_by_id ||=
+        begin
+          hash={}
+          characteristics.each {|c| hash[c.id]=c}
+          hash
+        end
+    @characteristics_by_id[id]
   end
 end
