@@ -19,6 +19,11 @@ public class MethodsCountCheck extends Check {
     return new int[]{TokenTypes.CLASS_DEF, TokenTypes.METHOD_DEF};
   }
   
+  public void beginTree(DetailAST rootAST) {
+    methodsCount = 0;
+    classAST = null;
+  }
+  
   public void visitToken(DetailAST ast) {
     //ensure this is an unit test.
     if ( ast.getType() == TokenTypes.CLASS_DEF ) {
@@ -31,7 +36,7 @@ public class MethodsCountCheck extends Check {
 
   public void finishTree(DetailAST rootAST) {
     super.finishTree(rootAST);
-    if (methodsCount < minMethodsCount) {
+    if (classAST != null && methodsCount < minMethodsCount) {
         log(classAST.getLineNo(), classAST.getColumnNo(), "Too few methods (" + methodsCount + ") in class" );
     }
   }
