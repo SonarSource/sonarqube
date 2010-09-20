@@ -5,7 +5,6 @@
     <module name="JavadocPackage">
         <property name="severity" value="warning" />
         <property name="format" value="abcde" />
-        <property name="ignore" value="true" />
     </module>
     <module name="TreeWalker">
         <module name="FileContentsHolder"/>

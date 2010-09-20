@@ -146,7 +146,7 @@ public class CheckstyleProfileExporter extends ProfileExporter {
 
   private void appendRuleParameters(Writer writer, ActiveRule activeRule) throws IOException {
     for (RuleParam ruleParam : activeRule.getRule().getParams()) {
-      String value = activeRule.getParameter(ruleParam.getKey(), true);
+      String value = activeRule.getParameter(ruleParam.getKey());
       if (StringUtils.isNotBlank(value)) {
         appendModuleProperty(writer, ruleParam.getKey(), value);
       }

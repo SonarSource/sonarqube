@@ -102,13 +102,6 @@ public class ActiveRuleParam implements Cloneable {
     return value;
   }
 
-  public String getValue(boolean useDefaultValueIfNeeded) {
-    if (value==null && useDefaultValueIfNeeded) {
-      return ruleParam.getDefaultValue();
-    }
-    return value;
-  }
-
   public void setValue(String value) {
     this.value = value;
   }

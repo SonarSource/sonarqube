@@ -104,7 +104,7 @@ public class CheckstyleProfileExporterTest {
         .setConfigKey("Checker/JavadocPackage");
     rule.createParameter("format");
     rule.createParameter("message"); // not set in the profile and no default value => not exported in checkstyle
-    rule.createParameter("ignore").setDefaultValue("true");
+    rule.createParameter("ignore");
 
     profile.activateRule(rule, RulePriority.MAJOR)
         .setParameter("format", "abcde");
