@@ -103,4 +103,13 @@ public final class Links {
     String url = urlForResourcePage(pageId, resourceIdOrKey, query);
     Window.Location.assign(url);
   }
+
+  public static void openRulePopup(final String ruleIdOrKey) {
+    openRulePopup(ruleIdOrKey, DEFAULT_POPUP_HTML_FEATURES);
+  }
+
+  public static void openRulePopup(final String ruleIdOrKey, final String htmlFeatures) {
+    String url = urlForRule(ruleIdOrKey, false);
+    Window.open(url, "rule", htmlFeatures);
+  }
 }
