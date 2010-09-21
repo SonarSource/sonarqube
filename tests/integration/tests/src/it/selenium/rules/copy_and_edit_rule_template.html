@@ -4,12 +4,12 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="" />
-<title>copy_rule_template</title>
+<title>copy_and_edit_rule_template</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">copy_rule_template</td></tr>
+<tr><td rowspan="1" colspan="3">copy_and_edit_rule_template</td></tr>
 </thead><tbody>
 <tr>
 	<td>store</td>
@@ -25,6 +25,11 @@
 	<td>store</td>
 	<td>//FieldDeclaration</td>
 	<td>RULE_XPATH</td>
+</tr>
+<tr>
+	<td>store</td>
+	<td>//ClassDeclaration</td>
+	<td>RULE_XPATH_EDIT</td>
 </tr>
 <tr>
 	<td>store</td>
@@ -118,7 +123,7 @@
 </tr>
 <tr>
 	<td>assertTextPresent</td>
-	<td>My new rule</td>
+	<td>${RULE_NAME}</td>
 	<td></td>
 </tr>
 <tr>
@@ -130,6 +135,46 @@
 	<td>assertValue</td>
 	<td>value</td>
 	<td>${RULE_XPATH}</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Edit rule</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>rule[name]</td>
+	<td>Updated ${RULE_NAME}</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>rule_param[xpath]</td>
+	<td>${RULE_XPATH_EDIT}</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>rule_param[message]</td>
+	<td>Another message</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//input[@value='Update']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTextPresent</td>
+	<td>${RULE_NAME}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Updated ${RULE_NAME}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>value</td>
+	<td>${RULE_XPATH_EDIT}</td>
 </tr>
 
 </tbody></table>
