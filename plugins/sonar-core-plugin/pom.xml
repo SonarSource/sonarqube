@@ -79,6 +79,7 @@
           <pluginKey>core</pluginKey>
           <pluginName>Core</pluginName>
           <pluginClass>org.sonar.plugins.core.CorePlugin</pluginClass>
+          <pluginDescription><![CDATA[Provides all common components required to cover all languages.]]></pluginDescription>
         </configuration>
       </plugin>
       <plugin>

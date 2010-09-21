@@ -57,6 +57,7 @@
           <pluginKey>design</pluginKey>
           <pluginName>Design</pluginName>
           <pluginClass>org.sonar.plugins.design.DesignPlugin</pluginClass>
+          <pluginDescription><![CDATA[Analyze Java bytecode to compute O.O. metrics and extract dependencies between resources.]]></pluginDescription>
         </configuration>
       </plugin>
 

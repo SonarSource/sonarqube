@@ -11,7 +11,7 @@
   <artifactId>sonar-squid-java-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
   <name>Sonar :: Plugins :: Squid Java</name>
-  <description>Squid analyzer for Java</description>
+  <description>Squid analyzer for Java.</description>
 
   <dependencies>
     <dependency>
@@ -112,7 +112,7 @@
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-testing-harness</artifactId>
       <scope>test</scope>
-    </dependency>    
+    </dependency>
   </dependencies>
 
   <build>
