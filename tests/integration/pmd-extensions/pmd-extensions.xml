@@ -12,6 +12,20 @@
     <name>Avoid if without using brace</name>
     <configKey>rulesets/extensions.xml/AvoidIfWithoutBrace</configKey>
     <category name="Usability"/>
-    <description>éviter les if sans crochet.</description>
+    <description></description>
   </rule>
+  <rule key="PreventUseOfEmptyClass" priority="MAJOR">
+    <name><![CDATA[Prevent use of EmptyClass]]></name>
+    <configKey><![CDATA[net.sourceforge.pmd.rules.XPathRule]]></configKey>
+    <category name="Maintainability"/>
+    <description></description>
+    <param key="xpath" type="s">
+      <description><![CDATA[XPath expressions.]]></description>
+      <defaultValue>//VariableDeclarator[../Type/ReferenceType/ClassOrInterfaceType[@Image='EmptyClass']]</defaultValue>          
+    </param>
+    <param key="message" type="s">
+      <description><![CDATA[Message to display when a violation occurs.]]></description>
+      <defaultValue>Prevent use of EmptyClass class</defaultValue>      
+    </param>    
+  </rule>   
  </rules>

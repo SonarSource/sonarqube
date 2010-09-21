@@ -1891,6 +1891,21 @@
           <plugin><![CDATA[findbugs]]></plugin>
           <level><![CDATA[ERROR]]></level>
         </active-rule>
+        <active-rule>
+          <key><![CDATA[PreventUseOfEmptyClass]]></key>
+          <plugin><![CDATA[pmd]]></plugin>
+          <level><![CDATA[INFO]]></level>
+          <params>
+            <param>
+              <key><![CDATA[xpath]]></key>
+              <value><![CDATA[//VariableDeclarator[../Type/ReferenceType/ClassOrInterfaceType[@Image='EmptyClass']]]]></value>
+            </param>
+            <param>
+              <key><![CDATA[message]]></key>
+              <value><![CDATA[Prevent use of EmptyClass class]]></value>
+            </param>
+          </params>
+        </active-rule>        
       </active-rules>
       <alerts>
         <alert>
