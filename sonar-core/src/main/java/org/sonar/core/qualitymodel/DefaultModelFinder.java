@@ -19,88 +19,17 @@
  */
 package org.sonar.core.qualitymodel;
 
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.qualitymodel.Model;
-import org.sonar.api.qualitymodel.ModelDefinition;
 import org.sonar.api.qualitymodel.ModelFinder;
-import org.sonar.api.utils.Logs;
-import org.sonar.api.utils.SonarException;
 import org.sonar.jpa.session.DatabaseSessionFactory;
-
-import javax.persistence.Query;
 
 public class DefaultModelFinder implements ModelFinder {
 
-  private ModelDefinition[] definitions;
   private DatabaseSessionFactory sessionFactory;
 
-  public DefaultModelFinder(DatabaseSessionFactory sessionFactory, ModelDefinition[] definitions) {
-    this.sessionFactory = sessionFactory;
-    this.definitions = definitions;
-  }
-
-  /**
-   * This constructor is used when there are no templates
-   */
   public DefaultModelFinder(DatabaseSessionFactory sessionFactory) {
     this.sessionFactory = sessionFactory;
-    this.definitions = new ModelDefinition[0];
-  }
-
-  /**
-   * Executed when the server starts
-   */
-  public void registerDefinitions() {
-    DatabaseSession session = sessionFactory.getSession();
-    for (ModelDefinition definition : definitions) {
-      if (StringUtils.isNotBlank(definition.getName()) && !exists(session, definition.getName())) {
-        Logs.INFO.info("Register quality model: " + definition.getName());
-        Model model = definition.create();
-        if (StringUtils.isBlank(model.getName())) {
-          model.setName(definition.getName());
-        }
-        insert(session, model);
-        session.commit();
-      }
-    }
-  }
-
-  public Model reset(String name) {
-    ModelDefinition definition = findDefinitionByName(name);
-    if (definition == null) {
-      throw new SonarException("Can not reset quality model. Definition not found: " + name);
-    }
-
-    LoggerFactory.getLogger(getClass()).info("Reset quality model: " + name);
-    Model model = definition.create();
-    return reset(model);
-  }
-
-
-
-  Model reset(Model model) {
-    DatabaseSession session = sessionFactory.getSession();
-    try {
-      delete(session, model.getName());
-      model = insert(session, model);
-      session.commit();
-      return model;
-
-    } catch (RuntimeException e) {
-      session.rollback();
-      throw e;
-    }
-  }
-
-  public ModelDefinition findDefinitionByName(String name) {
-    for (ModelDefinition definition : definitions) {
-      if (StringUtils.equals(name, definition.getName())) {
-        return definition;
-      }
-    }
-    return null;
   }
 
   public Model findByName(String name) {
@@ -108,22 +37,4 @@ public class DefaultModelFinder implements ModelFinder {
     return session.getSingleResult(Model.class, "name", name);
   }
 
-  public static void delete(DatabaseSession session, String name) {
-    Model model = session.getSingleResult(Model.class, "name", name);
-    if (model != null) {
-      session.removeWithoutFlush(model);
-      session.commit();
-    }
-  }
-
-  public static Model insert(DatabaseSession session, Model model) {
-    return (Model) session.saveWithoutFlush(model);
-  }
-
-  public static boolean exists(DatabaseSession session, String name) {
-    Query query = session.getEntityManager().createQuery("SELECT COUNT(qm) FROM " + Model.class.getSimpleName() + " qm WHERE qm.name=:name");
-    query.setParameter("name", name);
-    Number count = (Number) query.getSingleResult();
-    return count.intValue() > 0;
-  }
 }

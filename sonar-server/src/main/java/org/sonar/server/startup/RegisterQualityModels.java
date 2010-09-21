@@ -20,25 +20,23 @@
 package org.sonar.server.startup;
 
 import org.sonar.api.utils.TimeProfiler;
-import org.sonar.core.qualitymodel.DefaultModelFinder;
+import org.sonar.server.qualitymodel.ModelManager;
 
 public final class RegisterQualityModels {
 
-  private DefaultModelFinder provider;
+  private ModelManager manager;
 
   /**
-   *
-   * @param provider
    * @param registerRulesBeforeModels used only to be started after the creation of check templates
    */
   // NOSONAR the parameter registerRulesBeforeModels is only used to provide the execution order by picocontainer
-  public RegisterQualityModels(DefaultModelFinder provider, RegisterRules registerRulesBeforeModels) {
-    this.provider = provider;
+  public RegisterQualityModels(ModelManager manager, RegisterRules registerRulesBeforeModels) {
+    this.manager = manager;
   }
 
   public void start() {
     TimeProfiler profiler = new TimeProfiler().start("Register quality models");
-    provider.registerDefinitions();
+    manager.registerDefinitions();
     profiler.stop();
   }
 }

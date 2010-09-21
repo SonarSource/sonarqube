@@ -240,17 +240,36 @@ public final class Characteristic implements Comparable<Characteristic> {
   }
 
   public CharacteristicProperty setProperty(String key, String value) {
-    return createProperty(key).setValue(value);
+    return addProperty(CharacteristicProperty.create(key).setValue(value));
   }
 
   public CharacteristicProperty setProperty(String key, double value) {
-    return createProperty(key).setValue(value);
+    return addProperty(CharacteristicProperty.create(key).setValue(value));
   }
 
-  public CharacteristicProperty createProperty(String key) {
-    CharacteristicProperty property = new CharacteristicProperty(this, key);
+  public CharacteristicProperty addProperty(CharacteristicProperty property) {
+    property.setCharacteristic(this);
     properties.add(property);
     return property;
+  }
+
+  public CharacteristicProperty getProperty(String key) {
+    for (CharacteristicProperty property : properties) {
+      if (StringUtils.equals(key, property.getKey())) {
+        return property;
+      }
+    }
+    return null;
+  }
+
+  public String getPropertyValueAsString(String key) {
+    CharacteristicProperty property = getProperty(key);
+    return property != null ? property.getValue() : null;
+  }
+
+  public Double getPropertyValueAsDouble(String key) {
+    CharacteristicProperty property = getProperty(key);
+    return property != null ? property.getValueAsDouble() : null;
   }
 
   @Override

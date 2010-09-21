@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugin;
 import org.sonar.api.Plugins;
 import org.sonar.api.Property;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Language;
@@ -52,7 +53,7 @@ import org.sonar.updatecenter.common.Version;
 import java.util.Collection;
 import java.util.List;
 
-public class JRubyFacade {
+public final class JRubyFacade implements ServerComponent {
 
   public FilterResult executeFilter(Filter filter) {
     return getContainer().getComponent(FilterExecutor.class).execute(filter);  

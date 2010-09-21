@@ -32,11 +32,4 @@ public interface ModelFinder extends BatchComponent, ServerComponent {
    */
   Model findByName(String name);
 
-  /**
-   * @return null if the name is not found
-   */
-  ModelDefinition findDefinitionByName(String name);
-
-  Model reset(String name);
-
 }

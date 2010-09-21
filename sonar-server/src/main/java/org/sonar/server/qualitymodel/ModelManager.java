@@ -17,21 +17,17 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.startup;
 
-import org.junit.Test;
-import org.sonar.server.qualitymodel.ModelManager;
+package org.sonar.server.qualitymodel;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import org.sonar.api.qualitymodel.Model;
+import org.sonar.api.qualitymodel.ModelDefinition;
 
-public class RegisterQualityModelsTest {
+public interface ModelManager {
 
-  @Test
-  public void isASimpleBridgeOverProvider() {
-    ModelManager manager = mock(ModelManager.class);
-    RegisterQualityModels startup = new RegisterQualityModels(manager, null);
-    startup.start();
-    verify(manager).registerDefinitions();
-  }
+  ModelManager registerDefinitions();
+
+  Model reset(String name);
+
+  ModelDefinition findDefinitionByName(String name);
 }

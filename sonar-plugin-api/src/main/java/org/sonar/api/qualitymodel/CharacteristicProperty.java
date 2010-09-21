@@ -46,9 +46,14 @@ public final class CharacteristicProperty {
   @JoinColumn(name = "characteristic_id", updatable = true, nullable = false)
   private Characteristic characteristic;
 
-  CharacteristicProperty(Characteristic characteristic, String key) {
-    this.characteristic = characteristic;
-    this.key = key;
+  /**
+   * Use the factory method create()
+   */
+  CharacteristicProperty() {
+  }
+
+  public static CharacteristicProperty create(String key) {
+    return new CharacteristicProperty().setKey(key);
   }
 
   public Integer getId() {

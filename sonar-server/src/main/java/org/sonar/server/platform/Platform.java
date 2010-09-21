@@ -49,6 +49,7 @@ import org.sonar.server.database.JndiDatabaseConnector;
 import org.sonar.server.filters.FilterExecutor;
 import org.sonar.server.mavendeployer.MavenRepository;
 import org.sonar.server.plugins.*;
+import org.sonar.server.qualitymodel.DefaultModelManager;
 import org.sonar.server.rules.*;
 import org.sonar.server.startup.*;
 import org.sonar.server.ui.AuthenticatorFactory;
@@ -155,6 +156,7 @@ public final class Platform {
     pluginRepository.registerPlugins(servicesContainer);
 
     servicesContainer.as(Characteristics.CACHE).addComponent(DefaultModelFinder.class); // depends on plugins
+    servicesContainer.as(Characteristics.CACHE).addComponent(DefaultModelManager.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(Plugins.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(ChartFactory.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(Languages.class);
