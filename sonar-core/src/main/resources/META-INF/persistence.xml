@@ -10,6 +10,7 @@
     <class>org.sonar.api.database.configuration.Property</class>
     <class>org.sonar.api.qualitymodel.Model</class>
     <class>org.sonar.api.qualitymodel.Characteristic</class>
+    <class>org.sonar.api.qualitymodel.CharacteristicProperty</class>
     <class>org.sonar.core.plugin.JpaPlugin</class>
     <class>org.sonar.core.plugin.JpaPluginFile</class>
     

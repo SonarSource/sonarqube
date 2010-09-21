@@ -52,10 +52,10 @@ public final class Characteristic implements Comparable<Characteristic> {
   private String name;
 
   @Column(name = "depth")
-  private int depth=ROOT_DEPTH;
+  private int depth = ROOT_DEPTH;
 
   @Column(name = "characteristic_order")
-  private int order=0;
+  private int order = 0;
 
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "quality_model_id")
@@ -84,6 +84,8 @@ public final class Characteristic implements Comparable<Characteristic> {
   @ManyToMany(mappedBy = "parents", cascade = CascadeType.ALL)
   private List<Characteristic> children = new ArrayList<Characteristic>();
 
+  @OneToMany(mappedBy = "characteristic", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
+  private List<CharacteristicProperty> properties = new ArrayList<CharacteristicProperty>();
 
   Characteristic() {
   }
@@ -154,9 +156,9 @@ public final class Characteristic implements Comparable<Characteristic> {
     }
     return this;
   }
-  
+
   public Characteristic addChild(Characteristic child) {
-    propagateDepth(child, depth+1);
+    propagateDepth(child, depth + 1);
     child.addParents(this);
     child.setModel(model);
     children.add(child);
@@ -166,12 +168,12 @@ public final class Characteristic implements Comparable<Characteristic> {
   private static void propagateDepth(Characteristic characteristic, int depth) {
     characteristic.setDepth(depth);
     for (Characteristic child : characteristic.getChildren()) {
-      propagateDepth(child, depth+1);
+      propagateDepth(child, depth + 1);
     }
   }
 
   Characteristic addParents(Characteristic... pc) {
-    if (pc!=null) {
+    if (pc != null) {
       Collections.addAll(this.parents, pc);
     }
     return this;
@@ -211,7 +213,7 @@ public final class Characteristic implements Comparable<Characteristic> {
   }
 
   public boolean isRoot() {
-    return depth==ROOT_DEPTH;
+    return depth == ROOT_DEPTH;
   }
 
   Characteristic setDepth(int i) {
@@ -235,6 +237,20 @@ public final class Characteristic implements Comparable<Characteristic> {
   public Characteristic setDescription(String s) {
     this.description = s;
     return this;
+  }
+
+  public CharacteristicProperty setProperty(String key, String value) {
+    return createProperty(key).setValue(value);
+  }
+
+  public CharacteristicProperty setProperty(String key, double value) {
+    return createProperty(key).setValue(value);
+  }
+
+  public CharacteristicProperty createProperty(String key) {
+    CharacteristicProperty property = new CharacteristicProperty(this, key);
+    properties.add(property);
+    return property;
   }
 
   @Override

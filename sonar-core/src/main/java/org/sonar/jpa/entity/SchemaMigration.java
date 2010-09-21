@@ -19,18 +19,18 @@
  */
 package org.sonar.jpa.entity;
 
+import javax.persistence.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import javax.persistence.*;
 
 @Entity
 @Table(name = SchemaMigration.TABLE_NAME, uniqueConstraints = {@UniqueConstraint(columnNames = {"version"})})
 public class SchemaMigration {
 
   public final static int VERSION_UNKNOWN = -1;
-  public static final int LAST_VERSION = 139;
+  public static final int LAST_VERSION = 140;
 
   public final static String TABLE_NAME = "schema_migrations";
 
