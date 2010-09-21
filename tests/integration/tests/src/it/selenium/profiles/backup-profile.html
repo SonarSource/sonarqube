@@ -4,47 +4,42 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="" />
-<title>bakup-profile</title>
+<title>backup-profile</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">bakup-profile</td></tr>
+<tr><td rowspan="1" colspan="3">backup-profile</td></tr>
 </thead><tbody>
 <tr>
-	<td>open</td>
-	<td>/sessions/logout</td>
-	<td></td>
+	<td>store</td>
+	<td>java</td>
+	<td>LANGUAGE</td>
+</tr>
+<tr>
+	<td>store</td>
+	<td>Integration%20tests</td>
+	<td>PROFILE</td>
 </tr>
 <tr>
 	<td>open</td>
-	<td>/sessions/login</td>
+	<td>/profiles</td>
 	<td></td>
 </tr>
 <tr>
-	<td>type</td>
-	<td>login</td>
-	<td>admin</td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>password</td>
-	<td>admin</td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>commit</td>
-	<td></td>
+	<td>storeText</td>
+	<td>activated_rules_${LANGUAGE}_${PROFILE}</td>
+	<td>NUMBER_OF_RULES</td>
 </tr>
 <tr>
 	<td>open</td>
-	<td>/api/rules.xml?categories=&amp;language=java&amp;plugins=&amp;priorities=&amp;profile=Integration+tests&amp;status=ACTIVE</td>
+	<td>/api/rules.xml?categories=&amp;language=${LANGUAGE}&amp;plugins=&amp;priorities=&amp;profile=${PROFILE}&amp;status=ACTIVE</td>
 	<td></td>
 </tr>
 <tr>
-	<td>assertElementPresent</td>
-	<td>//rules[count(rule) = 124]</td>
-	<td>Number of rules</td>
+	<td>assertXpathCount</td>
+	<td>//rule</td>
+	<td>${NUMBER_OF_RULES}</td>
 </tr>
 
 </tbody></table>
