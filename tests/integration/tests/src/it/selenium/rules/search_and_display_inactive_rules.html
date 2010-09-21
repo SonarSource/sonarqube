@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="" />
+<title>search_and_display_inactive_rules</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">search_and_display_inactive_rules</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/profiles</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>rules-java-Sonar%20way</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>searchtext</td>
+	<td>SW_SWING_METHODS_INVOKED_IN_SWING_THREAD </td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>submit_search</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTextPresent</td>
+	<td>0 results</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTextPresent</td>
+	<td>+1 found in inactive rules</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>inactive-rules-link</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTextPresent</td>
+	<td>1 results</td>
+	<td></td>
+</tr>
+
+</tbody></table>
+</body>
+</html>
