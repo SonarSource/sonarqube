@@ -2,7 +2,7 @@
   <mojos>
     <mojo>
       <goal>start</goal>
-      <description></description>
+      <description>Start Sonar.</description>
       <call>start</call>
       <requiresProject>false</requiresProject>
       <parameters>
@@ -93,7 +93,7 @@
         </parameter>
         <parameter>
           <name>pluginArtifact</name>
-          <description></description>
+          <description>Plugin to install.</description>
           <property>pluginArtifact</property>
           <expression>${sonar.pluginArtifact}</expression>
           <required>false</required>
@@ -102,7 +102,7 @@
         </parameter>
         <parameter>
           <name>extensionsDir</name>
-          <description></description>
+          <description>Directory from where extensions should be copied.</description>
           <property>extensionsDir</property>
           <expression>${sonar.extensionsDir}</expression>
           <required>false</required>
@@ -111,7 +111,7 @@
         </parameter>
         <parameter>
           <name>background</name>
-          <description></description>
+          <description>Set to true to run Sonar in background mode.</description>
           <property>background</property>
           <expression>${sonar.background}</expression>
           <required>false</required>
@@ -120,7 +120,7 @@
         </parameter>
         <parameter>
           <name>clean</name>
-          <description></description>
+          <description>Set to false to prevent clean installation.</description>
           <property>clean</property>
           <expression>${sonar.clean}</expression>
           <required>false</required>
@@ -129,7 +129,7 @@
         </parameter>
         <parameter>
           <name>localRepository</name>
-          <description></description>
+          <description>Local Maven repository.</description>
           <property>localRepository</property>
           <expression>${settings.localRepository}</expression>
           <required>false</required>
@@ -137,7 +137,7 @@
         </parameter>
         <parameter>
           <name>configBackup</name>
-          <description></description>
+          <description>File from where Sonar configuration should be restored.</description>
           <property>configBackup</property>
           <expression>${sonar.configBackup}</expression>
           <required>false</required>
@@ -148,7 +148,7 @@
 
     <mojo>
       <goal>stop</goal>
-      <description></description>
+      <description>Stop Sonar.</description>
       <call>stop</call>
       <requiresProject>false</requiresProject>
       <parameters>
@@ -166,7 +166,7 @@
 
     <mojo>
       <goal>start-war</goal>
-      <description></description>
+      <description>Starts Sonar WAR.</description>
       <call>start-war</call>
       <requiresProject>false</requiresProject>
       <parameters>
@@ -257,7 +257,7 @@
         </parameter>
         <parameter>
           <name>pluginArtifact</name>
-          <description></description>
+          <description>Plugin to install.</description>
           <property>pluginArtifact</property>
           <expression>${sonar.pluginArtifact}</expression>
           <required>false</required>
@@ -266,7 +266,7 @@
         </parameter>
         <parameter>
           <name>extensionsDir</name>
-          <description></description>
+          <description>Directory from where extensions should be copied.</description>
           <property>extensionsDir</property>
           <expression>${sonar.extensionsDir}</expression>
           <required>false</required>
@@ -275,7 +275,7 @@
         </parameter>
         <parameter>
           <name>background</name>
-          <description></description>
+          <description>Set to true to run Sonar in background mode.</description>
           <property>background</property>
           <expression>${sonar.background}</expression>
           <required>false</required>
@@ -284,7 +284,7 @@
         </parameter>
         <parameter>
           <name>clean</name>
-          <description></description>
+          <description>Set to false to prevent clean installation.</description>
           <property>clean</property>
           <expression>${sonar.clean}</expression>
           <required>false</required>
@@ -293,7 +293,7 @@
         </parameter>
         <parameter>
           <name>localRepository</name>
-          <description></description>
+          <description>Local Maven repository.</description>
           <property>localRepository</property>
           <expression>${settings.localRepository}</expression>
           <required>false</required>
@@ -301,7 +301,7 @@
         </parameter>
         <parameter>
           <name>configBackup</name>
-          <description></description>
+          <description>File from where Sonar configuration should be restored.</description>
           <property>configBackup</property>
           <expression>${sonar.configBackup}</expression>
           <required>false</required>
@@ -312,7 +312,7 @@
 
     <mojo>
       <goal>stop-war</goal>
-      <description></description>
+      <description>Stops Sonar WAR.</description>
       <call>stop-war</call>
       <requiresProject>false</requiresProject>
       <parameters>
@@ -331,7 +331,7 @@
 
     <mojo>
       <goal>analyze</goal>
-      <description></description>
+      <description>Analyzes projects using Sonar.</description>
       <call>analyze</call>
       <requiresProject>false</requiresProject>
       <parameters>
@@ -380,7 +380,7 @@
         </parameter>
         <parameter>
           <name>projectsDir</name>
-          <description></description>
+          <description>Directory containing projects.</description>
           <property>projectsDir</property>
           <expression>${sonar.projectsDir}</expression>
           <required>true</required>
