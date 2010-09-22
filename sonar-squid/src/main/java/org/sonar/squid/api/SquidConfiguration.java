@@ -24,6 +24,7 @@ import java.nio.charset.Charset;
 public class SquidConfiguration {
 
   private Charset charset = Charset.defaultCharset();
+  private boolean stopSquidOnException = false;
 
   public SquidConfiguration() {
   }
@@ -34,6 +35,14 @@ public class SquidConfiguration {
 
   public Charset getCharset() {
     return charset;
+  }
+
+  public void setStopSquidOnException(boolean stopSquidOnException) {
+    this.stopSquidOnException = stopSquidOnException;
+  }
+
+  public boolean stopSquidOnException() {
+    return stopSquidOnException;
   }
 
 }
