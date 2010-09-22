@@ -374,7 +374,12 @@
     <dependency>
       <groupId>org.codehaus.cargo</groupId>
       <artifactId>cargo-ant</artifactId>
-      <version>1.0.3</version>
+      <!-- Godin:
+      Seems that version 1.0 has corrupted metadata in central maven repo,
+      so in this case project can't be built with Maven 2.2
+      And versions 1.0.1 - 1.0.3 doesn't work for us.
+      -->
+      <version>1.0-beta-2</version>
       <exclusions>
         <exclusion>
           <groupId>ant</groupId>
@@ -436,4 +441,25 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <version>2.6</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>2.1</version>
+        <reportSets>
+          <reportSet>
+            <reports>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
 </project>
