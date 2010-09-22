@@ -17,10 +17,10 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class AddRuleFailuresPoints < ActiveRecord::Migration
+class AddRuleFailuresCost < ActiveRecord::Migration
 
   def self.up
-    add_column 'rule_failures', 'points', :decimal, :null => true, :precision => 30, :scale => 20
+    add_column 'rule_failures', 'cost', :decimal, :null => true, :precision => 30, :scale => 20
   end
 
 end

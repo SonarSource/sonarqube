@@ -52,8 +52,8 @@ public class RuleFailureModel extends BaseIdentifiable {
   @Column(name = "line", updatable = true, nullable = true)
   private Integer line;
 
-  @Column(name = "points", updatable = true, nullable = true)
-  private Double points;
+  @Column(name = "cost", updatable = true, nullable = true)
+  private Double cost;
 
   public RuleFailureModel() {
   }
@@ -112,12 +112,12 @@ public class RuleFailureModel extends BaseIdentifiable {
     this.line = line;
   }
 
-  public Double getPoints() {
-    return points;
+  public Double getCost() {
+    return cost;
   }
 
-  public RuleFailureModel setPoints(Double d) {
-    this.points = d;
+  public RuleFailureModel setCost(Double d) {
+    this.cost = d;
     return this;
   }
 

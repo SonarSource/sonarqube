@@ -34,7 +34,7 @@ public class Violation {
   private String message;
   private RulePriority priority;
   private Integer lineId;
-  private Double points;
+  private Double cost;
 
   /**
    * Creates of a violation from a rule. Will need to define the resource later on
@@ -124,12 +124,22 @@ public class Violation {
     return this;
   }
 
-  public Double getPoints() {
-    return points;
+  /**
+   * @see <code>setCost()</code>
+   */
+  public Double getCost() {
+    return cost;
   }
 
-  public Violation setPoints(Double d) {
-    this.points = d;
+  /**
+   * The cost to fix a violation can't be precisely computed without this information.
+   * Let's take the following example : a rule forbids to have methods whose complexity is greater than 10. Without this field "cost",
+   * the same violation is created with a method whose complexity is 15 and a method whose complexity is 100.
+   * If the cost to fix one point of complexity is 0.05h, then 15mn is necessary to fix the method whose complexity is 15,
+   * and 3h5mn is required to fix the method whose complexity is 100.
+   */
+  public Violation setCost(Double d) {
+    this.cost = d;
     return this;
   }
 

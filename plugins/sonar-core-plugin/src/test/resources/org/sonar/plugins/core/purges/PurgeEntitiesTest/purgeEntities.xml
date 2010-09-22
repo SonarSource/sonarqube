@@ -54,17 +54,17 @@
 
 
   <!-- old violations -->
-  <RULE_FAILURES ID="1" SNAPSHOT_ID="1" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg1" LINE="[null]" POINTS="[null]"/>
-  <RULE_FAILURES ID="2" SNAPSHOT_ID="2" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg2" LINE="[null]" POINTS="[null]"/>
-  <RULE_FAILURES ID="3" SNAPSHOT_ID="3" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg3" LINE="[null]" POINTS="[null]"/>
-  <RULE_FAILURES ID="4" SNAPSHOT_ID="4" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg4" LINE="[null]" POINTS="[null]"/>
+  <RULE_FAILURES ID="1" SNAPSHOT_ID="1" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg1" LINE="[null]" COST="[null]"/>
+  <RULE_FAILURES ID="2" SNAPSHOT_ID="2" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg2" LINE="[null]" COST="[null]"/>
+  <RULE_FAILURES ID="3" SNAPSHOT_ID="3" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg3" LINE="[null]" COST="[null]"/>
+  <RULE_FAILURES ID="4" SNAPSHOT_ID="4" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg4" LINE="[null]" COST="[null]"/>
 
 
   <!-- last violations -->
-  <RULE_FAILURES ID="5" SNAPSHOT_ID="5" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg1" LINE="[null]" POINTS="[null]"/>
-  <RULE_FAILURES ID="6" SNAPSHOT_ID="6" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg2" LINE="[null]" POINTS="[null]"/>
-  <RULE_FAILURES ID="7" SNAPSHOT_ID="7" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg3" LINE="[null]" POINTS="[null]"/>
-  <RULE_FAILURES ID="8" SNAPSHOT_ID="8" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg4" LINE="[null]" POINTS="[null]"/>
+  <RULE_FAILURES ID="5" SNAPSHOT_ID="5" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg1" LINE="[null]" COST="[null]"/>
+  <RULE_FAILURES ID="6" SNAPSHOT_ID="6" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg2" LINE="[null]" COST="[null]"/>
+  <RULE_FAILURES ID="7" SNAPSHOT_ID="7" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg3" LINE="[null]" COST="[null]"/>
+  <RULE_FAILURES ID="8" SNAPSHOT_ID="8" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg4" LINE="[null]" COST="[null]"/>
 
   <!-- old measures -->
   <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
