@@ -2,131 +2,143 @@
   <mojos>
     <mojo>
       <goal>start</goal>
+      <description></description>
       <call>start</call>
       <requiresProject>false</requiresProject>
       <parameters>
         <parameter>
-          <name>sonar.runtimeVersion</name>
-          <property>sonar.runtimeVersion</property>
+          <name>runtimeVersion</name>
+          <description>Sonar version.</description>
+          <property>runtimeVersion</property>
           <expression>${sonar.runtimeVersion}</expression>
           <required>true</required>
           <type>java.lang.String</type>
-          <description>Sonar version</description>
           <defaultValue>2.2</defaultValue>
         </parameter>
         <parameter>
-          <name>sonar.database</name>
-          <property>sonar.database</property>
+          <name>database</name>
+          <description>Database profile: [derby, mssql, mysql, oracle, postgresql].</description>
+          <property>database</property>
           <required>false</required>
           <expression>${sonar.database}</expression>
           <type>java.lang.String</type>
-          <description>Database profile: [derby, mssql, mysql, oracle, postgresql]</description>
           <defaultValue>derby</defaultValue>
         </parameter>
         <parameter>
-          <name>sonar.dropDatabase</name>
-          <property>sonar.dropDatabase</property>
+          <name>dropDatabase</name>
+          <description>Set to true to drop database.</description>
+          <property>dropDatabase</property>
           <expression>${sonar.dropDatabase}</expression>
           <required>false</required>
           <type>java.lang.Boolean</type>
           <defaultValue>false</defaultValue>
         </parameter>
         <parameter>
-          <name>sonar.jdbc.url</name>
-          <property>sonar.jdbc.url</property>
+          <name>jdbcUrl</name>
+          <description>Database URL.</description>
+          <property>jdbcUrl</property>
           <required>false</required>
           <expression>${sonar.jdbc.url}</expression>
           <type>java.lang.String</type>
         </parameter>
         <parameter>
-          <name>sonar.jdbc.driver</name>
-          <property>sonar.jdbc.driver</property>
+          <name>jdbcDriver</name>
+          <description>Database driver.</description>
+          <property>jdbcDriver</property>
           <required>false</required>
           <expression>${sonar.jdbc.driver}</expression>
           <type>java.lang.String</type>
         </parameter>
         <parameter>
-          <name>sonar.jdbc.rootUsername</name>
-          <property>sonar.jdbc.rootUsername</property>
+          <name>jdbcRootUsername</name>
+          <description>Database root username. Used when dropDatabase is true.</description>
+          <property>jdbcRootUsername</property>
           <required>false</required>
           <expression>${sonar.jdbc.rootUsername}</expression>
           <type>java.lang.String</type>
-          <description>Used when dropDatabase is true</description>
         </parameter>
         <parameter>
-          <name>sonar.jdbc.rootPassword</name>
-          <property>sonar.jdbc.rootPassword</property>
+          <name>jdbcRootPassword</name>
+          <description>Database root password. Used when dropDatabase is true.</description>
+          <property>jdbcRootPassword</property>
           <required>false</required>
           <expression>${sonar.jdbc.rootPassword}</expression>
           <type>java.lang.String</type>
-          <description>Used when dropDatabase is true</description>
         </parameter>
         <parameter>
-          <name>sonar.jdbc.rootUrl</name>
-          <property>sonar.jdbc.rootUrl</property>
+          <name>jdbcRootUrl</name>
+          <description>Database root URL. Used when dropDatabase is true.</description>
+          <property>jdbcRootUrl</property>
           <required>false</required>
           <expression>${sonar.jdbc.rootUrl}</expression>
           <type>java.lang.String</type>
-          <description>Used when dropDatabase is true</description>
         </parameter>
         <parameter>
-          <name>sonar.jdbc.username</name>
-          <property>sonar.jdbc.username</property>
+          <name>jdbcUsername</name>
+          <description>Database username.</description>
+          <property>jdbcUsername</property>
           <required>false</required>
           <expression>${sonar.jdbc.username}</expression>
           <type>java.lang.String</type>
           <defaultValue>sonar</defaultValue>
         </parameter>
         <parameter>
-          <name>sonar.jdbc.password</name>
-          <property>sonar.jdbc.password</property>
+          <name>jdbcPassword</name>
+          <description>Database password.</description>
+          <property>jdbcPassword</property>
           <required>false</required>
           <expression>${sonar.jdbc.password}</expression>
           <type>java.lang.String</type>
           <defaultValue>sonar</defaultValue>
         </parameter>
         <parameter>
-          <name>sonar.pluginArtifact</name>
-          <property>sonar.pluginArtifact</property>
+          <name>pluginArtifact</name>
+          <description></description>
+          <property>pluginArtifact</property>
           <expression>${sonar.pluginArtifact}</expression>
           <required>false</required>
           <type>java.lang.File</type>
           <defaultValue>${project.build.directory}/${project.build.finalName}.jar</defaultValue>
         </parameter>
         <parameter>
-          <name>sonar.extensionsDir</name>
-          <property>sonar.extensionsDir</property>
+          <name>extensionsDir</name>
+          <description></description>
+          <property>extensionsDir</property>
           <expression>${sonar.extensionsDir}</expression>
           <required>false</required>
           <type>java.lang.File</type>
           <defaultValue>${project.build.directory}/extensions</defaultValue>
         </parameter>
         <parameter>
-          <name>sonar.background</name>
-          <property>sonar.background</property>
+          <name>background</name>
+          <description></description>
+          <property>background</property>
           <expression>${sonar.background}</expression>
           <required>false</required>
           <type>java.lang.Boolean</type>
           <defaultValue>false</defaultValue>
         </parameter>
         <parameter>
-          <name>sonar.clean</name>
-          <property>sonar.clean</property>
+          <name>clean</name>
+          <description></description>
+          <property>clean</property>
           <expression>${sonar.clean}</expression>
           <required>false</required>
           <type>java.lang.Boolean</type>
           <defaultValue>true</defaultValue>
         </parameter>
         <parameter>
-          <name>settings.localRepository</name>
-          <property>settings.localRepository</property>
+          <name>localRepository</name>
+          <description></description>
+          <property>localRepository</property>
           <expression>${settings.localRepository}</expression>
           <required>false</required>
           <type>java.lang.File</type>
         </parameter>
         <parameter>
-          <name>sonar.configBackup</name>
-          <property>sonar.configBackup</property>
+          <name>configBackup</name>
+          <description></description>
+          <property>configBackup</property>
           <expression>${sonar.configBackup}</expression>
           <required>false</required>
           <type>java.lang.File</type>
@@ -136,15 +148,16 @@
 
     <mojo>
       <goal>stop</goal>
+      <description></description>
       <call>stop</call>
       <requiresProject>false</requiresProject>
       <parameters>
         <parameter>
-          <name>sonar.runtimeVersion</name>
-          <property>sonar.runtimeVersion</property>
+          <name>runtimeVersion</name>
+          <description>Sonar version.</description>
+          <property>runtimeVersion</property>
           <required>true</required>
           <type>java.lang.String</type>
-          <description>Sonar version</description>
           <expression>${sonar.runtimeVersion}</expression>
           <defaultValue>2.2</defaultValue>
         </parameter>
@@ -153,131 +166,143 @@
 
     <mojo>
       <goal>start-war</goal>
+      <description></description>
       <call>start-war</call>
       <requiresProject>false</requiresProject>
       <parameters>
         <parameter>
-          <name>sonar.runtimeVersion</name>
-          <property>sonar.runtimeVersion</property>
+          <name>runtimeVersion</name>
+          <description>Sonar version.</description>
+          <property>runtimeVersion</property>
           <required>true</required>
           <type>java.lang.String</type>
-          <description>Sonar version</description>
           <expression>${sonar.runtimeVersion}</expression>
           <defaultValue>2.2</defaultValue>
         </parameter>
         <parameter>
-          <name>sonar.database</name>
-          <property>sonar.database</property>
+          <name>database</name>
+          <description>Database profile: [derby, mssql, mysql, oracle, postgresql].</description>
+          <property>database</property>
           <required>false</required>
           <expression>${sonar.database}</expression>
           <type>java.lang.String</type>
-          <description>Database profile: [derby, mssql, mysql, oracle, postgresql]</description>
           <defaultValue>derby</defaultValue>
         </parameter>
         <parameter>
-          <name>sonar.dropDatabase</name>
-          <property>sonar.dropDatabase</property>
+          <name>dropDatabase</name>
+          <description>Set to true to drop database.</description>
+          <property>dropDatabase</property>
           <expression>${sonar.dropDatabase}</expression>
           <required>false</required>
           <type>java.lang.Boolean</type>
           <defaultValue>false</defaultValue>
         </parameter>
         <parameter>
-          <name>sonar.jdbc.url</name>
-          <property>sonar.jdbc.url</property>
+          <name>jdbcUrl</name>
+          <description>Database URL.</description>
+          <property>jdbcUrl</property>
           <required>false</required>
           <expression>${sonar.jdbc.url}</expression>
           <type>java.lang.String</type>
         </parameter>
         <parameter>
-          <name>sonar.jdbc.driver</name>
-          <property>sonar.jdbc.driver</property>
+          <name>jdbcDriver</name>
+          <description>Database driver.</description>
+          <property>jdbcDriver</property>
           <required>false</required>
           <expression>${sonar.jdbc.driver}</expression>
           <type>java.lang.String</type>
         </parameter>
         <parameter>
-          <name>sonar.jdbc.rootUsername</name>
-          <property>sonar.jdbc.rootUsername</property>
+          <name>jdbcRootUsername</name>
+          <description>Database root username. Used when dropDatabase is true.</description>
+          <property>jdbcRootUsername</property>
           <required>false</required>
           <expression>${sonar.jdbc.rootUsername}</expression>
           <type>java.lang.String</type>
-          <description>Used when dropDatabase is true</description>
         </parameter>
         <parameter>
-          <name>sonar.jdbc.rootPassword</name>
-          <property>sonar.jdbc.rootPassword</property>
+          <name>jdbcRootPassword</name>
+          <description>Database root password. Used when dropDatabase is true.</description>
+          <property>jdbcRootPassword</property>
           <required>false</required>
           <expression>${sonar.jdbc.rootPassword}</expression>
           <type>java.lang.String</type>
-          <description>Used when dropDatabase is true</description>
         </parameter>
         <parameter>
-          <name>sonar.jdbc.rootUrl</name>
-          <property>sonar.jdbc.rootUrl</property>
+          <name>jdbcRootUrl</name>
+          <description>Database root URL. Used when dropDatabase is true.</description>
+          <property>jdbcRootUrl</property>
           <required>false</required>
           <expression>${sonar.jdbc.rootUrl}</expression>
           <type>java.lang.String</type>
-          <description>Used when dropDatabase is true</description>
         </parameter>
         <parameter>
-          <name>sonar.jdbc.username</name>
-          <property>sonar.jdbc.username</property>
+          <name>jdbcUsername</name>
+          <description>Database username.</description>
+          <property>jdbcUsername</property>
           <required>false</required>
           <expression>${sonar.jdbc.username}</expression>
           <type>java.lang.String</type>
           <defaultValue>sonar</defaultValue>
         </parameter>
         <parameter>
-          <name>sonar.jdbc.password</name>
-          <property>sonar.jdbc.password</property>
+          <name>jdbcPassword</name>
+          <description>Database password.</description>
+          <property>jdbcPassword</property>
           <required>false</required>
           <expression>${sonar.jdbc.password}</expression>
           <type>java.lang.String</type>
           <defaultValue>sonar</defaultValue>
         </parameter>
         <parameter>
-          <name>sonar.pluginArtifact</name>
-          <property>sonar.pluginArtifact</property>
+          <name>pluginArtifact</name>
+          <description></description>
+          <property>pluginArtifact</property>
           <expression>${sonar.pluginArtifact}</expression>
           <required>false</required>
           <type>java.lang.File</type>
           <defaultValue>${project.build.directory}/${project.build.finalName}.jar</defaultValue>
         </parameter>
         <parameter>
-          <name>sonar.extensionsDir</name>
-          <property>sonar.extensionsDir</property>
+          <name>extensionsDir</name>
+          <description></description>
+          <property>extensionsDir</property>
           <expression>${sonar.extensionsDir}</expression>
           <required>false</required>
           <type>java.lang.File</type>
           <defaultValue>${project.build.directory}/extensions</defaultValue>
         </parameter>
         <parameter>
-          <name>sonar.background</name>
-          <property>sonar.background</property>
+          <name>background</name>
+          <description></description>
+          <property>background</property>
           <expression>${sonar.background}</expression>
           <required>false</required>
           <type>java.lang.Boolean</type>
           <defaultValue>false</defaultValue>
         </parameter>
         <parameter>
-          <name>sonar.clean</name>
-          <property>sonar.clean</property>
+          <name>clean</name>
+          <description></description>
+          <property>clean</property>
           <expression>${sonar.clean}</expression>
           <required>false</required>
           <type>java.lang.Boolean</type>
           <defaultValue>true</defaultValue>
         </parameter>
         <parameter>
-          <name>settings.localRepository</name>
-          <property>settings.localRepository</property>
+          <name>localRepository</name>
+          <description></description>
+          <property>localRepository</property>
           <expression>${settings.localRepository}</expression>
           <required>false</required>
           <type>java.lang.File</type>
         </parameter>
         <parameter>
-          <name>sonar.configBackup</name>
-          <property>sonar.configBackup</property>
+          <name>configBackup</name>
+          <description></description>
+          <property>configBackup</property>
           <expression>${sonar.configBackup}</expression>
           <required>false</required>
           <type>java.lang.File</type>
@@ -287,15 +312,16 @@
 
     <mojo>
       <goal>stop-war</goal>
+      <description></description>
       <call>stop-war</call>
       <requiresProject>false</requiresProject>
       <parameters>
         <parameter>
-          <name>sonar.runtimeVersion</name>
-          <property>sonar.runtimeVersion</property>
+          <name>runtimeVersion</name>
+          <description>Sonar version.</description>
+          <property>runtimeVersion</property>
           <required>true</required>
           <type>java.lang.String</type>
-          <description>Sonar version</description>
           <expression>${sonar.runtimeVersion}</expression>
           <defaultValue>2.2</defaultValue>
         </parameter>
@@ -305,51 +331,57 @@
 
     <mojo>
       <goal>analyze</goal>
+      <description></description>
       <call>analyze</call>
       <requiresProject>false</requiresProject>
       <parameters>
         <parameter>
-          <name>sonar.database</name>
-          <property>sonar.database</property>
+          <name>database</name>
+          <description>Database profile: [derby, mssql, mysql, oracle, postgresql].</description>
+          <property>database</property>
           <required>false</required>
           <expression>${sonar.database}</expression>
           <type>java.lang.String</type>
-          <description>Database profile: [derby, mssql, mysql, oracle, postgresql]</description>
           <defaultValue>derby</defaultValue>
         </parameter>
         <parameter>
-          <name>sonar.jdbc.url</name>
-          <property>sonar.jdbc.url</property>
+          <name>jdbcUrl</name>
+          <description>Database URL.</description>
+          <property>jdbcUrl</property>
           <required>false</required>
           <expression>${sonar.jdbc.url}</expression>
           <type>java.lang.String</type>
         </parameter>
         <parameter>
-          <name>sonar.jdbc.driver</name>
-          <property>sonar.jdbc.driver</property>
+          <name>jdbcDriver</name>
+          <description>Database driver.</description>
+          <property>jdbcDriver</property>
           <required>false</required>
           <expression>${sonar.jdbc.driver}</expression>
           <type>java.lang.String</type>
         </parameter>
         <parameter>
-          <name>sonar.jdbc.username</name>
-          <property>sonar.jdbc.username</property>
+          <name>jdbcUsername</name>
+          <description>Database username.</description>
+          <property>jdbcUsername</property>
           <required>false</required>
           <expression>${sonar.jdbc.username}</expression>
           <type>java.lang.String</type>
           <defaultValue>sonar</defaultValue>
         </parameter>
         <parameter>
-          <name>sonar.jdbc.password</name>
-          <property>sonar.jdbc.password</property>
+          <name>jdbcPassword</name>
+          <description>Database password.</description>
+          <property>jdbcPassword</property>
           <required>false</required>
           <expression>${sonar.jdbc.password}</expression>
           <type>java.lang.String</type>
           <defaultValue>sonar</defaultValue>
         </parameter>
         <parameter>
-          <name>sonar.projectsDir</name>
-          <property>sonar.projectsDir</property>
+          <name>projectsDir</name>
+          <description></description>
+          <property>projectsDir</property>
           <expression>${sonar.projectsDir}</expression>
           <required>true</required>
           <type>java.lang.File</type>

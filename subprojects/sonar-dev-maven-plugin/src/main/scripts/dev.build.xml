@@ -36,92 +36,92 @@
    -->
   <target name="expand-database-profile">
     <!-- derby -->
-    <condition property="sonar.jdbc.url" value="jdbc:derby://localhost:1527/sonar;create=true">
+    <condition property="jdbcUrl" value="jdbc:derby://localhost:1527/sonar;create=true">
       <and>
-        <equals arg1="${sonar.database}" arg2="derby"/>
+        <equals arg1="${database}" arg2="derby"/>
         <not>
-          <isset property="sonar.jdbc.url"/>
+          <isset property="jdbcUrl"/>
         </not>
       </and>
     </condition>
-    <condition property="sonar.jdbc.driver" value="org.apache.derby.jdbc.ClientDriver">
+    <condition property="jdbcDriver" value="org.apache.derby.jdbc.ClientDriver">
       <and>
-        <equals arg1="${sonar.database}" arg2="derby"/>
+        <equals arg1="${database}" arg2="derby"/>
         <not>
-          <isset property="sonar.jdbc.driver"/>
+          <isset property="jdbcDriver"/>
         </not>
       </and>
     </condition>
 
     <!-- mysql -->
-    <condition property="sonar.jdbc.url"
+    <condition property="jdbcUrl"
                value="jdbc:mysql://localhost:3306/sonar?useUnicode=true&amp;characterEncoding=utf8">
       <and>
-        <equals arg1="${sonar.database}" arg2="mysql"/>
+        <equals arg1="${database}" arg2="mysql"/>
         <not>
-          <isset property="sonar.jdbc.url"/>
+          <isset property="jdbcUrl"/>
         </not>
       </and>
     </condition>
-    <condition property="sonar.jdbc.driver" value="com.mysql.jdbc.Driver">
+    <condition property="jdbcDriver" value="com.mysql.jdbc.Driver">
       <and>
-        <equals arg1="${sonar.database}" arg2="mysql"/>
+        <equals arg1="${database}" arg2="mysql"/>
         <not>
-          <isset property="sonar.jdbc.driver"/>
+          <isset property="jdbcDriver"/>
         </not>
       </and>
     </condition>
 
     <!-- postgresql -->
-    <condition property="sonar.jdbc.url" value="jdbc:postgresql://localhost/sonar">
+    <condition property="jdbcUrl" value="jdbc:postgresql://localhost/sonar">
       <and>
-        <equals arg1="${sonar.database}" arg2="postgresql"/>
+        <equals arg1="${database}" arg2="postgresql"/>
         <not>
-          <isset property="sonar.jdbc.url"/>
+          <isset property="jdbcUrl"/>
         </not>
       </and>
     </condition>
-    <condition property="sonar.jdbc.driver" value="org.postgresql.Driver">
+    <condition property="jdbcDriver" value="org.postgresql.Driver">
       <and>
-        <equals arg1="${sonar.database}" arg2="postgresql"/>
+        <equals arg1="${database}" arg2="postgresql"/>
         <not>
-          <isset property="sonar.jdbc.driver"/>
+          <isset property="jdbcDriver"/>
         </not>
       </and>
     </condition>
 
     <!-- oracle -->
-    <condition property="sonar.jdbc.url" value="jdbc:oracle:thin:@localhost/XE">
+    <condition property="jdbcUrl" value="jdbc:oracle:thin:@localhost/XE">
       <and>
-        <equals arg1="${sonar.database}" arg2="oracle"/>
+        <equals arg1="${database}" arg2="oracle"/>
         <not>
-          <isset property="sonar.jdbc.url"/>
+          <isset property="jdbcUrl"/>
         </not>
       </and>
     </condition>
-    <condition property="sonar.jdbc.driver" value="oracle.jdbc.driver.OracleDriver">
+    <condition property="jdbcDriver" value="oracle.jdbc.driver.OracleDriver">
       <and>
-        <equals arg1="${sonar.database}" arg2="oracle"/>
+        <equals arg1="${database}" arg2="oracle"/>
         <not>
-          <isset property="sonar.jdbc.driver"/>
+          <isset property="jdbcDriver"/>
         </not>
       </and>
     </condition>
 
     <!-- SQLServer -->
-    <condition property="sonar.jdbc.url" value="jdbc:jtds:sqlserver://localhost;databaseName=SONAR;SelectMethod=Cursor">
+    <condition property="jdbcUrl" value="jdbc:jtds:sqlserver://localhost;databaseName=SONAR;SelectMethod=Cursor">
       <and>
-        <equals arg1="${sonar.database}" arg2="mssql"/>
+        <equals arg1="${database}" arg2="mssql"/>
         <not>
-          <isset property="sonar.jdbc.url"/>
+          <isset property="jdbcUrl"/>
         </not>
       </and>
     </condition>
-    <condition property="sonar.jdbc.driver" value="net.sourceforge.jtds.jdbc.Driver">
+    <condition property="jdbcDriver" value="net.sourceforge.jtds.jdbc.Driver">
       <and>
-        <equals arg1="${sonar.database}" arg2="mssql"/>
+        <equals arg1="${database}" arg2="mssql"/>
         <not>
-          <isset property="sonar.jdbc.driver"/>
+          <isset property="jdbcDriver"/>
         </not>
       </and>
     </condition>
@@ -140,24 +140,24 @@
   <!-- STEP 1 : initialize the database -->
   <target name="drop-database">
     <condition property="execute.drop.database">
-      <istrue value="${sonar.dropDatabase}"/>
+      <istrue value="${dropDatabase}"/>
     </condition>
     <antcall target="do-drop-database"/>
   </target>
 
   <target name="do-drop-database" if="execute.drop.database">
-    <sql driver="${sonar.jdbc.driver}"
-         url="${sonar.jdbc.rootUrl}"
-         userid="${sonar.jdbc.rootUsername}"
-         password="${sonar.jdbc.rootPassword}"
+    <sql driver="${jdbcDriver}"
+         url="${jdbcRootUrl}"
+         userid="${jdbcRootUsername}"
+         password="${jdbcRootPassword}"
          onerror="continue"
          autocommit="true"
          expandProperties="true">
       <resources>
-        <javaresource name="database/${sonar.database}/drop-db.sql"/>
-        <javaresource name="database/${sonar.database}/drop-user.sql"/>
-        <javaresource name="database/${sonar.database}/create-user.sql"/>
-        <javaresource name="database/${sonar.database}/create-db.sql"/>
+        <javaresource name="database/${database}/drop-db.sql"/>
+        <javaresource name="database/${database}/drop-user.sql"/>
+        <javaresource name="database/${database}/create-user.sql"/>
+        <javaresource name="database/${database}/create-db.sql"/>
       </resources>
     </sql>
 
@@ -167,75 +167,75 @@
 
   <!-- STEP 2 : install Sonar -->
   <target name="clean-sonar-home" if="execute.sonar.clean">
-    <delete dir="${tmpdir}/sonar-${sonar.runtimeVersion}"/>
+    <delete dir="${tmpdir}/sonar-${runtimeVersion}"/>
     <mkdir dir="${tmpdir}"/>
   </target>
 
 
   <target name="prepare-sonar-home" unless="is.installed">
-    <copy tofile="${tmpdir}/sonar-${sonar.runtimeVersion}.zip" overwrite="true" verbose="true" flatten="true"
+    <copy tofile="${tmpdir}/sonar-${runtimeVersion}.zip" overwrite="true" verbose="true" flatten="true"
           failonerror="false"
-          file="${settings.localRepository}/org/codehaus/sonar/sonar-application/${sonar.runtimeVersion}/sonar-application-${sonar.runtimeVersion}.zip">
+          file="${localRepository}/org/codehaus/sonar/sonar-application/${runtimeVersion}/sonar-application-${runtimeVersion}.zip">
     </copy>
     <condition property="execute.download-sonar">
       <not>
-        <available file="${tmpdir}/sonar-${sonar.runtimeVersion}.zip"/>
+        <available file="${tmpdir}/sonar-${runtimeVersion}.zip"/>
       </not>
     </condition>
     <antcall target="download-sonar"/>
-    <unzip src="${tmpdir}/sonar-${sonar.runtimeVersion}.zip" dest="${tmpdir}"/>
+    <unzip src="${tmpdir}/sonar-${runtimeVersion}.zip" dest="${tmpdir}"/>
   </target>
 
 
   <target name="download-sonar" if="execute.download-sonar">
     <echo>Downloading sonar</echo>
-    <get src="http://dist.sonar.codehaus.org/sonar-${sonar.runtimeVersion}.zip"
-         dest="${tmpdir}/sonar-${sonar.runtimeVersion}.zip"/>
+    <get src="http://dist.sonar.codehaus.org/sonar-${runtimeVersion}.zip"
+         dest="${tmpdir}/sonar-${runtimeVersion}.zip"/>
     <echo>Installing to local maven repo</echo>
     <mvninstall groupId="org.codehaus.sonar"
                 artifactId="sonar-application"
-                version="${sonar.runtimeVersion}"
+                version="${runtimeVersion}"
                 packaging="zip"
-                file="${tmpdir}/sonar-${sonar.runtimeVersion}.zip"/>
+                file="${tmpdir}/sonar-${runtimeVersion}.zip"/>
   </target>
 
   <target name="copy-extensions" if="has.extensions">
     <echo>Copy extensions...</echo>
-    <copy todir="${tmpdir}/sonar-${sonar.runtimeVersion}/extensions" overwrite="true" verbose="true" flatten="false">
-      <fileset dir="${sonar.extensionsDir}"/>
+    <copy todir="${tmpdir}/sonar-${runtimeVersion}/extensions" overwrite="true" verbose="true" flatten="false">
+      <fileset dir="${extensionsDir}"/>
     </copy>
   </target>
 
 
   <target name="copy-plugin-artifact" if="has.plugin.artifact">
     <echo>Copy plugin artifact...</echo>
-    <copy todir="${tmpdir}/sonar-${sonar.runtimeVersion}/extensions/plugins" overwrite="true" verbose="true"
+    <copy todir="${tmpdir}/sonar-${runtimeVersion}/extensions/plugins" overwrite="true" verbose="true"
           flatten="true"
-          file="${sonar.pluginArtifact}">
+          file="${pluginArtifact}">
     </copy>
   </target>
 
 
   <target name="configure-sonar">
     <condition property="execute.sonar.clean" value="true">
-      <istrue value="${sonar.clean}"/>
+      <istrue value="${clean}"/>
     </condition>
     <antcall target="clean-sonar-home" />
 
-    <available property="is.installed" file="${tmpdir}/sonar-${sonar.runtimeVersion}/conf/sonar.properties"/>
+    <available property="is.installed" file="${tmpdir}/sonar-${runtimeVersion}/conf/sonar.properties"/>
     <antcall target="prepare-sonar-home"/>
 
-    <copy todir="${tmpdir}/sonar-${sonar.runtimeVersion}/conf/" overwrite="true" verbose="true" flatten="true">
+    <copy todir="${tmpdir}/sonar-${runtimeVersion}/conf/" overwrite="true" verbose="true" flatten="true">
       <resources>
         <javaresource name="server/sonar.properties"/>
         <javaresource name="server/wrapper.conf"/>
       </resources>
     </copy>
 
-    <available property="has.extensions" file="${sonar.extensionsDir}"/>
+    <available property="has.extensions" file="${extensionsDir}"/>
     <antcall target="copy-extensions"/>
 
-    <available file="${sonar.pluginArtifact}" property="has.plugin.artifact"/>
+    <available file="${pluginArtifact}" property="has.plugin.artifact"/>
     <antcall target="copy-plugin-artifact"/>
 
   </target>
@@ -246,7 +246,7 @@
     <echo>Start server</echo>
 
     <chmod perm="777" type="file">
-      <fileset dir="${tmpdir}/sonar-${sonar.runtimeVersion}/bin">
+      <fileset dir="${tmpdir}/sonar-${runtimeVersion}/bin">
         <include name="**/*"/>
       </fileset>
     </chmod>
@@ -261,31 +261,31 @@
   
   <target name="start-standalone-windows" if="windows">   
 <!--    <condition property="sonar.command" value="restart" else="console">
-      <istrue value="${sonar.background}"/>
+      <istrue value="${background}"/>
     </condition>-->
-    <exec executable="${tmpdir}/sonar-${sonar.runtimeVersion}/${sonar.bin.path}">
-      <env key="sonar.jdbc.url" value="${sonar.jdbc.url}"/>
-      <env key="sonar.jdbc.driverClassName" value="${sonar.jdbc.driver}"/>
-      <env key="sonar.jdbc.username" value="${sonar.jdbc.username}"/>
-      <env key="sonar.jdbc.password" value="${sonar.jdbc.password}"/>
+    <exec executable="${tmpdir}/sonar-${runtimeVersion}/${sonar.bin.path}">
+      <env key="sonar.jdbc.url" value="${jdbcUrl}"/>
+      <env key="sonar.jdbc.driverClassName" value="${jdbcDriver}"/>
+      <env key="sonar.jdbc.username" value="${jdbcUsername}"/>
+      <env key="sonar.jdbc.password" value="${jdbcPassword}"/>
     </exec>
   </target>
   
   <target name="start-standalone-unix" unless="windows">   
     <condition property="sonar.command" value="restart" else="console">
-      <istrue value="${sonar.background}"/>
+      <istrue value="${background}"/>
     </condition>
-    <exec executable="${tmpdir}/sonar-${sonar.runtimeVersion}/${sonar.bin.path}">
+    <exec executable="${tmpdir}/sonar-${runtimeVersion}/${sonar.bin.path}">
       <arg line="${sonar.command}"/>
-      <env key="sonar.jdbc.url" value="${sonar.jdbc.url}"/>
-      <env key="sonar.jdbc.driverClassName" value="${sonar.jdbc.driver}"/>
-      <env key="sonar.jdbc.username" value="${sonar.jdbc.username}"/>
-      <env key="sonar.jdbc.password" value="${sonar.jdbc.password}"/>
+      <env key="sonar.jdbc.url" value="${jdbcUrl}"/>
+      <env key="sonar.jdbc.driverClassName" value="${jdbcDriver}"/>
+      <env key="sonar.jdbc.username" value="${jdbcUsername}"/>
+      <env key="sonar.jdbc.password" value="${jdbcPassword}"/>
     </exec>
   </target>
 
   <target name="stop-standalone">
-    <exec executable="${tmpdir}/sonar-${sonar.runtimeVersion}/${sonar.bin.path}">
+    <exec executable="${tmpdir}/sonar-${runtimeVersion}/${sonar.bin.path}">
       <arg line="stop"/>
     </exec>
   </target>
@@ -293,28 +293,28 @@
 
   <target name="start-tomcat">
     <echo>Build WAR</echo>
-    <ant dir="${tmpdir}/sonar-${sonar.runtimeVersion}/war/" inheritAll="false"/>
+    <ant dir="${tmpdir}/sonar-${runtimeVersion}/war/" inheritAll="false"/>
 
     <mkdir dir="${tomcat6.home}"/>
-    <mkdir dir="${tmpdir}/sonar-${sonar.runtimeVersion}/logs"/>
+    <mkdir dir="${tmpdir}/sonar-${runtimeVersion}/logs"/>
 
     <condition property="sonar.wait" value="true" else="false">
-      <isfalse value="${sonar.background}"/>
+      <isfalse value="${background}"/>
     </condition>
-    <echo>Start tomcat, background mode: ${sonar.background}</echo>
+    <echo>Start tomcat, background mode: ${background}</echo>
 
-    <cargo containerId="tomcat6x" action="start" wait="${sonar.wait}" id="tmptmct6-${sonar.runtimeVersion}"
-           output="${tmpdir}/sonar-${sonar.runtimeVersion}/logs/output.log"
-           log="${tmpdir}/sonar-${sonar.runtimeVersion}/logs/cargo.log">
+    <cargo containerId="tomcat6x" action="start" wait="${sonar.wait}" id="tmptmct6-${runtimeVersion}"
+           output="${tmpdir}/sonar-${runtimeVersion}/logs/output.log"
+           log="${tmpdir}/sonar-${runtimeVersion}/logs/cargo.log">
       <zipurlinstaller
           installurl="http://archive.apache.org/dist/tomcat/tomcat-6/v6.0.26/bin/apache-tomcat-6.0.26.zip"/>
       <configuration type="standalone" home="${tomcat6.home}">
         <property name="cargo.jvmargs"
-                  value="-Xmx1024m -XX:MaxPermSize=256m -server -Dsonar.jdbc.url=${sonar.jdbc.url} -Dsonar.jdbc.driverClassName=${sonar.jdbc.driver} -Dsonar.jdbc.username=${sonar.jdbc.username} -Dsonar.jdbc.password=${sonar.jdbc.password}"/>
+                  value="-Xmx1024m -XX:MaxPermSize=256m -server -Dsonar.jdbc.url=${jdbcUrl} -Dsonar.jdbc.driverClassName=${jdbcDriver} -Dsonar.jdbc.username=${jdbcUsername} -Dsonar.jdbc.password=${jdbcPassword}"/>
         <property name="cargo.servlet.port" value="9000"/>
         <property name="cargo.remote.username" value="admin"/>
         <property name="cargo.remote.password" value=""/>
-        <deployable type="war" file="${tmpdir}/sonar-${sonar.runtimeVersion}/war/sonar.war">
+        <deployable type="war" file="${tmpdir}/sonar-${runtimeVersion}/war/sonar.war">
           <property name="context" value="ROOT"/>
         </deployable>
       </configuration>
@@ -324,7 +324,7 @@
 
   <target name="stop-tomcat">
     <echo>Stopping tomcat</echo>
-    <cargo containerId="tomcat6x" action="stop" wait="true" id="tmptmct6-${sonar.runtimeVersion}">
+    <cargo containerId="tomcat6x" action="stop" wait="true" id="tmptmct6-${runtimeVersion}">
       <zipurlinstaller
           installurl="http://archive.apache.org/dist/tomcat/tomcat-6/v6.0.26/bin/apache-tomcat-6.0.26.zip"/>
       <configuration type="standalone" home="${tomcat6.home}">
@@ -349,7 +349,7 @@
     <echo message="Database is up."/>
 
     <condition property="execute.restore.backup" value="true">
-      <isset property="sonar.configBackup"/>
+      <isset property="configBackup"/>
     </condition>
     <antcall target="restore-backup"/>
   </target>
@@ -365,7 +365,7 @@
     <echo message="Logged in."/>
 
     <httpmpost url="http://localhost:9000/backup/import" logLevel="none">
-      <postFile name="file" file="${sonar.configBackup}"/>
+      <postFile name="file" file="${configBackup}"/>
     </httpmpost>
     <echo message="Backup is restored."/>
   </target>
@@ -376,7 +376,7 @@
   <target name="analyze" depends="expand-database-profile">
     <for param="pom">
       <path>
-        <fileset dir="${sonar.projectsDir}" includes="*/pom.xml"/>
+        <fileset dir="${projectsDir}" includes="*/pom.xml"/>
       </path>
       <sequential>
         <mvn pom="@{pom}" failonerror="false" args="clean install -DskipTests"/>
@@ -412,19 +412,19 @@
       <exec failonerror="@{failonerror}" executable="${maven.home}/bin/mvn.bat" osfamily="Windows">
         <arg line="org.codehaus.mojo:sonar-maven-plugin:1.0-beta-2:sonar @{args} -B -e"/>
         <arg line="-f @{pom}"/>
-        <arg value='-Dsonar.jdbc.url="${sonar.jdbc.url}"'/>
+        <arg value='-Dsonar.jdbc.url="${jdbcUrl}"'/>
         <!-- double quotes for windows -->
-        <arg value="-Dsonar.jdbc.driver=${sonar.jdbc.driver}"/>
-        <arg value="-Dsonar.jdbc.username=${sonar.jdbc.username}"/>
-        <arg value="-Dsonar.jdbc.password=${sonar.jdbc.password}"/>
+        <arg value="-Dsonar.jdbc.driver=${jdbcDriver}"/>
+        <arg value="-Dsonar.jdbc.username=${jdbcUsername}"/>
+        <arg value="-Dsonar.jdbc.password=${jdbcPassword}"/>
       </exec>
       <exec failonerror="@{failonerror}" executable="${maven.home}/bin/mvn" osfamily="unix">
         <arg line="org.codehaus.mojo:sonar-maven-plugin:1.0-beta-2:sonar @{args} -B -e"/>
         <arg line="-f @{pom}"/>
-        <arg value='-Dsonar.jdbc.url=${sonar.jdbc.url}'/>
-        <arg value="-Dsonar.jdbc.driver=${sonar.jdbc.driver}"/>
-        <arg value="-Dsonar.jdbc.username=${sonar.jdbc.username}"/>
-        <arg value="-Dsonar.jdbc.password=${sonar.jdbc.password}"/>
+        <arg value='-Dsonar.jdbc.url=${jdbcUrl}'/>
+        <arg value="-Dsonar.jdbc.driver=${jdbcDriver}"/>
+        <arg value="-Dsonar.jdbc.username=${jdbcUsername}"/>
+        <arg value="-Dsonar.jdbc.password=${jdbcPassword}"/>
       </exec>
     </sequential>
   </macrodef>
