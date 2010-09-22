@@ -56,6 +56,7 @@ public class ViolationsDao {
       violation.setLineId(model.getLine());
       violation.setMessage(model.getMessage());
       violation.setPriority(model.getPriority());
+      violation.setPoints(model.getPoints());
       violations.add(violation);
     }
     return violations;
@@ -89,7 +90,9 @@ public class ViolationsDao {
     violation.setPriority(activeRule.getPriority());
     model.setLine(violation.getLineId());
     model.setMessage(violation.getMessage());
+    model.setPoints(violation.getPoints());
     model.setSnapshotId(snapshot.getId());
+
     return model;
   }
 

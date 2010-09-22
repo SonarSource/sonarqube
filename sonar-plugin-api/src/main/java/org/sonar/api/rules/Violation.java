@@ -34,6 +34,7 @@ public class Violation {
   private String message;
   private RulePriority priority;
   private Integer lineId;
+  private Double points;
 
   /**
    * Creates of a violation from a rule. Will need to define the resource later on
@@ -120,6 +121,15 @@ public class Violation {
    */
   public Violation setPriority(RulePriority priority) {
     this.priority = priority;
+    return this;
+  }
+
+  public Double getPoints() {
+    return points;
+  }
+
+  public Violation setPoints(Double d) {
+    this.points = d;
     return this;
   }
 

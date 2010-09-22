@@ -52,6 +52,9 @@ public class RuleFailureModel extends BaseIdentifiable {
   @Column(name = "line", updatable = true, nullable = true)
   private Integer line;
 
+  @Column(name = "points", updatable = true, nullable = true)
+  private Double points;
+
   public RuleFailureModel() {
   }
 
@@ -107,6 +110,15 @@ public class RuleFailureModel extends BaseIdentifiable {
 
   public void setLine(Integer line) {
     this.line = line;
+  }
+
+  public Double getPoints() {
+    return points;
+  }
+
+  public RuleFailureModel setPoints(Double d) {
+    this.points = d;
+    return this;
   }
 
   @Override
