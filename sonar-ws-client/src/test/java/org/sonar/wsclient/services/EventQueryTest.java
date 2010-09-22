@@ -67,7 +67,7 @@ public final class EventQueryTest {
     assertNotNull(query.getResourceKey());
     assertNotNull(query.getCategories());
 
-    final String url = query.getUrl();
+    String url = query.getUrl();
     assertNotNull(url);
     assertTrue(url.contains("fromDateTime"));
     assertTrue(url.contains("toDateTime"));
