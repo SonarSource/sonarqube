@@ -314,4 +314,16 @@ public final class Characteristic implements Comparable<Characteristic> {
     }
     return order - o.order;
   }
+
+  public static Characteristic createByName(String name) {
+    return new Characteristic().setName(name, true);
+  }
+
+  public static Characteristic createByKey(String key, String name) {
+    return new Characteristic().setKey(key).setName(name, false);
+  }
+
+  public static Characteristic createByRule(Rule rule) {
+    return new Characteristic().setRule(rule);
+  }
 }

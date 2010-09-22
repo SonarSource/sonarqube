@@ -97,7 +97,7 @@ public final class Model implements Comparable<Model> {
     return this;
   }
 
-  private Characteristic addCharacteristic(Characteristic c) {
+  public Characteristic addCharacteristic(Characteristic c) {
     c.setModel(this);
     c.setOrder(characteristics.size() + 1);
     characteristics.add(c);
