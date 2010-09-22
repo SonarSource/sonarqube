@@ -1,4 +1,6 @@
 package foo;
 
-public class BarTest {
+import org.junit.Ignore;
+
+public abstract class BarTest {
 }

@@ -21,13 +21,12 @@ package org.sonar.api.utils;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLClassLoader;
 import java.util.List;
@@ -42,24 +41,10 @@ import static org.junit.matchers.JUnitMatchers.hasItems;
 
 public class ManifestUtilsTest {
 
-  private File tempDir;
+  @Rule
+  public TemporaryFolder tempDir = new TemporaryFolder();
 
-  @Before
-  public void before() throws IOException {
-    tempDir = new File("target/test-tmp/ManifestUtilsTest/");
-    FileUtils.forceMkdir(tempDir);
-  }
-
-  @After
-  public void tryToCleanDirectory() {
-    try {
-      FileUtils.cleanDirectory(tempDir);
-    } catch (Exception e) {
-      // fails on windows because URLClassLoader locks jar files
-    }
-  }
-
-  @Test
+    @Test
   public void emptyManifest() throws Exception {
     Manifest mf = new Manifest();
     File jar = createJar(mf, "emptyManifest.jar");
@@ -99,7 +84,7 @@ public class ManifestUtilsTest {
 
   private File createJar(Manifest mf, String name) throws Exception {
     mf.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
-    File file = new File(tempDir, name);
+    File file = tempDir.newFile(name);
     OutputStream out = new JarOutputStream(new FileOutputStream(file), mf);
     out.flush();
     IOUtils.closeQuietly(out);

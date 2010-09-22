@@ -19,75 +19,55 @@
  */
 package org.sonar.api.utils;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.core.WriterAppender;
-import ch.qos.logback.core.layout.EchoLayout;
-import org.apache.commons.lang.StringUtils;
+import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.StringContains.containsString;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class TimeProfilerTest {
 
+  private Logger logger;
+
+  @Before
+  public void before() {
+    logger = mock(Logger.class);
+  }
+
   @Test
   public void testBasicProfiling() {
-    StringWriter writer = new StringWriter();
-    TimeProfiler profiler = new TimeProfiler(mockLogger(writer));
-
+    TimeProfiler profiler = new TimeProfiler(logger);
     profiler.start("Cycle analysis");
-    assertThat(writer.toString(), containsString("[INFO] Cycle analysis..."));
+    verify(logger).info("Cycle analysis...");
 
     profiler.stop();
-    assertThat(writer.toString(), containsString("[INFO] Cycle analysis done:"));
+    verify(logger).info(eq("{} done: {} ms"), eq("Cycle analysis"), anyInt());
   }
 
   @Test
-  public void stopOnce() throws IOException {
-    StringWriter writer = new StringWriter();
-    TimeProfiler profiler = new TimeProfiler(mockLogger(writer));
+  public void stopOnce() {
+    TimeProfiler profiler = new TimeProfiler(logger);
 
     profiler.start("Cycle analysis");
     profiler.stop();
     profiler.stop();
     profiler.stop();
-    assertThat(StringUtils.countMatches(writer.toString(), "Cycle analysis done"), is(1));
+    verify(logger, times(1)).info(anyString()); // start() executes log() with 1 parameter
+    verify(logger, times(1)).info(anyString(), anyString(), anyInt()); // stop() executes log() with 3 parameters
   }
 
   @Test
-  public void doNotLogNeverEndedTask() throws IOException {
-    StringWriter writer = new StringWriter();
-    TimeProfiler profiler = new TimeProfiler(mockLogger(writer));
+  public void doNotLogNeverEndedTask() {
+    TimeProfiler profiler = new TimeProfiler(logger);
 
     profiler.start("Cycle analysis");
     profiler.start("New task");
     profiler.stop();
     profiler.stop();
-    assertThat(writer.toString(), not(containsString("Cycle analysis done")));
-  }
-
-
-  private static Logger mockLogger(Writer writer) {
-    WriterAppender writerAppender = new WriterAppender();
-    writerAppender.setLayout(new EchoLayout());
-    writerAppender.setWriter(writer);
-    writerAppender.setImmediateFlush(true);
-    writerAppender.start();
-
-    Logger logger = ((LoggerContext) LoggerFactory.getILoggerFactory()).getLogger(TimeProfilerTest.class);
-    logger.addAppender(writerAppender);
-    logger.setLevel(Level.INFO);
-    logger.setAdditive(true);
-    return logger;
-
+    verify(logger, never()).info(eq("{} done: {} ms"), eq("Cycle analysis"), anyInt());
+    verify(logger, times(1)).info(eq("{} done: {} ms"), eq("New task"), anyInt());
   }
 }
