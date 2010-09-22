@@ -1236,7 +1236,7 @@ ul.bullet li {
 }
 
 .rule_desc {
-  color: #333;
+  color: #444;
   padding: 2px 0 15px 0;
 }
 
@@ -1426,31 +1426,34 @@ table.data2 {
 table.without-header {
   border-top: 1px solid #ddd;
 }
-table.data2 tbody tr {
+table.data2 > tbody > tr {
   border-left: 1px solid #ddd;
   border-right: 1px solid #ddd;
 }
-table.data2 thead tr {
+table.data2 > thead > tr {
   height: 24px;
   border: 0;
 }
-table.data2 th, table.data2 td {
+table.data2 > thead > tr > th, table.data2 > tbody > tr > td {
   border-bottom: 1px solid #DDD;
-  padding: 2px 4px 2px 4px;
+  padding: 3px 5px;
   height: 24px;
   vertical-align: middle;
 }
-table.data2 td {
+table.data2 > tbody > tr > td {
   vertical-align: middle;
 }
-table.data2 th {
+table.data2 > thead > tr > th {
   font-weight: bold;
 }
-table.data2 tfoot td {
+table.data2 > tfoot > tr > td {
   border-bottom: 0;
 }
 table.data2 td, table.data2 td a, table.data2 th, table.data2 th a {
   color: #444;
+}
+table.data2 img, table.data2 input, table.data2 select {
+  vertical-align: text-bottom;
 }
 .background-gray {
   background-color: #f4f4f4;
