@@ -7,7 +7,5 @@
   <stylesheet src='dependencies-tab.css'/>
   <entry-point class="org.sonar.plugins.design.ui.dependencies.client.DependenciesTab"/>
 
-  <extend-property name="locale" values="en"/>
-  <extend-property name="locale" values="fr"/>
-  
+  <extend-property name="locale" values="fr"/> 
 </module>

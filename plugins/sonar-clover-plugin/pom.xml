@@ -39,6 +39,16 @@
           <skip>true</skip>
         </configuration>
       </plugin>
+      <!-- Running JUnit tests in parallel -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <parallel>classes</parallel>
+          <threadCount>3</threadCount>
+          <perCoreThreadCount>true</perCoreThreadCount>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 

@@ -8,6 +8,5 @@
 
   <entry-point class="org.sonar.plugins.core.violationsviewer.client.ViolationsViewer"/>
 
-  <extend-property name="locale" values="en"/>
   <extend-property name="locale" values="fr"/>
 </module>

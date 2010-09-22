@@ -4,12 +4,7 @@
   <inherits name="com.google.gwt.http.HTTP"/>
   <inherits name="org.sonar.Sonar"/>
   <inherits name="com.google.gwt.i18n.I18N"/>
-
   <stylesheet src="hotspots.css"/>
-
   <entry-point class="org.sonar.plugins.core.hotspots.client.GwtHotspots"/>
-
-  <extend-property name="locale" values="en"/>
   <extend-property name="locale" values="fr"/>
-
 </module>

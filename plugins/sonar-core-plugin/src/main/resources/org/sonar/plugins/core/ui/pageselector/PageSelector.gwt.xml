@@ -8,7 +8,5 @@
   
   <entry-point class="org.sonar.plugins.core.ui.pageselector.client.PageSelector"/>
 
-  <extend-property name="locale" values="en"/>
   <extend-property name="locale" values="fr"/>
-
 </module>
