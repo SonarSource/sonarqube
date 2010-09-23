@@ -57,6 +57,7 @@ public class CheckstyleConfiguration implements BatchExtension {
 
   public File getXMLDefinitionFile() {
     if (project.getReuseExistingRulesConfig()) {
+      LOG.warn("Reusing existing Checkstyle configuration is deprecated as it's unstable and can not provide meaningful results. This feature will be removed soon.");
       return findExistingXML();
     }
 

@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
@@ -36,6 +38,8 @@ import org.sonar.plugins.findbugs.xml.FindBugsFilter;
 import org.sonar.plugins.findbugs.xml.Match;
 
 public class FindbugsMavenPluginHandler implements MavenPluginHandler {
+
+  private static Logger LOG = LoggerFactory.getLogger(FindbugsMavenPluginHandler.class);
 
   private RulesProfile profile;
   private FindbugsProfileExporter exporter;
@@ -89,6 +93,9 @@ public class FindbugsMavenPluginHandler implements MavenPluginHandler {
       String existingIncludeFilterConfig = plugin.getParameter("includeFilterFile");
       String existingExcludeFilterConfig = plugin.getParameter("excludeFilterFile");
       boolean existingConfig = !StringUtils.isBlank(existingIncludeFilterConfig) || !StringUtils.isBlank(existingExcludeFilterConfig);
+      if (project.getReuseExistingRulesConfig()) {
+        LOG.warn("Reusing existing Findbugs configuration is deprecated as it's unstable and can not provide meaningful results. This feature will be removed soon.");
+      }
       if ( !project.getReuseExistingRulesConfig() || (project.getReuseExistingRulesConfig() && !existingConfig)) {
         File includeXmlFile = saveIncludeConfigXml(project);
         plugin.setParameter("includeFilterFile", getPath(includeXmlFile));

@@ -25,6 +25,8 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.maven.MavenPlugin;
@@ -33,6 +35,8 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 
 public class PmdConfiguration implements BatchExtension {
+
+  private static Logger LOG = LoggerFactory.getLogger(PmdConfiguration.class);
 
   private PmdProfileExporter pmdProfileExporter;
   private RulesProfile rulesProfile;
@@ -46,6 +50,7 @@ public class PmdConfiguration implements BatchExtension {
 
   public List<String> getRulesets() {
     if (project.getReuseExistingRulesConfig()) {
+      LOG.warn("Reusing existing PMD configuration is deprecated as it's unstable and can not provide meaningful results. This feature will be removed soon.");
       return getDeclaredRulesets();
     }
     return Arrays.asList(saveXmlFile().getAbsolutePath());
