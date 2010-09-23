@@ -332,7 +332,7 @@ public final class Rule {
   }
 
   public Rule setUniqueKey(String repositoryKey, String key) {
-    return setRepositoryKey(repositoryKey).setKey(key);
+    return setRepositoryKey(repositoryKey).setKey(key).setConfigKey(key);
   }
 
   public Cardinality getCardinality() {
