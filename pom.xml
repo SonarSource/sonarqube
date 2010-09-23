@@ -186,7 +186,7 @@
         <plugin>
           <groupId>org.codehaus.sonar</groupId>
           <artifactId>sonar-dev-maven-plugin</artifactId>
-          <version>0.3</version>
+          <version>0.5</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.sonar</groupId>

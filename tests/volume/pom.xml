@@ -63,16 +63,15 @@
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-dev-maven-plugin</artifactId>
-        <version>0.3</version>
+        <version>0.5</version>
         <executions>
           <execution>
             <id>start-server</id>
             <phase>pre-integration-test</phase>
             <configuration>
-              <sonar.background>true</sonar.background>
-              <sonar.runtimeVersion>${sonar.runtimeVersion}</sonar.runtimeVersion>
-              <sonar.dropDatabase>false</sonar.dropDatabase>
-              <sonar.extensionsDir>${basedir}/target/extensions</sonar.extensionsDir>
+              <background>true</sonar.background>
+              <dropDatabase>false</sonar.dropDatabase>
+              <extensionsDir>${basedir}/target/extensions</extensionsDir>
             </configuration>
             <goals>
               <goal>start-war</goal>
@@ -84,9 +83,6 @@
             <goals>
               <goal>stop-war</goal>
             </goals>
-            <configuration>
-              <sonar.runtimeVersion>${sonar.runtimeVersion}</sonar.runtimeVersion>
-            </configuration>
           </execution>
         </executions>
       </plugin>

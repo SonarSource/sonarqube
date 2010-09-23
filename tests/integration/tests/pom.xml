@@ -27,16 +27,16 @@
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-dev-maven-plugin</artifactId>
-        <version>0.4</version>
+        <version>0.5</version>
         <executions>
           <execution>
             <id>start-server</id>
             <phase>pre-integration-test</phase>
             <configuration>
-              <sonar.background>true</sonar.background>
-              <sonar.extensionsDir>${basedir}/target/extensions</sonar.extensionsDir>
-              <sonar.configBackup>${basedir}/src/it/integration-tests-backup.xml</sonar.configBackup>
-              <sonar.clean>true</sonar.clean>
+              <background>true</background>
+              <extensionsDir>${basedir}/target/extensions</extensionsDir>
+              <configBackup>${basedir}/src/it/integration-tests-backup.xml</configBackup>
+              <clean>true</clean>
             </configuration>
             <goals>
               <goal>start-war</goal>
@@ -46,7 +46,7 @@
             <id>analyze-projects</id>
             <phase>pre-integration-test</phase>
             <configuration>
-              <sonar.projectsDir>${basedir}/maven-projects</sonar.projectsDir>
+              <projectsDir>${basedir}/maven-projects</projectsDir>
             </configuration>
             <goals>
               <goal>analyze</goal>
