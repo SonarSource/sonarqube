@@ -23,6 +23,7 @@ import java.lang.annotation.Annotation;
 
 /**
  * A utility class for annotations
+ *
  * @since 1.11
  */
 public final class AnnotationUtils {
@@ -34,7 +35,7 @@ public final class AnnotationUtils {
    * Searches for a class annotation. All inheritance tree is analysed.
    */
   public static <A> A getClassAnnotation(final Object object, final Class<A> annotationClass) {
-    Class aClass = object.getClass();
+    Class aClass = (object instanceof Class ? (Class)object : object.getClass());
     while (aClass != null) {
       Annotation annotation = aClass.getAnnotation(annotationClass);
       if (annotation != null) {
