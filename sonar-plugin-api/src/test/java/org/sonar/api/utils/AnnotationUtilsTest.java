@@ -37,7 +37,6 @@ public class AnnotationUtilsTest {
     assertThat(annotation.value(), is("foo"));
   }
 
-
   @Test
   public void searchClassAnnotationInSuperClass() {
     FakeAnnotation annotation = AnnotationUtils.getClassAnnotation(new ChildClass(), FakeAnnotation.class);
@@ -48,6 +47,15 @@ public class AnnotationUtilsTest {
   public void noClassAnnotation() {
     FakeAnnotation annotation = AnnotationUtils.getClassAnnotation("a string", FakeAnnotation.class);
     assertThat(annotation, nullValue());
+  }
+
+  @Test
+  public void shouldAcceptClasses() {
+    FakeAnnotation annotation = AnnotationUtils.getClassAnnotation(SuperClass.class, FakeAnnotation.class);
+    assertThat(annotation.value(), is("foo"));
+
+    annotation = AnnotationUtils.getClassAnnotation(ChildClass.class, FakeAnnotation.class);
+    assertThat(annotation.value(), is("foo"));
   }
 
 }
