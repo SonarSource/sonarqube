@@ -32,12 +32,18 @@ import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.plugin.JpaPlugin;
 import org.sonar.core.plugin.JpaPluginDao;
 import org.sonar.server.platform.DefaultServerFileSystem;
+import org.sonar.server.platform.ServerStartException;
+
+import com.google.common.collect.Maps;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public final class PluginDeployer implements ServerComponent {
 
@@ -47,8 +53,8 @@ public final class PluginDeployer implements ServerComponent {
   private DefaultServerFileSystem fileSystem;
   private JpaPluginDao dao;
   private PluginClassLoaders classloaders;
-  private Map<String, PluginMetadata> pluginByKeys = new HashMap<String, PluginMetadata>();
-  private List<PluginMetadata> deprecatedPlugins = new ArrayList<PluginMetadata>();
+  private Map<String, PluginMetadata> pluginByKeys = Maps.newHashMap();
+  private Map<String, PluginMetadata> deprecatedPlugins = Maps.newHashMap();
 
   public PluginDeployer(Server server, DefaultServerFileSystem fileSystem, JpaPluginDao dao, PluginClassLoaders classloaders) {
     this.server = server;
@@ -105,13 +111,14 @@ public final class PluginDeployer implements ServerComponent {
   }
 
   private void deployDeprecatedPlugins() throws IOException {
-    for (PluginMetadata deprecatedPlugin : deprecatedPlugins) {
-      if (deprecatedPlugin.getKey() != null && !pluginByKeys.containsKey(deprecatedPlugin.getKey())) {
+    for (PluginMetadata deprecatedPlugin : deprecatedPlugins.values()) {
+      PluginMetadata metadata = pluginByKeys.get(deprecatedPlugin.getKey());
+      if (metadata != null) {
+        FileUtils.deleteQuietly(deprecatedPlugin.getSourceFile());
+        Logs.INFO.info("Old plugin " + deprecatedPlugin.getFilename() + " replaced by new " + metadata.getFilename());
+      } else {
         pluginByKeys.put(deprecatedPlugin.getKey(), deprecatedPlugin);
         deploy(deprecatedPlugin);
-
-      } else {
-        FileUtils.deleteQuietly(deprecatedPlugin.getSourceFile());
       }
     }
   }
@@ -153,22 +160,22 @@ public final class PluginDeployer implements ServerComponent {
 
   private void loadCorePlugins() throws IOException {
     for (File file : fileSystem.getCorePlugins()) {
-      registerPluginMetadata(file, true);
+      registerPluginMetadata(file, true, false);
     }
   }
 
   private void loadUserPlugins() throws IOException {
     for (File file : fileSystem.getUserPlugins()) {
-      registerPluginMetadata(file, false);
+      registerPluginMetadata(file, false, false);
     }
   }
 
   private void moveAndLoadDownloadedPlugins() throws IOException {
     if (fileSystem.getDownloadedPluginsDir().exists()) {
-      Collection<File> jars = FileUtils.listFiles(fileSystem.getDownloadedPluginsDir(), new String[]{"jar"}, false);
+      Collection<File> jars = FileUtils.listFiles(fileSystem.getDownloadedPluginsDir(), new String[] { "jar" }, false);
       for (File jar : jars) {
         File movedJar = moveDownloadedFile(jar);
-        registerPluginMetadata(movedJar, false);
+        registerPluginMetadata(movedJar, false, true);
       }
     }
   }
@@ -179,26 +186,37 @@ public final class PluginDeployer implements ServerComponent {
       return new File(fileSystem.getUserPluginsDir(), jar.getName());
 
     } catch (IOException e) {
-      LOG.error("Fail to move the downloaded file:" + jar.getAbsolutePath(), e);
+      LOG.error("Fail to move the downloaded file: " + jar.getAbsolutePath(), e);
       return null;
     }
   }
 
-  private void registerPluginMetadata(File file, boolean corePlugin) throws IOException {
+  private void registerPluginMetadata(File file, boolean corePlugin, boolean canDeleteOld) throws IOException {
     PluginMetadata metadata = PluginMetadata.createFromJar(file, corePlugin);
     String pluginKey = metadata.getKey();
     if (pluginKey != null) {
-      PluginMetadata existing = pluginByKeys.get(pluginKey);
-      if (existing != null) {
-        FileUtils.deleteQuietly(existing.getSourceFile());
-        pluginByKeys.remove(pluginKey);
-      }
-      pluginByKeys.put(pluginKey, metadata);
-
+      registerPluginMetadata(pluginByKeys, file, metadata, canDeleteOld);
     } else if (metadata.isOldManifest()) {
       loadDeprecatedPlugin(metadata);
-      deprecatedPlugins.add(metadata);
+      registerPluginMetadata(deprecatedPlugins, file, metadata, canDeleteOld);
     }
+  }
+
+  private void registerPluginMetadata(Map<String, PluginMetadata> map, File file, PluginMetadata metadata, boolean canDeleteOld) {
+    String pluginKey = metadata.getKey();
+    PluginMetadata existing = map.get(pluginKey);
+    if (existing != null) {
+      if (canDeleteOld) {
+        FileUtils.deleteQuietly(existing.getSourceFile());
+        map.remove(pluginKey);
+        Logs.INFO.info("Old plugin " + existing.getFilename() + " replaced by new " + metadata.getFilename());
+      } else {
+        throw new ServerStartException("Found two plugins with the same key '" + pluginKey + "': "
+            + metadata.getFilename() + " and "
+            + existing.getFilename());
+      }
+    }
+    map.put(metadata.getKey(), metadata);
   }
 
   private void loadDeprecatedPlugin(PluginMetadata plugin) throws IOException {
@@ -209,7 +227,7 @@ public final class PluginDeployer implements ServerComponent {
 
     String mainClass = plugin.getMainClass();
     try {
-      URLClassLoader pluginClassLoader = URLClassLoader.newInstance(new URL[]{tempFile.toURI().toURL()}, getClass().getClassLoader());
+      URLClassLoader pluginClassLoader = URLClassLoader.newInstance(new URL[] { tempFile.toURI().toURL() }, getClass().getClassLoader());
       Plugin pluginInstance = (Plugin) pluginClassLoader.loadClass(mainClass).newInstance();
       plugin.setKey(pluginInstance.getKey());
       plugin.setDescription(pluginInstance.getDescription());
@@ -218,6 +236,9 @@ public final class PluginDeployer implements ServerComponent {
     } catch (Exception e) {
       throw new RuntimeException("The plugin main class can not be created: plugin=" + plugin.getFilename() + ", class=" + mainClass, e);
     }
-  }
 
+    if (StringUtils.isBlank(plugin.getKey())) {
+      throw new ServerStartException("Found plugin with empty key: " + plugin.getFilename());
+    }
+  }
 }

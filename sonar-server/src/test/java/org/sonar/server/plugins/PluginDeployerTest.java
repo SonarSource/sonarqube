@@ -31,6 +31,7 @@ import org.sonar.core.plugin.JpaPluginFile;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.ServerImpl;
+import org.sonar.server.platform.ServerStartException;
 import org.sonar.test.TestUtils;
 
 import java.io.File;
@@ -39,8 +40,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import static junit.framework.Assert.assertNotNull;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 public class PluginDeployerTest extends AbstractDbUnitTestCase {
@@ -55,7 +56,7 @@ public class PluginDeployerTest extends AbstractDbUnitTestCase {
 
   @Rule
   public TestName name = new TestName();
-  
+
   @Before
   public void start() throws ParseException {
     server = new ServerImpl("1", "2.2", new SimpleDateFormat("yyyy-MM-dd").parse("2010-05-18"));
@@ -67,7 +68,6 @@ public class PluginDeployerTest extends AbstractDbUnitTestCase {
     deployer = new PluginDeployer(server, fileSystem, dao, classloaders);
   }
 
-
   @Test
   public void deployPlugin() throws IOException {
     setupData("shared");
@@ -75,7 +75,7 @@ public class PluginDeployerTest extends AbstractDbUnitTestCase {
 
     // check that the plugin is registered in database
     List<JpaPlugin> plugins = dao.getPlugins();
-    assertThat(plugins.size(),  is(1)); // no more checkstyle
+    assertThat(plugins.size(), is(1)); // no more checkstyle
     JpaPlugin plugin = plugins.get(0);
     assertThat(plugin.getName(), is("Foo"));
     assertThat(plugin.getFiles().size(), is(1));
@@ -101,7 +101,7 @@ public class PluginDeployerTest extends AbstractDbUnitTestCase {
 
     // check that the plugin is registered in database
     List<JpaPlugin> plugins = dao.getPlugins();
-    assertThat(plugins.size(),  is(1)); // no more checkstyle
+    assertThat(plugins.size(), is(1)); // no more checkstyle
     JpaPlugin plugin = plugins.get(0);
     assertThat(plugin.getKey(), is("build-breaker"));
     assertThat(plugin.getFiles().size(), is(1));
@@ -128,7 +128,7 @@ public class PluginDeployerTest extends AbstractDbUnitTestCase {
 
     // check that the plugin is registered in database
     List<JpaPlugin> plugins = dao.getPlugins();
-    assertThat(plugins.size(),  is(1)); // no more checkstyle
+    assertThat(plugins.size(), is(1)); // no more checkstyle
     JpaPlugin plugin = plugins.get(0);
     assertThat(plugin.getFiles().size(), is(2));
     JpaPluginFile pluginFile = plugin.getFiles().get(1);
@@ -153,7 +153,19 @@ public class PluginDeployerTest extends AbstractDbUnitTestCase {
 
     // check that the plugin is registered in database
     List<JpaPlugin> plugins = dao.getPlugins();
-    assertThat(plugins.size(),  is(0));
+    assertThat(plugins.size(), is(0));
+  }
+
+  @Test(expected = ServerStartException.class)
+  public void failIfTwoPluginsWithSameKey() throws IOException {
+    setupData("shared");
+    deployer.start();
+  }
+
+  @Test(expected = ServerStartException.class)
+  public void failIfTwoDeprecatedPluginsWithSameKey() throws IOException {
+    setupData("shared");
+    deployer.start();
   }
 
 }
