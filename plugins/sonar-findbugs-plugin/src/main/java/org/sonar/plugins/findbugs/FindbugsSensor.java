@@ -60,7 +60,7 @@ public class FindbugsSensor implements Sensor, DependsUponMavenPlugin, Generates
       Rule rule = ruleFinder.findByKey(FindbugsConstants.REPOSITORY_KEY, fbViolation.getType());
       JavaFile resource = new JavaFile(fbViolation.getSonarJavaFileKey());
       if (context.getResource(resource) != null) {
-        Violation violation = new Violation(rule, resource).setLineId(fbViolation.getStart()).setMessage(fbViolation.getLongMessage());
+        Violation violation = Violation.create(rule, resource).setLineId(fbViolation.getStart()).setMessage(fbViolation.getLongMessage());
         context.saveViolation(violation);
       }
     }

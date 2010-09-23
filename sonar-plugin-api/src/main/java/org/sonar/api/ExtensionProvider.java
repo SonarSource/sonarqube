@@ -17,10 +17,15 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.rules;
+package org.sonar.api;
 
-import org.sonar.check.IsoCategory;
+import java.util.Collection;
 
-@org.sonar.check.Rule(name ="Annotated Check", description = "Description", isoCategory = IsoCategory.Reliability)
-public class AnnotatedCheck {
+/**
+ * @since 2.3
+ */
+public interface ExtensionProvider {
+
+  Collection provide();
+
 }

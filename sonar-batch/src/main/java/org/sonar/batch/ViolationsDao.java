@@ -52,7 +52,7 @@ public class ViolationsDao {
     List<RuleFailureModel> models = session.getResults(RuleFailureModel.class, "snapshotId", snapshotId);
     List<Violation> violations = new ArrayList<Violation>();
     for (RuleFailureModel model : models) {
-      Violation violation = new Violation(model.getRule(), resource);
+      Violation violation = Violation.create(model.getRule(), resource);
       violation.setLineId(model.getLine());
       violation.setMessage(model.getMessage());
       violation.setPriority(model.getPriority());

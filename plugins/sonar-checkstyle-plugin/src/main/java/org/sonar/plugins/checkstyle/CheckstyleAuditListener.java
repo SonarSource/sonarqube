@@ -53,7 +53,7 @@ public class CheckstyleAuditListener implements AuditListener, BatchExtension {
       Rule rule = ruleFinder.findByKey(CheckstyleConstants.REPOSITORY_KEY, ruleKey);
       if (rule != null) {
         initResource(event);
-        Violation violation = new Violation(rule, currentResource)
+        Violation violation = Violation.create(rule, currentResource)
             .setLineId(getLineId(event))
             .setMessage(getMessage(event));
         context.saveViolation(violation);

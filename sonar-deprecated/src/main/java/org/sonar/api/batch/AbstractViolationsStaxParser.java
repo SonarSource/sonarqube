@@ -164,7 +164,7 @@ public abstract class AbstractViolationsStaxParser {
     Rule rule = getRule(violationCursor);
     Integer line = getLineIndex(violationCursor);
     if (rule != null && resource != null) {
-      Violation violation = new Violation(rule, resource)
+      Violation violation = Violation.create(rule, resource)
           .setLineId(line)
           .setMessage(messageFor(violationCursor));
       context.saveViolation(violation);

@@ -72,7 +72,7 @@ public class PmdViolationsXmlParserTest {
     verify(context, times(30)).saveViolation(argThat(new IsViolationOnJavaClass()));
     verify(context, times(4)).saveViolation(argThat(new IsViolationOnJavaClass(new JavaFile("ch.hortis.sonar.mvn.ClassWithComments"))));
 
-    Violation wanted = new Violation(null, new JavaFile("ch.hortis.sonar.mvn.ClassWithComments"))
+    Violation wanted = Violation.create((Rule)null, new JavaFile("ch.hortis.sonar.mvn.ClassWithComments"))
         .setMessage("Avoid unused local variables such as 'toto'.")
         .setLineId(22);
     verify(context, times(1)).saveViolation(argThat(new IsViolation(wanted)));

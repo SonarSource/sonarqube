@@ -22,7 +22,10 @@ package org.sonar.api.resources;
 import org.apache.commons.io.FileUtils;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
+
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +33,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class JavaFileTest {
+
+  @Rule
+  public TemporaryFolder tempFolder = new TemporaryFolder();
+  
   @Test
   public void testNewClass() {
     JavaFile javaClass = new JavaFile("org.foo.bar.Hello", false);
@@ -127,8 +134,9 @@ public class JavaFileTest {
     assertEquals("onelevel.MyFile", clazz.getKey());
     assertEquals("onelevel", clazz.getParent().getKey());
 
-    List<File> sources = Arrays.asList(newDir("sources"));
-    JavaFile javaFile = JavaFile.fromAbsolutePath(absPath("sources/onelevel/MyFile.java"), sources, false);
+    File sourceDir = newDir("sources");
+    List<File> sources = Arrays.asList(sourceDir);
+    JavaFile javaFile = JavaFile.fromAbsolutePath(absPath(sourceDir, "onelevel/MyFile.java"), sources, false);
     assertEquals("onelevel.MyFile", javaFile.getKey());
     assertEquals("MyFile", javaFile.getName());
     assertEquals("onelevel", javaFile.getParent().getKey());
@@ -139,8 +147,10 @@ public class JavaFileTest {
 
   @Test
   public void shouldResolveClassFromAbsolutePath() throws IOException {
-    List<File> sources = Arrays.asList(newDir("source1"), newDir("source2"));
-    JavaFile javaFile = JavaFile.fromAbsolutePath(absPath("source2/foo/bar/MyFile.java"), sources, false);
+    File sources1 = newDir("source1");
+    File sources2 = newDir("source2");
+    List<File> sources = Arrays.asList(sources1, sources2);
+    JavaFile javaFile = JavaFile.fromAbsolutePath(absPath(sources2, "foo/bar/MyFile.java"), sources, false);
     assertThat("foo.bar.MyFile", is(javaFile.getKey()));
     assertThat(javaFile.getLongName(), is("foo.bar.MyFile"));
     assertThat(javaFile.getName(), is("MyFile"));
@@ -149,9 +159,11 @@ public class JavaFileTest {
 
   @Test
   public void shouldResolveFromAbsolutePathEvenIfDefaultPackage() throws IOException {
-    List<File> sources = Arrays.asList(newDir("source1"), newDir("source2"));
+    File source1 = newDir("source1");
+    File source2 = newDir("source2");
+    List<File> sources = Arrays.asList(source1, source2);
 
-    JavaFile javaClass = JavaFile.fromAbsolutePath(absPath("source1/MyClass.java"), sources, false);
+    JavaFile javaClass = JavaFile.fromAbsolutePath(absPath(source1, "MyClass.java"), sources, false);
     assertEquals(JavaPackage.DEFAULT_PACKAGE_NAME + ".MyClass", javaClass.getKey());
     assertEquals("MyClass", javaClass.getName());
 
@@ -160,14 +172,16 @@ public class JavaFileTest {
 
   @Test
   public void shouldResolveOnlyJavaFromAbsolutePath() throws IOException {
-    List<File> sources = Arrays.asList(newDir("source1"));
-    assertNull(JavaFile.fromAbsolutePath(absPath("source1/foo/bar/my_file.sql"), sources, false));
+    File source1 = newDir("source1");
+    List<File> sources = Arrays.asList(source1);
+    assertNull(JavaFile.fromAbsolutePath(absPath(source1, "foo/bar/my_file.sql"), sources, false));
   }
 
   @Test
   public void shouldNotFailWhenResolvingUnknownClassFromAbsolutePath() throws IOException {
-    List<File> sources = Arrays.asList(newDir("source1"));
-    assertNull(JavaFile.fromAbsolutePath(absPath("/home/other/src/main/java/foo/bar/MyClass.java"), sources, false));
+    File source1 = newDir("source1");
+    List<File> sources = Arrays.asList(source1);
+    assertNull(JavaFile.fromAbsolutePath("/home/other/src/main/java/foo/bar/MyClass.java", sources, false));
   }
 
   @Test
@@ -211,14 +225,11 @@ public class JavaFileTest {
   }
 
 
-  private File newDir(String relativePath) throws IOException {
-    File target = new File("target", relativePath);
-    FileUtils.forceMkdir(target);
-    FileUtils.cleanDirectory(target);
-    return target;
+  private File newDir(String dirName) throws IOException {
+    return tempFolder.newFolder(dirName);
   }
 
-  private String absPath(String relativePath) throws IOException {
-    return new File("target", relativePath).getCanonicalPath();
+  private String absPath(File dir, String filePath) throws IOException {
+    return new File(dir, filePath).getPath();
   }
 }

@@ -96,7 +96,7 @@ public class MessageDispatcher {
   public void log(Resource resource, Message message) {
     Object checker = message.getChecker();
     Check check = getCheck(checker);
-    Violation violation = new Violation(new Rule(check.getRepositoryKey(), check.getTemplateKey()), resource);
+    Violation violation = Violation.create(new Rule(check.getRepositoryKey(), check.getTemplateKey()), resource);
     violation.setLineId(message.getLine());
     violation.setMessage(message.getText(Locale.ENGLISH));
     violation.setPriority(RulePriority.fromCheckPriority(check.getPriority()));

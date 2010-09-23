@@ -19,17 +19,16 @@
  */
 package org.sonar.api.rules;
 
-import org.sonar.check.Check;
-import org.sonar.check.CheckProperty;
 import org.sonar.check.IsoCategory;
+import org.sonar.check.RuleProperty;
 
-@Check(key = "overriden_key",title ="Check with parameters", description = "Has parameters", isoCategory = IsoCategory.Efficiency)
+@org.sonar.check.Rule(key = "overridden_key", name = "Check with parameters", description = "Has parameters", isoCategory = IsoCategory.Efficiency)
 public class AnnotatedCheckWithParameters {
 
-  @CheckProperty(description ="Maximum value")
+  @RuleProperty(description = "Maximum value")
   private String max;
 
-  @CheckProperty(key = "overidden_min", description ="Minimum value")
+  @RuleProperty(key = "overridden_min", description = "Minimum value")
   protected String min;
 
   private int nonConfigurableProperty;

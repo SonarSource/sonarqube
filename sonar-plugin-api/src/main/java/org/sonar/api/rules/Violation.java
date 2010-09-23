@@ -38,7 +38,9 @@ public class Violation {
 
   /**
    * Creates of a violation from a rule. Will need to define the resource later on
+   * @deprecated since 2.3. Use the factory method create()
    */
+  @Deprecated
   public Violation(Rule rule) {
     this.rule = rule;
   }
@@ -48,7 +50,9 @@ public class Violation {
    *
    * @param rule the rule that has been violated
    * @param resource the resource the violation should be attached to
+   * @deprecated since 2.3. Use the factory method create()
    */
+  @Deprecated
   public Violation(Rule rule, Resource resource) {
     this.resource = resource;
     this.rule = rule;
@@ -118,7 +122,9 @@ public class Violation {
    * Sets the violation priority
    *
    * @return the current object
+   * @deprecated since 2.3. The priority is set by the quality profile.
    */
+  @Deprecated
   public Violation setPriority(RulePriority priority) {
     this.priority = priority;
     return this;
@@ -169,5 +175,13 @@ public class Violation {
   @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this);
+  }
+
+  public static Violation create(ActiveRule activeRule, Resource resource) {
+    return new Violation(activeRule.getRule()).setResource(resource);
+  }
+
+  public static Violation create(Rule rule, Resource resource) {
+    return new Violation(rule).setResource(resource);
   }
 }

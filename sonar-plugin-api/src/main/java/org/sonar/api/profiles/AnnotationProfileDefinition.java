@@ -20,10 +20,10 @@
 package org.sonar.api.profiles;
 
 import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleAnnotationUtils;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.check.AnnotationIntrospector;
 import org.sonar.check.BelongsToProfile;
 
 import java.util.Collection;
@@ -61,7 +61,7 @@ public abstract class AnnotationProfileDefinition extends ProfileDefinition {
 
   private void registerRule(Class aClass, BelongsToProfile belongsToProfile, RulesProfile profile, ValidationMessages validation) {
     if (belongsToProfile != null) {
-      String ruleKey = AnnotationIntrospector.getCheckKey(aClass);
+      String ruleKey = RuleAnnotationUtils.getRuleKey(aClass);
       Rule rule = ruleFinder.findByKey(repositoryKey, ruleKey);
       if (rule == null) {
         validation.addErrorText("Rule not found: [repository=" + repositoryKey + ", key=" + ruleKey + "]");

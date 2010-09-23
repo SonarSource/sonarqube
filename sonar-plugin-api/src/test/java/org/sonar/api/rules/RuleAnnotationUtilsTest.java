@@ -19,46 +19,28 @@
  */
 package org.sonar.api.rules;
 
-import org.hamcrest.core.Is;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 public class RuleAnnotationUtilsTest {
 
   @Test
-  public void readAnnotatedClassWithoutParameters() {
-    Rule rule = RuleAnnotationUtils.readAnnotatedClass(AnnotatedCheck.class);
-    assertNotNull(rule);
-    assertThat(rule.getKey(), is(AnnotatedCheck.class.getName()));
-    assertThat(rule.getName(), is("Annotated Check"));
-    assertThat(rule.getConfigKey(), nullValue());
-    assertThat(rule.getParams().size(), is(0));
-    assertThat(rule.getDescription(), is("Description"));
-    assertThat(rule.getCardinality(), Is.is(Rule.Cardinality.SINGLE));
-    assertThat(rule.getRulesCategory().getName(), Is.is(Iso9126RulesCategories.RELIABILITY.getName()));
+  public void defaultKeyShouldBeTheClassName() {
+    String key = RuleAnnotationUtils.getRuleKey(AnnotatedCheck.class);
+    assertThat(key, is(AnnotatedCheck.class.getName()));
   }
 
   @Test
-  public void ruleKeyCanBeOverridden() {
-    Rule rule = RuleAnnotationUtils.readAnnotatedClass(AnnotatedCheckWithParameters.class);
-    assertNotNull(rule);
-    assertThat(rule.getKey(), is("overriden_key"));
+  public void shouldGetKeyFromDeprecatedCheckAnnotation() {
+    String key = RuleAnnotationUtils.getRuleKey(DeprecatedAnnotatedCheck.class);
+    assertThat(key, is(DeprecatedAnnotatedCheck.class.getName()));
   }
-  @Test
-  public void readAnnotatedClassWithParameters() {
-    Rule rule = RuleAnnotationUtils.readAnnotatedClass(AnnotatedCheckWithParameters.class);
-    assertNotNull(rule);
-    assertThat(rule.getParams().size(), is(2));
-    assertThat(rule.getParam("max"), not(nullValue()));
-    assertThat(rule.getParam("max").getDescription(), is("Maximum value"));
 
-    assertThat(rule.getParam("min"), nullValue());
-    assertThat(rule.getParam("overidden_min"), not(nullValue()));
-    assertThat(rule.getParam("overidden_min").getDescription(), is("Minimum value"));
+  @Test
+  public void shouldGetKey() {
+    String key = RuleAnnotationUtils.getRuleKey(AnnotatedCheckWithParameters.class);
+    assertThat(key, is("overridden_key"));
   }
 }

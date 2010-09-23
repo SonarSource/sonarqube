@@ -19,8 +19,9 @@
  */
 package org.sonar.api.rules;
 
+import org.sonar.check.Check;
 import org.sonar.check.IsoCategory;
 
-@org.sonar.check.Rule(name ="Annotated Check", description = "Description", isoCategory = IsoCategory.Reliability)
-public class AnnotatedCheck {
+@Check(title ="Annotated Check", description = "Description", isoCategory = IsoCategory.Reliability)
+public class DeprecatedAnnotatedCheck {
 }
