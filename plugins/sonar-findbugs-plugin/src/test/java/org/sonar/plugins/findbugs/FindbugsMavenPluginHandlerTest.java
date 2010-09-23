@@ -26,12 +26,15 @@ import org.hamcrest.core.Is;
 import static org.hamcrest.text.StringEndsWith.endsWith;
 import static org.junit.Assert.assertThat;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
+
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.profiles.RulesProfile;
@@ -47,13 +50,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FindbugsMavenPluginHandlerTest {
-  private static final String TARGET_TMP_TESTS = "target/tmp-tests";
 
+  @Rule
+  public TemporaryFolder tempFolder = new TemporaryFolder();
+  
   private Project project;
   private ProjectFileSystem fs;
   private File fakeSonarConfig;
   private MavenPlugin plugin;
   private FindbugsMavenPluginHandler handler;
+  private File findbugsTempDir;
 
   @Before
   public void setup() {
@@ -62,6 +68,7 @@ public class FindbugsMavenPluginHandlerTest {
     fakeSonarConfig = mock(File.class);
     plugin = mock(MavenPlugin.class);
     handler = createMavenPluginHandler();
+    findbugsTempDir = tempFolder.newFolder("findbugs");
   }
 
   @Test
@@ -166,7 +173,7 @@ public class FindbugsMavenPluginHandlerTest {
   }
 
   private void assertFindbugsIncludeFileIsSaved() {
-    File findbugsIncludeFile = new File(TARGET_TMP_TESTS + "/target/sonar/findbugs-include.xml");
+    File findbugsIncludeFile = new File(findbugsTempDir + "/target/sonar/findbugs-include.xml");
     assertThat(findbugsIncludeFile.exists(), is(true));
   }
 
@@ -176,7 +183,7 @@ public class FindbugsMavenPluginHandlerTest {
 
   private void mockProject(String effort) throws URISyntaxException, IOException {
     when(project.getPom()).thenReturn(new MavenProject());
-    when(project.getFileSystem()).thenReturn(new SimpleProjectFileSystem(new File(TARGET_TMP_TESTS)));
+    when(project.getFileSystem()).thenReturn(new SimpleProjectFileSystem(findbugsTempDir));
 
     Configuration conf = mock(Configuration.class);
     when(project.getConfiguration()).thenReturn(conf);
