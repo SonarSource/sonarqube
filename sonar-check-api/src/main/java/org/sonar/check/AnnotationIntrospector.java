@@ -23,6 +23,11 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @since 2.1 (experimental)
+ * @deprecated since 2.3
+ */
+@Deprecated
 public final class AnnotationIntrospector {
 
   private AnnotationIntrospector() {

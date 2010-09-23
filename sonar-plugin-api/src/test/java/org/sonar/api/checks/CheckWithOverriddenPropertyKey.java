@@ -17,22 +17,20 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.check;
+package org.sonar.api.checks;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.sonar.check.IsoCategory;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
 
-/**
- * @since 2.1 (experimental)
- * @deprecated since 2.3. Not supported anymore
- */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@Deprecated
-public @interface BelongsToProfiles {
+@Rule(isoCategory = IsoCategory.Efficiency, priority = Priority.CRITICAL)
+class CheckWithOverriddenPropertyKey{
 
-  BelongsToProfile[] value() default {};
-  
+  @RuleProperty(key = "maximum")
+  private int max = 50;
+
+  public int getMax() {
+    return max;
+  }
 }

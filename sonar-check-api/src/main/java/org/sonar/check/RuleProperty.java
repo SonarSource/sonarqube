@@ -25,14 +25,25 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @since 2.1 (experimental)
- * @deprecated since 2.3. Not supported anymore
+ * @since 2.3
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@Deprecated
-public @interface BelongsToProfiles {
+@Target(ElementType.FIELD)
+public @interface RuleProperty {
 
-  BelongsToProfile[] value() default {};
-  
+  /**
+   * The default key is the field name, read by reflection. Overriding this key can be useful when
+   * obfuscating the code.
+   */
+  String key() default "";
+
+  /**
+   * Optional description
+   */
+  String description() default "";
+
+  /**
+   * Optional default value.
+   */
+  String defaultValue() default "";
 }

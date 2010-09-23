@@ -151,4 +151,23 @@ public class RulesCategory extends BaseIdentifiable {
     }
     return null;
   }
+
+  public static RulesCategory fromIsoCategory(IsoCategory iso) {
+    if (iso==IsoCategory.Efficiency) {
+      return Iso9126RulesCategories.EFFICIENCY;
+    }
+    if (iso==IsoCategory.Maintainability) {
+      return Iso9126RulesCategories.MAINTAINABILITY;
+    }
+    if (iso==IsoCategory.Portability) {
+      return Iso9126RulesCategories.PORTABILITY;
+    }
+    if (iso==IsoCategory.Reliability) {
+      return Iso9126RulesCategories.RELIABILITY;
+    }
+    if (iso==IsoCategory.Usability) {
+      return Iso9126RulesCategories.USABILITY;
+    }
+    return null;
+  }
 }

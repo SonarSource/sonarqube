@@ -21,6 +21,7 @@ package org.sonar.check;
 
 import java.util.Locale;
 
+@Deprecated
 public interface Message {
 
   /**

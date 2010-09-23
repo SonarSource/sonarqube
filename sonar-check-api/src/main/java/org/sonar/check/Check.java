@@ -25,10 +25,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @since 2.1
+ * @since 2.1 (experimental)
+ * @deprecated since 2.3. Use @Rule
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Deprecated
 public @interface Check {
 
   /**
