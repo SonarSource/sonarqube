@@ -34,17 +34,23 @@ public interface Plugin {
 
   /**
    * Unique key within sonar plugins
+   * @deprecated since 2.2. The key must be set in the manifest.
    */
+  @Deprecated
   String getKey();
 
   /**
    * Descriptive name
+   * @deprecated since 2.2. The name must be set in the manifest.
    */
+  @Deprecated
   String getName();
 
   /**
    * description of the plugin, can contains html or ruby code
+   * @deprecated since 2.2. The description must be set in the manifest.
    */
+  @Deprecated
   String getDescription();
 
   /**

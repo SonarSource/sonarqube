@@ -17,7 +17,6 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
 package org.sonar.api.rules;
 
 import com.google.common.collect.Lists;
@@ -41,7 +40,7 @@ public final class AnnotationRuleRepository extends RuleRepository {
   private Collection<Class> annotatedClasses;
 
   /**
-   * Use the factory method()
+   * Use the factory method create()
    */
   private AnnotationRuleRepository(String key, String language, Collection<Class> annotatedClasses) {
     super(key, language);
