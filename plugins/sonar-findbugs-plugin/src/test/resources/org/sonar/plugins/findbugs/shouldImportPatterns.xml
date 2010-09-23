@@ -1,9 +1,11 @@
 <FindBugsFilter>
-  <Match>
-    <Or>
-      <Bug pattern="NP_CLOSING_NULL"/>
-      <Bug pattern="RC_REF_COMPARISON_BAD_PRACTICE"/>
-    </Or>
-    <Priority value="2"/>
-  </Match>
+	<Match>
+		<Bug pattern="NP_CLOSING_NULL" />
+	</Match>
+	<Match>
+		<Bug pattern="RC_REF_COMPARISON_BAD_PRACTICE" />
+	</Match>
+	<Match>
+		<Bug pattern="RC_REF_COMPARISON_BAD_PRACTICE" />
+	</Match>	
 </FindBugsFilter>

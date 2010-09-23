@@ -108,7 +108,7 @@ public class FindbugsProfileImporterTest {
     assertThat(results.size(), is(0));
     assertThat(messages.getErrors().size(), is(1));
   }
-  
+
   @Test
   public void testImportingXmlFileWithUnknownRule() throws IOException {
     String uncorrectFindbugsXml = TestUtils.getResourceContent("/org/sonar/plugins/findbugs/findbugsXmlWithUnknownRule.xml");
@@ -119,7 +119,7 @@ public class FindbugsProfileImporterTest {
     assertThat(results.size(), is(1));
     assertThat(messages.getWarnings().size(), is(1));
   }
-  
+
   @Test
   public void testImportingXmlFileWithUnknownCategory() throws IOException {
     String uncorrectFindbugsXml = TestUtils.getResourceContent("/org/sonar/plugins/findbugs/findbugsXmlWithUnknownCategory.xml");
@@ -130,7 +130,7 @@ public class FindbugsProfileImporterTest {
     assertThat(results.size(), is(142));
     assertThat(messages.getWarnings().size(), is(1));
   }
-  
+
   @Test
   public void testImportingXmlFileWithUnknownCode() throws IOException {
     String uncorrectFindbugsXml = TestUtils.getResourceContent("/org/sonar/plugins/findbugs/findbugsXmlWithUnknownCode.xml");

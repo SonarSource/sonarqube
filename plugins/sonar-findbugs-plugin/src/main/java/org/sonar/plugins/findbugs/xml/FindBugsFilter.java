@@ -151,7 +151,7 @@ public class FindBugsFilter {
   }
 
   private void mapRulePriority(Map<String, RulePriority> prioritiesByRule, RulePriority priority, String key) {
-    if (prioritiesByRule.containsKey(key)) {
+    if (prioritiesByRule.containsKey(key) && prioritiesByRule.get(key) != null) {
       if (prioritiesByRule.get(key).compareTo(priority) < 0) {
         prioritiesByRule.put(key, priority);
       }
