@@ -46,7 +46,7 @@ public class RuleParam {
   private String description;
 
   @Column(name = "param_type", updatable = true, nullable = true, length = 512)
-  private String type;
+  private String type = "s";
 
   @Column(name = "default_value", updatable = true, nullable = true, length = 4000)
   private String defaultValue;
