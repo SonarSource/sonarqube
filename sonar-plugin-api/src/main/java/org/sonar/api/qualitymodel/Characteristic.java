@@ -19,6 +19,7 @@
  */
 package org.sonar.api.qualitymodel;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -27,7 +28,6 @@ import org.hibernate.annotations.SortType;
 import org.sonar.api.rules.Rule;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -78,14 +78,14 @@ public final class Characteristic implements Comparable<Characteristic> {
       inverseJoinColumns = @JoinColumn(name = "parent_id",
           referencedColumnName = "id")
   )
-  private List<Characteristic> parents = new ArrayList<Characteristic>();
+  private List<Characteristic> parents = Lists.newArrayList();
 
   @Sort(type = SortType.NATURAL)
   @ManyToMany(mappedBy = "parents", cascade = CascadeType.ALL)
-  private List<Characteristic> children = new ArrayList<Characteristic>();
+  private List<Characteristic> children = Lists.newArrayList();
 
   @OneToMany(mappedBy = "characteristic", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
-  private List<CharacteristicProperty> properties = new ArrayList<CharacteristicProperty>();
+  private List<CharacteristicProperty> properties = Lists.newArrayList();
 
   Characteristic() {
   }

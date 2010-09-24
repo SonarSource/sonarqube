@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -168,7 +169,7 @@ public class AbstractSourceImporterTest {
 
     File unitTestFile = new File("test/UnitTest.java");
     File unitTestDir = new File("test");
-    List<File> unitTestDirs = new ArrayList<File>();
+    List<File> unitTestDirs = Lists.newArrayList();
     unitTestDirs.add(unitTestDir);
 
     Resource unitTest = importer.createResource(unitTestFile, unitTestDirs, true);
