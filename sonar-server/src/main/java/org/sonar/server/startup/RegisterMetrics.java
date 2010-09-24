@@ -20,27 +20,36 @@
 package org.sonar.server.startup;
 
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
+import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.profiles.Alert;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.jpa.dao.MeasuresDao;
+import org.sonar.server.platform.ServerStartException;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
 import javax.persistence.Query;
 
 public class RegisterMetrics {
 
+  private PluginRepository pluginRepository;
   private MeasuresDao measuresDao;
   private Metrics[] metricsRepositories = null;
   private DatabaseSession session;
 
-  public RegisterMetrics(DatabaseSession session, MeasuresDao measuresDao, Metrics[] metricsRepositories) {
+  public RegisterMetrics(DatabaseSession session, MeasuresDao measuresDao, PluginRepository pluginRepository, Metrics[] metricsRepositories) {
     this.session = session;
     this.measuresDao = measuresDao;
+    this.pluginRepository = pluginRepository;
     this.metricsRepositories = metricsRepositories;
   }
 
@@ -51,16 +60,36 @@ public class RegisterMetrics {
   public void start() {
     TimeProfiler profiler = new TimeProfiler().start("Load metrics");
     measuresDao.disableAutomaticMetrics();
-    List<Metric> metricsToRegister = new ArrayList<Metric>();
+
+    ArrayList<Metric> metricsToRegister = Lists.newArrayList();
     metricsToRegister.addAll(CoreMetrics.getMetrics());
+
+    HashMap<String, Metrics> metricsByRepository = Maps.newHashMap();
     if (metricsRepositories != null) {
       for (Metrics metrics : metricsRepositories) {
+        checkMetrics(metricsByRepository, metrics);
         metricsToRegister.addAll(metrics.getMetrics());
       }
     }
     register(metricsToRegister);
     cleanAlerts();
     profiler.stop();
+  }
+
+  private void checkMetrics(HashMap<String, Metrics> metricsByRepository, Metrics metrics) {
+    for (Metric metric : metrics.getMetrics()) {
+      String metricKey = metric.getKey();
+      if (CoreMetrics.metrics.contains(metric)) {
+        throw new ServerStartException("Found plugin, which contains metric '" + metricKey + "' from core: " + pluginRepository.getPluginKeyForExtension(metrics));
+      }
+      Metrics anotherRepository = metricsByRepository.get(metricKey);
+      if (anotherRepository != null) {
+        String firstPlugin = pluginRepository.getPluginKeyForExtension(anotherRepository);
+        String secondPlugin = pluginRepository.getPluginKeyForExtension(metrics);
+        throw new ServerStartException("Found two plugins with the same metric '" + metricKey + "': " + firstPlugin + " and " + secondPlugin);
+      }
+      metricsByRepository.put(metricKey, metrics);
+    }
   }
 
   protected void cleanAlerts() {
