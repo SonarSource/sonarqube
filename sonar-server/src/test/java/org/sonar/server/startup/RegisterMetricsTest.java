@@ -19,19 +19,19 @@
  */
 package org.sonar.server.startup;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
-import org.sonar.jpa.dao.MeasuresDao;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
+import org.sonar.jpa.dao.MeasuresDao;
+import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class RegisterMetricsTest extends AbstractDbUnitTestCase {
 
@@ -41,7 +41,7 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
 
     Metric metric1 = new Metric("new1", "short1", "desc1", Metric.ValueType.FLOAT, 1, true, "domain1", false);
     Metric metric2 = new Metric("new2", "short2", "desc2", Metric.ValueType.FLOAT, 1, true, "domain2", false);
-    RegisterMetrics synchronizer = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), null);
+    RegisterMetrics synchronizer = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), null, null);
     synchronizer.register(Arrays.asList(metric1, metric2));
     checkTables("shouldSaveIfNew", "metrics");
   }
@@ -52,7 +52,7 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
 
     final List<Metric> metrics = new ArrayList<Metric>();
     metrics.add(new Metric("key", "new short name", "new description", Metric.ValueType.FLOAT, -1, true, "new domain", false));
-    RegisterMetrics synchronizer = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), null);
+    RegisterMetrics synchronizer = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), null, null);
     synchronizer.register(metrics);
 
     checkTables("shouldUpdateIfAlreadyExists", "metrics");
@@ -62,7 +62,7 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
   public void enableOnlyLoadedMetrics() throws SQLException {
     setupData("enableOnlyLoadedMetrics");
 
-    RegisterMetrics loader = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), null);
+    RegisterMetrics loader = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), null, null);
     loader.start();
 
     assertFalse(getDao().getMeasuresDao().getMetric("deprecated").getEnabled());
@@ -73,7 +73,7 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
   public void cleanAlerts() throws SQLException {
     setupData("cleanAlerts");
 
-    RegisterMetrics loader = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), null);
+    RegisterMetrics loader = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), null, null);
     loader.cleanAlerts();
 
     checkTables("cleanAlerts", "metrics", "alerts");
