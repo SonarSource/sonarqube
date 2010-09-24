@@ -23,11 +23,10 @@ import org.picocontainer.Characteristics;
 import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.Plugin;
 import org.sonar.api.ServerExtension;
-import org.sonar.core.plugin.JpaPluginDao;
-import org.sonar.core.plugin.JpaPlugin;
 import org.sonar.api.platform.PluginRepository;
-
-import java.io.IOException;
+import org.sonar.api.utils.SonarException;
+import org.sonar.core.plugin.JpaPlugin;
+import org.sonar.core.plugin.JpaPluginDao;
 
 /**
  * @since 2.2
@@ -42,13 +41,17 @@ public class ServerPluginRepository extends PluginRepository {
     this.classloaders = classloaders;
   }
 
-  public void registerPlugins(MutablePicoContainer pico) throws ClassNotFoundException, IllegalAccessException,
-      InstantiationException, IOException {
+  public void registerPlugins(MutablePicoContainer pico) {
     for (JpaPlugin jpaPlugin : dao.getPlugins()) {
-      Class pluginClass = classloaders.getClassLoader(jpaPlugin.getKey()).loadClass(jpaPlugin.getPluginClass());
-      pico.as(Characteristics.CACHE).addComponent(pluginClass);
-      Plugin plugin = (Plugin) pico.getComponent(pluginClass);
-      registerPlugin(pico, plugin, ServerExtension.class);
+      try {
+        Class pluginClass = classloaders.getClassLoader(jpaPlugin.getKey()).loadClass(jpaPlugin.getPluginClass());
+        pico.as(Characteristics.CACHE).addComponent(pluginClass);
+        Plugin plugin = (Plugin) pico.getComponent(pluginClass);
+        registerPlugin(pico, plugin, ServerExtension.class);
+        
+      } catch (ClassNotFoundException e) {
+        throw new SonarException("Please check the plugin manifest. The main plugin class does not exist: " + jpaPlugin.getPluginClass(), e);
+      }
     }
   }
 

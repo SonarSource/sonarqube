@@ -56,8 +56,6 @@ import org.sonar.server.ui.AuthenticatorFactory;
 import org.sonar.server.ui.CodeColorizers;
 import org.sonar.server.ui.Views;
 
-import java.io.IOException;
-
 /**
  * @since 2.2
  */
@@ -92,17 +90,13 @@ public final class Platform {
   }
 
   public void start() {
-    try {
-      if (!started && isConnectedToDatabase()) {
-        TimeProfiler profiler = new TimeProfiler().start("Start services");
-        startCoreComponents();
-        startServiceComponents();
-        executeStartupTasks();
-        started = true;
-        profiler.stop();
-      }
-    } catch (Exception e) {
-      throw new ServerStartException(e);
+    if (!started && isConnectedToDatabase()) {
+      TimeProfiler profiler = new TimeProfiler().start("Start services");
+      startCoreComponents();
+      startServiceComponents();
+      executeStartupTasks();
+      started = true;
+      profiler.stop();
     }
   }
 
@@ -149,7 +143,7 @@ public final class Platform {
   /**
    * plugin extensions + all the components that depend on plugin extensions
    */
-  private void startServiceComponents() throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
+  private void startServiceComponents() {
     servicesContainer = coreContainer.makeChildContainer();
 
     ServerPluginRepository pluginRepository = servicesContainer.getComponent(ServerPluginRepository.class);
@@ -182,7 +176,7 @@ public final class Platform {
     servicesContainer.as(Characteristics.CACHE).addComponent(DeprecatedProfileImporters.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(ProfilesConsole.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(RulesConsole.class);
-    
+
     servicesContainer.start();
   }
 
