@@ -42,13 +42,14 @@ public final class AnnotationRuleRepository extends RuleRepository {
   /**
    * Use the factory method create()
    */
-  private AnnotationRuleRepository(String key, String language, Collection<Class> annotatedClasses) {
+  private AnnotationRuleRepository(String key, String language, String name, Collection<Class> annotatedClasses) {
     super(key, language);
+    setName(name);
     this.annotatedClasses = annotatedClasses;
   }
 
-  public static AnnotationRuleRepository create(String key, String language, Collection<Class> annotatedClasses) {
-    return new AnnotationRuleRepository(key, language, annotatedClasses);
+  public static AnnotationRuleRepository create(String key, String language, String name, Collection<Class> annotatedClasses) {
+    return new AnnotationRuleRepository(key, language, name, annotatedClasses);
   }
 
   @Override
