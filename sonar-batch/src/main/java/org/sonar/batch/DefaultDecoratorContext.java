@@ -43,7 +43,6 @@ public class DefaultDecoratorContext implements DecoratorContext {
   private boolean readOnly = false;
 
   private List<DecoratorContext> childrenContexts;
-  private List<Violation> violations;
   private ViolationsDao violationsDao;
 
   public DefaultDecoratorContext(Resource resource,
@@ -60,7 +59,6 @@ public class DefaultDecoratorContext implements DecoratorContext {
 
   public DefaultDecoratorContext setReadOnly(boolean b) {
     readOnly = b;
-    violations = null;
     childrenContexts = null;
     return this;
   }
@@ -125,13 +123,12 @@ public class DefaultDecoratorContext implements DecoratorContext {
 
 
   public List<Violation> getViolations() {
-    if (violations == null) {
       Bucket bucket = index.getBucket(resource);
       if (bucket != null && bucket.getSnapshotId() != null) {
-        violations = violationsDao.getViolations(resource, bucket.getSnapshotId());
+        return violationsDao.getViolations(resource, bucket.getSnapshotId());
       }
-    }
-    return violations;
+
+    return null;
   }
 
   public Dependency saveDependency(Dependency dependency) {
