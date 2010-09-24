@@ -112,7 +112,8 @@ public interface DecoratorContext {
 
 
   /**
-   * Save a coding rule violation. The decorator which calls this method must implement org.sonar.api.batch.GeneratesViolations
+   * Save a coding rule violation. The decorator which calls this method must be depended upon BatchBarriers.END_OF_VIOLATIONS_GENERATION.
+   * @see org.sonar.api.batch.BatchBarriers
    */
   DecoratorContext saveViolation(Violation violation);
 

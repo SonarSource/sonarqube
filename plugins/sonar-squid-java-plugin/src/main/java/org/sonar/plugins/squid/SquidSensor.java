@@ -46,8 +46,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 import org.sonar.java.bytecode.check.BytecodeChecks;
 
-/* The phase can be removed as soon as all needed sensors implements GeneratesViolations */
-
 @Phase(name = Phase.Name.PRE)
 /* TODO is the flag still used ? */
 @DependedUpon(value = Sensor.FLAG_SQUID_ANALYSIS, classes = NoSonarFilter.class)

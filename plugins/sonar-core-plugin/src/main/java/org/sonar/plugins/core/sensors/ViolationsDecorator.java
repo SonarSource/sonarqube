@@ -32,7 +32,7 @@ import org.sonar.api.rules.Violation;
 
 import java.util.*;
 
-@DependsUpon(classes = GeneratesViolations.class)
+@DependsUpon(value = DecoratorBarriers.END_OF_VIOLATIONS_GENERATION)
 public class ViolationsDecorator implements Decorator {
 
   // temporary data for current resource

@@ -102,7 +102,7 @@ public interface SensorContext {
   // ----------- RULE VIOLATIONS --------------
 
   /**
-   * Save a coding rule violation. The sensor which calls this method must implement org.sonar.api.batch.GeneratesViolations
+   * Save a coding rule violation.
    */
   void saveViolation(Violation violation);
 

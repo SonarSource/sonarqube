@@ -21,7 +21,6 @@ package org.sonar.plugins.pmd;
 
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AbstractViolationsStaxParser;
-import org.sonar.api.batch.GeneratesViolations;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.profiles.RulesProfile;
@@ -31,7 +30,7 @@ import org.sonar.api.utils.XmlParserException;
 
 import java.io.File;
 
-public class PmdSensor implements Sensor, GeneratesViolations {
+public class PmdSensor implements Sensor {
 
   private RulesProfile profile;
   private RulesManager rulesManager;

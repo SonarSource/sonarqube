@@ -26,7 +26,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.GeneratesViolations;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
@@ -38,7 +37,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
 
-public class FindbugsSensor implements Sensor, DependsUponMavenPlugin, GeneratesViolations {
+public class FindbugsSensor implements Sensor, DependsUponMavenPlugin {
 
   private RulesProfile profile;
   private RuleFinder ruleFinder;

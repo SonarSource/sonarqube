@@ -19,13 +19,12 @@
  */
 package org.sonar.plugins.checkstyle;
 
-import org.sonar.api.batch.GeneratesViolations;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 
-public class CheckstyleSensor implements Sensor, GeneratesViolations {
+public class CheckstyleSensor implements Sensor {
 
   private RulesProfile profile;
   private CheckstyleExecutor executor;

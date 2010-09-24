@@ -19,26 +19,19 @@
  */
 package org.sonar.api.batch;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
- * @since 1.10
+ * Barriers are used to define the order of execution of Decorators.
+ * @since 2.3
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD})
-public @interface DependsUpon {
+public interface DecoratorBarriers {
 
   /**
-   * Used only on classes. Must be keep empty on methods.
+   * This barrier is used by a decorator in order to :
+   * <ul>
+   *   <li>be executed after all the decorators which generate violations : <code>@DependsUpon(value=DecoratorBarriers.END_OF_VIOLATIONS_GENERATION</code></li>
+   *   <li>declare that it generates violations : <code>@DependedUpon(value=DecoratorBarriers.END_OF_VIOLATIONS_GENERATION</code></li>
+   * </ul>
    */
-  String[] value() default {};
-
-  /**
-   * Used only on classes. Must be keep empty on methods.
-   */
-  Class[] classes() default {};
-
+  String END_OF_VIOLATIONS_GENERATION = "END_OF_VIOLATIONS_GENERATION";
+  
 }

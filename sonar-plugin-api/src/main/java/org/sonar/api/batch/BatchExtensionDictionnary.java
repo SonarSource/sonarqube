@@ -21,6 +21,7 @@ package org.sonar.api.batch;
 
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.ClassUtils;
 import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.BatchExtension;
@@ -68,7 +69,7 @@ public class BatchExtensionDictionnary {
 
   public Collection<MavenPluginHandler> selectMavenPluginHandlers(Project project) {
     Collection<DependsUponMavenPlugin> selectedExtensions = select(DependsUponMavenPlugin.class, project, true);
-    List<MavenPluginHandler> handlers = new ArrayList<MavenPluginHandler>();
+    List<MavenPluginHandler> handlers = Lists.newArrayList();
     for (DependsUponMavenPlugin extension : selectedExtensions) {
       MavenPluginHandler handler = extension.getMavenPluginHandler(project);
       if (handler != null) {
@@ -90,7 +91,7 @@ public class BatchExtensionDictionnary {
   }
 
   private <T> List<T> getFilteredExtensions(Class<T> type, Project project) {
-    List<T> result = new ArrayList<T>();
+    List<T> result = Lists.newArrayList();
     for (BatchExtension extension : getExtensions()) {
       if (shouldKeep(type, extension, project)) {
         result.add((T) extension);
@@ -153,7 +154,7 @@ public class BatchExtensionDictionnary {
 
 
   protected List evaluateAnnotatedClasses(Object extension, Class annotation) {
-    List results = new ArrayList();
+    List results = Lists.newArrayList();
     Class aClass = extension.getClass();
     while (aClass != null) {
       evaluateClass(aClass, annotation, results);

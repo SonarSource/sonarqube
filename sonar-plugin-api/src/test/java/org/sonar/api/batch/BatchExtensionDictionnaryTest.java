@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.BatchExtension;
@@ -65,7 +66,7 @@ public class BatchExtensionDictionnaryTest {
     BatchExtension c = new MethodDependentOf(b);
 
     BatchExtensionDictionnary selector = newSelector(b, c, a);
-    List<BatchExtension> extensions = new ArrayList<BatchExtension>(selector.select(BatchExtension.class, null, true));
+    List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true));
 
     assertThat(extensions.size(), is(3));
     assertThat(extensions.get(0), is(a));
@@ -79,7 +80,7 @@ public class BatchExtensionDictionnaryTest {
     BatchExtension b = new MethodDependentOf("foo");
 
     BatchExtensionDictionnary selector = newSelector(a, b);
-    List<BatchExtension> extensions = new ArrayList<BatchExtension>(selector.select(BatchExtension.class, null, true));
+    List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true));
 
     assertThat(extensions.size(), is(2));
     assertThat(extensions.get(0), is(a));
@@ -87,7 +88,7 @@ public class BatchExtensionDictionnaryTest {
 
     // different initial order
     selector = newSelector(b, a);
-    extensions = new ArrayList<BatchExtension>(selector.select(BatchExtension.class, null, true));
+    extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true));
 
     assertEquals(2, extensions.size());
     assertEquals(a, extensions.get(0));
@@ -100,7 +101,7 @@ public class BatchExtensionDictionnaryTest {
     BatchExtension b = new ClassDependsUpon();
 
     BatchExtensionDictionnary selector = newSelector(a, b);
-    List<BatchExtension> extensions = new ArrayList<BatchExtension>(selector.select(BatchExtension.class, null, true));
+    List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true));
 
     assertThat(extensions.size(), is(2));
     assertThat(extensions.get(0), is(a));
@@ -108,7 +109,7 @@ public class BatchExtensionDictionnaryTest {
 
     // different initial order
     selector = newSelector(b, a);
-    extensions = new ArrayList<BatchExtension>(selector.select(BatchExtension.class, null, true));
+    extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true));
 
     assertEquals(2, extensions.size());
     assertEquals(a, extensions.get(0));
@@ -124,7 +125,7 @@ public class BatchExtensionDictionnaryTest {
     };
 
     BatchExtensionDictionnary selector = newSelector(a, b);
-    List<BatchExtension> extensions = new ArrayList<BatchExtension>(selector.select(BatchExtension.class, null, true));
+    List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true));
 
     assertThat(extensions.size(), is(2));
     assertThat(extensions.get(0), is(a));
@@ -132,7 +133,7 @@ public class BatchExtensionDictionnaryTest {
 
     // different initial order
     selector = newSelector(b, a);
-    extensions = new ArrayList<BatchExtension>(selector.select(BatchExtension.class, null, true));
+    extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true));
 
     assertEquals(2, extensions.size());
     assertEquals(a, extensions.get(0));
@@ -146,7 +147,7 @@ public class BatchExtensionDictionnaryTest {
     BatchExtension ko = new CheckProjectKO();
 
     BatchExtensionDictionnary selector = newSelector(ok, ko);
-    List<BatchExtension> extensions = new ArrayList<BatchExtension>(selector.select(BatchExtension.class, new Project("key"), true));
+    List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, new Project("key"), true));
 
     assertThat(extensions.size(), is(1));
     assertThat(extensions.get(0), is(CheckProjectOK.class));
@@ -158,7 +159,7 @@ public class BatchExtensionDictionnaryTest {
     BatchExtension b = new MethodDependentOf("foo");
 
     BatchExtensionDictionnary selector = newSelector(b, a);
-    List<BatchExtension> extensions = new ArrayList<BatchExtension>(selector.select(BatchExtension.class, null, true));
+    List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true));
 
     assertEquals(2, extensions.size());
     assertEquals(a, extensions.get(0));
@@ -166,7 +167,7 @@ public class BatchExtensionDictionnaryTest {
 
     // change initial order
     selector = newSelector(a, b);
-    extensions = new ArrayList<BatchExtension>(selector.select(BatchExtension.class, null, true));
+    extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true));
 
     assertEquals(2, extensions.size());
     assertEquals(a, extensions.get(0));
@@ -192,7 +193,7 @@ public class BatchExtensionDictionnaryTest {
     BatchExtension post = new PostSensor();
 
     BatchExtensionDictionnary selector = newSelector(analyze, post, pre);
-    List extensions = new ArrayList(selector.select(BatchExtension.class, null, true));
+    List extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true));
 
     assertEquals(3, extensions.size());
     assertEquals(pre, extensions.get(0));
@@ -207,14 +208,13 @@ public class BatchExtensionDictionnaryTest {
     BatchExtension post = new PostSensorSubclass();
 
     BatchExtensionDictionnary selector = newSelector(analyze, post, pre);
-    List extensions = new ArrayList(selector.select(BatchExtension.class, null, true));
+    List extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true));
 
     assertEquals(3, extensions.size());
     assertEquals(pre, extensions.get(0));
     assertEquals(analyze, extensions.get(1));
     assertEquals(post, extensions.get(2));
   }
-
 
   @Test
   public void buildStatusCheckersAreExecutedAfterOtherPostJobs() {
@@ -224,7 +224,7 @@ public class BatchExtensionDictionnaryTest {
     };
 
     BatchExtensionDictionnary selector = newSelector(new FakePostJob(), checker, new FakePostJob());
-    List extensions = new ArrayList(selector.select(BatchExtension.class, null, true));
+    List extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true));
 
     assertEquals(3, extensions.size());
     assertEquals(checker, extensions.get(2));
@@ -269,7 +269,6 @@ public class BatchExtensionDictionnaryTest {
   @DependedUpon("flag")
   interface InterfaceDependedUpon extends BatchExtension {
   }
-
 
   class GeneratesSomething implements BatchExtension {
     private Object gen;
