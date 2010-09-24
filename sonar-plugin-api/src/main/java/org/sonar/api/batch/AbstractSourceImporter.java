@@ -70,6 +70,11 @@ public abstract class AbstractSourceImporter implements Sensor {
    */
   public void analyse(Project project, SensorContext context) {
     analyse(project.getFileSystem(), context);
+    onFinished();
+  }
+
+  protected void onFinished() {
+
   }
 
   protected void analyse(ProjectFileSystem fileSystem, SensorContext context) {

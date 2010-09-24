@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.utils.SonarException;
+import org.sonar.batch.*;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.ResourceModel;
@@ -43,10 +45,6 @@ import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rules.Violation;
-import org.sonar.batch.ProjectTree;
-import org.sonar.batch.ResourceFilters;
-import org.sonar.batch.ViolationFilters;
-import org.sonar.batch.ViolationsDao;
 
 import java.util.*;
 
@@ -58,6 +56,7 @@ public class DefaultSonarIndex extends SonarIndex {
   private ResourcePersisters resourcePersisters;
   private Bucket<Project> rootProjectBucket;
   private Bucket<Project> selectedProjectBucket;
+  private DefaultResourceCreationLock lock;
 
   private ViolationFilters violationFilters;
   private ResourceFilters resourceFilters;
@@ -73,10 +72,11 @@ public class DefaultSonarIndex extends SonarIndex {
   private MeasuresDao measuresDao;
   private ProjectTree projectTree;
 
-  public DefaultSonarIndex(DatabaseSession session, ProjectTree projectTree) {
+  public DefaultSonarIndex(DatabaseSession session, ProjectTree projectTree, DefaultResourceCreationLock lock) {
     this.session = session;
     this.projectTree = projectTree;
     this.resourcePersisters = new ResourcePersisters(session);
+    this.lock = lock;
   }
 
   public void start() {
@@ -131,6 +131,8 @@ public class DefaultSonarIndex extends SonarIndex {
       projectDependency.setId(null);
       registerDependency(projectDependency);
     }
+
+    lock.unlock();
   }
 
   /* ------------ RESOURCES */
@@ -166,13 +168,17 @@ public class DefaultSonarIndex extends SonarIndex {
   }
 
   public Resource addResource(Resource resource) {
-    return getOrCreateBucket(resource).getResource();
+    return getOrCreateBucket(resource, false).getResource();
   }
 
-  private Bucket<Resource> getOrCreateBucket(Resource resource) {
+  private Bucket<Resource> getOrCreateBucket(Resource resource, boolean mustExist) {
     Bucket bucket = buckets.get(resource);
     if (bucket != null) {
       return bucket;
+    }
+
+    if (mustExist && lock.isLocked() && !ResourceUtils.isLibrary(resource)) {
+      throw new SonarException("The following resource has not been registered before saving violation/measure/event: " + resource);
     }
 
     prepareResource(resource);
@@ -182,7 +188,7 @@ public class DefaultSonarIndex extends SonarIndex {
     Bucket parentBucket = null;
     Resource parent = resource.getParent();
     if (parent != null) {
-      parentBucket = getOrCreateBucket(parent);
+      parentBucket = getOrCreateBucket(parent, mustExist);
     } else if (!ResourceUtils.isLibrary(resource)) {
       parentBucket = selectedProjectBucket;
     }
@@ -203,18 +209,18 @@ public class DefaultSonarIndex extends SonarIndex {
 
   /* ------------ MEASURES */
   public Measure getMeasure(Resource resource, Metric metric) {
-    return getOrCreateBucket(resource).getMeasures(MeasuresFilters.metric(metric));
+    return getOrCreateBucket(resource, false).getMeasures(MeasuresFilters.metric(metric));
   }
 
   public <M> M getMeasures(Resource resource, MeasuresFilter<M> filter) {
-    return getOrCreateBucket(resource).getMeasures(filter);
+    return getOrCreateBucket(resource, false).getMeasures(filter);
   }
 
 
   /* ------------ SOURCE CODE */
 
   public void setSource(Resource resource, String source) {
-    Bucket bucket = getOrCreateBucket(resource);
+    Bucket bucket = getOrCreateBucket(resource, false);
 
     if (!bucket.isExcluded()) {
       if (bucket.isSourceSaved()) {
@@ -236,7 +242,7 @@ public class DefaultSonarIndex extends SonarIndex {
     if (resource == null) {
       bucket = selectedProjectBucket;
     } else {
-      bucket = getOrCreateBucket(resource);
+      bucket = getOrCreateBucket(resource, true);
     }
     if (!bucket.isExcluded()) {
       persistViolation(violation, bucket.getSnapshot());
@@ -260,7 +266,7 @@ public class DefaultSonarIndex extends SonarIndex {
   }
 
   public Measure addMeasure(Resource resource, Measure measure) {
-    Bucket bucket = getOrCreateBucket(resource);
+    Bucket bucket = getOrCreateBucket(resource, true);
     if (!bucket.isExcluded()) {
       if (bucket.getMeasures(MeasuresFilters.measure(measure))!=null) {
         throw new IllegalArgumentException("This measure has already been saved: " + measure + ",resource: " + resource);
@@ -316,8 +322,8 @@ public class DefaultSonarIndex extends SonarIndex {
     if (persistedDep != null && persistedDep.getId()!=null) {
       return persistedDep;
     }
-    Bucket from = getOrCreateBucket(dependency.getFrom());
-    Bucket to = getOrCreateBucket(dependency.getTo());
+    Bucket from = getOrCreateBucket(dependency.getFrom(), true);
+    Bucket to = getOrCreateBucket(dependency.getTo(), true);
 
     DependencyDto dto = new DependencyDto();
     dto.setFromResourceId(from.getResourceId());
@@ -399,7 +405,7 @@ public class DefaultSonarIndex extends SonarIndex {
 
   /* ----------- EVENTS */
   public List<Event> getEvents(Resource resource) {
-    Bucket bucket = getOrCreateBucket(resource);
+    Bucket bucket = getOrCreateBucket(resource, true);
     return session.getResults(Event.class, "resourceId", bucket.getResourceId());
   }
 
@@ -408,7 +414,7 @@ public class DefaultSonarIndex extends SonarIndex {
   }
 
   public Event createEvent(Resource resource, String name, String description, String category, Date date) {
-    Bucket bucket = getOrCreateBucket(resource);
+    Bucket bucket = getOrCreateBucket(resource, true);
     Event event;
     if (date == null) {
       event = new Event(name, description, category, bucket.getSnapshot());

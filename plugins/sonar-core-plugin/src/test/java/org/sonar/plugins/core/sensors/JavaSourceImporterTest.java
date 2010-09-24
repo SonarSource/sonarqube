@@ -23,7 +23,10 @@ import org.apache.commons.io.FileUtils;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+
 import org.junit.Test;
+import org.sonar.api.batch.ResourceCreationLock;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Resource;
@@ -37,7 +40,7 @@ public class JavaSourceImporterTest {
 
   @Test
   public void shouldCreateResource() throws IOException {
-    JavaSourceImporter importer = new JavaSourceImporter();
+    JavaSourceImporter importer = new JavaSourceImporter(mock(ResourceCreationLock.class));
     Resource clazz = importer.createResource(new File(newDir("source1"), "/MyClass.java"), Arrays.asList(newDir("source1")), false);
     assertThat(clazz, is(JavaFile.class));
     assertThat(clazz.getKey(), is(JavaPackage.DEFAULT_PACKAGE_NAME + ".MyClass"));
@@ -46,7 +49,7 @@ public class JavaSourceImporterTest {
 
   @Test
   public void shouldCreateTestResource() throws IOException {
-    JavaSourceImporter importer = new JavaSourceImporter();
+    JavaSourceImporter importer = new JavaSourceImporter(mock(ResourceCreationLock.class));
     Resource resource = importer.createResource(new File(newDir("tests"), "/MyClassTest.java"), Arrays.asList(newDir("tests")), true);
     assertThat(resource, is(JavaFile.class));
     assertThat(ResourceUtils.isUnitTestClass(resource), is(true));
@@ -55,7 +58,7 @@ public class JavaSourceImporterTest {
   @Test
   public void doNotSaveInnerClasses() throws IOException {
     // example : https://svn.apache.org/repos/asf/geronimo/server/trunk/plugins/corba/geronimo-corba/src/test/java/org/apache/geronimo/corba/compiler/other/Generic$Interface.java
-    JavaSourceImporter importer = new JavaSourceImporter();
+    JavaSourceImporter importer = new JavaSourceImporter(mock(ResourceCreationLock.class));
     Resource resource = importer.createResource(new File(newDir("tests"), "/Generic$Interface.java"), Arrays.asList(newDir("tests")), true);
     assertThat(resource, nullValue());
   }

@@ -20,6 +20,11 @@
 package org.sonar.batch.indexer;
 
 import org.junit.Test;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.PersistenceMode;
+import org.sonar.api.utils.SonarException;
+import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.resources.JavaFile;
@@ -33,7 +38,7 @@ public class DefaultSonarIndexTest extends AbstractDbUnitTestCase {
 
   @Test
   public void indexDependencies() {
-    DefaultSonarIndex index = new DefaultSonarIndex(getSession(), null);
+    DefaultSonarIndex index = new DefaultSonarIndex(getSession(), null, new DefaultResourceCreationLock());
 
     Resource from = new JavaFile("org.foo.Foo");
     Resource to = new JavaFile("org.bar.Bar");
@@ -52,5 +57,14 @@ public class DefaultSonarIndexTest extends AbstractDbUnitTestCase {
     assertThat(index.getOutgoingEdges(from).size(), is(1));
     assertTrue(index.getOutgoingEdges(from).contains(dependency));
     assertThat(index.getOutgoingEdges(to).isEmpty(), is(true));
+  }
+
+  @Test(expected = SonarException.class)
+  public void failIfLockedAndAddingMeasureOnUnknownResource() {
+    DefaultResourceCreationLock lock = new DefaultResourceCreationLock();
+    lock.lock();
+
+    DefaultSonarIndex index = new DefaultSonarIndex(getSession(), null, lock);
+    index.saveMeasure(new JavaFile("org.foo.Bar"), new Measure(CoreMetrics.LINES, 200.0));
   }
 }

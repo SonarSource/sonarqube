@@ -23,6 +23,7 @@ import org.picocontainer.Characteristics;
 import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.ProjectClasspath;
+import org.sonar.api.batch.ResourceCreationLock;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.CoreMetrics;

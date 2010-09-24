@@ -68,6 +68,7 @@ public class Batch {
     MutablePicoContainer batchContainer = container.makeChildContainer();
     batchContainer.as(Characteristics.CACHE).addComponent(ServerMetadata.class);
     batchContainer.as(Characteristics.CACHE).addComponent(ProjectTree.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(DefaultResourceCreationLock.class);
     batchContainer.as(Characteristics.CACHE).addComponent(DefaultSonarIndex.class);
     batchContainer.as(Characteristics.CACHE).addComponent(JpaPluginDao.class);
     batchContainer.as(Characteristics.CACHE).addComponent(BatchPluginRepository.class);
@@ -90,7 +91,7 @@ public class Batch {
     URLClassLoader fullClassloader = RemoteClassLoader.createForJdbcDriver(configuration).getClassLoader();
     // set as the current context classloader for hibernate, else it does not find the JDBC driver.
     Thread.currentThread().setContextClassLoader(fullClassloader);
-    
+
     register(container, new DriverDatabaseConnector(configuration, fullClassloader));
     register(container, ThreadLocalDatabaseSessionFactory.class);
     container.as(Characteristics.CACHE).addAdapter(new DatabaseSessionProvider());
