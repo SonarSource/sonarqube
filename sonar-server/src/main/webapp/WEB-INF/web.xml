@@ -74,13 +74,22 @@
     <servlet-name>gchart</servlet-name>
     <servlet-class>org.jfree.eastwood.ChartServlet</servlet-class>
   </servlet>
+  <servlet>
+    <servlet-name>static</servlet-name>
+    <servlet-class>org.sonar.server.plugins.StaticResourcesServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
     <servlet-name>chart</servlet-name>
     <url-pattern>/chart</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>gchart</servlet-name>
-    <url-pattern>/gchart</url-pattern> 
+    <url-pattern>/gchart</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>static</servlet-name>
+    <url-pattern>/static/*</url-pattern>
   </servlet-mapping>
 
   <listener>

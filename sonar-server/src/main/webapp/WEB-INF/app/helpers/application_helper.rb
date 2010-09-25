@@ -162,9 +162,9 @@ module ApplicationHelper
     if options[:resource]
       "#{ApplicationController.root_context}/plugins/resource/#{options[:resource]}?page=#{page}"
     elsif @project
-  	  "#{ApplicationController.root_context}/plugins/resource/#{@project.id}?page=#{page}"
-  	else
-  	  ''
+      "#{ApplicationController.root_context}/plugins/resource/#{@project.id}?page=#{page}"
+    else
+      ''
     end
   end
 
