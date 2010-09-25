@@ -9,7 +9,7 @@ if ( !file.isFile() )
 
 ZipFile zipFile = new ZipFile(file);
 try {
-  if (zipFile.getEntry("META-INF/lib/commons-email-1.2.jar")!=null) {
+  if (zipFile.getEntry("META-INF/lib/commons-email-1.2.jar")==null) {
     throw new FileNotFoundException("The dependency commons-email must be copied in JAR");
   }
 } finally {
