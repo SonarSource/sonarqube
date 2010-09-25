@@ -11,7 +11,7 @@
   <name>Do Not Add Maven Description</name>
 
   <properties>
-    <sonar.version>2.1</sonar.version>
+    <sonar.version>@sonar.version@</sonar.version>
     <sonar.pluginKey>test</sonar.pluginKey>
     <sonar.pluginClass>org.sonar.plugins.sample.SamplePlugin</sonar.pluginClass>
   </properties>

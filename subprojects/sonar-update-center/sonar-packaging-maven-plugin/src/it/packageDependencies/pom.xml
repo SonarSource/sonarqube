@@ -13,7 +13,7 @@
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-plugin-api</artifactId>
-      <version>1.12</version>
+      <version>@sonar.version@</version>
     </dependency>
 
     <!-- Should be included into jar -->

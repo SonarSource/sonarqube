@@ -112,6 +112,9 @@
                 <goal>install</goal>
               </goals>
               <settingsFile>src/it/settings.xml</settingsFile>
+              <filterProperties>
+                <sonar.version>2.2</sonar.version>
+              </filterProperties>
               <!--<debug>true</debug>-->
             </configuration>
             <executions>
