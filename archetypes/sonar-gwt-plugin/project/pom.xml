@@ -52,7 +52,7 @@
     <dependency>
       <groupId>com.google.gwt</groupId>
       <artifactId>gwt-incubator</artifactId>
-      <version>20100204-r1747</version>
+      <version>2.0.1</version>
       <scope>provided</scope>
     </dependency>
 
