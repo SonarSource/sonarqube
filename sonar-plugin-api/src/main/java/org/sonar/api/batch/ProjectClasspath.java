@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch;
 
+import com.google.common.collect.Lists;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.project.MavenProject;
 import org.sonar.api.BatchComponent;
@@ -28,7 +29,6 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -63,7 +63,7 @@ public class ProjectClasspath implements BatchComponent {
 
   protected URLClassLoader createClassLoader() {
     try {
-      List<URL> urls = new ArrayList<URL>();
+      List<URL> urls = Lists.newArrayList();
       for (File file : getElements()) {
         urls.add(file.toURI().toURL());
       }
@@ -76,7 +76,7 @@ public class ProjectClasspath implements BatchComponent {
 
   protected List<File> createElements() {
     try {
-      List<File> files = new ArrayList<File>();
+      List<File> files = Lists.newArrayList();
       if (pom.getCompileClasspathElements() != null) {
         for (String classPathString : (List<String>) pom.getCompileClasspathElements()) {
           files.add(new File(classPathString));

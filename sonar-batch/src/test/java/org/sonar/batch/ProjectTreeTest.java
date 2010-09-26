@@ -203,7 +203,7 @@ public class ProjectTreeTest extends AbstractDbUnitTestCase {
     return pom;
   }
 
-  private ProjectBuilder newProjectBuilder() {
-    return new ProjectBuilder(getSession());
+  private MavenProjectBuilder newProjectBuilder() {
+    return new MavenProjectBuilder(getSession());
   }
 }

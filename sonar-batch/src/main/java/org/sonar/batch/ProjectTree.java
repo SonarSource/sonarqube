@@ -35,17 +35,17 @@ public class ProjectTree {
 
   private List<Project> projects;
   private List<MavenProject> poms;
-  private ProjectBuilder projectBuilder;
+  private MavenProjectBuilder projectBuilder;
 
   public ProjectTree(MavenSession mavenSession, DatabaseSession databaseSession) {
     this.poms = mavenSession.getSortedProjects();
-    this.projectBuilder = new ProjectBuilder(databaseSession);
+    this.projectBuilder = new MavenProjectBuilder(databaseSession);
   }
 
   /**
    * for unit tests
    */
-  protected ProjectTree(ProjectBuilder projectBuilder, List<MavenProject> poms) {
+  protected ProjectTree(MavenProjectBuilder projectBuilder, List<MavenProject> poms) {
     this.projectBuilder = projectBuilder;
     this.poms = poms;
   }

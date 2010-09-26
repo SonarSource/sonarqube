@@ -19,11 +19,13 @@
  */
 package org.sonar.api.resources;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.*;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.batch.FileFilter;
 import org.sonar.api.batch.maven.MavenUtils;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.WildcardPattern;
@@ -43,6 +45,7 @@ import java.util.List;
 public class DefaultProjectFileSystem implements ProjectFileSystem {
 
   private Project project;
+  private List<IOFileFilter> filters = Lists.newArrayList();
 
   /**
    * Creates a DefaultProjectFileSystem based on a project
@@ -60,6 +63,18 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
     return MavenUtils.getSourceCharset(project.getPom());
   }
 
+
+  public DefaultProjectFileSystem addFileFilters(List<FileFilter> l) {
+    for (FileFilter fileFilter : l) {
+      addFileFilter(fileFilter);
+    }
+    return this;
+  }
+
+  public DefaultProjectFileSystem addFileFilter(FileFilter fileFilter) {
+    filters.add(new DelegateFileFilter(fileFilter));
+    return this;
+  }
 
   /**
    * Basedir is the project root directory.
@@ -214,8 +229,9 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
       if (dir.exists()) {
         IOFileFilter exclusionFilter = new ExclusionFilter(dir, exclusionPatterns);
         IOFileFilter visibleFileFilter = HiddenFileFilter.VISIBLE;
-        AndFileFilter filters = new AndFileFilter(new AndFileFilter(exclusionFilter, suffixFilter), visibleFileFilter);
-        result.addAll(FileUtils.listFiles(dir, filters, HiddenFileFilter.VISIBLE));
+        List dirFilters = Lists.newArrayList(visibleFileFilter, suffixFilter, exclusionFilter);
+        dirFilters.addAll(this.filters);
+        result.addAll(FileUtils.listFiles(dir, new AndFileFilter(dirFilters), HiddenFileFilter.VISIBLE));
       }
     }
     return result;
@@ -233,7 +249,7 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
 
   private IOFileFilter getFileSuffixFilter(Language... langs) {
     IOFileFilter suffixFilter = FileFilterUtils.trueFileFilter();
-    if (langs != null && langs.length>0) {
+    if (langs != null && langs.length > 0) {
       List<String> suffixes = new ArrayList<String>();
       for (Language lang : langs) {
         if (lang.getFileSuffixes() != null) {
@@ -346,5 +362,4 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
     }
     return false;
   }
-
 }

@@ -19,12 +19,14 @@
  */
 package org.sonar.api.resources;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.batch.FileFilter;
 import org.sonar.api.test.MavenTestUtils;
 
 import java.io.File;
@@ -32,6 +34,7 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 public class DefaultProjectFileSystemTest {
@@ -154,6 +157,22 @@ public class DefaultProjectFileSystemTest {
       assertThat(files.size(), is(1));
       assertThat(files.get(0).getName(), is("foo.sql"));
     }
+  }
+
+
+  @Test
+  public void shouldAddExtendedFilters() {
+    DefaultProjectFileSystem fs = new DefaultProjectFileSystem(project);
+    assertThat(fs.getSourceFiles().size(), is(2));
+    assertThat(fs.getSourceFiles(), hasItem(named("Bar.java")));
+
+    fs.addFileFilter(new FileFilter() {
+      public boolean accept(File file) {
+        return !StringUtils.equals(file.getName(), "Bar.java"); 
+      }
+    });
+    assertThat(fs.getSourceFiles().size(), is(1));
+    assertThat(fs.getSourceFiles(), not(hasItem(named("Bar.java"))));
   }
 
   private static Matcher<java.io.File> named(final String name) {

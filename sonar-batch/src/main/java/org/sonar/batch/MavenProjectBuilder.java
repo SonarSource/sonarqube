@@ -36,11 +36,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class ProjectBuilder {
+public class MavenProjectBuilder {
 
   private DatabaseSession databaseSession;
 
-  public ProjectBuilder(DatabaseSession databaseSession) {
+  public MavenProjectBuilder(DatabaseSession databaseSession) {
     this.databaseSession = databaseSession;
   }
 
