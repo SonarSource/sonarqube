@@ -69,8 +69,8 @@
             <id>start-server</id>
             <phase>pre-integration-test</phase>
             <configuration>
-              <background>true</sonar.background>
-              <dropDatabase>false</sonar.dropDatabase>
+              <background>true</background>
+              <dropDatabase>false</dropDatabase>
               <extensionsDir>${basedir}/target/extensions</extensionsDir>
             </configuration>
             <goals>
