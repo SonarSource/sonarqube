@@ -36,6 +36,11 @@
           <% end %>
           <%= link_to_if data.page_id<data.page_count, 'next', {:overwrite_params => {:page_id => 1+data.page_id}} %>
         <% end %>
+
+        <% if @filter.projects_homepage? %>
+          &nbsp;&nbsp; <a href="<%= url_for :controller => :feeds, :action => 'projects', :id => EventCategory::KEY_ALERT -%>" class="nolink"><%= image_tag 'feed-icon-14x14.png' %></a>
+          <a href="<%= url_for :controller => :feeds, :action => 'projects', :id => EventCategory::KEY_ALERT -%>" class="action">Alerts feed</a>
+        <% end %>
       </td>
     </tr>
   </tfoot>
@@ -86,10 +91,6 @@
   </tbody>
 </table>
 <br/>
-<% if @filter.projects_homepage? %>
-  <a href="<%= url_for :controller => :feeds, :action => 'projects', :id => EventCategory::KEY_ALERT -%>" class="nolink"><%= image_tag 'feed-icon-14x14.png' %></a>
-  <a href="<%= url_for :controller => :feeds, :action => 'projects', :id => EventCategory::KEY_ALERT -%>" class="action">Alerts feed</a>
-<% end %>
 <% if data.security_exclusions? %>
   <p class="notes">Due to security settings, some results are not being displayed.</p>
 <% end %>

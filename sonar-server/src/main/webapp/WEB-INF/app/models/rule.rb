@@ -76,7 +76,7 @@ class Rule < ActiveRecord::Base
 
   def self.to_i(key_or_id)
     id=key_or_id.to_i
-    if id<=0 and key_or_id
+    if id<=0 && key_or_id
       parts=key_or_id.split(':')
       if parts.size==2
         rule=Rule.find(:first, :conditions => {:plugin_name => parts[0], :plugin_rule_key => parts[1]})

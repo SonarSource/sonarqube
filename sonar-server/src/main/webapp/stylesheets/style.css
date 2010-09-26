@@ -1431,13 +1431,13 @@ table.data2 > tbody > tr {
   border-right: 1px solid #ddd;
 }
 table.data2 > thead > tr {
-  height: 24px;
+  height: 20px;
   border: 0;
 }
 table.data2 > thead > tr > th, table.data2 > tbody > tr > td {
   border-bottom: 1px solid #DDD;
   padding: 3px 5px;
-  height: 24px;
+  height: 20px;
   vertical-align: middle;
 }
 table.data2 > tbody > tr > td {
@@ -1448,12 +1448,13 @@ table.data2 > thead > tr > th {
 }
 table.data2 > tfoot > tr > td {
   border-bottom: 0;
+  padding: 3px 5px;
 }
 table.data2 td, table.data2 td a, table.data2 th, table.data2 th a {
   color: #444;
 }
 table.data2 img, table.data2 input, table.data2 select {
-  vertical-align: text-bottom;
+  vertical-align: baseline;
 }
 .background-gray {
   background-color: #f4f4f4;
