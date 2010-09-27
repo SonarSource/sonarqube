@@ -29,6 +29,7 @@ public class StaticResourcesServlet extends HttpServlet {
     ClassLoader classLoader = pluginClassLoaders.getClassLoader(pluginKey);
     if (classLoader == null) {
       LOG.error("Plugin not found: " + pluginKey);
+      response.sendError(HttpServletResponse.SC_NOT_FOUND);
       return;
     }
     InputStream in = null;
@@ -40,9 +41,11 @@ public class StaticResourcesServlet extends HttpServlet {
         IOUtils.copy(in, out);
       } else {
         LOG.error("Unable to find resource '" + resource + "' in plugin '" + pluginKey + "'");
+        response.sendError(HttpServletResponse.SC_NOT_FOUND);
       }
     } catch (Exception e) {
       LOG.error("Unable to load static resource '" + resource + "' from plugin '" + pluginKey + "'", e);
+      response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     } finally {
       IOUtils.closeQuietly(in);
       IOUtils.closeQuietly(out);
