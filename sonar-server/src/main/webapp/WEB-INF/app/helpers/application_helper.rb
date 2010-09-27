@@ -144,6 +144,15 @@ module ApplicationHelper
     Metric.by_key(key)
   end
 
+  # URL to static resource from plugin.
+  #
+  # === Examples
+  #
+  #   url_for_static(:plugin => 'myplugin', :path => 'image.png')
+  def url_for_static(options={})
+    "#{ApplicationController.root_context}/static/#{options[:plugin]}/#{options[:path]}"
+  end
+
   def url_for_gwt(page)
     "#{ApplicationController.root_context}/plugins/home/#{page}"
   end
