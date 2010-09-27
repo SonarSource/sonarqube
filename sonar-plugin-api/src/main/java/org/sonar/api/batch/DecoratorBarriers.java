@@ -25,6 +25,9 @@ package org.sonar.api.batch;
  */
 public interface DecoratorBarriers {
 
+  
+  String START_VIOLATIONS_GENERATION = "START_VIOLATIONS_GENERATION";
+
   /**
    * This barrier is used by a decorator in order to :
    * <ul>

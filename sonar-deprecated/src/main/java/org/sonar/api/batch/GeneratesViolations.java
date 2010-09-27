@@ -17,23 +17,14 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.rules;
+package org.sonar.api.batch;
 
-import org.sonar.api.BatchExtension;
-import org.sonar.api.batch.DecoratorBarriers;
-import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.rules.ViolationFilter;
 
 /**
- * Filter violations to save. For example, ignore a violation if it occurs on a line of code commented with //NOSONAR
- *
- * @since 1.12
+ * @deprecated since 2.3. Use <code>@DependsUpon(DecoratorBarriers.START_VIOLATIONS_GENERATION)</code> and <code>@DependedUpon(DecoratorBarriers.END_OF_VIOLATIONS_GENERATION)</code>
  */
-@DependedUpon(value = DecoratorBarriers.START_VIOLATIONS_GENERATION)
-public interface ViolationFilter extends BatchExtension {
-
-  /**
-   * Return true if the violation must be ignored, else it's saved into database.
-   */
-  boolean isIgnored(Violation violation);
-
+@Deprecated
+@DependsUpon(classes = ViolationFilter.class)
+public interface GeneratesViolations {
 }
