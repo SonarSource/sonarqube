@@ -306,7 +306,10 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
 
   private void searchForSonarProvidedArtifacts(DependencyNode dependency, Set<Artifact> sonarArtifacts, boolean isProvidedBySonar) {
     if (dependency != null) {
-      isProvidedBySonar = isProvidedBySonar || ("org.codehaus.sonar".equals(dependency.getArtifact().getGroupId()) && !Artifact.SCOPE_TEST.equals(dependency.getArtifact().getScope()));
+      // skip check on root node - see SONAR-1815
+      if (dependency.getParent() != null) {
+        isProvidedBySonar = isProvidedBySonar || ("org.codehaus.sonar".equals(dependency.getArtifact().getGroupId()) && !Artifact.SCOPE_TEST.equals(dependency.getArtifact().getScope()));
+      }
 
       if (isProvidedBySonar) {
         sonarArtifacts.add(dependency.getArtifact());
