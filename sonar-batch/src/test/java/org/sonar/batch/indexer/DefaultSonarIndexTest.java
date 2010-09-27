@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.indexer;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
@@ -60,6 +61,7 @@ public class DefaultSonarIndexTest extends AbstractDbUnitTestCase {
   }
 
   @Test(expected = SonarException.class)
+  @Ignore("Temporarily log warnings instead of throwing an exception")
   public void failIfLockedAndAddingMeasureOnUnknownResource() {
     DefaultResourceCreationLock lock = new DefaultResourceCreationLock();
     lock.lock();

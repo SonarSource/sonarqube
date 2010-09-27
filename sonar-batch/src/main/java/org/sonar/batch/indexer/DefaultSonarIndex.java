@@ -177,8 +177,8 @@ public class DefaultSonarIndex extends SonarIndex {
       return bucket;
     }
 
-    if (mustExist && lock.isLocked() && !ResourceUtils.isLibrary(resource)) {
-      throw new SonarException("The following resource has not been registered before saving violation/measure/event: " + resource);
+    if (mustExist && lock.isLocked() && !ResourceUtils.isLibrary(resource)) { 
+      LOG.warn("The following resource has not been registered before saving violation/measure/event: " + resource);
     }
 
     prepareResource(resource);
