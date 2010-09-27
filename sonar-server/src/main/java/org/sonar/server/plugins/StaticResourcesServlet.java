@@ -22,17 +22,15 @@ public class StaticResourcesServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-    String path = StringUtils.substringAfter(request.getRequestURI(), request.getContextPath() + request.getServletPath() + "/");
-    String pluginKey = StringUtils.substringBefore(path, "/");
-    String resource = "/static/" + StringUtils.substringAfter(path, "/");
+    String pluginKey = getPluginKey(request);
+    String resource = getResourcePath(request);
 
     PluginClassLoaders pluginClassLoaders = Platform.getInstance().getContainer().getComponent(PluginClassLoaders.class);
-
     ClassLoader classLoader = pluginClassLoaders.getClassLoader(pluginKey);
     if (classLoader == null) {
+      LOG.error("Plugin not found: " + pluginKey);
       return;
     }
-
     InputStream in = null;
     OutputStream out = null;
     try {
@@ -40,6 +38,8 @@ public class StaticResourcesServlet extends HttpServlet {
       if (in != null) {
         out = response.getOutputStream();
         IOUtils.copy(in, out);
+      } else {
+        LOG.error("Unable to find resource '" + resource + "' in plugin '" + pluginKey + "'");
       }
     } catch (Exception e) {
       LOG.error("Unable to load static resource '" + resource + "' from plugin '" + pluginKey + "'", e);
@@ -47,5 +47,20 @@ public class StaticResourcesServlet extends HttpServlet {
       IOUtils.closeQuietly(in);
       IOUtils.closeQuietly(out);
     }
+  }
+
+  /**
+   * @return part of request URL after servlet path
+   */
+  protected String getPluginKeyAndResourcePath(HttpServletRequest request) {
+    return StringUtils.substringAfter(request.getRequestURI(), request.getContextPath() + request.getServletPath() + "/");
+  }
+
+  protected String getPluginKey(HttpServletRequest request) {
+    return StringUtils.substringBefore(getPluginKeyAndResourcePath(request), "/");
+  }
+
+  protected String getResourcePath(HttpServletRequest request) {
+    return "/static/" + StringUtils.substringAfter(getPluginKeyAndResourcePath(request), "/");
   }
 }
