@@ -144,13 +144,22 @@ module ApplicationHelper
     Metric.by_key(key)
   end
 
-  # URL to static resource from plugin.
+  # URL to static resource.
+  #
+  # === Optional parameters
+  #
+  # * <tt>:plugin</tt> - key of plugin, from where this resource should be loaded.
   #
   # === Examples
   #
+  #   url_for_static(:path => 'images/sonar.png')
   #   url_for_static(:plugin => 'myplugin', :path => 'image.png')
   def url_for_static(options={})
-    "#{ApplicationController.root_context}/static/#{options[:plugin]}/#{options[:path]}"
+    if options[:plugin]
+      "#{ApplicationController.root_context}/static/#{options[:plugin]}/#{options[:path]}"
+    else
+      "#{ApplicationController.root_context}/#{options[:path]}"
+    end
   end
 
   def url_for_gwt(page)
