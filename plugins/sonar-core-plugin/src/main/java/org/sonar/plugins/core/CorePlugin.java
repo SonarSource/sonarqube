@@ -67,6 +67,14 @@ import java.util.List;
         project = false,
         global = true),
     @Property(
+        key = CoreProperties.SKIP_TENDENCIES_PROPERTY,
+        defaultValue = "" + CoreProperties.SKIP_TENDENCIES_DEFAULT_VALUE,
+        name = "Skip tendencies",
+        description = "Skip calculation of measure tendencies",
+        project = true,
+        module = false,
+        global = true),
+    @Property(
         key = CoreProperties.CORE_SKIPPED_MODULES_PROPERTY,
         name = "Exclude modules",
         description = "Maven artifact ids of modules to exclude (comma-separated).",

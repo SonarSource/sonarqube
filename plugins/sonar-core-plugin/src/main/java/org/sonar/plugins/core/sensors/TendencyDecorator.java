@@ -20,6 +20,7 @@
 package org.sonar.plugins.core.sensors;
 
 import com.google.common.collect.ArrayListMultimap;
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.*;
@@ -42,17 +43,20 @@ public class TendencyDecorator implements Decorator {
   private TimeMachine timeMachine;
   private TimeMachineQuery query;
   private TendencyAnalyser analyser;
+  private Configuration configuration;
 
-  public TendencyDecorator(TimeMachine timeMachine, MeasuresDao measuresDao) {
+  public TendencyDecorator(TimeMachine timeMachine, MeasuresDao measuresDao, Configuration configuration) {
     this.timeMachine = timeMachine;
     this.measuresDao = measuresDao;
     this.analyser = new TendencyAnalyser();
+    this.configuration = configuration;
   }
 
-  protected TendencyDecorator(TimeMachine timeMachine, TimeMachineQuery query, TendencyAnalyser analyser) {
+  protected TendencyDecorator(TimeMachine timeMachine, TimeMachineQuery query, TendencyAnalyser analyser, Configuration configuration) {
     this.timeMachine = timeMachine;
     this.query = query;
     this.analyser = analyser;
+    this.configuration = configuration;
   }
 
   protected TimeMachineQuery initQuery(Project project) {
@@ -81,7 +85,7 @@ public class TendencyDecorator implements Decorator {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return true;
+    return !configuration.getBoolean(CoreProperties.SKIP_TENDENCIES_PROPERTY, CoreProperties.SKIP_TENDENCIES_DEFAULT_VALUE);
   }
 
   public void decorate(Resource resource, DecoratorContext context) {

@@ -21,6 +21,7 @@ package org.sonar.plugins.core.sensors;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
@@ -43,11 +44,6 @@ import static org.mockito.Mockito.*;
 public class TendencyDecoratorTest {
 
   @Test
-  public void shouldExecuteOnAllProjects() {
-    assertThat(new TendencyDecorator(null, null, null).shouldExecuteOnProject(null), is(true));
-  }
-
-  @Test
   public void initQuery() throws ParseException {
     Project project = mock(Project.class);
     when(project.getAnalysisDate()).thenReturn(date("2009-12-25"));
@@ -56,7 +52,7 @@ public class TendencyDecoratorTest {
     MeasuresDao dao = mock(MeasuresDao.class);
     when(dao.getMetrics()).thenReturn(Arrays.asList(CoreMetrics.LINES, CoreMetrics.COVERAGE, CoreMetrics.COVERAGE_LINE_HITS_DATA, CoreMetrics.PROFILE));
 
-    TendencyDecorator decorator = new TendencyDecorator(null, dao);
+    TendencyDecorator decorator = new TendencyDecorator(null, dao, new PropertiesConfiguration());
 
     TimeMachineQuery query = decorator.initQuery(project);
     assertThat(query.getMetrics().size(), is(2));
@@ -83,7 +79,7 @@ public class TendencyDecoratorTest {
     when(context.getMeasure(CoreMetrics.LINES)).thenReturn(new Measure(CoreMetrics.LINES, 1400.0));
     when(context.getMeasure(CoreMetrics.COVERAGE)).thenReturn(new Measure(CoreMetrics.LINES, 90.0));
 
-    TendencyDecorator decorator = new TendencyDecorator(timeMachine, query, analyser);
+    TendencyDecorator decorator = new TendencyDecorator(timeMachine, query, analyser, new PropertiesConfiguration());
     decorator.decorate(new JavaPackage("org.foo"), context);
 
     verify(analyser).analyseLevel(Arrays.asList(1200.0, 1300.0, 1150.0, 1400.0));
@@ -102,10 +98,25 @@ public class TendencyDecoratorTest {
     ));
 
     DecoratorContext context = mock(DecoratorContext.class);
-    TendencyDecorator decorator = new TendencyDecorator(timeMachine, query, analyser);
+    TendencyDecorator decorator = new TendencyDecorator(timeMachine, query, analyser, new PropertiesConfiguration());
     decorator.decorate(new JavaPackage("org.foo"), context);
 
     verify(analyser, never()).analyseLevel(anyList());
+  }
+
+  @Test
+  public void shouldSkipExecution() {
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    conf.setProperty(CoreProperties.SKIP_TENDENCIES_PROPERTY, true);
+    TendencyDecorator decorator = new TendencyDecorator(null, null, null, conf);
+    assertThat(decorator.shouldExecuteOnProject(null), is(false));
+  }
+
+  @Test
+  public void shouldNotSkipExecutionByDefault() {
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    TendencyDecorator decorator = new TendencyDecorator(null, null, null, conf);
+    assertThat(decorator.shouldExecuteOnProject(null), is(true));
   }
 
   private Date date(String date) throws ParseException {
