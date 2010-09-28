@@ -19,38 +19,43 @@
  */
 package org.sonar.api;
 
-import org.picocontainer.injectors.Provider;
-
 /**
  * Factory of extensions. It allows to dynamically create extensions depending upon runtime context. A use-case is
  * to create one rule repository by language.
  *
- * <p>Constraints are :
+ * <p>Notes :
  * <ul>
- *   <li>the factory is declared in Plugin.getExtensions() as an instance but not as a class</li>
- *   <li>the factory must have a public method named "provide()"</li>
- *   <li>the method provide() must return an object or an array of objects. Collections and classes are excluded.</li>
- *   <li>the methode provide() can accept parameters. These parameters are IoC dependencies.
+ * <li>the provider is declared in Plugin.getExtensions()</li>
+ * <li>the provider must also implement ServerExtension and/or BatchExtension</li>
+ * <li>the provider can accept dependencies (parameters) in its constructors.</li>
+ * <li>the method provide() is automatically executed once by sonar</li>
+ * <li>the method provide() must return an object or an Iterable of objects. <strong>Arrays are excluded</strong>.</li>
  * </ul>
  * </p>
  *
  * <p>Example:
  * <pre>
- * public class RuleRepositoryProvider extends ExtensionProvider {
- *   public RuleRepository[] provide(Language[] languages) {
- *     RuleRepository[] result = new RuleRepository[languages.length];
- *     for(int index=0; index &lt; languages.length ; index++) {
- *       Language language = languages[index];
- *       result[index] = new RuleRepository(...);
+ * public class RuleRepositoryProvider extends ExtensionProvider implements ServerExtension {
+ *   private Language[] languages;
+ *
+ *   public RuleRepositoryProvider(Language[] languages) {
+ *     this.languages = languages;
+ *   }
+ *
+ *   public List<RuleRepository> provide() {
+ *     List<RuleRepository> result = new ArrayList<RuleRepository>();
+ *     for(Language language: languages) {
+ *       result.add(new RuleRepository(..., language, ...));
  *     }
  *     return result;
  *   }
  * }
  * </pre>
  * </p>
- * 
+ *
  * @since 2.3
  */
-public abstract class ExtensionProvider implements Extension, Provider {
+public abstract class ExtensionProvider implements Extension {
 
+  public abstract Object provide();
 }

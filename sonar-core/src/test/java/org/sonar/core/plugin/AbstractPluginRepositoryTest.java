@@ -28,6 +28,7 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.utils.IocContainer;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.notNullValue;
@@ -61,9 +62,9 @@ public class AbstractPluginRepositoryTest {
   }
 
   @Test
-  public void extensionProviderIsAnObjectButNotAClass() {
-    assertThat(AbstractPluginRepository.isExtensionProvider(BProvider.class), is(false));
-    assertThat(AbstractPluginRepository.isExtensionProvider(new BProvider()), is(true));
+  public void shouldBeExtensionProvider() {
+    assertThat(AbstractPluginRepository.isExtensionProvider(BProvider.class), is(true));
+    assertThat(AbstractPluginRepository.isExtensionProvider(new BProvider(new A())), is(true));
   }
 
   @Test
@@ -77,20 +78,18 @@ public class AbstractPluginRepositoryTest {
     };
 
     Plugin plugin = mock(Plugin.class);
-    BProvider bProvider = new BProvider();
-    when(plugin.getExtensions()).thenReturn(Arrays.asList(A.class, bProvider, C.class, D.class));
+    when(plugin.getExtensions()).thenReturn(Arrays.asList(A.class, BProvider.class, B.class, C.class, D.class));
     repository.registerPlugin(pico, plugin, "foo");
+    repository.invokeExtensionProviders(pico);
     pico.start();
 
     assertThat(pico.getComponent(A.class), is(A.class));
     assertThat(pico.getComponent(C.class), is(C.class));
     assertThat(pico.getComponent(D.class), is(D.class));
-    assertThat(pico.getComponent(C.class).getBees().length, is(2));
-    assertThat(pico.getComponent(D.class).getBees().length, is(2));
-    assertThat(bProvider.calls, is(1)); // do not create B instances two times (C and D dependencies)
-
-    // Picocontainer question: why components created by providers are not registered in the container ?
-    //assertThat(pico.getComponents(B.class).size(), is(2)); // created by the ExtensionProvider
+    assertThat(pico.getComponent(C.class).getBees().length, is(3));// 1 in plugin.getExtensions() + 2 created by BProvider
+    assertThat(pico.getComponent(D.class).getBees().length, is(3));
+    assertThat(pico.getComponent(BProvider.class).calls, is(1)); // do not create B instances two times (C and D dependencies)
+    assertThat(pico.getComponents(B.class).size(), is(3));
   }
 
   public static class FakeServerExtension implements ServerExtension {
@@ -114,6 +113,7 @@ public class AbstractPluginRepositoryTest {
       this.a = a;
     }
   }
+
 
   public static class C implements ServerExtension {
     private B[] bees;
@@ -139,12 +139,18 @@ public class AbstractPluginRepositoryTest {
     }
   }
 
-  public static class BProvider extends ExtensionProvider {
+  public static class BProvider extends ExtensionProvider implements ServerExtension {
 
     private int calls = 0;
-    public B[] provide(A a) {
+    private A a;
+
+    public BProvider(A a) {
+      this.a = a;
+    }
+
+    public Collection<B> provide() {
       calls++;
-      return new B[]{new B(a), new B(a)};
+      return Arrays.asList(new B(a), new B(a));
     }
   }
 

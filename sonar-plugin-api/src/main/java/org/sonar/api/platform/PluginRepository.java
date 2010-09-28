@@ -31,6 +31,9 @@ public interface PluginRepository extends BatchComponent, ServerComponent {
 
   Plugin getPlugin(String key);
 
+  /**
+   * @deprecated since 2.3
+   */
   @Deprecated
   Plugin getPluginForExtension(Object extension);
 

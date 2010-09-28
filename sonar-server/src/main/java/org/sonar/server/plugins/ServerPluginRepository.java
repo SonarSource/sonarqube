@@ -60,6 +60,7 @@ public class ServerPluginRepository extends AbstractPluginRepository {
         throw new SonarException("Please check the plugin manifest. The main plugin class does not exist: " + jpaPlugin.getPluginClass(), e);
       }
     }
+    invokeExtensionProviders(pico);
   }
 
   @Override

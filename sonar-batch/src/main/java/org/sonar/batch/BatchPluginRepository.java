@@ -105,6 +105,7 @@ public class BatchPluginRepository extends AbstractPluginRepository {
         throw new SonarException("Fail to load extensions from plugin " + pluginMetadata.getKey(), e);
       }
     }
+    invokeExtensionProviders(pico);
   }
 
   boolean shouldRegisterCoverageExtension(String pluginKey) {

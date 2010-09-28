@@ -19,16 +19,18 @@
  */
 package org.sonar.core.plugin;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 import org.picocontainer.Characteristics;
 import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.injectors.ProviderAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.*;
 import org.sonar.api.platform.PluginRepository;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,7 +40,7 @@ public abstract class AbstractPluginRepository implements PluginRepository {
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractPluginRepository.class);
 
-  private Map<String, Plugin> pluginByKey = Maps.newHashMap();
+  private BiMap<String, Plugin> pluginByKey = HashBiMap.create();
   private Map<Object, Plugin> pluginByExtension = Maps.newIdentityHashMap();
 
   protected void registerPlugin(MutablePicoContainer container, Plugin plugin, String pluginKey) {
@@ -49,15 +51,30 @@ public abstract class AbstractPluginRepository implements PluginRepository {
     }
   }
 
+  /**
+   * Must be executed by implementations when all plugins are registered.
+   */
+  protected void invokeExtensionProviders(MutablePicoContainer container) {
+    List<ExtensionProvider> providers = container.getComponents(ExtensionProvider.class);
+    for (ExtensionProvider provider : providers) {
+      Plugin plugin = getPluginForExtension(provider);
+      Object obj = provider.provide();
+      if (obj instanceof Iterable) {
+        for (Object elt : (Iterable) obj) {
+          registerExtension(container, plugin, getPluginKey(plugin), elt);
+        }
+      } else {
+        registerExtension(container, plugin, getPluginKey(plugin), obj);
+      }
+    }
+  }
+
   private void registerExtension(MutablePicoContainer container, Plugin plugin, String pluginKey, Object extension) {
     if (shouldRegisterExtension(pluginKey, extension)) {
       LOG.debug("Register the extension: {}", extension);
       container.as(Characteristics.CACHE).addComponent(getExtensionKey(extension), extension);
       pluginByExtension.put(extension, plugin);
-    }
-    if (isExtensionProvider(extension)) {
-      LOG.debug("Register the extension provider: {}", extension);
-      container.as(Characteristics.CACHE).addAdapter(new ExtensionProviderAdapter(extension));
+
     }
   }
 
@@ -69,6 +86,10 @@ public abstract class AbstractPluginRepository implements PluginRepository {
 
   public Plugin getPlugin(String key) {
     return pluginByKey.get(key);
+  }
+
+  public String getPluginKey(Plugin plugin) {
+    return pluginByKey.inverse().get(plugin);
   }
 
   /**
@@ -102,15 +123,7 @@ public abstract class AbstractPluginRepository implements PluginRepository {
   }
 
   protected static boolean isExtensionProvider(Object extension) {
-    boolean is = false;
-    if (isType(extension, ExtensionProvider.class)) {
-      if (extension instanceof ExtensionProvider) {
-        is = true;
-      } else {
-        LOG.error("The following ExtensionProvider must be registered in Plugin.getExtensions() as an instance but not a class: " + extension);
-      }
-    }
-    return is;
+    return isType(extension, ExtensionProvider.class);
   }
 
   protected static Object getExtensionKey(Object component) {
@@ -118,11 +131,5 @@ public abstract class AbstractPluginRepository implements PluginRepository {
       return component;
     }
     return component.getClass().getCanonicalName() + "-" + component.toString();
-  }
-
-  public static class ExtensionProviderAdapter extends ProviderAdapter {
-    public ExtensionProviderAdapter(Object provider) {
-      super(provider);
-    }
   }
 }
