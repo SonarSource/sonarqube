@@ -74,7 +74,17 @@ public final class XMLProfileImporter {
     } catch (XMLStreamException e) {
       messages.addErrorText("XML is not valid: " + e.getMessage());
     }
+    checkProfile(profile, messages);
     return profile;
+  }
+
+  private void checkProfile(RulesProfile profile, ValidationMessages messages) {
+    if (StringUtils.isBlank(profile.getName())) {
+      messages.addErrorText("The mandatory node <name> is missing.");
+    }
+    if (StringUtils.isBlank(profile.getLanguage())) {
+      messages.addErrorText("The mandatory node <language> is missing.");
+    }
   }
 
   private SMInputFactory initStax() {

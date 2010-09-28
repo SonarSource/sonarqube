@@ -38,6 +38,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.internal.matchers.StringContains.containsString;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -58,6 +59,22 @@ public class XMLProfileImporterTest {
       assertNotNull(profile);
       assertThat(profile.getActiveRule("checkstyle", "IllegalRegexp").getPriority(), is(RulePriority.CRITICAL));
       
+    } finally {
+      IOUtils.closeQuietly(reader);
+    }
+  }
+
+  @Test
+  public void nameAndLanguageShouldBeMandatory() throws UnsupportedEncodingException {
+    Reader reader = new InputStreamReader(getClass().getResourceAsStream("/org/sonar/api/profiles/XMLProfileImporterTest/nameAndLanguageShouldBeMandatory.xml"), CharEncoding.UTF_8);
+    try {
+      ValidationMessages validation = ValidationMessages.create();
+      RuleFinder ruleFinder = newRuleFinder();
+      RulesProfile profile = XMLProfileImporter.create(ruleFinder).importProfile(reader, validation);
+
+      assertThat(validation.getErrors().size(), is(2));
+      assertThat(validation.getErrors().get(0) , containsString(""));
+
     } finally {
       IOUtils.closeQuietly(reader);
     }
