@@ -89,7 +89,9 @@ public class FilterExecutor implements ServerComponent {
     if (filter.getSortedMetricId() != null) {
       sql.append(", MAX(CASE WHEN pm.metric_id=");
       sql.append(filter.getSortedMetricId());
-      sql.append(" THEN value ELSE NULL END) AS sortvalue");
+      sql.append(" THEN ");
+      sql.append(filter.useMeasureValueToSort() ? "value" : "text_value");
+      sql.append(" ELSE NULL END) AS sortvalue");
       sql.append(" ");
     }
     for (int index = 0; index < filter.getMeasureCriteria().size(); index++) {

@@ -54,6 +54,7 @@ public class Filter {
   private boolean sortedByName;
   private boolean sortedByDate;
   private boolean sortedByVersion;
+  private boolean useMeasureValueToSort = true; // only if sortedMetricId is not null
   private boolean ascendingSort = true;
 
   public Filter setPath(Integer rootSnapshotId, Integer snapshotId, String snapshotPath, boolean isViewContext) {
@@ -168,9 +169,18 @@ public class Filter {
     return sortedMetricId;
   }
 
-  public Filter setSortedMetricId(Integer i) {
+  public boolean useMeasureValueToSort() {
+    return useMeasureValueToSort;
+  }
+
+  public Filter setSortedMetricId(Integer id) {
+    return setSortedMetricId(id, true);
+  }
+
+  public Filter setSortedMetricId(Integer id, boolean useValue) {
     unsetSorts();
-    this.sortedMetricId = i;
+    this.sortedMetricId = id;
+    this.useMeasureValueToSort = useValue;
     return this;
   }
 
@@ -224,6 +234,7 @@ public class Filter {
     this.sortedByName = false;
     this.sortedMetricId = null;
     this.sortedByVersion = false;
+    this.useMeasureValueToSort = true;
   }
 
   public List<MeasureCriterion> getMeasureCriteria() {

@@ -84,7 +84,8 @@ module FiltersHelper
       java_filter.setSortedByVersion()
 
     elsif filter.sorted_column.on_metric? && filter.sorted_column.metric
-      java_filter.setSortedMetricId(filter.sorted_column.metric.id)
+      metric=filter.sorted_column.metric
+      java_filter.setSortedMetricId(metric.id, metric.numeric?)
     end
 
 
