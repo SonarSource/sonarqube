@@ -1453,7 +1453,10 @@ table.data2 > tfoot > tr > td {
 table.data2 td, table.data2 td a, table.data2 th, table.data2 th a {
   color: #444;
 }
-table.data2 img, table.data2 input, table.data2 select {
+table.data2 img {
+  vertical-align: text-bottom;
+}
+table.data2 input, table.data2 select {
   vertical-align: baseline;
 }
 .background-gray {
