@@ -102,7 +102,15 @@ public abstract class AbstractPluginRepository implements PluginRepository {
   }
 
   protected static boolean isExtensionProvider(Object extension) {
-    return extension instanceof ExtensionProvider;
+    boolean is = false;
+    if (isType(extension, ExtensionProvider.class)) {
+      if (extension instanceof ExtensionProvider) {
+        is = true;
+      } else {
+        LOG.error("The following ExtensionProvider must be registered in Plugin.getExtensions() as an instance but not a class: " + extension);
+      }
+    }
+    return is;
   }
 
   protected static Object getExtensionKey(Object component) {
