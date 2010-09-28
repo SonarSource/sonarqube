@@ -19,53 +19,26 @@
  */
 package org.sonar.api.batch;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import org.sonar.api.Plugins;
 import org.sonar.api.resources.Project;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class AbstractCoverageExtensionTest {
-
-  @Test
-  public void defaultPluginIsCobertura() {
-    Plugins plugins = mock(Plugins.class);
-    when(plugins.getPluginKeyByExtension(FakeCoverageSensor.class)).thenReturn("cobertura");
-
-    Project project = mock(Project.class);
-    when(project.getConfiguration()).thenReturn(new PropertiesConfiguration());
-
-    assertThat(new FakeCoverageSensor(plugins).isSelectedPlugin(project), is(true));
-  }
-
-  @Test
-  public void doNotExecuteIfNotSelectedPlugin() {
-    Plugins plugins = mock(Plugins.class);
-    when(plugins.getPluginKeyByExtension(FakeCoverageSensor.class)).thenReturn("fake");
-
-    Project project = mock(Project.class);
-    PropertiesConfiguration config = new PropertiesConfiguration();
-    when(project.getConfiguration()).thenReturn(config);
-    config.setProperty(AbstractCoverageExtension.PARAM_PLUGIN, "cobertura");
-
-    assertThat(new FakeCoverageSensor(plugins).isSelectedPlugin(project), is(false));
-  }
 
   @Test
   public void doNotExecuteIfStaticAnalysis() {
     Project project = mock(Project.class);
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.STATIC);
-    FakeCoverageSensor sensor = new FakeCoverageSensor(null);
+    FakeCoverageSensor sensor = new FakeCoverageSensor();
 
     assertThat(sensor.shouldExecuteOnProject(project), is(false));
   }
 
   protected static class FakeCoverageSensor extends AbstractCoverageExtension {
-    public FakeCoverageSensor(Plugins plugins) {
-      super(plugins);
-    }
+
   }
 }

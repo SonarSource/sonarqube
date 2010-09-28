@@ -19,143 +19,31 @@
  */
 package org.sonar.api.rules;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.sonar.api.Plugin;
-import org.sonar.api.Plugins;
+import com.google.common.collect.Maps;
 import org.sonar.jpa.dao.RulesDao;
-import org.sonar.api.resources.Language;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A class to manage and access rules defined in Sonar.
  *
- *  @deprecated UGLY CLASS - WILL BE COMPLETELY REFACTORED IN SONAR 2.3 
+ * @deprecated UGLY CLASS 
  */
 @Deprecated
 public class DefaultRulesManager extends RulesManager {
 
-  private final Set<Language> languages;
-  private final RulesRepository<?>[] repositories;
-  private final Map<Language, List<RulesRepository<?>>> rulesByLanguage;
-  private final Map<Language, List<Plugin>> pluginsByLanguage;
-  private final Map<String, Map<String, Rule>> rulesByPluginAndKey = new HashMap<String, Map<String, Rule>>();
+  private final Map<String, Map<String, Rule>> rulesByPluginAndKey = Maps.newHashMap();
   private final RulesDao rulesDao;
-  private final Plugins plugins;
 
-  /**
-   * Creates a RuleManager
-   * @param plugins the plugins dictionnary
-   * @param repositories the repositories of rules
-   * @param dao the dao object
-   */
-  public DefaultRulesManager(Plugins plugins, RulesRepository[] repositories, RulesDao dao) {
-    this.plugins = plugins;
+  public DefaultRulesManager(RulesDao dao) {
     this.rulesDao = dao;
-
-    languages = new HashSet<Language>();
-    rulesByLanguage = new HashMap<Language, List<RulesRepository<?>>>();
-    pluginsByLanguage = new HashMap<Language, List<Plugin>>();
-    this.repositories = repositories;
-
-    for (RulesRepository<?> repository : repositories) {
-      languages.add(repository.getLanguage());
-
-      List<RulesRepository<?>> list = rulesByLanguage.get(repository.getLanguage());
-      if (list == null) {
-        list = new ArrayList<RulesRepository<?>>();
-        rulesByLanguage.put(repository.getLanguage(), list);
-      }
-      list.add(repository);
-
-      List<Plugin> languagePlugins = pluginsByLanguage.get(repository.getLanguage());
-      if (languagePlugins == null) {
-        languagePlugins = new ArrayList<Plugin>();
-        pluginsByLanguage.put(repository.getLanguage(), languagePlugins);
-      }
-      languagePlugins.add(plugins.getPluginByExtension(repository));
-    }
-  }
-
-  /**
-   * Constructor for tests only
-   *
-   * @param dao the dao
-   */
-  protected DefaultRulesManager(RulesDao dao, Plugins plugins) {
-    this.rulesDao = dao;
-    this.plugins = plugins;
-    languages = new HashSet<Language>();
-    rulesByLanguage = new HashMap<Language, List<RulesRepository<?>>>();
-    pluginsByLanguage = new HashMap<Language, List<Plugin>>();
-    repositories = null;
-
-  }
-
-  /**
-   * Returns the list of languages for which there is a rule repository
-   *
-   * @return a Set of languages
-   */
-  public Set<Language> getLanguages() {
-    return languages;
-  }
-
-  /**
-   * Gets the list of Rules Repositories available for a language
-   *
-   * @param language the language
-   * @return the list of rules repositories
-   */
-  public List<RulesRepository<?>> getRulesRepositories(Language language) {
-    List<RulesRepository<?>> rulesRepositories = rulesByLanguage.get(language);
-    if (CollectionUtils.isNotEmpty(rulesRepositories)) {
-      return rulesRepositories;
-    }
-    return Collections.emptyList();
-  }
-
-  /**
-   * Gets the complete list of Rules Repositories in the Sonar instance
-   *
-   * @return the list of rules repositories
-   */
-  public List<RulesRepository<?>> getRulesRepositories() {
-    return Arrays.asList(repositories);
-  }
-
-  /**
-   * Gets the list of rules plugins for a given language
-   * @param language  the language
-   * @return the list of plugins
-   */
-  public List<Plugin> getPlugins(Language language) {
-    List<Plugin> result = pluginsByLanguage.get(language);
-    if (!CollectionUtils.isEmpty(result)) {
-      return result;
-    }
-    return Collections.emptyList();
-  }
-
-
-  /**
-   * Get the list of rules plugin that implement a mechanism of import for a given language
-   *
-   * @param language the language
-   * @return the list of plugins
-   */
-  public List<Plugin> getImportablePlugins(Language language) {
-    List<Plugin> targets = new ArrayList<Plugin>();
-    for (RulesRepository<?> repository : getRulesRepositories(language)) {
-      if (repository instanceof ConfigurationImportable) {
-        targets.add(plugins.getPluginByExtension(repository));
-      }
-    }
-    return targets;
   }
 
   /**
    * Gets a list of rules indexed by their key for a given plugin
+   *
    * @param pluginKey the plugin key
    * @return a Map with the rule key and the rule
    */
@@ -175,21 +63,10 @@ public class DefaultRulesManager extends RulesManager {
   }
 
   /**
-   * Gets a collection of rules belonging to a plugin
-   *
-   * @param pluginKey the plugin key
-   * @return the collection of rules
-   */
-  public Collection<Rule> getPluginRules(String pluginKey) {
-    Map<String, Rule> rulesByKey = getPluginRulesIndexedByKey(pluginKey);
-    return rulesByKey.values();
-  }
-
-  /**
    * Gets a rule belonging to a defined plugin based on its key
    *
    * @param pluginKey the plugin key
-   * @param ruleKey the rule key
+   * @param ruleKey   the rule key
    * @return the rule
    */
   public Rule getPluginRule(String pluginKey, String ruleKey) {

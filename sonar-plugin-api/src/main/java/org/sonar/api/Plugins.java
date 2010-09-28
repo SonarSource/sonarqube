@@ -54,21 +54,6 @@ public class Plugins {
     return pluginProvider.getPlugin(key);
   }
 
-
-  /**
-   * Returns a plugin based on its extension
-   */
-  public Plugin getPluginByExtension(Class<? extends Extension> clazz) {
-    return pluginProvider.getPluginForExtension(clazz);
-  }
-
-  /**
-   * Returns a plugin key based on its extension
-   */
-  public String getPluginKeyByExtension(Class<? extends Extension> clazz) {
-    return pluginProvider.getPluginKeyForExtension(clazz);
-  }
-
   /**
    * Returns a plugin based on its extension
    */

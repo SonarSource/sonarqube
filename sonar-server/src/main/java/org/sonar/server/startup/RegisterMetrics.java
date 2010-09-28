@@ -36,35 +36,30 @@ import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Query;
 
 public class RegisterMetrics {
 
-  private PluginRepository pluginRepository;
   private MeasuresDao measuresDao;
   private Metrics[] metricsRepositories = null;
   private DatabaseSession session;
 
-  public RegisterMetrics(DatabaseSession session, MeasuresDao measuresDao, PluginRepository pluginRepository, Metrics[] metricsRepositories) {
+  public RegisterMetrics(DatabaseSession session, MeasuresDao measuresDao, Metrics[] metricsRepositories) {
     this.session = session;
     this.measuresDao = measuresDao;
-    this.pluginRepository = pluginRepository;
     this.metricsRepositories = metricsRepositories;
-  }
-
-  public RegisterMetrics(MeasuresDao measuresDao) {
-    this.measuresDao = measuresDao;
   }
 
   public void start() {
     TimeProfiler profiler = new TimeProfiler().start("Load metrics");
     measuresDao.disableAutomaticMetrics();
 
-    ArrayList<Metric> metricsToRegister = Lists.newArrayList();
+    List<Metric> metricsToRegister = Lists.newArrayList();
     metricsToRegister.addAll(CoreMetrics.getMetrics());
 
-    HashMap<String, Metrics> metricsByRepository = Maps.newHashMap();
+    Map<String, Metrics> metricsByRepository = Maps.newHashMap();
     if (metricsRepositories != null) {
       for (Metrics metrics : metricsRepositories) {
         checkMetrics(metricsByRepository, metrics);
@@ -76,17 +71,15 @@ public class RegisterMetrics {
     profiler.stop();
   }
 
-  private void checkMetrics(HashMap<String, Metrics> metricsByRepository, Metrics metrics) {
+  private void checkMetrics(Map<String, Metrics> metricsByRepository, Metrics metrics) {
     for (Metric metric : metrics.getMetrics()) {
       String metricKey = metric.getKey();
       if (CoreMetrics.metrics.contains(metric)) {
-        throw new ServerStartException("Found plugin, which contains metric '" + metricKey + "' from core: " + pluginRepository.getPluginKeyForExtension(metrics));
+        throw new ServerStartException("The following metric is already defined in sonar: " + metricKey);
       }
       Metrics anotherRepository = metricsByRepository.get(metricKey);
       if (anotherRepository != null) {
-        String firstPlugin = pluginRepository.getPluginKeyForExtension(anotherRepository);
-        String secondPlugin = pluginRepository.getPluginKeyForExtension(metrics);
-        throw new ServerStartException("Found two plugins with the same metric '" + metricKey + "': " + firstPlugin + " and " + secondPlugin);
+        throw new ServerStartException("The metric '" + metricKey + "' is already defined in the extension: " + anotherRepository);
       }
       metricsByRepository.put(metricKey, metrics);
     }

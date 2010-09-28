@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.Plugins;
 import org.sonar.api.resources.Project;
@@ -42,29 +41,22 @@ public abstract class AbstractCoverageExtension implements BatchExtension {
    */
   public static final String DEFAULT_PLUGIN = "cobertura";
 
-  private final Plugins plugins;
-
   /**
    * Default constructor
+   *
    * @param plugins the list of plugins available
+   * @deprecated since 2.3. Use the default constructor
    */
   public AbstractCoverageExtension(Plugins plugins) {
-    this.plugins = plugins;
+  }
+
+  public AbstractCoverageExtension() {
   }
 
   /**
    * Whether to implement the extension on the project
    */
   public boolean shouldExecuteOnProject(Project project) {
-    return project.getAnalysisType().isDynamic(true) && isSelectedPlugin(project);
-  }
-
-  protected boolean isSelectedPlugin(Project project) {
-    String[] selectedPluginKeys = project.getConfiguration().getStringArray(PARAM_PLUGIN);
-    if (selectedPluginKeys.length == 0) {
-      selectedPluginKeys = new String[]{DEFAULT_PLUGIN};
-    }
-    String pluginKey = plugins.getPluginKeyByExtension(getClass());
-    return ArrayUtils.contains(selectedPluginKeys, pluginKey);
+    return project.getAnalysisType().isDynamic(true);
   }
 }

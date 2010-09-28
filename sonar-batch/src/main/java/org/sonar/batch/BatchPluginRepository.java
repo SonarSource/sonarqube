@@ -20,12 +20,16 @@
 package org.sonar.batch;
 
 import com.google.common.collect.HashMultimap;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang.ArrayUtils;
 import org.picocontainer.MutablePicoContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.Plugin;
-import org.sonar.api.platform.PluginRepository;
+import org.sonar.api.batch.AbstractCoverageExtension;
+import org.sonar.api.utils.SonarException;
+import org.sonar.core.plugin.AbstractPluginRepository;
 import org.sonar.core.plugin.JpaPlugin;
 import org.sonar.core.plugin.JpaPluginDao;
 import org.sonar.core.plugin.JpaPluginFile;
@@ -36,15 +40,26 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class BatchPluginRepository extends PluginRepository {
+public class BatchPluginRepository extends AbstractPluginRepository {
+
+  private static final Logger LOG = LoggerFactory.getLogger(BatchPluginRepository.class);
 
   private Map<String, ClassLoader> classloaders;
   private String baseUrl;
   private JpaPluginDao dao;
+  private Configuration configuration;
 
-  public BatchPluginRepository(JpaPluginDao dao, ServerMetadata server) {
-    this.dao= dao;
+  public BatchPluginRepository(JpaPluginDao dao, ServerMetadata server, Configuration configuration) {
+    this.dao = dao;
     this.baseUrl = server.getUrl() + "/deploy/plugins/";
+    this.configuration = configuration;
+  }
+
+  /**
+   * only for unit tests
+   */
+  BatchPluginRepository(Configuration configuration) {
+    this.configuration = configuration;
   }
 
   public void start() {
@@ -56,7 +71,7 @@ public class BatchPluginRepository extends PluginRepository {
         urlsByKey.put(key, url);
 
       } catch (MalformedURLException e) {
-        throw new RuntimeException("Can not build the classloader of the plugin " + pluginFile.getPluginKey(), e);
+        throw new SonarException("Can not build the classloader of the plugin " + pluginFile.getPluginKey(), e);
       }
     }
 
@@ -64,11 +79,10 @@ public class BatchPluginRepository extends PluginRepository {
     for (String key : urlsByKey.keySet()) {
       Set<URL> urls = urlsByKey.get(key);
 
-      Logger logger = LoggerFactory.getLogger(getClass());
-      if (logger.isDebugEnabled()) {
-        logger.debug("Classloader of plugin " + key + ":");
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Classloader of plugin " + key + ":");
         for (URL url : urls) {
-          logger.debug("   -> " + url);
+          LOG.debug("   -> " + url);
         }
       }
       classloaders.put(key, new RemoteClassLoader(urls, Thread.currentThread().getContextClassLoader()).getClassLoader());
@@ -80,16 +94,36 @@ public class BatchPluginRepository extends PluginRepository {
   }
 
   public void registerPlugins(MutablePicoContainer pico) {
-    try {
-      for (JpaPlugin pluginMetadata : dao.getPlugins()) {
+    for (JpaPlugin pluginMetadata : dao.getPlugins()) {
+      try {
         String classloaderKey = getClassloaderKey(pluginMetadata.getKey());
         Class claz = classloaders.get(classloaderKey).loadClass(pluginMetadata.getPluginClass());
         Plugin plugin = (Plugin) claz.newInstance();
-        registerPlugin(pico, plugin, BatchExtension.class);
-      }
+        registerPlugin(pico, plugin, pluginMetadata.getKey());
 
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+      } catch (Exception e) {
+        throw new SonarException("Fail to load extensions from plugin " + pluginMetadata.getKey(), e);
+      }
     }
+  }
+
+  boolean shouldRegisterCoverageExtension(String pluginKey) {
+    String[] selectedPluginKeys = configuration.getStringArray(AbstractCoverageExtension.PARAM_PLUGIN);
+    if (ArrayUtils.isEmpty(selectedPluginKeys)) {
+      selectedPluginKeys = new String[]{AbstractCoverageExtension.DEFAULT_PLUGIN};
+    }
+    return ArrayUtils.contains(selectedPluginKeys, pluginKey);
+  }
+
+  @Override
+  protected boolean shouldRegisterExtension(String pluginKey, Object extension) {
+    boolean ok = isType(extension, BatchExtension.class);
+    if (ok && isType(extension, AbstractCoverageExtension.class)) {
+      ok = shouldRegisterCoverageExtension(pluginKey);
+      if (!ok) {
+        LOG.debug("The following extension is ignored: " + extension + ". See the parameter " + AbstractCoverageExtension.PARAM_PLUGIN);
+      }
+    }
+    return ok;
   }
 }

@@ -19,13 +19,11 @@
  */
 package org.sonar.api;
 
-import java.util.Collection;
+import org.picocontainer.injectors.Provider;
 
 /**
  * @since 2.3
  */
-public interface ExtensionProvider {
-
-  Collection provide();
+public abstract class ExtensionProvider implements Extension, Provider {
 
 }

@@ -19,95 +19,20 @@
  */
 package org.sonar.api.platform;
 
-import org.picocontainer.Characteristics;
-import org.picocontainer.MutablePicoContainer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.*;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.Plugin;
+import org.sonar.api.Property;
+import org.sonar.api.ServerComponent;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Map;
 
-/**
- * @since 2.2
- */
-public abstract class PluginRepository implements BatchComponent, ServerComponent {
+public interface PluginRepository extends BatchComponent, ServerComponent {
+  Collection<Plugin> getPlugins();
 
-  private static final Logger LOG = LoggerFactory.getLogger(PluginRepository.class);
+  Plugin getPlugin(String key);
 
-  private Map<String, Plugin> pluginByKey = new HashMap<String, Plugin>();
-  private Map<Object, Plugin> pluginByExtension = new IdentityHashMap<Object, Plugin>();
+  @Deprecated
+  Plugin getPluginForExtension(Object extension);
 
-  public void registerPlugin(MutablePicoContainer container, Plugin plugin, Class<? extends Extension> extensionClass) {
-    LOG.debug("Registering the plugin {}", plugin.getKey());
-    pluginByKey.put(plugin.getKey(), plugin);
-    for (Object extension : plugin.getExtensions()) {
-      if (isExtension(extension, extensionClass)) {
-        LOG.debug("Registering the extension: {}", extension);
-        container.as(Characteristics.CACHE).addComponent(getExtensionKey(extension), extension);
-        pluginByExtension.put(extension, plugin);
-      }
-    }
-  }
-
-  public Collection<Plugin> getPlugins() {
-    return pluginByKey.values();
-  }
-
-  public Plugin getPlugin(String key) {
-    return pluginByKey.get(key);
-  }
-
-  /**
-   * Returns the list of properties of a plugin
-   */
-  public Property[] getProperties(Plugin plugin) {
-    if (plugin != null) {
-      Class<? extends Plugin> classInstance = plugin.getClass();
-      if (classInstance.isAnnotationPresent(Properties.class)) {
-        return classInstance.getAnnotation(Properties.class).value();
-      }
-    }
-    return new Property[0];
-  }
-
-  public Property[] getProperties(String pluginKey) {
-    return getProperties(pluginByKey.get(pluginKey));
-  }
-
-  public Plugin getPluginForExtension(Object extension) {
-    Plugin plugin = pluginByExtension.get(extension);
-    if (plugin == null && !(extension instanceof Class)) {
-      plugin = pluginByExtension.get(extension.getClass());
-    }
-    return plugin;
-  }
-
-  public String getPluginKeyForExtension(Object extension) {
-    Plugin plugin = getPluginForExtension(extension);
-    if (plugin != null) {
-      return plugin.getKey();
-    }
-    return null;
-  }
-
-  private boolean isExtension(Object extension, Class<? extends Extension> extensionClass) {
-    Class clazz = (extension instanceof Class ? (Class) extension : extension.getClass());
-    return extensionClass.isAssignableFrom(clazz);
-  }
-
-  public void registerExtension(MutablePicoContainer container, Plugin plugin, Object extension) {
-    container.as(Characteristics.CACHE).addComponent(getExtensionKey(extension), extension);
-    pluginByExtension.put(extension, plugin);
-  }
-
-  protected Object getExtensionKey(Object component) {
-    if (component instanceof Class) {
-      return component;
-    }
-    return component.getClass().getCanonicalName() + "-" + component.toString();
-  }
-
+  Property[] getProperties(Plugin plugin);
 }

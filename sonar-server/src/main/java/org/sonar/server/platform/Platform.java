@@ -133,7 +133,7 @@ public final class Platform {
     coreContainer.as(Characteristics.CACHE).addComponent(UpdateFinderFactory.class);
     coreContainer.as(Characteristics.CACHE).addComponent(PluginDownloader.class);
     coreContainer.as(Characteristics.NO_CACHE).addComponent(FilterExecutor.class);
-    coreContainer.addAdapter(new DatabaseSessionProvider());
+    coreContainer.as(Characteristics.NO_CACHE).addAdapter(new DatabaseSessionProvider());
     coreContainer.start();
 
     DatabaseConfiguration dbConfiguration = new DatabaseConfiguration(coreContainer.getComponent(DatabaseSessionFactory.class));
