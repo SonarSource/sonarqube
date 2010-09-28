@@ -21,6 +21,7 @@ package org.sonar.plugins.checkstyle;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.Rule;
@@ -42,7 +43,7 @@ public class CheckstyleProfileExporterTest {
 
     TestUtils.assertSimilarXml(
         TestUtils.getResourceContent("/org/sonar/plugins/checkstyle/CheckstyleProfileExporterTest/alwaysSetFileContentsHolderAndSuppressionCommentFilter.xml"),
-        writer.toString());
+        sanitizeForTests(writer.toString()));
   }
   @Test
   public void noCheckstyleRulesToExport() throws IOException, SAXException {
@@ -56,7 +57,7 @@ public class CheckstyleProfileExporterTest {
 
     TestUtils.assertSimilarXml(
         TestUtils.getResourceContent("/org/sonar/plugins/checkstyle/CheckstyleProfileExporterTest/noCheckstyleRulesToExport.xml"),
-        writer.toString());
+        sanitizeForTests(writer.toString()));
   }
 
   @Test
@@ -77,7 +78,7 @@ public class CheckstyleProfileExporterTest {
 
     TestUtils.assertSimilarXml(
         TestUtils.getResourceContent("/org/sonar/plugins/checkstyle/CheckstyleProfileExporterTest/singleCheckstyleRulesToExport.xml"),
-        writer.toString());
+        sanitizeForTests(writer.toString()));
   }
 
   @Test
@@ -94,7 +95,7 @@ public class CheckstyleProfileExporterTest {
 
     TestUtils.assertSimilarXml(
         TestUtils.getResourceContent("/org/sonar/plugins/checkstyle/CheckstyleProfileExporterTest/addTheIdPropertyWhenManyInstancesWithTheSameConfigKey.xml"),
-        writer.toString());
+        sanitizeForTests(writer.toString()));
   }
 
   @Test
@@ -114,7 +115,7 @@ public class CheckstyleProfileExporterTest {
 
     TestUtils.assertSimilarXml(
         TestUtils.getResourceContent("/org/sonar/plugins/checkstyle/CheckstyleProfileExporterTest/exportParameters.xml"),
-        writer.toString());
+        sanitizeForTests(writer.toString()));
   }
 
 
@@ -137,6 +138,12 @@ public class CheckstyleProfileExporterTest {
 
     TestUtils.assertSimilarXml(
         TestUtils.getResourceContent("/org/sonar/plugins/checkstyle/CheckstyleProfileExporterTest/addCustomFilters.xml"),
-        writer.toString());
+        sanitizeForTests(writer.toString()));
+  }
+
+
+  private static String sanitizeForTests(String xml) {
+    // remove the doctype declaration, else the unit test fails when executed offline
+    return StringUtils.remove(xml, CheckstyleProfileExporter.DOCTYPE_DECLARATION);
   }
 }
