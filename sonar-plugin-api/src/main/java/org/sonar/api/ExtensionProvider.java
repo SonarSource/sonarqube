@@ -28,8 +28,8 @@ package org.sonar.api;
  * <li>the provider is declared in Plugin.getExtensions()</li>
  * <li>the provider must also implement ServerExtension and/or BatchExtension</li>
  * <li>the provider can accept dependencies (parameters) in its constructors.</li>
- * <li>the method provide() is automatically executed once by sonar</li>
- * <li>the method provide() must return an object or an Iterable of objects. <strong>Arrays are excluded</strong>.</li>
+ * <li>the method provide() is executed once by sonar</li>
+ * <li>the method provide() must return an object, a class or an Iterable of objects. <strong>Arrays are excluded</strong>.</li>
  * </ul>
  * </p>
  *
