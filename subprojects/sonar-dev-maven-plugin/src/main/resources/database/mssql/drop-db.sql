@@ -1,1 +1,1 @@
-drop database ${sonar.jdbc.username};
+drop database ${jdbcUsername};

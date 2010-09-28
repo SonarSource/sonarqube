@@ -1,3 +1,3 @@
-create user '${sonar.jdbc.username}' IDENTIFIED BY '${sonar.jdbc.password}';
-GRANT ALL ON ${sonar.jdbc.username}.* TO '${sonar.jdbc.username}'@'%' IDENTIFIED BY '${sonar.jdbc.password}';
-GRANT ALL ON ${sonar.jdbc.username}.* TO '${sonar.jdbc.username}'@'localhost' IDENTIFIED BY '${sonar.jdbc.password}';
+create user '${jdbcUsername}' IDENTIFIED BY '${jdbcPassword}';
+GRANT ALL ON ${jdbcUsername}.* TO '${jdbcUsername}'@'%' IDENTIFIED BY '${jdbcPassword}';
+GRANT ALL ON ${jdbcUsername}.* TO '${jdbcUsername}'@'localhost' IDENTIFIED BY '${jdbcPassword}';

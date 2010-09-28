@@ -1,3 +1,3 @@
-create database ${sonar.jdbc.username};
-USE ${sonar.jdbc.username};
-sp_addalias ${sonar.jdbc.username}, dbo;
+create database ${jdbcUsername};
+USE ${jdbcUsername};
+sp_addalias ${jdbcUsername}, dbo;

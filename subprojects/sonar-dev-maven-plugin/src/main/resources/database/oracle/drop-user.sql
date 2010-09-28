@@ -1,1 +1,1 @@
-DROP USER ${sonar.jdbc.username} CASCADE;
+DROP USER ${jdbcUsername} CASCADE;

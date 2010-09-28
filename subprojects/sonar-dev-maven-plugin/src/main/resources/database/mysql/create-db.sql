@@ -1,1 +1,1 @@
-create database ${sonar.jdbc.username} character set utf8;
+create database ${jdbcUsername} character set utf8;

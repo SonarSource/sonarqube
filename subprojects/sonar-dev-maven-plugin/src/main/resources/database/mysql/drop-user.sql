@@ -1,1 +1,1 @@
-drop user '${sonar.jdbc.username}'@'%';
+drop user '${jdbcUsername}'@'%';

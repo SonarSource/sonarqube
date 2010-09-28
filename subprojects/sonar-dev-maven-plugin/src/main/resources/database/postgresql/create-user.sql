@@ -1,1 +1,1 @@
-CREATE USER ${sonar.jdbc.username} WITH PASSWORD '${sonar.jdbc.password}' CREATEDB;
+CREATE USER ${jdbcUsername} WITH PASSWORD '${jdbcPassword}' CREATEDB;

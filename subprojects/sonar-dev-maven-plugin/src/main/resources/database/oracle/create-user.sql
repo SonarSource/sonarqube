@@ -1,5 +1,5 @@
-CREATE USER ${sonar.jdbc.username} IDENTIFIED BY ${sonar.jdbc.password} DEFAULT TABLESPACE USERS ACCOUNT UNLOCK;
-GRANT CONNECT TO ${sonar.jdbc.username};
-GRANT RESOURCE TO ${sonar.jdbc.username};
-GRANT CREATE TABLE to ${sonar.jdbc.username};
-GRANT CREATE SEQUENCE to ${sonar.jdbc.username};
+CREATE USER ${jdbcUsername} IDENTIFIED BY ${jdbcPassword} DEFAULT TABLESPACE USERS ACCOUNT UNLOCK;
+GRANT CONNECT TO ${jdbcUsername};
+GRANT RESOURCE TO ${jdbcUsername};
+GRANT CREATE TABLE to ${jdbcUsername};
+GRANT CREATE SEQUENCE to ${jdbcUsername};

@@ -1,1 +1,1 @@
-DROP USER IF EXISTS ${sonar.jdbc.username};
+DROP USER IF EXISTS ${jdbcUsername};

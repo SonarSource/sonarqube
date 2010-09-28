@@ -1,1 +1,1 @@
-CREATE LOGIN ${sonar.jdbc.username} WITH PASSWORD = '${sonar.jdbc.password}', CHECK_POLICY=OFF;
+CREATE LOGIN ${jdbcUsername} WITH PASSWORD = '${jdbcPassword}', CHECK_POLICY=OFF;
