@@ -13,7 +13,6 @@
           <expression>${sonar.runtimeVersion}</expression>
           <required>true</required>
           <type>java.lang.String</type>
-          <defaultValue>2.2</defaultValue>
         </parameter>
         <parameter>
           <name>database</name>
@@ -159,7 +158,6 @@
           <required>true</required>
           <type>java.lang.String</type>
           <expression>${sonar.runtimeVersion}</expression>
-          <defaultValue>2.2</defaultValue>
         </parameter>
       </parameters>
     </mojo>
@@ -177,7 +175,6 @@
           <required>true</required>
           <type>java.lang.String</type>
           <expression>${sonar.runtimeVersion}</expression>
-          <defaultValue>2.2</defaultValue>
         </parameter>
         <parameter>
           <name>database</name>
@@ -318,12 +315,11 @@
       <parameters>
         <parameter>
           <name>runtimeVersion</name>
-          <description>Sonar version.</description>
+          <description>Sonar version</description>
           <property>runtimeVersion</property>
           <required>true</required>
           <type>java.lang.String</type>
           <expression>${sonar.runtimeVersion}</expression>
-          <defaultValue>2.2</defaultValue>
         </parameter>
       </parameters>
     </mojo>
