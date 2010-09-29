@@ -35,20 +35,20 @@ public class CloverSensorTest {
   public void doNotExecuteMavenPluginIfReuseReports() {
     Project project = mock(Project.class);
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.REUSE_REPORTS);
-    assertThat(new CloverSensor(null, new CloverMavenPluginHandler(new PropertiesConfiguration())).getMavenPluginHandler(project), nullValue());
+    assertThat(new CloverSensor(new CloverMavenPluginHandler(new PropertiesConfiguration())).getMavenPluginHandler(project), nullValue());
   }
 
   @Test
   public void doNotExecuteMavenPluginIfStaticAnalysis() {
     Project project = mock(Project.class);
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.STATIC);
-    assertThat(new CloverSensor(null, new CloverMavenPluginHandler(new PropertiesConfiguration())).getMavenPluginHandler(project), nullValue());
+    assertThat(new CloverSensor(new CloverMavenPluginHandler(new PropertiesConfiguration())).getMavenPluginHandler(project), nullValue());
   }
 
   @Test
   public void executeMavenPluginIfDynamicAnalysis() {
     Project project = mock(Project.class);
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.DYNAMIC);
-    assertThat(new CloverSensor(null, new CloverMavenPluginHandler(new PropertiesConfiguration())).getMavenPluginHandler(project), not(nullValue()));
+    assertThat(new CloverSensor(new CloverMavenPluginHandler(new PropertiesConfiguration())).getMavenPluginHandler(project), not(nullValue()));
   }
 }

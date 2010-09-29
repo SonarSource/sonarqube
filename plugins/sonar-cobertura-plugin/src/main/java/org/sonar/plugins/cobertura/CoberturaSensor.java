@@ -19,26 +19,12 @@
  */
 package org.sonar.plugins.cobertura;
 
-import static java.util.Locale.ENGLISH;
-import static org.sonar.api.utils.ParsingUtils.parseNumber;
-import static org.sonar.api.utils.ParsingUtils.scaleValue;
-
-import java.io.File;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.stream.XMLStreamException;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.Plugins;
 import org.sonar.api.batch.AbstractCoverageExtension;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
@@ -54,12 +40,23 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.utils.StaxParser;
 import org.sonar.api.utils.XmlParserException;
 
+import javax.xml.stream.XMLStreamException;
+import java.io.File;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Locale.ENGLISH;
+import static org.sonar.api.utils.ParsingUtils.parseNumber;
+import static org.sonar.api.utils.ParsingUtils.scaleValue;
+
 public class CoberturaSensor extends AbstractCoverageExtension implements Sensor, DependsUponMavenPlugin {
 
   private CoberturaMavenPluginHandler handler;
 
-  public CoberturaSensor(Plugins plugins, CoberturaMavenPluginHandler handler) {
-    super(plugins);
+  public CoberturaSensor(CoberturaMavenPluginHandler handler) {
     this.handler = handler;
   }
 

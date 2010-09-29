@@ -20,7 +20,6 @@
 package org.sonar.plugins.clover;
 
 import org.slf4j.LoggerFactory;
-import org.sonar.api.Plugins;
 import org.sonar.api.batch.AbstractCoverageExtension;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
@@ -35,8 +34,7 @@ public class CloverSensor extends AbstractCoverageExtension implements Sensor, D
 
   private CloverMavenPluginHandler handler;
 
-  public CloverSensor(Plugins plugins, CloverMavenPluginHandler handler) {
-    super(plugins);
+  public CloverSensor(CloverMavenPluginHandler handler) {
     this.handler = handler;
   }
 
