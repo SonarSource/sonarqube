@@ -74,7 +74,6 @@
               <li class="<%= 'selected' if request.request_uri.include?('/settings') -%>"><a href="<%= ApplicationController.root_context -%>/settings/index">Settings</a></li>
               <li class="<%= 'selected' if controller.controller_path=='backup' -%>"><a href="<%= ApplicationController.root_context -%>/backup">Backup</a></li>
               <li class="<%= 'selected' if controller.controller_path=='system' -%>"><a href="<%= ApplicationController.root_context -%>/system">System info</a></li>
-              <li class="<%= 'selected' if controller.controller_path=='plugins' -%>"><a href="<%= ApplicationController.root_context -%>/plugins">Upgrades (BETA)</a></li>
             <% end %>
 
         <% end %>
