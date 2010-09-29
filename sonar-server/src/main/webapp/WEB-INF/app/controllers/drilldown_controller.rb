@@ -78,14 +78,17 @@ class DrilldownController < ApplicationController
 
 
     # options
-    options={}
+    @rule=Rule.by_key_or_id(params[:rule])
     @priority_id = (params[:priority] ? Sonar::RulePriority.id(params[:priority]) : nil)
     @categ_id = (params[:categ_id] ? params[:categ_id].to_i : nil)
-    @rule_id = Rule.to_i(params[:rule])
-    options[:rule_id]=@rule_id
+
+    options={}
     options[:rule_category_id]=@categ_id
     options[:rule_priority_id]=@priority_id
-
+    if @rule
+      params[:rule]=@rule.key  # workaround for SONAR-1767 : the javascript hash named "rp" in the HTML source must contain the rule key, but not the rule id
+      options[:rule_id]=@rule.id
+    end
 
     # load data
     @drilldown = Drilldown.new(@project, @metric, @selected_rids, options)

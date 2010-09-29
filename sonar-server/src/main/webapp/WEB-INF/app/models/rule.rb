@@ -86,6 +86,22 @@ class Rule < ActiveRecord::Base
     id>0 ? id : nil
   end
 
+  def self.by_key_or_id(key_or_id)
+    rule=nil
+    if key_or_id.present?
+      id=key_or_id.to_i
+      if id<=0
+        parts=key_or_id.split(':')
+        if parts.size==2
+          rule=Rule.find(:first, :conditions => {:plugin_name => parts[0], :plugin_rule_key => parts[1]})
+        end
+      else
+        rule=Rule.find(id)
+      end
+    end
+    rule
+  end
+
   def to_hash_json(profile)
     json = {'title' => name, 'key' => key, 'category' => rules_category.name, 'plugin' => plugin_name}
     json['description'] = description

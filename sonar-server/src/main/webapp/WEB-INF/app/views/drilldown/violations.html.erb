@@ -88,7 +88,7 @@
 		      next if rule_measure.value==0
               rule=rules_hash[rule_measure.rule_id]
               clazz = cycle('even', 'odd', :name => 'rules')
-              clazz = clazz + ' selected' if @rule_id and @rule_id==rule_measure.rule_id
+              clazz = clazz + ' selected' if @rule && @rule.id==rule_measure.rule_id
               rule_index+=1
 		   %>
                <tr class="<%= clazz -%>">
@@ -177,8 +177,8 @@
 <% else %>
 Any <%= @filter %>
 <% end %>&nbsp;&raquo;&nbsp;
-<% if @rule_id %>
-<%= h Rule.find(@rule_id).name %> <%= link_to 'clear', {:overwrite_params => {:rule => nil}} %>
+<% if @rule %>
+<%= h @rule.name %> <%= link_to 'clear', {:overwrite_params => {:rule => nil}} %>
 <% else %>
 Any rule
 <% end %>&nbsp;&raquo;&nbsp;
