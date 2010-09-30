@@ -586,7 +586,6 @@ ul.operations li {
   float: left;
   margin: 0;
   padding: 2px 7px;
-  position: relative;
   font-size: 85%;
   border-right: 1px solid #cdcdcd;
 }
