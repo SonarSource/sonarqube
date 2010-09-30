@@ -22,9 +22,11 @@ package org.sonar.batch;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
+import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.batch.AbstractCoverageExtension;
+import org.sonar.api.utils.IocContainer;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -33,62 +35,64 @@ public class BatchPluginRepositoryTest {
 
   @Test
   public void shouldRegisterBatchExtension() {
-    BatchPluginRepository repository = new BatchPluginRepository(new PropertiesConfiguration());
+    MutablePicoContainer pico = IocContainer.buildPicoContainer();
+    pico.addComponent(new PropertiesConfiguration());
+    BatchPluginRepository repository = new BatchPluginRepository();
 
     // check classes
-    assertThat(repository.shouldRegisterExtension("foo", FakeBatchExtension.class), is(true));
-    assertThat(repository.shouldRegisterExtension("foo", FakeServerExtension.class), is(false));
-    assertThat(repository.shouldRegisterExtension("foo", String.class), is(false));
+    assertThat(repository.shouldRegisterExtension(pico, "foo", FakeBatchExtension.class), is(true));
+    assertThat(repository.shouldRegisterExtension(pico, "foo", FakeServerExtension.class), is(false));
+    assertThat(repository.shouldRegisterExtension(pico, "foo", String.class), is(false));
 
     // check objects
-    assertThat(repository.shouldRegisterExtension("foo", new FakeBatchExtension()), is(true));
-    assertThat(repository.shouldRegisterExtension("foo", new FakeServerExtension()), is(false));
-    assertThat(repository.shouldRegisterExtension("foo", "bar"), is(false));
+    assertThat(repository.shouldRegisterExtension(pico, "foo", new FakeBatchExtension()), is(true));
+    assertThat(repository.shouldRegisterExtension(pico, "foo", new FakeServerExtension()), is(false));
+    assertThat(repository.shouldRegisterExtension(pico, "foo", "bar"), is(false));
   }
 
   @Test
   public void shouldRegisterOnlyCoberturaExtensionByDefault() {
-    Configuration conf = new PropertiesConfiguration();
-    BatchPluginRepository repository = new BatchPluginRepository(conf);
-    assertThat(repository.shouldRegisterCoverageExtension("cobertura"), is(true));
-    assertThat(repository.shouldRegisterCoverageExtension("clover"), is(false));
+    BatchPluginRepository repository = new BatchPluginRepository();
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    assertThat(repository.shouldRegisterCoverageExtension("cobertura", conf), is(true));
+    assertThat(repository.shouldRegisterCoverageExtension("clover", conf), is(false));
   }
 
   @Test
   public void shouldRegisterCustomCoverageExtension() {
     Configuration conf = new PropertiesConfiguration();
     conf.setProperty(AbstractCoverageExtension.PARAM_PLUGIN, "clover,phpunit");
-    BatchPluginRepository repository = new BatchPluginRepository(conf);
-    assertThat(repository.shouldRegisterCoverageExtension("cobertura"), is(false));
-    assertThat(repository.shouldRegisterCoverageExtension("clover"), is(true));
-    assertThat(repository.shouldRegisterCoverageExtension("phpunit"), is(true));
-    assertThat(repository.shouldRegisterCoverageExtension("other"), is(false));
+    BatchPluginRepository repository = new BatchPluginRepository();
+    assertThat(repository.shouldRegisterCoverageExtension("cobertura", conf), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("clover", conf), is(true));
+    assertThat(repository.shouldRegisterCoverageExtension("phpunit", conf), is(true));
+    assertThat(repository.shouldRegisterCoverageExtension("other", conf), is(false));
   }
 
   @Test
   public void shouldActivateOldVersionOfEmma() {
     Configuration conf = new PropertiesConfiguration();
     conf.setProperty(AbstractCoverageExtension.PARAM_PLUGIN, "emma");
-    BatchPluginRepository repository = new BatchPluginRepository(conf);
+    BatchPluginRepository repository = new BatchPluginRepository();
 
-    assertThat(repository.shouldRegisterCoverageExtension("sonar-emma-plugin"), is(true));
-    assertThat(repository.shouldRegisterCoverageExtension("emma"), is(true));
+    assertThat(repository.shouldRegisterCoverageExtension("sonar-emma-plugin", conf), is(true));
+    assertThat(repository.shouldRegisterCoverageExtension("emma", conf), is(true));
 
-    assertThat(repository.shouldRegisterCoverageExtension("sonar-jacoco-plugin"), is(false));
-    assertThat(repository.shouldRegisterCoverageExtension("jacoco"), is(false));
-    assertThat(repository.shouldRegisterCoverageExtension("clover"), is(false));
-    assertThat(repository.shouldRegisterCoverageExtension("cobertura"), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("sonar-jacoco-plugin", conf), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("jacoco", conf), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("clover", conf), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("cobertura", conf), is(false));
   }
 
   @Test
   public void shouldActivateOldVersionOfJacoco() {
     Configuration conf = new PropertiesConfiguration();
     conf.setProperty(AbstractCoverageExtension.PARAM_PLUGIN, "cobertura,jacoco");
-    BatchPluginRepository repository = new BatchPluginRepository(conf);
+    BatchPluginRepository repository = new BatchPluginRepository();
 
-    assertThat(repository.shouldRegisterCoverageExtension("sonar-jacoco-plugin"), is(true));
-    assertThat(repository.shouldRegisterCoverageExtension("jacoco"), is(true));
-    assertThat(repository.shouldRegisterCoverageExtension("emma"), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("sonar-jacoco-plugin", conf), is(true));
+    assertThat(repository.shouldRegisterCoverageExtension("jacoco", conf), is(true));
+    assertThat(repository.shouldRegisterCoverageExtension("emma", conf), is(false));
   }
 
   public static class FakeBatchExtension implements BatchExtension {

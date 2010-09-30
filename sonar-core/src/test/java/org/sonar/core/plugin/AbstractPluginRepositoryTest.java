@@ -21,6 +21,7 @@ package org.sonar.core.plugin;
 
 import org.junit.Test;
 import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.PicoContainer;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
@@ -72,7 +73,7 @@ public class AbstractPluginRepositoryTest {
     MutablePicoContainer pico = IocContainer.buildPicoContainer();
     AbstractPluginRepository repository = new AbstractPluginRepository() {
       @Override
-      protected boolean shouldRegisterExtension(String pluginKey, Object extension) {
+      protected boolean shouldRegisterExtension(PicoContainer container, String pluginKey, Object extension) {
         return isType(extension, ServerExtension.class);
       }
     };

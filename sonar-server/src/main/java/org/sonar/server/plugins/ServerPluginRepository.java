@@ -21,6 +21,7 @@ package org.sonar.server.plugins;
 
 import org.picocontainer.Characteristics;
 import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.PicoContainer;
 import org.sonar.api.Plugin;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.utils.SonarException;
@@ -64,7 +65,7 @@ public class ServerPluginRepository extends AbstractPluginRepository {
   }
 
   @Override
-  protected boolean shouldRegisterExtension(String pluginKey, Object extension) {
+  protected boolean shouldRegisterExtension(PicoContainer container, String pluginKey, Object extension) {
     return isType(extension, ServerExtension.class);
   }
 }

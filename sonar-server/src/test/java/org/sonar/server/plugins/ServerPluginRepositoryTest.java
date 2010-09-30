@@ -32,14 +32,14 @@ public class ServerPluginRepositoryTest {
     ServerPluginRepository repository = new ServerPluginRepository();
 
     // check classes
-    assertThat(repository.shouldRegisterExtension("foo", FakeBatchExtension.class), is(false));
-    assertThat(repository.shouldRegisterExtension("foo", FakeServerExtension.class), is(true));
-    assertThat(repository.shouldRegisterExtension("foo", String.class), is(false));
+    assertThat(repository.shouldRegisterExtension(null, "foo", FakeBatchExtension.class), is(false));
+    assertThat(repository.shouldRegisterExtension(null, "foo", FakeServerExtension.class), is(true));
+    assertThat(repository.shouldRegisterExtension(null, "foo", String.class), is(false));
 
     // check objects
-    assertThat(repository.shouldRegisterExtension("foo", new FakeBatchExtension()), is(false));
-    assertThat(repository.shouldRegisterExtension("foo", new FakeServerExtension()), is(true));
-    assertThat(repository.shouldRegisterExtension("foo", "foo"), is(false));
+    assertThat(repository.shouldRegisterExtension(null, "foo", new FakeBatchExtension()), is(false));
+    assertThat(repository.shouldRegisterExtension(null, "foo", new FakeServerExtension()), is(true));
+    assertThat(repository.shouldRegisterExtension(null, "foo", "foo"), is(false));
   }
 
   public static class FakeBatchExtension implements BatchExtension {

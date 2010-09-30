@@ -24,6 +24,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 import org.picocontainer.Characteristics;
 import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.PicoContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.*;
@@ -70,7 +71,7 @@ public abstract class AbstractPluginRepository implements PluginRepository {
   }
 
   private void registerExtension(MutablePicoContainer container, Plugin plugin, String pluginKey, Object extension) {
-    if (shouldRegisterExtension(pluginKey, extension)) {
+    if (shouldRegisterExtension(container, pluginKey, extension)) {
       LOG.debug("Register the extension: {}", extension);
       container.as(Characteristics.CACHE).addComponent(getExtensionKey(extension), extension);
       pluginByExtension.put(extension, plugin);
@@ -78,7 +79,7 @@ public abstract class AbstractPluginRepository implements PluginRepository {
     }
   }
 
-  protected abstract boolean shouldRegisterExtension(String pluginKey, Object extension);
+  protected abstract boolean shouldRegisterExtension(PicoContainer container, String pluginKey, Object extension);
 
   public Collection<Plugin> getPlugins() {
     return pluginByKey.values();

@@ -68,13 +68,15 @@ public class ProjectBatch {
 
   public void startChildContainer(DefaultSonarIndex index, Project project) {
     batchContainer = globalContainer.makeChildContainer();
-    batchContainer.getComponent(BatchPluginRepository.class).registerPlugins(batchContainer);
 
     batchContainer.as(Characteristics.CACHE).addComponent(project);
     batchContainer.as(Characteristics.CACHE).addComponent(project.getPom());
     batchContainer.as(Characteristics.CACHE).addComponent(ProjectClasspath.class);
     batchContainer.as(Characteristics.CACHE).addComponent(index.getBucket(project).getSnapshot());
     batchContainer.as(Characteristics.CACHE).addComponent(project.getConfiguration());
+
+    //need to be registered after the Configuration
+    batchContainer.getComponent(BatchPluginRepository.class).registerPlugins(batchContainer);
 
     batchContainer.as(Characteristics.CACHE).addComponent(DaoFacade.class);
     batchContainer.as(Characteristics.CACHE).addComponent(RulesDao.class);

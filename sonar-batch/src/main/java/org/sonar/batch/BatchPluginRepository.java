@@ -24,11 +24,13 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.PicoContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.Plugin;
 import org.sonar.api.batch.AbstractCoverageExtension;
+import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.plugin.AbstractPluginRepository;
 import org.sonar.core.plugin.JpaPlugin;
@@ -48,19 +50,17 @@ public class BatchPluginRepository extends AbstractPluginRepository {
   private Map<String, ClassLoader> classloaders;
   private String baseUrl;
   private JpaPluginDao dao;
-  private Configuration configuration;
 
-  public BatchPluginRepository(JpaPluginDao dao, ServerMetadata server, Configuration configuration) {
+  public BatchPluginRepository(JpaPluginDao dao, ServerMetadata server) {
     this.dao = dao;
     this.baseUrl = server.getUrl() + "/deploy/plugins/";
-    this.configuration = configuration;
   }
 
   /**
-   * only for unit tests
+   * for unit tests only
    */
-  BatchPluginRepository(Configuration configuration) {
-    this.configuration = configuration;
+  BatchPluginRepository() {
+
   }
 
   public void start() {
@@ -109,15 +109,6 @@ public class BatchPluginRepository extends AbstractPluginRepository {
     invokeExtensionProviders(pico);
   }
 
-  boolean shouldRegisterCoverageExtension(String pluginKey) {
-    String[] selectedPluginKeys = configuration.getStringArray(AbstractCoverageExtension.PARAM_PLUGIN);
-    if (ArrayUtils.isEmpty(selectedPluginKeys)) {
-      selectedPluginKeys = new String[]{AbstractCoverageExtension.DEFAULT_PLUGIN};
-    }
-    String oldCoveragePluginKey = getOldCoveragePluginKey(pluginKey);
-    return ArrayUtils.contains(selectedPluginKeys, pluginKey) || ArrayUtils.contains(selectedPluginKeys, oldCoveragePluginKey);
-  }
-
   private String getOldCoveragePluginKey(String pluginKey) {
     if (StringUtils.equals("sonar-jacoco-plugin", pluginKey)) {
       return "jacoco";
@@ -129,14 +120,23 @@ public class BatchPluginRepository extends AbstractPluginRepository {
   }
 
   @Override
-  protected boolean shouldRegisterExtension(String pluginKey, Object extension) {
+  protected boolean shouldRegisterExtension(PicoContainer container, String pluginKey, Object extension) {
     boolean ok = isType(extension, BatchExtension.class);
     if (ok && isType(extension, AbstractCoverageExtension.class)) {
-      ok = shouldRegisterCoverageExtension(pluginKey);
+      ok = shouldRegisterCoverageExtension(pluginKey, container.getComponent(Configuration.class));
       if (!ok) {
         LOG.debug("The following extension is ignored: " + extension + ". See the parameter " + AbstractCoverageExtension.PARAM_PLUGIN);
       }
     }
     return ok;
+  }
+
+  boolean shouldRegisterCoverageExtension(String pluginKey, Configuration conf) {
+    String[] selectedPluginKeys = conf.getStringArray(AbstractCoverageExtension.PARAM_PLUGIN);
+    if (ArrayUtils.isEmpty(selectedPluginKeys)) {
+      selectedPluginKeys = new String[]{AbstractCoverageExtension.DEFAULT_PLUGIN};
+    }
+    String oldCoveragePluginKey = getOldCoveragePluginKey(pluginKey);
+    return ArrayUtils.contains(selectedPluginKeys, pluginKey) || ArrayUtils.contains(selectedPluginKeys, oldCoveragePluginKey);
   }
 }
