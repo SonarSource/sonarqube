@@ -31,11 +31,11 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
-public class StandardRuleXmlFormatTest {
+public class XMLRuleParserTest {
 
   @Test
   public void parseXml() {
-    List<Rule> rules = StandardRuleXmlFormat.parseXml(getClass().getResourceAsStream("/org/sonar/api/rules/StandardRuleXmlFormatTest/rules.xml"));
+    List<Rule> rules = XMLRuleParser.parseXML(getClass().getResourceAsStream("/org/sonar/api/rules/XMLRuleParserTest/rules.xml"));
     assertThat(rules.size(), is(2));
 
     Rule rule = rules.get(0);
@@ -59,17 +59,17 @@ public class StandardRuleXmlFormatTest {
 
   @Test(expected = SonarException.class)
   public void failIfMissingRuleKey() {
-    StandardRuleXmlFormat.parseXml(new StringReader("<rules><rule><name>Foo</name></rule></rules>"));
+    XMLRuleParser.parseXML(new StringReader("<rules><rule><name>Foo</name></rule></rules>"));
   }
 
   @Test(expected = SonarException.class)
   public void failIfMissingPropertyKey() {
-    StandardRuleXmlFormat.parseXml(new StringReader("<rules><rule><key>foo</key><name>Foo</name><param></param></rule></rules>"));
+    XMLRuleParser.parseXML(new StringReader("<rules><rule><key>foo</key><name>Foo</name><param></param></rule></rules>"));
   }
 
   @Test
   public void utf8Encoding() {
-    List<Rule> rules = StandardRuleXmlFormat.parseXml(getClass().getResourceAsStream("/org/sonar/api/rules/StandardRuleXmlFormatTest/utf8.xml"));
+    List<Rule> rules = XMLRuleParser.parseXML(getClass().getResourceAsStream("/org/sonar/api/rules/XMLRuleParserTest/utf8.xml"));
     assertThat(rules.size(), is(1));
     Rule rule = rules.get(0);
     assertThat(rule.getKey(), is("com.puppycrawl.tools.checkstyle.checks.naming.LocalVariableNameCheck"));
@@ -82,7 +82,7 @@ public class StandardRuleXmlFormatTest {
   @Test
   public void supportDeprecatedFormat() {
     // the deprecated format uses some attributes instead of nodes
-    List<Rule> rules = StandardRuleXmlFormat.parseXml(getClass().getResourceAsStream("/org/sonar/api/rules/StandardRuleXmlFormatTest/deprecated.xml"));
+    List<Rule> rules = XMLRuleParser.parseXML(getClass().getResourceAsStream("/org/sonar/api/rules/XMLRuleParserTest/deprecated.xml"));
     assertThat(rules.size(), is(1));
     Rule rule = rules.get(0);
     assertThat(rule.getPriority(), Is.is(RulePriority.CRITICAL));

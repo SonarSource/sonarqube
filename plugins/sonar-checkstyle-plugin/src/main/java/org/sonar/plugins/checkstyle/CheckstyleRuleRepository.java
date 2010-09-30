@@ -23,7 +23,7 @@ import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.resources.Java;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleRepository;
-import org.sonar.api.rules.StandardRuleXmlFormat;
+import org.sonar.api.rules.XMLRuleParser;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -43,9 +43,9 @@ public final class CheckstyleRuleRepository extends RuleRepository {
   @Override
   public List<Rule> createRules() {
     List<Rule> rules = new ArrayList<Rule>();
-    rules.addAll(StandardRuleXmlFormat.parseXml(getClass().getResourceAsStream("/org/sonar/plugins/checkstyle/rules.xml")));
+    rules.addAll(XMLRuleParser.parseXML(getClass().getResourceAsStream("/org/sonar/plugins/checkstyle/rules.xml")));
     for (File userExtensionXml : fileSystem.getExtensions(CheckstyleConstants.REPOSITORY_KEY, "xml")) {
-      rules.addAll(StandardRuleXmlFormat.parseXml(userExtensionXml));
+      rules.addAll(XMLRuleParser.parseXML(userExtensionXml));
     }
     return rules;
   }

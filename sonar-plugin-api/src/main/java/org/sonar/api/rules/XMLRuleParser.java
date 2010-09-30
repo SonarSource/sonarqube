@@ -38,17 +38,17 @@ import java.util.List;
 /**
  * @since 2.3
  */
-public final class StandardRuleXmlFormat {
+public final class XMLRuleParser {
 
-  private StandardRuleXmlFormat() {
+  private XMLRuleParser() {
     // only static methods
   }
 
-  public static List<Rule> parseXml(File file) {
+  public static List<Rule> parseXML(File file) {
     Reader reader = null;
     try {
       reader = new InputStreamReader(FileUtils.openInputStream(file), CharEncoding.UTF_8);
-      return parseXml(reader);
+      return parseXML(reader);
 
     } catch (IOException e) {
       throw new SonarException("Fail to load the file: " + file, e);
@@ -61,11 +61,11 @@ public final class StandardRuleXmlFormat {
   /**
    * Warning : the input stream is closed in this method
    */
-  public static List<Rule> parseXml(InputStream input) {
+  public static List<Rule> parseXML(InputStream input) {
     Reader reader = null;
     try {
       reader = new InputStreamReader(input, CharEncoding.UTF_8);
-      return parseXml(reader);
+      return parseXML(reader);
 
     } catch (IOException e) {
       throw new SonarException("Fail to load the xml stream", e);
@@ -75,7 +75,7 @@ public final class StandardRuleXmlFormat {
     }
   }
 
-  public static List<Rule> parseXml(Reader reader) {
+  public static List<Rule> parseXML(Reader reader) {
     XMLInputFactory xmlFactory = XMLInputFactory2.newInstance();
     xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
     xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);

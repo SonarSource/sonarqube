@@ -26,7 +26,7 @@ import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.resources.Java;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleRepository;
-import org.sonar.api.rules.StandardRuleXmlFormat;
+import org.sonar.api.rules.XMLRuleParser;
 
 public final class FindbugsRuleRepository extends RuleRepository {
 
@@ -38,7 +38,7 @@ public final class FindbugsRuleRepository extends RuleRepository {
   @Override
   public List<Rule> createRules() {
     List<Rule> rules = new ArrayList<Rule>();
-    rules.addAll(StandardRuleXmlFormat.parseXml(getClass().getResourceAsStream("/org/sonar/plugins/findbugs/rules.xml")));
+    rules.addAll(XMLRuleParser.parseXML(getClass().getResourceAsStream("/org/sonar/plugins/findbugs/rules.xml")));
     return rules;
   }
 }
