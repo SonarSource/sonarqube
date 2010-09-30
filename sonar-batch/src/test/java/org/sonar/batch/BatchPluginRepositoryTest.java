@@ -65,6 +65,31 @@ public class BatchPluginRepositoryTest {
     assertThat(repository.shouldRegisterCoverageExtension("other"), is(false));
   }
 
+  @Test
+  public void shouldActivateOldVersionOfEmma() {
+    Configuration conf = new PropertiesConfiguration();
+    conf.setProperty(AbstractCoverageExtension.PARAM_PLUGIN, "emma");
+    BatchPluginRepository repository = new BatchPluginRepository(conf);
+
+    assertThat(repository.shouldRegisterCoverageExtension("sonar-emma-plugin"), is(true));
+    assertThat(repository.shouldRegisterCoverageExtension("emma"), is(true));
+
+    assertThat(repository.shouldRegisterCoverageExtension("sonar-jacoco-plugin"), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("jacoco"), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("clover"), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("cobertura"), is(false));
+  }
+
+  @Test
+  public void shouldActivateOldVersionOfJacoco() {
+    Configuration conf = new PropertiesConfiguration();
+    conf.setProperty(AbstractCoverageExtension.PARAM_PLUGIN, "cobertura,jacoco");
+    BatchPluginRepository repository = new BatchPluginRepository(conf);
+
+    assertThat(repository.shouldRegisterCoverageExtension("sonar-jacoco-plugin"), is(true));
+    assertThat(repository.shouldRegisterCoverageExtension("jacoco"), is(true));
+    assertThat(repository.shouldRegisterCoverageExtension("emma"), is(false));
+  }
 
   public static class FakeBatchExtension implements BatchExtension {
 

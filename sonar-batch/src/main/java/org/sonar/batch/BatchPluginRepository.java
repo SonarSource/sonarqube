@@ -22,6 +22,7 @@ package org.sonar.batch;
 import com.google.common.collect.HashMultimap;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.picocontainer.MutablePicoContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,7 +114,18 @@ public class BatchPluginRepository extends AbstractPluginRepository {
     if (ArrayUtils.isEmpty(selectedPluginKeys)) {
       selectedPluginKeys = new String[]{AbstractCoverageExtension.DEFAULT_PLUGIN};
     }
-    return ArrayUtils.contains(selectedPluginKeys, pluginKey);
+    String oldCoveragePluginKey = getOldCoveragePluginKey(pluginKey);
+    return ArrayUtils.contains(selectedPluginKeys, pluginKey) || ArrayUtils.contains(selectedPluginKeys, oldCoveragePluginKey);
+  }
+
+  private String getOldCoveragePluginKey(String pluginKey) {
+    if (StringUtils.equals("sonar-jacoco-plugin", pluginKey)) {
+      return "jacoco";
+    }
+    if (StringUtils.equals("sonar-emma-plugin", pluginKey)) {
+      return "emma";
+    }
+    return null;
   }
 
   @Override
