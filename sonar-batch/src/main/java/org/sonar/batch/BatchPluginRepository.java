@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.Plugin;
 import org.sonar.api.batch.AbstractCoverageExtension;
+import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.plugin.AbstractPluginRepository;
@@ -123,7 +124,7 @@ public class BatchPluginRepository extends AbstractPluginRepository {
   protected boolean shouldRegisterExtension(PicoContainer container, String pluginKey, Object extension) {
     boolean ok = isType(extension, BatchExtension.class);
     if (ok && isType(extension, AbstractCoverageExtension.class)) {
-      ok = shouldRegisterCoverageExtension(pluginKey, container.getComponent(Configuration.class));
+      ok = shouldRegisterCoverageExtension(pluginKey, container.getComponent(Project.class), container.getComponent(Configuration.class));
       if (!ok) {
         LOG.debug("The following extension is ignored: " + extension + ". See the parameter " + AbstractCoverageExtension.PARAM_PLUGIN);
       }
@@ -131,12 +132,16 @@ public class BatchPluginRepository extends AbstractPluginRepository {
     return ok;
   }
 
-  boolean shouldRegisterCoverageExtension(String pluginKey, Configuration conf) {
-    String[] selectedPluginKeys = conf.getStringArray(AbstractCoverageExtension.PARAM_PLUGIN);
-    if (ArrayUtils.isEmpty(selectedPluginKeys)) {
-      selectedPluginKeys = new String[]{AbstractCoverageExtension.DEFAULT_PLUGIN};
+  boolean shouldRegisterCoverageExtension(String pluginKey, Project project, Configuration conf) {
+    boolean ok=true;
+    if (StringUtils.equals(project.getLanguageKey(), Java.KEY)) {
+      String[] selectedPluginKeys = conf.getStringArray(AbstractCoverageExtension.PARAM_PLUGIN);
+      if (ArrayUtils.isEmpty(selectedPluginKeys)) {
+        selectedPluginKeys = new String[]{AbstractCoverageExtension.DEFAULT_PLUGIN};
+      }
+      String oldCoveragePluginKey = getOldCoveragePluginKey(pluginKey);
+      ok = ArrayUtils.contains(selectedPluginKeys, pluginKey) || ArrayUtils.contains(selectedPluginKeys, oldCoveragePluginKey);
     }
-    String oldCoveragePluginKey = getOldCoveragePluginKey(pluginKey);
-    return ArrayUtils.contains(selectedPluginKeys, pluginKey) || ArrayUtils.contains(selectedPluginKeys, oldCoveragePluginKey);
+    return ok;
   }
 }

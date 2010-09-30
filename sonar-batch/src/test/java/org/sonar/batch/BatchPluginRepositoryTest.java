@@ -26,6 +26,8 @@ import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.batch.AbstractCoverageExtension;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.Project;
 import org.sonar.api.utils.IocContainer;
 
 import static org.hamcrest.core.Is.is;
@@ -54,8 +56,8 @@ public class BatchPluginRepositoryTest {
   public void shouldRegisterOnlyCoberturaExtensionByDefault() {
     BatchPluginRepository repository = new BatchPluginRepository();
     PropertiesConfiguration conf = new PropertiesConfiguration();
-    assertThat(repository.shouldRegisterCoverageExtension("cobertura", conf), is(true));
-    assertThat(repository.shouldRegisterCoverageExtension("clover", conf), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("cobertura", newJavaProject(), conf), is(true));
+    assertThat(repository.shouldRegisterCoverageExtension("clover", newJavaProject(),conf), is(false));
   }
 
   @Test
@@ -63,10 +65,10 @@ public class BatchPluginRepositoryTest {
     Configuration conf = new PropertiesConfiguration();
     conf.setProperty(AbstractCoverageExtension.PARAM_PLUGIN, "clover,phpunit");
     BatchPluginRepository repository = new BatchPluginRepository();
-    assertThat(repository.shouldRegisterCoverageExtension("cobertura", conf), is(false));
-    assertThat(repository.shouldRegisterCoverageExtension("clover", conf), is(true));
-    assertThat(repository.shouldRegisterCoverageExtension("phpunit", conf), is(true));
-    assertThat(repository.shouldRegisterCoverageExtension("other", conf), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("cobertura", newJavaProject(),conf), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("clover", newJavaProject(), conf), is(true));
+    assertThat(repository.shouldRegisterCoverageExtension("phpunit", newJavaProject(),conf), is(true));
+    assertThat(repository.shouldRegisterCoverageExtension("other", newJavaProject(),conf), is(false));
   }
 
   @Test
@@ -75,13 +77,13 @@ public class BatchPluginRepositoryTest {
     conf.setProperty(AbstractCoverageExtension.PARAM_PLUGIN, "emma");
     BatchPluginRepository repository = new BatchPluginRepository();
 
-    assertThat(repository.shouldRegisterCoverageExtension("sonar-emma-plugin", conf), is(true));
-    assertThat(repository.shouldRegisterCoverageExtension("emma", conf), is(true));
+    assertThat(repository.shouldRegisterCoverageExtension("sonar-emma-plugin", newJavaProject(),conf), is(true));
+    assertThat(repository.shouldRegisterCoverageExtension("emma", newJavaProject(),conf), is(true));
 
-    assertThat(repository.shouldRegisterCoverageExtension("sonar-jacoco-plugin", conf), is(false));
-    assertThat(repository.shouldRegisterCoverageExtension("jacoco", conf), is(false));
-    assertThat(repository.shouldRegisterCoverageExtension("clover", conf), is(false));
-    assertThat(repository.shouldRegisterCoverageExtension("cobertura", conf), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("sonar-jacoco-plugin", newJavaProject(),conf), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("jacoco", newJavaProject(),conf), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("clover", newJavaProject(),conf), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("cobertura", newJavaProject(),conf), is(false));
   }
 
   @Test
@@ -90,9 +92,27 @@ public class BatchPluginRepositoryTest {
     conf.setProperty(AbstractCoverageExtension.PARAM_PLUGIN, "cobertura,jacoco");
     BatchPluginRepository repository = new BatchPluginRepository();
 
-    assertThat(repository.shouldRegisterCoverageExtension("sonar-jacoco-plugin", conf), is(true));
-    assertThat(repository.shouldRegisterCoverageExtension("jacoco", conf), is(true));
-    assertThat(repository.shouldRegisterCoverageExtension("emma", conf), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("sonar-jacoco-plugin", newJavaProject(),conf), is(true));
+    assertThat(repository.shouldRegisterCoverageExtension("jacoco", newJavaProject(),conf), is(true));
+    assertThat(repository.shouldRegisterCoverageExtension("emma", newJavaProject(),conf), is(false));
+  }
+
+  @Test
+  public void shouldNotCheckCoverageExtensionsOnNonJavaProjects() {
+    Configuration conf = new PropertiesConfiguration();
+    conf.setProperty(AbstractCoverageExtension.PARAM_PLUGIN, "cobertura");
+    BatchPluginRepository repository = new BatchPluginRepository();
+
+    assertThat(repository.shouldRegisterCoverageExtension("groovy", newGroovyProject(),conf), is(true));
+    assertThat(repository.shouldRegisterCoverageExtension("groovy", newJavaProject(),conf), is(false));
+  }
+
+  private static Project newJavaProject() {
+    return new Project("foo").setLanguageKey(Java.KEY);
+  }
+
+  private static Project newGroovyProject() {
+    return new Project("foo").setLanguageKey("grvy");
   }
 
   public static class FakeBatchExtension implements BatchExtension {
