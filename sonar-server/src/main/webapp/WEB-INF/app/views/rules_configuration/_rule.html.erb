@@ -28,8 +28,7 @@
   <br/>
   <div id="desc_<%= rule.id -%>" class="rule_desc" style="display:none">
     <%= rule.description %>
-    <% if rule.parameters.size>0 %>
-          <table >
+    <table style="margin: 10px 0">
               <% rule.parameters.each do |parameter|
                 active_parameter = active_rule.active_param_by_param_id(parameter.id) if active_rule
               %>
@@ -38,16 +37,17 @@
                     :locals => {:parameter => parameter, :active_parameter => active_parameter, :profile => profile, :active_rule => active_rule, :is_admin => is_admin } %>
                   </tbody>
               <% end %>
-          </table>
-      <% end %>
-      <br/><span>Key: <%= rule.plugin_rule_key -%></span>
+              <tr>
+                <td width="10%" nowrap class="left">Key: &nbsp;</td>
+                <td class="left"><%= rule.plugin_rule_key -%></td>
+              </tr>
+     </table>
       <% if is_admin %>
-        <br/>
         <% if rule.template? %>
-        <a href="<%= url_for :action => 'new', :id => profile.id, :rule_id => rule.id -%>">Create new rule from this template</a>
+        <%= button_to "Create new rule from this template", :action => 'new', :id => profile.id, :rule_id => rule.id %>
         <% end %>
         <% if rule.editable? %>
-        <a href="<%= url_for :action => 'edit', :id => profile.id, :rule_id => rule.id -%>">Edit rule</a>
+        <%= button_to "Edit rule", :action => 'edit', :id => profile.id, :rule_id => rule.id -%>
         <% end %>
       <% end %>
     </div>

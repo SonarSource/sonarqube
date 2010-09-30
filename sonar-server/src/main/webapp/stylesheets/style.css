@@ -1237,7 +1237,7 @@ ul.bullet li {
 
 .rule_desc {
   color: #444;
-  padding: 2px 0 15px 0;
+  padding: 2px 0;
 }
 
 .rule_desc li {
@@ -1438,10 +1438,7 @@ table.data2 > thead > tr > th, table.data2 > tbody > tr > td {
   border-bottom: 1px solid #DDD;
   padding: 3px 5px;
   height: 20px;
-  vertical-align: middle;
-}
-table.data2 > tbody > tr > td {
-  vertical-align: middle;
+  vertical-align: top;
 }
 table.data2 > thead > tr > th {
   font-weight: bold;

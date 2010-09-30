@@ -10,8 +10,7 @@
 %>
 <tr>
     <td width="10%" nowrap class="left">
-          <%= image_tag 'bullet.png' %>
-          <%= parameter.name %>
+       <%= parameter.name %>: &nbsp;
     </td>
     <td width="90%" nowrap class="left">
         <%= form_remote_tag :url => {:action => 'update_param', :id => active_param_id, :profile_id => profile.id, :param_id => parameter.id, :active_rule_id => active_rule_id},
