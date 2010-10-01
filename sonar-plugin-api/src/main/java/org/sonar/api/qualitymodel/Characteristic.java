@@ -20,6 +20,7 @@
 package org.sonar.api.qualitymodel;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -30,6 +31,7 @@ import org.sonar.api.rules.Rule;
 import javax.persistence.*;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 2.3
@@ -132,6 +134,10 @@ public final class Characteristic implements Comparable<Characteristic> {
 
   public Rule getRule() {
     return rule;
+  }
+
+  public boolean hasRule() {
+    return rule!=null;
   }
 
   public Characteristic setRule(Rule r) {
@@ -270,6 +276,14 @@ public final class Characteristic implements Comparable<Characteristic> {
   public Double getPropertyValueAsDouble(String key) {
     CharacteristicProperty property = getProperty(key);
     return property != null ? property.getValueAsDouble() : null;
+  }
+
+  public Map<String,String> getProperties() {
+    Map<String,String> map = Maps.newTreeMap();
+    for (CharacteristicProperty property : properties) {
+      map.put(property.getKey(), property.getValue());
+    }
+    return map;
   }
 
   @Override
