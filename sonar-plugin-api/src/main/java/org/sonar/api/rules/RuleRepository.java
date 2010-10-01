@@ -22,7 +22,6 @@ package org.sonar.api.rules;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
 
 import java.util.List;
@@ -30,7 +29,7 @@ import java.util.List;
 /**
  * @since 2.3
  */
-public abstract class RuleRepository implements BatchExtension, ServerExtension {
+public abstract class RuleRepository implements ServerExtension {
 
   private String key;
   private String language;
