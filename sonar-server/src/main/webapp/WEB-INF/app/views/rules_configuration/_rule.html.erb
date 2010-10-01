@@ -44,7 +44,7 @@
      </table>
       <% if is_admin %>
         <% if rule.template? %>
-        <%= button_to "Create new rule from this template", :action => 'new', :id => profile.id, :rule_id => rule.id %>
+        <%= button_to "Copy rule", :action => 'new', :id => profile.id, :rule_id => rule.id %>
         <% end %>
         <% if rule.editable? %>
         <%= button_to "Edit rule", :action => 'edit', :id => profile.id, :rule_id => rule.id -%>
