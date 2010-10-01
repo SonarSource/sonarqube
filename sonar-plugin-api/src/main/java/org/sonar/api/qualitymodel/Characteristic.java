@@ -105,7 +105,7 @@ public final class Characteristic implements Comparable<Characteristic> {
     return key;
   }
 
-  Characteristic setKey(String s) {
+  public Characteristic setKey(String s) {
     this.key = StringUtils.trimToEmpty(s);
     return this;
   }
@@ -114,7 +114,7 @@ public final class Characteristic implements Comparable<Characteristic> {
     return name;
   }
 
-  Characteristic setName(String s, boolean asKey) {
+  public Characteristic setName(String s, boolean asKey) {
     this.name = StringUtils.trimToEmpty(s);
     if (asKey) {
       this.key = StringUtils.upperCase(this.name);
@@ -327,6 +327,10 @@ public final class Characteristic implements Comparable<Characteristic> {
       return 0;
     }
     return order - o.order;
+  }
+
+  public static Characteristic create() {
+    return new Characteristic();
   }
 
   public static Characteristic createByName(String name) {
