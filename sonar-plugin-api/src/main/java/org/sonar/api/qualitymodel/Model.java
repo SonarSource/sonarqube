@@ -20,6 +20,7 @@
 package org.sonar.api.qualitymodel;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -131,6 +132,20 @@ public final class Model implements Comparable<Model> {
     for (Characteristic characteristic : characteristics) {
       if (characteristic.getEnabled() && StringUtils.equals(key, characteristic.getKey())) {
         return characteristic;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Search for an ENABLED characteristic with the specified rule.
+   */
+  public Characteristic getCharacteristicByRule(Rule rule) {
+    if (rule != null) {
+      for (Characteristic characteristic : characteristics) {
+        if (characteristic.getEnabled() && ObjectUtils.equals(rule, characteristic.getRule())) {
+          return characteristic;
+        }
       }
     }
     return null;

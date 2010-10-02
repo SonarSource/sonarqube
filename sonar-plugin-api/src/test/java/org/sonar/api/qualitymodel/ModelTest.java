@@ -20,6 +20,7 @@
 package org.sonar.api.qualitymodel;
 
 import org.junit.Test;
+import org.sonar.api.rules.Rule;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.is;
@@ -40,5 +41,23 @@ public class ModelTest {
 
     assertThat(model.getCharacteristics().size(), is(1));
     assertThat(model.getCharacteristics(false).size(), is(2));
+  }
+
+  @Test
+  public void shouldFindCharacteristicByRule() {
+    Model model = Model.create();
+    Rule rule1 = Rule.create("checkstyle", "regexp", "Regular expression");
+    Rule rule2 = Rule.create("checkstyle", "import", "Check imports");
+
+    Characteristic efficiency = model.createCharacteristicByName("Efficiency");
+    Characteristic requirement1 = model.createCharacteristicByRule(rule1);
+    Characteristic requirement2 = model.createCharacteristicByRule(rule2);
+    efficiency.addChild(requirement1);
+    efficiency.addChild(requirement2);
+
+    assertThat(model.getCharacteristicByRule(rule1), is(requirement1));
+    assertThat(model.getCharacteristicByRule(rule2), is(requirement2));
+    assertThat(model.getCharacteristicByRule(null), nullValue());
+    assertThat(model.getCharacteristicByRule(Rule.create("foo", "bar", "Bar")), nullValue());
   }
 }

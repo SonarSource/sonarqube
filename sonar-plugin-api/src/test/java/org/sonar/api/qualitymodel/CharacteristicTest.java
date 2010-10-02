@@ -61,4 +61,22 @@ public class CharacteristicTest {
     assertThat(property, notNullValue());
     assertTrue(property.getCharacteristic()==characteristic);
   }
+
+  @Test
+  public void shouldCreateByName() {
+    Characteristic characteristic = Characteristic.createByName("Foo");
+    assertThat(characteristic.getKey(), is("FOO"));
+    assertThat(characteristic.getName(), is("Foo"));
+  }
+
+  @Test
+  public void shouldSetNameAsKey() {
+    Characteristic characteristic = new Characteristic().setName("Foo", true);
+    assertThat(characteristic.getKey(), is("FOO"));
+    assertThat(characteristic.getName(), is("Foo"));
+
+    characteristic = new Characteristic().setName(null, true);
+    assertThat(characteristic.getKey(), nullValue());
+    assertThat(characteristic.getName(), nullValue());
+  }
 }
