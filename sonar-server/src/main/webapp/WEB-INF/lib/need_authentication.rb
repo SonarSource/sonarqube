@@ -60,7 +60,7 @@ class AuthenticatorFactory
 
   def self.authenticator
     if @@authenticator.nil?
-      authenticator_factory=Java::OrgSonarServerUi::JRubyFacade.new.getComponentByClass('org.sonar.server.ui.AuthenticatorFactory')
+      authenticator_factory=Java::OrgSonarServerUi::JRubyFacade.new.getCoreComponentByClassname('org.sonar.server.ui.AuthenticatorFactory')
       component=authenticator_factory.getAuthenticator()
       @@authenticator=(component ? PluginAuthenticator.new(component) : DefaultAuthenticator.new)
     end

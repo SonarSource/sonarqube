@@ -43,6 +43,7 @@ import org.sonar.server.filters.Filter;
 import org.sonar.server.filters.FilterExecutor;
 import org.sonar.server.filters.FilterResult;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.plugins.PluginClassLoaders;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.UpdateFinder;
 import org.sonar.server.plugins.UpdateFinderFactory;
@@ -56,7 +57,7 @@ import java.util.List;
 public final class JRubyFacade implements ServerComponent {
 
   public FilterResult executeFilter(Filter filter) {
-    return getContainer().getComponent(FilterExecutor.class).execute(filter);  
+    return getContainer().getComponent(FilterExecutor.class).execute(filter);
   }
 
   /* PLUGINS */
@@ -79,13 +80,12 @@ public final class JRubyFacade implements ServerComponent {
   public String colorizeCode(String code, String language) {
     try {
       return getContainer().getComponent(CodeColorizers.class).toHtml(code, language);
-      
+
     } catch (Exception e) {
       LoggerFactory.getLogger(getClass()).error("Can not highlight the code, language= " + language, e);
       return code;
     }
   }
-
 
 
   public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage) {
@@ -123,8 +123,6 @@ public final class JRubyFacade implements ServerComponent {
   public Collection<Plugin> getPlugins() {
     return getContainer().getComponent(Plugins.class).getPlugins();
   }
-
-
 
 
   /* PROFILES CONSOLE : RULES AND METRIC THRESHOLDS */
@@ -217,7 +215,7 @@ public final class JRubyFacade implements ServerComponent {
     return getContainer().getComponent(Configuration.class).getString(key, null);
   }
 
-  public Object getComponentByClass(String className) {
+  public Object getCoreComponentByClassname(String className) {
     if (className == null) {
       return null;
     }
@@ -230,6 +228,16 @@ public final class JRubyFacade implements ServerComponent {
       LoggerFactory.getLogger(getClass()).error("Component not found: " + className, e);
       return null;
     }
+  }
+
+  public Object getComponentByClassname(String pluginKey, String className) {
+    Object component = null;
+    PicoContainer container = getContainer();
+    Class componentClass = container.getComponent(PluginClassLoaders.class).getClass(pluginKey, className);
+    if (componentClass!=null) {
+      component = container.getComponent(componentClass);
+    }
+    return component;
   }
 
   public PicoContainer getContainer() {
