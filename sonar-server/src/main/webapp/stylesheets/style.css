@@ -453,7 +453,6 @@ table.data th img, table.data td img {
 .data thead tr.total {
   background-color: #eee;
   font-weight: normal;
-  font-size: 108%;
   border-bottom: 1px solid silver;
   border-top: 1px solid silver;
 }
@@ -526,10 +525,6 @@ table.spacedicon td {
 
 .thin {
   width: 1%;
-}
-
-.nowrap {
-  white-space: nowrap;
 }
 td.sep {
 	width: 10px;
@@ -1419,6 +1414,10 @@ ul.horizontal li {
   float: left;
   position: relative;
 }
+table.nowrap td, td.nowrap {
+  white-space: nowrap;
+}
+
 table.data2 {
   border-collapse: collapse;
 }
@@ -1426,16 +1425,14 @@ table.without-header {
   border-top: 1px solid #ddd;
 }
 table.data2 > tbody > tr {
-  border-left: 1px solid #ddd;
-  border-right: 1px solid #ddd;
 }
 table.data2 > thead > tr {
-  height: 20px;
+  height: 18px;
   border: 0;
 }
 table.data2 > thead > tr > th, table.data2 > tbody > tr > td {
   border-bottom: 1px solid #DDD;
-  padding: 3px 5px;
+  padding: 4px 5px 0px 5px;
   height: 20px;
   vertical-align: top;
 }
@@ -1454,6 +1451,11 @@ table.data2 img {
 }
 table.data2 input, table.data2 select {
   vertical-align: baseline;
+}
+.data2 tr.highlight {
+  background-color: #CAE3F2;
+  border-top: 1px solid #4B9FD5;
+  border-bottom: 1px solid #4B9FD5;
 }
 .background-gray {
   background-color: #f4f4f4;
