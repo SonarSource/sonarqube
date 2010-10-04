@@ -58,4 +58,10 @@
   font-weight: normal;
 }
 
+/* preprocessing directive */
+.code .p {
+  color: #347235;
+  font-weight: normal;
+}
+
 
