@@ -176,6 +176,14 @@ public final class Model implements Comparable<Model> {
     return null;
   }
 
+  public Model removeCharacteristic(Characteristic characteristic) {
+    characteristic.setEnabled(false);
+    for (Characteristic child : characteristic.getChildren()) {
+      removeCharacteristic(child);
+    }
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

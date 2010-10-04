@@ -22,6 +22,7 @@ package org.sonar.api.qualitymodel;
 import org.junit.Test;
 import org.sonar.api.rules.Rule;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -59,5 +60,26 @@ public class ModelTest {
     assertThat(model.getCharacteristicByRule(rule2), is(requirement2));
     assertThat(model.getCharacteristicByRule(null), nullValue());
     assertThat(model.getCharacteristicByRule(Rule.create("foo", "bar", "Bar")), nullValue());
+  }
+
+  @Test
+  public void shouldRemoveCharacteristic() {
+    Model model = Model.create();
+    Characteristic efficiency = model.createCharacteristicByName("Efficiency");
+    Characteristic usability = model.createCharacteristicByName("Usability");
+    assertThat(model.getCharacteristics().size(), is(2));
+
+    model.removeCharacteristic(efficiency);
+    assertThat(model.getCharacteristics().size(), is(1));
+    assertThat(model.getCharacteristicByName("Efficiency"), nullValue());
+    assertThat(model.getCharacteristicByName("Usability"), notNullValue());
+  }
+
+  @Test
+  public void shouldNotFailWhenRemovingUnknownCharacteristic() {
+    Model model = Model.create();
+    Characteristic efficiency = model.createCharacteristicByName("Efficiency");
+    model.removeCharacteristic(Characteristic.createByKey("foo", "Foo"));
+    assertThat(model.getCharacteristics().size(), is(1));
   }
 }

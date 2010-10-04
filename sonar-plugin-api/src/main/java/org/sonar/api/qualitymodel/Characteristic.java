@@ -174,6 +174,11 @@ public final class Characteristic implements Comparable<Characteristic> {
     return this;
   }
 
+  Characteristic removeChild(Characteristic child) {
+    children.remove(child);
+    return this;
+  }
+
   private static void propagateDepth(Characteristic characteristic, int depth) {
     characteristic.setDepth(depth);
     for (Characteristic child : characteristic.getChildren()) {
