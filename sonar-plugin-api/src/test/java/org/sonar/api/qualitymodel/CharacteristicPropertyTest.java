@@ -28,45 +28,28 @@ import static org.junit.Assert.assertThat;
 public class CharacteristicPropertyTest {
 
   @Test
-  public void testNullValue() {
+  public void testNullValues() {
     CharacteristicProperty property = CharacteristicProperty.create("foo");
+    assertThat(property.getTextValue(), nullValue());
     assertThat(property.getValue(), nullValue());
-    assertThat(property.getValueAsDouble(), nullValue());
-    assertThat(property.getValueAsBoolean(), nullValue());
     assertThat(property.getValueAsLong(), nullValue());
-  }
-
-  @Test
-  public void testBooleanValue() {
-    CharacteristicProperty property = CharacteristicProperty.create("foo");
-    property.setValue(true);
-    assertThat(property.getValue(), is("true"));//stored in the text_value column
-    assertThat(property.getValueAsDouble(), nullValue());
-    assertThat(property.getValueAsBoolean(), is(true));
-    assertThat(property.getValueAsLong(), nullValue());
-
-    property.setValue(false);
-    assertThat(property.getValue(), is("false"));
-    assertThat(property.getValueAsBoolean(), is(false));
   }
 
   @Test
   public void testNumericValue() {
     CharacteristicProperty property = CharacteristicProperty.create("foo");
     property.setValue(3.14);
-    assertThat(property.getValueAsDouble(), is(3.14));//stored in the value column
+    assertThat(property.getValue(), is(3.14));//stored in the value column
     assertThat(property.getValueAsLong(), is(3L));
-    assertThat(property.getValue(), nullValue());
-    assertThat(property.getValueAsBoolean(), nullValue());
+    assertThat(property.getTextValue(), nullValue());
   }
 
   @Test
-  public void testStringValue() {
+  public void testTextValue() {
     CharacteristicProperty property = CharacteristicProperty.create("foo");
-    property.setValue("bar");
-    assertThat(property.getValue(), is("bar"));
-    assertThat(property.getValueAsDouble(), nullValue());
-    assertThat(property.getValueAsBoolean(), is(false));
+    property.setTextValue("bar");
+    assertThat(property.getTextValue(), is("bar"));
+    assertThat(property.getValue(), nullValue());
     assertThat(property.getValueAsLong(), nullValue());
   }
 }

@@ -31,30 +31,30 @@ public class CharacteristicTest {
 
   @Test
   public void testStringProperties() {
-    Characteristic characteristic = new Characteristic();
+    Characteristic characteristic = Characteristic.create();
     characteristic.setProperty("foo", "bar");
 
     assertThat(characteristic.getProperty("foo"), notNullValue());
-    assertThat(characteristic.getPropertyValueAsString("foo"), is("bar"));
-    assertThat(characteristic.getPropertyValueAsDouble("foo"), nullValue());
+    assertThat(characteristic.getPropertyTextValue("foo", null), is("bar"));
+    assertThat(characteristic.getPropertyValue("foo", null), nullValue());
 
     assertThat(characteristic.getProperty("unknown"), nullValue());
-    assertThat(characteristic.getPropertyValueAsString("unknown"), nullValue());
+    assertThat(characteristic.getPropertyTextValue("unknown", null), nullValue());
   }
 
   @Test
   public void testDoubleProperties() {
-    Characteristic characteristic = new Characteristic();
+    Characteristic characteristic = Characteristic.create();
     characteristic.setProperty("foo", 3.1);
 
     assertThat(characteristic.getProperty("foo"), notNullValue());
-    assertThat(characteristic.getPropertyValueAsDouble("foo"), is(3.1));
-    assertThat(characteristic.getPropertyValueAsString("foo"), nullValue());
+    assertThat(characteristic.getPropertyValue("foo", null), is(3.1));
+    assertThat(characteristic.getPropertyTextValue("foo", null), nullValue());
   }
 
   @Test
   public void addProperty() {
-    Characteristic characteristic = new Characteristic();
+    Characteristic characteristic = Characteristic.create();
     characteristic.addProperty(CharacteristicProperty.create("foo"));
 
     CharacteristicProperty property = characteristic.getProperty("foo");
@@ -70,13 +70,16 @@ public class CharacteristicTest {
   }
 
   @Test
-  public void shouldSetNameAsKey() {
-    Characteristic characteristic = new Characteristic().setName("Foo", true);
-    assertThat(characteristic.getKey(), is("FOO"));
-    assertThat(characteristic.getName(), is("Foo"));
+  public void shouldReturnDefaultValues() {
+    Characteristic characteristic = Characteristic.create();
+    characteristic.setProperty("foo", (String)null);
+    characteristic.setProperty("bar", (Double)null);
 
-    characteristic = new Characteristic().setName(null, true);
-    assertThat(characteristic.getKey(), nullValue());
-    assertThat(characteristic.getName(), nullValue());
+    assertThat(characteristic.getPropertyTextValue("foo", "foodef"), is("foodef"));
+    assertThat(characteristic.getPropertyTextValue("other", "otherdef"), is("otherdef"));
+    assertThat(characteristic.getPropertyValue("bar", 3.14), is(3.14));
+    assertThat(characteristic.getPropertyValue("other", 3.14), is(3.14));
   }
+
+  
 }

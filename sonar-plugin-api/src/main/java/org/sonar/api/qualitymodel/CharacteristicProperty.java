@@ -74,11 +74,11 @@ public final class CharacteristicProperty {
     return this;
   }
 
-  public String getValue() {
+  public String getTextValue() {
     return textValue;
   }
 
-  public Double getValueAsDouble() {
+  public Double getValue() {
     return value;
   }
 
@@ -89,28 +89,10 @@ public final class CharacteristicProperty {
     return null;
   }
 
-  public Boolean getValueAsBoolean() {
-    if (textValue!=null) {
-      return Boolean.parseBoolean(textValue);
-    }
-    return null;
-  }
-
-  public CharacteristicProperty setValue(String s) {
+  public CharacteristicProperty setTextValue(String s) {
     this.textValue = s;
     return this;
   }
-
-  public CharacteristicProperty setValue(Boolean b) {
-    this.textValue = (b==null ? null : String.valueOf(b));
-    return this;
-  }
-
-  public CharacteristicProperty setValue(Long l) {
-    this.textValue = (l==null ? null : String.valueOf(l));
-    return this;
-  }
-
 
   public CharacteristicProperty setValue(Double d) {
     this.value = d;

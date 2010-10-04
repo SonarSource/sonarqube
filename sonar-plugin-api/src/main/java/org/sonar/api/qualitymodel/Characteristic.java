@@ -20,7 +20,6 @@
 package org.sonar.api.qualitymodel;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -31,7 +30,6 @@ import org.sonar.api.rules.Rule;
 import javax.persistence.*;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @since 2.3
@@ -254,10 +252,10 @@ public final class Characteristic implements Comparable<Characteristic> {
   }
 
   public CharacteristicProperty setProperty(String key, String value) {
-    return addProperty(CharacteristicProperty.create(key).setValue(value));
+    return addProperty(CharacteristicProperty.create(key).setTextValue(value));
   }
 
-  public CharacteristicProperty setProperty(String key, double value) {
+  public CharacteristicProperty setProperty(String key, Double value) {
     return addProperty(CharacteristicProperty.create(key).setValue(value));
   }
 
@@ -276,22 +274,20 @@ public final class Characteristic implements Comparable<Characteristic> {
     return null;
   }
 
-  public String getPropertyValueAsString(String key) {
+  public String getPropertyTextValue(String key, String defaultValue) {
     CharacteristicProperty property = getProperty(key);
-    return property != null ? property.getValue() : null;
+    String value = property != null ? property.getTextValue() : null;
+    return StringUtils.defaultIfEmpty(value, defaultValue);
   }
 
-  public Double getPropertyValueAsDouble(String key) {
+  public Double getPropertyValue(String key, Double defaultValue) {
     CharacteristicProperty property = getProperty(key);
-    return property != null ? property.getValueAsDouble() : null;
+    Double value = (property != null ? property.getValue() : null);
+    return value==null ? defaultValue : value;
   }
 
-  public Map<String,String> getProperties() {
-    Map<String,String> map = Maps.newTreeMap();
-    for (CharacteristicProperty property : properties) {
-      map.put(property.getKey(), property.getValue());
-    }
-    return map;
+  public List<CharacteristicProperty> getProperties() {
+    return properties;
   }
 
   @Override

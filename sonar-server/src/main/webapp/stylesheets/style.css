@@ -1425,6 +1425,8 @@ table.without-header {
   border-top: 1px solid #ddd;
 }
 table.data2 > tbody > tr {
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
 }
 table.data2 > thead > tr {
   height: 18px;
