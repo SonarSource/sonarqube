@@ -61,7 +61,7 @@ class Sonar::Treemap
       if size_measure
         resource = snapshot.project
         child = Treemap::Node.new( :id => (id_counter += 1), 
-          :size => size_measure.value.to_i||0, 
+          :size => size_measure.value.to_f||0, 
           :label => resource.name(false),
           :title => escape_javascript(resource.name(true)),
           :tooltip => get_html_tooltip(snapshot, size_measure, color_measure),
