@@ -177,7 +177,14 @@ public final class Model implements Comparable<Model> {
   }
 
   public Model removeCharacteristic(Characteristic characteristic) {
-    characteristic.setEnabled(false);
+    if (characteristic.getId() == null) {
+      characteristics.remove(characteristic);
+      for (Characteristic parent : characteristic.getParents()) {
+        parent.removeChild(characteristic);
+      }
+    } else {
+      characteristic.setEnabled(false);
+    }
     for (Characteristic child : characteristic.getChildren()) {
       removeCharacteristic(child);
     }
