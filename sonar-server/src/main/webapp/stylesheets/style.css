@@ -429,32 +429,33 @@ h4, .h4 {
   background-color: #4b9fd5;
   color: #fff;
 }
-table.data thead th {
+table.data > thead > tr > th {
   font-size: 93%;
-  padding: 3px 7px 3px 3px;
+  padding: 4px 7px 4px 3px;
+  font-weight: bold;
 }
-table.data tfoot td {
+table.data > tfoot > tr > td {
   font-size: 93%;
   color: #777;
-  padding: 3px 0 3px 10px;
+  padding: 4px 0 4px 10px;
 }
 
-table.data tbody td {
-  padding: 3px 7px 3px 3px;
-  vertical-align: middle;
+table.data > tbody > tr > td {
+  padding: 4px 7px 4px 3px;
+  vertical-align: text-top;
 }
 table.data td.small, table.data th.small {
   padding: 0;
   white-space: nowrap;
 }
 table.data th img, table.data td img {
-  vertical-align: middle;
+  vertical-align: top;
 }
 .data thead tr.total {
   background-color: #eee;
   font-weight: normal;
-  border-bottom: 1px solid silver;
-  border-top: 1px solid silver;
+  border-bottom: 1px solid #ddd;
+  border-top: 1px solid #ddd;
 }
 .data thead tr.total th {
   font-weight: normal;
@@ -467,6 +468,9 @@ table.data th img, table.data td img {
   background-color: #CAE3F2;
   border-top: 1px solid #4B9FD5;
   border-bottom: 1px solid #4B9FD5;
+}
+.data input, .data select, .data button {
+  vertical-align: baseline;
 }
 .hoverable:hover {
   background-color: #CAE3F2;
@@ -1355,8 +1359,14 @@ h4 a, h4 a:visited, .gray, table.data tfoot a, table.data tfoot a:visited {
   background-color: #f4f4f4;
 }
 
-.bordered, table.data thead, table.data tbody {
-  border-bottom: 1px solid silver;
+.bordered, table.data > thead {
+  border-bottom: 1px solid #ddd;
+}
+
+table.data > tbody {
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  border-left: 1px solid #ddd;
 }
 
 table.data, table.spaced, .gwt-SourcePanel .sources {
@@ -1416,48 +1426,6 @@ ul.horizontal li {
 }
 table.nowrap td, td.nowrap {
   white-space: nowrap;
-}
-
-table.data2 {
-  border-collapse: collapse;
-}
-table.without-header {
-  border-top: 1px solid #ddd;
-}
-table.data2 > tbody > tr {
-  border-left: 1px solid #ddd;
-  border-right: 1px solid #ddd;
-}
-table.data2 > thead > tr {
-  height: 18px;
-  border: 0;
-}
-table.data2 > thead > tr > th, table.data2 > tbody > tr > td {
-  border-bottom: 1px solid #DDD;
-  padding: 4px 5px 0px 5px;
-  height: 20px;
-  vertical-align: top;
-}
-table.data2 > thead > tr > th {
-  font-weight: bold;
-}
-table.data2 > tfoot > tr > td {
-  border-bottom: 0;
-  padding: 3px 5px;
-}
-table.data2 td, table.data2 td a, table.data2 th, table.data2 th a {
-  color: #444;
-}
-table.data2 img {
-  vertical-align: text-bottom;
-}
-table.data2 input, table.data2 select {
-  vertical-align: baseline;
-}
-.data2 tr.highlight {
-  background-color: #CAE3F2;
-  border-top: 1px solid #4B9FD5;
-  border-bottom: 1px solid #4B9FD5;
 }
 .background-gray {
   background-color: #f4f4f4;

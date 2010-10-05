@@ -7,7 +7,7 @@
 	  <p>No permalinks</p>
 	<% else %>
 	  <br/>
-	  <table class="data2 without-header marginbottom10" id="permalinks-table">
+	  <table class="data without-header marginbottom10" id="permalinks-table">
 	    <tbody>
 	    <% exporters.to_a.sort{|x,y| x.getName() <=> y.getName()}.each do |exporter| %>
 	      <tr class="<%= cycle('even','odd') -%>">

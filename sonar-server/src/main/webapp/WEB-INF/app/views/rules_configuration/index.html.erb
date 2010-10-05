@@ -98,7 +98,7 @@
      <% if @hidden_inactives && @hidden_inactives>0 %><span class="small">[<a href="<%= url_for params.merge({:rule_status => ''}) -%>" id="inactive-rules-link">+<%= @hidden_inactives -%> found in inactive rules</a>]</span><% end %>
   </h2>
 </div>
-<table class="data2 width100 marginbottom10" id="result_table">
+<table class="data width100 marginbottom10" id="result_table">
   <thead>
     <tr>
         <th class="left" nowrap>Active/Priority</th>

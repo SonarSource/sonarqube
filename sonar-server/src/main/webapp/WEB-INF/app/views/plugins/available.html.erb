@@ -17,7 +17,7 @@
   <% @updates_by_category.keys.sort_by{|c| c.downcase }.each do |category|
        updates=@updates_by_category[category]
   %>
-    <table class="data2 width100" id="category-<%= u category -%>">
+    <table class="data width100" id="category-<%= u category -%>">
       <thead>
         <tr>
           <th colspan="2"><h2><%= category -%></h2></th>
