@@ -922,9 +922,9 @@ ul.operations li a {
 /* ------------------- BOXES ------------------- */
 .box {
   border: 1px solid silver;
-  background-color: #efefef;
+  background-color: #f4f4f4;
   margin-bottom: 5px;
-  color: #555;
+  color: #444;
   padding: 10px;
 }
 
@@ -1429,7 +1429,7 @@ table.nowrap td, td.nowrap {
 }
 .background-gray {
   background-color: #f4f4f4;
-  color: #555;
+  color: #444;
 }
 
 /* CONFIGURATION OF Q PROFILES */
