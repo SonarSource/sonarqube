@@ -100,7 +100,7 @@ class Api::PropertiesController < Api::RestController
     xml.instruct!
     xml.properties do
       properties.each do |property|
-        xml << property.to_xml
+        property.to_xml(xml)
       end
     end
   end
