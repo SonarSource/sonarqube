@@ -21,6 +21,7 @@ package org.sonar.api.profiles;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.utils.SonarException;
@@ -31,13 +32,9 @@ import java.io.Writer;
 /**
  * @since 2.3
  */
-public final class XMLProfileExporter  {
+public final class XMLProfileSerializer implements ServerComponent {
 
-  public static XMLProfileExporter create() {
-    return new XMLProfileExporter();
-  }
-
-  public void exportProfile(RulesProfile profile, Writer writer) {
+  public void write(RulesProfile profile, Writer writer) {
     try {
       appendHeader(profile, writer);
       appendRules(profile, writer);

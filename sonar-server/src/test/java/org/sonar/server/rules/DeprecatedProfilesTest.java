@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.server.rules.DeprecatedProfiles;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -31,7 +30,7 @@ import static org.junit.Assert.assertThat;
 
 public class DeprecatedProfilesTest {
   @Test
-  public void testCreate() {
+  public void shouldCreateProfile() {
     DeprecatedProfiles.DefaultProfileDefinition def = DeprecatedProfiles.DefaultProfileDefinition.create("sonar way", "java");
     assertThat(def.createProfile(ValidationMessages.create()).getName(), is("sonar way"));
     assertThat(def.createProfile(ValidationMessages.create()).getLanguage(), is("java"));

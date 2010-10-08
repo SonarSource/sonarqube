@@ -23,6 +23,9 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.utils.ValidationMessages;
 
 /**
+ * Define a profile which is automatically registered during sonar startup.
+ * The components <code>AnnotationProfileParser</code> and <code>XMLProfileParser</code> can be used to help implementing the method create().
+ *
  * @since 2.3
  */
 public abstract class ProfileDefinition implements ServerExtension {

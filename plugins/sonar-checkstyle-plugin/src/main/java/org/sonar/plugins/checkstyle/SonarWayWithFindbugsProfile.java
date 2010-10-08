@@ -21,9 +21,6 @@ package org.sonar.plugins.checkstyle;
 
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.profiles.XMLProfileDefinition;
-import org.sonar.api.resources.Java;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
 
 public class SonarWayWithFindbugsProfile extends ProfileDefinition {

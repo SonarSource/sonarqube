@@ -19,14 +19,12 @@
  */
 package org.sonar.plugins.findbugs;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.resources.Java;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.rules.XMLRuleParser;
+
+import java.util.List;
 
 public final class FindbugsRuleRepository extends RuleRepository {
 
@@ -37,8 +35,6 @@ public final class FindbugsRuleRepository extends RuleRepository {
 
   @Override
   public List<Rule> createRules() {
-    List<Rule> rules = new ArrayList<Rule>();
-    rules.addAll(XMLRuleParser.parseXML(getClass().getResourceAsStream("/org/sonar/plugins/findbugs/rules.xml")));
-    return rules;
+    return XMLRuleParser.parseXML(getClass().getResourceAsStream("/org/sonar/plugins/findbugs/rules.xml"));
   }
 }

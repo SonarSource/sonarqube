@@ -38,7 +38,7 @@ import org.sonar.api.utils.ValidationMessages;
 
 public class SunConventionsProfileTest {
   @Test
-  public void create() {
+  public void shouldCreateProfile() {
     SunConventionsProfile sunConvention = new SunConventionsProfile(createPmdProfileImporter());
     ValidationMessages validation = ValidationMessages.create();
     RulesProfile profile = sunConvention.createProfile(validation);

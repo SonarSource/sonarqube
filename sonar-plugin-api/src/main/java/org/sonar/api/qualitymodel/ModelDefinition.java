@@ -41,7 +41,7 @@ public abstract class ModelDefinition implements ServerExtension {
     return name;
   }
 
-  public abstract Model create();
+  public abstract Model createModel();
 
   @Override
   public final boolean equals(Object o) {

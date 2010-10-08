@@ -19,6 +19,7 @@
  */
 package org.sonar.server.startup;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public final class RegisterProvidedProfiles {
   private static final Logger LOGGER = LoggerFactory.getLogger(RegisterProvidedProfiles.class);
 
   private DatabaseSessionFactory sessionFactory;
-  private List<ProfileDefinition> definitions = new ArrayList<ProfileDefinition>();
+  private List<ProfileDefinition> definitions = Lists.newArrayList();
   private DeprecatedProfiles deprecatedProfiles = null;
   private RuleFinder ruleFinder;
 
@@ -71,7 +72,7 @@ public final class RegisterProvidedProfiles {
   }
 
   List<RulesProfile> createProfiles() {
-    List<RulesProfile> result = new ArrayList<RulesProfile>();
+    List<RulesProfile> result = Lists.newArrayList();
 
     // this must not be moved in the constructor, because rules are still not saved
     definitions.addAll(deprecatedProfiles.getProfiles());

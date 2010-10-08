@@ -23,11 +23,12 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.profiles.XMLProfileParser;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
-import static org.hamcrest.core.Is.is;
 
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -36,9 +37,9 @@ import static org.mockito.Mockito.when;
 public class SonarWayWithFindbugsProfileTest {
 
   @Test
-  public void sameAsSonarWay() {
+  public void shouldBeSameAsSonarWay() {
     RuleFinder ruleFinder = newRuleFinder();
-    SonarWayProfile sonarWay = new SonarWayProfile(ruleFinder);
+    SonarWayProfile sonarWay = new SonarWayProfile(new XMLProfileParser(ruleFinder));
     RulesProfile withoutFindbugs = sonarWay.createProfile(ValidationMessages.create());
     RulesProfile withFindbugs = new SonarWayWithFindbugsProfile(sonarWay).createProfile(ValidationMessages.create());
     assertThat(withFindbugs.getActiveRules().size(), is(withoutFindbugs.getActiveRules().size()));

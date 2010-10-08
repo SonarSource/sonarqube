@@ -19,11 +19,14 @@
  */
 package org.sonar.api.profiles;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
@@ -32,26 +35,34 @@ import org.sonar.api.utils.ValidationMessages;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @since 2.3
  */
-public final class XMLProfileImporter {
+public final class XMLProfileParser implements ServerComponent {
 
   private RuleFinder ruleFinder;
 
-  private XMLProfileImporter(RuleFinder ruleFinder) {
+  public XMLProfileParser(RuleFinder ruleFinder) {
     this.ruleFinder = ruleFinder;
   }
 
-  public static XMLProfileImporter create(RuleFinder ruleFinder) {
-    return new XMLProfileImporter(ruleFinder);
+  public RulesProfile parseResource(ClassLoader classloader, String xmlClassPath, ValidationMessages messages) {
+    Reader reader = new InputStreamReader(classloader.getResourceAsStream(xmlClassPath), Charset.forName(CharEncoding.UTF_8));
+    try {
+      return parse(reader, messages);
+
+    } finally {
+      IOUtils.closeQuietly(reader);
+    }
   }
 
-  public RulesProfile importProfile(Reader reader, ValidationMessages messages) {
+  public RulesProfile parse(Reader reader, ValidationMessages messages) {
     RulesProfile profile = RulesProfile.create();
     SMInputFactory inputFactory = initStax();
     try {

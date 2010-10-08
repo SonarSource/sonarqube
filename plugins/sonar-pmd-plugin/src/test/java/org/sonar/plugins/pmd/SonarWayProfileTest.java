@@ -40,7 +40,7 @@ import org.sonar.api.utils.ValidationMessages;
 public class SonarWayProfileTest {
 
   @Test
-  public void create() {
+  public void shouldCreateProfile() {
     ProfileDefinition sonarWay = new SonarWayProfile(createPmdProfileImporter());
     ValidationMessages validation = ValidationMessages.create();
     RulesProfile profile = sonarWay.createProfile(validation);

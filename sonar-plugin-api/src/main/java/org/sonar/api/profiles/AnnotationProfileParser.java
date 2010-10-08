@@ -19,6 +19,8 @@
  */
 package org.sonar.api.profiles;
 
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleAnnotationUtils;
 import org.sonar.api.rules.RuleFinder;
@@ -31,45 +33,34 @@ import java.util.Collection;
 /**
  * @since 2.3
  */
-public abstract class AnnotationProfileDefinition extends ProfileDefinition {
+public final class AnnotationProfileParser implements ServerComponent {
 
-  private String name;
-  private String language;
-  private String repositoryKey;
-  private Collection<Class> annotatedClasses;
   private RuleFinder ruleFinder;
 
-  protected AnnotationProfileDefinition(String repositoryKey, String profileName, String language, Collection<Class> annotatedClasses, RuleFinder ruleFinder) {
-    this.name = profileName;
-    this.language = language;
-    this.repositoryKey = repositoryKey;
-    this.annotatedClasses = annotatedClasses;
+  public AnnotationProfileParser(RuleFinder ruleFinder) {
     this.ruleFinder = ruleFinder;
   }
 
-  @Override
-  public RulesProfile createProfile(ValidationMessages validation) {
-    RulesProfile profile = RulesProfile.create(name, language);
-    if (annotatedClasses != null) {
-      for (Class aClass : annotatedClasses) {
-        BelongsToProfile belongsToProfile = (BelongsToProfile) aClass.getAnnotation(BelongsToProfile.class);
-        registerRule(aClass, belongsToProfile, profile, validation);
-      }
+  public RulesProfile parse(String repositoryKey, String profileName, String language, Collection<Class> annotatedClasses, ValidationMessages messages) {
+    RulesProfile profile = RulesProfile.create(profileName, language);
+    for (Class aClass : annotatedClasses) {
+      BelongsToProfile belongsToProfile = (BelongsToProfile) aClass.getAnnotation(BelongsToProfile.class);
+      addRule(aClass, belongsToProfile, profile, repositoryKey, messages);
     }
     return profile;
   }
 
-  private void registerRule(Class aClass, BelongsToProfile belongsToProfile, RulesProfile profile, ValidationMessages validation) {
-    if (belongsToProfile != null) {
+  private void addRule(Class aClass, BelongsToProfile annotation, RulesProfile profile, String repositoryKey, ValidationMessages messages) {
+    if (annotation != null && StringUtils.equals(annotation.title(), profile.getName())) {
       String ruleKey = RuleAnnotationUtils.getRuleKey(aClass);
       Rule rule = ruleFinder.findByKey(repositoryKey, ruleKey);
       if (rule == null) {
-        validation.addErrorText("Rule not found: [repository=" + repositoryKey + ", key=" + ruleKey + "]");
+        messages.addWarningText("Rule not found: [repository=" + repositoryKey + ", key=" + ruleKey + "]");
 
       } else {
         RulePriority priority = null;
-        if (belongsToProfile.priority() != null) {
-          priority = RulePriority.fromCheckPriority(belongsToProfile.priority());
+        if (annotation.priority() != null) {
+          priority = RulePriority.fromCheckPriority(annotation.priority());
         }
         profile.activateRule(rule, priority);
       }

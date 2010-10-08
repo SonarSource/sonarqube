@@ -40,14 +40,16 @@ import java.util.List;
 public final class ProfilesConsole implements ServerComponent {
 
   private DatabaseSessionFactory sessionFactory;
-  private RuleFinder ruleFinder;
+  private XMLProfileParser xmlProfileParser;
+  private XMLProfileSerializer xmlProfileSerializer;
   private List<ProfileExporter> exporters = new ArrayList<ProfileExporter>();
   private List<ProfileImporter> importers = new ArrayList<ProfileImporter>();
 
-  public ProfilesConsole(DatabaseSessionFactory sessionFactory, RuleFinder ruleFinder,
+  public ProfilesConsole(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, XMLProfileSerializer xmlProfileSerializer,
                          ProfileExporter[] exporters, DeprecatedProfileExporters deprecatedExporters,
                          ProfileImporter[] importers, DeprecatedProfileImporters deprecatedImporters) {
-    this.ruleFinder = ruleFinder;
+    this.xmlProfileParser = xmlProfileParser;
+    this.xmlProfileSerializer = xmlProfileSerializer;
     this.sessionFactory = sessionFactory;
     initProfileExporters(exporters, deprecatedExporters);
     initProfileImporters(importers, deprecatedImporters);
@@ -72,7 +74,7 @@ public final class ProfilesConsole implements ServerComponent {
     RulesProfile profile = loadProfile(session, profileId);
     if (profile != null) {
       Writer writer = new StringWriter();
-      XMLProfileExporter.create().exportProfile(profile, writer);
+      xmlProfileSerializer.write(profile, writer);
       return writer.toString();
     }
     return null;
@@ -80,7 +82,7 @@ public final class ProfilesConsole implements ServerComponent {
 
   public ValidationMessages restoreProfile(String xmlBackup) {
     ValidationMessages messages = ValidationMessages.create();
-    RulesProfile profile = XMLProfileImporter.create(ruleFinder).importProfile(new StringReader(xmlBackup), messages);
+    RulesProfile profile = xmlProfileParser.parse(new StringReader(xmlBackup), messages);
     if (profile != null) {
       DatabaseSession session = sessionFactory.getSession();
       RulesProfile existingProfile = session.getSingleResult(RulesProfile.class, "name", profile.getName(), "language", profile.getLanguage());

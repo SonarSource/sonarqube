@@ -114,7 +114,7 @@ class FakeDefinition extends ModelDefinition {
   }
 
   @Override
-  public Model create() {
+  public Model createModel() {
     return model;
   }
 

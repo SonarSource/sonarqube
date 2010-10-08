@@ -36,15 +36,15 @@ import java.io.Writer;
 
 import static org.junit.Assert.assertTrue;
 
-public class XMLProfileExporterTest {
+public class XMLProfileSerializerTest {
 
   @Test
   public void exportEmptyProfile() throws IOException, SAXException {
     Writer writer = new StringWriter();
     RulesProfile profile = RulesProfile.create("sonar way", "java");
-    XMLProfileExporter.create().exportProfile(profile, writer);
+    new XMLProfileSerializer().write(profile, writer);
 
-    assertSimilarXml("/org/sonar/api/profiles/XMLProfileExporterTest/exportEmptyProfile.xml", writer.toString());
+    assertSimilarXml("/org/sonar/api/profiles/XMLProfileSerializerTest/exportEmptyProfile.xml", writer.toString());
   }
 
   @Test
@@ -52,9 +52,9 @@ public class XMLProfileExporterTest {
     Writer writer = new StringWriter();
     RulesProfile profile = RulesProfile.create("sonar way", "java");
     profile.activateRule(Rule.create("checkstyle", "IllegalRegexp", "illegal regexp"), RulePriority.BLOCKER);
-    XMLProfileExporter.create().exportProfile(profile, writer);
+    new XMLProfileSerializer().write(profile, writer);
 
-    assertSimilarXml("/org/sonar/api/profiles/XMLProfileExporterTest/exportProfile.xml", writer.toString());
+    assertSimilarXml("/org/sonar/api/profiles/XMLProfileSerializerTest/exportProfile.xml", writer.toString());
   }
 
   @Test
@@ -70,13 +70,13 @@ public class XMLProfileExporterTest {
     activeRule.setParameter("format", "foo");
     activeRule.setParameter("message", "with special characters < > &");
     // the tokens parameter is not set
-    XMLProfileExporter.create().exportProfile(profile, writer);
+    new XMLProfileSerializer().write(profile, writer);
 
-    assertSimilarXml("/org/sonar/api/profiles/XMLProfileExporterTest/exportRuleParameters.xml", writer.toString());
+    assertSimilarXml("/org/sonar/api/profiles/XMLProfileSerializerTest/exportRuleParameters.xml", writer.toString());
   }
 
   public static void assertSimilarXml(String pathToExpectedXml, String xml) throws IOException, SAXException {
-    InputStream stream = XMLProfileExporterTest.class.getResourceAsStream(pathToExpectedXml);
+    InputStream stream = XMLProfileSerializerTest.class.getResourceAsStream(pathToExpectedXml);
     try {
       Diff diff = isSimilarXml(IOUtils.toString(stream), xml);
       String message = "Diff: " + diff.toString() + CharUtils.LF + "XML: " + xml;

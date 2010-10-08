@@ -57,7 +57,7 @@ public final class DefaultModelManager implements ServerComponent, ModelManager 
     for (ModelDefinition definition : definitions) {
       if (StringUtils.isNotBlank(definition.getName()) && !exists(session, definition.getName())) {
         Logs.INFO.info("Register quality model: " + definition.getName());
-        Model model = definition.create();
+        Model model = definition.createModel();
         if (StringUtils.isBlank(model.getName())) {
           model.setName(definition.getName());
         }
@@ -75,7 +75,7 @@ public final class DefaultModelManager implements ServerComponent, ModelManager 
     }
 
     LoggerFactory.getLogger(getClass()).info("Reset quality model: " + name);
-    Model model = definition.create();
+    Model model = definition.createModel();
     return reset(model);
   }
 

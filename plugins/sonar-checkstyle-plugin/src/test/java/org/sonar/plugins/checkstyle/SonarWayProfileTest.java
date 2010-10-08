@@ -24,6 +24,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.profiles.XMLProfileParser;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
@@ -38,8 +39,8 @@ import static org.mockito.Mockito.when;
 public class SonarWayProfileTest {
 
   @Test
-  public void create() {
-    ProfileDefinition sonarWay = new SonarWayProfile(newRuleFinder());
+  public void shouldCreateProfile() {
+    ProfileDefinition sonarWay = new SonarWayProfile(new XMLProfileParser(newRuleFinder()));
     ValidationMessages validation = ValidationMessages.create();
     RulesProfile profile = sonarWay.createProfile(validation);
     assertThat(profile.getActiveRulesByRepository(CheckstyleConstants.REPOSITORY_KEY).size(), greaterThan(1));

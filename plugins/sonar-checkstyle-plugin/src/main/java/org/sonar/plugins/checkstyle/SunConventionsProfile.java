@@ -19,14 +19,22 @@
  */
 package org.sonar.plugins.checkstyle;
 
+import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.profiles.XMLProfileDefinition;
-import org.sonar.api.resources.Java;
-import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.profiles.XMLProfileParser;
+import org.sonar.api.utils.ValidationMessages;
 
-public final class SunConventionsProfile extends XMLProfileDefinition {
+public final class SunConventionsProfile extends ProfileDefinition {
 
-  public SunConventionsProfile(RuleFinder ruleFinder) {
-    super(SunConventionsProfile.class.getClassLoader(), "org/sonar/plugins/checkstyle/profile-sun-conventions.xml", ruleFinder);
+  private XMLProfileParser xmlProfileParser;
+
+  public SunConventionsProfile(XMLProfileParser xmlProfileParser) {
+    this.xmlProfileParser = xmlProfileParser;
   }
+
+
+  public RulesProfile createProfile(ValidationMessages messages) {
+    return xmlProfileParser.parseResource(getClass().getClassLoader(), "org/sonar/plugins/checkstyle/profile-sun-conventions.xml", messages);
+  }
+
 }

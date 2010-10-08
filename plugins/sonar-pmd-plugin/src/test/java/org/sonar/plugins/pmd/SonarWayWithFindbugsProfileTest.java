@@ -39,7 +39,7 @@ import org.sonar.api.utils.ValidationMessages;
 public class SonarWayWithFindbugsProfileTest {
 
   @Test
-  public void create() {
+  public void shouldCreateProfile() {
     SonarWayWithFindbugsProfile sonarWayWithFindbugs = new SonarWayWithFindbugsProfile(new SonarWayProfile(createPmdProfileImporter()));
     ValidationMessages validation = ValidationMessages.create();
     RulesProfile profile = sonarWayWithFindbugs.createProfile(validation);
