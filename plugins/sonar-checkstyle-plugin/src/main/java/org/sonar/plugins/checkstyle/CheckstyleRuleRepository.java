@@ -33,19 +33,21 @@ public final class CheckstyleRuleRepository extends RuleRepository {
 
   // for user extensions
   private ServerFileSystem fileSystem;
+  private XMLRuleParser xmlRuleParser;
 
-  public CheckstyleRuleRepository(ServerFileSystem fileSystem) {
+  public CheckstyleRuleRepository(ServerFileSystem fileSystem, XMLRuleParser xmlRuleParser) {
     super(CheckstyleConstants.REPOSITORY_KEY, Java.KEY);
     setName(CheckstyleConstants.REPOSITORY_NAME);
     this.fileSystem = fileSystem;
+    this.xmlRuleParser = xmlRuleParser;
   }
 
   @Override
   public List<Rule> createRules() {
     List<Rule> rules = new ArrayList<Rule>();
-    rules.addAll(XMLRuleParser.parseXML(getClass().getResourceAsStream("/org/sonar/plugins/checkstyle/rules.xml")));
+    rules.addAll(xmlRuleParser.parse(getClass().getResourceAsStream("/org/sonar/plugins/checkstyle/rules.xml")));
     for (File userExtensionXml : fileSystem.getExtensions(CheckstyleConstants.REPOSITORY_KEY, "xml")) {
-      rules.addAll(XMLRuleParser.parseXML(userExtensionXml));
+      rules.addAll(xmlRuleParser.parse(userExtensionXml));
     }
     return rules;
   }

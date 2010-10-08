@@ -28,13 +28,14 @@ import java.util.List;
 import org.junit.Test;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.XMLRuleParser;
 
 public class PmdRuleRepositoryTest {
 
   @Test
   public void testLoadRepositoryFromXml() {
     ServerFileSystem fileSystem = mock(ServerFileSystem.class);
-    PmdRuleRepository repository = new PmdRuleRepository(fileSystem);
+    PmdRuleRepository repository = new PmdRuleRepository(fileSystem, new XMLRuleParser());
     List<Rule> rules = repository.createRules();
     assertThat(rules.size(), greaterThan(100));
   }

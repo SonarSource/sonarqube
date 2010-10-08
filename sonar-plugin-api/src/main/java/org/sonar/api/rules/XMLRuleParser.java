@@ -27,6 +27,7 @@ import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.SonarException;
 
 import javax.xml.stream.XMLInputFactory;
@@ -38,17 +39,13 @@ import java.util.List;
 /**
  * @since 2.3
  */
-public final class XMLRuleParser {
+public final class XMLRuleParser implements ServerComponent {
 
-  private XMLRuleParser() {
-    // only static methods
-  }
-
-  public static List<Rule> parseXML(File file) {
+  public List<Rule> parse(File file) {
     Reader reader = null;
     try {
       reader = new InputStreamReader(FileUtils.openInputStream(file), CharEncoding.UTF_8);
-      return parseXML(reader);
+      return parse(reader);
 
     } catch (IOException e) {
       throw new SonarException("Fail to load the file: " + file, e);
@@ -61,11 +58,11 @@ public final class XMLRuleParser {
   /**
    * Warning : the input stream is closed in this method
    */
-  public static List<Rule> parseXML(InputStream input) {
+  public List<Rule> parse(InputStream input) {
     Reader reader = null;
     try {
       reader = new InputStreamReader(input, CharEncoding.UTF_8);
-      return parseXML(reader);
+      return parse(reader);
 
     } catch (IOException e) {
       throw new SonarException("Fail to load the xml stream", e);
@@ -75,7 +72,7 @@ public final class XMLRuleParser {
     }
   }
 
-  public static List<Rule> parseXML(Reader reader) {
+  public List<Rule> parse(Reader reader) {
     XMLInputFactory xmlFactory = XMLInputFactory2.newInstance();
     xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
     xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);

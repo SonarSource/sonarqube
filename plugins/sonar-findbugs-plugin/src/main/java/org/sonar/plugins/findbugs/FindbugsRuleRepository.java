@@ -28,13 +28,16 @@ import java.util.List;
 
 public final class FindbugsRuleRepository extends RuleRepository {
 
-  public FindbugsRuleRepository() {
+  private XMLRuleParser xmlRuleParser;
+
+  public FindbugsRuleRepository(XMLRuleParser xmlRuleParser) {
     super(FindbugsConstants.REPOSITORY_KEY, Java.KEY);
     setName(FindbugsConstants.REPOSITORY_NAME);
+    this.xmlRuleParser = xmlRuleParser;
   }
 
   @Override
   public List<Rule> createRules() {
-    return XMLRuleParser.parseXML(getClass().getResourceAsStream("/org/sonar/plugins/findbugs/rules.xml"));
+    return xmlRuleParser.parse(getClass().getResourceAsStream("/org/sonar/plugins/findbugs/rules.xml"));
   }
 }

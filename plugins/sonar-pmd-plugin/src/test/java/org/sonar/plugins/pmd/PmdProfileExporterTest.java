@@ -17,10 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.rules.RuleQuery;
+import org.sonar.api.rules.*;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.plugins.pmd.xml.PmdProperty;
 import org.sonar.plugins.pmd.xml.PmdRule;
@@ -34,7 +31,7 @@ public class PmdProfileExporterTest {
   @Test
   public void testExportProfile() throws IOException, SAXException {
     ServerFileSystem fileSystem = mock(ServerFileSystem.class);
-    PmdRuleRepository repository = new PmdRuleRepository(fileSystem);
+    PmdRuleRepository repository = new PmdRuleRepository(fileSystem, new XMLRuleParser());
     List<Rule> rules = repository.createRules();
 
     RuleFinder ruleFinder = new PmdRuleFinder(rules);

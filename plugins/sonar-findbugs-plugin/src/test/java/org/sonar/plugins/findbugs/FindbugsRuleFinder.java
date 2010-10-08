@@ -25,13 +25,14 @@ import java.util.List;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
+import org.sonar.api.rules.XMLRuleParser;
 
 public class FindbugsRuleFinder implements RuleFinder {
 
   private final List<Rule> findbugsRules;
 
   public FindbugsRuleFinder() {
-    FindbugsRuleRepository repo = new FindbugsRuleRepository();
+    FindbugsRuleRepository repo = new FindbugsRuleRepository(new XMLRuleParser());
     findbugsRules = repo.createRules();
     for(Rule rule : findbugsRules){
       rule.setRepositoryKey(FindbugsConstants.REPOSITORY_KEY);

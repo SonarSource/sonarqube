@@ -35,7 +35,7 @@ public class XMLRuleParserTest {
 
   @Test
   public void parseXml() {
-    List<Rule> rules = XMLRuleParser.parseXML(getClass().getResourceAsStream("/org/sonar/api/rules/XMLRuleParserTest/rules.xml"));
+    List<Rule> rules = new XMLRuleParser().parse(getClass().getResourceAsStream("/org/sonar/api/rules/XMLRuleParserTest/rules.xml"));
     assertThat(rules.size(), is(2));
 
     Rule rule = rules.get(0);
@@ -59,17 +59,17 @@ public class XMLRuleParserTest {
 
   @Test(expected = SonarException.class)
   public void failIfMissingRuleKey() {
-    XMLRuleParser.parseXML(new StringReader("<rules><rule><name>Foo</name></rule></rules>"));
+    new XMLRuleParser().parse(new StringReader("<rules><rule><name>Foo</name></rule></rules>"));
   }
 
   @Test(expected = SonarException.class)
   public void failIfMissingPropertyKey() {
-    XMLRuleParser.parseXML(new StringReader("<rules><rule><key>foo</key><name>Foo</name><param></param></rule></rules>"));
+    new XMLRuleParser().parse(new StringReader("<rules><rule><key>foo</key><name>Foo</name><param></param></rule></rules>"));
   }
 
   @Test
   public void utf8Encoding() {
-    List<Rule> rules = XMLRuleParser.parseXML(getClass().getResourceAsStream("/org/sonar/api/rules/XMLRuleParserTest/utf8.xml"));
+    List<Rule> rules = new XMLRuleParser().parse(getClass().getResourceAsStream("/org/sonar/api/rules/XMLRuleParserTest/utf8.xml"));
     assertThat(rules.size(), is(1));
     Rule rule = rules.get(0);
     assertThat(rule.getKey(), is("com.puppycrawl.tools.checkstyle.checks.naming.LocalVariableNameCheck"));
@@ -82,7 +82,7 @@ public class XMLRuleParserTest {
   @Test
   public void supportDeprecatedFormat() {
     // the deprecated format uses some attributes instead of nodes
-    List<Rule> rules = XMLRuleParser.parseXML(getClass().getResourceAsStream("/org/sonar/api/rules/XMLRuleParserTest/deprecated.xml"));
+    List<Rule> rules = new XMLRuleParser().parse(getClass().getResourceAsStream("/org/sonar/api/rules/XMLRuleParserTest/deprecated.xml"));
     assertThat(rules.size(), is(1));
     Rule rule = rules.get(0);
     assertThat(rule.getPriority(), Is.is(RulePriority.CRITICAL));

@@ -33,6 +33,7 @@ import org.sonar.api.profiles.XMLProfileParser;
 import org.sonar.api.profiles.XMLProfileSerializer;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rules.DefaultRulesManager;
+import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.TimeProfiler;
@@ -175,6 +176,7 @@ public final class Platform {
     servicesContainer.as(Characteristics.CACHE).addComponent(AnnotationProfileParser.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(XMLProfileParser.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(XMLProfileSerializer.class);
+    servicesContainer.as(Characteristics.CACHE).addComponent(XMLRuleParser.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(DefaultRuleFinder.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(DeprecatedRuleRepositories.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(DeprecatedProfiles.class);

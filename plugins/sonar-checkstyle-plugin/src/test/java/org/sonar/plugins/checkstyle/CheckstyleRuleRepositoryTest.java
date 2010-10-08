@@ -22,6 +22,7 @@ package org.sonar.plugins.checkstyle;
 import org.junit.Test;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.XMLRuleParser;
 
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class CheckstyleRuleRepositoryTest {
   @Test
   public void loadRepositoryFromXml() {
     ServerFileSystem fileSystem = mock(ServerFileSystem.class);
-    CheckstyleRuleRepository repository = new CheckstyleRuleRepository(fileSystem);
+    CheckstyleRuleRepository repository = new CheckstyleRuleRepository(fileSystem, new XMLRuleParser());
     List<Rule> rules = repository.createRules();
     assertThat(rules.size(), greaterThan(100));
   }

@@ -35,11 +35,7 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RulePriority;
-import org.sonar.api.rules.RuleQuery;
-import org.sonar.api.rules.RulesManager;
+import org.sonar.api.rules.*;
 import org.sonar.test.TestUtils;
 import org.xml.sax.SAXException;
 
@@ -93,7 +89,7 @@ public abstract class FindbugsTests {
     RulesProfile profile = RulesProfile.create();
     profile.setName(RulesProfile.SONAR_WAY_FINDBUGS_NAME);
     profile.setLanguage(Java.KEY);
-    for (Rule rule : new FindbugsRuleRepository().createRules()) {
+    for (Rule rule : new FindbugsRuleRepository(new XMLRuleParser()).createRules()) {
       rule.setRepositoryKey(FindbugsConstants.REPOSITORY_KEY);
       profile.activateRule(rule, null);
     }

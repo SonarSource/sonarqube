@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.check.Check;
 
@@ -33,50 +34,34 @@ import java.util.List;
 /**
  * @since 2.3
  */
-public final class AnnotationRuleRepository extends RuleRepository {
+public final class AnnotationRuleParser implements ServerComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AnnotationRuleRepository.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AnnotationRuleParser.class);
 
-  private Collection<Class> annotatedClasses;
-
-  /**
-   * Use the factory method create()
-   */
-  private AnnotationRuleRepository(String key, String language, String name, Collection<Class> annotatedClasses) {
-    super(key, language);
-    setName(name);
-    this.annotatedClasses = annotatedClasses;
-  }
-
-  public static AnnotationRuleRepository create(String key, String language, String name, Collection<Class> annotatedClasses) {
-    return new AnnotationRuleRepository(key, language, name, annotatedClasses);
-  }
-
-  @Override
-  public List<Rule> createRules() {
+  public List<Rule> parse(String repositoryKey, Collection<Class> annotatedClasses) {
     List<Rule> rules = Lists.newArrayList();
     for (Class annotatedClass : annotatedClasses) {
-      rules.add(create(annotatedClass));
+      rules.add(create(repositoryKey, annotatedClass));
     }
     return rules;
   }
 
-  private Rule create(Class annotatedClass) {
+  private Rule create(String repositoryKey, Class annotatedClass) {
     org.sonar.check.Rule ruleAnnotation = AnnotationUtils.getClassAnnotation(annotatedClass, org.sonar.check.Rule.class);
     if (ruleAnnotation != null) {
-      return toRule(annotatedClass, ruleAnnotation);
+      return toRule(repositoryKey, annotatedClass, ruleAnnotation);
     }
     Check checkAnnotation = AnnotationUtils.getClassAnnotation(annotatedClass, Check.class);
     if (checkAnnotation != null) {
-      return toRule(annotatedClass, checkAnnotation);
+      return toRule(repositoryKey, annotatedClass, checkAnnotation);
     }
-    LOG.warn("The class " + annotatedClass.getCanonicalName() + " is not a check template. It should be annotated with " + Rule.class);
+    LOG.warn("The class " + annotatedClass.getCanonicalName() + " should be annotated with " + Rule.class);
     return null;
   }
 
-  private Rule toRule(Class clazz, org.sonar.check.Rule ruleAnnotation) {
-    String key = StringUtils.defaultIfEmpty(ruleAnnotation.key(), clazz.getCanonicalName());
-    Rule rule = Rule.create(getKey(), key, ruleAnnotation.name());
+  private Rule toRule(String repositoryKey, Class clazz, org.sonar.check.Rule ruleAnnotation) {
+    String ruleKey = StringUtils.defaultIfEmpty(ruleAnnotation.key(), clazz.getCanonicalName());
+    Rule rule = Rule.create(repositoryKey, ruleKey, ruleAnnotation.name());
     rule.setDescription(ruleAnnotation.description());
     rule.setRulesCategory(RulesCategory.fromIsoCategory(ruleAnnotation.isoCategory()));
     rule.setPriority(RulePriority.fromCheckPriority(ruleAnnotation.priority()));
@@ -91,9 +76,9 @@ public final class AnnotationRuleRepository extends RuleRepository {
     return rule;
   }
 
-  private Rule toRule(Class clazz, Check checkAnnotation) {
-    String key = StringUtils.defaultIfEmpty(checkAnnotation.key(), clazz.getCanonicalName());
-    Rule rule = Rule.create(getKey(), key, checkAnnotation.title());
+  private Rule toRule(String repositoryKey, Class clazz, Check checkAnnotation) {
+    String ruleKey = StringUtils.defaultIfEmpty(checkAnnotation.key(), clazz.getCanonicalName());
+    Rule rule = Rule.create(repositoryKey, ruleKey, checkAnnotation.title());
     rule.setDescription(checkAnnotation.description());
     rule.setRulesCategory(RulesCategory.fromIsoCategory(checkAnnotation.isoCategory()));
     rule.setPriority(RulePriority.fromCheckPriority(checkAnnotation.priority()));

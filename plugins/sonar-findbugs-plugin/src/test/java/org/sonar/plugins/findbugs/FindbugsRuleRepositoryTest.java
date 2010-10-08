@@ -27,12 +27,13 @@ import java.util.List;
 
 import org.junit.Test;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.XMLRuleParser;
 
 public class FindbugsRuleRepositoryTest {
 
   @Test
   public void testLoadRepositoryFromXml() {
-    FindbugsRuleRepository repository = new FindbugsRuleRepository();
+    FindbugsRuleRepository repository = new FindbugsRuleRepository(new XMLRuleParser());
     List<Rule> rules = repository.createRules();
     assertThat(rules.size(), greaterThan(300));
     for (Rule rule : rules) {

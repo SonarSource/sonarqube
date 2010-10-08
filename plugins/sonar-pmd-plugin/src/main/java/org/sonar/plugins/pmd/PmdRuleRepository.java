@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.pmd;
 
+import com.google.common.collect.Lists;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.resources.Java;
 import org.sonar.api.rules.Rule;
@@ -26,26 +27,27 @@ import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.rules.XMLRuleParser;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 public final class PmdRuleRepository extends RuleRepository {
 
   // for user extensions
   private ServerFileSystem fileSystem;
+  private XMLRuleParser xmlRuleParser;
 
-  public PmdRuleRepository(ServerFileSystem fileSystem) {
+  public PmdRuleRepository(ServerFileSystem fileSystem, XMLRuleParser xmlRuleParser) {
     super(PmdConstants.REPOSITORY_KEY, Java.KEY);
     setName(PmdConstants.REPOSITORY_NAME);
     this.fileSystem = fileSystem;
+    this.xmlRuleParser = xmlRuleParser;
   }
 
   @Override
   public List<Rule> createRules() {
-    List<Rule> rules = new ArrayList<Rule>();
-    rules.addAll(XMLRuleParser.parseXML(getClass().getResourceAsStream("/org/sonar/plugins/pmd/rules.xml")));
+    List<Rule> rules = Lists.newArrayList();
+    rules.addAll(xmlRuleParser.parse(getClass().getResourceAsStream("/org/sonar/plugins/pmd/rules.xml")));
     for (File userExtensionXml : fileSystem.getExtensions(PmdConstants.REPOSITORY_KEY, "xml")) {
-      rules.addAll(XMLRuleParser.parseXML(userExtensionXml));
+      rules.addAll(xmlRuleParser.parse(userExtensionXml));
     }
     return rules;
   }
