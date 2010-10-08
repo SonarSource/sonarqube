@@ -392,11 +392,11 @@
     <attribute name="args" default=""/>
 
     <sequential>
-      <exec failonerror="@{failonerror}" executable="${maven.home}/bin/mvn.bat" osfamily="Windows">
+      <exec failonerror="@{failonerror}" executable="${mavenHome}/bin/mvn.bat" osfamily="Windows">
         <arg line="-f @{pom}"/>
         <arg line="@{args}"/>
       </exec>
-      <exec failonerror="@{failonerror}" executable="${maven.home}/bin/mvn" osfamily="unix">
+      <exec failonerror="@{failonerror}" executable="${mavenHome}/bin/mvn" osfamily="unix">
         <arg line="-f @{pom}"/>
         <arg line="@{args} "/>
       </exec>
@@ -409,7 +409,7 @@
     <attribute name="pom"/>
 
     <sequential>
-      <exec failonerror="@{failonerror}" executable="${maven.home}/bin/mvn.bat" osfamily="Windows">
+      <exec failonerror="@{failonerror}" executable="${mavenHome}/bin/mvn.bat" osfamily="Windows">
         <arg line="org.codehaus.mojo:sonar-maven-plugin:1.0-beta-2:sonar @{args} -B -e"/>
         <arg line="-f @{pom}"/>
         <arg value='-Dsonar.jdbc.url="${jdbcUrl}"'/>
@@ -418,7 +418,7 @@
         <arg value="-Dsonar.jdbc.username=${jdbcUsername}"/>
         <arg value="-Dsonar.jdbc.password=${jdbcPassword}"/>
       </exec>
-      <exec failonerror="@{failonerror}" executable="${maven.home}/bin/mvn" osfamily="unix">
+      <exec failonerror="@{failonerror}" executable="${mavenHome}/bin/mvn" osfamily="unix">
         <arg line="org.codehaus.mojo:sonar-maven-plugin:1.0-beta-2:sonar @{args} -B -e"/>
         <arg line="-f @{pom}"/>
         <arg value='-Dsonar.jdbc.url=${jdbcUrl}'/>
@@ -438,11 +438,11 @@
     <attribute name="file"/>
 
     <sequential>
-      <exec failonerror="@{failonerror}" executable="${maven.home}/bin/mvn.bat" osfamily="Windows">
+      <exec failonerror="@{failonerror}" executable="${mavenHome}/bin/mvn.bat" osfamily="Windows">
         <arg
             line="install:install-file -DgroupId=@{groupId} -DartifactId=@{artifactId} -Dversion=@{version} -Dpackaging=@{packaging} -Dfile=@{file}"/>
       </exec>
-      <exec failonerror="@{failonerror}" executable="${maven.home}/bin/mvn" osfamily="unix">
+      <exec failonerror="@{failonerror}" executable="${mavenHome}/bin/mvn" osfamily="unix">
         <arg
             line="install:install-file -DgroupId=@{groupId} -DartifactId=@{artifactId} -Dversion=@{version} -Dpackaging=@{packaging} -Dfile=@{file}"/>
       </exec>

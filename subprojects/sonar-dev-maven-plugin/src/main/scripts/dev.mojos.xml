@@ -383,6 +383,15 @@
           <type>java.lang.File</type>
           <defaultValue>${basedir}</defaultValue>
         </parameter>
+        <parameter>
+          <name>mavenHome</name>
+          <description>Maven home directory.</description>
+          <property>mavenHome</property>
+          <required>true</required>
+          <expression>${sonar.mavenHome}</expression>
+          <type>java.lang.File</type>
+          <defaultValue>${maven.home}</defaultValue>
+        </parameter>
       </parameters>
     </mojo>
 
