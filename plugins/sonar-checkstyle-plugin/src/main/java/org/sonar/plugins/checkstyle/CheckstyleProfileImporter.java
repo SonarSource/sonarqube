@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.checkstyle;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.staxmate.SMInputFactory;
@@ -36,6 +37,7 @@ import org.sonar.api.utils.ValidationMessages;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import java.io.Reader;
+import java.util.Map;
 
 public class CheckstyleProfileImporter extends ProfileImporter {
 
@@ -86,22 +88,12 @@ public class CheckstyleProfileImporter extends ProfileImporter {
   }
 
   private void processModule(RulesProfile profile, String path, SMInputCursor moduleCursor, ValidationMessages messages) throws XMLStreamException {
-    String configKey = moduleCursor.getAttrValue("name");
-    if (isFilter(configKey)) {
-      messages.addWarningText("Checkstyle filters are not imported: " + configKey);
+    String moduleName = moduleCursor.getAttrValue("name");
+    if (isFilter(moduleName)) {
+      messages.addWarningText("Checkstyle filters are not imported: " + moduleName);
 
-    } else if (isIgnored(configKey)) {
-      // ignore !
-
-    } else {
-      Rule rule = ruleFinder.find(RuleQuery.create().withRepositoryKey(CheckstyleConstants.REPOSITORY_KEY).withConfigKey(path + configKey));
-      if (rule == null) {
-        messages.addWarningText("Checkstyle rule not found: " + path + configKey);
-        
-      } else {
-        ActiveRule activeRule = profile.activateRule(rule, null);
-        processProperties(moduleCursor, messages, activeRule);
-      }
+    } else if (!isIgnored(moduleName)) {
+      processRule(profile, path, moduleName, moduleCursor, messages);
     }
   }
 
@@ -116,24 +108,50 @@ public class CheckstyleProfileImporter extends ProfileImporter {
         StringUtils.equals(configKey, "SuppressWithNearbyCommentFilter");
   }
 
-  private void processProperties(SMInputCursor moduleCursor, ValidationMessages messages, ActiveRule activeRule) throws XMLStreamException {
-    SMInputCursor propertyCursor = moduleCursor.childElementCursor("property");
-    while (propertyCursor.getNext() != null) {
-      processProperty(activeRule, propertyCursor, messages);
+  private void processRule(RulesProfile profile, String path, String moduleName, SMInputCursor moduleCursor, ValidationMessages messages) throws XMLStreamException {
+    Map<String, String> properties = processProps(moduleCursor);
+
+    Rule rule;
+    String id = properties.get("id");
+    String warning;
+    if (StringUtils.isNotBlank(id)) {
+      rule = ruleFinder.find(RuleQuery.create().withRepositoryKey(CheckstyleConstants.REPOSITORY_KEY).withKey(id));
+      warning = "Checkstyle rule with key '" + id + "' not found";
+
+    } else {
+      String configKey = path + moduleName;
+      rule = ruleFinder.find(RuleQuery.create().withRepositoryKey(CheckstyleConstants.REPOSITORY_KEY).withConfigKey(configKey));
+      warning = "Checkstyle rule with config key '" + configKey + "' not found";
+    }
+
+    if (rule == null) {
+      messages.addWarningText(warning);
+
+    } else {
+      ActiveRule activeRule = profile.activateRule(rule, null);
+      activateProperties(activeRule, properties);
     }
   }
 
-  private void processProperty(ActiveRule activeRule, SMInputCursor propertyCursor, ValidationMessages messages) throws XMLStreamException {
-    String key = propertyCursor.getAttrValue("name");
-    String value = propertyCursor.getAttrValue("value");
-    if (StringUtils.equals("id", key)) {
-      messages.addWarningText("The property 'id' is not supported in the Checkstyle rule: " + activeRule.getConfigKey());
+  private Map<String, String> processProps(SMInputCursor moduleCursor) throws XMLStreamException {
+    Map<String, String> props = Maps.newHashMap();
+    SMInputCursor propertyCursor = moduleCursor.childElementCursor("property");
+    while (propertyCursor.getNext() != null) {
+      String key = propertyCursor.getAttrValue("name");
+      String value = propertyCursor.getAttrValue("value");
+      props.put(key, value);
+    }
+    return props;
+  }
 
-    } else if (StringUtils.equals("severity", key)) {
-      activeRule.setPriority(CheckstyleSeverityUtils.fromSeverity(value));
+  private void activateProperties(ActiveRule activeRule, Map<String, String> properties) {
+    for (Map.Entry<String, String> property : properties.entrySet()) {
+      if (StringUtils.equals("severity", property.getKey())) {
+        activeRule.setPriority(CheckstyleSeverityUtils.fromSeverity(property.getValue()));
 
-    } else {
-      activeRule.setParameter(key, value);
+      } else if (!StringUtils.equals("id", property.getKey())) {
+        activeRule.setParameter(property.getKey(), property.getValue());
+      }
     }
   }
 }

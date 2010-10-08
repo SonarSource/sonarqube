@@ -3,7 +3,6 @@
 <module name="Checker">
     <module name="SuppressionCommentFilter"/> 
     <module name="JavadocPackage">
-        <property name="id" value="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocPackageCheck" />
         <property name="severity" value="warning" />
     </module>
     <module name="JavadocPackage">

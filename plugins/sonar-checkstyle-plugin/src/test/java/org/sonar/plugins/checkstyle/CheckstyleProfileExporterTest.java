@@ -85,7 +85,7 @@ public class CheckstyleProfileExporterTest {
   public void addTheIdPropertyWhenManyInstancesWithTheSameConfigKey() throws IOException, SAXException {
     RulesProfile profile = RulesProfile.create("sonar way", "java");
     Rule rule1 = Rule.create("checkstyle", "com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocPackageCheck", "Javadoc").setConfigKey("Checker/JavadocPackage");
-    Rule rule2 = Rule.create("checkstyle", "com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocPackageCheck_12345", "Javadoc").setConfigKey("Checker/JavadocPackage");
+    Rule rule2 = Rule.create("checkstyle", "com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocPackageCheck_12345", "Javadoc").setConfigKey("Checker/JavadocPackage").setParent(rule1);
 
     profile.activateRule(rule1, RulePriority.MAJOR);
     profile.activateRule(rule2, RulePriority.CRITICAL);

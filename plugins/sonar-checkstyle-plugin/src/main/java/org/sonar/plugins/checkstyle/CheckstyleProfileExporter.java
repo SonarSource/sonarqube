@@ -29,7 +29,6 @@ import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.utils.SonarException;
 
@@ -94,7 +93,7 @@ public class CheckstyleProfileExporter extends ProfileExporter {
       if (!isInTreeWalker(configKey)) {
         List<ActiveRule> activeRules = activeRulesByConfigKey.get(configKey);
         for (ActiveRule activeRule : activeRules) {
-          appendModule(writer, activeRule, activeRules.size() > 1);
+          appendModule(writer, activeRule);
         }
       }
     }
@@ -107,7 +106,7 @@ public class CheckstyleProfileExporter extends ProfileExporter {
       if (isInTreeWalker(configKey)) {
         List<ActiveRule> activeRules = activeRulesByConfigKey.get(configKey);
         for (ActiveRule activeRule : activeRules) {
-          appendModule(writer, activeRule, activeRules.size() > 1);
+          appendModule(writer, activeRule);
         }
       }
     }
@@ -132,12 +131,12 @@ public class CheckstyleProfileExporter extends ProfileExporter {
     return result;
   }
 
-  private void appendModule(Writer writer, ActiveRule activeRule, boolean manyInstances) throws IOException {
+  private void appendModule(Writer writer, ActiveRule activeRule) throws IOException {
     String moduleName = StringUtils.substringAfterLast(activeRule.getConfigKey(), "/");
     writer.append("<module name=\"");
     StringEscapeUtils.escapeXml(writer, moduleName);
     writer.append("\">");
-    if (manyInstances) {
+    if (activeRule.getRule().getParent() != null) {
       appendModuleProperty(writer, "id", activeRule.getRuleKey());
     }
     appendModuleProperty(writer, "severity", CheckstyleSeverityUtils.toSeverity(activeRule.getPriority()));
@@ -164,5 +163,5 @@ public class CheckstyleProfileExporter extends ProfileExporter {
     }
   }
 
-  
+
 }

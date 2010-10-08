@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.checkstyle;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -33,11 +34,8 @@ import java.io.StringReader;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -98,18 +96,27 @@ public class CheckstyleProfileImporterTest {
     Reader reader = new StringReader(TestUtils.getResourceContent("/org/sonar/plugins/checkstyle/CheckstyleProfileImporterTest/simple.xml"));
     RulesProfile profile = importer.importProfile(reader, messages);
 
-    ActiveRule activeRule= profile.getActiveRuleByConfigKey("checkstyle", "Checker/TreeWalker/EqualsHashCode");
+    ActiveRule activeRule = profile.getActiveRuleByConfigKey("checkstyle", "Checker/TreeWalker/EqualsHashCode");
     assertThat(activeRule.getPriority(), is(RulePriority.BLOCKER)); // reuse the rule default priority
   }
 
   @Test
-  public void idPropertyIsNotSupported() {
-    Reader reader = new StringReader(TestUtils.getResourceContent("/org/sonar/plugins/checkstyle/CheckstyleProfileImporterTest/idProperty.xml"));
+  public void idPropertyShouldBeTheRuleKey() {
+    Reader reader = new StringReader(TestUtils.getResourceContent("/org/sonar/plugins/checkstyle/CheckstyleProfileImporterTest/idPropertyShouldBeTheRuleKey.xml"));
     RulesProfile profile = importer.importProfile(reader, messages);
 
-    ActiveRule check = profile.getActiveRuleByConfigKey("checkstyle", "Checker/JavadocPackage");
-    assertThat(check.getParameter("id"), nullValue());
+    assertNull(profile.getActiveRuleByConfigKey("checkstyle", "Checker/JavadocPackage"));
     assertThat(messages.getWarnings().size(), is(1));
+  }
+
+  @Test
+  public void shouldUseTheIdPropertyToFindRule() {
+    Reader reader = new StringReader(TestUtils.getResourceContent("/org/sonar/plugins/checkstyle/CheckstyleProfileImporterTest/shouldUseTheIdPropertyToFindRule.xml"));
+    RulesProfile profile = importer.importProfile(reader, messages);
+
+    assertNotNull(profile.getActiveRuleByConfigKey("checkstyle", "Checker/JavadocPackage"));
+    assertThat(profile.getActiveRuleByConfigKey("checkstyle", "Checker/JavadocPackage").getRule().getKey(), is("com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocPackageCheck_12345"));
+    assertThat(messages.getWarnings().size(), is(0));
   }
 
   @Test
@@ -132,21 +139,28 @@ public class CheckstyleProfileImporterTest {
 
   private RuleFinder newRuleFinder() {
     RuleFinder ruleFinder = mock(RuleFinder.class);
-    when(ruleFinder.find((RuleQuery)anyObject())).thenAnswer(new Answer<Rule>() {
+    when(ruleFinder.find((RuleQuery) anyObject())).thenAnswer(new Answer<Rule>() {
       public Rule answer(InvocationOnMock iom) throws Throwable {
-        RuleQuery query = (RuleQuery)iom.getArguments()[0];
+        RuleQuery query = (RuleQuery) iom.getArguments()[0];
         Rule rule = null;
-        if (query.getConfigKey().equals("Checker/JavadocPackage")) {
+        if (StringUtils.equals(query.getConfigKey(), "Checker/JavadocPackage")) {
           rule = Rule.create(query.getRepositoryKey(), "com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocPackageCheck", "Javadoc Package")
               .setConfigKey("Checker/JavadocPackage")
               .setPriority(RulePriority.MAJOR);
           rule.createParameter("format");
           rule.createParameter("ignore");
 
-        } else if (query.getConfigKey().equals("Checker/TreeWalker/EqualsHashCode")) {
+        } else if (StringUtils.equals(query.getConfigKey(), "Checker/TreeWalker/EqualsHashCode")) {
           rule = Rule.create(query.getRepositoryKey(), "com.puppycrawl.tools.checkstyle.checks.coding.EqualsHashCodeCheck", "Equals HashCode")
               .setConfigKey("Checker/TreeWalker/EqualsHashCode")
               .setPriority(RulePriority.BLOCKER);
+
+        } else if (StringUtils.equals(query.getKey(), "com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocPackageCheck_12345")) {
+          rule = Rule.create(query.getRepositoryKey(), "com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocPackageCheck_12345", "Javadoc Package")
+              .setConfigKey("Checker/JavadocPackage")
+              .setPriority(RulePriority.MAJOR);
+          rule.createParameter("format");
+          rule.createParameter("ignore");
         }
         return rule;
       }
