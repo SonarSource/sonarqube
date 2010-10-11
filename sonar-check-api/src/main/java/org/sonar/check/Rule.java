@@ -31,6 +31,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface Rule {
 
+  static enum Cardinality {
+    SINGLE, MULTIPLE
+  }
+
+
   /**
    * The default key is the class name.
    */
