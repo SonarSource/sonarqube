@@ -19,42 +19,9 @@
  */
 package org.sonar.check;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
  * @since 2.3
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Rule {
-
-  /**
-   * The default key is the class name.
-   */
-  String key() default "";
-
-  /**
-   * The rule name. If not defined, then the name is the key
-   */
-  String name() default "";
-
-  /**
-   * The description, optional.
-   */
-  String description() default "";
-
-  /**
-   * Default priority.
-   */
-  Priority priority() default Priority.MAJOR;
-
-  /**
-   * Will probably be deprecated and replaced by tags
-   */
-  IsoCategory isoCategory();
-
-  Cardinality cardinality() default Cardinality.SINGLE;
+public enum Cardinality {
+  SINGLE, MULTIPLE
 }

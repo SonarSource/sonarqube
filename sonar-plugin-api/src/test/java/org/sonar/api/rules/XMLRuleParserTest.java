@@ -22,6 +22,7 @@ package org.sonar.api.rules;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.utils.SonarException;
+import org.sonar.check.Cardinality;
 
 import java.io.StringReader;
 import java.util.List;
@@ -42,7 +43,7 @@ public class XMLRuleParserTest {
     assertThat(rule.getName(), is("Local Variable Name"));
     assertThat(rule.getDescription(), is("Checks that local, non-final variable names conform to a format specified by the format property."));
     assertThat(rule.getPriority(), Is.is(RulePriority.BLOCKER));
-    assertThat(rule.getCardinality(), Is.is(org.sonar.check.Rule.CARDINALITY.MULTIPLE));
+    assertThat(rule.getCardinality(), Is.is(Cardinality.MULTIPLE));
     assertThat(rule.getConfigKey(), is("Checker/TreeWalker/LocalVariableName"));
 
     assertThat(rule.getParams().size(), is(2));
