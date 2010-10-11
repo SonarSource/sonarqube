@@ -68,7 +68,8 @@ public class HttpDownloaderTest {
 
   @Test(expected=SonarException.class)
   public void failIfServerDown() throws URISyntaxException {
-    new HttpDownloader().download(new URI("http://localhost:13579/unknown"));
+    // I hope that the port 1 is not used !
+    new HttpDownloader().download(new URI("http://localhost:1/unknown"));
   }
 
   @Test
