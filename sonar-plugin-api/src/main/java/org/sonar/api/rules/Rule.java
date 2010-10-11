@@ -33,10 +33,6 @@ import java.util.List;
 @Table(name = "rules")
 public final class Rule {
 
-  public static enum Cardinality {
-    SINGLE, MULTIPLE
-  }
-
   @Id
   @Column(name = "id")
   @GeneratedValue
@@ -75,7 +71,7 @@ public final class Rule {
 
   @Enumerated(EnumType.STRING)
   @Column(name = "cardinality", updatable = true, nullable = false)
-  private Cardinality cardinality = Cardinality.SINGLE;
+  private org.sonar.check.Rule.CARDINALITY cardinality = org.sonar.check.Rule.CARDINALITY.SINGLE;
 
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "parent_id", updatable = true, nullable = true)
@@ -335,11 +331,11 @@ public final class Rule {
     return setRepositoryKey(repositoryKey).setKey(key).setConfigKey(key);
   }
 
-  public Cardinality getCardinality() {
+  public org.sonar.check.Rule.CARDINALITY getCardinality() {
     return cardinality;
   }
 
-  public Rule setCardinality(Cardinality c) {
+  public Rule setCardinality(org.sonar.check.Rule.CARDINALITY c) {
     this.cardinality = c;
     return this;
   }

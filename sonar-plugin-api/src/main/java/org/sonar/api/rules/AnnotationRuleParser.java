@@ -65,6 +65,7 @@ public final class AnnotationRuleParser implements ServerComponent {
     rule.setDescription(ruleAnnotation.description());
     rule.setRulesCategory(RulesCategory.fromIsoCategory(ruleAnnotation.isoCategory()));
     rule.setPriority(RulePriority.fromCheckPriority(ruleAnnotation.priority()));
+    rule.setCardinality(ruleAnnotation.cardinality());
 
     Field[] fields = clazz.getDeclaredFields();
     if (fields != null) {

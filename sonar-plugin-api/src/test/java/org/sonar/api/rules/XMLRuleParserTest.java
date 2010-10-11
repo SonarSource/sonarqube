@@ -42,7 +42,7 @@ public class XMLRuleParserTest {
     assertThat(rule.getName(), is("Local Variable Name"));
     assertThat(rule.getDescription(), is("Checks that local, non-final variable names conform to a format specified by the format property."));
     assertThat(rule.getPriority(), Is.is(RulePriority.BLOCKER));
-    assertThat(rule.getCardinality(), Is.is(Rule.Cardinality.MULTIPLE));
+    assertThat(rule.getCardinality(), Is.is(org.sonar.check.Rule.CARDINALITY.MULTIPLE));
     assertThat(rule.getConfigKey(), is("Checker/TreeWalker/LocalVariableName"));
 
     assertThat(rule.getParams().size(), is(2));

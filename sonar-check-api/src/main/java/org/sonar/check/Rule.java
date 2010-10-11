@@ -55,4 +55,10 @@ public @interface Rule {
    * Will probably be deprecated and replaced by tags
    */
   IsoCategory isoCategory();
+
+  CARDINALITY cardinality() default CARDINALITY.SINGLE;
+
+  public static enum CARDINALITY {
+    SINGLE, MULTIPLE
+  }
 }
