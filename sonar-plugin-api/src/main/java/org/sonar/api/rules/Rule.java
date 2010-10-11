@@ -24,7 +24,6 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.database.DatabaseProperties;
-import org.sonar.check.Cardinality;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -72,7 +71,7 @@ public final class Rule {
 
   @Enumerated(EnumType.STRING)
   @Column(name = "cardinality", updatable = true, nullable = false)
-  private Cardinality cardinality = Cardinality.SINGLE;
+  private org.sonar.check.Rule.Cardinality cardinality = org.sonar.check.Rule.Cardinality.SINGLE;
 
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "parent_id", updatable = true, nullable = true)
@@ -332,11 +331,11 @@ public final class Rule {
     return setRepositoryKey(repositoryKey).setKey(key).setConfigKey(key);
   }
 
-  public Cardinality getCardinality() {
+  public org.sonar.check.Rule.Cardinality getCardinality() {
     return cardinality;
   }
 
-  public Rule setCardinality(Cardinality c) {
+  public Rule setCardinality(org.sonar.check.Rule.Cardinality c) {
     this.cardinality = c;
     return this;
   }

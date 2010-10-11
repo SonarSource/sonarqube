@@ -139,7 +139,7 @@ public final class XMLRuleParser implements ServerComponent {
         rule.setRulesCategory(new RulesCategory(category));
 
       } else if (StringUtils.equalsIgnoreCase("cardinality", nodeName)) {
-        rule.setCardinality(org.sonar.check.Cardinality.valueOf(StringUtils.trim(cursor.collectDescendantText(false))));
+        rule.setCardinality(org.sonar.check.Rule.Cardinality.valueOf(StringUtils.trim(cursor.collectDescendantText(false))));
 
       } else if (StringUtils.equalsIgnoreCase("param", nodeName)) {
         processParameter(rule, cursor);

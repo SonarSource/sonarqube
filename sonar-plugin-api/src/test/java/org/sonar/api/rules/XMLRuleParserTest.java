@@ -22,7 +22,7 @@ package org.sonar.api.rules;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.utils.SonarException;
-import org.sonar.check.Cardinality;
+import org.sonar.check.Rule.Cardinality;
 
 import java.io.StringReader;
 import java.util.List;
