@@ -393,10 +393,12 @@
 
     <sequential>
       <exec failonerror="@{failonerror}" executable="${mavenHome}/bin/mvn.bat" osfamily="Windows">
+        <env key="M2_HOME" value="${mavenHome}"/>
         <arg line="-f @{pom}"/>
         <arg line="@{args}"/>
       </exec>
       <exec failonerror="@{failonerror}" executable="${mavenHome}/bin/mvn" osfamily="unix">
+        <env key="M2_HOME" value="${mavenHome}"/>
         <arg line="-f @{pom}"/>
         <arg line="@{args} "/>
       </exec>
@@ -410,6 +412,7 @@
 
     <sequential>
       <exec failonerror="@{failonerror}" executable="${mavenHome}/bin/mvn.bat" osfamily="Windows">
+        <env key="M2_HOME" value="${mavenHome}"/>
         <arg line="org.codehaus.mojo:sonar-maven-plugin:1.0-beta-2:sonar @{args} -B -e"/>
         <arg line="-f @{pom}"/>
         <arg value='-Dsonar.jdbc.url="${jdbcUrl}"'/>
@@ -419,6 +422,7 @@
         <arg value="-Dsonar.jdbc.password=${jdbcPassword}"/>
       </exec>
       <exec failonerror="@{failonerror}" executable="${mavenHome}/bin/mvn" osfamily="unix">
+        <env key="M2_HOME" value="${mavenHome}"/>
         <arg line="org.codehaus.mojo:sonar-maven-plugin:1.0-beta-2:sonar @{args} -B -e"/>
         <arg line="-f @{pom}"/>
         <arg value='-Dsonar.jdbc.url=${jdbcUrl}'/>
@@ -439,10 +443,12 @@
 
     <sequential>
       <exec failonerror="@{failonerror}" executable="${mavenHome}/bin/mvn.bat" osfamily="Windows">
+        <env key="M2_HOME" value="${mavenHome}"/>
         <arg
             line="install:install-file -DgroupId=@{groupId} -DartifactId=@{artifactId} -Dversion=@{version} -Dpackaging=@{packaging} -Dfile=@{file}"/>
       </exec>
       <exec failonerror="@{failonerror}" executable="${mavenHome}/bin/mvn" osfamily="unix">
+        <env key="M2_HOME" value="${mavenHome}"/>
         <arg
             line="install:install-file -DgroupId=@{groupId} -DartifactId=@{artifactId} -Dversion=@{version} -Dpackaging=@{packaging} -Dfile=@{file}"/>
       </exec>
