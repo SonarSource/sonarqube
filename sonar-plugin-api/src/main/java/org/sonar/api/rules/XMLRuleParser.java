@@ -29,6 +29,7 @@ import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.SonarException;
+import org.sonar.check.Cardinality;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -139,7 +140,7 @@ public final class XMLRuleParser implements ServerComponent {
         rule.setRulesCategory(new RulesCategory(category));
 
       } else if (StringUtils.equalsIgnoreCase("cardinality", nodeName)) {
-        rule.setCardinality(org.sonar.check.Rule.Cardinality.valueOf(StringUtils.trim(cursor.collectDescendantText(false))));
+        rule.setCardinality(Cardinality.valueOf(StringUtils.trim(cursor.collectDescendantText(false))));
 
       } else if (StringUtils.equalsIgnoreCase("param", nodeName)) {
         processParameter(rule, cursor);
