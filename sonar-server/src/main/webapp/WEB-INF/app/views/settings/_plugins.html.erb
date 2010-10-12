@@ -83,7 +83,6 @@
                                 <p><%= property.description() %></p>
                                 <p>
                                 <% span_id = "text_" + property.key().gsub('.', '_') %>
-                                <input type="hidden" name="old_<%= property.key() -%>" value="<%= value -%>"></input>
                                 <% textfield = text_field_tag property.key(), value, :size => '20' %>
                                 <% textfield += link_to_function(image_tag("zoom.png"), "replaceTextField('#{span_id}', '#{property.key()}')", :id => "toggle_text", :class => 'nolink') %>
                                 <% textarea = text_area_tag property.key(), value, :size => "100x10" %>
@@ -91,9 +90,9 @@
 
                                 <% unless property.defaultValue().blank? %>
                                   <% if project.nil? %>
-                                    <span class="note">Default : <%= property.defaultValue() -%></span>
+                                    <span class="note">Default : <%= h property.defaultValue() -%></span>
                                   <% else %>
-                                    <span class="note">Default : <%= Property.value(property.key(), nil, property.defaultValue()) -%></span>
+                                    <span class="note">Default : <%= h Property.value(property.key(), nil, property.defaultValue()) -%></span>
                                   <% end %>
                                 <% end %>
                                 </p>

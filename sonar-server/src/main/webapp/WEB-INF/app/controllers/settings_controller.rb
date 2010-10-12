@@ -39,16 +39,22 @@ class SettingsController < ApplicationController
       properties=java_facade.getPluginProperties(plugin)
       properties.each do |property|
         value=params[property.key()]
-        old_value=params['old_' + property.key()]
-        if (value != old_value)
-          if value.blank?
-            Property.clear(property.key(), resource_id)
-          else
-            Property.set(property.key(), value, resource_id)
+        persisted_property = Property.find(:first, :conditions => {:prop_key=> property.key(), :resource_id => resource_id, :user_id => nil})
+
+        if persisted_property
+          if value.empty?
+            Property.delete_all('prop_key' => property.key(), 'resource_id' => resource_id, 'user_id' => nil)
+          elsif persisted_property.text_value != value.to_s
+            persisted_property.text_value = value.to_s
+            persisted_property.save
           end
+        elsif !value.blank? 
+          Property.create(:prop_key => property.key(), :text_value => value.to_s, :resource_id => resource_id)
         end
       end
     end
+    java_facade.reloadConfiguration()
+
     flash[:notice] = 'Parameters updated.'
     if resource_id
       redirect_to :controller => 'project', :action => 'settings', :id => resource_id
