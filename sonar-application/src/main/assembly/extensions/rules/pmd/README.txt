@@ -1,1 +1,1 @@
-PMD extensions. See http://docs.codehaus.org/display/SONAR/Extend+coding+rules
+PMD extensions. See http://docs.codehaus.org/display/SONAR/Quality+profiles#Qualityprofiles-Extendcodingrules
