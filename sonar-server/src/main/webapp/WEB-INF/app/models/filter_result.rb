@@ -50,7 +50,7 @@
         # load measures
         #
         if @metric_ids.size>0
-          measures=ProjectMeasure.find(:all, :conditions => ['rule_priority is null and rules_category_id is null and rule_id is null and snapshot_id in (?)', @page_sids])
+          measures=ProjectMeasure.find(:all, :conditions => ['rule_priority is null and rules_category_id is null and rule_id is null and characteristic_id is null and snapshot_id in (?)', @page_sids])
 
           if filter.display_user_managed_metrics?
             measures.concat(AsyncMeasureSnapshot.search(@page_sids, @metric_ids))
