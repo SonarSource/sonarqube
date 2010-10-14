@@ -33,6 +33,7 @@ import java.util.List;
  * @goal check-dependencies
  * @requiresDependencyResolution runtime
  * @phase initialize
+ * @threadSafe
  */
 public class CheckDependenciesMojo extends AbstractSonarPluginMojo {
 

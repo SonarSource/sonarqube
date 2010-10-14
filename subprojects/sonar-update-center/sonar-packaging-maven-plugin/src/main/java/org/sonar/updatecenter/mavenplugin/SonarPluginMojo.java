@@ -53,6 +53,7 @@ import java.util.*;
  * @phase package
  * @requiresProject
  * @requiresDependencyResolution runtime
+ * @threadSafe
  */
 public class SonarPluginMojo extends AbstractSonarPluginMojo {
   private static final String LIB_DIR = "META-INF/lib/";
