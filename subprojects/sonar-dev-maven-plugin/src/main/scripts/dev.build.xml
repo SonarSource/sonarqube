@@ -235,7 +235,12 @@
     <available property="has.extensions" file="${extensionsDir}"/>
     <antcall target="copy-extensions"/>
 
-    <available file="${pluginArtifact}" property="has.plugin.artifact"/>
+    <condition property="has.plugin.artifact">
+      <and>
+        <available file="${pluginArtifact}" />
+        <istrue value="${copyPluginArtifact}"/>
+      </and>
+    </condition>
     <antcall target="copy-plugin-artifact"/>
 
   </target>

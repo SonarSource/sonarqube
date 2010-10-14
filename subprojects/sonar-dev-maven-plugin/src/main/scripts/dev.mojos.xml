@@ -100,6 +100,15 @@
           <defaultValue>${project.build.directory}/${project.build.finalName}.jar</defaultValue>
         </parameter>
         <parameter>
+          <name>copyPluginArtifact</name>
+          <description>Should copy plugin artifact in Sonar plugins ?</description>
+          <property>copyPluginArtifact</property>
+          <expression>${sonar.copyPluginArtifact}</expression>
+          <required>false</required>
+          <type>java.lang.Boolean</type>
+          <defaultValue>true</defaultValue>
+        </parameter>
+        <parameter>
           <name>extensionsDir</name>
           <description>Directory from where extensions should be copied.</description>
           <property>extensionsDir</property>
@@ -260,6 +269,15 @@
           <required>false</required>
           <type>java.lang.File</type>
           <defaultValue>${project.build.directory}/${project.build.finalName}.jar</defaultValue>
+        </parameter>
+        <parameter>
+          <name>copyPluginArtifact</name>
+          <description>Should copy plugin artifact in Sonar plugins ?</description>
+          <property>copyPluginArtifact</property>
+          <expression>${sonar.copyPluginArtifact}</expression>
+          <required>false</required>
+          <type>java.lang.Boolean</type>
+          <defaultValue>true</defaultValue>
         </parameter>
         <parameter>
           <name>extensionsDir</name>
