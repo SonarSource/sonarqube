@@ -272,14 +272,20 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
     return artifact.getArtifactId() + "-" + artifact.getVersion() + "." + artifact.getArtifactHandler().getExtension();
   }
 
-
   private Set<Artifact> getNotProvidedDependencies() throws DependencyTreeBuilderException {
     Set<Artifact> result = new HashSet<Artifact>();
     Set<Artifact> providedArtifacts = getSonarProvidedArtifacts();
     for (Artifact artifact : getIncludedArtifacts()) {
-      if (!Artifact.SCOPE_PROVIDED.equals(artifact.getScope()) && !Artifact.SCOPE_TEST.equals(artifact.getScope()) && !containsArtifact(providedArtifacts, artifact)) {
-        result.add(artifact);
+      if ("sonar-plugin".equals(artifact.getType())) {
+        continue;
       }
+      if (Artifact.SCOPE_PROVIDED.equals(artifact.getScope()) || Artifact.SCOPE_TEST.equals(artifact.getScope())) {
+        continue;
+      }
+      if (containsArtifact(providedArtifacts, artifact)) {
+        continue;
+      }
+      result.add(artifact);
     }
     return result;
   }

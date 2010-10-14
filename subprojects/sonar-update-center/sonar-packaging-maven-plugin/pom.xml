@@ -113,7 +113,7 @@
               </goals>
               <settingsFile>src/it/settings.xml</settingsFile>
               <filterProperties>
-                <sonar.version>2.2</sonar.version>
+                <sonar.version>2.3-SNAPSHOT</sonar.version>
               </filterProperties>
               <!--<debug>true</debug>-->
             </configuration>
