@@ -347,6 +347,7 @@
     <waitfor maxwait="5" maxwaitunit="minute" checkevery="10" checkeveryunit="second">
       <http url="http://localhost:9000"/>
     </waitfor>
+    <echo>Sonar started</echo>
   </target>
 
   <target name="setup" depends="wait-for-server">
