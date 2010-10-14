@@ -34,16 +34,16 @@ public class CodeReader extends CodeBuffer {
 
   private Cursor previousCursor;
 
-  public CodeReader(Reader code) {
-    super(code);
+  public CodeReader(Reader code, CodeReaderFilter... codeReaderFilters) {
+    super(code, codeReaderFilters);
   }
 
-  public CodeReader(String code) {
-    super(code);
+  public CodeReader(String code, CodeReaderFilter... codeReaderFilters) {
+    super(code, codeReaderFilters);
   }
 
-  protected CodeReader(String code, int bufferCapacity) {
-    super(code, bufferCapacity);
+  protected CodeReader(String code, int bufferCapacity, CodeReaderFilter... codeReaderFilters) {
+    super(code, bufferCapacity, codeReaderFilters);
   }
 
   /**

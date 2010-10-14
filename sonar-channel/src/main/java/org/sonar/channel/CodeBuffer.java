@@ -19,6 +19,7 @@
  */
 package org.sonar.channel;
 
+import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -26,8 +27,7 @@ import java.io.StringReader;
 import org.apache.commons.io.IOUtils;
 
 /**
- * The CodeBuffer class provides all the basic features required to manipulate a source code character stream. 
- * Those features are :
+ * The CodeBuffer class provides all the basic features required to manipulate a source code character stream. Those features are :
  * <ul>
  * <li>Read and consume next source code character : pop()</li>
  * <li>Retrieve last consumed character : lastChar()</li>
@@ -51,25 +51,29 @@ public class CodeBuffer implements CharSequence {
   private boolean recordingMode = false;
   private StringBuilder recordedCharacters = new StringBuilder();
 
-  public CodeBuffer(Reader code) {
-    this(code, DEFAULT_BUFFER_CAPACITY);
+  public CodeBuffer(Reader code, CodeReaderFilter... codeReaderFilters) {
+    this(code, DEFAULT_BUFFER_CAPACITY, codeReaderFilters);
   }
 
-  private CodeBuffer(Reader code, int bufferCapacity) {
-    this.code = code;
+  private CodeBuffer(Reader initialCodeReader, int bufferCapacity, CodeReaderFilter... codeReaderFilters) {
     lastChar = -1;
     cursor = new Cursor();
     this.bufferCapacity = bufferCapacity;
     buffer = new char[bufferCapacity];
+    Reader reader = initialCodeReader;
+    for (CodeReaderFilter codeReaderFilter : codeReaderFilters) {
+      reader = new Filter(reader, codeReaderFilter);
+    }
+    this.code = reader;
     fillBuffer();
   }
 
-  public CodeBuffer(String code) {
-    this(new StringReader(code));
+  public CodeBuffer(String code, CodeReaderFilter... codeReaderFilters) {
+    this(new StringReader(code), codeReaderFilters);
   }
 
-  protected CodeBuffer(String code, int bufferCapacity) {
-    this(new StringReader(code), bufferCapacity);
+  protected CodeBuffer(String code, int bufferCapacity, CodeReaderFilter... codeReaderFilters) {
+    this(new StringReader(code), bufferCapacity, codeReaderFilters);
   }
 
   /**
@@ -247,5 +251,31 @@ public class CodeBuffer implements CharSequence {
       clone.line = line;
       return clone;
     }
+  }
+
+  final class Filter extends FilterReader {
+
+    private CodeReaderFilter codeReaderFilter;
+
+    public Filter(Reader in, CodeReaderFilter codeReaderFilter) {
+      super(in);
+      this.codeReaderFilter = codeReaderFilter;
+    }
+
+    @Override
+    public int read() throws IOException {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int read(char[] cbuf, int off, int len) throws IOException {
+      return codeReaderFilter.read(in, cbuf, off, len);
+    }
+
+    @Override
+    public long skip(long n) throws IOException {
+      throw new UnsupportedOperationException();
+    }
+
   }
 }
