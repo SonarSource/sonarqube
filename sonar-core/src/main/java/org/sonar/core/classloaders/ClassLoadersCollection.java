@@ -30,7 +30,7 @@ import java.util.Collection;
  */
 public class ClassLoadersCollection {
 
-  private static final String EXPORTED_PREFIX = "org.sonar.plugins.";
+  private static final String[] PREFIXES_TO_EXPORT = { "org.sonar.plugins.", "com.sonar.plugins.", "com.sonarsource.plugins." };
 
   private ClassWorld world = new ClassWorld();
   private ClassLoader baseClassLoader;
@@ -49,7 +49,6 @@ public class ClassLoadersCollection {
       for (URL constituent : urls) {
         realm.addConstituent(constituent);
       }
-      // export(realm, EXPORTED_PREFIX + key);
       return realm.getClassLoader();
     } catch (DuplicateRealmException e) {
       throw new SonarException(e);
@@ -62,7 +61,12 @@ public class ClassLoadersCollection {
   public void done() {
     for (Object o : world.getRealms()) {
       ClassRealm realm = (ClassRealm) o;
-      export(realm, EXPORTED_PREFIX + realm.getId());
+      String[] packagesToExport = new String[PREFIXES_TO_EXPORT.length];
+      for (int i = 0; i < PREFIXES_TO_EXPORT.length; i++) {
+        // important to have dot at the end of package name
+        packagesToExport[i] = PREFIXES_TO_EXPORT[i] + realm.getId() + ".";
+      }
+      export(realm, packagesToExport);
     }
   }
 
