@@ -19,7 +19,6 @@
  */
 package org.sonar.batch;
 
-import com.google.common.collect.HashMultimap;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -33,24 +32,26 @@ import org.sonar.api.batch.AbstractCoverageExtension;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
+import org.sonar.core.classloaders.ClassLoadersCollection;
 import org.sonar.core.plugin.AbstractPluginRepository;
 import org.sonar.core.plugin.JpaPlugin;
 import org.sonar.core.plugin.JpaPluginDao;
 import org.sonar.core.plugin.JpaPluginFile;
 
+import com.google.common.collect.HashMultimap;
+
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 public class BatchPluginRepository extends AbstractPluginRepository {
 
   private static final Logger LOG = LoggerFactory.getLogger(BatchPluginRepository.class);
 
-  private Map<String, ClassLoader> classloaders;
   private String baseUrl;
   private JpaPluginDao dao;
+
+  private ClassLoadersCollection classLoaders;
 
   public BatchPluginRepository(JpaPluginDao dao, ServerMetadata server) {
     this.dao = dao;
@@ -68,7 +69,7 @@ public class BatchPluginRepository extends AbstractPluginRepository {
     HashMultimap<String, URL> urlsByKey = HashMultimap.create();
     for (JpaPluginFile pluginFile : dao.getPluginFiles()) {
       try {
-        String key = getClassloaderKey(pluginFile.getPluginKey());
+        String key = pluginFile.getPluginKey();
         URL url = new URL(baseUrl + pluginFile.getPath());
         urlsByKey.put(key, url);
 
@@ -77,7 +78,7 @@ public class BatchPluginRepository extends AbstractPluginRepository {
       }
     }
 
-    classloaders = new HashMap<String, ClassLoader>();
+    classLoaders = new ClassLoadersCollection(Thread.currentThread().getContextClassLoader());
     for (String key : urlsByKey.keySet()) {
       Set<URL> urls = urlsByKey.get(key);
 
@@ -87,19 +88,16 @@ public class BatchPluginRepository extends AbstractPluginRepository {
           LOG.debug("   -> " + url);
         }
       }
-      classloaders.put(key, new RemoteClassLoader(urls, Thread.currentThread().getContextClassLoader()).getClassLoader());
-    }
-  }
 
-  private String getClassloaderKey(String pluginKey) {
-    return "sonar-plugin-" + pluginKey;
+      classLoaders.createClassLoader(key, urls);
+    }
+    classLoaders.done();
   }
 
   public void registerPlugins(MutablePicoContainer pico) {
     for (JpaPlugin pluginMetadata : dao.getPlugins()) {
       try {
-        String classloaderKey = getClassloaderKey(pluginMetadata.getKey());
-        Class claz = classloaders.get(classloaderKey).loadClass(pluginMetadata.getPluginClass());
+        Class claz = classLoaders.get(pluginMetadata.getKey()).loadClass(pluginMetadata.getPluginClass());
         Plugin plugin = (Plugin) claz.newInstance();
         registerPlugin(pico, plugin, pluginMetadata.getKey());
 
@@ -125,7 +123,7 @@ public class BatchPluginRepository extends AbstractPluginRepository {
     boolean ok = isType(extension, BatchExtension.class);
     if (ok && isType(extension, AbstractCoverageExtension.class)) {
       ok = shouldRegisterCoverageExtension(pluginKey, container.getComponent(Project.class), container.getComponent(Configuration.class));
-      if (!ok) {
+      if ( !ok) {
         LOG.debug("The following extension is ignored: " + extension + ". See the parameter " + AbstractCoverageExtension.PARAM_PLUGIN);
       }
     }
@@ -133,11 +131,11 @@ public class BatchPluginRepository extends AbstractPluginRepository {
   }
 
   boolean shouldRegisterCoverageExtension(String pluginKey, Project project, Configuration conf) {
-    boolean ok=true;
+    boolean ok = true;
     if (StringUtils.equals(project.getLanguageKey(), Java.KEY)) {
       String[] selectedPluginKeys = conf.getStringArray(AbstractCoverageExtension.PARAM_PLUGIN);
       if (ArrayUtils.isEmpty(selectedPluginKeys)) {
-        selectedPluginKeys = new String[]{AbstractCoverageExtension.DEFAULT_PLUGIN};
+        selectedPluginKeys = new String[] { AbstractCoverageExtension.DEFAULT_PLUGIN };
       }
       String oldCoveragePluginKey = getOldCoveragePluginKey(pluginKey);
       ok = ArrayUtils.contains(selectedPluginKeys, pluginKey) || ArrayUtils.contains(selectedPluginKeys, oldCoveragePluginKey);

@@ -49,13 +49,18 @@ public class ServerPluginRepository extends AbstractPluginRepository {
   }
 
   public void registerPlugins(MutablePicoContainer pico) {
+    // Create ClassLoaders
+    for (JpaPlugin jpaPlugin : dao.getPlugins()) {
+      classloaders.getClassLoader(jpaPlugin.getKey());
+    }
+    classloaders.done();
+    // Register plugins
     for (JpaPlugin jpaPlugin : dao.getPlugins()) {
       try {
         Class pluginClass = classloaders.getClassLoader(jpaPlugin.getKey()).loadClass(jpaPlugin.getPluginClass());
         pico.as(Characteristics.CACHE).addComponent(pluginClass);
         Plugin plugin = (Plugin) pico.getComponent(pluginClass);
         registerPlugin(pico, plugin, jpaPlugin.getKey());
-
 
       } catch (ClassNotFoundException e) {
         throw new SonarException("Please check the plugin manifest. The main plugin class does not exist: " + jpaPlugin.getPluginClass(), e);

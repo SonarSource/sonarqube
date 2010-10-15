@@ -19,25 +19,21 @@
  */
 package org.sonar.server.plugins;
 
-import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.classworlds.ClassRealm;
-import org.codehaus.classworlds.ClassWorld;
-import org.codehaus.classworlds.DuplicateRealmException;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.classloaders.ClassLoadersCollection;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 public class PluginClassLoaders implements ServerComponent {
 
-  private Map<String, ClassLoader> classLoaderByPluginKey = Maps.newHashMap();
-  private ClassWorld world = new ClassWorld();
+  private ClassLoadersCollection classLoaders = new ClassLoadersCollection(getClass().getClassLoader());
 
   public ClassLoader create(PluginMetadata plugin) {
     return create(plugin.getKey(), plugin.getDeployedFiles());
@@ -45,23 +41,15 @@ public class PluginClassLoaders implements ServerComponent {
 
   ClassLoader create(String pluginKey, Collection<File> classloaderFiles) {
     try {
-      ClassRealm realm;
-      realm = world.newRealm(pluginKey, getClass().getClassLoader());
+      List<URL> urls = new ArrayList<URL>();
       for (File file : classloaderFiles) {
-        realm.addConstituent(toUrl(file));
+        urls.add(toUrl(file));
       }
-      ClassLoader classloader = realm.getClassLoader();
-      classLoaderByPluginKey.put(pluginKey, classloader);
-      return classloader;
-
-    } catch (DuplicateRealmException e) {
-      throw new RuntimeException("Fail to load the classloader of the plugin: " + pluginKey, e);
-
+      return classLoaders.createClassLoader(pluginKey, urls);
     } catch (MalformedURLException e) {
       throw new RuntimeException("Fail to load the classloader of the plugin: " + pluginKey, e);
     }
   }
-
 
   URL toUrl(File file) throws MalformedURLException {
     // From Classworlds javadoc :
@@ -71,22 +59,22 @@ public class PluginClassLoaders implements ServerComponent {
     // Otherwise the constituent will be treated as a JAR file.
     URL url = file.toURI().toURL();
     if (file.isDirectory()) {
-      if (!url.toString().endsWith("/")) {
+      if ( !url.toString().endsWith("/")) {
         url = new URL(url.toString() + "/");
       }
-    } else if (!StringUtils.endsWithIgnoreCase(file.getName(), "jar")) {
+    } else if ( !StringUtils.endsWithIgnoreCase(file.getName(), "jar")) {
       url = file.getParentFile().toURI().toURL();
     }
     return url;
   }
 
   public ClassLoader getClassLoader(String pluginKey) {
-    return classLoaderByPluginKey.get(pluginKey);
+    return classLoaders.get(pluginKey);
   }
 
   public Class getClass(String pluginKey, String classname) {
     Class clazz = null;
-    ClassLoader classloader = classLoaderByPluginKey.get(pluginKey);
+    ClassLoader classloader = getClassLoader(pluginKey);
     if (classloader != null) {
       try {
         clazz = classloader.loadClass(classname);
@@ -96,5 +84,9 @@ public class PluginClassLoaders implements ServerComponent {
       }
     }
     return clazz;
+  }
+
+  public void done() {
+    classLoaders.done();
   }
 }
