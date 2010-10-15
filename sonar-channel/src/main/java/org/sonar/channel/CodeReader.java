@@ -24,8 +24,7 @@ import java.io.Reader;
 import java.util.regex.Matcher;
 
 /**
- * The CodeReader class provides all the basic features to lex a source code. 
- * Those features are :
+ * The CodeReader class provides all the basic features to lex a source code. Those features are :
  * <ul>
  * <li>Read and consume next characters until a regular expression is matched</li>
  * </ul>
@@ -33,6 +32,20 @@ import java.util.regex.Matcher;
 public class CodeReader extends CodeBuffer {
 
   private Cursor previousCursor;
+
+  /*
+   * Constructor needed to be backward compatible (before using CodeReaderFilter)
+   */
+  public CodeReader(Reader code) {
+    super(code, new CodeReaderFilter[] {});
+  }
+
+  /*
+   * Constructor needed to be backward compatible (before using CodeReaderFilter)
+   */
+  public CodeReader(String code) {
+    super(code, new CodeReaderFilter[] {});
+  }
 
   public CodeReader(Reader code, CodeReaderFilter... codeReaderFilters) {
     super(code, codeReaderFilters);
