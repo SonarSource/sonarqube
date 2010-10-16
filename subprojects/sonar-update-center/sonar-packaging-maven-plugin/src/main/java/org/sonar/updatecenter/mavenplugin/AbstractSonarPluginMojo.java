@@ -19,6 +19,7 @@
  */
 package org.sonar.updatecenter.mavenplugin;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.filter.ScopeArtifactFilter;
 import org.apache.maven.plugin.AbstractMojo;
@@ -98,7 +99,7 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
    * 
    * @parameter expression="${sonar.pluginKey}" default-value="${project.artifactId}"
    */
-  private String pluginKey;
+  protected String pluginKey;
 
   /**
    * @parameter expression="${sonar.pluginTermsConditionsUrl}"
@@ -172,6 +173,12 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
   }
 
   public String getPluginKey() {
+    if (StringUtils.startsWith(pluginKey, "sonar-") && StringUtils.endsWith(pluginKey, "-plugin")) {
+      return StringUtils.removeEnd(StringUtils.removeStart(pluginKey, "sonar-"), "-plugin");
+    }
+    if (StringUtils.endsWith(pluginKey, "-sonar-plugin")) {
+      return StringUtils.removeEnd(pluginKey, "-sonar-plugin");
+    }
     return pluginKey;
   }
 
