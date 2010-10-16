@@ -43,11 +43,15 @@ import org.sonar.updatecenter.common.PluginManifest;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Build a Sonar Plugin from the current project.
- *
+ * 
  * @author Evgeny Mandrikov
  * @goal sonar-plugin
  * @phase package
@@ -57,13 +61,13 @@ import java.util.*;
  */
 public class SonarPluginMojo extends AbstractSonarPluginMojo {
   private static final String LIB_DIR = "META-INF/lib/";
-  private static final String[] DEFAULT_EXCLUDES = new String[]{"**/package.html"};
-  private static final String[] DEFAULT_INCLUDES = new String[]{"**/**"};
+  private static final String[] DEFAULT_EXCLUDES = new String[] { "**/package.html" };
+  private static final String[] DEFAULT_INCLUDES = new String[] { "**/**" };
 
   /**
    * List of files to include. Specified as fileset patterns which are relative to the input directory whose contents
    * is being packaged into the JAR.
-   *
+   * 
    * @parameter
    */
   private String[] includes;
@@ -71,14 +75,14 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
   /**
    * List of files to exclude. Specified as fileset patterns which are relative to the input directory whose contents
    * is being packaged into the JAR.
-   *
+   * 
    * @parameter
    */
   private String[] excludes;
 
   /**
    * The Jar archiver.
-   *
+   * 
    * @component role="org.codehaus.plexus.archiver.Archiver" role-hint="jar"
    */
   protected JarArchiver jarArchiver;
@@ -86,7 +90,7 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
   /**
    * The archive configuration to use.
    * See <a href="http://maven.apache.org/shared/maven-archiver/index.html">Maven Archiver Reference</a>.
-   *
+   * 
    * @parameter
    */
   private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
@@ -100,7 +104,7 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
 
   /**
    * The artifact repository to use.
-   *
+   * 
    * @parameter expression="${localRepository}"
    * @required
    * @readonly
@@ -109,7 +113,7 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
 
   /**
    * The artifact factory to use.
-   *
+   * 
    * @component
    * @required
    * @readonly
@@ -118,7 +122,7 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
 
   /**
    * The artifact metadata source to use.
-   *
+   * 
    * @component
    * @required
    * @readonly
@@ -127,7 +131,7 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
 
   /**
    * The artifact collector to use.
-   *
+   * 
    * @component
    * @required
    * @readonly
@@ -177,12 +181,16 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
       addManifestProperty("Build date", PluginManifest.BUILD_DATE, FormatUtils.toString(new Date(), true));
       getLog().info("-------------------------------------------------------");
 
+      if (isUseChildFirstClassLoader()) {
+        archive.addManifestEntry(PluginManifest.USE_CHILD_FIRST_CLASSLOADER, true);
+      }
+
       if (isSkipDependenciesPackaging()) {
         getLog().info("Skip packaging of dependencies");
 
       } else {
         List<String> libs = copyDependencies();
-        if (!libs.isEmpty()) {
+        if ( !libs.isEmpty()) {
           archiver.getArchiver().addDirectory(getAppDirectory(), getIncludes(), getExcludes());
           archive.addManifestEntry(PluginManifest.DEPENDENCIES, StringUtils.join(libs, " "));
         }
@@ -228,9 +236,8 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
     return null;
   }
 
-
   private void checkPluginClass() throws MojoExecutionException {
-    if (!new File(getClassesDirectory(), getPluginClass().replace('.', '/') + ".class").exists()) {
+    if ( !new File(getClassesDirectory(), getPluginClass().replace('.', '/') + ".class").exists()) {
       throw new MojoExecutionException("Error assembling Sonar-plugin: Plugin-Class '" + getPluginClass() + "' not found");
     }
   }
@@ -244,7 +251,6 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
     return new File(basedir, finalName + classifier + ".jar");
   }
 
-
   private List<String> copyDependencies() throws IOException, DependencyTreeBuilderException {
     List<String> ids = new ArrayList<String>();
     List<String> libs = new ArrayList<String>();
@@ -257,13 +263,13 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
       ids.add(artifact.getDependencyConflictId());
     }
 
-    if (!ids.isEmpty()) {
+    if ( !ids.isEmpty()) {
       getLog().info(getMessage("Following dependencies are packaged in the plugin:", ids));
       getLog().info(new StringBuilder()
           .append("See following page for more details about plugin dependencies:\n")
           .append("\n\thttp://docs.codehaus.org/display/SONAR/Coding+a+plugin\n")
           .toString()
-      );
+          );
     }
     return libs;
   }
@@ -300,7 +306,6 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
     return false;
   }
 
-
   private Set<Artifact> getSonarProvidedArtifacts() throws DependencyTreeBuilderException {
     Set<Artifact> result = new HashSet<Artifact>();
     ArtifactFilter artifactFilter = new ScopeArtifactFilter(Artifact.SCOPE_RUNTIME);
@@ -322,7 +327,7 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
         sonarArtifacts.add(dependency.getArtifact());
       }
 
-      if (!Artifact.SCOPE_TEST.equals(dependency.getArtifact().getScope())) {
+      if ( !Artifact.SCOPE_TEST.equals(dependency.getArtifact().getScope())) {
         for (Object childDep : dependency.getChildren()) {
           searchForSonarProvidedArtifacts((DependencyNode) childDep, sonarArtifacts, isProvidedBySonar);
         }

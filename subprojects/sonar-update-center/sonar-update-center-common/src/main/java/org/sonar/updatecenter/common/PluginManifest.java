@@ -19,6 +19,8 @@
  */
 package org.sonar.updatecenter.common;
 
+import static org.sonar.updatecenter.common.FormatUtils.toDate;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
@@ -29,11 +31,9 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import static org.sonar.updatecenter.common.FormatUtils.toDate;
-
 /**
- * This class loads Sonar plugin metadata from JAR manifest
- *
+ * This class loads Sonar plugin metadata from JAR manifest.
+ * 
  * @since 2.2
  */
 public final class PluginManifest {
@@ -53,6 +53,11 @@ public final class PluginManifest {
   public static final String BUILD_DATE = "Build-Date";
   public static final String ISSUE_TRACKER_URL = "Plugin-IssueTrackerUrl";
 
+  /**
+   * @since 0.3
+   */
+  public static final String USE_CHILD_FIRST_CLASSLOADER = "Plugin-ChildFirstClassLoader";
+
   private String key;
   private String name;
   private String mainClass;
@@ -67,7 +72,7 @@ public final class PluginManifest {
   private String termsConditionsUrl;
   private Date buildDate;
   private String issueTrackerUrl;
-  
+  private boolean useChildFirstClassLoader = false;
 
   /**
    * Load the manifest from a JAR file.
@@ -109,6 +114,7 @@ public final class PluginManifest {
     this.sonarVersion = attributes.getValue(SONAR_VERSION);
     this.issueTrackerUrl = attributes.getValue(ISSUE_TRACKER_URL);
     this.buildDate = toDate(attributes.getValue(BUILD_DATE), true);
+    this.useChildFirstClassLoader = StringUtils.equalsIgnoreCase(attributes.getValue(USE_CHILD_FIRST_CLASSLOADER), "true");
 
     String deps = attributes.getValue(DEPENDENCIES);
     this.dependencies = StringUtils.split(StringUtils.defaultString(deps), ' ');
@@ -237,6 +243,15 @@ public final class PluginManifest {
 
   public PluginManifest setIssueTrackerUrl(String issueTrackerUrl) {
     this.issueTrackerUrl = issueTrackerUrl;
+    return this;
+  }
+
+  public boolean isUseChildFirstClassLoader() {
+    return useChildFirstClassLoader;
+  }
+
+  public PluginManifest setUseChildFirstClassLoader(boolean useChildFirstClassLoader) {
+    this.useChildFirstClassLoader = useChildFirstClassLoader;
     return this;
   }
 

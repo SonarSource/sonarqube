@@ -32,7 +32,7 @@ import java.util.Set;
 
 /**
  * Base class for Sonar-plugin-packaging related tasks.
- *
+ * 
  * @author Evgeny Mandrikov
  */
 public abstract class AbstractSonarPluginMojo extends AbstractMojo {
@@ -42,7 +42,7 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
 
   /**
    * The Maven project.
-   *
+   * 
    * @parameter expression="${project}"
    * @required
    * @readonly
@@ -51,7 +51,7 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
 
   /**
    * Directory containing the generated JAR.
-   *
+   * 
    * @parameter expression="${project.build.directory}"
    * @required
    */
@@ -59,7 +59,7 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
 
   /**
    * Directory containing the classes and resource files that should be packaged into the JAR.
-   *
+   * 
    * @parameter expression="${project.build.outputDirectory}"
    * @required
    */
@@ -67,7 +67,7 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
 
   /**
    * The directory where the app is built.
-   *
+   * 
    * @parameter expression="${project.build.directory}/${project.build.finalName}"
    * @required
    */
@@ -75,7 +75,7 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
 
   /**
    * Name of the generated JAR.
-   *
+   * 
    * @parameter alias="jarName" expression="${jar.finalName}" default-value="${project.build.finalName}"
    * @required
    */
@@ -83,7 +83,7 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
 
   /**
    * Classifier to add to the artifact generated. If given, the artifact will be an attachment instead.
-   *
+   * 
    * @parameter
    */
   private String classifier;
@@ -95,7 +95,7 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
 
   /**
    * Plugin key.
-   *
+   * 
    * @parameter expression="${sonar.pluginKey}" default-value="${project.artifactId}"
    */
   private String pluginKey;
@@ -107,7 +107,7 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
 
   /**
    * Name of plugin class.
-   *
+   * 
    * @parameter expression="${sonar.pluginClass}"
    * @required
    */
@@ -132,6 +132,12 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
    * @parameter default-value="${project.issueManagement.url}"
    */
   private String pluginIssueTrackerUrl;
+
+  /**
+   * @parameter
+   * @since 0.3
+   */
+  private boolean useChildFirstClassLoader = false;
 
   /**
    * @parameter expression="${sonar.skipDependenciesPackaging}"
@@ -193,11 +199,15 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
     return pluginIssueTrackerUrl;
   }
 
+  public boolean isUseChildFirstClassLoader() {
+    return useChildFirstClassLoader;
+  }
+
   protected boolean isSkipDependenciesPackaging() {
     return skipDependenciesPackaging;
   }
 
-  @SuppressWarnings({"unchecked"})
+  @SuppressWarnings( { "unchecked" })
   protected Set<Artifact> getDependencyArtifacts() {
     return getProject().getDependencyArtifacts();
   }
@@ -212,7 +222,7 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
     return result;
   }
 
-  @SuppressWarnings({"unchecked"})
+  @SuppressWarnings( { "unchecked" })
   protected Set<Artifact> getIncludedArtifacts() {
     Set<Artifact> result = new HashSet<Artifact>();
     Set<Artifact> artifacts = getProject().getArtifacts();

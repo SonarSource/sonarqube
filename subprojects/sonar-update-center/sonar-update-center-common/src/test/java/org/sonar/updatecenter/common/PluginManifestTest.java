@@ -19,17 +19,17 @@
  */
 package org.sonar.updatecenter.common;
 
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.junit.Assert.assertThat;
+
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertThat;
 
 public class PluginManifestTest {
 
@@ -42,6 +42,7 @@ public class PluginManifestTest {
     assertThat(manifest.getName(), is("Checkstyle"));
     assertThat(manifest.getMainClass(), is("org.sonar.plugins.checkstyle.CheckstylePlugin"));
     assertThat(manifest.getVersion().length(), greaterThan(1));
+    assertThat(manifest.isUseChildFirstClassLoader(), is(false));
     assertThat(manifest.getDependencies().length, is(4));
     assertThat(manifest.getDependencies()[0], is("META-INF/lib/antlr-2.7.6.jar"));
   }
@@ -54,6 +55,7 @@ public class PluginManifestTest {
     assertThat(manifest.getKey(), nullValue());
     assertThat(manifest.getName(), nullValue());
     assertThat(manifest.getMainClass(), is("org.sonar.plugins.checkstyle.CheckstylePlugin"));
+    assertThat(manifest.isUseChildFirstClassLoader(), is(false));
     assertThat(manifest.getDependencies().length, is(0));
   }
 }
