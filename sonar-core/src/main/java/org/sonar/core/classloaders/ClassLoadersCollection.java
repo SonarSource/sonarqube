@@ -40,12 +40,35 @@ public class ClassLoadersCollection {
   }
 
   /**
-   * Generates URLClassLoaders, which use the parent first delegation mode.
-   * Actually this method shouldn't return anything, because dependencies must be established - see {@link #done()}.
+   * Generates URLClassLoader with parent-first delegation model.
+   * 
+   * @param key plugin key
+   * @param urls libraries
+   * @return created ClassLoader, but actually this method shouldn't return anything,
+   *         because dependencies must be established - see {@link #done()}.
    */
   public ClassLoader createClassLoader(String key, Collection<URL> urls) {
+    return createClassLoader(key, urls, false);
+  }
+
+  /**
+   * Generates URLClassLoader with specified delegation model.
+   * 
+   * @param key plugin key
+   * @param urls libraries
+   * @param childFirst true, if child-first delegation model required instead of parent-first
+   * @return created ClassLoader, but actually this method shouldn't return anything,
+   *         because dependencies must be established - see {@link #done()}.
+   */
+  public ClassLoader createClassLoader(String key, Collection<URL> urls, boolean childFirst) {
     try {
-      ClassRealm realm = world.newRealm(key, baseClassLoader);
+      final ClassRealm realm;
+      if (childFirst) {
+        ClassRealm parentRealm = world.newRealm(key + "-parent", baseClassLoader);
+        realm = parentRealm.createChildRealm(key);
+      } else {
+        realm = world.newRealm(key, baseClassLoader);
+      }
       for (URL constituent : urls) {
         realm.addConstituent(constituent);
       }
@@ -61,12 +84,14 @@ public class ClassLoadersCollection {
   public void done() {
     for (Object o : world.getRealms()) {
       ClassRealm realm = (ClassRealm) o;
-      String[] packagesToExport = new String[PREFIXES_TO_EXPORT.length];
-      for (int i = 0; i < PREFIXES_TO_EXPORT.length; i++) {
-        // important to have dot at the end of package name
-        packagesToExport[i] = PREFIXES_TO_EXPORT[i] + realm.getId() + ".";
+      if ( !StringUtils.endsWith(realm.getId(), "-parent")) {
+        String[] packagesToExport = new String[PREFIXES_TO_EXPORT.length];
+        for (int i = 0; i < PREFIXES_TO_EXPORT.length; i++) {
+          // important to have dot at the end of package name
+          packagesToExport[i] = PREFIXES_TO_EXPORT[i] + realm.getId() + ".";
+        }
+        export(realm, packagesToExport);
       }
-      export(realm, packagesToExport);
     }
   }
 
