@@ -19,6 +19,10 @@
  */
 package org.sonar.server.plugins;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -39,10 +43,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 
 public class PluginDeployerTest extends AbstractDbUnitTestCase {
 
@@ -80,6 +80,7 @@ public class PluginDeployerTest extends AbstractDbUnitTestCase {
     assertThat(plugin.getName(), is("Foo"));
     assertThat(plugin.getFiles().size(), is(1));
     assertThat(plugin.isCore(), is(false));
+    assertThat(plugin.isUseChildFirstClassLoader(), is(false));
     JpaPluginFile pluginFile = plugin.getFiles().get(0);
     assertThat(pluginFile.getFilename(), is("foo-plugin.jar"));
     assertThat(pluginFile.getPath(), is("foo/foo-plugin.jar"));
@@ -106,6 +107,7 @@ public class PluginDeployerTest extends AbstractDbUnitTestCase {
     assertThat(plugin.getKey(), is("build-breaker"));
     assertThat(plugin.getFiles().size(), is(1));
     assertThat(plugin.isCore(), is(false));
+    assertThat(plugin.isUseChildFirstClassLoader(), is(false));
     JpaPluginFile pluginFile = plugin.getFiles().get(0);
     assertThat(pluginFile.getFilename(), is("sonar-build-breaker-plugin-0.1.jar"));
     assertThat(pluginFile.getPath(), is("build-breaker/sonar-build-breaker-plugin-0.1.jar"));

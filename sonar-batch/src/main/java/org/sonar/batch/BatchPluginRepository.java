@@ -38,11 +38,11 @@ import org.sonar.core.plugin.JpaPlugin;
 import org.sonar.core.plugin.JpaPluginDao;
 import org.sonar.core.plugin.JpaPluginFile;
 
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Set;
+import java.util.List;
 
 public class BatchPluginRepository extends AbstractPluginRepository {
 
@@ -66,30 +66,25 @@ public class BatchPluginRepository extends AbstractPluginRepository {
   }
 
   public void start() {
-    HashMultimap<String, URL> urlsByKey = HashMultimap.create();
-    for (JpaPluginFile pluginFile : dao.getPluginFiles()) {
-      try {
-        String key = pluginFile.getPluginKey();
-        URL url = new URL(baseUrl + pluginFile.getPath());
-        urlsByKey.put(key, url);
-
-      } catch (MalformedURLException e) {
-        throw new SonarException("Can not build the classloader of the plugin " + pluginFile.getPluginKey(), e);
-      }
-    }
-
     classLoaders = new ClassLoadersCollection(Thread.currentThread().getContextClassLoader());
-    for (String key : urlsByKey.keySet()) {
-      Set<URL> urls = urlsByKey.get(key);
-
+    for (JpaPlugin pluginMetadata : dao.getPlugins()) {
+      String key = pluginMetadata.getKey();
+      List<URL> urls = Lists.newArrayList();
+      for (JpaPluginFile pluginFile : pluginMetadata.getFiles()) {
+        try {
+          URL url = new URL(baseUrl + pluginFile.getPath());
+          urls.add(url);
+        } catch (MalformedURLException e) {
+          throw new SonarException("Can not build the classloader of the plugin " + pluginFile.getPluginKey(), e);
+        }
+      }
       if (LOG.isDebugEnabled()) {
         LOG.debug("Classloader of plugin " + key + ":");
         for (URL url : urls) {
           LOG.debug("   -> " + url);
         }
       }
-
-      classLoaders.createClassLoader(key, urls);
+      classLoaders.createClassLoader(key, urls, pluginMetadata.isUseChildFirstClassLoader() == Boolean.TRUE);
     }
     classLoaders.done();
   }

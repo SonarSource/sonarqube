@@ -46,6 +46,7 @@ public class PluginMetadata {
   private String license;
   private String homepage;
   private boolean core;
+  private boolean useChildFirstClassLoader;
   private String[] dependencyPaths = new String[0];
   public List<File> deployedFiles = new ArrayList<File>();
 
@@ -158,6 +159,13 @@ public class PluginMetadata {
     return StringUtils.isNotBlank(mainClass);
   }
 
+  public void setUseChildFirstClassLoader(boolean use) {
+    this.useChildFirstClassLoader = use;
+  }
+
+  public boolean isUseChildFirstClassLoader() {
+    return useChildFirstClassLoader;
+  }
 
   public void setDependencyPaths(String[] paths) {
     this.dependencyPaths = paths;
@@ -181,7 +189,9 @@ public class PluginMetadata {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
+    if (this == o) {
+      return true;
+    }
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
@@ -218,6 +228,7 @@ public class PluginMetadata {
     metadata.setHomepage(manifest.getHomepage());
     metadata.setDependencyPaths(manifest.getDependencies());
     metadata.setCore(corePlugin);
+    metadata.setUseChildFirstClassLoader(manifest.isUseChildFirstClassLoader());
     return metadata;
   }
 
@@ -231,6 +242,7 @@ public class PluginMetadata {
     jpaPlugin.setVersion(getVersion());
     jpaPlugin.setHomepage(getHomepage());
     jpaPlugin.setCore(isCore());
+    jpaPlugin.setUseChildFirstClassLoader(isUseChildFirstClassLoader());
     jpaPlugin.removeFiles();
     for (File file : getDeployedFiles()) {
       jpaPlugin.createFile(file.getName());

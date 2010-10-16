@@ -36,16 +36,16 @@ public class PluginClassLoaders implements ServerComponent {
   private ClassLoadersCollection classLoaders = new ClassLoadersCollection(getClass().getClassLoader());
 
   public ClassLoader create(PluginMetadata plugin) {
-    return create(plugin.getKey(), plugin.getDeployedFiles());
+    return create(plugin.getKey(), plugin.getDeployedFiles(), plugin.isUseChildFirstClassLoader());
   }
 
-  ClassLoader create(String pluginKey, Collection<File> classloaderFiles) {
+  ClassLoader create(String pluginKey, Collection<File> classloaderFiles, boolean useChildFirstClassLoader) {
     try {
       List<URL> urls = new ArrayList<URL>();
       for (File file : classloaderFiles) {
         urls.add(toUrl(file));
       }
-      return classLoaders.createClassLoader(pluginKey, urls);
+      return classLoaders.createClassLoader(pluginKey, urls, useChildFirstClassLoader);
     } catch (MalformedURLException e) {
       throw new RuntimeException("Fail to load the classloader of the plugin: " + pluginKey, e);
     }

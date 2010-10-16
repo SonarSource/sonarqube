@@ -56,6 +56,7 @@ public class JpaPluginDaoTest extends AbstractDbUnitTestCase {
     setupData("shared");
     JpaPlugin pmd = JpaPlugin.create("pmd");
     pmd.setCore(false);
+    pmd.setUseChildFirstClassLoader(false);
     pmd.setName("PMD");
     pmd.setVersion("2.2");
     pmd.setPluginClass("org.sonar.pmd.Main");
@@ -73,6 +74,7 @@ public class JpaPluginDaoTest extends AbstractDbUnitTestCase {
     setupData("shared");
     JpaPlugin pmd = JpaPlugin.create("pmd");
     pmd.setCore(false);
+    pmd.setUseChildFirstClassLoader(false);
     pmd.setName("PMD");
     pmd.setPluginClass("org.sonar.pmd.Main");
 

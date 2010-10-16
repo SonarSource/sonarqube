@@ -25,15 +25,21 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.hibernate.annotations.Cascade;
 import org.sonar.api.database.BaseIdentifiable;
 
-import javax.persistence.*;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
 /**
  * Installed plugins
- *
+ * 
  * @since 2.2
  */
 @Entity
@@ -72,6 +78,9 @@ public class JpaPlugin extends BaseIdentifiable {
 
   @Column(name = "core", updatable = true, nullable = true)
   private Boolean core;
+  
+  @Column(name = "child_first_classloader", updatable = true, nullable = true)
+  private Boolean childFirstClassLoader;
 
   @Cascade({org.hibernate.annotations.CascadeType.SAVE_UPDATE,
             org.hibernate.annotations.CascadeType.DELETE,
@@ -200,6 +209,15 @@ public class JpaPlugin extends BaseIdentifiable {
     return this;
   }
 
+  public Boolean isUseChildFirstClassLoader() {
+    return childFirstClassLoader;
+  }
+
+  public JpaPlugin setUseChildFirstClassLoader(boolean use) {
+    this.childFirstClassLoader = use;
+    return this;
+  }
+
   public void createFile(String filename) {
     JpaPluginFile file = new JpaPluginFile(this, filename);
     this.files.add(file);
@@ -212,7 +230,7 @@ public class JpaPlugin extends BaseIdentifiable {
   public void removeFiles() {
     files.clear();
   }
-  
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -240,7 +258,6 @@ public class JpaPlugin extends BaseIdentifiable {
         .append("installationDate", installationDate)
         .toString();
   }
-
 
   public static JpaPlugin create(String pluginKey) {
     return new JpaPlugin(pluginKey);

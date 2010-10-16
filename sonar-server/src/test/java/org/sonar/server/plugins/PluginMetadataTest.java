@@ -37,6 +37,7 @@ public class PluginMetadataTest {
     assertThat(metadata.getMainClass(), is("foo.Main"));
     assertThat(metadata.getVersion(), is("2.2-SNAPSHOT"));
     assertThat(metadata.getOrganization(), is("SonarSource"));
+    assertThat(metadata.isUseChildFirstClassLoader(), is(false));
     assertThat(metadata.getDependencyPaths().length, is(0));
     assertThat(metadata.isCore(), is(false));
   }

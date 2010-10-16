@@ -40,18 +40,6 @@ public class ClassLoadersCollection {
   }
 
   /**
-   * Generates URLClassLoader with parent-first delegation model.
-   * 
-   * @param key plugin key
-   * @param urls libraries
-   * @return created ClassLoader, but actually this method shouldn't return anything,
-   *         because dependencies must be established - see {@link #done()}.
-   */
-  public ClassLoader createClassLoader(String key, Collection<URL> urls) {
-    return createClassLoader(key, urls, false);
-  }
-
-  /**
    * Generates URLClassLoader with specified delegation model.
    * 
    * @param key plugin key

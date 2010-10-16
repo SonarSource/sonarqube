@@ -19,15 +19,16 @@
  */
 package org.sonar.server.plugins;
 
-import com.google.common.collect.Lists;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
+
 import org.junit.Test;
 import org.sonar.test.TestUtils;
 
+import com.google.common.collect.Lists;
+
 import java.io.File;
 import java.io.IOException;
-
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
 
 public class PluginClassLoadersTest {
 
@@ -38,7 +39,7 @@ public class PluginClassLoadersTest {
     File jar = getFile("foo-plugin.jar");
     PluginMetadata metadata = PluginMetadata.createFromJar(jar, false);
     metadata.addDeployedFile(jar);
-        
+
     assertNull(getClass().getClassLoader().getResource("foo.txt"));
 
     PluginClassLoaders classloaders = new PluginClassLoaders();
@@ -53,7 +54,7 @@ public class PluginClassLoadersTest {
     File jar = getFile("sonar-build-breaker-plugin-0.1.jar");
 
     PluginClassLoaders classloaders = new PluginClassLoaders();
-    classloaders.create("build-breaker", Lists.<File>newArrayList(jar));
+    classloaders.create("build-breaker", Lists.<File> newArrayList(jar), false);
 
     assertNotNull(classloaders.getClass("build-breaker", "org.sonar.plugins.buildbreaker.BuildBreakerPlugin"));
     assertNull(classloaders.getClass("build-breaker", "org.sonar.plugins.buildbreaker.Unknown"));
