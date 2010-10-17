@@ -26,6 +26,9 @@ import java.util.Map;
 
 import javax.xml.stream.XMLStreamException;
 
+/**
+ * @since 2.4
+ */
 public abstract class AbstractCoberturaParser {
   public void parseReport(File xmlFile, final SensorContext context) {
     try {
