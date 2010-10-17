@@ -36,6 +36,7 @@ import org.sonar.jpa.session.DriverDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
 
 import java.net.URLClassLoader;
+import java.util.Arrays;
 
 public class Batch {
 
@@ -109,7 +110,13 @@ public class Batch {
     for (Project module : project.getModules()) {
       analyzeProject(container, index, module);
     }
-    LOG.info("-------------  Analyzing " + project.getName());
+    LOG.info("-------------  Analyzing {}", project.getName());
+
+    String[] exclusionPatterns = project.getExclusionPatterns();
+    if (exclusionPatterns != null && exclusionPatterns.length > 0) {
+      LOG.info("Excluded sources : {}", Arrays.toString(exclusionPatterns));
+    }
+
     new ProjectBatch(container).execute(index, project);
   }
 }
