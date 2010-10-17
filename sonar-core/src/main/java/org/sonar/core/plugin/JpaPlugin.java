@@ -80,7 +80,7 @@ public class JpaPlugin extends BaseIdentifiable {
   private Boolean core;
   
   @Column(name = "child_first_classloader", updatable = true, nullable = true)
-  private Boolean childFirstClassLoader;
+  private Boolean childFirstClassLoader = Boolean.FALSE;
 
   @Cascade({org.hibernate.annotations.CascadeType.SAVE_UPDATE,
             org.hibernate.annotations.CascadeType.DELETE,
