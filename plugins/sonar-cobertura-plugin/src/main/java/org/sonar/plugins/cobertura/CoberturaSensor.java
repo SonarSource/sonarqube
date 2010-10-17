@@ -107,7 +107,7 @@ public class CoberturaSensor extends AbstractCoverageExtension implements Sensor
       protected Resource<?> getResource(String fileName) {
         return new JavaFile(fileName);
       }
-    };
+    }.parseReport(xmlFile, context);
   }
 
   @Override
