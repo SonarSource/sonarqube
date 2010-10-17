@@ -63,7 +63,7 @@ public class ViolationsDao {
   }
 
   public void saveViolation(Snapshot snapshot, Violation violation) {
-    if (profile == null || snapshot == null || violation == null) {
+    if (profile == null || snapshot == null || violation == null || violation.getRule() == null) {
       throw new IllegalArgumentException("Missing data to save violation : profile=" + profile + ",snapshot=" + snapshot + ",violation=" + violation);
     }
 
@@ -74,7 +74,7 @@ public class ViolationsDao {
       } else {
         LoggerFactory.getLogger(getClass()).debug("Violation is not saved because rule is not activated : violation={}", violation);
       }
-    } 
+    }
     if (activeRule != null) {
       RuleFailureModel model = toModel(snapshot, violation, activeRule);
       session.save(model);
