@@ -1,3 +1,22 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2009 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
 package org.sonar.channel;
 
 import java.io.IOException;
@@ -16,6 +35,27 @@ import java.io.Reader;
  */
 public abstract class CodeReaderFilter {
 
+  private Reader reader;
+
+  /**
+   * Returns the reader from which this class reads the character stream.
+   * 
+   * @return the reader
+   */
+  public Reader getReader() {
+    return reader;
+  }
+
+  /**
+   * Sets the reader from which this class will read the character stream.
+   * 
+   * @param reader
+   *          the reader
+   */
+  public void setReader(Reader reader) {
+    this.reader = reader;
+  }
+
   /**
    * This method implements the filtering logic, that is:
    * <ul>
@@ -27,8 +67,6 @@ public abstract class CodeReaderFilter {
    * and fill the given buffer to its full capacity with the filtered data.</li>
    * </ul>
    * 
-   * @param reader
-   *          the input character flow
    * @param filteredBuffer
    *          the output buffer that must contain the filtered data
    * @param offset
@@ -39,6 +77,6 @@ public abstract class CodeReaderFilter {
    * @throws IOException
    *           If an I/O error occurs
    */
-  public abstract int read(Reader reader, char[] filteredBuffer, int offset, int lenght) throws IOException;
+  public abstract int read(char[] filteredBuffer, int offset, int lenght) throws IOException;
 
 }

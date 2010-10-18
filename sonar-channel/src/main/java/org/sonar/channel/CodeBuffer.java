@@ -253,6 +253,9 @@ public class CodeBuffer implements CharSequence {
     }
   }
 
+  /**
+   * Bridge class between CodeBuffer and CodeReaderFilter
+   */
   final class Filter extends FilterReader {
 
     private CodeReaderFilter codeReaderFilter;
@@ -260,6 +263,7 @@ public class CodeBuffer implements CharSequence {
     public Filter(Reader in, CodeReaderFilter codeReaderFilter) {
       super(in);
       this.codeReaderFilter = codeReaderFilter;
+      this.codeReaderFilter.setReader(in);
     }
 
     @Override
@@ -269,7 +273,7 @@ public class CodeBuffer implements CharSequence {
 
     @Override
     public int read(char[] cbuf, int off, int len) throws IOException {
-      return codeReaderFilter.read(in, cbuf, off, len);
+      return codeReaderFilter.read(cbuf, off, len);
     }
 
     @Override

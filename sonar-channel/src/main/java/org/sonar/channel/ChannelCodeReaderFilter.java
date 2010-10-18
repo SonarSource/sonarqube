@@ -1,0 +1,88 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2009 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
+package org.sonar.channel;
+
+import java.io.IOException;
+import java.io.Reader;
+
+/**
+ * This class is a special CodeReaderFilter that uses Channels to filter the character stream before it is passed to the main channels
+ * declared for the CodeReader.
+ * 
+ */
+public final class ChannelCodeReaderFilter<OUTPUT> extends CodeReaderFilter {
+
+  @SuppressWarnings("unchecked")
+  private Channel<OUTPUT>[] channels = new Channel[0];
+
+  private CodeReader internalCodeReader;
+
+  private OUTPUT output;
+
+  /**
+   * Creates a CodeReaderFilter that will use the provided Channels to filter the character stream it gets from its reader. And optionaly,
+   * it can push token to the provided output object.
+   * 
+   * @param output
+   *          the object that may accept tokens
+   * @param channels
+   *          the different channels
+   */
+  public ChannelCodeReaderFilter(OUTPUT output, Channel<OUTPUT>... channels) {
+    super();
+    this.channels = channels;
+    this.output = output;
+  }
+
+  /**
+   * ${@inheritDoc}
+   */
+  @Override
+  public void setReader(Reader reader) {
+    super.setReader(reader);
+    internalCodeReader = new CodeReader(reader);
+  }
+
+  /**
+   * ${@inheritDoc}
+   */
+  @Override
+  public int read(char[] filteredBuffer, int offset, int lenght) throws IOException {
+    int initialOffset = offset;
+    while (offset < filteredBuffer.length) {
+      if (internalCodeReader.peek() == -1) {
+        break;
+      }
+      boolean consumed = false;
+      for (Channel<OUTPUT> channel : channels) {
+        if (channel.consume(internalCodeReader, output)) {
+          consumed = true;
+          break;
+        }
+      }
+      if ( !consumed) {
+        int charRead = internalCodeReader.pop();
+        filteredBuffer[offset++] = (char) charRead;
+      }
+    }
+    return offset - initialOffset;
+  }
+
+}

@@ -24,7 +24,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.util.regex.Pattern;
 
 import org.junit.Test;
@@ -175,14 +174,45 @@ public class CodeBufferTest {
     assertThat((char) code.pop(), is('-'));
   }
 
+  @Test
+  public void testChannelCodeReaderFilter() throws Exception {
+    // create a windowing channel that drops the 2 first characters, keeps 6 characters and drops the rest of the line
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    CodeBuffer code = new CodeBuffer("0123456789\nABCDEFGHIJ", new ChannelCodeReaderFilter(null, new WindowingChannel()));
+    // test #charAt
+    assertEquals('2', code.charAt(0));
+    assertEquals('7', code.charAt(5));
+    assertEquals('\n', code.charAt(6));
+    assertEquals('C', code.charAt(7));
+    assertEquals('H', code.charAt(12));
+    assertEquals( -1, code.intAt(13));
+    // test peek and pop
+    assertThat((char) code.peek(), is('2'));
+    assertThat((char) code.pop(), is('2'));
+    assertThat((char) code.pop(), is('3'));
+    assertThat((char) code.pop(), is('4'));
+    assertThat((char) code.pop(), is('5'));
+    assertThat((char) code.pop(), is('6'));
+    assertThat((char) code.pop(), is('7'));// and 8 shouldn't show up
+    assertThat((char) code.pop(), is('\n'));
+    assertThat((char) code.peek(), is('C'));
+    assertThat((char) code.pop(), is('C'));
+    assertThat((char) code.pop(), is('D'));
+    assertThat((char) code.pop(), is('E'));
+    assertThat((char) code.pop(), is('F'));
+    assertThat((char) code.pop(), is('G'));
+    assertThat((char) code.pop(), is('H'));
+    assertThat(code.pop(), is( -1));
+  }
+
   class ReplaceNumbersFilter extends CodeReaderFilter {
 
     private Pattern pattern = Pattern.compile("\\d");
     private String REPLACEMENT = "-";
 
-    public int read(Reader in, char[] cbuf, int off, int len) throws IOException {
+    public int read(char[] cbuf, int off, int len) throws IOException {
       char[] tempBuffer = new char[cbuf.length];
-      int charCount = in.read(tempBuffer, off, len);
+      int charCount = getReader().read(tempBuffer, off, len);
       if (charCount != -1) {
         String filteredString = pattern.matcher(new String(tempBuffer)).replaceAll(REPLACEMENT);
         System.arraycopy(filteredString.toCharArray(), 0, cbuf, 0, tempBuffer.length);
@@ -196,14 +226,31 @@ public class CodeBufferTest {
     private Pattern pattern = Pattern.compile("[a-zA-Z]");
     private String REPLACEMENT = "*";
 
-    public int read(Reader in, char[] cbuf, int off, int len) throws IOException {
+    public int read(char[] cbuf, int off, int len) throws IOException {
       char[] tempBuffer = new char[cbuf.length];
-      int charCount = in.read(tempBuffer, off, len);
+      int charCount = getReader().read(tempBuffer, off, len);
       if (charCount != -1) {
         String filteredString = pattern.matcher(new String(tempBuffer)).replaceAll(REPLACEMENT);
         System.arraycopy(filteredString.toCharArray(), 0, cbuf, 0, tempBuffer.length);
       }
       return charCount;
+    }
+  }
+
+  @SuppressWarnings("rawtypes")
+  class WindowingChannel extends Channel {
+
+    @Override
+    public boolean consume(CodeReader code, Object output) {
+      int columnPosition = code.getColumnPosition();
+      if (code.peek() == '\n') {
+        return false;
+      }
+      if (columnPosition < 2 || columnPosition > 7) {
+        code.pop();
+        return true;
+      }
+      return false;
     }
   }
 
