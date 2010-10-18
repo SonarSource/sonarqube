@@ -459,6 +459,7 @@ class FiltersController < ApplicationController
 
   def load_masterproject()
     @masterproject=Snapshot.find(:first, :include => 'project', :conditions => ['projects.kee=? and islast=?', 'MASTER_PROJECT', true])
+    @masterproject=nil if @masterproject && !(has_role?(:user, @masterproject))
   end
 
   def load_active_filter()
