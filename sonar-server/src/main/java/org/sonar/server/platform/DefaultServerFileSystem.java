@@ -36,7 +36,7 @@ import java.util.List;
 
 /**
  * Introspect the filesystem and the classloader to get extension files at startup.
- *
+ * 
  * @since 2.2
  */
 public class DefaultServerFileSystem implements ServerFileSystem {
@@ -65,13 +65,16 @@ public class DefaultServerFileSystem implements ServerFileSystem {
   }
 
   public void start() {
-    Logs.INFO.info("Sonar home:" + homeDir.getAbsolutePath());
+    Logs.INFO.info("Sonar home: " + homeDir.getAbsolutePath());
+    if ( !homeDir.isDirectory() || !homeDir.exists()) {
+      throw new ServerStartException("Sonar home directory does not exist");
+    }
 
     if (deployDir == null) {
       throw new ServerStartException("The target directory to deploy libraries is not set");
     }
     try {
-      Logs.INFO.info("Deploy dir:" + deployDir.getAbsolutePath());
+      Logs.INFO.info("Deploy dir: " + deployDir.getAbsolutePath());
       FileUtils.forceMkdir(deployDir);
       FileUtils.cleanDirectory(deployDir);
 
@@ -180,7 +183,7 @@ public class DefaultServerFileSystem implements ServerFileSystem {
   private List<File> getFiles(File dir, String... fileSuffixes) {
     List<File> files = new ArrayList<File>();
     if (dir != null && dir.exists()) {
-      if (fileSuffixes != null && fileSuffixes.length>0) {
+      if (fileSuffixes != null && fileSuffixes.length > 0) {
         files.addAll(FileUtils.listFiles(dir, fileSuffixes, false));
       } else {
         files.addAll(FileUtils.listFiles(dir, null, false));
