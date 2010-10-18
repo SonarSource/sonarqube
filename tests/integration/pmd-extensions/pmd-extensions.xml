@@ -1,29 +1,36 @@
 <rules>
-  <rule key="MaximumMethodsCountCheck">
+  <rule>
+    <key>MaximumMethodsCountCheck</key>
     <name>Maximum Methods Count Check</name>
     <configKey>rulesets/extensions.xml/MaximumMethodsCountCheck</configKey>
-    <category name="Usability"/>
+    <isoCategory>Usability</isoCategory>
     <description>Maximum number of methods authorised</description>
-      <param key="maxAuthorisedMethodsCount" type="i">
+      <param>
+        <key>maxAuthorisedMethodsCount</key>
         <description>Maximum number of methods authorised. Default is 2.</description>
       </param>
   </rule>
-  <rule key="AvoidIfWithoutBrace">
+  <rule>
+    <key>AvoidIfWithoutBrace</key>
     <name>Avoid if without using brace</name>
     <configKey>rulesets/extensions.xml/AvoidIfWithoutBrace</configKey>
-    <category name="Usability"/>
+    <isoCategory>Usability</isoCategory>
     <description></description>
   </rule>
-  <rule key="PreventUseOfEmptyClass" priority="MAJOR">
+  <rule>
+    <key>PreventUseOfEmptyClass</key>
+    <priority>MAJOR</priority>
     <name><![CDATA[Prevent use of EmptyClass]]></name>
     <configKey><![CDATA[net.sourceforge.pmd.rules.XPathRule]]></configKey>
-    <category name="Maintainability"/>
+    <isoCategory>Maintainability</isoCategory>
     <description></description>
-    <param key="xpath" type="s">
+    <param>
+      <key>xpath</key>
       <description><![CDATA[XPath expressions.]]></description>
       <defaultValue>//VariableDeclarator[../Type/ReferenceType/ClassOrInterfaceType[@Image='EmptyClass']]</defaultValue>          
     </param>
-    <param key="message" type="s">
+    <param>
+      <key>message</key>
       <description><![CDATA[Message to display when a violation occurs.]]></description>
       <defaultValue>Prevent use of EmptyClass class</defaultValue>      
     </param>    
