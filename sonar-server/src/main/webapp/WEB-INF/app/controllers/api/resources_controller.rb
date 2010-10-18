@@ -26,6 +26,7 @@ class Api::ResourcesController < Api::ApiController
         @resource=Project.by_key(resource_id)
         @snapshot=(@resource ? @resource.last_snapshot : nil)
         raise ApiException.new(404, "Resource [#{resource_id}] not found") if @snapshot.nil?
+        raise ApiException.new(401, "Unauthorized") unless has_role?(:user, @snapshot)
       else
         @snapshot=nil
         if params['scopes'].blank? && params['qualifiers'].blank?
@@ -139,8 +140,10 @@ class Api::ResourcesController < Api::ApiController
 
       snapshots_including_resource=Snapshot.find(:all, :conditions => [snapshots_conditions.join(' AND '), snapshots_values], :include => 'project')
 
-      # ---------- APPLY SECURITY - remove unauthorized resources
-      snapshots_including_resource=select_authorized(:user, snapshots_including_resource)
+      # ---------- APPLY SECURITY - remove unauthorized resources - only if no selected resource
+      if @resource.nil?
+        snapshots_including_resource=select_authorized(:user, snapshots_including_resource)
+      end
 
       # ---------- PREPARE RESPONSE
       resource_by_sid={}

@@ -454,8 +454,7 @@ table.data th img, table.data td img {
 .data thead tr.total {
   background-color: #eee;
   font-weight: normal;
-  border-bottom: 1px solid #ddd;
-  border-top: 1px solid #ddd;
+  border: 1px solid #ddd;
 }
 .data thead tr.total th {
   font-weight: normal;

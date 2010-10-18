@@ -35,8 +35,7 @@ class ComponentsController < ApplicationController
     return access_denied unless has_role?(:user, @project)
     @snapshot = @project.last_snapshot
     @snapshots = Snapshot.find(:all, :include => 'project', :conditions => ['snapshots.parent_snapshot_id=? and snapshots.qualifier<>? and projects.qualifier<>?', @snapshot.id, Snapshot::QUALIFIER_UNIT_TEST_CLASS, Snapshot::QUALIFIER_UNIT_TEST_CLASS])
-    @snapshots = select_authorized(:user, @snapshots)
-
+    
     @columns = @dashboard_configuration.selected_columns
     metrics = @dashboard_configuration.homepage_metrics
 
