@@ -1,4 +1,4 @@
-package org.sonar.plugins.surefire;
+package org.sonar.plugins.surefire.api;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -11,6 +11,9 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.ParsingUtils;
 import org.sonar.api.utils.StaxParser;
 import org.sonar.api.utils.XmlParserException;
+import org.sonar.plugins.surefire.TestCaseDetails;
+import org.sonar.plugins.surefire.TestSuiteParser;
+import org.sonar.plugins.surefire.TestSuiteReport;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -25,7 +28,7 @@ import javax.xml.transform.TransformerException;
  */
 public abstract class AbstractSurefireParser {
 
-  protected void collect(Project project, SensorContext context, File reportsDir) {
+  public void collect(Project project, SensorContext context, File reportsDir) {
     File[] xmlFiles = getReports(reportsDir);
 
     if (xmlFiles.length == 0) {

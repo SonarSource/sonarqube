@@ -32,6 +32,7 @@ import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.plugins.surefire.api.AbstractSurefireParser;
 
 import java.io.File;
 
