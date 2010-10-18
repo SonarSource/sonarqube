@@ -111,7 +111,7 @@ class ProjectController < ApplicationController
       @project = Project.by_key(params[:id])
       if @project && is_admin?(@project)
         Snapshot.update_all(['islast=?', false], ['(root_project_id=? OR project_id=?) AND islast=?', @project.id, @project.id, true])
-        Project.delete_all(['id=? OR root_id=?', @project.id, @project.id])
+        Project.delete_all(['id=? OR root_id=? or copy_resource_id=?', @project.id, @project.id, @project.id])
       end
     end
     redirect_to_default
