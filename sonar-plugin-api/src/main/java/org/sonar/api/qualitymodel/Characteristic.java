@@ -115,6 +115,7 @@ public final class Characteristic implements Comparable<Characteristic> {
   public Characteristic setName(String s) {
     return setName(s, false);
   }
+
   public Characteristic setName(String s, boolean asKey) {
     this.name = StringUtils.trimToNull(s);
     if (asKey) {
@@ -138,7 +139,7 @@ public final class Characteristic implements Comparable<Characteristic> {
   }
 
   public boolean hasRule() {
-    return rule!=null;
+    return rule != null;
   }
 
   public Characteristic setRule(Rule r) {
@@ -205,10 +206,26 @@ public final class Characteristic implements Comparable<Characteristic> {
   }
 
   /**
-   * Children sorted by insertion order
+   * Enabled children sorted by insertion order
    */
   public List<Characteristic> getChildren() {
-    return children;
+    return getChildren(true);
+  }
+
+  /**
+   * Enabled children sorted by insertion order
+   */
+  public List<Characteristic> getChildren(boolean onlyEnabled) {
+    if (onlyEnabled) {
+      return children;
+    }
+    List<Characteristic> result = Lists.newArrayList();
+    for (Characteristic child : children) {
+      if (child.getEnabled()) {
+        result.add(child);
+      }
+    }
+    return result;
   }
 
   public Characteristic getChild(String name) {
@@ -283,7 +300,7 @@ public final class Characteristic implements Comparable<Characteristic> {
   public Double getPropertyValue(String key, Double defaultValue) {
     CharacteristicProperty property = getProperty(key);
     Double value = (property != null ? property.getValue() : null);
-    return value==null ? defaultValue : value;
+    return value == null ? defaultValue : value;
   }
 
   public List<CharacteristicProperty> getProperties() {
