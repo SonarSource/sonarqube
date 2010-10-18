@@ -27,4 +27,10 @@ public final class FindbugsConstants {
   public static final String REPOSITORY_NAME = "Findbugs";
   public static final String PLUGIN_NAME = "Findbugs";
   public static final String PLUGIN_KEY = CoreProperties.FINDBUGS_PLUGIN;
+
+  /**
+   * @since 2.4
+   */
+  public static final String GENERATE_XML_KEY = "sonar.findbugs.generateXml";
+  public static final boolean GENERATE_XML_DEFAULT_VALUE = true; // TODO should be false
 }
