@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.codehaus.sonar</groupId>
     <artifactId>sonar-update-center</artifactId>
-    <version>0.3</version>
+    <version>0.4-SNAPSHOT</version>
   </parent>
   <artifactId>sonar-update-center-server</artifactId>
   <name>Sonar :: Update Center :: Server</name>
