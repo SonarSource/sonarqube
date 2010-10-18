@@ -13,18 +13,14 @@ import java.util.Arrays;
 import java.util.Collection;
 
 /**
- * EXPERIMENTAL!
- * 
  * Encapsulates manipulations with ClassLoaders, such as creation and establishing dependencies.
  * Current implementation based on {@link ClassWorld}.
  * 
  * <h3>IMPORTANT</h3>
- * <ul>
- * <li>If we have pluginA , then all classes and resources from packages and subpackages of org.sonar.plugins.pluginA will be visible for
- * all other plugins.</li>
- * <li>If pluginA depends on lib.jar which contains org.sonar.plugins.pluginA.SomeClass , then SomeClass will be visible for all other
- * plugins.</li>
- * </ul>
+ * <p>
+ * If we have pluginA , then all classes and resources from package and subpackages of <b>org.sonar.plugins.pluginA.api</b> will be visible
+ * for all other plugins even if they located in dependent library.
+ * </p>
  * 
  * @since 2.4
  */
@@ -76,7 +72,7 @@ public class ClassLoadersCollection {
         String[] packagesToExport = new String[PREFIXES_TO_EXPORT.length];
         for (int i = 0; i < PREFIXES_TO_EXPORT.length; i++) {
           // important to have dot at the end of package name
-          packagesToExport[i] = PREFIXES_TO_EXPORT[i] + realm.getId() + ".";
+          packagesToExport[i] = PREFIXES_TO_EXPORT[i] + realm.getId() + ".api.";
         }
         export(realm, packagesToExport);
       }
