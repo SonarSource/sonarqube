@@ -90,6 +90,13 @@
   </dependencies>
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+
     <testResources>
       <testResource>
         <directory>${basedir}/src/main/resources</directory>
@@ -98,6 +105,7 @@
         <directory>${basedir}/src/test/resources</directory>
       </testResource>
     </testResources>
+
     <plugins>
       <plugin>
         <groupId>org.codehaus.sonar</groupId>

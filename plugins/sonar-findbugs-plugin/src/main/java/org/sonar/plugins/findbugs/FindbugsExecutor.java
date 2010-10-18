@@ -30,7 +30,7 @@ public class FindbugsExecutor implements BatchExtension {
   }
 
   public File execute() {
-    TimeProfiler profiler = new TimeProfiler().start("Execute Findbugs");
+    TimeProfiler profiler = new TimeProfiler().start("Execute Findbugs " + FindbugsVersion.getVersion());
     ClassLoader initialClassLoader = Thread.currentThread().getContextClassLoader();
     Thread.currentThread().setContextClassLoader(FindBugs2.class.getClassLoader());
 
@@ -60,7 +60,7 @@ public class FindbugsExecutor implements BatchExtension {
 
       engine.setDetectorFactoryCollection(DetectorFactoryCollection.instance());
       UserPreferences userPreferences = UserPreferences.createDefaultUserPreferences();
-      userPreferences.setEffort(UserPreferences.EFFORT_DEFAULT);
+      userPreferences.setEffort(configuration.getEffort());
 
       engine.addFilter(configuration.saveIncludeConfigXml().getAbsolutePath(), true);
       engine.addFilter(configuration.saveExcludeConfigXml().getAbsolutePath(), false);

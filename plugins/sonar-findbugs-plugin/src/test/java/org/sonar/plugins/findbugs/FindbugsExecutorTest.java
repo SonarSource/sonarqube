@@ -36,6 +36,7 @@ public class FindbugsExecutorTest {
     when(conf.getFindbugsProject()).thenReturn(project);
     when(conf.saveExcludeConfigXml()).thenReturn(new File("test-resources/findbugs-exclude.xml"));
     when(conf.saveIncludeConfigXml()).thenReturn(new File("test-resources/findbugs-include.xml"));
+    when(conf.getEffort()).thenReturn("default");
     return conf;
   }
 

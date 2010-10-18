@@ -1,6 +1,8 @@
 package org.sonar.plugins.findbugs;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
@@ -35,17 +37,19 @@ public class FindbugsConfiguration implements BatchExtension {
   }
 
   public edu.umd.cs.findbugs.Project getFindbugsProject() {
-    try {
-      edu.umd.cs.findbugs.Project findbugsProject = new edu.umd.cs.findbugs.Project();
-      for (File dir : project.getFileSystem().getSourceDirs()) {
-        findbugsProject.addSourceDir(dir.getAbsolutePath());
-      }
-      findbugsProject.addFile(project.getFileSystem().getBuildOutputDir().getAbsolutePath());
-      findbugsProject.setCurrentWorkingDirectory(project.getFileSystem().getBuildDir());
-      return findbugsProject;
-    } catch (Exception e) {
-      throw new SonarException(e);
+    File classesDir = project.getFileSystem().getBuildOutputDir();
+    if (classesDir == null || !classesDir.exists()) {
+      throw new SonarException("Findbugs needs sources to be compiled. "
+          + "Please build project or edit pom.xml to set the <outputDirectory> property before executing sonar.");
     }
+
+    edu.umd.cs.findbugs.Project findbugsProject = new edu.umd.cs.findbugs.Project();
+    for (File dir : project.getFileSystem().getSourceDirs()) {
+      findbugsProject.addSourceDir(dir.getAbsolutePath());
+    }
+    findbugsProject.addFile(classesDir.getAbsolutePath());
+    findbugsProject.setCurrentWorkingDirectory(project.getFileSystem().getBuildDir());
+    return findbugsProject;
   }
 
   public File saveIncludeConfigXml() throws IOException {
@@ -63,5 +67,9 @@ public class FindbugsConfiguration implements BatchExtension {
       }
     }
     return project.getFileSystem().writeToWorkingDirectory(findBugsFilter.toXml(), "findbugs-exclude.xml");
+  }
+
+  public String getEffort() {
+    return StringUtils.lowerCase(project.getConfiguration().getString(CoreProperties.FINDBUGS_EFFORT_PROPERTY, CoreProperties.FINDBUGS_EFFORT_DEFAULT_VALUE));
   }
 }
