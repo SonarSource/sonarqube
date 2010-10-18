@@ -30,6 +30,7 @@ import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.plugins.cobertura.api.AbstractCoberturaParser;
 
 import java.io.File;
 

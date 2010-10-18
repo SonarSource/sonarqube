@@ -1,4 +1,4 @@
-package org.sonar.plugins.cobertura;
+package org.sonar.plugins.cobertura.api;
 
 import static java.util.Locale.ENGLISH;
 import static org.sonar.api.utils.ParsingUtils.parseNumber;
