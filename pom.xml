@@ -190,9 +190,9 @@
         <plugin>
           <groupId>org.codehaus.sonar</groupId>
           <artifactId>sonar-packaging-maven-plugin</artifactId>
-          <version>0.1</version>
+          <version>0.3</version>
+          <extensions>true</extensions>
         </plugin>
-
       </plugins>
     </pluginManagement>
 
