@@ -72,4 +72,8 @@ public class FindbugsConfiguration implements BatchExtension {
   public String getEffort() {
     return StringUtils.lowerCase(project.getConfiguration().getString(CoreProperties.FINDBUGS_EFFORT_PROPERTY, CoreProperties.FINDBUGS_EFFORT_DEFAULT_VALUE));
   }
+
+  public long getTimeout() {
+    return project.getConfiguration().getLong(CoreProperties.FINDBUGS_TIMEOUT_PROPERTY, FindbugsConstants.FINDBUGS_TIMEOUT_DEFAULT_VALUE);
+  }
 }

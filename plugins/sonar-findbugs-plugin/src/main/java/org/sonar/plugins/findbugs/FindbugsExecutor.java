@@ -16,6 +16,9 @@ import edu.umd.cs.findbugs.config.UserPreferences;
 import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @since 2.4
@@ -70,7 +73,9 @@ public class FindbugsExecutor implements BatchExtension {
 
       engine.finishSettings();
 
-      engine.execute();
+      Executors.newSingleThreadExecutor()
+        .submit(new FindbugsTask(engine))
+        .get(configuration.getTimeout(), TimeUnit.MILLISECONDS);
 
       profiler.stop();
       return xmlReport;
@@ -82,4 +87,16 @@ public class FindbugsExecutor implements BatchExtension {
     }
   }
 
+  private class FindbugsTask implements Callable<Object> {
+    private FindBugs2 engine;
+
+    public FindbugsTask(FindBugs2 engine) {
+      this.engine = engine;
+    }
+
+    public Object call() throws Exception {
+      engine.execute();
+      return null;
+    }
+  }
 }
