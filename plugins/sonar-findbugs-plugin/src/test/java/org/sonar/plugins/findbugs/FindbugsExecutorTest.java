@@ -29,7 +29,7 @@ public class FindbugsExecutorTest {
   }
 
   @Test(expected = SonarException.class)
-  public void shouldTerminateOnTimeout() throws Exception {
+  public void shouldTerminateAfterTimeout() throws Exception {
     FindbugsConfiguration conf = mockConf();
     when(conf.getTimeout()).thenReturn(1L);
 
