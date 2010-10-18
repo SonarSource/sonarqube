@@ -48,15 +48,17 @@ class Snapshot < ActiveRecord::Base
         true, Project::SCOPE_SET, Project::QUALIFIER_PROJECT, Project::SCOPE_SET, Project::QUALIFIER_PROJECT])
   end
   
-  def self.for_timemachine_matrix(resource_id)
-    snapshots=Snapshot.find(:all, :conditions => ["snapshots.project_id=? AND events.snapshot_id=snapshots.id AND snapshots.status=?", resource_id, STATUS_PROCESSED],
+  def self.for_timemachine_matrix(resource)
+    snapshots=Snapshot.find(:all, :conditions => ["snapshots.project_id=? AND events.snapshot_id=snapshots.id AND snapshots.status=?", resource.id, STATUS_PROCESSED],
        :include => 'events',
        :order => 'snapshots.created_at ASC')
 
+    snapshots<<resource.last_snapshot if snapshots.empty?
+    
     snapshots=snapshots[-5,5] if snapshots.size>=5
 
     snapshots.insert(0, Snapshot.find(:first,
-         :conditions => ["project_id = :project_id AND status IN (:status)", {:project_id => resource_id, :status => STATUS_PROCESSED}],
+         :conditions => ["project_id = :project_id AND status IN (:status)", {:project_id => resource.id, :status => STATUS_PROCESSED}],
          :include => 'project', :order => 'snapshots.created_at ASC', :limit => 1))
     snapshots.compact.uniq
   end

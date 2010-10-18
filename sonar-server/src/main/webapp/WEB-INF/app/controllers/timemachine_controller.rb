@@ -39,7 +39,7 @@ class TimemachineController < ApplicationController
          :include => 'events',
          :conditions => {:id => @sids, :project_id => @project.id}, :order => 'snapshots.created_at ASC')
     else
-      @snapshots=Snapshot.for_timemachine_matrix(@project.id)
+      @snapshots=Snapshot.for_timemachine_matrix(@project)
       @sids = @snapshots.collect{|s| s.id}.uniq
     end
 
