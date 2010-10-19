@@ -19,13 +19,16 @@ public class FindbugsExecutorTest {
   @Test
   public void canGenerateXMLReport() throws Exception {
     FindbugsConfiguration conf = mockConf();
-    File report = new File("target/test-tmp/findbugs-report.xml");
-    when(conf.getTargetXMLReport()).thenReturn(report);
+    File reportFile = new File("target/test-tmp/findbugs-report.xml");
+    when(conf.getTargetXMLReport()).thenReturn(reportFile);
 
     new FindbugsExecutor(conf).execute();
 
-    assertThat(report.exists(), is(true));
-    assertThat(FileUtils.readFileToString(report), containsString("<BugInstance"));
+    assertThat(reportFile.exists(), is(true));
+    String report = FileUtils.readFileToString(reportFile);
+    assertThat("Report should contain bug instance", report, containsString("<BugInstance"));
+    assertThat("Report should be generated with messages", report, containsString("<Message>"));
+    assertThat(report, containsString("synthetic=\"true\""));
   }
 
   @Test(expected = SonarException.class)

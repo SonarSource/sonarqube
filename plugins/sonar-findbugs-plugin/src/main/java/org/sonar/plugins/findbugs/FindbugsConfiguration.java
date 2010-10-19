@@ -3,6 +3,7 @@ package org.sonar.plugins.findbugs;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.ProjectClasspath;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
@@ -22,11 +23,13 @@ public class FindbugsConfiguration implements BatchExtension {
   private Project project;
   private RulesProfile profile;
   private FindbugsProfileExporter exporter;
+  private ProjectClasspath projectClasspath;
 
-  public FindbugsConfiguration(Project project, RulesProfile profile, FindbugsProfileExporter exporter) {
+  public FindbugsConfiguration(Project project, RulesProfile profile, FindbugsProfileExporter exporter, ProjectClasspath classpath) {
     this.project = project;
     this.profile = profile;
     this.exporter = exporter;
+    this.projectClasspath = classpath;
   }
 
   public File getTargetXMLReport() {
@@ -48,6 +51,11 @@ public class FindbugsConfiguration implements BatchExtension {
       findbugsProject.addSourceDir(dir.getAbsolutePath());
     }
     findbugsProject.addFile(classesDir.getAbsolutePath());
+    for (File file : projectClasspath.getElements()) {
+      if ( !file.equals(classesDir)) {
+        findbugsProject.addAuxClasspathEntry(file.getAbsolutePath());
+      }
+    }
     findbugsProject.setCurrentWorkingDirectory(project.getFileSystem().getBuildDir());
     return findbugsProject;
   }
