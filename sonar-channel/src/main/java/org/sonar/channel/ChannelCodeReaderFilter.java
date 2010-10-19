@@ -27,17 +27,26 @@ import java.io.Reader;
  * declared for the CodeReader.
  * 
  */
-public final class ChannelCodeReaderFilter<OUTPUT> extends CodeReaderFilter {
+public final class ChannelCodeReaderFilter<OUTPUT> extends CodeReaderFilter<OUTPUT> {
 
   @SuppressWarnings("unchecked")
   private Channel<OUTPUT>[] channels = new Channel[0];
 
   private CodeReader internalCodeReader;
 
-  private OUTPUT output;
+  /**
+   * Creates a CodeReaderFilter that will use the provided Channels to filter the character stream it gets from its reader. 
+   * 
+   * @param channels
+   *          the different channels
+   */
+  public ChannelCodeReaderFilter(Channel<OUTPUT>... channels) {
+    super();
+    this.channels = channels;
+  }
 
   /**
-   * Creates a CodeReaderFilter that will use the provided Channels to filter the character stream it gets from its reader. And optionaly,
+   * Creates a CodeReaderFilter that will use the provided Channels to filter the character stream it gets from its reader. And optionally,
    * it can push token to the provided output object.
    * 
    * @param output
@@ -46,9 +55,8 @@ public final class ChannelCodeReaderFilter<OUTPUT> extends CodeReaderFilter {
    *          the different channels
    */
   public ChannelCodeReaderFilter(OUTPUT output, Channel<OUTPUT>... channels) {
-    super();
+    super(output);
     this.channels = channels;
-    this.output = output;
   }
 
   /**
@@ -72,7 +80,7 @@ public final class ChannelCodeReaderFilter<OUTPUT> extends CodeReaderFilter {
       }
       boolean consumed = false;
       for (Channel<OUTPUT> channel : channels) {
-        if (channel.consume(internalCodeReader, output)) {
+        if (channel.consume(internalCodeReader, getOutput())) {
           consumed = true;
           break;
         }

@@ -51,28 +51,28 @@ public class CodeBuffer implements CharSequence {
   private boolean recordingMode = false;
   private StringBuilder recordedCharacters = new StringBuilder();
 
-  public CodeBuffer(Reader code, CodeReaderFilter... codeReaderFilters) {
+  public CodeBuffer(Reader code, CodeReaderFilter<?>... codeReaderFilters) {
     this(code, DEFAULT_BUFFER_CAPACITY, codeReaderFilters);
   }
 
-  private CodeBuffer(Reader initialCodeReader, int bufferCapacity, CodeReaderFilter... codeReaderFilters) {
+  private CodeBuffer(Reader initialCodeReader, int bufferCapacity, CodeReaderFilter<?>... codeReaderFilters) {
     lastChar = -1;
     cursor = new Cursor();
     this.bufferCapacity = bufferCapacity;
     buffer = new char[bufferCapacity];
     Reader reader = initialCodeReader;
-    for (CodeReaderFilter codeReaderFilter : codeReaderFilters) {
+    for (CodeReaderFilter<?> codeReaderFilter : codeReaderFilters) {
       reader = new Filter(reader, codeReaderFilter);
     }
     this.code = reader;
     fillBuffer();
   }
 
-  public CodeBuffer(String code, CodeReaderFilter... codeReaderFilters) {
+  public CodeBuffer(String code, CodeReaderFilter<?>... codeReaderFilters) {
     this(new StringReader(code), codeReaderFilters);
   }
 
-  protected CodeBuffer(String code, int bufferCapacity, CodeReaderFilter... codeReaderFilters) {
+  protected CodeBuffer(String code, int bufferCapacity, CodeReaderFilter<?>... codeReaderFilters) {
     this(new StringReader(code), bufferCapacity, codeReaderFilters);
   }
 
@@ -258,9 +258,9 @@ public class CodeBuffer implements CharSequence {
    */
   final class Filter extends FilterReader {
 
-    private CodeReaderFilter codeReaderFilter;
+    private CodeReaderFilter<?> codeReaderFilter;
 
-    public Filter(Reader in, CodeReaderFilter codeReaderFilter) {
+    public Filter(Reader in, CodeReaderFilter<?> codeReaderFilter) {
       super(in);
       this.codeReaderFilter = codeReaderFilter;
       this.codeReaderFilter.setReader(in);

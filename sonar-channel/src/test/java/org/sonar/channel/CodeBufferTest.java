@@ -178,7 +178,7 @@ public class CodeBufferTest {
   public void testChannelCodeReaderFilter() throws Exception {
     // create a windowing channel that drops the 2 first characters, keeps 6 characters and drops the rest of the line
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    CodeBuffer code = new CodeBuffer("0123456789\nABCDEFGHIJ", new ChannelCodeReaderFilter(null, new WindowingChannel()));
+    CodeBuffer code = new CodeBuffer("0123456789\nABCDEFGHIJ", new ChannelCodeReaderFilter(new Object(), new WindowingChannel()));
     // test #charAt
     assertEquals('2', code.charAt(0));
     assertEquals('7', code.charAt(5));
@@ -205,7 +205,7 @@ public class CodeBufferTest {
     assertThat(code.pop(), is( -1));
   }
 
-  class ReplaceNumbersFilter extends CodeReaderFilter {
+  class ReplaceNumbersFilter extends CodeReaderFilter<Object> {
 
     private Pattern pattern = Pattern.compile("\\d");
     private String REPLACEMENT = "-";
@@ -221,7 +221,7 @@ public class CodeBufferTest {
     }
   }
 
-  class ReplaceCharFilter extends CodeReaderFilter {
+  class ReplaceCharFilter extends CodeReaderFilter<Object> {
 
     private Pattern pattern = Pattern.compile("[a-zA-Z]");
     private String REPLACEMENT = "*";
