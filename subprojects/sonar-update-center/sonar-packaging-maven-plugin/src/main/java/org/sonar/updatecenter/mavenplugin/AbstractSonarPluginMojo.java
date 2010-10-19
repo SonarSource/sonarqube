@@ -179,7 +179,7 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
     if (StringUtils.endsWith(pluginKey, "-sonar-plugin")) {
       return StringUtils.removeEnd(pluginKey, "-sonar-plugin");
     }
-    return pluginKey;
+    return StringUtils.remove(pluginKey, "-");
   }
 
   protected final String getPluginClass() {
