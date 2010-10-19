@@ -3,7 +3,7 @@
     <key>org.sonar.it.checkstyle.MethodsCountCheck</key>
     <name>Methods Count Check</name>
     <configKey>Checker/TreeWalker/org.sonar.it.checkstyle.MethodsCountCheck</configKey>
-    <isoCategory>Usability</isoCategory>
+    <category name="Usability"/>
     <description>Count methods.</description>
     <param>
       <key>minMethodsCount</key>

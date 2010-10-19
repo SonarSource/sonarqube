@@ -3,7 +3,7 @@
     <key>MaximumMethodsCountCheck</key>
     <name>Maximum Methods Count Check</name>
     <configKey>rulesets/extensions.xml/MaximumMethodsCountCheck</configKey>
-    <isoCategory>Usability</isoCategory>
+    <category name="Usability"/>
     <description>Maximum number of methods authorised</description>
       <param>
         <key>maxAuthorisedMethodsCount</key>
@@ -14,7 +14,7 @@
     <key>AvoidIfWithoutBrace</key>
     <name>Avoid if without using brace</name>
     <configKey>rulesets/extensions.xml/AvoidIfWithoutBrace</configKey>
-    <isoCategory>Usability</isoCategory>
+    <category name="Usability"/>
     <description></description>
   </rule>
   <rule>
@@ -22,7 +22,7 @@
     <priority>MAJOR</priority>
     <name><![CDATA[Prevent use of EmptyClass]]></name>
     <configKey><![CDATA[net.sourceforge.pmd.rules.XPathRule]]></configKey>
-    <isoCategory>Maintainability</isoCategory>
+    <category name="Maintainability"/>
     <description></description>
     <param>
       <key>xpath</key>
