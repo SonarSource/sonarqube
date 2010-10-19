@@ -30,6 +30,7 @@ class Metric < ActiveRecord::Base
   VALUE_TYPE_MILLISEC = 'MILLISEC'
   VALUE_TYPE_LEVEL = 'LEVEL'
   VALUE_TYPE_DISTRIB = 'DISTRIB'
+  VALUE_TYPE_RATING = 'RATING'
 
   TYPE_LEVEL_OK = 'OK'
   TYPE_LEVEL_WARN = 'WARN'
@@ -78,7 +79,7 @@ class Metric < ActiveRecord::Base
   end
 
   def numeric?
-    val_type==VALUE_TYPE_INT || val_type==VALUE_TYPE_FLOAT || val_type==VALUE_TYPE_PERCENT || val_type==VALUE_TYPE_MILLISEC
+    val_type==VALUE_TYPE_INT || val_type==VALUE_TYPE_FLOAT || val_type==VALUE_TYPE_PERCENT || val_type==VALUE_TYPE_MILLISEC || val_type==VALUE_TYPE_RATING
   end
 
   def data?

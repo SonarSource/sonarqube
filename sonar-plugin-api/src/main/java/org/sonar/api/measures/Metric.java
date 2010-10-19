@@ -47,7 +47,7 @@ public class Metric extends BaseIdentifiable implements ServerExtension, BatchEx
   public final static int DIRECTION_NONE = 0;
 
   public enum ValueType {
-    INT, FLOAT, PERCENT, BOOL, STRING, MILLISEC, DATA, LEVEL, DISTRIB
+    INT, FLOAT, PERCENT, BOOL, STRING, MILLISEC, DATA, LEVEL, DISTRIB, RATING
   }
 
   public enum Level {
@@ -441,7 +441,8 @@ public class Metric extends BaseIdentifiable implements ServerExtension, BatchEx
         || ValueType.FLOAT.equals(type)
         || ValueType.PERCENT.equals(type)
         || ValueType.BOOL.equals(type)
-        || ValueType.MILLISEC.equals(type);
+        || ValueType.MILLISEC.equals(type)
+        || ValueType.RATING.equals(type);
   }
 
   /**

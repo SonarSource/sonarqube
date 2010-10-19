@@ -129,7 +129,7 @@ module ApplicationHelper
         end
         html="<a href='#{url}' style='#{alert_link ? "cursor : default" : ""}' class='#{link_class}' rel='#{link_rel}' title='#{link_rel}'>#{html}</a>"
       end
-      no_tendency_img=true if (measure.metric.val_type==Metric::VALUE_TYPE_LEVEL || measure.metric.val_type==Metric::VALUE_TYPE_BOOLEAN)
+      no_tendency_img=true if (measure.metric.val_type==Metric::VALUE_TYPE_LEVEL || measure.metric.val_type==Metric::VALUE_TYPE_BOOLEAN || measure.metric.val_type==Metric::VALUE_TYPE_RATING)
       html="#{html} #{tendency_icon(measure, small, no_tendency_img)} #{suffix}"
     end
     html

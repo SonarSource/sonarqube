@@ -311,7 +311,7 @@ public class DefaultSonarIndex extends SonarIndex {
         ResourceUtils.isEntity(resource) &&
             metric.isOptimizedBestValue() == Boolean.TRUE &&
             metric.getBestValue() != null &&
-            metric.getBestValue().equals(measure.getValue()) &&
+            Double.compare(metric.getBestValue(), measure.getValue())==0 &&
             !measure.hasOptionalData());
   }
 

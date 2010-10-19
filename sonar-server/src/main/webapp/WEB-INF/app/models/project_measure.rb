@@ -94,6 +94,8 @@ class ProjectMeasure < ActiveRecord::Base
       text_value
     when Metric::VALUE_TYPE_STRING
       text_value
+    when Metric::VALUE_TYPE_RATING
+      text_value || value.to_i.to_s
     else
       value().to_s
     end
