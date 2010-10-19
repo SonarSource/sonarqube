@@ -4,6 +4,7 @@
 org.codehaus.sonar-plugins:sonar-artifact-size-plugin
 org.codehaus.sonar-plugins:sonar-build-breaker-plugin
 org.codehaus.sonar-plugins:sonar-build-stability-plugin
+org.codehaus.sonar-plugins:sonar-c-rules-plugin
 org.codehaus.sonar-plugins:sonar-clirr-plugin
 org.codehaus.sonar-plugins:sonar-crowd-plugin
 org.codehaus.sonar-plugins:sonar-emma-plugin
