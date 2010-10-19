@@ -6,7 +6,7 @@
     <description>
       <![CDATA[Checks that local, non-final variable names conform to a format specified by the format property.]]>
     </description>
-    <isoCategory>Efficiency</isoCategory>
+    <category name="Efficiency" />
     <configKey>Checker/TreeWalker/LocalVariableName</configKey>
     <priority>BLOCKER</priority>
     <cardinality>MULTIPLE</cardinality>
@@ -35,6 +35,6 @@
     <description>
       <![CDATA[Checks for magic numbers.]]>
     </description>
-    <isoCategory>Maintainability</isoCategory>
+    <category name="Maintainability" />
   </rule>
 </rules>

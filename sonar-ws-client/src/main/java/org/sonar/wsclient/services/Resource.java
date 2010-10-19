@@ -20,6 +20,7 @@
 package org.sonar.wsclient.services;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class Resource extends Model {
@@ -54,6 +55,7 @@ public class Resource extends Model {
   private String version;
   private Integer copy;
   private String description;
+  private Date date;
   private List<Measure> measures;
 
   public Integer getId() {
@@ -150,6 +152,15 @@ public class Resource extends Model {
 
   public Resource setCopy(Integer copy) {
     this.copy = copy;
+    return this;
+  }
+
+  public Date getDate() {
+    return date;
+  }
+
+  public Resource setDate(Date d) {
+    this.date = d;
     return this;
   }
 

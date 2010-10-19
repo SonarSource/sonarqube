@@ -5,7 +5,7 @@
     "name":"Sonar",
     "scope":"PRJ",
     "qualifier":"TRK",
-    "date":"2010-01-01T22:27:25+00:00",
+    "date":"2010-01-01T22:27:25+0000",
     "lang":"java",
     "version":"1.13-SNAPSHOT",
     "description":"Embrace Quality",

@@ -36,7 +36,9 @@ public final class JsonUtils {
 
   public interface JSONHandler {
     void onResponse(JavaScriptObject obj);
+
     void onTimeout();
+
     void onError(int errorCode, String errorMessage);
   }
 
@@ -55,35 +57,35 @@ public final class JsonUtils {
   }
 
   public static native void makeJSONRequest(int requestId, String url, JSONHandler handler) /*-{
-      var callback = "callback" + requestId;
+    var callback = "callback" + requestId;
 
-      // create SCRIPT tag, and set SRC attribute equal to JSON feed URL + callback function name
-      var script = document.createElement("script");
-      script.setAttribute("src", url+callback);
-      script.setAttribute("type", "text/javascript");
+    // create SCRIPT tag, and set SRC attribute equal to JSON feed URL + callback function name
+    var script = document.createElement("script");
+    script.setAttribute("src", url + callback);
+    script.setAttribute("type", "text/javascript");
 
-      window[callback] = function(jsonObj) {
-        @org.sonar.gwt.JsonUtils::dispatchJSON(Lcom/google/gwt/core/client/JavaScriptObject;Lorg/sonar/gwt/JsonUtils$JSONHandler;)(jsonObj, handler);
-        window[callback + "done"] = true;
+    window[callback] = function(jsonObj) {
+      @org.sonar.gwt.JsonUtils::dispatchJSON(Lcom/google/gwt/core/client/JavaScriptObject;Lorg/sonar/gwt/JsonUtils$JSONHandler;)(jsonObj, handler);
+      window[callback + "done"] = true;
+    }
+
+    setTimeout(function() {
+      if (!window[callback + "done"]) {
+        handler.@org.sonar.gwt.JsonUtils.JSONHandler::onTimeout();
       }
 
-      setTimeout(function() {
-        if (!window[callback + "done"]) {
-          handler.@org.sonar.gwt.JsonUtils.JSONHandler::onTimeout();
-        }
+      // cleanup
+      document.body.removeChild(script);
+      if (window[callback]) {
+        delete window[callback];
+      }
+      if (window[callback + "done"]) {
+        delete window[callback + "done"];
+      }
+    }, 120000);
 
-        // cleanup
-        document.body.removeChild(script);
-        if (window[callback]) {
-          delete window[callback];
-        }
-        if (window[callback + "done"]) {
-          delete window[callback + "done"];
-        }
-      }, 120000);
-
-      document.body.appendChild(script);
-    }-*/;
+    document.body.appendChild(script);
+  }-*/;
 
   public static void dispatchJSON(JavaScriptObject jsonObj, JSONHandler handler) {
     JSONObject obj = new JSONObject(jsonObj);
@@ -111,13 +113,16 @@ public final class JsonUtils {
   }
 
   public static Date getDate(JSONObject json, String field) {
-    DateTimeFormat frmt = DateTimeFormat.getFormat("yyyy-MM-dd'T'HH:mm:ssZ");
     String date = getString(json, field);
-    if (date!=null && date.endsWith("Z") && date.length()>2) {
-      // see SONAR-1182
-      date = date.substring(0, date.length()-2) + "+00:00";
+    if (date != null) {
+      DateTimeFormat frmt = DateTimeFormat.getFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+      if (date.endsWith("Z") && date.length() > 2) {
+        // see SONAR-1182
+        date = date.substring(0, date.length() - 2) + "+0000";
+      }
+      return frmt.parse(date);
     }
-    return frmt.parse(date);
+    return null;
   }
 
   public static Boolean getBoolean(JSONObject json, String field) {

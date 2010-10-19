@@ -100,6 +100,7 @@ public class ResourceUnmarshallerTest {
     assertThat(resource.getQualifier(), is("TRK"));
     assertThat(resource.getLanguage(), is("java"));
     assertThat(resource.getDescription(), is("Embrace Quality"));
+    assertThat(resource.getDate(), not(nullValue()));
   }
 
   private static String loadFile(String path) throws IOException {

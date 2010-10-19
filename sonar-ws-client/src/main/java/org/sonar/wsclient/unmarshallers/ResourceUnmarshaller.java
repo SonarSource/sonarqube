@@ -46,6 +46,7 @@ public class ResourceUnmarshaller extends AbstractUnmarshaller<Resource> {
         .setQualifier(JsonUtils.getString(json, "qualifier"))
         .setLanguage(JsonUtils.getString(json, "lang"))
         .setDescription(JsonUtils.getString(json, "description"))
+        .setDate(JsonUtils.getDateTime(json, "date"))
         .setVersion(JsonUtils.getString(json, "version"));
   }
 
