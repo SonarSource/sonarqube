@@ -1,6 +1,7 @@
 package org.sonar.plugins.findbugs;
 
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.profiles.RulesProfile;
@@ -10,6 +11,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -36,7 +38,11 @@ public class FindbugsNativeSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
-    FindbugsXmlReportParser reportParser = new FindbugsXmlReportParser(executor.execute());
+    File report = getFindbugsReportFile(project);
+    if (report == null) {
+      report = executor.execute();
+    }
+    FindbugsXmlReportParser reportParser = new FindbugsXmlReportParser(report);
     List<FindbugsXmlReportParser.Violation> fbViolations = reportParser.getViolations();
     for (FindbugsXmlReportParser.Violation fbViolation : fbViolations) {
       Rule rule = ruleFinder.findByKey(FindbugsConstants.REPOSITORY_KEY, fbViolation.getType());
@@ -46,6 +52,13 @@ public class FindbugsNativeSensor implements Sensor {
         context.saveViolation(violation);
       }
     }
+  }
+
+  protected final File getFindbugsReportFile(Project project) {
+    if (project.getConfiguration().getString(CoreProperties.FINDBUGS_REPORT_PATH) != null) {
+      return new File(project.getConfiguration().getString(CoreProperties.FINDBUGS_REPORT_PATH));
+    }
+    return null;
   }
 
   @Override
