@@ -17,6 +17,11 @@
     <findbugs.version>1.3.9</findbugs.version>
   </properties>
   
+  <!-- IMPORTANT!
+  xalan should be excluded everywhere, because contains Apache BCEL,
+  but FindBugs requires its own version of BCEL - see http://findbugs.sourceforge.net/FAQ.html#q2  
+  -->
+  
   <dependencyManagement>
     <!-- Change versions for dependencies provided by sonar-plugin-api -->
     <dependencies>
@@ -25,11 +30,6 @@
         <artifactId>xercesImpl</artifactId>
         <version>2.6.2</version>
       </dependency>
-      <!--dependency>
-        <groupId>xalan</groupId>
-        <artifactId>xalan</artifactId>
-        <version>2.6.0</version>
-      </dependency-->
     </dependencies>
   </dependencyManagement>
   
