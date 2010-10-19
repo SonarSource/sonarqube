@@ -50,7 +50,7 @@ public final class PluginManifest {
   public static final String DEPENDENCIES = "Plugin-Dependencies";
   public static final String HOMEPAGE = "Plugin-Homepage";
   public static final String TERMS_CONDITIONS_URL = "Plugin-TermsConditionsUrl";
-  public static final String BUILD_DATE = "Build-Date";
+  public static final String BUILD_DATE = "Plugin-BuildDate";
   public static final String ISSUE_TRACKER_URL = "Plugin-IssueTrackerUrl";
 
   /**
