@@ -19,46 +19,34 @@
  */
 package org.sonar.plugins.cobertura;
 
-import org.apache.maven.project.MavenProject;
-import org.junit.Test;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.resources.*;
-import org.sonar.api.test.IsMeasure;
-import org.sonar.api.test.IsResource;
-import org.sonar.api.test.MavenTestUtils;
-
-import java.io.File;
-import java.net.URISyntaxException;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import org.junit.Test;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.JavaPackage;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.test.IsMeasure;
+import org.sonar.api.test.IsResource;
+
+import java.io.File;
+import java.net.URISyntaxException;
 
 public class CoberturaSensorTest {
-
-  @Test
-  public void shouldGetReportPathFromProperty() throws URISyntaxException {
-    DefaultProjectFileSystem fileSystem = mock(DefaultProjectFileSystem.class);
-    when(fileSystem.resolvePath("foo")).thenReturn(getCoverageReport());
-
-    Project project = mock(Project.class);
-    when(project.getFileSystem()).thenReturn(fileSystem);
-    when(project.getProperty(CoreProperties.COBERTURA_REPORT_PATH_PROPERTY)).thenReturn("foo");
-
-    File report = new CoberturaSensor(null).getReport(project);
-    verify(fileSystem).resolvePath("foo");
-    assertNotNull(report);
-  }
 
   @Test
   public void doNotExecuteMavenPluginIfReuseReports() {
@@ -81,21 +69,6 @@ public class CoberturaSensorTest {
     assertThat(new CoberturaSensor(new CoberturaMavenPluginHandler()).getMavenPluginHandler(project), not(nullValue()));
     assertThat(new CoberturaSensor(new CoberturaMavenPluginHandler()).getMavenPluginHandler(project).getArtifactId(),
         is("cobertura-maven-plugin"));
-  }
-
-  @Test
-  public void shouldGetReportPathFromPom() {
-    MavenProject pom = MavenTestUtils.loadPom("/org/sonar/plugins/cobertura/CoberturaSensorTest/shouldGetReportPathFromPom/pom.xml");
-
-    DefaultProjectFileSystem fileSystem = mock(DefaultProjectFileSystem.class);
-
-    Project project = mock(Project.class);
-    when(project.getPom()).thenReturn(pom);
-    when(project.getFileSystem()).thenReturn(fileSystem);
-
-    new CoberturaSensor(null).getReport(project);
-
-    verify(fileSystem).resolvePath("overridden/dir");
   }
 
   @Test
@@ -261,10 +234,10 @@ public class CoberturaSensorTest {
 
     verify(context)
         .saveMeasure(
-            eq(new JavaFile("org.sonar.samples.InnerClass")),
-            argThat(new IsMeasure(
-                CoreMetrics.COVERAGE_LINE_HITS_DATA,
-                "22=2;25=0;26=0;29=0;30=0;31=0;34=1;35=1;36=1;37=0;39=1;41=1;44=2;46=1;47=1;50=0;51=0;52=0;53=0;55=0;57=0;60=0;61=0;64=1;71=1;73=1;76=0;77=0;80=0;81=0;85=0;87=0;91=0;93=0;96=1")));
+        eq(new JavaFile("org.sonar.samples.InnerClass")),
+        argThat(new IsMeasure(
+        CoreMetrics.COVERAGE_LINE_HITS_DATA,
+        "22=2;25=0;26=0;29=0;30=0;31=0;34=1;35=1;36=1;37=0;39=1;41=1;44=2;46=1;47=1;50=0;51=0;52=0;53=0;55=0;57=0;60=0;61=0;64=1;71=1;73=1;76=0;77=0;80=0;81=0;85=0;87=0;91=0;93=0;96=1")));
   }
 
   @Test
@@ -275,7 +248,7 @@ public class CoberturaSensorTest {
     verify(context).saveMeasure(
         eq(new JavaFile("org.apache.commons.chain.impl.CatalogBase")),
         argThat(new IsMeasure(CoreMetrics.COVERAGE_LINE_HITS_DATA,
-            "111=18;121=0;122=0;125=0;126=0;127=0;128=0;131=0;133=0;48=117;56=234;66=0;67=0;68=0;84=999;86=999;98=318")));
+        "111=18;121=0;122=0;125=0;126=0;127=0;128=0;131=0;133=0;48=117;56=234;66=0;67=0;68=0;84=999;86=999;98=318")));
   }
 
   @Test

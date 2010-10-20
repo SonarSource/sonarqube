@@ -20,17 +20,16 @@
 package org.sonar.plugins.cobertura;
 
 import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AbstractCoverageExtension;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
-import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.plugins.cobertura.api.AbstractCoberturaParser;
+import org.sonar.plugins.cobertura.api.CoberturaUtils;
 
 import java.io.File;
 
@@ -48,7 +47,7 @@ public class CoberturaSensor extends AbstractCoverageExtension implements Sensor
   }
 
   public void analyse(Project project, SensorContext context) {
-    File report = getReport(project);
+    File report = CoberturaUtils.getReport(project);
     if (report != null) {
       parseReport(report, context);
     }
@@ -59,46 +58,6 @@ public class CoberturaSensor extends AbstractCoverageExtension implements Sensor
       return handler;
     }
     return null;
-  }
-
-  protected File getReport(Project project) {
-    File report = getReportFromProperty(project);
-    if (report == null) {
-      report = getReportFromPluginConfiguration(project);
-    }
-    if (report == null) {
-      report = getReportFromDefaultPath(project);
-    }
-
-    if (report == null || !report.exists() || !report.isFile()) {
-      LoggerFactory.getLogger(CoberturaSensor.class).warn("Cobertura report not found at {}", report);
-      report = null;
-    }
-    return report;
-  }
-
-  private File getReportFromProperty(Project project) {
-    String path = (String) project.getProperty(CoreProperties.COBERTURA_REPORT_PATH_PROPERTY);
-    if (path != null) {
-      return project.getFileSystem().resolvePath(path);
-    }
-    return null;
-  }
-
-  private File getReportFromPluginConfiguration(Project project) {
-    MavenPlugin mavenPlugin = MavenPlugin.getPlugin(project.getPom(), CoberturaMavenPluginHandler.GROUP_ID,
-        CoberturaMavenPluginHandler.ARTIFACT_ID);
-    if (mavenPlugin != null) {
-      String path = mavenPlugin.getParameter("outputDirectory");
-      if (path != null) {
-        return new File(project.getFileSystem().resolvePath(path), "coverage.xml");
-      }
-    }
-    return null;
-  }
-
-  private File getReportFromDefaultPath(Project project) {
-    return new File(project.getFileSystem().getReportOutputDir(), "cobertura/coverage.xml");
   }
 
   protected void parseReport(File xmlFile, final SensorContext context) {
