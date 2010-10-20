@@ -386,7 +386,7 @@ mmmm
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-update-center-common</artifactId>
-        <version>0.3-SNAPSHOT</version>
+        <version>0.3</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
