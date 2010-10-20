@@ -9,7 +9,12 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 
-import edu.umd.cs.findbugs.*;
+import edu.umd.cs.findbugs.Detector;
+import edu.umd.cs.findbugs.DetectorFactoryCollection;
+import edu.umd.cs.findbugs.FindBugs;
+import edu.umd.cs.findbugs.FindBugs2;
+import edu.umd.cs.findbugs.Project;
+import edu.umd.cs.findbugs.XMLBugReporter;
 import edu.umd.cs.findbugs.config.UserPreferences;
 
 import java.io.File;
@@ -63,8 +68,8 @@ public class FindbugsExecutor implements BatchExtension {
       userPreferences.setEffort(configuration.getEffort());
       engine.setUserPreferences(userPreferences);
 
-      engine.addFilter(configuration.saveIncludeConfigXml().getAbsolutePath(), true);
-      engine.addFilter(configuration.saveExcludeConfigXml().getAbsolutePath(), false);
+      engine.addFilter(configuration.saveIncludeConfigXml(), true);
+      engine.addFilter(configuration.saveExcludeConfigXml(), false);
 
       engine.setDetectorFactoryCollection(DetectorFactoryCollection.instance());
       engine.setAnalysisFeatureSettings(FindBugs.DEFAULT_EFFORT);
@@ -72,8 +77,8 @@ public class FindbugsExecutor implements BatchExtension {
       engine.finishSettings();
 
       Executors.newSingleThreadExecutor()
-        .submit(new FindbugsTask(engine))
-        .get(configuration.getTimeout(), TimeUnit.MILLISECONDS);
+          .submit(new FindbugsTask(engine))
+          .get(configuration.getTimeout(), TimeUnit.MILLISECONDS);
 
       profiler.stop();
       return xmlReport;

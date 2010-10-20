@@ -4,8 +4,11 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ProjectClasspath;
+import org.sonar.api.batch.maven.MavenPlugin;
+import org.sonar.api.batch.maven.MavenUtils;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.findbugs.xml.ClassFilter;
 import org.sonar.plugins.findbugs.xml.FindBugsFilter;
@@ -40,6 +43,10 @@ public class FindbugsConfiguration implements BatchExtension {
   }
 
   public edu.umd.cs.findbugs.Project getFindbugsProject() {
+    if (project.getReuseExistingRulesConfig()) {
+      Logs.INFO.warn("Reusing existing Findbugs configuration is deprecated as it's unstable and can not provide meaningful results. This feature will be removed soon.");
+    }
+
     File classesDir = project.getFileSystem().getBuildOutputDir();
     if (classesDir == null || !classesDir.exists()) {
       throw new SonarException("Findbugs needs sources to be compiled. "
@@ -60,13 +67,23 @@ public class FindbugsConfiguration implements BatchExtension {
     return findbugsProject;
   }
 
-  public File saveIncludeConfigXml() throws IOException {
-    StringWriter conf = new StringWriter();
-    exporter.exportProfile(profile, conf);
-    return project.getFileSystem().writeToWorkingDirectory(conf.toString(), "findbugs-include.xml");
+  private MavenPlugin getFindbugsMavenPlugin() {
+    return MavenPlugin.getPlugin(project.getPom(), MavenUtils.GROUP_ID_CODEHAUS_MOJO, "findbugs-maven-plugin");
   }
 
-  public File saveExcludeConfigXml() throws IOException {
+  public String saveIncludeConfigXml() throws IOException {
+    if (project.getReuseExistingRulesConfig()) {
+      return getFindbugsMavenPlugin().getParameter("includeFilterFile");
+    }
+    StringWriter conf = new StringWriter();
+    exporter.exportProfile(profile, conf);
+    return project.getFileSystem().writeToWorkingDirectory(conf.toString(), "findbugs-include.xml").getAbsolutePath();
+  }
+
+  public String saveExcludeConfigXml() throws IOException {
+    if (project.getReuseExistingRulesConfig()) {
+      return getFindbugsMavenPlugin().getParameter("excludeFilterFile");
+    }
     FindBugsFilter findBugsFilter = new FindBugsFilter();
     if (project.getExclusionPatterns() != null) {
       for (String exclusion : project.getExclusionPatterns()) {
@@ -74,7 +91,7 @@ public class FindbugsConfiguration implements BatchExtension {
         findBugsFilter.addMatch(new Match(classFilter));
       }
     }
-    return project.getFileSystem().writeToWorkingDirectory(findBugsFilter.toXml(), "findbugs-exclude.xml");
+    return project.getFileSystem().writeToWorkingDirectory(findBugsFilter.toXml(), "findbugs-exclude.xml").getAbsolutePath();
   }
 
   public String getEffort() {

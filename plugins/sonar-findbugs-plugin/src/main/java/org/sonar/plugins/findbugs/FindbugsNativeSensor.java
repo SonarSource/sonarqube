@@ -33,7 +33,7 @@ public class FindbugsNativeSensor implements Sensor {
 
   public boolean shouldExecuteOnProject(Project project) {
     return project.getFileSystem().hasJavaSourceFiles()
-        && !profile.getActiveRulesByRepository(FindbugsConstants.REPOSITORY_KEY).isEmpty()
+        && ( !profile.getActiveRulesByRepository(FindbugsConstants.REPOSITORY_KEY).isEmpty() || project.getReuseExistingRulesConfig())
         && project.getPom() != null && !StringUtils.equalsIgnoreCase(project.getPom().getPackaging(), "ear");
   }
 

@@ -1,5 +1,11 @@
 package org.sonar.plugins.findbugs;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.internal.matchers.StringContains.containsString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.sonar.api.utils.SonarException;
@@ -7,12 +13,6 @@ import org.sonar.api.utils.SonarException;
 import edu.umd.cs.findbugs.Project;
 
 import java.io.File;
-
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.StringContains.containsString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class FindbugsExecutorTest {
 
@@ -46,8 +46,8 @@ public class FindbugsExecutorTest {
     project.addSourceDir(new File("test-resources/src").getCanonicalPath());
     project.setCurrentWorkingDirectory(new File("test-resources"));
     when(conf.getFindbugsProject()).thenReturn(project);
-    when(conf.saveExcludeConfigXml()).thenReturn(new File("test-resources/findbugs-exclude.xml"));
-    when(conf.saveIncludeConfigXml()).thenReturn(new File("test-resources/findbugs-include.xml"));
+    when(conf.saveExcludeConfigXml()).thenReturn(new File("test-resources/findbugs-exclude.xml").getAbsolutePath());
+    when(conf.saveIncludeConfigXml()).thenReturn(new File("test-resources/findbugs-include.xml").getAbsolutePath());
     when(conf.getEffort()).thenReturn("default");
     when(conf.getTimeout()).thenReturn(FindbugsConstants.FINDBUGS_TIMEOUT_DEFAULT_VALUE);
     return conf;
