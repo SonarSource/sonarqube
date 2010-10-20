@@ -53,6 +53,13 @@
       <version>1.2</version>
     </dependency>
 
+    <!-- Required for compatibility with Maven 2.0 -->
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-utils</artifactId>
+      <version>2.0.5</version>
+    </dependency>
+
     <!-- unit tests -->
     <dependency>
       <groupId>junit</groupId>
