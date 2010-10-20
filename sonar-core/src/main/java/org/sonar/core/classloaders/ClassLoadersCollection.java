@@ -83,7 +83,7 @@ public class ClassLoadersCollection {
    * Exports specified packages from given ClassRealm to all others.
    */
   private void export(ClassRealm realm, String... packages) {
-    Logs.INFO.info("Exporting " + Arrays.toString(packages) + " from " + realm.getId());
+    Logs.INFO.debug("Exporting " + Arrays.toString(packages) + " from " + realm.getId());
     for (Object o : world.getRealms()) {
       ClassRealm dep = (ClassRealm) o;
       if ( !StringUtils.equals(dep.getId(), realm.getId())) {
