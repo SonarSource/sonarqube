@@ -19,6 +19,19 @@
  */
 package org.sonar.plugins.surefire;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.custommonkey.xmlunit.DetailedDiff;
 import org.custommonkey.xmlunit.Diff;
@@ -42,15 +55,6 @@ import java.io.FileReader;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyDouble;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
-
 public class SurefireSensorTest {
 
   @Test
@@ -67,20 +71,6 @@ public class SurefireSensorTest {
     when(project.getLanguageKey()).thenReturn(Java.KEY);
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.REUSE_REPORTS);
     assertThat(new SurefireSensor().shouldExecuteOnProject(project), is(true));
-  }
-
-  @Test
-  public void shouldGetReportsFromProperty() {
-    Project project = MavenTestUtils.loadProjectFromPom(getClass(), "shouldGetReportsFromProperty/pom.xml");
-    assertThat(new SurefireSensor().getReportsDirectory(project).exists(), is(true));
-    assertThat(new SurefireSensor().getReportsDirectory(project).isDirectory(), is(true));
-  }
-
-  @Test
-  public void shouldGetReportsFromPluginConfiguration() {
-    Project project = MavenTestUtils.loadProjectFromPom(getClass(), "shouldGetReportsFromPluginConfiguration/pom.xml");
-    assertThat(new SurefireSensor().getReportsDirectory(project).exists(), is(true));
-    assertThat(new SurefireSensor().getReportsDirectory(project).isDirectory(), is(true));
   }
 
   @Test

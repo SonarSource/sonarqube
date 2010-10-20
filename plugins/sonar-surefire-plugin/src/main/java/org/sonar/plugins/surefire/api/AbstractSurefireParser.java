@@ -110,15 +110,15 @@ public abstract class AbstractSurefireParser {
       }
     }
     testCaseDetails.append("</tests-details>");
-    context.saveMeasure(getUnitTestResource(fileReport), new Measure(CoreMetrics.TEST_DATA, testCaseDetails.toString()));
+    context.saveMeasure(getUnitTestResource(fileReport.getClassKey()), new Measure(CoreMetrics.TEST_DATA, testCaseDetails.toString()));
   }
 
   private void saveClassMeasure(SensorContext context, TestSuiteReport fileReport, Metric metric, double value) {
     if ( !Double.isNaN(value)) {
-      context.saveMeasure(getUnitTestResource(fileReport), metric, value);
+      context.saveMeasure(getUnitTestResource(fileReport.getClassKey()), metric, value);
     }
   }
 
-  protected abstract Resource<?> getUnitTestResource(TestSuiteReport fileReport);
+  protected abstract Resource<?> getUnitTestResource(String classKey);
 
 }

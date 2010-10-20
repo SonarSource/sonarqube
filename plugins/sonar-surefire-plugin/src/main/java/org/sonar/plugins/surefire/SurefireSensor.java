@@ -21,18 +21,16 @@ package org.sonar.plugins.surefire;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AbstractCoverageExtension;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.maven.MavenPlugin;
-import org.sonar.api.batch.maven.MavenSurefireUtils;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.plugins.surefire.api.AbstractSurefireParser;
+import org.sonar.plugins.surefire.api.SurefireUtils;
 
 import java.io.File;
 
@@ -50,50 +48,16 @@ public class SurefireSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
-    File dir = getReportsDirectory(project);
+    File dir = SurefireUtils.getReportsDirectory(project);
     collect(project, context, dir);
-  }
-
-  protected File getReportsDirectory(Project project) {
-    File dir = getReportsDirectoryFromProperty(project);
-    if (dir == null) {
-      dir = getReportsDirectoryFromPluginConfiguration(project);
-    }
-    if (dir == null) {
-      dir = getReportsDirectoryFromDefaultConfiguration(project);
-    }
-    return dir;
-  }
-
-  private File getReportsDirectoryFromProperty(Project project) {
-    String path = (String) project.getProperty(CoreProperties.SUREFIRE_REPORTS_PATH_PROPERTY);
-    if (path != null) {
-      return project.getFileSystem().resolvePath(path);
-    }
-    return null;
-  }
-
-  private File getReportsDirectoryFromPluginConfiguration(Project project) {
-    MavenPlugin plugin = MavenPlugin.getPlugin(project.getPom(), MavenSurefireUtils.GROUP_ID, MavenSurefireUtils.ARTIFACT_ID);
-    if (plugin != null) {
-      String path = plugin.getParameter("reportsDirectory");
-      if (path != null) {
-        return project.getFileSystem().resolvePath(path);
-      }
-    }
-    return null;
-  }
-
-  private File getReportsDirectoryFromDefaultConfiguration(Project project) {
-    return new File(project.getFileSystem().getBuildDir(), "surefire-reports");
   }
 
   protected void collect(Project project, SensorContext context, File reportsDir) {
     logger.info("parsing {}", reportsDir);
     new AbstractSurefireParser() {
       @Override
-      protected Resource<?> getUnitTestResource(TestSuiteReport fileReport) {
-        return new JavaFile(fileReport.getClassKey(), true);
+      protected Resource<?> getUnitTestResource(String classKey) {
+        return new JavaFile(classKey, true);
       }
     }.collect(project, context, reportsDir);
   }
