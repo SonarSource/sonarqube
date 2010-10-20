@@ -86,8 +86,9 @@ public abstract class AbstractCoberturaParser {
       String lineId = line.getAttrValue("number");
       data.addLine(lineId, (int) parseNumber(line.getAttrValue("hits"), ENGLISH));
 
+      String isBranch = line.getAttrValue("branch");
       String text = line.getAttrValue("condition-coverage");
-      if (StringUtils.isNotBlank(text)) {
+      if (StringUtils.equals(isBranch, "true") && StringUtils.isNotBlank(text)) {
         String[] conditions = StringUtils.split(StringUtils.substringBetween(text, "(", ")"), "/");
         data.addConditionLine(lineId, Integer.parseInt(conditions[0]), Integer.parseInt(conditions[1]), StringUtils.substringBefore(text, " "));
       }
