@@ -108,14 +108,17 @@ module ApplicationHelper
 
       alert_class=''
       alert_link = false
+      style=''
       if show_alert_status && !measure.alert_status.blank?
-        alert_class="alert_#{measure.alert_status}" unless measure.metric.val_type==Metric::VALUE_TYPE_LEVEL
+        alert_class="class='alert_#{measure.alert_status}'" unless measure.metric.val_type==Metric::VALUE_TYPE_LEVEL
         link_rel=h(measure.alert_text)
         show_link=true
         alert_link=true
+      elsif measure.metric.val_type==Metric::VALUE_TYPE_RATING && measure.color
+        style = "style='background-color: #{measure.color};padding: 2px 5px'"
       end
 
-      html="<span id='m_#{measure.key}' class='#{alert_class}'>#{html}</span>"
+      html="<span id='m_#{measure.key}' #{alert_class} #{style}>#{html}</span>"
       if metric_name
         html="#{html} #{metric_name}"
       end
@@ -255,14 +258,18 @@ module ApplicationHelper
 
       alert_class=''
       alert_link = false
-      unless m.alert_status.blank?
-        alert_class="alert_#{m.alert_status}" unless m.metric.val_type==Metric::VALUE_TYPE_LEVEL
+      style = ''
+      if !(m.alert_status.blank?)
+        alert_class="class='alert_#{m.alert_status}'" unless m.metric.val_type==Metric::VALUE_TYPE_LEVEL
         link_rel=h(m.alert_text)
         show_link=true
         alert_link = true
+        
+      elsif m.metric.val_type==Metric::VALUE_TYPE_RATING && m.color
+        style = "style='background-color: #{m.color};padding: 2px 5px'"
       end
 
-      html="<span id='m_#{m.key}' class='#{alert_class}'>#{html}</span>"
+      html="<span id='m_#{m.key}' #{alert_class} #{style}>#{html}</span>"
       if options[:prefix]
         html="#{options[:prefix]}#{html}"
       end
