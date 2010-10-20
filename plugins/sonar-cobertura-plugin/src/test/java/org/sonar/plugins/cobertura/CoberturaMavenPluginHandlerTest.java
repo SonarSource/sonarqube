@@ -19,17 +19,18 @@
  */
 package org.sonar.plugins.cobertura;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.maven.project.MavenProject;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.resources.Project;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.sonar.plugins.cobertura.api.CoberturaUtils;
 
 public class CoberturaMavenPluginHandlerTest {
   protected CoberturaMavenPluginHandler handler;
@@ -38,7 +39,6 @@ public class CoberturaMavenPluginHandlerTest {
   public void before() {
     handler = new CoberturaMavenPluginHandler();
   }
-
 
   @Test
   public void notFixedVersion() {
@@ -54,7 +54,7 @@ public class CoberturaMavenPluginHandlerTest {
     when(project.getPom()).thenReturn(new MavenProject());
     when(project.getExclusionPatterns()).thenReturn(new String[0]);
 
-    MavenPlugin coberturaPlugin = new MavenPlugin(CoberturaMavenPluginHandler.GROUP_ID, CoberturaMavenPluginHandler.ARTIFACT_ID, null);
+    MavenPlugin coberturaPlugin = new MavenPlugin(CoberturaUtils.COBERTURA_GROUP_ID, CoberturaUtils.COBERTURA_ARTIFACT_ID, null);
     handler.configure(project, coberturaPlugin);
 
     assertThat(coberturaPlugin.getParameter("formats/format"), is("xml"));
@@ -65,9 +65,9 @@ public class CoberturaMavenPluginHandlerTest {
     Project project = mock(Project.class);
     when(project.getConfiguration()).thenReturn(new PropertiesConfiguration());
     when(project.getPom()).thenReturn(new MavenProject());
-    when(project.getExclusionPatterns()).thenReturn(new String[]{"**/Foo.java", "com/*Test.*", "com/*"});
+    when(project.getExclusionPatterns()).thenReturn(new String[] { "**/Foo.java", "com/*Test.*", "com/*" });
 
-    MavenPlugin coberturaPlugin = new MavenPlugin(CoberturaMavenPluginHandler.GROUP_ID, CoberturaMavenPluginHandler.ARTIFACT_ID, null);
+    MavenPlugin coberturaPlugin = new MavenPlugin(CoberturaUtils.COBERTURA_GROUP_ID, CoberturaUtils.COBERTURA_ARTIFACT_ID, null);
     handler.configure(project, coberturaPlugin);
 
     assertThat(coberturaPlugin.getParameters("instrumentation/excludes/exclude")[0], is("**/Foo.class"));

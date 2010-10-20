@@ -2,9 +2,9 @@ package org.sonar.plugins.cobertura.api;
 
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.maven.MavenPlugin;
+import org.sonar.api.batch.maven.MavenUtils;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.Logs;
-import org.sonar.plugins.cobertura.CoberturaMavenPluginHandler;
 
 import java.io.File;
 
@@ -12,6 +12,9 @@ import java.io.File;
  * @since 2.4
  */
 public final class CoberturaUtils {
+
+  public static String COBERTURA_GROUP_ID = MavenUtils.GROUP_ID_CODEHAUS_MOJO;
+  public static String COBERTURA_ARTIFACT_ID = "cobertura-maven-plugin";
 
   public static File getReport(Project project) {
     File report = getReportFromProperty(project);
@@ -38,7 +41,7 @@ public final class CoberturaUtils {
   }
 
   private static File getReportFromPluginConfiguration(Project project) {
-    MavenPlugin mavenPlugin = MavenPlugin.getPlugin(project.getPom(), CoberturaMavenPluginHandler.GROUP_ID, CoberturaMavenPluginHandler.ARTIFACT_ID);
+    MavenPlugin mavenPlugin = MavenPlugin.getPlugin(project.getPom(), COBERTURA_GROUP_ID, COBERTURA_ARTIFACT_ID);
     if (mavenPlugin != null) {
       String path = mavenPlugin.getParameter("outputDirectory");
       if (path != null) {
