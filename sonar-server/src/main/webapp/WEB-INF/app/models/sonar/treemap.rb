@@ -28,12 +28,6 @@ class Sonar::Treemap
     @color_metric = color_metric
     @width = width
     @height = height
-        
-    @min = 0
-    @max = 100
-    @min_color = Color::RGB.from_html("FF0000")   # red
-    @mean_color = Color::RGB.from_html("FFB000")   # orange
-    @max_color = Color::RGB.from_html("00FF00")   # green
   end
   
   def generate_html
@@ -65,7 +59,7 @@ class Sonar::Treemap
           :label => resource.name(false),
           :title => escape_javascript(resource.name(true)),
           :tooltip => get_html_tooltip(snapshot, size_measure, color_measure),
-          :color => get_hex_color(color_measure),
+          :color => html_color(color_measure),
           :url => get_url(snapshot,color_measure))
         node.add_child(child)
       end
@@ -89,54 +83,10 @@ class Sonar::Treemap
     html
   end
   
-  def get_color(color_measure)
-    value=percentage_value(color_measure)
-    if value<0
-      return Color::RGB.from_html("DDDDDD")
-    end
-
-    interval = (@max - @min)/2
-    mean = (@min + @max) / 2.0
-    if (value > mean)
-      value_percent = ((value - mean) / interval) * 100.0
-      color = @max_color.mix_with(@mean_color, value_percent)
-    else
-      value_percent = ((mean - value) / interval) * 100.0
-      color = @min_color.mix_with(@mean_color, value_percent)
-    end
-    color
+  def html_color(measure)
+    measure ? measure.color.html : '#DDDDDD'
   end
 
-  def percentage_value(color_measure)
-    return -1 if color_measure.nil?
-
-    metric=color_measure.metric
-    value=-1
-    if !color_measure.alert_status.blank?
-      case(color_measure.alert_status)
-        when Metric::TYPE_LEVEL_OK : value=100
-        when Metric::TYPE_LEVEL_ERROR : value=0
-        when Metric::TYPE_LEVEL_WARN : value=50
-      end
-
-    elsif metric.value_type==Metric::VALUE_TYPE_LEVEL
-      case(color_measure.text_value)
-        when Metric::TYPE_LEVEL_OK : value=100
-        when Metric::TYPE_LEVEL_WARN : value=50
-        when Metric::TYPE_LEVEL_ERROR : value=0
-      end
-    elsif metric.worst_value && metric.best_value
-      range=metric.best_value.to_f - metric.worst_value.to_f
-      value = (color_measure.value.to_f - metric.worst_value.to_f) * (100.0 / range)
-      value=100 if value>100.0
-      value=0 if value<0.0
-    end
-    value
-  end
-
-  def get_hex_color(color_measure)
-    get_color(color_measure).html
-  end
 end
 
 class Sonar::HtmlOutput < Treemap::HtmlOutput
