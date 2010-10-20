@@ -53,7 +53,7 @@
       <version>1.2</version>
     </dependency>
 
-    <!-- Required for compatibility with Maven 2.0 -->
+    <!-- Required for compatibility with Maven 2.x -->
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
