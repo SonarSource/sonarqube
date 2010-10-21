@@ -33,6 +33,7 @@
 	      </configuration>
 	    </plugin>
 	    <plugin>
+        <!-- Note that sonar-findbugs-plugin didn't allow reusing existing configuration since SONAR-1772 -->
 	      <groupId>org.codehaus.mojo</groupId>
 	      <artifactId>findbugs-maven-plugin</artifactId>
 	      <configuration>
