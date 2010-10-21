@@ -22,6 +22,7 @@ package org.sonar.batch.indexer;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Event;
@@ -311,7 +312,7 @@ public class DefaultSonarIndex extends SonarIndex {
         ResourceUtils.isEntity(resource) &&
             metric.isOptimizedBestValue() == Boolean.TRUE &&
             metric.getBestValue() != null &&
-            Double.compare(metric.getBestValue(), measure.getValue())==0 &&
+            NumberUtils.compare(metric.getBestValue(), measure.getValue())==0 &&
             !measure.hasOptionalData());
   }
 
