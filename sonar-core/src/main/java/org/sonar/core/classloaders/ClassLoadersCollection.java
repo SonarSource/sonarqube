@@ -22,6 +22,14 @@ import java.util.Collection;
  * for all other plugins even if they located in dependent library.
  * </p>
  * 
+ * <h4>Search order for {@link ClassRealm} :</h4>
+ * <ul>
+ * <li>parent class loader (passed via the constructor) if there is one</li>
+ * <li>imports</li>
+ * <li>realm's constituents</li>
+ * <li>parent realm</li>
+ * </ul>
+ * 
  * @since 2.4
  */
 public class ClassLoadersCollection {
@@ -46,12 +54,13 @@ public class ClassLoadersCollection {
    */
   public ClassLoader createClassLoader(String key, Collection<URL> urls, boolean childFirst) {
     try {
+      ClassLoader resourcesClassLoader = new ResourcesClassLoader(urls, baseClassLoader);
       final ClassRealm realm;
       if (childFirst) {
-        ClassRealm parentRealm = world.newRealm(key + "-parent", baseClassLoader);
+        ClassRealm parentRealm = world.newRealm(key + "-parent", resourcesClassLoader);
         realm = parentRealm.createChildRealm(key);
       } else {
-        realm = world.newRealm(key, baseClassLoader);
+        realm = world.newRealm(key, resourcesClassLoader);
       }
       for (URL constituent : urls) {
         realm.addConstituent(constituent);
