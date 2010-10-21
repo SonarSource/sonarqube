@@ -115,7 +115,7 @@ module ApplicationHelper
         show_link=true
         alert_link=true
       elsif measure.metric.val_type==Metric::VALUE_TYPE_RATING && measure.color
-        style = "style='background-color: #{measure.color};padding: 2px 5px'"
+        style = "style='background-color: #{measure.color.html};padding: 2px 5px'"
       end
 
       html="<span id='m_#{measure.key}' #{alert_class} #{style}>#{html}</span>"
@@ -223,7 +223,7 @@ module ApplicationHelper
   # Display a measure
   #
   # === Optional parameters
-  #
+  # * <tt>:skip_span_id</tt> - skip the generation of the html attribute 'id'. Default is false
   # * <tt>:url</tt> - add an url on the measure.
   # * <tt>:prefix</tt> - add a prefix. Default is ''.
   # * <tt>:suffix</tt> - add a suffix. Default is ''.
@@ -264,12 +264,16 @@ module ApplicationHelper
         link_rel=h(m.alert_text)
         show_link=true
         alert_link = true
-        
+
       elsif m.metric.val_type==Metric::VALUE_TYPE_RATING && m.color
-        style = "style='background-color: #{m.color};padding: 2px 5px'"
+        style = "style='background-color: #{m.color.html};padding: 2px 5px'"
       end
 
-      html="<span id='m_#{m.key}' #{alert_class} #{style}>#{html}</span>"
+      span_id=''
+      unless options[:skip_span_id]
+        span_id="id='m_#{m.key}'"
+      end
+      html="<span #{span_id} #{alert_class} #{style}>#{html}</span>"
       if options[:prefix]
         html="#{options[:prefix]}#{html}"
       end

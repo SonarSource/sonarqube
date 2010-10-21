@@ -48,7 +48,7 @@
           <% end %>
         </td>
         <td class="right last" >
-           <%= measure.formatted_value -%>
+           <%= format_measure(measure, :skip_span_id => true) -%>
            <!--[if IE]> &nbsp; &nbsp; <![endif]-->
         </td>
       </tr>

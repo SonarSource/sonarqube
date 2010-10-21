@@ -134,7 +134,7 @@ public final class WSMetrics {
 
   public static class Metric {
     public enum ValueType {
-      INT, FLOAT, PERCENT, BOOL, STRING, MILLISEC, DATA, LEVEL, DISTRIB
+      INT, FLOAT, PERCENT, BOOL, STRING, MILLISEC, DATA, LEVEL, DISTRIB, RATING
     }
 
     private String key;

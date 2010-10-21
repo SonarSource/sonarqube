@@ -135,7 +135,7 @@
                     <% @snapshots.each do |snapshot|
                       measure=row.measure(snapshot)
                     %>
-                        <td align="right" width="1%" nowrap="nowrap"><%= html_measure(measure, nil, true, nil, nil, nil, true) %></td>
+                        <td align="right" width="1%" nowrap="nowrap"><%= format_measure(measure, :skip_span_id => true) %></td>
                     <% end %>
                     <td>
                         <%

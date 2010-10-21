@@ -125,9 +125,9 @@ class ProjectMeasure < ActiveRecord::Base
   end
 
 
-  MIN_COLOR=Color::RGB.from_html("FF0000")   # red
-  MEAN_COLOR=Color::RGB.from_html("FFB000")   # orange
-  MAX_COLOR=Color::RGB.from_html("00FF00")   # green
+  MIN_COLOR=Color::RGB.from_html("EE0000")   # red
+  MEAN_COLOR=Color::RGB.from_html("FFEE00")   # orange
+  MAX_COLOR=Color::RGB.from_html("00AA00")   # green
 
   def color
     @color ||=
@@ -150,13 +150,12 @@ class ProjectMeasure < ActiveRecord::Base
           percent=100.0 if percent>100.0
           percent=0.0 if percent<0.0
         end
-
         if percent<0.0
           nil
         elsif (percent > 50.0)
-          MAX_COLOR.mix_with(MEAN_COLOR, percent - 50.0)
+          MAX_COLOR.mix_with(MEAN_COLOR, (percent - 50.0) * 2.0)
         else
-          MIN_COLOR.mix_with(MEAN_COLOR, 50.0 - percent)
+          MIN_COLOR.mix_with(MEAN_COLOR, (50.0 - percent) * 2.0)
         end
       end
   end
