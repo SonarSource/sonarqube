@@ -27,6 +27,8 @@ import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.jpa.dao.BaseDao;
 import org.sonar.jpa.dao.RulesDao;
 
+import java.util.List;
+
 public class ProfilesManager extends BaseDao {
 
   private DefaultRulesManager rulesManager;
@@ -63,7 +65,10 @@ public class ProfilesManager extends BaseDao {
 
   public void deleteAllProfiles() {
     getSession().createQuery("UPDATE " + ResourceModel.class.getSimpleName() + " o SET o.rulesProfile = null WHERE o.rulesProfile IS NOT NULL").executeUpdate();
-    getSession().createQuery("DELETE " + RulesProfile.class.getSimpleName() + " o").executeUpdate();
+    List profiles = getSession().createQuery("FROM " + RulesProfile.class.getSimpleName()).getResultList();
+    for (Object profile : profiles) {
+      getSession().removeWithoutFlush(profile);
+    }
     getSession().commit();
   }
 
