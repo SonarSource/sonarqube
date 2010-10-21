@@ -32,6 +32,6 @@ public final class FindbugsConstants {
    * @since 2.4
    */
   public static final String GENERATE_XML_KEY = "sonar.findbugs.generateXml";
-  public static final boolean GENERATE_XML_DEFAULT_VALUE = true; // TODO should be false
+  public static final boolean GENERATE_XML_DEFAULT_VALUE = true; // TODO should be false - see SONAR-1880
   public static final long FINDBUGS_TIMEOUT_DEFAULT_VALUE = 600000;
 }

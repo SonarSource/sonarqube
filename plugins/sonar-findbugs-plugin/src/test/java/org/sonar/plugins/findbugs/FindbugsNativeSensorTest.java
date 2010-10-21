@@ -1,15 +1,5 @@
 package org.sonar.plugins.findbugs;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
@@ -25,6 +15,12 @@ import org.sonar.api.test.IsViolation;
 
 import java.io.File;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.*;
+
 public class FindbugsNativeSensorTest extends FindbugsTests {
 
   @Test
@@ -32,6 +28,14 @@ public class FindbugsNativeSensorTest extends FindbugsTests {
     FindbugsNativeSensor sensor = new FindbugsNativeSensor(createRulesProfileWithActiveRules(), new FindbugsRuleFinder(), null);
     Project project = createProject();
     assertTrue(sensor.shouldExecuteOnProject(project));
+  }
+
+  @Test
+  public void shouldExecuteWhenReuseExistingRulesConfig() throws Exception {
+    FindbugsNativeSensor analyser = new FindbugsNativeSensor(RulesProfile.create(), new FindbugsRuleFinder(), null);
+    Project pom = createProject();
+    when(pom.getReuseExistingRulesConfig()).thenReturn(true);
+    assertTrue(analyser.shouldExecuteOnProject(pom));
   }
 
   @Test

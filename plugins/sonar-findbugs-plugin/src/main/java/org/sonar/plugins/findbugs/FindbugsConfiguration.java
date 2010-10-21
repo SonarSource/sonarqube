@@ -63,17 +63,20 @@ public class FindbugsConfiguration implements BatchExtension {
         findbugsProject.addAuxClasspathEntry(file.getAbsolutePath());
       }
     }
-    findbugsProject.setCurrentWorkingDirectory(project.getFileSystem().getBuildDir());
+    findbugsProject.setCurrentWorkingDirectory(project.getFileSystem().getBasedir());
     return findbugsProject;
   }
 
-  private MavenPlugin getFindbugsMavenPlugin() {
+  protected MavenPlugin getFindbugsMavenPlugin() {
     return MavenPlugin.getPlugin(project.getPom(), MavenUtils.GROUP_ID_CODEHAUS_MOJO, "findbugs-maven-plugin");
   }
 
   public String saveIncludeConfigXml() throws IOException {
     if (project.getReuseExistingRulesConfig()) {
-      return getFindbugsMavenPlugin().getParameter("includeFilterFile");
+      String existingIncludeFilterConfig = getFindbugsMavenPlugin().getParameter("includeFilterFile");
+      if ( !StringUtils.isBlank(existingIncludeFilterConfig)) {
+        return existingIncludeFilterConfig;
+      }
     }
     StringWriter conf = new StringWriter();
     exporter.exportProfile(profile, conf);
@@ -82,7 +85,10 @@ public class FindbugsConfiguration implements BatchExtension {
 
   public String saveExcludeConfigXml() throws IOException {
     if (project.getReuseExistingRulesConfig()) {
-      return getFindbugsMavenPlugin().getParameter("excludeFilterFile");
+      String existingExcludeFilterConfig = getFindbugsMavenPlugin().getParameter("excludeFilterFile");
+      if ( !StringUtils.isBlank(existingExcludeFilterConfig)) {
+        return existingExcludeFilterConfig;
+      }
     }
     FindBugsFilter findBugsFilter = new FindBugsFilter();
     if (project.getExclusionPatterns() != null) {
