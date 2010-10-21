@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.SonarException;
@@ -59,7 +60,7 @@ public class FindbugsExecutorTest {
     when(conf.saveExcludeConfigXml()).thenReturn(new File("test-resources/findbugs-exclude.xml"));
     when(conf.saveIncludeConfigXml()).thenReturn(new File("test-resources/findbugs-include.xml"));
     when(conf.getEffort()).thenReturn("default");
-    when(conf.getTimeout()).thenReturn(FindbugsConstants.FINDBUGS_TIMEOUT_DEFAULT_VALUE);
+    when(conf.getTimeout()).thenReturn(CoreProperties.FINDBUGS_TIMEOUT_DEFAULT_VALUE);
     return conf;
   }
 

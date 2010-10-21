@@ -82,6 +82,6 @@ public class FindbugsConfiguration implements BatchExtension {
   }
 
   public long getTimeout() {
-    return project.getConfiguration().getLong(CoreProperties.FINDBUGS_TIMEOUT_PROPERTY, FindbugsConstants.FINDBUGS_TIMEOUT_DEFAULT_VALUE);
+    return project.getConfiguration().getLong(CoreProperties.FINDBUGS_TIMEOUT_PROPERTY, CoreProperties.FINDBUGS_TIMEOUT_DEFAULT_VALUE);
   }
 }

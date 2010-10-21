@@ -39,7 +39,7 @@ import org.sonar.api.Property;
         global = true),
     @Property(
         key = CoreProperties.FINDBUGS_MAXHEAP_PROPERTY,
-        defaultValue = CoreProperties.FINDBUGS_MAXHEAP_DEFAULT_VALUE+"",
+        defaultValue = CoreProperties.FINDBUGS_MAXHEAP_DEFAULT_VALUE + "",
         name = "Max Heap",
         description = "Maximum Java heap size in megabytes (default=512).",
         project = true,
@@ -47,6 +47,7 @@ import org.sonar.api.Property;
         global = true),
     @Property(
         key = CoreProperties.FINDBUGS_TIMEOUT_PROPERTY,
+        defaultValue = CoreProperties.FINDBUGS_TIMEOUT_DEFAULT_VALUE + "",
         name = "Timeout",
         description = "Specifies the amount of time, in milliseconds, that FindBugs may run before it is assumed to be hung and is terminated. The default is 600,000 milliseconds, which is ten minutes.",
         project = true,
