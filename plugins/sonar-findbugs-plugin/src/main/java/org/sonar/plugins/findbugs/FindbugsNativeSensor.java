@@ -10,6 +10,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.utils.Logs;
 
 import java.io.File;
 import java.util.List;
@@ -38,6 +39,9 @@ public class FindbugsNativeSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
+    if (project.getReuseExistingRulesConfig()) {
+      Logs.INFO.warn("Reusing existing Findbugs configuration not supported anymore.");
+    }
     File report = getFindbugsReportFile(project);
     if (report == null) {
       report = executor.execute();

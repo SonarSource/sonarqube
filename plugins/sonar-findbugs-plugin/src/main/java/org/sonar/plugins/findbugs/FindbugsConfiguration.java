@@ -8,7 +8,6 @@ import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenUtils;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.findbugs.xml.ClassFilter;
 import org.sonar.plugins.findbugs.xml.FindBugsFilter;
@@ -43,10 +42,6 @@ public class FindbugsConfiguration implements BatchExtension {
   }
 
   public edu.umd.cs.findbugs.Project getFindbugsProject() {
-    if (project.getReuseExistingRulesConfig()) {
-      Logs.INFO.warn("Reusing existing Findbugs configuration is deprecated as it's unstable and can not provide meaningful results. This feature will be removed soon.");
-    }
-
     File classesDir = project.getFileSystem().getBuildOutputDir();
     if (classesDir == null || !classesDir.exists()) {
       throw new SonarException("Findbugs needs sources to be compiled. "
@@ -72,24 +67,12 @@ public class FindbugsConfiguration implements BatchExtension {
   }
 
   public File saveIncludeConfigXml() throws IOException {
-    if (project.getReuseExistingRulesConfig()) {
-      String existingIncludeFilterConfig = getFindbugsMavenPlugin().getParameter("includeFilterFile");
-      if ( !StringUtils.isBlank(existingIncludeFilterConfig)) {
-        return new File(project.getFileSystem().getBasedir(), existingIncludeFilterConfig);
-      }
-    }
     StringWriter conf = new StringWriter();
     exporter.exportProfile(profile, conf);
     return project.getFileSystem().writeToWorkingDirectory(conf.toString(), "findbugs-include.xml");
   }
 
   public File saveExcludeConfigXml() throws IOException {
-    if (project.getReuseExistingRulesConfig()) {
-      String existingExcludeFilterConfig = getFindbugsMavenPlugin().getParameter("excludeFilterFile");
-      if ( !StringUtils.isBlank(existingExcludeFilterConfig)) {
-        return new File(project.getFileSystem().getBasedir(), existingExcludeFilterConfig);
-      }
-    }
     FindBugsFilter findBugsFilter = new FindBugsFilter();
     if (project.getExclusionPatterns() != null) {
       for (String exclusion : project.getExclusionPatterns()) {
