@@ -63,7 +63,7 @@ public class FindbugsConfiguration implements BatchExtension {
         findbugsProject.addAuxClasspathEntry(file.getAbsolutePath());
       }
     }
-    findbugsProject.setCurrentWorkingDirectory(project.getFileSystem().getBasedir());
+    findbugsProject.setCurrentWorkingDirectory(project.getFileSystem().getBuildDir());
     return findbugsProject;
   }
 
@@ -71,23 +71,23 @@ public class FindbugsConfiguration implements BatchExtension {
     return MavenPlugin.getPlugin(project.getPom(), MavenUtils.GROUP_ID_CODEHAUS_MOJO, "findbugs-maven-plugin");
   }
 
-  public String saveIncludeConfigXml() throws IOException {
+  public File saveIncludeConfigXml() throws IOException {
     if (project.getReuseExistingRulesConfig()) {
       String existingIncludeFilterConfig = getFindbugsMavenPlugin().getParameter("includeFilterFile");
       if ( !StringUtils.isBlank(existingIncludeFilterConfig)) {
-        return existingIncludeFilterConfig;
+        return new File(project.getFileSystem().getBasedir(), existingIncludeFilterConfig);
       }
     }
     StringWriter conf = new StringWriter();
     exporter.exportProfile(profile, conf);
-    return project.getFileSystem().writeToWorkingDirectory(conf.toString(), "findbugs-include.xml").getAbsolutePath();
+    return project.getFileSystem().writeToWorkingDirectory(conf.toString(), "findbugs-include.xml");
   }
 
-  public String saveExcludeConfigXml() throws IOException {
+  public File saveExcludeConfigXml() throws IOException {
     if (project.getReuseExistingRulesConfig()) {
       String existingExcludeFilterConfig = getFindbugsMavenPlugin().getParameter("excludeFilterFile");
       if ( !StringUtils.isBlank(existingExcludeFilterConfig)) {
-        return existingExcludeFilterConfig;
+        return new File(project.getFileSystem().getBasedir(), existingExcludeFilterConfig);
       }
     }
     FindBugsFilter findBugsFilter = new FindBugsFilter();
@@ -97,7 +97,7 @@ public class FindbugsConfiguration implements BatchExtension {
         findBugsFilter.addMatch(new Match(classFilter));
       }
     }
-    return project.getFileSystem().writeToWorkingDirectory(findBugsFilter.toXml(), "findbugs-exclude.xml").getAbsolutePath();
+    return project.getFileSystem().writeToWorkingDirectory(findBugsFilter.toXml(), "findbugs-exclude.xml");
   }
 
   public String getEffort() {
