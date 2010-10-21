@@ -39,6 +39,8 @@ public abstract class CodeReaderFilter<OUTPUT> {
 
   private OUTPUT output;
 
+  private CodeReaderConfiguration configuration;
+
   public CodeReaderFilter() {
   }
 
@@ -82,6 +84,25 @@ public abstract class CodeReaderFilter<OUTPUT> {
    */
   public void setOutput(OUTPUT output) {
     this.output = output;
+  }
+
+  /**
+   * Returns the configuration used for the CodeReader
+   * 
+   * @return the configuration
+   */
+  public CodeReaderConfiguration getConfiguration() {
+    return configuration;
+  }
+
+  /**
+   * Sets the configuration that must be used by the CodeReader
+   * 
+   * @param configuration
+   *          the configuration to set
+   */
+  public void setConfiguration(CodeReaderConfiguration configuration) {
+    this.configuration = configuration;
   }
 
   /**

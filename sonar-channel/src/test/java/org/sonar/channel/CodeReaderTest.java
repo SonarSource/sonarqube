@@ -20,7 +20,6 @@
 package org.sonar.channel;
 
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.number.OrderingComparisons.lessThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -72,7 +71,6 @@ public class CodeReaderTest {
     CodeReader reader = new CodeReader(new StringReader("package org.sonar;"));
     StringBuilder result = new StringBuilder();
     reader.popTo(new EndMatcher() {
-
       public boolean match(int endFlag) {
         return 'r' == (char) endFlag;
       }
@@ -86,7 +84,9 @@ public class CodeReaderTest {
 
   @Test
   public void testPeekToAndReachingTheBufferLimit() {
-    CodeReader reader = new CodeReader("word1 word2 word2", 10);
+    CodeReaderConfiguration configuration = new CodeReaderConfiguration();
+    configuration.setBufferCapacity(10);
+    CodeReader reader = new CodeReader("word1 word2 word2", configuration);
     for (int i = 0; i < 6; i++) {
       reader.pop();
     }

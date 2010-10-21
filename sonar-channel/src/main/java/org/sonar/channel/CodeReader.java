@@ -37,26 +37,38 @@ public class CodeReader extends CodeBuffer {
    * Constructor needed to be backward compatible (before using CodeReaderFilter)
    */
   public CodeReader(Reader code) {
-    super(code, new CodeReaderFilter[] {});
+    super(code, new CodeReaderConfiguration());
   }
 
   /*
    * Constructor needed to be backward compatible (before using CodeReaderFilter)
    */
   public CodeReader(String code) {
-    super(code, new CodeReaderFilter[] {});
+    super(code, new CodeReaderConfiguration());
   }
 
-  public CodeReader(Reader code, CodeReaderFilter... codeReaderFilters) {
-    super(code, codeReaderFilters);
+  /**
+   * Creates a code reader with specific configuration parameters.
+   * 
+   * @param code
+   *          the Reader to read code from
+   * @param configuration
+   *          the configuration parameters
+   */
+  public CodeReader(Reader code, CodeReaderConfiguration configuration) {
+    super(code, configuration);
   }
 
-  public CodeReader(String code, CodeReaderFilter... codeReaderFilters) {
-    super(code, codeReaderFilters);
-  }
-
-  protected CodeReader(String code, int bufferCapacity, CodeReaderFilter... codeReaderFilters) {
-    super(code, bufferCapacity, codeReaderFilters);
+  /**
+   * Creates a code reader with specific configuration parameters.
+   * 
+   * @param code
+   *          the code itself
+   * @param configuration
+   *          the configuration parameters
+   */
+  public CodeReader(String code, CodeReaderConfiguration configuration) {
+    super(code, configuration);
   }
 
   /**
@@ -113,7 +125,7 @@ public class CodeReader extends CodeBuffer {
   }
 
   /**
-   * @deprecated see peekTo(EndMatcher matcher, Appendable appendable)
+   * @see peekTo(EndMatcher matcher, Appendable appendable)
    */
   @Deprecated
   public final String peekTo(EndMatcher matcher) {
@@ -123,7 +135,7 @@ public class CodeReader extends CodeBuffer {
   }
 
   /**
-   * @deprecated see popTo(Matcher matcher, Appendable appendable)
+   * @see popTo(Matcher matcher, Appendable appendable)
    */
   @Deprecated
   public final void popTo(EndMatcher matcher, Appendable appendable) {

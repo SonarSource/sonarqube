@@ -19,8 +19,8 @@
  */
 package org.sonar.channel;
 
+import static junit.framework.Assert.assertEquals;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
@@ -30,9 +30,11 @@ import org.junit.Test;
 
 public class CodeBufferTest {
 
+  private CodeReaderConfiguration defaulConfiguration = new CodeReaderConfiguration();
+  
   @Test
   public void testPop() {
-    CodeBuffer code = new CodeBuffer("pa");
+    CodeBuffer code = new CodeBuffer("pa", defaulConfiguration);
     assertThat((char) code.pop(), is('p'));
     assertThat((char) code.pop(), is('a'));
     assertThat(code.pop(), is( -1));
@@ -40,7 +42,7 @@ public class CodeBufferTest {
 
   @Test
   public void testPeek() {
-    CodeBuffer code = new CodeBuffer("pa");
+    CodeBuffer code = new CodeBuffer("pa", defaulConfiguration);
     assertThat((char) code.peek(), is('p'));
     assertThat((char) code.peek(), is('p'));
     code.pop();
@@ -51,7 +53,7 @@ public class CodeBufferTest {
 
   @Test
   public void testLastCharacter() {
-    CodeBuffer reader = new CodeBuffer("bar");
+    CodeBuffer reader = new CodeBuffer("bar", defaulConfiguration);
     assertThat(reader.lastChar(), is( -1));
     reader.pop();
     assertThat((char) reader.lastChar(), is('b'));
@@ -59,7 +61,7 @@ public class CodeBufferTest {
 
   @Test
   public void testGetColumnAndLinePosition() {
-    CodeBuffer reader = new CodeBuffer("pa\nc\r\ns\r\n\r\n");
+    CodeBuffer reader = new CodeBuffer("pa\nc\r\ns\r\n\r\n", defaulConfiguration);
     assertThat(reader.getColumnPosition(), is(0));
     assertThat(reader.getLinePosition(), is(1));
     reader.pop(); // p
@@ -95,7 +97,7 @@ public class CodeBufferTest {
 
   @Test
   public void testStartAndStopRecording() {
-    CodeBuffer reader = new CodeBuffer("123456");
+    CodeBuffer reader = new CodeBuffer("123456", defaulConfiguration);
     reader.pop();
     assertEquals("", reader.stopRecording().toString());
 
@@ -109,20 +111,51 @@ public class CodeBufferTest {
 
   @Test
   public void testCharAt() {
-    CodeBuffer reader = new CodeBuffer("123456");
+    CodeBuffer reader = new CodeBuffer("123456", defaulConfiguration);
     assertEquals('1', reader.charAt(0));
     assertEquals('6', reader.charAt(5));
   }
 
   @Test
   public void testCharAtIndexOutOfBoundsException() {
-    CodeBuffer reader = new CodeBuffer("12345");
+    CodeBuffer reader = new CodeBuffer("12345", defaulConfiguration);
     assertEquals(reader.charAt(5), (char) -1);
   }
 
   @Test
+  public void testReadWithSpecificTabWidth() {
+    CodeReaderConfiguration configuration = new CodeReaderConfiguration();
+    configuration.setTabWidth(4);
+    CodeBuffer reader = new CodeBuffer("pa\n\tc", configuration);
+    assertEquals('\n', reader.charAt(2));
+    assertEquals('\t', reader.charAt(3));
+    assertEquals('c', reader.charAt(4));
+    assertThat(reader.getColumnPosition(), is(0));
+    assertThat(reader.getLinePosition(), is(1));
+    reader.pop(); // p
+    reader.pop(); // a
+    assertThat(reader.getColumnPosition(), is(2));
+    assertThat(reader.getLinePosition(), is(1));
+    reader.peek(); // \n
+    reader.lastChar(); // a
+    assertThat(reader.getColumnPosition(), is(2));
+    assertThat(reader.getLinePosition(), is(1));
+    reader.pop(); // \n
+    assertThat(reader.getColumnPosition(), is(0));
+    assertThat(reader.getLinePosition(), is(2));
+    reader.pop(); // \t
+    assertThat(reader.getColumnPosition(), is(4));
+    assertThat(reader.getLinePosition(), is(2));
+    reader.pop(); // c
+    assertThat(reader.getColumnPosition(), is(5));
+    assertThat(reader.getLinePosition(), is(2));
+  }
+
+  @Test
   public void testCodeReaderFilter() throws Exception {
-    CodeBuffer code = new CodeBuffer("abcd12efgh34", new ReplaceNumbersFilter());
+    CodeReaderConfiguration configuration = new CodeReaderConfiguration();
+    configuration.setCodeReaderFilters(new ReplaceNumbersFilter());
+    CodeBuffer code = new CodeBuffer("abcd12efgh34", configuration);
     // test #charAt
     assertEquals('a', code.charAt(0));
     assertEquals('-', code.charAt(4));
@@ -149,7 +182,9 @@ public class CodeBufferTest {
 
   @Test
   public void testSeveralCodeReaderFilter() throws Exception {
-    CodeBuffer code = new CodeBuffer("abcd12efgh34", new ReplaceNumbersFilter(), new ReplaceCharFilter());
+    CodeReaderConfiguration configuration = new CodeReaderConfiguration();
+    configuration.setCodeReaderFilters(new ReplaceNumbersFilter(), new ReplaceCharFilter());
+    CodeBuffer code = new CodeBuffer("abcd12efgh34", configuration);
     // test #charAt
     assertEquals('*', code.charAt(0));
     assertEquals('-', code.charAt(4));
@@ -175,10 +210,12 @@ public class CodeBufferTest {
   }
 
   @Test
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public void testChannelCodeReaderFilter() throws Exception {
     // create a windowing channel that drops the 2 first characters, keeps 6 characters and drops the rest of the line
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    CodeBuffer code = new CodeBuffer("0123456789\nABCDEFGHIJ", new ChannelCodeReaderFilter(new Object(), new WindowingChannel()));
+    CodeReaderConfiguration configuration = new CodeReaderConfiguration();
+    configuration.setCodeReaderFilters(new ChannelCodeReaderFilter(new Object(), new WindowingChannel()));
+    CodeBuffer code = new CodeBuffer("0123456789\nABCDEFGHIJ", configuration);
     // test #charAt
     assertEquals('2', code.charAt(0));
     assertEquals('7', code.charAt(5));

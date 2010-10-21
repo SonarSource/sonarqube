@@ -35,7 +35,7 @@ public final class ChannelCodeReaderFilter<OUTPUT> extends CodeReaderFilter<OUTP
   private CodeReader internalCodeReader;
 
   /**
-   * Creates a CodeReaderFilter that will use the provided Channels to filter the character stream it gets from its reader. 
+   * Creates a CodeReaderFilter that will use the provided Channels to filter the character stream it gets from its reader.
    * 
    * @param channels
    *          the different channels
@@ -65,7 +65,7 @@ public final class ChannelCodeReaderFilter<OUTPUT> extends CodeReaderFilter<OUTP
   @Override
   public void setReader(Reader reader) {
     super.setReader(reader);
-    internalCodeReader = new CodeReader(reader);
+    internalCodeReader = new CodeReader(reader, getConfiguration());
   }
 
   /**

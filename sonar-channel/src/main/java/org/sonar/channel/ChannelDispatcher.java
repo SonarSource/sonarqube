@@ -30,12 +30,15 @@ public class ChannelDispatcher<OUTPUT> extends Channel<OUTPUT> {
   private static final Logger logger = LoggerFactory.getLogger(ChannelDispatcher.class);
   private final boolean failIfNoChannelToConsumeOneCharacter;
 
+  @SuppressWarnings("rawtypes")
   private final Channel[] channels;
 
+  @SuppressWarnings("rawtypes")
   public ChannelDispatcher(List<Channel> tokenizers) {
     this(tokenizers, false);
   }
 
+  @SuppressWarnings("rawtypes")
   public ChannelDispatcher(List<Channel> tokenizers, boolean failIfNoChannelToConsumeOneCharacter) {
     this.channels = tokenizers.toArray(new Channel[0]); // NOSONAR, lack of performance is not an issue here
     this.failIfNoChannelToConsumeOneCharacter = failIfNoChannelToConsumeOneCharacter;
@@ -53,8 +56,7 @@ public class ChannelDispatcher<OUTPUT> extends Channel<OUTPUT> {
       }
       if ( !channelConsumed) {
         String message = "None of the channel has been able to handle character '" + (char) code.peek() + "' (decimal value " + code.peek()
-            + ") at line "
-            + code.getLinePosition() + ", column " + code.getColumnPosition();
+            + ") at line " + code.getLinePosition() + ", column " + code.getColumnPosition();
         if (failIfNoChannelToConsumeOneCharacter) {
           throw new IllegalStateException(message);
         }

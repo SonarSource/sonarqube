@@ -41,39 +41,35 @@ public class CodeBuffer implements CharSequence {
   private final Reader code;
   private int lastChar = -1;
   private Cursor cursor;
-  private final static int DEFAULT_BUFFER_CAPACITY = 8000;
   private int bufferCapacity;
   private char[] buffer;
   private int bufferPosition = 0;
   private int bufferSize = 0;
   private static final char LF = '\n';
   private static final char CR = '\r';
+  private int tabWidth;
+  private CodeReaderConfiguration configuration;
+
   private boolean recordingMode = false;
   private StringBuilder recordedCharacters = new StringBuilder();
 
-  public CodeBuffer(Reader code, CodeReaderFilter<?>... codeReaderFilters) {
-    this(code, DEFAULT_BUFFER_CAPACITY, codeReaderFilters);
-  }
-
-  private CodeBuffer(Reader initialCodeReader, int bufferCapacity, CodeReaderFilter<?>... codeReaderFilters) {
+  protected CodeBuffer(Reader initialCodeReader, CodeReaderConfiguration configuration) {
+    this.configuration = configuration;
     lastChar = -1;
     cursor = new Cursor();
-    this.bufferCapacity = bufferCapacity;
+    bufferCapacity = configuration.getBufferCapacity();
+    tabWidth = configuration.getTabWidth();
     buffer = new char[bufferCapacity];
     Reader reader = initialCodeReader;
-    for (CodeReaderFilter<?> codeReaderFilter : codeReaderFilters) {
+    for (CodeReaderFilter<?> codeReaderFilter : configuration.getCodeReaderFilters()) {
       reader = new Filter(reader, codeReaderFilter);
     }
     this.code = reader;
     fillBuffer();
   }
 
-  public CodeBuffer(String code, CodeReaderFilter<?>... codeReaderFilters) {
-    this(new StringReader(code), codeReaderFilters);
-  }
-
-  protected CodeBuffer(String code, int bufferCapacity, CodeReaderFilter<?>... codeReaderFilters) {
-    this(new StringReader(code), bufferCapacity, codeReaderFilters);
+  protected CodeBuffer(String code, CodeReaderConfiguration configuration) {
+    this(new StringReader(code), configuration);
   }
 
   /**
@@ -94,6 +90,8 @@ public class CodeBuffer implements CharSequence {
         cursor.line++;
       }
       cursor.column = 0;
+    } else if (character == '\t') {
+      cursor.column += tabWidth;
     } else {
       cursor.column++;
     }
@@ -263,6 +261,7 @@ public class CodeBuffer implements CharSequence {
     public Filter(Reader in, CodeReaderFilter<?> codeReaderFilter) {
       super(in);
       this.codeReaderFilter = codeReaderFilter;
+      this.codeReaderFilter.setConfiguration(CodeBuffer.this.configuration.cloneWithoutCodeReaderFilters());
       this.codeReaderFilter.setReader(in);
     }
 
