@@ -19,40 +19,46 @@
  */
 package org.sonar.plugins.findbugs;
 
-import java.io.File;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.maven.DependsUponMavenPlugin;
-import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.utils.Logs;
 
-public class FindbugsSensor implements Sensor, DependsUponMavenPlugin {
+import java.io.File;
+import java.util.List;
 
+public class FindbugsSensor implements Sensor {
   private RulesProfile profile;
   private RuleFinder ruleFinder;
-  private FindbugsMavenPluginHandler pluginHandler;
-  private static Logger LOG = LoggerFactory.getLogger(FindbugsSensor.class);
+  private FindbugsExecutor executor;
 
-  public FindbugsSensor(RulesProfile profile, RuleFinder ruleFinder, FindbugsMavenPluginHandler pluginHandler) {
+  public FindbugsSensor(RulesProfile profile, RuleFinder ruleFinder, FindbugsExecutor executor) {
     this.profile = profile;
     this.ruleFinder = ruleFinder;
-    this.pluginHandler = pluginHandler;
+    this.executor = executor;
+  }
+
+  public boolean shouldExecuteOnProject(Project project) {
+    return project.getFileSystem().hasJavaSourceFiles()
+        && ( !profile.getActiveRulesByRepository(FindbugsConstants.REPOSITORY_KEY).isEmpty() || project.getReuseExistingRulesConfig())
+        && project.getPom() != null && !StringUtils.equalsIgnoreCase(project.getPom().getPackaging(), "ear");
   }
 
   public void analyse(Project project, SensorContext context) {
+    if (project.getReuseExistingRulesConfig()) {
+      Logs.INFO.warn("Reusing existing Findbugs configuration not supported anymore.");
+    }
     File report = getFindbugsReportFile(project);
-    LOG.info("Findbugs output report: " + report.getAbsolutePath());
+    if (report == null) {
+      report = executor.execute();
+    }
     FindbugsXmlReportParser reportParser = new FindbugsXmlReportParser(report);
     List<FindbugsXmlReportParser.Violation> fbViolations = reportParser.getViolations();
     for (FindbugsXmlReportParser.Violation fbViolation : fbViolations) {
@@ -69,20 +75,7 @@ public class FindbugsSensor implements Sensor, DependsUponMavenPlugin {
     if (project.getConfiguration().getString(CoreProperties.FINDBUGS_REPORT_PATH) != null) {
       return new File(project.getConfiguration().getString(CoreProperties.FINDBUGS_REPORT_PATH));
     }
-    return new File(project.getFileSystem().getBuildDir(), "findbugsXml.xml");
-  }
-
-  public boolean shouldExecuteOnProject(Project project) {
-    return project.getFileSystem().hasJavaSourceFiles()
-        && ( !profile.getActiveRulesByRepository(FindbugsConstants.REPOSITORY_KEY).isEmpty() || project.getReuseExistingRulesConfig())
-        && project.getPom() != null && !StringUtils.equalsIgnoreCase(project.getPom().getPackaging(), "ear");
-  }
-
-  public MavenPluginHandler getMavenPluginHandler(Project project) {
-    if (project.getConfiguration().getString(CoreProperties.FINDBUGS_REPORT_PATH) != null) {
-      return null;
-    }
-    return pluginHandler;
+    return null;
   }
 
   @Override

@@ -4,8 +4,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ProjectClasspath;
-import org.sonar.api.batch.maven.MavenPlugin;
-import org.sonar.api.batch.maven.MavenUtils;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
@@ -60,10 +58,6 @@ public class FindbugsConfiguration implements BatchExtension {
     }
     findbugsProject.setCurrentWorkingDirectory(project.getFileSystem().getBuildDir());
     return findbugsProject;
-  }
-
-  protected MavenPlugin getFindbugsMavenPlugin() {
-    return MavenPlugin.getPlugin(project.getPom(), MavenUtils.GROUP_ID_CODEHAUS_MOJO, "findbugs-maven-plugin");
   }
 
   public File saveIncludeConfigXml() throws IOException {

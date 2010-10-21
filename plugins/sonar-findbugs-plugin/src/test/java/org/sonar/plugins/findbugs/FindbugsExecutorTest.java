@@ -1,18 +1,18 @@
 package org.sonar.plugins.findbugs;
 
-import org.apache.commons.io.FileUtils;
-import org.junit.Test;
-import org.sonar.api.utils.SonarException;
-
-import edu.umd.cs.findbugs.Project;
-
-import java.io.File;
-
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.internal.matchers.StringContains.containsString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.Test;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.utils.SonarException;
+
+import java.io.File;
 
 public class FindbugsExecutorTest {
 
@@ -39,9 +39,19 @@ public class FindbugsExecutorTest {
     new FindbugsExecutor(conf).execute();
   }
 
+  @Test(expected = SonarException.class)
+  public void shoulFailIfNoCompiledClasses() throws Exception {
+    Project project = mock(Project.class);
+    ProjectFileSystem fs = mock(ProjectFileSystem.class);
+    when(project.getFileSystem()).thenReturn(fs);
+    FindbugsConfiguration conf = new FindbugsConfiguration(project, null, null, null);
+
+    new FindbugsExecutor(conf).execute();
+  }
+
   private FindbugsConfiguration mockConf() throws Exception {
     FindbugsConfiguration conf = mock(FindbugsConfiguration.class);
-    Project project = new Project();
+    edu.umd.cs.findbugs.Project project = new edu.umd.cs.findbugs.Project();
     project.addFile(new File("test-resources/classes").getCanonicalPath());
     project.addSourceDir(new File("test-resources/src").getCanonicalPath());
     project.setCurrentWorkingDirectory(new File("test-resources"));
