@@ -95,9 +95,20 @@ public interface CoreProperties {
   String FINDBUGS_EFFORT_PROPERTY = "sonar.findbugs.effort";
   String FINDBUGS_EFFORT_DEFAULT_VALUE = "Default";
   String FINDBUGS_REPORT_PATH = "sonar.findbugs.reportPath";
+  
+  /**
+   * @deprecated since 2.4, because unused
+   */
+  @Deprecated
   String FINDBUGS_MAXHEAP_PROPERTY = "sonar.findbugs.maxHeap";
-  String FINDBUGS_TIMEOUT_PROPERTY = "sonar.findbugs.timeout";
+  
+  /**
+   * @deprecated since 2.4, because unused
+   */
   int FINDBUGS_MAXHEAP_DEFAULT_VALUE = 512;
+  
+  String FINDBUGS_TIMEOUT_PROPERTY = "sonar.findbugs.timeout";
+  long FINDBUGS_TIMEOUT_DEFAULT_VALUE = 600000;
 
   /* Google Analytics */
   String GOOGLE_ANALYTICS_PLUGIN = "google-analytics";
