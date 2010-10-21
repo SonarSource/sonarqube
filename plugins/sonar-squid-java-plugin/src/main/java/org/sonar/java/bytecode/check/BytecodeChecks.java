@@ -31,6 +31,7 @@ public final class BytecodeChecks {
     return Arrays.asList(
         (Class) CallToDeprecatedMethodCheck.class,
         UnusedPrivateMethodCheck.class,
-        UnusedProtectedMethodCheck.class);
+        UnusedProtectedMethodCheck.class, 
+        ArchitectureCheck.class);
   }
 }
