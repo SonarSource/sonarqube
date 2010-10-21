@@ -187,4 +187,22 @@ public class Measure extends Model {
     this.characteristicName = s;
     return this;
   }
+
+  @Override
+  public String toString() {
+    return new StringBuilder().append("Measure{")
+        .append("metricKey='").append(metricKey).append('\'')
+        .append(", metricName='").append(metricName).append('\'')
+        .append(", value=").append(value)
+        .append(", formattedValue='").append(formattedValue).append('\'')
+        .append(", data='").append(data).append('\'')
+        .append(", characteristicKey='").append(characteristicKey).append('\'')
+        .append(", characteristicName='").append(characteristicName).append('\'')
+        .append(", trend=").append(trend).append(", var=").append(var)
+        .append(", ruleKey='").append(ruleKey).append('\'')
+        .append(", ruleName='").append(ruleName).append('\'')
+        .append(", ruleCategory='").append(ruleCategory).append('\'')
+        .append(", rulePriority='").append(rulePriority).append('\'')
+        .append('}').toString();
+  }
 }
