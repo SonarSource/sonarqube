@@ -28,71 +28,100 @@ import org.sonar.check.Priority;
 import org.sonar.java.bytecode.asm.AsmClass;
 import org.sonar.java.bytecode.asm.AsmEdge;
 import org.sonar.squid.api.CheckMessage;
-import org.sonar.squid.api.SourceCodeEdgeUsage;
 import org.sonar.squid.api.SourceFile;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
+import java.util.List;
+import java.util.Set;
 
 @Check(key = "Dependency", title = "Respect rule architecture", isoCategory = IsoCategory.Portability, priority = Priority.MINOR, description = "<p>Links between classes must respect defined architecture rules.</p>")
 public class ArchitectureCheck extends BytecodeCheck {
 
-  @CheckProperty(title = "Pattern forbidden for from classes", key = "fromClasses")
-  private String fromClasses = new String();
+  @CheckProperty(title = "Pattern forbidden for from classes", key = "fromPatterns")
+  private String fromPatterns = new String();
 
-  @CheckProperty(title = "Pattern forbidden for to classes", key = "toClasses")
-  private String toClasses = new String();
+  @CheckProperty(title = "Pattern forbidden for to classes", key = "toPatterns")
+  private String toPatterns = new String();
 
-  public String getFromClasses() {
-    return fromClasses;
-  }
-
-  public void setFromClasses(String fromClasses) {
-    this.fromClasses = fromClasses;
-  }
-
-  public String getToClasses() {
-    return toClasses;
-  }
-
-  public void setToClasses(String toClasses) {
-    this.toClasses = toClasses;
-  }
-
+  private List<WildcardPattern> fromMatchers;
+  private List<WildcardPattern> toMatchers;
   private AsmClass asmClass;
+  private Set<String> internalNames;
+
+  public String getFromPatterns() {
+    return fromPatterns;
+  }
+
+  public void setFromPatterns(String patterns) {
+    this.fromPatterns = patterns;
+  }
+
+  public String getToPatterns() {
+    return toPatterns;
+  }
+
+  public void setToPatterns(String patterns) {
+    this.toPatterns = patterns;
+  }
 
   @Override
   public void visitClass(AsmClass asmClass) {
     this.asmClass = asmClass;
+    this.internalNames = Sets.newHashSet();
   }
 
   @Override
   public void visitEdge(AsmEdge edge) {
     if (edge != null) {
-      SourceCodeEdgeUsage usage = edge.getUsage();
-      if (usage.equals(SourceCodeEdgeUsage.USES) || usage.equals(SourceCodeEdgeUsage.CALLS_METHOD)
-          || usage.equals(SourceCodeEdgeUsage.CALLS_FIELD) || usage.equals(SourceCodeEdgeUsage.CONTAINS)) {
-        String internalNameTargetClass = edge.getTargetAsmClass().getInternalName();
+      String internalNameTargetClass = edge.getTargetAsmClass().getInternalName();
+      if ( !internalNames.contains(internalNameTargetClass)) {
         String nameAsmClass = asmClass.getInternalName();
-        if (matchesPattern(nameAsmClass, fromClasses) && matchesPattern(internalNameTargetClass, toClasses)) {
+        if (matches(nameAsmClass, getFromMatchers()) && matches(internalNameTargetClass, getToMatchers())) {
           SourceFile sourceFile = getSourceFile(asmClass);
           CheckMessage message = new CheckMessage(this, nameAsmClass + " shouldn't directly use " + internalNameTargetClass);
           message.setLine(edge.getSourceLineNumber());
           sourceFile.log(message);
+          internalNames.add(internalNameTargetClass);
         }
       }
     }
   }
 
-  private boolean matchesPattern(String className, String pattern) {
-    if (StringUtils.isEmpty(pattern)) {
-      return true;
-    }
-    String[] patterns = pattern.split(",");
-    for (String p : patterns) {
-      p = StringUtils.replace(p, ".", "/");
-      if (WildcardPattern.create(p).match(className)) {
+  private boolean matches(String className, List<WildcardPattern> matchers) {
+    for (WildcardPattern matcher : matchers) {
+      if (matcher.match(className)) {
         return true;
       }
     }
     return false;
+  }
+
+  private List<WildcardPattern> createMatchers(String pattern) {
+    List<WildcardPattern> matchers = Lists.newArrayList();
+    if (StringUtils.isNotEmpty(pattern)) {
+      String[] patterns = pattern.split(",");
+      for (String p : patterns) {
+        p = StringUtils.replace(p, ".", "/");
+        matchers.add(WildcardPattern.create(p));
+      }
+    }
+    return matchers;
+  }
+
+  private List<WildcardPattern> getFromMatchers() {
+    if (fromMatchers == null) {
+      fromMatchers = createMatchers(fromPatterns);
+    }
+    return fromMatchers;
+  }
+
+  private List<WildcardPattern> getToMatchers() {
+    if (toMatchers == null) {
+      toMatchers = createMatchers(toPatterns);
+    }
+    return toMatchers;
   }
 
 }

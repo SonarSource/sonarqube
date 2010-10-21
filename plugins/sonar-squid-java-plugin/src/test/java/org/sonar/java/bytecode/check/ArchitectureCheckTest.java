@@ -19,10 +19,6 @@
  */
 package org.sonar.java.bytecode.check;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
-
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.bytecode.BytecodeScanner;
@@ -31,13 +27,17 @@ import org.sonar.squid.Squid;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.sonar.java.ast.SquidTestUtils.getFile;
+
 public class ArchitectureCheckTest {
 
   private Squid squid;
 
   @Test
   public void testDependencyCheckOneErrorMessage() {
-    check("", "java.**.Pattern");
+    check("*", "java.**.Pattern");
 
     SourceFile file = (SourceFile) squid.search("ArchitectureCheckOneErrorMessage.java");
     assertThat(file.getCheckMessages().size(), is(1));
@@ -48,10 +48,10 @@ public class ArchitectureCheckTest {
 
   @Test
   public void testDependencyCheckDateForbidden() {
-    check("", "**.Date");
+    check("*", "**.Date");
 
     SourceFile file = (SourceFile) squid.search("ArchitectureCheckDateForbidden.java");
-    assertThat(file.getCheckMessages().size(), is(3));
+    assertThat(file.getCheckMessages().size(), is(2));
     // for (CheckMessage message : file.getCheckMessages()) {
     // System.out.println(message.getDefaultMessage());
     // }
@@ -62,7 +62,7 @@ public class ArchitectureCheckTest {
     check("*UI", "java.sql.*");
 
     SourceFile file = (SourceFile) squid.search("ArchitectureCheckToSqlFromUI.java");
-    assertThat(file.getCheckMessages().size(), is(7));
+    assertThat(file.getCheckMessages().size(), is(4));
     // for (CheckMessage message : file.getCheckMessages()) {
     // System.out.println(message.getDefaultMessage() + " at line " + message.getLine());
     // }
@@ -78,8 +78,8 @@ public class ArchitectureCheckTest {
 
   private void check(String fromClasses, String toClasses) {
     ArchitectureCheck check = new ArchitectureCheck();
-    check.setFromClasses(fromClasses);
-    check.setToClasses(toClasses);
+    check.setFromPatterns(fromClasses);
+    check.setToPatterns(toClasses);
 
     squid = new Squid(new JavaSquidConfiguration());
     squid.register(JavaAstScanner.class).scanDirectory(getFile("/bytecode/architecture/src"));
