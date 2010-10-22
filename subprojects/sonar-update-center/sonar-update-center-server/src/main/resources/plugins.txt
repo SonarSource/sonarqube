@@ -6,6 +6,7 @@ org.codehaus.sonar-plugins:sonar-build-breaker-plugin
 org.codehaus.sonar-plugins:sonar-build-stability-plugin
 org.codehaus.sonar-plugins:sonar-c-rules-plugin
 org.codehaus.sonar-plugins:sonar-clirr-plugin
+org.codehaus.sonar-plugins:sonar-cutoff-plugin
 org.codehaus.sonar-plugins:sonar-crowd-plugin
 org.codehaus.sonar-plugins:sonar-emma-plugin
 org.codehaus.sonar-plugins:sonar-flex-plugin
