@@ -74,14 +74,20 @@ public final class AlertUtils {
     if (metric.getType() == Metric.ValueType.FLOAT ||
         metric.getType() == Metric.ValueType.PERCENT) {
       return Double.parseDouble(value);
-    } else if (metric.getType() == Metric.ValueType.INT ||
+    }
+    if (metric.getType() == Metric.ValueType.INT ||
         metric.getType() == Metric.ValueType.MILLISEC) {
       return value.contains(".") ? Integer.parseInt(value.substring(0, value.indexOf('.'))) : Integer.parseInt(value);
-    } else if (metric.getType() == Metric.ValueType.STRING ||
+    }
+    if (metric.getType() == Metric.ValueType.STRING ||
         metric.getType() == Metric.ValueType.LEVEL) {
       return value;
-    } else if (metric.getType() == Metric.ValueType.BOOL) {
+    }
+    if (metric.getType() == Metric.ValueType.BOOL) {
       return Boolean.valueOf(value);
+    }
+    if (metric.getType() == Metric.ValueType.RATING) {
+      return Double.parseDouble(value);
     }
     throw new NotImplementedException(metric.getType().toString());
   }
@@ -90,14 +96,20 @@ public final class AlertUtils {
     if (metric.getType() == Metric.ValueType.FLOAT ||
         metric.getType() == Metric.ValueType.PERCENT) {
       return measure.getValue();
-    } else if (metric.getType() == Metric.ValueType.INT ||
+    }
+    if (metric.getType() == Metric.ValueType.INT ||
         metric.getType() == Metric.ValueType.MILLISEC) {
       return measure.getValue().intValue();
-    } else if (metric.getType() == Metric.ValueType.STRING ||
+    }
+    if (metric.getType() == Metric.ValueType.STRING ||
         metric.getType() == Metric.ValueType.LEVEL) {
       return measure.getData();
-    } else if (metric.getType() == Metric.ValueType.BOOL) {
+    }
+    if (metric.getType() == Metric.ValueType.BOOL) {
       return measure.getValue() == 0d ? Boolean.FALSE : Boolean.TRUE;
+    }
+    if (metric.getType() == Metric.ValueType.RATING) {
+      return measure.getValue();
     }
     throw new NotImplementedException(metric.getType().toString());
   }
