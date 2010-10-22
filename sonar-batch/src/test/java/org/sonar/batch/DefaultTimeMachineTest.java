@@ -49,7 +49,7 @@ public class DefaultTimeMachineTest extends AbstractDbUnitTestCase {
     setupData("loadMeasuresFromDate");
     DefaultTimeMachine timeMachine = initTimeMachine();
 
-    TimeMachineQuery query = new TimeMachineQuery(null).setFrom(date("2008-02-01")).setMetrics(Arrays.asList(CoreMetrics.NCLOC));
+    TimeMachineQuery query = new TimeMachineQuery(newProject()).setFrom(date("2008-02-01")).setMetrics(Arrays.asList(CoreMetrics.NCLOC));
     List<Object[]> measures = timeMachine.getMeasuresFields(query);
 
     assertThat(measures.size(), is(3));
@@ -64,9 +64,14 @@ public class DefaultTimeMachineTest extends AbstractDbUnitTestCase {
 
   private DefaultTimeMachine initTimeMachine() {
     DefaultSonarIndex index = mock(DefaultSonarIndex.class);
-    when(index.getResource((Resource) anyObject())).thenReturn(new Project("group:artifact").setId(1));
     DefaultTimeMachine timeMachine = new DefaultTimeMachine(getSession(), index, new MeasuresDao(getSession()));
     return timeMachine;
+  }
+
+  private Project newProject() {
+    Project project = new Project("group:artifact");
+    project.setId(1);
+    return project;
   }
 
   @Test(timeout = 3000)
@@ -75,7 +80,7 @@ public class DefaultTimeMachineTest extends AbstractDbUnitTestCase {
     DefaultTimeMachine timeMachine = initTimeMachine();
 
 
-    TimeMachineQuery query = new TimeMachineQuery(null).setFrom(date("2008-02-01")).setMetrics(Arrays.asList(CoreMetrics.NCLOC));
+    TimeMachineQuery query = new TimeMachineQuery(newProject()).setFrom(date("2008-02-01")).setMetrics(Arrays.asList(CoreMetrics.NCLOC));
     List<Measure> measures = timeMachine.getMeasures(query);
 
     assertThat(measures.size(), is(3));
@@ -96,7 +101,7 @@ public class DefaultTimeMachineTest extends AbstractDbUnitTestCase {
     DefaultTimeMachine timeMachine = initTimeMachine();
 
 
-    TimeMachineQuery query = new TimeMachineQuery(null).setFrom(date("2008-01-01")).setTo(date("2008-12-25")).setMetrics(Arrays.asList(CoreMetrics.NCLOC));
+    TimeMachineQuery query = new TimeMachineQuery(newProject()).setFrom(date("2008-01-01")).setTo(date("2008-12-25")).setMetrics(Arrays.asList(CoreMetrics.NCLOC));
     List<Measure> measures = timeMachine.getMeasures(query);
     assertThat(measures.size(), is(1));
     assertThat(measures.get(0).getValue(), is(200d));

@@ -62,7 +62,10 @@ public class DefaultTimeMachine implements TimeMachine {
   }
 
   protected List execute(TimeMachineQuery query, boolean selectAllFields) {
-    Resource resource = index.getResource(query.getResource());
+    Resource resource = query.getResource();
+    if (resource!=null && resource.getId()==null) {
+      resource = index.getResource(query.getResource());
+    }
     if (resource == null) {
       return Collections.emptyList();
     }
