@@ -120,7 +120,7 @@ class Metric < ActiveRecord::Base
   end
 
   def alertable?
-    (!data?) && (!hidden) && (key!=Metric::ALERT_STATUS)
+    (!data?) && (!hidden) && (key!=Metric::ALERT_STATUS) && (val_type != VALUE_TYPE_RATING)
   end
 
   def suffix
