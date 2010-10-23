@@ -7,7 +7,6 @@ import com.google.common.collect.Lists;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * This class loader is used to load resources from a list of URLs - see SONAR-1861.
@@ -17,14 +16,7 @@ public class ResourcesClassLoader extends URLClassLoader {
 
   public ResourcesClassLoader(Collection<URL> urls, ClassLoader parent) {
     super(new URL[] {}, parent);
-    List<URL> filtered = Lists.newArrayList();
-    for (URL url : urls) {
-      String path = url.getPath();
-      if ( !StringUtils.endsWith(path, ".jar") && !StringUtils.endsWith(path, "/")) {
-        filtered.add(url);
-      }
-    }
-    this.urls = filtered;
+    this.urls = Lists.newArrayList(urls);
   }
 
   @Override

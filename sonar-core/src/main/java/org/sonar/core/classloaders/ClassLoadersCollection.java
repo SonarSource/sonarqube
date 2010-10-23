@@ -8,7 +8,10 @@ import org.codehaus.classworlds.NoSuchRealmException;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 
+import com.google.common.collect.Lists;
+
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -54,16 +57,30 @@ public class ClassLoadersCollection {
    */
   public ClassLoader createClassLoader(String key, Collection<URL> urls, boolean childFirst) {
     try {
-      ClassLoader resourcesClassLoader = new ResourcesClassLoader(urls, baseClassLoader);
+      ArrayList<URL> resources = Lists.newArrayList();
+      ArrayList<URL> others = Lists.newArrayList();
+      for (URL url : urls) {
+        if (isResource(url)) {
+          resources.add(url);
+        } else {
+          others.add(url);
+        }
+      }
+      ClassLoader parent;
+      if (resources.isEmpty()) {
+        parent = baseClassLoader;
+      } else {
+        parent = new ResourcesClassLoader(resources, baseClassLoader);
+      }
       final ClassRealm realm;
       if (childFirst) {
-        ClassRealm parentRealm = world.newRealm(key + "-parent", resourcesClassLoader);
+        ClassRealm parentRealm = world.newRealm(key + "-parent", parent);
         realm = parentRealm.createChildRealm(key);
       } else {
-        realm = world.newRealm(key, resourcesClassLoader);
+        realm = world.newRealm(key, parent);
       }
-      for (URL constituent : urls) {
-        realm.addConstituent(constituent);
+      for (URL url : others) {
+        realm.addConstituent(url);
       }
       return realm.getClassLoader();
     } catch (DuplicateRealmException e) {
@@ -117,6 +134,11 @@ public class ClassLoadersCollection {
     } catch (NoSuchRealmException e) {
       return null;
     }
+  }
+
+  private boolean isResource(URL url) {
+    String path = url.getPath();
+    return !StringUtils.endsWith(path, ".jar") && !StringUtils.endsWith(path, "/");
   }
 
 }
