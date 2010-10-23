@@ -21,10 +21,11 @@ package org.sonar.java.bytecode.check;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.WildcardPattern;
-import org.sonar.check.Check;
-import org.sonar.check.CheckProperty;
+import org.sonar.check.Cardinality;
 import org.sonar.check.IsoCategory;
 import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
 import org.sonar.java.bytecode.asm.AsmClass;
 import org.sonar.java.bytecode.asm.AsmEdge;
 import org.sonar.squid.api.CheckMessage;
@@ -36,13 +37,13 @@ import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Set;
 
-@Check(key = "Dependency", title = "Respect rule architecture", isoCategory = IsoCategory.Portability, priority = Priority.MINOR, description = "<p>Links between classes must respect defined architecture rules.</p>")
+@Rule(key = "Dependency", name = "Respect rule architecture", cardinality = Cardinality.MULTIPLE, isoCategory = IsoCategory.Portability, priority = Priority.MINOR, description = "<p>Links between classes must respect defined architecture rules.</p>")
 public class ArchitectureCheck extends BytecodeCheck {
 
-  @CheckProperty(title = "Pattern forbidden for from classes", key = "fromPatterns")
+  @RuleProperty(description = "Pattern forbidden for from classes")
   private String fromPatterns = new String();
 
-  @CheckProperty(title = "Pattern forbidden for to classes", key = "toPatterns")
+  @RuleProperty(description = "Pattern forbidden for to classes")
   private String toPatterns = new String();
 
   private List<WildcardPattern> fromMatchers;
@@ -78,6 +79,7 @@ public class ArchitectureCheck extends BytecodeCheck {
       String internalNameTargetClass = edge.getTargetAsmClass().getInternalName();
       if ( !internalNames.contains(internalNameTargetClass)) {
         String nameAsmClass = asmClass.getInternalName();
+        System.out.println("Checking : " + nameAsmClass + " -> " + internalNameTargetClass);
         if (matches(nameAsmClass, getFromMatchers()) && matches(internalNameTargetClass, getToMatchers())) {
           SourceFile sourceFile = getSourceFile(asmClass);
           CheckMessage message = new CheckMessage(this, nameAsmClass + " shouldn't directly use " + internalNameTargetClass);

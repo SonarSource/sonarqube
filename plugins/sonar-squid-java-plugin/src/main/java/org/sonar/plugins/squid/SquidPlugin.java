@@ -19,33 +19,30 @@
  */
 package org.sonar.plugins.squid;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
-import org.sonar.api.checks.templates.CheckTemplateRepository;
-import org.sonar.api.resources.Java;
-import org.sonar.java.bytecode.check.BytecodeChecks;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Properties( {
     @Property(key = SquidPluginProperties.SQUID_ANALYSE_ACCESSORS_PROPERTY,
-        defaultValue = SquidPluginProperties.SQUID_ANALYSE_ACCESSORS_DEFAULT_VALUE
-            + "",
-        name = "Separate accessors",
-        description = "Flag whether Squid should separate accessors (getters/setters) from methods. " +
-            "In that case, accessors are not counted in metrics such as complexity or API documentation.",
-        project = true, global = true),
+    defaultValue = SquidPluginProperties.SQUID_ANALYSE_ACCESSORS_DEFAULT_VALUE
+    + "",
+    name = "Separate accessors",
+    description = "Flag whether Squid should separate accessors (getters/setters) from methods. " +
+    "In that case, accessors are not counted in metrics such as complexity or API documentation.",
+    project = true, global = true),
     @Property(key = SquidPluginProperties.FIELDS_TO_EXCLUDE_FROM_LCOM4_COMPUTATION,
-        defaultValue = SquidPluginProperties.FIELDS_TO_EXCLUDE_FROM_LCOM4_COMPUTATION_DEFAULT_VALUE,
-        name = "List of fields to exclude from LCOM4 computation",
-        description = "Some fields should not be taken into account when computing LCOM4 measure as they " +
-            "unexpectedly and artificially decrease the LCOM4 measure. "
-            + "The best example is a logger used by all methods of a class. " +
-                "All field names to exclude from LCOM4 computation must be separated by a comma.",
-            project = true, global = true) })
+    defaultValue = SquidPluginProperties.FIELDS_TO_EXCLUDE_FROM_LCOM4_COMPUTATION_DEFAULT_VALUE,
+    name = "List of fields to exclude from LCOM4 computation",
+    description = "Some fields should not be taken into account when computing LCOM4 measure as they " +
+    "unexpectedly and artificially decrease the LCOM4 measure. "
+    + "The best example is a logger used by all methods of a class. " +
+    "All field names to exclude from LCOM4 computation must be separated by a comma.",
+    project = true, global = true) })
 public class SquidPlugin implements Plugin {
 
   public String getKey() {
@@ -65,8 +62,7 @@ public class SquidPlugin implements Plugin {
 
     list.add(SquidSearchProxy.class);
     list.add(SquidSensor.class);
-    list.add(CheckTemplateRepository.createFromAnnotatedClasses(CoreProperties.SQUID_PLUGIN, Java.INSTANCE, BytecodeChecks
-        .getCheckClasses()));
+    list.add(SquidRuleRepository.class);
 
     return list;
   }

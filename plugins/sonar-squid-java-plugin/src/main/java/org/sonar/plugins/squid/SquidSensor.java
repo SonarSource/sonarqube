@@ -19,13 +19,6 @@
  */
 package org.sonar.plugins.squid;
 
-import java.io.File;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
@@ -37,14 +30,20 @@ import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.checks.AnnotationCheckFactory;
 import org.sonar.api.checks.NoSonarFilter;
-import org.sonar.api.checks.checkers.AnnotationCheckerFactory;
-import org.sonar.api.checks.checkers.MessageDispatcher;
-import org.sonar.api.checks.profiles.CheckProfile;
+import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 import org.sonar.java.bytecode.check.BytecodeChecks;
+
+import java.io.File;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 @Phase(name = Phase.Name.PRE)
 /* TODO is the flag still used ? */
@@ -53,9 +52,9 @@ public class SquidSensor implements Sensor {
 
   private SquidSearchProxy proxy;
   private NoSonarFilter noSonarFilter;
-  private CheckProfile profile;
+  private RulesProfile profile;
 
-  public SquidSensor(CheckProfile profile, SquidSearchProxy proxy, NoSonarFilter noSonarFilter) {
+  public SquidSensor(RulesProfile profile, SquidSearchProxy proxy, NoSonarFilter noSonarFilter) {
     this.proxy = proxy;
     this.noSonarFilter = noSonarFilter;
     this.profile = profile;
@@ -74,20 +73,12 @@ public class SquidSensor implements Sensor {
         SquidPluginProperties.FIELDS_TO_EXCLUDE_FROM_LCOM4_COMPUTATION_DEFAULT_VALUE);
     Charset charset = project.getFileSystem().getSourceCharset();
 
-    MessageDispatcher messageDispatcher = initMessageDispatcher(context);
+    AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, SquidConstants.REPOSITORY_KEY, BytecodeChecks.getCheckClasses());
 
-    SquidExecutor squidExecutor = new SquidExecutor(analyzePropertyAccessors, fieldNamesToExcludeFromLcom4Computation, messageDispatcher,
-        charset);
+    SquidExecutor squidExecutor = new SquidExecutor(analyzePropertyAccessors, fieldNamesToExcludeFromLcom4Computation, factory, charset);
     squidExecutor.scan(getSourceFiles(project), getBytecodeFiles(project));
     squidExecutor.save(project, context, noSonarFilter);
     squidExecutor.initSonarProxy(proxy);
-  }
-
-  private MessageDispatcher initMessageDispatcher(SensorContext context) {
-    MessageDispatcher messageDispatcher = new MessageDispatcher(context);
-    AnnotationCheckerFactory factory = new AnnotationCheckerFactory(profile, CoreProperties.SQUID_PLUGIN, BytecodeChecks.getCheckClasses());
-    messageDispatcher.registerCheckers(factory);
-    return messageDispatcher;
   }
 
   private List<File> getSourceFiles(Project project) {

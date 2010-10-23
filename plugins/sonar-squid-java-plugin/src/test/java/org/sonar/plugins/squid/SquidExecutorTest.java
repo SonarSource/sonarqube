@@ -29,6 +29,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
+import org.junit.Test;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.checks.AnnotationCheckFactory;
+import org.sonar.api.checks.CheckFactory;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
+import org.sonar.squid.Squid;
+import org.sonar.squid.measures.Metric;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -36,20 +46,11 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.junit.Test;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.checks.checkers.MessageDispatcher;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
-import org.sonar.squid.Squid;
-import org.sonar.squid.measures.Metric;
-
 public class SquidExecutorTest {
 
   @Test
   public void scanSources() throws IOException, URISyntaxException {
-    SquidExecutor executor = new SquidExecutor(true, "LOG, logger", new MessageDispatcher(mock(SensorContext.class)), Charset
-        .defaultCharset());
+    SquidExecutor executor = new SquidExecutor(true, "LOG, logger", createCheckFactory(), Charset.defaultCharset());
     executor.scan(SquidTestUtils.getStrutsCoreSources(), Collections.<File> emptyList());
 
     assertThat(executor.isSourceScanned(), is(true));
@@ -58,8 +59,7 @@ public class SquidExecutorTest {
 
   @Test
   public void doNotScanBytecodeIfNoSources() throws IOException, URISyntaxException {
-    SquidExecutor executor = new SquidExecutor(true, "LOG, logger", new MessageDispatcher(mock(SensorContext.class)), Charset
-        .defaultCharset());
+    SquidExecutor executor = new SquidExecutor(true, "LOG, logger", createCheckFactory(), Charset.defaultCharset());
     executor.scan(Collections.<File> emptyList(), Arrays.asList(SquidTestUtils.getStrutsCoreJar()));
 
     assertThat(executor.isSourceScanned(), is(false));
@@ -68,8 +68,7 @@ public class SquidExecutorTest {
 
   @Test
   public void scanBytecode() throws IOException, URISyntaxException {
-    SquidExecutor executor = new SquidExecutor(true, "LOG, logger", new MessageDispatcher(mock(SensorContext.class)), Charset
-        .defaultCharset());
+    SquidExecutor executor = new SquidExecutor(true, "LOG, logger", createCheckFactory(), Charset.defaultCharset());
     executor.scan(SquidTestUtils.getStrutsCoreSources(), Arrays.asList(SquidTestUtils.getStrutsCoreJar()));
 
     assertThat(executor.isSourceScanned(), is(true));
@@ -79,8 +78,7 @@ public class SquidExecutorTest {
 
   @Test
   public void doNotSaveMeasuresIfSourceNotScanned() {
-    SquidExecutor executor = new SquidExecutor(true, "LOG, logger", new MessageDispatcher(mock(SensorContext.class)), Charset
-        .defaultCharset());
+    SquidExecutor executor = new SquidExecutor(true, "LOG, logger", createCheckFactory(), Charset.defaultCharset());
     SensorContext context = mock(SensorContext.class);
 
     assertThat(executor.isSourceScanned(), is(false));
@@ -91,8 +89,7 @@ public class SquidExecutorTest {
 
   @Test
   public void scanThenSaveMeasures() throws IOException, URISyntaxException {
-    SquidExecutor executor = new SquidExecutor(true, "LOG, logger", new MessageDispatcher(mock(SensorContext.class)), Charset
-        .defaultCharset());
+    SquidExecutor executor = new SquidExecutor(true, "LOG, logger", createCheckFactory(), Charset.defaultCharset());
     SensorContext context = mock(SensorContext.class);
 
     executor.scan(SquidTestUtils.getStrutsCoreSources(), Collections.<File> emptyList());
@@ -111,5 +108,11 @@ public class SquidExecutorTest {
     executor.initSonarProxy(new SquidSearchProxy());
 
     verify(squid).flush();
+  }
+
+  private CheckFactory createCheckFactory() {
+    RulesProfile profile = RulesProfile.create();
+    CheckFactory checkFactory = AnnotationCheckFactory.create(profile, "repo", Collections.<Class> emptyList());
+    return checkFactory;
   }
 }

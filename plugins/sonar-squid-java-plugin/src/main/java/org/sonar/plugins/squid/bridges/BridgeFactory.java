@@ -19,14 +19,14 @@
  */
 package org.sonar.plugins.squid.bridges;
 
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.checks.CheckFactory;
+import org.sonar.api.checks.NoSonarFilter;
+import org.sonar.squid.Squid;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.checks.NoSonarFilter;
-import org.sonar.api.checks.checkers.MessageDispatcher;
-import org.sonar.squid.Squid;
 
 public final class BridgeFactory {
 
@@ -41,11 +41,11 @@ public final class BridgeFactory {
         new Lcom4BlocksBridge(), new ChecksBridge());
   }
 
-  public static List<Bridge> create(boolean bytecodeScanned, SensorContext context, MessageDispatcher messageDispatcher,
+  public static List<Bridge> create(boolean bytecodeScanned, SensorContext context, CheckFactory checkFactory,
       ResourceIndex resourceIndex, Squid squid, NoSonarFilter noSonarFilter) {
     List<Bridge> result = new ArrayList<Bridge>();
     for (Bridge bridge : create(noSonarFilter)) {
-      bridge.setMessageDispatcher(messageDispatcher);
+      bridge.setCheckFactory(checkFactory);
       if ( !bridge.needsBytecode() || bytecodeScanned) {
         bridge.setContext(context);
         bridge.setSquid(squid);

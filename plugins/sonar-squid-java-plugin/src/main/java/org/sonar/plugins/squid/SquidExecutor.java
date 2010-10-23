@@ -19,15 +19,10 @@
  */
 package org.sonar.plugins.squid;
 
-import java.io.File;
-import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.checks.CheckFactory;
 import org.sonar.api.checks.NoSonarFilter;
-import org.sonar.api.checks.checkers.MessageDispatcher;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.TimeProfiler;
@@ -45,19 +40,23 @@ import org.sonar.squid.api.SourcePackage;
 import org.sonar.squid.indexer.QueryByType;
 import org.sonar.squid.measures.Metric;
 
+import java.io.File;
+import java.nio.charset.Charset;
+import java.util.Collection;
+import java.util.List;
+
 public final class SquidExecutor {
 
   private Squid squid;
   private boolean sourceScanned = false;
   private boolean bytecodeScanned = false;
-  private MessageDispatcher messageDispatcher;
+  private CheckFactory checkFactory;
 
-  public SquidExecutor(boolean analyzePropertyAccessors, String fieldNamesToExcludeFromLcom4Computation,
-      MessageDispatcher messageDispatcher, Charset sourcesCharset) {
+  public SquidExecutor(boolean analyzePropertyAccessors, String fieldNamesToExcludeFromLcom4Computation, CheckFactory checkFactory, Charset sourcesCharset) {
     JavaSquidConfiguration conf = createJavaSquidConfiguration(analyzePropertyAccessors, fieldNamesToExcludeFromLcom4Computation,
         sourcesCharset);
     squid = new Squid(conf);
-    this.messageDispatcher = messageDispatcher;
+    this.checkFactory = checkFactory;
   }
 
   private JavaSquidConfiguration createJavaSquidConfiguration(boolean analyzePropertyAccessors,
@@ -82,7 +81,7 @@ public final class SquidExecutor {
   public void scan(Collection<File> sourceFiles, Collection<File> bytecodeFilesOrDirectories) {
     scanSources(sourceFiles);
     if (sourceScanned) {
-      for (Object checker : messageDispatcher.getCheckers()) {
+      for (Object checker : checkFactory.getChecks()) {
         squid.registerVisitor((BytecodeCheck) checker);
       }
       scanBytecode(bytecodeFilesOrDirectories);
@@ -94,7 +93,7 @@ public final class SquidExecutor {
     if (sourceScanned) {
       TimeProfiler profiler = new TimeProfiler(getClass()).start("Squid extraction");
       ResourceIndex resourceIndex = new ResourceIndex().loadSquidResources(squid, context, project);
-      List<Bridge> bridges = BridgeFactory.create(bytecodeScanned, context, messageDispatcher, resourceIndex, squid, noSonarFilter);
+      List<Bridge> bridges = BridgeFactory.create(bytecodeScanned, context, checkFactory, resourceIndex, squid, noSonarFilter);
       saveProject(resourceIndex, bridges);
       savePackages(resourceIndex, bridges);
       saveFiles(resourceIndex, bridges);

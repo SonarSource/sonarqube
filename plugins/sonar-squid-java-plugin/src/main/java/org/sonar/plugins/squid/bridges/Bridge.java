@@ -20,7 +20,7 @@
 package org.sonar.plugins.squid.bridges;
 
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.checks.checkers.MessageDispatcher;
+import org.sonar.api.checks.CheckFactory;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.squid.Squid;
@@ -37,7 +37,7 @@ public abstract class Bridge {
   Squid squid;
   ResourceIndex resourceIndex;
   SensorContext context;
-  MessageDispatcher messageDispatcher;
+  CheckFactory checkFactory;
 
   protected Bridge(boolean needsBytecode) {
     this.needsBytecode = needsBytecode;
@@ -51,8 +51,8 @@ public abstract class Bridge {
     this.squid = squid;
   }
 
-  protected final void setMessageDispatcher(MessageDispatcher messageDispatcher) {
-    this.messageDispatcher = messageDispatcher;
+  protected final void setCheckFactory(CheckFactory checkFactory) {
+    this.checkFactory = checkFactory;
   }
 
   protected final void setResourceIndex(ResourceIndex resourceIndex) {
