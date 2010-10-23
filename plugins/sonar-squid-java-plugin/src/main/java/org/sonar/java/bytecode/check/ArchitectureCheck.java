@@ -32,10 +32,10 @@ import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Maps;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 @Rule(key = "ArchitecturalConstraint", name = "Architectural constraint", cardinality = Cardinality.MULTIPLE, isoCategory = IsoCategory.Portability, priority = Priority.MAJOR, description = "<p>A source code comply to an architectural model when it fully adheres to a set of architectural constraints. " +
     "A constraint allows to deny references between classes by pattern.</p>" +
@@ -54,7 +54,7 @@ public class ArchitectureCheck extends BytecodeCheck {
   private List<WildcardPattern> fromMatchers;
   private List<WildcardPattern> toMatchers;
   private AsmClass asmClass;
-  private Set<String> internalNames;
+  private Map<String, CheckMessage> internalNames;
 
   public String getFromClasses() {
     return fromClasses;
@@ -75,24 +75,38 @@ public class ArchitectureCheck extends BytecodeCheck {
   @Override
   public void visitClass(AsmClass asmClass) {
     this.asmClass = asmClass;
-    this.internalNames = Sets.newHashSet();
+    this.internalNames = Maps.newHashMap();
+  }
+
+  @Override
+  public void leaveClass(AsmClass asmClass) {
+    for (CheckMessage message : internalNames.values()) {
+      SourceFile sourceFile = getSourceFile(asmClass);
+      sourceFile.log(message);
+    }
   }
 
   @Override
   public void visitEdge(AsmEdge edge) {
     if (edge != null) {
       String internalNameTargetClass = edge.getTargetAsmClass().getInternalName();
-      if ( !internalNames.contains(internalNameTargetClass)) {
+      if ( !internalNames.containsKey(internalNameTargetClass)) {
         String nameAsmClass = asmClass.getInternalName();
         if (matches(nameAsmClass, getFromMatchers()) && matches(internalNameTargetClass, getToMatchers())) {
-          SourceFile sourceFile = getSourceFile(asmClass);
-          CheckMessage message = new CheckMessage(this, "Architecture constraint : " + nameAsmClass + " must not use " + internalNameTargetClass);
-          message.setLine(edge.getSourceLineNumber());
-          sourceFile.log(message);
-          internalNames.add(internalNameTargetClass);
+          logMessage(edge);
         }
+      } else if (internalNames.get(internalNameTargetClass).getLine() == 0 && edge.getSourceLineNumber() != 0) {
+        logMessage(edge);
       }
     }
+  }
+
+  private void logMessage(AsmEdge edge) {
+    String fromClass = asmClass.getInternalName();
+    String toClass = edge.getTargetAsmClass().getInternalName();
+    CheckMessage message = new CheckMessage(this, "Architecture constraint : " + fromClass + " must not use " + toClass);
+    message.setLine(edge.getSourceLineNumber());
+    internalNames.put(toClass, message);
   }
 
   private boolean matches(String className, List<WildcardPattern> matchers) {
@@ -118,7 +132,11 @@ public class ArchitectureCheck extends BytecodeCheck {
 
   private List<WildcardPattern> getFromMatchers() {
     if (fromMatchers == null) {
-      fromMatchers = createMatchers(fromClasses);
+      if (StringUtils.isBlank(fromClasses)) {
+        fromMatchers = createMatchers("**");
+      } else {
+        fromMatchers = createMatchers(fromClasses);
+      }
     }
     return fromMatchers;
   }

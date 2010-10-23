@@ -37,7 +37,7 @@ public class ArchitectureCheckTest {
 
   @Test
   public void testDependencyCheckOneErrorMessage() {
-    check("*", "java.**.Pattern");
+    check("", "java.**.Pattern");
 
     SourceFile file = (SourceFile) squid.search("ArchitectureCheckOneErrorMessage.java");
     assertThat(file.getCheckMessages().size(), is(1));
@@ -48,7 +48,7 @@ public class ArchitectureCheckTest {
 
   @Test
   public void testDependencyCheckDateForbidden() {
-    check("*", "**.Date");
+    check("", "**.Date");
 
     SourceFile file = (SourceFile) squid.search("ArchitectureCheckDateForbidden.java");
     assertThat(file.getCheckMessages().size(), is(2));
