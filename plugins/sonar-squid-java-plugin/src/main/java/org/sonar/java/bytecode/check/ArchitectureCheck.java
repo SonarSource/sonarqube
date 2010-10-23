@@ -37,34 +37,39 @@ import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Set;
 
-@Rule(key = "Dependency", name = "Respect rule architecture", cardinality = Cardinality.MULTIPLE, isoCategory = IsoCategory.Portability, priority = Priority.MINOR, description = "<p>Links between classes must respect defined architecture rules.</p>")
+@Rule(key = "ArchitecturalConstraint", name = "Architectural constraint", cardinality = Cardinality.MULTIPLE, isoCategory = IsoCategory.Portability, priority = Priority.MAJOR, description = "<p>A source code comply to an architectural model when it fully adheres to a set of architectural constraints. " +
+    "A constraint allows to deny references between classes by pattern.</p>" +
+    "<p>You can for instance use this rule to :</p>" +
+    "<ul><li>forbid access to **.web.** from **.dao.** classes</li>" +
+    "<li>forbid access to java.util.Vector, java.util.Hashtable and java.util.Enumeration from any classes</li>" +
+    "<li>forbid access to java.sql.** from **.ui.** and **.web.** classes</li></ul>")
 public class ArchitectureCheck extends BytecodeCheck {
 
-  @RuleProperty(description = "Pattern forbidden for from classes")
-  private String fromPatterns = new String();
+  @RuleProperty(description = "Optional. If this property is not defined, all classes should adhere to this constraint. Ex : **.web.**")
+  private String fromClasses = new String();
 
-  @RuleProperty(description = "Pattern forbidden for to classes")
-  private String toPatterns = new String();
+  @RuleProperty(description = "Mandatory. Ex : java.util.Vector, java.util.Hashtable, java.util.Enumeration")
+  private String toClasses = new String();
 
   private List<WildcardPattern> fromMatchers;
   private List<WildcardPattern> toMatchers;
   private AsmClass asmClass;
   private Set<String> internalNames;
 
-  public String getFromPatterns() {
-    return fromPatterns;
+  public String getFromClasses() {
+    return fromClasses;
   }
 
-  public void setFromPatterns(String patterns) {
-    this.fromPatterns = patterns;
+  public void setFromClasses(String patterns) {
+    this.fromClasses = patterns;
   }
 
-  public String getToPatterns() {
-    return toPatterns;
+  public String getToClasses() {
+    return toClasses;
   }
 
-  public void setToPatterns(String patterns) {
-    this.toPatterns = patterns;
+  public void setToClasses(String patterns) {
+    this.toClasses = patterns;
   }
 
   @Override
@@ -79,10 +84,9 @@ public class ArchitectureCheck extends BytecodeCheck {
       String internalNameTargetClass = edge.getTargetAsmClass().getInternalName();
       if ( !internalNames.contains(internalNameTargetClass)) {
         String nameAsmClass = asmClass.getInternalName();
-        System.out.println("Checking : " + nameAsmClass + " -> " + internalNameTargetClass);
         if (matches(nameAsmClass, getFromMatchers()) && matches(internalNameTargetClass, getToMatchers())) {
           SourceFile sourceFile = getSourceFile(asmClass);
-          CheckMessage message = new CheckMessage(this, nameAsmClass + " shouldn't directly use " + internalNameTargetClass);
+          CheckMessage message = new CheckMessage(this, "Architecture constraint : " + nameAsmClass + " must not use " + internalNameTargetClass);
           message.setLine(edge.getSourceLineNumber());
           sourceFile.log(message);
           internalNames.add(internalNameTargetClass);
@@ -114,14 +118,14 @@ public class ArchitectureCheck extends BytecodeCheck {
 
   private List<WildcardPattern> getFromMatchers() {
     if (fromMatchers == null) {
-      fromMatchers = createMatchers(fromPatterns);
+      fromMatchers = createMatchers(fromClasses);
     }
     return fromMatchers;
   }
 
   private List<WildcardPattern> getToMatchers() {
     if (toMatchers == null) {
-      toMatchers = createMatchers(toPatterns);
+      toMatchers = createMatchers(toClasses);
     }
     return toMatchers;
   }
