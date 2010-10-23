@@ -72,6 +72,14 @@ public final class DeprecatedProfiles {
     this.deprecatedCheckProfiles = new CheckProfile[0];
     this.deprecatedCheckProfileProviders = new CheckProfileProvider[0];
   }
+  
+  public DeprecatedProfiles(Plugins plugins, RuleFinder ruleFinder) {
+    this.deprecatedRepositories = new RulesRepository[0];
+    this.plugins = plugins;
+    this.ruleFinder = ruleFinder;
+    this.deprecatedCheckProfiles = new CheckProfile[0];
+    this.deprecatedCheckProfileProviders = new CheckProfileProvider[0];
+  }
 
   public List<ProfileDefinition> getProfiles() {
     List<ProfileDefinition> profiles = new ArrayList<ProfileDefinition>();
