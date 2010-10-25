@@ -33,7 +33,11 @@
 
         </td>
         <td>
-
+          <div>
+            <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=updates&key=<%= update.getPlugin().getKey() -%>&version=<%= update.getRelease().getVersion() -%>" style="display: inline-block">
+              <input type="submit" value="Update"></input>
+            </form>
+          </div>
         </td>
       </tr>
     <% end %>
