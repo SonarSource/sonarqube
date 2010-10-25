@@ -21,11 +21,7 @@ package org.sonar.java.bytecode.check;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.WildcardPattern;
-import org.sonar.check.Cardinality;
-import org.sonar.check.IsoCategory;
-import org.sonar.check.Priority;
-import org.sonar.check.Rule;
-import org.sonar.check.RuleProperty;
+import org.sonar.check.*;
 import org.sonar.java.bytecode.asm.AsmClass;
 import org.sonar.java.bytecode.asm.AsmEdge;
 import org.sonar.squid.api.CheckMessage;
@@ -104,7 +100,7 @@ public class ArchitectureCheck extends BytecodeCheck {
   private void logMessage(AsmEdge edge) {
     String fromClass = asmClass.getInternalName();
     String toClass = edge.getTargetAsmClass().getInternalName();
-    CheckMessage message = new CheckMessage(this, "Architecture constraint : " + fromClass + " must not use " + toClass);
+    CheckMessage message = new CheckMessage(this, fromClass + " must not use " + toClass);
     message.setLine(edge.getSourceLineNumber());
     internalNames.put(toClass, message);
   }
