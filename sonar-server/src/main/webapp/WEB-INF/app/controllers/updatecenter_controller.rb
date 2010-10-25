@@ -17,7 +17,7 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class PluginsController < ApplicationController
+class UpdatecenterController < ApplicationController
 
   SECTION=Navigation::SECTION_CONFIGURATION
   before_filter :admin_required

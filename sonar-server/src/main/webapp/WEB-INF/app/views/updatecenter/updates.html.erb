@@ -10,7 +10,7 @@
   </li>
 </ul>
 <div class="tabs-panel">
-<%= render :partial => 'plugins/downloads' %>
+<%= render :partial => 'updatecenter/downloads' %>
 
 <% if @center %>
   <table class="data width100" id="plugin-updates">
@@ -69,5 +69,5 @@
   </table>
   <br/>
 <% end %>
-<%= render :partial => 'plugins/status', :locals => {:action => 'updates' } %>
+<%= render :partial => 'updatecenter/status', :locals => {:action => 'updates' } %>
 </div>

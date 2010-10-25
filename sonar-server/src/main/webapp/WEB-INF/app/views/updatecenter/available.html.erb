@@ -11,7 +11,7 @@
 </ul>
 <div class="tabs-panel">
 
-<%= render :partial => 'plugins/downloads' %>
+<%= render :partial => 'updatecenter/downloads' %>
 
 <% if @center %>
   <% @updates_by_category.keys.sort_by{|c| c.downcase }.each do |category|
@@ -64,7 +64,7 @@
                 <% if plugin.getTermsConditionsUrl() %>
                 <input type="checkbox" id="tc-<%= plugin.getKey() -%>"></input> I accept the <%= link_to 'Terms and Conditions', plugin.getTermsConditionsUrl(), :class => 'external' %>
                 <% end %>
-                <form method="post" action="<%= ApplicationController.root_context -%>/plugins/install?from=available&key=<%= plugin.getKey() -%>&version=<%= update.getRelease().getVersion() -%>" style="display: inline-block">
+                <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=available&key=<%= plugin.getKey() -%>&version=<%= update.getRelease().getVersion() -%>" style="display: inline-block">
                   <input type="submit" value="Install" onClick="return checkTermsConditions('<%= plugin.getKey() -%>')"></input>
                 </form>
              
@@ -85,5 +85,5 @@
     </table><br/>
   <% end %>
 <% end %>
-<%= render :partial => 'plugins/status', :locals => {:action => 'available' } %>
+<%= render :partial => 'updatecenter/status', :locals => {:action => 'available' } %>
 </div>
