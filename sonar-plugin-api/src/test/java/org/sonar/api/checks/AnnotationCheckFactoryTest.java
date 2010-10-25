@@ -27,6 +27,9 @@ import org.sonar.api.utils.SonarException;
 
 import java.util.Arrays;
 
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -37,7 +40,7 @@ public class AnnotationCheckFactoryTest {
   public void createCheckWithoutProperties() {
     RulesProfile profile = RulesProfile.create("repo", "java");
     ActiveRule activeRule = profile.activateRule(Rule.create("repo", "org.sonar.api.checks.CheckWithoutProperties", ""), null);
-    AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class>asList(CheckWithoutProperties.class));
+    AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class> asList(CheckWithoutProperties.class));
 
     Object check = factory.getCheck(activeRule);
     assertNotNull(check);
@@ -52,7 +55,7 @@ public class AnnotationCheckFactoryTest {
 
     ActiveRule activeRule = profile.activateRule(rule, null);
     activeRule.setParameter("pattern", "foo");
-    AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class>asList(CheckWithStringProperty.class));
+    AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class> asList(CheckWithStringProperty.class));
 
     Object check = factory.getCheck(activeRule);
     assertNotNull(check);
@@ -68,7 +71,7 @@ public class AnnotationCheckFactoryTest {
 
     ActiveRule activeRule = profile.activateRule(rule, null);
     activeRule.setParameter("unknown", "bar");
-    AnnotationCheckFactory.create(profile, "repo", Arrays.<Class>asList(CheckWithStringProperty.class));
+    AnnotationCheckFactory.create(profile, "repo", Arrays.<Class> asList(CheckWithStringProperty.class));
   }
 
   @Test
@@ -81,7 +84,7 @@ public class AnnotationCheckFactoryTest {
     ActiveRule activeRule = profile.activateRule(rule, null);
     activeRule.setParameter("max", "300");
     activeRule.setParameter("ignore", "true");
-    AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class>asList(CheckWithPrimitiveProperties.class));
+    AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class> asList(CheckWithPrimitiveProperties.class));
 
     Object check = factory.getCheck(activeRule);
     assertThat(((CheckWithPrimitiveProperties) check).getMax(), is(300));
@@ -96,12 +99,11 @@ public class AnnotationCheckFactoryTest {
 
     ActiveRule activeRule = profile.activateRule(rule, null);
     activeRule.setParameter("max", "300");
-    AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class>asList(CheckWithIntegerProperty.class));
+    AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class> asList(CheckWithIntegerProperty.class));
 
     Object check = factory.getCheck(activeRule);
     assertThat(((CheckWithIntegerProperty) check).getMax(), is(300));
   }
-
 
   @Test(expected = SonarException.class)
   public void failIfPropertyTypeIsNotSupported() {
@@ -111,7 +113,7 @@ public class AnnotationCheckFactoryTest {
 
     ActiveRule activeRule = profile.activateRule(rule, null);
     activeRule.setParameter("max", "300");
-    AnnotationCheckFactory.create(profile, "repo", Arrays.<Class>asList(CheckWithUnsupportedPropertyType.class));
+    AnnotationCheckFactory.create(profile, "repo", Arrays.<Class> asList(CheckWithUnsupportedPropertyType.class));
   }
 
   @Test
@@ -122,10 +124,22 @@ public class AnnotationCheckFactoryTest {
 
     ActiveRule activeRule = profile.activateRule(rule, null);
     activeRule.setParameter("maximum", "300");
-    AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class>asList(CheckWithOverriddenPropertyKey.class));
+    AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class> asList(CheckWithOverriddenPropertyKey.class));
 
     Object check = factory.getCheck(activeRule);
     assertThat(((CheckWithOverriddenPropertyKey) check).getMax(), is(300));
   }
-}
 
+  @Test
+  public void shouldWorkWithClonedRules() {
+    RulesProfile profile = RulesProfile.create("repo", "java");
+    Rule rule = Rule.create("repo", "CheckWithKey", "");
+    Rule clonedRule = Rule.create("repo", "CheckWithKey_2", "").setParent(rule);
+
+    profile.activateRule(rule, null);
+    profile.activateRule(clonedRule, null);
+    AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class> asList(CheckWithKey.class));
+
+    assertThat(factory.getChecks(), not(hasItems(nullValue())));
+  }
+}
