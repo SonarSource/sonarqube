@@ -19,7 +19,6 @@
  */
 package org.sonar.api.checks;
 
-import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
@@ -29,6 +28,8 @@ import org.sonar.check.Check;
 import org.sonar.check.CheckProperty;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+
+import com.google.common.collect.Maps;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -46,7 +47,6 @@ public final class AnnotationCheckFactory extends CheckFactory {
     groupClassesByKey(checkClasses);
   }
 
-
   public static AnnotationCheckFactory create(RulesProfile profile, String repositoryKey, Collection<Class> checkClasses) {
     AnnotationCheckFactory factory = new AnnotationCheckFactory(profile, repositoryKey, checkClasses);
     factory.init();
@@ -63,7 +63,7 @@ public final class AnnotationCheckFactory extends CheckFactory {
   }
 
   protected Object createCheck(ActiveRule activeRule) {
-    Class clazz = checkClassesByKey.get(activeRule.getRuleKey());
+    Class clazz = checkClassesByKey.get(activeRule.getConfigKey());
     if (clazz != null) {
       return instantiate(activeRule, clazz);
     }

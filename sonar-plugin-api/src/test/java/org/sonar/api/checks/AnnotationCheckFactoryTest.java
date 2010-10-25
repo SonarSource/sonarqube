@@ -19,6 +19,7 @@
  */
 package org.sonar.api.checks;
 
+import org.hamcrest.Matcher;
 import org.junit.Test;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
@@ -134,12 +135,12 @@ public class AnnotationCheckFactoryTest {
   public void shouldWorkWithClonedRules() {
     RulesProfile profile = RulesProfile.create("repo", "java");
     Rule rule = Rule.create("repo", "CheckWithKey", "");
-    Rule clonedRule = Rule.create("repo", "CheckWithKey_2", "").setParent(rule);
+    Rule clonedRule = Rule.create("repo", "CheckWithKey_2", "").setConfigKey("CheckWithKey").setParent(rule);
 
     profile.activateRule(rule, null);
     profile.activateRule(clonedRule, null);
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class> asList(CheckWithKey.class));
 
-    assertThat(factory.getChecks(), not(hasItems(nullValue())));
+    assertThat(factory.getChecks(), (Matcher) not(hasItems(nullValue())));
   }
 }
