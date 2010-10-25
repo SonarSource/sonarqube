@@ -11,10 +11,10 @@ import java.util.List;
 public final class SquidRuleRepository extends RuleRepository {
   private AnnotationRuleParser ruleParser;
 
-  public SquidRuleRepository() {
+  public SquidRuleRepository(AnnotationRuleParser ruleParser) {
     super(SquidConstants.REPOSITORY_KEY, Java.KEY);
     setName(SquidConstants.REPOSITORY_NAME);
-    this.ruleParser = new AnnotationRuleParser(); // TODO bug?
+    this.ruleParser = ruleParser;
   }
 
   @Override
