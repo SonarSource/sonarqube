@@ -38,14 +38,6 @@ import org.sonar.api.Property;
         module = true,
         global = true),
     @Property(
-        key = CoreProperties.FINDBUGS_MAXHEAP_PROPERTY,
-        defaultValue = CoreProperties.FINDBUGS_MAXHEAP_DEFAULT_VALUE + "",
-        name = "Max Heap",
-        description = "Maximum Java heap size in megabytes (default=512).",
-        project = true,
-        module = true,
-        global = true),
-    @Property(
         key = CoreProperties.FINDBUGS_TIMEOUT_PROPERTY,
         defaultValue = CoreProperties.FINDBUGS_TIMEOUT_DEFAULT_VALUE + "",
         name = "Timeout",

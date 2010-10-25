@@ -22,7 +22,7 @@ package org.sonar.api;
 /**
  * CoreProperties is used to group various properties of Sonar as well
  * as default values of configuration in a single place
- *
+ * 
  * @since 1.11
  */
 public interface CoreProperties {
@@ -40,7 +40,6 @@ public interface CoreProperties {
   String DYNAMIC_ANALYSIS_PROPERTY = "sonar.dynamicAnalysis";
   String PROJECT_EXCLUSIONS_PROPERTY = "sonar.exclusions";
   String REUSE_RULES_CONFIGURATION_PROPERTY = "sonar.reuseExistingRulesConfiguration";
-
 
   /* Checkstyle */
   String CHECKSTYLE_PLUGIN = "checkstyle";
@@ -72,7 +71,7 @@ public interface CoreProperties {
   String CORE_AUTHENTICATOR_CREATE_USERS = "sonar.authenticator.createUsers";
   String SERVER_VERSION = "sonar.core.version";
   String SERVER_ID = "sonar.core.id";
-  String SERVER_STARTTIME = "sonar.core.startTime";  // format is yyyy-MM-dd'T'HH:mm:ssZ
+  String SERVER_STARTTIME = "sonar.core.startTime"; // format is yyyy-MM-dd'T'HH:mm:ssZ
   String SKIP_TENDENCIES_PROPERTY = "sonar.skipTendencies";
   boolean SKIP_TENDENCIES_DEFAULT_VALUE = false;
 
@@ -95,18 +94,6 @@ public interface CoreProperties {
   String FINDBUGS_EFFORT_PROPERTY = "sonar.findbugs.effort";
   String FINDBUGS_EFFORT_DEFAULT_VALUE = "Default";
   String FINDBUGS_REPORT_PATH = "sonar.findbugs.reportPath";
-  
-  /**
-   * @deprecated since 2.4, because unused
-   */
-  @Deprecated
-  String FINDBUGS_MAXHEAP_PROPERTY = "sonar.findbugs.maxHeap";
-  
-  /**
-   * @deprecated since 2.4, because unused
-   */
-  int FINDBUGS_MAXHEAP_DEFAULT_VALUE = 512;
-  
   String FINDBUGS_TIMEOUT_PROPERTY = "sonar.findbugs.timeout";
   long FINDBUGS_TIMEOUT_DEFAULT_VALUE = 600000;
 
