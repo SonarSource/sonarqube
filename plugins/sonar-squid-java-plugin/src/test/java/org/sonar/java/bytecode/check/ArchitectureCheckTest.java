@@ -19,10 +19,6 @@
  */
 package org.sonar.java.bytecode.check;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
-
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.bytecode.BytecodeScanner;
@@ -30,6 +26,10 @@ import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 public class ArchitectureCheckTest {
 
@@ -42,7 +42,7 @@ public class ArchitectureCheckTest {
     SourceFile file = (SourceFile) squid.search("ArchitectureCheckOneErrorMessage.java");
     assertThat(file.getCheckMessages().size(), is(1));
     CheckMessage message = file.getCheckMessages().iterator().next();
-    assertThat(message.getDefaultMessage(), is("Architecture constraint : ArchitectureCheckOneErrorMessage must not use java/util/regex/Pattern"));
+    assertThat(message.getDefaultMessage(), is("ArchitectureCheckOneErrorMessage must not use java/util/regex/Pattern"));
     assertThat(message.getLine(), is(6));
   }
 
