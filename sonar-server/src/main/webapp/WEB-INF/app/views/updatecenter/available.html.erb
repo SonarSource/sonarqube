@@ -13,77 +13,77 @@
 
 <%= render :partial => 'updatecenter/downloads' %>
 
+<table class="data width100">
+  <thead>
+  </thead>
+  <tbody>
 <% if @center %>
   <% @updates_by_category.keys.sort_by{|c| c.downcase }.each do |category|
        updates=@updates_by_category[category]
   %>
-    <table class="data width100" id="category-<%= u category -%>">
-      <thead>
-        <tr>
-          <th colspan="2"><h2><%= category -%></h2></th>
-        </tr>
-      </thead>
-      <tbody>
-        <% updates.each do |update|
-             plugin=update.getPlugin()
-        %>
-        <tr class="<%= cycle('even','odd', :name => category) -%>">
-          <td width="10%" nowrap>
-            <b><%= h(plugin.getName()) -%></b>
-          </td>
-          <td>
-            <%= plugin.getDescription() %> <a href="#" onClick="showPlugin('<%= plugin.getKey() -%>');" id="show-<%= plugin.getKey() -%>">More</a>
-            <div id="detail-<%= plugin.getKey() -%>" style="display:none">
-              <% if plugin.getLicense() %>
-                <p>
-                  License: <%= h(plugin.getLicense()) %>
-                </p>
-              <% end %>
-              <% if plugin.getOrganization() %>
-                <p>
-                  By: <%= link_to_if plugin.getOrganizationUrl(), plugin.getOrganization(), plugin.getOrganizationUrl(), :class=>'external'  %>
-                </p>
-              <% end %>
-              <% if plugin.getHomepageUrl() || plugin.getIssueTrackerUrl() %>
+    <tr>
+      <td colspan="2"><h2><%= category -%></td>
+    </tr>
+    <% updates.sort_by{|c| c.getPlugin().getName()}.each do |update|
+      plugin=update.getPlugin()
+    %>
+      <tr class="<%= cycle('even','odd', :name => category) -%>">
+        <td width="10%" nowrap>
+          <b><a href="#plugin" onClick="showPlugin('<%= plugin.getKey() -%>');"><%= h(plugin.getName()) -%></a></b>
+        </td>
+        <td>
+          <%= plugin.getDescription() %>
+          <div id="detail-<%= plugin.getKey() -%>" style="display:none">
+            <% if plugin.getLicense() %>
               <p>
-                <% if plugin.getHomepageUrl() %>
-                  <%= link_to 'Plugin details', plugin.getHomepageUrl(), :class=>'external' %>  |
-                <% end %>
-                <% if plugin.getIssueTrackerUrl() %>
-                  <%= link_to "Issue Tracker", plugin.getIssueTrackerUrl(), :class=>'external' %>
-                <% end %>
+                License: <%= h(plugin.getLicense()) %>
               </p>
-              <%
-                end
-                if update.isCompatible()
-              %>
+            <% end %>
+            <% if plugin.getOrganization() %>
               <p>
-                Version: <%= update.getRelease().getVersion() -%>
+                By: <%= link_to_if plugin.getOrganizationUrl(), plugin.getOrganization(), plugin.getOrganizationUrl(), :class=>'external'  %>
               </p>
-              <div>
-                <% if plugin.getTermsConditionsUrl() %>
-                <input type="checkbox" id="tc-<%= plugin.getKey() -%>"></input> I accept the <%= link_to 'Terms and Conditions', plugin.getTermsConditionsUrl(), :class => 'external' %>
-                <% end %>
-                <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=available&key=<%= plugin.getKey() -%>&version=<%= update.getRelease().getVersion() -%>" style="display: inline-block">
-                  <input type="submit" value="Install" onClick="return checkTermsConditions('<%= plugin.getKey() -%>')"></input>
-                </form>
-             
-              </div>
-              <% elsif update.requiresSonarUpgrade
-              %>
-                <p>
-                  Version: <%= update.getRelease().getVersion() -%> (not compatible, needs Sonar upgrade)
-                </p>
-              <%
-                end
-              %>
+            <% end %>
+            <% if plugin.getHomepageUrl() || plugin.getIssueTrackerUrl() %>
+            <p>
+              <% if plugin.getHomepageUrl() %>
+                <%= link_to 'Plugin details', plugin.getHomepageUrl(), :class=>'external' %>  |
+              <% end %>
+              <% if plugin.getIssueTrackerUrl() %>
+                <%= link_to "Issue Tracker", plugin.getIssueTrackerUrl(), :class=>'external' %>
+              <% end %>
+            </p>
+            <%
+              end
+              if update.isCompatible()
+            %>
+            <p>
+              Version: <%= update.getRelease().getVersion() -%>
+            </p>
+            <div>
+              <% if plugin.getTermsConditionsUrl() %>
+              <input type="checkbox" id="tc-<%= plugin.getKey() -%>"></input> I accept the <%= link_to 'Terms and Conditions', plugin.getTermsConditionsUrl(), :class => 'external' %>
+              <% end %>
+              <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=available&key=<%= plugin.getKey() -%>&version=<%= update.getRelease().getVersion() -%>" style="display: inline-block">
+                <input type="submit" value="Install" onClick="return checkTermsConditions('<%= plugin.getKey() -%>')"></input>
+              </form>           
             </div>
-          </td>
-        </tr>
-        <% end %>
-      </tbody>
-    </table><br/>
+            <% elsif update.requiresSonarUpgrade
+            %>
+              <p>
+                Version: <%= update.getRelease().getVersion() -%> (not compatible, needs Sonar upgrade)
+              </p>
+            <%
+              end
+            %>
+          </div>
+        </td>
+      </tr>
+    <% end %>
   <% end %>
 <% end %>
+</tbody>
+</table><br/>
+
 <%= render :partial => 'updatecenter/status', :locals => {:action => 'available' } %>
 </div>

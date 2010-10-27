@@ -1,9 +1,6 @@
+<%= render :partial => 'updatecenter/common' %>
+
 <script>
-  function showPlugin(key) {
-    $('show-' + key).hide();
-    $('detail-' + key).show();
-    return false;
-  }
   function checkTermsConditions(key) {
     var tc=$('tc-' + key)
     if (tc!=null && !tc.checked) {
@@ -14,11 +11,10 @@
   }
 </script>
 
-
-<% if @downloads.size>0 %>
-<form action="<%= ApplicationController.root_context -%>/plugins/cancel" method="post" class="warning">
+<% if @downloads.size > 0 %>
+<form action="<%= ApplicationController.root_context -%>/updatecenter/cancel" method="post" class="warning">
 <p>Sonar needs to be restarted in order to install the following plugins: <ul>
-  <% @downloads.each do |download| -%>
+  <% @downloads.each do |download| %>
     <li><%= download -%></li>
   <% end %>
   </ul>
