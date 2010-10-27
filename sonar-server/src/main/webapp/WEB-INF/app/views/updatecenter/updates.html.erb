@@ -17,19 +17,19 @@
   <table class="data width100" id="plugin-updates">
     <thead>
         <tr>
-          <th colspan="3"><h2>User-installed plugins</h2></th>
+          <th colspan="2"><h2>User-installed plugins</h2></th>
         </tr>
     </thead>
     <tbody>
     <% if @plugin_updates.empty? %>
       <tr class="even">
-        <td colspan="3">No updates</td>
+        <td colspan="2">No updates</td>
       </tr>
     <% end %>
     <% @plugin_updates.each do |update|
     %>
       <tr class="<%= cycle('even','odd', :name => 'user-plugins') -%>">
-        <td><b><%= h(update.getPlugin().getName()) -%></b></td>
+        <td><b><a href="#plugin" onclick="showPlugin('<%= update.getPlugin().getKey() + update.getRelease().getVersion().toString() -%>')"><%= h(update.getPlugin().getName()) -%></a></b></td>
         <td>
           <%= update.getRelease().getVersion() -%>
           <% if update.isIncompatible() %>
@@ -37,12 +37,24 @@
           <% elsif update.requiresSonarUpgrade %>
             not compatible, needs Sonar upgrade
           <% end %>
-        </td>
-        <td>
-          <div>
+          
+          <div id="detail-<%= update.getPlugin().getKey() + update.getRelease().getVersion().toString() -%>" style="display:none">
+          <p>
+          <%= update.getRelease().getDescription() -%><br/>
+          <% if update.getRelease().getDate() %>
+            Released <%= update.getRelease().getDate() -%><br/>
+          <% end %>
+
+          <% if update.getRelease().getChangelogUrl() %>
+            <%= link_to 'Changelog', update.getRelease().getChangelogUrl(), :class => 'external' -%><br/>
+          <% end %>
+          </p>
+          
+          <% if update.isCompatible() %>
             <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=updates&key=<%= update.getPlugin().getKey() -%>&version=<%= update.getRelease().getVersion() -%>" style="display: inline-block">
               <input type="submit" value="Update"></input>
             </form>
+          <% end %>
           </div>
         </td>
       </tr>
@@ -70,7 +82,12 @@
     %>
       <tr class="<%= cycle('even','odd', :name => 'system') -%>">
         <td><b>Sonar <%= sonar_release.getVersion() -%></b></td>
-        <td><%= sonar_release.getDescription() -%></td>
+        <td>
+          <%= sonar_release.getDescription() -%>
+          <% if update.getRelease().getDate() %>
+            Released <%= update.getRelease().getDate() -%><br/>
+          <% end %>
+        </td>
         <td>
           <%= link_to 'Release Notes', sonar_release.getChangelogUrl(), :class => 'external' if sonar_release.getChangelogUrl() %> &nbsp;
           <%= link_to 'Download', sonar_release.getDownloadUrl(), :class => 'external' if sonar_release.getDownloadUrl() %>
