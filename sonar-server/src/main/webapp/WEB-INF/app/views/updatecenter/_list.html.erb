@@ -1,0 +1,22 @@
+<% updates.each do |update|
+    release=update.getRelease()
+%>
+  <tr class="<%= cycle('even','odd', :name => 'system') if !plugin -%>">
+    <td width="1%" nowrap><b><%= 'Sonar' if !plugin -%> <%= release.getVersion() -%></b></td>
+    <td width="1%" nowrap><%= release_date(release.getDate()) if release.getDate() -%></td>
+    <td><%= release.getDescription() -%></td>
+    <td>
+      <%= link_to 'Release Notes', release.getChangelogUrl(), :class => 'external' if release.getChangelogUrl() %> &nbsp;
+      <%= link_to 'Download', release.getDownloadUrl(), :class => 'external' if !plugin && release.getDownloadUrl() %>
+    </td>
+    <% if plugin %>
+    <td>
+      <% if update.isIncompatible() %>
+        not compatible
+      <% elsif update.requiresSonarUpgrade %>
+        not compatible, needs Sonar upgrade          
+      <% end %>
+    </td>
+    <% end %>
+  </tr>
+<% end %>

@@ -38,13 +38,27 @@ class UpdatecenterController < ApplicationController
 
     @center=nil
     @sonar_updates=[]
-    @plugin_updates=[]
+    @updates_by_plugin={}
+    @user_plugins={}
+    @last_compatible={}
+
+    Plugin.user_plugins.each do |plugin|
+      @user_plugins[plugin.plugin_key]=plugin.version
+    end
 
     finder=load_update_finder()
     if finder
       @center=finder.getCenter()
       @sonar_updates=finder.findSonarUpdates()
-      @plugin_updates=finder.findPluginUpdates()
+
+      @finder.findPluginUpdates().each do |update|
+        plugin=update.getPlugin()
+        @updates_by_plugin[plugin]||=[]
+        @updates_by_plugin[plugin]<<update
+        if update.isCompatible
+          @last_compatible[plugin.getKey()]=update.getRelease().getVersion()
+        end
+      end
     end
   end
 

@@ -16,45 +16,34 @@
 <% if @center %>
   <table class="data width100" id="plugin-updates">
     <thead>
-        <tr>
-          <th colspan="2"><h2>User-installed plugins</h2></th>
-        </tr>
+      <tr><th colspan="2"><h2>User-installed plugins</h2></th></tr>
     </thead>
     <tbody>
-    <% if @plugin_updates.empty? %>
+    <% if @updates_by_plugin.empty? %>
       <tr class="even">
         <td colspan="2">No updates</td>
       </tr>
     <% end %>
-    <% @plugin_updates.each do |update|
+    <% @updates_by_plugin.keys.each do |plugin|
+       updates=@updates_by_plugin[plugin]
     %>
       <tr class="<%= cycle('even','odd', :name => 'user-plugins') -%>">
-        <td><b><a href="#plugin" onclick="showPlugin('<%= update.getPlugin().getKey() + update.getRelease().getVersion().toString() -%>')"><%= h(update.getPlugin().getName()) -%></a></b></td>
+        <td  width="1%" nowrap>
+          <b><a href="#plugin" onclick="showPlugin('<%= plugin.getKey() -%>')"><%= h(plugin.getName()) -%></a></b>
+        </td>
         <td>
-          <%= update.getRelease().getVersion() -%>
-          <% if update.isIncompatible() %>
-            not compatible
-          <% elsif update.requiresSonarUpgrade %>
-            not compatible, needs Sonar upgrade
-          <% end %>
-          
-          <div id="detail-<%= update.getPlugin().getKey() + update.getRelease().getVersion().toString() -%>" style="display:none">
-          <p>
-          <%= update.getRelease().getDescription() -%><br/>
-          <% if update.getRelease().getDate() %>
-            Released <%= update.getRelease().getDate() -%><br/>
-          <% end %>
-
-          <% if update.getRelease().getChangelogUrl() %>
-            <%= link_to 'Changelog', update.getRelease().getChangelogUrl(), :class => 'external' -%><br/>
-          <% end %>
-          </p>
-          
-          <% if update.isCompatible() %>
-            <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=updates&key=<%= update.getPlugin().getKey() -%>&version=<%= update.getRelease().getVersion() -%>" style="display: inline-block">
-              <input type="submit" value="Update"></input>
-            </form>
-          <% end %>
+          Current version: <b><%= @user_plugins[plugin.getKey()] -%></b>,
+          last compatible: <b><%= @last_compatible[plugin.getKey()] -%></b>,
+          latest: <b><%= updates.last.getRelease().getVersion() -%></b>
+          <div id="detail-<%= plugin.getKey() -%>" style="display:none">
+          <table class="spaced">
+          <tbody>
+            <%= render :partial => 'updatecenter/list', :locals => {:updates => updates, :plugin => true } %>
+          </tbody>
+          </table>
+          <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=updates&key=<%= plugin.getKey() -%>&version=<%= @last_compatible[plugin.getKey()] -%>" style="display: inline-block">
+            <input type="submit" value="Update to <%= @last_compatible[plugin.getKey()] -%>"></input>
+          </form>
           </div>
         </td>
       </tr>
@@ -62,38 +51,19 @@
     </tbody>
   </table>
 
-  <br/>
+  <div class="break30"> </div>
 
   <table class="data width100" id="system-updates">
     <thead>
-        <tr>
-          <th colspan="2"><h2>System</h2></th>
-        </tr>
+      <tr><th colspan="4"><h2>System</h2></th></tr>
     </thead>
     <tbody>
-    <%
-      if @sonar_updates.empty? %>
+    <% if @sonar_updates.empty? %>
       <tr class="even">
-        <td colspan="3" >No updates</td>
+        <td colspan="4" >No updates</td>
       </tr>
     <% end %>
-    <% @sonar_updates.each do |update|
-         sonar_release=update.getRelease()
-    %>
-      <tr class="<%= cycle('even','odd', :name => 'system') -%>">
-        <td><b>Sonar <%= sonar_release.getVersion() -%></b></td>
-        <td>
-          <%= sonar_release.getDescription() -%>
-          <% if update.getRelease().getDate() %>
-            Released <%= update.getRelease().getDate() -%><br/>
-          <% end %>
-        </td>
-        <td>
-          <%= link_to 'Release Notes', sonar_release.getChangelogUrl(), :class => 'external' if sonar_release.getChangelogUrl() %> &nbsp;
-          <%= link_to 'Download', sonar_release.getDownloadUrl(), :class => 'external' if sonar_release.getDownloadUrl() %>
-        </td>
-      </tr>
-    <% end %>
+    <%= render :partial => 'updatecenter/list', :locals => {:updates => @sonar_updates, :plugin => false } %>
     </tbody>
   </table>
   <br/>

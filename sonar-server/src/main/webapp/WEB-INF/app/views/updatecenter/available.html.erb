@@ -22,13 +22,13 @@
        updates=@updates_by_category[category]
   %>
     <tr>
-      <td colspan="2"><h2><%= category -%></td>
+      <td colspan="2"><h2><%= category -%></h2></td>
     </tr>
     <% updates.sort_by{|c| c.getPlugin().getName()}.each do |update|
       plugin=update.getPlugin()
     %>
       <tr class="<%= cycle('even','odd', :name => category) -%>">
-        <td width="10%" nowrap>
+        <td width="1%" nowrap>
           <b><a href="#plugin" onClick="showPlugin('<%= plugin.getKey() -%>');"><%= h(plugin.getName()) -%></a></b>
         </td>
         <td>

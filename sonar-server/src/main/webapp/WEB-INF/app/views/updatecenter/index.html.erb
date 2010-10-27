@@ -9,7 +9,6 @@
 <a href="<%= url_for :action => 'available' -%>">Available</a>
 </li>
 </ul>
-
 <div class="tabs-panel">
 
 <%= render :partial => 'updatecenter/operations' -%>
@@ -30,7 +29,7 @@
       @user_plugins.each do |plugin|
     %>
       <tr class="select <%= cycle('even', 'odd', :name => 'user') -%>" id="select_<%= plugin.plugin_key -%>">
-        <td><b><a href="#plugin" onclick="showPlugin('<%= plugin.plugin_key -%>')"><%= h(plugin.name) -%></a></b></td>
+        <td width="1%" nowrap><b><a href="#plugin" onclick="showPlugin('<%= plugin.plugin_key -%>')"><%= h(plugin.name) -%></a></b></td>
         <td><%= plugin.version || '-' -%></td>
         <td>
         <%= plugin.description -%>
@@ -70,7 +69,7 @@
   <%
     @core_plugins.each do |plugin|
   %>
-	  <tr class="<%= cycle('even','odd', :name => 'core') -%>" id="<%= u plugin.plugin_key -%>">
+	<tr class="<%= cycle('even','odd', :name => 'core') -%>" id="<%= u plugin.plugin_key -%>">
 	  <td width="1%" nowrap><b><%= plugin.name -%></b></td>
       <td><%= plugin.description %></td>
     </tr>
