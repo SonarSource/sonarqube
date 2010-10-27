@@ -82,6 +82,10 @@ public final class JRubyFacade implements ServerComponent {
     getContainer().getComponent(PluginDeployer.class).uninstall(pluginKey);
   }
 
+  public void cancelPluginUninstalls() {
+    getContainer().getComponent(PluginDeployer.class).cancelUninstalls();
+  }
+
   public List<String> getPluginUninstalls() {
     return getContainer().getComponent(PluginDeployer.class).getUninstalls();
   }

@@ -25,12 +25,13 @@
     <li><%= uninstall -%></li>
   <% end %>
   </ul>
+  <input type="submit" value="Cancel unistalls"></input>
 </p>
 </form>
 <% end %>
 
 <% if @downloads.size > 0 %>
-<form action="<%= ApplicationController.root_context -%>/updatecenter/cancel" method="post" class="warning">
+<form action="<%= ApplicationController.root_context -%>/updatecenter/cancel_downloads" method="post" class="warning">
 <p>Sonar needs to be restarted in order to install the following plugins: <ul>
   <% @downloads.each do |download| %>
     <li><%= download -%></li>

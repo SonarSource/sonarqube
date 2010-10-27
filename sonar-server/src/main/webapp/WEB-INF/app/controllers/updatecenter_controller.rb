@@ -66,7 +66,7 @@ class UpdatecenterController < ApplicationController
     end
   end
 
-  def cancel
+  def cancel_downloads
     java_facade.cancelPluginDownloads()
     flash[:notice]="Plugin downloads are canceled."
     redirect_to :action => 'index'
@@ -94,6 +94,12 @@ class UpdatecenterController < ApplicationController
         flash[:error]=e.message
       end
     end
+    redirect_to :action => 'index'
+  end
+  
+  def cancel_uninstalls
+    java_facade.cancelPluginUninstalls()
+    flash[:notice]="Plugin uninstalls are canceled."
     redirect_to :action => 'index'
   end
   

@@ -68,7 +68,7 @@ public final class PluginDeployer implements ServerComponent {
   public void start() throws IOException {
     TimeProfiler profiler = new TimeProfiler().start("Install plugins");
 
-    deleteRemovedPlugins();
+    deleteUninstalledPlugins();
 
     loadUserPlugins();
     moveAndLoadDownloadedPlugins();
@@ -81,7 +81,7 @@ public final class PluginDeployer implements ServerComponent {
     profiler.stop();
   }
 
-  private void deleteRemovedPlugins() {
+  private void deleteUninstalledPlugins() {
     File trashDir = fileSystem.getRemovedPluginsDir();
     try {
       if (trashDir.exists()) {
@@ -110,6 +110,19 @@ public final class PluginDeployer implements ServerComponent {
       }
     }
     return names;
+  }
+
+  public void cancelUninstalls() {
+    if (fileSystem.getRemovedPluginsDir().exists()) {
+      List<File> files = (List<File>) FileUtils.listFiles(fileSystem.getRemovedPluginsDir(), new String[] { "jar" }, false);
+      for (File file : files) {
+        try {
+          FileUtils.moveFileToDirectory(file, fileSystem.getUserPluginsDir(), false);
+        } catch (IOException e) {
+          throw new SonarException("Fail to cancel plugin uninstalls", e);
+        }
+      }
+    }
   }
 
   private void persistPlugins() {
