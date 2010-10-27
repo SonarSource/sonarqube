@@ -26,11 +26,14 @@ class UpdatecenterController < ApplicationController
 
   def index
     @uninstalls=java_facade.getPluginUninstalls()
+    @downloads=java_facade.getPluginDownloads()
+
     @user_plugins=Plugin.user_plugins
     @core_plugins=Plugin.core_plugins
   end
 
   def updates
+    @uninstalls=java_facade.getPluginUninstalls()
     @downloads=java_facade.getPluginDownloads()
 
     @center=nil
@@ -46,7 +49,9 @@ class UpdatecenterController < ApplicationController
   end
 
   def available
+    @uninstalls=java_facade.getPluginUninstalls()
     @downloads=java_facade.getPluginDownloads()
+
     @center=nil
     @updates_by_category={}
 

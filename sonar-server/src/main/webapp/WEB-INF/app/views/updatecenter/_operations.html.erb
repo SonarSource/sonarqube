@@ -1,6 +1,13 @@
-<%= render :partial => 'updatecenter/common' %>
-
-<script>
+<script type="text/javascript">
+  function showPlugin(key) {
+    if ($('detail-' + key).visible()) {
+      $('detail-' + key).hide();
+    } else {
+      $('detail-' + key).show();
+    }
+    return false;
+  }
+  
   function checkTermsConditions(key) {
     var tc=$('tc-' + key)
     if (tc!=null && !tc.checked) {
@@ -10,6 +17,17 @@
     return true;
   }
 </script>
+
+<% if @uninstalls.size > 0 %>
+<form action="<%= ApplicationController.root_context -%>/updatecenter/cancel_uninstalls" method="post" class="warning">
+<p>Sonar needs to be restarted in order to uninstall the following plugins: <ul>
+  <% @uninstalls.each do |uninstall| %>
+    <li><%= uninstall -%></li>
+  <% end %>
+  </ul>
+</p>
+</form>
+<% end %>
 
 <% if @downloads.size > 0 %>
 <form action="<%= ApplicationController.root_context -%>/updatecenter/cancel" method="post" class="warning">
