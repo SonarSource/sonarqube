@@ -25,6 +25,7 @@ class UpdatecenterController < ApplicationController
   verify :method => :post, :only => [:cancel, :install], :redirect_to => {:action => :index}
 
   def index
+    @uninstalls=java_facade.getPluginUninstalls()
     @user_plugins=Plugin.user_plugins
     @core_plugins=Plugin.core_plugins
   end
@@ -77,6 +78,24 @@ class UpdatecenterController < ApplicationController
       end
     end
     redirect_to :action => (params[:from] || 'index')
+  end
+  
+  def uninstall
+    key=params[:key]
+    if key
+      begin
+        java_facade.uninstallPlugin(key)
+      rescue Exception => e
+        flash[:error]=e.message
+      end
+    end
+    redirect_to :action => 'index'
+  end
+  
+  def cancel_uninstalls
+    java_facade.cancelPluginUninstalls()
+    flash[:notice]="Plugin uninstalls are canceled."
+    redirect_to :action => 'index'
   end
 
   private

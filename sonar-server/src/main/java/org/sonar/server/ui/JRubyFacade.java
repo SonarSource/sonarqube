@@ -31,8 +31,13 @@ import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Language;
 import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.rules.RuleRepository;
+import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.api.web.*;
+import org.sonar.api.web.Footer;
+import org.sonar.api.web.NavigationSection;
+import org.sonar.api.web.Page;
+import org.sonar.api.web.RubyRailsWebservice;
+import org.sonar.api.web.Widget;
 import org.sonar.jpa.dao.AsyncMeasuresService;
 import org.sonar.jpa.dialect.Dialect;
 import org.sonar.jpa.session.DatabaseConnector;
@@ -52,6 +57,7 @@ import org.sonar.server.rules.RulesConsole;
 import org.sonar.updatecenter.common.Version;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public final class JRubyFacade implements ServerComponent {
@@ -73,6 +79,18 @@ public final class JRubyFacade implements ServerComponent {
     return getContainer().getComponent(PluginDownloader.class).getDownloads();
   }
 
+  public void uninstallPlugin(String pluginKey) {
+    throw new SonarException("Implement me!");
+  }
+
+  public void cancelPluginUninstalls() {
+    throw new SonarException("Implement me!");
+  }
+
+  public List<String> getPluginUninstalls() {
+    return Collections.emptyList();
+  }
+
   public UpdateFinder getUpdateFinder(boolean forceReload) {
     return getContainer().getComponent(UpdateFinderFactory.class).getFinder(forceReload);
   }
@@ -86,7 +104,6 @@ public final class JRubyFacade implements ServerComponent {
       return code;
     }
   }
-
 
   public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage) {
     return getContainer().getComponent(Views.class).getWidgets(resourceScope, resourceQualifier, resourceLanguage);
@@ -123,7 +140,6 @@ public final class JRubyFacade implements ServerComponent {
   public Collection<Plugin> getPlugins() {
     return getContainer().getComponent(Plugins.class).getPlugins();
   }
-
 
   /* PROFILES CONSOLE : RULES AND METRIC THRESHOLDS */
 
@@ -234,7 +250,7 @@ public final class JRubyFacade implements ServerComponent {
     Object component = null;
     PicoContainer container = getContainer();
     Class componentClass = container.getComponent(PluginClassLoaders.class).getClass(pluginKey, className);
-    if (componentClass!=null) {
+    if (componentClass != null) {
       component = container.getComponent(componentClass);
     }
     return component;

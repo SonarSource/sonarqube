@@ -12,7 +12,8 @@
 
 <div class="tabs-panel">
 
-<%= render :partial => 'updatecenter/common' %>
+<%= render :partial => 'updatecenter/uninstalls' -%>
+<%= render :partial => 'updatecenter/common' -%>
 
 <h2>User-installed plugins</h2>
 <table class="data">
@@ -42,9 +43,12 @@
             By: <%= link_to_if plugin.organization_url, plugin.organization, plugin.organization_url, :class=>'external' -%><br/>
           <% end %>
           <% if plugin.homepage %>
-         <%= link_to 'Details', plugin.homepage, :class => 'external' -%><br/>
-       <% end %>
-        </p>  
+            <%= link_to 'Details', plugin.homepage, :class => 'external' -%><br/>
+          <% end %>
+        </p>
+        <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/uninstall?key=<%= plugin.plugin_key -%>" style="display: inline-block">
+          <input type="submit" value="Uninstall"></input>
+        </form>
         </div>
         </td>
       </tr>

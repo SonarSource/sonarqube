@@ -11,7 +11,7 @@
 </ul>
 <div class="tabs-panel">
 
-<%= render :partial => 'updatecenter/downloads' %>
+<%= render :partial => 'updatecenter/downloads' -%>
 
 <table class="data width100">
   <thead>
@@ -66,7 +66,7 @@
               <% end %>
               <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=available&key=<%= plugin.getKey() -%>&version=<%= update.getRelease().getVersion() -%>" style="display: inline-block">
                 <input type="submit" value="Install" onClick="return checkTermsConditions('<%= plugin.getKey() -%>')"></input>
-              </form>           
+              </form>
             </div>
             <% elsif update.requiresSonarUpgrade
             %>

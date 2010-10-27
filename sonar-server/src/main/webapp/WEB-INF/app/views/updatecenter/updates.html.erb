@@ -10,7 +10,7 @@
   </li>
 </ul>
 <div class="tabs-panel">
-<%= render :partial => 'updatecenter/downloads' %>
+<%= render :partial => 'updatecenter/downloads' -%>
 
 <% if @center %>
   <table class="data width100" id="plugin-updates">
@@ -22,15 +22,20 @@
     <tbody>
     <% if @plugin_updates.empty? %>
       <tr class="even">
-        <td colspan="3" >No updates</td>
+        <td colspan="3">No updates</td>
       </tr>
     <% end %>
     <% @plugin_updates.each do |update|
     %>
       <tr class="<%= cycle('even','odd', :name => 'user-plugins') -%>">
-        <td><%= h(update.getPlugin().getName()) -%></td>
+        <td><b><%= h(update.getPlugin().getName()) -%></b></td>
         <td>
-
+          <%= update.getRelease().getVersion() -%>
+          <% if update.isIncompatible() %>
+            not compatible
+          <% elsif update.requiresSonarUpgrade %>
+            not compatible, needs Sonar upgrade
+          <% end %>
         </td>
         <td>
           <div>
@@ -43,7 +48,9 @@
     <% end %>
     </tbody>
   </table>
+
   <br/>
+
   <table class="data width100" id="system-updates">
     <thead>
         <tr>
@@ -61,7 +68,7 @@
          sonar_release=update.getRelease()
     %>
       <tr class="<%= cycle('even','odd', :name => 'system') -%>">
-        <td>Sonar <%= sonar_release.getVersion() -%></td>
+        <td><b>Sonar <%= sonar_release.getVersion() -%></b></td>
         <td><%= sonar_release.getDescription() -%></td>
         <td>
           <%= link_to 'Release Notes', sonar_release.getChangelogUrl(), :class => 'external' if sonar_release.getChangelogUrl() %> &nbsp;
