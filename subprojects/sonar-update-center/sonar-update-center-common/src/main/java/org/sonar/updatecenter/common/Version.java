@@ -35,6 +35,7 @@ public class Version implements Comparable<Version> {
 
   private Version(String version) {
     this.name = StringUtils.trimToEmpty(version);
+    this.name = StringUtils.substringBefore(this.name, "-"); // we don't care about snapshots and RCs for now
     String[] split = StringUtils.split(name, '.');
     if (split.length >= 1) {
       major = split[0];
@@ -88,16 +89,16 @@ public class Version implements Comparable<Version> {
     }
 
     Version version = (Version) o;
-    if (!normalizedMajor.equals(version.normalizedMajor)) {
+    if ( !normalizedMajor.equals(version.normalizedMajor)) {
       return false;
     }
-    if (!normalizedMinor.equals(version.normalizedMinor)) {
+    if ( !normalizedMinor.equals(version.normalizedMinor)) {
       return false;
     }
-    if (!normalizedPatch.equals(version.normalizedPatch)) {
+    if ( !normalizedPatch.equals(version.normalizedPatch)) {
       return false;
     }
-    if (!normalizedPatch2.equals(version.normalizedPatch2)) {
+    if ( !normalizedPatch2.equals(version.normalizedPatch2)) {
       return false;
     }
     return true;
