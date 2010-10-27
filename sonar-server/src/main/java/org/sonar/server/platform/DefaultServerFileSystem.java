@@ -112,6 +112,10 @@ public class DefaultServerFileSystem implements ServerFileSystem {
     return new File(getHomeDir(), "extensions/downloads");
   }
 
+  public File getRemovedPluginsDir() {
+    return new File(getHomeDir(), "extensions/trash");
+  }
+
   public File getJdbcDriver() {
     String dialect = databaseConnector.getDialect().getId();
     File dir = new File(getHomeDir(), "/extensions/jdbc-driver/" + dialect + "/");

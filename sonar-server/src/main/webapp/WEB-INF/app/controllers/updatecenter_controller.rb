@@ -92,12 +92,6 @@ class UpdatecenterController < ApplicationController
     redirect_to :action => 'index'
   end
   
-  def cancel_uninstalls
-    java_facade.cancelPluginUninstalls()
-    flash[:notice]="Plugin uninstalls are canceled."
-    redirect_to :action => 'index'
-  end
-
   private
   def load_update_finder
     @finder=java_facade.getUpdateFinder(params[:reload]=='true')

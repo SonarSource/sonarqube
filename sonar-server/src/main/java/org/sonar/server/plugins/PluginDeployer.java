@@ -27,6 +27,7 @@ import org.sonar.api.Plugin;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.Logs;
+import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.plugin.JpaPlugin;
@@ -34,6 +35,7 @@ import org.sonar.core.plugin.JpaPluginDao;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.ServerStartException;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import java.io.File;
@@ -66,6 +68,8 @@ public final class PluginDeployer implements ServerComponent {
   public void start() throws IOException {
     TimeProfiler profiler = new TimeProfiler().start("Install plugins");
 
+    deleteRemovedPlugins();
+
     loadUserPlugins();
     moveAndLoadDownloadedPlugins();
     loadCorePlugins();
@@ -75,6 +79,37 @@ public final class PluginDeployer implements ServerComponent {
 
     persistPlugins();
     profiler.stop();
+  }
+
+  private void deleteRemovedPlugins() {
+    File trashDir = fileSystem.getRemovedPluginsDir();
+    try {
+      if (trashDir.exists()) {
+        FileUtils.deleteDirectory(trashDir);
+      }
+    } catch (IOException e) {
+      throw new SonarException("Fail to clean the plugin trash directory: " + trashDir, e);
+    }
+  }
+
+  public void uninstall(String pluginKey) {
+    PluginMetadata metadata = pluginByKeys.get(pluginKey);
+    try {
+      FileUtils.moveFileToDirectory(metadata.getSourceFile(), fileSystem.getRemovedPluginsDir(), true);
+    } catch (IOException e) {
+      throw new SonarException("Fail to uninstall plugin: " + pluginKey, e);
+    }
+  }
+
+  public List<String> getUninstalls() {
+    List<String> names = Lists.newArrayList();
+    if (fileSystem.getRemovedPluginsDir().exists()) {
+      List<File> files = (List<File>) FileUtils.listFiles(fileSystem.getRemovedPluginsDir(), new String[] { "jar" }, false);
+      for (File file : files) {
+        names.add(file.getName());
+      }
+    }
+    return names;
   }
 
   private void persistPlugins() {

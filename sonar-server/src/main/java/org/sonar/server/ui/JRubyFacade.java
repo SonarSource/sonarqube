@@ -31,7 +31,6 @@ import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Language;
 import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.rules.RuleRepository;
-import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.api.web.Footer;
 import org.sonar.api.web.NavigationSection;
@@ -49,6 +48,7 @@ import org.sonar.server.filters.FilterExecutor;
 import org.sonar.server.filters.FilterResult;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.plugins.PluginClassLoaders;
+import org.sonar.server.plugins.PluginDeployer;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.UpdateFinder;
 import org.sonar.server.plugins.UpdateFinderFactory;
@@ -57,7 +57,6 @@ import org.sonar.server.rules.RulesConsole;
 import org.sonar.updatecenter.common.Version;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 public final class JRubyFacade implements ServerComponent {
@@ -80,15 +79,11 @@ public final class JRubyFacade implements ServerComponent {
   }
 
   public void uninstallPlugin(String pluginKey) {
-    throw new SonarException("Implement me!");
-  }
-
-  public void cancelPluginUninstalls() {
-    throw new SonarException("Implement me!");
+    getContainer().getComponent(PluginDeployer.class).uninstall(pluginKey);
   }
 
   public List<String> getPluginUninstalls() {
-    return Collections.emptyList();
+    return getContainer().getComponent(PluginDeployer.class).getUninstalls();
   }
 
   public UpdateFinder getUpdateFinder(boolean forceReload) {
