@@ -1,3 +1,19 @@
+<style type="text/css">
+.plugin {
+  margin-top: 22px;
+  padding: 5px;
+  border: 1px solid #ddd;
+}
+
+.plugin h3 {
+  margin-left: 5px;
+}
+
+.plugin p {
+  padding: 5px;
+}
+</style>
+
 <ul class="tabs">
 <li>
 <a href="<%= url_for :action => 'index' -%>" class="selected">Installed</a>
@@ -9,41 +25,57 @@
 <a href="<%= url_for :action => 'available' -%>">Available</a>
 </li>
 </ul>
+
 <div class="tabs-panel">
 
 <h2>User-installed plugins</h2>
-<table class="data width100" id="user-plugins">
-  <thead>
-    <tr>
-      <th>Plugin</th>
-      <th>Version</th>
-      <th>Description</th>
-      <th>Organization</th>
-      <th>Links</th>
-    </tr>
-  </thead>
-  <tbody>
-  <% if @user_plugins.empty? %>
-    <tr class="even"><td colspan="5">No plugins</td></tr>
-  <% else
-       @user_plugins.each do |plugin|
-  %>
-        <tr class="<%= cycle('even','odd', :name => 'user') -%> id="<%= u plugin.plugin_key -%>">
-          <td width="1%" nowrap><b><%= h(plugin.name) -%></b></td>
-          <td><%= plugin.version || '-'  %></td>
-          <td><%= plugin.description %></td>
-
-          <td>
-            <% if plugin.organization %>
-              <%= link_to_if plugin.organization_url, plugin.organization, plugin.organization_url, :class=>'external'  %>
+<table class="width100" id="user-plugins">
+  <tr>
+    <td width="1%" nowrap class="column first">
+      <table class="data">
+        <thead>
+          <tr>
+            <th>Plugin</th>
+            <th>Version</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if @user_plugins.empty? %>
+            <tr class="even"><td colspan="5">No plugins</td></tr>
+          <% else
+            @user_plugins.each do |plugin|
+          %>
+            <tr class="select <%= cycle('even', 'odd', :name => 'user') -%>" id="select_<%= plugin.plugin_key -%>">
+              <td><a href="#" onclick="showPlugin('<%= plugin.plugin_key -%>')"><%= h(plugin.name) -%></a></td>
+              <td><%= plugin.version || '-' -%></td>
+              <td><%= plugin.description -%></td>
+            </tr>
             <% end %>
-          </td>
-          <td><%= link_to 'Details', plugin.homepage, :class => 'external' if plugin.homepage %></td>
-        </tr>
-      <%  end %>
-    <%  end %>
-  </tbody>
+          <% end %>
+        </tbody>
+      </table>
+    </td>
+    <td class="column">
+      <% @user_plugins.each do |plugin| %>
+      <div class="plugin" id="plugin_<%= plugin.plugin_key -%>" style="display: none;">
+        <h3><%= h(plugin.name) -%> <%= plugin.version || '-' -%></h3>
+        <p><%= plugin.description -%></p>
+        <p>
+        <% if plugin.homepage %>
+		  <%= link_to 'Homepage', plugin.homepage, :class => 'external' -%><br/>
+		<% end %>
+        License: <%= plugin.license -%><br/>
+        <% if plugin.organization %>
+          Author: <%= link_to_if plugin.organization_url, plugin.organization, plugin.organization_url, :class=>'external' -%><br/>
+        <% end %>
+        </p>
+      </div>
+      <% end %>
+    </td>
+  </tr>
 </table>
+
 <div class="break30"> </div>
 
 <h2>System plugins</h2>
@@ -63,4 +95,19 @@
   <% end %>
   </tbody>
 </table>
+
 </div>
+
+<script type="text/javascript">
+  function showPlugin(id) {
+    $$('.plugin').each(function(element) {
+      element.hide();
+    });
+    $$('.select').each(function(element) {
+      element.removeClassName('selected');
+    });
+    $('plugin_' + id).show();
+    $('select_' + id).addClassName('selected');
+    return false;
+  }
+</script>
