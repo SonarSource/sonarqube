@@ -32,12 +32,8 @@ class Dashboard < ActiveRecord::Base
     read_attribute(:shared) || false
   end
 
-  def author
-    dashboard.user
-  end
-
-  def author_name
-    author ? author.name : nil
+  def user_name
+    user_id ? user.name : nil
   end
 
   def editable_by?(user)

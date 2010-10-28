@@ -4,7 +4,7 @@
     <td valign="top">
 
       <h1 class="marginbottom10">My dashboards</h1>
-      <table class="data" id="dashboards">
+      <table class="data marginbottom10" id="dashboards">
         <thead>
           <tr>
             <th>Name</th>
@@ -58,7 +58,41 @@
         %>
         </tbody>
       </table>
-
+      <br/><br/>
+      <h1 class="marginbottom10">Shared dashboards</h1>
+      <table class="data" id="shared-dashboards">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Shared by</th>
+            <th>Operations</th>
+          </tr>
+        </thead>
+        <tbody>
+        <% if @shared_dashboards.nil? || @shared_dashboards.empty? %>
+        <tr class="even"><td colspan="5">No dashboards</td></tr>
+        <%
+          else
+            @shared_dashboards.each do |dashboard| %>
+            <tr id="shared-dashboard-<%= u dashboard.name -%>" class="<%= cycle('even','odd', :name => 'shared') -%>">
+              <td>
+                <%= link_to dashboard.name, {:controller => :dashboard, :action => :index, :id => dashboard.id, :resource => params[:resource]} -%>
+                <% if dashboard.description.present? %>
+                <p class="small"><%= h dashboard.description -%></p>
+                <% end %>
+              </td>
+              <td>
+                <%= dashboard.user_name -%>
+              </td>
+              <td>
+                <%= link_to 'Follow', {:action => 'follow', :id => dashboard.id, :resource => params[:resource]}, :method => :post, :id => "follow-#{u dashboard.name}" %>
+              </td>
+            </tr>
+        <%  end
+          end
+        %>
+        </tbody>
+      </table>
     </td>
     <td class="sep"> </td>
     <td width="210" valign="top" align="right">

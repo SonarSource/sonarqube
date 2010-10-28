@@ -21,11 +21,14 @@ class DashboardsController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
 
-  verify :method => :post, :only => [:create, :update, :delete, :up, :down, :unfollow], :redirect_to => {:action => :index}
+  verify :method => :post, :only => [:create, :update, :delete, :up, :down, :follow, :unfollow], :redirect_to => {:action => :index}
   before_filter :login_required
 
   def index
     @actives=ActiveDashboard.user_dashboards(current_user)
+    @shared_dashboards=Dashboard.find(:all, :conditions => ['(user_id<>? OR user_id IS NULL) AND shared=?', current_user.id, true], :order => 'name ASC')
+    active_dashboard_ids=@actives.map{|a| a.dashboard_id}
+    @shared_dashboards.reject!{|d| active_dashboard_ids.include?(d.id)}
 
     @resource=Project.by_key(params[:resource])
     if @resource.nil?
@@ -124,6 +127,18 @@ class DashboardsController < ApplicationController
       ad.save
     end
     redirect_to :action => 'index', :resource => params[:resource]
+  end
+
+  def follow
+    add_default_dashboards_if_first_user_dashboard()
+    dashboard=Dashboard.find(:first, :conditions => ['shared=? and id=? and (user_id is null or user_id<>?)', true, params[:id].to_i, current_user.id])
+    if dashboard
+      active=current_user.active_dashboards.to_a.find{|a| a.dashboard_id==params[:id].to_i}
+      if active.nil?
+        current_user.active_dashboards.create(:dashboard => dashboard, :user => current_user, :order_index => current_user.active_dashboards.size+1)
+      end
+    end
+    redirect_to :action => :index, :resource => params[:resource]
   end
 
   def unfollow
