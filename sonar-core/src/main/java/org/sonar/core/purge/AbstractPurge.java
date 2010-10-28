@@ -57,8 +57,8 @@ public abstract class AbstractPurge implements Purge {
   }
 
   protected void deleteDependencies(List<Integer> snapshotIds) {
-    executeQuery("deleteDependencies", snapshotIds, "delete from " + DependencyDto.class.getSimpleName() + " d where d.fromSnapshotId in (:ids)");
-    executeQuery("deleteDependencies", snapshotIds, "delete from " + DependencyDto.class.getSimpleName() + " d where d.toSnapshotId in (:ids)");
+    executeQuery("delete dependencies", snapshotIds, "delete from " + DependencyDto.class.getSimpleName() + " d where d.fromSnapshotId in (:ids)");
+    executeQuery("delete dependencies", snapshotIds, "delete from " + DependencyDto.class.getSimpleName() + " d where d.toSnapshotId in (:ids)");
   }
 
   /**
