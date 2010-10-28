@@ -37,7 +37,7 @@ class Dashboard < ActiveRecord::Base
   end
 
   def editable_by?(user)
-    (user && user_id==user.id) || (user_id.nil? && user.has_role?(:admin))
+    (user && self.user_id==user.id) || (user_id.nil? && user.has_role?(:admin))
   end
 
   def owner?(user)

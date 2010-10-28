@@ -10,7 +10,7 @@
         hoverclass: 'block-hover',
         dashboardstate: 'dashboardstate',
         toggle: 'block-toggle',
-        blocklist: 'dashboard-block-carousel',
+        blocklist: 'widget_defs',
         highlight_duration: 2,
         highlight_startcolor: '#ffff99',
         highlight_endcolor: '#ffffff',
@@ -36,21 +36,11 @@
 <div id="dashboard">
   <%= render :partial => 'dashboard/header', :locals => {:back => true} %>
 
-<div id="dashboard-block-carousel" class="admin marginbottom10">
-
-  <div id="dashboard-block-container" class="container">
-    <div id="widget_defs">
-    <ul>
+  <div id="widget_defs" class="marginbottom10">
       <% @widget_definitions.each_with_index do |definition, index| %>
-        <li>
-          <%= render :partial => 'dashboard/widget_definition', :locals => {:definition => definition} %>
-        </li>
+           <%= render :partial => 'dashboard/widget_definition', :locals => {:definition => definition} %>
       <% end %>
-    </ul>
-    </div>
   </div>
-  <div style="clear: both;"></div>
-</div>
 
 
   <%

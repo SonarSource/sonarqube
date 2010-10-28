@@ -28,7 +28,7 @@ class DashboardController < ApplicationController
     # TODO display error page if no dashboard or no resource
     load_dashboard()
     load_resource()
-    load_widget_definitions()
+    load_authorized_widget_definitions()
   end
 
   def configure
@@ -139,8 +139,7 @@ class DashboardController < ApplicationController
     @project=@resource  # variable name used in old widgets
   end
 
-  # TODO display unauthorized widgets instead of hiding them
-  def load_widget_definitions()
+  def load_authorized_widget_definitions()
     @widget_definitions = java_facade.getWidgets(@resource.scope, @resource.qualifier, @resource.language)
     @widget_definitions=@widget_definitions.select do |widget|
       authorized=widget.getUserRoles().size==0
@@ -152,5 +151,9 @@ class DashboardController < ApplicationController
       end
       authorized
     end
+  end
+
+  def load_widget_definitions()
+    @widget_definitions = java_facade.getWidgets()
   end
 end

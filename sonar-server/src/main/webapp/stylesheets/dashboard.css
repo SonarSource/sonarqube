@@ -67,27 +67,17 @@
 #dashboard #widget_defs {
   width: 100%;
   overflow: auto;
-}
-
-#dashboard #widget_defs ul {
-  list-style-type: none;
-  margin: 0;
   white-space: nowrap;
-  width: 100000px;
-}
-
-#dashboard #widget_defs li {
-  float: left;
-  margin: 0;
-  padding: 2px 7px;
-  display: inline-block;
-  width: 200px;
+  background-color: #FFF6BF;
+  border: 2px solid #FFD324;
 }
 
 #dashboard .widget_def {
-
-  border: 1px solid #ddd;
+  border-right: 2px solid #FFD324;
   padding: 5px;
+  display: inline-block;
+  width: 200px;
+  white-space: normal;
 }
 
 /*OPERATIONS*/
