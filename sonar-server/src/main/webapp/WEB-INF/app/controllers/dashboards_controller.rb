@@ -75,7 +75,7 @@ class DashboardsController < ApplicationController
     else
       # TODO explicit error
     end
-    redirect :action => 'index', :resource => params[:resource]
+    redirect_to :action => 'index', :resource => params[:resource]
   end
 
   def delete

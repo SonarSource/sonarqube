@@ -20,7 +20,12 @@
           else
             @actives.each_with_index do |active,index| %>
             <tr id="dashboard-<%= u active.name -%>" class="<%= cycle('even','odd', :name => 'dashboards') -%>">
-              <td><%= link_to active.name, {:controller => :dashboard, :action => :index, :id => active.dashboard_id, :resource => params[:resource]} -%></td>
+              <td>
+                <%= link_to active.name, {:controller => :dashboard, :action => :index, :id => active.dashboard_id, :resource => params[:resource]} -%>
+                <% if active.dashboard.description.present? %>
+                <p class="small"><%= h active.dashboard.description -%></p>
+                <% end %>
+              </td>
               <% if is_admin %>
               <td>
                 <%= boolean_icon(active.dashboard.shared, {:display_false => false}) -%>

@@ -23,7 +23,7 @@ class AdminDashboardsController < ApplicationController
 
   verify :method => :post, :only => [:up, :down, :remove, :add], :redirect_to => {:action => :index}
   before_filter :admin_required
-  before_filter :load_active_dashboards
+  before_filter :load_default_dashboards
 
   def index
     @default_dashboards=::Dashboard.find(:all, :conditions => {:shared => true})
@@ -95,7 +95,7 @@ class AdminDashboardsController < ApplicationController
 
   private
 
-  def load_active_dashboards
-    @actives=ActiveDashboard.default_active_dashboards
+  def load_default_dashboards
+    @actives=ActiveDashboard.default_dashboards
   end
 end

@@ -1,6 +1,6 @@
 <h1>Default dashboards</h1>
-<p>These dashboards are displayed to anonymous users or users that haven't customized their dashboards.</p>
-<br/>
+<p class="marginbottom10">These dashboards are displayed to anonymous users or users who have not customized their dashboards.</p>
+
 <table class="data" id="admin_console">
   <thead>
     <tr>
@@ -41,9 +41,9 @@
 </table>
 
 <br/><br/>
-<h1>Admin dashboards</h1>
-<p>These dashboards can be added to default dashboards.</p>
-<br/>
+<h1>Shared dashboards</h1>
+<p class="marginbottom10">These dashboards can be added to default dashboards.</p>
+
 <table class="data" id="shared">
   <thead>
     <tr>
@@ -60,7 +60,7 @@
       <tr class="<%= cycle('even', 'odd') -%>">
         <td>
           <%= h(dashboard.name) -%><br>
-          <span style="font-size: 85%;font-weight: normal;"><%= dashboard.description %></span>
+          <span class="small"><%= dashboard.description %></span>
         </td>
         <td><%= h(dashboard.user.name) if dashboard.user %></td>
         <td><%= link_to 'Add to defaults', {:action => 'add', :id => dashboard.id}, :method => :post, :id => "add-#{u dashboard.name}" %></td>
