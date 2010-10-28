@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ui;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -146,6 +147,10 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
 
   public boolean isGwt() {
     return view instanceof GwtPage;
+  }
+
+  public boolean isEditable() {
+    return !ArrayUtils.isEmpty(properties);
   }
 
   @Override

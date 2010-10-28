@@ -18,6 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 module DashboardHelper
+  include WidgetPropertiesHelper
 
   def item_by_metric_id(items, metric_id)
     return nil if items.nil?

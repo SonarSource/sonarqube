@@ -57,9 +57,15 @@
   margin: 0 0 10px 0;
   border: 1px solid #ddd;
 }
-#dashboard .edited_widget {
+#dashboard .configure_widget {
     display: block;
     position: relative;
+}
+#dashboard .widget_props {
+  background-color: #FFF6BF;
+  border: 1px solid #FFD324;
+  margin-bottom: 10px;
+  padding: 5px;
 }
 
 

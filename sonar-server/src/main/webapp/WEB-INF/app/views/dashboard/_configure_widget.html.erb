@@ -11,7 +11,9 @@
 <div class="handle" style="//overflow:hidden;//zoom:1;">
   <%= definition.getTitle() -%>
   <a class="block-remove"  onclick="remove_widget(this);return false;">Delete</a>
-  <a class="block-view-toggle" onclick="return toggle_block(this);">Edit</a> &nbsp;
+  <% if definition.isEditable() %>
+    <a class="block-view-toggle" onclick="portal.editWidget(<%= widget.id -%>);return false;">Edit</a>
+  <% end %>
 </div>
 <% if defined?(validation_result) %>
   <div class="error" style="<%= "display: none;" unless validation_result["errormsg"] %>clear:both;margin: 0;border-bottom:0;">
@@ -22,7 +24,38 @@
   </div>
 <% end %>
 
-<div id="widget_<%= definition.getId().tr('_', '') -%>" class="edited_widget <%= definition.getId() -%>" style="height:100%;">
+
+<div class="widget_props" id="widget_props_<%= widget.id -%>" style="display: none">
+  <% form_remote_tag :url => {:action => 'save_widget', :id => @dashboard.id}, :method => :post do -%>
+    <table class="form" align="center" style="border-collapse:separate;border-spacing:5px;">
+      <tbody>
+      <% definition.getProperties().each do |property|
+          db_property_value=widget.widget_property_value(property.key())
+          entered_value=params[property.key()]
+          entered_value=property.defaultValue() if !entered_value || entered_value.empty?
+          editrow_class=""
+          if defined?(validation_result)
+              editrow_class= validation_result[property.key()]=="valid" ? "valid-editrow" : "invalid-editrow"
+          end
+      %>
+          <tr>
+            <td class="first"><%= property.name() -%>:<br>
+                <span style="font-size: 85%;font-weight: normal;">[<%= property.type()+" "+property.key() -%>]</span></td>
+            <td id="row_<%= property.key() -%>" class="editrow <%= editrow_class %>" style="vertical-align: middle;"><%= property_value_field(property.type(), property.key(), db_property_value, entered_value) %><%= "&nbsp;*" unless property.optional() %>
+              <br>
+              <span style="font-size: 85%;font-weight: normal;">[<%= property.description() -%>]</span></td>
+          </tr>
+      <% end %>
+      </tbody>
+    </table>
+    <%= hidden_field_tag "widgetid", "", :class => "widgetid" %>
+    <div align="center"><%= submit_tag 'Save' %> <a href="#" onClick="portal.cancelEditWidget(<%= widget.id -%>);return false;">Cancel</a></div>
+
+<% end -%>
+</div>
+
+
+<div id="widget_<%= widget.id -%>" class="configure_widget <%= definition.getId() -%>" style="height:100%;">
   <!--[if lte IE 6]>
   <style type="text/css">
     #dashboard .block .content .transparent {

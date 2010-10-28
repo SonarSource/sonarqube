@@ -45,7 +45,8 @@ Portal.prototype = {
     },
 
     highlightWidget: function(widgetId) {
-        new Effect.Highlight($('block_' + widgetId), {duration: this.options.highlight_duration,
+      new Effect.Pulsate($('block_' + widgetId), {duration: this.options.highlight_duration});
+      new Effect.Highlight($('block_' + widgetId), {duration: this.options.highlight_duration,
                                           startcolor: this.options.highlight_startcolor,
                                           endcolor: this.options.highlight_endcolor});
     },
@@ -93,8 +94,18 @@ Portal.prototype = {
     },
 
     setOptions: function (options) {
-        this.options = {}
+        this.options = {};
         Object.extend(this.options, options || {});
+    },
+
+    editWidget: function(id) {
+      
+      $('widget_' + id).hide();
+      $('widget_props_' + id).show();
+    },
+    cancelEditWidget: function(id) {
+      $('widget_' + id).show();
+      $('widget_props_' + id).hide();
     }
 };
 
