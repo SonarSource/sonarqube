@@ -58,14 +58,14 @@
 			    <div class="big">
 			      <%= format_measure(Metric::VIOLATIONS, :url => url_for(:controller => 'drilldown', :action => 'violations', :id => @project.key)) -%> <%= tendency_icon(Metric::VIOLATIONS) -%>
 			    </div>
-			<% 
+			<%
 			blocker_violations = @snapshot.measure(Metric::BLOCKER_VIOLATIONS)
 			critical_violations = @snapshot.measure(Metric::CRITICAL_VIOLATIONS)
 			major_violations = @snapshot.measure(Metric::MAJOR_VIOLATIONS)
 			minor_violations = @snapshot.measure(Metric::MINOR_VIOLATIONS)
 			info_violations = @snapshot.measure(Metric::INFO_VIOLATIONS)
 			max = 0
-			[blocker_violations,critical_violations,major_violations,minor_violations,info_violations].each do |m| 
+			[blocker_violations,critical_violations,major_violations,minor_violations,info_violations].each do |m|
 				max = m.value if m and m.value and m.value>max
 			end
 			%>
@@ -130,6 +130,6 @@
 	    </td>
 	  </tr>
     </table>
- 
+
 </div>
 <% end %>

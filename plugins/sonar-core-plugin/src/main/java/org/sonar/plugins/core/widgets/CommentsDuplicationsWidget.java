@@ -22,18 +22,18 @@ package org.sonar.plugins.core.widgets;
 import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.RubyRailsWidget;
 
-public class DefaultCodeCoverageWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+public class CommentsDuplicationsWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
-    return "code_coverage";
+    return "comments_duplications";
   }
 
   public String getTitle() {
     // not used for the moment by widgets.
-    return "Code coverage";
+    return "Comments & Duplications";
   }
 
   @Override
   protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/_code_coverage.html.erb";
+    return "/org/sonar/plugins/core/widgets/comments_duplications.html.erb";
   }
 }

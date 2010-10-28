@@ -22,18 +22,18 @@ package org.sonar.plugins.core.widgets;
 import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.RubyRailsWidget;
 
-public class DefaultCommentsDuplicationsWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+public class RulesWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
-    return "comments_duplications";
+    return "rules";
   }
 
   public String getTitle() {
     // not used for the moment by widgets.
-    return "Comments duplications";
+    return "Rules";
   }
 
   @Override
   protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/_comments_duplications.html.erb";
+    return "/org/sonar/plugins/core/widgets/rules.html.erb";
   }
 }

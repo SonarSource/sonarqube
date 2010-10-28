@@ -22,7 +22,7 @@ package org.sonar.plugins.core.widgets;
 import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.RubyRailsWidget;
 
-public class DefaultDescriptionWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+public class DescriptionWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
     return "description";
   }
@@ -34,6 +34,6 @@ public class DefaultDescriptionWidget extends AbstractRubyTemplate implements Ru
 
   @Override
   protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/_description.html.erb";
+    return "/org/sonar/plugins/core/widgets/description.html.erb";
   }
 }

@@ -837,11 +837,6 @@ ul.operations li a {
 .page_title {
   margin: 0 0 7px 0;
 }
-.widget {
-  border: 1px solid #ccc;
-  margin-bottom: 10px;
-  padding: 8px 5px 5px 8px;
-}
 
 .color_OK {
   background-color: #6ec563;
@@ -924,7 +919,7 @@ ul.operations li a {
 
 /* ------------------- BOXES ------------------- */
 .box {
-  border: 1px solid silver;
+  border: 1px solid #ccc;
   background-color: #f4f4f4;
   margin-bottom: 5px;
   color: #444;

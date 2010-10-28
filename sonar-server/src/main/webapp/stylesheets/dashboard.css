@@ -1,10 +1,8 @@
-/*DASHBOARD*/
+/* LAYOUT */
 #dashboard {
   position: relative;
-  align: center;
   width: 100%;
 }
-
 #dashboard .transparent {
   position: absolute;
   width: 100%;
@@ -15,7 +13,7 @@
   z-index: 1000;
 }
 
-/*LAYOUT*/
+/* CONFIGURE LAYOUT */
 #dashboard .layout-example .transparent {
   cursor: pointer;
 }
@@ -35,8 +33,8 @@
 
 #dashboard .layout-example .layout-column-wrapper {
   float: left;
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
   background-color: #cccccc;
 }
 
@@ -49,6 +47,15 @@
 
 #dashboard .layout-example .first {
   margin-left: 5px;
+}
+
+/* WIDGETS */
+.widget {
+  position: relative;
+  overflow-x: visible;
+  padding: 10px;
+  margin: 0 0 10px 0;
+  border: 1px solid #ddd;
 }
 
 /*CONFIGURATION*/
@@ -144,8 +151,6 @@
 #dashboard .block {
   position: relative;
   width: 100%;
-  margin: 0 0 10px 0;
-  padding: 0;
 }
 
 #dashboard .block .handle {
@@ -171,18 +176,6 @@
   cursor: pointer;
   padding-left: 5px;
   text-decoration: underline;
-}
-
-#dashboard .block .description {
-  display: none;
-}
-
-#dashboard .block .content {
-  display: block;
-  position: relative;
-  padding: 8px 5px 5px 8px;
-  overflow-x: visible;
-  border: 1px solid #ddd;
 }
 
 #dashboard .block .widgetedit {

@@ -3,6 +3,7 @@ if measure('lines') || measure('ncloc')
   files=measure('files')
   statements=measure('statements')
 %>
+<div class="widget">
 <table width="100%">
 	<tr>
 		<td valign="top" width="48%" nowrap>
@@ -12,8 +13,8 @@ if measure('lines') || measure('ncloc')
 			      <p><span class="big">
 			      <%= format_measure('ncloc', :suffix => '', :url => url_for_drilldown('ncloc')) -%> <%= tendency_icon('ncloc', false) -%></span></p>
 			      <%
-			        generated_ncloc=measure('generated_ncloc') 
-			        if generated_ncloc && generated_ncloc.value>0 
+			        generated_ncloc=measure('generated_ncloc')
+			        if generated_ncloc && generated_ncloc.value>0
 			      %>
 			      <p>+<%= format_measure(generated_ncloc, :suffix => ' generated', :url => url_for_drilldown(generated_ncloc)) -%> <%= tendency_icon(generated_ncloc) -%></p>
 			      <% end %>
@@ -23,7 +24,7 @@ if measure('lines') || measure('ncloc')
 			    <% end %>
 			    <%
 			      generated_lines=measure('generated_lines')
-			      if generated_lines && generated_lines.value>0 
+			      if generated_lines && generated_lines.value>0
 			    %>
 			      <p>incl. <%= format_measure(generated_lines, :suffix => ' generated', :url => url_for_drilldown(generated_lines)) -%> <%= tendency_icon(generated_lines) -%></p>
 			    <% end %>
@@ -60,4 +61,5 @@ if measure('lines') || measure('ncloc')
 		</td>
 	</tr>
 </table>
+</div>
 <% end %>

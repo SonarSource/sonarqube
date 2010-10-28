@@ -69,7 +69,7 @@ class Sonar::Treemap
   
   def get_url(snapshot,color_measure)
     if snapshot.display_dashboard?
-      "document.location='#{ApplicationController.root_context}/project/index/#{snapshot.project.copy_resource_id || snapshot.project_id}'"
+      "document.location='#{ApplicationController.root_context}/dashboard/index?resource=#{snapshot.project.copy_resource_id || snapshot.project_id}'"
     else
       "window.open('#{ApplicationController.root_context}/resource/index/#{snapshot.project_id}?viewer_metric_key=#{@color_metric.key}','resource','height=800,width=900,scrollbars=1,resizable=1');return false;"
     end 

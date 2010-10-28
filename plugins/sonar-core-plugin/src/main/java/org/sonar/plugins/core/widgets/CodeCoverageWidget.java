@@ -22,18 +22,18 @@ package org.sonar.plugins.core.widgets;
 import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.RubyRailsWidget;
 
-public class DefaultAlertsWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+public class CodeCoverageWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
-    return "alerts";
+    return "code_coverage";
   }
 
   public String getTitle() {
     // not used for the moment by widgets.
-    return "Alerts";
+    return "Code coverage";
   }
 
   @Override
   protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/_alerts.html.erb";
+    return "/org/sonar/plugins/core/widgets/code_coverage.html.erb";
   }
 }

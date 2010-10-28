@@ -65,7 +65,7 @@ class CreateDashboards < ActiveRecord::Migration
   private
 
   def self.create_dashboard
-    dashboard=::Dashboard.new(:name => 'Default', :shared => true, :description => 'Default dashboard', :column_layout => "50-50")
+    dashboard=::Dashboard.new(:name => 'Dashboard', :shared => true, :description => 'Default dashboard', :column_layout => "50-50")
     dashboard.widgets.build(:widget_key => 'static_analysis', :name => 'Static analysis', :column_index => 1, :order_index => 1, :state => Widget::STATE_ACTIVE)
     dashboard.widgets.build(:widget_key => 'comments_duplications', :name => 'Comments duplications', :column_index => 1, :order_index => 2, :state => Widget::STATE_ACTIVE)
     dashboard.widgets.build(:widget_key => 'extended_analysis', :name => 'Extended analysis', :column_index => 1, :order_index => 3, :state => Widget::STATE_ACTIVE)
@@ -74,9 +74,10 @@ class CreateDashboards < ActiveRecord::Migration
     dashboard.widgets.build(:widget_key => 'description', :name => 'Description', :column_index => 1, :order_index => 6, :state => Widget::STATE_ACTIVE)
     dashboard.widgets.build(:widget_key => 'rules', :name => 'Rules', :column_index => 2, :order_index => 1, :state => Widget::STATE_ACTIVE)
     dashboard.widgets.build(:widget_key => 'alerts', :name => 'Alerts', :column_index => 2, :order_index => 2, :state => Widget::STATE_ACTIVE)
-    dashboard.widgets.build(:widget_key => 'file-design', :name => 'File design', :column_index => 2, :order_index => 3, :state => Widget::STATE_ACTIVE)
-    dashboard.widgets.build(:widget_key => 'package-design', :name => 'Package design', :column_index => 2, :order_index => 4, :state => Widget::STATE_ACTIVE)
-    dashboard.widgets.build(:widget_key => 'ckjm', :name => 'CKJM', :column_index => 2, :order_index => 5, :state => Widget::STATE_ACTIVE)
+    dashboard.widgets.build(:widget_key => 'custom_measures', :name => 'Custom measures', :column_index => 2, :order_index => 3, :state => Widget::STATE_ACTIVE)
+    dashboard.widgets.build(:widget_key => 'file-design', :name => 'File design', :column_index => 2, :order_index => 4, :state => Widget::STATE_ACTIVE)
+    dashboard.widgets.build(:widget_key => 'package-design', :name => 'Package design', :column_index => 2, :order_index => 5, :state => Widget::STATE_ACTIVE)
+    dashboard.widgets.build(:widget_key => 'ckjm', :name => 'CKJM', :column_index => 2, :order_index => 6, :state => Widget::STATE_ACTIVE)
 
     dashboard.save
     dashboard

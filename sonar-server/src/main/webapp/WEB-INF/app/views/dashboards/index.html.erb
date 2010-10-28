@@ -20,7 +20,7 @@
           else
             @actives.each_with_index do |active,index| %>
             <tr id="dashboard-<%= u active.name -%>" class="<%= cycle('even','odd', :name => 'dashboards') -%>">
-              <td><%= active.name %></td>
+              <td><%= link_to active.name, {:controller => :dashboard, :action => :index, :id => active.dashboard_id, :resource => params[:resource]} -%></td>
               <% if is_admin %>
               <td>
                 <%= boolean_icon(active.dashboard.shared, {:display_false => false}) -%>
@@ -37,8 +37,11 @@
                 <% end %>
               </td>
               <td>
-                <% if !active.shared? || is_admin %>
+                <% if active.owner?(current_user) %>
+                  <%= link_to 'Configure widgets', {:controller => :dashboard, :action => 'configure', :id => active.dashboard_id, :resource => params[:resource]}, :id => "configure-#{u active.name}" %>
+                  |
                   <%= link_to_remote "Edit", :update => "admin_form", :url => { :action => "edit", :id => active.dashboard_id, :resource => params[:resource] }, :id => "edit-#{u active.name}", :method => :get %>
+                  |
                   <%= link_to 'Delete', {:action => 'delete', :id => active.dashboard_id, :resource => params[:resource]}, :method => :post, :confirm => 'Do you want to delete this dashboard ?', :id => "delete-#{u active.name}" %>
                 <% else %>
                   <%= link_to 'Unfollow', {:action => 'unfollow', :id => active.dashboard_id}, :method => :post, :id => "hide-#{u active.name}" %>

@@ -2,17 +2,10 @@
 <%= render :partial => 'project/snapshot_title' %>
 <table><tr>
   <td width="390px" valign="top" style="padding: 0 4px 0 0">
-    <%= render :partial => 'project/widgets/static_analysis' %>
-    <%= render :partial => 'project/widgets/comments_duplications' %>
-    <%= render :partial => 'project/widgets/extended_analysis' %>
-    <%= render :partial => 'project/widgets/code_coverage' %>
-    <%= render :partial => 'project/widgets/events' %>
-     <%= render :partial => 'project/widgets/description' %>
+    
   </td>
   <td width="390px" valign="top" style="padding: 0 0 0 4px">
-   <%= render :partial => 'project/widgets/rules' %>
-   <%= render :partial => 'project/widgets/alerts' %>
-
+   
 <% @widgets.each do |widget|
   begin
     widget_body=render :inline => widget.getTarget().getTemplate()
@@ -31,7 +24,6 @@
 <div id="<%= widget.getId() -%>" ></div>
 <% end 
 end %>
-    <%= render :partial => 'project/widgets/custom_measures' %>
   </td>
 </tr></table>
 <script type="text/javascript">

@@ -30,7 +30,7 @@ public final class FileDesignWidget extends AbstractRubyTemplate implements Ruby
   }
 
   public String getTitle() {
-    return "1_File design";
+    return "File design";
   }
 
   @Override

@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
 
@@ -48,5 +49,15 @@ public final class SquidUtils {
   public static JavaPackage convertJavaPackageKeyFromSquidFormat(String key) {
     String convertedKey = key.replace('/', '.');
     return new JavaPackage(convertedKey);
+  }
+
+  public static String convertToSquidKeyFormat(JavaFile file) {
+    String key = file.getKey();
+    if (file.getParent()==null || file.getParent().isDefault()) {
+      key = StringUtils.substringAfterLast(file.getKey(), ".");
+    } else {
+      key = StringUtils.replace(key, ".", "/");
+    }
+    return  key + ".java";
   }
 }

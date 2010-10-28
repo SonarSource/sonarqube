@@ -145,13 +145,15 @@ public class CorePlugin implements Plugin {
     extensions.add(Hotspots.class);
 
     //widgets
-    extensions.add(DefaultAlertsWidget.class);
-    extensions.add(DefaultCodeCoverageWidget.class);
-    extensions.add(DefaultCommentsDuplicationsWidget.class);
-    extensions.add(DefaultDescriptionWidget.class);
+    extensions.add(AlertsWidget.class);
+    extensions.add(CodeCoverageWidget.class);
+    extensions.add(CommentsDuplicationsWidget.class);
+    extensions.add(DescriptionWidget.class);
     extensions.add(DefaultExtendedAnalysisWidget.class);
-    extensions.add(DefaultRulesWidget.class);
+    extensions.add(RulesWidget.class);
     extensions.add(DefaultStaticAnalysisWidget.class);
+    extensions.add(EventsWidget.class);
+    extensions.add(CustomMeasuresWidget.class);
 
     // chart
     extensions.add(XradarChart.class);

@@ -4,7 +4,7 @@
     <% if back %>
       <li class="last"><%= link_to 'Back to dashboard', {:action => 'index', :id => @dashboard.id, :resource => @resource.id } -%></li>
     <% else %>
-      <li><%= link_to 'Configure', {:action => 'configure', :id => @dashboard.id, :resource => @resource.id } -%></li>
+      <li><%= link_to 'Configure widgets', {:action => 'configure', :id => @dashboard.id, :resource => @resource.id } -%></li>
       <li><%= link_to 'Edit layout', {:action => 'edit_layout', :id => @dashboard.id, :resource => @resource.id } -%></li>
       <li class="last"><%= link_to 'Manage dashboards', {:controller => 'dashboards', :action => 'index', :resource => @resource.id } -%></li>
     <% end %>

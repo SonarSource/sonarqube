@@ -1,6 +1,6 @@
 <% show_admin_actions=is_admin?(@snapshot) %>
 <h3>Events &nbsp;&nbsp;
-<select class="small" id="select_category" onchange="<%= remote_function(:update => 'events_portlet', :url => { :action => :events, :id => @snapshot.id },
+<select class="small" id="select_category" onchange="<%= remote_function(:update => 'events_portlet', :url => { :controller => :project, :action => :events, :id => @snapshot.id },
   :with => "'category=' + $F('select_category')", :method => 'get') -%>">
 <option value="">All</option>
 <% @categories.each do |categ| %>

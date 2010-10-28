@@ -24,19 +24,7 @@ class ProjectController < ApplicationController
   SECTION=Navigation::SECTION_RESOURCE
   
   def index
-    @project=Project.by_key(params[:id])
-    unless @project
-      redirect_to_default
-      return
-    end
-    return access_denied unless has_role?(:user, @project)
-    @snapshot = @project.last_snapshot
-
-
-    load_widgets
-
-  rescue ActiveRecord::RecordNotFound
-    redirect_to_default
+    redirect_to :controller => :dashboard, :resource => params[:id]
   end
 
   def show_reviews

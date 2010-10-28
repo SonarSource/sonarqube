@@ -1,4 +1,4 @@
-<div id="widget_<%= definition.getId().tr('_', '') -%>" class="content <%= definition.getId() %>" style="height:100%;">
+<div class="<%= definition.getId() %>" style="height:100%;">
 <%
   begin
     widget_body=render :inline => definition.getTarget().getTemplate(), :locals => {:widget_properties => widget.properties_as_hash}
@@ -10,11 +10,7 @@
 
   if widget_body.include?('<')
 %>
-    <%= widget_body %>
-<%
-  else
-%>
-    <p>Can not render widget <b><%= definition.getTitle() %></b>.</p>
+  <%= widget_body %>
 <%
   end
 %>

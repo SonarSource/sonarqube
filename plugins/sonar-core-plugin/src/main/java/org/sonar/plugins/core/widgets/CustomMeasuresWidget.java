@@ -17,24 +17,23 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.design.ui.widgets;
+package org.sonar.plugins.core.widgets;
 
 import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.RubyRailsWidget;
-import org.sonar.api.web.UserRole;
 
-@UserRole(UserRole.USER)
-public final class PackageDesignWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+public class CustomMeasuresWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
-    return "package-design";
+    return "custom_measures";
   }
 
   public String getTitle() {
-    return "Package design";
+    // not used for the moment by widgets.
+    return "Custom measures";
   }
 
   @Override
   protected String getTemplatePath() {
-    return "/org/sonar/plugins/design/ui/widgets/package_design.html.erb";
+    return "/org/sonar/plugins/core/widgets/custom_measures.html.erb";
   }
 }

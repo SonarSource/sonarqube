@@ -30,7 +30,7 @@ public final class ChidamberKemererWidget extends AbstractRubyTemplate implement
   }
 
   public String getTitle() {
-    return "2_Chidamber & Kemerer";
+    return "Chidamber & Kemerer"; 
   }
 
   @Override
