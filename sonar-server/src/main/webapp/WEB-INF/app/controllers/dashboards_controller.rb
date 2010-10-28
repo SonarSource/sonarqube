@@ -21,7 +21,7 @@ class DashboardsController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
 
-  verify :method => :post, :only => [:create, :update, :delete, :up, :down], :redirect_to => {:action => :index}
+  verify :method => :post, :only => [:create, :update, :delete, :up, :down, :unfollow], :redirect_to => {:action => :index}
   before_filter :login_required
 
   def index
@@ -126,7 +126,13 @@ class DashboardsController < ApplicationController
     redirect_to :action => 'index', :resource => params[:resource]
   end
 
-
+  def unfollow
+    active_dashboard=ActiveDashboard.find(:first, :conditions => ['user_id=? AND dashboard_id=?', current_user.id, params[:id].to_i])
+    if active_dashboard
+      active_dashboard.destroy
+    end
+    redirect_to :action => :index, :resource => params[:resource]
+  end
 
   private
 

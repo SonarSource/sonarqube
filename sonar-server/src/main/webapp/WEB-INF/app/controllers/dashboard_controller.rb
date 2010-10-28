@@ -109,6 +109,8 @@ class DashboardController < ApplicationController
         @active=ActiveDashboard.find(:first, :include => 'dashboard', :conditions => ['active_dashboards.dashboard_id=? AND active_dashboards.user_id=?', params[:id].to_i, current_user.id])
       elsif params[:name]
         @active=ActiveDashboard.find(:first, :include => 'dashboard', :conditions => ['dashboards.name=? AND active_dashboards.user_id=?', params[:name], current_user.id])
+      else
+        @active=ActiveDashboard.find(:first, :include => 'dashboard', :conditions => ['active_dashboards.user_id=?', current_user.id], :order => 'order_index ASC')
       end
     end
 
