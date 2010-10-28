@@ -1,0 +1,216 @@
+/*DASHBOARD*/
+#dashboard {
+  position: relative;
+  align: center;
+  width: 100%;
+}
+
+#dashboard .transparent {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: url('../images/transparent.gif') repeat;
+  z-index: 1000;
+}
+
+/*LAYOUT*/
+#dashboard .layout-example .transparent {
+  cursor: pointer;
+}
+
+#dashboard .layout-example-wrapper {
+  text-align: center;
+  float: left;
+  margin: 0;
+  padding: 0;
+}
+
+#dashboard .layout-example {
+  position: relative;
+  margin: 0 20px 10px 20px;
+  padding: 0;
+}
+
+#dashboard .layout-example .layout-column-wrapper {
+  float: left;
+  margin: 0px;
+  padding: 0px;
+  background-color: #cccccc;
+}
+
+#dashboard .layout-example .layout-column {
+  margin: 5px 5px 5px 0px;
+  padding: 0px;
+  height: 70px;
+  background-color: #ffffff;
+}
+
+#dashboard .layout-example .first {
+  margin-left: 5px;
+}
+
+/*CONFIGURATION*/
+#dashboard #widget_definitions {
+  width: 100%;
+  overflow: auto;
+}
+
+#dashboard #widget_definitions ul {
+  list-style-type: none;
+  margin: 0;
+  white-space: nowrap;
+  width: 100000px;
+}
+
+#dashboard #widget_definitions li {
+  float: left;
+  margin: 0;
+  padding: 2px 7px;
+  display: inline-block;
+  width: 200px;
+}
+
+#dashboard .widget_def {
+
+  border: 1px solid #ddd;
+  padding: 5px;
+}
+
+/*OPERATIONS*/
+#dashboard #dashboard-operations {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+#dashboard #dashboard-operations ul.operations {
+  float: left;
+  list-style-type: none;
+  border: 1px solid #cdcdcd;
+  padding: 0;
+  margin: 0;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+}
+
+#dashboard #dashboard-operations ul.operations li {
+  float: left;
+  margin: 0;
+  padding: 2px 10px;
+  position: relative;
+  background-color: #f4f4f4;
+  font-size: 85%;
+  border-right: 1px solid #cdcdcd;
+}
+
+#dashboard #dashboard-operations ul.operations li.last {
+  border-right-width: 0;
+}
+
+#dashboard #dashboard-operations ul.operations li.selected {
+  background-color: #d4d4d4;
+}
+
+#dashboard #dashboard-operations ul.operations li a {
+  color: #555;
+}
+
+#dashboard .dashboard-column {
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+}
+
+#dashboard .dashboard-column-wrapper {
+  float: left;
+  margin: 0;
+  padding: 0;
+}
+
+#dashboard .column-handle {
+  height: 100px;
+  width: 100%;
+  margin: 10px 0px 10px 0px;
+  padding: 0px;
+  display: inline-block;
+  line-height: 100px;
+  text-align: center;
+  font-size: x-large;
+  vertical-align: middle;
+  color: #555;
+}
+#dashboard .block {
+  position: relative;
+  width: 100%;
+  margin: 0 0 10px 0;
+  padding: 0;
+}
+
+#dashboard .block .handle {
+  margin: 0;
+  padding: 3px 5px;
+  background-color: #efefef;
+  cursor: move;
+  border: 1px solid #ddd;
+  border-bottom: 0;
+}
+
+#dashboard .block .block-view-toggle {
+  display: block;
+  float: right;
+  cursor: pointer;
+  padding-left: 5px;
+  text-decoration: underline;
+}
+
+#dashboard .block .block-remove {
+  display: block;
+  float: right;
+  cursor: pointer;
+  padding-left: 5px;
+  text-decoration: underline;
+}
+
+#dashboard .block .description {
+  display: none;
+}
+
+#dashboard .block .content {
+  display: block;
+  position: relative;
+  padding: 8px 5px 5px 8px;
+  overflow-x: visible;
+  border: 1px solid #ddd;
+}
+
+#dashboard .block .widgetedit {
+  display: block;
+  position: relative;
+  padding: 8px 5px 5px 8px;
+  overflow-x: auto;
+  border: 1px solid #ddd;
+}
+
+#dashboard .block .transparent {
+  cursor: move;
+}
+
+#dashboard .block-hover {
+  border: 3px dashed #ddd;
+}
+
+#dashboard .valid-editrow {
+  border: 1px solid #0f0;
+}
+
+#dashboard .invalid-editrow {
+  border: 1px solid #f00;
+}
+
+#dashboard .shadow-block {
+  box-shadow: 8px 8px 8px #ddd;
+  -moz-box-shadow: 8px 8px 8px #ddd;
+  -webkit-box-shadow: 8px 8px 8px #ddd;
+}

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ui;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.ArrayUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.web.Page;
@@ -83,6 +84,10 @@ public class Views implements ServerComponent {
       }
     }
     return result;
+  }
+
+  public List<ViewProxy<Widget>> getWidgets() {
+    return new ArrayList<ViewProxy<Widget>>(widgets);
   }
 
   private static boolean accept(ViewProxy proxy, String section, String resourceScope, String resourceQualifier, String resourceLanguage) {

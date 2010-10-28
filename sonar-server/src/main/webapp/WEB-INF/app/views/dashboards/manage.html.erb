@@ -1,0 +1,86 @@
+<%= render :partial => 'dashboards/tabs', :locals => {:selected_tab => nil} %>
+
+<h1>My dashboards</h1>
+<p>These dashboards are active and visible.</p>
+<br/>
+<table class="data" id="actives">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Default</th>
+      <th>Order</th>
+      <th>Operations</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% if @actives.nil? || @actives.empty? %>
+  <tr class="even"><td colspan="5">No dashboards</td></tr>
+
+  <%
+    else
+      @actives.each_with_index do |active,index| %>
+      <tr id="active-<%= u active.name -%>" class="<%= cycle('even','odd', :name => 'actives') -%>">
+        <td><%= active.name %></td>
+        <td>
+          <%= boolean_icon(active.dashboard.shared, {:display_false => false}) -%>
+        </td>
+        <td>
+          <% if index>0 %>
+            <%= link_to image_tag('blue-up.png'), {:action => 'up', :id => @project.id, :dashboard => active.dashboard.id}, :method => :post, :id => "up-#{u active.name}" %>
+          <% else %>
+            <%= image_tag('transparent_16.gif') %>
+          <% end %>
+          <% if index<@actives.size-1 %>
+            <%= link_to image_tag('blue-down.png'), {:action => 'down', :id => @project.id, :dashboard => active.dashboard.id}, :method => :post, :id => "down-#{u active.name}" %>
+          <% end %>
+        </td>
+        <td>
+          <% if !active.shared? || is_admin? %>
+            <%= link_to 'Edit', {:action => 'edit', :id => @project.id, :dashboard => active.dashboard_id}, :method => :post, :id => "edit-#{u active.name}"  %> |
+            <%= link_to 'Delete', {:action => 'delete', :id => @project.id, :dashboard => active.dashboard_id, :manage => true}, :method => :post, :confirm => 'Do you want to delete this dashboard ?', :id => "delete-#{u active.name}" %>
+          <% else %>
+            <%= link_to 'Edit', {:action => 'edit', :id => @project.id, :dashboard => active.dashboard_id}, :method => :post, :id => "edit-#{u active.name}"  %> |
+            <%= link_to 'Hide', {:action => 'hide', :id => @project.id, :dashboard => active.dashboard_id}, :method => :post, :id => "hide-#{u active.name}" %>
+          <% end %>
+        </td>
+      </tr>
+  <%  end
+    end
+  %>
+  </tbody>
+</table>
+
+<br/><br/><br/>
+<h1>Disabled dashboards</h1>
+<p>These dashboards are hided.</p>
+<br/>
+<table class="data" id="shared">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Default</th>
+      <th>Operations</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% if @disabled_dashboards.nil? || @disabled_dashboards.empty? %>
+  <tr class="even"><td colspan="3">No dashboards</td></tr>
+
+  <%
+    else
+      @disabled_dashboards.each_with_index do |disabled,index|
+  %>
+      <tr id="active-<%= u disabled.name -%>" class="<%= cycle('even','odd', :name => 'actives') -%>">
+        <td><%= disabled.name %></td>
+        <td>
+          <%= boolean_icon(disabled.dashboard.shared, {:display_false => false}) -%>
+        </td>
+        <td>
+          <%= link_to 'Show', {:action => 'show', :id => @project.id, :dashboard => disabled.dashboard_id}, :method => :post, :id => "show-#{u disabled.name}" %>
+        </td>
+      </tr>
+  <%  end
+    end
+  %>
+  </tbody>
+</table>

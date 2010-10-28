@@ -1,0 +1,6 @@
+<%= render :partial => 'dashboards/tabs', :locals => {:selected_tab => (@dashboard ? @dashboard.id : 'new') } %>
+<% if @dashboard.id %>
+    <%= render :partial => 'dashboards/dashboard', :locals => {:dashboard_edit => true } %>
+<% else %>
+    <%= render :partial => 'dashboards/editform' %>
+<% end %>

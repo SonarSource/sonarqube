@@ -1,0 +1,100 @@
+<%
+   properties_available=widget_view.getProperties() && widget_view.getProperties().size() != 0
+
+   if !properties_available || (widget && widget.state==Widget::STATE_ACTIVE)
+       begin
+           widget_properties=Hash.new
+           if widget
+               widget.widget_properties.each do |property|
+                   widget_properties[property.key]=property.value
+               end
+           end
+           widget_body=render :inline => widget_view.getTarget().getTemplate(), :locals => {:widget_properties => widget_properties}
+       rescue => error
+           logger.error("Can not render widget #{widget_view.getId()}: " + error)
+           logger.error(error.backtrace.join("\n"))
+           widget_body=""
+       end
+   end
+%>
+
+<% if dashboard_edit || (widget.state==Widget::STATE_ACTIVE && widget_body.include?('<')) %>
+
+    <div class="handle" style="//overflow:hidden;//zoom:1;<%= !dashboard_edit ? "display: none;" : "" %>">
+      <%= (widget) ? widget.name : widget_view.getTitle() -%>
+      <% if dashboard_edit %>
+          <a class="block-remove" style="//margin: -1em 0 0 0;" onclick="remove_block(this);return false;">[x]</a>
+          <% if properties_available && widget && widget.state==Widget::STATE_ACTIVE %>
+              <a class="block-view-toggle" style="//margin: -1em 0 0 0;" onclick="return toggle_block(this);">[<%= edit_mode ? "view" : "edit" %>]</a> &nbsp;
+          <% end %>
+      <% end %>
+    </div>
+    <% if defined?(validation_result) %>
+        <div class="error" style="<%= "display: none;" unless validation_result["errormsg"] %>clear:both;margin: 0;border-bottom:0;">
+          <span class="errormsg"><%= validation_result["errormsg"] if validation_result["errormsg"] %></span> &nbsp;&nbsp;[<a href="#" onclick="hide_block_info($(this).up('.block'));return false;">hide</a>]
+        </div>
+        <div class="notice" style="<%= "display: none;" unless validation_result["infomsg"] %>clear:both;margin: 0;border-bottom:0;">
+          <span class="infomsg"><%= validation_result["infomsg"] if validation_result["infomsg"] %></span> &nbsp;&nbsp;[<a href="#" onclick="hide_block_info($(this).up('.block'));return false;">hide</a>]
+        </div>
+    <% end %>
+
+    <div class="description">
+      <div style="height:90px;overflow-y:auto;"><%= widget_view.getDescription() -%></div>
+
+      <div align="center"><%= button_to_function "Add", "portal.addNewWidget($(this).up('.block'),$$('.column-handle')[0]);", :style => "width:40px;"%></div>
+    </div>
+
+    <% if properties_available && dashboard_edit %>
+        <div class="widgetedit" style="height:100%;<%= "display: none;" unless (edit_mode || (widget && widget.state==Widget::STATE_INACTIVE)) %>">
+        <% form_remote_tag :url => {:action => 'savewidget', :id => @project.id, :dashboard => @dashboard.id},
+                           :method => "post",
+                           :before => "$(this).down('.widgetid').value=$(this).up('.block').identify().split('_').pop();hide_block_info($(this).up('.block'))" do -%>
+            <table class="form" align="center" style="border-collapse:separate;border-spacing:5px;">
+              <tbody>
+              <% widget_view.getProperties().each do |property|
+                  db_property_value=widget.widget_property_value(property.key()) if widget
+                  entered_value=params[property.key()]
+                  entered_value=property.defaultValue() if !entered_value || entered_value.empty?
+                  entered_value=nil unless edit_mode
+                  editrow_class=""
+                  if defined?(validation_result)
+                      editrow_class= validation_result[property.key()]=="valid" ? "valid-editrow" : "invalid-editrow"
+                  end
+              %>
+                  <tr>
+                    <td class="first"><%= property.name() -%>:<br>
+                        <span style="font-size: 85%;font-weight: normal;">[<%= property.type()+" "+property.key() -%>]</span></td>
+                    <td id="row_<%= property.key() -%>" class="editrow <%= editrow_class %>" style="vertical-align: middle;"><%= property_value_field(property.type(), property.key(), db_property_value, entered_value) %><%= "&nbsp;*" unless property.optional() %>
+                      <br>
+                      <span style="font-size: 85%;font-weight: normal;">[<%= property.description() -%>]</span></td>
+                  </tr>
+              <% end %>
+              </tbody>
+            </table>
+            <%= hidden_field_tag "widgetid", "", :class => "widgetid" %>
+            <div align="center"><%= submit_tag 'Save' %></div>
+        <% end -%>
+        </div>
+    <% end %>
+
+    <% if (dashboard_edit && (!properties_available || (widget && widget.state==Widget::STATE_ACTIVE))) || (widget_body && widget_body.include?('<')) %>
+        <div id="widget_<%= (widget) ? widget.id : widget_view.getId().tr('_', '') -%>" class="content <%= widget_view.getId() %>" style="height:100%;<%= "display: none;" if edit_mode || (properties_available && widget && widget.state==Widget::STATE_INACTIVE) %>">
+          <% if dashboard_edit %>
+              <!--[if lte IE 6]>
+                <style type="text/css">
+                    #dashboard .block .content .transparent {
+                        display: none;
+                    }
+                </style>
+              <![endif]-->
+              <div class="transparent"></div>
+          <% end %>
+          <% if widget_body.include? '<' %>
+            <%= widget_body %>
+          <% else %>
+            <p>Can not render widget <b><%= widget_view.getTitle() %></b>.
+          <% end %>
+          <div style="clear: both;"></div>
+        </div>
+    <% end %>
+<% end %>

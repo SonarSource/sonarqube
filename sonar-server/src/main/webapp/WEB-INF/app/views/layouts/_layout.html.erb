@@ -34,7 +34,9 @@
           <% end %>
 
         <% elsif (selected_section==Navigation::SECTION_RESOURCE) %>
-
+          <% ActiveDashboard.user_dashboards(current_user).each do |active_dashboard| %>
+            <li class="<%= 'selected' if controller.controller_path=='dashboard' && active_dashboard.dashboard_id==params[:id].to_i -%>"><a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= active_dashboard.dashboard_id -%>?resource=<%= @project.id -%>"><%= active_dashboard.dashboard.name -%></a></li>
+          <% end %>
           <li class="<%= 'selected' if request.request_uri.include?('/project/index')  || request.request_uri.include?('/drilldown/measures') -%>"><a href="<%= ApplicationController.root_context -%>/project/index/<%= @project.id -%>">Dashboard</a></li>
           <li class="<%= 'selected' if request.request_uri.include?('/components/index') -%>"><a href="<%= ApplicationController.root_context -%>/components/index/<%= @project.id -%>">Components</a></li>
           <li class="<%= 'selected' if request.request_uri.include?('/drilldown/violations') -%>"><a href="<%= ApplicationController.root_context -%>/drilldown/violations/<%= @project.id -%>">Violations drilldown</a></li>
@@ -59,6 +61,7 @@
               <li class="<%= 'selected' if controller.controller_path=='event_categories' -%>"><a href="<%= ApplicationController.root_context -%>/event_categories/index">Event categories</a></li>
               <li class="<%= 'selected' if controller.controller_path=='metrics' -%>"><a href="<%= ApplicationController.root_context -%>/metrics/index">Manual metrics</a></li>
               <li class="<%= 'selected' if controller.controller_path=='admin_filters' -%>"><a href="<%= ApplicationController.root_context -%>/admin_filters/index">Default filters</a></li>
+              <li class="<%= 'selected' if controller.controller_path=='admin_dashboards' -%>"><a href="<%= ApplicationController.root_context -%>/admin_dashboards/index">Default dashboards</a></li>                  
               <li class="<%= 'selected' if controller.controller_path=='account' -%>"><a href="<%= ApplicationController.root_context -%>/account/index">My profile</a></li>
               <% controller.java_facade.getPages(Navigation::SECTION_CONFIGURATION, nil,nil, nil).each do |page| %>
                 <li class="<%= 'selected' if request.request_uri.include?("plugins/configuration/#{page.getId()}") -%>"><a href="<%= ApplicationController.root_context -%>/plugins/configuration/<%= page.getId() -%>"><%= page.getTitle() %></a></li>

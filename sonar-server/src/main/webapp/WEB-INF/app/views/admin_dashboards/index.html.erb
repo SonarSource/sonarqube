@@ -1,0 +1,72 @@
+<h1>Default dashboards</h1>
+<p>These dashboards are displayed to anonymous users or users that haven't customized their dashboards.</p>
+<br/>
+<table class="data" id="admin_console">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Shared by</th>
+      <th>Order</th>
+      <th>Operations</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% if @actives.empty? %>
+    <tr class="even"><td colspan="4">No results.</td></tr>
+  <% else %>
+    <% @actives.each_with_index do |active,index| %>
+      <tr id="active-<%= u active.name -%>" class="<%= cycle('even','odd', :name => 'actives') -%>">
+        <td>
+          <%= h(active.name) %><br>
+          <span style="font-size: 85%;font-weight: normal;"><%= active.dashboard.description %></span>
+        </td>
+        <td><%= h(active.dashboard.user.name) if active.dashboard.user %></td>
+        <td>
+          <% if index>0 %>
+            <%= link_to image_tag('blue-up.png'), {:action => :up, :id => active.id}, :method => :post, :id => "up-#{u active.name}" %>
+          <% else %>
+            <%= image_tag('transparent_16.gif') %>
+          <% end %>
+          <% if index<@actives.size-1 %>
+            <%= link_to image_tag('blue-down.png'), {:action => :down, :id => active.id}, :method => :post, :id => "down-#{u active.name}" %>
+          <% end %>
+        </td>
+        <td>
+          <%= link_to 'Remove', {:action => 'remove', :id => active.id}, :confirm => 'Are you sure to remove it from default dashboards ?', :method => :post, :id => "remove-#{u active.name}" %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+  </tbody>
+</table>
+
+<br/><br/>
+<h1>Admin dashboards</h1>
+<p>These dashboards can be added to default dashboards.</p>
+<br/>
+<table class="data" id="shared">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Shared by</th>
+      <th>Operations</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% if @default_dashboards.nil? || @default_dashboards.empty? %>
+    <tr class="even"><td colspan="3">No results.</td></tr>
+  <% else %>
+    <% @default_dashboards.each do |dashboard| %>
+      <tr class="<%= cycle('even', 'odd') -%>">
+        <td>
+          <%= h(dashboard.name) -%><br>
+          <span style="font-size: 85%;font-weight: normal;"><%= dashboard.description %></span>
+        </td>
+        <td><%= h(dashboard.user.name) if dashboard.user %></td>
+        <td><%= link_to 'Add to defaults', {:action => 'add', :id => dashboard.id}, :method => :post, :id => "add-#{u dashboard.name}" %></td>
+      </tr>
+    <% end %>
+  <% end %>
+  </tbody>
+</table>
+

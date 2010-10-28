@@ -251,6 +251,8 @@
                 <include>**/tablekit-min.js</include>
                 <include>**/prototip-min.js</include>
                 <include>**/tooltip-min.js</include>
+                <include>**/dashboard-min.js</include>
+
               </includes>
               <output>${project.build.directory}/${project.build.finalName}/javascripts/sonar.js</output>
             </aggregation>
@@ -260,6 +262,7 @@
                 <include>**/calendar-min.css</include>
                 <include>**/style-min.css</include>
                 <include>**/sonar-colorizer-min.css</include>
+                <include>**/dashboard-min.css</include>
               </includes>
               <output>${project.build.directory}/${project.build.finalName}/stylesheets/sonar.css</output>
             </aggregation>
@@ -336,7 +339,6 @@
                   <overWriteIfNewer>true</overWriteIfNewer>
                   <overWriteReleases>true</overWriteReleases>
                   <overWriteSnapshots>true</overWriteSnapshots>
-                  <includeGroupIds>org.codehaus.sonar.plugins</includeGroupIds>
                   <outputDirectory>${project.build.directory}/sonar-dev-home/extensions/plugins/</outputDirectory>
                 </configuration>
               </execution>

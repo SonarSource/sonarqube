@@ -577,6 +577,7 @@ ul.operations {
   margin: 0;
   background-color: #f4f4f4;
   border: 1px solid #cdcdcd;
+  border-radius: 3px;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
 }
@@ -586,6 +587,9 @@ ul.operations li {
   padding: 2px 7px;
   font-size: 85%;
   border-right: 1px solid #cdcdcd;
+}
+ul.operations li.selected {
+  background-color: #d4d4d4;
 }
 ul.operations li.last {
   border-right-width:0;

@@ -39,6 +39,7 @@ import org.sonar.plugins.core.sensors.*;
 import org.sonar.plugins.core.testdetailsviewer.TestsViewerDefinition;
 import org.sonar.plugins.core.ui.pageselector.GwtPageSelector;
 import org.sonar.plugins.core.violationsviewer.ViolationsViewerDefinition;
+import org.sonar.plugins.core.widgets.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -142,6 +143,15 @@ public class CorePlugin implements Plugin {
     extensions.add(TestsViewerDefinition.class);
     extensions.add(Clouds.class);
     extensions.add(Hotspots.class);
+
+    //widgets
+    extensions.add(DefaultAlertsWidget.class);
+    extensions.add(DefaultCodeCoverageWidget.class);
+    extensions.add(DefaultCommentsDuplicationsWidget.class);
+    extensions.add(DefaultDescriptionWidget.class);
+    extensions.add(DefaultExtendedAnalysisWidget.class);
+    extensions.add(DefaultRulesWidget.class);
+    extensions.add(DefaultStaticAnalysisWidget.class);
 
     // chart
     extensions.add(XradarChart.class);

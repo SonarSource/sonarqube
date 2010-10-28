@@ -1,0 +1,6 @@
+page.replace_html 'block_'+widget.id.to_s(), :partial => 'dashboards/widget',
+                                            :locals => {:dashboard_edit => true,
+                                                  :widget => widget,
+                                                  :widget_view => widget_view,
+                                                  :edit_mode => result["saved"]!="true",
+                                                  :validation_result => result}

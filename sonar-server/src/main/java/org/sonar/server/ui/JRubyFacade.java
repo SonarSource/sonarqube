@@ -108,6 +108,15 @@ public final class JRubyFacade implements ServerComponent {
     return getContainer().getComponent(Views.class).getWidgets(resourceScope, resourceQualifier, resourceLanguage);
   }
 
+  public List<ViewProxy<Widget>> getWidgets() {
+    return getContainer().getComponent(Views.class).getWidgets();
+  }
+
+  public ViewProxy<Widget> getWidget(String id) {
+    return getContainer().getComponent(Views.class).getWidget(id);
+  }
+
+
   public List<ViewProxy<Page>> getPages(String section, String resourceScope, String resourceQualifier, String resourceLanguage) {
     return getContainer().getComponent(Views.class).getPages(section, resourceScope, resourceQualifier, resourceLanguage);
   }

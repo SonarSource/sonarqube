@@ -1,0 +1,82 @@
+<script type="text/javascript">
+    <!--
+    var options = {
+        editorEnabled: true,
+        portal: 'dashboard',
+        column: 'dashboard-column',
+        columnhandle: 'column-handle',
+        block: 'block',
+        content: 'content',
+        handle: 'none',
+        hoverclass: 'block-hover',
+        dashboardstate: 'dashboardstate',
+        toggle: 'block-toggle',
+        blocklist: 'dashboard-block-carousel',
+        widgetedit: 'widgetedit',
+        highlight_duration: 2,
+        highlight_startcolor: '#ffff99',
+        highlight_endcolor: '#ffffff',
+        saveurl: '<%= url_for :action => 'set_dashboard', :id => @dashboard.id, :resource => @resource.id -%>'
+    };
+    var portal;
+    function init_dashboard() {
+      portal = new Portal(options);
+      <% if params[:highlight] %>
+      portal.highlightWidget(<%= params[:highlight] -%>);
+      <% end %>
+    }
+    Event.observe(window, 'load', init_dashboard, false);
+
+    function remove_widget(link) {
+      $(link).up('.block').remove();
+      portal.saveDashboardsState();
+    }
+    //-->
+</script>
+
+
+<div id="dashboard">
+  <%= render :partial => 'dashboard/header', :locals => {:back => true} %>
+
+<div id="dashboard-block-carousel" class="admin marginbottom10">
+
+  <div id="dashboard-block-container" class="container">
+    <div id="widget_definitions">
+    <ul>
+      <% @widget_definitions.each_with_index do |definition, index| %>
+        <li>
+          <%= render :partial => 'dashboard/widget_definition', :locals => {:definition => definition} %>
+        </li>
+      <% end %>
+    </ul>
+    </div>
+  </div>
+  <div style="clear: both;"></div>
+</div>
+
+
+  <%
+    columns=@dashboard.column_layout.split('-')
+    for index in 1..columns.size()
+  %>
+    <div class="dashboard-column-wrapper" style="width: <%= (columns.size()>0) ? columns[index-1].to_i : 100 %>%; clear: right;">
+    <div class="dashboard-column" id="dashboard-column-<%= index -%>" style="margin: 0px <%= index<columns.size() ? "5px" : "0px" %> 0px <%= index>1 ? "5px" : "0px" %>;">
+      <div class="column-handle" style="display: none"> </div>
+
+    <%
+      @dashboard.widgets.select{|widget| widget.column_index==index}.sort_by{|widget| widget.order_index}.each do |widget|
+        widget_definition=@widget_definitions.find{|wd| wd.getId()==widget.widget_key }
+        if widget_definition
+    %>
+        <div class="block" id="block_<%= widget.id -%>">
+          <%= render :partial => 'dashboard/configure_widget', :locals => {:widget => widget,  :definition => widget_definition} %>
+        </div>
+    <%
+        end
+      end
+    %>
+      </div>
+    </div>
+  <% end %>
+  <div style="clear: both;"></div>
+</div>
