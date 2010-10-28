@@ -6,13 +6,11 @@
         column: 'dashboard-column',
         columnhandle: 'column-handle',
         block: 'block',
-        content: 'content',
         handle: 'none',
         hoverclass: 'block-hover',
         dashboardstate: 'dashboardstate',
         toggle: 'block-toggle',
         blocklist: 'dashboard-block-carousel',
-        widgetedit: 'widgetedit',
         highlight_duration: 2,
         highlight_startcolor: '#ffff99',
         highlight_endcolor: '#ffffff',
@@ -41,7 +39,7 @@
 <div id="dashboard-block-carousel" class="admin marginbottom10">
 
   <div id="dashboard-block-container" class="container">
-    <div id="widget_definitions">
+    <div id="widget_defs">
     <ul>
       <% @widget_definitions.each_with_index do |definition, index| %>
         <li>

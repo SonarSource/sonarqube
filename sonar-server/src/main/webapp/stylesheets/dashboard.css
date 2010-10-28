@@ -50,28 +50,33 @@
 }
 
 /* WIDGETS */
-.widget {
+#dashboard .widget {
   position: relative;
   overflow-x: visible;
   padding: 10px;
   margin: 0 0 10px 0;
   border: 1px solid #ddd;
 }
+#dashboard .edited_widget {
+    display: block;
+    position: relative;
+}
+
 
 /*CONFIGURATION*/
-#dashboard #widget_definitions {
+#dashboard #widget_defs {
   width: 100%;
   overflow: auto;
 }
 
-#dashboard #widget_definitions ul {
+#dashboard #widget_defs ul {
   list-style-type: none;
   margin: 0;
   white-space: nowrap;
   width: 100000px;
 }
 
-#dashboard #widget_definitions li {
+#dashboard #widget_defs li {
   float: left;
   margin: 0;
   padding: 2px 7px;
@@ -178,15 +183,7 @@
   text-decoration: underline;
 }
 
-#dashboard .block .widgetedit {
-  display: block;
-  position: relative;
-  padding: 8px 5px 5px 8px;
-  overflow-x: auto;
-  border: 1px solid #ddd;
-}
-
-#dashboard .block .transparent {
+#dashboard .transparent {
   cursor: move;
 }
 
