@@ -19,15 +19,16 @@
  */
 package org.sonar.plugins.core.purges;
 
-import org.sonar.core.purge.AbstractPurge;
 import org.sonar.api.batch.PurgeContext;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.configuration.Property;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.User;
+import org.sonar.core.purge.AbstractPurge;
+
+import java.util.List;
 
 import javax.persistence.Query;
-import java.util.List;
 
 /**
  * @since 2.2
@@ -46,7 +47,7 @@ public class PurgePropertyOrphans extends AbstractPurge {
   void purgeResourceOrphans() {
     Query query = getSession().createQuery("SELECT p.id FROM " + Property.class.getSimpleName() +
         " p WHERE p.resourceId IS NOT NULL AND NOT EXISTS(FROM " + ResourceModel.class.getSimpleName() + " r WHERE r.id=p.resourceId)");
-    List<Integer> idsToDelete = query.getResultList();
+    List<Integer> idsToDelete = selectIds(query);
     if (idsToDelete.size() > 0) {
       executeQuery(idsToDelete, "DELETE FROM " + Property.class.getSimpleName() + " WHERE id in (:ids)");
     }
@@ -55,7 +56,7 @@ public class PurgePropertyOrphans extends AbstractPurge {
   void purgeUserOrphans() {
     Query query = getSession().createQuery("SELECT p.id FROM " + Property.class.getSimpleName() +
         " p WHERE p.userId IS NOT NULL AND NOT EXISTS(FROM " + User.class.getSimpleName() + " u WHERE u.id=p.userId)");
-    List<Integer> idsToDelete = query.getResultList();
+    List<Integer> idsToDelete = selectIds(query);
     if (idsToDelete.size() > 0) {
       executeQuery(idsToDelete, "DELETE FROM " + Property.class.getSimpleName() + " WHERE id in (:ids)");
     }

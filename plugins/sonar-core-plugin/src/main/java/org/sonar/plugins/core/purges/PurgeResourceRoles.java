@@ -19,15 +19,16 @@
  */
 package org.sonar.plugins.core.purges;
 
-import org.sonar.core.purge.AbstractPurge;
 import org.sonar.api.batch.PurgeContext;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.security.GroupRole;
 import org.sonar.api.security.UserRole;
+import org.sonar.core.purge.AbstractPurge;
+
+import java.util.List;
 
 import javax.persistence.Query;
-import java.util.List;
 
 /**
  * @since 1.12
@@ -46,8 +47,8 @@ public class PurgeResourceRoles extends AbstractPurge {
   private void deleteRoles(String classname) {
     Query query = getSession().createQuery("SELECT rol.id FROM " + classname + " rol "
         + " WHERE rol.resourceId IS NOT NULL AND NOT EXISTS(FROM " + ResourceModel.class.getSimpleName() + " r WHERE r.id=rol.resourceId)");
-    List<Integer> roleIds = (List<Integer>) query.getResultList();
-    if (!roleIds.isEmpty()) {
+    List<Integer> roleIds = selectIds(query);
+    if ( !roleIds.isEmpty()) {
       executeQuery(roleIds, "delete from " + classname + " rol where rol.id in (:ids)");
     }
   }

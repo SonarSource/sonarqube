@@ -19,13 +19,14 @@
  */
 package org.sonar.plugins.core.purges;
 
-import org.sonar.core.purge.AbstractPurge;
 import org.sonar.api.batch.PurgeContext;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.core.purge.AbstractPurge;
 
 import java.util.List;
+
 import javax.persistence.Query;
 
 /**
@@ -40,7 +41,7 @@ public class PurgeDeletedResources extends AbstractPurge {
   public void purge(PurgeContext context) {
     Query query = getSession().createQuery("SELECT s.id FROM " + Snapshot.class.getSimpleName() +
         " s WHERE NOT EXISTS(FROM " + ResourceModel.class.getSimpleName() + " r WHERE r.id=s.resourceId)");
-    final List<Integer> snapshotIds = query.getResultList();
+    final List<Integer> snapshotIds = selectIds(query);
 
     deleteSnapshotData(snapshotIds);
   }

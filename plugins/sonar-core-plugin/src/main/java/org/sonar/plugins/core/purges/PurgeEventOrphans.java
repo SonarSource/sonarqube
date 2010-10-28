@@ -19,14 +19,15 @@
  */
 package org.sonar.plugins.core.purges;
 
-import org.sonar.core.purge.AbstractPurge;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.PurgeContext;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
+import org.sonar.core.purge.AbstractPurge;
+
+import java.util.List;
 
 import javax.persistence.Query;
-import java.util.List;
 
 public class PurgeEventOrphans extends AbstractPurge {
 
@@ -37,7 +38,7 @@ public class PurgeEventOrphans extends AbstractPurge {
   public void purge(PurgeContext context) {
     Query query = getSession().createQuery("SELECT e.id FROM " + Event.class.getSimpleName() +
         " e WHERE e.resourceId IS NOT NULL AND NOT EXISTS(FROM " + ResourceModel.class.getSimpleName() + " r WHERE r.id=e.resourceId)");
-    final List<Integer> eventIds = query.getResultList();
+    final List<Integer> eventIds = selectIds(query);
     executeQuery(eventIds, "DELETE FROM " + Event.class.getSimpleName() + " WHERE id in (:ids)");
   }
 }

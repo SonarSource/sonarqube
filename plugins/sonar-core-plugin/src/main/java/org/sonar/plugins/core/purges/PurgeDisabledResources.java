@@ -19,13 +19,14 @@
  */
 package org.sonar.plugins.core.purges;
 
-import org.sonar.core.purge.AbstractPurge;
 import org.sonar.api.batch.PurgeContext;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.core.purge.AbstractPurge;
 
 import java.util.List;
+
 import javax.persistence.Query;
 
 /**
@@ -44,19 +45,19 @@ public class PurgeDisabledResources extends AbstractPurge {
 
   private void deleteResources() {
     final List<Integer> resourceIds = getResourceIds();
-    if (!resourceIds.isEmpty()) {
+    if ( !resourceIds.isEmpty()) {
       executeQuery(resourceIds, "delete from " + ResourceModel.class.getSimpleName() + " r where r.id in (:ids)");
     }
   }
 
   private List<Integer> getResourceIds() {
     Query query = getSession().createQuery("SELECT r.id FROM " + ResourceModel.class.getSimpleName() + " r WHERE r.enabled=false");
-    return (List<Integer>) query.getResultList();
+    return selectIds(query);
   }
 
   private List<Integer> getSnapshotIds() {
     Query query = getSession().createQuery("SELECT s.id FROM " + Snapshot.class.getSimpleName() + " s WHERE " +
         " EXISTS (FROM " + ResourceModel.class.getSimpleName() + " r WHERE r.id=s.resourceId AND r.enabled=false)");
-    return (List<Integer>) query.getResultList();
+    return selectIds(query);
   }
 }

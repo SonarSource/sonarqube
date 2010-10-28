@@ -19,13 +19,14 @@
  */
 package org.sonar.plugins.core.purges;
 
-import org.sonar.core.purge.AbstractPurge;
 import org.sonar.api.batch.PurgeContext;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.core.purge.AbstractPurge;
+
+import java.util.List;
 
 import javax.persistence.Query;
-import java.util.List;
 
 /**
  * @since 1.11
@@ -39,9 +40,8 @@ public class PurgeDeprecatedLast extends AbstractPurge {
   public void purge(PurgeContext context) {
     Query query = getSession().createQuery("SELECT s.id FROM " + Snapshot.class.getSimpleName() +
         " s WHERE s.last=true AND s.rootId IS NOT NULL AND NOT EXISTS(FROM " + Snapshot.class.getSimpleName() + " s2 WHERE s2.id=s.rootId AND s2.last=true)");
-    List<Integer> snapshotIds = query.getResultList();
+    List<Integer> snapshotIds = selectIds(query);
 
     deleteSnapshotData(snapshotIds);
   }
 }
-

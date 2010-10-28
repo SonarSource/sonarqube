@@ -24,8 +24,9 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.core.purge.AbstractPurge;
 
-import javax.persistence.Query;
 import java.util.List;
+
+import javax.persistence.Query;
 
 /**
  * @since 1.11
@@ -40,9 +41,8 @@ public class UnflagLastDoublons extends AbstractPurge {
     Query query = getSession().createQuery(
         "SELECT olds.id FROM " + Snapshot.class.getSimpleName() + " olds " +
             " where olds.last=true AND EXISTS (from " + Snapshot.class.getSimpleName() + " news WHERE news.last=true AND news.resourceId=olds.resourceId AND news.createdAt>olds.createdAt)");
-    List<Integer> snapshotIds = query.getResultList();
+    List<Integer> snapshotIds = selectIds(query);
 
     executeQuery(snapshotIds, "UPDATE " + Snapshot.class.getSimpleName() + " SET last=false WHERE id in (:ids)");
   }
 }
-

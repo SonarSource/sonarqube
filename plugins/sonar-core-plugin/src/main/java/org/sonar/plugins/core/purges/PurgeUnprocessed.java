@@ -20,14 +20,15 @@
 package org.sonar.plugins.core.purges;
 
 import org.apache.commons.lang.time.DateUtils;
-import org.sonar.core.purge.AbstractPurge;
 import org.sonar.api.batch.PurgeContext;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.core.purge.AbstractPurge;
 
-import javax.persistence.Query;
 import java.util.Date;
 import java.util.List;
+
+import javax.persistence.Query;
 
 /**
  * @since 1.11
@@ -45,7 +46,7 @@ public class PurgeUnprocessed extends AbstractPurge {
     Query query = getSession().createQuery("SELECT s.id FROM " + Snapshot.class.getSimpleName() + " s WHERE s.last=false AND status=:status AND s.createdAt<:date");
     query.setParameter("status", Snapshot.STATUS_UNPROCESSED);
     query.setParameter("date", beforeDate);
-    List<Integer> snapshotIds = query.getResultList();
+    List<Integer> snapshotIds = selectIds(query);
 
     deleteSnapshotData(snapshotIds);
   }

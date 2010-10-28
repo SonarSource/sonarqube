@@ -19,18 +19,19 @@
  */
 package org.sonar.plugins.core.purges;
 
-import org.sonar.core.purge.AbstractPurge;
 import org.sonar.api.batch.PurgeContext;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.core.purge.AbstractPurge;
+
+import java.util.List;
 
 import javax.persistence.Query;
-import java.util.List;
 
 /**
  * see SONAR-522
- *
+ * 
  * @since 1.11
  */
 public class PurgeRuleMeasures extends AbstractPurge {
@@ -49,7 +50,7 @@ public class PurgeRuleMeasures extends AbstractPurge {
     Query query = getSession().createQuery("SELECT m.id FROM " + MeasureModel.class.getSimpleName() + " m, " + Snapshot.class.getSimpleName() + " s WHERE s.id = m.snapshotId and " +
         "(s.rootId=:rootSid OR s.id=:rootSid) and (m.rule is not null or m.rulesCategoryId is not null or m.rulePriority is not null)");
     query.setParameter("rootSid", sid);
-    List<Integer> measureIds = query.getResultList();
+    List<Integer> measureIds = selectIds(query);
 
     deleteMeasuresById(measureIds);
   }
