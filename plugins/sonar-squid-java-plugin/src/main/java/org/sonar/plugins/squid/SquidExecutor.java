@@ -28,12 +28,12 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.bytecode.BytecodeScanner;
-import org.sonar.java.bytecode.check.BytecodeCheck;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.plugins.squid.bridges.Bridge;
 import org.sonar.plugins.squid.bridges.BridgeFactory;
 import org.sonar.plugins.squid.bridges.ResourceIndex;
 import org.sonar.squid.Squid;
+import org.sonar.squid.api.CodeVisitor;
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.api.SourcePackage;
@@ -79,11 +79,11 @@ public final class SquidExecutor {
   }
 
   public void scan(Collection<File> sourceFiles, Collection<File> bytecodeFilesOrDirectories) {
+    for (Object checker : checkFactory.getChecks()) {
+      squid.registerVisitor((CodeVisitor) checker);
+    }
     scanSources(sourceFiles);
     if (sourceScanned) {
-      for (Object checker : checkFactory.getChecks()) {
-        squid.registerVisitor((BytecodeCheck) checker);
-      }
       scanBytecode(bytecodeFilesOrDirectories);
     }
     squid.decorateSourceCodeTreeWith(Metric.values());

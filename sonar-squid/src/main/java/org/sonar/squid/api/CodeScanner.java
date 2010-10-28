@@ -25,15 +25,15 @@ import java.util.List;
 
 public abstract class CodeScanner<VISITOR extends CodeVisitor> {
 
-  private List<VISITOR> visitors = new ArrayList<VISITOR>();
+  private List<CodeVisitor> visitors = new ArrayList<CodeVisitor>();
 
   public abstract Collection<Class<? extends VISITOR>> getVisitorClasses();
 
-  public final void accept(VISITOR visitor) {
+  public void accept(CodeVisitor visitor) {
     visitors.add(visitor);
   }
 
   public List<VISITOR> getVisitors() {
-    return visitors;
+    return (List<VISITOR>) visitors;
   }
 }

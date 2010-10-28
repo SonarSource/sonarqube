@@ -36,7 +36,6 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
-import org.sonar.java.bytecode.check.BytecodeChecks;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -73,7 +72,7 @@ public class SquidSensor implements Sensor {
         SquidPluginProperties.FIELDS_TO_EXCLUDE_FROM_LCOM4_COMPUTATION_DEFAULT_VALUE);
     Charset charset = project.getFileSystem().getSourceCharset();
 
-    AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, SquidConstants.REPOSITORY_KEY, BytecodeChecks.getCheckClasses());
+    AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, SquidConstants.REPOSITORY_KEY, SquidRuleRepository.getCheckClasses());
 
     SquidExecutor squidExecutor = new SquidExecutor(analyzePropertyAccessors, fieldNamesToExcludeFromLcom4Computation, factory, charset);
     squidExecutor.scan(getSourceFiles(project), getBytecodeFiles(project));

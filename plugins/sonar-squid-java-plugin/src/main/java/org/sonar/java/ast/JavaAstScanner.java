@@ -19,40 +19,16 @@
  */
 package org.sonar.java.ast;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Stack;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.java.ast.visitor.AccessorVisitor;
-import org.sonar.java.ast.visitor.AnonymousInnerClassVisitor;
-import org.sonar.java.ast.visitor.BlankLinesVisitor;
-import org.sonar.java.ast.visitor.BranchVisitor;
-import org.sonar.java.ast.visitor.ClassVisitor;
-import org.sonar.java.ast.visitor.CommentVisitor;
-import org.sonar.java.ast.visitor.ComplexityVisitor;
-import org.sonar.java.ast.visitor.EndAtLineVisitor;
-import org.sonar.java.ast.visitor.FileVisitor;
-import org.sonar.java.ast.visitor.JavaAstVisitor;
-import org.sonar.java.ast.visitor.LinesOfCodeVisitor;
-import org.sonar.java.ast.visitor.LinesVisitor;
-import org.sonar.java.ast.visitor.MethodVisitor;
-import org.sonar.java.ast.visitor.PackageVisitor;
-import org.sonar.java.ast.visitor.PublicApiVisitor;
-import org.sonar.java.ast.visitor.StatementVisitor;
+import org.sonar.java.ast.visitor.*;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.api.AnalysisException;
 import org.sonar.squid.api.CodeScanner;
+import org.sonar.squid.api.CodeVisitor;
 import org.sonar.squid.api.SourceCode;
 import org.xml.sax.InputSource;
 
@@ -60,6 +36,12 @@ import com.puppycrawl.tools.checkstyle.Checker;
 import com.puppycrawl.tools.checkstyle.ConfigurationLoader;
 import com.puppycrawl.tools.checkstyle.PropertiesExpander;
 import com.puppycrawl.tools.checkstyle.api.Configuration;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.*;
 
 /**
  * Squid uses Checkstyle to get an out-of-the-box java parser with AST generation and visitor pattern support.
@@ -178,5 +160,12 @@ public class JavaAstScanner extends CodeScanner<JavaAstVisitor> {
     visitorClasses.add(ComplexityVisitor.class);
     visitorClasses.add(LinesOfCodeVisitor.class);
     return visitorClasses;
+  }
+
+  @Override
+  public void accept(CodeVisitor visitor) {
+    if (visitor instanceof JavaAstVisitor) {
+      super.accept(visitor);
+    }
   }
 }

@@ -19,29 +19,21 @@
  */
 package org.sonar.java.bytecode;
 
+import org.sonar.java.bytecode.asm.*;
+import org.sonar.java.bytecode.asm.AsmClassProvider.DETAIL_LEVEL;
+import org.sonar.java.bytecode.visitor.*;
+import org.sonar.squid.api.CodeScanner;
+import org.sonar.squid.api.CodeVisitor;
+import org.sonar.squid.api.SourceClass;
+import org.sonar.squid.api.SourceCode;
+import org.sonar.squid.indexer.QueryByType;
+import org.sonar.squid.indexer.SquidIndex;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-
-import org.sonar.java.bytecode.asm.AsmClass;
-import org.sonar.java.bytecode.asm.AsmClassProvider;
-import org.sonar.java.bytecode.asm.AsmClassProviderImpl;
-import org.sonar.java.bytecode.asm.AsmMethod;
-import org.sonar.java.bytecode.asm.AsmClassProvider.DETAIL_LEVEL;
-import org.sonar.java.bytecode.visitor.AccessorVisitor;
-import org.sonar.java.bytecode.visitor.BytecodeVisitor;
-import org.sonar.java.bytecode.visitor.DITVisitor;
-import org.sonar.java.bytecode.visitor.DependenciesVisitor;
-import org.sonar.java.bytecode.visitor.LCOM4Visitor;
-import org.sonar.java.bytecode.visitor.NOCVisitor;
-import org.sonar.java.bytecode.visitor.RFCVisitor;
-import org.sonar.squid.api.CodeScanner;
-import org.sonar.squid.api.SourceClass;
-import org.sonar.squid.api.SourceCode;
-import org.sonar.squid.indexer.QueryByType;
-import org.sonar.squid.indexer.SquidIndex;
 
 public class BytecodeScanner extends CodeScanner<BytecodeVisitor> {
 
@@ -102,5 +94,12 @@ public class BytecodeScanner extends CodeScanner<BytecodeVisitor> {
     visitorClasses.add(LCOM4Visitor.class);
     visitorClasses.add(DependenciesVisitor.class);
     return visitorClasses;
+  }
+
+  @Override
+  public void accept(CodeVisitor visitor) {
+    if (visitor instanceof BytecodeVisitor) {
+      super.accept(visitor);
+    }
   }
 }

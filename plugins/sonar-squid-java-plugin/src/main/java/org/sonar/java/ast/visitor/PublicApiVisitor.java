@@ -19,9 +19,6 @@
  */
 package org.sonar.java.ast.visitor;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.measures.Metric;
 
@@ -30,6 +27,9 @@ import antlr.collections.AST;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.Scope;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class PublicApiVisitor extends JavaAstVisitor {
 
@@ -49,12 +49,16 @@ public class PublicApiVisitor extends JavaAstVisitor {
   @Override
   public void visitToken(DetailAST ast) {
     SourceCode currentResource = peekSourceCode();
-    if (isPublic(ast) && !isStaticFinalVariable(ast) && !isMethodWithOverrideAnnotation(ast) && !isEmptyDefaultConstructor(ast)) {
+    if (isPublicApi(ast)) {
       currentResource.add(Metric.PUBLIC_API, 1);
       if (isDocumentedApi(ast)) {
         currentResource.add(Metric.PUBLIC_DOC_API, 1);
       }
     }
+  }
+
+  protected boolean isPublicApi(DetailAST ast) {
+    return isPublic(ast) && !isStaticFinalVariable(ast) && !isMethodWithOverrideAnnotation(ast) && !isEmptyDefaultConstructor(ast);
   }
 
   private boolean isEmptyDefaultConstructor(DetailAST ast) {
@@ -90,7 +94,7 @@ public class PublicApiVisitor extends JavaAstVisitor {
     return (AstUtils.isScope(AstUtils.getScope(ast), Scope.PUBLIC) || AstUtils.isType(ast, TokenTypes.ANNOTATION_FIELD_DEF));
   }
 
-  private boolean isDocumentedApi(DetailAST ast) {
+  protected boolean isDocumentedApi(DetailAST ast) {
     return getFileContents().getJavadocBefore(ast.getLineNo()) != null;
   }
 
