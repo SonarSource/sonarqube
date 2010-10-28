@@ -1,10 +1,16 @@
 package org.sonar.plugins.pmd;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
+import org.apache.commons.lang.StringUtils;
+import org.junit.Test;
+import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.*;
+import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.ValidationMessages;
+import org.sonar.plugins.pmd.xml.PmdProperty;
+import org.sonar.plugins.pmd.xml.PmdRule;
+import org.sonar.test.TestUtils;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -13,16 +19,11 @@ import java.io.StringWriter;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
-import org.sonar.api.platform.ServerFileSystem;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.*;
-import org.sonar.api.utils.ValidationMessages;
-import org.sonar.plugins.pmd.xml.PmdProperty;
-import org.sonar.plugins.pmd.xml.PmdRule;
-import org.sonar.test.TestUtils;
-import org.xml.sax.SAXException;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class PmdProfileExporterTest {
 
@@ -58,6 +59,28 @@ public class PmdProfileExporterTest {
     exporter.exportProfile(profile, xmlOutput);
     assertEquals(TestUtils.getResourceContent("/org/sonar/plugins/pmd/export_xpath_rules.xml"),
         StringUtils.remove(xmlOutput.toString(), '\r'));
+  }
+
+  @Test(expected = SonarException.class)
+  public void shouldFailIfMessageNotProvidedForXPathRule() {
+    String xpathExpression = "xpathExpression";
+
+    PmdRule rule = new PmdRule(PmdConstants.XPATH_CLASS);
+    rule.addProperty(new PmdProperty(PmdConstants.XPATH_EXPRESSION_PARAM, xpathExpression));
+    rule.setName("MyOwnRule");
+
+    exporter.processXPathRule("xpathKey", rule);
+  }
+
+  @Test(expected = SonarException.class)
+  public void shouldFailIfXPathNotProvidedForXPathRule() {
+    String message = "This is bad";
+
+    PmdRule rule = new PmdRule(PmdConstants.XPATH_CLASS);
+    rule.addProperty(new PmdProperty(PmdConstants.XPATH_MESSAGE_PARAM, message));
+    rule.setName("MyOwnRule");
+
+    exporter.processXPathRule("xpathKey", rule);
   }
 
   @Test

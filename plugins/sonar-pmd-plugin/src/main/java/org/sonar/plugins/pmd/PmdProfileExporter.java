@@ -19,12 +19,6 @@
  */
 package org.sonar.plugins.pmd;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jdom.CDATA;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -40,6 +34,12 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.pmd.xml.PmdProperty;
 import org.sonar.plugins.pmd.xml.PmdRule;
 import org.sonar.plugins.pmd.xml.PmdRuleset;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PmdProfileExporter extends ProfileExporter {
 
@@ -66,14 +66,13 @@ public class PmdProfileExporter extends ProfileExporter {
       if (activeRule.getRule().getPluginName().equals(CoreProperties.PMD_PLUGIN)) {
         String configKey = activeRule.getRule().getConfigKey();
         PmdRule rule = new PmdRule(configKey, PmdLevelUtils.toLevel(activeRule.getPriority()));
-        List<PmdProperty> properties = null;
         if (activeRule.getActiveRuleParams() != null && !activeRule.getActiveRuleParams().isEmpty()) {
-          properties = new ArrayList<PmdProperty>();
+          List<PmdProperty> properties = new ArrayList<PmdProperty>();
           for (ActiveRuleParam activeRuleParam : activeRule.getActiveRuleParams()) {
             properties.add(new PmdProperty(activeRuleParam.getRuleParam().getKey(), activeRuleParam.getValue()));
           }
+          rule.setProperties(properties);
         }
-        rule.setProperties(properties);
         ruleset.addRule(rule);
         processXPathRule(activeRule.getRuleKey(), rule);
       }
@@ -84,9 +83,16 @@ public class PmdProfileExporter extends ProfileExporter {
   protected void processXPathRule(String sonarRuleKey, PmdRule rule) {
     if (PmdConstants.XPATH_CLASS.equals(rule.getRef())) {
       rule.setRef(null);
-      rule.setMessage(rule.getProperty(PmdConstants.XPATH_MESSAGE_PARAM).getValue());
+      PmdProperty xpathMessage = rule.getProperty(PmdConstants.XPATH_MESSAGE_PARAM);
+      if (xpathMessage == null) {
+        throw new SonarException("Property '" + PmdConstants.XPATH_MESSAGE_PARAM + "' should be set for PMD rule " + sonarRuleKey);
+      }
+      rule.setMessage(xpathMessage.getValue());
       rule.removeProperty(PmdConstants.XPATH_MESSAGE_PARAM);
       PmdProperty xpathExp = rule.getProperty(PmdConstants.XPATH_EXPRESSION_PARAM);
+      if (xpathExp == null) {
+        throw new SonarException("Property '" + PmdConstants.XPATH_EXPRESSION_PARAM + "' should be set for PMD rule " + sonarRuleKey);
+      }
       xpathExp.setCdataValue(xpathExp.getValue());
       rule.setClazz(PmdConstants.XPATH_CLASS);
       rule.setName(sonarRuleKey);
