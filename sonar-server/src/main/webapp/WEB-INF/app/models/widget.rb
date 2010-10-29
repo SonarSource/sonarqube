@@ -18,10 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class Widget < ActiveRecord::Base
-  STATE_ACTIVE='A'
-  STATE_INACTIVE='I'
-  
-  has_many :widget_properties, :dependent => :delete_all
+  has_many :properties, :dependent => :delete_all, :class_name => 'WidgetProperty'
   belongs_to :dashboards
 
   validates_presence_of     :name
@@ -30,57 +27,52 @@ class Widget < ActiveRecord::Base
   validates_presence_of     :widget_key
   validates_length_of       :widget_key, :within => 1..256
 
-  validates_length_of       :description,  :maximum => 1000, :allow_blank => true, :allow_nil => true
-
-  def state
-    read_attribute(:state) || 'V'
-  end
-
   #---------------------------------------------------------------------
   # WIDGET PROPERTIES
   #---------------------------------------------------------------------
-  def properties
-    widget_properties
-  end
-  
-  def widget_property(key)
-    widget_properties().each do |p|
+  def property(key)
+    properties().each do |p|
       return p if (p.key==key)
     end
     nil
   end
 
-  def widget_property_value(key)
-    prop=widget_property(key)
-    prop ? prop.value : nil
+  def property_value(key, default_value=nil)
+    prop=property(key)
+    (prop ? prop.value : nil) || default_value
   end
 
-  def set_widget_property(options)
-    key=options[:kee]
-    prop=widget_property(key)
+  def set_property(key, value)
+    prop=property(key)
     if prop
-      prop.attributes=options
-      prop.widget_id=id
-      prop.save!
+      prop.text_value=value
     else
-      prop=WidgetProperty.new(options)
-      prop.widget_id=id
-      widget_properties<<prop
+      self.properties.build(:kee => key, :text_value => value)
     end
+    properties_as_hash[key]=value
   end
 
-  def delete_widget_property(key)
-    prop=widget_property(key)
+  def unset_property(key)
+    prop=property(key)
+    self.properties.delete(prop) if prop
+  end
+
+  def delete_property(key)
+    prop=property(key)
     if prop
-      widget_properties.delete(prop)
+      properties.delete(prop)
     end
   end
 
   def properties_as_hash
-    hash={}
-    widget_properties.each do |prop|
-      hash[prop.key]=prop.value
-    end
-    hash
+    @properties_hash ||=
+      begin
+        hash={}
+        properties.each do |prop|
+          hash[prop.key]=prop.value
+        end
+        hash
+      end
+    @properties_hash
   end
 end

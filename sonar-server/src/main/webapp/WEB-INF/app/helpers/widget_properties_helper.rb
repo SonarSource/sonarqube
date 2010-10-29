@@ -18,55 +18,42 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 module WidgetPropertiesHelper
-  VALUE_TYPE_INT = 'INT'
-  VALUE_TYPE_BOOLEAN = 'BOOL'
-  VALUE_TYPE_FLOAT = 'FLOAT'
-  VALUE_TYPE_STRING = 'STRING'
-  VALUE_TYPE_REGEXP = 'REGEXP'
+  
    
   def valid_property_value?(type, value, parameter="")
-    if type==VALUE_TYPE_INT
+    if type==WidgetProperty::TYPE_INTEGER
       value.to_i.to_s == value
 
-    elsif type==VALUE_TYPE_FLOAT
+    elsif type==WidgetProperty::TYPE_FLOAT
       true if Float(value) rescue false
 
-    elsif type==VALUE_TYPE_BOOLEAN
+    elsif type==WidgetProperty::TYPE_BOOLEAN
       value=="1" || value=="0"
 
-    elsif type==VALUE_TYPE_STRING
+    elsif type==WidgetProperty::TYPE_STRING
       true
-
-    elsif type==VALUE_TYPE_REGEXP
-      value.to_s.match(parameter) == nil ? false : true
 
     else
       false
     end
   end
    
-  def property_value_field(type, fieldname, value, param_value="")
-    val= param_value ? param_value : value
-    
-    if type==VALUE_TYPE_INT
-      text_field_tag fieldname, val , :size => 10
+  def property_value_field(definition, value)
+    val=value || definition.defaultValue()
+    if definition.type()==WidgetProperty::TYPE_INTEGER
+      text_field_tag definition.key(), val, :size => 10
       
-    elsif type==VALUE_TYPE_FLOAT
-      text_field_tag fieldname, val, :size => 10
+    elsif definition.type()==WidgetProperty::TYPE_FLOAT
+      text_field_tag definition.key(), val, :size => 10
 
-    elsif type==VALUE_TYPE_BOOLEAN
-      opts="<option value=''>Select value</option>"
-      opts+="<option value='1'"+(val=="1" ? " selected" : "" )+">Yes</option>"
-      opts+="<option value='0'"+(val=="0" ? " selected" : "" )+">No</option>"
-      select_tag fieldname, opts
+    elsif definition.type()==WidgetProperty::TYPE_BOOLEAN
+      check_box_tag definition.key(), "true", val=='true'
 
-    elsif type==VALUE_TYPE_STRING
-      text_field_tag fieldname, val, :size => 10
+    elsif definition.type()==WidgetProperty::TYPE_STRING
+      text_field_tag definition.key(), val, :size => 10
 
-    elsif type==VALUE_TYPE_REGEXP
-      text_field_tag fieldname, val, :size => 10
     else
-      hidden_field_tag fieldname
+      hidden_field_tag definition.key()
     end
   end
     

@@ -24,27 +24,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Created by IntelliJ IDEA.
- * User: dreik
- * Date: 09.08.2010
- * Time: 10:33:35
- */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface WidgetProperty {
 
   String key();
 
-  String defaultValue() default "";
-
-  String name();
-
-  String description() default "";
-
   String type() default "STRING";
 
-  String parameter() default "";
+  String defaultValue() default "";
+
+  String description() default "";
 
   boolean optional() default true;
 }

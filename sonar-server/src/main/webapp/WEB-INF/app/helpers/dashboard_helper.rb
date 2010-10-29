@@ -30,7 +30,7 @@ module DashboardHelper
 
   def active_widgets_ids_formatted(column)
     active_widget_ids=[]
-    @dashboard.widgets.find(:all, :conditions => {:column_index => column}, :order => :order_index).each do |widget|
+    @dashboard.widgets.find(:all, :conditions => {:column_index => column}, :order => 'row_index ASC').each do |widget|
       widget_view=nil
       found_index=-1
       @widgets.each_with_index {|item, index|

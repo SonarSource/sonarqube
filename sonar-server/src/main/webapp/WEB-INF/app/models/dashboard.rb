@@ -20,7 +20,7 @@
 class Dashboard < ActiveRecord::Base
   belongs_to :user
 
-  has_many :widgets, :include => 'widget_properties', :dependent => :delete_all
+  has_many :widgets, :include => 'properties', :dependent => :delete_all
   has_many :active_dashboards, :dependent => :delete_all
 
   validates_length_of :name, :within => 1..256
@@ -49,8 +49,8 @@ class Dashboard < ActiveRecord::Base
   end
 
   def column_size(column_index)
-    last_widget=widgets.select{|w| w.column_index==column_index}.max{|x,y| x.order_index <=> y.order_index}
-    last_widget ? last_widget.order_index : 0
+    last_widget=widgets.select{|w| w.column_index==column_index}.max{|x,y| x.row_index <=> y.row_index}
+    last_widget ? last_widget.row_index : 0
   end
 
   def deep_copy()
@@ -59,9 +59,9 @@ class Dashboard < ActiveRecord::Base
     self.widgets.each do |child|
       new_widget = Widget.create(child.attributes)
 
-      child.widget_properties.each do |prop|
+      child.properties.each do |prop|
         widget_prop = WidgetProperty.create(prop.attributes)
-        new_widget.widget_properties << widget_prop
+        new_widget.properties << widget_prop
       end
 
       new_widget.save

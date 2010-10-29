@@ -15,47 +15,43 @@
     <a class="block-view-toggle" onclick="portal.editWidget(<%= widget.id -%>);return false;">Edit</a>
   <% end %>
 </div>
-<% if defined?(validation_result) %>
-  <div class="error" style="<%= "display: none;" unless validation_result["errormsg"] %>clear:both;margin: 0;border-bottom:0;">
-    <span class="errormsg"><%= validation_result["errormsg"] if validation_result["errormsg"] %></span> &nbsp;&nbsp;[<a href="#" onclick="hide_block_info($(this).up('.block'));return false;">hide</a>]
-  </div>
-  <div class="notice" style="<%= "display: none;" unless validation_result["infomsg"] %>clear:both;margin: 0;border-bottom:0;">
-    <span class="infomsg"><%= validation_result["infomsg"] if validation_result["infomsg"] %></span> &nbsp;&nbsp;[<a href="#" onclick="hide_block_info($(this).up('.block'));return false;">hide</a>]
-  </div>
-<% end %>
 
 
-<div class="widget_props" id="widget_props_<%= widget.id -%>" style="display: none">
-  <% form_remote_tag :url => {:action => 'save_widget', :id => @dashboard.id}, :method => :post do -%>
-    <table class="form" align="center" style="border-collapse:separate;border-spacing:5px;">
+<div class="widget_props" id="widget_props_<%= widget.id -%>" style="<%= 'display:none' if widget.configured -%>">
+  <% form_remote_tag :url => {:action => 'save_widget', :id => widget.id, :resource => params[:resource]}, :method => :post do -%>
+    <table class="form">
       <tbody>
-      <% definition.getProperties().each do |property|
-          db_property_value=widget.widget_property_value(property.key())
-          entered_value=params[property.key()]
-          entered_value=property.defaultValue() if !entered_value || entered_value.empty?
+      <% definition.getProperties().each do |property_def|
+          value=widget.property_value(property_def.key(), property_def.defaultValue())
           editrow_class=""
           if defined?(validation_result)
-              editrow_class= validation_result[property.key()]=="valid" ? "valid-editrow" : "invalid-editrow"
+              editrow_class= validation_result[property_def.key()]=="valid" ? "valid-editrow" : "invalid-editrow"
           end
       %>
           <tr>
-            <td class="first"><%= property.name() -%>:<br>
-                <span style="font-size: 85%;font-weight: normal;">[<%= property.type()+" "+property.key() -%>]</span></td>
-            <td id="row_<%= property.key() -%>" class="editrow <%= editrow_class %>" style="vertical-align: middle;"><%= property_value_field(property.type(), property.key(), db_property_value, entered_value) %><%= "&nbsp;*" unless property.optional() %>
-              <br>
-              <span style="font-size: 85%;font-weight: normal;">[<%= property.description() -%>]</span></td>
+            <td valign="top" nowrap><b><%= property_def.key() -%></b><%= "*" unless property_def.optional()==true -%>: </td>
+            <td id="row_<%= property_def.key() -%>">
+              <%= property_value_field(property_def, value) -%>
+              <span class="note"><%= property_def.description() -%></span>
+            </td>
           </tr>
       <% end %>
+      <tr>
+        <td colspan="2">
+          <%= submit_tag 'Save' %>
+          <% if widget.configured %>
+            <a href="#" onClick="portal.cancelEditWidget(<%= widget.id -%>);return false;">Cancel</a>
+          <% end %>
+        </td>
+      </tr>
       </tbody>
     </table>
     <%= hidden_field_tag "widgetid", "", :class => "widgetid" %>
-    <div align="center"><%= submit_tag 'Save' %> <a href="#" onClick="portal.cancelEditWidget(<%= widget.id -%>);return false;">Cancel</a></div>
-
 <% end -%>
 </div>
 
 
-<div id="widget_<%= widget.id -%>" class="configure_widget <%= definition.getId() -%>" style="height:100%;">
+<div id="widget_<%= widget.id -%>" class="configure_widget <%= definition.getId() -%>" style="height:100%;<%= 'display:none;' if !widget.configured -%>">
   <!--[if lte IE 6]>
   <style type="text/css">
     #dashboard .block .content .transparent {

@@ -1,18 +1,24 @@
 <div class="<%= definition.getId() %>" style="height:100%;">
-<%
-  begin
-    widget_body=render :inline => definition.getTarget().getTemplate(), :locals => {:widget_properties => widget.properties_as_hash}
-  rescue => error
-     logger.error("Can not render widget #{definition.getId()}: " + error)
-     logger.error(error.backtrace.join("\n"))
-     widget_body=""
-  end
+<% if widget.configured %>
+  <%
+    begin
+      widget_body=render :inline => definition.getTarget().getTemplate(), :locals => {:widget_properties => widget.properties_as_hash}
+    rescue => error
+       logger.error("Can not render widget #{definition.getId()}: " + error)
+       logger.error(error.backtrace.join("\n"))
+       widget_body=""
+    end
 
-  if widget_body.include?('<')
-%>
-  <%= widget_body %>
-<%
-  end
-%>
+    if widget_body.include?('<')
+  %>
+    <%= widget_body %>
+  <%
+    end
+  %>
+<% else %>
+  <div class="widget">
+  <p>Please configure the widget <b><%= definition.getTitle() -%></b>.</p>
+  </div>
+<% end %>
 <div style="clear: both;"></div>
 </div>

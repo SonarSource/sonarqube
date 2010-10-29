@@ -21,7 +21,7 @@ class DashboardController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
 
-  verify :method => :post, :only => [:set_layout, :add_widget, :set_dashboard], :redirect_to => {:action => :index}
+  verify :method => :post, :only => [:set_layout, :add_widget, :set_dashboard, :save_widget], :redirect_to => {:action => :index}
   before_filter :login_required, :except => [:index]
 
   def index
@@ -71,7 +71,7 @@ class DashboardController < ApplicationController
         widget=@dashboard.widgets.to_a.find { |i| i.id==id.to_i() }
         if widget
           widget.column_index=index+1
-          widget.order_index=order+1
+          widget.row_index=order+1
           widget.save!
           all_ids<<widget.id
         end
@@ -92,12 +92,47 @@ class DashboardController < ApplicationController
         new_widget=dashboard.widgets.create(:widget_key => definition.getId(),
                                            :name => definition.getTitle(),
                                            :column_index => dashboard.number_of_columns,
-                                           :order_index => dashboard.column_size(dashboard.number_of_columns) + 1,
-                                           :state => Widget::STATE_ACTIVE)
+                                           :row_index => dashboard.column_size(dashboard.number_of_columns) + 1,
+                                           :configured => !definition.isEditable())
         widget_id=new_widget.id
       end
     end
     redirect_to :action => 'configure', :id => dashboard.id, :resource => params[:resource], :highlight => widget_id 
+  end
+
+
+  def save_widget
+    widget=Widget.find(params[:id].to_i)
+    #TODO check owner of dashboard
+    definition=java_facade.getWidget(widget.widget_key)
+    errors_by_property_key={}
+    definition.getProperties().each do |property_def|
+      value=params[property_def.key()] || property_def.defaultValue()
+      value='false' if value.empty? && property_def.type()==WidgetProperty::TYPE_BOOLEAN
+
+      errors=WidgetProperty.validate_definition(property_def, value)
+      if errors.empty?
+        widget.set_property(property_def.key(), value)
+      else
+        widget.unset_property(property_def.key())
+        errors_by_property_key[property_def.key()]=errors
+      end
+    end
+
+    if errors_by_property_key.empty?
+      widget.configured=true
+      widget.save
+      widget.properties.each {|p| p.save}
+      render :update do |page|
+        page.redirect_to(url_for(:action => :configure, :id => widget.dashboard_id, :resource => params[:resource]))
+      end
+    else
+      widget.configured=false
+      widget.save
+      render :update do |page|
+        page.alert('errors ' + errors_by_property_key.inspect)
+      end
+    end
   end
 
   private
@@ -156,4 +191,5 @@ class DashboardController < ApplicationController
   def load_widget_definitions()
     @widget_definitions = java_facade.getWidgets()
   end
+
 end

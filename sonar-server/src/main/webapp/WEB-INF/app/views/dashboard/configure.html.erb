@@ -11,7 +11,7 @@
         dashboardstate: 'dashboardstate',
         toggle: 'block-toggle',
         blocklist: 'widget_defs',
-        highlight_duration: 3,
+        highlight_duration: 2,
         highlight_startcolor: '#cae3f2',
         highlight_endcolor: '#ffffff',
         saveurl: '<%= url_for :action => 'set_dashboard', :id => @dashboard.id, :resource => @resource.id -%>'
@@ -52,7 +52,7 @@
       <div class="column-handle" style="display: none"> </div>
 
     <%
-      @dashboard.widgets.select{|widget| widget.column_index==index}.sort_by{|widget| widget.order_index}.each do |widget|
+      @dashboard.widgets.select{|widget| widget.column_index==index}.sort_by{|widget| widget.row_index}.each do |widget|
         widget_definition=@widget_definitions.find{|wd| wd.getId()==widget.widget_key }
         if widget_definition
     %>
