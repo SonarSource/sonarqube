@@ -24,9 +24,9 @@ package org.sonar.channel;
  */
 public class CodeReaderConfiguration {
 
-  private final static int DEFAULT_BUFFER_CAPACITY = 8000;
+  public final static int DEFAULT_BUFFER_CAPACITY = 8000;
 
-  private final static int DEFAULT_TAB_WIDTH = 1;
+  public final static int DEFAULT_TAB_WIDTH = 1;
 
   private int bufferCapacity = DEFAULT_BUFFER_CAPACITY;
 

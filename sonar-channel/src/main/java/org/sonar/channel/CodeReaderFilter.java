@@ -120,12 +120,12 @@ public abstract class CodeReaderFilter<OUTPUT> {
    *          the output buffer that must contain the filtered data
    * @param offset
    *          the offset to start reading from the reader
-   * @param lenght
+   * @param length
    *          the number of characters to read from the reader
    * @return The number of characters read, or -1 if the end of the stream has been reached
    * @throws IOException
    *           If an I/O error occurs
    */
-  public abstract int read(char[] filteredBuffer, int offset, int lenght) throws IOException;
+  public abstract int read(char[] filteredBuffer, int offset, int length) throws IOException;
 
 }
