@@ -45,14 +45,14 @@ public class WildcardPattern {
   private String toRegexp(String wildcardPattern, String directorySeparator) {
     String patternStr = removeSlahesToIgnore(wildcardPattern);
     patternStr = StringUtils.replace(patternStr, "**/**", "**");
-    patternStr = StringUtils.replace(patternStr, "**/", "|");
-    patternStr = StringUtils.replace(patternStr, "/**", "|");
-    patternStr = StringUtils.replace(patternStr, "**", "|");
+    patternStr = StringUtils.replace(patternStr, "**/", "(&/|)");
+    patternStr = StringUtils.replace(patternStr, "/**", "&");
+    patternStr = StringUtils.replace(patternStr, "**", "&");
     StringBuilder sb = new StringBuilder();
 
     for (char c : patternStr.toCharArray()) {
       switch (c) {
-        case '|':
+        case '&':
           sb.append(".*");
           break;
         case '*':
@@ -85,7 +85,7 @@ public class WildcardPattern {
   }
 
   public static WildcardPattern[] create(String[] patterns) {
-    if (patterns==null) {
+    if (patterns == null) {
       return new WildcardPattern[0];
     }
     WildcardPattern[] exclusionPAtterns = new WildcardPattern[patterns.length];

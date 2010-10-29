@@ -21,9 +21,11 @@ package org.sonar.api.utils;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 public class WildcardPatternTest {
+
   private boolean match(String pattern, String value, String separator) {
     return new WildcardPattern(pattern, separator).match(value);
   }
@@ -58,6 +60,11 @@ public class WildcardPatternTest {
     assertTrue(match("a.b.c", "a.b.c", "."));
     assertTrue(match("*/a.b.c", "foo.a.b.c", "."));
     assertFalse(match("*/a.b.c", "foo/aabbc", "."));
+
+    assertTrue(match("**/Reader", "java.io.Reader", "."));
+    assertFalse(match("**/Reader", "org.sonar.channel.CodeReader", "."));
+
+    assertTrue(match("**", "java.io.Reader", "."));
   }
 
   @Test
@@ -87,5 +94,9 @@ public class WildcardPatternTest {
     assertTrue(match("*/a.b.c", "foo/a.b.c"));
     assertFalse(match("*/a.b.c", "foo/aabbc"));
 
+    assertTrue(match("**/Reader", "java/io/Reader"));
+    assertFalse(match("**/Reader", "org/sonar/channel/CodeReader"));
+
+    assertTrue(match("**", "java/io/Reader"));
   }
 }
