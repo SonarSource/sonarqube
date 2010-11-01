@@ -22,12 +22,12 @@ package org.sonar.java.bytecode.check;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.check.*;
+import org.sonar.java.PatternUtils;
 import org.sonar.java.bytecode.asm.AsmClass;
 import org.sonar.java.bytecode.asm.AsmEdge;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import java.util.List;
@@ -88,7 +88,7 @@ public class ArchitectureCheck extends BytecodeCheck {
       String internalNameTargetClass = edge.getTargetAsmClass().getInternalName();
       if ( !internalNames.containsKey(internalNameTargetClass)) {
         String nameAsmClass = asmClass.getInternalName();
-        if (matches(nameAsmClass, getFromMatchers()) && matches(internalNameTargetClass, getToMatchers())) {
+        if (PatternUtils.matches(nameAsmClass, getFromMatchers()) && PatternUtils.matches(internalNameTargetClass, getToMatchers())) {
           logMessage(edge);
         }
       } else if (internalNames.get(internalNameTargetClass).getLine() == 0 && edge.getSourceLineNumber() != 0) {
@@ -105,41 +105,16 @@ public class ArchitectureCheck extends BytecodeCheck {
     internalNames.put(toClass, message);
   }
 
-  private boolean matches(String className, List<WildcardPattern> matchers) {
-    for (WildcardPattern matcher : matchers) {
-      if (matcher.match(className)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private List<WildcardPattern> createMatchers(String pattern) {
-    List<WildcardPattern> matchers = Lists.newArrayList();
-    if (StringUtils.isNotEmpty(pattern)) {
-      String[] patterns = pattern.split(",");
-      for (String p : patterns) {
-        p = StringUtils.replace(p, ".", "/");
-        matchers.add(WildcardPattern.create(p));
-      }
-    }
-    return matchers;
-  }
-
   private List<WildcardPattern> getFromMatchers() {
     if (fromMatchers == null) {
-      if (StringUtils.isBlank(fromClasses)) {
-        fromMatchers = createMatchers("**");
-      } else {
-        fromMatchers = createMatchers(fromClasses);
-      }
+      fromMatchers = PatternUtils.createMatchers(StringUtils.defaultIfEmpty(fromClasses, "**"));
     }
     return fromMatchers;
   }
 
   private List<WildcardPattern> getToMatchers() {
     if (toMatchers == null) {
-      toMatchers = createMatchers(toClasses);
+      toMatchers = PatternUtils.createMatchers(toClasses);
     }
     return toMatchers;
   }

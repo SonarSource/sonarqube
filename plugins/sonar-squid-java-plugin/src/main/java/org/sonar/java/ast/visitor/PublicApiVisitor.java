@@ -35,7 +35,7 @@ public class PublicApiVisitor extends JavaAstVisitor {
 
   final static String OVERRIDE_ANNOTATION_KEYWORD = "Override";
 
-  private static final List<Integer> TOKENS = Arrays.asList(TokenTypes.CLASS_DEF, TokenTypes.INTERFACE_DEF, TokenTypes.METHOD_DEF,
+  public static final List<Integer> TOKENS = Arrays.asList(TokenTypes.CLASS_DEF, TokenTypes.INTERFACE_DEF, TokenTypes.METHOD_DEF,
       TokenTypes.CTOR_DEF, TokenTypes.ANNOTATION_DEF, TokenTypes.ANNOTATION_FIELD_DEF, TokenTypes.VARIABLE_DEF);
 
   public PublicApiVisitor() {
@@ -57,7 +57,7 @@ public class PublicApiVisitor extends JavaAstVisitor {
     }
   }
 
-  protected boolean isPublicApi(DetailAST ast) {
+  private boolean isPublicApi(DetailAST ast) {
     return isPublic(ast) && !isStaticFinalVariable(ast) && !isMethodWithOverrideAnnotation(ast) && !isEmptyDefaultConstructor(ast);
   }
 
@@ -94,7 +94,7 @@ public class PublicApiVisitor extends JavaAstVisitor {
     return (AstUtils.isScope(AstUtils.getScope(ast), Scope.PUBLIC) || AstUtils.isType(ast, TokenTypes.ANNOTATION_FIELD_DEF));
   }
 
-  protected boolean isDocumentedApi(DetailAST ast) {
+  private boolean isDocumentedApi(DetailAST ast) {
     return getFileContents().getJavadocBefore(ast.getLineNo()) != null;
   }
 
