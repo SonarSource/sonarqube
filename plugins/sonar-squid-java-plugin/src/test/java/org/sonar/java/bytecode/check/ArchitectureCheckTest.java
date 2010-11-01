@@ -52,9 +52,6 @@ public class ArchitectureCheckTest {
 
     SourceFile file = (SourceFile) squid.search("ArchitectureCheckDateForbidden.java");
     assertThat(file.getCheckMessages().size(), is(2));
-    for (CheckMessage message : file.getCheckMessages()) {
-      System.out.println(message.getDefaultMessage() + " at line " + message.getLine());
-    }
   }
 
   @Test
