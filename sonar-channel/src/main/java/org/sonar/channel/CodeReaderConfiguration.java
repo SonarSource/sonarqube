@@ -19,6 +19,10 @@
  */
 package org.sonar.channel;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Configuration parameters used by a CodeReader to handle some specificities.
  */
@@ -32,7 +36,7 @@ public class CodeReaderConfiguration {
 
   private int tabWidth = DEFAULT_TAB_WIDTH;
 
-  private CodeReaderFilter<?>[] codeReaderFilters = new CodeReaderFilter<?>[0];
+  private List<CodeReaderFilter<?>> codeReaderFilters = new ArrayList<CodeReaderFilter<?>>();
 
   /**
    * @return the bufferCapacity
@@ -69,7 +73,7 @@ public class CodeReaderConfiguration {
    */
   @SuppressWarnings("rawtypes")
   public CodeReaderFilter[] getCodeReaderFilters() {
-    return codeReaderFilters;
+    return codeReaderFilters.toArray(new CodeReaderFilter[codeReaderFilters.size()]);
   }
 
   /**
@@ -77,7 +81,17 @@ public class CodeReaderConfiguration {
    *          the codeReaderFilters to set
    */
   public void setCodeReaderFilters(CodeReaderFilter<?>... codeReaderFilters) {
-    this.codeReaderFilters = codeReaderFilters;
+    this.codeReaderFilters = new ArrayList<CodeReaderFilter<?>>(Arrays.asList(codeReaderFilters));
+  }
+
+  /**
+   * Adds a code reader filter
+   * 
+   * @param codeReaderFilter
+   *          the codeReaderFilter to add
+   */
+  public void addCodeReaderFilters(CodeReaderFilter<?> codeReaderFilter) {
+    this.codeReaderFilters.add(codeReaderFilter);
   }
 
   public CodeReaderConfiguration cloneWithoutCodeReaderFilters() {
