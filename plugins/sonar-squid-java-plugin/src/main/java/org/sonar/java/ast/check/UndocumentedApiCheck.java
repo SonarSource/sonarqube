@@ -28,7 +28,7 @@ public class UndocumentedApiCheck extends JavaAstCheck {
   @RuleProperty(description = "Optional. If this property is not defined, all classes should adhere to this constraint. Ex : **.api.**")
   private String forClasses = new String();
 
-  private List<WildcardPattern> matchers;
+  private WildcardPattern[] matchers;
 
   @Override
   public List<Integer> getWantedTokens() {
@@ -49,7 +49,7 @@ public class UndocumentedApiCheck extends JavaAstCheck {
     }
   }
 
-  private List<WildcardPattern> getMatchers() {
+  private WildcardPattern[] getMatchers() {
     if (matchers == null) {
       matchers = PatternUtils.createMatchers(StringUtils.defaultIfEmpty(forClasses, "**"));
     }

@@ -25,12 +25,13 @@ import org.sonar.check.*;
 import org.sonar.java.PatternUtils;
 import org.sonar.java.bytecode.asm.AsmClass;
 import org.sonar.java.bytecode.asm.AsmEdge;
+import org.sonar.java.bytecode.asm.AsmMethod;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
+import org.sonar.squid.api.SourceMethod;
 
 import com.google.common.collect.Maps;
 
-import java.util.List;
 import java.util.Map;
 
 @Rule(key = "ArchitecturalConstraint", name = "Architectural constraint", cardinality = Cardinality.MULTIPLE, isoCategory = IsoCategory.Portability, priority = Priority.MAJOR, description = "<p>A source code comply to an architectural model when it fully adheres to a set of architectural constraints. " +
@@ -47,8 +48,8 @@ public class ArchitectureCheck extends BytecodeCheck {
   @RuleProperty(description = "Mandatory. Ex : java.util.Vector, java.util.Hashtable, java.util.Enumeration")
   private String toClasses = new String();
 
-  private List<WildcardPattern> fromMatchers;
-  private List<WildcardPattern> toMatchers;
+  private WildcardPattern[] fromMatchers;
+  private WildcardPattern[] toMatchers;
   private AsmClass asmClass;
   private Map<String, CheckMessage> internalNames;
 
@@ -70,49 +71,70 @@ public class ArchitectureCheck extends BytecodeCheck {
 
   @Override
   public void visitClass(AsmClass asmClass) {
-    this.asmClass = asmClass;
-    this.internalNames = Maps.newHashMap();
+    String nameAsmClass = asmClass.getInternalName();
+    if (PatternUtils.matches(nameAsmClass, getFromMatchers())) {
+      this.asmClass = asmClass;
+      this.internalNames = Maps.newHashMap();
+    } else {
+      this.asmClass = null;
+    }
   }
 
   @Override
   public void leaveClass(AsmClass asmClass) {
-    for (CheckMessage message : internalNames.values()) {
-      SourceFile sourceFile = getSourceFile(asmClass);
-      sourceFile.log(message);
+    if (this.asmClass != null) {
+      for (CheckMessage message : internalNames.values()) {
+        SourceFile sourceFile = getSourceFile(asmClass);
+        sourceFile.log(message);
+      }
     }
   }
 
   @Override
   public void visitEdge(AsmEdge edge) {
-    if (edge != null) {
+    if (asmClass != null && edge != null) {
       String internalNameTargetClass = edge.getTargetAsmClass().getInternalName();
       if ( !internalNames.containsKey(internalNameTargetClass)) {
-        String nameAsmClass = asmClass.getInternalName();
-        if (PatternUtils.matches(nameAsmClass, getFromMatchers()) && PatternUtils.matches(internalNameTargetClass, getToMatchers())) {
-          logMessage(edge);
+        if (PatternUtils.matches(internalNameTargetClass, getToMatchers())) {
+          int sourceLineNumber = getSourceLineNumber(edge);
+          logMessage(asmClass.getInternalName(), internalNameTargetClass, sourceLineNumber);
         }
-      } else if (internalNames.get(internalNameTargetClass).getLine() == 0 && edge.getSourceLineNumber() != 0) {
-        logMessage(edge);
+      } else {
+        int sourceLineNumber = getSourceLineNumber(edge);
+        // we log only first occurrence with non-zero line number if exists
+        if (internalNames.get(internalNameTargetClass).getLine() == 0 && sourceLineNumber != 0) {
+          logMessage(asmClass.getInternalName(), internalNameTargetClass, sourceLineNumber);
+        }
       }
     }
   }
 
-  private void logMessage(AsmEdge edge) {
-    String fromClass = asmClass.getInternalName();
-    String toClass = edge.getTargetAsmClass().getInternalName();
+  private int getSourceLineNumber(AsmEdge edge) {
+    if (edge.getSourceLineNumber() == 0) {
+      if (edge.getFrom() instanceof AsmMethod) {
+        SourceMethod sourceMethod = getSourceMethod((AsmMethod) edge.getFrom());
+        if (sourceMethod != null) {
+          return sourceMethod.getStartAtLine();
+        }
+      }
+    }
+    return edge.getSourceLineNumber();
+  }
+
+  private void logMessage(String fromClass, String toClass, int sourceLineNumber) {
     CheckMessage message = new CheckMessage(this, fromClass + " must not use " + toClass);
-    message.setLine(edge.getSourceLineNumber());
+    message.setLine(sourceLineNumber);
     internalNames.put(toClass, message);
   }
 
-  private List<WildcardPattern> getFromMatchers() {
+  private WildcardPattern[] getFromMatchers() {
     if (fromMatchers == null) {
       fromMatchers = PatternUtils.createMatchers(StringUtils.defaultIfEmpty(fromClasses, "**"));
     }
     return fromMatchers;
   }
 
-  private List<WildcardPattern> getToMatchers() {
+  private WildcardPattern[] getToMatchers() {
     if (toMatchers == null) {
       toMatchers = PatternUtils.createMatchers(toClasses);
     }

@@ -52,9 +52,9 @@ public class ArchitectureCheckTest {
 
     SourceFile file = (SourceFile) squid.search("ArchitectureCheckDateForbidden.java");
     assertThat(file.getCheckMessages().size(), is(2));
-    // for (CheckMessage message : file.getCheckMessages()) {
-    // System.out.println(message.getDefaultMessage());
-    // }
+    for (CheckMessage message : file.getCheckMessages()) {
+      System.out.println(message.getDefaultMessage() + " at line " + message.getLine());
+    }
   }
 
   @Test
@@ -62,10 +62,9 @@ public class ArchitectureCheckTest {
     check("*UI", "java.sql.*");
 
     SourceFile file = (SourceFile) squid.search("ArchitectureCheckToSqlFromUI.java");
-    assertThat(file.getCheckMessages().size(), is(4));
-    // for (CheckMessage message : file.getCheckMessages()) {
-    // System.out.println(message.getDefaultMessage() + " at line " + message.getLine());
-    // }
+    assertThat(file.getCheckMessages().size(), is(1));
+    CheckMessage message = file.getCheckMessages().iterator().next();
+    assertThat(message.getLine(), is(4));
   }
 
   @Test

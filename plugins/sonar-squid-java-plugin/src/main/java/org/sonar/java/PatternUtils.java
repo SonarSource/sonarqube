@@ -12,7 +12,7 @@ public final class PatternUtils {
   private PatternUtils() {
   }
 
-  public static List<WildcardPattern> createMatchers(String pattern) {
+  public static WildcardPattern[] createMatchers(String pattern) {
     List<WildcardPattern> matchers = Lists.newArrayList();
     if (StringUtils.isNotEmpty(pattern)) {
       String[] patterns = pattern.split(",");
@@ -21,10 +21,10 @@ public final class PatternUtils {
         matchers.add(WildcardPattern.create(p));
       }
     }
-    return matchers;
+    return matchers.toArray(new WildcardPattern[matchers.size()]);
   }
 
-  public static boolean matches(String text, List<WildcardPattern> matchers) {
+  public static boolean matches(String text, WildcardPattern[] matchers) {
     for (WildcardPattern matcher : matchers) {
       if (matcher.match(text)) {
         return true;
