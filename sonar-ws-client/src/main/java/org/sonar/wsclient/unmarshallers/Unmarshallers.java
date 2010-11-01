@@ -42,6 +42,7 @@ public final class Unmarshallers {
     unmarshallers.put(DependencyTree.class, new DependencyTreeUnmarshaller());
     unmarshallers.put(Event.class, new EventUnmarshaller());
     unmarshallers.put(Favourite.class, new FavouriteUnmarshaller());
+    unmarshallers.put(Plugin.class, new PluginUnmarshaller());
   }
 
   public static <MODEL extends Model> Unmarshaller<MODEL> forModel(Class<MODEL> modelClass) {
