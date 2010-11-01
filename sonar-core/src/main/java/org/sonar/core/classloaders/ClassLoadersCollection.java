@@ -1,5 +1,25 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2009 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
 package org.sonar.core.classloaders;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.classworlds.ClassRealm;
 import org.codehaus.classworlds.ClassWorld;
@@ -8,12 +28,10 @@ import org.codehaus.classworlds.NoSuchRealmException;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 
-import com.google.common.collect.Lists;
-
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Encapsulates manipulations with ClassLoaders, such as creation and establishing dependencies.
@@ -57,8 +75,8 @@ public class ClassLoadersCollection {
    */
   public ClassLoader createClassLoader(String key, Collection<URL> urls, boolean childFirst) {
     try {
-      ArrayList<URL> resources = Lists.newArrayList();
-      ArrayList<URL> others = Lists.newArrayList();
+      List<URL> resources = Lists.newArrayList();
+      List<URL> others = Lists.newArrayList();
       for (URL url : urls) {
         if (isResource(url)) {
           resources.add(url);

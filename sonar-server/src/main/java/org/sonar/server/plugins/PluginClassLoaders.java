@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
@@ -27,7 +28,6 @@ import org.sonar.core.classloaders.ClassLoadersCollection;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -41,7 +41,7 @@ public class PluginClassLoaders implements ServerComponent {
 
   ClassLoader create(String pluginKey, Collection<File> classloaderFiles, boolean useChildFirstClassLoader) {
     try {
-      List<URL> urls = new ArrayList<URL>();
+      List<URL> urls = Lists.newArrayList();
       for (File file : classloaderFiles) {
         urls.add(toUrl(file));
       }
@@ -59,10 +59,10 @@ public class PluginClassLoaders implements ServerComponent {
     // Otherwise the constituent will be treated as a JAR file.
     URL url = file.toURI().toURL();
     if (file.isDirectory()) {
-      if ( !url.toString().endsWith("/")) {
+      if (!url.toString().endsWith("/")) {
         url = new URL(url.toString() + "/");
       }
-    } else if ( !StringUtils.endsWithIgnoreCase(file.getName(), "jar")) {
+    } else if (!StringUtils.endsWithIgnoreCase(file.getName(), "jar")) {
       url = file.getParentFile().toURI().toURL();
     }
     return url;

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ui;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.lang.ArrayUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.web.Page;
