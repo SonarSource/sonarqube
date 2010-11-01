@@ -125,10 +125,7 @@ public final class UpdateCenterMatrix {
       Version pluginVersion = entry.getValue();
       Release pluginRelease = plugin.getRelease(pluginVersion);
 
-      if (pluginRelease == null) {
-        update.addIncompatiblePlugin(plugin);
-
-      } else if (pluginRelease.supportSonarVersion(sonarRelease.getVersion())) {
+      if (pluginRelease != null && pluginRelease.supportSonarVersion(sonarRelease.getVersion())) {
         update.addCompatiblePlugin(plugin);
 
       } else {

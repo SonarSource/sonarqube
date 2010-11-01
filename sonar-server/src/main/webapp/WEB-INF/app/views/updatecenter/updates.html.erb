@@ -1,4 +1,13 @@
- <ul class="tabs">
+ <script>
+function upgradePlugin(key) {
+  var button=$('upgrade-submit-' + key);
+  button.disable();
+  button.writeAttribute('value', 'Upgrading');
+  return true;
+}
+</script>
+
+<ul class="tabs">
    <li>
      <a href="<%= url_for :action => 'index' -%>">Installed</a>
    </li>
@@ -21,7 +30,7 @@
        <tbody>
        <% if @updates_by_plugin.empty? %>
          <tr class="even">
-           <td colspan="2">No updates</td>
+           <td colspan="2">All of your plugins are up to date.</td>
          </tr>
        <% end %>
        <% @updates_by_plugin.keys.each do |plugin|
@@ -38,23 +47,25 @@
            <td><%= link_to 'Release Notes', release.getChangelogUrl(), :class => 'external' if release.getChangelogUrl() %></td>
            <td>
              <% if update.isIncompatible() %>
-               <%= image_tag 'warning.png' -%> Not compatible
+               <%= image_tag 'warning.png' -%> Incompatible
              <% elsif update.requiresSonarUpgrade %>
-               <%= image_tag 'warning.png' -%> Not compatible, requires to upgrade system
+               <%= image_tag 'warning.png' -%> Incompatible, requires to upgrade system
              <% end %>
            </td>
          </tr>
        <%
           end
        %>
+       <% if @last_compatible[plugin.getKey()] %>
        <tr class="<%= css -%>">
-      <td> </td>
-      <td colspan="5">
-      <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=updates&key=<%= plugin.getKey() -%>&version=<%= @last_compatible[plugin.getKey()] -%>" style="display: inline-block">
-               <input type="submit" value="Upgrade to <%= @last_compatible[plugin.getKey()] -%>"></input>
-             </form>
-      </td>
-    </tr>
+         <td> </td>
+         <td colspan="5">
+          <form method="post" id="upgrade-form-<%= plugin.getKey() -%>" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=updates&key=<%= plugin.getKey() -%>&version=<%= @last_compatible[plugin.getKey()] -%>" style="display: inline-block">
+             <input type="submit" id="upgrade-submit-<%= plugin.getKey() -%>" value="Upgrade to <%= @last_compatible[plugin.getKey()] -%>" onClick="return upgradePlugin('<%= plugin.getKey() -%>')"></input>
+           </form>
+          </td>
+        </tr>
+        <% end %>
        <%
         end
        %>
@@ -94,7 +105,7 @@
           <td> </td>
           <td colspan="3">
             <% if update.isIncompatible() %>
-              <%= image_tag 'warning.png' -%> Not compatible plugins must be uninstalled before upgrading system:
+              <%= image_tag 'warning.png' -%> Incompatible plugins must be uninstalled before upgrading system:
               <%= update.getIncompatiblePlugins().map{|plugin| plugin.getName()}.sort.join(',') -%>
             <% end %>
             <% if update.requiresPluginUpgrades() %>

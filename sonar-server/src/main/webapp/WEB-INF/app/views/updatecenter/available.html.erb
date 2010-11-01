@@ -49,48 +49,54 @@ function installPlugin(key) {
         <td>
           <%= plugin.getDescription() %>
           <div id="detail-<%= plugin.getKey() -%>" style="display:none">
+          <table class="spaced width100">
             <% if plugin.getLicense() %>
-              <p>
-                License: <%= h(plugin.getLicense()) %>
-              </p>
+              <tr>
+                <td class="thin nowrap">License: </td><td><%= h(plugin.getLicense()) %></td>
+              </tr>
             <% end %>
             <% if plugin.getOrganization() %>
-              <p>
-                By: <%= link_to_if plugin.getOrganizationUrl(), plugin.getOrganization(), plugin.getOrganizationUrl(), :class=>'external'  %>
-              </p>
+              <tr>
+                <td class="thin nowrap">Author: </td><td><%= link_to_if plugin.getOrganizationUrl(), plugin.getOrganization(), plugin.getOrganizationUrl(), :class=>'external'  %></td>
+              </tr>
             <% end %>
             <% if plugin.getHomepageUrl() || plugin.getIssueTrackerUrl() %>
-            <p>
-              <% if plugin.getHomepageUrl() %>
-                <%= link_to 'Plugin details', plugin.getHomepageUrl(), :class=>'external' %>  |
-              <% end %>
-              <% if plugin.getIssueTrackerUrl() %>
-                <%= link_to "Issue Tracker", plugin.getIssueTrackerUrl(), :class=>'external' %>
-              <% end %>
-            </p>
+            <tr>
+              <td class="thin nowrap">Links: </td>
+              <td>
+                <%= link_to 'Homepage', plugin.getHomepageUrl(), :class=>'external' if plugin.getHomepageUrl() -%>
+                <%= link_to "Issue Tracker", plugin.getIssueTrackerUrl(), :class=>'external' if plugin.getIssueTrackerUrl() -%>
+              </td>
+            </tr>
+            <% end %>
             <%
-              end
               if update.isCompatible()
             %>
-            <p>
-              Version: <%= update.getRelease().getVersion() -%>
-            </p>
-            <div>
+            <tr>
+              <% date=release_date(update.getRelease().getDate()) %>
+              <td class="thin nowrap">Version: </td>
+              <td><%= update.getRelease().getVersion() -%> <%= "(#{date})" if date -%></td>
+            </tr>
+            <tr>
+              <td colspan="2">
               <% if plugin.getTermsConditionsUrl() %>
               <input type="checkbox" id="tc-<%= plugin.getKey() -%>"></input> I accept the <%= link_to 'Terms and Conditions', plugin.getTermsConditionsUrl(), :class => 'external' %>
               <% end %>
               <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=available&key=<%= plugin.getKey() -%>&version=<%= update.getRelease().getVersion() -%>" style="display: inline-block" id="install-<%= plugin.getKey() -%>">
                 <input type="submit" value="Install" onClick="return installPlugin('<%= plugin.getKey() -%>')" id="submit-<%= plugin.getKey() -%>"></input>
               </form>
-            </div>
+            </td>
+            </tr>
             <% elsif update.requiresSonarUpgrade
             %>
-              <p>
-                Version: <%= update.getRelease().getVersion() -%> (not compatible, needs Sonar upgrade)
-              </p>
+              <tr>
+                <td class="thin nowrap">Last version: </td>
+                <td><%= update.getRelease().getVersion() -%> (<%= image_tag 'warning.png' -%> Not compatible, requires Sonar upgrade)</td>
+              </tr>
             <%
               end
             %>
+          </table>
           </div>
         </td>
       </tr>
