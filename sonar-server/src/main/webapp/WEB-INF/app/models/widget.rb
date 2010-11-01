@@ -42,14 +42,15 @@ class Widget < ActiveRecord::Base
     (prop ? prop.value : nil) || default_value
   end
 
-  def set_property(key, value)
+  def set_property(key, value, value_type)
     prop=property(key)
     if prop
       prop.text_value=value
+      prop.value_type=value_type
     else
-      self.properties.build(:kee => key, :text_value => value)
+      prop=self.properties.build(:kee => key, :text_value => value, :value_type => value_type)
     end
-    properties_as_hash[key]=value
+    properties_as_hash[key]=prop.typed_value
   end
 
   def unset_property(key)

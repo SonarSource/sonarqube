@@ -36,6 +36,19 @@ class WidgetProperty < ActiveRecord::Base
     text_value
   end
 
+  def typed_value
+    case value_type
+    when TYPE_INTEGER
+      value.to_i
+    when TYPE_FLOAT
+      Float(value)
+    when TYPE_BOOLEAN
+      value=='true'
+    else
+      value
+    end
+  end
+
   def to_hash_json
     {:key => key, :value => value.to_s}
   end

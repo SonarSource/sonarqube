@@ -24,11 +24,6 @@
       <% end %>
     }
     Event.observe(window, 'load', init_dashboard, false);
-
-    function remove_widget(link) {
-      $(link).up('.block').remove();
-      portal.saveDashboardsState();
-    }
     //-->
 </script>
 

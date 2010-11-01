@@ -45,14 +45,12 @@ Portal.prototype = {
     },
 
     highlightWidget: function(widgetId) {
-      new Effect.Pulsate($('block_' + widgetId), {duration: this.options.highlight_duration});
       new Effect.Highlight($('block_' + widgetId), {duration: this.options.highlight_duration,
                                           startcolor: this.options.highlight_startcolor,
                                           endcolor: this.options.highlight_endcolor});
     },
 
     /****************************************************/
-
     saveDashboardsState: function () {
         var result = "";
         var index = 1;
@@ -106,6 +104,10 @@ Portal.prototype = {
     cancelEditWidget: function(id) {
       $('widget_' + id).show();
       $('widget_props_' + id).hide();
+    },
+    deleteWidget: function(elt) {
+      $(elt).up('.block').remove();
+      this.saveDashboardsState();
     }
 };
 

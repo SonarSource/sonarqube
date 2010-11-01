@@ -32,6 +32,10 @@ class Dashboard < ActiveRecord::Base
     read_attribute(:shared) || false
   end
 
+  def layout
+    column_layout
+  end
+
   def user_name
     user_id ? user.name : nil
   end

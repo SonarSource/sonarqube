@@ -112,7 +112,7 @@ class DashboardController < ApplicationController
 
       errors=WidgetProperty.validate_definition(property_def, value)
       if errors.empty?
-        widget.set_property(property_def.key(), value)
+        widget.set_property(property_def.key(), value, property_def.type())
       else
         widget.unset_property(property_def.key())
         errors_by_property_key[property_def.key()]=errors

@@ -10,7 +10,7 @@
 
 <div class="handle" style="//overflow:hidden;//zoom:1;">
   <%= definition.getTitle() -%>
-  <a class="block-remove"  onclick="remove_widget(this);return false;">Delete</a>
+  <a class="block-remove"  onclick="portal.deleteWidget(this);return false;">Delete</a>
   <% if definition.isEditable() %>
     <a class="block-view-toggle" onclick="portal.editWidget(<%= widget.id -%>);return false;">Edit</a>
   <% end %>
@@ -23,10 +23,6 @@
       <tbody>
       <% definition.getProperties().each do |property_def|
           value=widget.property_value(property_def.key(), property_def.defaultValue())
-          editrow_class=""
-          if defined?(validation_result)
-              editrow_class= validation_result[property_def.key()]=="valid" ? "valid-editrow" : "invalid-editrow"
-          end
       %>
           <tr>
             <td valign="top" nowrap><b><%= property_def.key() -%></b><%= "*" unless property_def.optional()==true -%>: </td>
