@@ -6,14 +6,14 @@ import static org.junit.internal.matchers.StringContains.containsString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.SonarException;
-
-import java.io.File;
 
 public class FindbugsExecutorTest {
 
@@ -45,7 +45,7 @@ public class FindbugsExecutorTest {
     Project project = mock(Project.class);
     ProjectFileSystem fs = mock(ProjectFileSystem.class);
     when(project.getFileSystem()).thenReturn(fs);
-    FindbugsConfiguration conf = new FindbugsConfiguration(project, null, null, null);
+    FindbugsConfiguration conf = new FindbugsConfiguration(project, null, null, null, null);
 
     new FindbugsExecutor(conf).execute();
   }

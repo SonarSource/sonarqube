@@ -34,18 +34,13 @@ import org.sonar.api.Property;
         defaultValue = CoreProperties.FINDBUGS_EFFORT_DEFAULT_VALUE,
         name = "Effort",
         description = "Effort of the bug finders. Valid values are Min, Default and Max. Setting 'Max' increases precision but also increases memory consumption.",
-        project = true,
-        module = true,
-        global = true),
+        project = true, module = true, global = true),
     @Property(
         key = CoreProperties.FINDBUGS_TIMEOUT_PROPERTY,
         defaultValue = CoreProperties.FINDBUGS_TIMEOUT_DEFAULT_VALUE + "",
         name = "Timeout",
         description = "Specifies the amount of time, in milliseconds, that FindBugs may run before it is assumed to be hung and is terminated. The default is 600,000 milliseconds, which is ten minutes.",
-        project = true,
-        module = true,
-        global = true)
-})
+        project = true, module = true, global = true) })
 public class FindbugsPlugin implements Plugin {
 
   public String getKey() {
@@ -64,6 +59,7 @@ public class FindbugsPlugin implements Plugin {
     List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();
     list.add(FindbugsSensor.class);
     list.add(FindbugsConfiguration.class);
+    list.add(FindbugsDownloader.class);
     list.add(FindbugsExecutor.class);
     list.add(FindbugsRuleRepository.class);
     list.add(FindbugsProfileExporter.class);

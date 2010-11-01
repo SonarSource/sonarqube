@@ -1,0 +1,59 @@
+package org.sonar.plugins.findbugs;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.BatchExtension;
+import org.sonar.api.utils.HttpDownloader;
+import org.sonar.api.utils.SonarException;
+
+public class FindbugsDownloader implements BatchExtension {
+
+  private static final String FINDBUGS_URL = "/deploy/plugins/findbugs/";
+
+  private static List<File> libs;
+
+  private HttpDownloader downloader;
+  private String host;
+
+  public FindbugsDownloader(Configuration configuration, HttpDownloader downloader) {
+    this.downloader = downloader;
+    host = StringUtils.chomp(configuration.getString("sonar.host.url", "http://localhost:9000"), "/");
+  }
+
+  public synchronized List<File> getLibs() {
+    if (libs == null) {
+      libs = Arrays.asList(downloadLib(getUrlForAnnotationsJar()), downloadLib(getUrlForJsrJar()));
+    }
+    return libs;
+  }
+
+  private String getUrlForAnnotationsJar() {
+    return host + FINDBUGS_URL + "/annotations-" + FindbugsVersion.getVersion() + ".jar";
+  }
+
+  private String getUrlForJsrJar() {
+    return host + FINDBUGS_URL + "/jsr305-" + FindbugsVersion.getVersion() + ".jar";
+  }
+
+  private File downloadLib(String url) {
+    try {
+      URI uri = new URI(url);
+      File temp = File.createTempFile("findbugs", ".jar");
+      FileUtils.forceDeleteOnExit(temp);
+      downloader.download(uri, temp);
+      return temp;
+    } catch (URISyntaxException e) {
+      throw new SonarException(e);
+    } catch (IOException e) {
+      throw new SonarException(e);
+    }
+  }
+}

@@ -1,5 +1,9 @@
 package org.sonar.plugins.findbugs;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
@@ -11,10 +15,6 @@ import org.sonar.plugins.findbugs.xml.ClassFilter;
 import org.sonar.plugins.findbugs.xml.FindBugsFilter;
 import org.sonar.plugins.findbugs.xml.Match;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-
 /**
  * @since 2.4
  */
@@ -24,12 +24,15 @@ public class FindbugsConfiguration implements BatchExtension {
   private RulesProfile profile;
   private FindbugsProfileExporter exporter;
   private ProjectClasspath projectClasspath;
+  private FindbugsDownloader downloader;
 
-  public FindbugsConfiguration(Project project, RulesProfile profile, FindbugsProfileExporter exporter, ProjectClasspath classpath) {
+  public FindbugsConfiguration(Project project, RulesProfile profile, FindbugsProfileExporter exporter, ProjectClasspath classpath,
+      FindbugsDownloader downloader) {
     this.project = project;
     this.profile = profile;
     this.exporter = exporter;
     this.projectClasspath = classpath;
+    this.downloader = downloader;
   }
 
   public File getTargetXMLReport() {
@@ -56,6 +59,9 @@ public class FindbugsConfiguration implements BatchExtension {
         findbugsProject.addAuxClasspathEntry(file.getAbsolutePath());
       }
     }
+    for (File file : downloader.getLibs()) {
+      findbugsProject.addAuxClasspathEntry(file.getAbsolutePath());
+    }
     findbugsProject.setCurrentWorkingDirectory(project.getFileSystem().getBuildDir());
     return findbugsProject;
   }
@@ -78,7 +84,8 @@ public class FindbugsConfiguration implements BatchExtension {
   }
 
   public String getEffort() {
-    return StringUtils.lowerCase(project.getConfiguration().getString(CoreProperties.FINDBUGS_EFFORT_PROPERTY, CoreProperties.FINDBUGS_EFFORT_DEFAULT_VALUE));
+    return StringUtils.lowerCase(project.getConfiguration().getString(CoreProperties.FINDBUGS_EFFORT_PROPERTY,
+        CoreProperties.FINDBUGS_EFFORT_DEFAULT_VALUE));
   }
 
   public long getTimeout() {

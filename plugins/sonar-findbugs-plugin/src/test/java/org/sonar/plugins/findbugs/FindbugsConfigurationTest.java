@@ -5,6 +5,8 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -12,8 +14,6 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.SimpleProjectFileSystem;
-
-import java.io.File;
 
 public class FindbugsConfigurationTest {
 
@@ -32,7 +32,7 @@ public class FindbugsConfigurationTest {
 
   @Test
   public void shouldSaveConfigFiles() throws Exception {
-    FindbugsConfiguration conf = new FindbugsConfiguration(project, RulesProfile.create(), new FindbugsProfileExporter(), null);
+    FindbugsConfiguration conf = new FindbugsConfiguration(project, RulesProfile.create(), new FindbugsProfileExporter(), null, null);
 
     conf.saveIncludeConfigXml();
     conf.saveExcludeConfigXml();
