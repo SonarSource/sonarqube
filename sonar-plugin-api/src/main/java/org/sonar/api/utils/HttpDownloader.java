@@ -19,6 +19,7 @@
  */
 package org.sonar.api.utils;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
@@ -34,7 +35,7 @@ import java.net.URI;
 
 /**
  * Simple class to download a file from a HTTP repository.
- *
+ * 
  * @since 2.2
  */
 public class HttpDownloader implements BatchComponent, ServerComponent {
@@ -60,8 +61,10 @@ public class HttpDownloader implements BatchComponent, ServerComponent {
       IOUtils.copy(input, output);
 
     } catch (Exception e) {
+      IOUtils.closeQuietly(output);
+      FileUtils.deleteQuietly(toFile);
       throw new SonarException("Fail to download the file: " + uri, e);
-      
+
     } finally {
       IOUtils.closeQuietly(input);
       IOUtils.closeQuietly(output);

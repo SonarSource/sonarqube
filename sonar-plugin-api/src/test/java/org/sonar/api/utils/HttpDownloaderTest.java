@@ -66,7 +66,7 @@ public class HttpDownloaderTest {
     assertThat(bytes.length, greaterThan(10));
   }
 
-  @Test(expected=SonarException.class)
+  @Test(expected = SonarException.class)
   public void failIfServerDown() throws URISyntaxException {
     // I hope that the port 1 is not used !
     new HttpDownloader().download(new URI("http://localhost:1/unknown"));
@@ -82,6 +82,21 @@ public class HttpDownloaderTest {
     new HttpDownloader().download(new URI(baseUrl), toFile);
     assertThat(toFile.exists(), is(true));
     assertThat(toFile.length(), greaterThan(10l));
+  }
+
+  @Test
+  public void shouldNotCreateFileIfFailToDownload() throws Exception {
+    File toDir = new File("target/test-tmp/org/sonar/api/utils/DownloaderTest/");
+    FileUtils.forceMkdir(toDir);
+    FileUtils.cleanDirectory(toDir);
+    File toFile = new File(toDir, "downloadToFile.txt");
+
+    try {
+      // I hope that the port 1 is not used !
+      new HttpDownloader().download(new URI("http://localhost:1/unknown"), toFile);
+    } catch (SonarException e) {
+      assertThat(toFile.exists(), is(false));
+    }
   }
 
   @Test
