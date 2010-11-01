@@ -33,7 +33,7 @@ class CreateDashboards < ActiveRecord::Migration
       t.column :user_id, :integer, :null => true
       t.column :name, :string, :null => true, :limit => 256
       t.column :description, :string, :null => true, :limit => 1000
-      t.column :column_layout, :string, :null => true, :limit => 10
+      t.column :column_layout, :string, :null => true, :limit => 20
       t.column :shared, :boolean, :null => true
       t.timestamps
     end
