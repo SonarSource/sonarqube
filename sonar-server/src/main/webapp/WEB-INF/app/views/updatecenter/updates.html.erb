@@ -1,72 +1,116 @@
-<ul class="tabs">
-  <li>
-    <a href="<%= url_for :action => 'index' -%>">Installed</a>
-  </li>
-  <li>
-    <a href="<%= url_for :action => 'updates' -%>" class="selected">Updates</a>
-  </li>
-  <li>
-    <a href="<%= url_for :action => 'available' -%>">Available</a>
-  </li>
-</ul>
-<div class="tabs-panel">
+ <ul class="tabs">
+   <li>
+     <a href="<%= url_for :action => 'index' -%>">Installed</a>
+   </li>
+   <li>
+     <a href="<%= url_for :action => 'updates' -%>" class="selected">Updates</a>
+   </li>
+   <li>
+     <a href="<%= url_for :action => 'available' -%>">Available</a>
+   </li>
+ </ul>
+ <div class="tabs-panel">
 
-<%= render :partial => 'updatecenter/operations' -%>
+   <%= render :partial => 'updatecenter/operations' -%>
 
-<% if @center %>
-  <table class="data width100" id="plugin-updates">
-    <thead>
-      <tr><th colspan="2"><h2>User-installed plugins</h2></th></tr>
-    </thead>
-    <tbody>
-    <% if @updates_by_plugin.empty? %>
-      <tr class="even">
-        <td colspan="2">No updates</td>
-      </tr>
-    <% end %>
-    <% @updates_by_plugin.keys.each do |plugin|
-       updates=@updates_by_plugin[plugin]
-    %>
-      <tr class="<%= cycle('even','odd', :name => 'user-plugins') -%>">
-        <td  width="1%" nowrap>
-          <b><a href="#plugin" onclick="showPlugin('<%= plugin.getKey() -%>')"><%= h(plugin.getName()) -%></a></b>
-        </td>
-        <td>
-          Current version: <b><%= @user_plugins[plugin.getKey()] -%></b>,
-          last compatible: <b><%= @last_compatible[plugin.getKey()] -%></b>,
-          latest: <b><%= updates.last.getRelease().getVersion() -%></b>
-          <div id="detail-<%= plugin.getKey() -%>" style="display:none">
-          <table class="spaced">
-          <tbody>
-            <%= render :partial => 'updatecenter/list', :locals => {:updates => updates, :plugin => true } %>
-          </tbody>
-          </table>
-          <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=updates&key=<%= plugin.getKey() -%>&version=<%= @last_compatible[plugin.getKey()] -%>" style="display: inline-block">
-            <input type="submit" value="Update to <%= @last_compatible[plugin.getKey()] -%>"></input>
-          </form>
-          </div>
-        </td>
-      </tr>
-    <% end %>
-    </tbody>
-  </table>
+   <% if @center %>
+     <table class="data width100" id="plugin-updates">
+       <thead>
+         <tr><th colspan="2"><h2>Plugins</h2></th></tr>
+       </thead>
+       <tbody>
+       <% if @updates_by_plugin.empty? %>
+         <tr class="even">
+           <td colspan="2">No updates</td>
+         </tr>
+       <% end %>
+       <% @updates_by_plugin.keys.each do |plugin|
+       css=cycle('even','odd', :name => 'user-plugins')
+          updates=@updates_by_plugin[plugin]
+           updates.each_with_index do |update, index|
+            release=update.getRelease()
+       %>
+        <tr class="<%= css -%>">
+        <td width="1%" nowrap><% if index==0 %><b><%= h(plugin.getName()) -%></b> <%= @user_plugins[plugin.getKey()] -%> -> <% end %></td>
+           <td width="1%" nowrap><b><%= release.getVersion() -%></b></td>
+           <td width="1%" nowrap><%= release_date(release.getDate()) if release.getDate() -%></td>
+           <td><%= release.getDescription() -%></td>
+           <td><%= link_to 'Release Notes', release.getChangelogUrl(), :class => 'external' if release.getChangelogUrl() %></td>
+           <td>
+             <% if update.isIncompatible() %>
+               <%= image_tag 'warning.png' -%> Not compatible
+             <% elsif update.requiresSonarUpgrade %>
+               <%= image_tag 'warning.png' -%> Not compatible, requires to upgrade system
+             <% end %>
+           </td>
+         </tr>
+       <%
+          end
+       %>
+       <tr class="<%= css -%>">
+      <td> </td>
+      <td colspan="5">
+      <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=updates&key=<%= plugin.getKey() -%>&version=<%= @last_compatible[plugin.getKey()] -%>" style="display: inline-block">
+               <input type="submit" value="Upgrade to <%= @last_compatible[plugin.getKey()] -%>"></input>
+             </form>
+      </td>
+    </tr>
+       <%
+        end
+       %>
+       </tbody>
+     </table>
 
-  <div class="break30"> </div>
+     <div class="break30"> </div>
 
-  <table class="data width100" id="system-updates">
-    <thead>
-      <tr><th colspan="4"><h2>System</h2></th></tr>
-    </thead>
-    <tbody>
-    <% if @sonar_updates.empty? %>
-      <tr class="even">
-        <td colspan="4" >No updates</td>
-      </tr>
-    <% end %>
-    <%= render :partial => 'updatecenter/list', :locals => {:updates => @sonar_updates, :plugin => false } %>
-    </tbody>
-  </table>
-  <br/>
-<% end %>
-<%= render :partial => 'updatecenter/status', :locals => {:action => 'updates' } %>
-</div>
+     <table class="data width100 marginbottom10" id="system-updates">
+       <thead>
+         <tr><th colspan="4"><h2>System</h2></th></tr>
+       </thead>
+       <tbody>
+       <% if @sonar_updates.empty? %>
+         <tr class="even">
+           <td colspan="4" >No updates</td>
+         </tr>
+       <% end %>
+
+
+
+      <% @sonar_updates.each do |update|
+        css=cycle('even','odd', :name => 'system')
+          release=update.getRelease()
+      %>
+        <tr class="<%= css -%>">
+          <td width="1%" nowrap><b>Sonar  <%= release.getVersion() -%></b></td>
+          <td width="1%" nowrap><%= release_date(release.getDate()) if release.getDate() -%></td>
+          <td><%= release.getDescription() -%></td>
+          <td>
+            <%= link_to 'Release Notes', release.getChangelogUrl(), :class => 'external' if release.getChangelogUrl() %> &nbsp;
+            <%= link_to 'Download', release.getDownloadUrl(), :class => 'external' if release.getDownloadUrl() %>
+          </td>
+        </tr>
+        <% if update.hasWarnings() %>
+        <tr class="<%= css -%>">
+          <td> </td>
+          <td colspan="3">
+            <% if update.isIncompatible() %>
+              <%= image_tag 'warning.png' -%> Not compatible plugins must be uninstalled before upgrading system:
+              <%= update.getIncompatiblePlugins().map{|plugin| plugin.getName()}.sort.join(',') -%>
+            <% end %>
+            <% if update.requiresPluginUpgrades() %>
+              <%= image_tag 'warning.png' -%> Following plugins must be upgraded before upgrading system:
+              <ul>
+              <% update.getPluginsToUpgrade().each do |plugin| %>
+                <li><%= plugin.getArtifact().getName() -%> to <%= plugin.getVersion() -%></li>
+              <% end %>
+              </ul>
+            <% end %>
+          </td>
+        </tr>
+        <% end %>
+      <% end %>
+       </tbody>
+     </table>
+   <% end %>
+   <%= render :partial => 'updatecenter/status', :locals => {:action => 'updates' } %>
+ </div>

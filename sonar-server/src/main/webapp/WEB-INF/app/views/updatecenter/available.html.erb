@@ -1,3 +1,18 @@
+<script>
+function installPlugin(key) {
+  /* check terms & conditions */
+  var tc=$('tc-' + key)
+  if (tc!=null && !tc.checked) {
+    alert('Please accept the Terms and Conditions');
+    return false;
+  }
+  var button=$('submit-' + key);
+  button.disable();
+  button.writeAttribute('value', 'Installing');
+  return true;
+}
+</script>
+
 <ul class="tabs">
   <li>
     <a href="<%= url_for :action => 'index' -%>">Installed</a>
@@ -13,22 +28,22 @@
 
 <%= render :partial => 'updatecenter/operations' -%>
 
-<table class="data width100">
-  <thead>
-  </thead>
-  <tbody>
 <% if @center %>
   <% @updates_by_category.keys.sort_by{|c| c.downcase }.each do |category|
        updates=@updates_by_category[category]
   %>
-    <tr>
-      <td colspan="2"><h2><%= category -%></h2></td>
-    </tr>
+    <table class="data width100">
+      <thead>
+        <tr>
+          <th colspan="2"><h2><%= category -%></h2></th>
+        </tr>
+      </thead>
+      <tbody>
     <% updates.sort_by{|c| c.getPlugin().getName()}.each do |update|
       plugin=update.getPlugin()
     %>
       <tr class="<%= cycle('even','odd', :name => category) -%>">
-        <td width="1%" nowrap>
+        <td width="150" nowrap>
           <b><a href="#plugin" onClick="showPlugin('<%= plugin.getKey() -%>');"><%= h(plugin.getName()) -%></a></b>
         </td>
         <td>
@@ -64,8 +79,8 @@
               <% if plugin.getTermsConditionsUrl() %>
               <input type="checkbox" id="tc-<%= plugin.getKey() -%>"></input> I accept the <%= link_to 'Terms and Conditions', plugin.getTermsConditionsUrl(), :class => 'external' %>
               <% end %>
-              <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=available&key=<%= plugin.getKey() -%>&version=<%= update.getRelease().getVersion() -%>" style="display: inline-block">
-                <input type="submit" value="Install" onClick="return checkTermsConditions('<%= plugin.getKey() -%>')"></input>
+              <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=available&key=<%= plugin.getKey() -%>&version=<%= update.getRelease().getVersion() -%>" style="display: inline-block" id="install-<%= plugin.getKey() -%>">
+                <input type="submit" value="Install" onClick="return installPlugin('<%= plugin.getKey() -%>')" id="submit-<%= plugin.getKey() -%>"></input>
               </form>
             </div>
             <% elsif update.requiresSonarUpgrade
@@ -80,10 +95,11 @@
         </td>
       </tr>
     <% end %>
+    </tbody>
+  </table>
+  <div class="break30"> </div>
   <% end %>
 <% end %>
-</tbody>
-</table><br/>
 
 <%= render :partial => 'updatecenter/status', :locals => {:action => 'available' } %>
 </div>

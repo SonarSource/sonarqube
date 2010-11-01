@@ -26,33 +26,38 @@ import org.sonar.api.platform.Server;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
-public final class UpdateFinderFactory implements ServerComponent {
+/**
+ * @since 2.4
+ */
+public final class UpdateCenterMatrixFactory implements ServerComponent {
 
   private UpdateCenterClient centerClient;
   private JpaPluginDao dao;
   private Version sonarVersion;
   private PluginDownloader downloader;
 
-  public UpdateFinderFactory(UpdateCenterClient centerClient, JpaPluginDao dao, Server server, PluginDownloader downloader) {
+  public UpdateCenterMatrixFactory(UpdateCenterClient centerClient, JpaPluginDao dao, Server server, PluginDownloader downloader) {
     this.centerClient = centerClient;
     this.dao = dao;
     this.sonarVersion = Version.create(server.getVersion());
     this.downloader = downloader;
   }
 
-  public UpdateFinder getFinder(boolean refresh) {
+  public UpdateCenterMatrix getMatrix(boolean refresh) {
     UpdateCenter center = centerClient.getCenter(refresh);
-    UpdateFinder finder = null;
+    UpdateCenterMatrix matrix = null;
     if (center != null) {
-      finder = new UpdateFinder(center, sonarVersion);
+      matrix = new UpdateCenterMatrix(center, sonarVersion);
+      matrix.setDate(centerClient.getLastRefreshDate());
+
       for (JpaPlugin plugin : dao.getPlugins()) {
-        finder.registerInstalledPlugin(plugin.getKey(), Version.create(plugin.getVersion()));
+        matrix.registerInstalledPlugin(plugin.getKey(), Version.create(plugin.getVersion()));
       }
       for (String filename : downloader.getDownloads()) {
-        finder.registerPendingPluginsByFilename(filename);
+        matrix.registerPendingPluginsByFilename(filename);
       }
     }
-    return finder;
+    return matrix;
   }
 }
 

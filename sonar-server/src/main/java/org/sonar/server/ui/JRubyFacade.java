@@ -47,11 +47,8 @@ import org.sonar.server.filters.Filter;
 import org.sonar.server.filters.FilterExecutor;
 import org.sonar.server.filters.FilterResult;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.plugins.PluginClassLoaders;
-import org.sonar.server.plugins.PluginDeployer;
-import org.sonar.server.plugins.PluginDownloader;
-import org.sonar.server.plugins.UpdateFinder;
-import org.sonar.server.plugins.UpdateFinderFactory;
+import org.sonar.server.plugins.*;
+import org.sonar.server.plugins.UpdateCenterMatrix;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.updatecenter.common.Version;
@@ -65,7 +62,8 @@ public final class JRubyFacade implements ServerComponent {
     return getContainer().getComponent(FilterExecutor.class).execute(filter);
   }
 
-  /* PLUGINS */
+  /* UPDATE CENTER */
+  
   public void downloadPlugin(String pluginKey, String pluginVersion) {
     getContainer().getComponent(PluginDownloader.class).download(pluginKey, Version.create(pluginVersion));
   }
@@ -90,9 +88,13 @@ public final class JRubyFacade implements ServerComponent {
     return getContainer().getComponent(PluginDeployer.class).getUninstalls();
   }
 
-  public UpdateFinder getUpdateFinder(boolean forceReload) {
-    return getContainer().getComponent(UpdateFinderFactory.class).getFinder(forceReload);
+  public UpdateCenterMatrix getUpdateCenterMatrix(boolean forceReload) {
+    return getContainer().getComponent(UpdateCenterMatrixFactory.class).getMatrix(forceReload);
   }
+
+
+
+
 
   public String colorizeCode(String code, String language) {
     try {

@@ -20,7 +20,7 @@
 module UpdatecenterHelper
 
   def release_date(date)
-    Time.at(date.getTime() / 1000).strftime('%B %e, %Y')
+    Time.at(date.getTime() / 1000).strftime('%b %e, %Y')
   end
 
 end

@@ -32,7 +32,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-public class UpdateFinderTest {
+public class UpdateCenterMatrixTest {
   private UpdateCenter center;
 
   private Plugin foo;
@@ -66,9 +66,9 @@ public class UpdateFinderTest {
 
   @Test
   public void findPluginUpdates() {
-    UpdateFinder finder = new UpdateFinder(center, "2.1");
-    finder.registerInstalledPlugin("foo", Version.create("1.0"));
-    List<PluginUpdate> updates = finder.findPluginUpdates();
+    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, "2.1");
+    matrix.registerInstalledPlugin("foo", Version.create("1.0"));
+    List<PluginUpdate> updates = matrix.findPluginUpdates();
     assertThat(updates.size(), is(2));
 
     assertThat(updates.get(0).getRelease(), is(foo11));
@@ -81,17 +81,17 @@ public class UpdateFinderTest {
 
   @Test
   public void noPluginUpdatesIfLastReleaseIsInstalled() {
-    UpdateFinder finder = new UpdateFinder(center, "2.3");
-    finder.registerInstalledPlugin("foo", Version.create("1.2"));
-    assertTrue(finder.findPluginUpdates().isEmpty());
+    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, "2.3");
+    matrix.registerInstalledPlugin("foo", Version.create("1.2"));
+    assertTrue(matrix.findPluginUpdates().isEmpty());
   }
 
   @Test
   public void availablePluginsAreOnlyTheBestReleases() {
-    UpdateFinder finder = new UpdateFinder(center, "2.2");
-    finder.registerInstalledPlugin("foo", Version.create("1.0"));
+    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, "2.2");
+    matrix.registerInstalledPlugin("foo", Version.create("1.0"));
 
-    List<PluginUpdate> availables = finder.findAvailablePlugins();
+    List<PluginUpdate> availables = matrix.findAvailablePlugins();
 
     // bar 1.0 is compatible with the installed sonar
     // bar 1.1 requires sonar to be upgraded to 2.2.2 or 2.3
@@ -103,10 +103,10 @@ public class UpdateFinderTest {
 
   @Test
   public void availablePluginsRequireSonarUpgrade() {
-    UpdateFinder finder = new UpdateFinder(center, "2.2.1");
-    finder.registerInstalledPlugin("foo", Version.create("1.0"));
+    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, "2.2.1");
+    matrix.registerInstalledPlugin("foo", Version.create("1.0"));
 
-    List<PluginUpdate> availables = finder.findAvailablePlugins();
+    List<PluginUpdate> availables = matrix.findAvailablePlugins();
 
     // bar 1.0 is not compatible with the installed sonar
     // bar 1.1 requires sonar to be upgraded to 2.2.2 or 2.3
@@ -121,8 +121,8 @@ public class UpdateFinderTest {
     center.getSonar().addRelease(Version.create("2.3"));
     center.getSonar().addRelease(Version.create("2.4"));
 
-    UpdateFinder finder = new UpdateFinder(center, "2.2");
-    List<SonarUpdate> updates = finder.findSonarUpdates();
+    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, "2.2");
+    List<SonarUpdate> updates = matrix.findSonarUpdates();
 
     // no plugins are installed, so both sonar versions are compatible
     assertThat(updates.size(), is(2));
@@ -135,10 +135,10 @@ public class UpdateFinderTest {
     center.getSonar().addRelease(Version.create("2.3"));
     center.getSonar().addRelease(Version.create("2.4"));
 
-    UpdateFinder finder = new UpdateFinder(center, "2.2");
-    finder.registerInstalledPlugin("foo", Version.create("1.0"));
-    finder.registerInstalledPlugin("bar", Version.create("1.0"));
-    List<SonarUpdate> updates = finder.findSonarUpdates();
+    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, "2.2");
+    matrix.registerInstalledPlugin("foo", Version.create("1.0"));
+    matrix.registerInstalledPlugin("bar", Version.create("1.0"));
+    List<SonarUpdate> updates = matrix.findSonarUpdates();
 
     assertThat(updates.size(), is(2));
 
@@ -156,19 +156,19 @@ public class UpdateFinderTest {
 
   @Test
   public void excludePendingDownloadsFromPluginUpdates() {
-    UpdateFinder finder = new UpdateFinder(center, "2.1");
-    finder.registerInstalledPlugin("foo", Version.create("1.0"));
-    finder.registerPendingPluginsByFilename("foo-1.0.jar");
-    List<PluginUpdate> updates = finder.findPluginUpdates();
+    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, "2.1");
+    matrix.registerInstalledPlugin("foo", Version.create("1.0"));
+    matrix.registerPendingPluginsByFilename("foo-1.0.jar");
+    List<PluginUpdate> updates = matrix.findPluginUpdates();
     assertThat(updates.size(), is(0));
   }
 
   @Test
   public void excludePendingDownloadsFromAvailablePlugins() {
-    UpdateFinder finder = new UpdateFinder(center, "2.1");
-    finder.registerPendingPluginsByFilename("foo-1.0.jar");
-    finder.registerPendingPluginsByFilename("bar-1.1.jar");
-    List<PluginUpdate> updates = finder.findAvailablePlugins();
+    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, "2.1");
+    matrix.registerPendingPluginsByFilename("foo-1.0.jar");
+    matrix.registerPendingPluginsByFilename("bar-1.1.jar");
+    List<PluginUpdate> updates = matrix.findAvailablePlugins();
     assertThat(updates.size(), is(0));
   }
 }

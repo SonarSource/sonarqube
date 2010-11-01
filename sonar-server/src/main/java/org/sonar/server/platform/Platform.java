@@ -135,7 +135,7 @@ public final class Platform {
     coreContainer.as(Characteristics.CACHE).addComponent(ThreadLocalDatabaseSessionFactory.class);
     coreContainer.as(Characteristics.CACHE).addComponent(HttpDownloader.class);
     coreContainer.as(Characteristics.CACHE).addComponent(UpdateCenterClient.class);
-    coreContainer.as(Characteristics.CACHE).addComponent(UpdateFinderFactory.class);
+    coreContainer.as(Characteristics.CACHE).addComponent(UpdateCenterMatrixFactory.class);
     coreContainer.as(Characteristics.CACHE).addComponent(PluginDownloader.class);
     coreContainer.as(Characteristics.NO_CACHE).addComponent(FilterExecutor.class);
     coreContainer.as(Characteristics.NO_CACHE).addAdapter(new DatabaseSessionProvider());

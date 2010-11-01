@@ -19,23 +19,29 @@
  */
 package org.sonar.server.plugins;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.sonar.updatecenter.common.*;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
 
-public final class UpdateFinder {
+public final class UpdateCenterMatrix {
 
   private UpdateCenter center;
   private Version installedSonarVersion;
-  private Map<Plugin, Version> installedPlugins = new HashMap<Plugin, Version>();
-  private List<String> pendingPluginFilenames = new ArrayList<String>();
+  private Map<Plugin, Version> installedPlugins = Maps.newHashMap();
+  private List<String> pendingPluginFilenames = Lists.newArrayList();
+  private Date date;
 
-  public UpdateFinder(UpdateCenter center, Version installedSonarVersion) {
+  public UpdateCenterMatrix(UpdateCenter center, Version installedSonarVersion) {
     this.center = center;
     this.installedSonarVersion = installedSonarVersion;
   }
 
-  public UpdateFinder(UpdateCenter center, String installedSonarVersion) {
+  public UpdateCenterMatrix(UpdateCenter center, String installedSonarVersion) {
     this(center, Version.create(installedSonarVersion));
   }
 
@@ -47,7 +53,7 @@ public final class UpdateFinder {
     return installedSonarVersion;
   }
 
-  public UpdateFinder registerInstalledPlugin(String pluginKey, Version pluginVersion) {
+  public UpdateCenterMatrix registerInstalledPlugin(String pluginKey, Version pluginVersion) {
     Plugin plugin = center.getPlugin(pluginKey);
     if (plugin != null) {
       installedPlugins.put(plugin, pluginVersion);
@@ -55,15 +61,15 @@ public final class UpdateFinder {
     return this;
   }
 
-  public UpdateFinder registerPendingPluginsByFilename(String filename) {
+  public UpdateCenterMatrix registerPendingPluginsByFilename(String filename) {
     pendingPluginFilenames.add(filename);
     return this;
   }
 
   public List<PluginUpdate> findAvailablePlugins() {
-    List<PluginUpdate> availables = new ArrayList<PluginUpdate>();
+    List<PluginUpdate> availables = Lists.newArrayList();
     for (Plugin plugin : center.getPlugins()) {
-      if ( !installedPlugins.containsKey(plugin) && !isAlreadyDownloaded(plugin)) {
+      if (!installedPlugins.containsKey(plugin) && !isAlreadyDownloaded(plugin)) {
         Release release = plugin.getLastCompatibleRelease(installedSonarVersion);
         if (release != null) {
           availables.add(PluginUpdate.createWithStatus(release, PluginUpdate.Status.COMPATIBLE));
@@ -90,10 +96,10 @@ public final class UpdateFinder {
   }
 
   public List<PluginUpdate> findPluginUpdates() {
-    List<PluginUpdate> updates = new ArrayList<PluginUpdate>();
+    List<PluginUpdate> updates = Lists.newArrayList();
     for (Map.Entry<Plugin, Version> entry : installedPlugins.entrySet()) {
       Plugin plugin = entry.getKey();
-      if ( !isAlreadyDownloaded(plugin)) {
+      if (!isAlreadyDownloaded(plugin)) {
         Version pluginVersion = entry.getValue();
         for (Release release : plugin.getReleasesGreaterThan(pluginVersion)) {
           updates.add(PluginUpdate.createForPluginRelease(release, installedSonarVersion));
@@ -104,7 +110,7 @@ public final class UpdateFinder {
   }
 
   public List<SonarUpdate> findSonarUpdates() {
-    List<SonarUpdate> updates = new ArrayList<SonarUpdate>();
+    List<SonarUpdate> updates = Lists.newArrayList();
     SortedSet<Release> releases = center.getSonar().getReleasesGreaterThan(installedSonarVersion);
     for (Release release : releases) {
       updates.add(createSonarUpdate(release));
@@ -143,5 +149,14 @@ public final class UpdateFinder {
       }
     }
     return update;
+  }
+
+  public Date getDate() {
+    return date;
+  }
+
+  public UpdateCenterMatrix setDate(Date d) {
+    this.date = d;
+    return this;
   }
 }

@@ -38,6 +38,7 @@ class UpdatecenterController < ApplicationController
     @downloads=java_facade.getPluginDownloads()
 
     @center=nil
+    @matrix=nil
     @sonar_updates=[]
     @updates_by_plugin={}
     @user_plugins={}
@@ -47,12 +48,12 @@ class UpdatecenterController < ApplicationController
       @user_plugins[plugin.plugin_key]=plugin.version
     end
 
-    finder=load_update_finder()
-    if finder
-      @center=finder.getCenter()
-      @sonar_updates=finder.findSonarUpdates()
+    load_matrix()
+    if @matrix
+      @center=@matrix.getCenter()
+      @sonar_updates=@matrix.findSonarUpdates()
 
-      @finder.findPluginUpdates().each do |update|
+      @matrix.findPluginUpdates().each do |update|
         plugin=update.getPlugin()
         @updates_by_plugin[plugin]||=[]
         @updates_by_plugin[plugin]<<update
@@ -70,10 +71,10 @@ class UpdatecenterController < ApplicationController
     @center=nil
     @updates_by_category={}
 
-    finder=load_update_finder()
-    if finder
-      @center=finder.getCenter()
-      finder.findAvailablePlugins().each do |update|
+    load_matrix()
+    if @matrix
+      @center=@matrix.getCenter()
+      @matrix.findAvailablePlugins().each do |update|
         category=update.getPlugin().getCategory()||''
         @updates_by_category[category]||=[]
         @updates_by_category[category]<<update
@@ -119,8 +120,8 @@ class UpdatecenterController < ApplicationController
   end
   
   private
-  def load_update_finder
-    @finder=java_facade.getUpdateFinder(params[:reload]=='true')
+  def load_matrix
+    @matrix=java_facade.getUpdateCenterMatrix(params[:reload]=='true')
   end
   
   def updatecenter_activated

@@ -30,11 +30,12 @@ import org.sonar.updatecenter.common.UpdateCenterDeserializer;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Date;
 import java.util.Properties;
 
 /**
  * HTTP client to load data from the remote update center hosted at http://update.sonarsource.org.
- * @since 2.2
+ * @since 2.4
  */
 public class UpdateCenterClient implements ServerComponent {
 
@@ -44,7 +45,7 @@ public class UpdateCenterClient implements ServerComponent {
 
   private String url;
   private UpdateCenter center = null;
-  private long downloadDate = 0;
+  private long lastRefreshDate = 0;
   private HttpDownloader downloader;
 
   /**
@@ -67,13 +68,17 @@ public class UpdateCenterClient implements ServerComponent {
   public UpdateCenter getCenter(boolean forceRefresh) {
     if (center == null || forceRefresh || needsRefresh()) {
       center = download();
-      downloadDate = System.currentTimeMillis();
+      lastRefreshDate = System.currentTimeMillis();
     }
     return center;
   }
 
+  public Date getLastRefreshDate() {
+    return lastRefreshDate >0 ? new Date(lastRefreshDate) : null; 
+  }
+
   private boolean needsRefresh() {
-    return downloadDate + PERIOD_IN_MILLISECONDS < System.currentTimeMillis();
+    return lastRefreshDate + PERIOD_IN_MILLISECONDS < System.currentTimeMillis();
   }
 
   private UpdateCenter download() {
