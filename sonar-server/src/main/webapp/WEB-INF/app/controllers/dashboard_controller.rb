@@ -93,7 +93,7 @@ class DashboardController < ApplicationController
                                            :name => definition.getTitle(),
                                            :column_index => dashboard.number_of_columns,
                                            :row_index => dashboard.column_size(dashboard.number_of_columns) + 1,
-                                           :configured => !definition.isEditable())
+                                           :configured => !definition.hasRequiredProperties())
         widget_id=new_widget.id
       end
     end

@@ -20,10 +20,7 @@
 package org.sonar.server.ui;
 
 import org.junit.Test;
-import org.sonar.api.web.DefaultTab;
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.UserRole;
-import org.sonar.api.web.View;
+import org.sonar.api.web.*;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.lessThan;
@@ -117,6 +114,25 @@ public class ViewProxyTest {
     assertThat(proxy.isDefaultTab(), is(false));
     assertThat(proxy.getDefaultTabForMetrics(), is(new String[]{"ncloc", "coverage"}));
   }
+
+  @Test
+  public void widgetShouldBeEditable() {
+    ViewProxy proxy = new ViewProxy<Widget>(new EditableWidget());
+    assertThat(proxy.isEditable(), is(true));
+    assertThat(proxy.getProperties().length, is(2));
+  }
+
+  @Test
+  public void widgetShouldRequireMandatoryProperties() {
+    ViewProxy proxy = new ViewProxy<Widget>(new EditableWidget());
+    assertThat(proxy.hasRequiredProperties(), is(true));
+  }
+
+  @Test
+  public void widgetShouldDefineOnlyOptionalProperties() {
+    ViewProxy proxy = new ViewProxy<Widget>(new WidgetWithOptionalProperties());
+    assertThat(proxy.hasRequiredProperties(), is(false));
+  }
 }
 
 class FakeView implements View {
@@ -133,5 +149,35 @@ class FakeView implements View {
 
   public String getTitle() {
     return id;
+  }
+}
+
+@WidgetProperties({
+    @WidgetProperty(key="foo", optional = false),
+    @WidgetProperty(key="bar", defaultValue = "30", type = "INTEGER")
+})
+class EditableWidget implements Widget {
+
+  public String getId() {
+    return "w1";
+  }
+
+  public String getTitle() {
+    return "W1";
+  }
+}
+
+@WidgetProperties({
+    @WidgetProperty(key="foo"),
+    @WidgetProperty(key="bar")
+})
+class WidgetWithOptionalProperties implements Widget {
+
+  public String getId() {
+    return "w2";
+  }
+
+  public String getTitle() {
+    return "W2";
   }
 }
