@@ -76,7 +76,10 @@
               <li class="<%= 'selected' if request.request_uri.include?('/settings') -%>"><a href="<%= ApplicationController.root_context -%>/settings/index">Settings</a></li>
               <li class="<%= 'selected' if controller.controller_path=='backup' -%>"><a href="<%= ApplicationController.root_context -%>/backup">Backup</a></li>
               <li class="<%= 'selected' if controller.controller_path=='system' -%>"><a href="<%= ApplicationController.root_context -%>/system">System info</a></li>
-              <li class="<%= 'selected' if controller.controller_path=='updatecenter' -%>"><a href="<%= ApplicationController.root_context -%>/updatecenter">Upgrades (BETA)</a></li>
+              <% update_center_activated = controller.java_facade.getConfigurationValue('sonar.updatecenter') || 'true';
+              if update_center_activated=='true' %>
+                <li class="<%= 'selected' if controller.controller_path=='updatecenter' -%>"><a href="<%= ApplicationController.root_context -%>/updatecenter">Upgrades (BETA)</a></li>
+              <% end %>
             <% end %>
 
         <% end %>

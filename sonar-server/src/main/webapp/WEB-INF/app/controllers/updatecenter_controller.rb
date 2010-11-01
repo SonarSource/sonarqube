@@ -21,6 +21,7 @@ class UpdatecenterController < ApplicationController
 
   SECTION=Navigation::SECTION_CONFIGURATION
   before_filter :admin_required
+  before_filter :updatecenter_activated
 
   verify :method => :post, :only => [:cancel, :install], :redirect_to => {:action => :index}
 
@@ -120,5 +121,12 @@ class UpdatecenterController < ApplicationController
   private
   def load_update_finder
     @finder=java_facade.getUpdateFinder(params[:reload]=='true')
+  end
+  
+  def updatecenter_activated
+    update_center_activated = java_facade.getConfigurationValue('sonar.updatecenter') || 'true';
+    if update_center_activated!='true'
+      redirect_to home_url
+    end
   end
 end
