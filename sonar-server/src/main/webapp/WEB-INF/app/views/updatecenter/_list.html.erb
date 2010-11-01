@@ -17,6 +17,29 @@
         not compatible, needs Sonar upgrade          
       <% end %>
     </td>
+    <% else %>
+    <td>
+      <% if update.hasWarnings() %>
+        <% if update.isIncompatible() %>
+          Those plugins not compatible and must be uninstalled before Sonar upgrade:
+          <ul>
+          <% update.getIncompatiblePlugins().each do |plugin| %>
+            <li><%= plugin.getName() -%></li>
+          <% end %>
+          </ul>
+        <% end %>
+        <% if update.requiresPluginUpgrades() %>
+          Those plugins must be upgraded:
+          <ul>
+          <% update.getPluginsToUpgrade().each do |plugin| %>
+            <li><%= plugin.getArtifact().getName() -%> to <%= plugin.getVersion() -%></li>
+          <% end %>
+          </ul>
+        <% end %>
+      <% else %>
+        All installed plugins are compatible
+      <% end %>
+    </td>
     <% end %>
   </tr>
 <% end %>

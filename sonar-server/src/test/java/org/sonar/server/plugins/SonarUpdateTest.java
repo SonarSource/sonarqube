@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.Sonar;
+import org.sonar.updatecenter.common.Version;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -41,7 +42,7 @@ public class SonarUpdateTest {
   @Test
   public void incompatibleUpdateIfRequiredPluginUpgrades() {
     SonarUpdate update = new SonarUpdate(new Release(new Sonar(), "2.3"));
-    update.addPluginToUpgrade(new Plugin("old"));
+    update.addPluginToUpgrade(new Release(new Plugin("old"), Version.create("0.2")));
     assertFalse(update.isIncompatible());
     assertTrue(update.hasWarnings());
     assertTrue(update.requiresPluginUpgrades());

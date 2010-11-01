@@ -30,7 +30,7 @@ public final class SonarUpdate implements Comparable<SonarUpdate> {
   private Release release;
   private List<Plugin> compatiblePlugins = new ArrayList<Plugin>();
   private List<Plugin> incompatiblePlugins = new ArrayList<Plugin>();
-  private List<Plugin> pluginsToUpgrade = new ArrayList<Plugin>();
+  private List<Release> pluginsToUpgrade = new ArrayList<Release>();
 
   public SonarUpdate(Release release) {
     this.release = release;
@@ -48,7 +48,7 @@ public final class SonarUpdate implements Comparable<SonarUpdate> {
     return incompatiblePlugins;
   }
 
-  public List<Plugin> getPluginsToUpgrade() {
+  public List<Release> getPluginsToUpgrade() {
     return pluginsToUpgrade;
   }
 
@@ -72,7 +72,7 @@ public final class SonarUpdate implements Comparable<SonarUpdate> {
     incompatiblePlugins.add(plugin);
   }
 
-  public void addPluginToUpgrade(Plugin plugin) {
+  public void addPluginToUpgrade(Release plugin) {
     pluginsToUpgrade.add(plugin);
   }
 

@@ -63,7 +63,7 @@ public final class UpdateFinder {
   public List<PluginUpdate> findAvailablePlugins() {
     List<PluginUpdate> availables = new ArrayList<PluginUpdate>();
     for (Plugin plugin : center.getPlugins()) {
-      if (!installedPlugins.containsKey(plugin) && !isAlreadyDownloaded(plugin)) {
+      if ( !installedPlugins.containsKey(plugin) && !isAlreadyDownloaded(plugin)) {
         Release release = plugin.getLastCompatibleRelease(installedSonarVersion);
         if (release != null) {
           availables.add(PluginUpdate.createWithStatus(release, PluginUpdate.Status.COMPATIBLE));
@@ -93,7 +93,7 @@ public final class UpdateFinder {
     List<PluginUpdate> updates = new ArrayList<PluginUpdate>();
     for (Map.Entry<Plugin, Version> entry : installedPlugins.entrySet()) {
       Plugin plugin = entry.getKey();
-      if (!isAlreadyDownloaded(plugin)) {
+      if ( !isAlreadyDownloaded(plugin)) {
         Version pluginVersion = entry.getValue();
         for (Release release : plugin.getReleasesGreaterThan(pluginVersion)) {
           updates.add(PluginUpdate.createForPluginRelease(release, installedSonarVersion));
@@ -128,13 +128,15 @@ public final class UpdateFinder {
       } else {
         // search for a compatible plugin upgrade
         boolean ok = false;
+        Release compatibleRelease = null;
         for (Release greaterPluginRelease : plugin.getReleasesGreaterThan(pluginVersion)) {
           if (greaterPluginRelease.supportSonarVersion(sonarRelease.getVersion())) {
+            compatibleRelease = greaterPluginRelease;
             ok = true;
           }
         }
         if (ok) {
-          update.addPluginToUpgrade(plugin);
+          update.addPluginToUpgrade(compatibleRelease);
         } else {
           update.addIncompatiblePlugin(plugin);
         }
