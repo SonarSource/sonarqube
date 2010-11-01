@@ -17,7 +17,7 @@
   %>
 <% else %>
   <div class="widget">
-  <p>Please configure the widget <b><%= definition.getTitle() -%></b>.</p>
+  <p>Please <a href="<%= url_for :action => :configure, :id => @dashboard.id, :resource => @resource.id -%>">configure</a> the widget <b><%= definition.getTitle() -%></b>.</p>
   </div>
 <% end %>
 <div style="clear: both;"></div>
