@@ -124,7 +124,7 @@ class UpdatecenterController < ApplicationController
   end
   
   def updatecenter_activated
-    update_center_activated = java_facade.getConfigurationValue('sonar.updatecenter') || 'true';
+    update_center_activated = java_facade.getConfigurationValue('sonar.updatecenter.activate') || 'true';
     if update_center_activated!='true'
       redirect_to home_url
     end
