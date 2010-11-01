@@ -19,11 +19,6 @@
  */
 package org.sonar.updatecenter.common;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
 
 import java.io.File;
@@ -31,7 +26,17 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.junit.Assert.assertThat;
+
 public class PluginManifestTest {
+
+  @Test(expected = RuntimeException.class)
+  public void test() throws Exception {
+    new PluginManifest(new File("fake.jar"));
+  }
 
   @Test
   public void testCreateManifest() throws URISyntaxException, IOException {

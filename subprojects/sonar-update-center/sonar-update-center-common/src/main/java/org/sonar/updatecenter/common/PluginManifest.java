@@ -19,8 +19,6 @@
  */
 package org.sonar.updatecenter.common;
 
-import static org.sonar.updatecenter.common.FormatUtils.toDate;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
@@ -30,6 +28,8 @@ import java.util.Date;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+
+import static org.sonar.updatecenter.common.FormatUtils.toDate;
 
 /**
  * This class loads Sonar plugin metadata from JAR manifest.
@@ -78,14 +78,18 @@ public final class PluginManifest {
    * Load the manifest from a JAR file.
    */
   public PluginManifest(File file) throws IOException {
-    JarFile jar = new JarFile(file);
+    JarFile jar = null;
     try {
+      jar = new JarFile(file);
       if (jar.getManifest() != null) {
         loadManifest(jar.getManifest());
       }
-
+    } catch (Exception e) {
+      throw new RuntimeException("Unable to read plugin manifest from jar : " + file.getAbsolutePath(), e);
     } finally {
-      jar.close();
+      if (jar != null) {
+        jar.close();
+      }
     }
   }
 
