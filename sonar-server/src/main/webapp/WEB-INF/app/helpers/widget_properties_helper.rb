@@ -20,36 +20,18 @@
 module WidgetPropertiesHelper
   
    
-  def valid_property_value?(type, value, parameter="")
-    if type==WidgetProperty::TYPE_INTEGER
-      value.to_i.to_s == value
-
-    elsif type==WidgetProperty::TYPE_FLOAT
-      true if Float(value) rescue false
-
-    elsif type==WidgetProperty::TYPE_BOOLEAN
-      value=="1" || value=="0"
-
-    elsif type==WidgetProperty::TYPE_STRING
-      true
-
-    else
-      false
-    end
-  end
-   
   def property_value_field(definition, value)
     val=value || definition.defaultValue()
-    if definition.type()==WidgetProperty::TYPE_INTEGER
+    if definition.type.name()==WidgetProperty::TYPE_INTEGER
       text_field_tag definition.key(), val, :size => 10
       
-    elsif definition.type()==WidgetProperty::TYPE_FLOAT
+    elsif definition.type.name()==WidgetProperty::TYPE_FLOAT
       text_field_tag definition.key(), val, :size => 10
 
-    elsif definition.type()==WidgetProperty::TYPE_BOOLEAN
+    elsif definition.type.name()==WidgetProperty::TYPE_BOOLEAN
       check_box_tag definition.key(), "true", val=='true'
 
-    elsif definition.type()==WidgetProperty::TYPE_STRING
+    elsif definition.type.name()==WidgetProperty::TYPE_STRING
       text_field_tag definition.key(), val, :size => 10
 
     else

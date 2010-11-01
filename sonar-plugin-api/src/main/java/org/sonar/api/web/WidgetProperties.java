@@ -19,17 +19,9 @@
  */
 package org.sonar.api.web;
 
-import org.sonar.api.Property;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/**
- * Created by IntelliJ IDEA.
- * User: dreik
- * Date: 09.08.2010
- * Time: 10:40:09
- */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface WidgetProperties {
   WidgetProperty[] value() default {};

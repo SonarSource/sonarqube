@@ -27,9 +27,6 @@ class Widget < ActiveRecord::Base
   validates_presence_of     :widget_key
   validates_length_of       :widget_key, :within => 1..256
 
-  #---------------------------------------------------------------------
-  # WIDGET PROPERTIES
-  #---------------------------------------------------------------------
   def property(key)
     properties().each do |p|
       return p if (p.key==key)

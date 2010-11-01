@@ -24,12 +24,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Created by IntelliJ IDEA.
- * User: dreik
- * Date: 02.08.2010
- * Time: 13:00:45
- */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Description {

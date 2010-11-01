@@ -108,11 +108,11 @@ class DashboardController < ApplicationController
     errors_by_property_key={}
     definition.getProperties().each do |property_def|
       value=params[property_def.key()] || property_def.defaultValue()
-      value='false' if value.empty? && property_def.type()==WidgetProperty::TYPE_BOOLEAN
+      value='false' if value.empty? && property_def.type.name()==WidgetProperty::TYPE_BOOLEAN
 
       errors=WidgetProperty.validate_definition(property_def, value)
       if errors.empty?
-        widget.set_property(property_def.key(), value, property_def.type())
+        widget.set_property(property_def.key(), value, property_def.type.name())
       else
         widget.unset_property(property_def.key())
         errors_by_property_key[property_def.key()]=errors

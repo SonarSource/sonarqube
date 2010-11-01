@@ -154,7 +154,7 @@ class FakeView implements View {
 
 @WidgetProperties({
     @WidgetProperty(key="foo", optional = false),
-    @WidgetProperty(key="bar", defaultValue = "30", type = "INTEGER")
+    @WidgetProperty(key="bar", defaultValue = "30", type = WidgetPropertyType.INTEGER)
 })
 class EditableWidget implements Widget {
 

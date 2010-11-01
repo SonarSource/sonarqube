@@ -55,11 +55,12 @@
 }
 
 #dashboard .widget_def {
-  border-right: 2px solid #FFD324;
+  border-right: 1px dashed #FFD324;
   padding: 5px;
   display: inline-block;
-  width: 180px;
+  width: 160px;
   white-space: normal;
+  vertical-align: top;
 }
 
 /*OPERATIONS*/

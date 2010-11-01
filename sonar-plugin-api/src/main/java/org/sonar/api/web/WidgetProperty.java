@@ -30,7 +30,7 @@ public @interface WidgetProperty {
 
   String key();
 
-  String type() default "STRING";
+  WidgetPropertyType type() default WidgetPropertyType.STRING;
 
   String defaultValue() default "";
 

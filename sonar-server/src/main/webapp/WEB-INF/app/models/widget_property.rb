@@ -66,15 +66,15 @@ class WidgetProperty < ActiveRecord::Base
     if value.empty?
       errors<<"Missing value" unless definition.optional()
     else
-      errors<<"Please type an integer (example: 123)" if definition.type()==TYPE_INTEGER && value.to_i.to_s!=value
-      if definition.type()==TYPE_FLOAT
+      errors<<"Please type an integer (example: 123)" if definition.type.name()==TYPE_INTEGER && value.to_i.to_s!=value
+      if definition.type.name()==TYPE_FLOAT
         begin
           Float(value)
         rescue
           errors<<"Please type a number (example: 123.45)"
         end
       end
-      errors<<"Please check value" if definition.type()==TYPE_BOOLEAN && !(value=="true" || value=="false")
+      errors<<"Please check value" if definition.type.name()==TYPE_BOOLEAN && !(value=="true" || value=="false")
     end
     errors
   end
