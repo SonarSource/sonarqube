@@ -59,13 +59,13 @@ public final class UpdateCenterSerializer {
 
   public static Properties toProperties(UpdateCenter center) {
     Properties p = new Properties();
-    set(p, "date", FormatUtils.toString(center.getDate(), true));
+    set(p, "date", FormatUtils.toString(center.getDate(), false));
     set(p, "sonar.versions", center.getSonar().getVersions());
     for (Release sonarRelease : center.getSonar().getReleases()) {
       set(p, "sonar." + sonarRelease.getVersion() + ".downloadUrl", sonarRelease.getDownloadUrl());
       set(p, "sonar." + sonarRelease.getVersion() + ".changelogUrl", sonarRelease.getChangelogUrl());
       set(p, "sonar." + sonarRelease.getVersion() + ".description", sonarRelease.getDescription());
-      set(p, "sonar." + sonarRelease.getVersion() + ".date", FormatUtils.toString(sonarRelease.getDate(), true));
+      set(p, "sonar." + sonarRelease.getVersion() + ".date", FormatUtils.toString(sonarRelease.getDate(), false));
     }
 
     List<String> pluginKeys = new ArrayList<String>();
@@ -88,7 +88,7 @@ public final class UpdateCenterSerializer {
         set(p, plugin, release.getVersion() + ".downloadUrl", release.getDownloadUrl());
         set(p, plugin, release.getVersion() + ".changelogUrl", release.getChangelogUrl());
         set(p, plugin, release.getVersion() + ".description", release.getDescription());
-        set(p, plugin, release.getVersion() + ".date", FormatUtils.toString(release.getDate(), true));
+        set(p, plugin, release.getVersion() + ".date", FormatUtils.toString(release.getDate(), false));
       }
       set(p, plugin, "versions", releaseKeys);
     }

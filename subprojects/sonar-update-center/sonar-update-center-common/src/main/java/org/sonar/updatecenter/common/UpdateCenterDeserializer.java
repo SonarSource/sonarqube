@@ -60,7 +60,7 @@ public final class UpdateCenterDeserializer {
       release.setChangelogUrl(get(p, "sonar." + sonarVersion + ".changelogUrl"));
       release.setDescription(get(p, "sonar." + sonarVersion + ".description"));
       release.setDownloadUrl(get(p, "sonar." + sonarVersion + ".downloadUrl"));
-      release.setDate(FormatUtils.toDate(get(p, "sonar." + sonarVersion + ".date"), true));
+      release.setDate(FormatUtils.toDate(get(p, "sonar." + sonarVersion + ".date"), false));
       center.getSonar().addRelease(release);
     }
 
@@ -85,7 +85,7 @@ public final class UpdateCenterDeserializer {
         release.setDownloadUrl(get(p, pluginKey, pluginVersion + ".downloadUrl"));
         release.setChangelogUrl(get(p, pluginKey, pluginVersion + ".changelogUrl"));
         release.setDescription(get(p, pluginKey, pluginVersion + ".description"));
-        release.setDate(toDate(get(p, pluginKey, pluginVersion + ".date"), true));
+        release.setDate(toDate(get(p, pluginKey, pluginVersion + ".date"), false));
         String[] requiredSonarVersions = StringUtils.split(StringUtils.defaultIfEmpty(get(p, pluginKey, pluginVersion + ".requiredSonarVersions"), ""), ",");
         for (String requiredSonarVersion : requiredSonarVersions) {
           release.addRequiredSonarVersions(Version.create(requiredSonarVersion));
