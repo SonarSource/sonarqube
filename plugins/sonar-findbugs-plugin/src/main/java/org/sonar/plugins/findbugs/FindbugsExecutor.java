@@ -1,4 +1,30 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2009 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
 package org.sonar.plugins.findbugs;
+
+import java.io.File;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -9,20 +35,19 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 
-import edu.umd.cs.findbugs.*;
+import edu.umd.cs.findbugs.Detector;
+import edu.umd.cs.findbugs.DetectorFactoryCollection;
+import edu.umd.cs.findbugs.FindBugs;
+import edu.umd.cs.findbugs.FindBugs2;
+import edu.umd.cs.findbugs.Project;
+import edu.umd.cs.findbugs.XMLBugReporter;
 import edu.umd.cs.findbugs.config.UserPreferences;
-
-import java.io.File;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @since 2.4
  */
 public class FindbugsExecutor implements BatchExtension {
+
   private static Logger LOG = LoggerFactory.getLogger(FindbugsExecutor.class);
 
   private FindbugsConfiguration configuration;
@@ -71,9 +96,7 @@ public class FindbugsExecutor implements BatchExtension {
 
       engine.finishSettings();
 
-      Executors.newSingleThreadExecutor()
-          .submit(new FindbugsTask(engine))
-          .get(configuration.getTimeout(), TimeUnit.MILLISECONDS);
+      Executors.newSingleThreadExecutor().submit(new FindbugsTask(engine)).get(configuration.getTimeout(), TimeUnit.MILLISECONDS);
 
       profiler.stop();
       return xmlReport;
@@ -86,6 +109,7 @@ public class FindbugsExecutor implements BatchExtension {
   }
 
   private class FindbugsTask implements Callable<Object> {
+
     private FindBugs2 engine;
 
     public FindbugsTask(FindBugs2 engine) {
