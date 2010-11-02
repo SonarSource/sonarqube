@@ -23,13 +23,13 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 
-import org.apache.commons.configuration.BaseConfiguration;
-import org.apache.commons.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.platform.Server;
 import org.sonar.api.utils.HttpDownloader;
 
 public class FindbugsDownloaderTest {
@@ -38,11 +38,11 @@ public class FindbugsDownloaderTest {
 
   @Before
   public void setUp() {
-    Configuration configuration = new BaseConfiguration();
-    configuration.setProperty("sonar.host.url", "http://sonar/");
+    Server server = mock(Server.class);
+    when(server.getURL()).thenReturn("http://sonar");
 
     HttpDownloader httpDownloader = mock(HttpDownloader.class);
-    downloader = new FindbugsDownloader(configuration, httpDownloader);
+    downloader = new FindbugsDownloader(server, httpDownloader);
   }
 
   @Test
