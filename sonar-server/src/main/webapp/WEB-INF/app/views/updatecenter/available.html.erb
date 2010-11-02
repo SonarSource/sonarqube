@@ -6,10 +6,12 @@ function installPlugin(key) {
     alert('Please accept the Terms and Conditions');
     return false;
   }
+  $('install-form-' + key).submit();
+  
   var button=$('submit-' + key);
   button.disable();
   button.writeAttribute('value', 'Installing');
-  return true;
+  return false;
 }
 </script>
  <%= render :partial => 'updatecenter/tabs', :locals => {:tab => 'available'} -%>
@@ -71,8 +73,8 @@ function installPlugin(key) {
               <% if plugin.getTermsConditionsUrl() %>
               <input type="checkbox" id="tc-<%= plugin.getKey() -%>"></input> I accept the <%= link_to 'Terms and Conditions', plugin.getTermsConditionsUrl(), :class => 'external' %>
               <% end %>
-              <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=available&key=<%= plugin.getKey() -%>&version=<%= update.getRelease().getVersion() -%>" style="display: inline-block" id="install-<%= plugin.getKey() -%>">
-                <input type="submit" value="Install" onClick="return installPlugin('<%= plugin.getKey() -%>')" id="submit-<%= plugin.getKey() -%>"></input>
+              <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=available&key=<%= plugin.getKey() -%>&version=<%= update.getRelease().getVersion() -%>" style="display: inline-block" id="install-form-<%= plugin.getKey() -%>">
+                <input type="submit" value="Install" onClick="installPlugin('<%= plugin.getKey() -%>');return false;" id="submit-<%= plugin.getKey() -%>"></input>
               </form>
             </td>
             </tr>

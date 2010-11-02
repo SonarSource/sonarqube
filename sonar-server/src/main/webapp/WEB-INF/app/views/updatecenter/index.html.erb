@@ -27,7 +27,7 @@
 
          <div id="detail-<%= plugin.plugin_key -%>" style="display:none">
          <table class="spaced width100">
-           <tr><td class="thin nowrap"><b>License:</b> </td><td><%= plugin.license -%></td></tr>
+           <% if plugin.license %><tr><td class="thin nowrap"><b>License:</b> </td><td><%= plugin.license -%></td></tr><% end %>
            <% if plugin.organization %>
              <tr><td class="thin nowrap"><b>Author:</b> </td>
                  <td><%= link_to_if plugin.organization_url, plugin.organization, plugin.organization_url, :class=>'external' -%></td>
@@ -43,9 +43,9 @@
            <% end %>
           <tr>
             <td colspan="2">
-         <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/uninstall?key=<%= plugin.plugin_key -%>" style="display: inline-block">
-           <input type="submit" value="Uninstall"></input>
-         </form>
+             <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/uninstall?key=<%= plugin.plugin_key -%>" style="display: inline-block">
+               <input type="submit" value="Uninstall"></input>
+             </form>
               </td>
             </tr>
            </table>
