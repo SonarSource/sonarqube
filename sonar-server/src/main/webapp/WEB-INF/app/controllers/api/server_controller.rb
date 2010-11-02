@@ -21,6 +21,7 @@ class Api::ServerController < Api::ApiController
 
   skip_before_filter :check_authentication, :except => 'system'
   before_filter :admin_required, :only => 'system'
+  before_filter :set_cache_buster, :only => 'index'
   
   def key
     render :text => Java::OrgSonarServerPlatform::Platform.getServer().getId()
@@ -78,5 +79,11 @@ class Api::ServerController < Api::ApiController
       hash[:status]='DOWN'
       hash[:status_msg]='Not connected to database'
     end
+  end
+
+  def set_cache_buster
+    response.headers["Cache-Control"] = "no-cache, no-store, max-age=0, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "Fri, 01 Jan 1990 00:00:00 GMT"
   end
 end
