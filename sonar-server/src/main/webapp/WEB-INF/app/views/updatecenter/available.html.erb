@@ -12,18 +12,7 @@ function installPlugin(key) {
   return true;
 }
 </script>
-
-<ul class="tabs">
-  <li>
-    <a href="<%= url_for :action => 'index' -%>">Installed</a>
-  </li>
-  <li>
-    <a href="<%= url_for :action => 'updates' -%>">Updates</a>
-  </li>
-  <li>
-    <a href="<%= url_for :action => 'available' -%>" class="selected">Available</a>
-  </li>
-</ul>
+ <%= render :partial => 'updatecenter/tabs', :locals => {:tab => 'available'} -%>
 <div class="tabs-panel">
 
 <%= render :partial => 'updatecenter/operations' -%>

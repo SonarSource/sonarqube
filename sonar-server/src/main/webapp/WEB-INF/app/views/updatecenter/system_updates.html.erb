@@ -1,0 +1,93 @@
+ <style>
+   ol.bulletpoints li {
+     list-style-type: decimal;
+     list-style-position: inside;
+   }
+ </style>
+
+ <%= render :partial => 'updatecenter/tabs', :locals => {:tab => 'system_updates'} -%>
+
+ <div class="tabs-panel">
+
+   <%= render :partial => 'updatecenter/operations' -%>
+
+   <% if @center %>
+     <% if @sonar_updates.empty? %>
+       <table class="data width100">
+         <thead>
+           <tr>
+             <td> </td>
+           </tr>
+         </thead>
+         <tbody>
+           <tr>
+             <td>System is up to date</td>
+           </tr>
+         </tbody>
+       </table>
+     <% else %>
+
+     <% @sonar_updates.to_a.reverse.each do |update|
+        release=update.getRelease()
+     %>
+       <table class="data width100" id="sonar-<%= release.getVersion() -%>">
+        <thead>
+          <tr>
+            <th><h2>Sonar  <%= release.getVersion() -%></h2></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="even">
+            <td>
+              <table class="width100 spaced">
+                <tr>
+                  <td class="thin nowrap"><b>Date: </b></td>
+                  <td class="sep"> </td>
+                  <td><%= release_date(release.getDate()) if release.getDate() -%></td>
+                </tr>
+                <tr>
+                  <td class="thin nowrap"><b><%= link_to_if release.getChangelogUrl(), 'Release Notes', release.getChangelogUrl(), :class => 'external' %>: </b></td>
+                  <td class="sep"> </td>
+                  <td><%= release.getDescription() -%></td>
+                </tr>
+                <tr>
+                  <td class="thin nowrap" valign="top"><b>How to upgrade: </b></td>
+                  <td class="sep"> </td>
+                  <td>
+                    <% if update.hasWarnings() %>
+                     Please execute the following and restart Sonar only during the last step :
+                    <ol class="bulletpoints">
+                   <% update.getIncompatiblePlugins().each do |incompatible_plugin| %>
+                      <li><%= image_tag 'warning.png' -%> The plugin <%= incompatible_plugin.getName() -%> is not compatible and must be uninstalled.
+                      <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/uninstall?key=<%= incompatible_plugin.getKey() -%>&amp;from=system_updates" style="display: inline-block">
+              <input type="submit" value="Uninstall" onClick="disable();return true;"></input>
+            </form>
+                   </li>
+             <% end %>
+           <% update.getPluginsToUpgrade().each do |plugin_to_upgrade| %>
+                   <li>Upgrade the plugin <%= plugin_to_upgrade.getArtifact().getName() -%>.
+                    <form method="post" id="upgrade-form-<%= plugin_to_upgrade.getArtifact().getKey() -%>" action="<%= ApplicationController.root_context -%>/updatecenter/install?key=<%= plugin_to_upgrade.getArtifact().getKey() -%>&amp;version=<%= plugin_to_upgrade.getVersion() -%>&amp;from=system_updates" style="display: inline-block">
+            <input type="submit" id="upgrade-submit-<%= plugin_to_upgrade.getArtifact().getKey() -%>" value="Upgrade to <%= plugin_to_upgrade.getVersion() -%>" onClick="this.disable();return true;"></input>
+            </form>
+                 </li>
+                 <% end %>
+                 <li><%= link_to 'Download', release.getDownloadUrl(), :class => 'external' -%> and carefully read the upgrade guide.</li>
+                    </ol>
+
+                    <% else %>
+                    <%= link_to 'Download', release.getDownloadUrl(), :class => 'external' -%> and carefully read the upgrade guide.
+                    <% end %>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+       </table>
+       <div class="break30"> </div>
+     <% end
+     end
+ end %>
+
+   <%= render :partial => 'updatecenter/status', :locals => {:action => 'updates' } %>
+ </div>

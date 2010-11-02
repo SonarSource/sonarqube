@@ -1,14 +1,5 @@
- <ul class="tabs">
- <li>
- <a href="<%= url_for :action => 'index' -%>" class="selected">Installed</a>
- </li>
- <li>
- <a href="<%= url_for :action => 'updates' -%>">Updates</a>
- </li>
- <li>
- <a href="<%= url_for :action => 'available' -%>">Available</a>
- </li>
- </ul>
+ <%= render :partial => 'updatecenter/tabs', :locals => {:tab => 'index'} -%>
+
  <div class="tabs-panel">
 
  <%= render :partial => 'updatecenter/operations' -%>
@@ -69,6 +60,9 @@
  <div class="break30"> </div>
 
  <table class="data width100" id="system-plugins">
+   <thead>
+     <tr><th colspan="3"><h2>System plugins</h2></th></tr>
+   </thead>
    <tbody>
    <%
      @core_plugins.each do |plugin|

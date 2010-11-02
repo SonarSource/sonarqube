@@ -39,7 +39,6 @@ class UpdatecenterController < ApplicationController
 
     @center=nil
     @matrix=nil
-    @sonar_updates=[]
     @updates_by_plugin={}
     @user_plugins={}
     @last_compatible={}
@@ -51,7 +50,6 @@ class UpdatecenterController < ApplicationController
     load_matrix()
     if @matrix
       @center=@matrix.getCenter()
-      @sonar_updates=@matrix.findSonarUpdates()
 
       @matrix.findPluginUpdates().each do |update|
         plugin=update.getPlugin()
@@ -100,7 +98,7 @@ class UpdatecenterController < ApplicationController
     end
     redirect_to :action => (params[:from] || 'index')
   end
-  
+
   def uninstall
     key=params[:key]
     if key
@@ -110,20 +108,34 @@ class UpdatecenterController < ApplicationController
         flash[:error]=e.message
       end
     end
-    redirect_to :action => 'index'
+    redirect_to :action => (params[:from] || 'index')
   end
-  
+
   def cancel_uninstalls
     java_facade.cancelPluginUninstalls()
     flash[:notice]="Pending plugin uninstalls are canceled."
     redirect_to :action => 'index'
   end
-  
+
+  def system_updates
+    @uninstalls=java_facade.getPluginUninstalls()
+    @downloads=java_facade.getPluginDownloads()
+
+    @center=nil
+    @matrix=nil
+    @sonar_updates=[]
+    load_matrix()
+    if @matrix
+      @center=@matrix.getCenter()
+      @sonar_updates=@matrix.findSonarUpdates()
+    end
+  end
+
   private
   def load_matrix
     @matrix=java_facade.getUpdateCenterMatrix(params[:reload]=='true')
   end
-  
+
   def updatecenter_activated
     update_center_activated = java_facade.getConfigurationValue('sonar.updatecenter.activate') || 'true';
     if update_center_activated!='true'

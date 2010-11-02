@@ -7,23 +7,14 @@ function upgradePlugin(key) {
 }
 </script>
 
-<ul class="tabs">
-   <li>
-     <a href="<%= url_for :action => 'index' -%>">Installed</a>
-   </li>
-   <li>
-     <a href="<%= url_for :action => 'updates' -%>" class="selected">Updates</a>
-   </li>
-   <li>
-     <a href="<%= url_for :action => 'available' -%>">Available</a>
-   </li>
- </ul>
+ <%= render :partial => 'updatecenter/tabs', :locals => {:tab => 'updates'} -%>
+
  <div class="tabs-panel">
 
    <%= render :partial => 'updatecenter/operations' -%>
 
    <% if @center %>
-     <table class="data width100" id="plugin-updates">
+     <table class="data width100 marginbottom10" id="plugin-updates">
        <thead>
          <tr><th colspan="2"><h2>Plugins</h2></th></tr>
        </thead>
@@ -72,56 +63,6 @@ function upgradePlugin(key) {
        </tbody>
      </table>
 
-     <div class="break30"> </div>
-
-     <table class="data width100 marginbottom10" id="system-updates">
-       <thead>
-         <tr><th colspan="4"><h2>System</h2></th></tr>
-       </thead>
-       <tbody>
-       <% if @sonar_updates.empty? %>
-         <tr class="even">
-           <td colspan="4" >No updates</td>
-         </tr>
-       <% end %>
-
-
-
-      <% @sonar_updates.each do |update|
-        css=cycle('even','odd', :name => 'system')
-          release=update.getRelease()
-      %>
-        <tr class="<%= css -%>">
-          <td width="1%" nowrap><b>Sonar  <%= release.getVersion() -%></b></td>
-          <td width="1%" nowrap><%= release_date(release.getDate()) if release.getDate() -%></td>
-          <td><%= release.getDescription() -%></td>
-          <td>
-            <%= link_to 'Release Notes', release.getChangelogUrl(), :class => 'external' if release.getChangelogUrl() %> &nbsp;
-            <%= link_to 'Download', release.getDownloadUrl(), :class => 'external' if release.getDownloadUrl() %>
-          </td>
-        </tr>
-        <% if update.hasWarnings() %>
-        <tr class="<%= css -%>">
-          <td> </td>
-          <td colspan="3">
-            <% if update.isIncompatible() %>
-              <%= image_tag 'warning.png' -%> Incompatible plugins must be uninstalled before upgrading system:
-              <%= update.getIncompatiblePlugins().map{|plugin| plugin.getName()}.sort.join(',') -%>
-            <% end %>
-            <% if update.requiresPluginUpgrades() %>
-              <%= image_tag 'warning.png' -%> Following plugins must be upgraded before upgrading system:
-              <ul>
-              <% update.getPluginsToUpgrade().each do |plugin| %>
-                <li><%= plugin.getArtifact().getName() -%> to <%= plugin.getVersion() -%></li>
-              <% end %>
-              </ul>
-            <% end %>
-          </td>
-        </tr>
-        <% end %>
-      <% end %>
-       </tbody>
-     </table>
    <% end %>
    <%= render :partial => 'updatecenter/status', :locals => {:action => 'updates' } %>
  </div>

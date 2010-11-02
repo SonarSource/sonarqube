@@ -1,0 +1,14 @@
+<ul class="tabs">
+  <li>
+    <a href="<%= url_for :action => 'index' -%>" class="<%= 'selected' if tab=='index' -%>">Installed Plugins</a>
+  </li>
+  <li>
+    <a href="<%= url_for :action => 'available' -%>" class="<%= 'selected' if tab=='available' -%>">Available Plugins</a>
+  </li>
+  <li>
+    <a href="<%= url_for :action => 'updates' -%>" class="<%= 'selected' if tab=='updates' -%>">Plugin Updates</a>
+  </li>
+  <li>
+    <a href="<%= url_for :action => 'system_updates' -%>" class="<%= 'selected' if tab=='system_updates' -%>">System Updates</a>
+  </li>
+</ul>
