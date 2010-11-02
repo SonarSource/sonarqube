@@ -74,7 +74,7 @@ public class FinalizeSnapshotsJob implements CoreJob {
 
     boolean isLast = (previousLastSnapshot == null || previousLastSnapshot.getCreatedAt().before(rootSnapshot.getCreatedAt()));
     setFlags(rootSnapshot, isLast, Snapshot.STATUS_PROCESSED);
-    LoggerFactory.getLogger(getClass()).info("ANALYSIS SUCCESSFUL, you can browse {}", server.getUrl());
+    LoggerFactory.getLogger(getClass()).info("ANALYSIS SUCCESSFUL, you can browse {}", server.getURL());
   }
 
   private void setFlags(Snapshot snapshot, boolean last, String status) {

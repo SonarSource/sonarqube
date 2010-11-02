@@ -95,4 +95,8 @@ class FakeServer extends Server {
   public Date getStartedAt() {
     return null;
   }
+
+  public String getURL() {
+    return null;
+  }
 }

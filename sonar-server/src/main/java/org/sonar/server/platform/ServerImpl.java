@@ -87,6 +87,9 @@ public final class ServerImpl extends Server {
     return StringUtils.defaultIfEmpty(result, "");
   }
 
+  public String getURL() {
+    return null;
+  }
 
   @Override
   public boolean equals(Object o) {

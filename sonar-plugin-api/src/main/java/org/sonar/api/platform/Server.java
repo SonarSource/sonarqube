@@ -34,4 +34,10 @@ public abstract class Server implements BatchComponent, ServerComponent {
   public abstract String getVersion();
 
   public abstract Date getStartedAt();
+
+  /**
+   * @return the server URL when executed from batch, else null.
+   * @since 2.4
+   */
+  public abstract String getURL();
 }

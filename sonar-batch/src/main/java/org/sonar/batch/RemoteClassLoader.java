@@ -57,7 +57,7 @@ public class RemoteClassLoader {
   }
 
   public static RemoteClassLoader createForJdbcDriver(Configuration conf) {
-    String baseUrl = ServerMetadata.getUrl(conf);
+    String baseUrl = ServerMetadata.getURL(conf);
     String url = baseUrl + "/deploy/jdbc-driver.jar";
     try {
       return new RemoteClassLoader(new URL[]{new URL(url)});

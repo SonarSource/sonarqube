@@ -39,7 +39,7 @@ public class ServerMetadata extends Server {
   public ServerMetadata(Configuration conf) {
     id = conf.getString(CoreProperties.SERVER_ID);
     version = conf.getString(CoreProperties.SERVER_VERSION);
-    url = getUrl(conf);
+    url = getURL(conf);
     String dateString = conf.getString(CoreProperties.SERVER_STARTTIME);
     if (dateString!=null) {
       try {
@@ -51,7 +51,7 @@ public class ServerMetadata extends Server {
     }
   }
 
-  public static String getUrl(Configuration conf) {
+  public static String getURL(Configuration conf) {
     return StringUtils.removeEnd(conf.getString("sonar.host.url", "http://localhost:9000"), "/");
   }
 
@@ -67,7 +67,7 @@ public class ServerMetadata extends Server {
     return startTime;
   }
 
-  public String getUrl() {
+  public String getURL() {
     return url;
   }
 }

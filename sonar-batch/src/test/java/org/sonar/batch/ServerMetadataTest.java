@@ -43,7 +43,7 @@ public class ServerMetadataTest {
     assertThat(server.getId(), is("123"));
     assertThat(server.getVersion(), is("2.2"));
     assertThat(server.getStartedAt().getDate(), is(18));
-    assertThat(server.getUrl(), is("http://foo.com"));
+    assertThat(server.getURL(), is("http://foo.com"));
   }
 
   /**
@@ -56,6 +56,6 @@ public class ServerMetadataTest {
     conf.setProperty("sonar.host.url", "http://localhost:80/");
 
     ServerMetadata server = new ServerMetadata(conf);
-    assertThat(server.getUrl(), is("http://localhost:80"));
+    assertThat(server.getURL(), is("http://localhost:80"));
   }
 }

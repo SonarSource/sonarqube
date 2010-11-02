@@ -55,7 +55,7 @@ public class BatchPluginRepository extends AbstractPluginRepository {
 
   public BatchPluginRepository(JpaPluginDao dao, ServerMetadata server) {
     this.dao = dao;
-    this.baseUrl = server.getUrl() + "/deploy/plugins/";
+    this.baseUrl = server.getURL() + "/deploy/plugins/";
   }
 
   /**
