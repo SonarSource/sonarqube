@@ -36,9 +36,9 @@
 
          <div id="detail-<%= plugin.plugin_key -%>" style="display:none">
          <table class="spaced width100">
-           <tr><td class="thin nowrap">License: </td><td><%= plugin.license -%></td></tr>
+           <tr><td class="thin nowrap"><b>License:</b> </td><td><%= plugin.license -%></td></tr>
            <% if plugin.organization %>
-             <tr><td class="thin nowrap">Author: </td>
+             <tr><td class="thin nowrap"><b>Author:</b> </td>
                  <td><%= link_to_if plugin.organization_url, plugin.organization, plugin.organization_url, :class=>'external' -%></td>
              </tr>
            <% end %>

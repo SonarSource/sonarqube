@@ -85,10 +85,14 @@ class AdminDashboardsController < ApplicationController
   end
 
   def remove
-    active=@actives.to_a.find{|af| af.id==params[:id].to_i}
-    if active
-      active.destroy
-      flash[:notice]='Dashboard removed from default dashboards.'
+    if @actives.size<=1
+      flash[:error]='At least one dashboard must be defined.'
+    else
+      active=@actives.to_a.find{|af| af.id==params[:id].to_i}
+      if active
+        active.destroy
+        flash[:notice]='Dashboard removed from default dashboards.'
+      end
     end
     redirect_to :action => 'index'
   end

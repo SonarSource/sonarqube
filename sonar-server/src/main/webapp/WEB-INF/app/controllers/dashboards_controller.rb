@@ -58,9 +58,12 @@ class DashboardsController < ApplicationController
   end
 
   def edit
-    # TODO check ownership
     @dashboard=Dashboard.find(params[:id])
-    render :partial => "edit"
+    if @dashboard.owner?(current_user)
+      render :partial => "edit"
+    else
+      redirect_to :controller => 'dashboards', :action => 'index', :resource => params[:resource]
+    end
   end
 
   def update
@@ -83,7 +86,11 @@ class DashboardsController < ApplicationController
 
   def delete
     dashboard=Dashboard.find(params[:id])
-    if dashboard.owner?(current_user)
+    if current_user.active_dashboards.size<=1
+      flash[:error]='At least one dashboard must be defined'
+      redirect_to :action => 'index', :resource => params[:resource]
+
+    elsif dashboard.owner?(current_user)
       dashboard.destroy
       flash[:notice]='Dashboard deleted'
       redirect_to :action => 'index', :resource => params[:resource]
@@ -142,9 +149,11 @@ class DashboardsController < ApplicationController
   end
 
   def unfollow
-    active_dashboard=ActiveDashboard.find(:first, :conditions => ['user_id=? AND dashboard_id=?', current_user.id, params[:id].to_i])
-    if active_dashboard
-      active_dashboard.destroy
+    if current_user.active_dashboards.size<=1
+      flash[:error]='At least one dashboard must be defined'
+    else
+      active_dashboard=ActiveDashboard.find(:first, :conditions => ['user_id=? AND dashboard_id=?', current_user.id, params[:id].to_i])
+      active_dashboard.destroy if active_dashboard
     end
     redirect_to :action => :index, :resource => params[:resource]
   end

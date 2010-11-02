@@ -52,17 +52,17 @@ function installPlugin(key) {
           <table class="spaced width100">
             <% if plugin.getLicense() %>
               <tr>
-                <td class="thin nowrap">License: </td><td><%= h(plugin.getLicense()) %></td>
+                <td class="thin nowrap"><b>License:</b> </td><td><%= h(plugin.getLicense()) %></td>
               </tr>
             <% end %>
             <% if plugin.getOrganization() %>
               <tr>
-                <td class="thin nowrap">Author: </td><td><%= link_to_if plugin.getOrganizationUrl(), plugin.getOrganization(), plugin.getOrganizationUrl(), :class=>'external'  %></td>
+                <td class="thin nowrap"><b>Author:</b> </td><td><%= link_to_if plugin.getOrganizationUrl(), plugin.getOrganization(), plugin.getOrganizationUrl(), :class=>'external'  %></td>
               </tr>
             <% end %>
             <% if plugin.getHomepageUrl() || plugin.getIssueTrackerUrl() %>
             <tr>
-              <td class="thin nowrap">Links: </td>
+              <td class="thin nowrap"><b>Links:</b> </td>
               <td>
                 <%= link_to 'Homepage', plugin.getHomepageUrl(), :class=>'external' if plugin.getHomepageUrl() -%>
                 <%= link_to "Issue Tracker", plugin.getIssueTrackerUrl(), :class=>'external' if plugin.getIssueTrackerUrl() -%>
@@ -74,7 +74,7 @@ function installPlugin(key) {
             %>
             <tr>
               <% date=release_date(update.getRelease().getDate()) %>
-              <td class="thin nowrap">Version: </td>
+              <td class="thin nowrap"><b>Version:</b> </td>
               <td><%= update.getRelease().getVersion() -%> <%= "(#{date})" if date -%></td>
             </tr>
             <tr>
@@ -90,7 +90,7 @@ function installPlugin(key) {
             <% elsif update.requiresSonarUpgrade
             %>
               <tr>
-                <td class="thin nowrap">Last version: </td>
+                <td class="thin nowrap"><b>Last version:</b> </td>
                 <td><%= update.getRelease().getVersion() -%> (<%= image_tag 'warning.png' -%> Not compatible, requires Sonar upgrade)</td>
               </tr>
             <%
