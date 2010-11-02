@@ -21,6 +21,6 @@
   </build>
 
   <properties>
-    <sonar.profile>Sonar way with Findbugs</sonar.profile>
+    <sonar.profile>SONAR-1772</sonar.profile>
   </properties>
 </project>

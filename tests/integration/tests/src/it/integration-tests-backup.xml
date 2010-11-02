@@ -10,21 +10,20 @@
     </property>
   </properties>
   <profiles>
-	<profile>
-	      <name><![CDATA[SONAR-787-checkstyle-SuppressionCommentFilter]]></name>
-	      <default-profile><![CDATA[false]]></default-profile>
-	      <provided><![CDATA[false]]></provided>
-	      <language><![CDATA[java]]></language>
-	      <active-rules>
-		    <active-rule>
-		      <key><![CDATA[com.puppycrawl.tools.checkstyle.checks.blocks.EmptyBlockCheck]]></key>
-		      <plugin><![CDATA[checkstyle]]></plugin>
-		      <level><![CDATA[ERROR]]></level>
-		    </active-rule>
-		  </active-rules>
-	      <alerts/>
-	    </profile>
-	
+    <profile>
+      <name><![CDATA[SONAR-787-checkstyle-SuppressionCommentFilter]]></name>
+      <default-profile><![CDATA[false]]></default-profile>
+      <provided><![CDATA[false]]></provided>
+      <language><![CDATA[java]]></language>
+      <active-rules>
+        <active-rule>
+          <key><![CDATA[com.puppycrawl.tools.checkstyle.checks.blocks.EmptyBlockCheck]]></key>
+          <plugin><![CDATA[checkstyle]]></plugin>
+          <level><![CDATA[ERROR]]></level>
+        </active-rule>
+      </active-rules>
+      <alerts/>
+    </profile>
     <profile>
       <name><![CDATA[SONAR-767-pmd-close-resource-rule]]></name>
       <default-profile><![CDATA[false]]></default-profile>
@@ -1973,7 +1972,7 @@
           <plugin><![CDATA[checkstyle]]></plugin>
           <level><![CDATA[ERROR]]></level>
         </active-rule>
-		<active-rule>
+        <active-rule>
           <key><![CDATA[AvoidDuplicateLiterals]]></key>
           <plugin><![CDATA[pmd]]></plugin>
           <level><![CDATA[ERROR]]></level>
@@ -1987,6 +1986,20 @@
       <provided><![CDATA[false]]></provided>
       <language><![CDATA[java]]></language>
       <active-rules/>
+      <alerts/>
+    </profile>
+    <profile>
+      <name><![CDATA[SONAR-1772]]></name>
+      <default-profile><![CDATA[false]]></default-profile>
+      <provided><![CDATA[false]]></provided>
+      <language><![CDATA[java]]></language>
+      <active-rules>
+        <active-rule>
+          <key><![CDATA[NP_DEREFERENCE_OF_READLINE_VALUE]]></key>
+          <plugin><![CDATA[findbugs]]></plugin>
+          <level><![CDATA[ERROR]]></level>
+        </active-rule>
+      </active-rules>
       <alerts/>
     </profile>
   </profiles>
