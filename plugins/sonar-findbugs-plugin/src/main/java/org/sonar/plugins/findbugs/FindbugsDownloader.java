@@ -1,3 +1,22 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2009 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
 package org.sonar.plugins.findbugs;
 
 import java.io.File;
@@ -16,7 +35,7 @@ import org.sonar.api.utils.SonarException;
 
 public class FindbugsDownloader implements BatchExtension {
 
-  private static final String FINDBUGS_URL = "/deploy/plugins/findbugs/";
+  private static final String FINDBUGS_URL = "/deploy/plugins/findbugs";
 
   private static List<File> libs;
 
@@ -35,15 +54,21 @@ public class FindbugsDownloader implements BatchExtension {
     return libs;
   }
 
-  private String getUrlForAnnotationsJar() {
+  /**
+   * Visibility has been relaxed to make the code testable.
+   */
+  protected String getUrlForAnnotationsJar() {
     return host + FINDBUGS_URL + "/annotations-" + FindbugsVersion.getVersion() + ".jar";
   }
 
-  private String getUrlForJsrJar() {
+  /**
+   * Visibility has been relaxed to make the code testable.
+   */
+  protected String getUrlForJsrJar() {
     return host + FINDBUGS_URL + "/jsr305-" + FindbugsVersion.getVersion() + ".jar";
   }
 
-  private File downloadLib(String url) {
+  protected File downloadLib(String url) {
     try {
       URI uri = new URI(url);
       File temp = File.createTempFile("findbugs", ".jar");
