@@ -21,8 +21,12 @@ package org.sonar.plugins.findbugs;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringWriter;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
@@ -43,15 +47,12 @@ public class FindbugsConfiguration implements BatchExtension {
   private RulesProfile profile;
   private FindbugsProfileExporter exporter;
   private ProjectClasspath projectClasspath;
-  private FindbugsDownloader downloader;
 
-  public FindbugsConfiguration(Project project, RulesProfile profile, FindbugsProfileExporter exporter, ProjectClasspath classpath,
-      FindbugsDownloader downloader) {
+  public FindbugsConfiguration(Project project, RulesProfile profile, FindbugsProfileExporter exporter, ProjectClasspath classpath) {
     this.project = project;
     this.profile = profile;
     this.exporter = exporter;
     this.projectClasspath = classpath;
-    this.downloader = downloader;
   }
 
   public File getTargetXMLReport() {
@@ -78,9 +79,8 @@ public class FindbugsConfiguration implements BatchExtension {
         findbugsProject.addAuxClasspathEntry(file.getAbsolutePath());
       }
     }
-    for (File file : downloader.getLibs()) {
-      findbugsProject.addAuxClasspathEntry(file.getAbsolutePath());
-    }
+    findbugsProject.addAuxClasspathEntry(copyLib("/annotations-" + FindbugsVersion.getVersion() + ".jar").getAbsolutePath());
+    findbugsProject.addAuxClasspathEntry(copyLib("/jsr305-" + FindbugsVersion.getVersion() + ".jar").getAbsolutePath());
     findbugsProject.setCurrentWorkingDirectory(project.getFileSystem().getBuildDir());
     return findbugsProject;
   }
@@ -109,5 +109,18 @@ public class FindbugsConfiguration implements BatchExtension {
 
   public long getTimeout() {
     return project.getConfiguration().getLong(CoreProperties.FINDBUGS_TIMEOUT_PROPERTY, CoreProperties.FINDBUGS_TIMEOUT_DEFAULT_VALUE);
+  }
+
+  private File copyLib(String name) {
+    try {
+      InputStream is = getClass().getResourceAsStream(name);
+      File temp = File.createTempFile("findbugs", ".jar");
+      FileUtils.forceDeleteOnExit(temp);
+      OutputStream os = FileUtils.openOutputStream(temp);
+      IOUtils.copy(is, os);
+      return temp;
+    } catch (IOException e) {
+      throw new SonarException(e);
+    }
   }
 }

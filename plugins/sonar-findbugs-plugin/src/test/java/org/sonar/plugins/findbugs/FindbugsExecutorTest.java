@@ -64,7 +64,7 @@ public class FindbugsExecutorTest {
     Project project = mock(Project.class);
     ProjectFileSystem fs = mock(ProjectFileSystem.class);
     when(project.getFileSystem()).thenReturn(fs);
-    FindbugsConfiguration conf = new FindbugsConfiguration(project, null, null, null, null);
+    FindbugsConfiguration conf = new FindbugsConfiguration(project, null, null, null);
 
     new FindbugsExecutor(conf).execute();
   }

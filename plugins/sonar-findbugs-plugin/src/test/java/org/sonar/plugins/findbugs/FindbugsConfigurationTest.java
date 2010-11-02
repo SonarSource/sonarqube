@@ -51,7 +51,7 @@ public class FindbugsConfigurationTest {
 
   @Test
   public void shouldSaveConfigFiles() throws Exception {
-    FindbugsConfiguration conf = new FindbugsConfiguration(project, RulesProfile.create(), new FindbugsProfileExporter(), null, null);
+    FindbugsConfiguration conf = new FindbugsConfiguration(project, RulesProfile.create(), new FindbugsProfileExporter(), null);
 
     conf.saveIncludeConfigXml();
     conf.saveExcludeConfigXml();

@@ -59,7 +59,6 @@ public class FindbugsPlugin implements Plugin {
     List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();
     list.add(FindbugsSensor.class);
     list.add(FindbugsConfiguration.class);
-    list.add(FindbugsDownloader.class);
     list.add(FindbugsExecutor.class);
     list.add(FindbugsRuleRepository.class);
     list.add(FindbugsProfileExporter.class);
