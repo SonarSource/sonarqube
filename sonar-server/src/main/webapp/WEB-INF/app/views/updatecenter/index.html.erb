@@ -1,81 +1,92 @@
-<ul class="tabs">
-<li>
-<a href="<%= url_for :action => 'index' -%>" class="selected">Installed</a>
-</li>
-<li>
-<a href="<%= url_for :action => 'updates' -%>">Updates</a>
-</li>
-<li>
-<a href="<%= url_for :action => 'available' -%>">Available</a>
-</li>
-</ul>
-<div class="tabs-panel">
+ <ul class="tabs">
+ <li>
+ <a href="<%= url_for :action => 'index' -%>" class="selected">Installed</a>
+ </li>
+ <li>
+ <a href="<%= url_for :action => 'updates' -%>">Updates</a>
+ </li>
+ <li>
+ <a href="<%= url_for :action => 'available' -%>">Available</a>
+ </li>
+ </ul>
+ <div class="tabs-panel">
 
-<%= render :partial => 'updatecenter/operations' -%>
+ <%= render :partial => 'updatecenter/operations' -%>
 
-<table class="data width100" id="user-plugins">
-  <thead>
-    <tr><th colspan="3"><h2>Plugins</h2></th></tr>
-    <tr>
-      <th>Plugin</th>
-      <th>Version</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% if @user_plugins.empty? %>
-      <tr class="even"><td colspan="5">No plugins</td></tr>
-    <% else
-      @user_plugins.each do |plugin|
-    %>
-      <tr class="select <%= cycle('even', 'odd', :name => 'user') -%>" id="select_<%= plugin.plugin_key -%>">
-        <td width="1%" nowrap><b><a href="#plugin" onclick="showPlugin('<%= plugin.plugin_key -%>')"><%= h(plugin.name) -%></a></b></td>
-        <td><%= plugin.version || '-' -%></td>
-        <td>
-        <%= plugin.description -%>
-        
-        <div id="detail-<%= plugin.plugin_key -%>" style="display:none">
-        <p>
-          License: <%= plugin.license -%><br/>
-          <% if plugin.organization %>
-            By: <%= link_to_if plugin.organization_url, plugin.organization, plugin.organization_url, :class=>'external' -%><br/>
-          <% end %>
-          <% if plugin.homepage %>
-            <%= link_to 'Details', plugin.homepage, :class => 'external' -%><br/>
-          <% end %>
-        </p>
-        <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/uninstall?key=<%= plugin.plugin_key -%>" style="display: inline-block">
-          <input type="submit" value="Uninstall"></input>
-        </form>
-        </div>
-        </td>
-      </tr>
-      <% end %>
-    <% end %>
-  </tbody>
-</table>
+ <table class="data width100" id="user-plugins">
+   <thead>
+     <tr><th colspan="3"><h2>Plugins</h2></th></tr>
+     <tr>
+       <th>Plugin</th>
+       <th>Version</th>
+       <th>Description</th>
+     </tr>
+   </thead>
+   <tbody>
+     <% if @user_plugins.empty? %>
+       <tr class="even"><td colspan="5">No plugins</td></tr>
+     <% else
+       @user_plugins.each do |plugin|
+     %>
+       <tr class="select <%= cycle('even', 'odd', :name => 'user') -%>" id="select_<%= plugin.plugin_key -%>">
+         <td width="1%" nowrap><b><a href="#plugin" onclick="showPlugin('<%= plugin.plugin_key -%>')"><%= h(plugin.name) -%></a></b></td>
+         <td><%= plugin.version || '-' -%></td>
+         <td>
+         <%= plugin.description -%>
 
-<div class="break30"> </div>
+         <div id="detail-<%= plugin.plugin_key -%>" style="display:none">
+         <table class="spaced width100">
+           <tr><td class="thin nowrap">License: </td><td><%= plugin.license -%></td></tr>
+           <% if plugin.organization %>
+             <tr><td class="thin nowrap">Author: </td>
+                 <td><%= link_to_if plugin.organization_url, plugin.organization, plugin.organization_url, :class=>'external' -%></td>
+             </tr>
+           <% end %>
 
-<table class="data width100" id="core-plugins">
-  <thead>
-    <tr><th colspan="3"><h2>System plugins</h2></th></tr>
-    <tr>
-      <th>Plugin</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-  <%
-    @core_plugins.each do |plugin|
-  %>
-	<tr class="<%= cycle('even','odd', :name => 'core') -%>" id="<%= u plugin.plugin_key -%>">
-	  <td width="1%" nowrap><b><%= plugin.name -%></b></td>
-      <td><%= plugin.description %></td>
-    </tr>
-  <% end %>
-  </tbody>
-</table>
+           <% if plugin.homepage %>
+             <tr>
+            <td colspan="2">
+                 <%= link_to 'Homepage', plugin.homepage, :class => 'external' -%>
+               </td>
+             </tr>
+           <% end %>
+          <tr>
+            <td colspan="2">
+         <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/uninstall?key=<%= plugin.plugin_key -%>" style="display: inline-block">
+           <input type="submit" value="Uninstall"></input>
+         </form>
+              </td>
+            </tr>
+           </table>
+         </div>
+         </td>
+       </tr>
+       <% end %>
+     <% end %>
+   </tbody>
+ </table>
 
-</div>
+ <div class="break30"> </div>
+
+ <table class="data width100" id="core-plugins">
+   <thead>
+     <tr><th colspan="3"><h2>System plugins</h2></th></tr>
+     <tr>
+       <th>Plugin</th>
+       <th>Description</th>
+     </tr>
+   </thead>
+   <tbody>
+   <%
+     @core_plugins.each do |plugin|
+   %>
+  <tr class="<%= cycle('even','odd', :name => 'core') -%>" id="<%= u plugin.plugin_key -%>">
+    <td width="1%" nowrap><b><%= plugin.name -%></b></td>
+       <td><%= plugin.description %></td>
+     </tr>
+   <% end %>
+   </tbody>
+ </table>
+
+ </div>
 
