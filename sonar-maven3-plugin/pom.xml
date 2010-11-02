@@ -10,12 +10,6 @@
   <packaging>maven-plugin</packaging>
   <name>Sonar :: Maven3 Plugin</name>
 
-  <!--
-  Building this module does not require Maven 3.
-  <prerequisites>
-    <maven>3.0</maven>
-  </prerequisites>-->
-
   <properties>
     <maven.version>3.0</maven.version>
   </properties>
