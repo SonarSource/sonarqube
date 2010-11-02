@@ -31,9 +31,15 @@ public class ServerUnmarshaller implements Unmarshaller<Server> {
 
   public Server toModel(JavaScriptObject json) {
     JSONObject map = new JSONObject(json);
-    return new Server()
+    Server server = new Server()
         .setId(JsonUtils.getString(map, "id"))
         .setVersion(JsonUtils.getString(map, "version"));
+    server.setStatusMessage(JsonUtils.getString(map, "status_msg"));
+    String status = JsonUtils.getString(map, "status");
+    if (status != null) {
+      server.setStatus(Server.Status.valueOf(status));
+    }
+    return server;
   }
 
   public List<Server> toModels(JavaScriptObject json) {

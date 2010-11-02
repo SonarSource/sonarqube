@@ -24,16 +24,27 @@ import org.sonar.wsclient.services.Server;
 
 import java.io.IOException;
 
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 public class ServerUnmarshallerTest {
 
   @Test
-  public void toModel() throws IOException {
+  public void testToModel() throws IOException {
+    Server server = new ServerUnmarshaller().toModel("{\"id\":\"123456789\", \"version\":\"2.0-SNAPSHOT\", \"status\":\"UP\", \"status_msg\":\"everything is under control\"}");
+    assertThat(server.getId(), is("123456789"));
+    assertThat(server.getVersion(), is("2.0-SNAPSHOT"));
+    assertThat(server.getStatus(), is(Server.Status.UP));
+    assertThat(server.getStatusMessage(), is("everything is under control"));
+  }
+
+  @Test
+  public void shouldNotFailIfStatusIsMissing() throws IOException {
     Server server = new ServerUnmarshaller().toModel("{\"id\":\"123456789\", \"version\":\"2.0-SNAPSHOT\"}");
     assertThat(server.getId(), is("123456789"));
     assertThat(server.getVersion(), is("2.0-SNAPSHOT"));
+    assertThat(server.getStatus(), nullValue());
+    assertThat(server.getStatusMessage(), nullValue());
   }
-
 }

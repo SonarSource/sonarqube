@@ -32,6 +32,7 @@ class Api::ServerController < Api::ApiController
 
   def index
     hash={:id => Java::OrgSonarServerPlatform::Platform.getServer().getId(), :version => Java::OrgSonarServerPlatform::Platform.getServer().getVersion()}
+    complete_with_status(hash)
     respond_to do |format| 
       format.json{ render :json => jsonp(hash) }
       format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'server') }
@@ -66,5 +67,16 @@ class Api::ServerController < Api::ApiController
       hash[prop[0].to_s]=prop[1].to_s
     end
     hash
+  end
+
+  def complete_with_status(hash)
+    if DatabaseVersion.uptodate?
+      hash[:status]='UP'
+    elsif ActiveRecord::Base.connected?
+      hash[:status]='SETUP'
+    else
+      hash[:status]='DOWN'
+      hash[:status_msg]='Not connected to database'
+    end
   end
 end

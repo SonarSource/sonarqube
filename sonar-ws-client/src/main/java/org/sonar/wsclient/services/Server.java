@@ -23,8 +23,15 @@ package org.sonar.wsclient.services;
  * @author Evgeny Mandrikov
  */
 public class Server extends Model {
+
+  public static enum Status {
+    SETUP, UP, DOWN;
+  }
+
   private String id;
   private String version;
+  private Status status;
+  private String statusMessage;
 
   public String getVersion() {
     return version;
@@ -34,8 +41,8 @@ public class Server extends Model {
     return id;
   }
 
-  public Server setVersion(String version) {
-    this.version = version;
+  public Server setVersion(String s) {
+    this.version = s;
     return this;
   }
 
@@ -43,4 +50,23 @@ public class Server extends Model {
     this.id = id;
     return this;
   }
+
+  public Status getStatus() {
+    return status;
+  }
+
+  public String getStatusMessage() {
+    return statusMessage;
+  }
+
+  public Server setStatus(Status status) {
+    this.status = status;
+    return this;
+  }
+
+  public Server setStatusMessage(String statusMessage) {
+    this.statusMessage = statusMessage;
+    return this;
+  }
+
 }
