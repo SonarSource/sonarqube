@@ -32,6 +32,8 @@
   padding: 10px;
   margin: 0 0 10px 0;
   border: 1px solid #ddd;
+  border-radius: 0 0 2px 2px;
+  -moz-border-radius: 0 0 2px 2px;
 }
 #dashboard .configure_widget {
     display: block;
@@ -138,6 +140,8 @@
   cursor: move;
   border: 1px solid #ddd;
   border-bottom: 0;
+  border-radius: 2px 2px 0 0;
+  -moz-border-radius: 2px 2px 0 0;
 }
 
 #dashboard .block .block-view-toggle {
@@ -157,7 +161,7 @@
 }
 
 #dashboard .block-hover {
-  border: 3px dashed #ddd;
+  border: 2px dashed #ddd;
 }
 
 #dashboard .shadow-block {
