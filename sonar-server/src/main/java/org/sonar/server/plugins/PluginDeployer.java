@@ -298,4 +298,8 @@ public final class PluginDeployer implements ServerComponent {
       throw new ServerStartException("Found plugin with empty key: " + plugin.getFilename());
     }
   }
+
+  public Collection<PluginMetadata> getPluginsMetadata() {
+    return pluginByKeys.values();
+  }
 }

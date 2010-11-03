@@ -21,7 +21,7 @@
 </style>
 <div id="plugins">
     <% form_tag :controller => :settings, :action => :update do
-      plugins = controller.java_facade.getPlugins().sort {|p1,p2| p1.getName() <=> p2.getName()}
+      plugins = controller.java_facade.getPluginsMetadata().sort {|p1,p2| p1.getName() <=> p2.getName()}
       plugin_properties={}
       plugins.each do |plugin|
         properties = controller.java_facade.getPluginProperties(plugin).select do |property|

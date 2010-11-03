@@ -22,7 +22,6 @@ package org.sonar.server.ui;
 import org.apache.commons.configuration.Configuration;
 import org.picocontainer.PicoContainer;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.Plugin;
 import org.sonar.api.Plugins;
 import org.sonar.api.Property;
 import org.sonar.api.ServerComponent;
@@ -32,11 +31,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.api.web.Footer;
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.Page;
-import org.sonar.api.web.RubyRailsWebservice;
-import org.sonar.api.web.Widget;
+import org.sonar.api.web.*;
 import org.sonar.jpa.dao.AsyncMeasuresService;
 import org.sonar.jpa.dialect.Dialect;
 import org.sonar.jpa.session.DatabaseConnector;
@@ -48,7 +43,6 @@ import org.sonar.server.filters.FilterExecutor;
 import org.sonar.server.filters.FilterResult;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.plugins.*;
-import org.sonar.server.plugins.UpdateCenterMatrix;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.updatecenter.common.Version;
@@ -63,7 +57,7 @@ public final class JRubyFacade implements ServerComponent {
   }
 
   /* UPDATE CENTER */
-  
+
   public void downloadPlugin(String pluginKey, String pluginVersion) {
     getContainer().getComponent(PluginDownloader.class).download(pluginKey, Version.create(pluginVersion));
   }
@@ -92,9 +86,20 @@ public final class JRubyFacade implements ServerComponent {
     return getContainer().getComponent(UpdateCenterMatrixFactory.class).getMatrix(forceReload);
   }
 
+  /* PLUGINS */
 
+  public Property[] getPluginProperties(PluginMetadata metadata) {
+    Plugins plugins = getContainer().getComponent(Plugins.class);
+    return plugins.getProperties(plugins.getPlugin(metadata.getKey()));
+  }
 
+  public boolean hasPlugin(String key) {
+    return getContainer().getComponent(Plugins.class).getPlugin(key) != null;
+  }
 
+  public Collection<PluginMetadata> getPluginsMetadata() {
+    return getContainer().getComponent(PluginDeployer.class).getPluginsMetadata();
+  }
 
   public String colorizeCode(String code, String language) {
     try {
@@ -118,7 +123,6 @@ public final class JRubyFacade implements ServerComponent {
     return getContainer().getComponent(Views.class).getWidget(id);
   }
 
-
   public List<ViewProxy<Page>> getPages(String section, String resourceScope, String resourceQualifier, String resourceLanguage) {
     return getContainer().getComponent(Views.class).getPages(section, resourceScope, resourceQualifier, resourceLanguage);
   }
@@ -141,14 +145,6 @@ public final class JRubyFacade implements ServerComponent {
 
   public Dialect getDialect() {
     return getContainer().getComponent(DatabaseConnector.class).getDialect();
-  }
-
-  public boolean hasPlugin(String key) {
-    return getContainer().getComponent(Plugins.class).getPlugin(key) != null;
-  }
-
-  public Collection<Plugin> getPlugins() {
-    return getContainer().getComponent(Plugins.class).getPlugins();
   }
 
   /* PROFILES CONSOLE : RULES AND METRIC THRESHOLDS */
@@ -215,10 +211,6 @@ public final class JRubyFacade implements ServerComponent {
 
   public void deleteAsyncMeasure(long asyncMeasureId) {
     getAsyncMeasuresService().deleteMeasure(asyncMeasureId);
-  }
-
-  public Property[] getPluginProperties(Plugin plugin) {
-    return getContainer().getComponent(Plugins.class).getProperties(plugin);
   }
 
   private DefaultRulesManager getRulesManager() {

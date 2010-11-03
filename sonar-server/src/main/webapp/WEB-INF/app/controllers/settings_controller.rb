@@ -34,7 +34,7 @@ class SettingsController < ApplicationController
       resource_id=project.id
     end
 
-    plugins = java_facade.getPlugins()
+    plugins = java_facade.getPluginsMetadata()
     plugins.each do |plugin|
       properties=java_facade.getPluginProperties(plugin)
       properties.each do |property|
