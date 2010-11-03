@@ -49,12 +49,14 @@
 
 /*CONFIGURATION*/
 #dashboard #widget_defs {
-  width: 100%;
   height: 130px;
   overflow-y: auto;
   background-color: #FFF6BF;
   border: 2px solid #FFD324;
   padding: 3px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  margin: 5px 0 10px 0;
 }
 
 #dashboard #widget_defs td {

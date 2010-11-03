@@ -31,7 +31,7 @@
 <div id="dashboard">
   <%= render :partial => 'dashboard/header', :locals => {:back => true} %>
 
-  <div id="widget_defs" class="marginbottom10">
+  <div id="widget_defs">
     <table width="100%">
     <% @widget_definitions.each_with_index do |definition, index| %>
       <% if index%4==0 %><tr><% end %>
