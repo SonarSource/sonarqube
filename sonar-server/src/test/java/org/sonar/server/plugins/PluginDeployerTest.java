@@ -23,6 +23,12 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.List;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -37,12 +43,6 @@ import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.ServerStartException;
 import org.sonar.test.TestUtils;
-
-import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.List;
 
 public class PluginDeployerTest extends AbstractDbUnitTestCase {
 
@@ -104,21 +104,21 @@ public class PluginDeployerTest extends AbstractDbUnitTestCase {
     List<JpaPlugin> plugins = dao.getPlugins();
     assertThat(plugins.size(), is(1)); // no more checkstyle
     JpaPlugin plugin = plugins.get(0);
-    assertThat(plugin.getKey(), is("build-breaker"));
+    assertThat(plugin.getKey(), is("buildbreaker"));
     assertThat(plugin.getFiles().size(), is(1));
     assertThat(plugin.isCore(), is(false));
     assertThat(plugin.isUseChildFirstClassLoader(), is(false));
     JpaPluginFile pluginFile = plugin.getFiles().get(0);
     assertThat(pluginFile.getFilename(), is("sonar-build-breaker-plugin-0.1.jar"));
-    assertThat(pluginFile.getPath(), is("build-breaker/sonar-build-breaker-plugin-0.1.jar"));
+    assertThat(pluginFile.getPath(), is("buildbreaker/sonar-build-breaker-plugin-0.1.jar"));
 
     // check that the file is deployed
-    File deployedJar = new File(deployDir, "plugins/build-breaker/sonar-build-breaker-plugin-0.1.jar");
+    File deployedJar = new File(deployDir, "plugins/buildbreaker/sonar-build-breaker-plugin-0.1.jar");
     assertThat(deployedJar.exists(), is(true));
     assertThat(deployedJar.isFile(), is(true));
 
     // check that the plugin has its own classloader
-    ClassLoader classloader = classloaders.getClassLoader("build-breaker");
+    ClassLoader classloader = classloaders.getClassLoader("buildbreaker");
     assertNotNull(classloader);
     assertNotNull(classloader.loadClass("org.sonar.plugins.buildbreaker.BuildBreakerPlugin"));
   }
