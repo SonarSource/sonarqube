@@ -19,12 +19,14 @@
  */
 package org.sonar.java.ast.visitor;
 
+import org.sonar.java.ast.check.UndocumentedApiCheck;
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.measures.Metric;
 
 import antlr.collections.AST;
 
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
+import com.puppycrawl.tools.checkstyle.api.FileContents;
 import com.puppycrawl.tools.checkstyle.api.Scope;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
@@ -57,19 +59,15 @@ public class PublicApiVisitor extends JavaAstVisitor {
     }
   }
 
-  private boolean isPublicApi(DetailAST ast) {
-    return isPublic(ast) && !isStaticFinalVariable(ast) && !isMethodWithOverrideAnnotation(ast) && !isEmptyDefaultConstructor(ast);
-  }
-
-  private boolean isEmptyDefaultConstructor(DetailAST ast) {
+  private static boolean isEmptyDefaultConstructor(DetailAST ast) {
     return (isConstructorWithoutParameters(ast)) && (ast.getLastChild().getChildCount() == 1);
   }
 
-  private boolean isConstructorWithoutParameters(DetailAST ast) {
+  private static boolean isConstructorWithoutParameters(DetailAST ast) {
     return ast.getType() == TokenTypes.CTOR_DEF && ast.findFirstToken(TokenTypes.PARAMETERS).getChildCount() == 0;
   }
 
-  private boolean isMethodWithOverrideAnnotation(DetailAST ast) {
+  private static boolean isMethodWithOverrideAnnotation(DetailAST ast) {
     if (isMethod(ast)) {
       DetailAST modifier = ast.findFirstToken(TokenTypes.MODIFIERS);
       for (AST annotation = modifier.getFirstChild(); annotation != null; annotation = annotation.getNextSibling()) {
@@ -82,23 +80,38 @@ public class PublicApiVisitor extends JavaAstVisitor {
     return false;
   }
 
-  private boolean isAnnotation(AST annotation) {
+  private static boolean isAnnotation(AST annotation) {
     return annotation.getType() == TokenTypes.ANNOTATION;
   }
 
-  private boolean isMethod(DetailAST ast) {
+  private static boolean isMethod(DetailAST ast) {
     return ast.getType() == TokenTypes.METHOD_DEF;
   }
 
-  private boolean isPublic(DetailAST ast) {
+  private boolean isDocumentedApi(DetailAST ast) {
+    return isDocumentedApi(ast, getFileContents());
+  }
+
+  private static boolean isPublic(DetailAST ast) {
     return (AstUtils.isScope(AstUtils.getScope(ast), Scope.PUBLIC) || AstUtils.isType(ast, TokenTypes.ANNOTATION_FIELD_DEF));
   }
 
-  private boolean isDocumentedApi(DetailAST ast) {
-    return getFileContents().getJavadocBefore(ast.getLineNo()) != null;
-  }
-
-  private boolean isStaticFinalVariable(DetailAST ast) {
+  private static boolean isStaticFinalVariable(DetailAST ast) {
     return (AstUtils.isClassVariable(ast) || AstUtils.isInterfaceVariable(ast)) && AstUtils.isFinal(ast) && AstUtils.isStatic(ast);
   }
+
+  /**
+   * Also used by {@link UndocumentedApiCheck}
+   */
+  public static boolean isDocumentedApi(DetailAST ast, FileContents fileContents) {
+    return fileContents.getJavadocBefore(ast.getLineNo()) != null;
+  }
+
+  /**
+   * Also used by {@link UndocumentedApiCheck}
+   */
+  public static boolean isPublicApi(DetailAST ast) {
+    return isPublic(ast) && !isStaticFinalVariable(ast) && !isMethodWithOverrideAnnotation(ast) && !isEmptyDefaultConstructor(ast);
+  }
+
 }

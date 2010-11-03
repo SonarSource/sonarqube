@@ -12,7 +12,6 @@ import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceClass;
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.api.SourceFile;
-import org.sonar.squid.measures.Metric;
 
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 
@@ -40,7 +39,7 @@ public class UndocumentedApiCheck extends JavaAstCheck {
     SourceCode currentResource = peekSourceCode();
     SourceClass sourceClass = peekParentClass();
     if (PatternUtils.matches(sourceClass.getKey(), getMatchers())) {
-      if (currentResource.getDouble(Metric.PUBLIC_API) > 0 && currentResource.getDouble(Metric.PUBLIC_DOC_API) == 0) {
+      if (PublicApiVisitor.isPublicApi(ast) && !PublicApiVisitor.isDocumentedApi(ast, getFileContents())) {
         SourceFile sourceFile = currentResource.getParent(SourceFile.class);
         CheckMessage message = new CheckMessage(this, "Avoid undocumented API");
         message.setLine(ast.getLineNo());
