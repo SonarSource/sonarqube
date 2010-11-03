@@ -21,8 +21,14 @@ class Api::ServerController < Api::ApiController
 
   skip_before_filter :check_authentication, :except => 'system'
   before_filter :admin_required, :only => 'system'
+
+  # prevent HTTP proxies from caching server status
   before_filter :set_cache_buster, :only => 'index'
-  
+
+  # execute database setup
+  verify :method => :post, :only => [ :setup ]
+  skip_before_filter :check_database_version, :setup
+
   def key
     render :text => Java::OrgSonarServerPlatform::Platform.getServer().getId()
   end
@@ -56,6 +62,25 @@ class Api::ServerController < Api::ApiController
       format.json{ render :json => jsonp(json) }
       format.xml { render :xml => xml_not_supported }
       format.text { render :text => text_not_supported}
+    end
+  end
+
+  def setup
+    begin
+      DatabaseVersion.setup unless DatabaseVersion.uptodate?
+      hash={:status => 'ok'}
+      respond_to do |format|
+        format.json{ render :json => jsonp(hash) }
+        format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'setup') }
+        format.text { render :text => hash[:status] }
+      end
+    rescue => e
+      hash={:status => 'ko', :msg => e.message}
+      respond_to do |format|
+        format.json{ render :json => jsonp(hash) }
+        format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'setup') }
+        format.text { render :text => hash[:status] }
+      end
     end
   end
   

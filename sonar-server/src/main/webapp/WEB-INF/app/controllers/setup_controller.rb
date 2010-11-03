@@ -19,7 +19,7 @@
  #
 class SetupController < ApplicationController
   skip_before_filter :check_database_version, :check_authentication
-  
+
   SECTION=Navigation::SECTION_CONFIGURATION
   
   # GETs should be safe (see http://www.w3.org/2001/tag/doc/whenToUseGet.html)
@@ -40,9 +40,8 @@ class SetupController < ApplicationController
   end
 
   def setup_database
-    unless DatabaseVersion.uptodate?
-      DatabaseVersion.setup
-	  end
+    # do not forget that this code is also in /api/server/setup (see api/server_controller.rb)
+    DatabaseVersion.setup unless DatabaseVersion.uptodate?
     redirect_to home_path
   end
 end
