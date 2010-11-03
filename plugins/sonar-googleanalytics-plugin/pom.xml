@@ -62,12 +62,6 @@
           <pluginDescription><![CDATA[Add the <a href="http://www.google.com/analytics/">Google Analytics</a> tracking script to the Sonar web application]]></pluginDescription>
         </configuration>
       </plugin>
-      <plugin>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
     </plugins>
   </build>
 </project>

@@ -62,13 +62,6 @@
             <![CDATA[Get results of unit tests with <a href='http://maven.apache.org/plugins/maven-surefire-plugin/'>Surefire</a>.]]></pluginDescription>
         </configuration>
       </plugin>
-
-      <plugin>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
       <!-- Running JUnit tests in parallel -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

@@ -142,12 +142,6 @@
           <useChildFirstClassLoader>true</useChildFirstClassLoader>
         </configuration>
       </plugin>
-      <plugin>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
       <!-- Running JUnit tests in parallel -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

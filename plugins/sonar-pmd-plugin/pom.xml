@@ -80,12 +80,6 @@
           <pluginClass>org.sonar.plugins.pmd.PmdPlugin</pluginClass>
         </configuration>
       </plugin>
-      <plugin>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
     </plugins>
   </build>
 </project>
