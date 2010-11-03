@@ -22,7 +22,7 @@
             <%= check_box_tag 'remember_me', '1', @remember_me %> <%= label_tag 'remember_me', 'Remember me on this computer' %>
           </p>
           <p>
-            <%= submit_tag 'Log in' %> <a href="<%= home_path -%>" class="action">cancel</a>
+            <%= submit_tag 'Log in' %> or <a href="<%= home_path -%>" class="action">Cancel</a>
           </p>
         </form>
         <% if flash[:loginerror] %>
