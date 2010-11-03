@@ -19,10 +19,10 @@
  */
 package org.sonar.api.utils;
 
+import org.junit.Test;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
 
 public class WildcardPatternTest {
 
@@ -98,5 +98,13 @@ public class WildcardPatternTest {
     assertFalse(match("**/Reader", "org/sonar/channel/CodeReader"));
 
     assertTrue(match("**", "java/io/Reader"));
+  }
+
+  @Test
+  public void multiplePatterns() {
+    WildcardPattern[] patterns = new WildcardPattern[] { WildcardPattern.create("Foo"), WildcardPattern.create("Bar") };
+    assertTrue(WildcardPattern.match(patterns, "Foo"));
+    assertTrue(WildcardPattern.match(patterns, "Bar"));
+    assertFalse(WildcardPattern.match(patterns, "Other"));
   }
 }

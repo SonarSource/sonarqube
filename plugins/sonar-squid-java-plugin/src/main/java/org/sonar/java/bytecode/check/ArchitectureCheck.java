@@ -48,8 +48,8 @@ public class ArchitectureCheck extends BytecodeCheck {
   @RuleProperty(description = "Mandatory. Ex : java.util.Vector, java.util.Hashtable, java.util.Enumeration")
   private String toClasses = new String();
 
-  private WildcardPattern[] fromMatchers;
-  private WildcardPattern[] toMatchers;
+  private WildcardPattern[] fromPatterns;
+  private WildcardPattern[] toPatterns;
   private AsmClass asmClass;
   private Map<String, CheckMessage> internalNames;
 
@@ -72,7 +72,7 @@ public class ArchitectureCheck extends BytecodeCheck {
   @Override
   public void visitClass(AsmClass asmClass) {
     String nameAsmClass = asmClass.getInternalName();
-    if (PatternUtils.matches(nameAsmClass, getFromMatchers())) {
+    if (WildcardPattern.match(getFromPatterns(), nameAsmClass)) {
       this.asmClass = asmClass;
       this.internalNames = Maps.newHashMap();
     } else {
@@ -95,7 +95,7 @@ public class ArchitectureCheck extends BytecodeCheck {
     if (asmClass != null && edge != null) {
       String internalNameTargetClass = edge.getTargetAsmClass().getInternalName();
       if ( !internalNames.containsKey(internalNameTargetClass)) {
-        if (PatternUtils.matches(internalNameTargetClass, getToMatchers())) {
+        if (WildcardPattern.match(getToPatterns(), internalNameTargetClass)) {
           int sourceLineNumber = getSourceLineNumber(edge);
           logMessage(asmClass.getInternalName(), internalNameTargetClass, sourceLineNumber);
         }
@@ -127,18 +127,18 @@ public class ArchitectureCheck extends BytecodeCheck {
     internalNames.put(toClass, message);
   }
 
-  private WildcardPattern[] getFromMatchers() {
-    if (fromMatchers == null) {
-      fromMatchers = PatternUtils.createMatchers(StringUtils.defaultIfEmpty(fromClasses, "**"));
+  private WildcardPattern[] getFromPatterns() {
+    if (fromPatterns == null) {
+      fromPatterns = PatternUtils.createPatterns(StringUtils.defaultIfEmpty(fromClasses, "**"));
     }
-    return fromMatchers;
+    return fromPatterns;
   }
 
-  private WildcardPattern[] getToMatchers() {
-    if (toMatchers == null) {
-      toMatchers = PatternUtils.createMatchers(toClasses);
+  private WildcardPattern[] getToPatterns() {
+    if (toPatterns == null) {
+      toPatterns = PatternUtils.createPatterns(toClasses);
     }
-    return toMatchers;
+    return toPatterns;
   }
 
 }

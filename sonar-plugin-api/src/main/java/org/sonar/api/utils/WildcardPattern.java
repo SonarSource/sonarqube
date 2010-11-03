@@ -80,6 +80,18 @@ public class WildcardPattern {
     return StringUtils.removeEnd(patternStr, "/");
   }
 
+  /**
+   * @since 2.4
+   */
+  public static boolean match(WildcardPattern[] patterns, String value) {
+    for (WildcardPattern pattern : patterns) {
+      if (pattern.match(value)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public static WildcardPattern create(String pattern) {
     return create(pattern, "/");
   }

@@ -27,7 +27,7 @@ public class UndocumentedApiCheck extends JavaAstCheck {
   @RuleProperty(description = "Optional. If this property is not defined, all classes should adhere to this constraint. Ex : **.api.**")
   private String forClasses = new String();
 
-  private WildcardPattern[] matchers;
+  private WildcardPattern[] patterns;
 
   @Override
   public List<Integer> getWantedTokens() {
@@ -38,7 +38,7 @@ public class UndocumentedApiCheck extends JavaAstCheck {
   public void visitToken(DetailAST ast) {
     SourceCode currentResource = peekSourceCode();
     SourceClass sourceClass = peekParentClass();
-    if (PatternUtils.matches(sourceClass.getKey(), getMatchers())) {
+    if (WildcardPattern.match(getPatterns(), sourceClass.getKey())) {
       if (PublicApiVisitor.isPublicApi(ast) && !PublicApiVisitor.isDocumentedApi(ast, getFileContents())) {
         SourceFile sourceFile = currentResource.getParent(SourceFile.class);
         CheckMessage message = new CheckMessage(this, "Avoid undocumented API");
@@ -48,11 +48,11 @@ public class UndocumentedApiCheck extends JavaAstCheck {
     }
   }
 
-  private WildcardPattern[] getMatchers() {
-    if (matchers == null) {
-      matchers = PatternUtils.createMatchers(StringUtils.defaultIfEmpty(forClasses, "**"));
+  private WildcardPattern[] getPatterns() {
+    if (patterns == null) {
+      patterns = PatternUtils.createPatterns(StringUtils.defaultIfEmpty(forClasses, "**"));
     }
-    return matchers;
+    return patterns;
   }
 
   public String getForClasses() {
