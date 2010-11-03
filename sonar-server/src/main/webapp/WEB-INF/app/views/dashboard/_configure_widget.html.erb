@@ -18,7 +18,7 @@
 
 
 <div class="widget_props" id="widget_props_<%= widget.id -%>" style="<%= 'display:none' if widget.configured -%>">
-  <% form_remote_tag :url => {:action => 'save_widget', :id => widget.id, :resource => params[:resource]}, :method => :post do -%>
+  <% form_remote_tag :url => {:action => 'save_widget', :wid => widget.id, :id => params[:id]}, :method => :post do -%>
     <table class="form">
       <tbody>
       <% definition.getProperties().each do |property_def|

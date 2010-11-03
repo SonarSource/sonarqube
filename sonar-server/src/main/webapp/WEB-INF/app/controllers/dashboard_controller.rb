@@ -44,7 +44,7 @@ class DashboardController < ApplicationController
   end
 
   def set_layout
-    dashboard=Dashboard.find(params[:id].to_i)
+    dashboard=Dashboard.find(params[:did].to_i)
     if dashboard.editable_by?(current_user)
       dashboard.column_layout=params[:layout]
       if dashboard.save
@@ -55,7 +55,7 @@ class DashboardController < ApplicationController
         end
       end
     end
-    redirect_to :action => 'index', :id => dashboard.id, :resource => params[:resource]
+    redirect_to :action => 'index', :did => dashboard.id, :id => params[:id]
   end
 
   def set_dashboard
@@ -84,7 +84,7 @@ class DashboardController < ApplicationController
   end
 
   def add_widget
-    dashboard=Dashboard.find(params[:id].to_i)
+    dashboard=Dashboard.find(params[:did].to_i)
     widget_id=nil
     if dashboard.editable_by?(current_user)
       definition=java_facade.getWidget(params[:widget])
@@ -97,12 +97,12 @@ class DashboardController < ApplicationController
         widget_id=new_widget.id
       end
     end
-    redirect_to :action => 'configure', :id => dashboard.id, :resource => params[:resource], :highlight => widget_id 
+    redirect_to :action => 'configure', :did => dashboard.id, :id => params[:id], :highlight => widget_id
   end
 
 
   def save_widget
-    widget=Widget.find(params[:id].to_i)
+    widget=Widget.find(params[:wid].to_i)
     #TODO check owner of dashboard
     definition=java_facade.getWidget(widget.widget_key)
     errors_by_property_key={}
@@ -124,7 +124,7 @@ class DashboardController < ApplicationController
       widget.save
       widget.properties.each {|p| p.save}
       render :update do |page|
-        page.redirect_to(url_for(:action => :configure, :id => widget.dashboard_id, :resource => params[:resource]))
+        page.redirect_to(url_for(:action => :configure, :did => widget.dashboard_id, :id => params[:id]))
       end
     else
       widget.configured=false
@@ -140,8 +140,8 @@ class DashboardController < ApplicationController
   def load_dashboard
     @active=nil
     if logged_in?
-      if params[:id]
-        @active=ActiveDashboard.find(:first, :include => 'dashboard', :conditions => ['active_dashboards.dashboard_id=? AND active_dashboards.user_id=?', params[:id].to_i, current_user.id])
+      if params[:did]
+        @active=ActiveDashboard.find(:first, :include => 'dashboard', :conditions => ['active_dashboards.dashboard_id=? AND active_dashboards.user_id=?', params[:did].to_i, current_user.id])
       elsif params[:name]
         @active=ActiveDashboard.find(:first, :include => 'dashboard', :conditions => ['dashboards.name=? AND active_dashboards.user_id=?', params[:name], current_user.id])
       else
@@ -151,8 +151,8 @@ class DashboardController < ApplicationController
 
     if @active.nil?
       # anonymous or not found in user dashboards
-      if params[:id]
-        @active=ActiveDashboard.find(:first, :include => 'dashboard', :conditions => ['active_dashboards.dashboard_id=? AND active_dashboards.user_id IS NULL', params[:id].to_i])
+      if params[:did]
+        @active=ActiveDashboard.find(:first, :include => 'dashboard', :conditions => ['active_dashboards.dashboard_id=? AND active_dashboards.user_id IS NULL', params[:did].to_i])
       elsif params[:name]
         @active=ActiveDashboard.find(:first, :include => 'dashboard', :conditions => ['dashboards.name=? AND active_dashboards.user_id IS NULL', params[:name]])
       else
@@ -163,7 +163,7 @@ class DashboardController < ApplicationController
   end
 
   def load_resource
-    @resource=Project.by_key(params[:resource])
+    @resource=Project.by_key(params[:id])
     if @resource.nil?
       # TODO display error page
       redirect_to home_path

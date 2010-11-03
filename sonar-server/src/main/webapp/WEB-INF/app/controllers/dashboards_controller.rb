@@ -50,7 +50,7 @@ class DashboardsController < ApplicationController
       add_default_dashboards_if_first_user_dashboard
       last_active_dashboard=current_user.active_dashboards.max{|x,y| x.order_index<=>y.order_index}
       current_user.active_dashboards.create(:dashboard => @dashboard, :user_id => current_user.id, :order_index => (last_active_dashboard ? last_active_dashboard.order_index+1: 1))
-      redirect_to :controller => 'dashboard', :action => 'configure', :id => @dashboard.id, :resource => params[:resource]
+      redirect_to :controller => 'dashboard', :action => 'configure', :did => @dashboard.id, :id => params[:resource]
     else
       flash[:error]=@dashboard.errors.full_messages.join('<br/>')
       redirect_to :controller => 'dashboards', :action => 'index', :resource => params[:resource]

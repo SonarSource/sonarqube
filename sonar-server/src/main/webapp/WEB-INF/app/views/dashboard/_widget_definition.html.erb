@@ -2,7 +2,7 @@
  <div class="widget_def" id="def_<%= definition.getId().tr('_', '') -%>">
 <p><b><%= h definition.getTitle() -%></b></p>
 <p><%= h definition.getDescription() -%></p>
-<%= form_tag :action => 'add_widget', :id => @dashboard.id, :resource => params[:resource], :widget => definition.getId() %>
+<%= form_tag :action => 'add_widget', :did => @dashboard.id, :id => params[:id], :widget => definition.getId() %>
   <input type="submit" value="Add widget" >
 </form>
   </div>

@@ -14,7 +14,7 @@
         highlight_duration: 2,
         highlight_startcolor: '#cae3f2',
         highlight_endcolor: '#ffffff',
-        saveurl: '<%= url_for :action => 'set_dashboard', :id => @dashboard.id, :resource => @resource.id -%>'
+        saveurl: '<%= url_for :action => 'set_dashboard', :did => @dashboard.id, :id => @resource.id -%>'
     };
     var portal;
     function init_dashboard() {

@@ -300,7 +300,7 @@ module ApplicationHelper
   def link_to_resource(resource, name=nil, options={})
     if resource.display_dashboard?
       if options[:dashboard]
-        link_to(name || resource.name, {:overwrite_params => {:controller => 'project', :action => 'index', :id => resource.copy_resource_id || resource.id}}, :title => options[:title])
+        link_to(name || resource.name, {:overwrite_params => {:controller => 'dashboard', :action => 'index', :id => resource.copy_resource_id || resource.id}}, :title => options[:title])
       else
         # stay on the same page (for example components)
         link_to(name || resource.name, {:overwrite_params => {:id => resource.copy_resource_id || resource.id}}, :title => options[:title])
