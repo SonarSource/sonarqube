@@ -171,7 +171,7 @@ class DashboardsController < ApplicationController
     dashboard.description=params[:description]
     dashboard.shared=(params[:shared].present? && is_admin?)
     dashboard.user_id=current_user.id
-    dashboard.column_layout='50-50' if !dashboard.column_layout
+    dashboard.column_layout=Dashboard::DEFAULT_LAYOUT if !dashboard.column_layout
   end
 
   def add_default_dashboards_if_first_user_dashboard

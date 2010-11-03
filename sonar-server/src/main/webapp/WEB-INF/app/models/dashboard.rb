@@ -18,6 +18,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class Dashboard < ActiveRecord::Base
+
+  DEFAULT_LAYOUT='50%-50%'
+
   belongs_to :user
 
   has_many :widgets, :include => 'properties', :dependent => :delete_all

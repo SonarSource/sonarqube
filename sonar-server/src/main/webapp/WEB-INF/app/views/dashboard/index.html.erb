@@ -5,8 +5,8 @@
     columns=@dashboard.column_layout.split('-')
     for index in 1..columns.size()
   %>
-    <div class="dashboard-column-wrapper" style="width: <%= (columns.size()>0) ? columns[index-1].to_i : 100 %>%; clear: right;">
-    <div class="dashboard-column" id="dashboard-column-<%= index -%>" style="margin: 0px <%= index<columns.size() ? "5px" : "0px" %> 0px <%= index>1 ? "5px" : "0px" %>;">
+    <div class="dashboard-column-wrapper" style="width: <%= columns[index-1] -%>; ">
+    <div class="dashboard-column" id="dashboard-column-<%= index -%>" style="margin: 0px <%= index<columns.size() ? "5px" : "0px" -%> 0px <%= index>1 ? "5px" : "0px" -%>;">
     <%
       @dashboard.widgets.select{|widget| widget.column_index==index}.sort_by{|widget| widget.row_index}.each do |widget|
         widget_definition=@widget_definitions.find{|wd| wd.getId()==widget.widget_key }

@@ -65,7 +65,7 @@ class CreateDashboards < ActiveRecord::Migration
   private
 
   def self.create_dashboard
-    dashboard=::Dashboard.new(:name => 'Dashboard', :shared => true, :description => 'Default dashboard', :column_layout => "50-50")
+    dashboard=::Dashboard.new(:name => 'Dashboard', :shared => true, :description => 'Default dashboard', :column_layout => Dashboard::DEFAULT_LAYOUT)
     dashboard.widgets.build(:widget_key => 'static_analysis', :name => 'Static analysis', :column_index => 1, :row_index => 1, :configured => true)
     dashboard.widgets.build(:widget_key => 'comments_duplications', :name => 'Comments duplications', :column_index => 1, :row_index => 2, :configured => true)
     dashboard.widgets.build(:widget_key => 'extended_analysis', :name => 'Extended analysis', :column_index => 1, :row_index => 3, :configured => true)
