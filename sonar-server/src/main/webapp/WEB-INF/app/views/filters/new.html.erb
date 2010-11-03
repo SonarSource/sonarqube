@@ -15,6 +15,7 @@ table#columns td {
     return false;
   }
 </script>
+<div class="tabs-panel">
 <h1>Settings</h1>
 <div class="admin">
   <form id="filter_form" name="filter_form" action="<%= url_for :action => (@filter.id ? 'update' : 'create'), :id => @filter.id -%>" method="post">
@@ -191,3 +192,4 @@ $('name').focus();
   <br/>
   <%= render :partial => "filters/#{@filter.default_view}", :locals => {:data => @data, :edit_mode => true} %>
 <% end %>
+</div>
