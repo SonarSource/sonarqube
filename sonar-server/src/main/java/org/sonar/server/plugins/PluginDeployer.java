@@ -19,6 +19,15 @@
  */
 package org.sonar.server.plugins;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -34,18 +43,10 @@ import org.sonar.core.plugin.JpaPlugin;
 import org.sonar.core.plugin.JpaPluginDao;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.ServerStartException;
+import org.sonar.updatecenter.common.PluginKeyUtils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 public final class PluginDeployer implements ServerComponent {
 
@@ -229,9 +230,16 @@ public final class PluginDeployer implements ServerComponent {
   }
 
   private File moveDownloadedFile(File jar) {
+    File destDir = fileSystem.getUserPluginsDir();
+    File destFile = new File(destDir, jar.getName());
+    if (destFile.exists()) {
+      // plugin with same filename already installed
+      FileUtils.deleteQuietly(jar);
+      return destFile;
+    }
     try {
-      FileUtils.moveFileToDirectory(jar, fileSystem.getUserPluginsDir(), true);
-      return new File(fileSystem.getUserPluginsDir(), jar.getName());
+      FileUtils.moveFileToDirectory(jar, destDir, true);
+      return new File(destDir, jar.getName());
 
     } catch (IOException e) {
       LOG.error("Fail to move the downloaded file: " + jar.getAbsolutePath(), e);
@@ -259,8 +267,7 @@ public final class PluginDeployer implements ServerComponent {
         map.remove(pluginKey);
         Logs.INFO.info("Old plugin " + existing.getFilename() + " replaced by new " + metadata.getFilename());
       } else {
-        throw new ServerStartException("Found two plugins with the same key '" + pluginKey + "': "
-            + metadata.getFilename() + " and "
+        throw new ServerStartException("Found two plugins with the same key '" + pluginKey + "': " + metadata.getFilename() + " and "
             + existing.getFilename());
       }
     }
@@ -277,7 +284,7 @@ public final class PluginDeployer implements ServerComponent {
     try {
       URLClassLoader pluginClassLoader = URLClassLoader.newInstance(new URL[] { tempFile.toURI().toURL() }, getClass().getClassLoader());
       Plugin pluginInstance = (Plugin) pluginClassLoader.loadClass(mainClass).newInstance();
-      plugin.setKey(pluginInstance.getKey());
+      plugin.setKey(PluginKeyUtils.getPluginKey(pluginInstance.getKey()));
       plugin.setDescription(pluginInstance.getDescription());
       plugin.setName(pluginInstance.getName());
 

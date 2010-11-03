@@ -19,6 +19,10 @@
  */
 package org.sonar.batch;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -39,10 +43,6 @@ import org.sonar.core.plugin.JpaPluginDao;
 import org.sonar.core.plugin.JpaPluginFile;
 
 import com.google.common.collect.Lists;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
 
 public class BatchPluginRepository extends AbstractPluginRepository {
 
@@ -103,16 +103,6 @@ public class BatchPluginRepository extends AbstractPluginRepository {
     invokeExtensionProviders(pico);
   }
 
-  private String getOldCoveragePluginKey(String pluginKey) {
-    if (StringUtils.equals("sonar-jacoco-plugin", pluginKey)) {
-      return "jacoco";
-    }
-    if (StringUtils.equals("sonar-emma-plugin", pluginKey)) {
-      return "emma";
-    }
-    return null;
-  }
-
   @Override
   protected boolean shouldRegisterExtension(PicoContainer container, String pluginKey, Object extension) {
     boolean ok = isType(extension, BatchExtension.class);
@@ -132,8 +122,7 @@ public class BatchPluginRepository extends AbstractPluginRepository {
       if (ArrayUtils.isEmpty(selectedPluginKeys)) {
         selectedPluginKeys = new String[] { AbstractCoverageExtension.DEFAULT_PLUGIN };
       }
-      String oldCoveragePluginKey = getOldCoveragePluginKey(pluginKey);
-      ok = ArrayUtils.contains(selectedPluginKeys, pluginKey) || ArrayUtils.contains(selectedPluginKeys, oldCoveragePluginKey);
+      ok = ArrayUtils.contains(selectedPluginKeys, pluginKey);
     }
     return ok;
   }

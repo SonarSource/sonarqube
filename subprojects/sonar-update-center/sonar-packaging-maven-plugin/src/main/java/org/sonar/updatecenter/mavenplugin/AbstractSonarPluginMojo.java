@@ -19,17 +19,17 @@
  */
 package org.sonar.updatecenter.mavenplugin;
 
-import org.apache.commons.lang.StringUtils;
+import java.io.File;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.filter.ScopeArtifactFilter;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-
-import java.io.File;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import org.sonar.updatecenter.common.PluginKeyUtils;
 
 /**
  * Base class for Sonar-plugin-packaging related tasks.
@@ -37,6 +37,7 @@ import java.util.Set;
  * @author Evgeny Mandrikov
  */
 public abstract class AbstractSonarPluginMojo extends AbstractMojo {
+
   public static final String SONAR_GROUPID = "org.codehaus.sonar";
   public static final String SONAR_PLUGIN_API_ARTIFACTID = "sonar-plugin-api";
   public static final String SONAR_PLUGIN_API_TYPE = "jar";
@@ -173,13 +174,7 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
   }
 
   public String getPluginKey() {
-    if (StringUtils.startsWith(pluginKey, "sonar-") && StringUtils.endsWith(pluginKey, "-plugin")) {
-      return StringUtils.removeEnd(StringUtils.removeStart(pluginKey, "sonar-"), "-plugin");
-    }
-    if (StringUtils.endsWith(pluginKey, "-sonar-plugin")) {
-      return StringUtils.removeEnd(pluginKey, "-sonar-plugin");
-    }
-    return StringUtils.remove(pluginKey, "-");
+    return PluginKeyUtils.getPluginKey(pluginKey);
   }
 
   protected final String getPluginClass() {
@@ -214,7 +209,7 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
     return skipDependenciesPackaging;
   }
 
-  @SuppressWarnings( { "unchecked" })
+  @SuppressWarnings({ "unchecked" })
   protected Set<Artifact> getDependencyArtifacts() {
     return getProject().getDependencyArtifacts();
   }
@@ -229,7 +224,7 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
     return result;
   }
 
-  @SuppressWarnings( { "unchecked" })
+  @SuppressWarnings({ "unchecked" })
   protected Set<Artifact> getIncludedArtifacts() {
     Set<Artifact> result = new HashSet<Artifact>();
     Set<Artifact> artifacts = getProject().getArtifacts();
@@ -246,8 +241,7 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
     Set<Artifact> dependencies = getDependencyArtifacts();
     if (dependencies != null) {
       for (Artifact dep : dependencies) {
-        if (SONAR_GROUPID.equals(dep.getGroupId())
-            && SONAR_PLUGIN_API_ARTIFACTID.equals(dep.getArtifactId())
+        if (SONAR_GROUPID.equals(dep.getGroupId()) && SONAR_PLUGIN_API_ARTIFACTID.equals(dep.getArtifactId())
             && SONAR_PLUGIN_API_TYPE.equals(dep.getType())) {
           return dep;
         }

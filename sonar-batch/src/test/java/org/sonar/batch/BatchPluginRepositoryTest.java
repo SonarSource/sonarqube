@@ -19,6 +19,9 @@
  */
 package org.sonar.batch;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
@@ -29,9 +32,6 @@ import org.sonar.api.batch.AbstractCoverageExtension;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.IocContainer;
-
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 
 public class BatchPluginRepositoryTest {
 
@@ -57,7 +57,7 @@ public class BatchPluginRepositoryTest {
     BatchPluginRepository repository = new BatchPluginRepository();
     PropertiesConfiguration conf = new PropertiesConfiguration();
     assertThat(repository.shouldRegisterCoverageExtension("cobertura", newJavaProject(), conf), is(true));
-    assertThat(repository.shouldRegisterCoverageExtension("clover", newJavaProject(),conf), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("clover", newJavaProject(), conf), is(false));
   }
 
   @Test
@@ -65,36 +65,10 @@ public class BatchPluginRepositoryTest {
     Configuration conf = new PropertiesConfiguration();
     conf.setProperty(AbstractCoverageExtension.PARAM_PLUGIN, "clover,phpunit");
     BatchPluginRepository repository = new BatchPluginRepository();
-    assertThat(repository.shouldRegisterCoverageExtension("cobertura", newJavaProject(),conf), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("cobertura", newJavaProject(), conf), is(false));
     assertThat(repository.shouldRegisterCoverageExtension("clover", newJavaProject(), conf), is(true));
-    assertThat(repository.shouldRegisterCoverageExtension("phpunit", newJavaProject(),conf), is(true));
-    assertThat(repository.shouldRegisterCoverageExtension("other", newJavaProject(),conf), is(false));
-  }
-
-  @Test
-  public void shouldActivateOldVersionOfEmma() {
-    Configuration conf = new PropertiesConfiguration();
-    conf.setProperty(AbstractCoverageExtension.PARAM_PLUGIN, "emma");
-    BatchPluginRepository repository = new BatchPluginRepository();
-
-    assertThat(repository.shouldRegisterCoverageExtension("sonar-emma-plugin", newJavaProject(),conf), is(true));
-    assertThat(repository.shouldRegisterCoverageExtension("emma", newJavaProject(),conf), is(true));
-
-    assertThat(repository.shouldRegisterCoverageExtension("sonar-jacoco-plugin", newJavaProject(),conf), is(false));
-    assertThat(repository.shouldRegisterCoverageExtension("jacoco", newJavaProject(),conf), is(false));
-    assertThat(repository.shouldRegisterCoverageExtension("clover", newJavaProject(),conf), is(false));
-    assertThat(repository.shouldRegisterCoverageExtension("cobertura", newJavaProject(),conf), is(false));
-  }
-
-  @Test
-  public void shouldActivateOldVersionOfJacoco() {
-    Configuration conf = new PropertiesConfiguration();
-    conf.setProperty(AbstractCoverageExtension.PARAM_PLUGIN, "cobertura,jacoco");
-    BatchPluginRepository repository = new BatchPluginRepository();
-
-    assertThat(repository.shouldRegisterCoverageExtension("sonar-jacoco-plugin", newJavaProject(),conf), is(true));
-    assertThat(repository.shouldRegisterCoverageExtension("jacoco", newJavaProject(),conf), is(true));
-    assertThat(repository.shouldRegisterCoverageExtension("emma", newJavaProject(),conf), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("phpunit", newJavaProject(), conf), is(true));
+    assertThat(repository.shouldRegisterCoverageExtension("other", newJavaProject(), conf), is(false));
   }
 
   @Test
@@ -103,8 +77,8 @@ public class BatchPluginRepositoryTest {
     conf.setProperty(AbstractCoverageExtension.PARAM_PLUGIN, "cobertura");
     BatchPluginRepository repository = new BatchPluginRepository();
 
-    assertThat(repository.shouldRegisterCoverageExtension("groovy", newGroovyProject(),conf), is(true));
-    assertThat(repository.shouldRegisterCoverageExtension("groovy", newJavaProject(),conf), is(false));
+    assertThat(repository.shouldRegisterCoverageExtension("groovy", newGroovyProject(), conf), is(true));
+    assertThat(repository.shouldRegisterCoverageExtension("groovy", newJavaProject(), conf), is(false));
   }
 
   private static Project newJavaProject() {

@@ -19,8 +19,7 @@
  */
 package org.sonar.updatecenter.common;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import static org.sonar.updatecenter.common.FormatUtils.toDate;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +28,8 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import static org.sonar.updatecenter.common.FormatUtils.toDate;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 /**
  * This class loads Sonar plugin metadata from JAR manifest.
@@ -94,7 +94,8 @@ public final class PluginManifest {
   }
 
   /**
-   * @param manifest, can not be null
+   * @param manifest
+   *          , can not be null
    */
   public PluginManifest(Manifest manifest) {
     loadManifest(manifest);
@@ -105,7 +106,7 @@ public final class PluginManifest {
 
   private void loadManifest(Manifest manifest) {
     Attributes attributes = manifest.getMainAttributes();
-    this.key = attributes.getValue(KEY);
+    this.key = PluginKeyUtils.getPluginKey(attributes.getValue(KEY));
     this.mainClass = attributes.getValue(MAIN_CLASS);
     this.name = attributes.getValue(NAME);
     this.description = attributes.getValue(DESCRIPTION);
