@@ -89,12 +89,17 @@ class DashboardController < ApplicationController
     if dashboard.editable_by?(current_user)
       definition=java_facade.getWidget(params[:widget])
       if definition
+        first_column_widgets=dashboard.widgets.select{|w| w.column_index==1}
         new_widget=dashboard.widgets.create(:widget_key => definition.getId(),
                                            :name => definition.getTitle(),
-                                           :column_index => dashboard.number_of_columns,
-                                           :row_index => dashboard.column_size(dashboard.number_of_columns) + 1,
+                                           :column_index => 1,
+                                           :row_index => 1,
                                            :configured => !definition.hasRequiredProperties())
         widget_id=new_widget.id
+        first_column_widgets.each_with_index do |w, index|
+          w.row_index=index+2
+          w.save
+        end
       end
     end
     redirect_to :action => 'configure', :did => dashboard.id, :id => params[:id], :highlight => widget_id
