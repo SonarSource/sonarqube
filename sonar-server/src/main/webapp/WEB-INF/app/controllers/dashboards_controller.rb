@@ -86,14 +86,20 @@ class DashboardsController < ApplicationController
 
   def delete
     dashboard=Dashboard.find(params[:id])
+    default_dashboards=ActiveDashboard.default_dashboards
     if current_user.active_dashboards.size<=1
       flash[:error]='At least one dashboard must be defined'
+      redirect_to :action => 'index', :resource => params[:resource]
+
+    elsif default_dashboards.size==1 && default_dashboards[0].dashboard_id==dashboard.id
+      flash[:error]='At least one default dashboard must be defined'
       redirect_to :action => 'index', :resource => params[:resource]
 
     elsif dashboard.owner?(current_user)
       dashboard.destroy
       flash[:notice]='Dashboard deleted'
       redirect_to :action => 'index', :resource => params[:resource]
+      
     else
       # TODO explicit error
       redirect_to home_path

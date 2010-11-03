@@ -24,7 +24,7 @@ class ProjectController < ApplicationController
   SECTION=Navigation::SECTION_RESOURCE
   
   def index
-    redirect_to :overwrite_params => {:controller => :dashboard, :action => 'index', :resource => params[:id], :id => nil } 
+    redirect_to :overwrite_params => {:controller => :dashboard, :action => 'index'} 
   end
 
   def show_reviews
