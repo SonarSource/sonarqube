@@ -20,29 +20,18 @@
 package org.sonar.plugins.squid;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.shared.artifact.filter.collection.FilterArtifacts;
-import org.apache.maven.shared.artifact.filter.collection.ProjectTransitivityFilter;
-import org.apache.maven.shared.artifact.filter.collection.ScopeFilter;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.Phase;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.*;
 import org.sonar.api.checks.AnnotationCheckFactory;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
-import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 @Phase(name = Phase.Name.PRE)
 /* TODO is the flag still used ? */
@@ -52,11 +41,13 @@ public class SquidSensor implements Sensor {
   private SquidSearchProxy proxy;
   private NoSonarFilter noSonarFilter;
   private RulesProfile profile;
+  private ProjectClasspath projectClasspath;
 
-  public SquidSensor(RulesProfile profile, SquidSearchProxy proxy, NoSonarFilter noSonarFilter) {
+  public SquidSensor(RulesProfile profile, SquidSearchProxy proxy, NoSonarFilter noSonarFilter, ProjectClasspath projectClasspath) {
     this.proxy = proxy;
     this.noSonarFilter = noSonarFilter;
     this.profile = profile;
+    this.projectClasspath = projectClasspath;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -84,38 +75,15 @@ public class SquidSensor implements Sensor {
     return project.getFileSystem().getJavaSourceFiles();
   }
 
-  /**
-   * TODO replace this code by org.sonar.api.batch.ProjectClasspath
-   * 
-   * @return Collection of java.util.File
-   */
   private Collection<File> getBytecodeFiles(Project project) {
-    try {
-      Collection<File> bytecodeFiles = new ArrayList<File>();
-      if (hasProjectBytecodeFiles(project)) {
-        File classesDir = project.getFileSystem().getBuildOutputDir();
-        if (classesDir != null && classesDir.exists()) {
-          bytecodeFiles.add(classesDir);
-        }
-
-        MavenProject mavenProject = project.getPom();
-        FilterArtifacts filters = new FilterArtifacts();
-        filters.addFilter(new ProjectTransitivityFilter(mavenProject.getDependencyArtifacts(), false));
-
-        // IMPORTANT : the following annotation must be aded to BatchMojo : @requiresDependencyResolution test
-        // => Include scopes compile and provided, exclude scopes test, system and runtime
-        filters.addFilter(new ScopeFilter("compile", ""));
-        Set<Artifact> artifacts = mavenProject.getArtifacts();
-        artifacts = filters.filter(artifacts);
-        for (Artifact a : artifacts) {
-          bytecodeFiles.add(a.getFile());
-        }
+    Collection<File> bytecodeFiles = projectClasspath.getElements();
+    if ( !hasProjectBytecodeFiles(project)) {
+      File classesDir = project.getFileSystem().getBuildOutputDir();
+      if (classesDir != null && classesDir.exists()) {
+        bytecodeFiles.remove(classesDir);
       }
-      return bytecodeFiles;
-
-    } catch (Exception e) {
-      throw new SonarException(e);
     }
+    return bytecodeFiles;
   }
 
   private boolean hasProjectBytecodeFiles(Project project) {
@@ -127,7 +95,6 @@ public class SquidSensor implements Sensor {
       }
     }
     return false;
-
   }
 
   @Override

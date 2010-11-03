@@ -16,25 +16,23 @@
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-deprecated</artifactId>
+      <artifactId>sonar-plugin-api</artifactId>
+      <scope>provided</scope>
     </dependency>
-
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-squid</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-graph</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>asm</groupId>
       <artifactId>asm-all</artifactId>
       <version>3.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-plugin-api</artifactId>
     </dependency>
     <dependency>
       <groupId>checkstyle</groupId>
@@ -63,51 +61,16 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.maven.shared</groupId>
-      <artifactId>maven-common-artifact-filters</artifactId>
-      <exclusions>
-        <!-- optimizations to reduce the size of the plugin JAR -->
-        <exclusion>
-          <groupId>org.apache.maven</groupId>
-          <artifactId>maven-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.maven</groupId>
-          <artifactId>maven-artifact</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.maven</groupId>
-          <artifactId>maven-model</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.maven</groupId>
-          <artifactId>maven-plugin-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.maven.shared</groupId>
-          <artifactId>maven-plugin-testing-harness</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.codehaus.plexus</groupId>
-          <artifactId>plexus-container-default</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.codehaus.plexus</groupId>
-          <artifactId>plexus-utils</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>classworlds</groupId>
       <artifactId>classworlds</artifactId>
       <scope>provided</scope>
     </dependency>
-
-
+    <!-- unit tests -->
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-testing-harness</artifactId>
