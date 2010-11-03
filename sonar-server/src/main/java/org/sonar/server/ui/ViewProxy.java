@@ -38,7 +38,8 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   private String[] defaultForMetrics = {};
   private String description = "";
   private WidgetProperty[] properties = {};
-  private boolean isDefaultTab=false;
+  private String[] categories = {};
+  private boolean isDefaultTab = false;
   private boolean isWidget = false;
 
   public ViewProxy(final V view) {
@@ -71,7 +72,7 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
 
     DefaultTab defaultTabAnnotation = AnnotationUtils.getClassAnnotation(view, DefaultTab.class);
     if (defaultTabAnnotation != null) {
-      if (defaultTabAnnotation==null || defaultTabAnnotation.metrics().length==0) {
+      if (defaultTabAnnotation == null || defaultTabAnnotation.metrics().length == 0) {
         isDefaultTab = true;
         defaultForMetrics = new String[0];
 
@@ -91,6 +92,11 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
       properties = widgetProperties.value();
     }
 
+    WidgetCategory widgetCategory = AnnotationUtils.getClassAnnotation(view, WidgetCategory.class);
+    if (widgetCategory != null) {
+      categories = widgetCategory.value();
+    }
+
     isWidget = (view instanceof Widget);
   }
 
@@ -107,11 +113,15 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   }
 
   public String getDescription() {
-      return description;
+    return description;
   }
 
   public WidgetProperty[] getProperties() {
-      return properties;
+    return properties;
+  }
+
+  public String[] getCategories() {
+    return categories;
   }
 
   public String[] getSections() {

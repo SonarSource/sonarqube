@@ -70,7 +70,13 @@
   margin: 3px;
   white-space: normal;
   vertical-align: top;
-
+}
+#dashboard ul.widget_categs li {
+  padding-right: 5px;
+}
+#dashboard ul.widget_categs li.selected a {
+  font-weight: bold;
+  text-decoration: none;
 }
 /*OPERATIONS*/
 #dashboard #dashboard-operations {

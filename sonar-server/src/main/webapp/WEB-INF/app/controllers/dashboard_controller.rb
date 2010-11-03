@@ -75,7 +75,7 @@ class DashboardController < ApplicationController
           widget.save!
           all_ids<<widget.id
         end
-      end 
+      end
     end
     @dashboard.widgets.reject{|w| all_ids.include?(w.id)}.each do |w|
       w.destroy
@@ -140,6 +140,11 @@ class DashboardController < ApplicationController
     end
   end
 
+  def widget_definitions
+    load_widget_definitions(params[:category])
+    render :partial => 'dashboard/widget_definitions', :locals => {:dashboard_id => params[:did], :resource_id => params[:rid], :filter_on_category => params[:category]}
+  end
+
   private
 
   def load_dashboard
@@ -193,8 +198,14 @@ class DashboardController < ApplicationController
     end
   end
 
-  def load_widget_definitions()
-    @widget_definitions = java_facade.getWidgets()
+  def load_widget_definitions(filter_on_category=nil)
+    @widget_definitions=java_facade.getWidgets()
+    @widget_categories=[]
+    @widget_definitions.each {|definition| @widget_categories<<definition.getCategories()}
+    @widget_categories=@widget_categories.flatten.uniq.sort
+    unless filter_on_category.blank?
+      @widget_definitions=@widget_definitions.select{|definition| definition.getCategories().to_a.include?(filter_on_category)}
+    end
   end
 
 end

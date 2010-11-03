@@ -1,0 +1,18 @@
+<p>
+    <ul class="horizontal widget_categs">
+      <li>Filter: </li>
+      <li class="<%= 'selected' if filter_on_category.blank? -%>"><a href="#" onClick="return filterWidgets('')">None</a></li>
+    <% @widget_categories.each do |category| %>
+      <li class="<%= 'selected' if filter_on_category==category -%>"><a href="#" onClick="return filterWidgets('<%= category -%>')"><%= h(category) -%></a></li>
+    <% end %>
+    </ul>
+    <%= image_tag 'loading.gif', :style=>'vertical-align: top;display: none', :id => 'filter-widgets-loading' -%>
+</p>
+<table width="100%">
+  <% @widget_definitions.each_with_index do |definition, index| %>
+    <% if index%4==0 %><tr><% end %>
+    <%= render :partial => 'dashboard/widget_definition', :locals => {:definition => definition, :dashboard_id => dashboard_id, :resource_id => resource_id} %>
+    <% if index%4==3 %></tr><% end %>
+  <% end %>
+  <% if @widget_definitions.size%4<3 %></tr><% end %>
+</table>
