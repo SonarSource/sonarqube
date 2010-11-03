@@ -50,21 +50,26 @@
 /*CONFIGURATION*/
 #dashboard #widget_defs {
   width: 100%;
-  overflow: auto;
-  white-space: nowrap;
+  height: 130px;
+  overflow-y: auto;
   background-color: #FFF6BF;
   border: 2px solid #FFD324;
+  padding: 3px;
 }
 
-#dashboard .widget_def {
-  border-right: 1px dashed #FFD324;
-  padding: 5px;
-  display: inline-block;
-  width: 160px;
+#dashboard #widget_defs td {
   white-space: normal;
   vertical-align: top;
+  width: 25%;
 }
+#dashboard .widget_def {
+  border: 1px solid #FFD324;
+  padding: 5px;
+  margin: 3px;
+  white-space: normal;
+  vertical-align: top;
 
+}
 /*OPERATIONS*/
 #dashboard #dashboard-operations {
   position: relative;

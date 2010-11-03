@@ -32,9 +32,14 @@
   <%= render :partial => 'dashboard/header', :locals => {:back => true} %>
 
   <div id="widget_defs" class="marginbottom10">
-      <% @widget_definitions.each_with_index do |definition, index| %>
-           <%= render :partial => 'dashboard/widget_definition', :locals => {:definition => definition} %>
-      <% end %>
+    <table width="100%">
+    <% @widget_definitions.each_with_index do |definition, index| %>
+      <% if index%4==0 %><tr><% end %>
+        <%= render :partial => 'dashboard/widget_definition', :locals => {:definition => definition} %>
+      <% if index%4==3 %></tr><% end %>
+    <% end %>
+    <% if @widget_definitions.size%4<3 %></tr><% end %>
+    </table>
   </div>
 
 
