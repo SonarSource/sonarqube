@@ -1,0 +1,39 @@
+== 0.5.1
+
+* Multiple fixes by Brice Figureau to get net/ssh working. Requires JRuby 1.3.1 to be 100%
+* Fix by Frederic Jean for a character-decoding issue for some certificates
+
+== 0.5
+
+* Fixed JRUBY-3614: Unsupported HMAC algorithm (HMACSHA-256)
+* Fixed JRUBY-3570: ActiveMerchant's AuthorizeNet Gateway throws OpenSSL Cert Validation Error, when there should be no error
+* Fixed JRUBY-3557 Class cast exception in PKeyRSA.java
+* Fixed JRUBY-3468 X.509 certificates: subjectKeyIdentifier corrupted
+* Fixed JRUBY-3285 Unsupported HMAC algorithm (HMACSHA1) error when generating digest
+* Misc code cleanup
+
+== 0.2
+
+- Enable remaining tests; fix a nil string issue in SSLSocket.sysread (JRUBY-1888)
+- Fix socket buffering issue by setting socket IO sync = true
+- Fix bad file descriptor issue caused by unnecessary close (JRUBY-2152)
+- Fix AES key length (JRUBY-2187)
+- Fix cipher initialization (JRUBY-1100)
+- Now, only compatible with JRuby 1.1
+
+== 0.1.1
+
+- Fixed blocker issue preventing HTTPS/SSL from working (JRUBY-1222)
+
+== 0.1
+
+- PLEASE NOTE: This release is not compatible with JRuby releases earlier than
+  1.0.3 or 1.1b2. If you must use JRuby 1.0.2 or earlier, please install the
+  0.6 release.
+- Release coincides with JRuby 1.0.3 and JRuby 1.1b2 releases
+- Simultaneous support for JRuby trunk and 1.0 branch
+- Start of support for OpenSSL::BN
+
+== 0.0.5 and prior
+
+- Initial versions with maintenance updates
