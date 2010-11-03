@@ -19,15 +19,6 @@
  */
 package org.sonar.server.plugins;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -47,6 +38,15 @@ import org.sonar.updatecenter.common.PluginKeyUtils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public final class PluginDeployer implements ServerComponent {
 
@@ -224,7 +224,9 @@ public final class PluginDeployer implements ServerComponent {
       Collection<File> jars = FileUtils.listFiles(fileSystem.getDownloadedPluginsDir(), new String[] { "jar" }, false);
       for (File jar : jars) {
         File movedJar = moveDownloadedFile(jar);
-        registerPluginMetadata(movedJar, false, true);
+        if (movedJar != null) {
+          registerPluginMetadata(movedJar, false, true);
+        }
       }
     }
   }
@@ -235,11 +237,11 @@ public final class PluginDeployer implements ServerComponent {
     if (destFile.exists()) {
       // plugin with same filename already installed
       FileUtils.deleteQuietly(jar);
-      return destFile;
+      return null;
     }
     try {
       FileUtils.moveFileToDirectory(jar, destDir, true);
-      return new File(destDir, jar.getName());
+      return destFile;
 
     } catch (IOException e) {
       LOG.error("Fail to move the downloaded file: " + jar.getAbsolutePath(), e);
