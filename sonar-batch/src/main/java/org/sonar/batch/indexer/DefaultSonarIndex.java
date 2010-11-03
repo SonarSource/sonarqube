@@ -19,18 +19,12 @@
  */
 package org.sonar.batch.indexer;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.utils.SonarException;
-import org.sonar.batch.*;
-import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
@@ -46,6 +40,13 @@ import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.utils.SonarException;
+import org.sonar.batch.*;
+import org.sonar.jpa.dao.MeasuresDao;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import java.util.*;
 
@@ -101,7 +102,6 @@ public class DefaultSonarIndex extends SonarIndex {
     }
   }
 
-
   public void selectProject(Project project, ResourceFilters resourceFilters, ViolationFilters violationFilters, MeasuresDao measuresDao, ViolationsDao violationsDao) {
     this.selectedProjectBucket = buckets.get(project);
     this.resourceFilters = resourceFilters;
@@ -118,7 +118,7 @@ public class DefaultSonarIndex extends SonarIndex {
     while (it.hasNext()) {
       Map.Entry<Resource, Bucket> entry = it.next();
       Resource resource = entry.getKey();
-      if (!ResourceUtils.isSet(resource)) {
+      if ( !ResourceUtils.isSet(resource)) {
         entry.getValue().clear();
         it.remove();
       }
@@ -178,7 +178,7 @@ public class DefaultSonarIndex extends SonarIndex {
       return bucket;
     }
 
-    if (mustExist && lock.isLocked() && !ResourceUtils.isLibrary(resource)) { 
+    if (mustExist && lock.isLocked() && !ResourceUtils.isLibrary(resource)) {
       LOG.warn("The following resource has not been registered before saving violation/measure/event: " + resource);
     }
 
@@ -190,7 +190,7 @@ public class DefaultSonarIndex extends SonarIndex {
     Resource parent = resource.getParent();
     if (parent != null) {
       parentBucket = getOrCreateBucket(parent, mustExist);
-    } else if (!ResourceUtils.isLibrary(resource)) {
+    } else if ( !ResourceUtils.isLibrary(resource)) {
       parentBucket = selectedProjectBucket;
     }
     bucket.setParent(parentBucket);
@@ -217,23 +217,25 @@ public class DefaultSonarIndex extends SonarIndex {
     return getOrCreateBucket(resource, false).getMeasures(filter);
   }
 
-
   /* ------------ SOURCE CODE */
 
   public void setSource(Resource resource, String source) {
     Bucket bucket = getOrCreateBucket(resource, false);
 
-    if (!bucket.isExcluded()) {
+    if ( !bucket.isExcluded()) {
       if (bucket.isSourceSaved()) {
         LOG.warn("Trying to save twice the source of " + resource);
 
       } else {
-        session.save(new SnapshotSource(bucket.getSnapshotId(), source));
+        try {
+          session.save(new SnapshotSource(bucket.getSnapshotId(), source));
+        } catch (Exception e) {
+          throw new SonarException("Unable to save source [resource=" + resource + ",snapshotId=" + bucket.getSnapshotId() + "]", e);
+        }
         bucket.setSourceSaved(true);
       }
     }
   }
-
 
   /* ------------ RULE VIOLATIONS */
 
@@ -245,18 +247,17 @@ public class DefaultSonarIndex extends SonarIndex {
     } else {
       bucket = getOrCreateBucket(resource, true);
     }
-    if (!bucket.isExcluded()) {
+    if ( !bucket.isExcluded()) {
       persistViolation(violation, bucket.getSnapshot());
     }
   }
 
   private void persistViolation(Violation violation, Snapshot snapshot) {
     boolean isIgnored = violationFilters != null && violationFilters.isIgnored(violation);
-    if (!isIgnored) {
+    if ( !isIgnored) {
       violationsDao.saveViolation(snapshot, violation);
     }
   }
-
 
   /* ------------ MEASURES */
   public Measure saveMeasure(Resource resource, Measure measure) {
@@ -268,8 +269,8 @@ public class DefaultSonarIndex extends SonarIndex {
 
   public Measure addMeasure(Resource resource, Measure measure) {
     Bucket bucket = getOrCreateBucket(resource, true);
-    if (!bucket.isExcluded()) {
-      if (bucket.getMeasures(MeasuresFilters.measure(measure))!=null) {
+    if ( !bucket.isExcluded()) {
+      if (bucket.getMeasures(MeasuresFilters.measure(measure)) != null) {
         throw new IllegalArgumentException("This measure has already been saved: " + measure + ",resource: " + resource);
       }
       if (shouldPersistMeasure(resource, measure)) {
@@ -312,15 +313,14 @@ public class DefaultSonarIndex extends SonarIndex {
         ResourceUtils.isEntity(resource) &&
             metric.isOptimizedBestValue() == Boolean.TRUE &&
             metric.getBestValue() != null &&
-            NumberUtils.compare(metric.getBestValue(), measure.getValue())==0 &&
+            NumberUtils.compare(metric.getBestValue(), measure.getValue()) == 0 &&
             !measure.hasOptionalData());
   }
-
 
   /* --------------- DEPENDENCIES */
   public Dependency saveDependency(Dependency dependency) {
     Dependency persistedDep = getEdge(dependency.getFrom(), dependency.getTo());
-    if (persistedDep != null && persistedDep.getId()!=null) {
+    if (persistedDep != null && persistedDep.getId() != null) {
       return persistedDep;
     }
     Bucket from = getOrCreateBucket(dependency.getFrom(), true);
@@ -377,7 +377,6 @@ public class DefaultSonarIndex extends SonarIndex {
     return dependencies;
   }
 
-
   /* ------------ LINKS */
 
   public void saveLink(ProjectLink link) {
@@ -402,7 +401,6 @@ public class DefaultSonarIndex extends SonarIndex {
       projectDao.getProjectLinks().remove(dbLink);
     }
   }
-
 
   /* ----------- EVENTS */
   public List<Event> getEvents(Resource resource) {
