@@ -19,21 +19,22 @@
  */
 package org.sonar.server.plugins;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerComponent;
-import org.sonar.api.utils.HttpDownloader;
-import org.sonar.api.utils.SonarException;
-import org.sonar.server.platform.DefaultServerFileSystem;
-import org.sonar.updatecenter.common.Plugin;
-import org.sonar.updatecenter.common.Release;
-import org.sonar.updatecenter.common.Version;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.ServerComponent;
+import org.sonar.api.utils.HttpDownloader;
+import org.sonar.api.utils.Logs;
+import org.sonar.api.utils.SonarException;
+import org.sonar.server.platform.DefaultServerFileSystem;
+import org.sonar.updatecenter.common.Plugin;
+import org.sonar.updatecenter.common.Release;
+import org.sonar.updatecenter.common.Version;
 
 public class PluginDownloader implements ServerComponent {
 
@@ -74,12 +75,12 @@ public class PluginDownloader implements ServerComponent {
   }
 
   public boolean hasDownloads() {
-    return getDownloads().size()>0;
+    return getDownloads().size() > 0;
   }
 
   public List<String> getDownloads() {
     List<String> names = new ArrayList<String>();
-    List<File> files = (List<File>)FileUtils.listFiles(downloadDir, new String[]{"jar"}, false);
+    List<File> files = (List<File>) FileUtils.listFiles(downloadDir, new String[] { "jar" }, false);
     for (File file : files) {
       names.add(file.getName());
     }
@@ -89,12 +90,16 @@ public class PluginDownloader implements ServerComponent {
   public void download(String pluginKey, Version version) {
     Plugin plugin = center.getCenter().getPlugin(pluginKey);
     if (plugin == null) {
-      throw new SonarException("This plugin does not exist: " + pluginKey);
+      String message = "This plugin does not exist: " + pluginKey;
+      Logs.INFO.warn(message);
+      throw new SonarException(message);
     }
 
     Release release = plugin.getRelease(version);
-    if (release == null || release.getDownloadUrl() == null) {
-      throw new SonarException("This release can not be installed: " + pluginKey + ", version " + version);
+    if (release == null || StringUtils.isBlank(release.getDownloadUrl())) {
+      String message = "This release can not be installed: " + pluginKey + ", version " + version;
+      Logs.INFO.warn(message);
+      throw new SonarException(message);
     }
 
     try {
@@ -103,7 +108,9 @@ public class PluginDownloader implements ServerComponent {
       downloader.download(uri, new File(downloadDir, filename));
 
     } catch (Exception e) {
-      throw new SonarException("Fail to download the plugin: " + pluginKey + ", version " + version, e);
+      String message = "Fail to download the plugin (" + pluginKey + ", version " + version + ") from " + release.getDownloadUrl();
+      Logs.INFO.warn(message, e);
+      throw new SonarException(message, e);
     }
   }
 }
