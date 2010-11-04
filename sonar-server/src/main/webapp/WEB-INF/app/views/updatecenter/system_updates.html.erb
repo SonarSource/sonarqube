@@ -61,27 +61,30 @@
                   <td class="sep"> </td>
                   <td>
                     <% if update.hasWarnings() %>
-                     Please execute the following and restart Sonar only during the last step :
+                     Follow those steps to upgrade Sonar from version <%= sonar_version -%> to version <%= release.getVersion() -%> :
                     <ol class="bulletpoints">
                    <% update.getIncompatiblePlugins().each do |incompatible_plugin| %>
-                      <li><%= image_tag 'warning.png' -%> The plugin <%= incompatible_plugin.getName() -%> is not compatible and must be uninstalled.
+                      <li>
                       <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/uninstall?key=<%= incompatible_plugin.getKey() -%>&amp;from=system_updates" style="display: inline-block">
-                        <input type="submit" value="Uninstall" onClick="return submitForm(this);"></input>
+                        <%= image_tag 'warning.png' -%> <input type="submit" value="Uninstall" onClick="return submitForm(this);"></input> the plugin <%= incompatible_plugin.getName() -%> which is not compatible with Sonar <%= release.getVersion() -%>.
                       </form>
                    </li>
              <% end %>
            <% update.getPluginsToUpgrade().each do |plugin_to_upgrade| %>
-                   <li>Upgrade the plugin <%= plugin_to_upgrade.getArtifact().getName() -%>.
+                   <li>
                     <form method="post" id="upgrade-form-<%= plugin_to_upgrade.getArtifact().getKey() -%>" action="<%= ApplicationController.root_context -%>/updatecenter/install?key=<%= plugin_to_upgrade.getArtifact().getKey() -%>&amp;version=<%= plugin_to_upgrade.getVersion() -%>&amp;from=system_updates" style="display: inline-block">
-                      <input type="submit" id="upgrade-submit-<%= plugin_to_upgrade.getArtifact().getKey() -%>" value="Upgrade to <%= plugin_to_upgrade.getVersion() -%>" onClick="return submitForm(this);"></input>
+                      <input type="submit" id="upgrade-submit-<%= plugin_to_upgrade.getArtifact().getKey() -%>" value="Upgrade" onClick="return submitForm(this);"></input>
+                      the plugin <%= plugin_to_upgrade.getArtifact().getName() -%> to version <%= plugin_to_upgrade.getVersion() -%>
                     </form>
                  </li>
                  <% end %>
-                 <li><%= link_to 'Download', release.getDownloadUrl(), :class => 'external' -%> and carefully read the upgrade guide.</li>
+                 <li>Stop Sonar</li>
+                 <li><%= link_to 'Download', release.getDownloadUrl(), :class => 'external' -%> and install Sonar <%= release.getVersion() -%> after having carefully read the upgrade guide.</li>
+                 <li>Start Sonar</li>
                     </ol>
 
                     <% else %>
-                    <%= link_to 'Download', release.getDownloadUrl(), :class => 'external' -%> and carefully read the upgrade guide.
+                    <%= link_to 'Download', release.getDownloadUrl(), :class => 'external' -%> and install Sonar <%= release.getVersion() -%> after having carefully read the upgrade guide.
                     <% end %>
                   </td>
                 </tr>
