@@ -16,8 +16,16 @@
         <%= form_remote_tag :url => {:action => 'update_param', :id => active_param_id, :profile_id => profile.id, :param_id => parameter.id, :active_rule_id => active_rule_id},
             :update => "param_#{parameter.id}",
             :loading => "$('param_loading_#{parameter.id}').show();" %>
-        <input name="value" type="text" size="<%= parameter.input_box_size -%>" value="<%= h param_value -%>" <%= 'disabled' unless active_rule && enable_modification %> />
-        <% if active_rule && enable_modification %>
+
+        <% span_id = "text_#{parameter.id}" %>
+        <% read_only = !active_rule || !enable_modification %>
+        <% textfield = text_field_tag parameter.id, param_value, :size => parameter.input_box_size, :name => "value", :disabled => read_only %>
+        <% textfield += link_to_function(image_tag("zoom.png"), "replaceTextField('#{span_id}', '#{parameter.id}')", :id => "toggle_text", :class => 'nolink') unless read_only %>
+        <% textarea = text_area_tag parameter.id, param_value, :size => "100x10", :name => "value", :disabled => read_only %>
+        <% textarea += "<br/>" %>
+        <span id="<%= span_id %>"><%= (param_value.length < 50) ? textfield : textarea %></span>
+
+        <% if !read_only %>
             <%= submit_tag 'update' %>
             <img src="<%= ApplicationController.root_context -%>/images/loading.gif" style="display:none;" id="param_loading_<%= parameter.id -%>">
             <% if active_parameter and active_parameter.errors.size>0 %>

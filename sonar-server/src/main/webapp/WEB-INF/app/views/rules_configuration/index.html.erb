@@ -123,3 +123,10 @@
 <% end %>
 </tbody>
 </table>
+<script type="text/javascript">
+    function replaceTextField(span_id, key) {
+      var text_field_value = $F(key);
+      var text_area = '<textarea cols="100" id="' + key + '" name="value" rows="10">' + text_field_value + '</textarea><br/>';
+      $(span_id).replace(text_area);
+    }
+</script>
