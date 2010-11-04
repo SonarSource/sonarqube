@@ -49,7 +49,14 @@ class Snapshot < ActiveRecord::Base
   end
   
   def self.for_timemachine_matrix(resource)
-    snapshots=Snapshot.find(:all, :conditions => ["snapshots.project_id=? AND events.snapshot_id=snapshots.id AND snapshots.status=?", resource.id, STATUS_PROCESSED],
+    # http://jira.codehaus.org/browse/SONAR-1850
+    # Conditions on scope and qualifier are required to exclude library snapshots.
+    # Use-case :
+    #   1. project A 2.0 is analyzed -> new snapshot A with qualifier TRK
+    #   2. project B, which depends on A 1.0, is analyzed -> new snapshot A 1.0 with qualifier LIB.
+    #   3. project A has 2 snapshots : the first one with qualifier=TRK has measures, the second one with qualifier LIB has no measures. Its version must not be used in time machine
+    # That's why the 2 following SQL requests check the qualifiers (and optionally scopes, just to be sure)
+    snapshots=Snapshot.find(:all, :conditions => ["snapshots.project_id=? AND events.snapshot_id=snapshots.id AND snapshots.status=? AND snapshots.scope=? AND snapshots.qualifier=?", resource.id, STATUS_PROCESSED, resource.scope, resource.qualifier],
        :include => 'events',
        :order => 'snapshots.created_at ASC')
 
@@ -58,7 +65,7 @@ class Snapshot < ActiveRecord::Base
     snapshots=snapshots[-5,5] if snapshots.size>=5
 
     snapshots.insert(0, Snapshot.find(:first,
-         :conditions => ["project_id = :project_id AND status IN (:status)", {:project_id => resource.id, :status => STATUS_PROCESSED}],
+         :conditions => ["project_id=? AND status IN (?) AND scope=? AND qualifier=?", resource.id, STATUS_PROCESSED, resource.scope, resource.qualifier],
          :include => 'project', :order => 'snapshots.created_at ASC', :limit => 1))
     snapshots.compact.uniq
   end

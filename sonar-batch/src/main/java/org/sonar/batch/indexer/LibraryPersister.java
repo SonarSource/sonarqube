@@ -55,13 +55,16 @@ public class LibraryPersister extends ResourcePersister<Library> {
     Snapshot snapshot = getSession().getSingleResult(Snapshot.class,
         "resourceId", resourceModel.getId(),
         "version", bucket.getResource().getVersion(),
-        "scope", Resource.SCOPE_SET,
-        "qualifier", Resource.QUALIFIER_LIB);
+        "scope", Resource.SCOPE_SET);
     if (snapshot == null) {
       snapshot = new Snapshot(resourceModel, null);
       snapshot.setCreatedAt(now);
       snapshot.setVersion(bucket.getResource().getVersion());
       snapshot.setStatus(Snapshot.STATUS_PROCESSED);
+
+      // see http://jira.codehaus.org/browse/SONAR-1850
+      // The qualifier must be LIB, even if the resource is TRK, because this snapshot has no measures.
+      snapshot.setQualifier(Resource.QUALIFIER_LIB);
     }
     return snapshot;
   }

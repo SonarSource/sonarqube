@@ -35,9 +35,13 @@ class TimemachineController < ApplicationController
 
     if params[:sid]
       @sids = params[:sid].split(',').collect {|s| s.to_i}
+
+      #
+      # see the explanation of the conditions on scope/qualifier in the method Snapshot.for_timemachine_matrix()
+      #
       @snapshots=Snapshot.find(:all,
          :include => 'events',
-         :conditions => {:id => @sids, :project_id => @project.id}, :order => 'snapshots.created_at ASC')
+         :conditions => {:id => @sids, :project_id => @project.id, :scope => @project.scope, :qualifier => @project.qualifier}, :order => 'snapshots.created_at ASC')
     else
       @snapshots=Snapshot.for_timemachine_matrix(@project)
       @sids = @snapshots.collect{|s| s.id}.uniq
