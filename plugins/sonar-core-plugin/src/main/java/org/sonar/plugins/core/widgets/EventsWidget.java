@@ -20,15 +20,16 @@
 package org.sonar.plugins.core.widgets;
 
 import org.sonar.api.web.AbstractRubyTemplate;
+import org.sonar.api.web.Description;
 import org.sonar.api.web.RubyRailsWidget;
 
+@Description("Reports events on the project life cycle such as versions and alerts.")
 public class EventsWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
     return "events";
   }
 
   public String getTitle() {
-    // not used for the moment by widgets.
     return "Events";
   }
 

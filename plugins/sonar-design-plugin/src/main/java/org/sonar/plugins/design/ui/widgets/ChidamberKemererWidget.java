@@ -19,13 +19,11 @@
  */
 package org.sonar.plugins.design.ui.widgets;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
-import org.sonar.api.web.UserRole;
-import org.sonar.api.web.WidgetCategory;
+import org.sonar.api.web.*;
 
 @UserRole(UserRole.USER)
 @WidgetCategory({"Design"})
+@Description("Reports on LCOM4 and RFC average and distribution.")
 public final class ChidamberKemererWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
     return "ckjm";

@@ -20,16 +20,17 @@
 package org.sonar.plugins.core.widgets;
 
 import org.sonar.api.web.AbstractRubyTemplate;
+import org.sonar.api.web.Description;
 import org.sonar.api.web.RubyRailsWidget;
 
+@Description("Reports general metrics on the size of the project.")
 public class DefaultStaticAnalysisWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
     return "static_analysis";
   }
 
   public String getTitle() {
-    // not used for the moment by widgets.
-    return "Static analysis";
+    return "Size metrics";
   }
 
   @Override

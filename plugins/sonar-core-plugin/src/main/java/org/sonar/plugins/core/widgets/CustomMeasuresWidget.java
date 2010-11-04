@@ -20,15 +20,16 @@
 package org.sonar.plugins.core.widgets;
 
 import org.sonar.api.web.AbstractRubyTemplate;
+import org.sonar.api.web.Description;
 import org.sonar.api.web.RubyRailsWidget;
 
+@Description("Displays manual measures entered on the project.")
 public class CustomMeasuresWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
     return "custom_measures";
   }
 
   public String getTitle() {
-    // not used for the moment by widgets.
     return "Custom measures";
   }
 

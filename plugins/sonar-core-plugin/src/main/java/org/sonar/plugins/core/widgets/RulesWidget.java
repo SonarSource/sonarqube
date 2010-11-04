@@ -22,14 +22,14 @@ package org.sonar.plugins.core.widgets;
 import org.sonar.api.web.*;
 
 @WidgetCategory({"Rules"})
+@Description("Reports violations and compliance index on coding standards.")
 public class RulesWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
     return "rules";
   }
 
   public String getTitle() {
-    // not used for the moment by widgets.
-    return "Rules";
+    return "Rules Compliance";
   }
 
   @Override

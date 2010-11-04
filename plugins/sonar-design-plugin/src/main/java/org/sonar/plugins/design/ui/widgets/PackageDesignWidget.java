@@ -23,6 +23,7 @@ import org.sonar.api.web.*;
 
 @UserRole(UserRole.USER)
 @WidgetCategory({"Design"})
+@Description("Reports on package dependency cycles and tangle index.")
 public final class PackageDesignWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
     return "package-design";

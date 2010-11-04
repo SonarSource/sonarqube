@@ -20,15 +20,16 @@
 package org.sonar.plugins.core.widgets;
 
 import org.sonar.api.web.AbstractRubyTemplate;
+import org.sonar.api.web.Description;
 import org.sonar.api.web.RubyRailsWidget;
 
+@Description("Displays general project information taken from the pom.xml")
 public class DescriptionWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
     return "description";
   }
 
   public String getTitle() {
-    // not used for the moment by widgets.
     return "Description";
   }
 

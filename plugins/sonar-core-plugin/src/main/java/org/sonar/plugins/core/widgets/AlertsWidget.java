@@ -20,15 +20,16 @@
 package org.sonar.plugins.core.widgets;
 
 import org.sonar.api.web.AbstractRubyTemplate;
+import org.sonar.api.web.Description;
 import org.sonar.api.web.RubyRailsWidget;
 
+@Description("Display current alerts on the project.")
 public class AlertsWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
     return "alerts";
   }
 
   public String getTitle() {
-    // not used for the moment by widgets.
     return "Alerts";
   }
 
