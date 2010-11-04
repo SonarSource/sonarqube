@@ -4,7 +4,13 @@
      list-style-position: inside;
    }
  </style>
-
+ <script>
+ function submitForm(elt) {
+   elt.submit();
+   elt.disable();
+   return false;
+}
+</script>
  <%= render :partial => 'updatecenter/tabs', :locals => {:tab => 'system_updates'} -%>
 
  <div class="tabs-panel">
@@ -60,15 +66,15 @@
                    <% update.getIncompatiblePlugins().each do |incompatible_plugin| %>
                       <li><%= image_tag 'warning.png' -%> The plugin <%= incompatible_plugin.getName() -%> is not compatible and must be uninstalled.
                       <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/uninstall?key=<%= incompatible_plugin.getKey() -%>&amp;from=system_updates" style="display: inline-block">
-              <input type="submit" value="Uninstall" onClick="disable();return true;"></input>
-            </form>
+                        <input type="submit" value="Uninstall" onClick="return submitForm(this);"></input>
+                      </form>
                    </li>
              <% end %>
            <% update.getPluginsToUpgrade().each do |plugin_to_upgrade| %>
                    <li>Upgrade the plugin <%= plugin_to_upgrade.getArtifact().getName() -%>.
                     <form method="post" id="upgrade-form-<%= plugin_to_upgrade.getArtifact().getKey() -%>" action="<%= ApplicationController.root_context -%>/updatecenter/install?key=<%= plugin_to_upgrade.getArtifact().getKey() -%>&amp;version=<%= plugin_to_upgrade.getVersion() -%>&amp;from=system_updates" style="display: inline-block">
-            <input type="submit" id="upgrade-submit-<%= plugin_to_upgrade.getArtifact().getKey() -%>" value="Upgrade to <%= plugin_to_upgrade.getVersion() -%>" onClick="this.disable();return true;"></input>
-            </form>
+                      <input type="submit" id="upgrade-submit-<%= plugin_to_upgrade.getArtifact().getKey() -%>" value="Upgrade to <%= plugin_to_upgrade.getVersion() -%>" onClick="return submitForm(this);"></input>
+                    </form>
                  </li>
                  <% end %>
                  <li><%= link_to 'Download', release.getDownloadUrl(), :class => 'external' -%> and carefully read the upgrade guide.</li>
