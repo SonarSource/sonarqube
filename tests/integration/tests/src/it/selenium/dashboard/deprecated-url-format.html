@@ -3,27 +3,28 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>french-france</title>
+<link rel="selenium.base" href="" />
+<title>deprecated-url-format</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">french-france</td></tr>
+<tr><td rowspan="1" colspan="3">deprecated-url-format</td></tr>
 </thead><tbody>
 <tr>
 	<td>open</td>
-	<td>/dashboard/index/org.sonar.tests:reference&amp;locale=fr-FR</td>
+	<td>/project/index/org.sonar.tests:reference?foo=bar</td>
 	<td></td>
 </tr>
 <tr>
-	<td>assertText</td>
-	<td>snapshot_title</td>
-	<td>regexp:.*janvier.*|.*février.*|.*mars.*|.*avril.*|.*mai.*|.*juin.*|.*juillet.*|.*août.*|.*septembre.*|.*octobre.*|.*novembre.*|.*décembre.*</td>
+	<td>assertLocation</td>
+	<td>glob:*/dashboard/index/org.sonar.tests:reference?foo=bar</td>
+	<td></td>
 </tr>
 <tr>
-	<td>assertText</td>
-	<td>m_test_success_density</td>
-	<td>100,0%</td>
+	<td>assertTextPresent</td>
+	<td>Sonar tests - reference</td>
+	<td></td>
 </tr>
 
 </tbody></table>
