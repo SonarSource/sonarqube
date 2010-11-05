@@ -37,8 +37,9 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   private String[] resourceLanguages = {};
   private String[] defaultForMetrics = {};
   private String description = "";
-  private WidgetProperty[] properties = {};
-  private String[] categories = {};
+  private WidgetProperty[] widgetProperties = {};
+  private String[] widgetCategories = {};
+  private WidgetLayoutType widgetLayout = WidgetLayoutType.DEFAULT;
   private boolean isDefaultTab = false;
   private boolean isWidget = false;
 
@@ -87,14 +88,19 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
       description = descriptionAnnotation.value();
     }
 
-    WidgetProperties widgetProperties = AnnotationUtils.getClassAnnotation(view, WidgetProperties.class);
-    if (widgetProperties != null) {
-      properties = widgetProperties.value();
+    WidgetProperties propAnnotation = AnnotationUtils.getClassAnnotation(view, WidgetProperties.class);
+    if (propAnnotation != null) {
+      this.widgetProperties = propAnnotation.value();
     }
 
-    WidgetCategory widgetCategory = AnnotationUtils.getClassAnnotation(view, WidgetCategory.class);
-    if (widgetCategory != null) {
-      categories = widgetCategory.value();
+    WidgetCategory categAnnotation = AnnotationUtils.getClassAnnotation(view, WidgetCategory.class);
+    if (categAnnotation != null) {
+      widgetCategories = categAnnotation.value();
+    }
+
+    WidgetLayout layoutAnnotation = AnnotationUtils.getClassAnnotation(view, WidgetLayout.class);
+    if (layoutAnnotation != null) {
+      widgetLayout = layoutAnnotation.value();
     }
 
     isWidget = (view instanceof Widget);
@@ -116,12 +122,12 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     return description;
   }
 
-  public WidgetProperty[] getProperties() {
-    return properties;
+  public WidgetProperty[] getWidgetProperties() {
+    return widgetProperties;
   }
 
-  public String[] getCategories() {
-    return categories;
+  public String[] getWidgetCategories() {
+    return widgetCategories;
   }
 
   public String[] getSections() {
@@ -160,13 +166,17 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     return view instanceof GwtPage;
   }
 
+  public WidgetLayoutType getWidgetLayout() {
+    return widgetLayout;
+  }
+
   public boolean isEditable() {
-    return !ArrayUtils.isEmpty(properties);
+    return !ArrayUtils.isEmpty(widgetProperties);
   }
 
   public boolean hasRequiredProperties() {
     boolean requires = false;
-    for (WidgetProperty property : properties) {
+    for (WidgetProperty property : widgetProperties) {
       if (!property.optional() && StringUtils.isEmpty(property.defaultValue())) {
         requires = true;
       }

@@ -21,7 +21,7 @@
   <% form_remote_tag :url => {:action => 'save_widget', :wid => widget.id, :id => params[:id]}, :method => :post do -%>
     <table class="form">
       <tbody>
-      <% definition.getProperties().each do |property_def|
+      <% definition.getWidgetProperties().each do |property_def|
           value=widget.property_value(property_def.key(), property_def.defaultValue())
       %>
           <tr>
@@ -57,7 +57,14 @@
   <![endif]-->
 <div class="transparent"></div>
   <% if widget_body.include? '<' %>
-  <%= widget_body %>
+    <%
+      default_layout=(definition.getWidgetLayout().name()=='DEFAULT')
+      if default_layout
+    %>
+      <div class="widget">
+    <% end %>
+    <%= widget_body -%>
+    <% if default_layout %><div class="clear"> </div></div><% end %>
   <% else %>
   <div class="widget"><p>No data</p></div>
   <% end %>

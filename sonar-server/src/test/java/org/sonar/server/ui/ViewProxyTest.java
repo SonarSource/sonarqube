@@ -119,7 +119,7 @@ public class ViewProxyTest {
   public void widgetShouldBeEditable() {
     ViewProxy proxy = new ViewProxy<Widget>(new EditableWidget());
     assertThat(proxy.isEditable(), is(true));
-    assertThat(proxy.getProperties().length, is(2));
+    assertThat(proxy.getWidgetProperties().length, is(2));
   }
 
   @Test

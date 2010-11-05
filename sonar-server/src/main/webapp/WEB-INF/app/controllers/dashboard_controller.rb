@@ -111,7 +111,7 @@ class DashboardController < ApplicationController
     #TODO check owner of dashboard
     definition=java_facade.getWidget(widget.widget_key)
     errors_by_property_key={}
-    definition.getProperties().each do |property_def|
+    definition.getWidgetProperties().each do |property_def|
       value=params[property_def.key()] || property_def.defaultValue()
       value='false' if value.empty? && property_def.type.name()==WidgetProperty::TYPE_BOOLEAN
 
@@ -201,10 +201,10 @@ class DashboardController < ApplicationController
   def load_widget_definitions(filter_on_category=nil)
     @widget_definitions=java_facade.getWidgets()
     @widget_categories=[]
-    @widget_definitions.each {|definition| @widget_categories<<definition.getCategories()}
+    @widget_definitions.each {|definition| @widget_categories<<definition.getWidgetCategories()}
     @widget_categories=@widget_categories.flatten.uniq.sort
     unless filter_on_category.blank?
-      @widget_definitions=@widget_definitions.select{|definition| definition.getCategories().to_a.include?(filter_on_category)}
+      @widget_definitions=@widget_definitions.select{|definition| definition.getWidgetCategories().to_a.include?(filter_on_category)}
     end
   end
 

@@ -19,18 +19,16 @@
  */
 package org.sonar.api.web;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
- * @since 1.10
- * @deprecated override org.sonar.api.web.AbstractRubyTemplate and implement org.sonar.api.web.RubyRailsWidget
+ * @since 2.4
  */
-@Deprecated
-public abstract class AbstractDashboardWidget extends AbstractRubyTemplate implements RubyRailsWidget {
-
-  public String getId() {
-    return getClass().getSimpleName();
-  }
-
-  public String getTitle() {
-    return getClass().getSimpleName();
-  }
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface WidgetLayout {
+  WidgetLayoutType value();
 }

@@ -11,7 +11,14 @@
 
     if widget_body.include?('<')
   %>
-    <%= widget_body %>
+    <%
+      default_layout=(definition.getWidgetLayout().name()=='DEFAULT')
+      if default_layout
+    %>
+      <div class="widget">
+    <% end %>
+    <%= widget_body -%>
+    <% if default_layout %><div class="clear"> </div></div><% end %>
   <%
     end
   %>

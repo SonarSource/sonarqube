@@ -1,5 +1,5 @@
 <%
-   properties_available=widget_view.getProperties() && widget_view.getProperties().size() != 0
+   properties_available=widget_view.getWidgetProperties() && widget_view.getWidgetProperties().size() != 0
 
    if !properties_available || (widget && widget.state==Widget::STATE_ACTIVE)
        begin
@@ -51,7 +51,7 @@
                            :before => "$(this).down('.widgetid').value=$(this).up('.block').identify().split('_').pop();hide_block_info($(this).up('.block'))" do -%>
             <table class="form" align="center" style="border-collapse:separate;border-spacing:5px;">
               <tbody>
-              <% widget_view.getProperties().each do |property|
+              <% widget_view.getWidgetProperties().each do |property|
                   db_property_value=widget.widget_property_value(property.key()) if widget
                   entered_value=params[property.key()]
                   entered_value=property.defaultValue() if !entered_value || entered_value.empty?

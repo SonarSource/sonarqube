@@ -6,7 +6,6 @@
  }
  %>
  <% if is_admin?(@snapshot) || measures.size>0 %>
- <div class="widget">
    <script type="text/javascript">
      function selectReviewMetric(){
        $$('.review_description_update').each(function(element) {
@@ -66,5 +65,4 @@
         </div>
  <% end %>
    <div class="clear"></div>
- </div>
  <% end %>
