@@ -149,7 +149,7 @@ public class Project extends Resource {
   }
 
   public String getLongName() {
-    return null;
+    return name;
   }
 
   public String getDescription() {
