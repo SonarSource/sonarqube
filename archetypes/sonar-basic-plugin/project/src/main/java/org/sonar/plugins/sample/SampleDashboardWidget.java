@@ -2,7 +2,6 @@ package org.sonar.plugins.sample;
 
 import org.sonar.api.web.*;
 
-@NavigationSection(NavigationSection.RESOURCE)
 @UserRole(UserRole.USER)
 @Description("Show how to use Ruby Widget API")
 @WidgetProperties({
@@ -29,7 +28,6 @@ public class SampleDashboardWidget extends AbstractRubyTemplate implements RubyR
   }
 
   public String getTitle() {
-    // not used for the moment by widgets.
     return "Sample";
   }
 

@@ -5,7 +5,6 @@ package ${package};
 
 import org.sonar.api.web.*;
 
-@NavigationSection(NavigationSection.RESOURCE)
 @UserRole(UserRole.USER)
 @Description("Show how to use Ruby Widget API")
 @WidgetProperties({
