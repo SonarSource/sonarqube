@@ -3,7 +3,7 @@
   <div id="hd">
     <%= render :partial => 'layouts/breadcrumb' %>
     <ol id="nav">
-      <li><input type="text" autocomplete="off" size="15" name="search" id="projectSearch" onFocus="this.size=30;this.value='';autocompleteProjects('<%= ApplicationController.root_context -%>/api/resources?scopes=<%= Project::SCOPE_SET -%>&qualifiers=<%= Project::QUALIFIER_VIEW-%>,<%= Project::QUALIFIER_SUBVIEW-%>,<%= Project::QUALIFIER_PROJECT-%>', '<%= ApplicationController.root_context -%>/dashboard/index?resource=', this, $('projectResults'));return true;" onBlur="javacript:this.size=15" value="Search"/><div id="projectResults" style="display:none"></div></li>
+      <li><input type="text" autocomplete="off" size="15" name="search" id="projectSearch" onFocus="this.size=30;this.value='';autocompleteProjects('<%= ApplicationController.root_context -%>/api/resources?scopes=<%= Project::SCOPE_SET -%>&qualifiers=<%= Project::QUALIFIER_VIEW-%>,<%= Project::QUALIFIER_SUBVIEW-%>,<%= Project::QUALIFIER_PROJECT-%>', '<%= ApplicationController.root_context -%>/dashboard/index/', this, $('projectResults'));return true;" onBlur="javacript:this.size=15" value="Search"/><div id="projectResults" style="display:none"></div></li>
       <li>
         <a href="javascript:window.print()"><img src="<%= ApplicationController.root_context -%>/images/print.gif" alt="Print" title="Print" /></a>
         <% if @project %><a href="<%= url_for :overwrite_params => {:id => @project.key}-%>" id="permalink"><img src="<%= ApplicationController.root_context -%>/images/permalink.gif" alt="Permalink" title="Permalink" /></a><% end %>
