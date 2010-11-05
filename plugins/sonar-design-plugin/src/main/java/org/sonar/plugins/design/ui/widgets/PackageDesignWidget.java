@@ -26,7 +26,7 @@ import org.sonar.api.web.*;
 @Description("Reports on package dependency cycles and tangle index.")
 public final class PackageDesignWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
-    return "package-design";
+    return "package_design";
   }
 
   public String getTitle() {

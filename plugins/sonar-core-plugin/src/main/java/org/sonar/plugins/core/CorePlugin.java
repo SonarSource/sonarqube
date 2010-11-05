@@ -149,9 +149,9 @@ public class CorePlugin implements Plugin {
     extensions.add(CodeCoverageWidget.class);
     extensions.add(CommentsDuplicationsWidget.class);
     extensions.add(DescriptionWidget.class);
-    extensions.add(DefaultExtendedAnalysisWidget.class);
+    extensions.add(ComplexityWidget.class);
     extensions.add(RulesWidget.class);
-    extensions.add(DefaultStaticAnalysisWidget.class);
+    extensions.add(SizeWidget.class);
     extensions.add(EventsWidget.class);
     extensions.add(CustomMeasuresWidget.class);
 

@@ -7,7 +7,7 @@
 <table width="100%">
   <tbody>
     <tr>
-      <td valign="top">
+      <td valign="top" width="50%">
         <div class="dashbox">
           <p class="title">File tangle index</p>
           <p><span class="big"><%= format_measure(file_tangle_index, :suffix => '', :default => '-', :url => url_for_drilldown('file_tangle_index')) %> <%= tendency_icon(file_tangle_index, false) %></span></p>
@@ -16,7 +16,7 @@
           <% end %>
         </div>
       </td>
-      <td valign="top">
+      <td valign="top" width="50%">
         <% if file_feedback_edges %>
         <div class="dashbox">
           <p class="title">Suspect file dependencies</p>

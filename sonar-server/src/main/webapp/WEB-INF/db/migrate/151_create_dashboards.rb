@@ -66,17 +66,17 @@ class CreateDashboards < ActiveRecord::Migration
 
   def self.create_dashboard
     dashboard=::Dashboard.new(:name => 'Dashboard', :shared => true, :description => 'Default dashboard', :column_layout => Dashboard::DEFAULT_LAYOUT)
-    dashboard.widgets.build(:widget_key => 'static_analysis', :name => 'Static analysis', :column_index => 1, :row_index => 1, :configured => true)
+    dashboard.widgets.build(:widget_key => 'size', :name => 'Size metrics', :column_index => 1, :row_index => 1, :configured => true)
     dashboard.widgets.build(:widget_key => 'comments_duplications', :name => 'Comments duplications', :column_index => 1, :row_index => 2, :configured => true)
-    dashboard.widgets.build(:widget_key => 'extended_analysis', :name => 'Extended analysis', :column_index => 1, :row_index => 3, :configured => true)
+    dashboard.widgets.build(:widget_key => 'complexity', :name => 'Complexity', :column_index => 1, :row_index => 3, :configured => true)
     dashboard.widgets.build(:widget_key => 'code_coverage', :name => 'Code coverage', :column_index => 1, :row_index => 4, :configured => true)
     dashboard.widgets.build(:widget_key => 'events', :name => 'Events', :column_index => 1, :row_index => 5, :configured => true)
     dashboard.widgets.build(:widget_key => 'description', :name => 'Description', :column_index => 1, :row_index => 6, :configured => true)
     dashboard.widgets.build(:widget_key => 'rules', :name => 'Rules', :column_index => 2, :row_index => 1, :configured => true)
     dashboard.widgets.build(:widget_key => 'alerts', :name => 'Alerts', :column_index => 2, :row_index => 2, :configured => true)
     dashboard.widgets.build(:widget_key => 'custom_measures', :name => 'Custom measures', :column_index => 2, :row_index => 3, :configured => true)
-    dashboard.widgets.build(:widget_key => 'file-design', :name => 'File design', :column_index => 2, :row_index => 4, :configured => true)
-    dashboard.widgets.build(:widget_key => 'package-design', :name => 'Package design', :column_index => 2, :row_index => 5, :configured => true)
+    dashboard.widgets.build(:widget_key => 'file_design', :name => 'File design', :column_index => 2, :row_index => 4, :configured => true)
+    dashboard.widgets.build(:widget_key => 'package_design', :name => 'Package design', :column_index => 2, :row_index => 5, :configured => true)
     dashboard.widgets.build(:widget_key => 'ckjm', :name => 'CKJM', :column_index => 2, :row_index => 6, :configured => true)
 
     dashboard.save

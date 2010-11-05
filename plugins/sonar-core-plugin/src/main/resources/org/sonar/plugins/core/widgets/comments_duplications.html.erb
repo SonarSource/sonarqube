@@ -1,7 +1,7 @@
 <% if measure(Metric::LINES) || measure(Metric::NCLOC) %>
 <table width="100%">
 	<tr>
-		<td valign="top" width="48%" nowrap>
+		<td valign="top" width="50%" nowrap>
 			<% if (measure(Metric::COMMENT_LINES)) %>
 		    <div class="dashbox">
 		      <h3>Comments</h3>
@@ -19,8 +19,7 @@
 		    </div>
 		    <% end %>
 		</td>
-		<td width="10"> </td>
-		<td valign="top">
+		<td valign="top" width="50%" nowrap>
 		    <% if (measure(Metric::DUPLICATED_LINES_DENSITY)) %>
 		    <div class="dashbox">
 		      <h3>Duplications</h3>

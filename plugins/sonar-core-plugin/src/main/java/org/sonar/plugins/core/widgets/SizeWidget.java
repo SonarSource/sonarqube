@@ -23,18 +23,18 @@ import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.Description;
 import org.sonar.api.web.RubyRailsWidget;
 
-@Description("Reports on complexity, average complexity and complexity distribution.")
-public class DefaultExtendedAnalysisWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+@Description("Reports general metrics on the size of the project.")
+public class SizeWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
-    return "extended_analysis";
+    return "size";
   }
 
   public String getTitle() {
-    return "Complexity";
+    return "Size metrics";
   }
 
   @Override
   protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/_extended_analysis.html.erb";
+    return "/org/sonar/plugins/core/widgets/size.html.erb";
   }
 }

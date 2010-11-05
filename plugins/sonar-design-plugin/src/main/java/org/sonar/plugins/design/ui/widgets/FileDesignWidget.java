@@ -26,7 +26,7 @@ import org.sonar.api.web.*;
 @Description("Reports on files dependency cycles and tangle index.")
 public final class FileDesignWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
-    return "file-design";
+    return "file_design";
   }
 
   public String getTitle() {

@@ -11,7 +11,7 @@
         package_feedback_edges=measure('package_feedback_edges')
         package_tangles=measure('package_tangles')
     %>
-      <td valign="top">
+      <td valign="top" width="50%">
         <div class="dashbox">
           <p class="title">Package tangle index</p>
           <p><span class="big"><%= format_measure(package_tangle_index, :suffix => '', :default => '-', :url => url_for_drilldown('package_tangle_index')) %> <%= tendency_icon(package_tangle_index, false) %></span></p>
@@ -20,7 +20,7 @@
           <% end %>
         </div>
       </td>
-      <td valign="top">
+      <td valign="top" width="50%">
         <% if package_feedback_edges || package_tangles %>
         <div class="dashbox">
           <p class="title">Dependencies to cut</p>
