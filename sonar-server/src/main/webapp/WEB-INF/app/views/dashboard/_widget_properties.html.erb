@@ -1,0 +1,33 @@
+<% form_remote_tag :url => {:action => 'save_widget', :wid => widget.id, :id => params[:id]}, :method => :post do -%>
+  <% if defined?(errors_by_property_key) && errors_by_property_key %>
+    <ul>
+	<% errors_by_property_key.each_pair do |property_key, error| %>
+	  <li class="error"><%= property_key -%>: <%= h(error)-%></li>
+	</ul>
+	<% end %>
+  <% end %>
+    <table class="form width100">
+	  <tbody>
+      <% definition.getWidgetProperties().each do |property_def|
+          value=widget.property_value(property_def.key(), property_def.defaultValue())
+      %>
+          <tr>
+            <td valign="top" class="thin nowrap"><b><%= property_def.key() -%></b><%= "*" unless property_def.optional()==true -%>: </td>
+            <td id="row_<%= property_def.key() -%>">
+              <%= property_value_field(property_def, value) -%>
+              <span class="note"><%= property_def.description() -%></span>
+            </td>
+          </tr>
+      <% end %>
+      <tr>
+        <td colspan="2">
+          <%= submit_tag 'Save' %>
+          <% if widget.configured %>
+            <a href="#" onClick="portal.cancelEditWidget(<%= widget.id -%>);return false;">Cancel</a>
+          <% end %>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <%= hidden_field_tag "widgetid", "", :class => "widgetid" %>
+<% end -%>

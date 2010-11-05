@@ -135,7 +135,7 @@ class DashboardController < ApplicationController
       widget.configured=false
       widget.save
       render :update do |page|
-        page.alert('errors ' + errors_by_property_key.inspect)
+        page.replace_html "widget_props_#{widget.id}", :partial => 'dashboard/widget_properties', :locals => {:widget => widget, :definition => definition, :errors_by_property_key => errors_by_property_key}
       end
     end
   end
