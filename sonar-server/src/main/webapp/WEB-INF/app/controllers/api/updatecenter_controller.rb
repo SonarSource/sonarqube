@@ -20,15 +20,15 @@
 
 require 'json'
 
-class Api::PluginsController < Api::ApiController
+class Api::UpdatecenterController < Api::ApiController
 
   before_filter :admin_required
 
   #
-  # GET /api/plugins
-  # curl http://localhost:9000/api/plugins -v -u admin:admin
+  # GET /api/updatecenter/installed_plugins
+  # curl http://localhost:9000/api/updatecenter/installed_plugins -v -u admin:admin
   #
-  def index
+  def installed_plugins
     respond_to do |format|
       format.json { render :json => jsonp(plugins_to_json(Plugin.user_plugins)) }
       format.xml  { render :xml => plugins_to_xml(Plugin.user_plugins) }
