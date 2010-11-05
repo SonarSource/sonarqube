@@ -25,7 +25,9 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Resource;
 
+import javax.persistence.Query;
 import java.util.Date;
+import java.util.List;
 
 public class LibraryPersister extends ResourcePersister<Library> {
 
@@ -52,10 +54,11 @@ public class LibraryPersister extends ResourcePersister<Library> {
 
   @Override
   protected Snapshot createSnapshot(Bucket<Library> bucket, ResourceModel resourceModel) {
-    Snapshot snapshot = getSession().getSingleResult(Snapshot.class,
-        "resourceId", resourceModel.getId(),
-        "version", bucket.getResource().getVersion(),
-        "scope", Resource.SCOPE_SET);
+    Snapshot snapshot = findProject(resourceModel.getId(), bucket.getResource().getVersion());
+    if (snapshot == null) {
+      snapshot = findLibrary(resourceModel.getId(), bucket.getResource().getVersion());
+    }
+
     if (snapshot == null) {
       snapshot = new Snapshot(resourceModel, null);
       snapshot.setCreatedAt(now);
@@ -67,5 +70,31 @@ public class LibraryPersister extends ResourcePersister<Library> {
       snapshot.setQualifier(Resource.QUALIFIER_LIB);
     }
     return snapshot;
+  }
+
+  private Snapshot findLibrary(Integer resourceId, String version) {
+    List<Snapshot> snapshots = getSession().getResults(Snapshot.class,
+        "resourceId", resourceId,
+        "version", version,
+        "scope", Resource.SCOPE_SET,
+        "qualifier", Resource.QUALIFIER_LIB);
+    if (snapshots.isEmpty()) {
+      return null;
+    }
+    return snapshots.get(0);
+  }
+
+  private Snapshot findProject(Integer resourceId, String version) {
+    Query query = getSession().createQuery("from " + Snapshot.class.getSimpleName() + " s WHERE s.resourceId=:resourceId AND s.version=:version AND s.scope=:scope AND s.qualifier<>:qualifier AND s.last=:last");
+    query.setParameter("resourceId", resourceId);
+    query.setParameter("version", version);
+    query.setParameter("scope", Resource.SCOPE_SET);
+    query.setParameter("qualifier", Resource.QUALIFIER_LIB);
+    query.setParameter("last", Boolean.TRUE);
+    List<Snapshot> snapshots = query.getResultList();
+    if (snapshots.isEmpty()) {
+      return null;
+    }
+    return snapshots.get(0);
   }
 }
