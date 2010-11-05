@@ -47,12 +47,11 @@ class DashboardController < ApplicationController
     dashboard=Dashboard.find(params[:did].to_i)
     if dashboard.editable_by?(current_user)
       dashboard.column_layout=params[:layout]
-      if dashboard.save
-        columns=dashboard.column_layout.split('-')
-        dashboard.widgets.find(:all, :conditions => ["column_index > ?",columns.size()]).each do |widget|
-          widget.column_index=columns.size()
-          widget.save
-        end
+      dashboard.save!
+      columns=dashboard.column_layout.split('-')
+      dashboard.widgets.find(:all, :conditions => ["column_index > ?",columns.size()]).each do |widget|
+        widget.column_index=columns.size()
+        widget.save
       end
     end
     redirect_to :action => 'index', :did => dashboard.id, :id => params[:id]
