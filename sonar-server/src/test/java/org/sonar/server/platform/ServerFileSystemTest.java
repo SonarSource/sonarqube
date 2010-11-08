@@ -20,9 +20,9 @@
 package org.sonar.server.platform;
 
 import org.junit.Test;
-import org.sonar.jpa.session.DatabaseConnector;
 import org.sonar.jpa.dialect.Dialect;
 import org.sonar.jpa.dialect.MySql;
+import org.sonar.jpa.session.DatabaseConnector;
 import org.sonar.test.TestUtils;
 
 import java.io.File;
@@ -44,7 +44,6 @@ public class ServerFileSystemTest {
     File driver = new DefaultServerFileSystem(databaseConnector, TestUtils.getResource(PATH + "testGetJdbcDriver"), null).getJdbcDriver();
     assertNotNull(driver);
   }
-
 
   @Test(expected = ServerStartException.class)
   public void failIfJdbcDriverNotFound() {
@@ -80,7 +79,6 @@ public class ServerFileSystemTest {
     assertEquals(3, jars.size());
   }
 
-
   @Test
   public void shouldNotFailIfNoCheckstyleExtensions() {
     DefaultServerFileSystem fs = new DefaultServerFileSystem(null, TestUtils.getResource(PATH + "shouldNotFailIfNoCheckstyleExtensions"), null);
@@ -89,6 +87,12 @@ public class ServerFileSystemTest {
 
     List<File> jars = fs.getExtensions("checkstyle");
     assertEquals(0, jars.size());
+  }
+
+  @Test(expected = ServerStartException.class)
+  public void shouldFailIfHomeDirectoryNotExists() {
+    DefaultServerFileSystem fs = new DefaultServerFileSystem(null, new File("/notexists"), null);
+    fs.start();
   }
 
 }

@@ -26,6 +26,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
+import org.sonar.server.platform.ServerStartException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -62,7 +63,10 @@ public class EmbeddedDatabase {
   protected File autodetectDataDirectory(Configuration configuration) {
     String dirName = configuration.getString(DatabaseProperties.PROP_EMBEDDED_DATA_DIR);
     if (dirName == null) {
-      String sonarHome = configuration.getString(CoreProperties.SONAR_HOME);
+      File sonarHome = new File(configuration.getString(CoreProperties.SONAR_HOME));
+      if ( !sonarHome.isDirectory() || !sonarHome.exists()) {
+        throw new ServerStartException("Sonar home directory does not exist");
+      }
       return new File(sonarHome, "data");
     }
     return new File(dirName);
@@ -76,7 +80,7 @@ public class EmbeddedDatabase {
     if (dbHome.exists() && !dbHome.isDirectory()) {
       throw new SonarException("Database home " + dbHome.getPath() + " is not a directory");
     }
-    if (!dbHome.exists()) {
+    if ( !dbHome.exists()) {
       dbHome.mkdirs();
     }
     System.setProperty("derby.system.home", dbHome.getPath());
