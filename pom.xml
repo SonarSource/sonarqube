@@ -28,6 +28,18 @@
     <module>sonar-testing-harness</module>
     <module>sonar-squid</module>
     <module>sonar-ws-client</module>
+    
+    <module>plugins/sonar-core-plugin</module>
+    <module>plugins/sonar-checkstyle-plugin</module>
+    <module>plugins/sonar-pmd-plugin</module>
+    <module>plugins/sonar-cobertura-plugin</module>
+    <module>plugins/sonar-clover-plugin</module>
+    <module>plugins/sonar-surefire-plugin</module>
+    <module>plugins/sonar-googleanalytics-plugin</module>
+    <module>plugins/sonar-findbugs-plugin</module>
+    <module>plugins/sonar-cpd-plugin</module>
+    <module>plugins/sonar-squid-java-plugin</module>
+    <module>plugins/sonar-design-plugin</module>
   </modules>
 
   <organization>
@@ -870,17 +882,6 @@ mmmm
         <module>sonar-core-maven-plugin</module>
         <module>sonar-server</module>
         <module>sonar-application</module>
-        <module>plugins/sonar-core-plugin</module>
-        <module>plugins/sonar-checkstyle-plugin</module>
-        <module>plugins/sonar-pmd-plugin</module>
-        <module>plugins/sonar-cobertura-plugin</module>
-        <module>plugins/sonar-clover-plugin</module>
-        <module>plugins/sonar-surefire-plugin</module>
-        <module>plugins/sonar-googleanalytics-plugin</module>
-        <module>plugins/sonar-findbugs-plugin</module>
-        <module>plugins/sonar-cpd-plugin</module>
-        <module>plugins/sonar-squid-java-plugin</module>
-        <module>plugins/sonar-design-plugin</module>
       </modules>
 
     </profile>
@@ -891,17 +892,6 @@ mmmm
         <module>sonar-core-maven-plugin</module>
         <module>sonar-server</module>
         <module>sonar-application</module>
-        <module>plugins/sonar-core-plugin</module>
-        <module>plugins/sonar-checkstyle-plugin</module>
-        <module>plugins/sonar-pmd-plugin</module>
-        <module>plugins/sonar-cobertura-plugin</module>
-        <module>plugins/sonar-clover-plugin</module>
-        <module>plugins/sonar-surefire-plugin</module>
-        <module>plugins/sonar-googleanalytics-plugin</module>
-        <module>plugins/sonar-findbugs-plugin</module>
-        <module>plugins/sonar-cpd-plugin</module>
-        <module>plugins/sonar-squid-java-plugin</module>
-        <module>plugins/sonar-design-plugin</module>
         <module>tests/integration</module>
         <module>tests/volume</module>
       </modules>
