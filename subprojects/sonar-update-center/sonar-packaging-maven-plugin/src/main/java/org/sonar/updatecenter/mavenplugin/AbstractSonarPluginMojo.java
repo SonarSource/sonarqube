@@ -98,7 +98,7 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
   /**
    * Plugin key.
    * 
-   * @parameter expression="${sonar.pluginKey}" default-value="${project.artifactId}"
+   * @parameter expression="${sonar.pluginKey}"
    */
   protected String pluginKey;
 
@@ -173,8 +173,8 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
     return classifier;
   }
 
-  public String getPluginKey() {
-    return PluginKeyUtils.getPluginKey(pluginKey);
+  public String getExplicitPluginKey() {
+    return pluginKey;
   }
 
   protected final String getPluginClass() {

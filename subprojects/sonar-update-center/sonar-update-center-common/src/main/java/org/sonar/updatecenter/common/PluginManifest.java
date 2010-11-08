@@ -106,7 +106,7 @@ public final class PluginManifest {
 
   private void loadManifest(Manifest manifest) {
     Attributes attributes = manifest.getMainAttributes();
-    this.key = PluginKeyUtils.getPluginKey(attributes.getValue(KEY));
+    this.key = PluginKeyUtils.sanitize(attributes.getValue(KEY));
     this.mainClass = attributes.getValue(MAIN_CLASS);
     this.name = attributes.getValue(NAME);
     this.description = attributes.getValue(DESCRIPTION);

@@ -286,7 +286,7 @@ public final class PluginDeployer implements ServerComponent {
     try {
       URLClassLoader pluginClassLoader = URLClassLoader.newInstance(new URL[] { tempFile.toURI().toURL() }, getClass().getClassLoader());
       Plugin pluginInstance = (Plugin) pluginClassLoader.loadClass(mainClass).newInstance();
-      plugin.setKey(PluginKeyUtils.getPluginKey(pluginInstance.getKey()));
+      plugin.setKey(PluginKeyUtils.sanitize(pluginInstance.getKey()));
       plugin.setDescription(pluginInstance.getDescription());
       plugin.setName(pluginInstance.getName());
 

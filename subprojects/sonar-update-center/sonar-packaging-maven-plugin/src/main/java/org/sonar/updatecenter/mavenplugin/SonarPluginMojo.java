@@ -39,6 +39,7 @@ import org.apache.maven.shared.dependency.tree.traversal.BuildingDependencyNodeV
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.util.FileUtils;
 import org.sonar.updatecenter.common.FormatUtils;
+import org.sonar.updatecenter.common.PluginKeyUtils;
 import org.sonar.updatecenter.common.PluginManifest;
 
 import java.io.File;
@@ -144,6 +145,9 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
   private boolean addMavenDescriptor = true;
 
   public void execute() throws MojoExecutionException, MojoFailureException {
+    checkPluginKey();
+    checkPluginClass();
+
     File jarFile = createArchive();
     String classifier = getClassifier();
     if (classifier != null) {
@@ -154,8 +158,6 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
   }
 
   public File createArchive() throws MojoExecutionException {
-    checkPluginClass();
-
     File jarFile = getJarFile(getOutputDirectory(), getFinalName(), getClassifier());
     MavenArchiver archiver = new MavenArchiver();
     archiver.setArchiver(jarArchiver);
@@ -236,10 +238,23 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
     return null;
   }
 
+  private void checkPluginKey() throws MojoExecutionException {
+    if ( StringUtils.isNotBlank(getExplicitPluginKey()) && !PluginKeyUtils.isValid(getExplicitPluginKey())) {
+      throw new MojoExecutionException("Plugin key is badly formatted. Please use ascii letters and digits only. Value: " + getExplicitPluginKey());
+    }
+  }
+
   private void checkPluginClass() throws MojoExecutionException {
     if ( !new File(getClassesDirectory(), getPluginClass().replace('.', '/') + ".class").exists()) {
       throw new MojoExecutionException("Error assembling Sonar-plugin: Plugin-Class '" + getPluginClass() + "' not found");
     }
+  }
+
+  private String getPluginKey() {
+    if ( StringUtils.isNotBlank(getExplicitPluginKey())) {
+      return getExplicitPluginKey();
+    }
+    return PluginKeyUtils.sanitize(getProject().getArtifactId());
   }
 
   protected static File getJarFile(File basedir, String finalName, String classifier) {

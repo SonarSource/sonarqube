@@ -1,0 +1,23 @@
+import java.io.*;
+import java.util.zip.*;
+import java.util.jar.Manifest;
+
+File file = new File( basedir, "target/test-1.0.jar" );
+if ( !file.isFile() )
+{
+    throw new FileNotFoundException( "Could not find generated JAR: " + file );
+}
+
+ZipFile zipFile = new ZipFile(file);
+InputStream input = null;
+try {
+  input = zipFile.getInputStream(zipFile.getEntry("META-INF/MANIFEST.MF"));
+  Manifest manifest = new Manifest(input);
+  String key = manifest.getMainAttributes().getValue("Plugin-Key");
+  if (!key.equals("newkey")) {
+    throw new Exception("Plugin key is not valid: " + key);
+  }
+} finally {
+  zipFile.close();
+  input.close();
+}
