@@ -4,7 +4,7 @@
 
   <groupId>org.codehaus.sonar</groupId>
   <artifactId>sonar-update-center</artifactId>
-  <version>0.4</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Sonar :: Update Center</name>
   <url>http://www.sonarsource.org</url>
@@ -53,9 +53,9 @@
   </modules>
 
   <scm>
-    <connection>scm:svn:http://svn.codehaus.org/sonar/tags/sonar-update-center-0.4</connection>
-    <developerConnection>scm:svn:https://svn.codehaus.org/sonar/tags/sonar-update-center-0.4</developerConnection>
-    <url>https://svn.codehaus.org/sonar/tags/sonar-update-center-0.4</url>
+    <connection>scm:svn:http://svn.codehaus.org/sonar/trunk/subprojects/sonar-update-center</connection>
+    <developerConnection>scm:svn:https://svn.codehaus.org/sonar/trunk/subprojects/sonar-update-center</developerConnection>
+    <url>https://svn.codehaus.org/sonar/trunk/subprojects/sonar-update-center</url>
   </scm>
 
   <issueManagement>
