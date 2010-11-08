@@ -59,7 +59,7 @@ public final class UpdateCenterSerializer {
 
   public static Properties toProperties(UpdateCenter center) {
     Properties p = new Properties();
-    set(p, "date", FormatUtils.toString(center.getDate(), false));
+    set(p, "date", FormatUtils.toString(center.getDate(), true));
     set(p, "sonar.versions", center.getSonar().getVersions());
     for (Release sonarRelease : center.getSonar().getReleases()) {
       set(p, "sonar." + sonarRelease.getVersion() + ".downloadUrl", sonarRelease.getDownloadUrl());
