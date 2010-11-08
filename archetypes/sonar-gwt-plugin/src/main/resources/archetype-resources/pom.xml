@@ -79,7 +79,7 @@
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <version>0.4</version>
+        <version>1.0</version>
         <extensions>true</extensions>
         <configuration>
           <pluginClass>${package}.GwtSamplePlugin</pluginClass>
