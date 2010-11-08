@@ -35,7 +35,7 @@ public abstract class AbstractPurge implements Purge {
 
   private int sqlInPageSize = MAX_IN_ELEMENTS;
   private DatabaseSession session;
-  private TimeProfiler profiler = new TimeProfiler().setLevelToDebug();
+  private TimeProfiler profiler = new TimeProfiler();
 
   public AbstractPurge(DatabaseSession session) {
     this.session = session;
