@@ -22,11 +22,9 @@ require 'json'
 
 class Api::UpdatecenterController < Api::ApiController
 
-  before_filter :admin_required
-
   #
   # GET /api/updatecenter/installed_plugins
-  # curl http://localhost:9000/api/updatecenter/installed_plugins -v -u admin:admin
+  # curl http://localhost:9000/api/updatecenter/installed_plugins -v
   #
   def installed_plugins
     respond_to do |format|
