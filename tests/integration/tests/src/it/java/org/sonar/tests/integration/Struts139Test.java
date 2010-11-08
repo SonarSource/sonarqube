@@ -24,11 +24,14 @@ import org.junit.Test;
 import org.sonar.wsclient.Sonar;
 import org.sonar.wsclient.services.*;
 
+import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.hamcrest.number.OrderingComparisons.greaterThanOrEqualTo;
 import static org.hamcrest.number.OrderingComparisons.lessThan;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -48,6 +51,13 @@ public class Struts139Test {
   @BeforeClass
   public static void buildServer() {
     sonar = Sonar.create("http://localhost:9000");
+  }
+
+  @Test
+  public void shouldReturnAnalysisDate() {
+    Date date = sonar.find(new ResourceQuery(PROJECT_STRUTS)).getDate();
+    assertNotNull(date);
+    assertThat(date.getYear(), greaterThanOrEqualTo(110)); // 1900 + 110
   }
 
   @Test
