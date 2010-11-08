@@ -7,7 +7,7 @@
     <version>2.4-SNAPSHOT</version>
   </parent>
   
-  <artifactId>reference-plugin</artifactId>
+  <artifactId>sonar-it-reference-plugin</artifactId>
   <name>Sonar :: Integration Tests :: Reference Plugin</name>
   <packaging>sonar-plugin</packaging>
   <description>My Sonar plugin</description>
@@ -92,7 +92,7 @@
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <version>0.4-SNAPSHOT</version>
+        <version>0.4</version>
         <extensions>true</extensions>
         <configuration>
           <pluginClass>itests.ITestsPlugin</pluginClass>

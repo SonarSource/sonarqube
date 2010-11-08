@@ -13,7 +13,7 @@
   <name>Sonar :: Integration Tests</name>
 
   <modules>
-    <module>reference-plugin</module>
+    <module>sonar-it-reference-plugin</module>
     <module>checkstyle-extensions</module>
     <module>pmd-extensions</module>
     <module>tests</module>

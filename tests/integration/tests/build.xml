@@ -24,8 +24,8 @@
       <fileset dir="${basedir}/target/sonar-gwt-sample-plugin/target/">
         <include name="sonar-gwt-sample-plugin-*-SNAPSHOT.jar"/>
       </fileset>
-      <fileset dir="${basedir}/../reference-plugin/">
-        <include name="target/reference-plugin-*-SNAPSHOT.jar"/>
+      <fileset dir="${basedir}/../sonar-it-reference-plugin/">
+        <include name="target/sonar-it-reference-plugin-*-SNAPSHOT.jar"/>
       </fileset>
     </copy>
   </target>

@@ -215,7 +215,7 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.tests</groupId>
-      <artifactId>reference-plugin</artifactId>
+      <artifactId>sonar-it-reference-plugin</artifactId>
       <version>${project.version}</version>
     </dependency>
 
