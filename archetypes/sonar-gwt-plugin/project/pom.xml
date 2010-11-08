@@ -84,8 +84,6 @@
         <version>0.4</version>
         <extensions>true</extensions>
         <configuration>
-          <pluginKey>gwt-sample</pluginKey>
-          <pluginName>GWT Sample</pluginName>
           <pluginClass>${package}.GwtSamplePlugin</pluginClass>
         </configuration>
       </plugin>

@@ -40,7 +40,6 @@
         <version>0.4</version>
         <extensions>true</extensions>
         <configuration>
-          <pluginKey>sample</pluginKey>
           <pluginClass>${package}.SamplePlugin</pluginClass>
         </configuration>
       </plugin>
