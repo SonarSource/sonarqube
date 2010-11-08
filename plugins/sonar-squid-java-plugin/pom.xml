@@ -85,7 +85,6 @@
         <artifactId>sonar-packaging-maven-plugin</artifactId>
         <extensions>true</extensions>
         <configuration>
-          <pluginKey>squid-java</pluginKey>
           <pluginName>Squid for Java</pluginName>
           <pluginClass>org.sonar.plugins.squid.SquidPlugin</pluginClass>
         </configuration>

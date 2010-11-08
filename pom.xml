@@ -202,7 +202,7 @@
         <plugin>
           <groupId>org.codehaus.sonar</groupId>
           <artifactId>sonar-packaging-maven-plugin</artifactId>
-          <version>0.3</version>
+          <version>0.4</version>
           <extensions>true</extensions>
         </plugin>
       </plugins>
@@ -397,7 +397,7 @@ mmmm
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-update-center-common</artifactId>
-        <version>0.4-SNAPSHOT</version>
+        <version>0.4</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>

@@ -56,7 +56,6 @@
         <artifactId>sonar-packaging-maven-plugin</artifactId>
         <extensions>true</extensions>
         <configuration>
-          <pluginKey>google-analytics</pluginKey>
           <pluginName>Google analytics</pluginName>
           <pluginClass>org.sonar.plugins.googleanalytics.GoogleAnalyticsPlugin</pluginClass>
           <pluginDescription><![CDATA[Add the <a href="http://www.google.com/analytics/">Google Analytics</a> tracking script to the Sonar web application]]></pluginDescription>
