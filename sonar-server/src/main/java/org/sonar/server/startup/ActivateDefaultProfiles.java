@@ -42,7 +42,7 @@ public final class ActivateDefaultProfiles {
   public void start() {
     DatabaseSession session = sessionFactory.getSession();
     for (Language language : languages) {
-      Logs.INFO.info("Activate default profile for ", language.getKey());
+      Logs.INFO.info("Activate default profile for " + language.getKey());
       activateDefaultProfile(language, session);
     }
     session.commit();
