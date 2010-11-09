@@ -25,9 +25,8 @@ import org.sonar.api.database.model.*;
 import org.sonar.api.design.DependencyDto;
 import org.sonar.api.utils.TimeProfiler;
 
-import java.util.List;
-
 import javax.persistence.Query;
+import java.util.List;
 
 public abstract class AbstractPurge implements Purge {
 
@@ -35,7 +34,7 @@ public abstract class AbstractPurge implements Purge {
 
   private int sqlInPageSize = MAX_IN_ELEMENTS;
   private DatabaseSession session;
-  private TimeProfiler profiler = new TimeProfiler();
+  private TimeProfiler profiler = new TimeProfiler().setLevelToDebug();
 
   public AbstractPurge(DatabaseSession session) {
     this.session = session;
