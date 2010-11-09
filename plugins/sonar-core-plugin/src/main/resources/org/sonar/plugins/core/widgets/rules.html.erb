@@ -56,6 +56,7 @@
 			    <div class="big">
 			      <%= format_measure(Metric::VIOLATIONS, :url => url_for(:controller => 'drilldown', :action => 'violations', :id => @project.key)) -%> <%= tendency_icon(Metric::VIOLATIONS) -%>
 			    </div>
+			  </div>
 			<%
 			blocker_violations = @snapshot.measure(Metric::BLOCKER_VIOLATIONS)
 			critical_violations = @snapshot.measure(Metric::CRITICAL_VIOLATIONS)
@@ -67,7 +68,7 @@
 				max = m.value if m and m.value and m.value>max
 			end
 			%>
-			    <table>
+			    <table class="clear width100">
 			      <tr>
 			        <td><%= image_tag 'priority/BLOCKER.png'%></td>
 			        <td> &nbsp;<%= link_to 'Blocker', {:controller => 'drilldown', :action => 'violations', :id => @project.key, :priority => 'BLOCKER'} %></td>
@@ -124,7 +125,6 @@
 			        </td>
 			      </tr>
 			    </table>
-			  </div>
 	    </td>
 	  </tr>
     </table>
