@@ -37,7 +37,7 @@ public class UpdateCenterTest {
 
   @Test
   public void shouldGetInstalledPlugins() {
-    Sonar sonar = Sonar.create("http://localhost:9000");
+    Sonar sonar = ITUtils.createSonarWsClient();
     List<Plugin> plugins = sonar.findAll(UpdateCenterQuery.createForInstalledPlugins());
     assertThat(plugins.size(), greaterThan(0));
 

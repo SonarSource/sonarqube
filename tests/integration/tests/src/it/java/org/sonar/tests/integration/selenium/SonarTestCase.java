@@ -22,6 +22,7 @@ package org.sonar.tests.integration.selenium;
 import com.thoughtworks.selenium.DefaultSelenium;
 import org.junit.After;
 import org.junit.Before;
+import org.sonar.tests.integration.ITUtils;
 
 /**
  * To execute selenium tests in IDE, you have to run the selenium server first :
@@ -33,7 +34,7 @@ public abstract class SonarTestCase {
   @Before
   public void before() throws Exception {
     // TODO the browser and the url must be configurable 
-    selenium = new DefaultSelenium("localhost", 4444, "*firefox", "http://localhost:9000");
+    selenium = new DefaultSelenium("localhost", 4444, "*firefox", ITUtils.getSonarURL());
     selenium.start();
   }
 

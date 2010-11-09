@@ -50,7 +50,7 @@ public class Struts139Test {
 
   @BeforeClass
   public static void buildServer() {
-    sonar = Sonar.create("http://localhost:9000");
+    sonar = ITUtils.createSonarWsClient();
   }
 
   @Test

@@ -22,13 +22,14 @@ package org.sonar.tests.integration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.After;
 
 import java.io.IOException;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class GzipCompressionTest {
 
@@ -38,7 +39,7 @@ public class GzipCompressionTest {
   @Before
   public void before() {
     client = new HttpClient();
-    method = new GetMethod("http://localhost:9000");
+    method = new GetMethod(ITUtils.getSonarURL());
   }
 
   @After

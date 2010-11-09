@@ -19,26 +19,23 @@
  */
 package org.sonar.tests.integration;
 
-import org.junit.Test;
+import org.apache.commons.lang.StringUtils;
+import org.junit.Ignore;
 import org.sonar.wsclient.Sonar;
-import org.sonar.wsclient.services.Server;
-import org.sonar.wsclient.services.ServerQuery;
 
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+@Ignore
+public final class ITUtils {
 
-public class ServerTest {
-
-  @Test
-  public void shouldGetVersion() {
-    Sonar sonar = ITUtils.createSonarWsClient();
-    assertThat(sonar.find(new ServerQuery()).getVersion(), endsWith("-SNAPSHOT"));
+  private ITUtils() {
   }
 
-  @Test
-  public void shouldGetStatus() {
-    Sonar sonar = ITUtils.createSonarWsClient();
-    assertThat(sonar.find(new ServerQuery()).getStatus(), is(Server.Status.UP));
+  public static Sonar createSonarWsClient() {
+    return Sonar.create(getSonarURL());
   }
+
+  public static String getSonarURL() {
+    return StringUtils.defaultIfEmpty(System.getProperty("sonar.url"), "http://localhost:9000");
+  }
+
+
 }
