@@ -24,15 +24,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
-import org.sonar.server.plugins.UpdateCenterClient;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
-import java.net.*;
-import java.util.Arrays;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import static junit.framework.Assert.assertNull;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.internal.matchers.IsCollectionContaining.hasItems;
 import static org.mockito.Matchers.anyObject;
@@ -47,7 +45,7 @@ public class UpdateCenterClientTest {
   @Before
   public void startServer() throws Exception {
     downloader = mock(HttpDownloader.class);
-    client = new UpdateCenterClient(downloader, BASE_URL);
+    client = new UpdateCenterClient(downloader, new URI(BASE_URL));
   }
 
   @Test
@@ -83,28 +81,5 @@ public class UpdateCenterClientTest {
     client.getCenter(true);
 
     verify(downloader, times(2)).openStream(new URI(BASE_URL));
-  }
-
-  @Test
-  public void shouldSumUpDirectProxyConfiguration() {
-    ProxySelector proxySelector = mock(ProxySelector.class);
-    when(proxySelector.select((URI)anyObject())).thenReturn(Arrays.asList(Proxy.NO_PROXY));
-    assertThat(UpdateCenterClient.sumUpProxyConfiguration("http://updatecenter", proxySelector), is("no HTTP proxy"));
-  }
-
-  @Test
-  public void shouldSumUpProxyConfiguration() {
-    ProxySelector proxySelector = mock(ProxySelector.class);
-    when(proxySelector.select((URI)anyObject())).thenReturn(Arrays.asList((Proxy)new FakeProxy()));
-    assertThat(UpdateCenterClient.sumUpProxyConfiguration("http://updatecenter", proxySelector), is("proxy: http://updatecenter:80"));
-  }
-
-
-}
-
-class FakeProxy extends Proxy {
-
-  public FakeProxy() {
-    super(Type.HTTP, new InetSocketAddress("http://updatecenter", 80));
   }
 }

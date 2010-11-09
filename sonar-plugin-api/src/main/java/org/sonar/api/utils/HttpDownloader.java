@@ -19,6 +19,10 @@
  */
 package org.sonar.api.utils;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
@@ -30,25 +34,93 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
+import java.net.*;
+import java.util.List;
 
 /**
- * Simple class to download a file from a HTTP repository.
- * 
+ * This component downloads HTTP files. It currently does not reuse maven proxy configuration on the batch side.
+ *
  * @since 2.2
  */
 public class HttpDownloader implements BatchComponent, ServerComponent {
 
   public static final int TIMEOUT_MILLISECONDS = 20 * 1000;
+  
+  private String userAgent;
 
-  private Server server = null;
-
-  public HttpDownloader(Server server) {
-    this.server = server;
+  public HttpDownloader(Server server, Configuration configuration) {
+    this(configuration, server.getVersion());
   }
 
-  public HttpDownloader() {
+  public HttpDownloader(Configuration configuration) {
+    this(configuration, null);
+  }
+
+  /**
+   * for unit tests
+   */
+  HttpDownloader() {
+    this(new PropertiesConfiguration(), null);
+  }
+
+  private HttpDownloader(Configuration configuration, String userAgent) {
+    initProxy(configuration);
+    initUserAgent(userAgent);
+  }
+
+  private void initProxy(Configuration configuration) {
+    propagateProxySystemProperties(configuration);
+    if (requiresProxyAuthentication(configuration)) {
+      registerProxyCredentials(configuration);
+    }
+  }
+
+  private void initUserAgent(String sonarVersion) {
+    String userAgent = (sonarVersion == null ? "Sonar" : String.format("Sonar %s", sonarVersion));
+    System.setProperty("http.agent", userAgent);
+    this.userAgent = userAgent;
+  }
+
+  public String getProxySynthesis(URI uri) {
+    return getProxySynthesis(uri, ProxySelector.getDefault());
+  }
+
+  static String getProxySynthesis(URI uri, ProxySelector proxySelector) {
+    List<String> descriptions = Lists.newArrayList();
+    List<Proxy> proxies = proxySelector.select(uri);
+    if (proxies.size() == 1 && proxies.get(0).type().equals(Proxy.Type.DIRECT)) {
+      descriptions.add("no proxy");
+    } else {
+      for (Proxy proxy : proxies) {
+        if (!proxy.type().equals(Proxy.Type.DIRECT)) {
+          descriptions.add("proxy: " + proxy.address().toString());
+        }
+      }
+    }
+    return Joiner.on(", ").join(descriptions);
+  }
+
+  private void registerProxyCredentials(Configuration configuration) {
+    Authenticator.setDefault(new ProxyAuthenticator(configuration.getString("http.proxyUser"), configuration.getString("http.proxyPassword")));
+  }
+
+  private boolean requiresProxyAuthentication(Configuration configuration) {
+    return configuration.getString("http.proxyUser") != null;
+  }
+
+  private void propagateProxySystemProperties(Configuration configuration) {
+    propagateSystemProperty(configuration, "http.proxyHost");
+    propagateSystemProperty(configuration, "http.proxyPort");
+    propagateSystemProperty(configuration, "http.nonProxyHosts");
+    propagateSystemProperty(configuration, "http.auth.ntlm.domain");
+    propagateSystemProperty(configuration, "socksProxyHost");
+    propagateSystemProperty(configuration, "socksProxyPort");
+  }
+
+  private void propagateSystemProperty(Configuration configuration, String key) {
+    if (configuration.getString(key) != null) {
+      System.setProperty(key, configuration.getString(key));
+    }
   }
 
   public void download(URI uri, File toFile) {
@@ -63,7 +135,7 @@ public class HttpDownloader implements BatchComponent, ServerComponent {
     } catch (Exception e) {
       IOUtils.closeQuietly(output);
       FileUtils.deleteQuietly(toFile);
-      throw new SonarException("Fail to download the file: " + uri, e);
+      throw new SonarException("Fail to download the file: " + uri + getProxySynthesis(uri), e);
 
     } finally {
       IOUtils.closeQuietly(input);
@@ -79,7 +151,7 @@ public class HttpDownloader implements BatchComponent, ServerComponent {
       return IOUtils.toByteArray(input);
 
     } catch (Exception e) {
-      throw new SonarException("Fail to download the file: " + uri, e);
+      throw new SonarException("Fail to download the file: " + uri + getProxySynthesis(uri), e);
 
     } finally {
       IOUtils.closeQuietly(input);
@@ -92,22 +164,30 @@ public class HttpDownloader implements BatchComponent, ServerComponent {
       return connection.getInputStream();
 
     } catch (Exception e) {
-      throw new SonarException("Fail to download the file: " + uri, e);
+      throw new SonarException("Fail to download the file: " + uri + getProxySynthesis(uri), e);
     }
   }
 
   private HttpURLConnection newHttpConnection(URI uri) throws IOException {
-    LoggerFactory.getLogger(getClass()).info("Download: " + uri);
+    LoggerFactory.getLogger(getClass()).info("Download: " + uri + getProxySynthesis(uri));
     HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
     connection.setConnectTimeout(TIMEOUT_MILLISECONDS);
     connection.setReadTimeout(TIMEOUT_MILLISECONDS);
     connection.setUseCaches(true);
-    connection.setRequestProperty("User-Agent", getUserAgent());
     connection.setInstanceFollowRedirects(true);
+    connection.setRequestProperty("User-Agent", userAgent);
     return connection;
   }
+}
 
-  private String getUserAgent() {
-    return (server != null ? "Sonar " + server.getVersion() : "Sonar");
+class ProxyAuthenticator extends Authenticator {
+  private PasswordAuthentication auth;
+
+  ProxyAuthenticator(String user, String password) {
+    auth = new PasswordAuthentication(user, password == null ? new char[0] : password.toCharArray());
+  }
+
+  protected PasswordAuthentication getPasswordAuthentication() {
+    return auth;
   }
 }

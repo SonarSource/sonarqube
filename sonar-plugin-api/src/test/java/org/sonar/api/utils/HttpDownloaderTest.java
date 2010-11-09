@@ -19,6 +19,7 @@
  */
 package org.sonar.api.utils;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
@@ -29,14 +30,15 @@ import org.sonar.api.platform.Server;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.*;
+import java.util.Arrays;
 import java.util.Properties;
 
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.internal.matchers.StringContains.containsString;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -104,7 +106,7 @@ public class HttpDownloaderTest {
     Server server = mock(Server.class);
     when(server.getVersion()).thenReturn("2.2");
 
-    byte[] bytes = new HttpDownloader(server).download(new URI(baseUrl));
+    byte[] bytes = new HttpDownloader(server, new PropertiesConfiguration()).download(new URI(baseUrl));
     Properties props = new Properties();
     props.load(IOUtils.toInputStream(new String(bytes)));
     assertThat(props.getProperty("agent"), is("Sonar 2.2"));
@@ -114,6 +116,25 @@ public class HttpDownloaderTest {
   public void followRedirect() throws URISyntaxException {
     byte[] bytes = new HttpDownloader().download(new URI(baseUrl + "/redirect/"));
     assertThat(new String(bytes), containsString("count"));
+  }
 
+  @Test
+  public void shouldGetDirectProxySynthesis() throws URISyntaxException {
+    ProxySelector proxySelector = mock(ProxySelector.class);
+    when(proxySelector.select((URI)anyObject())).thenReturn(Arrays.asList(Proxy.NO_PROXY));
+    assertThat(HttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector), is("no proxy"));
+  }
+
+  @Test
+  public void shouldGetProxySynthesis() throws URISyntaxException {
+    ProxySelector proxySelector = mock(ProxySelector.class);
+    when(proxySelector.select((URI)anyObject())).thenReturn(Arrays.asList((Proxy)new FakeProxy()));
+    assertThat(HttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector), is("proxy: http://proxy_url:4040"));
+  }
+}
+
+class FakeProxy extends Proxy {
+  public FakeProxy() {
+    super(Type.HTTP, new InetSocketAddress("http://proxy_url", 4040));
   }
 }
