@@ -49,7 +49,7 @@
 
 /*CONFIGURATION*/
 #dashboard #widget_defs {
-  height: 150px;
+  height: 250px;
   overflow-y: auto;
   background-color: #FFF6BF;
   border: 2px solid #FFD324;
