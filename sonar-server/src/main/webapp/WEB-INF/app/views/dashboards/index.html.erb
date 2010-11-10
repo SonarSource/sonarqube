@@ -76,7 +76,7 @@
             @shared_dashboards.each do |dashboard| %>
             <tr id="shared-dashboard-<%= u dashboard.name -%>" class="<%= cycle('even','odd', :name => 'shared') -%>">
               <td>
-                <%= link_to dashboard.name, {:controller => :dashboard, :action => :index, :id => dashboard.id, :resource => params[:resource]} -%>
+                <%= link_to dashboard.name, {:controller => :dashboard, :action => :index, :id => params[:resource], :did => dashboard.id} -%>
                 <% if dashboard.description.present? %>
                 <p class="small"><%= h dashboard.description -%></p>
                 <% end %>
