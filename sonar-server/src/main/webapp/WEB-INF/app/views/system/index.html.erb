@@ -52,22 +52,6 @@
 
 <br/>
 
-<table class="data width100" id="database">
-<thead>
-  <tr>
-    <th colspan="2"><h2>Database Statistics</h2></th>
-  </tr>
-</thead>
-<tbody>
-  <% @server.database_statistics.each do |data| %>
-    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'database' } %>
-  <% end %>
-</thead>
-<tbody>
-</table>
-
-<br/>
-
 <table class="data width100" id="plugins">
 <thead>
   <tr>

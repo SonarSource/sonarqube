@@ -24,7 +24,7 @@ class Server
   end
   
   def info
-    system_info + sonar_info + system_statistics + database_statistics + sonar_plugins + system_properties
+    system_info + sonar_info + system_statistics + sonar_plugins + system_properties
   end
   
   def system_info
@@ -60,20 +60,7 @@ class Server
     add_property(system_statistics, 'Threads (total/peak/daemon)') {"#{java.lang.management.ManagementFactory.getThreadMXBean().getThreadCount()} / #{java.lang.management.ManagementFactory.getThreadMXBean().getPeakThreadCount()} / #{java.lang.management.ManagementFactory.getThreadMXBean().getDaemonThreadCount() }" }
     system_statistics
   end
-  
-  def database_statistics
-    database_statistics=[]
-    add_property(database_statistics, 'Dependencies') {Dependency.count}
-    add_property(database_statistics, 'Measures') {ProjectMeasure.count}
-    add_property(database_statistics, 'Resources') {Project.count}
-    add_property(database_statistics, 'Rules') {Rule.count}
-    add_property(database_statistics, 'Snapshots') {Snapshot.count}
-    add_property(database_statistics, 'Violations') {RuleFailure.count}
-    add_property(database_statistics, 'Users') {User.count}    
-    add_property(database_statistics, 'User Groups') {Group.count}
-    database_statistics
-  end
-  
+
   def sonar_info
     sonar_info=[]
     add_property(sonar_info, 'Version') {org.sonar.server.platform.Platform.getServer().getVersion()}
