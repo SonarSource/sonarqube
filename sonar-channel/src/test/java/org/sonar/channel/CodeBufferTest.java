@@ -31,7 +31,7 @@ import org.junit.Test;
 public class CodeBufferTest {
 
   private CodeReaderConfiguration defaulConfiguration = new CodeReaderConfiguration();
-  
+
   @Test
   public void testPop() {
     CodeBuffer code = new CodeBuffer("pa", defaulConfiguration);
@@ -114,6 +114,20 @@ public class CodeBufferTest {
     CodeBuffer reader = new CodeBuffer("123456", defaulConfiguration);
     assertEquals('1', reader.charAt(0));
     assertEquals('6', reader.charAt(5));
+  }
+
+  @Test
+  public void testPush() {
+    CodeReader reader = new CodeReader("12", defaulConfiguration);
+    assertEquals('1', (char) reader.pop());
+    reader.push("a");
+    assertEquals('a', (char) reader.peek());
+    reader.push("45");
+    assertEquals("45a2", new String(reader.peek(4)));
+    for (int i = 0; i < 4; i++) {
+      reader.pop();
+    }
+    assertEquals( -1, reader.pop());
   }
 
   @Test

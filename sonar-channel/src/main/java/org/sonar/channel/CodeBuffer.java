@@ -85,6 +85,15 @@ public class CodeBuffer implements CharSequence {
       return -1;
     }
     int character = buffer[bufferPosition++];
+    updateCursorPosition(character);
+    if (recordingMode) {
+      recordedCharacters.append((char) character);
+    }
+    lastChar = character;
+    return character;
+  }
+
+  private final void updateCursorPosition(int character) {
     if (character == LF || character == CR) {
       if ((lastChar != LF && lastChar != CR) || lastChar == character || lastChar == LF) {
         cursor.line++;
@@ -95,11 +104,6 @@ public class CodeBuffer implements CharSequence {
     } else {
       cursor.column++;
     }
-    if (recordingMode) {
-      recordedCharacters.append((char) character);
-    }
-    lastChar = character;
-    return character;
   }
 
   private int fillBuffer() {
@@ -121,7 +125,7 @@ public class CodeBuffer implements CharSequence {
   }
 
   /**
-   * Get the last consumed character
+   * Looks at the last consumed character
    * 
    * @return the last character or -1 if the no character has been yet consumed
    */
@@ -130,12 +134,37 @@ public class CodeBuffer implements CharSequence {
   }
 
   /**
-   * Read without consuming the next character
+   * Looks at the next character without consuming it
    * 
-   * @return the next character or -1 if the end of the stream is reached
+   * @return the next character or -1 if the end of the stream has been reached
    */
   public final int peek() {
     return intAt(0);
+  }
+
+  /**
+   * Pushes a character sequence onto the top of this CodeBuffer. This characters will be then the first to be read.
+   * 
+   * @param chars
+   *          the character sequences to push into the CodeBuffer
+   */
+  public void push(CharSequence chars) {
+    int length = chars.length();
+    if (bufferPosition >= length) {
+      for (int index = 0; index < length; index++) {
+        buffer[bufferPosition + index - length] = chars.charAt(index);
+      }
+      bufferPosition -= length;
+    } else {
+      char[] extendedBuffer = new char[buffer.length - bufferPosition + length];
+      for (int index = 0; index < length; index++) {
+        extendedBuffer[index] = chars.charAt(index);
+      }
+      System.arraycopy(buffer, bufferPosition, extendedBuffer, length, bufferSize - bufferPosition);
+      buffer = extendedBuffer;
+      bufferSize = bufferSize + length - bufferPosition;
+      bufferPosition = 0;
+    }
   }
 
   /**
