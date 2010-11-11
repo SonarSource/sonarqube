@@ -923,13 +923,20 @@ mmmm
               </execution>
             </executions>
           </plugin>
+        </plugins>
+      </build>
+    </profile>
 
+    <profile>
+      <id>check-java-api</id>
+      <build>
+        <plugins>
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>animal-sniffer-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>check-java-version</id>
+                <id>enforce-java-api-compatibility</id>
                 <phase>verify</phase>
                 <goals>
                   <goal>check</goal>
