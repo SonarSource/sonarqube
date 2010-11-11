@@ -9,11 +9,11 @@
  %>
 
  <div class="handle" style="//overflow:hidden;//zoom:1;">
-   <%= definition.getTitle() -%>
    <a class="block-remove"  onclick="portal.deleteWidget(this);return false;">Delete</a>
    <% if definition.isEditable() %>
      <a class="block-view-toggle" onclick="portal.editWidget(<%= widget.id -%>);return false;">Edit</a>
    <% end %>
+   <%= definition.getTitle() -%>
  </div>
 
 
