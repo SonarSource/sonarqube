@@ -141,7 +141,7 @@ class DashboardController < ApplicationController
 
   def widget_definitions
     load_widget_definitions(params[:category])
-    render :partial => 'dashboard/widget_definitions', :locals => {:dashboard_id => params[:did], :resource_id => params[:rid], :filter_on_category => params[:category]}
+    render :partial => 'dashboard/widget_definitions', :locals => {:dashboard_id => params[:did], :resource_id => params[:id], :filter_on_category => params[:category]}
   end
 
   private

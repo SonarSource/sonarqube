@@ -28,7 +28,7 @@
     function filterWidgets(category){
       new Ajax.Updater(
         'widget_defs',
-        '<%= url_for :controller => "dashboard", :action => "widget_definitions", :did => @dashboard.id, :rid => @resource.id -%>&category=' + category,
+        '<%= url_for :controller => "dashboard", :action => "widget_definitions", :did => @dashboard.id, :id => @resource.id -%>&category=' + category,
         {asynchronous:true, evalScripts:true});
       $('filter-widgets-loading').show();
       return false;
