@@ -174,6 +174,10 @@ class Snapshot < ActiveRecord::Base
     end
   end
 
+  def resource
+    project
+  end
+
   def resource_id_for_authorization
     root_project_id || project_id
   end
