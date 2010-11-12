@@ -104,7 +104,8 @@ class ComponentsController < ApplicationController
           'metric_id' => mids,
           'rule_id' => nil,
           'rules_category_id' => nil,
-          'rule_priority' => nil}))
+          'rule_priority' => nil,
+          'characteristic_id' => nil}))
         measures.concat(AsyncMeasureSnapshot.search(page_sids, mids))
       end
       measures
