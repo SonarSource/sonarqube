@@ -19,30 +19,36 @@
  */
 package org.sonar.plugins.core.purges;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.batch.PurgeContext;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.purge.PurgeUtils;
+import org.sonar.api.utils.Logs;
 import org.sonar.core.purge.AbstractPurge;
 
+import javax.persistence.Query;
 import java.util.Date;
 import java.util.List;
-
-import javax.persistence.Query;
 
 /**
  * @since 1.11
  */
 public class PurgeUnprocessed extends AbstractPurge {
 
-  private static final int MINIMUM_AGE_IN_HOURS = -12;
+  private Configuration configuration;
 
-  public PurgeUnprocessed(DatabaseSession session) {
+  public PurgeUnprocessed(DatabaseSession session, Configuration conf) {
     super(session);
+    this.configuration = conf;
   }
 
   public void purge(PurgeContext context) {
-    final Date beforeDate = DateUtils.addHours(new Date(), MINIMUM_AGE_IN_HOURS);
+    int minimumPeriodInHours = PurgeUtils.getMinimumPeriodInHours(configuration);
+    final Date beforeDate = DateUtils.addHours(new Date(), -minimumPeriodInHours);
+    Logs.INFO.info("Deleting unprocessed data before " + beforeDate);
+
     Query query = getSession().createQuery("SELECT s.id FROM " + Snapshot.class.getSimpleName() + " s WHERE s.last=false AND status=:status AND s.createdAt<:date");
     query.setParameter("status", Snapshot.STATUS_UNPROCESSED);
     query.setParameter("date", beforeDate);

@@ -19,11 +19,14 @@
  */
 package org.sonar.plugins.core.purges;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.batch.PurgeContext;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.purge.PurgeUtils;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.utils.Logs;
 import org.sonar.core.purge.AbstractPurge;
 
 import java.util.Date;
@@ -36,14 +39,18 @@ import javax.persistence.Query;
  */
 public class PurgeEntities extends AbstractPurge {
 
-  private static final int MINIMUM_AGE_IN_HOURS = -12;
+  private Configuration configuration;
 
-  public PurgeEntities(DatabaseSession session) {
+  public PurgeEntities(DatabaseSession session, Configuration conf) {
     super(session);
+    this.configuration = conf;
   }
 
   public void purge(PurgeContext context) {
-    final Date beforeDate = DateUtils.addHours(new Date(), MINIMUM_AGE_IN_HOURS);
+    int minimumPeriodInHours = PurgeUtils.getMinimumPeriodInHours(configuration);
+    final Date beforeDate = DateUtils.addHours(new Date(), - minimumPeriodInHours);
+    Logs.INFO.info("Deleting files data before " + beforeDate);
+    
     Query query = getSession().createQuery("SELECT s.id FROM " + Snapshot.class.getSimpleName() + " s WHERE s.last=false AND scope=:scope AND s.createdAt<:date");
     query.setParameter("scope", Resource.SCOPE_ENTITY);
     query.setParameter("date", beforeDate);

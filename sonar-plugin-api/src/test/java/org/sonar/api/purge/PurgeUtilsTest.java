@@ -17,21 +17,25 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.purges;
+package org.sonar.api.purge;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import static org.hamcrest.core.Is.is;
 
-public class PurgeEntitiesTest extends AbstractDbUnitTestCase {
+import static org.junit.Assert.assertThat;
+
+public class PurgeUtilsTest {
 
   @Test
-  public void purgeEntities() {
-    setupData("sharedFixture", "purgeEntities");
+  public void shouldReturnDefaultMinimumPeriod() {
+    assertThat(PurgeUtils.getMinimumPeriodInHours(new PropertiesConfiguration()), is(PurgeUtils.DEFAULT_MINIMUM_PERIOD_IN_HOURS));
+  }
 
-    final PurgeEntities purge = new PurgeEntities(getSession(), new PropertiesConfiguration());
-    purge.purge(null);
-
-    checkTables("purgeEntities", "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources");
+  @Test
+  public void shouldReturnMinimumPeriod() {
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    conf.setProperty(PurgeUtils.PROP_KEY_MINIMUM_PERIOD_IN_HOURS, "9");
+    assertThat(PurgeUtils.getMinimumPeriodInHours(conf), is(9));
   }
 }

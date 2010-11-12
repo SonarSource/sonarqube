@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.purges;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
@@ -28,7 +29,7 @@ public class PurgeUnprocessedTest extends AbstractDbUnitTestCase {
   public void purgeUnprocessed() {
     setupData("sharedFixture", "purgeUnprocessed");
 
-    new PurgeUnprocessed(getSession()).purge(null);
+    new PurgeUnprocessed(getSession(), new PropertiesConfiguration()).purge(null);
 
     checkTables("purgeUnprocessed", "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources");
   }
