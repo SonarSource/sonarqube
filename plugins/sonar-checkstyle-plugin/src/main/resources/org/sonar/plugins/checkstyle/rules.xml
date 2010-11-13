@@ -1526,6 +1526,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
     <name><![CDATA[Todo Comment]]></name>
     <configKey><![CDATA[Checker/TreeWalker/TodoComment]]></configKey>
     <category name="Maintainability"/>
+    <cardinality>MULTIPLE</cardinality>
     <description><![CDATA[A check for TODO comments.]]></description>
     <param key="format" type="r">
       <description><![CDATA[pattern to check. Default is TODO:]]></description>
