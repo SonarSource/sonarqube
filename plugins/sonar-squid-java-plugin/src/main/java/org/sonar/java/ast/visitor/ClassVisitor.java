@@ -31,7 +31,7 @@ import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
 public class ClassVisitor extends JavaAstVisitor {
 
-  private static final List<Integer> wantedTokens = Arrays.asList(TokenTypes.CLASS_DEF, TokenTypes.INTERFACE_DEF, TokenTypes.ENUM_DEF,
+  public static final List<Integer> wantedTokens = Arrays.asList(TokenTypes.CLASS_DEF, TokenTypes.INTERFACE_DEF, TokenTypes.ENUM_DEF,
       TokenTypes.ANNOTATION_DEF);
 
   @Override
@@ -44,7 +44,7 @@ public class ClassVisitor extends JavaAstVisitor {
     String className = ast.findFirstToken(TokenTypes.IDENT).getText();
     SourceClass unit;
     if (peekSourceCode().isType(SourceClass.class)) {
-      unit = createSourceClass((SourceClass)peekSourceCode(), className);
+      unit = createSourceClass((SourceClass) peekSourceCode(), className);
     } else {
       unit = createSourceClass(peekParentPackage(), className);
     }
