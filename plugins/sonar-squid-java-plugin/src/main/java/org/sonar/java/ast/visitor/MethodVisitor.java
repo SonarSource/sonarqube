@@ -41,7 +41,7 @@ public class MethodVisitor extends JavaAstVisitor {
 
   private static final String CONSTRUCTOR = "<init>";
 
-  private static final List<Integer> wantedTokens = Arrays.asList(TokenTypes.CTOR_DEF, TokenTypes.METHOD_DEF);
+  public static final List<Integer> wantedTokens = Arrays.asList(TokenTypes.CTOR_DEF, TokenTypes.METHOD_DEF);
   private static final Map<Integer, JvmJavaType> tokenJavaTypeMapping = new HashMap<Integer, JvmJavaType>();
 
   static {

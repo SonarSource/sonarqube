@@ -19,14 +19,14 @@
  */
 package org.sonar.plugins.squid.bridges;
 
+import java.util.Locale;
+import java.util.Set;
+
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Violation;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
-
-import java.util.Locale;
-import java.util.Set;
 
 public class ChecksBridge extends Bridge {
 
@@ -43,6 +43,7 @@ public class ChecksBridge extends Bridge {
         Violation violation = Violation.create(rule, sonarFile);
         violation.setLineId(checkMessage.getLine());
         violation.setMessage(checkMessage.getText(Locale.ENGLISH));
+        violation.setCost(checkMessage.getCost());
         context.saveViolation(violation);
       }
     }

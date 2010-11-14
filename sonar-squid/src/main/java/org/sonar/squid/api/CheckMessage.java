@@ -28,6 +28,7 @@ import org.sonar.check.Message;
 public class CheckMessage implements Message {
 
   private Integer line;
+  private Double cost;
   private SourceCode sourceCode;
   private CodeCheck codeCheck;
   private String defaultMessage;
@@ -53,6 +54,14 @@ public class CheckMessage implements Message {
 
   public Integer getLine() {
     return line;
+  }
+
+  public void setCost(double cost) {
+    this.cost = cost;
+  }
+
+  public Double getCost() {
+    return cost;
   }
 
   public CodeCheck getChecker() {

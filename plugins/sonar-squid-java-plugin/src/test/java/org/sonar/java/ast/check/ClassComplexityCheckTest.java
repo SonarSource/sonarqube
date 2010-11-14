@@ -32,14 +32,14 @@ import org.sonar.squid.Squid;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 
-public class ComplexityCheckTest {
+public class ClassComplexityCheckTest {
 
   private Squid squid;
 
   @Before
   public void setUp() {
     squid = new Squid(new JavaSquidConfiguration());
-    ComplexityCheck check = new ComplexityCheck();
+    ClassComplexityCheck check = new ClassComplexityCheck();
     check.setThreshold(5);
     squid.registerVisitor(check);
     JavaAstScanner scanner = squid.register(JavaAstScanner.class);

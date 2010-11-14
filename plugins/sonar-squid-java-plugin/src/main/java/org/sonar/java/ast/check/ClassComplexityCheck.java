@@ -33,8 +33,8 @@ import org.sonar.squid.measures.Metric;
 
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 
-@Rule(key = "ComplexityCheck", isoCategory = IsoCategory.Maintainability)
-public class ComplexityCheck extends JavaAstCheck {
+@Rule(key = "ClassComplexityCheck", isoCategory = IsoCategory.Maintainability)
+public class ClassComplexityCheck extends JavaAstCheck {
 
   @RuleProperty
   private Integer threshold;
@@ -49,8 +49,9 @@ public class ComplexityCheck extends JavaAstCheck {
     SourceCode currentResource = peekSourceCode();
     int complexity = calculateComplexity(currentResource);
     if (complexity > threshold) {
-      CheckMessage message = new CheckMessage(this, "Complexity exceeds " + threshold + ".");
+      CheckMessage message = new CheckMessage(this, "Class complexity exceeds " + threshold + ".");
       message.setLine(ast.getLineNo());
+      message.setCost(complexity - threshold);
       SourceFile sourceFile = currentResource.getParent(SourceFile.class);
       sourceFile.log(message);
     }
