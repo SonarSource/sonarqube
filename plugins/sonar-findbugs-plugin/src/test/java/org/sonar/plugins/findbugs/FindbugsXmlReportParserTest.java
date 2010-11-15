@@ -36,7 +36,7 @@ public class FindbugsXmlReportParserTest {
 
   @Before
   public void init() {
-    File findbugsXmlReport = getFile("/org/sonar/plugins/findbugs/findbugsXml.xml");
+    File findbugsXmlReport = getFile("/org/sonar/plugins/findbugs/findbugsReport.xml");
     FindbugsXmlReportParser xmlParser = new FindbugsXmlReportParser(findbugsXmlReport);
     violations = xmlParser.getViolations();
   }

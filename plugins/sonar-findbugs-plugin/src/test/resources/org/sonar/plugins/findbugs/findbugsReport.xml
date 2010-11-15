@@ -23,7 +23,7 @@
     </SourceLine>
     <SourceLine endBytecode='65' startBytecode='65' start='112' classname='org.sonar.commons.ZipUtils' primary='true' sourcepath='org/sonar/commons/ZipUtils.java' sourcefile='ZipUtils.java' end='124'>
       <Message>At ZipUtils.java:[line 107]</Message>
-    </SourceLine>    
+    </SourceLine>
   </BugInstance>
   <BugInstance category='PERFORMANCE' instanceHash='6ba81067bf4e178b360e52be449b1b60' instanceOccurrenceNum='0' priority='3' abbrev='SIC' type='SIC_INNER_SHOULD_BE_STATIC_ANON' instanceOccurrenceMax='0'>
     <ShortMessage>Could be refactored into a named static inner class</ShortMessage>
@@ -37,7 +37,7 @@
     <SourceLine start='56' classname='org.sonar.commons.resources.MeasuresDao$1' sourcepath='org/sonar/commons/resources/MeasuresDao.java' synthetic='true' sourcefile='MeasuresDao.java' end='57'>
       <Message>At MeasuresDao.java:[lines 56-57]</Message>
     </SourceLine>
-  </BugInstance>  
+  </BugInstance>
   <FindBugsSummary>
     <FindBugsProfile>
       <ClassProfile avgMicrosecondsPerInvocation='398' maxMicrosecondsPerInvocation='107179' name='edu.umd.cs.findbugs.OpcodeStack$JumpInfoFactory' invocations='4722' totalMilliseconds='1881' standardDeviationMircosecondsPerInvocation='3050'></ClassProfile>
@@ -45,4 +45,4 @@
   </FindBugsSummary>
   <ClassFeatures></ClassFeatures>
   <History></History>
-</BugCollection>  
+</BugCollection>

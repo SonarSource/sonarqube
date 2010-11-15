@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.findbugs;
 
+import java.io.File;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Sensor;
@@ -30,9 +33,6 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.Logs;
-
-import java.io.File;
-import java.util.List;
 
 public class FindbugsSensor implements Sensor {
   private RulesProfile profile;
@@ -63,10 +63,14 @@ public class FindbugsSensor implements Sensor {
     List<FindbugsXmlReportParser.Violation> fbViolations = reportParser.getViolations();
     for (FindbugsXmlReportParser.Violation fbViolation : fbViolations) {
       Rule rule = ruleFinder.findByKey(FindbugsConstants.REPOSITORY_KEY, fbViolation.getType());
-      JavaFile resource = new JavaFile(fbViolation.getSonarJavaFileKey());
-      if (context.getResource(resource) != null) {
-        Violation violation = Violation.create(rule, resource).setLineId(fbViolation.getStart()).setMessage(fbViolation.getLongMessage());
-        context.saveViolation(violation);
+      if (rule != null) { // ignore violations from report, if rule not activated in Sonar
+        JavaFile resource = new JavaFile(fbViolation.getSonarJavaFileKey());
+        if (context.getResource(resource) != null) {
+          Violation violation = Violation.create(rule, resource).setLineId(fbViolation.getStart()).setMessage(fbViolation.getLongMessage());
+          context.saveViolation(violation);
+        }
+      } else {
+        Logs.INFO.debug("Findbugs rule '{}' not active in Sonar", fbViolation.getType());
       }
     }
   }

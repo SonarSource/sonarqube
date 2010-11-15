@@ -29,6 +29,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
@@ -41,8 +43,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.test.IsViolation;
-
-import java.io.File;
 
 public class FindbugsSensorTest extends FindbugsTests {
 
@@ -82,7 +82,8 @@ public class FindbugsSensorTest extends FindbugsTests {
     FindbugsExecutor executor = mock(FindbugsExecutor.class);
     SensorContext context = mock(SensorContext.class);
     Configuration conf = mock(Configuration.class);
-    File xmlFile = new File(getClass().getResource("/org/sonar/plugins/findbugs/findbugsXml.xml").toURI());
+    // We assume that this report was generated during findbugs execution
+    File xmlFile = new File(getClass().getResource("/org/sonar/plugins/findbugs/findbugsReport.xml").toURI());
     when(project.getConfiguration()).thenReturn(conf);
     when(executor.execute()).thenReturn(xmlFile);
     when(context.getResource(any(Resource.class))).thenReturn(new JavaFile("org.sonar.MyClass"));
@@ -110,7 +111,7 @@ public class FindbugsSensorTest extends FindbugsTests {
     FindbugsExecutor executor = mock(FindbugsExecutor.class);
     SensorContext context = mock(SensorContext.class);
     Configuration conf = mock(Configuration.class);
-    File xmlFile = new File(getClass().getResource("/org/sonar/plugins/findbugs/findbugsXml.xml").toURI());
+    File xmlFile = new File(getClass().getResource("/org/sonar/plugins/findbugs/findbugsReport.xml").toURI());
     when(conf.getString(CoreProperties.FINDBUGS_REPORT_PATH)).thenReturn(xmlFile.getAbsolutePath());
     when(project.getConfiguration()).thenReturn(conf);
     when(context.getResource(any(Resource.class))).thenReturn(new JavaFile("org.sonar.MyClass"));
@@ -130,6 +131,23 @@ public class FindbugsSensorTest extends FindbugsTests {
         "The class org.sonar.commons.resources.MeasuresDao$1 could be refactored into a named _static_ inner class").setLineId(56);
 
     verify(context).saveViolation(argThat(new IsViolation(wanted)));
+  }
+
+  @Test
+  public void shouldIgnoreNotActiveViolations() throws Exception {
+    Project project = createProject();
+    FindbugsExecutor executor = mock(FindbugsExecutor.class);
+    SensorContext context = mock(SensorContext.class);
+    Configuration conf = mock(Configuration.class);
+    File xmlFile = new File(getClass().getResource("/org/sonar/plugins/findbugs/findbugsReportWithUnknownRule.xml").toURI());
+    when(conf.getString(CoreProperties.FINDBUGS_REPORT_PATH)).thenReturn(xmlFile.getAbsolutePath());
+    when(project.getConfiguration()).thenReturn(conf);
+    when(context.getResource(any(Resource.class))).thenReturn(new JavaFile("org.sonar.MyClass"));
+
+    FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithActiveRules(), new FindbugsRuleFinder(), executor);
+    analyser.analyse(project, context);
+
+    verify(context, never()).saveViolation(any(Violation.class));
   }
 
   private Project createProject() {
