@@ -83,7 +83,8 @@ public class ParameterSignatureScanner {
 
     if (jvmJavaType == JvmJavaType.L || jvmJavaType == JvmJavaType.T) {
       int semicolonIndex = searchEndOfParameterSignature(signature, index);
-      if (signature.indexOf('<', index) != -1) {
+      int inferiorCharIndex = signature.indexOf('<', index);
+      if (inferiorCharIndex != -1 && inferiorCharIndex < semicolonIndex) {
         classCanonicalName = signature.substring(index, signature.indexOf('<', index));
       } else {
         classCanonicalName = signature.substring(index, semicolonIndex);

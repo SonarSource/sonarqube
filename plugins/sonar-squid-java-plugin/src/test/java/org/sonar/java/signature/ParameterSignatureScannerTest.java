@@ -100,6 +100,25 @@ public class ParameterSignatureScannerTest {
     assertThat(param1.isOject(), is(false));
     assertThat(param1.getJvmJavaType(), is(JvmJavaType.B));
   }
+  
+  
+  @Test
+  public void testScanSeveralArgumentsWithGeneric() {
+    List<Parameter> params = ParameterSignatureScanner.scanArguments("Ljava/lang/String;Ljava/util/List<Ljava/lang/String;>;[Ljava/util/Vector;Ljava/util/ArrayList<Ljava/lang/Integer;>;");
+    assertThat(params.get(0).isOject(), is(true));
+    assertThat(params.get(0).getClassName(), is("String"));
+    
+    assertThat(params.get(1).isOject(), is(true));
+    assertThat(params.get(1).getClassName(), is("List"));
+    
+    assertThat(params.get(2).isOject(), is(true));
+    assertThat(params.get(2).isArray(), is(true));
+    assertThat(params.get(2).getClassName(), is("Vector"));
+    
+    assertThat(params.get(3).isOject(), is(true));
+    assertThat(params.get(3).isArray(), is(false));
+    assertThat(params.get(3).getClassName(), is("ArrayList"));
+  }
 
   @Test
   public void testScanSeveralComplexArguments() {

@@ -52,4 +52,17 @@ public class MethodSignatureScannerTest {
     assertThat(method.getReturnType().isArray(), is(true));
     assertThat(method.getReturnType().getClassName(), is("Vector"));
   }
+  
+  @Test
+  public void scanGenericMethod(){
+    MethodSignature method = MethodSignatureScanner.scan("transactionValidation(Ljava/lang/String;Ljava/util/List<Ljava/lang/String;>;)V");
+
+    Parameter param1 = method.getArgumentTypes().get(0);
+    assertThat(param1.isOject(), is(true));
+    assertThat(param1.getClassName(), is("String"));
+
+    Parameter param2 = method.getArgumentTypes().get(1);
+    assertThat(param2.isOject(), is(true));
+    assertThat(param2.getClassName(), is("List"));
+  }
 }

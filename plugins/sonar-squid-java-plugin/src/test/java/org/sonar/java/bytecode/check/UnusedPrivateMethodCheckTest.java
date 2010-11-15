@@ -53,6 +53,15 @@ public class UnusedPrivateMethodCheckTest {
     assertThat(message.getLine(), is(33));
     assertThat(message.getDefaultMessage(), is("Private method 'unusedPrivateMethod(...)' is never used."));
   }
+  
+  @Test
+  public void testDetectUnusedGenericPrivateMethod() {
+    SourceFile file = (SourceFile) squid.search("UnusedGenericPrivateMethod.java");
+
+    assertThat(file.getCheckMessages().size(), is(1));
+    CheckMessage message = file.getCheckMessages().iterator().next();
+    assertThat(message.getLine(), is(7));
+  }
 
   @Test
   public void testDetectUnusedPrivateConstructor() {
