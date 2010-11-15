@@ -61,7 +61,8 @@ public final class AnnotationRuleParser implements ServerComponent {
 
   private Rule toRule(String repositoryKey, Class clazz, org.sonar.check.Rule ruleAnnotation) {
     String ruleKey = StringUtils.defaultIfEmpty(ruleAnnotation.key(), clazz.getCanonicalName());
-    Rule rule = Rule.create(repositoryKey, ruleKey, ruleAnnotation.name());
+    String ruleName = StringUtils.defaultIfEmpty(ruleAnnotation.name(), ruleKey);
+    Rule rule = Rule.create(repositoryKey, ruleKey, ruleName);
     rule.setDescription(ruleAnnotation.description());
     rule.setRulesCategory(RulesCategory.fromIsoCategory(ruleAnnotation.isoCategory()));
     rule.setPriority(RulePriority.fromCheckPriority(ruleAnnotation.priority()));
@@ -79,7 +80,8 @@ public final class AnnotationRuleParser implements ServerComponent {
 
   private Rule toRule(String repositoryKey, Class clazz, Check checkAnnotation) {
     String ruleKey = StringUtils.defaultIfEmpty(checkAnnotation.key(), clazz.getCanonicalName());
-    Rule rule = Rule.create(repositoryKey, ruleKey, checkAnnotation.title());
+    String ruleName = StringUtils.defaultIfEmpty(checkAnnotation.title(), ruleKey);
+    Rule rule = Rule.create(repositoryKey, ruleKey, ruleName);
     rule.setDescription(checkAnnotation.description());
     rule.setRulesCategory(RulesCategory.fromIsoCategory(checkAnnotation.isoCategory()));
     rule.setPriority(RulePriority.fromCheckPriority(checkAnnotation.priority()));
