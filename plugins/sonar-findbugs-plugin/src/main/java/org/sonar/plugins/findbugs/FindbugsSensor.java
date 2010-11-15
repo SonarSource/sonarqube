@@ -70,7 +70,7 @@ public class FindbugsSensor implements Sensor {
           context.saveViolation(violation);
         }
       } else {
-        Logs.INFO.debug("Findbugs rule '{}' not active in Sonar", fbViolation.getType());
+        Logs.INFO.warn("Findbugs rule '{}' not active in Sonar.", fbViolation.getType());
       }
     }
   }
