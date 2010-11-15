@@ -32,7 +32,7 @@ import org.sonar.squid.api.SourceFile;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
-@Rule(key = "AvoidUsageOfContinue", isoCategory = IsoCategory.Maintainability)
+@Rule(key = "AvoidUsageOfContinue", name = "AvoidUsageOfContinue", isoCategory = IsoCategory.Maintainability)
 public class ContinueCheck extends JavaAstCheck {
 
   @Override

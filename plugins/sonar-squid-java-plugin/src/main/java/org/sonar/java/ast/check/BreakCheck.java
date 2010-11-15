@@ -31,7 +31,7 @@ import org.sonar.squid.api.SourceFile;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
-@Rule(key = "BreakCheck", isoCategory = IsoCategory.Maintainability)
+@Rule(key = "BreakCheck", name = "BreakCheck", isoCategory = IsoCategory.Maintainability)
 public class BreakCheck extends JavaAstCheck {
 
   private boolean insideSwitch = false;

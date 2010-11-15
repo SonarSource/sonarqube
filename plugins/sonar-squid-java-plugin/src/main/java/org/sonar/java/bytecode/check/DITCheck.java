@@ -8,7 +8,7 @@ import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceClass;
 import org.sonar.squid.measures.Metric;
 
-@Rule(key = "DIT", isoCategory = IsoCategory.Maintainability)
+@Rule(key = "DIT", name = "DIT", isoCategory = IsoCategory.Maintainability)
 public class DITCheck extends BytecodeCheck {
 
   @RuleProperty

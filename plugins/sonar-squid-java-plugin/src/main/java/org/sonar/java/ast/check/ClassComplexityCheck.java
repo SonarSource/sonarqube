@@ -33,7 +33,7 @@ import org.sonar.squid.measures.Metric;
 
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 
-@Rule(key = "ClassComplexityCheck", isoCategory = IsoCategory.Maintainability)
+@Rule(key = "ClassComplexityCheck", name = "ClassComplexityCheck", isoCategory = IsoCategory.Maintainability)
 public class ClassComplexityCheck extends JavaAstCheck {
 
   @RuleProperty
