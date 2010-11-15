@@ -52,7 +52,6 @@ class Api::ServerController < Api::ApiController
     json=[
       {:system_info => server_properties_to_json(@server.system_info)},
       {:system_statistics => server_properties_to_json(@server.system_statistics)},
-      {:database_statistics => server_properties_to_json(@server.database_statistics)},
       {:sonar_info => server_properties_to_json(@server.sonar_info)},
       {:sonar_plugins => server_properties_to_json(@server.sonar_plugins)},
       {:system_properties => server_properties_to_json(@server.system_properties)},
