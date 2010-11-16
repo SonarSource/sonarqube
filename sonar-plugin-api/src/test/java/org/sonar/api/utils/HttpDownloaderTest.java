@@ -22,8 +22,8 @@ package org.sonar.api.utils;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mortbay.jetty.testing.ServletTester;
 import org.sonar.api.platform.Server;
@@ -44,11 +44,11 @@ import static org.mockito.Mockito.when;
 
 public class HttpDownloaderTest {
 
-  private ServletTester tester;
-  private String baseUrl;
+  private static ServletTester tester;
+  private static String baseUrl;
 
-  @Before
-  public void startServer() throws Exception {
+  @BeforeClass
+  public static void startServer() throws Exception {
     tester = new ServletTester();
     tester.setContextPath("/");
     tester.addServlet(RedirectServlet.class, "/redirect/");
@@ -57,8 +57,100 @@ public class HttpDownloaderTest {
     tester.start();
   }
 
-  @After
-  public void stopServer() throws Exception {
+  @AfterClass
+  public static void stopServer() throws Exception {
+    /* workaround for a jetty deadlock :
+      1. stopping server logs a SLF4J/Logback message, but the message calls AbstractConnector.toString, which is synchronized on getLocalPort()
+      2. a jetty thread tries also to stop and is locked on the same synchronized block.
+
+      "3862294@qtp-17303670-1":
+	at ch.qos.logback.core.AppenderBase.doAppend(AppenderBase.java:66)
+	- waiting to lock <0x8be33f88> (a ch.qos.logback.core.ConsoleAppender)
+	at ch.qos.logback.core.spi.AppenderAttachableImpl.appendLoopOnAppenders(AppenderAttachableImpl.java:60)
+	at ch.qos.logback.classic.Logger.appendLoopOnAppenders(Logger.java:270)
+	at ch.qos.logback.classic.Logger.callAppenders(Logger.java:257)
+	at ch.qos.logback.classic.Logger.buildLoggingEventAndAppend(Logger.java:439)
+	at ch.qos.logback.classic.Logger.filterAndLog_2(Logger.java:430)
+	at ch.qos.logback.classic.Logger.debug(Logger.java:508)
+	at org.mortbay.log.Slf4jLog.debug(Slf4jLog.java:40)
+	at org.mortbay.log.Log.debug(Log.java:112)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:77)
+	- locked <0x8b8cf980> (a java.lang.Object)
+	at org.mortbay.jetty.nio.SelectChannelConnector.close(SelectChannelConnector.java:136)
+	- locked <0x8b8c0150> (a org.mortbay.jetty.nio.SelectChannelConnector)
+	at org.mortbay.jetty.AbstractConnector$Acceptor.run(AbstractConnector.java:735)
+	at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:582)
+"main":
+	at org.mortbay.jetty.nio.SelectChannelConnector.getLocalPort(SelectChannelConnector.java:188)
+	- waiting to lock <0x8b8c0150> (a org.mortbay.jetty.nio.SelectChannelConnector)
+	at org.mortbay.jetty.AbstractConnector.toString(AbstractConnector.java:669)
+	at java.lang.String.valueOf(String.java:2826)
+	at java.lang.StringBuffer.append(StringBuffer.java:219)
+	- locked <0x8b7e8618> (a java.lang.StringBuffer)
+	at org.slf4j.helpers.MessageFormatter.deeplyAppendParameter(MessageFormatter.java:237)
+	at org.slf4j.helpers.MessageFormatter.arrayFormat(MessageFormatter.java:196)
+	at ch.qos.logback.classic.spi.LoggingEvent.getFormattedMessage(LoggingEvent.java:282)
+	at ch.qos.logback.classic.pattern.MessageConverter.convert(MessageConverter.java:22)
+	at ch.qos.logback.classic.pattern.MessageConverter.convert(MessageConverter.java:19)
+	at ch.qos.logback.core.pattern.FormattingConverter.write(FormattingConverter.java:32)
+	at ch.qos.logback.core.pattern.PatternLayoutBase.writeLoopOnConverters(PatternLayoutBase.java:110)
+	at ch.qos.logback.classic.PatternLayout.doLayout(PatternLayout.java:132)
+	at ch.qos.logback.classic.PatternLayout.doLayout(PatternLayout.java:51)
+	at ch.qos.logback.core.WriterAppender.subAppend(WriterAppender.java:261)
+	at ch.qos.logback.core.WriterAppender.append(WriterAppender.java:114)
+	at ch.qos.logback.core.AppenderBase.doAppend(AppenderBase.java:87)
+	- locked <0x8be33f88> (a ch.qos.logback.core.ConsoleAppender)
+	at ch.qos.logback.core.spi.AppenderAttachableImpl.appendLoopOnAppenders(AppenderAttachableImpl.java:60)
+	at ch.qos.logback.classic.Logger.appendLoopOnAppenders(Logger.java:270)
+	at ch.qos.logback.classic.Logger.callAppenders(Logger.java:257)
+	at ch.qos.logback.classic.Logger.buildLoggingEventAndAppend(Logger.java:439)
+	at ch.qos.logback.classic.Logger.filterAndLog_2(Logger.java:430)
+	at ch.qos.logback.classic.Logger.info(Logger.java:605)
+	at org.mortbay.log.Slf4jLog.info(Slf4jLog.java:67)
+	at org.mortbay.log.Log.info(Log.java:154)
+	at org.mortbay.jetty.AbstractConnector.doStop(AbstractConnector.java:313)
+	at org.mortbay.jetty.nio.SelectChannelConnector.doStop(SelectChannelConnector.java:326)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:76)
+	- locked <0x8b8ce798> (a java.lang.Object)
+	at org.mortbay.jetty.Server.doStop(Server.java:280)
+	at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:76)
+	- locked <0x8b8cf7b8> (a java.lang.Object)
+	at org.mortbay.jetty.testing.ServletTester.stop(ServletTester.java:92)
+	at org.sonar.api.utils.HttpDownloaderTest.stopServer(HttpDownloaderTest.java:62)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:44)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:15)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:41)
+	at org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:37)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:76)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:50)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:193)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:52)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:191)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:42)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:184)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:236)
+	at org.apache.maven.surefire.junit4.JUnit4TestSet.execute(JUnit4TestSet.java:59)
+	at org.apache.maven.surefire.suite.AbstractDirectoryTestSuite.executeTestSet(AbstractDirectoryTestSuite.java:120)
+	at org.apache.maven.surefire.suite.AbstractDirectoryTestSuite.execute(AbstractDirectoryTestSuite.java:103)
+	at org.apache.maven.surefire.Surefire.run(Surefire.java:169)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.maven.surefire.booter.SurefireBooter.runSuitesInProcess(SurefireBooter.java:350)
+	at org.apache.maven.surefire.booter.SurefireBooter.main(SurefireBooter.java:1021)
+
+
+
+	For this reason the ugly workaround is to wait the end of the thread before stopping...
+
+	We'll have to check if Jetty 7 resolves this toString() issue.
+    */
+    Thread.sleep(1000);
     tester.stop();
   }
 
@@ -121,14 +213,14 @@ public class HttpDownloaderTest {
   @Test
   public void shouldGetDirectProxySynthesis() throws URISyntaxException {
     ProxySelector proxySelector = mock(ProxySelector.class);
-    when(proxySelector.select((URI)anyObject())).thenReturn(Arrays.asList(Proxy.NO_PROXY));
+    when(proxySelector.select((URI) anyObject())).thenReturn(Arrays.asList(Proxy.NO_PROXY));
     assertThat(HttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector), is("no proxy"));
   }
 
   @Test
   public void shouldGetProxySynthesis() throws URISyntaxException {
     ProxySelector proxySelector = mock(ProxySelector.class);
-    when(proxySelector.select((URI)anyObject())).thenReturn(Arrays.asList((Proxy)new FakeProxy()));
+    when(proxySelector.select((URI) anyObject())).thenReturn(Arrays.asList((Proxy) new FakeProxy()));
     assertThat(HttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector), is("proxy: http://proxy_url:4040"));
   }
 }
