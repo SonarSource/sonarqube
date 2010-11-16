@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
 
+import java.io.File;
 import java.io.StringReader;
 import java.util.List;
 
@@ -35,8 +36,9 @@ import static org.junit.Assert.assertThat;
 public class XMLRuleParserTest {
 
   @Test
-  public void parseXml() {
-    List<Rule> rules = new XMLRuleParser().parse(getClass().getResourceAsStream("/org/sonar/api/rules/XMLRuleParserTest/rules.xml"));
+  public void parseXml() throws Exception {
+    File file = new File(getClass().getResource("/org/sonar/api/rules/XMLRuleParserTest/rules.xml").toURI());
+    List<Rule> rules = new XMLRuleParser().parse(file);
     assertThat(rules.size(), is(2));
 
     Rule rule = rules.get(0);
@@ -61,6 +63,11 @@ public class XMLRuleParserTest {
   @Test(expected = SonarException.class)
   public void failIfMissingRuleKey() {
     new XMLRuleParser().parse(new StringReader("<rules><rule><name>Foo</name></rule></rules>"));
+  }
+
+  @Test(expected = SonarException.class)
+  public void failIfMissingRuleName() {
+    new XMLRuleParser().parse(new StringReader("<rules><rule><key>foo</key></rule></rules>"));
   }
 
   @Test(expected = SonarException.class)
