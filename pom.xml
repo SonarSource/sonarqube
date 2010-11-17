@@ -614,7 +614,7 @@ mmmm
       <dependency>
         <groupId>net.sourceforge.jtds</groupId>
         <artifactId>jtds</artifactId>
-        <version>1.2.2</version>
+        <version>1.2.4</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.woodstox</groupId>
