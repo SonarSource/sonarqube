@@ -48,7 +48,7 @@ class DeleteDuplicatedLibSnapshots < ActiveRecord::Migration
    if snapshots.size > 0
      say_with_time "Deleting #{snapshots.size} orphan snapshots..." do
        sids=snapshots.map{|s| s.id}
-       page_size=950
+       page_size=100
        page_count=(sids.size/page_size)
        page_count+=1 if (sids.size % page_size)>0
        page_count.times do |page_index|
