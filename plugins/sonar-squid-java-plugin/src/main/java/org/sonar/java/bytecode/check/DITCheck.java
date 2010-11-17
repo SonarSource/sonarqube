@@ -11,7 +11,7 @@ import org.sonar.squid.measures.Metric;
 @Rule(key = "DIT", name = "DIT", isoCategory = IsoCategory.Maintainability)
 public class DITCheck extends BytecodeCheck {
 
-  @RuleProperty
+  @RuleProperty(description = "Threshold.")
   private Integer threshold;
 
   @Override
