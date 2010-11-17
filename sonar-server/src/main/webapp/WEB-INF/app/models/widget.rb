@@ -67,7 +67,7 @@ class Widget < ActiveRecord::Base
       begin
         hash={}
         properties.each do |prop|
-          hash[prop.key]=prop.value
+          hash[prop.key]=prop.typed_value
         end
         hash
       end
