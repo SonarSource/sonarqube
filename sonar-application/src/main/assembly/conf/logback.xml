@@ -19,7 +19,8 @@
     </layout>
   </appender>
 
-  <!-- appender used when using sonar with the provided jetty web container -->
+  <!-- SONAR_STANDALONE/ -->
+  <!-- do not edit/remove the previous comment -->
   <appender name="SONAR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <File>../../logs/sonar.log</File>
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
@@ -43,8 +44,8 @@
       </pattern>
     </layout>
   </appender>
-  
-  <!-- appender used to profile Sonar Web Server -->
+
+  <!-- appender used to profile Sonar Server -->
   <appender name="PROFILING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <File>../../logs/profiling.log</File>
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
@@ -61,6 +62,10 @@
       </pattern>
     </layout>
   </appender>
+
+  <!-- do not edit/remove the following comment -->
+  <!-- /SONAR_STANDALONE -->
+
 
   <!-- 
     Profiling of JRuby on Rails requests . Uncomment in order to log HTTP and SQL requests.
