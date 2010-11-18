@@ -4,7 +4,7 @@
 
   <groupId>org.codehaus.sonar</groupId>
   <artifactId>sonar-dev-maven-plugin</artifactId>
-  <version>1.0</version>
+  <version>1.1-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
   <name>Sonar :: Development Maven Plugin</name>
   <description>Maven plugin for Sonar development environment</description>
@@ -58,9 +58,9 @@
   </developers>
 
   <scm>
-    <connection>scm:svn:http://svn.codehaus.org/sonar/tags/sonar-dev-maven-plugin-1.0</connection>
-    <developerConnection>scm:svn:https://svn.codehaus.org/sonar/tags/sonar-dev-maven-plugin-1.0</developerConnection>
-    <url>https://svn.codehaus.org/sonar/tags/sonar-dev-maven-plugin-1.0</url>
+    <connection>scm:svn:http://svn.codehaus.org/sonar/trunk/subprojects/sonar-dev-maven-plugin</connection>
+    <developerConnection>scm:svn:https://svn.codehaus.org/sonar/trunk/subprojects/sonar-dev-maven-plugin</developerConnection>
+    <url>https://svn.codehaus.org/sonar/trunk/subprojects/sonar-dev-maven-plugin</url>
   </scm>
 
   <issueManagement>
