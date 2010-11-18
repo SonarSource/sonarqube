@@ -41,15 +41,15 @@ public final class PurgeRunner implements PostJob {
   public PurgeRunner(DatabaseSession session, Snapshot snapshot, Purge[] purges) {
     this.session = session;
     this.snapshot = snapshot;
-    this.purges = purges;
+    this.purges = purges.clone();
     this.deprecatedPurges = new org.sonar.api.batch.Purge[0];
   }
 
   public PurgeRunner(DatabaseSession session, Snapshot snapshot, Purge[] purges, org.sonar.api.batch.Purge[] deprecatedPurges) {
     this.session = session;
     this.snapshot = snapshot;
-    this.purges = purges;
-    this.deprecatedPurges = deprecatedPurges;
+    this.purges = purges.clone();
+    this.deprecatedPurges = deprecatedPurges.clone();
   }
 
   public void executeOn(Project project, SensorContext context) {
