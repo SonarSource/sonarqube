@@ -19,29 +19,22 @@
  */
 package org.sonar.batch;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.Purge;
-import org.sonar.api.batch.PurgeContext;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
-import org.sonar.api.utils.TimeProfiler;
-import org.sonar.core.purge.DefaultPurgeContext;
 
 import javax.persistence.Query;
 
 public class FinalizeSnapshotsJob implements CoreJob {
 
   private DatabaseSession session;
-  private Purge[] purges;
   private ServerMetadata server;
   private Snapshot snapshot;
 
-  public FinalizeSnapshotsJob(ServerMetadata server, DatabaseSession session, Purge[] purges, Snapshot snapshot) {
+  public FinalizeSnapshotsJob(ServerMetadata server, DatabaseSession session, Snapshot snapshot) {
     this.session = session;
-    this.purges = purges;
     this.server = server;
     this.snapshot = snapshot;
   }
@@ -50,7 +43,6 @@ public class FinalizeSnapshotsJob implements CoreJob {
     if (shouldExecuteOn(project)) {
       Snapshot previousLastSnapshot = getPreviousLastSnapshot(snapshot);
       updateFlags(snapshot, previousLastSnapshot);
-      purge(snapshot, previousLastSnapshot);
     }
   }
 
@@ -98,25 +90,4 @@ public class FinalizeSnapshotsJob implements CoreJob {
 
     snapshot.setLast(last);
   }
-
-  private void purge(Snapshot currentSnapshot, Snapshot previousLastSnapshot) {
-    final Logger logger = LoggerFactory.getLogger(FinalizeSnapshotsJob.class);
-    TimeProfiler profiler = new TimeProfiler(logger).start("Database optimization");
-    PurgeContext context = createPurgeContext(currentSnapshot, previousLastSnapshot);
-    logger.debug("Snapshots to purge: " + context);
-    for (Purge purge : purges) {
-      logger.debug("Executing {}...", purge.getClass().getName());
-      purge.purge(context);
-    }
-    profiler.stop();
-  }
-
-  private PurgeContext createPurgeContext(Snapshot currentSnapshot, Snapshot previousLastSnapshot) {
-    DefaultPurgeContext context = new DefaultPurgeContext(currentSnapshot);
-    if (previousLastSnapshot != null && previousLastSnapshot.getCreatedAt().before(currentSnapshot.getCreatedAt())) {
-      context.setLastSnapshotId(previousLastSnapshot.getId());
-    }
-    return context;
-  }
-
 }

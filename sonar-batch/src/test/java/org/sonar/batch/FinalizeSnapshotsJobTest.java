@@ -19,50 +19,37 @@
  */
 package org.sonar.batch;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.batch.Purge;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
-import org.sonar.core.purge.DefaultPurgeContext;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import javax.persistence.Query;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 public class FinalizeSnapshotsJobTest extends AbstractDbUnitTestCase {
 
-  private Purge purgeMock=null;
-
-  @Before
-  public void before() {
-    purgeMock = mock(Purge.class);
-  }
 
   @Test
   public void shouldUnflagPenultimateLastSnapshot() throws Exception {
     assertAnalysis(11, "shouldUnflagPenultimateLastSnapshot");
-    verify(purgeMock).purge(new DefaultPurgeContext(11, 1));
   }
 
   @Test
   public void doNotFailIfNoPenultimateLast() throws Exception {
     assertAnalysis(5, "doNotFailIfNoPenultimateLast");
-    verify(purgeMock).purge(new DefaultPurgeContext(5, null));
   }
 
   @Test
   public void lastSnapshotIsNotUpdatedWhenAnalyzingPastSnapshot() {
     assertAnalysis(6, "lastSnapshotIsNotUpdatedWhenAnalyzingPastSnapshot");
-    verify(purgeMock).purge(new DefaultPurgeContext(6, null));
   }
 
   private void assertAnalysis(int snapshotId, String fixture) {
     setupData("sharedFixture", fixture);
 
-    FinalizeSnapshotsJob sensor = new FinalizeSnapshotsJob(mock(ServerMetadata.class), getSession(), new Purge[]{purgeMock}, loadSnapshot(snapshotId));
+    FinalizeSnapshotsJob sensor = new FinalizeSnapshotsJob(mock(ServerMetadata.class), getSession(), loadSnapshot(snapshotId));
     sensor.execute(new Project("key"), null);
 
     getSession().stop();

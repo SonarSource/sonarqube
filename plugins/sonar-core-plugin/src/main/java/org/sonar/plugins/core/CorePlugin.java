@@ -33,7 +33,6 @@ import org.sonar.plugins.core.defaultsourceviewer.DefaultSourceViewer;
 import org.sonar.plugins.core.duplicationsviewer.DuplicationsViewerDefinition;
 import org.sonar.plugins.core.hotspots.Hotspots;
 import org.sonar.plugins.core.metrics.UserManagedMetrics;
-import org.sonar.plugins.core.purges.*;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.*;
 import org.sonar.plugins.core.testdetailsviewer.TestsViewerDefinition;
@@ -186,20 +185,6 @@ public class CorePlugin implements Plugin {
     extensions.add(NoSonarFilter.class);
     extensions.add(DirectoriesDecorator.class);
     extensions.add(FilesDecorator.class);
-
-
-    // purges
-    extensions.add(PurgeOrphanResources.class);
-    extensions.add(PurgeEntities.class);
-    extensions.add(PurgeRuleMeasures.class);
-    extensions.add(PurgeUnprocessed.class);
-    extensions.add(PurgeDeletedResources.class);
-    extensions.add(PurgeDeprecatedLast.class);
-    extensions.add(UnflagLastDoublons.class);
-    extensions.add(PurgeDisabledResources.class);
-    extensions.add(PurgeResourceRoles.class);
-    extensions.add(PurgeEventOrphans.class);
-    extensions.add(PurgePropertyOrphans.class);
 
     return extensions;
   }

@@ -63,7 +63,6 @@
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-dev-maven-plugin</artifactId>
-        <version>0.7</version>
         <executions>
           <execution>
             <id>start-server</id>

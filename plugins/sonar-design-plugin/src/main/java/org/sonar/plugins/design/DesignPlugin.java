@@ -23,11 +23,11 @@ import org.sonar.api.*;
 import org.sonar.plugins.design.batch.*;
 import org.sonar.plugins.design.ui.dependencies.GwtDependenciesTab;
 import org.sonar.plugins.design.ui.lcom4.GwtLcom4Tab;
+import org.sonar.plugins.design.ui.libraries.GwtLibrariesPage;
 import org.sonar.plugins.design.ui.page.GwtDesignPage;
 import org.sonar.plugins.design.ui.widgets.ChidamberKemererWidget;
 import org.sonar.plugins.design.ui.widgets.FileDesignWidget;
 import org.sonar.plugins.design.ui.widgets.PackageDesignWidget;
-import org.sonar.plugins.design.ui.libraries.GwtLibrariesPage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +62,6 @@ public class DesignPlugin implements Plugin {
     extensions.add(ProjectDsmDecorator.class);
     extensions.add(PackageTangleIndexDecorator.class);
     extensions.add(FileTangleIndexDecorator.class);
-    extensions.add(OldDependenciesPurge.class);
     extensions.add(SuspectLcom4DensityDecorator.class);
     extensions.add(GwtLibrariesPage.class);
 

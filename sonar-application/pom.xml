@@ -176,6 +176,12 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
+      <artifactId>sonar-dbcleaner-plugin</artifactId>
+      <version>${project.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-pmd-plugin</artifactId>
       <version>${project.version}</version>
       <scope>runtime</scope>

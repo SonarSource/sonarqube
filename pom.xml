@@ -30,6 +30,7 @@
     <module>sonar-ws-client</module>
 
     <module>plugins/sonar-core-plugin</module>
+    <module>plugins/sonar-dbcleaner-plugin</module>
     <module>plugins/sonar-checkstyle-plugin</module>
     <module>plugins/sonar-pmd-plugin</module>
     <module>plugins/sonar-cobertura-plugin</module>
@@ -202,7 +203,7 @@
         <plugin>
           <groupId>org.codehaus.sonar</groupId>
           <artifactId>sonar-dev-maven-plugin</artifactId>
-          <version>0.7</version>
+          <version>1.0</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.sonar</groupId>
