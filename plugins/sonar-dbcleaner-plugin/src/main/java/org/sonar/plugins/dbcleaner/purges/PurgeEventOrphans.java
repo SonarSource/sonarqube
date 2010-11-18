@@ -30,7 +30,7 @@ import java.util.List;
 
 import javax.persistence.Query;
 
-public class PurgeEventOrphans extends Purge {
+public final class PurgeEventOrphans extends Purge {
 
   public PurgeEventOrphans(DatabaseSession session) {
     super(session);

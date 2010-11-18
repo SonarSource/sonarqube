@@ -32,7 +32,7 @@ import javax.persistence.Query;
 /**
  * @since 1.11
  */
-public class UnflagLastDoublons extends Purge {
+public final class UnflagLastDoublons extends Purge {
 
   public UnflagLastDoublons(DatabaseSession session) {
     super(session);

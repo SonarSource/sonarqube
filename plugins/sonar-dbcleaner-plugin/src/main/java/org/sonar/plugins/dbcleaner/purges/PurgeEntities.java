@@ -36,7 +36,7 @@ import java.util.List;
 /**
  * @since 1.11
  */
-public class PurgeEntities extends Purge {
+public final class PurgeEntities extends Purge {
 
   private Configuration configuration;
 

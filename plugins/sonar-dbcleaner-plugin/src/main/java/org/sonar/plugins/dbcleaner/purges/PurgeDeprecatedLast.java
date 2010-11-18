@@ -32,7 +32,7 @@ import javax.persistence.Query;
 /**
  * @since 1.11
  */
-public class PurgeDeprecatedLast extends Purge {
+public final class PurgeDeprecatedLast extends Purge {
 
   public PurgeDeprecatedLast(DatabaseSession session) {
     super(session);

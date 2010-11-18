@@ -34,7 +34,7 @@ import javax.persistence.Query;
 /**
  * @since 2.2
  */
-public class PurgePropertyOrphans extends Purge {
+public final class PurgePropertyOrphans extends Purge {
 
   public PurgePropertyOrphans(DatabaseSession session) {
     super(session);

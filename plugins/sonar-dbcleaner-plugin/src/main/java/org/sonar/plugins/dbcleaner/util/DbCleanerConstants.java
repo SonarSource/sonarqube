@@ -26,7 +26,7 @@ public interface DbCleanerConstants {
   String MONTHS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK = "sonar.dbcleaner.monthsBeforeKeepingOnlyOneSnapshotByWeek";
   String MONTHS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH = "sonar.dbcleaner.monthsBeforeKeepingOnlyOneSnapshotByMonth";
   String MONTHS_BEFORE_DELETING_ALL_SNAPSHOTS = "sonar.dbcleaner.monthsBeforeDeletingAllSnapshots";
-  String _1_MONTH = "1";
-  String _12_MONTH = "12";
-  String _36_MONTH = "36";
+  String ONE_MONTH = "1";
+  String ONE_YEAR = "12";
+  String THREE_YEARS = "36";
 }

@@ -29,7 +29,7 @@ import org.sonar.plugins.dbcleaner.util.PurgeUtils;
 import javax.persistence.Query;
 import java.util.List;
 
-public class PurgeDependencies extends Purge {
+public final class PurgeDependencies extends Purge {
 
   public PurgeDependencies(DatabaseSession session) {
     super(session);

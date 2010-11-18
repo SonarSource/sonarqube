@@ -34,7 +34,7 @@ import javax.persistence.Query;
 /**
  * @since 1.12
  */
-public class PurgeResourceRoles extends Purge {
+public final class PurgeResourceRoles extends Purge {
 
   public PurgeResourceRoles(DatabaseSession session) {
     super(session);

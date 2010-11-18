@@ -28,9 +28,6 @@ public final class DefaultPurgeContext implements org.sonar.api.batch.PurgeConte
   private Integer currentSid;
   private Integer previousSid;
 
-  public DefaultPurgeContext() {
-  }
-
   public DefaultPurgeContext(Snapshot currentSnapshot) {
     this(currentSnapshot, null);
   }
@@ -44,18 +41,8 @@ public final class DefaultPurgeContext implements org.sonar.api.batch.PurgeConte
     }
   }
 
-  public DefaultPurgeContext(Integer currentSid, Integer previousSid) {
-    this.currentSid = currentSid;
-    this.previousSid = previousSid;
-  }
-
   public DefaultPurgeContext setLastSnapshotId(Integer previousSid) {
     this.previousSid = previousSid;
-    return this;
-  }
-
-  public DefaultPurgeContext setCurrentSnapshotId(Integer currentSid) {
-    this.currentSid = currentSid;
     return this;
   }
 
@@ -70,34 +57,6 @@ public final class DefaultPurgeContext implements org.sonar.api.batch.PurgeConte
   @Deprecated
   public Integer getLastSnapshotId() {
     return currentSid;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    DefaultPurgeContext context = (DefaultPurgeContext) o;
-
-    if (!currentSid.equals(context.currentSid)) {
-      return false;
-    }
-    if (currentSid != null ? !currentSid.equals(context.currentSid) : context.currentSid != null) {
-      return false;
-    }
-
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    int result = currentSid != null ? currentSid.hashCode() : 0;
-    result = 31 * result + currentSid.hashCode();
-    return result;
   }
 
   @Override

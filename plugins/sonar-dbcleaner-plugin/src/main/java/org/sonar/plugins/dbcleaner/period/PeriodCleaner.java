@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
-import org.sonar.api.utils.TimeProfiler;
 import org.sonar.plugins.dbcleaner.api.Purge;
 import org.sonar.plugins.dbcleaner.api.PurgeContext;
 import org.sonar.plugins.dbcleaner.util.DbCleanerConstants;
@@ -38,12 +37,11 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-public class PeriodCleaner extends Purge {
+public final class PeriodCleaner extends Purge {
 
   private static final Logger LOG = LoggerFactory.getLogger(PeriodCleaner.class);
   private final SQLRequests sql;
   private final Project project;
-  private static final SimpleDateFormat dateFormat = new SimpleDateFormat();
 
   Date dateToStartKeepingOneSnapshotByWeek;
   Date dateToStartKeepingOneSnapshotByMonth;
@@ -61,14 +59,10 @@ public class PeriodCleaner extends Purge {
   }
 
   public void purge(int snapshotId) {
-    TimeProfiler profiler = new TimeProfiler().start("DbCleaner");
-
     List<SnapshotFilter> filters = initDbCleanerFilters();
     List<Snapshot> snapshotHistory = getAllProjectSnapshots(snapshotId);
     applyFilters(snapshotHistory, filters);
     deleteSnapshotsAndAllRelatedData(snapshotHistory);
-
-    profiler.stop();
   }
 
   private List<Snapshot> getAllProjectSnapshots(int snapshotId) {
@@ -104,14 +98,15 @@ public class PeriodCleaner extends Purge {
   }
 
   private void initMilestones() {
+    SimpleDateFormat dateFormat = new SimpleDateFormat();
     dateToStartKeepingOneSnapshotByWeek = getDate(project.getConfiguration(),
-        DbCleanerConstants.MONTHS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK, DbCleanerConstants._1_MONTH);
+        DbCleanerConstants.MONTHS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK, DbCleanerConstants.ONE_MONTH);
     LOG.debug("Keep only one snapshot by week after : " + dateFormat.format(dateToStartKeepingOneSnapshotByWeek));
     dateToStartKeepingOneSnapshotByMonth = getDate(project.getConfiguration(),
-        DbCleanerConstants.MONTHS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH, DbCleanerConstants._12_MONTH);
+        DbCleanerConstants.MONTHS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH, DbCleanerConstants.ONE_YEAR);
     LOG.debug("Keep only one snapshot by month after : " + dateFormat.format(dateToStartKeepingOneSnapshotByMonth));
     dateToStartDeletingAllSnapshots = getDate(project.getConfiguration(), DbCleanerConstants.MONTHS_BEFORE_DELETING_ALL_SNAPSHOTS,
-        DbCleanerConstants._36_MONTH);
+        DbCleanerConstants.THREE_YEARS);
     LOG.debug("Delete all snapshots after : " + dateFormat.format(dateToStartDeletingAllSnapshots));
   }
 

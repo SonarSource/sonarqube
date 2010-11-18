@@ -46,7 +46,7 @@
         <artifactId>sonar-packaging-maven-plugin</artifactId>
         <extensions>true</extensions>
         <configuration>
-          <pluginName>DbCleaner</pluginName>
+          <pluginName>Database Cleaner</pluginName>
           <pluginClass>org.sonar.plugins.dbcleaner.DbCleanerPlugin</pluginClass>
         </configuration>
       </plugin>

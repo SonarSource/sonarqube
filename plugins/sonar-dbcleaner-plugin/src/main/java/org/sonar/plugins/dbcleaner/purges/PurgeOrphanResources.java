@@ -32,7 +32,7 @@ import javax.persistence.Query;
 /**
  * @since 2.1
  */
-public class PurgeOrphanResources extends Purge {
+public final class PurgeOrphanResources extends Purge {
 
   public PurgeOrphanResources(DatabaseSession session) {
     super(session);

@@ -35,7 +35,7 @@ import javax.persistence.Query;
  * 
  * @since 1.11
  */
-public class PurgeRuleMeasures extends Purge {
+public final class PurgeRuleMeasures extends Purge {
 
   public PurgeRuleMeasures(DatabaseSession session) {
     super(session);

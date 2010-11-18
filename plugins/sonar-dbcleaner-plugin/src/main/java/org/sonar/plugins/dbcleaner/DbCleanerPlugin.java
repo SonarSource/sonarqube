@@ -32,14 +32,14 @@ import java.util.List;
 
 @Properties({
     @Property(key = DbCleanerConstants.MONTHS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK,
-        defaultValue = DbCleanerConstants._1_MONTH, name = "Number of months before starting to keep only one snapshot by week",
+        defaultValue = DbCleanerConstants.ONE_MONTH, name = "Number of months before starting to keep only one snapshot by week",
         description = "After this number of months, if there are several snapshots during the same week, "
             + "the DbCleaner keeps the first one and fully delete the other ones.", global = true, project = true),
     @Property(key = DbCleanerConstants.MONTHS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH,
-        defaultValue = DbCleanerConstants._12_MONTH, name = "Number of months before starting to keep only one snapshot by month",
+        defaultValue = DbCleanerConstants.ONE_YEAR, name = "Number of months before starting to keep only one snapshot by month",
         description = "After this number of months, if there are several snapshots during the same month, "
             + "the DbCleaner keeps the first one and fully delete the other ones.", global = true, project = true),
-    @Property(key = DbCleanerConstants.MONTHS_BEFORE_DELETING_ALL_SNAPSHOTS, defaultValue = DbCleanerConstants._36_MONTH,
+    @Property(key = DbCleanerConstants.MONTHS_BEFORE_DELETING_ALL_SNAPSHOTS, defaultValue = DbCleanerConstants.THREE_YEARS,
         name = "Number of months before starting to delete all remaining snapshots",
         description = "After this number of months, all snapshots are fully deleted.", global = true, project = true)})
 public final class DbCleanerPlugin implements Plugin {

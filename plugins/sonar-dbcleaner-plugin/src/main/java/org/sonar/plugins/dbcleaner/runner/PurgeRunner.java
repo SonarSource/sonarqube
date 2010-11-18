@@ -31,7 +31,7 @@ import org.sonar.plugins.dbcleaner.api.Purge;
 
 import javax.persistence.Query;
 
-public class PurgeRunner implements PostJob {
+public final class PurgeRunner implements PostJob {
 
   private DatabaseSession session;
   private Snapshot snapshot;

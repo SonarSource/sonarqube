@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * @since 1.11
  */
-public class PurgeUnprocessed extends Purge {
+public final class PurgeUnprocessed extends Purge {
 
   private Configuration configuration;
 
