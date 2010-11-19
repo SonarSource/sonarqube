@@ -355,6 +355,12 @@
       <artifactId>maven-script-ant</artifactId>
       <version>2.0.10</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.ant</groupId>
+      <artifactId>ant-nodeps</artifactId>
+      <version>1.7.1</version>
+    </dependency>
+    
 
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
