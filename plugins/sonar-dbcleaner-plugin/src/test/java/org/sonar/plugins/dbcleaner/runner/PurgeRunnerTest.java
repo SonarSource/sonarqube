@@ -48,7 +48,7 @@ public class PurgeRunnerTest extends AbstractDbUnitTestCase {
     Purge purge2 = mock(Purge.class);
     Purge[] purges = new Purge[]{purge1, purge2};
 
-    new PurgeRunner(getSession(), snapshot, purges).purge();
+    new PurgeRunner(getSession(), new Project("key"), snapshot, purges).purge();
 
     verify(purge1).purge(argThat(new BaseMatcher<PurgeContext>() {
       public boolean matches(Object o) {
@@ -71,7 +71,7 @@ public class PurgeRunnerTest extends AbstractDbUnitTestCase {
     Purge purge2 = mock(Purge.class);
     Purge[] purges = new Purge[]{purge1, purge2};
 
-    new PurgeRunner(getSession(), snapshot, purges).purge();
+    new PurgeRunner(getSession(), new Project("key"), snapshot, purges).purge();
 
     verify(purge1).purge(argThat(new BaseMatcher<PurgeContext>() {
       public boolean matches(Object o) {
@@ -96,7 +96,7 @@ public class PurgeRunnerTest extends AbstractDbUnitTestCase {
     org.sonar.api.batch.Purge deprecated1 = mock(org.sonar.api.batch.Purge.class), deprecated2 = mock(org.sonar.api.batch.Purge.class);
     org.sonar.api.batch.Purge[] deprecatedPurges = new org.sonar.api.batch.Purge[]{deprecated1, deprecated2};
 
-    new PurgeRunner(getSession(), snapshot, new Purge[0], deprecatedPurges).purge();
+    new PurgeRunner(getSession(), new Project("key"), snapshot, new Purge[0], deprecatedPurges).purge();
 
     verify(deprecated1).purge(argThat(new BaseMatcher<org.sonar.api.batch.PurgeContext>() {
       public boolean matches(Object o) {

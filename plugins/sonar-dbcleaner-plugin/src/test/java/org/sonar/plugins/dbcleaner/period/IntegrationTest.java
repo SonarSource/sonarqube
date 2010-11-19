@@ -19,49 +19,45 @@
  */
 package org.sonar.plugins.dbcleaner.period;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.GregorianCalendar;
-
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Project;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-import org.sonar.plugins.dbcleaner.api.PurgeContext;
+
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class IntegrationTest extends AbstractDbUnitTestCase {
 
-  PeriodCleaner purge;
+  DefaultPeriodCleaner cleaner;
 
   @Before
   public void init() {
-
-    Project project = new Project("myproject");
-    project.setConfiguration(new PropertiesConfiguration());
-    purge = new PeriodCleaner(getSession(), project);
-    GregorianCalendar calendar = new GregorianCalendar(2010, 10, 1);
-    purge.dateToStartKeepingOneSnapshotByWeek = calendar.getTime();
-    calendar.set(2010, 7, 1);
-    purge.dateToStartKeepingOneSnapshotByMonth = calendar.getTime();
-    calendar.set(2010, 2, 1);
-    purge.dateToStartDeletingAllSnapshots = calendar.getTime();
+    cleaner = new DefaultPeriodCleaner(getSession());
   }
 
   @Test
   public void dbCleanerITTest() {
     setupData("dbContent");
-    PurgeContext context = mock(PurgeContext.class);
-    when(context.getSnapshotId()).thenReturn(1010);
-    purge.purge(context);
+
+    Project project = new Project("myproject");
+    project.setConfiguration(new PropertiesConfiguration());
+
+    GregorianCalendar calendar = new GregorianCalendar(2010, 10, 1);
+    Date dateToStartKeepingOneSnapshotByWeek = calendar.getTime();
+    calendar.set(2010, 7, 1);
+    Date dateToStartKeepingOneSnapshotByMonth = calendar.getTime();
+    calendar.set(2010, 2, 1);
+    Date dateToStartDeletingAllSnapshots = calendar.getTime();
+    Periods periods = new Periods(dateToStartKeepingOneSnapshotByWeek, dateToStartKeepingOneSnapshotByMonth, dateToStartDeletingAllSnapshots);
+
+    cleaner.purge(project, 1010, periods);
     checkTables("dbContent", "snapshots");
-    
+
     //After a first run, no more snapshot should be deleted
     setupData("dbContent-result");
-    context = mock(PurgeContext.class);
-    when(context.getSnapshotId()).thenReturn(1010);
-    purge.purge(context);
+    cleaner.purge(project, 1010, periods);
     checkTables("dbContent");
   }
 }

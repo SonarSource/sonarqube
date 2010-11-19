@@ -37,16 +37,20 @@ public final class PurgeRunner implements PostJob {
   private Snapshot snapshot;
   private Purge[] purges;
   private org.sonar.api.batch.Purge[] deprecatedPurges;
+  private Project project;
+  private static final Logger LOG = LoggerFactory.getLogger(PurgeRunner.class);
 
-  public PurgeRunner(DatabaseSession session, Snapshot snapshot, Purge[] purges) {
+  public PurgeRunner(DatabaseSession session, Project project, Snapshot snapshot, Purge[] purges) {
     this.session = session;
+    this.project = project;
     this.snapshot = snapshot;
     this.purges = purges.clone();
     this.deprecatedPurges = new org.sonar.api.batch.Purge[0];
   }
 
-  public PurgeRunner(DatabaseSession session, Snapshot snapshot, Purge[] purges, org.sonar.api.batch.Purge[] deprecatedPurges) {
+  public PurgeRunner(DatabaseSession session, Project project, Snapshot snapshot, Purge[] purges, org.sonar.api.batch.Purge[] deprecatedPurges) {
     this.session = session;
+    this.project = project;
     this.snapshot = snapshot;
     this.purges = purges.clone();
     this.deprecatedPurges = deprecatedPurges.clone();
@@ -63,31 +67,34 @@ public final class PurgeRunner implements PostJob {
   }
 
   public void purge() {
-    final Logger logger = LoggerFactory.getLogger(PurgeRunner.class);
-    TimeProfiler profiler = new TimeProfiler(logger).start("Database optimization");
+    TimeProfiler profiler = new TimeProfiler(LOG).start("Database optimization");
     DefaultPurgeContext context = newContext();
-    logger.debug("Snapshots to purge: " + context);
-    executeDeprecatedPurges(logger, context);
-    executePurges(logger, context);
+    LOG.debug("Snapshots to purge: " + context);
+    executeDeprecatedPurges(context);
+    executePurges(context);
     profiler.stop();
   }
 
-  private void executeDeprecatedPurges(Logger logger, DefaultPurgeContext context) {
+  private void executeDeprecatedPurges(DefaultPurgeContext context) {
+    TimeProfiler profiler = new TimeProfiler();
     for (org.sonar.api.batch.Purge purge : deprecatedPurges) {
-      logger.debug("Executing {}...", purge.getClass().getName());
+      profiler.start("Purge " + purge.getClass().getName());
       purge.purge(context);
+      profiler.stop();
     }
   }
 
-  private void executePurges(Logger logger, DefaultPurgeContext context) {
+  private void executePurges(DefaultPurgeContext context) {
+    TimeProfiler profiler = new TimeProfiler();
     for (Purge purge : purges) {
-      logger.debug("Executing {}...", purge.getClass().getName());
+      profiler.start("Purge " + purge.getClass().getName());
       purge.purge(context);
+      profiler.stop();
     }
   }
 
   private DefaultPurgeContext newContext() {
-    DefaultPurgeContext context = new DefaultPurgeContext(snapshot);
+    DefaultPurgeContext context = new DefaultPurgeContext(project, snapshot);
     Snapshot previousLastSnapshot = getPreviousLastSnapshot();
     if (previousLastSnapshot != null && previousLastSnapshot.getCreatedAt().before(snapshot.getCreatedAt())) {
       context.setLastSnapshotId(previousLastSnapshot.getId());

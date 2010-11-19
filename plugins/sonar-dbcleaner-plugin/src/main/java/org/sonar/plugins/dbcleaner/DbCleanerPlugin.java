@@ -22,7 +22,8 @@ package org.sonar.plugins.dbcleaner;
 import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
-import org.sonar.plugins.dbcleaner.period.PeriodCleaner;
+import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
+import org.sonar.plugins.dbcleaner.period.PeriodPurge;
 import org.sonar.plugins.dbcleaner.purges.*;
 import org.sonar.plugins.dbcleaner.runner.PurgeRunner;
 import org.sonar.plugins.dbcleaner.util.DbCleanerConstants;
@@ -63,10 +64,13 @@ public final class DbCleanerPlugin implements Plugin {
 
   public List getExtensions() {
     return Arrays.asList(
+        // shared components
+        DefaultPeriodCleaner.class,
+
         // purges
         PurgeOrphanResources.class, PurgeEntities.class, PurgeRuleMeasures.class, PurgeUnprocessed.class,
         PurgeDeletedResources.class, PurgeDeprecatedLast.class, UnflagLastDoublons.class, PurgeDisabledResources.class,
-        PurgeResourceRoles.class, PurgeEventOrphans.class, PurgePropertyOrphans.class, PeriodCleaner.class,
+        PurgeResourceRoles.class, PurgeEventOrphans.class, PurgePropertyOrphans.class, PeriodPurge.class,
 
         // post-job
         PurgeRunner.class);

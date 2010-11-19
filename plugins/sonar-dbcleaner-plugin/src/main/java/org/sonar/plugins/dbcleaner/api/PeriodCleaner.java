@@ -19,23 +19,9 @@
  */
 package org.sonar.plugins.dbcleaner.api;
 
+import org.sonar.api.BatchExtension;
 import org.sonar.api.resources.Project;
 
-/**
- *
- * @since 2.5
- */
-public interface PurgeContext {
-
-  Project getProject();
-
-  /**
-   * @return the snapshot id of the current project
-   */
-  Integer getSnapshotId();
-
-  /**
-   * Can be null
-   */
-  Integer getPreviousSnapshotId();
+public interface PeriodCleaner extends BatchExtension {
+  void purge(Project project, int projectSnapshotId);
 }

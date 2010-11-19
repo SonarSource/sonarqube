@@ -20,6 +20,7 @@
 package org.sonar.plugins.dbcleaner.purges;
 
 import org.junit.Test;
+import org.sonar.api.resources.Project;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import org.sonar.plugins.dbcleaner.api.PurgeContext;
 
@@ -30,6 +31,10 @@ public class PurgeRuleMeasuresTest extends AbstractDbUnitTestCase {
     setupData("sharedFixture", "purgeRuleMeasures");
 
     new PurgeRuleMeasures(getSession()).purge(new PurgeContext() {
+      public Project getProject() {
+        return null;
+      }
+
       public Integer getSnapshotId() {
         return 4;
       }

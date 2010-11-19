@@ -21,18 +21,21 @@ package org.sonar.plugins.dbcleaner.runner;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Project;
 import org.sonar.plugins.dbcleaner.api.PurgeContext;
 
 public final class DefaultPurgeContext implements org.sonar.api.batch.PurgeContext, PurgeContext {
 
+  private Project project;
   private Integer currentSid;
   private Integer previousSid;
 
-  public DefaultPurgeContext(Snapshot currentSnapshot) {
-    this(currentSnapshot, null);
+  public DefaultPurgeContext(Project project, Snapshot currentSnapshot) {
+    this(project, currentSnapshot, null);
   }
 
-  public DefaultPurgeContext(Snapshot currentSnapshot, Snapshot previousSnapshot) {
+  public DefaultPurgeContext(Project project, Snapshot currentSnapshot, Snapshot previousSnapshot) {
+    this.project = project;
     if (currentSnapshot != null) {
       currentSid = currentSnapshot.getId();
     }
@@ -52,6 +55,10 @@ public final class DefaultPurgeContext implements org.sonar.api.batch.PurgeConte
 
   public Integer getPreviousSnapshotId() {
     return previousSid;
+  }
+
+  public Project getProject() {
+    return project;
   }
 
   @Deprecated

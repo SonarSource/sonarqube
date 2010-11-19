@@ -1,6 +1,6 @@
 /*
  * Sonar, open source software quality management tool.
- * Copyright (C) 2009 SonarSource SA
+ * Copyright (C) 2010 SonarSource
  * mailto:contact AT sonarsource DOT com
  *
  * Sonar is free software; you can redistribute it and/or
@@ -17,25 +17,23 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.dbcleaner.api;
+package org.sonar.plugins.dbcleaner.period;
 
-import org.sonar.api.resources.Project;
+import org.sonar.api.database.DatabaseSession;
+import org.sonar.plugins.dbcleaner.api.PeriodCleaner;
+import org.sonar.plugins.dbcleaner.api.Purge;
+import org.sonar.plugins.dbcleaner.api.PurgeContext;
 
-/**
- *
- * @since 2.5
- */
-public interface PurgeContext {
+public final class PeriodPurge extends Purge {
 
-  Project getProject();
+  private PeriodCleaner periodCleaner;
 
-  /**
-   * @return the snapshot id of the current project
-   */
-  Integer getSnapshotId();
+  public PeriodPurge(DatabaseSession session, PeriodCleaner periodCleaner) {
+    super(session);
+    this.periodCleaner = periodCleaner;
+  }
 
-  /**
-   * Can be null
-   */
-  Integer getPreviousSnapshotId();
+  public void purge(PurgeContext context) {
+    periodCleaner.purge(context.getProject(), context.getSnapshotId());
+  }
 }

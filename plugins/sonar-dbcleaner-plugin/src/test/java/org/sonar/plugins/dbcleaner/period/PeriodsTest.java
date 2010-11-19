@@ -29,7 +29,7 @@ import java.util.GregorianCalendar;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class PeriodCleanerTest {
+public class PeriodsTest {
 
   @Test
   public void getDateShouldReturnCurrentTimeMinusDesiredMonths() {
@@ -38,9 +38,7 @@ public class PeriodCleanerTest {
     conf.setProperty("KEY", "2");
     project.setConfiguration(conf);
 
-    PeriodCleaner purge = new PeriodCleaner(null, project);
-
-    Date date = purge.getDate(conf, "KEY", "2");
+    Date date = Periods.getDate(conf, "KEY", "2");
 
     GregorianCalendar calendar = new GregorianCalendar();
     calendar.add(GregorianCalendar.MONTH, -2);
