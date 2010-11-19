@@ -26,7 +26,7 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.dbcleaner.api.PeriodCleaner;
-import org.sonar.plugins.dbcleaner.util.PurgeUtils;
+import org.sonar.plugins.dbcleaner.api.PurgeUtils;
 
 import java.text.DateFormat;
 import java.util.Date;

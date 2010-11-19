@@ -25,7 +25,7 @@ import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.User;
 import org.sonar.plugins.dbcleaner.api.Purge;
 import org.sonar.plugins.dbcleaner.api.PurgeContext;
-import org.sonar.plugins.dbcleaner.util.PurgeUtils;
+import org.sonar.plugins.dbcleaner.api.PurgeUtils;
 
 import java.util.List;
 

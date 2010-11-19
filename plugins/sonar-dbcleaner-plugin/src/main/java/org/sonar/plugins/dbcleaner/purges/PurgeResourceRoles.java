@@ -25,7 +25,7 @@ import org.sonar.api.security.GroupRole;
 import org.sonar.api.security.UserRole;
 import org.sonar.plugins.dbcleaner.api.Purge;
 import org.sonar.plugins.dbcleaner.api.PurgeContext;
-import org.sonar.plugins.dbcleaner.util.PurgeUtils;
+import org.sonar.plugins.dbcleaner.api.PurgeUtils;
 
 import java.util.List;
 

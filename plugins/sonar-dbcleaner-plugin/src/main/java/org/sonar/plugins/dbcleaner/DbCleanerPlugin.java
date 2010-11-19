@@ -22,11 +22,11 @@ package org.sonar.plugins.dbcleaner;
 import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
+import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
 import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.plugins.dbcleaner.period.PeriodPurge;
 import org.sonar.plugins.dbcleaner.purges.*;
 import org.sonar.plugins.dbcleaner.runner.PurgeRunner;
-import org.sonar.plugins.dbcleaner.util.DbCleanerConstants;
 
 import java.util.Arrays;
 import java.util.List;

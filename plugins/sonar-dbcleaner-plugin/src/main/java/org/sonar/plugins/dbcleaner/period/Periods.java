@@ -23,7 +23,7 @@ import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.Project;
-import org.sonar.plugins.dbcleaner.util.DbCleanerConstants;
+import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

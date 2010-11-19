@@ -24,7 +24,7 @@ import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.plugins.dbcleaner.api.Purge;
 import org.sonar.plugins.dbcleaner.api.PurgeContext;
-import org.sonar.plugins.dbcleaner.util.PurgeUtils;
+import org.sonar.plugins.dbcleaner.api.PurgeUtils;
 
 import java.util.List;
 

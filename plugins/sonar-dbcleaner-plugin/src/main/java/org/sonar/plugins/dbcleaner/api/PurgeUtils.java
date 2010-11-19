@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.dbcleaner.util;
+package org.sonar.plugins.dbcleaner.api;
 
 import org.apache.commons.configuration.Configuration;
 import org.sonar.api.database.DatabaseSession;

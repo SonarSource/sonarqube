@@ -27,7 +27,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.Logs;
 import org.sonar.plugins.dbcleaner.api.Purge;
 import org.sonar.plugins.dbcleaner.api.PurgeContext;
-import org.sonar.plugins.dbcleaner.util.PurgeUtils;
+import org.sonar.plugins.dbcleaner.api.PurgeUtils;
 
 import javax.persistence.Query;
 import java.util.Date;
