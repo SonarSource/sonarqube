@@ -42,7 +42,7 @@ public class ClassComplexityCheckTest {
   public void setUp() {
     squid = new Squid(new JavaSquidConfiguration());
     ClassComplexityCheck check = new ClassComplexityCheck();
-    check.setThreshold(5);
+    check.setMax(5);
     squid.registerVisitor(check);
     JavaAstScanner scanner = squid.register(JavaAstScanner.class);
     scanner.scanFile(getFile("/metrics/branches/NoBranches.java"));
