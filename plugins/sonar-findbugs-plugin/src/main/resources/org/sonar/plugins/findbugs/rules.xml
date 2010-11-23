@@ -4299,7 +4299,17 @@ public @NonNegative Integer example(@Negative Integer value) {
       to a switch fall through. It is likely that you forgot to put a 
       break or return at the end of the previous case.
       </p>]]></description>
-  </rule>   
+  </rule>
+  <rule key="SF_DEAD_STORE_DUE_TO_SWITCH_FALLTHROUGH_TO_THROW" priority="CRITICAL">
+    <name>
+      <![CDATA[Dead store due to switch statement fall through to throw]]></name>
+    <configKey><![CDATA[SF_DEAD_STORE_DUE_TO_SWITCH_FALLTHROUGH_TO_THROW]]></configKey>
+    <category name="Reliability"/>
+    <description><![CDATA[<p>
+      A value stored in the previous switch case is ignored here due to a switch fall through to a place where an exception is thrown. 
+      It is likely that you forgot to put a break or return at the end of the previous case.
+      </p>]]></description>
+  </rule>
   <rule key="NM_CLASS_NAMING_CONVENTION" priority="MAJOR">
     <name>
       <![CDATA[Class names should start with an upper case letter]]></name>
