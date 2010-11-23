@@ -1523,13 +1523,13 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck" priority="MINOR">
-    <name><![CDATA[Todo Comment]]></name>
+    <name><![CDATA[Comment pattern matcher]]></name>
     <configKey><![CDATA[Checker/TreeWalker/TodoComment]]></configKey>
     <category name="Maintainability"/>
     <cardinality>MULTIPLE</cardinality>
-    <description><![CDATA[A check for TODO comments.]]></description>
+    <description><![CDATA[This rule allows to find any kind of pattern inside comments like TODO, NOPMD, NOSONAR, ...]]></description>
     <param key="format" type="r">
-      <description><![CDATA[pattern to check. Default is TODO:]]></description>
+      <description><![CDATA[Regular expression pattern to check. Default is TODO:]]></description>
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.indentation.TrailingCommentCheck" priority="MINOR">
