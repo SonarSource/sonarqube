@@ -5,6 +5,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.squid.api.CheckMessage;
+import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.api.SourceMethod;
 import org.sonar.squid.measures.Metric;
 
@@ -30,7 +31,7 @@ public class MethodComplexityCheck extends SquidCheck {
           + max + " authorized.");
       message.setLine(sourceMethod.getStartAtLine());
       message.setCost(complexity - max);
-      getSourceFile(sourceMethod).log(message);
+      sourceMethod.getParent(SourceFile.class).log(message);
     }
   }
 

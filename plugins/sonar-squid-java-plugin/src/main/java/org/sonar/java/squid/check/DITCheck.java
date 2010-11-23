@@ -6,6 +6,7 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceClass;
+import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.measures.Metric;
 
 @Rule(key = "MaximumInheritanceDepth", name = "Avoid too deep inheritance tree", isoCategory = IsoCategory.Maintainability,
@@ -27,7 +28,7 @@ public class DITCheck extends SquidCheck {
       CheckMessage message = new CheckMessage(this, "This class has " + dit + " parents which is greater than " + max + " authorized.");
       message.setLine(sourceClass.getStartAtLine());
       message.setCost(dit - max);
-      getSourceFile(sourceClass).log(message);
+      sourceClass.getParent(SourceFile.class).log(message);
     }
   }
 

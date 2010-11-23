@@ -18,9 +18,6 @@ public class SquidVisitorNotifier {
   }
 
   public void notifyVisitors(SquidIndex indexer) {
-    for (SquidVisitor visitor : squidVisitors) {
-      visitor.setSquidIndex(indexer);
-    }
     callVisitClass();
     callVisitMethod();
   }

@@ -26,6 +26,7 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceClass;
+import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.measures.Metric;
 
 @Rule(key = "ClassCyclomaticComplexity", name = "Avoid too complex class", isoCategory = IsoCategory.Maintainability,
@@ -50,7 +51,7 @@ public class ClassComplexityCheck extends SquidCheck {
           + max + " authorized.");
       message.setLine(sourceClass.getStartAtLine());
       message.setCost(complexity - max);
-      getSourceFile(sourceClass).log(message);
+      sourceClass.getParent(SourceFile.class).log(message);
     }
   }
 
