@@ -24,17 +24,35 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.sonar.check.IsoCategory;
+import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.java.ast.visitor.AstUtils;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
-@Rule(key = "BreakCheck", name = "BreakCheck", isoCategory = IsoCategory.Maintainability)
+@Rule(
+    key = "AvoidBreakOutsideSwitch",
+    name = "Avoid using 'break' branching statement outside a 'switch' statement",
+    isoCategory = IsoCategory.Maintainability,
+    priority = Priority.MAJOR,
+    description = "<p>The use of the 'break' branching statement increases the essential complexity of the source code and "
+        + "so prevents any refactoring of this source code to replace all well structured control structures with a single statement.</p>"
+        + "<p>For instance, with the following java program fragment, it's not possible to apply the 'extract method' refactoring pattern :</p>"
+        + "<pre>"
+        + "mylabel : for (int i = 0 ; i< 3; i++) {\n"
+        + "  for (int j = 0; j < 4 ; j++) {\n"
+        + "    doSomething();\n"
+        + "    if (checkSomething()) {\n"
+        + "      break mylabel;\n"
+        + "    }\n"
+        + "  }\n"
+        + "}\n"
+        + "</pre>"
+        + "<p>The use of the 'break' branching statement is only authorized inside a 'switch' statement.</p>")
 public class BreakCheck extends JavaAstCheck {
-
-  private boolean insideSwitch = false;
 
   @Override
   public List<Integer> getWantedTokens() {
@@ -43,24 +61,15 @@ public class BreakCheck extends JavaAstCheck {
 
   @Override
   public void visitToken(DetailAST ast) {
-    if (ast.getType() == TokenTypes.LITERAL_SWITCH) {
-      insideSwitch = true;
-    }
-    if ((ast.getType() == TokenTypes.LITERAL_BREAK) && !insideSwitch) {
-      CheckMessage message = new CheckMessage(this, "Avoid usage of break outside switch statement");
+    if (AstUtils.findParent(ast, TokenTypes.LITERAL_SWITCH) == null) {
+      CheckMessage message = new CheckMessage(this,
+          "The 'break' branching statement prevents refactoring the source code to reduce the complexity.");
       message.setLine(ast.getLineNo());
       SourceFile sourceFile = peekSourceCode().getParent(SourceFile.class);
       sourceFile.log(message);
     }
   }
 
-  @Override
-  public void leaveToken(DetailAST ast) {
-    if (ast.getType() == TokenTypes.LITERAL_SWITCH) {
-      insideSwitch = false;
-    }
-  }
-
-  private static final List<Integer> wantedTokens = Arrays.asList(TokenTypes.LITERAL_BREAK, TokenTypes.LITERAL_SWITCH);
+  private static final List<Integer> wantedTokens = Arrays.asList(TokenTypes.LITERAL_BREAK);
 
 }
