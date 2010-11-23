@@ -19,6 +19,11 @@
  */
 package org.sonar.plugins.squid;
 
+import java.io.File;
+import java.nio.charset.Charset;
+import java.util.Collection;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.checks.CheckFactory;
@@ -29,6 +34,7 @@ import org.sonar.api.utils.TimeProfiler;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.bytecode.BytecodeScanner;
 import org.sonar.java.squid.JavaSquidConfiguration;
+import org.sonar.java.squid.SquidScanner;
 import org.sonar.plugins.squid.bridges.Bridge;
 import org.sonar.plugins.squid.bridges.BridgeFactory;
 import org.sonar.plugins.squid.bridges.ResourceIndex;
@@ -40,11 +46,6 @@ import org.sonar.squid.api.SourcePackage;
 import org.sonar.squid.indexer.QueryByType;
 import org.sonar.squid.measures.Metric;
 
-import java.io.File;
-import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.List;
-
 public final class SquidExecutor {
 
   private Squid squid;
@@ -52,7 +53,8 @@ public final class SquidExecutor {
   private boolean bytecodeScanned = false;
   private CheckFactory checkFactory;
 
-  public SquidExecutor(boolean analyzePropertyAccessors, String fieldNamesToExcludeFromLcom4Computation, CheckFactory checkFactory, Charset sourcesCharset) {
+  public SquidExecutor(boolean analyzePropertyAccessors, String fieldNamesToExcludeFromLcom4Computation, CheckFactory checkFactory,
+      Charset sourcesCharset) {
     JavaSquidConfiguration conf = createJavaSquidConfiguration(analyzePropertyAccessors, fieldNamesToExcludeFromLcom4Computation,
         sourcesCharset);
     squid = new Squid(conf);
@@ -87,6 +89,7 @@ public final class SquidExecutor {
       scanBytecode(bytecodeFilesOrDirectories);
     }
     squid.decorateSourceCodeTreeWith(Metric.values());
+    scanSquidIndex();
   }
 
   public void save(Project project, SensorContext context, NoSonarFilter noSonarFilter) {
@@ -151,6 +154,13 @@ public final class SquidExecutor {
     } else {
       bytecodeScanned = false;
     }
+  }
+
+  void scanSquidIndex() {
+    TimeProfiler profiler = new TimeProfiler(getClass()).start("Java Squid scan");
+    SquidScanner squidScanner = squid.register(SquidScanner.class);
+    squidScanner.scan();
+    profiler.stop();
   }
 
   boolean isSourceScanned() {

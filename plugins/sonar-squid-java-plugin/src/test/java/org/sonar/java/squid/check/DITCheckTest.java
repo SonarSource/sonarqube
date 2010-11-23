@@ -1,4 +1,4 @@
-package org.sonar.java.bytecode.check;
+package org.sonar.java.squid.check;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.bytecode.BytecodeScanner;
 import org.sonar.java.squid.JavaSquidConfiguration;
+import org.sonar.java.squid.SquidScanner;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
@@ -20,11 +21,12 @@ public class DITCheckTest {
   @BeforeClass
   public static void setup() {
     squid = new Squid(new JavaSquidConfiguration());
-    squid.register(JavaAstScanner.class).scanDirectory(getFile("/bytecode/unusedProtectedMethod/src"));
     DITCheck check = new DITCheck();
     check.setMax(1);
     squid.registerVisitor(check);
+    squid.register(JavaAstScanner.class).scanDirectory(getFile("/bytecode/unusedProtectedMethod/src"));
     squid.register(BytecodeScanner.class).scanDirectory(getFile("/bytecode/unusedProtectedMethod/bin"));
+    squid.register(SquidScanner.class).scan();
   }
 
   @Test

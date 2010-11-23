@@ -1,10 +1,9 @@
-package org.sonar.java.bytecode.check;
+package org.sonar.java.squid.check;
 
 import org.sonar.check.IsoCategory;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.java.bytecode.asm.AsmClass;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceClass;
 import org.sonar.squid.measures.Metric;
@@ -16,21 +15,20 @@ import org.sonar.squid.measures.Metric;
         + "can lead to very complex and unmaintainable source code.</p>"
         + "<p>Most of the time a too deep inheritance tree is due to bad object oriented design which has led to systematically use "
         + "'inheritance' when 'composition' would suit better.</p>")
-public class DITCheck extends BytecodeCheck {
+public class DITCheck extends SquidCheck {
 
   @RuleProperty(description = "Maximum depth of the inheritance tree.", defaultValue = "5")
   private Integer max;
 
   @Override
-  public void visitClass(AsmClass asmClass) {
-    SourceClass sourceClass = getSourceClass(asmClass);
+  public void visitClass(SourceClass sourceClass) {
     int dit = sourceClass.getInt(Metric.DIT);
     if (dit > max) {
       CheckMessage message = new CheckMessage(this, "This class has " + dit
           + " parents which makes it complex to understand and to maintain.");
       message.setLine(sourceClass.getStartAtLine());
       message.setCost(dit - max);
-      getSourceFile(asmClass).log(message);
+      getSourceFile(sourceClass).log(message);
     }
   }
 

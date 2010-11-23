@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.java.ast.check;
+package org.sonar.java.squid.check;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -28,9 +28,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.squid.JavaSquidConfiguration;
+import org.sonar.java.squid.SquidScanner;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
+import org.sonar.squid.measures.Metric;
 
 public class ClassComplexityCheckTest {
 
@@ -45,6 +47,8 @@ public class ClassComplexityCheckTest {
     JavaAstScanner scanner = squid.register(JavaAstScanner.class);
     scanner.scanFile(getFile("/metrics/branches/NoBranches.java"));
     scanner.scanFile(getFile("/metrics/branches/ComplexBranches.java"));
+    squid.decorateSourceCodeTreeWith(Metric.values());
+    squid.register(SquidScanner.class).scan();
   }
 
   @Test

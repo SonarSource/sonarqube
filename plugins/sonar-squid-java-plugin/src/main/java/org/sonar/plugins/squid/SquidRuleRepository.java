@@ -28,15 +28,15 @@ import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.java.ast.check.BreakCheck;
-import org.sonar.java.ast.check.ClassComplexityCheck;
 import org.sonar.java.ast.check.ContinueCheck;
-import org.sonar.java.ast.check.MethodComplexityCheck;
 import org.sonar.java.ast.check.UndocumentedApiCheck;
 import org.sonar.java.bytecode.check.ArchitectureCheck;
 import org.sonar.java.bytecode.check.CallToDeprecatedMethodCheck;
-import org.sonar.java.bytecode.check.DITCheck;
 import org.sonar.java.bytecode.check.UnusedPrivateMethodCheck;
 import org.sonar.java.bytecode.check.UnusedProtectedMethodCheck;
+import org.sonar.java.squid.check.ClassComplexityCheck;
+import org.sonar.java.squid.check.DITCheck;
+import org.sonar.java.squid.check.MethodComplexityCheck;
 
 public final class SquidRuleRepository extends RuleRepository {
   private AnnotationRuleParser ruleParser;
@@ -56,8 +56,10 @@ public final class SquidRuleRepository extends RuleRepository {
     return Arrays.asList(
         // Bytecode checks
         (Class) CallToDeprecatedMethodCheck.class, UnusedPrivateMethodCheck.class, UnusedProtectedMethodCheck.class,
-        ArchitectureCheck.class, DITCheck.class,
+        ArchitectureCheck.class,
         // AST checks
-        UndocumentedApiCheck.class, ContinueCheck.class, BreakCheck.class, ClassComplexityCheck.class, MethodComplexityCheck.class);
+        UndocumentedApiCheck.class, ContinueCheck.class, BreakCheck.class, ClassComplexityCheck.class, MethodComplexityCheck.class,
+        // Squid checks
+        DITCheck.class);
   }
 }
