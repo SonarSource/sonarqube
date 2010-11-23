@@ -21,7 +21,7 @@ public class MethodComplexityCheckTest {
   public void setUp() {
     squid = new Squid(new JavaSquidConfiguration());
     MethodComplexityCheck check = new MethodComplexityCheck();
-    check.setThreshold(5);
+    check.setMax(5);
     squid.registerVisitor(check);
     JavaAstScanner scanner = squid.register(JavaAstScanner.class);
     scanner.scanFile(getFile("/metrics/branches/ComplexBranches.java"));
