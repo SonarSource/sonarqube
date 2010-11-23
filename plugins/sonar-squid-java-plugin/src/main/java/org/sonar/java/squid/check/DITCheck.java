@@ -24,8 +24,7 @@ public class DITCheck extends SquidCheck {
   public void visitClass(SourceClass sourceClass) {
     int dit = sourceClass.getInt(Metric.DIT);
     if (dit > max) {
-      CheckMessage message = new CheckMessage(this, "This class has " + dit
-          + " parents which makes it complex to understand and to maintain.");
+      CheckMessage message = new CheckMessage(this, "This class has " + dit + " parents which is greater than " + max + " authorized.");
       message.setLine(sourceClass.getStartAtLine());
       message.setCost(dit - max);
       getSourceFile(sourceClass).log(message);
