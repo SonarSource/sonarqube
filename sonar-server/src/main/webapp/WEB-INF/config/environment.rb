@@ -135,6 +135,16 @@ module JdbcSpec
 
       tp
     end
+
+    def change_column_null(table_name, column_name, null, default = nil)
+      column = column_for(table_name, column_name)
+
+      unless null || default.nil?
+        execute("UPDATE #{quote_table_name(table_name)} SET #{quote_column_name(column_name)}=#{quote(default)} WHERE #{quote_column_name(column_name)} IS NULL")
+      end
+
+      change_column table_name, column_name, column.sql_type, :null => null
+    end
   end
   
   # wrong column types on oracle 10g timestamp and datetimes
@@ -187,6 +197,15 @@ module JdbcSpec
     def quote_table_name(name) #:nodoc:
       quote_column_name(name).gsub('.', '`.`')
     end
+
+
+    # see http://jira.codehaus.org/browse/JRUBY-4719
+    def change_column_null(table_name, column_name, null, default = nil)
+      unless null || default.nil?
+        execute("UPDATE #{quote_table_name(table_name)} SET #{quote_column_name(column_name)}=#{quote(default)} WHERE #{quote_column_name(column_name)} IS NULL")
+      end
+      execute("ALTER TABLE #{quote_table_name(table_name)} ALTER COLUMN #{quote_column_name(column_name)} #{'NOT ' unless null}NULL")
+    end
   end
 
   module PostgreSQL
@@ -214,6 +233,15 @@ module JdbcSpec
         schema_name = parts.join(".")
       end
       @connection.columns_internal(table_name, name, schema_name)
+    end
+
+
+    # see http://jira.codehaus.org/browse/JRUBY-3608
+    def change_column_null(table_name, column_name, null, default = nil)
+      unless null || default.nil?
+        execute("UPDATE #{quote_table_name(table_name)} SET #{quote_column_name(column_name)}=#{quote(default)} WHERE #{quote_column_name(column_name)} IS NULL")
+      end
+      execute("ALTER TABLE #{quote_table_name(table_name)} ALTER #{quote_column_name(column_name)} #{null ? 'DROP' : 'SET'} NOT NULL")
     end
   end
 end
