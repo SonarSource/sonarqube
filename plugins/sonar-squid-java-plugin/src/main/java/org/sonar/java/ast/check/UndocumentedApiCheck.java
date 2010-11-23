@@ -60,7 +60,7 @@ public class UndocumentedApiCheck extends JavaAstCheck {
     if (WildcardPattern.match(getPatterns(), sourceClass.getKey())) {
       if (PublicApiVisitor.isPublicApi(ast) && !PublicApiVisitor.isDocumentedApi(ast, getFileContents())) {
         SourceFile sourceFile = currentResource.getParent(SourceFile.class);
-        CheckMessage message = new CheckMessage(this, "Avoid undocumented API");
+        CheckMessage message = new CheckMessage(this, "Avoid undocumented API.");
         message.setLine(ast.getLineNo());
         sourceFile.log(message);
       }
