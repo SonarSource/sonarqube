@@ -19,15 +19,19 @@
  */
 package org.sonar.api.resources;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 
-import java.util.*;
-
 /**
  * A class to store the list of languages
- *
+ * 
  * @since 1.10
  */
 public class Languages implements BatchComponent, ServerComponent {
@@ -47,9 +51,8 @@ public class Languages implements BatchComponent, ServerComponent {
 
   /**
    * @param keys the languages keys
-   * @return * @return the list of suffix files associates to languages included in the current object
+   * @return the list of suffix files associates to languages included in the current object
    */
-
   public String[] getSuffixes(String... keys) {
     List<String> suffixes = new ArrayList<String>();
 

@@ -19,6 +19,8 @@
  */
 package org.sonar.batch;
 
+import java.util.List;
+
 import org.picocontainer.Characteristics;
 import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.batch.BatchExtensionDictionnary;
@@ -30,16 +32,21 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 import org.sonar.api.resources.DefaultProjectFileSystem;
+import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.utils.IocContainer;
+import org.sonar.api.utils.SonarException;
 import org.sonar.batch.indexer.DefaultSonarIndex;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.rule.DefaultRuleFinder;
-import org.sonar.jpa.dao.*;
-
-import java.util.List;
+import org.sonar.jpa.dao.AsyncMeasuresDao;
+import org.sonar.jpa.dao.AsyncMeasuresService;
+import org.sonar.jpa.dao.DaoFacade;
+import org.sonar.jpa.dao.MeasuresDao;
+import org.sonar.jpa.dao.ProfilesDao;
+import org.sonar.jpa.dao.RulesDao;
 
 public class ProjectBatch {
 
@@ -75,7 +82,7 @@ public class ProjectBatch {
     batchContainer.as(Characteristics.CACHE).addComponent(index.getBucket(project).getSnapshot());
     batchContainer.as(Characteristics.CACHE).addComponent(project.getConfiguration());
 
-    //need to be registered after the Configuration
+    // need to be registered after the Configuration
     batchContainer.getComponent(BatchPluginRepository.class).registerPlugins(batchContainer);
 
     batchContainer.as(Characteristics.CACHE).addComponent(DaoFacade.class);
@@ -107,11 +114,16 @@ public class ProjectBatch {
   }
 
   private void prepareProject(Project project, DefaultSonarIndex index) {
-    project.setLanguage(getComponent(Languages.class).get(project.getLanguageKey()));
-    index.selectProject(project, getComponent(ResourceFilters.class), getComponent(ViolationFilters.class), getComponent(MeasuresDao.class), getComponent(ViolationsDao.class));
+    Language language = getComponent(Languages.class).get(project.getLanguageKey());
+    if (language == null) {
+      throw new SonarException("Language with key '" + project.getLanguageKey() + "' not found");
+    }
+    project.setLanguage(language);
+    index.selectProject(project, getComponent(ResourceFilters.class), getComponent(ViolationFilters.class),
+        getComponent(MeasuresDao.class), getComponent(ViolationsDao.class));
 
     List<FileFilter> fileFilters = batchContainer.getComponents(FileFilter.class);
-    ((DefaultProjectFileSystem)project.getFileSystem()).addFileFilters(fileFilters);
+    ((DefaultProjectFileSystem) project.getFileSystem()).addFileFilters(fileFilters);
   }
 
   private void loadCoreComponents(MutablePicoContainer container) {
