@@ -22,13 +22,13 @@ public class DITCheckTest {
     squid = new Squid(new JavaSquidConfiguration());
     squid.register(JavaAstScanner.class).scanDirectory(getFile("/bytecode/unusedProtectedMethod/src"));
     DITCheck check = new DITCheck();
-    check.setThreshold(1);
+    check.setMax(1);
     squid.registerVisitor(check);
     squid.register(BytecodeScanner.class).scanDirectory(getFile("/bytecode/unusedProtectedMethod/bin"));
   }
 
   @Test
-  public void testDepthOfInheritanceExceedsThreshold() {
+  public void testDepthOfInheritanceGreaterThanMaximum() {
     SourceFile file = (SourceFile) squid.search("UnusedProtectedMethod.java");
     assertThat(file.getCheckMessages().size(), is(1));
     CheckMessage message = file.getCheckMessages().iterator().next();
@@ -36,7 +36,7 @@ public class DITCheckTest {
   }
 
   @Test
-  public void testDepthOfInheritanceNotExceedsThreshold() {
+  public void testDepthOfInheritanceLowerThanMaximum() {
     SourceFile file = (SourceFile) squid.search("Job.java");
     assertThat(file.getCheckMessages().size(), is(0));
   }
