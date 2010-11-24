@@ -30,7 +30,7 @@ import java.sql.Statement;
 public class SchemaMigration {
 
   public final static int VERSION_UNKNOWN = -1;
-  public static final int LAST_VERSION = 160; 
+  public static final int LAST_VERSION = 152; 
 
   public final static String TABLE_NAME = "schema_migrations";
 
