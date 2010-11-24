@@ -30,6 +30,12 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>sonar-plugin-api</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>classworlds</groupId>
+          <artifactId>classworlds</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
@@ -85,6 +91,12 @@
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-classworlds</artifactId>
+      <!-- TODO version should be defined in parent -->
+      <version>2.2.3</version>
     </dependency>
   </dependencies>
 </project>

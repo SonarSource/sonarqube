@@ -17,25 +17,26 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.classloaders;
 
-import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
-import org.codehaus.classworlds.ClassRealm;
-import org.codehaus.classworlds.ClassWorld;
-import org.codehaus.classworlds.DuplicateRealmException;
-import org.codehaus.classworlds.NoSuchRealmException;
-import org.sonar.api.utils.Logs;
-import org.sonar.api.utils.SonarException;
+package org.sonar.core.classloaders;
 
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.plexus.classworlds.ClassWorld;
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
+import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
+import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
+import org.sonar.api.utils.SonarException;
+
+import com.google.common.collect.Lists;
+
 /**
- * Encapsulates manipulations with ClassLoaders, such as creation and establishing dependencies.
- * Current implementation based on {@link ClassWorld}.
+ * Encapsulates manipulations with ClassLoaders, such as creation and establishing dependencies. Current implementation based on
+ * {@link ClassWorld}.
  * 
  * <h3>IMPORTANT</h3>
  * <p>
@@ -70,8 +71,8 @@ public class ClassLoadersCollection {
    * @param key plugin key
    * @param urls libraries
    * @param childFirst true, if child-first delegation model required instead of parent-first
-   * @return created ClassLoader, but actually this method shouldn't return anything,
-   *         because dependencies must be established - see {@link #done()}.
+   * @return created ClassLoader, but actually this method shouldn't return anything, because dependencies must be established - see
+   *         {@link #done()}.
    */
   public ClassLoader createClassLoader(String key, Collection<URL> urls, boolean childFirst) {
     try {
@@ -98,9 +99,9 @@ public class ClassLoadersCollection {
         realm = world.newRealm(key, parent);
       }
       for (URL url : others) {
-        realm.addConstituent(url);
+        realm.addURL(url);
       }
-      return realm.getClassLoader();
+      return realm;
     } catch (DuplicateRealmException e) {
       throw new SonarException(e);
     }
@@ -115,8 +116,8 @@ public class ClassLoadersCollection {
       if ( !StringUtils.endsWith(realm.getId(), "-parent")) {
         String[] packagesToExport = new String[PREFIXES_TO_EXPORT.length];
         for (int i = 0; i < PREFIXES_TO_EXPORT.length; i++) {
-          // important to have dot at the end of package name
-          packagesToExport[i] = PREFIXES_TO_EXPORT[i] + realm.getId() + ".api.";
+          // important to have dot at the end of package name only for classworlds 1.1
+          packagesToExport[i] = PREFIXES_TO_EXPORT[i] + realm.getId() + ".api";
         }
         export(realm, packagesToExport);
       }
@@ -127,7 +128,8 @@ public class ClassLoadersCollection {
    * Exports specified packages from given ClassRealm to all others.
    */
   private void export(ClassRealm realm, String... packages) {
-    Logs.INFO.debug("Exporting " + Arrays.toString(packages) + " from " + realm.getId());
+    // Logs.INFO.debug("Exporting " + Arrays.toString(packages) + " from " + realm.getId());
+    System.out.println("Exporting " + Arrays.toString(packages) + " from " + realm.getId());
     for (Object o : world.getRealms()) {
       ClassRealm dep = (ClassRealm) o;
       if ( !StringUtils.equals(dep.getId(), realm.getId())) {
@@ -148,7 +150,7 @@ public class ClassLoadersCollection {
    */
   public ClassLoader get(String key) {
     try {
-      return world.getRealm(key).getClassLoader();
+      return world.getRealm(key);
     } catch (NoSuchRealmException e) {
       return null;
     }
