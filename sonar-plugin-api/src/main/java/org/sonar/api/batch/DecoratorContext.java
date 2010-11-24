@@ -104,16 +104,13 @@ public interface DecoratorContext {
   // RULES
 
   /**
-   * Read-only rule failures.
-   *
-   * @return the rule failures for file/classes resources, null for the others
+   * Read-only rule violations.
    */
   List<Violation> getViolations();
 
 
   /**
    * Save a coding rule violation. The decorator which calls this method must be depended upon BatchBarriers.END_OF_VIOLATIONS_GENERATION.
-   * @see org.sonar.api.batch.BatchBarriers
    */
   DecoratorContext saveViolation(Violation violation);
 
