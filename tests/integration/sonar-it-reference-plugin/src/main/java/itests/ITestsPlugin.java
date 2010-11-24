@@ -24,7 +24,6 @@ import itests.languages.LanguageWithoutRulesEngine;
 import itests.page.GwtSamplePage;
 import itests.page.RubyApiTestsPage;
 import itests.resourcetab.SampleResourceTab;
-import itests.rules.SampleRules;
 import itests.ws.RubyWebService;
 import org.sonar.api.Plugin;
 
@@ -51,7 +50,6 @@ public class ITestsPlugin implements Plugin {
     extensions.add(SampleSensor.class);
     extensions.add(LanguageWithoutRulesEngine.class);
     extensions.add(ServerSideExtensionUsingExternalDependency.class);
-    extensions.add(SampleRules.class);
 
     // web
     extensions.add(SampleResourceTab.class);
