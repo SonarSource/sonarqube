@@ -19,19 +19,14 @@
  */
 package org.sonar.plugins.findbugs.xml;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.plugins.findbugs.FindbugsLevelUtils;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
+import java.util.*;
 
 @XStreamAlias("FindBugsFilter")
 public class FindBugsFilter {
@@ -126,15 +121,14 @@ public class FindBugsFilter {
     return result;
   }
 
-  private void completeLevels(Map<String, RulePriority> result, List<Bug> bugs, Priority priority, FindbugsLevelUtils priorityMapper,
-      BugInfoSplitter splitter) {
+  private void completeLevels(Map<String, RulePriority> result, List<Bug> bugs, Priority priority, FindbugsLevelUtils priorityMapper, BugInfoSplitter splitter) {
     if (bugs == null) {
       return;
     }
     RulePriority rulePriority = getRulePriority(priority, priorityMapper);
     for (Bug bug : bugs) {
       String varToSplit = splitter.getVar(bug);
-      if ( !StringUtils.isBlank(varToSplit)) {
+      if (!StringUtils.isBlank(varToSplit)) {
         String[] splitted = StringUtils.split(varToSplit, splitter.getSeparator());
         for (String code : splitted) {
           mapRulePriority(result, rulePriority, code);
