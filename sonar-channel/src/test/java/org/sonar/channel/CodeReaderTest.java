@@ -71,6 +71,7 @@ public class CodeReaderTest {
     CodeReader reader = new CodeReader(new StringReader("package org.sonar;"));
     StringBuilder result = new StringBuilder();
     reader.popTo(new EndMatcher() {
+
       public boolean match(int endFlag) {
         return 'r' == (char) endFlag;
       }

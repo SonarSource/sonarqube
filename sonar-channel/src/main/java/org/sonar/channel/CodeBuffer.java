@@ -93,7 +93,7 @@ public class CodeBuffer implements CharSequence {
     return character;
   }
 
-  private final void updateCursorPosition(int character) {
+  private void updateCursorPosition(int character) {
     if (character == LF || character == CR) {
       if ((lastChar != LF && lastChar != CR) || lastChar == character || lastChar == LF) {
         cursor.line++;
@@ -241,15 +241,14 @@ public class CodeBuffer implements CharSequence {
   }
 
   /**
-   * Warning : this method always returns Integer.MAX_VALUE
-   * as the length of the stream can't be known before having consumed 
-   * all characters.
+   * Warning : this method always returns Integer.MAX_VALUE as the length of the stream can't be known before having consumed all
+   * characters.
    * 
-   * Integer.MAX_VALUE is returned to prevent regular expression matchers 
-   * to stop consuming the stream of characters (see http://jira.codehaus.org/browse/SONAR-2010)
+   * Integer.MAX_VALUE is returned to prevent regular expression matchers to stop consuming the stream of characters (see
+   * http://jira.codehaus.org/browse/SONAR-2010)
    */
   public final int length() {
-    return Integer.MAX_VALUE;
+    return (bufferSize == bufferCapacity ? Integer.MAX_VALUE : bufferSize);
   }
 
   public final CharSequence subSequence(int start, int end) {
@@ -267,7 +266,7 @@ public class CodeBuffer implements CharSequence {
     return result.toString();
   }
 
-  public final class Cursor {
+  public final class Cursor implements Cloneable {
 
     private int line = 1;
     private int column = 0;

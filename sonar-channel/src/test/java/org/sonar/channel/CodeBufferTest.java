@@ -195,6 +195,20 @@ public class CodeBufferTest {
   }
 
   @Test
+  public void theLengthShouldBeTheSameThanTheStringLength() {
+    String myCode = "myCode";
+    assertThat(new CodeBuffer(myCode, new CodeReaderConfiguration()).length(), is(myCode.length()));
+  }
+
+  @Test
+  public void theLengthShouldBeIntegerMaxValueWhenTheBufferCantContainAllCharacters() {
+    String myCode = "myCode";
+    CodeReaderConfiguration conf = new CodeReaderConfiguration();
+    conf.setBufferCapacity(2);
+    assertThat(new CodeBuffer(myCode, conf).length(), is(Integer.MAX_VALUE));
+  }
+
+  @Test
   public void testSeveralCodeReaderFilter() throws Exception {
     CodeReaderConfiguration configuration = new CodeReaderConfiguration();
     configuration.setCodeReaderFilters(new ReplaceNumbersFilter(), new ReplaceCharFilter());
@@ -304,5 +318,4 @@ public class CodeBufferTest {
       return false;
     }
   }
-
 }
