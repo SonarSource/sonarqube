@@ -37,8 +37,10 @@ public final class FindbugsCategory {
     findbugsToSonar.put("STYLE", "Style");
   }
 
-
   public static String findbugsToSonar(String findbugsCategKey) {
     return findbugsToSonar.get(findbugsCategKey);
+  }
+
+  private FindbugsCategory() {
   }
 }

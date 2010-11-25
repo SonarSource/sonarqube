@@ -40,7 +40,7 @@ import com.thoughtworks.xstream.XStream;
 public class FindbugsProfileImporter extends ProfileImporter {
 
   private final RuleFinder ruleFinder;
-  private static Logger LOG = LoggerFactory.getLogger(FindbugsProfileImporter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(FindbugsProfileImporter.class);
 
   public FindbugsProfileImporter(RuleFinder ruleFinder) {
     super(FindbugsConstants.REPOSITORY_KEY, FindbugsConstants.PLUGIN_NAME);

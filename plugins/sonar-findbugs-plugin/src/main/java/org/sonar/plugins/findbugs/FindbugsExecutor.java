@@ -48,7 +48,7 @@ import edu.umd.cs.findbugs.config.UserPreferences;
  */
 public class FindbugsExecutor implements BatchExtension {
 
-  private static Logger LOG = LoggerFactory.getLogger(FindbugsExecutor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(FindbugsExecutor.class);
 
   private FindbugsConfiguration configuration;
 
