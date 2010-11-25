@@ -15,6 +15,7 @@ org.codehaus.sonar-plugins:sonar-jacoco-plugin
 org.codehaus.sonar-plugins:sonar-jira-plugin
 org.codehaus.sonar-plugins:sonar-ldap-plugin
 org.codehaus.sonar-plugins:sonar-motion-chart-plugin
+org.codehaus.sonar-plugins.pdf-report:sonar-pdfreport-plugin
 org.codehaus.sonar-plugins:sonar-piwik-plugin
 org.codehaus.sonar-plugins:sonar-plugin-taglist
 org.codehaus.sonar-plugins:sonar-quality-index-plugin
@@ -33,9 +34,3 @@ org.codehaus.sonar-plugins.scm-activity:sonar-scm-activity-plugin
 org.codehaus.sonar-plugins:sonar-groovy-plugin
 org.codehaus.sonar-plugins:sonar-web-plugin
 org.codehaus.sonar-plugins:sonar-useless-code-tracker-plugin
-#
-# Incorrect artifactId
-#
-#org.codehaus.sonar-plugins:pdf-report
-#org.codehaus.sonar-plugins:technical-debt
-#org.codehaus.sonar-plugins:emma
