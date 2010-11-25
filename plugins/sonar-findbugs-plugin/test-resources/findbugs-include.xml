@@ -38,6 +38,9 @@
     <Bug pattern="SF_DEAD_STORE_DUE_TO_SWITCH_FALLTHROUGH"/>
   </Match>
   <Match>
+    <Bug pattern="SF_DEAD_STORE_DUE_TO_SWITCH_FALLTHROUGH_TO_THROW"/>
+  </Match>
+  <Match>
     <Bug pattern="EQ_COMPARETO_USE_OBJECT_EQUALS"/>
   </Match>
   <Match>

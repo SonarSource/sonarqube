@@ -956,9 +956,6 @@
     <Bug pattern="RV_ABSOLUTE_VALUE_OF_RANDOM_INT"/>
   </Match>
   <Match>
-    <Bug pattern="DMI_VACUOUS_CALL_TO_EASYMOCK_METHOD"/>
-  </Match>
-  <Match>
     <Bug pattern="FE_FLOATING_POINT_EQUALITY"/>
   </Match>
   <Match>

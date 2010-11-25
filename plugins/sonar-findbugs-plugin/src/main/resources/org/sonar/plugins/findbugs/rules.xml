@@ -159,13 +159,6 @@
     <description><![CDATA[<p>This class is bigger than can be effectively handled, and was not fully analyzed for errors.
 </p>]]></description>
   </rule>
-  <rule key="DMI_VACUOUS_CALL_TO_EASYMOCK_METHOD" priority="MINOR">
-    <name><![CDATA[Correctness - Useless/vacuous call to EasyMock method]]></name>
-    <configKey><![CDATA[DMI_VACUOUS_CALL_TO_EASYMOCK_METHOD]]></configKey>
-    <category name="Reliability"/>
-    <description><![CDATA[<p>This call doesn't pass any objects to the EasyMock method, so the call doesn't do anything.
-</p>]]></description>
-  </rule>
   <rule key="DMI_SCHEDULED_THREAD_POOL_EXECUTOR_WITH_ZERO_CORE_THREADS" priority="MINOR">
     <name><![CDATA[Correctness - Creation of ScheduledThreadPoolExecutor with zero core threads]]></name>
     <configKey><![CDATA[DMI_SCHEDULED_THREAD_POOL_EXECUTOR_WITH_ZERO_CORE_THREADS]]></configKey>

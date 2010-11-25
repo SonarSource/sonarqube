@@ -71,7 +71,7 @@ public class FindbugsProfileImporterTest {
     RulesProfile profile = importer.importProfile(new InputStreamReader(input), ValidationMessages.create());
     List<ActiveRule> results = profile.getActiveRules();
 
-    assertThat(results.size(), is(183));
+    assertThat(results.size(), is(182));
     assertThat(profile.getActiveRule(FindbugsConstants.REPOSITORY_KEY, "LG_LOST_LOGGER_DUE_TO_WEAK_REFERENCE"), is(notNullValue()));
   }
 
@@ -127,7 +127,7 @@ public class FindbugsProfileImporterTest {
     RulesProfile profile = importer.importProfile(new StringReader(uncorrectFindbugsXml), messages);
     List<ActiveRule> results = profile.getActiveRules();
 
-    assertThat(results.size(), is(142));
+    assertThat(results.size(), is(141));
     assertThat(messages.getWarnings().size(), is(1));
   }
 
