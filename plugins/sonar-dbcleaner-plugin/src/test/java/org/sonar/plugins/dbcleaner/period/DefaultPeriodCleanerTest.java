@@ -28,7 +28,7 @@ import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-public class IntegrationTest extends AbstractDbUnitTestCase {
+public class DefaultPeriodCleanerTest extends AbstractDbUnitTestCase {
 
   DefaultPeriodCleaner cleaner;
 
@@ -38,7 +38,7 @@ public class IntegrationTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void dbCleanerITTest() {
+  public void integrationTests() {
     setupData("dbContent");
 
     Project project = new Project("myproject");
