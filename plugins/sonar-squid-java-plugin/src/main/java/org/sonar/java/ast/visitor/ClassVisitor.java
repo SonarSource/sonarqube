@@ -57,6 +57,7 @@ public class ClassVisitor extends JavaAstVisitor {
     if (isAbstract(ast)) {
       unit.setMeasure(Metric.ABSTRACT_CLASSES, 1);
     }
+    unit.setSuppressWarnings(SuppressWarningsAnnotationUtils.isSuppressAllWarnings(ast));
   }
 
   @Override
@@ -86,4 +87,5 @@ public class ClassVisitor extends JavaAstVisitor {
   static SourceClass createSourceClass(SourceClass parentClass, String innerClassName) {
     return new SourceClass(parentClass.getKey() + "$" + innerClassName, innerClassName);
   }
+
 }

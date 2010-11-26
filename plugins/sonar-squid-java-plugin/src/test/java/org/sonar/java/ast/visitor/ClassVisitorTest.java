@@ -19,8 +19,10 @@
  */
 package org.sonar.java.ast.visitor;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.sonar.java.ast.SquidTestUtils.getFile;
 
@@ -118,6 +120,13 @@ public class ClassVisitorTest {
     assertEquals(2, publicInnerClass.getInt(Metric.PUBLIC_API));
     assertEquals(0, privateInnerClass.getInt(Metric.PUBLIC_DOC_API));
     assertEquals(1, publicInnerClass.getInt(Metric.CLASSES));
+  }
+
+  @Test
+  public void detectSuppressWarningsAnnotation() {
+    squid.register(JavaAstScanner.class).scanFile(getFile("/rules/ClassWithSuppressWarningsAnnotation.java"));
+    SourceClass sourceClass = (SourceClass) squid.search("ClassWithSuppressWarningsAnnotation");
+    assertThat(sourceClass.isSuppressWarnings(), is(true));
   }
 
   @Test

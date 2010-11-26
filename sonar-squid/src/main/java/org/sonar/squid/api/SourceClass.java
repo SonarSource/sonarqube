@@ -21,11 +21,24 @@ package org.sonar.squid.api;
 
 public class SourceClass extends SourceCode {
 
+  /**
+   * This is used only for Java for now, but can be used for other languages. So maybe we should push it down to SourceCode.
+   */
+  private boolean suppressWarnings = false;
+
   public SourceClass(String key) {
     super(key);
   }
 
   public SourceClass(String key, String className) {
     super(key, className);
+  }
+
+  public void setSuppressWarnings(boolean suppressWarnings) {
+    this.suppressWarnings = suppressWarnings;
+  }
+
+  public boolean isSuppressWarnings() {
+    return suppressWarnings;
   }
 }

@@ -19,9 +19,16 @@
  */
 package org.sonar.plugins.squid.bridges;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.resources.Resource;
+import org.sonar.squid.api.SourceClass;
+import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.api.SourceFile;
+import org.sonar.squid.api.SourceMethod;
+import org.sonar.squid.indexer.QueryByParent;
 
 public class NoSonarFilterLoader extends Bridge {
   private NoSonarFilter noSonarFilter;
@@ -34,7 +41,25 @@ public class NoSonarFilterLoader extends Bridge {
   @Override
   public void onFile(SourceFile squidFile, Resource sonarFile) {
     if (noSonarFilter != null) {
-      noSonarFilter.addResource(sonarFile, squidFile.getNoSonarTagLines());
+      // lines with NOSONAR tag
+      Set<Integer> ignoredLines = new HashSet<Integer>(squidFile.getNoSonarTagLines());
+      // classes and methods with annotaion SuppressWarnings
+      for (SourceCode sourceCode : squid.search(new QueryByParent(squidFile))) {
+        if (sourceCode instanceof SourceMethod && ((SourceMethod) sourceCode).isSuppressWarnings()) {
+          visitLines(sourceCode, ignoredLines);
+        }
+        if (sourceCode instanceof SourceClass && ((SourceClass) sourceCode).isSuppressWarnings()) {
+          visitLines(sourceCode, ignoredLines);
+        }
+      }
+
+      noSonarFilter.addResource(sonarFile, ignoredLines);
+    }
+  }
+
+  private static void visitLines(SourceCode sourceCode, Set<Integer> ignoredLines) {
+    for (int line = sourceCode.getStartAtLine(); line <= sourceCode.getEndAtLine(); line++) {
+      ignoredLines.add(line);
     }
   }
 }

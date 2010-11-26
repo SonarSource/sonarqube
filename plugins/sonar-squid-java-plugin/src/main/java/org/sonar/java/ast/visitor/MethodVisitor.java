@@ -70,6 +70,7 @@ public class MethodVisitor extends JavaAstVisitor {
     if (isConstructor) {
       sourceMethod.setMeasure(Metric.CONSTRUCTORS, 1);
     }
+    sourceMethod.setSuppressWarnings(SuppressWarningsAnnotationUtils.isSuppressAllWarnings(ast));
     addSourceCode(sourceMethod);
   }
 

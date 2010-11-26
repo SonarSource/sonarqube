@@ -23,6 +23,11 @@ import org.sonar.squid.measures.Metric;
 
 public class SourceMethod extends SourceCode {
 
+  /**
+   * This is used only for Java for now, but can be used for other languages. So maybe we should push it down to SourceCode.
+   */
+  private boolean suppressWarnings = false;
+
   public SourceMethod(String key) {
     super(key);
   }
@@ -34,5 +39,13 @@ public class SourceMethod extends SourceCode {
 
   public boolean isAccessor() {
     return getInt(Metric.ACCESSORS) != 0;
+  }
+
+  public void setSuppressWarnings(boolean suppressWarnings) {
+    this.suppressWarnings = suppressWarnings;
+  }
+
+  public boolean isSuppressWarnings() {
+    return suppressWarnings;
   }
 }

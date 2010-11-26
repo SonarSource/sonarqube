@@ -19,8 +19,10 @@
  */
 package org.sonar.java.ast.visitor;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import org.junit.Before;
@@ -89,4 +91,24 @@ public class MethodVisitorTest {
     SourceCode source = squid.decorateSourceCodeTreeWith(Metric.values());
     assertEquals(2, source.getInt(Metric.CONSTRUCTORS));
   }
+
+  @Test
+  public void detectSuppressWarningsAnnotation() {
+    squid.register(JavaAstScanner.class).scanFile(getFile("/rules/ClassWithSuppressWarningsAnnotation.java"));
+
+    assertThat(getMethod("ClassWithSuppressWarningsAnnotation#fullyQualifiedName()V").isSuppressWarnings(), is(true));
+    assertThat(getMethod("ClassWithSuppressWarningsAnnotation#singleValue()V").isSuppressWarnings(), is(true));
+    assertThat(getMethod("ClassWithSuppressWarningsAnnotation#arrayWithSingleValue()V").isSuppressWarnings(), is(true));
+    assertThat(getMethod("ClassWithSuppressWarningsAnnotation#arrayWithMultipleValues()V").isSuppressWarnings(), is(true));
+    assertThat(getMethod("ClassWithSuppressWarningsAnnotation$1#methodInAnonymousInnerClass()V").isSuppressWarnings(), is(true));
+
+    assertThat(getMethod("ClassWithSuppressWarningsAnnotation#notHandled()V").isSuppressWarnings(), is(false));
+    assertThat(getMethod("ClassWithSuppressWarningsAnnotation#notHandled2()V").isSuppressWarnings(), is(false));
+    assertThat(getMethod("ClassWithSuppressWarningsAnnotation#notHandled3()V").isSuppressWarnings(), is(false));
+  }
+
+  private SourceMethod getMethod(String key) {
+    return (SourceMethod) squid.search(key);
+  }
+
 }
