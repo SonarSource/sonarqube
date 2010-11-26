@@ -20,25 +20,24 @@
 
 package org.sonar.java.squid.check;
 
-import org.sonar.java.squid.visitor.SquidVisitor;
-import org.sonar.squid.api.CodeCheck;
-import org.sonar.squid.api.SourceClass;
+import org.sonar.check.IsoCategory;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
-import org.sonar.squid.api.SourceMethod;
 
-public class SquidCheck implements SquidVisitor, CodeCheck {
+@Rule(key = "NoSonarCheck", name = "NOSONAR occurence", isoCategory = IsoCategory.Maintainability, priority = Priority.INFO,
+    description = "")
+public class NoSonarCheck extends SquidCheck {
 
-  public String getKey() {
-    return getClass().getSimpleName();
-  }
-
+  @Override
   public void visitFile(SourceFile sourceFile) {
-  }
-
-  public void visitClass(SourceClass sourceClass) {
-  }
-
-  public void visitMethod(SourceMethod sourceMethod) {
+    for (Integer line : sourceFile.getNoSonarTagLines()) {
+      CheckMessage message = new CheckMessage(this, "NOSONAR occurence");
+      message.setForced(true);
+      message.setLine(line);
+      sourceFile.log(message);
+    }
   }
 
 }

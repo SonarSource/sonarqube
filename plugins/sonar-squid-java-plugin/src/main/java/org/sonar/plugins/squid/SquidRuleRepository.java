@@ -37,6 +37,7 @@ import org.sonar.java.bytecode.check.UnusedProtectedMethodCheck;
 import org.sonar.java.squid.check.ClassComplexityCheck;
 import org.sonar.java.squid.check.DITCheck;
 import org.sonar.java.squid.check.MethodComplexityCheck;
+import org.sonar.java.squid.check.NoSonarCheck;
 
 public final class SquidRuleRepository extends RuleRepository {
   private AnnotationRuleParser ruleParser;
@@ -58,8 +59,8 @@ public final class SquidRuleRepository extends RuleRepository {
         (Class) CallToDeprecatedMethodCheck.class, UnusedPrivateMethodCheck.class, UnusedProtectedMethodCheck.class,
         ArchitectureCheck.class,
         // AST checks
-        UndocumentedApiCheck.class, ContinueCheck.class, BreakCheck.class, ClassComplexityCheck.class, MethodComplexityCheck.class,
+        UndocumentedApiCheck.class, ContinueCheck.class, BreakCheck.class,
         // Squid checks
-        DITCheck.class);
+        DITCheck.class, ClassComplexityCheck.class, MethodComplexityCheck.class, NoSonarCheck.class);
   }
 }

@@ -27,8 +27,8 @@ import org.sonar.java.squid.check.SquidCheck;
 import org.sonar.java.squid.visitor.SquidVisitor;
 import org.sonar.squid.api.CodeScanner;
 import org.sonar.squid.api.CodeVisitor;
-import org.sonar.squid.api.SourceClass;
 import org.sonar.squid.api.SourceCode;
+import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.indexer.QueryByType;
 import org.sonar.squid.indexer.SquidIndex;
 
@@ -41,14 +41,14 @@ public class SquidScanner extends CodeScanner<CodeVisitor> {
   }
 
   public void scan() {
-    Collection<SourceCode> classes = indexer.search(new QueryByType(SourceClass.class));
-    notifySquidVisitors(classes);
+    Collection<SourceCode> files = indexer.search(new QueryByType(SourceFile.class));
+    notifySquidVisitors(files);
   }
 
-  private void notifySquidVisitors(Collection<SourceCode> classes) {
+  private void notifySquidVisitors(Collection<SourceCode> files) {
     SquidVisitor[] visitorArray = getVisitors().toArray(new SquidVisitor[getVisitors().size()]);
-    for (SourceCode sourceClass : classes) {
-      SquidVisitorNotifier visitorNotifier = new SquidVisitorNotifier((SourceClass) sourceClass, visitorArray);
+    for (SourceCode sourceFile : files) {
+      SquidVisitorNotifier visitorNotifier = new SquidVisitorNotifier((SourceFile) sourceFile, visitorArray);
       visitorNotifier.notifyVisitors(indexer);
     }
   }

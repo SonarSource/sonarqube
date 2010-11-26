@@ -33,6 +33,7 @@ public class CheckMessage implements Message {
   private CodeCheck codeCheck;
   private String defaultMessage;
   private Object[] messageArguments;
+  private Boolean forced;
 
   public CheckMessage(CodeCheck rule, String message, Object... messageArguments) {
     this.codeCheck = rule;
@@ -64,6 +65,14 @@ public class CheckMessage implements Message {
     return cost;
   }
 
+  public void setForced(boolean forced) {
+    this.forced = forced;
+  }
+
+  public boolean isForced() {
+    return forced == null ? false : forced;
+  }
+
   public CodeCheck getChecker() {
     return codeCheck;
   }
@@ -93,4 +102,5 @@ public class CheckMessage implements Message {
       return MessageFormat.format(defaultMessage, messageArguments);
     }
   }
+
 }

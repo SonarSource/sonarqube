@@ -262,7 +262,7 @@ public abstract class SourceCode implements Measurable, Comparable<SourceCode> {
     return false;
   }
 
-  protected boolean hasChildren() {
+  public boolean hasChildren() {
     return children != null && children.size() != 0;
   }
 
