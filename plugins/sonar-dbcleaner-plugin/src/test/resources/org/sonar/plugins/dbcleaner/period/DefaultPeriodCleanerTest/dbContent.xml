@@ -1,3 +1,10 @@
+<!--
+
+Information : The algorithm depends on GregorianCalendar.getFirstDayOfWeek(), so please do not use sundays and mondays in snapshot dates
+to ensure that unit tests pass on any locale.
+
+-->
+
 <dataset>
   <!-- projects -->
   <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="mygroup:myartifact" name="myproject"
