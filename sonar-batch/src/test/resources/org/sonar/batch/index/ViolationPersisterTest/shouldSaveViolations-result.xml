@@ -1,0 +1,24 @@
+<dataset>
+  <rules_categories id="1" name="Efficiency" description="[null]"/>
+  <rules_categories id="6" name="Usability" description="[null]"/>
+
+  <rules id="30" name="Check Header" rules_category_id="6" plugin_rule_key="com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck"
+         plugin_config_key="Checker/Treewalker/HeaderCheck" plugin_name="checkstyle" description="[null]" priority="4" enabled="true"
+         cardinality="SINGLE" parent_id="[null]"/>
+
+  <rules id="31" name="Equals Avoid Null" rules_category_id="6" plugin_rule_key="com.puppycrawl.tools.checkstyle.checks.coding.EqualsAvoidNullCheck"
+         plugin_config_key="Checker/TreeWalker/EqualsAvoidNull" plugin_name="checkstyle" description="[null]" priority="4" enabled="true"
+         cardinality="SINGLE" parent_id="[null]"/>
+
+  <projects id="200" scope="FIL" qualifier="CLA" kee="project:org.foo.Bar" root_id="[null]"
+            name="Bar" long_name="org.foo.Bar" description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]" profile_id="[null]"/>
+
+  <snapshots id="1000" project_id="200" parent_snapshot_id="[null]" root_project_id="100" root_snapshot_id="[null]"
+             scope="FIL" qualifier="CLA" created_at="2008-11-01 13:58:00.00" version="[null]" path=""
+             status="U" islast="false" depth="3" />
+
+  <RULE_FAILURES ID="1" SNAPSHOT_ID="1000" RULE_ID="30" FAILURE_LEVEL="3" MESSAGE="the message" LINE="20" COST="55.6"/>
+  <RULE_FAILURES ID="2" SNAPSHOT_ID="1000" RULE_ID="30" FAILURE_LEVEL="3" MESSAGE="[null]" LINE="50" COST="80"/>
+  <RULE_FAILURES ID="3" SNAPSHOT_ID="1000" RULE_ID="31" FAILURE_LEVEL="1" MESSAGE="[null]" LINE="[null]" COST="[null]"/>
+</dataset>

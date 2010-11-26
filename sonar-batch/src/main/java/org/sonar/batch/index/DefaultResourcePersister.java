@@ -70,7 +70,10 @@ public final class DefaultResourcePersister implements ResourcePersister {
   }
 
   private Snapshot doSaveProject(Project project) {
-    ResourceModel model = findOrCreateModel(project, project.getKey());
+    // temporary hack
+    project.setEffectiveKey(project.getKey());
+
+    ResourceModel model = findOrCreateModel(project);
     model.setLanguageKey(project.getLanguageKey());// ugly, only for projects
 
     Snapshot parentSnapshot = null;
@@ -111,7 +114,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
   }
 
   private Snapshot doSaveLibrary(Project project, Library library) {
-    ResourceModel model = findOrCreateModel(library, library.getKey());
+    ResourceModel model = findOrCreateModel(library);
     model = session.save(model);
     library.setId(model.getId()); // TODO to be removed
     library.setEffectiveKey(library.getKey());
@@ -150,13 +153,11 @@ public final class DefaultResourcePersister implements ResourcePersister {
    * Everything except project and library
    */
   private Snapshot doSaveResource(Project project, Resource resource) {
-    String databaseKey = getDatabaseKey(project, resource);
-    ResourceModel model = findOrCreateModel(resource, databaseKey);
+    ResourceModel model = findOrCreateModel(resource);
     Snapshot projectSnapshot = snapshotsByResource.get(project);
     model.setRootId(projectSnapshot.getResourceId());
     model = session.save(model);
     resource.setId(model.getId()); // TODO to be removed
-    resource.setEffectiveKey(databaseKey);
 
     Snapshot parentSnapshot = (Snapshot)ObjectUtils.defaultIfNull(getSnapshot(resource.getParent()), projectSnapshot);
     Snapshot snapshot = new Snapshot(model, parentSnapshot);
@@ -177,12 +178,12 @@ public final class DefaultResourcePersister implements ResourcePersister {
   }
 
 
-  private ResourceModel findOrCreateModel(Resource resource, String databaseKey) {
+  private ResourceModel findOrCreateModel(Resource resource) {
     ResourceModel model;
     try {
-      model = session.getSingleResult(ResourceModel.class, "key", databaseKey);
+      model = session.getSingleResult(ResourceModel.class, "key", resource.getEffectiveKey());
       if (model == null) {
-        model = createModel(resource, databaseKey);
+        model = createModel(resource);
 
       } else {
         mergeModel(model, resource);
@@ -190,15 +191,15 @@ public final class DefaultResourcePersister implements ResourcePersister {
       return model;
 
     } catch (NonUniqueResultException e) {
-      throw new SonarException("The resource '" + databaseKey + "' is duplicated in database.");
+      throw new SonarException("The resource '" + resource.getEffectiveKey() + "' is duplicated in database.");
     }
   }
 
-  static ResourceModel createModel(Resource resource, String databaseKey) {
+  static ResourceModel createModel(Resource resource) {
     ResourceModel model = new ResourceModel();
     model.setEnabled(Boolean.TRUE);
     model.setDescription(resource.getDescription());
-    model.setKey(databaseKey);
+    model.setKey(resource.getEffectiveKey());
     if (resource.getLanguage() != null) {
       model.setLanguageKey(resource.getLanguage().getKey());
     }
@@ -231,17 +232,5 @@ public final class DefaultResourcePersister implements ResourcePersister {
     if (resource.getLanguage() != null) {
       model.setLanguageKey(resource.getLanguage().getKey());
     }
-  }
-
-  static String getDatabaseKey(Project project, Resource resource) {
-    if (StringUtils.equals(Resource.SCOPE_SET, resource.getScope())) {
-      // projects + libraries
-      return resource.getKey();
-    }
-    return new StringBuilder(ResourceModel.KEY_SIZE)
-        .append(project.getKey())
-        .append(':')
-        .append(resource.getKey())
-        .toString();
   }
 }

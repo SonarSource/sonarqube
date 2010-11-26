@@ -90,7 +90,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
 
     ResourcePersister persister = new DefaultResourcePersister(getSession());
     persister.saveProject(singleProject);
-    persister.saveResource(singleProject, new JavaPackage("org.foo"));
+    persister.saveResource(singleProject, new JavaPackage("org.foo").setEffectiveKey("foo:org.foo"));
 
     // check that the directory is attached to the project
     checkTables("shouldSaveNewDirectory", "projects", "snapshots");
@@ -102,9 +102,9 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
 
     ResourcePersister persister = new DefaultResourcePersister(getSession());
     persister.saveProject(singleProject);
-    persister.saveResource(singleProject, new Library("junit:junit", "4.8.2"));
-    persister.saveResource(singleProject, new Library("junit:junit", "4.8.2"));// do nothing, already saved
-    persister.saveResource(singleProject, new Library("junit:junit", "3.2"));
+    persister.saveResource(singleProject, new Library("junit:junit", "4.8.2").setEffectiveKey("junit:junit"));
+    persister.saveResource(singleProject, new Library("junit:junit", "4.8.2").setEffectiveKey("junit:junit"));// do nothing, already saved
+    persister.saveResource(singleProject, new Library("junit:junit", "3.2").setEffectiveKey("junit:junit"));
 
     checkTables("shouldSaveNewLibrary", "projects", "snapshots");
   }
@@ -116,8 +116,8 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     DefaultResourcePersister persister = new DefaultResourcePersister(getSession());
     persister.saveProject(multiModuleProject);
     persister.saveProject(moduleA);
-    persister.saveResource(moduleA, new JavaPackage("org.foo"));
-    persister.saveResource(moduleA, new JavaFile("org.foo.MyClass"));
+    persister.saveResource(moduleA, new JavaPackage("org.foo").setEffectiveKey("a:org.foo"));
+    persister.saveResource(moduleA, new JavaFile("org.foo.MyClass").setEffectiveKey("a:org.foo.MyClass"));
     persister.clear();
 
     assertThat(persister.getSnapshotsByResource().size(), is(2));

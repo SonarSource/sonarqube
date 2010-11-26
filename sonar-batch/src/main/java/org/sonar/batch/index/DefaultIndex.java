@@ -22,10 +22,12 @@ package org.sonar.batch.index;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.*;
 import org.sonar.api.profiles.RulesProfile;
@@ -103,10 +105,6 @@ public final class DefaultIndex extends SonarIndex {
     this.profile = profile;
   }
 
-  public PersistenceManager getPersistenceManager() {
-    return persistence;
-  }
-
   /**
    * Keep only project stuff
    */
@@ -136,8 +134,6 @@ public final class DefaultIndex extends SonarIndex {
 
   /**
    * Does nothing if the resource is already registered.
-   *
-   * @param resource
    */
   public Resource addResource(Resource resource) {
     getOrAddBucket(resource);
@@ -162,6 +158,7 @@ public final class DefaultIndex extends SonarIndex {
       LOG.warn("The following resource has not been registered before saving data: " + resource);
     }
 
+    resource.setEffectiveKey(calculateResourceEffectiveKey(currentProject, resource));
     bucket = new Bucket(resource);
     Bucket parentBucket = null;
     Resource parent = resource.getParent();
@@ -178,6 +175,19 @@ public final class DefaultIndex extends SonarIndex {
       persistence.saveResource(currentProject, resource);
     }
     return bucket;
+  }
+
+  static String calculateResourceEffectiveKey(Project project, Resource resource) {
+    String effectiveKey = resource.getKey();
+    if (!StringUtils.equals(Resource.SCOPE_SET, resource.getScope())) {
+      // not a project nor a library
+      effectiveKey = new StringBuilder(ResourceModel.KEY_SIZE)
+        .append(project.getKey())
+        .append(':')
+        .append(resource.getKey())
+        .toString();
+    }
+    return effectiveKey;
   }
 
   private boolean checkExclusion(Resource resource, Bucket parent) {

@@ -62,18 +62,16 @@ public final class ViolationPersister {
   private Integer getRuleId(Rule rule) {
     Integer ruleId = ruleIds.get(rule);
     if (ruleId == null) {
-      Rule persistedRule = session.getSingleResult(Rule.class, "pluginName", rule.getRepositoryKey(), "key", rule.getKey(), "enabled", true);
-      if (persistedRule == null) {
-        throw new SonarException("Rule not found: " + rule);
+      ruleId = rule.getId();
+      if (ruleId == null) {
+        Rule persistedRule = session.getSingleResult(Rule.class, "pluginName", rule.getRepositoryKey(), "key", rule.getKey(), "enabled", true);
+        if (persistedRule == null) {
+          throw new SonarException("Rule not found: " + rule);
+        }
+        ruleId = persistedRule.getId();
       }
-      ruleId = persistedRule.getId();
       ruleIds.put(rule, ruleId);
-
     }
     return ruleId;
-  }
-
-  public void clear() {
-    ruleIds.clear();
   }
 }

@@ -19,7 +19,8 @@
  */
 package org.sonar.batch.index;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
@@ -32,13 +33,12 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 
-import java.util.Iterator;
-import java.util.Set;
+import java.util.Map;
 
 public final class MeasurePersister {
 
   private boolean delayedMode = false;
-  private Set<MeasureModel> unsavedMeasures = Sets.newLinkedHashSet();
+  private SetMultimap<Integer, Measure> unsavedMeasuresBySnapshotId = HashMultimap.create();
   private DatabaseSession session;
   private ResourcePersister resourcePersister;
 
@@ -59,24 +59,20 @@ public final class MeasurePersister {
     Snapshot snapshot = resourcePersister.saveResource(project, resource);
     if (snapshot != null) {
       if (delayedMode && measure.getPersistenceMode().useMemory()) {
-        MeasureModel model = createModel(measure);
-        model.setSnapshotId(snapshot.getId());
-        unsavedMeasures.add(model);
+        unsavedMeasuresBySnapshotId.put(snapshot.getId(), measure);
+
+      } else if (measure.getId() != null) {
+        // update
+        MeasureModel model = session.reattach(MeasureModel.class, measure.getId());
+        model = mergeModel(measure, model);
+        model.save(session);
 
       } else if (shouldPersistMeasure(resource, measure)) {
-        if (measure.getId() != null) {
-          // update
-          MeasureModel model = session.reattach(MeasureModel.class, measure.getId());
-          model = mergeModel(measure, model);
-          model.save(session);
-
-        } else {
-          // insert
-          MeasureModel model = createModel(measure);
-          model.setSnapshotId(snapshot.getId());
-          model.save(session);
-          measure.setId(model.getId()); // could be removed
-        }
+        // insert
+        MeasureModel model = createModel(measure);
+        model.setSnapshotId(snapshot.getId());
+        model.save(session);
+        measure.setId(model.getId()); // could be removed
       }
     }
   }
@@ -92,13 +88,14 @@ public final class MeasurePersister {
   }
 
   public void dump() {
-    LoggerFactory.getLogger(getClass()).debug("{} measures to dump", unsavedMeasures.size());
-    for (Iterator<MeasureModel> it = unsavedMeasures.iterator(); it.hasNext();) {
-      MeasureModel model = it.next();
+    LoggerFactory.getLogger(getClass()).debug("{} measures to dump", unsavedMeasuresBySnapshotId.size());
+    for (Map.Entry<Integer, Measure> entry : unsavedMeasuresBySnapshotId.entries()) {
+      MeasureModel model = createModel(entry.getValue());
+      model.setSnapshotId(entry.getKey());
       model.save(session);
-      it.remove();
     }
     session.commit();
+    unsavedMeasuresBySnapshotId.clear();
   }
 
   MeasureModel createModel(Measure measure) {

@@ -32,6 +32,8 @@ import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Project;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
+import java.util.List;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyObject;
@@ -78,6 +80,22 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
     measurePersister.saveMeasure(project, measure);
 
     checkTables("shouldUpdateMeasure", "project_measures");
+  }
+
+  @Test
+  public void shouldAddDelayedMeasureSeveralTimes() {
+    measurePersister.setDelayedMode(true);
+    Measure measure = new Measure(ncloc).setValue(200.0);
+    measurePersister.saveMeasure(project, measure);
+
+    measure.setValue(300.0);
+    measurePersister.saveMeasure(project, measure);
+
+    measurePersister.dump();
+
+    List<MeasureModel> coverageMeasures = getSession().getResults(MeasureModel.class, "snapshotId", 3001, "metricId", 1);
+    assertThat(coverageMeasures.size(), is(1));
+    assertThat(coverageMeasures.get(0).getValue(), is(300.0));
   }
 
   @Test

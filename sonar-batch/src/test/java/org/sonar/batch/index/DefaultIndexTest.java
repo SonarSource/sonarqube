@@ -19,9 +19,25 @@
  */
 package org.sonar.batch.index;
 
-import org.junit.Ignore;
+import org.junit.Test;
+import org.sonar.api.resources.JavaPackage;
+import org.sonar.api.resources.Library;
+import org.sonar.api.resources.Project;
 
-@Ignore("to do")
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 public class DefaultIndexTest {
 
+  @Test
+  public void shouldCalculateResourceEffectiveKey() {
+    Project project = new Project("my_project");
+    assertThat(DefaultIndex.calculateResourceEffectiveKey(project, project), is("my_project"));
+
+    JavaPackage javaPackage = new JavaPackage("org.foo");
+    assertThat(DefaultIndex.calculateResourceEffectiveKey(project, javaPackage), is("my_project:org.foo"));
+
+    Library library = new Library("junit:junit", "4.7");
+    assertThat(DefaultIndex.calculateResourceEffectiveKey(project, library), is("junit:junit"));
+  }
 }
