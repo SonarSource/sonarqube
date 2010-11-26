@@ -103,11 +103,19 @@ public interface SensorContext {
 
   /**
    * Save a coding rule violation.
+   * 
+   * @since 2.5
+   * @param force allows to force creation of violation even if it was supressed by {@link org.sonar.api.rules.ViolationFilter}
+   */
+  void saveViolation(Violation violation, boolean force);
+  
+  /**
+   * Save a coding rule violation.
    */
   void saveViolation(Violation violation);
 
   /**
-   * Saves a list of violations
+   * Saves a list of violations.
    */
   void saveViolations(Collection<Violation> violations);
 

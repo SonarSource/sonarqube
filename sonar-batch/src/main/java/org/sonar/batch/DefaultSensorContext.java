@@ -19,6 +19,11 @@
  */
 package org.sonar.batch;
 
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.design.Dependency;
@@ -30,11 +35,6 @@ import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.batch.index.DefaultIndex;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 public class DefaultSensorContext implements SensorContext {
 
@@ -72,7 +72,7 @@ public class DefaultSensorContext implements SensorContext {
 
   public String saveResource(Resource resource) {
     Resource persistedResource = index.addResource(resource);
-    if (persistedResource!=null) {
+    if (persistedResource != null) {
       return persistedResource.getEffectiveKey();
     }
     return null;
@@ -94,15 +94,19 @@ public class DefaultSensorContext implements SensorContext {
     return index.addMeasure(resourceOrProject(resource), measure);
   }
 
-  public void saveViolation(Violation violation) {
-    if (violation.getResource()==null) {
+  public void saveViolation(Violation violation, boolean force) {
+    if (violation.getResource() == null) {
       violation.setResource(resourceOrProject(violation.getResource()));
     }
-    index.addViolation(violation);
+    index.addViolation(violation, force);
+  }
+
+  public void saveViolation(Violation violation) {
+    saveViolation(violation, false);
   }
 
   public void saveViolations(Collection<Violation> violations) {
-    if (violations!=null) {
+    if (violations != null) {
       for (Violation violation : violations) {
         saveViolation(violation);
       }
@@ -150,6 +154,6 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   private Resource resourceOrProject(Resource resource) {
-    return (resource!=null ? resource : project);
+    return (resource != null ? resource : project);
   }
 }

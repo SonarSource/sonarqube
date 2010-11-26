@@ -108,6 +108,13 @@ public interface DecoratorContext {
    */
   List<Violation> getViolations();
 
+  /**
+   * Save a coding rule violation. The decorator which calls this method must be depended upon BatchBarriers.END_OF_VIOLATIONS_GENERATION.
+   * 
+   * @since 2.5
+   * @param force allows to force creation of violation even if it was supressed by {@link org.sonar.api.rules.ViolationFilter}
+   */
+  DecoratorContext saveViolation(Violation violation, boolean force);
 
   /**
    * Save a coding rule violation. The decorator which calls this method must be depended upon BatchBarriers.END_OF_VIOLATIONS_GENERATION.

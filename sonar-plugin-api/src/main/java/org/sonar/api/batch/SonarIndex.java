@@ -19,6 +19,11 @@
  */
 package org.sonar.api.batch;
 
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
@@ -28,11 +33,6 @@ import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.graph.DirectedGraphAccessor;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Dependency> {
 
@@ -54,7 +54,14 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
 
   public abstract void setSource(Resource resource, String source);
 
-  public abstract void addViolation(Violation violation);
+  /**
+   * @since 2.5
+   */
+  public abstract void addViolation(Violation violation, boolean force);
+
+  public final void addViolation(Violation violation) {
+    addViolation(violation, false);
+  }
 
   public abstract Measure addMeasure(Resource resource, Measure measure);
 

@@ -373,10 +373,6 @@ public final class DefaultIndex extends SonarIndex {
     return bucket.getViolations();
   }
 
-  public void addViolation(Violation violation) {
-    addViolation(violation, false);
-  }
-
   public void addViolation(Violation violation, boolean force) {
     Bucket bucket;
     Resource resource = violation.getResource();

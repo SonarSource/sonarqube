@@ -154,12 +154,16 @@ public class DefaultDecoratorContext implements DecoratorContext {
   public void deleteEvent(Event event) {
     index.deleteEvent(event);
   }
-
-  public DefaultDecoratorContext saveViolation(Violation violation) {
+  
+  public DefaultDecoratorContext saveViolation(Violation violation, boolean force) {
     if (violation.getResource() == null) {
       violation.setResource(resource);
     }
-    index.addViolation(violation);
+    index.addViolation(violation, force);
     return this;
+  }
+
+  public DefaultDecoratorContext saveViolation(Violation violation) {
+    return saveViolation(violation, false);
   }
 }
