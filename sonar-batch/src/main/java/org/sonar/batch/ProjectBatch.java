@@ -36,7 +36,7 @@ import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.ResourcePersister;
+import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.phases.Phases;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.rule.DefaultRuleFinder;
@@ -78,7 +78,7 @@ public class ProjectBatch {
     batchContainer.as(Characteristics.CACHE).addComponent(RulesDao.class);
 
     // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
-    batchContainer.as(Characteristics.CACHE).addComponent(globalContainer.getComponent(ResourcePersister.class).getSnapshot(project));
+    batchContainer.as(Characteristics.CACHE).addComponent(globalContainer.getComponent(DefaultResourcePersister.class).getSnapshot(project));
 
     batchContainer.as(Characteristics.CACHE).addComponent(org.sonar.api.database.daos.RulesDao.class);
     batchContainer.as(Characteristics.CACHE).addComponent(org.sonar.api.database.daos.MeasuresDao.class);

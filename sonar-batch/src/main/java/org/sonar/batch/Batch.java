@@ -78,7 +78,7 @@ public class Batch {
     batchContainer.as(Characteristics.CACHE).addComponent(EventPersister.class);
     batchContainer.as(Characteristics.CACHE).addComponent(LinkPersister.class);
     batchContainer.as(Characteristics.CACHE).addComponent(MeasurePersister.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(ResourcePersister.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(DefaultResourcePersister.class);
     batchContainer.as(Characteristics.CACHE).addComponent(SourcePersister.class);
     batchContainer.as(Characteristics.CACHE).addComponent(ViolationPersister.class);
     batchContainer.as(Characteristics.CACHE).addComponent(JpaPluginDao.class);

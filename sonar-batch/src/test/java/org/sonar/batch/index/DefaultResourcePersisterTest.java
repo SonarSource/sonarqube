@@ -34,7 +34,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 
-public class ResourcePersisterTest extends AbstractDbUnitTestCase {
+public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
 
   private Project singleProject, multiModuleProject, moduleA, moduleB, moduleB1;
 
@@ -65,7 +65,7 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
   public void shouldSaveNewProject() {
     setupData("shared");
 
-    ResourcePersister persister = new ResourcePersister(getSession());
+    ResourcePersister persister = new DefaultResourcePersister(getSession());
     persister.saveProject(singleProject);
 
     checkTables("shouldSaveNewProject", "projects", "snapshots");
@@ -75,7 +75,7 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
   public void shouldSaveNewMultiModulesProject() throws ParseException {
     setupData("shared");
 
-    ResourcePersister persister = new ResourcePersister(getSession());
+    ResourcePersister persister = new DefaultResourcePersister(getSession());
     persister.saveProject(multiModuleProject);
     persister.saveProject(moduleA);
     persister.saveProject(moduleB);
@@ -88,7 +88,7 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
   public void shouldSaveNewDirectory() {
     setupData("shared");
 
-    ResourcePersister persister = new ResourcePersister(getSession());
+    ResourcePersister persister = new DefaultResourcePersister(getSession());
     persister.saveProject(singleProject);
     persister.saveResource(singleProject, new JavaPackage("org.foo"));
 
@@ -100,7 +100,7 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
   public void shouldSaveNewLibrary() {
     setupData("shared");
 
-    ResourcePersister persister = new ResourcePersister(getSession());
+    ResourcePersister persister = new DefaultResourcePersister(getSession());
     persister.saveProject(singleProject);
     persister.saveResource(singleProject, new Library("junit:junit", "4.8.2"));
     persister.saveResource(singleProject, new Library("junit:junit", "4.8.2"));// do nothing, already saved
@@ -113,7 +113,7 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
   public void shouldClearResourcesExceptProjects() {
     setupData("shared");
 
-    ResourcePersister persister = new ResourcePersister(getSession());
+    DefaultResourcePersister persister = new DefaultResourcePersister(getSession());
     persister.saveProject(multiModuleProject);
     persister.saveProject(moduleA);
     persister.saveResource(moduleA, new JavaPackage("org.foo"));
@@ -129,7 +129,7 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
   public void shouldUpdateExistingResource() {
     setupData("shouldUpdateExistingResource");
 
-    ResourcePersister persister = new ResourcePersister(getSession());
+    ResourcePersister persister = new DefaultResourcePersister(getSession());
     singleProject.setName("new name");
     singleProject.setDescription("new description");
     persister.saveProject(singleProject);
