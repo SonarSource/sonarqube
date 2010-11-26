@@ -63,6 +63,13 @@ public class Event extends BaseIdentifiable {
   public Event() {
   }
 
+  public Event(String name, String description, String category) {
+    this.name = name;
+    this.description = description;
+    this.category = category;
+  }
+
+  @Deprecated
   public Event(String name, String description, String category, Date date, Integer resourceId) {
     this.name = name;
     this.description = description;
@@ -71,6 +78,7 @@ public class Event extends BaseIdentifiable {
     this.resourceId = resourceId;
   }
 
+  @Deprecated
   public Event(String name, String description, String category, Snapshot snapshot) {
     this.name = name;
     this.description = description;

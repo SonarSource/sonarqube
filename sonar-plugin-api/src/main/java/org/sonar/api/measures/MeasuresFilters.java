@@ -52,7 +52,7 @@ public final class MeasuresFilters {
         }
         for (Measure measure : measures) {
           if (measure.getClass().equals(Measure.class) &&
-              measure.getMetric().equals(metric) &&
+              measure.getMetricKey().equals(metric.getKey()) &&
               measure.getCharacteristic()==null) {
             return measure;
           }
@@ -165,14 +165,14 @@ public final class MeasuresFilters {
    * Used for internal optimizations.
    */
   public static abstract class MetricFilter<M> implements MeasuresFilter<M> {
-    private final Metric metric;
+    private final String metricKey;
 
     protected MetricFilter(Metric metric) {
-      this.metric = metric;
+      this.metricKey = metric.getKey();
     }
 
-    public Metric filterOnMetric() {
-      return metric;
+    public String filterOnMetricKey() {
+      return metricKey;
     }
   }
 
@@ -183,7 +183,7 @@ public final class MeasuresFilters {
 
     private boolean apply(Measure measure) {
       return measure instanceof RuleMeasure
-          && filterOnMetric().equals(measure.getMetric())
+          && filterOnMetricKey().equals(measure.getMetricKey())
           && doApply((RuleMeasure) measure);
     }
 

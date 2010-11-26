@@ -131,7 +131,7 @@ public class AsyncMeasuresDao extends BaseDao {
             "AND ams.snapshotDate>=:measureDate " +
             "ORDER BY ams.snapshotDate ASC ")
         .setParameter("projectId", asyncMeasure.getProjectId())
-        .setParameter("metricId", asyncMeasure.getMetric().getId())
+        .setParameter("metricId", asyncMeasure.getMetricId())
         .setParameter("measureDate", asyncMeasure.getMeasureDate());
     if (endDate != null) {
       query.setParameter("endDate", endDate);

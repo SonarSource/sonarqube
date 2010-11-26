@@ -19,14 +19,18 @@
  */
 package org.sonar.batch;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Resource;
-import org.sonar.batch.indexer.DefaultSonarIndex;
+import org.sonar.batch.index.DefaultIndex;
 import org.sonar.jpa.dao.MeasuresDao;
 
 import java.util.*;
@@ -35,22 +39,24 @@ import javax.persistence.Query;
 public class DefaultTimeMachine implements TimeMachine {
 
   private DatabaseSession session;
-  private DefaultSonarIndex index;
-  private MeasuresDao measuresDao;
+  private DefaultIndex index;
+  private MetricFinder metricFinder;
 
-  public DefaultTimeMachine(DatabaseSession session, DefaultSonarIndex index, MeasuresDao measuresDao) {
+  public DefaultTimeMachine(DatabaseSession session, DefaultIndex index, MetricFinder metricFinder) {
     this.session = session;
     this.index = index;
-    this.measuresDao = measuresDao;
+    this.metricFinder = metricFinder;
   }
 
   public List<Measure> getMeasures(TimeMachineQuery query) {
-    List<Object[]> objects = execute(query, true);
-    List<Measure> result = new ArrayList<Measure>();
+    Map<Integer, Metric> metricById = getMetricsById(query);
+
+    List<Object[]> objects = execute(query, true, metricById.keySet());
+    List<Measure> result = Lists.newArrayList();
 
     for (Object[] object : objects) {
       MeasureModel model = (MeasureModel) object[0];
-      Measure measure = model.toMeasure();
+      Measure measure = model.toMeasure(metricById.get(model.getMetricId()));
       measure.setDate((Date) object[1]);
       result.add(measure);
     }
@@ -58,10 +64,15 @@ public class DefaultTimeMachine implements TimeMachine {
   }
 
   public List<Object[]> getMeasuresFields(TimeMachineQuery query) {
-    return execute(query, false);
+    Map<Integer, Metric> metricById = getMetricsById(query);
+    List<Object[]> rows = execute(query, false, metricById.keySet());
+    for (Object[] fields : rows) {
+      fields[1]=metricById.get(fields[1]);
+    }
+    return rows;
   }
 
-  protected List execute(TimeMachineQuery query, boolean selectAllFields) {
+  protected List execute(TimeMachineQuery query, boolean selectAllFields, Set<Integer> metricIds) {
     Resource resource = query.getResource();
     if (resource!=null && resource.getId()==null) {
       resource = index.getResource(query.getResource());
@@ -71,21 +82,21 @@ public class DefaultTimeMachine implements TimeMachine {
     }
 
     StringBuilder sb = new StringBuilder();
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = Maps.newHashMap();
 
     if (selectAllFields) {
       sb.append("SELECT m, s.createdAt ");
     } else {
-      sb.append("SELECT s.createdAt, m.metric, m.value ");
+      sb.append("SELECT s.createdAt, m.metricId, m.value ");
     }
     sb.append(" FROM " + MeasureModel.class.getSimpleName() + " m, " + Snapshot.class.getSimpleName() + " s WHERE m.snapshotId=s.id AND s.resourceId=:resourceId AND s.status=:status AND m.characteristic IS NULL ");
     params.put("resourceId", resource.getId());
     params.put("status", Snapshot.STATUS_PROCESSED);
 
     sb.append(" AND m.rule IS NULL AND m.rulePriority IS NULL AND m.rulesCategoryId IS NULL ");
-    if (query.getMetrics() != null) {
-      sb.append(" AND m.metric IN (:metrics) ");
-      params.put("metrics", measuresDao.getMetrics(query.getMetrics()));
+    if (!metricIds.isEmpty()) {
+      sb.append(" AND m.metricId IN (:metricIds) ");
+      params.put("metricIds", metricIds);
     }
     if (query.isFromCurrentAnalysis()) {
       sb.append(" AND s.createdAt>=:from ");
@@ -115,5 +126,14 @@ public class DefaultTimeMachine implements TimeMachine {
       jpaQuery.setParameter(entry.getKey(), entry.getValue());
     }
     return jpaQuery.getResultList();
+  }
+
+  public Map<Integer, Metric> getMetricsById(TimeMachineQuery query) {
+    Collection<Metric> metrics = metricFinder.findAll(query.getMetricKeys());
+    Map<Integer, Metric> result = Maps.newHashMap();
+    for (Metric metric : metrics) {
+      result.put(metric.getId(), metric);
+    }
+    return result;
   }
 }

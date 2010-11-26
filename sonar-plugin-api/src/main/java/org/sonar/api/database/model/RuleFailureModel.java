@@ -38,9 +38,8 @@ public class RuleFailureModel extends BaseIdentifiable {
   @Column(name = "snapshot_id")
   protected Integer snapshotId;
 
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "rule_id")
-  private Rule rule;
+  @Column(name = "rule_id", updatable = false, nullable = false)
+  private Integer ruleId;
 
   @Column(name = "failure_level", updatable = false, nullable = false)
   @Enumerated(EnumType.ORDINAL)
@@ -54,15 +53,6 @@ public class RuleFailureModel extends BaseIdentifiable {
 
   @Column(name = "cost", updatable = true, nullable = true)
   private Double cost;
-
-  public RuleFailureModel() {
-  }
-
-  public RuleFailureModel(Rule rule, RulePriority priority) {
-    this.rule = rule;
-    this.priority = priority;
-  }
-
 
   public String getMessage() {
     return message;
@@ -80,12 +70,12 @@ public class RuleFailureModel extends BaseIdentifiable {
     this.priority = priority;
   }
 
-  public Rule getRule() {
-    return rule;
+  public Integer getRuleId() {
+    return ruleId;
   }
 
-  public void setRule(Rule rule) {
-    this.rule = rule;
+  public void setRuleId(Integer ruleId) {
+    this.ruleId = ruleId;
   }
 
   public Integer getLine() {

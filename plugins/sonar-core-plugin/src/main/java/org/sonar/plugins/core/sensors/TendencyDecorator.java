@@ -20,16 +20,17 @@
 package org.sonar.plugins.core.sensors;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.*;
-import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.jpa.dao.MeasuresDao;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,7 +93,7 @@ public class TendencyDecorator implements Decorator {
     if (shouldDecorateResource(resource)) {
       resetQuery(context.getProject(), resource);
       List<Object[]> fields = timeMachine.getMeasuresFields(query);
-      ArrayListMultimap<Metric, Double> valuesPerMetric = ArrayListMultimap.create();
+      ListMultimap<Metric, Double> valuesPerMetric = ArrayListMultimap.create();
       for (Object[] field : fields) {
         valuesPerMetric.put((Metric) field[1], (Double) field[2]);
       }

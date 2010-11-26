@@ -36,8 +36,6 @@ import java.util.Set;
 
 public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Dependency> {
 
-  public abstract Project getRootProject();
-
   public abstract Project getProject();
 
   public abstract Resource getResource(Resource resource);
@@ -58,13 +56,13 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
 
   public abstract void addViolation(Violation violation);
 
-  public abstract Measure saveMeasure(Resource resource, Measure measure);
+  public abstract Measure addMeasure(Resource resource, Measure measure);
 
-  public abstract Dependency saveDependency(Dependency dependency);
+  public abstract Dependency addDependency(Dependency dependency);
 
   public abstract Set<Dependency> getDependencies();
 
-  public abstract void saveLink(ProjectLink link);
+  public abstract void addLink(ProjectLink link);
 
   public abstract void deleteLink(String key);
 
@@ -72,7 +70,7 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
 
   public abstract void deleteEvent(Event event);
 
-  public abstract Event createEvent(Resource resource, String name, String description, String category, Date date);
+  public abstract Event addEvent(Resource resource, String name, String description, String category, Date date);
 
   public final Collection<Dependency> getOutgoingDependencies(Resource from) {
     return getOutgoingEdges(from);

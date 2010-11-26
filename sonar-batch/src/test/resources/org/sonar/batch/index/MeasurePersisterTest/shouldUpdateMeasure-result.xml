@@ -1,0 +1,30 @@
+<dataset>
+
+  <metrics id="1" name="ncloc" VAL_TYPE="INT" DESCRIPTION="[null]"  domain="[null]" short_name=""
+           enabled="true" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="false"/>
+
+  <metrics id="2" name="coverage" VAL_TYPE="INT" DESCRIPTION="[null]"  domain="[null]" short_name=""
+           enabled="true" worst_value="0" optimized_best_value="true" best_value="100" direction="1" hidden="false"/>
+  
+  <projects id="1001" scope="PRJ" qualifier="TRK" kee="foo" root_id="[null]"
+            name="project name" long_name="project name" description="project description"
+            enabled="true" language="java" copy_resource_id="[null]" profile_id="[null]"/>
+
+  <projects id="1002" scope="DIR" qualifier="PAC" kee="foo:org.foo" root_id="[null]"
+            name="org.foo" long_name="org.foo" description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]" profile_id="[null]"/>
+
+  <snapshots id="3001" project_id="1001" parent_snapshot_id="[null]" root_project_id="1001" root_snapshot_id="[null]"
+             scope="PRJ" qualifier="TRK" created_at="2010-12-23 00:00:00.00" version="[null]" path=""
+             status="U" islast="false" depth="0" />
+
+  <snapshots id="3002" project_id="1002" parent_snapshot_id="3001" root_project_id="1001" root_snapshot_id="3001"
+             scope="DIR" qualifier="PAC" created_at="2010-12-23 00:00:00.00" version="[null]" path="3001."
+             status="U" islast="false" depth="1" />
+
+  <project_measures id="1" VALUE="12.5" METRIC_ID="2" SNAPSHOT_ID="3001" alert_text="[null]" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]" rule_priority="[null]" characteristic_id="[null]" url="[null]"
+                    diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"/>
+
+</dataset>

@@ -30,31 +30,27 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
-import org.sonar.batch.indexer.Bucket;
-import org.sonar.batch.indexer.DefaultSonarIndex;
+import org.sonar.batch.index.DefaultIndex;
 
 import java.util.*;
 
 public class DefaultDecoratorContext implements DecoratorContext {
 
   private DatabaseSession session;
-  private DefaultSonarIndex index;
+  private DefaultIndex index;
   private Resource resource;
   private boolean readOnly = false;
 
   private List<DecoratorContext> childrenContexts;
-  private ViolationsDao violationsDao;
 
   public DefaultDecoratorContext(Resource resource,
-                                 DefaultSonarIndex index,
+                                 DefaultIndex index,
                                  List<DecoratorContext> childrenContexts,
-                                 DatabaseSession session,
-                                 ViolationsDao violationsDao) {
+                                 DatabaseSession session) {
     this.index = index;
     this.session = session;
     this.resource = resource;
     this.childrenContexts = childrenContexts;
-    this.violationsDao = violationsDao;
   }
 
   public DefaultDecoratorContext setReadOnly(boolean b) {
@@ -111,29 +107,24 @@ public class DefaultDecoratorContext implements DecoratorContext {
 
   public DecoratorContext saveMeasure(Measure measure) {
     checkReadOnly("saveMeasure");
-    index.saveMeasure(resource, measure);
+    index.addMeasure(resource, measure);
     return this;
   }
 
   public DecoratorContext saveMeasure(Metric metric, Double value) {
     checkReadOnly("saveMeasure");
-    index.saveMeasure(resource, new Measure(metric, value));
+    index.addMeasure(resource, new Measure(metric, value));
     return this;
   }
 
 
   public List<Violation> getViolations() {
-      Bucket bucket = index.getBucket(resource);
-      if (bucket != null && bucket.getSnapshotId() != null) {
-        return violationsDao.getViolations(resource, bucket.getSnapshotId());
-      }
-
-    return null;
+    return index.getViolations(resource);
   }
 
   public Dependency saveDependency(Dependency dependency) {
-    checkReadOnly("saveDependency");
-    return index.saveDependency(dependency);
+    checkReadOnly("addDependency");
+    return index.addDependency(dependency);
   }
 
   public Set<Dependency> getDependencies() {
@@ -157,7 +148,7 @@ public class DefaultDecoratorContext implements DecoratorContext {
   }
 
   public Event createEvent(String name, String description, String category, Date date) {
-    return index.createEvent(resource, name, description, category, date);
+    return index.addEvent(resource, name, description, category, date);
   }
 
   public void deleteEvent(Event event) {

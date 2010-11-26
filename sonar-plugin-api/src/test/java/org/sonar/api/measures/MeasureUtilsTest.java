@@ -34,8 +34,8 @@ public class MeasureUtilsTest {
   public void getValue() {
     assertThat(MeasureUtils.getValue(null, 3.0), is(3.0));
     assertThat(MeasureUtils.getValue(new Measure(), 3.0), is(3.0));
-    assertThat(MeasureUtils.getValue(new Measure(null, 2.0), 3.0), is(2.0));
-    assertThat(MeasureUtils.getValue(new Measure(null, "data"), 3.0), is(3.0));
+    assertThat(MeasureUtils.getValue(new Measure(CoreMetrics.LINES, 2.0), 3.0), is(2.0));
+    assertThat(MeasureUtils.getValue(new Measure(CoreMetrics.LINES, "data"), 3.0), is(3.0));
   }
 
   @Test

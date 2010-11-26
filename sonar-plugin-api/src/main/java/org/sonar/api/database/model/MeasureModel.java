@@ -58,10 +58,8 @@ public class MeasureModel implements Cloneable {
   @Column(name = "tendency", updatable = true, nullable = true)
   private Integer tendency;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "metric_id")
-  @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-  private Metric metric;
+  @Column(name = "metric_id", updatable = false, nullable = false)
+  private Integer metricId;
 
   @Column(name = "snapshot_id", updatable = true, nullable = true)
   private Integer snapshotId;
@@ -124,19 +122,19 @@ public class MeasureModel implements Cloneable {
   /**
    * Creates a measure based on a metric and a double value
    */
-  public MeasureModel(Metric metric, Double val) {
+  public MeasureModel(int metricId, Double val) {
     if (val.isNaN() || val.isInfinite()) {
-      throw new IllegalArgumentException("Measure value is NaN. Metric=" + metric);
+      throw new IllegalArgumentException("Measure value is NaN. Metric=" + metricId);
     }
-    this.metric = metric;
+    this.metricId = metricId;
     this.value = val;
   }
 
   /**
    * Creates a measure based on a metric and an alert level
    */
-  public MeasureModel(Metric metric, Metric.Level level) {
-    this.metric = metric;
+  public MeasureModel(int metricId, Metric.Level level) {
+    this.metricId = metricId;
     if (level != null) {
       this.textValue = level.toString();
     }
@@ -145,8 +143,8 @@ public class MeasureModel implements Cloneable {
   /**
    * Creates a measure based on a metric and a string value
    */
-  public MeasureModel(Metric metric, String val) {
-    this.metric = metric;
+  public MeasureModel(int metricId, String val) {
+    this.metricId = metricId;
     setData(val);
   }
 
@@ -238,18 +236,12 @@ public class MeasureModel implements Cloneable {
     return this;
   }
 
-  /**
-   * @return the measure metric
-   */
-  public Metric getMetric() {
-    return metric;
+  public Integer getMetricId() {
+    return metricId;
   }
 
-  /**
-   * Sets the measure metric
-   */
-  public void setMetric(Metric metric) {
-    this.metric = metric;
+  public void setMetricId(Integer metricId) {
+    this.metricId = metricId;
   }
 
   /**
@@ -375,7 +367,7 @@ public class MeasureModel implements Cloneable {
   /**
    * @return the measure data
    */
-  public String getData() {
+  public String getData(Metric metric) {
     if (this.textValue != null) {
       return this.textValue;
     }
@@ -457,7 +449,7 @@ public class MeasureModel implements Cloneable {
   public String toString() {
     return new ToStringBuilder(this).
         append("value", value).
-        append("metric", metric).
+        append("metricId", metricId).
         toString();
   }
 
@@ -519,7 +511,6 @@ public class MeasureModel implements Cloneable {
    * @return the current object
    */
   public MeasureModel save(DatabaseSession session) {
-    this.metric = session.reattach(Metric.class, metric.getId());
     MeasureData data = getMeasureData();
     setMeasureData(null);
     session.save(this);
@@ -545,7 +536,7 @@ public class MeasureModel implements Cloneable {
   @Override
   public Object clone() {
     MeasureModel clone = new MeasureModel();
-    clone.setMetric(getMetric());
+    clone.setMetricId(getMetricId());
     clone.setDescription(getDescription());
     clone.setTextValue(getTextValue());
     clone.setAlertStatus(getAlertStatus());
@@ -580,57 +571,20 @@ public class MeasureModel implements Cloneable {
         getUrl()!=null;
   }
 
-
-  /**
-   * Builds a MeasureModel from a Measure
-   */
-  public static MeasureModel build(Measure measure) {
-    return build(measure, new MeasureModel());
-  }
-
-  /**
-   * Merges a Measure into a MeasureModel
-   */
-  public static MeasureModel build(Measure measure, MeasureModel merge) {
-    merge.setMetric(measure.getMetric());
-    merge.setDescription(measure.getDescription());
-    merge.setData(measure.getData());
-    merge.setAlertStatus(measure.getAlertStatus());
-    merge.setAlertText(measure.getAlertText());
-    merge.setTendency(measure.getTendency());
-    merge.setDiffValue1(measure.getDiffValue1());
-    merge.setDiffValue2(measure.getDiffValue2());
-    merge.setDiffValue3(measure.getDiffValue3());
-    merge.setUrl(measure.getUrl());
-    merge.setCharacteristic(measure.getCharacteristic());
-    if (measure.getValue() != null) {
-      merge.setValue(measure.getValue().doubleValue());
-    } else {
-      merge.setValue(null);
-    }
-    if (measure instanceof RuleMeasure) {
-      RuleMeasure ruleMeasure = (RuleMeasure) measure;
-      merge.setRulesCategoryId(ruleMeasure.getRuleCategory());
-      merge.setRulePriority(ruleMeasure.getRulePriority());
-      merge.setRule(ruleMeasure.getRule());
-    }
-    return merge;
-  }
-
   /**
    * @return a measure from the current object
    */
-  public Measure toMeasure() {
+  public Measure toMeasure(Metric metric) {
     Measure measure;
     if (isRuleMeasure()) {
-      measure = new RuleMeasure(getMetric(), getRule(), getRulePriority(), getRulesCategoryId());
+      measure = new RuleMeasure(metric, getRule(), getRulePriority(), getRulesCategoryId());
     } else {
-      measure = new Measure(getMetric());
+      measure = new Measure(metric);
     }
     measure.setId(getId());
     measure.setDescription(getDescription());
     measure.setValue(getValue());
-    measure.setData(getData());
+    measure.setData(getData(metric));
     measure.setAlertStatus(getAlertStatus());
     measure.setAlertText(getAlertText());
     measure.setTendency(getTendency());
@@ -640,20 +594,5 @@ public class MeasureModel implements Cloneable {
     measure.setUrl(getUrl());
     measure.setCharacteristic(getCharacteristic());
     return measure;
-  }
-
-  /**
-   * Transforms a list of MeasureModel into a list of Measure
-   *
-   * @return an empty list if models is null
-   */
-  public static List<Measure> toMeasures(List<MeasureModel> models) {
-    List<Measure> result = new ArrayList<Measure>();
-    for (MeasureModel model : models) {
-      if (model != null) {
-        result.add(model.toMeasure());
-      }
-    }
-    return result;
   }
 }

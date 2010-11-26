@@ -65,8 +65,9 @@ class Snapshot < ActiveRecord::Base
     snapshots=snapshots[-5,5] if snapshots.size>=5
 
     snapshots.insert(0, Snapshot.find(:first,
-         :conditions => ["project_id=? AND status IN (?) AND scope=? AND qualifier=?", resource.id, STATUS_PROCESSED, resource.scope, resource.qualifier],
+         :conditions => ["project_id=? AND status=? AND scope=? AND qualifier=?", resource.id, STATUS_PROCESSED, resource.scope, resource.qualifier],
          :include => 'project', :order => 'snapshots.created_at ASC', :limit => 1))
+
     snapshots.compact.uniq
   end
 

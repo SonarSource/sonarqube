@@ -119,12 +119,8 @@ public class Violation {
   }
 
   /**
-   * Sets the violation priority
-   *
-   * @return the current object
-   * @deprecated since 2.3. The priority is set by the quality profile.
+   * For internal use only
    */
-  @Deprecated
   public Violation setPriority(RulePriority priority) {
     this.priority = priority;
     return this;

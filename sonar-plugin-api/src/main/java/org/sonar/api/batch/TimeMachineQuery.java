@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Resource;
@@ -39,6 +40,7 @@ public class TimeMachineQuery {
 
   private Resource resource;
   private List<Metric> metrics;
+  private List<String> metricKeys;
   private Date from;
   private Date to;
   private boolean onlyLastAnalysis = false;
@@ -89,6 +91,24 @@ public class TimeMachineQuery {
    */
   public TimeMachineQuery setMetrics(List<Metric> metrics) {
     this.metrics = metrics;
+    this.metricKeys = Lists.newLinkedList();
+    for (Metric metric : this.metrics) {
+      this.metricKeys.add(metric.getKey());
+    }
+    return this;
+  }
+
+  public TimeMachineQuery setMetricKeys(String... metricKeys) {
+    this.metricKeys = Arrays.asList(metricKeys);
+    return this;
+  }
+
+  public List<String> getMetricKeys() {
+    return metricKeys;
+  }
+
+  public TimeMachineQuery setMetricKeys(List<String> metricKeys) {
+    this.metricKeys = metricKeys;
     return this;
   }
 
@@ -100,6 +120,10 @@ public class TimeMachineQuery {
    */
   public TimeMachineQuery setMetrics(Metric... metrics) {
     this.metrics = Arrays.asList(metrics);
+    this.metricKeys = Lists.newLinkedList();
+    for (Metric metric : this.metrics) {
+      this.metricKeys.add(metric.getKey());
+    }
     return this;
   }
 

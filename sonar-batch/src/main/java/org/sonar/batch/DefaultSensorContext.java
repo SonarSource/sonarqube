@@ -29,7 +29,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
-import org.sonar.batch.indexer.DefaultSonarIndex;
+import org.sonar.batch.index.DefaultIndex;
 
 import java.util.Collection;
 import java.util.Date;
@@ -38,10 +38,10 @@ import java.util.Set;
 
 public class DefaultSensorContext implements SensorContext {
 
-  private DefaultSonarIndex index;
+  private DefaultIndex index;
   private Project project;
 
-  public DefaultSensorContext(DefaultSonarIndex index, Project project) {
+  public DefaultSensorContext(DefaultIndex index, Project project) {
     this.index = index;
     this.project = project;
   }
@@ -59,11 +59,11 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   public Measure saveMeasure(Measure measure) {
-    return index.saveMeasure(project, measure);
+    return index.addMeasure(project, measure);
   }
 
   public Measure saveMeasure(Metric metric, Double value) {
-    return index.saveMeasure(project, new Measure(metric, value));
+    return index.addMeasure(project, new Measure(metric, value));
   }
 
   public Measure getMeasure(Resource resource, Metric metric) {
@@ -87,11 +87,11 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   public Measure saveMeasure(Resource resource, Metric metric, Double value) {
-    return index.saveMeasure(resourceOrProject(resource), new Measure(metric, value));
+    return index.addMeasure(resourceOrProject(resource), new Measure(metric, value));
   }
 
   public Measure saveMeasure(Resource resource, Measure measure) {
-    return index.saveMeasure(resourceOrProject(resource), measure);
+    return index.addMeasure(resourceOrProject(resource), measure);
   }
 
   public void saveViolation(Violation violation) {
@@ -110,7 +110,7 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   public Dependency saveDependency(Dependency dependency) {
-    return index.saveDependency(dependency);
+    return index.addDependency(dependency);
   }
 
   public Set<Dependency> getDependencies() {
@@ -130,7 +130,7 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   public void saveLink(ProjectLink link) {
-    index.saveLink(link);
+    index.addLink(link);
   }
 
   public void deleteLink(String key) {
@@ -142,7 +142,7 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   public Event createEvent(Resource resource, String name, String description, String category, Date date) {
-    return index.createEvent(resource, name, description, category, date);
+    return index.addEvent(resource, name, description, category, date);
   }
 
   public void deleteEvent(Event event) {

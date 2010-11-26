@@ -41,6 +41,7 @@ public class Measure {
   public final static int DEFAULT_PRECISION = 1;
 
   private Long id; // for internal use
+  protected String metricKey;
   protected Metric metric;
   protected Double value;
   protected String data;
@@ -54,6 +55,10 @@ public class Measure {
   protected Characteristic characteristic;
   protected PersistenceMode persistenceMode = PersistenceMode.FULL;
 
+  public Measure(String metricKey) {
+    this.metricKey = metricKey;
+  }
+
   /**
    * Creates a measure with a metric
    *
@@ -61,6 +66,7 @@ public class Measure {
    */
   public Measure(Metric metric) {
     this.metric = metric;
+    this.metricKey = metric.getKey();
   }
 
   /**
@@ -71,6 +77,7 @@ public class Measure {
    */
   public Measure(Metric metric, Double value) {
     this.metric = metric;
+    this.metricKey = metric.getKey();
     setValue(value);
   }
 
@@ -83,6 +90,7 @@ public class Measure {
    */
   public Measure(Metric metric, Double value, int precision) {
     this.metric = metric;
+    this.metricKey = metric.getKey();
     setValue(value, precision);
   }
 
@@ -95,6 +103,7 @@ public class Measure {
    */
   public Measure(Metric metric, Double value, String data) {
     this.metric = metric;
+    this.metricKey = metric.getKey();
     setValue(value);
     setData(data);
   }
@@ -107,6 +116,7 @@ public class Measure {
    */
   public Measure(Metric metric, String data) {
     this.metric = metric;
+    this.metricKey = metric.getKey();
     setData(data);
   }
 
@@ -118,6 +128,7 @@ public class Measure {
    */
   public Measure(Metric metric, Metric.Level level) {
     this.metric = metric;
+    this.metricKey = metric.getKey();
     if (level != null) {
       this.data = level.toString();
     }
@@ -159,6 +170,10 @@ public class Measure {
     return metric;
   }
 
+  public String getMetricKey() {
+    return metricKey;
+  }
+
   /**
    * Set the underlying metric
    *
@@ -167,6 +182,7 @@ public class Measure {
    */
   public Measure setMetric(Metric metric) {
     this.metric = metric;
+    this.metricKey = metric.getKey();
     return this;
   }
 
@@ -474,28 +490,6 @@ public class Measure {
   }
 
 
-//  @Override
-//  public boolean equals(Object obj) {
-//    if (!(obj.getClass().equals(Measure.class))) {
-//      return false;
-//    }
-//    if (this == obj) {
-//      return true;
-//    }
-//    Measure rhs = (Measure) obj;
-//    return new EqualsBuilder()
-//        .append(metric, rhs.getMetric())
-//        .append(characteristic, rhs.getCharacteristic())
-//        .isEquals();
-//  }
-//
-//  @Override
-//  public int hashCode() {
-//    return (metric != null ? metric.hashCode() : 0);
-//  }
-//
-
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -506,7 +500,7 @@ public class Measure {
     }
 
     Measure measure = (Measure) o;
-    if (metric != null ? !metric.equals(measure.metric) : measure.metric != null) {
+    if (metricKey != null ? !metricKey.equals(measure.metricKey) : measure.metricKey != null) {
       return false;
     }
     if (characteristic != null ? !characteristic.equals(measure.characteristic) : measure.characteristic != null) {
@@ -517,7 +511,7 @@ public class Measure {
 
   @Override
   public int hashCode() {
-    int result = metric != null ? metric.hashCode() : 0;
+    int result = metricKey != null ? metricKey.hashCode() : 0;
     result = 31 * result + (characteristic != null ? characteristic.hashCode() : 0);
     return result;
   }
@@ -526,7 +520,7 @@ public class Measure {
   public String toString() {
     return new ToStringBuilder(this).
         append("id", id).
-        append("metric", metric).
+        append("metric", metricKey).
         append("value", value).
         append("data", data).
         append("description", description).

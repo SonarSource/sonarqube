@@ -19,18 +19,15 @@
  */
 package org.sonar.batch;
 
-import java.util.List;
-
 import org.picocontainer.Characteristics;
 import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.FileFilter;
 import org.sonar.api.batch.ProjectClasspath;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
+import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.DefaultProjectFileSystem;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -38,15 +35,14 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.indexer.DefaultSonarIndex;
+import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.index.ResourcePersister;
+import org.sonar.batch.phases.Phases;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.rule.DefaultRuleFinder;
-import org.sonar.jpa.dao.AsyncMeasuresDao;
-import org.sonar.jpa.dao.AsyncMeasuresService;
-import org.sonar.jpa.dao.DaoFacade;
-import org.sonar.jpa.dao.MeasuresDao;
-import org.sonar.jpa.dao.ProfilesDao;
-import org.sonar.jpa.dao.RulesDao;
+import org.sonar.jpa.dao.*;
+
+import java.util.List;
 
 public class ProjectBatch {
 
@@ -57,29 +53,22 @@ public class ProjectBatch {
     this.globalContainer = container;
   }
 
-  public void execute(DefaultSonarIndex index, Project project) {
+  public void execute(DefaultIndex index, Project project) {
     try {
       startChildContainer(index, project);
-      SensorContext sensorContext = batchContainer.getComponent(SensorContext.class);
-      for (Class<? extends CoreJob> clazz : CoreJobs.allJobs()) {
-        CoreJob job = getComponent(clazz);
-        job.execute(project, sensorContext);
-        commit();
-      }
+      batchContainer.getComponent(Phases.class).execute(project);
 
     } finally {
-      index.clear();
       stop();
     }
   }
 
-  public void startChildContainer(DefaultSonarIndex index, Project project) {
+  public void startChildContainer(DefaultIndex index, Project project) {
     batchContainer = globalContainer.makeChildContainer();
 
     batchContainer.as(Characteristics.CACHE).addComponent(project);
     batchContainer.as(Characteristics.CACHE).addComponent(project.getPom());
     batchContainer.as(Characteristics.CACHE).addComponent(ProjectClasspath.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(index.getBucket(project).getSnapshot());
     batchContainer.as(Characteristics.CACHE).addComponent(project.getConfiguration());
 
     // need to be registered after the Configuration
@@ -87,8 +76,11 @@ public class ProjectBatch {
 
     batchContainer.as(Characteristics.CACHE).addComponent(DaoFacade.class);
     batchContainer.as(Characteristics.CACHE).addComponent(RulesDao.class);
+
+    // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
+    batchContainer.as(Characteristics.CACHE).addComponent(globalContainer.getComponent(ResourcePersister.class).getSnapshot(project));
+
     batchContainer.as(Characteristics.CACHE).addComponent(org.sonar.api.database.daos.RulesDao.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(MeasuresDao.class);
     batchContainer.as(Characteristics.CACHE).addComponent(org.sonar.api.database.daos.MeasuresDao.class);
     batchContainer.as(Characteristics.CACHE).addComponent(ProfilesDao.class);
     batchContainer.as(Characteristics.CACHE).addComponent(AsyncMeasuresDao.class);
@@ -98,7 +90,6 @@ public class ProjectBatch {
     batchContainer.as(Characteristics.CACHE).addComponent(Languages.class);
     batchContainer.as(Characteristics.CACHE).addComponent(BatchExtensionDictionnary.class);
     batchContainer.as(Characteristics.CACHE).addComponent(DefaultTimeMachine.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(ViolationsDao.class);
     batchContainer.as(Characteristics.CACHE).addComponent(ViolationFilters.class);
     batchContainer.as(Characteristics.CACHE).addComponent(ResourceFilters.class);
     batchContainer.as(Characteristics.CACHE).addComponent(DefaultModelFinder.class);
@@ -113,21 +104,21 @@ public class ProjectBatch {
     prepareProject(project, index);
   }
 
-  private void prepareProject(Project project, DefaultSonarIndex index) {
+  private void prepareProject(Project project, DefaultIndex index) {
     Language language = getComponent(Languages.class).get(project.getLanguageKey());
     if (language == null) {
       throw new SonarException("Language with key '" + project.getLanguageKey() + "' not found");
     }
     project.setLanguage(language);
-    index.selectProject(project, getComponent(ResourceFilters.class), getComponent(ViolationFilters.class),
-        getComponent(MeasuresDao.class), getComponent(ViolationsDao.class));
+    index.setCurrentProject(project, getComponent(ResourceFilters.class), getComponent(ViolationFilters.class), getComponent(RulesProfile.class));
 
     List<FileFilter> fileFilters = batchContainer.getComponents(FileFilter.class);
     ((DefaultProjectFileSystem) project.getFileSystem()).addFileFilters(fileFilters);
   }
 
   private void loadCoreComponents(MutablePicoContainer container) {
-    for (Class<?> clazz : CoreJobs.allJobs()) {
+    container.as(Characteristics.CACHE).addComponent(Phases.class);
+    for (Class clazz : Phases.getPhaseClasses()) {
       container.as(Characteristics.CACHE).addComponent(clazz);
     }
     for (Metric metric : CoreMetrics.getMetrics()) {
@@ -142,7 +133,6 @@ public class ProjectBatch {
 
   private void stop() {
     if (batchContainer != null) {
-      commit();
       try {
         globalContainer.removeChildContainer(batchContainer);
         batchContainer.stop();
@@ -153,9 +143,6 @@ public class ProjectBatch {
     }
   }
 
-  public void commit() {
-    getComponent(DatabaseSession.class).commit();
-  }
 
   public <T> T getComponent(Class<T> clazz) {
     if (batchContainer != null) {

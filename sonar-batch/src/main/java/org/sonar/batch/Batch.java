@@ -29,8 +29,9 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.ServerHttpClient;
-import org.sonar.batch.indexer.DefaultSonarIndex;
+import org.sonar.batch.index.*;
 import org.sonar.core.plugin.JpaPluginDao;
+import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.session.DatabaseSessionProvider;
 import org.sonar.jpa.session.DriverDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
@@ -70,16 +71,26 @@ public class Batch {
     batchContainer.as(Characteristics.CACHE).addComponent(ServerMetadata.class);
     batchContainer.as(Characteristics.CACHE).addComponent(ProjectTree.class);
     batchContainer.as(Characteristics.CACHE).addComponent(DefaultResourceCreationLock.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(DefaultSonarIndex.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(DefaultMetricFinder.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(DefaultIndex.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(DefaultPersistenceManager.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(DependencyPersister.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(EventPersister.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(LinkPersister.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(MeasurePersister.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(ResourcePersister.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(SourcePersister.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(ViolationPersister.class);
     batchContainer.as(Characteristics.CACHE).addComponent(JpaPluginDao.class);
     batchContainer.as(Characteristics.CACHE).addComponent(BatchPluginRepository.class);
     batchContainer.as(Characteristics.CACHE).addComponent(Plugins.class);
     batchContainer.as(Characteristics.CACHE).addComponent(ServerHttpClient.class);
     batchContainer.as(Characteristics.CACHE).addComponent(HttpDownloader.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(MeasuresDao.class);
     batchContainer.start();
 
     ProjectTree projectTree = batchContainer.getComponent(ProjectTree.class);
-    DefaultSonarIndex index = batchContainer.getComponent(DefaultSonarIndex.class);
+    DefaultIndex index = batchContainer.getComponent(DefaultIndex.class);
     analyzeProject(batchContainer, index, projectTree.getRootProject());
 
     // batchContainer is stopped by its parent
@@ -106,7 +117,7 @@ public class Batch {
     container.as(Characteristics.CACHE).addComponent(component);
   }
 
-  private void analyzeProject(MutablePicoContainer container, DefaultSonarIndex index, Project project) {
+  private void analyzeProject(MutablePicoContainer container, DefaultIndex index, Project project) {
     for (Project module : project.getModules()) {
       analyzeProject(container, index, module);
     }

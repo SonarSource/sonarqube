@@ -26,6 +26,7 @@ import org.junit.internal.matchers.IsCollectionContaining;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
@@ -53,11 +54,12 @@ public class DatabaseSessionTest extends AbstractDbUnitTestCase {
 
     Snapshot snapshot = new Snapshot(project1, true, "", new Date(1));
     getSession().save(project1, snapshot);
+    getSession().save(CoreMetrics.CLASSES);
     getSession().commit();
 
-    Metric metric = new MeasuresDao(getSession()).getMetric("classes_count");
+    Metric metric = new MeasuresDao(getSession()).getMetric(CoreMetrics.CLASSES_KEY);
     for (int i = 0; i < NB_INSERTS; i++) {
-      MeasureModel pm = new MeasureModel(metric, 1.0).setSnapshotId(snapshot.getId());
+      MeasureModel pm = new MeasureModel(metric.getId(), 1.0).setSnapshotId(snapshot.getId());
       getSession().save(pm);
     }
 

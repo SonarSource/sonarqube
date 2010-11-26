@@ -19,12 +19,11 @@
  */
 package org.sonar.api.measures;
 
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.JavaFile;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.Assert.assertNull;
@@ -41,12 +40,13 @@ public class AverageComplexityFormulaTest {
   @Before
   public void before() {
     context = mock(FormulaContext.class);
+    when(context.getTargetMetric()).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY);
     data = mock(FormulaData.class);
   }
 
   @Test
   public void testAverageCalculation() {
-    List<FormulaData> childrenData = new ArrayList<FormulaData>();
+    List<FormulaData> childrenData = Lists.newArrayList();
     FormulaData data1 = mock(FormulaData.class);
     childrenData.add(data1);
     when(data1.getMeasure(CoreMetrics.FUNCTIONS)).thenReturn(new Measure(CoreMetrics.FUNCTIONS, 43.0));
@@ -66,7 +66,7 @@ public class AverageComplexityFormulaTest {
 
   @Test
   public void testWhenNoChildrenMesaures() {
-    List<FormulaData> childrenData = new ArrayList<FormulaData>();
+    List<FormulaData> childrenData = Lists.newArrayList();
     when(data.getChildren()).thenReturn(childrenData);
     Measure measure = new AverageComplexityFormula(CoreMetrics.FUNCTIONS).calculate(data, context);
     assertNull(measure);
@@ -74,7 +74,7 @@ public class AverageComplexityFormulaTest {
 
   @Test
   public void testWhenNoComplexityMesaures() {
-    List<FormulaData> childrenData = new ArrayList<FormulaData>();
+    List<FormulaData> childrenData = Lists.newArrayList();
     FormulaData data1 = mock(FormulaData.class);
     childrenData.add(data1);
     when(data1.getMeasure(CoreMetrics.FUNCTIONS)).thenReturn(new Measure(CoreMetrics.FUNCTIONS, 43.0));
@@ -87,7 +87,7 @@ public class AverageComplexityFormulaTest {
 
   @Test
   public void testWhenNoByMetricMesaures() {
-    List<FormulaData> childrenData = new ArrayList<FormulaData>();
+    List<FormulaData> childrenData = Lists.newArrayList();
     FormulaData data1 = mock(FormulaData.class);
     childrenData.add(data1);
     when(data1.getMeasure(CoreMetrics.COMPLEXITY)).thenReturn(new Measure(CoreMetrics.COMPLEXITY, 43.0));
@@ -100,7 +100,7 @@ public class AverageComplexityFormulaTest {
 
   @Test
   public void testWhenMixedMetrics() {
-    List<FormulaData> childrenData = new ArrayList<FormulaData>();
+    List<FormulaData> childrenData = Lists.newArrayList();
     FormulaData data1 = mock(FormulaData.class);
     childrenData.add(data1);
     when(data1.getMeasure(CoreMetrics.FUNCTIONS)).thenReturn(new Measure(CoreMetrics.FUNCTIONS, 43.0));

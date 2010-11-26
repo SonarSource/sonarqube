@@ -90,7 +90,7 @@ public class AsyncMeasuresService {
     AsyncMeasuresDao dao = new AsyncMeasuresDao(session);
     MeasureModel measure = dao.getAsyncMeasure(id);
     AsyncMeasureSnapshot pastAsyncMeasureSnapshot = dao.getLastAsyncMeasureSnapshot(measure.getProjectId(),
-        measure.getMetric().getId(), measure.getMeasureDate());
+        measure.getMetricId(), measure.getMeasureDate());
     dao.deleteAsyncMeasure(measure);
     if (pastAsyncMeasureSnapshot != null) {
       MeasureModel pastAsyncMeasure = dao.getAsyncMeasure(pastAsyncMeasureSnapshot.getMeasureId());
@@ -102,7 +102,7 @@ public class AsyncMeasuresService {
 
   private void registerMeasure(MeasureModel measure, AsyncMeasuresDao dao) {
     AsyncMeasureSnapshot nextAsyncMeasureSnapshot = dao.getNextAsyncMeasureSnapshot(
-        measure.getProjectId(), measure.getMetric().getId(), measure.getMeasureDate());
+        measure.getProjectId(), measure.getMetricId(), measure.getMeasureDate());
     Date dateNextAsyncMeasure = (nextAsyncMeasureSnapshot != null) ? nextAsyncMeasureSnapshot.getMeasureDate() : null;
 
     List<AsyncMeasureSnapshot> nextAsyncMeasureSnapshots = dao.getNextAsyncMeasureSnapshotsUntilDate(
@@ -110,7 +110,7 @@ public class AsyncMeasuresService {
     if (!nextAsyncMeasureSnapshots.isEmpty()) {
       for (AsyncMeasureSnapshot asyncMeasureSnapshot : nextAsyncMeasureSnapshots) {
         dao.createAsyncMeasureSnapshot(measure.getId(), asyncMeasureSnapshot.getSnapshotId(), measure.getMeasureDate(),
-            asyncMeasureSnapshot.getSnapshotDate(), measure.getMetric().getId(), measure.getProjectId());
+            asyncMeasureSnapshot.getSnapshotDate(), measure.getMetricId(), measure.getProjectId());
         dao.removeSnapshotFromAsyncMeasureSnapshot(asyncMeasureSnapshot);
       }
     } else {
@@ -118,11 +118,11 @@ public class AsyncMeasuresService {
       if (!nextSnapshotsUntilDate.isEmpty()) {
         for (Snapshot nextSnapshot : nextSnapshotsUntilDate) {
           dao.createAsyncMeasureSnapshot(measure.getId(), nextSnapshot.getId(), measure.getMeasureDate(),
-              nextSnapshot.getCreatedAt(), measure.getMetric().getId(), measure.getProjectId());
+              nextSnapshot.getCreatedAt(), measure.getMetricId(), measure.getProjectId());
         }
       } else {
         dao.createAsyncMeasureSnapshot(measure.getId(), null, measure.getMeasureDate(),
-            null, measure.getMetric().getId(), measure.getProjectId());
+            null, measure.getMetricId(), measure.getProjectId());
       }
     }
   }
