@@ -30,6 +30,7 @@ import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
+import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 
 import com.google.common.collect.Lists;
@@ -128,8 +129,7 @@ public class ClassLoadersCollection {
    * Exports specified packages from given ClassRealm to all others.
    */
   private void export(ClassRealm realm, String... packages) {
-    // Logs.INFO.debug("Exporting " + Arrays.toString(packages) + " from " + realm.getId());
-    System.out.println("Exporting " + Arrays.toString(packages) + " from " + realm.getId());
+    Logs.INFO.debug("Exporting " + Arrays.toString(packages) + " from " + realm.getId());
     for (Object o : world.getRealms()) {
       ClassRealm dep = (ClassRealm) o;
       if ( !StringUtils.equals(dep.getId(), realm.getId())) {
