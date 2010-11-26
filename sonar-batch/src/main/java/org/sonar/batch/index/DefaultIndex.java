@@ -136,8 +136,8 @@ public final class DefaultIndex extends SonarIndex {
    * Does nothing if the resource is already registered.
    */
   public Resource addResource(Resource resource) {
-    getOrAddBucket(resource);
-    return resource;
+    Bucket bucket = getOrAddBucket(resource);
+    return bucket != null ? bucket.getResource() : null;
   }
 
   public Resource getResource(Resource resource) {
