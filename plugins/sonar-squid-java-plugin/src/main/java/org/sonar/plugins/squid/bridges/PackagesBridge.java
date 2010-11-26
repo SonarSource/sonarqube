@@ -19,11 +19,9 @@
  */
 package org.sonar.plugins.squid.bridges;
 
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.squid.Squid;
 import org.sonar.squid.api.SourcePackage;
 import org.sonar.squid.api.SourceProject;
 import org.sonar.squid.measures.Metric;

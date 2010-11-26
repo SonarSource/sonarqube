@@ -22,7 +22,7 @@ package org.sonar.java.signature;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ParameterSignatureScanner {
+public final class ParameterSignatureScanner {
 
   private final String signature;
   private int index = 0;

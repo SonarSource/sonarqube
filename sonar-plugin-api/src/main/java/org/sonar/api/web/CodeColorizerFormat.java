@@ -19,16 +19,14 @@
  */
 package org.sonar.api.web;
 
-import org.sonar.api.ServerExtension;
-import org.sonar.channel.Channel;
-import org.sonar.colorizer.HtmlCodeBuilder;
-import org.sonar.colorizer.Tokenizer;
-
 import java.util.List;
+
+import org.sonar.api.ServerExtension;
+import org.sonar.colorizer.Tokenizer;
 
 /**
  * Extend the library sonar-colorizer to support new languages. By default only Java sources are colorized in Sonar.
- *
+ * 
  * @since 1.12
  */
 public abstract class CodeColorizerFormat implements ServerExtension {
@@ -48,7 +46,8 @@ public abstract class CodeColorizerFormat implements ServerExtension {
 
   /**
    * sonar-colorizer tokenizers for HTML output.
-   * @return a not null list (empty if no tokenizers) 
+   * 
+   * @return a not null list (empty if no tokenizers)
    */
   public abstract List<Tokenizer> getTokenizers();
 
@@ -57,7 +56,7 @@ public abstract class CodeColorizerFormat implements ServerExtension {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof CodeColorizerFormat)) {
+    if ( !(o instanceof CodeColorizerFormat)) {
       return false;
     }
 

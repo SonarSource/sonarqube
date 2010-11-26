@@ -35,7 +35,6 @@ import org.sonar.api.utils.dag.DirectAcyclicGraph;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;

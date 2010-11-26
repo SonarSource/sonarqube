@@ -26,20 +26,18 @@ import java.lang.annotation.Target;
 
 /**
  * The Page is displayed only in listed sections. This annotation is ignored on Widgets.
- *
+ * 
  * @since 1.11
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface NavigationSection {
 
-  public static final String HOME = "home";
-  public static final String RESOURCE = "resource";
-  public static final String RESOURCE_TAB = "resource_tab";
-  public static final String CONFIGURATION = "configuration";
+  static final String HOME = "home";
+  static final String RESOURCE = "resource";
+  static final String RESOURCE_TAB = "resource_tab";
+  static final String CONFIGURATION = "configuration";
 
-
-  String[] value() default {HOME};
+  String[] value() default { HOME };
 
 }
-

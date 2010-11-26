@@ -21,11 +21,10 @@ package org.sonar.api.resources;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.sonar.api.utils.WildcardPattern;
 
 /**
  * A class that represents a Java package in Sonar
- *
+ * 
  * @since 1.10
  */
 public class JavaPackage extends Resource {
@@ -115,8 +114,8 @@ public class JavaPackage extends Resource {
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-      .append("id", getId())  
-      .append("key", getKey())
-      .toString();
+        .append("id", getId())
+        .append("key", getKey())
+        .toString();
   }
 }

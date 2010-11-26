@@ -26,6 +26,6 @@ import org.sonar.api.ServerExtension;
  */
 public interface ServerStartHandler extends ServerExtension {
 
-  public void onServerStart(Server server);
-  
+  void onServerStart(Server server);
+
 }

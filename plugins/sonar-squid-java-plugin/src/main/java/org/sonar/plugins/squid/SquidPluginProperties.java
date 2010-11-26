@@ -19,12 +19,15 @@
  */
 package org.sonar.plugins.squid;
 
-public class SquidPluginProperties {
+public final class SquidPluginProperties {
 
   public static final String SQUID_ANALYSE_ACCESSORS_PROPERTY = "sonar.squid.analyse.property.accessors";
   public static final boolean SQUID_ANALYSE_ACCESSORS_DEFAULT_VALUE = true;
 
   public static final String FIELDS_TO_EXCLUDE_FROM_LCOM4_COMPUTATION = "sonar.squid.fieldsToExcludeFromLcom4Computation";
   public static final String FIELDS_TO_EXCLUDE_FROM_LCOM4_COMPUTATION_DEFAULT_VALUE = "LOG, logger";
+
+  private SquidPluginProperties() {
+  }
 
 }

@@ -19,13 +19,12 @@
  */
 package org.sonar.java.signature;
 
-public class ParameterSignaturePrinter {
+public final class ParameterSignaturePrinter {
 
   private static final char ARRAY = '[';
 
   public static String print(Parameter parameter) {
     StringBuilder signature = new StringBuilder();
-    ;
     if (parameter.isArray()) {
       signature.append(ARRAY);
     }
@@ -35,5 +34,8 @@ public class ParameterSignaturePrinter {
       signature.append(';');
     }
     return signature.toString();
+  }
+
+  private ParameterSignaturePrinter() {
   }
 }

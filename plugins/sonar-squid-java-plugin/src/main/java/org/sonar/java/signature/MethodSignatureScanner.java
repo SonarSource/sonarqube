@@ -21,7 +21,7 @@ package org.sonar.java.signature;
 
 import java.util.List;
 
-public class MethodSignatureScanner {
+public final class MethodSignatureScanner {
 
   private final String bytecodeMethodSignature;
 
@@ -43,4 +43,5 @@ public class MethodSignatureScanner {
         rightBracketIndex));
     return new MethodSignature(methodName, returnType, argumentTypes);
   }
+
 }

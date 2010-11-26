@@ -26,6 +26,6 @@ import org.sonar.api.ServerExtension;
  */
 public interface ServerStopHandler extends ServerExtension {
 
-  public void onServerStop(Server server);
-  
+  void onServerStop(Server server);
+
 }

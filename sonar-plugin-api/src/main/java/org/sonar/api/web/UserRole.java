@@ -34,11 +34,12 @@ public @interface UserRole {
   /**
    * @deprecated use the constant USER since 1.12.
    */
-  @Deprecated public static final String VIEWER = "user";
+  @Deprecated
+  static final String VIEWER = "user";
 
-  public static final String USER = "user";
-  public static final String ADMIN = "admin";
-  public static final String CODEVIEWER = "codeviewer";
+  static final String USER = "user";
+  static final String ADMIN = "admin";
+  static final String CODEVIEWER = "codeviewer";
 
   String[] value() default {};
 

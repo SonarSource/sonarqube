@@ -22,7 +22,6 @@ package org.sonar.java.ast.visitor;
 import java.util.Arrays;
 import java.util.List;
 
-import org.sonar.java.ast.check.UndocumentedApiCheck;
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.measures.Metric;
 
@@ -91,14 +90,14 @@ public class PublicApiVisitor extends JavaAstVisitor {
   }
 
   /**
-   * Also used by {@link UndocumentedApiCheck}
+   * Also used by {@link org.sonar.java.ast.check.UndocumentedApiCheck}
    */
   public static boolean isDocumentedApi(DetailAST ast, FileContents fileContents) {
     return fileContents.getJavadocBefore(ast.getLineNo()) != null;
   }
 
   /**
-   * Also used by {@link UndocumentedApiCheck}
+   * Also used by {@link org.sonar.java.ast.check.UndocumentedApiCheck}
    */
   public static boolean isPublicApi(DetailAST ast) {
     return isPublic(ast) && !isStaticFinalVariable(ast) && !isMethodWithOverrideAnnotation(ast) && !isEmptyDefaultConstructor(ast);
