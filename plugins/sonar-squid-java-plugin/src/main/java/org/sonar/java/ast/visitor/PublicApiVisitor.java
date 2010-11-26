@@ -19,19 +19,18 @@
  */
 package org.sonar.java.ast.visitor;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.sonar.java.ast.check.UndocumentedApiCheck;
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.measures.Metric;
 
-import antlr.collections.AST;
-
+import com.puppycrawl.tools.checkstyle.api.AnnotationUtility;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.FileContents;
 import com.puppycrawl.tools.checkstyle.api.Scope;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class PublicApiVisitor extends JavaAstVisitor {
 
@@ -69,19 +68,10 @@ public class PublicApiVisitor extends JavaAstVisitor {
 
   private static boolean isMethodWithOverrideAnnotation(DetailAST ast) {
     if (isMethod(ast)) {
-      DetailAST modifier = ast.findFirstToken(TokenTypes.MODIFIERS);
-      for (AST annotation = modifier.getFirstChild(); annotation != null; annotation = annotation.getNextSibling()) {
-        if (isAnnotation(annotation) && ((DetailAST) annotation).findFirstToken(TokenTypes.IDENT) != null) {
-          String name = ((DetailAST) annotation).findFirstToken(TokenTypes.IDENT).getText();
-          return OVERRIDE_ANNOTATION_KEYWORD.equals(name);
-        }
-      }
+      return AnnotationUtility.containsAnnotation(ast, OVERRIDE_ANNOTATION_KEYWORD)
+          || AnnotationUtility.containsAnnotation(ast, "java.lang." + OVERRIDE_ANNOTATION_KEYWORD);
     }
     return false;
-  }
-
-  private static boolean isAnnotation(AST annotation) {
-    return annotation.getType() == TokenTypes.ANNOTATION;
   }
 
   private static boolean isMethod(DetailAST ast) {

@@ -12,7 +12,7 @@ public class MethodsWithOverrideAnnotation {
     
   }
 
-  @Override
+  @java.lang.Override
   public void doSomethingElse(){
     
   }
