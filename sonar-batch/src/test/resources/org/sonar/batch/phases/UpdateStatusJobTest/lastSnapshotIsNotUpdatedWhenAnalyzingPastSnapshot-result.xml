@@ -1,0 +1,173 @@
+<dataset>
+
+  <!-- last snapshot : is always last, and not purged -->
+  <snapshots depth="[null]" id="1" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" version="[null]"
+             project_id="1"
+              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="true"
+             path="[null]"/>
+
+  <snapshots depth="[null]" id="2" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" version="[null]"
+             project_id="2"
+              parent_snapshot_id="1" root_project_id="[null]" root_snapshot_id="1" status="P" islast="true"
+             path="[null]"/>
+
+  <snapshots depth="[null]" id="3" scope="DIR" qualifier="PAC" created_at="2008-12-02 13:58:00.00" version="[null]"
+             project_id="3"
+              parent_snapshot_id="2" root_project_id="[null]" root_snapshot_id="1" status="P" islast="true"
+             path="[null]"/>
+
+  <snapshots depth="[null]" id="4" scope="FIL" qualifier="CLA" created_at="2008-12-02 13:58:00.00" version="[null]"
+             project_id="4"
+              parent_snapshot_id="3" root_project_id="[null]" root_snapshot_id="1" status="P" islast="true"
+             path="[null]"/>
+
+  <snapshots depth="[null]" id="5" scope="FIL" qualifier="CLA" created_at="2008-12-02 13:58:00.00" version="[null]"
+             project_id="5"
+              parent_snapshot_id="3" root_project_id="[null]" root_snapshot_id="1" status="P" islast="true"
+             path="[null]"/>
+
+
+  <!-- the snapshot to process : not set as last-->
+  <snapshots depth="[null]" id="6" scope="PRJ" qualifier="TRK" created_at="2005-10-01 00:00:00.00" version="[null]"
+             project_id="1"
+              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"
+             path="[null]"/>
+
+  <snapshots depth="[null]" id="7" scope="PRJ" qualifier="TRK" created_at="2005-10-01 00:00:00.00" version="[null]"
+             project_id="2"
+              parent_snapshot_id="6" root_project_id="[null]" root_snapshot_id="6" status="P" islast="false"
+             path="[null]"/>
+
+  <snapshots depth="[null]" id="8" scope="DIR" qualifier="PAC" created_at="2005-10-01 00:00:00.00" version="[null]"
+             project_id="3"
+              parent_snapshot_id="7" root_project_id="[null]" root_snapshot_id="6" status="P" islast="false"
+             path="[null]"/>
+
+  <snapshots depth="[null]" id="9" scope="FIL" qualifier="CLA" created_at="2005-10-01 00:00:00.00" version="[null]"
+             project_id="4"
+              parent_snapshot_id="8" root_project_id="[null]" root_snapshot_id="6" status="P" islast="false"
+             path="[null]"/>
+
+  <snapshots depth="[null]" id="10" scope="FIL" qualifier="CLA" created_at="2005-10-01 00:00:00.00" version="[null]"
+             project_id="5"
+              parent_snapshot_id="9" root_project_id="[null]" root_snapshot_id="6" status="P" islast="false"
+             path="[null]"/>
+
+
+  <SNAPSHOT_SOURCES ID="1" SNAPSHOT_ID="4" DATA="source code of Class1"/>
+  <SNAPSHOT_SOURCES ID="2" SNAPSHOT_ID="5" DATA="source code of Class2"/>
+
+  <RULE_FAILURES ID="1" SNAPSHOT_ID="4" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg1" COST="[null]"/>
+  <RULE_FAILURES ID="2" SNAPSHOT_ID="4" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg2" COST="[null]"/>
+  <RULE_FAILURES ID="3" SNAPSHOT_ID="4" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg3" COST="[null]"/>
+  <RULE_FAILURES ID="4" SNAPSHOT_ID="4" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg4" COST="[null]"/>
+
+  <RULE_FAILURES ID="5" SNAPSHOT_ID="5" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg5" COST="[null]"/>
+  <RULE_FAILURES ID="6" SNAPSHOT_ID="5" RULE_ID="1" FAILURE_LEVEL="2" MESSAGE="msg6" COST="[null]"/>
+
+  <!-- measures at project level -->
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="1" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="1" RULES_CATEGORY_ID="1"
+                    RULE_ID="1"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="2" VALUE="20.0" METRIC_ID="2" SNAPSHOT_ID="1" RULES_CATEGORY_ID="1"
+                    RULE_ID="[null]"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="3" VALUE="30.0" METRIC_ID="3" SNAPSHOT_ID="1" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+
+  <!-- measures at module level -->
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="4" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="2" RULES_CATEGORY_ID="1"
+                    RULE_ID="1"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="5" VALUE="20.0" METRIC_ID="2" SNAPSHOT_ID="2" RULES_CATEGORY_ID="1"
+                    RULE_ID="[null]"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="6" VALUE="30.0" METRIC_ID="3" SNAPSHOT_ID="2" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+
+  <!-- measures at package level -->
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="7" VALUE="40.0" METRIC_ID="1" SNAPSHOT_ID="3" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="1"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="8" VALUE="50.0" METRIC_ID="2" SNAPSHOT_ID="3" RULES_CATEGORY_ID="1"
+                    RULE_ID="[null]"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="9" VALUE="60.0" METRIC_ID="3" SNAPSHOT_ID="3" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="10" VALUE="60.0" METRIC_ID="3" SNAPSHOT_ID="3" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+
+  <!-- measures at class level -->
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="11" VALUE="40.0" METRIC_ID="1" SNAPSHOT_ID="4" RULES_CATEGORY_ID="1"
+                    RULE_ID="1"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="12" VALUE="50.0" METRIC_ID="2" SNAPSHOT_ID="4" RULES_CATEGORY_ID="1"
+                    RULE_ID="[null]"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="13" VALUE="60.0" METRIC_ID="3" SNAPSHOT_ID="4" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="14" VALUE="40.0" METRIC_ID="1" SNAPSHOT_ID="5" RULES_CATEGORY_ID="1"
+                    RULE_ID="1"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="15" VALUE="50.0" METRIC_ID="2" SNAPSHOT_ID="5" RULES_CATEGORY_ID="1"
+                    RULE_ID="[null]"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+  <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    rule_priority="[null]"
+                    alert_text="[null]" ID="16" VALUE="60.0" METRIC_ID="3" SNAPSHOT_ID="5" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]"/>
+
+</dataset>

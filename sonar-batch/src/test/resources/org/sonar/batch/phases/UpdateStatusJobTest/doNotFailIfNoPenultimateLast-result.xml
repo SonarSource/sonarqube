@@ -1,0 +1,22 @@
+<dataset>
+  <!-- currently processing snapshots -->
+  <snapshots depth="[null]" id="5" scope="PRJ" qualifier="TRK" created_at="2008-12-04 13:58:00.00" version="[null]"
+             project_id="1"
+              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="true"
+             path="[null]"/>
+
+  <snapshots depth="[null]" id="6" scope="PRJ" qualifier="TRK" created_at="2008-12-04 13:58:00.00" version="[null]"
+             project_id="2"
+              parent_snapshot_id="5" root_project_id="[null]" root_snapshot_id="5" status="P" islast="true"
+             path="[null]"/>
+
+  <snapshots depth="[null]" id="7" scope="DIR" qualifier="PAC" created_at="2008-12-04 13:58:00.00" version="[null]"
+             project_id="3"
+              parent_snapshot_id="6" root_project_id="[null]" root_snapshot_id="5" status="P" islast="true"
+             path="[null]"/>
+
+  <snapshots depth="[null]" id="8" scope="FIL" qualifier="CLA" created_at="2008-12-04 13:58:00.00" version="[null]"
+             project_id="4"
+              parent_snapshot_id="7" root_project_id="[null]" root_snapshot_id="5" status="P" islast="true"
+             path="[null]"/>
+</dataset>

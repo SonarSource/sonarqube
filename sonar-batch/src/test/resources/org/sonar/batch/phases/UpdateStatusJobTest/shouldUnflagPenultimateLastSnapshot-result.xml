@@ -1,0 +1,55 @@
+<dataset>
+
+  <!-- previous last snapshots -->
+  <snapshots depth="[null]" id="1" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" version="[null]"
+             project_id="1"
+              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"
+             path="[null]"/>
+
+  <snapshots depth="[null]" id="2" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" version="[null]"
+             project_id="2"
+              parent_snapshot_id="1" root_project_id="[null]" root_snapshot_id="1" status="P" islast="false"
+             path="[null]"/>
+
+  <snapshots depth="[null]" id="3" scope="DIR" qualifier="PAC" created_at="2008-12-02 13:58:00.00" version="[null]"
+             project_id="3"
+              parent_snapshot_id="2" root_project_id="[null]" root_snapshot_id="1" status="P" islast="false"
+             path="[null]"/>
+
+  <snapshots depth="[null]" id="4" scope="FIL" qualifier="CLA" created_at="2008-12-02 13:58:00.00" version="[null]"
+             project_id="4"
+              parent_snapshot_id="3" root_project_id="[null]" root_snapshot_id="1" status="P" islast="false"
+             path="[null]"/>
+
+  <!-- already purged snapshot -->
+  <snapshots depth="[null]" id="9" scope="PRJ" qualifier="TRK" created_at="2008-10-02 13:58:00.00" version="[null]"
+             project_id="1"
+              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"
+             path="[null]"/>
+
+  <snapshots depth="[null]" id="10" scope="PRJ" qualifier="TRK" created_at="2008-10-02 13:58:00.00" version="[null]"
+             project_id="2"
+              parent_snapshot_id="9" root_project_id="[null]" root_snapshot_id="9" status="P" islast="false"
+             path="[null]"/>
+
+  <!-- currently processing snapshots -->
+  <snapshots depth="[null]" id="11" scope="PRJ" qualifier="TRK" created_at="2008-12-04 13:58:00.00" version="[null]"
+             project_id="1"
+              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="true"
+             path="[null]"/>
+
+  <snapshots depth="[null]" id="12" scope="PRJ" qualifier="TRK" created_at="2008-12-04 13:58:00.00" version="[null]"
+             project_id="2"
+              parent_snapshot_id="11" root_project_id="[null]" root_snapshot_id="11" status="P" islast="true"
+             path="[null]"/>
+
+  <snapshots depth="[null]" id="13" scope="DIR" qualifier="PAC" created_at="2008-12-04 13:58:00.00" version="[null]"
+             project_id="3"
+              parent_snapshot_id="12" root_project_id="[null]" root_snapshot_id="11" status="P" islast="true"
+             path="[null]"/>
+
+  <snapshots depth="[null]" id="14" scope="FIL" qualifier="CLA" created_at="2008-12-04 13:58:00.00" version="[null]"
+             project_id="4"
+              parent_snapshot_id="13" root_project_id="[null]" root_snapshot_id="11" status="P" islast="true"
+             path="[null]"/>
+</dataset>

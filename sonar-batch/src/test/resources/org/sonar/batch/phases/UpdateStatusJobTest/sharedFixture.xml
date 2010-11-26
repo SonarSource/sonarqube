@@ -1,0 +1,38 @@
+<dataset>
+  <rules_categories id="1" name="category one" description="[null]"/>
+  <rules id="1" name="foo" rules_category_id="1" plugin_config_key="checker/foo" plugin_rule_key="checkstyle.rule1"
+         plugin_name="maven-checkstyle-plugin" description="description" cardinality="SINGLE" parent_id="[null]"/>
+ 
+  <metrics id="1" name="ncloc" val_type="INT" description="[null]"  domain="[null]"
+           short_name="" qualitative="false" user_managed="false" enabled="true" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="false"/>
+  <metrics id="2" name="foo" val_type="INT" description="[null]"  domain="[null]"
+           short_name="" qualitative="false" user_managed="false" enabled="true" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="false"/>
+  <metrics id="3" name="bar" val_type="INT" description="[null]"  domain="[null]"
+           short_name="" qualitative="false" user_managed="false" enabled="true" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="false"/>
+  <metrics id="4" name="baz" val_type="INT" description="[null]"  domain="[null]"
+           short_name="" qualitative="false" user_managed="false" enabled="true" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="false"/>
+
+  <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="mygroup:myartifact" name="[null]"
+            root_id="[null]"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]"/>
+
+  <projects long_name="[null]" id="2" scope="PRJ" qualifier="TRK" kee="mygroup:myartifact2" name="[null]" root_id="1"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]"/>
+
+  <projects long_name="[null]" id="3" scope="DIR" qualifier="PAC" kee="mygroup:myartifact:my.package" name="[null]"
+            root_id="1"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]"/>
+
+  <projects long_name="[null]" id="4" scope="FIL" qualifier="CLA" kee="mygroup:myartifact:my.package.Class1"
+            name="[null]" root_id="1"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]"/>
+
+  <projects long_name="[null]" id="5" scope="FIL" qualifier="CLA" kee="mygroup:myartifact:my.package.Class2"
+            name="[null]" root_id="1"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]"/>
+</dataset>
