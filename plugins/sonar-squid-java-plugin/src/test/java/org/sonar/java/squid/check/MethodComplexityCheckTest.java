@@ -55,5 +55,6 @@ public class MethodComplexityCheckTest {
     assertThat(file.getCheckMessages().size(), is(1));
     CheckMessage message = file.getCheckMessages().iterator().next();
     assertThat(message.getLine(), is(10));
+    assertThat(message.getCost(), is(2.0));
   }
 }

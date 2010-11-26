@@ -57,6 +57,7 @@ public class ClassComplexityCheckTest {
     assertThat(file.getCheckMessages().size(), is(1));
     CheckMessage message = file.getCheckMessages().iterator().next();
     assertThat(message.getLine(), is(3));
+    assertThat(message.getCost(), is(3.0));
   }
 
   @Test

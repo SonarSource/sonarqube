@@ -55,6 +55,7 @@ public class DITCheckTest {
     assertThat(file.getCheckMessages().size(), is(1));
     CheckMessage message = file.getCheckMessages().iterator().next();
     assertThat(message.getLine(), is(7));
+    assertThat(message.getCost(), is(1.0));
   }
 
   @Test
