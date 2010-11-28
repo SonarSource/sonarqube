@@ -45,7 +45,7 @@ public class Lcom4BlocksBridge extends Bridge {
     // it can be removed from memory.
     squidFile.removeMeasure(Metric.LCOM4_BLOCKS);
 
-    if (blocks != null && blocks.size() > 0) {
+    if (blocks != null && !blocks.isEmpty()) {
       Measure measure = new Measure(CoreMetrics.LCOM4_BLOCKS, serialize(blocks));
       measure.setPersistenceMode(PersistenceMode.DATABASE);
       context.saveMeasure(sonarFile, measure);
@@ -69,7 +69,7 @@ public class Lcom4BlocksBridge extends Bridge {
     for (int indexBlock = 0; indexBlock < blocks.size(); indexBlock++) {
       blocks.get(indexBlock);
       Set<AsmResource> block = blocks.get(indexBlock);
-      if (block.size() > 0) {
+      if (!block.isEmpty()) {
         if (indexBlock > 0) {
           sb.append(',');
         }
