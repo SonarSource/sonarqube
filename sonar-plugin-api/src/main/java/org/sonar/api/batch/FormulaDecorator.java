@@ -114,6 +114,6 @@ public class FormulaDecorator implements Decorator {
 
   @Override
   public String toString() {
-    return new StringBuilder().append("f(").append(metric).append(")").toString();
+    return new StringBuilder().append("f(").append(metric.getKey()).append(")").toString();
   }
 }
