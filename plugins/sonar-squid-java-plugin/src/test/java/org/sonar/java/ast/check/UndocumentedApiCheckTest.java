@@ -28,9 +28,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.squid.JavaSquidConfiguration;
+import org.sonar.java.squid.SquidScanner;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
+import org.sonar.squid.measures.Metric;
 
 public class UndocumentedApiCheckTest {
 
@@ -41,14 +43,16 @@ public class UndocumentedApiCheckTest {
     squid = new Squid(new JavaSquidConfiguration());
     squid.registerVisitor(UndocumentedApiCheck.class);
     squid.register(JavaAstScanner.class).scanFile(getFile("/rules/UndocumentedApi.java"));
+    squid.decorateSourceCodeTreeWith(Metric.values());
+    squid.register(SquidScanner.class).scan();
   }
 
   @Test
   public void testUndocumentedApi() {
     SourceFile file = (SourceFile) squid.search("UndocumentedApi.java");
+    assertThat(file.getInt(Metric.PUBLIC_API) - file.getInt(Metric.PUBLIC_DOC_API), is(1));
     assertThat(file.getCheckMessages().size(), is(1));
     CheckMessage message = file.getCheckMessages().iterator().next();
-    assertThat(message.getLine(), is(6));
+    assertThat(message.getLine(), is(10));
   }
-
 }

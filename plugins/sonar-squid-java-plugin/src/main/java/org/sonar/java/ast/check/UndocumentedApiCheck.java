@@ -34,6 +34,7 @@ import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceClass;
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.api.SourceFile;
+import org.sonar.squid.api.SourceMethod;
 
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 
@@ -44,7 +45,7 @@ import com.puppycrawl.tools.checkstyle.api.DetailAST;
 public class UndocumentedApiCheck extends JavaAstCheck {
 
   @RuleProperty(description = "Optional. If this property is not defined, all classes should adhere to this constraint. Ex : **.api.**")
-  private String forClasses = new String();
+  private String forClasses = "";
 
   private WildcardPattern[] patterns;
 
@@ -58,6 +59,10 @@ public class UndocumentedApiCheck extends JavaAstCheck {
     SourceCode currentResource = peekSourceCode();
     SourceClass sourceClass = peekParentClass();
     if (WildcardPattern.match(getPatterns(), sourceClass.getKey())) {
+      if (currentResource instanceof SourceMethod && ((SourceMethod) currentResource).isAccessor()) {
+        return;
+      }
+
       if (PublicApiVisitor.isPublicApi(ast) && !PublicApiVisitor.isDocumentedApi(ast, getFileContents())) {
         SourceFile sourceFile = currentResource.getParent(SourceFile.class);
         CheckMessage message = new CheckMessage(this, "Avoid undocumented API.");
