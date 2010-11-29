@@ -1527,7 +1527,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
     <configKey><![CDATA[Checker/TreeWalker/TodoComment]]></configKey>
     <category name="Maintainability"/>
     <cardinality>MULTIPLE</cardinality>
-    <description><![CDATA[This rule allows to find any kind of pattern inside comments like TODO, NOPMD, NOSONAR, ...]]></description>
+    <description><![CDATA[This rule allows to find any kind of pattern inside comments like TODO, NOPMD, ..., except NOSONAR]]></description>
     <param key="format" type="r">
       <description><![CDATA[Regular expression pattern to check. Default is TODO:]]></description>
     </param>
