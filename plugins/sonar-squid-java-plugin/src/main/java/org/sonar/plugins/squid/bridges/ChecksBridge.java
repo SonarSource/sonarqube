@@ -44,7 +44,7 @@ public class ChecksBridge extends Bridge {
         violation.setLineId(checkMessage.getLine());
         violation.setMessage(checkMessage.getText(Locale.ENGLISH));
         violation.setCost(checkMessage.getCost());
-        context.saveViolation(violation, checkMessage.isBypassExclusionMechanism());
+        context.saveViolation(violation, checkMessage.isBypassExclusion());
       }
     }
   }

@@ -35,7 +35,7 @@ public class NoSonarCheck extends SquidCheck {
   public void visitFile(SourceFile sourceFile) {
     for (Integer line : sourceFile.getNoSonarTagLines()) {
       CheckMessage message = new CheckMessage(this, "Is //NOSONAR used to exclude false-positive or to hide real quality flaw ?");
-      message.setBypassExclusionMechanism(true);
+      message.setBypassExclusion(true);
       message.setLine(line);
       sourceFile.log(message);
     }

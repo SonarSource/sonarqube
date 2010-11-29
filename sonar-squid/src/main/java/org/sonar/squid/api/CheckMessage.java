@@ -33,7 +33,7 @@ public class CheckMessage implements Message {
   private CodeCheck codeCheck;
   private String defaultMessage;
   private Object[] messageArguments;
-  private Boolean bypassExclusionMechanism;
+  private Boolean bypassExclusion;
 
   public CheckMessage(CodeCheck rule, String message, Object... messageArguments) {
     this.codeCheck = rule;
@@ -65,12 +65,12 @@ public class CheckMessage implements Message {
     return cost;
   }
 
-  public void setBypassExclusionMechanism(boolean forced) {
-    this.bypassExclusionMechanism = forced;
+  public void setBypassExclusion(boolean bypassExclusion) {
+    this.bypassExclusion = bypassExclusion;
   }
 
-  public boolean isBypassExclusionMechanism() {
-    return bypassExclusionMechanism == null ? false : bypassExclusionMechanism;
+  public boolean isBypassExclusion() {
+    return bypassExclusion == null ? false : bypassExclusion;
   }
 
   public CodeCheck getChecker() {
