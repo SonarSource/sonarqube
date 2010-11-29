@@ -28,6 +28,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
+import org.sonar.core.components.DefaultRuleFinder;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.List;
@@ -55,7 +56,7 @@ public class ViolationPersisterTest extends AbstractDbUnitTestCase {
     when(resourcePersister.saveResource((Project) anyObject(), eq(javaFile))).thenReturn(snapshot);
     when(resourcePersister.getPreviousLastSnapshot(snapshot)).thenReturn(snapshot);
     when(resourcePersister.getSnapshot(javaFile)).thenReturn(snapshot);
-    violationPersister = new ViolationPersister(getSession(), resourcePersister);
+    violationPersister = new ViolationPersister(getSession(), resourcePersister, new DefaultRuleFinder(getSessionFactory()));
   }
 
   @Test

@@ -19,29 +19,28 @@
  */
 package org.sonar.batch.index;
 
-import com.google.common.collect.Maps;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
-import org.sonar.api.utils.SonarException;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public final class ViolationPersister {
 
   private DatabaseSession session;
   private ResourcePersister resourcePersister;
-  private Map<Rule, Integer> ruleIds = Maps.newHashMap();
+    private RuleFinder ruleFinder;
 
-  public ViolationPersister(DatabaseSession session, ResourcePersister resourcePersister) {
+  public ViolationPersister(DatabaseSession session, ResourcePersister resourcePersister, RuleFinder ruleFinder) {
     this.session = session;
     this.resourcePersister = resourcePersister;
+    this.ruleFinder = ruleFinder;
   }
 
   public List<RuleFailureModel> getPreviousViolations(Resource resource) {
@@ -76,28 +75,12 @@ public final class ViolationPersister {
   }
 
   private RuleFailureModel mergeModel(Violation violation, RuleFailureModel merge) {
-    merge.setRuleId(getRuleId(violation.getRule()));
+    Rule rule = ruleFinder.findByKey(violation.getRule().getRepositoryKey(), violation.getRule().getKey());
+    merge.setRuleId(rule.getId());
     merge.setPriority(violation.getPriority());
     merge.setLine(violation.getLineId());
     merge.setMessage(violation.getMessage());
     merge.setCost(violation.getCost());
     return merge;
-  }
-
-  private Integer getRuleId(Rule rule) {
-    Integer ruleId = ruleIds.get(rule);
-    if (ruleId == null) {
-      ruleId = rule.getId();
-      if (ruleId == null) {
-        Rule persistedRule = session.getSingleResult(Rule.class,
-          "pluginName", rule.getRepositoryKey(), "key", rule.getKey(), "enabled", true);
-        if (persistedRule == null) {
-          throw new SonarException("Rule not found: " + rule);
-        }
-        ruleId = persistedRule.getId();
-      }
-      ruleIds.put(rule, ruleId);
-    }
-    return ruleId;
   }
 }

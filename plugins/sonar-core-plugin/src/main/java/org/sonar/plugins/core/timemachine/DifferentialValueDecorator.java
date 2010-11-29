@@ -31,7 +31,6 @@ import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
 import java.util.Collection;
@@ -142,7 +141,7 @@ public class DifferentialValueDecorator implements Decorator {
     // improvements : keep query in cache ? select only some columns ?
     // TODO support measure on rules and characteristics
     String hql = "select m from " + MeasureModel.class.getSimpleName() + " m, " + Snapshot.class.getSimpleName() + " s " +
-        "where m.snapshotId=s.id and m.metricId in (:metricIds) and m.rule=null and m.rulePriority=null and m.rulesCategoryId=null and m.characteristic=null "
+        "where m.snapshotId=s.id and m.metricId in (:metricIds) and m.ruleId=null and m.rulePriority=null and m.rulesCategoryId=null and m.characteristic=null "
         + "and (s.rootId=:rootSnapshotId or s.id=:rootSnapshotId) and s.resourceId=:resourceId and s.status=:status";
     return session.createQuery(hql)
         .setParameter("metricIds", metricByIds.keySet())
@@ -159,14 +158,14 @@ public class DifferentialValueDecorator implements Decorator {
 
   static class MeasureKey {
     Integer metricId;
-    Rule rule;
+    Integer ruleId;
     Integer categoryId;
     RulePriority priority;
     Characteristic characteristic;
 
     MeasureKey(MeasureModel model) {
-      this.metricId = model.getMetricId();
-      rule = model.getRule();
+      metricId = model.getMetricId();
+      ruleId = model.getRuleId();
       categoryId = model.getRulesCategoryId();
       priority = model.getRulePriority();
       characteristic = model.getCharacteristic();
@@ -179,7 +178,7 @@ public class DifferentialValueDecorator implements Decorator {
       if (measure instanceof RuleMeasure) {
         RuleMeasure rm = (RuleMeasure) measure;
         categoryId = rm.getRuleCategory();
-        rule = rm.getRule();
+        ruleId = (rm.getRule()==null ? null : rm.getRule().getId());
         priority = rm.getRulePriority();
       }
     }
@@ -196,7 +195,7 @@ public class DifferentialValueDecorator implements Decorator {
         return false;
       if (!metricId.equals(that.metricId)) return false;
       if (priority != that.priority) return false;
-      if (rule != null ? !rule.equals(that.rule) : that.rule != null) return false;
+      if (ruleId != null ? !ruleId.equals(that.ruleId) : that.ruleId != null) return false;
 
       return true;
     }
@@ -204,7 +203,7 @@ public class DifferentialValueDecorator implements Decorator {
     @Override
     public int hashCode() {
       int result = metricId.hashCode();
-      result = 31 * result + (rule != null ? rule.hashCode() : 0);
+      result = 31 * result + (ruleId != null ? ruleId.hashCode() : 0);
       result = 31 * result + (categoryId != null ? categoryId.hashCode() : 0);
       result = 31 * result + (priority != null ? priority.hashCode() : 0);
       result = 31 * result + (characteristic != null ? characteristic.hashCode() : 0);

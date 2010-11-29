@@ -48,14 +48,14 @@ public class FindbugsSensorTest extends FindbugsTests {
 
   @Test
   public void shouldExecuteWhenSomeRulesAreActive() throws Exception {
-    FindbugsSensor sensor = new FindbugsSensor(createRulesProfileWithActiveRules(), new FindbugsRuleFinder(), null);
+    FindbugsSensor sensor = new FindbugsSensor(createRulesProfileWithActiveRules(), new FakeRuleFinder(), null);
     Project project = createProject();
     assertTrue(sensor.shouldExecuteOnProject(project));
   }
 
   @Test
   public void shouldExecuteWhenReuseExistingRulesConfig() throws Exception {
-    FindbugsSensor analyser = new FindbugsSensor(RulesProfile.create(), new FindbugsRuleFinder(), null);
+    FindbugsSensor analyser = new FindbugsSensor(RulesProfile.create(), new FakeRuleFinder(), null);
     Project pom = createProject();
     when(pom.getReuseExistingRulesConfig()).thenReturn(true);
     assertTrue(analyser.shouldExecuteOnProject(pom));
@@ -63,7 +63,7 @@ public class FindbugsSensorTest extends FindbugsTests {
 
   @Test
   public void shouldNotExecuteWhenNoRulesAreActive() throws Exception {
-    FindbugsSensor analyser = new FindbugsSensor(RulesProfile.create(), new FindbugsRuleFinder(), null);
+    FindbugsSensor analyser = new FindbugsSensor(RulesProfile.create(), new FakeRuleFinder(), null);
     Project pom = createProject();
     assertFalse(analyser.shouldExecuteOnProject(pom));
   }
@@ -72,7 +72,7 @@ public class FindbugsSensorTest extends FindbugsTests {
   public void shouldNotExecuteOnEar() {
     Project project = createProject();
     when(project.getPom().getPackaging()).thenReturn("ear");
-    FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithActiveRules(), new FindbugsRuleFinder(), null);
+    FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithActiveRules(), new FakeRuleFinder(), null);
     assertFalse(analyser.shouldExecuteOnProject(project));
   }
 
@@ -88,7 +88,7 @@ public class FindbugsSensorTest extends FindbugsTests {
     when(executor.execute()).thenReturn(xmlFile);
     when(context.getResource(any(Resource.class))).thenReturn(new JavaFile("org.sonar.MyClass"));
 
-    FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithActiveRules(), new FindbugsRuleFinder(), executor);
+    FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithActiveRules(), new FakeRuleFinder(), executor);
     analyser.analyse(project, context);
 
     verify(executor).execute();
@@ -116,7 +116,7 @@ public class FindbugsSensorTest extends FindbugsTests {
     when(project.getConfiguration()).thenReturn(conf);
     when(context.getResource(any(Resource.class))).thenReturn(new JavaFile("org.sonar.MyClass"));
 
-    FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithActiveRules(), new FindbugsRuleFinder(), executor);
+    FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithActiveRules(), new FakeRuleFinder(), executor);
     analyser.analyse(project, context);
 
     verify(executor, never()).execute();
@@ -144,7 +144,7 @@ public class FindbugsSensorTest extends FindbugsTests {
     when(project.getConfiguration()).thenReturn(conf);
     when(context.getResource(any(Resource.class))).thenReturn(new JavaFile("org.sonar.MyClass"));
 
-    FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithActiveRules(), new FindbugsRuleFinder(), executor);
+    FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithActiveRules(), new FakeRuleFinder(), executor);
     analyser.analyse(project, context);
 
     verify(context, never()).saveViolation(any(Violation.class));

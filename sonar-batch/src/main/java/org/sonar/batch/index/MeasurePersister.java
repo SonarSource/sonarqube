@@ -32,6 +32,9 @@ import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.utils.SonarException;
 
 import java.util.Collection;
 import java.util.Map;
@@ -42,10 +45,12 @@ public final class MeasurePersister {
   private SetMultimap<Resource, Measure> unsavedMeasuresByResource = LinkedHashMultimap.create();
   private DatabaseSession session;
   private ResourcePersister resourcePersister;
+  private RuleFinder ruleFinder;
 
-  public MeasurePersister(DatabaseSession session, ResourcePersister resourcePersister) {
+  public MeasurePersister(DatabaseSession session, ResourcePersister resourcePersister, RuleFinder ruleFinder) {
     this.session = session;
     this.resourcePersister = resourcePersister;
+    this.ruleFinder = ruleFinder;
   }
 
   public void setDelayedMode(boolean delayedMode) {
@@ -136,7 +141,14 @@ public final class MeasurePersister {
       RuleMeasure ruleMeasure = (RuleMeasure) measure;
       merge.setRulesCategoryId(ruleMeasure.getRuleCategory());
       merge.setRulePriority(ruleMeasure.getRulePriority());
-      merge.setRule(ruleMeasure.getRule());
+      if (ruleMeasure.getRule()!=null) {
+        Rule ruleWithId = ruleFinder.findByKey(ruleMeasure.getRule().getRepositoryKey(), ruleMeasure.getRule().getKey());
+        if (ruleWithId!=null) {
+          merge.setRuleId(ruleWithId.getId());
+        } else {
+          throw new SonarException("Can not save a measure with unknown rule " + ruleMeasure);
+        }
+      }
     }
     return merge;
   }

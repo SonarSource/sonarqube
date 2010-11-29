@@ -17,18 +17,15 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.qualitymodel;
+package org.sonar.core.components;
 
 import org.junit.Test;
 import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.qualitymodel.Model;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.junit.internal.matchers.IsCollectionContaining.hasItems;
 
 public class ModelTest extends AbstractDbUnitTestCase {

@@ -29,6 +29,7 @@ import java.util.Collection;
  */
 public interface RuleFinder extends BatchComponent, ServerComponent {
 
+  Rule findById(int ruleId);
   Rule findByKey(String repositoryKey, String key);
   Rule find(RuleQuery query);
   Collection<Rule> findAll(RuleQuery query);

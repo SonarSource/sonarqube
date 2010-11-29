@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.rule;
+package org.sonar.core.components;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
@@ -39,17 +39,29 @@ public class DefaultRuleFinder implements RuleFinder {
     this.sessionFactory = sessionFactory;
   }
 
+  public Rule findById(int ruleId) {
+    return doFindById(ruleId);
+  }
+
+  protected final Rule doFindById(int ruleId) {
+    return sessionFactory.getSession().getSingleResult(Rule.class, "id", ruleId, "enabled", true);
+  }
+
   public Rule findByKey(String repositoryKey, String key) {
+    return doFindByKey(repositoryKey, key);
+  }
+
+  protected final Rule doFindByKey(String repositoryKey, String key) {
     return sessionFactory.getSession().getSingleResult(Rule.class, "pluginName", repositoryKey, "key", key, "enabled", true);
   }
 
-  public Rule find(RuleQuery query) {
+  public final Rule find(RuleQuery query) {
     DatabaseSession session = sessionFactory.getSession();
     return (Rule)session.getSingleResult(createHqlQuery(session, query), null);
 
   }
 
-  public Collection<Rule> findAll(RuleQuery query) {
+  public final Collection<Rule> findAll(RuleQuery query) {
     DatabaseSession session = sessionFactory.getSession();
     return createHqlQuery(session, query).getResultList();
   }

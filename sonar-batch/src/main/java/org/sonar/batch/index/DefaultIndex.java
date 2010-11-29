@@ -238,7 +238,7 @@ public final class DefaultIndex extends SonarIndex {
   public Measure addMeasure(Resource resource, Measure measure) {
     Bucket bucket = getOrAddBucket(resource);
     if (!bucket.isExcluded()) {
-      Metric metric = metricFinder.find(measure.getMetricKey());
+      Metric metric = metricFinder.findByKey(measure.getMetricKey());
       if (metric == null) {
         throw new SonarException("Unknown metric: " + measure.getMetricKey());
       }

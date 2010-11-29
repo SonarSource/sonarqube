@@ -31,6 +31,7 @@ import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Project;
+import org.sonar.core.components.DefaultRuleFinder;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.List;
@@ -63,7 +64,7 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
     when(resourcePersister.saveResource((Project) anyObject(), eq(aPackage))).thenReturn(packageSnapshot);
     when(resourcePersister.getSnapshot(project)).thenReturn(projectSnapshot);
     when(resourcePersister.getSnapshot(aPackage)).thenReturn(packageSnapshot);
-    measurePersister = new MeasurePersister(getSession(), resourcePersister);
+    measurePersister = new MeasurePersister(getSession(), resourcePersister, new DefaultRuleFinder(getSessionFactory()));
   }
 
   @Test

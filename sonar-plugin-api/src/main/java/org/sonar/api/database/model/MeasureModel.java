@@ -20,14 +20,9 @@
 package org.sonar.api.database.model;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.qualitymodel.Characteristic;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
 import javax.persistence.*;
@@ -74,10 +69,8 @@ public class MeasureModel implements Cloneable {
   @Column(name = "measure_date", updatable = true, nullable = true)
   private Date measureDate;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "rule_id")
-  @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-  private Rule rule;
+  @Column(name = "rule_id", updatable = true, nullable = true)
+  private Integer ruleId;
 
   @Column(name = "rules_category_id")
   private Integer rulesCategoryId;
@@ -223,7 +216,7 @@ public class MeasureModel implements Cloneable {
    * @return whether the measure is about rule
    */
   public boolean isRuleMeasure() {
-    return rule != null || rulePriority != null || rulesCategoryId != null;
+    return ruleId != null || rulePriority != null || rulesCategoryId != null;
   }
 
   /**
@@ -261,11 +254,8 @@ public class MeasureModel implements Cloneable {
     return this;
   }
 
-  /**
-   * @return the rule
-   */
-  public Rule getRule() {
-    return rule;
+  public Integer getRuleId() {
+    return ruleId;
   }
 
   /**
@@ -273,8 +263,8 @@ public class MeasureModel implements Cloneable {
    *
    * @return the current object
    */
-  public MeasureModel setRule(Rule rule) {
-    this.rule = rule;
+  public MeasureModel setRuleId(Integer ruleId) {
+    this.ruleId = ruleId;
     return this;
   }
 
@@ -454,16 +444,6 @@ public class MeasureModel implements Cloneable {
   }
 
   /**
-   * @return the rule id of the measure
-   */
-  public Integer getRuleId() {
-    if (getRule() != null) {
-      return getRule().getId();
-    }
-    return null;
-  }
-
-  /**
    * @return diffValue1
    */
   public Double getDiffValue1() {
@@ -548,51 +528,11 @@ public class MeasureModel implements Cloneable {
     clone.setValue(getValue());
     clone.setRulesCategoryId(getRulesCategoryId());
     clone.setRulePriority(getRulePriority());
-    clone.setRule(getRule());
+    clone.setRuleId(getRuleId());
     clone.setSnapshotId(getSnapshotId());
     clone.setMeasureDate(getMeasureDate());
     clone.setUrl(getUrl());
     clone.setCharacteristic(getCharacteristic());
     return clone;
-  }
-
-/**
-   * True if other fields than 'value' are set.
-   */
-  public boolean hasOptionalData() {
-    return getAlertStatus()!=null ||
-        getAlertText()!=null ||
-        getDescription()!=null ||
-        getDiffValue1()!=null ||
-        getDiffValue2()!=null ||
-        getDiffValue3()!=null ||
-        getMeasureData()!=null ||
-        getTendency()!=null ||
-        getUrl()!=null;
-  }
-
-  /**
-   * @return a measure from the current object
-   */
-  public Measure toMeasure(Metric metric) {
-    Measure measure;
-    if (isRuleMeasure()) {
-      measure = new RuleMeasure(metric, getRule(), getRulePriority(), getRulesCategoryId());
-    } else {
-      measure = new Measure(metric);
-    }
-    measure.setId(getId());
-    measure.setDescription(getDescription());
-    measure.setValue(getValue());
-    measure.setData(getData(metric));
-    measure.setAlertStatus(getAlertStatus());
-    measure.setAlertText(getAlertText());
-    measure.setTendency(getTendency());
-    measure.setDiffValue1(getDiffValue1());
-    measure.setDiffValue2(getDiffValue2());
-    measure.setDiffValue3(getDiffValue3());
-    measure.setUrl(getUrl());
-    measure.setCharacteristic(getCharacteristic());
-    return measure;
   }
 }

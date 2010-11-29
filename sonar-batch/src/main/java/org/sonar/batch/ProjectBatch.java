@@ -38,8 +38,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.phases.Phases;
-import org.sonar.core.qualitymodel.DefaultModelFinder;
-import org.sonar.core.rule.DefaultRuleFinder;
+import org.sonar.core.components.DefaultModelFinder;
 import org.sonar.jpa.dao.*;
 
 import java.util.List;
@@ -93,7 +92,6 @@ public class ProjectBatch {
     batchContainer.as(Characteristics.CACHE).addComponent(ViolationFilters.class);
     batchContainer.as(Characteristics.CACHE).addComponent(ResourceFilters.class);
     batchContainer.as(Characteristics.CACHE).addComponent(DefaultModelFinder.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(DefaultRuleFinder.class);
     batchContainer.addAdapter(new ProfileProvider());
     batchContainer.addAdapter(new CheckProfileProvider());
     loadCoreComponents(batchContainer);

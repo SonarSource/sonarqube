@@ -17,30 +17,24 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.qualitymodel;
+package org.sonar.core.components;
 
-import org.junit.Test;
+import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.qualitymodel.Model;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.sonar.api.qualitymodel.ModelFinder;
+import org.sonar.jpa.session.DatabaseSessionFactory;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+public class DefaultModelFinder implements ModelFinder {
 
-public class DefaultModelFinderTest extends AbstractDbUnitTestCase {
+  private DatabaseSessionFactory sessionFactory;
 
-  @Test
-  public void findByName() {
-    setupData("shared");
-    DefaultModelFinder provider = new DefaultModelFinder(getSessionFactory());
-    Model model = provider.findByName("M1");
-    assertNotNull(model);
-    assertNotNull(model.getCharacteristicByName("M1C1"));
+  public DefaultModelFinder(DatabaseSessionFactory sessionFactory) {
+    this.sessionFactory = sessionFactory;
   }
 
-  @Test
-  public void findByNameNotFound() {
-    setupData("shared");
-    DefaultModelFinder provider = new DefaultModelFinder(getSessionFactory());
-    assertNull(provider.findByName("UNKNOWN"));
+  public Model findByName(String name) {
+    DatabaseSession session = sessionFactory.getSession();
+    return session.getSingleResult(Model.class, "name", name);
   }
+
 }

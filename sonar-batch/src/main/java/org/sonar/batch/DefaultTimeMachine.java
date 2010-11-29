@@ -31,10 +31,9 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.DefaultIndex;
-import org.sonar.jpa.dao.MeasuresDao;
 
-import java.util.*;
 import javax.persistence.Query;
+import java.util.*;
 
 public class DefaultTimeMachine implements TimeMachine {
 
@@ -56,7 +55,7 @@ public class DefaultTimeMachine implements TimeMachine {
 
     for (Object[] object : objects) {
       MeasureModel model = (MeasureModel) object[0];
-      Measure measure = model.toMeasure(metricById.get(model.getMetricId()));
+      Measure measure = toMeasure(model, metricById.get(model.getMetricId()));
       measure.setDate((Date) object[1]);
       result.add(measure);
     }
@@ -93,7 +92,7 @@ public class DefaultTimeMachine implements TimeMachine {
     params.put("resourceId", resource.getId());
     params.put("status", Snapshot.STATUS_PROCESSED);
 
-    sb.append(" AND m.rule IS NULL AND m.rulePriority IS NULL AND m.rulesCategoryId IS NULL ");
+    sb.append(" AND m.ruleId IS NULL AND m.rulePriority IS NULL AND m.rulesCategoryId IS NULL ");
     if (!metricIds.isEmpty()) {
       sb.append(" AND m.metricId IN (:metricIds) ");
       params.put("metricIds", metricIds);
@@ -135,5 +134,23 @@ public class DefaultTimeMachine implements TimeMachine {
       result.put(metric.getId(), metric);
     }
     return result;
+  }
+
+  static Measure toMeasure(MeasureModel model, Metric metric) {
+    // NOTE: measures on rule are not supported
+    Measure measure = new Measure(metric);
+    measure.setId(model.getId());
+    measure.setDescription(model.getDescription());
+    measure.setValue(model.getValue());
+    measure.setData(model.getData(metric));
+    measure.setAlertStatus(model.getAlertStatus());
+    measure.setAlertText(model.getAlertText());
+    measure.setTendency(model.getTendency());
+    measure.setDiffValue1(model.getDiffValue1());
+    measure.setDiffValue2(model.getDiffValue2());
+    measure.setDiffValue3(model.getDiffValue3());
+    measure.setUrl(model.getUrl());
+    measure.setCharacteristic(model.getCharacteristic());
+    return measure;
   }
 }

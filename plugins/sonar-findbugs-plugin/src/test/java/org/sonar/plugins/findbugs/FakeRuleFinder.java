@@ -19,24 +19,28 @@
  */
 package org.sonar.plugins.findbugs;
 
-import java.util.Collection;
-import java.util.List;
-
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.rules.XMLRuleParser;
 
-public class FindbugsRuleFinder implements RuleFinder {
+import java.util.Collection;
+import java.util.List;
+
+public class FakeRuleFinder implements RuleFinder {
 
   private final List<Rule> findbugsRules;
 
-  public FindbugsRuleFinder() {
+  public FakeRuleFinder() {
     FindbugsRuleRepository repo = new FindbugsRuleRepository(new XMLRuleParser());
     findbugsRules = repo.createRules();
-    for(Rule rule : findbugsRules){
+    for (Rule rule : findbugsRules) {
       rule.setRepositoryKey(FindbugsConstants.REPOSITORY_KEY);
     }
+  }
+
+  public Rule findById(int ruleId) {
+    throw new UnsupportedOperationException();
   }
 
   public Rule findByKey(String repositoryKey, String key) {

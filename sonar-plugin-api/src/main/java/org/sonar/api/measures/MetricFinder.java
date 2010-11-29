@@ -31,7 +31,9 @@ import java.util.List;
  */
 public interface MetricFinder extends BatchComponent {
 
-  Metric find(String key);
+  Metric findById(int id);
+
+  Metric findByKey(String key);
 
   Collection<Metric> findAll(List<String> metricKeys);
 

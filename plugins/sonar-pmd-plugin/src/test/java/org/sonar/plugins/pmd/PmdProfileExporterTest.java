@@ -35,7 +35,7 @@ public class PmdProfileExporterTest {
     PmdRuleRepository repository = new PmdRuleRepository(fileSystem, new XMLRuleParser());
     List<Rule> rules = repository.createRules();
 
-    RuleFinder ruleFinder = new PmdRuleFinder(rules);
+    RuleFinder ruleFinder = new FakeRuleFinder(rules);
     PmdProfileImporter importer = new PmdProfileImporter(ruleFinder);
     Reader reader = new StringReader(TestUtils.getResourceContent("/org/sonar/plugins/pmd/simple.xml"));
     RulesProfile rulesProfile = importer.importProfile(reader, ValidationMessages.create());
@@ -103,12 +103,16 @@ public class PmdProfileExporterTest {
     assertThat(rule.getProperty(PmdConstants.XPATH_EXPRESSION_PARAM).getValue(), is(xpathExpression));
   }
 
-  private static class PmdRuleFinder implements RuleFinder {
+  private static class FakeRuleFinder implements RuleFinder {
 
     private List<Rule> rules;
 
-    public PmdRuleFinder(List<Rule> rules) {
+    public FakeRuleFinder(List<Rule> rules) {
       this.rules = rules;
+    }
+
+    public Rule findById(int ruleId) {
+      throw new UnsupportedOperationException();
     }
 
     public Rule findByKey(String repositoryKey, String key) {

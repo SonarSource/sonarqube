@@ -30,6 +30,8 @@ import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.ServerHttpClient;
 import org.sonar.batch.index.*;
+import org.sonar.core.components.CacheMetricFinder;
+import org.sonar.core.components.CacheRuleFinder;
 import org.sonar.core.plugin.JpaPluginDao;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.session.DatabaseSessionProvider;
@@ -71,7 +73,6 @@ public class Batch {
     batchContainer.as(Characteristics.CACHE).addComponent(ServerMetadata.class);
     batchContainer.as(Characteristics.CACHE).addComponent(ProjectTree.class);
     batchContainer.as(Characteristics.CACHE).addComponent(DefaultResourceCreationLock.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(DefaultMetricFinder.class);
     batchContainer.as(Characteristics.CACHE).addComponent(DefaultIndex.class);
     batchContainer.as(Characteristics.CACHE).addComponent(DefaultPersistenceManager.class);
     batchContainer.as(Characteristics.CACHE).addComponent(DependencyPersister.class);
@@ -87,6 +88,8 @@ public class Batch {
     batchContainer.as(Characteristics.CACHE).addComponent(ServerHttpClient.class);
     batchContainer.as(Characteristics.CACHE).addComponent(HttpDownloader.class);
     batchContainer.as(Characteristics.CACHE).addComponent(MeasuresDao.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(CacheRuleFinder.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(CacheMetricFinder.class);
     batchContainer.start();
 
     ProjectTree projectTree = batchContainer.getComponent(ProjectTree.class);

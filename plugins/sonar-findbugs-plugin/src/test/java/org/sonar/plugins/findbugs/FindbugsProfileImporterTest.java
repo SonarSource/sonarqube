@@ -19,16 +19,7 @@
  */
 package org.sonar.plugins.findbugs;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.util.List;
-
+import com.thoughtworks.xstream.XStream;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.api.profiles.RulesProfile;
@@ -38,11 +29,19 @@ import org.sonar.plugins.findbugs.xml.FindBugsFilter;
 import org.sonar.plugins.findbugs.xml.Match;
 import org.sonar.test.TestUtils;
 
-import com.thoughtworks.xstream.XStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 public class FindbugsProfileImporterTest {
 
-  private FindbugsProfileImporter importer = new FindbugsProfileImporter(new FindbugsRuleFinder());
+  private FindbugsProfileImporter importer = new FindbugsProfileImporter(new FakeRuleFinder());
 
   @Test
   public void shouldImportPatterns() throws IOException {
