@@ -26,36 +26,24 @@ public class SquidVisitorNotifier {
     for (SquidVisitor visitor : squidVisitors) {
       visitor.visitFile(sourceFile);
     }
-    callVisitClass(sourceFile);
+    visitChildren(sourceFile);
   }
 
-  private void callVisitClass(SourceFile sourceFile) {
-    if ( !sourceFile.hasChildren()) {
-      return;
+  private void visitChildren(SourceCode sourceCode) {
+    if (sourceCode instanceof SourceClass) {
+      for (SquidVisitor visitor : squidVisitors) {
+        visitor.visitClass((SourceClass) sourceCode);
+      }
+    } else if (sourceCode instanceof SourceMethod) {
+      for (SquidVisitor visitor : squidVisitors) {
+        visitor.visitMethod((SourceMethod) sourceCode);
+      }
     }
-    for (SourceCode sourceCode : sourceFile.getChildren()) {
-      if (sourceCode instanceof SourceClass) {
-        SourceClass sourceClass = (SourceClass) sourceCode;
-        for (SquidVisitor visitor : squidVisitors) {
-          visitor.visitClass(sourceClass);
-        }
-        callVisitMethod(sourceClass);
+
+    if (sourceCode.hasChildren()) {
+      for (SourceCode child : sourceCode.getChildren()) {
+        visitChildren(child);
       }
     }
   }
-
-  private void callVisitMethod(SourceClass sourceClass) {
-    if ( !sourceClass.hasChildren()) {
-      return;
-    }
-    for (SourceCode sourceCode : sourceClass.getChildren()) {
-      if (sourceCode instanceof SourceMethod) {
-        SourceMethod sourceMethod = (SourceMethod) sourceCode;
-        for (SquidVisitor visitor : squidVisitors) {
-          visitor.visitMethod(sourceMethod);
-        }
-      }
-    }
-  }
-
 }
