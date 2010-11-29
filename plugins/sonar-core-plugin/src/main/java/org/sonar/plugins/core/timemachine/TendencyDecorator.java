@@ -22,9 +22,7 @@ package org.sonar.plugins.core.timemachine;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.*;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -43,10 +41,10 @@ public class TendencyDecorator implements Decorator {
   private TimeMachine timeMachine;
   private TimeMachineQuery query;
   private TendencyAnalyser analyser;
-  private Configuration configuration;
+  private TimeMachineConfiguration configuration;
   private List<Metric> metrics;
 
-  public TendencyDecorator(TimeMachine timeMachine, MetricFinder metricFinder, Configuration configuration) {
+  public TendencyDecorator(TimeMachine timeMachine, MetricFinder metricFinder, TimeMachineConfiguration configuration) {
     this.timeMachine = timeMachine;
     this.analyser = new TendencyAnalyser();
     this.configuration = configuration;
@@ -58,7 +56,7 @@ public class TendencyDecorator implements Decorator {
     }
   }
 
-  protected TendencyDecorator(TimeMachine timeMachine, TimeMachineQuery query, TendencyAnalyser analyser, Configuration configuration) {
+  protected TendencyDecorator(TimeMachine timeMachine, TimeMachineQuery query, TendencyAnalyser analyser, TimeMachineConfiguration configuration) {
     this.timeMachine = timeMachine;
     this.query = query;
     this.analyser = analyser;
@@ -71,7 +69,7 @@ public class TendencyDecorator implements Decorator {
   }
 
   protected TimeMachineQuery initQuery(Project project) {
-    int days = project.getConfiguration().getInt(CoreProperties.CORE_TENDENCY_DEPTH_PROPERTY, CoreProperties.CORE_TENDENCY_DEPTH_DEFAULT_VALUE);
+    int days = configuration.getTendencyPeriodInDays();
 
     query = new TimeMachineQuery(null) // resource is set after
         .setFrom(DateUtils.addDays(project.getAnalysisDate(), -days))
@@ -89,7 +87,7 @@ public class TendencyDecorator implements Decorator {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return !configuration.getBoolean(CoreProperties.SKIP_TENDENCIES_PROPERTY, CoreProperties.SKIP_TENDENCIES_DEFAULT_VALUE);
+    return !configuration.skipTendencies();
   }
 
   public void decorate(Resource resource, DecoratorContext context) {

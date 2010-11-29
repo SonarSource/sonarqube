@@ -43,6 +43,7 @@ import org.sonar.plugins.core.testdetailsviewer.TestsViewerDefinition;
 import org.sonar.plugins.core.timemachine.DifferentialValueDecorator;
 import org.sonar.plugins.core.timemachine.PeriodLocator;
 import org.sonar.plugins.core.timemachine.TendencyDecorator;
+import org.sonar.plugins.core.timemachine.TimeMachineConfiguration;
 import org.sonar.plugins.core.ui.pageselector.GwtPageSelector;
 import org.sonar.plugins.core.violationsviewer.ViolationsViewerDefinition;
 import org.sonar.plugins.core.widgets.*;
@@ -180,7 +181,6 @@ public class CorePlugin implements Plugin {
     extensions.add(ViolationsDecorator.class);
     extensions.add(WeightedViolationsDecorator.class);
     extensions.add(ViolationsDensityDecorator.class);
-    extensions.add(TendencyDecorator.class);
     extensions.add(LineCoverageDecorator.class);
     extensions.add(CoverageDecorator.class);
     extensions.add(BranchCoverageDecorator.class);
@@ -192,8 +192,11 @@ public class CorePlugin implements Plugin {
     extensions.add(DirectoriesDecorator.class);
     extensions.add(FilesDecorator.class);
 
+    // time machine
+    extensions.add(TendencyDecorator.class);
     extensions.add(PeriodLocator.class);
     extensions.add(DifferentialValueDecorator.class);
+    extensions.add(TimeMachineConfiguration.class);
 
     return extensions;
   }
