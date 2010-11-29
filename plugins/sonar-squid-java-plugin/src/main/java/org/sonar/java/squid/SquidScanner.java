@@ -48,8 +48,7 @@ public class SquidScanner extends CodeScanner<CodeVisitor> {
   private void notifySquidVisitors(Collection<SourceCode> files) {
     SquidVisitor[] visitorArray = getVisitors().toArray(new SquidVisitor[getVisitors().size()]);
     for (SourceCode sourceFile : files) {
-      SquidVisitorNotifier visitorNotifier = new SquidVisitorNotifier((SourceFile) sourceFile, visitorArray);
-      visitorNotifier.notifyVisitors(indexer);
+      new SquidVisitorNotifier((SourceFile) sourceFile, visitorArray).notifyVisitors();
     }
   }
 

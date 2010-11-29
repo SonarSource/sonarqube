@@ -19,16 +19,17 @@
  */
 package org.sonar.plugins.squid.bridges;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.resources.Resource;
+import org.sonar.java.squid.SquidVisitorNotifier;
+import org.sonar.java.squid.visitor.SquidVisitor;
 import org.sonar.squid.api.SourceClass;
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.api.SourceMethod;
-import org.sonar.squid.indexer.QueryByParent;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class NoSonarFilterLoader extends Bridge {
   private NoSonarFilter noSonarFilter;
@@ -43,23 +44,39 @@ public class NoSonarFilterLoader extends Bridge {
     if (noSonarFilter != null) {
       // lines with NOSONAR tag
       Set<Integer> ignoredLines = new HashSet<Integer>(squidFile.getNoSonarTagLines());
-      // classes and methods with annotaion SuppressWarnings
-      for (SourceCode sourceCode : squid.search(new QueryByParent(squidFile))) {
-        if (sourceCode instanceof SourceMethod && ((SourceMethod) sourceCode).isSuppressWarnings()) {
-          visitLines(sourceCode, ignoredLines);
-        }
-        if (sourceCode instanceof SourceClass && ((SourceClass) sourceCode).isSuppressWarnings()) {
-          visitLines(sourceCode, ignoredLines);
-        }
-      }
+      // classes and methods with annotation SuppressWarnings
+      new SquidVisitorNotifier(squidFile, new SuppressWarningsVisitor(ignoredLines)).notifyVisitors();
 
       noSonarFilter.addResource(sonarFile, ignoredLines);
     }
   }
 
-  private static void visitLines(SourceCode sourceCode, Set<Integer> ignoredLines) {
-    for (int line = sourceCode.getStartAtLine(); line <= sourceCode.getEndAtLine(); line++) {
-      ignoredLines.add(line);
+  private static class SuppressWarningsVisitor implements SquidVisitor {
+    private Set<Integer> ignoredLines;
+
+    public SuppressWarningsVisitor(Set<Integer> ignoredLines) {
+      this.ignoredLines = ignoredLines;
+    }
+
+    public void visitFile(SourceFile sourceFile) {
+    }
+
+    public void visitClass(SourceClass sourceClass) {
+      if (sourceClass.isSuppressWarnings()) {
+      }
+    }
+
+    public void visitMethod(SourceMethod sourceMethod) {
+      if (sourceMethod.isSuppressWarnings()) {
+        visitLines(sourceMethod);
+      }
+    }
+
+    private void visitLines(SourceCode sourceCode) {
+      for (int line = sourceCode.getStartAtLine(); line <= sourceCode.getEndAtLine(); line++) {
+        ignoredLines.add(line);
+      }
     }
   }
+
 }

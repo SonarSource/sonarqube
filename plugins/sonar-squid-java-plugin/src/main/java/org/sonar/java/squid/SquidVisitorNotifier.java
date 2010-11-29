@@ -5,20 +5,19 @@ import org.sonar.squid.api.SourceClass;
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.api.SourceMethod;
-import org.sonar.squid.indexer.SquidIndex;
 
 public class SquidVisitorNotifier {
 
   private final SourceFile sourceFile;
   private final SquidVisitor[] squidVisitors;
 
-  public SquidVisitorNotifier(SourceFile sourceFile, SquidVisitor[] squidVisitors) {
+  public SquidVisitorNotifier(SourceFile sourceFile, SquidVisitor... squidVisitors) {
     this.sourceFile = sourceFile;
     this.squidVisitors = new SquidVisitor[squidVisitors.length];
     System.arraycopy(squidVisitors, 0, this.squidVisitors, 0, squidVisitors.length);
   }
 
-  public void notifyVisitors(SquidIndex indexer) {
+  public void notifyVisitors() {
     callVisitFile();
   }
 
