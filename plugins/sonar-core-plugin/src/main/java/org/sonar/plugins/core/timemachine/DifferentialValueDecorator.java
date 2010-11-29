@@ -30,6 +30,7 @@ import org.sonar.api.measures.*;
 import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
@@ -47,25 +48,25 @@ public class DifferentialValueDecorator implements Decorator {
   public DifferentialValueDecorator(DatabaseSession session, PeriodLocator periodLocator, Configuration configuration, MetricFinder metricFinder) {
     this.session = session;
     Snapshot snapshot = periodLocator.locate(5);
-    projectTargetSnapshots = new Snapshot[] {snapshot};
-
-    this.metricByIds = Maps.newHashMap();
-    for (Metric metric : metricFinder.findAll()) {
-      if (metric.isNumericType()) {
-        metricByIds.put(metric.getId(), metric);
-      }
-    }
+    projectTargetSnapshots = new Snapshot[]{snapshot};
+    initMetrics(metricFinder.findAll());
   }
 
   /**
    * only for unit tests
    */
-  DifferentialValueDecorator(DatabaseSession session, Snapshot[] projectTargetSnapshots, Metric[] metrics) {
+  DifferentialValueDecorator(DatabaseSession session, Snapshot[] projectTargetSnapshots, Collection<Metric> metrics) {
     this.session = session;
     this.projectTargetSnapshots = projectTargetSnapshots;
+    initMetrics(metrics);
+  }
+
+  private void initMetrics(Collection<Metric> metrics) {
     this.metricByIds = Maps.newHashMap();
     for (Metric metric : metrics) {
-      metricByIds.put(metric.getId(), metric);
+      if (metric.isNumericType()) {
+        metricByIds.put(metric.getId(), metric);
+      }
     }
   }
 
@@ -78,31 +79,44 @@ public class DifferentialValueDecorator implements Decorator {
     return metricByIds.values();
   }
 
+  static boolean shouldCalculateDiffValues(Resource resource) {
+    // measures on files are currently purged, so past measures are not available
+    return !ResourceUtils.isEntity(resource);
+  }
+
   public void decorate(Resource resource, DecoratorContext context) {
-    for (int index = 0; index < projectTargetSnapshots.length; index++) {
-      Snapshot projectTargetSnapshot = projectTargetSnapshots[index];
-      if (projectTargetSnapshot != null) {
-        // search past measures
-        List<MeasureModel> pastMeasures = selectPastMeasures(resource.getId(), projectTargetSnapshot);
-
-        Map<MeasureKey, MeasureModel> pastMeasuresByKey = Maps.newHashMap();
-        for (MeasureModel pastMeasure : pastMeasures) {
-          pastMeasuresByKey.put(new MeasureKey(pastMeasure), pastMeasure);
-        }
-
-        // for each measure, search equivalent past measure
-        for (Measure measure : context.getMeasures(MeasuresFilters.all())) {
-          // compare with past measure
-          MeasureModel pastMeasure = pastMeasuresByKey.get(new MeasureKey(measure));
-          if (calculateDiffValue(measure, pastMeasure, index)) {
-            context.saveMeasure(measure);
-          }
+    if (shouldCalculateDiffValues(resource)) {
+      for (int index = 0; index < projectTargetSnapshots.length; index++) {
+        Snapshot projectTargetSnapshot = projectTargetSnapshots[index];
+        if (projectTargetSnapshot != null) {
+          calculateDiffValues(resource, context, index, projectTargetSnapshot);
         }
       }
     }
   }
 
-  private boolean calculateDiffValue(Measure measure, MeasureModel pastMeasure, int index) {
+  private void calculateDiffValues(Resource resource, DecoratorContext context, int index, Snapshot projectTargetSnapshot) {
+    List<MeasureModel> pastMeasures = selectPastMeasures(resource.getId(), projectTargetSnapshot);
+    compareWithPastMeasures(context, index, pastMeasures);
+  }
+
+  void compareWithPastMeasures(DecoratorContext context, int index, List<MeasureModel> pastMeasures) {
+    Map<MeasureKey, MeasureModel> pastMeasuresByKey = Maps.newHashMap();
+    for (MeasureModel pastMeasure : pastMeasures) {
+      pastMeasuresByKey.put(new MeasureKey(pastMeasure), pastMeasure);
+    }
+
+    // for each measure, search equivalent past measure
+    for (Measure measure : context.getMeasures(MeasuresFilters.all())) {
+      // compare with past measure
+      MeasureModel pastMeasure = pastMeasuresByKey.get(new MeasureKey(measure));
+      if (updateDiffValue(measure, pastMeasure, index)) {
+        context.saveMeasure(measure);
+      }
+    }
+  }
+
+  boolean updateDiffValue(Measure measure, MeasureModel pastMeasure, int index) {
     boolean updated = false;
     if (pastMeasure != null && pastMeasure.getValue() != null && measure.getValue() != null) {
       double diff = (measure.getValue().doubleValue() - pastMeasure.getValue().doubleValue());
@@ -163,7 +177,7 @@ public class DifferentialValueDecorator implements Decorator {
       characteristic = measure.getCharacteristic();
       // TODO merge RuleMeasure into Measure
       if (measure instanceof RuleMeasure) {
-        RuleMeasure rm = (RuleMeasure)measure;
+        RuleMeasure rm = (RuleMeasure) measure;
         categoryId = rm.getRuleCategory();
         rule = rm.getRule();
         priority = rm.getRulePriority();

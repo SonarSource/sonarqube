@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.resources.*;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.List;
@@ -41,7 +42,7 @@ public class DifferentialValueDecoratorTest extends AbstractDbUnitTestCase {
   public void shouldSelectPastResourceMeasures() {
     setupData("shared");
 
-    Metric[] metrics = selectMetrics();
+    List<Metric> metrics = selectMetrics();
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", PROJECT_SNAPSHOT_ID);
 
     DifferentialValueDecorator decorator = new DifferentialValueDecorator(getSession(), new Snapshot[0], metrics);
@@ -58,7 +59,7 @@ public class DifferentialValueDecoratorTest extends AbstractDbUnitTestCase {
   public void shouldSelectPastProjectMeasures() {
     setupData("shared");
 
-    Metric[] metrics = selectMetrics();
+    List<Metric> metrics = selectMetrics();
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", PROJECT_SNAPSHOT_ID);
 
     DifferentialValueDecorator decorator = new DifferentialValueDecorator(getSession(), new Snapshot[0], metrics);
@@ -71,8 +72,18 @@ public class DifferentialValueDecoratorTest extends AbstractDbUnitTestCase {
     }
   }
 
-  private Metric[] selectMetrics() {
-    List<Metric> metrics = getSession().getResults(Metric.class);
-    return metrics.toArray(new Metric[metrics.size()]);
+  @Test
+  public void shouldNotCalculateDiffValuesOnFiles() {
+    assertThat(DifferentialValueDecorator.shouldCalculateDiffValues(new Project("foo")), is(true));
+    assertThat(DifferentialValueDecorator.shouldCalculateDiffValues(new JavaPackage("org.foo")), is(true));
+    assertThat(DifferentialValueDecorator.shouldCalculateDiffValues(new Directory("org/foo")), is(true));
+
+    assertThat(DifferentialValueDecorator.shouldCalculateDiffValues(new JavaFile("org.foo.Bar")), is(false));
+    assertThat(DifferentialValueDecorator.shouldCalculateDiffValues(new JavaFile("org.foo.Bar", true)), is(false));
+    assertThat(DifferentialValueDecorator.shouldCalculateDiffValues(new File("org/foo/Bar.php")), is(false));
+  }
+
+  private List<Metric> selectMetrics() {
+    return getSession().getResults(Metric.class);
   }
 }

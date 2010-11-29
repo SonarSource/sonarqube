@@ -60,7 +60,7 @@ public final class PeriodLocator implements BatchExtension {
     Snapshot nearest = null;
     for (Snapshot snapshot : snapshots) {
       long distance = distance(snapshot.getCreatedAt(), targetDate);
-      if (distance<=bestDistance) {
+      if (distance <= bestDistance) {
         bestDistance = distance;
         nearest = snapshot;
       }
