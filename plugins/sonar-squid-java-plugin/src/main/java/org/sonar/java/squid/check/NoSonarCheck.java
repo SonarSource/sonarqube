@@ -26,14 +26,15 @@ import org.sonar.check.Rule;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 
-@Rule(key = "NoSonarCheck", name = "NOSONAR occurence", isoCategory = IsoCategory.Maintainability, priority = Priority.INFO,
-    description = "")
+@Rule(key = "NoSonar", name = "Avoid use of //NOSONAR marker", isoCategory = IsoCategory.Reliability, priority = Priority.INFO,
+    description = "<p>Any violation to quality rule can be deactivated with the //NOSONAR marker. This marker is pretty useful to exclude false-positive results but sometimes it can abusively be used to hide real quality flaws.</p>"
+        + "<p>This rule allows to track and/or forbid use of this marker</p>")
 public class NoSonarCheck extends SquidCheck {
 
   @Override
   public void visitFile(SourceFile sourceFile) {
     for (Integer line : sourceFile.getNoSonarTagLines()) {
-      CheckMessage message = new CheckMessage(this, "NOSONAR occurence");
+      CheckMessage message = new CheckMessage(this, "Is //NOSONAR used to exclude false-positive or to hide real quality flaw ?");
       message.setForced(true);
       message.setLine(line);
       sourceFile.log(message);
