@@ -33,6 +33,7 @@ import org.sonar.api.utils.SonarException;
 
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -159,7 +160,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     model = session.save(model);
     resource.setId(model.getId()); // TODO to be removed
 
-    Snapshot parentSnapshot = (Snapshot)ObjectUtils.defaultIfNull(getSnapshot(resource.getParent()), projectSnapshot);
+    Snapshot parentSnapshot = (Snapshot) ObjectUtils.defaultIfNull(getSnapshot(resource.getParent()), projectSnapshot);
     Snapshot snapshot = new Snapshot(model, parentSnapshot);
     snapshot = session.save(snapshot);
     session.commit();
@@ -167,16 +168,23 @@ public final class DefaultResourcePersister implements ResourcePersister {
     return snapshot;
   }
 
+  public Snapshot getPreviousLastSnapshot(Snapshot snapshot) {
+    Query query = session.createQuery(
+        "SELECT s FROM " + Snapshot.class.getSimpleName() + " s " +
+            "WHERE s.last=true AND s.resourceId=:resourceId");
+    query.setParameter("resourceId", snapshot.getResourceId());
+    return session.getSingleResult(query, null);
+  }
+
   public void clear() {
     // we keep cache of projects
     for (Iterator<Map.Entry<Resource, Snapshot>> it = snapshotsByResource.entrySet().iterator(); it.hasNext();) {
       Map.Entry<Resource, Snapshot> entry = it.next();
-      if (!ResourceUtils.isSet(entry.getKey())) {
+      if ( !ResourceUtils.isSet(entry.getKey())) {
         it.remove();
       }
     }
   }
-
 
   private ResourceModel findOrCreateModel(Resource resource) {
     ResourceModel model;
@@ -225,7 +233,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     if (StringUtils.isNotBlank(resource.getDescription())) {
       model.setDescription(resource.getDescription());
     }
-    if (!ResourceUtils.isLibrary(resource)) {
+    if ( !ResourceUtils.isLibrary(resource)) {
       model.setScope(resource.getScope());
       model.setQualifier(resource.getQualifier());
     }

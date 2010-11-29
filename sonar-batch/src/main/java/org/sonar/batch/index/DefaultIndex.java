@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.database.model.ResourceModel;
+import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.*;
 import org.sonar.api.profiles.RulesProfile;
@@ -64,6 +65,7 @@ public final class DefaultIndex extends SonarIndex {
   private Set<Dependency> dependencies = Sets.newHashSet();
   private Map<Resource, Map<Resource, Dependency>> outgoingDependenciesByResource = Maps.newHashMap();
   private Map<Resource, Map<Resource, Dependency>> incomingDependenciesByResource = Maps.newHashMap();
+  private Map<Resource, List<RuleFailureModel>> violationsByResource = Maps.newHashMap();
   private ProjectTree projectTree;
 
   public DefaultIndex(PersistenceManager persistence, DefaultResourceCreationLock lock, ProjectTree projectTree, MetricFinder metricFinder) {
@@ -131,7 +133,6 @@ public final class DefaultIndex extends SonarIndex {
     lock.unlock();
   }
 
-
   /**
    * Does nothing if the resource is already registered.
    */
@@ -195,7 +196,6 @@ public final class DefaultIndex extends SonarIndex {
     resource.setExcluded(excluded);
     return excluded;
   }
-
 
   public List<Resource> getChildren(Resource resource) {
     List<Resource> children = Lists.newArrayList();
@@ -262,7 +262,6 @@ public final class DefaultIndex extends SonarIndex {
     }
   }
 
-
   //
   //
   //
@@ -270,6 +269,7 @@ public final class DefaultIndex extends SonarIndex {
   //
   //
   //
+
   public Dependency addDependency(Dependency dependency) {
     Dependency existingDep = getEdge(dependency.getFrom(), dependency.getTo());
     if (existingDep != null) {
@@ -356,7 +356,6 @@ public final class DefaultIndex extends SonarIndex {
     return result;
   }
 
-
   //
   //
   //
@@ -402,8 +401,21 @@ public final class DefaultIndex extends SonarIndex {
   }
 
   private void doAddViolation(Violation violation, Bucket bucket) {
+    Resource resource = violation.getResource();
+    if (!violationsByResource.containsKey(resource)) {
+      violationsByResource.put(resource, persistence.loadPreviousViolations(resource));
+    }
+    RuleFailureModel found = null;
+    List<RuleFailureModel> pastViolations = violationsByResource.get(resource);
+    for (RuleFailureModel pastViolation : pastViolations) {
+      // TODO Compare pastViolation to violation
+      if (pastViolation.getLine() == violation.getLineId() && StringUtils.equals(pastViolation.getMessage(), violation.getMessage())) {
+        found = pastViolation;
+        break;
+      }
+    }
     bucket.addViolation(violation);
-    persistence.saveViolation(currentProject, violation);
+    persistence.saveOrUpdateViolation(currentProject, violation, found);
   }
 
   //
@@ -413,6 +425,7 @@ public final class DefaultIndex extends SonarIndex {
   //
   //
   //
+
   public void addLink(ProjectLink link) {
     persistence.saveLink(currentProject, link);
   }
@@ -420,7 +433,6 @@ public final class DefaultIndex extends SonarIndex {
   public void deleteLink(String key) {
     persistence.deleteLink(currentProject, key);
   }
-
 
   //
   //

@@ -20,8 +20,10 @@
 package org.sonar.batch.phases;
 
 import org.junit.Test;
+import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.batch.ServerMetadata;
+import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import javax.persistence.Query;
@@ -47,14 +49,13 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
 
   private void assertAnalysis(int snapshotId, String fixture) {
     setupData("sharedFixture", fixture);
-
-    UpdateStatusJob sensor = new UpdateStatusJob(mock(ServerMetadata.class), getSession(), loadSnapshot(snapshotId));
+    DatabaseSession session = getSession();
+    UpdateStatusJob sensor = new UpdateStatusJob(mock(ServerMetadata.class), session, new DefaultResourcePersister(session), loadSnapshot(snapshotId));
     sensor.execute();
 
     getSession().stop();
     checkTables(fixture, "snapshots");
   }
-
 
   private Snapshot loadSnapshot(int id) {
     Query query = getSession().createQuery("SELECT s FROM Snapshot s WHERE s.id=:id");

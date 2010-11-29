@@ -30,5 +30,7 @@ public interface ResourcePersister {
 
   Snapshot saveResource(Project project, Resource resource);
 
+  Snapshot getPreviousLastSnapshot(Snapshot snapshot);
+
   void clear();
 }

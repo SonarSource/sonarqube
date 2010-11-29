@@ -24,6 +24,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.batch.ServerMetadata;
+import org.sonar.batch.index.ResourcePersister;
 
 import javax.persistence.Query;
 
@@ -32,26 +33,19 @@ public class UpdateStatusJob implements BatchComponent {
   private DatabaseSession session;
   private ServerMetadata server;
   private Snapshot snapshot; // TODO remove this component
+  private ResourcePersister resourcePersister;
 
-  public UpdateStatusJob(ServerMetadata server, DatabaseSession session, Snapshot snapshot) {
+  public UpdateStatusJob(ServerMetadata server, DatabaseSession session, ResourcePersister resourcePersister, Snapshot snapshot) {
     this.session = session;
     this.server = server;
+    this.resourcePersister = resourcePersister;
     this.snapshot = snapshot;
   }
 
   public void execute() {
-    Snapshot previousLastSnapshot = getPreviousLastSnapshot(snapshot);
+    Snapshot previousLastSnapshot = resourcePersister.getPreviousLastSnapshot(snapshot);
     updateFlags(snapshot, previousLastSnapshot);
   }
-
-  private Snapshot getPreviousLastSnapshot(Snapshot snapshot) {
-    Query query = session.createQuery(
-        "SELECT s FROM " + Snapshot.class.getSimpleName() + " s " +
-            "WHERE s.last=true AND s.resourceId=:resourceId");
-    query.setParameter("resourceId", snapshot.getResourceId());
-    return session.getSingleResult(query, null);
-  }
-
 
   private void updateFlags(Snapshot rootSnapshot, Snapshot previousLastSnapshot) {
     if (previousLastSnapshot != null && previousLastSnapshot.getCreatedAt().before(rootSnapshot.getCreatedAt())) {

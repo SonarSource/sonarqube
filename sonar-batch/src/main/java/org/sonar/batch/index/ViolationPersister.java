@@ -24,10 +24,13 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public final class ViolationPersister {
@@ -41,22 +44,44 @@ public final class ViolationPersister {
     this.resourcePersister = resourcePersister;
   }
 
-  public void saveViolation(Project project, Violation violation) {
-    Snapshot snapshot = resourcePersister.saveResource(project, violation.getResource());
-    if (snapshot != null) {
-      session.save(toModel(snapshot, violation));
+  public List<RuleFailureModel> getPreviousViolations(Resource resource) {
+    Snapshot snapshot = resourcePersister.getSnapshot(resource);
+    Snapshot previousLastSnapshot = resourcePersister.getPreviousLastSnapshot(snapshot);
+    if (previousLastSnapshot == null) {
+      return Collections.emptyList();
     }
+    return session.getResults(RuleFailureModel.class, "snapshotId", previousLastSnapshot.getId());
   }
 
-  private RuleFailureModel toModel(Snapshot snapshot, Violation violation) {
-    RuleFailureModel model = new RuleFailureModel();
-    model.setRuleId(getRuleId(violation.getRule()));
-    model.setPriority(violation.getPriority());
-    model.setLine(violation.getLineId());
-    model.setMessage(violation.getMessage());
-    model.setCost(violation.getCost());
+  public void saveOrUpdateViolation(Project project, Violation violation, RuleFailureModel oldModel) {
+    Snapshot snapshot = resourcePersister.saveResource(project, violation.getResource());
+    if (snapshot == null) {
+      return; // TODO Godin why ? when?
+    }
+    RuleFailureModel model;
+    if (oldModel != null) {
+      // update
+      model = session.reattach(RuleFailureModel.class, oldModel.getId());
+      model = mergeModel(violation, oldModel);
+    } else {
+      // insert
+      model = createModel(violation);
+    }
     model.setSnapshotId(snapshot.getId());
-    return model;
+    session.save(model);
+  }
+
+  private RuleFailureModel createModel(Violation violation) {
+    return mergeModel(violation, new RuleFailureModel());
+  }
+
+  private RuleFailureModel mergeModel(Violation violation, RuleFailureModel merge) {
+    merge.setRuleId(getRuleId(violation.getRule()));
+    merge.setPriority(violation.getPriority());
+    merge.setLine(violation.getLineId());
+    merge.setMessage(violation.getMessage());
+    merge.setCost(violation.getCost());
+    return merge;
   }
 
   private Integer getRuleId(Rule rule) {
@@ -64,7 +89,8 @@ public final class ViolationPersister {
     if (ruleId == null) {
       ruleId = rule.getId();
       if (ruleId == null) {
-        Rule persistedRule = session.getSingleResult(Rule.class, "pluginName", rule.getRepositoryKey(), "key", rule.getKey(), "enabled", true);
+        Rule persistedRule = session.getSingleResult(Rule.class,
+          "pluginName", rule.getRepositoryKey(), "key", rule.getKey(), "enabled", true);
         if (persistedRule == null) {
           throw new SonarException("Rule not found: " + rule);
         }
