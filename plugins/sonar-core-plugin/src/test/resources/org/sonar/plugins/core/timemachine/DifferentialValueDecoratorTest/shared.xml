@@ -1,0 +1,85 @@
+<dataset>
+
+  <metrics id="1" name="ncloc" VAL_TYPE="INT" DESCRIPTION="[null]"  domain="[null]" short_name=""
+           enabled="true" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="false"/>
+  <metrics id="2" name="coverage" VAL_TYPE="INT" DESCRIPTION="[null]"  domain="[null]" short_name=""
+           enabled="true" worst_value="0" optimized_best_value="true" best_value="100" direction="1" hidden="false"/>
+
+
+  <rules_categories id="1" name="Efficiency" description="[null]"/>
+  <rules_categories id="6" name="Usability" description="[null]"/>
+
+  <rules id="30" name="Check Header" rules_category_id="6" plugin_rule_key="com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck"
+         plugin_config_key="Checker/Treewalker/HeaderCheck" plugin_name="checkstyle" description="[null]" priority="4" enabled="true"
+         cardinality="SINGLE" parent_id="[null]"/>
+
+  <rules id="31" name="Equals Avoid Null" rules_category_id="6" plugin_rule_key="com.puppycrawl.tools.checkstyle.checks.coding.EqualsAvoidNullCheck"
+         plugin_config_key="Checker/TreeWalker/EqualsAvoidNull" plugin_name="checkstyle" description="[null]" priority="4" enabled="true"
+         cardinality="SINGLE" parent_id="[null]"/>
+
+  <!-- project -->
+  <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="project" name="project"
+            root_id="[null]"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]"/>
+
+  <!-- package -->
+  <projects long_name="[null]" id="2" scope="DIR" qualifier="PAC" kee="project:org.foo" name="org.foo"
+            root_id="1"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]"/>
+
+  <!-- file -->
+  <projects long_name="org.foo.Bar" id="3" scope="FIL" qualifier="CLA" kee="project:org.foo.Bar"
+            name="Bar" root_id="[null]"
+            description="[null]"
+            enabled="true" language="java" copy_resource_id="[null]"/>
+
+
+  <!-- snapshots -->
+  <snapshots id="1000" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             scope="PRJ" qualifier="TRK" created_at="2008-11-01 13:58:00.00" version="[null]" path=""
+             status="P" islast="false" depth="0" />
+
+  <snapshots id="1001" project_id="2" parent_snapshot_id="1000" root_project_id="1" root_snapshot_id="1000"
+             scope="DIR" qualifier="PAC" created_at="2008-11-01 13:58:00.00" version="[null]" path="1000."
+             status="P" islast="false" depth="1" />
+
+  <snapshots id="1002" project_id="3" parent_snapshot_id="1001" root_project_id="1" root_snapshot_id="1000"
+             scope="FIL" qualifier="CLA" created_at="2008-11-01 13:58:00.00" version="[null]" path="1000.1001."
+             status="P" islast="false" depth="2" />
+
+
+  <!-- project measures -->
+  <project_measures id="1" VALUE="60" METRIC_ID="1" SNAPSHOT_ID="1000" alert_text="[null]" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]" rule_priority="[null]" characteristic_id="[null]" url="[null]"
+                    diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"/>
+
+  <project_measures id="2" VALUE="80" METRIC_ID="2" SNAPSHOT_ID="1000" alert_text="[null]" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]" rule_priority="[null]" characteristic_id="[null]" url="[null]"
+                    diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"/>
+
+  <!-- package measures -->
+  <project_measures id="3" VALUE="20" METRIC_ID="1" SNAPSHOT_ID="1001" alert_text="[null]" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]" rule_priority="[null]" characteristic_id="[null]" url="[null]"
+                    diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"/>
+
+  <project_measures id="4" VALUE="70" METRIC_ID="2" SNAPSHOT_ID="1001" alert_text="[null]" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]" rule_priority="[null]" characteristic_id="[null]" url="[null]"
+                    diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"/>
+
+  <!-- file measures -->
+  <project_measures id="5" VALUE="5" METRIC_ID="1" SNAPSHOT_ID="1002" alert_text="[null]" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]" rule_priority="[null]" characteristic_id="[null]" url="[null]"
+                    diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"/>
+
+  <project_measures id="6" VALUE="60" METRIC_ID="2" SNAPSHOT_ID="1002" alert_text="[null]" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]" rule_priority="[null]" characteristic_id="[null]" url="[null]"
+                    diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"/>
+</dataset>

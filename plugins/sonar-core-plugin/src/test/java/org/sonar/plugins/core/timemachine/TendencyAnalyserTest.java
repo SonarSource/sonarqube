@@ -17,15 +17,16 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.sensors;
+package org.sonar.plugins.core.timemachine;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.*;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.*;
 
 public class TendencyAnalyserTest {
   private TendencyAnalyser analyser = new TendencyAnalyser();

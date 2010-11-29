@@ -19,11 +19,9 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.Phase;
+import org.sonar.api.batch.*;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -33,10 +31,8 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Phase(name = Phase.Name.POST)
 public class CheckAlertThresholds implements Decorator {
 
   private final RulesProfile profile;
@@ -48,6 +44,15 @@ public class CheckAlertThresholds implements Decorator {
   @DependedUpon
   public Metric generatesAlertStatus() {
     return CoreMetrics.ALERT_STATUS;
+  }
+
+  @DependsUpon
+  public List<Metric> dependsUponMetrics() {
+    List<Metric> metrics = Lists.newLinkedList();
+    for (Alert alert : profile.getAlerts()) {
+      metrics.add(alert.getMetric());
+    }
+    return metrics;
   }
 
 
@@ -66,7 +71,7 @@ public class CheckAlertThresholds implements Decorator {
 
   private void decorateResource(DecoratorContext context) {
     Metric.Level globalLevel = Metric.Level.OK;
-    List<String> labels = new ArrayList<String>();
+    List<String> labels = Lists.newArrayList();
 
     for (final Alert alert : profile.getAlerts()) {
       Measure measure = context.getMeasure(alert.getMetric());

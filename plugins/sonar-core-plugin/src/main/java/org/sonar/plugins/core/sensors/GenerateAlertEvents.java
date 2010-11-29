@@ -30,7 +30,6 @@ import org.sonar.api.resources.ResourceUtils;
 
 import java.util.List;
 
-@Phase(name = Phase.Name.POST)
 public class GenerateAlertEvents implements Decorator {
 
   private final RulesProfile profile;

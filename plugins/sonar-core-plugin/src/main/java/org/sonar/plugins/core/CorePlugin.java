@@ -19,7 +19,11 @@
  */
 package org.sonar.plugins.core;
 
-import org.sonar.api.*;
+import com.google.common.collect.Lists;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.Plugin;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.resources.Java;
 import org.sonar.plugins.core.batch.ExcludedResourceFilter;
@@ -36,11 +40,13 @@ import org.sonar.plugins.core.metrics.UserManagedMetrics;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.*;
 import org.sonar.plugins.core.testdetailsviewer.TestsViewerDefinition;
+import org.sonar.plugins.core.timemachine.DifferentialValueDecorator;
+import org.sonar.plugins.core.timemachine.PeriodLocator;
+import org.sonar.plugins.core.timemachine.TendencyDecorator;
 import org.sonar.plugins.core.ui.pageselector.GwtPageSelector;
 import org.sonar.plugins.core.violationsviewer.ViolationsViewerDefinition;
 import org.sonar.plugins.core.widgets.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Properties({
@@ -125,7 +131,7 @@ public class CorePlugin implements Plugin {
   }
 
   public List getExtensions() {
-    List extensions = new ArrayList();
+    List extensions = Lists.newLinkedList();
 
     // languages
     extensions.add(Java.class);
@@ -185,6 +191,9 @@ public class CorePlugin implements Plugin {
     extensions.add(NoSonarFilter.class);
     extensions.add(DirectoriesDecorator.class);
     extensions.add(FilesDecorator.class);
+
+    extensions.add(PeriodLocator.class);
+    extensions.add(DifferentialValueDecorator.class);
 
     return extensions;
   }

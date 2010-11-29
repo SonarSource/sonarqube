@@ -17,40 +17,45 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.sensors;
+package org.sonar.plugins.core.timemachine;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.*;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
-import org.sonar.jpa.dao.MeasuresDao;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Phase(name = Phase.Name.POST)
+@DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
 public class TendencyDecorator implements Decorator {
 
   public static final String PROP_DAYS_DESCRIPTION = "Number of days the tendency should be calculated on.";
 
-  private MeasuresDao measuresDao;
   private TimeMachine timeMachine;
   private TimeMachineQuery query;
   private TendencyAnalyser analyser;
   private Configuration configuration;
+  private List<Metric> metrics;
 
-  public TendencyDecorator(TimeMachine timeMachine, MeasuresDao measuresDao, Configuration configuration) {
+  public TendencyDecorator(TimeMachine timeMachine, MetricFinder metricFinder, Configuration configuration) {
     this.timeMachine = timeMachine;
-    this.measuresDao = measuresDao;
     this.analyser = new TendencyAnalyser();
     this.configuration = configuration;
+    this.metrics = Lists.newLinkedList();
+    for (Metric metric : metricFinder.findAll()) {
+      if (metric.isNumericType()) {
+        metrics.add(metric);
+      }
+    }
   }
 
   protected TendencyDecorator(TimeMachine timeMachine, TimeMachineQuery query, TendencyAnalyser analyser, Configuration configuration) {
@@ -60,15 +65,13 @@ public class TendencyDecorator implements Decorator {
     this.configuration = configuration;
   }
 
+  @DependsUpon
+  public List<Metric> dependsUponMetrics() {
+    return metrics;
+  }
+
   protected TimeMachineQuery initQuery(Project project) {
     int days = project.getConfiguration().getInt(CoreProperties.CORE_TENDENCY_DEPTH_PROPERTY, CoreProperties.CORE_TENDENCY_DEPTH_DEFAULT_VALUE);
-
-    List<Metric> metrics = new ArrayList<Metric>();
-    for (Metric metric : measuresDao.getMetrics()) {
-      if (metric.isNumericType()) {
-        metrics.add(metric);
-      }
-    }
 
     query = new TimeMachineQuery(null) // resource is set after
         .setFrom(DateUtils.addDays(project.getAnalysisDate(), -days))

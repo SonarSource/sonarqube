@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.sensors;
+package org.sonar.plugins.core.timemachine;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
@@ -27,9 +27,9 @@ import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Project;
-import org.sonar.jpa.dao.MeasuresDao;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -49,10 +49,10 @@ public class TendencyDecoratorTest {
     when(project.getAnalysisDate()).thenReturn(date("2009-12-25"));
     when(project.getConfiguration()).thenReturn(new PropertiesConfiguration());
 
-    MeasuresDao dao = mock(MeasuresDao.class);
-    when(dao.getMetrics()).thenReturn(Arrays.asList(CoreMetrics.LINES, CoreMetrics.COVERAGE, CoreMetrics.COVERAGE_LINE_HITS_DATA, CoreMetrics.PROFILE));
+    MetricFinder metricFinder = mock(MetricFinder.class);
+    when(metricFinder.findAll()).thenReturn(Arrays.asList(CoreMetrics.LINES, CoreMetrics.COVERAGE, CoreMetrics.COVERAGE_LINE_HITS_DATA, CoreMetrics.PROFILE));
 
-    TendencyDecorator decorator = new TendencyDecorator(null, dao, new PropertiesConfiguration());
+    TendencyDecorator decorator = new TendencyDecorator(null, metricFinder, new PropertiesConfiguration());
 
     TimeMachineQuery query = decorator.initQuery(project);
     assertThat(query.getMetrics().size(), is(2));
