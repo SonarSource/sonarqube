@@ -19,10 +19,7 @@
  */
 package org.sonar.batch;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -42,7 +39,9 @@ import org.sonar.core.plugin.JpaPlugin;
 import org.sonar.core.plugin.JpaPluginDao;
 import org.sonar.core.plugin.JpaPluginFile;
 
-import com.google.common.collect.Lists;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
 
 public class BatchPluginRepository extends AbstractPluginRepository {
 

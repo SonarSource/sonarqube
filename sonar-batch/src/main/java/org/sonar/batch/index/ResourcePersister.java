@@ -30,7 +30,11 @@ public interface ResourcePersister {
 
   Snapshot saveResource(Project project, Resource resource);
 
-  Snapshot getPreviousLastSnapshot(Snapshot snapshot);
+  /**
+   * The current snapshot which is flagged as "last"
+   * @param onlyOlder true if the result must be anterior to the snapshot parameter
+   */
+  Snapshot getLastSnapshot(Snapshot snapshot, boolean onlyOlder);
 
   void clear();
 }

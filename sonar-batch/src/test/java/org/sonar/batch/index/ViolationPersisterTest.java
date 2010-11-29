@@ -54,7 +54,7 @@ public class ViolationPersisterTest extends AbstractDbUnitTestCase {
     Snapshot snapshot = getSession().getSingleResult(Snapshot.class, "id", 1000);
     ResourcePersister resourcePersister = mock(ResourcePersister.class);
     when(resourcePersister.saveResource((Project) anyObject(), eq(javaFile))).thenReturn(snapshot);
-    when(resourcePersister.getPreviousLastSnapshot(snapshot)).thenReturn(snapshot);
+    when(resourcePersister.getLastSnapshot(snapshot, true)).thenReturn(snapshot);
     when(resourcePersister.getSnapshot(javaFile)).thenReturn(snapshot);
     violationPersister = new ViolationPersister(getSession(), resourcePersister, new DefaultRuleFinder(getSessionFactory()));
   }

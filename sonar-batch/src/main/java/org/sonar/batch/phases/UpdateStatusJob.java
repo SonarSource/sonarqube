@@ -43,7 +43,7 @@ public class UpdateStatusJob implements BatchComponent {
   }
 
   public void execute() {
-    Snapshot previousLastSnapshot = resourcePersister.getPreviousLastSnapshot(snapshot);
+    Snapshot previousLastSnapshot = resourcePersister.getLastSnapshot(snapshot, false);
     updateFlags(snapshot, previousLastSnapshot);
   }
 

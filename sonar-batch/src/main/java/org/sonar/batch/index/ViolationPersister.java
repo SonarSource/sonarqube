@@ -45,7 +45,7 @@ public final class ViolationPersister {
 
   public List<RuleFailureModel> getPreviousViolations(Resource resource) {
     Snapshot snapshot = resourcePersister.getSnapshot(resource);
-    Snapshot previousLastSnapshot = resourcePersister.getPreviousLastSnapshot(snapshot);
+    Snapshot previousLastSnapshot = resourcePersister.getLastSnapshot(snapshot, true);
     if (previousLastSnapshot == null) {
       return Collections.emptyList();
     }
