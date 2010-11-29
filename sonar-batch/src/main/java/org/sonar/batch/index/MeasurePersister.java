@@ -85,8 +85,14 @@ public final class MeasurePersister {
             metric.isOptimizedBestValue() == Boolean.TRUE &&
             metric.getBestValue() != null &&
             NumberUtils.compare(metric.getBestValue(), measure.getValue()) == 0 &&
-            !measure.hasOptionalData());
-    // TODO add diff_values in hasOptionalData
+            measure.getAlertStatus()==null &&
+            measure.getDescription()==null &&
+            measure.getTendency()==null &&
+            measure.getUrl()==null &&
+            measure.getData()==null &&
+            (measure.getDiffValue1() == null || NumberUtils.compare(measure.getDiffValue1().doubleValue(), 0.0) == 0) &&
+            (measure.getDiffValue2() == null || NumberUtils.compare(measure.getDiffValue2().doubleValue(), 0.0) == 0) &&
+            (measure.getDiffValue3() == null || NumberUtils.compare(measure.getDiffValue3().doubleValue(), 0.0) == 0));
   }
 
   public void dump() {

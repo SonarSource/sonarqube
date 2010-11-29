@@ -24,6 +24,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
@@ -149,5 +150,32 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
   public void shouldNotSaveMemoryOnlyMeasures() {
     Measure measure = new Measure("ncloc").setPersistenceMode(PersistenceMode.MEMORY);
     assertThat(MeasurePersister.shouldPersistMeasure(aPackage, measure), is(false));
+  }
+
+  @Test
+  public void shouldAlwaysPersistNonFileMeasures() {
+    assertThat(MeasurePersister.shouldPersistMeasure(project, new Measure(CoreMetrics.LINES, 200.0)), is(true));
+    assertThat(MeasurePersister.shouldPersistMeasure(aPackage, new Measure(CoreMetrics.LINES, 200.0)), is(true));
+  }
+
+  @Test
+  public void shouldNotPersistSomeFileMeasuresWithBestValue() {
+    JavaFile file = new JavaFile("org.foo.Bar");
+
+    // must persist:
+    assertThat(MeasurePersister.shouldPersistMeasure(file, new Measure(CoreMetrics.LINES, 200.0)), is(true));
+    assertThat(MeasurePersister.shouldPersistMeasure(file, new Measure(CoreMetrics.DUPLICATED_LINES_DENSITY, 3.0)), is(true));
+
+
+    // must not persist:
+    Measure duplicatedLines = new Measure(CoreMetrics.DUPLICATED_LINES_DENSITY, 0.0);
+    assertThat(MeasurePersister.shouldPersistMeasure(file, duplicatedLines), is(false));
+
+    duplicatedLines.setDiffValue1(0.0);
+    assertThat(MeasurePersister.shouldPersistMeasure(file, duplicatedLines), is(false));
+
+    duplicatedLines.setDiffValue1(-3.0);
+    assertThat(MeasurePersister.shouldPersistMeasure(file, duplicatedLines), is(true));
+
   }
 }

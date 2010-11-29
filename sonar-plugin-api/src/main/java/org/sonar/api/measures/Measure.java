@@ -533,16 +533,4 @@ public class Measure {
         append("diff3", diff3).
         toString();
   }
-
-  public boolean hasOptionalData() {
-    return getAlertStatus() != null ||
-        getAlertText() != null ||
-        getDescription() != null ||
-        getDiffValue1() != null ||
-        getDiffValue2() != null ||
-        getDiffValue3() != null ||
-        getData() != null ||
-        getTendency() != null ||
-        getUrl() != null;
-  }
 }
