@@ -19,9 +19,21 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
-import static org.mockito.Mockito.*;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
@@ -33,10 +45,6 @@ import org.sonar.api.rules.RulesCategory;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.api.test.IsRuleMeasure;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class ViolationsDecoratorTest {
   private RulesCategory categA;
@@ -56,14 +64,9 @@ public class ViolationsDecoratorTest {
     categB = new RulesCategory("Usability");
     categB.setId(2);
 
-    ruleA1 = new Rule("ruleA1", "ruleA1", "nameA1", categA, null);
-    ruleA1.setId(1);
-
-    ruleA2 = new Rule("ruleA2", "ruleA2", "nameA2", categA, null);
-    ruleA2.setId(2);
-
-    ruleB1 = new Rule("ruleB1", "ruleB1", "nameB1", categB, null);
-    ruleB1.setId(3);
+    ruleA1 = Rule.create().setPluginName("ruleA1").setKey("ruleA1").setName("nameA1").setRulesCategory(categA);
+    ruleA2 = Rule.create().setPluginName("ruleA2").setKey("ruleA2").setName("nameA2").setRulesCategory(categA);
+    ruleB1 = Rule.create().setPluginName("ruleB1").setKey("ruleB1").setName("nameB1").setRulesCategory(categB);
 
     decorator = new ViolationsDecorator();
     resource = mock(Resource.class);
@@ -75,7 +78,7 @@ public class ViolationsDecoratorTest {
   public void countViolations() throws Exception {
     when(resource.getScope()).thenReturn(Resource.SCOPE_SET);
     when(context.getViolations()).thenReturn(createViolations());
-    when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure>emptyList());
+    when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure> emptyList());
 
     decorator.decorate(resource, context);
 
@@ -86,7 +89,7 @@ public class ViolationsDecoratorTest {
   public void resetCountersAfterExecution() {
     when(resource.getScope()).thenReturn(Resource.SCOPE_SET);
     when(context.getViolations()).thenReturn(createViolations());
-    when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure>emptyList());
+    when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure> emptyList());
 
     decorator.decorate(resource, context);
     decorator.decorate(resource, context);
@@ -99,8 +102,8 @@ public class ViolationsDecoratorTest {
   @Test
   public void saveZeroOnProjects() throws Exception {
     when(resource.getScope()).thenReturn(Resource.SCOPE_SET);
-    when(context.getViolations()).thenReturn(Collections.<Violation>emptyList());
-    when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure>emptyList());
+    when(context.getViolations()).thenReturn(Collections.<Violation> emptyList());
+    when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure> emptyList());
 
     decorator.decorate(resource, context);
 
@@ -110,8 +113,8 @@ public class ViolationsDecoratorTest {
   @Test
   public void saveZeroOnDirectories() throws Exception {
     when(resource.getScope()).thenReturn(Resource.SCOPE_SPACE);
-    when(context.getViolations()).thenReturn(Collections.<Violation>emptyList());
-    when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure>emptyList());
+    when(context.getViolations()).thenReturn(Collections.<Violation> emptyList());
+    when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure> emptyList());
 
     decorator.decorate(resource, context);
 
@@ -122,7 +125,7 @@ public class ViolationsDecoratorTest {
   public void priorityViolations() throws Exception {
     when(resource.getScope()).thenReturn(Resource.SCOPE_SET);
     when(context.getViolations()).thenReturn(createViolations());
-    when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure>emptyList());
+    when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure> emptyList());
 
     decorator.decorate(resource, context);
 
@@ -143,7 +146,7 @@ public class ViolationsDecoratorTest {
   public void categoryViolations() throws Exception {
     when(resource.getScope()).thenReturn(Resource.SCOPE_SET);
     when(context.getViolations()).thenReturn(createViolations());
-    when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure>emptyList());
+    when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure> emptyList());
 
     decorator.decorate(resource, context);
 
@@ -151,13 +154,12 @@ public class ViolationsDecoratorTest {
     verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.VIOLATIONS, null, categB.getId(), null, 1.0)));
   }
 
-
   private List<Violation> createViolations() {
     List<Violation> violations = new ArrayList<Violation>();
-    violations.add(new Violation(ruleA1).setPriority(RulePriority.CRITICAL));
-    violations.add(new Violation(ruleA1).setPriority(RulePriority.CRITICAL));
-    violations.add(new Violation(ruleA2).setPriority(RulePriority.MAJOR));
-    violations.add(new Violation(ruleB1).setPriority(RulePriority.MINOR));
+    violations.add(Violation.create(ruleA1, resource).setPriority(RulePriority.CRITICAL));
+    violations.add(Violation.create(ruleA1, resource).setPriority(RulePriority.CRITICAL));
+    violations.add(Violation.create(ruleA2, resource).setPriority(RulePriority.MAJOR));
+    violations.add(Violation.create(ruleB1, resource).setPriority(RulePriority.MINOR));
     return violations;
   }
 }
