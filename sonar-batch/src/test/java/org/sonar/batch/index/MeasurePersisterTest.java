@@ -60,6 +60,8 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
     coverage = getSession().getSingleResult(Metric.class, "key", "coverage");
     when(resourcePersister.saveResource((Project) anyObject(), eq(project))).thenReturn(projectSnapshot);
     when(resourcePersister.saveResource((Project) anyObject(), eq(aPackage))).thenReturn(packageSnapshot);
+    when(resourcePersister.getSnapshot(project)).thenReturn(projectSnapshot);
+    when(resourcePersister.getSnapshot(aPackage)).thenReturn(packageSnapshot);
     measurePersister = new MeasurePersister(getSession(), resourcePersister);
   }
 

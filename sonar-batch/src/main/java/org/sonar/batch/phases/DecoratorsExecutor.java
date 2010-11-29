@@ -116,7 +116,7 @@ public class DecoratorsExecutor implements BatchComponent {
     }
 
     String getMessage() {
-      StringBuilder sb = new StringBuilder("Decorators time:" + SystemUtils.LINE_SEPARATOR);
+      StringBuilder sb = new StringBuilder("Decorator time:" + SystemUtils.LINE_SEPARATOR);
       for (Decorator decorator : decorators) {
         sb.append("\t").append(decorator.toString()).append(": ").append(durations.get(decorator)).append("ms").append(SystemUtils.LINE_SEPARATOR);
       }

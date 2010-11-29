@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.index;
 
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.LoggerFactory;
@@ -33,12 +33,13 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 
+import java.util.Collection;
 import java.util.Map;
 
 public final class MeasurePersister {
 
   private boolean delayedMode = false;
-  private SetMultimap<Integer, Measure> unsavedMeasuresBySnapshotId = HashMultimap.create();
+  private SetMultimap<Resource, Measure> unsavedMeasuresByResource = LinkedHashMultimap.create();
   private DatabaseSession session;
   private ResourcePersister resourcePersister;
 
@@ -56,12 +57,12 @@ public final class MeasurePersister {
   }
 
   public void saveMeasure(Project project, Resource resource, Measure measure) {
-    Snapshot snapshot = resourcePersister.saveResource(project, resource);
-    if (snapshot != null) {
-      if (delayedMode && measure.getPersistenceMode().useMemory()) {
-        unsavedMeasuresBySnapshotId.put(snapshot.getId(), measure);
+    if (delayedMode && measure.getPersistenceMode().useMemory()) {
+      unsavedMeasuresByResource.put(resource, measure);
 
-      } else if (measure.getId() != null) {
+    } else {
+      Snapshot snapshot = resourcePersister.saveResource(project, resource);
+      if (measure.getId() != null) {
         // update
         MeasureModel model = session.reattach(MeasureModel.class, measure.getId());
         model = mergeModel(measure, model);
@@ -85,17 +86,23 @@ public final class MeasurePersister {
             metric.getBestValue() != null &&
             NumberUtils.compare(metric.getBestValue(), measure.getValue()) == 0 &&
             !measure.hasOptionalData());
+    // TODO add diff_values in hasOptionalData
   }
 
   public void dump() {
-    LoggerFactory.getLogger(getClass()).debug("{} measures to dump", unsavedMeasuresBySnapshotId.size());
-    for (Map.Entry<Integer, Measure> entry : unsavedMeasuresBySnapshotId.entries()) {
-      MeasureModel model = createModel(entry.getValue());
-      model.setSnapshotId(entry.getKey());
-      model.save(session);
+    LoggerFactory.getLogger(getClass()).debug("{} measures to dump", unsavedMeasuresByResource.size());
+    Map<Resource, Collection<Measure>> map = unsavedMeasuresByResource.asMap();
+    for (Map.Entry<Resource, Collection<Measure>> entry : map.entrySet()) {
+      Snapshot snapshot = resourcePersister.getSnapshot(entry.getKey());
+      for (Measure measure : entry.getValue()) {
+        MeasureModel model = createModel(measure);
+        model.setSnapshotId(snapshot.getId());
+        model.save(session);
+      }
     }
+
     session.commit();
-    unsavedMeasuresBySnapshotId.clear();
+    unsavedMeasuresByResource.clear();
   }
 
   MeasureModel createModel(Measure measure) {
