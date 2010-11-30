@@ -61,6 +61,7 @@ public final class ViolationPersister {
     } else {
       // insert
       model = createModel(violation);
+      model.setCreatedAt(project.getAnalysisDate());
     }
     model.setSnapshotId(snapshot.getId());
     session.save(model);

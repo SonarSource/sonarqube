@@ -39,6 +39,8 @@ import org.sonar.api.rules.Violation;
 import org.sonar.core.components.DefaultRuleFinder;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
+import java.sql.Date;
+
 public class ViolationPersisterTest extends AbstractDbUnitTestCase {
 
   private ViolationPersister violationPersister;
@@ -66,10 +68,11 @@ public class ViolationPersisterTest extends AbstractDbUnitTestCase {
         .setPriority(RulePriority.CRITICAL).setLineId(50).setCost(80.0);
     Violation violation2 = Violation.create(rule2, javaFile)
         .setPriority(RulePriority.MINOR);
+    Project project = new Project("project").setAnalysisDate(Date.valueOf("2010-09-01"));
 
-    violationPersister.saveViolation(new Project("project"), violation1a);
-    violationPersister.saveViolation(new Project("project"), violation1b);
-    violationPersister.saveViolation(new Project("project"), violation2);
+    violationPersister.saveViolation(project, violation1a);
+    violationPersister.saveViolation(project, violation1b);
+    violationPersister.saveViolation(project, violation2);
 
     checkTables("shouldInsertViolations", "rule_failures");
   }

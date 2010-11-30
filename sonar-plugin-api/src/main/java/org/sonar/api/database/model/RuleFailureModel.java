@@ -19,18 +19,16 @@
  */
 package org.sonar.api.database.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Table;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.database.BaseIdentifiable;
 import org.sonar.api.rules.RulePriority;
+
+import java.util.Date;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "rule_failures")
@@ -56,6 +54,10 @@ public class RuleFailureModel extends BaseIdentifiable {
 
   @Column(name = "cost", updatable = true, nullable = true)
   private Double cost;
+
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "created_at", updatable = true, nullable = true)
+  private Date createdAt;
 
   public String getMessage() {
     return message;
@@ -112,6 +114,14 @@ public class RuleFailureModel extends BaseIdentifiable {
   public RuleFailureModel setCost(Double d) {
     this.cost = d;
     return this;
+  }
+
+  public Date getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(Date createdAt) {
+    this.createdAt = createdAt;
   }
 
   @Override
