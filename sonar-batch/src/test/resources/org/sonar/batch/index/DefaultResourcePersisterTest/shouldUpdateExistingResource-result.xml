@@ -5,12 +5,12 @@
             enabled="true" language="java" copy_resource_id="[null]" profile_id="[null]"/>
 
   <!-- old snapshot -->
-  <snapshots id="3001" project_id="1001" parent_snapshot_id="[null]" root_project_id="1001" root_snapshot_id="[null]"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" id="3001" project_id="1001" parent_snapshot_id="[null]" root_project_id="1001" root_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" created_at="2010-12-23 00:00:00.00" version="[null]" path=""
              status="U" islast="false" depth="0" />
 
   <!-- new snapshot -->
-  <snapshots id="3002" project_id="1001" parent_snapshot_id="[null]" root_project_id="1001" root_snapshot_id="[null]"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" id="3002" project_id="1001" parent_snapshot_id="[null]" root_project_id="1001" root_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" created_at="2010-12-25 00:00:00.00" version="[null]" path=""
              status="U" islast="false" depth="0" />
 

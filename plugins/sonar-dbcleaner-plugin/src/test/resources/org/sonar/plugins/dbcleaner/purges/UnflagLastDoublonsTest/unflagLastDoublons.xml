@@ -24,45 +24,45 @@
   <snapshots depth="[null]" id="1" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" version="[null]"
              project_id="1"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"
-             path="[null]"/>
+             path="[null]" var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" />
 
   <snapshots depth="[null]" id="2" scope="DIR" qualifier="PAC" created_at="2008-12-02 13:58:00.00" version="[null]"
              project_id="2"
              parent_snapshot_id="1" root_project_id="[null]" root_snapshot_id="1" status="P" islast="false"
-             path="[null]"/>
+             path="[null]" var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]"/>
 
 
   <!-- second analysis, crazy state : project not last, but package flagged as last -->
   <snapshots depth="[null]" id="3" scope="PRJ" qualifier="TRK" created_at="2009-02-14 00:00:00.00" version="[null]"
              project_id="1"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"
-             path="[null]"/>
+             path="[null]" var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]"/>
 
   <snapshots depth="[null]" id="4" scope="DIR" qualifier="PAC" created_at="2009-02-14 00:00:00.00" version="[null]"
              project_id="2"
              parent_snapshot_id="3" root_project_id="[null]" root_snapshot_id="3" status="P" islast="true"
-             path="[null]"/>
+             path="[null]" var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]"/>
 
   <!-- third analysis, flagged as last -->
   <snapshots depth="[null]" id="5" scope="PRJ" qualifier="TRK" created_at="2009-04-01 00:00:00.00" version="[null]"
              project_id="1"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="true"
-             path="[null]"/>
+             path="[null]" var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]"/>
 
   <snapshots depth="[null]" id="6" scope="DIR" qualifier="PAC" created_at="2009-04-01 00:00:00.00" version="[null]"
              project_id="2"
              parent_snapshot_id="5" root_project_id="[null]" root_snapshot_id="5" status="P" islast="true"
-             path="[null]"/>
+             path="[null]" var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]"/>
 
 
   <!-- last analysis -->
   <snapshots depth="[null]" id="7" scope="PRJ" qualifier="TRK" created_at="2009-05-18 00:00:00.00" version="[null]"
              project_id="1"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="true"
-             path="[null]"/>
+             path="[null]" var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]"/>
 
   <snapshots depth="[null]" id="8" scope="DIR" qualifier="PAC" created_at="2009-05-18 00:00:00.00" version="[null]"
              project_id="2"
              parent_snapshot_id="7" root_project_id="[null]" root_snapshot_id="7" status="P" islast="true"
-             path="[null]"/>
+             path="[null]" var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]"/>
 </dataset>

@@ -82,6 +82,24 @@ public class Snapshot extends BaseIdentifiable {
   @Column(name = "root_project_id", updatable = true, nullable = true)
   private Integer rootProjectId;
 
+  @Column(name = "var_mode_1", updatable = true, nullable = true, length = 100)
+  private String varMode1;
+
+  @Column(name = "var_mode_2", updatable = true, nullable = true, length = 100)
+  private String varMode2;
+
+  @Column(name = "var_mode_3", updatable = true, nullable = true, length = 100)
+  private String varMode3;
+
+  @Column(name = "var_label_1", updatable = true, nullable = true, length = 100)
+  private String varLabel1;
+
+  @Column(name = "var_label_2", updatable = true, nullable = true, length = 100)
+  private String varLabel2;
+
+  @Column(name = "var_label_3", updatable = true, nullable = true, length = 100)
+  private String varLabel3;
+
   public Snapshot() {
 
   }
@@ -248,6 +266,59 @@ public class Snapshot extends BaseIdentifiable {
     this.depth = depth;
   }
 
+  public String getVarMode1() {
+    return varMode1;
+  }
+
+  public Snapshot setVarMode1(String varMode1) {
+    this.varMode1 = varMode1;
+    return this;
+  }
+
+  public String getVarMode2() {
+    return varMode2;
+  }
+
+  public Snapshot setVarMode2(String varMode2) {
+    this.varMode2 = varMode2;
+    return this;
+  }
+
+  public String getVarMode3() {
+    return varMode3;
+  }
+
+  public Snapshot setVarMode3(String varMode3) {
+    this.varMode3 = varMode3;
+    return this;
+  }
+
+  public String getVarLabel1() {
+    return varLabel1;
+  }
+
+  public Snapshot setVarLabel1(String varLabel1) {
+    this.varLabel1 = varLabel1;
+    return this;
+  }
+
+  public String getVarLabel2() {
+    return varLabel2;
+  }
+
+  public Snapshot setVarLabel2(String varLabel2) {
+    this.varLabel2 = varLabel2;
+    return this;
+  }
+
+  public String getVarLabel3() {
+    return varLabel3;
+  }
+
+  public Snapshot setVarLabel3(String varLabel3) {
+    this.varLabel3 = varLabel3;
+    return this;
+  }
 
   @Override
   public boolean equals(Object obj) {
@@ -287,6 +358,12 @@ public class Snapshot extends BaseIdentifiable {
         .append("rootId", rootId)
         .append("rootProjectId", rootProjectId)
         .append("parentId", parentId)
+        .append("varMode1", varMode1)
+        .append("varLabel1", varLabel1)
+        .append("varMode2", varMode2)
+        .append("varLabel2", varLabel2)
+        .append("varMode3", varMode3)
+        .append("varLabel3", varLabel3)
         .toString();
   }
 }

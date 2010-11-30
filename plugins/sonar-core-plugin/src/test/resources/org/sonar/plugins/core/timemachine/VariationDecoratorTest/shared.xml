@@ -37,15 +37,15 @@
 
 
   <!-- snapshots -->
-  <snapshots id="1000" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" id="1000" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" created_at="2008-11-01 13:58:00.00" version="[null]" path=""
              status="P" islast="false" depth="0" />
 
-  <snapshots id="1001" project_id="2" parent_snapshot_id="1000" root_project_id="1" root_snapshot_id="1000"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" id="1001" project_id="2" parent_snapshot_id="1000" root_project_id="1" root_snapshot_id="1000"
              scope="DIR" qualifier="PAC" created_at="2008-11-01 13:58:00.00" version="[null]" path="1000."
              status="P" islast="false" depth="1" />
 
-  <snapshots id="1002" project_id="3" parent_snapshot_id="1001" root_project_id="1" root_snapshot_id="1000"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" id="1002" project_id="3" parent_snapshot_id="1001" root_project_id="1" root_snapshot_id="1000"
              scope="FIL" qualifier="CLA" created_at="2008-11-01 13:58:00.00" version="[null]" path="1000.1001."
              status="P" islast="false" depth="2" />
 

@@ -20,22 +20,22 @@
             description="[null]" enabled="true" profile_id="[null]" language="java" copy_resource_id="[null]"/>
 
   <!-- the project snapshot -->
-  <snapshots id="1" created_at="2008-12-25 00:00:00.00" version="1.0" project_id="10" scope="PRJ" qualifier="TRK"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" id="1" created_at="2008-12-25 00:00:00.00" version="1.0" project_id="10" scope="PRJ" qualifier="TRK"
              root_project_id="10" root_snapshot_id="[null]" parent_snapshot_id="[null]" STATUS="U" ISLAST="false"
              path=""
              depth="0"/>
 
   <!-- conflicting snapshots -->
-  <snapshots id="2" created_at="2007-10-02 13:58:00.00" version="2.0" project_id="1" scope="PRJ" qualifier="TRK"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" id="2" created_at="2007-10-02 13:58:00.00" version="2.0" project_id="1" scope="PRJ" qualifier="TRK"
              root_project_id="1" root_snapshot_id="[null]" parent_snapshot_id="[null]" STATUS="U" ISLAST="false"
              path=""
              depth="0"/>
-  <snapshots id="3" created_at="2007-10-02 13:58:00.00" version="[null]" project_id="2" scope="DIR" qualifier="PAC"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" id="3" created_at="2007-10-02 13:58:00.00" version="[null]" project_id="2" scope="DIR" qualifier="PAC"
              root_project_id="1" root_snapshot_id="2" parent_snapshot_id="2" STATUS="U" ISLAST="false" path="3."
              depth="1"/>
 
   <!-- the package snapshot -->
-  <snapshots id="4" created_at="2008-12-25 00:00:00.00" version="[null]" project_id="11" scope="DIR" qualifier="PAC"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" id="4" created_at="2008-12-25 00:00:00.00" version="[null]" project_id="11" scope="DIR" qualifier="PAC"
              root_project_id="10" root_snapshot_id="1" parent_snapshot_id="1" STATUS="U" ISLAST="false" path="1."
              depth="1"/>
 

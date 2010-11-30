@@ -6,7 +6,7 @@
             description="[null]"
             enabled="true" language="java" copy_resource_id="[null]"/>
 
-  <snapshots depth="[null]" id="50" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" version="[null]"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="50" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" version="[null]"
              project_id="5" parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="true"
              path="[null]"/>
 </dataset>

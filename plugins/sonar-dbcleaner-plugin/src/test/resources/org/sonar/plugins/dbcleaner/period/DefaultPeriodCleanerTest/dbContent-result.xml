@@ -17,7 +17,7 @@
 
   <!-- snapshots older than the dateToStartDeletingAllSnapshots-->
   <!-- keep this one because version event -->
-  <snapshots depth="[null]" id="1" scope="PRJ" qualifier="TRK" created_at="2009-11-02 13:58:00.00" version="0.9"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="1" scope="PRJ" qualifier="TRK" created_at="2009-11-02 13:58:00.00" version="0.9"
              project_id="1"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"
              path="[null]"/>
@@ -28,17 +28,17 @@
                     RULE_ID="1"
                     text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
                     alert_status="[null]" description="[null]"/>
-  <!--<snapshots depth="[null]" id="2" scope="PRJ" qualifier="TRK" created_at="2010-01-01 13:58:00.00"-->
+  <!--<snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="2" scope="PRJ" qualifier="TRK" created_at="2010-01-01 13:58:00.00"-->
              <!--version="1.0-SNAPSHOT"-->
              <!--project_id="1"-->
              <!--parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"-->
              <!--path="[null]"/>-->
   <!--<project_measures ID="2" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="2"/>-->
-  <!--<snapshots depth="1" id="10" scope="DIR" qualifier="PAC" created_at="2010-01-01 13:58:00.00" version="[null]"-->
+  <!--<snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="1" id="10" scope="DIR" qualifier="PAC" created_at="2010-01-01 13:58:00.00" version="[null]"-->
              <!--project_id="2"-->
              <!--parent_snapshot_id="2" root_project_id="1" root_snapshot_id="2" status="P" islast="false"-->
              <!--path="1"/>-->
-  <!--<snapshots depth="2" id="20" scope="FIL" qualifier="CLA" created_at="2010-01-01 13:58:00.00" version="[null]"-->
+  <!--<snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="2" id="20" scope="FIL" qualifier="CLA" created_at="2010-01-01 13:58:00.00" version="[null]"-->
              <!--project_id="3"-->
              <!--parent_snapshot_id="10" root_project_id="1" root_snapshot_id="2" status="P" islast="false"-->
              <!--path="1.10"/>-->
@@ -49,32 +49,32 @@
 
   <!-- snapshots between dateToStartKeepingOneSnapshotByMonth and dateToStartDeletingAllSnapshots-->
   <!-- single snapshot on this month (except version events) -->
-  <snapshots depth="[null]" id="100" scope="PRJ" qualifier="TRK" created_at="2010-03-01 13:58:00.00"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="100" scope="PRJ" qualifier="TRK" created_at="2010-03-01 13:58:00.00"
              version="1.0-SNAPSHOT"
              project_id="1"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"
              path="[null]"/>
-  <!--<snapshots depth="[null]" id="110" scope="PRJ" qualifier="TRK" created_at="2010-03-02 13:58:00.00"-->
+  <!--<snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="110" scope="PRJ" qualifier="TRK" created_at="2010-03-02 13:58:00.00"-->
              <!--version="1.0-SNAPSHOT"-->
              <!--project_id="1"-->
              <!--parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"-->
              <!--path="[null]"/>-->
 
-  <!--<snapshots depth="[null]" id="120" scope="PRJ" qualifier="TRK" created_at="2010-03-03 13:58:00.00"-->
+  <!--<snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="120" scope="PRJ" qualifier="TRK" created_at="2010-03-03 13:58:00.00"-->
              <!--version="1.0-SNAPSHOT"-->
              <!--project_id="1"-->
              <!--parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"-->
              <!--path="[null]"/>-->
 
   <!-- this one has a version event -->
-  <snapshots depth="[null]" id="130" scope="PRJ" qualifier="TRK" created_at="2010-04-01 13:58:00.00"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="130" scope="PRJ" qualifier="TRK" created_at="2010-04-01 13:58:00.00"
              version="1.0-SNAPSHOT"
              project_id="1"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"
              path="[null]"/>
 
    <!-- keep this one -->
-  <snapshots depth="[null]" id="140" scope="PRJ" qualifier="TRK" created_at="2010-04-15 13:58:00.00"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="140" scope="PRJ" qualifier="TRK" created_at="2010-04-15 13:58:00.00"
              version="1.1-SNAPSHOT"
              project_id="1"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"
@@ -85,11 +85,11 @@
 
 
   <!-- snapshots whose qualifier = LIB must not be deleted -->
-  <snapshots depth="[null]" id="150" scope="PRJ" qualifier="LIB" created_at="2010-04-22 13:58:00.00" version="0.1"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="150" scope="PRJ" qualifier="LIB" created_at="2010-04-22 13:58:00.00" version="0.1"
              project_id="1"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"
              path="[null]"/>
-  <snapshots depth="[null]" id="160" scope="PRJ" qualifier="LIB" created_at="2010-04-23 13:58:00.00" version="0.2"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="160" scope="PRJ" qualifier="LIB" created_at="2010-04-23 13:58:00.00" version="0.2"
              project_id="1"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"
              path="[null]"/>
@@ -101,26 +101,26 @@
 
   <!-- snapshots between dateToStartKeepingOneSnapshotByWeek and dateToStartKeepingOneSnapshotByMonth-->
   <!-- keep this one -->
-  <snapshots depth="[null]" id="500" scope="PRJ" qualifier="TRK" created_at="2010-08-17 13:58:00.00"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="500" scope="PRJ" qualifier="TRK" created_at="2010-08-17 13:58:00.00"
              version="1.1-SNAPSHOT"
              project_id="1"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"
              path="[null]"/>
 
-  <!--<snapshots depth="[null]" id="510" scope="PRJ" qualifier="TRK" created_at="2010-08-18 13:58:00.00"-->
+  <!--<snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="510" scope="PRJ" qualifier="TRK" created_at="2010-08-18 13:58:00.00"-->
              <!--version="1.1-SNAPSHOT"-->
              <!--project_id="1"-->
              <!--parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"-->
              <!--path="[null]"/>-->
   
   <!-- this one has a version event -->
-  <snapshots depth="[null]" id="520" scope="PRJ" qualifier="TRK" created_at="2010-08-25 13:58:00.00"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="520" scope="PRJ" qualifier="TRK" created_at="2010-08-25 13:58:00.00"
              version="1.1-SNAPSHOT"
              project_id="1"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"
              path="[null]"/>
   <!-- this one has a version event -->
-  <snapshots depth="[null]" id="530" scope="PRJ" qualifier="TRK" created_at="2010-08-26 13:58:00.00"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="530" scope="PRJ" qualifier="TRK" created_at="2010-08-26 13:58:00.00"
              version="1.2-SNAPSHOT"
              project_id="1"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"
@@ -132,18 +132,18 @@
     snapshots before dateToStartKeepingOneSnapshotByWeek : nothing is currently purged
     It will be improved later by keeping only one daily snapshot : snapshot 1010 should be removed -->
   -->
-  <snapshots depth="[null]" id="1000" scope="PRJ" qualifier="TRK" created_at="2010-11-02 13:58:00.00"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="1000" scope="PRJ" qualifier="TRK" created_at="2010-11-02 13:58:00.00"
              version="3.0-SNAPSHOT"
              project_id="1"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"
              path="[null]"/>
-  <snapshots depth="[null]" id="1010" scope="PRJ" qualifier="TRK" created_at="2010-11-03 13:58:00.00"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="1010" scope="PRJ" qualifier="TRK" created_at="2010-11-03 13:58:00.00"
              version="3.0-SNAPSHOT"
              project_id="1"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="true"
              path="[null]"/>
   <!-- same day than 1010 -->
-  <snapshots depth="[null]" id="1020" scope="PRJ" qualifier="TRK" created_at="2010-11-03 20:26:00.00"
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="1020" scope="PRJ" qualifier="TRK" created_at="2010-11-03 20:26:00.00"
              version="3.0-SNAPSHOT"
              project_id="1"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="true"
