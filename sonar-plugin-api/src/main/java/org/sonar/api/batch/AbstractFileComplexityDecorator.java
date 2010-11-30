@@ -31,9 +31,10 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * @deprecated a formula has been implemented on the metric, so no need to have decorator anymore
- * @since 2.1
+ * @deprecated since 2.1, a formula has been implemented on the metric, so no need to have decorator anymore
+ * @since 1.10
  */
+@Deprecated
 public abstract class AbstractFileComplexityDecorator implements Decorator {
 
   private Language language;

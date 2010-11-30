@@ -68,7 +68,7 @@ public class Library extends Resource {
 
   @Override
   public String getScope() {
-    return Resource.SCOPE_PROJECT;
+    return Resource.SCOPE_SET;
   }
 
   @Override

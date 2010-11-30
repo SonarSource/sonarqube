@@ -50,9 +50,7 @@ public interface DecoratorContext {
   /**
    * Child contexts are read only
    */
-
   List<DecoratorContext> getChildren();
-
 
   // MEASURES
 
@@ -76,21 +74,21 @@ public interface DecoratorContext {
    */
   Collection<Measure> getChildrenMeasures(Metric metric);
 
-
   /**
    * Add a measure on the current resource. It can not be executed from children contexts.
-   *
+   * 
    * @return the same context
    */
   DecoratorContext saveMeasure(Measure measure);
 
   /**
    * Add a measure on the current resource. It can not be executed from children contexts.
-   *
+   * 
    * @return the current object
    */
   DecoratorContext saveMeasure(Metric metric, Double value);
 
+  // DEPENDENCIES
 
   Dependency saveDependency(Dependency dependency);
 
@@ -99,7 +97,6 @@ public interface DecoratorContext {
   Collection<Dependency> getIncomingDependencies();
 
   Collection<Dependency> getOutgoingDependencies();
-
 
   // RULES
 
@@ -112,7 +109,7 @@ public interface DecoratorContext {
    * Save a coding rule violation. The decorator which calls this method must be depended upon BatchBarriers.END_OF_VIOLATIONS_GENERATION.
    * 
    * @since 2.5
-   * @param force allows to force creation of violation even if it was supressed by {@link org.sonar.api.rules.ViolationFilter}
+   * @param force allows to force creation of violation even if it was suppressed by {@link org.sonar.api.rules.ViolationFilter}
    */
   DecoratorContext saveViolation(Violation violation, boolean force);
 
@@ -121,6 +118,8 @@ public interface DecoratorContext {
    */
   DecoratorContext saveViolation(Violation violation);
 
+  // EVENTS
+
   /**
    * @return the list of events associated to the current resource
    */
@@ -128,22 +127,20 @@ public interface DecoratorContext {
 
   /**
    * Creates an event for a given date
-   *
-   * @param name        the event name
+   * 
+   * @param name the event name
    * @param description the event description
-   * @param category    the event category
-   * @param date        the event date
+   * @param category the event category
+   * @param date the event date
    * @return the created event
    */
   Event createEvent(String name, String description, String category, Date date);
 
   /**
    * Deletes an event
-   *
+   * 
    * @param event the event to delete
    */
   void deleteEvent(Event event);
-
-
 
 }

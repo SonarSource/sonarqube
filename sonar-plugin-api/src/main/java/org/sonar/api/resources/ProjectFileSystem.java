@@ -29,8 +29,7 @@ import java.util.List;
  */
 public interface ProjectFileSystem {
   /**
-   * Source encoding. It's the default plateform charset if it is not defined in the project
-   * (Maven property 'project.build.sourceEncoding').
+   * Source encoding. It's the default platform charset if it is not defined in the project (Maven property 'project.build.sourceEncoding').
    */
   Charset getSourceCharset();
 
@@ -59,20 +58,20 @@ public interface ProjectFileSystem {
   File getSonarWorkingDirectory();
 
   /**
-   * Get file from path. It can be absolute or relative to project basedir. For example resolvePath("pom.xml") or resolvePath("src/main/java")
+   * Get file from path. It can be absolute or relative to project basedir. For example resolvePath("pom.xml") or
+   * resolvePath("src/main/java")
    */
   File resolvePath(String path);
 
   /**
    * Source files, excluding unit tests and files matching project exclusion patterns.
-   *
+   * 
    * @param langs language filter. Check all files, whatever their language, if null or empty.
    */
   List<File> getSourceFiles(Language... langs);
 
   /**
-   * Java source files, excluding unit tests and files matching project exclusion patterns.
-   * Shortcut for getSourceFiles(Java.INSTANCE)
+   * Java source files, excluding unit tests and files matching project exclusion patterns. Shortcut for getSourceFiles(Java.INSTANCE)
    */
   List<File> getJavaSourceFiles();
 
@@ -93,7 +92,7 @@ public interface ProjectFileSystem {
 
   /**
    * Save data into a new file of Sonar working directory.
-   *
+   * 
    * @return the created file
    */
   File writeToWorkingDirectory(String content, String fileName) throws IOException;

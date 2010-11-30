@@ -59,7 +59,6 @@ public interface SensorContext {
    */
   Measure saveMeasure(Metric metric, Double value);
 
-
   // ----------- MEASURES ON RESOURCES --------------
 
   /**
@@ -69,7 +68,7 @@ public interface SensorContext {
 
   /**
    * Key is updated when saving the resource.
-   *
+   * 
    * @return the key as saved in database. Null if the resource is set as excluded.
    */
   String saveResource(Resource resource);
@@ -86,18 +85,21 @@ public interface SensorContext {
 
   /**
    * Add or update a measure.
-   * <p/>
-   * <p>The resource is automatically saved, so there is no need to execute the method saveResource(). Does nothing if the resource is set as excluded.</p>
+   * <p>
+   * The resource is automatically saved, so there is no need to execute the method saveResource(). Does nothing if the resource is set as
+   * excluded.
+   * </p>
    */
   Measure saveMeasure(Resource resource, Metric metric, Double value);
 
   /**
    * Add or update a measure.
-   * <p/>
-   * <p>The resource is automatically saved, so there is no need to execute the method saveResource(). Does nothing if the resource is set as excluded.</p>
+   * <p>
+   * The resource is automatically saved, so there is no need to execute the method saveResource(). Does nothing if the resource is set as
+   * excluded.
+   * </p>
    */
   Measure saveMeasure(Resource resource, Measure measure);
-
 
   // ----------- RULE VIOLATIONS --------------
 
@@ -108,7 +110,7 @@ public interface SensorContext {
    * @param force allows to force creation of violation even if it was supressed by {@link org.sonar.api.rules.ViolationFilter}
    */
   void saveViolation(Violation violation, boolean force);
-  
+
   /**
    * Save a coding rule violation.
    */
@@ -119,8 +121,7 @@ public interface SensorContext {
    */
   void saveViolations(Collection<Violation> violations);
 
-
-  // ----------- DEPENDENCIES BETWEEN RESOURCES  --------------
+  // ----------- DEPENDENCIES BETWEEN RESOURCES --------------
 
   /**
    * Build a new dependency : from depends upon to. The dependency is NOT saved. The method saveDependency() must still be executed.
@@ -133,19 +134,18 @@ public interface SensorContext {
 
   Collection<Dependency> getOutgoingDependencies(Resource from);
 
-  // ----------- FILE SOURCES  --------------
+  // ----------- FILE SOURCES --------------
 
   /**
    * Does nothing if the resource is set as excluded.
    */
   void saveSource(Resource resource, String source);
 
-
   // ----------- LINKS --------------
 
   /**
-   * add a link to an external page like project homepage, sources (subversion, ...), continuous integration server...
-   * Example : context.addLink(new ProjectLink("maven_site, "Maven site", "http://my.maven.com)
+   * add a link to an external page like project homepage, sources (subversion, ...), continuous integration server... Example :
+   * context.addLink(new ProjectLink("maven_site, "Maven site", "http://my.maven.com)
    */
   void saveLink(ProjectLink link);
 
@@ -153,7 +153,6 @@ public interface SensorContext {
    * remove a link. It does not fail if key is unknown.
    */
   void deleteLink(String key);
-
 
   // ----------- EVENTS --------------
 
@@ -164,18 +163,18 @@ public interface SensorContext {
 
   /**
    * Creates an event for a given date
-   *
-   * @param name        the event name
+   * 
+   * @param name the event name
    * @param description the event description
-   * @param category    the event category
-   * @param date        the event date
+   * @param category the event category
+   * @param date the event date
    * @return the created event
    */
   Event createEvent(Resource resource, String name, String description, String category, Date date);
 
   /**
    * Deletes an event
-   *
+   * 
    * @param event the event to delete
    */
   void deleteEvent(Event event);

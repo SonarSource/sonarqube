@@ -20,19 +20,19 @@
 
 package org.sonar.api.batch;
 
-import org.sonar.api.measures.CountDistributionBuilder;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.CountDistributionBuilder;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.Language;
-
 
 /**
- * @deprecated a formula has been implemented on the metric, so no need to have decorator anymore
- * @since 2.1
+ * @deprecated since 2.1, a formula has been implemented on the metric, so no need to have decorator anymore
+ * @since 2.0
  */
+@Deprecated
 public abstract class AbstractFunctionComplexityDistributionDecorator implements Decorator {
 
   private CountDistributionBuilder builder = new CountDistributionBuilder(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);

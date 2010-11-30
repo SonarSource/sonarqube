@@ -49,7 +49,7 @@ public final class ResourceUtils {
   }
 
   /**
-   * @return whther a resource is a maven module of  project
+   * @return whether a resource is a maven module of project
    */
   public static boolean isModuleProject(Resource resource) {
     return Resource.QUALIFIER_MODULE.equals(resource.getQualifier());
@@ -61,7 +61,6 @@ public final class ResourceUtils {
   public static boolean isPackage(Resource resource) {
     return resource != null && Resource.QUALIFIER_PACKAGE.equals(resource.getQualifier());
   }
-
 
   /**
    * @return whether a resource is a set
@@ -92,19 +91,18 @@ public final class ResourceUtils {
   }
 
   /**
-   * Alias for isDirectory(resource)
+   * Alias for {@link #isSpace(Resource)}
    */
   public static boolean isDirectory(Resource resource) {
     return isSpace(resource);
   }
 
   /**
-   * Alias for isEntity(resource)
+   * Alias for {@link #isEntity(Resource)}
    */
   public static boolean isFile(Resource resource) {
     return isEntity(resource);
   }
-
 
   /* QUALIFIERS */
 
@@ -115,7 +113,6 @@ public final class ResourceUtils {
     return Resource.QUALIFIER_CLASS.equals(resource.getQualifier());
   }
 
-
   /**
    * @return whether a resource is a unit test class
    */
@@ -123,7 +120,9 @@ public final class ResourceUtils {
     return Resource.QUALIFIER_UNIT_TEST_CLASS.equals(resource.getQualifier());
   }
 
-
+  /**
+   * @return whether a resource is a library
+   */
   public static boolean isLibrary(Resource resource) {
     return Resource.QUALIFIER_LIB.equals(resource.getQualifier());
   }
