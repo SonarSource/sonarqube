@@ -9,6 +9,8 @@ import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.Violation;
 
@@ -25,7 +27,7 @@ public class NewViolationsDecoratorTest {
   }
 
   @Test
-  public void test() {
+  public void shouldCalculate() {
     DecoratorContext context = mock(DecoratorContext.class);
     Date date1 = new Date();
     Date date2 = DateUtils.addDays(date1, -20);
@@ -38,5 +40,16 @@ public class NewViolationsDecoratorTest {
 
     assertThat(decorator.calculate(context, 10), is(1));
     assertThat(decorator.calculate(context, 30), is(2));
+  }
+
+  @Test
+  public void shouldSumChildren() {
+    DecoratorContext context = mock(DecoratorContext.class);
+    Measure measure1 = new Measure(CoreMetrics.NEW_VIOLATIONS).setDiffValue1(1.0).setDiffValue2(1.0);
+    Measure measure2 = new Measure(CoreMetrics.NEW_VIOLATIONS).setDiffValue1(1.0).setDiffValue2(2.0);
+    when(context.getChildrenMeasures(CoreMetrics.NEW_VIOLATIONS)).thenReturn(Arrays.asList(measure1, measure2));
+
+    assertThat(decorator.sumChildren(context, 0), is(2.0));
+    assertThat(decorator.sumChildren(context, 1), is(3.0));
   }
 }

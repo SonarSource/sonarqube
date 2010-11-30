@@ -19,12 +19,13 @@
  */
 package org.sonar.plugins.core.timemachine;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.nullValue;
+
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class TimeMachineConfigurationTest {
 
@@ -39,6 +40,14 @@ public class TimeMachineConfigurationTest {
   public void shouldNotSkipTendenciesByDefault() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
     assertThat(new TimeMachineConfiguration(conf, null).skipTendencies(), is(false));
+  }
+
+  @Test
+  public void shouldReturnDiffPeriodInDays() {
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    conf.setProperty("sonar.timemachine.diff0", "30");
+    assertThat(new TimeMachineConfiguration(conf, null).getDiffPeriodInDays(0), is(30));
+    assertThat(new TimeMachineConfiguration(conf, null).getDiffPeriodInDays(1), nullValue());
   }
 
 }
