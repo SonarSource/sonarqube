@@ -47,7 +47,4 @@ class AddRulePriority < ActiveRecord::Migration
     ActiveRule.update_all('failure_level=0', 'failure_level=1')
   end
 
-  def self.down
-  end
-
 end

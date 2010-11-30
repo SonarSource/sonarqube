@@ -23,6 +23,4 @@ class IncreaseSizeOfRulesProfilesName < ActiveRecord::Migration
     change_column('rules_profiles', 'name', :string, :limit => 100)
   end
 
-  def self.down
-  end
 end

@@ -34,10 +34,6 @@ class AddMeasureData < ActiveRecord::Migration
     ProjectMeasure.reset_column_information
   end
 
-  def self.down
-
-  end
-
   class MeasureData061 < ActiveRecord::Base
     set_table_name :measure_data
   end

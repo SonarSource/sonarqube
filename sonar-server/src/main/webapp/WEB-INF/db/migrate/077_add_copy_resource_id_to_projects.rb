@@ -23,7 +23,4 @@ class AddCopyResourceIdToProjects < ActiveRecord::Migration
     add_column(:projects, :copy_resource_id, :integer, :null => true)
   end
 
-  def self.down
-
-  end
 end

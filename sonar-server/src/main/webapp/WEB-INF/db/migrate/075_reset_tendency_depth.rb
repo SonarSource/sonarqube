@@ -26,7 +26,4 @@ class ResetTendencyDepth < ActiveRecord::Migration
     end
   end
 
-  def self.down
-
-  end
 end

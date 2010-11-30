@@ -19,8 +19,6 @@
 #
 class SimplifyMetrics < ActiveRecord::Migration
 
-  TYPES_MAP=['INT','INT','INT','INT','FLOAT','FLOAT','PERCENT','MILLISEC','BOOL']
-
   def self.up
     add_column(:metrics, :val_type, :string, :null => true, :limit => 8)
     add_column(:metrics, :user_managed, :boolean, :null => true, :default => false)

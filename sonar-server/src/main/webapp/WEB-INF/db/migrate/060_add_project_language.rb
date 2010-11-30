@@ -24,7 +24,4 @@ class AddProjectLanguage < ActiveRecord::Migration
     Project.reset_column_information
   end
 
-  def self.down
-
-  end
 end

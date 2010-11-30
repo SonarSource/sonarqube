@@ -24,7 +24,4 @@ class AddLineToRuleFailures < ActiveRecord::Migration
     RuleFailure.reset_column_information
   end
 
-  def self.down
-
-  end
 end

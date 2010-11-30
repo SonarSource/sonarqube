@@ -24,10 +24,6 @@ class DeleteSomeFindbugsRules < ActiveRecord::Migration
     delete_rule('OBL_UNSATISFIED_OBLIGATION')
   end
 
-  def self.down
-    
-  end
-  
   private
   def self.delete_rule(rule_key)
     rule=Rule.find(:first, :conditions => {:plugin_name => 'findbugs', :plugin_rule_key => rule_key})

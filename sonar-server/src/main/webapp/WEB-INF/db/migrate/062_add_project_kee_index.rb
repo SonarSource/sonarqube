@@ -23,6 +23,4 @@ class AddProjectKeeIndex < ActiveRecord::Migration
     add_index :projects, :kee, :name => 'projects_kee'       
   end
 
-  def self.down
-  end
 end
