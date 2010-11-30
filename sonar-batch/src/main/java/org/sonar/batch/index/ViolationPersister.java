@@ -75,6 +75,7 @@ public final class ViolationPersister {
     }
     model.setSnapshotId(snapshot.getId());
     session.save(model);
+    violation.setCreatedAt(model.getCreatedAt());
   }
 
   private RuleFailureModel createModel(Violation violation) {

@@ -24,6 +24,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.resources.Resource;
 
+import java.util.Date;
+
 /**
  * A class that represents a violation. A violation happens when a resource does not respect a defined rule.
  */
@@ -35,9 +37,11 @@ public class Violation {
   private RulePriority priority;
   private Integer lineId;
   private Double cost;
+  private Date createdAt;
 
   /**
    * Creates of a violation from a rule. Will need to define the resource later on
+   * 
    * @deprecated since 2.3. Use the factory method create()
    */
   @Deprecated
@@ -47,7 +51,7 @@ public class Violation {
 
   /**
    * Creates a fully qualified violation
-   *
+   * 
    * @param rule the rule that has been violated
    * @param resource the resource the violation should be attached to
    * @deprecated since 2.3. Use the factory method create()
@@ -64,7 +68,7 @@ public class Violation {
 
   /**
    * Sets the resource the violation applies to
-   *
+   * 
    * @return the current object
    */
   public Violation setResource(Resource resource) {
@@ -78,7 +82,7 @@ public class Violation {
 
   /**
    * Sets the rule violated
-   *
+   * 
    * @return the current object
    */
   public Violation setRule(Rule rule) {
@@ -92,7 +96,7 @@ public class Violation {
 
   /**
    * Sets the violation message
-   *
+   * 
    * @return the current object
    */
   public Violation setMessage(String message) {
@@ -106,7 +110,7 @@ public class Violation {
 
   /**
    * Sets the violation line
-   *
+   * 
    * @return the current object
    */
   public Violation setLineId(Integer lineId) {
@@ -128,21 +132,37 @@ public class Violation {
 
   /**
    * @see <code>setCost()</code>
+   * @since 2.4
    */
   public Double getCost() {
     return cost;
   }
 
   /**
-   * The cost to fix a violation can't be precisely computed without this information.
-   * Let's take the following example : a rule forbids to have methods whose complexity is greater than 10. Without this field "cost",
-   * the same violation is created with a method whose complexity is 15 and a method whose complexity is 100.
-   * If the cost to fix one point of complexity is 0.05h, then 15mn is necessary to fix the method whose complexity is 15,
-   * and 3h5mn is required to fix the method whose complexity is 100.
+   * The cost to fix a violation can't be precisely computed without this information. Let's take the following example : a rule forbids to
+   * have methods whose complexity is greater than 10. Without this field "cost", the same violation is created with a method whose
+   * complexity is 15 and a method whose complexity is 100. If the cost to fix one point of complexity is 0.05h, then 15mn is necessary to
+   * fix the method whose complexity is 15, and 3h5mn is required to fix the method whose complexity is 100.
+   * 
+   * @since 2.4
    */
   public Violation setCost(Double d) {
     this.cost = d;
     return this;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Date getCreatedAt() {
+    return createdAt;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public void setCreatedAt(Date createdAt) {
+    this.createdAt = createdAt;
   }
 
   @Override
@@ -180,4 +200,5 @@ public class Violation {
   public static Violation create(Rule rule, Resource resource) {
     return new Violation(rule).setResource(resource);
   }
+
 }

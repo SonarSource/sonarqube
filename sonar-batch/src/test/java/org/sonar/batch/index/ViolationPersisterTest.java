@@ -105,6 +105,7 @@ public class ViolationPersisterTest extends AbstractDbUnitTestCase {
 
     violationPersister.saveOrUpdateViolation(new Project("project"), violation);
 
+    assertThat(violation.getCreatedAt(), notNullValue());
     checkTables("shouldUpdateViolation", "rule_failures");
   }
 }
