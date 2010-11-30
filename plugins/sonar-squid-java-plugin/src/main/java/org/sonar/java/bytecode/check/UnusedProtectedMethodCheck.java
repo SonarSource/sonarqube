@@ -28,14 +28,15 @@ import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.api.SourceMethod;
 
-@Rule(key = "UnusedProtectedMethod", name = "Unused protected method", isoCategory = IsoCategory.Maintainability, priority = Priority.MAJOR, description = "<p>Protected methods that are never used by any classes " +
-    "in the same project are strongly suspected to be dead code. "
-    + "Dead code means unnecessary, inoperative code that should be removed. "
-    + "This helps in maintenance by decreasing the maintained code size, "
-    + "making it easier to understand the program and preventing bugs from being introduced.</p>"
-    + "<p>In the following case, unused protected methods are not considered as dead code by Sonar :</p>"
-    + "<ul><li>Protected methods which override a method from a parent class.</li></ul>"
-    + "<ul><li>Protected methods of an abstract class.</li></ul>")
+@Rule(key = "UnusedProtectedMethod", name = "Unused protected method", isoCategory = IsoCategory.Maintainability,
+    priority = Priority.MAJOR, description = "<p>Protected methods that are never used by any classes " +
+        "in the same project are strongly suspected to be dead code. "
+        + "Dead code means unnecessary, inoperative code that should be removed. "
+        + "This helps in maintenance by decreasing the maintained code size, "
+        + "making it easier to understand the program and preventing bugs from being introduced.</p>"
+        + "<p>In the following case, unused protected methods are not considered as dead code by Sonar :</p>"
+        + "<ul><li>Protected methods which override a method from a parent class.</li></ul>"
+        + "<ul><li>Protected methods of an abstract class.</li></ul>")
 public class UnusedProtectedMethodCheck extends BytecodeCheck {
 
   private AsmClass asmClass;

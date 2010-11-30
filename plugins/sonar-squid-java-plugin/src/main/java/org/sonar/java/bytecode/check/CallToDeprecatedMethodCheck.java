@@ -28,7 +28,9 @@ import org.sonar.java.bytecode.asm.AsmMethod;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 
-@Rule(key = "CallToDeprecatedMethod", name = "Avoid use of deprecated method", isoCategory = IsoCategory.Portability, priority = Priority.MINOR, description = "<p>Once deprecated, a method should no longer be used as it means that the method might be removed sooner or later.</p>")
+@Rule(key = "CallToDeprecatedMethod", name = "Avoid use of deprecated method", isoCategory = IsoCategory.Portability,
+    priority = Priority.MINOR, description = "<p>Once deprecated, a method should no longer be used as it means that "
+        + "the method might be removed sooner or later.</p>")
 public class CallToDeprecatedMethodCheck extends BytecodeCheck {
 
   private AsmClass asmClass;

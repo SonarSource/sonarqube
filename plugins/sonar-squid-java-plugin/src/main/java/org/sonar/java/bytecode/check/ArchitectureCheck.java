@@ -19,9 +19,14 @@
  */
 package org.sonar.java.bytecode.check;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.WildcardPattern;
-import org.sonar.check.*;
+import org.sonar.check.Cardinality;
+import org.sonar.check.IsoCategory;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
 import org.sonar.java.PatternUtils;
 import org.sonar.java.bytecode.asm.AsmClass;
 import org.sonar.java.bytecode.asm.AsmEdge;
@@ -30,23 +35,23 @@ import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.api.SourceMethod;
 
-import com.google.common.collect.Maps;
-
 import java.util.Map;
 
-@Rule(key = "ArchitecturalConstraint", name = "Architectural constraint", cardinality = Cardinality.MULTIPLE, isoCategory = IsoCategory.Portability, priority = Priority.MAJOR, description = "<p>A source code comply to an architectural model when it fully adheres to a set of architectural constraints. " +
-    "A constraint allows to deny references between classes by pattern.</p>" +
-    "<p>You can for instance use this rule to :</p>" +
-    "<ul><li>forbid access to **.web.** from **.dao.** classes</li>" +
-    "<li>forbid access to java.util.Vector, java.util.Hashtable and java.util.Enumeration from any classes</li>" +
-    "<li>forbid access to java.sql.** from **.ui.** and **.web.** classes</li></ul>")
+@Rule(key = "ArchitecturalConstraint", name = "Architectural constraint", cardinality = Cardinality.MULTIPLE,
+    isoCategory = IsoCategory.Portability, priority = Priority.MAJOR,
+    description = "<p>A source code comply to an architectural model when it fully adheres to a set of architectural constraints. " +
+        "A constraint allows to deny references between classes by pattern.</p>" +
+        "<p>You can for instance use this rule to :</p>" +
+        "<ul><li>forbid access to **.web.** from **.dao.** classes</li>" +
+        "<li>forbid access to java.util.Vector, java.util.Hashtable and java.util.Enumeration from any classes</li>" +
+        "<li>forbid access to java.sql.** from **.ui.** and **.web.** classes</li></ul>")
 public class ArchitectureCheck extends BytecodeCheck {
 
   @RuleProperty(description = "Optional. If this property is not defined, all classes should adhere to this constraint. Ex : **.web.**")
-  private String fromClasses = new String();
+  private String fromClasses = "";
 
   @RuleProperty(description = "Mandatory. Ex : java.util.Vector, java.util.Hashtable, java.util.Enumeration")
-  private String toClasses = new String();
+  private String toClasses = "";
 
   private WildcardPattern[] fromPatterns;
   private WildcardPattern[] toPatterns;
@@ -110,12 +115,10 @@ public class ArchitectureCheck extends BytecodeCheck {
   }
 
   private int getSourceLineNumber(AsmEdge edge) {
-    if (edge.getSourceLineNumber() == 0) {
-      if (edge.getFrom() instanceof AsmMethod) {
-        SourceMethod sourceMethod = getSourceMethod((AsmMethod) edge.getFrom());
-        if (sourceMethod != null) {
-          return sourceMethod.getStartAtLine();
-        }
+    if ((edge.getSourceLineNumber() == 0) && (edge.getFrom() instanceof AsmMethod)) {
+      SourceMethod sourceMethod = getSourceMethod((AsmMethod) edge.getFrom());
+      if (sourceMethod != null) {
+        return sourceMethod.getStartAtLine();
       }
     }
     return edge.getSourceLineNumber();

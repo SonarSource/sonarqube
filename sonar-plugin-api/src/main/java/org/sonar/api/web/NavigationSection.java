@@ -33,10 +33,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface NavigationSection {
 
-  static final String HOME = "home";
-  static final String RESOURCE = "resource";
-  static final String RESOURCE_TAB = "resource_tab";
-  static final String CONFIGURATION = "configuration";
+  String HOME = "home";
+  String RESOURCE = "resource";
+  String RESOURCE_TAB = "resource_tab";
+  String CONFIGURATION = "configuration";
 
   String[] value() default { HOME };
 

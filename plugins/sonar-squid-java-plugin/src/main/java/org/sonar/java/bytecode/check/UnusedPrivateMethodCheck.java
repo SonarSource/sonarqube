@@ -28,14 +28,15 @@ import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.api.SourceMethod;
 
-@Rule(key = "UnusedPrivateMethod", name = "Unused private method", isoCategory = IsoCategory.Maintainability, priority = Priority.MAJOR, description = "<p>Private methods that are never executed are dead code. " +
-    "Dead code means unnecessary, inoperative code that should be removed. " +
-    "This helps in maintenance by decreasing the maintained code size, " +
-    "making it easier to understand the program and preventing bugs from being introduced.</p>" +
-    "<p>In the following two cases, private methods are not considered as dead code by Sonar :</p>" +
-    "<ul><li>Private empty constructors that are intentionally used to prevent any direct instanciation of a class.</li>" +
-    "<li>Private methods : readObject(...), writeObject(...), writeReplace(...), readResolve(...) " +
-    "which can contractually be used when implementing the Serializable interface.</li></ul>")
+@Rule(key = "UnusedPrivateMethod", name = "Unused private method", isoCategory = IsoCategory.Maintainability,
+    priority = Priority.MAJOR, description = "<p>Private methods that are never executed are dead code. " +
+        "Dead code means unnecessary, inoperative code that should be removed. " +
+        "This helps in maintenance by decreasing the maintained code size, " +
+        "making it easier to understand the program and preventing bugs from being introduced.</p>" +
+        "<p>In the following two cases, private methods are not considered as dead code by Sonar :</p>" +
+        "<ul><li>Private empty constructors that are intentionally used to prevent any direct instanciation of a class.</li>" +
+        "<li>Private methods : readObject(...), writeObject(...), writeReplace(...), readResolve(...) " +
+        "which can contractually be used when implementing the Serializable interface.</li></ul>")
 public class UnusedPrivateMethodCheck extends BytecodeCheck {
 
   private AsmClass asmClass;
