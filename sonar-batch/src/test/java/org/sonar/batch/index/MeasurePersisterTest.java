@@ -45,25 +45,34 @@ import static org.mockito.Mockito.when;
 
 public class MeasurePersisterTest extends AbstractDbUnitTestCase {
 
+  public static final int PROJECT_SNAPSHOT_ID = 3001;
+  public static final int PACKAGE_SNAPSHOT_ID = 3002;
+  public static final int FILE_SNAPSHOT_ID = 3003;
+  public static final int COVERAGE_METRIC_ID = 2;
+
   private ResourcePersister resourcePersister;
   private MeasurePersister measurePersister;
   private Project project = new Project("foo");
   private JavaPackage aPackage = new JavaPackage("org.foo");
-  private Snapshot projectSnapshot, packageSnapshot;
+  private JavaFile aFile = new JavaFile("org.foo.Bar");
+  private Snapshot projectSnapshot, packageSnapshot, fileSnapshot;
   private Metric ncloc, coverage;
 
   @Before
   public void mockResourcePersister() {
     setupData("shared");
     resourcePersister = mock(ResourcePersister.class);
-    projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 3001);
-    packageSnapshot = getSession().getSingleResult(Snapshot.class, "id", 3002);
+    projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", PROJECT_SNAPSHOT_ID);
+    packageSnapshot = getSession().getSingleResult(Snapshot.class, "id", PACKAGE_SNAPSHOT_ID);
+    fileSnapshot = getSession().getSingleResult(Snapshot.class, "id", FILE_SNAPSHOT_ID);
     ncloc = getSession().getSingleResult(Metric.class, "key", "ncloc");
     coverage = getSession().getSingleResult(Metric.class, "key", "coverage");
     when(resourcePersister.saveResource((Project) anyObject(), eq(project))).thenReturn(projectSnapshot);
     when(resourcePersister.saveResource((Project) anyObject(), eq(aPackage))).thenReturn(packageSnapshot);
+    when(resourcePersister.saveResource((Project) anyObject(), eq(aFile))).thenReturn(fileSnapshot);
     when(resourcePersister.getSnapshot(project)).thenReturn(projectSnapshot);
     when(resourcePersister.getSnapshot(aPackage)).thenReturn(packageSnapshot);
+    when(resourcePersister.getSnapshot(aFile)).thenReturn(fileSnapshot);
     measurePersister = new MeasurePersister(getSession(), resourcePersister, new DefaultRuleFinder(getSessionFactory()));
   }
 
@@ -97,7 +106,7 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
 
     measurePersister.dump();
 
-    List<MeasureModel> coverageMeasures = getSession().getResults(MeasureModel.class, "snapshotId", 3001, "metricId", 1);
+    List<MeasureModel> coverageMeasures = getSession().getResults(MeasureModel.class, "snapshotId", PROJECT_SNAPSHOT_ID, "metricId", 1);
     assertThat(coverageMeasures.size(), is(1));
     assertThat(coverageMeasures.get(0).getValue(), is(300.0));
   }
@@ -146,6 +155,21 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
     measure = new Measure(coverage).setValue(100.0);
     assertThat(MeasurePersister.shouldPersistMeasure(file, measure), is(false));
   }
+
+  @Test
+  public void shouldNotSaveBestValueMeasuresInDelayedMode() {
+    measurePersister.setDelayedMode(true);
+
+    measurePersister.saveMeasure(project, aFile, new Measure(coverage).setValue(100.0));
+
+    assertThat(getSession().getResults(MeasureModel.class, "metricId", COVERAGE_METRIC_ID, "snapshotId", FILE_SNAPSHOT_ID).size(), is(0));
+
+    measurePersister.dump();
+
+    // not saved because it's a best value measure
+    assertThat(getSession().getResults(MeasureModel.class, "metricId", COVERAGE_METRIC_ID, "snapshotId", FILE_SNAPSHOT_ID).size(), is(0));
+  }
+
 
   @Test
   public void shouldNotSaveMemoryOnlyMeasures() {
