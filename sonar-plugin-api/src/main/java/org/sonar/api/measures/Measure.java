@@ -28,8 +28,7 @@ import java.util.Date;
 
 /**
  * A class to handle measures.
- * <p/>
- *
+ * 
  * @since 1.10
  */
 public class Measure {
@@ -61,7 +60,7 @@ public class Measure {
 
   /**
    * Creates a measure with a metric
-   *
+   * 
    * @param metric the metric
    */
   public Measure(Metric metric) {
@@ -71,9 +70,9 @@ public class Measure {
 
   /**
    * Creates a measure with a metric and a value
-   *
+   * 
    * @param metric the metric
-   * @param value  its value
+   * @param value its value
    */
   public Measure(Metric metric, Double value) {
     this.metric = metric;
@@ -83,9 +82,9 @@ public class Measure {
 
   /**
    * Creates a measure with a metric, a value and a precision for the value
-   *
-   * @param metric    the metric
-   * @param value     its value
+   * 
+   * @param metric the metric
+   * @param value its value
    * @param precision the value precision
    */
   public Measure(Metric metric, Double value, int precision) {
@@ -96,10 +95,10 @@ public class Measure {
 
   /**
    * Creates a measure with a metric, a value and a data field
-   *
+   * 
    * @param metric the metric
-   * @param value  the value
-   * @param data   the data field
+   * @param value the value
+   * @param data the data field
    */
   public Measure(Metric metric, Double value, String data) {
     this.metric = metric;
@@ -110,9 +109,9 @@ public class Measure {
 
   /**
    * * Creates a measure with a metric and a data field
-   *
+   * 
    * @param metric the metric
-   * @param data   the data field
+   * @param data the data field
    */
   public Measure(Metric metric, String data) {
     this.metric = metric;
@@ -122,9 +121,9 @@ public class Measure {
 
   /**
    * Creates a measure with a metric and an alert level
-   *
+   * 
    * @param metric the metric
-   * @param level  the alert level
+   * @param level the alert level
    */
   public Measure(Metric metric, Metric.Level level) {
     this.metric = metric;
@@ -141,20 +140,23 @@ public class Measure {
   }
 
   /**
-   * Gets the persistence mode of the measure. Default persistence mode is FULL,
-   * except when instantiating the measure with a String parameter.
+   * Gets the persistence mode of the measure. Default persistence mode is FULL, except when instantiating the measure with a String
+   * parameter.
    */
   public PersistenceMode getPersistenceMode() {
     return persistenceMode;
   }
 
   /**
-   * <p>Sets the persistence mode of a measure.</p>
-   * <p><b>WARNING : </b>Being able to reuse measures saved in memory is only possible within the same tree.
-   * In a multi-module project for example, a measure save in memory at the module level will not be accessible by
-   * the root project. In that case, database should be used.
+   * <p>
+   * Sets the persistence mode of a measure.
    * </p>
-   *
+   * <p>
+   * <b>WARNING : </b>Being able to reuse measures saved in memory is only possible within the same tree. In a multi-module project for
+   * example, a measure save in memory at the module level will not be accessible by the root project. In that case, database should be
+   * used.
+   * </p>
+   * 
    * @param mode the mode
    * @return the measure object instance
    */
@@ -176,7 +178,7 @@ public class Measure {
 
   /**
    * Set the underlying metric
-   *
+   * 
    * @param metric the metric
    * @return the measure object instance
    */
@@ -205,7 +207,7 @@ public class Measure {
 
   /**
    * Sets the date of the measure - Used only in TimeMachine queries
-   *
+   * 
    * @param date the date
    * @return the measure object instance
    */
@@ -233,7 +235,7 @@ public class Measure {
 
   /**
    * Sets the measure value with the default precision of 1
-   *
+   * 
    * @param v the measure value
    * @return the measure object instance
    */
@@ -243,7 +245,7 @@ public class Measure {
 
   /**
    * Sets the measure value as an int
-   *
+   * 
    * @param i the value
    * @return the measure object instance
    */
@@ -258,8 +260,8 @@ public class Measure {
 
   /**
    * Sets the measure value with a given precision
-   *
-   * @param v         the measure value
+   * 
+   * @param v the measure value
    * @param precision the measure value precision
    * @return the measure object instance
    */
@@ -289,7 +291,7 @@ public class Measure {
 
   /**
    * Sets the data field of the measure.
-   *
+   * 
    * @param s the data
    * @return the measure object instance
    */
@@ -303,7 +305,7 @@ public class Measure {
 
   /**
    * Sets an alert level as the data field
-   *
+   * 
    * @param level the alert level
    * @return the measure object instance
    */
@@ -325,7 +327,7 @@ public class Measure {
 
   /**
    * Sets the measure description
-   *
+   * 
    * @param description the description
    * @return the measure object instance
    */
@@ -343,7 +345,7 @@ public class Measure {
 
   /**
    * Set the alert status of the measure
-   *
+   * 
    * @param status the status
    * @return the measure object instance
    */
@@ -361,7 +363,7 @@ public class Measure {
 
   /**
    * Sets the text associated to the alert on the measure
-   *
+   * 
    * @param alertText the text
    * @return the measure object instance
    */
@@ -372,7 +374,7 @@ public class Measure {
 
   /**
    * Gets the measure tendency
-   *
+   * 
    * @return the tendency
    */
   public Integer getTendency() {
@@ -381,7 +383,7 @@ public class Measure {
 
   /**
    * Sets the tendency for the measure
-   *
+   * 
    * @param tendency the tendency
    * @return the measure object instance
    */
@@ -399,7 +401,7 @@ public class Measure {
 
   /**
    * Sets the measure id - Internal use only
-   *
+   * 
    * @param id the id
    * @return the measure object instance
    */
@@ -417,7 +419,7 @@ public class Measure {
 
   /**
    * Sets the first differential value of the measure
-   *
+   * 
    * @param diff1 the diff
    * @return the measure object instance
    */
@@ -435,7 +437,7 @@ public class Measure {
 
   /**
    * Sets the second differential value of the measure
-   *
+   * 
    * @param diff2 the diff
    * @return the measure object instance
    */
@@ -453,7 +455,7 @@ public class Measure {
 
   /**
    * Sets the third differential value of the measure
-   *
+   * 
    * @param diff3 the diff
    * @return the measure object instance
    */
@@ -471,7 +473,7 @@ public class Measure {
 
   /**
    * Sets the URL of the measure
-   *
+   * 
    * @param url the url
    * @return the measure object instance
    */
@@ -488,7 +490,6 @@ public class Measure {
     this.characteristic = characteristic;
     return this;
   }
-
 
   @Override
   public boolean equals(Object o) {

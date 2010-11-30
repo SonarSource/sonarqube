@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.core;
 
+import org.sonar.plugins.core.timemachine.NewViolationsDecorator;
+
 import com.google.common.collect.Lists;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
@@ -196,6 +198,7 @@ public class CorePlugin implements Plugin {
     extensions.add(TendencyDecorator.class);
     extensions.add(PeriodLocator.class);
     extensions.add(VariationDecorator.class);
+    extensions.add(NewViolationsDecorator.class);
     extensions.add(TimeMachineConfiguration.class);
 
     return extensions;

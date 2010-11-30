@@ -42,12 +42,13 @@ public final class TimeMachineConfiguration implements BatchExtension {
     return configuration.getInt(CoreProperties.CORE_TENDENCY_DEPTH_PROPERTY, CoreProperties.CORE_TENDENCY_DEPTH_DEFAULT_VALUE);
   }
 
-  Snapshot getProjectSnapshotForDiffValues(int index) {
+  Integer getDiffPeriodInDays(int index) {
     String property = configuration.getString("sonar.timemachine.diff" + index);
-    Snapshot projectSnapshot = null;
-    if (property!=null) {
-      projectSnapshot = periodLocator.locate(Integer.valueOf(property));
-    }
-    return projectSnapshot;
+    return property == null ? null : Integer.valueOf(property);
+  }
+
+  Snapshot getProjectSnapshotForDiffValues(int index) {
+    Integer days = getDiffPeriodInDays(index);
+    return days == null ? null : periodLocator.locate(days);
   }
 }

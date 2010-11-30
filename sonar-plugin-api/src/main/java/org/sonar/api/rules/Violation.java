@@ -161,8 +161,9 @@ public class Violation {
   /**
    * @since 2.5
    */
-  public void setCreatedAt(Date createdAt) {
+  public Violation setCreatedAt(Date createdAt) {
     this.createdAt = createdAt;
+    return this;
   }
 
   @Override
