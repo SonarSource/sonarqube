@@ -27,6 +27,8 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
 
+import java.util.List;
+
 public final class ViolationPersister {
 
   private DatabaseSession session;
@@ -46,10 +48,18 @@ public final class ViolationPersister {
   public RuleFailureModel selectPreviousViolation(Violation violation) {
     Snapshot snapshot = resourcePersister.getSnapshot(violation.getResource());
     Snapshot previousLastSnapshot = resourcePersister.getLastSnapshot(snapshot, true);
-    return session.getSingleResult(RuleFailureModel.class,
+    if (previousLastSnapshot == null) {
+      return null;
+    }
+    // Can be several violations on line with same message: for example - "'3' is a magic number"
+    List<RuleFailureModel> models = session.getResults(RuleFailureModel.class,
         "snapshotId", previousLastSnapshot.getId(),
         "line", violation.getLineId(),
         "message", violation.getMessage());
+    if (models != null && !models.isEmpty()) {
+      return models.get(0);
+    }
+    return null;
   }
 
   public void saveOrUpdateViolation(Project project, Violation violation) {
@@ -61,7 +71,7 @@ public final class ViolationPersister {
     } else {
       // insert
       model = createModel(violation);
-      model.setCreatedAt(project.getAnalysisDate());
+      model.setCreatedAt(snapshot.getCreatedAt());
     }
     model.setSnapshotId(snapshot.getId());
     session.save(model);
