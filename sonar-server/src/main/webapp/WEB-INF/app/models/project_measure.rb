@@ -101,6 +101,24 @@ class ProjectMeasure < ActiveRecord::Base
     end
   end
 
+  def formatted_variation_value(variation_index)
+    variation=nil
+    case variation_index
+    when 1
+      variation=diff_value_1
+    when 2
+      variation=diff_value_2
+    when 3
+      variation=diff_value_3
+    end
+    if variation
+      label=format_numeric_value(variation)
+      variation<0 ? label : "+#{label}"
+    else
+      nil
+    end
+  end
+
   def millisecs_formatted_value( value )
     # bugfix with jruby 1.0 release does not support % for BigDecimal
     value = value.to_i if value.kind_of? BigDecimal
@@ -293,6 +311,26 @@ class ProjectMeasure < ActiveRecord::Base
 
   def numerical_metric?
     [Metric::VALUE_TYPE_INT, Metric::VALUE_TYPE_FLOAT, Metric::VALUE_TYPE_PERCENT, Metric::VALUE_TYPE_MILLISEC].include?(metric.val_type)
+  end
+
+
+  def format_numeric_value(val)
+    if metric.nil?
+      return val.to_s
+    end
+
+    case metric().val_type
+    when Metric::VALUE_TYPE_INT
+      number_with_precision(val, :precision => 0)
+    when Metric::VALUE_TYPE_FLOAT
+      number_with_precision(val, :precision => 1)
+    when Metric::VALUE_TYPE_PERCENT
+      number_to_percentage(val, {:precision => 1})
+    when Metric::VALUE_TYPE_MILLISEC
+      millisecs_formatted_value( val )
+    else
+      val.to_s
+    end
   end
 
   def validate_date

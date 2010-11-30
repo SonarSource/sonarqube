@@ -5,7 +5,7 @@
 				<div class="dashbox">
 				    <h3>Rules compliance</h3>
 				    <div class="big">
-				      <%= format_measure(Metric::VIOLATIONS_DENSITY, :url => url_for_drilldown(Metric::WEIGHTED_VIOLATIONS, {:highlight => Metric::WEIGHTED_VIOLATIONS})) -%> <%= tendency_icon(Metric::VIOLATIONS_DENSITY) -%>
+				      <%= format_measure(Metric::VIOLATIONS_DENSITY, :url => url_for_drilldown(Metric::WEIGHTED_VIOLATIONS, {:highlight => Metric::WEIGHTED_VIOLATIONS})) -%> <%= trend_icon(Metric::VIOLATIONS_DENSITY) -%>
 				    </div>
 					  <%
 				     maintainability=@snapshot.measure(Metric::MAINTAINABILITY)
@@ -22,27 +22,27 @@
 				            <tr>
 				              <td align="left" nowrap>Efficiency &nbsp;</td>
 				              <td align="right" id="m_efficiency"><%=  formatted_value(efficiency) %></td>
-				              <td nowrap> &nbsp;<%= tendency_icon(efficiency) -%></td>
+				              <td nowrap> &nbsp;<%= trend_icon(efficiency) -%></td>
 				            </tr>
 				            <tr>
 				              <td align="left" nowrap>Maintainability  &nbsp;</td>
 				              <td align="right" id="m_maintainability"><%=  formatted_value(maintainability) %></td>
-				              <td nowrap> &nbsp;<%= tendency_icon(maintainability) -%></td>
+				              <td nowrap> &nbsp;<%= trend_icon(maintainability) -%></td>
 				            </tr>
 				            <tr>
 				              <td align="left" nowrap>Portability  &nbsp;</td>
 				              <td align="right" id="m_portability"><%=  formatted_value(portability) %></td>
-				              <td nowrap> &nbsp;<%= tendency_icon(portability) -%></td>
+				              <td nowrap> &nbsp;<%= trend_icon(portability) -%></td>
 				            </tr>
 				            <tr>
 				              <td align="left" nowrap>Reliability  &nbsp;</td>
 				              <td align="right" id="m_reliability"><%=  formatted_value(reliability) %></td>
-				              <td nowrap> &nbsp;<%= tendency_icon(reliability) -%></td>
+				              <td nowrap> &nbsp;<%= trend_icon(reliability) -%></td>
 				            </tr>
 				            <tr>
 				              <td align="left" nowrap>Usability  &nbsp;</td>
 				              <td align="right" id="m_usability"><%=  formatted_value(usability) %></td>
-				              <td nowrap> &nbsp;<%= tendency_icon(usability) -%></td>
+				              <td nowrap> &nbsp;<%= trend_icon(usability) -%></td>
 				            </tr>
 				          </table>
 				        </span>
@@ -54,7 +54,7 @@
 			  <div class="dashbox">
 			    <h3>Violations</h3>
 			    <div class="big">
-			      <%= format_measure(Metric::VIOLATIONS, :url => url_for(:controller => 'drilldown', :action => 'violations', :id => @project.key)) -%> <%= tendency_icon(Metric::VIOLATIONS) -%>
+			      <%= format_measure(Metric::VIOLATIONS, :url => url_for(:controller => 'drilldown', :action => 'violations', :id => @project.key)) -%> <%= trend_icon(Metric::VIOLATIONS) -%>
 			    </div>
 			  </div>
 			<%
@@ -75,7 +75,7 @@
 			        <td style="padding-left: 10px;" align="right">
 			          <%= format_measure(blocker_violations) -%>
 			        </td>
-			        <td width="1%"><%= tendency_icon(blocker_violations) -%></td>
+			        <td width="1%"><%= trend_icon(blocker_violations) -%></td>
 			        <td align="left" style="padding-bottom:2px; padding-top:2px;">
 			         <%= barchart(:width => 60, :percent => (blocker_violations ? (100 * blocker_violations.value / max).to_i : 0), :color => '#777777') if max>0 %>
 			        </td>
@@ -86,7 +86,7 @@
 			        <td style="padding-left: 10px;" align="right">
 			            <%= format_measure(critical_violations) -%>
 			        </td>
-			        <td width="1%"><%= tendency_icon(critical_violations) -%></td>
+			        <td width="1%"><%= trend_icon(critical_violations) -%></td>
 			        <td align="left" style="padding-bottom:2px; padding-top:2px;">
 			          <%= barchart(:width => 60, :percent => (critical_violations ? (100 * critical_violations.value / max).to_i : 0), :color => '#777777') if max>0 %>
 			        </td>
@@ -97,7 +97,7 @@
 			        <td style="padding-left: 10px;" align="right">
 			          <%= format_measure(major_violations) -%>
 			       </td>
-			       <td width="1%"><%= tendency_icon(major_violations) -%></td>
+			       <td width="1%"><%= trend_icon(major_violations) -%></td>
 			       <td align="left" style="padding-bottom:2px; padding-top:2px;">
 			          <%= barchart(:width => 60, :percent => (major_violations ? (100 * major_violations.value / max).to_i : 0), :color => '#777777') if max>0 %>
 			        </td>
@@ -108,7 +108,7 @@
 			        <td style="padding-left: 10px;" align="right">
 			            <%= format_measure(minor_violations) -%>
 			       </td>
-			       <td width="1%"><%= tendency_icon(minor_violations) -%></td>
+			       <td width="1%"><%= trend_icon(minor_violations) -%></td>
 			       <td align="left" style="padding-bottom:2px; padding-top:2px;">
 			          <%= barchart(:width => 60, :percent => (minor_violations ? (100 * minor_violations.value / max).to_i : 0), :color => '#777777') if max>0 %>
 			        </td>
@@ -119,7 +119,7 @@
 			        <td style="padding-left: 10px;" align="right">
 					      <%= format_measure(info_violations) -%>
 			       </td>
-			       <td width="1%"><%= tendency_icon(info_violations) -%></td>
+			       <td width="1%"><%= trend_icon(info_violations) -%></td>
 			       <td align="left" style="padding-bottom:2px; padding-top:2px;">
 			          <%= barchart(:width => 60, :percent => (info_violations ? (100 * info_violations.value / max).to_i : 0), :color => '#777777') if max>0 %>
 			        </td>

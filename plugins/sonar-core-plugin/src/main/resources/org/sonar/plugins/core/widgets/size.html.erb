@@ -10,30 +10,30 @@ if measure('lines') || measure('ncloc')
 		      <h3>Lines of code</h3>
 			    <% if measure('ncloc') %>
 			      <p><span class="big">
-			      <%= format_measure('ncloc', :suffix => '', :url => url_for_drilldown('ncloc')) -%> <%= tendency_icon('ncloc', false) -%></span></p>
+			      <%= format_measure('ncloc', :suffix => '', :url => url_for_drilldown('ncloc')) -%> <%= trend_icon('ncloc', :big => true) -%></span></p>
 			      <%
 			        generated_ncloc=measure('generated_ncloc')
 			        if generated_ncloc && generated_ncloc.value>0
 			      %>
-			      <p>+<%= format_measure(generated_ncloc, :suffix => ' generated', :url => url_for_drilldown(generated_ncloc)) -%> <%= tendency_icon(generated_ncloc) -%></p>
+			      <p>+<%= format_measure(generated_ncloc, :suffix => ' generated', :url => url_for_drilldown(generated_ncloc)) -%> <%= trend_icon(generated_ncloc) -%></p>
 			      <% end %>
-			      <p><%= format_measure('lines', :suffix => ' lines', :url => url_for_drilldown('lines')) -%> <%= tendency_icon('lines') -%></p>
+			      <p><%= format_measure('lines', :suffix => ' lines', :url => url_for_drilldown('lines')) -%> <%= trend_icon('lines') -%></p>
 			    <% else%>
-			      <p><span class="big"><%= format_measure('lines', :suffix => '', :url => url_for_drilldown('lines')) -%> <%= tendency_icon('lines', false) -%></span></p>
+			      <p><span class="big"><%= format_measure('lines', :suffix => '', :url => url_for_drilldown('lines')) -%> <%= trend_icon('lines', :big => true) -%></span></p>
 			    <% end %>
 			    <%
 			      generated_lines=measure('generated_lines')
 			      if generated_lines && generated_lines.value>0
 			    %>
-			      <p>incl. <%= format_measure(generated_lines, :suffix => ' generated', :url => url_for_drilldown(generated_lines)) -%> <%= tendency_icon(generated_lines) -%></p>
+			      <p>incl. <%= format_measure(generated_lines, :suffix => ' generated', :url => url_for_drilldown(generated_lines)) -%> <%= trend_icon(generated_lines) -%></p>
 			    <% end %>
 			    <% if statements %>
           <p>
-          <%= format_measure(statements, :suffix => ' statements', :url => url_for_drilldown(statements)) -%> <%= tendency_icon(statements) -%>
+          <%= format_measure(statements, :suffix => ' statements', :url => url_for_drilldown(statements)) -%> <%= trend_icon(statements) -%>
           </p>
           <% end %>
 			    <% if files && measure('classes') %>
-			      <p><%= format_measure(files, :suffix => ' files', :url => url_for_drilldown(files)) -%> <%= tendency_icon(files) -%></p>
+			      <p><%= format_measure(files, :suffix => ' files', :url => url_for_drilldown(files)) -%> <%= trend_icon(files) -%></p>
 			    <% end %>
 		    </div>
 		</td>
@@ -42,19 +42,19 @@ if measure('lines') || measure('ncloc')
 			<div class="dashbox">
 			  <% if measure('classes') %>
 		        <h3>Classes</h3>
-		        <p><span class="big"><%= format_measure('classes', :url => url_for_drilldown('classes')) -%> <%= tendency_icon('classes') -%></span></p>
-       		    <p><%= format_measure('packages', :suffix => ' packages', :url => url_for_drilldown('packages')) -%> <%= tendency_icon('packages') -%></p>
+		        <p><span class="big"><%= format_measure('classes', :url => url_for_drilldown('classes')) -%> <%= trend_icon('classes') -%></span></p>
+       		    <p><%= format_measure('packages', :suffix => ' packages', :url => url_for_drilldown('packages')) -%> <%= trend_icon('packages') -%></p>
 		      <% else %>
 		        <h3>Files</h3>
-		        <p><span class="big"><%= format_measure('files', :url => url_for_drilldown('files')) -%> <%= tendency_icon('files') -%></span></p>
-       		    <p><%= format_measure('directories', :suffix => ' directories', :url => url_for_drilldown('directories')) -%> <%= tendency_icon('directories') -%></p>
+		        <p><span class="big"><%= format_measure('files', :url => url_for_drilldown('files')) -%> <%= trend_icon('files') -%></span></p>
+       		    <p><%= format_measure('directories', :suffix => ' directories', :url => url_for_drilldown('directories')) -%> <%= trend_icon('directories') -%></p>
 		      <% end %>
-		      <p><%= format_measure('functions', :suffix => ' methods', :url => url_for_drilldown('functions')) -%> <%= tendency_icon('functions') -%></p>
+		      <p><%= format_measure('functions', :suffix => ' methods', :url => url_for_drilldown('functions')) -%> <%= trend_icon('functions') -%></p>
 		      <% if (measure('accessors')) %>
-		        <p><%= format_measure('accessors', :prefix => '+', :suffix => ' accessors', :url => url_for_drilldown('accessors')) -%> <%= tendency_icon('accessors') -%></p>
+		        <p><%= format_measure('accessors', :prefix => '+', :suffix => ' accessors', :url => url_for_drilldown('accessors')) -%> <%= trend_icon('accessors') -%></p>
 		      <% end %>
 		      <% if measure('paragraphs') %>
-			      <p><%= format_measure('paragraphs', :suffix => ' paragraphs', :url => url_for_drilldown('paragraphs')) -%> <%= tendency_icon('paragraphs') -%></p>
+			      <p><%= format_measure('paragraphs', :suffix => ' paragraphs', :url => url_for_drilldown('paragraphs')) -%> <%= trend_icon('paragraphs') -%></p>
 			    <% end %>
 		    </div>
 		</td>

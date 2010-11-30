@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ui;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.ArrayUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.web.Page;
@@ -62,7 +63,7 @@ public class Views implements ServerComponent {
   }
 
   public List<ViewProxy<Page>> getPages(String section, String resourceScope, String resourceQualifier, String resourceLanguage) {
-    List<ViewProxy<Page>> result = new ArrayList<ViewProxy<Page>>();
+    List<ViewProxy<Page>> result = Lists.newArrayList();
     for (ViewProxy<Page> proxy : pages) {
       if (accept(proxy, section, resourceScope, resourceQualifier, resourceLanguage)) {
         result.add(proxy);
@@ -75,10 +76,10 @@ public class Views implements ServerComponent {
     return widgetsPerId.get(id);
   }
 
-  public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage) {
-    List<ViewProxy<Widget>> result = new ArrayList<ViewProxy<Widget>>();
+  public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage, boolean variationDashboard) {
+    List<ViewProxy<Widget>> result = Lists.newArrayList();
     for (ViewProxy<Widget> proxy : widgets) {
-      if (accept(proxy, null, resourceScope, resourceQualifier, resourceLanguage)) {
+      if (accept(proxy, null, resourceScope, resourceQualifier, resourceLanguage) && (!variationDashboard || proxy.supportsVariationDashboard())) {
         result.add(proxy);
       }
     }
@@ -86,7 +87,7 @@ public class Views implements ServerComponent {
   }
 
   public List<ViewProxy<Widget>> getWidgets() {
-    return new ArrayList<ViewProxy<Widget>>(widgets);
+    return Lists.newArrayList(widgets);
   }
 
   private static boolean accept(ViewProxy proxy, String section, String resourceScope, String resourceQualifier, String resourceLanguage) {

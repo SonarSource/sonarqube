@@ -23,6 +23,7 @@ import org.sonar.api.web.*;
 
 @WidgetCategory({"Rules"})
 @Description("Reports violations and compliance index on coding standards.")
+@SupportVariationDashboard
 public class RulesWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
     return "rules";

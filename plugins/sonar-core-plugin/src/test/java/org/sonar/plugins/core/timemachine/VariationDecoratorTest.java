@@ -32,7 +32,7 @@ import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class DifferentialValueDecoratorTest extends AbstractDbUnitTestCase {
+public class VariationDecoratorTest extends AbstractDbUnitTestCase {
 
   private static final int PROJECT_SNAPSHOT_ID = 1000;
   private static final int PROJECT_ID = 1;
@@ -45,7 +45,7 @@ public class DifferentialValueDecoratorTest extends AbstractDbUnitTestCase {
     List<Metric> metrics = selectMetrics();
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", PROJECT_SNAPSHOT_ID);
 
-    DifferentialValueDecorator decorator = new DifferentialValueDecorator(getSession(), new Snapshot[0], metrics);
+    VariationDecorator decorator = new VariationDecorator(getSession(), new Snapshot[0], metrics);
     List<MeasureModel> measures = decorator.selectPastMeasures(FILE_ID, projectSnapshot);
     assertThat(measures.size(), is(2));
 
@@ -62,7 +62,7 @@ public class DifferentialValueDecoratorTest extends AbstractDbUnitTestCase {
     List<Metric> metrics = selectMetrics();
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", PROJECT_SNAPSHOT_ID);
 
-    DifferentialValueDecorator decorator = new DifferentialValueDecorator(getSession(), new Snapshot[0], metrics);
+    VariationDecorator decorator = new VariationDecorator(getSession(), new Snapshot[0], metrics);
     List<MeasureModel> measures = decorator.selectPastMeasures(PROJECT_ID, projectSnapshot);
     assertThat(measures.size(), is(2));
 
@@ -74,13 +74,13 @@ public class DifferentialValueDecoratorTest extends AbstractDbUnitTestCase {
 
   @Test
   public void shouldNotCalculateDiffValuesOnFiles() {
-    assertThat(DifferentialValueDecorator.shouldCalculateDiffValues(new Project("foo")), is(true));
-    assertThat(DifferentialValueDecorator.shouldCalculateDiffValues(new JavaPackage("org.foo")), is(true));
-    assertThat(DifferentialValueDecorator.shouldCalculateDiffValues(new Directory("org/foo")), is(true));
+    assertThat(VariationDecorator.shouldCalculateDiffValues(new Project("foo")), is(true));
+    assertThat(VariationDecorator.shouldCalculateDiffValues(new JavaPackage("org.foo")), is(true));
+    assertThat(VariationDecorator.shouldCalculateDiffValues(new Directory("org/foo")), is(true));
 
-    assertThat(DifferentialValueDecorator.shouldCalculateDiffValues(new JavaFile("org.foo.Bar")), is(false));
-    assertThat(DifferentialValueDecorator.shouldCalculateDiffValues(new JavaFile("org.foo.Bar", true)), is(false));
-    assertThat(DifferentialValueDecorator.shouldCalculateDiffValues(new File("org/foo/Bar.php")), is(false));
+    assertThat(VariationDecorator.shouldCalculateDiffValues(new JavaFile("org.foo.Bar")), is(false));
+    assertThat(VariationDecorator.shouldCalculateDiffValues(new JavaFile("org.foo.Bar", true)), is(false));
+    assertThat(VariationDecorator.shouldCalculateDiffValues(new File("org/foo/Bar.php")), is(false));
   }
 
   private List<Metric> selectMetrics() {

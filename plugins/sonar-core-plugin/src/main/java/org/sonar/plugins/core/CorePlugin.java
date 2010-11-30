@@ -40,7 +40,7 @@ import org.sonar.plugins.core.metrics.UserManagedMetrics;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.*;
 import org.sonar.plugins.core.testdetailsviewer.TestsViewerDefinition;
-import org.sonar.plugins.core.timemachine.DifferentialValueDecorator;
+import org.sonar.plugins.core.timemachine.VariationDecorator;
 import org.sonar.plugins.core.timemachine.PeriodLocator;
 import org.sonar.plugins.core.timemachine.TendencyDecorator;
 import org.sonar.plugins.core.timemachine.TimeMachineConfiguration;
@@ -195,7 +195,7 @@ public class CorePlugin implements Plugin {
     // time machine
     extensions.add(TendencyDecorator.class);
     extensions.add(PeriodLocator.class);
-    extensions.add(DifferentialValueDecorator.class);
+    extensions.add(VariationDecorator.class);
     extensions.add(TimeMachineConfiguration.class);
 
     return extensions;

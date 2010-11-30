@@ -63,7 +63,7 @@ class ColumnsController < ApplicationController
   private
   
   def init
-    @dashboard_configuration = Sonar::DashboardConfiguration.new
+    @dashboard_configuration = Sonar::ComponentsConfiguration.new
     @column_id = params[:id]
   end
 

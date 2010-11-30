@@ -55,28 +55,10 @@ module ApplicationHelper
     end
   end
 
+
+  # deprecated since 2.5. Use trend_icon() instead
   def tendency_icon(metric_or_measure, small=true, no_tendency_img=true)
-    if metric_or_measure.is_a? ProjectMeasure
-      m = metric_or_measure
-    elsif @snapshot
-      m = @snapshot.measure(metric_or_measure)
-    end
-
-    suffix = (small ? '-small' : '')
-    if small.nil? || m.nil? || m.tendency.nil? || m.tendency==0
-      return no_tendency_img ? "" : image_tag("transparent.gif", :width => small ? "16" : "18", :alt => "")
-    end
-    filename = m.tendency.to_s
-
-    case m.tendency_qualitative
-    when 0
-      filename+= '-black'
-    when -1
-      filename+= '-red'
-    when 1
-      filename+= '-green'
-    end
-    image_tag("tendency/#{filename}#{suffix}.png")
+    return trend_icon(metric_or_measure, {:big => !small})
   end
 
   def boolean_icon(boolean_value, options={})
@@ -220,6 +202,7 @@ module ApplicationHelper
     end
   end
 
+  #
   # Display a measure
   #
   # === Optional parameters
@@ -228,11 +211,14 @@ module ApplicationHelper
   # * <tt>:prefix</tt> - add a prefix. Default is ''.
   # * <tt>:suffix</tt> - add a suffix. Default is ''.
   # * <tt>:default</tt> - text to return if metric or measure not found. Default is blank string.
+  # * <tt>:mode</tt> - display the measure value (:value) or the variation (:variation). The default mode is :auto, according to the mode selected in the dashboard
+  # * <tt>:variation</tt> - the configuration index between 1 and 3. Only when :mode => :variation
   #
   # === Examples
   #
   #   format_measure('ncloc')
   #   format_measure('ncloc', {:suffix => '', :url => url_for_drilldown('ncloc'), :default => '-'})
+  #
   def format_measure(metric_or_measure, options={})
     html=''
 
@@ -250,23 +236,39 @@ module ApplicationHelper
       link_rel=''
       show_link= !options[:url].blank?
 
+      variation_mode = false
       if m.metric.val_type==Metric::VALUE_TYPE_LEVEL
         html=image_tag("levels/#{m.data.downcase}.png") unless m.data.blank?
       else
-        html=m.formatted_value
+        mode=options[:mode]||:auto
+        if mode==:value
+          html=m.formatted_value
+        elsif mode==:variation
+          html=m.formatted_var_value(options[:variation_index]||1)
+          variation_mode = true
+        else
+          if @dashboard_configuration && @dashboard_configuration.variation?
+            html=m.formatted_variation_value(@dashboard_configuration.variation_index)
+            variation_mode = true
+          else
+            html=m.formatted_value
+          end
+        end
       end
 
       alert_class=''
       alert_link = false
       style = ''
-      if !(m.alert_status.blank?)
-        alert_class="class='alert_#{m.alert_status}'" unless m.metric.val_type==Metric::VALUE_TYPE_LEVEL
-        link_rel=h(m.alert_text)
-        show_link=true
-        alert_link = true
+      if !variation_mode
+        if !(m.alert_status.blank?)
+          alert_class="class='alert_#{m.alert_status}'" unless m.metric.val_type==Metric::VALUE_TYPE_LEVEL
+          link_rel=h(m.alert_text)
+          show_link=true
+          alert_link = true
 
-      elsif m.metric.val_type==Metric::VALUE_TYPE_RATING && m.color
-        style = "style='background-color: #{m.color.html};padding: 2px 5px'"
+        elsif m.metric.val_type==Metric::VALUE_TYPE_RATING && m.color
+          style = "style='background-color: #{m.color.html};padding: 2px 5px'"
+        end
       end
 
       span_id=''
@@ -296,7 +298,11 @@ module ApplicationHelper
   end
 
 
+  #
+  #
   # link to the current page with the given resource. If file, then open a popup to display resource viewers.
+  #
+  #
   def link_to_resource(resource, name=nil, options={})
     if resource.display_dashboard?
       if options[:dashboard]
@@ -310,12 +316,22 @@ module ApplicationHelper
     end
   end
 
+
+  #
+  #
   # JFree Eastwood is a partial implementation of Google Chart Api
+  #
+  #
   def gchart(parameters, options={})
     image_tag("#{ApplicationController.root_context}/gchart?#{parameters}", options)
   end
 
+
+  #
+  #
   # Piechart for a distribution string or measure (foo=1;bar=2)
+  #
+  #
   def piechart(distribution, options={})
     chart = ""
     data=nil
@@ -370,5 +386,47 @@ module ApplicationHelper
 
     link_to_remote('', :url => { :controller => 'favourites', :action => 'toggle', :id => resource_id, :elt => html_id},
       :method => :post, :html => {:class => initial_class, :id => html_id, :alt => initial_tooltip, :title => initial_tooltip})
+  end
+
+  #
+  #
+  # Display the trend icon :
+  #
+  # === Optional parameters
+  # * big: true|false. Default is false.
+  # * force: true|false. By default trend icons are hidden when the dashboard variation mode is selected.
+  #
+  # === Examples
+  # trend_icon('ncloc')
+  # trend_icon(measure('ncloc'))
+  # trend_icon('ncloc', :big => true)
+  #
+  def trend_icon(metric_or_measure, options={})
+    if metric_or_measure.is_a? ProjectMeasure
+      m = metric_or_measure
+    elsif @snapshot
+      m = @snapshot.measure(metric_or_measure)
+    end
+
+    if @dashboard_configuration && @dashboard_configuration.variation?
+      return nil unless options[:force]
+    end
+
+    big=options[:big]||false
+    if m.nil? || m.tendency.nil? || m.tendency==0
+      return image_tag("transparent.gif", :width => big ? "18" : "16", :alt => "")
+    end
+    filename = m.tendency.to_s
+
+    case m.tendency_qualitative
+    when 0
+      filename+= '-black'
+    when -1
+      filename+= '-red'
+    when 1
+      filename+= '-green'
+    end
+    suffix = (big ? '' : '-small')
+    image_tag("tendency/#{filename}#{suffix}.png")
   end
 end

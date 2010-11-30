@@ -29,7 +29,7 @@ class ComponentsController < ApplicationController
   SECTION = Navigation::SECTION_RESOURCE
 
   def index
-    @dashboard_configuration = Sonar::DashboardConfiguration.new
+    @dashboard_configuration = Sonar::ComponentsConfiguration.new
 
     @project = Project.by_key(params[:id])
     return access_denied unless has_role?(:user, @project)

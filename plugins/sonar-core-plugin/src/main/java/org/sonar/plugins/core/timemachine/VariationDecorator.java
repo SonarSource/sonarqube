@@ -38,13 +38,13 @@ import java.util.List;
 import java.util.Map;
 
 @DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
-public class DifferentialValueDecorator implements Decorator {
+public class VariationDecorator implements Decorator {
 
   private Snapshot[] projectTargetSnapshots;
   private Map<Integer, Metric> metricByIds;
   private DatabaseSession session;
 
-  public DifferentialValueDecorator(DatabaseSession session, PeriodLocator periodLocator, Configuration configuration, MetricFinder metricFinder) {
+  public VariationDecorator(DatabaseSession session, PeriodLocator periodLocator, Configuration configuration, MetricFinder metricFinder) {
     this.session = session;
     Snapshot snapshot = periodLocator.locate(5);
     projectTargetSnapshots = new Snapshot[]{snapshot};
@@ -54,7 +54,7 @@ public class DifferentialValueDecorator implements Decorator {
   /**
    * only for unit tests
    */
-  DifferentialValueDecorator(DatabaseSession session, Snapshot[] projectTargetSnapshots, Collection<Metric> metrics) {
+  VariationDecorator(DatabaseSession session, Snapshot[] projectTargetSnapshots, Collection<Metric> metrics) {
     this.session = session;
     this.projectTargetSnapshots = projectTargetSnapshots;
     initMetrics(metrics);

@@ -23,6 +23,7 @@ import org.sonar.api.web.*;
 
 @WidgetCategory({"Tests"})
 @Description("Reports on units tests and code coverage by unit tests.")
+@SupportVariationDashboard
 public class CodeCoverageWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
     return "code_coverage";

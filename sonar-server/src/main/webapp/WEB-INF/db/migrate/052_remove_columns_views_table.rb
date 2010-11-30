@@ -41,28 +41,28 @@ class RemoveColumnsViewsTable < ActiveRecord::Migration
   private
 
   def self.migrate_columns_selected
-    dashboard_configuration = Sonar::DashboardConfiguration.new(nil)
+    dashboard_configuration = Sonar::ComponentsConfiguration.new(nil)
 
     columns_text = ""
     ColumnsView052.find(:all).each do |col|
       column = find_column_by_name_or_by_id(col.name, dashboard_configuration)
-      columns_text << column.col_type + Sonar::DashboardConfiguration::COLUMN_SEPARATOR + column.id + Sonar::DashboardConfiguration::COLUMNS_SEPARATOR if column
+      columns_text << column.col_type + Sonar::ComponentsConfiguration::COLUMN_SEPARATOR + column.id + Sonar::ComponentsConfiguration::COLUMNS_SEPARATOR if column
     end
-    create_property(Sonar::DashboardConfiguration::COLUMNS_SELECTED_KEY.to_s, columns_text)
+    create_property(Sonar::ComponentsConfiguration::COLUMNS_SELECTED_KEY.to_s, columns_text)
   end
 
   def self.migrate_column_default_sort
-    dashboard_configuration = Sonar::DashboardConfiguration.new(nil)
+    dashboard_configuration = Sonar::ComponentsConfiguration.new(nil)
 
     default_sort_column = ColumnsView052.find(:first, :conditions => {:sort_default => true})
     column = find_column_by_name_or_by_id(default_sort_column.name, dashboard_configuration) if default_sort_column
-    create_property(Sonar::DashboardConfiguration::COLUMNS_DEFAULT_SORT_KEY, column.id) if column
+    create_property(Sonar::ComponentsConfiguration::COLUMNS_DEFAULT_SORT_KEY, column.id) if column
   end
 
   def self.migrate_treemap_enable
     treemap_enable = ColumnsView052.find(:first, :conditions => {:name => "Treemap"})
     is_enabled = treemap_enable ? "true" : "false"
-    create_property(Sonar::DashboardConfiguration::TREEMAP_ENABLED_KEY, is_enabled)
+    create_property(Sonar::ComponentsConfiguration::TREEMAP_ENABLED_KEY, is_enabled)
   end
 
 

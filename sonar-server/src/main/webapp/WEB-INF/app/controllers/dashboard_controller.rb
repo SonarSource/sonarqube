@@ -169,6 +169,7 @@ class DashboardController < ApplicationController
       end
     end
     @dashboard=(@active ? @active.dashboard : nil)
+    @dashboard_configuration=Api::DashboardConfiguration.new(@dashboard, :variation_index => params[:var])
   end
 
   def load_resource
@@ -184,7 +185,7 @@ class DashboardController < ApplicationController
   end
 
   def load_authorized_widget_definitions()
-    @widget_definitions = java_facade.getWidgets(@resource.scope, @resource.qualifier, @resource.language)
+    @widget_definitions = java_facade.getWidgets(@resource.scope, @resource.qualifier, @resource.language, @dashboard_configuration.variation?)
     @widget_definitions=@widget_definitions.select do |widget|
       authorized=widget.getUserRoles().size==0
       unless authorized

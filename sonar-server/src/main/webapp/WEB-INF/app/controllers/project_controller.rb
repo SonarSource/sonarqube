@@ -186,17 +186,4 @@ class ProjectController < ApplicationController
     redirect_to home_path
   end
 
-  def load_widgets
-    @widgets = java_facade.getWidgets(@project.scope, @project.qualifier, @project.language)
-    @widgets=@widgets.select do |widget|
-      authorized=widget.getUserRoles().size==0
-      unless authorized
-        widget.getUserRoles().each do |role|
-          authorized=(role=='user') || (role=='viewer') || has_role?(role, @project)
-          break if authorized
-        end
-      end
-      authorized
-    end
-  end
 end

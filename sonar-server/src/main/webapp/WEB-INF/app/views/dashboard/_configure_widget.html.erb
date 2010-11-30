@@ -1,6 +1,6 @@
  <%
    begin
-     widget_body=render :inline => definition.getTarget().getTemplate(), :locals => {:widget_properties => widget.properties_as_hash, :widget => widget, :dashboard => @dashboard}
+     widget_body=render :inline => definition.getTarget().getTemplate(), :locals => {:widget_properties => widget.properties_as_hash, :widget => widget, :dashboard_configuration => @dashboard_configuration}
    rescue => error
       logger.error("Can not render widget #{definition.getId()}: " + error)
       logger.error(error.backtrace.join("\n"))

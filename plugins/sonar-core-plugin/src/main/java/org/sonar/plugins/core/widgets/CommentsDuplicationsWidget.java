@@ -22,8 +22,10 @@ package org.sonar.plugins.core.widgets;
 import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.Description;
 import org.sonar.api.web.RubyRailsWidget;
+import org.sonar.api.web.SupportVariationDashboard;
 
 @Description("Reports on copy/paste and documentation")
+@SupportVariationDashboard
 public class CommentsDuplicationsWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
     return "comments_duplications";
