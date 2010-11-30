@@ -22,15 +22,7 @@ class AddMetricsNames < ActiveRecord::Migration
   def self.up
     add_column(:metrics, :domain, :string, :null => true, :limit => 64)
     add_column(:metrics, :short_name, :string, :null => true, :limit => 64)
-    add_column(:metrics, :long_name, :string, :null => true, :limit => 64)
     add_column(:metrics, :qualitative, :boolean, :null => false, :default => false)
-    Metric013.reset_column_information
-
   end
 
-  private
-  
-  class Metric013 < ActiveRecord::Base
-    set_table_name "metrics"
-  end
 end

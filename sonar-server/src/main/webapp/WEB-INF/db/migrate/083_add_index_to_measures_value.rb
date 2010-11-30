@@ -24,7 +24,4 @@ class AddIndexToMeasuresValue < ActiveRecord::Migration
     # See SONAR-1190 Make faster drilldown pages
   end
 
-  def self.down
-      
-  end
 end

@@ -20,8 +20,6 @@
 class IndexDatabase < ActiveRecord::Migration
   
   def self.up
-    add_index :files, :snapshot_id, :name => 'file_snapshot_id'
-        
     add_index :project_measures, :snapshot_id, :name => 'project_measure_snapshot_id'
     
     add_index :rule_failures, :snapshot_id, :name => 'rule_failure_snapshot_id'

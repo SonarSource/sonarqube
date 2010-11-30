@@ -24,7 +24,4 @@ class AddProjectsLongName < ActiveRecord::Migration
     Project.reset_column_information
   end
 
-  def self.down
-    remove_column :projects, :long_name
-  end
 end

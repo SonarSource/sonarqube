@@ -21,7 +21,7 @@ class UpdateDefaultCoveragePlugin < ActiveRecord::Migration
 
   def self.up
     property=Property070.find(:first, :conditions => ['prop_key=?','sonar.core.codeCoveragePlugin'])
-    if property and property.prop_value=='clover,cobertura'
+    if property && property.prop_value=='clover,cobertura'
       property.prop_value='cobertura'
       property.save!
     end

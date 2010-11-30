@@ -26,8 +26,4 @@ class CreateGroupsUsers < ActiveRecord::Migration
     add_index "groups_users", "user_id"
 	  add_index "groups_users", "group_id"
   end
-
-  def self.down
-	  drop_table :groups_users
-  end
 end

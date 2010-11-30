@@ -20,9 +20,6 @@
 class InitialSchema < ActiveRecord::Migration
   def self.up
     create_table :projects do |t|
-      t.column :group_id,            :string,    :null => false, :limit => 256
-      t.column :artifact_id,         :string,    :null => false, :limit => 256
-      t.column :branch,              :string,    :null => false, :limit => 64
       t.column :name,                :string,    :null => true,  :limit => 256
       t.column :description,         :string,    :null => true,  :limit => 2000
       t.column :enabled,             :boolean,   :null => false, :default => true
@@ -54,13 +51,6 @@ class InitialSchema < ActiveRecord::Migration
       t.column :rules_category_id,   :integer
     end
 
-    create_table :files do |t|
-      t.column :snapshot_id,         :integer,   :null => false
-      t.column :filename,            :string,    :limit => 255
-      t.column :namespace,           :string,    :limit => 500
-      t.column :path,                :string,    :limit => 500
-    end
-
     create_table :rules_categories do |t|
       t.column :name,                :string,    :null => false, :limit => 255
       t.column :description,         :string,    :null => false, :limit => 1000
@@ -85,7 +75,6 @@ class InitialSchema < ActiveRecord::Migration
       t.column :snapshot_id,         :integer,   :null => false
       t.column :rule_id,             :integer,   :null => false
       t.column :failure_level,       :integer,   :null => false
-      t.column :file_id,             :integer
       t.column :message,             :string,    :limit => 500
     end
 

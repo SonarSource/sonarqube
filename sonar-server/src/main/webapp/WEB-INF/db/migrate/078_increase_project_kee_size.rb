@@ -22,9 +22,5 @@ class IncreaseProjectKeeSize < ActiveRecord::Migration
   def self.up
     change_column('projects', 'kee', :string, :limit => 400)
   end
-
-  def self.down
-
-  end
   
 end

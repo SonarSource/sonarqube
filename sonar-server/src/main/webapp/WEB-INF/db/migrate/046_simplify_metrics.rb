@@ -25,15 +25,9 @@ class SimplifyMetrics < ActiveRecord::Migration
     add_column(:metrics, :val_type, :string, :null => true, :limit => 8)
     add_column(:metrics, :user_managed, :boolean, :null => true, :default => false)
     add_column(:metrics, :enabled, :boolean, :null => true, :default => true)
-    remove_column(:metrics, :long_name)
-    Metric046.reset_column_information
 
     remove_column(:metrics, :value_type)
 
     Metric.reset_column_information
-  end
-
-  class Metric046 < ActiveRecord::Base
-    set_table_name "metrics"
   end
 end

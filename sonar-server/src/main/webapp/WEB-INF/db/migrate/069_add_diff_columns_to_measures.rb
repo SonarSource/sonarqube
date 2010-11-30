@@ -25,10 +25,4 @@ class AddDiffColumnsToMeasures < ActiveRecord::Migration
     add_column(:project_measures, :diff_value_3, :decimal, :null => true, :precision => 30, :scale => 20)
   end
 
-  def self.down
-    remove_column(:project_measures, :diff_value_1)
-    remove_column(:project_measures, :diff_value_2)
-    remove_column(:project_measures, :diff_value_3)
-  end
-
 end

@@ -29,10 +29,6 @@ class IncludeBranchInProjectName < ActiveRecord::Migration
     end
   end
 
-  def self.down
-
-  end
-
   private
   def self.branch(project)
     s=project.kee.split(':')

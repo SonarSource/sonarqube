@@ -32,7 +32,4 @@ class UpgradePropertiesToBlobs < ActiveRecord::Migration
     Property.reset_column_information
   end
 
-  def self.down
-
-  end
 end

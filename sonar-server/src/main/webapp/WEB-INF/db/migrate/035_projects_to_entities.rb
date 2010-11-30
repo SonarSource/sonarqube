@@ -33,9 +33,6 @@ class ProjectsToEntities < ActiveRecord::Migration
     add_column 'projects', 'kee', :string, :limit => 230
     add_column 'projects', 'root_id', :integer
 
-    remove_column 'projects', 'group_id'
-    remove_column 'projects', 'artifact_id'
-    remove_column 'projects', 'branch'
     Project.reset_column_information
 
     upgrade_snapshots
@@ -47,7 +44,6 @@ class ProjectsToEntities < ActiveRecord::Migration
   private
 
   def self.migrate_distribution_data
-    remove_column :project_measures, :subkey
     add_column :project_measures, :text_value, :string, :limit => 96, :null => true
     ProjectMeasure.reset_column_information
   end
@@ -77,16 +73,6 @@ class ProjectsToEntities < ActiveRecord::Migration
       t.column :data,        :text
     end
     add_index :snapshot_sources, :snapshot_id, :name => 'snap_sources_snapshot_id'
-
-    drop_table 'files'
-
-    begin
-      remove_index :rule_failures, :name => 'rule_failure_file_id'
-    rescue
-    end
-
-    remove_column 'rule_failures', 'file_id'
-    RuleFailure.reset_column_information
   end
 
   class RuleFailure035 < ActiveRecord::Base

@@ -23,8 +23,4 @@ class DeleteSnapshotsPurged < ActiveRecord::Migration
     remove_column(:snapshots, :purged)
     Snapshot.reset_column_information
   end
-
-  def self.down
-    
-  end
 end
