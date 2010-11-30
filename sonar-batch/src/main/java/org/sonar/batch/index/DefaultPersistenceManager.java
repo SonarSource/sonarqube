@@ -20,7 +20,6 @@
 package org.sonar.batch.index;
 
 import org.sonar.api.batch.Event;
-import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
@@ -87,12 +86,8 @@ public final class DefaultPersistenceManager implements PersistenceManager {
     dependencyPersister.saveDependency(project, dependency, parentDependency);
   }
 
-  public List<RuleFailureModel> loadPreviousViolations(Resource resource) {
-    return violationPersister.getPreviousViolations(resource);
-  }
-
-  public void saveOrUpdateViolation(Project project, Violation violation, RuleFailureModel oldModel) {
-    violationPersister.saveOrUpdateViolation(project, violation, oldModel);
+  public void saveViolation(Project project, Violation violation) {
+    violationPersister.saveViolation(project, violation);
   }
 
   public void saveLink(Project project, ProjectLink link) {

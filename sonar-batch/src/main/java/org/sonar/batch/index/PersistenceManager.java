@@ -20,7 +20,6 @@
 package org.sonar.batch.index;
 
 import org.sonar.api.batch.Event;
-import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
@@ -48,9 +47,7 @@ public interface PersistenceManager {
 
   void saveDependency(Project project, Dependency dependency, Dependency parentDependency);
 
-  List<RuleFailureModel> loadPreviousViolations(Resource resource);
-
-  void saveOrUpdateViolation(Project project, Violation violation, RuleFailureModel oldModel);
+  void saveViolation(Project project, Violation violation);
 
   void saveLink(Project project, ProjectLink link);
 

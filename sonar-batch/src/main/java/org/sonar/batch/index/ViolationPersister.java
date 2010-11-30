@@ -35,7 +35,7 @@ public final class ViolationPersister {
 
   private DatabaseSession session;
   private ResourcePersister resourcePersister;
-    private RuleFinder ruleFinder;
+  private RuleFinder ruleFinder;
 
   public ViolationPersister(DatabaseSession session, ResourcePersister resourcePersister, RuleFinder ruleFinder) {
     this.session = session;
@@ -52,11 +52,12 @@ public final class ViolationPersister {
     return session.getResults(RuleFailureModel.class, "snapshotId", previousLastSnapshot.getId());
   }
 
+  public void saveViolation(Project project, Violation violation) {
+    saveOrUpdateViolation(project, violation, null);
+  }
+
   public void saveOrUpdateViolation(Project project, Violation violation, RuleFailureModel oldModel) {
     Snapshot snapshot = resourcePersister.saveResource(project, violation.getResource());
-    if (snapshot == null) {
-      return; // TODO Godin why ? when?
-    }
     RuleFailureModel model;
     if (oldModel != null) {
       // update

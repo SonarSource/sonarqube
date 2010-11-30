@@ -21,18 +21,18 @@ package org.sonar.api.batch;
 
 /**
  * Barriers are used to define the order of execution of Decorators.
- *
+ * 
  * @since 2.3
  */
 public interface DecoratorBarriers {
-
 
   String START_VIOLATIONS_GENERATION = "START_VIOLATIONS_GENERATION";
 
   /**
    * This barrier is used by a decorator in order to :
    * <ul>
-   * <li>be executed after all the decorators which generate violations : <code>@DependsUpon(value=DecoratorBarriers.END_OF_VIOLATIONS_GENERATION</code></li>
+   * <li>be executed after all the decorators which generate violations :
+   * <code>@DependsUpon(value=DecoratorBarriers.END_OF_VIOLATIONS_GENERATION</code></li>
    * <li>declare that it generates violations : <code>@DependedUpon(value=DecoratorBarriers.END_OF_VIOLATIONS_GENERATION</code></li>
    * </ul>
    */
@@ -40,7 +40,9 @@ public interface DecoratorBarriers {
 
   /**
    * Any kinds of time machine data are calculated before this barrier. Decorators executed after this barrier can use
-   * Measure#getDiffValueX() and Measure#getTendency() methods
+   * Measure#getDiffValueX() and Measure#getTendency() methods.
+   * 
+   * @since 2.5
    */
   String END_OF_TIME_MACHINE = "END_OF_TIME_MACHINE";
 }
