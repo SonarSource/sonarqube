@@ -19,5 +19,5 @@
              scope="FIL" qualifier="CLA" created_at="2008-11-01 13:58:00.00" version="[null]" path=""
              status="U" islast="false" depth="3" />
 
-  <RULE_FAILURES ID="1" SNAPSHOT_ID="1000" RULE_ID="30" FAILURE_LEVEL="3" MESSAGE="the message" LINE="20" COST="[null]"/>
+  <RULE_FAILURES ID="1" SNAPSHOT_ID="1000" RULE_ID="30" FAILURE_LEVEL="3" MESSAGE="old message" LINE="10" COST="[null]"/>
 </dataset>

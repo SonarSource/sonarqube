@@ -19,6 +19,14 @@
  */
 package org.sonar.batch.index;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.database.model.RuleFailureModel;
@@ -30,16 +38,6 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
 import org.sonar.core.components.DefaultRuleFinder;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-
-import java.util.List;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ViolationPersisterTest extends AbstractDbUnitTestCase {
 
@@ -60,14 +58,6 @@ public class ViolationPersisterTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void shouldLoadViolations() {
-    List<RuleFailureModel> models = violationPersister.getPreviousViolations(javaFile);
-
-    assertThat(models, notNullValue());
-    assertThat(models.size(), greaterThan(0));
-  }
-
-  @Test
   public void shouldSaveViolations() {
     Violation violation1a = Violation.create(rule1, javaFile)
         .setPriority(RulePriority.CRITICAL).setLineId(20).setCost(55.6)
@@ -77,20 +67,42 @@ public class ViolationPersisterTest extends AbstractDbUnitTestCase {
     Violation violation2 = Violation.create(rule2, javaFile)
         .setPriority(RulePriority.MINOR);
 
-    violationPersister.saveOrUpdateViolation(new Project("project"), violation1a, null);
-    violationPersister.saveOrUpdateViolation(new Project("project"), violation1b, null);
-    violationPersister.saveOrUpdateViolation(new Project("project"), violation2, null);
+    violationPersister.saveViolation(new Project("project"), violation1a);
+    violationPersister.saveViolation(new Project("project"), violation1b);
+    violationPersister.saveViolation(new Project("project"), violation2);
 
     checkTables("shouldInsertViolations", "rule_failures");
   }
 
   @Test
+  public void shouldSelectPreviousViolation() {
+    Violation violation = Violation.create(rule1, javaFile)
+        .setPriority(RulePriority.CRITICAL).setLineId(10)
+        .setMessage("old message");
+
+    RuleFailureModel model = violationPersister.selectPreviousViolation(violation);
+
+    assertThat(model, notNullValue());
+  }
+
+  @Test
+  public void noPreviousViolation() {
+    Violation violation = Violation.create(rule1, javaFile)
+        .setPriority(RulePriority.CRITICAL).setLineId(10)
+        .setMessage("new message");
+
+    RuleFailureModel model = violationPersister.selectPreviousViolation(violation);
+
+    assertThat(model, nullValue());
+  }
+
+  @Test
   public void shouldUpdateViolation() {
     Violation violation = Violation.create(rule1, javaFile)
-      .setPriority(RulePriority.CRITICAL).setLineId(20).setCost(55.6);
-    RuleFailureModel oldModel = violationPersister.getPreviousViolations(javaFile).iterator().next();
+        .setPriority(RulePriority.CRITICAL).setLineId(10).setCost(55.6)
+        .setMessage("old message");
 
-    violationPersister.saveOrUpdateViolation(new Project("project"), violation, oldModel);
+    violationPersister.saveOrUpdateViolation(new Project("project"), violation);
 
     checkTables("shouldUpdateViolation", "rule_failures");
   }

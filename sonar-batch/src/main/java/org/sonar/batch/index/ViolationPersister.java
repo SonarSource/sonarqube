@@ -23,13 +23,9 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
-
-import java.util.Collections;
-import java.util.List;
 
 public final class ViolationPersister {
 
@@ -43,26 +39,25 @@ public final class ViolationPersister {
     this.ruleFinder = ruleFinder;
   }
 
-  public List<RuleFailureModel> getPreviousViolations(Resource resource) {
-    Snapshot snapshot = resourcePersister.getSnapshot(resource);
-    Snapshot previousLastSnapshot = resourcePersister.getLastSnapshot(snapshot, true);
-    if (previousLastSnapshot == null) {
-      return Collections.emptyList();
-    }
-    return session.getResults(RuleFailureModel.class, "snapshotId", previousLastSnapshot.getId());
-  }
-
   public void saveViolation(Project project, Violation violation) {
-    saveOrUpdateViolation(project, violation, null);
+    saveOrUpdateViolation(project, violation);
   }
 
-  public void saveOrUpdateViolation(Project project, Violation violation, RuleFailureModel oldModel) {
+  public RuleFailureModel selectPreviousViolation(Violation violation) {
+    Snapshot snapshot = resourcePersister.getSnapshot(violation.getResource());
+    Snapshot previousLastSnapshot = resourcePersister.getLastSnapshot(snapshot, true);
+    return session.getSingleResult(RuleFailureModel.class,
+        "snapshotId", previousLastSnapshot.getId(),
+        "line", violation.getLineId(),
+        "message", violation.getMessage());
+  }
+
+  public void saveOrUpdateViolation(Project project, Violation violation) {
     Snapshot snapshot = resourcePersister.saveResource(project, violation.getResource());
-    RuleFailureModel model;
-    if (oldModel != null) {
+    RuleFailureModel model = selectPreviousViolation(violation);
+    if (model != null) {
       // update
-      model = session.reattach(RuleFailureModel.class, oldModel.getId());
-      model = mergeModel(violation, oldModel);
+      model = mergeModel(violation, model);
     } else {
       // insert
       model = createModel(violation);
