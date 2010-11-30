@@ -26,7 +26,7 @@ class UseIsoRuleCategories < ActiveRecord::Migration
     naming_convention = RulesCategory.find_by_name 'Naming Convention'
     RulesCategory.delete_all "id in (#{understandability.id},#{code_convention.id},#{documentation.id},#{naming_convention.id})"
 
-    maintanability = RulesCategory.create(:name => 'Maintanability', :description => 'The extent to which the project facilitates updating to satisfy new requirements. Thus the the project which is maintainable should be not complex.')
+    maintainability = RulesCategory.create(:name => 'Maintainability', :description => 'The extent to which the project facilitates updating to satisfy new requirements. Thus the the project which is maintainable should be not complex.')
     completeness = RulesCategory.find_by_name 'Completeness'
     conciseness = RulesCategory.find_by_name 'Conciseness'
     RulesCategory.delete_all "id in (#{completeness.id},#{conciseness.id})"
@@ -36,11 +36,6 @@ class UseIsoRuleCategories < ActiveRecord::Migration
     update_description('Reliability', 'The extent to which the project can be expected to perform its intended function with rescission. Some examples : are loop indexes range tested? Is input data checked for range errors ? Is divide-by-zero avoided ? Is exception handling provided ?')
 
     RulesCategory.clear_cache
-  end
-
-  def self.down
-    # not much we can do to restore deleted data
-    raise IrreversibleMigration
   end
 
   protected

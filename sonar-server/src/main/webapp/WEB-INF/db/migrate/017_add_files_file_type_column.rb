@@ -23,8 +23,4 @@ class AddFilesFileTypeColumn < ActiveRecord::Migration
     add_column(:files, :file_type, :string, :nullable => false, :limit => 32, :default => 'MAIN')
   end
 
-  def self.down
-    remove_column(:rules_profiles, :is_provided)
-  end
-  
 end

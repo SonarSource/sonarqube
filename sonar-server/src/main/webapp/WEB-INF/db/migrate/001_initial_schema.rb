@@ -94,7 +94,6 @@ class InitialSchema < ActiveRecord::Migration
       t.column :name,                :string,    :null => false, :limit => 128
       t.column :description,         :string,    :null => false, :limit => 4000
       t.column :param_type,          :string,    :null => false, :limit => 512
-      t.column :default_value,       :string,    :null => true,  :limit => 4000
     end
 
     create_table :project_links do |t|
@@ -103,20 +102,5 @@ class InitialSchema < ActiveRecord::Migration
       t.column :name,                :string,    :null => true,  :limit => 128
       t.column :href,                :string,    :null => false, :limit => 2048
     end
-
-  end
-
-  def self.down
-    drop_table :project_links
-    drop_table :rules_parameters
-    drop_table :rule_failures
-    drop_table :parameters
-    drop_table :rules
-    drop_table :rules_categories
-    drop_table :files
-    drop_table :project_measures
-    drop_table :metrics
-    drop_table :snapshots
-    drop_table :projects
   end
 end

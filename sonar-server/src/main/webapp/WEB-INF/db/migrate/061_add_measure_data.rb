@@ -32,60 +32,12 @@ class AddMeasureData < ActiveRecord::Migration
     add_column(:project_measures, :url, :string, :null => true, :limit => 2000)
     add_column(:project_measures, :description, :string, :null => true, :limit => 4000)
     ProjectMeasure.reset_column_information
-
-
-    copy_alerts
-    copy_code_coverage_data
-    copy_manual_measures
-
-    remove_index :measure_parameters, :name => 'measure_params_meas_id'
-    remove_index :measure_parameters, :name => 'measure_params_snap_id'
-    drop_table :measure_parameters
   end
 
   def self.down
 
   end
 
-  def self.copy_alerts
-    MeasureParameter061.find(:all, :conditions => {:param_key => 'alert_label'}).each do |param|
-      measure=ProjectMeasure.find(param.measure_id)
-      if measure
-        measure.update_attribute 'alert_text', param.text_value
-      end
-    end
-  end
-
-  def self.copy_code_coverage_data
-    metric=Metric.find(:first, :conditions => {:name => 'code_coverage_line_hits_data'})
-    if metric.nil?
-      metric=Metric.create(:name => 'code_coverage_line_hits_data', :description => 'Code coverage line hits data', 
-         :direction => 0, :qualitative => false, :domain => 'Tests', :val_type => 'DATA',
-         :short_name => 'Code coverage data')
-    end
-    MeasureParameter061.find(:all, :conditions => {:param_key => 'lines'}).each do |param|
-      measure=ProjectMeasure61.create(:metric_id => metric.id, :snapshot_id => param.snapshot_id)
-      MeasureData061.create(:measure_id => measure.id, :snapshot_id => measure.snapshot_id, :data => param.lob_value)
-    end
-  end
-
-  def self.copy_manual_measures
-    MeasureParameter061.find(:all, :conditions => {:param_key => 'url'}).each do |param|
-      measure=ProjectMeasure.find(param.measure_id)
-      measure.url = param.text_value
-      measure.save
-    end
-    MeasureParameter061.find(:all, :conditions => {:param_key => 'summary'}).each do |param|
-      measure=ProjectMeasure.find(param.measure_id)
-      measure.description = param.text_value
-      measure.save
-    end
-  end
-
-  class MeasureParameter061 < ActiveRecord::Base
-    set_table_name :measure_parameters
-  end
-  
   class MeasureData061 < ActiveRecord::Base
     set_table_name :measure_data
   end

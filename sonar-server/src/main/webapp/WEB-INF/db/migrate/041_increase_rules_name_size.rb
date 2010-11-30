@@ -23,7 +23,4 @@ class IncreaseRulesNameSize < ActiveRecord::Migration
     change_column('rules', 'name', :string, :limit => 192)
   end
 
-  def self.down
-    raise ActiveRecord::IrreversibleMigration
-  end
 end

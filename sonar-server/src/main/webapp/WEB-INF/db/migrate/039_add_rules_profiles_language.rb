@@ -22,13 +22,5 @@ class AddRulesProfilesLanguage < ActiveRecord::Migration
   def self.up
     add_column 'rules_profiles', 'language', :string, :limit => 16, :null => true
     RulesProfile.reset_column_information
-    
-    RulesProfile.find(:all).each do |profile|
-      profile.language = 'java'
-      profile.save
-    end
-  end
-
-  def self.down    
   end
 end

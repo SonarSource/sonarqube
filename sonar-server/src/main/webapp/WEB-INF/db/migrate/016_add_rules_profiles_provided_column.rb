@@ -24,7 +24,4 @@ class AddRulesProfilesProvidedColumn < ActiveRecord::Migration
     RulesProfile.reset_column_information
   end
 
-  def self.down
-    remove_column(:rules_profiles, :is_provided)
-  end
 end

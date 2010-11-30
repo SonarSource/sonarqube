@@ -20,7 +20,6 @@
 class IndexDatabase < ActiveRecord::Migration
   
   def self.up
-    
     add_index :files, :snapshot_id, :name => 'file_snapshot_id'
         
     add_index :project_measures, :snapshot_id, :name => 'project_measure_snapshot_id'
@@ -32,15 +31,5 @@ class IndexDatabase < ActiveRecord::Migration
     add_index :snapshots, :project_id, :name => 'snapshot_project_id'
     
     add_index :metrics, :name, :unique => true, :name => 'metrics_unique_name'       
-  end
-
-  def self.down
-    remove_index :files, :name => 'file_snapshot_id'
-    remove_index :project_measures, :name => 'project_measure_snapshot_id'
-    remove_index :rule_failures, :name => 'rule_failure_snapshot_id'
-    remove_index :rule_failures, :name => 'rule_failure_rule_id'
-    remove_index :rules_parameters, :name => 'rules_parameters_rule_id'
-    remove_index :snapshots, :name => 'snapshot_project_id'
-    remove_index :metrics, :name => 'metrics_unique_name'  
   end
 end

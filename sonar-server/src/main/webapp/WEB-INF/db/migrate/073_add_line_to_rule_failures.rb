@@ -22,24 +22,9 @@ class AddLineToRuleFailures < ActiveRecord::Migration
   def self.up
     add_column :rule_failures, :line, :integer, :null => true
     RuleFailure.reset_column_information
-    migrate_data
   end
 
   def self.down
 
-  end
-
-  def self.migrate_data
-    RuleFailureParam073.find(:all, :select => 'DISTINCT snapshot_id').map(&:snapshot_id).each do |sid|
-      RuleFailureParam073.find(:all, :conditions => {:snapshot_id => sid, :param_key => 'line'}).each do |param|
-        if param.value and param.value.to_i>0
-          RuleFailure.update(param.rule_failure_id, :line => param.value.to_i)
-        end
-      end
-    end
-  end
-
-  class RuleFailureParam073 < ActiveRecord::Base
-    set_table_name "rule_failure_params"
   end
 end

@@ -17,21 +17,10 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class CreateRuleFailureParams < ActiveRecord::Migration
-
+class AddMeasureTendency < ActiveRecord::Migration
   def self.up
-    create_table :rule_failure_params do |t|
-      t.column :rule_failure_id ,    :integer,   :null => false
-      t.column :snapshot_id,         :integer,   :null => false
-      t.column :param_key,           :string,    :null => false, :limit => 100, :null => false
-      t.column :value,               :decimal,   :null => false, :precision => 30, :scale => 20
-      t.column :value2,              :decimal,   :null => true, :precision => 30, :scale => 20
-    end
-
-    drop_table :parameters
+    add_column 'project_measures', 'tendency', :integer, :null => true
+    ProjectMeasure.reset_column_information
   end
 
-  def self.down
-    raise IrreversibleMigration
-  end
 end

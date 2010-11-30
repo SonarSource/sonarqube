@@ -17,13 +17,29 @@
  # License along with Sonar; if not, write to the Free Software
  # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  #
-class AddRuleFailureParamsIndex < ActiveRecord::Migration
-  
+class CreateUsers < ActiveRecord::Migration
+
   def self.up
-    add_index :rule_failure_params, :rule_failure_id, :name => 'rule_fail_params_fail_id'
+    create_users
   end
 
-  def self.down
-    remove_index :rule_failure_params, :name => 'rule_fail_params_fail_id'
+  private 
+  
+  def self.create_users
+    create_table 'users' do |t|
+      t.column :login,                     :string, :limit => 40
+      t.column :name,                      :string, :limit => 200, :null => true
+      t.column :email,                     :string, :limit => 100
+      t.column :crypted_password,          :string, :limit => 40
+      t.column :salt,                      :string, :limit => 40
+      t.column :created_at,                :datetime
+      t.column :updated_at,                :datetime
+      t.column :remember_token,            :string, :limit => 500, :null => true
+      t.column :remember_token_expires_at, :datetime
+    end
+    
+    User.create(:login => 'admin', :name => 'Administrator', :email => '', :password => 'admin',
+      :password_confirmation => 'admin')
   end
+
 end

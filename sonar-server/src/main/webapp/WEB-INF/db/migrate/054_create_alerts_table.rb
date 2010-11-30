@@ -32,8 +32,4 @@ class CreateAlertsTable < ActiveRecord::Migration
         
   end
 
-  def self.down
-  
-  end
-
 end

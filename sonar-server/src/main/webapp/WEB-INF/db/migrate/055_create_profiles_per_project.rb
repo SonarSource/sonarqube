@@ -26,8 +26,4 @@ class CreateProfilesPerProject < ActiveRecord::Migration
     RulesProfile.reset_column_information 
   end
 
-  def self.down
-  
-  end
-
 end

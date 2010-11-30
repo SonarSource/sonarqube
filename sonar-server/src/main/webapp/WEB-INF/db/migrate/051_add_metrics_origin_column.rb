@@ -22,24 +22,6 @@ class AddMetricsOriginColumn < ActiveRecord::Migration
   def self.up
     add_column(:metrics, :origin, :string, :null => true, :limit => 3)
     Metric.reset_column_information
-
-    Metric051.find(:all).each do |metric|
-      if metric.user_managed?
-        metric.origin = 'GUI'
-      else
-        metric.origin = 'JAV'
-      end
-      metric.save(false)
-    end
   end
 
-  def self.down
-    remove_column(:metrics, :origin)
-  end
-
-  private
-
-  class Metric051 < ActiveRecord::Base
-    set_table_name 'metrics'
-  end
 end

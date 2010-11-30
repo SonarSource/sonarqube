@@ -1,5 +1,5 @@
 #
-# Sonar, entreprise quality control tool.
+# Sonar, open source software quality management tool.
 # Copyright (C) 2009 SonarSource SA
 # mailto:contact AT sonarsource DOT com
 #
@@ -17,17 +17,14 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class UpdateMaintainabilityLabel < ActiveRecord::Migration
+class AddProjectLanguage < ActiveRecord::Migration
 
   def self.up
-    categ=RulesCategory.find_by_name('Maintanability')
-    if categ
-      categ.name='Maintainability'
-      categ.save
-    end
+    add_column(:projects, :language, :string, :null => true, :limit => 5)
+    Project.reset_column_information
   end
-  
+
   def self.down
+
   end
-  
 end

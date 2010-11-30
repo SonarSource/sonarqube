@@ -22,13 +22,8 @@ class PopulateDatabase < ActiveRecord::Migration
     insert_rule_categories
   end
 
-  def self.down
-
-  end
-  
   protected
-
-  
+ 
   def self.insert_rule_categories
     RulesCategory.create(:name => 'Code Convention', :description => 'These rules do not suppose Quality of the development but make it possible to define a standard within the companies.')	
     RulesCategory.create(:name => 'Naming Convention', :description => 'These rules do not suppose Quality of the development but make it possible to define a common language.')

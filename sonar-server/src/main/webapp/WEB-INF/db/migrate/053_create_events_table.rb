@@ -31,29 +31,6 @@ class CreateEventsTable < ActiveRecord::Migration
     end
     add_index :events, :resource_id, :name => 'events_resource_id'
     add_index :events, :snapshot_id, :name => 'events_snapshot_id'
-
-    begin
-        SnapshotLabel053.find(:all).each do |label|
-            snapshot=Snapshot.find(label.snapshot_id)
-            if snapshot
-              event=Event.create(:name => label.name, :resource_id => label.project_id, :snapshot_id => snapshot.id, :event_date => snapshot.created_at)
-            end
-        end
-        remove_index :snapshot_labels, :name => 'snapshot_labels_unique_name'
-        drop_table :snapshot_labels
-    rescue
-      # fresh install
-    end
-  end
-
-  def self.down
-  
-  end
-
-  private
-
-  class SnapshotLabel053 < ActiveRecord::Base
-    set_table_name 'snapshot_labels'
   end
 
 end

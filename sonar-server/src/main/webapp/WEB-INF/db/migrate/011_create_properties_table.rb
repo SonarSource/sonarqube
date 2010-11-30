@@ -24,11 +24,6 @@ class CreatePropertiesTable < ActiveRecord::Migration
       t.column :prop_key,   :string, :limit => 512
 	    t.column :prop_value, :string, :limit => 4000
     end
-         
   end
 
-  def self.down
-    drop_table 'properties'
-  end
-  
 end

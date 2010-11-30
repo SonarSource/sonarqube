@@ -24,8 +24,4 @@ class AddProjectMeasuresSubkey < ActiveRecord::Migration
     ProjectMeasure.reset_column_information
   end
 
-  def self.down
-    remove_column(:project_measures, :subkey)
-  end
-
 end

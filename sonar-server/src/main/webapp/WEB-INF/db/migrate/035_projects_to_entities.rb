@@ -42,15 +42,6 @@ class ProjectsToEntities < ActiveRecord::Migration
     move_file_sources_to_snapshot_sources
 
     migrate_distribution_data
-
-    begin
-      remove_index :project_measures, :name => 'project_measure_history_query'
-    rescue
-    end
-  end
-
-  def self.down
-    raise ActiveRecord::IrreversibleMigration
   end
 
   private
@@ -95,13 +86,9 @@ class ProjectsToEntities < ActiveRecord::Migration
     end
 
     remove_column 'rule_failures', 'file_id'
-    add_index :rule_failure_params, :snapshot_id, :name => 'rule_fails_params_snap'
     RuleFailure.reset_column_information
   end
 
-  class RuleFailureParam035 < ActiveRecord::Base
-    set_table_name "rule_failure_params"
-  end
   class RuleFailure035 < ActiveRecord::Base
     set_table_name "rule_failures"
   end

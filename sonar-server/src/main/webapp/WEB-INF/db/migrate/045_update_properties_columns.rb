@@ -28,19 +28,13 @@ class UpdatePropertiesColumns < ActiveRecord::Migration
     Property045.reset_column_information
 
     tendency=Property045.find(:first, :conditions => {:prop_key => 'tendency.depth'})
-    if tendency and previous_tendency_value
+    if tendency && previous_tendency_value
       tendency.prop_value=previous_tendency_value
       tendency.save!
     end
 
     Property.reset_column_information
   end
-
-  def self.down
-    
-  end
-
-
   
 end
 

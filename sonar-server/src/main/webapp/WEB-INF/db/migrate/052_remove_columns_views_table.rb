@@ -30,9 +30,6 @@ class RemoveColumnsViewsTable < ActiveRecord::Migration
     end
   end
 
-  def self.down
-  end
-
   class ColumnsView052 < ActiveRecord::Base
     set_table_name "columns_views"
   end

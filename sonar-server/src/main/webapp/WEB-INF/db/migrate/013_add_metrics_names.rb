@@ -28,14 +28,6 @@ class AddMetricsNames < ActiveRecord::Migration
 
   end
 
-  def self.down
-    remove_column(:metrics, :domain)
-    remove_column(:metrics, :short_name)
-    remove_column(:metrics, :long_name)
-    remove_column(:metrics, :qualitative)
-    Metric.reset_column_information
-  end
-  
   private
   
   class Metric013 < ActiveRecord::Base

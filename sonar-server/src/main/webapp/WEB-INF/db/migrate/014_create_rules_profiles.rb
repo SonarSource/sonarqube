@@ -20,18 +20,6 @@
 class CreateRulesProfiles < ActiveRecord::Migration
 
   def self.up
-    create_tables
-  end
-
-  def self.down
-    drop_table 'active_rule_parameters'
-    drop_table 'active_rules'
-    drop_table 'rules_profiles'
-  end
-
-  protected
-  	
-  def self.create_tables
     create_table 'rules_profiles'do |t|
       t.column :name,   :string, :limit => 40, :null => false
       t.column :active, :boolean, :default => false

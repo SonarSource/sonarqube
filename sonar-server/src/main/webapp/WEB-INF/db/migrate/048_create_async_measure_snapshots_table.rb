@@ -33,11 +33,4 @@ class CreateAsyncMeasureSnapshotsTable < ActiveRecord::Migration
     add_index :async_measure_snapshots, [:project_id, :metric_id], :name => 'async_m_s_project_metric'
   end
 
-  def self.down
-    remove_index :async_measure_snapshots, :name => 'async_m_s_snapshot_id'
-    remove_index :async_measure_snapshots, :name => 'async_m_s_measure_id'
-    remove_index :async_measure_snapshots, :name => 'async_m_s_project_metric'
-    drop_table :async_measure_snapshots
-  end
-   
 end

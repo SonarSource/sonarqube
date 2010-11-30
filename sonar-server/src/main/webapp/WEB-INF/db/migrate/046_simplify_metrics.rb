@@ -28,20 +28,9 @@ class SimplifyMetrics < ActiveRecord::Migration
     remove_column(:metrics, :long_name)
     Metric046.reset_column_information
 
-    Metric046.find(:all).each do |metric|
-      metric.val_type=TYPES_MAP[metric.value_type]
-      metric.enabled=true
-      metric.user_managed=(metric.name.index('ext_')==0)
-      metric.save!
-    end
-
     remove_column(:metrics, :value_type)
 
     Metric.reset_column_information
-  end
-
-  def self.down
-    
   end
 
   class Metric046 < ActiveRecord::Base
