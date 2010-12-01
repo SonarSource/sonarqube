@@ -19,11 +19,6 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +30,12 @@ import org.sonar.api.rules.Violation;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class NewViolationsDecoratorTest {
 
@@ -48,35 +49,43 @@ public class NewViolationsDecoratorTest {
   }
 
   @Test
-  public void decoratorDefinition() {
-    assertThat(decorator.shouldExecuteOnProject(new Project("project")), is(true));
-    assertThat(decorator.generatesMetric(), is(CoreMetrics.NEW_VIOLATIONS));
-    assertThat(decorator.toString(), is(NewViolationsDecorator.class.getSimpleName()));
+  public void shouldExecuteIfLastAnalysis() {
+    Project project = mock(Project.class);
+
+    when(project.isLatestAnalysis()).thenReturn(false);
+    assertThat(decorator.shouldExecuteOnProject(project), is(false));
+
+    when(project.isLatestAnalysis()).thenReturn(true);
+    assertThat(decorator.shouldExecuteOnProject(project), is(true));
   }
 
   @Test
-  public void shouldCalculate() {
+  public void shouldBeDependedUponMetric() {
+    assertThat(decorator.generatesMetric(), is(CoreMetrics.NEW_VIOLATIONS));
+  }
+
+  @Test
+  public void shouldCountViolationsAfterDate() {
     Date date1 = new Date();
     Date date2 = DateUtils.addDays(date1, -20);
     Project project = new Project("project");
     project.setAnalysisDate(date1);
     Violation violation1 = new Violation(null).setCreatedAt(date1);
     Violation violation2 = new Violation(null).setCreatedAt(date2);
-    when(context.getViolations()).thenReturn(Arrays.asList(violation1, violation2));
-    when(context.getProject()).thenReturn(project);
+    List<Violation> violations = Arrays.asList(violation1, violation2);
 
-    assertThat(decorator.calculate(context, 10), is(1));
-    assertThat(decorator.calculate(context, 30), is(2));
+    assertThat(decorator.countViolationsAfterDate(violations, DateUtils.addDays(date1, -10)), is(1));
+    assertThat(decorator.countViolationsAfterDate(violations, DateUtils.addDays(date1, -30)), is(2));
   }
 
   @Test
   public void shouldSumChildren() {
-    Measure measure1 = new Measure(CoreMetrics.NEW_VIOLATIONS).setDiffValue1(1.0).setDiffValue2(1.0).setDiffValue3(3.0);
-    Measure measure2 = new Measure(CoreMetrics.NEW_VIOLATIONS).setDiffValue1(1.0).setDiffValue2(2.0).setDiffValue3(3.0);
+    Measure measure1 = new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation1(1.0).setVariation2(1.0).setVariation3(3.0);
+    Measure measure2 = new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation1(1.0).setVariation2(2.0).setVariation3(3.0);
     when(context.getChildrenMeasures(CoreMetrics.NEW_VIOLATIONS)).thenReturn(Arrays.asList(measure1, measure2));
 
-    assertThat(decorator.sumChildren(context, 0), is(2.0));
-    assertThat(decorator.sumChildren(context, 1), is(3.0));
-    assertThat(decorator.sumChildren(context, 2), is(6.0));
+    assertThat(decorator.sumChildren(context, 1), is(2));
+    assertThat(decorator.sumChildren(context, 2), is(3));
+    assertThat(decorator.sumChildren(context, 3), is(6));
   }
 }

@@ -20,13 +20,12 @@
 package org.sonar.plugins.core.timemachine;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.batch.*;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.MeasureModel;
-import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.measures.*;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MeasuresFilters;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -40,63 +39,43 @@ import java.util.Map;
 @DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
 public class VariationDecorator implements Decorator {
 
-  private Snapshot[] projectTargetSnapshots;
-  private Map<Integer, Metric> metricByIds;
-  private DatabaseSession session;
+  private List<VariationTarget> targets;
+  private PastMeasuresLoader pastMeasuresLoader;
 
-  public VariationDecorator(DatabaseSession session, PeriodLocator periodLocator, Configuration configuration, MetricFinder metricFinder) {
-    this.session = session;
-    Snapshot snapshot = periodLocator.locate(5);
-    projectTargetSnapshots = new Snapshot[]{snapshot};
-    initMetrics(metricFinder.findAll());
+  public VariationDecorator(PastMeasuresLoader pastMeasuresLoader, TimeMachineConfiguration configuration) {
+    this(pastMeasuresLoader, configuration.getVariationTargets());
   }
 
-  /**
-   * only for unit tests
-   */
-  VariationDecorator(DatabaseSession session, Snapshot[] projectTargetSnapshots, Collection<Metric> metrics) {
-    this.session = session;
-    this.projectTargetSnapshots = projectTargetSnapshots;
-    initMetrics(metrics);
-  }
-
-  private void initMetrics(Collection<Metric> metrics) {
-    this.metricByIds = Maps.newHashMap();
-    for (Metric metric : metrics) {
-      if (metric.isNumericType()) {
-        metricByIds.put(metric.getId(), metric);
-      }
-    }
+  VariationDecorator(PastMeasuresLoader pastMeasuresLoader, List<VariationTarget> targets) {
+    this.pastMeasuresLoader = pastMeasuresLoader;
+    this.targets = targets;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return true;
+    return project.isLatestAnalysis();
   }
 
   @DependsUpon
   public Collection<Metric> dependsUponMetrics() {
-    return metricByIds.values();
+    return pastMeasuresLoader.getMetrics();
   }
 
-  static boolean shouldCalculateDiffValues(Resource resource) {
-    // measures on files are currently purged, so past measures are not available
+  static boolean shouldCalculateVariations(Resource resource) {
+    // measures on files are currently purged, so past measures are not available on files
     return !ResourceUtils.isEntity(resource);
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
-    if (shouldCalculateDiffValues(resource)) {
-      for (int index = 0; index < projectTargetSnapshots.length; index++) {
-        Snapshot projectTargetSnapshot = projectTargetSnapshots[index];
-        if (projectTargetSnapshot != null) {
-          calculateDiffValues(resource, context, index, projectTargetSnapshot);
-        }
+    if (shouldCalculateVariations(resource)) {
+      for (VariationTarget target : targets) {
+        calculateVariation(resource, context, target);
       }
     }
   }
 
-  private void calculateDiffValues(Resource resource, DecoratorContext context, int index, Snapshot projectTargetSnapshot) {
-    List<MeasureModel> pastMeasures = selectPastMeasures(resource.getId(), projectTargetSnapshot);
-    compareWithPastMeasures(context, index, pastMeasures);
+  private void calculateVariation(Resource resource, DecoratorContext context, VariationTarget target) {
+    List<MeasureModel> pastMeasures = pastMeasuresLoader.getPastMeasures(resource, target.getProjectSnapshot());
+    compareWithPastMeasures(context, target.getIndex(), pastMeasures);
   }
 
   void compareWithPastMeasures(DecoratorContext context, int index, List<MeasureModel> pastMeasures) {
@@ -109,51 +88,21 @@ public class VariationDecorator implements Decorator {
     for (Measure measure : context.getMeasures(MeasuresFilters.all())) {
       // compare with past measure
       MeasureModel pastMeasure = pastMeasuresByKey.get(new MeasureKey(measure));
-      if (updateDiffValue(measure, pastMeasure, index)) {
-        context.saveMeasure(measure);
-      }
+      updateVariation(measure, pastMeasure, index);
+      context.saveMeasure(measure);
     }
   }
 
-  boolean updateDiffValue(Measure measure, MeasureModel pastMeasure, int index) {
-    boolean updated = false;
+  void updateVariation(Measure measure, MeasureModel pastMeasure, int index) {
     if (pastMeasure != null && pastMeasure.getValue() != null && measure.getValue() != null) {
-      double diff = (measure.getValue().doubleValue() - pastMeasure.getValue().doubleValue());
-      updated = true;
-      switch (index) {
-        case 0:
-          measure.setDiffValue1(diff);
-          break;
-        case 1:
-          measure.setDiffValue2(diff);
-          break;
-        case 2:
-          measure.setDiffValue3(diff);
-          break;
-        default:
-          updated = false;
-      }
+      double variation = (measure.getValue().doubleValue() - pastMeasure.getValue().doubleValue());
+      measure.setVariation(index, variation);
     }
-    return updated;
-  }
-
-  List<MeasureModel> selectPastMeasures(int resourceId, Snapshot projectTargetSnapshot) {
-    // improvements : keep query in cache ? select only some columns ?
-    // TODO support measure on rules and characteristics
-    String hql = "select m from " + MeasureModel.class.getSimpleName() + " m, " + Snapshot.class.getSimpleName() + " s " +
-        "where m.snapshotId=s.id and m.metricId in (:metricIds) and m.ruleId=null and m.rulePriority=null and m.characteristic=null "
-        + "and (s.rootId=:rootSnapshotId or s.id=:rootSnapshotId) and s.resourceId=:resourceId and s.status=:status";
-    return session.createQuery(hql)
-        .setParameter("metricIds", metricByIds.keySet())
-        .setParameter("rootSnapshotId", ObjectUtils.defaultIfNull(projectTargetSnapshot.getRootId(), projectTargetSnapshot.getId()))
-        .setParameter("resourceId", resourceId)
-        .setParameter("status", Snapshot.STATUS_PROCESSED)
-        .getResultList();
   }
 
   @Override
   public String toString() {
-    return getClass().toString();
+    return getClass().getSimpleName();
   }
 
   static class MeasureKey {
@@ -182,17 +131,26 @@ public class VariationDecorator implements Decorator {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
 
       MeasureKey that = (MeasureKey) o;
-
-      if (characteristic != null ? !characteristic.equals(that.characteristic) : that.characteristic != null)
+      if (characteristic != null ? !characteristic.equals(that.characteristic) : that.characteristic != null) {
         return false;
-      if (!metricId.equals(that.metricId)) return false;
-      if (priority != that.priority) return false;
-      if (ruleId != null ? !ruleId.equals(that.ruleId) : that.ruleId != null) return false;
-
+      }
+      if (!metricId.equals(that.metricId)) {
+        return false;
+      }
+      if (priority != that.priority) {
+        return false;
+      }
+      if (ruleId != null ? !ruleId.equals(that.ruleId) : that.ruleId != null) {
+        return false;
+      }
       return true;
     }
 

@@ -20,70 +20,23 @@
 package org.sonar.plugins.core.timemachine;
 
 import org.junit.Test;
-import org.sonar.api.database.model.MeasureModel;
-import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.*;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class VariationDecoratorTest extends AbstractDbUnitTestCase {
 
-  private static final int PROJECT_SNAPSHOT_ID = 1000;
-  private static final int PROJECT_ID = 1;
-  private static final int FILE_ID = 3;
-
   @Test
-  public void shouldSelectPastResourceMeasures() {
-    setupData("shared");
+  public void shouldNotCalculateVariationsOnFiles() {
+    assertThat(VariationDecorator.shouldCalculateVariations(new Project("foo")), is(true));
+    assertThat(VariationDecorator.shouldCalculateVariations(new JavaPackage("org.foo")), is(true));
+    assertThat(VariationDecorator.shouldCalculateVariations(new Directory("org/foo")), is(true));
 
-    List<Metric> metrics = selectMetrics();
-    Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", PROJECT_SNAPSHOT_ID);
-
-    VariationDecorator decorator = new VariationDecorator(getSession(), new Snapshot[0], metrics);
-    List<MeasureModel> measures = decorator.selectPastMeasures(FILE_ID, projectSnapshot);
-    assertThat(measures.size(), is(2));
-
-    for (MeasureModel measure : measures) {
-      assertThat(measure.getId(), anyOf(is(5L), is(6L)));
-      assertThat(measure.getValue(), anyOf(is(5.0), is(60.0)));
-    }
+    assertThat(VariationDecorator.shouldCalculateVariations(new JavaFile("org.foo.Bar")), is(false));
+    assertThat(VariationDecorator.shouldCalculateVariations(new JavaFile("org.foo.Bar", true)), is(false));
+    assertThat(VariationDecorator.shouldCalculateVariations(new File("org/foo/Bar.php")), is(false));
   }
 
-  @Test
-  public void shouldSelectPastProjectMeasures() {
-    setupData("shared");
-
-    List<Metric> metrics = selectMetrics();
-    Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", PROJECT_SNAPSHOT_ID);
-
-    VariationDecorator decorator = new VariationDecorator(getSession(), new Snapshot[0], metrics);
-    List<MeasureModel> measures = decorator.selectPastMeasures(PROJECT_ID, projectSnapshot);
-    assertThat(measures.size(), is(2));
-
-    for (MeasureModel measure : measures) {
-      assertThat(measure.getId(), anyOf(is(1L), is(2L)));
-      assertThat(measure.getValue(), anyOf(is(60.0), is(80.0)));
-    }
-  }
-
-  @Test
-  public void shouldNotCalculateDiffValuesOnFiles() {
-    assertThat(VariationDecorator.shouldCalculateDiffValues(new Project("foo")), is(true));
-    assertThat(VariationDecorator.shouldCalculateDiffValues(new JavaPackage("org.foo")), is(true));
-    assertThat(VariationDecorator.shouldCalculateDiffValues(new Directory("org/foo")), is(true));
-
-    assertThat(VariationDecorator.shouldCalculateDiffValues(new JavaFile("org.foo.Bar")), is(false));
-    assertThat(VariationDecorator.shouldCalculateDiffValues(new JavaFile("org.foo.Bar", true)), is(false));
-    assertThat(VariationDecorator.shouldCalculateDiffValues(new File("org/foo/Bar.php")), is(false));
-  }
-
-  private List<Metric> selectMetrics() {
-    return getSession().getResults(Metric.class);
-  }
 }

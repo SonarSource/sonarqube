@@ -196,10 +196,10 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
     Measure duplicatedLines = new Measure(CoreMetrics.DUPLICATED_LINES_DENSITY, 0.0);
     assertThat(MeasurePersister.shouldPersistMeasure(file, duplicatedLines), is(false));
 
-    duplicatedLines.setDiffValue1(0.0);
+    duplicatedLines.setVariation1(0.0);
     assertThat(MeasurePersister.shouldPersistMeasure(file, duplicatedLines), is(false));
 
-    duplicatedLines.setDiffValue1(-3.0);
+    duplicatedLines.setVariation1(-3.0);
     assertThat(MeasurePersister.shouldPersistMeasure(file, duplicatedLines), is(true));
 
   }

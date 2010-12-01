@@ -19,15 +19,17 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.nullValue;
-
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
+import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-public class TimeMachineConfigurationTest {
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
 
   @Test
   public void shouldSkipTendencies() {
@@ -43,11 +45,14 @@ public class TimeMachineConfigurationTest {
   }
 
   @Test
-  public void shouldReturnDiffPeriodInDays() {
+  public void shouldGetPeriodVariationTargets() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.timemachine.diff0", "30");
-    assertThat(new TimeMachineConfiguration(conf, null).getDiffPeriodInDays(0), is(30));
-    assertThat(new TimeMachineConfiguration(conf, null).getDiffPeriodInDays(1), nullValue());
+    conf.setProperty("sonar.timemachine.variation1", "7");
+    conf.setProperty("sonar.timemachine.variation2", "30");
+    PeriodLocator periodLocator = mock(PeriodLocator.class);
+    new TimeMachineConfiguration(conf, getSession(), periodLocator).getVariationTargets();
+    verify(periodLocator).locate(7);
+    verify(periodLocator).locate(30);
   }
 
 }

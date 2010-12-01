@@ -49,7 +49,7 @@ public class Measure {
   protected String alertText;
   protected Integer tendency;
   protected Date date;
-  protected Double diff1, diff2, diff3;
+  protected Double variation1, variation2, variation3;
   protected String url;
   protected Characteristic characteristic;
   protected PersistenceMode persistenceMode = PersistenceMode.FULL;
@@ -411,56 +411,56 @@ public class Measure {
   }
 
   /**
-   * @return the first differential value of the measure
+   * @return the first variation value
    */
-  public Double getDiffValue1() {
-    return diff1;
+  public Double getVariation1() {
+    return variation1;
   }
 
-  /**
-   * Sets the first differential value of the measure
-   * 
-   * @param diff1 the diff
-   * @return the measure object instance
-   */
-  public Measure setDiffValue1(Double diff1) {
-    this.diff1 = diff1;
+  public Measure setVariation1(Double d) {
+    this.variation1 = d;
     return this;
   }
 
   /**
-   * @return the second differential value of the measure
+   * @return the second variation value
    */
-  public Double getDiffValue2() {
-    return diff2;
+  public Double getVariation2() {
+    return variation2;
   }
 
-  /**
-   * Sets the second differential value of the measure
-   * 
-   * @param diff2 the diff
-   * @return the measure object instance
-   */
-  public Measure setDiffValue2(Double diff2) {
-    this.diff2 = diff2;
+  public Measure setVariation2(Double d) {
+    this.variation2 = d;
     return this;
   }
 
   /**
-   * @return the third differential value of the measure
+   * @return the third variation value
    */
-  public Double getDiffValue3() {
-    return diff3;
+  public Double getVariation3() {
+    return variation3;
   }
 
-  /**
-   * Sets the third differential value of the measure
-   * 
-   * @param diff3 the diff
-   * @return the measure object instance
-   */
-  public Measure setDiffValue3(Double diff3) {
-    this.diff3 = diff3;
+  public Measure setVariation3(Double d) {
+    this.variation3 = d;
+    return this;
+  }
+
+  public Double getVariation(int index) {
+    switch(index) {
+      case 1: return variation1;
+      case 2: return variation2;
+      case 3: return variation3;
+    }
+    return null;
+  }
+
+  public Measure setVariation(int index, Double d) {
+    switch(index) {
+      case 1: variation1 = d; break;
+      case 2: variation2 = d; break;
+      case 3: variation3 = d; break;
+    }
     return this;
   }
 
@@ -529,9 +529,9 @@ public class Measure {
         append("alertText", alertText).
         append("tendency", tendency).
         append("characteristic", characteristic).
-        append("diff1", diff1).
-        append("diff2", diff2).
-        append("diff3", diff3).
+        append("variation1", variation1).
+        append("variation2", variation2).
+        append("variation3", variation3).
         toString();
   }
 }

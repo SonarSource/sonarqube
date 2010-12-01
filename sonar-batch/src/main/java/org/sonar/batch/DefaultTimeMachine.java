@@ -146,9 +146,9 @@ public class DefaultTimeMachine implements TimeMachine {
     measure.setAlertStatus(model.getAlertStatus());
     measure.setAlertText(model.getAlertText());
     measure.setTendency(model.getTendency());
-    measure.setDiffValue1(model.getDiffValue1());
-    measure.setDiffValue2(model.getDiffValue2());
-    measure.setDiffValue3(model.getDiffValue3());
+    measure.setVariation1(model.getDiffValue1());
+    measure.setVariation2(model.getDiffValue2());
+    measure.setVariation3(model.getDiffValue3());
     measure.setUrl(model.getUrl());
     measure.setCharacteristic(model.getCharacteristic());
     return measure;

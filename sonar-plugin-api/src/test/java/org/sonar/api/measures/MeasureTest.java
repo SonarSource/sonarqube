@@ -92,11 +92,19 @@ public class MeasureTest {
   }
 
   @Test
-  public void diffValues() {
-    Measure measure = new Measure(CoreMetrics.LINES).setDiffValue1(1d).setDiffValue2(2d).setDiffValue3(3d);
-    assertThat(measure.getDiffValue1(), is(1d));
-    assertThat(measure.getDiffValue2(), is(2d));
-    assertThat(measure.getDiffValue3(), is(3d));
+  public void shouldGetAndSetVariations() {
+    Measure measure = new Measure(CoreMetrics.LINES).setVariation1(1d).setVariation2(2d).setVariation3(3d);
+    assertThat(measure.getVariation1(), is(1d));
+    assertThat(measure.getVariation2(), is(2d));
+    assertThat(measure.getVariation3(), is(3d));
+  }
+
+  @Test
+  public void shouldSetVariationsWithIndex() {
+    Measure measure = new Measure(CoreMetrics.LINES).setVariation(2, 3.3);
+    assertThat(measure.getVariation1(), nullValue());
+    assertThat(measure.getVariation2(), is(3.3));
+    assertThat(measure.getVariation3(), nullValue());
   }
 
   @Test

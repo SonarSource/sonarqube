@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.database.DatabaseSession;
@@ -28,18 +27,13 @@ import org.sonar.api.database.model.Snapshot;
 import java.util.Date;
 import java.util.List;
 
-public final class PeriodLocator implements BatchExtension {
+public class PeriodLocator implements BatchExtension {
   private Snapshot projectSnapshot; // TODO replace by PersistenceManager
   private DatabaseSession session;
 
   public PeriodLocator(Snapshot projectSnapshot, DatabaseSession session) {
     this.projectSnapshot = projectSnapshot;
     this.session = session;
-  }
-
-  // currently not used
-  boolean acceptProperty(String property) {
-    return doAcceptProperty(property);
   }
 
   Snapshot locate(int days) {
@@ -75,9 +69,5 @@ public final class PeriodLocator implements BatchExtension {
 
   static long distance(Date d1, Date d2) {
     return Math.abs(d1.getTime() - d2.getTime());
-  }
-
-  static Boolean doAcceptProperty(String property) {
-    return StringUtils.trimToEmpty(property).matches("[0-9]+d");
   }
 }

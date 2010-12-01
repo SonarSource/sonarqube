@@ -19,22 +19,18 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorBarriers;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.*;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
-import org.sonar.api.utils.SonarException;
 
 import java.util.Date;
+import java.util.List;
 
-@DependedUpon(DecoratorBarriers.END_OF_VIOLATIONS_GENERATION)
+@DependsUpon(DecoratorBarriers.END_OF_VIOLATIONS_GENERATION)
 public class NewViolationsDecorator implements Decorator {
 
   private TimeMachineConfiguration timeMachineConfiguration;
@@ -44,7 +40,7 @@ public class NewViolationsDecorator implements Decorator {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return true;
+    return project.isLatestAnalysis();
   }
 
   @DependedUpon
@@ -54,20 +50,17 @@ public class NewViolationsDecorator implements Decorator {
 
   public void decorate(Resource resource, DecoratorContext context) {
     Measure measure = new Measure(CoreMetrics.NEW_VIOLATIONS);
-    for (int index = 0; index < 3; index++) {
-      Integer days = timeMachineConfiguration.getDiffPeriodInDays(index);
-      if (days != null) {
-        double value = calculate(context, days) + sumChildren(context, index);
-        setDiffValue(measure, index, value);
-      }
+    for (VariationTarget variationTarget : timeMachineConfiguration.getVariationTargets()) {
+      Date date = variationTarget.getDate();
+      double value = countViolationsAfterDate(context.getViolations(), date) + sumChildren(context, variationTarget.getIndex());
+      measure.setVariation(variationTarget.getIndex(), value);
     }
     context.saveMeasure(measure);
   }
 
-  int calculate(DecoratorContext context, int days) {
-    Date targetDate = getTargetDate(context.getProject(), days);
+  int countViolationsAfterDate(List<Violation> violations, Date targetDate) {
     int newViolations = 0;
-    for (Violation violation : context.getViolations()) {
+    for (Violation violation : violations) {
       if (!violation.getCreatedAt().before(targetDate)) {
         newViolations++;
       }
@@ -75,46 +68,17 @@ public class NewViolationsDecorator implements Decorator {
     return newViolations;
   }
 
-  double sumChildren(DecoratorContext context, int index) {
-    double sum = 0;
+  int sumChildren(DecoratorContext context, int index) {
+    int sum = 0;
     for (Measure measure : context.getChildrenMeasures(CoreMetrics.NEW_VIOLATIONS)) {
-      sum = sum + getDiffValue(measure, index);
+      Double var = measure.getVariation(index);
+      if (var != null) {
+        sum = sum + var.intValue();
+      }
     }
     return sum;
   }
 
-  private Date getTargetDate(Project project, int distanceInDays) {
-    return DateUtils.addDays(project.getAnalysisDate(), -distanceInDays);
-  }
-
-  private void setDiffValue(Measure measure, int index, double value) {
-    switch (index) {
-      case 0:
-        measure.setDiffValue1(value);
-        break;
-      case 1:
-        measure.setDiffValue2(value);
-        break;
-      case 2:
-        measure.setDiffValue3(value);
-        break;
-      default:
-        throw new SonarException("Should never happen");
-    }
-  }
-
-  private double getDiffValue(Measure measure, int index) {
-    switch (index) {
-      case 0:
-        return measure.getDiffValue1();
-      case 1:
-        return measure.getDiffValue2();
-      case 2:
-        return measure.getDiffValue3();
-      default:
-        throw new SonarException("Should never happen");
-    }
-  }
 
   @Override
   public String toString() {

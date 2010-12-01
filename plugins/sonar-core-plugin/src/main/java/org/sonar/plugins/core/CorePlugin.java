@@ -19,7 +19,7 @@
  */
 package org.sonar.plugins.core;
 
-import org.sonar.plugins.core.timemachine.NewViolationsDecorator;
+import org.sonar.plugins.core.timemachine.*;
 
 import com.google.common.collect.Lists;
 import org.sonar.api.CoreProperties;
@@ -42,10 +42,6 @@ import org.sonar.plugins.core.metrics.UserManagedMetrics;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.*;
 import org.sonar.plugins.core.testdetailsviewer.TestsViewerDefinition;
-import org.sonar.plugins.core.timemachine.VariationDecorator;
-import org.sonar.plugins.core.timemachine.PeriodLocator;
-import org.sonar.plugins.core.timemachine.TendencyDecorator;
-import org.sonar.plugins.core.timemachine.TimeMachineConfiguration;
 import org.sonar.plugins.core.ui.pageselector.GwtPageSelector;
 import org.sonar.plugins.core.violationsviewer.ViolationsViewerDefinition;
 import org.sonar.plugins.core.widgets.*;
@@ -115,6 +111,27 @@ import java.util.List;
         defaultValue = CoreProperties.CORE_DEFAULT_GROUP_DEFAULT_VALUE,
         name = "Default user group",
         description = "Any new users will automatically join this group.",
+        project = false,
+        global = true
+    ),
+    @Property(
+        key = "sonar.timemachine.variation1",
+        name = "Variation 1",
+        description = "To be defined. For the moment the number of days",
+        project = false,
+        global = true
+    ),
+    @Property(
+        key = "sonar.timemachine.variation2",
+        name = "Variation 2",
+        description = "To be defined. For the moment the number of days",
+        project = false,
+        global = true
+    ),
+    @Property(
+        key = "sonar.timemachine.variation3",
+        name = "Variation 3",
+        description = "To be defined. For the moment the number of days",
         project = false,
         global = true
     )
@@ -197,9 +214,10 @@ public class CorePlugin implements Plugin {
     // time machine
     extensions.add(TendencyDecorator.class);
     extensions.add(PeriodLocator.class);
+    extensions.add(PastMeasuresLoader.class);
+    extensions.add(TimeMachineConfiguration.class);
     extensions.add(VariationDecorator.class);
     extensions.add(NewViolationsDecorator.class);
-    extensions.add(TimeMachineConfiguration.class);
 
     return extensions;
   }

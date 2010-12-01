@@ -100,9 +100,9 @@ public final class MeasurePersister {
         measure.getTendency() == null &&
         measure.getUrl() == null &&
         measure.getData() == null &&
-        (measure.getDiffValue1() == null || NumberUtils.compare(measure.getDiffValue1().doubleValue(), 0.0) == 0) &&
-        (measure.getDiffValue2() == null || NumberUtils.compare(measure.getDiffValue2().doubleValue(), 0.0) == 0) &&
-        (measure.getDiffValue3() == null || NumberUtils.compare(measure.getDiffValue3().doubleValue(), 0.0) == 0);
+        (measure.getVariation1() == null || NumberUtils.compare(measure.getVariation1().doubleValue(), 0.0) == 0) &&
+        (measure.getVariation2() == null || NumberUtils.compare(measure.getVariation2().doubleValue(), 0.0) == 0) &&
+        (measure.getVariation3() == null || NumberUtils.compare(measure.getVariation3().doubleValue(), 0.0) == 0);
   }
 
   public void dump() {
@@ -135,9 +135,9 @@ public final class MeasurePersister {
     merge.setAlertStatus(measure.getAlertStatus());
     merge.setAlertText(measure.getAlertText());
     merge.setTendency(measure.getTendency());
-    merge.setDiffValue1(measure.getDiffValue1());
-    merge.setDiffValue2(measure.getDiffValue2());
-    merge.setDiffValue3(measure.getDiffValue3());
+    merge.setDiffValue1(measure.getVariation1());
+    merge.setDiffValue2(measure.getVariation2());
+    merge.setDiffValue3(measure.getVariation3());
     merge.setUrl(measure.getUrl());
     merge.setCharacteristic(measure.getCharacteristic());
     if (measure.getValue() != null) {

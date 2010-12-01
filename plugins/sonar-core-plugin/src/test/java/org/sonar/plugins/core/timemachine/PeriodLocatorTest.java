@@ -41,22 +41,6 @@ public class PeriodLocatorTest extends AbstractDbUnitTestCase {
   private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
   @Test
-  public void shouldAcceptProperty() {
-    assertThat(PeriodLocator.doAcceptProperty("1d"), is(true));
-    assertThat(PeriodLocator.doAcceptProperty("2d"), is(true));
-    assertThat(PeriodLocator.doAcceptProperty("500d"), is(true));
-    assertThat(PeriodLocator.doAcceptProperty(" 500d  "), is(true));
-  }
-
-  @Test
-  public void shouldNotAcceptProperty() {
-    assertThat(PeriodLocator.doAcceptProperty(null), is(false));
-    assertThat(PeriodLocator.doAcceptProperty(""), is(false));
-    assertThat(PeriodLocator.doAcceptProperty("1.2.3"), is(false));
-    assertThat(PeriodLocator.doAcceptProperty("2010-05-18"), is(false));
-  }
-
-  @Test
   public void shouldLoadSnapshotsFromDatabase() {
     setupData("shouldLoadSnapshotsFromDatabase");
 

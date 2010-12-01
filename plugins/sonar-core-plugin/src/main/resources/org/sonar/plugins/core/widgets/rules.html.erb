@@ -3,19 +3,17 @@
   <tr>
     <td valign="top" width="50%">
 		  <div class="dashbox">
+		    <h3>Violations</h3>
+			  <div class="big marginbottom10">
+			    <%= format_measure(Metric::VIOLATIONS, :url => url_for(:controller => 'drilldown', :action => 'violations', :id => @project.key)) -%> <%= trend_icon(Metric::VIOLATIONS) -%>
+			  </div>
         <h3>Rules compliance</h3>
         <div class="big">
           <%= format_measure(Metric::VIOLATIONS_DENSITY, :url => url_for_drilldown(Metric::WEIGHTED_VIOLATIONS, {:highlight => Metric::WEIGHTED_VIOLATIONS})) -%> <%= trend_icon(Metric::VIOLATIONS_DENSITY) -%>
         </div>
-			</div>
+		  </div>
 	 	</td>
 		<td valign="top" width="50%" nowrap>
-			  <div class="dashbox">
-			    <h3>Violations</h3>
-			    <div class="big">
-			      <%= format_measure(Metric::VIOLATIONS, :url => url_for(:controller => 'drilldown', :action => 'violations', :id => @project.key)) -%> <%= trend_icon(Metric::VIOLATIONS) -%>
-			    </div>
-			  </div>
 			<%
 			blocker_violations = @snapshot.measure(Metric::BLOCKER_VIOLATIONS)
 			critical_violations = @snapshot.measure(Metric::CRITICAL_VIOLATIONS)
