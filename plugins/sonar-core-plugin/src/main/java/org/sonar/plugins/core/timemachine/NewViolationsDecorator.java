@@ -55,9 +55,11 @@ public class NewViolationsDecorator implements Decorator {
   public void decorate(Resource resource, DecoratorContext context) {
     Measure measure = new Measure(CoreMetrics.NEW_VIOLATIONS);
     for (int index = 0; index < 3; index++) {
-      int days = timeMachineConfiguration.getDiffPeriodInDays(index);
-      double value = calculate(context, days) + sumChildren(context, index);
-      setDiffValue(measure, index, value);
+      Integer days = timeMachineConfiguration.getDiffPeriodInDays(index);
+      if (days != null) {
+        double value = calculate(context, days) + sumChildren(context, index);
+        setDiffValue(measure, index, value);
+      }
     }
     context.saveMeasure(measure);
   }

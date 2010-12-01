@@ -159,6 +159,8 @@ public class Violation {
   }
 
   /**
+   * For internal use only
+   * 
    * @since 2.5
    */
   public Violation setCreatedAt(Date createdAt) {
