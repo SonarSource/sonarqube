@@ -30,15 +30,16 @@ public class ViolationUnmarshaller extends AbstractUnmarshaller<Violation> {
     violation.setMessage(JsonUtils.getString(json, "message"));
     violation.setLine(JsonUtils.getInteger(json, "line"));
     violation.setPriority(JsonUtils.getString(json, "priority"));
+    violation.setCreatedAt(JsonUtils.getDate(json, "createdAt"));
 
-    JSONObject rule = (JSONObject)json.get("rule");
-    if (rule!=null) {
+    JSONObject rule = (JSONObject) json.get("rule");
+    if (rule != null) {
       violation.setRuleKey(JsonUtils.getString(rule, "key"));
       violation.setRuleName(JsonUtils.getString(rule, "name"));
     }
 
-    JSONObject resource = (JSONObject)json.get("resource");
-    if (resource!=null) {
+    JSONObject resource = (JSONObject) json.get("resource");
+    if (resource != null) {
       violation.setResourceKey(JsonUtils.getString(resource, "key"));
       violation.setResourceName(JsonUtils.getString(resource, "name"));
       violation.setResourceQualifier(JsonUtils.getString(resource, "qualifier"));

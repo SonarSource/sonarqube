@@ -19,6 +19,8 @@
  */
 package org.sonar.wsclient.services;
 
+import java.util.Date;
+
 public class Violation extends Model {
 
   private String message = null;
@@ -30,6 +32,7 @@ public class Violation extends Model {
   private String resourceName = null;
   private String resourceScope = null;
   private String resourceQualifier = null;
+  private Date createdAt = null;
 
   public String getMessage() {
     return message;
@@ -105,6 +108,21 @@ public class Violation extends Model {
 
   public Violation setResourceQualifier(String resourceQualifier) {
     this.resourceQualifier = resourceQualifier;
+    return this;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Date getCreatedAt() {
+    return createdAt;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Violation setCreatedAt(Date createdAt) {
+    this.createdAt = createdAt;
     return this;
   }
 }

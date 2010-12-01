@@ -28,7 +28,7 @@ class RuleFailure < ActiveRecord::Base
     json['message'] = message
     json['line'] = line if line
     json['priority'] = Sonar::RulePriority.to_s(failure_level).upcase
-    json['createdAt'] = format_datetime(created_at)
+    json['createdAt'] = format_datetime(created_at) if created_at
     json['rule'] = {
       :key => rule.key,
       :name => rule.name}
@@ -46,7 +46,7 @@ class RuleFailure < ActiveRecord::Base
       xml.message(message)
       xml.line(line) if line
       xml.priority(Sonar::RulePriority.to_s(failure_level))
-      xml.createdAt(format_datetime(created_at))
+      xml.createdAt(format_datetime(created_at)) if created_at
       xml.rule do
         xml.key(rule.key)
         xml.name(rule.name)
