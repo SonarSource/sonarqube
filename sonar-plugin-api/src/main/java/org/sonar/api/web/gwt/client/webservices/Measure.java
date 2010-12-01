@@ -32,7 +32,6 @@ public class Measure {
 
   private String ruleKey;
   private String ruleName;
-  private String ruleCategory;
   private String rulePriority;
   
   private Date date;
@@ -115,12 +114,12 @@ public class Measure {
     this.ruleName = ruleName;
   }
 
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public String getRuleCategory() {
-    return ruleCategory;
-  }
-
-  public void setRuleCategory(String s) {
-    this.ruleCategory = s;
+    return null;
   }
 
   public String getRulePriority() {

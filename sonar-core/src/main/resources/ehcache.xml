@@ -70,7 +70,7 @@
       overflowToDisk="false"/>
   <cache
       name="org.sonar.api.rules.RulesCategory"
-      maxElementsInMemory="32"
+      maxElementsInMemory="6"
       eternal="true"
       overflowToDisk="false"/>
 </ehcache>

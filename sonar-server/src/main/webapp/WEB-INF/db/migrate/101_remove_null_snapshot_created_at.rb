@@ -25,8 +25,4 @@ class RemoveNullSnapshotCreatedAt < ActiveRecord::Migration
       s.save
     end
   end
-
-  def self.down
-  
-  end
 end

@@ -24,7 +24,7 @@
   <project_measures characteristic_id="[null]" url="[null]" diff_value_1="[null]" diff_value_2="[null]"
                     diff_value_3="[null]"
                     rule_priority="[null]"
-                    alert_text="[null]" ID="4" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="4" RULES_CATEGORY_ID="1"
+                    alert_text="[null]" ID="4" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="4" rules_category_id="[null]"
                     RULE_ID="1"
                     text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
                     alert_status="[null]" description="[null]"/>

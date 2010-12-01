@@ -52,10 +52,6 @@
          <%= select_tag "plugins", options_for_select(@select_plugins, @plugins), :id => 'search_plugin', :multiple => true, :size => 6 %>
        </td>
        <td class="left" valign="top" width="1%" nowrap>
-         <span class="note">Category</span><br/>
-         <%= select_tag "categories", options_for_select(@select_categories, @categories), :id => 'search_category', :multiple => true, :size => 6 %>
-       </td>
-       <td class="left" valign="top" width="1%" nowrap>
          <span class="note">Priority</span><br/>
          <%= select_tag "priorities", options_for_select(@select_priority, @priorities), :id => 'search_priority', :multiple => true, :size => 6 %>
        </td>
@@ -75,7 +71,7 @@
   <ul style="float: right" class="horizontal">
     <li class="marginleft10">
       <div class="csv">
-      <a href="<%= url_for(:controller => 'api/rules', :action => 'index', :language => @profile.language, :profile => @profile.name, :plugins => @plugins.join(','), :status => @status, :searchtext => @searchtext, :priorities => @priorities.join(','), :categories => @categories.join(','), :format => 'csv') -%>" onClick="return downloadCsv()" id="download-link" class="">Download</a>
+      <a href="<%= url_for(:controller => 'api/rules', :action => 'index', :language => @profile.language, :profile => @profile.name, :plugins => @plugins.join(','), :status => @status, :searchtext => @searchtext, :priorities => @priorities.join(','), :format => 'csv') -%>" onClick="return downloadCsv()" id="download-link" class="">Download</a>
       </div>
     </li>
     <% if enable_modification %>
@@ -104,12 +100,11 @@
         <th class="left" nowrap>Active/Priority</th>
         <th class="left">Name <span style="font-weight: normal">[<%= link_to_function("expand/collapse", "toggle_rules()") %>]</span></th>
         <th class="right">Plugin</th>
-        <th class="right">Category</th>
     </tr>
 </thead>
 <tbody>
 <% if @rules.empty? %>
-<tr><td colspan="4" class="even">No results.</td></tr>
+<tr><td colspan="3" class="even">No results.</td></tr>
 <% end %>
 <%
   # avoid executing several times the method is_admin?()

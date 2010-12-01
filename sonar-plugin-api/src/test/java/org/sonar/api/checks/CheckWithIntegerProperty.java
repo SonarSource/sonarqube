@@ -21,7 +21,7 @@ package org.sonar.api.checks;
 
 import org.sonar.check.*;
 
-@Rule(isoCategory = IsoCategory.Efficiency, priority = Priority.CRITICAL)
+@Rule(priority = Priority.CRITICAL)
 class CheckWithIntegerProperty {
 
   @RuleProperty

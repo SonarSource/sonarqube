@@ -25,6 +25,7 @@ import org.sonar.api.rules.RulePriority;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -105,6 +106,10 @@ public final class MeasuresFilters {
     return new RulePriorityFilter(metric, priority);
   }
 
+  /**
+   * @deprecated  since 2.5. See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public static MeasuresFilter<RuleMeasure> ruleCategory(final Metric metric, final Integer category) {
     return new RuleCategoryFilter(metric, category);
   }
@@ -113,26 +118,15 @@ public final class MeasuresFilters {
     return new RuleFilter(metric, rule);
   }
 
+  /**
+   * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public static MeasuresFilter<Collection<RuleMeasure>> ruleCategories(final Metric metric) {
     return new MetricFilter<Collection<RuleMeasure>>(metric) {
 
-      private boolean apply(Measure measure) {
-        return measure instanceof RuleMeasure
-            && metric.equals(measure.getMetric())
-            && ((RuleMeasure) measure).getRule() == null
-            && ((RuleMeasure) measure).getRuleCategory() != null;
-      }
-
       public Collection<RuleMeasure> filter(Collection<Measure> measures) {
-        List<RuleMeasure> result = new ArrayList<RuleMeasure>();
-        if (measures != null) {
-          for (Measure measure : measures) {
-            if (apply(measure)) {
-              result.add((RuleMeasure) measure);
-            }
-          }
-        }
-        return result;
+        return Collections.emptyList();
       }
     };
   }
@@ -213,24 +207,23 @@ public final class MeasuresFilters {
     @Override
     boolean doApply(RuleMeasure measure) {
       return measure.getRule() == null
-          && measure.getRuleCategory() == null
           && priority.equals(measure.getRulePriority());
     }
   }
 
+  /**
+   * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   private static class RuleCategoryFilter extends AbstractRuleMeasureFilter<RuleMeasure> {
-    private Integer categ;
 
     protected RuleCategoryFilter(Metric metric, Integer categ) {
       super(metric);
-      this.categ = categ;
     }
 
     @Override
     boolean doApply(RuleMeasure measure) {
-      return measure.getRule() == null
-          && categ.equals(measure.getRuleCategory())
-          && measure.getRulePriority() == null;
+      return false;
     }
   }
 

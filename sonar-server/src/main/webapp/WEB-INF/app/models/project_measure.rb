@@ -27,7 +27,6 @@ class ProjectMeasure < ActiveRecord::Base
 
   belongs_to :snapshot
   belongs_to :rule
-  belongs_to :rules_category
   belongs_to :project
   belongs_to :characteristic
   has_one :measure_data, :class_name => 'MeasureData', :foreign_key => 'measure_id'
@@ -50,20 +49,8 @@ class ProjectMeasure < ActiveRecord::Base
     write_attribute(:metric_id, m.id) if m.id
   end
   
-  def category
-    @category ||=
-      begin
-        RulesCategory.by_id(rules_category_id)
-      end
-  end
-  
-  def category=(c)
-    @category = RulesCategory.by_name(c.name)
-    write_attribute(:rules_category_id, @category.id) if @category.id
-  end
-  
   def rule_measure?
-    rule_id || rules_category_id || rule_priority
+    rule_id || rule_priority
   end
 
   def data
@@ -250,17 +237,6 @@ class ProjectMeasure < ActiveRecord::Base
     ProjectMeasure.find(:all, :conditions => {:snapshot_id => snapshot_ids, :metric_id => metric_ids})
   end
 
-  def self.find_by_metric_and_snapshot_ids(metric, snapshot_ids, rules_category_id=nil, rule_id=nil)
-    parameters = {:snapshot_id => snapshot_ids, :metric_id => metric.id}
-    parameters[:rule_id] = rule_id
-    if (rule_id.nil?)
-      parameters[:rules_category_id] = rules_category_id
-    end
-
-    (metric.direction<0) ? order_direction = 'desc' : order_direction = 'asc'
-    ProjectMeasure.find(:all, :conditions => parameters, :order => "value #{order_direction}")
-  end
-
   def review?
     measure_date != nil
   end
@@ -277,8 +253,8 @@ class ProjectMeasure < ActiveRecord::Base
     if rule_measure?
       if rule_id
         "#{metric_key}_rule_#{rule_id}"
-      elsif rules_category_id
-        "#{metric_key}_#{rules_category_id}"
+      elsif characteristic_id
+        "#{metric_key}_c_#{characteristic_id}"
       else
         "#{metric_key}_#{rule_priority_text}"
       end

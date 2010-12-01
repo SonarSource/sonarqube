@@ -19,12 +19,11 @@
  */
 package org.sonar.api.checks;
 
-import org.sonar.check.IsoCategory;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 
-@Rule(isoCategory = IsoCategory.Efficiency, priority = Priority.CRITICAL)
+@Rule(priority = Priority.CRITICAL)
 class CheckWithOverriddenPropertyKey{
 
   @RuleProperty(key = "maximum")

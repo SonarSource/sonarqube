@@ -67,16 +67,7 @@ module ComponentsHelper
     return nil if items.nil?
     items.each do |item|
       metric = Metric.by_name(metric_name)
-      return item if (item && metric && item.metric_id==metric.id && item.rules_category_id.nil? && item.rule_priority.nil?)
-    end
-    nil
-  end
-
-  def item_by_metric_name_and_categ_id(items, metric_name, rules_category_name)
-    return nil if items.nil?
-    items.each do |item|
-      rules_category = RulesCategory.by_name(rules_category_name)
-      return item if (item.metric.name==metric_name && item.rules_category_id==rules_category.id && item.rule_id.nil? && item.rule_priority.nil?)
+      return item if (item && metric && item.metric_id==metric.id && item.rule_priority.nil? && item.characteristic_id.nil?)
     end
     nil
   end

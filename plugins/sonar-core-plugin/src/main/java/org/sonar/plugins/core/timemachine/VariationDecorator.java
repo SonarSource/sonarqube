@@ -141,7 +141,7 @@ public class VariationDecorator implements Decorator {
     // improvements : keep query in cache ? select only some columns ?
     // TODO support measure on rules and characteristics
     String hql = "select m from " + MeasureModel.class.getSimpleName() + " m, " + Snapshot.class.getSimpleName() + " s " +
-        "where m.snapshotId=s.id and m.metricId in (:metricIds) and m.ruleId=null and m.rulePriority=null and m.rulesCategoryId=null and m.characteristic=null "
+        "where m.snapshotId=s.id and m.metricId in (:metricIds) and m.ruleId=null and m.rulePriority=null and m.characteristic=null "
         + "and (s.rootId=:rootSnapshotId or s.id=:rootSnapshotId) and s.resourceId=:resourceId and s.status=:status";
     return session.createQuery(hql)
         .setParameter("metricIds", metricByIds.keySet())
@@ -159,14 +159,12 @@ public class VariationDecorator implements Decorator {
   static class MeasureKey {
     Integer metricId;
     Integer ruleId;
-    Integer categoryId;
     RulePriority priority;
     Characteristic characteristic;
 
     MeasureKey(MeasureModel model) {
       metricId = model.getMetricId();
       ruleId = model.getRuleId();
-      categoryId = model.getRulesCategoryId();
       priority = model.getRulePriority();
       characteristic = model.getCharacteristic();
     }
@@ -177,8 +175,7 @@ public class VariationDecorator implements Decorator {
       // TODO merge RuleMeasure into Measure
       if (measure instanceof RuleMeasure) {
         RuleMeasure rm = (RuleMeasure) measure;
-        categoryId = rm.getRuleCategory();
-        ruleId = (rm.getRule()==null ? null : rm.getRule().getId());
+        ruleId = (rm.getRule() == null ? null : rm.getRule().getId());
         priority = rm.getRulePriority();
       }
     }
@@ -190,7 +187,6 @@ public class VariationDecorator implements Decorator {
 
       MeasureKey that = (MeasureKey) o;
 
-      if (categoryId != null ? !categoryId.equals(that.categoryId) : that.categoryId != null) return false;
       if (characteristic != null ? !characteristic.equals(that.characteristic) : that.characteristic != null)
         return false;
       if (!metricId.equals(that.metricId)) return false;
@@ -204,7 +200,6 @@ public class VariationDecorator implements Decorator {
     public int hashCode() {
       int result = metricId.hashCode();
       result = 31 * result + (ruleId != null ? ruleId.hashCode() : 0);
-      result = 31 * result + (categoryId != null ? categoryId.hashCode() : 0);
       result = 31 * result + (priority != null ? priority.hashCode() : 0);
       result = 31 * result + (characteristic != null ? characteristic.hashCode() : 0);
       return result;

@@ -52,23 +52,22 @@ class RulesConfigurationController < ApplicationController
     init_params()
     
     @select_plugins = ANY_SELECTION + java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| [repo.getName(true), repo.getKey()]}.sort
-    @select_categories = ANY_SELECTION + RulesCategory.all.collect {|rc| [ rc.name, rc.name ] }.sort
     @select_priority = ANY_SELECTION + RULE_PRIORITIES
     @select_status = [['Any',''], ["Active", STATUS_ACTIVE], ["Inactive", STATUS_INACTIVE]]
 
     @rules = Rule.search(java_facade, {
-        :profile => @profile, :categories => @categories, :status => @status, :priorities => @priorities,
+        :profile => @profile, :status => @status, :priorities => @priorities,
         :plugins =>  @plugins, :searchtext => @searchtext, :include_parameters => true, :language => @profile.language})
 
     unless @searchtext.blank?
       if @status==STATUS_ACTIVE
         @hidden_inactives=Rule.search(java_facade, {
-            :profile => @profile, :categories => @categories, :status => STATUS_INACTIVE, :priorities => @priorities,
+            :profile => @profile, :status => STATUS_INACTIVE, :priorities => @priorities,
             :plugins =>  @plugins, :language => @profile.language, :searchtext => @searchtext, :include_parameters => false}).size
 
       elsif @status==STATUS_INACTIVE
         @hidden_actives=Rule.search(java_facade, {
-            :profile => @profile, :categories => @categories, :status => STATUS_ACTIVE, :priorities => @priorities,
+            :profile => @profile, :status => STATUS_ACTIVE, :priorities => @priorities,
             :plugins =>  @plugins, :language => @profile.language, :searchtext => @searchtext, :include_parameters => false}).size
       end
     end
@@ -137,7 +136,6 @@ class RulesConfigurationController < ApplicationController
       {
       :priority => Sonar::RulePriority.id(params[:rule][:priority]),
       :parent_id => template.id,
-      :rules_category_id => template.rules_category_id,
       :plugin_name => template.plugin_name,
       :cardinality => 'SINGLE',
       :plugin_rule_key => "#{template.plugin_rule_key}_#{Time.now.to_i}",
@@ -309,21 +307,10 @@ class RulesConfigurationController < ApplicationController
     count
   end
 
-  def select_category(categories, categ_id_string)
-    return categories.first if categ_id_string.nil? or categ_id_string.blank?
-    categories.each do |categ|
-      if categ_id_string==categ.id.to_s
-        return categ
-      end
-    end
-    nil
-  end
-
   def init_params
     @id = params[:id]
     @priorities = filter_any(params[:priorities]) || ['']
     @plugins=filter_any(params[:plugins]) || ['']
-    @categories=filter_any(params[:categories]) || ['']
     @status=params[:rule_status] || STATUS_ACTIVE
     @searchtext=params[:searchtext]
   end

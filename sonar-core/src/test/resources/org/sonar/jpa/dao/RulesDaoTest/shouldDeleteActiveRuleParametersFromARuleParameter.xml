@@ -2,7 +2,7 @@
 
   <rules_categories id="1" name="category one" description="[null]"/>
 
-  <rules id="1" name="rule1" rules_category_id="1" description="desc" plugin_config_key="config"
+  <rules id="1" name="rule1" description="desc" plugin_config_key="config"
          plugin_rule_key="key1" plugin_name="plugin" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
 
   <rules_parameters id="1" rule_id="1" name="param1" description="foo" param_type="r"/>

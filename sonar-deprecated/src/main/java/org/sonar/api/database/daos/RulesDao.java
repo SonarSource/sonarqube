@@ -27,6 +27,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulesCategory;
 
+import java.util.Collections;
 import java.util.List;
 
 @Deprecated
@@ -47,7 +48,7 @@ public class RulesDao {
   }
 
   public List<Rule> getRulesByCategory(RulesCategory categ) {
-    return target.getRulesByCategory(categ);
+    return Collections.emptyList();
   }
 
   public Rule getRuleByKey(String pluginKey, String ruleKey) {
@@ -55,15 +56,15 @@ public class RulesDao {
   }
 
   public Long countRules(List<String> plugins, String categoryName) {
-    return target.countRules(plugins, categoryName);
+    return target.countRules(plugins);
   }
 
   public List<RulesCategory> getCategories() {
-    return target.getCategories();
+    return Collections.emptyList();
   }
 
   public RulesCategory getCategory(String key) {
-    return target.getCategory(key);
+    return null;
   }
 
 

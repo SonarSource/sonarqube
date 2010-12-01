@@ -127,7 +127,6 @@ public final class RegisterRules {
     persistedRule.setName(rule.getName());
     persistedRule.setConfigKey(rule.getConfigKey());
     persistedRule.setDescription(rule.getDescription());
-    persistedRule.setRulesCategory(reattachCategory(rule.getRulesCategory(), session));
     persistedRule.setPriority(rule.getPriority());
     persistedRule.setEnabled(true);
     persistedRule.setCardinality(rule.getCardinality());
@@ -169,19 +168,9 @@ public final class RegisterRules {
     }
   }
 
-  private RulesCategory reattachCategory(RulesCategory category, DatabaseSession session) {
-    if (category != null) {
-      return session.getSingleResult(RulesCategory.class, "name", category.getName());
-    }
-    return null;
-  }
-
   private void saveNewRules(Collection<Rule> rules, DatabaseSession session) {
     for (Rule rule : rules) {
       rule.setEnabled(true);
-      if (rule.getRulesCategory() != null) {
-        rule.setRulesCategory(reattachCategory(rule.getRulesCategory(), session));
-      }
       session.saveWithoutFlush(rule);
     }
     session.commit();

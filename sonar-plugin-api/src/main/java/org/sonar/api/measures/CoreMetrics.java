@@ -19,6 +19,7 @@
  */
 package org.sonar.api.measures;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.SonarException;
 
 import java.lang.reflect.Field;
@@ -41,7 +42,13 @@ public final class CoreMetrics {
   public static final String DOMAIN_COMPLEXITY = "Complexity";
   public static final String DOMAIN_DOCUMENTATION = "Documentation";
   public static final String DOMAIN_RULES = "Rules";
+
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public static final String DOMAIN_RULE_CATEGORIES = "Rule categories";
+
   public static final String DOMAIN_GENERAL = "General";
   public static final String DOMAIN_DUPLICATION = "Duplication";
   public static final String DOMAIN_DESIGN = "Design";
@@ -269,19 +276,68 @@ public final class CoreMetrics {
       Metric.ValueType.DATA, Metric.DIRECTION_NONE, false, DOMAIN_DUPLICATION);
 
   /* coding rules */
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public static final String USABILITY_KEY = "usability";
+
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public static final Metric USABILITY = new Metric(USABILITY_KEY, "Usability", "Usability", Metric.ValueType.PERCENT,
       Metric.DIRECTION_BETTER, true, DOMAIN_RULE_CATEGORIES).setBestValue(100.0).setOptimizedBestValue(true);
+
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public static final String RELIABILITY_KEY = "reliability";
+
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public static final Metric RELIABILITY = new Metric(RELIABILITY_KEY, "Reliability", "Reliability", Metric.ValueType.PERCENT,
       Metric.DIRECTION_BETTER, true, DOMAIN_RULE_CATEGORIES).setBestValue(100.0).setOptimizedBestValue(true);
+
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public static final String EFFICIENCY_KEY = "efficiency";
+
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public static final Metric EFFICIENCY = new Metric(EFFICIENCY_KEY, "Efficiency", "Efficiency", Metric.ValueType.PERCENT,
       Metric.DIRECTION_BETTER, true, DOMAIN_RULE_CATEGORIES).setBestValue(100.0).setOptimizedBestValue(true);
+
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public static final String PORTABILITY_KEY = "portability";
+
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public static final Metric PORTABILITY = new Metric(PORTABILITY_KEY, "Portability", "Portability", Metric.ValueType.PERCENT,
       Metric.DIRECTION_BETTER, true, DOMAIN_RULE_CATEGORIES).setBestValue(100.0).setOptimizedBestValue(true);
+
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public static final String MAINTAINABILITY_KEY = "maintainability";
+
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public static final Metric MAINTAINABILITY = new Metric(MAINTAINABILITY_KEY, "Maintainability", "Maintainability",
       Metric.ValueType.PERCENT, Metric.DIRECTION_BETTER, true, DOMAIN_RULE_CATEGORIES).setBestValue(100.0).setOptimizedBestValue(true);
 
@@ -437,7 +493,10 @@ public final class CoreMetrics {
       for (Field field : CoreMetrics.class.getFields()) {
         if (Metric.class.isAssignableFrom(field.getType())) {
           try {
-            metrics.add((Metric) field.get(null));
+            Metric metric = (Metric) field.get(null);
+            if (!StringUtils.equals(metric.getDomain(), DOMAIN_RULE_CATEGORIES)) {
+              metrics.add(metric);
+            }
           } catch (IllegalAccessException e) {
             throw new SonarException("can not load metrics from " + CoreMetrics.class.getSimpleName(), e);
           }

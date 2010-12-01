@@ -33,8 +33,9 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 /**
- * A class to hold rules category
+ * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
  */
+@Deprecated
 @Immutable
 @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 @Entity
@@ -59,7 +60,7 @@ public class RulesCategory extends BaseIdentifiable {
   /**
    * Creates a category based on the category name and description
    *
-   * @param name the category name
+   * @param name        the category name
    * @param description the category description
    */
   public RulesCategory(String name, String description) {
@@ -98,6 +99,7 @@ public class RulesCategory extends BaseIdentifiable {
 
   /**
    * Sets the cay description
+   *
    * @param description the description
    */
   public void setDescription(String description) {
@@ -153,19 +155,19 @@ public class RulesCategory extends BaseIdentifiable {
   }
 
   public static RulesCategory fromIsoCategory(IsoCategory iso) {
-    if (iso==IsoCategory.Efficiency) {
+    if (iso == IsoCategory.Efficiency) {
       return Iso9126RulesCategories.EFFICIENCY;
     }
-    if (iso==IsoCategory.Maintainability) {
+    if (iso == IsoCategory.Maintainability) {
       return Iso9126RulesCategories.MAINTAINABILITY;
     }
-    if (iso==IsoCategory.Portability) {
+    if (iso == IsoCategory.Portability) {
       return Iso9126RulesCategories.PORTABILITY;
     }
-    if (iso==IsoCategory.Reliability) {
+    if (iso == IsoCategory.Reliability) {
       return Iso9126RulesCategories.RELIABILITY;
     }
-    if (iso==IsoCategory.Usability) {
+    if (iso == IsoCategory.Usability) {
       return Iso9126RulesCategories.USABILITY;
     }
     return null;

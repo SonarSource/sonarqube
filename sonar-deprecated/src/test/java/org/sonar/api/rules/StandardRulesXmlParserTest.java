@@ -20,14 +20,14 @@
 package org.sonar.api.rules;
 
 import org.apache.commons.io.IOUtils;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.*;
 
 public class StandardRulesXmlParserTest {
   @Test
@@ -49,25 +49,11 @@ public class StandardRulesXmlParserTest {
   }
 
   @Test
-  public void ruleShouldHaveACategory() {
-    StandardRulesXmlParser parser = new StandardRulesXmlParser();
-    String xml = "<rules><rule><category name='cat1' /></rule></rules>";
-    List<Rule> rules = parser.parse(xml);
-    assertNotNull(rules.get(0).getRulesCategory());
-    Assert.assertEquals("cat1", rules.get(0).getRulesCategory().getName());
-    assertNull(rules.get(0).getRulesCategory().getId());
-    assertNull(rules.get(0).getRulesCategory().getDescription());
-  }
-
-  @Test
   public void ruleCanHaveALevel() {
     StandardRulesXmlParser parser = new StandardRulesXmlParser();
     String xml = "<rules><rule key='1' priority='CRITICAL'><category name='cat1'/></rule></rules>";
     List<Rule> rules = parser.parse(xml);
-    assertNotNull(rules.get(0).getRulesCategory());
     Assert.assertEquals(RulePriority.CRITICAL, rules.get(0).getPriority());
-    assertNull(rules.get(0).getRulesCategory().getId());
-    assertNull(rules.get(0).getRulesCategory().getDescription());
   }
 
   @Test
@@ -101,10 +87,10 @@ public class StandardRulesXmlParserTest {
   @Test
   public void shouldContainCDataDescription() {
     StandardRulesXmlParser parser = new StandardRulesXmlParser();
-    String xml = "<rules><rule key='key1' category='cat1'><description>   <![CDATA[<xml> </nodes> and accents Žˆ˜  ]]>  </description></rule></rules>";
+    String xml = "<rules><rule key='key1' category='cat1'><description>   <![CDATA[<xml> </nodes> and accents ï¿½ï¿½ï¿½  ]]>  </description></rule></rules>";
     List<Rule> rules = parser.parse(xml);
     assertEquals(1, rules.size());
-    Assert.assertEquals("<xml> </nodes> and accents Žˆ˜", rules.get(0).getDescription());
+    Assert.assertEquals("<xml> </nodes> and accents ï¿½ï¿½ï¿½", rules.get(0).getDescription());
   }
 
   @Test

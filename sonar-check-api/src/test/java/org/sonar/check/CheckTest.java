@@ -32,7 +32,6 @@ public class CheckTest {
     Check check = FakeCheck.class.getAnnotation(Check.class);
     assertThat(check.title(), is("Detailed Check"));
     assertThat(check.description(), is("Detailed description"));
-    assertThat(check.isoCategory(), is(IsoCategory.Reliability));
   }
 
   @Test

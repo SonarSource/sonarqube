@@ -67,14 +67,6 @@ class Api::ViolationsController < Api::ResourceRestController
       conditions << 'rule_id IN (:rule_ids)'
       values[:rule_ids] = rule_ids
     end
-    param_categories=params[:categories] || params[:category]
-    if param_categories
-      conditions << 'rules.rules_category_id IN (:category_ids)'
-      values[:category_ids]=param_categories.split(',').map do |c|
-        categ=RulesCategory.by_key(c)
-        categ ? categ.id : -1
-      end.compact
-    end
     if params[:priorities]
       conditions << 'rule_failures.failure_level IN (:priorities)'
       values[:priorities]=params[:priorities].split(',').map do |p|

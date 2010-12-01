@@ -23,39 +23,39 @@ class ColumnsController < ApplicationController
   before_filter :init
   
   def add
-    column = @dashboard_configuration.find_available_column(@column_id)
-    @dashboard_configuration.add_column(column)
+    column = @components_configuration.find_available_column(@column_id)
+    @components_configuration.add_column(column)
     redirect_to :controller => 'components', :action => 'index', :configuring => 'true', :id => params[:rid]
   end
   
   def delete
-    column = @dashboard_configuration.find_selected_column(@column_id)
-    @dashboard_configuration.remove_column(column)
+    column = @components_configuration.find_selected_column(@column_id)
+    @components_configuration.remove_column(column)
     if column.sort_default?
-      @dashboard_configuration.set_column_sort_default(Sonar::ColumnsView::TYPE_PROJECT)
+      @components_configuration.set_column_sort_default(Sonar::ColumnsView::TYPE_PROJECT)
     end
     redirect_to :controller => 'components', :action => 'index', :configuring => 'true', :id => params[:rid]
   end
 
   def toggle_treemap
-    @dashboard_configuration.toggle_treemap_enabled
+    @components_configuration.toggle_treemap_enabled
     redirect_to :controller => 'components', :action => 'index', :configuring => 'true', :id => params[:rid]
   end
   
   def left
-    column = @dashboard_configuration.find_selected_column(@column_id)
-    @dashboard_configuration.move_column(column, "left")
+    column = @components_configuration.find_selected_column(@column_id)
+    @components_configuration.move_column(column, "left")
     redirect_to :controller => 'components', :action => 'index', :configuring => 'true', :id => params[:rid]
   end
     
   def right
-    column = @dashboard_configuration.find_selected_column(@column_id)
-    @dashboard_configuration.move_column(column, "right")
+    column = @components_configuration.find_selected_column(@column_id)
+    @components_configuration.move_column(column, "right")
     redirect_to :controller => 'components', :action => 'index', :configuring => 'true', :id => params[:rid]
   end  
   
   def default_sorting
-    @dashboard_configuration.set_column_sort_default(@column_id)
+    @components_configuration.set_column_sort_default(@column_id)
     redirect_to :controller => 'components', :action => 'index', :configuring => 'true', :id => params[:rid]
   end  
   
@@ -63,7 +63,7 @@ class ColumnsController < ApplicationController
   private
   
   def init
-    @dashboard_configuration = Sonar::ComponentsConfiguration.new
+    @components_configuration = Sonar::ComponentsConfiguration.new
     @column_id = params[:id]
   end
 

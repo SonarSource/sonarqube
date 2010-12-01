@@ -115,7 +115,6 @@ class DeprecatedRuleRepository extends RuleRepository {
 
   private Rule cloneRule(Rule deprecatedRule) {
     Rule rule = Rule.create(getKey(), deprecatedRule.getKey(), deprecatedRule.getName());
-    rule.setRulesCategory(deprecatedRule.getRulesCategory());
     rule.setConfigKey(deprecatedRule.getConfigKey());
     rule.setPriority(deprecatedRule.getPriority());
     rule.setDescription(deprecatedRule.getDescription());

@@ -20,15 +20,13 @@
 package org.sonar.api.measures;
 
 import org.apache.commons.lang.StringUtils;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
-import org.sonar.api.rules.Iso9126RulesCategories;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.*;
 
 public class MeasureTest {
 

@@ -49,7 +49,7 @@ class TrendsChart
             " and s.status='%s' " +
             " and s.project_id=%s " +
             " and m.metric_id in (%s) " + 
-            " and m.rules_category_id is null and m.rule_priority is null and m.characteristic_id is null", Snapshot::STATUS_PROCESSED, resource.id, metric_ids * ','] )
+            " and m.rule_priority is null and m.characteristic_id is null", Snapshot::STATUS_PROCESSED, resource.id, metric_ids * ','] )
       ProjectMeasure.connection.select_all( sql )
     end
   end
@@ -63,7 +63,7 @@ class TrendsChart
             "AND m.rule_id is null " +
             "AND m.project_id=%s " +
             "AND m.metric_id in (%s) " + 
-            "AND m.rules_category_id is null and m.rule_priority is null and m.characteristic_id IS NULL", resource.id, metric_ids * ','] )
+            "and m.rule_priority is null and m.characteristic_id IS NULL", resource.id, metric_ids * ','] )
       ProjectMeasure.connection.select_all( sql )
     end    
   end  

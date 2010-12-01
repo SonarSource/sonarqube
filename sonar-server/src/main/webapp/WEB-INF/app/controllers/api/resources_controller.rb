@@ -187,10 +187,6 @@ class Api::ResourcesController < Api::ApiController
       (params['filter_rules']=='true') ? params['rules']='false' : params['rules']='true'
     end
     
-    if params['filter_rules_cats']
-      (params['filter_rules_cats']=='true') ? params['rule_categories']='false' : params['rule_categories']='true'
-    end
-    
     if params['metrics']
       if params['metrics'].include? 'mandatory_violations'
         params['metrics']=params['metrics'].gsub(/mandatory_violations/, 'violations')
@@ -203,7 +199,7 @@ class Api::ResourcesController < Api::ApiController
   end
   
   def select_columns_for_measures
-    select_columns='project_measures.id,project_measures.value,project_measures.metric_id,project_measures.snapshot_id,project_measures.rule_id,project_measures.rules_category_id,project_measures.rule_priority,project_measures.text_value,project_measures.characteristic_id'
+    select_columns='project_measures.id,project_measures.value,project_measures.metric_id,project_measures.snapshot_id,project_measures.rule_id,project_measures.rule_priority,project_measures.text_value,project_measures.characteristic_id'
     if params[:includetrends]=='true'
       select_columns+=',project_measures.tendency,project_measures.diff_value_1,project_measures.diff_value_2,project_measures.diff_value_3'
     end
@@ -231,20 +227,6 @@ class Api::ResourcesController < Api::ApiController
       measures_values[:rule_ids]=rule_ids.compact
     end
       
-    param_categs=params['rule_categories'] || 'false'
-    if param_categs=='true'
-      measures_conditions << "project_measures.rules_category_id IS NOT NULL"
-
-    elsif param_categs=='false'
-      measures_conditions << "project_measures.rules_category_id IS NULL" if param_rules=='false'
-    else
-      measures_conditions << "project_measures.rules_category_id IN (:categ_ids)"
-      measures_values[:categ_ids]=param_categs.split(',').map do |c|
-        categ=RulesCategory.by_key(c)
-        categ ? categ.id : -1
-      end.compact
-    end
-    
     param_priorities = params['rule_priorities'] || 'false'
     if param_priorities=='true'
       measures_conditions << "project_measures.rule_priority IS NOT NULL"
@@ -356,9 +338,6 @@ class Api::ResourcesController < Api::ApiController
           json_measure[:rule_key] = rule.key if rule
           json_measure[:rule_name] = rule.name if rule
         end
-        if measure.rules_category_id
-          json_measure[:rule_category] = measure.category.name
-        end
         if measure.rule_priority
           json_measure[:rule_priority] = Sonar::RulePriority.to_s(measure.rule_priority)
         end
@@ -413,9 +392,6 @@ class Api::ResourcesController < Api::ApiController
               rule = rules_by_id[measure.rule_id]
               xml.rule_key(rule.key) if rule
               xml.rule_name(rule.name) if rule
-            end
-            if measure.rules_category_id
-             xml.rule_category(measure.category.name)
             end
             if measure.rule_priority
               xml.rule_priority(Sonar::RulePriority.to_s(measure.rule_priority))

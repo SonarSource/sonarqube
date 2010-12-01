@@ -115,7 +115,6 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     assertThat(rule.getDescription(), is("Description of One"));
     assertThat(rule.getPriority(), is(RulePriority.BLOCKER));
     assertThat(rule.getConfigKey(), is("config1"));
-    assertThat(rule.getRulesCategory(), is(Iso9126RulesCategories.EFFICIENCY));
   }
 
   @Test
@@ -178,7 +177,6 @@ class FakeRepository extends RuleRepository {
     Rule rule1 = Rule.create("fake", "rule1", "One");
     rule1.setDescription("Description of One");
     rule1.setPriority(RulePriority.BLOCKER);
-    rule1.setRulesCategory(Iso9126RulesCategories.EFFICIENCY);
     rule1.setConfigKey("config1");
     rule1.createParameter("param1").setDescription("parameter one");
     rule1.createParameter("param2").setDescription("parameter two");

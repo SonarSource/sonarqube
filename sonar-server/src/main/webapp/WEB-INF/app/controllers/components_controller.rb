@@ -29,19 +29,19 @@ class ComponentsController < ApplicationController
   SECTION = Navigation::SECTION_RESOURCE
 
   def index
-    @dashboard_configuration = Sonar::ComponentsConfiguration.new
+    @components_configuration = Sonar::ComponentsConfiguration.new
 
     @project = Project.by_key(params[:id])
     return access_denied unless has_role?(:user, @project)
     @snapshot = @project.last_snapshot
     @snapshots = Snapshot.find(:all, :include => 'project', :conditions => ['snapshots.parent_snapshot_id=? and snapshots.qualifier<>? and projects.qualifier<>?', @snapshot.id, Snapshot::QUALIFIER_UNIT_TEST_CLASS, Snapshot::QUALIFIER_UNIT_TEST_CLASS])
     
-    @columns = @dashboard_configuration.selected_columns
-    metrics = @dashboard_configuration.homepage_metrics
+    @columns = @components_configuration.selected_columns
+    metrics = @components_configuration.homepage_metrics
 
     measures = component_measures(@snapshots, metrics)
     @measures_by_snapshot = measures_by_snapshot(@snapshots, measures)
-    if @dashboard_configuration.treemap_enabled? && @snapshots.size>1
+    if @components_configuration.treemap_enabled? && @snapshots.size>1
       @treemap = Sonar::TreemapBuilder.build(@snapshots, TREEMAP_SIZE, TREEMAP_SIZE)
     end
   end
@@ -103,7 +103,6 @@ class ComponentsController < ApplicationController
           'snapshot_id' => page_sids,
           'metric_id' => mids,
           'rule_id' => nil,
-          'rules_category_id' => nil,
           'rule_priority' => nil,
           'characteristic_id' => nil}))
         measures.concat(AsyncMeasureSnapshot.search(page_sids, mids))

@@ -21,7 +21,6 @@ package org.sonar.plugins.core.sensors;
 
 import com.google.common.collect.Multiset;
 import com.google.common.collect.TreeMultiset;
-import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
@@ -33,7 +32,6 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleUtils;
 import org.sonar.api.utils.KeyValueFormat;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class WeightedViolationsDecorator implements Decorator {
@@ -76,27 +74,17 @@ public class WeightedViolationsDecorator implements Decorator {
 
     double debt = 0.0;
     Multiset<RulePriority> violationsByPriority = TreeMultiset.create();
-    Map<Integer, Double> categoryDebt = new HashMap<Integer, Double>();
 
     for (RuleMeasure violations : context.getMeasures(MeasuresFilters.rules(CoreMetrics.VIOLATIONS))) {
       if (MeasureUtils.hasValue(violations)) {
         violationsByPriority.add(violations.getRulePriority(), violations.getValue().intValue());
         double add = (int) weights.get(violations.getRulePriority()) * violations.getValue();
         debt += add;
-
-        Double categoryVal = (Double) ObjectUtils.defaultIfNull(categoryDebt.get(violations.getRuleCategory()), 0.0);
-        categoryDebt.put(violations.getRuleCategory(), categoryVal + add);
       }
     }
 
     Measure debtMeasure = new Measure(CoreMetrics.WEIGHTED_VIOLATIONS, debt, KeyValueFormat.format(violationsByPriority));
     saveMeasure(context, debtMeasure);
-
-    for (Map.Entry<Integer, Double> entry : categoryDebt.entrySet()) {
-      RuleMeasure categDebt = RuleMeasure.createForCategory(CoreMetrics.WEIGHTED_VIOLATIONS, entry.getKey(), entry.getValue());
-      categDebt.setPersistenceMode(PersistenceMode.MEMORY);
-      saveMeasure(context, categDebt);
-    }
   }
 
   private void saveMeasure(DecoratorContext context, Measure debtMeasure) {
@@ -105,7 +93,4 @@ public class WeightedViolationsDecorator implements Decorator {
     }
   }
 
-  protected Map<RulePriority, Integer> getWeights() {
-    return weights;
-  }
 }

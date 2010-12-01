@@ -2,7 +2,7 @@
 	<td><%= image_tag "priority/#{priority_id}.png" %></td>
     <td>
 		<%= link_to label,
-                  {:controller => 'drilldown', :action => 'violations', :id => @project.id, :categ_id => nil, :priority => Sonar::RulePriority.to_s(priority_id)} %>
+                  {:controller => 'drilldown', :action => 'violations', :id => @project.id, :priority => Sonar::RulePriority.to_s(priority_id)} %>
 
     </td>
     <td style="padding-left: 10px;" align="right">

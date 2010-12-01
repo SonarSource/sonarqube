@@ -54,7 +54,7 @@ public @interface Rule {
   /**
    * Will probably be deprecated and replaced by tags
    */
-  IsoCategory isoCategory();
+  IsoCategory isoCategory() default IsoCategory.NONE;
 
   Cardinality cardinality() default Cardinality.SINGLE;
 }

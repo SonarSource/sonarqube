@@ -23,15 +23,15 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.*;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.ActiveRuleParam;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleParam;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 public class RulesDao extends BaseDao {
-
-  private List<RulesCategory> rulesCategories;
 
   public RulesDao(DatabaseSession session) {
     super(session);
@@ -45,37 +45,16 @@ public class RulesDao extends BaseDao {
     return getSession().getResults(Rule.class, "pluginName", pluginKey, "enabled", true);
   }
 
-  public List<Rule> getRulesByCategory(RulesCategory categ) {
-    List<Rule> result = new ArrayList<Rule>();
-    for (Rule rule : getRules()) {
-      if (rule.getRulesCategory().equals(categ)) {
-        result.add(rule);
-      }
-    }
-    return result;
-  }
 
   public Rule getRuleByKey(String pluginKey, String ruleKey) {
     return getSession().getSingleResult(Rule.class, "key", ruleKey, "pluginName", pluginKey, "enabled", true);
   }
 
-  public Long countRules(List<String> plugins, String categoryName) {
+  public Long countRules(List<String> plugins) {
     return (Long) getSession().createQuery(
-        "SELECT COUNT(r) FROM Rule r WHERE r.pluginName IN (:pluginNames) AND r.rulesCategory=:rulesCategory AND r.enabled=true").
+        "SELECT COUNT(r) FROM Rule r WHERE r.pluginName IN (:pluginNames) AND r.enabled=true").
         setParameter("pluginNames", plugins).
-        setParameter("rulesCategory", getCategory(categoryName)).
         getSingleResult();
-  }
-
-  public List<RulesCategory> getCategories() {
-    if (rulesCategories == null) {
-      rulesCategories = getSession().getResults(RulesCategory.class);
-    }
-    return rulesCategories;
-  }
-
-  public RulesCategory getCategory(String key) {
-    return getSession().getSingleResult(RulesCategory.class, "name", key);
   }
 
 
@@ -94,13 +73,6 @@ public class RulesDao extends BaseDao {
       activeRule.setRulesProfile(rulesProfile);
       getSession().save(activeRule);
     }
-  }
-
-  public void deleteActiveRuleParameters(RuleParam ruleParam) {
-    getSession().createQuery(
-        "DELETE FROM ActiveRuleParam arp WHERE ruleParam=:param")
-        .setParameter("param", ruleParam)
-        .executeUpdate();
   }
 
   public List<RuleFailureModel> getViolations(Snapshot snapshot) {

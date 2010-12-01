@@ -50,8 +50,11 @@ if measure('lines') || measure('ncloc')
        		    <p><%= format_measure('directories', :suffix => ' directories', :url => url_for_drilldown('directories')) -%> <%= trend_icon('directories') -%></p>
 		      <% end %>
 		      <p><%= format_measure('functions', :suffix => ' methods', :url => url_for_drilldown('functions')) -%> <%= trend_icon('functions') -%></p>
-		      <% if (measure('accessors')) %>
-		        <p><%= format_measure('accessors', :prefix => '+', :suffix => ' accessors', :url => url_for_drilldown('accessors')) -%> <%= trend_icon('accessors') -%></p>
+		      <%
+		        if (measure('accessors'))
+		          prefix=(dashboard_configuration.variation? ? '' : '+')
+		      %>
+		        <p><%= format_measure('accessors', :prefix => prefix, :suffix => ' accessors', :url => url_for_drilldown('accessors')) -%> <%= trend_icon('accessors') -%></p>
 		      <% end %>
 		      <% if measure('paragraphs') %>
 			      <p><%= format_measure('paragraphs', :suffix => ' paragraphs', :url => url_for_drilldown('paragraphs')) -%> <%= trend_icon('paragraphs') -%></p>

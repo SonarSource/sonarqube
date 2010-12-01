@@ -20,24 +20,6 @@
 module ProjectHelper
   include ActionView::Helpers::UrlHelper
 
-  def item_by_metric_id(items, metric_id)
-    return nil if items.nil?
-    items.each do |item|
-      return item if(item.metric.id==metric_id and item.rules_category_id.nil?)
-    end
-    nil
-  end
-  
-  def item_by_metric_name_and_categ_id(items, metric_name, rules_category_id)
-    return nil if items.nil?
-    items.each do |item|
-      return item if (item.metric.name==metric_name and 
-                      item.rules_category_id == rules_category_id and 
-                      item.rule_id.nil?)
-    end
-    nil
-  end
-  
   def formatted_value(measure, default='')
     measure ? measure.formatted_value : default
   end

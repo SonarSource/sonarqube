@@ -19,8 +19,6 @@
  */
 package org.sonar.api.measures;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
@@ -28,6 +26,9 @@ import org.sonar.api.rules.RulePriority;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 public class MeasuresFiltersTest {
 
@@ -95,18 +96,6 @@ public class MeasuresFiltersTest {
         new Measure(CoreMetrics.VIOLATIONS, 500.0));
 
     assertThat(filter.filter(measures).size(), is(2));
-  }
-
-  @Test
-  public void ruleCategory() {
-    MeasuresFilter<RuleMeasure> filter = MeasuresFilters.ruleCategory(CoreMetrics.VIOLATIONS, 2);
-    List<Measure> measures = Arrays.asList(
-        RuleMeasure.createForPriority(CoreMetrics.VIOLATIONS, RulePriority.CRITICAL, 50.0),
-        RuleMeasure.createForCategory(CoreMetrics.VIOLATIONS, 2, 10.0),
-        RuleMeasure.createForCategory(CoreMetrics.VIOLATIONS, 3, 15.0),
-        new Measure(CoreMetrics.VIOLATIONS, 500.0));
-
-    assertThat(filter.filter(measures).getValue(), is(10.0));
   }
 
   @Test

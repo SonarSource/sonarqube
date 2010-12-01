@@ -22,12 +22,10 @@ package org.sonar.api.web.gwt.client.webservices;
 public class Rule extends ResponsePOJO {
   private String key;
   private String name;
-  private String category;
 
-  public Rule(String key, String name, String category) {
+  public Rule(String key, String name) {
     this.key = key;
     this.name = name;
-    this.category = category;
   }
 
 
@@ -47,11 +45,11 @@ public class Rule extends ResponsePOJO {
     this.name = name;
   }
 
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public String getCategory() {
-    return category;
-  }
-
-  public void setCategory(String category) {
-    this.category = category;
+    return null;
   }
 }

@@ -51,7 +51,6 @@ public class RulesDaoTest extends AbstractDbUnitTestCase {
 
     assertEquals("rule_one", rules.get(0).getKey());
     assertEquals(1, rules.get(0).getParams().size());
-    assertEquals("category one", rules.get(0).getRulesCategory().getName());
   }
 
   @Test
@@ -64,17 +63,6 @@ public class RulesDaoTest extends AbstractDbUnitTestCase {
 
     Rule rule2 = rulesDao.getRuleByKey("plugin", "key not found");
     assertThat(rule2, nullValue());
-  }
-
-  @Test
-  public void shouldCountNumberOfRulesOfACategoryForGivenPlugins() {
-    setupData("shouldCountNumberOfRulesOfACategoryForGivenPlugins");
-
-    Long result = rulesDao.countRules(Arrays.asList("plugin1", "plugin2"), "category one");
-    assertThat(result, is(3L));
-
-    result = rulesDao.countRules(Arrays.asList("plugin1", "plugin2"), "category two");
-    assertThat(result, is(1L));
   }
 
   @Test
@@ -116,7 +104,7 @@ public class RulesDaoTest extends AbstractDbUnitTestCase {
   public void shouldAddActiveRulesToProfile() {
     setupData("shouldAddActiveRulesToProfile");
 
-    Rule rule = new Rule("rule1", "key1", "config1", new RulesCategory("test"), null);
+    Rule rule = new Rule("rule1", "key1", "config1", null, null);
     RuleParam ruleParam = new RuleParam(null, "param1", null, null);
     rule.setParams(Arrays.asList(ruleParam));
 

@@ -69,13 +69,6 @@ class DrilldownColumn
       conditions += ' AND project_measures.rule_id IS NULL'
     end
 
-    if options[:rule_category_id]
-      conditions += ' AND project_measures.rules_category_id=:categ'
-      values[:categ]=options[:rule_category_id]
-    elsif options[:rule_id].nil?
-      conditions += ' AND project_measures.rules_category_id IS NULL'
-    end
-
     if options[:rule_priority_id]
       conditions += ' AND project_measures.rule_priority=:priority'
       values[:priority]=options[:rule_priority_id]

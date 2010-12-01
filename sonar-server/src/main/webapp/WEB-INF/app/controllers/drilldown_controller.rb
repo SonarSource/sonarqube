@@ -62,7 +62,6 @@ class DrilldownController < ApplicationController
   end
 
   def violations
-    @filter = params[:filter] || 'priority'
     @metric = select_metric(params[:metric], 'violations')
 
     # selected resources
@@ -80,10 +79,8 @@ class DrilldownController < ApplicationController
     # options
     @rule=Rule.by_key_or_id(params[:rule])
     @priority_id = (params[:priority] ? Sonar::RulePriority.id(params[:priority]) : nil)
-    @categ_id = (params[:categ_id] ? params[:categ_id].to_i : nil)
 
     options={}
-    options[:rule_category_id]=@categ_id
     options[:rule_priority_id]=@priority_id
     if @rule
       params[:rule]=@rule.key  # workaround for SONAR-1767 : the javascript hash named "rp" in the HTML source must contain the rule key, but not the rule id

@@ -15,7 +15,7 @@
 <% end %>
 
 <% if has_role?(:admin) && configuring? %>
-  <%= render :partial => 'list_edit_mode_controls', :locals => {:configured_columns => @columns, :dashboard_configuration => @dashboard_configuration}%>
+  <%= render :partial => 'list_edit_mode_controls', :locals => {:configured_columns => @columns, :components_configuration => @components_configuration}%>
 <% end %>
 <% if @snapshots.empty? && @project.nil? %>
 <h3>No projects have been analysed.</h3>

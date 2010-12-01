@@ -75,7 +75,6 @@ public class XmlCheckTemplateFactory {
 
         template.setConfigKey(rule.getConfigKey());
         template.setDescription(rule.getDescription());
-        template.setIsoCategory(rule.getRulesCategory().toIsoCategory());
         template.setPriority(rule.getPriority().toCheckPriority());
         template.setTitle(rule.getName());
 

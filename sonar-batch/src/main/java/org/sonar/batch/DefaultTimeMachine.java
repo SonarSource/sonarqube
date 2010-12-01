@@ -92,7 +92,7 @@ public class DefaultTimeMachine implements TimeMachine {
     params.put("resourceId", resource.getId());
     params.put("status", Snapshot.STATUS_PROCESSED);
 
-    sb.append(" AND m.ruleId IS NULL AND m.rulePriority IS NULL AND m.rulesCategoryId IS NULL ");
+    sb.append(" AND m.ruleId IS NULL AND m.rulePriority IS NULL ");
     if (!metricIds.isEmpty()) {
       sb.append(" AND m.metricId IN (:metricIds) ");
       params.put("metricIds", metricIds);

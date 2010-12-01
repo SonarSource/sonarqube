@@ -31,7 +31,6 @@ public final class ViolationsQuery extends AbstractResourceQuery<Violations> {
   private String scopes;
   private String qualifiers;
   private String rules;
-  private String categories;
   private String priorities;
   private Integer depth;
 
@@ -70,12 +69,19 @@ public final class ViolationsQuery extends AbstractResourceQuery<Violations> {
     return this;
   }
 
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public String getCategories() {
-    return categories;
+    return null;
   }
 
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public ViolationsQuery setCategories(String s) {
-    this.categories = s;
     return this;
   }
 
@@ -112,9 +118,6 @@ public final class ViolationsQuery extends AbstractResourceQuery<Violations> {
     if (rules != null) {
       url += "rules=" + rules + "&";
     }
-    if (categories != null) {
-      url += "categories=" + categories + "&";
-    }
     if (priorities != null) {
       url += "priorities=" + priorities + "&";
     }
@@ -150,9 +153,7 @@ public final class ViolationsQuery extends AbstractResourceQuery<Violations> {
       JSONObject ruleObj = jsViolation.get("rule").isObject();
       Rule rule = new Rule(
           JsonUtils.getString(ruleObj, "key"),
-          JsonUtils.getString(ruleObj, "name"),
-          JsonUtils.getString(ruleObj, "category")
-      );
+          JsonUtils.getString(ruleObj, "name"));
 
       result.add(new Violation(message.stringValue(), priority.stringValue(), lineIndex, rule, null));
     }

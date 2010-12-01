@@ -32,7 +32,6 @@ public class RuleMeasure extends Measure {
 
   private Rule rule;
   private RulePriority rulePriority;
-  private Integer ruleCategory;
 
   /**
    * This constructor is for internal use only. Please use static methods createForXXX().
@@ -41,7 +40,6 @@ public class RuleMeasure extends Measure {
     super(metric);
     this.rule = rule;
     this.rulePriority = rulePriority;
-    this.ruleCategory = ruleCategory;
   }
 
   public Rule getRule() {
@@ -60,12 +58,20 @@ public class RuleMeasure extends Measure {
     this.rulePriority = rulePriority;
   }
 
+/**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public Integer getRuleCategory() {
-    return ruleCategory;
+    return null;
   }
 
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public void setRuleCategory(Integer ruleCategory) {
-    this.ruleCategory = ruleCategory;
+
   }
 
   @Override
@@ -81,7 +87,6 @@ public class RuleMeasure extends Measure {
         .append(getMetric(), other.getMetric())
         .append(rule, other.rule)
         .append(rulePriority, other.rulePriority)
-        .append(ruleCategory, other.ruleCategory)
         .isEquals();
   }
 
@@ -96,9 +101,7 @@ public class RuleMeasure extends Measure {
         append(getMetric()).
         append(rule).
         append(rulePriority).
-        append(ruleCategory).
         toHashCode();
-
   }
 
   @Override
@@ -113,7 +116,6 @@ public class RuleMeasure extends Measure {
         append("alertText", alertText).
         append("tendency", tendency).
         append("rule", rule).
-        append("category", ruleCategory).
         append("priority", rulePriority).
         toString();
   }
@@ -126,6 +128,10 @@ public class RuleMeasure extends Measure {
     return (RuleMeasure) new RuleMeasure(metric, null, priority, null).setValue(value);
   }
 
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public static RuleMeasure createForCategory(Metric metric, Integer category, Double value) {
     return (RuleMeasure) new RuleMeasure(metric, null, null, category).setValue(value);
   }

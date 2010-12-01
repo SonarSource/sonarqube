@@ -19,11 +19,12 @@
  */
 package org.sonar.api.measures;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import org.junit.Test;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class RuleMeasureTest {
 
@@ -32,10 +33,6 @@ public class RuleMeasureTest {
     assertEquals(
         RuleMeasure.createForPriority(CoreMetrics.CLASSES, RulePriority.CRITICAL, 4.5),
         RuleMeasure.createForPriority(CoreMetrics.CLASSES, RulePriority.CRITICAL, 3.4));
-
-    assertEquals(
-        RuleMeasure.createForCategory(CoreMetrics.CLASSES, 3, 4.5),
-        RuleMeasure.createForCategory(CoreMetrics.CLASSES, 3, 3.4));
 
     assertEquals(
         RuleMeasure.createForRule(CoreMetrics.CLASSES, new Rule("pmd", "abc1"), 4.5),
@@ -48,10 +45,6 @@ public class RuleMeasureTest {
     assertNotEquals(
         RuleMeasure.createForPriority(CoreMetrics.CLASSES, RulePriority.CRITICAL, 4.5),
         RuleMeasure.createForPriority(CoreMetrics.CLASSES, RulePriority.BLOCKER, 3.4));
-
-    assertNotEquals(
-        RuleMeasure.createForCategory(CoreMetrics.CLASSES, 3, 4.5),
-        RuleMeasure.createForCategory(CoreMetrics.CLASSES, 331, 3.4));
 
     assertNotEquals(
         RuleMeasure.createForRule(CoreMetrics.CLASSES, new Rule("pmd", "abc1"), 4.5),

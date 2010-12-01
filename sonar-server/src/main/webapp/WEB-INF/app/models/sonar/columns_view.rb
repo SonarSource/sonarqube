@@ -23,7 +23,6 @@ class Sonar::ColumnsView
   TYPE_BUILD_TIME = 'BUILD_TIME'
   TYPE_LINKS = 'LINKS'
   TYPE_METRIC = 'METRIC'
-  TYPE_RULES_CATEGORY = 'RULES_CATEG'
   TYPE_TREE_MAP = 'TREEMAP'
   TYPE_LANGUAGE = 'LANGUAGE'
   TYPE_VERSION = 'VERSION'
@@ -44,7 +43,7 @@ class Sonar::ColumnsView
   end
 
   def metric_column?
-    @col_type == TYPE_METRIC || @col_type == TYPE_RULES_CATEGORY
+    @col_type == TYPE_METRIC
   end
 
   def language_column?

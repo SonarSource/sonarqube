@@ -408,7 +408,7 @@ module ApplicationHelper
       m = @snapshot.measure(metric_or_measure)
     end
 
-    if @dashboard_configuration && @dashboard_configuration.variation?
+    if defined?(@dashboard_configuration) && @dashboard_configuration.variation?
       return nil unless options[:force]
     end
 

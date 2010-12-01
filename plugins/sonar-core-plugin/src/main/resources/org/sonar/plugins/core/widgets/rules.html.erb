@@ -1,55 +1,14 @@
 <% if measure(Metric::LINES) %>
-	<table width="100%">
-		<tr>
-  		  <td valign="top" width="50%">
-				<div class="dashbox">
-				    <h3>Rules compliance</h3>
-				    <div class="big">
-				      <%= format_measure(Metric::VIOLATIONS_DENSITY, :url => url_for_drilldown(Metric::WEIGHTED_VIOLATIONS, {:highlight => Metric::WEIGHTED_VIOLATIONS})) -%> <%= trend_icon(Metric::VIOLATIONS_DENSITY) -%>
-				    </div>
-					  <%
-				     maintainability=@snapshot.measure(Metric::MAINTAINABILITY)
-				     efficiency=@snapshot.measure(Metric::EFFICIENCY)
-				  	  usability=@snapshot.measure(Metric::USABILITY)
-				  	  reliability=@snapshot.measure(Metric::RELIABILITY)
-				  	  portability=@snapshot.measure(Metric::PORTABILITY)
-				    %>
-				    <div class="mandatory">
-						  <a class="tip" href="<%= url_for :controller => 'drilldown', :action => 'violations', :id => @project.id, :filter => 'category' -%>">
-						    <img width="140" height="110" alt="" src="<%= ApplicationController.root_context -%>/chart?ck=xradar&w=140&h=110&c=777777|F8A036&m=100&g=0.25&l=Eff.,Mai.,Por.,Rel.,Usa.&v=<%= efficiency ? efficiency.value : 0 -%>,<%= maintainability ? maintainability.value : 0 -%>,<%= portability ? portability.value : 0 -%>,<%= reliability ? reliability.value : 0 -%>,<%= usability ? usability.value : 0 -%>">
-						    <span>
-				          <table>
-				            <tr>
-				              <td align="left" nowrap>Efficiency &nbsp;</td>
-				              <td align="right" id="m_efficiency"><%=  formatted_value(efficiency) %></td>
-				              <td nowrap> &nbsp;<%= trend_icon(efficiency) -%></td>
-				            </tr>
-				            <tr>
-				              <td align="left" nowrap>Maintainability  &nbsp;</td>
-				              <td align="right" id="m_maintainability"><%=  formatted_value(maintainability) %></td>
-				              <td nowrap> &nbsp;<%= trend_icon(maintainability) -%></td>
-				            </tr>
-				            <tr>
-				              <td align="left" nowrap>Portability  &nbsp;</td>
-				              <td align="right" id="m_portability"><%=  formatted_value(portability) %></td>
-				              <td nowrap> &nbsp;<%= trend_icon(portability) -%></td>
-				            </tr>
-				            <tr>
-				              <td align="left" nowrap>Reliability  &nbsp;</td>
-				              <td align="right" id="m_reliability"><%=  formatted_value(reliability) %></td>
-				              <td nowrap> &nbsp;<%= trend_icon(reliability) -%></td>
-				            </tr>
-				            <tr>
-				              <td align="left" nowrap>Usability  &nbsp;</td>
-				              <td align="right" id="m_usability"><%=  formatted_value(usability) %></td>
-				              <td nowrap> &nbsp;<%= trend_icon(usability) -%></td>
-				            </tr>
-				          </table>
-				        </span>
-						  </a>
-				    </div>
-				  </div>
-		</td>
+<table width="100%">
+  <tr>
+    <td valign="top" width="50%">
+		  <div class="dashbox">
+        <h3>Rules compliance</h3>
+        <div class="big">
+          <%= format_measure(Metric::VIOLATIONS_DENSITY, :url => url_for_drilldown(Metric::WEIGHTED_VIOLATIONS, {:highlight => Metric::WEIGHTED_VIOLATIONS})) -%> <%= trend_icon(Metric::VIOLATIONS_DENSITY) -%>
+        </div>
+			</div>
+	 	</td>
 		<td valign="top" width="50%" nowrap>
 			  <div class="dashbox">
 			    <h3>Violations</h3>

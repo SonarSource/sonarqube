@@ -5,42 +5,7 @@
 <table width="100%" cellpadding="0" cellspacing="0" id="columns">
 <tr>
   <td align="left" width="1%" nowrap class="column first">
-	<% if @filter=='category' %>
-	<ul class="tabs">
-	  <li>
-	    <%= link_to 'Priority',
-	                  {:controller => 'drilldown', :action => 'violations', :id => @project.id, :filter => nil, :categ_id => nil, :priority => nil} %>
-	  </li>
-	  <li>
-	    <%= link_to 'Category',
-	                  {:controller => 'drilldown', :action => 'violations', :id => @project.id, :filter => 
-		'category', :categ_id => nil, :priority => nil}, :class => 'selected' %>
-	  </li>
-	</ul>
-	<table id="col_categories" class="spacedicon" style="border: 1px solid #ccc;">
-		<% 
-			rule_category_measures = @snapshot.rule_category_measures(Metric::VIOLATIONS) 
-			max = 0
-			rule_category_measures.each do |m| 
-				max = m.value if m.value and m.value>max
-			end
-			RulesCategory.all.each do |category|
-				
-		%>
-        <tr class="<%= cycle('even','odd', :name => 'category') -%> <%= 'selected' if @categ_id==category.id -%>">
-	      <td>	<%= link_to h(category.name),
-	                  {:controller => 'drilldown', :action => 'violations', :id => @project.id, :filter => 'category', :categ_id => category.id, :priority => nil} %></td>
-	      <td style="padding-left: 10px;" align="right">
-		    <% measure = rule_category_measures.select{|m| m.rules_category_id==category.id}.first %>
-	        <%= format_measure(measure) -%>
-	      </td>
-	      <td align="left">
-	  	    <%= barchart(:width => 60, :percent => (measure ? (100 * measure.value / max).to_i : 0), :color => '#777') if max>0  %>
-	      </td>
-	    </tr>
-		<%  end %>
-	</table>
-	<% else %>
+
 	<% 
 		rule_priority_measures = @snapshot.rule_priority_measures(Metric::VIOLATIONS)
 		max = 0
@@ -48,32 +13,21 @@
 			max = m.value if m.value and m.value>max
 		end
 	%>
-    <ul class="tabs">
-	  <li>
-	    <%= link_to 'Priority',
-	                  {:controller => 'drilldown', :action => 'violations', :id => @project.id, :filter => nil, :categ_id => nil, :priority => nil}, :class => 'selected' %>
-	  </li>
-	  <li>
-	    <%= link_to 'Category',
-	                  {:controller => 'drilldown', :action => 'violations', :id => @project.id, :filter => 
-		'category', :categ_id => nil, :priority => nil} %>
-	  </li>
-	</ul>
+    <h3>Priority</h3>
     <table class="spacedicon" style="border: 1px solid #ccc;">
 	  <%= render :partial => 'rule_priority', :locals => {:label => 'Blocker', :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_BLOCKER, :max => max, :measures => rule_priority_measures }%>
-	<%= render :partial => 'rule_priority', :locals => {:label => 'Critical', :css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_CRITICAL, :max => max, :measures => rule_priority_measures }%>
-	<%= render :partial => 'rule_priority', :locals => {:label => 'Major', :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_MAJOR, :max => max, :measures => rule_priority_measures }%>
-	<%= render :partial => 'rule_priority', :locals => {:label => 'Minor', :css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_MINOR, :max => max, :measures => rule_priority_measures }%>
-	<%= render :partial => 'rule_priority', :locals => {:label => 'Info', :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_INFO, :max => max, :measures => rule_priority_measures }%>
+  	<%= render :partial => 'rule_priority', :locals => {:label => 'Critical', :css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_CRITICAL, :max => max, :measures => rule_priority_measures }%>
+	  <%= render :partial => 'rule_priority', :locals => {:label => 'Major', :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_MAJOR, :max => max, :measures => rule_priority_measures }%>
+	  <%= render :partial => 'rule_priority', :locals => {:label => 'Minor', :css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_MINOR, :max => max, :measures => rule_priority_measures }%>
+	  <%= render :partial => 'rule_priority', :locals => {:label => 'Info', :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_INFO, :max => max, :measures => rule_priority_measures }%>
     </table>
-    <% end %>
   </td>
   <td class="column" align="left" style="white-space: normal;">
    <h3>Rule</h3>
    <div class="scrollable">
        <table class="spacedicon" width="100%" id="col_rules">
 	      <%
-	        rule_measures=@snapshot.rule_measures(Metric.by_key(Metric::VIOLATIONS), @categ_id, @priority_id)
+	        rule_measures=@snapshot.rule_measures(Metric.by_key(Metric::VIOLATIONS), @priority_id)
 	        max=0
 	        rule_index=0
 			rule_measures.each { |m| max=m.value if m.value>max }
@@ -96,7 +50,7 @@
                     <a id="<%= "rule#{rule_index}" -%>" title="Click for more on <%= rule.plugin_name -%>: <%= rule.plugin_rule_key -%>" onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => rule.key, :layout => 'false' -%>"><img src="<%= ApplicationController.root_context -%>/images/priority/<%= rule_measure.rule_priority -%>.png"></img></a>
 		           </td>
 	               <td>
-	                  <%= link_to(rule.name, {:overwrite_params => {:rule => rule.key, :sid => nil, :categ_id => @categ_id, :priority => Sonar::RulePriority.to_s(@priority_id)}}, :title => "#{rule.plugin_name}: #{rule.plugin_rule_key}") %>
+	                  <%= link_to(rule.name, {:overwrite_params => {:rule => rule.key, :sid => nil, :priority => Sonar::RulePriority.to_s(@priority_id)}}, :title => "#{rule.plugin_name}: #{rule.plugin_rule_key}") %>
                    </td>
                    <td class="right" nowrap="nowrap">
                        <span><%= rule_measure.formatted_value %></span>
@@ -172,8 +126,6 @@
 <b>Path:</b>
 <% if @priority_id %>
 <%= Sonar::RulePriority.to_s(@priority_id) %> <%= link_to 'clear', {:overwrite_params => {:priority => nil}} %>
-<% elsif @categ_id %>
-<%= h(RulesCategory.by_id(@categ_id).name) %> <%= link_to 'clear', {:overwrite_params => {:categ_id => nil}} %>
 <% else %>
 Any <%= @filter %>
 <% end %>&nbsp;&raquo;&nbsp;

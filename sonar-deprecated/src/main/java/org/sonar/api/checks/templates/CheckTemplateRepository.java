@@ -22,8 +22,10 @@ package org.sonar.api.checks.templates;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Language;
-import org.sonar.api.rules.*;
-import org.sonar.check.IsoCategory;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleParam;
+import org.sonar.api.rules.RulePriority;
+import org.sonar.api.rules.RulesRepository;
 
 import java.io.InputStream;
 import java.util.*;
@@ -134,20 +136,12 @@ public class CheckTemplateRepository implements RulesRepository {
   }
 
 
-
-
-
-
-
-
-
-
   /*
 
-    CODE FOR BACKWARD COMPATIBLITY
-    This class should not extend RulesRepository in next versions
+   CODE FOR BACKWARD COMPATIBLITY
+   This class should not extend RulesRepository in next versions
 
-   */
+  */
 
 
   public List<Rule> getInitialReferential() {
@@ -163,7 +157,6 @@ public class CheckTemplateRepository implements RulesRepository {
     rule.setDescription(checkTemplate.getDescription(Locale.ENGLISH));
     rule.setName(checkTemplate.getTitle(Locale.ENGLISH));
     rule.setPriority(RulePriority.fromCheckPriority(checkTemplate.getPriority()));
-    rule.setRulesCategory(toRuleCategory(checkTemplate.getIsoCategory()));
     for (CheckTemplateProperty checkTemplateProperty : checkTemplate.getProperties()) {
       RuleParam param = rule.createParameter(checkTemplateProperty.getKey());
       param.setDescription(checkTemplateProperty.getDescription(Locale.ENGLISH));
@@ -172,26 +165,6 @@ public class CheckTemplateRepository implements RulesRepository {
 
     return rule;
   }
-
-  private RulesCategory toRuleCategory(IsoCategory isoCategory) {
-    if (isoCategory == IsoCategory.Reliability) {
-      return Iso9126RulesCategories.RELIABILITY;
-    }
-    if (isoCategory == IsoCategory.Efficiency) {
-      return Iso9126RulesCategories.EFFICIENCY;
-    }
-    if (isoCategory == IsoCategory.Maintainability) {
-      return Iso9126RulesCategories.MAINTAINABILITY;
-    }
-    if (isoCategory == IsoCategory.Portability) {
-      return Iso9126RulesCategories.PORTABILITY;
-    }
-    if (isoCategory == IsoCategory.Usability) {
-      return Iso9126RulesCategories.USABILITY;
-    }
-    return null;
-  }
-
 
   public List<Rule> parseReferential(String fileContent) {
     return Collections.emptyList();

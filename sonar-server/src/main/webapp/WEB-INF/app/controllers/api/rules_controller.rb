@@ -29,7 +29,6 @@ class Api::RulesController < Api::RestController
 
     options[:plugins]=params[:plugins].split(',') if params[:plugins]
     options[:language]=language
-    options[:categories]=params[:categories].split(',') if params[:categories]
     options[:priorities]=params[:priorities].split(',') if params[:priorities]
     options[:status]=params[:status]
     options[:searchtext]=params[:searchtext]
@@ -52,7 +51,6 @@ class Api::RulesController < Api::RestController
   end
   
   def set_backward_compatibility_params
-    params[:categories]=params[:category] if params[:category]
     params[:plugins]=params[:plugin] if params[:plugin]
     params[:priorities]=params[:levels] if params[:levels]
   end
@@ -88,7 +86,7 @@ class Api::RulesController < Api::RestController
 
   def rest_to_csv(rules, profile)
     FasterCSV.generate do |csv|
-      header = ["title", "key", "category", "plugin"]
+      header = ["title", "key", "plugin"]
       header.concat(["priority","status"]) if profile
       csv << header
       rules.each do |rule|

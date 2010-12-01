@@ -72,7 +72,11 @@ public class MeasureModel implements Cloneable {
   @Column(name = "rule_id", updatable = true, nullable = true)
   private Integer ruleId;
 
-  @Column(name = "rules_category_id")
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
+  @Column(name = "rules_category_id", nullable = true)
   private Integer rulesCategoryId;
 
   @Column(name = "rule_priority", updatable = false, nullable = true)
@@ -216,7 +220,7 @@ public class MeasureModel implements Cloneable {
    * @return whether the measure is about rule
    */
   public boolean isRuleMeasure() {
-    return ruleId != null || rulePriority != null || rulesCategoryId != null;
+    return ruleId != null || rulePriority != null;
   }
 
   /**
@@ -269,19 +273,18 @@ public class MeasureModel implements Cloneable {
   }
 
   /**
-   * @return the rule category id
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
    */
+  @Deprecated
   public Integer getRulesCategoryId() {
-    return rulesCategoryId;
+    return null;
   }
 
   /**
-   * Sets the rule category id
-   *
-   * @return the current object
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
    */
+  @Deprecated
   public MeasureModel setRulesCategoryId(Integer id) {
-    this.rulesCategoryId = id;
     return this;
   }
 
@@ -526,7 +529,6 @@ public class MeasureModel implements Cloneable {
     clone.setDiffValue2(getDiffValue2());
     clone.setDiffValue3(getDiffValue3());
     clone.setValue(getValue());
-    clone.setRulesCategoryId(getRulesCategoryId());
     clone.setRulePriority(getRulePriority());
     clone.setRuleId(getRuleId());
     clone.setSnapshotId(getSnapshotId());

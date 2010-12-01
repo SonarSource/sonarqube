@@ -23,44 +23,17 @@ import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
-import org.sonar.jpa.dao.RulesDao;
-import org.sonar.api.measures.*;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MeasureUtils;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
-import org.sonar.api.rules.Iso9126RulesCategories;
-import org.sonar.api.rules.RulesCategory;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class ViolationsDensityDecorator implements Decorator {
-
-  private Map<Integer, Metric> metricByCategoryId;
-
-  public ViolationsDensityDecorator(RulesDao rulesDao) {
-    metricByCategoryId = new HashMap<Integer, Metric>();
-    for (RulesCategory category : rulesDao.getCategories()) {
-      if (category.equals(Iso9126RulesCategories.EFFICIENCY)) {
-        metricByCategoryId.put(category.getId(), CoreMetrics.EFFICIENCY);
-
-      } else if (category.equals(Iso9126RulesCategories.MAINTAINABILITY)) {
-        metricByCategoryId.put(category.getId(), CoreMetrics.MAINTAINABILITY);
-
-      } else if (category.equals(Iso9126RulesCategories.PORTABILITY)) {
-        metricByCategoryId.put(category.getId(), CoreMetrics.PORTABILITY);
-
-      } else if (category.equals(Iso9126RulesCategories.RELIABILITY)) {
-        metricByCategoryId.put(category.getId(), CoreMetrics.RELIABILITY);
-
-      } else if (category.equals(Iso9126RulesCategories.USABILITY)) {
-        metricByCategoryId.put(category.getId(), CoreMetrics.USABILITY);
-      }
-    }
-  }
-
-  protected ViolationsDensityDecorator(Map<Integer, Metric> metricByCategoryId) {
-    this.metricByCategoryId = metricByCategoryId;
-  }
 
   public boolean shouldExecuteOnProject(Project project) {
     return true;
@@ -78,7 +51,7 @@ public class ViolationsDensityDecorator implements Decorator {
 
   public void decorate(Resource resource, DecoratorContext context) {
     if (shouldDecorateResource(context)) {
-      decorateDensity(resource, context);
+      decorateDensity(context);
     }
   }
 
@@ -86,13 +59,10 @@ public class ViolationsDensityDecorator implements Decorator {
     return context.getMeasure(CoreMetrics.VIOLATIONS_DENSITY) == null;
   }
 
-  private void decorateDensity(Resource resource, DecoratorContext context) {
+  private void decorateDensity(DecoratorContext context) {
     Measure ncloc = context.getMeasure(CoreMetrics.NCLOC);
     if (MeasureUtils.hasValue(ncloc) && ncloc.getValue() > 0.0) {
       saveDensity(context, ncloc.getValue().intValue());
-      if (ResourceUtils.isSpace(resource) || ResourceUtils.isSet(resource)) {
-        saveDensityByCategory(context, ncloc.getValue().intValue());
-      }
     }
   }
 
@@ -110,27 +80,6 @@ public class ViolationsDensityDecorator implements Decorator {
     double rci = (1.0 - ((double) debt / (double) ncloc)) * 100.0;
     rci = Math.max(rci, 0.0);
     return rci;
-  }
-
-  private void saveDensityByCategory(DecoratorContext context, int ncloc) {
-    Collection<RuleMeasure> categDebts = context.getMeasures(MeasuresFilters.ruleCategories(CoreMetrics.WEIGHTED_VIOLATIONS));
-    Set<Integer> categIdsDone = new HashSet<Integer>();
-    if (categDebts != null) {
-      for (RuleMeasure categDebt : categDebts) {
-        if (MeasureUtils.hasValue(categDebt)) {
-          double density = calculate(categDebt.getValue().intValue(), ncloc);
-          context.saveMeasure(RuleMeasure.createForCategory(
-              CoreMetrics.VIOLATIONS_DENSITY, categDebt.getRuleCategory(), density));
-          context.saveMeasure(metricByCategoryId.get(categDebt.getRuleCategory()), density);
-          categIdsDone.add(categDebt.getRuleCategory());
-        }
-      }
-    }
-    for (Map.Entry<Integer, Metric> entry : metricByCategoryId.entrySet()) {
-      if (!categIdsDone.contains(entry.getKey())) {
-        context.saveMeasure(entry.getValue(), 100.0);
-      }
-    }
   }
 
   @Override

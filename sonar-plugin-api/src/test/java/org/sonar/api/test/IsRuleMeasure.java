@@ -33,14 +33,12 @@ public class IsRuleMeasure extends BaseMatcher<Measure> {
 
   private Metric metric = null;
   private Rule rule = null;
-  private Integer category = null;
   private RulePriority priority = null;
   private Double value = null;
 
   public IsRuleMeasure(Metric metric, Rule rule, Integer category, RulePriority priority, Double value) {
     this.metric = metric;
     this.rule = rule;
-    this.category = category;
     this.priority = priority;
     this.value = value;
   }
@@ -52,7 +50,6 @@ public class IsRuleMeasure extends BaseMatcher<Measure> {
     RuleMeasure m = (RuleMeasure) o;
     return ObjectUtils.equals(metric, m.getMetric()) &&
         ObjectUtils.equals(rule, m.getRule()) &&
-        ObjectUtils.equals(category, m.getRuleCategory()) &&
         ObjectUtils.equals(priority, m.getRulePriority()) &&
         NumberUtils.compare(value, m.getValue()) == 0;
   }

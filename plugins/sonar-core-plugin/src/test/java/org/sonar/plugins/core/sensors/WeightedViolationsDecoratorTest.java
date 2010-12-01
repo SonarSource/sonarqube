@@ -20,7 +20,6 @@
 package org.sonar.plugins.core.sensors;
 
 import org.junit.Test;
-import static org.mockito.Mockito.*;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
@@ -30,12 +29,13 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.test.IsMeasure;
-import org.sonar.api.test.IsRuleMeasure;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.mockito.Mockito.*;
 
 
 public class WeightedViolationsDecoratorTest {
@@ -90,27 +90,6 @@ public class WeightedViolationsDecoratorTest {
     decorator.decorate(mock(Resource.class), context);
 
     verify(context, never()).saveMeasure((Measure) anyObject());
-  }
-
-  @Test
-  public void weightedViolationsOnCategories() {
-    Map<RulePriority, Integer> weights = createWeights();
-
-    WeightedViolationsDecorator decorator = new WeightedViolationsDecorator(weights);
-    DecoratorContext context = mock(DecoratorContext.class);
-
-    when(context.getMeasures((MeasuresFilter) anyObject())).thenReturn(createViolationsMeasures());
-
-    decorator.decorate(mock(Resource.class), context);
-
-    // categ 3
-    verify(context).saveMeasure(argThat(new IsRuleMeasure(
-        CoreMetrics.WEIGHTED_VIOLATIONS, null, 3, null, 40.0 * 0 + 80.0 * 5 + 90.0 * 10)));
-
-    // categ 4
-    verify(context).saveMeasure(argThat(new IsRuleMeasure(
-        CoreMetrics.WEIGHTED_VIOLATIONS, null, 4, null, 10.0 * 0 + 10.0 * 10)));
-
   }
 
 }

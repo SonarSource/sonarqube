@@ -105,9 +105,7 @@ public class StandardRulesXmlParser {
     xstream.registerConverter(new TrimStringConverter());
     xstream.alias("rules", ArrayList.class);
 
-    xstream.alias("categ", RulesCategory.class);
-    xstream.useAttributeFor(RulesCategory.class, "name");
-    xstream.aliasField("category", Rule.class, "rulesCategory");
+    xstream.omitField(Rule.class, "category");
 
     xstream.alias("rule", Rule.class);
     xstream.useAttributeFor(Rule.class, "key");

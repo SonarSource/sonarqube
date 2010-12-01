@@ -37,7 +37,6 @@ public class ViolationsDecorator implements Decorator {
 
   // temporary data for current resource
   private Multiset<Rule> rules = HashMultiset.create();
-  private Multiset<Integer> categories = HashMultiset.create();
   private Multiset<RulePriority> priorities = HashMultiset.create();
   private Map<Rule, RulePriority> ruleToLevel = new HashMap<Rule, RulePriority>();
   private int total = 0;
@@ -49,8 +48,7 @@ public class ViolationsDecorator implements Decorator {
   @DependedUpon
   public List<Metric> generatesViolationsMetrics() {
     return Arrays.asList(CoreMetrics.VIOLATIONS,
-        CoreMetrics.BLOCKER_VIOLATIONS, CoreMetrics.CRITICAL_VIOLATIONS, CoreMetrics.MAJOR_VIOLATIONS, CoreMetrics.MINOR_VIOLATIONS, CoreMetrics.INFO_VIOLATIONS,
-        CoreMetrics.USABILITY, CoreMetrics.MAINTAINABILITY, CoreMetrics.EFFICIENCY, CoreMetrics.PORTABILITY, CoreMetrics.RELIABILITY);
+        CoreMetrics.BLOCKER_VIOLATIONS, CoreMetrics.CRITICAL_VIOLATIONS, CoreMetrics.MAJOR_VIOLATIONS, CoreMetrics.MINOR_VIOLATIONS, CoreMetrics.INFO_VIOLATIONS);
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
@@ -65,7 +63,6 @@ public class ViolationsDecorator implements Decorator {
 
   private void resetCounters() {
     rules.clear();
-    categories.clear();
     priorities.clear();
     ruleToLevel.clear();
     total = 0;
@@ -76,7 +73,6 @@ public class ViolationsDecorator implements Decorator {
     countCurrentResourceViolations(context);
     saveTotalViolations(context);
     saveViolationsByPriority(context);
-    saveViolationsByCategory(context);
     saveViolationsByRule(context);
   }
 
@@ -105,18 +101,6 @@ public class ViolationsDecorator implements Decorator {
     return metric;
   }
 
-  private void saveViolationsByCategory(DecoratorContext context) {
-    Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.ruleCategories(CoreMetrics.VIOLATIONS));
-    for (Measure childMeasure : children) {
-      RuleMeasure childCategMeasure = (RuleMeasure) childMeasure;
-      categories.add(childCategMeasure.getRuleCategory(), childCategMeasure.getValue().intValue());
-    }
-
-    for (Multiset.Entry<Integer> entry : categories.entrySet()) {
-      context.saveMeasure(RuleMeasure.createForCategory(CoreMetrics.VIOLATIONS, entry.getElement(), (double) entry.getCount()));
-    }
-  }
-
   private void saveViolationsByRule(DecoratorContext context) {
     Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.rules(CoreMetrics.VIOLATIONS));
     for (Measure childMeasure : children) {
@@ -130,7 +114,6 @@ public class ViolationsDecorator implements Decorator {
     for (Multiset.Entry<Rule> entry : rules.entrySet()) {
       Rule rule = entry.getElement();
       RuleMeasure measure = RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule, (double) entry.getCount());
-      measure.setRuleCategory(rule.getCategoryId());
       measure.setRulePriority(ruleToLevel.get(rule));
       context.saveMeasure(measure);
     }
@@ -146,7 +129,6 @@ public class ViolationsDecorator implements Decorator {
     List<Violation> violations = context.getViolations();
     for (Violation violation : violations) {
       rules.add(violation.getRule());
-      categories.add(violation.getRule().getCategoryId());
       priorities.add(violation.getPriority());
       ruleToLevel.put(violation.getRule(), violation.getPriority());
     }

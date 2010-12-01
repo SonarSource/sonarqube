@@ -56,10 +56,6 @@ public final class Rule {
   @Column(name = "plugin_config_key", updatable = true, nullable = true)
   private String configKey;
 
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "rules_category_id", updatable = true, nullable = true)
-  private RulesCategory rulesCategory;
-
   @Column(name = "priority", updatable = true, nullable = true)
   @Enumerated(EnumType.ORDINAL)
   private RulePriority priority = DEFAULT_PRIORITY;
@@ -123,7 +119,6 @@ public final class Rule {
     setName(name);
     this.key = key;
     this.configKey = key;
-    this.rulesCategory = rulesCategory;
     this.priority = priority;
     this.pluginName = pluginKey;
   }
@@ -137,7 +132,6 @@ public final class Rule {
     setName(name);
     this.key = key;
     this.configKey = key;
-    this.rulesCategory = rulesCategory;
     this.pluginName = pluginName;
     this.description = description;
   }
@@ -151,7 +145,6 @@ public final class Rule {
     setName(name);
     this.key = key;
     this.configKey = configKey;
-    this.rulesCategory = rulesCategory;
     this.pluginName = pluginName;
     this.description = description;
   }
@@ -193,17 +186,18 @@ public final class Rule {
   }
 
   /**
-   * @return the rule category
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
    */
+  @Deprecated
   public RulesCategory getRulesCategory() {
-    return rulesCategory;
+    return null;
   }
 
   /**
-   * Sets the rule category
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
    */
+  @Deprecated
   public Rule setRulesCategory(RulesCategory rulesCategory) {
-    this.rulesCategory = rulesCategory;
     return this;
   }
 
@@ -295,10 +289,11 @@ public final class Rule {
     return parameter;
   }
 
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public Integer getCategoryId() {
-    if (rulesCategory != null) {
-      return rulesCategory.getId();
-    }
     return null;
   }
 
@@ -380,7 +375,6 @@ public final class Rule {
         .append("name", name)
         .append("key", key)
         .append("configKey", configKey)
-        .append("categ", rulesCategory)
         .append("plugin", pluginName)
         .toString();
   }

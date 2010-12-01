@@ -19,6 +19,10 @@
  */
 package org.sonar.check;
 
+/**
+ * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2007
+ */
+@Deprecated
 public enum IsoCategory {
 
   Reliability, Efficiency, Portability, Usability, Maintainability, NONE

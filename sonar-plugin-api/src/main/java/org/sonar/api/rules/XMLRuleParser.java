@@ -134,11 +134,6 @@ public final class XMLRuleParser implements ServerComponent {
       } else if (StringUtils.equalsIgnoreCase("priority", nodeName)) {
         rule.setPriority(RulePriority.valueOf(StringUtils.trim(cursor.collectDescendantText(false))));
 
-      } else if (StringUtils.equalsIgnoreCase("category", nodeName)) {
-        /* BACKWARD COMPATIBILITY WITH DEPRECATED FORMAT : attribute "name" */
-        String category = StringUtils.trim(StringUtils.defaultString(cursor.getAttrValue("name"), cursor.collectDescendantText(false)));
-        rule.setRulesCategory(new RulesCategory(category));
-
       } else if (StringUtils.equalsIgnoreCase("cardinality", nodeName)) {
         rule.setCardinality(Cardinality.valueOf(StringUtils.trim(cursor.collectDescendantText(false))));
 

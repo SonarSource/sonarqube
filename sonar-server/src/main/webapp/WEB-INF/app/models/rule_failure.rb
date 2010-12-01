@@ -30,8 +30,7 @@ class RuleFailure < ActiveRecord::Base
     json['priority'] = Sonar::RulePriority.to_s(failure_level).upcase
     json['rule'] = {
       :key => rule.key,
-      :name => rule.name,
-      :category => rule.category.name}
+      :name => rule.name}
     json['resource'] = {
       :key => snapshot.project.key,
       :name => snapshot.project.name,
@@ -49,7 +48,6 @@ class RuleFailure < ActiveRecord::Base
       xml.rule do
         xml.key(rule.key)
         xml.name(rule.name)
-        xml.category(rule.category.name)
       end
       xml.resource do
         xml.key(snapshot.project.key)

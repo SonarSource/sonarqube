@@ -19,10 +19,9 @@
  */
 package org.sonar.api.rules;
 
-import org.sonar.check.IsoCategory;
 import org.sonar.check.RuleProperty;
 
-@org.sonar.check.Rule(key = "overridden_key", name = "Check with parameters", description = "Has parameters", isoCategory = IsoCategory.Efficiency)
+@org.sonar.check.Rule(key = "overridden_key", name = "Check with parameters", description = "Has parameters")
 public class AnnotatedCheckWithParameters {
 
   @RuleProperty(description = "Maximum value")

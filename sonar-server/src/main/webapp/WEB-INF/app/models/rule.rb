@@ -19,10 +19,9 @@
 #
 class Rule < ActiveRecord::Base
 
-  validates_presence_of :name, :rules_category_id, :plugin_rule_key, :plugin_config_key, :plugin_name
+  validates_presence_of :name, :plugin_rule_key, :plugin_config_key, :plugin_name
 
   has_many :rules_parameters
-  belongs_to :rules_category
   has_many :rule_failures
   has_many :active_rules
   belongs_to :parent, :class_name => 'Rule', :foreign_key => 'parent_id'
@@ -41,21 +40,6 @@ class Rule < ActiveRecord::Base
 
   def priority_text
     Sonar::RulePriority.to_s(priority)
-  end
-
-  def rules_category
-    category
-  end
-
-  def category
-    @rules_category ||=
-      begin
-      RulesCategory.by_id(rules_category_id)
-    end
-  end
-
-  def category=(c)
-    @rules_category = c
   end
 
   def key
@@ -103,7 +87,7 @@ class Rule < ActiveRecord::Base
   end
 
   def to_hash_json(profile)
-    json = {'title' => name, 'key' => key, 'category' => rules_category.name, 'plugin' => plugin_name}
+    json = {'title' => name, 'key' => key, 'plugin' => plugin_name}
     json['description'] = description
     active_rule = nil
     if profile
@@ -127,7 +111,6 @@ class Rule < ActiveRecord::Base
     xml.rule do
       xml.title(name)
       xml.key(key)
-      xml.category(rules_category.name)
       xml.plugin(plugin_name)
       xml.description {xml.cdata!(description)}
       active_rule = nil
@@ -150,7 +133,7 @@ class Rule < ActiveRecord::Base
   end
 
   def to_csv(profile)
-    csv = [name.strip, plugin_rule_key, rules_category.name, plugin_name]
+    csv = [name.strip, plugin_rule_key, plugin_name]
     if profile
       active_rule = profile.active_by_rule_id(id)
       if active_rule
@@ -165,7 +148,7 @@ class Rule < ActiveRecord::Base
   end
 
 
-  # options :language => nil, :categories => [], :plugins => [], :searchtext => '', :profile => nil, :priorities => [], :status =>
+  # options :language => nil, :plugins => [], :searchtext => '', :profile => nil, :priorities => [], :status =>
   def self.search(java_facade, options={})
     conditions = ['enabled=:enabled']
     values = {:enabled => true}
@@ -187,11 +170,6 @@ class Rule < ActiveRecord::Base
         conditions << "plugin_name IN (:plugin_names)"
         values[:plugin_names] = plugins
       end
-    end
-
-    if remove_blank(options[:categories])
-      conditions << "rules_category_id IN (:category_ids)"
-      values[:category_ids] = RulesCategory.find(:all, :select => 'id', :conditions => { :name => options[:categories] }).map(&:id)
     end
 
     unless options[:searchtext].blank?

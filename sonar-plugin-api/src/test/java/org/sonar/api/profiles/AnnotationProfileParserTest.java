@@ -28,7 +28,6 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.check.BelongsToProfile;
-import org.sonar.check.IsoCategory;
 import org.sonar.check.Priority;
 
 import static org.hamcrest.Matchers.is;
@@ -75,11 +74,11 @@ public class AnnotationProfileParserTest {
 }
 
 @BelongsToProfile(title = "Other profile", priority = Priority.BLOCKER)
-@org.sonar.check.Rule(key = "other", isoCategory = IsoCategory.Efficiency, priority = Priority.CRITICAL)
+@org.sonar.check.Rule(key = "other", priority = Priority.CRITICAL)
 class RuleOnOtherProfile {
 }
 
 @BelongsToProfile(title = "Foo way", priority = Priority.BLOCKER)
-@org.sonar.check.Rule(key = "fake", isoCategory = IsoCategory.Efficiency, priority = Priority.CRITICAL)
+@org.sonar.check.Rule(key = "fake", priority = Priority.CRITICAL)
 class FakeRule {
 }

@@ -19,19 +19,6 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
@@ -41,14 +28,19 @@ import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.api.rules.RulesCategory;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.api.test.IsRuleMeasure;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.*;
+
 public class ViolationsDecoratorTest {
-  private RulesCategory categA;
-  private RulesCategory categB;
   private Rule ruleA1;
   private Rule ruleA2;
   private Rule ruleB1;
@@ -58,15 +50,9 @@ public class ViolationsDecoratorTest {
 
   @Before
   public void before() {
-    categA = new RulesCategory("Maintainability");
-    categA.setId(1);
-
-    categB = new RulesCategory("Usability");
-    categB.setId(2);
-
-    ruleA1 = Rule.create().setPluginName("ruleA1").setKey("ruleA1").setName("nameA1").setRulesCategory(categA);
-    ruleA2 = Rule.create().setPluginName("ruleA2").setKey("ruleA2").setName("nameA2").setRulesCategory(categA);
-    ruleB1 = Rule.create().setPluginName("ruleB1").setKey("ruleB1").setName("nameB1").setRulesCategory(categB);
+    ruleA1 = Rule.create().setPluginName("ruleA1").setKey("ruleA1").setName("nameA1");
+    ruleA2 = Rule.create().setPluginName("ruleA2").setKey("ruleA2").setName("nameA2");
+    ruleB1 = Rule.create().setPluginName("ruleB1").setKey("ruleB1").setName("nameB1");
 
     decorator = new ViolationsDecorator();
     resource = mock(Resource.class);
@@ -140,18 +126,6 @@ public class ViolationsDecoratorTest {
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.MAJOR_VIOLATIONS, 1.0)));
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.MINOR_VIOLATIONS, 1.0)));
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.INFO_VIOLATIONS, 0.0)));
-  }
-
-  @Test
-  public void categoryViolations() throws Exception {
-    when(resource.getScope()).thenReturn(Resource.SCOPE_SET);
-    when(context.getViolations()).thenReturn(createViolations());
-    when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure> emptyList());
-
-    decorator.decorate(resource, context);
-
-    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.VIOLATIONS, null, categA.getId(), null, 3.0)));
-    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.VIOLATIONS, null, categB.getId(), null, 1.0)));
   }
 
   private List<Violation> createViolations() {

@@ -39,7 +39,6 @@ public final class ResourcesQuery extends AbstractResourceQuery<Resources> {
   private String qualifiers;
   private String metrics;
   private String rules;
-  private String ruleCategories;
   private String rulePriorities;
   private boolean verbose = false;
 
@@ -80,8 +79,12 @@ public final class ResourcesQuery extends AbstractResourceQuery<Resources> {
     return setRulePriorities(b ? "true" : "false");
   }
 
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public ResourcesQuery filterOnRuleCategories(boolean b) {
-    return setRuleCategories(b ? "true" : "false");
+    return this;
   }
 
   public ResourcesQuery setRulePriorities(String s) {
@@ -89,8 +92,11 @@ public final class ResourcesQuery extends AbstractResourceQuery<Resources> {
     return this;
   }
 
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public ResourcesQuery setRuleCategories(String s) {
-    this.ruleCategories = s;
     return this;
   }
 
@@ -160,9 +166,6 @@ public final class ResourcesQuery extends AbstractResourceQuery<Resources> {
     }
     if (rules != null) {
       url += "rules=" + rules + "&";
-    }
-    if (ruleCategories != null) {
-      url += "rule_categories=" + ruleCategories + "&";
     }
     if (rulePriorities != null) {
       url += "rule_priorities=" + rulePriorities + "&";
@@ -247,7 +250,6 @@ public final class ResourcesQuery extends AbstractResourceQuery<Resources> {
 
     m.setRuleKey(JsonUtils.getString(measure, "rule_key"));
     m.setRuleName(JsonUtils.getString(measure, "rule_name"));
-    m.setRuleCategory(JsonUtils.getString(measure, "rule_category"));
     m.setRulePriority(JsonUtils.getString(measure, "rule_priority"));
     m.setDate(date);
     return m;

@@ -2,11 +2,11 @@
   <rules_categories id="1" name="Efficiency" description="[null]"/>
   <rules_categories id="6" name="Usability" description="[null]"/>
 
-  <rules id="30" name="Check Header" rules_category_id="6" plugin_rule_key="com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck"
+  <rules id="30" name="Check Header" plugin_rule_key="com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck"
          plugin_config_key="Checker/Treewalker/HeaderCheck" plugin_name="checkstyle" description="[null]" priority="4" enabled="true"
          cardinality="SINGLE" parent_id="[null]"/>
 
-  <rules id="31" name="Equals Avoid Null" rules_category_id="6" plugin_rule_key="com.puppycrawl.tools.checkstyle.checks.coding.EqualsAvoidNullCheck"
+  <rules id="31" name="Equals Avoid Null" plugin_rule_key="com.puppycrawl.tools.checkstyle.checks.coding.EqualsAvoidNullCheck"
          plugin_config_key="Checker/TreeWalker/EqualsAvoidNull" plugin_name="checkstyle" description="[null]" priority="4" enabled="true"
          cardinality="SINGLE" parent_id="[null]"/>
 

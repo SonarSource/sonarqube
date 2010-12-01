@@ -17,32 +17,25 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-module DashboardHelper
-  include WidgetPropertiesHelper
+class DeleteIsoRuleCategories < ActiveRecord::Migration
 
-  def active_widgets_ids_formatted(column)
-    active_widget_ids=[]
-    @dashboard.widgets.find(:all, :conditions => {:column_index => column}, :order => 'row_index ASC').each do |widget|
-      widget_view=nil
-      found_index=-1
-      @widgets.each_with_index {|item, index|
-        if item.getId()==widget.widget_key
-          found_index=index
-        end
-      }
-      if found_index>-1
-        active_widget_ids=active_widget_ids << (widget.widget_key+"_"+found_index.to_s())
-      end
+  def self.up
+    remove_rule_categories
+    delete_measures_on_iso_category
+  end
+
+  private
+
+  def self.remove_rule_categories
+    begin
+      remove_column('rules', 'rules_category_id')
+    rescue
+      # already removed
     end
-    return "\'"+active_widget_ids.join("\',\'")+"\'"
   end
 
-  def formatted_value(measure, default='')
-    measure ? measure.formatted_value : default
+  def self.delete_measures_on_iso_category
+    puts "If the following step fails, please execute the SQL request 'DELETE FROM PROJECT_MEASURES WHERE RULE_ID IS NULL AND RULES_CATEGORY_ID IS NOT NULL' and restart Sonar."
+    ProjectMeasure.delete_all('rule_id is null and rules_category_id is not null')
   end
-
-  def measure(metric_key)
-    @snapshot.measure(metric_key)
-  end
-
 end

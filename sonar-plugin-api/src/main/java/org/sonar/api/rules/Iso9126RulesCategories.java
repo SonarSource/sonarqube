@@ -23,6 +23,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2007
+ */
+@Deprecated
 public final class Iso9126RulesCategories {
   private Iso9126RulesCategories() {
   }
