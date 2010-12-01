@@ -26,6 +26,7 @@ import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
@@ -44,6 +45,11 @@ public class NewViolationsDecorator implements Decorator {
 
   public boolean shouldExecuteOnProject(Project project) {
     return true;
+  }
+
+  @DependedUpon
+  public Metric generatesMetric() {
+    return CoreMetrics.NEW_VIOLATIONS;
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
@@ -110,6 +116,6 @@ public class NewViolationsDecorator implements Decorator {
 
   @Override
   public String toString() {
-    return getClass().toString();
+    return getClass().getSimpleName();
   }
 }
