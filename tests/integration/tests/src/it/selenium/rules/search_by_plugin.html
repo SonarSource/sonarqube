@@ -32,31 +32,30 @@
 	<td>label=Checkstyle</td>
 </tr>
 <tr>
-	<td>select</td>
-	<td>search_category</td>
-	<td>label=Efficiency</td>
-</tr>
-<tr>
 	<td>clickAndWait</td>
 	<td>submit_search</td>
 	<td></td>
 </tr>
 <tr>
-	<td>assertXpathCount</td>
-	<td>//*[contains(text(), 'Findbugs')]</td>
-	<td>1</td>
+	<td>assertText</td>
+	<td>result_table</td>
+	<td>glob:*Checkstyle*</td>
 </tr>
 <tr>
-	<td>assertXpathCount</td>
-	<td>//*[contains(text(), 'Checkstyle')]</td>
-	<td>2</td>
+	<td>assertText</td>
+	<td>result_table</td>
+	<td>glob:*Pmd*</td>
 </tr>
 <tr>
-	<td>assertXpathCount</td>
-	<td>//*[contains(text(), 'Pmd')]</td>
-	<td>14</td>
+	<td>assertNotText</td>
+	<td>result_table</td>
+	<td>glob:*Findbugs*</td>
 </tr>
-
+<tr>
+	<td>assertNotText</td>
+	<td>result_table</td>
+	<td>glob:*Squid*</td>
+</tr>
 </tbody></table>
 </body>
 </html>

@@ -33,16 +33,6 @@
 </tr>
 <tr>
 	<td>select</td>
-	<td>search_category</td>
-	<td>label=Maintainability</td>
-</tr>
-<tr>
-	<td>addSelection</td>
-	<td>search_category</td>
-	<td>label=Reliability</td>
-</tr>
-<tr>
-	<td>select</td>
 	<td>search_priority</td>
 	<td>label=Critical</td>
 </tr>
@@ -57,29 +47,24 @@
 	<td>label=Any</td>
 </tr>
 <tr>
-	<td>click</td>
+	<td>clickAndWait</td>
 	<td>submit_search</td>
 	<td></td>
 </tr>
 <tr>
-	<td>waitForTextPresent</td>
-	<td>44 results</td>
+	<td>waitForElementPresent</td>
+	<td>result_table</td>
 	<td></td>
 </tr>
 <tr>
-	<td>assertXpathCount</td>
-	<td>//*[contains(text(), 'Checkstyle')]</td>
-	<td>45</td>
+	<td>assertText</td>
+	<td>result_table</td>
+	<td>glob:*Abstract Class Name*</td>
 </tr>
 <tr>
-	<td>assertXpathCount</td>
-	<td>//*[contains(text(), 'Pmd')]</td>
-	<td>0</td>
-</tr>
-<tr>
-	<td>assertXpathCount</td>
-	<td>//*[contains(text(), 'Findbugs')]</td>
-	<td>1</td>
+	<td>assertText</td>
+	<td>result_table</td>
+	<td>glob:*Anon Inner Length *</td>
 </tr>
 <tr>
 	<td>select</td>
@@ -92,26 +77,20 @@
 	<td></td>
 </tr>
 <tr>
-	<td>assertTextPresent</td>
-	<td>34 results</td>
+	<td>waitForElementPresent</td>
+	<td>result_table</td>
 	<td></td>
 </tr>
 <tr>
-	<td>assertXpathCount</td>
-	<td>//*[contains(text(), 'Checkstyle')]</td>
-	<td>35</td>
+	<td>assertText</td>
+	<td>result_table</td>
+	<td>glob:*Abstract Class Name *</td>
 </tr>
 <tr>
-	<td>assertXpathCount</td>
-	<td>//*[contains(text(), 'Pmd')]</td>
-	<td>0</td>
+	<td>assertNotText</td>
+	<td>result_table</td>
+	<td>glob:*Anon Inner Length *</td>
 </tr>
-<tr>
-	<td>assertXpathCount</td>
-	<td>//*[contains(text(), 'Findbugs')]</td>
-	<td>1</td>
-</tr>
-
 </tbody></table>
 </body>
 </html>
