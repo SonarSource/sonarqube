@@ -68,8 +68,8 @@ public class ViolationsPanel extends SourcePanel {
     filteredViolationsByLine.clear();
     for (Violation violation : violations) {
       if (filter == null || filter.equals("") || violation.getRuleKey().equals(filter) || violation.getPriority().equals(filter)) {
-        Integer line=0;
-        if (violation.getLine()!=null) {
+        Integer line = 0;
+        if (violation.getLine() != null) {
           line = violation.getLine();
         }
         List<Violation> lineViolations = filteredViolationsByLine.get(line);
@@ -115,7 +115,6 @@ public class ViolationsPanel extends SourcePanel {
     return rows;
   }
 
-
   public static class ViolationRow extends Row {
     private Violation violation;
 
@@ -141,7 +140,12 @@ public class ViolationsPanel extends SourcePanel {
     @Override
     public String getColumn4() {
       return "<div class=\"warn\">" + Icons.forPriority(violation.getPriority()).getHTML() + "</img> "
-          + "<a href=\"" + Links.urlForRule(violation.getRuleKey(), false) + "\" onclick=\"window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;\" title=\"" + violation.getRuleKey() + "\"><b>" + Utils.escapeHtml(violation.getRuleName()) + "</b></a> : " + Utils.escapeHtml(violation.getMessage()) + "</div>";
+          + Utils.formatDateTime(violation.getCreatedAt())
+          + " <a href=\"" + Links.urlForRule(violation.getRuleKey(), false)
+          + "\" onclick=\"window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;\" title=\""
+          + violation.getRuleKey() + "\"><b>"
+          + Utils.escapeHtml(violation.getRuleName()) + "</b></a> : "
+          + Utils.escapeHtml(violation.getMessage()) + "</div>";
     }
   }
 

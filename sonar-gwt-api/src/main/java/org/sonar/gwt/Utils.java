@@ -19,6 +19,10 @@
  */
 package org.sonar.gwt;
 
+import java.util.Date;
+
+import com.google.gwt.i18n.client.DateTimeFormat;
+
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
@@ -56,6 +60,20 @@ public final class Utils {
 
   public static String formatNumber(double number) {
     return NumberFormat.getDecimalFormat().format(number);
+  }
+  
+  /**
+   * @since 2.5
+   */
+  public static String formatDate(Date date) {
+    return date == null ? "" : DateTimeFormat.getFormat("dd/MM/yy").format(date);
+  }
+  
+  /**
+   * @since 2.5
+   */
+  public static String formatDateTime(Date date) {
+    return date == null ? "" : DateTimeFormat.getFormat("dd/MM/yy HH:mm").format(date);
   }
 
   public static native void showError(String message) /*-{
