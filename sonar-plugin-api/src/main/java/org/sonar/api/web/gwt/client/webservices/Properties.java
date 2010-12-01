@@ -21,6 +21,10 @@ package org.sonar.api.web.gwt.client.webservices;
 
 import java.util.List;
 
+/**
+ * @deprecated since 2.5
+ */
+@Deprecated
 public class Properties extends ResponsePOJO {
 
   private List<Property> properties;
@@ -32,10 +36,10 @@ public class Properties extends ResponsePOJO {
   public List<Property> getProperties() {
     return properties;
   }
-  
+
   public String get(String key, String defaultValue) {
     for (Property property : properties) {
-      if( property.getKey().equals(key)) {
+      if (property.getKey().equals(key)) {
         return property.getValue();
       }
     }

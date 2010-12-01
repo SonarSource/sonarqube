@@ -19,6 +19,10 @@
  */
 package org.sonar.api.web.gwt.client.webservices;
 
+/**
+ * @deprecated since 2.5, use {@link org.sonar.wsclient.services.Violation} instead.
+ */
+@Deprecated
 public class Violation {
 
   private String message;

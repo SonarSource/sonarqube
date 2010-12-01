@@ -19,18 +19,21 @@
  */
 package org.sonar.api.web.gwt.client.webservices;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.sonar.api.web.gwt.client.Utils;
-import org.sonar.api.web.gwt.client.webservices.WSMetrics.MetricsList;
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
+import org.sonar.api.web.gwt.client.Utils;
+import org.sonar.api.web.gwt.client.webservices.WSMetrics.MetricsList;
 
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @deprecated since 2.5, use {@link org.sonar.wsclient.services.MetricQuery} instead.
+ */
+@Deprecated
 public final class MetricsQuery extends Query<MetricsList> {
-  
+
   private Boolean userManaged;
   private List<WSMetrics.Metric.ValueType> excludedTypes = new ArrayList<WSMetrics.Metric.ValueType>();
 
@@ -41,7 +44,7 @@ public final class MetricsQuery extends Query<MetricsList> {
   private MetricsQuery() {
     super();
   }
-  
+
   public Boolean isUserManaged() {
     return userManaged;
   }
@@ -50,7 +53,7 @@ public final class MetricsQuery extends Query<MetricsList> {
     this.userManaged = userManaged;
     return this;
   }
-  
+
   public MetricsQuery excludeTypes(WSMetrics.Metric.ValueType... types) {
     for (WSMetrics.Metric.ValueType valueType : types) {
       excludedTypes.add(valueType);
@@ -98,7 +101,8 @@ public final class MetricsQuery extends Query<MetricsList> {
     boolean qualitative = JsonUtils.getBoolean(json, "qualitative");
     boolean userManaged = JsonUtils.getBoolean(json, "user_managed");
     Integer direction = JsonUtils.getInteger(json, "direction");
-    return new WSMetrics.Metric(key, name, description, domain, qualitative, userManaged, direction, WSMetrics.Metric.ValueType.valueOf(type));
+    return new WSMetrics.Metric(key, name, description, domain, qualitative, userManaged, direction,
+        WSMetrics.Metric.ValueType.valueOf(type));
   }
 
 }

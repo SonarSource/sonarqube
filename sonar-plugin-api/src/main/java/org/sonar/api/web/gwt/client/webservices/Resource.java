@@ -21,6 +21,10 @@ package org.sonar.api.web.gwt.client.webservices;
 
 import java.util.List;
 
+/**
+ * @deprecated since 2.5, use {@link org.sonar.wsclient.services.Resource} instead.
+ */
+@Deprecated
 public class Resource extends ResponsePOJO {
   public static final String SCOPE_SET = "PRJ";
   public static final String SCOPE_SPACE = "DIR";

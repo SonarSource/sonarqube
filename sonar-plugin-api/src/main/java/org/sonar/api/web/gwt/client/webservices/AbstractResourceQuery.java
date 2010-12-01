@@ -19,7 +19,10 @@
  */
 package org.sonar.api.web.gwt.client.webservices;
 
-
+/**
+ * @deprecated since 2.5
+ */
+@Deprecated
 public abstract class AbstractResourceQuery<R extends ResponsePOJO> extends Query<R> {
 
   private String resourceKey;

@@ -19,6 +19,10 @@
  */
 package org.sonar.api.web.gwt.client.webservices;
 
+/**
+ * @deprecated since 2.5, use {@link org.sonar.wsclient.services.Property} instead
+ */
+@Deprecated
 public class Property extends ResponsePOJO {
 
   private String key;

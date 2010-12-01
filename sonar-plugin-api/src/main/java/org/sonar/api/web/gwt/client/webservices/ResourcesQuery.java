@@ -29,6 +29,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @deprecated since 2.5, use {@link org.sonar.wsclient.services.ResourceQuery} instead
+ */
+@Deprecated
 public final class ResourcesQuery extends AbstractResourceQuery<Resources> {
 
   public final static int DEPTH_UNLIMITED = -1;

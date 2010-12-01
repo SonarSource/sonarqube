@@ -27,6 +27,10 @@ import org.sonar.api.web.gwt.client.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @deprecated since 2.5, use {@link org.sonar.wsclient.services.PropertyQuery} instead.
+ */
+@Deprecated
 public final class PropertiesQuery extends Query<Properties> {
 
   private String key;

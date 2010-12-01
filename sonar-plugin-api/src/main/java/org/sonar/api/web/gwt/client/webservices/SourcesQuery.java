@@ -28,6 +28,10 @@ import org.sonar.api.web.gwt.client.Utils;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * @deprecated since 2.5, use {@link org.sonar.wsclient.services.SourceQuery} instead
+ */
+@Deprecated
 public final class SourcesQuery extends AbstractResourceQuery<FileSource> {
 
   private Integer from;
@@ -83,9 +87,11 @@ public final class SourcesQuery extends AbstractResourceQuery<FileSource> {
     Map<Integer, String> sourceLines = new TreeMap<Integer, String>();
     FileSource src = new FileSource(sourceLines);
     JSONArray jsonArray = new JSONArray(obj);
-    if (jsonArray.size() == 0) return src;
+    if (jsonArray.size() == 0)
+      return src;
     JSONObject sources = jsonArray.get(0).isObject();
-    if (sources.size() == 0) return src;
+    if (sources.size() == 0)
+      return src;
     int maxSize = new Double(Math.pow(2, 16)).intValue();
     int currentLine = from == 0 ? 1 : from;
     while (currentLine < maxSize) {

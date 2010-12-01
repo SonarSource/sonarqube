@@ -23,6 +23,10 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * @deprecated since 2.5, use {@link org.sonar.wsclient.services.Measure} instead.
+ */
+@Deprecated
 public class Measure {
   private String metric;
   private String metricName;
@@ -33,7 +37,7 @@ public class Measure {
   private String ruleKey;
   private String ruleName;
   private String rulePriority;
-  
+
   private Date date;
 
   public Measure() {
@@ -129,7 +133,7 @@ public class Measure {
   public void setRulePriority(String rulePriority) {
     this.rulePriority = rulePriority;
   }
-  
+
   public Date getDate() {
     return date;
   }

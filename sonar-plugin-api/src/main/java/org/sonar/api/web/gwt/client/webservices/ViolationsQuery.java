@@ -26,6 +26,10 @@ import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 import org.sonar.api.web.gwt.client.Utils;
 
+/**
+ * @deprecated since 2.5, use {@link org.sonar.wsclient.services.ViolationQuery} instead.
+ */
+@Deprecated
 public final class ViolationsQuery extends AbstractResourceQuery<Violations> {
 
   private String scopes;

@@ -21,6 +21,10 @@ package org.sonar.api.web.gwt.client.webservices;
 
 import java.util.Map;
 
+/**
+ * @deprecated since 2.5, use {@link org.sonar.wsclient.services.Source} instead.
+ */
+@Deprecated
 public class FileSource extends ResponsePOJO {
 
   private Map<Integer, String> sourceLines;

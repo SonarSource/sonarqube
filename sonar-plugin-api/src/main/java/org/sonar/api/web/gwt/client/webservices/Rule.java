@@ -19,6 +19,10 @@
  */
 package org.sonar.api.web.gwt.client.webservices;
 
+/**
+ * @deprecated since 2.5
+ */
+@Deprecated
 public class Rule extends ResponsePOJO {
   private String key;
   private String name;
@@ -27,7 +31,6 @@ public class Rule extends ResponsePOJO {
     this.key = key;
     this.name = name;
   }
-
 
   public String getKey() {
     return key;

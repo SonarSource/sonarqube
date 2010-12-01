@@ -21,6 +21,10 @@ package org.sonar.api.web.gwt.client.webservices;
 
 import java.util.List;
 
+/**
+ * @deprecated since 2.5
+ */
+@Deprecated
 public class Resources extends ResponsePOJO {
 
   private List<Resource> resources;
@@ -33,7 +37,7 @@ public class Resources extends ResponsePOJO {
   public List<Resource> getResources() {
     return resources;
   }
-  
+
   public Resource firstResource() {
     return resources.size() > 0 ? resources.get(0) : null;
   }
@@ -55,7 +59,7 @@ public class Resources extends ResponsePOJO {
     }
     return true;
   }
-  
+
   public boolean isEmpty() {
     return resources == null || resources.isEmpty();
   }

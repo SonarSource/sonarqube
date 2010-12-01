@@ -24,6 +24,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @deprecated since 2.5
+ */
+@Deprecated
 public class Violations extends ResponsePOJO {
   private List<Violation> violations;
   private Map<Integer, List<Violation>> byLines;
@@ -45,7 +49,6 @@ public class Violations extends ResponsePOJO {
     return violations;
   }
 
-
   public Map<Integer, List<Violation>> getByLines() {
     if (byLines == null) {
       byLines = new HashMap<Integer, List<Violation>>();
@@ -66,7 +69,8 @@ public class Violations extends ResponsePOJO {
     String level = "";
     if (lineViolations != null) {
       for (Violation lineViolation : lineViolations) {
-        if ("BLOCKER".equals(lineViolation.getPriority()) || "CRITICAL".equals(lineViolation.getPriority()) || "MAJOR".equals(lineViolation.getPriority())) {
+        if ("BLOCKER".equals(lineViolation.getPriority()) || "CRITICAL".equals(lineViolation.getPriority())
+            || "MAJOR".equals(lineViolation.getPriority())) {
           level = "error";
 
         } else if (!"error".equals(level)) {
