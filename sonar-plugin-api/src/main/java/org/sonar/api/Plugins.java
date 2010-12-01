@@ -24,10 +24,10 @@ import org.sonar.api.platform.PluginRepository;
 import java.util.Collection;
 
 /**
- * Plugins dictionnary. This class is for internal use
- *
+ * Plugins dictionary. This class is for internal use
+ * 
  * @since 1.10
- * @deprecated
+ * @deprecated since 2.1
  */
 public class Plugins {
 
