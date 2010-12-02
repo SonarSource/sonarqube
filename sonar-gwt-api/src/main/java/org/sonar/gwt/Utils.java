@@ -68,13 +68,6 @@ public final class Utils {
   public static String formatDate(Date date) {
     return date == null ? "" : DateTimeFormat.getShortDateFormat().format(date);
   }
-  
-  /**
-   * @since 2.5
-   */
-  public static String formatDateTime(Date date) {
-    return date == null ? "" : DateTimeFormat.getShortDateTimeFormat().format(date);
-  }
 
   public static native void showError(String message) /*-{
     $wnd.error(message);

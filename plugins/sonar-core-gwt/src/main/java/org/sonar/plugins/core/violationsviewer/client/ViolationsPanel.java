@@ -140,7 +140,7 @@ public class ViolationsPanel extends SourcePanel {
     @Override
     public String getColumn4() {
       return "<div class=\"warn\">" + Icons.forPriority(violation.getPriority()).getHTML() + "</img> "
-          + Utils.formatDateTime(violation.getCreatedAt())
+          + Utils.formatDate(violation.getCreatedAt())
           + " <a href=\"" + Links.urlForRule(violation.getRuleKey(), false)
           + "\" onclick=\"window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;\" title=\""
           + violation.getRuleKey() + "\"><b>"
