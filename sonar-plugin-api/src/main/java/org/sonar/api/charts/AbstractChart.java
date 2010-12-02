@@ -26,11 +26,12 @@ import org.jfree.chart.renderer.AbstractRenderer;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.Values2D;
 
-import java.awt.*;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 /**
  * An extension point to generate JFreeChart charts
+ * 
  * @since 1.10
  */
 public abstract class AbstractChart implements Chart {
@@ -38,8 +39,8 @@ public abstract class AbstractChart implements Chart {
   public static final int FONT_SIZE = 13;
   public static final Color OUTLINE_COLOR = new Color(51, 51, 51);
   public static final Color GRID_COLOR = new Color(204, 204, 204);
-  public static final Color[] COLORS = new Color[]{Color.decode("#4192D9"), Color.decode("#800000"), Color.decode("#A7B307"), Color.decode("#913C9F"), Color.decode("#329F4D")};
-
+  public static final Color[] COLORS = new Color[] { Color.decode("#4192D9"), Color.decode("#800000"), Color.decode("#A7B307"),
+      Color.decode("#913C9F"), Color.decode("#329F4D") };
 
   protected abstract Plot getPlot(ChartParameters params);
 
@@ -49,7 +50,7 @@ public abstract class AbstractChart implements Chart {
 
   /**
    * Generates a JFreeChart chart using a set of parameters
-   *
+   * 
    * @param params the chart parameters
    * @return the generated chart
    */
@@ -73,7 +74,6 @@ public abstract class AbstractChart implements Chart {
   public String toString() {
     return getKey();
   }
-
 
   /**
    * Helper to set color of series. If the parameter colorsHex is null, then default Sonar colors are used.
