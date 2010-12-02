@@ -19,7 +19,7 @@
  */
 package org.sonar.api.measures;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.qualitymodel.Characteristic;
 
 import java.math.BigDecimal;
@@ -382,7 +382,7 @@ public class Measure {
   }
 
   /**
-   * Sets the tendency for the measure
+   * Sets the tendency for the measure - Internal use only
    * 
    * @param tendency the tendency
    * @return the measure object instance
@@ -412,11 +412,17 @@ public class Measure {
 
   /**
    * @return the first variation value
+   * @since 2.5
    */
   public Double getVariation1() {
     return variation1;
   }
 
+  /**
+   * Internal use only
+   * 
+   * @since 2.5
+   */
   public Measure setVariation1(Double d) {
     this.variation1 = d;
     return this;
@@ -424,11 +430,17 @@ public class Measure {
 
   /**
    * @return the second variation value
+   * @since 2.5
    */
   public Double getVariation2() {
     return variation2;
   }
 
+  /**
+   * Internal use only
+   * 
+   * @since 2.5
+   */
   public Measure setVariation2(Double d) {
     this.variation2 = d;
     return this;
@@ -436,30 +448,56 @@ public class Measure {
 
   /**
    * @return the third variation value
+   * @since 2.5
    */
   public Double getVariation3() {
     return variation3;
   }
 
+  /**
+   * Internal use only
+   * 
+   * @since 2.5
+   */
   public Measure setVariation3(Double d) {
     this.variation3 = d;
     return this;
   }
 
+  /**
+   * @since 2.5
+   */
   public Double getVariation(int index) {
-    switch(index) {
-      case 1: return variation1;
-      case 2: return variation2;
-      case 3: return variation3;
+    switch (index) {
+      case 1:
+        return variation1;
+      case 2:
+        return variation2;
+      case 3:
+        return variation3;
+      default:
+        throw new IllegalArgumentException("Index should be in range from 1 to 3");
     }
-    return null;
   }
 
+  /**
+   * Internal use only
+   * 
+   * @since 2.5
+   */
   public Measure setVariation(int index, Double d) {
-    switch(index) {
-      case 1: variation1 = d; break;
-      case 2: variation2 = d; break;
-      case 3: variation3 = d; break;
+    switch (index) {
+      case 1:
+        variation1 = d;
+        break;
+      case 2:
+        variation2 = d;
+        break;
+      case 3:
+        variation3 = d;
+        break;
+      default:
+        throw new IllegalArgumentException("Index should be in range from 1 to 3");
     }
     return this;
   }
@@ -482,10 +520,16 @@ public class Measure {
     return this;
   }
 
+  /**
+   * @since 2.3
+   */
   public final Characteristic getCharacteristic() {
     return characteristic;
   }
 
+  /**
+   * @since 2.3
+   */
   public final Measure setCharacteristic(Characteristic characteristic) {
     this.characteristic = characteristic;
     return this;
@@ -519,19 +563,6 @@ public class Measure {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this).
-        append("id", id).
-        append("metric", metricKey).
-        append("value", value).
-        append("data", data).
-        append("description", description).
-        append("alertStatus", alertStatus).
-        append("alertText", alertText).
-        append("tendency", tendency).
-        append("characteristic", characteristic).
-        append("variation1", variation1).
-        append("variation2", variation2).
-        append("variation3", variation3).
-        toString();
+    return ReflectionToStringBuilder.toString(this);
   }
 }
