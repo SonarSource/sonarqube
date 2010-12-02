@@ -13,7 +13,7 @@
 			max = m.value if m.value and m.value>max
 		end
 	%>
-    <h3>Priority</h3>
+    <h3>Severity</h3>
     <table class="spacedicon" style="border: 1px solid #ccc;">
 	  <%= render :partial => 'rule_priority', :locals => {:label => 'Blocker', :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_BLOCKER, :max => max, :measures => rule_priority_measures }%>
   	<%= render :partial => 'rule_priority', :locals => {:label => 'Critical', :css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_CRITICAL, :max => max, :measures => rule_priority_measures }%>
