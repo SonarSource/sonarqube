@@ -32,7 +32,7 @@
 
   <target name="build-extensions">
     <mkdir dir="${basedir}/target"/>
-    
+
     <mvn dir="target"
          args="archetype:generate -B -DarchetypeGroupId=org.codehaus.sonar.archetypes -DarchetypeArtifactId=sonar-basic-plugin-archetype -DarchetypeVersion=${sonar.runtimeVersion} -DgroupId=com.mycompany.sonar -DartifactId=sonar-basic-sample-plugin -Dversion=0.1-SNAPSHOT"/>
     <mvn args="install" dir="${basedir}/target/sonar-basic-sample-plugin"/>
@@ -45,7 +45,7 @@
 
 
   <target name="analyze-custom-projects"
-          depends="ant-static,ant-dynamic-clover,ant-dynamic-cobertura,ant-dynamic-junit,deprecated-sonar-light,struts,timemachine,reuse-coverage-reports"/>
+          depends="ant-static,ant-dynamic-clover,ant-dynamic-cobertura,ant-dynamic-junit,deprecated-sonar-light,struts,timemachine,violations-timemachine,reuse-coverage-reports"/>
 
   <target name="ant-static">
     <execant dir="${projects.dir}/ant-static/"/>
@@ -108,6 +108,18 @@
     <mvnsonar failonerror="false"
               args="-Dsonar.projectDate=2008-10-19 -Dsonar.projectVersion=0.9"
               pom="${projects.dir}/timemachine/pom.xml"/>
+  </target>
+
+  <target name="violations-timemachine">
+    <mvn args="clean install -DskiptTests" dir="${projects.dir}/violations-timemachine/v1"/>
+    <mvnsonar failonerror="false"
+              args="-Dsonar.projectDate=2010-10-19"
+              pom="${projects.dir}/violations-timemachine/v1/pom.xml"/>
+
+    <mvn args="clean install -DskiptTests" dir="${projects.dir}/violations-timemachine/v2"/>
+    <mvnsonar failonerror="false"
+              args="-Dsonar.projectDate=2010-11-13"
+              pom="${projects.dir}/violations-timemachine/v2/pom.xml"/>
   </target>
 
   <target name="big-project">
