@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.codehaus.sonar</groupId>
@@ -28,7 +29,7 @@
     <module>sonar-testing-harness</module>
     <module>sonar-squid</module>
     <module>sonar-ws-client</module>
-
+    <module>plugins/sonar-core-gwt</module>
     <module>plugins/sonar-core-plugin</module>
     <module>plugins/sonar-dbcleaner-plugin</module>
     <module>plugins/sonar-checkstyle-plugin</module>
@@ -85,7 +86,7 @@
   <properties>
     <derby.version>10.6.1.0</derby.version>
     <jetty.version>6.1.24</jetty.version>
-    <sonar.skippedModules>sonar-gwt-api</sonar.skippedModules>
+    <sonar.skippedModules>sonar-gwt-api,sonar-gwt-core</sonar.skippedModules>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.min.version>2.0</maven.min.version>
     <jdk.min.version>1.5</jdk.min.version>

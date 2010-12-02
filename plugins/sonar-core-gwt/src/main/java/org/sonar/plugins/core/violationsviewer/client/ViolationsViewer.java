@@ -26,7 +26,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.gen2.table.override.client.Grid;
 import com.google.gwt.user.client.ui.*;
 import org.sonar.gwt.Configuration;
-import org.sonar.gwt.Links;
 import org.sonar.gwt.Metrics;
 import org.sonar.gwt.ui.Icons;
 import org.sonar.gwt.ui.Loading;

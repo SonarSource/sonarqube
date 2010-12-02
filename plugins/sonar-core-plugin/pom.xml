@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.codehaus.sonar</groupId>
@@ -11,7 +12,7 @@
   <artifactId>sonar-core-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
   <name>Sonar :: Plugins :: Core</name>
-  
+
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
@@ -23,7 +24,8 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-gwt-api</artifactId>
+      <artifactId>sonar-core-gwt</artifactId>
+      <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -39,16 +41,6 @@
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-core</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.gwt</groupId>
-      <artifactId>gwt-user</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.gwt</groupId>
-      <artifactId>gwt-incubator</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -72,59 +64,37 @@
 
     <plugins>
       <plugin>
-        <groupId>org.codehaus.sonar</groupId>
-        <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-          <pluginKey>core</pluginKey>
-          <pluginName>Core</pluginName>
-          <pluginClass>org.sonar.plugins.core.CorePlugin</pluginClass>
-          <pluginDescription><![CDATA[Provides all common components required to cover all languages.]]></pluginDescription>
-        </configuration>
-      </plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-dependency-plugin</artifactId>
+         <executions>
+           <execution>
+             <id>unpack</id>
+             <phase>prepare-package</phase>
+             <goals>
+               <goal>unpack</goal>
+             </goals>
+             <configuration>
+               <artifactItems>
+                 <artifactItem>
+                   <groupId>org.codehaus.sonar</groupId>
+                   <artifactId>sonar-core-gwt</artifactId>
+                   <version>${project.version}</version>
+                   <type>jar</type>
+                   <overWrite>false</overWrite>
+                   <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                   <includes>**/*</includes>
+                   <excludes>META-INF/*</excludes>
+                 </artifactItem>
+               </artifactItems>
+             </configuration>
+           </execution>
+         </executions>
+       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <forkMode>always</forkMode>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>com.atlassian.maven.plugins</groupId>
-        <artifactId>maven-clover2-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <!-- GWT classes -->
-            <exclude>**/client/**/*.java</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>gwt-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <configuration>
-              <modules>
-                <module>org.sonar.plugins.core.ui.pageselector.PageSelector</module>
-                <module>org.sonar.plugins.core.clouds.GwtClouds</module>
-                <module>org.sonar.plugins.core.violationsviewer.ViolationsViewer</module>
-                <module>org.sonar.plugins.core.coverageviewer.CoverageViewer</module>
-                <module>org.sonar.plugins.core.defaultsourceviewer.GwtDefaultSourceViewer</module>
-                <module>org.sonar.plugins.core.duplicationsviewer.DuplicationsViewer</module>
-                <module>org.sonar.plugins.core.testdetailsviewer.TestsViewer</module>
-                <module>org.sonar.plugins.core.hotspots.GwtHotspots</module>
-              </modules>
-              <skip>${skipGwt}</skip>
-              <webappDirectory>${project.build.directory}/classes</webappDirectory>
-
-              <!-- do not break on two lines -->
-              <extraJvmArgs>-Xmx512m -Dgwt.jjs.permutationWorkerFactory=com.google.gwt.dev.ThreadedPermutationWorkerFactory</extraJvmArgs>
-            </configuration>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
@@ -144,6 +114,18 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.sonar</groupId>
+        <artifactId>sonar-packaging-maven-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <pluginKey>core</pluginKey>
+          <pluginName>Core</pluginName>
+          <pluginClass>org.sonar.plugins.core.CorePlugin</pluginClass>
+          <pluginDescription>
+            <![CDATA[Provides all common components required to cover all languages.]]></pluginDescription>
+        </configuration>
       </plugin>
 
     </plugins>
