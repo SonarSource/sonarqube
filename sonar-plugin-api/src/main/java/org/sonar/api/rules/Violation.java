@@ -104,12 +104,15 @@ public class Violation {
     return this;
   }
 
+  /**
+   * @see #setLineId(Integer)
+   */
   public Integer getLineId() {
     return lineId;
   }
 
   /**
-   * Sets the violation line
+   * Sets the violation line. Note that numbering starts from 1.
    * 
    * @return the current object
    */
@@ -131,7 +134,7 @@ public class Violation {
   }
 
   /**
-   * @see <code>setCost()</code>
+   * @see #setCost(Double)
    * @since 2.4
    */
   public Double getCost() {
