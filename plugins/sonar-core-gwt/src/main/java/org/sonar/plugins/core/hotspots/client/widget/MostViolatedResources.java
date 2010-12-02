@@ -97,20 +97,20 @@ public class MostViolatedResources extends AbstractHotspot {
     Measure debt = resource.getMeasures().get(0);
     if (debt != null && debt.getData() != null) {
       Map<String, String> map = debt.getDataAsMap(";");
-      renderPriority(grid, row, map, 1, "BLOCKER");
-      renderPriority(grid, row, map, 3, "CRITICAL");
-      renderPriority(grid, row, map, 5, "MAJOR");
-      renderPriority(grid, row, map, 7, "MINOR");
-      renderPriority(grid, row, map, 9, "INFO");
+      renderSeverity(grid, row, map, 1, "BLOCKER");
+      renderSeverity(grid, row, map, 3, "CRITICAL");
+      renderSeverity(grid, row, map, 5, "MAJOR");
+      renderSeverity(grid, row, map, 7, "MINOR");
+      renderSeverity(grid, row, map, 9, "INFO");
     }
   }
 
-  private void renderPriority(Grid grid, int row, Map<String, String> map, int column, String priority) {
-    grid.setWidget(row, column, Icons.forPriority(priority).createImage());
+  private void renderSeverity(Grid grid, int row, Map<String, String> map, int column, String severity) {
+    grid.setWidget(row, column, Icons.forPriority(severity).createImage());
     grid.getCellFormatter().setStyleName(row, column, getRowCssClass(row) + " small right");
 
-    if (map.containsKey(priority)) {
-      grid.setWidget(row, column + 1, new HTML(map.get(priority)));
+    if (map.containsKey(severity)) {
+      grid.setWidget(row, column + 1, new HTML(map.get(severity)));
     } else {
       grid.setWidget(row, column + 1, new HTML("0"));
     }

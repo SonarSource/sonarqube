@@ -37,7 +37,7 @@ import org.sonar.wsclient.services.ResourceQuery;
 
 public class MostViolatedRules extends AbstractHotspot {
 
-  private ListBox priorities;
+  private ListBox severity;
 
   public MostViolatedRules(Resource resource) {
     super("rules-hotspot", resource);
@@ -45,15 +45,15 @@ public class MostViolatedRules extends AbstractHotspot {
 
   @Override
   Widget createHeader() {
-    priorities = new ListBox(false);
-    priorities.addItem(I18nConstants.INSTANCE.anyPriority(), "");
-    priorities.addItem("Blocker", "BLOCKER");
-    priorities.addItem("Critical", "CRITICAL");
-    priorities.addItem("Major", "MAJOR");
-    priorities.addItem("Minor", "MINOR");
-    priorities.addItem("Info", "INFO");
-    priorities.setStyleName("small");
-    priorities.addChangeHandler(new ChangeHandler() {
+    severity = new ListBox(false);
+    severity.addItem(I18nConstants.INSTANCE.anySeverity(), "");
+    severity.addItem("Blocker", "BLOCKER");
+    severity.addItem("Critical", "CRITICAL");
+    severity.addItem("Major", "MAJOR");
+    severity.addItem("Minor", "MINOR");
+    severity.addItem("Info", "INFO");
+    severity.setStyleName("small");
+    severity.addChangeHandler(new ChangeHandler() {
       public void onChange(ChangeEvent event) {
         loadData();
       }
@@ -74,10 +74,10 @@ public class MostViolatedRules extends AbstractHotspot {
     horizontal.setVerticalAlignment(HasAlignment.ALIGN_MIDDLE);
     horizontal.setWidth("98%");
     horizontal.add(label);
-    horizontal.add(priorities);
+    horizontal.add(severity);
     horizontal.add(moreLink);
     horizontal.setCellHorizontalAlignment(label, HorizontalPanel.ALIGN_LEFT);
-    horizontal.setCellHorizontalAlignment(priorities, HorizontalPanel.ALIGN_LEFT);
+    horizontal.setCellHorizontalAlignment(severity, HorizontalPanel.ALIGN_LEFT);
     horizontal.setCellHorizontalAlignment(moreLink, HorizontalPanel.ALIGN_RIGHT);
 
     return horizontal;
@@ -140,7 +140,7 @@ public class MostViolatedRules extends AbstractHotspot {
   }
 
   private String getSelectedPriority() {
-    String priority = priorities.getValue(priorities.getSelectedIndex());
+    String priority = severity.getValue(severity.getSelectedIndex());
     if ("".equals(priority) || priority == null) {
       return null;
     }

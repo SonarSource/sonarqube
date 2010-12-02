@@ -52,8 +52,8 @@ public interface I18nConstants extends com.google.gwt.i18n.client.Constants {
   @DefaultStringValue("No measures")
   String noMeasures();
 
-  @DefaultStringValue("Any priority")
-  String anyPriority();
+  @DefaultStringValue("Any severity")
+  String anySeverity();
 
   @DefaultStringValue("more")
   String moreDetails();
