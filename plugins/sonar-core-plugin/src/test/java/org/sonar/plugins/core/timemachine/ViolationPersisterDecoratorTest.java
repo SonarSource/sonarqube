@@ -55,7 +55,24 @@ public class ViolationPersisterDecoratorTest {
   }
 
   @Test
-  public void differentLine() {
+  public void sameRuleAndMessageButDifferentLine() {
+    Rule rule = Rule.create().setKey("rule");
+    Violation violation = Violation.create(rule, null)
+        .setLineId(1).setMessage("message");
+    decorator.checksums = ViolationPersisterDecorator.getChecksums("violation");
+
+    RuleFailureModel pastViolation = newPastViolation(rule, 2, "message");
+    decorator.pastChecksums = ViolationPersisterDecorator.getChecksums("line\nviolation");
+
+    Multimap<Rule, RuleFailureModel> pastViolationsByRule = LinkedHashMultimap.create();
+    pastViolationsByRule.put(rule, pastViolation);
+
+    RuleFailureModel found = decorator.selectPastViolation(violation, pastViolationsByRule);
+    assertThat(found, equalTo(pastViolation));
+  }
+
+  @Test
+  public void newViolation() {
     Rule rule = Rule.create().setKey("rule");
     Violation violation = Violation.create(rule, null)
         .setLineId(1).setMessage("message");

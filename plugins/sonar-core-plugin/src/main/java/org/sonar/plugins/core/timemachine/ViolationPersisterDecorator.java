@@ -39,8 +39,8 @@ public class ViolationPersisterDecorator implements Decorator {
   private PastViolationsLoader pastViolationsLoader;
   private ViolationPersister violationPersister;
 
-  private List<String> checksums = Lists.newArrayList();
-  private List<String> pastChecksums = Lists.newArrayList();
+  List<String> checksums = Lists.newArrayList();
+  List<String> pastChecksums = Lists.newArrayList();
 
   public ViolationPersisterDecorator(RuleFinder ruleFinder, PastViolationsLoader pastViolationsLoader, ViolationPersister violationPersister) {
     this.ruleFinder = ruleFinder;
@@ -134,7 +134,7 @@ public class ViolationPersisterDecorator implements Decorator {
   /**
    * Search for past violation with same message and line.
    */
-  RuleFailureModel selectPastViolationUsingLine(Violation violation, Collection<RuleFailureModel> pastViolations) {
+  private RuleFailureModel selectPastViolationUsingLine(Violation violation, Collection<RuleFailureModel> pastViolations) {
     for (RuleFailureModel pastViolation : pastViolations) {
       if (violation.getLineId() == pastViolation.getLine() && StringUtils.equals(violation.getMessage(), pastViolation.getMessage())) {
         return pastViolation;
@@ -146,7 +146,7 @@ public class ViolationPersisterDecorator implements Decorator {
   /**
    * Search for past violation with same message and checksum.
    */
-  RuleFailureModel selectPastViolationUsingChecksum(Violation violation, Collection<RuleFailureModel> pastViolations) {
+  private RuleFailureModel selectPastViolationUsingChecksum(Violation violation, Collection<RuleFailureModel> pastViolations) {
     String checksum = getChecksumForLine(checksums, violation.getLineId());
     // skip violation, which not attached to line
     if (checksum == null) {
