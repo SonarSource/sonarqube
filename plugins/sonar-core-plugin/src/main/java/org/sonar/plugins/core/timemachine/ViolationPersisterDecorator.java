@@ -30,6 +30,11 @@ import java.util.List;
 @DependsUpon(DecoratorBarriers.END_OF_VIOLATIONS_GENERATION)
 public class ViolationPersisterDecorator implements Decorator {
 
+  /**
+   * Those chars would be ignored during generation of checksums.
+   */
+  private static final String SPACE_CHARS = "\t\n\r ";
+
   private RuleFinder ruleFinder;
   private PastViolationsLoader pastViolationsLoader;
   private ViolationPersister violationPersister;
@@ -71,12 +76,19 @@ public class ViolationPersisterDecorator implements Decorator {
     // for each violation, search equivalent past violation
     for (Violation violation : context.getViolations()) {
       RuleFailureModel pastViolation = selectPastViolation(violation, pastViolationsByRule);
+      if (pastViolation != null) {
+        // remove violation from past, since would be updated and shouldn't affect other violations anymore
+        pastViolationsByRule.remove(violation.getRule(), pastViolation);
+      }
       violationPersister.saveOrUpdateViolation(context.getProject(), violation, pastViolation);
     }
   }
 
+  /**
+   * @return checksums, never null
+   */
   private List<String> getChecksums(SnapshotSource source) {
-    return source == null ? Collections.<String> emptyList() : getChecksums(source.getData());
+    return source == null || source.getData() == null ? Collections.<String> emptyList() : getChecksums(source.getData());
   }
 
   static List<String> getChecksums(String data) {
@@ -84,7 +96,7 @@ public class ViolationPersisterDecorator implements Decorator {
     try {
       List<String> lines = IOUtils.readLines(new StringInputStream(data));
       for (String line : lines) {
-        String reducedLine = StringUtils.replaceChars(line, "\t\n\r ", "");
+        String reducedLine = StringUtils.replaceChars(line, SPACE_CHARS, "");
         result.add(DigestUtils.md5Hex(reducedLine));
       }
     } catch (IOException e) {
@@ -93,6 +105,9 @@ public class ViolationPersisterDecorator implements Decorator {
     return result;
   }
 
+  /**
+   * @return checksum or null if checksum not exists for line
+   */
   private String getChecksumForLine(List<String> checksums, Integer line) {
     if (line == null || line < 1 || line > checksums.size()) {
       return null;
