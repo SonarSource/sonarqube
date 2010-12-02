@@ -26,11 +26,17 @@ import java.util.Arrays;
 import java.util.List;
 
 public class UserManagedMetrics implements Metrics {
+  private static final String DOMAIN = "Management";
+
   public List<Metric> getMetrics() {
     return Arrays.asList(
-        new Metric("burned_budget", "Burned budget", "The budget already used in the project", Metric.ValueType.FLOAT, 0, false, "Management", true),
-        new Metric("team_size", "Team size", "Size of the project team", Metric.ValueType.INT, 0, false, "Management", true),
-        new Metric("business_value", "Business value", "An indication on the value of the project for the business", Metric.ValueType.FLOAT, 1, true, "Management", true)
-    );
+        new Metric("burned_budget", "Burned budget", "The budget already used in the project", Metric.ValueType.FLOAT,
+            Metric.DIRECTION_NONE, false, DOMAIN)
+            .setUserManaged(true),
+        new Metric("team_size", "Team size", "Size of the project team", Metric.ValueType.INT, Metric.DIRECTION_NONE, false, DOMAIN)
+            .setUserManaged(true),
+        new Metric("business_value", "Business value", "An indication on the value of the project for the business",
+            Metric.ValueType.FLOAT, Metric.DIRECTION_BETTER, true, DOMAIN)
+            .setUserManaged(true));
   }
 }

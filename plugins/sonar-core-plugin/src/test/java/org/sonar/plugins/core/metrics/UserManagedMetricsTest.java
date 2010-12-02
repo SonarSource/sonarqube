@@ -20,14 +20,24 @@
 package org.sonar.plugins.core.metrics;
 
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+
 import org.junit.Test;
+import org.sonar.api.measures.Metric;
+
+import java.util.List;
 
 public class UserManagedMetricsTest {
 
   @Test
   public void checkDefinitions() {
-    UserManagedMetrics metrics = new UserManagedMetrics();
-    assertThat(metrics.getMetrics().size(), greaterThan(2));
+    UserManagedMetrics userManagedMetrics = new UserManagedMetrics();
+    List<Metric> metrics = userManagedMetrics.getMetrics();
+    assertThat(metrics.size(), greaterThan(2));
+    for (Metric metric : metrics) {
+      assertThat(metric.getUserManaged(), is(true));
+      assertThat(metric.getDomain(), is("Management"));
+    }
   }
 }
