@@ -27,8 +27,6 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
 
-import java.util.List;
-
 public final class ViolationPersister {
 
   private DatabaseSession session;
@@ -41,30 +39,15 @@ public final class ViolationPersister {
     this.ruleFinder = ruleFinder;
   }
 
+  /**
+   * @deprecated Use {@link #saveOrUpdateViolation(Project, Violation, RuleFailureModel)} instead.
+   */
   public void saveViolation(Project project, Violation violation) {
-    saveOrUpdateViolation(project, violation);
+    saveOrUpdateViolation(project, violation, null);
   }
 
-  public RuleFailureModel selectPreviousViolation(Violation violation) {
-    Snapshot snapshot = resourcePersister.getSnapshot(violation.getResource());
-    Snapshot previousLastSnapshot = resourcePersister.getLastSnapshot(snapshot, true);
-    if (previousLastSnapshot == null) {
-      return null;
-    }
-    // Can be several violations on line with same message: for example - "'3' is a magic number"
-    List<RuleFailureModel> models = session.getResults(RuleFailureModel.class,
-        "snapshotId", previousLastSnapshot.getId(),
-        "line", violation.getLineId(),
-        "message", violation.getMessage());
-    if (models != null && !models.isEmpty()) {
-      return models.get(0);
-    }
-    return null;
-  }
-
-  public void saveOrUpdateViolation(Project project, Violation violation) {
+  public void saveOrUpdateViolation(Project project, Violation violation, RuleFailureModel model) {
     Snapshot snapshot = resourcePersister.saveResource(project, violation.getResource());
-    RuleFailureModel model = selectPreviousViolation(violation);
     if (model != null) {
       // update
       model = mergeModel(violation, model);

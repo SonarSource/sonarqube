@@ -21,7 +21,6 @@ package org.sonar.batch.index;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -76,34 +75,12 @@ public class ViolationPersisterTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void shouldSelectPreviousViolation() {
-    Violation violation = Violation.create(rule1, javaFile)
-        .setPriority(RulePriority.CRITICAL).setLineId(10)
-        .setMessage("old message");
-
-    RuleFailureModel model = violationPersister.selectPreviousViolation(violation);
-
-    assertThat(model, notNullValue());
-  }
-
-  @Test
-  public void noPreviousViolation() {
-    Violation violation = Violation.create(rule1, javaFile)
-        .setPriority(RulePriority.CRITICAL).setLineId(10)
-        .setMessage("new message");
-
-    RuleFailureModel model = violationPersister.selectPreviousViolation(violation);
-
-    assertThat(model, nullValue());
-  }
-
-  @Test
   public void shouldUpdateViolation() {
     Violation violation = Violation.create(rule1, javaFile)
-        .setPriority(RulePriority.CRITICAL).setLineId(10).setCost(55.6)
-        .setMessage("old message");
+        .setLineId(20).setCost(55.6);
+    RuleFailureModel model = getSession().getSingleResult(RuleFailureModel.class, "id", 1);
 
-    violationPersister.saveOrUpdateViolation(new Project("project"), violation);
+    violationPersister.saveOrUpdateViolation(new Project("project"), violation, model);
 
     assertThat(violation.getCreatedAt(), notNullValue());
     checkTables("shouldUpdateViolation", "rule_failures");

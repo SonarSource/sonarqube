@@ -19,7 +19,10 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -30,7 +33,7 @@ import org.sonar.api.rules.Violation;
 import java.util.Date;
 import java.util.List;
 
-@DependsUpon(DecoratorBarriers.END_OF_VIOLATIONS_GENERATION)
+@DependsUpon(classes = ViolationPersisterDecorator.class)
 public class NewViolationsDecorator implements Decorator {
 
   private TimeMachineConfiguration timeMachineConfiguration;
@@ -78,7 +81,6 @@ public class NewViolationsDecorator implements Decorator {
     }
     return sum;
   }
-
 
   @Override
   public String toString() {

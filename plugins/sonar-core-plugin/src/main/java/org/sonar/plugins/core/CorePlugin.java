@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.core;
 
-import org.sonar.plugins.core.timemachine.*;
-
 import com.google.common.collect.Lists;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
@@ -42,6 +40,7 @@ import org.sonar.plugins.core.metrics.UserManagedMetrics;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.*;
 import org.sonar.plugins.core.testdetailsviewer.TestsViewerDefinition;
+import org.sonar.plugins.core.timemachine.*;
 import org.sonar.plugins.core.ui.pageselector.GwtPageSelector;
 import org.sonar.plugins.core.violationsviewer.ViolationsViewerDefinition;
 import org.sonar.plugins.core.widgets.*;
@@ -134,8 +133,7 @@ import java.util.List;
         description = "To be defined. For the moment the number of days",
         project = false,
         global = true
-    )
-})
+    ) })
 public class CorePlugin implements Plugin {
 
   public String getKey() {
@@ -169,7 +167,7 @@ public class CorePlugin implements Plugin {
     extensions.add(Clouds.class);
     extensions.add(Hotspots.class);
 
-    //widgets
+    // widgets
     extensions.add(AlertsWidget.class);
     extensions.add(CodeCoverageWidget.class);
     extensions.add(CommentsDuplicationsWidget.class);
@@ -217,6 +215,7 @@ public class CorePlugin implements Plugin {
     extensions.add(PastMeasuresLoader.class);
     extensions.add(TimeMachineConfiguration.class);
     extensions.add(VariationDecorator.class);
+    extensions.add(ViolationPersisterDecorator.class);
     extensions.add(NewViolationsDecorator.class);
 
     return extensions;

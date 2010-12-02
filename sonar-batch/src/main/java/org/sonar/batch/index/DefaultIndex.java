@@ -400,7 +400,6 @@ public final class DefaultIndex extends SonarIndex {
 
   private void doAddViolation(Violation violation, Bucket bucket) {
     bucket.addViolation(violation);
-    persistence.saveViolation(currentProject, violation);
   }
 
   //
