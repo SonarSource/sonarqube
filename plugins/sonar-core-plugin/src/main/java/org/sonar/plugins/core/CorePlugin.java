@@ -215,6 +215,7 @@ public class CorePlugin implements Plugin {
     extensions.add(PastMeasuresLoader.class);
     extensions.add(TimeMachineConfiguration.class);
     extensions.add(VariationDecorator.class);
+    extensions.add(PastViolationsLoader.class);
     extensions.add(ViolationPersisterDecorator.class);
     extensions.add(NewViolationsDecorator.class);
 

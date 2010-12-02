@@ -50,6 +50,7 @@ public final class ViolationPersister {
     Snapshot snapshot = resourcePersister.saveResource(project, violation.getResource());
     if (model != null) {
       // update
+      model = session.reattach(RuleFailureModel.class, model.getId());
       model = mergeModel(violation, model);
     } else {
       // insert
