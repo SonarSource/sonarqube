@@ -66,14 +66,14 @@ public final class Utils {
    * @since 2.5
    */
   public static String formatDate(Date date) {
-    return date == null ? "" : DateTimeFormat.getFormat("dd/MM/yy").format(date);
+    return date == null ? "" : DateTimeFormat.getShortDateFormat().format(date);
   }
   
   /**
    * @since 2.5
    */
   public static String formatDateTime(Date date) {
-    return date == null ? "" : DateTimeFormat.getFormat("dd/MM/yy HH:mm").format(date);
+    return date == null ? "" : DateTimeFormat.getShortDateTimeFormat().format(date);
   }
 
   public static native void showError(String message) /*-{
