@@ -31,7 +31,7 @@ import java.util.List;
 
 /**
  * A class that manipulates Projects in the Sonar way, i.e. mixing MavenProjects with the way it should be analyzed
- *
+ * 
  * @since 1.10
  */
 public class Project extends Resource {
@@ -72,7 +72,6 @@ public class Project extends Resource {
   @Deprecated
   public static final String PARAM_REUSE_RULES_CONFIG = "sonar.reuseExistingRulesConfiguration";
 
-
   /**
    * Enumerates the type of possible analysis
    */
@@ -103,7 +102,7 @@ public class Project extends Resource {
   private String[] exclusionPatterns;
   private String analysisVersion;
   private boolean latestAnalysis;
-  
+
   // modules tree
   private Project parent;
   private List<Project> modules = new ArrayList<Project>();
@@ -132,6 +131,9 @@ public class Project extends Resource {
     return this;
   }
 
+  /**
+   * For internal use only.
+   */
   public final Project setPom(MavenProject pom) {
     this.pom = pom;
     return this;
@@ -203,6 +205,7 @@ public class Project extends Resource {
 
   /**
    * whether it's the latest analysis done on this project (displayed in sonar dashboard) or an analysis on a past revision.
+   * 
    * @since 2.0
    */
   public boolean isLatestAnalysis() {
@@ -312,7 +315,7 @@ public class Project extends Resource {
    * For internal use only.
    */
   public void removeFromParent() {
-    if (parent!=null) {
+    if (parent != null) {
       parent.modules.remove(this);
     }
   }
@@ -385,7 +388,7 @@ public class Project extends Resource {
 
   /**
    * Sets the configuration
-   *
+   * 
    * @return the current object
    */
   public final Project setConfiguration(Configuration configuration) {
