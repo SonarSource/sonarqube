@@ -367,6 +367,9 @@ public class Project extends Resource {
     return fileSystem;
   }
 
+  /**
+   * For internal use only.
+   */
   public Project setFileSystem(ProjectFileSystem fs) {
     this.fileSystem = fs;
     return this;
@@ -387,9 +390,7 @@ public class Project extends Resource {
   }
 
   /**
-   * Sets the configuration
-   * 
-   * @return the current object
+   * For internal use only.
    */
   public final Project setConfiguration(Configuration configuration) {
     this.configuration = configuration;
