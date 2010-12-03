@@ -1,43 +1,69 @@
 <%
-code_coverage_measure=measure(Metric::COVERAGE)
-tests_measure=measure(Metric::TESTS)
-if code_coverage_measure || tests_measure %>
+  code_coverage_measure=measure(Metric::COVERAGE)
+  tests_measure=measure(Metric::TESTS)
+  execution_time=measure(Metric::TEST_EXECUTION_TIME)
+  success_percentage=measure(Metric::TEST_SUCCESS_DENSITY)
+
+  if code_coverage_measure || tests_measure
+%>
 <table width="100%">
 	<tr>
 		<td valign="top" width="50%" nowrap>
       <div class="dashbox">
         <p class="title">Code coverage</p>
-        <p><span class="big"><%= format_measure(code_coverage_measure, :suffix => '', :url => url_for_drilldown(Metric::COVERAGE), :default => '-') %> <%= trend_icon(code_coverage_measure, :big => true) %></span></p>
+        <p>
+          <span class="big"><%= format_measure(code_coverage_measure, :suffix => '', :url => url_for_drilldown(Metric::COVERAGE), :default => '-') %></span>
+          <%= dashboard_configuration.variation? ? format_variation(code_coverage_measure) : trend_icon(code_coverage_measure, :big => true) -%>
+        </p>
         <% line_coverage=measure(Metric::LINE_COVERAGE)
           if line_coverage %>
-          <p><%= format_measure(line_coverage, :suffix => ' line coverage', :url => url_for_drilldown(Metric::UNCOVERED_LINES, :highlight =>  Metric::LINE_COVERAGE)) %> <%= trend_icon(line_coverage) %></p>
+          <p>
+            <%= format_measure(line_coverage, :suffix => ' line coverage', :url => url_for_drilldown(Metric::UNCOVERED_LINES, :highlight =>  Metric::LINE_COVERAGE)) -%>
+            <%= dashboard_configuration.variation? ? format_variation(line_coverage) : trend_icon(line_coverage) -%>
+          </p>
         <% end %>
         <% branch_coverage=measure(Metric::BRANCH_COVERAGE)
           if branch_coverage %>
-          <p><%= format_measure(branch_coverage, :suffix => ' branch coverage', :url => url_for_drilldown(Metric::UNCOVERED_CONDITIONS, :highlight =>  Metric::BRANCH_COVERAGE)) %> <%= trend_icon(branch_coverage) %></p>
+          <p>
+            <%= format_measure(branch_coverage, :suffix => ' branch coverage', :url => url_for_drilldown(Metric::UNCOVERED_CONDITIONS, :highlight =>  Metric::BRANCH_COVERAGE)) %>
+            <%= dashboard_configuration.variation? ? format_variation(branch_coverage) : trend_icon(branch_coverage) -%>
+          </p>
         <% end %>
-        <p><%= format_measure(tests_measure, :suffix => ' tests', :url => url_for_drilldown(Metric::TESTS)) %> <%= trend_icon(tests_measure) %></p>
+        <p>
+          <%= format_measure(tests_measure, :suffix => ' tests', :url => url_for_drilldown(Metric::TESTS)) -%>
+          <%= dashboard_configuration.variation? ? format_variation(tests_measure) : trend_icon(tests_measure) -%>
+        </p>
         <% skipped_measure=measure(Metric::SKIPPED_TESTS)
-           if skipped_measure && skipped_measure.value>0
+           if skipped_measure
         %>
-        <p>+<%= format_measure(skipped_measure, :suffix => ' skipped', :url => url_for_drilldown(Metric::SKIPPED_TESTS)) %> <%= trend_icon(skipped_measure) %></p>
+        <p>
+          +<%= format_measure(skipped_measure, :suffix => ' skipped', :url => url_for_drilldown(Metric::SKIPPED_TESTS)) %>
+          <%= dashboard_configuration.variation? ? format_variation(skipped_measure) : trend_icon(skipped_measure) -%>
+        </p>
         <% end %>
-        <p><%= format_measure(Metric::TEST_EXECUTION_TIME, :suffix => '', :url => url_for_drilldown(Metric::TEST_EXECUTION_TIME)) %> <%= trend_icon(measure(Metric::TEST_EXECUTION_TIME)) %></p>
+        <p>
+          <%= format_measure(execution_time, :suffix => '', :url => url_for_drilldown(Metric::TEST_EXECUTION_TIME)) -%>
+          <%= dashboard_configuration.variation? ? format_variation(execution_time) : trend_icon(execution_time) -%>
+        </p>
       </div>
     </td>
     <td valign="top" width="50%" nowrap>
   <%
-  success_percentage=measure(Metric::TEST_SUCCESS_DENSITY)
   if success_percentage
   %>
   <div class="dashbox">
       <h3>Test success</h3>
-      <p><span class="big"><%= format_measure(success_percentage, :suffix => '', :url => url_for_drilldown(success_percentage)) %> <%= trend_icon(measure(Metric::TEST_SUCCESS_DENSITY), :big => true) %></span></p>
-      <p>
-        <%= format_measure(Metric::TEST_FAILURES, :suffix => ' failures', :url => url_for_drilldown(Metric::TEST_FAILURES)) %> <%= trend_icon(measure(Metric::TEST_FAILURES)) %>
+      <p><span class="big">
+        <%= format_measure(success_percentage, :suffix => '', :url => url_for_drilldown(success_percentage)) %></span>
+        <%= dashboard_configuration.variation? ? format_variation(success_percentage) : trend_icon(success_percentage, :big => true) -%>
       </p>
       <p>
-        <%= format_measure(Metric::TEST_ERRORS, :suffix => ' errors', :url => url_for_drilldown(Metric::TEST_ERRORS)) %> <%= trend_icon(measure(Metric::TEST_ERRORS)) %>
+        <%= format_measure(Metric::TEST_FAILURES, :suffix => ' failures', :url => url_for_drilldown(Metric::TEST_FAILURES)) %>
+        <%= dashboard_configuration.variation? ? format_variation(Metric::TEST_FAILURES) : trend_icon(Metric::TEST_FAILURES) -%>
+      </p>
+      <p>
+        <%= format_measure(Metric::TEST_ERRORS, :suffix => ' errors', :url => url_for_drilldown(Metric::TEST_ERRORS)) %>
+        <%= dashboard_configuration.variation? ? format_variation(Metric::TEST_ERRORS) : trend_icon(Metric::TEST_ERRORS) -%>
       </p>
   </div>
   <% end %>

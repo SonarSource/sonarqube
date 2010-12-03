@@ -1,35 +1,74 @@
-<% if measure(Metric::LINES) || measure(Metric::NCLOC) %>
+<%
+  if measure(Metric::LINES) || measure(Metric::NCLOC)
+    comment_lines=measure('comment_lines')
+    comment_lines_density=measure('comment_lines_density')
+    comment_blank_lines=measure('comment_blank_lines')
+    public_documented_api_density=measure('public_documented_api_density')
+    public_undocumented_api=measure('public_undocumented_api')
+    commented_out_lines=measure('commented_out_code_lines')
+    duplicated_lines_density=measure('duplicated_lines_density')
+    duplicated_lines=measure('duplicated_lines')
+    duplicated_blocks=measure('duplicated_blocks')
+    duplicated_files=measure('duplicated_files')
+%>
 <table width="100%">
 	<tr>
 		<td valign="top" width="50%" nowrap>
-			<% if (measure(Metric::COMMENT_LINES)) %>
+			<% if (comment_lines) %>
 		    <div class="dashbox">
 		      <h3>Comments</h3>
-		      <p><span class="big"><%= format_measure(Metric::COMMENT_LINES_DENSITY, :suffix => '', :url => url_for_drilldown(Metric::COMMENT_LINES_DENSITY)) -%> <%= trend_icon(Metric::COMMENT_LINES_DENSITY, :big => true) -%></span></p>
-		      <p><%= format_measure(Metric::COMMENT_LINES, :suffix => ' lines', :url => url_for_drilldown(Metric::COMMENT_LINES)) -%> <%= trend_icon(Metric::COMMENT_LINES) -%></p>
+		      <p>
+		        <span class="big"><%= format_measure(comment_lines_density, :suffix => '', :url => url_for_drilldown(comment_lines_density)) -%></span>
+		        <%= dashboard_configuration.variation? ? format_variation(comment_lines_density) : trend_icon(comment_lines_density, :big => true) -%>
+		      </p>
+		      <p>
+		        <%= format_measure(comment_lines, :suffix => ' lines', :url => url_for_drilldown(comment_lines)) -%>
+		        <%= dashboard_configuration.variation? ? format_variation(comment_lines) : trend_icon(comment_lines) -%>
+		      </p>
 		      <%
-  		      comment_blank_lines=measure('comment_blank_lines')
 	  	      if comment_blank_lines && comment_blank_lines.value>0
 		      %>
-		      <p>+<%= format_measure(comment_blank_lines, :suffix => ' blank', :url => url_for_drilldown(comment_blank_lines)) -%> <%= trend_icon(comment_blank_lines) -%></p>
+		      <p>+<%= format_measure(comment_blank_lines, :suffix => ' blank', :url => url_for_drilldown(comment_blank_lines)) -%>
+		      <%= dashboard_configuration.variation? ? format_variation(comment_blank_lines) : trend_icon(comment_blank_lines) -%>
+		      </p>
 		      <% end %>
-		      <p><%= format_measure(Metric::PUBLIC_DOCUMENTED_API_DENSITY, :suffix => ' docu. API', :url => url_for_drilldown(Metric::PUBLIC_UNDOCUMENTED_API, :highlight => Metric::PUBLIC_DOCUMENTED_API_DENSITY)) -%> <%= trend_icon(Metric::PUBLIC_DOCUMENTED_API_DENSITY) -%></p>
-		      <p><%= format_measure(Metric::PUBLIC_UNDOCUMENTED_API, :suffix => ' undocu. API', :url => url_for_drilldown(Metric::PUBLIC_UNDOCUMENTED_API, :highlight => Metric::PUBLIC_UNDOCUMENTED_API)) -%> <%= trend_icon(Metric::PUBLIC_UNDOCUMENTED_API) -%></p>
-		      <p><%= format_measure(Metric::COMMENTED_OUT_CODE_LINES, :suffix => ' commented LOCs', :url => url_for_drilldown(Metric::COMMENTED_OUT_CODE_LINES, :highlight => Metric::COMMENTED_OUT_CODE_LINES)) -%> <%= trend_icon(Metric::COMMENTED_OUT_CODE_LINES) -%></p>
+		      <p>
+		        <%= format_measure(public_documented_api_density, :suffix => ' docu. API', :url => url_for_drilldown(Metric::PUBLIC_UNDOCUMENTED_API, :highlight => Metric::PUBLIC_DOCUMENTED_API_DENSITY)) -%>
+		        <%= dashboard_configuration.variation? ? format_variation(public_documented_api_density) : trend_icon(public_documented_api_density) -%>
+		      </p>
+		      <p>
+		        <%= format_measure(public_undocumented_api, :suffix => ' undocu. API', :url => url_for_drilldown(public_undocumented_api)) -%>
+		        <%= dashboard_configuration.variation? ? format_variation(public_undocumented_api) : trend_icon(public_undocumented_api) -%>
+		      </p>
+		      <p>
+		        <%= format_measure(commented_out_lines, :suffix => ' commented LOCs', :url => url_for_drilldown(commented_out_lines)) -%>
+		        <%= dashboard_configuration.variation? ? format_variation(commented_out_lines) : trend_icon(commented_out_lines) -%>
+		      </p>
 		    </div>
 		    <% end %>
 		</td>
 		<td valign="top" width="50%" nowrap>
-		    <% if (measure(Metric::DUPLICATED_LINES_DENSITY)) %>
+		    <% if duplicated_lines_density %>
 		    <div class="dashbox">
 		      <h3>Duplications</h3>
-		      <p><span class="big"><%= format_measure(Metric::DUPLICATED_LINES_DENSITY, :suffix => '', :url => url_for_drilldown(Metric::DUPLICATED_LINES, :highlight =>  Metric::DUPLICATED_LINES_DENSITY)) -%> <%= trend_icon(Metric::DUPLICATED_LINES_DENSITY, :big => true) -%></span></p>
-		      <p><%= format_measure(Metric::DUPLICATED_LINES, :suffix => ' lines', :url => url_for_drilldown(Metric::DUPLICATED_LINES)) -%> <%= trend_icon(Metric::DUPLICATED_LINES) -%></p>
-		      <p><%= format_measure(Metric::DUPLICATED_BLOCKS, :suffix => ' blocks', :url => url_for_drilldown(Metric::DUPLICATED_BLOCKS)) -%> <%= trend_icon(Metric::DUPLICATED_BLOCKS) -%></p>
-		      <p><%= format_measure(Metric::DUPLICATED_FILES, :suffix => ' files', :url => url_for_drilldown(Metric::DUPLICATED_FILES)) -%> <%= trend_icon(Metric::DUPLICATED_FILES) -%></p>
+		      <p>
+		        <span class="big"><%= format_measure(duplicated_lines_density, :suffix => '', :url => url_for_drilldown(Metric::DUPLICATED_LINES, :highlight =>  'duplicated_lines_density')) -%></span>
+		        <%= dashboard_configuration.variation? ? format_variation(duplicated_lines_density) : trend_icon(duplicated_lines_density, :big => true) -%>
+		      </p>
+		      <p>
+		        <%= format_measure(duplicated_lines, :suffix => ' lines', :url => url_for_drilldown(duplicated_lines)) -%>
+		        <%= dashboard_configuration.variation? ? format_variation(duplicated_lines) : trend_icon(duplicated_lines) -%>
+		      </p>
+		      <p>
+		        <%= format_measure(duplicated_blocks, :suffix => ' blocks', :url => url_for_drilldown(duplicated_blocks)) -%>
+		        <%= dashboard_configuration.variation? ? format_variation(duplicated_blocks) : trend_icon(duplicated_blocks) -%>
+		      </p>
+		      <p>
+		        <%= format_measure(duplicated_files, :suffix => ' files', :url => url_for_drilldown(duplicated_files)) -%>
+		        <%= dashboard_configuration.variation? ? format_variation(duplicated_files) : trend_icon(duplicated_files) -%>
+		      </p>
 		    </div>
 		    <% end %>
-
 		</td>
 	</tr>
 </table>
