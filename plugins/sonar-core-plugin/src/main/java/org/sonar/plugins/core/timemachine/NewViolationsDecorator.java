@@ -53,10 +53,10 @@ public class NewViolationsDecorator implements Decorator {
 
   public void decorate(Resource resource, DecoratorContext context) {
     Measure measure = new Measure(CoreMetrics.NEW_VIOLATIONS);
-    for (VariationTarget variationTarget : timeMachineConfiguration.getVariationTargets()) {
-      Date date = variationTarget.getDate();
-      double value = countViolationsAfterDate(context.getViolations(), date) + sumChildren(context, variationTarget.getIndex());
-      measure.setVariation(variationTarget.getIndex(), value);
+    for (VariationSnapshot variationSnapshot : timeMachineConfiguration.getVariationSnapshots()) {
+      Date date = variationSnapshot.getDate();
+      double value = countViolationsAfterDate(context.getViolations(), date) + sumChildren(context, variationSnapshot.getIndex());
+      measure.setVariation(variationSnapshot.getIndex(), value);
     }
     context.saveMeasure(measure);
   }

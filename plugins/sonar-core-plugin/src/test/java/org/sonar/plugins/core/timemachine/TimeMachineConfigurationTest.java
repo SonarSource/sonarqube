@@ -26,8 +26,7 @@ import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
 
@@ -35,24 +34,30 @@ public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
   public void shouldSkipTendencies() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
     conf.setProperty(CoreProperties.SKIP_TENDENCIES_PROPERTY, true);
-    assertThat(new TimeMachineConfiguration(conf, null).skipTendencies(), is(true));
+    assertThat(new TimeMachineConfiguration(conf).skipTendencies(), is(true));
   }
 
   @Test
   public void shouldNotSkipTendenciesByDefault() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
-    assertThat(new TimeMachineConfiguration(conf, null).skipTendencies(), is(false));
+    assertThat(new TimeMachineConfiguration(conf).skipTendencies(), is(false));
   }
 
   @Test
-  public void shouldGetPeriodVariationTargets() {
+  public void shouldInitSnapshotReferences() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.timemachine.variation1", "7");
-    conf.setProperty("sonar.timemachine.variation2", "30");
-    PeriodLocator periodLocator = mock(PeriodLocator.class);
-    new TimeMachineConfiguration(conf, getSession(), periodLocator).getVariationTargets();
-    verify(periodLocator).locate(7);
-    verify(periodLocator).locate(30);
+    VariationSnapshotFinder snapshotReferenceFinder = mock(VariationSnapshotFinder.class);
+    when(snapshotReferenceFinder.find(conf, 1)).thenReturn(new VariationSnapshot(1, "days", null));
+    when(snapshotReferenceFinder.find(conf, 3)).thenReturn(new VariationSnapshot(3, "days", null));
+
+    TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(conf, snapshotReferenceFinder);
+
+    verify(snapshotReferenceFinder).find(conf, 1);
+    verify(snapshotReferenceFinder).find(conf, 2);
+    verify(snapshotReferenceFinder).find(conf, 3);
+
+    assertThat(timeMachineConfiguration.getVariationSnapshots().size(), is(2));
   }
+
 
 }

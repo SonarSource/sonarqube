@@ -211,13 +211,15 @@ public class CorePlugin implements Plugin {
 
     // time machine
     extensions.add(TendencyDecorator.class);
-    extensions.add(PeriodLocator.class);
+    extensions.add(PastSnapshotFinderByDays.class);
     extensions.add(PastMeasuresLoader.class);
+    extensions.add(VariationSnapshotFinder.class);
     extensions.add(TimeMachineConfiguration.class);
     extensions.add(VariationDecorator.class);
     extensions.add(PastViolationsLoader.class);
     extensions.add(ViolationPersisterDecorator.class);
     extensions.add(NewViolationsDecorator.class);
+    extensions.add(TimeMachineConfigurationPersister.class);
 
     return extensions;
   }

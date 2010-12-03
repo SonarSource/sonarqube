@@ -60,7 +60,7 @@ public class TendencyDecoratorTest {
   }
 
   private TimeMachineConfiguration newConf() {
-    return new TimeMachineConfiguration(new PropertiesConfiguration(), null);
+    return new TimeMachineConfiguration(new PropertiesConfiguration());
   }
 
   @Test

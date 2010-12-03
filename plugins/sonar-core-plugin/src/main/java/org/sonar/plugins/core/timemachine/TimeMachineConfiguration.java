@@ -21,72 +21,50 @@ package org.sonar.plugins.core.timemachine;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.model.Snapshot;
 
+import java.util.Collections;
 import java.util.List;
 
-public final class TimeMachineConfiguration implements BatchExtension {
+public class TimeMachineConfiguration implements BatchExtension {
 
-  private static final int NUMBER_OF_VARIATION_TARGETS = 3;
+  private static final int NUMBER_OF_VARIATION_SNAPSHOTS = 3;
 
   private final Configuration configuration;
-  private List<VariationTarget> variationTargets;
+  private List<VariationSnapshot> variationSnapshots;
 
-  public TimeMachineConfiguration(Configuration configuration, DatabaseSession session, PeriodLocator periodLocator) {
+  public TimeMachineConfiguration(Configuration configuration, VariationSnapshotFinder variationSnapshotFinder) {
     this.configuration = configuration;
-    initVariationTargets(periodLocator, session);
+    initVariationSnapshots(variationSnapshotFinder);
+  }
+
+  private void initVariationSnapshots(VariationSnapshotFinder variationSnapshotFinder) {
+    variationSnapshots = Lists.newLinkedList();
+    for (int index = 1; index <= NUMBER_OF_VARIATION_SNAPSHOTS; index++) {
+      VariationSnapshot variationSnapshot = variationSnapshotFinder.find(configuration, index);
+      if (variationSnapshot != null) {
+        variationSnapshots.add(variationSnapshot);
+      }
+    }
   }
 
   /**
    * for unit tests
    */
-  TimeMachineConfiguration(Configuration configuration, List<VariationTarget> variationTargets) {
+  TimeMachineConfiguration(Configuration configuration, List<VariationSnapshot> variationSnapshots) {
     this.configuration = configuration;
-    this.variationTargets = variationTargets;
+    this.variationSnapshots = variationSnapshots;
   }
 
-  private void initVariationTargets(PeriodLocator periodLocator, DatabaseSession session) {
-    variationTargets = Lists.newLinkedList();
-    for (int index = 1; index <= NUMBER_OF_VARIATION_TARGETS; index++) {
-      VariationTarget target = loadVariationTarget(index, periodLocator);
-      if (target != null) {
-        save(target, session);
-        variationTargets.add(target);
-      }
-    }
+  /**
+   * for unit tests
+   */
+  TimeMachineConfiguration(Configuration configuration) {
+    this.configuration = configuration;
+    this.variationSnapshots = Collections.emptyList();
   }
 
-  private void save(VariationTarget target, DatabaseSession session) {
-    Snapshot projectSnapshot = target.getProjectSnapshot();
-    switch (target.getIndex()) {
-      case 1:
-        projectSnapshot.setVarMode1("PERIOD_IN_DAYS");
-        break;
-      case 2:
-        projectSnapshot.setVarMode2("PERIOD_IN_DAYS");
-        break;
-      case 3:
-        projectSnapshot.setVarMode3("PERIOD_IN_DAYS");
-        break;
-    }
-    session.save(projectSnapshot);
-  }
-
-  private VariationTarget loadVariationTarget(int index, PeriodLocator periodLocator) {
-    String property = configuration.getString("sonar.timemachine.variation" + index);
-    if (StringUtils.isNotBlank(property)) {
-      // todo manage non-integer values
-      Snapshot projectSnapshot = periodLocator.locate(Integer.parseInt(property));
-      if (projectSnapshot != null) {
-        return new VariationTarget(index, projectSnapshot);
-      }
-    }
-    return null;
-  }
 
   public boolean skipTendencies() {
     return configuration.getBoolean(CoreProperties.SKIP_TENDENCIES_PROPERTY, CoreProperties.SKIP_TENDENCIES_DEFAULT_VALUE);
@@ -96,7 +74,7 @@ public final class TimeMachineConfiguration implements BatchExtension {
     return configuration.getInt(CoreProperties.CORE_TENDENCY_DEPTH_PROPERTY, CoreProperties.CORE_TENDENCY_DEPTH_DEFAULT_VALUE);
   }
 
-  public List<VariationTarget> getVariationTargets() {
-    return variationTargets;
+  public List<VariationSnapshot> getVariationSnapshots() {
+    return variationSnapshots;
   }
 }

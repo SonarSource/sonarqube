@@ -1,0 +1,16 @@
+<dataset>
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]"
+             id="100" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             scope="PRJ" qualifier="TRK" created_at="2008-11-01 13:58:00.00" version="[null]" path=""
+             status="P" islast="false" depth="0" />
+
+  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]"
+             id="200" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             scope="PRJ" qualifier="TRK" created_at="2008-12-15 13:58:00.00" version="[null]" path=""
+             status="P" islast="false" depth="0" />
+
+  <snapshots var_mode_1="days" var_label_1="30" var_mode_2="[null]" var_label_2="[null]" var_mode_3="version" var_label_3="1.2.3"
+             id="1000" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             scope="PRJ" qualifier="TRK" created_at="2009-02-25 13:58:00.00" version="[null]" path=""
+             status="P" islast="false" depth="0" />
+</dataset>

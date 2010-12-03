@@ -27,16 +27,16 @@ import org.sonar.api.database.model.Snapshot;
 import java.util.Date;
 import java.util.List;
 
-public class PeriodLocator implements BatchExtension {
+public class PastSnapshotFinderByDays implements BatchExtension{
   private Snapshot projectSnapshot; // TODO replace by PersistenceManager
   private DatabaseSession session;
 
-  public PeriodLocator(Snapshot projectSnapshot, DatabaseSession session) {
+  public PastSnapshotFinderByDays(Snapshot projectSnapshot, DatabaseSession session) {
     this.projectSnapshot = projectSnapshot;
     this.session = session;
   }
 
-  Snapshot locate(int days) {
+  Snapshot findInDays(int days) {
     List<Snapshot> snapshots = loadSnapshotsFromDatabase();
     return getNearestToTarget(snapshots, projectSnapshot.getCreatedAt(), days);
   }
