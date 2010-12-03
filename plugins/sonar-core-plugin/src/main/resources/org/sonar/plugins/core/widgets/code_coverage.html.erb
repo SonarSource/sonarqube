@@ -18,7 +18,7 @@
         <% line_coverage=measure(Metric::LINE_COVERAGE)
           if line_coverage %>
           <p>
-            <%= format_measure(line_coverage, :suffix => ' line coverage', :url => url_for_drilldown(Metric::UNCOVERED_LINES, :highlight =>  Metric::LINE_COVERAGE)) -%>
+            <%= format_measure(line_coverage, :suffix => ' line coverage', :url => url_for_drilldown(Metric::UNCOVERED_LINES, :highlight =>  Metric::LINE_COVERAGE)) %>
             <%= dashboard_configuration.variation? ? format_variation(line_coverage) : trend_icon(line_coverage) -%>
           </p>
         <% end %>
@@ -30,7 +30,7 @@
           </p>
         <% end %>
         <p>
-          <%= format_measure(tests_measure, :suffix => ' tests', :url => url_for_drilldown(Metric::TESTS)) -%>
+          <%= format_measure(tests_measure, :suffix => ' tests', :url => url_for_drilldown(Metric::TESTS)) %>
           <%= dashboard_configuration.variation? ? format_variation(tests_measure) : trend_icon(tests_measure) -%>
         </p>
         <% skipped_measure=measure(Metric::SKIPPED_TESTS)
@@ -42,7 +42,7 @@
         </p>
         <% end %>
         <p>
-          <%= format_measure(execution_time, :suffix => '', :url => url_for_drilldown(Metric::TEST_EXECUTION_TIME)) -%>
+          <%= format_measure(execution_time, :suffix => '', :url => url_for_drilldown(Metric::TEST_EXECUTION_TIME)) %>
           <%= dashboard_configuration.variation? ? format_variation(execution_time) : trend_icon(execution_time) -%>
         </p>
       </div>

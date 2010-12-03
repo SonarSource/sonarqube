@@ -101,7 +101,7 @@ class ProjectMeasure < ActiveRecord::Base
     when Metric::VALUE_TYPE_PERCENT
       number_to_percentage(val, {:precision => 1})
     when Metric::VALUE_TYPE_MILLISEC
-      millisecs_formatted_value( val )
+      millisecs_formatted_value(val)
     else
       val.to_s
     end
@@ -122,18 +122,18 @@ class ProjectMeasure < ActiveRecord::Base
 
   def millisecs_formatted_value( value )
     # bugfix with jruby 1.0 release does not support % for BigDecimal
-    value = value.to_i if value.kind_of? BigDecimal
-    if value >= HOUR
+    value = value.to_i
+    if value.abs >= HOUR
       hours = ( value / HOUR ).to_i
       mins = ( value % HOUR / MIN ).to_i
       secs = ( value % MIN / SEC ).to_i
       return hours.to_s + ":" + leading_zero( mins ) + ":" + leading_zero( secs ) + " h"
-    elsif value >= MIN
+    elsif value.abs >= MIN
       mins = ( value / MIN ).to_i
       secs = ( value % MIN / SEC ).to_i
       millisecs = ( value % MIN % SEC ).to_i
       return mins.to_s + ":" + leading_zero( secs ) + " min"
-    elsif value >= SEC
+    elsif value.abs >= SEC
       secs = ( value / SEC ).to_i
       millisecs = ( value % SEC ).to_i
       return secs.to_s + "." + millisecs.to_s[0, 1] + " sec" if millisecs != 0
