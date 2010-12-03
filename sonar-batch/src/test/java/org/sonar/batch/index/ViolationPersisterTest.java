@@ -19,13 +19,6 @@
  */
 package org.sonar.batch.index;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.database.model.RuleFailureModel;
@@ -37,6 +30,13 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
 import org.sonar.core.components.DefaultRuleFinder;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ViolationPersisterTest extends AbstractDbUnitTestCase {
 
@@ -80,7 +80,7 @@ public class ViolationPersisterTest extends AbstractDbUnitTestCase {
         .setLineId(20).setCost(55.6);
     RuleFailureModel model = getSession().getSingleResult(RuleFailureModel.class, "id", 1);
 
-    violationPersister.saveOrUpdateViolation(new Project("project"), violation, model);
+    violationPersister.saveOrUpdateViolation(new Project("project"), violation, model, null);
 
     assertThat(violation.getCreatedAt(), notNullValue());
     checkTables("shouldUpdateViolation", "rule_failures");

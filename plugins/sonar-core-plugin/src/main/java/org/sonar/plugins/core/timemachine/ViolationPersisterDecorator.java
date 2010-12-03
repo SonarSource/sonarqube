@@ -40,7 +40,6 @@ public class ViolationPersisterDecorator implements Decorator {
   private ViolationPersister violationPersister;
 
   List<String> checksums = Lists.newArrayList();
-  List<String> pastChecksums = Lists.newArrayList();
 
   public ViolationPersisterDecorator(RuleFinder ruleFinder, PastViolationsLoader pastViolationsLoader, ViolationPersister violationPersister) {
     this.ruleFinder = ruleFinder;
@@ -56,15 +55,12 @@ public class ViolationPersisterDecorator implements Decorator {
     Snapshot previousLastSnapshot = pastViolationsLoader.getPreviousLastSnapshot(resource);
     // Load past violations
     List<RuleFailureModel> pastViolations = pastViolationsLoader.getPastViolations(previousLastSnapshot);
-    // Load past source and calculate checksums
-    pastChecksums = getChecksums(pastViolationsLoader.getPastSource(previousLastSnapshot));
     // Load current source and calculate checksums
     checksums = getChecksums(pastViolationsLoader.getSource(resource));
     // Save violations
     compareWithPastViolations(context, pastViolations);
     // Clear caches
     checksums.clear();
-    pastChecksums.clear();
   }
 
   private void compareWithPastViolations(DecoratorContext context, List<RuleFailureModel> pastViolations) {
@@ -80,7 +76,8 @@ public class ViolationPersisterDecorator implements Decorator {
         // remove violation from past, since would be updated and shouldn't affect other violations anymore
         pastViolationsByRule.remove(violation.getRule(), pastViolation);
       }
-      violationPersister.saveOrUpdateViolation(context.getProject(), violation, pastViolation);
+      String checksum = getChecksumForLine(checksums, violation.getLineId());
+      violationPersister.saveOrUpdateViolation(context.getProject(), violation, pastViolation, checksum);
     }
   }
 
@@ -153,7 +150,7 @@ public class ViolationPersisterDecorator implements Decorator {
       return null;
     }
     for (RuleFailureModel pastViolation : pastViolations) {
-      String pastChecksum = getChecksumForLine(pastChecksums, pastViolation.getLine());
+      String pastChecksum = pastViolation.getChecksum();
       if (StringUtils.equals(checksum, pastChecksum) && StringUtils.equals(violation.getMessage(), pastViolation.getMessage())) {
         return pastViolation;
       }

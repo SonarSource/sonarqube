@@ -1,11 +1,5 @@
 package org.sonar.plugins.core.timemachine;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import org.junit.Before;
@@ -15,6 +9,12 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 
 import java.util.List;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 
 public class ViolationPersisterDecoratorTest {
 
@@ -54,22 +54,22 @@ public class ViolationPersisterDecoratorTest {
     assertThat(found, equalTo(pastViolation));
   }
 
-  @Test
-  public void sameRuleAndMessageButDifferentLine() {
-    Rule rule = Rule.create().setKey("rule");
-    Violation violation = Violation.create(rule, null)
-        .setLineId(1).setMessage("message");
-    decorator.checksums = ViolationPersisterDecorator.getChecksums("violation");
-
-    RuleFailureModel pastViolation = newPastViolation(rule, 2, "message");
-    decorator.pastChecksums = ViolationPersisterDecorator.getChecksums("line\nviolation");
-
-    Multimap<Rule, RuleFailureModel> pastViolationsByRule = LinkedHashMultimap.create();
-    pastViolationsByRule.put(rule, pastViolation);
-
-    RuleFailureModel found = decorator.selectPastViolation(violation, pastViolationsByRule);
-    assertThat(found, equalTo(pastViolation));
-  }
+  // @Test
+  // public void sameRuleAndMessageButDifferentLine() {
+  // Rule rule = Rule.create().setKey("rule");
+  // Violation violation = Violation.create(rule, null)
+  // .setLineId(1).setMessage("message");
+  // decorator.checksums = ViolationPersisterDecorator.getChecksums("violation");
+  //
+  // RuleFailureModel pastViolation = newPastViolation(rule, 2, "message");
+  // decorator.pastChecksums = ViolationPersisterDecorator.getChecksums("line\nviolation");
+  //
+  // Multimap<Rule, RuleFailureModel> pastViolationsByRule = LinkedHashMultimap.create();
+  // pastViolationsByRule.put(rule, pastViolation);
+  //
+  // RuleFailureModel found = decorator.selectPastViolation(violation, pastViolationsByRule);
+  // assertThat(found, equalTo(pastViolation));
+  // }
 
   @Test
   public void newViolation() {

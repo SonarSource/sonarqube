@@ -43,10 +43,10 @@ public final class ViolationPersister {
    * @deprecated Use {@link #saveOrUpdateViolation(Project, Violation, RuleFailureModel)} instead.
    */
   public void saveViolation(Project project, Violation violation) {
-    saveOrUpdateViolation(project, violation, null);
+    saveOrUpdateViolation(project, violation, null, null);
   }
 
-  public void saveOrUpdateViolation(Project project, Violation violation, RuleFailureModel model) {
+  public void saveOrUpdateViolation(Project project, Violation violation, RuleFailureModel model, String checksum) {
     Snapshot snapshot = resourcePersister.saveResource(project, violation.getResource());
     if (model != null) {
       // update
@@ -58,6 +58,7 @@ public final class ViolationPersister {
       model.setCreatedAt(snapshot.getCreatedAt());
     }
     model.setSnapshotId(snapshot.getId());
+    model.setChecksum(checksum);
     session.save(model);
     violation.setCreatedAt(model.getCreatedAt());
   }

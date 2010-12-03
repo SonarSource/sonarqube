@@ -59,6 +59,9 @@ public class RuleFailureModel extends BaseIdentifiable {
   @Column(name = "created_at", updatable = true, nullable = true)
   private Date createdAt;
 
+  @Column(name = "checksum", updatable = true, nullable = true, length = 1000)
+  private String checksum;
+
   public String getMessage() {
     return message;
   }
@@ -122,6 +125,14 @@ public class RuleFailureModel extends BaseIdentifiable {
 
   public void setCreatedAt(Date createdAt) {
     this.createdAt = createdAt;
+  }
+
+  public String getChecksum() {
+    return checksum;
+  }
+
+  public void setChecksum(String checksum) {
+    this.checksum = checksum;
   }
 
   @Override

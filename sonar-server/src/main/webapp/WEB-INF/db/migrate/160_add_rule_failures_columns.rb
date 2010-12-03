@@ -21,10 +21,11 @@
 #
 # Sonar 2.5
 #
-class AddRuleFailuresCreatedAtColumn < ActiveRecord::Migration
+class AddRuleFailuresColumns < ActiveRecord::Migration
 
   def self.up
     add_column 'rule_failures', 'created_at', :datetime, :null => true
+    add_column 'rule_failures', 'checksum', :string , :null => true, :limit => 1000
   end
 
 end
