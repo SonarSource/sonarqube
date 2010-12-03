@@ -21,24 +21,13 @@ public class PastViolationsLoader implements BatchExtension {
     this.resourcePersister = resourcePersister;
   }
 
-  public Snapshot getPreviousLastSnapshot(Resource resource) {
+  public List<RuleFailureModel> getPastViolations(Resource resource) {
     Snapshot snapshot = resourcePersister.getSnapshot(resource);
-    return resourcePersister.getLastSnapshot(snapshot, true);
-  }
-
-  public List<RuleFailureModel> getPastViolations(Snapshot previousLastSnapshot) {
+    Snapshot previousLastSnapshot = resourcePersister.getLastSnapshot(snapshot, true);
     if (previousLastSnapshot == null) {
       return Collections.emptyList();
     }
     return session.getResults(RuleFailureModel.class,
-        "snapshotId", previousLastSnapshot.getId());
-  }
-
-  public SnapshotSource getPastSource(Snapshot previousLastSnapshot) {
-    if (previousLastSnapshot == null) {
-      return null;
-    }
-    return session.getSingleResult(SnapshotSource.class,
         "snapshotId", previousLastSnapshot.getId());
   }
 

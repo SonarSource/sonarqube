@@ -12,7 +12,6 @@ import org.sonar.api.batch.DecoratorBarriers;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.database.model.RuleFailureModel;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.database.model.SnapshotSource;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -52,14 +51,13 @@ public class ViolationPersisterDecorator implements Decorator {
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
-    Snapshot previousLastSnapshot = pastViolationsLoader.getPreviousLastSnapshot(resource);
     // Load past violations
-    List<RuleFailureModel> pastViolations = pastViolationsLoader.getPastViolations(previousLastSnapshot);
+    List<RuleFailureModel> pastViolations = pastViolationsLoader.getPastViolations(resource);
     // Load current source and calculate checksums
     checksums = getChecksums(pastViolationsLoader.getSource(resource));
     // Save violations
     compareWithPastViolations(context, pastViolations);
-    // Clear caches
+    // Clear cache
     checksums.clear();
   }
 
@@ -93,13 +91,17 @@ public class ViolationPersisterDecorator implements Decorator {
     try {
       List<String> lines = IOUtils.readLines(new StringInputStream(data));
       for (String line : lines) {
-        String reducedLine = StringUtils.replaceChars(line, SPACE_CHARS, "");
-        result.add(DigestUtils.md5Hex(reducedLine));
+        result.add(getChecksum(line));
       }
     } catch (IOException e) {
       throw new SonarException("Unable to calculate checksums", e);
     }
     return result;
+  }
+
+  static String getChecksum(String line) {
+    String reducedLine = StringUtils.replaceChars(line, SPACE_CHARS, "");
+    return DigestUtils.md5Hex(reducedLine);
   }
 
   /**
