@@ -17,7 +17,12 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
+
+#
+# Sonar 2.5
+#
 class DeleteIsoRuleCategories < ActiveRecord::Migration
+
 
   def self.up
     remove_rule_categories

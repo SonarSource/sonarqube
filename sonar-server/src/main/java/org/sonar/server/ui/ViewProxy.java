@@ -42,7 +42,6 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   private WidgetLayoutType widgetLayout = WidgetLayoutType.DEFAULT;
   private boolean isDefaultTab = false;
   private boolean isWidget = false;
-  private boolean supportsVariationDashboard = false;
 
   public ViewProxy(final V view) {
     this.view = view;
@@ -102,10 +101,6 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     WidgetLayout layoutAnnotation = AnnotationUtils.getClassAnnotation(view, WidgetLayout.class);
     if (layoutAnnotation != null) {
       widgetLayout = layoutAnnotation.value();
-    }
-
-    if (AnnotationUtils.getClassAnnotation(view, SupportVariationDashboard.class)!=null) {
-      supportsVariationDashboard = true;
     }
 
     isWidget = (view instanceof Widget);
@@ -177,10 +172,6 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
 
   public boolean isEditable() {
     return !ArrayUtils.isEmpty(widgetProperties);
-  }
-
-  public boolean supportsVariationDashboard() {
-    return supportsVariationDashboard;
   }
 
   public boolean hasRequiredProperties() {

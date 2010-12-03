@@ -71,7 +71,7 @@ public class ViewsTest {
   @Test
   public void getWidgets() {
     final Views views = new Views(VIEWS);
-    List<ViewProxy<Widget>> widgets = views.getWidgets(null, null, null, false);
+    List<ViewProxy<Widget>> widgets = views.getWidgets(null, null, null);
     assertThat(widgets.size(), is(1));
     assertThat(widgets.get(0).getTarget(), is(FakeWidget.class));
   }
@@ -79,7 +79,7 @@ public class ViewsTest {
   @Test
   public void sortViewsByTitle() {
     final Views views = new Views(new View[]{new FakeWidget("ccc", "ccc"), new FakeWidget("aaa", "aaa"), new FakeWidget("bbb", "bbb")});
-    List<ViewProxy<Widget>> widgets = views.getWidgets(null, null, null, false);
+    List<ViewProxy<Widget>> widgets = views.getWidgets(null, null, null);
     assertThat(widgets.size(), is(3));
     assertThat(widgets.get(0).getId(), is("aaa"));
     assertThat(widgets.get(1).getId(), is("bbb"));
@@ -89,7 +89,7 @@ public class ViewsTest {
   @Test
   public void prefixTitleByNumberToDisplayFirst() {
     final Views views = new Views(new View[]{new FakeWidget("other", "Other"), new FakeWidget("1id", "1widget"), new FakeWidget("2id", "2widget")});
-    List<ViewProxy<Widget>> widgets = views.getWidgets(null, null, null, false);
+    List<ViewProxy<Widget>> widgets = views.getWidgets(null, null, null);
     assertThat(widgets.size(), is(3));
     assertThat(widgets.get(0).getId(), is("1id"));
     assertThat(widgets.get(1).getId(), is("2id"));

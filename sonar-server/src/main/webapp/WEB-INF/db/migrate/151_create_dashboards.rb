@@ -18,6 +18,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 
+#
+# Sonar 2.4
+#
 class CreateDashboards < ActiveRecord::Migration
   def self.up
 

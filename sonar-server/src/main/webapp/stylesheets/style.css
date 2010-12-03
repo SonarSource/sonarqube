@@ -881,6 +881,21 @@ ul.operations li a {
   padding: 10px;
 }
 
+
+/* ------------------- VARIATIONS ------------------- */
+.var {
+  font-weight: bold;
+  color: #005C9C !important;
+}
+.varb {/* better */
+  font-weight: bold;
+  color: #078C00 !important;
+}
+.varw {/* worst */
+  font-weight: bold;
+  color: #cc0000 !important;
+}
+
 /* ------------------- HELP ------------------- */
 .help {
   border: 1px solid #ccc;
@@ -1303,7 +1318,7 @@ ul.bullet li {
 div.barchart {
   border: 0;
   margin: 0;
-  padding: 0 5px;
+  padding: 0;
   float: left;
 }
 

@@ -17,6 +17,10 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
+
+#
+# Sonar 2.4
+#
 class DeleteDuplicatedLibSnapshots < ActiveRecord::Migration
   def self.up
    metric=Metric.find(:first, :conditions => ['name=?','lines'])

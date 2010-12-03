@@ -76,10 +76,10 @@ public class Views implements ServerComponent {
     return widgetsPerId.get(id);
   }
 
-  public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage, boolean variationDashboard) {
+  public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage) {
     List<ViewProxy<Widget>> result = Lists.newArrayList();
     for (ViewProxy<Widget> proxy : widgets) {
-      if (accept(proxy, null, resourceScope, resourceQualifier, resourceLanguage) && (!variationDashboard || proxy.supportsVariationDashboard())) {
+      if (accept(proxy, null, resourceScope, resourceQualifier, resourceLanguage)) {
         result.add(proxy);
       }
     }

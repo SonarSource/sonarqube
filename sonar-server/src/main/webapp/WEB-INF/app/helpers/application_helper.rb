@@ -211,8 +211,6 @@ module ApplicationHelper
   # * <tt>:prefix</tt> - add a prefix. Default is ''.
   # * <tt>:suffix</tt> - add a suffix. Default is ''.
   # * <tt>:default</tt> - text to return if metric or measure not found. Default is blank string.
-  # * <tt>:mode</tt> - display the measure value (:value) or the variation (:variation). The default mode is :auto, according to the mode selected in the dashboard
-  # * <tt>:variation</tt> - the configuration index between 1 and 3. Only when :mode => :variation
   #
   # === Examples
   #
@@ -236,39 +234,23 @@ module ApplicationHelper
       link_rel=''
       show_link= !options[:url].blank?
 
-      variation_mode = false
       if m.metric.val_type==Metric::VALUE_TYPE_LEVEL
         html=image_tag("levels/#{m.data.downcase}.png") unless m.data.blank?
       else
-        mode=options[:mode]||:auto
-        if mode==:value
-          html=m.formatted_value
-        elsif mode==:variation
-          html=m.formatted_var_value(options[:variation_index]||1)
-          variation_mode = true
-        else
-          if @dashboard_configuration && @dashboard_configuration.variation?
-            html=m.formatted_variation_value(@dashboard_configuration.variation_index)
-            variation_mode = true
-          else
-            html=m.formatted_value
-          end
-        end
+        html=m.formatted_value
       end
 
       alert_class=''
       alert_link = false
       style = ''
-      if !variation_mode
-        if !(m.alert_status.blank?)
-          alert_class="class='alert_#{m.alert_status}'" unless m.metric.val_type==Metric::VALUE_TYPE_LEVEL
-          link_rel=h(m.alert_text)
-          show_link=true
-          alert_link = true
+      if !(m.alert_status.blank?)
+        alert_class="class='alert_#{m.alert_status}'" unless m.metric.val_type==Metric::VALUE_TYPE_LEVEL
+        link_rel=h(m.alert_text)
+        show_link=true
+        alert_link = true
 
-        elsif m.metric.val_type==Metric::VALUE_TYPE_RATING && m.color
-          style = "style='background-color: #{m.color.html};padding: 2px 5px'"
-        end
+      elsif m.metric.val_type==Metric::VALUE_TYPE_RATING && m.color
+        style = "style='background-color: #{m.color.html};padding: 2px 5px'"
       end
 
       span_id=''
@@ -359,13 +341,28 @@ module ApplicationHelper
     chart
   end
 
+  #
+  #
+  # Draw a HTML/CSS bar
+  #
+  # === Optional parameters
+  # * width: container width in pixels. Default is 150.
+  # * percent: integer between -100 and 100. Size of the bar inside the container. Default is 100. Bar is aligned to right if the value is negative.
+  # * color: the bar HTML color. Default value is '#777'
+  #
   def barchart(options)
     percent = (options[:percent] || 100).to_i
-    return '' if percent<=0
+    width=(options[:width] || 150).to_i
+    if options[:positive_color] && percent>0
+      color = options[:positive_color]
+    elsif options[:negative_color] && percent<0
+      color = options[:negative_color]
+    else
+      color = options[:color]||'#777'
+    end
 
-    width = (options[:width] || 150).to_i
-    color = (options[:color] ? "background-color: #{options[:color]};" : '')
-    "<div class='barchart' style='width: #{width}px'><div style='width: #{percent}%;#{color}'></div></div>"
+    align=(percent<0 ? 'float: right;' : nil)
+    "<div class='barchart' style='width: #{width}px'><div style='width: #{percent.abs}%;background-color:#{color};#{align}'></div></div>"
   end
 
   def chart(parameters, options={})
@@ -394,12 +391,12 @@ module ApplicationHelper
   #
   # === Optional parameters
   # * big: true|false. Default is false.
-  # * force: true|false. By default trend icons are hidden when the dashboard variation mode is selected.
+  # * empty: true|false. Show an empty transparent image when no trend or no measure. Default is false.
   #
   # === Examples
   # trend_icon('ncloc')
   # trend_icon(measure('ncloc'))
-  # trend_icon('ncloc', :big => true)
+  # trend_icon('ncloc', :big => true, :empty => true)
   #
   def trend_icon(metric_or_measure, options={})
     if metric_or_measure.is_a? ProjectMeasure
@@ -408,13 +405,9 @@ module ApplicationHelper
       m = @snapshot.measure(metric_or_measure)
     end
 
-    if defined?(@dashboard_configuration) && @dashboard_configuration.variation?
-      return nil unless options[:force]
-    end
-
     big=options[:big]||false
     if m.nil? || m.tendency.nil? || m.tendency==0
-      return image_tag("transparent.gif", :width => big ? "18" : "16", :alt => "")
+      return options[:empty] ? image_tag("transparent.gif", :width => big ? "18" : "16", :alt => "") : nil
     end
     filename = m.tendency.to_s
 
@@ -428,5 +421,76 @@ module ApplicationHelper
     end
     suffix = (big ? '' : '-small')
     image_tag("tendency/#{filename}#{suffix}.png")
+  end
+
+  #
+  #
+  # Numeric value of variation
+  #
+  # === Optional parameters
+  # * index: integer between 1 and 3. By default the index is defined by the dashboard variation select-box
+  #
+  # === Examples
+  # variation_value('ncloc')
+  # variation_value(measure('ncloc'))
+  # variation_value('ncloc', :index => 3)
+  #
+  def variation_value(metric_or_measure, options={})
+    if metric_or_measure.is_a?(ProjectMeasure)
+      m = metric_or_measure
+    elsif @snapshot
+      m = @snapshot.measure(metric_or_measure)
+    end
+
+    index=options[:index]
+    if index.nil? && defined?(@dashboard_configuration) && @dashboard_configuration.variation?
+      index = @dashboard_configuration.variation_index
+    end
+
+    m.variation(index)
+  end
+
+
+  #
+  #
+  # Format variation value
+  #
+  # === Optional parameters
+  # * color: true|false. Default is true.
+  # * index: integer between 1 and 3. By default the index is defined by the dashboard variation select-box
+  #
+  # === Examples
+  # format_variation('ncloc')
+  # format_variation(measure('ncloc'), :index => 3, :color => true)
+  #
+  def format_variation(metric_or_measure, options={})
+    if metric_or_measure.is_a?(ProjectMeasure)
+      m = metric_or_measure
+    elsif @snapshot
+      m = @snapshot.measure(metric_or_measure)
+    end
+    html=nil
+    if m
+      val=variation_value(m, options)
+      if val
+        formatted_val=(val>=0 ? "+#{m.format_numeric_value(val)}" : m.format_numeric_value(val))
+        css_class=''
+        if options[:color]||true
+          css_class='var'
+          if m.metric.qualitative?
+            factor=m.metric.direction * val
+            if factor>0
+              # better
+              css_class='varb'
+            elsif factor<0
+              # worst
+              css_class='varw'
+            end
+          end
+        end
+        html="<span class='#{css_class}'>(#{formatted_val})</span>"
+      end
+    end
+    html
   end
 end

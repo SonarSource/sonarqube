@@ -351,31 +351,31 @@ public final class CoreMetrics {
 
   public static final String VIOLATIONS_KEY = "violations";
   public static final Metric VIOLATIONS = new Metric(VIOLATIONS_KEY, "Violations", "Violations", Metric.ValueType.INT,
-      Metric.DIRECTION_WORST, false, DOMAIN_RULES).setBestValue(0.0).setOptimizedBestValue(true);
+      Metric.DIRECTION_WORST, true, DOMAIN_RULES).setBestValue(0.0).setOptimizedBestValue(true);
 
   public static final String NEW_VIOLATIONS_KEY = "new_violations";
   public static final Metric NEW_VIOLATIONS = new Metric(NEW_VIOLATIONS_KEY, "New Violations", "New Violations", Metric.ValueType.INT,
-      Metric.DIRECTION_WORST, false, DOMAIN_RULES);
+      Metric.DIRECTION_WORST, true, DOMAIN_RULES);
 
   public static final String BLOCKER_VIOLATIONS_KEY = "blocker_violations";
   public static final Metric BLOCKER_VIOLATIONS = new Metric(BLOCKER_VIOLATIONS_KEY, "Blocker violations", "Blocker violations",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_RULES).setBestValue(0.0).setOptimizedBestValue(true);
+      Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setBestValue(0.0).setOptimizedBestValue(true);
 
   public static final String CRITICAL_VIOLATIONS_KEY = "critical_violations";
   public static final Metric CRITICAL_VIOLATIONS = new Metric(CRITICAL_VIOLATIONS_KEY, "Critical violations", "Critical violations",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_RULES).setBestValue(0.0).setOptimizedBestValue(true);
+      Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setBestValue(0.0).setOptimizedBestValue(true);
 
   public static final String MAJOR_VIOLATIONS_KEY = "major_violations";
   public static final Metric MAJOR_VIOLATIONS = new Metric(MAJOR_VIOLATIONS_KEY, "Major violations", "Major violations",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_RULES).setBestValue(0.0).setOptimizedBestValue(true);
+      Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setBestValue(0.0).setOptimizedBestValue(true);
 
   public static final String MINOR_VIOLATIONS_KEY = "minor_violations";
   public static final Metric MINOR_VIOLATIONS = new Metric(MINOR_VIOLATIONS_KEY, "Minor violations", "Minor violations",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_RULES).setBestValue(0.0).setOptimizedBestValue(true);
+      Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setBestValue(0.0).setOptimizedBestValue(true);
 
   public static final String INFO_VIOLATIONS_KEY = "info_violations";
   public static final Metric INFO_VIOLATIONS = new Metric(INFO_VIOLATIONS_KEY, "Info violations", "Info violations", Metric.ValueType.INT,
-      Metric.DIRECTION_WORST, false, DOMAIN_RULES).setBestValue(0.0).setOptimizedBestValue(true);
+      Metric.DIRECTION_WORST, true, DOMAIN_RULES).setBestValue(0.0).setOptimizedBestValue(true);
 
   /* Design */
 
