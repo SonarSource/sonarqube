@@ -20,25 +20,19 @@
 
 package org.sonar.java.ast.check;
 
-import java.util.List;
-
+import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.WildcardPattern;
-import org.sonar.check.IsoCategory;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.java.PatternUtils;
 import org.sonar.java.ast.visitor.PublicApiVisitor;
-import org.sonar.squid.api.CheckMessage;
-import org.sonar.squid.api.SourceClass;
-import org.sonar.squid.api.SourceCode;
-import org.sonar.squid.api.SourceFile;
-import org.sonar.squid.api.SourceMethod;
+import org.sonar.squid.api.*;
 
-import com.puppycrawl.tools.checkstyle.api.DetailAST;
+import java.util.List;
 
-@Rule(key = "UndocumentedApi", name = "Undocumented API", isoCategory = IsoCategory.Usability, priority = Priority.MAJOR,
+@Rule(key = "UndocumentedApi", name = "Undocumented API", priority = Priority.MAJOR,
     description = "<p>Check that each public class, interface, method and constructor has a Javadoc comment. "
         + "The following public methods/constructors are not concerned by this rule :</p>" + "<ul><li>Getter / Setter</li>"
         + "<li>Method with @Override annotation</li>" + "<li>Empty constructor</li></ul>")

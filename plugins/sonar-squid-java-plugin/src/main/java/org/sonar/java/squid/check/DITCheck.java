@@ -20,7 +20,6 @@
 
 package org.sonar.java.squid.check;
 
-import org.sonar.check.IsoCategory;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -29,7 +28,7 @@ import org.sonar.squid.api.SourceClass;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.measures.Metric;
 
-@Rule(key = "MaximumInheritanceDepth", name = "Avoid too deep inheritance tree", isoCategory = IsoCategory.Maintainability,
+@Rule(key = "MaximumInheritanceDepth", name = "Avoid too deep inheritance tree",
     priority = Priority.MAJOR, description = "<p>Inheritance is certainly one of the most valuable concept of object-oriented "
         + "programming. It's a way to compartmentalize and reuse code by creating collections of attributes and behaviors called "
         + "classes which can be based on previously created classes. But abusing of this concept by creating a deep inheritance tree "

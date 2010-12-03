@@ -53,6 +53,8 @@ public @interface Rule {
 
   /**
    * Will probably be deprecated and replaced by tags
+   * 
+   * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2007
    */
   IsoCategory isoCategory() default IsoCategory.NONE;
 

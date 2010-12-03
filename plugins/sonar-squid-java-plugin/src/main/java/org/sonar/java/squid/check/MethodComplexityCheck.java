@@ -20,7 +20,6 @@
 
 package org.sonar.java.squid.check;
 
-import org.sonar.check.IsoCategory;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -29,7 +28,7 @@ import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.api.SourceMethod;
 import org.sonar.squid.measures.Metric;
 
-@Rule(key = "MethodCyclomaticComplexity", name = "Avoid too complex method", isoCategory = IsoCategory.Maintainability,
+@Rule(key = "MethodCyclomaticComplexity", name = "Avoid too complex method",
     priority = Priority.MAJOR, description = "<p>The Cyclomatic Complexity is measured by the number of (&&, ||) operators "
         + "and (if, while, do, for, ?:, catch, switch, case, return, throw) statements in the body of a constructor, "
         + "method, static initializer, or instance initializer. "

@@ -19,7 +19,6 @@ w * Sonar, open source software quality management tool.
  */
 package org.sonar.java.bytecode.check;
 
-import org.sonar.check.IsoCategory;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.java.bytecode.asm.AsmClass;
@@ -28,7 +27,7 @@ import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.api.SourceMethod;
 
-@Rule(key = "UnusedProtectedMethod", name = "Unused protected method", isoCategory = IsoCategory.Maintainability,
+@Rule(key = "UnusedProtectedMethod", name = "Unused protected method",
     priority = Priority.MAJOR, description = "<p>Protected methods that are never used by any classes " +
         "in the same project are strongly suspected to be dead code. "
         + "Dead code means unnecessary, inoperative code that should be removed. "
@@ -48,7 +47,7 @@ public class UnusedProtectedMethodCheck extends BytecodeCheck {
 
   @Override
   public void visitMethod(AsmMethod asmMethod) {
-    if ( !asmMethod.isUsed() && asmMethod.isProtected() && !asmClass.isAbstract() && !SerializableContract.methodMatch(asmMethod)
+    if (!asmMethod.isUsed() && asmMethod.isProtected() && !asmClass.isAbstract() && !SerializableContract.methodMatch(asmMethod)
         && !asmMethod.isInherited()) {
       CheckMessage message = new CheckMessage(this, "Protected method '" + asmMethod.getName() + "(...)' is never used.");
       SourceMethod sourceMethod = getSourceMethod(asmMethod);

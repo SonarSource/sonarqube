@@ -19,7 +19,6 @@
  */
 package org.sonar.java.bytecode.check;
 
-import org.sonar.check.IsoCategory;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.java.bytecode.asm.AsmClass;
@@ -28,7 +27,7 @@ import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.api.SourceMethod;
 
-@Rule(key = "UnusedPrivateMethod", name = "Unused private method", isoCategory = IsoCategory.Maintainability,
+@Rule(key = "UnusedPrivateMethod", name = "Unused private method",
     priority = Priority.MAJOR, description = "<p>Private methods that are never executed are dead code. " +
         "Dead code means unnecessary, inoperative code that should be removed. " +
         "This helps in maintenance by decreasing the maintained code size, " +
@@ -48,7 +47,7 @@ public class UnusedPrivateMethodCheck extends BytecodeCheck {
 
   @Override
   public void visitMethod(AsmMethod asmMethod) {
-    if ( !asmMethod.isUsed() && asmMethod.isPrivate() && !asmMethod.isDefaultConstructor() && !SerializableContract.methodMatch(asmMethod)) {
+    if (!asmMethod.isUsed() && asmMethod.isPrivate() && !asmMethod.isDefaultConstructor() && !SerializableContract.methodMatch(asmMethod)) {
       CheckMessage message = new CheckMessage(this, "Private method '" + asmMethod.getName() + "(...)' is never used.");
       SourceMethod sourceMethod = getSourceMethod(asmMethod);
       if (sourceMethod != null) {

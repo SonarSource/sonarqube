@@ -23,7 +23,6 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.check.Cardinality;
-import org.sonar.check.IsoCategory;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -38,7 +37,7 @@ import org.sonar.squid.api.SourceMethod;
 import java.util.Map;
 
 @Rule(key = "ArchitecturalConstraint", name = "Architectural constraint", cardinality = Cardinality.MULTIPLE,
-    isoCategory = IsoCategory.Portability, priority = Priority.MAJOR,
+    priority = Priority.MAJOR,
     description = "<p>A source code comply to an architectural model when it fully adheres to a set of architectural constraints. " +
         "A constraint allows to deny references between classes by pattern.</p>" +
         "<p>You can for instance use this rule to :</p>" +
@@ -99,7 +98,7 @@ public class ArchitectureCheck extends BytecodeCheck {
   public void visitEdge(AsmEdge edge) {
     if (asmClass != null && edge != null) {
       String internalNameTargetClass = edge.getTargetAsmClass().getInternalName();
-      if ( !internalNames.containsKey(internalNameTargetClass)) {
+      if (!internalNames.containsKey(internalNameTargetClass)) {
         if (WildcardPattern.match(getToPatterns(), internalNameTargetClass)) {
           int sourceLineNumber = getSourceLineNumber(edge);
           logMessage(asmClass.getInternalName(), internalNameTargetClass, sourceLineNumber);

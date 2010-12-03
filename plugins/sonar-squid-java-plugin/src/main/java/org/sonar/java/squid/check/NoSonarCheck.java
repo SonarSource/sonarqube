@@ -20,13 +20,12 @@
 
 package org.sonar.java.squid.check;
 
-import org.sonar.check.IsoCategory;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 
-@Rule(key = "NoSonar", name = "Avoid use of //NOSONAR marker", isoCategory = IsoCategory.Reliability, priority = Priority.INFO,
+@Rule(key = "NoSonar", name = "Avoid use of //NOSONAR marker", priority = Priority.INFO,
     description = "<p>Any violation to quality rule can be deactivated with the //NOSONAR marker. This marker is pretty useful to exclude "
         + "false-positive results but sometimes it can abusively be used to hide real quality flaws.</p>"
         + "<p>This rule allows to track and/or forbid use of this marker</p>")
