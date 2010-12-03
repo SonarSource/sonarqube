@@ -23,28 +23,29 @@ import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import java.util.Arrays;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertThat;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-public class TimeMachineConfigurationPersisterTest extends AbstractDbUnitTestCase {
+public class PastSnapshotFinderByVersionTest extends AbstractDbUnitTestCase {
 
   @Test
-  public void shouldSaveVariationConfigurationInSnapshotsTable() {
+  public void shouldFindByVersion() {
     setupData("shared");
 
-    TimeMachineConfiguration conf = mock(TimeMachineConfiguration.class);
-    PastSnapshot vs1 = new PastSnapshot(1, "days", getSession().getSingleResult(Snapshot.class, "id", 100))
-        .setConfigurationModeParameter("30");
-    PastSnapshot vs3 = new PastSnapshot(3, "version", getSession().getSingleResult(Snapshot.class, "id", 300))
-        .setConfigurationModeParameter("1.2.3");
-    when(conf.getVariationSnapshots()).thenReturn(Arrays.asList(vs1, vs3));
-    Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1000);
+    Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
+    PastSnapshotFinderByVersion finder = new PastSnapshotFinderByVersion(currentProjectSnapshot, getSession());
 
-    TimeMachineConfigurationPersister persister = new TimeMachineConfigurationPersister(conf, projectSnapshot, getSession());
-    persister.start();
+    assertThat(finder.findVersion("1.1").getId(), is(1009));
+  }
 
-    checkTables("shouldSaveVariationConfigurationInSnapshotsTable", "snapshots");
+  @Test
+  public void shouldNotFindVersion() {
+    setupData("shared");
+
+    Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
+    PastSnapshotFinderByVersion finder = new PastSnapshotFinderByVersion(currentProjectSnapshot, getSession());
+
+    assertThat(finder.findVersion("1.0"), nullValue());
   }
 }

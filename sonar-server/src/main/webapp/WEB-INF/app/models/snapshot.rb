@@ -81,12 +81,15 @@ class Snapshot < ActiveRecord::Base
   end
   
   def project_snapshot
-    if scope==Project::SCOPE_SET
-      self
-    elsif parent_snapshot_id
-      parent_snapshot.project
-    else
-      nil
+    @project_snapshot ||=
+    begin
+      if scope==Project::SCOPE_SET
+        self
+      elsif parent_snapshot_id
+        parent_snapshot.project_snapshot
+      else
+        nil
+      end
     end
   end
 

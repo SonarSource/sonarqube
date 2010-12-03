@@ -46,9 +46,9 @@ public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
   @Test
   public void shouldInitSnapshotReferences() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
-    VariationSnapshotFinder snapshotReferenceFinder = mock(VariationSnapshotFinder.class);
-    when(snapshotReferenceFinder.find(conf, 1)).thenReturn(new VariationSnapshot(1, "days", null));
-    when(snapshotReferenceFinder.find(conf, 3)).thenReturn(new VariationSnapshot(3, "days", null));
+    PastSnapshotFinder snapshotReferenceFinder = mock(PastSnapshotFinder.class);
+    when(snapshotReferenceFinder.find(conf, 1)).thenReturn(new PastSnapshot(1, "days", null));
+    when(snapshotReferenceFinder.find(conf, 3)).thenReturn(new PastSnapshot(3, "days", null));
 
     TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(conf, snapshotReferenceFinder);
 

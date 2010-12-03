@@ -212,8 +212,9 @@ public class CorePlugin implements Plugin {
     // time machine
     extensions.add(TendencyDecorator.class);
     extensions.add(PastSnapshotFinderByDays.class);
+    extensions.add(PastSnapshotFinderByVersion.class);
     extensions.add(PastMeasuresLoader.class);
-    extensions.add(VariationSnapshotFinder.class);
+    extensions.add(PastSnapshotFinder.class);
     extensions.add(TimeMachineConfiguration.class);
     extensions.add(VariationDecorator.class);
     extensions.add(PastViolationsLoader.class);

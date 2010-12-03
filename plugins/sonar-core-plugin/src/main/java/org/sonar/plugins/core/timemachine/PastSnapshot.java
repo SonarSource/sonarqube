@@ -23,13 +23,13 @@ import org.sonar.api.database.model.Snapshot;
 
 import java.util.Date;
 
-public final class VariationSnapshot {
+public final class PastSnapshot {
 
   private int index;
   private String mode, modeParameter;
   private Snapshot projectSnapshot;
 
-  public VariationSnapshot(int index, String mode, Snapshot projectSnapshot) {
+  public PastSnapshot(int index, String mode, Snapshot projectSnapshot) {
     this.index = index;
     this.mode = mode;
     this.projectSnapshot = projectSnapshot;
@@ -47,15 +47,15 @@ public final class VariationSnapshot {
     return projectSnapshot.getCreatedAt();
   }
 
-  public String getMode() {
+  public String getConfigurationMode() {
     return mode;
   }
 
-  public String getModeParameter() {
+  public String getConfigurationModeParameter() {
     return modeParameter;
   }
 
-  public VariationSnapshot setModeParameter(String s) {
+  public PastSnapshot setConfigurationModeParameter(String s) {
     this.modeParameter = s;
     return this;
   }

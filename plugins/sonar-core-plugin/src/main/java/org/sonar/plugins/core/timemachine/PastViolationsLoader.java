@@ -6,6 +6,7 @@ import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.database.model.SnapshotSource;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.ResourcePersister;
 
 import java.util.Collections;
@@ -22,9 +23,13 @@ public class PastViolationsLoader implements BatchExtension {
   }
 
   public List<RuleFailureModel> getPastViolations(Resource resource) {
-    Snapshot snapshot = resourcePersister.getSnapshot(resource);
-    if (snapshot == null) { // TODO Godin: Prevent NPE with Natural and VB plugins
+    if (resource == null) {
       return Collections.emptyList();
+    }
+
+    Snapshot snapshot = resourcePersister.getSnapshot(resource);
+    if (snapshot == null) {
+      throw new SonarException("This resource has no snapshot ???" + resource);
     }
     Snapshot previousLastSnapshot = resourcePersister.getLastSnapshot(snapshot, true);
     if (previousLastSnapshot == null) {

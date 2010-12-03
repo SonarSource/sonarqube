@@ -39,14 +39,14 @@ import java.util.Map;
 @DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
 public class VariationDecorator implements Decorator {
 
-  private List<VariationSnapshot> targets;
+  private List<PastSnapshot> targets;
   private PastMeasuresLoader pastMeasuresLoader;
 
   public VariationDecorator(PastMeasuresLoader pastMeasuresLoader, TimeMachineConfiguration configuration) {
     this(pastMeasuresLoader, configuration.getVariationSnapshots());
   }
 
-  VariationDecorator(PastMeasuresLoader pastMeasuresLoader, List<VariationSnapshot> targets) {
+  VariationDecorator(PastMeasuresLoader pastMeasuresLoader, List<PastSnapshot> targets) {
     this.pastMeasuresLoader = pastMeasuresLoader;
     this.targets = targets;
   }
@@ -67,13 +67,13 @@ public class VariationDecorator implements Decorator {
 
   public void decorate(Resource resource, DecoratorContext context) {
     if (shouldCalculateVariations(resource)) {
-      for (VariationSnapshot target : targets) {
+      for (PastSnapshot target : targets) {
         calculateVariation(resource, context, target);
       }
     }
   }
 
-  private void calculateVariation(Resource resource, DecoratorContext context, VariationSnapshot target) {
+  private void calculateVariation(Resource resource, DecoratorContext context, PastSnapshot target) {
     List<MeasureModel> pastMeasures = pastMeasuresLoader.getPastMeasures(resource, target.getProjectSnapshot());
     compareWithPastMeasures(context, target.getIndex(), pastMeasures);
   }

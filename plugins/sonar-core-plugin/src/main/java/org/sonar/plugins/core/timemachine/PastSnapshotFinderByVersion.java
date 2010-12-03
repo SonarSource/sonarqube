@@ -19,32 +19,31 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 
-public class VariationSnapshotFinder implements BatchExtension {
+import java.util.List;
 
-  private PastSnapshotFinderByDays finderInDays;
+public class PastSnapshotFinderByVersion implements BatchExtension {
+  private Snapshot projectSnapshot; // TODO replace by PersistenceManager
+  private DatabaseSession session;
 
-  public VariationSnapshotFinder(PastSnapshotFinderByDays finderInDays) {
-    this.finderInDays = finderInDays;
+  public PastSnapshotFinderByVersion(Snapshot projectSnapshot, DatabaseSession session) {
+    this.projectSnapshot = projectSnapshot;
+    this.session = session;
   }
 
-  public VariationSnapshot find(Configuration conf, int index) {
-    return find(index, conf.getString("sonar.timemachine.variation" + index));
+  Snapshot findVersion(String version) {
+    String hql = "from " + Snapshot.class.getSimpleName() + " where version=:version AND resourceId=:resourceId AND status=:status order by createdAt desc";
+    List<Snapshot> snapshots = session.createQuery(hql)
+        .setParameter("version", version)
+        .setParameter("resourceId", projectSnapshot.getResourceId())
+        .setParameter("status", Snapshot.STATUS_PROCESSED)
+        .setMaxResults(1)
+        .getResultList();
+
+    return snapshots.isEmpty() ? null : snapshots.get(0);
   }
-  
-  public VariationSnapshot find(int index, String property) {
-    if (StringUtils.isNotBlank(property)) {
-      // todo manage non-integer values
-      int days = Integer.parseInt(property);
-      Snapshot projectSnapshot = finderInDays.findInDays(days);
-      if (projectSnapshot != null) {
-        return new VariationSnapshot(index, "days", projectSnapshot).setModeParameter(String.valueOf(days));
-      }
-    }
-    return null;
-  }
+
 }

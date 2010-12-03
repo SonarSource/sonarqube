@@ -20,23 +20,6 @@
 module DashboardHelper
   include WidgetPropertiesHelper
 
-  def active_widgets_ids_formatted(column)
-    active_widget_ids=[]
-    @dashboard.widgets.find(:all, :conditions => {:column_index => column}, :order => 'row_index ASC').each do |widget|
-      widget_view=nil
-      found_index=-1
-      @widgets.each_with_index {|item, index|
-        if item.getId()==widget.widget_key
-          found_index=index
-        end
-      }
-      if found_index>-1
-        active_widget_ids=active_widget_ids << (widget.widget_key+"_"+found_index.to_s())
-      end
-    end
-    return "\'"+active_widget_ids.join("\',\'")+"\'"
-  end
-
   def formatted_value(measure, default='')
     measure ? measure.formatted_value : default
   end
@@ -45,4 +28,24 @@ module DashboardHelper
     @snapshot.measure(metric_key)
   end
 
+  def variation_select_option(snapshot, index)
+    return nil if snapshot.nil? || snapshot.project_snapshot.nil?
+    mode=snapshot.project_snapshot.send "var_mode_#{index}"
+    mode_param=snapshot.project_snapshot.send "var_label_#{index}"
+
+    if mode
+      if mode=='days'
+        label = "Last %s days" % mode_param
+      elsif mode=='version'
+        label = "Version %s" % mode_param
+      end
+      if label
+        selected=(params[:var]==index.to_s ? 'selected' : '')
+        "<option value='#{index}' #{selected}>#{label}</option>"
+      end
+    else
+      nil
+    end
+
+  end
 end

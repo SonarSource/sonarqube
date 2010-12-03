@@ -29,29 +29,29 @@ import static org.mockito.Mockito.*;
 
 import static org.hamcrest.core.Is.is;
 
-public class VariationSnapshotFinderTest {
+public class PastSnapshotFinderTest {
 
   @Test
   public void shouldFindByNumberOfDays() {
     PastSnapshotFinderByDays finderByDays = mock(PastSnapshotFinderByDays.class);
     when(finderByDays.findInDays(30)).thenReturn(new Snapshot());
 
-    VariationSnapshotFinder finder = new VariationSnapshotFinder(finderByDays);
-    VariationSnapshot variationSnapshot = finder.find(1, "30");
+    PastSnapshotFinder finder = new PastSnapshotFinder(finderByDays, null);
+    PastSnapshot variationSnapshot = finder.find(1, "30");
 
     verify(finderByDays).findInDays(30);
     assertNotNull(variationSnapshot);
     assertThat(variationSnapshot.getIndex(), is(1));
-    assertThat(variationSnapshot.getMode(), is("days"));
-    assertThat(variationSnapshot.getModeParameter(), is("30"));
+    assertThat(variationSnapshot.getConfigurationMode(), is("days"));
+    assertThat(variationSnapshot.getConfigurationModeParameter(), is("30"));
   }
 
   @Test
   public void shouldNotFindByNumberOfDays() {
     PastSnapshotFinderByDays finderByDays = mock(PastSnapshotFinderByDays.class);
 
-    VariationSnapshotFinder finder = new VariationSnapshotFinder(finderByDays);
-    VariationSnapshot variationSnapshot = finder.find(1, "30");
+    PastSnapshotFinder finder = new PastSnapshotFinder(finderByDays, null);
+    PastSnapshot variationSnapshot = finder.find(1, "30");
 
     verify(finderByDays).findInDays(30);
     assertNull(variationSnapshot);
