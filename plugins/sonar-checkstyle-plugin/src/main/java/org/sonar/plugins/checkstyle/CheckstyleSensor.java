@@ -36,7 +36,7 @@ public class CheckstyleSensor implements Sensor {
 
   public boolean shouldExecuteOnProject(Project project) {
     return project.getFileSystem().hasJavaSourceFiles() &&
-        (!profile.getActiveRulesByPlugin(CheckstyleConstants.REPOSITORY_KEY).isEmpty() || project.getReuseExistingRulesConfig());
+        (!profile.getActiveRulesByRepository(CheckstyleConstants.REPOSITORY_KEY).isEmpty() || project.getReuseExistingRulesConfig());
   }
 
   public void analyse(Project project, SensorContext context) {

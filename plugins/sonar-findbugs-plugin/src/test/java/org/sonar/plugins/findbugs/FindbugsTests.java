@@ -19,17 +19,6 @@
  */
 package org.sonar.plugins.findbugs;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.CoreProperties;
@@ -38,6 +27,15 @@ import org.sonar.api.resources.Java;
 import org.sonar.api.rules.*;
 import org.sonar.test.TestUtils;
 import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public abstract class FindbugsTests {
 
@@ -49,10 +47,8 @@ public abstract class FindbugsTests {
   protected List<Rule> buildRulesFixture() {
     List<Rule> rules = new ArrayList<Rule>();
 
-    Rule rule1 = new Rule("DLS: Dead store to local variable", "DLS_DEAD_LOCAL_STORE", "DLS_DEAD_LOCAL_STORE", null,
-        CoreProperties.FINDBUGS_PLUGIN, null);
-
-    Rule rule2 = new Rule("UrF: Unread field", "URF_UNREAD_FIELD", "URF_UNREAD_FIELD", null, CoreProperties.FINDBUGS_PLUGIN, null);
+    Rule rule1 = Rule.create(FindbugsConstants.REPOSITORY_KEY, "DLS_DEAD_LOCAL_STORE", "DLS: Dead store to local variable");
+    Rule rule2 = Rule.create(FindbugsConstants.REPOSITORY_KEY, "URF_UNREAD_FIELD", "UrF: Unread field");
 
     rules.add(rule1);
     rules.add(rule2);
@@ -76,7 +72,7 @@ public abstract class FindbugsTests {
 
       public Rule answer(InvocationOnMock invocationOnMock) throws Throwable {
         Object[] args = invocationOnMock.getArguments();
-        Rule rule = new Rule();
+        Rule rule = Rule.create();
         rule.setPluginName((String) args[0]);
         rule.setKey((String) args[1]);
         return rule;

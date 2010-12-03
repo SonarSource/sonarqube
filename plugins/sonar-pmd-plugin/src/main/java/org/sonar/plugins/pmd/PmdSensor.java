@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.pmd;
 
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AbstractViolationsStaxParser;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
@@ -35,7 +34,7 @@ public class PmdSensor implements Sensor {
   private RulesProfile profile;
   private RulesManager rulesManager;
   private PmdExecutor executor;
-  
+
   public PmdSensor(RulesProfile profile, RulesManager rulesManager, PmdExecutor executor) {
     this.profile = profile;
     this.rulesManager = rulesManager;
@@ -56,7 +55,7 @@ public class PmdSensor implements Sensor {
 
   public boolean shouldExecuteOnProject(Project project) {
     return project.getFileSystem().hasJavaSourceFiles() &&
-        (!profile.getActiveRulesByPlugin(CoreProperties.PMD_PLUGIN).isEmpty() || project.getReuseExistingRulesConfig());
+        (!profile.getActiveRulesByRepository(PmdConstants.REPOSITORY_KEY).isEmpty() || project.getReuseExistingRulesConfig());
   }
 
   private AbstractViolationsStaxParser getStaxParser(Project project, SensorContext context) {
