@@ -86,7 +86,7 @@
   <properties>
     <derby.version>10.6.1.0</derby.version>
     <jetty.version>6.1.24</jetty.version>
-    <sonar.skippedModules>sonar-gwt-api,sonar-gwt-core</sonar.skippedModules>
+    <sonar.skippedModules>sonar-gwt-api,sonar-core-gwt</sonar.skippedModules>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.min.version>2.0</maven.min.version>
     <jdk.min.version>1.5</jdk.min.version>
