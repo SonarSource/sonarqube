@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
@@ -33,6 +34,8 @@ public class PastViolationsLoaderTest extends AbstractDbUnitTestCase {
   @Test
   public void shouldGetPastResourceViolations() {
     Snapshot snapshot = getSession().getSingleResult(Snapshot.class, "id", 1000);
+    doReturn(snapshot).when(resourcePersister)
+        .getSnapshot(any(Resource.class));
     doReturn(snapshot).when(resourcePersister)
         .getLastSnapshot(any(Snapshot.class), anyBoolean());
 

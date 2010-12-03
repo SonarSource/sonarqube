@@ -23,6 +23,9 @@ public class PastViolationsLoader implements BatchExtension {
 
   public List<RuleFailureModel> getPastViolations(Resource resource) {
     Snapshot snapshot = resourcePersister.getSnapshot(resource);
+    if (snapshot == null) { // TODO Godin: Prevent NPE with Natural and VB plugins
+      return Collections.emptyList();
+    }
     Snapshot previousLastSnapshot = resourcePersister.getLastSnapshot(snapshot, true);
     if (previousLastSnapshot == null) {
       return Collections.emptyList();
