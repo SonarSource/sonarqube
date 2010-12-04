@@ -36,9 +36,9 @@ public class TimeMachineConfigurationPersisterTest extends AbstractDbUnitTestCas
 
     TimeMachineConfiguration conf = mock(TimeMachineConfiguration.class);
     PastSnapshot vs1 = new PastSnapshot(1, "days", getSession().getSingleResult(Snapshot.class, "id", 100))
-        .setConfigurationModeParameter("30");
+        .setModeParameter("30");
     PastSnapshot vs3 = new PastSnapshot(3, "version", getSession().getSingleResult(Snapshot.class, "id", 300))
-        .setConfigurationModeParameter("1.2.3");
+        .setModeParameter("1.2.3");
     when(conf.getProjectPastSnapshots()).thenReturn(Arrays.asList(vs1, vs3));
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1000);
 

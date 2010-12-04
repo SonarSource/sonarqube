@@ -42,16 +42,16 @@ public final class TimeMachineConfigurationPersister implements BatchExtension {
     for (PastSnapshot variationSnapshot : variationSnapshots) {
       switch (variationSnapshot.getIndex()) {
         case 1:
-          projectSnapshot.setVarMode1(variationSnapshot.getConfigurationMode());
-          projectSnapshot.setVarLabel1(variationSnapshot.getConfigurationModeParameter());
+          projectSnapshot.setVarMode1(variationSnapshot.getMode());
+          projectSnapshot.setVarLabel1(variationSnapshot.getModeParameter());
           break;
         case 2:
-          projectSnapshot.setVarMode2(variationSnapshot.getConfigurationMode());
-          projectSnapshot.setVarLabel2(variationSnapshot.getConfigurationModeParameter());
+          projectSnapshot.setVarMode2(variationSnapshot.getMode());
+          projectSnapshot.setVarLabel2(variationSnapshot.getModeParameter());
           break;
         case 3:
-          projectSnapshot.setVarMode3(variationSnapshot.getConfigurationMode());
-          projectSnapshot.setVarLabel3(variationSnapshot.getConfigurationModeParameter());
+          projectSnapshot.setVarMode3(variationSnapshot.getMode());
+          projectSnapshot.setVarLabel3(variationSnapshot.getModeParameter());
           break;
         default:
           throw new IndexOutOfBoundsException("Index of variation configuration is out of range: " + variationSnapshot);

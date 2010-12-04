@@ -61,8 +61,8 @@ public class PastSnapshotFinderTest {
     verify(finderByDays).findInDays(30);
     assertNotNull(variationSnapshot);
     assertThat(variationSnapshot.getIndex(), is(1));
-    assertThat(variationSnapshot.getConfigurationMode(), is("days"));
-    assertThat(variationSnapshot.getConfigurationModeParameter(), is("30"));
+    assertThat(variationSnapshot.getMode(), is("days"));
+    assertThat(variationSnapshot.getModeParameter(), is("30"));
   }
 
   @Test
@@ -91,8 +91,8 @@ public class PastSnapshotFinderTest {
       }
     }));
     assertThat(variationSnapshot.getIndex(), is(2));
-    assertThat(variationSnapshot.getConfigurationMode(), is("date"));
-    assertThat(variationSnapshot.getConfigurationModeParameter(), is("2010-05-18"));
+    assertThat(variationSnapshot.getMode(), is("date"));
+    assertThat(variationSnapshot.getModeParameter(), is("2010-05-18"));
   }
 
   @Test
@@ -117,8 +117,8 @@ public class PastSnapshotFinderTest {
 
     verify(finderByLastAnalysis).findLastAnalysis();
     assertThat(variationSnapshot.getIndex(), is(2));
-    assertThat(variationSnapshot.getConfigurationMode(), is("last_analysis"));
-    assertThat(variationSnapshot.getConfigurationModeParameter(), is("2010-05-18"));
+    assertThat(variationSnapshot.getMode(), is("last_analysis"));
+    assertThat(variationSnapshot.getModeParameter(), is("2010-05-18"));
   }
 
   @Test
@@ -140,8 +140,8 @@ public class PastSnapshotFinderTest {
 
     verify(finderByVersion).findVersion("1.2");
     assertThat(variationSnapshot.getIndex(), is(2));
-    assertThat(variationSnapshot.getConfigurationMode(), is("version"));
-    assertThat(variationSnapshot.getConfigurationModeParameter(), is("1.2"));
+    assertThat(variationSnapshot.getMode(), is("version"));
+    assertThat(variationSnapshot.getModeParameter(), is("1.2"));
   }
 
   @Test

@@ -48,15 +48,15 @@ public final class PastSnapshot {
     return projectSnapshot.getCreatedAt();
   }
 
-  public String getConfigurationMode() {
+  public String getMode() {
     return mode;
   }
 
-  public String getConfigurationModeParameter() {
+  public String getModeParameter() {
     return modeParameter;
   }
 
-  public PastSnapshot setConfigurationModeParameter(String s) {
+  public PastSnapshot setModeParameter(String s) {
     this.modeParameter = s;
     return this;
   }

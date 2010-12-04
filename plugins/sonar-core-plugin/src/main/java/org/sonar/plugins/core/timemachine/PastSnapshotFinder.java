@@ -76,7 +76,7 @@ public class PastSnapshotFinder implements BatchExtension {
       if (projectSnapshot != null) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         String date = format.format(projectSnapshot.getCreatedAt());
-        return new PastSnapshot(index, LAST__ANALYSIS_MODE, projectSnapshot).setConfigurationModeParameter(date);
+        return new PastSnapshot(index, LAST__ANALYSIS_MODE, projectSnapshot).setModeParameter(date);
       }
     }
     return null;
@@ -88,7 +88,7 @@ public class PastSnapshotFinder implements BatchExtension {
       Date date = format.parse(property);
       Snapshot projectSnapshot = finderByDate.findByDate(date);
       if (projectSnapshot != null) {
-        return new PastSnapshot(index, DATE_MODE, projectSnapshot).setConfigurationModeParameter(property);
+        return new PastSnapshot(index, DATE_MODE, projectSnapshot).setModeParameter(property);
       }
       return null;
 
@@ -100,7 +100,7 @@ public class PastSnapshotFinder implements BatchExtension {
   private PastSnapshot findByVersion(int index, String property) {
     Snapshot projectSnapshot = finderByVersion.findVersion(property);
     if (projectSnapshot != null) {
-      return new PastSnapshot(index, VERSION_MODE, projectSnapshot).setConfigurationModeParameter(property);
+      return new PastSnapshot(index, VERSION_MODE, projectSnapshot).setModeParameter(property);
     }
     return null;
   }
@@ -110,7 +110,7 @@ public class PastSnapshotFinder implements BatchExtension {
       int days = Integer.parseInt(property);
       Snapshot projectSnapshot = finderByDays.findInDays(days);
       if (projectSnapshot != null) {
-        return new PastSnapshot(index, DAYS_MODE, projectSnapshot).setConfigurationModeParameter(String.valueOf(days));
+        return new PastSnapshot(index, DAYS_MODE, projectSnapshot).setModeParameter(String.valueOf(days));
       }
       return null;
 
