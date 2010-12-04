@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.plexus.util.StringInputStream;
 import org.sonar.api.batch.Decorator;
@@ -135,7 +136,7 @@ public class ViolationPersisterDecorator implements Decorator {
    */
   private RuleFailureModel selectPastViolationUsingLine(Violation violation, Collection<RuleFailureModel> pastViolations) {
     for (RuleFailureModel pastViolation : pastViolations) {
-      if (violation.getLineId() == pastViolation.getLine() && StringUtils.equals(violation.getMessage(), pastViolation.getMessage())) {
+      if (ObjectUtils.equals(violation.getLineId(),  pastViolation.getLine()) && StringUtils.equals(violation.getMessage(), pastViolation.getMessage())) {
         return pastViolation;
       }
     }

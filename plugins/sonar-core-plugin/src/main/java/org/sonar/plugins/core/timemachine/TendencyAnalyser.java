@@ -164,7 +164,6 @@ public class TendencyAnalyser {
       double vHighCorcoef = 1.0;
       double modCorcoef = 0.69;
       Double correlationCoeff = getCorrelationRate();
-      Double slope = getSlope();
       boolean vHCorCoefPos = (correlationCoeff > modCorcoef) && (correlationCoeff <= vHighCorcoef);
       boolean vHCorCoefNeg = (correlationCoeff < -modCorcoef) && (correlationCoeff >= -vHighCorcoef);
 
@@ -182,6 +181,7 @@ public class TendencyAnalyser {
 
       } else if ((vHCorCoefPos || vHCorCoefNeg) && ((slope < nSlope) || (slope > -nSlope))) {
         return TENDENCY_NEUTRAL;
+
       } else if (correlationCoeff == 0 && slope == 0 && !vHCorCoefPos && !vHCorCoefNeg) {
         return TENDENCY_NEUTRAL;
       }

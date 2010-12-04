@@ -56,7 +56,7 @@ public class TendencyDecorator implements Decorator {
     }
   }
 
-  protected TendencyDecorator(TimeMachine timeMachine, TimeMachineQuery query, TendencyAnalyser analyser, TimeMachineConfiguration configuration) {
+  TendencyDecorator(TimeMachine timeMachine, TimeMachineQuery query, TendencyAnalyser analyser, TimeMachineConfiguration configuration) {
     this.timeMachine = timeMachine;
     this.query = query;
     this.analyser = analyser;
