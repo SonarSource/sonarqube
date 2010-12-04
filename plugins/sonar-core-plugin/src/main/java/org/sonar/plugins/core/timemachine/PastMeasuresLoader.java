@@ -56,6 +56,10 @@ public class PastMeasuresLoader implements BatchExtension {
     return metricByIds.values();
   }
 
+  public List<MeasureModel> getPastMeasures(Resource resource, PastSnapshot projectPastSnapshot) {
+    return getPastMeasures(resource, projectPastSnapshot.getProjectSnapshot());
+  }
+
   public List<MeasureModel> getPastMeasures(Resource resource, Snapshot projectSnapshot) {
     // assume that the resource has already been saved
     return getPastMeasures(resource.getId(), projectSnapshot);

@@ -22,7 +22,6 @@ package org.sonar.api.measures;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
-import org.sonar.api.database.BaseIdentifiable;
 
 import javax.persistence.*;
 
@@ -31,7 +30,7 @@ import javax.persistence.*;
  */
 @Table(name = "metrics")
 @Entity(name = "Metric")
-public class Metric extends BaseIdentifiable implements ServerExtension, BatchExtension {
+public class Metric implements ServerExtension, BatchExtension {
 
   /**
    * A metric bigger value means a degradation
@@ -67,6 +66,11 @@ public class Metric extends BaseIdentifiable implements ServerExtension, BatchEx
   public enum Origin {
     JAV, GUI, WS
   }
+
+  @Id
+  @Column(name = "id")
+  @GeneratedValue
+  private Integer id;
 
   @Transient
   private Formula formula;
@@ -119,7 +123,8 @@ public class Metric extends BaseIdentifiable implements ServerExtension, BatchEx
   /**
    * Creates an empty metric
    */
-  @Deprecated public Metric() {
+  @Deprecated
+  public Metric() {
   }
 
   /**
@@ -173,8 +178,8 @@ public class Metric extends BaseIdentifiable implements ServerExtension, BatchEx
     this.userManaged = userManaged;
     this.origin = Origin.JAV;
     if (ValueType.PERCENT.equals(this.type)) {
-      this.bestValue = (direction==DIRECTION_BETTER ? 100.0 : 0.0);
-      this.worstValue = (direction==DIRECTION_BETTER ? 0.0 : 100.0);
+      this.bestValue = (direction == DIRECTION_BETTER ? 100.0 : 0.0);
+      this.worstValue = (direction == DIRECTION_BETTER ? 0.0 : 100.0);
     }
   }
 
@@ -206,10 +211,26 @@ public class Metric extends BaseIdentifiable implements ServerExtension, BatchEx
     this.userManaged = false;
     this.formula = formula;
     if (ValueType.PERCENT.equals(this.type)) {
-      this.bestValue = (direction==DIRECTION_BETTER ? 100.0 : 0.0);
-      this.worstValue = (direction==DIRECTION_BETTER ? 0.0 : 100.0);
+      this.bestValue = (direction == DIRECTION_BETTER ? 100.0 : 0.0);
+      this.worstValue = (direction == DIRECTION_BETTER ? 0.0 : 100.0);
     }
   }
+
+  /**
+   * For internal use only
+   */
+  public Integer getId() {
+    return id;
+  }
+
+  /**
+   * For internal use only
+   */
+  public Metric setId(Integer id) {
+    this.id = id;
+    return this;
+  }
+
 
   /**
    * @return the metric formula
@@ -513,6 +534,7 @@ public class Metric extends BaseIdentifiable implements ServerExtension, BatchEx
 
   /**
    * Merge with fields from other metric. All fields are copied, except the id.
+   *
    * @return this
    */
   public Metric merge(final Metric with) {

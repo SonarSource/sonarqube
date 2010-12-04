@@ -39,16 +39,16 @@ import java.util.Map;
 @DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
 public class VariationDecorator implements Decorator {
 
-  private List<PastSnapshot> targets;
+  private List<PastSnapshot> projectPastSnapshots;
   private PastMeasuresLoader pastMeasuresLoader;
 
   public VariationDecorator(PastMeasuresLoader pastMeasuresLoader, TimeMachineConfiguration configuration) {
     this(pastMeasuresLoader, configuration.getVariationSnapshots());
   }
 
-  VariationDecorator(PastMeasuresLoader pastMeasuresLoader, List<PastSnapshot> targets) {
+  VariationDecorator(PastMeasuresLoader pastMeasuresLoader, List<PastSnapshot> projectPastSnapshots) {
     this.pastMeasuresLoader = pastMeasuresLoader;
-    this.targets = targets;
+    this.projectPastSnapshots = projectPastSnapshots;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -60,22 +60,22 @@ public class VariationDecorator implements Decorator {
     return pastMeasuresLoader.getMetrics();
   }
 
+  public void decorate(Resource resource, DecoratorContext context) {
+    if (shouldCalculateVariations(resource)) {
+      for (PastSnapshot projectPastSnapshot : projectPastSnapshots) {
+        calculateVariation(resource, context, projectPastSnapshot);
+      }
+    }
+  }
+
   static boolean shouldCalculateVariations(Resource resource) {
     // measures on files are currently purged, so past measures are not available on files
     return !ResourceUtils.isEntity(resource);
   }
 
-  public void decorate(Resource resource, DecoratorContext context) {
-    if (shouldCalculateVariations(resource)) {
-      for (PastSnapshot target : targets) {
-        calculateVariation(resource, context, target);
-      }
-    }
-  }
-
-  private void calculateVariation(Resource resource, DecoratorContext context, PastSnapshot target) {
-    List<MeasureModel> pastMeasures = pastMeasuresLoader.getPastMeasures(resource, target.getProjectSnapshot());
-    compareWithPastMeasures(context, target.getIndex(), pastMeasures);
+  private void calculateVariation(Resource resource, DecoratorContext context, PastSnapshot pastSnapshot) {
+    List<MeasureModel> pastMeasures = pastMeasuresLoader.getPastMeasures(resource, pastSnapshot);
+    compareWithPastMeasures(context, pastSnapshot.getIndex(), pastMeasures);
   }
 
   void compareWithPastMeasures(DecoratorContext context, int index, List<MeasureModel> pastMeasures) {
@@ -88,16 +88,19 @@ public class VariationDecorator implements Decorator {
     for (Measure measure : context.getMeasures(MeasuresFilters.all())) {
       // compare with past measure
       MeasureModel pastMeasure = pastMeasuresByKey.get(new MeasureKey(measure));
-      updateVariation(measure, pastMeasure, index);
-      context.saveMeasure(measure);
+      if (updateVariation(measure, pastMeasure, index)) {
+        context.saveMeasure(measure);
+      }
     }
   }
 
-  void updateVariation(Measure measure, MeasureModel pastMeasure, int index) {
+  boolean updateVariation(Measure measure, MeasureModel pastMeasure, int index) {
     if (pastMeasure != null && pastMeasure.getValue() != null && measure.getValue() != null) {
       double variation = (measure.getValue().doubleValue() - pastMeasure.getValue().doubleValue());
       measure.setVariation(index, variation);
+      return true;
     }
+    return false;
   }
 
   @Override

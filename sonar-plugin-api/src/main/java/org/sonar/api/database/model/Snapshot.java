@@ -25,8 +25,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.database.BaseIdentifiable;
 import org.sonar.api.database.DatabaseSession;
 
-import java.util.Date;
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * A class to map a snapshot with its hibernate model
@@ -160,86 +160,97 @@ public class Snapshot extends BaseIdentifiable {
     return createdAt;
   }
 
-  public void setCreatedAt(Date createdAt) {
+  public Snapshot setCreatedAt(Date createdAt) {
     this.createdAt = createdAt;
+    return this;
   }
 
   public Integer getResourceId() {
     return resourceId;
   }
 
-  public void setResourceId(Integer resourceId) {
+  public Snapshot setResourceId(Integer resourceId) {
     this.resourceId = resourceId;
+    return this;
   }
 
-  public final void setResource(ResourceModel resource) {
+  public final Snapshot setResource(ResourceModel resource) {
     this.resourceId = resource.getId();
     this.scope = resource.getScope();
     this.qualifier = resource.getQualifier();
+    return this;
   }
 
   public String getVersion() {
     return version;
   }
 
-  public void setVersion(String version) {
+  public Snapshot setVersion(String version) {
     this.version = version;
+    return this;
   }
 
   public Integer getParentId() {
     return parentId;
   }
 
-  public void setParentId(Integer i) {
+  public Snapshot setParentId(Integer i) {
     this.parentId = i;
+    return this;
   }
 
   public Boolean getLast() {
     return last;
   }
 
-  public void setLast(Boolean last) {
+  public Snapshot setLast(Boolean last) {
     this.last = last;
+    return this;
   }
 
   public String getStatus() {
     return status;
   }
 
-  public void setStatus(String status) {
+  public Snapshot setStatus(String status) {
     this.status = status;
+    return this;
   }
 
   public String getScope() {
     return scope;
   }
 
-  public void setScope(String scope) {
+  public Snapshot setScope(String scope) {
     this.scope = scope;
+    return this;
   }
 
   public String getQualifier() {
     return qualifier;
   }
 
-  public void setQualifier(String qualifier) {
+  public Snapshot setQualifier(String qualifier) {
     this.qualifier = qualifier;
+    return this;
   }
 
   public Integer getRootId() {
     return rootId;
   }
 
-  public void setRootId(Integer i) {
+  public Snapshot setRootId(Integer i) {
     this.rootId = i;
+    return this;
   }
 
   public String getPath() {
     return path;
   }
 
-  public void setPath(String path) {
+  public Snapshot setPath(String path) {
     this.path = path;
+    return this;
   }
 
   public Integer getDepth() {
@@ -250,8 +261,9 @@ public class Snapshot extends BaseIdentifiable {
     return rootProjectId;
   }
 
-  public void setRootProjectId(Integer rootProjectId) {
+  public Snapshot setRootProjectId(Integer rootProjectId) {
     this.rootProjectId = rootProjectId;
+    return this;
   }
 
   /**

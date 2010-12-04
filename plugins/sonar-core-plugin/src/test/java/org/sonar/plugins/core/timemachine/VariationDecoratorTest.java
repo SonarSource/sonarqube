@@ -20,13 +20,27 @@
 package org.sonar.plugins.core.timemachine;
 
 import org.junit.Test;
+import org.mockito.Matchers;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.database.model.MeasureModel;
+import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MeasuresFilter;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.*;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
+import java.util.Arrays;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.mockito.Mockito.*;
 
 public class VariationDecoratorTest extends AbstractDbUnitTestCase {
+
+  public static final Metric NCLOC = new Metric("ncloc").setId(12);
+  public static final Metric COVERAGE = new Metric("coverage").setId(16);
 
   @Test
   public void shouldNotCalculateVariationsOnFiles() {
@@ -39,4 +53,49 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
     assertThat(VariationDecorator.shouldCalculateVariations(new File("org/foo/Bar.php")), is(false));
   }
 
+  @Test
+  public void shouldCompareAndSaveVariation() {
+    Resource javaPackage = new JavaPackage("org.foo");
+
+    PastMeasuresLoader pastMeasuresLoader = mock(PastMeasuresLoader.class);
+    PastSnapshot pastSnapshot1 = new PastSnapshot(1, "days", new Snapshot());
+    PastSnapshot pastSnapshot3 = new PastSnapshot(3, "days", new Snapshot());
+
+    // first past analysis
+    when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot1)).thenReturn(Arrays.asList(
+        newMeasureModel(NCLOC, 180.0),
+        newMeasureModel(COVERAGE, 75.0)));
+
+    // second past analysis
+    when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot3)).thenReturn(Arrays.asList(
+        newMeasureModel(NCLOC, 240.0)));
+
+    // current analysis
+    DecoratorContext context = mock(DecoratorContext.class);
+    Measure currentNcloc = newMeasure(NCLOC, 200.0);
+    Measure currentCoverage = newMeasure(COVERAGE, 80.0);
+    when(context.getMeasures(Matchers.<MeasuresFilter>anyObject())).thenReturn(Arrays.asList(currentNcloc, currentCoverage));
+
+    VariationDecorator decorator = new VariationDecorator(pastMeasuresLoader, Arrays.asList(pastSnapshot1, pastSnapshot3));
+    decorator.decorate(javaPackage, context);
+
+    // context updated for each variation : 2 times for ncloc and 1 time for coverage
+    verify(context, times(3)).saveMeasure(Matchers.<Measure>anyObject());
+
+    assertThat(currentNcloc.getVariation1(), is(20.0));
+    assertThat(currentNcloc.getVariation2(), nullValue());
+    assertThat(currentNcloc.getVariation3(), is(-40.0));
+
+    assertThat(currentCoverage.getVariation1(), is(5.0));
+    assertThat(currentCoverage.getVariation2(), nullValue());
+    assertThat(currentCoverage.getVariation3(), nullValue());
+  }
+
+  private Measure newMeasure(Metric metric, double value) {
+    return new Measure(metric, value);
+  }
+
+  private MeasureModel newMeasureModel(Metric metric, double value) {
+    return new MeasureModel(metric.getId(), value);
+  }
 }
