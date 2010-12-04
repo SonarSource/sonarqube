@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.timemachine;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.database.model.Snapshot;
 
 import java.util.Date;
@@ -58,5 +59,10 @@ public final class PastSnapshot {
   public PastSnapshot setConfigurationModeParameter(String s) {
     this.modeParameter = s;
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return ReflectionToStringBuilder.toString(this);
   }
 }

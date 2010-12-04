@@ -38,7 +38,7 @@ public final class TimeMachineConfigurationPersister implements BatchExtension {
   }
 
   public void start() {
-    List<PastSnapshot> variationSnapshots = configuration.getVariationSnapshots();
+    List<PastSnapshot> variationSnapshots = configuration.getProjectPastSnapshots();
     for (PastSnapshot variationSnapshot : variationSnapshots) {
       switch (variationSnapshot.getIndex()) {
         case 1:
@@ -53,6 +53,8 @@ public final class TimeMachineConfigurationPersister implements BatchExtension {
           projectSnapshot.setVarMode3(variationSnapshot.getConfigurationMode());
           projectSnapshot.setVarLabel3(variationSnapshot.getConfigurationModeParameter());
           break;
+        default:
+          throw new IndexOutOfBoundsException("Index of variation configuration is out of range: " + variationSnapshot);
       }
       session.save(projectSnapshot);
     }

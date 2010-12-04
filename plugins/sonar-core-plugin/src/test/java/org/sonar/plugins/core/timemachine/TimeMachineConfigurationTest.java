@@ -56,7 +56,7 @@ public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
     verify(snapshotReferenceFinder).find(conf, 2);
     verify(snapshotReferenceFinder).find(conf, 3);
 
-    assertThat(timeMachineConfiguration.getVariationSnapshots().size(), is(2));
+    assertThat(timeMachineConfiguration.getProjectPastSnapshots().size(), is(2));
   }
 
 

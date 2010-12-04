@@ -32,7 +32,7 @@ public class TimeMachineConfiguration implements BatchExtension {
   private static final int NUMBER_OF_VARIATION_SNAPSHOTS = 3;
 
   private final Configuration configuration;
-  private List<PastSnapshot> variationSnapshots;
+  private List<PastSnapshot> projectPastSnapshots;
 
   public TimeMachineConfiguration(Configuration configuration, PastSnapshotFinder variationSnapshotFinder) {
     this.configuration = configuration;
@@ -40,11 +40,11 @@ public class TimeMachineConfiguration implements BatchExtension {
   }
 
   private void initVariationSnapshots(PastSnapshotFinder variationSnapshotFinder) {
-    variationSnapshots = Lists.newLinkedList();
+    projectPastSnapshots = Lists.newLinkedList();
     for (int index = 1; index <= NUMBER_OF_VARIATION_SNAPSHOTS; index++) {
       PastSnapshot variationSnapshot = variationSnapshotFinder.find(configuration, index);
       if (variationSnapshot != null) {
-        variationSnapshots.add(variationSnapshot);
+        projectPastSnapshots.add(variationSnapshot);
       }
     }
   }
@@ -52,9 +52,9 @@ public class TimeMachineConfiguration implements BatchExtension {
   /**
    * for unit tests
    */
-  TimeMachineConfiguration(Configuration configuration, List<PastSnapshot> variationSnapshots) {
+  TimeMachineConfiguration(Configuration configuration, List<PastSnapshot> projectPastSnapshots) {
     this.configuration = configuration;
-    this.variationSnapshots = variationSnapshots;
+    this.projectPastSnapshots = projectPastSnapshots;
   }
 
   /**
@@ -62,7 +62,7 @@ public class TimeMachineConfiguration implements BatchExtension {
    */
   TimeMachineConfiguration(Configuration configuration) {
     this.configuration = configuration;
-    this.variationSnapshots = Collections.emptyList();
+    this.projectPastSnapshots = Collections.emptyList();
   }
 
 
@@ -74,7 +74,7 @@ public class TimeMachineConfiguration implements BatchExtension {
     return configuration.getInt(CoreProperties.CORE_TENDENCY_DEPTH_PROPERTY, CoreProperties.CORE_TENDENCY_DEPTH_DEFAULT_VALUE);
   }
 
-  public List<PastSnapshot> getVariationSnapshots() {
-    return variationSnapshots;
+  public List<PastSnapshot> getProjectPastSnapshots() {
+    return projectPastSnapshots;
   }
 }
