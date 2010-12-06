@@ -111,11 +111,15 @@ class ProjectMeasure < ActiveRecord::Base
     result = nil
     case variation_index
     when 1
-      result=diff_value_1
+      result=variation_value_1
     when 2
-      result=diff_value_2
+      result=variation_value_2
     when 3
-      result=diff_value_3
+      result=variation_value_3
+    when 4
+      result=variation_value_4
+    when 5
+      result=variation_value_5
     end
     result
   end

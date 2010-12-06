@@ -1,22 +1,22 @@
 <dataset>
 
   <!-- currently processing snapshots -->
-  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="5" scope="PRJ" qualifier="TRK" created_at="2008-12-04 13:58:00.00" version="[null]"
+  <snapshots variation_mode_1="[null]" variation_param_1="[null]" variation_mode_2="[null]" variation_param_2="[null]" variation_mode_3="[null]" variation_param_3="[null]" variation_mode_4="[null]" variation_param_4="[null]" variation_mode_5="[null]" variation_param_5="[null]" depth="[null]" id="5" scope="PRJ" qualifier="TRK" created_at="2008-12-04 13:58:00.00" version="[null]"
              project_id="1"
               parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="U" islast="false"
              path="[null]"/>
 
-  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="6" scope="PRJ" qualifier="TRK" created_at="2008-12-04 13:58:00.00" version="[null]"
+  <snapshots variation_mode_1="[null]" variation_param_1="[null]" variation_mode_2="[null]" variation_param_2="[null]" variation_mode_3="[null]" variation_param_3="[null]" variation_mode_4="[null]" variation_param_4="[null]" variation_mode_5="[null]" variation_param_5="[null]" depth="[null]" id="6" scope="PRJ" qualifier="TRK" created_at="2008-12-04 13:58:00.00" version="[null]"
              project_id="2"
               parent_snapshot_id="5" root_project_id="[null]" root_snapshot_id="5" status="U" islast="false"
              path="[null]"/>
 
-  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="7" scope="DIR" qualifier="PAC" created_at="2008-12-04 13:58:00.00" version="[null]"
+  <snapshots variation_mode_1="[null]" variation_param_1="[null]" variation_mode_2="[null]" variation_param_2="[null]" variation_mode_3="[null]" variation_param_3="[null]" variation_mode_4="[null]" variation_param_4="[null]" variation_mode_5="[null]" variation_param_5="[null]" depth="[null]" id="7" scope="DIR" qualifier="PAC" created_at="2008-12-04 13:58:00.00" version="[null]"
              project_id="3"
               parent_snapshot_id="6" root_project_id="[null]" root_snapshot_id="5" status="U" islast="false"
              path="[null]"/>
 
-  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" depth="[null]" id="8" scope="FIL" qualifier="CLA" created_at="2008-12-04 13:58:00.00" version="[null]"
+  <snapshots variation_mode_1="[null]" variation_param_1="[null]" variation_mode_2="[null]" variation_param_2="[null]" variation_mode_3="[null]" variation_param_3="[null]" variation_mode_4="[null]" variation_param_4="[null]" variation_mode_5="[null]" variation_param_5="[null]" depth="[null]" id="8" scope="FIL" qualifier="CLA" created_at="2008-12-04 13:58:00.00" version="[null]"
              project_id="4"
               parent_snapshot_id="7" root_project_id="[null]" root_snapshot_id="5" status="U" islast="false"
              path="[null]"/>

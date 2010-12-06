@@ -21,7 +21,8 @@ package org.sonar.api.database.model;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.BaseIdentifiable;
 import org.sonar.api.database.DatabaseSession;
 
@@ -82,23 +83,35 @@ public class Snapshot extends BaseIdentifiable {
   @Column(name = "root_project_id", updatable = true, nullable = true)
   private Integer rootProjectId;
 
-  @Column(name = "var_mode_1", updatable = true, nullable = true, length = 100)
-  private String varMode1;
+  @Column(name = "variation_mode_1", updatable = true, nullable = true, length = 100)
+  private String variationMode1;
 
-  @Column(name = "var_mode_2", updatable = true, nullable = true, length = 100)
-  private String varMode2;
+  @Column(name = "variation_mode_2", updatable = true, nullable = true, length = 100)
+  private String variationMode2;
 
-  @Column(name = "var_mode_3", updatable = true, nullable = true, length = 100)
-  private String varMode3;
+  @Column(name = "variation_mode_3", updatable = true, nullable = true, length = 100)
+  private String variationMode3;
 
-  @Column(name = "var_label_1", updatable = true, nullable = true, length = 100)
-  private String varLabel1;
+  @Column(name = "variation_mode_4", updatable = true, nullable = true, length = 100)
+  private String variationMode4;
 
-  @Column(name = "var_label_2", updatable = true, nullable = true, length = 100)
-  private String varLabel2;
+  @Column(name = "variation_mode_5", updatable = true, nullable = true, length = 100)
+  private String variationMode5;
 
-  @Column(name = "var_label_3", updatable = true, nullable = true, length = 100)
-  private String varLabel3;
+  @Column(name = "variation_param_1", updatable = true, nullable = true, length = 100)
+  private String variationModeParam1;
+
+  @Column(name = "variation_param_2", updatable = true, nullable = true, length = 100)
+  private String variationModeParam2;
+
+  @Column(name = "variation_param_3", updatable = true, nullable = true, length = 100)
+  private String variationModeParam3;
+
+  @Column(name = "variation_param_4", updatable = true, nullable = true, length = 100)
+  private String variationModeParam4;
+
+  @Column(name = "variation_param_5", updatable = true, nullable = true, length = 100)
+  private String variationModeParam5;
 
   public Snapshot() {
 
@@ -108,7 +121,7 @@ public class Snapshot extends BaseIdentifiable {
     this.resourceId = resource.getId();
     this.qualifier = resource.getQualifier();
     this.scope = resource.getScope();
-    
+
     if (parent == null) {
       path = "";
       depth = 0;
@@ -278,58 +291,200 @@ public class Snapshot extends BaseIdentifiable {
     this.depth = depth;
   }
 
-  public String getVarMode1() {
-    return varMode1;
+  public String getVariationMode1() {
+    return variationMode1;
   }
 
-  public Snapshot setVarMode1(String varMode1) {
-    this.varMode1 = varMode1;
+  /**
+   * For internal use.
+   *
+   * @since 2.5
+   */
+  public Snapshot setVariationMode1(String s) {
+    this.variationMode1 = s;
     return this;
   }
 
-  public String getVarMode2() {
-    return varMode2;
+  public String getVariationMode2() {
+    return variationMode2;
   }
 
-  public Snapshot setVarMode2(String varMode2) {
-    this.varMode2 = varMode2;
+  /**
+   * For internal use.
+   *
+   * @since 2.5
+   */
+  public Snapshot setVariationMode2(String s) {
+    this.variationMode2 = s;
     return this;
   }
 
-  public String getVarMode3() {
-    return varMode3;
+  public String getVariationMode3() {
+    return variationMode3;
   }
 
-  public Snapshot setVarMode3(String varMode3) {
-    this.varMode3 = varMode3;
+  /**
+   * For internal use.
+   *
+   * @since 2.5
+   */
+  public Snapshot setVariationMode3(String s) {
+    this.variationMode3 = s;
     return this;
   }
 
-  public String getVarLabel1() {
-    return varLabel1;
+  public String getVariationMode4() {
+    return variationMode4;
   }
 
-  public Snapshot setVarLabel1(String varLabel1) {
-    this.varLabel1 = varLabel1;
+  /**
+   * For internal use.
+   *
+   * @since 2.5
+   */
+  public Snapshot setVariationMode4(String s) {
+    this.variationMode4 = s;
     return this;
   }
 
-  public String getVarLabel2() {
-    return varLabel2;
+  public String getVariationMode5() {
+    return variationMode5;
   }
 
-  public Snapshot setVarLabel2(String varLabel2) {
-    this.varLabel2 = varLabel2;
+  /**
+   * For internal use.
+   *
+   * @since 2.5
+   */
+  public Snapshot setVariationMode5(String s) {
+    this.variationMode5 = s;
     return this;
   }
 
-  public String getVarLabel3() {
-    return varLabel3;
+  public String getVariationModeParam1() {
+    return variationModeParam1;
   }
 
-  public Snapshot setVarLabel3(String varLabel3) {
-    this.varLabel3 = varLabel3;
+  /**
+   * For internal use.
+   *
+   * @since 2.5
+   */
+  public Snapshot setVariationModeParam1(String s) {
+    this.variationModeParam1 = s;
     return this;
+  }
+
+  public String getVariationModeParam2() {
+    return variationModeParam2;
+  }
+
+  /**
+   * For internal use.
+   *
+   * @since 2.5
+   */
+  public Snapshot setVariationModeParam2(String s) {
+    this.variationModeParam2 = s;
+    return this;
+  }
+
+  public String getVariationModeParam3() {
+    return variationModeParam3;
+  }
+
+  /**
+   * For internal use.
+   *
+   * @since 2.5
+   */
+  public Snapshot setVariationModeParam3(String s) {
+    this.variationModeParam3 = s;
+    return this;
+  }
+
+  public String getVariationModeParam4() {
+    return variationModeParam4;
+  }
+
+  /**
+   * For internal use.
+   *
+   * @since 2.5
+   */
+  public Snapshot setVariationModeParam4(String s) {
+    this.variationModeParam4 = s;
+    return this;
+  }
+
+  public String getVariationModeParam5() {
+    return variationModeParam5;
+  }
+
+  /**
+   * For internal use.
+   *
+   * @since 2.5
+   */
+  public Snapshot setVariationModeParam5(String s) {
+    this.variationModeParam5 = s;
+    return this;
+  }
+
+  /**
+   * For internal use.
+   *
+   * @since 2.5
+   */
+  public Snapshot setVariationMode(int index, String s) {
+    switch(index) {
+      case 1: variationMode1 = s; break;
+      case 2: variationMode2 = s; break;
+      case 3: variationMode3 = s; break;
+      case 4: variationMode4 = s; break;
+      case 5: variationMode5 = s; break;
+      default: throw new IndexOutOfBoundsException("Index of Snapshot.variationMode is between 1 and 5");
+    }
+    return this;
+  }
+
+  public String getVariationMode(int index) {
+    switch(index) {
+      case 1: return variationMode1;
+      case 2: return variationMode2;
+      case 3: return variationMode3;
+      case 4: return variationMode4;
+      case 5: return variationMode5;
+      default: throw new IndexOutOfBoundsException("Index of Snapshot.variationMode is between 1 and 5");
+    }
+  }
+
+  /**
+   * For internal use.
+   *
+   * @since 2.5
+   */
+  public Snapshot setVariationModeParam(int index, String s) {
+    switch(index) {
+      case 1: variationModeParam1 = s; break;
+      case 2: variationModeParam2 = s; break;
+      case 3: variationModeParam3 = s; break;
+      case 4: variationModeParam4 = s; break;
+      case 5: variationModeParam5 = s; break;
+      default: throw new IndexOutOfBoundsException("Index of Snapshot.variationModeParam is between 1 and 5");
+    }
+    return this;
+  }
+
+  public String getVariationModeParam(int index) {
+    switch(index) {
+      case 1: return variationModeParam1;
+      case 2: return variationModeParam2;
+      case 3: return variationModeParam3;
+      case 4: return variationModeParam4;
+      case 5: return variationModeParam5;
+      default: throw new IndexOutOfBoundsException("Index of Snapshot.variationModeParam is between 1 and 5");
+    }
   }
 
   @Override
@@ -357,25 +512,6 @@ public class Snapshot extends BaseIdentifiable {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this)
-        .append("id", getId())
-        .append("resourceId", resourceId)
-        .append("scope", scope)
-        .append("qualifier", qualifier)
-        .append("version", version)
-        .append("last", last)
-        .append("createdAt", createdAt)
-        .append("status", status)
-        .append("path", path)
-        .append("rootId", rootId)
-        .append("rootProjectId", rootProjectId)
-        .append("parentId", parentId)
-        .append("varMode1", varMode1)
-        .append("varLabel1", varLabel1)
-        .append("varMode2", varMode2)
-        .append("varLabel2", varLabel2)
-        .append("varMode3", varMode3)
-        .append("varLabel3", varLabel3)
-        .toString();
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 }

@@ -201,7 +201,7 @@ class Api::ResourcesController < Api::ApiController
   def select_columns_for_measures
     select_columns='project_measures.id,project_measures.value,project_measures.metric_id,project_measures.snapshot_id,project_measures.rule_id,project_measures.rule_priority,project_measures.text_value,project_measures.characteristic_id'
     if params[:includetrends]=='true'
-      select_columns+=',project_measures.tendency,project_measures.diff_value_1,project_measures.diff_value_2,project_measures.diff_value_3'
+      select_columns+=',project_measures.tendency,project_measures.variation_value_1,project_measures.variation_value_2,project_measures.variation_value_3,project_measures.variation_value_4,project_measures.variation_value_5'
     end
     if params[:includealerts]=='true'
       select_columns+=',project_measures.alert_status,project_measures.alert_text'

@@ -14,7 +14,7 @@
             name="Bar" long_name="org.foo.Bar" description="[null]"
             enabled="true" language="java" copy_resource_id="[null]" profile_id="[null]"/>
 
-  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" id="1000" project_id="200" parent_snapshot_id="[null]" root_project_id="100" root_snapshot_id="[null]"
+  <snapshots variation_mode_1="[null]" variation_param_1="[null]" variation_mode_2="[null]" variation_param_2="[null]" variation_mode_3="[null]" variation_param_3="[null]" variation_mode_4="[null]" variation_param_4="[null]" variation_mode_5="[null]" variation_param_5="[null]" id="1000" project_id="200" parent_snapshot_id="[null]" root_project_id="100" root_snapshot_id="[null]"
              scope="FIL" qualifier="CLA" created_at="2008-11-01 13:58:00.00" version="[null]" path=""
              status="U" islast="false" depth="3" />
 

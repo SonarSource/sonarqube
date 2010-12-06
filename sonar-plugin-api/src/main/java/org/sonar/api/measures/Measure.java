@@ -49,7 +49,7 @@ public class Measure {
   protected String alertText;
   protected Integer tendency;
   protected Date date;
-  protected Double variation1, variation2, variation3;
+  protected Double variation1, variation2, variation3, variation4, variation5;
   protected String url;
   protected Characteristic characteristic;
   protected PersistenceMode persistenceMode = PersistenceMode.FULL;
@@ -465,6 +465,42 @@ public class Measure {
   }
 
   /**
+   * @return the third variation value
+   * @since 2.5
+   */
+  public Double getVariation4() {
+    return variation4;
+  }
+
+  /**
+   * Internal use only
+   *
+   * @since 2.5
+   */
+  public Measure setVariation4(Double d) {
+    this.variation4 = d;
+    return this;
+  }
+
+  /**
+   * @return the third variation value
+   * @since 2.5
+   */
+  public Double getVariation5() {
+    return variation5;
+  }
+
+  /**
+   * Internal use only
+   *
+   * @since 2.5
+   */
+  public Measure setVariation5(Double d) {
+    this.variation5 = d;
+    return this;
+  }
+
+  /**
    * @since 2.5
    */
   public Double getVariation(int index) {
@@ -475,8 +511,12 @@ public class Measure {
         return variation2;
       case 3:
         return variation3;
+      case 4:
+        return variation4;
+      case 5:
+        return variation5;
       default:
-        throw new IllegalArgumentException("Index should be in range from 1 to 3");
+        throw new IndexOutOfBoundsException("Index should be in range from 1 to 5");
     }
   }
 
@@ -496,8 +536,14 @@ public class Measure {
       case 3:
         variation3 = d;
         break;
+      case 4:
+        variation4 = d;
+        break;
+      case 5:
+        variation5 = d;
+        break;
       default:
-        throw new IllegalArgumentException("Index should be in range from 1 to 3");
+        throw new IndexOutOfBoundsException("Index should be in range from 1 to 5");
     }
     return this;
   }

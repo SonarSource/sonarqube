@@ -21,16 +21,14 @@
 #
 # Sonar 2.5
 #
-class AddSnapshotsVarColumns < ActiveRecord::Migration
+class AddMeasureVariationValues < ActiveRecord::Migration
 
   def self.up
-     add_column :snapshots, :var_mode_1, :string, :null => true, :limit => 100
-     add_column :snapshots, :var_mode_2, :string, :null => true, :limit => 100
-     add_column :snapshots, :var_mode_3, :string, :null => true, :limit => 100
-
-     add_column :snapshots, :var_label_1, :string, :null => true, :limit => 100
-     add_column :snapshots, :var_label_2, :string, :null => true, :limit => 100
-     add_column :snapshots, :var_label_3, :string, :null => true, :limit => 100
+    rename_column :project_measures, :diff_value_1, :variation_value_1
+    rename_column :project_measures, :diff_value_2, :variation_value_2
+    rename_column :project_measures, :diff_value_3, :variation_value_3
+    add_column(:project_measures, :variation_value_4, :decimal, :null => true, :precision => 30, :scale => 20)
+    add_column(:project_measures, :variation_value_5, :decimal, :null => true, :precision => 30, :scale => 20)
   end
 
 end

@@ -22,12 +22,12 @@
             description="[null]" enabled="true" profile_id="[null]" language="java" copy_resource_id="[null]"/>
 
 
-  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" id="5" created_at="2008-12-25 01:00:01.00" version="1.0" project_id="4" scope="FIL" qualifier="CLA"
+  <snapshots variation_mode_1="[null]" variation_param_1="[null]" variation_mode_2="[null]" variation_param_2="[null]" variation_mode_3="[null]" variation_param_3="[null]" variation_mode_4="[null]" variation_param_4="[null]" variation_mode_5="[null]" variation_param_5="[null]" id="5" created_at="2008-12-25 01:00:01.00" version="1.0" project_id="4" scope="FIL" qualifier="CLA"
              root_project_id="1" root_snapshot_id="2" parent_snapshot_id="4" STATUS="P" ISLAST="true"
              path="2.4."
              depth="2"/>
 
-  <snapshots var_mode_1="[null]" var_label_1="[null]" var_mode_2="[null]" var_label_2="[null]" var_mode_3="[null]" var_label_3="[null]" id="6" created_at="2008-12-25 01:00:01.00" version="1.0" project_id="5" scope="FIL" qualifier="CLA"
+  <snapshots variation_mode_1="[null]" variation_param_1="[null]" variation_mode_2="[null]" variation_param_2="[null]" variation_mode_3="[null]" variation_param_3="[null]" variation_mode_4="[null]" variation_param_4="[null]" variation_mode_5="[null]" variation_param_5="[null]" id="6" created_at="2008-12-25 01:00:01.00" version="1.0" project_id="5" scope="FIL" qualifier="CLA"
              root_project_id="1" root_snapshot_id="2" parent_snapshot_id="4" STATUS="P" ISLAST="true"
              path="2.4."
              depth="2"/>
@@ -35,13 +35,13 @@
 
   <!-- SNAPSHOT 5 : 500 lines and coverage 80.5% -->
   <project_measures characteristic_id="[null]" id="1" metric_id="1" value="500" snapshot_id="5"
-                    url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]" variation_value_5="[null]"
                     rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
                     RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
                     alert_status="[null]" description="[null]"/>
 
   <project_measures characteristic_id="[null]" id="2" metric_id="2" value="80.5" snapshot_id="5"
-                    url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]" variation_value_5="[null]"
                     rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
                     RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
                     alert_status="[null]" description="[null]"/>
@@ -49,19 +49,19 @@
 
   <!-- SNAPSHOT 6 : 30 lines, coverage 20.6% and 10 duplicated lines -->
   <project_measures characteristic_id="[null]" id="3" metric_id="1" value="30" snapshot_id="6"
-                    url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]" variation_value_5="[null]"
                     rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
                     RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
                     alert_status="[null]" description="[null]"/>
 
   <project_measures characteristic_id="[null]" id="4" metric_id="2" value="20.6" snapshot_id="6"
-                    url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]" variation_value_5="[null]"
                     rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
                     RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
                     alert_status="[null]" description="[null]"/>
 
   <project_measures characteristic_id="[null]" id="5" metric_id="3" value="10" snapshot_id="6"
-                    url="[null]" diff_value_1="[null]" diff_value_2="[null]" diff_value_3="[null]"
+                    url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]" variation_value_5="[null]"
                     rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
                     RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
                     alert_status="[null]" description="[null]"/>

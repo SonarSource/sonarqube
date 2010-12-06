@@ -19,7 +19,9 @@
  */
 package org.sonar.api.database.model;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.qualitymodel.Characteristic;
@@ -89,14 +91,20 @@ public class MeasureModel implements Cloneable {
   @Column(name = "alert_text", updatable = true, nullable = true, length = 4000)
   private String alertText;
 
-  @Column(name = "diff_value_1", updatable = true, nullable = true)
-  private Double diffValue1;
+  @Column(name = "variation_value_1", updatable = true, nullable = true)
+  private Double variationValue1;
 
-  @Column(name = "diff_value_2", updatable = true, nullable = true)
-  private Double diffValue2;
+  @Column(name = "variation_value_2", updatable = true, nullable = true)
+  private Double variationValue2;
 
-  @Column(name = "diff_value_3", updatable = true, nullable = true)
-  private Double diffValue3;
+  @Column(name = "variation_value_3", updatable = true, nullable = true)
+  private Double variationValue3;
+
+  @Column(name = "variation_value_4", updatable = true, nullable = true)
+  private Double variationValue4;
+
+  @Column(name = "variation_value_5", updatable = true, nullable = true)
+  private Double variationValue5;
 
   @Column(name = "url", updatable = true, nullable = true, length = 2000)
   private String url;
@@ -440,52 +448,47 @@ public class MeasureModel implements Cloneable {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this).
-        append("value", value).
-        append("metricId", metricId).
-        toString();
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 
-  /**
-   * @return diffValue1
-   */
-  public Double getDiffValue1() {
-    return diffValue1;
+  public Double getVariationValue1() {
+    return variationValue1;
   }
 
-  /**
-   * Sets the diffValue1
-   */
-  public void setDiffValue1(Double diffValue1) {
-    this.diffValue1 = diffValue1;
+  public void setVariationValue1(Double d) {
+    this.variationValue1 = d;
   }
 
-  /**
-   * @return diffValue2
-   */
-  public Double getDiffValue2() {
-    return diffValue2;
+  public Double getVariationValue2() {
+    return variationValue2;
   }
 
-  /**
-   * Sets the diffValue2
-   */
-  public void setDiffValue2(Double diffValue2) {
-    this.diffValue2 = diffValue2;
+  public void setVariationValue2(Double d) {
+    this.variationValue2 = d;
   }
 
-  /**
-   * @return diffValue3
-   */
-  public Double getDiffValue3() {
-    return diffValue3;
+  public Double getVariationValue3() {
+    return variationValue3;
   }
 
-  /**
-   * Sets the diffValue3
-   */
-  public void setDiffValue3(Double diffValue3) {
-    this.diffValue3 = diffValue3;
+  public void setVariationValue3(Double d) {
+    this.variationValue3 = d;
+  }
+
+  public Double getVariationValue4() {
+    return variationValue4;
+  }
+
+  public void setVariationValue4(Double d) {
+    this.variationValue4 = d;
+  }
+
+  public Double getVariationValue5() {
+    return variationValue5;
+  }
+
+  public void setVariationValue5(Double d) {
+    this.variationValue5 = d;
   }
 
   /**
@@ -525,9 +528,11 @@ public class MeasureModel implements Cloneable {
     clone.setAlertStatus(getAlertStatus());
     clone.setAlertText(getAlertText());
     clone.setTendency(getTendency());
-    clone.setDiffValue1(getDiffValue1());
-    clone.setDiffValue2(getDiffValue2());
-    clone.setDiffValue3(getDiffValue3());
+    clone.setVariationValue1(getVariationValue1());
+    clone.setVariationValue2(getVariationValue2());
+    clone.setVariationValue3(getVariationValue3());
+    clone.setVariationValue4(getVariationValue4());
+    clone.setVariationValue5(getVariationValue5());
     clone.setValue(getValue());
     clone.setRulePriority(getRulePriority());
     clone.setRuleId(getRuleId());

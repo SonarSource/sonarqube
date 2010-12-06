@@ -29,7 +29,7 @@ import java.util.List;
 
 public class TimeMachineConfiguration implements BatchExtension {
 
-  private static final int NUMBER_OF_VARIATION_SNAPSHOTS = 3;
+  private static final int NUMBER_OF_VARIATION_SNAPSHOTS = 5;
 
   private final Configuration configuration;
   private List<PastSnapshot> projectPastSnapshots;
@@ -49,14 +49,7 @@ public class TimeMachineConfiguration implements BatchExtension {
     }
   }
 
-  /**
-   * for unit tests
-   */
-  TimeMachineConfiguration(Configuration configuration, List<PastSnapshot> projectPastSnapshots) {
-    this.configuration = configuration;
-    this.projectPastSnapshots = projectPastSnapshots;
-  }
-
+  
   /**
    * for unit tests
    */

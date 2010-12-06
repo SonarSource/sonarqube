@@ -133,7 +133,22 @@ import java.util.List;
         description = "To be defined. For the moment the number of days",
         project = false,
         global = true
-    ) })
+    ),
+    @Property(
+        key = "sonar.timemachine.variation4",
+        name = "Variation 4, only for projects",
+        description = "To be defined. For the moment the number of days",
+        project = true,
+        global = false
+    ),
+    @Property(
+        key = "sonar.timemachine.variation5",
+        name = "Variation 5",
+        description = "To be defined. For the moment the number of days",
+        project = true,
+        global = false
+    )
+})
 public class CorePlugin implements Plugin {
 
   public String getKey() {

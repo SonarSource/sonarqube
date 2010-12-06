@@ -131,6 +131,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
       // The qualifier must be LIB, even if the resource is TRK, because this snapshot has no measures.
       snapshot.setQualifier(Resource.QUALIFIER_LIB);
       snapshot = session.save(snapshot);
+      snapshotsByResource.put(library, snapshot);
     }
     session.commit();
     return snapshot;

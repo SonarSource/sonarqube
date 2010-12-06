@@ -36,19 +36,16 @@ public final class DefaultPersistenceManager implements PersistenceManager {
   private SourcePersister sourcePersister;
   private MeasurePersister measurePersister;
   private DependencyPersister dependencyPersister;
-  private ViolationPersister violationPersister;
   private LinkPersister linkPersister;
   private EventPersister eventPersister;
 
   public DefaultPersistenceManager(ResourcePersister resourcePersister, SourcePersister sourcePersister,
                                    MeasurePersister measurePersister, DependencyPersister dependencyPersister,
-                                   ViolationPersister violationPersister, LinkPersister linkPersister,
-                                   EventPersister eventPersister) {
+                                   LinkPersister linkPersister, EventPersister eventPersister) {
     this.resourcePersister = resourcePersister;
     this.sourcePersister = sourcePersister;
     this.measurePersister = measurePersister;
     this.dependencyPersister = dependencyPersister;
-    this.violationPersister = violationPersister;
     this.linkPersister = linkPersister;
     this.eventPersister = eventPersister;
   }

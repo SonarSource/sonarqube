@@ -23,7 +23,6 @@
 #
 class DeleteIsoRuleCategories < ActiveRecord::Migration
 
-
   def self.up
     remove_rule_categories
     delete_measures_on_iso_category
