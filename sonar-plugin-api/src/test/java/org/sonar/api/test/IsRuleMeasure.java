@@ -45,7 +45,7 @@ public class IsRuleMeasure extends BaseMatcher<Measure> {
 
   /**
    * @deprecated since 2.5
-   *             category not used anymore - see http://jira.codehaus.org/browse/SONAR-2007 , so use
+   *             category not used any more - see http://jira.codehaus.org/browse/SONAR-2007 , so use
    *             {@link #IsRuleMeasure(Metric, Rule, RulePriority, Double)} instead
    */
   @Deprecated

@@ -53,7 +53,7 @@ public class FindbugsSensor implements Sensor {
 
   public void analyse(Project project, SensorContext context) {
     if (project.getReuseExistingRulesConfig()) {
-      Logs.INFO.warn("Reusing existing Findbugs configuration not supported anymore.");
+      Logs.INFO.warn("Reusing existing Findbugs configuration not supported any more.");
     }
     File report = getFindbugsReportFile(project);
     if (report == null) {

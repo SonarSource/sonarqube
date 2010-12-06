@@ -377,7 +377,8 @@ public class Project extends Resource {
 
   /**
    * @return the underlying Maven project
-   * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2011
+   * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2011 ,
+   *             MavenProject can be retrieved as an IoC dependency
    */
   @Deprecated
   public MavenProject getPom() {
