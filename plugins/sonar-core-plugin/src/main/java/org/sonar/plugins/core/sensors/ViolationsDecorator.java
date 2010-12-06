@@ -20,6 +20,7 @@
 package org.sonar.plugins.core.sensors;
 
 import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multiset;
 import org.sonar.api.batch.*;
 import org.sonar.api.measures.*;
@@ -38,7 +39,7 @@ public class ViolationsDecorator implements Decorator {
   // temporary data for current resource
   private Multiset<Rule> rules = HashMultiset.create();
   private Multiset<RulePriority> priorities = HashMultiset.create();
-  private Map<Rule, RulePriority> ruleToLevel = new HashMap<Rule, RulePriority>();
+  private Map<Rule, RulePriority> ruleToLevel = Maps.newHashMap();
   private int total = 0;
 
   public boolean shouldExecuteOnProject(Project project) {
