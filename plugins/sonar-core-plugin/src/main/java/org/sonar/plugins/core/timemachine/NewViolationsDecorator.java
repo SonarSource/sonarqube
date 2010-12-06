@@ -123,7 +123,7 @@ public class NewViolationsDecorator implements Decorator {
     }
 
     for (Rule rule : childrenByRule.keys()) {
-      RuleMeasure measure = RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule, null);
+      RuleMeasure measure = RuleMeasure.createForRule(CoreMetrics.NEW_VIOLATIONS, rule, null);
       measure.setRulePriority(ruleToLevel.get(rule));
       for (PastSnapshot variationSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
         int variationIndex = variationSnapshot.getIndex();
