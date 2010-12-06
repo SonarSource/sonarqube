@@ -26,7 +26,7 @@ public class ViolationQuery extends Query<Violation> {
   private String[] qualifiers;
   private String[] ruleKeys;
   private String[] categories;
-  private String[] priorities;
+  private String[] severities;
   private int depth = 0;
   private String resourceKeyOrId;
 
@@ -70,12 +70,35 @@ public class ViolationQuery extends Query<Violation> {
     return this;
   }
 
-  public String[] getPriorities() {
-    return priorities;
+  /**
+   * @since 2.5
+   */
+  public String[] getSeverities() {
+    return severities;
   }
 
+  /**
+   * @since 2.5
+   */
+  public ViolationQuery setSeverities(String... severities) {
+    this.severities = severities;
+    return this;
+  }
+
+  /**
+   * @deprecated since 2.5 use {@link #getSeverities()} instead. See http://jira.codehaus.org/browse/SONAR-1829
+   */
+  @Deprecated
+  public String[] getPriorities() {
+    return severities;
+  }
+
+  /**
+   * @deprecated since 2.5 use {@link #setSeverities(String...)} instead. See http://jira.codehaus.org/browse/SONAR-1829
+   */
+  @Deprecated
   public ViolationQuery setPriorities(String... priorities) {
-    this.priorities = priorities;
+    this.severities = priorities;
     return this;
   }
 
@@ -102,7 +125,7 @@ public class ViolationQuery extends Query<Violation> {
     append(url, "qualifiers", qualifiers);
     append(url, "rules", ruleKeys);
     append(url, "categories", categories);
-    append(url, "priorities", priorities);
+    append(url, "priorities", severities);
     return url.toString();
   }
 

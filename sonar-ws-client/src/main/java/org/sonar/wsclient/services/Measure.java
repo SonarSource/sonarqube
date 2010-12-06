@@ -37,8 +37,12 @@ public class Measure extends Model {
 
   private String ruleKey;
   private String ruleName;
+  private String ruleSeverity;
+
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
   private String ruleCategory;
-  private String rulePriority;
 
   public String getMetricKey() {
     return metricKey;
@@ -63,7 +67,7 @@ public class Measure extends Model {
   }
 
   public Integer getIntValue() {
-    if (value==null) {
+    if (value == null) {
       return null;
     }
     return value.intValue();
@@ -79,7 +83,7 @@ public class Measure extends Model {
   }
 
   public String getFormattedValue(String defaultValue) {
-    if (formattedValue==null) {
+    if (formattedValue == null) {
       return defaultValue;
     }
     return formattedValue;
@@ -94,15 +98,15 @@ public class Measure extends Model {
     return data;
   }
 
-  public Map<String,String> getDataAsMap() {
+  public Map<String, String> getDataAsMap() {
     return getDataAsMap(",");
   }
 
-  public Map<String,String> getDataAsMap(String separator) {
-    if (data==null) {
+  public Map<String, String> getDataAsMap(String separator) {
+    if (data == null) {
       return null;
     }
-    Map<String,String> map = new LinkedHashMap<String,String>();
+    Map<String, String> map = new LinkedHashMap<String, String>();
     String[] parts = data.split(separator);
     for (String part : parts) {
       String[] kv = part.split("=");
@@ -152,21 +156,52 @@ public class Measure extends Model {
     return this;
   }
 
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public String getRuleCategory() {
     return ruleCategory;
   }
 
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public Measure setRuleCategory(String ruleCategory) {
     this.ruleCategory = ruleCategory;
     return this;
   }
 
-  public String getRulePriority() {
-    return rulePriority;
+  /**
+   * @since 2.5
+   */
+  public Measure setRuleSeverity(String ruleSeverity) {
+    this.ruleSeverity = ruleSeverity;
+    return this;
   }
 
+  /**
+   * @since 2.5
+   */
+  public String getRuleSeverity() {
+    return ruleSeverity;
+  }
+
+  /**
+   * @deprecated since 2.5 use {@link #getRuleSeverity()} instead. See http://jira.codehaus.org/browse/SONAR-1829
+   */
+  @Deprecated
+  public String getRulePriority() {
+    return ruleSeverity;
+  }
+
+  /**
+   * @deprecated since 2.5 use {@link #setRuleSeverity(String)} instead. See http://jira.codehaus.org/browse/SONAR-1829
+   */
+  @Deprecated
   public Measure setRulePriority(String rulePriority) {
-    this.rulePriority = rulePriority;
+    this.ruleSeverity = rulePriority;
     return this;
   }
 
@@ -202,7 +237,7 @@ public class Measure extends Model {
         .append(", ruleKey='").append(ruleKey).append('\'')
         .append(", ruleName='").append(ruleName).append('\'')
         .append(", ruleCategory='").append(ruleCategory).append('\'')
-        .append(", rulePriority='").append(rulePriority).append('\'')
+        .append(", rulePriority='").append(ruleSeverity).append('\'')
         .append('}').toString();
   }
 }

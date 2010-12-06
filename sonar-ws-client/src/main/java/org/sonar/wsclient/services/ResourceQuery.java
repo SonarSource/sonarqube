@@ -31,13 +31,18 @@ public class ResourceQuery extends Query<Resource> {
   private String[] qualifiers;
   private String[] metrics;
   private String[] rules;
+
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
   private String[] ruleCategories;
-  private String[] rulePriorities;
+
+  private String[] ruleSeverities;
   private String[] characteristicKeys;
   private String model;
   private boolean excludeRules = true;
   private boolean excludeRuleCategories = true;
-  private boolean excludeRulePriorities = true;
+  private boolean excludeRuleSeverities = true;
   private Boolean includeTrends = null;
   private Boolean verbose = Boolean.FALSE;
 
@@ -80,11 +85,10 @@ public class ResourceQuery extends Query<Resource> {
   }
 
   public ResourceQuery setCharacteristicKeys(String model, String... keys) {
-    this.model=model;
+    this.model = model;
     this.characteristicKeys = keys;
     return this;
   }
-  
 
   public Integer getLimit() {
     return limit;
@@ -132,12 +136,17 @@ public class ResourceQuery extends Query<Resource> {
     return this;
   }
 
+  /**
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   */
+  @Deprecated
   public String[] getRuleCategories() {
     return ruleCategories;
   }
 
   /**
    * @param ruleCategories values: Maintainability, Usability, Reliability, Efficiency, Portability
+   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
    */
   public ResourceQuery setRuleCategories(String... ruleCategories) {
     this.ruleCategories = ruleCategories;
@@ -145,17 +154,37 @@ public class ResourceQuery extends Query<Resource> {
     return this;
   }
 
-  public String[] getRulePriorities() {
-    return rulePriorities;
+  /**
+   * @since 2.5
+   */
+  public String[] getRuleSeverities() {
+    return ruleSeverities;
   }
 
   /**
-   * @param rulePriorities values: BLOCKER, CRITICAL, MAJOR, MINOR, INFO
+   * @since 2.5
+   * @param ruleSeverities values: BLOCKER, CRITICAL, MAJOR, MINOR, INFO
    */
-  public ResourceQuery setRulePriorities(String... rulePriorities) {
-    this.rulePriorities = rulePriorities;
-    this.excludeRulePriorities = false;
+  public ResourceQuery setRuleSeverities(String... ruleSeverities) {
+    this.ruleSeverities = ruleSeverities;
+    this.excludeRuleSeverities = false;
     return this;
+  }
+
+  /**
+   * @deprecated since 2.5 use {@link #getRuleSeverities()} instead. See http://jira.codehaus.org/browse/SONAR-1829
+   */
+  @Deprecated
+  public String[] getRulePriorities() {
+    return ruleSeverities;
+  }
+
+  /**
+   * @deprecated since 2.5 use {@link #setRuleSeverities(String...)} instead. See http://jira.codehaus.org/browse/SONAR-1829
+   */
+  @Deprecated
+  public ResourceQuery setRulePriorities(String... rulePriorities) {
+    return setRuleSeverities(rulePriorities);
   }
 
   public boolean isExcludeRules() {
@@ -176,12 +205,31 @@ public class ResourceQuery extends Query<Resource> {
     return this;
   }
 
-  public boolean isExcludeRulePriorities() {
-    return excludeRulePriorities;
+  /**
+   * @since 2.5
+   */
+  public boolean isExcludeRuleSeverities() {
+    return excludeRuleSeverities;
   }
 
+  public void setExcludeRuleSeverities(boolean excludeRuleSeverities) {
+    this.excludeRuleSeverities = excludeRuleSeverities;
+  }
+
+  /**
+   * @deprecated since 2.5 use {@link #isExcludeRuleSeverities()} instead. See http://jira.codehaus.org/browse/SONAR-1829
+   */
+  @Deprecated
+  public boolean isExcludeRulePriorities() {
+    return excludeRuleSeverities;
+  }
+
+  /**
+   * @deprecated since 2.5 use {@link #setExcludeRuleSeverities(boolean)} instead. See http://jira.codehaus.org/browse/SONAR-1829
+   */
+  @Deprecated
   public ResourceQuery setExcludeRulePriorities(boolean excludeRulePriorities) {
-    this.excludeRulePriorities = excludeRulePriorities;
+    this.excludeRuleSeverities = excludeRulePriorities;
     return this;
   }
 
@@ -215,7 +263,7 @@ public class ResourceQuery extends Query<Resource> {
     appendUrlParameter(url, "limit", limit);
     appendRuleField(url, "rules", excludeRules, rules);
     appendRuleField(url, "rule_categories", excludeRuleCategories, ruleCategories);
-    appendRuleField(url, "rule_priorities", excludeRulePriorities, rulePriorities);
+    appendRuleField(url, "rule_priorities", excludeRuleSeverities, ruleSeverities);
     appendUrlParameter(url, "includetrends", includeTrends);
     appendUrlParameter(url, "model", model);
     appendUrlParameter(url, "characteristics", characteristicKeys);

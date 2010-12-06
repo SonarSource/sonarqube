@@ -19,18 +19,18 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertThat;
-
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.wsclient.services.Violation;
 
 import java.io.IOException;
 import java.util.List;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertThat;
 
 public class ViolationUnmarshallerTest {
 
@@ -46,7 +46,7 @@ public class ViolationUnmarshallerTest {
     assertThat(violation.getMessage(), is("throw java.lang.Exception"));
     assertThat(violation.getLine(), is(97));
     assertThat(violation.getCreatedAt(), notNullValue());
-    assertThat(violation.getPriority(), is("MAJOR"));
+    assertThat(violation.getSeverity(), is("MAJOR"));
     assertThat(violation.getRuleKey(), is("pmd:SignatureDeclareThrowsException"));
     assertThat(violation.getRuleName(), is("Signature Declare Throws Exception"));
     assertThat(violation.getResourceKey(),

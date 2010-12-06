@@ -29,7 +29,7 @@ public class ViolationUnmarshaller extends AbstractUnmarshaller<Violation> {
     Violation violation = new Violation();
     violation.setMessage(JsonUtils.getString(json, "message"));
     violation.setLine(JsonUtils.getInteger(json, "line"));
-    violation.setPriority(JsonUtils.getString(json, "priority"));
+    violation.setSeverity(JsonUtils.getString(json, "priority"));
     violation.setCreatedAt(JsonUtils.getDateTime(json, "createdAt"));
 
     JSONObject rule = (JSONObject) json.get("rule");

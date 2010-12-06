@@ -24,7 +24,7 @@ import java.util.Date;
 public class Violation extends Model {
 
   private String message = null;
-  private String priority = null;
+  private String severity = null;
   private Integer line = null;
   private String ruleKey = null;
   private String ruleName = null;
@@ -42,12 +42,34 @@ public class Violation extends Model {
     this.message = message;
   }
 
-  public String getPriority() {
-    return priority;
+  /**
+   * @since 2.5
+   */
+  public String getSeverity() {
+    return severity;
   }
 
+  /**
+   * @since 2.5
+   */
+  public void setSeverity(String severity) {
+    this.severity = severity;
+  }
+
+  /**
+   * @deprecated since 2.5 use {@link #getSeverity()} instead. See http://jira.codehaus.org/browse/SONAR-1829
+   */
+  @Deprecated
+  public String getPriority() {
+    return severity;
+  }
+
+  /**
+   * @deprecated since 2.5 use {@link #setSeverity(String)} instead. See http://jira.codehaus.org/browse/SONAR-1829
+   */
+  @Deprecated
   public void setPriority(String priority) {
-    this.priority = priority;
+    this.severity = priority;
   }
 
   public Integer getLine() {
