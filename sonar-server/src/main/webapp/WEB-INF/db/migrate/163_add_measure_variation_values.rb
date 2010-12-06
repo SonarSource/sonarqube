@@ -24,9 +24,12 @@
 class AddMeasureVariationValues < ActiveRecord::Migration
 
   def self.up
-    rename_column :project_measures, :diff_value_1, :variation_value_1
-    rename_column :project_measures, :diff_value_2, :variation_value_2
-    rename_column :project_measures, :diff_value_3, :variation_value_3
+    remove_column :project_measures, :diff_value_1
+    remove_column :project_measures, :diff_value_2
+    remove_column :project_measures, :diff_value_3
+    add_column(:project_measures, :variation_value_1, :decimal, :null => true, :precision => 30, :scale => 20)
+    add_column(:project_measures, :variation_value_2, :decimal, :null => true, :precision => 30, :scale => 20)
+    add_column(:project_measures, :variation_value_3, :decimal, :null => true, :precision => 30, :scale => 20)
     add_column(:project_measures, :variation_value_4, :decimal, :null => true, :precision => 30, :scale => 20)
     add_column(:project_measures, :variation_value_5, :decimal, :null => true, :precision => 30, :scale => 20)
   end
