@@ -52,7 +52,7 @@
          <%= select_tag "plugins", options_for_select(@select_plugins, @plugins), :id => 'search_plugin', :multiple => true, :size => 6 %>
        </td>
        <td class="left" valign="top" width="1%" nowrap>
-         <span class="note">Priority</span><br/>
+         <span class="note">Severity</span><br/>
          <%= select_tag "priorities", options_for_select(@select_priority, @priorities), :id => 'search_priority', :multiple => true, :size => 6 %>
        </td>
        <td class="left" valign="top" width="1%" nowrap>
@@ -97,7 +97,7 @@
 <table class="data width100 marginbottom10" id="result_table">
   <thead>
     <tr>
-        <th class="left" nowrap>Active/Priority</th>
+        <th class="left" nowrap>Active/Severity</th>
         <th class="left">Name <span style="font-weight: normal">[<%= link_to_function("expand/collapse", "toggle_rules()") %>]</span></th>
         <th class="right">Plugin</th>
     </tr>
