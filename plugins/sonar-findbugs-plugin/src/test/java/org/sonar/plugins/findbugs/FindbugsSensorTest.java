@@ -20,7 +20,6 @@
 package org.sonar.plugins.findbugs;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
@@ -53,22 +52,22 @@ public class FindbugsSensorTest extends FindbugsTests {
   @Test
   public void shouldExecuteWhenReuseExistingRulesConfig() throws Exception {
     FindbugsSensor analyser = new FindbugsSensor(RulesProfile.create(), new FakeRuleFinder(), null);
-    Project pom = createProject();
-    when(pom.getReuseExistingRulesConfig()).thenReturn(true);
-    assertTrue(analyser.shouldExecuteOnProject(pom));
+    Project project = createProject();
+    when(project.getReuseExistingRulesConfig()).thenReturn(true);
+    assertTrue(analyser.shouldExecuteOnProject(project));
   }
 
   @Test
   public void shouldNotExecuteWhenNoRulesAreActive() throws Exception {
     FindbugsSensor analyser = new FindbugsSensor(RulesProfile.create(), new FakeRuleFinder(), null);
-    Project pom = createProject();
-    assertFalse(analyser.shouldExecuteOnProject(pom));
+    Project project = createProject();
+    assertFalse(analyser.shouldExecuteOnProject(project));
   }
 
   @Test
   public void shouldNotExecuteOnEar() {
     Project project = createProject();
-    when(project.getPom().getPackaging()).thenReturn("ear");
+    when(project.getPackaging()).thenReturn("ear");
     FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithActiveRules(), new FakeRuleFinder(), null);
     assertFalse(analyser.shouldExecuteOnProject(project));
   }
@@ -151,10 +150,8 @@ public class FindbugsSensorTest extends FindbugsTests {
     DefaultProjectFileSystem fileSystem = mock(DefaultProjectFileSystem.class);
     when(fileSystem.hasJavaSourceFiles()).thenReturn(Boolean.TRUE);
 
-    MavenProject mavenProject = mock(MavenProject.class);
     Project project = mock(Project.class);
     when(project.getFileSystem()).thenReturn(fileSystem);
-    when(project.getPom()).thenReturn(mavenProject);
     return project;
   }
 

@@ -19,9 +19,6 @@
  */
 package org.sonar.plugins.findbugs;
 
-import java.io.File;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Sensor;
@@ -33,6 +30,9 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.Logs;
+
+import java.io.File;
+import java.util.List;
 
 public class FindbugsSensor implements Sensor {
   private RulesProfile profile;
@@ -47,8 +47,8 @@ public class FindbugsSensor implements Sensor {
 
   public boolean shouldExecuteOnProject(Project project) {
     return project.getFileSystem().hasJavaSourceFiles()
-        && ( !profile.getActiveRulesByRepository(FindbugsConstants.REPOSITORY_KEY).isEmpty() || project.getReuseExistingRulesConfig())
-        && project.getPom() != null && !StringUtils.equalsIgnoreCase(project.getPom().getPackaging(), "ear");
+        && (!profile.getActiveRulesByRepository(FindbugsConstants.REPOSITORY_KEY).isEmpty() || project.getReuseExistingRulesConfig())
+        && !StringUtils.equalsIgnoreCase(project.getPackaging(), "ear");
   }
 
   public void analyse(Project project, SensorContext context) {
