@@ -36,11 +36,21 @@ public class IsRuleMeasure extends BaseMatcher<Measure> {
   private RulePriority priority = null;
   private Double value = null;
 
-  public IsRuleMeasure(Metric metric, Rule rule, Integer category, RulePriority priority, Double value) {
+  public IsRuleMeasure(Metric metric, Rule rule, RulePriority priority, Double value) {
     this.metric = metric;
     this.rule = rule;
     this.priority = priority;
     this.value = value;
+  }
+
+  /**
+   * @deprecated since 2.5
+   *             category not used anymore - see http://jira.codehaus.org/browse/SONAR-2007 , so use
+   *             {@link #IsRuleMeasure(Metric, Rule, RulePriority, Double)} instead
+   */
+  @Deprecated
+  public IsRuleMeasure(Metric metric, Rule rule, Integer category, RulePriority priority, Double value) {
+    this(metric, rule, priority, value);
   }
 
   public boolean matches(Object o) {

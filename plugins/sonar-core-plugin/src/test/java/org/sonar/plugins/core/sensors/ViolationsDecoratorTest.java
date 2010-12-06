@@ -115,17 +115,28 @@ public class ViolationsDecoratorTest {
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.VIOLATIONS, null, null, RulePriority.BLOCKER, 0.0)));
-    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.VIOLATIONS, null, null, RulePriority.CRITICAL, 2.0)));
-    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.VIOLATIONS, null, null, RulePriority.MAJOR, 1.0)));
-    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.VIOLATIONS, null, null, RulePriority.MINOR, 1.0)));
-    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.VIOLATIONS, null, null, RulePriority.INFO, 0.0)));
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.VIOLATIONS, null, RulePriority.BLOCKER, 0.0)));
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.VIOLATIONS, null, RulePriority.CRITICAL, 2.0)));
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.VIOLATIONS, null, RulePriority.MAJOR, 1.0)));
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.VIOLATIONS, null, RulePriority.MINOR, 1.0)));
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.VIOLATIONS, null, RulePriority.INFO, 0.0)));
 
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.BLOCKER_VIOLATIONS, 0.0)));
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.CRITICAL_VIOLATIONS, 2.0)));
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.MAJOR_VIOLATIONS, 1.0)));
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.MINOR_VIOLATIONS, 1.0)));
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.INFO_VIOLATIONS, 0.0)));
+  }
+
+  @Test
+  public void ruleViolations() {
+    when(context.getViolations()).thenReturn(createViolations());
+
+    decorator.decorate(resource, context);
+
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.VIOLATIONS, ruleA1, RulePriority.CRITICAL, 2.0)));
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.VIOLATIONS, ruleA2, RulePriority.MAJOR, 1.0)));
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.VIOLATIONS, ruleB1, RulePriority.MINOR, 1.0)));
   }
 
   private List<Violation> createViolations() {
