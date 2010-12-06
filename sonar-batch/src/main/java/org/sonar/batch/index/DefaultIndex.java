@@ -196,11 +196,16 @@ public final class DefaultIndex extends SonarIndex {
   }
 
   public List<Resource> getChildren(Resource resource) {
+    return getChildren(resource, false);
+  }
+
+  public List<Resource> getChildren(Resource resource, boolean includeExcludedResources) {
     List<Resource> children = Lists.newArrayList();
     Bucket bucket = buckets.get(resource);
     if (bucket != null) {
       for (Bucket childBucket : bucket.getChildren()) {
-        children.add(childBucket.getResource());
+        if (includeExcludedResources || !childBucket.isExcluded())
+          children.add(childBucket.getResource());
       }
     }
     return children;
@@ -279,15 +284,23 @@ public final class DefaultIndex extends SonarIndex {
       addDependency(parentDependency);
     }
 
-    persistence.saveDependency(currentProject, dependency, parentDependency);
-    registerDependency(dependency);
+    if (registerDependency(dependency)) {
+      persistence.saveDependency(currentProject, dependency, parentDependency);
+    }
     return dependency;
   }
 
-  protected void registerDependency(Dependency dependency) {
-    dependencies.add(dependency);
-    registerOutgoingDependency(dependency);
-    registerIncomingDependency(dependency);
+  boolean registerDependency(Dependency dependency) {
+    Bucket fromBucket = getOrAddBucket(dependency.getFrom());
+    Bucket toBucket = getOrAddBucket(dependency.getTo());
+
+    if (fromBucket != null && !fromBucket.isExcluded() && toBucket != null && !toBucket.isExcluded()) {
+      dependencies.add(dependency);
+      registerOutgoingDependency(dependency);
+      registerIncomingDependency(dependency);
+      return true;
+    }
+    return false;
   }
 
   private void registerOutgoingDependency(Dependency dependency) {

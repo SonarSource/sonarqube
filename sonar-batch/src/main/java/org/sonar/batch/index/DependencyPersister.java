@@ -36,9 +36,9 @@ public final class DependencyPersister {
   }
 
   public void saveDependency(Project project, Dependency dependency, Dependency parentDependency) {
-    Snapshot fromSnapshot = resourcePersister.saveResource(project, dependency.getFrom());
-    Snapshot toSnapshot = resourcePersister.saveResource(project, dependency.getTo());
-    Snapshot projectSnapshot = resourcePersister.saveProject(project);
+    Snapshot fromSnapshot = resourcePersister.getSnapshot(dependency.getFrom());
+    Snapshot toSnapshot = resourcePersister.getSnapshot(dependency.getTo());
+    Snapshot projectSnapshot = resourcePersister.getSnapshot(project);
 
     DependencyDto model = new DependencyDto();
     model.setProjectSnapshotId(projectSnapshot.getId());

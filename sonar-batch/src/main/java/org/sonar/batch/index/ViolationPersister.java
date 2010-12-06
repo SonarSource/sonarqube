@@ -39,10 +39,7 @@ public final class ViolationPersister {
     this.ruleFinder = ruleFinder;
   }
 
-  /**
-   * @deprecated Use {@link #saveOrUpdateViolation(Project, Violation, RuleFailureModel)} instead.
-   */
-  public void saveViolation(Project project, Violation violation) {
+  void saveViolation(Project project, Violation violation) {
     saveOrUpdateViolation(project, violation, null, null);
   }
 

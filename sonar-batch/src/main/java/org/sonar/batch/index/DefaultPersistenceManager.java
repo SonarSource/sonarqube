@@ -86,10 +86,6 @@ public final class DefaultPersistenceManager implements PersistenceManager {
     dependencyPersister.saveDependency(project, dependency, parentDependency);
   }
 
-  public void saveViolation(Project project, Violation violation) {
-    violationPersister.saveViolation(project, violation);
-  }
-
   public void saveLink(Project project, ProjectLink link) {
     linkPersister.saveLink(project, link);
   }
