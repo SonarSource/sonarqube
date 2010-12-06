@@ -44,9 +44,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class NewViolationsDecoratorTest {
   private Rule rule1;
@@ -123,6 +121,19 @@ public class NewViolationsDecoratorTest {
     assertThat(decorator.sumChildren(1, children), is(2));
     assertThat(decorator.sumChildren(2, children), is(3));
     assertThat(decorator.sumChildren(3, children), is(6));
+  }
+
+  @Test
+  public void shouldClearCacheAfterExecution() {
+    Violation violation1 = Violation.create(rule1, resource).setPriority(RulePriority.CRITICAL).setCreatedAt(rightNow);
+    Violation violation2 = Violation.create(rule2, resource).setPriority(RulePriority.CRITICAL).setCreatedAt(rightNow);
+    when(context.getViolations()).thenReturn(Arrays.asList(violation1)).thenReturn(Arrays.asList(violation2));
+
+    decorator.decorate(resource, context);
+    decorator.decorate(resource, context);
+
+    verify(context, times(2)).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_CRITICAL_VIOLATIONS, 1.0, 1.0)));
+    verify(context, never()).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_CRITICAL_VIOLATIONS, 2.0, 2.0)));
   }
 
   @Test

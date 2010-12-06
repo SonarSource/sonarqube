@@ -61,11 +61,11 @@ public class NewViolationsDecorator implements Decorator {
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
-    clearCache();
     prepareCurrentResourceViolations(context);
     saveNewViolations(context);
     saveNewViolationsByPriority(context);
     saveNewViolationsByRule(context);
+    clearCache();
   }
 
   private void clearCache() {
