@@ -126,6 +126,9 @@ public class Project extends Resource {
     return branch;
   }
 
+  /**
+   * For internal use only.
+   */
   public Project setBranch(String branch) {
     this.branch = branch;
     return this;
@@ -158,16 +161,25 @@ public class Project extends Resource {
     return description;
   }
 
+  /**
+   * For internal use only.
+   */
   public Project setName(String name) {
     this.name = name;
     return this;
   }
 
+  /**
+   * For internal use only.
+   */
   public Project setDescription(String description) {
     this.description = description;
     return this;
   }
 
+  /**
+   * For internal use only.
+   */
   public Project setPackaging(String packaging) {
     this.packaging = packaging;
     return this;
@@ -218,20 +230,6 @@ public class Project extends Resource {
   public Project setLatestAnalysis(boolean b) {
     this.latestAnalysis = b;
     return this;
-  }
-
-  /**
-   * Used for Maven projects
-   */
-  public String getGroupId() {
-    return pom.getGroupId();
-  }
-
-  /**
-   * Used for Maven projects
-   */
-  public String getArtifactId() {
-    return pom.getArtifactId();
   }
 
   /**
@@ -375,6 +373,22 @@ public class Project extends Resource {
   public Project setFileSystem(ProjectFileSystem fs) {
     this.fileSystem = fs;
     return this;
+  }
+
+  /**
+   * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2011
+   */
+  @Deprecated
+  public String getGroupId() {
+    return pom.getGroupId();
+  }
+
+  /**
+   * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2011
+   */
+  @Deprecated
+  public String getArtifactId() {
+    return pom.getArtifactId();
   }
 
   /**
