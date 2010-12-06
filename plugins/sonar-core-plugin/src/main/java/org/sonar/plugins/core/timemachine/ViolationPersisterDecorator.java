@@ -52,6 +52,9 @@ public class ViolationPersisterDecorator implements Decorator {
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
+    if (context.getViolations().isEmpty()) {
+      return;
+    }
     // Load past violations
     List<RuleFailureModel> pastViolations = pastViolationsLoader.getPastViolations(resource);
     // Load current source and calculate checksums
@@ -136,7 +139,7 @@ public class ViolationPersisterDecorator implements Decorator {
    */
   private RuleFailureModel selectPastViolationUsingLine(Violation violation, Collection<RuleFailureModel> pastViolations) {
     for (RuleFailureModel pastViolation : pastViolations) {
-      if (ObjectUtils.equals(violation.getLineId(),  pastViolation.getLine()) && StringUtils.equals(violation.getMessage(), pastViolation.getMessage())) {
+      if (ObjectUtils.equals(violation.getLineId(), pastViolation.getLine()) && StringUtils.equals(violation.getMessage(), pastViolation.getMessage())) {
         return pastViolation;
       }
     }
