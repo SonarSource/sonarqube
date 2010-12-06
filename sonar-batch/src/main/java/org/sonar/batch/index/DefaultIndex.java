@@ -396,7 +396,7 @@ public final class DefaultIndex extends SonarIndex {
         ActiveRule activeRule = profile.getActiveRule(violation.getRule());
         if (activeRule == null) {
           if (currentProject.getReuseExistingRulesConfig()) {
-            violation.setPriority(violation.getRule().getPriority());
+            violation.setSeverity(violation.getRule().getSeverity());
             doAddViolation(violation, bucket);
 
           } else {

@@ -39,7 +39,7 @@ public @interface Check {
   String key() default "";
 
   /**
-   * The path to resource bundles (optional). If not set, then it equals the class name. 
+   * The path to resource bundles (optional). If not set, then it equals the class name.
    */
   String bundle() default "";
 
@@ -58,9 +58,11 @@ public @interface Check {
    */
   Priority priority() default Priority.MAJOR;
 
-
   /**
-   * Will probably be deprecated and replaced by tags in version 2.2
+   * Will probably be deprecated and replaced by tags
+   * 
+   * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2007
    */
+  @Deprecated
   IsoCategory isoCategory();
 }

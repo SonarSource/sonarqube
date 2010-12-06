@@ -25,9 +25,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.profiles.RulesProfile;
 
+import javax.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.*;
 
 /**
  * A class to map an ActiveRule to the hibernate model
@@ -47,13 +48,13 @@ public class ActiveRule implements Cloneable {
 
   @Column(name = "failure_level", updatable = true, nullable = false)
   @Enumerated(EnumType.ORDINAL)
-  private RulePriority priority;
+  private RulePriority severity;
 
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "profile_id", updatable = true, nullable = false)
   private RulesProfile rulesProfile;
 
-  @OneToMany(mappedBy = "activeRule", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
+  @OneToMany(mappedBy = "activeRule", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
   private List<ActiveRuleParam> activeRuleParams = new ArrayList<ActiveRuleParam>();
 
   /**
@@ -67,12 +68,12 @@ public class ActiveRule implements Cloneable {
    * @deprecated visibility should be reduced to protected or package
    */
   @Deprecated
-  public ActiveRule(RulesProfile profile, Rule rule, RulePriority priority) {
+  public ActiveRule(RulesProfile profile, Rule rule, RulePriority severity) {
     this.rule = rule;
-    if (priority == null && rule != null) {
-      this.priority = rule.getPriority();
+    if (severity == null && rule != null) {
+      this.severity = rule.getSeverity();
     } else {
-      this.priority = priority;
+      this.severity = severity;
     }
 
     this.rulesProfile = profile;
@@ -95,19 +96,39 @@ public class ActiveRule implements Cloneable {
   }
 
   /**
-    * @deprecated visibility should be reduced to protected or package
+   * @deprecated visibility should be reduced to protected or package
    */
   @Deprecated
   public void setRule(Rule rule) {
     this.rule = rule;
   }
 
-  public RulePriority getPriority() {
-    return priority;
+  /**
+   * @since 2.5
+   */
+  public RulePriority getSeverity() {
+    return severity;
   }
 
+  /**
+   * @since 2.5
+   */
+  public void setSeverity(RulePriority severity) {
+    this.severity = severity;
+  }
+
+  /**
+   * @deprecated since 2.5 use {@link #getSeverity()} instead. See http://jira.codehaus.org/browse/SONAR-1829
+   */
+  public RulePriority getPriority() {
+    return severity;
+  }
+
+  /**
+   * @deprecated since 2.5 use {@link #setSeverity(RulePriority)} instead. See http://jira.codehaus.org/browse/SONAR-1829
+   */
   public void setPriority(RulePriority priority) {
-    this.priority = priority;
+    this.severity = priority;
   }
 
   public RulesProfile getRulesProfile() {
@@ -115,7 +136,7 @@ public class ActiveRule implements Cloneable {
   }
 
   /**
-    * @deprecated visibility should be reduced to protected or package
+   * @deprecated visibility should be reduced to protected or package
    */
   @Deprecated
   public void setRulesProfile(RulesProfile rulesProfile) {
@@ -209,12 +230,12 @@ public class ActiveRule implements Cloneable {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this).append("id", getId()).append("rule", rule).append("priority", priority).append("params", activeRuleParams).toString();
+    return new ToStringBuilder(this).append("id", getId()).append("rule", rule).append("priority", severity).append("params", activeRuleParams).toString();
   }
 
   @Override
   public Object clone() {
-    ActiveRule clone = new ActiveRule(getRulesProfile(), getRule(), getPriority());
+    ActiveRule clone = new ActiveRule(getRulesProfile(), getRule(), getSeverity());
     if (CollectionUtils.isNotEmpty(getActiveRuleParams())) {
       clone.setActiveRuleParams(new ArrayList<ActiveRuleParam>(CollectionUtils.collect(getActiveRuleParams(), new Transformer() {
         public Object transform(Object input) {

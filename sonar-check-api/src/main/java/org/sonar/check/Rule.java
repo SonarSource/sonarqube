@@ -56,6 +56,7 @@ public @interface Rule {
    * 
    * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2007
    */
+  @Deprecated
   IsoCategory isoCategory() default IsoCategory.NONE;
 
   Cardinality cardinality() default Cardinality.SINGLE;

@@ -30,6 +30,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
 import javax.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,10 +74,10 @@ public class RulesProfile implements Cloneable {
   @Column(name = "language", updatable = true, nullable = false)
   private String language;
 
-  @OneToMany(mappedBy = "rulesProfile", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
+  @OneToMany(mappedBy = "rulesProfile", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
   private List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
 
-  @OneToMany(mappedBy = "rulesProfile", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
+  @OneToMany(mappedBy = "rulesProfile", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
   private List<Alert> alerts = new ArrayList<Alert>();
 
   @OneToMany(mappedBy = "rulesProfile", fetch = FetchType.LAZY)
@@ -161,7 +162,7 @@ public class RulesProfile implements Cloneable {
 
   /**
    * @return whether the profile is defined in a plugin. Provided profiles are automatically restored during
-   * server startup and can not be updated by end users.
+   *         server startup and can not be updated by end users.
    */
   public Boolean getProvided() {
     return provided;
@@ -274,7 +275,7 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   *
+   * 
    * @param rule
    * @param optionalPriority if null, then the default rule priority is used
    * @return
@@ -283,7 +284,7 @@ public class RulesProfile implements Cloneable {
     ActiveRule activeRule = new ActiveRule();
     activeRule.setRule(rule);
     activeRule.setRulesProfile(this);
-    activeRule.setPriority(optionalPriority==null ? rule.getPriority() : optionalPriority);
+    activeRule.setSeverity(optionalPriority == null ? rule.getSeverity() : optionalPriority);
     activeRules.add(activeRule);
     return activeRule;
   }

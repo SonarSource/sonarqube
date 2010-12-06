@@ -27,6 +27,7 @@ import org.sonar.api.database.DatabaseProperties;
 import org.sonar.check.Cardinality;
 
 import javax.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +41,7 @@ public final class Rule {
   private Integer id;
 
   /**
-   * The default priority given to a rule if not explicitely set
+   * The default priority given to a rule if not explicitly set
    */
   public static final RulePriority DEFAULT_PRIORITY = RulePriority.MAJOR;
 
@@ -58,7 +59,7 @@ public final class Rule {
 
   @Column(name = "priority", updatable = true, nullable = true)
   @Enumerated(EnumType.ORDINAL)
-  private RulePriority priority = DEFAULT_PRIORITY;
+  private RulePriority severity = DEFAULT_PRIORITY;
 
   @Column(name = "description", updatable = true, nullable = true, length = DatabaseProperties.MAX_TEXT_SIZE)
   private String description;
@@ -74,14 +75,12 @@ public final class Rule {
   @JoinColumn(name = "parent_id", updatable = true, nullable = true)
   private Rule parent = null;
 
-  @org.hibernate.annotations.Cascade(
-      {org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN}
-)
+  @org.hibernate.annotations.Cascade({ org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN })
   @OneToMany(mappedBy = "rule")
   private List<RuleParam> params = new ArrayList<RuleParam>();
 
   /**
-   * @deprecated since 2.3. Use the factory method create()
+   * @deprecated since 2.3. Use the factory method {@link #create()}
    */
   @Deprecated
   public Rule() {
@@ -90,11 +89,11 @@ public final class Rule {
 
   /**
    * Creates rule with minimum set of info
-   *
+   * 
    * @param pluginName the plugin name indicates which plugin the rule belongs to
-   * @param key        the key should be unique within a plugin, but it is even more careful for the time being that it is unique
-   *                   across the application
-   * @deprecated since 2.3. Use the factory method create()
+   * @param key the key should be unique within a plugin, but it is even more careful for the time being that it is unique
+   *          across the application
+   * @deprecated since 2.3. Use the factory method {@link #create()}
    */
   @Deprecated
   public Rule(String pluginName, String key) {
@@ -105,26 +104,26 @@ public final class Rule {
 
   /**
    * Creates a fully qualified rule
-   *
-   * @param pluginKey     the plugin the rule belongs to
-   * @param key           the key should be unique within a plugin, but it is even more careful for the time being that it is unique
-   *                      across the application
-   * @param name          the name displayed in the UI
+   * 
+   * @param pluginKey the plugin the rule belongs to
+   * @param key the key should be unique within a plugin, but it is even more careful for the time being that it is unique
+   *          across the application
+   * @param name the name displayed in the UI
    * @param rulesCategory the ISO category the rule belongs to
-   * @param priority      this is the priority associated to the rule
-   * @deprecated since 2.3. Use the factory method create()
+   * @param severity this is the severity associated to the rule
+   * @deprecated since 2.3. Use the factory method {@link #create()}
    */
   @Deprecated
-  public Rule(String pluginKey, String key, String name, RulesCategory rulesCategory, RulePriority priority) {
+  public Rule(String pluginKey, String key, String name, RulesCategory rulesCategory, RulePriority severity) {
     setName(name);
     this.key = key;
     this.configKey = key;
-    this.priority = priority;
+    this.severity = severity;
     this.pluginName = pluginKey;
   }
 
   /**
-   * @deprecated Use the factory method create()
+   * @deprecated Use the factory method {@link #create()}
    */
   @Deprecated
   public Rule(String name, String key, RulesCategory rulesCategory, String pluginName, String description) {
@@ -137,7 +136,7 @@ public final class Rule {
   }
 
   /**
-   * @deprecated since 2.3. Use the factory method create()
+   * @deprecated since 2.3. Use the factory method {@link #create()}
    */
   @Deprecated
   public Rule(String name, String key, String configKey, RulesCategory rulesCategory, String pluginName, String description) {
@@ -275,16 +274,16 @@ public final class Rule {
   }
 
   public RuleParam createParameter() {
-    RuleParam parameter = new RuleParam();
-    parameter.setRule(this);
+    RuleParam parameter = new RuleParam()
+      .setRule(this);
     params.add(parameter);
     return parameter;
   }
 
   public RuleParam createParameter(String key) {
     RuleParam parameter = new RuleParam()
-        .setKey(key)
-        .setRule(this);
+      .setKey(key)
+      .setRule(this);
     params.add(parameter);
     return parameter;
   }
@@ -297,21 +296,42 @@ public final class Rule {
     return null;
   }
 
+  /**
+   * @since 2.5
+   */
+  public RulePriority getSeverity() {
+    return severity;
+  }
+
+  /**
+   * @param severity severity to set, if null, uses the default priority.
+   * @since 2.5
+   */
+  public Rule setSeverity(RulePriority severity) {
+    if (severity == null) {
+      this.severity = DEFAULT_PRIORITY;
+    } else {
+      this.severity = severity;
+    }
+    return this;
+  }
+
+  /**
+   * @deprecated since 2.5 use {@link #getSeverity()} instead. See http://jira.codehaus.org/browse/SONAR-1829
+   */
+  @Deprecated
   public RulePriority getPriority() {
-    return priority;
+    return severity;
   }
 
   /**
    * Sets the rule priority. If null, uses the default priority
+   * 
+   * @deprecated since 2.5 use {@link #setSeverity(RulePriority)} instead. See http://jira.codehaus.org/browse/SONAR-1829
    */
+  @Deprecated
   public Rule setPriority(RulePriority priority) {
-    if (priority == null) {
-      this.priority = DEFAULT_PRIORITY;
-    } else {
-      this.priority = priority;
-    }
-
-    return this;
+    return setSeverity(priority);
   }
 
   public String getRepositoryKey() {

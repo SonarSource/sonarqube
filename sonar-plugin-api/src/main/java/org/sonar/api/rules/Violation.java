@@ -34,7 +34,7 @@ public class Violation {
   private Resource resource;
   private Rule rule;
   private String message;
-  private RulePriority priority;
+  private RulePriority severity;
   private Integer lineId;
   private Double cost;
   private Date createdAt;
@@ -121,15 +121,39 @@ public class Violation {
     return this;
   }
 
+  /**
+   * @since 2.5
+   */
+  public RulePriority getSeverity() {
+    return severity;
+  }
+
+  /**
+   * For internal use only.
+   * 
+   * @since 2.5
+   */
+  public Violation setSeverity(RulePriority severity) {
+    this.severity = severity;
+    return this;
+  }
+
+  /**
+   * @deprecated since 2.5 use {@link #getSeverity()} instead. See http://jira.codehaus.org/browse/SONAR-1829
+   */
+  @Deprecated
   public RulePriority getPriority() {
-    return priority;
+    return severity;
   }
 
   /**
    * For internal use only
+   * 
+   * @deprecated since 2.5 use {@link #setSeverity(RulePriority)} instead. See http://jira.codehaus.org/browse/SONAR-1829
    */
+  @Deprecated
   public Violation setPriority(RulePriority priority) {
-    this.priority = priority;
+    this.severity = priority;
     return this;
   }
 
