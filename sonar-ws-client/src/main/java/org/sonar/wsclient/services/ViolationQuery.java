@@ -22,13 +22,14 @@ package org.sonar.wsclient.services;
 public class ViolationQuery extends Query<Violation> {
   public static final String BASE_URL = "/api/violations";
 
+  private String resourceKeyOrId;
+  private int depth = 0;
   private String[] scopes;
   private String[] qualifiers;
   private String[] ruleKeys;
   private String[] categories;
   private String[] severities;
-  private int depth = 0;
-  private String resourceKeyOrId;
+  private Integer limit;
 
   public ViolationQuery(String resourceKeyOrId) {
     this.resourceKeyOrId = resourceKeyOrId;
@@ -111,35 +112,36 @@ public class ViolationQuery extends Query<Violation> {
     return this;
   }
 
+  /**
+   * @since 2.5
+   */
+  public Integer getLimit() {
+    return limit;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public ViolationQuery setLimit(Integer limit) {
+    this.limit = limit;
+    return this;
+  }
+
   @Override
   public String getUrl() {
     StringBuilder url = new StringBuilder(BASE_URL);
-    url.append("?resource=")
-        .append(resourceKeyOrId)
-        .append("&");
-
+    url.append('?');
+    appendUrlParameter(url, "resource", resourceKeyOrId);
     if (depth != 0) {
       url.append("depth=").append(depth).append("&");
     }
-    append(url, "scopes", scopes);
-    append(url, "qualifiers", qualifiers);
-    append(url, "rules", ruleKeys);
-    append(url, "categories", categories);
-    append(url, "priorities", severities);
+    appendUrlParameter(url, "limit", limit);
+    appendUrlParameter(url, "scopes", scopes);
+    appendUrlParameter(url, "qualifiers", qualifiers);
+    appendUrlParameter(url, "rules", ruleKeys);
+    appendUrlParameter(url, "categories", categories);
+    appendUrlParameter(url, "priorities", severities);
     return url.toString();
-  }
-
-  private void append(StringBuilder url, String paramKey, Object[] paramValues) {
-    if (paramValues != null && paramValues.length > 0) {
-      url.append(paramKey).append('=');
-      for (int index = 0; index < paramValues.length; index++) {
-        if (index > 0) {
-          url.append(',');
-        }
-        url.append(paramValues[index]);
-      }
-      url.append('&');
-    }
   }
 
   @Override
