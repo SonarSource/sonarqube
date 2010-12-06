@@ -24,7 +24,7 @@ import org.sonar.api.database.model.Snapshot;
 
 import java.util.Date;
 
-public final class PastSnapshot {
+public class PastSnapshot {
 
   private int index;
   private String mode, modeParameter;

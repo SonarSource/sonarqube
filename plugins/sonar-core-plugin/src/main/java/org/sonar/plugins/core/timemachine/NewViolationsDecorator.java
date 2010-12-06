@@ -22,6 +22,7 @@ package org.sonar.plugins.core.timemachine;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
@@ -122,7 +123,10 @@ public class NewViolationsDecorator implements Decorator {
       }
     }
 
-    for (Rule rule : childrenByRule.keys()) {
+    Set<Rule> rules = Sets.newHashSet(violationsByRule.keys());
+    rules.addAll(childrenByRule.keys());
+
+    for (Rule rule : rules) {
       RuleMeasure measure = RuleMeasure.createForRule(CoreMetrics.NEW_VIOLATIONS, rule, null);
       measure.setRulePriority(ruleToLevel.get(rule));
       for (PastSnapshot variationSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
