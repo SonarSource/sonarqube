@@ -39,6 +39,11 @@ public interface CoreProperties {
   String PROJECT_LANGUAGE_PROPERTY = "sonar.language";
   String DYNAMIC_ANALYSIS_PROPERTY = "sonar.dynamicAnalysis";
   String PROJECT_EXCLUSIONS_PROPERTY = "sonar.exclusions";
+
+  /**
+   * @deprecated since 2.5. See discussion from http://jira.codehaus.org/browse/SONAR-1873
+   */
+  @Deprecated
   String REUSE_RULES_CONFIGURATION_PROPERTY = "sonar.reuseExistingRulesConfiguration";
 
   /* Checkstyle */

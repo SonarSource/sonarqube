@@ -329,7 +329,9 @@ public class Project extends Resource {
 
   /**
    * @return whether to use external source for rules configuration
+   * @deprecated since 2.5. See discussion from http://jira.codehaus.org/browse/SONAR-1873
    */
+  @Deprecated
   public boolean getReuseExistingRulesConfig() {
     return (configuration != null && configuration.getBoolean(CoreProperties.REUSE_RULES_CONFIGURATION_PROPERTY, false));
   }
