@@ -19,19 +19,18 @@
  */
 package org.sonar.plugins.pmd;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.MavenTestUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class PmdConfigurationTest {
 
@@ -46,25 +45,6 @@ public class PmdConfigurationTest {
     File xmlFile = new File(rulesets.get(0));
     assertThat(xmlFile.exists(), is(true));
     assertThat(FileUtils.readFileToString(xmlFile), is("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<ruleset />\r\n\r\n"));
-  }
-
-  @Test
-  public void findConfigurationToReuse() throws IOException {
-    Project project = MavenTestUtils.loadProjectFromPom(getClass(), "findConfigurationToReuse/pom.xml");
-
-    PmdConfiguration configuration = new PmdConfiguration(null, null, project);
-    List<String> rulesets = configuration.getRulesets();
-    assertThat(rulesets.size(), is(2));
-    assertThat(rulesets, hasItem("ruleset/maven.xml"));
-    assertThat(rulesets, hasItem("ruleset/basic.xml"));
-  }
-
-  @Test(expected = RuntimeException.class)
-  public void failIfConfigurationToReuseDoesNotExist() throws IOException {
-    Project project = MavenTestUtils.loadProjectFromPom(getClass(), "failIfConfigurationToReuseDoesNotExist/pom.xml");
-
-    PmdConfiguration configuration = new PmdConfiguration(null, null, project);
-    configuration.getRulesets();
   }
 
 }

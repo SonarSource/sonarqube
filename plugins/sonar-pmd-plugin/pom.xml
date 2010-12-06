@@ -46,12 +46,14 @@
     </dependency>
 
     <!-- TODO http://jira.codehaus.org/browse/SONAR-2011
-    We need following dependency, otherwise we will receive compilation error
+    We need following dependency, otherwise we will receive
+    java.lang.NoClassDefFoundError: org/apache/maven/project/MavenProject
+    during call mock(org.sonar.api.resources.Project.class)
     -->
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-project</artifactId>
-      <scope>provided</scope>
+      <scope>test</scope>
     </dependency>
 
     <dependency>

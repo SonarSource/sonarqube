@@ -23,6 +23,7 @@ import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.Logs;
 
 public class CheckstyleSensor implements Sensor {
 
@@ -40,6 +41,9 @@ public class CheckstyleSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
+    if (project.getReuseExistingRulesConfig()) {
+      Logs.INFO.warn("Reusing existing Checkstyle configuration is not supported any more.");
+    }
     executor.execute();
   }
 

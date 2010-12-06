@@ -21,7 +21,6 @@ package org.sonar.plugins.checkstyle;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.MavenTestUtils;
@@ -32,8 +31,6 @@ import java.io.Writer;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.mock;
 
 public class CheckstyleConfigurationTest {
 
@@ -47,29 +44,6 @@ public class CheckstyleConfigurationTest {
 
     assertThat(xmlFile.exists(), is(true));
     assertThat(FileUtils.readFileToString(xmlFile), is("<conf/>"));
-  }
-
-  @Test
-  public void findConfigurationToReuse() throws IOException {
-    Project project = MavenTestUtils.loadProjectFromPom(getClass(), "findConfigurationToReuse/pom.xml");
-
-    CheckstyleProfileExporter exporter = mock(CheckstyleProfileExporter.class);
-    Mockito.doThrow(new RuntimeException()).when(exporter).exportProfile((RulesProfile)anyObject(), (Writer)anyObject());
-    CheckstyleConfiguration configuration = new CheckstyleConfiguration(exporter, null, project);
-
-    File xmlFile = configuration.getXMLDefinitionFile();
-    assertThat(xmlFile.exists(), is(true));
-    assertThat(FileUtils.readFileToString(xmlFile), is("<ondisk/>"));
-  }
-
-  @Test(expected=RuntimeException.class)
-  public void failIfConfigurationToReuseDoesNotExist() throws IOException {
-    Project project = MavenTestUtils.loadProjectFromPom(getClass(), "failIfConfigurationToReuseDoesNotExist/pom.xml");
-
-    CheckstyleProfileExporter exporter = mock(CheckstyleProfileExporter.class);
-    Mockito.doThrow(new RuntimeException()).when(exporter).exportProfile((RulesProfile)anyObject(), (Writer)anyObject());
-    CheckstyleConfiguration configuration = new CheckstyleConfiguration(exporter, null, project);
-    configuration.getXMLDefinitionFile();
   }
 
   public class FakeExporter extends CheckstyleProfileExporter {

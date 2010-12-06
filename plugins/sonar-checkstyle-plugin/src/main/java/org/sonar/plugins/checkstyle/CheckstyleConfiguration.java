@@ -29,8 +29,6 @@ import org.apache.commons.lang.CharEncoding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.batch.maven.MavenPlugin;
-import org.sonar.api.batch.maven.MavenUtils;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
@@ -56,11 +54,6 @@ public class CheckstyleConfiguration implements BatchExtension {
   }
 
   public File getXMLDefinitionFile() {
-    if (project.getReuseExistingRulesConfig()) {
-      LOG.warn("Reusing existing Checkstyle configuration is deprecated as it's unstable and can not provide meaningful results. This feature will be removed soon.");
-      return findExistingXML();
-    }
-
     Writer writer = null;
     File xmlFile = new File(project.getFileSystem().getSonarWorkingDirectory(), "checkstyle.xml");
     try {
@@ -75,24 +68,6 @@ public class CheckstyleConfiguration implements BatchExtension {
     } finally {
       IOUtils.closeQuietly(writer);
     }
-  }
-
-  private File findExistingXML() {
-    File file = null;
-    MavenPlugin mavenPlugin = MavenPlugin.getPlugin(project.getPom(), MavenUtils.GROUP_ID_APACHE_MAVEN, "maven-checkstyle-plugin");
-    if (mavenPlugin != null) {
-      String location = mavenPlugin.getParameter("configLocation");
-      if (location != null) {
-        file = new File(location);
-        if (!file.exists()) {
-          file = new File(project.getFileSystem().getBasedir(), location);
-        }
-      }
-    }
-    if (file == null || !file.isFile() || !file.exists()) {
-      throw new SonarException("The checkstyle configuration file does not exist: " + file);
-    }
-    return file;
   }
 
   public List<File> getSourceFiles() {
@@ -118,7 +93,6 @@ public class CheckstyleConfiguration implements BatchExtension {
   static Configuration toCheckstyleConfiguration(File xmlConfig) throws CheckstyleException {
     return ConfigurationLoader.loadConfiguration(xmlConfig.getAbsolutePath(), new PropertiesExpander(new Properties()));
   }
-
 
   private void defineCharset(Configuration configuration) {
     Configuration[] modules = configuration.getChildren();

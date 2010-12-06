@@ -25,6 +25,7 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.RulesManager;
+import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.XmlParserException;
 
 import java.io.File;
@@ -42,6 +43,9 @@ public class PmdSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
+    if (project.getReuseExistingRulesConfig()) {
+      Logs.INFO.warn("Reusing existing PMD configuration is not supported any more.");
+    }
     try {
       File xmlReport = executor.execute();
       AbstractViolationsStaxParser parser = getStaxParser(project, context);
