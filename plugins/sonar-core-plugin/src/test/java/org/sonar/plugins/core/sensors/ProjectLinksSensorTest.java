@@ -24,12 +24,14 @@ import org.apache.maven.project.MavenProject;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Test;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.test.MavenTestUtils;
+
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class ProjectLinksSensorTest {
 
@@ -38,9 +40,8 @@ public class ProjectLinksSensorTest {
     SensorContext context = mock(SensorContext.class);
     MavenProject pom = MavenTestUtils.loadPom("/org/sonar/plugins/core/sensors/ProjectLinksSensorTest/shouldSaveLinks.xml");
     Project project = mock(Project.class);
-    when(project.getPom()).thenReturn(pom);
 
-    new ProjectLinksSensor().analyse(project, context);
+    new ProjectLinksSensor(pom).analyse(project, context);
 
     verify(context).saveLink(argThat(new MatchLink(ProjectLinksSensor.KEY_HOME, "Home", "http://sonar.codehaus.org")));
     verify(context).saveLink(argThat(new MatchLink(ProjectLinksSensor.KEY_ISSUE_TRACKER, "Issues", "http://jira.codehaus.org/browse/SONAR")));
@@ -54,9 +55,8 @@ public class ProjectLinksSensorTest {
     SensorContext context = mock(SensorContext.class);
     MavenProject pom = MavenTestUtils.loadPom("/org/sonar/plugins/core/sensors/ProjectLinksSensorTest/shouldDeleteMissingLinks.xml");
     Project project = mock(Project.class);
-    when(project.getPom()).thenReturn(pom);
 
-    new ProjectLinksSensor().analyse(project, context);
+    new ProjectLinksSensor(pom).analyse(project, context);
 
     verify(context).deleteLink(ProjectLinksSensor.KEY_HOME);
     verify(context).deleteLink(ProjectLinksSensor.KEY_ISSUE_TRACKER);

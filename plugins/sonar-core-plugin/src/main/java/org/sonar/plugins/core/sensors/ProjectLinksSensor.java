@@ -37,12 +37,17 @@ public class ProjectLinksSensor implements Sensor {
   public static final String KEY_SCM = "scm";
   public static final String KEY_SCM_DEVELOPER_CONNECTION = "scm_dev";
 
+  private MavenProject pom;
+
+  public ProjectLinksSensor(MavenProject pom) {
+    this.pom = pom;
+  }
+
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
 
   public void analyse(Project project, SensorContext context) {
-    MavenProject pom = project.getPom();
     updateLink(context, KEY_HOME, "Home", pom.getUrl());
 
     Scm scm = pom.getScm();
@@ -51,7 +56,6 @@ public class ProjectLinksSensor implements Sensor {
     }
     updateLink(context, KEY_SCM, "Sources", scm.getUrl());
     updateLink(context, KEY_SCM_DEVELOPER_CONNECTION, "Developer connection", scm.getDeveloperConnection());
-
 
     CiManagement ci = pom.getCiManagement();
     if (ci == null) {
