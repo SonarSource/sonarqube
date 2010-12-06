@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -61,7 +62,7 @@ public class NewViolationsDecoratorTest {
 
   @Test
   public void shouldBeDependedUponMetric() {
-    assertThat(decorator.generatesMetric(), is(CoreMetrics.NEW_VIOLATIONS));
+    assertThat(decorator.generatesMetric().size(), greaterThan(0));
   }
 
   @Test
@@ -74,18 +75,18 @@ public class NewViolationsDecoratorTest {
     Violation violation2 = new Violation(null).setCreatedAt(date2);
     List<Violation> violations = Arrays.asList(violation1, violation2);
 
-    assertThat(decorator.countViolationsAfterDate(violations, DateUtils.addDays(date1, -10)), is(1));
-    assertThat(decorator.countViolationsAfterDate(violations, DateUtils.addDays(date1, -30)), is(2));
+    assertThat(decorator.countViolations(violations, DateUtils.addDays(date1, -10)), is(1));
+    assertThat(decorator.countViolations(violations, DateUtils.addDays(date1, -30)), is(2));
   }
 
   @Test
   public void shouldSumChildren() {
     Measure measure1 = new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation1(1.0).setVariation2(1.0).setVariation3(3.0);
     Measure measure2 = new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation1(1.0).setVariation2(2.0).setVariation3(3.0);
-    when(context.getChildrenMeasures(CoreMetrics.NEW_VIOLATIONS)).thenReturn(Arrays.asList(measure1, measure2));
+    List<Measure> children = Arrays.asList(measure1, measure2);
 
-    assertThat(decorator.sumChildren(context, 1), is(2));
-    assertThat(decorator.sumChildren(context, 2), is(3));
-    assertThat(decorator.sumChildren(context, 3), is(6));
+    assertThat(decorator.sumChildren(1, children), is(2));
+    assertThat(decorator.sumChildren(2, children), is(3));
+    assertThat(decorator.sumChildren(3, children), is(6));
   }
 }
