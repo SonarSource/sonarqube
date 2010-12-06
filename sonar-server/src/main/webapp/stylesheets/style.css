@@ -885,7 +885,7 @@ ul.operations li a {
 /* ------------------- VARIATIONS ------------------- */
 .var {
   font-weight: bold;
-  color: #005C9C !important;
+  color: #444 !important;
 }
 .varb {/* better */
   font-weight: bold;
