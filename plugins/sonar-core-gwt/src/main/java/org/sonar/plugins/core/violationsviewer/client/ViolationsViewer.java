@@ -38,7 +38,6 @@ import org.sonar.wsclient.services.ResourceQuery;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 
 public class ViolationsViewer extends Page {
   public static final String GWT_ID = "org.sonar.plugins.core.violationsviewer.ViolationsViewer";
@@ -119,8 +118,9 @@ public class ViolationsViewer extends Page {
   }
 
   private void loadRulePriorities() {
-    final ResourceQuery query = ResourceQuery.createForResource(resource, Metrics.VIOLATIONS)
-        .setExcludeRulePriorities(false);
+    final ResourceQuery query = ResourceQuery.createForResource(resource, Metrics.BLOCKER_VIOLATIONS,
+        Metrics.CRITICAL_VIOLATIONS, Metrics.MAJOR_VIOLATIONS, Metrics.MINOR_VIOLATIONS, Metrics.INFO_VIOLATIONS)
+        .setExcludeRulePriorities(true);
     Sonar.getInstance().find(query, new AbstractCallback<Resource>(loading) {
       @Override
       protected void doOnResponse(Resource resource) {
@@ -135,26 +135,23 @@ public class ViolationsViewer extends Page {
     final Grid grid = new Grid(1, 10);
     header.setWidget(0, 0, grid);
 
-    List<Measure> measures = resource.getMeasures();
-    displayRulePriority(grid, 0, "BLOCKER", measures);
-    displayRulePriority(grid, 2, "CRITICAL", measures);
-    displayRulePriority(grid, 4, "MAJOR", measures);
-    displayRulePriority(grid, 6, "MINOR", measures);
-    displayRulePriority(grid, 8, "INFO", measures);
+    displayRulePriority(grid, 0, "BLOCKER", resource.getMeasure(Metrics.BLOCKER_VIOLATIONS));
+    displayRulePriority(grid, 2, "CRITICAL", resource.getMeasure(Metrics.CRITICAL_VIOLATIONS));
+    displayRulePriority(grid, 4, "MAJOR", resource.getMeasure(Metrics.MAJOR_VIOLATIONS));
+    displayRulePriority(grid, 6, "MINOR", resource.getMeasure(Metrics.MINOR_VIOLATIONS));
+    displayRulePriority(grid, 8, "INFO", resource.getMeasure(Metrics.INFO_VIOLATIONS));
   }
 
-  private void displayRulePriority(final Grid grid, final int column, final String priority, final List<Measure> measures) {
+  private void displayRulePriority(final Grid grid, final int column, final String priority, final Measure measure) {
     String value = "0";
-    for (Measure measure : measures) {
-      if (priority.equals(measure.getRulePriority())) {
-        value = measure.getFormattedValue();
-        filterBox.addItem(priority + " (" + value + ")", priority);
-        if (priority.equals(defaultFilter)) {
-          filterBox.setSelectedIndex(filterBox.getItemCount() - 1);
-        }
-        continue;
+    if (measure != null) {
+      value = measure.getFormattedValue();
+      filterBox.addItem(priority + " (" + value + ")", priority);
+      if (priority.equals(defaultFilter)) {
+        filterBox.setSelectedIndex(filterBox.getItemCount() - 1);
       }
     }
+
     grid.setHTML(0, column, Icons.forPriority(priority).getHTML());
     grid.setHTML(0, column + 1, value);
     grid.getCellFormatter().setStyleName(0, column, "thin metric right");

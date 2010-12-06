@@ -6,20 +6,25 @@
 <tr>
   <td align="left" width="1%" nowrap class="column first">
 
-	<% 
-		rule_priority_measures = @snapshot.rule_priority_measures(Metric::VIOLATIONS)
+	<%
 		max = 0
-		rule_priority_measures.each do |m|
-			max = m.value if m.value and m.value>max
-		end
+		blocker_violations=@snapshot.measure('blocker_violations')
+		critical_violations=@snapshot.measure('critical_violations')
+		major_violations=@snapshot.measure('major_violations')
+		minor_violations=@snapshot.measure('minor_violations')
+		info_violations=@snapshot.measure('info_violations')
+
+	  [blocker_violations, critical_violations, major_violations, minor_violations, info_violations].each do |m|
+	    max = m.value if m && m.value && m.value>max
+	  end
 	%>
     <h3>Severity</h3>
     <table class="spacedicon" style="border: 1px solid #ccc;">
-	  <%= render :partial => 'rule_priority', :locals => {:label => 'Blocker', :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_BLOCKER, :max => max, :measures => rule_priority_measures }%>
-  	<%= render :partial => 'rule_priority', :locals => {:label => 'Critical', :css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_CRITICAL, :max => max, :measures => rule_priority_measures }%>
-	  <%= render :partial => 'rule_priority', :locals => {:label => 'Major', :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_MAJOR, :max => max, :measures => rule_priority_measures }%>
-	  <%= render :partial => 'rule_priority', :locals => {:label => 'Minor', :css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_MINOR, :max => max, :measures => rule_priority_measures }%>
-	  <%= render :partial => 'rule_priority', :locals => {:label => 'Info', :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_INFO, :max => max, :measures => rule_priority_measures }%>
+	  <%= render :partial => 'rule_priority', :locals => {:label => 'Blocker', :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_BLOCKER, :max => max, :measure => blocker_violations }%>
+  	<%= render :partial => 'rule_priority', :locals => {:label => 'Critical', :css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_CRITICAL, :max => max, :measure => critical_violations }%>
+	  <%= render :partial => 'rule_priority', :locals => {:label => 'Major', :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_MAJOR, :max => max, :measure => major_violations }%>
+	  <%= render :partial => 'rule_priority', :locals => {:label => 'Minor', :css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_MINOR, :max => max, :measure => minor_violations }%>
+	  <%= render :partial => 'rule_priority', :locals => {:label => 'Info', :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_INFO, :max => max, :measure => info_violations }%>
     </table>
   </td>
   <td class="column" align="left" style="white-space: normal;">
@@ -27,7 +32,7 @@
    <div class="scrollable">
        <table class="spacedicon" width="100%" id="col_rules">
 	      <%
-	        rule_measures=@snapshot.rule_measures(Metric.by_key(Metric::VIOLATIONS), @priority_id)
+	        rule_measures=@snapshot.rule_measures(Metric.by_key('violations'), @priority_id)
 	        max=0
 	        rule_index=0
 			rule_measures.each { |m| max=m.value if m.value>max }
@@ -127,7 +132,7 @@
 <% if @priority_id %>
 <%= Sonar::RulePriority.to_s(@priority_id) %> <%= link_to 'clear', {:overwrite_params => {:priority => nil}} %>
 <% else %>
-Any <%= @filter %>
+Any severity
 <% end %>&nbsp;&raquo;&nbsp;
 <% if @rule %>
 <%= h @rule.name %> <%= link_to 'clear', {:overwrite_params => {:rule => nil}} %>

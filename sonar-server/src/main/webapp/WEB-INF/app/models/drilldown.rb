@@ -44,18 +44,20 @@ class DrilldownColumn
   def initialize(snapshot, metric, scope, selected_resource_ids, options)
     @scope=scope
     @snapshot = snapshot
-    order='project_measures.value'
+
+    value_column = (options[:variation_index] ? "variation_value_#{options[:variation_index]}" : 'value')
+    order="project_measures.#{value_column}"
     if metric.direction<0
       order += ' DESC'
     end
 
     conditions='snapshots.root_snapshot_id=:root_sid AND snapshots.islast=:islast AND snapshots.scope=:scope AND snapshots.path LIKE :path AND project_measures.metric_id=:metric_id'
 
-    if metric.key=='violations'
-      conditions += ' AND project_measures.value>0'
+    if options[:exclude_zero_value]
+      conditions += " AND project_measures.#{value_column}<>0"
     end
 
-    values={
+    condition_values={
       :root_sid => (snapshot.root_snapshot_id || snapshot.id),
       :islast=>true,
       :scope => scope,
@@ -64,29 +66,23 @@ class DrilldownColumn
 
     if options[:rule_id]
       conditions += ' AND project_measures.rule_id=:rule'
-      values[:rule]=options[:rule_id]
+      condition_values[:rule]=options[:rule_id]
     else
-      conditions += ' AND project_measures.rule_id IS NULL'
+      conditions += ' AND project_measures.rule_id IS NULL AND project_measures.rule_priority IS NULL '
     end
 
-    if options[:rule_priority_id]
-      conditions += ' AND project_measures.rule_priority=:priority'
-      values[:priority]=options[:rule_priority_id]
-    elsif options[:rule_id].nil?
-      conditions += ' AND project_measures.rule_priority IS NULL'
-    end
 
     if options[:characteristic]
       conditions += ' AND project_measures.characteristic_id=:characteristic_id'
-      values[:characteristic_id]=options[:characteristic].id
+      condition_values[:characteristic_id]=options[:characteristic].id
     else
       conditions += ' AND project_measures.characteristic_id IS NULL'
     end
 
     @measures=ProjectMeasure.find(:all,
-      :select => 'project_measures.id,project_measures.metric_id,project_measures.value,project_measures.text_value,project_measures.alert_status,project_measures.snapshot_id',
+      :select => "project_measures.id,project_measures.metric_id,project_measures.#{value_column},project_measures.text_value,project_measures.alert_status,project_measures.snapshot_id",
       :joins => :snapshot,
-      :conditions => [conditions,values],
+      :conditions => [conditions, condition_values],
       :order => order,
       :limit => 200)
 

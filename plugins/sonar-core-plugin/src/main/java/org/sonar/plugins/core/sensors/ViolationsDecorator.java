@@ -79,10 +79,10 @@ public class ViolationsDecorator implements Decorator {
 
   private void saveViolationsByPriority(DecoratorContext context) {
     for (RulePriority priority : RulePriority.values()) {
-      Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.rulePriority(CoreMetrics.VIOLATIONS, priority));
+      Metric metric = getMetricForPriority(priority);
+      Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.metric(metric));
       double sum = MeasureUtils.sum(true, children) + priorities.count(priority);
-      context.saveMeasure(RuleMeasure.createForPriority(CoreMetrics.VIOLATIONS, priority, sum));
-      context.saveMeasure(new Measure(getMetricForPriority(priority), sum));
+      context.saveMeasure(new Measure(metric, sum));
     }
   }
 
