@@ -43,6 +43,7 @@ public final class Unmarshallers {
     unmarshallers.put(Event.class, new EventUnmarshaller());
     unmarshallers.put(Favourite.class, new FavouriteUnmarshaller());
     unmarshallers.put(Plugin.class, new PluginUnmarshaller());
+    unmarshallers.put(Rule.class, new RuleUnmarshaller());
   }
 
   public static <MODEL extends Model> Unmarshaller<MODEL> forModel(Class<MODEL> modelClass) {
