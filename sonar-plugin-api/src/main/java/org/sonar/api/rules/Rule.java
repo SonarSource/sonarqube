@@ -57,9 +57,10 @@ public final class Rule {
   @Column(name = "plugin_config_key", updatable = true, nullable = true)
   private String configKey;
 
+  // Godin: This field should be named priority, otherwise StandardRulesXmlParserTest fails
   @Column(name = "priority", updatable = true, nullable = true)
   @Enumerated(EnumType.ORDINAL)
-  private RulePriority severity = DEFAULT_PRIORITY;
+  private RulePriority priority = DEFAULT_PRIORITY;
 
   @Column(name = "description", updatable = true, nullable = true, length = DatabaseProperties.MAX_TEXT_SIZE)
   private String description;
@@ -118,7 +119,7 @@ public final class Rule {
     setName(name);
     this.key = key;
     this.configKey = key;
-    this.severity = severity;
+    this.priority = severity;
     this.pluginName = pluginKey;
   }
 
@@ -300,7 +301,7 @@ public final class Rule {
    * @since 2.5
    */
   public RulePriority getSeverity() {
-    return severity;
+    return priority;
   }
 
   /**
@@ -309,9 +310,9 @@ public final class Rule {
    */
   public Rule setSeverity(RulePriority severity) {
     if (severity == null) {
-      this.severity = DEFAULT_PRIORITY;
+      this.priority = DEFAULT_PRIORITY;
     } else {
-      this.severity = severity;
+      this.priority = severity;
     }
     return this;
   }
@@ -321,7 +322,7 @@ public final class Rule {
    */
   @Deprecated
   public RulePriority getPriority() {
-    return severity;
+    return priority;
   }
 
   /**
