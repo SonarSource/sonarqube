@@ -113,7 +113,6 @@ public final class RegisterProvidedProfiles {
     profiler.stop();
   }
 
-
   void saveProvidedProfiles(List<RulesProfile> profiles, DatabaseSession session) {
     for (RulesProfile profile : profiles) {
       TimeProfiler profiler = new TimeProfiler().start("Save profile " + profile);
@@ -121,7 +120,7 @@ public final class RegisterProvidedProfiles {
 
       for (ActiveRule activeRule : profile.getActiveRules()) {
         Rule rule = getPersistedRule(activeRule);
-        ActiveRule persistedRule = persistedProfile.activateRule(rule, activeRule.getPriority());
+        ActiveRule persistedRule = persistedProfile.activateRule(rule, activeRule.getSeverity());
         for (RuleParam param : rule.getParams()) {
           String value = StringUtils.defaultString(activeRule.getParameter(param.getKey()), param.getDefaultValue());
           if (value != null) {
@@ -139,11 +138,11 @@ public final class RegisterProvidedProfiles {
 
   Rule getPersistedRule(ActiveRule activeRule) {
     Rule rule = activeRule.getRule();
-    if (rule!=null && rule.getId()==null) {
-      if (rule.getKey()!=null) {
+    if (rule != null && rule.getId() == null) {
+      if (rule.getKey() != null) {
         rule = ruleFinder.findByKey(rule.getRepositoryKey(), rule.getKey());
 
-      } else if (rule.getConfigKey()!=null) {
+      } else if (rule.getConfigKey() != null) {
         rule = ruleFinder.find(RuleQuery.create().withRepositoryKey(rule.getRepositoryKey()).withConfigKey(rule.getConfigKey()));
       }
     }

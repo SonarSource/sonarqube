@@ -118,7 +118,7 @@ public class BackupTest {
     assertEquals(1, testProfile.getActiveRules().size());
 
     ActiveRule testActiveRule = testProfile.getActiveRules().get(0);
-    assertEquals(RulePriority.MAJOR, testActiveRule.getPriority());
+    assertEquals(RulePriority.MAJOR, testActiveRule.getSeverity());
     assertNotNull(testActiveRule.getRule());
     assertEquals("test key", testActiveRule.getRule().getKey());
     assertEquals("test plugin", testActiveRule.getRule().getPluginName());

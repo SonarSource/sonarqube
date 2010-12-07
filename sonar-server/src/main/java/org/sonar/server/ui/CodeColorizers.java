@@ -19,21 +19,19 @@
  */
 package org.sonar.server.ui;
 
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.ServerExtension;
+import org.sonar.api.utils.Logs;
+import org.sonar.api.web.CodeColorizerFormat;
+import org.sonar.colorizer.CodeColorizer;
+import org.sonar.colorizer.HtmlOptions;
+import org.sonar.colorizer.Tokenizer;
+
 import java.io.StringReader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerExtension;
-import org.sonar.api.utils.Logs;
-import org.sonar.api.web.CodeColorizerFormat;
-import org.sonar.channel.Channel;
-import org.sonar.colorizer.CodeColorizer;
-import org.sonar.colorizer.HtmlCodeBuilder;
-import org.sonar.colorizer.HtmlOptions;
-import org.sonar.colorizer.Tokenizer;
 
 public class CodeColorizers implements ServerExtension {
 

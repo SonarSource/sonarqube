@@ -36,6 +36,7 @@ import org.sonar.api.utils.ValidationMessages;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+
 import java.io.Reader;
 import java.util.Map;
 
@@ -147,7 +148,7 @@ public class CheckstyleProfileImporter extends ProfileImporter {
   private void activateProperties(ActiveRule activeRule, Map<String, String> properties) {
     for (Map.Entry<String, String> property : properties.entrySet()) {
       if (StringUtils.equals("severity", property.getKey())) {
-        activeRule.setPriority(CheckstyleSeverityUtils.fromSeverity(property.getValue()));
+        activeRule.setSeverity(CheckstyleSeverityUtils.fromSeverity(property.getValue()));
 
       } else if (!StringUtils.equals("id", property.getKey())) {
         activeRule.setParameter(property.getKey(), property.getValue());

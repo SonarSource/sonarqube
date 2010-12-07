@@ -20,9 +20,6 @@
 package org.sonar.api.rules;
 
 import org.apache.commons.io.IOUtils;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
-
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,6 +33,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class StandardProfileXmlParserTest {
 
@@ -136,7 +139,6 @@ public class StandardProfileXmlParserTest {
     return rules;
   }
 
-
   private List<ActiveRule> buildActiveRulesFixture(List<Rule> rules) {
     List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
 
@@ -157,7 +159,7 @@ public class StandardProfileXmlParserTest {
     for (int i = 0; i < activeRules1.size(); i++) {
       ActiveRule activeRule1 = activeRules1.get(i);
       ActiveRule activeRule2 = activeRules2.get(i);
-      assertTrue(activeRule1.getRule().equals(activeRule2.getRule()) && activeRule1.getPriority().equals(activeRule2.getPriority()));
+      assertTrue(activeRule1.getRule().equals(activeRule2.getRule()) && activeRule1.getSeverity().equals(activeRule2.getSeverity()));
 
       Assert.assertEquals(activeRule1.getActiveRuleParams().size(), (activeRule2.getActiveRuleParams().size()));
       for (int j = 0; j < activeRule1.getActiveRuleParams().size(); j++) {

@@ -95,7 +95,7 @@ public class PmdProfileImporterTest {
     RulesProfile profile = importer.importProfile(reader, messages);
 
     ActiveRule activeRule = profile.getActiveRuleByConfigKey("pmd", "rulesets/coupling.xml/ExcessiveImports");
-    assertThat(activeRule.getPriority(), is(RulePriority.BLOCKER)); // reuse the rule default priority
+    assertThat(activeRule.getSeverity(), is(RulePriority.BLOCKER)); // reuse the rule default priority
   }
 
   @Test
@@ -104,10 +104,10 @@ public class PmdProfileImporterTest {
     RulesProfile profile = importer.importProfile(reader, messages);
 
     ActiveRule activeRule = profile.getActiveRuleByConfigKey("pmd", "rulesets/design.xml/UseNotifyAllInsteadOfNotify");
-    assertThat(activeRule.getPriority(), is(RulePriority.MINOR));
+    assertThat(activeRule.getSeverity(), is(RulePriority.MINOR));
 
     activeRule = profile.getActiveRuleByConfigKey("pmd", "rulesets/coupling.xml/CouplingBetweenObjects");
-    assertThat(activeRule.getPriority(), is(RulePriority.CRITICAL));
+    assertThat(activeRule.getSeverity(), is(RulePriority.CRITICAL));
   }
 
   @Test

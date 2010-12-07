@@ -26,7 +26,6 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.*;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
@@ -143,7 +142,7 @@ public final class ProfilesConsole implements ServerComponent {
       DatabaseSession session = sessionFactory.getSession();
       RulesProfile persistedProfile = session.getSingleResult(RulesProfile.class, "name", profileName, "language", language);
       for (ActiveRule activeRule : profile.getActiveRules()) {
-        ActiveRule persistedActiveRule = persistedProfile.activateRule(activeRule.getRule(), activeRule.getPriority());
+        ActiveRule persistedActiveRule = persistedProfile.activateRule(activeRule.getRule(), activeRule.getSeverity());
         for (ActiveRuleParam activeRuleParam : activeRule.getActiveRuleParams()) {
           persistedActiveRule.setParameter(activeRuleParam.getKey(), activeRuleParam.getValue());
         }

@@ -31,7 +31,9 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -48,11 +50,11 @@ public class AnnotationProfileParserTest {
     });
 
     ValidationMessages messages = ValidationMessages.create();
-    RulesProfile profile = new AnnotationProfileParser(ruleFinder).parse("squid", "Foo way", "java", Lists.<Class>newArrayList(FakeRule.class), messages);
+    RulesProfile profile = new AnnotationProfileParser(ruleFinder).parse("squid", "Foo way", "java", Lists.<Class> newArrayList(FakeRule.class), messages);
 
     assertThat(profile.getName(), is("Foo way"));
     assertThat(profile.getLanguage(), is("java"));
-    assertThat(profile.getActiveRule("squid", "fake").getPriority(), is(RulePriority.BLOCKER));
+    assertThat(profile.getActiveRule("squid", "fake").getSeverity(), is(RulePriority.BLOCKER));
     assertThat(messages.hasErrors(), is(false));
   }
 
@@ -66,7 +68,7 @@ public class AnnotationProfileParserTest {
     });
 
     ValidationMessages messages = ValidationMessages.create();
-    RulesProfile profile = new AnnotationProfileParser(ruleFinder).parse("squid", "Foo way", "java", Lists.<Class>newArrayList(FakeRule.class, RuleOnOtherProfile.class), messages);
+    RulesProfile profile = new AnnotationProfileParser(ruleFinder).parse("squid", "Foo way", "java", Lists.<Class> newArrayList(FakeRule.class, RuleOnOtherProfile.class), messages);
 
     assertNotNull(profile.getActiveRule("squid", "fake"));
     assertNull(profile.getActiveRule("squid", "other"));

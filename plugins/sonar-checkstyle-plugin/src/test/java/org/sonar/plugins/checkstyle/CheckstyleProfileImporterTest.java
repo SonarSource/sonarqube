@@ -88,7 +88,7 @@ public class CheckstyleProfileImporterTest {
     RulesProfile profile = importer.importProfile(reader, messages);
 
     ActiveRule javadocCheck = profile.getActiveRuleByConfigKey("checkstyle", "Checker/JavadocPackage");
-    assertThat(javadocCheck.getPriority(), is(RulePriority.BLOCKER));
+    assertThat(javadocCheck.getSeverity(), is(RulePriority.BLOCKER));
   }
 
   @Test
@@ -97,7 +97,7 @@ public class CheckstyleProfileImporterTest {
     RulesProfile profile = importer.importProfile(reader, messages);
 
     ActiveRule activeRule = profile.getActiveRuleByConfigKey("checkstyle", "Checker/TreeWalker/EqualsHashCode");
-    assertThat(activeRule.getPriority(), is(RulePriority.BLOCKER)); // reuse the rule default priority
+    assertThat(activeRule.getSeverity(), is(RulePriority.BLOCKER)); // reuse the rule default priority
   }
 
   @Test

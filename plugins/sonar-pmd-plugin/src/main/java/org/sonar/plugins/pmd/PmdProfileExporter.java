@@ -65,7 +65,7 @@ public class PmdProfileExporter extends ProfileExporter {
     for (ActiveRule activeRule : activeRules) {
       if (activeRule.getRule().getPluginName().equals(CoreProperties.PMD_PLUGIN)) {
         String configKey = activeRule.getRule().getConfigKey();
-        PmdRule rule = new PmdRule(configKey, PmdLevelUtils.toLevel(activeRule.getPriority()));
+        PmdRule rule = new PmdRule(configKey, PmdLevelUtils.toLevel(activeRule.getSeverity()));
         if (activeRule.getActiveRuleParams() != null && !activeRule.getActiveRuleParams().isEmpty()) {
           List<PmdProperty> properties = new ArrayList<PmdProperty>();
           for (ActiveRuleParam activeRuleParam : activeRule.getActiveRuleParams()) {

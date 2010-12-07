@@ -19,26 +19,22 @@
  */
 package org.sonar.server.startup;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
-import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.profiles.Alert;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.server.platform.ServerStartException;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import javax.persistence.Query;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.persistence.Query;
 
 public class RegisterMetrics {
 

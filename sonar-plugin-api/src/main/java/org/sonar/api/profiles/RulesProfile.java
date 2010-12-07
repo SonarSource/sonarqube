@@ -224,7 +224,7 @@ public class RulesProfile implements Cloneable {
   public List<ActiveRule> getActiveRules(RulePriority priority) {
     List<ActiveRule> result = new ArrayList<ActiveRule>();
     for (ActiveRule activeRule : getActiveRules()) {
-      if (activeRule.getPriority().equals(priority)) {
+      if (activeRule.getSeverity().equals(priority)) {
         result.add(activeRule);
       }
     }

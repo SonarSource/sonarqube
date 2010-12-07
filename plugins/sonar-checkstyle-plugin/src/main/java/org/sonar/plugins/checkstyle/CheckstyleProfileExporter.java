@@ -139,7 +139,7 @@ public class CheckstyleProfileExporter extends ProfileExporter {
     if (activeRule.getRule().getParent() != null) {
       appendModuleProperty(writer, "id", activeRule.getRuleKey());
     }
-    appendModuleProperty(writer, "severity", CheckstyleSeverityUtils.toSeverity(activeRule.getPriority()));
+    appendModuleProperty(writer, "severity", CheckstyleSeverityUtils.toSeverity(activeRule.getSeverity()));
     appendRuleParameters(writer, activeRule);
     writer.append("</module>");
   }
@@ -162,6 +162,5 @@ public class CheckstyleProfileExporter extends ProfileExporter {
       writer.append("\"/>");
     }
   }
-
 
 }

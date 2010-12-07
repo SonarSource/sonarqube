@@ -51,7 +51,7 @@ public class XMLProfileParserTest {
     assertThat(profile.getName(), is("sonar way"));
     assertThat(validation.hasErrors(), is(false));
     assertNotNull(profile);
-    assertThat(profile.getActiveRule("checkstyle", "IllegalRegexp").getPriority(), is(RulePriority.CRITICAL));
+    assertThat(profile.getActiveRule("checkstyle", "IllegalRegexp").getSeverity(), is(RulePriority.CRITICAL));
   }
 
   @Test

@@ -28,12 +28,12 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.jpa.dao.RulesDao;
-import org.sonar.jpa.dao.ProfilesDao;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.*;
+import org.sonar.jpa.dao.ProfilesDao;
+import org.sonar.jpa.dao.RulesDao;
 
 import java.util.*;
 
@@ -164,7 +164,7 @@ public class ProfilesBackup implements Backupable {
         ActiveRule rule = (ActiveRule) source;
         writeNode(writer, "key", rule.getRule().getKey());
         writeNode(writer, "plugin", rule.getRule().getPluginName());
-        writeNode(writer, "level", rule.getPriority().name());
+        writeNode(writer, "level", rule.getSeverity().name());
 
         if (!rule.getActiveRuleParams().isEmpty()) {
           writer.startNode("params");

@@ -71,9 +71,9 @@ public final class XMLProfileSerializer implements ServerComponent {
     writer.append("</repositoryKey><key>");
     StringEscapeUtils.escapeXml(writer, activeRule.getRuleKey());
     writer.append("</key>");
-    if (activeRule.getPriority() != null) {
+    if (activeRule.getSeverity() != null) {
       writer.append("<priority>");
-      writer.append(activeRule.getPriority().name());
+      writer.append(activeRule.getSeverity().name());
       writer.append("</priority>");
     }
     appendRuleParameters(activeRule, writer);

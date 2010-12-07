@@ -47,7 +47,7 @@ public class CheckProfileProvider extends ProviderAdapter {
 
   private Check toCheck(ActiveRule activeRule) {
     Check check = new Check(activeRule.getPluginName(), activeRule.getRuleKey());
-    check.setPriority(activeRule.getPriority().toCheckPriority());
+    check.setPriority(activeRule.getSeverity().toCheckPriority());
     check.setProperties(toParameters(activeRule.getActiveRuleParams()));
     return check;
   }

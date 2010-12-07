@@ -72,7 +72,7 @@ public final class DeprecatedProfiles {
     this.deprecatedCheckProfiles = new CheckProfile[0];
     this.deprecatedCheckProfileProviders = new CheckProfileProvider[0];
   }
-  
+
   public DeprecatedProfiles(Plugins plugins, RuleFinder ruleFinder) {
     this.deprecatedRepositories = new RulesRepository[0];
     this.plugins = plugins;
@@ -110,7 +110,7 @@ public final class DeprecatedProfiles {
         }
         Rule rule = ruleFinder.findByKey(repositoryKey, deprecatedActiveRule.getRuleKey());
         if (rule != null) {
-          ActiveRule activeRule = providedProfile.activateRule(rule, deprecatedActiveRule.getPriority());
+          ActiveRule activeRule = providedProfile.activateRule(rule, deprecatedActiveRule.getSeverity());
           for (ActiveRuleParam arp : deprecatedActiveRule.getActiveRuleParams()) {
             activeRule.setParameter(arp.getKey(), arp.getValue());
           }
@@ -163,7 +163,6 @@ public final class DeprecatedProfiles {
     public List<ActiveRule> getRules() {
       return profile.getActiveRules();
     }
-
 
     public List<ActiveRule> getRulesByRepositoryKey(String repositoryKey) {
       return profile.getActiveRulesByRepository(repositoryKey);

@@ -404,7 +404,7 @@ public final class DefaultIndex extends SonarIndex {
           }
 
         } else {
-          violation.setPriority(activeRule.getPriority());
+          violation.setPriority(activeRule.getSeverity());
           doAddViolation(violation, bucket);
         }
       }
