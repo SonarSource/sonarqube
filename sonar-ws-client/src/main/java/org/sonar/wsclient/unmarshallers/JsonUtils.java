@@ -24,6 +24,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
+// Godin: we will use raw types here, because typically JSONObject passed as an argument
+@SuppressWarnings("rawtypes")
 public final class JsonUtils {
 
   private JsonUtils() {
@@ -49,7 +51,7 @@ public final class JsonUtils {
   public static Boolean getBoolean(Map obj, String field) {
     Object value = obj.get(field);
     if (value != null) {
-      return (Boolean)value;
+      return (Boolean) value;
     }
     return null;
   }

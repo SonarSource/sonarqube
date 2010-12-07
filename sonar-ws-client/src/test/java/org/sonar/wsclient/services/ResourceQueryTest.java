@@ -41,7 +41,7 @@ public class ResourceQueryTest {
     query.setMetrics("loc", "coverage", "lines");
     assertThat(query.getUrl(), is("/api/resources?metrics=loc,coverage,lines&verbose=false&"));
     assertThat(query.getResourceKeyOrId(), nullValue());
-    assertThat(query.getMetrics(), is(new String[]{"loc", "coverage", "lines"}));
+    assertThat(query.getMetrics(), is(new String[] { "loc", "coverage", "lines" }));
   }
 
   @Test
@@ -62,7 +62,7 @@ public class ResourceQueryTest {
   @Test
   public void measuresOnRulePriorities() {
     ResourceQuery query = new ResourceQuery().setMetrics("violations");
-    query.setRulePriorities("MAJOR,MINOR");
+    query.setRuleSeverities("MAJOR,MINOR");
 
     assertThat(query.getUrl(), is("/api/resources?metrics=violations&rule_priorities=MAJOR,MINOR&verbose=false&"));
   }
@@ -71,6 +71,6 @@ public class ResourceQueryTest {
   public void build() {
     ResourceQuery query = ResourceQuery.createForMetrics("org.foo", "ncloc", "lines");
     assertThat(query.getResourceKeyOrId(), is("org.foo"));
-    assertThat(query.getMetrics(), is(new String[]{"ncloc", "lines"}));
+    assertThat(query.getMetrics(), is(new String[] { "ncloc", "lines" }));
   }
 }

@@ -77,15 +77,15 @@ public class HttpClient3Connector extends Connector {
     }
   }
 
-  public String execute(Query query) {
+  public String execute(Query<?> query) {
     return executeRequest(newGetRequest(query));
   }
 
-  public String execute(CreateQuery query) {
+  public String execute(CreateQuery<?> query) {
     return executeRequest(newPostRequest(query));
   }
 
-  public String execute(DeleteQuery query) {
+  public String execute(DeleteQuery<?> query) {
     return executeRequest(newDeleteRequest(query));
   }
 
@@ -114,7 +114,7 @@ public class HttpClient3Connector extends Connector {
     return json;
   }
 
-  private HttpMethodBase newGetRequest(Query query) {
+  private HttpMethodBase newGetRequest(Query<?> query) {
     try {
       String url = server.getHost() + URIUtil.encodeQuery(query.getUrl());
       HttpMethodBase method = new GetMethod(url);
@@ -126,7 +126,7 @@ public class HttpClient3Connector extends Connector {
     }
   }
 
-  private HttpMethodBase newPostRequest(CreateQuery query) {
+  private HttpMethodBase newPostRequest(CreateQuery<?> query) {
     try {
       String url = server.getHost() + URIUtil.encodeQuery(query.getUrl());
       HttpMethodBase method = new PostMethod(url);
@@ -138,7 +138,7 @@ public class HttpClient3Connector extends Connector {
     }
   }
 
-  private HttpMethodBase newDeleteRequest(DeleteQuery query) {
+  private HttpMethodBase newDeleteRequest(DeleteQuery<?> query) {
     try {
       String url = server.getHost() + URIUtil.encodeQuery(query.getUrl());
       HttpMethodBase method = new DeleteMethod(url);

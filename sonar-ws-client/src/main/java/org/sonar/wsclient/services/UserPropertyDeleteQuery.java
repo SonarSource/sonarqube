@@ -22,7 +22,7 @@ package org.sonar.wsclient.services;
 /**
  * @since 2.2
  */
-public class UserPropertyDeleteQuery extends DeleteQuery {
+public class UserPropertyDeleteQuery extends DeleteQuery<Property> {
 
   private String key;
 

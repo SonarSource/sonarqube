@@ -53,15 +53,15 @@ public class HttpClient4Connector extends Connector {
     this.server = server;
   }
 
-  public String execute(Query query) {
+  public String execute(Query<?> query) {
     return executeRequest(newGetMethod(query));
   }
 
-  public String execute(CreateQuery query) {
+  public String execute(CreateQuery<?> query) {
     return executeRequest(newPostMethod(query));
   }
 
-  public String execute(DeleteQuery query) {
+  public String execute(DeleteQuery<?> query) {
     return executeRequest(newDeleteMethod(query));
   }
 
@@ -116,19 +116,19 @@ public class HttpClient4Connector extends Connector {
     return localcontext;
   }
 
-  private HttpGet newGetMethod(Query query) {
+  private HttpGet newGetMethod(Query<?> query) {
     HttpGet get = new HttpGet(server.getHost() + query.getUrl());
     setJsonHeader(get);
     return get;
   }
 
-  private HttpDelete newDeleteMethod(DeleteQuery query) {
+  private HttpDelete newDeleteMethod(DeleteQuery<?> query) {
     HttpDelete delete = new HttpDelete(server.getHost() + query.getUrl());
     setJsonHeader(delete);
     return delete;
   }
 
-  private HttpPost newPostMethod(CreateQuery query) {
+  private HttpPost newPostMethod(CreateQuery<?> query) {
     HttpPost post = new HttpPost(server.getHost() + query.getUrl());
     setJsonHeader(post);
     return post;
@@ -145,7 +145,7 @@ public class HttpClient4Connector extends Connector {
 
       AuthState authState = (AuthState) context.getAttribute(ClientContext.TARGET_AUTH_STATE);
 
-      // If no auth scheme avaialble yet, try to initialize it preemptively
+      // If no auth scheme available yet, try to initialize it preemptively
       if (authState.getAuthScheme() == null) {
         AuthScheme authScheme = (AuthScheme) context.getAttribute("preemptive-auth");
         CredentialsProvider credsProvider = (CredentialsProvider) context.getAttribute(ClientContext.CREDS_PROVIDER);

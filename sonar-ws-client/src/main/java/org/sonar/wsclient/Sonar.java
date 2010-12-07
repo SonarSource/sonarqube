@@ -76,7 +76,7 @@ public class Sonar {
     return result;
   }
 
-  public void delete(DeleteQuery query) {
+  public void delete(DeleteQuery<?> query) {
     connector.execute(query);
   }
 

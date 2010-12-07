@@ -34,18 +34,18 @@ public abstract class Connector {
    * @return JSON response or null if 404 NOT FOUND error
    * @throws ConnectionException if connection error or HTTP status not in (200, 404)
    */
-  public abstract String execute(Query query);
+  public abstract String execute(Query<?> query);
 
   /**
    * @return JSON response or null if 404 NOT FOUND error
    * @since 2.2
    */
-  public abstract String execute(CreateQuery query);
+  public abstract String execute(CreateQuery<?> query);
 
   /**
    * @return JSON response or null if 404 NOT FOUND error
    * @since 2.2
    */
-  public abstract String execute(DeleteQuery query);
+  public abstract String execute(DeleteQuery<?> query);
 
 }
