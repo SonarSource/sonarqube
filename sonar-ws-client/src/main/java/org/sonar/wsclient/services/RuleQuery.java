@@ -30,6 +30,7 @@ public class RuleQuery extends Query<Rule> {
   private String searchText;
   private String profile;
   private String[] severities;
+  private Boolean active;
 
   public RuleQuery(String language) {
     this.language = language;
@@ -80,6 +81,15 @@ public class RuleQuery extends Query<Rule> {
     return severities;
   }
 
+  public RuleQuery setActive(Boolean active) {
+    this.active = active;
+    return this;
+  }
+
+  public Boolean getStatus() {
+    return active;
+  }
+
   @Override
   public String getUrl() {
     StringBuilder url = new StringBuilder(BASE_URL);
@@ -89,6 +99,9 @@ public class RuleQuery extends Query<Rule> {
     appendUrlParameter(url, "searchtext", searchText);
     appendUrlParameter(url, "profile", profile);
     appendUrlParameter(url, "priorities", severities);
+    if (active != null) {
+      appendUrlParameter(url, "status", active ? "ACTIVE" : "INACTIVE");
+    }
     return url.toString();
   }
 

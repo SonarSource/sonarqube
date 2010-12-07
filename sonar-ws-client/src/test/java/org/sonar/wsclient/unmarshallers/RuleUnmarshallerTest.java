@@ -49,9 +49,13 @@ public class RuleUnmarshallerTest {
     assertThat(rule.getPlugin(), is("checkstyle"));
     assertThat(rule.getDescription(), is("Checks correct indentation of Java Code."));
     assertThat(rule.getSeverity(), is("MINOR"));
+    assertThat(rule.isActive(), is(false));
     assertThat(rule.getParams().size(), is(3));
     assertThat(rule.getParams().get(0).getName(), is("basicOffset"));
     assertThat(rule.getParams().get(0).getDescription(), is("how many spaces to use for new indentation level. Default is 4."));
+
+    rule = rules.get(1);
+    assertThat(rule.isActive(), is(true));
   }
 
   private static String loadFile(String path) throws IOException {

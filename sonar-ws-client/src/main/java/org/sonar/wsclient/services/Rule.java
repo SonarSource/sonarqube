@@ -32,6 +32,7 @@ public class Rule extends Model {
   private String description = null;
   private String severity = null;
   private List<RuleParam> params;
+  private boolean active;
 
   public String getTitle() {
     return title;
@@ -76,6 +77,14 @@ public class Rule extends Model {
   public Rule setSeverity(String severity) {
     this.severity = severity;
     return this;
+  }
+
+  public void setActive(boolean active) {
+    this.active = active;
+  }
+
+  public boolean isActive() {
+    return active;
   }
 
   public List<RuleParam> getParams() {

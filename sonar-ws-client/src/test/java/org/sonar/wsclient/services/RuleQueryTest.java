@@ -33,4 +33,12 @@ public class RuleQueryTest {
     assertThat(query.getModelClass().getName(), is(Rule.class.getName()));
   }
 
+  @Test
+  public void inactiveRules() {
+    assertThat(new RuleQuery("java").setActive(true).getUrl(),
+        is("/api/rules?language=java&status=ACTIVE&"));
+    assertThat(new RuleQuery("java").setActive(false).getUrl(),
+        is("/api/rules?language=java&status=INACTIVE&"));
+  }
+
 }

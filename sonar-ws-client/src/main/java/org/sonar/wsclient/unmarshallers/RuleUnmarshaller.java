@@ -45,7 +45,8 @@ public class RuleUnmarshaller extends AbstractUnmarshaller<Rule> {
         .setKey(JsonUtils.getString(json, "key"))
         .setPlugin(JsonUtils.getString(json, "plugin"))
         .setDescription(JsonUtils.getString(json, "description"))
-        .setSeverity(JsonUtils.getString(json, "priority"));
+        .setSeverity(JsonUtils.getString(json, "priority"))
+        .setActive("ACTIVE".equals(JsonUtils.getString(json, "status")));
   }
 
   private void parseParams(JSONObject json, Rule rule) {
