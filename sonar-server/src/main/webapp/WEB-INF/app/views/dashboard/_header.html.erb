@@ -17,10 +17,9 @@
   <div id="snapshot_title" class="page_title">
   <h4>
   <%
-     version_event=@snapshot.event(EventCategory::KEY_VERSION)
      profile_measure=@snapshot.measure(Metric::PROFILE)
    %>
-  <%= link_to_favourite(@project) -%> <%= "#{version_event.fullname} - " if version_event %> <%= l @snapshot.created_at %>
+  <%= link_to_favourite(@project) -%> Version <%= @snapshot.version -%> - <%= l @snapshot.created_at %>
   <% if profile_measure %> - Profile <%= link_to profile_measure.data, :controller => '/rules_configuration', :action => 'index', :id => profile_measure.value.to_i %><% end %>
   - Compare to
   <form method="GET" action="<%= url_for :only_path=>true, :overwrite_params => {:var => nil} -%>" style="display: inline">
@@ -29,6 +28,8 @@
     <%= variation_select_option(@snapshot, 1) -%>
     <%= variation_select_option(@snapshot, 2) -%>
     <%= variation_select_option(@snapshot, 3) -%>
+    <%= variation_select_option(@snapshot, 4) -%>
+    <%= variation_select_option(@snapshot, 5) -%>
   </select>
     </form>
   </h4>

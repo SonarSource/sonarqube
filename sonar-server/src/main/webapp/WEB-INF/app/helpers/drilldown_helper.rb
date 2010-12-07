@@ -18,6 +18,7 @@
  # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  #
 module DrilldownHelper
+  include DashboardHelper
 
   def measure_or_variation_value(measure)
     if measure

@@ -40,9 +40,11 @@ public final class TimeMachineConfigurationPersister implements BatchExtension {
   public void start() {
     List<PastSnapshot> variationSnapshots = configuration.getProjectPastSnapshots();
     for (PastSnapshot variationSnapshot : variationSnapshots) {
+      projectSnapshot = session.reattach(Snapshot.class, projectSnapshot.getId());
       projectSnapshot.setVariationMode(variationSnapshot.getIndex(), variationSnapshot.getMode());
       projectSnapshot.setVariationModeParam(variationSnapshot.getIndex(), variationSnapshot.getModeParameter());
       session.save(projectSnapshot);
     }
+    session.commit();
   }
 }

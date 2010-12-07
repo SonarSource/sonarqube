@@ -139,13 +139,16 @@ public class ViolationsPanel extends SourcePanel {
 
     @Override
     public String getColumn4() {
+      String age = "";
+      if (violation.getAge()!=null && violation.getAge()>0) {
+        age = " <span class='note'>(" + violation.getAge() + " days)</span>";
+      }
       return "<div class=\"warn\">" + Icons.forPriority(violation.getPriority()).getHTML() + "</img> "
-          + Utils.formatDate(violation.getCreatedAt())
           + " <a href=\"" + Links.urlForRule(violation.getRuleKey(), false)
           + "\" onclick=\"window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;\" title=\""
           + violation.getRuleKey() + "\"><b>"
           + Utils.escapeHtml(violation.getRuleName()) + "</b></a> : "
-          + Utils.escapeHtml(violation.getMessage()) + "</div>";
+          + Utils.escapeHtml(violation.getMessage()) + age + "</div>";
     }
   }
 

@@ -23,21 +23,34 @@ class RuleFailure < ActiveRecord::Base
   belongs_to :rule
   belongs_to :snapshot
 
+  def age_in_days
+    if created_at
+      ((snapshot.created_at - created_at)/(60 * 60 * 24)).to_i
+    else
+      nil
+    end
+  end
+
   def to_hash_json
     json = {}
     json['message'] = message
     json['line'] = line if line
     json['priority'] = Sonar::RulePriority.to_s(failure_level).upcase
-    json['createdAt'] = format_datetime(created_at) if created_at
+    if created_at
+      json['createdAt'] = format_datetime(created_at)
+      json['age'] = age_in_days
+    end
     json['rule'] = {
       :key => rule.key,
-      :name => rule.name}
+      :name => rule.name
+    }
     json['resource'] = {
       :key => snapshot.project.key,
       :name => snapshot.project.name,
       :scope => snapshot.project.scope,
       :qualifier => snapshot.project.qualifier,
-      :language => snapshot.project.language}
+      :language => snapshot.project.language
+    }
     json
   end
 
@@ -46,7 +59,10 @@ class RuleFailure < ActiveRecord::Base
       xml.message(message)
       xml.line(line) if line
       xml.priority(Sonar::RulePriority.to_s(failure_level))
-      xml.createdAt(format_datetime(created_at)) if created_at
+      if created_at
+        xml.createdAt(format_datetime(created_at))
+        xml.age(age_in_days)
+      end
       xml.rule do
         xml.key(rule.key)
         xml.name(rule.name)

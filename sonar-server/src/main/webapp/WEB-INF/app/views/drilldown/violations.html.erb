@@ -1,4 +1,23 @@
-<%= render :partial => 'project/snapshot_title' -%>
+<div id="snapshot_title" class="page_title">
+<h4>
+<%
+   profile_measure=@snapshot.measure(Metric::PROFILE)
+ %>
+<%= link_to_favourite(@project) -%> Version <%= @snapshot.version -%> - <%= l @snapshot.created_at %>
+<% if profile_measure %> - Profile <%= link_to profile_measure.data, :controller => '/rules_configuration', :action => 'index', :id => profile_measure.value.to_i %><% end %>
+- <form method="GET" action="<%= url_for :only_path=>true, :overwrite_params => {:var => nil} -%>" style="display: inline">
+  <select id="select-comparison" name="var" onchange="submit()" class="small">
+    <option value="">All violations</option>
+    <%= variation_select_option(@snapshot, 1) -%>
+    <%= variation_select_option(@snapshot, 2) -%>
+    <%= variation_select_option(@snapshot, 3) -%>
+    <%= variation_select_option(@snapshot, 4) -%>
+    <%= variation_select_option(@snapshot, 5) -%>
+  </select>
+    </form>
+</h4>
+</div>
+
 <%= render :partial => 'gwt/base', :locals => {:resource => @highlighted_resource, :popup => false, :metric => 'violations'} %>
 <%= render :partial => 'gwt/resource_viewers', :locals => {:resource => @project} %>
 

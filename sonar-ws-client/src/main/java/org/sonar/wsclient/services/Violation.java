@@ -33,6 +33,7 @@ public class Violation extends Model {
   private String resourceScope = null;
   private String resourceQualifier = null;
   private Date createdAt = null;
+  private Integer age = null;
 
   public String getMessage() {
     return message;
@@ -130,6 +131,18 @@ public class Violation extends Model {
 
   public Violation setResourceQualifier(String resourceQualifier) {
     this.resourceQualifier = resourceQualifier;
+    return this;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Integer getAge() {
+    return age;
+  }
+
+  public Violation setAge(Integer age) {
+    this.age = age;
     return this;
   }
 
