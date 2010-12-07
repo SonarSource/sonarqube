@@ -64,12 +64,20 @@ class DrilldownController < ApplicationController
   def violations
     @rule=Rule.by_key_or_id(params[:rule])
 
-    if @rule.nil? && params[:priority]
-      @metric = Metric::by_key("#{params[:priority].downcase}_violations")
-      @priority_id=Sonar::RulePriority.id(params[:priority])
+    # variation measures
+    if params[:var].blank?
+      @variation_index=nil
+      metric_prefix = ''
     else
-      @metric = Metric::by_key('violations')
-      @priority_id=nil
+      @variation_index=params[:var].to_i
+      metric_prefix = 'new_'
+    end
+
+    @priority_id=(params[:priority].blank? ? nil : Sonar::RulePriority.id(params[:priority]))
+    if @rule.nil? && @priority_id
+      @metric = Metric::by_key("#{metric_prefix}#{params[:priority].downcase}_violations")
+    else
+      @metric = Metric::by_key("#{metric_prefix}violations")
     end
 
     # selected resources
@@ -85,12 +93,12 @@ class DrilldownController < ApplicationController
 
 
     # options for Drilldown
-    options={:exclude_zero_value => true}
+    options={:exclude_zero_value => true, :variation_index => @variation_index}
     if @rule
       params[:rule]=@rule.key  # workaround for SONAR-1767 : the javascript hash named "rp" in the HTML source must contain the rule key, but not the rule id
       options[:rule_id]=@rule.id
     end
-
+    
     # load data
     @drilldown = Drilldown.new(@project, @metric, @selected_rids, options)
     @snapshot=@drilldown.snapshot

@@ -7,15 +7,25 @@
   <td align="left" width="1%" nowrap class="column first">
 
 	<%
+	  value_column = (@variation_index ? "variation_value_#{@variation_index}" : 'value')
 		max = 0
-		blocker_violations=@snapshot.measure('blocker_violations')
-		critical_violations=@snapshot.measure('critical_violations')
-		major_violations=@snapshot.measure('major_violations')
-		minor_violations=@snapshot.measure('minor_violations')
-		info_violations=@snapshot.measure('info_violations')
+		if @variation_index
+      blocker_violations=@snapshot.measure('new_blocker_violations')
+      critical_violations=@snapshot.measure('new_critical_violations')
+      major_violations=@snapshot.measure('new_major_violations')
+      minor_violations=@snapshot.measure('new_minor_violations')
+      info_violations=@snapshot.measure('new_info_violations')
+    else
+      blocker_violations=@snapshot.measure('blocker_violations')
+      critical_violations=@snapshot.measure('critical_violations')
+      major_violations=@snapshot.measure('major_violations')
+      minor_violations=@snapshot.measure('minor_violations')
+      info_violations=@snapshot.measure('info_violations')
+    end
 
 	  [blocker_violations, critical_violations, major_violations, minor_violations, info_violations].each do |m|
-	    max = m.value if m && m.value && m.value>max
+	    value = measure_or_variation_value(m)
+	    max = value if value && value>max
 	  end
 	%>
     <h3>Severity</h3>
@@ -32,23 +42,37 @@
    <div class="scrollable">
        <table class="spacedicon" width="100%" id="col_rules">
 	      <%
-	        rule_measures=@snapshot.rule_measures(Metric.by_key('violations'), @priority_id)
+	        if @variation_index
+	          rule_measures=@snapshot.rule_measures(Metric.by_key('new_violations'), @priority_id)
+	        else
+	          rule_measures=@snapshot.rule_measures(Metric.by_key('violations'), @priority_id)
+	        end
 	        max=0
 	        rule_index=0
-			rule_measures.each { |m| max=m.value if m.value>max }
+			    rule_measures.each do |m|
+			      value = m.send(value_column) if m
+			      max=value if value && value>max
+			    end
 	        rule_ids=rule_measures.collect{ |measure| measure.rule_id}.uniq
 	        rules = (rule_ids.empty? ? [] : Rule.find(rule_ids))
-		    rules_hash={}
-		    rules.each { |rule| rules_hash[rule.id]=rule }
-	        rule_measures.sort do|x,y|
-				val=y.rule_priority<=>x.rule_priority
-				val==0 ? y.value <=> x.value : val
-		    end.each do |rule_measure|
-		      next if rule_measure.value==0
-              rule=rules_hash[rule_measure.rule_id]
-              clazz = cycle('even', 'odd', :name => 'rules')
-              clazz = clazz + ' selected' if @rule && @rule.id==rule_measure.rule_id
-              rule_index+=1
+          rules_hash={}
+          rules.each { |rule| rules_hash[rule.id]=rule }
+          rule_measures.sort do|x,y|
+            val=y.rule_priority<=>x.rule_priority
+            if val==0
+              x_value=x.send(value_column)
+              y_value=y.send(value_column)
+              y_value <=> x_value
+            else
+              val
+            end
+          end.each do |rule_measure|
+            value = rule_measure.send(value_column)
+		        next if value.nil? || value==0
+            rule=rules_hash[rule_measure.rule_id]
+            clazz = cycle('even', 'odd', :name => 'rules')
+            clazz = clazz + ' selected' if @rule && @rule.id==rule_measure.rule_id
+            rule_index+=1
 		   %>
                <tr class="<%= clazz -%>">
 	               <td width="1%" nowrap>
@@ -58,10 +82,10 @@
 	                  <%= link_to(rule.name, {:overwrite_params => {:rule => rule.key, :sid => nil, :priority => Sonar::RulePriority.to_s(@priority_id)}}, :title => "#{rule.plugin_name}: #{rule.plugin_rule_key}") %>
                    </td>
                    <td class="right" nowrap="nowrap">
-                       <span><%= rule_measure.formatted_value %></span>
+                       <span><%= @variation_index ? format_variation(rule_measure, :index => @variation_index) : rule_measure.formatted_value -%></span>
                    </td>
                    <td class="left last">
-	                  <%= barchart(:width => 70, :percent => (100 * rule_measure.value / max).to_i, :color => '#777')  if max>0 %>
+	                  <%= barchart(:width => 70, :percent => (100 * value / max).to_i, :color => '#777')  if max>0 %>
 	                  <!--[if IE]> &nbsp; &nbsp; <![endif]-->
 	               </td>
                </tr>
@@ -113,7 +137,7 @@
    <% end %>
    </td>
    <td class="right last" nowrap>
-       <%= measure.formatted_value -%>
+       <%= @variation_index ? format_variation(measure, :index => @variation_index) : measure.formatted_value -%>
        <!--[if IE]> &nbsp; &nbsp; <![endif]-->
    </td>
 </tr>
