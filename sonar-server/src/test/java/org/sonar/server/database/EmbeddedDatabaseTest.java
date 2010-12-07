@@ -33,6 +33,7 @@ import java.util.Properties;
 
 public class EmbeddedDatabaseTest extends TestCase {
 
+  private final static String TEST_ROOT_DIR = "./target/";
   private final static String TEST_DB_DIR_PREFIX = "testDB";
 
   private EmbeddedDatabase database;
@@ -54,7 +55,7 @@ public class EmbeddedDatabaseTest extends TestCase {
   private void windowsCleanup() {
     String os = System.getProperty("os.name");
     if (os.toLowerCase().contains("windows")) {
-      File testRoot = new File("./");
+      File testRoot = new File(TEST_ROOT_DIR);
       File[] files = testRoot.listFiles();
       for (File file : files) {
         if (file.isDirectory() &&
@@ -77,7 +78,7 @@ public class EmbeddedDatabaseTest extends TestCase {
   }
 
   public void testStart() throws Exception {
-    database = new EmbeddedDatabase(new File("./" + TEST_DB_DIR_PREFIX + "Start" + testPort), defaultProps);
+    database = new EmbeddedDatabase(new File(TEST_ROOT_DIR + TEST_DB_DIR_PREFIX + "Start" + testPort), defaultProps);
     database.start();
     ClientDriver.class.newInstance();
     Connection conn = null;
@@ -102,7 +103,7 @@ public class EmbeddedDatabaseTest extends TestCase {
   }
 
   public void testStop() throws Exception {
-    database = new EmbeddedDatabase(new File("./" + TEST_DB_DIR_PREFIX + "Stop" + testPort), defaultProps);
+    database = new EmbeddedDatabase(new File(TEST_ROOT_DIR + TEST_DB_DIR_PREFIX + "Stop" + testPort), defaultProps);
     database.start();
     ClientDriver.class.newInstance();
     Connection conn = null;
@@ -136,4 +137,3 @@ public class EmbeddedDatabaseTest extends TestCase {
   }
 
 }
-
