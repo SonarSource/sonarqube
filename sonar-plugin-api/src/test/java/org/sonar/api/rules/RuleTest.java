@@ -19,15 +19,16 @@
  */
 package org.sonar.api.rules;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
-
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 public class RuleTest {
 
@@ -63,7 +64,7 @@ public class RuleTest {
   public void shouldRemoveNewLineCharactersInNameWithSecondConstructor() {
     Rule rule;
     for (String example : getExamplesContainingNewLineCharacter()) {
-      rule = new Rule(null, null, example, (RulesCategory)null, null);
+      rule = new Rule(null, null, example, (RulesCategory) null, null);
       assertThat(rule.getName(), is("test"));
     }
   }
@@ -71,25 +72,23 @@ public class RuleTest {
   @Test
   public void defaultPriorityIsMajor() {
     Rule rule = new Rule();
-    assertThat(rule.getPriority(), Is.is(RulePriority.MAJOR));
+    assertThat(rule.getSeverity(), Is.is(RulePriority.MAJOR));
 
     rule = new Rule("name", "key");
-    assertThat(rule.getPriority(), Is.is(RulePriority.MAJOR));
+    assertThat(rule.getSeverity(), Is.is(RulePriority.MAJOR));
 
     rule = new Rule("pkey", "key", "name", Iso9126RulesCategories.EFFICIENCY, null, null);
-    assertThat(rule.getPriority(), Is.is(RulePriority.MAJOR));
+    assertThat(rule.getSeverity(), Is.is(RulePriority.MAJOR));
 
-    rule.setPriority(RulePriority.BLOCKER);
-    assertThat(rule.getPriority(), Is.is(RulePriority.BLOCKER));
+    rule.setSeverity(RulePriority.BLOCKER);
+    assertThat(rule.getSeverity(), Is.is(RulePriority.BLOCKER));
 
-    rule.setPriority(null);
-    assertThat(rule.getPriority(), Is.is(RulePriority.MAJOR));
+    rule.setSeverity(null);
+    assertThat(rule.getSeverity(), Is.is(RulePriority.MAJOR));
   }
-
 
   private List<String> getExamplesContainingNewLineCharacter() {
     return Arrays.asList("te\nst", "te\ns\nt", "te\rst", "te\n\rst", "te\r\nst");
   }
-
 
 }

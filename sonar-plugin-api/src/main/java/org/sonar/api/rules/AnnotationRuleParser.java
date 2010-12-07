@@ -64,7 +64,7 @@ public final class AnnotationRuleParser implements ServerComponent {
     String ruleName = StringUtils.defaultIfEmpty(ruleAnnotation.name(), ruleKey);
     Rule rule = Rule.create(repositoryKey, ruleKey, ruleName);
     rule.setDescription(ruleAnnotation.description());
-    rule.setPriority(RulePriority.fromCheckPriority(ruleAnnotation.priority()));
+    rule.setSeverity(RulePriority.fromCheckPriority(ruleAnnotation.priority()));
     rule.setCardinality(ruleAnnotation.cardinality());
 
     Field[] fields = clazz.getDeclaredFields();
@@ -82,7 +82,7 @@ public final class AnnotationRuleParser implements ServerComponent {
     String ruleName = StringUtils.defaultIfEmpty(checkAnnotation.title(), ruleKey);
     Rule rule = Rule.create(repositoryKey, ruleKey, ruleName);
     rule.setDescription(checkAnnotation.description());
-    rule.setPriority(RulePriority.fromCheckPriority(checkAnnotation.priority()));
+    rule.setSeverity(RulePriority.fromCheckPriority(checkAnnotation.priority()));
 
     Field[] fields = clazz.getDeclaredFields();
     if (fields != null) {

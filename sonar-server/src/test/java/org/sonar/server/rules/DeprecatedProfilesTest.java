@@ -25,7 +25,6 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class DeprecatedProfilesTest {
@@ -44,13 +43,13 @@ public class DeprecatedProfilesTest {
 
     assertThat(def.getRules().size(), is(2));
     assertThat(def.getRulesByRepositoryKey("checkstyle").size(), is(1));
-    assertThat(def.getRulesByRepositoryKey("checkstyle").get(0).getPriority(), is(RulePriority.BLOCKER));
+    assertThat(def.getRulesByRepositoryKey("checkstyle").get(0).getSeverity(), is(RulePriority.BLOCKER));
   }
 
   @Test
   public void priorityIsOptional() {
     DeprecatedProfiles.DefaultProfileDefinition def = DeprecatedProfiles.DefaultProfileDefinition.create("sonar way", "java");
-    def.activateRule(Rule.create("checkstyle", "IllegalRegexp", "Illegal regexp").setPriority(RulePriority.BLOCKER), null);
-    assertThat(def.getRules().get(0).getPriority(), is(RulePriority.BLOCKER));
+    def.activateRule(Rule.create("checkstyle", "IllegalRegexp", "Illegal regexp").setSeverity(RulePriority.BLOCKER), null);
+    assertThat(def.getRules().get(0).getSeverity(), is(RulePriority.BLOCKER));
   }
 }

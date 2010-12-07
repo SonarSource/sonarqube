@@ -34,7 +34,9 @@ import java.io.StringReader;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -49,12 +51,10 @@ public class CheckstyleProfileImporterTest {
     messages = ValidationMessages.create();
 
     /*
-
-    The mocked rule finder defines 2 rules :
-
-    - JavadocCheck with 2 paramters format and ignore, default priority is MAJOR
-    - EqualsHashCodeCheck without parameters, default priority is BLOCKER
-
+     * The mocked rule finder defines 2 rules :
+     * 
+     * - JavadocCheck with 2 paramters format and ignore, default priority is MAJOR
+     * - EqualsHashCodeCheck without parameters, default priority is BLOCKER
      */
     importer = new CheckstyleProfileImporter(newRuleFinder());
   }
@@ -146,19 +146,19 @@ public class CheckstyleProfileImporterTest {
         if (StringUtils.equals(query.getConfigKey(), "Checker/JavadocPackage")) {
           rule = Rule.create(query.getRepositoryKey(), "com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocPackageCheck", "Javadoc Package")
               .setConfigKey("Checker/JavadocPackage")
-              .setPriority(RulePriority.MAJOR);
+              .setSeverity(RulePriority.MAJOR);
           rule.createParameter("format");
           rule.createParameter("ignore");
 
         } else if (StringUtils.equals(query.getConfigKey(), "Checker/TreeWalker/EqualsHashCode")) {
           rule = Rule.create(query.getRepositoryKey(), "com.puppycrawl.tools.checkstyle.checks.coding.EqualsHashCodeCheck", "Equals HashCode")
               .setConfigKey("Checker/TreeWalker/EqualsHashCode")
-              .setPriority(RulePriority.BLOCKER);
+              .setSeverity(RulePriority.BLOCKER);
 
         } else if (StringUtils.equals(query.getKey(), "com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocPackageCheck_12345")) {
           rule = Rule.create(query.getRepositoryKey(), "com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocPackageCheck_12345", "Javadoc Package")
               .setConfigKey("Checker/JavadocPackage")
-              .setPriority(RulePriority.MAJOR);
+              .setSeverity(RulePriority.MAJOR);
           rule.createParameter("format");
           rule.createParameter("ignore");
         }

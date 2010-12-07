@@ -70,11 +70,11 @@ public final class RegisterRules {
     List<Integer> deprecatedUserRuleIds = new ArrayList<Integer>();
     deprecatedUserRuleIds.addAll(session.createQuery(
         "SELECT r.id FROM " + Rule.class.getSimpleName() +
-        " r WHERE r.parent IS NOT NULL AND NOT EXISTS(FROM " + Rule.class.getSimpleName() + " p WHERE r.parent=p)").getResultList());
+            " r WHERE r.parent IS NOT NULL AND NOT EXISTS(FROM " + Rule.class.getSimpleName() + " p WHERE r.parent=p)").getResultList());
 
     deprecatedUserRuleIds.addAll(session.createQuery(
         "SELECT r.id FROM " + Rule.class.getSimpleName() +
-        " r WHERE r.parent IS NOT NULL AND EXISTS(FROM " + Rule.class.getSimpleName() + " p WHERE r.parent=p and p.enabled=false)").getResultList());
+            " r WHERE r.parent IS NOT NULL AND EXISTS(FROM " + Rule.class.getSimpleName() + " p WHERE r.parent=p and p.enabled=false)").getResultList());
 
     for (Integer deprecatedUserRuleId : deprecatedUserRuleIds) {
       Rule rule = session.getSingleResult(Rule.class, "id", deprecatedUserRuleId);
@@ -127,7 +127,7 @@ public final class RegisterRules {
     persistedRule.setName(rule.getName());
     persistedRule.setConfigKey(rule.getConfigKey());
     persistedRule.setDescription(rule.getDescription());
-    persistedRule.setPriority(rule.getPriority());
+    persistedRule.setSeverity(rule.getSeverity());
     persistedRule.setEnabled(true);
     persistedRule.setCardinality(rule.getCardinality());
 

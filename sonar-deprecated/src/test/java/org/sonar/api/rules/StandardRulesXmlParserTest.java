@@ -27,7 +27,8 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class StandardRulesXmlParserTest {
   @Test
@@ -53,7 +54,7 @@ public class StandardRulesXmlParserTest {
     StandardRulesXmlParser parser = new StandardRulesXmlParser();
     String xml = "<rules><rule key='1' priority='CRITICAL'><category name='cat1'/></rule></rules>";
     List<Rule> rules = parser.parse(xml);
-    Assert.assertEquals(RulePriority.CRITICAL, rules.get(0).getPriority());
+    Assert.assertEquals(RulePriority.CRITICAL, rules.get(0).getSeverity());
   }
 
   @Test
@@ -61,7 +62,7 @@ public class StandardRulesXmlParserTest {
     StandardRulesXmlParser parser = new StandardRulesXmlParser();
     String xml = "<rules><rule key='1'><category name='cat1'/></rule></rules>";
     List<Rule> rules = parser.parse(xml);
-    Assert.assertEquals(RulePriority.MAJOR, rules.get(0).getPriority());
+    Assert.assertEquals(RulePriority.MAJOR, rules.get(0).getSeverity());
   }
 
   @Test

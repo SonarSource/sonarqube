@@ -124,7 +124,7 @@ public final class Rule {
   }
 
   /**
-   * @deprecated Use the factory method {@link #create()}
+   * @deprecated since 2.3. Use the factory method {@link #create()}
    */
   @Deprecated
   public Rule(String name, String key, RulesCategory rulesCategory, String pluginName, String description) {
@@ -154,7 +154,7 @@ public final class Rule {
   }
 
   /**
-   * @deprecated visibility should be decreased to protected or package
+   * @deprecated since 2.3. visibility should be decreased to protected or package
    */
   @Deprecated
   public void setId(Integer id) {

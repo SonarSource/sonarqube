@@ -19,13 +19,6 @@
  */
 package org.sonar.plugins.pmd;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -35,6 +28,13 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.ValidationMessages;
+
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SonarWayWithFindbugsProfileTest {
 
@@ -55,7 +55,7 @@ public class SonarWayWithFindbugsProfileTest {
       public Rule answer(InvocationOnMock iom) throws Throwable {
         RuleQuery query = (RuleQuery) iom.getArguments()[0];
         Rule rule = Rule.create(query.getRepositoryKey(), query.getConfigKey(), "Rule name - " + query.getConfigKey())
-            .setConfigKey(query.getConfigKey()).setPriority(RulePriority.BLOCKER);
+            .setConfigKey(query.getConfigKey()).setSeverity(RulePriority.BLOCKER);
         return rule;
       }
     });

@@ -19,6 +19,19 @@
  */
 package org.sonar.plugins.pmd;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.*;
+import org.sonar.api.utils.ValidationMessages;
+import org.sonar.plugins.pmd.xml.PmdRuleset;
+import org.sonar.test.TestUtils;
+
+import java.io.Reader;
+import java.io.StringReader;
+
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNotNull;
@@ -26,23 +39,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.io.Reader;
-import java.io.StringReader;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.rules.RulePriority;
-import org.sonar.api.rules.RuleQuery;
-import org.sonar.api.utils.ValidationMessages;
-import org.sonar.plugins.pmd.xml.PmdRuleset;
-import org.sonar.test.TestUtils;
 
 public class PmdProfileImporterTest {
 
@@ -156,7 +152,7 @@ public class PmdProfileImporterTest {
       public Rule answer(InvocationOnMock iom) throws Throwable {
         RuleQuery query = (RuleQuery) iom.getArguments()[0];
         Rule rule = Rule.create(query.getRepositoryKey(), query.getConfigKey(), "Rule name - " + query.getConfigKey())
-            .setConfigKey(query.getConfigKey()).setPriority(RulePriority.BLOCKER);
+            .setConfigKey(query.getConfigKey()).setSeverity(RulePriority.BLOCKER);
         if (rule.getConfigKey().equals("rulesets/coupling.xml/ExcessiveImports")) {
           rule.createParameter("max");
         }

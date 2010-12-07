@@ -19,7 +19,7 @@ public class AnnotationRuleParserTest {
     Rule rule = rules.get(0);
     assertThat(rule.getKey(), is("foo"));
     assertThat(rule.getName(), is("bar"));
-    assertThat(rule.getPriority(), is(RulePriority.BLOCKER));
+    assertThat(rule.getSeverity(), is(RulePriority.BLOCKER));
     assertThat(rule.getParams().size(), is(1));
     RuleParam prop = rule.getParam("property");
     assertThat(prop.getKey(), is("property"));
@@ -34,7 +34,7 @@ public class AnnotationRuleParserTest {
     Rule rule = rules.get(0);
     assertThat(rule.getKey(), is("foo"));
     assertThat(rule.getName(), is("foo"));
-    assertThat(rule.getPriority(), is(RulePriority.MAJOR));
+    assertThat(rule.getSeverity(), is(RulePriority.MAJOR));
   }
 
   @Test
@@ -44,7 +44,7 @@ public class AnnotationRuleParserTest {
     Rule rule = rules.get(0);
     assertThat(rule.getKey(), is(RuleWithoutKey.class.getCanonicalName()));
     assertThat(rule.getName(), is("foo"));
-    assertThat(rule.getPriority(), is(RulePriority.MAJOR));
+    assertThat(rule.getSeverity(), is(RulePriority.MAJOR));
   }
 
   @Test
@@ -55,7 +55,7 @@ public class AnnotationRuleParserTest {
     assertThat(rule.getKey(), is(Check.class.getCanonicalName()));
     assertThat(rule.getName(), is(Check.class.getCanonicalName()));
     assertThat(rule.getDescription(), is("Deprecated check"));
-    assertThat(rule.getPriority(), is(RulePriority.BLOCKER));
+    assertThat(rule.getSeverity(), is(RulePriority.BLOCKER));
   }
 
   private List<Rule> parseAnnotatedClass(Class annotatedClass) {

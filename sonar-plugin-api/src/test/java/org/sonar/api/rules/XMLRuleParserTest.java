@@ -44,7 +44,7 @@ public class XMLRuleParserTest {
     Rule rule = rules.get(0);
     assertThat(rule.getName(), is("Local Variable Name"));
     assertThat(rule.getDescription(), is("Checks that local, non-final variable names conform to a format specified by the format property."));
-    assertThat(rule.getPriority(), Is.is(RulePriority.BLOCKER));
+    assertThat(rule.getSeverity(), Is.is(RulePriority.BLOCKER));
     assertThat(rule.getCardinality(), Is.is(Cardinality.MULTIPLE));
     assertThat(rule.getConfigKey(), is("Checker/TreeWalker/LocalVariableName"));
 
@@ -93,7 +93,7 @@ public class XMLRuleParserTest {
     List<Rule> rules = new XMLRuleParser().parse(getClass().getResourceAsStream("/org/sonar/api/rules/XMLRuleParserTest/deprecated.xml"));
     assertThat(rules.size(), is(1));
     Rule rule = rules.get(0);
-    assertThat(rule.getPriority(), Is.is(RulePriority.CRITICAL));
+    assertThat(rule.getSeverity(), Is.is(RulePriority.CRITICAL));
     assertThat(rule.getKey(), is("org.sonar.it.checkstyle.MethodsCountCheck"));
     assertThat(rule.getParam("minMethodsCount"), not(nullValue()));
   }

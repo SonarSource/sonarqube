@@ -67,7 +67,6 @@ public final class DeprecatedRuleRepositories {
   }
 }
 
-
 class DeprecatedRuleRepository extends RuleRepository {
 
   private RulesRepository deprecatedRepository;
@@ -116,7 +115,7 @@ class DeprecatedRuleRepository extends RuleRepository {
   private Rule cloneRule(Rule deprecatedRule) {
     Rule rule = Rule.create(getKey(), deprecatedRule.getKey(), deprecatedRule.getName());
     rule.setConfigKey(deprecatedRule.getConfigKey());
-    rule.setPriority(deprecatedRule.getPriority());
+    rule.setSeverity(deprecatedRule.getSeverity());
     rule.setDescription(deprecatedRule.getDescription());
     rule.setEnabled(true);
     if (deprecatedRule.getParams() != null) {

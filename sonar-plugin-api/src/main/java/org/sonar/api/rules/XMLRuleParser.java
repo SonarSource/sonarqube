@@ -33,6 +33,7 @@ import org.sonar.check.Cardinality;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -111,7 +112,7 @@ public final class XMLRuleParser implements ServerComponent {
     /* BACKWARD COMPATIBILITY WITH DEPRECATED FORMAT */
     String priorityAttribute = ruleC.getAttrValue("priority");
     if (StringUtils.isNotBlank(priorityAttribute)) {
-      rule.setPriority(RulePriority.valueOf(StringUtils.trim(priorityAttribute)));
+      rule.setSeverity(RulePriority.valueOf(StringUtils.trim(priorityAttribute)));
     }
 
     SMInputCursor cursor = ruleC.childElementCursor();
@@ -132,7 +133,7 @@ public final class XMLRuleParser implements ServerComponent {
         rule.setConfigKey(StringUtils.trim(cursor.collectDescendantText(false)));
 
       } else if (StringUtils.equalsIgnoreCase("priority", nodeName)) {
-        rule.setPriority(RulePriority.valueOf(StringUtils.trim(cursor.collectDescendantText(false))));
+        rule.setSeverity(RulePriority.valueOf(StringUtils.trim(cursor.collectDescendantText(false))));
 
       } else if (StringUtils.equalsIgnoreCase("cardinality", nodeName)) {
         rule.setCardinality(Cardinality.valueOf(StringUtils.trim(cursor.collectDescendantText(false))));

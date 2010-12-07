@@ -23,18 +23,22 @@ import org.junit.Test;
 import org.sonar.api.rules.*;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
   @Test
   public void saveNewRepositories() {
     setupData("shared");
-    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[]{new FakeRepository()});
+    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[] { new FakeRepository() });
     task.start();
 
     List<Rule> result = getSession().getResults(Rule.class, "pluginName", "fake");
@@ -50,7 +54,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void disableDeprecatedRepositories() {
     setupData("shared");
-    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[]{new FakeRepository()});
+    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[] { new FakeRepository() });
     task.start();
 
     List<Rule> rules = (List<Rule>) getSession()
@@ -65,7 +69,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void disableDeprecatedActiveRules() {
     setupData("disableDeprecatedActiveRules");
-    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[]{new FakeRepository()});
+    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[] { new FakeRepository() });
     task.start();
 
     List<Rule> result = getSession().getResults(Rule.class, "pluginName", "fake");
@@ -82,10 +86,10 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void disableDeprecatedActiveRuleParameters() {
     setupData("disableDeprecatedActiveRuleParameters");
-    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[]{new FakeRepository()});
+    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[] { new FakeRepository() });
     task.start();
 
-    ActiveRule arule= getSession().getSingleResult(ActiveRule.class, "id", 1);
+    ActiveRule arule = getSession().getSingleResult(ActiveRule.class, "id", 1);
     assertThat(arule.getActiveRuleParams().size(), is(2));
     assertNull(getSession().getSingleResult(ActiveRuleParam.class, "id", 3));
   }
@@ -93,7 +97,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void disableDeprecatedRules() {
     setupData("disableDeprecatedRules");
-    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[]{new FakeRepository()});
+    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[] { new FakeRepository() });
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
@@ -106,21 +110,21 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void updateRuleFields() {
     setupData("updadeRuleFields");
-    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[]{new FakeRepository()});
+    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[] { new FakeRepository() });
     task.start();
 
     // fields have been updated with new values
     Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
     assertThat(rule.getName(), is("One"));
     assertThat(rule.getDescription(), is("Description of One"));
-    assertThat(rule.getPriority(), is(RulePriority.BLOCKER));
+    assertThat(rule.getSeverity(), is(RulePriority.BLOCKER));
     assertThat(rule.getConfigKey(), is("config1"));
   }
 
   @Test
   public void updateRuleParameters() {
     setupData("updateRuleParameters");
-    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[]{new FakeRepository()});
+    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[] { new FakeRepository() });
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
@@ -140,7 +144,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void doNotDisableUserRulesIfParentIsEnabled() {
     setupData("doNotDisableUserRulesIfParentIsEnabled");
-    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[]{new FakeRepository()});
+    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[] { new FakeRepository() });
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
@@ -150,7 +154,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void disableUserRulesIfParentIsDisabled() {
     setupData("disableUserRulesIfParentIsDisabled");
-    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[]{new FakeRepository()});
+    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[] { new FakeRepository() });
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
@@ -160,7 +164,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void volumeTesting() {
     setupData("shared");
-    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[]{new VolumeRepository()});
+    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[] { new VolumeRepository() });
     task.start();
 
     List<Rule> result = getSession().getResults(Rule.class, "enabled", true);
@@ -176,14 +180,14 @@ class FakeRepository extends RuleRepository {
   public List<Rule> createRules() {
     Rule rule1 = Rule.create("fake", "rule1", "One");
     rule1.setDescription("Description of One");
-    rule1.setPriority(RulePriority.BLOCKER);
+    rule1.setSeverity(RulePriority.BLOCKER);
     rule1.setConfigKey("config1");
     rule1.createParameter("param1").setDescription("parameter one");
     rule1.createParameter("param2").setDescription("parameter two");
-    
+
     Rule rule2 = Rule.create("fake", "rule2", "Two");
-    rule2.setPriority(RulePriority.INFO);
-    
+    rule2.setSeverity(RulePriority.INFO);
+
     return Arrays.asList(rule1, rule2);
   }
 }
@@ -195,12 +199,11 @@ class VolumeRepository extends RuleRepository {
     super("volume", "java");
   }
 
-
   public List<Rule> createRules() {
     List<Rule> rules = new ArrayList<Rule>();
     for (int i = 0; i < SIZE; i++) {
       Rule rule = Rule.create("volume", "rule" + i, "description of " + i);
-      rule.setPriority(RulePriority.BLOCKER);
+      rule.setSeverity(RulePriority.BLOCKER);
       for (int j = 0; j < 20; j++) {
         rule.createParameter("param" + j);
       }

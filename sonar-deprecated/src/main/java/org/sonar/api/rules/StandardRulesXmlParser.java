@@ -44,7 +44,7 @@ public class StandardRulesXmlParser {
     InputStream inputStream = null;
     try {
       inputStream = IOUtils.toInputStream(xml, CharEncoding.UTF_8);
-      return setDefaultRulePriorities((List<Rule>) getXStream().fromXML(inputStream));
+      return setDefaultRuleSeverities((List<Rule>) getXStream().fromXML(inputStream));
 
     } catch (IOException e) {
       throw new SonarException("Can't parse xml file", e);
@@ -55,22 +55,22 @@ public class StandardRulesXmlParser {
   }
 
   public List<Rule> parse(Reader reader) {
-    return setDefaultRulePriorities((List<Rule>) getXStream().fromXML(reader));
+    return setDefaultRuleSeverities((List<Rule>) getXStream().fromXML(reader));
   }
 
   public List<Rule> parse(InputStream input) {
     try {
-      return setDefaultRulePriorities((List<Rule>) getXStream().fromXML(new InputStreamReader(input, CharEncoding.UTF_8)));
+      return setDefaultRuleSeverities((List<Rule>) getXStream().fromXML(new InputStreamReader(input, CharEncoding.UTF_8)));
 
     } catch (UnsupportedEncodingException e) {
       throw new SonarException("Can't parse xml file", e);
     }
   }
 
-  private List<Rule> setDefaultRulePriorities(List<Rule> rules) {
+  private List<Rule> setDefaultRuleSeverities(List<Rule> rules) {
     for (Rule rule : rules) {
-      if (rule.getPriority() == null) {
-        rule.setPriority(RulePriority.MAJOR);
+      if (rule.getSeverity() == null) {
+        rule.setSeverity(RulePriority.MAJOR);
       }
     }
     return rules;

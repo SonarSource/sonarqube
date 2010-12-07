@@ -34,6 +34,7 @@ import java.util.List;
 
 /**
  * EXPERIMENTAL - will be used in version 2.2
+ * 
  * @since 2.1
  */
 public class XmlCheckTemplateFactory {
@@ -75,7 +76,7 @@ public class XmlCheckTemplateFactory {
 
         template.setConfigKey(rule.getConfigKey());
         template.setDescription(rule.getDescription());
-        template.setPriority(rule.getPriority().toCheckPriority());
+        template.setPriority(rule.getSeverity().toCheckPriority());
         template.setTitle(rule.getName());
 
         if (rule.getParams() != null) {

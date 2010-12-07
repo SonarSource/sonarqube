@@ -42,16 +42,16 @@ public class RulesProfileTest {
   @Test
   public void activateRuleWithDefaultPriority() {
     RulesProfile profile = RulesProfile.create();
-    Rule rule = Rule.create("repo", "key1", "name1").setPriority(RulePriority.CRITICAL);
+    Rule rule = Rule.create("repo", "key1", "name1").setSeverity(RulePriority.CRITICAL);
     profile.activateRule(rule, null);
-    assertThat(profile.getActiveRule("repo", "key1").getPriority(), is(RulePriority.CRITICAL));
+    assertThat(profile.getActiveRule("repo", "key1").getSeverity(), is(RulePriority.CRITICAL));
   }
 
   @Test
   public void activateRuleWithSpecificPriority() {
     RulesProfile profile = RulesProfile.create();
-    Rule rule = Rule.create("repo", "key1", "name1").setPriority(RulePriority.CRITICAL);
+    Rule rule = Rule.create("repo", "key1", "name1").setSeverity(RulePriority.CRITICAL);
     profile.activateRule(rule, RulePriority.MINOR);
-    assertThat(profile.getActiveRule("repo", "key1").getPriority(), is(RulePriority.MINOR));
+    assertThat(profile.getActiveRule("repo", "key1").getSeverity(), is(RulePriority.MINOR));
   }
 }

@@ -42,7 +42,6 @@ public class CheckTemplateRepository implements RulesRepository {
   private List<CheckTemplate> templates;
   private Map<String, CheckTemplate> templatesByKey;
 
-
   public CheckTemplateRepository() {
   }
 
@@ -112,7 +111,6 @@ public class CheckTemplateRepository implements RulesRepository {
     return key.hashCode();
   }
 
-
   public static CheckTemplateRepository createFromXml(String repositoryKey, Language language, String pathToXml) {
     InputStream input = CheckTemplateRepository.class.getResourceAsStream(pathToXml);
     try {
@@ -135,14 +133,10 @@ public class CheckTemplateRepository implements RulesRepository {
     return repository;
   }
 
-
   /*
-
-   CODE FOR BACKWARD COMPATIBLITY
-   This class should not extend RulesRepository in next versions
-
-  */
-
+   * CODE FOR BACKWARD COMPATIBLITY
+   * This class should not extend RulesRepository in next versions
+   */
 
   public List<Rule> getInitialReferential() {
     List<Rule> rules = new ArrayList<Rule>();
@@ -156,7 +150,7 @@ public class CheckTemplateRepository implements RulesRepository {
     Rule rule = new Rule(getKey(), checkTemplate.getKey());
     rule.setDescription(checkTemplate.getDescription(Locale.ENGLISH));
     rule.setName(checkTemplate.getTitle(Locale.ENGLISH));
-    rule.setPriority(RulePriority.fromCheckPriority(checkTemplate.getPriority()));
+    rule.setSeverity(RulePriority.fromCheckPriority(checkTemplate.getPriority()));
     for (CheckTemplateProperty checkTemplateProperty : checkTemplate.getProperties()) {
       RuleParam param = rule.createParameter(checkTemplateProperty.getKey());
       param.setDescription(checkTemplateProperty.getDescription(Locale.ENGLISH));
