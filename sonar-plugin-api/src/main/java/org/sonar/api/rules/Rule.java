@@ -48,13 +48,13 @@ public final class Rule {
   @Column(name = "name", updatable = true, nullable = false)
   private String name;
 
-  @Column(name = "plugin_rule_key", updatable = false, nullable = true)
+  @Column(name = "plugin_rule_key", updatable = false, nullable = true, length = 200)
   private String key;
 
   @Column(name = "enabled", updatable = true, nullable = true)
   private Boolean enabled = Boolean.TRUE;
 
-  @Column(name = "plugin_config_key", updatable = true, nullable = true)
+  @Column(name = "plugin_config_key", updatable = true, nullable = true, length = 500)
   private String configKey;
 
   // Godin: This field should be named priority, otherwise StandardRulesXmlParserTest fails
