@@ -48,11 +48,13 @@
 			          <%= dashboard_configuration.variation? ? format_variation(blocker_violations) : trend_icon(blocker_violations, :empty => true) -%>
 			        </td>
 			        <td align="left" style="padding-bottom:2px; padding-top:2px;">
+			          <% if max > 0 %>
 			          <% if dashboard_configuration.variation? %>
 			            <%= barchart(:width => 35, :percent => (values[0]<0 ? (100 * values[0] / max).to_i : 0), :color => '#078C00') %>
 			            <%= barchart(:width => 35, :percent => (values[0]>0 ? (100 * values[0] / max).to_i : 0), :color => '#cc0000') %>
 			          <% else %>
 			            <%= barchart(:width => 70, :percent => (100 * values[0] / max).to_i) %>
+			          <% end %>
 			          <% end %>
 			        </td>
 			      </tr>
@@ -66,11 +68,13 @@
 			          <%= dashboard_configuration.variation? ? format_variation(critical_violations) : trend_icon(critical_violations, :empty => true) -%>
 			        </td>
 			        <td align="left" style="padding-bottom:2px; padding-top:2px;">
+			          <% if max > 0 %>
 			          <% if dashboard_configuration.variation? %>
 			            <%= barchart(:width => 35, :percent => (values[1]<0 ? (100 * values[1] / max).to_i : 0), :color => '#078C00') %>
 			            <%= barchart(:width => 35, :percent => (values[1]>0 ? (100 * values[1] / max).to_i : 0), :color => '#cc0000') %>
 			          <% else %>
 			            <%= barchart(:width => 70, :percent => (100 * values[1] / max).to_i) %>
+			          <% end %>
 			          <% end %>
 			        </td>
 			      </tr>
@@ -84,11 +88,13 @@
 			          <%= dashboard_configuration.variation? ? format_variation(major_violations) : trend_icon(major_violations, :empty => true) -%>
 			        </td>
 			       <td align="left" style="padding-bottom:2px; padding-top:2px;">
+			         <% if max > 0 %>
 			          <% if dashboard_configuration.variation? %>
 			            <%= barchart(:width => 35, :percent => (values[2]<0 ? (100 * values[2] / max).to_i : 0), :color => '#078C00') %>
 			            <%= barchart(:width => 35, :percent => (values[2]>0 ? (100 * values[2] / max).to_i : 0), :color => '#cc0000') %>
 			          <% else %>
 			            <%= barchart(:width => 70, :percent => (100 * values[2] / max).to_i) %>
+			          <% end %>
 			          <% end %>
 			        </td>
 			      </tr>
@@ -102,11 +108,13 @@
 			          <%= dashboard_configuration.variation? ? format_variation(minor_violations) : trend_icon(minor_violations, :empty => true) -%>
 			        </td>
 			       <td align="left" style="padding-bottom:2px; padding-top:2px;">
+			          <% if max > 0 %>
 			          <% if dashboard_configuration.variation? %>
 			            <%= barchart(:width => 35, :percent => (values[3]<0 ? (100 * values[3] / max).to_i : 0), :color => '#078C00') %>
 			            <%= barchart(:width => 35, :percent => (values[3]>0 ? (100 * values[3] / max).to_i : 0), :color => '#cc0000') %>
 			          <% else %>
 			            <%= barchart(:width => 70, :percent => (100 * values[3] / max).to_i) %>
+			          <% end %>
 			          <% end %>
 			        </td>
 			      </tr>
@@ -120,11 +128,13 @@
 			          <%= dashboard_configuration.variation? ? format_variation(info_violations) : trend_icon(info_violations, :empty => true) -%>
 			        </td>
 			       <td align="left" style="padding-bottom:2px; padding-top:2px;">
+			         <% if max > 0 %>
 			          <% if dashboard_configuration.variation? %>
 			            <%= barchart(:width => 35, :percent => (values[4]<0 ? (100 * values[4] / max).to_i : 0), :color => '#078C00') %>
 			            <%= barchart(:width => 35, :percent => (values[4]>0 ? (100 * values[4] / max).to_i : 0), :color => '#cc0000') %>
 			          <% else %>
 			            <%= barchart(:width => 70, :percent => (100 * values[4] / max).to_i) %>
+			          <% end %>
 			          <% end %>
 			        </td>
 			      </tr>
