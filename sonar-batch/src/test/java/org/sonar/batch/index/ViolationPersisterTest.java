@@ -59,12 +59,12 @@ public class ViolationPersisterTest extends AbstractDbUnitTestCase {
   @Test
   public void shouldSaveViolations() {
     Violation violation1a = Violation.create(rule1, javaFile)
-        .setPriority(RulePriority.CRITICAL).setLineId(20).setCost(55.6)
+        .setSeverity(RulePriority.CRITICAL).setLineId(20).setCost(55.6)
         .setMessage("the message");
     Violation violation1b = Violation.create(rule1, javaFile)
-        .setPriority(RulePriority.CRITICAL).setLineId(50).setCost(80.0);
+        .setSeverity(RulePriority.CRITICAL).setLineId(50).setCost(80.0);
     Violation violation2 = Violation.create(rule2, javaFile)
-        .setPriority(RulePriority.MINOR);
+        .setSeverity(RulePriority.MINOR);
     Project project = new Project("project");
 
     violationPersister.saveViolation(project, violation1a);

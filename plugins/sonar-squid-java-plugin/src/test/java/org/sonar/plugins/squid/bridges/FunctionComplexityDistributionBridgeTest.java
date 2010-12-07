@@ -21,17 +21,18 @@
 package org.sonar.plugins.squid.bridges;
 
 import org.junit.Test;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.never;
-import static org.mockito.Matchers.*;
-import org.sonar.api.resources.JavaPackage;
-import org.sonar.api.resources.JavaFile;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.test.IsMeasure;
-import static org.hamcrest.Matchers.any;
 
-public class FunctionComplexityDistributionBridgeTest extends BridgeTestCase{
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
+public class FunctionComplexityDistributionBridgeTest extends BridgeTestCase {
 
   @Test
   public void functionComplexityDistribution() {

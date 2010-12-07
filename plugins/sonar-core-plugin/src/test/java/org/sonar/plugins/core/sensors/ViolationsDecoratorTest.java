@@ -135,10 +135,10 @@ public class ViolationsDecoratorTest {
 
   private List<Violation> createViolations() {
     List<Violation> violations = new ArrayList<Violation>();
-    violations.add(Violation.create(ruleA1, resource).setPriority(RulePriority.CRITICAL));
-    violations.add(Violation.create(ruleA1, resource).setPriority(RulePriority.CRITICAL));
-    violations.add(Violation.create(ruleA2, resource).setPriority(RulePriority.MAJOR));
-    violations.add(Violation.create(ruleB1, resource).setPriority(RulePriority.MINOR));
+    violations.add(Violation.create(ruleA1, resource).setSeverity(RulePriority.CRITICAL));
+    violations.add(Violation.create(ruleA1, resource).setSeverity(RulePriority.CRITICAL));
+    violations.add(Violation.create(ruleA2, resource).setSeverity(RulePriority.MAJOR));
+    violations.add(Violation.create(ruleB1, resource).setSeverity(RulePriority.MINOR));
     return violations;
   }
 }

@@ -19,16 +19,15 @@
  */
 package org.sonar.java.ast.visitor;
 
-import static org.junit.Assert.assertEquals;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
-
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.SourceCode;
-import org.sonar.squid.api.SquidConfiguration;
 import org.sonar.squid.measures.Metric;
+
+import static org.junit.Assert.assertEquals;
+import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 public class AccessorVisitorTest {
 

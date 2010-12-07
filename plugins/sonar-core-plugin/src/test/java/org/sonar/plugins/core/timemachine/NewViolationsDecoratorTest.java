@@ -125,8 +125,8 @@ public class NewViolationsDecoratorTest {
 
   @Test
   public void shouldClearCacheAfterExecution() {
-    Violation violation1 = Violation.create(rule1, resource).setPriority(RulePriority.CRITICAL).setCreatedAt(rightNow);
-    Violation violation2 = Violation.create(rule2, resource).setPriority(RulePriority.CRITICAL).setCreatedAt(rightNow);
+    Violation violation1 = Violation.create(rule1, resource).setSeverity(RulePriority.CRITICAL).setCreatedAt(rightNow);
+    Violation violation2 = Violation.create(rule2, resource).setSeverity(RulePriority.CRITICAL).setCreatedAt(rightNow);
     when(context.getViolations()).thenReturn(Arrays.asList(violation1)).thenReturn(Arrays.asList(violation2));
 
     decorator.decorate(resource, context);
@@ -162,12 +162,12 @@ public class NewViolationsDecoratorTest {
 
   private List<Violation> createViolations() {
     List<Violation> violations = new ArrayList<Violation>();
-    violations.add(Violation.create(rule1, resource).setPriority(RulePriority.CRITICAL).setCreatedAt(rightNow));
-    violations.add(Violation.create(rule1, resource).setPriority(RulePriority.CRITICAL).setCreatedAt(tenDaysAgo));
-    violations.add(Violation.create(rule2, resource).setPriority(RulePriority.MAJOR).setCreatedAt(fiveDaysAgo));
-    violations.add(Violation.create(rule2, resource).setPriority(RulePriority.MAJOR).setCreatedAt(tenDaysAgo));
-    violations.add(Violation.create(rule3, resource).setPriority(RulePriority.MINOR).setCreatedAt(fiveDaysAgo));
-    violations.add(Violation.create(rule3, resource).setPriority(RulePriority.MINOR).setCreatedAt(tenDaysAgo));
+    violations.add(Violation.create(rule1, resource).setSeverity(RulePriority.CRITICAL).setCreatedAt(rightNow));
+    violations.add(Violation.create(rule1, resource).setSeverity(RulePriority.CRITICAL).setCreatedAt(tenDaysAgo));
+    violations.add(Violation.create(rule2, resource).setSeverity(RulePriority.MAJOR).setCreatedAt(fiveDaysAgo));
+    violations.add(Violation.create(rule2, resource).setSeverity(RulePriority.MAJOR).setCreatedAt(tenDaysAgo));
+    violations.add(Violation.create(rule3, resource).setSeverity(RulePriority.MINOR).setCreatedAt(fiveDaysAgo));
+    violations.add(Violation.create(rule3, resource).setSeverity(RulePriority.MINOR).setCreatedAt(tenDaysAgo));
     return violations;
   }
 
