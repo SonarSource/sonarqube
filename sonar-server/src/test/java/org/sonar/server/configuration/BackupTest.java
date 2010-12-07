@@ -72,7 +72,6 @@ public class BackupTest {
     sonarConfig.setProfiles(getProfiles());
 
     String xml = backup.getXmlFromSonarConfig(sonarConfig);
-    System.out.println(xml);
     assertXmlAreSimilar(xml, "backup-valid.xml");
   }
 
