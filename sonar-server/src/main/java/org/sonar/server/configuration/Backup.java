@@ -27,6 +27,7 @@ import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharEncoding;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.jpa.entity.SchemaMigration;
 
@@ -147,17 +148,24 @@ public class Backup {
               @Override
               protected void writeText(QuickWriter writer, String text) {
                 writer.write("<![CDATA[");
+                /*
+                 * See http://jira.codehaus.org/browse/SONAR-1605
+                 * According to XML specification ( http://www.w3.org/TR/REC-xml/#sec-cdata-sect )
+                 * CData section may contain everything except of sequence ']]>'
+                 * so we will split all occurrences of this sequence into two CDATA
+                 * first one would contain ']]' and second '>'
+                 */
+                text = StringUtils.replace(text, "]]>", "]]]]><![CDATA[>");
                 writer.write(text);
                 writer.write("]]>");
               }
             };
           }
-        }
-    );
+        });
 
     xStream.processAnnotations(SonarConfig.class);
     xStream.addDefaultImplementation(ArrayList.class, Collection.class);
-    xStream.registerConverter(new DateConverter(DATE_FORMAT, new String[]{}));
+    xStream.registerConverter(new DateConverter(DATE_FORMAT, new String[] {}));
 
     for (Backupable backupable : backupables) {
       backupable.configure(xStream);

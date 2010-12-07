@@ -181,6 +181,19 @@ public class BackupTest {
     assertThat(metric.getId(), nullValue());
   }
 
+  @Test
+  public void shouldExportAndImportInnerCDATA() throws Exception {
+    SonarConfig sonarConfig = getSonarConfig();
+    sonarConfig.setProperties(getPropertiesWithCDATA());
+
+    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null)));
+    String xml = backup.getXmlFromSonarConfig(sonarConfig);
+    assertXmlAreSimilar(xml, "backup-with-splitted-cdata.xml");
+
+    sonarConfig = backup.getSonarConfigFromXml(xml);
+    assertTrue(CollectionUtils.isEqualCollection(sonarConfig.getProperties(), getPropertiesWithCDATA()));
+  }
+
   private SonarConfig getSonarConfig() throws ParseException {
     DateFormat dateFormat = new SimpleDateFormat(Backup.DATE_FORMAT);
     Date date = dateFormat.parse("2008-11-18");
@@ -222,6 +235,15 @@ public class BackupTest {
     List<Property> properties = new ArrayList<Property>();
     properties.add(new Property("key1", "value1"));
     properties.add(new Property("key2", "value2"));
+    return properties;
+  }
+
+  private List<Property> getPropertiesWithCDATA() {
+    List<Property> properties = new ArrayList<Property>();
+    properties.add(new Property("key1", "<![CDATA[value1]]>"));
+    properties.add(new Property("key2", "]]>value2"));
+    properties.add(new Property("key3", "prefix]]>value3"));
+    properties.add(new Property("key4", "<name><![CDATA[Forges]]></name>"));
     return properties;
   }
 
