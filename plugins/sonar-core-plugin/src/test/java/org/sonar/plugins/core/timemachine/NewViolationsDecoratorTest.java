@@ -142,12 +142,6 @@ public class NewViolationsDecoratorTest {
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_VIOLATIONS, null, RulePriority.BLOCKER, 0.0, 0.0)));
-    verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_VIOLATIONS, null, RulePriority.CRITICAL, 1.0, 2.0)));
-    verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_VIOLATIONS, null, RulePriority.MAJOR, 1.0, 2.0)));
-    verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_VIOLATIONS, null, RulePriority.MINOR, 1.0, 2.0)));
-    verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_VIOLATIONS, null, RulePriority.INFO, 0.0, 0.0)));
-
     verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_BLOCKER_VIOLATIONS, 0.0, 0.0)));
     verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_CRITICAL_VIOLATIONS, 1.0, 2.0)));
     verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_MAJOR_VIOLATIONS, 1.0, 2.0)));
