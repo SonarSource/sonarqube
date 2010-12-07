@@ -22,7 +22,12 @@ package org.sonar.plugins.core.timemachine;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.database.model.Snapshot;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -44,11 +49,11 @@ public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void shouldInitSnapshotReferences() {
+  public void shouldInitVariationSnapshots() throws ParseException {
     PropertiesConfiguration conf = new PropertiesConfiguration();
     PastSnapshotFinder snapshotReferenceFinder = mock(PastSnapshotFinder.class);
-    when(snapshotReferenceFinder.find(conf, 1)).thenReturn(new PastSnapshot(1, "days", null));
-    when(snapshotReferenceFinder.find(conf, 3)).thenReturn(new PastSnapshot(3, "days", null));
+    when(snapshotReferenceFinder.find(conf, 1)).thenReturn(new PastSnapshot(1, "days", newSnapshot("2010-10-15")));
+    when(snapshotReferenceFinder.find(conf, 3)).thenReturn(new PastSnapshot(3, "days", newSnapshot("2010-10-13")));
 
     TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(conf, snapshotReferenceFinder);
 
@@ -57,6 +62,11 @@ public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
     verify(snapshotReferenceFinder).find(conf, 3);
 
     assertThat(timeMachineConfiguration.getProjectPastSnapshots().size(), is(2));
+  }
+
+  private Snapshot newSnapshot(String date) throws ParseException {
+    Date createdAt = new SimpleDateFormat("yyyy-MM-dd").parse(date);
+    return new Snapshot().setCreatedAt(createdAt);
   }
 
 

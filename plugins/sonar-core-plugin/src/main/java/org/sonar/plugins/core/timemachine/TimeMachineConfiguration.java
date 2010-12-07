@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.utils.Logs;
 
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +45,7 @@ public class TimeMachineConfiguration implements BatchExtension {
     for (int index = 1; index <= NUMBER_OF_VARIATION_SNAPSHOTS; index++) {
       PastSnapshot variationSnapshot = variationSnapshotFinder.find(configuration, index);
       if (variationSnapshot != null) {
+        Logs.INFO.info("Comparison date: " + variationSnapshot.getDate());
         projectPastSnapshots.add(variationSnapshot);
       }
     }

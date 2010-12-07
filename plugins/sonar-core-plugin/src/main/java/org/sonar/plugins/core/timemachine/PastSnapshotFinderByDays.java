@@ -27,7 +27,7 @@ import org.sonar.api.database.model.Snapshot;
 import java.util.Date;
 import java.util.List;
 
-public class PastSnapshotFinderByDays implements BatchExtension{
+public class PastSnapshotFinderByDays implements BatchExtension {
   private Snapshot projectSnapshot; // TODO replace by PersistenceManager
   private DatabaseSession session;
 
@@ -37,37 +37,16 @@ public class PastSnapshotFinderByDays implements BatchExtension{
   }
 
   Snapshot findInDays(int days) {
-    List<Snapshot> snapshots = loadSnapshotsFromDatabase();
-    return getNearestToTarget(snapshots, projectSnapshot.getCreatedAt(), days);
-  }
-
-  List<Snapshot> loadSnapshotsFromDatabase() {
-    String hql = "from " + Snapshot.class.getSimpleName() + " where resourceId=:resourceId AND status=:status order by createdAt";
-    return session.createQuery(hql)
+    Date targetDate = DateUtils.addDays(projectSnapshot.getCreatedAt(), -days);
+    String hql = "from " + Snapshot.class.getSimpleName() + " where resourceId=:resourceId AND status=:status AND createdAt>=:from AND createdAt<:to order by createdAt asc";
+    List<Snapshot> snapshots = session.createQuery(hql)
+        .setParameter("from", targetDate)
+        .setParameter("to", projectSnapshot.getCreatedAt())
         .setParameter("resourceId", projectSnapshot.getResourceId())
         .setParameter("status", Snapshot.STATUS_PROCESSED)
+        .setMaxResults(1)
         .getResultList();
-  }
 
-  static Snapshot getNearestToTarget(List<Snapshot> snapshots, Date currentDate, int distanceInDays) {
-    Date targetDate = DateUtils.addDays(currentDate, -distanceInDays);
-    return getNearestToTarget(snapshots, targetDate);
-  }
-
-  static Snapshot getNearestToTarget(List<Snapshot> snapshots, Date targetDate) {
-    long bestDistance = Long.MAX_VALUE;
-    Snapshot nearest = null;
-    for (Snapshot snapshot : snapshots) {
-      long distance = distance(snapshot.getCreatedAt(), targetDate);
-      if (distance <= bestDistance) {
-        bestDistance = distance;
-        nearest = snapshot;
-      }
-    }
-    return nearest;
-  }
-
-  static long distance(Date d1, Date d2) {
-    return Math.abs(d1.getTime() - d2.getTime());
+    return snapshots.isEmpty() ? null : snapshots.get(0);
   }
 }

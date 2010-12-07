@@ -105,8 +105,8 @@ public class NewViolationsDecorator implements Decorator {
       Measure measure = new Measure(metric);
       for (PastSnapshot variationSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
         int variationIndex = variationSnapshot.getIndex();
-        Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.metric(metric));
         int count = countViolations(violationsBySeverity.get(priority), variationSnapshot.getDate());
+        Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.metric(metric));
         double sum = sumChildren(variationIndex, children) + count;
         measure.setVariation(variationIndex, sum);
       }

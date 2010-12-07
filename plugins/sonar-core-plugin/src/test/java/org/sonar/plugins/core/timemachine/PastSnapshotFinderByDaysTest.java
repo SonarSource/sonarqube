@@ -19,81 +19,46 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import com.google.common.collect.Lists;
+import org.hamcrest.core.IsNull;
 import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItems;
 
 public class PastSnapshotFinderByDaysTest extends AbstractDbUnitTestCase {
 
-  private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
   @Test
-  public void shouldLoadSnapshotsFromDatabase() {
-    setupData("shouldLoadSnapshotsFromDatabase");
+  public void shouldGetNextSnapshot() throws ParseException {
+    setupData("shared");
 
-    Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1009);
+    Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1009); // 2008-11-16
     PastSnapshotFinderByDays finder = new PastSnapshotFinderByDays(projectSnapshot, getSession());
-    List<Snapshot> snapshots = finder.loadSnapshotsFromDatabase();
-    List<Integer> snapshotIds = Lists.newLinkedList();
-    for (Snapshot snapshot : snapshots) {
-      snapshotIds.add(snapshot.getId());
-    }
-    assertThat(snapshotIds.size(), is(2));
-    assertThat(snapshotIds, hasItems(1000, 1003)); // project snapshots
+
+    assertThat(finder.findInDays(50).getId(), is(1000));
   }
 
   @Test
-  public void shouldGetNearestSnapshotBefore() throws ParseException {
-    Date current = dateFormat.parse("2010-10-20");
-    // distance: 15 => target is 2010-10-05
+  public void shouldIgnoreUnprocessedSnapshots() throws ParseException {
+    setupData("shared");
 
-    List<Snapshot> snapshots = Arrays.asList(
-        newSnapshot(1, "2010-09-30"),
-        newSnapshot(2, "2010-10-03"),// -2 days
-        newSnapshot(3, "2010-10-08"),// +3 days
-        newSnapshot(4, "2010-10-12") // + 7 days
-    );
-    assertThat(PastSnapshotFinderByDays.getNearestToTarget(snapshots, current, 15).getId(), is(2));
+    Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1009); // 2008-11-16
+    PastSnapshotFinderByDays finder = new PastSnapshotFinderByDays(projectSnapshot, getSession());
+
+    assertThat(finder.findInDays(7).getId(), is(1006));
   }
 
   @Test
-  public void shouldgetNearestSnapshotAfter() throws ParseException {
-    Date current = dateFormat.parse("2010-10-20");
-    // distance: 15 => target is 2010-10-05
+  public void shouldNotFindSelf() throws ParseException {
+    setupData("shared");
 
-    List<Snapshot> snapshots = Arrays.asList(
-        newSnapshot(1, "2010-09-30"),
-        newSnapshot(2, "2010-10-01"),// -4 days
-        newSnapshot(3, "2010-10-08"),// +3 days
-        newSnapshot(4, "2010-10-12") // + 7 days
-    );
-    assertThat(PastSnapshotFinderByDays.getNearestToTarget(snapshots, current, 15).getId(), is(3));
+    Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1009); // 2008-11-16
+    PastSnapshotFinderByDays finder = new PastSnapshotFinderByDays(projectSnapshot, getSession());
+
+    assertThat(finder.findInDays(1), IsNull.<Object>nullValue());
   }
 
-  @Test
-  public void shouldReturnNullIfNoSnapshots() throws ParseException {
-    Date current = dateFormat.parse("2010-10-20");
-    List<Snapshot> snapshots = Collections.emptyList();
-    assertThat(PastSnapshotFinderByDays.getNearestToTarget(snapshots, current, 15), nullValue());
-  }
-
-  private Snapshot newSnapshot(int id, String date) throws ParseException {
-    Snapshot snapshot = new Snapshot();
-    snapshot.setId(id);
-    snapshot.setCreatedAt(dateFormat.parse(date));
-    return snapshot;
-  }
 }
