@@ -39,7 +39,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -166,11 +170,21 @@ public class BackupTest {
     assertTrue(CollectionUtils.isEqualCollection(sonarConfig.getProperties(), getPropertiesWithUtf8Characters()));
   }
 
+  @Test
+  public void shouldNotImportMetricIds() {
+    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null)));
+
+    String xml = getFileFromClasspath("backup-with-id-for-metrics.xml");
+    SonarConfig sonarConfig = backup.getSonarConfigFromXml(xml);
+
+    Metric metric = sonarConfig.getMetrics().iterator().next();
+    assertThat(metric.getId(), nullValue());
+  }
+
   private SonarConfig getSonarConfig() throws ParseException {
     DateFormat dateFormat = new SimpleDateFormat(Backup.DATE_FORMAT);
     Date date = dateFormat.parse("2008-11-18");
     return new SonarConfig(54, date);
-
   }
 
   private List<Metric> getMetrics() {

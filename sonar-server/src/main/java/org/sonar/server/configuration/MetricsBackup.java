@@ -26,8 +26,8 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.api.measures.Metric;
+import org.sonar.jpa.dao.MeasuresDao;
 
 import java.util.Collection;
 
@@ -80,6 +80,7 @@ public class MetricsBackup implements Backupable {
 
       public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         Metric unmarshalled = (Metric) builtIn.unmarshal(reader, context);
+        unmarshalled.setId(null); // See http://jira.codehaus.org/browse/SONAR-1819
         unmarshalled.setUserManaged(true);
         unmarshalled.setEnabled(true);
         return unmarshalled;
