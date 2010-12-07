@@ -30,7 +30,10 @@ import org.sonar.api.database.configuration.Property;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.*;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.ActiveRuleParam;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RulePriority;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,6 +72,7 @@ public class BackupTest {
     sonarConfig.setProfiles(getProfiles());
 
     String xml = backup.getXmlFromSonarConfig(sonarConfig);
+    System.out.println(xml);
     assertXmlAreSimilar(xml, "backup-valid.xml");
   }
 
@@ -219,13 +223,21 @@ public class BackupTest {
 
   private List<RulesProfile> getProfiles() {
     List<RulesProfile> profiles = new ArrayList<RulesProfile>();
-    profiles.add(new RulesProfile("test name", "test language", true, true));
-    profiles.add(new RulesProfile("test2 name", "test2 language", false, false));
 
-    ActiveRule activeRule = new ActiveRule(null, new Rule("test plugin", "test key"), RulePriority.MAJOR);
-    activeRule.getActiveRuleParams().add(new ActiveRuleParam(activeRule, new RuleParam(null, "test param key", null, null), "test value"));
+    RulesProfile profile1 = RulesProfile.create("test name", "test language");
+    profile1.setDefaultProfile(true);
+    profile1.setProvided(true);
+    profiles.add(profile1);
 
-    profiles.get(0).getActiveRules().add(activeRule);
+    RulesProfile profile2 = RulesProfile.create("test2 name", "test2 language");
+    profiles.add(profile2);
+
+    Rule rule = Rule.create("test plugin", "test key", null);
+    rule.createParameter("test param key");
+
+    ActiveRule activeRule = profile1.activateRule(rule, RulePriority.MAJOR);
+    activeRule.setParameter("test param key", "test value");
+
     profiles.get(0).getAlerts().add(new Alert(null, new Metric("test key"), Alert.OPERATOR_GREATER, "testError", "testWarn"));
 
     return profiles;
