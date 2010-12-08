@@ -97,7 +97,9 @@ public class RulesBackup implements Backupable {
         continue;
       }
       rule.setParent(matchingParentRuleInDb);
-      Rule matchingRuleInDb = rulesDao.getRuleByKey(rule.getRepositoryKey(), rule.getKey());
+      Rule matchingRuleInDb = session.getSingleResult(Rule.class,
+          "pluginName", rule.getRepositoryKey(),
+          "key", rule.getKey());
       if (matchingRuleInDb != null) {
         matchingRuleInDb.setName(rule.getName());
         matchingRuleInDb.setDescription(rule.getDescription());
