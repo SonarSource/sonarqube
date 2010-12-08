@@ -24,6 +24,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.database.configuration.Property;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.Rule;
 
 import java.util.Collection;
 import java.util.Date;
@@ -40,6 +41,8 @@ public class SonarConfig {
   private Collection<Property> properties;
 
   private Collection<RulesProfile> profiles;
+
+  private Collection<Rule> rules;
 
   public SonarConfig() {
   }
@@ -89,6 +92,14 @@ public class SonarConfig {
     this.profiles = profiles;
   }
 
+  public Collection<Rule> getRules() {
+    return rules;
+  }
+
+  public void setRules(Collection<Rule> rules) {
+    this.rules = rules;
+  }
+
   @Override
   public String toString() {
     return new ToStringBuilder(this)
@@ -99,4 +110,5 @@ public class SonarConfig {
         .append("profiles", profiles)
         .toString();
   }
+
 }

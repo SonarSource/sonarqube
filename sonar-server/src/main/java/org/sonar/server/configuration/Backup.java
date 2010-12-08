@@ -56,6 +56,8 @@ public class Backup {
 
     backupables.add(new MetricsBackup(session));
     backupables.add(new PropertiesBackup(session));
+    // Note that order is important, because profile can have reference to rule
+    backupables.add(new RulesBackup(session));
     backupables.add(new ProfilesBackup(session));
   }
 
@@ -149,11 +151,9 @@ public class Backup {
               protected void writeText(QuickWriter writer, String text) {
                 writer.write("<![CDATA[");
                 /*
-                 * See http://jira.codehaus.org/browse/SONAR-1605
-                 * According to XML specification ( http://www.w3.org/TR/REC-xml/#sec-cdata-sect )
-                 * CData section may contain everything except of sequence ']]>'
-                 * so we will split all occurrences of this sequence into two CDATA
-                 * first one would contain ']]' and second '>'
+                 * See http://jira.codehaus.org/browse/SONAR-1605 According to XML specification (
+                 * http://www.w3.org/TR/REC-xml/#sec-cdata-sect ) CData section may contain everything except of sequence ']]>' so we will
+                 * split all occurrences of this sequence into two CDATA first one would contain ']]' and second '>'
                  */
                 text = StringUtils.replace(text, "]]>", "]]]]><![CDATA[>");
                 writer.write(text);

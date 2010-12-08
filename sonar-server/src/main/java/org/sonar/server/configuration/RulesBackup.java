@@ -1,0 +1,193 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2009 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
+package org.sonar.server.configuration;
+
+import com.google.common.collect.Lists;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleParam;
+import org.sonar.api.rules.RulePriority;
+import org.sonar.jpa.dao.RulesDao;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class RulesBackup implements Backupable {
+  private Collection<Rule> rules;
+  private RulesDao rulesDao;
+  private DatabaseSession session;
+
+  public RulesBackup(DatabaseSession session) {
+    this.rulesDao = new RulesDao(session);
+    this.session = session;
+  }
+
+  /**
+   * For tests.
+   */
+  RulesBackup(Collection<Rule> rules) {
+    this.rules = rules;
+  }
+
+  public void exportXml(SonarConfig sonarConfig) {
+    if (rules == null) {
+      rules = getUserRules();
+    }
+    sonarConfig.setRules(rules);
+  }
+
+  public void importXml(SonarConfig sonarConfig) {
+    disableUserRules();
+    if (CollectionUtils.isNotEmpty(sonarConfig.getRules())) {
+      registerUserRules(sonarConfig.getRules());
+    }
+  }
+
+  private List<Rule> getUserRules() {
+    List<Rule> rules = rulesDao.getRules();
+    List<Rule> userRules = Lists.newArrayList();
+    for (Rule rule : rules) {
+      if (rule.getParent() != null) {
+        userRules.add(rule);
+      }
+    }
+    return userRules;
+  }
+
+  private void disableUserRules() {
+    for (Rule rule : getUserRules()) {
+      rule.setEnabled(false);
+      session.save(rule);
+    }
+  }
+
+  private void registerUserRules(Collection<Rule> rules) {
+    for (Rule rule : rules) {
+      Rule parent = rule.getParent();
+      Rule matchingParentRuleInDb = rulesDao.getRuleByKey(parent.getRepositoryKey(), parent.getKey());
+      if (matchingParentRuleInDb == null) {
+        LoggerFactory.getLogger(getClass()).error("Unable to find parent rule " + parent.getRepositoryKey() + ":" + parent.getKey());
+        continue;
+      }
+      rule.setParent(matchingParentRuleInDb);
+      Rule matchingRuleInDb = rulesDao.getRuleByKey(rule.getRepositoryKey(), rule.getKey());
+      if (matchingRuleInDb != null) {
+        matchingRuleInDb.setName(rule.getName());
+        matchingRuleInDb.setDescription(rule.getDescription());
+        matchingRuleInDb.setSeverity(rule.getSeverity());
+        matchingRuleInDb.setParams(rule.getParams());
+        matchingRuleInDb.setEnabled(true);
+        session.save(matchingRuleInDb);
+      } else {
+        rule.setEnabled(true);
+        session.save(rule);
+      }
+    }
+  }
+
+  public void configure(XStream xStream) {
+    xStream.alias("rule", Rule.class);
+    xStream.registerConverter(new Converter() {
+      public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
+        Rule rule = (Rule) source;
+        writeNode(writer, "parentRepositoryKey", rule.getParent().getRepositoryKey());
+        writeNode(writer, "parentKey", rule.getParent().getKey());
+        writeNode(writer, "repositoryKey", rule.getRepositoryKey());
+        writeNode(writer, "key", rule.getKey());
+        writeNode(writer, "level", rule.getSeverity().name());
+        writeNode(writer, "name", rule.getName());
+        writeNode(writer, "description", rule.getDescription());
+
+        if (!rule.getParams().isEmpty()) {
+          writer.startNode("params");
+          for (RuleParam ruleParam : rule.getParams()) {
+            writer.startNode("param");
+            writeNode(writer, "key", ruleParam.getKey());
+            writeNode(writer, "value", ruleParam.getDefaultValue());
+            writer.endNode();
+          }
+          writer.endNode();
+        }
+      }
+
+      public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
+        Rule rule = Rule.create();
+
+        Map<String, String> valuesRule = new HashMap<String, String>();
+        while (reader.hasMoreChildren()) {
+          reader.moveDown();
+          valuesRule.put(reader.getNodeName(), reader.getValue());
+          if (reader.getNodeName().equals("params")) {
+            while (reader.hasMoreChildren()) {
+              reader.moveDown();
+              Map<String, String> valuesParam = readNode(reader);
+              rule.createParameter()
+                  .setKey(valuesParam.get("key"))
+                  .setDefaultValue(valuesParam.get("value"));
+              reader.moveUp();
+            }
+          }
+          reader.moveUp();
+        }
+
+        Rule parent = Rule.create()
+            .setRepositoryKey(valuesRule.get("parentRepositoryKey"))
+            .setKey(valuesRule.get("parentKey"));
+        rule.setParent(parent)
+            .setRepositoryKey(valuesRule.get("repositoryKey"))
+            .setKey(valuesRule.get("key"))
+            .setName(valuesRule.get("name"))
+            .setDescription(valuesRule.get("description"))
+            .setSeverity(RulePriority.valueOf(valuesRule.get("level")));
+        return rule;
+      }
+
+      public boolean canConvert(Class type) {
+        return Rule.class.equals(type);
+      }
+    });
+  }
+
+  private void writeNode(HierarchicalStreamWriter writer, String name, String value) {
+    writer.startNode(name);
+    writer.setValue(value);
+    writer.endNode();
+  }
+
+  private Map<String, String> readNode(HierarchicalStreamReader reader) {
+    Map<String, String> values = new HashMap<String, String>();
+    while (reader.hasMoreChildren()) {
+      reader.moveDown();
+      values.put(reader.getNodeName(), reader.getValue());
+      reader.moveUp();
+    }
+    return values;
+  }
+}

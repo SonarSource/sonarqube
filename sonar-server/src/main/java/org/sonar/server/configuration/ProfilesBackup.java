@@ -111,9 +111,10 @@ public class ProfilesBackup implements Backupable {
     for (Iterator<ActiveRule> iar = profile.getActiveRules().iterator(); iar.hasNext();) {
       ActiveRule activeRule = iar.next();
       Rule unMarshalledRule = activeRule.getRule();
-      Rule matchingRuleInDb = rulesDao.getRuleByKey(unMarshalledRule.getPluginName(), unMarshalledRule.getKey());
+      Rule matchingRuleInDb = rulesDao.getRuleByKey(unMarshalledRule.getRepositoryKey(), unMarshalledRule.getKey());
       if (matchingRuleInDb == null) {
-        LoggerFactory.getLogger(getClass()).error("Unable to find active rule " + unMarshalledRule.getPluginName() + ":" + unMarshalledRule.getKey());
+        LoggerFactory.getLogger(getClass()).error(
+            "Unable to find active rule " + unMarshalledRule.getRepositoryKey() + ":" + unMarshalledRule.getKey());
         iar.remove();
         continue;
       }
@@ -148,7 +149,8 @@ public class ProfilesBackup implements Backupable {
 
       public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         Map<String, String> values = readNode(reader);
-        return new Alert(null, new Metric(values.get("metric-key")), values.get("operator"), values.get("value-error"), values.get("value-warning"));
+        return new Alert(null, new Metric(values.get("metric-key")), values.get("operator"), values.get("value-error"),
+            values.get("value-warning"));
       }
 
       public boolean canConvert(Class type) {
@@ -163,7 +165,7 @@ public class ProfilesBackup implements Backupable {
       public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
         ActiveRule rule = (ActiveRule) source;
         writeNode(writer, "key", rule.getRule().getKey());
-        writeNode(writer, "plugin", rule.getRule().getPluginName());
+        writeNode(writer, "plugin", rule.getRule().getRepositoryKey());
         writeNode(writer, "level", rule.getSeverity().name());
 
         if (!rule.getActiveRuleParams().isEmpty()) {
@@ -188,7 +190,8 @@ public class ProfilesBackup implements Backupable {
             while (reader.hasMoreChildren()) {
               reader.moveDown();
               Map<String, String> valuesParam = readNode(reader);
-              ActiveRuleParam activeRuleParam = new ActiveRuleParam(null, new RuleParam(null, valuesParam.get("key"), null, null), valuesParam.get("value"));
+              ActiveRuleParam activeRuleParam = new ActiveRuleParam(null, new RuleParam(null, valuesParam.get("key"), null, null),
+                  valuesParam.get("value"));
               params.add(activeRuleParam);
               reader.moveUp();
             }

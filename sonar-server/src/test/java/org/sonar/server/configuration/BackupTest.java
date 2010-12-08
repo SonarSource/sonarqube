@@ -65,7 +65,8 @@ public class BackupTest {
 
   @Test
   public void shouldReturnAValidXml() throws Exception {
-    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null), new ProfilesBackup((DatabaseSession) null)));
+    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null),
+        new ProfilesBackup((DatabaseSession) null)));
     SonarConfig sonarConfig = getSonarConfig();
     sonarConfig.setMetrics(getMetrics());
     sonarConfig.setProperties(getProperties());
@@ -97,7 +98,8 @@ public class BackupTest {
 
   @Test
   public void shouldImportXml() {
-    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null), new ProfilesBackup((DatabaseSession) null)));
+    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null),
+        new ProfilesBackup((DatabaseSession) null)));
 
     String xml = getFileFromClasspath("backup-restore-valid.xml");
     SonarConfig sonarConfig = backup.getSonarConfigFromXml(xml);
@@ -124,7 +126,7 @@ public class BackupTest {
     assertEquals(RulePriority.MAJOR, testActiveRule.getSeverity());
     assertNotNull(testActiveRule.getRule());
     assertEquals("test key", testActiveRule.getRule().getKey());
-    assertEquals("test plugin", testActiveRule.getRule().getPluginName());
+    assertEquals("test plugin", testActiveRule.getRule().getRepositoryKey());
     assertEquals(1, testActiveRule.getActiveRuleParams().size());
 
     ActiveRuleParam testActiveRuleParam = testActiveRule.getActiveRuleParams().get(0);
