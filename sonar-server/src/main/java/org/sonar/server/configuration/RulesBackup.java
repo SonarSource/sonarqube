@@ -34,10 +34,7 @@ import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.jpa.dao.RulesDao;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class RulesBackup implements Backupable {
   private Collection<Rule> rules;
@@ -96,6 +93,16 @@ public class RulesBackup implements Backupable {
         LoggerFactory.getLogger(getClass()).error("Unable to find parent rule " + parent.getRepositoryKey() + ":" + parent.getKey());
         continue;
       }
+
+      for (Iterator<RuleParam> irp = rule.getParams().iterator(); irp.hasNext();) {
+        RuleParam param = irp.next();
+        RuleParam matchingRPInDb = rulesDao.getRuleParam(matchingParentRuleInDb, param.getKey());
+        if (matchingRPInDb == null) {
+          LoggerFactory.getLogger(getClass()).error("Unable to find rule parameter in parent " + param.getKey());
+          irp.remove();
+        }
+      }
+
       rule.setParent(matchingParentRuleInDb);
       Rule matchingRuleInDb = session.getSingleResult(Rule.class,
           "pluginName", rule.getRepositoryKey(),

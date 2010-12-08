@@ -24,11 +24,14 @@ import org.junit.Test;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.jpa.dao.RulesDao;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.Arrays;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -45,6 +48,7 @@ public class RulesBackupTest extends AbstractDbUnitTestCase {
     sonarConfig = new SonarConfig();
 
     rule = Rule.create("repo", "key", "name").setDescription("description");
+    rule.createParameter("param").setDefaultValue("value");
   }
 
   private Rule createUserRule() {
@@ -101,10 +105,24 @@ public class RulesBackupTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void shouldNotFailIfNoParentRule() {
+  public void shouldIgnoreIncorrectRule() {
     sonarConfig.setRules(Arrays.asList(createUserRule()));
     rulesBackup.importXml(sonarConfig);
 
     assertThat(getSession().getResults(Rule.class).size(), is(0));
+  }
+
+  @Test
+  public void shouldIgnoreIncorrectParam() {
+    Rule rule = Rule.create("repo", "key", "name").setDescription("description");
+    getSession().save(rule);
+    sonarConfig.setRules(Arrays.asList(createUserRule()));
+    rulesBackup.importXml(sonarConfig);
+
+    assertThat(getSession().getResults(Rule.class).size(), is(2));
+    RulesDao rulesDao = getDao().getRulesDao();
+    Rule importedRule = rulesDao.getRuleByKey("repo", "key2");
+    assertThat(importedRule, notNullValue());
+    assertThat(rulesDao.getRuleParam(importedRule, "param"), nullValue());
   }
 }
