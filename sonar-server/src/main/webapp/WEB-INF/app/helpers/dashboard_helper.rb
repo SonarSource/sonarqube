@@ -38,8 +38,8 @@ module DashboardHelper
         label = "Last %s days" % mode_param
       elsif mode=='version'
         label = "Version %s" % mode_param
-      elsif mode=='last_analysis'
-        label = "Last analysis (%s)" % localize(Date.parse(mode_param))
+      elsif mode=='previous_analysis'
+        label = "Previous analysis (%s)" % localize(Date.parse(mode_param))
       elsif mode=='date'
         label = localize(Date.parse(mode_param))
       end

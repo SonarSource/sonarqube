@@ -28,6 +28,9 @@ import java.util.Date;
 import java.util.List;
 
 public class PastSnapshotFinderByDays implements BatchExtension {
+
+  public static final String MODE = "days";
+
   private Snapshot projectSnapshot; // TODO replace by PersistenceManager
   private DatabaseSession session;
 
@@ -36,7 +39,7 @@ public class PastSnapshotFinderByDays implements BatchExtension {
     this.session = session;
   }
 
-  Snapshot findInDays(int days) {
+  PastSnapshot findFromDays(int days) {
     Date targetDate = DateUtils.addDays(projectSnapshot.getCreatedAt(), -days);
     String hql = "from " + Snapshot.class.getSimpleName() + " where resourceId=:resourceId AND status=:status AND createdAt>=:from AND createdAt<:to order by createdAt asc";
     List<Snapshot> snapshots = session.createQuery(hql)
@@ -47,6 +50,9 @@ public class PastSnapshotFinderByDays implements BatchExtension {
         .setMaxResults(1)
         .getResultList();
 
-    return snapshots.isEmpty() ? null : snapshots.get(0);
+    if (snapshots.isEmpty()) {
+      return null;
+    }
+    return new PastSnapshot(MODE, targetDate, snapshots.get(0)).setModeParameter(String.valueOf(days));
   }
 }

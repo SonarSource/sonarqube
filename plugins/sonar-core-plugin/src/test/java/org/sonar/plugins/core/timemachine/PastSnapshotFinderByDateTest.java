@@ -42,8 +42,8 @@ public class PastSnapshotFinderByDateTest extends AbstractDbUnitTestCase {
 
     Date date = DATE_FORMAT.parse("2008-11-22");
 
-    Snapshot snapshot = finder.findByDate(date);
-    assertThat(snapshot.getId(), is(1006));
+    PastSnapshot pastSnapshot = finder.findByDate(date);
+    assertThat(pastSnapshot.getProjectSnapshotId(), is(1006));
   }
 
   @Test
@@ -55,7 +55,7 @@ public class PastSnapshotFinderByDateTest extends AbstractDbUnitTestCase {
 
     Date date = DATE_FORMAT.parse("2008-11-24");
    
-    Snapshot snapshot = finder.findByDate(date);
-    assertThat(snapshot.getId(), is(1009));
+    PastSnapshot pastSnapshot = finder.findByDate(date);
+    assertThat(pastSnapshot.getProjectSnapshotId(), is(1009));
   }
 }

@@ -23,18 +23,21 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
-public class PastSnapshotFinderByLastAnalysis implements BatchExtension {
+public class PastSnapshotFinderByPreviousAnalysis implements BatchExtension {
+  public static final String MODE = "previous_analysis";
+
   private Snapshot projectSnapshot; // TODO replace by PersistenceManager
   private DatabaseSession session;
 
-  public PastSnapshotFinderByLastAnalysis(Snapshot projectSnapshot, DatabaseSession session) {
+  public PastSnapshotFinderByPreviousAnalysis(Snapshot projectSnapshot, DatabaseSession session) {
     this.projectSnapshot = projectSnapshot;
     this.session = session;
   }
 
-  Snapshot findLastAnalysis() {
+  PastSnapshot findByPreviousAnalysis() {
     String hql = "from " + Snapshot.class.getSimpleName() + " where createdAt<:date AND resourceId=:resourceId AND status=:status and last=true order by createdAt desc";
     List<Snapshot> snapshots = session.createQuery(hql)
         .setParameter("date", projectSnapshot.getCreatedAt())
@@ -43,7 +46,12 @@ public class PastSnapshotFinderByLastAnalysis implements BatchExtension {
         .setMaxResults(1)
         .getResultList();
 
-    return snapshots.isEmpty() ? null : snapshots.get(0);
+    if (snapshots.isEmpty()) {
+      return null;
+    }
+    Snapshot snapshot = snapshots.get(0);
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    return new PastSnapshot(MODE, snapshot.getCreatedAt(), snapshot).setModeParameter(format.format(snapshot.getCreatedAt()));
   }
 
 }

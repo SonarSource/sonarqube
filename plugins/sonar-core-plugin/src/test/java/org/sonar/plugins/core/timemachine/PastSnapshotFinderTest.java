@@ -30,7 +30,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static junit.framework.Assert.assertNull;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
@@ -40,7 +42,7 @@ public class PastSnapshotFinderTest {
   private PastSnapshotFinderByDays finderByDays;
   private PastSnapshotFinderByDate finderByDate;
   private PastSnapshotFinderByVersion finderByVersion;
-  private PastSnapshotFinderByLastAnalysis finderByLastAnalysis;
+  private PastSnapshotFinderByPreviousAnalysis finderByPreviousAnalysis;
   private PastSnapshotFinder finder;
 
   @Before
@@ -48,17 +50,17 @@ public class PastSnapshotFinderTest {
     finderByDays = mock(PastSnapshotFinderByDays.class);
     finderByDate = mock(PastSnapshotFinderByDate.class);
     finderByVersion = mock(PastSnapshotFinderByVersion.class);
-    finderByLastAnalysis = mock(PastSnapshotFinderByLastAnalysis.class);
-    finder = new PastSnapshotFinder(finderByDays, finderByVersion, finderByDate, finderByLastAnalysis);
+    finderByPreviousAnalysis = mock(PastSnapshotFinderByPreviousAnalysis.class);
+    finder = new PastSnapshotFinder(finderByDays, finderByVersion, finderByDate, finderByPreviousAnalysis);
   }
 
   @Test
   public void shouldFindByNumberOfDays() {
-    when(finderByDays.findInDays(30)).thenReturn(new Snapshot());
+    when(finderByDays.findFromDays(30)).thenReturn(new PastSnapshot("days", null).setModeParameter("30"));
 
     PastSnapshot variationSnapshot = finder.find(1, "30");
 
-    verify(finderByDays).findInDays(30);
+    verify(finderByDays).findFromDays(30);
     assertNotNull(variationSnapshot);
     assertThat(variationSnapshot.getIndex(), is(1));
     assertThat(variationSnapshot.getMode(), is("days"));
@@ -69,7 +71,7 @@ public class PastSnapshotFinderTest {
   public void shouldNotFindByNumberOfDays() {
     PastSnapshot variationSnapshot = finder.find(1, "30");
 
-    verify(finderByDays).findInDays(30);
+    verify(finderByDays).findFromDays(30);
     assertNull(variationSnapshot);
   }
 
@@ -77,7 +79,7 @@ public class PastSnapshotFinderTest {
   public void shouldFindByDate() throws ParseException {
     final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     final Date date = format.parse("2010-05-18");
-    when(finderByDate.findByDate(date)).thenReturn(new Snapshot());
+    when(finderByDate.findByDate(date)).thenReturn(new PastSnapshot("date", new Snapshot()));
 
     PastSnapshot variationSnapshot = finder.find(2, "2010-05-18");
 
@@ -92,7 +94,7 @@ public class PastSnapshotFinderTest {
     }));
     assertThat(variationSnapshot.getIndex(), is(2));
     assertThat(variationSnapshot.getMode(), is("date"));
-    assertThat(variationSnapshot.getModeParameter(), is("2010-05-18"));
+    assertThat(variationSnapshot.getProjectSnapshot(), not(nullValue()));
   }
 
   @Test
@@ -106,57 +108,57 @@ public class PastSnapshotFinderTest {
   }
 
   @Test
-  public void shouldFindLastAnalysis() throws ParseException {
+  public void shouldFindByPreviousAnalysis() throws ParseException {
     final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     final Date date = format.parse("2010-05-18");
     Snapshot snapshot = new Snapshot();
     snapshot.setCreatedAt(date);
-    when(finderByLastAnalysis.findLastAnalysis()).thenReturn(snapshot);
+    when(finderByPreviousAnalysis.findByPreviousAnalysis()).thenReturn(new PastSnapshot(PastSnapshotFinderByPreviousAnalysis.MODE, snapshot));
 
-    PastSnapshot variationSnapshot = finder.find(2, "last_analysis");
+    PastSnapshot variationSnapshot = finder.find(2, PastSnapshotFinderByPreviousAnalysis.MODE);
 
-    verify(finderByLastAnalysis).findLastAnalysis();
+    verify(finderByPreviousAnalysis).findByPreviousAnalysis();
     assertThat(variationSnapshot.getIndex(), is(2));
-    assertThat(variationSnapshot.getMode(), is("last_analysis"));
-    assertThat(variationSnapshot.getModeParameter(), is("2010-05-18"));
+    assertThat(variationSnapshot.getMode(), is(PastSnapshotFinderByPreviousAnalysis.MODE));
+    assertThat(variationSnapshot.getProjectSnapshot(), not(nullValue()));
   }
 
   @Test
-  public void shouldNotFindLastAnalysis() {
-    when(finderByLastAnalysis.findLastAnalysis()).thenReturn(null);
+  public void shouldNotFindPreviousAnalysis() {
+    when(finderByPreviousAnalysis.findByPreviousAnalysis()).thenReturn(null);
 
-    PastSnapshot variationSnapshot = finder.find(2, "last_analysis");
+    PastSnapshot variationSnapshot = finder.find(2, PastSnapshotFinderByPreviousAnalysis.MODE);
 
-    verify(finderByLastAnalysis).findLastAnalysis();
+    verify(finderByPreviousAnalysis).findByPreviousAnalysis();
 
     assertNull(variationSnapshot);
   }
 
   @Test
   public void shouldFindByVersion() {
-    when(finderByVersion.findVersion("1.2")).thenReturn(new Snapshot());
+    when(finderByVersion.findByVersion("1.2")).thenReturn(new PastSnapshot("version", new Snapshot()));
 
     PastSnapshot variationSnapshot = finder.find(2, "1.2");
 
-    verify(finderByVersion).findVersion("1.2");
+    verify(finderByVersion).findByVersion("1.2");
     assertThat(variationSnapshot.getIndex(), is(2));
     assertThat(variationSnapshot.getMode(), is("version"));
-    assertThat(variationSnapshot.getModeParameter(), is("1.2"));
+    assertThat(variationSnapshot.getProjectSnapshot(), not(nullValue()));
   }
 
   @Test
   public void shouldNotFindVersion() {
-    when(finderByVersion.findVersion("1.2")).thenReturn(null);
+    when(finderByVersion.findByVersion("1.2")).thenReturn(null);
 
     PastSnapshot variationSnapshot = finder.find(2, "1.2");
 
-    verify(finderByVersion).findVersion("1.2");
+    verify(finderByVersion).findByVersion("1.2");
     assertNull(variationSnapshot);
   }
 
   @Test
   public void shouldNotFailIfUnknownFormat() {
-    when(finderByLastAnalysis.findLastAnalysis()).thenReturn(new Snapshot()); // should not be called
+    when(finderByPreviousAnalysis.findByPreviousAnalysis()).thenReturn(new PastSnapshot(PastSnapshotFinderByPreviousAnalysis.MODE, new Snapshot())); // should not be called
     assertNull(finder.find(2, "foooo"));
   }
 }

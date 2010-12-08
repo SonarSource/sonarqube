@@ -67,11 +67,11 @@ public class NewViolationsDecoratorTest {
 
     PastSnapshot pastSnapshot = mock(PastSnapshot.class);
     when(pastSnapshot.getIndex()).thenReturn(1);
-    when(pastSnapshot.getDate()).thenReturn(fiveDaysAgo);
+    when(pastSnapshot.getTargetDate()).thenReturn(fiveDaysAgo);
 
     PastSnapshot pastSnapshot2 = mock(PastSnapshot.class);
     when(pastSnapshot2.getIndex()).thenReturn(2);
-    when(pastSnapshot2.getDate()).thenReturn(tenDaysAgo);
+    when(pastSnapshot2.getTargetDate()).thenReturn(tenDaysAgo);
 
     TimeMachineConfiguration timeMachineConfiguration = mock(TimeMachineConfiguration.class);
     when(timeMachineConfiguration.getProjectPastSnapshots()).thenReturn(Arrays.asList(pastSnapshot, pastSnapshot2));

@@ -58,8 +58,8 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
     Resource javaPackage = new JavaPackage("org.foo");
 
     PastMeasuresLoader pastMeasuresLoader = mock(PastMeasuresLoader.class);
-    PastSnapshot pastSnapshot1 = new PastSnapshot(1, "days", new Snapshot());
-    PastSnapshot pastSnapshot3 = new PastSnapshot(3, "days", new Snapshot());
+    PastSnapshot pastSnapshot1 = new PastSnapshot("days", new Snapshot()).setIndex(1);
+    PastSnapshot pastSnapshot3 = new PastSnapshot("days", new Snapshot()).setIndex(3);
 
     // first past analysis
     when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot1)).thenReturn(Arrays.asList(

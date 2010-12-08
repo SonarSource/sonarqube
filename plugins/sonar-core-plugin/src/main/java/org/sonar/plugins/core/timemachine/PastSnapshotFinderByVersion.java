@@ -26,6 +26,9 @@ import org.sonar.api.database.model.Snapshot;
 import java.util.List;
 
 public class PastSnapshotFinderByVersion implements BatchExtension {
+
+  public static final String MODE = "version";
+
   private Snapshot projectSnapshot; // TODO replace by PersistenceManager
   private DatabaseSession session;
 
@@ -34,7 +37,7 @@ public class PastSnapshotFinderByVersion implements BatchExtension {
     this.session = session;
   }
 
-  Snapshot findVersion(String version) {
+  PastSnapshot findByVersion(String version) {
     String hql = "from " + Snapshot.class.getSimpleName() + " where version=:version AND resourceId=:resourceId AND status=:status order by createdAt desc";
     List<Snapshot> snapshots = session.createQuery(hql)
         .setParameter("version", version)
@@ -43,7 +46,11 @@ public class PastSnapshotFinderByVersion implements BatchExtension {
         .setMaxResults(1)
         .getResultList();
 
-    return snapshots.isEmpty() ? null : snapshots.get(0);
+    if (snapshots.isEmpty()) {
+      return null;
+    }
+    Snapshot snapshot = snapshots.get(0);
+    return new PastSnapshot(MODE, snapshot.getCreatedAt(), snapshot).setModeParameter(snapshot.getVersion());
   }
 
 }

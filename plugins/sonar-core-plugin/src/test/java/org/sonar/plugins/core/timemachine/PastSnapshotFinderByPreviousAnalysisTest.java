@@ -29,26 +29,26 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
-public class PastSnapshotFinderByLastAnalysisTest extends AbstractDbUnitTestCase {
+public class PastSnapshotFinderByPreviousAnalysisTest extends AbstractDbUnitTestCase {
 
   @Test
-  public void shouldFindLastAnalysis() throws ParseException {
-    setupData("shouldFindLastAnalysis");
+  public void shouldFindPreviousAnalysis() throws ParseException {
+    setupData("shouldFindPreviousAnalysis");
 
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
-    PastSnapshotFinderByLastAnalysis finder = new PastSnapshotFinderByLastAnalysis(projectSnapshot, getSession());
+    PastSnapshotFinderByPreviousAnalysis finder = new PastSnapshotFinderByPreviousAnalysis(projectSnapshot, getSession());
 
-    Snapshot snapshot = finder.findLastAnalysis();
-    assertThat(snapshot.getId(), is(1009));
+    PastSnapshot pastSnapshot = finder.findByPreviousAnalysis();
+    assertThat(pastSnapshot.getProjectSnapshotId(), is(1009));
   }
 
   @Test
-  public void shouldNotFindLastAnalysis() throws ParseException {
-    setupData("shouldNotFindLastAnalysis");
+  public void shouldNotFindPreviousAnalysis() throws ParseException {
+    setupData("shouldNotFindPreviousAnalysis");
 
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
-    PastSnapshotFinderByLastAnalysis finder = new PastSnapshotFinderByLastAnalysis(projectSnapshot, getSession());
+    PastSnapshotFinderByPreviousAnalysis finder = new PastSnapshotFinderByPreviousAnalysis(projectSnapshot, getSession());
 
-    assertNull(finder.findLastAnalysis());
+    assertNull(finder.findByPreviousAnalysis());
   }
 }

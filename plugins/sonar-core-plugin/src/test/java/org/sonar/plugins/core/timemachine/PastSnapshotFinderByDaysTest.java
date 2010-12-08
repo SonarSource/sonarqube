@@ -27,6 +27,7 @@ import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import java.text.ParseException;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class PastSnapshotFinderByDaysTest extends AbstractDbUnitTestCase {
@@ -38,7 +39,7 @@ public class PastSnapshotFinderByDaysTest extends AbstractDbUnitTestCase {
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1009); // 2008-11-16
     PastSnapshotFinderByDays finder = new PastSnapshotFinderByDays(projectSnapshot, getSession());
 
-    assertThat(finder.findInDays(50).getId(), is(1000));
+    assertThat(finder.findFromDays(50).getProjectSnapshotId(), is(1000));
   }
 
   @Test
@@ -48,7 +49,7 @@ public class PastSnapshotFinderByDaysTest extends AbstractDbUnitTestCase {
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1009); // 2008-11-16
     PastSnapshotFinderByDays finder = new PastSnapshotFinderByDays(projectSnapshot, getSession());
 
-    assertThat(finder.findInDays(7).getId(), is(1006));
+    assertThat(finder.findFromDays(7).getProjectSnapshotId(), is(1006));
   }
 
   @Test
@@ -58,7 +59,7 @@ public class PastSnapshotFinderByDaysTest extends AbstractDbUnitTestCase {
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1009); // 2008-11-16
     PastSnapshotFinderByDays finder = new PastSnapshotFinderByDays(projectSnapshot, getSession());
 
-    assertThat(finder.findInDays(1), IsNull.<Object>nullValue());
+    assertThat(finder.findFromDays(1), nullValue());
   }
 
 }

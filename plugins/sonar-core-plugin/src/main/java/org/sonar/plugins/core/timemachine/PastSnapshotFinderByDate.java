@@ -23,10 +23,15 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
 public class PastSnapshotFinderByDate implements BatchExtension{
+
+  public static final String MODE = "date";
+
+
   private Snapshot projectSnapshot; // TODO replace by PersistenceManager
   private DatabaseSession session;
 
@@ -35,7 +40,7 @@ public class PastSnapshotFinderByDate implements BatchExtension{
     this.session = session;
   }
 
-  Snapshot findByDate(Date date) {
+  PastSnapshot findByDate(Date date) {
     String hql = "from " + Snapshot.class.getSimpleName() + " where createdAt>=:date AND resourceId=:resourceId AND status=:status order by createdAt asc";
     List<Snapshot> snapshots = session.createQuery(hql)
         .setParameter("date", date)
@@ -43,7 +48,12 @@ public class PastSnapshotFinderByDate implements BatchExtension{
         .setParameter("status", Snapshot.STATUS_PROCESSED)
         .setMaxResults(1)
         .getResultList();
-    return snapshots.isEmpty() ? null : snapshots.get(0);
+    if (snapshots.isEmpty()) {
+      return null;
+    }
+
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    return new PastSnapshot(MODE, date, snapshots.get(0)).setModeParameter(format.format(date));
   }
 
 }

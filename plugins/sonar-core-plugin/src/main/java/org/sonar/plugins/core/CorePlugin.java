@@ -136,7 +136,7 @@ import java.util.List;
     ),
     @Property(
         key = "sonar.timemachine.variation4",
-        name = "Variation 4, only for projects",
+        name = "Variation 4",
         description = "To be defined. For the moment the number of days",
         project = true,
         global = false
@@ -228,7 +228,7 @@ public class CorePlugin implements Plugin {
     extensions.add(TendencyDecorator.class);
     extensions.add(PastSnapshotFinderByDate.class);
     extensions.add(PastSnapshotFinderByDays.class);
-    extensions.add(PastSnapshotFinderByLastAnalysis.class);
+    extensions.add(PastSnapshotFinderByPreviousAnalysis.class);
     extensions.add(PastSnapshotFinderByVersion.class);
     extensions.add(PastMeasuresLoader.class);
     extensions.add(PastSnapshotFinder.class);

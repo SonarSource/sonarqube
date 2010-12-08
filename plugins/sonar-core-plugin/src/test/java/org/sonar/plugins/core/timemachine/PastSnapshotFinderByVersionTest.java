@@ -36,7 +36,7 @@ public class PastSnapshotFinderByVersionTest extends AbstractDbUnitTestCase {
     Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
     PastSnapshotFinderByVersion finder = new PastSnapshotFinderByVersion(currentProjectSnapshot, getSession());
 
-    assertThat(finder.findVersion("1.1").getId(), is(1009));
+    assertThat(finder.findByVersion("1.1").getProjectSnapshotId(), is(1009));
   }
 
   @Test
@@ -46,6 +46,6 @@ public class PastSnapshotFinderByVersionTest extends AbstractDbUnitTestCase {
     Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
     PastSnapshotFinderByVersion finder = new PastSnapshotFinderByVersion(currentProjectSnapshot, getSession());
 
-    assertThat(finder.findVersion("1.0"), nullValue());
+    assertThat(finder.findByVersion("1.0"), nullValue());
   }
 }

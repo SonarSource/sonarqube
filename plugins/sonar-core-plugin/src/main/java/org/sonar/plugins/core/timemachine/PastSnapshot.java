@@ -29,11 +29,22 @@ public class PastSnapshot {
   private int index;
   private String mode, modeParameter;
   private Snapshot projectSnapshot;
+  private Date targetDate;
 
-  public PastSnapshot(int index, String mode, Snapshot projectSnapshot) {
-    this.index = index;
+  public PastSnapshot(String mode, Date targetDate, Snapshot projectSnapshot) {
+    this.mode = mode;
+    this.targetDate = targetDate;
+    this.projectSnapshot = projectSnapshot;
+  }
+
+  public PastSnapshot(String mode, Snapshot projectSnapshot) {
     this.mode = mode;
     this.projectSnapshot = projectSnapshot;
+  }
+
+  public PastSnapshot setIndex(int index) {
+    this.index = index;
+    return this;
   }
 
   public int getIndex() {
@@ -59,6 +70,14 @@ public class PastSnapshot {
   public PastSnapshot setModeParameter(String s) {
     this.modeParameter = s;
     return this;
+  }
+
+  public Integer getProjectSnapshotId() {
+    return (projectSnapshot!=null ? projectSnapshot.getId() : null);
+  }
+
+  public Date getTargetDate() {
+    return targetDate;
   }
 
   @Override

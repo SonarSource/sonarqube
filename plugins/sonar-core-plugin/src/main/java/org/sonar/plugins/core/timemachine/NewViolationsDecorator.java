@@ -20,6 +20,7 @@
 package org.sonar.plugins.core.timemachine;
 
 import com.google.common.collect.*;
+import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
@@ -89,10 +90,10 @@ public class NewViolationsDecorator implements Decorator {
 
   private void saveNewViolations(DecoratorContext context) {
     Measure measure = new Measure(CoreMetrics.NEW_VIOLATIONS);
-    for (PastSnapshot variationSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
-      int variationIndex = variationSnapshot.getIndex();
+    for (PastSnapshot pastSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
+      int variationIndex = pastSnapshot.getIndex();
       Collection<Measure> children = context.getChildrenMeasures(CoreMetrics.NEW_VIOLATIONS);
-      int count = countViolations(context.getViolations(), variationSnapshot.getDate());
+      int count = countViolations(context.getViolations(), pastSnapshot.getTargetDate());
       double sum = sumChildren(variationIndex, children) + count;
       measure.setVariation(variationIndex, sum);
     }
@@ -103,9 +104,9 @@ public class NewViolationsDecorator implements Decorator {
     for (RulePriority priority : RulePriority.values()) {
       Metric metric = getMetricForSeverity(priority);
       Measure measure = new Measure(metric);
-      for (PastSnapshot variationSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
-        int variationIndex = variationSnapshot.getIndex();
-        int count = countViolations(violationsBySeverity.get(priority), variationSnapshot.getDate());
+      for (PastSnapshot pastSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
+        int variationIndex = pastSnapshot.getIndex();
+        int count = countViolations(violationsBySeverity.get(priority), pastSnapshot.getTargetDate());
         Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.metric(metric));
         double sum = sumChildren(variationIndex, children) + count;
         measure.setVariation(variationIndex, sum);
@@ -132,9 +133,9 @@ public class NewViolationsDecorator implements Decorator {
     for (Rule rule : rules) {
       RuleMeasure measure = RuleMeasure.createForRule(CoreMetrics.NEW_VIOLATIONS, rule, null);
       measure.setRulePriority(ruleToLevel.get(rule));
-      for (PastSnapshot variationSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
-        int variationIndex = variationSnapshot.getIndex();
-        int count = countViolations(violationsByRule.get(rule), variationSnapshot.getDate());
+      for (PastSnapshot pastSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
+        int variationIndex = pastSnapshot.getIndex();
+        int count = countViolations(violationsByRule.get(rule), pastSnapshot.getTargetDate());
         double sum = sumChildren(variationIndex, childrenByRule.get(rule)) + count;
         measure.setVariation(variationIndex, sum);
       }

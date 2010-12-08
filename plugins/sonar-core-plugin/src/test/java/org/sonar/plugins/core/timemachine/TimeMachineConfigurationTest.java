@@ -52,8 +52,8 @@ public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
   public void shouldInitVariationSnapshots() throws ParseException {
     PropertiesConfiguration conf = new PropertiesConfiguration();
     PastSnapshotFinder snapshotReferenceFinder = mock(PastSnapshotFinder.class);
-    when(snapshotReferenceFinder.find(conf, 1)).thenReturn(new PastSnapshot(1, "days", newSnapshot("2010-10-15")));
-    when(snapshotReferenceFinder.find(conf, 3)).thenReturn(new PastSnapshot(3, "days", newSnapshot("2010-10-13")));
+    when(snapshotReferenceFinder.find(conf, 1)).thenReturn(new PastSnapshot("days", null, newSnapshot("2010-10-15")));
+    when(snapshotReferenceFinder.find(conf, 3)).thenReturn(new PastSnapshot("days", null, newSnapshot("2010-10-13")));
 
     TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(conf, snapshotReferenceFinder);
 

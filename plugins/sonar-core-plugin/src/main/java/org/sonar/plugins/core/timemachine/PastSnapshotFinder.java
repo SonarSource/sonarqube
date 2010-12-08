@@ -22,30 +22,23 @@ package org.sonar.plugins.core.timemachine;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.database.model.Snapshot;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class PastSnapshotFinder implements BatchExtension {
-
-  public static final String LAST__ANALYSIS_MODE = "last_analysis";
-  public static final String DATE_MODE = "date";
-  public static final String VERSION_MODE = "version";
-  public static final String DAYS_MODE = "days";
-  
   private PastSnapshotFinderByDays finderByDays;
   private PastSnapshotFinderByVersion finderByVersion;
   private PastSnapshotFinderByDate finderByDate;
-  private PastSnapshotFinderByLastAnalysis finderByLastAnalysis;
+  private PastSnapshotFinderByPreviousAnalysis finderByPreviousAnalysis;
 
   public PastSnapshotFinder(PastSnapshotFinderByDays finderByDays, PastSnapshotFinderByVersion finderByVersion,
-                            PastSnapshotFinderByDate finderByDate, PastSnapshotFinderByLastAnalysis finderByLastAnalysis) {
+                            PastSnapshotFinderByDate finderByDate, PastSnapshotFinderByPreviousAnalysis finderByPreviousAnalysis) {
     this.finderByDays = finderByDays;
     this.finderByVersion = finderByVersion;
     this.finderByDate = finderByDate;
-    this.finderByLastAnalysis = finderByLastAnalysis;
+    this.finderByPreviousAnalysis = finderByPreviousAnalysis;
   }
 
   public PastSnapshot find(Configuration conf, int index) {
@@ -57,62 +50,51 @@ public class PastSnapshotFinder implements BatchExtension {
       return null;
     }
 
-    PastSnapshot result = findByDays(index, property);
+    PastSnapshot result = findByDays(property);
     if (result == null) {
-      result = findByDate(index, property);
+      result = findByDate(property);
       if (result == null) {
-        result = findByLastAnalysis(index, property);
+        result = findByPreviousAnalysis(property);
         if (result == null) {
-          result = findByVersion(index, property);
+          result = findByVersion(property);
         }
       }
     }
+
+    if (result != null) {
+      result.setIndex(index);
+    }
+
     return result;
   }
 
-  private PastSnapshot findByLastAnalysis(int index, String property) {
-    if (StringUtils.equals(LAST__ANALYSIS_MODE, property)) {
-      Snapshot projectSnapshot = finderByLastAnalysis.findLastAnalysis();
-      if (projectSnapshot != null) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        String date = format.format(projectSnapshot.getCreatedAt());
-        return new PastSnapshot(index, LAST__ANALYSIS_MODE, projectSnapshot).setModeParameter(date);
-      }
+  private PastSnapshot findByPreviousAnalysis(String property) {
+    PastSnapshot pastSnapshot = null;
+    if (StringUtils.equals(PastSnapshotFinderByPreviousAnalysis.MODE, property)) {
+      pastSnapshot = finderByPreviousAnalysis.findByPreviousAnalysis();
     }
-    return null;
+    return pastSnapshot;
   }
 
-  private PastSnapshot findByDate(int index, String property) {
+  private PastSnapshot findByDate(String property) {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     try {
       Date date = format.parse(property);
-      Snapshot projectSnapshot = finderByDate.findByDate(date);
-      if (projectSnapshot != null) {
-        return new PastSnapshot(index, DATE_MODE, projectSnapshot).setModeParameter(property);
-      }
-      return null;
+      return finderByDate.findByDate(date);
 
     } catch (ParseException e) {
       return null;
     }
   }
 
-  private PastSnapshot findByVersion(int index, String property) {
-    Snapshot projectSnapshot = finderByVersion.findVersion(property);
-    if (projectSnapshot != null) {
-      return new PastSnapshot(index, VERSION_MODE, projectSnapshot).setModeParameter(property);
-    }
-    return null;
+  private PastSnapshot findByVersion(String property) {
+    return finderByVersion.findByVersion(property);
   }
 
-  private PastSnapshot findByDays(int index, String property) {
+  private PastSnapshot findByDays(String property) {
     try {
       int days = Integer.parseInt(property);
-      Snapshot projectSnapshot = finderByDays.findInDays(days);
-      if (projectSnapshot != null) {
-        return new PastSnapshot(index, DAYS_MODE, projectSnapshot).setModeParameter(String.valueOf(days));
-      }
-      return null;
+      return finderByDays.findFromDays(days);
 
     } catch (NumberFormatException e) {
       return null;
