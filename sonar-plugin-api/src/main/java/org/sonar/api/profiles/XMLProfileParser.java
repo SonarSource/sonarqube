@@ -209,11 +209,7 @@ public final class XMLProfileParser implements ServerComponent {
       if (metric == null) {
         messages.addWarningText("Metric '" + metricKey + "' does not exist");
       } else {
-        Alert alert = new Alert();
-        alert.setMetric(metric);
-        alert.setOperator(operator);
-        alert.setValueError(valueError);
-        alert.setValueWarning(valueWarning);
+        Alert alert = new Alert(profile, metric, operator, valueError, valueWarning);
         profile.getAlerts().add(alert);
       }
     }

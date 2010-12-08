@@ -20,16 +20,15 @@
 package org.sonar.api.measures;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.api.ServerComponent;
 
 import java.util.Collection;
 import java.util.List;
 
 /**
- * This component is currently available only on batch-side
- *
  * @since 2.5
  */
-public interface MetricFinder extends BatchComponent {
+public interface MetricFinder extends BatchComponent, ServerComponent {
 
   Metric findById(int id);
 

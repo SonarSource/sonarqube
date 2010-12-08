@@ -22,39 +22,40 @@ package org.sonar.core.components;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.MetricFinder;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public final class CacheMetricFinder implements MetricFinder {
+public final class CacheMetricFinder extends DefaultMetricFinder {
 
-  private DatabaseSessionFactory sessionFactory;
   private Map<String, Metric> metricsByKey = Maps.newLinkedHashMap();
   private Map<Integer, Metric> metricsById = Maps.newLinkedHashMap();
 
   public CacheMetricFinder(DatabaseSessionFactory sessionFactory) {
-    this.sessionFactory = sessionFactory;
+    super(sessionFactory);
   }
 
   public void start() {
-    List<Metric> list = sessionFactory.getSession().getResults(Metric.class, "enabled", true);
-    for (Metric metric : list) {
+    Collection<Metric> metrics = doFindAll();
+    for (Metric metric : metrics) {
       metricsByKey.put(metric.getKey(), metric);
       metricsById.put(metric.getId(), metric);
     }
   }
 
+  @Override
   public Metric findById(int metricId) {
     return metricsById.get(metricId);
   }
 
+  @Override
   public Metric findByKey(String key) {
     return metricsByKey.get(key);
   }
 
+  @Override
   public Collection<Metric> findAll(List<String> metricKeys) {
     List<Metric> result = Lists.newLinkedList();
     for (String metricKey : metricKeys) {
@@ -66,6 +67,7 @@ public final class CacheMetricFinder implements MetricFinder {
     return result;
   }
 
+  @Override
   public Collection<Metric> findAll() {
     return metricsByKey.values();
   }

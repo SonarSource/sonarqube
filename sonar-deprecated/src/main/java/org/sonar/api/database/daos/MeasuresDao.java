@@ -24,6 +24,9 @@ import org.sonar.api.measures.Metric;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * @deprecated since 2.3
+ */
 @Deprecated
 public class MeasuresDao {
 
@@ -32,6 +35,7 @@ public class MeasuresDao {
   public MeasuresDao(org.sonar.jpa.dao.MeasuresDao target) {
     this.target = target;
   }
+
   public Metric getMetric(Metric metric) {
     return target.getMetric(metric);
   }

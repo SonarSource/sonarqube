@@ -45,7 +45,7 @@ public class XMLProfileSerializerTest {
     RulesProfile profile = RulesProfile.create("sonar way", "java");
     new XMLProfileSerializer().write(profile, writer);
 
-    assertSimilarXml("/org/sonar/api/profiles/XMLProfileSerializerTest/exportEmptyProfile.xml", writer.toString());
+    assertSimilarXml("exportEmptyProfile.xml", writer.toString());
   }
 
   @Test
@@ -55,7 +55,7 @@ public class XMLProfileSerializerTest {
     profile.activateRule(Rule.create("checkstyle", "IllegalRegexp", "illegal regexp"), RulePriority.BLOCKER);
     new XMLProfileSerializer().write(profile, writer);
 
-    assertSimilarXml("/org/sonar/api/profiles/XMLProfileSerializerTest/exportProfile.xml", writer.toString());
+    assertSimilarXml("exportProfile.xml", writer.toString());
   }
 
   @Test
@@ -73,7 +73,7 @@ public class XMLProfileSerializerTest {
     // the tokens parameter is not set
     new XMLProfileSerializer().write(profile, writer);
 
-    assertSimilarXml("/org/sonar/api/profiles/XMLProfileSerializerTest/exportRuleParameters.xml", writer.toString());
+    assertSimilarXml("exportRuleParameters.xml", writer.toString());
   }
 
   @Test
@@ -88,10 +88,11 @@ public class XMLProfileSerializerTest {
     profile.getAlerts().add(alert);
     new XMLProfileSerializer().write(profile, writer);
 
-    assertSimilarXml("/org/sonar/api/profiles/XMLProfileSerializerTest/exportAlerts.xml", writer.toString());
+    assertSimilarXml("exportAlerts.xml", writer.toString());
   }
 
-  public static void assertSimilarXml(String pathToExpectedXml, String xml) throws IOException, SAXException {
+  public static void assertSimilarXml(String fileWithExpectedXml, String xml) throws IOException, SAXException {
+    String pathToExpectedXml = "/org/sonar/api/profiles/XMLProfileSerializerTest/" + fileWithExpectedXml;
     InputStream stream = XMLProfileSerializerTest.class.getResourceAsStream(pathToExpectedXml);
     try {
       Diff diff = isSimilarXml(IOUtils.toString(stream), xml);

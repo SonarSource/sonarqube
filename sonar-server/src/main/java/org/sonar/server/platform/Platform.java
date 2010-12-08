@@ -38,6 +38,7 @@ import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.core.components.DefaultMetricFinder;
 import org.sonar.core.components.DefaultModelFinder;
 import org.sonar.core.components.DefaultRuleFinder;
 import org.sonar.core.plugin.JpaPluginDao;
@@ -68,9 +69,9 @@ public final class Platform {
 
   private static final Platform INSTANCE = new Platform();
 
-  private MutablePicoContainer rootContainer;//level 1 : only database connectors
-  private MutablePicoContainer coreContainer;//level 2 : level 1 + core components
-  private MutablePicoContainer servicesContainer;//level 3 : level 2 + plugin extensions + core components that depend on plugin extensions
+  private MutablePicoContainer rootContainer;// level 1 : only database connectors
+  private MutablePicoContainer coreContainer;// level 2 : level 1 + core components
+  private MutablePicoContainer servicesContainer;// level 3 : level 2 + plugin extensions + core components that depend on plugin extensions
 
   private boolean connected = false;
   private boolean started = false;
@@ -104,7 +105,6 @@ public final class Platform {
       profiler.stop();
     }
   }
-
 
   private void startDatabaseConnectors(Configuration configuration) {
     rootContainer = IocContainer.buildPicoContainer();
@@ -180,6 +180,7 @@ public final class Platform {
     servicesContainer.as(Characteristics.CACHE).addComponent(AnnotationRuleParser.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(XMLRuleParser.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(DefaultRuleFinder.class);
+    servicesContainer.as(Characteristics.CACHE).addComponent(DefaultMetricFinder.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(DeprecatedRuleRepositories.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(DeprecatedProfiles.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(DeprecatedProfileExporters.class);

@@ -23,9 +23,10 @@ import org.sonar.api.BatchExtension;
 
 /**
  * Extension point to purge data.
- * <p/>
- * <p>It is executed when the batch finishes.
- *
+ * <p>
+ * It is executed when the batch finishes.
+ * </p>
+ * 
  * @since 1.10
  * @deprecated since 2.5. The DBCleaner plugin implements all required purge taks.
  */
@@ -34,7 +35,7 @@ public interface Purge extends BatchExtension {
 
   /**
    * Snapshots include the current snapshot (flagged as last) and optionally the penultimate one.
-   *
+   * 
    * @snapshots never null.
    */
   void purge(PurgeContext context);

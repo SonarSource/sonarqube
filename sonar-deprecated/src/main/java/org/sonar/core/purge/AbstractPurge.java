@@ -25,9 +25,14 @@ import org.sonar.api.database.model.*;
 import org.sonar.api.design.DependencyDto;
 import org.sonar.api.utils.TimeProfiler;
 
-import javax.persistence.Query;
 import java.util.List;
 
+import javax.persistence.Query;
+
+/**
+ * @deprecated since 2.5. The DBCleaner plugin implements all required purge taks, but you can extend org.sonar.plugins.dbcleaner.api.Purge
+ */
+@Deprecated
 public abstract class AbstractPurge implements Purge {
 
   private static final int MAX_IN_ELEMENTS = 950;
@@ -56,23 +61,28 @@ public abstract class AbstractPurge implements Purge {
   }
 
   protected void deleteDependencies(List<Integer> snapshotIds) {
-    executeQuery("delete dependencies", snapshotIds, "delete from " + DependencyDto.class.getSimpleName() + " d where d.fromSnapshotId in (:ids)");
-    executeQuery("delete dependencies", snapshotIds, "delete from " + DependencyDto.class.getSimpleName() + " d where d.toSnapshotId in (:ids)");
+    executeQuery("delete dependencies", snapshotIds, "delete from " + DependencyDto.class.getSimpleName()
+        + " d where d.fromSnapshotId in (:ids)");
+    executeQuery("delete dependencies", snapshotIds, "delete from " + DependencyDto.class.getSimpleName()
+        + " d where d.toSnapshotId in (:ids)");
   }
 
   /**
    * Delete all measures, including MEASURE_DATA
    */
   protected void deleteMeasuresBySnapshotId(List<Integer> snapshotIds) {
-    executeQuery("delete measures by snapshot id", snapshotIds, "delete from " + MeasureData.class.getSimpleName() + " m where m.snapshotId in (:ids)");
-    executeQuery("delete measures by snapshot id", snapshotIds, "delete from " + MeasureModel.class.getSimpleName() + " m where m.snapshotId in (:ids)");
+    executeQuery("delete measures by snapshot id", snapshotIds, "delete from " + MeasureData.class.getSimpleName()
+        + " m where m.snapshotId in (:ids)");
+    executeQuery("delete measures by snapshot id", snapshotIds, "delete from " + MeasureModel.class.getSimpleName()
+        + " m where m.snapshotId in (:ids)");
   }
 
   /**
    * Delete all measures, including MEASURE_DATA
    */
   protected void deleteMeasuresById(List<Integer> measureIds) {
-    executeQuery("delete measures by id", measureIds, "delete from " + MeasureData.class.getSimpleName() + " m where m.measure.id in (:ids)");
+    executeQuery("delete measures by id", measureIds, "delete from " + MeasureData.class.getSimpleName()
+        + " m where m.measure.id in (:ids)");
     executeQuery("delete measures by id", measureIds, "delete from " + MeasureModel.class.getSimpleName() + " m where m.id in (:ids)");
   }
 
@@ -87,7 +97,8 @@ public abstract class AbstractPurge implements Purge {
    * Delete violations (RULE_FAILURES table)
    */
   protected void deleteViolations(List<Integer> snapshotIds) {
-    executeQuery("delete violations", snapshotIds, "delete from " + RuleFailureModel.class.getSimpleName() + " e where e.snapshotId in (:ids)");
+    executeQuery("delete violations", snapshotIds, "delete from " + RuleFailureModel.class.getSimpleName()
+        + " e where e.snapshotId in (:ids)");
   }
 
   /**

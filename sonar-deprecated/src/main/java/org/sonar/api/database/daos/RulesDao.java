@@ -30,6 +30,9 @@ import org.sonar.api.rules.RulesCategory;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * @deprecated since 2.3
+ */
 @Deprecated
 public class RulesDao {
 
@@ -66,7 +69,6 @@ public class RulesDao {
   public RulesCategory getCategory(String key) {
     return null;
   }
-
 
   public List<RuleParam> getRuleParams() {
     return target.getRuleParams();
