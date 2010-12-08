@@ -19,6 +19,7 @@
  */
 package org.sonar.server.configuration;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharEncoding;
@@ -30,10 +31,7 @@ import org.sonar.api.database.configuration.Property;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.ActiveRuleParam;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RulePriority;
+import org.sonar.api.rules.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,10 +40,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -66,11 +65,12 @@ public class BackupTest {
   @Test
   public void shouldReturnAValidXml() throws Exception {
     Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null),
-        new ProfilesBackup((DatabaseSession) null)));
+        new RulesBackup((DatabaseSession) null), new ProfilesBackup((DatabaseSession) null)));
     SonarConfig sonarConfig = getSonarConfig();
     sonarConfig.setMetrics(getMetrics());
     sonarConfig.setProperties(getProperties());
     sonarConfig.setProfiles(getProfiles());
+    sonarConfig.setRules(getUserRules());
 
     String xml = backup.getXmlFromSonarConfig(sonarConfig);
     assertXmlAreSimilar(xml, "backup-valid.xml");
@@ -99,7 +99,7 @@ public class BackupTest {
   @Test
   public void shouldImportXml() {
     Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null),
-        new ProfilesBackup((DatabaseSession) null)));
+        new RulesBackup((DatabaseSession) null), new ProfilesBackup((DatabaseSession) null)));
 
     String xml = getFileFromClasspath("backup-restore-valid.xml");
     SonarConfig sonarConfig = backup.getSonarConfigFromXml(xml);
@@ -141,6 +141,21 @@ public class BackupTest {
     assertEquals("testWarn", testAlert.getValueWarning());
     assertNotNull(testAlert.getMetric());
     assertEquals("test key", testAlert.getMetric().getKey());
+
+    Collection<Rule> rules = sonarConfig.getRules();
+    assertThat(rules.size(), is(1));
+    Rule rule = rules.iterator().next();
+    assertThat(rule.getParent().getRepositoryKey(), is("test plugin"));
+    assertThat(rule.getParent().getKey(), is("test key"));
+    assertThat(rule.getRepositoryKey(), is("test plugin"));
+    assertThat(rule.getKey(), is("test key2"));
+    assertThat(rule.getName(), is("test name"));
+    assertThat(rule.getDescription(), is("test description"));
+    assertThat(rule.getSeverity(), is(RulePriority.INFO));
+    assertThat(rule.getParams().size(), is(1));
+    RuleParam param = rule.getParams().get(0);
+    assertThat(param.getKey(), is("test param key"));
+    assertThat(param.getDefaultValue(), is("test param value"));
   }
 
   @Test
@@ -242,6 +257,18 @@ public class BackupTest {
     profiles.get(0).getAlerts().add(new Alert(null, new Metric("test key"), Alert.OPERATOR_GREATER, "testError", "testWarn"));
 
     return profiles;
+  }
+
+  private List<Rule> getUserRules() {
+    List<Rule> rules = Lists.newArrayList();
+    Rule parentRule = Rule.create("test plugin", "test key", null);
+    Rule rule = Rule.create("test plugin", "test key2", "test name")
+        .setDescription("test description")
+        .setSeverity(RulePriority.INFO)
+        .setParent(parentRule);
+    rule.createParameter().setKey("test param key").setDefaultValue("test param value");
+    rules.add(rule);
+    return rules;
   }
 
   private List<Property> getProperties() {

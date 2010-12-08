@@ -70,4 +70,21 @@
       <alerts/>
     </profile>
   </profiles>
+  <rules>
+    <rule>
+      <parentRepositoryKey><![CDATA[test plugin]]></parentRepositoryKey>
+      <parentKey><![CDATA[test key]]></parentKey>
+      <repositoryKey><![CDATA[test plugin]]></repositoryKey>
+      <key><![CDATA[test key2]]></key>
+      <level><![CDATA[INFO]]></level>
+      <name><![CDATA[test name]]></name>
+      <description><![CDATA[test description]]></description>
+      <params>
+        <param>
+          <key><![CDATA[test param key]]></key>
+          <value><![CDATA[test param value]]></value>
+        </param>
+      </params>
+    </rule>
+  </rules>
 </sonar-config>
