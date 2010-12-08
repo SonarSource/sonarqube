@@ -94,6 +94,7 @@ public final class MeasurePersister {
     return measure.getId() == null &&
         metric.isOptimizedBestValue() == Boolean.TRUE &&
         metric.getBestValue() != null &&
+        measure.getValue() != null &
         NumberUtils.compare(metric.getBestValue(), measure.getValue()) == 0 &&
         measure.getAlertStatus() == null &&
         measure.getDescription() == null &&

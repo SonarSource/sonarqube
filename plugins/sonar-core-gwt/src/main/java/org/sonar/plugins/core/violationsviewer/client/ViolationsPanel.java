@@ -29,15 +29,13 @@ import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.Violation;
 import org.sonar.wsclient.services.ViolationQuery;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ViolationsPanel extends SourcePanel {
   private boolean expand = false;
   private List<Violation> violations;
   private Map<Integer, List<Violation>> filteredViolationsByLine = new HashMap<Integer, List<Violation>>();
+  private final static Date now = new Date();
 
   public ViolationsPanel(Resource resource, String filter) {
     super(resource);
@@ -140,8 +138,12 @@ public class ViolationsPanel extends SourcePanel {
     @Override
     public String getColumn4() {
       String age = "";
-      if (violation.getAge()!=null && violation.getAge()>0) {
-        age = " <span class='note'>(" + violation.getAge() + " days)</span>";
+      if (violation.getCreatedAt() != null) {
+        if (sameDay(now, violation.getCreatedAt())) {
+          age = " <span class='note'>(today)</span>";
+        } else {
+          age = " <span class='note'>(" + diffInDays(violation.getCreatedAt(), now) + " days)</span>";
+        }
       }
       return "<div class=\"warn\">" + Icons.forPriority(violation.getPriority()).getHTML() + "</img> "
           + " <a href=\"" + Links.urlForRule(violation.getRuleKey(), false)
@@ -149,6 +151,24 @@ public class ViolationsPanel extends SourcePanel {
           + violation.getRuleKey() + "\"><b>"
           + Utils.escapeHtml(violation.getRuleName()) + "</b></a> : "
           + Utils.escapeHtml(violation.getMessage()) + age + "</div>";
+    }
+
+    @SuppressWarnings("deprecation")
+    static boolean sameDay(Date d1, Date d2) {
+      return d1.getDate() == d2.getDate() && d1.getMonth() == d2.getMonth() && d1.getYear() == d2.getYear();
+    }
+
+    @SuppressWarnings(value = "deprecation")
+    static int diffInDays(Date d1, Date d2) {
+      int difference = 0;
+      int endDateOffset = -(d1.getTimezoneOffset() * 60 * 1000);
+      long endDateInstant = d1.getTime() + endDateOffset;
+      int startDateOffset = -(d2.getTimezoneOffset() * 60 * 1000);
+      long startDateInstant = d2.getTime() + startDateOffset;
+      double differenceDouble = (double) Math.abs(endDateInstant - startDateInstant) / (1000.0 * 60 * 60 * 24);
+      differenceDouble = Math.max(1.0D, differenceDouble);
+      difference = (int) differenceDouble;
+      return difference;
     }
   }
 
