@@ -176,6 +176,10 @@ class Snapshot < ActiveRecord::Base
     project
   end
 
+  def variation_modes?
+    (variation_mode_1 || variation_mode_2 || variation_mode_3 || variation_mode_4 || variation_mode_5) != nil
+  end
+
   def resource_id_for_authorization
     root_project_id || project_id
   end

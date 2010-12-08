@@ -390,7 +390,6 @@ module ApplicationHelper
   # Display the trend icon :
   #
   # === Optional parameters
-  # * big: true|false. Default is false.
   # * empty: true|false. Show an empty transparent image when no trend or no measure. Default is false.
   #
   # === Examples
@@ -405,9 +404,8 @@ module ApplicationHelper
       m = @snapshot.measure(metric_or_measure)
     end
 
-    big=options[:big]||false
     if m.nil? || m.tendency.nil? || m.tendency==0
-      return options[:empty] ? image_tag("transparent.gif", :width => big ? "18" : "16", :alt => "") : nil
+      return options[:empty] ? image_tag("transparent.gif", :width => "16", :alt => "") : nil
     end
     filename = m.tendency.to_s
 
@@ -419,8 +417,7 @@ module ApplicationHelper
     when 1
       filename+= '-green'
     end
-    suffix = (big ? '' : '-small')
-    image_tag("tendency/#{filename}#{suffix}.png")
+    image_tag("tendency/#{filename}-small.png")
   end
 
   #
@@ -428,7 +425,7 @@ module ApplicationHelper
   # Numeric value of variation
   #
   # === Optional parameters
-  # * index: integer between 1 and 3. By default the index is defined by the dashboard variation select-box
+  # * index: integer between 1 and 5. By default the index is defined by the dashboard variation select-box
   #
   # === Examples
   # variation_value('ncloc')
@@ -457,7 +454,7 @@ module ApplicationHelper
   #
   # === Optional parameters
   # * color: true|false. Default is true.
-  # * index: integer between 1 and 3. By default the index is defined by the dashboard variation select-box
+  # * index: integer between 1 and 5. By default the index is defined by the dashboard variation select-box
   #
   # === Examples
   # format_variation('ncloc')

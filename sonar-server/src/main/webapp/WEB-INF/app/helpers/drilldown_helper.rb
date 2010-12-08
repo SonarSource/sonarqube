@@ -18,7 +18,31 @@
  # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  #
 module DrilldownHelper
-  include DashboardHelper
+
+  def variation_select_option(snapshot, index)
+    return nil if snapshot.nil? || snapshot.project_snapshot.nil?
+    mode=snapshot.project_snapshot.send "variation_mode_#{index}"
+    mode_param=snapshot.project_snapshot.send "variation_param_#{index}"
+
+    if mode
+      if mode=='days'
+        label = "New violations from %s previous days" % mode_param
+      elsif mode=='version'
+        label = "New violations since version %s" % mode_param
+      elsif mode=='previous_analysis'
+        label = "New violations since previous analysis (%s)" % localize(Date.parse(mode_param))
+      elsif mode=='date'
+        label = "New violations since #{localize(Date.parse(mode_param))}"
+      end
+      if label
+        selected=(params[:var]==index.to_s ? 'selected' : '')
+        "<option value='#{index}' #{selected}>#{label}</option>"
+      end
+    else
+      nil
+    end
+
+  end
 
   def measure_or_variation_value(measure)
     if measure

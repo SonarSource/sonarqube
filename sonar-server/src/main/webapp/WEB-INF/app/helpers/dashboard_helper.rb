@@ -35,13 +35,13 @@ module DashboardHelper
 
     if mode
       if mode=='days'
-        label = "Last %s days" % mode_param
+        label = "Compare to %s previous days" % mode_param
       elsif mode=='version'
-        label = "Version %s" % mode_param
+        label = "Compare to version %s" % mode_param
       elsif mode=='previous_analysis'
-        label = "Previous analysis (%s)" % localize(Date.parse(mode_param))
+        label = "Compare to previous analysis (%s)" % localize(Date.parse(mode_param))
       elsif mode=='date'
-        label = localize(Date.parse(mode_param))
+        label = "Compare to #{localize(Date.parse(mode_param))}"
       end
       if label
         selected=(params[:var]==index.to_s ? 'selected' : '')
@@ -50,6 +50,5 @@ module DashboardHelper
     else
       nil
     end
-
   end
 end

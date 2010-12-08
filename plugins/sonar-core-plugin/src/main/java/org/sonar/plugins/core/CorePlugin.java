@@ -116,7 +116,7 @@ import java.util.List;
     @Property(
         key = "sonar.timemachine.variation1",
         name = "Variation 1",
-        description = "To be defined. For the moment the number of days",
+        description = "Period used to compare measures and track new violations. Values are : <ul><li>Number of days before analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, for example 2010-12-25</li><li>'previous_analysis' to compare to previous analysis</li><li>A version, for example 1.2</li></ul>",
         project = false,
         global = true
     ),
