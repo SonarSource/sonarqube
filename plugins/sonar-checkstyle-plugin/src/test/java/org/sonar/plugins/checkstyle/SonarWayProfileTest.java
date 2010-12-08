@@ -22,6 +22,7 @@ package org.sonar.plugins.checkstyle;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.profiles.XMLProfileParser;
@@ -40,7 +41,7 @@ public class SonarWayProfileTest {
 
   @Test
   public void shouldCreateProfile() {
-    ProfileDefinition sonarWay = new SonarWayProfile(new XMLProfileParser(newRuleFinder()));
+    ProfileDefinition sonarWay = new SonarWayProfile(new XMLProfileParser(newRuleFinder(), mock(MetricFinder.class)));
     ValidationMessages validation = ValidationMessages.create();
     RulesProfile profile = sonarWay.createProfile(validation);
     assertThat(profile.getActiveRulesByRepository(CheckstyleConstants.REPOSITORY_KEY).size(), greaterThan(1));
@@ -49,7 +50,7 @@ public class SonarWayProfileTest {
 
   private RuleFinder newRuleFinder() {
     RuleFinder ruleFinder = mock(RuleFinder.class);
-    when(ruleFinder.findByKey(anyString(), anyString())).thenAnswer(new Answer<Rule>(){
+    when(ruleFinder.findByKey(anyString(), anyString())).thenAnswer(new Answer<Rule>() {
       public Rule answer(InvocationOnMock iom) throws Throwable {
         return Rule.create((String) iom.getArguments()[0], (String) iom.getArguments()[1], (String) iom.getArguments()[1]);
       }

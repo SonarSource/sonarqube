@@ -27,19 +27,22 @@ import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 
 /**
  * @since 2.3
@@ -47,9 +50,11 @@ import java.util.Map;
 public final class XMLProfileParser implements ServerComponent {
 
   private RuleFinder ruleFinder;
+  private MetricFinder metricFinder;
 
-  public XMLProfileParser(RuleFinder ruleFinder) {
+  public XMLProfileParser(RuleFinder ruleFinder, MetricFinder metricFinder) {
     this.ruleFinder = ruleFinder;
+    this.metricFinder = metricFinder;
   }
 
   public RulesProfile parseResource(ClassLoader classloader, String xmlClassPath, ValidationMessages messages) {
@@ -74,6 +79,10 @@ public final class XMLProfileParser implements ServerComponent {
         if (StringUtils.equals("rules", nodeName)) {
           SMInputCursor rulesCursor = cursor.childElementCursor("rule");
           processRules(rulesCursor, profile, messages);
+
+        } else if (StringUtils.equals("alerts", nodeName)) {
+          SMInputCursor alertsCursor = cursor.childElementCursor("alert");
+          processAlerts(alertsCursor, profile, messages);
 
         } else if (StringUtils.equals("name", nodeName)) {
           profile.setName(StringUtils.trim(cursor.collectDescendantText(false)));
@@ -105,8 +114,7 @@ public final class XMLProfileParser implements ServerComponent {
     // just so it won't try to load DTD in if there's DOCTYPE
     xmlFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
     xmlFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
-    SMInputFactory inputFactory = new SMInputFactory(xmlFactory);
-    return inputFactory;
+    return new SMInputFactory(xmlFactory);
   }
 
   private void processRules(SMInputCursor rulesCursor, RulesProfile profile, ValidationMessages messages) throws XMLStreamException {
@@ -144,7 +152,8 @@ public final class XMLProfileParser implements ServerComponent {
         ActiveRule activeRule = profile.activateRule(rule, priority);
         for (Map.Entry<String, String> entry : parameters.entrySet()) {
           if (rule.getParam(entry.getKey()) == null) {
-            messages.addWarningText("The parameter '" + entry.getKey() + "' does not exist in the rule: [repository=" + repositoryKey + ", key=" + key + "]");
+            messages.addWarningText("The parameter '" + entry.getKey() + "' does not exist in the rule: [repository=" + repositoryKey
+                + ", key=" + key + "]");
           } else {
             activeRule.setParameter(entry.getKey(), entry.getValue());
           }
@@ -173,5 +182,41 @@ public final class XMLProfileParser implements ServerComponent {
     }
   }
 
+  private void processAlerts(SMInputCursor alertsCursor, RulesProfile profile, ValidationMessages messages) throws XMLStreamException {
+    while (alertsCursor.getNext() != null) {
+      SMInputCursor alertCursor = alertsCursor.childElementCursor();
+
+      String metricKey = null, operator = "", valueError = "", valueWarning = "";
+
+      while (alertCursor.getNext() != null) {
+        String nodeName = alertCursor.getLocalName();
+
+        if (StringUtils.equals("metric", nodeName)) {
+          metricKey = StringUtils.trim(alertCursor.collectDescendantText(false));
+
+        } else if (StringUtils.equals("operator", nodeName)) {
+          operator = StringUtils.trim(alertCursor.collectDescendantText(false));
+
+        } else if (StringUtils.equals("warning", nodeName)) {
+          valueWarning = StringUtils.trim(alertCursor.collectDescendantText(false));
+
+        } else if (StringUtils.equals("error", nodeName)) {
+          valueError = StringUtils.trim(alertCursor.collectDescendantText(false));
+        }
+      }
+
+      Metric metric = metricFinder.findByKey(metricKey);
+      if (metric == null) {
+        messages.addWarningText("Metric '" + metricKey + "' does not exist");
+      } else {
+        Alert alert = new Alert();
+        alert.setMetric(metric);
+        alert.setOperator(operator);
+        alert.setValueError(valueError);
+        alert.setValueWarning(valueWarning);
+        profile.getAlerts().add(alert);
+      }
+    }
+  }
 
 }

@@ -38,6 +38,7 @@ public final class XMLProfileSerializer implements ServerComponent {
     try {
       appendHeader(profile, writer);
       appendRules(profile, writer);
+      appendAlerts(profile, writer);
       appendFooter(writer);
 
     } catch (IOException e) {
@@ -99,6 +100,28 @@ public final class XMLProfileSerializer implements ServerComponent {
       writer.append("</value>");
       writer.append("</parameter>");
     }
+  }
+
+  private void appendAlerts(RulesProfile profile, Writer writer) throws IOException {
+    if (!profile.getAlerts().isEmpty()) {
+      writer.append("<alerts>");
+      for (Alert alert : profile.getAlerts()) {
+        appendAlert(alert, writer);
+      }
+      writer.append("</alerts>");
+    }
+  }
+
+  private void appendAlert(Alert alert, Writer writer) throws IOException {
+    writer.append("<alert><metric>");
+    StringEscapeUtils.escapeXml(writer, alert.getMetric().getKey());
+    writer.append("</metric><operator>");
+    StringEscapeUtils.escapeXml(writer, alert.getOperator());
+    writer.append("</operator><warning>");
+    StringEscapeUtils.escapeXml(writer, alert.getValueWarning());
+    writer.append("</warning><error>");
+    StringEscapeUtils.escapeXml(writer, alert.getValueError());
+    writer.append("</error></alert>");
   }
 
   private void appendFooter(Writer writer) throws IOException {

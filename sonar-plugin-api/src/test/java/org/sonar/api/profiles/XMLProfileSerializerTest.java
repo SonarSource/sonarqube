@@ -24,6 +24,7 @@ import org.apache.commons.lang.CharUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Test;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
@@ -73,6 +74,21 @@ public class XMLProfileSerializerTest {
     new XMLProfileSerializer().write(profile, writer);
 
     assertSimilarXml("/org/sonar/api/profiles/XMLProfileSerializerTest/exportRuleParameters.xml", writer.toString());
+  }
+
+  @Test
+  public void exportAlerts() throws Exception {
+    Writer writer = new StringWriter();
+    RulesProfile profile = RulesProfile.create("sonar way", "java");
+    Alert alert = new Alert();
+    alert.setMetric(new Metric("coverage"));
+    alert.setOperator(Alert.OPERATOR_SMALLER);
+    alert.setValueError("60");
+    alert.setValueWarning("80");
+    profile.getAlerts().add(alert);
+    new XMLProfileSerializer().write(profile, writer);
+
+    assertSimilarXml("/org/sonar/api/profiles/XMLProfileSerializerTest/exportAlerts.xml", writer.toString());
   }
 
   public static void assertSimilarXml(String pathToExpectedXml, String xml) throws IOException, SAXException {

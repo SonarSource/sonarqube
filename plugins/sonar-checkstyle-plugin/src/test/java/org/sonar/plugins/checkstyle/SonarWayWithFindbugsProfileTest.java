@@ -22,6 +22,7 @@ package org.sonar.plugins.checkstyle;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.profiles.XMLProfileParser;
 import org.sonar.api.rules.Rule;
@@ -39,7 +40,7 @@ public class SonarWayWithFindbugsProfileTest {
   @Test
   public void shouldBeSameAsSonarWay() {
     RuleFinder ruleFinder = newRuleFinder();
-    SonarWayProfile sonarWay = new SonarWayProfile(new XMLProfileParser(ruleFinder));
+    SonarWayProfile sonarWay = new SonarWayProfile(new XMLProfileParser(ruleFinder, mock(MetricFinder.class)));
     RulesProfile withoutFindbugs = sonarWay.createProfile(ValidationMessages.create());
     RulesProfile withFindbugs = new SonarWayWithFindbugsProfile(sonarWay).createProfile(ValidationMessages.create());
     assertThat(withFindbugs.getActiveRules().size(), is(withoutFindbugs.getActiveRules().size()));

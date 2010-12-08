@@ -22,6 +22,8 @@ package org.sonar.api.profiles;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
@@ -44,8 +46,7 @@ public class XMLProfileParserTest {
   @Test
   public void importProfile() throws UnsupportedEncodingException {
     ValidationMessages validation = ValidationMessages.create();
-    RuleFinder ruleFinder = newRuleFinder();
-    RulesProfile profile = new XMLProfileParser(ruleFinder).parseResource(getClass().getClassLoader(), "org/sonar/api/profiles/XMLProfileParserTest/importProfile.xml", validation);
+    RulesProfile profile = parse("importProfile.xml", validation);
 
     assertThat(profile.getLanguage(), is("java"));
     assertThat(profile.getName(), is("sonar way"));
@@ -57,8 +58,7 @@ public class XMLProfileParserTest {
   @Test
   public void nameAndLanguageShouldBeMandatory() throws UnsupportedEncodingException {
     ValidationMessages validation = ValidationMessages.create();
-    RuleFinder ruleFinder = newRuleFinder();
-    RulesProfile profile = new XMLProfileParser(ruleFinder).parseResource(getClass().getClassLoader(), "org/sonar/api/profiles/XMLProfileParserTest/nameAndLanguageShouldBeMandatory.xml", validation);
+    parse("nameAndLanguageShouldBeMandatory.xml", validation);
 
     assertThat(validation.getErrors().size(), is(2));
     assertThat(validation.getErrors().get(0), containsString(""));
@@ -68,8 +68,7 @@ public class XMLProfileParserTest {
   @Test
   public void importProfileWithRuleParameters() throws UnsupportedEncodingException {
     ValidationMessages validation = ValidationMessages.create();
-    RuleFinder ruleFinder = newRuleFinder();
-    RulesProfile profile = new XMLProfileParser(ruleFinder).parseResource(getClass().getClassLoader(), "org/sonar/api/profiles/XMLProfileParserTest/importProfileWithRuleParameters.xml", validation);
+    RulesProfile profile = parse("importProfileWithRuleParameters.xml", validation);
 
     assertThat(validation.hasErrors(), is(false));
     assertThat(validation.hasWarnings(), is(false));
@@ -81,12 +80,39 @@ public class XMLProfileParserTest {
   @Test
   public void importProfileWithUnknownRuleParameter() throws UnsupportedEncodingException {
     ValidationMessages validation = ValidationMessages.create();
-    RuleFinder ruleFinder = newRuleFinder();
-    RulesProfile profile = new XMLProfileParser(ruleFinder).parseResource(getClass().getClassLoader(), "org/sonar/api/profiles/XMLProfileParserTest/importProfileWithUnknownRuleParameter.xml", validation);
+    RulesProfile profile = parse("importProfileWithUnknownRuleParameter.xml", validation);
 
     assertThat(validation.getWarnings().size(), is(1));
     ActiveRule rule = profile.getActiveRule("checkstyle", "IllegalRegexp");
     assertThat(rule.getParameter("unknown"), nullValue());
+  }
+
+  @Test
+  public void importProfileWithAlerts() {
+    ValidationMessages validation = ValidationMessages.create();
+    RulesProfile profile = parse("importProfileWithAlerts.xml", validation);
+
+    assertThat(profile.getAlerts().size(), is(1));
+    Alert alert = profile.getAlerts().get(0);
+    assertThat(alert.getMetric().getKey(), is("complexity"));
+    assertThat(alert.getOperator(), is(Alert.OPERATOR_GREATER));
+    assertThat(alert.getValueWarning(), is("10"));
+    assertThat(alert.getValueError(), is("12"));
+  }
+
+  private RulesProfile parse(String resource, ValidationMessages validation) {
+    return new XMLProfileParser(newRuleFinder(), newMetricFinder())
+        .parseResource(getClass().getClassLoader(), "org/sonar/api/profiles/XMLProfileParserTest/" + resource, validation);
+  }
+
+  private MetricFinder newMetricFinder() {
+    MetricFinder metricFinder = mock(MetricFinder.class);
+    when(metricFinder.findByKey(anyString())).thenAnswer(new Answer<Metric>() {
+      public Metric answer(InvocationOnMock iom) throws Throwable {
+        return new Metric((String) iom.getArguments()[0]);
+      }
+    });
+    return metricFinder;
   }
 
   private RuleFinder newRuleFinder() {

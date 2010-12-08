@@ -23,6 +23,7 @@ import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.profiles.XMLProfileParser;
@@ -39,7 +40,7 @@ import static org.mockito.Mockito.when;
 public class SunConventionsProfileTest {
   @Test
   public void shouldCreateProfile() {
-    ProfileDefinition definition = new SunConventionsProfile(new XMLProfileParser(newRuleFinder()));
+    ProfileDefinition definition = new SunConventionsProfile(new XMLProfileParser(newRuleFinder(), mock(MetricFinder.class)));
     ValidationMessages validation = ValidationMessages.create();
     RulesProfile sunProfile = definition.createProfile(validation);
     assertThat(sunProfile.getActiveRulesByRepository(CheckstyleConstants.REPOSITORY_KEY).size(), greaterThan(1));
