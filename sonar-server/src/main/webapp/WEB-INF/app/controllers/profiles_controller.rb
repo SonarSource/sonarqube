@@ -20,8 +20,10 @@
 class ProfilesController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
 
-  verify :method => :post, :only => ['create', 'delete', 'copy', 'set_as_default', 'restore', 'backup', 'set_projects', 'rename'], :redirect_to => { :action => 'index' }
-  before_filter :admin_required, :except => [ 'index', 'show', 'projects', 'permalinks', 'export' ]
+  verify :method => :post, :only => ['create', 'delete', 'copy', 'set_as_default', 'restore', 'set_projects', 'rename'], :redirect_to => { :action => 'index' }
+
+  # the backup action is allow to non-admin users : see http://jira.codehaus.org/browse/SONAR-2039
+  before_filter :admin_required, :except => [ 'index', 'show', 'projects', 'permalinks', 'export', 'backup' ]
 
   #
   #
