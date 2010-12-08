@@ -76,6 +76,7 @@
       <parentKey><![CDATA[test key]]></parentKey>
       <repositoryKey><![CDATA[test plugin]]></repositoryKey>
       <key><![CDATA[test key2]]></key>
+      <configKey><![CDATA[test config key]]></configKey>
       <level><![CDATA[INFO]]></level>
       <name><![CDATA[test name]]></name>
       <description><![CDATA[test description]]></description>

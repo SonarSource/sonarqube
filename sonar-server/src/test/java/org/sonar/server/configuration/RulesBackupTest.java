@@ -72,6 +72,10 @@ public class RulesBackupTest extends AbstractDbUnitTestCase {
     sonarConfig.setRules(Arrays.asList(createUserRule()));
     rulesBackup.importXml(sonarConfig);
 
+    verify();
+  }
+
+  private void verify() {
     assertThat(getSession().getResults(Rule.class).size(), is(2));
     Rule importedRule = getDao().getRulesDao().getRuleByKey("repo", "key2");
     assertThat(importedRule.getParent(), is(rule));
@@ -88,12 +92,12 @@ public class RulesBackupTest extends AbstractDbUnitTestCase {
   @Test
   public void shouldUpdateRules() {
     getSession().save(rule);
-    getSession().save(createUserRule());
+    getSession().save(Rule.create("repo", "key2", ""));
 
     sonarConfig.setRules(Arrays.asList(createUserRule()));
     rulesBackup.importXml(sonarConfig);
 
-    assertThat(getSession().getResults(Rule.class).size(), is(2));
+    verify();
   }
 
   @Test

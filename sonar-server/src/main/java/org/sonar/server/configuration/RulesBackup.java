@@ -101,6 +101,9 @@ public class RulesBackup implements Backupable {
           "pluginName", rule.getRepositoryKey(),
           "key", rule.getKey());
       if (matchingRuleInDb != null) {
+        // merge
+        matchingRuleInDb.setParent(matchingParentRuleInDb);
+        matchingRuleInDb.setConfigKey(rule.getConfigKey());
         matchingRuleInDb.setName(rule.getName());
         matchingRuleInDb.setDescription(rule.getDescription());
         matchingRuleInDb.setSeverity(rule.getSeverity());
@@ -123,6 +126,7 @@ public class RulesBackup implements Backupable {
         writeNode(writer, "parentKey", rule.getParent().getKey());
         writeNode(writer, "repositoryKey", rule.getRepositoryKey());
         writeNode(writer, "key", rule.getKey());
+        writeNode(writer, "configKey", rule.getConfigKey());
         writeNode(writer, "level", rule.getSeverity().name());
         writeNode(writer, "name", rule.getName());
         writeNode(writer, "description", rule.getDescription());
@@ -165,6 +169,7 @@ public class RulesBackup implements Backupable {
         rule.setParent(parent)
             .setRepositoryKey(valuesRule.get("repositoryKey"))
             .setKey(valuesRule.get("key"))
+            .setConfigKey(valuesRule.get("configKey"))
             .setName(valuesRule.get("name"))
             .setDescription(valuesRule.get("description"))
             .setSeverity(RulePriority.valueOf(valuesRule.get("level")));

@@ -149,6 +149,7 @@ public class BackupTest {
     assertThat(rule.getParent().getKey(), is("test key"));
     assertThat(rule.getRepositoryKey(), is("test plugin"));
     assertThat(rule.getKey(), is("test key2"));
+    assertThat(rule.getConfigKey(), is("test config key"));
     assertThat(rule.getName(), is("test name"));
     assertThat(rule.getDescription(), is("test description"));
     assertThat(rule.getSeverity(), is(RulePriority.INFO));
@@ -264,6 +265,7 @@ public class BackupTest {
     Rule parentRule = Rule.create("test plugin", "test key", null);
     Rule rule = Rule.create("test plugin", "test key2", "test name")
         .setDescription("test description")
+        .setConfigKey("test config key")
         .setSeverity(RulePriority.INFO)
         .setParent(parentRule);
     rule.createParameter().setKey("test param key").setDefaultValue("test param value");
