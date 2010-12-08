@@ -25,10 +25,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.profiles.RulesProfile;
 
-import javax.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.persistence.*;
 
 /**
  * A class to map an ActiveRule to the hibernate model
@@ -175,11 +175,11 @@ public class ActiveRule implements Cloneable {
   }
 
   /**
-   * @deprecated use getRepositoryKey()
+   * @deprecated since 2.3 use {@link #getRepositoryKey()} instead
    */
   @Deprecated
   public String getPluginName() {
-    return rule.getPluginName();
+    return rule.getRepositoryKey();
   }
 
   public String getRepositoryKey() {
@@ -230,7 +230,8 @@ public class ActiveRule implements Cloneable {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this).append("id", getId()).append("rule", rule).append("priority", severity).append("params", activeRuleParams).toString();
+    return new ToStringBuilder(this).append("id", getId()).append("rule", rule).append("priority", severity)
+        .append("params", activeRuleParams).toString();
   }
 
   @Override

@@ -29,14 +29,13 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
-import javax.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.*;
+
 /**
- * This class is badly named. It should be "QualityProfile". Indeed it does not relate only to rules but to metric
- * thresholds too.
+ * This class is badly named. It should be "QualityProfile". Indeed it does not relate only to rules but to metric thresholds too.
  */
 @Entity
 @Table(name = "rules_profiles")
@@ -153,16 +152,16 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * Set whether this is the default profile for the language. The default profile is used when none is explicitly
-   * defined when auditing a project.
+   * Set whether this is the default profile for the language. The default profile is used when none is explicitly defined when auditing a
+   * project.
    */
   public void setDefaultProfile(Boolean b) {
     this.defaultProfile = b;
   }
 
   /**
-   * @return whether the profile is defined in a plugin. Provided profiles are automatically restored during
-   *         server startup and can not be updated by end users.
+   * @return whether the profile is defined in a plugin. Provided profiles are automatically restored during server startup and can not be
+   *         updated by end users.
    */
   public Boolean getProvided() {
     return provided;
@@ -232,7 +231,7 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * @deprecated since 2.3. Use getActiveRulesByRepository().
+   * @deprecated since 2.3 use {@link #getActiveRulesByRepository()} instead.
    */
   @Deprecated
   public List<ActiveRule> getActiveRulesByPlugin(String repositoryKey) {
@@ -242,7 +241,7 @@ public class RulesProfile implements Cloneable {
   public List<ActiveRule> getActiveRulesByRepository(String repositoryKey) {
     List<ActiveRule> result = new ArrayList<ActiveRule>();
     for (ActiveRule activeRule : getActiveRules()) {
-      if (repositoryKey.equals(activeRule.getPluginName())) {
+      if (repositoryKey.equals(activeRule.getRepositoryKey())) {
         result.add(activeRule);
       }
     }

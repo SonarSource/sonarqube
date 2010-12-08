@@ -41,13 +41,20 @@ public class RulesDao extends BaseDao {
     return getSession().getResults(Rule.class, "enabled", true);
   }
 
-  public List<Rule> getRulesByPlugin(String pluginKey) {
-    return getSession().getResults(Rule.class, "pluginName", pluginKey, "enabled", true);
+  public List<Rule> getRulesByRepository(String repositoryKey) {
+    return getSession().getResults(Rule.class, "pluginName", repositoryKey, "enabled", true);
   }
 
+  /**
+   * @deprecated since 2.5 use {@link #getRulesByRepository(String)} instead.
+   */
+  @Deprecated
+  public List<Rule> getRulesByPlugin(String pluginKey) {
+    return getRulesByRepository(pluginKey);
+  }
 
-  public Rule getRuleByKey(String pluginKey, String ruleKey) {
-    return getSession().getSingleResult(Rule.class, "key", ruleKey, "pluginName", pluginKey, "enabled", true);
+  public Rule getRuleByKey(String repositoryKey, String ruleKey) {
+    return getSession().getSingleResult(Rule.class, "key", ruleKey, "pluginName", repositoryKey, "enabled", true);
   }
 
   public Long countRules(List<String> plugins) {
@@ -56,7 +63,6 @@ public class RulesDao extends BaseDao {
         setParameter("pluginNames", plugins).
         getSingleResult();
   }
-
 
   public List<RuleParam> getRuleParams() {
     return getSession().getResults(RuleParam.class);

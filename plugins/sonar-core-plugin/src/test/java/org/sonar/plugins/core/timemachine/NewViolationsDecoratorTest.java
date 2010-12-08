@@ -82,9 +82,9 @@ public class NewViolationsDecoratorTest {
 
     decorator = new NewViolationsDecorator(timeMachineConfiguration);
 
-    rule1 = Rule.create().setPluginName("rule1").setKey("rule1").setName("name1");
-    rule2 = Rule.create().setPluginName("rule2").setKey("rule2").setName("name2");
-    rule3 = Rule.create().setPluginName("rule3").setKey("rule3").setName("name3");
+    rule1 = Rule.create().setRepositoryKey("rule1").setKey("rule1").setName("name1");
+    rule2 = Rule.create().setRepositoryKey("rule2").setKey("rule2").setName("name2");
+    rule3 = Rule.create().setRepositoryKey("rule3").setKey("rule3").setName("name3");
   }
 
   @Test

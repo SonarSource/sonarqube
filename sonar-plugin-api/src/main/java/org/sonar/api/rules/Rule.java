@@ -26,10 +26,10 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.check.Cardinality;
 
-import javax.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "rules")
@@ -92,8 +92,8 @@ public final class Rule {
    * Creates rule with minimum set of info
    * 
    * @param pluginName the plugin name indicates which plugin the rule belongs to
-   * @param key the key should be unique within a plugin, but it is even more careful for the time being that it is unique
-   *          across the application
+   * @param key the key should be unique within a plugin, but it is even more careful for the time being that it is unique across the
+   *          application
    * @deprecated since 2.3. Use the factory method {@link #create()}
    */
   @Deprecated
@@ -107,8 +107,8 @@ public final class Rule {
    * Creates a fully qualified rule
    * 
    * @param pluginKey the plugin the rule belongs to
-   * @param key the key should be unique within a plugin, but it is even more careful for the time being that it is unique
-   *          across the application
+   * @param key the key should be unique within a plugin, but it is even more careful for the time being that it is unique across the
+   *          application
    * @param name the name displayed in the UI
    * @param rulesCategory the ISO category the rule belongs to
    * @param severity this is the severity associated to the rule
@@ -201,13 +201,18 @@ public final class Rule {
     return this;
   }
 
+  /**
+   * @deprecated since 2.5 use {@link #getRepositoryKey()} instead
+   */
+  @Deprecated
   public String getPluginName() {
     return pluginName;
   }
 
   /**
-   * Sets the plugin name the rule belongs to
+   * @deprecated since 2.5 use {@link #setRepositoryKey(String)} instead
    */
+  @Deprecated
   public Rule setPluginName(String pluginName) {
     this.pluginName = pluginName;
     return this;
@@ -229,6 +234,14 @@ public final class Rule {
     return description;
   }
 
+  /**
+   * Sets the rule description
+   */
+  public Rule setDescription(String description) {
+    this.description = StringUtils.strip(description);
+    return this;
+  }
+
   public Boolean isEnabled() {
     return enabled;
   }
@@ -238,14 +251,6 @@ public final class Rule {
    */
   public Rule setEnabled(Boolean b) {
     this.enabled = b;
-    return this;
-  }
-
-  /**
-   * Sets the rule description
-   */
-  public Rule setDescription(String description) {
-    this.description = StringUtils.strip(description);
     return this;
   }
 
@@ -276,15 +281,15 @@ public final class Rule {
 
   public RuleParam createParameter() {
     RuleParam parameter = new RuleParam()
-      .setRule(this);
+        .setRule(this);
     params.add(parameter);
     return parameter;
   }
 
   public RuleParam createParameter(String key) {
     RuleParam parameter = new RuleParam()
-      .setKey(key)
-      .setRule(this);
+        .setKey(key)
+        .setRule(this);
     params.add(parameter);
     return parameter;
   }
@@ -376,7 +381,7 @@ public final class Rule {
     }
     Rule other = (Rule) obj;
     return new EqualsBuilder()
-        .append(pluginName, other.getPluginName())
+        .append(pluginName, other.getRepositoryKey())
         .append(key, other.getKey())
         .isEquals();
   }

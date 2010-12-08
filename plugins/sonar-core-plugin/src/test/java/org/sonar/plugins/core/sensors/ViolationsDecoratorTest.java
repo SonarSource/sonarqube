@@ -50,9 +50,9 @@ public class ViolationsDecoratorTest {
 
   @Before
   public void before() {
-    ruleA1 = Rule.create().setPluginName("ruleA1").setKey("ruleA1").setName("nameA1");
-    ruleA2 = Rule.create().setPluginName("ruleA2").setKey("ruleA2").setName("nameA2");
-    ruleB1 = Rule.create().setPluginName("ruleB1").setKey("ruleB1").setName("nameB1");
+    ruleA1 = Rule.create().setRepositoryKey("ruleA1").setKey("ruleA1").setName("nameA1");
+    ruleA2 = Rule.create().setRepositoryKey("ruleA2").setKey("ruleA2").setName("nameA2");
+    ruleB1 = Rule.create().setRepositoryKey("ruleB1").setKey("ruleB1").setName("nameB1");
 
     decorator = new ViolationsDecorator();
     resource = mock(Resource.class);
