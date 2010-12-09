@@ -33,6 +33,7 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.ValidationMessages;
 
 import java.io.InputStreamReader;
@@ -203,6 +204,7 @@ public final class XMLProfileParser implements ServerComponent {
   private void processAlerts(SMInputCursor alertsCursor, RulesProfile profile, ValidationMessages messages) throws XMLStreamException {
     if (metricFinder == null) {
       // TODO remove when constructor without MetricFinder would be removed
+      Logs.INFO.error("Unable to parse alerts, because MetricFinder not available.");
       return;
     }
     while (alertsCursor.getNext() != null) {
