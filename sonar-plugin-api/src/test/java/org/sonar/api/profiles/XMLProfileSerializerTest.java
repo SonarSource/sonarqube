@@ -80,11 +80,7 @@ public class XMLProfileSerializerTest {
   public void exportAlerts() throws Exception {
     Writer writer = new StringWriter();
     RulesProfile profile = RulesProfile.create("sonar way", "java");
-    Alert alert = new Alert();
-    alert.setMetric(new Metric("coverage"));
-    alert.setOperator(Alert.OPERATOR_SMALLER);
-    alert.setValueError("60");
-    alert.setValueWarning("80");
+    Alert alert = new Alert(profile, new Metric("coverage"), Alert.OPERATOR_SMALLER, "60", "80");
     profile.getAlerts().add(alert);
     new XMLProfileSerializer().write(profile, writer);
 
