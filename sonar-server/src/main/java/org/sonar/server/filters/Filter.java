@@ -19,12 +19,12 @@
  */
 package org.sonar.server.filters;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.resources.Resource;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -46,10 +46,11 @@ public class Filter {
   private boolean isViewContext = false;
 
   // filters on measures
-  private List<MeasureCriterion> measureCriteria = new ArrayList<MeasureCriterion>();
+  private List<MeasureCriterion> measureCriteria = Lists.newLinkedList();
 
   // sorting
   private Integer sortedMetricId;
+  private int sortedVariationIndex = 0; // >0 only when sortedMetricId not null
   private boolean sortedByLanguage;
   private boolean sortedByName;
   private boolean sortedByDate;
@@ -57,13 +58,15 @@ public class Filter {
   private boolean useMeasureValueToSort = true; // only if sortedMetricId is not null
   private boolean ascendingSort = true;
 
+
+
   public Filter setPath(Integer rootSnapshotId, Integer snapshotId, String snapshotPath, boolean isViewContext) {
     this.baseSnapshotId = snapshotId;
-    if (rootSnapshotId==null) {
+    if (rootSnapshotId == null) {
       this.rootSnapshotId = snapshotId;
     } else {
       this.rootSnapshotId = rootSnapshotId;
-    }      
+    }
     this.baseSnapshotPath = snapshotPath;
     this.isViewContext = isViewContext;
     return this;
@@ -134,7 +137,7 @@ public class Filter {
   }
 
   public boolean hasLanguages() {
-    return languages!=null && !languages.isEmpty();
+    return languages != null && !languages.isEmpty();
   }
 
   public Filter setLanguages(Set<String> languages) {
@@ -152,7 +155,7 @@ public class Filter {
   }
 
   public boolean hasFavouriteIds() {
-    return favouriteIds!=null && !favouriteIds.isEmpty();
+    return favouriteIds != null && !favouriteIds.isEmpty();
   }
 
   public Filter setFavouriteIds(Set<Integer> favouriteIds) {
@@ -261,7 +264,7 @@ public class Filter {
   }
 
   protected boolean hasMeasureCriteriaOnMetric(Integer metricId) {
-    if (metricId!=null) {
+    if (metricId != null) {
       for (MeasureCriterion criterion : measureCriteria) {
         if (metricId.equals(criterion.getMetricId())) {
           return true;
@@ -316,9 +319,42 @@ public class Filter {
     return this;
   }
 
+  public int getSortedVariationIndex() {
+    return sortedVariationIndex;
+  }
+
+  public Filter setSortedVariationIndex(int i) {
+    this.sortedVariationIndex = i;
+    return this;
+  }
+
+  static String getVariationColumn(int variationIndex) {
+    switch (variationIndex) {
+      case 1:
+        return "variation_value_1";
+      case 2:
+        return "variation_value_2";
+      case 3:
+        return "variation_value_3";
+      case 4:
+        return "variation_value_4";
+      case 5:
+        return "variation_value_5";
+    }
+    return null;
+  }
+
+  String getColumnToSort() {
+    String col = "text_value";
+    if (useMeasureValueToSort()) {
+      col = (sortedVariationIndex>0 ? getVariationColumn (sortedVariationIndex) : "value");
+    }
+    return col;
+  }
+
   @Override
   public String toString() {
-    return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);    
+    return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
   public static Filter createForAllQualifiers() {

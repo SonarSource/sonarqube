@@ -1,5 +1,15 @@
 <% filter=data.filter %>
 <div>
+Periods:
+<form action="<%= url_for :overwrite_params => {:var => nil} -%>" style="display: inline" method="get">
+  <select name="var" onchange="submit()" class="small">
+      <option value="">None</option>
+      <option value="1" <%= 'selected' if data.variation_index==1 -%>>Period 1</option>
+      <option value="2" <%= 'selected' if data.variation_index==2 -%>>Period 2</option>
+      <option value="3" <%= 'selected' if data.variation_index==3 -%>>Period 3</option>
+  </select>
+</form>
+
 <table class="data nowrap width100" id="results">
   <thead id="results-head">
     <tr>
@@ -70,8 +80,19 @@
       <td><% if logged_in? %><%= link_to_favourite(snapshot.project) -%><% end %></td>
       <% filter.columns.each do |column| %>
       <td class="<%= column_align(column) -%>">
-        <% if column.on_metric? %>
-          <%= html_measure(data.measure(snapshot, column.metric), nil, true, nil, nil, true, false) %>
+        <% if column.on_metric?
+             measure = data.measure(snapshot, column.metric)
+        %>
+          <% if column.variation %>
+            <%= format_variation(measure, :index => data.variation_index) -%>
+          <% else %>
+            <%= format_measure(measure) -%>
+            <% if data.variation? %>
+              <%= format_variation(measure, :index => data.variation_index) -%>
+            <% else %>
+              <%= trend_icon(measure, :empty => true) -%>
+            <% end %>
+          <% end %>
         <% elsif column.on_name? %>
           <%= qualifier_icon(snapshot) %> <%= link_to_resource(snapshot.project, snapshot.project.name(true), {:dashboard => true, :title => snapshot.project.key}) %>
         <% elsif column.on_version? %><%= h snapshot.version %>

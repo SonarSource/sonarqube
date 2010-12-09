@@ -18,7 +18,7 @@
  # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  #
  class FilterResult
-  attr_accessor :page_size, :page_id, :security_exclusions, :filter
+  attr_accessor :page_size, :page_id, :security_exclusions, :filter, :variation_index
 
   def initialize(filter, options={})
     @filter = filter
@@ -28,6 +28,7 @@
     @page_sids=[]
     @security_exclusions=options[:security_exclusions]
     @metric_ids=(options[:metric_ids] || @filter.columns.map{|col| col.metric ? col.metric.id : nil}.compact.uniq)
+    @variation_index = (options[:var].blank? ? filter.variation_index : options[:var].to_i)
 
     from=(@page_id-1) * @page_size
     to=(@page_id*@page_size)-1
@@ -124,4 +125,7 @@
     @security_exclusions==true
   end
 
+  def variation?
+    @variation_index && @variation_index>0
+  end
  end

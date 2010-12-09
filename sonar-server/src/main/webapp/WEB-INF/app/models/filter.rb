@@ -125,8 +125,20 @@ class Filter < ActiveRecord::Base
   def advanced_search?
     @advanced_search ||=
       begin
-        !(criterion('language').nil?) || favourites || !(criterion('name').nil?) || !(criterion('key').nil?) || !(criterion('date').nil?)
+        !(criterion('language').nil?) || favourites || !(criterion('name').nil?) || !(criterion('key').nil?) || !(criterion('date').nil?) || default_period?
       end
+  end
+
+  def variation_index=(vi)
+    if vi && vi>0
+      write_attribute(:variation_index, vi)
+    else
+      write_attribute(:variation_index, nil)
+    end
+  end
+
+  def default_period?
+    variation_index && variation_index>0
   end
 
   protected

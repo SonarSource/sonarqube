@@ -96,6 +96,10 @@ module FiltersHelper
     java_filter.setAscendingSort(filter.sorted_column.ascending?)
 
 
+    #----- VARIATION
+    variation_index = (options[:var] ? options[:var].to_i : filter.variation_index)
+    java_filter.setSortedVariationIndex(variation_index)
+
     #----- EXECUTION
     java_result=java_facade.execute_filter(java_filter)
     snapshot_ids=extract_snapshot_ids(java_result.getRows())
@@ -115,6 +119,10 @@ module FiltersHelper
     else
       html=h(column.display_name)
     end
+    if column.variation
+      html="<img src='#{ApplicationController.root_context}/images/trend-up.png'></img> #{html}"
+    end
+
     if filter.sorted_column==column
       html << (column.ascending? ? image_tag("asc12.png") : image_tag("desc12.png"))
     end

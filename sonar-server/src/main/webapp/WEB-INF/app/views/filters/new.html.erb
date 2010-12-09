@@ -16,7 +16,6 @@ table#columns td {
   }
 </script>
 <div class="tabs-panel">
-<h1>Settings</h1>
 <div class="admin">
   <form id="filter_form" name="filter_form" action="<%= url_for :action => (@filter.id ? 'update' : 'create'), :id => @filter.id -%>" method="post">
     <input type="hidden" name="preview" value="" />
@@ -46,7 +45,7 @@ table#columns td {
           </td>
         </tr>
         <tr>
-          <td class="first">Type:</td>
+          <td class="first">Search for:</td>
           <td>
             <% qualifiers=(@filter.criterion('qualifier') ? @filter.criterion('qualifier').text_values : []) %>
 
@@ -77,19 +76,19 @@ table#columns td {
         <tr>
           <td class="first">Criteria:</td>
           <td>
-            <%= render :partial => 'filters/criterion', :locals => {:id => '0', :criterion => (@filter.measure_criteria.size>0 ? @filter.measure_criteria[0] : nil)} %>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <%= render :partial => 'filters/criterion', :locals => {:id => '0', :criterion => (@filter.measure_criteria.size>0 ? @filter.measure_criteria[0] : nil)} %>
           </td>
         </tr>
         <tr>
-          <td class="first">and: </td>
+          <td class="first"></td>
           <td>
-            <%= render :partial => 'filters/criterion', :locals => {:id => '1', :criterion => (@filter.measure_criteria.size>1 ? @filter.measure_criteria[1] : nil) } %>
+            and <%= render :partial => 'filters/criterion', :locals => {:id => '1', :criterion => (@filter.measure_criteria.size>1 ? @filter.measure_criteria[1] : nil) } %>
           </td>
         </tr>
         <tr>
-          <td class="first">and: </td>
+          <td class="first"></td>
           <td>
-            <%= render :partial => 'filters/criterion', :locals => {:id => '2', :criterion => (@filter.measure_criteria.size>2 ? @filter.measure_criteria[2] : nil) } %>
+            and <%= render :partial => 'filters/criterion', :locals => {:id => '2', :criterion => (@filter.measure_criteria.size>2 ? @filter.measure_criteria[2] : nil) } %>
           </td>
         </tr>
         <% unless @filter.advanced_search? %>
@@ -100,6 +99,17 @@ table#columns td {
         <% end %>
       </tbody>
       <tbody id="advanced-search" style="<%= 'display: none' unless @filter.advanced_search? -%>">
+        <tr>
+          <td class="first">Default period:</td>
+          <td>
+            <select id="variation_index" name="variation_index">
+              <option value="">None</option>
+              <option value="1" <%= 'selected' if @filter.variation_index==1 -%>>Period 1</value>
+              <option value="2" <%= 'selected' if @filter.variation_index==2 -%>>Period 2</value>
+              <option value="3" <%= 'selected' if @filter.variation_index==3 -%>>Period 3</value>
+            </select>
+          </td>
+        </tr>
         <tr>
           <td class="first">Language:</td>
           <td>

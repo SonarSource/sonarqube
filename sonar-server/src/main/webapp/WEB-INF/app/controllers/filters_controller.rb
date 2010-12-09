@@ -51,8 +51,8 @@ class FiltersController < ApplicationController
     load_filter_from_params(@filter, params)
 
     @filter.columns.build(:family => 'name', :order_index => 1, :sort_direction => 'ASC')
-    @filter.columns.build(:family => 'metric', :kee => 'ncloc', :order_index => 2)
-    @filter.columns.build(:family => 'metric', :kee => 'violations_density', :order_index => 3)
+    @filter.columns.build(:family => 'metric', :kee => 'ncloc', :order_index => 2, :variation => @filter.default_period?)
+    @filter.columns.build(:family => 'metric', :kee => 'violations_density', :order_index => 3, :variation => @filter.default_period?)
     @filter.columns.build(:family => 'date', :order_index => 4)
 
     column_index=0
@@ -85,7 +85,8 @@ class FiltersController < ApplicationController
     unless editable_filter?(@filter)
       return access_denied
     end
-    
+
+    @variation_index=params[:var].to_i
     @data=execute_filter(@filter, current_user, params)
     render :action => 'new'
   end
@@ -237,7 +238,7 @@ class FiltersController < ApplicationController
     fields=params[:column].split(',')
     family=fields[0]
     if family=='metric'
-      filter.columns.create(:family => fields[0], :kee => Metric.by_id(fields[1]).name, :order_index => filter.columns.size + 1)
+      filter.columns.create(:family => fields[0], :kee => Metric.by_id(fields[1]).name, :order_index => filter.columns.size + 1, :variation => params[:column_type]=='variation')
     elsif family.present?
       filter.columns.create(:family => family, :order_index => filter.columns.size + 1)
     end
@@ -420,6 +421,7 @@ class FiltersController < ApplicationController
     filter.favourites=params[:favourites].present?
     filter.resource_id=(params[:path_id].present? ? Project.by_key(params[:path_id]).id : nil) 
     filter.user_id=current_user.id
+    filter.variation_index=params[:variation_index].to_i
     filter.criteria=[]
     filter.criteria<<Criterion.new_for_qualifiers(params['qualifiers'])
     filter.criteria<<Criterion.new(:family => 'date', :operator => params['date_operator'], :value => params['date_value']) if params['date_operator'].present?
@@ -475,6 +477,7 @@ class FiltersController < ApplicationController
     end
 
     @filter=nil
+    @variation_index=params[:var].to_i
     if @active
       @filter=@active.filter
       unless @filter.ajax_loading?

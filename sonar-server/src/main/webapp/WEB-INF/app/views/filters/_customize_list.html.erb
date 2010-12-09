@@ -4,12 +4,17 @@
   </td>
   <td>
     <form id="add_column_form" action="<%= url_for :action => 'add_column', :id => @filter.id -%>" method="post">
+    <select name="column_type" id="select_column_type">
+        <option value="value" selected>Value</option>
+        <option value="variation">Variation</option>
+    </select>
+
     <select name="column" id="select_column">
       <option value="" selected></option>
       <% Metric.domains.each do |domain| %>
         <optgroup label="<%= domain -%>">
           <% Metric.by_domain(domain).each do |metric| %>
-            <% if metric.display? && !(@filter.column('metric',metric.name)) %><option value="metric,<%= metric.id -%>"><%= metric.short_name -%></option><% end %>
+            <% if metric.display? %><option value="metric,<%= metric.id -%>"><%= metric.short_name -%></option><% end %>
           <% end %>
           <% if domain=='General' %>
             <% unless @filter.column('date') %><option value="date">Build date</option><% end %>
@@ -35,7 +40,7 @@
         default_sorted_column=@filter.sorted_column
         @filter.columns.each do |column|
       %>
-        <option value="<%= column.id -%>" <%= 'selected' if column==default_sorted_column -%>><%= column.name -%></option>
+        <option value="<%= column.id -%>" <%= 'selected' if column==default_sorted_column -%>><%= 'Variation of ' if column.variation -%><%= column.name -%></option>
       <% end %>
       </select>
       <select name="sort">
