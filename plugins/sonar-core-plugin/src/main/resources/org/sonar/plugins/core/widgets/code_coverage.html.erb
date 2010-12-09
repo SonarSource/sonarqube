@@ -13,7 +13,7 @@
         <p class="title">Code coverage</p>
         <p>
           <span class="big"><%= format_measure(code_coverage_measure, :suffix => '', :url => url_for_drilldown(Metric::COVERAGE), :default => '-') %></span>
-          <%= dashboard_configuration.variation? ? format_variation(code_coverage_measure) : trend_icon(code_coverage_measure, :big => true) -%>
+          <%= dashboard_configuration.variation? ? format_variation(code_coverage_measure) : trend_icon(code_coverage_measure) -%>
         </p>
         <% line_coverage=measure(Metric::LINE_COVERAGE)
           if line_coverage %>
@@ -55,7 +55,7 @@
       <h3>Test success</h3>
       <p><span class="big">
         <%= format_measure(success_percentage, :suffix => '', :url => url_for_drilldown(success_percentage)) %></span>
-        <%= dashboard_configuration.variation? ? format_variation(success_percentage) : trend_icon(success_percentage, :big => true) -%>
+        <%= dashboard_configuration.variation? ? format_variation(success_percentage) : trend_icon(success_percentage) -%>
       </p>
       <p>
         <%= format_measure(Metric::TEST_FAILURES, :suffix => ' failures', :url => url_for_drilldown(Metric::TEST_FAILURES)) %>

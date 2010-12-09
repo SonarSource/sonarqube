@@ -19,7 +19,7 @@
 		      <h3>Comments</h3>
 		      <p>
 		        <span class="big"><%= format_measure(comment_lines_density, :suffix => '', :url => url_for_drilldown(comment_lines_density)) %></span>
-		        <%= dashboard_configuration.variation? ? format_variation(comment_lines_density) : trend_icon(comment_lines_density, :big => true) -%>
+		        <%= dashboard_configuration.variation? ? format_variation(comment_lines_density) : trend_icon(comment_lines_density) -%>
 		      </p>
 		      <p>
 		        <%= format_measure(comment_lines, :suffix => ' lines', :url => url_for_drilldown(comment_lines)) %>
@@ -53,7 +53,7 @@
 		      <h3>Duplications</h3>
 		      <p>
 		        <span class="big"><%= format_measure(duplicated_lines_density, :suffix => '', :url => url_for_drilldown(Metric::DUPLICATED_LINES, :highlight =>  'duplicated_lines_density')) %></span>
-		        <%= dashboard_configuration.variation? ? format_variation(duplicated_lines_density) : trend_icon(duplicated_lines_density, :big => true) -%>
+		        <%= dashboard_configuration.variation? ? format_variation(duplicated_lines_density) : trend_icon(duplicated_lines_density) -%>
 		      </p>
 		      <p>
 		        <%= format_measure(duplicated_lines, :suffix => ' lines', :url => url_for_drilldown(duplicated_lines)) %>

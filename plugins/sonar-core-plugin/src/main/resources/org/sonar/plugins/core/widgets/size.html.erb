@@ -17,7 +17,7 @@
 			    <% if ncloc %>
 			      <p>
 			        <span class="big"><%= format_measure(ncloc, :suffix => '', :url => url_for_drilldown(ncloc)) -%></span>
-			        <%= dashboard_configuration.variation? ? format_variation(ncloc) : trend_icon(ncloc, :big => true) -%>
+			        <%= dashboard_configuration.variation? ? format_variation(ncloc) : trend_icon(ncloc) -%>
 			      </p>
 			      <%
 			        generated_ncloc=measure('generated_ncloc')
@@ -27,7 +27,7 @@
 			      <% end %>
 			      <p><%= format_measure(lines, :suffix => ' lines', :url => url_for_drilldown(lines)) -%> <%= dashboard_configuration.variation? ? format_variation(lines) : trend_icon(lines) -%></p>
 			    <% else%>
-			      <p><span class="big"><%= format_measure(lines, :suffix => '', :url => url_for_drilldown(lines)) -%> <%= trend_icon(lines, :big => true) -%></span></p>
+			      <p><span class="big"><%= format_measure(lines, :suffix => '', :url => url_for_drilldown(lines)) -%> <%= trend_icon(lines) -%></span></p>
 			    <% end %>
 			    <%
 			      generated_lines=measure('generated_lines')
@@ -52,13 +52,13 @@
 		        <h3>Classes</h3>
 		        <p>
 		          <span class="big"><%= format_measure(classes, :url => url_for_drilldown(classes)) -%></span>
-		          <%= dashboard_configuration.variation? ? format_variation(classes) : trend_icon(classes, :big => true) -%>
+		          <%= dashboard_configuration.variation? ? format_variation(classes) : trend_icon(classes) -%>
 		        </p>
        		    <p><%= format_measure(packages, :suffix => ' packages', :url => url_for_drilldown(packages)) -%> <%= dashboard_configuration.variation? ? format_variation(packages) : trend_icon(packages) -%></p>
 		      <% else %>
 		        <h3>Files</h3>
 		        <p><span class="big"><%= format_measure(files, :url => url_for_drilldown(files)) -%></span>
-		          <%= dashboard_configuration.variation? ? format_variation(files) : trend_icon(files, :big => true) -%>
+		          <%= dashboard_configuration.variation? ? format_variation(files) : trend_icon(files) -%>
 		        </p>
        		    <p><%= format_measure('directories', :suffix => ' directories', :url => url_for_drilldown('directories')) -%> <%= dashboard_configuration.variation? ? format_variation('directories') : trend_icon('directories') -%></p>
 		      <% end %>
