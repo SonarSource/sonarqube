@@ -28,6 +28,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class PastSnapshotFinder implements BatchExtension {
+
+  public static final String DEFAULT_VALUE_1 = PastSnapshotFinderByPreviousAnalysis.MODE;
+  public static final String DEFAULT_VALUE_2 = "5";
+  public static final String DEFAULT_VALUE_3 = "30";
+
   private PastSnapshotFinderByDays finderByDays;
   private PastSnapshotFinderByVersion finderByVersion;
   private PastSnapshotFinderByDate finderByDate;
@@ -42,7 +47,18 @@ public class PastSnapshotFinder implements BatchExtension {
   }
 
   public PastSnapshot find(Configuration conf, int index) {
-    return find(index, conf.getString("sonar.timemachine.variation" + index));
+    String propertyValue = getPropertyValue(conf, index);
+    return find(index, propertyValue);
+  }
+
+  static String getPropertyValue(Configuration conf, int index) {
+    String defaultValue = null;
+    switch (index) {
+      case 1: defaultValue = DEFAULT_VALUE_1; break;
+      case 2: defaultValue = DEFAULT_VALUE_2; break;
+      case 3: defaultValue = DEFAULT_VALUE_3; break;
+    }
+    return conf.getString("sonar.timemachine.variation" + index, defaultValue);
   }
 
   public PastSnapshot find(int index, String property) {

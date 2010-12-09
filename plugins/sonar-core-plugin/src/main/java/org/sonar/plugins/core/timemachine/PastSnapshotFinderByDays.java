@@ -31,6 +31,7 @@ public class PastSnapshotFinderByDays implements BatchExtension {
 
   public static final String MODE = "days";
 
+
   private Snapshot projectSnapshot; // TODO replace by PersistenceManager
   private DatabaseSession session;
 

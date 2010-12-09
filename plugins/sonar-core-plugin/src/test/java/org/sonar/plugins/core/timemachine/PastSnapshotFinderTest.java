@@ -19,8 +19,10 @@
  */
 package org.sonar.plugins.core.timemachine;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
@@ -160,5 +162,22 @@ public class PastSnapshotFinderTest {
   public void shouldNotFailIfUnknownFormat() {
     when(finderByPreviousAnalysis.findByPreviousAnalysis()).thenReturn(new PastSnapshot(PastSnapshotFinderByPreviousAnalysis.MODE, new Snapshot())); // should not be called
     assertNull(finder.find(2, "foooo"));
+  }
+
+  @Test
+  public void shouldGetPropertyValue() {
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    conf.setProperty("sonar.timemachine.variation1", "5");
+
+    assertThat(PastSnapshotFinder.getPropertyValue(conf, 1), is("5"));
+    assertThat(PastSnapshotFinder.getPropertyValue(conf, 999), nullValue());
+  }
+
+  @Test
+  public void shouldGetDefaultPropertyValue() {
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    conf.setProperty("sonar.timemachine.variation1", "5");
+
+    assertThat(PastSnapshotFinder.getPropertyValue(conf, 2), is(PastSnapshotFinder.DEFAULT_VALUE_2));
   }
 }

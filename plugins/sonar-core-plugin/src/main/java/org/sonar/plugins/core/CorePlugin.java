@@ -116,35 +116,38 @@ import java.util.List;
     @Property(
         key = "sonar.timemachine.variation1",
         name = "Variation 1",
-        description = "Period used to compare measures and track new violations. Values are : <ul><li>Number of days before analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, for example 2010-12-25</li><li>'previous_analysis' to compare to previous analysis</li><li>A version, for example 1.2</li></ul>",
+        description = "Period used to compare measures and track new violations. Values are : <ul class='bullet'><li>Number of days before analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, for example 2010-12-25</li><li>'previous_analysis' to compare to previous analysis</li><li>A version, for example 1.2</li></ul>",
         project = false,
-        global = true
+        global = true,
+        defaultValue = PastSnapshotFinder.DEFAULT_VALUE_1
     ),
     @Property(
         key = "sonar.timemachine.variation2",
         name = "Variation 2",
-        description = "To be defined. For the moment the number of days",
+        description = "See the property 'Variation 1'",
         project = false,
-        global = true
+        global = true,
+        defaultValue = PastSnapshotFinder.DEFAULT_VALUE_2
     ),
     @Property(
         key = "sonar.timemachine.variation3",
         name = "Variation 3",
-        description = "To be defined. For the moment the number of days",
+        description = "See the property 'Variation 1'",
         project = false,
-        global = true
+        global = true,
+        defaultValue = PastSnapshotFinder.DEFAULT_VALUE_3
     ),
     @Property(
         key = "sonar.timemachine.variation4",
         name = "Variation 4",
-        description = "To be defined. For the moment the number of days",
+        description = "Period used to compare measures and track new violations. This property is specific to the project. Values are : <ul class='bullet'><li>Number of days before analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, for example 2010-12-25</li><li>'previous_analysis' to compare to previous analysis</li><li>A version, for example 1.2</li></ul>",
         project = true,
         global = false
     ),
     @Property(
         key = "sonar.timemachine.variation5",
         name = "Variation 5",
-        description = "To be defined. For the moment the number of days",
+        description = "See the property 'Variation 4'",
         project = true,
         global = false
     )
