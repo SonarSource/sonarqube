@@ -995,12 +995,12 @@ html>body .scrollable {
 }
 
 ul.bullet {
-  list-style-image: url("../images/bullet.png");
   margin: 3px 0 3px 25px;
 }
 
 ul.bullet li {
   padding: 2px 0;
+  list-style-image: url("../images/bullet.png");
 }
 
 .rule_title {
