@@ -31,15 +31,18 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 @DependsUpon(value = DecoratorBarriers.END_OF_VIOLATIONS_GENERATION)
 public class ViolationsDecorator implements Decorator {
 
   // temporary data for current resource
   private Multiset<Rule> rules = HashMultiset.create();
-  private Multiset<RulePriority> priorities = HashMultiset.create();
-  private Map<Rule, RulePriority> ruleToLevel = Maps.newHashMap();
+  private Multiset<RulePriority> severities = HashMultiset.create();
+  private Map<Rule, RulePriority> ruleToSeverity = Maps.newHashMap();
   private int total = 0;
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -53,85 +56,89 @@ public class ViolationsDecorator implements Decorator {
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
-    if (shouldDecorateResource(resource, context)) {
+    if (shouldDecorateResource(resource)) {
+      resetCounters();
       countViolations(context);
+      saveTotalViolations(context);
+      saveViolationsBySeverity(context);
+      saveViolationsByRule(context);
     }
   }
 
-  private boolean shouldDecorateResource(Resource resource, DecoratorContext context) {
-    return !ResourceUtils.isUnitTestClass(resource) && context.getMeasure(CoreMetrics.VIOLATIONS) == null;
+  private boolean shouldDecorateResource(Resource resource) {
+    return !ResourceUtils.isUnitTestClass(resource);
   }
 
   private void resetCounters() {
     rules.clear();
-    priorities.clear();
-    ruleToLevel.clear();
+    severities.clear();
+    ruleToSeverity.clear();
     total = 0;
   }
 
-  private void countViolations(DecoratorContext context) {
-    resetCounters();
-    countCurrentResourceViolations(context);
-    saveTotalViolations(context);
-    saveViolationsByPriority(context);
-    saveViolationsByRule(context);
-  }
-
-  private void saveViolationsByPriority(DecoratorContext context) {
-    for (RulePriority priority : RulePriority.values()) {
-      Metric metric = getMetricForPriority(priority);
-      Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.metric(metric));
-      double sum = MeasureUtils.sum(true, children) + priorities.count(priority);
-      context.saveMeasure(new Measure(metric, sum));
+  private void saveViolationsBySeverity(DecoratorContext context) {
+    for (RulePriority severity : RulePriority.values()) {
+      Metric metric = getMetricForSeverity(severity);
+      if (context.getMeasure(metric) == null) {
+        Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.metric(metric));
+        double sum = MeasureUtils.sum(true, children) + severities.count(severity);
+        context.saveMeasure(new Measure(metric, sum));
+      }
     }
   }
 
-  private Metric getMetricForPriority(RulePriority priority) {
+  private Metric getMetricForSeverity(RulePriority severity) {
     Metric metric = null;
-    if (priority.equals(RulePriority.BLOCKER)) {
+    if (severity.equals(RulePriority.BLOCKER)) {
       metric = CoreMetrics.BLOCKER_VIOLATIONS;
-    } else if (priority.equals(RulePriority.CRITICAL)) {
+    } else if (severity.equals(RulePriority.CRITICAL)) {
       metric = CoreMetrics.CRITICAL_VIOLATIONS;
-    } else if (priority.equals(RulePriority.MAJOR)) {
+    } else if (severity.equals(RulePriority.MAJOR)) {
       metric = CoreMetrics.MAJOR_VIOLATIONS;
-    } else if (priority.equals(RulePriority.MINOR)) {
+    } else if (severity.equals(RulePriority.MINOR)) {
       metric = CoreMetrics.MINOR_VIOLATIONS;
-    } else if (priority.equals(RulePriority.INFO)) {
+    } else if (severity.equals(RulePriority.INFO)) {
       metric = CoreMetrics.INFO_VIOLATIONS;
     }
     return metric;
   }
 
   private void saveViolationsByRule(DecoratorContext context) {
-    Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.rules(CoreMetrics.VIOLATIONS));
-    for (Measure childMeasure : children) {
-      RuleMeasure childRuleMeasure = (RuleMeasure) childMeasure;
-      Rule rule = childRuleMeasure.getRule();
-      if (rule != null && MeasureUtils.hasValue(childRuleMeasure)) {
-        rules.add(rule, childRuleMeasure.getValue().intValue());
-        ruleToLevel.put(childRuleMeasure.getRule(), childRuleMeasure.getRulePriority());
+    // See SONAR-1729
+    // Extrapolation : assume that the measure with key [metric "violations", rule] does not exist when the measure "violations" does not exist as well.
+    if (context.getMeasure(CoreMetrics.VIOLATIONS) == null) {
+      Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.rules(CoreMetrics.VIOLATIONS));
+      for (Measure childMeasure : children) {
+        RuleMeasure childRuleMeasure = (RuleMeasure) childMeasure;
+        Rule rule = childRuleMeasure.getRule();
+        if (rule != null && MeasureUtils.hasValue(childRuleMeasure)) {
+          rules.add(rule, childRuleMeasure.getValue().intValue());
+          ruleToSeverity.put(childRuleMeasure.getRule(), childRuleMeasure.getRulePriority());
+        }
       }
-    }
-    for (Multiset.Entry<Rule> entry : rules.entrySet()) {
-      Rule rule = entry.getElement();
-      RuleMeasure measure = RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule, (double) entry.getCount());
-      measure.setRulePriority(ruleToLevel.get(rule));
-      context.saveMeasure(measure);
+      for (Multiset.Entry<Rule> entry : rules.entrySet()) {
+        Rule rule = entry.getElement();
+        RuleMeasure measure = RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule, (double) entry.getCount());
+        measure.setRulePriority(ruleToSeverity.get(rule));
+        context.saveMeasure(measure);
+      }
     }
   }
 
   private void saveTotalViolations(DecoratorContext context) {
-    Collection<Measure> childrenViolations = context.getChildrenMeasures(CoreMetrics.VIOLATIONS);
-    Double sum = MeasureUtils.sum(true, childrenViolations) + total;
-    context.saveMeasure(new Measure(CoreMetrics.VIOLATIONS, sum));
+    if (context.getMeasure(CoreMetrics.VIOLATIONS) == null) {
+      Collection<Measure> childrenViolations = context.getChildrenMeasures(CoreMetrics.VIOLATIONS);
+      Double sum = MeasureUtils.sum(true, childrenViolations) + total;
+      context.saveMeasure(new Measure(CoreMetrics.VIOLATIONS, sum));
+    }
   }
 
-  private void countCurrentResourceViolations(DecoratorContext context) {
+  private void countViolations(DecoratorContext context) {
     List<Violation> violations = context.getViolations();
     for (Violation violation : violations) {
       rules.add(violation.getRule());
-      priorities.add(violation.getPriority());
-      ruleToLevel.put(violation.getRule(), violation.getPriority());
+      severities.add(violation.getSeverity());
+      ruleToSeverity.put(violation.getRule(), violation.getSeverity());
     }
     total = violations.size();
   }
