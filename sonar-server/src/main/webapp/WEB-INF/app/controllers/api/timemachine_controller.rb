@@ -20,7 +20,6 @@
 class Api::TimemachineController < Api::ApiController
   MAX_IN_ELEMENTS=990
   #
-  # TODO date range
   # GET /api/timemachine
   #
   def index
@@ -28,6 +27,8 @@ class Api::TimemachineController < Api::ApiController
       resource_id = params[:resource]
       metric_keys = params[:metrics].split(',')
       metrics = Metric.by_keys(metric_keys)
+      first_date = parse_datetime(params[:first_date])
+      last_date = parse_datetime(params[:last_date])
 
       @resource=Project.by_key(resource_id)
       if @resource.nil?
@@ -35,7 +36,8 @@ class Api::TimemachineController < Api::ApiController
       end
 
       snapshots = Snapshot.find(:all,
-      :conditions => {:project_id => @resource.id, :status => Snapshot::STATUS_PROCESSED},
+      :conditions => ['created_at>=? AND created_at<=? AND project_id=? AND status=?',
+        first_date, last_date, @resource.id, Snapshot::STATUS_PROCESSED],
       :order => 'created_at')
 
       # Oracle limitation : no more than 1000 elements in IN clause
