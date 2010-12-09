@@ -1,4 +1,3 @@
-<div class="tabs-panel">
 <%
 metrics=treemap_metrics(@filter)
 size_metric=metrics[0]
@@ -20,4 +19,3 @@ function load_treemap(size_metric, color_metric, hide_form) {
 }
 load_treemap('<%= size_metric.key -%>', '<%= color_metric.key -%>', <%= edit_mode -%>);
 </script>
-</div>
