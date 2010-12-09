@@ -45,6 +45,8 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 
 /**
+ * TODO should be an interface
+ * 
  * @since 2.3
  */
 public final class XMLProfileParser implements ServerComponent {
@@ -52,6 +54,22 @@ public final class XMLProfileParser implements ServerComponent {
   private RuleFinder ruleFinder;
   private MetricFinder metricFinder;
 
+  /**
+   * For backward compatibility.
+   * 
+   * @deprecated since 2.5. Plugins shouldn't directly instantiate this class,
+   *             because it should be retrieved as an IoC dependency.
+   */
+  @Deprecated
+  public XMLProfileParser(RuleFinder ruleFinder) {
+    this.ruleFinder = ruleFinder;
+  }
+
+  /**
+   * @deprecated since 2.5. Plugins shouldn't directly instantiate this class,
+   *             because it should be retrieved as an IoC dependency.
+   */
+  @Deprecated
   public XMLProfileParser(RuleFinder ruleFinder, MetricFinder metricFinder) {
     this.ruleFinder = ruleFinder;
     this.metricFinder = metricFinder;
@@ -183,6 +201,10 @@ public final class XMLProfileParser implements ServerComponent {
   }
 
   private void processAlerts(SMInputCursor alertsCursor, RulesProfile profile, ValidationMessages messages) throws XMLStreamException {
+    if (metricFinder == null) {
+      // TODO remove when constructor without MetricFinder would be removed
+      return;
+    }
     while (alertsCursor.getNext() != null) {
       SMInputCursor alertCursor = alertsCursor.childElementCursor();
 

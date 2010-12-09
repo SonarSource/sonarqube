@@ -62,7 +62,6 @@ public class XMLProfileParserTest {
 
     assertThat(validation.getErrors().size(), is(2));
     assertThat(validation.getErrors().get(0), containsString(""));
-
   }
 
   @Test
@@ -100,9 +99,22 @@ public class XMLProfileParserTest {
     assertThat(alert.getValueError(), is("12"));
   }
 
+  @Test
+  public void shouldNotFailWhenNoMetricFinder() {
+    ValidationMessages validation = ValidationMessages.create();
+    RulesProfile profile = new XMLProfileParser(newRuleFinder(), null)
+        .parseResource(getClass().getClassLoader(), getResourcePath("importProfileWithAlerts.xml"), validation);
+
+    assertThat(profile.getAlerts().size(), is(0));
+  }
+
   private RulesProfile parse(String resource, ValidationMessages validation) {
     return new XMLProfileParser(newRuleFinder(), newMetricFinder())
-        .parseResource(getClass().getClassLoader(), "org/sonar/api/profiles/XMLProfileParserTest/" + resource, validation);
+        .parseResource(getClass().getClassLoader(), getResourcePath(resource), validation);
+  }
+
+  private String getResourcePath(String resource) {
+    return "org/sonar/api/profiles/XMLProfileParserTest/" + resource;
   }
 
   private MetricFinder newMetricFinder() {
