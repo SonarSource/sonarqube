@@ -17,19 +17,24 @@
  # License along with {library}; if not, write to the Free Software
  # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  #
- class FilterResult
-  attr_accessor :page_size, :page_id, :security_exclusions, :filter, :variation_index
+ class FilterContext
+  attr_accessor :filter, :page_size, :page_id, :security_exclusions, :variation_index, :user, :sorted_column_id, :ascending_sort
 
   def initialize(filter, options={})
     @filter = filter
     @page_size=options[:page_size] || @filter.page_size
     @page_id=(options[:page_id] ? options[:page_id].to_i : 1)
-    @sids=options[:snapshot_ids]
-    @page_sids=[]
-    @security_exclusions=options[:security_exclusions]
+    @sorted_column_id=(options[:sort].blank? ? nil : options[:sort].to_i)
+    @ascending_sort=(options[:asc].blank? ? nil : options[:asc]=='true')
+    @user=options[:user]
+    @variation_index = (options[:var] ? options[:var].to_i : filter.variation_index )
     @metric_ids=(options[:metric_ids] || @filter.columns.map{|col| col.metric ? col.metric.id : nil}.compact.uniq)
-    @variation_index = (options[:var].blank? ? filter.variation_index : options[:var].to_i)
+  end
 
+  def process_results(snapshot_ids, security_exclusions)
+    @sids=snapshot_ids
+    @security_exclusions=security_exclusions
+    
     from=(@page_id-1) * @page_size
     to=(@page_id*@page_size)-1
     to=@sids.size-1 if to>=@sids.size
@@ -76,14 +81,16 @@
         end
       end
     end
+    self
   end
+
 
   def size
     @sids.size
   end
 
   def empty?
-    @page_sids.empty?
+    @page_sids.nil? || @page_sids.empty?
   end
 
   def page_count
@@ -127,5 +134,31 @@
 
   def variation?
     @variation_index && @variation_index>0
+  end
+
+
+
+  private
+
+  def extract_snapshot_ids(sql_rows)
+    sids=[]
+    project_ids=sql_rows.map{|r| r[2] ? to_integer(r[2]) : to_integer(r[1])}.compact.uniq
+    authorized_pids=select_authorized(:user, project_ids)
+    sql_rows.each do |row|
+      pid=(row[2] ? to_integer(row[2]) : to_integer(row[1]))
+      if authorized_pids.include?(pid)
+        sids<<to_integer(row[0])
+      end
+    end
+    sids
+  end
+
+  def to_integer(obj)
+    if obj.is_a?(Fixnum)
+      obj
+    else
+      # java.math.BigDecimal
+      obj.intValue()
+    end
   end
  end

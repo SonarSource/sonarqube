@@ -86,8 +86,9 @@ class FiltersController < ApplicationController
       return access_denied
     end
 
-    @variation_index=params[:var].to_i
-    @data=execute_filter(@filter, current_user, params)
+    options=params
+    options[:user]=current_user
+    @filter_context=execute_filter(FilterContext.new(@filter, options))
     render :action => 'new'
   end
 
@@ -398,11 +399,14 @@ class FiltersController < ApplicationController
     params[:metric_ids]=[@size_metric, @color_metric]
 
     @filter.sorted_column=FilterColumn.new('family' => 'metric', :kee => @size_metric.key, :sort_direction => (@size_metric.direction>=0 ? 'ASC' : 'DESC'))
-    @data=execute_filter(@filter, current_user, params)
-    
+
+    options=params
+    options[:user]=current_user
+    @filter_context=execute_filter(FilterContext.new(@filter, options))
+
     @width=(params[:width]||'800').to_i
     @height=(params[:height]||'500').to_i
-    @treemap=Sonar::Treemap.new(@data.measures_by_snapshot, @width, @height, @size_metric, @color_metric)
+    @treemap=Sonar::Treemap.new(@filter_context.measures_by_snapshot, @width, @height, @size_metric, @color_metric)
     render :action => "treemap", :layout => false
   end
 
@@ -481,7 +485,9 @@ class FiltersController < ApplicationController
     if @active
       @filter=@active.filter
       unless @filter.ajax_loading?
-        @data=execute_filter(@filter, current_user, params)
+        options=params
+        options[:user]=current_user
+        @filter_context=execute_filter(FilterContext.new(@filter, options))
         load_masterproject() if @filter.projects_homepage?
       end
     end

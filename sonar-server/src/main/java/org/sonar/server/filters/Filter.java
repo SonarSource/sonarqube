@@ -254,8 +254,8 @@ public class Filter {
     return this;
   }
 
-  public Filter createMeasureCriterionOnValue(Integer metricId, String operator, Double value) {
-    this.measureCriteria.add(new MeasureCriterion(metricId, operator, value));
+  public Filter createMeasureCriterionOnValue(Integer metricId, String operator, Double value, Boolean variation) {
+    this.measureCriteria.add(new MeasureCriterion(metricId, operator, value, variation));
     return this;
   }
 

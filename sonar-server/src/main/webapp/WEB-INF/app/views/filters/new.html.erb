@@ -104,9 +104,9 @@ table#columns td {
           <td>
             <select id="variation_index" name="variation_index">
               <option value="">None</option>
-              <option value="1" <%= 'selected' if @filter.variation_index==1 -%>>Period 1</value>
-              <option value="2" <%= 'selected' if @filter.variation_index==2 -%>>Period 2</value>
-              <option value="3" <%= 'selected' if @filter.variation_index==3 -%>>Period 3</value>
+              <% period_names.each_with_index do |name, index| %>
+                 <option value="<%= index+1 -%>" <%= 'selected' if @filter.variation_index==index+1 -%>><%= name -%></value>
+              <% end %>
             </select>
           </td>
         </tr>
@@ -180,7 +180,7 @@ $('name').focus();
 </script>
 <br/>
 
-<% if @data %>
+<% if @filter_context %>
   <h1>Display</h1>
   <div class="admin">
     <table class="form" id="view-form">
@@ -200,6 +200,6 @@ $('name').focus();
     </table>
   </div>
   <br/>
-  <%= render :partial => "filters/#{@filter.default_view}", :locals => {:data => @data, :edit_mode => true} %>
+  <%= render :partial => "filters/#{@filter.default_view}", :locals => {:edit_mode => true} %>
 <% end %>
 </div>

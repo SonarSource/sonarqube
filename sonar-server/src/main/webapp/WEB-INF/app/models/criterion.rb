@@ -79,7 +79,7 @@ class Criterion < ActiveRecord::Base
 
   def self.new_for_metric(options)
     metric=Metric.by_id(options['metric_id'])
-    new(:family => 'metric', :operator => options['operator'], :kee => (metric ? metric.name : nil), :value => options['value']) 
+    new(:family => 'metric', :operator => options['operator'], :kee => (metric ? metric.name : nil), :value => options['value'], :variation => (options['type']=='variation'))
   end
 
 end

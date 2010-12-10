@@ -19,7 +19,7 @@
  */
 package org.sonar.server.filters;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 public class MeasureCriterion {
@@ -27,11 +27,13 @@ public class MeasureCriterion {
   private Integer metricId;
   private String operator;
   private Double value;
+  private Boolean variation;
 
-  public MeasureCriterion(Integer metricId, String operator, Double value) {
+  public MeasureCriterion(Integer metricId, String operator, Double value, Boolean variation) {
     this.metricId = metricId;
     this.operator = operator;
     this.value = value;
+    this.variation = variation;
   }
 
   public Integer getMetricId() {
@@ -58,12 +60,17 @@ public class MeasureCriterion {
     this.value = value;
   }
 
+  public Boolean getVariation() {
+    return variation;
+  }
+
+  public MeasureCriterion setVariation(Boolean b) {
+    this.variation = b;
+    return this;
+  }
+
   @Override
   public String toString() {
-    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-        .append("metricId", metricId)
-        .append("operator", operator)
-        .append("value", value)
-        .toString();
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 }

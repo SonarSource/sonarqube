@@ -35,7 +35,6 @@ class Property < ActiveRecord::Base
     hash
   end
 
-
   def self.value(key, resource_id=nil, default_value=nil)
     prop=Property.find(:first, :conditions => {'prop_key' => key, 'resource_id' => resource_id, 'user_id' => nil})
     prop ? prop.text_value : default_value

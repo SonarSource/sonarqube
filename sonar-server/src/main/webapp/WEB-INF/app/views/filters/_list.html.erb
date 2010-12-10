@@ -1,12 +1,12 @@
-<% filter=data.filter %>
+<% filter=@filter_context.filter %>
 <div>
-Periods:
+Period:
 <form action="<%= url_for :overwrite_params => {:var => nil} -%>" style="display: inline" method="get">
   <select name="var" onchange="submit()" class="small">
       <option value="">None</option>
-      <option value="1" <%= 'selected' if data.variation_index==1 -%>>Period 1</option>
-      <option value="2" <%= 'selected' if data.variation_index==2 -%>>Period 2</option>
-      <option value="3" <%= 'selected' if data.variation_index==3 -%>>Period 3</option>
+      <% period_names.each_with_index do |name, index| %>
+         <option value="<%= index+1 -%>" <%= 'selected' if @filter_context.variation_index==index+1 -%>><%= name -%></value>
+      <% end %>
   </select>
 </form>
 
@@ -36,15 +36,15 @@ Periods:
   <tfoot>
     <tr>
       <td colspan="<%= filter.columns.size + 1 -%>">
-        <span id="results_count"><%= pluralize(data.size, 'result') %></span>
+        <span id="results_count"><%= pluralize(@filter_context.size, 'result') %></span>
 
-        <% if data.page_count>1 %>
+        <% if @filter_context.page_count>1 %>
           |
-          <%= link_to_if data.page_id>1, 'previous', {:overwrite_params => {:page_id => data.page_id-1}} %>
-          <% for index in 1..data.page_count %>
-            <%= link_to_unless index==data.page_id, index.to_s, {:overwrite_params => {:page_id => index}} %>
+          <%= link_to_if @filter_context.page_id>1, 'previous', {:overwrite_params => {:page_id => @filter_context.page_id-1}} %>
+          <% for index in 1..@filter_context.page_count %>
+            <%= link_to_unless index==@filter_context.page_id, index.to_s, {:overwrite_params => {:page_id => index}} %>
           <% end %>
-          <%= link_to_if data.page_id<data.page_count, 'next', {:overwrite_params => {:page_id => 1+data.page_id}} %>
+          <%= link_to_if @filter_context.page_id<@filter_context.page_count, 'next', {:overwrite_params => {:page_id => 1+@filter_context.page_id}} %>
         <% end %>
 
         <% if @filter.projects_homepage? %>
@@ -69,26 +69,26 @@ Periods:
       <% end %>
     </tr>
   <% end %>
-  <% if data.empty? %>
+  <% if @filter_context.empty? %>
     <tr class="even"><td colspan="<%= 1+filter.columns.size -%>">No results.</td></tr>
   <% else %>
     <%
-        data.page_sorted_snapshot_ids.each do |snapshot_id|
-          snapshot=data.snapshot(snapshot_id)
+        @filter_context.page_sorted_snapshot_ids.each do |snapshot_id|
+          snapshot=@filter_context.snapshot(snapshot_id)
     %>
     <tr class="<%= cycle('even','odd') -%>">
       <td><% if logged_in? %><%= link_to_favourite(snapshot.project) -%><% end %></td>
       <% filter.columns.each do |column| %>
       <td class="<%= column_align(column) -%>">
         <% if column.on_metric?
-             measure = data.measure(snapshot, column.metric)
+             measure = @filter_context.measure(snapshot, column.metric)
         %>
           <% if column.variation %>
-            <%= format_variation(measure, :index => data.variation_index) -%>
+            <%= format_variation(measure, :index => @filter_context.variation_index) -%>
           <% else %>
             <%= format_measure(measure) -%>
-            <% if data.variation? %>
-              <%= format_variation(measure, :index => data.variation_index) -%>
+            <% if @filter_context.variation? %>
+              <%= format_variation(measure, :index => @filter_context.variation_index) -%>
             <% else %>
               <%= trend_icon(measure, :empty => true) -%>
             <% end %>
@@ -100,7 +100,7 @@ Periods:
         <% elsif column.on_date? %><%= human_short_date(snapshot.created_at) %>
         <% elsif column.on_key? %><span class="small"><%= snapshot.project.kee -%></span>
         <% elsif column.on_links?
-             data.links(snapshot.project_id).each do |link| %>
+             @filter_context.links(snapshot.project_id).each do |link| %>
           <%= link_to(image_tag(link.icon, :alt => link.name), link.href, :class => 'nolink', :popup => true) unless link.custom? %>
         <%   end
            end %>
@@ -112,7 +112,7 @@ Periods:
   </tbody>
 </table>
 <br/>
-<% if data.security_exclusions? %>
+<% if @filter_context.security_exclusions? %>
   <p class="notes">Due to security settings, some results are not being displayed.</p>
 <% end %>
 </div>

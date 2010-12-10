@@ -19,7 +19,8 @@
 #
 module FiltersHelper
 
-  def execute_filter(filter, user=nil, options={})
+  def execute_filter(filter_context)
+    filter=filter_context.filter
     java_filter=Java::OrgSonarServerFilters::Filter.new
 
     #----- FILTER ON RESOURCES
@@ -33,7 +34,7 @@ module FiltersHelper
     end
 
     if filter.favourites
-      java_filter.setFavouriteIds((user ? user.favourite_ids : []).to_java(:Integer))
+      java_filter.setFavouriteIds((filter_context.user ? user.favourite_ids : []).to_java(:Integer))
     end
 
     date_criterion=filter.criterion('date')
@@ -66,13 +67,13 @@ module FiltersHelper
 
     #----- FILTER ON MEASURES
     filter.measure_criteria.each do |c|
-      java_filter.createMeasureCriterionOnValue(c.metric.id, c.operator, c.value)
+      java_filter.createMeasureCriterionOnValue(c.metric.id, c.operator, c.value, c.variation)
     end
 
 
     #----- SORTED COLUMN
-    if options[:sort]
-      filter.sorted_column=options[:sort].to_i
+    if filter_context.sorted_column_id
+      filter.sorted_column=filter_context.sorted_column_id
     end
     if filter.sorted_column.on_name?
       java_filter.setSortedByName()
@@ -90,25 +91,21 @@ module FiltersHelper
 
 
     #----- SORTING DIRECTION
-    if options[:asc]
-      filter.sorted_column.ascending=(options[:asc]=='true')
+    if filter_context.ascending_sort
+      filter.sorted_column.ascending=filter_context.ascending_sort
     end
     java_filter.setAscendingSort(filter.sorted_column.ascending?)
 
 
     #----- VARIATION
-    variation_index = (options[:var] ? options[:var].to_i : filter.variation_index)
-    java_filter.setSortedVariationIndex(variation_index)
+    java_filter.setSortedVariationIndex(filter_context.variation_index)
 
     #----- EXECUTION
     java_result=java_facade.execute_filter(java_filter)
     snapshot_ids=extract_snapshot_ids(java_result.getRows())
 
-
-
-    options[:snapshot_ids]=snapshot_ids
-    options[:security_exclusions]=(snapshot_ids.size < java_result.size())
-    FilterResult.new(filter, options)
+    has_security_exclusions=(snapshot_ids.size < java_result.size())
+    filter_context.process_results(snapshot_ids, has_security_exclusions)
   end
 
   def column_title(column, filter)
@@ -156,8 +153,29 @@ module FiltersHelper
     end
   end
 
+  def period_names
+    p1=Property.value('sonar.timemachine.variation1', nil, 'previous_analysis')
+    p2=Property.value('sonar.timemachine.variation2', nil, '5')
+    p3=Property.value('sonar.timemachine.variation3', nil, '30')
+    [period_name(p1), period_name(p2), period_name(p3)]
+  end
 
   private
+
+  def period_name(property)
+    if property=='previous_analysis'
+      "Since previous analysis"
+    elsif property =~ /^[\d]+(\.[\d]+){0,1}$/
+      # is integer
+      "Previous #{property} days"
+    elsif property =~ /\d{4}-\d{2}-\d{2}/
+      "Since #{property}"
+    elsif !property.blank?
+      "Since version #{property}"
+    else
+      nil
+    end
+  end
 
   def extract_snapshot_ids(sql_rows)
     sids=[]

@@ -3,6 +3,7 @@
     Form.Element.clear('metric-' + id);
     Form.Element.clear('op-' + id);
     Form.Element.clear('val-' + id);
+    Form.Element.clear('type-' + id);
   }
 </script>
 <select name="criteria[<%= id -%>][metric_id]" id="metric-<%= id -%>">
@@ -14,6 +15,10 @@
     <% end %>
     </optgroup>
   <% end %>
+</select>
+<select name="criteria[<%= id -%>][type]" id="type-<%= id -%>">
+    <option value="value" <%= 'selected' unless (criterion && criterion.variation) -%>>Value</option>
+    <option value="variation" <%= 'selected' if criterion && criterion.variation -%>>Variation</option>
 </select>
 <select name="criteria[<%= id -%>][operator]" id="op-<%= id -%>">
   <option value=""></option>
