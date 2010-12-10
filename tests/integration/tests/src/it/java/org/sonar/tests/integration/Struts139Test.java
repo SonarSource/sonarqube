@@ -40,7 +40,7 @@ import static org.junit.Assert.assertThat;
  * To execute these unit tests, just check-out Struts 1.3.9 from subversion:
  * http://svn.apache.org/repos/asf/struts/struts1/tags/STRUTS_1_3_9
  * <p/>
- * The quality profile to use is not important.
+ * The quality profile to use is the default one configured in IT (see the file integration-tests-backup.xml).
  */
 public class Struts139Test {
 
