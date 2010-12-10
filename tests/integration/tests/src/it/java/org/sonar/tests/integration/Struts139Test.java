@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.hamcrest.number.IsCloseTo.closeTo;
 import static org.hamcrest.number.OrderingComparisons.greaterThanOrEqualTo;
@@ -178,6 +179,17 @@ public class Struts139Test {
     assertThat(version.getCategory(), is("Version"));
   }
 
+  /**
+   * See http://jira.codehaus.org/browse/SONAR-2041
+   */
+  @Test
+  public void unknownMetric() {
+    assertThat(getProjectMeasure("notfound"), nullValue());
+    assertThat(getCoreModuleMeasure("notfound"), nullValue());
+    assertThat(getPackageMeasure("notfound"), nullValue());
+    assertThat(getFileMeasure("notfound"), nullValue());
+  }
+
   private Measure getFileMeasure(String metricKey) {
     return sonar.find(ResourceQuery.createForMetrics(FILE_ACTION, metricKey)).getMeasure(metricKey);
   }
@@ -189,7 +201,7 @@ public class Struts139Test {
   private Measure getProjectMeasure(String metricKey) {
     return sonar.find(ResourceQuery.createForMetrics(PROJECT_STRUTS, metricKey)).getMeasure(metricKey);
   }
-  
+
   private Measure getPackageMeasure(String metricKey) {
     return sonar.find(ResourceQuery.createForMetrics(PACKAGE_ACTION, metricKey)).getMeasure(metricKey);
   }
