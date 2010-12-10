@@ -34,7 +34,7 @@ module FiltersHelper
     end
 
     if filter.favourites
-      java_filter.setFavouriteIds((filter_context.user ? user.favourite_ids : []).to_java(:Integer))
+      java_filter.setFavouriteIds((filter_context.user ? filter_context.user.favourite_ids : []).to_java(:Integer))
     end
 
     date_criterion=filter.criterion('date')
@@ -133,7 +133,13 @@ module FiltersHelper
   def treemap_metrics(filter)
     metrics=filter.measure_columns.map{|col| col.metric}
     size_metric=(metrics.size>=1 ? metrics[0] : Metric.by_key('ncloc'))
-    color_metric=(metrics.size>=2 ? metrics[1] : Metric.by_key('violations_density'))
+    color_metric=nil
+    if metrics.size>=2
+      color_metric=metrics[1]
+    end
+    if color_metric.nil? || !color_metric.treemap_color?
+      color_metric=Metric.by_key('violations_density')
+    end
     [size_metric, color_metric]
   end
 

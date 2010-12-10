@@ -22,12 +22,16 @@ class Sonar::Treemap
   
   attr_accessor :color_metric, :size_metric, :width, :height
   
-  def initialize(measures_by_snapshot, width, height, size_metric, color_metric)
+  def initialize(measures_by_snapshot, width, height, size_metric, color_metric, options={})
     @measures_by_snapshot = measures_by_snapshot
     @size_metric = size_metric
-    @color_metric = color_metric
+    @color_metric = color_metric if color_metric && color_metric.treemap_color?
     @width = width
     @height = height
+
+    if options[:variation_index] && options[:variation_index]>0
+      @variation_index = options[:variation_index]
+    end
   end
   
   def generate_html
@@ -50,41 +54,55 @@ class Sonar::Treemap
     id_counter = 0
     @measures_by_snapshot.each_pair do |snapshot, measures|
       size_measure=measures[@size_metric]
-      color_measure=measures[@color_metric]
+      color_measure=measures[@color_metric] if @color_metric
 
       if size_measure
         resource = snapshot.project
         child = Treemap::Node.new( :id => (id_counter += 1), 
-          :size => size_measure.value.to_f||0, 
+          :size => size_value(size_measure),
           :label => resource.name(false),
           :title => escape_javascript(resource.name(true)),
           :tooltip => get_html_tooltip(snapshot, size_measure, color_measure),
           :color => html_color(color_measure),
-          :url => get_url(snapshot,color_measure))
+          :url => get_url(snapshot))
         node.add_child(child)
       end
     end
   end 
 
   
-  def get_url(snapshot,color_measure)
+  def get_url(snapshot)
     if snapshot.display_dashboard?
       "document.location='#{ApplicationController.root_context}/dashboard/index/#{snapshot.project.copy_resource_id || snapshot.project_id}'"
     else
-      "window.open('#{ApplicationController.root_context}/resource/index/#{snapshot.project_id}?viewer_metric_key=#{@color_metric.key}','resource','height=800,width=900,scrollbars=1,resizable=1');return false;"
+      color_metric_key=(@color_metric ? @color_metric.key : nil)
+      "window.open('#{ApplicationController.root_context}/resource/index/#{snapshot.project_id}?viewer_metric_key=#{color_metric_key}','resource','height=800,width=900,scrollbars=1,resizable=1');return false;"
     end 
   end
     
   def get_html_tooltip(snapshot, size_measure, color_measure)
     html = "<table>"
     html += "<tr><td align=left>#{escape_javascript(@size_metric.short_name)}</td><td align=right><b>#{escape_javascript(size_measure ? size_measure.formatted_value : '-')}</b></td></tr>"
-    html += "<tr><td align=left>#{escape_javascript(@color_metric.short_name)}</td><td align=right><b>#{escape_javascript(color_measure ? color_measure.formatted_value : '-')}</b></td></tr>"
+    if color_measure
+      html += "<tr><td align=left>#{escape_javascript(@color_metric.short_name)}</td><td align=right><b>#{escape_javascript(color_measure ? color_measure.formatted_value : '-')}</b></td></tr>"
+    end
     html += "</table>"
     html
   end
+
+  def size_value(measure)
+    if @variation_index
+      var=measure.variation(@variation_index)
+      var ? var.to_f.abs : 0.0
+    elsif measure.value
+      measure.value.to_f.abs||0.0
+    else
+      0.0
+    end
+  end
   
   def html_color(measure)
-    measure ? measure.color.html : '#DDDDDD'
+    MeasureColor.color(measure).html
   end
 
 end
@@ -97,10 +115,10 @@ class Sonar::HtmlOutput < Treemap::HtmlOutput
 
     html = ""
     html += "<div id=\"node-#{node.id}\" style=\""
-    html += "overflow: hidden; position:absolute;"
-    html += "left: #{node.bounds.x1}px; top: #{node.bounds.y1}px;"
-    html += "width: #{node.bounds.width}px; height: #{node.bounds.height}px;"
-    html += "background-color: #FFF;"
+    html += "overflow:hidden;position:absolute;"
+    html += "left:#{node.bounds.x1}px; top:#{node.bounds.y1}px;"
+    html += "width:#{node.bounds.width}px;height: #{node.bounds.height}px;"
+    html += "background-color:#FFF;"
     html += "\" class=\"node\">"
     html += "<div id=\"link_node-#{node.id}\" style='margin: 2px;background-color: #{node.color}; height: #{node.bounds.height-4}px; border: 1px solid #{node.color};' "
     if node.url && @details_at_depth==node.depth

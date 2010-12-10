@@ -150,39 +150,10 @@ class ProjectMeasure < ActiveRecord::Base
     end
   end
 
-
-  MIN_COLOR=Color::RGB.from_html("EE0000")   # red
-  MEAN_COLOR=Color::RGB.from_html("FFEE00")   # orange
-  MAX_COLOR=Color::RGB.from_html("00AA00")   # green
-
   def color
     @color ||=
       begin
-        percent=-1.0
-        if !alert_status.blank?
-          case(alert_status)
-            when Metric::TYPE_LEVEL_OK : percent=100.0
-            when Metric::TYPE_LEVEL_ERROR : percent=0.0
-            when Metric::TYPE_LEVEL_WARN : percent=50.0
-          end
-        elsif metric.value_type==Metric::VALUE_TYPE_LEVEL
-          case(text_value)
-            when Metric::TYPE_LEVEL_OK : percent=100.0
-            when Metric::TYPE_LEVEL_WARN : percent=50.0
-            when Metric::TYPE_LEVEL_ERROR : percent=0.0
-          end
-        elsif value && metric.worst_value && metric.best_value
-          percent = 100.0 * (value.to_f - metric.worst_value.to_f) / (metric.best_value.to_f - metric.worst_value.to_f)
-          percent=100.0 if percent>100.0
-          percent=0.0 if percent<0.0
-        end
-        if percent<0.0
-          nil
-        elsif (percent > 50.0)
-          MAX_COLOR.mix_with(MEAN_COLOR, (percent - 50.0) * 2.0)
-        else
-          MIN_COLOR.mix_with(MEAN_COLOR, (50.0 - percent) * 2.0)
-        end
+        MeasureColor.color(self)
       end
   end
 

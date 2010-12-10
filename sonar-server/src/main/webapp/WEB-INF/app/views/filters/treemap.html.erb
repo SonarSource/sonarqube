@@ -14,6 +14,19 @@
       <%= select_tag 'color_metric', options_grouped_by_domain(Sonar::TreemapBuilder.color_metrics, @color_metric.key),
         :id => 'color_metric', :class => 'small', :onchange => "load_treemap(this.form.size_metric.value,this.form.color_metric.value, false);return false;" %>
     </td>
+    <% if params[:show_periods]=='true' %>
+    <td class="sep"> </td>
+    <td>
+      <span class="comments">Period:</span>
+      <br/>
+      <select name="var" onchange="submit()" class="small">
+        <option value="">None</option>
+        <% period_names.each_with_index do |name, index| %>
+           <option value="<%= index+1 -%>" <%= 'selected' if params[:var].to_i==index+1 -%>><%= name -%></value>
+        <% end %>
+      </select>
+    </td>
+    <% end %>
   </tr>
 </table>
 </form>

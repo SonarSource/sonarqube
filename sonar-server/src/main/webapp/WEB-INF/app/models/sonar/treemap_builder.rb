@@ -27,13 +27,13 @@ class Sonar::TreemapBuilder
   def self.size_metrics(options={})
     exclude_user_managed=options[:exclude_user_managed]||false
     Metric.all.select{ |metric| 
-      metric.enabled && !metric.hidden && metric.numeric? && !metric.domain.blank? && (!exclude_user_managed || !metric.user_managed?)
+      metric.treemap_size? && (!exclude_user_managed || !metric.user_managed?)
     }.sort
   end
 
   def self.color_metrics
     Metric.all.select{ |metric|
-      metric.enabled && !metric.hidden && ((metric.numeric? && metric.worst_value && metric.best_value) || metric.val_type==Metric::VALUE_TYPE_LEVEL)
+      metric.treemap_color?
     }.sort
   end
   

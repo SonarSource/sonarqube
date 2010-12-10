@@ -333,7 +333,8 @@ class FiltersController < ApplicationController
 
     filter.columns.clear
     params[:columns].each do |colstring|
-      filter.columns<<::FilterColumn.create_from_string(colstring)
+      column=::FilterColumn.create_from_string(colstring)
+      filter.columns<<column if column
     end
     filter.save
     redirect_to :action => :edit, :id => filter.id
@@ -406,7 +407,9 @@ class FiltersController < ApplicationController
 
     @width=(params[:width]||'800').to_i
     @height=(params[:height]||'500').to_i
-    @treemap=Sonar::Treemap.new(@filter_context.measures_by_snapshot, @width, @height, @size_metric, @color_metric)
+
+    treemap_options={:variation_index => @filter_context.variation_index}
+    @treemap=Sonar::Treemap.new(@filter_context.measures_by_snapshot, @width, @height, @size_metric, @color_metric, treemap_options)
     render :action => "treemap", :layout => false
   end
 

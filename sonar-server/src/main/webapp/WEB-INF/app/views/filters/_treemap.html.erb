@@ -10,12 +10,12 @@ color_metric=metrics[1]
 <script>
 var treemap_width = $('treemap').getDimensions().width - 15;
 var treemap_height = document.viewport.getDimensions().height - 220;
-function load_treemap(size_metric, color_metric, hide_form) {
+function load_treemap(size_metric, color_metric, hide_form, variation_index) {
   $('treemap_loading').show();
   $('treemap').hide();
-  <%= remote_function :update => 'treemap', :url => {:action => 'treemap', :id => @filter.id},
+  <%= remote_function :update => 'treemap', :url => {:action => 'treemap', :id => @filter.id, :show_periods => true},
    :complete => "$('treemap_loading').hide();$('treemap').show();",
-   :with => "'width=' + treemap_width + '&height=' + treemap_height + '&size_metric=' + size_metric + '&color_metric=' + color_metric + '&hide_form=' + hide_form" %>
+   :with => "'width=' + treemap_width + '&height=' + treemap_height + '&size_metric=' + size_metric + '&color_metric=' + color_metric + '&hide_form=' + hide_form + '&var=' + variation_index" %>
 }
-load_treemap('<%= size_metric.key -%>', '<%= color_metric.key -%>', <%= edit_mode -%>);
+load_treemap('<%= size_metric.key -%>', '<%= color_metric.key -%>', <%= edit_mode -%>, <%= params[:var].to_i -%>);
 </script>
