@@ -21,6 +21,7 @@ package org.sonar.tests.integration;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.wsclient.Sonar;
 import org.sonar.wsclient.services.*;
 
@@ -29,6 +30,7 @@ import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.hamcrest.number.IsCloseTo.closeTo;
 import static org.hamcrest.number.OrderingComparisons.greaterThanOrEqualTo;
 import static org.hamcrest.number.OrderingComparisons.lessThan;
 import static org.junit.Assert.assertNotNull;
@@ -66,6 +68,29 @@ public class Struts139Test {
     assertThat(sonar.find(new ResourceQuery(PROJECT_STRUTS)).getVersion(), is("1.3.9"));
     assertThat(sonar.find(new ResourceQuery(MODULE_CORE)).getName(), is("Struts Core"));
   }
+
+  @Test
+  public void testProjectViolationMeasures() {
+    assertThat(getProjectMeasure(CoreMetrics.VIOLATIONS_KEY).getValue(), closeTo(7565.0, 500.0));
+    assertThat(getProjectMeasure(CoreMetrics.BLOCKER_VIOLATIONS_KEY).getValue(), closeTo(0.0, 20.0));
+    assertThat(getProjectMeasure(CoreMetrics.CRITICAL_VIOLATIONS_KEY).getValue(), closeTo(18.0, 20.0));
+    assertThat(getProjectMeasure(CoreMetrics.MAJOR_VIOLATIONS_KEY).getValue(), closeTo(2468.0, 200.0));
+    assertThat(getProjectMeasure(CoreMetrics.MINOR_VIOLATIONS_KEY).getValue(), closeTo(4945.0, 200.0));
+    assertThat(getProjectMeasure(CoreMetrics.INFO_VIOLATIONS_KEY).getValue(), closeTo(134.0, 20.0));
+    assertThat(getProjectMeasure(CoreMetrics.VIOLATIONS_DENSITY_KEY).getValue(), closeTo(75.2, 5.0));
+  }
+
+  @Test
+  public void testPackageViolationMeasures() {
+    assertThat(getPackageMeasure(CoreMetrics.VIOLATIONS_KEY).getValue(), closeTo(283.0, 50.0));
+    assertThat(getPackageMeasure(CoreMetrics.BLOCKER_VIOLATIONS_KEY).getValue(), closeTo(0.0, 5.0));
+    assertThat(getPackageMeasure(CoreMetrics.CRITICAL_VIOLATIONS_KEY).getValue(), closeTo(4.0, 5.0));
+    assertThat(getPackageMeasure(CoreMetrics.MAJOR_VIOLATIONS_KEY).getValue(), closeTo(108.0, 20.0));
+    assertThat(getPackageMeasure(CoreMetrics.MINOR_VIOLATIONS_KEY).getValue(), closeTo(169.0, 20.0));
+    assertThat(getPackageMeasure(CoreMetrics.INFO_VIOLATIONS_KEY).getValue(), closeTo(2.0, 5.0));
+    assertThat(getPackageMeasure(CoreMetrics.VIOLATIONS_DENSITY_KEY).getValue(), closeTo(81.2, 5.0));
+  }
+
 
   @Test
   public void sizeMetrics() {
