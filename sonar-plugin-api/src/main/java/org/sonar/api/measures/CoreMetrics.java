@@ -171,7 +171,7 @@ public final class CoreMetrics {
   public static final String PUBLIC_UNDOCUMENTED_API_KEY = "public_undocumented_api";
   public static final Metric PUBLIC_UNDOCUMENTED_API = new Metric(PUBLIC_UNDOCUMENTED_API_KEY, "Public undocumented API",
       "Public undocumented classes, methods and variables", Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_DOCUMENTATION)
-      .setWorstValue(100.0).setBestValue(0.0).setDirection(Metric.DIRECTION_WORST).setOptimizedBestValue(true).setFormula(
+      .setBestValue(0.0).setDirection(Metric.DIRECTION_WORST).setOptimizedBestValue(true).setFormula(
           new SumChildValuesFormula(false));
 
   public static final String COMMENTED_OUT_CODE_LINES_KEY = "commented_out_code_lines";
