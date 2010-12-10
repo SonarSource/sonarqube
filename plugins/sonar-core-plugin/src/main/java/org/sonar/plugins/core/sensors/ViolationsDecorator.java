@@ -104,24 +104,20 @@ public class ViolationsDecorator implements Decorator {
   }
 
   private void saveViolationsByRule(DecoratorContext context) {
-    // See SONAR-1729
-    // Extrapolation : assume that the measure with key [metric "violations", rule] does not exist when the measure "violations" does not exist as well.
-    if (context.getMeasure(CoreMetrics.VIOLATIONS) == null) {
-      Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.rules(CoreMetrics.VIOLATIONS));
-      for (Measure childMeasure : children) {
-        RuleMeasure childRuleMeasure = (RuleMeasure) childMeasure;
-        Rule rule = childRuleMeasure.getRule();
-        if (rule != null && MeasureUtils.hasValue(childRuleMeasure)) {
-          rules.add(rule, childRuleMeasure.getValue().intValue());
-          ruleToSeverity.put(childRuleMeasure.getRule(), childRuleMeasure.getRulePriority());
-        }
+    Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.rules(CoreMetrics.VIOLATIONS));
+    for (Measure childMeasure : children) {
+      RuleMeasure childRuleMeasure = (RuleMeasure) childMeasure;
+      Rule rule = childRuleMeasure.getRule();
+      if (rule != null && MeasureUtils.hasValue(childRuleMeasure)) {
+        rules.add(rule, childRuleMeasure.getValue().intValue());
+        ruleToSeverity.put(childRuleMeasure.getRule(), childRuleMeasure.getRulePriority());
       }
-      for (Multiset.Entry<Rule> entry : rules.entrySet()) {
-        Rule rule = entry.getElement();
-        RuleMeasure measure = RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule, (double) entry.getCount());
-        measure.setRulePriority(ruleToSeverity.get(rule));
-        context.saveMeasure(measure);
-      }
+    }
+    for (Multiset.Entry<Rule> entry : rules.entrySet()) {
+      Rule rule = entry.getElement();
+      RuleMeasure measure = RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule, (double) entry.getCount());
+      measure.setRulePriority(ruleToSeverity.get(rule));
+      context.saveMeasure(measure);
     }
   }
 

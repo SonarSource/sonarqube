@@ -84,7 +84,7 @@ public class ViolationsDecoratorTest {
 
     decorator.decorate(resource, context);
 
-    verify(context, never()).saveMeasure(argThat(new IsMeasure(CoreMetrics.VIOLATIONS)));// not changed
+    verify(context, never()).saveMeasure(argThat(new IsMeasure(CoreMetrics.VIOLATIONS, 4.0)));// not changed
     verify(context, never()).saveMeasure(argThat(new IsMeasure(CoreMetrics.MAJOR_VIOLATIONS)));// not changed
     verify(context, times(1)).saveMeasure(argThat(new IsMeasure(CoreMetrics.CRITICAL_VIOLATIONS)));// did not exist
   }
