@@ -25,8 +25,13 @@ class AddVariationsToFilters < ActiveRecord::Migration
 
   def self.up
     add_column :filters, :variation_index, :integer, :null => true
+    Filter.reset_column_information
+
     add_column :filter_columns, :variation, :boolean, :null => true
+    FilterColumn.reset_column_information
+
     add_column :criteria, :variation, :boolean, :null => true
+    Criterion.reset_column_information
   end
 
 end
