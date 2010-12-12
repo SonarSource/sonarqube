@@ -19,6 +19,8 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
+import org.json.simple.JSONArray;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -72,6 +74,13 @@ public final class JsonUtils {
     return null;
   }
 
+  /**
+   * @since 2.5
+   */
+  public static JSONArray getArray(Map obj, String field) {
+    return (JSONArray) obj.get(field);
+  }
+
   public static Date getDateTime(Map obj, String field) {
     return parseDate(obj, field, "yyyy-MM-dd'T'HH:mm:ssZ");
   }
@@ -92,5 +101,17 @@ public final class JsonUtils {
       }
     }
     return null;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public static Date parseDateTime(String dateTime) {
+    try {
+      SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+      return dateFormat.parse(dateTime);
+    } catch (ParseException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

@@ -27,10 +27,10 @@ public class MetricUnmarshaller extends AbstractUnmarshaller<Metric> {
   @Override
   protected Metric parse(JSONObject json) {
     return new Metric()
-        .setKey((String) json.get("key"))
-        .setName((String) json.get("name"))
-        .setDomain((String) json.get("domain"))
-        .setDescription((String) json.get("description"))
+        .setKey(JsonUtils.getString(json, "key"))
+        .setName(JsonUtils.getString(json, "name"))
+        .setDomain(JsonUtils.getString(json, "domain"))
+        .setDescription(JsonUtils.getString(json, "description"))
         .setDirection(JsonUtils.getInteger(json, "direction"))
         .setType(JsonUtils.getString(json, "val_type"))
         .setUserManaged(JsonUtils.getBoolean(json, "user_managed"))

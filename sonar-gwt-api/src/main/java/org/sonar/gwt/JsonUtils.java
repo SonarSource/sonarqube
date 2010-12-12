@@ -50,13 +50,14 @@ public final class JsonUtils {
       url += "format=json&";
     }
     if (!url.contains("callback=")) {
-      //IMPORTANT : the url should ended with ?callback= or &callback= for JSONP calls
+      // IMPORTANT : the url should ended with ?callback= or &callback= for JSONP calls
       url += "callback=";
     }
     makeJSONRequest(requestId++, URL.encode(url), handler);
   }
 
-  public static native void makeJSONRequest(int requestId, String url, JSONHandler handler) /*-{
+  public static native void makeJSONRequest(int requestId, String url, JSONHandler handler)
+  /*-{
     var callback = "callback" + requestId;
 
     // create SCRIPT tag, and set SRC attribute equal to JSON feed URL + callback function name
@@ -115,12 +116,7 @@ public final class JsonUtils {
   public static Date getDate(JSONObject json, String field) {
     String date = getString(json, field);
     if (date != null) {
-      DateTimeFormat frmt = DateTimeFormat.getFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-      if (date.endsWith("Z") && date.length() > 2) {
-        // see SONAR-1182
-        date = date.substring(0, date.length() - 2) + "+0000";
-      }
-      return frmt.parse(date);
+      return parseDateTime(date);
     }
     return null;
   }
@@ -177,5 +173,16 @@ public final class JsonUtils {
     throw new JavaScriptException("Not implemented");
   }
 
-}
+  /**
+   * @since 2.5
+   */
+  public static Date parseDateTime(String dateTime) {
+    DateTimeFormat frmt = DateTimeFormat.getFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+    if (dateTime.endsWith("Z") && dateTime.length() > 2) {
+      // see SONAR-1182
+      dateTime = dateTime.substring(0, dateTime.length() - 2) + "+0000";
+    }
+    return frmt.parse(dateTime);
+  }
 
+}

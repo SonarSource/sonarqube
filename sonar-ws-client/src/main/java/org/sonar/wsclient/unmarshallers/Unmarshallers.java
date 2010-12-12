@@ -44,6 +44,7 @@ public final class Unmarshallers {
     unmarshallers.put(Favourite.class, new FavouriteUnmarshaller());
     unmarshallers.put(Plugin.class, new PluginUnmarshaller());
     unmarshallers.put(Rule.class, new RuleUnmarshaller());
+    unmarshallers.put(TimeMachineData.class, new TimeMachineUnmarshaller());
   }
 
   public static <MODEL extends Model> Unmarshaller<MODEL> forModel(Class<MODEL> modelClass) {

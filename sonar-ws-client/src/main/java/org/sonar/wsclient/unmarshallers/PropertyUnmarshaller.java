@@ -27,7 +27,7 @@ public class PropertyUnmarshaller extends AbstractUnmarshaller<Property> {
   @Override
   protected Property parse(JSONObject json) {
     return new Property()
-        .setKey((String) json.get("key"))
-        .setValue((String) json.get("value"));
+        .setKey(JsonUtils.getString(json, "key"))
+        .setValue(JsonUtils.getString(json, "value"));
   }
 }

@@ -92,7 +92,7 @@ public class ResourceUnmarshaller extends AbstractUnmarshaller<Resource> {
         .setRuleKey(JsonUtils.getString(json, "rule_key"))
         .setRuleName(JsonUtils.getString(json, "rule_name"))
         .setRuleCategory(JsonUtils.getString(json, "rule_category"))
-        .setRulePriority(JsonUtils.getString(json, "rule_priority"))
+        .setRuleSeverity(JsonUtils.getString(json, "rule_priority"))
         .setCharacteristicKey(JsonUtils.getString(json, "ctic_key"))
         .setCharacteristicName(JsonUtils.getString(json, "ctic_name"));
     return measure;

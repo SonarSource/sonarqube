@@ -51,7 +51,7 @@ public class ResourceUnmarshaller extends AbstractUnmarshaller<Resource> {
   }
 
   private void parseMeasures(JSONObject json, Resource resource) {
-    JSONArray measuresJson = (JSONArray) json.get("msr");
+    JSONArray measuresJson = JsonUtils.getArray(json, "msr");
     if (measuresJson != null) {
       resource.setMeasures(parseMeasures(measuresJson));
     }
