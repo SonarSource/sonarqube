@@ -2,6 +2,9 @@ package org.sonar.wsclient.services;
 
 import java.util.Date;
 
+/**
+ * @since 2.5
+ */
 public class TimeMachineQuery extends Query<TimeMachineData> {
 
   public static final String BASE_URL = "/api/timemachine";
@@ -48,8 +51,8 @@ public class TimeMachineQuery extends Query<TimeMachineData> {
     url.append('?');
     appendUrlParameter(url, "resource", resourceKeyOrId);
     appendUrlParameter(url, "metrics", metrics);
-    appendUrlParameter(url, "first_date", from);
-    appendUrlParameter(url, "last_date", to);
+    appendUrlParameter(url, "fromDateTime", from, true);
+    appendUrlParameter(url, "toDateTime", to, true);
     return url.toString();
   }
 

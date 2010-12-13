@@ -27,8 +27,8 @@ class Api::TimemachineController < Api::ApiController
       resource_id = params[:resource]
       metric_keys = params[:metrics].split(',')
       metrics = Metric.by_keys(metric_keys)
-      first_date = parse_datetime(params[:first_date])
-      last_date = parse_datetime(params[:last_date])
+      first_date = parse_datetime(params[:fromDateTime])
+      last_date = parse_datetime(params[:toDateTime])
 
       @resource=Project.by_key(resource_id)
       if @resource.nil?
@@ -48,7 +48,7 @@ class Api::TimemachineController < Api::ApiController
 
       measures = find_measures(metrics, snapshots)
 
-      result = []
+      result = {}
       if !measures.empty?
         measures_by_sid = {}
         measures.each do |measure|
@@ -67,7 +67,7 @@ class Api::TimemachineController < Api::ApiController
           metric_keys.each do |metric|
             values<<values_by_key[metric]
           end
-          result<<{format_datetime(snapshot.created_at) => values}
+          result[format_datetime(snapshot.created_at)] = values
         end
       end
 
