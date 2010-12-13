@@ -2002,5 +2002,23 @@
       </active-rules>
       <alerts/>
     </profile>
+    <profile>
+      <name><![CDATA[violations-timemachine]]></name>
+      <default-profile><![CDATA[false]]></default-profile>
+      <provided><![CDATA[false]]></provided>
+      <language><![CDATA[java]]></language>
+      <active-rules>
+        <active-rule>
+          <key><![CDATA[UnusedLocalVariable]]></key>
+          <plugin><![CDATA[pmd]]></plugin>
+          <level><![CDATA[MAJOR]]></level>
+        </active-rule>
+        <active-rule>
+          <key><![CDATA[com.puppycrawl.tools.checkstyle.checks.design.DesignForExtensionCheck]]></key>
+          <plugin><![CDATA[checkstyle]]></plugin>
+          <level><![CDATA[MINOR]]></level>
+        </active-rule>
+      </active-rules>
+    </profile>
   </profiles>
 </sonar-config>

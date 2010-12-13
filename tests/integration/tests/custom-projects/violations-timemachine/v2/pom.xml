@@ -18,4 +18,9 @@
       </plugin>
     </plugins>
   </build>
+
+  <properties>
+    <sonar.profile>violations-timemachine</sonar.profile>
+    <sonar.projectDate>2010-11-13</sonar.projectDate>
+  </properties>
 </project>

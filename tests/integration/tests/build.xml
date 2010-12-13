@@ -113,12 +113,10 @@
   <target name="violations-timemachine">
     <mvn args="clean install -DskiptTests" dir="${projects.dir}/violations-timemachine/v1"/>
     <mvnsonar failonerror="false"
-              args="-Dsonar.projectDate=2010-10-19"
               pom="${projects.dir}/violations-timemachine/v1/pom.xml"/>
 
     <mvn args="clean install -DskiptTests" dir="${projects.dir}/violations-timemachine/v2"/>
     <mvnsonar failonerror="false"
-              args="-Dsonar.projectDate=2010-11-13"
               pom="${projects.dir}/violations-timemachine/v2/pom.xml"/>
   </target>
 
