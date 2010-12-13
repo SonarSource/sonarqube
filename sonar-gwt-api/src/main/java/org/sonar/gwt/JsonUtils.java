@@ -101,16 +101,7 @@ public final class JsonUtils {
   }
 
   public static String getString(JSONObject json, String field) {
-    JSONValue jsonValue;
-    JSONString jsonString;
-    if ((jsonValue = json.get(field)) == null) {
-      return null;
-    }
-    if ((jsonString = jsonValue.isString()) == null) {
-      JSONNumber jsonNumber = jsonValue.isNumber();
-      return jsonNumber != null ? jsonNumber.toString() : null;
-    }
-    return jsonString.stringValue();
+    return getAsString(json.get(field));
   }
 
   public static Date getDate(JSONObject json, String field) {
@@ -171,6 +162,18 @@ public final class JsonUtils {
       return ((JSONObject) array).size();
     }
     throw new JavaScriptException("Not implemented");
+  }
+
+  public static String getAsString(JSONValue jsonValue) {
+    if (jsonValue == null) {
+      return null;
+    }
+    JSONString jsonString;
+    if ((jsonString = jsonValue.isString()) == null) {
+      JSONNumber jsonNumber = jsonValue.isNumber();
+      return jsonNumber != null ? jsonNumber.toString() : null;
+    }
+    return jsonString.stringValue();
   }
 
   /**

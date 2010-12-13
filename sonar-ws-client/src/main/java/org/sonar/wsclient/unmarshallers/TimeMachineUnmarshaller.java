@@ -14,13 +14,13 @@ public class TimeMachineUnmarshaller implements Unmarshaller<TimeMachineData> {
     Map<Date, List<String>> data = new HashMap<Date, List<String>>();
     for (Object key : map.keySet()) {
       JSONArray array = (JSONArray) map.get(key);
-      List<String> values = new ArrayList<String>();
+      List<String> measures = new ArrayList<String>();
       for (int i = 0; i < array.size(); i++) {
         Object elem = array.get(i);
         String value = elem == null ? null : elem.toString();
-        values.add(value);
+        measures.add(value);
       }
-      data.put(JsonUtils.parseDateTime((String) key), values);
+      data.put(JsonUtils.parseDateTime((String) key), measures);
     }
     return new TimeMachineData().setData(data);
   }
