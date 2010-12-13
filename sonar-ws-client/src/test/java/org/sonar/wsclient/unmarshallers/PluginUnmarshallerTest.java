@@ -12,7 +12,7 @@ public class PluginUnmarshallerTest {
 
   @Test
   public void toModel() throws Exception {
-    List<Plugin> plugins = new PluginUnmarshaller().toModels("[{\"key\": \"foo\", \"name\": \"Foo\", \"version\": \"1.0\"}]");
+    List<Plugin> plugins = new PluginUnmarshaller().toModels(WSTestUtils.loadFile("/plugins/plugins.json"));
     Plugin plugin = plugins.get(0);
     assertThat(plugin.getKey(), is("foo"));
     assertThat(plugin.getName(), is("Foo"));

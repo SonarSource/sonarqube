@@ -19,11 +19,9 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.wsclient.services.Resource;
 
-import java.io.IOException;
 import java.util.List;
 
 import static org.hamcrest.Matchers.nullValue;
@@ -34,8 +32,8 @@ import static org.junit.Assert.assertThat;
 public class ResourceUnmarshallerTest {
 
   @Test
-  public void singleResource() throws IOException {
-    String json = loadFile("/resources/single-resource.json");
+  public void singleResource() {
+    String json = WSTestUtils.loadFile("/resources/single-resource.json");
     assertSonar(new ResourceUnmarshaller().toModel(json));
 
     List<Resource> resources = new ResourceUnmarshaller().toModels(json);
@@ -44,8 +42,8 @@ public class ResourceUnmarshallerTest {
   }
 
   @Test
-  public void singleResourceWithMeasures() throws IOException {
-    Resource resource = new ResourceUnmarshaller().toModel(loadFile("/resources/single-resource-with-measures.json"));
+  public void singleResourceWithMeasures() {
+    Resource resource = new ResourceUnmarshaller().toModel(WSTestUtils.loadFile("/resources/single-resource-with-measures.json"));
     assertSonar(resource);
 
     assertThat(resource.getMeasures().size(), is(2));
@@ -55,8 +53,8 @@ public class ResourceUnmarshallerTest {
   }
 
   @Test
-  public void singleResourceWithTrends() throws IOException {
-    Resource resource = new ResourceUnmarshaller().toModel(loadFile("/resources/single-resource-with-trends.json"));
+  public void singleResourceWithTrends() {
+    Resource resource = new ResourceUnmarshaller().toModel(WSTestUtils.loadFile("/resources/single-resource-with-trends.json"));
     assertSonar(resource);
 
     assertThat(resource.getMeasures().size(), is(2));
@@ -69,8 +67,8 @@ public class ResourceUnmarshallerTest {
   }
 
   @Test
-  public void manyResources() throws IOException {
-    List<Resource> resources = new ResourceUnmarshaller().toModels(loadFile("/resources/many-resources.json"));
+  public void manyResources() {
+    List<Resource> resources = new ResourceUnmarshaller().toModels(WSTestUtils.loadFile("/resources/many-resources.json"));
 
     assertThat(resources.size(), is(19));
     for (Resource resource : resources) {
@@ -81,8 +79,8 @@ public class ResourceUnmarshallerTest {
   }
 
   @Test
-  public void manyResourcesWithMeasures() throws IOException {
-    List<Resource> resources = new ResourceUnmarshaller().toModels(loadFile("/resources/many-resources-with-measures.json"));
+  public void manyResourcesWithMeasures() {
+    List<Resource> resources = new ResourceUnmarshaller().toModels(WSTestUtils.loadFile("/resources/many-resources-with-measures.json"));
 
     assertThat(resources.size(), is(17));
     for (Resource resource : resources) {
@@ -101,9 +99,5 @@ public class ResourceUnmarshallerTest {
     assertThat(resource.getLanguage(), is("java"));
     assertThat(resource.getDescription(), is("Embrace Quality"));
     assertThat(resource.getDate(), not(nullValue()));
-  }
-
-  private static String loadFile(String path) throws IOException {
-    return IOUtils.toString(ResourceUnmarshallerTest.class.getResourceAsStream(path));
   }
 }

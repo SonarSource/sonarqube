@@ -19,11 +19,9 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.wsclient.services.Property;
 
-import java.io.IOException;
 import java.util.Collection;
 
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -32,28 +30,24 @@ import static org.junit.Assert.assertThat;
 
 public class PropertyUnmarshallerTest {
   @Test
-  public void toModel() throws IOException {
+  public void toModel() {
     Property property = new PropertyUnmarshaller().toModel("[]");
     assertThat(property, nullValue());
 
-    property = new PropertyUnmarshaller().toModel(loadFile("/properties/single.json"));
+    property = new PropertyUnmarshaller().toModel(WSTestUtils.loadFile("/properties/single.json"));
     assertThat(property.getKey(), is("myprop"));
     assertThat(property.getValue(), is("myvalue"));
   }
 
   @Test
-  public void toModels() throws IOException {
+  public void toModels() {
     Collection<Property> properties = new PropertyUnmarshaller().toModels("[]");
     assertThat(properties.size(), is(0));
 
-    properties = new PropertyUnmarshaller().toModels(loadFile("/properties/single.json"));
+    properties = new PropertyUnmarshaller().toModels(WSTestUtils.loadFile("/properties/single.json"));
     assertThat(properties.size(), is(1));
 
-    properties = new PropertyUnmarshaller().toModels(loadFile("/properties/many.json"));
+    properties = new PropertyUnmarshaller().toModels(WSTestUtils.loadFile("/properties/many.json"));
     assertThat(properties.size(), is(3));
-  }
-
-  private static String loadFile(String path) throws IOException {
-    return IOUtils.toString(PropertyUnmarshallerTest.class.getResourceAsStream(path));
   }
 }

@@ -19,11 +19,9 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.wsclient.services.Metric;
 
-import java.io.IOException;
 import java.util.Collection;
 
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -34,11 +32,11 @@ import static org.junit.Assert.assertTrue;
 public class MetricUnmarshallerTest {
 
   @Test
-  public void toModel() throws IOException {
+  public void toModel() {
     Metric metric = new MetricUnmarshaller().toModel("[]");
     assertThat(metric, nullValue());
 
-    metric = new MetricUnmarshaller().toModel(loadFile("/metrics/one_metric.json"));
+    metric = new MetricUnmarshaller().toModel(WSTestUtils.loadFile("/metrics/one_metric.json"));
     assertThat(metric.getKey(), is("ncloc"));
     assertThat(metric.getName(), is("Lines of code"));
     assertThat(metric.getDescription(), is("Non Commenting Lines of Code"));
@@ -46,21 +44,16 @@ public class MetricUnmarshallerTest {
     assertTrue(metric.getHidden());
   }
 
-
-
   @Test
-  public void toModels() throws IOException {
+  public void toModels() {
     Collection<Metric> metrics = new MetricUnmarshaller().toModels("[]");
     assertThat(metrics.size(), is(0));
 
-    metrics = new MetricUnmarshaller().toModels(loadFile("/metrics/one_metric.json"));
+    metrics = new MetricUnmarshaller().toModels(WSTestUtils.loadFile("/metrics/one_metric.json"));
     assertThat(metrics.size(), is(1));
 
-    metrics = new MetricUnmarshaller().toModels(loadFile("/metrics/many_metrics.json"));
+    metrics = new MetricUnmarshaller().toModels(WSTestUtils.loadFile("/metrics/many_metrics.json"));
     assertThat(metrics.size(), is(10));
   }
 
-  private static String loadFile(String path) throws IOException {
-    return IOUtils.toString(MetricUnmarshallerTest.class.getResourceAsStream(path));
-  }
 }

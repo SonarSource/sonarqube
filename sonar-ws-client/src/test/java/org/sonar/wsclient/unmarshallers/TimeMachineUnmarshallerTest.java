@@ -1,10 +1,8 @@
 package org.sonar.wsclient.unmarshallers;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.wsclient.services.TimeMachineData;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -18,7 +16,7 @@ public class TimeMachineUnmarshallerTest {
 
   @Test
   public void toModel() throws Exception {
-    TimeMachineData data = new TimeMachineUnmarshaller().toModel(loadFile("/timemachine/timemachine.json"));
+    TimeMachineData data = new TimeMachineUnmarshaller().toModel(WSTestUtils.loadFile("/timemachine/timemachine.json"));
 
     Map<Date, List<String>> map = data.getData();
     assertThat(map.size(), is(1));
@@ -34,14 +32,10 @@ public class TimeMachineUnmarshallerTest {
 
   @Test
   public void many() throws Exception {
-    TimeMachineData data = new TimeMachineUnmarshaller().toModel(loadFile("/timemachine/many.json"));
+    TimeMachineData data = new TimeMachineUnmarshaller().toModel(WSTestUtils.loadFile("/timemachine/many.json"));
 
     Map<Date, List<String>> map = data.getData();
     assertThat(map.size(), is(3));
-  }
-
-  private static String loadFile(String path) throws IOException {
-    return IOUtils.toString(TimeMachineUnmarshallerTest.class.getResourceAsStream(path));
   }
 
 }

@@ -19,11 +19,9 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.wsclient.services.Dependency;
 
-import java.io.IOException;
 import java.util.Collection;
 
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -33,11 +31,11 @@ import static org.junit.Assert.assertThat;
 public class DependencyUnmarshallerTest {
 
   @Test
-  public void toModel() throws IOException {
+  public void toModel() {
     Dependency dependency = new DependencyUnmarshaller().toModel("[]");
     assertThat(dependency, nullValue());
 
-    dependency = new DependencyUnmarshaller().toModel(loadFile("/dependencies/single.json"));
+    dependency = new DependencyUnmarshaller().toModel(WSTestUtils.loadFile("/dependencies/single.json"));
     assertThat(dependency.getId(), is("1649"));
     assertThat(dependency.getFromKey(), is("org.apache.shiro:shiro-core:org.apache.shiro.authc.pam"));
     assertThat(dependency.getToKey(), is("org.apache.shiro:shiro-core:org.apache.shiro.realm"));
@@ -50,16 +48,12 @@ public class DependencyUnmarshallerTest {
   }
 
   @Test
-  public void toModels() throws IOException {
+  public void toModels() {
     Collection<Dependency> dependencies = new DependencyUnmarshaller().toModels("[]");
     assertThat(dependencies.size(), is(0));
 
-    dependencies = new DependencyUnmarshaller().toModels(loadFile("/dependencies/many.json"));
+    dependencies = new DependencyUnmarshaller().toModels(WSTestUtils.loadFile("/dependencies/many.json"));
     assertThat(dependencies.size(), is(15));
-  }
-
-  private static String loadFile(String path) throws IOException {
-    return IOUtils.toString(DependencyUnmarshallerTest.class.getResourceAsStream(path));
   }
 
 }

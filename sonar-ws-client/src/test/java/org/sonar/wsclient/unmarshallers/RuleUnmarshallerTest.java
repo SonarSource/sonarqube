@@ -19,11 +19,9 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.wsclient.services.Rule;
 
-import java.io.IOException;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
@@ -33,14 +31,14 @@ import static org.junit.Assert.assertThat;
 public class RuleUnmarshallerTest {
 
   @Test
-  public void toModels() throws IOException {
+  public void toModels() {
     Rule rule = new RuleUnmarshaller().toModel("[]");
     assertThat(rule, nullValue());
 
     List<Rule> rules = new RuleUnmarshaller().toModels("[]");
     assertThat(rules.size(), is(0));
 
-    rules = new RuleUnmarshaller().toModels(loadFile("/rules/rules.json"));
+    rules = new RuleUnmarshaller().toModels(WSTestUtils.loadFile("/rules/rules.json"));
     assertThat(rules.size(), is(6));
 
     rule = rules.get(0);
@@ -56,10 +54,6 @@ public class RuleUnmarshallerTest {
 
     rule = rules.get(1);
     assertThat(rule.isActive(), is(true));
-  }
-
-  private static String loadFile(String path) throws IOException {
-    return IOUtils.toString(MetricUnmarshallerTest.class.getResourceAsStream(path));
   }
 
 }

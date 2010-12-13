@@ -19,11 +19,9 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.wsclient.services.DependencyTree;
 
-import java.io.IOException;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
@@ -31,11 +29,11 @@ import static org.junit.Assert.assertThat;
 
 public class DependencyTreeUnmarshallerTest {
   @Test
-  public void singleDepthOfDependencies() throws IOException {
+  public void singleDepthOfDependencies() {
     List<DependencyTree> trees = new DependencyTreeUnmarshaller().toModels("[]");
     assertThat(trees.size(), is(0));
 
-    trees = new DependencyTreeUnmarshaller().toModels(loadFile("/dependency_tree/single_depth.json"));
+    trees = new DependencyTreeUnmarshaller().toModels(WSTestUtils.loadFile("/dependency_tree/single_depth.json"));
     assertThat(trees.size(), is(2));
     assertThat(trees.get(0).getDepId(), is("12345"));
     assertThat(trees.get(0).getResourceId(), is("2000"));
@@ -49,8 +47,8 @@ public class DependencyTreeUnmarshallerTest {
   }
 
   @Test
-  public void manyDepthsOfDependencies() throws IOException {
-    List<DependencyTree> trees = new DependencyTreeUnmarshaller().toModels(loadFile("/dependency_tree/many_depths.json"));
+  public void manyDepthsOfDependencies() {
+    List<DependencyTree> trees = new DependencyTreeUnmarshaller().toModels(WSTestUtils.loadFile("/dependency_tree/many_depths.json"));
     assertThat(trees.size(), is(1));
     List<DependencyTree> secondLevelTrees = trees.get(0).getTo();
     assertThat(secondLevelTrees.size(), is(2));
@@ -60,10 +58,6 @@ public class DependencyTreeUnmarshallerTest {
 
     assertThat(secondLevelTrees.get(1).getDepId(), is("12347"));
     assertThat(secondLevelTrees.get(1).getResourceName(), is("Commons Lang"));
-  }
-
-  private static String loadFile(String path) throws IOException {
-    return IOUtils.toString(DependencyTreeUnmarshallerTest.class.getResourceAsStream(path));
   }
 
 }

@@ -22,8 +22,6 @@ package org.sonar.wsclient.unmarshallers;
 import org.junit.Test;
 import org.sonar.wsclient.services.Server;
 
-import java.io.IOException;
-
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -31,8 +29,8 @@ import static org.junit.Assert.assertThat;
 public class ServerUnmarshallerTest {
 
   @Test
-  public void testToModel() throws IOException {
-    Server server = new ServerUnmarshaller().toModel("{\"id\":\"123456789\", \"version\":\"2.0-SNAPSHOT\", \"status\":\"UP\", \"status_msg\":\"everything is under control\"}");
+  public void testToModel() {
+    Server server = new ServerUnmarshaller().toModel(WSTestUtils.loadFile("/server/server.json"));
     assertThat(server.getId(), is("123456789"));
     assertThat(server.getVersion(), is("2.0-SNAPSHOT"));
     assertThat(server.getStatus(), is(Server.Status.UP));
@@ -40,11 +38,12 @@ public class ServerUnmarshallerTest {
   }
 
   @Test
-  public void shouldNotFailIfStatusIsMissing() throws IOException {
-    Server server = new ServerUnmarshaller().toModel("{\"id\":\"123456789\", \"version\":\"2.0-SNAPSHOT\"}");
+  public void shouldNotFailIfStatusIsMissing() {
+    Server server = new ServerUnmarshaller().toModel(WSTestUtils.loadFile("/server/status_missing.json"));
     assertThat(server.getId(), is("123456789"));
     assertThat(server.getVersion(), is("2.0-SNAPSHOT"));
     assertThat(server.getStatus(), nullValue());
     assertThat(server.getStatusMessage(), nullValue());
   }
+
 }

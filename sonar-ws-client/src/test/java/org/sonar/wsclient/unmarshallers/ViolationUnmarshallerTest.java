@@ -19,11 +19,9 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.wsclient.services.Violation;
 
-import java.io.IOException;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -35,11 +33,11 @@ import static org.junit.Assert.assertThat;
 public class ViolationUnmarshallerTest {
 
   @Test
-  public void toModels() throws IOException {
+  public void toModels() {
     Violation violation = new ViolationUnmarshaller().toModel("[]");
     assertThat(violation, nullValue());
 
-    List<Violation> violations = new ViolationUnmarshaller().toModels(loadFile("/violations/violations.json"));
+    List<Violation> violations = new ViolationUnmarshaller().toModels(WSTestUtils.loadFile("/violations/violations.json"));
     assertThat(violations.size(), is(2));
 
     violation = violations.get(0);
@@ -57,15 +55,11 @@ public class ViolationUnmarshallerTest {
   }
 
   @Test
-  public void violationWithoutLineNumber() throws IOException {
-    Violation violation = new ViolationUnmarshaller().toModel(loadFile("/violations/violation-without-optional-fields.json"));
+  public void violationWithoutLineNumber() {
+    Violation violation = new ViolationUnmarshaller().toModel(WSTestUtils.loadFile("/violations/violation-without-optional-fields.json"));
     assertThat(violation.getMessage(), not(nullValue()));
     assertThat(violation.getLine(), nullValue());
     assertThat(violation.getCreatedAt(), nullValue());
-  }
-
-  private static String loadFile(String path) throws IOException {
-    return IOUtils.toString(MetricUnmarshallerTest.class.getResourceAsStream(path));
   }
 
 }

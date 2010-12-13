@@ -19,28 +19,21 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.junit.Test;
-import org.sonar.wsclient.services.Event;
+import org.apache.commons.io.IOUtils;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.io.IOException;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+public final class WSTestUtils {
 
-public class EventUnmarshallerTest {
+  public static String loadFile(String path) {
+    try {
+      return IOUtils.toString(WSTestUtils.class.getResourceAsStream(path));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
-  @Test
-  public void toModel() throws Exception {
-    List<Event> events = new EventUnmarshaller().toModels(WSTestUtils.loadFile("/events/events.json"));
-    Event event = events.get(0);
-    assertThat(event.getId(), is("10"));
-    assertThat(event.getName(), is("foo"));
-    assertThat(event.getDescription(), is("desc"));
-    assertThat(event.getCategory(), is("categ"));
-    final Date expectedDate = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ssZZZZ").parse("2009-12-25T15:59:23+0000");
-    assertThat(event.getDate(), is(expectedDate));
+  private WSTestUtils() {
   }
 
 }
