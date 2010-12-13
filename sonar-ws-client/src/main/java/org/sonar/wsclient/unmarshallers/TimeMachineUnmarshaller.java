@@ -5,10 +5,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.sonar.wsclient.services.TimeMachineData;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TimeMachineUnmarshaller implements Unmarshaller<TimeMachineData> {
 
@@ -17,7 +14,13 @@ public class TimeMachineUnmarshaller implements Unmarshaller<TimeMachineData> {
     Map<Date, List<String>> data = new HashMap<Date, List<String>>();
     for (Object key : map.keySet()) {
       JSONArray array = (JSONArray) map.get(key);
-      data.put(JsonUtils.parseDateTime((String) key), array);
+      List<String> values = new ArrayList<String>();
+      for (int i = 0; i < array.size(); i++) {
+        Object elem = array.get(i);
+        String value = elem == null ? null : elem.toString();
+        values.add(value);
+      }
+      data.put(JsonUtils.parseDateTime((String) key), values);
     }
     return new TimeMachineData().setData(data);
   }
