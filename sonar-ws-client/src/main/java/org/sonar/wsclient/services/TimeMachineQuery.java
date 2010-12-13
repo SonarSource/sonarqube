@@ -14,6 +14,9 @@ public class TimeMachineQuery extends Query<TimeMachineData> {
   private Date from;
   private Date to;
 
+  private String model;
+  private String[] characteristicKeys;
+
   public TimeMachineQuery(String resourceKeyOrId) {
     this.resourceKeyOrId = resourceKeyOrId;
   }
@@ -45,6 +48,12 @@ public class TimeMachineQuery extends Query<TimeMachineData> {
     return this;
   }
 
+  public TimeMachineQuery setCharacteristicKeys(String model, String... keys) {
+    this.model = model;
+    this.characteristicKeys = keys;
+    return this;
+  }
+
   @Override
   public String getUrl() {
     StringBuilder url = new StringBuilder(BASE_URL);
@@ -53,6 +62,8 @@ public class TimeMachineQuery extends Query<TimeMachineData> {
     appendUrlParameter(url, "metrics", metrics);
     appendUrlParameter(url, "fromDateTime", from, true);
     appendUrlParameter(url, "toDateTime", to, true);
+    appendUrlParameter(url, "model", model);
+    appendUrlParameter(url, "characteristics", characteristicKeys);
     return url.toString();
   }
 

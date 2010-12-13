@@ -1,36 +1,42 @@
 package org.sonar.wsclient.services;
 
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class TimeMachineData extends Model {
+  private Date date;
 
   /**
    * We use strings here in order to support measures with string value.
    */
-  private Map<Date, List<String>> data = new HashMap<Date, List<String>>();
+  private List<String> values = new ArrayList<String>();
 
-  public Map<Date, List<String>> getData() {
-    return data;
+  public Date getDate() {
+    return date;
   }
 
-  public TimeMachineData setData(Map<Date, List<String>> data) {
-    this.data = data;
+  public TimeMachineData setDate(Date date) {
+    this.date = date;
     return this;
   }
 
-  public Double getValueAsDouble(Date date, int index) {
-    if (data.containsKey(date)) {
-      String valueStr = data.get(date).get(index);
-      try {
-        return valueStr == null ? null : Double.valueOf(valueStr);
-      } catch (NumberFormatException e) {
-        return null;
-      }
+  public List<String> getValues() {
+    return values;
+  }
+
+  public TimeMachineData setValues(List<String> values) {
+    this.values = values;
+    return this;
+  }
+
+  public Double getValueAsDouble(int index) {
+    String valueStr = values.get(index);
+    try {
+      return valueStr == null ? null : Double.valueOf(valueStr);
+    } catch (NumberFormatException e) {
+      return null;
     }
-    return null;
   }
 
 }
