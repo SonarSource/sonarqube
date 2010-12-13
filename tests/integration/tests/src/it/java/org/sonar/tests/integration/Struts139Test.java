@@ -28,6 +28,7 @@ import org.sonar.wsclient.services.*;
 import java.util.Date;
 import java.util.List;
 
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
@@ -144,7 +145,7 @@ public class Struts139Test {
   }
 
   @Test
-  public void design() {
+  public void designMeaures() {
     assertThat(getCoreModuleMeasure("package_cycles").getIntValue(), greaterThan(10));
     assertThat(getCoreModuleMeasure("package_cycles").getIntValue(), lessThan(50));
     
@@ -155,6 +156,15 @@ public class Struts139Test {
     assertThat(getCoreModuleMeasure("package_tangles").getIntValue(), lessThan(50));
 
     assertThat(sonar.find(ResourceQuery.createForMetrics(PROJECT_STRUTS, "dit", "noc")).getMeasures().size(), is(0));
+  }
+
+  @Test
+  public void shouldGetDetailsOfCoverageHits() {
+    Resource resource = sonar.find(ResourceQuery.createForMetrics("org.apache.struts:struts-core:org.apache.struts.action.ActionForward", CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY));
+    Measure coverageData = resource.getMeasure(CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY);
+    assertNotNull(coverageData);
+    assertThat(coverageData.getData().length(), greaterThan(10));
+    assertTrue(coverageData.getData().matches("(\\d+=\\d+;{0,1})+"));
   }
 
   @Test
