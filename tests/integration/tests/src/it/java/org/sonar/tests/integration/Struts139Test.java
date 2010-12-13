@@ -73,24 +73,24 @@ public class Struts139Test {
 
   @Test
   public void testProjectViolationMeasures() {
-    assertThat(getProjectMeasure(CoreMetrics.VIOLATIONS_KEY).getValue(), closeTo(7565.0, 500.0));
+    assertThat(getProjectMeasure(CoreMetrics.VIOLATIONS_KEY).getValue(), closeTo(7726.0, 500.0));
     assertThat(getProjectMeasure(CoreMetrics.BLOCKER_VIOLATIONS_KEY).getValue(), closeTo(0.0, 20.0));
-    assertThat(getProjectMeasure(CoreMetrics.CRITICAL_VIOLATIONS_KEY).getValue(), closeTo(18.0, 20.0));
-    assertThat(getProjectMeasure(CoreMetrics.MAJOR_VIOLATIONS_KEY).getValue(), closeTo(2468.0, 200.0));
-    assertThat(getProjectMeasure(CoreMetrics.MINOR_VIOLATIONS_KEY).getValue(), closeTo(4945.0, 200.0));
-    assertThat(getProjectMeasure(CoreMetrics.INFO_VIOLATIONS_KEY).getValue(), closeTo(134.0, 20.0));
-    assertThat(getProjectMeasure(CoreMetrics.VIOLATIONS_DENSITY_KEY).getValue(), closeTo(75.2, 5.0));
+    assertThat(getProjectMeasure(CoreMetrics.CRITICAL_VIOLATIONS_KEY).getValue(), closeTo(0.0, 20.0));
+    assertThat(getProjectMeasure(CoreMetrics.MAJOR_VIOLATIONS_KEY).getValue(), closeTo(2569.0, 200.0));
+    assertThat(getProjectMeasure(CoreMetrics.MINOR_VIOLATIONS_KEY).getValue(), closeTo(0.0, 200.0));
+    assertThat(getProjectMeasure(CoreMetrics.INFO_VIOLATIONS_KEY).getValue(), closeTo(5157.0, 20.0));
+    assertThat(getProjectMeasure(CoreMetrics.VIOLATIONS_DENSITY_KEY).getValue(), closeTo(84.6, 5.0));
   }
 
   @Test
   public void testPackageViolationMeasures() {
-    assertThat(getPackageMeasure(CoreMetrics.VIOLATIONS_KEY).getValue(), closeTo(283.0, 50.0));
+    assertThat(getPackageMeasure(CoreMetrics.VIOLATIONS_KEY).getValue(), closeTo(292.0, 50.0));
     assertThat(getPackageMeasure(CoreMetrics.BLOCKER_VIOLATIONS_KEY).getValue(), closeTo(0.0, 5.0));
-    assertThat(getPackageMeasure(CoreMetrics.CRITICAL_VIOLATIONS_KEY).getValue(), closeTo(4.0, 5.0));
-    assertThat(getPackageMeasure(CoreMetrics.MAJOR_VIOLATIONS_KEY).getValue(), closeTo(108.0, 20.0));
-    assertThat(getPackageMeasure(CoreMetrics.MINOR_VIOLATIONS_KEY).getValue(), closeTo(169.0, 20.0));
-    assertThat(getPackageMeasure(CoreMetrics.INFO_VIOLATIONS_KEY).getValue(), closeTo(2.0, 5.0));
-    assertThat(getPackageMeasure(CoreMetrics.VIOLATIONS_DENSITY_KEY).getValue(), closeTo(81.2, 5.0));
+    assertThat(getPackageMeasure(CoreMetrics.CRITICAL_VIOLATIONS_KEY).getValue(), closeTo(0.0, 5.0));
+    assertThat(getPackageMeasure(CoreMetrics.MAJOR_VIOLATIONS_KEY).getValue(), closeTo(111.0, 20.0));
+    assertThat(getPackageMeasure(CoreMetrics.MINOR_VIOLATIONS_KEY).getValue(), closeTo(0.0, 20.0));
+    assertThat(getPackageMeasure(CoreMetrics.INFO_VIOLATIONS_KEY).getValue(), closeTo(181.0, 20.0));
+    assertThat(getPackageMeasure(CoreMetrics.VIOLATIONS_DENSITY_KEY).getValue(), closeTo(87.8, 5.0));
   }
 
 
