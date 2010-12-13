@@ -149,15 +149,22 @@ class Api::TimemachineController < Api::ApiController
 
     xml.snapshots do
       snapshots.each do |snapshot|
-        snapshot_to_xml(xml, snapshot, measures_by_sid[snapshot.id])
+        snapshot_to_xml(xml, snapshot, measures_by_sid[snapshot.id], metric_keys)
       end
     end
   end
 
-  def snapshot_to_xml(xml, snapshot, measures)
+  def snapshot_to_xml(xml, snapshot, measures, metric_keys)
+    values_by_key = {}
+    measures.each do |measure|
+      values_by_key[measure.metric.name] = measure.value.to_f if measure.value
+    end
+
     xml.snapshot do
       xml.date(format_datetime(snapshot.created_at))
-      # TODO measures
+      metric_keys.each do |metric|
+        xml.measure(values_by_key[metric])
+      end
     end
   end
 
