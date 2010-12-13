@@ -41,6 +41,11 @@ public final class Unmarshallers {
     unmarshallers.put(Violation.class, new ViolationUnmarshaller());
     unmarshallers.put(Server.class, new ServerUnmarshaller());
     unmarshallers.put(DependencyTree.class, new DependencyTreeUnmarshaller());
+    unmarshallers.put(Event.class, new EventUnmarshaller());
+    // TODO
+    // FavouriteUnmarshaller
+    // PluginUnmarshaller
+    // RuleUnmarshaller
     unmarshallers.put(TimeMachineData.class, new TimeMachineUnmarshaller());
   }
 

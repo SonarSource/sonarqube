@@ -18,7 +18,8 @@ public class TimeMachineUnmarshaller implements Unmarshaller<TimeMachineData> {
       JSONArray array = map.get(dateTimeStr).isArray();
       List<String> measures = new ArrayList<String>();
       for (int i = 0; i < JsonUtils.getArraySize(array); i++) {
-        JSONValue elem = JsonUtils.getArray(array, i);
+        // We can't use JsonUtils.getArray here, because it returns JSONObject instead of JSONValue
+        JSONValue elem = array.get(i);
         measures.add(JsonUtils.getAsString(elem));
       }
       data.put(JsonUtils.parseDateTime(dateTimeStr), measures);
