@@ -32,7 +32,7 @@ public class ViolationsTimemachineTest {
 
   @Test
   public void timemachine() {
-    TimeMachineQuery query = TimeMachineQuery.create(PROJECT).setMetrics(
+    TimeMachineQuery query = TimeMachineQuery.createForMetrics(PROJECT,
         CoreMetrics.BLOCKER_VIOLATIONS_KEY,
         CoreMetrics.CRITICAL_VIOLATIONS_KEY,
         CoreMetrics.MAJOR_VIOLATIONS_KEY,

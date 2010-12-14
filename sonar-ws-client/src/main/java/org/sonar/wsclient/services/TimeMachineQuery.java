@@ -72,8 +72,14 @@ public class TimeMachineQuery extends Query<TimeMachineData> {
     return TimeMachineData.class;
   }
 
-  public static TimeMachineQuery create(String resourceKeyOrId) {
-    return new TimeMachineQuery(resourceKeyOrId);
+  public static TimeMachineQuery createForMetrics(String resourceKeyOrId, String... metricKeys) {
+    return new TimeMachineQuery(resourceKeyOrId)
+        .setMetrics(metricKeys);
+  }
+
+  public static TimeMachineQuery createForResource(Resource resource, String... metricKeys) {
+    return new TimeMachineQuery(resource.getId().toString())
+        .setMetrics(metricKeys);
   }
 
 }
