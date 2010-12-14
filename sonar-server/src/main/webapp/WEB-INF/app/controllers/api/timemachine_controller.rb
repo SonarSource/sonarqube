@@ -106,7 +106,6 @@ class Api::TimemachineController < Api::ApiController
       objects = { :snapshots => snapshots, :measures_by_sid => measures_by_sid, :metric_keys => metric_keys }
       respond_to do |format|
         format.json { render :json => jsonp(to_json(objects)) }
-        format.xml  { render :xml  => to_xml(objects) }
         format.csv  {
           send_data(to_csv(objects),
             :type => 'text/csv; charset=utf-8; header=present',
@@ -144,35 +143,6 @@ class Api::TimemachineController < Api::ApiController
     end
     json = { format_datetime(snapshot.created_at) => values }
     json
-  end
-
-  def to_xml(objects)
-    snapshots = objects[:snapshots]
-    measures_by_sid = objects[:measures_by_sid]
-    metric_keys = objects[:metric_keys]
-
-    xml = Builder::XmlMarkup.new(:indent => 0)
-    xml.instruct!
-
-    xml.snapshots do
-      snapshots.each do |snapshot|
-        snapshot_to_xml(xml, snapshot, measures_by_sid[snapshot.id], metric_keys)
-      end
-    end
-  end
-
-  def snapshot_to_xml(xml, snapshot, measures, metric_keys)
-    values_by_key = {}
-    measures.each do |measure|
-      values_by_key[measure.metric.name] = measure.value.to_f if measure.value
-    end
-
-    xml.snapshot do
-      xml.date(format_datetime(snapshot.created_at))
-      metric_keys.each do |metric|
-        xml.measure(values_by_key[metric])
-      end
-    end
   end
 
   def to_csv(objects)
