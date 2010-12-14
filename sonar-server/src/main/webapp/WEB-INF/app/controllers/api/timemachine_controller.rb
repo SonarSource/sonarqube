@@ -17,6 +17,8 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
+require 'fastercsv'
+
 class Api::TimemachineController < Api::ApiController
   MAX_IN_ELEMENTS=990
 
@@ -105,6 +107,11 @@ class Api::TimemachineController < Api::ApiController
       respond_to do |format|
         format.json { render :json => jsonp(to_json(objects)) }
         format.xml  { render :xml  => to_xml(objects) }
+        format.csv  {
+          send_data(to_csv(objects),
+            :type => 'text/csv; charset=utf-8; header=present',
+            :disposition => 'attachment; filename=measures.csv')
+        }
         format.text { render :text => text_not_supported }
       end
     rescue ApiException => e
@@ -166,6 +173,34 @@ class Api::TimemachineController < Api::ApiController
         xml.measure(values_by_key[metric])
       end
     end
+  end
+
+  def to_csv(objects)
+    snapshots = objects[:snapshots]
+    measures_by_sid = objects[:measures_by_sid]
+    metric_keys = objects[:metric_keys]
+
+    FasterCSV.generate do |csv|
+      header = ['date']
+      header.concat(metric_keys)
+      csv << header
+      snapshots.each do |snapshot|
+        snapshot_to_csv(csv, snapshot, measures_by_sid[snapshot.id], metric_keys)
+      end
+    end
+  end
+
+  def snapshot_to_csv(csv, snapshot, measures, metric_keys)
+    values_by_key = {}
+    measures.each do |measure|
+      values_by_key[measure.metric.name] = measure.value.to_f if measure.value
+    end
+    values = []
+    values << format_datetime(snapshot.created_at)
+    metric_keys.each do |metric|
+      values << values_by_key[metric]
+    end
+    csv << values
   end
 
   def add_characteristic_filters(measures_conditions, measures_values)
