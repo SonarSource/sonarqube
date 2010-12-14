@@ -29,10 +29,10 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
+import javax.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.persistence.*;
 
 /**
  * This class is badly named. It should be "QualityProfile". Indeed it does not relate only to rules but to metric thresholds too.
@@ -274,16 +274,13 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * 
-   * @param rule
-   * @param optionalPriority if null, then the default rule priority is used
-   * @return
+   * @param optionalSeverity if null, then the default rule severity is used
    */
-  public ActiveRule activateRule(Rule rule, RulePriority optionalPriority) {
+  public ActiveRule activateRule(Rule rule, RulePriority optionalSeverity) {
     ActiveRule activeRule = new ActiveRule();
     activeRule.setRule(rule);
     activeRule.setRulesProfile(this);
-    activeRule.setSeverity(optionalPriority == null ? rule.getSeverity() : optionalPriority);
+    activeRule.setSeverity(optionalSeverity == null ? rule.getSeverity() : optionalSeverity);
     activeRules.add(activeRule);
     return activeRule;
   }
