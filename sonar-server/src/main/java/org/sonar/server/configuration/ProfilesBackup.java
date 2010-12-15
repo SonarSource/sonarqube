@@ -92,18 +92,20 @@ public class ProfilesBackup implements Backupable {
   }
 
   private void importAlerts(RulesProfile profile) {
-    for (Iterator<Alert> ia = profile.getAlerts().iterator(); ia.hasNext();) {
-      Alert alert = ia.next();
-      Metric unMarshalledMetric = alert.getMetric();
-      String validKey = unMarshalledMetric.getKey();
-      Metric matchingMetricInDb = session.getSingleResult(Metric.class, "key", validKey);
-      if (matchingMetricInDb == null) {
-        LoggerFactory.getLogger(getClass()).error("Unable to find metric " + validKey);
-        ia.remove();
-        continue;
+    if (profile.getAlerts() != null) {
+      for (Iterator<Alert> ia = profile.getAlerts().iterator(); ia.hasNext();) {
+        Alert alert = ia.next();
+        Metric unMarshalledMetric = alert.getMetric();
+        String validKey = unMarshalledMetric.getKey();
+        Metric matchingMetricInDb = session.getSingleResult(Metric.class, "key", validKey);
+        if (matchingMetricInDb == null) {
+          LoggerFactory.getLogger(getClass()).error("Unable to find metric " + validKey);
+          ia.remove();
+          continue;
+        }
+        alert.setMetric(matchingMetricInDb);
+        alert.setRulesProfile(profile);
       }
-      alert.setMetric(matchingMetricInDb);
-      alert.setRulesProfile(profile);
     }
   }
 
