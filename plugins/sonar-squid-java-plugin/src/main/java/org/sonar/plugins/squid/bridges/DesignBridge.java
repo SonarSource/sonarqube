@@ -19,10 +19,6 @@
  */
 package org.sonar.plugins.squid.bridges;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
@@ -30,20 +26,20 @@ import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.TimeProfiler;
-import org.sonar.graph.Cycle;
-import org.sonar.graph.Dsm;
-import org.sonar.graph.DsmTopologicalSorter;
-import org.sonar.graph.Edge;
-import org.sonar.graph.IncrementalCyclesAndFESSolver;
-import org.sonar.graph.MinimumFeedbackEdgeSetSolver;
+import org.sonar.graph.*;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.api.SourceCodeEdge;
 import org.sonar.squid.api.SourcePackage;
 import org.sonar.squid.api.SourceProject;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 public class DesignBridge extends Bridge {
 
@@ -80,7 +76,8 @@ public class DesignBridge extends Bridge {
       savePositiveMeasure(sonarProject, CoreMetrics.PACKAGE_EDGES_WEIGHT, getEdgesWeight(squidPackages), false);
 
       String dsmJson = serializeDsm(squid, squidPackages, feedbackEdges);
-      context.saveMeasure(sonarProject, new Measure(CoreMetrics.DEPENDENCY_MATRIX, dsmJson));
+      Measure dsmMeasure = new Measure(CoreMetrics.DEPENDENCY_MATRIX, dsmJson).setPersistenceMode(PersistenceMode.DATABASE);
+      context.saveMeasure(sonarProject, dsmMeasure);
 
       profiler.stop();
     }
