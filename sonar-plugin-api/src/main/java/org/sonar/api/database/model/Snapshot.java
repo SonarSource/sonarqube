@@ -83,35 +83,50 @@ public class Snapshot extends BaseIdentifiable {
   @Column(name = "root_project_id", updatable = true, nullable = true)
   private Integer rootProjectId;
 
-  @Column(name = "variation_mode_1", updatable = true, nullable = true, length = 100)
-  private String variationMode1;
+  @Column(name = "period1_mode", updatable = true, nullable = true, length = 100)
+  private String period1Mode;
 
-  @Column(name = "variation_mode_2", updatable = true, nullable = true, length = 100)
-  private String variationMode2;
+  @Column(name = "period2_mode", updatable = true, nullable = true, length = 100)
+  private String period2Mode;
 
-  @Column(name = "variation_mode_3", updatable = true, nullable = true, length = 100)
-  private String variationMode3;
+  @Column(name = "period3_mode", updatable = true, nullable = true, length = 100)
+  private String period3Mode;
 
-  @Column(name = "variation_mode_4", updatable = true, nullable = true, length = 100)
-  private String variationMode4;
+  @Column(name = "period4_mode", updatable = true, nullable = true, length = 100)
+  private String period4Mode;
 
-  @Column(name = "variation_mode_5", updatable = true, nullable = true, length = 100)
-  private String variationMode5;
+  @Column(name = "period5_mode", updatable = true, nullable = true, length = 100)
+  private String period5Mode;
 
-  @Column(name = "variation_param_1", updatable = true, nullable = true, length = 100)
-  private String variationModeParam1;
+  @Column(name = "period1_param", updatable = true, nullable = true, length = 100)
+  private String period1Param;
 
-  @Column(name = "variation_param_2", updatable = true, nullable = true, length = 100)
-  private String variationModeParam2;
+  @Column(name = "period2_param", updatable = true, nullable = true, length = 100)
+  private String period2Param;
 
-  @Column(name = "variation_param_3", updatable = true, nullable = true, length = 100)
-  private String variationModeParam3;
+  @Column(name = "period3_param", updatable = true, nullable = true, length = 100)
+  private String period3Param;
 
-  @Column(name = "variation_param_4", updatable = true, nullable = true, length = 100)
-  private String variationModeParam4;
+  @Column(name = "period4_param", updatable = true, nullable = true, length = 100)
+  private String period4Param;
 
-  @Column(name = "variation_param_5", updatable = true, nullable = true, length = 100)
-  private String variationModeParam5;
+  @Column(name = "period5_param", updatable = true, nullable = true, length = 100)
+  private String period5Param;
+
+  @Column(name = "period1_date", updatable = true, nullable = true)
+  private Date period1Date;
+
+  @Column(name = "period2_date", updatable = true, nullable = true)
+  private Date period2Date;
+
+  @Column(name = "period3_date", updatable = true, nullable = true)
+  private Date period3Date;
+
+  @Column(name = "period4_date", updatable = true, nullable = true)
+  private Date period4Date;
+
+  @Column(name = "period5_date", updatable = true, nullable = true)
+  private Date period5Date;
 
   public Snapshot() {
 
@@ -291,8 +306,8 @@ public class Snapshot extends BaseIdentifiable {
     this.depth = depth;
   }
 
-  public String getVariationMode1() {
-    return variationMode1;
+  public String getPeriod1Mode() {
+    return period1Mode;
   }
 
   /**
@@ -300,13 +315,13 @@ public class Snapshot extends BaseIdentifiable {
    *
    * @since 2.5
    */
-  public Snapshot setVariationMode1(String s) {
-    this.variationMode1 = s;
+  public Snapshot setPeriod1Mode(String s) {
+    this.period1Mode = s;
     return this;
   }
 
-  public String getVariationMode2() {
-    return variationMode2;
+  public String getPeriod2Mode() {
+    return period2Mode;
   }
 
   /**
@@ -314,13 +329,13 @@ public class Snapshot extends BaseIdentifiable {
    *
    * @since 2.5
    */
-  public Snapshot setVariationMode2(String s) {
-    this.variationMode2 = s;
+  public Snapshot setPeriod2Mode(String s) {
+    this.period2Mode = s;
     return this;
   }
 
-  public String getVariationMode3() {
-    return variationMode3;
+  public String getPeriod3Mode() {
+    return period3Mode;
   }
 
   /**
@@ -328,13 +343,13 @@ public class Snapshot extends BaseIdentifiable {
    *
    * @since 2.5
    */
-  public Snapshot setVariationMode3(String s) {
-    this.variationMode3 = s;
+  public Snapshot setPeriod3Mode(String s) {
+    this.period3Mode = s;
     return this;
   }
 
-  public String getVariationMode4() {
-    return variationMode4;
+  public String getPeriod4Mode() {
+    return period4Mode;
   }
 
   /**
@@ -342,13 +357,13 @@ public class Snapshot extends BaseIdentifiable {
    *
    * @since 2.5
    */
-  public Snapshot setVariationMode4(String s) {
-    this.variationMode4 = s;
+  public Snapshot setPeriod4Mode(String s) {
+    this.period4Mode = s;
     return this;
   }
 
-  public String getVariationMode5() {
-    return variationMode5;
+  public String getPeriod5Mode() {
+    return period5Mode;
   }
 
   /**
@@ -356,13 +371,13 @@ public class Snapshot extends BaseIdentifiable {
    *
    * @since 2.5
    */
-  public Snapshot setVariationMode5(String s) {
-    this.variationMode5 = s;
+  public Snapshot setPeriod5Mode(String s) {
+    this.period5Mode = s;
     return this;
   }
 
-  public String getVariationModeParam1() {
-    return variationModeParam1;
+  public String getPeriod1Param() {
+    return period1Param;
   }
 
   /**
@@ -370,13 +385,13 @@ public class Snapshot extends BaseIdentifiable {
    *
    * @since 2.5
    */
-  public Snapshot setVariationModeParam1(String s) {
-    this.variationModeParam1 = s;
+  public Snapshot setPeriod1Param(String s) {
+    this.period1Param = s;
     return this;
   }
 
-  public String getVariationModeParam2() {
-    return variationModeParam2;
+  public String getPeriod2Param() {
+    return period2Param;
   }
 
   /**
@@ -384,13 +399,13 @@ public class Snapshot extends BaseIdentifiable {
    *
    * @since 2.5
    */
-  public Snapshot setVariationModeParam2(String s) {
-    this.variationModeParam2 = s;
+  public Snapshot setPeriod2Param(String s) {
+    this.period2Param = s;
     return this;
   }
 
-  public String getVariationModeParam3() {
-    return variationModeParam3;
+  public String getPeriod3Param() {
+    return period3Param;
   }
 
   /**
@@ -398,13 +413,13 @@ public class Snapshot extends BaseIdentifiable {
    *
    * @since 2.5
    */
-  public Snapshot setVariationModeParam3(String s) {
-    this.variationModeParam3 = s;
+  public Snapshot setPeriod3Param(String s) {
+    this.period3Param = s;
     return this;
   }
 
-  public String getVariationModeParam4() {
-    return variationModeParam4;
+  public String getPeriod4Param() {
+    return period4Param;
   }
 
   /**
@@ -412,13 +427,13 @@ public class Snapshot extends BaseIdentifiable {
    *
    * @since 2.5
    */
-  public Snapshot setVariationModeParam4(String s) {
-    this.variationModeParam4 = s;
+  public Snapshot setPeriod4Param(String s) {
+    this.period4Param = s;
     return this;
   }
 
-  public String getVariationModeParam5() {
-    return variationModeParam5;
+  public String getPeriod5Param() {
+    return period5Param;
   }
 
   /**
@@ -426,8 +441,78 @@ public class Snapshot extends BaseIdentifiable {
    *
    * @since 2.5
    */
-  public Snapshot setVariationModeParam5(String s) {
-    this.variationModeParam5 = s;
+  public Snapshot setPeriod5Param(String s) {
+    this.period5Param = s;
+    return this;
+  }
+
+  public Date getPeriod1Date() {
+    return period1Date;
+  }
+
+  /**
+   * For internal use.
+   *
+   * @since 2.5
+   */
+  public Snapshot setPeriod1Date(Date period1Date) {
+    this.period1Date = period1Date;
+    return this;
+  }
+
+  public Date getPeriod2Date() {
+    return period2Date;
+  }
+
+  /**
+   * For internal use.
+   *
+   * @since 2.5
+   */
+  public Snapshot setPeriod2Date(Date period2Date) {
+    this.period2Date = period2Date;
+    return this;
+  }
+
+  public Date getPeriod3Date() {
+    return period3Date;
+  }
+
+  /**
+   * For internal use.
+   *
+   * @since 2.5
+   */
+  public Snapshot setPeriod3Date(Date period3Date) {
+    this.period3Date = period3Date;
+    return this;
+  }
+
+  public Date getPeriod4Date() {
+    return period4Date;
+  }
+
+  /**
+   * For internal use.
+   *
+   * @since 2.5
+   */
+  public Snapshot setPeriod4Date(Date period4Date) {
+    this.period4Date = period4Date;
+    return this;
+  }
+
+  public Date getPeriod5Date() {
+    return period5Date;
+  }
+
+  /**
+   * For internal use.
+   *
+   * @since 2.5
+   */
+  public Snapshot setPeriod5Date(Date period5Date) {
+    this.period5Date = period5Date;
     return this;
   }
 
@@ -436,26 +521,26 @@ public class Snapshot extends BaseIdentifiable {
    *
    * @since 2.5
    */
-  public Snapshot setVariationMode(int index, String s) {
-    switch(index) {
-      case 1: variationMode1 = s; break;
-      case 2: variationMode2 = s; break;
-      case 3: variationMode3 = s; break;
-      case 4: variationMode4 = s; break;
-      case 5: variationMode5 = s; break;
-      default: throw new IndexOutOfBoundsException("Index of Snapshot.variationMode is between 1 and 5");
+  public Snapshot setPeriodMode(int periodIndex, String s) {
+    switch(periodIndex) {
+      case 1: period1Mode = s; break;
+      case 2: period2Mode = s; break;
+      case 3: period3Mode = s; break;
+      case 4: period4Mode = s; break;
+      case 5: period5Mode = s; break;
+      default: throw new IndexOutOfBoundsException("Index of Snapshot.periodMode is between 1 and 5");
     }
     return this;
   }
 
-  public String getVariationMode(int index) {
+  public String getPeriodMode(int index) {
     switch(index) {
-      case 1: return variationMode1;
-      case 2: return variationMode2;
-      case 3: return variationMode3;
-      case 4: return variationMode4;
-      case 5: return variationMode5;
-      default: throw new IndexOutOfBoundsException("Index of Snapshot.variationMode is between 1 and 5");
+      case 1: return period1Mode;
+      case 2: return period2Mode;
+      case 3: return period3Mode;
+      case 4: return period4Mode;
+      case 5: return period5Mode;
+      default: throw new IndexOutOfBoundsException("Index of Snapshot.periodMode is between 1 and 5");
     }
   }
 
@@ -464,26 +549,54 @@ public class Snapshot extends BaseIdentifiable {
    *
    * @since 2.5
    */
-  public Snapshot setVariationModeParam(int index, String s) {
-    switch(index) {
-      case 1: variationModeParam1 = s; break;
-      case 2: variationModeParam2 = s; break;
-      case 3: variationModeParam3 = s; break;
-      case 4: variationModeParam4 = s; break;
-      case 5: variationModeParam5 = s; break;
-      default: throw new IndexOutOfBoundsException("Index of Snapshot.variationModeParam is between 1 and 5");
+  public Snapshot setPeriodModeParameter(int periodIndex, String s) {
+    switch(periodIndex) {
+      case 1: period1Param = s; break;
+      case 2: period2Param = s; break;
+      case 3: period3Param = s; break;
+      case 4: period4Param = s; break;
+      case 5: period5Param = s; break;
+      default: throw new IndexOutOfBoundsException("Index of Snapshot.periodModeParameter is between 1 and 5");
     }
     return this;
   }
 
-  public String getVariationModeParam(int index) {
-    switch(index) {
-      case 1: return variationModeParam1;
-      case 2: return variationModeParam2;
-      case 3: return variationModeParam3;
-      case 4: return variationModeParam4;
-      case 5: return variationModeParam5;
-      default: throw new IndexOutOfBoundsException("Index of Snapshot.variationModeParam is between 1 and 5");
+  public String getPeriodModeParameter(int periodIndex) {
+    switch(periodIndex) {
+      case 1: return period1Param;
+      case 2: return period2Param;
+      case 3: return period3Param;
+      case 4: return period4Param;
+      case 5: return period5Param;
+      default: throw new IndexOutOfBoundsException("Index of Snapshot.periodModeParameter is between 1 and 5");
+    }
+  }
+
+  /**
+   * For internal use.
+   *
+   * @since 2.5
+   */
+  public Snapshot setPeriodDate(int periodIndex, Date d) {
+    switch(periodIndex) {
+      case 1: period1Date = d; break;
+      case 2: period2Date = d; break;
+      case 3: period3Date = d; break;
+      case 4: period4Date = d; break;
+      case 5: period5Date = d; break;
+      default: throw new IndexOutOfBoundsException("Index of Snapshot.periodDate is between 1 and 5");
+    }
+    return this;
+  }
+
+  public Date getPeriodDate(int periodIndex) {
+    switch(periodIndex) {
+      case 1: return period1Date;
+      case 2: return period2Date;
+      case 3: return period3Date;
+      case 4: return period4Date;
+      case 5: return period5Date;
+      default: throw new IndexOutOfBoundsException("Index of Snapshot.periodDate is between 1 and 5");
     }
   }
 

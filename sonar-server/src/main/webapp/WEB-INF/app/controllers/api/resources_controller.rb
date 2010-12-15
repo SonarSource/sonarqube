@@ -312,6 +312,27 @@ class Api::ResourcesController < Api::ApiController
     json['branch']=resource.branch if resource.branch
     json['description']=resource.description if resource.description
     json['copy']=resource.copy_resource_id if resource.copy_resource_id
+    if include_trends
+      json[:p1]=snapshot.period1_mode if snapshot.period1_mode
+      json[:p1p]=snapshot.period1_param if snapshot.period1_param
+      json[:p1d]=format_datetime(snapshot.period1_date) if snapshot.period1_date
+
+      json[:p2]=snapshot.period2_mode if snapshot.period2_mode
+      json[:p2p]=snapshot.period2_param if snapshot.period2_param
+      json[:p2d]=format_datetime(snapshot.period2_date) if snapshot.period2_date
+
+      json[:p3]=snapshot.period3_mode if snapshot.period3_mode
+      json[:p3p]=snapshot.period3_param if snapshot.period3_param
+      json[:p3d]=format_datetime(snapshot.period3_date) if snapshot.period3_date
+
+      json[:p4]=snapshot.period4_mode if snapshot.period4_mode
+      json[:p4p]=snapshot.period4_param if snapshot.period4_param
+      json[:p4d]=format_datetime(snapshot.period4_date) if snapshot.period4_date
+
+      json[:p5]=snapshot.period5_mode if snapshot.period5_mode
+      json[:p5p]=snapshot.period5_param if snapshot.period5_param
+      json[:p5d]=format_datetime(snapshot.period5_date) if snapshot.period5_date
+    end
     if measures
       json_measures=[]
       json['msr']=json_measures

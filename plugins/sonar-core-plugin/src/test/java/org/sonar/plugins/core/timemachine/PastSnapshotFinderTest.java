@@ -22,7 +22,6 @@ package org.sonar.plugins.core.timemachine;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
@@ -167,7 +166,7 @@ public class PastSnapshotFinderTest {
   @Test
   public void shouldGetPropertyValue() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.timemachine.variation1", "5");
+    conf.setProperty("sonar.timemachine.period1", "5");
 
     assertThat(PastSnapshotFinder.getPropertyValue(conf, 1), is("5"));
     assertThat(PastSnapshotFinder.getPropertyValue(conf, 999), nullValue());
@@ -176,7 +175,7 @@ public class PastSnapshotFinderTest {
   @Test
   public void shouldGetDefaultPropertyValue() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.timemachine.variation1", "5");
+    conf.setProperty("sonar.timemachine.period1", "5");
 
     assertThat(PastSnapshotFinder.getPropertyValue(conf, 2), is(PastSnapshotFinder.DEFAULT_VALUE_2));
   }

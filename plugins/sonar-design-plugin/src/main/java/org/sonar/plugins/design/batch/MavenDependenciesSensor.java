@@ -76,7 +76,7 @@ public class MavenDependenciesSensor implements Sensor {
 
         public boolean endVisit(DependencyNode node) {
           if (node.getParent() != null && node.getParent() != node) {
-            saveDependency(node, project, context);
+            saveDependency(node, context);
           }
           return true;
         }
@@ -99,7 +99,7 @@ public class MavenDependenciesSensor implements Sensor {
     }
   }
 
-  protected void saveDependency(DependencyNode node, Project project, SensorContext context) {
+  protected void saveDependency(DependencyNode node, SensorContext context) {
     Resource from = (node.getParent().getParent()==null)  ? index.getProject() : toResource(node.getParent().getArtifact(), context);
     Resource to = toResource(node.getArtifact(), context);
     Dependency dependency = new Dependency(from, to);

@@ -30,8 +30,8 @@ module DashboardHelper
 
   def variation_select_option(snapshot, index)
     return nil if snapshot.nil? || snapshot.project_snapshot.nil?
-    mode=snapshot.project_snapshot.send "variation_mode_#{index}"
-    mode_param=snapshot.project_snapshot.send "variation_param_#{index}"
+    mode=snapshot.project_snapshot.send "period#{index}_mode"
+    mode_param=snapshot.project_snapshot.send "period#{index}_param"
 
     if mode
       if mode=='days'

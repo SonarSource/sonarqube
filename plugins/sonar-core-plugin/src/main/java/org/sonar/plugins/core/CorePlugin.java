@@ -114,40 +114,40 @@ import java.util.List;
         global = true
     ),
     @Property(
-        key = "sonar.timemachine.variation1",
-        name = "Variation 1",
+        key = "sonar.timemachine.period1",
+        name = "Period 1",
         description = "Period used to compare measures and track new violations. Values are : <ul class='bullet'><li>Number of days before analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, for example 2010-12-25</li><li>'previous_analysis' to compare to previous analysis</li><li>A version, for example 1.2</li></ul>",
         project = false,
         global = true,
         defaultValue = PastSnapshotFinder.DEFAULT_VALUE_1
     ),
     @Property(
-        key = "sonar.timemachine.variation2",
-        name = "Variation 2",
-        description = "See the property 'Variation 1'",
+        key = "sonar.timemachine.period2",
+        name = "Period 2",
+        description = "See the property 'Period 1'",
         project = false,
         global = true,
         defaultValue = PastSnapshotFinder.DEFAULT_VALUE_2
     ),
     @Property(
-        key = "sonar.timemachine.variation3",
-        name = "Variation 3",
-        description = "See the property 'Variation 1'",
+        key = "sonar.timemachine.period3",
+        name = "Period 3",
+        description = "See the property 'Period 1'",
         project = false,
         global = true,
         defaultValue = PastSnapshotFinder.DEFAULT_VALUE_3
     ),
     @Property(
-        key = "sonar.timemachine.variation4",
-        name = "Variation 4",
+        key = "sonar.timemachine.period4",
+        name = "Period 4",
         description = "Period used to compare measures and track new violations. This property is specific to the project. Values are : <ul class='bullet'><li>Number of days before analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, for example 2010-12-25</li><li>'previous_analysis' to compare to previous analysis</li><li>A version, for example 1.2</li></ul>",
         project = true,
         global = false
     ),
     @Property(
-        key = "sonar.timemachine.variation5",
-        name = "Variation 5",
-        description = "See the property 'Variation 4'",
+        key = "sonar.timemachine.period5",
+        name = "Period 5",
+        description = "See the property 'Period 4'",
         project = true,
         global = false
     )

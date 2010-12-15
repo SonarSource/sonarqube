@@ -61,7 +61,7 @@ public class PastSnapshotFinder implements BatchExtension {
       case 2: defaultValue = DEFAULT_VALUE_2; break;
       case 3: defaultValue = DEFAULT_VALUE_3; break;
     }
-    return conf.getString("sonar.timemachine.variation" + index, defaultValue);
+    return conf.getString("sonar.timemachine.period" + index, defaultValue);
   }
 
   public PastSnapshot find(int index, String property) {

@@ -80,6 +80,11 @@ public class PastSnapshot {
     return targetDate;
   }
 
+  public PastSnapshot setTargetDate(Date d) {
+    this.targetDate = d;
+    return this;
+  }
+
   @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this);

@@ -23,6 +23,8 @@ import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
 import static org.mockito.Mockito.mock;
@@ -31,20 +33,21 @@ import static org.mockito.Mockito.when;
 public class TimeMachineConfigurationPersisterTest extends AbstractDbUnitTestCase {
 
   @Test
-  public void shouldSaveVariationConfigurationInSnapshotsTable() {
+  public void shouldSaveConfigurationInSnapshotsTable() throws ParseException {
     setupData("shared");
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
     TimeMachineConfiguration conf = mock(TimeMachineConfiguration.class);
     PastSnapshot vs1 = new PastSnapshot("days", getSession().getSingleResult(Snapshot.class, "id", 100))
-        .setModeParameter("30").setIndex(1);
+        .setModeParameter("30").setIndex(1).setTargetDate(format.parse("2009-01-25"));
     PastSnapshot vs3 = new PastSnapshot("version", getSession().getSingleResult(Snapshot.class, "id", 300))
-        .setModeParameter("1.2.3").setIndex(3);
+        .setModeParameter("1.2.3").setIndex(3).setTargetDate(format.parse("2008-12-13"));
     when(conf.getProjectPastSnapshots()).thenReturn(Arrays.asList(vs1, vs3));
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1000);
 
     TimeMachineConfigurationPersister persister = new TimeMachineConfigurationPersister(conf, projectSnapshot, getSession());
     persister.start();
 
-    checkTables("shouldSaveVariationConfigurationInSnapshotsTable", "snapshots");
+    checkTables("shouldSaveConfigurationInSnapshotsTable", "snapshots");
   }
 }

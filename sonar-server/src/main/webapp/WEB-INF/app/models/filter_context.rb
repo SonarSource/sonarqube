@@ -27,7 +27,7 @@
     @sorted_column_id=(options[:sort].blank? ? nil : options[:sort].to_i)
     @ascending_sort=(options[:asc].blank? ? nil : options[:asc]=='true')
     @user=options[:user]
-    @variation_index = (options[:var] ? options[:var].to_i : filter.variation_index )
+    @variation_index = (options[:var] ? options[:var].to_i : @filter.variation_index )
     @metric_ids=(options[:metric_ids] || @filter.columns.map{|col| col.metric ? col.metric.id : nil}.compact.uniq)
   end
 
