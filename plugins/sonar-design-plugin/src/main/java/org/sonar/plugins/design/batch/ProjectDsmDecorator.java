@@ -25,6 +25,7 @@ import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
@@ -63,7 +64,9 @@ public class ProjectDsmDecorator implements Decorator {
   }
 
   private void saveDsm(DecoratorContext context, Dsm<Resource> dsm) {
-    context.saveMeasure(new Measure(CoreMetrics.DEPENDENCY_MATRIX, DsmSerializer.serialize(dsm)));
+    Measure measure = new Measure(CoreMetrics.DEPENDENCY_MATRIX, DsmSerializer.serialize(dsm));
+    measure.setPersistenceMode(PersistenceMode.DATABASE);
+    context.saveMeasure(measure);
   }
 
   private Dsm<Resource> getDsm(Collection<Resource> subProjects) {
