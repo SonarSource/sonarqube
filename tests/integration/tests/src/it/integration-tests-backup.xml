@@ -2019,6 +2019,7 @@
           <level><![CDATA[MINOR]]></level>
         </active-rule>
       </active-rules>
+      <alerts/>
     </profile>
   </profiles>
 </sonar-config>
