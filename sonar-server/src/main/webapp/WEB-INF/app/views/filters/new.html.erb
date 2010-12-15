@@ -102,10 +102,10 @@ table#columns td {
         <tr>
           <td class="first">Default period:</td>
           <td>
-            <select id="variation_index" name="variation_index">
+            <select id="period_index" name="period_index">
               <option value="">None</option>
               <% period_names.each_with_index do |name, index| %>
-                 <option value="<%= index+1 -%>" <%= 'selected' if @filter.variation_index==index+1 -%>><%= name -%></value>
+                 <option value="<%= index+1 -%>" <%= 'selected' if @filter.period_index==index+1 -%>><%= name -%></value>
               <% end %>
             </select>
           </td>

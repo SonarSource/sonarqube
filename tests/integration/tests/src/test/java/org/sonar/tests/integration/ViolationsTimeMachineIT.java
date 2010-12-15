@@ -48,7 +48,7 @@ public class ViolationsTimeMachineIT {
     assertThat(snapshot1.getValues(), is(Arrays.asList("0.0", "0.0", "3.0", "4.0", "0.0")));
 
     assertThat(snapshot2.getDate().getMonth(), is(10));
-    assertThat(snapshot2.getValues(), is(Arrays.asList("0.0", "0.0", "4.0", "3.0", "0.0")));
+    assertThat(snapshot2.getValues(), is(Arrays.asList("0.0", "0.0", "5.0", "4.0", "0.0")));
   }
 
   @Test

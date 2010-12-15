@@ -1,11 +1,11 @@
 <% filter=@filter_context.filter %>
 <div>
 Period:
-<form action="<%= url_for :overwrite_params => {:var => nil} -%>" style="display: inline" method="get">
-  <select name="var" onchange="submit()" class="small">
+<form action="<%= url_for :overwrite_params => {:period => nil} -%>" style="display: inline" method="get">
+  <select name="period" onchange="submit()" class="small">
       <option value="">None</option>
       <% period_names.each_with_index do |name, index| %>
-         <option value="<%= index+1 -%>" <%= 'selected' if @filter_context.variation_index==index+1 -%>><%= name -%></value>
+         <option value="<%= index+1 -%>" <%= 'selected' if @filter_context.period_index==index+1 -%>><%= name -%></value>
       <% end %>
   </select>
 </form>
@@ -84,11 +84,11 @@ Period:
              measure = @filter_context.measure(snapshot, column.metric)
         %>
           <% if column.variation %>
-            <%= format_variation(measure, :index => @filter_context.variation_index) -%>
+            <%= format_variation(measure, :index => @filter_context.period_index) -%>
           <% else %>
             <%= format_measure(measure) -%>
-            <% if @filter_context.variation? %>
-              <%= format_variation(measure, :index => @filter_context.variation_index) -%>
+            <% if @filter_context.selected_period? %>
+              <%= format_variation(measure, :index => @filter_context.period_index) -%>
             <% else %>
               <%= trend_icon(measure, :empty => true) -%>
             <% end %>

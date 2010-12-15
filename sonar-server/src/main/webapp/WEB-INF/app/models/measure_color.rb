@@ -28,7 +28,7 @@ class MeasureColor
   # Options :
   #  * min : min value, else the metric worst_value
   #  * max : max value, else the metric best_value
-  #  * variation_index: integer between 1 and 5 if set, else nil
+  #  * period_index: integer between 1 and 5 if set, else nil
   #  * check_alert_status: true|false. Default is true.
   #
   def self.color(measure, options={})
@@ -38,9 +38,9 @@ class MeasureColor
     min_value = options[:min] || measure.metric.worst_value
     percent=-1.0
     
-    if options[:variation_index]
+    if options[:period_index]
       if min_value && max_value
-        value=measure.variation(options[:variation_index])
+        value=measure.variation(options[:period_index])
         percent = value_to_percent(value, min_value, max_value)
       end
     else

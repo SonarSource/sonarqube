@@ -65,11 +65,11 @@ class DrilldownController < ApplicationController
     @rule=Rule.by_key_or_id(params[:rule])
 
     # variation measures
-    if params[:var].blank?
-      @variation_index=nil
+    if params[:period].blank?
+      @period_index=nil
       metric_prefix = ''
     else
-      @variation_index=params[:var].to_i
+      @period_index=params[:period].to_i
       metric_prefix = 'new_'
     end
 
@@ -93,7 +93,7 @@ class DrilldownController < ApplicationController
 
 
     # options for Drilldown
-    options={:exclude_zero_value => true, :variation_index => @variation_index}
+    options={:exclude_zero_value => true, :period_index => @period_index}
     if @rule
       params[:rule]=@rule.key  # workaround for SONAR-1767 : the javascript hash named "rp" in the HTML source must contain the rule key, but not the rule id
       options[:rule_id]=@rule.id

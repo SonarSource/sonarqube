@@ -51,8 +51,8 @@ class FiltersController < ApplicationController
     load_filter_from_params(@filter, params)
 
     @filter.columns.build(:family => 'name', :order_index => 1, :sort_direction => 'ASC')
-    @filter.columns.build(:family => 'metric', :kee => 'ncloc', :order_index => 2, :variation => @filter.default_period?)
-    @filter.columns.build(:family => 'metric', :kee => 'violations_density', :order_index => 3, :variation => @filter.default_period?)
+    @filter.columns.build(:family => 'metric', :kee => 'ncloc', :order_index => 2, :variation => @filter.period?)
+    @filter.columns.build(:family => 'metric', :kee => 'violations_density', :order_index => 3, :variation => @filter.period?)
     @filter.columns.build(:family => 'date', :order_index => 4)
 
     column_index=0
@@ -408,7 +408,7 @@ class FiltersController < ApplicationController
     @width=(params[:width]||'800').to_i
     @height=(params[:height]||'500').to_i
 
-    treemap_options={:variation_index => @filter_context.variation_index}
+    treemap_options={:period_index => @filter_context.period_index}
     @treemap=Sonar::Treemap.new(@filter_context.measures_by_snapshot, @width, @height, @size_metric, @color_metric, treemap_options)
     render :action => "treemap", :layout => false
   end
@@ -428,7 +428,7 @@ class FiltersController < ApplicationController
     filter.favourites=params[:favourites].present?
     filter.resource_id=(params[:path_id].present? ? Project.by_key(params[:path_id]).id : nil) 
     filter.user_id=current_user.id
-    filter.variation_index=params[:variation_index].to_i
+    filter.period_index=params[:period_index].to_i
     filter.criteria=[]
     filter.criteria<<Criterion.new_for_qualifiers(params['qualifiers'])
     filter.criteria<<Criterion.new(:family => 'date', :operator => params['date_operator'], :value => params['date_value']) if params['date_operator'].present?
@@ -484,7 +484,7 @@ class FiltersController < ApplicationController
     end
 
     @filter=nil
-    @variation_index=params[:var].to_i
+    @period_index=params[:period].to_i
     if @active
       @filter=@active.filter
       unless @filter.ajax_loading?

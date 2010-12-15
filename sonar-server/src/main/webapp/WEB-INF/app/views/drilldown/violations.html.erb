@@ -6,14 +6,14 @@
 <%= link_to_favourite(@project) -%> Version <%= @snapshot.version -%> - <%= l @snapshot.created_at %>
 <% if profile_measure %> - Profile <%= link_to profile_measure.data, :controller => '/rules_configuration', :action => 'index', :id => profile_measure.value.to_i %><% end %>
 <% if @snapshot.project_snapshot.periods? %>
-- <form method="GET" action="<%= url_for :only_path=>true, :overwrite_params => {:var => nil} -%>" style="display: inline">
-    <select id="select-comparison" name="var" onchange="submit()" class="small">
+- <form method="GET" action="<%= url_for :only_path=>true, :overwrite_params => {:period => nil} -%>" style="display: inline">
+    <select id="select-comparison" name="period" onchange="submit()" class="small">
       <option value="">All violations</option>
-      <%= variation_select_option(@snapshot, 1) -%>
-      <%= variation_select_option(@snapshot, 2) -%>
-      <%= variation_select_option(@snapshot, 3) -%>
-      <%= variation_select_option(@snapshot, 4) -%>
-      <%= variation_select_option(@snapshot, 5) -%>
+      <%= period_select_options(@snapshot, 1) -%>
+      <%= period_select_options(@snapshot, 2) -%>
+      <%= period_select_options(@snapshot, 3) -%>
+      <%= period_select_options(@snapshot, 4) -%>
+      <%= period_select_options(@snapshot, 5) -%>
     </select>
   </form>
 <% end %>
@@ -28,9 +28,9 @@
   <td align="left" width="1%" nowrap class="column first">
 
 	<%
-	  value_column = (@variation_index ? "variation_value_#{@variation_index}" : 'value')
+	  value_column = (@period_index ? "variation_value_#{@period_index}" : 'value')
 		max = 0
-		if @variation_index
+		if @period_index
       blocker_violations=@snapshot.measure('new_blocker_violations')
       critical_violations=@snapshot.measure('new_critical_violations')
       major_violations=@snapshot.measure('new_major_violations')
@@ -63,7 +63,7 @@
    <div class="scrollable">
        <table class="spacedicon" width="100%" id="col_rules">
 	      <%
-	        if @variation_index
+	        if @period_index
 	          rule_measures=@snapshot.rule_measures(Metric.by_key('new_violations'), @priority_id)
 	        else
 	          rule_measures=@snapshot.rule_measures(Metric.by_key('violations'), @priority_id)
@@ -103,7 +103,7 @@
 	                  <%= link_to(rule.name, {:overwrite_params => {:rule => rule.key, :sid => nil, :priority => Sonar::RulePriority.to_s(@priority_id)}}, :title => "#{rule.plugin_name}: #{rule.plugin_rule_key}") %>
                    </td>
                    <td class="right" nowrap="nowrap">
-                       <span><%= @variation_index ? format_variation(rule_measure, :index => @variation_index) : rule_measure.formatted_value -%></span>
+                       <span><%= @period_index ? format_variation(rule_measure, :index => @period_index) : rule_measure.formatted_value -%></span>
                    </td>
                    <td class="left last">
 	                  <%= barchart(:width => 70, :percent => (100 * value / max).to_i, :color => '#777')  if max>0 %>
@@ -158,7 +158,7 @@
    <% end %>
    </td>
    <td class="right last" nowrap>
-       <%= @variation_index ? format_variation(measure, :index => @variation_index) : measure.formatted_value -%>
+       <%= @period_index ? format_variation(measure, :index => @period_index) : measure.formatted_value -%>
        <!--[if IE]> &nbsp; &nbsp; <![endif]-->
    </td>
 </tr>

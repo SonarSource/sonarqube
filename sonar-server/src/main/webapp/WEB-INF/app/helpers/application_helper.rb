@@ -440,8 +440,8 @@ module ApplicationHelper
     end
 
     index=options[:index]
-    if index.nil? && defined?(@dashboard_configuration) && @dashboard_configuration.variation?
-      index = @dashboard_configuration.variation_index
+    if index.nil? && defined?(@dashboard_configuration) && @dashboard_configuration.selected_period?
+      index = @dashboard_configuration.period_index
     end
 
     m.variation(index)

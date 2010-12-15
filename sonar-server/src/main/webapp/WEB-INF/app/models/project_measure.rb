@@ -110,9 +110,9 @@ class ProjectMeasure < ActiveRecord::Base
     end
   end
 
-  def variation(variation_index)
+  def variation(period_index)
     result = nil
-    case variation_index
+    case period_index
     when 1
       result=variation_value_1
     when 2

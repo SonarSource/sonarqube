@@ -44,6 +44,8 @@ public class Measure extends Model {
    */
   private String ruleCategory;
 
+  private Double variation1, variation2, variation3, variation4, variation5;
+
   public String getMetricKey() {
     return metricKey;
   }
@@ -220,6 +222,86 @@ public class Measure extends Model {
 
   public Measure setCharacteristicName(String s) {
     this.characteristicName = s;
+    return this;
+  }
+
+  /**
+   * Variation value on period 1. The value is loaded if ResourceQuery#setIncludeTrends() is set to true.
+   * @since 2.5
+   */
+  public Double getVariation1() {
+    return variation1;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Measure setVariation1(Double variation1) {
+    this.variation1 = variation1;
+    return this;
+  }
+
+  /**
+   * Variation value on period 2. The value is loaded if ResourceQuery#setIncludeTrends() is set to true.
+   * @since 2.5
+   */
+  public Double getVariation2() {
+    return variation2;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Measure setVariation2(Double variation2) {
+    this.variation2 = variation2;
+    return this;
+  }
+
+  /**
+   * Variation value on period 3. The value is loaded if ResourceQuery#setIncludeTrends() is set to true.
+   * @since 2.5
+   */
+  public Double getVariation3() {
+    return variation3;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Measure setVariation3(Double variation3) {
+    this.variation3 = variation3;
+    return this;
+  }
+
+  /**
+   * Variation value on period 4. The value is loaded if ResourceQuery#setIncludeTrends() is set to true.
+   * @since 2.5
+   */
+  public Double getVariation4() {
+    return variation4;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Measure setVariation4(Double variation4) {
+    this.variation4 = variation4;
+    return this;
+  }
+
+  /**
+   * Variation value on period 5. The value is loaded if ResourceQuery#setIncludeTrends() is set to true.
+   * @since 2.5
+   */
+  public Double getVariation5() {
+    return variation5;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Measure setVariation5(Double variation5) {
+    this.variation5 = variation5;
     return this;
   }
 

@@ -19,10 +19,10 @@
     <td>
       <span class="comments">Period:</span>
       <br/>
-      <select name="var" onchange="submit()" class="small">
+      <select name="period" onchange="submit()" class="small">
         <option value="">None</option>
         <% period_names.each_with_index do |name, index| %>
-           <option value="<%= index+1 -%>" <%= 'selected' if params[:var].to_i==index+1 -%>><%= name -%></value>
+           <option value="<%= index+1 -%>" <%= 'selected' if params[:period].to_i==index+1 -%>><%= name -%></value>
         <% end %>
       </select>
     </td>

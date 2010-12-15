@@ -98,7 +98,7 @@ module FiltersHelper
 
 
     #----- VARIATION
-    java_filter.setSortedVariationIndex(filter_context.variation_index)
+    java_filter.setSortedVariationIndex(filter_context.period_index)
 
     #----- EXECUTION
     java_result=java_facade.execute_filter(java_filter)
@@ -160,9 +160,9 @@ module FiltersHelper
   end
 
   def period_names
-    p1=Property.value('sonar.timemachine.variation1', nil, 'previous_analysis')
-    p2=Property.value('sonar.timemachine.variation2', nil, '5')
-    p3=Property.value('sonar.timemachine.variation3', nil, '30')
+    p1=Property.value('sonar.timemachine.period1', nil, 'previous_analysis')
+    p2=Property.value('sonar.timemachine.period2', nil, '5')
+    p3=Property.value('sonar.timemachine.period3', nil, '30')
     [period_name(p1), period_name(p2), period_name(p3)]
   end
 

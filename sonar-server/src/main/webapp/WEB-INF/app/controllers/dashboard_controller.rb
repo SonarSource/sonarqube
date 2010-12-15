@@ -169,7 +169,7 @@ class DashboardController < ApplicationController
       end
     end
     @dashboard=(@active ? @active.dashboard : nil)
-    @dashboard_configuration=Api::DashboardConfiguration.new(@dashboard, :variation_index => params[:var])
+    @dashboard_configuration=Api::DashboardConfiguration.new(@dashboard, :period_index => params[:period])
   end
 
   def load_resource

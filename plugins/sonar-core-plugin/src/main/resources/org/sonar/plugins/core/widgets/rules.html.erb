@@ -16,22 +16,22 @@
 			    <span class="big">
 			      <%= format_measure(violations, :url => url_for(:controller => 'drilldown', :action => 'violations', :id => @project.key)) -%>
 			    </span>
-			    <%= dashboard_configuration.variation? ? format_variation(violations) : trend_icon(violations) -%>
+			    <%= dashboard_configuration.selected_period? ? format_variation(violations) : trend_icon(violations) -%>
 			  </div>
         <h3>Rules compliance</h3>
         <div>
           <span class="big">
             <%= format_measure(density, :url => url_for_drilldown(Metric::WEIGHTED_VIOLATIONS, {:highlight => Metric::WEIGHTED_VIOLATIONS})) -%>
           </span>
-          <%= dashboard_configuration.variation? ? format_variation(density) : trend_icon(density) -%>
+          <%= dashboard_configuration.selected_period? ? format_variation(density) : trend_icon(density) -%>
         </div>
 		  </div>
 	 	</td>
 		<td valign="top" nowrap>
 			<%
         values=[blocker_violations,critical_violations,major_violations,minor_violations,info_violations]
-        if dashboard_configuration.variation?
-          values=values.map{|m| m ? (m.variation(dashboard_configuration.variation_index)||0) : 0}
+        if dashboard_configuration.selected_period?
+          values=values.map{|m| m ? (m.variation(dashboard_configuration.period_index)||0) : 0}
         else
           values=values.map{|m| m ? (m.value||0) : 0}
         end
@@ -45,11 +45,11 @@
 			          <%= format_measure(blocker_violations) -%>
 			        </td>
 			        <td>
-			          <%= dashboard_configuration.variation? ? format_variation(blocker_violations) : trend_icon(blocker_violations, :empty => true) -%>
+			          <%= dashboard_configuration.selected_period? ? format_variation(blocker_violations) : trend_icon(blocker_violations, :empty => true) -%>
 			        </td>
 			        <td align="left" style="padding-bottom:2px; padding-top:2px;">
 			          <% if max > 0 %>
-			          <% if dashboard_configuration.variation? %>
+			          <% if dashboard_configuration.selected_period? %>
 			            <%= barchart(:width => 35, :percent => (values[0]<0 ? (100 * values[0] / max).to_i : 0), :color => '#078C00') %>
 			            <%= barchart(:width => 35, :percent => (values[0]>0 ? (100 * values[0] / max).to_i : 0), :color => '#cc0000') %>
 			          <% else %>
@@ -65,11 +65,11 @@
 			          <%= format_measure(critical_violations) -%>
 			        </td>
 			        <td>
-			          <%= dashboard_configuration.variation? ? format_variation(critical_violations) : trend_icon(critical_violations, :empty => true) -%>
+			          <%= dashboard_configuration.selected_period? ? format_variation(critical_violations) : trend_icon(critical_violations, :empty => true) -%>
 			        </td>
 			        <td align="left" style="padding-bottom:2px; padding-top:2px;">
 			          <% if max > 0 %>
-			          <% if dashboard_configuration.variation? %>
+			          <% if dashboard_configuration.selected_period? %>
 			            <%= barchart(:width => 35, :percent => (values[1]<0 ? (100 * values[1] / max).to_i : 0), :color => '#078C00') %>
 			            <%= barchart(:width => 35, :percent => (values[1]>0 ? (100 * values[1] / max).to_i : 0), :color => '#cc0000') %>
 			          <% else %>
@@ -85,11 +85,11 @@
 			          <%= format_measure(major_violations) -%>
 			        </td>
 			        <td>
-			          <%= dashboard_configuration.variation? ? format_variation(major_violations) : trend_icon(major_violations, :empty => true) -%>
+			          <%= dashboard_configuration.selected_period? ? format_variation(major_violations) : trend_icon(major_violations, :empty => true) -%>
 			        </td>
 			       <td align="left" style="padding-bottom:2px; padding-top:2px;">
 			         <% if max > 0 %>
-			          <% if dashboard_configuration.variation? %>
+			          <% if dashboard_configuration.selected_period? %>
 			            <%= barchart(:width => 35, :percent => (values[2]<0 ? (100 * values[2] / max).to_i : 0), :color => '#078C00') %>
 			            <%= barchart(:width => 35, :percent => (values[2]>0 ? (100 * values[2] / max).to_i : 0), :color => '#cc0000') %>
 			          <% else %>
@@ -105,11 +105,11 @@
 			          <%= format_measure(minor_violations) -%>
 			        </td>
 			        <td>
-			          <%= dashboard_configuration.variation? ? format_variation(minor_violations) : trend_icon(minor_violations, :empty => true) -%>
+			          <%= dashboard_configuration.selected_period? ? format_variation(minor_violations) : trend_icon(minor_violations, :empty => true) -%>
 			        </td>
 			       <td align="left" style="padding-bottom:2px; padding-top:2px;">
 			          <% if max > 0 %>
-			          <% if dashboard_configuration.variation? %>
+			          <% if dashboard_configuration.selected_period? %>
 			            <%= barchart(:width => 35, :percent => (values[3]<0 ? (100 * values[3] / max).to_i : 0), :color => '#078C00') %>
 			            <%= barchart(:width => 35, :percent => (values[3]>0 ? (100 * values[3] / max).to_i : 0), :color => '#cc0000') %>
 			          <% else %>
@@ -125,11 +125,11 @@
 			          <%= format_measure(info_violations) -%>
 			        </td>
 			        <td>
-			          <%= dashboard_configuration.variation? ? format_variation(info_violations) : trend_icon(info_violations, :empty => true) -%>
+			          <%= dashboard_configuration.selected_period? ? format_variation(info_violations) : trend_icon(info_violations, :empty => true) -%>
 			        </td>
 			       <td align="left" style="padding-bottom:2px; padding-top:2px;">
 			         <% if max > 0 %>
-			          <% if dashboard_configuration.variation? %>
+			          <% if dashboard_configuration.selected_period? %>
 			            <%= barchart(:width => 35, :percent => (values[4]<0 ? (100 * values[4] / max).to_i : 0), :color => '#078C00') %>
 			            <%= barchart(:width => 35, :percent => (values[4]>0 ? (100 * values[4] / max).to_i : 0), :color => '#cc0000') %>
 			          <% else %>

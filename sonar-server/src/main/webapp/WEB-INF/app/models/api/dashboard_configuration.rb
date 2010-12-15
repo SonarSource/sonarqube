@@ -19,12 +19,12 @@
 #
 class Api::DashboardConfiguration
 
-  attr_accessor :dashboard, :variation_index, :variation
+  attr_accessor :dashboard, :period_index, :selected_period
 
   def initialize(dashboard, options={})
     @dashboard=dashboard
-    @variation_index=options[:variation_index].to_i
-    @variation=(@variation_index>0)
+    @period_index=options[:period_index].to_i
+    @selected_period=(@period_index>0)
   end
 
   def name
@@ -43,8 +43,8 @@ class Api::DashboardConfiguration
     @dashboard.number_of_columns
   end
 
-  def variation?
-    @variation
+  def selected_period?
+    @selected_period
   end
 
 end

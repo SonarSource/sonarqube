@@ -11,11 +11,11 @@
         <div class="dashbox">
           <p class="title">File tangle index</p>
           <p>
-            <span class="big"><%= format_measure(file_tangle_index, :suffix => '', :default => '-', :url => url_for_drilldown('file_tangle_index')) -%></span> <%= dashboard_configuration.variation? ? format_variation(file_tangle_index) : trend_icon(file_tangle_index, :big => true) -%>
+            <span class="big"><%= format_measure(file_tangle_index, :suffix => '', :default => '-', :url => url_for_drilldown('file_tangle_index')) -%></span> <%= dashboard_configuration.selected_period? ? format_variation(file_tangle_index) : trend_icon(file_tangle_index, :big => true) -%>
           </p>
           <% if file_cycles %>
           <p>
-            > <%= format_measure(file_cycles, :suffix => ' cycles', :url => url_for_drilldown('file_cycles')) %> <%= dashboard_configuration.variation? ? format_variation(file_cycles) : trend_icon(file_cycles) -%>
+            > <%= format_measure(file_cycles, :suffix => ' cycles', :url => url_for_drilldown('file_cycles')) %> <%= dashboard_configuration.selected_period? ? format_variation(file_cycles) : trend_icon(file_cycles) -%>
           </p>
           <% end %>
         </div>
@@ -25,7 +25,7 @@
         <div class="dashbox">
           <p class="title">Suspect file dependencies</p>
           <p>
-            <span class="big"><%= format_measure(file_feedback_edges, :url => url_for_drilldown('file_feedback_edges')) -%></span> <%= dashboard_configuration.variation? ? format_variation(file_feedback_edges) : trend_icon(file_feedback_edges, :big => true) -%>
+            <span class="big"><%= format_measure(file_feedback_edges, :url => url_for_drilldown('file_feedback_edges')) -%></span> <%= dashboard_configuration.selected_period? ? format_variation(file_feedback_edges) : trend_icon(file_feedback_edges, :big => true) -%>
           </p>
         </div>
         <% end %>

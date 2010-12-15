@@ -19,30 +19,30 @@
 		      <h3>Comments</h3>
 		      <p>
 		        <span class="big"><%= format_measure(comment_lines_density, :suffix => '', :url => url_for_drilldown(comment_lines_density)) %></span>
-		        <%= dashboard_configuration.variation? ? format_variation(comment_lines_density) : trend_icon(comment_lines_density) -%>
+		        <%= dashboard_configuration.selected_period? ? format_variation(comment_lines_density) : trend_icon(comment_lines_density) -%>
 		      </p>
 		      <p>
 		        <%= format_measure(comment_lines, :suffix => ' lines', :url => url_for_drilldown(comment_lines)) %>
-		        <%= dashboard_configuration.variation? ? format_variation(comment_lines) : trend_icon(comment_lines) -%>
+		        <%= dashboard_configuration.selected_period? ? format_variation(comment_lines) : trend_icon(comment_lines) -%>
 		      </p>
 		      <%
 	  	      if comment_blank_lines && comment_blank_lines.value>0
 		      %>
 		      <p>+<%= format_measure(comment_blank_lines, :suffix => ' blank', :url => url_for_drilldown(comment_blank_lines)) %>
-		      <%= dashboard_configuration.variation? ? format_variation(comment_blank_lines) : trend_icon(comment_blank_lines) -%>
+		      <%= dashboard_configuration.selected_period? ? format_variation(comment_blank_lines) : trend_icon(comment_blank_lines) -%>
 		      </p>
 		      <% end %>
 		      <p>
 		        <%= format_measure(public_documented_api_density, :suffix => ' docu. API', :url => url_for_drilldown(Metric::PUBLIC_UNDOCUMENTED_API, :highlight => Metric::PUBLIC_DOCUMENTED_API_DENSITY)) %>
-		        <%= dashboard_configuration.variation? ? format_variation(public_documented_api_density) : trend_icon(public_documented_api_density) -%>
+		        <%= dashboard_configuration.selected_period? ? format_variation(public_documented_api_density) : trend_icon(public_documented_api_density) -%>
 		      </p>
 		      <p>
 		        <%= format_measure(public_undocumented_api, :suffix => ' undocu. API', :url => url_for_drilldown(public_undocumented_api)) %>
-		        <%= dashboard_configuration.variation? ? format_variation(public_undocumented_api) : trend_icon(public_undocumented_api) -%>
+		        <%= dashboard_configuration.selected_period? ? format_variation(public_undocumented_api) : trend_icon(public_undocumented_api) -%>
 		      </p>
 		      <p>
 		        <%= format_measure(commented_out_lines, :suffix => ' commented LOCs', :url => url_for_drilldown(commented_out_lines)) %>
-		        <%= dashboard_configuration.variation? ? format_variation(commented_out_lines) : trend_icon(commented_out_lines) -%>
+		        <%= dashboard_configuration.selected_period? ? format_variation(commented_out_lines) : trend_icon(commented_out_lines) -%>
 		      </p>
 		    </div>
 		    <% end %>
@@ -53,19 +53,19 @@
 		      <h3>Duplications</h3>
 		      <p>
 		        <span class="big"><%= format_measure(duplicated_lines_density, :suffix => '', :url => url_for_drilldown(Metric::DUPLICATED_LINES, :highlight =>  'duplicated_lines_density')) %></span>
-		        <%= dashboard_configuration.variation? ? format_variation(duplicated_lines_density) : trend_icon(duplicated_lines_density) -%>
+		        <%= dashboard_configuration.selected_period? ? format_variation(duplicated_lines_density) : trend_icon(duplicated_lines_density) -%>
 		      </p>
 		      <p>
 		        <%= format_measure(duplicated_lines, :suffix => ' lines', :url => url_for_drilldown(duplicated_lines)) %>
-		        <%= dashboard_configuration.variation? ? format_variation(duplicated_lines) : trend_icon(duplicated_lines) -%>
+		        <%= dashboard_configuration.selected_period? ? format_variation(duplicated_lines) : trend_icon(duplicated_lines) -%>
 		      </p>
 		      <p>
 		        <%= format_measure(duplicated_blocks, :suffix => ' blocks', :url => url_for_drilldown(duplicated_blocks)) %>
-		        <%= dashboard_configuration.variation? ? format_variation(duplicated_blocks) : trend_icon(duplicated_blocks) -%>
+		        <%= dashboard_configuration.selected_period? ? format_variation(duplicated_blocks) : trend_icon(duplicated_blocks) -%>
 		      </p>
 		      <p>
 		        <%= format_measure(duplicated_files, :suffix => ' files', :url => url_for_drilldown(duplicated_files)) %>
-		        <%= dashboard_configuration.variation? ? format_variation(duplicated_files) : trend_icon(duplicated_files) -%>
+		        <%= dashboard_configuration.selected_period? ? format_variation(duplicated_files) : trend_icon(duplicated_files) -%>
 		      </p>
 		    </div>
 		    <% end %>

@@ -47,7 +47,22 @@ public class ResourceUnmarshaller extends AbstractUnmarshaller<Resource> {
         .setLanguage(JsonUtils.getString(json, "lang"))
         .setDescription(JsonUtils.getString(json, "description"))
         .setDate(JsonUtils.getDateTime(json, "date"))
-        .setVersion(JsonUtils.getString(json, "version"));
+        .setVersion(JsonUtils.getString(json, "version"))
+        .setPeriod1Mode(JsonUtils.getString(json, "p1"))
+        .setPeriod1Param(JsonUtils.getString(json, "p1p"))
+        .setPeriod1Date(JsonUtils.getDateTime(json, "p1d"))
+        .setPeriod2Mode(JsonUtils.getString(json, "p2"))
+        .setPeriod2Param(JsonUtils.getString(json, "p2p"))
+        .setPeriod2Date(JsonUtils.getDateTime(json, "p2d"))
+        .setPeriod3Mode(JsonUtils.getString(json, "p3"))
+        .setPeriod3Param(JsonUtils.getString(json, "p3p"))
+        .setPeriod3Date(JsonUtils.getDateTime(json, "p3d"))
+        .setPeriod4Mode(JsonUtils.getString(json, "p4"))
+        .setPeriod4Param(JsonUtils.getString(json, "p4p"))
+        .setPeriod4Date(JsonUtils.getDateTime(json, "p4d"))
+        .setPeriod5Mode(JsonUtils.getString(json, "p5"))
+        .setPeriod5Param(JsonUtils.getString(json, "p5p"))
+        .setPeriod5Date(JsonUtils.getDateTime(json, "p5d"));
   }
 
   private void parseMeasures(JSONObject json, Resource resource) {
@@ -85,7 +100,12 @@ public class ResourceUnmarshaller extends AbstractUnmarshaller<Resource> {
         .setRuleCategory(JsonUtils.getString(json, "rule_category"))
         .setRuleSeverity(JsonUtils.getString(json, "rule_priority"))
         .setCharacteristicKey(JsonUtils.getString(json, "ctic_key"))
-        .setCharacteristicName(JsonUtils.getString(json, "ctic_name"));
+        .setCharacteristicName(JsonUtils.getString(json, "ctic_name"))
+        .setVariation1(JsonUtils.getDouble(json, "var1"))
+        .setVariation2(JsonUtils.getDouble(json, "var2"))
+        .setVariation3(JsonUtils.getDouble(json, "var3"))
+        .setVariation4(JsonUtils.getDouble(json, "var4"))
+        .setVariation5(JsonUtils.getDouble(json, "var5"));
     return measure;
   }
 }

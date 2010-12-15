@@ -28,7 +28,7 @@ module DashboardHelper
     @snapshot.measure(metric_key)
   end
 
-  def variation_select_option(snapshot, index)
+  def period_select_options(snapshot, index)
     return nil if snapshot.nil? || snapshot.project_snapshot.nil?
     mode=snapshot.project_snapshot.send "period#{index}_mode"
     mode_param=snapshot.project_snapshot.send "period#{index}_param"
@@ -44,7 +44,7 @@ module DashboardHelper
         label = "Compare to #{localize(Date.parse(mode_param))}"
       end
       if label
-        selected=(params[:var]==index.to_s ? 'selected' : '')
+        selected=(params[:period]==index.to_s ? 'selected' : '')
         "<option value='#{index}' #{selected}>#{label}</option>"
       end
     else

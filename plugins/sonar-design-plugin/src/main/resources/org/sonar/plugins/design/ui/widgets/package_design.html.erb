@@ -15,11 +15,11 @@
         <div class="dashbox">
           <p class="title">Package tangle index</p>
           <p>
-            <span class="big"><%= format_measure(package_tangle_index, :suffix => '', :default => '-', :url => url_for_drilldown('package_tangle_index')) -%></span> <%= dashboard_configuration.variation? ? format_variation(package_tangle_index) : trend_icon(package_tangle_index, :big => true) -%>
+            <span class="big"><%= format_measure(package_tangle_index, :suffix => '', :default => '-', :url => url_for_drilldown('package_tangle_index')) -%></span> <%= dashboard_configuration.selected_period? ? format_variation(package_tangle_index) : trend_icon(package_tangle_index, :big => true) -%>
           </p>
           <% if package_cycles %>
           <p>
-            > <%= format_measure(package_cycles, :suffix => ' cycles', :url => url_for_drilldown('package_cycles')) %> <%= dashboard_configuration.variation? ? format_variation(package_cycles) : trend_icon(package_cycles) -%>
+            > <%= format_measure(package_cycles, :suffix => ' cycles', :url => url_for_drilldown('package_cycles')) %> <%= dashboard_configuration.selected_period? ? format_variation(package_cycles) : trend_icon(package_cycles) -%>
           </p>
           <% end %>
         </div>
@@ -30,11 +30,11 @@
           <p class="title">Dependencies to cut</p>
           <p>
             <%= format_measure(package_feedback_edges, :suffix => ' between packages', :url => url_for_drilldown('package_feedback_edges')) %>
-            <%= dashboard_configuration.variation? ? format_variation(package_feedback_edges) : trend_icon(package_feedback_edges) -%>
+            <%= dashboard_configuration.selected_period? ? format_variation(package_feedback_edges) : trend_icon(package_feedback_edges) -%>
           </p>
           <p>
             <%= format_measure(package_tangles, :suffix => ' between files', :url => url_for_drilldown('package_tangles')) %>
-            <%= dashboard_configuration.variation? ? format_variation(package_tangles) : trend_icon(package_tangles) -%>
+            <%= dashboard_configuration.selected_period? ? format_variation(package_tangles) : trend_icon(package_tangles) -%>
           </p>
         </div>
         <% end %>

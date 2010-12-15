@@ -29,7 +29,7 @@ public class Resource extends Model {
   public static final String SCOPE_SET = "PRJ";
   public static final String SCOPE_SPACE = "DIR";
   public static final String SCOPE_ENTITY = "FIL";
-  
+
   /* QUALIFIERS */
   public static final String QUALIFIER_VIEW = "VW";
   public static final String QUALIFIER_SUBVIEW = "SVW";
@@ -57,6 +57,11 @@ public class Resource extends Model {
   private String description;
   private Date date;
   private List<Measure> measures;
+
+  // periods used for variations and tracking of violations
+  private String period1Mode, period2Mode, period3Mode, period4Mode, period5Mode;
+  private String period1Param, period2Param, period3Param, period4Param, period5Param;
+  private Date period1Date, period2Date, period3Date, period4Date, period5Date;
 
   public Integer getId() {
     return id;
@@ -206,6 +211,231 @@ public class Resource extends Model {
 
   public void setMeasures(List<Measure> measures) {
     this.measures = measures;
+  }
+
+  /**
+   * @since 2.5 only on projects, else null
+   */
+  public String getPeriod1Mode() {
+    return period1Mode;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Resource setPeriod1Mode(String period1Mode) {
+    this.period1Mode = period1Mode;
+    return this;
+  }
+
+  /**
+   * @since 2.5 only on projects, else null
+   */
+  public String getPeriod2Mode() {
+    return period2Mode;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Resource setPeriod2Mode(String period2Mode) {
+    this.period2Mode = period2Mode;
+    return this;
+  }
+
+  /**
+   * @since 2.5 only on projects, else null
+   */
+  public String getPeriod3Mode() {
+    return period3Mode;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Resource setPeriod3Mode(String period3Mode) {
+    this.period3Mode = period3Mode;
+    return this;
+  }
+
+  /**
+   * @since 2.5 only on projects, else null
+   */
+  public String getPeriod4Mode() {
+    return period4Mode;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Resource setPeriod4Mode(String period4Mode) {
+    this.period4Mode = period4Mode;
+    return this;
+  }
+
+  /**
+   * @since 2.5 only on projects, else null
+   */
+  public String getPeriod5Mode() {
+    return period5Mode;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Resource setPeriod5Mode(String period5Mode) {
+    this.period5Mode = period5Mode;
+    return this;
+  }
+
+  /**
+   * @since 2.5 only on projects, else null
+   */
+  public String getPeriod1Param() {
+    return period1Param;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Resource setPeriod1Param(String period1Param) {
+    this.period1Param = period1Param;
+    return this;
+  }
+
+  /**
+   * @since 2.5 only on projects, else null
+   */
+  public String getPeriod2Param() {
+    return period2Param;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Resource setPeriod2Param(String period2Param) {
+    this.period2Param = period2Param;
+    return this;
+  }
+
+  /**
+   * @since 2.5 only on projects, else null
+   */
+  public String getPeriod3Param() {
+    return period3Param;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Resource setPeriod3Param(String period3Param) {
+    this.period3Param = period3Param;
+    return this;
+  }
+
+  /**
+   * @since 2.5 only on projects, else null
+   */
+  public String getPeriod4Param() {
+    return period4Param;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Resource setPeriod4Param(String period4Param) {
+    this.period4Param = period4Param;
+    return this;
+  }
+
+  /**
+   * @since 2.5 only on projects, else null
+   */
+  public String getPeriod5Param() {
+    return period5Param;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Resource setPeriod5Param(String period5Param) {
+    this.period5Param = period5Param;
+    return this;
+  }
+
+  /**
+   * @since 2.5 only on projects, else null
+   */
+  public Date getPeriod1Date() {
+    return period1Date;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Resource setPeriod1Date(Date period1Date) {
+    this.period1Date = period1Date;
+    return this;
+  }
+
+  /**
+   * @since 2.5 only on projects, else null
+   */
+  public Date getPeriod2Date() {
+    return period2Date;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Resource setPeriod2Date(Date period2Date) {
+    this.period2Date = period2Date;
+    return this;
+  }
+
+  /**
+   * @since 2.5 only on projects, else null
+   */
+  public Date getPeriod3Date() {
+    return period3Date;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Resource setPeriod3Date(Date period3Date) {
+    this.period3Date = period3Date;
+    return this;
+  }
+
+  /**
+   * @since 2.5 only on projects, else null
+   */
+  public Date getPeriod4Date() {
+    return period4Date;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Resource setPeriod4Date(Date period4Date) {
+    this.period4Date = period4Date;
+    return this;
+  }
+
+  /**
+   * @since 2.5 only on projects, else null
+   */
+  public Date getPeriod5Date() {
+    return period5Date;
+  }
+
+  /**
+   * @since 2.5
+   */
+  public Resource setPeriod5Date(Date period5Date) {
+    this.period5Date = period5Date;
+    return this;
   }
 
   @Override

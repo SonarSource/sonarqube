@@ -21,10 +21,10 @@
 #
 # Sonar 2.5
 #
-class AddVariationsToFilters < ActiveRecord::Migration
+class AddPeriodsToFilters < ActiveRecord::Migration
 
   def self.up
-    add_column :filters, :variation_index, :integer, :null => true
+    add_column :filters, :period_index, :integer, :null => true
     Filter.reset_column_information
 
     add_column :filter_columns, :variation, :boolean, :null => true

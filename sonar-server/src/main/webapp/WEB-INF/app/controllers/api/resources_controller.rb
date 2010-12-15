@@ -350,9 +350,16 @@ class Api::ResourcesController < Api::ApiController
           json_measure[:alert]=measure.alert_status
           json_measure[:alert_text]=measure.alert_text
         end
-        if include_trends && measure.tendency
-          json_measure[:trend]=measure.tendency_qualitative
-          json_measure[:var]=measure.tendency
+        if include_trends
+          if measure.tendency
+            json_measure[:trend]=measure.tendency_qualitative
+            json_measure[:var]=measure.tendency
+          end
+          json_measure[:var1]=measure.variation_value_1.to_f if measure.variation_value_1
+          json_measure[:var2]=measure.variation_value_2.to_f if measure.variation_value_2
+          json_measure[:var3]=measure.variation_value_3.to_f if measure.variation_value_3
+          json_measure[:var4]=measure.variation_value_4.to_f if measure.variation_value_4
+          json_measure[:var5]=measure.variation_value_5.to_f if measure.variation_value_5
         end
         if measure.rule_id
           rule = rules_by_id[measure.rule_id]
@@ -391,6 +398,29 @@ class Api::ResourcesController < Api::ApiController
       xml.date(format_datetime(snapshot.created_at))
       xml.description(resource.description) if include_descriptions && resource.description
       xml.copy(resource.copy_resource_id) if resource.copy_resource_id
+
+      if include_trends
+        xml.period1(snapshot.period1_mode) if snapshot.period1_mode
+        xml.period1_param(snapshot.period1_param) if snapshot.period1_param
+        xml.period1_date(format_datetime(snapshot.period1_date)) if snapshot.period1_date
+
+        xml.period2(snapshot.period2_mode) if snapshot.period2_mode
+        xml.period2_param(snapshot.period2_param) if snapshot.period2_param
+        xml.period2_date(format_datetime(snapshot.period2_date)) if snapshot.period2_date
+
+        xml.period3(snapshot.period3_mode) if snapshot.period3_mode
+        xml.period3_param(snapshot.period3_param) if snapshot.period3_param
+        xml.period3_date(format_datetime(snapshot.period3_date)) if snapshot.period3_date
+
+        xml.period4(snapshot.period4_mode) if snapshot.period4_mode
+        xml.period4_param(snapshot.period4_param) if snapshot.period4_param
+        xml.period4_date(format_datetime(snapshot.period4_date)) if snapshot.period4_date
+
+        xml.period5(snapshot.period5_mode) if snapshot.period5_mode
+        xml.period5_param(snapshot.period5_param) if snapshot.period5_param
+        xml.period5_date(format_datetime(snapshot.period5_date)) if snapshot.period5_date
+      end
+
       if measures
         measures.each do |measure|
           xml.msr do
@@ -405,9 +435,16 @@ class Api::ResourcesController < Api::ApiController
               xml.alert(measure.alert_status) if measure.alert_status
               xml.alert_text(measure.alert_text) if measure.alert_text
             end
-            if include_trends && measure.tendency
-              xml.trend(measure.tendency_qualitative)
-              xml.var(measure.tendency)
+            if include_trends
+              if measure.tendency
+                xml.trend(measure.tendency_qualitative)
+                xml.var(measure.tendency)
+              end
+              xml.var1(measure.variation_value_1.to_f) if measure.variation_value_1
+              xml.var2(measure.variation_value_2.to_f) if measure.variation_value_2
+              xml.var3(measure.variation_value_3.to_f) if measure.variation_value_3
+              xml.var4(measure.variation_value_4.to_f) if measure.variation_value_4
+              xml.var5(measure.variation_value_5.to_f) if measure.variation_value_5
             end
             if measure.rule_id
               rule = rules_by_id[measure.rule_id]

@@ -29,8 +29,8 @@ class Sonar::Treemap
     @width = width
     @height = height
 
-    if options[:variation_index] && options[:variation_index]>0
-      @variation_index = options[:variation_index]
+    if options[:period_index] && options[:period_index]>0
+      @period_index = options[:period_index]
     end
   end
   
@@ -91,8 +91,8 @@ class Sonar::Treemap
   end
 
   def size_value(measure)
-    if @variation_index
-      var=measure.variation(@variation_index)
+    if @period_index
+      var=measure.variation(@period_index)
       var ? var.to_f.abs : 0.0
     elsif measure.value
       measure.value.to_f.abs||0.0

@@ -19,7 +19,7 @@
  #
 module DrilldownHelper
 
-  def variation_select_option(snapshot, index)
+  def period_select_options(snapshot, index)
     return nil if snapshot.nil? || snapshot.project_snapshot.nil?
     mode=snapshot.project_snapshot.send "period#{index}_mode"
     mode_param=snapshot.project_snapshot.send "period#{index}_param"
@@ -35,7 +35,7 @@ module DrilldownHelper
         label = "New violations since #{localize(Date.parse(mode_param))}"
       end
       if label
-        selected=(params[:var]==index.to_s ? 'selected' : '')
+        selected=(params[:period]==index.to_s ? 'selected' : '')
         "<option value='#{index}' #{selected}>#{label}</option>"
       end
     else
@@ -46,7 +46,7 @@ module DrilldownHelper
 
   def measure_or_variation_value(measure)
     if measure
-      @variation_index ? measure.variation(@variation_index) : measure.value
+      @period_index ? measure.variation(@period_index) : measure.value
     else
       nil
     end

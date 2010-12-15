@@ -19,5 +19,45 @@
  */
 package org.sonar.tests.integration;
 
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.sonar.wsclient.Sonar;
+import org.sonar.wsclient.services.Resource;
+import org.sonar.wsclient.services.ResourceQuery;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.junit.Assert.assertThat;
+
 public class VariationsIT {
+
+  private static final String TIMEMACHINE_PROJECT = "org.sonar.tests:violations-timemachine";
+
+  private static Sonar sonar;
+
+  @BeforeClass
+  public static void buildServer() {
+    sonar = ITUtils.createSonarWsClient();
+  }
+
+  @Test
+  public void checkBaseVariations() {
+
+    Resource project = getProject("files", "ncloc", "violations");
+
+    // period 1 : previous analysis
+    assertThat(project.getPeriod1Mode(), is("previous_analysis"));
+    assertThat(project.getPeriod1Date(), notNullValue());
+
+    // variations from previous analysis
+    assertThat(project.getMeasure("files").getVariation1(), is(1.0));
+    assertThat(project.getMeasure("ncloc").getVariation1(), is(8.0));
+    assertThat(project.getMeasure("violations").getVariation1(), greaterThan(0.0));
+  }
+
+  private Resource getProject(String... metricKeys) {
+    return sonar.find(ResourceQuery.createForMetrics(TIMEMACHINE_PROJECT, metricKeys).setIncludeTrends(true));
+  }
+
 }

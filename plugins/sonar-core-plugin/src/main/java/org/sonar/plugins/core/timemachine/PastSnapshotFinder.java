@@ -30,7 +30,7 @@ import java.util.Date;
 public class PastSnapshotFinder implements BatchExtension {
 
   /**
-   * IMPORTANT : please update default values in the ruby side too. See app/helpers/FiltersHelper.rb
+   * IMPORTANT : please update default values in the ruby side too. See app/helpers/FiltersHelper.rb, method period_names()
    */
   public static final String DEFAULT_VALUE_1 = PastSnapshotFinderByPreviousAnalysis.MODE;
   public static final String DEFAULT_VALUE_2 = "5";

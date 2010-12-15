@@ -17,15 +17,15 @@
 			    <% if ncloc %>
 			      <p>
 			        <span class="big"><%= format_measure(ncloc, :suffix => '', :url => url_for_drilldown(ncloc)) -%></span>
-			        <%= dashboard_configuration.variation? ? format_variation(ncloc) : trend_icon(ncloc) -%>
+			        <%= dashboard_configuration.selected_period? ? format_variation(ncloc) : trend_icon(ncloc) -%>
 			      </p>
 			      <%
 			        generated_ncloc=measure('generated_ncloc')
 			        if generated_ncloc && generated_ncloc.value>0
 			      %>
-			      <p>+<%= format_measure(generated_ncloc, :suffix => ' generated', :url => url_for_drilldown(generated_ncloc)) -%> <%= dashboard_configuration.variation? ? format_variation(generated_ncloc) : trend_icon(generated_ncloc) -%></p>
+			      <p>+<%= format_measure(generated_ncloc, :suffix => ' generated', :url => url_for_drilldown(generated_ncloc)) -%> <%= dashboard_configuration.selected_period? ? format_variation(generated_ncloc) : trend_icon(generated_ncloc) -%></p>
 			      <% end %>
-			      <p><%= format_measure(lines, :suffix => ' lines', :url => url_for_drilldown(lines)) -%> <%= dashboard_configuration.variation? ? format_variation(lines) : trend_icon(lines) -%></p>
+			      <p><%= format_measure(lines, :suffix => ' lines', :url => url_for_drilldown(lines)) -%> <%= dashboard_configuration.selected_period? ? format_variation(lines) : trend_icon(lines) -%></p>
 			    <% else%>
 			      <p><span class="big"><%= format_measure(lines, :suffix => '', :url => url_for_drilldown(lines)) -%> <%= trend_icon(lines) -%></span></p>
 			    <% end %>
@@ -33,15 +33,15 @@
 			      generated_lines=measure('generated_lines')
 			      if generated_lines && generated_lines.value>0
 			    %>
-			      <p>incl. <%= format_measure(generated_lines, :suffix => ' generated', :url => url_for_drilldown(generated_lines)) -%> <%= dashboard_configuration.variation? ? format_variation(generated_lines) : trend_icon(generated_lines) -%></p>
+			      <p>incl. <%= format_measure(generated_lines, :suffix => ' generated', :url => url_for_drilldown(generated_lines)) -%> <%= dashboard_configuration.selected_period? ? format_variation(generated_lines) : trend_icon(generated_lines) -%></p>
 			    <% end %>
 			    <% if statements %>
           <p>
-          <%= format_measure(statements, :suffix => ' statements', :url => url_for_drilldown(statements)) -%> <%= dashboard_configuration.variation? ? format_variation(statements) : trend_icon(statements) -%>
+          <%= format_measure(statements, :suffix => ' statements', :url => url_for_drilldown(statements)) -%> <%= dashboard_configuration.selected_period? ? format_variation(statements) : trend_icon(statements) -%>
           </p>
           <% end %>
 			    <% if files && measure('classes') %>
-			      <p><%= format_measure(files, :suffix => ' files', :url => url_for_drilldown(files)) -%> <%= dashboard_configuration.variation? ? format_variation(files) : trend_icon(files) -%></p>
+			      <p><%= format_measure(files, :suffix => ' files', :url => url_for_drilldown(files)) -%> <%= dashboard_configuration.selected_period? ? format_variation(files) : trend_icon(files) -%></p>
 			    <% end %>
 		    </div>
 		</td>
@@ -52,25 +52,25 @@
 		        <h3>Classes</h3>
 		        <p>
 		          <span class="big"><%= format_measure(classes, :url => url_for_drilldown(classes)) -%></span>
-		          <%= dashboard_configuration.variation? ? format_variation(classes) : trend_icon(classes) -%>
+		          <%= dashboard_configuration.selected_period? ? format_variation(classes) : trend_icon(classes) -%>
 		        </p>
-       		    <p><%= format_measure(packages, :suffix => ' packages', :url => url_for_drilldown(packages)) -%> <%= dashboard_configuration.variation? ? format_variation(packages) : trend_icon(packages) -%></p>
+       		    <p><%= format_measure(packages, :suffix => ' packages', :url => url_for_drilldown(packages)) -%> <%= dashboard_configuration.selected_period? ? format_variation(packages) : trend_icon(packages) -%></p>
 		      <% else %>
 		        <h3>Files</h3>
 		        <p><span class="big"><%= format_measure(files, :url => url_for_drilldown(files)) -%></span>
-		          <%= dashboard_configuration.variation? ? format_variation(files) : trend_icon(files) -%>
+		          <%= dashboard_configuration.selected_period? ? format_variation(files) : trend_icon(files) -%>
 		        </p>
-       		    <p><%= format_measure('directories', :suffix => ' directories', :url => url_for_drilldown('directories')) -%> <%= dashboard_configuration.variation? ? format_variation('directories') : trend_icon('directories') -%></p>
+       		    <p><%= format_measure('directories', :suffix => ' directories', :url => url_for_drilldown('directories')) -%> <%= dashboard_configuration.selected_period? ? format_variation('directories') : trend_icon('directories') -%></p>
 		      <% end %>
-		      <p><%= format_measure(functions, :suffix => ' methods', :url => url_for_drilldown(functions)) -%> <%= dashboard_configuration.variation? ? format_variation(functions) : trend_icon(functions) -%></p>
+		      <p><%= format_measure(functions, :suffix => ' methods', :url => url_for_drilldown(functions)) -%> <%= dashboard_configuration.selected_period? ? format_variation(functions) : trend_icon(functions) -%></p>
 		      <%
 		        if (measure('accessors'))
-		          prefix=(dashboard_configuration.variation? ? '' : '+')
+		          prefix=(dashboard_configuration.selected_period? ? '' : '+')
 		      %>
-		        <p><%= format_measure('accessors', :prefix => prefix, :suffix => ' accessors', :url => url_for_drilldown('accessors')) -%> <%= dashboard_configuration.variation? ? format_variation('accessors') : trend_icon('accessors') -%></p>
+		        <p><%= format_measure('accessors', :prefix => prefix, :suffix => ' accessors', :url => url_for_drilldown('accessors')) -%> <%= dashboard_configuration.selected_period? ? format_variation('accessors') : trend_icon('accessors') -%></p>
 		      <% end %>
 		      <% if measure('paragraphs') %>
-			      <p><%= format_measure('paragraphs', :suffix => ' paragraphs', :url => url_for_drilldown('paragraphs')) -%> <%= dashboard_configuration.variation? ? format_variation('paragraphs') : trend_icon('paragraphs') -%></p>
+			      <p><%= format_measure('paragraphs', :suffix => ' paragraphs', :url => url_for_drilldown('paragraphs')) -%> <%= dashboard_configuration.selected_period? ? format_variation('paragraphs') : trend_icon('paragraphs') -%></p>
 			    <% end %>
 		    </div>
 		</td>

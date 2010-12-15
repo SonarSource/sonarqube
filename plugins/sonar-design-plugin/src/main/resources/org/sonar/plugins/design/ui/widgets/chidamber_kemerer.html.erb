@@ -14,10 +14,10 @@ if lcom || rfc
         <div class="dashbox">
           <h3>LCOM4</h3>
           <p>
-            <span class="big"><%= format_measure(lcom, :suffix => '', :default => '-', :url => url_for_drilldown('lcom4')) -%></span> /class <%= dashboard_configuration.variation? ? format_variation(lcom) : trend_icon(lcom, :big => true) -%>
+            <span class="big"><%= format_measure(lcom, :suffix => '', :default => '-', :url => url_for_drilldown('lcom4')) -%></span> /class <%= dashboard_configuration.selected_period? ? format_variation(lcom) : trend_icon(lcom, :big => true) -%>
           </p>
           <p>
-            <%= format_measure(suspect_lcom4_density, :suffix => ' files having LCOM4>1', :url => url_for_drilldown('lcom4')) %> <%= dashboard_configuration.variation? ? format_variation(suspect_lcom4_density) : trend_icon(suspect_lcom4_density) -%>
+            <%= format_measure(suspect_lcom4_density, :suffix => ' files having LCOM4>1', :url => url_for_drilldown('lcom4')) %> <%= dashboard_configuration.selected_period? ? format_variation(suspect_lcom4_density) : trend_icon(suspect_lcom4_density) -%>
           </p>
         </div>
       </td>
@@ -27,7 +27,7 @@ if lcom || rfc
         <div class="dashbox">
           <h3>RFC</h3>
           <p><span class="big">
-            <%= format_measure(rfc, :suffix => '', :default => '-', :url => url_for_drilldown('rfc')) -%></span> /class <%= dashboard_configuration.variation? ? format_variation(rfc) : trend_icon(rfc, :big => true) -%>
+            <%= format_measure(rfc, :suffix => '', :default => '-', :url => url_for_drilldown('rfc')) -%></span> /class <%= dashboard_configuration.selected_period? ? format_variation(rfc) : trend_icon(rfc, :big => true) -%>
           </p>
         </div>
       </td>
