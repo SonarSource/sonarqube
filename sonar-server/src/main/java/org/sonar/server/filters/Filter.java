@@ -47,10 +47,11 @@ public class Filter {
 
   // filters on measures
   private List<MeasureCriterion> measureCriteria = Lists.newLinkedList();
+  private int periodIndex = 0;
 
   // sorting
   private Integer sortedMetricId;
-  private int sortedVariationIndex = 0; // >0 only when sortedMetricId not null
+  private boolean sortedByMeasureVariation = false;
   private boolean sortedByLanguage;
   private boolean sortedByName;
   private boolean sortedByDate;
@@ -177,13 +178,14 @@ public class Filter {
   }
 
   public Filter setSortedMetricId(Integer id) {
-    return setSortedMetricId(id, true);
+    return setSortedMetricId(id, true, false);
   }
 
-  public Filter setSortedMetricId(Integer id, boolean useValue) {
+  public Filter setSortedMetricId(Integer id, boolean isNumericValue, boolean isVariation) {
     unsetSorts();
     this.sortedMetricId = id;
-    this.useMeasureValueToSort = useValue;
+    this.useMeasureValueToSort = isNumericValue;
+    this.sortedByMeasureVariation = isVariation;
     return this;
   }
 
@@ -319,17 +321,24 @@ public class Filter {
     return this;
   }
 
-  public int getSortedVariationIndex() {
-    return sortedVariationIndex;
+  public int getPeriodIndex() {
+    return periodIndex;
   }
 
-  public Filter setSortedVariationIndex(int i) {
-    this.sortedVariationIndex = i;
-    return this;
+  public void setPeriodIndex(int i) {
+    this.periodIndex = i;
   }
 
-  static String getVariationColumn(int variationIndex) {
-    switch (variationIndex) {
+  public boolean isOnPeriod() {
+    return periodIndex>0;
+  }
+
+  public void setSortedByMeasureVariation(boolean b) {
+    this.sortedByMeasureVariation = b;
+  }
+
+  static String getVariationColumn(int periodIndex) {
+    switch (periodIndex) {
       case 1:
         return "variation_value_1";
       case 2:
@@ -347,9 +356,19 @@ public class Filter {
   String getColumnToSort() {
     String col = "text_value";
     if (useMeasureValueToSort()) {
-      col = (sortedVariationIndex>0 ? getVariationColumn (sortedVariationIndex) : "value");
+      col = (sortedByMeasureVariation ? getVariationColumn (periodIndex) : "value");
     }
     return col;
+  }
+
+  public boolean mustReturnEmptyResult() {
+    boolean hasCriterionOnVariation = false;
+    for (MeasureCriterion criterion : measureCriteria) {
+      if (criterion.isVariation()) {
+        hasCriterionOnVariation = true;
+      }
+    }
+    return (hasCriterionOnVariation && !isOnPeriod());
   }
 
   @Override

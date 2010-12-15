@@ -29,6 +29,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 
 import javax.persistence.Query;
+import java.util.Collections;
 
 public class FilterExecutor implements ServerComponent {
   private static final Logger LOG = LoggerFactory.getLogger(FilterExecutor.class);
@@ -40,6 +41,10 @@ public class FilterExecutor implements ServerComponent {
   }
 
   public FilterResult execute(Filter filter) {
+    if (filter.mustReturnEmptyResult()) {
+      return new FilterResult(filter, Collections.emptyList());
+    }
+    
     String sql = null;
     try {
       TimeProfiler profiler = new TimeProfiler(FilterExecutor.class).start("Build/execute SQL query");
@@ -96,12 +101,16 @@ public class FilterExecutor implements ServerComponent {
     }
     for (int index = 0; index < filter.getMeasureCriteria().size(); index++) {
       MeasureCriterion criterion = filter.getMeasureCriteria().get(index);
+      String column = (criterion.isVariation() ? Filter.getVariationColumn(filter.getPeriodIndex()) : "value");
       sql.append(", MAX(CASE WHEN pm.metric_id=");
       sql.append(criterion.getMetricId());
-      sql.append(" AND pm.value");
+      sql.append(" AND pm.");
+      sql.append(column);
       sql.append(criterion.getOperator());
       sql.append(criterion.getValue());
-      sql.append(" THEN value ELSE NULL END) AS crit_");
+      sql.append(" THEN ");
+      sql.append(column);
+      sql.append(" ELSE NULL END) AS crit_");
       sql.append(index);
       sql.append(" ");
     }
@@ -125,9 +134,10 @@ public class FilterExecutor implements ServerComponent {
           if (index > 0) {
             sql.append(" OR ");
           }
-          MeasureCriterion criteria = filter.getMeasureCriteria().get(index);
-          sql.append("(pm.metric_id=").append(criteria.getMetricId()).append(" and pm.value")
-              .append(criteria.getOperator()).append(criteria.getValue()).append(")");
+          MeasureCriterion criterion = filter.getMeasureCriteria().get(index);
+          String column = (criterion.isVariation() ? Filter.getVariationColumn(filter.getPeriodIndex()) : "value");
+          sql.append("(pm.metric_id=").append(criterion.getMetricId()).append(" and pm.").append(column)
+              .append(criterion.getOperator()).append(criterion.getValue()).append(")");
           index++;
         }
 

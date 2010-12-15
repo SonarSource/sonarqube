@@ -60,7 +60,7 @@ public class MeasureCriterion {
     this.value = value;
   }
 
-  public Boolean getVariation() {
+  public Boolean isVariation() {
     return variation;
   }
 

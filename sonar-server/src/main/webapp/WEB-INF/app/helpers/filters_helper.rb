@@ -86,7 +86,8 @@ module FiltersHelper
 
     elsif filter.sorted_column.on_metric? && filter.sorted_column.metric
       metric=filter.sorted_column.metric
-      java_filter.setSortedMetricId(metric.id, metric.numeric?)
+      java_filter.setSortedMetricId(metric.id, metric.numeric?, filter.sorted_column.variation)
+
     end
 
 
@@ -98,7 +99,7 @@ module FiltersHelper
 
 
     #----- VARIATION
-    java_filter.setSortedVariationIndex(filter_context.period_index)
+    java_filter.setPeriodIndex(filter_context.period_index)
 
     #----- EXECUTION
     java_result=java_facade.execute_filter(java_filter)
