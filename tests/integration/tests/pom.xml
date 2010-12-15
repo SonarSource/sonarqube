@@ -16,13 +16,6 @@
   </properties>
 
   <build>
-    <testSourceDirectory>${basedir}/src/it/java</testSourceDirectory>
-    <testResources>
-      <testResource>
-        <directory>${basedir}/src/it/resources</directory>
-      </testResource>
-    </testResources>
-
     <plugins>
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
@@ -33,8 +26,8 @@
             <phase>pre-integration-test</phase>
             <configuration>
               <background>true</background>
-              <extensionsDir>${basedir}/target/extensions</extensionsDir>
-              <configBackup>${basedir}/src/it/integration-tests-backup.xml</configBackup>
+              <extensionsDir>${project.basedir}/target/extensions</extensionsDir>
+              <configBackup>${project.basedir}/integration-tests-backup.xml</configBackup>
               <clean>true</clean>
             </configuration>
             <goals>
@@ -45,7 +38,7 @@
             <id>analyze-projects</id>
             <phase>pre-integration-test</phase>
             <configuration>
-              <projectsDir>${basedir}/maven-projects</projectsDir>
+              <projectsDir>${project.basedir}/maven-projects</projectsDir>
             </configuration>
             <goals>
               <goal>analyze</goal>
@@ -118,11 +111,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>2.6</version>
         <configuration>
-          <includes>
-            <include>**/*.java</include>
-          </includes>
           <systemProperties>
             <property>
               <name>sonar.url</name>
@@ -188,16 +177,6 @@
           </execution>
         </executions>
       </plugin>
-
-      <!-- Skip the normal tests, we'll run them in the integration-test phase -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-
     </plugins>
   </build>
 
@@ -217,11 +196,9 @@
       <artifactId>sonar-it-reference-plugin</artifactId>
       <version>${project.version}</version>
     </dependency>
-
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.7</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
