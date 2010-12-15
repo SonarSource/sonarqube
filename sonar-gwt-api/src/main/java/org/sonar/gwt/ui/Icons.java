@@ -79,22 +79,30 @@ public final class Icons {
 
   /**
    * @since 2.2
+   * @deprecated since 2.5 use {@link Icons#forSeverity(String)}
    */
   public static AbstractImagePrototype forPriority(final String priority) {
+    return forSeverity(priority);
+  }
+
+  /**
+   * @since 2.5
+   */
+  public static AbstractImagePrototype forSeverity(final String severity) {
     AbstractImagePrototype image;
-    if ("BLOCKER".equals(priority)) {
+    if ("BLOCKER".equals(severity)) {
       image = get().priorityBlocker();
 
-    } else if ("CRITICAL".equals(priority)) {
+    } else if ("CRITICAL".equals(severity)) {
       image = get().priorityCritical();
 
-    } else if ("MAJOR".equals(priority)) {
+    } else if ("MAJOR".equals(severity)) {
       image = get().priorityMajor();
 
-    } else if ("MINOR".equals(priority)) {
+    } else if ("MINOR".equals(severity)) {
       image = get().priorityMinor();
 
-    } else if ("INFO".equals(priority)) {
+    } else if ("INFO".equals(severity)) {
       image = get().priorityInfo();
 
     } else {

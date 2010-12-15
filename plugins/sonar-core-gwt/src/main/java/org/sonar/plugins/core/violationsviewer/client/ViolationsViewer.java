@@ -48,7 +48,7 @@ public class ViolationsViewer extends Page {
 
   // header
   private Grid header = null;
-  private ListBox filterBox = null;
+  private ListBox filterBox = null, periodBox = null;
   private CheckBox expandCheckbox = null;
   private String defaultFilter;
 
@@ -73,21 +73,26 @@ public class ViolationsViewer extends Page {
     initDefaultFilter();
     sourcePanel = new ViolationsPanel(resource, defaultFilter);
 
-    header.setHTML(0, 1, "<div class='cell'><span class='note'>" + I18nConstants.INSTANCE.filter() + "</span></div>");
     header.getCellFormatter().setStyleName(0, 1, "right");
 
     filterBox = new ListBox();
     filterBox.addItem(I18nConstants.INSTANCE.noFilters(), "");
     filterBox.setStyleName("small");
-
     filterBox.addChangeHandler(new ChangeHandler() {
       public void onChange(ChangeEvent event) {
         String filter = filterBox.getValue(filterBox.getSelectedIndex());
         loadSources();
-        sourcePanel.filter(filter);
+        sourcePanel.filter(filter, null);
         sourcePanel.refresh();
       }
     });
+
+    periodBox = new ListBox();
+    periodBox.addItem(I18nConstants.INSTANCE.noFilters(), "");
+    periodBox.setStyleName("small");
+
+    header.setWidget(0, 1, periodBox);
+    header.getCellFormatter().setStyleName(0, 1, "thin cell right");
 
     header.setWidget(0, 2, filterBox);
     header.getCellFormatter().setStyleName(0, 2, "thin cell right");
@@ -106,7 +111,7 @@ public class ViolationsViewer extends Page {
     header.setWidget(0, 4, expandCheckbox);
     header.getCellFormatter().setStyleName(0, 4, "thin cell left");
 
-    loadRulePriorities();
+    loadRuleSeverities();
     return mainPanel;
   }
 
@@ -117,42 +122,41 @@ public class ViolationsViewer extends Page {
     }
   }
 
-  private void loadRulePriorities() {
+  private void loadRuleSeverities() {
     final ResourceQuery query = ResourceQuery.createForResource(resource, Metrics.BLOCKER_VIOLATIONS,
-        Metrics.CRITICAL_VIOLATIONS, Metrics.MAJOR_VIOLATIONS, Metrics.MINOR_VIOLATIONS, Metrics.INFO_VIOLATIONS)
-        .setExcludeRulePriorities(true);
+        Metrics.CRITICAL_VIOLATIONS, Metrics.MAJOR_VIOLATIONS, Metrics.MINOR_VIOLATIONS, Metrics.INFO_VIOLATIONS);
     Sonar.getInstance().find(query, new AbstractCallback<Resource>(loading) {
       @Override
       protected void doOnResponse(Resource resource) {
         setResourceHasViolations(resource);
-        displayRulePriorities(resource);
+        displayRuleSeverities(resource);
         loadRules(resource);
       }
     });
   }
 
-  private void displayRulePriorities(Resource resource) {
+  private void displayRuleSeverities(Resource resource) {
     final Grid grid = new Grid(1, 10);
     header.setWidget(0, 0, grid);
 
-    displayRulePriority(grid, 0, "BLOCKER", resource.getMeasure(Metrics.BLOCKER_VIOLATIONS));
-    displayRulePriority(grid, 2, "CRITICAL", resource.getMeasure(Metrics.CRITICAL_VIOLATIONS));
-    displayRulePriority(grid, 4, "MAJOR", resource.getMeasure(Metrics.MAJOR_VIOLATIONS));
-    displayRulePriority(grid, 6, "MINOR", resource.getMeasure(Metrics.MINOR_VIOLATIONS));
-    displayRulePriority(grid, 8, "INFO", resource.getMeasure(Metrics.INFO_VIOLATIONS));
+    displayRuleSeverity(grid, 0, "BLOCKER", resource.getMeasure(Metrics.BLOCKER_VIOLATIONS));
+    displayRuleSeverity(grid, 2, "CRITICAL", resource.getMeasure(Metrics.CRITICAL_VIOLATIONS));
+    displayRuleSeverity(grid, 4, "MAJOR", resource.getMeasure(Metrics.MAJOR_VIOLATIONS));
+    displayRuleSeverity(grid, 6, "MINOR", resource.getMeasure(Metrics.MINOR_VIOLATIONS));
+    displayRuleSeverity(grid, 8, "INFO", resource.getMeasure(Metrics.INFO_VIOLATIONS));
   }
 
-  private void displayRulePriority(final Grid grid, final int column, final String priority, final Measure measure) {
+  private void displayRuleSeverity(final Grid grid, final int column, final String severity, final Measure measure) {
     String value = "0";
     if (measure != null) {
       value = measure.getFormattedValue();
-      filterBox.addItem(priority + " (" + value + ")", priority);
-      if (priority.equals(defaultFilter)) {
+      filterBox.addItem(severity + " (" + value + ")", severity);
+      if (severity.equals(defaultFilter)) {
         filterBox.setSelectedIndex(filterBox.getItemCount() - 1);
       }
     }
 
-    grid.setHTML(0, column, Icons.forPriority(priority).getHTML());
+    grid.setHTML(0, column, Icons.forSeverity(severity).getHTML());
     grid.setHTML(0, column + 1, value);
     grid.getCellFormatter().setStyleName(0, column, "thin metric right");
     grid.getCellFormatter().setStyleName(0, column + 1, "thin left value");

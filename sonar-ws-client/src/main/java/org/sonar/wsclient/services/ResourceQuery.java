@@ -31,17 +31,10 @@ public class ResourceQuery extends Query<Resource> {
   private String[] qualifiers;
   private String[] metrics;
   private String[] rules;
-
-  /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
-   */
-  private String[] ruleCategories;
-
   private String[] ruleSeverities;
   private String[] characteristicKeys;
   private String model;
   private boolean excludeRules = true;
-  private boolean excludeRuleCategories = true;
   private boolean excludeRuleSeverities = true;
   private Boolean includeTrends = null;
   private Boolean verbose = Boolean.FALSE;
@@ -141,7 +134,7 @@ public class ResourceQuery extends Query<Resource> {
    */
   @Deprecated
   public String[] getRuleCategories() {
-    return ruleCategories;
+    return null;
   }
 
   /**
@@ -149,8 +142,6 @@ public class ResourceQuery extends Query<Resource> {
    * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
    */
   public ResourceQuery setRuleCategories(String... ruleCategories) {
-    this.ruleCategories = ruleCategories;
-    this.excludeRuleCategories = false;
     return this;
   }
 
@@ -196,12 +187,17 @@ public class ResourceQuery extends Query<Resource> {
     return this;
   }
 
+  /**
+   * @deprecated since 2.5 not used anymore
+   */
   public boolean isExcludeRuleCategories() {
-    return excludeRuleCategories;
+    return false;
   }
 
-  public ResourceQuery setExcludeRuleCategories(boolean excludeRuleCategories) {
-    this.excludeRuleCategories = excludeRuleCategories;
+  /**
+   * @deprecated since 2.5 not used anymore
+   */
+  public ResourceQuery setExcludeRuleCategories(boolean b) {
     return this;
   }
 
@@ -212,8 +208,9 @@ public class ResourceQuery extends Query<Resource> {
     return excludeRuleSeverities;
   }
 
-  public void setExcludeRuleSeverities(boolean excludeRuleSeverities) {
+  public ResourceQuery setExcludeRuleSeverities(boolean excludeRuleSeverities) {
     this.excludeRuleSeverities = excludeRuleSeverities;
+    return this;
   }
 
   /**
@@ -228,8 +225,8 @@ public class ResourceQuery extends Query<Resource> {
    * @deprecated since 2.5 use {@link #setExcludeRuleSeverities(boolean)} instead. See http://jira.codehaus.org/browse/SONAR-1829
    */
   @Deprecated
-  public ResourceQuery setExcludeRulePriorities(boolean excludeRulePriorities) {
-    this.excludeRuleSeverities = excludeRulePriorities;
+  public ResourceQuery setExcludeRulePriorities(boolean b) {
+    this.excludeRuleSeverities = b;
     return this;
   }
 
@@ -262,7 +259,6 @@ public class ResourceQuery extends Query<Resource> {
     appendUrlParameter(url, "depth", depth);
     appendUrlParameter(url, "limit", limit);
     appendRuleField(url, "rules", excludeRules, rules);
-    appendRuleField(url, "rule_categories", excludeRuleCategories, ruleCategories);
     appendRuleField(url, "rule_priorities", excludeRuleSeverities, ruleSeverities);
     appendUrlParameter(url, "includetrends", includeTrends);
     appendUrlParameter(url, "model", model);

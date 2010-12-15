@@ -147,4 +147,11 @@ public class Violation extends Model {
     this.createdAt = createdAt;
     return this;
   }
+
+  /**
+   * @since 2.5
+   */
+  public boolean isCreatedAfter(Date date) {
+    return createdAt!=null && date!=null && !createdAt.before(date);
+  }
 }

@@ -39,16 +39,16 @@ public class ViolationsPanel extends SourcePanel {
 
   public ViolationsPanel(Resource resource, String filter) {
     super(resource);
-    loadViolations(resource, filter);
+    loadViolations(resource, filter, null);
   }
 
-  protected void loadViolations(final Resource resource, final String filter) {
+  protected void loadViolations(final Resource resource, final String filter, final Date fromDate) {
     Sonar.getInstance().findAll(ViolationQuery.createForResource(resource), new AbstractListCallback<Violation>() {
 
       @Override
       protected void doOnResponse(List<Violation> violations) {
         ViolationsPanel.this.violations = violations;
-        filter(filter);
+        filter(filter, fromDate);
         setStarted();
       }
     });
@@ -62,10 +62,10 @@ public class ViolationsPanel extends SourcePanel {
     this.expand = expand;
   }
 
-  public void filter(String filter) {
+  public void filter(String filter, Date fromDate) {
     filteredViolationsByLine.clear();
     for (Violation violation : violations) {
-      if (filter == null || filter.equals("") || violation.getRuleKey().equals(filter) || violation.getPriority().equals(filter)) {
+      if (filter == null || filter.equals("") || violation.getRuleKey().equals(filter) || violation.getSeverity().equals(filter) || violation.isCreatedAfter(fromDate)) {
         Integer line = 0;
         if (violation.getLine() != null) {
           line = violation.getLine();

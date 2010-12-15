@@ -32,7 +32,7 @@
     <% end %>
     <% unless @project.project_links.empty? %>
       <tr>
-        <td>Links: </td>
+        <td valign="top">Links: </td>
         <td id="resource_links">
         <% @project.project_links.sort.each do |link| %>
           <%= link_to(image_tag(link.icon, :alt => link.name), link.href , :popup => true, :class => 'nolink') -%> <%= link_to(h(link.name), link.href, :popup => true) -%><br/>

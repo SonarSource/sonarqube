@@ -1,0 +1,51 @@
+<script type="text/javascript">
+  var config = {
+    "sonar_url":"<%= url_for(:controller => '/', :action => '', :only_path => true, :trailing_slash => false)[0...-2] -%>",
+    "version":"<%= sonar_version -%>",
+    "popup":<%= popup -%>
+<% if metric %>
+    ,"metric": "<%= metric -%>"
+<% end
+   if resource
+%>
+    ,"resource_key": "<%= resource.id -%>",
+    "resource":[{"id": <%= resource.id -%>, "key":"<%= resource.key -%>","scope": "<%= resource.scope -%>", "qualifier": "<%= resource.qualifier -%>", "name": "<%= resource.name -%>", "lang":"<%= resource.language -%>"}]
+    <% end %>
+    <% if @snapshot %>
+      <% if @snapshot.project_snapshot.period1_mode %>
+        ,"period1": "<%= @snapshot.project_snapshot.period1_mode -%>"
+        ,"period1_date": "<%= @snapshot.project_snapshot.period1_date.strftime("%Y-%m-%dT%H:%M:%S%z") -%>"
+      <% end
+         if @snapshot.project_snapshot.period2_mode %>
+        ,"period2": "<%= @snapshot.project_snapshot.period2_mode -%>"
+        ,"period2_date": "<%= @snapshot.project_snapshot.period2_date.strftime("%Y-%m-%dT%H:%M:%S%z") -%>"
+      <% end
+         if @snapshot.project_snapshot.period3_mode %>
+        ,"period3": "<%= @snapshot.project_snapshot.period3_mode -%>"
+        ,"period3_date": "<%= @snapshot.project_snapshot.period3_date.strftime("%Y-%m-%dT%H:%M:%S%z") -%>"
+      <% end
+         if @snapshot.project_snapshot.period4_mode %>
+        ,"period4": "<%= @snapshot.project_snapshot.period4_mode -%>"
+        ,"period4_date": "<%= @snapshot.project_snapshot.period4_date.strftime("%Y-%m-%dT%H:%M:%S%z") -%>"
+      <% end
+         if @snapshot.project_snapshot.period5_mode %>
+        ,"period5": "<%= @snapshot.project_snapshot.period5_mode -%>"
+        ,"period5_date": "<%= @snapshot.project_snapshot.period5_date.strftime("%Y-%m-%dT%H:%M:%S%z") -%>"
+      <% end %>
+    <% end %>
+  };
+
+  var rp = {
+  <%
+    index=0
+    params.each do |key,value|  
+  %>
+    <%= ',' if index>0 -%>"<%= key -%>":"<%= value -%>"
+  <%
+      index+=1
+    end
+  %>
+  };
+
+  var modules = new Object();
+</script>
