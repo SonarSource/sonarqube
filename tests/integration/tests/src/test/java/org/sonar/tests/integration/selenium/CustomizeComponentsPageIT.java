@@ -21,23 +21,28 @@ package org.sonar.tests.integration.selenium;
 
 import org.junit.Test;
 
+import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class DeployUIExtensionsTest extends SonarTestCase {
+public class CustomizeComponentsPageIT extends SonarTestCase {
 
   @Test
-  public void gwtPageIsDisplayedInHomeSidebar() throws Exception {
-    selenium.open("/");
-		assertTrue(selenium.getText("sidebar").contains("GWT sample"));
-		selenium.click("link=GWT sample");
-		selenium.waitForPageToLoad("30000");
-		assertTrue(selenium.isTextPresent("this is a GWT sample"));
+  public void defaultTreemapIsCustomizableByAdministrators() {
+    loginAsAdministrator();
+    selenium.open("/components/index/org.apache.struts:struts-parent");
+
+    // configure is OFF
+    assertFalse(selenium.isElementPresent("set_default_treemap"));
+
+    // configure is ON
+    clickAndWait("configure-on");    
+    assertTrue(selenium.isElementPresent("set_default_treemap"));
   }
 
   @Test
-  public void displayHhtmlFooter() throws Exception {
-    selenium.open("/");
-		assertTrue(selenium.getText("ft").contains("Sample footer"));
+  public void notCustomizableByAnonymous() {
+    loginAsAnonymous();
+    selenium.open("/components/index/org.apache.struts:struts-parent");
+    assertFalse(selenium.isElementPresent("configure-on"));
   }
-
 }

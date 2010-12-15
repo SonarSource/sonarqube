@@ -12,7 +12,7 @@ import java.util.List;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class ViolationsTimemachineTest {
+public class ViolationsTimeMachineIT {
 
   private static Sonar sonar;
   private static final String PROJECT = "org.sonar.tests:violations-timemachine";

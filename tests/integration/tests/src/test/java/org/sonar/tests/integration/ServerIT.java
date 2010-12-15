@@ -17,32 +17,28 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.tests.integration.selenium;
+package org.sonar.tests.integration;
 
 import org.junit.Test;
+import org.sonar.wsclient.Sonar;
+import org.sonar.wsclient.services.Server;
+import org.sonar.wsclient.services.ServerQuery;
 
-import static junit.framework.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
-public class CustomizeComponentsPageTest extends SonarTestCase {
+public class ServerIT {
 
   @Test
-  public void defaultTreemapIsCustomizableByAdministrators() {
-    loginAsAdministrator();
-    selenium.open("/components/index/org.apache.struts:struts-parent");
-
-    // configure is OFF
-    assertFalse(selenium.isElementPresent("set_default_treemap"));
-
-    // configure is ON
-    clickAndWait("configure-on");    
-    assertTrue(selenium.isElementPresent("set_default_treemap"));
+  public void shouldGetVersion() {
+    Sonar sonar = ITUtils.createSonarWsClient();
+    assertThat(sonar.find(new ServerQuery()).getVersion(), endsWith("-SNAPSHOT"));
   }
 
   @Test
-  public void notCustomizableByAnonymous() {
-    loginAsAnonymous();
-    selenium.open("/components/index/org.apache.struts:struts-parent");
-    assertFalse(selenium.isElementPresent("configure-on"));
+  public void shouldGetStatus() {
+    Sonar sonar = ITUtils.createSonarWsClient();
+    assertThat(sonar.find(new ServerQuery()).getStatus(), is(Server.Status.UP));
   }
 }

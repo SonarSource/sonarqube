@@ -33,7 +33,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertThat;
 
-public class UpdateCenterTest {
+public class UpdateCenterIT {
 
   @Test
   public void shouldGetInstalledPlugins() {

@@ -44,7 +44,7 @@ import static org.junit.Assert.assertThat;
  * <p/>
  * The quality profile to use is the default one configured in IT (see the file integration-tests-backup.xml).
  */
-public class Struts139Test {
+public class Struts139IT {
 
   private static Sonar sonar;
   private static final String PROJECT_STRUTS = "org.apache.struts:struts-parent";

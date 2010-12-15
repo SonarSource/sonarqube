@@ -81,7 +81,7 @@
             <phase>package</phase>
             <configuration>
               <tasks>
-                <ant dir="${basedir}" inheritRefs="true">
+                <ant dir="${project.basedir}" inheritRefs="true">
                   <property name="plugin_classpath" refid="maven.plugin.classpath" />
                   <target name="prepare-extensions" />
                 </ant>
