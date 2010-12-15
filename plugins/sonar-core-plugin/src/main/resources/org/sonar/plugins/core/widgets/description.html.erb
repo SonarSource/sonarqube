@@ -1,29 +1,45 @@
 <div class="widget box">
   <% if @project.description.present? %>
-  <%= h @project.description %><br/>
+    <p class="marginbottom10"><%= h @project.description %></p>
   <% end %>
 
-  Key : <%= @project.key %><br/>
-<% if @project.language %>
-  Language : <%= @project.language %><br/>
-<% end %>
-
-  <table width="100%">
-  <%  links_count=@project.project_links.size
-      if links_count > 0 %>
-    <tr><td width="50%">
-      <% @project.project_links.sort.each_with_index do |link, index| %>
-      <% if index==links_count/2 %></td><td width="50%"><% end %>
-      <%= link_to(image_tag(link.icon, :alt => link.name), link.href , :popup => true, :class => 'nolink') -%>
-      <%= link_to(h(link.name), link.href, :popup => true) -%><br/>
+  <table class="width100 marginbottom10">
+    <tbody>
+    <tr>
+      <td>Key: </td>
+      <td><%= @project.key -%></td>
+    </tr>
+    <% if @project.language %>
+    <tr>
+      <td>Language: </td>
+      <td><%= @project.language -%></td>
+    </tr>
     <% end %>
-    </td></tr>
-  <% end %>
-  <% if Project::SCOPE_SET==@project.scope %>
-  <tr><td colspan="2">
-     <a href="<%= url_for :controller => :feeds, :action => 'project', :id => @project.key, :category => EventCategory::KEY_ALERT -%>" class="nolink"><%= image_tag 'feed-icon-14x14.png' %></a>
-     <a href="<%= url_for :controller => :feeds, :action => 'project', :id => @project.key, :category => EventCategory::KEY_ALERT -%>" class="action">Alerts feed</a>
-  </td></tr>
-  <% end %>
+    <%
+      profile_measure=@snapshot.measure(Metric::PROFILE)
+      if profile_measure
+    %>
+    <tr>
+      <td>Profile:</td>
+      <td><%= link_to profile_measure.data, {:controller => '/rules_configuration', :action => 'index', :id => profile_measure.value.to_i}, :id => 'profile_link' -%></td>
+    </tr>
+    <% end %>
+    <% if Project::SCOPE_SET==@project.scope %>
+    <tr>
+      <td>Alerts: </td>
+      <td><%= image_tag 'feed-icon-14x14.png' -%> <a href="<%= url_for :controller => :feeds, :action => 'project', :id => @project.key, :category => EventCategory::KEY_ALERT -%>" class="action">RSS Feed</a></td>
+    </tr>
+    <% end %>
+    <% unless @project.project_links.empty? %>
+      <tr>
+        <td>Links: </td>
+        <td>
+        <% @project.project_links.sort.each do |link| %>
+          <%= link_to(image_tag(link.icon, :alt => link.name), link.href , :popup => true, :class => 'nolink') -%> <%= link_to(h(link.name), link.href, :popup => true) -%><br/>
+        <% end %>
+        </td>
+      </tr>
+    <% end %>
+    </tbody>
   </table>
 </div>
