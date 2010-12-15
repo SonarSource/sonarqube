@@ -7,12 +7,12 @@
     <tbody>
     <tr>
       <td>Key: </td>
-      <td><%= @project.key -%></td>
+      <td id="resource_key"><%= @project.key -%></td>
     </tr>
     <% if @project.language %>
     <tr>
       <td>Language: </td>
-      <td><%= @project.language -%></td>
+      <td id="resource_language"><%= @project.language -%></td>
     </tr>
     <% end %>
     <%
@@ -21,7 +21,7 @@
     %>
     <tr>
       <td>Profile:</td>
-      <td><%= link_to profile_measure.data, {:controller => '/rules_configuration', :action => 'index', :id => profile_measure.value.to_i}, :id => 'profile_link' -%></td>
+      <td id="resource_profile"><%= link_to profile_measure.data, {:controller => '/rules_configuration', :action => 'index', :id => profile_measure.value.to_i}, :id => 'profile_link' -%></td>
     </tr>
     <% end %>
     <% if Project::SCOPE_SET==@project.scope %>
@@ -33,7 +33,7 @@
     <% unless @project.project_links.empty? %>
       <tr>
         <td>Links: </td>
-        <td>
+        <td id="resource_links">
         <% @project.project_links.sort.each do |link| %>
           <%= link_to(image_tag(link.icon, :alt => link.name), link.href , :popup => true, :class => 'nolink') -%> <%= link_to(h(link.name), link.href, :popup => true) -%><br/>
         <% end %>
