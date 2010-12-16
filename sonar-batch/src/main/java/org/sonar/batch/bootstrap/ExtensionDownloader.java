@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.ServerMetadata;
@@ -45,7 +44,6 @@ public final class ExtensionDownloader {
     String url = baseUrl + "/deploy/jdbc-driver.jar";
     try {
       File jdbcDriver = new File(workingDirectories.getRoot(), "jdbc-driver.jar");
-      LoggerFactory.getLogger(getClass()).debug("Download JDBC Driver from " + url + " to " + jdbcDriver.getAbsolutePath());
       httpDownloader.download(new URI(url), jdbcDriver);
       return jdbcDriver;
 
@@ -57,13 +55,12 @@ public final class ExtensionDownloader {
   public File downloadExtension(JpaPluginFile extension) {
     File targetFile = new File(workingDirectories.getDir(extension.getPluginKey()), extension.getFilename());
     String url = baseUrl + "/deploy/plugins/" + extension.getPluginKey() + "/" + extension.getFilename();
-    LoggerFactory.getLogger(getClass()).debug("Download " + url + " to " + targetFile.getAbsolutePath());
     try {
       httpDownloader.download(new URI(url), targetFile);
       return targetFile;
 
     } catch (URISyntaxException e) {
-      throw new SonarException("Can not download extension: " + url, e);
+      throw new SonarException("Fail to download extension: " + url, e);
     }
   }
 }
