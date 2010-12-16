@@ -64,6 +64,8 @@ public final class RegisterRules {
     profiler.start("Disable deprecated active rules");
     deleteDisabledActiveRules(session);
     profiler.stop();
+
+    session.commit();
   }
 
   private void disableDeprecatedUserRules(DatabaseSession session) {
@@ -81,12 +83,11 @@ public final class RegisterRules {
       rule.setEnabled(false);
       session.saveWithoutFlush(rule);
     }
-    session.commit();
+
   }
 
   private void disableAllRules(DatabaseSession session) {
     session.createQuery("UPDATE " + Rule.class.getSimpleName() + " SET enabled=false WHERE parent IS NULL").executeUpdate();
-    session.commit();
   }
 
   private void registerRepository(RuleRepository repository, DatabaseSession session) {
@@ -107,7 +108,6 @@ public final class RegisterRules {
     }
 
     saveNewRules(rulesByKey.values(), session);
-    session.commit();
   }
 
   private void deleteDisabledActiveRules(DatabaseSession session) {
@@ -117,9 +117,6 @@ public final class RegisterRules {
         .getResultList();
     for (ActiveRule deprecatedActiveRule : deprecatedActiveRules) {
       session.removeWithoutFlush(deprecatedActiveRule);
-    }
-    if (!deprecatedActiveRules.isEmpty()) {
-      session.commit();
     }
   }
 
@@ -173,6 +170,5 @@ public final class RegisterRules {
       rule.setEnabled(true);
       session.saveWithoutFlush(rule);
     }
-    session.commit();
   }
 }

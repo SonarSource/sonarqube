@@ -55,7 +55,6 @@ public class JpaDatabaseSession extends DatabaseSession {
   public void stop() {
     commit();
     if (entityManager != null && entityManager.isOpen()) {
-      entityManager.clear();
       entityManager.close();
       entityManager = null;
     }
@@ -69,9 +68,10 @@ public class JpaDatabaseSession extends DatabaseSession {
         } else {
           entityManager.getTransaction().commit();
         }
+        entityManager.clear();
+        index = 0;
       }
       inTransaction = false;
-      index = 0;
     }
   }
 
@@ -79,7 +79,6 @@ public class JpaDatabaseSession extends DatabaseSession {
     if (entityManager != null && inTransaction) {
       entityManager.getTransaction().rollback();
       inTransaction = false;
-      index = 0;
     }
   }
 
@@ -110,7 +109,7 @@ public class JpaDatabaseSession extends DatabaseSession {
   private void internalSave(Object model, boolean flushIfNeeded) {
     entityManager.persist(model);
     if (flushIfNeeded && (++index % BATCH_SIZE == 0)) {
-      flush();
+      commit();
     }
   }
 
@@ -123,7 +122,7 @@ public class JpaDatabaseSession extends DatabaseSession {
     startTransaction();
     entityManager.remove(model);
     if (++index % BATCH_SIZE == 0) {
-      flush();
+      commit();
     }
   }
 
@@ -144,10 +143,6 @@ public class JpaDatabaseSession extends DatabaseSession {
     }
   }
 
-  public void flush() {
-    entityManager.flush();
-    entityManager.clear();
-  }
 
   public Query createQuery(String hql) {
     startTransaction();

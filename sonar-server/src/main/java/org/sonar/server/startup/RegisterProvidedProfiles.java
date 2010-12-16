@@ -68,6 +68,7 @@ public final class RegisterProvidedProfiles {
     DatabaseSession session = sessionFactory.getSession();
     cleanProvidedProfiles(profiles, session);
     saveProvidedProfiles(profiles, session);
+    session.commit();
     profiler.stop();
   }
 
@@ -108,7 +109,6 @@ public final class RegisterProvidedProfiles {
         existingProfile.setActiveRules(new ArrayList<ActiveRule>());
         session.saveWithoutFlush(existingProfile);
       }
-      session.commit();
     }
     profiler.stop();
   }
@@ -130,7 +130,6 @@ public final class RegisterProvidedProfiles {
       }
 
       session.saveWithoutFlush(persistedProfile);
-      session.commit();
       profiler.stop();
     }
 
