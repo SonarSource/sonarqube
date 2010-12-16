@@ -19,6 +19,8 @@
  */
 package org.sonar.server.plugins;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -35,9 +37,6 @@ import org.sonar.core.plugin.JpaPluginDao;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.ServerStartException;
 import org.sonar.updatecenter.common.PluginKeyUtils;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import java.io.File;
 import java.io.IOException;
@@ -105,7 +104,7 @@ public final class PluginDeployer implements ServerComponent {
   public List<String> getUninstalls() {
     List<String> names = Lists.newArrayList();
     if (fileSystem.getRemovedPluginsDir().exists()) {
-      List<File> files = (List<File>) FileUtils.listFiles(fileSystem.getRemovedPluginsDir(), new String[] { "jar" }, false);
+      List<File> files = (List<File>) FileUtils.listFiles(fileSystem.getRemovedPluginsDir(), new String[]{"jar"}, false);
       for (File file : files) {
         names.add(file.getName());
       }
@@ -115,7 +114,7 @@ public final class PluginDeployer implements ServerComponent {
 
   public void cancelUninstalls() {
     if (fileSystem.getRemovedPluginsDir().exists()) {
-      List<File> files = (List<File>) FileUtils.listFiles(fileSystem.getRemovedPluginsDir(), new String[] { "jar" }, false);
+      List<File> files = (List<File>) FileUtils.listFiles(fileSystem.getRemovedPluginsDir(), new String[]{"jar"}, false);
       for (File file : files) {
         try {
           FileUtils.moveFileToDirectory(file, fileSystem.getUserPluginsDir(), false);
@@ -199,6 +198,7 @@ public final class PluginDeployer implements ServerComponent {
           FileUtils.copyFile(file, target);
           plugin.addDeployedFile(target);
         }
+        FileUtils.deleteQuietly(tempDir);
       }
       classloaders.create(plugin);
 
@@ -221,7 +221,7 @@ public final class PluginDeployer implements ServerComponent {
 
   private void moveAndLoadDownloadedPlugins() throws IOException {
     if (fileSystem.getDownloadedPluginsDir().exists()) {
-      Collection<File> jars = FileUtils.listFiles(fileSystem.getDownloadedPluginsDir(), new String[] { "jar" }, false);
+      Collection<File> jars = FileUtils.listFiles(fileSystem.getDownloadedPluginsDir(), new String[]{"jar"}, false);
       for (File jar : jars) {
         File movedJar = moveDownloadedFile(jar);
         if (movedJar != null) {
@@ -284,7 +284,7 @@ public final class PluginDeployer implements ServerComponent {
 
     String mainClass = plugin.getMainClass();
     try {
-      URLClassLoader pluginClassLoader = URLClassLoader.newInstance(new URL[] { tempFile.toURI().toURL() }, getClass().getClassLoader());
+      URLClassLoader pluginClassLoader = URLClassLoader.newInstance(new URL[]{tempFile.toURI().toURL()}, getClass().getClassLoader());
       Plugin pluginInstance = (Plugin) pluginClassLoader.loadClass(mainClass).newInstance();
       plugin.setKey(PluginKeyUtils.sanitize(pluginInstance.getKey()));
       plugin.setDescription(pluginInstance.getDescription());
