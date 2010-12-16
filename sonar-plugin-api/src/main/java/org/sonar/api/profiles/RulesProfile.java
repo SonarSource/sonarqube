@@ -235,7 +235,7 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * @deprecated since 2.3 use {@link #getActiveRulesByRepository()} instead.
+   * @deprecated since 2.3 use {@link #getActiveRulesByRepository(String)} instead.
    */
   @Deprecated
   public List<ActiveRule> getActiveRulesByPlugin(String repositoryKey) {
