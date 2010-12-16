@@ -29,10 +29,10 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
-import javax.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.persistence.*;
 
 /**
  * This class is badly named. It should be "QualityProfile". Indeed it does not relate only to rules but to metric thresholds too.
@@ -81,6 +81,10 @@ public class RulesProfile implements Cloneable {
 
   @OneToMany(mappedBy = "rulesProfile", fetch = FetchType.LAZY)
   private List<ResourceModel> projects = new ArrayList<ResourceModel>();
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "parent_id", updatable = true, nullable = true)
+  private RulesProfile parentProfile;
 
   /**
    * @deprecated use the factory method create()

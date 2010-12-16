@@ -57,6 +57,12 @@ public class ActiveRule implements Cloneable {
   @OneToMany(mappedBy = "activeRule", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
   private List<ActiveRuleParam> activeRuleParams = new ArrayList<ActiveRuleParam>();
 
+  @Column(name = "inherited", updatable = true, nullable = true)
+  private Boolean inherited;
+
+  @Column(name = "overrides", updatable = true, nullable = true)
+  private Boolean overrides;
+
   /**
    * @deprecated visibility should be reduced to protected or package
    */
