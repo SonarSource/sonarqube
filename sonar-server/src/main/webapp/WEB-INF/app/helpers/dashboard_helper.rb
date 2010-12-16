@@ -29,24 +29,10 @@ module DashboardHelper
   end
 
   def period_select_options(snapshot, index)
-    return nil if snapshot.nil? || snapshot.project_snapshot.nil?
-    mode=snapshot.project_snapshot.send "period#{index}_mode"
-    mode_param=snapshot.project_snapshot.send "period#{index}_param"
-
-    if mode
-      if mode=='days'
-        label = "Compare to %s previous days" % mode_param
-      elsif mode=='version'
-        label = "Compare to version %s" % mode_param
-      elsif mode=='previous_analysis'
-        label = "Compare to previous analysis (%s)" % localize(Date.parse(mode_param))
-      elsif mode=='date'
-        label = "Compare to #{localize(Date.parse(mode_param))}"
-      end
-      if label
-        selected=(params[:period]==index.to_s ? 'selected' : '')
-        "<option value='#{index}' #{selected}>#{label}</option>"
-      end
+    label=period_label(snapshot, index)
+    if label
+      selected=(params[:period]==index.to_s ? 'selected' : '')
+      "<option value='#{index}' #{selected}>#{label}</option>"
     else
       nil
     end

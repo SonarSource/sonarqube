@@ -1,14 +1,17 @@
 <% filter=@filter_context.filter %>
 <div>
-Period:
-<form action="<%= url_for :overwrite_params => {:period => nil} -%>" style="display: inline" method="get">
-  <select name="period" onchange="submit()" class="small">
-      <option value="">None</option>
-      <% period_names.each_with_index do |name, index| %>
-         <option value="<%= index+1 -%>" <%= 'selected' if @filter_context.period_index==index+1 -%>><%= name -%></value>
-      <% end %>
-  </select>
-</form>
+  <div class="line-block">
+    <div class="operations">
+    <form action="<%= url_for :overwrite_params => {:period => nil} -%>" style="display: inline" method="get">
+      <select name="period" onchange="submit()" class="small">
+          <option value="">Trends</option>
+          <% period_names.each_with_index do |name, index| %>
+             <option value="<%= index+1 -%>" <%= 'selected' if @filter_context.period_index==index+1 -%>><%= name -%></value>
+          <% end %>
+      </select>
+    </form>
+    </div>
+  </div>
 
 <table class="data nowrap width100" id="results">
   <thead id="results-head">

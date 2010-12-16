@@ -26,6 +26,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.gen2.table.override.client.Grid;
 import com.google.gwt.user.client.ui.*;
 import org.sonar.gwt.Configuration;
+import org.sonar.gwt.JsonUtils;
 import org.sonar.gwt.Metrics;
 import org.sonar.gwt.ui.Icons;
 import org.sonar.gwt.ui.Loading;
@@ -36,8 +37,7 @@ import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.*;
 
 public class ViolationsViewer extends Page {
   public static final String GWT_ID = "org.sonar.plugins.core.violationsviewer.ViolationsViewer";
@@ -49,6 +49,7 @@ public class ViolationsViewer extends Page {
   // header
   private Grid header = null;
   private ListBox filterBox = null, periodBox = null;
+  private List<Date> dateFilters = new ArrayList<Date>();
   private CheckBox expandCheckbox = null;
   private String defaultFilter;
 
@@ -70,26 +71,11 @@ public class ViolationsViewer extends Page {
     header.setStylePrimaryName("gwt-ViewerHeader");
     header.getCellFormatter().setStyleName(0, 0, "thin left");
 
-    initDefaultFilter();
-    sourcePanel = new ViolationsPanel(resource, defaultFilter);
 
     header.getCellFormatter().setStyleName(0, 1, "right");
 
-    filterBox = new ListBox();
-    filterBox.addItem(I18nConstants.INSTANCE.noFilters(), "");
-    filterBox.setStyleName("small");
-    filterBox.addChangeHandler(new ChangeHandler() {
-      public void onChange(ChangeEvent event) {
-        String filter = filterBox.getValue(filterBox.getSelectedIndex());
-        loadSources();
-        sourcePanel.filter(filter, null);
-        sourcePanel.refresh();
-      }
-    });
-
-    periodBox = new ListBox();
-    periodBox.addItem(I18nConstants.INSTANCE.noFilters(), "");
-    periodBox.setStyleName("small");
+    initDefaultFilter();
+    initFilterBoxes();
 
     header.setWidget(0, 1, periodBox);
     header.getCellFormatter().setStyleName(0, 1, "thin cell right");
@@ -111,8 +97,66 @@ public class ViolationsViewer extends Page {
     header.setWidget(0, 4, expandCheckbox);
     header.getCellFormatter().setStyleName(0, 4, "thin cell left");
 
+    sourcePanel = new ViolationsPanel(resource, getCurrentRuleFilter(), getCurrentDateFilter());
+
     loadRuleSeverities();
     return mainPanel;
+  }
+
+  private void initFilterBoxes() {
+    initFilterBox();
+    initPeriodBox();
+
+    ChangeHandler changeHandler = new ChangeHandler() {
+      public void onChange(ChangeEvent event) {
+        loadSources();
+        sourcePanel.filter(getCurrentRuleFilter(), getCurrentDateFilter());
+        sourcePanel.refresh();
+      }
+    };
+    filterBox.addChangeHandler(changeHandler);
+    periodBox.addChangeHandler(changeHandler);
+  }
+
+  private void initFilterBox() {
+    filterBox = new ListBox();
+    filterBox.addItem(I18nConstants.INSTANCE.noFilters(), "");
+    filterBox.setStyleName("small");
+  }
+
+  private void initPeriodBox() {
+    periodBox = new ListBox();
+    periodBox.setStyleName("small");
+    periodBox.addItem(I18nConstants.INSTANCE.noFilters());
+
+    initPeriod(1);
+    initPeriod(2);
+    initPeriod(3);
+    initPeriod(4);
+    initPeriod(5);
+  }
+
+  private void initPeriod(int periodIndex) {
+    String period = Configuration.getParameter("period" + periodIndex);
+    if (period != null) {
+      Date date = JsonUtils.parseDateTime(Configuration.getParameter("period" + periodIndex + "_date"));
+      if (date != null) {
+        periodBox.addItem(period);
+        dateFilters.add(date);
+      }
+    }
+  }
+
+  private Date getCurrentDateFilter() {
+    Date dateFilter = null;
+    if (periodBox.getSelectedIndex() > 0) {
+      dateFilter = dateFilters.get(periodBox.getSelectedIndex() - 1);
+    }
+    return dateFilter;
+  }
+
+  private String getCurrentRuleFilter() {
+    return filterBox.getValue(filterBox.getSelectedIndex());
   }
 
   private void initDefaultFilter() {

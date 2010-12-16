@@ -13,23 +13,23 @@
     <% end %>
     <% if @snapshot %>
       <% if @snapshot.project_snapshot.period1_mode %>
-        ,"period1": "<%= @snapshot.project_snapshot.period1_mode -%>"
+        ,"period1": "<%= period_label(@snapshot, 1) -%>"
         ,"period1_date": "<%= @snapshot.project_snapshot.period1_date.strftime("%Y-%m-%dT%H:%M:%S%z") -%>"
       <% end
          if @snapshot.project_snapshot.period2_mode %>
-        ,"period2": "<%= @snapshot.project_snapshot.period2_mode -%>"
+        ,"period2": "<%= period_label(@snapshot, 2) -%>"
         ,"period2_date": "<%= @snapshot.project_snapshot.period2_date.strftime("%Y-%m-%dT%H:%M:%S%z") -%>"
       <% end
          if @snapshot.project_snapshot.period3_mode %>
-        ,"period3": "<%= @snapshot.project_snapshot.period3_mode -%>"
+        ,"period3": "<%= period_label(@snapshot, 3) -%>"
         ,"period3_date": "<%= @snapshot.project_snapshot.period3_date.strftime("%Y-%m-%dT%H:%M:%S%z") -%>"
       <% end
          if @snapshot.project_snapshot.period4_mode %>
-        ,"period4": "<%= @snapshot.project_snapshot.period4_mode -%>"
+        ,"period4": "<%= period_label(@snapshot, 4) -%>"
         ,"period4_date": "<%= @snapshot.project_snapshot.period4_date.strftime("%Y-%m-%dT%H:%M:%S%z") -%>"
       <% end
          if @snapshot.project_snapshot.period5_mode %>
-        ,"period5": "<%= @snapshot.project_snapshot.period5_mode -%>"
+        ,"period5": "<%= period_label(@snapshot, 5) -%>"
         ,"period5_date": "<%= @snapshot.project_snapshot.period5_date.strftime("%Y-%m-%dT%H:%M:%S%z") -%>"
       <% end %>
     <% end %>

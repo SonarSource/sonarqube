@@ -75,6 +75,26 @@ module ApplicationHelper
     params['configuring']=='true'
   end
 
+  def period_label(snapshot, period_index)
+    return nil if snapshot.nil? || snapshot.project_snapshot.nil?
+    mode=snapshot.project_snapshot.send "period#{period_index}_mode"
+    mode_param=snapshot.project_snapshot.send "period#{period_index}_param"
+
+    label=''
+    if mode
+      if mode=='days'
+        label = "%s previous days" % mode_param
+      elsif mode=='version'
+        label = "Version %s" % mode_param
+      elsif mode=='previous_analysis'
+        label = "Previous analysis (%s)" % localize(Date.parse(mode_param))
+      elsif mode=='date'
+        label = "Date: #{localize(Date.parse(mode_param))}"
+      end
+    end
+    label
+  end
+
   def html_measure(measure, metric_name=nil, show_alert_status=true, url=nil, suffix='', small=true, no_tendency_img=false)
     html=''
 

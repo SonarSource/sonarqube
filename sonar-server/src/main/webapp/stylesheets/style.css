@@ -571,6 +571,10 @@ table.form td img {
   display: inline-block;
   width: 100%;
 }
+div.operations {
+  float: right;
+  margin: 0;
+}
 ul.operations {
   float: right;
   list-style-type: none;

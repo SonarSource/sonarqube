@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.violationsviewer.client;
 
+import com.google.gwt.user.client.Window;
 import org.sonar.gwt.Links;
 import org.sonar.gwt.Utils;
 import org.sonar.gwt.ui.Icons;
@@ -37,9 +38,9 @@ public class ViolationsPanel extends SourcePanel {
   private Map<Integer, List<Violation>> filteredViolationsByLine = new HashMap<Integer, List<Violation>>();
   private final static Date now = new Date();
 
-  public ViolationsPanel(Resource resource, String filter) {
+  public ViolationsPanel(Resource resource, String filter, Date fromDate) {
     super(resource);
-    loadViolations(resource, filter, null);
+    loadViolations(resource, filter, fromDate);
   }
 
   protected void loadViolations(final Resource resource, final String filter, final Date fromDate) {
@@ -65,7 +66,11 @@ public class ViolationsPanel extends SourcePanel {
   public void filter(String filter, Date fromDate) {
     filteredViolationsByLine.clear();
     for (Violation violation : violations) {
-      if (filter == null || filter.equals("") || violation.getRuleKey().equals(filter) || violation.getSeverity().equals(filter) || violation.isCreatedAfter(fromDate)) {
+      if (// check text filter
+          (filter == null || filter.equals("") || violation.getRuleKey().equals(filter) || violation.getSeverity().equals(filter)) &&
+
+          // check date filter
+          (fromDate == null || violation.isCreatedAfter(fromDate))) {
         Integer line = 0;
         if (violation.getLine() != null) {
           line = violation.getLine();
