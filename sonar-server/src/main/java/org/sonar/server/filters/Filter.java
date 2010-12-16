@@ -51,7 +51,7 @@ public class Filter {
 
   // sorting
   private Integer sortedMetricId;
-  private boolean sortedByMeasureVariation = false;
+  private Boolean sortedByMeasureVariation = Boolean.FALSE;
   private boolean sortedByLanguage;
   private boolean sortedByName;
   private boolean sortedByDate;
@@ -181,7 +181,7 @@ public class Filter {
     return setSortedMetricId(id, true, false);
   }
 
-  public Filter setSortedMetricId(Integer id, boolean isNumericValue, boolean isVariation) {
+  public Filter setSortedMetricId(Integer id, boolean isNumericValue, Boolean isVariation) {
     unsetSorts();
     this.sortedMetricId = id;
     this.useMeasureValueToSort = isNumericValue;
@@ -333,10 +333,6 @@ public class Filter {
     return periodIndex>0;
   }
 
-  public void setSortedByMeasureVariation(boolean b) {
-    this.sortedByMeasureVariation = b;
-  }
-
   static String getVariationColumn(int periodIndex) {
     switch (periodIndex) {
       case 1:
@@ -356,7 +352,7 @@ public class Filter {
   String getColumnToSort() {
     String col = "text_value";
     if (useMeasureValueToSort()) {
-      col = (sortedByMeasureVariation ? getVariationColumn (periodIndex) : "value");
+      col = (sortedByMeasureVariation==Boolean.TRUE ? getVariationColumn (periodIndex) : "value");
     }
     return col;
   }
