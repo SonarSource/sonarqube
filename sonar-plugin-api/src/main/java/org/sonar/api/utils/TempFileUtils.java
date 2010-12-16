@@ -28,16 +28,28 @@ public final class TempFileUtils {
     // only static methods
   }
 
+  /**
+   * Create a temporary directory. This directory is NOT deleted when the JVM stops, because using File#deleteOnExit()
+   * is evil (google "deleteonExit evil"). Copied from http://stackoverflow.com/questions/617414/create-a-temporary-directory-in-java :
+   * <ol>
+   * <li>deleteOnExit() only deletes for normal JVM shutdowns, not crashes or killing the JVM process</li>
+   * <li>deleteOnExit() only deletes on JVM shutdown - not good for long running server processes because 3 :</li>
+   * <li>The most evil of all - deleteOnExit() consumes memory for each temp file entry. If your process is running for months, or creates a lot of temp files in a short time, you consume memory and never release it until the JVM shuts down.</li>
+   * </ol>
+   */
   public static File createTempDirectory() throws IOException {
-    final File temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
-    if (!(temp.delete())) {
+    return createTempDirectory("temp");
+  }
+
+  public static File createTempDirectory(String prefix) throws IOException {
+    final File temp = File.createTempFile(prefix, Long.toString(System.nanoTime()));
+    if (!temp.delete()) {
       throw new IOException("Could not delete temp file: " + temp.getAbsolutePath());
     }
 
-    if (!(temp.mkdir())) {
+    if (!temp.mkdir()) {
       throw new IOException("Could not create temp directory: " + temp.getAbsolutePath());
     }
     return temp;
   }
-
 }
