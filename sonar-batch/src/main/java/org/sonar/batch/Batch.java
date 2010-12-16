@@ -29,6 +29,10 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.ServerHttpClient;
+import org.sonar.batch.bootstrap.BatchPluginRepository;
+import org.sonar.batch.bootstrap.BootstrapClassLoader;
+import org.sonar.batch.bootstrap.ExtensionDownloader;
+import org.sonar.batch.bootstrap.TempDirectories;
 import org.sonar.batch.index.*;
 import org.sonar.core.components.CacheMetricFinder;
 import org.sonar.core.components.CacheRuleFinder;
@@ -58,7 +62,7 @@ public class Batch {
     try {
       container = buildPicoContainer();
       container.start();
-      analyzeProjects(container);
+      analyzeModules(container);
 
     } finally {
       if (container != null) {
@@ -67,10 +71,9 @@ public class Batch {
     }
   }
 
-  private void analyzeProjects(MutablePicoContainer container) {
+  private void analyzeModules(MutablePicoContainer container) {
     // a child container is built to ensure database connector is up
     MutablePicoContainer batchContainer = container.makeChildContainer();
-    batchContainer.as(Characteristics.CACHE).addComponent(ServerMetadata.class);
     batchContainer.as(Characteristics.CACHE).addComponent(ProjectTree.class);
     batchContainer.as(Characteristics.CACHE).addComponent(DefaultResourceCreationLock.class);
     batchContainer.as(Characteristics.CACHE).addComponent(DefaultIndex.class);
@@ -86,7 +89,6 @@ public class Batch {
     batchContainer.as(Characteristics.CACHE).addComponent(BatchPluginRepository.class);
     batchContainer.as(Characteristics.CACHE).addComponent(Plugins.class);
     batchContainer.as(Characteristics.CACHE).addComponent(ServerHttpClient.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(HttpDownloader.class);
     batchContainer.as(Characteristics.CACHE).addComponent(MeasuresDao.class);
     batchContainer.as(Characteristics.CACHE).addComponent(CacheRuleFinder.class);
     batchContainer.as(Characteristics.CACHE).addComponent(CacheMetricFinder.class);
@@ -94,7 +96,7 @@ public class Batch {
 
     ProjectTree projectTree = batchContainer.getComponent(ProjectTree.class);
     DefaultIndex index = batchContainer.getComponent(DefaultIndex.class);
-    analyzeProject(batchContainer, index, projectTree.getRootProject());
+    analyzeModule(batchContainer, index, projectTree.getRootProject());
 
     // batchContainer is stopped by its parent
   }
@@ -103,11 +105,17 @@ public class Batch {
     MutablePicoContainer container = IocContainer.buildPicoContainer();
 
     register(container, configuration);
-    URLClassLoader fullClassloader = RemoteClassLoader.createForJdbcDriver(configuration).getClassLoader();
-    // set as the current context classloader for hibernate, else it does not find the JDBC driver.
-    Thread.currentThread().setContextClassLoader(fullClassloader);
+    register(container, ServerMetadata.class);// registered here because used by BootstrapClassLoader
+    register(container, TempDirectories.class);// registered here because used by BootstrapClassLoader
+    register(container, HttpDownloader.class);// registered here because used by BootstrapClassLoader
+    register(container, ExtensionDownloader.class);// registered here because used by BootstrapClassLoader
+    register(container, BootstrapClassLoader.class);
 
-    register(container, new DriverDatabaseConnector(configuration, fullClassloader));
+    URLClassLoader bootstrapClassLoader = container.getComponent(BootstrapClassLoader.class).getClassLoader();
+    // set as the current context classloader for hibernate, else it does not find the JDBC driver.
+    Thread.currentThread().setContextClassLoader(bootstrapClassLoader);
+
+    register(container, new DriverDatabaseConnector(configuration, bootstrapClassLoader));
     register(container, ThreadLocalDatabaseSessionFactory.class);
     container.as(Characteristics.CACHE).addAdapter(new DatabaseSessionProvider());
     for (Object component : components) {
@@ -120,9 +128,9 @@ public class Batch {
     container.as(Characteristics.CACHE).addComponent(component);
   }
 
-  private void analyzeProject(MutablePicoContainer container, DefaultIndex index, Project project) {
+  private void analyzeModule(MutablePicoContainer container, DefaultIndex index, Project project) {
     for (Project module : project.getModules()) {
-      analyzeProject(container, index, module);
+      analyzeModule(container, index, module);
     }
     LOG.info("-------------  Analyzing {}", project.getName());
 

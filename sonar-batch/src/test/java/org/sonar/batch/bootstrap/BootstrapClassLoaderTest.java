@@ -17,25 +17,27 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch;
+package org.sonar.batch.bootstrap;
 
 import org.junit.Test;
 
+import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 
-public class RemoteClassLoaderTest {
+public class BootstrapClassLoaderTest {
 
   @Test
-  public void testClassLoader() {
+  public void testClassLoader() throws URISyntaxException {
     /* foo.jar has just one file /foo/foo.txt */
     assertNull(getClass().getClassLoader().getResource("foo/foo.txt"));
 
-    URL url = getClass().getResource("/org/sonar/batch/RemoteClassLoaderTest/foo.jar");
-    RemoteClassLoader classloader = new RemoteClassLoader(Arrays.asList(url), null);
+    URL url = getClass().getResource("/org/sonar/batch/bootstrap/BootstrapClassLoaderTest/foo.jar");
+    BootstrapClassLoader classloader = new BootstrapClassLoader(new File(url.toURI()));
     assertNotNull(classloader.getClassLoader());
     assertNotNull(classloader.getClassLoader().getResource("foo/foo.txt"));
     

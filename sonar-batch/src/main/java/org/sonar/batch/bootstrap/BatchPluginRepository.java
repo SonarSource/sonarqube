@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch;
+package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
@@ -39,6 +39,7 @@ import org.sonar.core.plugin.JpaPlugin;
 import org.sonar.core.plugin.JpaPluginDao;
 import org.sonar.core.plugin.JpaPluginFile;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -47,14 +48,14 @@ public class BatchPluginRepository extends AbstractPluginRepository {
 
   private static final Logger LOG = LoggerFactory.getLogger(BatchPluginRepository.class);
 
-  private String baseUrl;
   private JpaPluginDao dao;
 
   private ClassLoadersCollection classLoaders;
+  private ExtensionDownloader extensionDownloader;
 
-  public BatchPluginRepository(JpaPluginDao dao, ServerMetadata server) {
+  public BatchPluginRepository(JpaPluginDao dao, ExtensionDownloader extensionDownloader) {
     this.dao = dao;
-    this.baseUrl = server.getURL() + "/deploy/plugins/";
+    this.extensionDownloader = extensionDownloader;
   }
 
   /**
@@ -70,11 +71,12 @@ public class BatchPluginRepository extends AbstractPluginRepository {
       String key = pluginMetadata.getKey();
       List<URL> urls = Lists.newArrayList();
       for (JpaPluginFile pluginFile : pluginMetadata.getFiles()) {
+        File file = extensionDownloader.downloadExtension(pluginFile);
         try {
-          URL url = new URL(baseUrl + pluginFile.getPath());
-          urls.add(url);
+          urls.add(file.toURI().toURL());
+          
         } catch (MalformedURLException e) {
-          throw new SonarException("Can not build the classloader of the plugin " + pluginFile.getPluginKey(), e);
+          throw new SonarException("Can not get the URL of: " + file, e);
         }
       }
       if (LOG.isDebugEnabled()) {

@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch;
+package org.sonar.batch.bootstrap;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -32,6 +32,7 @@ import org.sonar.api.batch.AbstractCoverageExtension;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.IocContainer;
+import org.sonar.batch.bootstrap.BatchPluginRepository;
 
 public class BatchPluginRepositoryTest {
 

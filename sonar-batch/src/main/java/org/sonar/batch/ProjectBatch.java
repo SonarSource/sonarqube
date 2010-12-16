@@ -35,6 +35,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.bootstrap.BatchPluginRepository;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.phases.Phases;
