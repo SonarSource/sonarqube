@@ -19,13 +19,10 @@
  */
 package org.sonar.server.configuration;
 
-import org.sonar.api.Plugins;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.ActiveRuleParam;
-import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.rules.Rule;
 import org.sonar.jpa.dao.BaseDao;
 import org.sonar.jpa.dao.RulesDao;
@@ -34,15 +31,11 @@ import java.util.List;
 
 public class ProfilesManager extends BaseDao {
 
-  private DefaultRulesManager rulesManager;
   private RulesDao rulesDao;
-  private Plugins plugins;
 
-  public ProfilesManager(DatabaseSession session, RulesDao rulesDao, Plugins plugins, DefaultRulesManager rulesManager) {
+  public ProfilesManager(DatabaseSession session, RulesDao rulesDao) {
     super(session);
-    this.rulesManager = rulesManager;
     this.rulesDao = rulesDao;
-    this.plugins = plugins;
   }
 
   public void copyProfile(int profileId, String newProfileName) {
@@ -133,10 +126,6 @@ public class ProfilesManager extends BaseDao {
       removeActiveRule(profile, activeRule);
     }
     activeRule = (ActiveRule) parentActiveRule.clone();
-    // TODO Godin: it means that we have bug in ActiveRule.clone()
-    for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
-      param.setActiveRule(activeRule);
-    }
     activeRule.setRulesProfile(profile);
     activeRule.setInherited(true);
     profile.getActiveRules().add(activeRule);

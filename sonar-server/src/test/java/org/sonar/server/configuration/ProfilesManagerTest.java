@@ -35,7 +35,7 @@ public class ProfilesManagerTest extends AbstractDbUnitTestCase {
 
   @Before
   public void setup() {
-    manager = new ProfilesManager(getSession(), null, null, null);
+    manager = new ProfilesManager(getSession(), null);
   }
 
   @Test

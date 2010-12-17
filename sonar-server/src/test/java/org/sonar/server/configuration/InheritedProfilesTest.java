@@ -9,7 +9,7 @@ public class InheritedProfilesTest extends AbstractDbUnitTestCase {
 
   @Before
   public void setUp() {
-    profilesManager = new ProfilesManager(getSession(), null, null, null);
+    profilesManager = new ProfilesManager(getSession(), null);
   }
 
   @Test
