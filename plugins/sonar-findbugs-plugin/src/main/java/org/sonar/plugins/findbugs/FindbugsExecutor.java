@@ -19,13 +19,8 @@
  */
 package org.sonar.plugins.findbugs;
 
-import java.io.File;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
+import edu.umd.cs.findbugs.*;
+import edu.umd.cs.findbugs.config.UserPreferences;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
@@ -35,13 +30,12 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 
-import edu.umd.cs.findbugs.Detector;
-import edu.umd.cs.findbugs.DetectorFactoryCollection;
-import edu.umd.cs.findbugs.FindBugs;
-import edu.umd.cs.findbugs.FindBugs2;
-import edu.umd.cs.findbugs.Project;
-import edu.umd.cs.findbugs.XMLBugReporter;
-import edu.umd.cs.findbugs.config.UserPreferences;
+import java.io.File;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @since 2.4
@@ -108,7 +102,7 @@ public class FindbugsExecutor implements BatchExtension {
     }
   }
 
-  private class FindbugsTask implements Callable<Object> {
+  private static class FindbugsTask implements Callable<Object> {
 
     private FindBugs2 engine;
 
