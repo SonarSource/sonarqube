@@ -29,7 +29,7 @@ class RulesConfigurationController < ApplicationController
   RULE_PRIORITIES = Sonar::RulePriority.as_options.reverse
 
   # GETs should be safe (see http://www.w3.org/2001/tag/doc/whenToUseGet.html)
-  verify :method => :post, :only => ['activate_rule', 'update_param', 'bulk_edit', 'create', 'update', 'delete'], :redirect_to => { :action => 'index' }
+  verify :method => :post, :only => ['activate_rule', 'update_param', 'bulk_edit', 'create', 'update', 'delete', 'change_parent'], :redirect_to => { :action => 'index' }
 
   before_filter :admin_required, :except => [ 'index', 'export' ]
 
@@ -55,6 +55,9 @@ class RulesConfigurationController < ApplicationController
     @select_priority = ANY_SELECTION + RULE_PRIORITIES
     @select_status = [['Any',''], ["Active", STATUS_ACTIVE], ["Inactive", STATUS_INACTIVE]]
 
+    @child_profiles = RulesProfile.find(:all, :conditions => {:parent_id => @profile.id})
+    @select_parent = [['', nil]] + RulesProfile.find(:all, :conditions => {:language => @profile.language, :parent_id => nil}).collect { |profile| [profile.name, profile.id] }.sort
+
     @rules = Rule.search(java_facade, {
         :profile => @profile, :status => @status, :priorities => @priorities,
         :plugins =>  @plugins, :searchtext => @searchtext, :include_parameters => true, :language => @profile.language})
@@ -77,6 +80,23 @@ class RulesConfigurationController < ApplicationController
 
   #
   #
+  # POST /rules_configuration/change_parent?id=<profile id>&parent_id=<parent profile id>
+  #
+  #
+  def change_parent
+    id = params[:id].to_i
+    parent_id = params[:parent_id]
+    if parent_id.blank?
+      java_facade.changeParentProfile(id, nil)
+    else
+      java_facade.changeParentProfile(id, parent_id.to_i)
+    end
+    redirect_to :action => 'index', :id => params[:id]
+  end
+
+
+  #
+  #
   # POST /rules_configuration/activate_rule?id=<profile id>&rule_id=<rule id>&level=<priority>
   #
   # If the parameter "level" is blank or null, then the rule is removed from the profile.
@@ -93,6 +113,7 @@ class RulesConfigurationController < ApplicationController
         # deactivate the rule
         active_rule.destroy if active_rule
         active_rule=nil
+        java_facade.ruleDeactivated(profile.id, rule.id)
       else
         # activate the rule
         if active_rule.nil?
@@ -103,6 +124,7 @@ class RulesConfigurationController < ApplicationController
         end
         active_rule.failure_level=Sonar::RulePriority.id(priority)
         active_rule.save!
+        java_facade.ruleActivatedOrChanged(profile.id, active_rule.id)
       end
 
       is_admin=true # security has already been checked by controller filters
@@ -275,6 +297,7 @@ class RulesConfigurationController < ApplicationController
         active_param.destroy
         active_param = nil
       end
+      java_facade.ruleActivatedOrChanged(profile.id, active_rule.id)
     end
     render :partial => 'rule_param', :object => nil,
       :locals => {:parameter => rule_param, :active_parameter => active_param, :profile => profile, :active_rule => active_rule, :is_admin => is_admin }
@@ -290,7 +313,8 @@ class RulesConfigurationController < ApplicationController
       rules_to_activate=Rule.find(:all, :conditions => {:enabled=>true, :id => rule_ids_to_activate})
       count = rules_to_activate.size
       rules_to_activate.each do |rule|
-        profile.active_rules.create(:rule => rule, :failure_level => rule.priority)
+        active_rule = profile.active_rules.create(:rule => rule, :failure_level => rule.priority)
+        java_facade.ruleActivatedOrChanged(profile.id, active_rule.id)
       end
     end
     count
@@ -299,8 +323,9 @@ class RulesConfigurationController < ApplicationController
   def deactivate_rules(profile, rule_ids)
     count=0
     profile.active_rules.each do |ar|
-      if rule_ids.include?(ar.rule_id)
+      if rule_ids.include?(ar.rule_id) && !ar.inherited
         ar.destroy
+        java_facade.ruleDeactivated(profile.id, ar.rule_id)
         count+=1
       end
     end

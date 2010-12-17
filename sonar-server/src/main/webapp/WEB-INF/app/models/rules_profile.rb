@@ -21,9 +21,11 @@
 
 # DEPRECATED - use profile.rb instead
 class RulesProfile < ActiveRecord::Base
+  belongs_to :parent_profile, :class_name => 'Profile', :foreign_key => 'parent_id'
+
   has_many :active_rules, :class_name => 'ActiveRule', :foreign_key => 'profile_id',
       :dependent => :destroy, :include => ['rule']
-      
+
   has_many :alerts, :class_name => 'Alert', :foreign_key => 'profile_id',
         :dependent => :destroy
 

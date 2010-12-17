@@ -21,11 +21,13 @@ package org.sonar.server.configuration;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class ProfilesManagerTest extends AbstractDbUnitTestCase {
 
@@ -38,8 +40,10 @@ public class ProfilesManagerTest extends AbstractDbUnitTestCase {
 
   @Test
   public void testDeleteProfile() {
-    RulesProfile testDefaultProfile = new RulesProfile("default", "java", true, true);
-    RulesProfile testProfile = new RulesProfile("not default", "java", false, false);
+    RulesProfile testDefaultProfile = RulesProfile.create("default", "java");
+    testDefaultProfile.setDefaultProfile(true);
+    testDefaultProfile.setProvided(true);
+    RulesProfile testProfile = RulesProfile.create("not default", "java");
     ResourceModel testResourceWithProfile = new ResourceModel(ResourceModel.SCOPE_PROJECT, "withProfile", "qual", null, "test");
     testResourceWithProfile.setRulesProfile(testProfile);
     getSession().save(testDefaultProfile, testProfile, testResourceWithProfile);
@@ -62,9 +66,10 @@ public class ProfilesManagerTest extends AbstractDbUnitTestCase {
 
   @Test
   public void testDeleteAllProfiles() {
-
-    RulesProfile test1 = new RulesProfile("test1", "java", true, true);
-    RulesProfile test2 = new RulesProfile("test2", "java", false, false);
+    RulesProfile test1 = RulesProfile.create("test1", "java");
+    test1.setDefaultProfile(true);
+    test1.setProvided(true);
+    RulesProfile test2 = RulesProfile.create("test2", "java");
 
     ResourceModel testResourceWithProfile = new ResourceModel(ResourceModel.SCOPE_PROJECT, "withProfile", "qual", null, "test");
     testResourceWithProfile.setRulesProfile(test1);

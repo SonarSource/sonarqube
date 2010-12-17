@@ -68,6 +68,21 @@
 <% end %>
 </div>
 <div class="line-block marginbottom10">
+  <div>
+    <% if @child_profiles.size == 0 %>
+      <% if !@profile.provided? %>
+        <% parent_id = @profile.parent_profile.id if @profile.parent_profile %>
+        <% form_tag({:action => 'change_parent'}, {:method => 'post'}) do %>
+          <%= hidden_field_tag "id", @id %>
+          Parent profile: <%= select_tag "parent_id", options_for_select(@select_parent, parent_id), :disabled => !enable_modification %>
+          <%= submit_tag "Change", :id => 'submit_parent', :disabled => !enable_modification %>
+        <% end %>
+      <% end %>
+    <% else %>
+    This profile inherited by others.
+    <% end %>
+  </div>
+
   <ul style="float: right" class="horizontal">
     <li class="marginleft10">
       <div class="csv">

@@ -23,7 +23,10 @@ import org.sonar.api.Plugins;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.DefaultRulesManager;
+import org.sonar.api.rules.Rule;
 import org.sonar.jpa.dao.BaseDao;
 import org.sonar.jpa.dao.RulesDao;
 
@@ -54,6 +57,7 @@ public class ProfilesManager extends BaseDao {
   }
 
   public void deleteProfile(int profileId) {
+    // TODO should support deletion of profile with children
     RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
     if (profile != null && !profile.getProvided()) {
       String hql = "UPDATE " + ResourceModel.class.getSimpleName() + " o SET o.rulesProfile=null WHERE o.rulesProfile=:rulesProfile";
@@ -64,12 +68,98 @@ public class ProfilesManager extends BaseDao {
   }
 
   public void deleteAllProfiles() {
-    getSession().createQuery("UPDATE " + ResourceModel.class.getSimpleName() + " o SET o.rulesProfile = null WHERE o.rulesProfile IS NOT NULL").executeUpdate();
+    String hql = "UPDATE " + ResourceModel.class.getSimpleName() + " o SET o.rulesProfile = null WHERE o.rulesProfile IS NOT NULL";
+    getSession().createQuery(hql).executeUpdate();
     List profiles = getSession().createQuery("FROM " + RulesProfile.class.getSimpleName()).getResultList();
     for (Object profile : profiles) {
       getSession().removeWithoutFlush(profile);
     }
     getSession().commit();
+  }
+
+  // Managing inheritance of profiles
+  // Only one level of inheritance supported
+
+  public void changeParentProfile(Integer profileId, Integer parentId) {
+    RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
+    if (profile != null && !profile.getProvided() && profileId != parentId) {
+      RulesProfile oldParent = getProfile(profile.getParentId());
+      RulesProfile newParent = getProfile(parentId);
+      // Deactivate all inherited rules
+      if (oldParent != null) {
+        for (ActiveRule activeRule : oldParent.getActiveRules()) {
+          deactivate(profile, activeRule.getRule());
+        }
+      }
+      // Activate all inherited rules
+      if (newParent != null) {
+        for (ActiveRule activeRule : newParent.getActiveRules()) {
+          activate(profile, activeRule);
+        }
+      }
+      profile.setParentId(parentId);
+      getSession().saveWithoutFlush(profile);
+      getSession().commit();
+    }
+  }
+
+  /**
+   * Rule was activated/changed in parent profile.
+   */
+  public void activatedOrChanged(int parentProfileId, int activeRuleId) {
+    List<RulesProfile> children = getChildren(parentProfileId);
+    ActiveRule parentActiveRule = getSession().getEntity(ActiveRule.class, activeRuleId);
+    for (RulesProfile child : children) {
+      activate(child, parentActiveRule);
+    }
+    getSession().commit();
+  }
+
+  /**
+   * Rule was deactivated in parent profile.
+   */
+  public void deactivated(int parentProfileId, int ruleId) {
+    List<RulesProfile> children = getChildren(parentProfileId);
+    Rule rule = getSession().getEntity(Rule.class, ruleId);
+    for (RulesProfile child : children) {
+      deactivate(child, rule);
+    }
+    getSession().commit();
+  }
+
+  private void activate(RulesProfile profile, ActiveRule parentActiveRule) {
+    ActiveRule activeRule = profile.getActiveRule(parentActiveRule.getRule());
+    if (activeRule != null) {
+      removeActiveRule(profile, activeRule);
+    }
+    activeRule = (ActiveRule) parentActiveRule.clone();
+    // TODO Godin: it means that we have bug in ActiveRule.clone()
+    for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
+      param.setActiveRule(activeRule);
+    }
+    activeRule.setRulesProfile(profile);
+    activeRule.setInherited(true);
+    profile.getActiveRules().add(activeRule);
+  }
+
+  private void deactivate(RulesProfile profile, Rule rule) {
+    ActiveRule activeRule = profile.getActiveRule(rule);
+    if (activeRule != null) {
+      removeActiveRule(profile, activeRule);
+    }
+  }
+
+  private List<RulesProfile> getChildren(int parentId) {
+    return getSession().getResults(RulesProfile.class, "parentId", parentId, "provided", false);
+  }
+
+  private void removeActiveRule(RulesProfile profile, ActiveRule activeRule) {
+    profile.getActiveRules().remove(activeRule);
+    getSession().removeWithoutFlush(activeRule);
+  }
+
+  private RulesProfile getProfile(Integer id) {
+    return id == null ? null : getSession().getEntity(RulesProfile.class, id);
   }
 
 }

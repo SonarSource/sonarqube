@@ -82,9 +82,12 @@ public class RulesProfile implements Cloneable {
   @OneToMany(mappedBy = "rulesProfile", fetch = FetchType.LAZY)
   private List<ResourceModel> projects = new ArrayList<ResourceModel>();
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "parent_id", updatable = true, nullable = true)
-  private RulesProfile parentProfile;
+  // @ManyToOne(fetch = FetchType.LAZY)
+  // @JoinColumn(name = "parent_id", updatable = true, nullable = true)
+  // private RulesProfile parentProfile;
+
+  @Column(name = "parent_id", updatable = true, nullable = true)
+  private Integer parentId;
 
   /**
    * @deprecated use the factory method create()
@@ -191,6 +194,24 @@ public class RulesProfile implements Cloneable {
   public RulesProfile setLanguage(String s) {
     this.language = s;
     return this;
+  }
+
+  /**
+   * For internal use only.
+   * 
+   * @since 2.5
+   */
+  public Integer getParentId() {
+    return parentId;
+  }
+
+  /**
+   * For internal use only.
+   * 
+   * @since 2.5
+   */
+  public void setParentId(Integer parentId) {
+    this.parentId = parentId;
   }
 
   /**
@@ -311,6 +332,7 @@ public class RulesProfile implements Cloneable {
     RulesProfile clone = RulesProfile.create(getName(), getLanguage());
     clone.setDefaultProfile(getDefaultProfile());
     clone.setProvided(getProvided());
+    clone.setParentId(getParentId());
     if (CollectionUtils.isNotEmpty(getActiveRules())) {
       clone.setActiveRules(new ArrayList<ActiveRule>(CollectionUtils.collect(getActiveRules(), new Transformer() {
         public Object transform(Object input) {

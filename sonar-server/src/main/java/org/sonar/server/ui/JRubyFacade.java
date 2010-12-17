@@ -122,7 +122,6 @@ public final class JRubyFacade implements ServerComponent {
   public ViewProxy<Widget> getWidget(String id) {
     return getContainer().getComponent(Views.class).getWidget(id);
   }
-  
 
   public List<ViewProxy<Page>> getPages(String section, String resourceScope, String resourceQualifier, String resourceLanguage) {
     return getContainer().getComponent(Views.class).getPages(section, resourceScope, resourceQualifier, resourceLanguage);
@@ -196,6 +195,18 @@ public final class JRubyFacade implements ServerComponent {
 
   public void deleteProfile(long profileId) {
     getProfilesManager().deleteProfile((int) profileId);
+  }
+
+  public void changeParentProfile(int profileId, Integer parentId) {
+    getProfilesManager().changeParentProfile(profileId, parentId);
+  }
+
+  public void ruleActivatedOrChanged(int parentProfileId, int activeRuleId) {
+    getProfilesManager().activatedOrChanged(parentProfileId, activeRuleId);
+  }
+
+  public void ruleDeactivated(int parentProfileId, int ruleId) {
+    getProfilesManager().deactivated(parentProfileId, ruleId);
   }
 
   public List<Footer> getWebFooters() {

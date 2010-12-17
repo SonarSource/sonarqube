@@ -90,6 +90,24 @@ public class ActiveRule implements Cloneable {
   }
 
   /**
+   * For internal use only.
+   * 
+   * @since 2.5
+   */
+  public boolean isInherited() {
+    return inherited == null ? false : inherited;
+  }
+
+  /**
+   * For internal use only.
+   * 
+   * @since 2.5
+   */
+  public void setInherited(boolean inherited) {
+    this.inherited = inherited;
+  }
+
+  /**
    * @deprecated visibility should be decreased to protected or package
    */
   @Deprecated
@@ -243,6 +261,7 @@ public class ActiveRule implements Cloneable {
   @Override
   public Object clone() {
     ActiveRule clone = new ActiveRule(getRulesProfile(), getRule(), getSeverity());
+    clone.setInherited(isInherited());
     if (CollectionUtils.isNotEmpty(getActiveRuleParams())) {
       clone.setActiveRuleParams(new ArrayList<ActiveRuleParam>(CollectionUtils.collect(getActiveRuleParams(), new Transformer() {
         public Object transform(Object input) {
