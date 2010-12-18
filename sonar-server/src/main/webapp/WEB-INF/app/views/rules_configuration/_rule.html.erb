@@ -1,10 +1,9 @@
 <td nowrap valign="top" class="left" x="<%= active_rule.failure_level if active_rule -%>" width="1%">
-  <% inherited = active_rule.inherited if active_rule %>
-  <% if inherited %>
-  Inherited from parent profile.
-  <% end %>
+  <% inherited = active_rule.inherited if active_rule
+     overrides = active_rule.overrides if active_rule
+  %>
   <form id="levels_<%= rule.id -%>" action="">
-      <% enable_modification = is_admin && !profile.provided? && !inherited
+      <% enable_modification = is_admin && !profile.provided?
          select_box_id = "levels_select_#{rule.id}"
          check_box_id = "levels_check_#{rule.id}"
          rule_select_box = "$('#{select_box_id}')"
@@ -18,13 +17,20 @@
                  :loading => "$('levels_#{rule.id}').replace('<img src=\"#{ApplicationController.root_context}/images/loading.gif\"/>');",
                  :with => "'level=' + get_level_for_rule(#{rule_select_box},#{rule_check_box})")
       %>
-      <%= check_box_tag(check_box_id, 'yes', (!active_rule.nil?), :onclick => activate_rule, :disabled => !enable_modification) %>
+      <%= check_box_tag(check_box_id, 'yes', (!active_rule.nil?), :onclick => activate_rule, :disabled => !enable_modification || inherited) %>
       <%= select_tag(select_box_id, options_for_select(RulesConfigurationController::RULE_PRIORITIES, (active_rule.nil? ? rule.priority_text : active_rule.priority_text)),
             {:onchange => changel_level, :disabled => (!(enable_modification) || active_rule.nil?)}) %>
 
   </form>
 </td>
 <td valign="top" class="left">
+  <% if inherited %>
+    <% if overrides %>
+      Overrides rule from parent profile.<br/>
+    <% else %>
+      Inherited from parent profile.<br/>
+    <% end %>
+  <% end %>
   <%= link_to_function("#{h rule.name}", nil, :class => "") do |page|
         page.toggle "desc_#{rule.id}"
       end

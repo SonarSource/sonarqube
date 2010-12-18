@@ -87,7 +87,7 @@ public class ProfilesManager extends BaseDao {
       // Activate all inherited rules
       if (newParent != null) {
         for (ActiveRule activeRule : newParent.getActiveRules()) {
-          activate(profile, activeRule);
+          activateOrChange(profile, activeRule);
         }
       }
       profile.setParentId(parentId);
@@ -102,8 +102,12 @@ public class ProfilesManager extends BaseDao {
   public void activatedOrChanged(int parentProfileId, int activeRuleId) {
     List<RulesProfile> children = getChildren(parentProfileId);
     ActiveRule parentActiveRule = getSession().getEntity(ActiveRule.class, activeRuleId);
+    if (parentActiveRule.isInherited() && !parentActiveRule.isOverrides()) {
+      parentActiveRule.setOverrides(true);
+      getSession().saveWithoutFlush(parentActiveRule);
+    }
     for (RulesProfile child : children) {
-      activate(child, parentActiveRule);
+      activateOrChange(child, parentActiveRule);
     }
     getSession().commit();
   }
@@ -120,10 +124,17 @@ public class ProfilesManager extends BaseDao {
     getSession().commit();
   }
 
-  private void activate(RulesProfile profile, ActiveRule parentActiveRule) {
+  private void activateOrChange(RulesProfile profile, ActiveRule parentActiveRule) {
     ActiveRule activeRule = profile.getActiveRule(parentActiveRule.getRule());
     if (activeRule != null) {
-      removeActiveRule(profile, activeRule);
+      if (activeRule.isInherited() && !activeRule.isOverrides()) {
+        removeActiveRule(profile, activeRule);
+      } else {
+        activeRule.setInherited(true);
+        activeRule.setOverrides(true);
+        getSession().saveWithoutFlush(activeRule);
+        return;
+      }
     }
     activeRule = (ActiveRule) parentActiveRule.clone();
     activeRule.setRulesProfile(profile);
@@ -134,7 +145,13 @@ public class ProfilesManager extends BaseDao {
   private void deactivate(RulesProfile profile, Rule rule) {
     ActiveRule activeRule = profile.getActiveRule(rule);
     if (activeRule != null) {
-      removeActiveRule(profile, activeRule);
+      if (activeRule.isInherited() && !activeRule.isOverrides()) {
+        removeActiveRule(profile, activeRule);
+      } else {
+        activeRule.setInherited(false);
+        activeRule.setOverrides(false);
+        getSession().saveWithoutFlush(activeRule);
+      }
     }
   }
 

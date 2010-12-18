@@ -108,6 +108,24 @@ public class ActiveRule implements Cloneable {
   }
 
   /**
+   * For internal use only.
+   * 
+   * @since 2.5
+   */
+  public Boolean isOverrides() {
+    return overrides == null ? false : overrides;
+  }
+
+  /**
+   * For internal use only.
+   * 
+   * @since 2.5
+   */
+  public void setOverrides(Boolean overrides) {
+    this.overrides = overrides;
+  }
+
+  /**
    * @deprecated visibility should be decreased to protected or package
    */
   @Deprecated

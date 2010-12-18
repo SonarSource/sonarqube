@@ -6,8 +6,7 @@
       param_value = active_parameter.value unless active_parameter.value.blank?
     end
     active_rule_id = active_rule.id if active_rule
-    inherited = active_rule.inherited if active_rule
-    enable_modification = is_admin && !profile.provided? && !inherited
+    enable_modification = is_admin && !profile.provided?
 %>
 <tr>
     <td width="10%" nowrap class="left">
