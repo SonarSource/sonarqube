@@ -124,6 +124,20 @@ public class ProfilesManager extends BaseDao {
     getSession().commit();
   }
 
+  public void revert(int profileId, int activeRuleId) {
+    RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
+    ActiveRule activeRule = getSession().getEntity(ActiveRule.class, activeRuleId);
+    if (activeRule != null && activeRule.isInherited() && activeRule.isOverrides()) {
+      ActiveRule parentActiveRule = getProfile(profile.getParentId()).getActiveRule(activeRule.getRule());
+      removeActiveRule(profile, activeRule);
+      activeRule = (ActiveRule) parentActiveRule.clone();
+      activeRule.setRulesProfile(profile);
+      activeRule.setInherited(true);
+      profile.getActiveRules().add(activeRule);
+      getSession().commit();
+    }
+  }
+
   private void activateOrChange(RulesProfile profile, ActiveRule parentActiveRule) {
     ActiveRule activeRule = profile.getActiveRule(parentActiveRule.getRule());
     if (activeRule != null) {

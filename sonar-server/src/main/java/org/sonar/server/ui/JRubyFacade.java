@@ -209,6 +209,10 @@ public final class JRubyFacade implements ServerComponent {
     getProfilesManager().deactivated(parentProfileId, ruleId);
   }
 
+  public void revertRule(int profileId, int activeRuleId) {
+    getProfilesManager().revert(profileId, activeRuleId);
+  }
+
   public List<Footer> getWebFooters() {
     return getContainer().getComponents(Footer.class);
   }

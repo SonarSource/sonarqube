@@ -27,6 +27,7 @@
   <% if inherited %>
     <% if overrides %>
       Overrides rule from parent profile.<br/>
+      <%= button_to "Revert", :action => 'revert_rule', :id => profile.id, :active_rule_id => active_rule.id %><br/>
     <% else %>
       Inherited from parent profile.<br/>
     <% end %>
