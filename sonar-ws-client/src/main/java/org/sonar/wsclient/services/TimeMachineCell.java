@@ -21,19 +21,24 @@ package org.sonar.wsclient.services;
 
 import java.util.Date;
 
-public abstract class WSUtils {
+/**
+ * @since 2.5
+ */
+public class TimeMachineCell {
 
-  private static WSUtils INSTANCE = null;
+  private Date date;
+  public Object[] values;
 
-  public static void setInstance(WSUtils utils) {
-    INSTANCE = utils;
+  public TimeMachineCell(Date date, Object[] values) {
+    this.date = date;
+    this.values = values;
   }
 
-  public static WSUtils getINSTANCE() {
-    return INSTANCE;
+  public Date getDate() {
+    return date;
   }
 
-  public abstract String format(Date date, String format);
-
-  public abstract String encodeUrl(String url);
+  public Object[] getValues() {
+    return values;
+  }
 }

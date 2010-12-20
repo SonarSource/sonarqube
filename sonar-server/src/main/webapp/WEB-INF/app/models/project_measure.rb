@@ -174,6 +174,16 @@ class ProjectMeasure < ActiveRecord::Base
     measures
   end
 
+  def typed_value
+    if text_value
+      text_value
+    elsif value
+      value.to_f
+    else
+      nil
+    end
+  end
+
   # return reviews from the snapshot and also reviews created after the snapshot
   def self.find_reviews_for_last_snapshot(snapshot)
     ProjectMeasure.find(:all, :include => [:async_measure_snapshots, :measure_data],

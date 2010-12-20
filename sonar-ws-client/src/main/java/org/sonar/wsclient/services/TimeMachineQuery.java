@@ -24,7 +24,7 @@ import java.util.Date;
 /**
  * @since 2.5
  */
-public class TimeMachineQuery extends Query<TimeMachineData> {
+public class TimeMachineQuery extends Query<TimeMachine> {
 
   public static final String BASE_URL = "/api/timemachine";
 
@@ -87,18 +87,16 @@ public class TimeMachineQuery extends Query<TimeMachineData> {
   }
 
   @Override
-  public Class<TimeMachineData> getModelClass() {
-    return TimeMachineData.class;
+  public Class<TimeMachine> getModelClass() {
+    return TimeMachine.class;
   }
 
   public static TimeMachineQuery createForMetrics(String resourceKeyOrId, String... metricKeys) {
-    return new TimeMachineQuery(resourceKeyOrId)
-        .setMetrics(metricKeys);
+    return new TimeMachineQuery(resourceKeyOrId).setMetrics(metricKeys);
   }
 
-  public static TimeMachineQuery createForResource(Resource resource, String... metricKeys) {
-    return new TimeMachineQuery(resource.getId().toString())
-        .setMetrics(metricKeys);
+  public static TimeMachineQuery createForMetrics(Resource resource, String... metricKeys) {
+    return new TimeMachineQuery(resource.getId().toString()).setMetrics(metricKeys);
   }
 
 }

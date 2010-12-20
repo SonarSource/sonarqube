@@ -19,21 +19,40 @@
  */
 package org.sonar.wsclient.services;
 
-import java.util.Date;
+/**
+ * Past values of a given resource
+ *
+ * @since 2.5
+ */
+public class TimeMachine extends Model {
 
-public abstract class WSUtils {
+  private TimeMachineColumn[] columns;
+  private TimeMachineCell[] cells;
 
-  private static WSUtils INSTANCE = null;
-
-  public static void setInstance(WSUtils utils) {
-    INSTANCE = utils;
+  public TimeMachine(TimeMachineColumn[] columns, TimeMachineCell[] cells) {
+    this.columns = columns;
+    this.cells = cells;
   }
 
-  public static WSUtils getINSTANCE() {
-    return INSTANCE;
+  public TimeMachineColumn[] getColumns() {
+    return columns;
   }
 
-  public abstract String format(Date date, String format);
+  public TimeMachineCell[] getCells() {
+    return cells;
+  }
 
-  public abstract String encodeUrl(String url);
+  public TimeMachineColumn getColumn(String metricKey) {
+    for (TimeMachineColumn column : columns) {
+      if (metricKey.equals(column.getMetricKey()) && column.getCharacteristicKey()==null) {
+        return column;
+      }
+    }
+    return null;
+  }
+
+  public int getColumnIndex(String metricKey) {
+    TimeMachineColumn col = getColumn(metricKey);
+    return col!=null ? col.getIndex() : -1;
+  }
 }

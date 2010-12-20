@@ -22,6 +22,27 @@ require 'fastercsv'
 class Api::TimemachineController < Api::ApiController
   MAX_IN_ELEMENTS=990
 
+  class MetadataId < Struct.new(:metric_id, :characteristic_id)
+  end
+
+  class Metadata < Struct.new(:metric, :characteristic)
+    def to_id
+      @id ||=
+        begin
+          MetadataId.new(self.metric.id, self.characteristic ? self.characteristic.id : nil)
+        end
+    end
+
+    def to_s
+      label=self.metric.key
+      if self.characteristic
+        label+="(#{characteristic.key})"
+      end
+      label
+    end
+  end
+
+
   #
   # GET /api/timemachine
   #
@@ -45,71 +66,70 @@ class Api::TimemachineController < Api::ApiController
       end
 
       # ---------- PARAMETERS
-      measures_conditions = []
-      measures_values = {}
-      snapshots_conditions = []
-      snapshots_values = {}
+      load_metadata()
 
-      if params[:fromDateTime]
-        from = parse_datetime(params[:fromDateTime])
-      end
-      if from
-        snapshots_conditions << 'created_at>=:from'
-        snapshots_values[:from] = from
-      end
+      @sids=[]
+      @dates_by_sid={}
+      @measures_by_sid={}
 
-      if params[:toDateTime]
-        to = parse_datetime(params[:toDateTime])
-      end
-      if to
-        snapshots_conditions << 'created_at<=:to'
-        snapshots_values[:to] = to
-      end
+      unless @metrics.empty?
+        sql_conditions = ['snapshots.project_id=:rid AND snapshots.status=:status AND project_measures.rules_category_id IS NULL AND project_measures.rule_id IS NULL AND project_measures.rule_priority IS NULL']
+        sql_values = {:rid => @resource.id, :status => Snapshot::STATUS_PROCESSED}
 
-      snapshots_conditions << 'project_id=:rid AND status=:status'
-      snapshots_values[:rid] = @resource.id
-      snapshots_values[:status] = Snapshot::STATUS_PROCESSED
+        if params[:fromDateTime]
+          from = parse_datetime(params[:fromDateTime])
+          if from
+            sql_conditions << 'snapshots.created_at>=:from'
+            sql_values[:from] = from
+          end
+        end
 
-      snapshots = Snapshot.find(:all,
-        :conditions => [ snapshots_conditions.join(' AND '), snapshots_values],
-        :order => 'created_at')
-      # Oracle limitation : no more than 1000 elements in IN clause
-      if snapshots.length > MAX_IN_ELEMENTS
-        size=snapshots.size
-        snapshots=snapshots[size-MAX_IN_ELEMENTS .. size-1]
-      end
+        if params[:toDateTime]
+          to = parse_datetime(params[:toDateTime])
+          if to
+            sql_conditions << 'snapshots.created_at<=:to'
+            sql_values[:to] = to
+          end
+        end
 
-      measures_conditions << 'project_measures.rules_category_id IS NULL AND project_measures.rule_id IS NULL AND project_measures.rule_priority IS NULL'
+        sql_conditions << 'project_measures.metric_id IN (:metrics)'
+        sql_values[:metrics] = @metrics.select{|m| m.id}
 
-      measures_conditions << 'project_measures.snapshot_id IN (:snapshots)'
-      measures_values[:snapshots] = snapshots.map{|s| s.id}
+        if @characteristics.empty?
+          sql_conditions<<'project_measures.characteristic_id IS NULL'
+        else
+          sql_conditions<<'project_measures.characteristic_id IN (:characteristics)'
+          sql_values[:characteristics]=@characteristics.select{|c| c.id}
+        end
 
-      metric_keys = params[:metrics].split(',')
-      metrics = Metric.by_keys(metric_keys)
-      measures_conditions << 'project_measures.metric_id IN (:metrics)'
-      measures_values[:metrics] = metrics.select{|m| m.id}
+        measures = ProjectMeasure.find(:all,
+          :joins => :snapshot,
+          :select => 'project_measures.id,project_measures.value,project_measures.text_value,project_measures.metric_id,project_measures.snapshot_id,project_measures.characteristic_id,snapshots.created_at',
+          :conditions => [sql_conditions.join(' AND '), sql_values],
+          :order => 'snapshots.created_at')
 
-      add_characteristic_filters(measures_conditions, measures_values)
+        # ---------- PROCESS RESPONSE
+        # sorted array of unique snapshot ids
 
-      measures = ProjectMeasure.find(:all,
-        :select => 'project_measures.id,project_measures.value,project_measures.metric_id,project_measures.snapshot_id',
-        :conditions => [ measures_conditions.join(' AND '), measures_values])
+        # workaround to convert snapshot date from string to datetime
+        date_column=Snapshot.connection.columns('snapshots')[1]
 
-      # ---------- PREPARE RESPONSE
-      measures_by_sid = {}
-      measures.each do |measure|
-        measures_by_sid[measure.snapshot_id]||=[]
-        measures_by_sid[measure.snapshot_id]<<measure
+        measures.each do |m|
+          @sids<<m.snapshot_id
+          @dates_by_sid[m.snapshot_id]=date_column.type_cast(m.attributes['created_at'])
+          @measures_by_sid[m.snapshot_id]||={}
+          @measures_by_sid[m.snapshot_id][MetadataId.new(m.metric_id, m.characteristic_id)]=m
+        end
+        @sids.uniq!
       end
 
       # ---------- FORMAT RESPONSE
-      objects = { :snapshots => snapshots, :measures_by_sid => measures_by_sid, :metric_keys => metric_keys }
       respond_to do |format|
-        format.json { render :json => jsonp(to_json(objects)) }
+        format.json { render :json => jsonp(to_json) }
         format.csv  {
-          send_data(to_csv(objects),
+          send_data(to_csv,
             :type => 'text/csv; charset=utf-8; header=present',
-            :disposition => 'attachment; filename=measures.csv')
+            :disposition => 'attachment; filename=timemachine.csv')
         }
         format.text { render :text => text_not_supported }
       end
@@ -120,76 +140,93 @@ class Api::TimemachineController < Api::ApiController
 
   private
 
-  def to_json(objects)
-    snapshots = objects[:snapshots]
-    measures_by_sid = objects[:measures_by_sid]
-    metric_keys = objects[:metric_keys]
-
-    result = []
-    snapshots.each do |snapshot|
-      result << snapshot_to_json(snapshot, measures_by_sid[snapshot.id] || [], metric_keys)
-    end
-    result
-  end
-
-  def snapshot_to_json(snapshot, measures, metric_keys)
-    values_by_key = {}
-    measures.each do |measure|
-      values_by_key[measure.metric.name] = measure.value.to_f if measure.value
-    end
-    values = []
-    metric_keys.each do |metric|
-      values << values_by_key[metric]
-    end
-    json = { format_datetime(snapshot.created_at) => values }
-    json
-  end
-
-  def to_csv(objects)
-    snapshots = objects[:snapshots]
-    measures_by_sid = objects[:measures_by_sid]
-    metric_keys = objects[:metric_keys]
-
-    FasterCSV.generate do |csv|
-      header = ['date']
-      header.concat(metric_keys)
-      csv << header
-      snapshots.each do |snapshot|
-        snapshot_to_csv(csv, snapshot, measures_by_sid[snapshot.id], metric_keys)
-      end
+  def load_metrics
+    if params[:metrics]
+      @metrics = Metric.by_keys(params[:metrics].split(','))
+    else
+      @metrics=[]
     end
   end
 
-  def snapshot_to_csv(csv, snapshot, measures, metric_keys)
-    values_by_key = {}
-    measures.each do |measure|
-      values_by_key[measure.metric.name] = measure.value.to_f if measure.value
-    end
-    values = []
-    values << format_datetime(snapshot.created_at)
-    metric_keys.each do |metric|
-      values << values_by_key[metric]
-    end
-    csv << values
-  end
-
-  def add_characteristic_filters(measures_conditions, measures_values)
-    @characteristics=[]
-    @characteristic_by_id={}
+  def load_characteristics
     if params[:model].present? && params[:characteristics].present?
       @characteristics=Characteristic.find(:all,
         :select => 'characteristics.id,characteristics.kee,characteristics.name',
         :joins => :quality_model,
         :conditions => ['quality_models.name=? AND characteristics.kee IN (?)', params[:model], params[:characteristics].split(',')])
-      if @characteristics.empty?
-        measures_conditions<<'project_measures.characteristic_id=-1'
-      else
-        @characteristics.each { |c| @characteristic_by_id[c.id]=c }
-        measures_conditions<<'project_measures.characteristic_id IN (:characteristics)'
-        measures_values[:characteristics]=@characteristic_by_id.keys
-      end
     else
-      measures_conditions<<'project_measures.characteristic_id IS NULL'
+      @characteristics=[]
+    end
+  end
+
+  def load_metadata
+    load_metrics
+    load_characteristics
+
+    @metadata=[]
+    @metrics.each do |metric|
+      if @characteristics.empty?
+        @metadata<<Metadata.new(metric, nil)
+      else
+        @characteristics.each do |characteristic|
+          @metadata<<Metadata.new(metric, characteristic)
+        end
+      end
+    end
+    @metadata
+  end
+
+  def to_json
+    cols=[]
+    cells=[]
+    result=[{:cols => cols, :cells => cells}]
+
+    @metadata.each do |metadata|
+      col={:metric => metadata.metric.key}
+      if metadata.characteristic
+        col[:model]=characteristic.model.name
+        col[:characteristic]=characteristic.kee
+      end
+      cols<<col
+    end
+
+    @sids.each do |snapshot_id|
+      cell={:d => format_datetime(@dates_by_sid[snapshot_id])}
+      cell_values=[]
+      cell[:v]=cell_values
+
+      @metadata.each do |metadata|
+        measure=@measures_by_sid[snapshot_id][metadata.to_id]
+        if measure
+          cell_values<<measure.typed_value
+        else
+          cell_values<<nil
+        end
+      end
+      cells<<cell
+    end
+    result
+  end
+
+  def to_csv
+    FasterCSV.generate do |csv|
+      header = ['date']
+      @metadata.each do |metadata|
+        header<<metadata.to_s
+      end
+      csv << header
+      @sids.each do |snapshot_id|
+        row=[format_datetime(@dates_by_sid[snapshot_id])]
+        @metadata.each do |metadata|
+          measure=@measures_by_sid[snapshot_id][metadata.to_id]
+          if measure
+            row<<measure.typed_value
+          else
+            row<<nil
+          end
+        end
+        csv<<row
+      end
     end
   end
 
