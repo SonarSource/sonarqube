@@ -176,6 +176,18 @@ public final class JsonUtils {
     return jsonString.stringValue();
   }
 
+  public static Double getAsDouble(JSONValue jsonValue) {
+    if (jsonValue == null) {
+      return null;
+    }
+    JSONNumber jsonNumber;
+    if ((jsonNumber = jsonValue.isNumber()) == null) {
+      JSONString jsonString = jsonValue.isString();
+      return jsonString != null ? Double.parseDouble(jsonString.toString()) : null;
+    }
+    return jsonNumber.doubleValue();
+  }
+
   /**
    * @since 2.5
    */
