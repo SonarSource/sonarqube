@@ -80,10 +80,10 @@ module ApplicationHelper
     mode=snapshot.project_snapshot.send "period#{period_index}_mode"
     mode_param=snapshot.project_snapshot.send "period#{period_index}_param"
 
-    label=''
+    label=nil
     if mode
       if mode=='days'
-        label = "%s previous days" % mode_param
+        label = "%s days ago" % mode_param
       elsif mode=='version'
         label = "Version %s" % mode_param
       elsif mode=='previous_analysis'

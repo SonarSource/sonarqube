@@ -4,7 +4,7 @@
     <div class="operations">
     <form action="<%= url_for :overwrite_params => {:period => nil} -%>" style="display: inline" method="get">
       <select name="period" onchange="submit()" class="small">
-          <option value="">Trends</option>
+          <option value="">Compare to...</option>
           <% period_names.each_with_index do |name, index| %>
              <option value="<%= index+1 -%>" <%= 'selected' if @filter_context.period_index==index+1 -%>><%= name -%></value>
           <% end %>
@@ -51,7 +51,7 @@
         <% end %>
 
         <% if @filter.projects_homepage? %>
-          &nbsp;&nbsp; <a href="<%= url_for :controller => :feeds, :action => 'projects', :id => EventCategory::KEY_ALERT -%>" class="nolink"><%= image_tag 'feed-icon-14x14.png' %></a>
+          &nbsp;&nbsp; <a href="<%= url_for :controller => :feeds, :action => 'projects', :id => EventCategory::KEY_ALERT -%>" class="nolink"><%= image_tag 'rss-12x12.png' %></a>
           <a href="<%= url_for :controller => :feeds, :action => 'projects', :id => EventCategory::KEY_ALERT -%>" class="action">Alerts feed</a>
         <% end %>
       </td>

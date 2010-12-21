@@ -174,7 +174,7 @@ module FiltersHelper
       "Compare to previous analysis"
     elsif property =~ /^[\d]+(\.[\d]+){0,1}$/
       # is integer
-      "Compare to previous #{property} days"
+      "Compare to #{property} days ago"
     elsif property =~ /\d{4}-\d{2}-\d{2}/
       "Compare to #{property}"
     elsif !property.blank?
