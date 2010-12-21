@@ -44,6 +44,8 @@
           <key><![CDATA[test key]]></key>
           <plugin><![CDATA[test plugin]]></plugin>
           <level><![CDATA[MAJOR]]></level>
+          <inherited><![CDATA[false]]></inherited>
+          <overridden><![CDATA[false]]></overridden>
           <params>
             <param>
               <key><![CDATA[test param key]]></key>
@@ -62,20 +64,26 @@
       </alerts>
     </profile>
     <profile>
-      <name><![CDATA[test2 parent]]></name>
-      <default-profile><![CDATA[false]]></default-profile>
-      <provided><![CDATA[false]]></provided>
-      <language><![CDATA[test2 language]]></language>
-      <active-rules/>
-      <alerts/>
-    </profile>
-    <profile>
       <name><![CDATA[test2 name]]></name>
       <default-profile><![CDATA[false]]></default-profile>
       <provided><![CDATA[false]]></provided>
-      <language><![CDATA[test2 language]]></language>
-      <parentName><![CDATA[test2 parent]]></parentName>
-      <active-rules/>
+      <language><![CDATA[test language]]></language>
+      <parentName><![CDATA[test name]]></parentName>
+      <active-rules>
+        <active-rule>
+          <key><![CDATA[test key]]></key>
+          <plugin><![CDATA[test plugin]]></plugin>
+          <level><![CDATA[MINOR]]></level>
+          <inherited><![CDATA[true]]></inherited>
+          <overridden><![CDATA[true]]></overridden>
+          <params>
+            <param>
+              <key><![CDATA[test param key]]></key>
+              <value><![CDATA[test value]]></value>
+            </param>
+          </params>
+        </active-rule>
+      </active-rules>
       <alerts/>
     </profile>
   </profiles>

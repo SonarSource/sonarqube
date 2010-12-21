@@ -169,6 +169,8 @@ public class ProfilesBackup implements Backupable {
         writeNode(writer, "key", rule.getRule().getKey());
         writeNode(writer, "plugin", rule.getRule().getRepositoryKey());
         writeNode(writer, "level", rule.getSeverity().name());
+        writeNode(writer, "inherited", Boolean.toString(rule.isInherited()));
+        writeNode(writer, "overridden", Boolean.toString(rule.isOverridden()));
 
         if (!rule.getActiveRuleParams().isEmpty()) {
           writer.startNode("params");
@@ -204,6 +206,8 @@ public class ProfilesBackup implements Backupable {
         ActiveRule activeRule = new ActiveRule(null, new Rule(valuesRule.get("plugin"), valuesRule.get("key")), RulePriority
             .valueOf(valuesRule.get("level")));
         activeRule.setActiveRuleParams(params);
+        activeRule.setInherited(Boolean.parseBoolean(valuesRule.get("inherited")));
+        activeRule.setOverridden(Boolean.parseBoolean(valuesRule.get("overridden")));
         return activeRule;
       }
 

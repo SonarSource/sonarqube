@@ -60,8 +60,8 @@ public class ActiveRule implements Cloneable {
   @Column(name = "inherited", updatable = true, nullable = true)
   private Boolean inherited;
 
-  @Column(name = "overrides", updatable = true, nullable = true)
-  private Boolean overrides;
+  @Column(name = "overridden", updatable = true, nullable = true)
+  private Boolean overridden;
 
   /**
    * @deprecated visibility should be reduced to protected or package
@@ -112,8 +112,8 @@ public class ActiveRule implements Cloneable {
    * 
    * @since 2.5
    */
-  public Boolean isOverrides() {
-    return overrides == null ? false : overrides;
+  public boolean isOverridden() {
+    return overridden == null ? false : overridden;
   }
 
   /**
@@ -121,8 +121,8 @@ public class ActiveRule implements Cloneable {
    * 
    * @since 2.5
    */
-  public void setOverrides(Boolean overrides) {
-    this.overrides = overrides;
+  public void setOverridden(Boolean overridden) {
+    this.overridden = overridden;
   }
 
   /**
@@ -280,6 +280,7 @@ public class ActiveRule implements Cloneable {
   public Object clone() {
     final ActiveRule clone = new ActiveRule(getRulesProfile(), getRule(), getSeverity());
     clone.setInherited(isInherited());
+    clone.setOverridden(isOverridden());
     if (CollectionUtils.isNotEmpty(getActiveRuleParams())) {
       clone.setActiveRuleParams(new ArrayList<ActiveRuleParam>(CollectionUtils.collect(getActiveRuleParams(), new Transformer() {
         public Object transform(Object input) {

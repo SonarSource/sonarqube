@@ -114,7 +114,7 @@ public class BackupTest {
     }
 
     Collection<RulesProfile> profiles = sonarConfig.getProfiles();
-    assertEquals(3, profiles.size());
+    assertEquals(2, profiles.size());
 
     Iterator<RulesProfile> profilesIter = profiles.iterator();
     RulesProfile testProfile = profilesIter.next();
@@ -128,6 +128,8 @@ public class BackupTest {
     assertNotNull(testActiveRule.getRule());
     assertEquals("test key", testActiveRule.getRule().getKey());
     assertEquals("test plugin", testActiveRule.getRule().getRepositoryKey());
+    assertThat(testActiveRule.isInherited(), is(false));
+    assertThat(testActiveRule.isOverridden(), is(false));
     assertEquals(1, testActiveRule.getActiveRuleParams().size());
 
     ActiveRuleParam testActiveRuleParam = testActiveRule.getActiveRuleParams().get(0);
@@ -143,8 +145,13 @@ public class BackupTest {
     assertNotNull(testAlert.getMetric());
     assertEquals("test key", testAlert.getMetric().getKey());
 
+    // Child profile
     testProfile = profilesIter.next();
-    assertEquals("test2 parent", testProfile.getParentName());
+    assertEquals("test2 name", testProfile.getName());
+    assertEquals("test name", testProfile.getParentName());
+    testActiveRule = testProfile.getActiveRules().get(0);
+    assertThat(testActiveRule.isInherited(), is(true));
+    assertThat(testActiveRule.isOverridden(), is(true));
 
     Collection<Rule> rules = sonarConfig.getRules();
     assertThat(rules.size(), is(1));
@@ -245,23 +252,25 @@ public class BackupTest {
   private List<RulesProfile> getProfiles() {
     List<RulesProfile> profiles = new ArrayList<RulesProfile>();
 
+    Rule rule = Rule.create("test plugin", "test key", null);
+    rule.createParameter("test param key");
+
     RulesProfile profile1 = RulesProfile.create("test name", "test language");
     profile1.setDefaultProfile(true);
     profile1.setProvided(true);
     profiles.add(profile1);
 
-    RulesProfile parentProfile = RulesProfile.create("test2 parent", "test2 language");
-    profiles.add(parentProfile);
-
-    RulesProfile profile2 = RulesProfile.create("test2 name", "test2 language");
-    profile2.setParentName(parentProfile.getName());
-    profiles.add(profile2);
-
-    Rule rule = Rule.create("test plugin", "test key", null);
-    rule.createParameter("test param key");
-
     ActiveRule activeRule = profile1.activateRule(rule, RulePriority.MAJOR);
     activeRule.setParameter("test param key", "test value");
+
+    RulesProfile profile2 = RulesProfile.create("test2 name", "test language");
+    profile2.setParentName(profile1.getName());
+    profiles.add(profile2);
+
+    ActiveRule activeRule2 = profile2.activateRule(rule, RulePriority.MINOR);
+    activeRule2.setParameter("test param key", "test value");
+    activeRule2.setInherited(true);
+    activeRule2.setOverridden(true);
 
     profiles.get(0).getAlerts().add(new Alert(null, new Metric("test key"), Alert.OPERATOR_GREATER, "testError", "testWarn"));
 

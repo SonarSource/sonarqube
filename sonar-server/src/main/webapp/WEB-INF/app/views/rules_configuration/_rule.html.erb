@@ -1,6 +1,6 @@
 <td nowrap valign="top" class="left" x="<%= active_rule.failure_level if active_rule -%>" width="1%">
   <% inherited = active_rule.inherited if active_rule
-     overrides = active_rule.overrides if active_rule
+     overridden = active_rule.overridden if active_rule
   %>
   <form id="levels_<%= rule.id -%>" action="">
       <% enable_modification = is_admin && !profile.provided?
@@ -25,7 +25,7 @@
 </td>
 <td valign="top" class="left">
   <% if inherited %>
-    <% if overrides %>
+    <% if overridden %>
       Overrides rule from parent profile.<br/>
       <%= button_to "Revert", :action => 'revert_rule', :id => profile.id, :active_rule_id => active_rule.id %><br/>
     <% else %>

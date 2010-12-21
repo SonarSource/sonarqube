@@ -104,8 +104,8 @@ public class ProfilesManager extends BaseDao {
   public void activatedOrChanged(int parentProfileId, int activeRuleId) {
     List<RulesProfile> children = getChildren(parentProfileId);
     ActiveRule parentActiveRule = getSession().getEntity(ActiveRule.class, activeRuleId);
-    if (parentActiveRule.isInherited() && !parentActiveRule.isOverrides()) {
-      parentActiveRule.setOverrides(true);
+    if (parentActiveRule.isInherited() && !parentActiveRule.isOverridden()) {
+      parentActiveRule.setOverridden(true);
       getSession().saveWithoutFlush(parentActiveRule);
     }
     for (RulesProfile child : children) {
@@ -129,7 +129,7 @@ public class ProfilesManager extends BaseDao {
   public void revert(int profileId, int activeRuleId) {
     RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
     ActiveRule activeRule = getSession().getEntity(ActiveRule.class, activeRuleId);
-    if (activeRule != null && activeRule.isInherited() && activeRule.isOverrides()) {
+    if (activeRule != null && activeRule.isInherited() && activeRule.isOverridden()) {
       ActiveRule parentActiveRule = getParentProfile(profile).getActiveRule(activeRule.getRule());
       removeActiveRule(profile, activeRule);
       activeRule = (ActiveRule) parentActiveRule.clone();
@@ -143,11 +143,11 @@ public class ProfilesManager extends BaseDao {
   private void activateOrChange(RulesProfile profile, ActiveRule parentActiveRule) {
     ActiveRule activeRule = profile.getActiveRule(parentActiveRule.getRule());
     if (activeRule != null) {
-      if (activeRule.isInherited() && !activeRule.isOverrides()) {
+      if (activeRule.isInherited() && !activeRule.isOverridden()) {
         removeActiveRule(profile, activeRule);
       } else {
         activeRule.setInherited(true);
-        activeRule.setOverrides(true);
+        activeRule.setOverridden(true);
         getSession().saveWithoutFlush(activeRule);
         return;
       }
@@ -161,11 +161,11 @@ public class ProfilesManager extends BaseDao {
   private void deactivate(RulesProfile profile, Rule rule) {
     ActiveRule activeRule = profile.getActiveRule(rule);
     if (activeRule != null) {
-      if (activeRule.isInherited() && !activeRule.isOverrides()) {
+      if (activeRule.isInherited() && !activeRule.isOverridden()) {
         removeActiveRule(profile, activeRule);
       } else {
         activeRule.setInherited(false);
-        activeRule.setOverrides(false);
+        activeRule.setOverridden(false);
         getSession().saveWithoutFlush(activeRule);
       }
     }
