@@ -68,16 +68,6 @@
 <% end %>
 </div>
 <div class="line-block marginbottom10">
-  <div>
-    <% if !@profile.provided? %>
-      <% form_tag({:action => 'change_parent'}, {:method => 'post'}) do %>
-        <%= hidden_field_tag "id", @id %>
-        Parent profile: <%= select_tag "parent_name", options_for_select(@select_parent, @profile.parent_name), :disabled => !enable_modification %>
-        <%= submit_tag "Change", :id => 'submit_parent', :disabled => !enable_modification %>
-      <% end %>
-    <% end %>
-  </div>
-
   <ul style="float: right" class="horizontal">
     <li class="marginleft10">
       <div class="csv">

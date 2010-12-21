@@ -1,0 +1,14 @@
+<h1 class="marginbottom10"><%= link_to 'Quality profiles', :controller => 'profiles', :action => 'index' -%> / <%= h @profile.language -%> / <%= h @profile.name %></h1>
+<%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'Inheritance'} %>
+
+<div class="tabs-panel marginbottom10 ">
+
+<% if !@profile.provided? %>
+  <% form_tag({:action => 'change_parent'}, {:method => 'post'}) do %>
+    <%= hidden_field_tag "id", @id %>
+    Parent profile: <%= select_tag "parent_name", options_for_select(@select_parent, @profile.parent_name), :disabled => !is_admin? %>
+    <%= submit_tag "Change", :id => 'submit_parent', :disabled => !is_admin? %>
+  <% end %>
+<% end %>
+
+</div>

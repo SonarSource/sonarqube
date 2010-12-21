@@ -55,8 +55,6 @@ class RulesConfigurationController < ApplicationController
     @select_priority = ANY_SELECTION + RULE_PRIORITIES
     @select_status = [['Any',''], ["Active", STATUS_ACTIVE], ["Inactive", STATUS_INACTIVE]]
 
-    @select_parent = [['', nil]] + RulesProfile.find(:all).collect { |profile| [profile.name, profile.name] }.sort
-
     @rules = Rule.search(java_facade, {
         :profile => @profile, :status => @status, :priorities => @priorities,
         :plugins =>  @plugins, :searchtext => @searchtext, :include_parameters => true, :language => @profile.language})

@@ -23,7 +23,7 @@ class ProfilesController < ApplicationController
   verify :method => :post, :only => ['create', 'delete', 'copy', 'set_as_default', 'restore', 'set_projects', 'rename'], :redirect_to => { :action => 'index' }
 
   # the backup action is allow to non-admin users : see http://jira.codehaus.org/browse/SONAR-2039
-  before_filter :admin_required, :except => [ 'index', 'show', 'projects', 'permalinks', 'export', 'backup' ]
+  before_filter :admin_required, :except => [ 'index', 'show', 'projects', 'permalinks', 'export', 'backup', 'inheritance' ]
 
   #
   #
@@ -31,7 +31,7 @@ class ProfilesController < ApplicationController
   #
   #
   def index
-    @profiles = Profile.find(:all, :order => 'name')   
+    @profiles = Profile.find(:all, :order => 'name')
   end
 
 
@@ -182,6 +182,16 @@ class ProfilesController < ApplicationController
     exporter_key = params[:format]
     result = java_facade.exportProfile(profile.id, exporter_key)
     send_data(result, :type => java_facade.getProfileExporterMimeType(exporter_key), :disposition => 'inline')
+  end
+
+  #
+  #
+  # GET /profiles/inheritance?id=<profile id>
+  #
+  #
+  def inheritance
+    @profile = Profile.find(params[:id])
+    @select_parent = [['', nil]] + Profile.find(:all).collect { |profile| [profile.name, profile.name] }.sort
   end
 
 
