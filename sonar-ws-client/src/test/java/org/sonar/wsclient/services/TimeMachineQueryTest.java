@@ -19,6 +19,7 @@
  */
 package org.sonar.wsclient.services;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.wsclient.JdkUtils;
@@ -26,16 +27,28 @@ import org.sonar.wsclient.JdkUtils;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class TimeMachineQueryTest {
 
+  private TimeZone systemTimeZone;
+
   @Before
   public void before() {
+    systemTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
     WSUtils.setInstance(new JdkUtils());
   }
+
+  @After
+  public void after() {
+    TimeZone.setDefault(systemTimeZone);
+  }
+
   @Test
   public void shouldGetUrl() {
     TimeMachineQuery query = TimeMachineQuery.createForMetrics("12345", "ncloc", "coverage");
@@ -47,6 +60,6 @@ public class TimeMachineQueryTest {
     Date from = new SimpleDateFormat("yyyy-MM-dd").parse("2010-02-18");
     Date to = new SimpleDateFormat("yyyy-MM-dd HH:mm").parse("2010-03-25 14:59");
     TimeMachineQuery query = TimeMachineQuery.createForMetrics("12345", "ncloc").setFrom(from).setTo(to);
-    assertThat(query.getUrl(), is("/api/timemachine?resource=12345&metrics=ncloc&fromDateTime=2010-02-18T00%3A00%3A00%2B0100&toDateTime=2010-03-25T14%3A59%3A00%2B0100&"));
+    assertThat(query.getUrl(), is("/api/timemachine?resource=12345&metrics=ncloc&fromDateTime=2010-02-18T00%3A00%3A00%2B0000&toDateTime=2010-03-25T14%3A59%3A00%2B0000&"));
   }
 }
