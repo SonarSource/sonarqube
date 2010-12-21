@@ -21,22 +21,33 @@ package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.AgeFileFilter;
+import org.apache.commons.io.filefilter.AndFileFilter;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TempFileUtils;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 
 public final class TempDirectories {
+
+  public static final String DIR_PREFIX = "sonar-batch";
+
+  // this timeout must be greater than the longest analysis
+  public static final int AGE_BEFORE_DELETION = 24 * 60 * 60 * 1000;
 
   private File rootDir;
   private Map<String, File> directoriesByKey = Maps.newHashMap();
 
   public TempDirectories() throws IOException {
-    this.rootDir = TempFileUtils.createTempDirectory("sonar-batch");
+    this.rootDir = TempFileUtils.createTempDirectory(DIR_PREFIX);
     LoggerFactory.getLogger(getClass()).debug("Temporary directory: " + rootDir.getAbsolutePath());
   }
 
@@ -76,9 +87,18 @@ public final class TempDirectories {
    */
   public void stop() {
     directoriesByKey.clear();
-    LoggerFactory.getLogger(getClass()).debug("Delete temporary directory: " + rootDir.getAbsolutePath());
 
-    // it probably does not work on MS Windows and Sun JVM. URLClassLoader locks JARs and resources.
-    FileUtils.deleteQuietly(rootDir);
+    LoggerFactory.getLogger(getClass()).debug("Delete temporary directories");
+
+    // Deleting temp directory does not work on MS Windows and Sun JVM because URLClassLoader locks JARs and resources.
+    // The workaround is that sonar deletes orphans itself.
+    rootDir.setLastModified(System.currentTimeMillis() - AGE_BEFORE_DELETION - 60 * 60 * 1000); // older than AGE_BEFORE_DELETION to be sure that the current dir is deleted on mac and linux.
+
+    File[] directoriesToDelete = rootDir.getParentFile().listFiles((FileFilter) new AndFileFilter(Arrays.asList(
+        DirectoryFileFilter.DIRECTORY, new PrefixFileFilter(DIR_PREFIX), new AgeFileFilter(System.currentTimeMillis() - AGE_BEFORE_DELETION))));
+    for (File dir : directoriesToDelete) {
+      LoggerFactory.getLogger(getClass()).debug("Delete temporary directory: " + dir);
+      FileUtils.deleteQuietly(dir);
+    }
   }
 }
