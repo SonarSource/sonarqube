@@ -39,7 +39,9 @@ class DeleteIsoRuleCategories < ActiveRecord::Migration
   end
 
   def self.delete_measures_on_iso_category
-    puts "If the following step fails, please execute the SQL request 'DELETE FROM PROJECT_MEASURES WHERE RULE_ID IS NULL AND RULES_CATEGORY_ID IS NOT NULL' and restart Sonar."
-    ProjectMeasure.delete_all('rule_id is null and rules_category_id is not null')
+    ids=ProjectMeasure.connection.select_values("SELECT ID FROM PROJECT_MEASURES WHERE RULE_ID IS NULL AND RULES_CATEGORY_ID IS NOT NULL")
+    ids.in_groups_of(900, false) do |group|
+      ProjectMeasure.delete(group.map{|id| id.to_i}) unless group.empty?
+    end
   end
 end
