@@ -39,13 +39,13 @@ import java.util.List;
 
 /**
  * This component downloads HTTP files
- *
+ * 
  * @since 2.2
  */
 public class HttpDownloader implements BatchComponent, ServerComponent {
 
   public static final int TIMEOUT_MILLISECONDS = 20 * 1000;
-  
+
   private String userAgent;
 
   public HttpDownloader(Server server, Configuration configuration) {
@@ -101,7 +101,8 @@ public class HttpDownloader implements BatchComponent, ServerComponent {
   }
 
   private void registerProxyCredentials(Configuration configuration) {
-    Authenticator.setDefault(new ProxyAuthenticator(configuration.getString("http.proxyUser"), configuration.getString("http.proxyPassword")));
+    Authenticator.setDefault(new ProxyAuthenticator(configuration.getString("http.proxyUser"), configuration
+        .getString("http.proxyPassword")));
   }
 
   private boolean requiresProxyAuthentication(Configuration configuration) {
@@ -135,7 +136,7 @@ public class HttpDownloader implements BatchComponent, ServerComponent {
     } catch (Exception e) {
       IOUtils.closeQuietly(output);
       FileUtils.deleteQuietly(toFile);
-      throw new SonarException("Fail to download the file: " + uri + getProxySynthesis(uri), e);
+      throw new SonarException("Fail to download the file: " + uri + " (" + getProxySynthesis(uri) + ")", e);
 
     } finally {
       IOUtils.closeQuietly(input);
@@ -151,7 +152,7 @@ public class HttpDownloader implements BatchComponent, ServerComponent {
       return IOUtils.toByteArray(input);
 
     } catch (Exception e) {
-      throw new SonarException("Fail to download the file: " + uri + getProxySynthesis(uri), e);
+      throw new SonarException("Fail to download the file: " + uri + " (" + getProxySynthesis(uri) + ")", e);
 
     } finally {
       IOUtils.closeQuietly(input);
@@ -164,12 +165,12 @@ public class HttpDownloader implements BatchComponent, ServerComponent {
       return connection.getInputStream();
 
     } catch (Exception e) {
-      throw new SonarException("Fail to download the file: " + uri + getProxySynthesis(uri), e);
+      throw new SonarException("Fail to download the file: " + uri + " (" + getProxySynthesis(uri) + ")", e);
     }
   }
 
   private HttpURLConnection newHttpConnection(URI uri) throws IOException {
-    LoggerFactory.getLogger(getClass()).info("Download: " + uri + getProxySynthesis(uri));
+    LoggerFactory.getLogger(getClass()).info("Download: " + uri + " (" + getProxySynthesis(uri) + ")");
     HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
     connection.setConnectTimeout(TIMEOUT_MILLISECONDS);
     connection.setReadTimeout(TIMEOUT_MILLISECONDS);
