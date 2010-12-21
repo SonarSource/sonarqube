@@ -73,16 +73,13 @@ public class ViolationsTimeMachineIT {
   @Test
   public void unknownMetrics() {
     TimeMachine timemachine = sonar.find(TimeMachineQuery.createForMetrics(PROJECT, "notfound"));
-    assertThat(timemachine.getCells().length, is(2));
-    for (TimeMachineCell cell : timemachine.getCells()) {
-      assertThat(cell.getValues()[0], nullValue());
-    }
+    assertThat(timemachine.getCells().length, is(0));
 
     timemachine = sonar.find(TimeMachineQuery.createForMetrics(PROJECT, CoreMetrics.LINES_KEY, "notfound"));
     assertThat(timemachine.getCells().length, is(2));
     for (TimeMachineCell cell : timemachine.getCells()) {
+      assertThat(cell.getValues().length, is(1));
       assertThat(cell.getValues()[0], is(Double.class));
-      assertThat(cell.getValues()[1], nullValue());
     }
 
     timemachine = sonar.find(TimeMachineQuery.createForMetrics(PROJECT));
