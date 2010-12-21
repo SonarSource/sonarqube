@@ -42,6 +42,13 @@ public class InheritedProfilesTest extends AbstractDbUnitTestCase {
   }
 
   @Test
+  public void shouldRenameInheritedProfile() {
+    setupData("shouldCheckCycles");
+    profilesManager.renameProfile(1, "newName");
+    checkTables("shouldRenameInheritedProfile", "rules_profiles");
+  }
+
+  @Test
   public void shouldSetParent() {
     setupData("shouldSetParent");
     profilesManager.changeParentProfile(2, "parent");

@@ -189,6 +189,10 @@ public final class JRubyFacade implements ServerComponent {
     return getContainer().getComponent(ProfilesConsole.class).getProfileExporter(exporterKey).getMimeType();
   }
 
+  public void renameProfile(int profileId, String newProfileName) {
+    getProfilesManager().renameProfile(profileId, newProfileName);
+  }
+
   public void copyProfile(long profileId, String newProfileName) {
     getProfilesManager().copyProfile((int) profileId, newProfileName);
   }

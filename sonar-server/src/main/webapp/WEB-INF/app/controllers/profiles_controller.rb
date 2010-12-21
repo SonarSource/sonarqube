@@ -244,8 +244,7 @@ class ProfilesController < ApplicationController
       if existing
         flash[:warning]='This profile name already exists.'
       elsif !profile.provided?
-        profile.name=name
-        profile.save
+        java_facade.renameProfile(profile.id, name)
       end
     end
     redirect_to :action => 'index'

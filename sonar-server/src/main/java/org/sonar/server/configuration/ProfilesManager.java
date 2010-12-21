@@ -38,6 +38,20 @@ public class ProfilesManager extends BaseDao {
     this.rulesDao = rulesDao;
   }
 
+  public void renameProfile(int profileId, String newProfileName) {
+    RulesProfile profile = getSession().getSingleResult(RulesProfile.class, "id", profileId);
+    if (profile != null && !profile.getProvided()) {
+      String hql = "UPDATE " + RulesProfile.class.getSimpleName() + " o SET o.parentName=:newName  WHERE o.parentName=:oldName";
+      getSession().getEntityManager().createQuery(hql)
+          .setParameter("oldName", profile.getName())
+          .setParameter("newName", newProfileName)
+          .executeUpdate();
+      profile.setName(newProfileName);
+      getSession().save(profile);
+      getSession().commit();
+    }
+  }
+
   public void copyProfile(int profileId, String newProfileName) {
     RulesProfile profile = getSession().getSingleResult(RulesProfile.class, "id", profileId);
     RulesProfile toImport = (RulesProfile) profile.clone();
