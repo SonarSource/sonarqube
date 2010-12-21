@@ -29,7 +29,7 @@ class RulesConfigurationController < ApplicationController
   RULE_PRIORITIES = Sonar::RulePriority.as_options.reverse
 
   # GETs should be safe (see http://www.w3.org/2001/tag/doc/whenToUseGet.html)
-  verify :method => :post, :only => ['activate_rule', 'update_param', 'bulk_edit', 'create', 'update', 'delete', 'change_parent', 'revert_rule'], :redirect_to => { :action => 'index' }
+  verify :method => :post, :only => ['activate_rule', 'update_param', 'bulk_edit', 'create', 'update', 'delete', 'revert_rule'], :redirect_to => { :action => 'index' }
 
   before_filter :admin_required, :except => [ 'index', 'export' ]
 
@@ -72,23 +72,6 @@ class RulesConfigurationController < ApplicationController
       end
     end
 
-  end
-
-
-  #
-  #
-  # POST /rules_configuration/change_parent?id=<profile id>&parent_name=<parent profile name>
-  #
-  #
-  def change_parent
-    id = params[:id].to_i
-    parent_name = params[:parent_name]
-    if parent_name.blank?
-      java_facade.changeParentProfile(id, nil)
-    else
-      java_facade.changeParentProfile(id, parent_name)
-    end
-    redirect_to :action => 'index', :id => params[:id]
   end
 
 

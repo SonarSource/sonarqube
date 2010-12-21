@@ -20,7 +20,8 @@
 class ProfilesController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
 
-  verify :method => :post, :only => ['create', 'delete', 'copy', 'set_as_default', 'restore', 'set_projects', 'rename'], :redirect_to => { :action => 'index' }
+  # GETs should be safe (see http://www.w3.org/2001/tag/doc/whenToUseGet.html)
+  verify :method => :post, :only => ['create', 'delete', 'copy', 'set_as_default', 'restore', 'set_projects', 'rename', 'change_parent'], :redirect_to => { :action => 'index' }
 
   # the backup action is allow to non-admin users : see http://jira.codehaus.org/browse/SONAR-2039
   before_filter :admin_required, :except => [ 'index', 'show', 'projects', 'permalinks', 'export', 'backup', 'inheritance' ]
@@ -192,6 +193,23 @@ class ProfilesController < ApplicationController
   def inheritance
     @profile = Profile.find(params[:id])
     @select_parent = [['', nil]] + Profile.find(:all).collect { |profile| [profile.name, profile.name] }.sort
+  end
+
+
+  #
+  #
+  # POST /profiles/change_parent?id=<profile id>&parent_name=<parent profile name>
+  #
+  #
+  def change_parent
+    id = params[:id].to_i
+    parent_name = params[:parent_name]
+    if parent_name.blank?
+      java_facade.changeParentProfile(id, nil)
+    else
+      java_facade.changeParentProfile(id, parent_name)
+    end
+    redirect_to :action => 'inheritance', :id => id
   end
 
 
