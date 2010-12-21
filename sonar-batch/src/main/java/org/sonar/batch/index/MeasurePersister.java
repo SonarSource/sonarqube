@@ -90,12 +90,11 @@ public final class MeasurePersister {
         !(ResourceUtils.isEntity(resource) && isBestValueMeasure(measure, metric));
   }
 
-  private static boolean isBestValueMeasure(Measure measure, Metric metric) {
+  static boolean isBestValueMeasure(Measure measure, Metric metric) {
     return measure.getId() == null &&
         metric.isOptimizedBestValue() == Boolean.TRUE &&
         metric.getBestValue() != null &&
-        measure.getValue() != null &
-        NumberUtils.compare(metric.getBestValue(), measure.getValue()) == 0 &&
+        (measure.getValue()==null || NumberUtils.compare(metric.getBestValue(), measure.getValue()) == 0) &&
         measure.getAlertStatus() == null &&
         measure.getDescription() == null &&
         measure.getTendency() == null &&

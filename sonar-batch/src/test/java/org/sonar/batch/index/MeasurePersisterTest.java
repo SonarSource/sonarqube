@@ -201,6 +201,11 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
 
     duplicatedLines.setVariation1(-3.0);
     assertThat(MeasurePersister.shouldPersistMeasure(file, duplicatedLines), is(true));
+  }
 
+  @Test
+  public void nullValueAndNullVariationsShouldBeConsideredAsBestValue() {
+    Measure measure = new Measure(CoreMetrics.NEW_VIOLATIONS_KEY);
+    assertThat(MeasurePersister.isBestValueMeasure(measure, CoreMetrics.NEW_VIOLATIONS), is(true));
   }
 }
