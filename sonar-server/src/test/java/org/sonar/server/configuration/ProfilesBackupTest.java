@@ -21,11 +21,11 @@ package org.sonar.server.configuration;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.*;
+import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.Arrays;
 

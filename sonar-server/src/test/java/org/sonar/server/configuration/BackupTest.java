@@ -114,9 +114,10 @@ public class BackupTest {
     }
 
     Collection<RulesProfile> profiles = sonarConfig.getProfiles();
-    assertEquals(2, profiles.size());
+    assertEquals(3, profiles.size());
 
-    RulesProfile testProfile = profiles.iterator().next();
+    Iterator<RulesProfile> profilesIter = profiles.iterator();
+    RulesProfile testProfile = profilesIter.next();
     assertEquals("test name", testProfile.getName());
     assertEquals(true, testProfile.getDefaultProfile());
     assertEquals("test language", testProfile.getLanguage());
@@ -141,6 +142,9 @@ public class BackupTest {
     assertEquals("testWarn", testAlert.getValueWarning());
     assertNotNull(testAlert.getMetric());
     assertEquals("test key", testAlert.getMetric().getKey());
+
+    testProfile = profilesIter.next();
+    assertEquals("test2 parent", testProfile.getParentName());
 
     Collection<Rule> rules = sonarConfig.getRules();
     assertThat(rules.size(), is(1));
@@ -246,7 +250,11 @@ public class BackupTest {
     profile1.setProvided(true);
     profiles.add(profile1);
 
+    RulesProfile parentProfile = RulesProfile.create("test2 parent", "test2 language");
+    profiles.add(parentProfile);
+
     RulesProfile profile2 = RulesProfile.create("test2 name", "test2 language");
+    profile2.setParentName(parentProfile.getName());
     profiles.add(profile2);
 
     Rule rule = Rule.create("test plugin", "test key", null);

@@ -73,11 +73,12 @@ public class ProfilesManager extends BaseDao {
   // Managing inheritance of profiles
   // Only one level of inheritance supported
 
-  public void changeParentProfile(Integer profileId, Integer parentId) {
+  public void changeParentProfile(Integer profileId, String parentName) {
     RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
-    if (profile != null && !profile.getProvided() && profileId != parentId) {
-      RulesProfile oldParent = getProfile(profile.getParentId());
-      RulesProfile newParent = getProfile(parentId);
+    // TODO check cycles
+    if (profile != null && !profile.getProvided()) {
+      RulesProfile oldParent = getParentProfile(profile);
+      RulesProfile newParent = getProfile(profile.getLanguage(), parentName);
       // Deactivate all inherited rules
       if (oldParent != null) {
         for (ActiveRule activeRule : oldParent.getActiveRules()) {
@@ -89,8 +90,9 @@ public class ProfilesManager extends BaseDao {
         for (ActiveRule activeRule : newParent.getActiveRules()) {
           activateOrChange(profile, activeRule);
         }
+      } else {
       }
-      profile.setParentId(parentId);
+      profile.setParentName(newParent == null ? null : newParent.getName());
       getSession().saveWithoutFlush(profile);
       getSession().commit();
     }
@@ -128,7 +130,7 @@ public class ProfilesManager extends BaseDao {
     RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
     ActiveRule activeRule = getSession().getEntity(ActiveRule.class, activeRuleId);
     if (activeRule != null && activeRule.isInherited() && activeRule.isOverrides()) {
-      ActiveRule parentActiveRule = getProfile(profile.getParentId()).getActiveRule(activeRule.getRule());
+      ActiveRule parentActiveRule = getParentProfile(profile).getActiveRule(activeRule.getRule());
       removeActiveRule(profile, activeRule);
       activeRule = (ActiveRule) parentActiveRule.clone();
       activeRule.setRulesProfile(profile);
@@ -170,7 +172,11 @@ public class ProfilesManager extends BaseDao {
   }
 
   private List<RulesProfile> getChildren(int parentId) {
-    return getSession().getResults(RulesProfile.class, "parentId", parentId, "provided", false);
+    RulesProfile parent = getProfile(parentId);
+    return getSession().getResults(RulesProfile.class,
+        "language", parent.getLanguage(),
+        "parentName", parent.getName(),
+        "provided", false);
   }
 
   private void removeActiveRule(RulesProfile profile, ActiveRule activeRule) {
@@ -180,6 +186,19 @@ public class ProfilesManager extends BaseDao {
 
   private RulesProfile getProfile(Integer id) {
     return id == null ? null : getSession().getEntity(RulesProfile.class, id);
+  }
+
+  private RulesProfile getProfile(String language, String name) {
+    return getSession().getSingleResult(RulesProfile.class,
+        "language", language,
+        "name", name);
+  }
+
+  private RulesProfile getParentProfile(RulesProfile profile) {
+    if (profile.getParentName() == null) {
+      return null;
+    }
+    return getProfile(profile.getLanguage(), profile.getParentName());
   }
 
 }

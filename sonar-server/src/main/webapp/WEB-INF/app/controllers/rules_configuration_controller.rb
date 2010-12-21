@@ -55,8 +55,8 @@ class RulesConfigurationController < ApplicationController
     @select_priority = ANY_SELECTION + RULE_PRIORITIES
     @select_status = [['Any',''], ["Active", STATUS_ACTIVE], ["Inactive", STATUS_INACTIVE]]
 
-    @child_profiles = RulesProfile.find(:all, :conditions => {:parent_id => @profile.id})
-    @select_parent = [['', nil]] + RulesProfile.find(:all, :conditions => {:language => @profile.language, :parent_id => nil}).collect { |profile| [profile.name, profile.id] }.sort
+    @child_profiles = RulesProfile.find(:all, :conditions => {:language => @profile.language, :parent_name => @profile.name})
+    @select_parent = [['', nil]] + RulesProfile.find(:all).collect { |profile| [profile.name, profile.name] }.sort
 
     @rules = Rule.search(java_facade, {
         :profile => @profile, :status => @status, :priorities => @priorities,
@@ -80,16 +80,16 @@ class RulesConfigurationController < ApplicationController
 
   #
   #
-  # POST /rules_configuration/change_parent?id=<profile id>&parent_id=<parent profile id>
+  # POST /rules_configuration/change_parent?id=<profile id>&parent_name=<parent profile name>
   #
   #
   def change_parent
     id = params[:id].to_i
-    parent_id = params[:parent_id]
-    if parent_id.blank?
+    parent_name = params[:parent_name]
+    if parent_name.blank?
       java_facade.changeParentProfile(id, nil)
     else
-      java_facade.changeParentProfile(id, parent_id.to_i)
+      java_facade.changeParentProfile(id, parent_name)
     end
     redirect_to :action => 'index', :id => params[:id]
   end

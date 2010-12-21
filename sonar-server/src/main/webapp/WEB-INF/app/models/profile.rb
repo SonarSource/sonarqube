@@ -20,8 +20,6 @@
 class Profile < ActiveRecord::Base
   set_table_name 'rules_profiles'
 
-  belongs_to :parent_profile, :class_name => 'Profile', :foreign_key => 'parent_id'
-
   has_many :alerts, :dependent => :delete_all
   has_many :active_rules, :class_name => 'ActiveRule', :foreign_key => 'profile_id', :dependent => :destroy, :include => ['rule']
   has_many :projects, :order => 'name asc'

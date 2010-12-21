@@ -29,7 +29,7 @@ class AddColumnsForProfilesInheritance < ActiveRecord::Migration
     ActiveRule.reset_column_information
     ActiveRule.update_all(ActiveRule.sanitize_sql_for_assignment({:inherited => false, :overrides => false}))
 
-    add_column 'rules_profiles', 'parent_id', :integer, :null => true
+    add_column 'rules_profiles', 'parent_name', :string, :limit => 40, :null => true
     Profile.reset_column_information
   end
 
