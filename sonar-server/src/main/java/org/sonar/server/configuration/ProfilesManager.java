@@ -50,9 +50,8 @@ public class ProfilesManager extends BaseDao {
   }
 
   public void deleteProfile(int profileId) {
-    // TODO should support deletion of profile with children
     RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
-    if (profile != null && !profile.getProvided()) {
+    if (profile != null && !profile.getProvided() && getChildren(profile).isEmpty()) {
       String hql = "UPDATE " + ResourceModel.class.getSimpleName() + " o SET o.rulesProfile=null WHERE o.rulesProfile=:rulesProfile";
       getSession().createQuery(hql).setParameter("rulesProfile", profile).executeUpdate();
       getSession().remove(profile);

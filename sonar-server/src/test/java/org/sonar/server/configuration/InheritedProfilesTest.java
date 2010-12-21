@@ -35,6 +35,13 @@ public class InheritedProfilesTest extends AbstractDbUnitTestCase {
   }
 
   @Test
+  public void shouldNotDeleteInheritedProfile() {
+    setupData("shouldCheckCycles");
+    profilesManager.deleteProfile(1);
+    checkTables("shouldNotDeleteInheritedProfile", "rules_profiles");
+  }
+
+  @Test
   public void shouldSetParent() {
     setupData("shouldSetParent");
     profilesManager.changeParentProfile(2, "parent");
