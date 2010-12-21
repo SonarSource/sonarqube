@@ -67,8 +67,7 @@ public class TimeMachineUnmarshallerTest {
     TimeMachine timeMachine = new TimeMachineUnmarshaller().toModel(WSTestUtils.loadFile("/timemachine/typed-values.json"));
 
     assertThat(timeMachine.getCells()[0].getValues().length, is(2));
-    assertThat((String)timeMachine.getCells()[0].getValues()[0], is("Sonar way"));
+    assertThat((String) timeMachine.getCells()[0].getValues()[0], is("Sonar way"));
     assertThat((Double) timeMachine.getCells()[0].getValues()[1], is(80.0));
-
   }
 }

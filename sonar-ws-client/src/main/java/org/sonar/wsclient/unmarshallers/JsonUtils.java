@@ -103,15 +103,4 @@ public final class JsonUtils {
     return null;
   }
 
-  /**
-   * @since 2.5
-   */
-  public static Date parseDateTime(String dateTime) {
-    try {
-      SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-      return dateFormat.parse(dateTime);
-    } catch (ParseException e) {
-      throw new RuntimeException(e);
-    }
-  }
 }

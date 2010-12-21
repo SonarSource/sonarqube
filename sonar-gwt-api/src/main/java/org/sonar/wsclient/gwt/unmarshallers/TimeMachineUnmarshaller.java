@@ -31,6 +31,7 @@ public class TimeMachineUnmarshaller extends AbstractUnmarshaller<TimeMachine> {
     for (int i = 0; i < size; i++) {
       JSONObject cellJson = JsonUtils.getArray(cells, i);
       JSONArray valuesJson = cellJson.get("v").isArray();
+
       Object[] resultValues = new Object[JsonUtils.getArraySize(valuesJson)];
       for (int indexValue = 0; indexValue < JsonUtils.getArraySize(valuesJson); indexValue++) {
         Object value = valuesJson.get(indexValue);

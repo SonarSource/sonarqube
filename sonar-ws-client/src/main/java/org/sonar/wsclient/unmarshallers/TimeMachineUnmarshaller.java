@@ -37,8 +37,8 @@ public class TimeMachineUnmarshaller extends AbstractUnmarshaller<TimeMachine> {
     int size = cols.size();
     TimeMachineColumn[] result = new TimeMachineColumn[size];
     for (int index = 0; index < size; index++) {
-      JSONObject colJson = (JSONObject)cols.get(index);
-      result[index]=new TimeMachineColumn(index, JsonUtils.getString(colJson, "metric"), null, null);
+      JSONObject colJson = (JSONObject) cols.get(index);
+      result[index] = new TimeMachineColumn(index, JsonUtils.getString(colJson, "metric"), null, null);
     }
     return result;
   }
@@ -47,15 +47,15 @@ public class TimeMachineUnmarshaller extends AbstractUnmarshaller<TimeMachine> {
     int size = cells.size();
     TimeMachineCell[] result = new TimeMachineCell[size];
     for (int i = 0; i < size; i++) {
-      JSONObject cellJson = (JSONObject)cells.get(i);
+      JSONObject cellJson = (JSONObject) cells.get(i);
       JSONArray valuesJson = JsonUtils.getArray(cellJson, "v");
 
       Object[] resultValues = new Object[valuesJson.size()];
       for (int indexValue = 0; indexValue < valuesJson.size(); indexValue++) {
         Object value = valuesJson.get(indexValue);
-        resultValues[indexValue]=value;
+        resultValues[indexValue] = value;
       }
-      result[i]=new TimeMachineCell(JsonUtils.getDateTime(cellJson, "d"), resultValues);
+      result[i] = new TimeMachineCell(JsonUtils.getDateTime(cellJson, "d"), resultValues);
     }
     return result;
   }
