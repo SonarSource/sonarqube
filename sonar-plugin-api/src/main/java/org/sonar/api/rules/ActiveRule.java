@@ -58,10 +58,8 @@ public class ActiveRule implements Cloneable {
   private List<ActiveRuleParam> activeRuleParams = new ArrayList<ActiveRuleParam>();
 
   @Column(name = "inherited", updatable = true, nullable = true)
-  private Boolean inherited;
-
-  @Column(name = "overridden", updatable = true, nullable = true)
-  private Boolean overridden;
+  @Enumerated(EnumType.ORDINAL)
+  private ActiveRuleInheritanceStatus inherited = ActiveRuleInheritanceStatus.NO;
 
   /**
    * @deprecated visibility should be reduced to protected or package
@@ -94,8 +92,8 @@ public class ActiveRule implements Cloneable {
    * 
    * @since 2.5
    */
-  public boolean isInherited() {
-    return inherited == null ? false : inherited;
+  public ActiveRuleInheritanceStatus getInheritanceStatus() {
+    return inherited == null ? ActiveRuleInheritanceStatus.NO : inherited;
   }
 
   /**
@@ -103,26 +101,8 @@ public class ActiveRule implements Cloneable {
    * 
    * @since 2.5
    */
-  public void setInherited(boolean inherited) {
-    this.inherited = inherited;
-  }
-
-  /**
-   * For internal use only.
-   * 
-   * @since 2.5
-   */
-  public boolean isOverridden() {
-    return overridden == null ? false : overridden;
-  }
-
-  /**
-   * For internal use only.
-   * 
-   * @since 2.5
-   */
-  public void setOverridden(Boolean overridden) {
-    this.overridden = overridden;
+  public void setInheritanceStatus(ActiveRuleInheritanceStatus status) {
+    this.inherited = status;
   }
 
   /**
@@ -279,8 +259,7 @@ public class ActiveRule implements Cloneable {
   @Override
   public Object clone() {
     final ActiveRule clone = new ActiveRule(getRulesProfile(), getRule(), getSeverity());
-    clone.setInherited(isInherited());
-    clone.setOverridden(isOverridden());
+    clone.setInheritanceStatus(getInheritanceStatus());
     if (CollectionUtils.isNotEmpty(getActiveRuleParams())) {
       clone.setActiveRuleParams(new ArrayList<ActiveRuleParam>(CollectionUtils.collect(getActiveRuleParams(), new Transformer() {
         public Object transform(Object input) {

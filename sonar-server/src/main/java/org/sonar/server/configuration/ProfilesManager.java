@@ -19,6 +19,8 @@
  */
 package org.sonar.server.configuration;
 
+import org.sonar.api.rules.ActiveRuleInheritanceStatus;
+
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.profiles.RulesProfile;
@@ -116,8 +118,8 @@ public class ProfilesManager extends BaseDao {
    */
   public void activatedOrChanged(int parentProfileId, int activeRuleId) {
     ActiveRule parentActiveRule = getSession().getEntity(ActiveRule.class, activeRuleId);
-    if (parentActiveRule.isInherited() && !parentActiveRule.isOverridden()) {
-      parentActiveRule.setOverridden(true);
+    if (parentActiveRule.getInheritanceStatus() == ActiveRuleInheritanceStatus.INHERITED) {
+      parentActiveRule.setInheritanceStatus(ActiveRuleInheritanceStatus.OVERRIDDEN);
       getSession().saveWithoutFlush(parentActiveRule);
     }
     for (RulesProfile child : getChildren(parentProfileId)) {
@@ -153,13 +155,12 @@ public class ProfilesManager extends BaseDao {
   public void revert(int profileId, int activeRuleId) {
     RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
     ActiveRule activeRule = getSession().getEntity(ActiveRule.class, activeRuleId);
-    if (activeRule != null && activeRule.isInherited() && activeRule.isOverridden()) {
+    if (activeRule != null && activeRule.getInheritanceStatus() == ActiveRuleInheritanceStatus.OVERRIDDEN) {
       ActiveRule parentActiveRule = getParentProfile(profile).getActiveRule(activeRule.getRule());
       removeActiveRule(profile, activeRule);
       activeRule = (ActiveRule) parentActiveRule.clone();
       activeRule.setRulesProfile(profile);
-      activeRule.setInherited(true);
-      activeRule.setOverridden(false);
+      activeRule.setInheritanceStatus(ActiveRuleInheritanceStatus.INHERITED);
       profile.getActiveRules().add(activeRule);
       getSession().saveWithoutFlush(activeRule);
 
@@ -174,19 +175,17 @@ public class ProfilesManager extends BaseDao {
   private void activateOrChange(RulesProfile profile, ActiveRule parentActiveRule) {
     ActiveRule activeRule = profile.getActiveRule(parentActiveRule.getRule());
     if (activeRule != null) {
-      if (activeRule.isInherited() && !activeRule.isOverridden()) {
+      if (activeRule.getInheritanceStatus() == ActiveRuleInheritanceStatus.INHERITED) {
         removeActiveRule(profile, activeRule);
       } else {
-        activeRule.setInherited(true);
-        activeRule.setOverridden(true);
+        activeRule.setInheritanceStatus(ActiveRuleInheritanceStatus.OVERRIDDEN);
         getSession().saveWithoutFlush(activeRule);
         return; // no need to change in children
       }
     }
     activeRule = (ActiveRule) parentActiveRule.clone();
     activeRule.setRulesProfile(profile);
-    activeRule.setInherited(true);
-    activeRule.setOverridden(false);
+    activeRule.setInheritanceStatus(ActiveRuleInheritanceStatus.INHERITED);
     profile.getActiveRules().add(activeRule);
     getSession().saveWithoutFlush(activeRule);
 
@@ -198,11 +197,10 @@ public class ProfilesManager extends BaseDao {
   private void deactivate(RulesProfile profile, Rule rule) {
     ActiveRule activeRule = profile.getActiveRule(rule);
     if (activeRule != null) {
-      if (activeRule.isInherited() && !activeRule.isOverridden()) {
+      if (activeRule.getInheritanceStatus() == ActiveRuleInheritanceStatus.INHERITED) {
         removeActiveRule(profile, activeRule);
       } else {
-        activeRule.setInherited(false);
-        activeRule.setOverridden(false);
+        activeRule.setInheritanceStatus(ActiveRuleInheritanceStatus.NO);
         getSession().saveWithoutFlush(activeRule);
         return; // no need to change in children
       }

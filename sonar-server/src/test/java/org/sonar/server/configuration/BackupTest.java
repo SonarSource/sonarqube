@@ -19,6 +19,8 @@
  */
 package org.sonar.server.configuration;
 
+import org.sonar.api.rules.ActiveRuleInheritanceStatus;
+
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
@@ -128,8 +130,7 @@ public class BackupTest {
     assertNotNull(testActiveRule.getRule());
     assertEquals("test key", testActiveRule.getRule().getKey());
     assertEquals("test plugin", testActiveRule.getRule().getRepositoryKey());
-    assertThat(testActiveRule.isInherited(), is(false));
-    assertThat(testActiveRule.isOverridden(), is(false));
+    assertThat(testActiveRule.getInheritanceStatus(), is(ActiveRuleInheritanceStatus.NO));
     assertEquals(1, testActiveRule.getActiveRuleParams().size());
 
     ActiveRuleParam testActiveRuleParam = testActiveRule.getActiveRuleParams().get(0);
@@ -150,8 +151,7 @@ public class BackupTest {
     assertEquals("test2 name", testProfile.getName());
     assertEquals("test name", testProfile.getParentName());
     testActiveRule = testProfile.getActiveRules().get(0);
-    assertThat(testActiveRule.isInherited(), is(true));
-    assertThat(testActiveRule.isOverridden(), is(true));
+    assertThat(testActiveRule.getInheritanceStatus(), is(ActiveRuleInheritanceStatus.OVERRIDDEN));
 
     Collection<Rule> rules = sonarConfig.getRules();
     assertThat(rules.size(), is(1));
@@ -269,8 +269,7 @@ public class BackupTest {
 
     ActiveRule activeRule2 = profile2.activateRule(rule, RulePriority.MINOR);
     activeRule2.setParameter("test param key", "test value");
-    activeRule2.setInherited(true);
-    activeRule2.setOverridden(true);
+    activeRule2.setInheritanceStatus(ActiveRuleInheritanceStatus.OVERRIDDEN);
 
     profiles.get(0).getAlerts().add(new Alert(null, new Metric("test key"), Alert.OPERATOR_GREATER, "testError", "testWarn"));
 
