@@ -9,6 +9,13 @@
     Parent profile: <%= select_tag "parent_name", options_for_select(@select_parent, @profile.parent_name), :disabled => !is_admin? %>
     <%= submit_tag "Change", :id => 'submit_parent', :disabled => !is_admin? %>
   <% end %>
+
+  <% if @child_profiles.size > 0 %>
+    Inherited profiles:<br/>
+    <% @child_profiles.each do |child| %>
+    <a href="<%= url_for :controller => 'profiles', :action => 'inheritance', :id => child.id -%>"><%= child.name %></a><br/>
+    <% end %>
+  <% end %>
 <% end %>
 
 </div>

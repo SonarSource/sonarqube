@@ -192,6 +192,9 @@ class ProfilesController < ApplicationController
   #
   def inheritance
     @profile = Profile.find(params[:id])
+    @child_profiles = Profile.find(:all,
+      :conditions => {:language => @profile.language, :parent_name => @profile.name},
+      :order => 'name')
     @select_parent = [['', nil]] + Profile.find(:all).collect { |profile| [profile.name, profile.name] }.sort
   end
 
