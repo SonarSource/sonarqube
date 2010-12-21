@@ -125,14 +125,14 @@ public class ProfilesManager extends BaseDao {
   }
 
   /**
-   * @return true, if setting childProfile as a child of profile adds cycle
+   * @return true, if setting <code>childProfile</code> as a child of <code>parentProfile</code> adds cycle
    */
-  boolean isCycle(RulesProfile childProfile, RulesProfile profile) {
-    while (profile != null) {
-      if (childProfile.equals(profile)) {
+  boolean isCycle(RulesProfile childProfile, RulesProfile parentProfile) {
+    while (parentProfile != null) {
+      if (childProfile.equals(parentProfile)) {
         return true;
       }
-      profile = getParentProfile(profile);
+      parentProfile = getParentProfile(parentProfile);
     }
     return false;
   }
@@ -148,6 +148,7 @@ public class ProfilesManager extends BaseDao {
       activeRule.setInherited(true);
       activeRule.setOverridden(false);
       profile.getActiveRules().add(activeRule);
+      getSession().saveWithoutFlush(activeRule);
 
       for (RulesProfile child : getChildren(profile)) {
         activateOrChange(child, activeRule);
@@ -174,6 +175,7 @@ public class ProfilesManager extends BaseDao {
     activeRule.setInherited(true);
     activeRule.setOverridden(false);
     profile.getActiveRules().add(activeRule);
+    getSession().saveWithoutFlush(activeRule);
 
     for (RulesProfile child : getChildren(profile)) {
       activateOrChange(child, activeRule);
