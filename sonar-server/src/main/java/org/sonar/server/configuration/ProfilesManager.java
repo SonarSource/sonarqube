@@ -71,14 +71,15 @@ public class ProfilesManager extends BaseDao {
   }
 
   // Managing inheritance of profiles
-  // Only one level of inheritance supported
 
   public void changeParentProfile(Integer profileId, String parentName) {
     RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
-    // TODO check cycles
     if (profile != null && !profile.getProvided()) {
       RulesProfile oldParent = getParentProfile(profile);
       RulesProfile newParent = getProfile(profile.getLanguage(), parentName);
+      if (isCycle(profile, newParent)) {
+        return;
+      }
       // Deactivate all inherited rules
       if (oldParent != null) {
         for (ActiveRule activeRule : oldParent.getActiveRules()) {
@@ -90,7 +91,6 @@ public class ProfilesManager extends BaseDao {
         for (ActiveRule activeRule : newParent.getActiveRules()) {
           activateOrChange(profile, activeRule);
         }
-      } else {
       }
       profile.setParentName(newParent == null ? null : newParent.getName());
       getSession().saveWithoutFlush(profile);
@@ -102,13 +102,12 @@ public class ProfilesManager extends BaseDao {
    * Rule was activated/changed in parent profile.
    */
   public void activatedOrChanged(int parentProfileId, int activeRuleId) {
-    List<RulesProfile> children = getChildren(parentProfileId);
     ActiveRule parentActiveRule = getSession().getEntity(ActiveRule.class, activeRuleId);
     if (parentActiveRule.isInherited() && !parentActiveRule.isOverridden()) {
       parentActiveRule.setOverridden(true);
       getSession().saveWithoutFlush(parentActiveRule);
     }
-    for (RulesProfile child : children) {
+    for (RulesProfile child : getChildren(parentProfileId)) {
       activateOrChange(child, parentActiveRule);
     }
     getSession().commit();
@@ -118,12 +117,24 @@ public class ProfilesManager extends BaseDao {
    * Rule was deactivated in parent profile.
    */
   public void deactivated(int parentProfileId, int ruleId) {
-    List<RulesProfile> children = getChildren(parentProfileId);
     Rule rule = getSession().getEntity(Rule.class, ruleId);
-    for (RulesProfile child : children) {
+    for (RulesProfile child : getChildren(parentProfileId)) {
       deactivate(child, rule);
     }
     getSession().commit();
+  }
+
+  /**
+   * @return true, if setting childProfile as a child of profile adds cycle
+   */
+  boolean isCycle(RulesProfile childProfile, RulesProfile profile) {
+    while (profile != null) {
+      if (childProfile.equals(profile)) {
+        return true;
+      }
+      profile = getParentProfile(profile);
+    }
+    return false;
   }
 
   public void revert(int profileId, int activeRuleId) {
@@ -135,7 +146,13 @@ public class ProfilesManager extends BaseDao {
       activeRule = (ActiveRule) parentActiveRule.clone();
       activeRule.setRulesProfile(profile);
       activeRule.setInherited(true);
+      activeRule.setOverridden(false);
       profile.getActiveRules().add(activeRule);
+
+      for (RulesProfile child : getChildren(profile)) {
+        activateOrChange(child, activeRule);
+      }
+
       getSession().commit();
     }
   }
@@ -149,13 +166,18 @@ public class ProfilesManager extends BaseDao {
         activeRule.setInherited(true);
         activeRule.setOverridden(true);
         getSession().saveWithoutFlush(activeRule);
-        return;
+        return; // no need to change in children
       }
     }
     activeRule = (ActiveRule) parentActiveRule.clone();
     activeRule.setRulesProfile(profile);
     activeRule.setInherited(true);
+    activeRule.setOverridden(false);
     profile.getActiveRules().add(activeRule);
+
+    for (RulesProfile child : getChildren(profile)) {
+      activateOrChange(child, activeRule);
+    }
   }
 
   private void deactivate(RulesProfile profile, Rule rule) {
@@ -167,12 +189,21 @@ public class ProfilesManager extends BaseDao {
         activeRule.setInherited(false);
         activeRule.setOverridden(false);
         getSession().saveWithoutFlush(activeRule);
+        return; // no need to change in children
+      }
+
+      for (RulesProfile child : getChildren(profile)) {
+        deactivate(child, rule);
       }
     }
   }
 
   private List<RulesProfile> getChildren(int parentId) {
-    RulesProfile parent = getProfile(parentId);
+    RulesProfile parent = getSession().getEntity(RulesProfile.class, parentId);
+    return getChildren(parent);
+  }
+
+  private List<RulesProfile> getChildren(RulesProfile parent) {
     return getSession().getResults(RulesProfile.class,
         "language", parent.getLanguage(),
         "parentName", parent.getName(),
@@ -184,17 +215,13 @@ public class ProfilesManager extends BaseDao {
     getSession().removeWithoutFlush(activeRule);
   }
 
-  private RulesProfile getProfile(Integer id) {
-    return id == null ? null : getSession().getEntity(RulesProfile.class, id);
-  }
-
-  private RulesProfile getProfile(String language, String name) {
+  RulesProfile getProfile(String language, String name) {
     return getSession().getSingleResult(RulesProfile.class,
         "language", language,
         "name", name);
   }
 
-  private RulesProfile getParentProfile(RulesProfile profile) {
+  RulesProfile getParentProfile(RulesProfile profile) {
     if (profile.getParentName() == null) {
       return null;
     }

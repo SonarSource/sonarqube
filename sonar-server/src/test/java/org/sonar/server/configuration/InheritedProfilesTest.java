@@ -2,7 +2,12 @@ package org.sonar.server.configuration;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.profiles.RulesProfile;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 
 public class InheritedProfilesTest extends AbstractDbUnitTestCase {
   private ProfilesManager profilesManager;
@@ -10,6 +15,23 @@ public class InheritedProfilesTest extends AbstractDbUnitTestCase {
   @Before
   public void setUp() {
     profilesManager = new ProfilesManager(getSession(), null);
+  }
+
+  @Test
+  public void shouldCheckCycles() {
+    setupData("shouldCheckCycles");
+    RulesProfile level1 = profilesManager.getProfile("java", "level1");
+    RulesProfile level2 = profilesManager.getProfile("java", "level2");
+    RulesProfile level3 = profilesManager.getProfile("java", "level3");
+
+    assertThat(profilesManager.getParentProfile(level1), nullValue());
+    assertThat(profilesManager.getParentProfile(level2), is(level1));
+    assertThat(profilesManager.getParentProfile(level3), is(level2));
+
+    assertThat(profilesManager.isCycle(level1, level1), is(true));
+    assertThat(profilesManager.isCycle(level1, level3), is(true));
+    assertThat(profilesManager.isCycle(level1, level2), is(true));
+    assertThat(profilesManager.isCycle(level2, level3), is(true));
   }
 
   @Test
