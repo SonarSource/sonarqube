@@ -24,6 +24,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mortbay.jetty.testing.ServletTester;
 import org.sonar.api.platform.Server;
@@ -42,6 +43,7 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@Ignore("Temporarily deactivated because it sometimes freezes on MS Windows") 
 public class HttpDownloaderTest {
 
   private static ServletTester tester;
