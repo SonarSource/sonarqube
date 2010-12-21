@@ -77,6 +77,8 @@ public final class TempDirectories {
   public void stop() {
     directoriesByKey.clear();
     LoggerFactory.getLogger(getClass()).debug("Delete temporary directory: " + rootDir.getAbsolutePath());
+
+    // it probably does not work on MS Windows and Sun JVM. URLClassLoader locks JARs and resources.
     FileUtils.deleteQuietly(rootDir);
   }
 }
