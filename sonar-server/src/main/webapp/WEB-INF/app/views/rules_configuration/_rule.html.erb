@@ -1,10 +1,4 @@
 <td nowrap valign="top" class="left" x="<%= active_rule.failure_level if active_rule -%>" width="1%">
-  <% if active_rule.nil? || active_rule.inherited.nil?
-       inheritance_status = 0
-     else
-       inheritance_status = active_rule.inherited
-     end
-  %>
   <form id="levels_<%= rule.id -%>" action="">
       <% enable_modification = is_admin && !profile.provided?
          select_box_id = "levels_select_#{rule.id}"
@@ -20,20 +14,20 @@
                  :loading => "$('levels_#{rule.id}').replace('<img src=\"#{ApplicationController.root_context}/images/loading.gif\"/>');",
                  :with => "'level=' + get_level_for_rule(#{rule_select_box},#{rule_check_box})")
       %>
-      <%= check_box_tag(check_box_id, 'yes', (!active_rule.nil?), :onclick => activate_rule, :disabled => !enable_modification || inheritance_status > 0) %>
+      <%= check_box_tag(check_box_id, 'yes', (!active_rule.nil?), :onclick => activate_rule, :disabled => !enable_modification || (active_rule && (active_rule.inherited? || active_rule.overridden?))) %>
       <%= select_tag(select_box_id, options_for_select(RulesConfigurationController::RULE_PRIORITIES, (active_rule.nil? ? rule.priority_text : active_rule.priority_text)),
             {:onchange => changel_level, :disabled => (!(enable_modification) || active_rule.nil?)}) %>
 
+      <% if active_rule %>
+        <% if active_rule.inherited? %>
+          <img src="<%= ApplicationController.root_context -%>/images/relation-vertical-green.png" alt="Inherited from parent" title="Inherited from parent"/>
+        <% elsif active_rule.overridden? %>
+          <img src="<%= ApplicationController.root_context -%>/images/relation-vertical-red.png" alt="Overrides parent definition" title="Overrides parent definition"/>
+        <% end %>
+      <% end %>
   </form>
 </td>
 <td valign="top" class="left">
-  <% if inheritance_status == 1 %>
-    Inherited from parent profile.<br/>
-  <% elsif inheritance_status == 2 %>
-    Overrides rule from parent profile.<br/>
-    <%= button_to "Revert", :action => 'revert_rule', :id => profile.id, :active_rule_id => active_rule.id %><br/>
-  <% end %>
-
   <%= link_to_function("#{h rule.name}", nil, :class => "") do |page|
         page.toggle "desc_#{rule.id}"
       end
@@ -61,6 +55,9 @@
         <% end %>
         <% if rule.editable? %>
         <%= button_to "Edit rule", :action => 'edit', :id => profile.id, :rule_id => rule.id %>
+        <% end %>
+        <% if active_rule && active_rule.overridden? %>
+        <%= button_to "Revert to parent definition", :action => 'revert_rule', :id => profile.id, :active_rule_id => active_rule.id %><br/>
         <% end %>
       <% end %>
     </div>

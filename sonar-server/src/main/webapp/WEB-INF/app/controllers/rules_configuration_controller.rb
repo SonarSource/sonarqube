@@ -119,6 +119,7 @@ class RulesConfigurationController < ApplicationController
         active_rule.save!
         java_facade.ruleActivatedOrChanged(profile.id, active_rule.id)
       end
+      active_rule.reload
 
       is_admin=true # security has already been checked by controller filters
       render :update do |page|

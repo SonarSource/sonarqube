@@ -99,4 +99,12 @@ class ActiveRule < ActiveRecord::Base
     end     
     new_active_rule 
   end
+
+  def inherited?
+    inherited==1
+  end
+
+  def overridden?
+    inherited==2
+  end
 end
