@@ -24,25 +24,33 @@
 class AddSnapshotsPeriodColumns < ActiveRecord::Migration
 
   def self.up
-     add_column :snapshots, :period1_mode, :string, :null => true, :limit => 100
-     add_column :snapshots, :period1_param, :string, :null => true, :limit => 100
-     add_column :snapshots, :period1_date, :datetime, :null => true
+     Snapshot.reset_column_information()
+     
+     add_period_column('period1_mode', :string, :null => true, :limit => 100)
+     add_period_column('period1_param', :string, :null => true, :limit => 100)
+     add_period_column('period1_date', :datetime, :null => true)
 
-     add_column :snapshots, :period2_mode, :string, :null => true, :limit => 100
-     add_column :snapshots, :period2_param, :string, :null => true, :limit => 100
-     add_column :snapshots, :period2_date, :datetime, :null => true
+     add_period_column('period2_mode', :string, :null => true, :limit => 100)
+     add_period_column('period2_param', :string, :null => true, :limit => 100)
+     add_period_column('period2_date', :datetime, :null => true)
 
-     add_column :snapshots, :period3_mode, :string, :null => true, :limit => 100
-     add_column :snapshots, :period3_param, :string, :null => true, :limit => 100
-     add_column :snapshots, :period3_date, :datetime, :null => true
+     add_period_column('period3_mode', :string, :null => true, :limit => 100)
+     add_period_column('period3_param', :string, :null => true, :limit => 100)
+     add_period_column('period3_date', :datetime, :null => true)
 
-     add_column :snapshots, :period4_mode, :string, :null => true, :limit => 100
-     add_column :snapshots, :period4_param, :string, :null => true, :limit => 100
-     add_column :snapshots, :period4_date, :datetime, :null => true
+     add_period_column('period4_mode', :string, :null => true, :limit => 100)
+     add_period_column('period4_param', :string, :null => true, :limit => 100)
+     add_period_column('period4_date', :datetime, :null => true)
 
-     add_column :snapshots, :period5_mode, :string, :null => true, :limit => 100
-     add_column :snapshots, :period5_param, :string, :null => true, :limit => 100
-     add_column :snapshots, :period5_date, :datetime, :null => true
+     add_period_column('period5_mode', :string, :null => true, :limit => 100)
+     add_period_column('period5_param', :string, :null => true, :limit => 100)
+     add_period_column('period5_date', :datetime, :null => true)
   end
 
+  private
+  def self.add_period_column(name, type, options={})
+    unless Snapshot.column_names.include?(name)
+      add_column(:snapshots, name, type, options)
+    end
+  end
 end

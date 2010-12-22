@@ -31,14 +31,14 @@ import static org.mockito.Mockito.when;
 public class DefaultServerUpgradeStatusTest {
 
   @Test
-  public void shouldBeInstalledFromScratch() {
+  public void shouldBeFreshInstallation() {
     DatabaseConnector connector = mock(DatabaseConnector.class);
     when(connector.getDatabaseVersion()).thenReturn(-1);
 
     DefaultServerUpgradeStatus status = new DefaultServerUpgradeStatus(connector);
     status.start();
 
-    assertThat(status.isInstalledFromScratch(), is(true));
+    assertThat(status.isFreshInstall(), is(true));
     assertThat(status.isUpgraded(), is(false));
     assertThat(status.getInitialDbVersion(), is(-1));
   }
@@ -51,7 +51,7 @@ public class DefaultServerUpgradeStatusTest {
     DefaultServerUpgradeStatus status = new DefaultServerUpgradeStatus(connector);
     status.start();
 
-    assertThat(status.isInstalledFromScratch(), is(false));
+    assertThat(status.isFreshInstall(), is(false));
     assertThat(status.isUpgraded(), is(true));
     assertThat(status.getInitialDbVersion(), is(50));
   }
@@ -64,7 +64,7 @@ public class DefaultServerUpgradeStatusTest {
     DefaultServerUpgradeStatus status = new DefaultServerUpgradeStatus(connector);
     status.start();
     
-    assertThat(status.isInstalledFromScratch(), is(false));
+    assertThat(status.isFreshInstall(), is(false));
     assertThat(status.isUpgraded(), is(false));
     assertThat(status.getInitialDbVersion(), is(SchemaMigration.LAST_VERSION));
   }

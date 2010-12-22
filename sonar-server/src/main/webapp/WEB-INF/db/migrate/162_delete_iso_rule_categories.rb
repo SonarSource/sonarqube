@@ -24,13 +24,6 @@
 class DeleteIsoRuleCategories < ActiveRecord::Migration
 
   def self.up
-    remove_rule_categories
-    delete_measures_on_iso_category
-  end
-
-  private
-
-  def self.remove_rule_categories
     begin
       remove_column('rules', 'rules_category_id')
     rescue
@@ -38,10 +31,4 @@ class DeleteIsoRuleCategories < ActiveRecord::Migration
     end
   end
 
-  def self.delete_measures_on_iso_category
-    ids=ProjectMeasure.connection.select_values("SELECT ID FROM PROJECT_MEASURES WHERE RULE_ID IS NULL AND RULES_CATEGORY_ID IS NOT NULL")
-    ids.in_groups_of(900, false) do |group|
-      ProjectMeasure.delete(group.map{|id| id.to_i}) unless group.empty?
-    end
-  end
 end

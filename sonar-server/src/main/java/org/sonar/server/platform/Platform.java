@@ -28,7 +28,6 @@ import org.sonar.api.Plugins;
 import org.sonar.api.database.configuration.DatabaseConfiguration;
 import org.sonar.api.platform.Environment;
 import org.sonar.api.platform.Server;
-import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.XMLProfileParser;
 import org.sonar.api.profiles.XMLProfileSerializer;
@@ -205,6 +204,7 @@ public final class Platform {
       startupContainer.as(Characteristics.CACHE).addComponent(JdbcDriverDeployer.class);
       startupContainer.as(Characteristics.CACHE).addComponent(ServerMetadataPersister.class);
       startupContainer.as(Characteristics.CACHE).addComponent(RegisterQualityModels.class);
+      startupContainer.as(Characteristics.CACHE).addComponent(DeleteDeprecatedMeasures.class);
       startupContainer.start();
 
       startupContainer.getComponent(ServerLifecycleNotifier.class).notifyStart();

@@ -32,9 +32,9 @@ public interface ServerUpgradeStatus extends ServerComponent {
   boolean isUpgraded();
 
   /**
-   * Has the database been created during the current startup ?
+   * Has the database been created from scratch during the current startup ?
    */
-  boolean isInstalledFromScratch();
+  boolean isFreshInstall();
 
   /**
    * The database version before the server startup. Returns <=0 if db created from scratch.

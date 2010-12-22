@@ -42,10 +42,10 @@ public final class DefaultServerUpgradeStatus implements ServerUpgradeStatus {
   }
 
   public boolean isUpgraded() {
-    return !isInstalledFromScratch() &&(initialDbVersion < SchemaMigration.LAST_VERSION);
+    return !isFreshInstall() &&(initialDbVersion < SchemaMigration.LAST_VERSION);
   }
 
-  public boolean isInstalledFromScratch() {
+  public boolean isFreshInstall() {
     return initialDbVersion <= 0;
   }
 
