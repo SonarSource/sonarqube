@@ -317,7 +317,7 @@ class RulesConfigurationController < ApplicationController
   def deactivate_rules(profile, rule_ids)
     count=0
     profile.active_rules.each do |ar|
-      if rule_ids.include?(ar.rule_id) && !ar.inherited
+      if rule_ids.include?(ar.rule_id) && !ar.inheritance.present?
         ar.destroy
         java_facade.ruleDeactivated(profile.id, ar.rule_id)
         count+=1
