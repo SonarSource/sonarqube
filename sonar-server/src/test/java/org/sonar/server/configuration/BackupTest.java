@@ -19,8 +19,6 @@
  */
 package org.sonar.server.configuration;
 
-import org.sonar.api.rules.ActiveRuleInheritanceStatus;
-
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
@@ -168,6 +166,22 @@ public class BackupTest {
     RuleParam param = rule.getParams().get(0);
     assertThat(param.getKey(), is("test param key"));
     assertThat(param.getDefaultValue(), is("test param value"));
+  }
+
+  @Test
+  public void shouldImportXmlWithoutInheritanceInformation() {
+    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null),
+        new RulesBackup((DatabaseSession) null), new ProfilesBackup((DatabaseSession) null)));
+
+    String xml = getFileFromClasspath("backup-restore-without-inheritance.xml");
+    SonarConfig sonarConfig = backup.getSonarConfigFromXml(xml);
+
+    Collection<RulesProfile> profiles = sonarConfig.getProfiles();
+    assertThat(profiles.size(), is(1));
+    RulesProfile testProfile = profiles.iterator().next();
+    assertThat(testProfile.getActiveRules().size(), is(1));
+    ActiveRule activeRule = testProfile.getActiveRules().get(0);
+    assertThat(activeRule.getInheritanceStatus(), is(ActiveRuleInheritanceStatus.NO));
   }
 
   @Test

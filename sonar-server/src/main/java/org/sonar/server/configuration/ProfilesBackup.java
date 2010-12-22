@@ -205,7 +205,9 @@ public class ProfilesBackup implements Backupable {
         ActiveRule activeRule = new ActiveRule(null, new Rule(valuesRule.get("plugin"), valuesRule.get("key")), RulePriority
             .valueOf(valuesRule.get("level")));
         activeRule.setActiveRuleParams(params);
-        activeRule.setInheritanceStatus(ActiveRuleInheritanceStatus.valueOf(valuesRule.get("inherited")));
+        if (valuesRule.containsKey("inherited")) {
+          activeRule.setInheritanceStatus(ActiveRuleInheritanceStatus.valueOf(valuesRule.get("inherited")));
+        }
         return activeRule;
       }
 
