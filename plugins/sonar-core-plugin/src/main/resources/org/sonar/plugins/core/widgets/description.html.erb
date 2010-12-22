@@ -27,7 +27,7 @@
     <% if Project::SCOPE_SET==@project.scope %>
     <tr>
       <td>Alerts: </td>
-      <td><%= image_tag 'feed-icon-14x14.png' -%> <a href="<%= url_for :controller => :feeds, :action => 'project', :id => @project.key, :category => EventCategory::KEY_ALERT -%>" class="action">RSS Feed</a></td>
+      <td><%= image_tag 'rss-12x12.png' -%> <a href="<%= url_for :controller => :feeds, :action => 'project', :id => @project.key, :category => EventCategory::KEY_ALERT -%>" class="action">RSS Feed</a></td>
     </tr>
     <% end %>
     <% unless @project.project_links.empty? %>
