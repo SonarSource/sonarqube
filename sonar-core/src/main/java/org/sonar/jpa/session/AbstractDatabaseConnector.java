@@ -88,7 +88,7 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
    *
    * @return JDBC transaction isolation
    */
-  public Integer getTransactionIsolation() {
+  public final Integer getTransactionIsolation() {
     return transactionIsolation;
   }
 
@@ -222,15 +222,15 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
     return databaseVersion == SchemaMigration.LAST_VERSION;
   }
 
-  protected int getDatabaseVersion() {
+  public final int getDatabaseVersion() {
     return databaseVersion;
   }
 
-  public Dialect getDialect() {
+  public final Dialect getDialect() {
     return dialect;
   }
 
-  public String getDialectClass() {
+  public final String getDialectClass() {
     String dialectClass = configuration.getString(DatabaseProperties.PROP_DIALECT_CLASS);
     if (dialectClass == null && dialect != null) {
       dialectClass = dialect.getHibernateDialectClass().getName();

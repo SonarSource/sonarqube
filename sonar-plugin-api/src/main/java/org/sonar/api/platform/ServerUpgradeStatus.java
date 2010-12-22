@@ -17,25 +17,28 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.jpa.session;
+package org.sonar.api.platform;
 
-import org.sonar.jpa.dialect.Dialect;
+import org.sonar.api.ServerComponent;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import java.sql.Connection;
-import java.sql.SQLException;
+/**
+ * @since 2.5
+ */
+public interface ServerUpgradeStatus extends ServerComponent {
 
-public interface DatabaseConnector {
+  /**
+   * Has the database been upgraded during the current startup ? Return false if isInstalledFromScratch() is true.
+   */
+  boolean isUpgraded();
 
-  Dialect getDialect();
+  /**
+   * Has the database been created during the current startup ?
+   */
+  boolean isInstalledFromScratch();
 
-  Connection getConnection() throws SQLException;
-
-  EntityManagerFactory getEntityManagerFactory();
-
-  EntityManager createEntityManager();
-
-  int getDatabaseVersion();
+  /**
+   * The database version before the server startup. Returns <=0 if db created from scratch.
+   */
+  int getInitialDbVersion();
   
 }

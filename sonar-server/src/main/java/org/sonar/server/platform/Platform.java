@@ -28,6 +28,7 @@ import org.sonar.api.Plugins;
 import org.sonar.api.database.configuration.DatabaseConfiguration;
 import org.sonar.api.platform.Environment;
 import org.sonar.api.platform.Server;
+import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.XMLProfileParser;
 import org.sonar.api.profiles.XMLProfileSerializer;
@@ -96,7 +97,7 @@ public final class Platform {
   }
 
   public void start() {
-    if (!started && isConnectedToDatabase()) {
+    if (!started && isUpToDateDatabase()) {
       TimeProfiler profiler = new TimeProfiler().start("Start services");
       startCoreComponents();
       startServiceComponents();
@@ -113,12 +114,13 @@ public final class Platform {
     rootContainer.as(Characteristics.CACHE).addComponent(configuration);
     rootContainer.as(Characteristics.CACHE).addComponent(EmbeddedDatabaseFactory.class);
     rootContainer.as(Characteristics.CACHE).addComponent(JndiDatabaseConnector.class);
+    rootContainer.as(Characteristics.CACHE).addComponent(DefaultServerUpgradeStatus.class);
     rootContainer.start();
 
     // Platform is already starting, so it's registered after the container startup
   }
 
-  private boolean isConnectedToDatabase() {
+  private boolean isUpToDateDatabase() {
     JndiDatabaseConnector databaseConnector = getContainer().getComponent(JndiDatabaseConnector.class);
     return databaseConnector.isOperational();
   }
