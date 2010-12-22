@@ -24,14 +24,30 @@
 class AddMeasureVariationValues < ActiveRecord::Migration
 
   def self.up
-    remove_column :project_measures, :diff_value_1
-    remove_column :project_measures, :diff_value_2
-    remove_column :project_measures, :diff_value_3
-    add_column(:project_measures, :variation_value_1, :decimal, :null => true, :precision => 30, :scale => 20)
-    add_column(:project_measures, :variation_value_2, :decimal, :null => true, :precision => 30, :scale => 20)
-    add_column(:project_measures, :variation_value_3, :decimal, :null => true, :precision => 30, :scale => 20)
-    add_column(:project_measures, :variation_value_4, :decimal, :null => true, :precision => 30, :scale => 20)
-    add_column(:project_measures, :variation_value_5, :decimal, :null => true, :precision => 30, :scale => 20)
+    remove_measures_column(:diff_value_1)
+    remove_measures_column(:diff_value_2)
+    remove_measures_column(:diff_value_3)
+
+    add_measures_column('variation_value_1')
+    add_measures_column('variation_value_2')
+    add_measures_column('variation_value_3')
+    add_measures_column('variation_value_4')
+    add_measures_column('variation_value_5')
   end
 
+  private
+  def self.remove_measures_column(colname)
+    begin
+      remove_column :project_measures, colname
+    rescue
+      # already removed
+    end
+  end
+
+  def self.add_measures_column(colname)
+    ProjectMeasure.reset_column_information()
+    unless ProjectMeasure.column_names.include?(name)
+      add_column(:project_measures, colname, :decimal, :null => true, :precision => 30, :scale => 20)
+    end
+  end
 end
