@@ -24,7 +24,7 @@ class ProfilesController < ApplicationController
   verify :method => :post, :only => ['create', 'delete', 'copy', 'set_as_default', 'restore', 'set_projects', 'rename', 'change_parent'], :redirect_to => { :action => 'index' }
 
   # the backup action is allow to non-admin users : see http://jira.codehaus.org/browse/SONAR-2039
-  before_filter :admin_required, :except => [ 'index', 'show', 'projects', 'permalinks', 'export', 'backup', 'inheritance' ]
+  before_filter :admin_required, :except => [ 'index', 'show', 'projects', 'permalinks', 'export', 'backup', 'hierarchy' ]
 
   #
   #
@@ -187,15 +187,14 @@ class ProfilesController < ApplicationController
 
   #
   #
-  # GET /profiles/inheritance?id=<profile id>
+  # GET /profiles/hierarchy?id=<profile id>
   #
   #
-  def inheritance
+  def hierarchy
     @profile = Profile.find(params[:id])
-    @child_profiles = Profile.find(:all,
-      :conditions => {:language => @profile.language, :parent_name => @profile.name},
-      :order => 'name')
-    @select_parent = [['', nil]] + Profile.find(:all).collect { |profile| [profile.name, profile.name] }.sort
+    
+    profiles=Profile.find(:all, :conditions => ['language=? and id<>? and (parent_name is null or parent_name<>?)', @profile.language, @profile.id, @profile.name], :order => 'name')
+    @select_parent = [['None', nil]] + profiles.collect{ |profile| [profile.name, profile.name] }
   end
 
 
@@ -208,11 +207,12 @@ class ProfilesController < ApplicationController
     id = params[:id].to_i
     parent_name = params[:parent_name]
     if parent_name.blank?
-      java_facade.changeParentProfile(id, nil)
+      messages = java_facade.changeParentProfile(id, nil)
     else
-      java_facade.changeParentProfile(id, parent_name)
+      messages = java_facade.changeParentProfile(id, parent_name)
     end
-    redirect_to :action => 'inheritance', :id => id
+    flash_validation_messages(messages)
+    redirect_to :action => 'hierarchy', :id => id
   end
 
 

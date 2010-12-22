@@ -99,4 +99,38 @@ class Profile < ActiveRecord::Base
     end
     @active_hash_by_rule_id
   end
+
+  def inherited?
+    parent_name.present?
+  end
+
+  def parent
+    @parent||=
+      begin
+        if parent_name.present?
+          Profile.find(:first, :conditions => ['language=? and name=?', language, parent_name])
+        else
+          nil
+        end
+      end
+  end
+
+  def ancestors
+    @ancestors ||=
+      begin
+        array=[]
+        if parent
+          array<<parent
+          array.concat(parent.ancestors)
+        end
+        array
+      end
+  end
+
+  def children
+    @children ||=
+      begin
+        Profile.find(:all, :conditions => ['language=? and parent_name=?', language, name], :order => 'name')
+      end
+  end
 end

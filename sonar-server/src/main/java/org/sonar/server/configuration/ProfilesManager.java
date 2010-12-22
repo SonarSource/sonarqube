@@ -26,6 +26,7 @@ import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.utils.ValidationMessages;
 import org.sonar.jpa.dao.BaseDao;
 import org.sonar.jpa.dao.RulesDao;
 
@@ -87,13 +88,15 @@ public class ProfilesManager extends BaseDao {
 
   // Managing inheritance of profiles
 
-  public void changeParentProfile(Integer profileId, String parentName) {
+  public ValidationMessages changeParentProfile(Integer profileId, String parentName) {
+    ValidationMessages messages = ValidationMessages.create();
     RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
     if (profile != null && !profile.getProvided()) {
       RulesProfile oldParent = getParentProfile(profile);
       RulesProfile newParent = getProfile(profile.getLanguage(), parentName);
       if (isCycle(profile, newParent)) {
-        return;
+        messages.addWarningText("Please do not select a child profile as parent.");
+        return messages;
       }
       // Deactivate all inherited rules
       if (oldParent != null) {
@@ -111,6 +114,7 @@ public class ProfilesManager extends BaseDao {
       getSession().saveWithoutFlush(profile);
       getSession().commit();
     }
+    return messages;
   }
 
   /**

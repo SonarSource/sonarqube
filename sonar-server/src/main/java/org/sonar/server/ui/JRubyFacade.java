@@ -201,8 +201,8 @@ public final class JRubyFacade implements ServerComponent {
     getProfilesManager().deleteProfile((int) profileId);
   }
 
-  public void changeParentProfile(int profileId, String parentName) {
-    getProfilesManager().changeParentProfile(profileId, parentName);
+  public ValidationMessages changeParentProfile(int profileId, String parentName) {
+    return getProfilesManager().changeParentProfile(profileId, parentName);
   }
 
   public void ruleActivatedOrChanged(int parentProfileId, int activeRuleId) {

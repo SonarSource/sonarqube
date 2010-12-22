@@ -16,7 +16,7 @@
     <a href="<%= url_for :controller => 'profiles', :action => 'permalinks', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='Permalinks' -%>>Permalinks</a>
   </li>
   <li>
-    <a href="<%= url_for :controller => 'profiles', :action => 'inheritance', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='Inheritance' -%>>Inheritance</a>
+    <a href="<%= url_for :controller => 'profiles', :action => 'hierarchy', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='Hierarchy' -%>>Hierarchy</a>
   </li>
   <% if new_tab %>
   <li>

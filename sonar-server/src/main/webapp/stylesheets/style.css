@@ -602,8 +602,6 @@ ul.operations li a {
   color: #555;
 }
 
-
-
 /* RESOURCE VIEWER */
 .resourceName h1 {
 	margin: 5px 0;
@@ -962,7 +960,6 @@ ul.operations li a {
   text-align: left;
   font-weight: bold;
   color: #333;
-  padding: 5px 10px;
 }
 
 .column {
