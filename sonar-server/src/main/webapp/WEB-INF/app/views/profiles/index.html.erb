@@ -137,7 +137,7 @@
         </td>
 
         <td>
-            <% if (!(profile.provided?) && !(profile.default_profile?)) %>
+            <% if profile.deletable? %>
             <%= button_to "Delete", { :action => 'delete', :id => profile.id }, :class => 'action',
                         :id => "delete_#{u profile.key}",
                         :confirm => "Are you sure that you want to delete the profile '#{profile.name}' ?",

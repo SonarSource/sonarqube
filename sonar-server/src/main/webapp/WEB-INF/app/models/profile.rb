@@ -100,6 +100,10 @@ class Profile < ActiveRecord::Base
     @active_hash_by_rule_id
   end
 
+  def deletable?
+    !provided? && !default_profile? && children.empty?
+  end
+
   def inherited?
     parent_name.present?
   end

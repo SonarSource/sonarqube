@@ -19,7 +19,6 @@
  */
 package org.sonar.server.startup;
 
-import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.platform.ServerUpgradeStatus;
@@ -52,7 +51,7 @@ public final class DeleteDeprecatedMeasures {
   }
 
   boolean mustDoPurge() {
-    return status.isUpgraded() && status.getInitialDbVersion()<=162;
+    return status.isUpgraded() && status.getInitialDbVersion() <= 162;
   }
 
   void doPurge() {

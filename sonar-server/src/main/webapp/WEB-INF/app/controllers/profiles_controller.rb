@@ -93,7 +93,7 @@ class ProfilesController < ApplicationController
   #
   def delete
     @profile = Profile.find(params[:id])
-    if @profile && !@profile.provided? && !@profile.default_profile?
+    if @profile && @profile.deletable?
       java_facade.deleteProfile(@profile.id)
       flash[:notice]="Profile '#{@profile.name}' is deleted."
     end
