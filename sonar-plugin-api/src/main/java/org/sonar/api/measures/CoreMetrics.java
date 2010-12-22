@@ -375,27 +375,27 @@ public final class CoreMetrics {
 
   public static final String NEW_VIOLATIONS_KEY = "new_violations";
   public static final Metric NEW_VIOLATIONS = new Metric(NEW_VIOLATIONS_KEY, "New Violations", "New Violations", Metric.ValueType.INT,
-      Metric.DIRECTION_WORST, true, DOMAIN_RULES).setHidden(true);
+      Metric.DIRECTION_WORST, true, DOMAIN_RULES).setHidden(true).setBestValue(0.0).setOptimizedBestValue(true);
 
   public static final String NEW_BLOCKER_VIOLATIONS_KEY = "new_blocker_violations";
   public static final Metric NEW_BLOCKER_VIOLATIONS = new Metric(NEW_BLOCKER_VIOLATIONS_KEY, "New Blocker violations", "New Blocker violations",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setHidden(true);
+      Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setHidden(true).setBestValue(0.0).setOptimizedBestValue(true);
 
   public static final String NEW_CRITICAL_VIOLATIONS_KEY = "new_critical_violations";
   public static final Metric NEW_CRITICAL_VIOLATIONS = new Metric(NEW_CRITICAL_VIOLATIONS_KEY, "New Critical violations", "New Critical violations",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setHidden(true);
+      Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setHidden(true).setBestValue(0.0).setOptimizedBestValue(true);
 
   public static final String NEW_MAJOR_VIOLATIONS_KEY = "new_major_violations";
   public static final Metric NEW_MAJOR_VIOLATIONS = new Metric(NEW_MAJOR_VIOLATIONS_KEY, "New Major violations", "New Major violations",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setHidden(true);
+      Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setHidden(true).setBestValue(0.0).setOptimizedBestValue(true);
 
   public static final String NEW_MINOR_VIOLATIONS_KEY = "new_minor_violations";
   public static final Metric NEW_MINOR_VIOLATIONS = new Metric(NEW_MINOR_VIOLATIONS_KEY, "New Minor violations", "New Minor violations",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setHidden(true);
+      Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setHidden(true).setBestValue(0.0).setOptimizedBestValue(true);
 
   public static final String NEW_INFO_VIOLATIONS_KEY = "new_info_violations";
   public static final Metric NEW_INFO_VIOLATIONS = new Metric(NEW_INFO_VIOLATIONS_KEY, "New Info violations", "New Info violations",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setHidden(true);
+      Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setHidden(true).setBestValue(0.0).setOptimizedBestValue(true);
 
   /* Design */
 
