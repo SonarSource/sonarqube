@@ -1387,6 +1387,10 @@ table.data, table.spaced, .gwt-SourcePanel .sources {
   width: 100%;
 }
 
+table.without-header {
+  border-top: 1px solid #ddd;
+}
+
 .hoverable.selected a, #time_machine #selected h3, #time_machine #selected a {
   color: #fff;
 }
