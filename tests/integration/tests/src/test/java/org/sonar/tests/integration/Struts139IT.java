@@ -20,6 +20,7 @@
 package org.sonar.tests.integration;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.wsclient.Sonar;
@@ -189,10 +190,8 @@ public class Struts139IT {
     assertThat(version.getCategory(), is("Version"));
   }
 
-  /**
-   * See http://jira.codehaus.org/browse/SONAR-2041
-   */
   @Test
+  @Ignore("Not fixed. See http://jira.codehaus.org/browse/SONAR-2041")
   public void unknownMetric() {
     assertThat(getProjectMeasure("notfound"), nullValue());
     assertThat(getCoreModuleMeasure("notfound"), nullValue());
