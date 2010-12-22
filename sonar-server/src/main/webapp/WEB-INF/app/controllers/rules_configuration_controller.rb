@@ -40,13 +40,13 @@ class RulesConfigurationController < ApplicationController
         return
       end
       begin
-        @profile = RulesProfile.find(params[:id].to_i)
+        @profile = Profile.find(params[:id].to_i)
       rescue
         redirect_to :controller => 'profiles'
         return
       end
     else
-      @profile = RulesProfile.default_profile
+      @profile = Profile.default_profile
     end
     
     init_params()
@@ -54,9 +54,10 @@ class RulesConfigurationController < ApplicationController
     @select_plugins = ANY_SELECTION + java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| [repo.getName(true), repo.getKey()]}.sort
     @select_priority = ANY_SELECTION + RULE_PRIORITIES
     @select_status = [['Any',''], ["Active", STATUS_ACTIVE], ["Inactive", STATUS_INACTIVE]]
+    @select_inheritance = [['Any',''], ["Not inherited", 'NOT'], ["Inherited", 'INHERITED'], ["Overrides", 'OVERRIDES']]
 
     @rules = Rule.search(java_facade, {
-        :profile => @profile, :status => @status, :priorities => @priorities,
+        :profile => @profile, :status => @status, :priorities => @priorities, :inheritance => @inheritance,
         :plugins =>  @plugins, :searchtext => @searchtext, :include_parameters => true, :language => @profile.language})
 
     unless @searchtext.blank?
@@ -96,7 +97,7 @@ class RulesConfigurationController < ApplicationController
   #
   #
   def activate_rule
-    profile = RulesProfile.find(params[:id].to_i)
+    profile = Profile.find(params[:id].to_i)
     if profile && !profile.provided?
       rule=Rule.find(:first, :conditions => {:id => params[:rule_id].to_i, :enabled => true})
       priority=params[:level]
@@ -119,7 +120,9 @@ class RulesConfigurationController < ApplicationController
         active_rule.save!
         java_facade.ruleActivatedOrChanged(profile.id, active_rule.id)
       end
-      active_rule.reload
+      if active_rule
+        active_rule.reload
+      end
 
       is_admin=true # security has already been checked by controller filters
       render :update do |page|
@@ -137,7 +140,7 @@ class RulesConfigurationController < ApplicationController
   #
   def new
     # form to duplicate a rule
-    @profile = RulesProfile.find(params[:id].to_i)
+    @profile = Profile.find(params[:id].to_i)
     @rule = Rule.find(params[:rule_id])
   end
 
@@ -185,7 +188,7 @@ class RulesConfigurationController < ApplicationController
   #
   def edit
     # form to edit a rule
-    @profile = RulesProfile.find(params[:id])
+    @profile = Profile.find(params[:id])
     @rule = Rule.find(params[:rule_id])
     if !@rule.editable?
       redirect_to :action => 'index', :id => params[:id]
@@ -275,7 +278,7 @@ class RulesConfigurationController < ApplicationController
 
   def update_param
     is_admin=true # security has already been checked by controller filters
-    profile = RulesProfile.find(params[:profile_id].to_i)
+    profile = Profile.find(params[:profile_id].to_i)
     rule_param = RulesParameter.find(params[:param_id].to_i)
     active_rule = ActiveRule.find(params[:active_rule_id].to_i)
     active_param = ActiveRuleParameter.find(params[:id].to_i) if params[:id].to_i > 0
@@ -331,6 +334,7 @@ class RulesConfigurationController < ApplicationController
     @priorities = filter_any(params[:priorities]) || ['']
     @plugins=filter_any(params[:plugins]) || ['']
     @status=params[:rule_status] || STATUS_ACTIVE
+    @inheritance=params[:inheritance] || ''
     @searchtext=params[:searchtext]
   end
 

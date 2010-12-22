@@ -44,7 +44,7 @@ class Profile < ActiveRecord::Base
   end
   
   def validate_copy(name)
-    new_rule_profile = RulesProfile.new(:name => name, :provided => false, :default_profile => false, :language => language)
+    new_rule_profile = Profile.new(:name => name, :provided => false, :default_profile => false, :language => language)
     new_rule_profile.valid?
     new_rule_profile.errors
   end
@@ -81,7 +81,7 @@ class Profile < ActiveRecord::Base
 
   def self.options_for_select
     array=[]
-    RulesProfile.find(:all, :order => 'name').each do |profile|
+    Profile.find(:all, :order => 'name').each do |profile|
       label = profile.name
       label = label + ' (active)' if profile.default_profile?
       array<<[label, profile.id]

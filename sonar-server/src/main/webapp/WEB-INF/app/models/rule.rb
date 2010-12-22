@@ -198,19 +198,33 @@ class Rule < ActiveRecord::Base
   def self.filter(rules, options)
     priorities = remove_blank(options[:priorities])
     profile = options[:profile]
+    inheritance = options[:inheritance]
+
     if profile
       inactive = (options[:status]=='INACTIVE')
       active = (options[:status]=='ACTIVE')
 
       rules = rules.reject do |rule|
         active_rule = profile.active_by_rule_id(rule.id)
-        ((inactive and active_rule) or (active and active_rule.nil?))
+        ((inactive && active_rule) || (active && active_rule.nil?))
       end
 
       if priorities
         rules = rules.select do |rule|
           active_rule = profile.active_by_rule_id(rule.id)
-          (active_rule and priorities.include?(active_rule.priority_text)) or (active_rule.nil? and priorities.include?(rule.priority_text))
+          (active_rule && priorities.include?(active_rule.priority_text)) || (active_rule.nil? && priorities.include?(rule.priority_text))
+        end
+      end
+
+      if inheritance=='NOT'
+        rules = rules.select do |rule|
+          active_rule = profile.active_by_rule_id(rule.id)
+          (active_rule.nil? || active_rule.inheritance.blank?)
+        end
+      elsif inheritance.present?
+        rules = rules.select do |rule|
+          active_rule = profile.active_by_rule_id(rule.id)
+          (active_rule && active_rule.inheritance==inheritance)
         end
       end
 

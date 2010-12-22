@@ -18,7 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class ActiveRule < ActiveRecord::Base
-  belongs_to :rules_profile, :class_name => 'RulesProfile', :foreign_key => 'profile_id'
+  belongs_to :rules_profile, :class_name => 'Profile', :foreign_key => 'profile_id'
   belongs_to :rule
   has_many :active_rule_parameters, :dependent => :destroy
 

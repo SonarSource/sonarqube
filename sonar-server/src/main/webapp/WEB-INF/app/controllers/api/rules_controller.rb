@@ -33,6 +33,7 @@ class Api::RulesController < Api::RestController
     options[:status]=params[:status]
     options[:searchtext]=params[:searchtext]
     options[:include_parameters]=true
+    options[:inheritance]=params[:inheritance]
     
 
     if params[:profile]

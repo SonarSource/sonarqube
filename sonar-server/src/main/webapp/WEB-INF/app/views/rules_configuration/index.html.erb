@@ -59,6 +59,12 @@
          <span class="note">Status</span><br/>
          <%= select_tag "rule_status", options_for_select(@select_status, @status), :id => 'search_status', :size => 6 %>
        </td>
+       <% if @profile.inherited? %>
+       <td class="left" valign="top" width="1%" nowrap>
+         <span class="note">Inheritance</span><br/>
+         <%= select_tag "inheritance", options_for_select(@select_inheritance, @inheritance), :id => 'search_inheritance', :size => 6 %>
+       </td>
+       <% end %>
        <td class="left" valign="top" >
          <br/>
          <%= submit_tag "Search", :id => 'submit_search' %>
@@ -71,7 +77,7 @@
   <ul style="float: right" class="horizontal">
     <li class="marginleft10">
       <div class="csv">
-      <a href="<%= url_for(:controller => 'api/rules', :action => 'index', :language => @profile.language, :profile => @profile.name, :plugins => @plugins.join(','), :status => @status, :searchtext => @searchtext, :priorities => @priorities.join(','), :format => 'csv') -%>" onClick="return downloadCsv()" id="download-link" class="">Download</a>
+      <a href="<%= url_for(:controller => 'api/rules', :action => 'index', :language => @profile.language, :profile => @profile.name, :plugins => @plugins.join(','), :status => @status, :inheritance => @inheritance, :searchtext => @searchtext, :priorities => @priorities.join(','), :format => 'csv') -%>" onClick="return downloadCsv()" id="download-link" class="">Download</a>
       </div>
     </li>
     <% if enable_modification %>
