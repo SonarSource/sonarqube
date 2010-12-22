@@ -37,6 +37,9 @@ import javax.persistence.*;
 @Table(name = "active_rules")
 public class ActiveRule implements Cloneable {
 
+  public static final String INHERITED = "INHERITED";
+  public static final String OVERRIDES = "OVERRIDES";
+
   @Id
   @Column(name = "id")
   @GeneratedValue
@@ -57,9 +60,8 @@ public class ActiveRule implements Cloneable {
   @OneToMany(mappedBy = "activeRule", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
   private List<ActiveRuleParam> activeRuleParams = new ArrayList<ActiveRuleParam>();
 
-  @Column(name = "inherited", updatable = true, nullable = true)
-  @Enumerated(EnumType.ORDINAL)
-  private ActiveRuleInheritanceStatus inherited = ActiveRuleInheritanceStatus.NO;
+  @Column(name = "inheritance", updatable = true, nullable = true)
+  private String inheritance;
 
   /**
    * @deprecated visibility should be reduced to protected or package
@@ -92,8 +94,8 @@ public class ActiveRule implements Cloneable {
    * 
    * @since 2.5
    */
-  public ActiveRuleInheritanceStatus getInheritanceStatus() {
-    return inherited == null ? ActiveRuleInheritanceStatus.NO : inherited;
+  public String getInheritance() {
+    return inheritance;
   }
 
   /**
@@ -101,8 +103,16 @@ public class ActiveRule implements Cloneable {
    * 
    * @since 2.5
    */
-  public void setInheritanceStatus(ActiveRuleInheritanceStatus status) {
-    this.inherited = status;
+  public void setInheritance(String s) {
+    this.inheritance = s;
+  }
+
+  public boolean isInherited() {
+    return StringUtils.equals(INHERITED, inheritance);
+  }
+
+  public boolean doesOverride() {
+    return StringUtils.equals(OVERRIDES, inheritance);
   }
 
   /**
@@ -259,7 +269,7 @@ public class ActiveRule implements Cloneable {
   @Override
   public Object clone() {
     final ActiveRule clone = new ActiveRule(getRulesProfile(), getRule(), getSeverity());
-    clone.setInheritanceStatus(getInheritanceStatus());
+    clone.setInheritance(getInheritance());
     if (CollectionUtils.isNotEmpty(getActiveRuleParams())) {
       clone.setActiveRuleParams(new ArrayList<ActiveRuleParam>(CollectionUtils.collect(getActiveRuleParams(), new Transformer() {
         public Object transform(Object input) {

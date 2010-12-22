@@ -169,7 +169,7 @@ public class ProfilesBackup implements Backupable {
         writeNode(writer, "key", rule.getRule().getKey());
         writeNode(writer, "plugin", rule.getRule().getRepositoryKey());
         writeNode(writer, "level", rule.getSeverity().name());
-        writeNode(writer, "inherited", rule.getInheritanceStatus().toString());
+        writeNode(writer, "inheritance", rule.getInheritance());
 
         if (!rule.getActiveRuleParams().isEmpty()) {
           writer.startNode("params");
@@ -205,8 +205,8 @@ public class ProfilesBackup implements Backupable {
         ActiveRule activeRule = new ActiveRule(null, new Rule(valuesRule.get("plugin"), valuesRule.get("key")), RulePriority
             .valueOf(valuesRule.get("level")));
         activeRule.setActiveRuleParams(params);
-        if (valuesRule.containsKey("inherited")) {
-          activeRule.setInheritanceStatus(ActiveRuleInheritanceStatus.valueOf(valuesRule.get("inherited")));
+        if (valuesRule.containsKey("inheritance")) {
+          activeRule.setInheritance(valuesRule.get("inheritance"));
         }
         return activeRule;
       }
@@ -218,9 +218,11 @@ public class ProfilesBackup implements Backupable {
   }
 
   private void writeNode(HierarchicalStreamWriter writer, String name, String value) {
-    writer.startNode(name);
-    writer.setValue(value);
-    writer.endNode();
+    if (value != null) {
+      writer.startNode(name);
+      writer.setValue(value);
+      writer.endNode();
+    }
   }
 
   private Map<String, String> readNode(HierarchicalStreamReader reader) {

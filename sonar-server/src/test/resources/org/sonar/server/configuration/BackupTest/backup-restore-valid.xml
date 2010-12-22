@@ -42,7 +42,6 @@
           <key><![CDATA[test key]]></key>
           <plugin><![CDATA[test plugin]]></plugin>
           <level><![CDATA[ERROR]]></level>
-          <inherited><![CDATA[NO]]></inherited>
           <params>
             <param>
               <key><![CDATA[test param key]]></key>
@@ -71,7 +70,7 @@
           <key><![CDATA[test key]]></key>
           <plugin><![CDATA[test plugin]]></plugin>
           <level><![CDATA[ERROR]]></level>
-          <inherited><![CDATA[OVERRIDDEN]]></inherited>
+          <inheritance><![CDATA[OVERRIDES]]></inheritance>
           <params>
             <param>
               <key><![CDATA[test param key]]></key>

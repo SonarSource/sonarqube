@@ -101,10 +101,10 @@ class ActiveRule < ActiveRecord::Base
   end
 
   def inherited?
-    inherited==1
+    inheritance=='INHERITED'
   end
 
-  def overridden?
-    inherited==2
+  def overrides?
+    inheritance=='OVERRIDES'
   end
 end

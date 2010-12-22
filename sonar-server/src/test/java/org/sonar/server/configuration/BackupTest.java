@@ -25,6 +25,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharEncoding;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.configuration.Property;
@@ -128,7 +129,7 @@ public class BackupTest {
     assertNotNull(testActiveRule.getRule());
     assertEquals("test key", testActiveRule.getRule().getKey());
     assertEquals("test plugin", testActiveRule.getRule().getRepositoryKey());
-    assertThat(testActiveRule.getInheritanceStatus(), is(ActiveRuleInheritanceStatus.NO));
+    assertThat(testActiveRule.getInheritance(), nullValue());
     assertEquals(1, testActiveRule.getActiveRuleParams().size());
 
     ActiveRuleParam testActiveRuleParam = testActiveRule.getActiveRuleParams().get(0);
@@ -149,7 +150,7 @@ public class BackupTest {
     assertEquals("test2 name", testProfile.getName());
     assertEquals("test name", testProfile.getParentName());
     testActiveRule = testProfile.getActiveRules().get(0);
-    assertThat(testActiveRule.getInheritanceStatus(), is(ActiveRuleInheritanceStatus.OVERRIDDEN));
+    assertThat(testActiveRule.getInheritance(), is(ActiveRule.OVERRIDES));
 
     Collection<Rule> rules = sonarConfig.getRules();
     assertThat(rules.size(), is(1));
@@ -181,7 +182,7 @@ public class BackupTest {
     RulesProfile testProfile = profiles.iterator().next();
     assertThat(testProfile.getActiveRules().size(), is(1));
     ActiveRule activeRule = testProfile.getActiveRules().get(0);
-    assertThat(activeRule.getInheritanceStatus(), is(ActiveRuleInheritanceStatus.NO));
+    assertThat(activeRule.getInheritance(), nullValue());
   }
 
   @Test
@@ -283,7 +284,7 @@ public class BackupTest {
 
     ActiveRule activeRule2 = profile2.activateRule(rule, RulePriority.MINOR);
     activeRule2.setParameter("test param key", "test value");
-    activeRule2.setInheritanceStatus(ActiveRuleInheritanceStatus.OVERRIDDEN);
+    activeRule2.setInheritance(ActiveRule.OVERRIDES);
 
     profiles.get(0).getAlerts().add(new Alert(null, new Metric("test key"), Alert.OPERATOR_GREATER, "testError", "testWarn"));
 

@@ -14,15 +14,15 @@
                  :loading => "$('levels_#{rule.id}').replace('<img src=\"#{ApplicationController.root_context}/images/loading.gif\"/>');",
                  :with => "'level=' + get_level_for_rule(#{rule_select_box},#{rule_check_box})")
       %>
-      <%= check_box_tag(check_box_id, 'yes', (!active_rule.nil?), :onclick => activate_rule, :disabled => !enable_modification || (active_rule && (active_rule.inherited? || active_rule.overridden?))) %>
+      <%= check_box_tag(check_box_id, 'yes', (!active_rule.nil?), :onclick => activate_rule, :disabled => !enable_modification || (active_rule && (active_rule.inherited? || active_rule.overrides?))) %>
       <%= select_tag(select_box_id, options_for_select(RulesConfigurationController::RULE_PRIORITIES, (active_rule.nil? ? rule.priority_text : active_rule.priority_text)),
             {:onchange => changel_level, :disabled => (!(enable_modification) || active_rule.nil?)}) %>
 
       <% if active_rule %>
         <% if active_rule.inherited? %>
-          <img src="<%= ApplicationController.root_context -%>/images/relation-vertical-green.png" alt="Inherited from parent" title="Inherited from parent"/>
-        <% elsif active_rule.overridden? %>
-          <img src="<%= ApplicationController.root_context -%>/images/relation-vertical-red.png" alt="Overrides parent definition" title="Overrides parent definition"/>
+          <img src="<%= ApplicationController.root_context -%>/images/inherited.png" alt="Inherited from parent" title="Inherited from parent"/>
+        <% elsif active_rule.overrides? %>
+          <img src="<%= ApplicationController.root_context -%>/images/overrides.png" alt="Overrides parent definition" title="Overrides parent definition"/>
         <% end %>
       <% end %>
   </form>
@@ -56,7 +56,7 @@
         <% if rule.editable? %>
         <%= button_to "Edit rule", :action => 'edit', :id => profile.id, :rule_id => rule.id %>
         <% end %>
-        <% if active_rule && active_rule.overridden? %>
+        <% if active_rule && active_rule.overrides? %>
         <%= button_to "Revert to parent definition", :action => 'revert_rule', :id => profile.id, :active_rule_id => active_rule.id %><br/>
         <% end %>
       <% end %>
