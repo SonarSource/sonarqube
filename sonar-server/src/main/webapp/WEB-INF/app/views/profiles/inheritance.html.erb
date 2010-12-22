@@ -1,5 +1,5 @@
 <h1 class="marginbottom10"><%= link_to 'Quality profiles', :controller => 'profiles', :action => 'index' -%> / <%= h @profile.language -%> / <%= h @profile.name %></h1>
-<%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'Hierarchy'} %>
+<%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'inheritance'} %>
 
 <div class="tabs-panel marginbottom10">
 
@@ -8,7 +8,7 @@
       <td align="center"  valign="top">
         <div>
             <% @profile.ancestors.reverse.each do |parent| %>
-              <a href="<%= url_for :action => 'hierarchy', :id => parent.id -%>"><%= parent.name -%></a> <span class="note">(<%= parent.active_rules.size -%> rules)</span><br/>
+              <a href="<%= url_for :action => 'inheritance', :id => parent.id -%>"><%= parent.name -%></a> <span class="note">(<%= parent.active_rules.size -%> rules)</span><br/>
               <%= image_tag 'blue-up.png' -%><br/>
             <% end %>
 
@@ -18,7 +18,7 @@
               <%= image_tag 'blue-up.png' -%><br/>
               <% @profile.children.each_with_index do |child,index| %>
                 <%= ', ' if index>0 -%>
-                <a href="<%= url_for :action => 'hierarchy', :id => child.id -%>"><%= child.name -%></a> <span class="note">(<%= child.active_rules.size -%> rules)</span>
+                <a href="<%= url_for :action => 'inheritance', :id => child.id -%>"><%= child.name -%></a> <span class="note">(<%= child.active_rules.size -%> rules)</span>
               <% end %>
               <br/><%= image_tag 'blue-up.png' -%><br/>
               ...

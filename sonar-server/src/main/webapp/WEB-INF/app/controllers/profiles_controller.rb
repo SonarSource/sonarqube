@@ -24,7 +24,7 @@ class ProfilesController < ApplicationController
   verify :method => :post, :only => ['create', 'delete', 'copy', 'set_as_default', 'restore', 'set_projects', 'rename', 'change_parent'], :redirect_to => { :action => 'index' }
 
   # the backup action is allow to non-admin users : see http://jira.codehaus.org/browse/SONAR-2039
-  before_filter :admin_required, :except => [ 'index', 'show', 'projects', 'permalinks', 'export', 'backup', 'hierarchy' ]
+  before_filter :admin_required, :except => [ 'index', 'show', 'projects', 'permalinks', 'export', 'backup', 'inheritance' ]
 
   #
   #
@@ -187,10 +187,10 @@ class ProfilesController < ApplicationController
 
   #
   #
-  # GET /profiles/hierarchy?id=<profile id>
+  # GET /profiles/inheritance?id=<profile id>
   #
   #
-  def hierarchy
+  def inheritance
     @profile = Profile.find(params[:id])
     
     profiles=Profile.find(:all, :conditions => ['language=? and id<>? and (parent_name is null or parent_name<>?)', @profile.language, @profile.id, @profile.name], :order => 'name')
@@ -212,7 +212,7 @@ class ProfilesController < ApplicationController
       messages = java_facade.changeParentProfile(id, parent_name)
     end
     flash_validation_messages(messages)
-    redirect_to :action => 'hierarchy', :id => id
+    redirect_to :action => 'inheritance', :id => id
   end
 
 
