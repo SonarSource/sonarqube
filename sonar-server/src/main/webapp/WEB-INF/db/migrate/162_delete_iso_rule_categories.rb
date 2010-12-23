@@ -26,6 +26,7 @@ class DeleteIsoRuleCategories < ActiveRecord::Migration
   def self.up
     begin
       remove_column('rules', 'rules_category_id')
+      Rule.reset_column_information()
     rescue
       # already removed
     end

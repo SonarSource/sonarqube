@@ -39,15 +39,16 @@ class AddMeasureVariationValues < ActiveRecord::Migration
   def self.remove_measures_column(colname)
     begin
       remove_column :project_measures, colname
+      ProjectMeasure.reset_column_information()
     rescue
       # already removed
     end
   end
 
   def self.add_measures_column(colname)
-    ProjectMeasure.reset_column_information()
     unless ProjectMeasure.column_names.include?(name)
       add_column(:project_measures, colname, :decimal, :null => true, :precision => 30, :scale => 20)
+      ProjectMeasure.reset_column_information()
     end
   end
 end
