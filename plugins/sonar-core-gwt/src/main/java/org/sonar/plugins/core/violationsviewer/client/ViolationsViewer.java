@@ -52,6 +52,7 @@ public class ViolationsViewer extends Page {
   private List<Date> dateFilters = new ArrayList<Date>();
   private CheckBox expandCheckbox = null;
   private String defaultFilter;
+  private int defaultPeriodIndex = -1;
 
   // source
   private ViolationsPanel sourcePanel;
@@ -145,6 +146,9 @@ public class ViolationsViewer extends Page {
         dateFilters.add(date);
       }
     }
+    if (defaultPeriodIndex > -1) {
+      periodBox.setSelectedIndex(defaultPeriodIndex);
+    }
   }
 
   private Date getCurrentDateFilter() {
@@ -163,6 +167,10 @@ public class ViolationsViewer extends Page {
     defaultFilter = Configuration.getRequestParameter("rule");
     if (defaultFilter == null) {
       defaultFilter = Configuration.getRequestParameter("priority");
+    }
+    String period = Configuration.getRequestParameter("period");
+    if (period != null && !"".equals(period)) {
+      defaultPeriodIndex = Integer.valueOf(period);
     }
   }
 
