@@ -104,6 +104,13 @@ class Profile < ActiveRecord::Base
     !provided? && !default_profile? && children.empty?
   end
 
+  def count_overriding_rules
+    @count_overriding_rules||=
+      begin
+        active_rules.count(:conditions => ['inheritance=?', 'OVERRIDES'])
+      end
+  end
+
   def inherited?
     parent_name.present?
   end

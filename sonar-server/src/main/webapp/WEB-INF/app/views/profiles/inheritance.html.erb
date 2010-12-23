@@ -8,17 +8,19 @@
       <td align="center"  valign="top">
         <div>
             <% @profile.ancestors.reverse.each do |parent| %>
-              <a href="<%= url_for :action => 'inheritance', :id => parent.id -%>"><%= parent.name -%></a> <span class="note">(<%= parent.active_rules.size -%> rules)</span><br/>
+              <a href="<%= url_for :action => 'inheritance', :id => parent.id -%>"><%= parent.name -%></a>
+              <span class="note">(<%= label_for_rules_count(parent) -%>)</span><br/>
               <%= image_tag 'blue-up.png' -%><br/>
             <% end %>
 
-            <b><%= @profile.name -%></b> <span class="note">(<%= @profile.active_rules.size -%> rules)</span><br/>
+            <b><%= @profile.name -%></b> <span class="note">(<%= label_for_rules_count(@profile) -%>)</span><br/>
 
             <% if @profile.children.size>0 %>
               <%= image_tag 'blue-up.png' -%><br/>
               <% @profile.children.each_with_index do |child,index| %>
                 <%= ', ' if index>0 -%>
-                <a href="<%= url_for :action => 'inheritance', :id => child.id -%>"><%= child.name -%></a> <span class="note">(<%= child.active_rules.size -%> rules)</span>
+                <a href="<%= url_for :action => 'inheritance', :id => child.id -%>"><%= child.name -%></a>
+                <span class="note">(<%= label_for_rules_count(child) -%>)</span>
               <% end %>
               <br/><%= image_tag 'blue-up.png' -%><br/>
               ...

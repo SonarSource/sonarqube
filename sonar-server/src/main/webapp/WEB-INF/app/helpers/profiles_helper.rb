@@ -21,4 +21,15 @@ module ProfilesHelper
   def languages
     controller.java_facade.getLanguages()
   end
+
+  def label_for_rules_count(profile)
+    label="#{profile.active_rules.count} rules"
+
+    count_overriding=profile.count_overriding_rules
+    if count_overriding>0
+      label += ", incl. #{count_overriding} overriding"
+      label += image_tag('overrides.png')
+    end
+    label
+  end
 end

@@ -274,7 +274,9 @@ code {
   font-size: 93%;
   font-weight: normal;
 }
-
+.note img {
+  vertical-align: bottom;
+}
 .crossout {
   text-decoration: line-through;
 }
