@@ -45,6 +45,8 @@ class AddSnapshotsPeriodColumns < ActiveRecord::Migration
      add_period_column('period5_mode', :string, :null => true, :limit => 100)
      add_period_column('period5_param', :string, :null => true, :limit => 100)
      add_period_column('period5_date', :datetime, :null => true)
+
+     Snapshot.reset_column_information()
   end
 
   private
