@@ -152,6 +152,6 @@ public class Violation extends Model {
    * @since 2.5
    */
   public boolean isCreatedAfter(Date date) {
-    return createdAt!=null && date!=null && !createdAt.before(date);
+    return createdAt!=null && date!=null && createdAt.after(date);
   }
 }
