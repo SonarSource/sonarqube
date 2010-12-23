@@ -24,7 +24,7 @@
 class AddColumnsForProfilesInheritance < ActiveRecord::Migration
 
   def self.up
-    add_column 'active_rules', 'inheritance', :varchar, :limit => 10, :null => true
+    add_column 'active_rules', 'inheritance', :string, :limit => 10, :null => true
     ActiveRule.reset_column_information
     
     add_column 'rules_profiles', 'parent_name', :string, :limit => 100, :null => true
