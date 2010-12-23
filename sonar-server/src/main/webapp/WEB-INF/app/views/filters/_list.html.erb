@@ -4,7 +4,7 @@
     <div class="operations">
     <form action="<%= url_for :overwrite_params => {:period => nil} -%>" style="display: inline" method="get">
       <select name="period" onchange="submit()" class="small">
-          <option value="">Compare to...</option>
+          <option value="">Variations...</option>
           <% period_names.each_with_index do |name, index| %>
              <option value="<%= index+1 -%>" <%= 'selected' if @filter_context.period_index==index+1 -%>><%= name -%></value>
           <% end %>

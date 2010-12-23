@@ -26,13 +26,13 @@ module DrilldownHelper
 
     if mode
       if mode=='days'
-        label = "New violations from %s previous days" % mode_param
+        label = "Added over %s previous days" % mode_param
       elsif mode=='version'
-        label = "New violations since version %s" % mode_param
+        label = "Added since version %s" % mode_param
       elsif mode=='previous_analysis'
-        label = "New violations since previous analysis (%s)" % localize(Date.parse(mode_param))
+        label = "Added since previous analysis (%s)" % localize(Date.parse(mode_param))
       elsif mode=='date'
-        label = "New violations since #{localize(Date.parse(mode_param))}"
+        label = "Added since #{localize(Date.parse(mode_param))}"
       end
       if label
         selected=(params[:period]==index.to_s ? 'selected' : '')

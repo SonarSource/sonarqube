@@ -127,7 +127,7 @@ public class ViolationsViewer extends Page {
   private void initPeriodBox() {
     periodBox = new ListBox();
     periodBox.setStyleName("small");
-    periodBox.addItem(I18nConstants.INSTANCE.noFilters());
+    periodBox.addItem(I18nConstants.INSTANCE.addedPeriod());
 
     initPeriod(1);
     initPeriod(2);
@@ -141,7 +141,7 @@ public class ViolationsViewer extends Page {
     if (period != null) {
       Date date = JsonUtils.parseDateTime(Configuration.getParameter("period" + periodIndex + "_date"));
       if (date != null) {
-        periodBox.addItem(period);
+        periodBox.addItem("Added " + period);
         dateFilters.add(date);
       }
     }

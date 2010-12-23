@@ -83,13 +83,13 @@ module ApplicationHelper
     label=nil
     if mode
       if mode=='days'
-        label = "%s days ago" % mode_param
+        label = "over %s days" % mode_param
       elsif mode=='version'
-        label = "Version %s" % mode_param
+        label = "since version %s" % mode_param
       elsif mode=='previous_analysis'
-        label = "Previous analysis (%s)" % localize(Date.parse(mode_param))
+        label = "since previous analysis (%s)" % localize(Date.parse(mode_param))
       elsif mode=='date'
-        label = "Date: #{localize(Date.parse(mode_param))}"
+        label = "since #{localize(Date.parse(mode_param))}"
       end
     end
     label

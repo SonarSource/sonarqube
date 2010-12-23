@@ -171,14 +171,14 @@ module FiltersHelper
 
   def period_name(property)
     if property=='previous_analysis'
-      "Compare to previous analysis"
+      "&Delta; since previous analysis"
     elsif property =~ /^[\d]+(\.[\d]+){0,1}$/
       # is integer
-      "Compare to #{property} days ago"
+      "&Delta; over #{property} days"
     elsif property =~ /\d{4}-\d{2}-\d{2}/
-      "Compare to #{property}"
+      "&Delta; since #{property}"
     elsif !property.blank?
-      "Compare to version #{property}"
+      "&Delta; since version #{property}"
     else
       nil
     end

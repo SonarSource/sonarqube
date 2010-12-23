@@ -32,7 +32,7 @@ module DashboardHelper
     label=period_label(snapshot, index)
     if label
       selected=(params[:period]==index.to_s ? 'selected' : '')
-      "<option value='#{index}' #{selected}>#{label}</option>"
+      "<option value='#{index}' #{selected}>&Delta; #{label}</option>"
     else
       nil
     end
