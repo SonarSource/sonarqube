@@ -22,6 +22,7 @@ package org.sonar.plugins.core.timemachine;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.utils.Logs;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -35,6 +36,7 @@ public class PastSnapshotFinder implements BatchExtension {
   public static final String DEFAULT_VALUE_1 = PastSnapshotFinderByPreviousAnalysis.MODE;
   public static final String DEFAULT_VALUE_2 = "5";
   public static final String DEFAULT_VALUE_3 = "30";
+  public static final String PROPERTY_PREFIX = "sonar.timemachine.period";
 
   private PastSnapshotFinderByDays finderByDays;
   private PastSnapshotFinderByVersion finderByVersion;
@@ -51,17 +53,22 @@ public class PastSnapshotFinder implements BatchExtension {
 
   public PastSnapshot find(Configuration conf, int index) {
     String propertyValue = getPropertyValue(conf, index);
-    return find(index, propertyValue);
+    PastSnapshot pastSnapshot = find(index, propertyValue);
+    if (pastSnapshot==null && StringUtils.isNotBlank(propertyValue)) {
+      Logs.INFO.warn("The property " + PROPERTY_PREFIX + index + " has an unvalid value: " + propertyValue);
+    }
+    return pastSnapshot;
   }
 
   static String getPropertyValue(Configuration conf, int index) {
     String defaultValue = null;
     switch (index) {
+      // only global settings (from 1 to 3) have default values
       case 1: defaultValue = DEFAULT_VALUE_1; break;
       case 2: defaultValue = DEFAULT_VALUE_2; break;
       case 3: defaultValue = DEFAULT_VALUE_3; break;
     }
-    return conf.getString("sonar.timemachine.period" + index, defaultValue);
+    return conf.getString(PROPERTY_PREFIX + index, defaultValue);
   }
 
   public PastSnapshot find(int index, String property) {
