@@ -2,10 +2,10 @@
 	<td><%= image_tag "priority/#{priority_id}.png" %></td>
   <td><%= link_to label, {:controller => 'drilldown', :action => 'violations', :id => @project.id, :priority => Sonar::RulePriority.to_s(priority_id), :period => @period_index} %></td>
   <td style="padding-left: 10px;" align="right">
-	  <%= @period_index ? format_variation(measure, :index => @period_index) : format_measure(measure) -%>
+	  <%= @period_index ? format_variation(measure, :index => @period_index, :style => 'light') : format_measure(measure) -%>
   </td>
   <td align="left">
     <% value = measure_or_variation_value(measure) %>
-    <%= barchart(:width => 60, :percent => (value ? (100 * value / max).to_i : 0), :color => '#777') if max>0  %>
+    <%= barchart(:width => 60, :percent => (value ? (100 * value / max).to_i : 0), :color => (@period_index ? '#cc0000' : '#777')) if max>0  %>
   </td>
 </tr>

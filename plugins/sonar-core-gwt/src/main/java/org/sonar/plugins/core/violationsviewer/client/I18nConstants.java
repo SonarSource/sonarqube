@@ -31,7 +31,7 @@ public interface I18nConstants extends com.google.gwt.i18n.client.Constants {
   @DefaultStringValue("No filters")
   String noFilters();
 
-  @DefaultStringValue("Added...")
+  @DefaultStringValue("Time changes...")
   String addedPeriod();
 
   @DefaultStringValue("Expand:")

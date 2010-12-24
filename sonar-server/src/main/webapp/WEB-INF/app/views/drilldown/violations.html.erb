@@ -8,7 +8,7 @@
 <% if @snapshot.project_snapshot.periods? %>
 - <form method="GET" action="<%= url_for :only_path=>true, :overwrite_params => {:period => nil} -%>" style="display: inline">
     <select id="select-comparison" name="period" onchange="submit()" class="small">
-      <option value="">All violations</option>
+      <option value="">Time changes...</option>
       <%= period_select_options(@snapshot, 1) -%>
       <%= period_select_options(@snapshot, 2) -%>
       <%= period_select_options(@snapshot, 3) -%>
@@ -103,10 +103,10 @@
 	                  <%= link_to(rule.name, {:overwrite_params => {:rule => rule.key, :sid => nil, :priority => Sonar::RulePriority.to_s(@priority_id)}}, :title => "#{rule.plugin_name}: #{rule.plugin_rule_key}") %>
                    </td>
                    <td class="right" nowrap="nowrap">
-                       <span><%= @period_index ? format_variation(rule_measure, :index => @period_index) : rule_measure.formatted_value -%></span>
+                       <span><%= @period_index ? format_variation(rule_measure, :index => @period_index, :style => 'light') : rule_measure.formatted_value -%></span>
                    </td>
                    <td class="left last">
-	                  <%= barchart(:width => 70, :percent => (100 * value / max).to_i, :color => '#777')  if max>0 %>
+	                  <%= barchart(:width => 70, :percent => (100 * value / max).to_i, :color => (@period_index ? '#cc0000' : '#777'))  if max>0 %>
 	                  <!--[if IE]> &nbsp; &nbsp; <![endif]-->
 	               </td>
                </tr>
@@ -159,7 +159,7 @@
    <% end %>
    </td>
    <td class="right last" nowrap>
-       <%= @period_index ? format_variation(measure, :index => @period_index) : measure.formatted_value -%>
+       <%= @period_index ? format_variation(measure, :index => @period_index, :style => 'light') : measure.formatted_value -%>
        <!--[if IE]> &nbsp; &nbsp; <![endif]-->
    </td>
 </tr>

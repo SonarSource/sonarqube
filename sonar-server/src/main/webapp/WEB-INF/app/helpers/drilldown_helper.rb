@@ -26,7 +26,7 @@ module DrilldownHelper
 
     if mode
       if mode=='days'
-        label = "Added over %s previous days" % mode_param
+        label = "Added over %s days" % mode_param
       elsif mode=='version'
         label = "Added since version %s" % mode_param
       elsif mode=='previous_analysis'
