@@ -4,7 +4,7 @@
     <div class="operations">
     <form action="<%= url_for :overwrite_params => {:period => nil} -%>" style="display: inline" method="get">
       <select name="period" onchange="submit()" class="small">
-          <option value="">Variations...</option>
+          <option value="">Time changes...</option>
           <% period_names.each_with_index do |name, index| %>
              <option value="<%= index+1 -%>" <%= 'selected' if @filter_context.period_index==index+1 -%>><%= name -%></value>
           <% end %>
@@ -87,7 +87,7 @@
              measure = @filter_context.measure(snapshot, column.metric)
         %>
           <% if column.variation %>
-            <%= format_variation(measure, :index => @filter_context.period_index) -%>
+            <%= format_variation(measure, :index => @filter_context.period_index, :style => 'light') -%>
           <% else %>
             <%= format_measure(measure) -%>
             <% if @filter_context.selected_period? %>
