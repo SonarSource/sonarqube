@@ -5,7 +5,7 @@
   <groupId>org.codehaus.sonar</groupId>
   <artifactId>sonar</artifactId>
   <packaging>pom</packaging>
-  <version>2.5-SNAPSHOT</version>
+  <version>2.6-SNAPSHOT</version>
   <name>Sonar</name>
   <url>http://www.sonarsource.org</url>
 
@@ -816,9 +816,9 @@ mmmm
   </mailingLists>
 
   <scm>
-    <connection>scm:svn:https://svn.codehaus.org/sonar/branches/2.5</connection>
-    <developerConnection>scm:svn:https://svn.codehaus.org/sonar/branches/2.5</developerConnection>
-    <url>https://svn.codehaus.org/sonar/branches/2.5</url>
+    <connection>scm:svn:https://svn.codehaus.org/sonar/trunk</connection>
+    <developerConnection>scm:svn:https://svn.codehaus.org/sonar/trunk</developerConnection>
+    <url>https://svn.codehaus.org/sonar/trunk</url>
   </scm>
 
   <ciManagement>
