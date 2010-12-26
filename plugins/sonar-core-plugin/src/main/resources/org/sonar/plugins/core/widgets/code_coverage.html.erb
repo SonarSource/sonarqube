@@ -34,10 +34,10 @@
           <%= dashboard_configuration.selected_period? ? format_variation(tests_measure) : trend_icon(tests_measure) -%>
         </p>
         <% skipped_measure=measure(Metric::SKIPPED_TESTS)
-           if skipped_measure
+           if dashboard_configuration.selected_period? || (skipped_measure && skipped_measure.value && skipped_measure.value>0)
         %>
         <p>
-          +<%= format_measure(skipped_measure, :suffix => ' skipped', :url => url_for_drilldown(Metric::SKIPPED_TESTS)) %>
+          +<%= format_measure(skipped_measure, :suffix => ' skipped', :url => url_for_drilldown(Metric::SKIPPED_TESTS), :default => '0') %>
           <%= dashboard_configuration.selected_period? ? format_variation(skipped_measure) : trend_icon(skipped_measure) -%>
         </p>
         <% end %>
