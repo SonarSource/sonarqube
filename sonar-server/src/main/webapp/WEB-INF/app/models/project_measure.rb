@@ -62,7 +62,7 @@ class ProjectMeasure < ActiveRecord::Base
   end
 
   def formatted_value
-    if text_value.nil? || value.nil?
+    if text_value.nil? && value.nil?
       return nil
     end
     if metric.nil?
