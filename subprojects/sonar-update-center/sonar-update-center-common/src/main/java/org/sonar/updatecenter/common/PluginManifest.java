@@ -19,7 +19,8 @@
  */
 package org.sonar.updatecenter.common;
 
-import static org.sonar.updatecenter.common.FormatUtils.toDate;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,13 +29,10 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import static org.sonar.updatecenter.common.FormatUtils.toDate;
 
 /**
  * This class loads Sonar plugin metadata from JAR manifest.
- * 
- * @since 2.2
  */
 public final class PluginManifest {
 
@@ -58,6 +56,11 @@ public final class PluginManifest {
    */
   public static final String USE_CHILD_FIRST_CLASSLOADER = "Plugin-ChildFirstClassLoader";
 
+  /**
+   * @since 1.1
+   */
+  public static final String EXTEND_PLUGIN = "Extend-Plugin";
+
   private String key;
   private String name;
   private String mainClass;
@@ -73,6 +76,7 @@ public final class PluginManifest {
   private Date buildDate;
   private String issueTrackerUrl;
   private boolean useChildFirstClassLoader = false;
+  private String extendPlugin;
 
   /**
    * Load the manifest from a JAR file.
@@ -94,8 +98,7 @@ public final class PluginManifest {
   }
 
   /**
-   * @param manifest
-   *          , can not be null
+   * @param manifest can not be null
    */
   public PluginManifest(Manifest manifest) {
     loadManifest(manifest);
@@ -120,6 +123,7 @@ public final class PluginManifest {
     this.issueTrackerUrl = attributes.getValue(ISSUE_TRACKER_URL);
     this.buildDate = toDate(attributes.getValue(BUILD_DATE), true);
     this.useChildFirstClassLoader = StringUtils.equalsIgnoreCase(attributes.getValue(USE_CHILD_FIRST_CLASSLOADER), "true");
+    this.extendPlugin = attributes.getValue(EXTEND_PLUGIN);
 
     String deps = attributes.getValue(DEPENDENCIES);
     this.dependencies = StringUtils.split(StringUtils.defaultString(deps), ' ');
@@ -251,12 +255,33 @@ public final class PluginManifest {
     return this;
   }
 
+  /**
+   * @since 0.3
+   */
   public boolean isUseChildFirstClassLoader() {
     return useChildFirstClassLoader;
   }
 
+  /**
+   * @since 0.3
+   */
   public PluginManifest setUseChildFirstClassLoader(boolean useChildFirstClassLoader) {
     this.useChildFirstClassLoader = useChildFirstClassLoader;
+    return this;
+  }
+
+  /**
+   * @since 1.1
+   */
+  public String getExtendPlugin() {
+    return extendPlugin;
+  }
+
+  /**
+   * @since 1.1
+   */
+  public PluginManifest setExtendPlugin(String extendPlugin) {
+    this.extendPlugin = extendPlugin;
     return this;
   }
 

@@ -44,11 +44,7 @@ import org.sonar.updatecenter.common.PluginManifest;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Build a Sonar Plugin from the current project.
@@ -187,12 +183,16 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
         archive.addManifestEntry(PluginManifest.USE_CHILD_FIRST_CLASSLOADER, "true");
       }
 
+      if (StringUtils.isNotBlank(getExtendPlugin())) {
+        archive.addManifestEntry(PluginManifest.EXTEND_PLUGIN, getExtendPlugin());
+      }
+
       if (isSkipDependenciesPackaging()) {
         getLog().info("Skip packaging of dependencies");
 
       } else {
         List<String> libs = copyDependencies();
-        if ( !libs.isEmpty()) {
+        if (!libs.isEmpty()) {
           archiver.getArchiver().addDirectory(getAppDirectory(), getIncludes(), getExcludes());
           archive.addManifestEntry(PluginManifest.DEPENDENCIES, StringUtils.join(libs, " "));
         }
@@ -239,19 +239,19 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
   }
 
   private void checkPluginKey() throws MojoExecutionException {
-    if ( StringUtils.isNotBlank(getExplicitPluginKey()) && !PluginKeyUtils.isValid(getExplicitPluginKey())) {
+    if (StringUtils.isNotBlank(getExplicitPluginKey()) && !PluginKeyUtils.isValid(getExplicitPluginKey())) {
       throw new MojoExecutionException("Plugin key is badly formatted. Please use ascii letters and digits only. Value: " + getExplicitPluginKey());
     }
   }
 
   private void checkPluginClass() throws MojoExecutionException {
-    if ( !new File(getClassesDirectory(), getPluginClass().replace('.', '/') + ".class").exists()) {
+    if (!new File(getClassesDirectory(), getPluginClass().replace('.', '/') + ".class").exists()) {
       throw new MojoExecutionException("Error assembling Sonar-plugin: Plugin-Class '" + getPluginClass() + "' not found");
     }
   }
 
   private String getPluginKey() {
-    if ( StringUtils.isNotBlank(getExplicitPluginKey())) {
+    if (StringUtils.isNotBlank(getExplicitPluginKey())) {
       return getExplicitPluginKey();
     }
     return PluginKeyUtils.sanitize(getProject().getArtifactId());
@@ -278,7 +278,7 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
       ids.add(artifact.getDependencyConflictId());
     }
 
-    if ( !ids.isEmpty()) {
+    if (!ids.isEmpty()) {
       getLog().info(getMessage("Following dependencies are packaged in the plugin:", ids));
       getLog().info(new StringBuilder()
           .append("See following page for more details about plugin dependencies:\n")
@@ -342,7 +342,7 @@ public class SonarPluginMojo extends AbstractSonarPluginMojo {
         sonarArtifacts.add(dependency.getArtifact());
       }
 
-      if ( !Artifact.SCOPE_TEST.equals(dependency.getArtifact().getScope())) {
+      if (!Artifact.SCOPE_TEST.equals(dependency.getArtifact().getScope())) {
         for (Object childDep : dependency.getChildren()) {
           searchForSonarProvidedArtifacts((DependencyNode) childDep, sonarArtifacts, isProvidedBySonar);
         }

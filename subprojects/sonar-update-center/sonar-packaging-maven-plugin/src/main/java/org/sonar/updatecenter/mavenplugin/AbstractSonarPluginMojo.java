@@ -19,17 +19,16 @@
  */
 package org.sonar.updatecenter.mavenplugin;
 
-import java.io.File;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.filter.ScopeArtifactFilter;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.sonar.updatecenter.common.PluginKeyUtils;
+
+import java.io.File;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Base class for Sonar-plugin-packaging related tasks.
@@ -142,6 +141,11 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
   private boolean useChildFirstClassLoader = false;
 
   /**
+   * @parameter
+   */
+  private String extendPlugin;
+
+  /**
    * @parameter expression="${sonar.skipDependenciesPackaging}"
    */
   private boolean skipDependenciesPackaging = false;
@@ -203,6 +207,10 @@ public abstract class AbstractSonarPluginMojo extends AbstractMojo {
 
   public boolean isUseChildFirstClassLoader() {
     return useChildFirstClassLoader;
+  }
+
+  public String getExtendPlugin() {
+    return extendPlugin;
   }
 
   protected boolean isSkipDependenciesPackaging() {
