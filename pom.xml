@@ -5,7 +5,7 @@
   <groupId>org.codehaus.sonar</groupId>
   <artifactId>sonar</artifactId>
   <packaging>pom</packaging>
-  <version>2.6-SNAPSHOT</version>
+  <version>2.5-SNAPSHOT</version>
   <name>Sonar</name>
   <url>http://www.sonarsource.org</url>
 
