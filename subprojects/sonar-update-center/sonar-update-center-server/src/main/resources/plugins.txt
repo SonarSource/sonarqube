@@ -16,6 +16,7 @@ org.codehaus.sonar-plugins:sonar-jira-plugin
 org.codehaus.sonar-plugins:sonar-ldap-plugin
 org.codehaus.sonar-plugins:sonar-motion-chart-plugin
 org.codehaus.sonar-plugins.pdf-report:sonar-pdfreport-plugin
+org.codehaus.sonar-plugins:sonar-php-plugin
 org.codehaus.sonar-plugins:sonar-piwik-plugin
 org.codehaus.sonar-plugins:sonar-plugin-taglist
 org.codehaus.sonar-plugins:sonar-quality-index-plugin
