@@ -26,7 +26,6 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.Violation;
 
 import java.util.List;
 

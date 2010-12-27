@@ -20,7 +20,6 @@
 package org.sonar.plugins.core.timemachine;
 
 import com.google.common.collect.*;
-import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
@@ -32,6 +31,8 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
+import org.sonar.batch.components.PastSnapshot;
+import org.sonar.batch.components.TimeMachineConfiguration;
 
 import java.util.*;
 

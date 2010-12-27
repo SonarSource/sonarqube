@@ -170,7 +170,7 @@ public class HttpDownloader implements BatchComponent, ServerComponent {
   }
 
   private HttpURLConnection newHttpConnection(URI uri) throws IOException {
-    LoggerFactory.getLogger(getClass()).info("Download: " + uri + " (" + getProxySynthesis(uri) + ")");
+    LoggerFactory.getLogger(getClass()).debug("Download: " + uri + " (" + getProxySynthesis(uri) + ")");
     HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
     connection.setConnectTimeout(TIMEOUT_MILLISECONDS);
     connection.setReadTimeout(TIMEOUT_MILLISECONDS);

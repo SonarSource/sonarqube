@@ -1,4 +1,4 @@
-package org.sonar.plugins.core.timemachine;
+package org.sonar.batch.components;
 
 import org.junit.Before;
 import org.junit.Test;

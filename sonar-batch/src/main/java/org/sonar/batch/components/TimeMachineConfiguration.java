@@ -17,12 +17,13 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.timemachine;
+package org.sonar.batch.components;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.utils.Logs;
 
 import java.util.Collections;
@@ -35,15 +36,15 @@ public class TimeMachineConfiguration implements BatchExtension {
   private final Configuration configuration;
   private List<PastSnapshot> projectPastSnapshots;
 
-  public TimeMachineConfiguration(Configuration configuration, PastSnapshotFinder variationSnapshotFinder) {
+  public TimeMachineConfiguration(Configuration configuration, PastSnapshotFinder pastSnapshotFinder, Snapshot projectSnapshot) {
     this.configuration = configuration;
-    initVariationSnapshots(variationSnapshotFinder);
+    initPastSnapshots(pastSnapshotFinder, projectSnapshot);
   }
 
-  private void initVariationSnapshots(PastSnapshotFinder variationSnapshotFinder) {
+  private void initPastSnapshots(PastSnapshotFinder pastSnapshotFinder, Snapshot projectSnapshot) {
     projectPastSnapshots = Lists.newLinkedList();
     for (int index = 1; index <= NUMBER_OF_VARIATION_SNAPSHOTS; index++) {
-      PastSnapshot variationSnapshot = variationSnapshotFinder.find(configuration, index);
+      PastSnapshot variationSnapshot = pastSnapshotFinder.find(projectSnapshot, configuration, index);
       if (variationSnapshot != null) {
         Logs.INFO.info("Comparison date: " + variationSnapshot.getDate());
         projectPastSnapshots.add(variationSnapshot);
@@ -51,11 +52,7 @@ public class TimeMachineConfiguration implements BatchExtension {
     }
   }
 
-  
-  /**
-   * for unit tests
-   */
-  TimeMachineConfiguration(Configuration configuration) {
+  public TimeMachineConfiguration(Configuration configuration) {
     this.configuration = configuration;
     this.projectPastSnapshots = Collections.emptyList();
   }

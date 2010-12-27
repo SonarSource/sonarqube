@@ -33,6 +33,7 @@ import org.sonar.batch.bootstrap.BatchPluginRepository;
 import org.sonar.batch.bootstrap.BootstrapClassLoader;
 import org.sonar.batch.bootstrap.ExtensionDownloader;
 import org.sonar.batch.bootstrap.TempDirectories;
+import org.sonar.batch.components.*;
 import org.sonar.batch.index.*;
 import org.sonar.core.components.CacheMetricFinder;
 import org.sonar.core.components.CacheRuleFinder;
@@ -92,6 +93,12 @@ public class Batch {
     batchContainer.as(Characteristics.CACHE).addComponent(MeasuresDao.class);
     batchContainer.as(Characteristics.CACHE).addComponent(CacheRuleFinder.class);
     batchContainer.as(Characteristics.CACHE).addComponent(CacheMetricFinder.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(PastSnapshotFinderByDate.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(PastSnapshotFinderByDays.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(PastSnapshotFinderByPreviousAnalysis.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(PastSnapshotFinderByVersion.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(PastMeasuresLoader.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(PastSnapshotFinder.class);
     batchContainer.start();
 
     ProjectTree projectTree = batchContainer.getComponent(ProjectTree.class);

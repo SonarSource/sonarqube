@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.timemachine;
+package org.sonar.batch.components;
 
 import org.sonar.api.BatchExtension;
 import org.sonar.api.database.DatabaseSession;
@@ -27,20 +27,17 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-public class PastSnapshotFinderByDate implements BatchExtension{
+public class PastSnapshotFinderByDate implements BatchExtension {
 
   public static final String MODE = "date";
 
-
-  private Snapshot projectSnapshot; // TODO replace by PersistenceManager
   private DatabaseSession session;
 
-  public PastSnapshotFinderByDate(Snapshot projectSnapshot, DatabaseSession session) {
-    this.projectSnapshot = projectSnapshot;
+  public PastSnapshotFinderByDate(DatabaseSession session) {
     this.session = session;
   }
 
-  PastSnapshot findByDate(Date date) {
+  PastSnapshot findByDate(Snapshot projectSnapshot, Date date) {
     String hql = "from " + Snapshot.class.getSimpleName() + " where createdAt>=:date AND resourceId=:resourceId AND status=:status order by createdAt asc";
     List<Snapshot> snapshots = session.createQuery(hql)
         .setParameter("date", date)

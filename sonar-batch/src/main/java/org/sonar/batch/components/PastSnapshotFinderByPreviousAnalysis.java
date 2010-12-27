@@ -17,35 +17,28 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.timemachine;
+package org.sonar.batch.components;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 
-import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
-public class PastSnapshotFinderByDays implements BatchExtension {
+public class PastSnapshotFinderByPreviousAnalysis implements BatchExtension {
 
-  public static final String MODE = "days";
-
-
-  private Snapshot projectSnapshot; // TODO replace by PersistenceManager
   private DatabaseSession session;
 
-  public PastSnapshotFinderByDays(Snapshot projectSnapshot, DatabaseSession session) {
-    this.projectSnapshot = projectSnapshot;
+  public PastSnapshotFinderByPreviousAnalysis(DatabaseSession session) {
     this.session = session;
   }
 
-  PastSnapshot findFromDays(int days) {
-    Date targetDate = DateUtils.addDays(projectSnapshot.getCreatedAt(), -days);
-    String hql = "from " + Snapshot.class.getSimpleName() + " where resourceId=:resourceId AND status=:status AND createdAt>=:from AND createdAt<:to order by createdAt asc";
+  PastSnapshot findByPreviousAnalysis(Snapshot projectSnapshot) {
+    String hql = "from " + Snapshot.class.getSimpleName() + " where createdAt<:date AND resourceId=:resourceId AND status=:status and last=true order by createdAt desc";
     List<Snapshot> snapshots = session.createQuery(hql)
-        .setParameter("from", targetDate)
-        .setParameter("to", projectSnapshot.getCreatedAt())
+        .setParameter("date", projectSnapshot.getCreatedAt())
         .setParameter("resourceId", projectSnapshot.getResourceId())
         .setParameter("status", Snapshot.STATUS_PROCESSED)
         .setMaxResults(1)
@@ -54,6 +47,9 @@ public class PastSnapshotFinderByDays implements BatchExtension {
     if (snapshots.isEmpty()) {
       return null;
     }
-    return new PastSnapshot(MODE, targetDate, snapshots.get(0)).setModeParameter(String.valueOf(days));
+    Snapshot snapshot = snapshots.get(0);
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, snapshot.getCreatedAt(), snapshot).setModeParameter(format.format(snapshot.getCreatedAt()));
   }
+
 }

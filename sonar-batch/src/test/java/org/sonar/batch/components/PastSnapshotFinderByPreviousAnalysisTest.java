@@ -17,35 +17,38 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.timemachine;
+package org.sonar.batch.components;
 
 import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
+import java.text.ParseException;
+
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
-public class PastSnapshotFinderByVersionTest extends AbstractDbUnitTestCase {
+public class PastSnapshotFinderByPreviousAnalysisTest extends AbstractDbUnitTestCase {
 
   @Test
-  public void shouldFindByVersion() {
-    setupData("shared");
+  public void shouldFindPreviousAnalysis() throws ParseException {
+    setupData("shouldFindPreviousAnalysis");
 
-    Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
-    PastSnapshotFinderByVersion finder = new PastSnapshotFinderByVersion(currentProjectSnapshot, getSession());
+    Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
+    PastSnapshotFinderByPreviousAnalysis finder = new PastSnapshotFinderByPreviousAnalysis(getSession());
 
-    assertThat(finder.findByVersion("1.1").getProjectSnapshotId(), is(1009));
+    PastSnapshot pastSnapshot = finder.findByPreviousAnalysis(projectSnapshot);
+    assertThat(pastSnapshot.getProjectSnapshotId(), is(1009));
   }
 
   @Test
-  public void shouldNotFindVersion() {
-    setupData("shared");
+  public void shouldNotFindPreviousAnalysis() throws ParseException {
+    setupData("shouldNotFindPreviousAnalysis");
 
-    Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
-    PastSnapshotFinderByVersion finder = new PastSnapshotFinderByVersion(currentProjectSnapshot, getSession());
+    Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
+    PastSnapshotFinderByPreviousAnalysis finder = new PastSnapshotFinderByPreviousAnalysis(getSession());
 
-    assertThat(finder.findByVersion("1.0"), nullValue());
+    assertNull(finder.findByPreviousAnalysis(projectSnapshot));
   }
 }

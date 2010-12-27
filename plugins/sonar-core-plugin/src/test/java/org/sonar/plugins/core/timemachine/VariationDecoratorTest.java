@@ -27,7 +27,10 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.*;
+import org.sonar.batch.components.PastMeasuresLoader;
+import org.sonar.batch.components.PastSnapshot;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.Arrays;
@@ -76,7 +79,7 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
     Measure currentCoverage = newMeasure(COVERAGE, 80.0);
     when(context.getMeasures(Matchers.<MeasuresFilter>anyObject())).thenReturn(Arrays.asList(currentNcloc, currentCoverage));
 
-    VariationDecorator decorator = new VariationDecorator(pastMeasuresLoader, Arrays.asList(pastSnapshot1, pastSnapshot3));
+    VariationDecorator decorator = new VariationDecorator(pastMeasuresLoader, mock(MetricFinder.class), Arrays.asList(pastSnapshot1, pastSnapshot3));
     decorator.decorate(javaPackage, context);
 
     // context updated for each variation : 2 times for ncloc and 1 time for coverage

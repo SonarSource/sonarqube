@@ -119,7 +119,7 @@ import java.util.List;
         description = "Period used to compare measures and track new violations. Values are : <ul class='bullet'><li>Number of days before analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, for example 2010-12-25</li><li>'previous_analysis' to compare to previous analysis</li><li>A version, for example 1.2</li></ul>",
         project = false,
         global = true,
-        defaultValue = PastSnapshotFinder.DEFAULT_VALUE_1
+        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_1
     ),
     @Property(
         key = "sonar.timemachine.period2",
@@ -127,7 +127,7 @@ import java.util.List;
         description = "See the property 'Period 1'",
         project = false,
         global = true,
-        defaultValue = PastSnapshotFinder.DEFAULT_VALUE_2
+        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_2
     ),
     @Property(
         key = "sonar.timemachine.period3",
@@ -135,21 +135,23 @@ import java.util.List;
         description = "See the property 'Period 1'",
         project = false,
         global = true,
-        defaultValue = PastSnapshotFinder.DEFAULT_VALUE_3
+        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_3
     ),
     @Property(
         key = "sonar.timemachine.period4",
         name = "Period 4",
         description = "Period used to compare measures and track new violations. This property is specific to the project. Values are : <ul class='bullet'><li>Number of days before analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, for example 2010-12-25</li><li>'previous_analysis' to compare to previous analysis</li><li>A version, for example 1.2</li></ul>",
         project = true,
-        global = false
+        global = false,
+        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_4
     ),
     @Property(
         key = "sonar.timemachine.period5",
         name = "Period 5",
         description = "See the property 'Period 4'",
         project = true,
-        global = false
+        global = false,
+        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_5
     )
 })
 public class CorePlugin implements Plugin {
@@ -229,15 +231,7 @@ public class CorePlugin implements Plugin {
 
     // time machine
     extensions.add(TendencyDecorator.class);
-    extensions.add(PastSnapshotFinderByDate.class);
-    extensions.add(PastSnapshotFinderByDays.class);
-    extensions.add(PastSnapshotFinderByPreviousAnalysis.class);
-    extensions.add(PastSnapshotFinderByVersion.class);
-    extensions.add(PastMeasuresLoader.class);
-    extensions.add(PastSnapshotFinder.class);
-    extensions.add(TimeMachineConfiguration.class);
     extensions.add(VariationDecorator.class);
-    extensions.add(PastViolationsLoader.class);
     extensions.add(ViolationPersisterDecorator.class);
     extensions.add(NewViolationsDecorator.class);
     extensions.add(TimeMachineConfigurationPersister.class);

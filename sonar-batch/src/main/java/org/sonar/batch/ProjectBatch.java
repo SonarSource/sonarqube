@@ -36,6 +36,8 @@ import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.BatchPluginRepository;
+import org.sonar.batch.components.PastViolationsLoader;
+import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.phases.Phases;
@@ -93,6 +95,8 @@ public class ProjectBatch {
     batchContainer.as(Characteristics.CACHE).addComponent(ViolationFilters.class);
     batchContainer.as(Characteristics.CACHE).addComponent(ResourceFilters.class);
     batchContainer.as(Characteristics.CACHE).addComponent(DefaultModelFinder.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(TimeMachineConfiguration.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(PastViolationsLoader.class);
     batchContainer.addAdapter(new ProfileProvider());
     batchContainer.addAdapter(new CheckProfileProvider());
     loadCoreComponents(batchContainer);

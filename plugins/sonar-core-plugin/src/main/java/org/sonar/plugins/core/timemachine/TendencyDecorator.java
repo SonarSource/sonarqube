@@ -30,6 +30,7 @@ import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.batch.components.TimeMachineConfiguration;
 
 import java.util.List;
 

@@ -20,6 +20,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.components.PastViolationsLoader;
 import org.sonar.batch.index.ViolationPersister;
 
 import java.io.IOException;

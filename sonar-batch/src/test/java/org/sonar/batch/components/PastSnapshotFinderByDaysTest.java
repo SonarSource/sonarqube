@@ -17,9 +17,8 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.timemachine;
+package org.sonar.batch.components;
 
-import org.hamcrest.core.IsNull;
 import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
@@ -37,9 +36,9 @@ public class PastSnapshotFinderByDaysTest extends AbstractDbUnitTestCase {
     setupData("shared");
 
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1009); // 2008-11-16
-    PastSnapshotFinderByDays finder = new PastSnapshotFinderByDays(projectSnapshot, getSession());
+    PastSnapshotFinderByDays finder = new PastSnapshotFinderByDays(getSession());
 
-    assertThat(finder.findFromDays(50).getProjectSnapshotId(), is(1000));
+    assertThat(finder.findFromDays(projectSnapshot, 50).getProjectSnapshotId(), is(1000));
   }
 
   @Test
@@ -47,9 +46,9 @@ public class PastSnapshotFinderByDaysTest extends AbstractDbUnitTestCase {
     setupData("shared");
 
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1009); // 2008-11-16
-    PastSnapshotFinderByDays finder = new PastSnapshotFinderByDays(projectSnapshot, getSession());
+    PastSnapshotFinderByDays finder = new PastSnapshotFinderByDays(getSession());
 
-    assertThat(finder.findFromDays(7).getProjectSnapshotId(), is(1006));
+    assertThat(finder.findFromDays(projectSnapshot, 7).getProjectSnapshotId(), is(1006));
   }
 
   @Test
@@ -57,9 +56,9 @@ public class PastSnapshotFinderByDaysTest extends AbstractDbUnitTestCase {
     setupData("shared");
 
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1009); // 2008-11-16
-    PastSnapshotFinderByDays finder = new PastSnapshotFinderByDays(projectSnapshot, getSession());
+    PastSnapshotFinderByDays finder = new PastSnapshotFinderByDays(getSession());
 
-    assertThat(finder.findFromDays(1), nullValue());
+    assertThat(finder.findFromDays(projectSnapshot, 1), nullValue());
   }
 
 }

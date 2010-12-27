@@ -17,30 +17,28 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.timemachine;
+package org.sonar.batch.components;
 
 import org.sonar.api.BatchExtension;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 
-public class PastSnapshotFinderByPreviousAnalysis implements BatchExtension {
-  public static final String MODE = "previous_analysis";
+public class PastSnapshotFinderByVersion implements BatchExtension {
 
-  private Snapshot projectSnapshot; // TODO replace by PersistenceManager
+  public static final String MODE = "version";
+
   private DatabaseSession session;
 
-  public PastSnapshotFinderByPreviousAnalysis(Snapshot projectSnapshot, DatabaseSession session) {
-    this.projectSnapshot = projectSnapshot;
+  public PastSnapshotFinderByVersion(DatabaseSession session) {
     this.session = session;
   }
 
-  PastSnapshot findByPreviousAnalysis() {
-    String hql = "from " + Snapshot.class.getSimpleName() + " where createdAt<:date AND resourceId=:resourceId AND status=:status and last=true order by createdAt desc";
+  PastSnapshot findByVersion(Snapshot projectSnapshot, String version) {
+    String hql = "from " + Snapshot.class.getSimpleName() + " where version=:version AND resourceId=:resourceId AND status=:status order by createdAt desc";
     List<Snapshot> snapshots = session.createQuery(hql)
-        .setParameter("date", projectSnapshot.getCreatedAt())
+        .setParameter("version", version)
         .setParameter("resourceId", projectSnapshot.getResourceId())
         .setParameter("status", Snapshot.STATUS_PROCESSED)
         .setMaxResults(1)
@@ -50,8 +48,7 @@ public class PastSnapshotFinderByPreviousAnalysis implements BatchExtension {
       return null;
     }
     Snapshot snapshot = snapshots.get(0);
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    return new PastSnapshot(MODE, snapshot.getCreatedAt(), snapshot).setModeParameter(format.format(snapshot.getCreatedAt()));
+    return new PastSnapshot(MODE, snapshot.getCreatedAt(), snapshot).setModeParameter(snapshot.getVersion());
   }
 
 }

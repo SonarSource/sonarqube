@@ -23,6 +23,9 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.batch.components.PastSnapshot;
+import org.sonar.batch.components.PastSnapshotFinder;
+import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.text.ParseException;
@@ -49,17 +52,17 @@ public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void shouldInitVariationSnapshots() throws ParseException {
+  public void shouldInitPastSnapshots() throws ParseException {
     PropertiesConfiguration conf = new PropertiesConfiguration();
-    PastSnapshotFinder snapshotReferenceFinder = mock(PastSnapshotFinder.class);
-    when(snapshotReferenceFinder.find(conf, 1)).thenReturn(new PastSnapshot("days", null, newSnapshot("2010-10-15")));
-    when(snapshotReferenceFinder.find(conf, 3)).thenReturn(new PastSnapshot("days", null, newSnapshot("2010-10-13")));
+    PastSnapshotFinder pastSnapshotFinder = mock(PastSnapshotFinder.class);
+    when(pastSnapshotFinder.find(null, conf, 1)).thenReturn(new PastSnapshot("days", null, newSnapshot("2010-10-15")));
+    when(pastSnapshotFinder.find(null, conf, 3)).thenReturn(new PastSnapshot("days", null, newSnapshot("2010-10-13")));
 
-    TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(conf, snapshotReferenceFinder);
+    TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(conf, pastSnapshotFinder, null);
 
-    verify(snapshotReferenceFinder).find(conf, 1);
-    verify(snapshotReferenceFinder).find(conf, 2);
-    verify(snapshotReferenceFinder).find(conf, 3);
+    verify(pastSnapshotFinder).find(null, conf, 1);
+    verify(pastSnapshotFinder).find(null, conf, 2);
+    verify(pastSnapshotFinder).find(null, conf, 3);
 
     assertThat(timeMachineConfiguration.getProjectPastSnapshots().size(), is(2));
   }

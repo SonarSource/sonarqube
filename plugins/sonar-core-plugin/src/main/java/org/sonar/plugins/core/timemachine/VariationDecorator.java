@@ -22,15 +22,15 @@ package org.sonar.plugins.core.timemachine;
 import com.google.common.collect.Maps;
 import org.sonar.api.batch.*;
 import org.sonar.api.database.model.MeasureModel;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.MeasuresFilters;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.RuleMeasure;
+import org.sonar.api.measures.*;
 import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.batch.components.PastMeasuresLoader;
+import org.sonar.batch.components.PastSnapshot;
+import org.sonar.batch.components.TimeMachineConfiguration;
 
 import java.util.Collection;
 import java.util.List;
@@ -41,14 +41,17 @@ public class VariationDecorator implements Decorator {
 
   private List<PastSnapshot> projectPastSnapshots;
   private PastMeasuresLoader pastMeasuresLoader;
+  private MetricFinder metricFinder;
 
-  public VariationDecorator(PastMeasuresLoader pastMeasuresLoader, TimeMachineConfiguration configuration) {
-    this(pastMeasuresLoader, configuration.getProjectPastSnapshots());
+  public VariationDecorator(PastMeasuresLoader pastMeasuresLoader, MetricFinder metricFinder, TimeMachineConfiguration configuration) {
+    this(pastMeasuresLoader, metricFinder, configuration.getProjectPastSnapshots());
+
   }
 
-  VariationDecorator(PastMeasuresLoader pastMeasuresLoader, List<PastSnapshot> projectPastSnapshots) {
+  VariationDecorator(PastMeasuresLoader pastMeasuresLoader, MetricFinder metricFinder, List<PastSnapshot> projectPastSnapshots) {
     this.pastMeasuresLoader = pastMeasuresLoader;
     this.projectPastSnapshots = projectPastSnapshots;
+    this.metricFinder = metricFinder;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -87,7 +90,8 @@ public class VariationDecorator implements Decorator {
     // for each measure, search equivalent past measure
     for (Measure measure : context.getMeasures(MeasuresFilters.all())) {
       // compare with past measure
-      MeasureModel pastMeasure = pastMeasuresByKey.get(new MeasureKey(measure));
+      Integer metricId = (measure.getMetric().getId()!=null ? measure.getMetric().getId() : metricFinder.findByKey(measure.getMetric().getKey()).getId());
+      MeasureModel pastMeasure = pastMeasuresByKey.get(new MeasureKey(measure, metricId));
       if (updateVariation(measure, pastMeasure, index)) {
         context.saveMeasure(measure);
       }
@@ -121,14 +125,14 @@ public class VariationDecorator implements Decorator {
       characteristic = model.getCharacteristic();
     }
 
-    MeasureKey(Measure measure) {
-      metricId = measure.getMetric().getId();
-      characteristic = measure.getCharacteristic();
+    MeasureKey(Measure measure, Integer metricId) {
+      this.metricId = metricId;
+      this.characteristic = measure.getCharacteristic();
       // TODO merge RuleMeasure into Measure
       if (measure instanceof RuleMeasure) {
         RuleMeasure rm = (RuleMeasure) measure;
-        ruleId = (rm.getRule() == null ? null : rm.getRule().getId());
-        priority = rm.getRulePriority();
+        this.ruleId = (rm.getRule() == null ? null : rm.getRule().getId());
+        this.priority = rm.getRulePriority();
       }
     }
 

@@ -29,6 +29,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.components.TimeMachineConfiguration;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

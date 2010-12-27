@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.timemachine;
+package org.sonar.batch.components;
 
 import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
@@ -38,11 +38,11 @@ public class PastSnapshotFinderByDateTest extends AbstractDbUnitTestCase {
     setupData("shared");
 
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
-    PastSnapshotFinderByDate finder = new PastSnapshotFinderByDate(projectSnapshot, getSession());
+    PastSnapshotFinderByDate finder = new PastSnapshotFinderByDate(getSession());
 
     Date date = DATE_FORMAT.parse("2008-11-22");
 
-    PastSnapshot pastSnapshot = finder.findByDate(date);
+    PastSnapshot pastSnapshot = finder.findByDate(projectSnapshot, date);
     assertThat(pastSnapshot.getProjectSnapshotId(), is(1006));
   }
 
@@ -51,11 +51,11 @@ public class PastSnapshotFinderByDateTest extends AbstractDbUnitTestCase {
     setupData("shared");
 
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
-    PastSnapshotFinderByDate finder = new PastSnapshotFinderByDate(projectSnapshot, getSession());
+    PastSnapshotFinderByDate finder = new PastSnapshotFinderByDate(getSession());
 
     Date date = DATE_FORMAT.parse("2008-11-24");
    
-    PastSnapshot pastSnapshot = finder.findByDate(date);
+    PastSnapshot pastSnapshot = finder.findByDate(projectSnapshot, date);
     assertThat(pastSnapshot.getProjectSnapshotId(), is(1009));
   }
 }
