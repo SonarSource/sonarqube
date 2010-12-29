@@ -28,5 +28,5 @@ public interface DbCleanerConstants {
   String MONTHS_BEFORE_DELETING_ALL_SNAPSHOTS = "sonar.dbcleaner.monthsBeforeDeletingAllSnapshots";
   String ONE_MONTH = "1";
   String ONE_YEAR = "12";
-  String THREE_YEARS = "36";
+  String FIVE_YEARS = "60";
 }

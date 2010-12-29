@@ -40,7 +40,7 @@ import java.util.List;
         defaultValue = DbCleanerConstants.ONE_YEAR, name = "Number of months before starting to keep only one snapshot by month",
         description = "After this number of months, if there are several snapshots during the same month, "
             + "the DbCleaner keeps the first one and fully delete the other ones.", global = true, project = true),
-    @Property(key = DbCleanerConstants.MONTHS_BEFORE_DELETING_ALL_SNAPSHOTS, defaultValue = DbCleanerConstants.THREE_YEARS,
+    @Property(key = DbCleanerConstants.MONTHS_BEFORE_DELETING_ALL_SNAPSHOTS, defaultValue = DbCleanerConstants.FIVE_YEARS,
         name = "Number of months before starting to delete all remaining snapshots",
         description = "After this number of months, all snapshots are fully deleted.", global = true, project = true)})
 public final class DbCleanerPlugin implements Plugin {

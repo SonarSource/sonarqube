@@ -47,7 +47,7 @@ public final class Periods {
     dateToStartKeepingOneSnapshotByMonth = getDate(project.getConfiguration(),
         DbCleanerConstants.MONTHS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH, DbCleanerConstants.ONE_YEAR);
     dateToStartDeletingAllSnapshots = getDate(project.getConfiguration(), DbCleanerConstants.MONTHS_BEFORE_DELETING_ALL_SNAPSHOTS,
-        DbCleanerConstants.THREE_YEARS);
+        DbCleanerConstants.FIVE_YEARS);
   }
 
   void log() {
