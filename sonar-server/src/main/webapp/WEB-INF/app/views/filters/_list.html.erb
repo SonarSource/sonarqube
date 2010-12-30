@@ -64,7 +64,19 @@
       <td><% if logged_in? %><%= link_to_favourite(@masterproject.project) -%><% end %></td>
       <% filter.columns.each do |column| %>
       <td class="<%= column_align(column) -%>">
-        <% if column.on_metric? %><%= html_measure(@masterproject.measure(column.metric), nil, true, nil, nil, true, false) %>
+        <% if column.on_metric?
+     	    measure=@masterproject.measure(column.metric)
+        %>
+	        <% if column.variation %>
+		        <%= format_variation(measure, :index => @filter_context.period_index, :style => 'light') -%>
+	        <% else %>
+		        <%= format_measure(measure) -%>
+		        <% if @filter_context.selected_period? %>
+			        <%= format_variation(measure, :index => @filter_context.period_index) -%>
+		        <% else %>
+			        <%= trend_icon(measure, :empty => true) -%>
+		        <% end %>
+	        <% end %>
         <% elsif column.on_name? %><%= qualifier_icon(@masterproject) %> <%= link_to_resource(@masterproject.project, h(@masterproject.project.name(true)), {:dashboard => true, :title => @masterproject.project.key}) %>
         <% elsif column.on_date? %><%= human_short_date(@masterproject.created_at) %>
         <% end %>
