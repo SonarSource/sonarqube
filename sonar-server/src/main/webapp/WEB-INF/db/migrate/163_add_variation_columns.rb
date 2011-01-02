@@ -149,11 +149,11 @@ class AddVariationColumns < ActiveRecord::Migration
     	DROP COLUMN diff_value_1,
     	DROP COLUMN diff_value_2,
     	DROP COLUMN diff_value_3,	
-    	ADD variation_value_1 numeric,
-    	ADD variation_value_2 numeric,
-    	ADD variation_value_3 numeric,
-    	ADD variation_value_4 numeric,
-    	ADD variation_value_5 numeric')
+    	ADD variation_value_1 numeric(30,20),
+    	ADD variation_value_2 numeric(30,20),
+    	ADD variation_value_3 numeric(30,20),
+    	ADD variation_value_4 numeric(30,20),
+    	ADD variation_value_5 numeric(30,20)')
     	
     execute_ddl('add snapshots columns','ALTER TABLE snapshots 
         ADD period1_mode character varying(100),
