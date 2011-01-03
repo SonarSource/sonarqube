@@ -76,19 +76,19 @@ table#columns td {
         <tr>
           <td class="first">Criteria:</td>
           <td>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <%= render :partial => 'filters/criterion', :locals => {:id => '0', :criterion => (@filter.measure_criteria.size>0 ? @filter.measure_criteria[0] : nil)} %>
+            <%= render :partial => 'filters/criterion', :locals => {:id => '0', :criterion => (@filter.measure_criteria.size>0 ? @filter.measure_criteria[0] : nil)} %>
           </td>
         </tr>
         <tr>
-          <td class="first"></td>
+          <td class="first">and: </td>
           <td>
-            and <%= render :partial => 'filters/criterion', :locals => {:id => '1', :criterion => (@filter.measure_criteria.size>1 ? @filter.measure_criteria[1] : nil) } %>
+            <%= render :partial => 'filters/criterion', :locals => {:id => '1', :criterion => (@filter.measure_criteria.size>1 ? @filter.measure_criteria[1] : nil) } %>
           </td>
         </tr>
         <tr>
-          <td class="first"></td>
+          <td class="first">and: </td>
           <td>
-            and <%= render :partial => 'filters/criterion', :locals => {:id => '2', :criterion => (@filter.measure_criteria.size>2 ? @filter.measure_criteria[2] : nil) } %>
+            <%= render :partial => 'filters/criterion', :locals => {:id => '2', :criterion => (@filter.measure_criteria.size>2 ? @filter.measure_criteria[2] : nil) } %>
           </td>
         </tr>
         <% unless @filter.advanced_search? %>
