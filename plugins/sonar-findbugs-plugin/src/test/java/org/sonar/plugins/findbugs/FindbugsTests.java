@@ -19,23 +19,28 @@
  */
 package org.sonar.plugins.findbugs;
 
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.Java;
-import org.sonar.api.rules.*;
-import org.sonar.test.TestUtils;
-import org.xml.sax.SAXException;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Java;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RulePriority;
+import org.sonar.api.rules.RulesManager;
+import org.sonar.api.rules.XMLRuleParser;
+import org.sonar.test.TestUtils;
+import org.xml.sax.SAXException;
 
 public abstract class FindbugsTests {
 
@@ -85,7 +90,8 @@ public abstract class FindbugsTests {
     RulesProfile profile = RulesProfile.create();
     profile.setName(RulesProfile.SONAR_WAY_FINDBUGS_NAME);
     profile.setLanguage(Java.KEY);
-    for (Rule rule : new FindbugsRuleRepository(new XMLRuleParser()).createRules()) {
+    ServerFileSystem sfs = mock(ServerFileSystem.class);
+    for (Rule rule : new FindbugsRuleRepository(sfs, new XMLRuleParser()).createRules()) {
       rule.setRepositoryKey(FindbugsConstants.REPOSITORY_KEY);
       profile.activateRule(rule, null);
     }
