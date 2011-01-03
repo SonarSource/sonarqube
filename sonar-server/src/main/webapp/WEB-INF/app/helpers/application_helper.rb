@@ -79,17 +79,18 @@ module ApplicationHelper
     return nil if snapshot.nil? || snapshot.project_snapshot.nil?
     mode=snapshot.project_snapshot.send "period#{period_index}_mode"
     mode_param=snapshot.project_snapshot.send "period#{period_index}_param"
+    date=snapshot.project_snapshot.send "period#{period_index}_date"
 
     label=nil
     if mode
       if mode=='days'
         label = "over %s days" % mode_param
       elsif mode=='version'
-        label = "since version %s" % mode_param
+        label = "since version %s (%s)" % [mode_param, l(date)]
       elsif mode=='previous_analysis'
-        label = "since previous analysis (%s)" % localize(Date.parse(mode_param))
+        label = "since previous analysis (%s)" % l(date)
       elsif mode=='date'
-        label = "since #{localize(Date.parse(mode_param))}"
+        label = "since #{localize(date)}"
       end
     end
     label

@@ -14,13 +14,13 @@ Treemap does not support yet the selection of a period.
   <script>
   var treemap_width = $('treemap').getDimensions().width - 15;
   var treemap_height = document.viewport.getDimensions().height - 220;
-  function load_treemap(size_metric, color_metric, hide_form, period_index) {
+  function load_treemap(size_metric, color_metric, hide_form) {
     $('treemap_loading').show();
     $('treemap').hide();
-    <%= remote_function :update => 'treemap', :url => {:action => 'treemap', :id => @filter.id, :show_periods => true},
+    <%= remote_function :update => 'treemap', :url => {:action => 'treemap', :id => @filter.id},
      :complete => "$('treemap_loading').hide();$('treemap').show();",
-     :with => "'width=' + treemap_width + '&height=' + treemap_height + '&size_metric=' + size_metric + '&color_metric=' + color_metric + '&hide_form=' + hide_form + '&period=' + period_index" %>
+     :with => "'width=' + treemap_width + '&height=' + treemap_height + '&size_metric=' + size_metric + '&color_metric=' + color_metric + '&hide_form=' + hide_form" %>
   }
-  load_treemap('<%= size_metric.key -%>', '<%= color_metric.key -%>', <%= edit_mode -%>, <%= params[:period].to_i -%>);
+  load_treemap('<%= size_metric.key -%>', '<%= color_metric.key -%>', <%= edit_mode -%>);
   </script>
 <% end %>
