@@ -90,16 +90,16 @@ public class PastSnapshot {
   @Override
   public String toString() {
     if (StringUtils.equals(mode, PastSnapshotFinderByVersion.MODE)) {
-      return String.format("Compare to version " + modeParameter + "(" + targetDate + ")");
+      return String.format("Compare to version " + modeParameter + "(" + getDate() + ")");
     }
     if (StringUtils.equals(mode, PastSnapshotFinderByDays.MODE)) {
-      return String.format("Compare over " + modeParameter + " days (" + targetDate + ")");
+      return String.format("Compare over " + modeParameter + " days (" + getDate() + ")");
     }
     if (StringUtils.equals(mode, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS)) {
-      return String.format("Compare to previous analysis " + " (" + targetDate + ")");
+      return String.format("Compare to previous analysis " + " (" + getDate() + ")");
     }
     if (StringUtils.equals(mode, PastSnapshotFinderByDate.MODE)) {
-      return String.format("Compare to date " + targetDate);
+      return String.format("Compare to date " + getDate());
     }
     return ReflectionToStringBuilder.toString(this);
   }

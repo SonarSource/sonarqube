@@ -39,18 +39,40 @@ public class PastSnapshotFinderByDays implements BatchExtension {
 
   PastSnapshot findFromDays(Snapshot projectSnapshot, int days) {
     Date targetDate = DateUtils.addDays(projectSnapshot.getCreatedAt(), -days);
-    String hql = "from " + Snapshot.class.getSimpleName() + " where resourceId=:resourceId AND status=:status AND createdAt>=:from AND createdAt<:to order by createdAt asc";
+    String hql = "from " + Snapshot.class.getSimpleName() + " where resourceId=:resourceId AND status=:status AND createdAt<:date order by createdAt asc";
     List<Snapshot> snapshots = session.createQuery(hql)
-        .setParameter("from", targetDate)
-        .setParameter("to", projectSnapshot.getCreatedAt())
+        .setParameter("date", projectSnapshot.getCreatedAt())
         .setParameter("resourceId", projectSnapshot.getResourceId())
         .setParameter("status", Snapshot.STATUS_PROCESSED)
-        .setMaxResults(1)
         .getResultList();
 
     if (snapshots.isEmpty()) {
       return null;
     }
-    return new PastSnapshot(MODE, targetDate, snapshots.get(0)).setModeParameter(String.valueOf(days));
+
+    Snapshot snapshot = getNearestToTarget(snapshots, targetDate);
+    return new PastSnapshot(MODE, targetDate, snapshot).setModeParameter(String.valueOf(days));
+  }
+
+  static Snapshot getNearestToTarget(List<Snapshot> snapshots, Date currentDate, int distanceInDays) {
+    Date targetDate = DateUtils.addDays(currentDate, -distanceInDays);
+    return getNearestToTarget(snapshots, targetDate);
+  }
+
+  static Snapshot getNearestToTarget(List<Snapshot> snapshots, Date targetDate) {
+    long bestDistance = Long.MAX_VALUE;
+    Snapshot nearest = null;
+    for (Snapshot snapshot : snapshots) {
+      long distance = distance(snapshot.getCreatedAt(), targetDate);
+      if (distance <= bestDistance) {
+        bestDistance = distance;
+        nearest = snapshot;
+      }
+    }
+    return nearest;
+  }
+
+  static long distance(Date d1, Date d2) {
+    return Math.abs(d1.getTime() - d2.getTime());
   }
 }
