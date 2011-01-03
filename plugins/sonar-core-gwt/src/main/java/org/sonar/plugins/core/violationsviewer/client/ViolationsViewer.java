@@ -75,8 +75,10 @@ public class ViolationsViewer extends Page {
 
     initFilters();
 
-    header.setWidget(0, 1, periodBox);
-    header.getCellFormatter().setStyleName(0, 1, "thin cell right");
+    if (periodBox.getItemCount() > 1) {
+      header.setWidget(0, 1, periodBox);
+      header.getCellFormatter().setStyleName(0, 1, "thin cell right");
+    }
 
     header.setWidget(0, 2, filterBox);
     header.getCellFormatter().setStyleName(0, 2, "thin cell right");
