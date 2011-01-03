@@ -44,10 +44,10 @@ public class TimeMachineConfiguration implements BatchExtension {
   private void initPastSnapshots(PastSnapshotFinder pastSnapshotFinder, Snapshot projectSnapshot) {
     projectPastSnapshots = Lists.newLinkedList();
     for (int index = 1; index <= NUMBER_OF_VARIATION_SNAPSHOTS; index++) {
-      PastSnapshot variationSnapshot = pastSnapshotFinder.find(projectSnapshot, configuration, index);
-      if (variationSnapshot != null) {
-        Logs.INFO.info("Comparison date: " + variationSnapshot.getDate());
-        projectPastSnapshots.add(variationSnapshot);
+      PastSnapshot pastSnapshot = pastSnapshotFinder.find(projectSnapshot, configuration, index);
+      if (pastSnapshot != null) {
+        Logs.INFO.info(pastSnapshot.toString());
+        projectPastSnapshots.add(pastSnapshot);
       }
     }
   }

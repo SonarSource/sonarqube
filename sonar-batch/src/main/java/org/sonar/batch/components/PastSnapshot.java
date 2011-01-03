@@ -19,7 +19,9 @@
  */
 package org.sonar.batch.components;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.database.model.Snapshot;
 
 import java.util.Date;
@@ -73,7 +75,7 @@ public class PastSnapshot {
   }
 
   public Integer getProjectSnapshotId() {
-    return (projectSnapshot!=null ? projectSnapshot.getId() : null);
+    return (projectSnapshot != null ? projectSnapshot.getId() : null);
   }
 
   public Date getTargetDate() {
@@ -87,6 +89,18 @@ public class PastSnapshot {
 
   @Override
   public String toString() {
+    if (StringUtils.equals(mode, PastSnapshotFinderByVersion.MODE)) {
+      return String.format("Compare to version " + modeParameter + "(" + targetDate + ")");
+    }
+    if (StringUtils.equals(mode, PastSnapshotFinderByDays.MODE)) {
+      return String.format("Compare over " + modeParameter + " days (" + targetDate + ")");
+    }
+    if (StringUtils.equals(mode, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS)) {
+      return String.format("Compare to previous analysis " + " (" + targetDate + ")");
+    }
+    if (StringUtils.equals(mode, PastSnapshotFinderByDate.MODE)) {
+      return String.format("Compare to date " + targetDate);
+    }
     return ReflectionToStringBuilder.toString(this);
   }
 }

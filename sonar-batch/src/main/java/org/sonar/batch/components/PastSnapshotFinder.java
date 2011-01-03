@@ -52,7 +52,7 @@ public class PastSnapshotFinder implements BatchExtension {
     String propertyValue = getPropertyValue(conf, index);
     PastSnapshot pastSnapshot = find(projectSnapshot, index, propertyValue);
     if (pastSnapshot==null && StringUtils.isNotBlank(propertyValue)) {
-      Logs.INFO.warn("The property " + CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index + " has an unvalid value: " + propertyValue);
+      Logs.INFO.debug("The property " + CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index + " has an unvalid value: " + propertyValue);
     }
     return pastSnapshot;
   }
