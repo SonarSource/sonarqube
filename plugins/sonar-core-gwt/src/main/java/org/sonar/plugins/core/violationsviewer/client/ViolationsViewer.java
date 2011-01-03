@@ -51,8 +51,6 @@ public class ViolationsViewer extends Page {
   private ListBox filterBox = null, periodBox = null;
   private List<Date> dateFilters = new ArrayList<Date>();
   private CheckBox expandCheckbox = null;
-  private String defaultFilter;
-  private int defaultPeriodIndex = -1;
 
   // source
   private ViolationsPanel sourcePanel;
@@ -75,8 +73,7 @@ public class ViolationsViewer extends Page {
 
     header.getCellFormatter().setStyleName(0, 1, "right");
 
-    initDefaultFilter();
-    initFilterBoxes();
+    initFilters();
 
     header.setWidget(0, 1, periodBox);
     header.getCellFormatter().setStyleName(0, 1, "thin cell right");
@@ -98,13 +95,11 @@ public class ViolationsViewer extends Page {
     header.setWidget(0, 4, expandCheckbox);
     header.getCellFormatter().setStyleName(0, 4, "thin cell left");
 
-    sourcePanel = new ViolationsPanel(resource, getCurrentRuleFilter(), getCurrentDateFilter());
-
     loadRuleSeverities();
     return mainPanel;
   }
 
-  private void initFilterBoxes() {
+  private void initFilters() {
     initFilterBox();
     initPeriodBox();
 
@@ -135,6 +130,11 @@ public class ViolationsViewer extends Page {
     initPeriod(3);
     initPeriod(4);
     initPeriod(5);
+
+    String period = Configuration.getRequestParameter("period");
+    if (period != null && !"".equals(period)) {
+      periodBox.setSelectedIndex(Integer.valueOf(period));
+    }
   }
 
   private void initPeriod(int periodIndex) {
@@ -145,9 +145,6 @@ public class ViolationsViewer extends Page {
         periodBox.addItem("Added " + period);
         dateFilters.add(date);
       }
-    }
-    if (defaultPeriodIndex > -1) {
-      periodBox.setSelectedIndex(defaultPeriodIndex);
     }
   }
 
@@ -163,42 +160,35 @@ public class ViolationsViewer extends Page {
     return filterBox.getValue(filterBox.getSelectedIndex());
   }
 
-  private void initDefaultFilter() {
-    defaultFilter = Configuration.getRequestParameter("rule");
-    if (defaultFilter == null) {
-      defaultFilter = Configuration.getRequestParameter("priority");
-    }
-    String period = Configuration.getRequestParameter("period");
-    if (period != null && !"".equals(period)) {
-      defaultPeriodIndex = Integer.valueOf(period);
-    }
-  }
-
   private void loadRuleSeverities() {
     final ResourceQuery query = ResourceQuery.createForResource(resource, Metrics.BLOCKER_VIOLATIONS,
         Metrics.CRITICAL_VIOLATIONS, Metrics.MAJOR_VIOLATIONS, Metrics.MINOR_VIOLATIONS, Metrics.INFO_VIOLATIONS);
     Sonar.getInstance().find(query, new AbstractCallback<Resource>(loading) {
       @Override
       protected void doOnResponse(Resource resource) {
+        String defaultFilter = Configuration.getRequestParameter("rule");
+        if (defaultFilter == null) {
+          defaultFilter = Configuration.getRequestParameter("priority");
+        }
         setResourceHasViolations(resource);
-        displayRuleSeverities(resource);
-        loadRules(resource);
+        displayRuleSeverities(resource, defaultFilter);
+        loadRules(resource, defaultFilter);
       }
     });
   }
 
-  private void displayRuleSeverities(Resource resource) {
+  private void displayRuleSeverities(Resource resource, String defaultFilter) {
     final Grid grid = new Grid(1, 10);
     header.setWidget(0, 0, grid);
 
-    displayRuleSeverity(grid, 0, "BLOCKER", resource.getMeasure(Metrics.BLOCKER_VIOLATIONS));
-    displayRuleSeverity(grid, 2, "CRITICAL", resource.getMeasure(Metrics.CRITICAL_VIOLATIONS));
-    displayRuleSeverity(grid, 4, "MAJOR", resource.getMeasure(Metrics.MAJOR_VIOLATIONS));
-    displayRuleSeverity(grid, 6, "MINOR", resource.getMeasure(Metrics.MINOR_VIOLATIONS));
-    displayRuleSeverity(grid, 8, "INFO", resource.getMeasure(Metrics.INFO_VIOLATIONS));
+    displayRuleSeverity(grid, 0, "BLOCKER", defaultFilter, resource.getMeasure(Metrics.BLOCKER_VIOLATIONS));
+    displayRuleSeverity(grid, 2, "CRITICAL", defaultFilter, resource.getMeasure(Metrics.CRITICAL_VIOLATIONS));
+    displayRuleSeverity(grid, 4, "MAJOR", defaultFilter, resource.getMeasure(Metrics.MAJOR_VIOLATIONS));
+    displayRuleSeverity(grid, 6, "MINOR", defaultFilter, resource.getMeasure(Metrics.MINOR_VIOLATIONS));
+    displayRuleSeverity(grid, 8, "INFO", defaultFilter, resource.getMeasure(Metrics.INFO_VIOLATIONS));
   }
 
-  private void displayRuleSeverity(final Grid grid, final int column, final String severity, final Measure measure) {
+  private void displayRuleSeverity(final Grid grid, final int column, final String severity, final String defaultFilter, final Measure measure) {
     String value = "0";
     if (measure != null) {
       value = measure.getFormattedValue();
@@ -214,7 +204,7 @@ public class ViolationsViewer extends Page {
     grid.getCellFormatter().setStyleName(0, column + 1, "thin left value");
   }
 
-  private void loadRules(Resource resource) {
+  private void loadRules(final Resource resource, final String defaultFilter) {
     final ResourceQuery query = ResourceQuery.createForResource(resource, Metrics.VIOLATIONS)
         .setExcludeRules(false);
     Sonar.getInstance().find(query, new AbstractCallback<Resource>(loading) {
@@ -222,7 +212,7 @@ public class ViolationsViewer extends Page {
       @Override
       protected void doOnResponse(Resource resource) {
         setResourceHasViolations(resource);
-        displayRules(resource);
+        displayRules(resource, defaultFilter);
         loadSources();
       }
     });
@@ -232,7 +222,7 @@ public class ViolationsViewer extends Page {
     resourceHasViolations = resource != null && resource.getMeasure(Metrics.VIOLATIONS) != null;
   }
 
-  private void displayRules(Resource resource) {
+  private void displayRules(final Resource resource, final String defaultFilter) {
     Collections.sort(resource.getMeasures(), new Comparator<Measure>() {
       public int compare(Measure m1, Measure m2) {
         return m1.getRuleName().compareTo(m2.getRuleName());
@@ -250,9 +240,14 @@ public class ViolationsViewer extends Page {
   }
 
   private void loadSources() {
-    mainPanel.remove(sourcePanel);
-    if (resourceHasViolations || expandCheckbox.getValue()) {
+    if (sourcePanel == null) {
+      sourcePanel = new ViolationsPanel(resource, getCurrentRuleFilter(), getCurrentDateFilter());
       mainPanel.add(sourcePanel);
+    } else {
+      mainPanel.remove(sourcePanel);
+      if (resourceHasViolations || expandCheckbox.getValue()) {
+        mainPanel.add(sourcePanel);
+      }
     }
   }
 }
