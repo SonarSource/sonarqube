@@ -22,7 +22,7 @@ class Project < ActiveRecord::Base
   include Resourceable
   
   has_many :snapshots
-  has_many :processed_snapshots, :class_name => 'Snapshot', :conditions => "status='#{Snapshot::STATUS_PROCESSED}'", :order => 'created_at asc'
+  has_many :processed_snapshots, :class_name => 'Snapshot', :conditions => "status='#{Snapshot::STATUS_PROCESSED}' AND qualifier<>'LIB'", :order => 'created_at asc'
   has_many :events, :foreign_key => 'resource_id', :order => 'event_date DESC'
   has_many :project_links, :dependent => :delete_all, :order => 'link_type'
   belongs_to :profile, :class_name => 'Profile', :foreign_key => 'profile_id'
