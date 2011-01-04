@@ -22,6 +22,7 @@ package org.sonar.batch.components;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Project;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,11 +39,12 @@ public class PastSnapshotFinderByDate implements BatchExtension {
   }
 
   PastSnapshot findByDate(Snapshot projectSnapshot, Date date) {
-    String hql = "from " + Snapshot.class.getSimpleName() + " where createdAt>=:date AND resourceId=:resourceId AND status=:status order by createdAt asc";
+    String hql = "from " + Snapshot.class.getSimpleName() + " where createdAt>=:date AND resourceId=:resourceId AND status=:status AND qualifier<>:lib order by createdAt asc";
     List<Snapshot> snapshots = session.createQuery(hql)
         .setParameter("date", date)
         .setParameter("resourceId", projectSnapshot.getResourceId())
         .setParameter("status", Snapshot.STATUS_PROCESSED)
+        .setParameter("lib", Project.QUALIFIER_LIB)
         .setMaxResults(1)
         .getResultList();
     if (snapshots.isEmpty()) {

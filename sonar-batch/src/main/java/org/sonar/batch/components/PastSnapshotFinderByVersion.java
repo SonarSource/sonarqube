@@ -22,6 +22,7 @@ package org.sonar.batch.components;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Project;
 
 import java.util.List;
 
@@ -36,11 +37,12 @@ public class PastSnapshotFinderByVersion implements BatchExtension {
   }
 
   PastSnapshot findByVersion(Snapshot projectSnapshot, String version) {
-    String hql = "from " + Snapshot.class.getSimpleName() + " where version=:version AND resourceId=:resourceId AND status=:status order by createdAt desc";
+    String hql = "from " + Snapshot.class.getSimpleName() + " where version=:version AND resourceId=:resourceId AND status=:status AND qualifier<>:lib order by createdAt desc";
     List<Snapshot> snapshots = session.createQuery(hql)
         .setParameter("version", version)
         .setParameter("resourceId", projectSnapshot.getResourceId())
         .setParameter("status", Snapshot.STATUS_PROCESSED)
+        .setParameter("lib", Project.QUALIFIER_LIB)
         .setMaxResults(1)
         .getResultList();
 
