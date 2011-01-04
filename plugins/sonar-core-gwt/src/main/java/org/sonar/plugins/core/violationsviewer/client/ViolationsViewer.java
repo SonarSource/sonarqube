@@ -65,6 +65,8 @@ public class ViolationsViewer extends Page {
     mainPanel.setWidth("100%");
     mainPanel.setStyleName("gwt-Violations");
 
+    sourcePanel = null; // reload sources when selecting a new file
+
     header = new Grid(1, 5);
     header.setWidth("100%");
     header.setStylePrimaryName("gwt-ViewerHeader");
