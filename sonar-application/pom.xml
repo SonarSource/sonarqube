@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.codehaus.sonar</groupId>
     <artifactId>sonar</artifactId>
-    <version>2.5-RC1</version>
+    <version>2.6-SNAPSHOT</version>
   </parent>
   <artifactId>sonar-application</artifactId>
   <packaging>jar</packaging>
