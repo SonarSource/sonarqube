@@ -1,1 +1,0 @@
-DROP DATABASE IF EXISTS ${jdbcUsername};

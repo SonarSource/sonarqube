@@ -1,1 +1,0 @@
-drop user '${jdbcUsername}'@'%';
