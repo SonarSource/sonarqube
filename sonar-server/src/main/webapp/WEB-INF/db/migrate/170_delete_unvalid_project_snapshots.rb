@@ -24,17 +24,14 @@
 class DeleteUnvalidProjectSnapshots < ActiveRecord::Migration
 
   def self.up
-   metric=Metric.find(:first, :conditions => ['name=?','lines'])
-   if metric
-     snapshots=select_snapshots_without_measures(metric)
-     delete_snapshots(snapshots)
-   end
+    snapshots=select_snapshots_without_measures
+    delete_snapshots(snapshots)
   end
 
-  def self.select_snapshots_without_measures(metric)
+  def self.select_snapshots_without_measures
    snapshots=nil
    say_with_time "Select project snapshots without measures..." do
-     snapshots=Snapshot.find_by_sql ["SELECT s.id FROM snapshots s WHERE s.scope='PRJ' and s.qualifier IN ('TRK', 'BRC') AND status='P' AND islast=? AND NOT EXISTS (select m.id from project_measures m WHERE m.snapshot_id=s.id AND m.metric_id=?)", false, metric.id]
+     snapshots=Snapshot.find_by_sql ["SELECT s.id FROM snapshots s WHERE s.scope='PRJ' and s.qualifier IN ('TRK', 'BRC') AND status='P' AND islast=? AND NOT EXISTS (select m.id from project_measures m WHERE m.snapshot_id=s.id)", false]
    end
    snapshots
   end
