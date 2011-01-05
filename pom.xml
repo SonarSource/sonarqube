@@ -191,7 +191,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
-          <version>2.0</version>
+          <version>2.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -294,7 +294,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
         <configuration>
-          <tagBase>https://svn.codehaus.org/sonar/tags</tagBase>
           <autoVersionSubmodules>true</autoVersionSubmodules>
         </configuration>
       </plugin>
@@ -816,11 +815,11 @@ mmmm
   </mailingLists>
 
   <scm>
-    <connection>scm:svn:https://svn.codehaus.org/sonar/trunk</connection>
-    <developerConnection>scm:svn:https://svn.codehaus.org/sonar/trunk</developerConnection>
-    <url>https://svn.codehaus.org/sonar/trunk</url>
+    <connection>scm:git:git@github.com:SonarSource/sonar.git</connection>
+    <developerConnection>scm:git:git@github.com:SonarSource/sonar.git</developerConnection>
+    <url>scm:git:git@github.com:SonarSource/sonar.git</url>
   </scm>
-
+  
   <ciManagement>
     <system>bamboo</system>
     <url>http://bamboo.ci.codehaus.org/browse/SONAR-DEF</url>
