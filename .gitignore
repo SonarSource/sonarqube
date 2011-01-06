@@ -1,8 +1,17 @@
 sonar-server/src/main/webapp/stylesheets/sonar-colorizer.css
+
+# Maven
 target/
+
+# IntelliJ IDEA
 *.iws
 *.iml
 *.ipr
+
+# Eclipse
+.classpath
+.project
+.settings
 
 # ---- Mac OS X
 .DS_Store?
