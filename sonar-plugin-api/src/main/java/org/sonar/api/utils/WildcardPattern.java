@@ -33,8 +33,10 @@ public class WildcardPattern {
   private static final Map<String, WildcardPattern> patterns = new HashMap<String, WildcardPattern>();
 
   private Pattern pattern;
+  private String stringRepresentation;
 
   protected WildcardPattern(String pattern, String directorySeparator) {
+    this.stringRepresentation = pattern;
     this.pattern = Pattern.compile(toRegexp(pattern, directorySeparator));
   }
 
@@ -78,6 +80,14 @@ public class WildcardPattern {
   private String removeSlahesToIgnore(String wildcardPattern) {
     String patternStr = StringUtils.removeStart(wildcardPattern, "/");
     return StringUtils.removeEnd(patternStr, "/");
+  }
+
+  /**
+   * This method is overridden since version 2.5-RC2.
+   */
+  @Override
+  public String toString() {
+    return stringRepresentation;
   }
 
   /**

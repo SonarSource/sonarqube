@@ -21,7 +21,9 @@ package org.sonar.api.utils;
 
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class WildcardPatternTest {
@@ -106,5 +108,10 @@ public class WildcardPatternTest {
     assertTrue(WildcardPattern.match(patterns, "Foo"));
     assertTrue(WildcardPattern.match(patterns, "Bar"));
     assertFalse(WildcardPattern.match(patterns, "Other"));
+  }
+
+  @Test
+  public void testToString() {
+    assertThat(WildcardPattern.create("foo*").toString(), is("foo*"));
   }
 }
