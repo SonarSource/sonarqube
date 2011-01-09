@@ -35,6 +35,8 @@ import javax.persistence.*;
 @Table(name = "rules")
 public final class Rule {
 
+  private final static RulesCategory NONE = new RulesCategory("none");
+  
   @Id
   @Column(name = "id")
   @GeneratedValue
@@ -190,7 +192,7 @@ public final class Rule {
    */
   @Deprecated
   public RulesCategory getRulesCategory() {
-    return null;
+    return NONE;
   }
 
   /**
