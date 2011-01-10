@@ -60,8 +60,8 @@ public class MeasureCriterion {
     this.value = value;
   }
 
-  public Boolean isVariation() {
-    return variation;
+  public boolean isVariation() {
+    return variation==Boolean.TRUE;
   }
 
   public MeasureCriterion setVariation(Boolean b) {
