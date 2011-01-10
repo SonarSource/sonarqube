@@ -88,18 +88,22 @@ public class ViolationPersisterDecorator implements Decorator {
    * @return checksums, never null
    */
   private List<String> getChecksums(SnapshotSource source) {
-    return source == null || source.getData() == null ? Collections.<String> emptyList() : getChecksums(source.getData());
+    return source == null || source.getData() == null ? Collections.<String>emptyList() : getChecksums(source.getData());
   }
 
   static List<String> getChecksums(String data) {
     List<String> result = Lists.newArrayList();
+    StringInputStream stream = new StringInputStream(data);
     try {
-      List<String> lines = IOUtils.readLines(new StringInputStream(data));
+      List<String> lines = IOUtils.readLines(stream);
       for (String line : lines) {
         result.add(getChecksum(line));
       }
     } catch (IOException e) {
       throw new SonarException("Unable to calculate checksums", e);
+      
+    } finally {
+      IOUtils.closeQuietly(stream);
     }
     return result;
   }
@@ -123,11 +127,11 @@ public class ViolationPersisterDecorator implements Decorator {
    * Search for past violation.
    */
   RuleFailureModel selectPastViolation(Violation violation, Multimap<Rule, RuleFailureModel> pastViolationsByRule) {
-    // skip violation, if there is no past violations with same rule
-    if (!pastViolationsByRule.containsKey(violation.getRule())) {
+    Collection<RuleFailureModel> pastViolations = pastViolationsByRule.get(violation.getRule());
+    if (pastViolations==null || pastViolations.isEmpty()) {
+      // skip violation, if there is no past violations with same rule
       return null;
     }
-    Collection<RuleFailureModel> pastViolations = pastViolationsByRule.get(violation.getRule());
     RuleFailureModel found = selectPastViolationUsingLine(violation, pastViolations);
     if (found == null) {
       found = selectPastViolationUsingChecksum(violation, pastViolations);
