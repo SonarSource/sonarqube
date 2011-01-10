@@ -21,9 +21,14 @@ package org.sonar.batch.components;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.utils.Logs;
 
 import java.util.Collections;
@@ -46,9 +51,19 @@ public class TimeMachineConfiguration implements BatchExtension {
     for (int index = 1; index <= NUMBER_OF_VARIATION_SNAPSHOTS; index++) {
       PastSnapshot pastSnapshot = pastSnapshotFinder.find(projectSnapshot, configuration, index);
       if (pastSnapshot != null) {
-        Logs.INFO.info(pastSnapshot.toString());
+        log(pastSnapshot);
         projectPastSnapshots.add(pastSnapshot);
       }
+    }
+  }
+
+  private void log(PastSnapshot pastSnapshot) {
+    String qualifier = pastSnapshot.getProjectSnapshot().getQualifier();
+    // hack to avoid too many logs when the views plugin is installed
+    if (StringUtils.equals(Resource.QUALIFIER_VIEW, qualifier) || StringUtils.equals(Resource.QUALIFIER_SUBVIEW, qualifier)) {
+      LoggerFactory.getLogger(getClass()).debug(pastSnapshot.toString());
+    } else {
+      Logs.INFO.info(pastSnapshot.toString());
     }
   }
 
