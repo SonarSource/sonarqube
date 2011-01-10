@@ -48,7 +48,7 @@ public class TimeMachineConfigurationPersisterTest extends AbstractDbUnitTestCas
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1000);
 
     TimeMachineConfigurationPersister persister = new TimeMachineConfigurationPersister(conf, projectSnapshot, getSession());
-    persister.start();
+    persister.persistConfiguration();
 
     checkTables("shouldSaveConfigurationInSnapshotsTable", "snapshots");
   }

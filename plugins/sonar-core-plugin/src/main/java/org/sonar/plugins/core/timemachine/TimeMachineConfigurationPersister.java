@@ -19,15 +19,19 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
 
 import java.util.List;
 
-public final class TimeMachineConfigurationPersister implements BatchExtension {
+public final class TimeMachineConfigurationPersister implements Decorator {
 
   private TimeMachineConfiguration configuration;
   private Snapshot projectSnapshot;
@@ -39,7 +43,13 @@ public final class TimeMachineConfigurationPersister implements BatchExtension {
     this.session = session;
   }
 
-  public void start() {
+  public void decorate(Resource resource, DecoratorContext context) {
+    if (ResourceUtils.isProject(resource)) {
+      persistConfiguration();
+    }
+  }
+
+  void persistConfiguration() {
     List<PastSnapshot> pastSnapshots = configuration.getProjectPastSnapshots();
     for (PastSnapshot pastSnapshot : pastSnapshots) {
       projectSnapshot = session.reattach(Snapshot.class, projectSnapshot.getId());
@@ -49,5 +59,9 @@ public final class TimeMachineConfigurationPersister implements BatchExtension {
       session.save(projectSnapshot);
     }
     session.commit();
+  }
+
+  public boolean shouldExecuteOnProject(Project project) {
+    return true;
   }
 }
