@@ -86,11 +86,11 @@ module ApplicationHelper
       if mode=='days'
         label = "over %s days" % mode_param
       elsif mode=='version'
-        label = "since version %s (%s)" % [mode_param, l(date)]
+        label = "since version %s (%s)" % [mode_param, (date.strftime("%Y %b %d"))]
       elsif mode=='previous_analysis'
-        label = "since previous analysis (%s)" % l(date)
+        label = "since previous analysis (%s)" % (date.strftime("%Y %b %d"))
       elsif mode=='date'
-        label = "since #{localize(date)}"
+        label = "since #{date.strftime("%Y %b %d")}"
       end
     end
     label

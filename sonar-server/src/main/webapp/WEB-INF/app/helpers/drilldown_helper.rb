@@ -23,6 +23,7 @@ module DrilldownHelper
     return nil if snapshot.nil? || snapshot.project_snapshot.nil?
     mode=snapshot.project_snapshot.send "period#{index}_mode"
     mode_param=snapshot.project_snapshot.send "period#{index}_param"
+    date=snapshot.project_snapshot.send "period#{index}_date"
 
     if mode
       if mode=='days'
@@ -30,9 +31,9 @@ module DrilldownHelper
       elsif mode=='version'
         label = "Added since version %s" % mode_param
       elsif mode=='previous_analysis'
-        label = "Added since previous analysis (%s)" % localize(Date.parse(mode_param))
+        label = "Added since previous analysis (%s)" % date.strftime("%Y %b. %d")
       elsif mode=='date'
-        label = "Added since #{localize(Date.parse(mode_param))}"
+        label = "Added since #{date.strftime("%Y %b %d")}"
       end
       if label
         selected=(params[:period]==index.to_s ? 'selected' : '')
