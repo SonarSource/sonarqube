@@ -360,7 +360,7 @@ public class Filter {
   public boolean mustReturnEmptyResult() {
     boolean hasCriterionOnVariation = false;
     for (MeasureCriterion criterion : measureCriteria) {
-      if (criterion.isVariation()) {
+      if (criterion.isVariation()==Boolean.TRUE) {
         hasCriterionOnVariation = true;
       }
     }

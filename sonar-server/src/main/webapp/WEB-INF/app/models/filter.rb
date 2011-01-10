@@ -47,7 +47,7 @@ class Filter < ActiveRecord::Base
   def measure_criteria
     @measure_criteria ||=
       begin
-        criteria.select{|c| c.on_metric?}
+        criteria.select{|c| c.on_metric? && c.metric}
       end
   end
 
