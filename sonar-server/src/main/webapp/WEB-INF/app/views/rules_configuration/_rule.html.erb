@@ -57,7 +57,7 @@
         <%= button_to "Edit rule", :action => 'edit', :id => profile.id, :rule_id => rule.id %>
         <% end %>
         <% if active_rule && active_rule.overrides? %>
-        <%= button_to "Revert to parent definition", :action => 'revert_rule', :id => profile.id, :active_rule_id => active_rule.id %><br/>
+        <%= button_to "Revert to parent definition", :overwrite_params => {:action => 'revert_rule', :id => profile.id, :active_rule_id => active_rule.id} %><br/>
         <% end %>
       <% end %>
     </div>

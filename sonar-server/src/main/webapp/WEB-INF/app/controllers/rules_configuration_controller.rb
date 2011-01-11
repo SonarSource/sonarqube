@@ -85,7 +85,7 @@ class RulesConfigurationController < ApplicationController
     id = params[:id].to_i
     rule_id = params[:active_rule_id].to_i
     java_facade.revertRule(id, rule_id)
-    redirect_to :action => 'index', :id => params[:id]
+    redirect_to request.query_parameters.merge({:action => 'index', :id => params[:id], :commit => nil})
   end
 
 
