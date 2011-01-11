@@ -63,6 +63,7 @@ public class NoSonarFilterLoader extends Bridge {
 
     public void visitClass(SourceClass sourceClass) {
       if (sourceClass.isSuppressWarnings()) {
+        visitLines(sourceClass);
       }
     }
 
