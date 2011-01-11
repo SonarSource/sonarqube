@@ -58,7 +58,7 @@ module ApplicationHelper
 
   # deprecated since 2.5. Use trend_icon() instead
   def tendency_icon(metric_or_measure, small=true, no_tendency_img=true)
-    return trend_icon(metric_or_measure, {:big => !small})
+    return trend_icon(metric_or_measure, {:big => !small, :empty => !no_tendency_img})
   end
 
   def boolean_icon(boolean_value, options={})
