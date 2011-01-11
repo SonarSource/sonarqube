@@ -40,6 +40,7 @@ import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.platform.Environment;
 import org.sonar.batch.Batch;
+import org.sonar.batch.MavenReactor;
 
 import java.io.InputStream;
 
@@ -78,7 +79,7 @@ public final class SonarMojo extends AbstractMojo {
 
   /**
    * The artifact factory to use.
-   *
+   * 
    * @component
    * @required
    * @readonly
@@ -87,7 +88,7 @@ public final class SonarMojo extends AbstractMojo {
 
   /**
    * The artifact repository to use.
-   *
+   * 
    * @parameter expression="${localRepository}"
    * @required
    * @readonly
@@ -96,7 +97,7 @@ public final class SonarMojo extends AbstractMojo {
 
   /**
    * The artifact metadata source to use.
-   *
+   * 
    * @component
    * @required
    * @readonly
@@ -105,7 +106,7 @@ public final class SonarMojo extends AbstractMojo {
 
   /**
    * The artifact collector to use.
-   *
+   * 
    * @component
    * @required
    * @readonly
@@ -114,7 +115,7 @@ public final class SonarMojo extends AbstractMojo {
 
   /**
    * The dependency tree builder to use.
-   *
+   * 
    * @component
    * @required
    * @readonly
@@ -133,15 +134,14 @@ public final class SonarMojo extends AbstractMojo {
     executeBatch();
   }
 
-
   private void executeBatch() throws MojoExecutionException {
+    MavenReactor reactor = new MavenReactor(session);
     Batch batch = new Batch(getInitialConfiguration(),
-        session, project, getLog(), lifecycleExecutor, pluginManager, artifactFactory,
+        reactor, session, project, getLog(), lifecycleExecutor, pluginManager, artifactFactory,
         localRepository, artifactMetadataSource, artifactCollector, dependencyTreeBuilder,
         projectBuilder, Environment.MAVEN2, Maven2PluginExecutor.class);
     batch.execute();
   }
-
 
   private void initLogging() throws MojoExecutionException {
     LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
