@@ -17,34 +17,22 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.platform;
+package org.sonar.batch;
 
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.apache.maven.project.MavenProject;
 
-/**
- * @since 2.2
- */
-public enum Environment implements BatchComponent, ServerComponent {
+import java.util.List;
 
-  /*
-   * When will GRADLE, ANT, ECLIPSE, INTELLIJ_IDEA be added to this list ? :-)
-   */
-  SERVER, MAVEN3, MAVEN2, ANT;
+public class Reactor {
 
-  public boolean isServer() {
-    return this==SERVER;
+  private List<MavenProject> sortedProjects;
+
+  public Reactor(List<MavenProject> sortedProjects) {
+    this.sortedProjects = sortedProjects;
   }
 
-  public boolean isMaven2Batch() {
-    return this==MAVEN2;
+  public List<MavenProject> getSortedProjects() {
+    return sortedProjects;
   }
 
-  public boolean isMaven3Batch() {
-    return this==MAVEN3;
-  }
-
-  public boolean isBatch() {
-    return isMaven2Batch() || isMaven3Batch();
-  }
 }

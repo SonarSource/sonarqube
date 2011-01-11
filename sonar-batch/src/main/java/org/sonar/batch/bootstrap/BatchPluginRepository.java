@@ -30,8 +30,11 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.Plugin;
 import org.sonar.api.batch.AbstractCoverageExtension;
+import org.sonar.api.batch.SupportedEnvironment;
+import org.sonar.api.platform.Environment;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.classloaders.ClassLoadersCollection;
 import org.sonar.core.plugin.AbstractPluginRepository;
@@ -52,10 +55,12 @@ public class BatchPluginRepository extends AbstractPluginRepository {
 
   private ClassLoadersCollection classLoaders;
   private ExtensionDownloader extensionDownloader;
+  private Environment environment;
 
-  public BatchPluginRepository(JpaPluginDao dao, ExtensionDownloader extensionDownloader) {
+  public BatchPluginRepository(JpaPluginDao dao, ExtensionDownloader extensionDownloader, Environment environment) {
     this.dao = dao;
     this.extensionDownloader = extensionDownloader;
+    this.environment = environment;
   }
 
   /**
@@ -74,7 +79,7 @@ public class BatchPluginRepository extends AbstractPluginRepository {
         File file = extensionDownloader.downloadExtension(pluginFile);
         try {
           urls.add(file.toURI().toURL());
-          
+
         } catch (MalformedURLException e) {
           throw new SonarException("Can not get the URL of: " + file, e);
         }
@@ -107,13 +112,31 @@ public class BatchPluginRepository extends AbstractPluginRepository {
   @Override
   protected boolean shouldRegisterExtension(PicoContainer container, String pluginKey, Object extension) {
     boolean ok = isType(extension, BatchExtension.class);
+    if (ok && !isSupportsEnvironment(extension)) {
+      ok = false;
+      LOG.debug("The following extension is ignored: " + extension + " due to execution environment.");
+    }
     if (ok && isType(extension, AbstractCoverageExtension.class)) {
       ok = shouldRegisterCoverageExtension(pluginKey, container.getComponent(Project.class), container.getComponent(Configuration.class));
-      if ( !ok) {
+      if (!ok) {
         LOG.debug("The following extension is ignored: " + extension + ". See the parameter " + AbstractCoverageExtension.PARAM_PLUGIN);
       }
     }
     return ok;
+  }
+
+  private boolean isSupportsEnvironment(Object extension) {
+    Class clazz = (extension instanceof Class ? (Class) extension : extension.getClass());
+    SupportedEnvironment env = AnnotationUtils.getClassAnnotation(clazz, SupportedEnvironment.class);
+    if (env == null) {
+      return true;
+    }
+    for (String supported : env.value()) {
+      if (StringUtils.equalsIgnoreCase(environment.toString(), supported)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   boolean shouldRegisterCoverageExtension(String pluginKey, Project project, Configuration conf) {

@@ -19,6 +19,8 @@
  */
 package org.sonar.maven2;
 
+import org.sonar.batch.MavenReactor;
+
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
@@ -135,7 +137,8 @@ public final class BatchMojo extends AbstractMojo {
 
 
   private void executeBatch() throws MojoExecutionException {
-    Batch batch = new Batch(getInitialConfiguration(), session, project,
+    MavenReactor reactor = new MavenReactor(session);
+    Batch batch = new Batch(getInitialConfiguration(), reactor, session, project,
         getLog(), lifecycleExecutor, pluginManager, artifactFactory,
         localRepository, artifactMetadataSource, artifactCollector,
         dependencyTreeBuilder, projectBuilder, Environment.MAVEN2, Maven2PluginExecutor.class);
