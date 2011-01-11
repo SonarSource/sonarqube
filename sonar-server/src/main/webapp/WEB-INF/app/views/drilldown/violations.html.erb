@@ -20,6 +20,10 @@
 </h4>
 </div>
 
+<% if @period_index %>
+  <div class="warning">This service is experimental. <a href="http://docs.codehaus.org/display/SONAR/Frequently+Asked+Questions#FrequentlyAskedQuestions-Iamnotgettingexpectednewviolationsinthedifferentialviewsofdrilldown%3F">More</a>.</div>
+<% end %>
+
 <%= render :partial => 'gwt/base', :locals => {:resource => @highlighted_resource, :popup => false, :metric => 'violations'} %>
 <%= render :partial => 'gwt/resource_viewers', :locals => {:resource => @project} %>
 
