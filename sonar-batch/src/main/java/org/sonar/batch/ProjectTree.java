@@ -21,7 +21,6 @@ package org.sonar.batch;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
@@ -37,8 +36,8 @@ public class ProjectTree {
   private List<MavenProject> poms;
   private MavenProjectBuilder projectBuilder;
 
-  public ProjectTree(MavenSession mavenSession, DatabaseSession databaseSession) {
-    this.poms = mavenSession.getSortedProjects();
+  public ProjectTree(Reactor reactor, DatabaseSession databaseSession) {
+    this.poms = reactor.getSortedProjects();
     this.projectBuilder = new MavenProjectBuilder(databaseSession);
   }
 

@@ -34,6 +34,7 @@ import org.apache.maven.shared.dependency.tree.traversal.BuildingDependencyNodeV
 import org.apache.maven.shared.dependency.tree.traversal.CollectingDependencyNodeVisitor;
 import org.apache.maven.shared.dependency.tree.traversal.DependencyNodeVisitor;
 import org.apache.maven.shared.dependency.tree.traversal.FilteringDependencyNodeVisitor;
+import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.SonarIndex;
@@ -43,6 +44,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
 
+@SupportedEnvironment({ "maven2", "maven3" })
 public class MavenDependenciesSensor implements Sensor {
 
   private ArtifactRepository localRepository;
@@ -100,7 +102,7 @@ public class MavenDependenciesSensor implements Sensor {
   }
 
   protected void saveDependency(DependencyNode node, SensorContext context) {
-    Resource from = (node.getParent().getParent()==null)  ? index.getProject() : toResource(node.getParent().getArtifact(), context);
+    Resource from = (node.getParent().getParent() == null) ? index.getProject() : toResource(node.getParent().getArtifact(), context);
     Resource to = toResource(node.getArtifact(), context);
     Dependency dependency = new Dependency(from, to);
     dependency.setUsage(node.getArtifact().getScope());

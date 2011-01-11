@@ -17,34 +17,24 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.platform;
+package org.sonar.api.batch;
 
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * @since 2.2
+ * This annotation allows to specify in which environments {@link org.sonar.api.BatchExtension} would be active.
+ * Consult to {@link org.sonar.api.platform.Environment} to find possible values, for example - "maven2".
+ * We strictly recommend you to not overuse this annotation - most preferable is to design extensions to work in all environments.
+ * 
+ * @since 2.6
  */
-public enum Environment implements BatchComponent, ServerComponent {
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE })
+public @interface SupportedEnvironment {
 
-  /*
-   * When will GRADLE, ANT, ECLIPSE, INTELLIJ_IDEA be added to this list ? :-)
-   */
-  SERVER, MAVEN3, MAVEN2, ANT;
+  String[] value();
 
-  public boolean isServer() {
-    return this==SERVER;
-  }
-
-  public boolean isMaven2Batch() {
-    return this==MAVEN2;
-  }
-
-  public boolean isMaven3Batch() {
-    return this==MAVEN3;
-  }
-
-  public boolean isBatch() {
-    return isMaven2Batch() || isMaven3Batch();
-  }
 }
