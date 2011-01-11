@@ -80,7 +80,7 @@ class EventCategory
   end
 
   def editable?
-    not [KEY_VERSION, KEY_ALERT].include? name
+    !([KEY_VERSION, KEY_ALERT].include?(name))
   end
 
   def self.defaults

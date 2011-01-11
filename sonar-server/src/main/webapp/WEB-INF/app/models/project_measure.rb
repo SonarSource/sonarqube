@@ -287,7 +287,7 @@ class ProjectMeasure < ActiveRecord::Base
   end
 
   def validate_date
-    if not measure_date
+    if measure_date.nil?
       errors.add_to_base('A valid date must be provided')
     else
       last_snasphot_date = project.last_snapshot.created_at
@@ -311,7 +311,7 @@ class ProjectMeasure < ActiveRecord::Base
       raw_value = send("value_before_type_cast")
       if raw_value.instance_of?(String)
         raw_value = raw_value.downcase
-        errors.add_to_base("Value must be 'No' or 'Yes'") if raw_value != "yes" and raw_value != "no"
+        errors.add_to_base("Value must be 'No' or 'Yes'") if raw_value != "yes" && raw_value != "no"
         write_attribute( "value", 1.0) if raw_value == "yes"
         write_attribute( "value", 0.0) if raw_value == "no"
       end

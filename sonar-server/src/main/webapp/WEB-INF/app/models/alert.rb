@@ -43,9 +43,9 @@ class Alert < ActiveRecord::Base
   protected
 
   def validate
-    errors.add('Can not set alerts on data metrics.') if metric and metric.val_type==Metric::VALUE_TYPE_DATA
+    errors.add('Can not set alerts on data metrics.') if metric && metric.val_type==Metric::VALUE_TYPE_DATA
     errors.add_to_base('Can not set alerts on alerts.') if metric==Metric.by_key(Metric::ALERT_STATUS)
-    errors.add_to_base('At least one threshold (warning or error) is required.') if value_error.blank? and value_warning.blank?
+    errors.add_to_base('At least one threshold (warning or error) is required.') if value_error.blank? && value_warning.blank?
   end
 
 end

@@ -165,7 +165,7 @@
     values=[]
     colors=[]
     @snapshots.each_with_index do |snapshot, index|
-      if row.measure(snapshot) and row.measure(snapshot).data
+      if row.measure(snapshot) && row.measure(snapshot).data
         values<<u(row.measure(snapshot).data)
       else
         values<<''

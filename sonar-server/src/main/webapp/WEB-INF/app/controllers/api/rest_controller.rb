@@ -59,7 +59,7 @@ class Api::RestController < ApplicationController
   end
 
   def check_database_version
-    if not DatabaseVersion.uptodate?
+    if !(DatabaseVersion.uptodate?)
       rest_status_ko("Database version not up to date", 500)
     end
   end

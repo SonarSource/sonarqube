@@ -33,7 +33,7 @@ class RulesParameter < ActiveRecord::Base
   belongs_to :rule
 
   def is_set_type
-  	return param_type.at(1) == "[" and param_type.ends_with?( "]" )
+  	return param_type.at(1) == "[" && param_type.ends_with?( "]" )
   end
   
   def get_allowed_tokens
@@ -88,7 +88,7 @@ class RulesParameter < ActiveRecord::Base
        end
      end
    elsif param_type == RulesParameter::PARAM_TYPE_BOOLEAN
-     if attribute != "true" and attribute != "false"
+     if attribute != "true" && attribute != "false"
        errors.add( "#{value}", "Invalid value '" + attribute + "'. Must be one of : true,false" )
      end
    elsif param_type == RulesParameter::PARAM_TYPE_REGEXP

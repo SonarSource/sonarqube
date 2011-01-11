@@ -51,7 +51,7 @@ class Project < ActiveRecord::Base
   end
   
   def events_with_snapshot
-    events.select{|event| not event.snapshot_id.nil?}
+    events.select{|event| !event.snapshot_id.nil?}
   end
   
   def key

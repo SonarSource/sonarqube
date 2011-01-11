@@ -165,7 +165,7 @@ class Snapshot < ActiveRecord::Base
   end
 
   def self.snapshot_by_date(resource_id, date)
-    if resource_id and date
+    if resource_id && date
       Snapshot.find(:first, :conditions => ['created_at>=? and created_at<? and project_id=?', date.beginning_of_day, date.end_of_day, resource_id], :order => 'created_at desc')
     else
       nil

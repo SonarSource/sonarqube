@@ -42,7 +42,7 @@ class Sonar::TimemachineRow
   end
 
   def sparkline_url
-    if metric.numeric? and @measure_by_sid.size>1
+    if metric.numeric? && @measure_by_sid.size>1
       values=[]
       @measure_by_sid.values.each do |measure|
         # date.to_f does not works under oracle

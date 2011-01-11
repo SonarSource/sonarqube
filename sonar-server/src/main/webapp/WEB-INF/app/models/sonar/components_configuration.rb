@@ -162,7 +162,7 @@ class Sonar::ComponentsConfiguration
         columns.sort! { |x, y|
           x.name = "" if x.name.nil?
           y.name = "" if y.name.nil?
-          x.name <=> y.name if x.name and y.name
+          x.name <=> y.name if x.name && y.name
         }
       }
 

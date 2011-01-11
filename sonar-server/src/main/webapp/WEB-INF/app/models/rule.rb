@@ -102,7 +102,7 @@ class Rule < ActiveRecord::Base
     else
       json['priority'] = priority_text
     end
-    json['params'] = parameters.collect{|parameter| parameter.to_hash_json(active_rule)} if not parameters.empty?
+    json['params'] = parameters.collect{|parameter| parameter.to_hash_json(active_rule)} unless parameters.empty?
     json
   end
 

@@ -37,7 +37,7 @@ class BackupController < ApplicationController
   def import
     file=params[:file]
     xml=read_file(file)
-    if xml and not xml.empty?
+    if xml && !xml.empty?
       java_facade.getBackup().importXml(xml)
       Metric.clear_cache
       flash[:notice] = "Backup restore succeed"
