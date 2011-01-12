@@ -57,6 +57,7 @@ public final class ViolationPersister {
     model.setSnapshotId(snapshot.getId());
     model.setChecksum(checksum);
     session.save(model);
+    violation.setMessage(model.getMessage());// the message can be changed in the class RuleFailure (truncate + trim)
     violation.setCreatedAt(model.getCreatedAt());
   }
 
