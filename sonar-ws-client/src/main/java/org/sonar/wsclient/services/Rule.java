@@ -28,7 +28,7 @@ public class Rule extends Model {
 
   private String title = null;
   private String key = null;
-  private String plugin = null;
+  private String repository = null;
   private String description = null;
   private String severity = null;
   private List<RuleParam> params;
@@ -52,12 +52,12 @@ public class Rule extends Model {
     return this;
   }
 
-  public String getPlugin() {
-    return plugin;
+  public String getRepository() {
+    return repository;
   }
 
-  public Rule setPlugin(String plugin) {
-    this.plugin = plugin;
+  public Rule setRepository(String s) {
+    this.repository = s;
     return this;
   }
 

@@ -26,7 +26,7 @@ public class RuleQuery extends Query<Rule> {
   public static final String BASE_URL = "/api/rules";
 
   private String language;
-  private String[] plugins;
+  private String[] repositories;
   private String searchText;
   private String profile;
   private String[] severities;
@@ -45,13 +45,13 @@ public class RuleQuery extends Query<Rule> {
     return language;
   }
 
-  public RuleQuery setPlugin(String... plugins) {
-    this.plugins = plugins;
+  public RuleQuery setRepositories(String... s) {
+    this.repositories = s;
     return this;
   }
 
-  public String[] getPlugins() {
-    return plugins;
+  public String[] getRepositories() {
+    return repositories;
   }
 
   public RuleQuery setSearchText(String searchText) {
@@ -95,7 +95,7 @@ public class RuleQuery extends Query<Rule> {
     StringBuilder url = new StringBuilder(BASE_URL);
     url.append('?');
     appendUrlParameter(url, "language", language);
-    appendUrlParameter(url, "plugins", plugins);
+    appendUrlParameter(url, "plugins", repositories);
     appendUrlParameter(url, "searchtext", searchText);
     appendUrlParameter(url, "profile", profile);
     appendUrlParameter(url, "priorities", severities);

@@ -44,7 +44,7 @@ public class RuleUnmarshallerTest {
     rule = rules.get(0);
     assertThat(rule.getTitle(), is("Indentation"));
     assertThat(rule.getKey(), is("checkstyle:com.puppycrawl.tools.checkstyle.checks.indentation.IndentationCheck"));
-    assertThat(rule.getPlugin(), is("checkstyle"));
+    assertThat(rule.getRepository(), is("checkstyle"));
     assertThat(rule.getDescription(), is("Checks correct indentation of Java Code."));
     assertThat(rule.getSeverity(), is("MINOR"));
     assertThat(rule.isActive(), is(false));
