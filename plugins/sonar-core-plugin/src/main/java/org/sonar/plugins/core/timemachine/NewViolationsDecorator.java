@@ -36,7 +36,8 @@ import org.sonar.batch.components.TimeMachineConfiguration;
 
 import java.util.*;
 
-@DependsUpon(classes = ViolationPersisterDecorator.class)
+/* temporary workaround - the attributes classes() should be used but it is buggy */
+@DependsUpon("ViolationPersisterDecorator")
 public class NewViolationsDecorator implements Decorator {
 
   private TimeMachineConfiguration timeMachineConfiguration;

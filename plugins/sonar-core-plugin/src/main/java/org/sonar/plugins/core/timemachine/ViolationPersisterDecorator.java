@@ -1,3 +1,22 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2009 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
 package org.sonar.plugins.core.timemachine;
 
 import com.google.common.collect.LinkedHashMultimap;
@@ -8,10 +27,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.plexus.util.StringInputStream;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorBarriers;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.*;
 import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.database.model.SnapshotSource;
 import org.sonar.api.resources.Project;
@@ -29,6 +45,8 @@ import java.util.Collections;
 import java.util.List;
 
 @DependsUpon(DecoratorBarriers.END_OF_VIOLATIONS_GENERATION)
+@DependedUpon("ViolationPersisterDecorator")
+/* temporary workaround - see NewViolationsDecorator */
 public class ViolationPersisterDecorator implements Decorator {
 
   /**
@@ -101,7 +119,7 @@ public class ViolationPersisterDecorator implements Decorator {
       }
     } catch (IOException e) {
       throw new SonarException("Unable to calculate checksums", e);
-      
+
     } finally {
       IOUtils.closeQuietly(stream);
     }
@@ -128,7 +146,7 @@ public class ViolationPersisterDecorator implements Decorator {
    */
   RuleFailureModel selectPastViolation(Violation violation, Multimap<Rule, RuleFailureModel> pastViolationsByRule) {
     Collection<RuleFailureModel> pastViolations = pastViolationsByRule.get(violation.getRule());
-    if (pastViolations==null || pastViolations.isEmpty()) {
+    if (pastViolations == null || pastViolations.isEmpty()) {
       // skip violation, if there is no past violations with same rule
       return null;
     }
