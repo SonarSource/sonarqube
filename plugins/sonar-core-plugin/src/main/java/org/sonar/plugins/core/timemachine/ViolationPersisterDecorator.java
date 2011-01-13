@@ -45,8 +45,7 @@ import java.util.Collections;
 import java.util.List;
 
 @DependsUpon(DecoratorBarriers.END_OF_VIOLATIONS_GENERATION)
-@DependedUpon("ViolationPersisterDecorator")
-/* temporary workaround - see NewViolationsDecorator */
+@DependedUpon("ViolationPersisterDecorator") /* temporary workaround - see NewViolationsDecorator */
 public class ViolationPersisterDecorator implements Decorator {
 
   /**
@@ -119,7 +118,7 @@ public class ViolationPersisterDecorator implements Decorator {
       }
     } catch (IOException e) {
       throw new SonarException("Unable to calculate checksums", e);
-
+      
     } finally {
       IOUtils.closeQuietly(stream);
     }
@@ -146,13 +145,14 @@ public class ViolationPersisterDecorator implements Decorator {
    */
   RuleFailureModel selectPastViolation(Violation violation, Multimap<Rule, RuleFailureModel> pastViolationsByRule) {
     Collection<RuleFailureModel> pastViolations = pastViolationsByRule.get(violation.getRule());
-    if (pastViolations == null || pastViolations.isEmpty()) {
+    if (pastViolations==null || pastViolations.isEmpty()) {
       // skip violation, if there is no past violations with same rule
       return null;
     }
-    RuleFailureModel found = selectPastViolationUsingLine(violation, pastViolations);
+    String dbFormattedMessage = RuleFailureModel.abbreviateMessage(violation.getMessage());
+    RuleFailureModel found = selectPastViolationUsingLine(violation, dbFormattedMessage, pastViolations);
     if (found == null) {
-      found = selectPastViolationUsingChecksum(violation, pastViolations);
+      found = selectPastViolationUsingChecksum(violation, dbFormattedMessage, pastViolations);
     }
     return found;
   }
@@ -160,9 +160,9 @@ public class ViolationPersisterDecorator implements Decorator {
   /**
    * Search for past violation with same message and line.
    */
-  private RuleFailureModel selectPastViolationUsingLine(Violation violation, Collection<RuleFailureModel> pastViolations) {
+  private RuleFailureModel selectPastViolationUsingLine(Violation violation, String dbFormattedMessage, Collection<RuleFailureModel> pastViolations) {
     for (RuleFailureModel pastViolation : pastViolations) {
-      if (ObjectUtils.equals(violation.getLineId(), pastViolation.getLine()) && StringUtils.equals(violation.getMessage(), pastViolation.getMessage())) {
+      if (ObjectUtils.equals(violation.getLineId(), pastViolation.getLine()) && StringUtils.equals(dbFormattedMessage, pastViolation.getMessage())) {
         return pastViolation;
       }
     }
@@ -172,7 +172,7 @@ public class ViolationPersisterDecorator implements Decorator {
   /**
    * Search for past violation with same message and checksum.
    */
-  private RuleFailureModel selectPastViolationUsingChecksum(Violation violation, Collection<RuleFailureModel> pastViolations) {
+  private RuleFailureModel selectPastViolationUsingChecksum(Violation violation, String dbFormattedMessage, Collection<RuleFailureModel> pastViolations) {
     String checksum = getChecksumForLine(checksums, violation.getLineId());
     // skip violation, which not attached to line
     if (checksum == null) {
@@ -180,7 +180,7 @@ public class ViolationPersisterDecorator implements Decorator {
     }
     for (RuleFailureModel pastViolation : pastViolations) {
       String pastChecksum = pastViolation.getChecksum();
-      if (StringUtils.equals(checksum, pastChecksum) && StringUtils.equals(violation.getMessage(), pastViolation.getMessage())) {
+      if (StringUtils.equals(checksum, pastChecksum) && StringUtils.equals(dbFormattedMessage, pastViolation.getMessage())) {
         return pastViolation;
       }
     }

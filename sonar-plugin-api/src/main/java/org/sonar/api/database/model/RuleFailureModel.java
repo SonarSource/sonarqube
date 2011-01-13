@@ -67,7 +67,11 @@ public class RuleFailureModel extends BaseIdentifiable {
   }
 
   public void setMessage(String message) {
-    this.message = StringUtils.abbreviate(StringUtils.trim(message), MESSAGE_COLUMN_SIZE);
+    this.message = abbreviateMessage(message);
+  }
+
+  public static String abbreviateMessage(String message) {
+    return StringUtils.abbreviate(StringUtils.trim(message), MESSAGE_COLUMN_SIZE);
   }
 
   public RulePriority getLevel() {
