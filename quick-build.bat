@@ -1,2 +1,2 @@
 set MAVEN_OPTS=-Xmx768m -XX:MaxPermSize=256m
-mvn clean install -Dtest=false -DfailIfNoTests=false
+mvn clean install -Dtest=false -DfailIfNoTests=false -Ddev
