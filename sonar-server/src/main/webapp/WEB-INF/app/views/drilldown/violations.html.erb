@@ -21,7 +21,7 @@
 </div>
 
 <% if @period_index %>
-  <div class="warning">This service is experimental. <a href="http://docs.codehaus.org/display/SONAR/Frequently+Asked+Questions#FrequentlyAskedQuestions-Iamnotgettingexpectednewviolationsinthedifferentialviewsofdrilldown%3F">More</a>.</div>
+  <div class="warning">This service is experimental. <a target="faq"  href="http://docs.codehaus.org/display/SONAR/Frequently+Asked+Questions#FrequentlyAskedQuestions-Iamnotgettingexpectednewviolationsinthedifferentialviewsofdrilldown%3F">More</a>.</div>
 <% end %>
 
 <%= render :partial => 'gwt/base', :locals => {:resource => @highlighted_resource, :popup => false, :metric => 'violations'} %>
