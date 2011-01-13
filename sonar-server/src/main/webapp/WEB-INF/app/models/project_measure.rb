@@ -172,12 +172,25 @@ class ProjectMeasure < ActiveRecord::Base
   end
 
   def typed_value
-    if text_value
+    case metric().val_type
+    when Metric::VALUE_TYPE_INT
+      value
+    when Metric::VALUE_TYPE_FLOAT
+      value
+    when Metric::VALUE_TYPE_PERCENT
+      value
+    when Metric::VALUE_TYPE_MILLISEC
+      value
+    when Metric::VALUE_TYPE_BOOLEAN
+      value
+    when Metric::VALUE_TYPE_LEVEL
       text_value
-    elsif value
-      value.to_f
+    when Metric::VALUE_TYPE_STRING
+      text_value
+    when Metric::VALUE_TYPE_RATING
+      text_value || value.to_i.to_s
     else
-      nil
+      text_value || value
     end
   end
 
