@@ -1,3 +1,22 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2009 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
 package org.sonar.tests.integration;
 
 import org.junit.BeforeClass;
@@ -47,10 +66,29 @@ public class ViolationsTimeMachineIT {
     TimeMachineCell cell2 = timemachine.getCells()[1];
 
     assertThat(cell1.getDate().getMonth(), is(9));
-    assertThat(cell1.getValues(), is(new Object[]{0.0, 0.0, 3.0, 4.0, 0.0}));
+    assertThat(cell1.getValues(), is(new Object[]{0L, 0L, 3L, 4L, 0L}));
 
     assertThat(cell2.getDate().getMonth(), is(10));
-    assertThat(cell2.getValues(), is(new Object[]{0.0, 0.0, 5.0, 4.0, 0.0}));
+    assertThat(cell2.getValues(), is(new Object[]{0L, 0L, 5L, 4L, 0L}));
+  }
+
+  @Test
+  public void testHistoryOfMeasures() {
+    TimeMachineQuery query = TimeMachineQuery.createForMetrics(PROJECT,
+        CoreMetrics.LINES_KEY,//int
+        CoreMetrics.VIOLATIONS_DENSITY_KEY // double
+        );
+    TimeMachine timemachine = sonar.find(query);
+    assertThat(timemachine.getCells().length, is(2));
+
+    TimeMachineCell cell1 = timemachine.getCells()[0];
+    TimeMachineCell cell2 = timemachine.getCells()[1];
+
+    assertThat(cell1.getDate().getMonth(), is(9));
+    assertThat(cell1.getValues(), is(new Object[]{30L, 38.1}));
+
+    assertThat(cell2.getDate().getMonth(), is(10));
+    assertThat(cell2.getValues(), is(new Object[]{41L, 34.5}));
   }
 
   @Test
@@ -79,7 +117,7 @@ public class ViolationsTimeMachineIT {
     assertThat(timemachine.getCells().length, is(2));
     for (TimeMachineCell cell : timemachine.getCells()) {
       assertThat(cell.getValues().length, is(1));
-      assertThat(cell.getValues()[0], is(Double.class));
+      assertThat(cell.getValues()[0], is(Long.class));
     }
 
     timemachine = sonar.find(TimeMachineQuery.createForMetrics(PROJECT));

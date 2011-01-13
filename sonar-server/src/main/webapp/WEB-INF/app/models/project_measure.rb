@@ -174,13 +174,13 @@ class ProjectMeasure < ActiveRecord::Base
   def typed_value
     case metric().val_type
     when Metric::VALUE_TYPE_INT
-      value
+      (value ? value.to_i : nil)
     when Metric::VALUE_TYPE_FLOAT
-      value
+      (value ? value.to_f : nil)
     when Metric::VALUE_TYPE_PERCENT
-      value
+      (value ? value.to_f : nil)
     when Metric::VALUE_TYPE_MILLISEC
-      value
+      (value ? value.to_i : nil)
     when Metric::VALUE_TYPE_BOOLEAN
       value
     when Metric::VALUE_TYPE_LEVEL
@@ -188,9 +188,9 @@ class ProjectMeasure < ActiveRecord::Base
     when Metric::VALUE_TYPE_STRING
       text_value
     when Metric::VALUE_TYPE_RATING
-      text_value || value.to_i.to_s
+      text_value || (value ? value.to_i : nil)
     else
-      text_value || value
+      text_value || (value ? value.to_i : nil)
     end
   end
 
