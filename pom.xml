@@ -89,6 +89,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.min.version>2.0</maven.min.version>
     <jdk.min.version>1.5</jdk.min.version>
+
+    <!-- default GWT configuration. It's overridden by the profile 'dev' to speed up compilation in dev environments-->
+    <gwt.permutationSuffix></gwt.permutationSuffix>
+    <gwt.extraJvmArgs>-Xmx512m -Xss1024k</gwt.extraJvmArgs>
   </properties>
 
   <build>

@@ -52,36 +52,24 @@
 
     <plugins>
       <plugin>
-        <groupId>com.atlassian.maven.plugins</groupId>
-        <artifactId>maven-clover2-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <!-- GWT classes -->
-            <exclude>**/client/**/*.java</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>gwt-maven-plugin</artifactId>
         <executions>
           <execution>
             <configuration>
               <modules>
-                <module>org.sonar.plugins.core.ui.pageselector.PageSelector</module>
-                <module>org.sonar.plugins.core.clouds.GwtClouds</module>
-                <module>org.sonar.plugins.core.violationsviewer.ViolationsViewer</module>
-                <module>org.sonar.plugins.core.coverageviewer.CoverageViewer</module>
-                <module>org.sonar.plugins.core.defaultsourceviewer.GwtDefaultSourceViewer</module>
-                <module>org.sonar.plugins.core.duplicationsviewer.DuplicationsViewer</module>
-                <module>org.sonar.plugins.core.testdetailsviewer.TestsViewer</module>
-                <module>org.sonar.plugins.core.hotspots.GwtHotspots</module>
+                <module>org.sonar.plugins.core.ui.pageselector.PageSelector${gwt.permutationSuffix}</module>
+                <module>org.sonar.plugins.core.clouds.GwtClouds${gwt.permutationSuffix}</module>
+                <module>org.sonar.plugins.core.violationsviewer.ViolationsViewer${gwt.permutationSuffix}</module>
+                <module>org.sonar.plugins.core.coverageviewer.CoverageViewer${gwt.permutationSuffix}</module>
+                <module>org.sonar.plugins.core.defaultsourceviewer.GwtDefaultSourceViewer${gwt.permutationSuffix}</module>
+                <module>org.sonar.plugins.core.duplicationsviewer.DuplicationsViewer${gwt.permutationSuffix}</module>
+                <module>org.sonar.plugins.core.testdetailsviewer.TestsViewer${gwt.permutationSuffix}</module>
+                <module>org.sonar.plugins.core.hotspots.GwtHotspots${gwt.permutationSuffix}</module>
               </modules>
               <skip>${skipGwt}</skip>
               <webappDirectory>${project.build.directory}/classes</webappDirectory>
-
-              <!-- do not break on two lines -->
-              <extraJvmArgs>-Xmx512m -Dgwt.jjs.permutationWorkerFactory=com.google.gwt.dev.ThreadedPermutationWorkerFactory</extraJvmArgs>
+              <extraJvmArgs>${gwt.extraJvmArgs}</extraJvmArgs>
             </configuration>
             <goals>
               <goal>compile</goal>
@@ -91,4 +79,19 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>dev</id>
+      <activation>
+        <property>
+          <name>dev</name>
+        </property>
+      </activation>
+      <properties>
+        <gwt.permutationSuffix>Dev</gwt.permutationSuffix>
+        <gwt.extraJvmArgs>-Xmx512m -Xss1024k -Dgwt.draftCompile=true</gwt.extraJvmArgs>
+      </properties>
+    </profile>
+  </profiles>
 </project>
