@@ -1,0 +1,10 @@
+ant-dynamic-clover/.clover/
+ant-dynamic-clover/build/
+ant-dynamic-cobertura/build/
+ant-dynamic-cobertura/cobertura.ser
+ant-dynamic-cobertura/reports/
+ant-dynamic-junit/build/
+ant-dynamic-junit/reports/
+ant-static/build/
+deprecated-sonar-light/build/
+struts-1.3.9/
