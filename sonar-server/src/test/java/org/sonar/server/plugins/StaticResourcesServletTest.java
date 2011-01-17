@@ -40,12 +40,12 @@ public class StaticResourcesServletTest {
     when(request.getContextPath()).thenReturn("/");
     when(request.getServletPath()).thenReturn("static");
     when(request.getRequestURI()).thenReturn("/static/myplugin/image.png");
-    assertThat(servlet.getResourcePath(request), is("/static/image.png"));
+    assertThat(servlet.getResourcePath(request), is("static/image.png"));
 
     when(request.getRequestURI()).thenReturn("/static/myplugin/images/image.png");
-    assertThat(servlet.getResourcePath(request), is("/static/images/image.png"));
+    assertThat(servlet.getResourcePath(request), is("static/images/image.png"));
 
     when(request.getRequestURI()).thenReturn("/static/myplugin/");
-    assertThat(servlet.getResourcePath(request), is("/static/"));
+    assertThat(servlet.getResourcePath(request), is("static/"));
   }
 }

@@ -25,13 +25,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.server.platform.Platform;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 public class StaticResourcesServlet extends HttpServlet {
 
@@ -81,7 +82,10 @@ public class StaticResourcesServlet extends HttpServlet {
     return StringUtils.substringBefore(getPluginKeyAndResourcePath(request), "/");
   }
 
+  /**
+   * Note that returned value should not have a leading "/" - see {@link Class#resolveName(String)}.
+   */
   protected String getResourcePath(HttpServletRequest request) {
-    return "/static/" + StringUtils.substringAfter(getPluginKeyAndResourcePath(request), "/");
+    return "static/" + StringUtils.substringAfter(getPluginKeyAndResourcePath(request), "/");
   }
 }
