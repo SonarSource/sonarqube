@@ -1,14 +1,6 @@
 <module rename-to="org.sonar.plugins.core.ui.pageselector.PageSelector">
-  <inherits name="com.google.gwt.user.User"/>
-  <inherits name="com.google.gwt.json.JSON"/>
-  <inherits name="com.google.gwt.http.HTTP"/>
-  <inherits name="com.google.gwt.i18n.I18N"/> 
-  <inherits name="org.sonar.api.web.gwt.Sonar"/>
-  <inherits name="org.sonar.Sonar"/>
-  <stylesheet src="pageselector.css" />
-  
-  <entry-point class="org.sonar.plugins.core.ui.pageselector.client.PageSelector"/>
+  <inherits name="org.sonar.plugins.core.ui.pageselector.PageSelector"/>
+  <inherits name="org.sonar.SonarDev"/>
 
-  <!-- optimization of dev environments -->
-  <set-property name="user.agent" value="gecko1_8" />
+  <entry-point class="org.sonar.plugins.core.ui.pageselector.client.PageSelector"/>
 </module>

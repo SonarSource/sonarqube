@@ -1,12 +1,6 @@
 <module rename-to="org.sonar.plugins.core.coverageviewer.CoverageViewer">
-  <inherits name="com.google.gwt.user.User"/>
-  <inherits name="com.google.gwt.json.JSON"/>
-  <inherits name="com.google.gwt.http.HTTP"/>
-  <inherits name="org.sonar.Sonar"/>
-  <inherits name="com.google.gwt.gen2.table.Table"/>
+  <inherits name="org.sonar.plugins.core.coverageviewer.CoverageViewer"/>
+  <inherits name="org.sonar.SonarDev"/>
 
   <entry-point class="org.sonar.plugins.core.coverageviewer.client.CoverageViewer"/>
-
-  <!-- optimization of dev environments -->
-  <set-property name="user.agent" value="gecko1_8" />
 </module>

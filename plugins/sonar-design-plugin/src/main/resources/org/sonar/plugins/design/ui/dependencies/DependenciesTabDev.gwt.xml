@@ -1,12 +1,6 @@
 <module rename-to="org.sonar.plugins.design.ui.dependencies.DependenciesTab">
-  <inherits name="com.google.gwt.user.User"/>
-  <inherits name="com.google.gwt.json.JSON"/>
-  <inherits name="com.google.gwt.http.HTTP"/>
-  <inherits name="org.sonar.Sonar"/>
+  <inherits name="org.sonar.plugins.design.ui.dependencies.DependenciesTab"/>
+  <inherits name="org.sonar.SonarDev"/>
 
-  <stylesheet src='dependencies-tab.css'/>
   <entry-point class="org.sonar.plugins.design.ui.dependencies.client.DependenciesTab"/>
-
-  <!-- optimization of dev environments -->
-  <set-property name="user.agent" value="gecko1_8" />
 </module>
