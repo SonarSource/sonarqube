@@ -24,17 +24,21 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.sonar.wsclient.Host;
 import org.sonar.wsclient.services.CreateQuery;
 import org.sonar.wsclient.services.DeleteQuery;
 import org.sonar.wsclient.services.Query;
+import org.sonar.wsclient.services.UpdateQuery;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 
 /**
  * @since 2.1
@@ -85,6 +89,10 @@ public class HttpClient3Connector extends Connector {
     return executeRequest(newPostRequest(query));
   }
 
+  public String execute(UpdateQuery<?> query) {
+    return executeRequest(newPutRequest(query));
+  }
+
   public String execute(DeleteQuery<?> query) {
     return executeRequest(newDeleteRequest(query));
   }
@@ -129,13 +137,35 @@ public class HttpClient3Connector extends Connector {
   private HttpMethodBase newPostRequest(CreateQuery<?> query) {
     try {
       String url = server.getHost() + URIUtil.encodeQuery(query.getUrl());
-      HttpMethodBase method = new PostMethod(url);
+      PostMethod method = new PostMethod(url);
       method.setRequestHeader("Accept", "application/json");
+      if (query.getBody() != null) {
+        method.setRequestEntity(new StringRequestEntity(query.getBody(), "text/plain; charset=UTF-8", "UTF-8"));
+      }
       return method;
 
     } catch (URIException e) {
       throw new ConnectionException("Query: " + query, e);
-    }
+    } catch (UnsupportedEncodingException e) {
+      throw new ConnectionException("Unsupported encoding", e);
+	}
+  }
+
+  private HttpMethodBase newPutRequest(UpdateQuery<?> query) {
+    try {
+      String url = server.getHost() + URIUtil.encodeQuery(query.getUrl());
+      PutMethod method = new PutMethod(url);
+      method.setRequestHeader("Accept", "application/json");
+      if (query.getBody() != null) {
+        method.setRequestEntity(new StringRequestEntity(query.getBody(), "text/plain; charset=UTF-8", "UTF-8"));
+      }
+      return method;
+
+    } catch (URIException e) {
+      throw new ConnectionException("Query: " + query, e);
+    } catch (UnsupportedEncodingException e) {
+      throw new ConnectionException("Unsupported encoding", e);
+	}
   }
 
   private HttpMethodBase newDeleteRequest(DeleteQuery<?> query) {
