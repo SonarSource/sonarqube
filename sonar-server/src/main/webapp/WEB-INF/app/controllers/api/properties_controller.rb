@@ -33,7 +33,8 @@ class Api::PropertiesController < Api::RestController
 
   def show
     key = params[:id]
-    prop = Property.by_key(key)
+    resource_id = params[:resource_id]
+    prop = Property.by_key(key, resource_id)
     if prop
       if viewable?(key)
         rest_render([prop])
@@ -48,9 +49,10 @@ class Api::PropertiesController < Api::RestController
   def create
     key = params[:id]
     value = params[:value] || request.raw_post
+    resource_id = params[:resource_id]
     if key
       begin
-        Property.set(key, value)
+        Property.set(key, value, resource_id)
         rest_status_ok
       rescue Exception => ex
         rest_status_ko(ex.message, 400)
@@ -63,9 +65,10 @@ class Api::PropertiesController < Api::RestController
   def update
     key = params[:id]
     value = params[:value] || request.raw_post
+    resource_id = params[:resource_id]
     if key
       begin
-        Property.set(key, value)
+        Property.set(key, value, resource_id)
         rest_status_ok
       rescue Exception => ex
         rest_status_ko(ex.message, 400)
@@ -77,9 +80,10 @@ class Api::PropertiesController < Api::RestController
 
   def destroy
     key = params[:id]
+    resource_id = params[:resource_id]
     if key 
       begin
-        Property.clear(key)
+        Property.clear(key, resource_id)
         rest_status_ok
       rescue Exception => ex
         rest_status_ko(ex.message, 400)
