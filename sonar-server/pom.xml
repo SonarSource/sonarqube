@@ -11,6 +11,18 @@
   <name>Sonar :: Server</name>
 
   <dependencies>
+    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!! TODO Review !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-batch</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-batch-maven-compat</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-channel</artifactId>

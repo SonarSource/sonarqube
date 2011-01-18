@@ -17,27 +17,32 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch;
+package org.sonar.batch.bootstrapper;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
 
+import java.util.Collections;
 import java.util.List;
 
-public class MavenReactor {
+/**
+ * Defines order of projects.
+ * This is a part of bootstrap process, so we should take care about backward compatibility.
+ * 
+ * @since 2.6
+ */
+public class Reactor {
 
-  private List<MavenProject> sortedProjects;
+  private List<ProjectDefinition> projects;
 
-  public MavenReactor(MavenSession mavenSession) {
-    this.sortedProjects = mavenSession.getSortedProjects();
+  public Reactor(ProjectDefinition project) {
+    this.projects = Collections.singletonList(project);
   }
 
-  public MavenReactor(List<MavenProject> sortedProjects) {
-    this.sortedProjects = sortedProjects;
+  public Reactor(List<ProjectDefinition> sortedProjects) {
+    this.projects = sortedProjects;
   }
 
-  public List<MavenProject> getSortedProjects() {
-    return sortedProjects;
+  public List<ProjectDefinition> getSortedProjects() {
+    return projects;
   }
 
 }

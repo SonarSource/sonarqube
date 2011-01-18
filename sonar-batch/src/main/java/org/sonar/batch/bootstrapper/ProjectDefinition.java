@@ -17,22 +17,39 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch;
+package org.sonar.batch.bootstrapper;
 
-import org.apache.maven.project.MavenProject;
+import org.apache.commons.configuration.Configuration;
 
-import java.util.List;
+import java.io.File;
 
-public class Reactor {
+/**
+ * Defines project in a form suitable to bootstrap Sonar batch.
+ * We assume that project is just a set of configuration properties and directories.
+ * This is a part of bootstrap process, so we should take care about backward compatibility.
+ * 
+ * @since 2.6
+ */
+public class ProjectDefinition {
 
-  private List<MavenProject> sortedProjects;
+  private File baseDir;
+  private Configuration properties;
 
-  public Reactor(List<MavenProject> sortedProjects) {
-    this.sortedProjects = sortedProjects;
+  /**
+   * @param baseDir project base directory
+   * @param properties project properties
+   */
+  public ProjectDefinition(File baseDir, Configuration properties) {
+    this.baseDir = baseDir;
+    this.properties = properties;
   }
 
-  public List<MavenProject> getSortedProjects() {
-    return sortedProjects;
+  public File getBaseDir() {
+    return baseDir;
+  }
+
+  public Configuration getProperties() {
+    return properties;
   }
 
 }

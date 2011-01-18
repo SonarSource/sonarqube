@@ -25,6 +25,7 @@ import org.picocontainer.MutablePicoContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugins;
+import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.IocContainer;
@@ -128,7 +129,30 @@ public class Batch {
     for (Object component : components) {
       register(container, component);
     }
+    if (!isMavenPluginExecutorRegistered()) {
+      register(container, FakeMavenPluginExecutor.class);
+    }
     return container;
+  }
+
+  boolean isMavenPluginExecutorRegistered() {
+    for (Object component : components) {
+      if (component instanceof Class && MavenPluginExecutor.class.isAssignableFrom((Class<?>) component)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  class FakeMavenPluginExecutor implements MavenPluginExecutor {
+    public void execute(Project project, String goal) {
+      // do nothing
+    }
+
+    public MavenPluginHandler execute(Project project, MavenPluginHandler handler) {
+      // do nothing
+      return handler;
+    }
   }
 
   private void register(MutablePicoContainer container, Object component) {

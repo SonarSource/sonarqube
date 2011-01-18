@@ -14,6 +14,8 @@
     <module>archetypes/sonar-basic-plugin</module>
     <module>archetypes/sonar-gwt-plugin</module>
     <module>sonar-batch</module>
+    <module>sonar-batch-bootstrapper</module>
+    <module>sonar-batch-maven-compat</module>
     <module>sonar-channel</module>
     <module>sonar-check-api</module>
     <module>sonar-colorizer</module>

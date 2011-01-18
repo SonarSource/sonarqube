@@ -17,27 +17,8 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
-
-import java.util.List;
-
-public class MavenReactor {
-
-  private List<MavenProject> sortedProjects;
-
-  public MavenReactor(MavenSession mavenSession) {
-    this.sortedProjects = mavenSession.getSortedProjects();
-  }
-
-  public MavenReactor(List<MavenProject> sortedProjects) {
-    this.sortedProjects = sortedProjects;
-  }
-
-  public List<MavenProject> getSortedProjects() {
-    return sortedProjects;
-  }
-
-}
+/**
+ * Provides API to bootstrap Sonar Batch.
+ */
+package org.sonar.batch.bootstrapper;

@@ -19,8 +19,13 @@
  */
 package org.sonar.batch;
 
+import org.sonar.batch.bootstrapper.ProjectDefinition;
+
+import org.sonar.batch.bootstrapper.Reactor;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.maven.model.Reporting;
 import org.apache.maven.project.MavenProject;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
@@ -36,9 +41,65 @@ public class ProjectTree {
   private List<MavenProject> poms;
   private MavenProjectBuilder projectBuilder;
 
-  public ProjectTree(Reactor reactor, DatabaseSession databaseSession) {
-    this.poms = reactor.getSortedProjects();
+  public ProjectTree(MavenReactor mavenReactor, DatabaseSession databaseSession) {
+    this.poms = mavenReactor.getSortedProjects();
     this.projectBuilder = new MavenProjectBuilder(databaseSession);
+  }
+
+  /**
+   * Hack for non-Maven environments.
+   */
+  public ProjectTree(Reactor sonarReactor, DatabaseSession databaseSession) {
+    this(createMavenReactor(sonarReactor), databaseSession);
+  }
+
+  private static MavenReactor createMavenReactor(Reactor sonarReactor) {
+    List<ProjectDefinition> sonarProjects = sonarReactor.getSortedProjects();
+    List<MavenProject> mavenProjects = Lists.newArrayList();
+    for (ProjectDefinition project : sonarProjects) {
+      mavenProjects.add(createInMemoryPom(project));
+    }
+    return new MavenReactor(mavenProjects);
+  }
+
+  private static MavenProject createInMemoryPom(ProjectDefinition project) {
+    MavenProject pom = new MavenProject();
+
+    String key = project.getProperties().getString("project.key"); // TODO constant
+    String[] keys = key.split(":");
+    pom.setGroupId(keys[0]);
+    pom.setArtifactId(keys[1]);
+    pom.setVersion("0.1-SNAPSHOT"); // TODO hard-coded value
+
+    pom.setArtifacts(Collections.EMPTY_SET);
+
+    // Configure fake directories
+    String buildDirectory = project.getProperties().getString("project.build.directory");
+    File sonarDir = new File(buildDirectory, "sonar");
+    pom.setFile(new File(sonarDir, "fake-pom.xml"));
+    pom.getBuild().setDirectory(buildDirectory);
+    pom.getBuild().setOutputDirectory(buildDirectory + "/classes"); // TODO hard-coded value
+    Reporting reporting = new Reporting();
+    reporting.setOutputDirectory(buildDirectory + "/target/site"); // TODO hard-coded value
+    pom.setReporting(reporting);
+
+    // Configure source directories
+    // TODO
+    // for (FileSystemDirectory dir : project.getDirs()) {
+    // if (dir.getNature() == Natures.MAIN) {
+    // pom.addCompileSourceRoot(dir.getLocation().getAbsolutePath());
+    // }
+    // }
+
+    // Configure test directories
+    // TODO
+    // for (FileSystemDirectory dir : project.getDirs()) {
+    // if (dir.getNature() == Natures.TEST) {
+    // pom.addTestCompileSourceRoot(dir.getLocation().getAbsolutePath());
+    // }
+    // }
+
+    return pom;
   }
 
   /**

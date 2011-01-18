@@ -11,7 +11,7 @@
   <artifactId>sonar-batch</artifactId>
   <packaging>jar</packaging>
   <name>Sonar :: Batch</name>
-  
+
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
