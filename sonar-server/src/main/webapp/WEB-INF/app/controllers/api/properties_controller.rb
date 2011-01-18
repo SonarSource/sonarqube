@@ -47,7 +47,7 @@ class Api::PropertiesController < Api::RestController
 
   def create
     key = params[:id]
-    value = params[:value]
+    value = params[:value] || request.raw_post
     if key
       begin
         Property.set(key, value)
@@ -62,7 +62,7 @@ class Api::PropertiesController < Api::RestController
 
   def update
     key = params[:id]
-    value = params[:value]
+    value = params[:value] || request.raw_post
     if key
       begin
         Property.set(key, value)

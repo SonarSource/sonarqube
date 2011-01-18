@@ -31,6 +31,13 @@ public abstract class AbstractQuery<MODEL extends Model> {
    */
   public abstract String getUrl();
 
+  /**
+   * Request body. By defaut it is empty but it can be overriden. 
+   */
+  public String getBody() {
+    return null;
+  }
+
   protected static void appendUrlParameter(StringBuilder url, String paramKey, Object paramValue) {
     if (paramValue != null) {
       url.append(paramKey)

@@ -22,6 +22,7 @@ package org.sonar.wsclient.connectors;
 import org.sonar.wsclient.services.CreateQuery;
 import org.sonar.wsclient.services.DeleteQuery;
 import org.sonar.wsclient.services.Query;
+import org.sonar.wsclient.services.UpdateQuery;
 
 /**
  * @since 2.1
@@ -48,4 +49,9 @@ public abstract class Connector {
    */
   public abstract String execute(DeleteQuery<?> query);
 
+  /**
+   * @return JSON response or null if 404 NOT FOUND error
+   * @since 2.6
+   */
+  public abstract String execute(UpdateQuery<?> query);
 }
