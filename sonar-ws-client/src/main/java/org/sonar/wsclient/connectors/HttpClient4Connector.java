@@ -25,8 +25,10 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpConnectionParams;
@@ -39,8 +41,10 @@ import org.sonar.wsclient.Host;
 import org.sonar.wsclient.services.CreateQuery;
 import org.sonar.wsclient.services.DeleteQuery;
 import org.sonar.wsclient.services.Query;
+import org.sonar.wsclient.services.UpdateQuery;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 /**
  * @since 2.1
@@ -59,6 +63,10 @@ public class HttpClient4Connector extends Connector {
 
   public String execute(CreateQuery<?> query) {
     return executeRequest(newPostMethod(query));
+  }
+
+  public String execute(UpdateQuery<?> query) {
+    return executeRequest(newPutMethod(query));
   }
 
   public String execute(DeleteQuery<?> query) {
@@ -130,8 +138,28 @@ public class HttpClient4Connector extends Connector {
 
   private HttpPost newPostMethod(CreateQuery<?> query) {
     HttpPost post = new HttpPost(server.getHost() + query.getUrl());
+    if (query.getBody() != null) {
+      try {
+		post.setEntity(new StringEntity(query.getBody(), "UTF-8"));
+      } catch (UnsupportedEncodingException e) {
+        throw new ConnectionException("Encoding is not supported", e);
+      }
+    }
     setJsonHeader(post);
     return post;
+  }
+
+  private HttpPut newPutMethod(UpdateQuery<?> query) {
+    HttpPut put = new HttpPut(server.getHost() + query.getUrl());
+    if (query.getBody() != null) {
+      try {
+		put.setEntity(new StringEntity(query.getBody(), "UTF-8"));
+      } catch (UnsupportedEncodingException e) {
+        throw new ConnectionException("Encoding is not supported", e);
+      }
+    }
+    setJsonHeader(put);
+    return put;
   }
 
   private void setJsonHeader(HttpRequestBase request) {
