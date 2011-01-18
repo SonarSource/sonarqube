@@ -26,6 +26,7 @@ public class PropertyUpdateQuery extends UpdateQuery<Property> {
 
   private String key;
   private String value;
+  private String resourceKeyOrId;
 
   public PropertyUpdateQuery() {
   }
@@ -33,6 +34,12 @@ public class PropertyUpdateQuery extends UpdateQuery<Property> {
   public PropertyUpdateQuery(String key, String value) {
     this.key = key;
     this.value = value;
+  }
+
+  public PropertyUpdateQuery(String key, String value, String resourceKeyOrId) {
+    this.key = key;
+    this.value = value;
+    this.resourceKeyOrId = resourceKeyOrId;
   }
 
   public PropertyUpdateQuery(Property property) {
@@ -58,14 +65,23 @@ public class PropertyUpdateQuery extends UpdateQuery<Property> {
     return this;
   }
 
+  public String getResourceKeyOrId() {
+    return resourceKeyOrId;
+  }
+
+  public PropertyUpdateQuery setResourceKeyOrId(String resourceKeyOrId) {
+    this.resourceKeyOrId = resourceKeyOrId;
+    return this;
+  }
+
   @Override
   public String getUrl() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(PropertyQuery.BASE_URL);
-    if (key != null) {
-      sb.append("/").append(key);
-    }
-    return sb.toString();
+    StringBuilder url = new StringBuilder();
+    url.append(PropertyQuery.BASE_URL);
+    url.append("/").append(key);
+    url.append('?');
+    appendUrlParameter(url, "resource", resourceKeyOrId);
+    return url.toString();
   }
   
   /**

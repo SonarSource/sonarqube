@@ -23,6 +23,7 @@ public class PropertyQuery extends Query<Property> {
   public static final String BASE_URL = "/api/properties";
 
   private String key = null;
+  private String resourceKeyOrId = null;
 
   public String getKey() {
     return key;
@@ -32,14 +33,25 @@ public class PropertyQuery extends Query<Property> {
     this.key = key;
     return this;
   }
+  
+  public String getResourceKeyOrId() {
+    return resourceKeyOrId;
+  }
+  
+  public PropertyQuery setResourceKeyOrId(String resourceKeyOrId) {
+    this.resourceKeyOrId = resourceKeyOrId;
+    return this;
+  }
 
   @Override
   public String getUrl() {
-    String url = BASE_URL;
+    StringBuilder url = new StringBuilder(BASE_URL);
     if (key != null) {
-      url += "/" + key;
+        url.append("/").append(key);
     }
-    return url + "?";
+    url.append('?');
+    appendUrlParameter(url, "resource", resourceKeyOrId);
+    return url.toString();
   }
 
   @Override
@@ -53,5 +65,9 @@ public class PropertyQuery extends Query<Property> {
 
   public static PropertyQuery createForKey(String key) {
     return new PropertyQuery().setKey(key);
+  }
+
+  public static PropertyQuery createForResource(String key, String resourceKeyOrId) {
+    return new PropertyQuery().setKey(key).setResourceKeyOrId(resourceKeyOrId);
   }
 }

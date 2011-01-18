@@ -20,56 +20,40 @@
 package org.sonar.wsclient.services;
 
 /**
- * @since 2.5
+ * @since 2.2
  */
-public class PropertyCreateQuery extends CreateQuery<Property> {
+public class PropertyDeleteQuery extends DeleteQuery<Property> {
 
   private String key;
-  private String value;
   private String resourceKeyOrId;
 
-  public PropertyCreateQuery() {
+  public PropertyDeleteQuery(String key) {
+    this.key = key;
   }
 
-  public PropertyCreateQuery(String key, String value) {
+  public PropertyDeleteQuery(String key, String resourceKeyOrId) {
     this.key = key;
-    this.value = value;
-  }
-
-  public PropertyCreateQuery(String key, String value, String resourceKeyOrId) {
-    this.key = key;
-    this.value = value;
     this.resourceKeyOrId = resourceKeyOrId;
   }
 
-  public PropertyCreateQuery(Property property) {
+  public PropertyDeleteQuery(Property property) {
     this.key = property.getKey();
-    this.value = property.getValue();
   }
 
   public String getKey() {
     return key;
   }
 
-  public PropertyCreateQuery setKey(String key) {
+  public PropertyDeleteQuery setKey(String key) {
     this.key = key;
     return this;
   }
 
-  public String getValue() {
-    return value;
-  }
-
-  public PropertyCreateQuery setValue(String value) {
-    this.value = value;
-    return this;
-  }
-  
   public String getResourceKeyOrId() {
     return resourceKeyOrId;
   }
   
-  public PropertyCreateQuery setResourceKeyOrId(String resourceKeyOrId) {
+  public PropertyDeleteQuery setResourceKeyOrId(String resourceKeyOrId) {
     this.resourceKeyOrId = resourceKeyOrId;
     return this;
   }
@@ -80,22 +64,7 @@ public class PropertyCreateQuery extends CreateQuery<Property> {
     url.append(PropertyQuery.BASE_URL);
     url.append("/").append(key);
     url.append('?');
-    appendUrlParameter(url, "value", value);
     appendUrlParameter(url, "resource", resourceKeyOrId);
     return url.toString();
-  }
-  
-  /**
-   * Property value is transmitted through request body as content may
-   * exceed URL size allowed by the server.
-   */
-  @Override
-  public String getBody() {
-	return value;
-  }
-
-  @Override
-  public Class<Property> getModelClass() {
-    return Property.class;
   }
 }

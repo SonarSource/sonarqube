@@ -24,23 +24,19 @@ import org.junit.Test;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class PropertyQueryTest {
+public class PropertyCreateQueryTest {
 
   @Test
-  public void all() {
-    assertThat(PropertyQuery.createForAll().getUrl(), is("/api/properties?"));
-    assertThat(PropertyQuery.createForAll().getModelClass().getName(), is(Property.class.getName()));
+  public void create() {
+    PropertyCreateQuery query = new PropertyCreateQuery("foo", "bar");
+    assertThat(query.getUrl(), is("/api/properties/foo?value=bar&"));
+    assertThat(query.getModelClass().getName(), is(Property.class.getName()));
   }
 
   @Test
-  public void byKey() {
-    assertThat(PropertyQuery.createForKey("myprop").getUrl(), is("/api/properties/myprop?"));
-    assertThat(PropertyQuery.createForKey("myprop").getModelClass().getName(), is(Property.class.getName()));
-  }
-
-  @Test
-  public void byKeyAndResource() {
-    assertThat(PropertyQuery.createForResource("myprop", "my:resource").getUrl(), is("/api/properties/myprop?resource=my:resource&"));
-    assertThat(PropertyQuery.createForResource("myprop", "my:resource").getModelClass().getName(), is(Property.class.getName()));
+  public void createForResource() {
+    PropertyCreateQuery query = new PropertyCreateQuery("foo", "bar", "my:resource");
+    assertThat(query.getUrl(), is("/api/properties/foo?value=bar&resource=my:resource&"));
+    assertThat(query.getModelClass().getName(), is(Property.class.getName()));
   }
 }

@@ -33,13 +33,13 @@ class Api::PropertiesController < Api::RestController
 
   def show
     key = params[:id]
-    resource_id = params[:resource_id]
+    resource_id = params[:resource]
     if resource_id
       resource = Project.by_key(resource_id)
       if resource
         prop = Property.by_key(key, resource.id)
       else
-        rest_status_ko('Resource [' + params[:resource_id] + '] does not exist', 404)
+        rest_status_ko('Resource [' + params[:resource] + '] does not exist', 404)
         return
       end
     else
@@ -59,13 +59,13 @@ class Api::PropertiesController < Api::RestController
   def create
     key = params[:id]
     value = params[:value] || request.raw_post
-    resource_id = params[:resource_id]
+    resource_id = params[:resource]
     if resource_id
       resource = Project.by_key(resource_id)
       if resource
         resource_id = resource.id
       else
-        rest_status_ko('Resource [' + params[:resource_id] + '] does not exist', 404)
+        rest_status_ko('Resource [' + params[:resource] + '] does not exist', 404)
         return
       end
     end    
@@ -84,13 +84,13 @@ class Api::PropertiesController < Api::RestController
   def update
     key = params[:id]
     value = params[:value] || request.raw_post
-    resource_id = params[:resource_id]
+    resource_id = params[:resource]
     if resource_id
       resource = Project.by_key(resource_id)
       if resource
         resource_id = resource.id
       else
-        rest_status_ko('Resource [' + params[:resource_id] + '] does not exist', 404)
+        rest_status_ko('Resource [' + params[:resource] + '] does not exist', 404)
         return
       end
     end    
@@ -108,13 +108,13 @@ class Api::PropertiesController < Api::RestController
 
   def destroy
     key = params[:id]
-    resource_id = params[:resource_id]
+    resource_id = params[:resource]
     if resource_id
       resource = Project.by_key(resource_id)
       if resource
         resource_id = resource.id
       else
-        rest_status_ko('Resource [' + params[:resource_id] + '] does not exist', 404)
+        rest_status_ko('Resource [' + params[:resource] + '] does not exist', 404)
         return
       end
     end    
