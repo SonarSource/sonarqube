@@ -19,18 +19,49 @@
  */
 package org.sonar.wsclient.services;
 
-public class PropertyQuery extends Query<Property> {
-  public static final String BASE_URL = "/api/properties";
+/**
+ * @since 2.6
+ */
+public class PropertyUpdateQuery extends UpdateQuery<Property> {
 
-  private String key = null;
-  private String resourceKeyOrId = null;
+  private String key;
+  private String value;
+  private String resourceKeyOrId;
+
+  public PropertyUpdateQuery() {
+  }
+
+  public PropertyUpdateQuery(String key, String value) {
+    this.key = key;
+    this.value = value;
+  }
+
+  public PropertyUpdateQuery(String key, String value, String resourceKeyOrId) {
+    this.key = key;
+    this.value = value;
+    this.resourceKeyOrId = resourceKeyOrId;
+  }
+
+  public PropertyUpdateQuery(Property property) {
+    this.key = property.getKey();
+    this.value = property.getValue();
+  }
 
   public String getKey() {
     return key;
   }
 
-  public PropertyQuery setKey(String key) {
+  public PropertyUpdateQuery setKey(String key) {
     this.key = key;
+    return this;
+  }
+
+  public String getValue() {
+    return value;
+  }
+
+  public PropertyUpdateQuery setValue(String value) {
+    this.value = value;
     return this;
   }
 
@@ -38,36 +69,32 @@ public class PropertyQuery extends Query<Property> {
     return resourceKeyOrId;
   }
 
-  public PropertyQuery setResourceKeyOrId(String resourceKeyOrId) {
+  public PropertyUpdateQuery setResourceKeyOrId(String resourceKeyOrId) {
     this.resourceKeyOrId = resourceKeyOrId;
     return this;
   }
 
   @Override
   public String getUrl() {
-    StringBuilder url = new StringBuilder(BASE_URL);
-    if (key != null) {
-      url.append("/").append(key);
-    }
+    StringBuilder url = new StringBuilder();
+    url.append(PropertyQuery.BASE_URL);
+    url.append("/").append(key);
     url.append('?');
     appendUrlParameter(url, "resource", resourceKeyOrId);
     return url.toString();
   }
 
+  /**
+   * Property value is transmitted through request body as content may
+   * exceed URL size allowed by the server.
+   */
+  @Override
+  public String getBody() {
+    return value;
+  }
+
   @Override
   public Class<Property> getModelClass() {
     return Property.class;
-  }
-
-  public static PropertyQuery createForAll() {
-    return new PropertyQuery();
-  }
-
-  public static PropertyQuery createForKey(String key) {
-    return new PropertyQuery().setKey(key);
-  }
-
-  public static PropertyQuery createForResource(String key, String resourceKeyOrId) {
-    return new PropertyQuery().setKey(key).setResourceKeyOrId(resourceKeyOrId);
   }
 }

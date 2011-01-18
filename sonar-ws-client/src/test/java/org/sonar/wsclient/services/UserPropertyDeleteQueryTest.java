@@ -27,7 +27,7 @@ import static org.junit.Assert.assertThat;
 public class UserPropertyDeleteQueryTest {
 
   @Test
-  public void create() {
+  public void delete() {
     UserPropertyDeleteQuery query = new UserPropertyDeleteQuery("foo");
     assertThat(query.getUrl(), is("/api/user_properties/foo"));
   }

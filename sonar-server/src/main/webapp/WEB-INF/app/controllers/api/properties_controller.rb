@@ -33,7 +33,18 @@ class Api::PropertiesController < Api::RestController
 
   def show
     key = params[:id]
-    prop = Property.by_key(key)
+    resource_id_or_key = params[:resource]
+    if resource_id_or_key
+      resource = Project.by_key(resource_id_or_key)
+      if resource
+        prop = Property.by_key(key, resource.id)
+      else
+        rest_status_ko('Resource [' + resource_id_or_key + '] does not exist', 404)
+        return
+      end
+    else
+      prop = Property.by_key(key)
+    end
     if prop
       if viewable?(key)
         rest_render([prop])
@@ -48,9 +59,19 @@ class Api::PropertiesController < Api::RestController
   def create
     key = params[:id]
     value = params[:value] || request.raw_post
+    resource_id_or_key = params[:resource]
+    if resource_id_or_key
+      resource = Project.by_key(resource_id_or_key)
+      if resource
+        resource_id_or_key = resource.id
+      else
+        rest_status_ko('Resource [' + resource_id_or_key + '] does not exist', 404)
+        return
+      end
+    end
     if key
       begin
-        Property.set(key, value)
+        Property.set(key, value, resource_id_or_key)
         rest_status_ok
       rescue Exception => ex
         rest_status_ko(ex.message, 400)
@@ -63,9 +84,19 @@ class Api::PropertiesController < Api::RestController
   def update
     key = params[:id]
     value = params[:value] || request.raw_post
+    resource_id_or_key = params[:resource]
+    if resource_id_or_key
+      resource = Project.by_key(resource_id_or_key)
+      if resource
+        resource_id_or_key = resource.id
+      else
+        rest_status_ko('Resource [' + resource_id_or_key + '] does not exist', 404)
+        return
+      end
+    end
     if key
       begin
-        Property.set(key, value)
+        Property.set(key, value, resource_id_or_key)
         rest_status_ok
       rescue Exception => ex
         rest_status_ko(ex.message, 400)
@@ -77,9 +108,19 @@ class Api::PropertiesController < Api::RestController
 
   def destroy
     key = params[:id]
-    if key 
+    resource_id_or_key = params[:resource]
+    if resource_id_or_key
+      resource = Project.by_key(resource_id_or_key)
+      if resource
+        resource_id_or_key = resource.id
+      else
+        rest_status_ko('Resource [' + resource_id_or_key + '] does not exist', 404)
+        return
+      end
+    end
+    if key
       begin
-        Property.clear(key)
+        Property.clear(key, resource_id_or_key)
         rest_status_ok
       rescue Exception => ex
         rest_status_ko(ex.message, 400)
