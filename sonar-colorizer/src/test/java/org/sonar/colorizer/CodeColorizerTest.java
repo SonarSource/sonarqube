@@ -26,10 +26,7 @@ import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,6 +36,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class CodeColorizerTest {
@@ -48,6 +47,21 @@ public class CodeColorizerTest {
     Reader java = readFile("/org/sonar/colorizer/samples/Sample.java");
 
     String html = CodeColorizer.javaToHtml(java, HtmlOptions.DEFAULT);
+
+    assertHtml(html);
+    assertContains(html, "<pre><span class=\"k\">public</span> <span class=\"k\">class</span> Sample {</pre>");
+  }
+
+  @Test
+  @Ignore("see http://jira.codehaus.org/browse/SONAR-2115")
+  public void shouldSupportWindowsEndOfLines() throws IOException {
+    StringBuilder windowsFile = new StringBuilder();
+    List<String> lines = FileUtils.readLines(FileUtils.toFile(getClass().getResource("/org/sonar/colorizer/samples/Sample.java")));
+    for (String line : lines) {
+      windowsFile.append(line).append(IOUtils.LINE_SEPARATOR_WINDOWS);
+    }
+
+    String html = CodeColorizer.javaToHtml(new StringReader(windowsFile.toString()), HtmlOptions.DEFAULT);
 
     assertHtml(html);
     assertContains(html, "<pre><span class=\"k\">public</span> <span class=\"k\">class</span> Sample {</pre>");
