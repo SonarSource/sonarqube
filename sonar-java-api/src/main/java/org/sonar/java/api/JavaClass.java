@@ -64,12 +64,12 @@ public final class JavaClass extends Resource {
 
   @Override
   public String getScope() {
-    return ResourceScopes.TYPE;
+    return Scopes.TYPE;
   }
 
   @Override
   public String getQualifier() {
-    return ResourceQualifiers.CLASS;
+    return Qualifiers.CLASS;
   }
 
   @Override
