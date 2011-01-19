@@ -13,20 +13,21 @@
     <!-- public artifacts to be deployed to central repository -->
     <module>archetypes/sonar-basic-plugin</module>
     <module>archetypes/sonar-gwt-plugin</module>
-    <module>sonar-core</module>
-    <module>sonar-deprecated</module>
     <module>sonar-batch</module>
-    <module>sonar-maven-plugin</module>
-    <module>sonar-maven3-plugin</module>
     <module>sonar-channel</module>
     <module>sonar-check-api</module>
     <module>sonar-colorizer</module>
+    <module>sonar-core</module>
+    <module>sonar-deprecated</module>
     <module>sonar-duplications</module>
     <module>sonar-graph</module>
     <module>sonar-gwt-api</module>
+    <module>sonar-java-api</module>
+    <module>sonar-maven-plugin</module>
+    <module>sonar-maven3-plugin</module>
     <module>sonar-plugin-api</module>
-    <module>sonar-testing-harness</module>
     <module>sonar-squid</module>
+    <module>sonar-testing-harness</module>
     <module>sonar-ws-client</module>
     <module>plugins/sonar-core-gwt</module>
     <module>plugins/sonar-core-plugin</module>
@@ -314,22 +315,6 @@
           </archive>
         </configuration>
       </plugin>
-      <!--      <plugin>
-        <groupId>com.atlassian.maven.plugins</groupId>
-        <artifactId>maven-clover2-plugin</artifactId>
-        <version>2.5.1</version>
-        <configuration>
-          <outputDirectory>${project.reporting.outputDirectory}/${project.version}/clover</outputDirectory>
-          <generateHistorical>false</generateHistorical>
-          <generateXml>false</generateXml>
-          <license><![CDATA[opmOXvoSTwRurJtdPUPnnqXUoPxgewBKvhvFsQghghMpHN
-mi2KCHwAl26X>gPZJcsdXAvR2KEZT5o>pDZqs>VNq7CbJD
-OomqxtmMpmQQorqpnOqWVrrrQONpmONrNRUVuWTtSWSoop
-qqnmqmUUnooqqonommmmmUUnooqqonommmmmUUJlkXoUUn
-mmmm
-]]></license>
-        </configuration>
-      </plugin>-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
@@ -342,8 +327,6 @@ mmmm
           <reportOutputDirectory>${project.reporting.outputDirectory}/${project.version}/apidocs</reportOutputDirectory>
         </configuration>
       </plugin>
-
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
@@ -353,7 +336,6 @@ mmmm
           <javadocDir>${project.reporting.outputDirectory}/${project.version}/apidocs</javadocDir>
         </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
@@ -411,6 +393,11 @@ mmmm
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-gwt-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.sonar</groupId>
+        <artifactId>sonar-java-api</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

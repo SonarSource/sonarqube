@@ -16,6 +16,11 @@
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-java-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-plugin-api</artifactId>
       <scope>provided</scope>
     </dependency>
