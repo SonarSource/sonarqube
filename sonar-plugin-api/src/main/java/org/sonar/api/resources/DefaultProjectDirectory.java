@@ -17,9 +17,9 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch;
+package org.sonar.api.resources;
 
-import org.sonar.api.project.ProjectDirectory;
+import com.google.common.collect.Lists;
 
 import java.io.File;
 import java.util.Collections;
@@ -27,42 +27,72 @@ import java.util.List;
 
 public class DefaultProjectDirectory implements ProjectDirectory {
 
-  private Kind kind;
+  private String nature;
   private File location;
   private File outputLocation;
+  private List<String> inclusionPatterns;
+  private List<String> exclusionPatterns;
 
-  public Kind getKind() {
-    return kind;
+  public String getNature() {
+    return nature;
   }
 
-  public void setKind(Kind kind) {
-    this.kind = kind;
+  public DefaultProjectDirectory setNature(String nature) {
+    this.nature = nature;
+    return this;
   }
 
   public File getLocation() {
     return location;
   }
 
-  public void setLocation(File location) {
+  public DefaultProjectDirectory setLocation(File location) {
     this.location = location;
+    return this;
   }
 
   public File getOutputLocation() {
     return outputLocation;
   }
 
-  public void setOutputLocation(File outputLocation) {
+  public DefaultProjectDirectory setOutputLocation(File outputLocation) {
     this.outputLocation = outputLocation;
+    return this;
   }
 
   public List<String> getInclusionPatterns() {
-    // TODO see example in ProjectDirectory
-    return Collections.emptyList();
+    if (inclusionPatterns == null) {
+      return Collections.emptyList();
+    }
+    return Collections.unmodifiableList(inclusionPatterns);
+  }
+
+  /**
+   * @param pattern Ant-like inclusion pattern
+   */
+  public DefaultProjectDirectory addInclusionPattern(String pattern) {
+    if (inclusionPatterns == null) {
+      inclusionPatterns = Lists.newArrayList();
+    }
+    inclusionPatterns.add(pattern);
+    return this;
   }
 
   public List<String> getExclusionPatterns() {
-    // TODO see example in ProjectDirectory
-    return Collections.emptyList();
+    if (exclusionPatterns == null) {
+      return Collections.emptyList();
+    }
+    return Collections.unmodifiableList(exclusionPatterns);
   }
 
+  /**
+   * @param pattern Ant-like exclusion pattern
+   */
+  public DefaultProjectDirectory addExclusionPattern(String pattern) {
+    if (exclusionPatterns == null) {
+      exclusionPatterns = Lists.newArrayList();
+    }
+    exclusionPatterns.add(pattern);
+    return this;
+  }
 }

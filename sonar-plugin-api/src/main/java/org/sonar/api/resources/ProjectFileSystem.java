@@ -26,6 +26,7 @@ import java.util.List;
 
 /**
  * @since 1.10
+ * @deprecated since 2.6
  */
 public interface ProjectFileSystem {
   /**

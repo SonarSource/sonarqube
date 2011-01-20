@@ -17,7 +17,8 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.project;
+package org.sonar.api.resources;
+
 
 import java.io.File;
 import java.util.List;
@@ -50,22 +51,14 @@ import java.util.List;
 public interface ProjectDirectory {
 
   /**
-   * TODO We should find a more flexible way to specify kind.
-   * Because actually this is just a logical division to be able to associate different quality profiles for different kinds of directories.
-   * Imagine that we can have different rules for unit tests, integration tests, performance tests, UI tests and so on.
-   * But seems that for now this enumeration would cover our needs.
+   * @return nature of underlying files.
+   * @see Natures
    */
-  public static enum Kind {
-    SOURCES, RESOURCES, TESTS, TEST_RESOURCES
-  }
-
-  /**
-   * @return kind of underlying files.
-   */
-  Kind getKind();
+  String getNature();
 
   /**
    * @return location of files for compilation.
+   *         In case of Java this would be directory with Java source files.
    */
   File getLocation();
 

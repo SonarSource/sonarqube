@@ -363,12 +363,17 @@ public class Project extends Resource {
     return this;
   }
 
+  /**
+   * @deprecated since 2.6. See http://jira.codehaus.org/browse/SONAR-2126
+   */
   public ProjectFileSystem getFileSystem() {
     return fileSystem;
   }
 
   /**
    * For internal use only.
+   * 
+   * @deprecated since 2.6. See http://jira.codehaus.org/browse/SONAR-2126
    */
   public Project setFileSystem(ProjectFileSystem fs) {
     this.fileSystem = fs;
