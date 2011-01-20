@@ -2,7 +2,7 @@ package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
-import org.sonar.api.resources.ProjectDirectory;
+import org.sonar.api.resources.FileSystemDirectory;
 
 import java.io.File;
 import java.util.List;
@@ -20,7 +20,7 @@ public class ProjectDefinition {
 
   private File workDir;
   private File basedir;
-  private List<ProjectDirectory> dirs = Lists.newArrayList();
+  private List<FileSystemDirectory> dirs = Lists.newArrayList();
 
   private ProjectDefinition parent;
   private List<ProjectDefinition> modules;
@@ -63,11 +63,11 @@ public class ProjectDefinition {
   /**
    * @return project directories.
    */
-  public List<ProjectDirectory> getDirs() {
+  public List<FileSystemDirectory> getDirs() {
     return dirs;
   }
 
-  public void addDir(ProjectDirectory dir) {
+  public void addDir(FileSystemDirectory dir) {
     this.dirs.add(dir);
   }
 

@@ -48,7 +48,7 @@ import java.util.List;
  * 
  * @since 2.6
  */
-public interface ProjectDirectory {
+public interface FileSystemDirectory {
 
   /**
    * @return nature of underlying files.

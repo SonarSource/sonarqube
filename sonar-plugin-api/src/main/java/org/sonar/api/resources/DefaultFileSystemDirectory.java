@@ -25,7 +25,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
-public class DefaultProjectDirectory implements ProjectDirectory {
+public class DefaultFileSystemDirectory implements FileSystemDirectory {
 
   private String nature;
   private File location;
@@ -37,7 +37,7 @@ public class DefaultProjectDirectory implements ProjectDirectory {
     return nature;
   }
 
-  public DefaultProjectDirectory setNature(String nature) {
+  public DefaultFileSystemDirectory setNature(String nature) {
     this.nature = nature;
     return this;
   }
@@ -46,7 +46,7 @@ public class DefaultProjectDirectory implements ProjectDirectory {
     return location;
   }
 
-  public DefaultProjectDirectory setLocation(File location) {
+  public DefaultFileSystemDirectory setLocation(File location) {
     this.location = location;
     return this;
   }
@@ -55,7 +55,7 @@ public class DefaultProjectDirectory implements ProjectDirectory {
     return outputLocation;
   }
 
-  public DefaultProjectDirectory setOutputLocation(File outputLocation) {
+  public DefaultFileSystemDirectory setOutputLocation(File outputLocation) {
     this.outputLocation = outputLocation;
     return this;
   }
@@ -70,7 +70,7 @@ public class DefaultProjectDirectory implements ProjectDirectory {
   /**
    * @param pattern Ant-like inclusion pattern
    */
-  public DefaultProjectDirectory addInclusionPattern(String pattern) {
+  public DefaultFileSystemDirectory addInclusionPattern(String pattern) {
     if (inclusionPatterns == null) {
       inclusionPatterns = Lists.newArrayList();
     }
@@ -88,7 +88,7 @@ public class DefaultProjectDirectory implements ProjectDirectory {
   /**
    * @param pattern Ant-like exclusion pattern
    */
-  public DefaultProjectDirectory addExclusionPattern(String pattern) {
+  public DefaultFileSystemDirectory addExclusionPattern(String pattern) {
     if (exclusionPatterns == null) {
       exclusionPatterns = Lists.newArrayList();
     }
