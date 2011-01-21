@@ -22,22 +22,15 @@ package org.sonar.plugins.squid.bridges;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.JavaPackage;
 
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.mockito.Matchers.doubleThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
 public class PublicUndocumentedApiBridgeTest extends BridgeTestCase {
 
   @Test
-  public void commentLineDensity() {
+  public void publicUndocumentedApi() {
     verify(context).saveMeasure(new JavaFile("org.apache.struts.config.BaseConfig"), CoreMetrics.PUBLIC_UNDOCUMENTED_API, 0.0);
     verify(context).saveMeasure(new JavaFile("org.apache.struts.config.ConfigHelper"), CoreMetrics.PUBLIC_UNDOCUMENTED_API, 4.0);
-
-    verify(context).saveMeasure(eq(new JavaPackage("org.apache.struts.config")), eq(CoreMetrics.PUBLIC_UNDOCUMENTED_API), doubleThat(greaterThan(50.0)));
-    verify(context).saveMeasure(eq(project), eq(CoreMetrics.PUBLIC_UNDOCUMENTED_API), doubleThat(greaterThan(200.0)));
   }
 
 }

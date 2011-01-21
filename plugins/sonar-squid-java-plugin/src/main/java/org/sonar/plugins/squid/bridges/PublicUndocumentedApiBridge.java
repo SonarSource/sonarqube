@@ -21,17 +21,36 @@ package org.sonar.plugins.squid.bridges;
 
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Resource;
+import org.sonar.java.api.JavaClass;
+import org.sonar.java.api.JavaMethod;
+import org.sonar.squid.api.SourceClass;
 import org.sonar.squid.api.SourceCode;
+import org.sonar.squid.api.SourceFile;
+import org.sonar.squid.api.SourceMethod;
 import org.sonar.squid.measures.Metric;
 
-public class PublicUndocumentedApiBridge extends BasicBridge {
+public final class PublicUndocumentedApiBridge extends Bridge {
 
   protected PublicUndocumentedApiBridge() {
     super(false);
   }
 
   @Override
-  protected void onResource(SourceCode squidResource, Resource sonarResource) {
+  public void onFile(SourceFile squidFile, Resource sonarFile) {
+    copyValue(squidFile, sonarFile);
+  }
+
+  @Override
+  public void onClass(SourceClass squidClass, JavaClass sonarClass) {
+    copyValue(squidClass, sonarClass);
+  }
+
+  @Override
+  public void onMethod(SourceMethod squidMethod, JavaMethod sonarMethod) {
+    copyValue(squidMethod, sonarMethod);
+  }
+
+  private void copyValue(SourceCode squidResource, Resource sonarResource) {
     double undocumentedApi = squidResource.getDouble(Metric.PUBLIC_API) - squidResource.getInt(Metric.PUBLIC_DOC_API);
     context.saveMeasure(sonarResource, CoreMetrics.PUBLIC_UNDOCUMENTED_API, undocumentedApi);
   }

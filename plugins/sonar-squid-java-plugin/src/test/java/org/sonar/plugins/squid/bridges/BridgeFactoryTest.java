@@ -32,14 +32,14 @@ public class BridgeFactoryTest {
   public void createForSourceAnalysis() {
     List<Bridge> astBridges = BridgeFactory.create(false, null, null, null, null, null);
     assertFalse(has(astBridges, DesignBridge.class));
-    assertTrue(has(astBridges, OneToOneBridge.class));
+    assertTrue(has(astBridges, CopyBasicMeasuresBridge.class));
   }
 
   @Test
   public void createForSourceAndBytecodeAnalysis() {
     List<Bridge> allBridges = BridgeFactory.create(true, null, null, null, null, null);
     assertTrue(has(allBridges, DesignBridge.class));
-    assertTrue(has(allBridges, OneToOneBridge.class));
+    assertTrue(has(allBridges, CopyBasicMeasuresBridge.class));
 
   }
 
