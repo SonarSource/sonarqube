@@ -17,7 +17,6 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
 package org.sonar.java.api;
 
 import org.junit.Test;
@@ -65,5 +64,26 @@ public class JavaClassTest {
 
     javaClass = JavaClass.createRef("Bar");
     assertThat(javaClass.getClassName(), is("Bar"));
+  }
+
+  @Test
+  public void shouldOverrideToString() {
+    JavaClass javaClass = JavaClass.createRef("org.foo.Bar");
+    assertThat(javaClass.toString(), is("org.foo.Bar"));
+  }
+
+  @Test
+  public void shouldBuild() {
+    JavaClass javaClass = new JavaClass.Builder().setName("org.foo", "Bar").setFromLine(30).create();
+    assertThat(javaClass.getName(), is("org.foo.Bar"));
+    assertThat(javaClass.getFromLine(), is(30));
+    assertThat(javaClass.getToLine(), is(JavaClass.UNKNOWN_LINE));
+  }
+
+  @Test
+  public void shouldNotBuildWithNegativeNumberOfLine() {
+    JavaClass javaClass = new JavaClass.Builder().setName("org.foo", "Bar").setFromLine(-30).setToLine(0).create();
+    assertThat(javaClass.getFromLine(), is(JavaClass.UNKNOWN_LINE));
+    assertThat(javaClass.getToLine(), is(0));
   }
 }

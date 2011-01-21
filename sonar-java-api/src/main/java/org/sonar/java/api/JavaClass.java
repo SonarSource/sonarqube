@@ -105,6 +105,11 @@ public final class JavaClass extends Resource {
     return false;
   }
 
+  @Override
+  public String toString() {
+    return getName();
+  }
+
   public static JavaClass createRef(String name) {
     return new JavaClass(name);
   }
