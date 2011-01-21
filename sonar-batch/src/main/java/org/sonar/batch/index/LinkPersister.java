@@ -35,21 +35,20 @@ public final class LinkPersister {
   }
 
   public void saveLink(Project project, ProjectLink link) {
-    Snapshot snapshot = resourcePersister.getSnapshot(project);
-    if (snapshot != null) {
-      ResourceModel projectDao = session.reattach(ResourceModel.class, snapshot.getResourceId());
-      ProjectLink dbLink = projectDao.getProjectLink(link.getKey());
-      if (dbLink == null) {
-        link.setResource(projectDao);
-        projectDao.getProjectLinks().add(link);
-        session.save(link);
+    Snapshot snapshot = resourcePersister.getSnapshotOrFail(project);
+    ResourceModel projectDao = session.reattach(ResourceModel.class, snapshot.getResourceId());
+    ProjectLink dbLink = projectDao.getProjectLink(link.getKey());
+    if (dbLink == null) {
+      link.setResource(projectDao);
+      projectDao.getProjectLinks().add(link);
+      session.save(link);
 
-      } else {
-        dbLink.copyFieldsFrom(link);
-        session.save(dbLink);
-      }
-      session.commit();
+    } else {
+      dbLink.copyFieldsFrom(link);
+      session.save(dbLink);
     }
+    session.commit();
+
   }
 
   public void deleteLink(Project project, String linkKey) {

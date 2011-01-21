@@ -22,6 +22,7 @@ package org.sonar.plugins.core.timemachine;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.batch.*;
 import org.sonar.api.measures.Measure;
@@ -30,6 +31,7 @@ import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.resources.Scopes;
 import org.sonar.batch.components.TimeMachineConfiguration;
 
 import java.util.List;
@@ -114,6 +116,6 @@ public class TendencyDecorator implements Decorator {
   }
 
   private boolean shouldDecorateResource(Resource resource) {
-    return ResourceUtils.isSet(resource) || ResourceUtils.isSpace(resource);
+    return StringUtils.equals(Scopes.PROJECT, resource.getScope()) || StringUtils.equals(Scopes.DIRECTORY, resource.getScope());
   }
 }

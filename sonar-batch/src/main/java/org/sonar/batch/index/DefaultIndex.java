@@ -22,6 +22,7 @@ package org.sonar.batch.index;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,9 +76,13 @@ public final class DefaultIndex extends SonarIndex {
 
   public void start() {
     Project rootProject = projectTree.getRootProject();
+    doStart(rootProject);
+  }
+
+  void doStart(Project rootProject) {
     Bucket bucket = new Bucket(rootProject);
     buckets.put(rootProject, bucket);
-    persistence.saveProject(rootProject);
+    persistence.saveProject(rootProject, null);
     currentProject = rootProject;
 
     for (Project project : rootProject.getModules()) {
@@ -131,93 +136,6 @@ public final class DefaultIndex extends SonarIndex {
     lock.unlock();
   }
 
-  /**
-   * Does nothing if the resource is already registered.
-   */
-  public Resource addResource(Resource resource) {
-    Bucket bucket = getOrAddBucket(resource);
-    return bucket != null ? bucket.getResource() : null;
-  }
-
-  public Resource getResource(Resource resource) {
-    Bucket bucket = buckets.get(resource);
-    if (bucket != null) {
-      return bucket.getResource();
-    }
-    return null;
-  }
-
-  private Bucket getOrAddBucket(Resource resource) {
-    Bucket bucket = buckets.get(resource);
-    if (bucket != null) {
-      return bucket;
-    }
-
-    if (lock.isLocked() && !ResourceUtils.isLibrary(resource)) {
-      LOG.warn("The following resource has not been registered before saving data: " + resource);
-    }
-
-    resource.setEffectiveKey(calculateResourceEffectiveKey(currentProject, resource));
-    bucket = new Bucket(resource);
-    Bucket parentBucket = null;
-    Resource parent = resource.getParent();
-    if (parent != null) {
-      parentBucket = getOrAddBucket(parent);
-    } else if (!ResourceUtils.isLibrary(resource)) {
-      parentBucket = buckets.get(currentProject);
-    }
-    bucket.setParent(parentBucket);
-    buckets.put(resource, bucket);
-
-    boolean excluded = checkExclusion(resource, parentBucket);
-    if (!excluded) {
-      persistence.saveResource(currentProject, resource);
-    }
-    return bucket;
-  }
-
-  static String calculateResourceEffectiveKey(Project project, Resource resource) {
-    String effectiveKey = resource.getKey();
-    if (!StringUtils.equals(Resource.SCOPE_SET, resource.getScope())) {
-      // not a project nor a library
-      effectiveKey = new StringBuilder(ResourceModel.KEY_SIZE)
-          .append(project.getKey())
-          .append(':')
-          .append(resource.getKey())
-          .toString();
-    }
-    return effectiveKey;
-  }
-
-  private boolean checkExclusion(Resource resource, Bucket parent) {
-    boolean excluded = (parent != null && parent.isExcluded()) || (resourceFilters != null && resourceFilters.isExcluded(resource));
-    resource.setExcluded(excluded);
-    return excluded;
-  }
-
-  public List<Resource> getChildren(Resource resource) {
-    return getChildren(resource, false);
-  }
-
-  public List<Resource> getChildren(Resource resource, boolean includeExcludedResources) {
-    List<Resource> children = Lists.newArrayList();
-    Bucket bucket = buckets.get(resource);
-    if (bucket != null) {
-      for (Bucket childBucket : bucket.getChildren()) {
-        if (includeExcludedResources || !childBucket.isExcluded())
-          children.add(childBucket.getResource());
-      }
-    }
-    return children;
-  }
-
-  public Resource getParent(Resource resource) {
-    Bucket bucket = buckets.get(resource);
-    if (bucket != null && bucket.getParent() != null) {
-      return bucket.getParent().getResource();
-    }
-    return null;
-  }
 
   public Measure getMeasure(Resource resource, Metric metric) {
     Bucket bucket = buckets.get(resource);
@@ -239,8 +157,8 @@ public final class DefaultIndex extends SonarIndex {
    * the measure is updated if it's already registered.
    */
   public Measure addMeasure(Resource resource, Measure measure) {
-    Bucket bucket = getOrAddBucket(resource);
-    if (!bucket.isExcluded()) {
+    Bucket bucket = doIndex(resource);
+    if (bucket != null && !bucket.isExcluded()) {
       Metric metric = metricFinder.findByKey(measure.getMetricKey());
       if (metric == null) {
         throw new SonarException("Unknown metric: " + measure.getMetricKey());
@@ -250,19 +168,12 @@ public final class DefaultIndex extends SonarIndex {
         bucket.addMeasure(measure);
       }
       if (measure.getPersistenceMode().useDatabase()) {
-        persistence.saveMeasure(currentProject, resource, measure);
+        persistence.saveMeasure(resource, measure);
       }
 
       // TODO keep database measures in cache but remove data
     }
     return measure;
-  }
-
-  public void setSource(Resource resource, String source) {
-    Bucket bucket = getOrAddBucket(resource);
-    if (!bucket.isExcluded()) {
-      persistence.setSource(currentProject, resource, source);
-    }
   }
 
   //
@@ -291,8 +202,8 @@ public final class DefaultIndex extends SonarIndex {
   }
 
   boolean registerDependency(Dependency dependency) {
-    Bucket fromBucket = getOrAddBucket(dependency.getFrom());
-    Bucket toBucket = getOrAddBucket(dependency.getTo());
+    Bucket fromBucket = doIndex(dependency.getFrom());
+    Bucket toBucket = doIndex(dependency.getTo());
 
     if (fromBucket != null && !fromBucket.isExcluded() && toBucket != null && !toBucket.isExcluded()) {
       dependencies.add(dependency);
@@ -389,7 +300,7 @@ public final class DefaultIndex extends SonarIndex {
     if (resource == null) {
       violation.setResource(currentProject);
     }
-    bucket = getOrAddBucket(violation.getResource());
+    bucket = doIndex(violation.getResource());
     if (!bucket.isExcluded()) {
       boolean isIgnored = !force && violationFilters != null && violationFilters.isIgnored(violation);
       if (!isIgnored) {
@@ -451,7 +362,149 @@ public final class DefaultIndex extends SonarIndex {
   public Event addEvent(Resource resource, String name, String description, String category, Date date) {
     Event event = new Event(name, description, category);
     event.setDate(date);
-    persistence.saveEvent(currentProject, resource, event);
+    persistence.saveEvent(resource, event);
     return null;
+  }
+
+  public boolean setSource(Resource reference, String source) {
+    boolean result = false;
+    if (isIndexed(reference)) {
+      persistence.setSource(reference, source);
+      result = true;
+    }
+    return result;
+  }
+
+
+  /**
+   * Does nothing if the resource is already registered.
+   */
+  public Resource addResource(Resource resource) {
+    Bucket bucket = doIndex(resource);
+    return bucket != null ? bucket.getResource() : null;
+  }
+
+  public <R extends Resource> R getResource(R reference) {
+    Bucket bucket = buckets.get(reference);
+    if (bucket != null) {
+      return (R)bucket.getResource();
+    }
+    return null;
+  }
+
+  static String createUID(Project project, Resource resource) {
+    String uid = resource.getKey();
+    if (!StringUtils.equals(Resource.SCOPE_SET, resource.getScope())) {
+      // not a project nor a library
+      uid = new StringBuilder(ResourceModel.KEY_SIZE)
+          .append(project.getKey())
+          .append(':')
+          .append(resource.getKey())
+          .toString();
+    }
+    return uid;
+  }
+
+  private boolean checkExclusion(Resource resource, Bucket parent) {
+    boolean excluded = (parent != null && parent.isExcluded()) || (resourceFilters != null && resourceFilters.isExcluded(resource));
+    resource.setExcluded(excluded);
+    return excluded;
+  }
+
+  public List<Resource> getChildren(Resource resource) {
+    return getChildren(resource, false);
+  }
+
+
+  public List<Resource> getChildren(Resource resource, boolean acceptExcluded) {
+    List<Resource> children = Lists.newLinkedList();
+    Bucket bucket = getBucket(resource, acceptExcluded);
+    if (bucket != null) {
+      for (Bucket childBucket : bucket.getChildren()) {
+        if (acceptExcluded || !childBucket.isExcluded())
+          children.add(childBucket.getResource());
+      }
+    }
+    return children;
+  }
+
+  public Resource getParent(Resource resource) {
+    Bucket bucket = getBucket(resource, false);
+    if (bucket != null && bucket.getParent() != null) {
+      return bucket.getParent().getResource();
+    }
+    return null;
+  }
+
+  public boolean index(Resource resource) {
+    Bucket bucket = doIndex(resource);
+    return bucket != null && !bucket.isExcluded();
+  }
+
+  private Bucket doIndex(Resource resource) {
+    if (resource.getParent() != null) {
+      // SONAR-2127 backward-compatibility - create automatically parent of files
+      doIndex(resource.getParent(), currentProject);
+    }
+    return doIndex(resource, resource.getParent());
+  }
+
+  public boolean index(Resource resource, Resource parentReference) {
+    Bucket bucket = doIndex(resource, parentReference);
+    return bucket != null && !bucket.isExcluded();
+  }
+
+  private Bucket doIndex(Resource resource, Resource parentReference) {
+    Bucket bucket = buckets.get(resource);
+    if (bucket != null) {
+      return bucket;
+    }
+
+    if (lock.isLocked() && !ResourceUtils.isLibrary(resource)) {
+      LOG.warn("Resource will be ignored in next Sonar versions, index is locked: " + resource);
+    }
+
+    Resource parent = null;
+    if (!ResourceUtils.isLibrary(resource)) {
+      // a library has no parent
+      parent = (Resource) ObjectUtils.defaultIfNull(parentReference, currentProject);
+    }
+
+    Bucket parentBucket = getBucket(parent, true);
+    if (parentBucket==null && parent!=null) {
+      LOG.warn("Resource ignored, parent is not indexed: " + resource);
+      return null;
+    }
+
+    resource.setEffectiveKey(createUID(currentProject, resource));
+    bucket = new Bucket(resource).setParent(parentBucket);
+    buckets.put(resource, bucket);
+
+    boolean excluded = checkExclusion(resource, parentBucket);
+    if (!excluded) {
+      persistence.saveResource(currentProject, resource, (parentBucket!=null ? parentBucket.getResource() : null));
+    }
+    return bucket;
+  }
+
+
+  public boolean isExcluded(Resource reference) {
+    Bucket bucket = getBucket(reference, true);
+    return bucket != null && bucket.isExcluded();
+  }
+
+  public boolean isIndexed(Resource reference) {
+    return getBucket(reference, false) != null;
+  }
+
+  private Bucket getBucket(Resource resource, boolean acceptExcluded) {
+    Bucket bucket = null;
+    if (resource != null) {
+      bucket = buckets.get(resource);
+      if (!acceptExcluded && bucket != null && bucket.isExcluded()) {
+        bucket = null;
+      }
+    }
+    return bucket;
   }
 }

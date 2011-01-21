@@ -21,7 +21,7 @@ package org.sonar.api.resources;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-public class Library extends Resource {
+public final class Library extends Resource {
 
   private String name;
   private String description;
@@ -68,12 +68,12 @@ public class Library extends Resource {
 
   @Override
   public String getScope() {
-    return Resource.SCOPE_SET;
+    return Scopes.PROJECT;
   }
 
   @Override
   public String getQualifier() {
-    return Resource.QUALIFIER_LIB;
+    return Qualifiers.LIBRARY;
   }
 
   @Override

@@ -17,28 +17,18 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.resources;
+package org.sonar.batch.index;
+
+import org.sonar.api.resources.Resource;
+import org.sonar.api.utils.SonarException;
 
 /**
- * Resource scopes are used to group resources. They relate to persisted resources only (project, directories and files).
- * They are generally used in UI to display/hide some services or in web services.
- *
- * Resource scopes are not extensible by plugins. 
+ * @since 2.6
  */
-public interface Scopes {
-  /**
-   * For example view, subview, project, module or library. Persisted in database.
-   */
-  String PROJECT = "PRJ";
+public final class ResourceNotPersistedException extends SonarException {
 
-  /**
-   * For example directory or Java package. Persisted in database.
-   */
-  String DIRECTORY = "DIR";
-
-  /**
-   * For example a Java file. Persisted in database.
-   */
-  String FILE = "FIL";
+  public ResourceNotPersistedException(Resource resource) {
+    super(resource.toString());
+  }
 
 }

@@ -19,22 +19,20 @@
  */
 package org.sonar.batch;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectLink;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
 import org.sonar.api.rules.Violation;
 import org.sonar.batch.index.DefaultIndex;
+
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 public class DefaultSensorContext implements SensorContext {
 
@@ -48,6 +46,30 @@ public class DefaultSensorContext implements SensorContext {
 
   public Project getProject() {
     return project;
+  }
+
+  public boolean index(Resource resource) {
+    return index.index(resource);
+  }
+
+  public boolean index(Resource resource, Resource parentReference) {
+    return index.index(resource, parentReference);
+  }
+
+  public boolean isExcluded(Resource reference) {
+    return index.isExcluded(reference);
+  }
+
+  public boolean isIndexed(Resource reference) {
+    return index.isIndexed(reference);
+  }
+
+  public Resource getParent(Resource reference) {
+    return index.getParent(reference);
+  }
+
+  public Collection<Resource> getChildren(Resource reference) {
+    return index.getChildren(reference);
   }
 
   public Measure getMeasure(Metric metric) {
@@ -76,6 +98,10 @@ public class DefaultSensorContext implements SensorContext {
       return persistedResource.getEffectiveKey();
     }
     return null;
+  }
+
+  public boolean saveResource(Resource resource, Resource parentReference) {
+    return index.index(resource, parentReference);
   }
 
   public Resource getResource(Resource resource) {
@@ -129,8 +155,8 @@ public class DefaultSensorContext implements SensorContext {
     return index.getOutgoingEdges(resourceOrProject(from));
   }
 
-  public void saveSource(Resource resource, String source) {
-    index.setSource(resource, source);
+  public boolean saveSource(Resource reference, String source) throws DuplicatedSourceException {
+    return index.setSource(reference, source);
   }
 
   public void saveLink(ProjectLink link) {

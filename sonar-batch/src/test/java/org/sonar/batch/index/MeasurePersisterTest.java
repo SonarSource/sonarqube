@@ -67,9 +67,9 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
     fileSnapshot = getSession().getSingleResult(Snapshot.class, "id", FILE_SNAPSHOT_ID);
     ncloc = getSession().getSingleResult(Metric.class, "key", "ncloc");
     coverage = getSession().getSingleResult(Metric.class, "key", "coverage");
-    when(resourcePersister.saveResource((Project) anyObject(), eq(project))).thenReturn(projectSnapshot);
-    when(resourcePersister.saveResource((Project) anyObject(), eq(aPackage))).thenReturn(packageSnapshot);
-    when(resourcePersister.saveResource((Project) anyObject(), eq(aFile))).thenReturn(fileSnapshot);
+    when(resourcePersister.getSnapshotOrFail(eq(project))).thenReturn(projectSnapshot);
+    when(resourcePersister.getSnapshotOrFail(eq(aPackage))).thenReturn(packageSnapshot);
+    when(resourcePersister.getSnapshotOrFail(eq(aFile))).thenReturn(fileSnapshot);
     when(resourcePersister.getSnapshot(project)).thenReturn(projectSnapshot);
     when(resourcePersister.getSnapshot(aPackage)).thenReturn(packageSnapshot);
     when(resourcePersister.getSnapshot(aFile)).thenReturn(fileSnapshot);
@@ -122,7 +122,7 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
     measurePersister.setDelayedMode(true);
 
     measurePersister.saveMeasure(project, new Measure(ncloc).setValue(1234.0));
-    measurePersister.saveMeasure(project, aPackage, new Measure(ncloc).setValue(50.0));
+    measurePersister.saveMeasure(aPackage, new Measure(ncloc).setValue(50.0));
 
     assertThat(getSession().getResults(MeasureModel.class, "metricId", 1).size(), is(0));
 
@@ -135,7 +135,7 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
     measurePersister.setDelayedMode(true);
 
     measurePersister.saveMeasure(project, new Measure(ncloc).setValue(1234.0).setPersistenceMode(PersistenceMode.DATABASE)); // database only
-    measurePersister.saveMeasure(project, aPackage, new Measure(ncloc).setValue(50.0)); // database + memory
+    measurePersister.saveMeasure(aPackage, new Measure(ncloc).setValue(50.0)); // database + memory
 
     // no dump => the db-only measure is saved
 
@@ -160,7 +160,7 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
   public void shouldNotSaveBestValueMeasuresInDelayedMode() {
     measurePersister.setDelayedMode(true);
 
-    measurePersister.saveMeasure(project, aFile, new Measure(coverage).setValue(100.0));
+    measurePersister.saveMeasure(aFile, new Measure(coverage).setValue(100.0));
 
     assertThat(getSession().getResults(MeasureModel.class, "metricId", COVERAGE_METRIC_ID, "snapshotId", FILE_SNAPSHOT_ID).size(), is(0));
 

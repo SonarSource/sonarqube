@@ -30,6 +30,7 @@ import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Resource;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -61,8 +62,10 @@ public class PastMeasuresLoader implements BatchExtension {
   }
 
   public List<MeasureModel> getPastMeasures(Resource resource, Snapshot projectSnapshot) {
-    // assume that the resource has already been saved
-    return getPastMeasures(resource.getId(), projectSnapshot);
+    if (isPersisted(resource)) {
+      return getPastMeasures(resource.getId(), projectSnapshot);
+    }
+    return Collections.emptyList();
   }
 
   public List<MeasureModel> getPastMeasures(int resourceId, Snapshot projectSnapshot) {
@@ -77,5 +80,9 @@ public class PastMeasuresLoader implements BatchExtension {
         .setParameter("resourceId", resourceId)
         .setParameter("status", Snapshot.STATUS_PROCESSED)
         .getResultList();
+  }
+
+  private boolean isPersisted(Resource resource) {
+    return resource.getId()!=null;
   }
 }

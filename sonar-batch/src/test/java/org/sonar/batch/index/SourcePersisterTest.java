@@ -22,6 +22,7 @@ package org.sonar.batch.index;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.DuplicatedSourceException;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -41,21 +42,20 @@ public class SourcePersisterTest extends AbstractDbUnitTestCase {
     setupData("shared");
     Snapshot snapshot = getSession().getSingleResult(Snapshot.class, "id", 1000);
     ResourcePersister resourcePersister = mock(ResourcePersister.class);
-    when(resourcePersister.saveResource((Project) anyObject(), (Resource) anyObject())).thenReturn(snapshot);
+    when(resourcePersister.getSnapshotOrFail((Resource) anyObject())).thenReturn(snapshot);
     sourcePersister = new SourcePersister(getSession(), resourcePersister);
   }
 
   @Test
   public void shouldSaveSource() {
-    sourcePersister.saveSource(new Project(""), new JavaFile("org.foo.Bar"), "this is the file content");
+    sourcePersister.saveSource(new JavaFile("org.foo.Bar"), "this is the file content");
     checkTables("shouldSaveSource", "snapshot_sources");
   }
 
-  @Test(expected = SonarException.class)
+  @Test(expected = DuplicatedSourceException.class)
   public void shouldFailIfSourceSavedSeveralTimes() {
-    Project project = new Project("project");
     JavaFile file = new JavaFile("org.foo.Bar");
-    sourcePersister.saveSource(project, file, "this is the file content");
-    sourcePersister.saveSource(project, file, "new content"); // fail
+    sourcePersister.saveSource(file, "this is the file content");
+    sourcePersister.saveSource(file, "new content"); // fail
   }
 }

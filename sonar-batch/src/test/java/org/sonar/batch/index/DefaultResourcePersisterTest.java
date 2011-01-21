@@ -66,7 +66,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     setupData("shared");
 
     ResourcePersister persister = new DefaultResourcePersister(getSession());
-    persister.saveProject(singleProject);
+    persister.saveProject(singleProject, null);
 
     checkTables("shouldSaveNewProject", "projects", "snapshots");
   }
@@ -76,10 +76,10 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     setupData("shared");
 
     ResourcePersister persister = new DefaultResourcePersister(getSession());
-    persister.saveProject(multiModuleProject);
-    persister.saveProject(moduleA);
-    persister.saveProject(moduleB);
-    persister.saveProject(moduleB1);
+    persister.saveProject(multiModuleProject, null);
+    persister.saveProject(moduleA, multiModuleProject);
+    persister.saveProject(moduleB, multiModuleProject);
+    persister.saveProject(moduleB1, moduleB);
 
     checkTables("shouldSaveNewMultiModulesProject", "projects", "snapshots");
   }
@@ -89,7 +89,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     setupData("shared");
 
     ResourcePersister persister = new DefaultResourcePersister(getSession());
-    persister.saveProject(singleProject);
+    persister.saveProject(singleProject, null);
     persister.saveResource(singleProject, new JavaPackage("org.foo").setEffectiveKey("foo:org.foo"));
 
     // check that the directory is attached to the project
@@ -101,7 +101,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     setupData("shared");
 
     ResourcePersister persister = new DefaultResourcePersister(getSession());
-    persister.saveProject(singleProject);
+    persister.saveProject(singleProject, null);
     persister.saveResource(singleProject, new Library("junit:junit", "4.8.2").setEffectiveKey("junit:junit"));
     persister.saveResource(singleProject, new Library("junit:junit", "4.8.2").setEffectiveKey("junit:junit"));// do nothing, already saved
     persister.saveResource(singleProject, new Library("junit:junit", "3.2").setEffectiveKey("junit:junit"));
@@ -114,8 +114,8 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     setupData("shared");
 
     DefaultResourcePersister persister = new DefaultResourcePersister(getSession());
-    persister.saveProject(multiModuleProject);
-    persister.saveProject(moduleA);
+    persister.saveProject(multiModuleProject, null);
+    persister.saveProject(moduleA, multiModuleProject);
     persister.saveResource(moduleA, new JavaPackage("org.foo").setEffectiveKey("a:org.foo"));
     persister.saveResource(moduleA, new JavaFile("org.foo.MyClass").setEffectiveKey("a:org.foo.MyClass"));
     persister.clear();
@@ -132,9 +132,9 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     ResourcePersister persister = new DefaultResourcePersister(getSession());
     singleProject.setName("new name");
     singleProject.setDescription("new description");
-    persister.saveProject(singleProject);
+    persister.saveProject(singleProject, null);
 
     checkTables("shouldUpdateExistingResource", "projects", "snapshots");
   }
- 
+
 }

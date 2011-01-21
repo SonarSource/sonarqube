@@ -20,6 +20,7 @@
 package org.sonar.plugins.core.timemachine;
 
 import com.google.common.collect.*;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
@@ -28,6 +29,7 @@ import org.sonar.api.measures.*;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
@@ -72,7 +74,9 @@ public class NewViolationsDecorator implements Decorator {
   }
 
   private boolean shouldDecorateResource(Resource resource, DecoratorContext context) {
-    return !ResourceUtils.isUnitTestClass(resource) && context.getMeasure(CoreMetrics.NEW_VIOLATIONS) == null;
+    return
+        (StringUtils.equals(Scopes.PROJECT, resource.getScope()) || StringUtils.equals(Scopes.DIRECTORY, resource.getScope()) || StringUtils.equals(Scopes.FILE, resource.getScope()))
+            && !ResourceUtils.isUnitTestClass(resource) && context.getMeasure(CoreMetrics.NEW_VIOLATIONS) == null;
   }
 
 

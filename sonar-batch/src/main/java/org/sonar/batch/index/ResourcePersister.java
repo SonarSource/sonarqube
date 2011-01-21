@@ -24,14 +24,29 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 
 public interface ResourcePersister {
-  Snapshot saveProject(Project project);
+  
+  Snapshot saveProject(Project project, Project parent);
+
+  /**
+   * Persist a resource in database. Returns null if the resource must not be persisted (scope lower than file)
+   */
+  Snapshot saveResource(Project project, Resource resource, Resource parent);
+
+  /**
+   * Persist a resource in database. Returns null if the resource must not be persisted (scope lower than file)
+   */
+  Snapshot saveResource(Project project, Resource resource);
 
   Snapshot getSnapshot(Resource resource);
 
-  Snapshot saveResource(Project project, Resource resource);
+  /**
+   * @throws ResourceNotPersistedException if the resource is not persisted.
+   */
+  Snapshot getSnapshotOrFail(Resource resource);
+ 
 
   /**
-   * The current snapshot which is flagged as "last"
+   * The current snapshot which is flagged as "last", different then the current analysis.
    * @param onlyOlder true if the result must be anterior to the snapshot parameter
    */
   Snapshot getLastSnapshot(Snapshot snapshot, boolean onlyOlder);

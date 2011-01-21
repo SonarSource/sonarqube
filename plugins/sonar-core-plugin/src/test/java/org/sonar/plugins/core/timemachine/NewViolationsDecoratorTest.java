@@ -31,6 +31,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.RuleMeasure;
+import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
@@ -79,7 +80,7 @@ public class NewViolationsDecoratorTest {
     when(timeMachineConfiguration.getProjectPastSnapshots()).thenReturn(Arrays.asList(pastSnapshot, pastSnapshot2));
 
     context = mock(DecoratorContext.class);
-    resource = mock(Resource.class);
+    resource = new File("com/foo/bar");
     when(context.getResource()).thenReturn(resource);
 
     decorator = new NewViolationsDecorator(timeMachineConfiguration);

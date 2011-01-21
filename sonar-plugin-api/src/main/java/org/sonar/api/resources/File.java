@@ -19,11 +19,11 @@
  */
 package org.sonar.api.resources;
 
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.utils.WildcardPattern;
+
+import java.util.List;
 
 /**
  * This class is an implementation of a resource of type FILE
@@ -31,6 +31,8 @@ import org.sonar.api.utils.WildcardPattern;
  * @since 1.10
  */
 public class File extends Resource<Directory> {
+
+  public static final String SCOPE = Scopes.FILE;
 
   private String directoryKey;
   private String filename;

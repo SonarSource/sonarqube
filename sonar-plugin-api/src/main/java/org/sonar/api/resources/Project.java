@@ -36,6 +36,8 @@ import java.util.List;
  */
 public class Project extends Resource {
 
+  public static final String SCOPE = Scopes.PROJECT;
+
   /**
    * @deprecated since version 1.11. Constant moved to CoreProperties
    */

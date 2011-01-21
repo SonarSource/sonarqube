@@ -57,17 +57,13 @@ public final class MeasurePersister {
     this.delayedMode = delayedMode;
   }
 
-  public void saveMeasure(Project project, Measure measure) {
-    saveMeasure(project, project, measure);
-  }
-
-  public void saveMeasure(Project project, Resource resource, Measure measure) {
+  public void saveMeasure(Resource resource, Measure measure) {
     boolean saveLater = (measure.getPersistenceMode().useMemory() && delayedMode);
     if (saveLater) {
       unsavedMeasuresByResource.put(resource, measure);
 
     } else {
-      Snapshot snapshot = resourcePersister.saveResource(project, resource);
+      Snapshot snapshot = resourcePersister.getSnapshotOrFail(resource);
       if (measure.getId() != null) {
         // update
         MeasureModel model = session.reattach(MeasureModel.class, measure.getId());

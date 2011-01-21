@@ -59,11 +59,11 @@ public class Directory extends Resource {
   }
 
   public String getScope() {
-    return Resource.SCOPE_SPACE;
+    return Scopes.DIRECTORY;
   }
 
   public String getQualifier() {
-    return Resource.QUALIFIER_DIRECTORY;
+    return Qualifiers.DIRECTORY;
   }
 
   public Resource getParent() {

@@ -23,9 +23,8 @@ import com.google.common.collect.Sets;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.database.model.SnapshotSource;
-import org.sonar.api.resources.Project;
+import org.sonar.api.resources.DuplicatedSourceException;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.utils.SonarException;
 
 import java.util.Set;
 
@@ -40,17 +39,22 @@ public final class SourcePersister {
     this.resourcePersister = resourcePersister;
   }
 
-  public void saveSource(Project project, Resource resource, String source) {
-    Snapshot snapshot = resourcePersister.saveResource(project, resource);
-    if (snapshot != null) {
-
-      if (savedSnapshotIds.contains(snapshot.getId())) {
-        throw new SonarException("Can not set twice the source of " + resource);
-      }
-      session.save(new SnapshotSource(snapshot.getId(), source));
-      session.commit();
-      savedSnapshotIds.add(snapshot.getId());
+  public void saveSource(Resource resource, String source) {
+    Snapshot snapshot = resourcePersister.getSnapshotOrFail(resource);
+    if (isCached(snapshot)) {
+      throw new DuplicatedSourceException(resource);
     }
+    session.save(new SnapshotSource(snapshot.getId(), source));
+    session.commit();
+    addToCache(snapshot);
+  }
+
+  private boolean isCached(Snapshot snapshot) {
+    return savedSnapshotIds.contains(snapshot.getId());
+  }
+
+  private void addToCache(Snapshot snapshot) {
+    savedSnapshotIds.add(snapshot.getId());
   }
 
   public void clear() {

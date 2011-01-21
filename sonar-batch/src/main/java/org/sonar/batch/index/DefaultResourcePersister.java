@@ -33,7 +33,6 @@ import org.sonar.api.utils.SonarException;
 
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -48,29 +47,22 @@ public final class DefaultResourcePersister implements ResourcePersister {
     this.session = session;
   }
 
-  public Snapshot saveProject(Project project) {
+  public Snapshot saveProject(Project project, Project parent) {
     Snapshot snapshot = snapshotsByResource.get(project);
     if (snapshot == null) {
-      snapshot = doSaveProject(project);
+      snapshot = persistProject(project, parent);
+      addToCache(project, snapshot);
     }
     return snapshot;
   }
 
-  public Snapshot getSnapshot(Resource resource) {
-    if (resource != null) {
-      return snapshotsByResource.get(resource);
+  private void addToCache(Resource resource, Snapshot snapshot) {
+    if (snapshot != null) {
+      snapshotsByResource.put(resource, snapshot);
     }
-    return null;
   }
 
-  /**
-   * just for unit tests
-   */
-  Map<Resource, Snapshot> getSnapshotsByResource() {
-    return snapshotsByResource;
-  }
-
-  private Snapshot doSaveProject(Project project) {
+  private Snapshot persistProject(Project project, Project parent) {
     // temporary hack
     project.setEffectiveKey(project.getKey());
 
@@ -78,7 +70,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     model.setLanguageKey(project.getLanguageKey());// ugly, only for projects
 
     Snapshot parentSnapshot = null;
-    if (project.getParent() != null) {
+    if (parent != null) {
       // assume that the parent project has already been saved
       parentSnapshot = snapshotsByResource.get(project.getParent());
       model.setRootId((Integer) ObjectUtils.defaultIfNull(parentSnapshot.getRootProjectId(), parentSnapshot.getResourceId()));
@@ -91,30 +83,60 @@ public final class DefaultResourcePersister implements ResourcePersister {
     snapshot.setCreatedAt(project.getAnalysisDate());
     snapshot = session.save(snapshot);
     session.commit();
-    snapshotsByResource.put(project, snapshot);
     return snapshot;
   }
+
+  public Snapshot getSnapshot(Resource reference) {
+    return snapshotsByResource.get(reference);
+  }
+
+  public Snapshot getSnapshotOrFail(Resource resource) throws ResourceNotPersistedException {
+    Snapshot snapshot = getSnapshot(resource);
+    if (snapshot == null) {
+      throw new ResourceNotPersistedException(resource);
+    }
+    return snapshot;
+  }
+
+  /**
+   * just for unit tests
+   */
+  Map<Resource, Snapshot> getSnapshotsByResource() {
+    return snapshotsByResource;
+  }
+
 
   public Snapshot saveResource(Project project, Resource resource) {
-    if (resource == null) {
-      return null;
-    }
+    return saveResource(project, resource, null);
+  }
+
+  public Snapshot saveResource(Project project, Resource resource, Resource parent) {
     Snapshot snapshot = snapshotsByResource.get(resource);
     if (snapshot == null) {
-      if (resource instanceof Project) {
-        snapshot = doSaveProject((Project) resource);
-
-      } else if (resource instanceof Library) {
-        snapshot = doSaveLibrary(project, (Library) resource);
-
-      } else {
-        snapshot = doSaveResource(project, resource);
-      }
+      snapshot = persist(project, resource, parent);
+      addToCache(resource, snapshot);
     }
     return snapshot;
   }
 
-  private Snapshot doSaveLibrary(Project project, Library library) {
+
+  private Snapshot persist(Project project, Resource resource, Resource parent) {
+    Snapshot snapshot;
+    if (resource instanceof Project) {
+      // should not occur, please use the method saveProject()
+      snapshot = persistProject((Project) resource, project);
+
+    } else if (resource instanceof Library) {
+      snapshot = persistLibrary(project, (Library) resource);
+
+    } else {
+      snapshot = persistFileOrDirectory(project, resource, parent);
+    }
+    return snapshot;
+  }
+
+
+  private Snapshot persistLibrary(Project project, Library library) {
     ResourceModel model = findOrCreateModel(library);
     model = session.save(model);
     library.setId(model.getId()); // TODO to be removed
@@ -131,7 +153,6 @@ public final class DefaultResourcePersister implements ResourcePersister {
       // The qualifier must be LIB, even if the resource is TRK, because this snapshot has no measures.
       snapshot.setQualifier(Resource.QUALIFIER_LIB);
       snapshot = session.save(snapshot);
-      snapshotsByResource.put(library, snapshot);
     }
     session.commit();
     return snapshot;
@@ -154,18 +175,17 @@ public final class DefaultResourcePersister implements ResourcePersister {
   /**
    * Everything except project and library
    */
-  private Snapshot doSaveResource(Project project, Resource resource) {
+  private Snapshot persistFileOrDirectory(Project project, Resource resource, Resource parentReference) {
     ResourceModel model = findOrCreateModel(resource);
     Snapshot projectSnapshot = snapshotsByResource.get(project);
     model.setRootId(projectSnapshot.getResourceId());
     model = session.save(model);
     resource.setId(model.getId()); // TODO to be removed
 
-    Snapshot parentSnapshot = (Snapshot) ObjectUtils.defaultIfNull(getSnapshot(resource.getParent()), projectSnapshot);
+    Snapshot parentSnapshot = (Snapshot) ObjectUtils.defaultIfNull(getSnapshot(parentReference), projectSnapshot);
     Snapshot snapshot = new Snapshot(model, parentSnapshot);
     snapshot = session.save(snapshot);
     session.commit();
-    snapshotsByResource.put(resource, snapshot);
     return snapshot;
   }
 
@@ -186,7 +206,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     // we keep cache of projects
     for (Iterator<Map.Entry<Resource, Snapshot>> it = snapshotsByResource.entrySet().iterator(); it.hasNext();) {
       Map.Entry<Resource, Snapshot> entry = it.next();
-      if ( !ResourceUtils.isSet(entry.getKey())) {
+      if (!ResourceUtils.isSet(entry.getKey())) {
         it.remove();
       }
     }
@@ -239,7 +259,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     if (StringUtils.isNotBlank(resource.getDescription())) {
       model.setDescription(resource.getDescription());
     }
-    if ( !ResourceUtils.isLibrary(resource)) {
+    if (!ResourceUtils.isLibrary(resource)) {
       model.setScope(resource.getScope());
       model.setQualifier(resource.getQualifier());
     }

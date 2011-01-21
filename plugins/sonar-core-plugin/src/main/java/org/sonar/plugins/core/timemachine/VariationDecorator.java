@@ -20,13 +20,14 @@
 package org.sonar.plugins.core.timemachine;
 
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.*;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.measures.*;
 import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshot;
@@ -73,7 +74,7 @@ public class VariationDecorator implements Decorator {
 
   static boolean shouldCalculateVariations(Resource resource) {
     // measures on files are currently purged, so past measures are not available on files
-    return !ResourceUtils.isEntity(resource);
+    return StringUtils.equals(Scopes.PROJECT, resource.getScope()) || StringUtils.equals(Scopes.DIRECTORY, resource.getScope());
   }
 
   private void calculateVariation(Resource resource, DecoratorContext context, PastSnapshot pastSnapshot) {

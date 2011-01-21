@@ -19,13 +19,35 @@
  */
 package org.sonar.api.resources;
 
+/**
+ * The qualifier determines the exact type of a resource.
+ * Plugins can use their own qualifiers.
+ * @since 2.6
+ */
 public interface Qualifiers {
 
   String VIEW = "VW";
   String SUBVIEW = "SVW";
-  String LIB = "LIB";
+
+  /**
+   * Library, for example a JAR dependency of Java projects.
+   * Scope is Scopes.PROJECT
+   */
+  String LIBRARY = "LIB";
+
+  /**
+   * Single project or root of multi-modules projects
+   * Scope is Scopes.PROJECT
+   */
   String PROJECT = "TRK";
+
+  /**
+   * Module of multi-modules project. It's sometimes called sub-project.
+   * Scope is Scopes.PROJECT
+   */
   String MODULE = "BRC";
+
+
   String PACKAGE = "PAC";
   String DIRECTORY = "DIR";
   String FILE = "FIL";

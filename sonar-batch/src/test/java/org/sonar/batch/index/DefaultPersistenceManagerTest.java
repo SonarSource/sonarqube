@@ -19,41 +19,28 @@
  */
 package org.sonar.batch.index;
 
-import org.sonar.api.batch.Event;
-import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.design.Dependency;
-import org.sonar.api.measures.Measure;
+import org.junit.Test;
+import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
+import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectLink;
-import org.sonar.api.resources.Resource;
+import org.sonar.java.api.JavaClass;
 
-import java.util.List;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-public interface PersistenceManager {
-  void clear();
+public class DefaultPersistenceManagerTest {
+  
+  @Test
+  public void shouldPersistResoucesWithScopeHigherThanFile() {
+    assertThat(DefaultPersistenceManager.isPersistable(new File("Foo.java")), is(true));
+    assertThat(DefaultPersistenceManager.isPersistable(new Directory("bar/Foo.java")), is(true));
+    assertThat(DefaultPersistenceManager.isPersistable(new Project("foo")), is(true));
+    assertThat(DefaultPersistenceManager.isPersistable(new Library("foo", "1.2")), is(true));
+  }
 
-  void setDelayedMode(boolean b);
-
-  void dump();
-
-  void saveProject(Project project, Project parent);
-
-  Snapshot saveResource(Project project, Resource resource, Resource parent);
-
-  void setSource(Resource file, String source);
-
-  void saveMeasure(Resource resource, Measure measure);
-
-  void saveDependency(Project project, Dependency dependency, Dependency parentDependency);
-
-  void saveLink(Project project, ProjectLink link);
-
-  void deleteLink(Project project, String key);
-
-  List<Event> getEvents(Resource resource);
-
-  void deleteEvent(Event event);
-
-  void saveEvent(Resource resource, Event event);
+  @Test
+  public void shouldNotPersistResoucesWithScopeLowerThanFile() {
+    assertThat(DefaultPersistenceManager.isPersistable(JavaClass.createRef("com.foo.Bar")), is(false));
+  }
 }

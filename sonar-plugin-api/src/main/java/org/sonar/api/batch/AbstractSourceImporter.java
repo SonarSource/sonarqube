@@ -19,11 +19,6 @@
  */
 package org.sonar.api.batch;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.List;
-
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.resources.Language;
@@ -31,6 +26,11 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.List;
 
 /**
  * A pre-implementation for a sensor that imports sources
@@ -88,6 +88,7 @@ public abstract class AbstractSourceImporter implements Sensor {
       if (resource != null) {
         try {
           String source = FileUtils.readFileToString(file, sourcesEncoding.name());
+          context.index(resource);
           context.saveSource(resource, source);
         } catch (IOException e) {
           throw new SonarException("Unable to read and import the source file : '" + file.getAbsolutePath() + "' with the charset : '"

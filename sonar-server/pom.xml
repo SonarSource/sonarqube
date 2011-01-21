@@ -29,6 +29,11 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-java-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-update-center-common</artifactId>
     </dependency>
     <dependency>

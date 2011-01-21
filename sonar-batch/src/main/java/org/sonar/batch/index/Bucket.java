@@ -50,18 +50,20 @@ public final class Bucket {
     return resource;
   }
 
-  public void setParent(Bucket parent) {
+  public Bucket setParent(Bucket parent) {
     this.parent = parent;
     if (parent != null) {
       parent.addChild(this);
     }
+    return this;
   }
 
-  private void addChild(Bucket child) {
+  private Bucket addChild(Bucket child) {
     if (children == null) {
       children = Lists.newArrayList();
     }
     children.add(child);
+    return this;
   }
 
   private void removeChild(Bucket child) {

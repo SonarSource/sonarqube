@@ -23,6 +23,7 @@ import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.resources.DuplicatedSourceException;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
@@ -36,6 +37,57 @@ import java.util.Set;
  * @since 1.10
  */
 public interface SensorContext {
+
+  /**
+   * Indexes a resource as a direct child of project. This method does nothing and returns true if the resource already indexed.
+   *
+   * @return false if the resource is excluded
+   * @since 2.6
+   */
+  boolean index(Resource resource);
+
+
+  /**
+   * Indexes a resource. This method does nothing if the resource is already indexed.
+   *
+   * @param resource        the resource to index. Not nullable
+   * @param parentReference a reference to the parent. If null, the the resource is indexed as a direct child of project.
+   * @return false if the parent is not indexed or if the resource is excluded
+   * @since 2.6
+   */
+  boolean index(Resource resource, Resource parentReference);
+
+  /**
+   * Returns true if the referenced resource is excluded. An excluded resource is not indexed.
+   * @since 2.6
+   */
+  boolean isExcluded(Resource reference);
+
+  /**
+   * @since 2.6
+   */
+  boolean isIndexed(Resource reference);
+
+  /**
+   * Search for an indexed resource.
+   *
+   * @param reference the resource reference
+   * @return the indexed resource, null if it's not indexed
+   * @since 1.10. Generic types since 2.6.
+   */
+  <R extends Resource> R getResource(R reference);
+
+  /**
+   * @since 2.6
+   */
+  Resource getParent(Resource reference);
+
+  /**
+   * @since 2.6
+   */
+
+  Collection<Resource> getChildren(Resource reference);
+
 
   // ----------- MEASURES ON PROJECT --------------
 
@@ -68,15 +120,13 @@ public interface SensorContext {
 
   /**
    * Key is updated when saving the resource.
-   * 
+   *
    * @return the key as saved in database. Null if the resource is set as excluded.
+   * @deprecated use the methods index()
    */
+  @Deprecated
   String saveResource(Resource resource);
 
-  /**
-   * @return the resource saved in sonar index
-   */
-  Resource getResource(Resource resource);
 
   /**
    * Find all measures for this project. Never return null.
@@ -105,9 +155,9 @@ public interface SensorContext {
 
   /**
    * Save a coding rule violation.
-   * 
-   * @since 2.5
+   *
    * @param force allows to force creation of violation even if it was supressed by {@link org.sonar.api.rules.ViolationFilter}
+   * @since 2.5
    */
   void saveViolation(Violation violation, boolean force);
 
@@ -137,9 +187,15 @@ public interface SensorContext {
   // ----------- FILE SOURCES --------------
 
   /**
-   * Does nothing if the resource is set as excluded.
+   * Save the source code of a file. The file must be have been indexed before.
+   * Note: the source stream is not closed.
+   *
+   * @return false if the resource is excluded or not indexed
+   * @throws org.sonar.api.resources.DuplicatedSourceException
+   *          if the source has already been set on this resource
+   * @since 1.10. Returns a boolean since 2.6.
    */
-  void saveSource(Resource resource, String source);
+  boolean saveSource(Resource reference, String source) throws DuplicatedSourceException;
 
   // ----------- LINKS --------------
 
@@ -163,18 +219,18 @@ public interface SensorContext {
 
   /**
    * Creates an event for a given date
-   * 
-   * @param name the event name
+   *
+   * @param name        the event name
    * @param description the event description
-   * @param category the event category
-   * @param date the event date
+   * @param category    the event category
+   * @param date        the event date
    * @return the created event
    */
   Event createEvent(Resource resource, String name, String description, String category, Date date);
 
   /**
    * Deletes an event
-   * 
+   *
    * @param event the event to delete
    */
   void deleteEvent(Event event);

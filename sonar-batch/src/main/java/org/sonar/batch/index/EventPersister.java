@@ -50,16 +50,15 @@ public final class EventPersister {
     session.commit();
   }
 
-  public void saveEvent(Project project, Resource resource, Event event) {
-    Snapshot snapshot = resourcePersister.saveResource(project, resource);
-    if (snapshot != null) {
-      if (event.getDate()==null) {
-        event.setSnapshot(snapshot);
-      } else {
-        event.setResourceId(snapshot.getResourceId());
-      }
-      session.save(event);
-      session.commit();
+  public void saveEvent(Resource resource, Event event) {
+    Snapshot snapshot = resourcePersister.getSnapshotOrFail(resource);
+    if (event.getDate() == null) {
+      event.setSnapshot(snapshot);
+    } else {
+      event.setResourceId(snapshot.getResourceId());
     }
+    session.save(event);
+    session.commit();
+
   }
 }

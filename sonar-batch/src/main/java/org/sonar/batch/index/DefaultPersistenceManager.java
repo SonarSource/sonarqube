@@ -19,13 +19,12 @@
  */
 package org.sonar.batch.index;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.Event;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectLink;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
 
 import java.util.List;
 
@@ -62,24 +61,31 @@ public final class DefaultPersistenceManager implements PersistenceManager {
     measurePersister.dump();
   }
 
-  public void saveProject(Project project) {
-    resourcePersister.saveProject(project);
+  public void saveProject(Project project, Project parent) {
+    resourcePersister.saveProject(project, parent);
   }
 
-  public Snapshot saveResource(Project project, Resource resource) {
-    return resourcePersister.saveResource(project, resource);
+  public Snapshot saveResource(Project project, Resource resource, Resource parent) {
+    if (isPersistable(resource)) {
+      return resourcePersister.saveResource(project, resource, parent);
+    }
+    return null;
   }
 
-  public void setSource(Project project, Resource resource, String source) {
-    sourcePersister.saveSource(project, resource, source);
+  public void setSource(Resource file, String source) {
+    sourcePersister.saveSource(file, source);
   }
 
-  public void saveMeasure(Project project, Resource resource, Measure measure) {
-    measurePersister.saveMeasure(project, resource, measure);
+  public void saveMeasure(Resource resource, Measure measure) {
+    if (isPersistable(resource)) {
+      measurePersister.saveMeasure(resource, measure);
+    }
   }
 
   public void saveDependency(Project project, Dependency dependency, Dependency parentDependency) {
-    dependencyPersister.saveDependency(project, dependency, parentDependency);
+    if (isPersistable(dependency.getFrom()) && isPersistable(dependency.getTo())) {
+      dependencyPersister.saveDependency(project, dependency, parentDependency);
+    }
   }
 
   public void saveLink(Project project, ProjectLink link) {
@@ -98,7 +104,18 @@ public final class DefaultPersistenceManager implements PersistenceManager {
     eventPersister.deleteEvent(event);
   }
 
-  public void saveEvent(Project project, Resource resource, Event event) {
-    eventPersister.saveEvent(project, resource, event);
+  public void saveEvent(Resource resource, Event event) {
+    if (isPersistable(resource)) {
+      eventPersister.saveEvent(resource, event);
+    }
+  }
+
+  static boolean isPersistable(Resource resource) {
+    if (resource != null) {
+      return resource instanceof File || resource instanceof Directory || resource instanceof Library || resource instanceof Project ||
+          // for deprecated resources
+          StringUtils.equals(Scopes.PROJECT, resource.getScope()) || StringUtils.equals(Scopes.DIRECTORY, resource.getScope()) || StringUtils.equals(Scopes.FILE, resource.getScope());
+    }
+    return false;
   }
 }
