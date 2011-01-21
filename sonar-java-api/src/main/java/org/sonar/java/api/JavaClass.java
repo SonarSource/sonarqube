@@ -20,36 +20,59 @@
 package org.sonar.java.api;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
 
 /**
  * @since 2.6
  */
 public final class JavaClass extends Resource {
 
-  private String name;
+  public static final int UNKNOWN_LINE = -1;
+
+  private int fromLine = UNKNOWN_LINE;
+  private int toLine = UNKNOWN_LINE;
 
   private JavaClass(String name) {
-    this.name = name;
     setKey(name);
   }
 
+  private JavaClass(String name, int fromLine, int toLine) {
+    setKey(name);
+    this.fromLine = fromLine;
+    this.toLine = toLine;
+  }
+
   public String getPackageName() {
-    return StringUtils.substringBeforeLast(name, JavaUtils.PACKAGE_SEPARATOR);
+    if (StringUtils.contains(getKey(), JavaUtils.PACKAGE_SEPARATOR)) {
+      return StringUtils.substringBeforeLast(getKey(), JavaUtils.PACKAGE_SEPARATOR);
+    }
+    return "";
   }
 
   public String getClassName() {
-    return StringUtils.substringAfterLast(name, JavaUtils.PACKAGE_SEPARATOR);
+    String className = StringUtils.substringAfterLast(getKey(), JavaUtils.PACKAGE_SEPARATOR);
+    return StringUtils.defaultIfEmpty(className, getKey());
+  }
+
+  public int getFromLine() {
+    return fromLine;
+  }
+
+  public int getToLine() {
+    return toLine;
   }
 
   @Override
   public String getName() {
-    return getClassName();
+    return getKey();
   }
 
   @Override
   public String getLongName() {
-    return name;
+    return getKey();
   }
 
   @Override
@@ -64,7 +87,7 @@ public final class JavaClass extends Resource {
 
   @Override
   public String getScope() {
-    return Scopes.TYPE;
+    return null;
   }
 
   @Override
@@ -82,15 +105,51 @@ public final class JavaClass extends Resource {
     return false;
   }
 
-  public static JavaClass create(String name) {
+  public static JavaClass createRef(String name) {
     return new JavaClass(name);
   }
 
-  public static JavaClass create(String packageName, String className) {
+  public static JavaClass createRef(String packageName, String className) {
     if (StringUtils.isBlank(packageName)) {
       return new JavaClass(className);
     }
-    String name = new StringBuilder().append(packageName).append(JavaUtils.PACKAGE_SEPARATOR).append(className).toString();
-    return new JavaClass(name);
+    return new JavaClass(toName(packageName, className));
+  }
+
+  private static String toName(String packageName, String className) {
+    if (StringUtils.isBlank(packageName)) {
+      return className;
+    }
+    return new StringBuilder().append(packageName).append(JavaUtils.PACKAGE_SEPARATOR).append(className).toString();
+  }
+
+  public static class Builder {
+    private String name;
+    private int fromLine = UNKNOWN_LINE;
+    private int toLine = UNKNOWN_LINE;
+
+    public Builder setName(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder setName(String packageName, String className) {
+      this.name = toName(packageName, className);
+      return this;
+    }
+
+    public Builder setFromLine(int fromLine) {
+      this.fromLine = Math.max(UNKNOWN_LINE, fromLine);
+      return this;
+    }
+
+    public Builder setToLine(int toLine) {
+      this.toLine = Math.max(UNKNOWN_LINE, toLine);
+      return this;
+    }
+
+    public JavaClass create() {
+      return new JavaClass(name, fromLine, toLine);
+    }
   }
 }

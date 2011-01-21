@@ -23,13 +23,15 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.checks.CheckFactory;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.java.api.JavaClass;
 import org.sonar.squid.Squid;
+import org.sonar.squid.api.SourceClass;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.api.SourcePackage;
 import org.sonar.squid.api.SourceProject;
 
 /**
- * Pattern visitor : project -> packages -> files
+ * Pattern visitor : project -> packages -> files -> classes
  */
 public abstract class Bridge {
 
@@ -72,6 +74,10 @@ public abstract class Bridge {
   }
 
   public void onFile(SourceFile squidFile, Resource sonarFile) {
+
+  }
+
+  public void onClass(SourceClass squidClass, JavaClass sonarClass) {
 
   }
 }

@@ -30,22 +30,40 @@ import static org.junit.Assert.assertThat;
 public class JavaClassTest {
 
   @Test
-  public void shouldCreateJavaClassFromName() {
-    JavaClass javaClass = JavaClass.create("org.foo.Bar");
+  public void shouldCreateReferenceFromName() {
+    JavaClass javaClass = JavaClass.createRef("org.foo.Bar");
     assertThat(javaClass.getClassName(), is("Bar"));
     assertThat(javaClass.getKey(), is("org.foo.Bar"));
     assertThat(javaClass.getLanguage(), is((Language)Java.INSTANCE));
-    assertThat(javaClass.getName(), is("Bar"));
+    assertThat(javaClass.getName(), is("org.foo.Bar"));
     assertThat(javaClass.getLongName(), is("org.foo.Bar"));
   }
 
   @Test
-  public void shouldCreateJavaClassFromPackageAndClassname() {
-    JavaClass javaClass = JavaClass.create("org.foo", "Bar");
+  public void shouldCreateReferenceFromPackageAndClassname() {
+    JavaClass javaClass = JavaClass.createRef("org.foo", "Bar");
     assertThat(javaClass.getClassName(), is("Bar"));
     assertThat(javaClass.getKey(), is("org.foo.Bar"));
     assertThat(javaClass.getLanguage(), is((Language)Java.INSTANCE));
-    assertThat(javaClass.getName(), is("Bar"));
+    assertThat(javaClass.getName(), is("org.foo.Bar"));
     assertThat(javaClass.getLongName(), is("org.foo.Bar"));
+  }
+
+  @Test
+  public void shouldGetPackageName() {
+    JavaClass javaClass = JavaClass.createRef("org.foo.Bar");
+    assertThat(javaClass.getPackageName(), is("org.foo"));
+
+    javaClass = JavaClass.createRef("Bar");
+    assertThat(javaClass.getPackageName(), is(""));
+  }
+
+  @Test
+  public void shouldGetClassName() {
+    JavaClass javaClass = JavaClass.createRef("org.foo.Bar");
+    assertThat(javaClass.getClassName(), is("Bar"));
+
+    javaClass = JavaClass.createRef("Bar");
+    assertThat(javaClass.getClassName(), is("Bar"));
   }
 }

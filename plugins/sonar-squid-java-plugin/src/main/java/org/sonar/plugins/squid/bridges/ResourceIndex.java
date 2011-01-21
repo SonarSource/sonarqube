@@ -25,10 +25,9 @@ import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.java.api.JavaClass;
 import org.sonar.squid.Squid;
-import org.sonar.squid.api.SourceCode;
-import org.sonar.squid.api.SourceFile;
-import org.sonar.squid.api.SourcePackage;
+import org.sonar.squid.api.*;
 import org.sonar.squid.indexer.QueryByType;
 
 import java.util.Collection;
@@ -40,6 +39,8 @@ public final class ResourceIndex extends HashMap<SourceCode, Resource> {
     loadSquidProject(squid, project);
     loadSquidPackages(squid, context);
     loadSquidFiles(squid, context);
+    loadSquidClasses(squid, context);
+//    loadSquidMethods(squid, context);
     return this;
   }
 
@@ -51,7 +52,7 @@ public final class ResourceIndex extends HashMap<SourceCode, Resource> {
     Collection<SourceCode> packages = squid.search(new QueryByType(SourcePackage.class));
     for (SourceCode squidPackage : packages) {
       JavaPackage sonarPackage = SquidUtils.convertJavaPackageKeyFromSquidFormat(squidPackage.getKey());
-      context.saveResource(sonarPackage);
+      context.index(sonarPackage);
       put(squidPackage, context.getResource(sonarPackage)); // resource is reloaded to get the id
     }
   }
@@ -62,6 +63,29 @@ public final class ResourceIndex extends HashMap<SourceCode, Resource> {
       JavaFile sonarFile = SquidUtils.convertJavaFileKeyFromSquidFormat(squidFile.getKey());
       context.saveResource(sonarFile);
       put(squidFile, context.getResource(sonarFile)); // resource is reloaded to get the id
+    }
+  }
+
+  private void loadSquidClasses(Squid squid, SensorContext context) {
+    Collection<SourceCode> classes = squid.search(new QueryByType(SourceClass.class));
+    for (SourceCode squidClass : classes) {
+      JavaFile sonarFile = (JavaFile)get(squidClass.getParent(SourceFile.class));
+      JavaClass sonarClass = new JavaClass.Builder()
+          .setName(squidClass.getKey())
+          .setFromLine(squidClass.getStartAtLine())
+          .setToLine(squidClass.getEndAtLine())
+          .create();
+      context.index(sonarClass, sonarFile);
+      put(squidClass, context.getResource(sonarClass)); // resource is reloaded to get the id
+    }
+  }
+
+  private void loadSquidMethods(Squid squid, SensorContext context) {
+    Collection<SourceCode> methods = squid.search(new QueryByType(SourceMethod.class));
+    for (SourceCode squidMethod : methods) {
+      JavaClass sonarClass = (JavaClass)get(squidMethod.getParent(SourceClass.class));
+      //context.index(new JavaMethod(squidMethod.getKey()), sonarClass);
+      //put(squidMethod, context.getResource(sonarClass)); // resource is reloaded to get the id
     }
   }
 
