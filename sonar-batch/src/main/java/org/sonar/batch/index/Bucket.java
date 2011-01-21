@@ -98,7 +98,7 @@ public final class Bucket {
         if (metricMeasures.get(index) == measure) {
           add = false;
         } else {
-          throw new SonarException("Can not add twice the same measure: " + measure);
+          throw new SonarException("Can not add twice the same measure on " + resource + ": " + measure);
         }
       }
     }
