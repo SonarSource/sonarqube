@@ -24,11 +24,9 @@ import org.sonar.api.checks.CheckFactory;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.java.api.JavaClass;
+import org.sonar.java.api.JavaMethod;
 import org.sonar.squid.Squid;
-import org.sonar.squid.api.SourceClass;
-import org.sonar.squid.api.SourceFile;
-import org.sonar.squid.api.SourcePackage;
-import org.sonar.squid.api.SourceProject;
+import org.sonar.squid.api.*;
 
 /**
  * Pattern visitor : project -> packages -> files -> classes
@@ -78,6 +76,10 @@ public abstract class Bridge {
   }
 
   public void onClass(SourceClass squidClass, JavaClass sonarClass) {
+
+  }
+
+  public void onMethod(SourceMethod squidMethod, JavaMethod sonarMethod) {
 
   }
 }

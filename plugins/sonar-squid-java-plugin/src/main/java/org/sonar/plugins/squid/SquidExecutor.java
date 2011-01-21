@@ -19,11 +19,6 @@
  */
 package org.sonar.plugins.squid;
 
-import java.io.File;
-import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.checks.CheckFactory;
@@ -31,6 +26,8 @@ import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.java.api.JavaClass;
+import org.sonar.java.api.JavaMethod;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.bytecode.BytecodeScanner;
 import org.sonar.java.squid.JavaSquidConfiguration;
@@ -39,12 +36,14 @@ import org.sonar.plugins.squid.bridges.Bridge;
 import org.sonar.plugins.squid.bridges.BridgeFactory;
 import org.sonar.plugins.squid.bridges.ResourceIndex;
 import org.sonar.squid.Squid;
-import org.sonar.squid.api.CodeVisitor;
-import org.sonar.squid.api.SourceCode;
-import org.sonar.squid.api.SourceFile;
-import org.sonar.squid.api.SourcePackage;
+import org.sonar.squid.api.*;
 import org.sonar.squid.indexer.QueryByType;
 import org.sonar.squid.measures.Metric;
+
+import java.io.File;
+import java.nio.charset.Charset;
+import java.util.Collection;
+import java.util.List;
 
 public final class SquidExecutor {
 
@@ -100,6 +99,8 @@ public final class SquidExecutor {
       saveProject(resourceIndex, bridges);
       savePackages(resourceIndex, bridges);
       saveFiles(resourceIndex, bridges);
+      saveClasses(resourceIndex, bridges);
+      saveMethods(resourceIndex, bridges);
       profiler.stop();
     }
   }
@@ -130,6 +131,27 @@ public final class SquidExecutor {
       }
     }
   }
+
+  private void saveClasses(ResourceIndex resourceIndex, List<Bridge> bridges) {
+    Collection<SourceCode> squidClasses = squid.search(new QueryByType(SourceClass.class));
+    for (SourceCode squidClass : squidClasses) {
+      Resource sonarClass = resourceIndex.get(squidClass);
+      for (Bridge bridge : bridges) {
+        bridge.onClass((SourceClass) squidClass, (JavaClass)sonarClass);
+      }
+    }
+  }
+
+  private void saveMethods(ResourceIndex resourceIndex, List<Bridge> bridges) {
+    Collection<SourceCode> squidMethods = squid.search(new QueryByType(SourceMethod.class));
+    for (SourceCode squidMethod : squidMethods) {
+      JavaMethod sonarMethod = (JavaMethod)resourceIndex.get(squidMethod);
+      for (Bridge bridge : bridges) {
+        bridge.onMethod((SourceMethod) squidMethod, sonarMethod);
+      }
+    }
+  }
+
 
   void scanSources(Collection<File> sourceFiles) {
     if (sourceFiles != null && !sourceFiles.isEmpty()) {

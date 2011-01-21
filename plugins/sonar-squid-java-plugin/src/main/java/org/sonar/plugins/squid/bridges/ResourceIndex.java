@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.squid.bridges;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.SquidUtils;
 import org.sonar.api.resources.JavaFile;
@@ -26,6 +27,7 @@ import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.java.api.JavaClass;
+import org.sonar.java.api.JavaMethod;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.*;
 import org.sonar.squid.indexer.QueryByType;
@@ -40,7 +42,7 @@ public final class ResourceIndex extends HashMap<SourceCode, Resource> {
     loadSquidPackages(squid, context);
     loadSquidFiles(squid, context);
     loadSquidClasses(squid, context);
-//    loadSquidMethods(squid, context);
+    loadSquidMethods(squid, context);
     return this;
   }
 
@@ -71,22 +73,34 @@ public final class ResourceIndex extends HashMap<SourceCode, Resource> {
     for (SourceCode squidClass : classes) {
       JavaFile sonarFile = (JavaFile)get(squidClass.getParent(SourceFile.class));
       JavaClass sonarClass = new JavaClass.Builder()
-          .setName(squidClass.getKey())
+          .setName(convertClassKey(squidClass.getKey()))
           .setFromLine(squidClass.getStartAtLine())
           .setToLine(squidClass.getEndAtLine())
           .create();
       context.index(sonarClass, sonarFile);
-      put(squidClass, context.getResource(sonarClass)); // resource is reloaded to get the id
+      put(squidClass, sonarClass);
     }
   }
 
   private void loadSquidMethods(Squid squid, SensorContext context) {
     Collection<SourceCode> methods = squid.search(new QueryByType(SourceMethod.class));
     for (SourceCode squidMethod : methods) {
-      JavaClass sonarClass = (JavaClass)get(squidMethod.getParent(SourceClass.class));
-      //context.index(new JavaMethod(squidMethod.getKey()), sonarClass);
-      //put(squidMethod, context.getResource(sonarClass)); // resource is reloaded to get the id
+      SourceClass squidClass = squidMethod.getParent(SourceClass.class);
+      JavaClass sonarClass = (JavaClass)get(squidClass);
+      JavaMethod sonarMethod = new JavaMethod.Builder()
+          .setClass(sonarClass)
+          .setSignature(squidMethod.getName())
+          .setFromLine(squidMethod.getStartAtLine())
+          .setToLine(squidMethod.getEndAtLine())
+          .create();
+
+      context.index(sonarMethod, sonarClass);
+      put(squidMethod, sonarMethod);
     }
+  }
+
+  static String convertClassKey(String squidClassKey) {
+    return StringUtils.replace(squidClassKey, "/", ".");
   }
 
 }

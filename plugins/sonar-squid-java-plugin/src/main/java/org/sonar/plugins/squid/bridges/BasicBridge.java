@@ -21,10 +21,9 @@ package org.sonar.plugins.squid.bridges;
 
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.squid.api.SourceCode;
-import org.sonar.squid.api.SourceFile;
-import org.sonar.squid.api.SourcePackage;
-import org.sonar.squid.api.SourceProject;
+import org.sonar.java.api.JavaClass;
+import org.sonar.java.api.JavaMethod;
+import org.sonar.squid.api.*;
 
 public abstract class BasicBridge extends Bridge {
 
@@ -45,6 +44,16 @@ public abstract class BasicBridge extends Bridge {
   @Override
   public final void onFile(SourceFile squidFile, Resource sonarFile) {
     onResource(squidFile, sonarFile);
+  }
+
+  @Override
+  public final void onClass(SourceClass squidClass, JavaClass sonarClass) {
+    onResource(squidClass, sonarClass);
+  }
+
+  @Override
+  public final void onMethod(SourceMethod squidMethod, JavaMethod sonarMethod) {
+    onResource(squidMethod, sonarMethod);
   }
 
   protected void onResource(SourceCode squidResource, Resource sonarResource) {
