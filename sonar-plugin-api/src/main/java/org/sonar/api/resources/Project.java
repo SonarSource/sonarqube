@@ -30,7 +30,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * A class that manipulates Projects in the Sonar way, i.e. mixing MavenProjects with the way it should be analyzed
+ * A class that manipulates Projects in the Sonar way.
  * 
  * @since 1.10
  */
@@ -42,37 +42,37 @@ public class Project extends Resource {
    * @deprecated since version 1.11. Constant moved to CoreProperties
    */
   @Deprecated
-  public static final String PARAM_VERSION = "sonar.projectVersion";
+  public static final String PARAM_VERSION = CoreProperties.PROJECT_VERSION_PROPERTY;
 
   /**
    * @deprecated since version 1.11. Constant moved to CoreProperties
    */
   @Deprecated
-  public static final String PARAM_DATE = "sonar.projectDate";
+  public static final String PARAM_DATE = CoreProperties.PROJECT_DATE_PROPERTY;
 
   /**
    * @deprecated since version 1.11. Constant moved to CoreProperties
    */
   @Deprecated
-  public static final String PARAM_LANGUAGE = "sonar.language";
+  public static final String PARAM_LANGUAGE = CoreProperties.PROJECT_LANGUAGE_PROPERTY;
 
   /**
    * @deprecated since version 1.11. Constant moved to CoreProperties
    */
   @Deprecated
-  public static final String PARAM_DYNAMIC_ANALYSIS = "sonar.dynamicAnalysis";
+  public static final String PARAM_DYNAMIC_ANALYSIS = CoreProperties.DYNAMIC_ANALYSIS_PROPERTY;
 
   /**
    * @deprecated since version 1.11. Constant moved to CoreProperties
    */
   @Deprecated
-  public static final String PARAM_EXCLUSIONS = "sonar.exclusions";
+  public static final String PARAM_EXCLUSIONS = CoreProperties.PROJECT_EXCLUSIONS_PROPERTY;
 
   /**
    * @deprecated since version 1.11. Constant moved to CoreProperties
    */
   @Deprecated
-  public static final String PARAM_REUSE_RULES_CONFIG = "sonar.reuseExistingRulesConfiguration";
+  public static final String PARAM_REUSE_RULES_CONFIG = CoreProperties.REUSE_RULES_CONFIGURATION_PROPERTY;
 
   /**
    * Enumerates the type of possible analysis

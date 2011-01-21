@@ -23,6 +23,7 @@ import org.apache.commons.configuration.*;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.maven.project.MavenProject;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.maven.MavenUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
@@ -31,6 +32,7 @@ import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -68,23 +70,35 @@ public class MavenProjectBuilder {
     return configuration.getString(CoreProperties.PROJECT_BRANCH_PROPERTY, configuration.getString("branch" /* deprecated property */));
   }
 
-
   public void configure(Project project) {
     ProjectConfiguration projectConfiguration = new ProjectConfiguration(databaseSession, project);
     configure(project, projectConfiguration);
   }
 
-
   void configure(Project project, Configuration projectConfiguration) {
     Date analysisDate = loadAnalysisDate(projectConfiguration);
+    DefaultProjectFileSystem fs = new DefaultProjectFileSystem(project);
+    MavenProject pom = project.getPom();
+    if (pom != null) {
+      for (File dir : fs.resolvePaths(pom.getCompileSourceRoots())) {
+        fs.addSourceDir(dir);
+      }
+      for (File dir : fs.resolvePaths(pom.getTestCompileSourceRoots())) {
+        fs.addTestDir(dir);
+      }
+      fs.setBaseDir(pom.getBasedir());
+      fs.setBuildDir(pom.getBuild().getDirectory());
+      projectConfiguration.setProperty("sonar.java.sourceVersion", MavenUtils.getJavaSourceVersion(pom));
+      projectConfiguration.setProperty("sonar.java.targetVersion", MavenUtils.getJavaVersion(pom));
+    }
     project.setConfiguration(projectConfiguration)
         .setExclusionPatterns(loadExclusionPatterns(projectConfiguration))
         .setAnalysisDate(analysisDate)
         .setLatestAnalysis(isLatestAnalysis(project.getKey(), analysisDate))
-        .setAnalysisVersion(loadAnalysisVersion(projectConfiguration, project.getPom()))
+        .setAnalysisVersion(loadAnalysisVersion(projectConfiguration, pom))
         .setAnalysisType(loadAnalysisType(projectConfiguration))
         .setLanguageKey(loadLanguageKey(projectConfiguration))
-        .setFileSystem(new DefaultProjectFileSystem(project));
+        .setFileSystem(fs);
   }
 
   static String[] loadExclusionPatterns(Configuration configuration) {
@@ -104,7 +118,6 @@ public class MavenProjectBuilder {
     return true;
   }
 
-
   Date loadAnalysisDate(Configuration configuration) {
     String formattedDate = configuration.getString(CoreProperties.PROJECT_DATE_PROPERTY);
     if (formattedDate == null) {
@@ -118,7 +131,8 @@ public class MavenProjectBuilder {
       return DateUtils.setMinutes(date, 1);
 
     } catch (ParseException e) {
-      throw new SonarException("The property " + CoreProperties.PROJECT_DATE_PROPERTY + " does not respect the format yyyy-MM-dd (for example 2008-05-23) : " + formattedDate, e);
+      throw new SonarException("The property " + CoreProperties.PROJECT_DATE_PROPERTY
+          + " does not respect the format yyyy-MM-dd (for example 2008-05-23) : " + formattedDate, e);
     }
   }
 

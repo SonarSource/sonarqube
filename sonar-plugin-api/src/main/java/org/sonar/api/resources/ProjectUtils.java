@@ -19,9 +19,11 @@
  */
 package org.sonar.api.resources;
 
-import org.sonar.api.batch.maven.MavenUtils;
-
 /**
+ * FIXME
+ * Actually this class incorrectly named, because provides information not about project, but about Java project.
+ * And seems that only core plugins use this class.
+ * 
  * @since 1.10
  */
 public final class ProjectUtils {
@@ -34,10 +36,20 @@ public final class ProjectUtils {
    * Java version as defined in maven-compiler-plugin
    */
   public static String getJavaVersion(Project project) {
-    return MavenUtils.getJavaVersion(project.getPom());
+    // target version
+    // TODO was return MavenUtils.getJavaVersion(project.getPom());
+    if (project.getConfiguration() != null) {
+      return project.getConfiguration().getString("sonar.java.targetVersion");
+    }
+    return null;
   }
 
   public static String getJavaSourceVersion(Project project) {
-    return MavenUtils.getJavaSourceVersion(project.getPom());
+    // source version
+    // TODO was return MavenUtils.getJavaSourceVersion(project.getPom());
+    if (project.getConfiguration() != null) {
+      return project.getConfiguration().getString("sonar.java.sourceVersion");
+    }
+    return null;
   }
 }

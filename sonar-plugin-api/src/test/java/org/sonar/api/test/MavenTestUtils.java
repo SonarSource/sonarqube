@@ -67,7 +67,16 @@ public final class MavenTestUtils {
     Project project = new Project(pom.getGroupId() + ":" + pom.getArtifactId())
         .setPom(pom)
         .setConfiguration(new MapConfiguration(pom.getProperties()));
-    project.setFileSystem(new DefaultProjectFileSystem(project));
+    DefaultProjectFileSystem fs = new DefaultProjectFileSystem(project);
+    project.setFileSystem(fs);
+    for (File dir : fs.resolvePaths(project.getPom().getCompileSourceRoots())) {
+      fs.addSourceDir(dir);
+    }
+    for (File dir : fs.resolvePaths(project.getPom().getTestCompileSourceRoots())) {
+      fs.addTestDir(dir);
+    }
+    fs.setBaseDir(project.getPom().getBasedir());
+    fs.setBuildDir(project.getPom().getBuild().getDirectory());
     return project;
   }
 

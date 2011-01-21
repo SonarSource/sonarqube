@@ -26,7 +26,7 @@ import org.apache.commons.io.filefilter.*;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.FileFilter;
-import org.sonar.api.batch.maven.MavenUtils;
+import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.WildcardPattern;
 
@@ -38,31 +38,38 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * An implementation  of ProjectFileSystem
- *
+ * An implementation of {@link ProjectFileSystem}.
+ * For internal use only.
+ * 
  * @since 1.10
+ * @TODO inject into container
  */
 public class DefaultProjectFileSystem implements ProjectFileSystem {
 
   private Project project;
   private List<IOFileFilter> filters = Lists.newArrayList();
 
-  /**
-   * Creates a DefaultProjectFileSystem based on a project
-   *
-   * @param project
-   */
+  private File basedir;
+  private File buildDir;
+  private List<File> sourceDirs = Lists.newArrayList();
+  private List<File> testDirs = Lists.newArrayList();
+
   public DefaultProjectFileSystem(Project project) {
     this.project = project;
   }
 
-  /**
-   * Source encoding. Never null, it returns the default plateform charset if it is not defined in project.
-   */
   public Charset getSourceCharset() {
-    return MavenUtils.getSourceCharset(project.getPom());
+    // TODO was return MavenUtils.getSourceCharset(project.getPom());
+    String encoding = project.getConfiguration().getString("project.build.sourceEncoding");
+    if (StringUtils.isNotEmpty(encoding)) {
+      try {
+        return Charset.forName(encoding);
+      } catch (Exception e) {
+        Logs.INFO.warn("Can not get project charset", e);
+      }
+    }
+    return Charset.defaultCharset();
   }
-
 
   public DefaultProjectFileSystem addFileFilters(List<FileFilter> l) {
     for (FileFilter fileFilter : l) {
@@ -76,80 +83,53 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
     return this;
   }
 
-  /**
-   * Basedir is the project root directory.
-   */
   public File getBasedir() {
-    return project.getPom().getBasedir();
+    // TODO was return project.getPom().getBasedir();
+    return basedir;
   }
 
-  /**
-   * Build directory is by default "target" in maven projects.
-   */
   public File getBuildDir() {
-    return resolvePath(project.getPom().getBuild().getDirectory());
+    // TODO was return resolvePath(project.getPom().getBuild().getDirectory());
+    return buildDir;
   }
 
-  /**
-   * Directory where classes are placed. By default "target/classes" in maven projects.
-   */
   public File getBuildOutputDir() {
-    return resolvePath(project.getPom().getBuild().getOutputDirectory());
+    // TODO was return resolvePath(project.getPom().getBuild().getOutputDirectory());
+    return resolvePath(project.getConfiguration().getString("project.build.outputDirectory"));
   }
 
-  /**
-   * The list of directories for sources
-   */
   public List<File> getSourceDirs() {
-    return resolvePaths(project.getPom().getCompileSourceRoots());
+    return sourceDirs;
   }
 
-  /**
-   * Adds a source directory
-   *
-   * @return the current object
-   */
   public DefaultProjectFileSystem addSourceDir(File dir) {
     if (dir == null) {
       throw new IllegalArgumentException("Can not add null to project source dirs");
     }
-    project.getPom().getCompileSourceRoots().add(0, dir.getAbsolutePath());
+    sourceDirs.add(dir);
     return this;
   }
 
-  /**
-   * The list of directories for tests
-   */
   public List<File> getTestDirs() {
-    return resolvePaths(project.getPom().getTestCompileSourceRoots());
+    return testDirs;
   }
 
-  /**
-   * Adds a test directory
-   *
-   * @return the current object
-   */
   public DefaultProjectFileSystem addTestDir(File dir) {
     if (dir == null) {
       throw new IllegalArgumentException("Can not add null to project test dirs");
     }
-    project.getPom().getTestCompileSourceRoots().add(0, dir.getAbsolutePath());
+    testDirs.add(dir);
     return this;
   }
 
-  /**
-   * @return the directory where reporting is placed. Default is target/sites
-   */
   public File getReportOutputDir() {
-    return resolvePath(project.getPom().getReporting().getOutputDirectory());
+    // TODO was return resolvePath(project.getPom().getReporting().getOutputDirectory());
+    return resolvePath(project.getConfiguration().getString("project.reporting.outputDirectory"));
   }
 
-  /**
-   * @return the Sonar working directory. Default is "target/sonar"
-   */
   public File getSonarWorkingDirectory() {
     try {
-      File dir = new File(project.getPom().getBuild().getDirectory(), "sonar");
+      File dir = new File(getBuildDir(), "sonar");
       FileUtils.forceMkdir(dir);
       return dir;
 
@@ -161,63 +141,47 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
   public File resolvePath(String path) {
     File file = new File(path);
     if (!file.isAbsolute()) {
-      file = new File(project.getPom().getBasedir(), path);
+      file = new File(getBasedir(), path);
     }
     return file;
   }
 
-  private List<File> resolvePaths(List<String> paths) {
-    List<File> result = new ArrayList<File>();
+  // TODO was private
+  public List<File> resolvePaths(List<String> paths) {
+    List<File> result = Lists.newArrayList();
     if (paths != null) {
       for (String path : paths) {
         result.add(resolvePath(path));
       }
     }
-
     return result;
   }
 
-  /**
-   * Gets the list of source files for given languages
-   *
-   * @param langs language filter. If null or empty, will return empty list
-   */
+  @Deprecated
   public List<File> getSourceFiles(Language... langs) {
-    return getFiles(getSourceDirs(), true, langs);
+    return toFiles(mainFiles(langs));
   }
 
-  /**
-   * Gets the list of java source files
-   */
+  @Deprecated
   public List<File> getJavaSourceFiles() {
     return getSourceFiles(Java.INSTANCE);
   }
 
-  /**
-   * @return whether there are java source
-   */
   public boolean hasJavaSourceFiles() {
-    return !getJavaSourceFiles().isEmpty();
+    return !mainFiles(Java.INSTANCE).isEmpty();
   }
 
-  /**
-   * Gets the list of test files for given languages
-   *
-   * @param langs language filter. If null or empty, will return empty list
-   */
+  @Deprecated
   public List<File> getTestFiles(Language... langs) {
-    return getFiles(getTestDirs(), false, langs);
+    return toFiles(testFiles(langs));
   }
 
-  /**
-   * @return whether there are tests files
-   */
   public boolean hasTestFiles(Language lang) {
-    return !getTestFiles(lang).isEmpty();
+    return !testFiles(lang).isEmpty();
   }
 
-  private List<File> getFiles(List<File> directories, boolean applyExclusionPatterns, Language... langs) {
-    List<File> result = new ArrayList<File>();
+  private List<InputFile> getFiles(List<File> directories, boolean applyExclusionPatterns, Language... langs) {
+    List<InputFile> result = Lists.newArrayList();
     if (directories == null) {
       return result;
     }
@@ -229,9 +193,12 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
       if (dir.exists()) {
         IOFileFilter exclusionFilter = new ExclusionFilter(dir, exclusionPatterns);
         IOFileFilter visibleFileFilter = HiddenFileFilter.VISIBLE;
-        List dirFilters = Lists.newArrayList(visibleFileFilter, suffixFilter, exclusionFilter);
+        List<IOFileFilter> dirFilters = Lists.newArrayList(visibleFileFilter, suffixFilter, exclusionFilter);
         dirFilters.addAll(this.filters);
-        result.addAll(FileUtils.listFiles(dir, new AndFileFilter(dirFilters), HiddenFileFilter.VISIBLE));
+        List<File> files = (List<File>) FileUtils.listFiles(dir, new AndFileFilter(dirFilters), HiddenFileFilter.VISIBLE);
+        for (File file : files) {
+          result.add(new DefaultInputFile(dir, file));
+        }
       }
     }
     return result;
@@ -291,11 +258,6 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
     }
   }
 
-  /**
-   * Save data into a new file of Sonar working directory.
-   *
-   * @return the created file
-   */
   public File writeToWorkingDirectory(String content, String fileName) throws IOException {
     return writeToFile(content, getSonarWorkingDirectory(), fileName);
   }
@@ -308,7 +270,7 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
 
   /**
    * getRelativePath("c:/foo/src/my/package/Hello.java", "c:/foo/src") is "my/package/Hello.java"
-   *
+   * 
    * @return null if file is not in dir (including recursive subdirectories)
    */
   public static String getRelativePath(File file, File dir) {
@@ -317,9 +279,10 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
 
   /**
    * getRelativePath("c:/foo/src/my/package/Hello.java", ["c:/bar", "c:/foo/src"]) is "my/package/Hello.java".
-   * <p/>
-   * <p>Relative path is composed of slashes. Windows backslaches are replaced by /</p>
-   *
+   * <p>
+   * Relative path is composed of slashes. Windows backslaches are replaced by /
+   * </p>
+   * 
    * @return null if file is not in dir (including recursive subdirectories)
    */
   public static String getRelativePath(File file, List<File> dirs) {
@@ -361,5 +324,59 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
       }
     }
     return false;
+  }
+
+  private static List<File> toFiles(List<InputFile> files) {
+    List<File> result = Lists.newArrayList();
+    for (InputFile file : files) {
+      result.add(file.getFile());
+    }
+    return result;
+  }
+
+  /**
+   * @since 2.6
+   */
+  public List<InputFile> mainFiles(Language... langs) {
+    return getFiles(getSourceDirs(), true, langs);
+  }
+
+  /**
+   * @since 2.6
+   */
+  public List<InputFile> testFiles(Language... langs) {
+    return getFiles(getTestDirs(), false /* FIXME should be true? */, langs);
+  }
+
+  private class DefaultInputFile implements InputFile {
+    private File basedir;
+    private File file;
+
+    public DefaultInputFile(File basedir, File file) {
+      this.basedir = basedir;
+      this.file = file;
+    }
+
+    public File getBaseDir() {
+      return basedir;
+    }
+
+    public File getFile() {
+      return file;
+    }
+  }
+
+  /**
+   * @since 2.6
+   */
+  public void setBaseDir(File basedir) {
+    this.basedir = basedir;
+  }
+
+  /**
+   * @since 2.6
+   */
+  public void setBuildDir(String path) {
+    this.buildDir = path == null ? resolvePath("target") : resolvePath(path);
   }
 }

@@ -19,6 +19,8 @@
  */
 package org.sonar.api.resources;
 
+import org.sonar.api.BatchExtension;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -26,11 +28,12 @@ import java.util.List;
 
 /**
  * @since 1.10
- * @deprecated since 2.6
  */
-public interface ProjectFileSystem {
+public interface ProjectFileSystem extends BatchExtension {
   /**
-   * Source encoding. It's the default platform charset if it is not defined in the project (Maven property 'project.build.sourceEncoding').
+   * Source encoding.
+   * Never null, it returns the default platform charset if it is not defined in project.
+   * (Maven property 'project.build.sourceEncoding').
    */
   Charset getSourceCharset();
 
@@ -44,18 +47,43 @@ public interface ProjectFileSystem {
    */
   File getBuildDir();
 
+  /**
+   * Directory where classes are placed. It's "${basedir}/target/classes" by default in Maven projects.
+   */
   File getBuildOutputDir();
 
+  /**
+   * The list of directories for sources
+   */
   List<File> getSourceDirs();
 
+  /**
+   * Adds a source directory
+   * 
+   * @return the current object
+   */
   ProjectFileSystem addSourceDir(File dir);
 
+  /**
+   * The list of directories for tests
+   */
   List<File> getTestDirs();
 
+  /**
+   * Adds a test directory
+   * 
+   * @return the current object
+   */
   ProjectFileSystem addTestDir(File dir);
 
+  /**
+   * @return the directory where reporting is placed. Default is target/sites
+   */
   File getReportOutputDir();
 
+  /**
+   * @return the Sonar working directory. Default is "target/sonar"
+   */
   File getSonarWorkingDirectory();
 
   /**
@@ -68,12 +96,19 @@ public interface ProjectFileSystem {
    * Source files, excluding unit tests and files matching project exclusion patterns.
    * 
    * @param langs language filter. Check all files, whatever their language, if null or empty.
+   * @deprecated since 2.6 use {@link #mainFiles(Language...)} instead.
+   *             See http://jira.codehaus.org/browse/SONAR-2126
    */
+  @Deprecated
   List<File> getSourceFiles(Language... langs);
 
   /**
    * Java source files, excluding unit tests and files matching project exclusion patterns. Shortcut for getSourceFiles(Java.INSTANCE)
+   * 
+   * @deprecated since 2.6 use {@link #mainFiles(Language...)} instead.
+   *             See http://jira.codehaus.org/browse/SONAR-2126
    */
+  @Deprecated
   List<File> getJavaSourceFiles();
 
   /**
@@ -83,7 +118,11 @@ public interface ProjectFileSystem {
 
   /**
    * Unit test files, excluding files matching project exclusion patterns.
+   * 
+   * @deprecated since 2.6 use {@link #testFiles(Language...)} instead.
+   *             See http://jira.codehaus.org/browse/SONAR-2126
    */
+  @Deprecated
   List<File> getTestFiles(Language... langs);
 
   /**
@@ -101,4 +140,21 @@ public interface ProjectFileSystem {
   File getFileFromBuildDirectory(String filename);
 
   Resource toResource(File file);
+
+  /**
+   * Source files, excluding unit tests and files matching project exclusion patterns.
+   * 
+   * @param langs language filter. If null or empty, will return empty list
+   * @since 2.6
+   */
+  List<InputFile> mainFiles(Language... langs);
+
+  /**
+   * TODO comment me
+   * 
+   * @param langs language filter. If null or empty, will return empty list
+   * @since 2.6
+   */
+  List<InputFile> testFiles(Language... langs);
+
 }

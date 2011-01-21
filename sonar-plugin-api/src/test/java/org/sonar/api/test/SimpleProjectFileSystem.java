@@ -19,11 +19,7 @@
  */
 package org.sonar.api.test;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.List;
+import org.sonar.api.resources.InputFile;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.CharEncoding;
@@ -32,6 +28,12 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.List;
 
 public class SimpleProjectFileSystem implements ProjectFileSystem {
 
@@ -127,6 +129,20 @@ public class SimpleProjectFileSystem implements ProjectFileSystem {
   }
 
   public Resource toResource(File file) {
+    return null;
+  }
+
+  /**
+   * @since 2.6
+   */
+  public List<InputFile> mainFiles(Language... lang) {
+    return null;
+  }
+
+  /**
+   * @since 2.6
+   */
+  public List<InputFile> testFiles(Language... lang) {
     return null;
   }
 }
