@@ -31,7 +31,7 @@
               <clean>true</clean>
             </configuration>
             <goals>
-              <goal>start</goal>
+              <goal>start-war</goal>
             </goals>
           </execution>
           <execution>
@@ -48,7 +48,7 @@
             <id>stop-server</id>
             <phase>post-integration-test</phase>
             <goals>
-              <goal>stop</goal>
+              <goal>stop-war</goal>
             </goals>
           </execution>
         </executions>
