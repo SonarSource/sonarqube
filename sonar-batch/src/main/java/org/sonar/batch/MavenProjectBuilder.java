@@ -89,7 +89,9 @@ public class MavenProjectBuilder {
       fs.setBaseDir(pom.getBasedir());
       fs.setBuildDir(pom.getBuild().getDirectory());
       projectConfiguration.setProperty("project.build.outputDirectory", pom.getBuild().getOutputDirectory());
-      projectConfiguration.setProperty("project.reporting.outputDirectory", pom.getReporting().getOutputDirectory());
+      if (pom.getReporting() != null) {
+        projectConfiguration.setProperty("project.reporting.outputDirectory", pom.getReporting().getOutputDirectory());
+      }
       projectConfiguration.setProperty("sonar.java.sourceVersion", MavenUtils.getJavaSourceVersion(pom));
       projectConfiguration.setProperty("sonar.java.targetVersion", MavenUtils.getJavaVersion(pom));
     }

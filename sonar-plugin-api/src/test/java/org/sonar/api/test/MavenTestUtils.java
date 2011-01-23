@@ -76,7 +76,9 @@ public final class MavenTestUtils {
       fs.addTestDir(dir);
     }
     project.getConfiguration().setProperty("project.build.outputDirectory", pom.getBuild().getOutputDirectory());
-    project.getConfiguration().setProperty("project.reporting.outputDirectory", pom.getReporting().getOutputDirectory());
+    if (pom.getReporting() != null) {
+      project.getConfiguration().setProperty("project.reporting.outputDirectory", pom.getReporting().getOutputDirectory());
+    }
     fs.setBaseDir(project.getPom().getBasedir());
     fs.setBuildDir(project.getPom().getBuild().getDirectory());
     return project;
