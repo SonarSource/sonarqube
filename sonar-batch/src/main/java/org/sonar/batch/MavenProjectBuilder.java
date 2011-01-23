@@ -32,7 +32,6 @@ import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 
-import java.io.File;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -80,12 +79,6 @@ public class MavenProjectBuilder {
     DefaultProjectFileSystem fs = new DefaultProjectFileSystem(project);
     MavenProject pom = project.getPom();
     if (pom != null) {
-      for (File dir : fs.resolvePaths(pom.getCompileSourceRoots())) {
-        fs.addSourceDir(dir);
-      }
-      for (File dir : fs.resolvePaths(pom.getTestCompileSourceRoots())) {
-        fs.addTestDir(dir);
-      }
       fs.setBaseDir(pom.getBasedir());
       fs.setBuildDir(pom.getBuild().getDirectory());
       projectConfiguration.setProperty("project.build.outputDirectory", pom.getBuild().getOutputDirectory());

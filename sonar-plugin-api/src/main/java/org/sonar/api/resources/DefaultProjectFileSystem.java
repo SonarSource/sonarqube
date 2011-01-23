@@ -51,7 +51,6 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
 
   private File basedir;
   private File buildDir;
-  private List<File> sourceDirs = Lists.newArrayList();
   private List<File> testDirs = Lists.newArrayList();
 
   public DefaultProjectFileSystem(Project project) {
@@ -98,27 +97,33 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
     return resolvePath(project.getConfiguration().getString("project.build.outputDirectory"));
   }
 
+  /**
+   * Maven can modify source directories during Sonar execution - see MavenPhaseExecutor.
+   */
   public List<File> getSourceDirs() {
-    return sourceDirs;
+    return resolvePaths(project.getPom().getCompileSourceRoots());
   }
 
   public DefaultProjectFileSystem addSourceDir(File dir) {
     if (dir == null) {
       throw new IllegalArgumentException("Can not add null to project source dirs");
     }
-    sourceDirs.add(dir);
+    project.getPom().getCompileSourceRoots().add(0, dir.getAbsolutePath());
     return this;
   }
 
+  /**
+   * Maven can modify test directories during Sonar execution - see MavenPhaseExecutor.
+   */
   public List<File> getTestDirs() {
-    return testDirs;
+    return resolvePaths(project.getPom().getTestCompileSourceRoots());
   }
 
   public DefaultProjectFileSystem addTestDir(File dir) {
     if (dir == null) {
       throw new IllegalArgumentException("Can not add null to project test dirs");
     }
-    testDirs.add(dir);
+    project.getPom().getTestCompileSourceRoots().add(0, dir.getAbsolutePath());
     return this;
   }
 

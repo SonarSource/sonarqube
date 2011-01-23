@@ -69,12 +69,6 @@ public final class MavenTestUtils {
         .setConfiguration(new MapConfiguration(pom.getProperties()));
     DefaultProjectFileSystem fs = new DefaultProjectFileSystem(project);
     project.setFileSystem(fs);
-    for (File dir : fs.resolvePaths(project.getPom().getCompileSourceRoots())) {
-      fs.addSourceDir(dir);
-    }
-    for (File dir : fs.resolvePaths(project.getPom().getTestCompileSourceRoots())) {
-      fs.addTestDir(dir);
-    }
     project.getConfiguration().setProperty("project.build.outputDirectory", pom.getBuild().getOutputDirectory());
     if (pom.getReporting() != null) {
       project.getConfiguration().setProperty("project.reporting.outputDirectory", pom.getReporting().getOutputDirectory());
