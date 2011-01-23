@@ -19,10 +19,6 @@
  */
 package org.sonar.batch;
 
-import org.sonar.batch.bootstrapper.ProjectDefinition;
-
-import org.sonar.batch.bootstrapper.Reactor;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.maven.model.Reporting;
@@ -30,6 +26,8 @@ import org.apache.maven.project.MavenProject;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.bootstrapper.ProjectDefinition;
+import org.sonar.batch.bootstrapper.Reactor;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,20 +82,14 @@ public class ProjectTree {
     pom.setReporting(reporting);
 
     // Configure source directories
-    // TODO
-    // for (FileSystemDirectory dir : project.getDirs()) {
-    // if (dir.getNature() == Natures.MAIN) {
-    // pom.addCompileSourceRoot(dir.getLocation().getAbsolutePath());
-    // }
-    // }
+    for (String dir : project.getSourceDirs()) {
+      pom.addCompileSourceRoot(dir);
+    }
 
     // Configure test directories
-    // TODO
-    // for (FileSystemDirectory dir : project.getDirs()) {
-    // if (dir.getNature() == Natures.TEST) {
-    // pom.addTestCompileSourceRoot(dir.getLocation().getAbsolutePath());
-    // }
-    // }
+    for (String dir : project.getSourceDirs()) {
+      pom.addTestCompileSourceRoot(dir);
+    }
 
     return pom;
   }

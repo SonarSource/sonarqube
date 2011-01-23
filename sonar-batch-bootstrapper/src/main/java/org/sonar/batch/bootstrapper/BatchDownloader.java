@@ -66,6 +66,8 @@ public class BatchDownloader {
   }
 
   /**
+   * To use this method version of Sonar should be at least 2.6.
+   * 
    * @return list of downloaded files
    */
   public List<File> downloadBatchFiles(File toDir) {

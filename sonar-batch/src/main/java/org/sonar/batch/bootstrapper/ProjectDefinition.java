@@ -19,9 +19,11 @@
  */
 package org.sonar.batch.bootstrapper;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Defines project in a form suitable to bootstrap Sonar batch.
@@ -34,6 +36,8 @@ public class ProjectDefinition {
 
   private File baseDir;
   private Configuration properties;
+  private List<String> sourceDirs = Lists.newArrayList();
+  private List<String> testDirs = Lists.newArrayList();
 
   /**
    * @param baseDir project base directory
@@ -52,4 +56,27 @@ public class ProjectDefinition {
     return properties;
   }
 
+  public List<String> getSourceDirs() {
+    return sourceDirs;
+  }
+
+  /**
+   * @param path path to directory with main sources.
+   *          It can be absolute or relative to project directory.
+   */
+  public void addSourceDir(String path) {
+    sourceDirs.add(path);
+  }
+
+  public List<String> getTestDirs() {
+    return testDirs;
+  }
+
+  /**
+   * @param path path to directory with test sources.
+   *          It can be absolute or relative to project directory.
+   */
+  public void addTestDir(String path) {
+    testDirs.add(path);
+  }
 }
