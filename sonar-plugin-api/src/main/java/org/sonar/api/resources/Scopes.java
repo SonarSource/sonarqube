@@ -19,26 +19,68 @@
  */
 package org.sonar.api.resources;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
- * Resource scopes are used to group resources. They relate to persisted resources only (project, directories and files).
- * They are generally used in UI to display/hide some services or in web services.
+ * Resource scopes are used to group some types of resources. For example Java methods, Flex methods, C functions
+ * and Cobol paragraphs are grouped in the scope "block unit".
+ * 
+ * Scopes are generally used in UI to display/hide some services or in web services.
  *
- * Resource scopes are not extensible by plugins. 
+ * Scopes are not extensible by plugins.
+ *
+ * @since 2.6
  */
-public interface Scopes {
+public final class Scopes {
+
+  private Scopes() {
+    // only static methods
+  }
   /**
    * For example view, subview, project, module or library. Persisted in database.
    */
-  String PROJECT = "PRJ";
+  public static final String PROJECT = "PRJ";
 
   /**
-   * For example directory or Java package. Persisted in database.
+   * For example directory or Java package. Persisted in database. A more generic term for this scope could
+   * be "namespace"
    */
-  String DIRECTORY = "DIR";
+  public static final String DIRECTORY = "DIR";
 
   /**
-   * For example a Java file. Persisted in database.
+   * For example a Java file. Persisted in database. A more generic term for this scope could
+   * be "compilation unit". It's the lowest scope in file system units.
    */
-  String FILE = "FIL";
+  public static final String FILE = "FIL";
 
+  /**
+   * Types like Java classes/interfaces. Not persisted in database.
+   */
+  public static final String TYPE = "TYP";
+
+  /**
+   * Block units like methods, functions or Cobol paragraphs.
+   */
+  public static final String BLOCK_UNIT = "BLU";
+
+
+  public static boolean isProject(final Resource resource) {
+    return resource!=null && StringUtils.equals(PROJECT, resource.getScope());
+  }
+
+  public static boolean isDirectory(final Resource resource) {
+    return resource!=null && StringUtils.equals(DIRECTORY, resource.getScope());
+  }
+
+  public static boolean isFile(final Resource resource) {
+    return resource!=null && StringUtils.equals(FILE, resource.getScope());
+  }
+
+  public static boolean isType(final Resource resource) {
+    return resource!=null && StringUtils.equals(TYPE, resource.getScope());
+  }
+
+  public static boolean isBlockUnit(final Resource resource) {
+    return resource!=null && StringUtils.equals(BLOCK_UNIT, resource.getScope());
+  }
 }

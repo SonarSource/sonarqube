@@ -19,42 +19,86 @@
  */
 package org.sonar.api.resources;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * The qualifier determines the exact type of a resource.
- * Plugins can use their own qualifiers.
+ * Plugins can define their own qualifiers.
+ *
  * @since 2.6
  */
-public interface Qualifiers {
+public final class Qualifiers {
 
-  String VIEW = "VW";
-  String SUBVIEW = "SVW";
+  private Qualifiers() {
+    // only static methods
+  }
+
+  /**
+   * Root views. Scope of views is Scopes.PROJECT
+   */
+  public static final String VIEW = "VW";
+
+  /**
+   * Sub-views, defined in root views. Scope of sub-views is Scopes.PROJECT
+   */
+  public static final String SUBVIEW = "SVW";
 
   /**
    * Library, for example a JAR dependency of Java projects.
-   * Scope is Scopes.PROJECT
+   * Scope of libraries is Scopes.PROJECT
    */
-  String LIBRARY = "LIB";
+  public static final String LIBRARY = "LIB";
 
   /**
    * Single project or root of multi-modules projects
    * Scope is Scopes.PROJECT
    */
-  String PROJECT = "TRK";
+  public static final String PROJECT = "TRK";
 
   /**
-   * Module of multi-modules project. It's sometimes called sub-project.
-   * Scope is Scopes.PROJECT
+   * Module of a multi-modules project. It's sometimes called "sub-project".
+   * Scope of modules is Scopes.PROJECT
    */
-  String MODULE = "BRC";
+  public static final String MODULE = "BRC";
 
+  public static final String PACKAGE = "PAC";
+  public static final String DIRECTORY = "DIR";
+  public static final String FILE = "FIL";
+  public static final String CLASS = "CLA";
+  public static final String PARAGRAPH = "PAR";
+  public static final String METHOD = "MET";
+  public static final String FIELD = "FLD";
 
-  String PACKAGE = "PAC";
-  String DIRECTORY = "DIR";
-  String FILE = "FIL";
-  String CLASS = "CLA";
-  String METHOD = "MET";
-  String FIELD = "FLD";
-  
-  // ugly, should be replaced by a nature
-  String UNIT_TEST_CLASS = "UTS";
+  // ugly, should be replaced by "natures"
+  public static final String UNIT_TEST_FILE = "UTS";
+
+  public static boolean isView(final Resource resource, final boolean acceptSubViews) {
+    boolean isView = false;
+    if (resource != null) {
+      isView = StringUtils.equals(VIEW, resource.getQualifier());
+      if (!isView && acceptSubViews) {
+        isView = StringUtils.equals(SUBVIEW, resource.getQualifier());
+      }
+    }
+    return isView;
+  }
+
+  public static boolean isSubview(final Resource resource) {
+    return resource != null && StringUtils.equals(SUBVIEW, resource.getScope());
+  }
+
+  public static boolean isProject(final Resource resource, final boolean acceptModules) {
+    boolean isProject = false;
+    if (resource != null) {
+      isProject = StringUtils.equals(PROJECT, resource.getQualifier());
+      if (!isProject && acceptModules) {
+        isProject = StringUtils.equals(MODULE, resource.getQualifier());
+      }
+    }
+    return isProject;
+  }
+
+  public static boolean isModule(final Resource resource) {
+    return resource != null && StringUtils.equals(MODULE, resource.getQualifier());
+  }
 }

@@ -26,22 +26,95 @@ package org.sonar.api.resources;
  */
 public abstract class Resource<PARENT extends Resource> {
 
-  public static final String SCOPE_SET = "PRJ";
-  public static final String SCOPE_SPACE = "DIR";
-  public static final String SCOPE_ENTITY = "FIL";
+  /**
+   * @deprecated since 2.6. Use Scopes.PROJECT.
+   */
+  @Deprecated
+  public static final String SCOPE_SET = Scopes.PROJECT;
 
-  public static final String QUALIFIER_VIEW = "VW";
-  public static final String QUALIFIER_SUBVIEW = "SVW";
-  public static final String QUALIFIER_LIB = "LIB";
-  public static final String QUALIFIER_PROJECT = "TRK";
-  public static final String QUALIFIER_MODULE = "BRC";
-  public static final String QUALIFIER_PACKAGE = "PAC";
-  public static final String QUALIFIER_DIRECTORY = "DIR";
-  public static final String QUALIFIER_FILE = "FIL";
-  public static final String QUALIFIER_CLASS = "CLA";
-  public static final String QUALIFIER_FIELD = "FLD";
-  public static final String QUALIFIER_METHOD = "MET";
-  public static final String QUALIFIER_UNIT_TEST_CLASS = "UTS";
+  /**
+   * @deprecated since 2.6. Use Scopes.DIRECTORY.
+   */
+  @Deprecated
+  public static final String SCOPE_SPACE = Scopes.DIRECTORY;
+
+  /**
+   * @deprecated since 2.6. Use Scopes.FILE.
+   */
+  @Deprecated
+  public static final String SCOPE_ENTITY = Scopes.FILE;
+
+  /**
+   * @deprecated since 2.6. Use Qualifiers.VIEW.
+   */
+  @Deprecated
+  public static final String QUALIFIER_VIEW = Qualifiers.VIEW;
+
+  /**
+   * @deprecated since 2.6. Use Qualifiers.SUBVIEW.
+   */
+  @Deprecated
+  public static final String QUALIFIER_SUBVIEW = Qualifiers.SUBVIEW;
+
+  /**
+   * @deprecated since 2.6. Use Qualifiers.LIBRARY.
+   */
+  @Deprecated
+  public static final String QUALIFIER_LIB = Qualifiers.LIBRARY;
+
+  /**
+   * @deprecated since 2.6. Use Qualifiers.PROJECT.
+   */
+  @Deprecated
+  public static final String QUALIFIER_PROJECT = Qualifiers.PROJECT;
+
+  /**
+   * @deprecated since 2.6. Use Qualifiers.MODULE.
+   */
+  @Deprecated
+  public static final String QUALIFIER_MODULE = Qualifiers.MODULE;
+
+  /**
+   * @deprecated since 2.6. Use Qualifiers.PACKAGE.
+   */
+  @Deprecated
+  public static final String QUALIFIER_PACKAGE = Qualifiers.PACKAGE;
+
+  /**
+   * @deprecated since 2.6. Use Qualifiers.DIRECTORY.
+   */
+  @Deprecated
+  public static final String QUALIFIER_DIRECTORY = Qualifiers.DIRECTORY;
+
+  /**
+   * @deprecated since 2.6. Use Qualifiers.FILE.
+   */
+  @Deprecated
+  public static final String QUALIFIER_FILE = Qualifiers.FILE;
+
+  /**
+   * @deprecated since 2.6. Use Qualifiers.CLASS.
+   */
+  @Deprecated
+  public static final String QUALIFIER_CLASS = Qualifiers.CLASS;
+
+  /**
+   * @deprecated since 2.6. Use Qualifiers.FIELD.
+   */
+  @Deprecated
+  public static final String QUALIFIER_FIELD = Qualifiers.FIELD;
+
+  /**
+   * @deprecated since 2.6. Use Qualifiers.METHOD.
+   */
+  @Deprecated
+  public static final String QUALIFIER_METHOD = Qualifiers.METHOD;
+
+  /**
+   * @deprecated since 2.6. Use Qualifiers.UNIT_TEST_FILE.
+   */
+  @Deprecated
+  public static final String QUALIFIER_UNIT_TEST_CLASS = Qualifiers.UNIT_TEST_FILE;
 
   private Integer id = null;
 

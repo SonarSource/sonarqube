@@ -117,7 +117,7 @@ public final class ResourceUtils {
    * @return whether a resource is a unit test class
    */
   public static boolean isUnitTestClass(Resource resource) {
-    return Resource.QUALIFIER_UNIT_TEST_CLASS.equals(resource.getQualifier());
+    return Qualifiers.UNIT_TEST_FILE.equals(resource.getQualifier());
   }
 
   /**

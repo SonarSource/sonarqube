@@ -158,7 +158,7 @@ public class JavaFile extends Resource<JavaPackage> {
    * @return QUALIFIER_UNIT_TEST_CLASS or QUALIFIER_CLASS depending whether it is a unit test class
    */
   public String getQualifier() {
-    return unitTest ? Resource.QUALIFIER_UNIT_TEST_CLASS : Resource.QUALIFIER_CLASS;
+    return unitTest ? Qualifiers.UNIT_TEST_FILE : Resource.QUALIFIER_CLASS;
   }
 
   /**
