@@ -29,7 +29,10 @@ import org.sonar.squid.api.SourceCode;
  * The extension point to access the Squid data tree
  *
  * @since 1.11
+ * @deprecated since 2.6. Data on classes/methods are now injected into sonar index. There's no need to use
+ * this component anymore.
  */
+@Deprecated
 public interface SquidSearch extends BatchExtension {
   /**
    * Returns a list of SourceCode objects base a set of queries given
