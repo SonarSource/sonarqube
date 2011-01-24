@@ -63,16 +63,18 @@ public class ProjectTree {
   private static MavenProject createInMemoryPom(ProjectDefinition project) {
     MavenProject pom = new MavenProject();
 
-    String key = project.getProperties().getString("project.key"); // TODO constant
+    String key = project.getProperties().getProperty("project.key"); // TODO constant
     String[] keys = key.split(":");
     pom.setGroupId(keys[0]);
     pom.setArtifactId(keys[1]);
     pom.setVersion("0.1-SNAPSHOT"); // TODO hard-coded value
 
+    pom.getModel().setProperties(project.getProperties());
+
     pom.setArtifacts(Collections.EMPTY_SET);
 
     // Configure fake directories
-    String buildDirectory = project.getProperties().getString("project.build.directory");
+    String buildDirectory = project.getProperties().getProperty("project.build.directory");
     File sonarDir = new File(buildDirectory, "sonar");
     pom.setFile(new File(sonarDir, "fake-pom.xml"));
     pom.getBuild().setDirectory(buildDirectory);

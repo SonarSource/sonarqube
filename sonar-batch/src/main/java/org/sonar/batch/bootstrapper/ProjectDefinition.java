@@ -20,10 +20,10 @@
 package org.sonar.batch.bootstrapper;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.configuration.Configuration;
 
 import java.io.File;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Defines project in a form suitable to bootstrap Sonar batch.
@@ -35,7 +35,7 @@ import java.util.List;
 public class ProjectDefinition {
 
   private File baseDir;
-  private Configuration properties;
+  private Properties properties;
   private List<String> sourceDirs = Lists.newArrayList();
   private List<String> testDirs = Lists.newArrayList();
 
@@ -43,7 +43,7 @@ public class ProjectDefinition {
    * @param baseDir project base directory
    * @param properties project properties
    */
-  public ProjectDefinition(File baseDir, Configuration properties) {
+  public ProjectDefinition(File baseDir, Properties properties) {
     this.baseDir = baseDir;
     this.properties = properties;
   }
@@ -52,7 +52,7 @@ public class ProjectDefinition {
     return baseDir;
   }
 
-  public Configuration getProperties() {
+  public Properties getProperties() {
     return properties;
   }
 
