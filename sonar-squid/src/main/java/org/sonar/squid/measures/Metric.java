@@ -29,8 +29,6 @@ public enum Metric implements MetricDef {
       new NoAggregationFormula()), INSTABILITY(new InstabilityFormula()), DISTANCE(new DistanceFormula()), DIT(new NoAggregationFormula()),
   RFC(new NoAggregationFormula()), NOC(new NoAggregationFormula()), LCOM4(new NoAggregationFormula()), LCOM4_BLOCKS;
 
-  private double initValue = 0;
-
   private CalculatedMetricFormula formula = null;
 
   private AggregationFormula aggregationFormula = new SumAggregationFormula();
@@ -50,10 +48,6 @@ public enum Metric implements MetricDef {
 
   Metric(CalculatedMetricFormula formula) {
     this.formula = formula;
-  }
-
-  public double getInitValue() {
-    return initValue;
   }
 
   public String getName() {
@@ -76,7 +70,4 @@ public enum Metric implements MetricDef {
     return formula;
   }
 
-  public AggregationFormula getAggregationFormula() {
-    return aggregationFormula;
-  }
 }

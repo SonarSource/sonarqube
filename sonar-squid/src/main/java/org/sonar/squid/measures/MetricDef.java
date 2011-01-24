@@ -23,8 +23,6 @@ public interface MetricDef {
 
   String getName();
 
-  double getInitValue();
-
   boolean isCalculatedMetric();
 
   boolean aggregateIfThereIsAlreadyAValue();
@@ -32,6 +30,4 @@ public interface MetricDef {
   boolean isThereAggregationFormula();
 
   CalculatedMetricFormula getCalculatedMetricFormula();
-
-  AggregationFormula getAggregationFormula();
 }
