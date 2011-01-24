@@ -30,24 +30,6 @@ public abstract class Resource<PARENT extends Resource> {
   public static final String SCOPE_SPACE = "DIR";
   public static final String SCOPE_ENTITY = "FIL";
 
-  /**
-   * @deprecated since 1.11, use {@link #SCOPE_SET} instead.
-   */
-  @Deprecated
-  public static final String SCOPE_PROJECT = SCOPE_SET;
-
-  /**
-   * @deprecated since 1.11, use {@link #SCOPE_SPACE} instead.
-   */
-  @Deprecated
-  public static final String SCOPE_DIRECTORY = SCOPE_SPACE;
-
-  /**
-   * @deprecated since 1.11, use {@link #SCOPE_ENTITY} instead.
-   */
-  @Deprecated
-  public static final String SCOPE_FILE = SCOPE_ENTITY;
-
   public static final String QUALIFIER_VIEW = "VW";
   public static final String QUALIFIER_SUBVIEW = "SVW";
   public static final String QUALIFIER_LIB = "LIB";
@@ -60,18 +42,6 @@ public abstract class Resource<PARENT extends Resource> {
   public static final String QUALIFIER_FIELD = "FLD";
   public static final String QUALIFIER_METHOD = "MET";
   public static final String QUALIFIER_UNIT_TEST_CLASS = "UTS";
-
-  /**
-   * @deprecated since 1.11, use {@link #QUALIFIER_PROJECT} instead.
-   */
-  @Deprecated
-  public static final String QUALIFIER_PROJECT_TRUNK = QUALIFIER_PROJECT;
-
-  /**
-   * @deprecated since 1.11, use {@link #QUALIFIER_MODULE} instead.
-   */
-  @Deprecated
-  public static final String QUALIFIER_PROJECT_BRANCH = QUALIFIER_MODULE;
 
   private Integer id = null;
 
