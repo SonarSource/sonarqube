@@ -26,7 +26,7 @@ import java.io.File;
  */
 public interface InputFile {
 
-  File getBaseDir();
+  File getFileBaseDir();
 
   File getFile();
 

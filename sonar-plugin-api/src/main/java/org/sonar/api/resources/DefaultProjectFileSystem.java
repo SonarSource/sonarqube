@@ -362,7 +362,7 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
       this.file = file;
     }
 
-    public File getBaseDir() {
+    public File getFileBaseDir() {
       return basedir;
     }
 
