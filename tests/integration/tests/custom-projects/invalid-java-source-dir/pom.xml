@@ -1,0 +1,24 @@
+<!-- this maven file is used by sonar only. Project is built with ant (see build.xml). -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.sonar.tests</groupId>
+  <artifactId>invalid-java-source-dir</artifactId>
+  <name>invalid-java-source-dir</name>
+  <version>1.0-SNAPSHOT</version>  
+  <description>
+	SONAR-791 When the source directory is not exactly the java package root, Sonar should stop the analysis.
+	See http://jira.codehaus.org/browse/SONAR-791
+  </description>
+  
+  <build>
+	<!-- source directory should be src/main/java. 
+	     The class com.foo.Bar should not be considered in Sonar as the class main.java.com.foo.Bar
+	-->
+  	<sourceDirectory>src</sourceDirectory>
+  </build> 
+
+  <properties>
+  	<sonar.dynamicAnalysis>false</sonar.dynamicAnalysis>
+  </properties>
+</project>
