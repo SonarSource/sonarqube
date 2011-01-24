@@ -87,7 +87,7 @@ public class ProjectTree {
     }
 
     // Configure test directories
-    for (String dir : project.getSourceDirs()) {
+    for (String dir : project.getTestDirs()) {
       pom.addTestCompileSourceRoot(dir);
     }
 
