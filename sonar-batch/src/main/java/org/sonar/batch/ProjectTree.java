@@ -21,11 +21,14 @@ package org.sonar.batch;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.model.Reporting;
 import org.apache.maven.project.MavenProject;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrapper.ProjectDefinition;
 import org.sonar.batch.bootstrapper.Reactor;
 
@@ -60,27 +63,34 @@ public class ProjectTree {
     return new MavenReactor(mavenProjects);
   }
 
-  private static MavenProject createInMemoryPom(ProjectDefinition project) {
-    MavenProject pom = new MavenProject();
+  static MavenProject createInMemoryPom(final ProjectDefinition project) {
+    MavenProject pom = new MavenProject() {
+      /**
+       * This allows to specify base directory without specifying location of a pom.xml
+       */
+      public File getBasedir() {
+        return project.getBaseDir();
+      };
+    };
 
-    String key = project.getProperties().getProperty("project.key"); // TODO constant
+    Properties properties = project.getProperties();
+
+    String key = getPropertyOrDie(properties, CoreProperties.PROJECT_KEY_PROPERTY);
     String[] keys = key.split(":");
     pom.setGroupId(keys[0]);
     pom.setArtifactId(keys[1]);
-    pom.setVersion("0.1-SNAPSHOT"); // TODO hard-coded value
+    pom.setVersion(getPropertyOrDie(properties, CoreProperties.PROJECT_VERSION_PROPERTY));
 
-    pom.getModel().setProperties(project.getProperties());
+    pom.getModel().setProperties(properties);
 
     pom.setArtifacts(Collections.EMPTY_SET);
 
     // Configure fake directories
-    String buildDirectory = project.getProperties().getProperty("project.build.directory");
-    File sonarDir = new File(buildDirectory, "sonar");
-    pom.setFile(new File(sonarDir, "fake-pom.xml"));
+    String buildDirectory = getPropertyOrDie(properties, "project.build.directory");
     pom.getBuild().setDirectory(buildDirectory);
     pom.getBuild().setOutputDirectory(buildDirectory + "/classes"); // TODO hard-coded value
     Reporting reporting = new Reporting();
-    reporting.setOutputDirectory(buildDirectory + "/target/site"); // TODO hard-coded value
+    reporting.setOutputDirectory(buildDirectory + "/site"); // TODO hard-coded value
     pom.setReporting(reporting);
 
     // Configure source directories
@@ -94,6 +104,14 @@ public class ProjectTree {
     }
 
     return pom;
+  }
+
+  private static String getPropertyOrDie(Properties properties, String key) {
+    String value = properties.getProperty(key);
+    if (StringUtils.isBlank(value)) {
+      throw new SonarException("Property '" + key + "' must be specified");
+    }
+    return value;
   }
 
   /**

@@ -33,6 +33,11 @@ public interface CoreProperties {
   String PROJECT_VERSION_PROPERTY = "sonar.projectVersion";
 
   /**
+   * @since 2.6
+   */
+  String PROJECT_KEY_PROPERTY = "sonar.projectKey";
+
+  /**
    * Value format is yyyy-MM-dd
    */
   String PROJECT_DATE_PROPERTY = "sonar.projectDate";
