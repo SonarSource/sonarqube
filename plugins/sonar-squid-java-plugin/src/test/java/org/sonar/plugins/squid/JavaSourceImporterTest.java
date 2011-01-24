@@ -17,16 +17,10 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.sensors;
+package org.sonar.plugins.squid;
 
 import org.apache.commons.io.FileUtils;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-
 import org.junit.Test;
-import org.sonar.api.batch.ResourceCreationLock;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Resource;
@@ -36,11 +30,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
 public class JavaSourceImporterTest {
 
   @Test
-  public void shouldCreateResource() throws IOException {
-    JavaSourceImporter importer = new JavaSourceImporter(mock(ResourceCreationLock.class));
+  public void shouldDefineMainFile() throws IOException {
+    JavaSourceImporter importer = new JavaSourceImporter();
     Resource clazz = importer.createResource(new File(newDir("source1"), "/MyClass.java"), Arrays.asList(newDir("source1")), false);
     assertThat(clazz, is(JavaFile.class));
     assertThat(clazz.getKey(), is(JavaPackage.DEFAULT_PACKAGE_NAME + ".MyClass"));
@@ -48,19 +45,11 @@ public class JavaSourceImporterTest {
   }
 
   @Test
-  public void shouldCreateTestResource() throws IOException {
-    JavaSourceImporter importer = new JavaSourceImporter(mock(ResourceCreationLock.class));
+  public void shouldDefineTestFile() throws IOException {
+    JavaSourceImporter importer = new JavaSourceImporter();
     Resource resource = importer.createResource(new File(newDir("tests"), "/MyClassTest.java"), Arrays.asList(newDir("tests")), true);
     assertThat(resource, is(JavaFile.class));
     assertThat(ResourceUtils.isUnitTestClass(resource), is(true));
-  }
-
-  @Test
-  public void doNotSaveInnerClasses() throws IOException {
-    // example : https://svn.apache.org/repos/asf/geronimo/server/trunk/plugins/corba/geronimo-corba/src/test/java/org/apache/geronimo/corba/compiler/other/Generic$Interface.java
-    JavaSourceImporter importer = new JavaSourceImporter(mock(ResourceCreationLock.class));
-    Resource resource = importer.createResource(new File(newDir("tests"), "/Generic$Interface.java"), Arrays.asList(newDir("tests")), true);
-    assertThat(resource, nullValue());
   }
 
   private File newDir(String relativePath) throws IOException {

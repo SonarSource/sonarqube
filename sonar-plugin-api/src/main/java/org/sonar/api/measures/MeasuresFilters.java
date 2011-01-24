@@ -45,7 +45,11 @@ public final class MeasuresFilters {
   }
 
   public static MeasuresFilter<Measure> metric(final Metric metric) {
-    return new MetricFilter<Measure>(metric) {
+    return metric(metric.getKey());
+  }
+
+  public static MeasuresFilter<Measure> metric(final String metricKey) {
+    return new MetricFilter<Measure>(metricKey) {
 
       public Measure filter(Collection<Measure> measures) {
         if (measures == null) {
@@ -53,7 +57,7 @@ public final class MeasuresFilters {
         }
         for (Measure measure : measures) {
           if (measure.getClass().equals(Measure.class) &&
-              measure.getMetricKey().equals(metric.getKey()) &&
+              measure.getMetricKey().equals(metricKey) &&
               measure.getCharacteristic()==null) {
             return measure;
           }
@@ -163,6 +167,10 @@ public final class MeasuresFilters {
 
     protected MetricFilter(Metric metric) {
       this.metricKey = metric.getKey();
+    }
+
+    protected MetricFilter(String metricKey) {
+      this.metricKey = metricKey;
     }
 
     public String filterOnMetricKey() {

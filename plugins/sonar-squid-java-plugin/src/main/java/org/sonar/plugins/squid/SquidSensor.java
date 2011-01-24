@@ -26,7 +26,9 @@ import org.sonar.api.checks.AnnotationCheckFactory;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
+import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
+import org.sonar.java.api.JavaUtils;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -34,20 +36,22 @@ import java.util.Collection;
 import java.util.List;
 
 @Phase(name = Phase.Name.PRE)
-/* TODO is the flag still used ? */
-@DependedUpon(value = Sensor.FLAG_SQUID_ANALYSIS, classes = NoSonarFilter.class)
+@DependsUpon(JavaUtils.BARRIER_BEFORE_SQUID)
+@DependedUpon(value = JavaUtils.BARRIER_AFTER_SQUID, classes = NoSonarFilter.class)
 public class SquidSensor implements Sensor {
 
   private SquidSearchProxy proxy;
   private NoSonarFilter noSonarFilter;
   private RulesProfile profile;
   private ProjectClasspath projectClasspath;
+  private ResourceCreationLock lock;
 
-  public SquidSensor(RulesProfile profile, SquidSearchProxy proxy, NoSonarFilter noSonarFilter, ProjectClasspath projectClasspath) {
+  public SquidSensor(RulesProfile profile, SquidSearchProxy proxy, NoSonarFilter noSonarFilter, ProjectClasspath projectClasspath, ResourceCreationLock lock) {
     this.proxy = proxy;
     this.noSonarFilter = noSonarFilter;
     this.profile = profile;
     this.projectClasspath = projectClasspath;
+    this.lock = lock;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -56,6 +60,12 @@ public class SquidSensor implements Sensor {
 
   @SuppressWarnings("unchecked")
   public void analyse(Project project, SensorContext context) {
+    analyzeMainSources(project, context);
+    browseTestSources(project, context);
+    lock.lock();
+  }
+
+  private void analyzeMainSources(Project project, SensorContext context) {
     boolean analyzePropertyAccessors = project.getConfiguration().getBoolean(SquidPluginProperties.SQUID_ANALYSE_ACCESSORS_PROPERTY,
         SquidPluginProperties.SQUID_ANALYSE_ACCESSORS_DEFAULT_VALUE);
     String fieldNamesToExcludeFromLcom4Computation = project.getConfiguration().getString(
@@ -66,16 +76,26 @@ public class SquidSensor implements Sensor {
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, SquidConstants.REPOSITORY_KEY, SquidRuleRepository.getCheckClasses());
 
     SquidExecutor squidExecutor = new SquidExecutor(analyzePropertyAccessors, fieldNamesToExcludeFromLcom4Computation, factory, charset);
-    squidExecutor.scan(getSourceFiles(project), getBytecodeFiles(project));
+    squidExecutor.scan(getMainSourceFiles(project), getMainBytecodeFiles(project));
     squidExecutor.save(project, context, noSonarFilter);
     squidExecutor.initSonarProxy(proxy);
   }
 
-  private List<File> getSourceFiles(Project project) {
+  private void browseTestSources(Project project, SensorContext context) {
+    for (File testFile : getTestSourceFiles(project)) {
+      context.index(JavaFile.fromIOFile(testFile, project.getFileSystem().getTestDirs(), true));
+    }
+  }
+
+  private List<File> getTestSourceFiles(Project project) {
+    return project.getFileSystem().getTestFiles(Java.INSTANCE);
+  }
+
+  private List<File> getMainSourceFiles(Project project) {
     return project.getFileSystem().getJavaSourceFiles();
   }
 
-  private Collection<File> getBytecodeFiles(Project project) {
+  private Collection<File> getMainBytecodeFiles(Project project) {
     Collection<File> bytecodeFiles = projectClasspath.getElements();
     if ( !hasProjectBytecodeFiles(project)) {
       File classesDir = project.getFileSystem().getBuildOutputDir();

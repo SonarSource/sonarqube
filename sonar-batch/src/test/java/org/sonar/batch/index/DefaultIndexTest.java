@@ -24,9 +24,13 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.batch.ResourceFilter;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.*;
+import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
@@ -36,14 +40,20 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DefaultIndexTest {
 
   private DefaultIndex index = null;
+  private DefaultResourceCreationLock lock;
 
   @Before
   public void createIndex() {
-    index = new DefaultIndex(mock(PersistenceManager.class), new DefaultResourceCreationLock(), mock(ProjectTree.class), mock(MetricFinder.class));
+    lock = new DefaultResourceCreationLock();
+    MetricFinder metricFinder = mock(MetricFinder.class);
+    when(metricFinder.findByKey("ncloc")).thenReturn(CoreMetrics.NCLOC);
+
+    index = new DefaultIndex(mock(PersistenceManager.class), lock, mock(ProjectTree.class), metricFinder);
     Project project = new Project("project");
 
     ResourceFilter filter = new ResourceFilter() {
@@ -126,10 +136,25 @@ public class DefaultIndexTest {
   }
 
 
+  /**
+   * Only a warning is logged when index is locked.
+   */
   @Test
-  @Ignore("TODO: should it be really possible")
-  public void shouldIndexDirectChildOfProject() {
+  public void shouldIndexEvenIfLocked() {
+    lock.lock();
 
+    Directory dir = new Directory("org/foo");
+    assertThat(index.index(dir), is(true));
+    assertThat(index.isIndexed(dir), is(true));
+  }
+
+  @Test(expected = SonarException.class)
+  public void shouldFailIfIndexingAndLocked() {
+    lock.setFailWhenLocked(true);
+    lock.lock();
+
+    Directory dir = new Directory("org/foo");
+    index.index(dir);
   }
 
   @Test
@@ -138,5 +163,14 @@ public class DefaultIndexTest {
     assertThat(index.index(file), is(false));
     assertThat(index.isIndexed(file), is(false));
     assertThat(index.isExcluded(file), is(true));
+  }
+
+  @Test
+  public void shouldIndexResourceWhenAddingMeasure() {
+    Resource dir = new Directory("org/foo");
+    index.addMeasure(dir, new Measure("ncloc").setValue(50.0));
+
+    assertThat(index.isIndexed(dir), is(true));
+    assertThat(index.getMeasures(dir, MeasuresFilters.metric("ncloc")).getIntValue(), is(50));
   }
 }

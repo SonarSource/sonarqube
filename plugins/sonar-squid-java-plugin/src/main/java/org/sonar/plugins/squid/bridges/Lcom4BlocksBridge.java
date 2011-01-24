@@ -19,9 +19,11 @@
  */
 package org.sonar.plugins.squid.bridges;
 
+import com.google.common.collect.Lists;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.PersistenceMode;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.java.bytecode.asm.AsmField;
 import org.sonar.java.bytecode.asm.AsmMethod;
@@ -29,7 +31,10 @@ import org.sonar.java.bytecode.asm.AsmResource;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.measures.Metric;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
 public class Lcom4BlocksBridge extends Bridge {
 
@@ -62,7 +67,7 @@ public class Lcom4BlocksBridge extends Bridge {
 
   protected String serialize(List<Set<AsmResource>> blocks) {
     sortBlocks(blocks);
-    
+
     StringBuilder sb = new StringBuilder();
     sb.append('[');
 
@@ -102,7 +107,7 @@ public class Lcom4BlocksBridge extends Bridge {
   }
 
   protected List<AsmResource> sortResourcesInBlock(Set<AsmResource> block) {
-    List<AsmResource> result = new ArrayList<AsmResource>();
+    List<AsmResource> result = Lists.newArrayList();
     result.addAll(block);
 
     Collections.sort(result, new Comparator<AsmResource>() {
@@ -127,10 +132,10 @@ public class Lcom4BlocksBridge extends Bridge {
 
   private static String toQualifier(AsmResource asmResource) {
     if (asmResource instanceof AsmField) {
-      return Resource.QUALIFIER_FIELD;
+      return Qualifiers.FIELD;
     }
     if (asmResource instanceof AsmMethod) {
-      return Resource.QUALIFIER_METHOD;
+      return Qualifiers.METHOD;
     }
     throw new IllegalArgumentException("Wrong ASM resource: " + asmResource.getClass());
   }

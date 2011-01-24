@@ -207,7 +207,6 @@ public class CorePlugin implements Plugin {
     extensions.add(JavaColorizerFormat.class);
 
     // batch
-    extensions.add(JavaSourceImporter.class);
     extensions.add(ProfileSensor.class);
     extensions.add(ProjectLinksSensor.class);
     extensions.add(AsynchronousMeasuresSensor.class);

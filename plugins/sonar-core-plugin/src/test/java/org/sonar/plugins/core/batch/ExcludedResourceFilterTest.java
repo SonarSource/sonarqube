@@ -20,6 +20,7 @@
 package org.sonar.plugins.core.batch;
 
 import org.junit.Test;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 
 import static org.hamcrest.core.Is.is;
@@ -59,7 +60,7 @@ public class ExcludedResourceFilterTest {
     ExcludedResourceFilter filter = new ExcludedResourceFilter(new String[]{"**/foo/*.java", "**/bar/*"});
 
     Resource unitTest = mock(Resource.class);
-    when(unitTest.getQualifier()).thenReturn(Resource.QUALIFIER_UNIT_TEST_CLASS);
+    when(unitTest.getQualifier()).thenReturn(Qualifiers.UNIT_TEST_FILE);
 
     // match exclusion pattern
     when(unitTest.matchFilePattern("**/bar/*")).thenReturn(true);

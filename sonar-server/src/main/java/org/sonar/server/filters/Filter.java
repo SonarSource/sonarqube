@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 
 import java.util.List;
@@ -375,6 +376,6 @@ public class Filter {
   public static Filter createForAllQualifiers() {
     return new Filter().setQualifiers(Resource.QUALIFIER_VIEW, Resource.QUALIFIER_SUBVIEW,
         Resource.QUALIFIER_PROJECT, Resource.QUALIFIER_MODULE, Resource.QUALIFIER_DIRECTORY, Resource.QUALIFIER_PACKAGE,
-        Resource.QUALIFIER_FILE, Resource.QUALIFIER_CLASS, Resource.QUALIFIER_UNIT_TEST_CLASS, Resource.QUALIFIER_LIB);
+        Resource.QUALIFIER_FILE, Resource.QUALIFIER_CLASS, Qualifiers.UNIT_TEST_FILE, Resource.QUALIFIER_LIB);
   }
 }

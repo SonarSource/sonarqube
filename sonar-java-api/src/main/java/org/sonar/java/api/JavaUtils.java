@@ -25,6 +25,17 @@ public final class JavaUtils {
 
   public static final String PACKAGE_SEPARATOR = ".";
 
+  /**
+   * All sensors executed after this barrier are sure that all Java resources are indexed.
+   */
+  public static final String BARRIER_BEFORE_SQUID = "BEFORE_SQUID";
+
+  /**
+   * Sensors executed before this barrier must not rely on index. No Java resources are indexed.
+   * Value is 'squid' in order to be backward-compatible with Sensor.FLAG_SQUID_ANALYSIS.
+   */
+  public static final String BARRIER_AFTER_SQUID = "squid";
+
   private JavaUtils() {
     // only static methods
   }

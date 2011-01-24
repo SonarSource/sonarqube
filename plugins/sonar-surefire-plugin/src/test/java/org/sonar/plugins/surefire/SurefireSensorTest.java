@@ -19,19 +19,6 @@
  */
 package org.sonar.plugins.surefire;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyDouble;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.custommonkey.xmlunit.DetailedDiff;
 import org.custommonkey.xmlunit.Diff;
@@ -46,6 +33,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.api.test.IsResource;
 import org.sonar.api.test.MavenTestUtils;
@@ -54,6 +42,15 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.StringReader;
 import java.net.URISyntaxException;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class SurefireSensorTest {
 
@@ -94,7 +91,7 @@ public class SurefireSensorTest {
     new SurefireSensor().collect(newJarProject(), context, new File(getClass().getResource(
         "/org/sonar/plugins/surefire/SurefireSensorTest/doNotInsertZeroTestsOnClasses/").toURI()));
 
-    verify(context, never()).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, JavaFile.QUALIFIER_UNIT_TEST_CLASS)),
+    verify(context, never()).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, Qualifiers.UNIT_TEST_FILE)),
         (Metric) anyObject(), anyDouble());
   }
 
@@ -123,11 +120,11 @@ public class SurefireSensorTest {
     new SurefireSensor().collect(newJarProject(), context, new File(getClass().getResource(
         "/org/sonar/plugins/surefire/SurefireSensorTest/many-results/").toURI()));
 
-    verify(context, times(6)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, JavaFile.QUALIFIER_UNIT_TEST_CLASS)),
+    verify(context, times(6)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, Qualifiers.UNIT_TEST_FILE)),
         eq(CoreMetrics.TESTS), anyDouble());
-    verify(context, times(36)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, JavaFile.QUALIFIER_UNIT_TEST_CLASS)),
+    verify(context, times(36)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, Qualifiers.UNIT_TEST_FILE)),
         (Metric) anyObject(), anyDouble());
-    verify(context, times(6)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, JavaFile.QUALIFIER_UNIT_TEST_CLASS)),
+    verify(context, times(6)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, Qualifiers.UNIT_TEST_FILE)),
         argThat(new IsMeasure(CoreMetrics.TEST_DATA)));
 
     verify(context)
@@ -147,13 +144,13 @@ public class SurefireSensorTest {
         "/org/sonar/plugins/surefire/SurefireSensorTest/shouldHandleTestSuiteDetails/").toURI()));
 
     // 3 classes, 6 measures by class
-    verify(context, times(3)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, JavaFile.QUALIFIER_UNIT_TEST_CLASS)),
+    verify(context, times(3)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, Qualifiers.UNIT_TEST_FILE)),
         eq(CoreMetrics.SKIPPED_TESTS), anyDouble());
-    verify(context, times(3)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, JavaFile.QUALIFIER_UNIT_TEST_CLASS)),
+    verify(context, times(3)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, Qualifiers.UNIT_TEST_FILE)),
         eq(CoreMetrics.TESTS), anyDouble());
-    verify(context, times(18)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, JavaFile.QUALIFIER_UNIT_TEST_CLASS)),
+    verify(context, times(18)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, Qualifiers.UNIT_TEST_FILE)),
         (Metric) anyObject(), anyDouble());
-    verify(context, times(3)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, JavaFile.QUALIFIER_UNIT_TEST_CLASS)),
+    verify(context, times(3)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, Qualifiers.UNIT_TEST_FILE)),
         argThat(new IsMeasure(CoreMetrics.TEST_DATA)));
 
     verify(context).saveMeasure(eq(new JavaFile("org.sonar.core.ExtensionsFinderTest", true)), eq(CoreMetrics.TESTS), eq(4d));
@@ -191,14 +188,14 @@ public class SurefireSensorTest {
         "/org/sonar/plugins/surefire/SurefireSensorTest/shouldSaveErrorsAndFailuresInXML/").toURI()));
 
     // 1 classes, 6 measures by class
-    verify(context, times(1)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, JavaFile.QUALIFIER_UNIT_TEST_CLASS)),
+    verify(context, times(1)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, Qualifiers.UNIT_TEST_FILE)),
         eq(CoreMetrics.SKIPPED_TESTS), anyDouble());
 
-    verify(context, times(1)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, JavaFile.QUALIFIER_UNIT_TEST_CLASS)),
+    verify(context, times(1)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, Qualifiers.UNIT_TEST_FILE)),
         eq(CoreMetrics.TESTS), anyDouble());
-    verify(context, times(6)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, JavaFile.QUALIFIER_UNIT_TEST_CLASS)),
+    verify(context, times(6)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, Qualifiers.UNIT_TEST_FILE)),
         (Metric) anyObject(), anyDouble());
-    verify(context, times(1)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, JavaFile.QUALIFIER_UNIT_TEST_CLASS)),
+    verify(context, times(1)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, Qualifiers.UNIT_TEST_FILE)),
         argThat(new IsMeasure(CoreMetrics.TEST_DATA)));
 
     verify(context).saveMeasure(eq(new JavaFile("org.sonar.core.ExtensionsFinderTest", true)),
@@ -283,7 +280,7 @@ public class SurefireSensorTest {
 
       public boolean matches(Object obj) {
         try {
-          if ( !ObjectUtils.equals(CoreMetrics.TEST_DATA, ((Measure) obj).getMetric())) {
+          if (!ObjectUtils.equals(CoreMetrics.TEST_DATA, ((Measure) obj).getMetric())) {
             return false;
           }
 

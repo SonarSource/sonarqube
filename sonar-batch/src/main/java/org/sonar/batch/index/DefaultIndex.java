@@ -460,9 +460,7 @@ public final class DefaultIndex extends SonarIndex {
       return bucket;
     }
 
-    if (lock.isLocked() && !ResourceUtils.isLibrary(resource)) {
-      LOG.warn("Resource will be ignored in next Sonar versions, index is locked: " + resource);
-    }
+    checkLock(resource);
 
     Resource parent = null;
     if (!ResourceUtils.isLibrary(resource)) {
@@ -487,6 +485,14 @@ public final class DefaultIndex extends SonarIndex {
     return bucket;
   }
 
+  private void checkLock(Resource resource) {
+    if (lock.isLocked() && !ResourceUtils.isLibrary(resource)) {
+      if (lock.isFailWhenLocked()) {
+        throw new SonarException("Index is locked, resource can not be indexed: " + resource);
+      }
+      LOG.warn("Resource will be ignored in next Sonar versions, index is locked: " + resource);
+    }
+  }
 
   public boolean isExcluded(Resource reference) {
     Bucket bucket = getBucket(reference, true);

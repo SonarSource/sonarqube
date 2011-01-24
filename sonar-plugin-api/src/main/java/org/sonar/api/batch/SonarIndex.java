@@ -124,6 +124,12 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
     addViolation(violation, false);
   }
 
+  /**
+   * Warning: the resource is automatically indexed for backward-compatibility, but it should be explictly
+   * indexed before. Next versions will deactivate this automatic indexation.
+   *
+   * @throws SonarException if the metric is unknown.
+   */
   public abstract Measure addMeasure(Resource resource, Measure measure);
 
   public abstract Dependency addDependency(Dependency dependency);

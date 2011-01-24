@@ -20,13 +20,13 @@
 package org.sonar.plugins.core.testdetailsviewer;
 
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.*;
 import org.sonar.plugins.core.testdetailsviewer.client.TestsViewer;
 
-@ResourceQualifier(Resource.QUALIFIER_UNIT_TEST_CLASS)
+@ResourceQualifier(Qualifiers.UNIT_TEST_FILE)
 @NavigationSection(NavigationSection.RESOURCE_TAB)
-@DefaultTab(metrics={CoreMetrics.TESTS_KEY, CoreMetrics.TEST_EXECUTION_TIME_KEY, CoreMetrics.TEST_SUCCESS_DENSITY_KEY, CoreMetrics.TEST_FAILURES_KEY, CoreMetrics.TEST_ERRORS_KEY, CoreMetrics.SKIPPED_TESTS_KEY})
+@DefaultTab(metrics = {CoreMetrics.TESTS_KEY, CoreMetrics.TEST_EXECUTION_TIME_KEY, CoreMetrics.TEST_SUCCESS_DENSITY_KEY, CoreMetrics.TEST_FAILURES_KEY, CoreMetrics.TEST_ERRORS_KEY, CoreMetrics.SKIPPED_TESTS_KEY})
 @UserRole(UserRole.CODEVIEWER)
 public class TestsViewerDefinition extends GwtPage {
 

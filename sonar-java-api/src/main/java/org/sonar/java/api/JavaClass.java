@@ -20,16 +20,15 @@
 package org.sonar.java.api;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
 
 /**
  * @since 2.6
  */
 public final class JavaClass extends Resource {
 
+  public static final String SCOPE = Scopes.TYPE;
+  public static final String QUALIFIER = Qualifiers.CLASS;
   public static final int UNKNOWN_LINE = -1;
 
   private int fromLine = UNKNOWN_LINE;
@@ -87,12 +86,12 @@ public final class JavaClass extends Resource {
 
   @Override
   public String getScope() {
-    return null;
+    return SCOPE;
   }
 
   @Override
   public String getQualifier() {
-    return Qualifiers.CLASS;
+    return QUALIFIER;
   }
 
   @Override

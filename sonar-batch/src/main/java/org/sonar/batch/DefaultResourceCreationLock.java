@@ -19,6 +19,7 @@
  */
 package org.sonar.batch;
 
+import org.apache.commons.configuration.Configuration;
 import org.sonar.api.batch.ResourceCreationLock;
 
 /**
@@ -30,6 +31,14 @@ import org.sonar.api.batch.ResourceCreationLock;
 public final class DefaultResourceCreationLock implements ResourceCreationLock {
 
   private boolean locked = false;
+  private boolean failWhenLocked=false;
+
+  public DefaultResourceCreationLock() {
+  }
+
+  public DefaultResourceCreationLock(Configuration configuration) {
+    this.failWhenLocked = configuration.getBoolean("sonar.hardIndexLock", false);
+  }
 
   public boolean isLocked() {
     return locked;
@@ -46,4 +55,11 @@ public final class DefaultResourceCreationLock implements ResourceCreationLock {
     locked = false;
   }
 
+  public boolean isFailWhenLocked() {
+    return failWhenLocked;
+  }
+
+  public void setFailWhenLocked(boolean b) {
+    this.failWhenLocked = b;
+  }
 }

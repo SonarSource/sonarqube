@@ -21,10 +21,7 @@ package org.sonar.api.batch;
 
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
@@ -34,7 +31,7 @@ import java.util.List;
 
 /**
  * A pre-implementation for a sensor that imports sources
- * 
+ *
  * @since 1.10
  */
 @Phase(name = Phase.Name.PRE)
@@ -103,7 +100,7 @@ public abstract class AbstractSourceImporter implements Sensor {
     if (resource != null) {
       resource.setLanguage(language);
       if (unitTest) {
-        resource.setQualifier(Resource.QUALIFIER_UNIT_TEST_CLASS);
+        resource.setQualifier(Qualifiers.UNIT_TEST_FILE);
       }
     }
     return resource;

@@ -179,6 +179,7 @@
         <arg value="-Dsonar.jdbc.driver=${sonar.jdbc.driver}"/>
         <arg value="-Dsonar.jdbc.username=${sonar.jdbc.username}"/>
         <arg value="-Dsonar.jdbc.password=${sonar.jdbc.password}"/>
+        <arg value="-Dsonar.hardIndexLock=true"/>
       </exec>
       <exec failonerror="@{failonerror}" executable="${maven.home}/bin/mvn" osfamily="unix">
         <arg line="org.codehaus.mojo:sonar-maven-plugin:1.0-beta-2:sonar @{args} -B -e"/>
@@ -187,6 +188,7 @@
         <arg value="-Dsonar.jdbc.driver=${sonar.jdbc.driver}"/>
         <arg value="-Dsonar.jdbc.username=${sonar.jdbc.username}"/>
         <arg value="-Dsonar.jdbc.password=${sonar.jdbc.password}"/>
+        <arg value="-Dsonar.hardIndexLock=true"/>
       </exec>
     </sequential>
   </macrodef>
