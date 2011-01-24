@@ -29,8 +29,8 @@ import static org.junit.Assert.assertThat;
 public class SquidPluginTest {
 
   @Test
-  public void justForCoverage() {
+  public void coverageForFun() {
     assertThat(new SquidPlugin().getKey(), not(nullValue()));
-    assertThat(new SquidPlugin().getExtensions().size(), is(3));
+    assertThat(new SquidPlugin().getExtensions().size(), is(4));
   }
 }
