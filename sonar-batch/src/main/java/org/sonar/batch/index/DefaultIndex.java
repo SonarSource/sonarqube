@@ -157,7 +157,7 @@ public final class DefaultIndex extends SonarIndex {
    * the measure is updated if it's already registered.
    */
   public Measure addMeasure(Resource resource, Measure measure) {
-    Bucket bucket = doIndex(resource);
+    Bucket bucket = checkIndexed(resource);
     if (bucket != null && !bucket.isExcluded()) {
       Metric metric = metricFinder.findByKey(measure.getMetricKey());
       if (metric == null) {
@@ -170,7 +170,6 @@ public final class DefaultIndex extends SonarIndex {
       if (measure.getPersistenceMode().useDatabase()) {
         persistence.saveMeasure(resource, measure);
       }
-
       // TODO keep database measures in cache but remove data
     }
     return measure;
@@ -295,13 +294,12 @@ public final class DefaultIndex extends SonarIndex {
   }
 
   public void addViolation(Violation violation, boolean force) {
-    Bucket bucket;
     Resource resource = violation.getResource();
     if (resource == null) {
       violation.setResource(currentProject);
     }
-    bucket = doIndex(violation.getResource());
-    if (!bucket.isExcluded()) {
+    Bucket bucket = checkIndexed(resource);
+    if (bucket != null && !bucket.isExcluded()) {
       boolean isIgnored = !force && violationFilters != null && violationFilters.isIgnored(violation);
       if (!isIgnored) {
         ActiveRule activeRule = profile.getActiveRule(violation.getRule());
@@ -366,13 +364,11 @@ public final class DefaultIndex extends SonarIndex {
     return null;
   }
 
-  public boolean setSource(Resource reference, String source) {
-    boolean result = false;
-    if (isIndexed(reference)) {
+  public void setSource(Resource reference, String source) {
+    Bucket bucket = checkIndexed(reference);
+    if (bucket != null && !bucket.isExcluded()) {
       persistence.setSource(reference, source);
-      result = true;
     }
-    return result;
   }
 
 
@@ -387,7 +383,7 @@ public final class DefaultIndex extends SonarIndex {
   public <R extends Resource> R getResource(R reference) {
     Bucket bucket = buckets.get(reference);
     if (bucket != null) {
-      return (R)bucket.getResource();
+      return (R) bucket.getResource();
     }
     return null;
   }
@@ -443,8 +439,7 @@ public final class DefaultIndex extends SonarIndex {
 
   private Bucket doIndex(Resource resource) {
     if (resource.getParent() != null) {
-      // SONAR-2127 backward-compatibility - create automatically parent of files
-      doIndex(resource.getParent(), currentProject);
+      doIndex(resource.getParent());
     }
     return doIndex(resource, resource.getParent());
   }
@@ -469,7 +464,7 @@ public final class DefaultIndex extends SonarIndex {
     }
 
     Bucket parentBucket = getBucket(parent, true);
-    if (parentBucket==null && parent!=null) {
+    if (parentBucket == null && parent != null) {
       LOG.warn("Resource ignored, parent is not indexed: " + resource);
       return null;
     }
@@ -480,7 +475,7 @@ public final class DefaultIndex extends SonarIndex {
 
     boolean excluded = checkExclusion(resource, parentBucket);
     if (!excluded) {
-      persistence.saveResource(currentProject, resource, (parentBucket!=null ? parentBucket.getResource() : null));
+      persistence.saveResource(currentProject, resource, (parentBucket != null ? parentBucket.getResource() : null));
     }
     return bucket;
   }
@@ -494,13 +489,30 @@ public final class DefaultIndex extends SonarIndex {
     }
   }
 
+  private Bucket checkIndexed(Resource reference) {
+    Bucket bucket = getBucket(reference, true);
+    if (bucket == null) {
+      if (lock.isLocked()) {
+        if (lock.isFailWhenLocked()) {
+          throw new ResourceNotIndexedException(reference);
+        }
+        LOG.warn("Resource will be ignored in next Sonar versions, index is locked: " + reference);
+      } else {
+        // other languages than Java - keep backward compatibility
+        bucket = doIndex(reference);
+      }
+    }
+    return bucket;
+  }
+
+
   public boolean isExcluded(Resource reference) {
     Bucket bucket = getBucket(reference, true);
     return bucket != null && bucket.isExcluded();
   }
 
-  public boolean isIndexed(Resource reference) {
-    return getBucket(reference, false) != null;
+  public boolean isIndexed(Resource reference, boolean acceptExcluded) {
+    return getBucket(reference, acceptExcluded) != null;
   }
 
   private Bucket getBucket(Resource resource, boolean acceptExcluded) {

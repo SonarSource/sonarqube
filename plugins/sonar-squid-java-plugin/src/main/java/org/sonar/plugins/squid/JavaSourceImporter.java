@@ -19,30 +19,73 @@
  */
 package org.sonar.plugins.squid;
 
+import org.apache.commons.io.FileUtils;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.*;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
+import org.sonar.api.utils.SonarException;
 import org.sonar.java.api.JavaUtils;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
 
-@DependsUpon(classes=SquidSensor.class)
+@Phase(name = Phase.Name.PRE)
+@DependsUpon(classes = SquidSensor.class)
 @DependedUpon(JavaUtils.BARRIER_AFTER_SQUID)
-public class JavaSourceImporter extends AbstractSourceImporter {
+public final class JavaSourceImporter implements Sensor {
 
-  public JavaSourceImporter() {
-    super(Java.INSTANCE);
+  /**
+   * {@inheritDoc}
+   */
+  public boolean shouldExecuteOnProject(Project project) {
+    return isEnabled(project) && Java.KEY.equals(project.getLanguageKey());
   }
 
-  @Override
-  protected Resource createResource(File file, List<File> sourceDirs, boolean unitTest) {
-    return file != null ? JavaFile.fromIOFile(file, sourceDirs, unitTest) : null;
+  /**
+   * {@inheritDoc}
+   */
+  public void analyse(Project project, SensorContext context) {
+    analyse(project.getFileSystem(), context);
+  }
+
+  void analyse(ProjectFileSystem fileSystem, SensorContext context) {
+    parseDirs(context, fileSystem.mainFiles(Java.INSTANCE), false, fileSystem.getSourceCharset());
+    parseDirs(context, fileSystem.testFiles(Java.INSTANCE), true, fileSystem.getSourceCharset());
+  }
+
+  void parseDirs(SensorContext context, List<InputFile> inputFiles, boolean unitTest, Charset sourcesEncoding) {
+    for (InputFile inputFile : inputFiles) {
+      JavaFile javaFile = JavaFile.fromRelativePath(inputFile.getRelativePath(), unitTest);
+      importSource(context, javaFile, inputFile, sourcesEncoding);
+    }
+  }
+
+  void importSource(SensorContext context, JavaFile javaFile, InputFile inputFile, Charset sourcesEncoding) {
+    try {
+      //if (!context.isIndexed(javaFile, true)) {
+      // See http://jira.codehaus.org/browse/SONAR-791
+      // Squid is the reference plugin to index files. If a file is not indexed,
+      //  throw new SonarException("Invalid file: " + javaFile + ". Please check that Java source directories match root directories" +
+      //    " as defined by packages.");
+      //}
+      String source = FileUtils.readFileToString(inputFile.getFile(), sourcesEncoding.name());
+      context.saveSource(javaFile, source);
+
+    } catch (IOException e) {
+      throw new SonarException("Unable to read and import the source file : '" + inputFile.getFile().getAbsolutePath() + "' with the charset : '"
+          + sourcesEncoding.name() + "'.", e);
+    }
+  }
+
+  boolean isEnabled(Project project) {
+    return project.getConfiguration().getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY,
+        CoreProperties.CORE_IMPORT_SOURCES_DEFAULT_VALUE);
   }
 
   @Override
   public String toString() {
     return getClass().getSimpleName();
   }
+
 }

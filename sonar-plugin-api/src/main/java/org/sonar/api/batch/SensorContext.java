@@ -58,15 +58,16 @@ public interface SensorContext {
   boolean index(Resource resource, Resource parentReference);
 
   /**
-   * Returns true if the referenced resource is excluded. An excluded resource is not indexed.
+   * Returns true if the referenced resource is indexed and excluded.
    * @since 2.6
    */
   boolean isExcluded(Resource reference);
 
   /**
+   * Returns true if the referenced resource is indexed.
    * @since 2.6
    */
-  boolean isIndexed(Resource reference);
+  boolean isIndexed(Resource reference, boolean acceptExcluded);
 
   /**
    * Search for an indexed resource.
@@ -87,7 +88,6 @@ public interface SensorContext {
    */
 
   Collection<Resource> getChildren(Resource reference);
-
 
   // ----------- MEASURES ON PROJECT --------------
 
@@ -188,14 +188,13 @@ public interface SensorContext {
 
   /**
    * Save the source code of a file. The file must be have been indexed before.
-   * Note: the source stream is not closed.
    *
    * @return false if the resource is excluded or not indexed
    * @throws org.sonar.api.resources.DuplicatedSourceException
    *          if the source has already been set on this resource
    * @since 1.10. Returns a boolean since 2.6.
    */
-  boolean saveSource(Resource reference, String source) throws DuplicatedSourceException;
+  void saveSource(Resource reference, String source) throws DuplicatedSourceException;
 
   // ----------- LINKS --------------
 

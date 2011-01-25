@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 public final class JavaUtils {
 
   public static final String PACKAGE_SEPARATOR = ".";
+  public static final String DEFAULT_PACKAGE = "[default]";
 
   /**
    * All sensors executed after this barrier are sure that all Java resources are indexed.

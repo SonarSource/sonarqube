@@ -37,7 +37,7 @@ public class JavaFile extends Resource<JavaPackage> {
   private String longName;
   private String packageKey;
   private boolean unitTest;
-  private JavaPackage parent = null;
+  private JavaPackage parent;
 
   /**
    * Creates a JavaFile that is not a class of test based on package and file names
@@ -52,7 +52,7 @@ public class JavaFile extends Resource<JavaPackage> {
    * @param unitTest whether it is a unit test file or a source file
    */
   public JavaFile(String packageKey, String className, boolean unitTest) {
-    if (className==null) {
+    if (className == null) {
       throw new IllegalArgumentException("Java filename can not be null");
     }
     if (className.indexOf('$') >= 0) {
@@ -86,10 +86,10 @@ public class JavaFile extends Resource<JavaPackage> {
    * @param unitTest whether it is a unit test file or a source file
    */
   public JavaFile(String key, boolean unitTest) {
-    if (key==null) {
+    if (key == null) {
       throw new IllegalArgumentException("Java filename can not be null");
     }
-    if (key != null && key.indexOf('$') >= 0) {
+    if (key.indexOf('$') >= 0) {
       throw new IllegalArgumentException("Java inner classes are not supported : " + key);
     }
     String realKey = StringUtils.trim(key);
@@ -117,6 +117,7 @@ public class JavaFile extends Resource<JavaPackage> {
       parent = new JavaPackage(packageKey);
     }
     return parent;
+
   }
 
   /**
@@ -151,14 +152,14 @@ public class JavaFile extends Resource<JavaPackage> {
    * @return SCOPE_ENTITY
    */
   public String getScope() {
-    return Resource.SCOPE_ENTITY;
+    return Scopes.FILE;
   }
 
   /**
    * @return QUALIFIER_UNIT_TEST_CLASS or QUALIFIER_CLASS depending whether it is a unit test class
    */
   public String getQualifier() {
-    return unitTest ? Qualifiers.UNIT_TEST_FILE : Resource.QUALIFIER_CLASS;
+    return unitTest ? Qualifiers.UNIT_TEST_FILE : Qualifiers.CLASS;
   }
 
   /**
@@ -179,23 +180,14 @@ public class JavaFile extends Resource<JavaPackage> {
     if (!fileKey.endsWith(".java")) {
       fileKey += ".java";
     }
-    if (StringUtils.substringAfterLast(antPattern, "/").indexOf(".")<0) {
+    if (StringUtils.substringAfterLast(antPattern, "/").indexOf(".") < 0) {
       antPattern += ".*";
     }
     WildcardPattern matcher = WildcardPattern.create(antPattern, ".");
     return matcher.match(fileKey);
   }
 
-  /**
-   * Creates a JavaFile from a file in the source directories
-   *
-   * @return the JavaFile created if exists, null otherwise
-   */
-  public static JavaFile fromIOFile(File file, List<File> sourceDirs, boolean unitTest) {
-    if (file == null || !StringUtils.endsWithIgnoreCase(file.getName(), ".java")) {
-      return null;
-    }
-    String relativePath = DefaultProjectFileSystem.getRelativePath(file, sourceDirs);
+  public static JavaFile fromRelativePath(String relativePath, boolean unitTest) {
     if (relativePath != null) {
       String pacname = null;
       String classname = relativePath;
@@ -209,6 +201,19 @@ public class JavaFile extends Resource<JavaPackage> {
       return new JavaFile(pacname, classname, unitTest);
     }
     return null;
+  }
+
+  /**
+   * Creates a JavaFile from a file in the source directories
+   *
+   * @return the JavaFile created if exists, null otherwise
+   */
+  public static JavaFile fromIOFile(File file, List<File> sourceDirs, boolean unitTest) {
+    if (file == null || !StringUtils.endsWithIgnoreCase(file.getName(), ".java")) {
+      return null;
+    }
+    String relativePath = DefaultProjectFileSystem.getRelativePath(file, sourceDirs);
+    return fromRelativePath(relativePath, unitTest);
   }
 
   /**
@@ -230,4 +235,25 @@ public class JavaFile extends Resource<JavaPackage> {
         .append("unitTest", unitTest)
         .toString();
   }
+
+//  @Override
+//  public boolean equals(Object o) {
+//    if (this == o) return true;
+//    if (o == null || getClass() != o.getClass()) return false;
+//    if (!super.equals(o)) return false;
+//
+//    JavaFile javaFile = (JavaFile) o;
+//    if (unitTest != javaFile.unitTest) return false;
+//    if (!getKey().equals(javaFile.getKey())) return false;
+//
+//    return true;
+//  }
+//
+//  @Override
+//  public int hashCode() {
+//    int result = super.hashCode();
+//    result = 31 * result + getKey().hashCode();
+//    result = 31 * result + (unitTest ? 1 : 0);
+//    return result;
+//  }
 }

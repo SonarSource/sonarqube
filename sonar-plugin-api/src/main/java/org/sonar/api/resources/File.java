@@ -38,7 +38,7 @@ public class File extends Resource<Directory> {
   private String filename;
   private Language language;
   private Directory parent;
-  private String qualifier = Resource.QUALIFIER_FILE;
+  private String qualifier = Qualifiers.FILE;
 
   /**
    * File in project. Key is the path relative to project source directories. It is not the absolute path and it does not include the path
@@ -187,8 +187,8 @@ public class File extends Resource<Directory> {
   /**
    * @return SCOPE_ENTITY
    */
-  public String getScope() {
-    return Resource.SCOPE_ENTITY;
+  public final String getScope() {
+    return SCOPE;
   }
 
   /**

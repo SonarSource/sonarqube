@@ -19,42 +19,53 @@
  */
 package org.sonar.plugins.squid;
 
-import org.apache.commons.io.FileUtils;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.JavaPackage;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.nio.charset.Charset;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class JavaSourceImporterTest {
 
-  @Test
-  public void shouldDefineMainFile() throws IOException {
-    JavaSourceImporter importer = new JavaSourceImporter();
-    Resource clazz = importer.createResource(new File(newDir("source1"), "/MyClass.java"), Arrays.asList(newDir("source1")), false);
-    assertThat(clazz, is(JavaFile.class));
-    assertThat(clazz.getKey(), is(JavaPackage.DEFAULT_PACKAGE_NAME + ".MyClass"));
-    assertThat(clazz.getName(), is("MyClass"));
+  private JavaSourceImporter importer;
+  private SensorContext context;
+  private InputFile inputFile;
+
+  @Before
+  public void init() {
+    File fileToImport = new File("test-resources/rules/UndocumentedApi.java");
+    inputFile = mock(InputFile.class);
+    when(inputFile.getRelativePath()).thenReturn("UndocumentedApi.java");
+    when(inputFile.getFile()).thenReturn(fileToImport);
+    when(inputFile.getFileBaseDir()).thenReturn(fileToImport.getParentFile());
+    importer = new JavaSourceImporter();
+    context = mock(SensorContext.class);
   }
 
   @Test
-  public void shouldDefineTestFile() throws IOException {
-    JavaSourceImporter importer = new JavaSourceImporter();
-    Resource resource = importer.createResource(new File(newDir("tests"), "/MyClassTest.java"), Arrays.asList(newDir("tests")), true);
-    assertThat(resource, is(JavaFile.class));
-    assertThat(ResourceUtils.isUnitTestClass(resource), is(true));
+  public void shouldSetSource() throws IOException {
+    JavaFile javaFile = JavaFile.fromRelativePath("UndocumentedApi.java", true);
+    when(context.isIndexed(javaFile, true)).thenReturn(true);
+    importer.importSource(context, javaFile, inputFile, Charset.defaultCharset());
+
+    verify(context).saveSource(eq(javaFile), anyString());
   }
 
-  private File newDir(String relativePath) throws IOException {
-    File target = new File("target", relativePath);
-    FileUtils.forceMkdir(target);
-    return target;
+  @Test(expected = SonarException.class)
+  @Ignore("see SONAR-791")
+  public void shouldFailWhenSquidDidNotIndexFile() throws IOException {
+    JavaFile javaFile = new JavaFile("Bar");
+    when(context.isIndexed(javaFile, true)).thenReturn(false);
+    importer.importSource(context, javaFile, inputFile, Charset.defaultCharset());
   }
 }

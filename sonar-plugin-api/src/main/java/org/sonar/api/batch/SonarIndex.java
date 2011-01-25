@@ -39,6 +39,7 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
 
   /**
    * Indexes a resource as a direct child of project. This method does nothing and returns true if the resource already indexed.
+   * If the method resource.getParent() does not return null, then this parent will be indexed too.
    *
    * @return false if the resource is excluded
    * @since 2.6
@@ -65,7 +66,7 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
   /**
    * @since 2.6
    */
-  public abstract boolean isIndexed(Resource reference);
+  public abstract boolean isIndexed(Resource reference, boolean acceptExcluded);
 
   /**
    * Search for an indexed resource.
@@ -95,7 +96,7 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
    * @throws org.sonar.api.resources.DuplicatedSourceException
    *          if the source has already been set on this resource
    */
-  public abstract boolean setSource(Resource reference, String source) throws DuplicatedSourceException;
+  public abstract void setSource(Resource reference, String source) throws DuplicatedSourceException;
 
   public abstract Project getProject();
 

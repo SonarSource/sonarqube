@@ -85,7 +85,7 @@ public class DefaultIndexTest {
 
     Directory reference = new Directory("org/foo");
     assertThat(index.getResource(reference).getName(), is("org/foo"));
-    assertThat(index.isIndexed(reference), is(true));
+    assertThat(index.isIndexed(reference, true), is(true));
     assertThat(index.isExcluded(reference), is(false));
     assertThat(index.getChildren(reference).size(), is(1));
     assertThat(index.getParent(reference), is(Project.class));
@@ -103,7 +103,7 @@ public class DefaultIndexTest {
     File fileRef = new File("org/foo/Bar.java");
     assertThat(index.getResource(fileRef).getKey(), is("org/foo/Bar.java"));
     assertThat(index.getResource(fileRef).getLanguage(), is((Language) Java.INSTANCE));
-    assertThat(index.isIndexed(fileRef), is(true));
+    assertThat(index.isIndexed(fileRef, true), is(true));
     assertThat(index.isExcluded(fileRef), is(false));
     assertThat(index.getChildren(fileRef).size(), is(0));
     assertThat(index.getParent(fileRef), is(Directory.class));
@@ -116,7 +116,7 @@ public class DefaultIndexTest {
 
     Library reference = new Library("junit", "4.8");
     assertThat(index.getResource(reference).getQualifier(), is(Qualifiers.LIBRARY));
-    assertThat(index.isIndexed(reference), is(true));
+    assertThat(index.isIndexed(reference, true), is(true));
     assertThat(index.isExcluded(reference), is(false));
   }
 
@@ -128,8 +128,8 @@ public class DefaultIndexTest {
     assertThat(index.index(file, directory), is(false));
 
     File fileRef = new File("org/foo/Bar.java");
-    assertThat(index.isIndexed(directory), is(false));
-    assertThat(index.isIndexed(fileRef), is(false));
+    assertThat(index.isIndexed(directory, true), is(false));
+    assertThat(index.isIndexed(fileRef, true), is(false));
     assertThat(index.isExcluded(fileRef), is(false));
     assertThat(index.getChildren(fileRef).size(), is(0));
     assertThat(index.getParent(fileRef), nullValue());
@@ -145,7 +145,7 @@ public class DefaultIndexTest {
 
     Directory dir = new Directory("org/foo");
     assertThat(index.index(dir), is(true));
-    assertThat(index.isIndexed(dir), is(true));
+    assertThat(index.isIndexed(dir, true), is(true));
   }
 
   @Test(expected = SonarException.class)
@@ -161,7 +161,8 @@ public class DefaultIndexTest {
   public void shouldBeExcluded() {
     File file = new File("org/foo/ExcludedBar.java");
     assertThat(index.index(file), is(false));
-    assertThat(index.isIndexed(file), is(false));
+    assertThat(index.isIndexed(file, true), is(true));
+    assertThat(index.isIndexed(file, false), is(false));
     assertThat(index.isExcluded(file), is(true));
   }
 
@@ -170,7 +171,7 @@ public class DefaultIndexTest {
     Resource dir = new Directory("org/foo");
     index.addMeasure(dir, new Measure("ncloc").setValue(50.0));
 
-    assertThat(index.isIndexed(dir), is(true));
+    assertThat(index.isIndexed(dir, true), is(true));
     assertThat(index.getMeasures(dir, MeasuresFilters.metric("ncloc")).getIntValue(), is(50));
   }
 }

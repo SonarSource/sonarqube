@@ -80,7 +80,7 @@ public class JavaPackage extends Resource {
    * @return QUALIFIER_PACKAGE
    */
   public String getQualifier() {
-    return Resource.QUALIFIER_PACKAGE;
+    return Qualifiers.PACKAGE;
   }
 
   /**

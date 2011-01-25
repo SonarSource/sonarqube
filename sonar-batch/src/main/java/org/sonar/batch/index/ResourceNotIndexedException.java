@@ -17,27 +17,17 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.resources;
+package org.sonar.batch.index;
 
-import java.io.File;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.utils.SonarException;
 
 /**
  * @since 2.6
  */
-public interface InputFile {
+public class ResourceNotIndexedException extends SonarException {
 
-  File getFileBaseDir();
-
-  File getFile();
-
-  /**
-   * Path relative to basedir. Directory separator is slash '/', whatever the platform.
-   * 
-   * Example on windows: if basedir is c:\project\src\ and file is c:\project\src\org\foo\Bar.java, then relative path
-   * is org/foo/Bar.java
-   *
-   * Example on unix: if basedir is /project/src and file is /project/src/org/foo/Bar.java, then relative path
-   * is org/foo/Bar.java as well.
-   */
-  String getRelativePath();
+  public ResourceNotIndexedException(final Resource reference) {
+    super(reference.toString());
+  }
 }

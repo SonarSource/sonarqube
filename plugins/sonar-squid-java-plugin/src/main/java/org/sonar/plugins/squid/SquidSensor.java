@@ -25,6 +25,7 @@ import org.sonar.api.batch.*;
 import org.sonar.api.checks.AnnotationCheckFactory;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
@@ -82,13 +83,9 @@ public class SquidSensor implements Sensor {
   }
 
   private void browseTestSources(Project project, SensorContext context) {
-    for (File testFile : getTestSourceFiles(project)) {
-      context.index(JavaFile.fromIOFile(testFile, project.getFileSystem().getTestDirs(), true));
+    for (InputFile testFile : project.getFileSystem().testFiles(Java.INSTANCE)) {
+      context.index(JavaFile.fromRelativePath(testFile.getRelativePath(), true));
     }
-  }
-
-  private List<File> getTestSourceFiles(Project project) {
-    return project.getFileSystem().getTestFiles(Java.INSTANCE);
   }
 
   private List<File> getMainSourceFiles(Project project) {
@@ -97,7 +94,7 @@ public class SquidSensor implements Sensor {
 
   private Collection<File> getMainBytecodeFiles(Project project) {
     Collection<File> bytecodeFiles = projectClasspath.getElements();
-    if ( !hasProjectBytecodeFiles(project)) {
+    if (!hasProjectBytecodeFiles(project)) {
       File classesDir = project.getFileSystem().getBuildOutputDir();
       if (classesDir != null && classesDir.exists()) {
         bytecodeFiles.remove(classesDir);
@@ -107,11 +104,11 @@ public class SquidSensor implements Sensor {
   }
 
   private boolean hasProjectBytecodeFiles(Project project) {
-    if ( !project.getConfiguration()
+    if (!project.getConfiguration()
         .getBoolean(CoreProperties.DESIGN_SKIP_DESIGN_PROPERTY, CoreProperties.DESIGN_SKIP_DESIGN_DEFAULT_VALUE)) {
       File classesDir = project.getFileSystem().getBuildOutputDir();
       if (classesDir != null && classesDir.exists()) {
-        return !FileUtils.listFiles(classesDir, new String[] { "class" }, true).isEmpty();
+        return !FileUtils.listFiles(classesDir, new String[]{"class"}, true).isEmpty();
       }
     }
     return false;

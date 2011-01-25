@@ -60,8 +60,8 @@ public class DefaultSensorContext implements SensorContext {
     return index.isExcluded(reference);
   }
 
-  public boolean isIndexed(Resource reference) {
-    return index.isIndexed(reference);
+  public boolean isIndexed(Resource reference, boolean acceptExcluded) {
+    return index.isIndexed(reference, acceptExcluded);
   }
 
   public Resource getParent(Resource reference) {
@@ -155,8 +155,8 @@ public class DefaultSensorContext implements SensorContext {
     return index.getOutgoingEdges(resourceOrProject(from));
   }
 
-  public boolean saveSource(Resource reference, String source) throws DuplicatedSourceException {
-    return index.setSource(reference, source);
+  public void saveSource(Resource reference, String source) throws DuplicatedSourceException {
+    index.setSource(reference, source);
   }
 
   public void saveLink(ProjectLink link) {

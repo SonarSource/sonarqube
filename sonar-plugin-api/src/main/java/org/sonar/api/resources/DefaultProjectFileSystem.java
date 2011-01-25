@@ -353,11 +353,11 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
     return getFiles(getTestDirs(), false /* FIXME should be true? */, langs);
   }
 
-  private class DefaultInputFile implements InputFile {
+  private static final class DefaultInputFile implements InputFile {
     private File basedir;
     private File file;
 
-    public DefaultInputFile(File basedir, File file) {
+    DefaultInputFile(File basedir, File file) {
       this.basedir = basedir;
       this.file = file;
     }
@@ -368,6 +368,10 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
 
     public File getFile() {
       return file;
+    }
+
+    public String getRelativePath() {
+      return DefaultProjectFileSystem.getRelativePath(file, basedir);
     }
   }
 
