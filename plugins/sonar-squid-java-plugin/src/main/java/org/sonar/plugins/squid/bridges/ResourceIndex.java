@@ -63,7 +63,8 @@ public final class ResourceIndex extends HashMap<SourceCode, Resource> {
     Collection<SourceCode> files = squid.search(new QueryByType(SourceFile.class));
     for (SourceCode squidFile : files) {
       JavaFile sonarFile = SquidUtils.convertJavaFileKeyFromSquidFormat(squidFile.getKey());
-      context.saveResource(sonarFile);
+      JavaPackage sonarPackage = (JavaPackage)get(squidFile.getParent(SourcePackage.class));
+      context.index(sonarFile, sonarPackage);
       put(squidFile, context.getResource(sonarFile)); // resource is reloaded to get the id
     }
   }
