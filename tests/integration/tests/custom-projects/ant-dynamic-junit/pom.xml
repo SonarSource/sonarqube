@@ -9,9 +9,11 @@
   
   <build>
   	<sourceDirectory>src</sourceDirectory>
-
+    <testSourceDirectory>test</testSourceDirectory>
+    
     <!-- ant compiles sources into this directory -->
     <outputDirectory>build/classes</outputDirectory>
+    <testOutputDirectory>build/test</testOutputDirectory>
 
     <plugins>
       <plugin>
