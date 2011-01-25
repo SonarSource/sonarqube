@@ -45,12 +45,8 @@ public class InMemoryPomCreatorTest {
   }
 
   @Test
-  public void shouldCreate() throws Exception {
-    createRequiredProperties("org.example:example", "1.0-SNAPSHOT", "target");
-    properties.setProperty("sonar.projectBinaries", "junit.jar");
-
-    project.addSourceDir("src");
-    project.addTestDir("test");
+  public void minimal() {
+    createRequiredProperties();
 
     MavenProject pom = create();
 
@@ -58,45 +54,73 @@ public class InMemoryPomCreatorTest {
     assertThat(pom.getGroupId(), is("org.example"));
     assertThat(pom.getArtifactId(), is("example"));
     assertThat(pom.getProperties(), is(project.getProperties()));
-    assertThat(pom.getBuild().getDirectory(), is("target"));
-    assertThat(pom.getBuild().getOutputDirectory(), is("target/classes"));
-    assertThat(pom.getReporting().getOutputDirectory(), is("target/site"));
+  }
+
+  @Test
+  public void sourceDirectories() {
+    createRequiredProperties();
+    properties.setProperty("sonar.projectBinaries", "junit.jar");
+    project.addSourceDir("src");
+    project.addTestDir("test");
+
+    MavenProject pom = create();
 
     assertThat(pom.getCompileSourceRoots().size(), is(1));
     assertThat((String) pom.getCompileSourceRoots().get(0), is("src"));
 
     assertThat(pom.getTestCompileSourceRoots().size(), is(1));
     assertThat((String) pom.getTestCompileSourceRoots().get(0), is("test"));
+  }
+
+  @Test
+  public void classpath() throws Exception {
+    createRequiredProperties();
+    properties.setProperty("sonar.projectBinaries", "junit.jar");
+
+    MavenProject pom = create();
 
     assertThat(pom.getCompileClasspathElements().size(), is(1));
     assertThat((String) pom.getCompileClasspathElements().get(0), is("junit.jar"));
   }
 
   @Test
+  public void standardDirectoriesLayout() {
+    createRequiredProperties();
+
+    MavenProject pom = create();
+
+    assertThat(pom.getBasedir(), is(project.getBaseDir()));
+    String buildDirectory = new File(project.getBaseDir(), "/target").getAbsolutePath();
+    assertThat(pom.getBuild().getDirectory(), is(buildDirectory));
+    assertThat(pom.getBuild().getOutputDirectory(), is(buildDirectory + "/classes"));
+    assertThat(pom.getReporting().getOutputDirectory(), is(buildDirectory + "/site"));
+  }
+
+  @Test
   public void nonStandardDirectoriesLayout() {
-    createRequiredProperties("org.example:example", "1.0-SNAPSHOT", "build");
-    properties.setProperty("project.build.outputDirectory", "bin");
-    properties.setProperty("project.reporting.outputDirectory", "build/reports");
+    createRequiredProperties();
+    properties.setProperty("project.build.directory", "build");
+    properties.setProperty("project.build.outputDirectory", "classes");
+    properties.setProperty("project.reporting.outputDirectory", "reports");
 
     MavenProject pom = create();
 
     assertThat(pom.getBuild().getDirectory(), is("build"));
-    assertThat(pom.getBuild().getOutputDirectory(), is("bin"));
-    assertThat(pom.getReporting().getOutputDirectory(), is("build/reports"));
+    assertThat(pom.getBuild().getOutputDirectory(), is("classes"));
+    assertThat(pom.getReporting().getOutputDirectory(), is("reports"));
   }
 
   @Test
   public void shouldNotFailIfNoBinaries() throws Exception {
-    createRequiredProperties("org.example:example", "1.0-SNAPSHOT", "build");
+    createRequiredProperties();
 
     MavenProject pom = create();
     assertThat(pom.getCompileClasspathElements().size(), is(0));
   }
 
-  private void createRequiredProperties(String key, String version, String buildDirectory) {
-    properties.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, key);
-    properties.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, version);
-    properties.setProperty("project.build.directory", buildDirectory);
+  private void createRequiredProperties() {
+    properties.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "org.example:example");
+    properties.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0-SNAPSHOT");
   }
 
   @Test(expected = SonarException.class)
@@ -107,13 +131,6 @@ public class InMemoryPomCreatorTest {
   @Test(expected = SonarException.class)
   public void shouldFailWhenVersionNotSpecified() {
     properties.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "org.example:example");
-    create();
-  }
-
-  @Test(expected = SonarException.class)
-  public void shouldFailWhenBuildDirectoryNotSpecified() {
-    properties.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "org.example:example");
-    properties.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "0.1");
     create();
   }
 

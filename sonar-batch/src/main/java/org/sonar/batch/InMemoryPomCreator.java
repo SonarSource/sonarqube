@@ -78,7 +78,7 @@ public class InMemoryPomCreator {
     pom.setArtifacts(Collections.EMPTY_SET);
 
     // Configure fake directories
-    String buildDirectory = getPropertyOrDie(properties, "project.build.directory");
+    String buildDirectory = properties.getProperty("project.build.directory", project.getBaseDir().getAbsolutePath() + "/target");
     pom.getBuild().setDirectory(buildDirectory);
     String buildOutputDirectory = properties.getProperty("project.build.outputDirectory", buildDirectory + "/classes");
     pom.getBuild().setOutputDirectory(buildOutputDirectory);
