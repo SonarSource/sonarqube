@@ -90,7 +90,7 @@ public class InMemoryPomCreatorTest {
     MavenProject pom = create();
 
     assertThat(pom.getBasedir(), is(project.getBaseDir()));
-    String buildDirectory = new File(project.getBaseDir(), "/target").getAbsolutePath();
+    String buildDirectory = project.getBaseDir().getAbsolutePath() + "/target";
     assertThat(pom.getBuild().getDirectory(), is(buildDirectory));
     assertThat(pom.getBuild().getOutputDirectory(), is(buildDirectory + "/classes"));
     assertThat(pom.getReporting().getOutputDirectory(), is(buildDirectory + "/site"));
