@@ -19,12 +19,14 @@
  */
 package org.sonar.batch.index;
 
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.Event;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectLink;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
 
 import java.util.List;
 
@@ -66,7 +68,7 @@ public final class DefaultPersistenceManager implements PersistenceManager {
   }
 
   public Snapshot saveResource(Project project, Resource resource, Resource parent) {
-    if (isPersistable(resource)) {
+    if (ResourceUtils.isPersistable(resource)) {
       return resourcePersister.saveResource(project, resource, parent);
     }
     return null;
@@ -77,13 +79,13 @@ public final class DefaultPersistenceManager implements PersistenceManager {
   }
 
   public void saveMeasure(Resource resource, Measure measure) {
-    if (isPersistable(resource)) {
+    if (ResourceUtils.isPersistable(resource)) {
       measurePersister.saveMeasure(resource, measure);
     }
   }
 
   public void saveDependency(Project project, Dependency dependency, Dependency parentDependency) {
-    if (isPersistable(dependency.getFrom()) && isPersistable(dependency.getTo())) {
+    if (ResourceUtils.isPersistable(dependency.getFrom()) && ResourceUtils.isPersistable(dependency.getTo())) {
       dependencyPersister.saveDependency(project, dependency, parentDependency);
     }
   }
@@ -105,17 +107,8 @@ public final class DefaultPersistenceManager implements PersistenceManager {
   }
 
   public void saveEvent(Resource resource, Event event) {
-    if (isPersistable(resource)) {
+    if (ResourceUtils.isPersistable(resource)) {
       eventPersister.saveEvent(resource, event);
     }
-  }
-
-  static boolean isPersistable(Resource resource) {
-    if (resource != null) {
-      return resource instanceof File || resource instanceof Directory || resource instanceof Library || resource instanceof Project ||
-          // for deprecated resources
-          StringUtils.equals(Scopes.PROJECT, resource.getScope()) || StringUtils.equals(Scopes.DIRECTORY, resource.getScope()) || StringUtils.equals(Scopes.FILE, resource.getScope());
-    }
-    return false;
   }
 }

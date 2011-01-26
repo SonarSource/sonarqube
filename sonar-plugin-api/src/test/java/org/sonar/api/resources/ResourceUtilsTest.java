@@ -19,9 +19,12 @@
  */
 package org.sonar.api.resources;
 
+import org.junit.Test;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import org.junit.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ResourceUtilsTest {
 
@@ -62,5 +65,24 @@ public class ResourceUtilsTest {
     assertThat(ResourceUtils.isSet(pack), is(false));
     assertThat(ResourceUtils.isRootProject(pack), is(false));
     assertThat(ResourceUtils.isUnitTestClass(pack), is(false));
+  }
+
+  @Test
+  public void shouldBePersistable() {
+    assertThat(ResourceUtils.isPersistable(new File("Foo.java")), is(true));
+    assertThat(ResourceUtils.isPersistable(new Directory("bar/Foo.java")), is(true));
+    assertThat(ResourceUtils.isPersistable(new Project("foo")), is(true));
+    assertThat(ResourceUtils.isPersistable(new Library("foo", "1.2")), is(true));
+  }
+
+  @Test
+  public void shouldNotBePersistable() {
+    Resource javaClass = mock(Resource.class);
+    when(javaClass.getScope()).thenReturn(Scopes.TYPE);
+    Resource javaMethod = mock(Resource.class);
+    when(javaMethod.getScope()).thenReturn(Scopes.BLOCK_UNIT);
+
+    assertThat(ResourceUtils.isPersistable(javaClass), is(false));
+    assertThat(ResourceUtils.isPersistable(javaMethod), is(false));
   }
 }

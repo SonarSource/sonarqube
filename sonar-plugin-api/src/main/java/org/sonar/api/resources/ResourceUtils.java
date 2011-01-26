@@ -19,6 +19,8 @@
  */
 package org.sonar.api.resources;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * @since 1.10
  */
@@ -125,5 +127,15 @@ public final class ResourceUtils {
    */
   public static boolean isLibrary(Resource resource) {
     return Resource.QUALIFIER_LIB.equals(resource.getQualifier());
+  }
+
+  /**
+   * @param resource not nullable
+   * @return true if this type of resource is persisted in database
+   * @since 2.6
+   */
+  public static boolean isPersistable(Resource resource) {
+    return StringUtils.equals(Scopes.PROJECT, resource.getScope()) || StringUtils.equals(Scopes.DIRECTORY, resource.getScope()) ||
+        StringUtils.equals(Scopes.FILE, resource.getScope());
   }
 }
