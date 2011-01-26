@@ -32,10 +32,7 @@ import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.*;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectLink;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.resources.*;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
@@ -489,17 +486,19 @@ public final class DefaultIndex extends SonarIndex {
     }
   }
 
-  private Bucket checkIndexed(Resource reference) {
-    Bucket bucket = getBucket(reference, true);
+  private Bucket checkIndexed(Resource resource) {
+    Bucket bucket = getBucket(resource, true);
     if (bucket == null) {
       if (lock.isLocked()) {
         if (lock.isFailWhenLocked()) {
-          throw new ResourceNotIndexedException(reference);
+          throw new ResourceNotIndexedException(resource);
         }
-        LOG.warn("Resource will be ignored in next Sonar versions, index is locked: " + reference);
-      } else {
-        // other languages than Java - keep backward compatibility
-        bucket = doIndex(reference);
+        LOG.warn("Resource will be ignored in next Sonar versions, index is locked: " + resource);
+      }
+      if (Scopes.isDirectory(resource) || Scopes.isFile(resource)) {
+        bucket = doIndex(resource);
+      } else if (!lock.isLocked()) {
+        LOG.warn("Resource will be ignored in next Sonar versions, it must be indexed before adding data: " + resource);
       }
     }
     return bucket;
