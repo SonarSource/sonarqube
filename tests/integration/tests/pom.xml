@@ -29,6 +29,7 @@
               <extensionsDir>${project.basedir}/target/extensions</extensionsDir>
               <configBackup>${project.basedir}/integration-tests-backup.xml</configBackup>
               <clean>true</clean>
+              <workDir>${project.build.directory}/it-workspace</workDir>
             </configuration>
             <goals>
               <goal>start-war</goal>
