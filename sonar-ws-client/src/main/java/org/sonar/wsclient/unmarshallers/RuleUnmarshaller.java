@@ -19,10 +19,9 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.sonar.wsclient.services.Rule;
 import org.sonar.wsclient.services.RuleParam;
+import org.sonar.wsclient.services.WSUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,34 +32,40 @@ import java.util.List;
 public class RuleUnmarshaller extends AbstractUnmarshaller<Rule> {
 
   @Override
-  protected Rule parse(JSONObject json) {
+  protected Rule parse(Object json) {
     Rule rule = new Rule();
     parseRuleFields(json, rule);
     parseParams(json, rule);
     return rule;
   }
 
-  private void parseRuleFields(JSONObject json, Rule rule) {
-    rule.setTitle(JsonUtils.getString(json, "title"))
-        .setKey(JsonUtils.getString(json, "key"))
-        .setRepository(JsonUtils.getString(json, "plugin"))
-        .setDescription(JsonUtils.getString(json, "description"))
-        .setSeverity(JsonUtils.getString(json, "priority"))
-        .setActive("ACTIVE".equals(JsonUtils.getString(json, "status")));
+  private void parseRuleFields(Object json, Rule rule) {
+    WSUtils utils = WSUtils.getINSTANCE();
+
+    rule.setTitle(utils.getString(json, "title"))
+        .setKey(utils.getString(json, "key"))
+        .setRepository(utils.getString(json, "plugin"))
+        .setDescription(utils.getString(json, "description"))
+        .setSeverity(utils.getString(json, "priority"))
+        .setActive("ACTIVE".equals(utils.getString(json, "status")));
   }
 
-  private void parseParams(JSONObject json, Rule rule) {
-    JSONArray paramsJson = (JSONArray) json.get("params");
+  private void parseParams(Object json, Rule rule) {
+    WSUtils utils = WSUtils.getINSTANCE();
+
+    Object paramsJson = utils.getField(json, "params");
     if (paramsJson != null) {
       rule.setParams(parseParams(paramsJson));
     }
   }
 
-  private List<RuleParam> parseParams(JSONArray paramsJson) {
+  private List<RuleParam> parseParams(Object paramsJson) {
+    WSUtils utils = WSUtils.getINSTANCE();
+
     List<RuleParam> ruleParams = new ArrayList<RuleParam>();
-    int len = paramsJson.size();
+    int len = utils.getArraySize(paramsJson);
     for (int i = 0; i < len; i++) {
-      JSONObject paramJson = (JSONObject) paramsJson.get(i);
+      Object paramJson = utils.getArrayElement(paramsJson, i);
       if (paramJson != null) {
         RuleParam param = parseParam(paramJson);
         ruleParams.add(param);
@@ -69,11 +74,13 @@ public class RuleUnmarshaller extends AbstractUnmarshaller<Rule> {
     return ruleParams;
   }
 
-  private RuleParam parseParam(JSONObject json) {
+  private RuleParam parseParam(Object json) {
+    WSUtils utils = WSUtils.getINSTANCE();
+
     RuleParam param = new RuleParam();
-    param.setName(JsonUtils.getString(json, "name"))
-        .setDescription(JsonUtils.getString(json, "description"))
-        .setValue(JsonUtils.getString(json, "value"));
+    param.setName(utils.getString(json, "name"))
+        .setDescription(utils.getString(json, "description"))
+        .setValue(utils.getString(json, "value"));
     return param;
   }
 

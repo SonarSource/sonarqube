@@ -29,11 +29,11 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 
-public class ResourceUnmarshallerTest {
+public class ResourceUnmarshallerTest extends UnmarshallerTestCase {
 
   @Test
   public void singleResource() {
-    String json = WSTestUtils.loadFile("/resources/single-resource.json");
+    String json = loadFile("/resources/single-resource.json");
     assertSonar(new ResourceUnmarshaller().toModel(json));
 
     List<Resource> resources = new ResourceUnmarshaller().toModels(json);
@@ -43,7 +43,7 @@ public class ResourceUnmarshallerTest {
 
   @Test
   public void singleResourceWithMeasures() {
-    Resource resource = new ResourceUnmarshaller().toModel(WSTestUtils.loadFile("/resources/single-resource-with-measures.json"));
+    Resource resource = new ResourceUnmarshaller().toModel(loadFile("/resources/single-resource-with-measures.json"));
     assertSonar(resource);
 
     assertThat(resource.getMeasures().size(), is(2));
@@ -54,7 +54,7 @@ public class ResourceUnmarshallerTest {
 
   @Test
   public void singleResourceWithTrends() {
-    Resource resource = new ResourceUnmarshaller().toModel(WSTestUtils.loadFile("/resources/single-resource-with-trends.json"));
+    Resource resource = new ResourceUnmarshaller().toModel(loadFile("/resources/single-resource-with-trends.json"));
     assertSonar(resource);
 
     assertThat(resource.getMeasures().size(), is(2));
@@ -68,7 +68,7 @@ public class ResourceUnmarshallerTest {
 
   @Test
   public void manyResources() {
-    List<Resource> resources = new ResourceUnmarshaller().toModels(WSTestUtils.loadFile("/resources/many-resources.json"));
+    List<Resource> resources = new ResourceUnmarshaller().toModels(loadFile("/resources/many-resources.json"));
 
     assertThat(resources.size(), is(19));
     for (Resource resource : resources) {
@@ -80,7 +80,7 @@ public class ResourceUnmarshallerTest {
 
   @Test
   public void manyResourcesWithMeasures() {
-    List<Resource> resources = new ResourceUnmarshaller().toModels(WSTestUtils.loadFile("/resources/many-resources-with-measures.json"));
+    List<Resource> resources = new ResourceUnmarshaller().toModels(loadFile("/resources/many-resources-with-measures.json"));
 
     assertThat(resources.size(), is(17));
     for (Resource resource : resources) {

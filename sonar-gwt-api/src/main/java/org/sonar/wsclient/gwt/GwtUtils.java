@@ -20,9 +20,14 @@
 package org.sonar.wsclient.gwt;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
+import org.sonar.gwt.JsonUtils;
 import org.sonar.wsclient.services.WSUtils;
 
 import java.util.Date;
+import java.util.Set;
 
 public class GwtUtils extends WSUtils {
   @Override
@@ -34,4 +39,64 @@ public class GwtUtils extends WSUtils {
   public String encodeUrl(String url) {
     return com.google.gwt.http.client.URL.encode(url);
   }
+
+  @Override
+  public Object getField(Object json, String field) {
+    return ((JSONObject) json).get(field);
+  }
+
+  @Override
+  public String getString(Object json, String field) {
+    return JsonUtils.getString((JSONObject) json, field);
+  }
+
+  @Override
+  public Boolean getBoolean(Object json, String field) {
+    return JsonUtils.getBoolean((JSONObject) json, field);
+  }
+
+  @Override
+  public Integer getInteger(Object json, String field) {
+    return JsonUtils.getInteger((JSONObject) json, field);
+  }
+
+  @Override
+  public Double getDouble(Object json, String field) {
+    return JsonUtils.getDouble((JSONObject) json, field);
+  }
+
+  @Override
+  public Long getLong(Object json, String field) {
+    Double d = JsonUtils.getDouble((JSONObject) json, field);
+    if (d != null) {
+      return d.longValue();
+    }
+    return null;
+  }
+
+  @Override
+  public Date getDateTime(Object json, String field) {
+    return JsonUtils.getDate((JSONObject) json, field);
+  }
+
+  @Override
+  public int getArraySize(Object array) {
+    return JsonUtils.getArraySize((JSONValue) array);
+  }
+
+  @Override
+  public Object getArrayElement(Object array, int i) {
+    return JsonUtils.getArray((JSONValue) array, i);
+  }
+
+  @Override
+  public Object parse(String jsonStr) {
+    return JSONParser.parse(jsonStr);
+  }
+
+  @Override
+  public Set<String> getFields(Object json) {
+    return ((JSONObject) json).keySet();
+  }
+
 }

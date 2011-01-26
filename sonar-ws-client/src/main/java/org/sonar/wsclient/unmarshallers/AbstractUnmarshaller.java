@@ -19,10 +19,8 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 import org.sonar.wsclient.services.Model;
+import org.sonar.wsclient.services.WSUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +28,11 @@ import java.util.List;
 public abstract class AbstractUnmarshaller<MODEL extends Model> implements Unmarshaller<MODEL> {
 
   public final MODEL toModel(String json) {
-    MODEL  result = null;
-    JSONArray array = (JSONArray) JSONValue.parse(json);
-    if (array.size() >= 1) {
-      JSONObject elt = (JSONObject) array.get(0);
+    WSUtils utils = WSUtils.getINSTANCE();
+    MODEL result = null;
+    Object array = utils.parse(json);
+    if (utils.getArraySize(array) >= 1) {
+      Object elt = utils.getArrayElement(array, 0);
       if (elt != null) {
         result = parse(elt);
       }
@@ -43,10 +42,11 @@ public abstract class AbstractUnmarshaller<MODEL extends Model> implements Unmar
   }
 
   public final List<MODEL> toModels(String json) {
+    WSUtils utils = WSUtils.getINSTANCE();
     List<MODEL> result = new ArrayList<MODEL>();
-    JSONArray array = (JSONArray) JSONValue.parse(json);
-    for (Object anArray : array) {
-      JSONObject elt = (JSONObject) anArray;
+    Object array = utils.parse(json);
+    for (int i = 0; i < utils.getArraySize(array); i++) {
+      Object elt = utils.getArrayElement(array, i);
       if (elt != null) {
         result.add(parse(elt));
       }
@@ -54,5 +54,5 @@ public abstract class AbstractUnmarshaller<MODEL extends Model> implements Unmar
     return result;
   }
 
-  protected abstract MODEL parse(JSONObject elt);
+  protected abstract MODEL parse(Object elt);
 }

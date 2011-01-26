@@ -28,7 +28,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-public class RuleUnmarshallerTest {
+public class RuleUnmarshallerTest extends UnmarshallerTestCase {
 
   @Test
   public void toModels() {
@@ -38,7 +38,7 @@ public class RuleUnmarshallerTest {
     List<Rule> rules = new RuleUnmarshaller().toModels("[]");
     assertThat(rules.size(), is(0));
 
-    rules = new RuleUnmarshaller().toModels(WSTestUtils.loadFile("/rules/rules.json"));
+    rules = new RuleUnmarshaller().toModels(loadFile("/rules/rules.json"));
     assertThat(rules.size(), is(6));
 
     rule = rules.get(0);

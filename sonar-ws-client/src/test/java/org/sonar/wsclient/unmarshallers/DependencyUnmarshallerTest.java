@@ -28,14 +28,14 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class DependencyUnmarshallerTest {
+public class DependencyUnmarshallerTest extends UnmarshallerTestCase {
 
   @Test
   public void toModel() {
     Dependency dependency = new DependencyUnmarshaller().toModel("[]");
     assertThat(dependency, nullValue());
 
-    dependency = new DependencyUnmarshaller().toModel(WSTestUtils.loadFile("/dependencies/single.json"));
+    dependency = new DependencyUnmarshaller().toModel(loadFile("/dependencies/single.json"));
     assertThat(dependency.getId(), is("1649"));
     assertThat(dependency.getFromKey(), is("org.apache.shiro:shiro-core:org.apache.shiro.authc.pam"));
     assertThat(dependency.getToKey(), is("org.apache.shiro:shiro-core:org.apache.shiro.realm"));
@@ -52,7 +52,7 @@ public class DependencyUnmarshallerTest {
     Collection<Dependency> dependencies = new DependencyUnmarshaller().toModels("[]");
     assertThat(dependencies.size(), is(0));
 
-    dependencies = new DependencyUnmarshaller().toModels(WSTestUtils.loadFile("/dependencies/many.json"));
+    dependencies = new DependencyUnmarshaller().toModels(loadFile("/dependencies/many.json"));
     assertThat(dependencies.size(), is(15));
   }
 

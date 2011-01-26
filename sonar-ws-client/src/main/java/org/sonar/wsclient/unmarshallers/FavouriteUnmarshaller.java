@@ -19,19 +19,20 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.json.simple.JSONObject;
 import org.sonar.wsclient.services.Favourite;
+import org.sonar.wsclient.services.WSUtils;
 
 public class FavouriteUnmarshaller extends AbstractUnmarshaller<Favourite> {
 
   @Override
-  protected Favourite parse(JSONObject json) {
+  protected Favourite parse(Object json) {
+    WSUtils utils = WSUtils.getINSTANCE();
     return new Favourite()
-        .setId(JsonUtils.getInteger(json, "id"))
-        .setKey(JsonUtils.getString(json, "key"))
-        .setName(JsonUtils.getString(json, "name"))
-        .setScope(JsonUtils.getString(json, "scope"))
-        .setQualifier(JsonUtils.getString(json, "qualifier"))
-        .setLanguage(JsonUtils.getString(json, "lang"));
+        .setId(utils.getInteger(json, "id"))
+        .setKey(utils.getString(json, "key"))
+        .setName(utils.getString(json, "name"))
+        .setScope(utils.getString(json, "scope"))
+        .setQualifier(utils.getString(json, "qualifier"))
+        .setLanguage(utils.getString(json, "lang"));
   }
 }

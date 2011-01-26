@@ -19,20 +19,21 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.json.simple.JSONObject;
 import org.sonar.wsclient.services.Event;
+import org.sonar.wsclient.services.WSUtils;
 
 public class EventUnmarshaller extends AbstractUnmarshaller<Event> {
 
   @Override
-  protected Event parse(JSONObject json) {
+  protected Event parse(Object json) {
+    WSUtils utils = WSUtils.getINSTANCE();
     return new Event()
-        .setId(JsonUtils.getString(json, "id"))
-        .setResourceKey(JsonUtils.getString(json, "rk"))
-        .setName(JsonUtils.getString(json, "n"))
-        .setCategory(JsonUtils.getString(json, "c"))
-        .setDate(JsonUtils.getDateTime(json, "dt"))
-        .setDescription(JsonUtils.getString(json, "ds"))
-        .setData(JsonUtils.getString(json, "data"));
+        .setId(utils.getString(json, "id"))
+        .setResourceKey(utils.getString(json, "rk"))
+        .setName(utils.getString(json, "n"))
+        .setCategory(utils.getString(json, "c"))
+        .setDate(utils.getDateTime(json, "dt"))
+        .setDescription(utils.getString(json, "ds"))
+        .setData(utils.getString(json, "data"));
   }
 }

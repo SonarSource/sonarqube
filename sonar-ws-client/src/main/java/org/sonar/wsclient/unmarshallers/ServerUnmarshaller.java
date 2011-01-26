@@ -19,9 +19,8 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 import org.sonar.wsclient.services.Server;
+import org.sonar.wsclient.services.WSUtils;
 
 import java.util.List;
 
@@ -30,12 +29,13 @@ import java.util.List;
  */
 public class ServerUnmarshaller implements Unmarshaller<Server> {
   public Server toModel(String json) {
-    JSONObject map = (JSONObject) JSONValue.parse(json);
+    WSUtils utils = WSUtils.getINSTANCE();
+    Object map = utils.parse(json);
     Server server = new Server()
-        .setId(JsonUtils.getString(map, "id"))
-        .setVersion(JsonUtils.getString(map, "version"))
-        .setStatusMessage(JsonUtils.getString(map, "status_msg"));
-    String status = JsonUtils.getString(map, "status");
+        .setId(utils.getString(map, "id"))
+        .setVersion(utils.getString(map, "version"))
+        .setStatusMessage(utils.getString(map, "status_msg"));
+    String status = utils.getString(map, "status");
     if (status != null) {
       server.setStatus(Server.Status.valueOf(status));
     }

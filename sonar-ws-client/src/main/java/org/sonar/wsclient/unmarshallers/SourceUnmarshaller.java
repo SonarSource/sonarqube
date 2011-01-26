@@ -19,20 +19,18 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.json.simple.JSONObject;
 import org.sonar.wsclient.services.Source;
-
-import java.util.Map;
+import org.sonar.wsclient.services.WSUtils;
 
 public class SourceUnmarshaller extends AbstractUnmarshaller<Source> {
 
   @Override
-  protected Source parse(JSONObject json) {
+  protected Source parse(Object json) {
+    WSUtils utils = WSUtils.getINSTANCE();
     Source source = new Source();
 
-    for (Object o : json.entrySet()) {
-      Map.Entry<String, String> entry = (Map.Entry<String, String>) o;
-      source.addLine(Integer.parseInt(entry.getKey()), entry.getValue());
+    for (String field : utils.getFields(json)) {
+      source.addLine(Integer.parseInt(field), utils.getString(json, field));
     }
 
     return source;

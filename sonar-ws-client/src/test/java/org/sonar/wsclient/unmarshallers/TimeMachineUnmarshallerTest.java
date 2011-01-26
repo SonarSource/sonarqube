@@ -26,11 +26,11 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class TimeMachineUnmarshallerTest {
+public class TimeMachineUnmarshallerTest extends UnmarshallerTestCase {
 
   @Test
   public void testToModel() throws Exception {
-    TimeMachine timeMachine = new TimeMachineUnmarshaller().toModel(WSTestUtils.loadFile("/timemachine/timemachine.json"));
+    TimeMachine timeMachine = new TimeMachineUnmarshaller().toModel(loadFile("/timemachine/timemachine.json"));
 
     // columns
     assertThat(timeMachine.getColumns().length, is(2));
@@ -52,7 +52,7 @@ public class TimeMachineUnmarshallerTest {
 
   @Test
   public void shouldAcceptNullValues() throws Exception {
-    TimeMachine timeMachine = new TimeMachineUnmarshaller().toModel(WSTestUtils.loadFile("/timemachine/null-values.json"));
+    TimeMachine timeMachine = new TimeMachineUnmarshaller().toModel(loadFile("/timemachine/null-values.json"));
 
     assertThat(timeMachine.getCells()[0].getValues().length, is(2));
     assertThat(timeMachine.getCells()[0].getValues()[0], nullValue());
@@ -64,7 +64,7 @@ public class TimeMachineUnmarshallerTest {
 
   @Test
   public void shouldCastValues() throws Exception {
-    TimeMachine timeMachine = new TimeMachineUnmarshaller().toModel(WSTestUtils.loadFile("/timemachine/typed-values.json"));
+    TimeMachine timeMachine = new TimeMachineUnmarshaller().toModel(loadFile("/timemachine/typed-values.json"));
 
     assertThat(timeMachine.getCells()[0].getValues().length, is(2));
     assertThat((String) timeMachine.getCells()[0].getValues()[0], is("Sonar way"));

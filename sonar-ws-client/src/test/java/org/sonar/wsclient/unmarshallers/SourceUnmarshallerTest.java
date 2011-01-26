@@ -26,21 +26,21 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class SourceUnmarshallerTest {
+public class SourceUnmarshallerTest extends UnmarshallerTestCase {
 
   @Test
   public void toModel() {
     Source source = new SourceUnmarshaller().toModel("[]");
     assertThat(source, nullValue());
 
-    source = new SourceUnmarshaller().toModel(WSTestUtils.loadFile("/sources/source.json"));
+    source = new SourceUnmarshaller().toModel(loadFile("/sources/source.json"));
     assertThat(source.getLines().size(), is(236));
     assertThat(source.getLine(3), is(" * Copyright (C) 2009 SonarSource SA"));
   }
 
   @Test
   public void fromLineToLine() {
-    Source source = new SourceUnmarshaller().toModel(WSTestUtils.loadFile("/sources/from_line_to_line.json"));
+    Source source = new SourceUnmarshaller().toModel(loadFile("/sources/from_line_to_line.json"));
     assertThat(source.getLines().size(), is(15));
     assertThat(source.getLine(1), nullValue());
     assertThat(source.getLine(3), is(" * Copyright (C) 2009 SonarSource SA"));

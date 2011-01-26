@@ -19,34 +19,34 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.sonar.wsclient.services.DependencyTree;
+import org.sonar.wsclient.services.WSUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DependencyTreeUnmarshaller extends AbstractUnmarshaller<DependencyTree> {
   @Override
-  protected DependencyTree parse(JSONObject json) {
+  protected DependencyTree parse(Object json) {
+    WSUtils utils = WSUtils.getINSTANCE();
     DependencyTree tree = new DependencyTree()
-        .setDepId(JsonUtils.getString(json, "did"))
-        .setResourceId(JsonUtils.getString(json, "rid"))
-        .setResourceKey(JsonUtils.getString(json, "k"))
-        .setResourceName(JsonUtils.getString(json, "n"))
-        .setResourceScope(JsonUtils.getString(json, "s"))
-        .setResourceQualifier(JsonUtils.getString(json, "q"))
-        .setResourceVersion(JsonUtils.getString(json, "v"))
-        .setUsage(JsonUtils.getString(json, "u"))
-        .setWeight(JsonUtils.getInteger(json, "w"));
+        .setDepId(utils.getString(json, "did"))
+        .setResourceId(utils.getString(json, "rid"))
+        .setResourceKey(utils.getString(json, "k"))
+        .setResourceName(utils.getString(json, "n"))
+        .setResourceScope(utils.getString(json, "s"))
+        .setResourceQualifier(utils.getString(json, "q"))
+        .setResourceVersion(utils.getString(json, "v"))
+        .setUsage(utils.getString(json, "u"))
+        .setWeight(utils.getInteger(json, "w"));
 
     List<DependencyTree> to = new ArrayList<DependencyTree>();
     tree.setTo(to);
 
-    JSONArray toJson = (JSONArray) json.get("to");
+    Object toJson = utils.getField(json, "to");
     if (toJson != null) {
-      for (Object aToJson : toJson) {
-        to.add(parse((JSONObject) aToJson));
+      for (int i = 0; i < utils.getArraySize(toJson); i++) {
+        to.add(parse(utils.getArrayElement(toJson, i)));
       }
     }
     return tree;

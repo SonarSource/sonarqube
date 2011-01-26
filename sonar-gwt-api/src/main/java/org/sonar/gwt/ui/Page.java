@@ -22,12 +22,17 @@ package org.sonar.gwt.ui;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.sonar.wsclient.gwt.unmarshallers.ResourceUnmarshaller;
+import org.sonar.wsclient.gwt.GwtUtils;
 import org.sonar.wsclient.services.Resource;
+import org.sonar.wsclient.services.WSUtils;
+import org.sonar.wsclient.unmarshallers.ResourceUnmarshaller;
 
 public abstract class Page implements EntryPoint {
+
+  private static final ResourceUnmarshaller RESOURCE_UNMARSHALLER = new ResourceUnmarshaller();
 
   private Widget currentWidget = null;
   private Integer currentResourceId = null;
@@ -40,7 +45,7 @@ public abstract class Page implements EntryPoint {
 
   private void load() {
     Widget widget = doOnModuleLoad();
-    if (widget!=null) {
+    if (widget != null) {
       getRootPanel().add(widget);
     }
   }
@@ -52,7 +57,11 @@ public abstract class Page implements EntryPoint {
   public final void onResourceLoad() {
     JavaScriptObject json = loadResource();
     if (json != null) {
-      Resource resource = ResourceUnmarshaller.getInstance().toModel(json);
+      if (WSUtils.getINSTANCE() == null) {
+        WSUtils.setInstance(new GwtUtils()); // TODO dirty hack to initialize WSUtils
+      }
+      String jsonStr = (new JSONObject(json)).toString();
+      Resource resource = RESOURCE_UNMARSHALLER.toModel(jsonStr);
 
       RootPanel container = getRootPanel();
       container.clear();
@@ -82,11 +91,10 @@ public abstract class Page implements EntryPoint {
   }
 
   private native JavaScriptObject loadResource()/*-{
-    return $wnd.config['resource'];
-  }-*/;
+                                                return $wnd.config['resource'];
+                                                }-*/;
 
   private native void export(String gwtId, Page page)/*-{
-    $wnd.modules[gwtId]=function() {page.@org.sonar.gwt.ui.Page::onResourceLoad()()};
-  }-*/;
+                                                     $wnd.modules[gwtId]=function() {page.@org.sonar.gwt.ui.Page::onResourceLoad()()};
+                                                     }-*/;
 }
-

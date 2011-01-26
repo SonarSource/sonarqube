@@ -28,13 +28,13 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class PropertyUnmarshallerTest {
+public class PropertyUnmarshallerTest extends UnmarshallerTestCase {
   @Test
   public void toModel() {
     Property property = new PropertyUnmarshaller().toModel("[]");
     assertThat(property, nullValue());
 
-    property = new PropertyUnmarshaller().toModel(WSTestUtils.loadFile("/properties/single.json"));
+    property = new PropertyUnmarshaller().toModel(loadFile("/properties/single.json"));
     assertThat(property.getKey(), is("myprop"));
     assertThat(property.getValue(), is("myvalue"));
   }
@@ -44,10 +44,10 @@ public class PropertyUnmarshallerTest {
     Collection<Property> properties = new PropertyUnmarshaller().toModels("[]");
     assertThat(properties.size(), is(0));
 
-    properties = new PropertyUnmarshaller().toModels(WSTestUtils.loadFile("/properties/single.json"));
+    properties = new PropertyUnmarshaller().toModels(loadFile("/properties/single.json"));
     assertThat(properties.size(), is(1));
 
-    properties = new PropertyUnmarshaller().toModels(WSTestUtils.loadFile("/properties/many.json"));
+    properties = new PropertyUnmarshaller().toModels(loadFile("/properties/many.json"));
     assertThat(properties.size(), is(3));
   }
 }

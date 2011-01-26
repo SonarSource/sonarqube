@@ -30,14 +30,14 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 
-public class ViolationUnmarshallerTest {
+public class ViolationUnmarshallerTest extends UnmarshallerTestCase {
 
   @Test
   public void toModels() {
     Violation violation = new ViolationUnmarshaller().toModel("[]");
     assertThat(violation, nullValue());
 
-    List<Violation> violations = new ViolationUnmarshaller().toModels(WSTestUtils.loadFile("/violations/violations.json"));
+    List<Violation> violations = new ViolationUnmarshaller().toModels(loadFile("/violations/violations.json"));
     assertThat(violations.size(), is(2));
 
     violation = violations.get(0);
@@ -56,7 +56,7 @@ public class ViolationUnmarshallerTest {
 
   @Test
   public void violationWithoutLineNumber() {
-    Violation violation = new ViolationUnmarshaller().toModel(WSTestUtils.loadFile("/violations/violation-without-optional-fields.json"));
+    Violation violation = new ViolationUnmarshaller().toModel(loadFile("/violations/violation-without-optional-fields.json"));
     assertThat(violation.getMessage(), not(nullValue()));
     assertThat(violation.getLine(), nullValue());
     assertThat(violation.getCreatedAt(), nullValue());

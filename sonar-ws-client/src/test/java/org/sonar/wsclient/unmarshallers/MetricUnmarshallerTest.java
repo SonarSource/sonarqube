@@ -29,14 +29,14 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-public class MetricUnmarshallerTest {
+public class MetricUnmarshallerTest extends UnmarshallerTestCase {
 
   @Test
   public void toModel() {
     Metric metric = new MetricUnmarshaller().toModel("[]");
     assertThat(metric, nullValue());
 
-    metric = new MetricUnmarshaller().toModel(WSTestUtils.loadFile("/metrics/one_metric.json"));
+    metric = new MetricUnmarshaller().toModel(loadFile("/metrics/one_metric.json"));
     assertThat(metric.getKey(), is("ncloc"));
     assertThat(metric.getName(), is("Lines of code"));
     assertThat(metric.getDescription(), is("Non Commenting Lines of Code"));
@@ -49,10 +49,10 @@ public class MetricUnmarshallerTest {
     Collection<Metric> metrics = new MetricUnmarshaller().toModels("[]");
     assertThat(metrics.size(), is(0));
 
-    metrics = new MetricUnmarshaller().toModels(WSTestUtils.loadFile("/metrics/one_metric.json"));
+    metrics = new MetricUnmarshaller().toModels(loadFile("/metrics/one_metric.json"));
     assertThat(metrics.size(), is(1));
 
-    metrics = new MetricUnmarshaller().toModels(WSTestUtils.loadFile("/metrics/many_metrics.json"));
+    metrics = new MetricUnmarshaller().toModels(loadFile("/metrics/many_metrics.json"));
     assertThat(metrics.size(), is(10));
   }
 

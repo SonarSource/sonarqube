@@ -27,13 +27,13 @@ import java.util.List;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class DependencyTreeUnmarshallerTest {
+public class DependencyTreeUnmarshallerTest extends UnmarshallerTestCase {
   @Test
   public void singleDepthOfDependencies() {
     List<DependencyTree> trees = new DependencyTreeUnmarshaller().toModels("[]");
     assertThat(trees.size(), is(0));
 
-    trees = new DependencyTreeUnmarshaller().toModels(WSTestUtils.loadFile("/dependency_tree/single_depth.json"));
+    trees = new DependencyTreeUnmarshaller().toModels(loadFile("/dependency_tree/single_depth.json"));
     assertThat(trees.size(), is(2));
     assertThat(trees.get(0).getDepId(), is("12345"));
     assertThat(trees.get(0).getResourceId(), is("2000"));
@@ -48,7 +48,7 @@ public class DependencyTreeUnmarshallerTest {
 
   @Test
   public void manyDepthsOfDependencies() {
-    List<DependencyTree> trees = new DependencyTreeUnmarshaller().toModels(WSTestUtils.loadFile("/dependency_tree/many_depths.json"));
+    List<DependencyTree> trees = new DependencyTreeUnmarshaller().toModels(loadFile("/dependency_tree/many_depths.json"));
     assertThat(trees.size(), is(1));
     List<DependencyTree> secondLevelTrees = trees.get(0).getTo();
     assertThat(secondLevelTrees.size(), is(2));

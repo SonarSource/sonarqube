@@ -19,31 +19,33 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.json.simple.JSONObject;
 import org.sonar.wsclient.services.Violation;
+import org.sonar.wsclient.services.WSUtils;
 
 public class ViolationUnmarshaller extends AbstractUnmarshaller<Violation> {
 
   @Override
-  protected Violation parse(JSONObject json) {
-    Violation violation = new Violation();
-    violation.setMessage(JsonUtils.getString(json, "message"));
-    violation.setLine(JsonUtils.getInteger(json, "line"));
-    violation.setSeverity(JsonUtils.getString(json, "priority"));
-    violation.setCreatedAt(JsonUtils.getDateTime(json, "createdAt"));
+  protected Violation parse(Object json) {
+    WSUtils utils = WSUtils.getINSTANCE();
 
-    JSONObject rule = (JSONObject) json.get("rule");
+    Violation violation = new Violation();
+    violation.setMessage(utils.getString(json, "message"));
+    violation.setLine(utils.getInteger(json, "line"));
+    violation.setSeverity(utils.getString(json, "priority"));
+    violation.setCreatedAt(utils.getDateTime(json, "createdAt"));
+
+    Object rule = utils.getField(json, "rule");
     if (rule != null) {
-      violation.setRuleKey(JsonUtils.getString(rule, "key"));
-      violation.setRuleName(JsonUtils.getString(rule, "name"));
+      violation.setRuleKey(utils.getString(rule, "key"));
+      violation.setRuleName(utils.getString(rule, "name"));
     }
 
-    JSONObject resource = (JSONObject) json.get("resource");
+    Object resource = utils.getField(json, "resource");
     if (resource != null) {
-      violation.setResourceKey(JsonUtils.getString(resource, "key"));
-      violation.setResourceName(JsonUtils.getString(resource, "name"));
-      violation.setResourceQualifier(JsonUtils.getString(resource, "qualifier"));
-      violation.setResourceScope(JsonUtils.getString(resource, "scope"));
+      violation.setResourceKey(utils.getString(resource, "key"));
+      violation.setResourceName(utils.getString(resource, "name"));
+      violation.setResourceQualifier(utils.getString(resource, "qualifier"));
+      violation.setResourceScope(utils.getString(resource, "scope"));
     }
     return violation;
   }

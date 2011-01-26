@@ -19,24 +19,25 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.json.simple.JSONObject;
 import org.sonar.wsclient.services.Dependency;
+import org.sonar.wsclient.services.WSUtils;
 
 public class DependencyUnmarshaller extends AbstractUnmarshaller<Dependency> {
 
   @Override
-  protected Dependency parse(JSONObject json) {
+  protected Dependency parse(Object json) {
+    WSUtils utils = WSUtils.getINSTANCE();
     return new Dependency()
-        .setId(JsonUtils.getString(json, "id"))
-        .setFromId(JsonUtils.getLong(json, "fi"))
-        .setToId(JsonUtils.getLong(json, "ti"))
-        .setFromKey(JsonUtils.getString(json, "fk"))
-        .setToKey(JsonUtils.getString(json, "tk"))
-        .setUsage(JsonUtils.getString(json, "u"))
-        .setWeight(JsonUtils.getInteger(json, "w"))
-        .setFromName(JsonUtils.getString(json, "fn"))
-        .setFromQualifier(JsonUtils.getString(json, "fq"))
-        .setToName(JsonUtils.getString(json, "tn"))
-        .setToQualifier(JsonUtils.getString(json, "tq"));
+        .setId(utils.getString(json, "id"))
+        .setFromId(utils.getLong(json, "fi"))
+        .setToId(utils.getLong(json, "ti"))
+        .setFromKey(utils.getString(json, "fk"))
+        .setToKey(utils.getString(json, "tk"))
+        .setUsage(utils.getString(json, "u"))
+        .setWeight(utils.getInteger(json, "w"))
+        .setFromName(utils.getString(json, "fn"))
+        .setFromQualifier(utils.getString(json, "fq"))
+        .setToName(utils.getString(json, "tn"))
+        .setToQualifier(utils.getString(json, "tq"));
   }
 }

@@ -26,11 +26,11 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class ServerUnmarshallerTest {
+public class ServerUnmarshallerTest extends UnmarshallerTestCase {
 
   @Test
   public void testToModel() {
-    Server server = new ServerUnmarshaller().toModel(WSTestUtils.loadFile("/server/server.json"));
+    Server server = new ServerUnmarshaller().toModel(loadFile("/server/server.json"));
     assertThat(server.getId(), is("123456789"));
     assertThat(server.getVersion(), is("2.0-SNAPSHOT"));
     assertThat(server.getStatus(), is(Server.Status.UP));
@@ -39,7 +39,7 @@ public class ServerUnmarshallerTest {
 
   @Test
   public void shouldNotFailIfStatusIsMissing() {
-    Server server = new ServerUnmarshaller().toModel(WSTestUtils.loadFile("/server/status_missing.json"));
+    Server server = new ServerUnmarshaller().toModel(loadFile("/server/status_missing.json"));
     assertThat(server.getId(), is("123456789"));
     assertThat(server.getVersion(), is("2.0-SNAPSHOT"));
     assertThat(server.getStatus(), nullValue());

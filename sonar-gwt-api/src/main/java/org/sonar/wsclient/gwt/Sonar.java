@@ -21,18 +21,19 @@ package org.sonar.wsclient.gwt;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.i18n.client.Dictionary;
+import com.google.gwt.json.client.JSONObject;
 import org.sonar.gwt.JsonUtils;
-import org.sonar.wsclient.gwt.unmarshallers.Unmarshaller;
-import org.sonar.wsclient.gwt.unmarshallers.Unmarshallers;
 import org.sonar.wsclient.services.Model;
 import org.sonar.wsclient.services.Query;
 import org.sonar.wsclient.services.WSUtils;
+import org.sonar.wsclient.unmarshallers.Unmarshaller;
+import org.sonar.wsclient.unmarshallers.Unmarshallers;
 
 public class Sonar {
   static {
     WSUtils.setInstance(new GwtUtils());
   }
-  
+
   private static Sonar instance = null;
 
   private final String host;
@@ -56,7 +57,8 @@ public class Sonar {
     JsonUtils.requestJson(getUrl(query), new JsonUtils.JSONHandler() {
       public void onResponse(JavaScriptObject obj) {
         Unmarshaller<MODEL> unmarshaller = Unmarshallers.forModel(query.getModelClass());
-        callback.onResponse(unmarshaller.toModel(obj), obj);
+        String json = (new JSONObject(obj)).toString();
+        callback.onResponse(unmarshaller.toModel(json), obj);
       }
 
       public void onTimeout() {
@@ -73,7 +75,8 @@ public class Sonar {
     JsonUtils.requestJson(getUrl(query), new JsonUtils.JSONHandler() {
       public void onResponse(JavaScriptObject obj) {
         Unmarshaller<MODEL> unmarshaller = Unmarshallers.forModel(query.getModelClass());
-        callback.onResponse(unmarshaller.toModels(obj), obj);
+        String json = (new JSONObject(obj)).toString();
+        callback.onResponse(unmarshaller.toModels(json), obj);
       }
 
       public void onTimeout() {

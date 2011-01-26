@@ -20,7 +20,13 @@
 package org.sonar.wsclient.services;
 
 import java.util.Date;
+import java.util.Set;
 
+/**
+ * Compatibility layer between GWT and plain Java.
+ * Well, this is bad, because code is not type-safe, so all unmarshallers also,
+ * but this allows to remove duplications between sonar-gwt-api and sonar-ws-client.
+ */
 public abstract class WSUtils {
 
   private static WSUtils INSTANCE = null;
@@ -36,4 +42,67 @@ public abstract class WSUtils {
   public abstract String format(Date date, String format);
 
   public abstract String encodeUrl(String url);
+
+  /**
+   * @return value of specified field from specified JSON object,
+   *         or <code>null</code> if field does not exist
+   */
+  public abstract Object getField(Object json, String field);
+
+  /**
+   * @return String value of specified field from specified JSON object,
+   *         or <code>null</code> if field does not exist
+   */
+  public abstract String getString(Object json, String field);
+
+  /**
+   * @return Boolean value of specified field from specified JSON object,
+   *         or <code>null</code> if field does not exist
+   */
+  public abstract Boolean getBoolean(Object json, String field);
+
+  /**
+   * @return Integer value of specified field from specified JSON object,
+   *         or <code>null</code> if field does not exist
+   */
+  public abstract Integer getInteger(Object json, String field);
+
+  /**
+   * @return Double value of specified field from specified JSON object,
+   *         or <code>null</code> if field does not exist
+   */
+  public abstract Double getDouble(Object json, String field);
+
+  /**
+   * @return Long value of specified field from specified JSON object,
+   *         or <code>null</code> if field does not exist
+   */
+  public abstract Long getLong(Object json, String field);
+
+  /**
+   * @return Date value of specified field from specified JSON object,
+   *         or <code>null</code> if field does not exist
+   */
+  public abstract Date getDateTime(Object json, String field);
+
+  /**
+   * @return size of specified JSON array
+   */
+  public abstract int getArraySize(Object array);
+
+  /**
+   * @return element from specified JSON array
+   */
+  public abstract Object getArrayElement(Object array, int i);
+
+  /**
+   * @return JSON object
+   */
+  public abstract Object parse(String jsonStr);
+
+  /**
+   * @return field names in specified JSON object
+   */
+  public abstract Set<String> getFields(Object json);
+
 }

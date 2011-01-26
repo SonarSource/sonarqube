@@ -19,12 +19,17 @@
  */
 package org.sonar.wsclient;
 
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.sonar.wsclient.services.WSUtils;
+import org.sonar.wsclient.unmarshallers.JsonUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Set;
 
 public final class JdkUtils extends WSUtils {
 
@@ -42,4 +47,58 @@ public final class JdkUtils extends WSUtils {
     }
   }
 
+  @Override
+  public Object getField(Object json, String field) {
+    return ((JSONObject) json).get(field);
+  }
+
+  @Override
+  public String getString(Object json, String field) {
+    return JsonUtils.getString((JSONObject) json, field);
+  }
+
+  @Override
+  public Boolean getBoolean(Object json, String field) {
+    return JsonUtils.getBoolean((JSONObject) json, field);
+  }
+
+  @Override
+  public Integer getInteger(Object json, String field) {
+    return JsonUtils.getInteger((JSONObject) json, field);
+  }
+
+  @Override
+  public Double getDouble(Object json, String field) {
+    return JsonUtils.getDouble((JSONObject) json, field);
+  }
+
+  @Override
+  public Long getLong(Object json, String field) {
+    return JsonUtils.getLong((JSONObject) json, field);
+  }
+
+  @Override
+  public Date getDateTime(Object json, String field) {
+    return JsonUtils.getDateTime((JSONObject) json, field);
+  }
+
+  @Override
+  public int getArraySize(Object array) {
+    return ((ArrayList) array).size();
+  }
+
+  @Override
+  public Object getArrayElement(Object array, int i) {
+    return ((ArrayList) array).get(i);
+  }
+
+  @Override
+  public Object parse(String jsonStr) {
+    return JSONValue.parse(jsonStr);
+  }
+
+  @Override
+  public Set<String> getFields(Object json) {
+    return ((JSONObject) json).keySet();
+  }
 }

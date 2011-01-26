@@ -19,21 +19,22 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.json.simple.JSONObject;
 import org.sonar.wsclient.services.Metric;
+import org.sonar.wsclient.services.WSUtils;
 
 public class MetricUnmarshaller extends AbstractUnmarshaller<Metric> {
 
   @Override
-  protected Metric parse(JSONObject json) {
+  protected Metric parse(Object json) {
+    WSUtils utils = WSUtils.getINSTANCE();
     return new Metric()
-        .setKey(JsonUtils.getString(json, "key"))
-        .setName(JsonUtils.getString(json, "name"))
-        .setDomain(JsonUtils.getString(json, "domain"))
-        .setDescription(JsonUtils.getString(json, "description"))
-        .setDirection(JsonUtils.getInteger(json, "direction"))
-        .setType(JsonUtils.getString(json, "val_type"))
-        .setUserManaged(JsonUtils.getBoolean(json, "user_managed"))
-        .setHidden(JsonUtils.getBoolean(json, "hidden"));
+        .setKey(utils.getString(json, "key"))
+        .setName(utils.getString(json, "name"))
+        .setDomain(utils.getString(json, "domain"))
+        .setDescription(utils.getString(json, "description"))
+        .setDirection(utils.getInteger(json, "direction"))
+        .setType(utils.getString(json, "val_type"))
+        .setUserManaged(utils.getBoolean(json, "user_managed"))
+        .setHidden(utils.getBoolean(json, "hidden"));
   }
 }

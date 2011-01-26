@@ -29,11 +29,11 @@ import java.util.List;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class EventUnmarshallerTest {
+public class EventUnmarshallerTest extends UnmarshallerTestCase {
 
   @Test
   public void toModel() throws Exception {
-    List<Event> events = new EventUnmarshaller().toModels(WSTestUtils.loadFile("/events/events.json"));
+    List<Event> events = new EventUnmarshaller().toModels(loadFile("/events/events.json"));
     Event event = events.get(0);
     assertThat(event.getId(), is("10"));
     assertThat(event.getName(), is("foo"));

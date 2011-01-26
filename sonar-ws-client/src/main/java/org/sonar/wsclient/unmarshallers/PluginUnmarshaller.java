@@ -1,7 +1,7 @@
 package org.sonar.wsclient.unmarshallers;
 
-import org.json.simple.JSONObject;
 import org.sonar.wsclient.services.Plugin;
+import org.sonar.wsclient.services.WSUtils;
 
 /**
  * @since 2.4
@@ -9,11 +9,12 @@ import org.sonar.wsclient.services.Plugin;
 public class PluginUnmarshaller extends AbstractUnmarshaller<Plugin> {
 
   @Override
-  protected Plugin parse(JSONObject json) {
+  protected Plugin parse(Object json) {
+    WSUtils utils = WSUtils.getINSTANCE();
     return new Plugin()
-      .setKey(JsonUtils.getString(json, "key"))
-      .setName(JsonUtils.getString(json, "name"))
-      .setVersion(JsonUtils.getString(json, "version"));
+      .setKey(utils.getString(json, "key"))
+      .setName(utils.getString(json, "name"))
+      .setVersion(utils.getString(json, "version"));
   }
 
 }

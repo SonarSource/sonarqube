@@ -19,15 +19,16 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.json.simple.JSONObject;
 import org.sonar.wsclient.services.Property;
+import org.sonar.wsclient.services.WSUtils;
 
 public class PropertyUnmarshaller extends AbstractUnmarshaller<Property> {
 
   @Override
-  protected Property parse(JSONObject json) {
+  protected Property parse(Object json) {
+    WSUtils utils = WSUtils.getINSTANCE();
     return new Property()
-        .setKey(JsonUtils.getString(json, "key"))
-        .setValue(JsonUtils.getString(json, "value"));
+        .setKey(utils.getString(json, "key"))
+        .setValue(utils.getString(json, "value"));
   }
 }

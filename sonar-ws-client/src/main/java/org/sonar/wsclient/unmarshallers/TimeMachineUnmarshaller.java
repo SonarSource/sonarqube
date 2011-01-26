@@ -19,43 +19,45 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.sonar.wsclient.services.TimeMachine;
 import org.sonar.wsclient.services.TimeMachineCell;
 import org.sonar.wsclient.services.TimeMachineColumn;
+import org.sonar.wsclient.services.WSUtils;
 
 public class TimeMachineUnmarshaller extends AbstractUnmarshaller<TimeMachine> {
 
-  protected TimeMachine parse(JSONObject json) {
-    JSONArray cols = JsonUtils.getArray(json, "cols");
-    JSONArray cells = JsonUtils.getArray(json, "cells");
+  protected TimeMachine parse(Object json) {
+    WSUtils utils = WSUtils.getINSTANCE();
+    Object cols = utils.getField(json, "cols");
+    Object cells = utils.getField(json, "cells");
     return new TimeMachine(toColumns(cols), toCells(cells));
   }
 
-  private TimeMachineColumn[] toColumns(JSONArray cols) {
-    int size = cols.size();
+  private TimeMachineColumn[] toColumns(Object cols) {
+    WSUtils utils = WSUtils.getINSTANCE();
+    int size = utils.getArraySize(cols);
     TimeMachineColumn[] result = new TimeMachineColumn[size];
     for (int index = 0; index < size; index++) {
-      JSONObject colJson = (JSONObject) cols.get(index);
-      result[index] = new TimeMachineColumn(index, JsonUtils.getString(colJson, "metric"), null, null);
+      Object colJson = utils.getArrayElement(cols, index);
+      result[index] = new TimeMachineColumn(index, utils.getString(colJson, "metric"), null, null);
     }
     return result;
   }
 
-  private TimeMachineCell[] toCells(JSONArray cells) {
-    int size = cells.size();
+  private TimeMachineCell[] toCells(Object cells) {
+    WSUtils utils = WSUtils.getINSTANCE();
+    int size = utils.getArraySize(cells);
     TimeMachineCell[] result = new TimeMachineCell[size];
     for (int i = 0; i < size; i++) {
-      JSONObject cellJson = (JSONObject) cells.get(i);
-      JSONArray valuesJson = JsonUtils.getArray(cellJson, "v");
+      Object cellJson = utils.getArrayElement(cells, i);
+      Object valuesJson = utils.getField(cellJson, "v");
 
-      Object[] resultValues = new Object[valuesJson.size()];
-      for (int indexValue = 0; indexValue < valuesJson.size(); indexValue++) {
-        Object value = valuesJson.get(indexValue);
+      Object[] resultValues = new Object[utils.getArraySize(valuesJson)];
+      for (int indexValue = 0; indexValue < utils.getArraySize(valuesJson); indexValue++) {
+        Object value = utils.getArrayElement(valuesJson, indexValue);
         resultValues[indexValue] = value;
       }
-      result[i] = new TimeMachineCell(JsonUtils.getDateTime(cellJson, "d"), resultValues);
+      result[i] = new TimeMachineCell(utils.getDateTime(cellJson, "d"), resultValues);
     }
     return result;
   }
