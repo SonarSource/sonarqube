@@ -25,6 +25,8 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.project.MavenProject;
 import org.sonar.api.resources.DefaultProjectFileSystem;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 
@@ -67,14 +69,8 @@ public final class MavenTestUtils {
     Project project = new Project(pom.getGroupId() + ":" + pom.getArtifactId())
         .setPom(pom)
         .setConfiguration(new MapConfiguration(pom.getProperties()));
-    DefaultProjectFileSystem fs = new DefaultProjectFileSystem(project);
+    DefaultProjectFileSystem fs = new DefaultProjectFileSystem(project, new Languages(Java.INSTANCE));
     project.setFileSystem(fs);
-    project.getConfiguration().setProperty("project.build.outputDirectory", pom.getBuild().getOutputDirectory());
-    if (pom.getReporting() != null) {
-      project.getConfiguration().setProperty("project.reporting.outputDirectory", pom.getReporting().getOutputDirectory());
-    }
-    fs.setBaseDir(project.getPom().getBasedir());
-    fs.setBuildDir(project.getPom().getBuild().getDirectory());
     return project;
   }
 

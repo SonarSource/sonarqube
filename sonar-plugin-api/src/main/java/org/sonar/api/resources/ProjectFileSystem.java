@@ -19,7 +19,7 @@
  */
 package org.sonar.api.resources;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchComponent;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * @since 1.10
  */
-public interface ProjectFileSystem extends BatchExtension {
+public interface ProjectFileSystem extends BatchComponent {
   /**
    * Source encoding.
    * Never null, it returns the default platform charset if it is not defined in project.
@@ -61,6 +61,8 @@ public interface ProjectFileSystem extends BatchExtension {
    * Adds a source directory
    * 
    * @return the current object
+   * @deprecated since 2.6 - ProjectFileSystem should be immutable
+   *             See http://jira.codehaus.org/browse/SONAR-2126
    */
   ProjectFileSystem addSourceDir(File dir);
 
@@ -73,6 +75,8 @@ public interface ProjectFileSystem extends BatchExtension {
    * Adds a test directory
    * 
    * @return the current object
+   * @deprecated since 2.6 - ProjectFileSystem should be immutable
+   *             See http://jira.codehaus.org/browse/SONAR-2126
    */
   ProjectFileSystem addTestDir(File dir);
 
@@ -113,7 +117,10 @@ public interface ProjectFileSystem extends BatchExtension {
 
   /**
    * Check if the project has Java files, excluding unit tests and files matching project exclusion patterns.
+   * 
+   * @deprecated since 2.6 - API should be language agnostic
    */
+  @Deprecated
   boolean hasJavaSourceFiles();
 
   /**
@@ -127,7 +134,10 @@ public interface ProjectFileSystem extends BatchExtension {
 
   /**
    * Check if the project has unit test files, excluding files matching project exclusion patterns.
+   * 
+   * @deprecated since 2.6 - use language key instead of Language object
    */
+  @Deprecated
   boolean hasTestFiles(Language lang);
 
   /**
@@ -147,7 +157,7 @@ public interface ProjectFileSystem extends BatchExtension {
    * @param langs language filter. If null or empty, will return empty list
    * @since 2.6
    */
-  List<InputFile> mainFiles(Language... langs);
+  List<InputFile> mainFiles(String... langs);
 
   /**
    * TODO comment me
@@ -155,6 +165,6 @@ public interface ProjectFileSystem extends BatchExtension {
    * @param langs language filter. If null or empty, will return empty list
    * @since 2.6
    */
-  List<InputFile> testFiles(Language... langs);
+  List<InputFile> testFiles(String... langs);
 
 }

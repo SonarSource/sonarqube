@@ -22,16 +22,12 @@ package org.sonar.batch;
 import org.picocontainer.Characteristics;
 import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.batch.BatchExtensionDictionnary;
-import org.sonar.api.batch.FileFilter;
 import org.sonar.api.batch.ProjectClasspath;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.DefaultProjectFileSystem;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
-import org.sonar.api.resources.Project;
+import org.sonar.api.resources.*;
 import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.SonarException;
@@ -43,8 +39,6 @@ import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.phases.Phases;
 import org.sonar.core.components.DefaultModelFinder;
 import org.sonar.jpa.dao.*;
-
-import java.util.List;
 
 public class ProjectBatch {
 
@@ -71,6 +65,7 @@ public class ProjectBatch {
     batchContainer.as(Characteristics.CACHE).addComponent(project);
     batchContainer.as(Characteristics.CACHE).addComponent(project.getPom());
     batchContainer.as(Characteristics.CACHE).addComponent(ProjectClasspath.class);
+    batchContainer.as(Characteristics.CACHE).addComponent(DefaultProjectFileSystem.class);
     batchContainer.as(Characteristics.CACHE).addComponent(project.getConfiguration());
 
     // need to be registered after the Configuration
@@ -80,7 +75,8 @@ public class ProjectBatch {
     batchContainer.as(Characteristics.CACHE).addComponent(RulesDao.class);
 
     // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
-    batchContainer.as(Characteristics.CACHE).addComponent(globalContainer.getComponent(DefaultResourcePersister.class).getSnapshot(project));
+    batchContainer.as(Characteristics.CACHE)
+        .addComponent(globalContainer.getComponent(DefaultResourcePersister.class).getSnapshot(project));
 
     batchContainer.as(Characteristics.CACHE).addComponent(org.sonar.api.database.daos.RulesDao.class);
     batchContainer.as(Characteristics.CACHE).addComponent(org.sonar.api.database.daos.MeasuresDao.class);
@@ -113,10 +109,15 @@ public class ProjectBatch {
       throw new SonarException("Language with key '" + project.getLanguageKey() + "' not found");
     }
     project.setLanguage(language);
-    index.setCurrentProject(project, getComponent(ResourceFilters.class), getComponent(ViolationFilters.class), getComponent(RulesProfile.class));
 
-    List<FileFilter> fileFilters = batchContainer.getComponents(FileFilter.class);
-    ((DefaultProjectFileSystem) project.getFileSystem()).addFileFilters(fileFilters);
+    index.setCurrentProject(project,
+        getComponent(ResourceFilters.class),
+        getComponent(ViolationFilters.class),
+        getComponent(RulesProfile.class));
+
+    // TODO See http://jira.codehaus.org/browse/SONAR-2126
+    // previously MavenProjectBuilder was responsible for creation of ProjectFileSystem
+    project.setFileSystem(getComponent(ProjectFileSystem.class));
   }
 
   private void loadCoreComponents(MutablePicoContainer container) {
@@ -145,7 +146,6 @@ public class ProjectBatch {
       }
     }
   }
-
 
   public <T> T getComponent(Class<T> clazz) {
     if (batchContainer != null) {

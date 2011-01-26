@@ -83,7 +83,7 @@ public class SquidSensor implements Sensor {
   }
 
   private void browseTestSources(Project project, SensorContext context) {
-    for (InputFile testFile : project.getFileSystem().testFiles(Java.INSTANCE)) {
+    for (InputFile testFile : project.getFileSystem().testFiles(Java.KEY)) {
       context.index(JavaFile.fromRelativePath(testFile.getRelativePath(), true));
     }
   }

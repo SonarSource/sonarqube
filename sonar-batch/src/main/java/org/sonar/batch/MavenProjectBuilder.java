@@ -27,7 +27,6 @@ import org.sonar.api.batch.maven.MavenUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.DefaultProjectFileSystem;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
@@ -76,15 +75,8 @@ public class MavenProjectBuilder {
 
   void configure(Project project, Configuration projectConfiguration) {
     Date analysisDate = loadAnalysisDate(projectConfiguration);
-    DefaultProjectFileSystem fs = new DefaultProjectFileSystem(project);
     MavenProject pom = project.getPom();
     if (pom != null) {
-      fs.setBaseDir(pom.getBasedir());
-      fs.setBuildDir(pom.getBuild().getDirectory());
-      projectConfiguration.setProperty("project.build.outputDirectory", pom.getBuild().getOutputDirectory());
-      if (pom.getReporting() != null) {
-        projectConfiguration.setProperty("project.reporting.outputDirectory", pom.getReporting().getOutputDirectory());
-      }
       projectConfiguration.setProperty("sonar.java.sourceVersion", MavenUtils.getJavaSourceVersion(pom));
       projectConfiguration.setProperty("sonar.java.targetVersion", MavenUtils.getJavaVersion(pom));
     }
@@ -94,8 +86,7 @@ public class MavenProjectBuilder {
         .setLatestAnalysis(isLatestAnalysis(project.getKey(), analysisDate))
         .setAnalysisVersion(loadAnalysisVersion(projectConfiguration, pom))
         .setAnalysisType(loadAnalysisType(projectConfiguration))
-        .setLanguageKey(loadLanguageKey(projectConfiguration))
-        .setFileSystem(fs);
+        .setLanguageKey(loadLanguageKey(projectConfiguration));
   }
 
   static String[] loadExclusionPatterns(Configuration configuration) {

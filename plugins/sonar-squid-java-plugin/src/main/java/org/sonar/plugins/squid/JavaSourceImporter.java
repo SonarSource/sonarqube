@@ -50,8 +50,8 @@ public final class JavaSourceImporter implements Sensor {
   }
 
   void analyse(ProjectFileSystem fileSystem, SensorContext context) {
-    parseDirs(context, fileSystem.mainFiles(Java.INSTANCE), false, fileSystem.getSourceCharset());
-    parseDirs(context, fileSystem.testFiles(Java.INSTANCE), true, fileSystem.getSourceCharset());
+    parseDirs(context, fileSystem.mainFiles(Java.KEY), false, fileSystem.getSourceCharset());
+    parseDirs(context, fileSystem.testFiles(Java.KEY), true, fileSystem.getSourceCharset());
   }
 
   void parseDirs(SensorContext context, List<InputFile> inputFiles, boolean unitTest, Charset sourcesEncoding) {

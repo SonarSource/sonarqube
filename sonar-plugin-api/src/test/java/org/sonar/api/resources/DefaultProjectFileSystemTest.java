@@ -160,18 +160,19 @@ public class DefaultProjectFileSystemTest {
   }
 
   @Test
-  public void shouldAddExtendedFilters() {
-    DefaultProjectFileSystem fs = newDefaultProjectFileSystem(project);
-    assertThat(fs.getSourceFiles().size(), is(2));
-    assertThat(fs.getSourceFiles(), hasItem(named("Bar.java")));
+  public void shouldUseExtendedFilters() {
+    DefaultProjectFileSystem fsWithoutFilter = newDefaultProjectFileSystem(project);
+    assertThat(fsWithoutFilter.getSourceFiles().size(), is(2));
+    assertThat(fsWithoutFilter.getSourceFiles(), hasItem(named("Bar.java")));
 
-    fs.addFileFilter(new FileFilter() {
+    FileFilter filter = new FileFilter() {
       public boolean accept(File file) {
         return !StringUtils.equals(file.getName(), "Bar.java");
       }
-    });
-    assertThat(fs.getSourceFiles().size(), is(1));
-    assertThat(fs.getSourceFiles(), not(hasItem(named("Bar.java"))));
+    };
+    DefaultProjectFileSystem fsWithFilter = new DefaultProjectFileSystem(project, new Languages(Java.INSTANCE), filter);
+    assertThat(fsWithFilter.getSourceFiles().size(), is(1));
+    assertThat(fsWithFilter.getSourceFiles(), not(hasItem(named("Bar.java"))));
   }
 
   private DefaultProjectFileSystem newDefaultProjectFileSystem(Project project) {

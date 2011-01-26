@@ -19,11 +19,10 @@
  */
 package org.sonar.api.test;
 
-import org.sonar.api.resources.InputFile;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.NotImplementedException;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
@@ -135,14 +134,15 @@ public class SimpleProjectFileSystem implements ProjectFileSystem {
   /**
    * @since 2.6
    */
-  public List<InputFile> mainFiles(Language... lang) {
+  public List<InputFile> mainFiles(String... lang) {
     return null;
   }
 
   /**
    * @since 2.6
    */
-  public List<InputFile> testFiles(Language... lang) {
+  public List<InputFile> testFiles(String... lang) {
     return null;
   }
+
 }
