@@ -494,7 +494,7 @@ module ApplicationHelper
     if m
       val=variation_value(m, options)
       if val
-        formatted_val=(val>=0 ? "+#{m.format_numeric_value(val)}" : m.format_numeric_value(val))
+        formatted_val=(val>=0 ? "+" : "") + m.format_numeric_value(val, :variation => true)
         css_class=''
         if options[:color]||true
           css_class='var'

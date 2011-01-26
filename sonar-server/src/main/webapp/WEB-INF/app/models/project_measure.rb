@@ -88,7 +88,7 @@ class ProjectMeasure < ActiveRecord::Base
     end
   end
 
-  def format_numeric_value(val)
+  def format_numeric_value(val, options={})
     if metric.nil?
       return val.to_s
     end
@@ -99,7 +99,11 @@ class ProjectMeasure < ActiveRecord::Base
     when Metric::VALUE_TYPE_FLOAT
       number_with_precision(val, :precision => 1)
     when Metric::VALUE_TYPE_PERCENT
-      number_to_percentage(val, {:precision => 1})
+        if (options[:variation]==true)
+          number_with_precision(val, :precision => 1)
+        else
+          number_to_percentage(val, {:precision => 1})
+        end
     when Metric::VALUE_TYPE_MILLISEC
       millisecs_formatted_value(val)
     else
