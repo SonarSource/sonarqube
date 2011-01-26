@@ -26,6 +26,10 @@ import java.io.File;
  */
 public interface InputFile {
 
+  /**
+   * The source base directory, different than the project basedir. For example in maven projects, the basedir of a source file stored in
+   * src/main/java/org/foo/ is the directory src/main/java.
+   */
   File getFileBaseDir();
 
   File getFile();
@@ -33,10 +37,10 @@ public interface InputFile {
   /**
    * Path relative to basedir. Directory separator is slash '/', whatever the platform.
    * 
-   * Example on windows: if basedir is c:\project\src\ and file is c:\project\src\org\foo\Bar.java, then relative path
+   * Example on windows: if file basedir is c:\project\src\ and file is c:\project\src\org\foo\Bar.java, then relative path
    * is org/foo/Bar.java
    *
-   * Example on unix: if basedir is /project/src and file is /project/src/org/foo/Bar.java, then relative path
+   * Example on unix: if file basedir is /project/src and file is /project/src/org/foo/Bar.java, then relative path
    * is org/foo/Bar.java as well.
    */
   String getRelativePath();

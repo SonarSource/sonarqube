@@ -20,7 +20,6 @@
 package org.sonar.api.resources;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.utils.WildcardPattern;
 
 import java.io.File;
@@ -228,12 +227,7 @@ public class JavaFile extends Resource<JavaPackage> {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this)
-        .append("key", getKey())
-        .append("package", packageKey)
-        .append("longName", longName)
-        .append("unitTest", unitTest)
-        .toString();
+    return getKey();
   }
 
 //  @Override
