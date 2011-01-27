@@ -20,9 +20,8 @@
 package org.sonar.api.resources;
 
 /**
- * FIXME
- * Actually this class incorrectly named, because provides information not about project, but about Java project.
- * And seems that only core plugins use this class.
+ * @TODO Actually this class incorrectly named, because provides information not about project, but about Java project.
+ *       And seems that only core plugins use this class.
  * 
  * @since 1.10
  */
@@ -33,22 +32,23 @@ public final class ProjectUtils {
   }
 
   /**
-   * Java version as defined in maven-compiler-plugin
+   * @deprecated since 2.6 use JavaUtils.getTargetVersion() instead.
    */
+  @Deprecated
   public static String getJavaVersion(Project project) {
-    // target version
-    // TODO was return MavenUtils.getJavaVersion(project.getPom());
     if (project.getConfiguration() != null) {
-      return project.getConfiguration().getString("sonar.java.targetVersion");
+      return project.getConfiguration().getString("sonar.java.target");
     }
     return null;
   }
 
+  /**
+   * @deprecated since 2.6 use JavaUtils.getSourceVersion() instead.
+   */
+  @Deprecated
   public static String getJavaSourceVersion(Project project) {
-    // source version
-    // TODO was return MavenUtils.getJavaSourceVersion(project.getPom());
     if (project.getConfiguration() != null) {
-      return project.getConfiguration().getString("sonar.java.sourceVersion");
+      return project.getConfiguration().getString("sonar.java.source");
     }
     return null;
   }

@@ -20,7 +20,11 @@
 package org.sonar.java.api;
 
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.resources.Project;
 
+/**
+ * @since 2.6
+ */
 public final class JavaUtils {
 
   public static final String PACKAGE_SEPARATOR = ".";
@@ -37,6 +41,16 @@ public final class JavaUtils {
    */
   public static final String BARRIER_AFTER_SQUID = "squid";
 
+  /**
+   * To determine value of this property use {@link #getSourceVersion(Project)}.
+   */
+  public static final String JAVA_SOURCE_PROPERTY = "sonar.java.source";
+
+  /**
+   * To determine value of this property use {@link #getTargetVersion(Project)}.
+   */
+  public static final String JAVA_TARGET_PROPERTY = "sonar.java.target";
+
   private JavaUtils() {
     // only static methods
   }
@@ -44,12 +58,20 @@ public final class JavaUtils {
   public static String abbreviatePackage(String packageName) {
     String[] parts = StringUtils.split(packageName, PACKAGE_SEPARATOR);
     StringBuilder sb = new StringBuilder();
-    if (parts.length>=1) {
+    if (parts.length >= 1) {
       sb.append(parts[0]);
     }
-    for (int index=1 ; index<parts.length ; index++) {
+    for (int index = 1; index < parts.length; index++) {
       sb.append(PACKAGE_SEPARATOR).append(parts[index].charAt(0));
     }
     return sb.toString();
+  }
+
+  public static String getSourceVersion(Project project) {
+    return project.getConfiguration().getString(JAVA_SOURCE_PROPERTY);
+  }
+
+  public static String getTargetVersion(Project project) {
+    return project.getConfiguration().getString(JAVA_TARGET_PROPERTY);
   }
 }

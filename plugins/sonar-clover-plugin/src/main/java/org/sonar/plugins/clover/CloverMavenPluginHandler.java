@@ -27,7 +27,7 @@ import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.batch.maven.MavenSurefireUtils;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectUtils;
+import org.sonar.java.api.JavaUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,7 +58,7 @@ public class CloverMavenPluginHandler implements MavenPluginHandler {
   }
 
   public String[] getGoals() {
-    return new String[]{"instrument", "clover"};
+    return new String[] { "instrument", "clover" };
   }
 
   public void configure(Project project, MavenPlugin cloverPlugin) {
@@ -75,13 +75,14 @@ public class CloverMavenPluginHandler implements MavenPluginHandler {
       skipCloverLaunch = StringUtils.isNotBlank(skipInPomConfig) ? Boolean.parseBoolean(skipInPomConfig) : false;
     }
     if (!project.getConfiguration().containsKey(CoreProperties.SUREFIRE_REPORTS_PATH_PROPERTY) && !skipCloverLaunch) {
-      project.getConfiguration().setProperty(CoreProperties.SUREFIRE_REPORTS_PATH_PROPERTY, new File(project.getFileSystem().getBuildDir(), "clover/surefire-reports").getAbsolutePath());
+      project.getConfiguration().setProperty(CoreProperties.SUREFIRE_REPORTS_PATH_PROPERTY,
+          new File(project.getFileSystem().getBuildDir(), "clover/surefire-reports").getAbsolutePath());
     }
   }
 
   protected void configureParameters(Project project, MavenPlugin cloverPlugin) {
     cloverPlugin.setParameter("generateXml", "true");
-    String javaVersion = ProjectUtils.getJavaVersion(project);
+    String javaVersion = JavaUtils.getTargetVersion(project);
     if (javaVersion != null) {
       cloverPlugin.setParameter("jdk", javaVersion);
     }
@@ -101,7 +102,8 @@ public class CloverMavenPluginHandler implements MavenPluginHandler {
   }
 
   private boolean hasLicense(MavenPlugin cloverPlugin) {
-    return StringUtils.isNotBlank(cloverPlugin.getParameter("license")) || StringUtils.isNotBlank(cloverPlugin.getParameter("licenseLocation"));
+    return StringUtils.isNotBlank(cloverPlugin.getParameter("license"))
+        || StringUtils.isNotBlank(cloverPlugin.getParameter("licenseLocation"));
   }
 
   private File writeLicenseToDisk(Project project, String license) {

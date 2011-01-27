@@ -30,6 +30,7 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
+import org.sonar.java.api.JavaUtils;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -77,8 +78,19 @@ public class MavenProjectBuilder {
     Date analysisDate = loadAnalysisDate(projectConfiguration);
     MavenProject pom = project.getPom();
     if (pom != null) {
-      projectConfiguration.setProperty("sonar.java.sourceVersion", MavenUtils.getJavaSourceVersion(pom));
-      projectConfiguration.setProperty("sonar.java.targetVersion", MavenUtils.getJavaVersion(pom));
+      /*
+       * TODO actually this is a dirty hack to get Java source and target versions from maven-compiler-plugin
+       * See http://jira.codehaus.org/browse/SONAR-2148
+       * In fact we should try to get rid of it and use concept of configurator,
+       * which would be active only in Maven environment
+       * and would be responsible for setting values from corresponding maven-plugin.
+       */
+      if (projectConfiguration.getProperty(JavaUtils.JAVA_SOURCE_PROPERTY) == null) {
+        projectConfiguration.setProperty(JavaUtils.JAVA_SOURCE_PROPERTY, MavenUtils.getJavaSourceVersion(pom));
+      }
+      if (projectConfiguration.getProperty(JavaUtils.JAVA_TARGET_PROPERTY) == null) {
+        projectConfiguration.setProperty(JavaUtils.JAVA_TARGET_PROPERTY, MavenUtils.getJavaVersion(pom));
+      }
     }
     project.setConfiguration(projectConfiguration)
         .setExclusionPatterns(loadExclusionPatterns(projectConfiguration))

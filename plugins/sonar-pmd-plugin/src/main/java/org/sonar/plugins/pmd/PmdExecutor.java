@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectUtils;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.java.api.JavaUtils;
 
 import java.io.*;
 import java.util.List;
@@ -60,17 +60,17 @@ public class PmdExecutor implements BatchExtension {
       ruleContext.setReport(report);
 
       RuleSets rulesets = createRulesets();
-      
+
       for (File file : project.getFileSystem().getSourceFiles(Java.INSTANCE)) {
         ruleContext.setSourceCodeFilename(file.getAbsolutePath());
         Reader fileReader = new InputStreamReader(new FileInputStream(file), project.getFileSystem().getSourceCharset());
         try {
           pmd.processFile(fileReader, rulesets, ruleContext);
-          
-        } catch(PMDException e) {
+
+        } catch (PMDException e) {
           LOG.error("Fail to execute PMD. Following file is ignored: " + file, e.getCause());
 
-        } catch(Exception e) {
+        } catch (Exception e) {
           LOG.error("Fail to execute PMD. Following file is ignored: " + file, e);
 
         } finally {
@@ -143,7 +143,7 @@ public class PmdExecutor implements BatchExtension {
   }
 
   private void setJavaVersion(PMD pmd, Project project) {
-    String javaVersion = ProjectUtils.getJavaSourceVersion(project);
+    String javaVersion = JavaUtils.getSourceVersion(project);
     if (StringUtils.isNotBlank(javaVersion)) {
       if ("1.1".equals(javaVersion) || "1.2".equals(javaVersion)) {
         javaVersion = "1.3";
