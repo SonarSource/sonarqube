@@ -23,6 +23,9 @@ import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.File;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.JavaPackage;
+import org.sonar.api.resources.Scopes;
 
 import java.util.Collections;
 import java.util.List;
@@ -62,7 +65,7 @@ public class SumChildDistributionFormulaTest {
   }
 
   @Test
-  public void doNotSumDifferentRanges() {
+  public void shouldNotSumDifferentRanges() {
     Metric m = new Metric("foo", Metric.ValueType.DATA);
     when(context.getTargetMetric()).thenReturn(m);
 
@@ -75,7 +78,7 @@ public class SumChildDistributionFormulaTest {
   }
 
   @Test
-  public void sumSameIntRanges() {
+  public void shouldSumSameIntRanges() {
     Metric m = new Metric("foo", Metric.ValueType.DATA);
     when(context.getTargetMetric()).thenReturn(m);
 
@@ -88,15 +91,51 @@ public class SumChildDistributionFormulaTest {
   }
 
   @Test
-  public void sumSameDoubleRanges() {
+  public void shouldSumSameDoubleRanges() {
+    initContextWithChildren();
+    assertThat(formula.calculate(data, context).getData(), is("0.5=3;2.5=6"));
+  }
+
+  @Test
+  public void shouldNotPersistWhenScopeLowerThanMinimun() throws Exception {
+    when(context.getResource()).thenReturn(JavaFile.fromRelativePath("org/Foo.java", false));
+
+    initContextWithChildren();
+    formula.setMinimumScopeToPersist(Scopes.DIRECTORY);
+
+    Measure distribution = formula.calculate(data, context);
+    assertThat(distribution.getPersistenceMode().useDatabase(), is(false));
+  }
+
+  @Test
+  public void shouldPersistWhenScopeEqualsMinimun() throws Exception {
+    when(context.getResource()).thenReturn(JavaFile.fromRelativePath("org/Foo.java", false));
+
+    initContextWithChildren();
+    formula.setMinimumScopeToPersist(Scopes.FILE);
+
+    Measure distribution = formula.calculate(data, context);
+    assertThat(distribution.getPersistenceMode().useDatabase(), is(true));
+  }
+
+  @Test
+  public void shouldPersistWhenScopeHigherThanMinimun() throws Exception {
+    when(context.getResource()).thenReturn(new JavaPackage("org.foo"));
+
+    initContextWithChildren();
+    formula.setMinimumScopeToPersist(Scopes.FILE);
+
+    Measure distribution = formula.calculate(data, context);
+    assertThat(distribution.getPersistenceMode().useDatabase(), is(true));
+  }
+
+  private void initContextWithChildren() {
     Metric m = new Metric("foo", Metric.ValueType.DATA);
     when(context.getTargetMetric()).thenReturn(m);
-
     List<Measure> list = Lists.newArrayList(
-      new Measure(m, "0.5=0;2.5=2"),
-      new Measure(m, "0.5=3;2.5=4")
+        new Measure(m, "0.5=0;2.5=2"),
+        new Measure(m, "0.5=3;2.5=4")
     );
     when(data.getChildrenMeasures(new Metric("foo"))).thenReturn(list);
-    assertThat(formula.calculate(data, context).getData(), is("0.5=3;2.5=6"));
   }
 }
