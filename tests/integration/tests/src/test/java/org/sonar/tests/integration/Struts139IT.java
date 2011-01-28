@@ -129,7 +129,23 @@ public class Struts139IT {
     assertThat(getProjectMeasure("statements").getIntValue(), is(21896));
     assertThat(getProjectMeasure("class_complexity").getValue(), is(21.5));
     assertThat(getProjectMeasure("function_complexity").getValue(), is(2.6));
-    assertThat(getProjectMeasure("class_complexity_distribution").getData(), is("0=172;5=90;10=86;20=55;30=69;60=34;90=17"));
+  }
+
+  @Test
+  public void classComplexityDistribution() throws Exception {
+    assertThat(sonar.find(ResourceQuery.createForMetrics("org.apache.struts:struts-core:org.apache.struts.config", "class_complexity_distribution")).getMeasure("class_complexity_distribution").getData(), is("0=10;5=3;10=2;20=1;30=4;60=4;90=1"));
+    assertThat(getCoreModuleMeasure("class_complexity_distribution").getData(), is("0=49;5=26;10=24;20=14;30=18;60=9;90=10"));
+    assertThat(getProjectMeasure("class_complexity_distribution").getData(), is("0=173;5=90;10=86;20=55;30=69;60=34;90=17"));
+  }
+
+  @Test
+  public void functionComplexityDistribution() throws Exception {
+    assertThat(sonar.find(ResourceQuery.createForMetrics("org.apache.struts:struts-core:org.apache.struts.config", "function_complexity_distribution")).getMeasure("function_complexity_distribution").getData(), is("1=186;2=88;4=11;6=12;8=7;10=2;12=8"));
+  }
+
+  @Test
+  public void shouldNotPersistComplexityDistributionsOnFiles() {
+    assertThat(sonar.find(ResourceQuery.createForMetrics("org.apache.struts:struts-core:org.apache.struts.config.ConfigRuleSet", "function_complexity_distribution", "class_complexity_distribution")).getMeasures().size(), is(0));
   }
 
   @Test

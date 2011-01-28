@@ -19,9 +19,11 @@
  */
 package org.sonar.api.measures;
 
-import java.util.List;
-import java.util.Collections;
+import org.sonar.api.resources.Scopes;
+
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @since 2.0
@@ -30,8 +32,19 @@ import java.util.Collection;
  */
 public class SumChildDistributionFormula implements Formula {
 
+  private String minimumScopeToPersist= Scopes.FILE;
+
   public List<Metric> dependsUponMetrics() {
     return Collections.emptyList();
+  }
+
+  public String getMinimumScopeToPersist() {
+    return minimumScopeToPersist;
+  }
+
+  public SumChildDistributionFormula setMinimumScopeToPersist(String s) {
+    this.minimumScopeToPersist = s;
+    return this;
   }
 
   public Measure calculate(FormulaData data, FormulaContext context) {
@@ -44,7 +57,11 @@ public class SumChildDistributionFormula implements Formula {
       for (Measure measure : measures) {
         distribution.add(measure);
       }
-      return distribution.build();
+      Measure measure = distribution.build();
+      if (!Scopes.isHigherThanOrEquals(context.getResource().getScope(), minimumScopeToPersist)) {
+        measure.setPersistenceMode(PersistenceMode.MEMORY);
+      }
+      return measure;
     }
   }
 }

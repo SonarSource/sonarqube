@@ -40,7 +40,7 @@ public class JavaMethodTest {
   public void shouldCreateReferenceFromClassAndSignature() {
     String className = "org.foo.Bar";
     String signature = "hello(LString;)V";
-    JavaMethod method = JavaMethod.createRef(JavaClass.createRef(className), signature);
+    JavaMethod method = JavaMethod.createRef(JavaClass.create(className), signature);
     assertThat(method.getKey(), is(className + "#" + signature));
     assertThat(method.getClassName(), is(className));
     assertThat(method.getName(), is(signature));

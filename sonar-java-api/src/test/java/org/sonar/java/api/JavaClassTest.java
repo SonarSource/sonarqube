@@ -30,7 +30,7 @@ public class JavaClassTest {
 
   @Test
   public void shouldCreateReferenceFromName() {
-    JavaClass javaClass = JavaClass.createRef("org.foo.Bar");
+    JavaClass javaClass = JavaClass.create("org.foo.Bar");
     assertThat(javaClass.getClassName(), is("Bar"));
     assertThat(javaClass.getKey(), is("org.foo.Bar"));
     assertThat(javaClass.getLanguage(), is((Language)Java.INSTANCE));
@@ -40,7 +40,7 @@ public class JavaClassTest {
 
   @Test
   public void shouldCreateReferenceFromPackageAndClassname() {
-    JavaClass javaClass = JavaClass.createRef("org.foo", "Bar");
+    JavaClass javaClass = JavaClass.create("org.foo", "Bar");
     assertThat(javaClass.getClassName(), is("Bar"));
     assertThat(javaClass.getKey(), is("org.foo.Bar"));
     assertThat(javaClass.getLanguage(), is((Language)Java.INSTANCE));
@@ -50,25 +50,25 @@ public class JavaClassTest {
 
   @Test
   public void shouldGetPackageName() {
-    JavaClass javaClass = JavaClass.createRef("org.foo.Bar");
+    JavaClass javaClass = JavaClass.create("org.foo.Bar");
     assertThat(javaClass.getPackageName(), is("org.foo"));
 
-    javaClass = JavaClass.createRef("Bar");
+    javaClass = JavaClass.create("Bar");
     assertThat(javaClass.getPackageName(), is(""));
   }
 
   @Test
   public void shouldGetClassName() {
-    JavaClass javaClass = JavaClass.createRef("org.foo.Bar");
+    JavaClass javaClass = JavaClass.create("org.foo.Bar");
     assertThat(javaClass.getClassName(), is("Bar"));
 
-    javaClass = JavaClass.createRef("Bar");
+    javaClass = JavaClass.create("Bar");
     assertThat(javaClass.getClassName(), is("Bar"));
   }
 
   @Test
   public void shouldOverrideToString() {
-    JavaClass javaClass = JavaClass.createRef("org.foo.Bar");
+    JavaClass javaClass = JavaClass.create("org.foo.Bar");
     assertThat(javaClass.toString(), is("org.foo.Bar"));
   }
 

@@ -109,11 +109,11 @@ public final class JavaClass extends Resource {
     return getName();
   }
 
-  public static JavaClass createRef(String name) {
+  public static JavaClass create(String name) {
     return new JavaClass(name);
   }
 
-  public static JavaClass createRef(String packageName, String className) {
+  public static JavaClass create(String packageName, String className) {
     if (StringUtils.isBlank(packageName)) {
       return new JavaClass(className);
     }

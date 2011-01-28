@@ -17,24 +17,29 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.batch;
+package org.sonar.batch;
 
+import org.sonar.api.batch.*;
 import org.sonar.api.measures.FormulaData;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A pre-implementation of a decorator using a simple calculation formula
  * @since 1.11
  */
-public class FormulaDecorator implements Decorator {
+public final class FormulaDecorator implements Decorator {
 
   private Metric metric;
   private DefaultFormulaContext formulaContext;
+  private Set<Decorator> executeAfterDecorators;
 
   /**
    * Creates a FormulaDecorator
@@ -43,12 +48,17 @@ public class FormulaDecorator implements Decorator {
    * 
    * @throws IllegalArgumentException if no formula is associated to the metric
    */
-  public FormulaDecorator(Metric metric) {
+  public FormulaDecorator(Metric metric, Set<Decorator> executeAfterDecorators) {
     if (metric.getFormula() == null) {
       throw new IllegalArgumentException("No formula defined on metric");
     }
     this.metric = metric;
     this.formulaContext = new DefaultFormulaContext(metric);
+    this.executeAfterDecorators = executeAfterDecorators;
+  }
+
+  public FormulaDecorator(Metric metric) {
+    this(metric, Collections.<Decorator>emptySet());
   }
 
   /**
@@ -72,6 +82,11 @@ public class FormulaDecorator implements Decorator {
   @DependsUpon
   public List<Metric> dependsUponMetrics() {
     return metric.getFormula().dependsUponMetrics();
+  }
+
+  @DependsUpon
+  public Collection<Decorator> dependsUponDecorators() {
+    return executeAfterDecorators;
   }
 
   /**
@@ -98,13 +113,8 @@ public class FormulaDecorator implements Decorator {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
     FormulaDecorator that = (FormulaDecorator) o;
-
-    if (metric != null ? !metric.equals(that.metric) : that.metric != null) {
-      return false;
-    }
-    return true;
+    return !(metric != null ? !metric.equals(that.metric) : that.metric != null);
   }
 
   @Override

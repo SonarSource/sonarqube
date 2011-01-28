@@ -17,20 +17,22 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.batch;
+package org.sonar.batch;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.*;
 import org.sonar.api.test.IsMeasure;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.*;
 
 public class FormulaDecoratorTest {
 
@@ -50,7 +52,7 @@ public class FormulaDecoratorTest {
         return null;
       }
     };
-    Metric metric = new Metric().setFormula(formula);
+    Metric metric = new Metric("ncloc").setFormula(formula);
     List<Metric> dependencies = new FormulaDecorator(metric).dependsUponMetrics();
     assertThat(dependencies, hasItem(CoreMetrics.COMPLEXITY));
     assertThat(dependencies, hasItem(CoreMetrics.COVERAGE));

@@ -20,6 +20,7 @@
 package org.sonar.api.measures;
 
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.SonarException;
 
 import java.lang.reflect.Field;
@@ -133,22 +134,22 @@ public final class CoreMetrics {
   public static final String CLASS_COMPLEXITY_DISTRIBUTION_KEY = "class_complexity_distribution";
   public static final Metric CLASS_COMPLEXITY_DISTRIBUTION = new Metric(CLASS_COMPLEXITY_DISTRIBUTION_KEY,
       "Classes distribution /complexity", "Classes distribution /complexity", Metric.ValueType.DISTRIB, Metric.DIRECTION_NONE, true,
-      DOMAIN_COMPLEXITY).setFormula(new SumChildDistributionFormula());
+      DOMAIN_COMPLEXITY).setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY));
 
   public static final String FUNCTION_COMPLEXITY_DISTRIBUTION_KEY = "function_complexity_distribution";
   public static final Metric FUNCTION_COMPLEXITY_DISTRIBUTION = new Metric(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY,
       "Functions distribution /complexity", "Functions distribution /complexity", Metric.ValueType.DISTRIB, Metric.DIRECTION_NONE, true,
-      DOMAIN_COMPLEXITY).setFormula(new SumChildDistributionFormula());
+      DOMAIN_COMPLEXITY).setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY));
 
   public static final String FILE_COMPLEXITY_DISTRIBUTION_KEY = "file_complexity_distribution";
   public static final Metric FILE_COMPLEXITY_DISTRIBUTION = new Metric(FILE_COMPLEXITY_DISTRIBUTION_KEY, "Files distribution /complexity",
       "Files distribution /complexity", Metric.ValueType.DISTRIB, Metric.DIRECTION_NONE, true, DOMAIN_COMPLEXITY)
-      .setFormula(new SumChildDistributionFormula());
+      .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY));
 
   public static final String PARAGRAPH_COMPLEXITY_DISTRIBUTION_KEY = "paragraph_complexity_distribution";
   public static final Metric PARAGRAPH_COMPLEXITY_DISTRIBUTION = new Metric(PARAGRAPH_COMPLEXITY_DISTRIBUTION_KEY,
       "Paragraph distribution /complexity", "Paragraph distribution /complexity", Metric.ValueType.DISTRIB, Metric.DIRECTION_NONE, true,
-      DOMAIN_COMPLEXITY).setFormula(new SumChildDistributionFormula());
+      DOMAIN_COMPLEXITY).setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY));
 
   public static final String COMMENT_LINES_KEY = "comment_lines";
   public static final Metric COMMENT_LINES = new Metric(COMMENT_LINES_KEY, "Comment lines", "Number of comment lines",
@@ -423,7 +424,8 @@ public final class CoreMetrics {
 
   public static final String RFC_DISTRIBUTION_KEY = "rfc_distribution";
   public static final Metric RFC_DISTRIBUTION = new Metric(RFC_DISTRIBUTION_KEY, "Class distribution /RFC", "Class distribution /RFC",
-      Metric.ValueType.DISTRIB, Metric.DIRECTION_NONE, true, DOMAIN_DESIGN).setFormula(new SumChildDistributionFormula());
+      Metric.ValueType.DISTRIB, Metric.DIRECTION_NONE, true, DOMAIN_DESIGN)
+      .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY));
 
   public static final String LCOM4_KEY = "lcom4";
   public static final Metric LCOM4 = new Metric(LCOM4_KEY, "LCOM4", "Lack of Cohesion of Methods", Metric.ValueType.FLOAT,
@@ -436,7 +438,7 @@ public final class CoreMetrics {
   public static final String LCOM4_DISTRIBUTION_KEY = "lcom4_distribution";
   public static final Metric LCOM4_DISTRIBUTION = new Metric(LCOM4_DISTRIBUTION_KEY, "Class distribution /LCOM4",
       "Class distribution /LCOM4", Metric.ValueType.DISTRIB, Metric.DIRECTION_NONE, true, DOMAIN_DESIGN)
-      .setFormula(new SumChildDistributionFormula());
+      .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY));
 
   public static final String SUSPECT_LCOM4_DENSITY_KEY = "suspect_lcom4_density";
   public static final Metric SUSPECT_LCOM4_DENSITY = new Metric(SUSPECT_LCOM4_DENSITY_KEY, "Suspect LCOM4 density",

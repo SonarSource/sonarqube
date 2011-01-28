@@ -36,17 +36,17 @@ public final class BridgeFactory {
 
   private static List<Bridge> create(NoSonarFilter noSonarFilter) {
     return Arrays.asList(new CopyBasicMeasuresBridge(), new PackagesBridge(), new PublicUndocumentedApiBridge(),
-        new ClassComplexityDistributionBridge(), new FunctionComplexityDistributionBridge(), new NoSonarFilterLoader(noSonarFilter),
+        new NoSonarFilterLoader(noSonarFilter),
         new ChidamberKemererBridge(), new RobertCMartinBridge(), new ChidamberKemererDistributionBridge(), new DesignBridge(),
         new Lcom4BlocksBridge(), new ChecksBridge());
   }
 
   public static List<Bridge> create(boolean bytecodeScanned, SensorContext context, CheckFactory checkFactory,
-      ResourceIndex resourceIndex, Squid squid, NoSonarFilter noSonarFilter) {
+                                    ResourceIndex resourceIndex, Squid squid, NoSonarFilter noSonarFilter) {
     List<Bridge> result = new ArrayList<Bridge>();
     for (Bridge bridge : create(noSonarFilter)) {
       bridge.setCheckFactory(checkFactory);
-      if ( !bridge.needsBytecode() || bytecodeScanned) {
+      if (!bridge.needsBytecode() || bytecodeScanned) {
         bridge.setContext(context);
         bridge.setSquid(squid);
         bridge.setResourceIndex(resourceIndex);

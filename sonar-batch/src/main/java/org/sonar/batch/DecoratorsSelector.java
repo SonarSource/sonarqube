@@ -19,15 +19,16 @@
  */
 package org.sonar.batch;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.FormulaDecorator;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 
 import java.util.*;
 
-public class DecoratorsSelector {
+public final class DecoratorsSelector {
 
   private BatchExtensionDictionnary dictionnary;
 
@@ -37,26 +38,26 @@ public class DecoratorsSelector {
 
   public Collection<Decorator> select(Project project) {
     List<Decorator> decorators = new ArrayList<Decorator>(dictionnary.select(Decorator.class, project, false));
-    Set<Metric> coveredMetrics = getMetricsCoveredByPlugins(decorators);
+    SetMultimap<Metric, Decorator> decoratorsByGeneratedMetric = getDecoratorsByMetric(decorators);
     for (Metric metric : dictionnary.select(Metric.class)) {
-      if (metric.getFormula() != null && !coveredMetrics.contains(metric)) {
-        decorators.add(new FormulaDecorator(metric));
+      if (metric.getFormula() != null) {
+        decorators.add(new FormulaDecorator(metric, decoratorsByGeneratedMetric.get(metric)));
       }
     }
 
     return dictionnary.sort(decorators);
   }
 
-  private Set<Metric> getMetricsCoveredByPlugins(Collection<Decorator> pluginDecorators) {
-    Set<Metric> coveredMetrics = new HashSet<Metric>();
-    for (Decorator pluginDecorator : pluginDecorators) {
-      List dependents = dictionnary.getDependents(pluginDecorator);
+  private SetMultimap<Metric, Decorator> getDecoratorsByMetric(Collection<Decorator> pluginDecorators) {
+    SetMultimap<Metric, Decorator> decoratorsByGeneratedMetric = HashMultimap.create();
+    for (Decorator decorator : pluginDecorators) {
+      List dependents = dictionnary.getDependents(decorator);
       for (Object dependent : dependents) {
         if (dependent instanceof Metric) {
-          coveredMetrics.add((Metric) dependent);
+          decoratorsByGeneratedMetric.put((Metric) dependent, decorator);
         }
       }
     }
-    return coveredMetrics;
+    return decoratorsByGeneratedMetric;
   }
 }

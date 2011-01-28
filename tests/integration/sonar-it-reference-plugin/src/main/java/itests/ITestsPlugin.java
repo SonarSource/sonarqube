@@ -50,6 +50,7 @@ public class ITestsPlugin implements Plugin {
     extensions.add(SampleSensor.class);
     extensions.add(LanguageWithoutRulesEngine.class);
     extensions.add(ServerSideExtensionUsingExternalDependency.class);
+    extensions.add(ExcludedResourceFilter.class);
 
     // web
     extensions.add(SampleResourceTab.class);

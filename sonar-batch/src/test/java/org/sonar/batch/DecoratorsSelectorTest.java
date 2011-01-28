@@ -19,13 +19,13 @@
  */
 package org.sonar.batch;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.Test;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
-import static org.mockito.Mockito.mock;
 import org.picocontainer.containers.TransientPicoContainer;
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.BatchExtensionDictionnary;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.measures.*;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -34,16 +34,20 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
+
 public class DecoratorsSelectorTest {
 
   private Metric withFormula1 = new Metric("metric1").setFormula(new FakeFormula());
   private Metric withFormula2 = new Metric("metric2").setFormula(new FakeFormula());
-  private Metric withoutFormula = new Metric("metric3");
+  private Metric withoutFormula3 = new Metric("metric3");
 
   @Test
   public void selectAndSortFormulas() {
     Project project = new Project("key");
-    BatchExtensionDictionnary dictionnary = newDictionnary(withFormula1, withoutFormula, withFormula2);
+    BatchExtensionDictionnary dictionnary = newDictionnary(withFormula1, withoutFormula3, withFormula2);
 
     Collection<Decorator> decorators = new DecoratorsSelector(dictionnary).select(project);
     assertThat(decorators.size(), is(2));
@@ -52,18 +56,22 @@ public class DecoratorsSelectorTest {
   }
 
   @Test
-  public void pluginDecoratorsCanOverrideFormulas() {
+  public void decoratorsShouldBeExecutedBeforeFormulas() {
     Project project = new Project("key");
-    Decorator fakeDecorator = new FakeDecorator();
     Decorator metric1Decorator = new Metric1Decorator();
-    BatchExtensionDictionnary dictionnary = newDictionnary(fakeDecorator, metric1Decorator, withFormula1, withoutFormula, withFormula2);
+    BatchExtensionDictionnary dictionnary = newDictionnary(metric1Decorator, withFormula1);
 
     Collection<Decorator> decorators = new DecoratorsSelector(dictionnary).select(project);
 
-    assertThat(decorators.size(), is(3));
-    assertThat(decorators, hasItem(fakeDecorator));
-    assertThat(decorators, hasItem(metric1Decorator));
-    assertThat(decorators, hasItem((Decorator) new FormulaDecorator(withFormula2)));
+    Decorator firstDecorator = (Decorator)CollectionUtils.get(decorators, 0);
+    Decorator secondDecorator = (Decorator)CollectionUtils.get(decorators, 1);
+
+    assertThat(firstDecorator, is(Metric1Decorator.class));
+    assertThat(secondDecorator, is(FormulaDecorator.class));
+
+    FormulaDecorator formulaDecorator = (FormulaDecorator) secondDecorator;
+    assertThat(formulaDecorator.dependsUponDecorators().size(), is(1));
+    assertThat(CollectionUtils.get(formulaDecorator.dependsUponDecorators(), 0), is((Object)firstDecorator));
   }
 
   private BatchExtensionDictionnary newDictionnary(Object... extensions) {

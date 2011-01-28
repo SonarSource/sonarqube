@@ -22,6 +22,7 @@ package org.sonar.api.measures;
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.resources.File;
 
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +43,7 @@ public class SumChildDistributionFormulaTest {
   public void init() {
     formula = new SumChildDistributionFormula();
     context = mock(FormulaContext.class);
+    when(context.getResource()).thenReturn(new File("foo"));
     data = mock(FormulaData.class);
   }
 

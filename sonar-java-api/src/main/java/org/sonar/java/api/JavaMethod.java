@@ -25,9 +25,8 @@ import org.sonar.api.resources.*;
 /**
  * @since 2.6
  */
-public final class JavaMethod extends Resource {
+public final class JavaMethod extends BlockUnit {
 
-  public static final String SCOPE = Scopes.BLOCK_UNIT;
   public static final String QUALIFIER = Qualifiers.METHOD;
 
   public static final int UNKNOWN_LINE = -1;
@@ -37,17 +36,19 @@ public final class JavaMethod extends Resource {
   private String className;
   private int fromLine;
   private int toLine;
+  private boolean isAccessor = false;
 
   private JavaMethod(String className, String signature) {
-    setKey(toKey(className, signature));
+    super(toKey(className, signature), QUALIFIER, Java.INSTANCE);
     this.className = className;
     this.signature = signature;
   }
 
-  private JavaMethod(String className, String signature, int fromLine, int toLine) {
+  private JavaMethod(String className, String signature, int fromLine, int toLine, boolean isAccessor) {
     this(className, signature);
     this.fromLine = fromLine;
     this.toLine = toLine;
+    this.isAccessor = isAccessor;
   }
 
   public int getFromLine() {
@@ -66,6 +67,10 @@ public final class JavaMethod extends Resource {
     return className;
   }
 
+  public boolean isAccessor() {
+    return isAccessor;
+  }
+
   @Override
   public String getName() {
     return signature;
@@ -82,28 +87,8 @@ public final class JavaMethod extends Resource {
   }
 
   @Override
-  public Language getLanguage() {
-    return Java.INSTANCE;
-  }
-
-  @Override
-  public String getScope() {
-    return SCOPE;
-  }
-
-  @Override
-  public String getQualifier() {
-    return QUALIFIER;
-  }
-
-  @Override
   public Resource getParent() {
     return null;
-  }
-
-  @Override
-  public boolean matchFilePattern(String antPattern) {
-    return false;
   }
 
   @Override
@@ -155,6 +140,7 @@ public final class JavaMethod extends Resource {
     private String signature;
     private int fromLine = UNKNOWN_LINE;
     private int toLine = UNKNOWN_LINE;
+    private boolean isAccessor = false;
 
     public Builder setKey(String key) {
       String[] parts = splitClassAndMethodFromKey(key);
@@ -188,8 +174,13 @@ public final class JavaMethod extends Resource {
       return this;
     }
 
+    public Builder setAccessor(boolean accessor) {
+      isAccessor = accessor;
+      return this;
+    }
+
     public JavaMethod create() {
-      return new JavaMethod(className, signature, fromLine, toLine);
+      return new JavaMethod(className, signature, fromLine, toLine, isAccessor);
     }
   }
 }
