@@ -68,10 +68,16 @@ public final class JavaUtils {
   }
 
   public static String getSourceVersion(Project project) {
-    return project.getConfiguration().getString(JAVA_SOURCE_PROPERTY);
+    if (project.getConfiguration() != null) {
+      return project.getConfiguration().getString(JAVA_SOURCE_PROPERTY);
+    }
+    return null;
   }
 
   public static String getTargetVersion(Project project) {
-    return project.getConfiguration().getString(JAVA_TARGET_PROPERTY);
+    if (project.getConfiguration() != null) {
+      return project.getConfiguration().getString(JAVA_TARGET_PROPERTY);
+    }
+    return null;
   }
 }
