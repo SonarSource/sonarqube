@@ -72,33 +72,82 @@ public final class Qualifiers {
   // ugly, should be replaced by "natures"
   public static final String UNIT_TEST_FILE = "UTS";
 
+  /**
+   * @param resource not nullable
+   */
   public static boolean isView(final Resource resource, final boolean acceptSubViews) {
-    boolean isView = false;
-    if (resource != null) {
-      isView = StringUtils.equals(VIEW, resource.getQualifier());
-      if (!isView && acceptSubViews) {
-        isView = StringUtils.equals(SUBVIEW, resource.getQualifier());
-      }
+    boolean isView = StringUtils.equals(VIEW, resource.getQualifier());
+    if (!isView && acceptSubViews) {
+      isView = StringUtils.equals(SUBVIEW, resource.getQualifier());
     }
+
     return isView;
   }
 
+  /**
+   * @param resource not nullable
+   */
   public static boolean isSubview(final Resource resource) {
-    return resource != null && StringUtils.equals(SUBVIEW, resource.getScope());
+    return StringUtils.equals(SUBVIEW, resource.getScope());
   }
 
+  /**
+   * @param resource not nullable
+   */
   public static boolean isProject(final Resource resource, final boolean acceptModules) {
-    boolean isProject = false;
-    if (resource != null) {
-      isProject = StringUtils.equals(PROJECT, resource.getQualifier());
-      if (!isProject && acceptModules) {
-        isProject = StringUtils.equals(MODULE, resource.getQualifier());
-      }
+    boolean isProject = StringUtils.equals(PROJECT, resource.getQualifier());
+    if (!isProject && acceptModules) {
+      isProject = StringUtils.equals(MODULE, resource.getQualifier());
     }
     return isProject;
   }
 
+  /**
+   * @param resource not nullable
+   */
   public static boolean isModule(final Resource resource) {
-    return resource != null && StringUtils.equals(MODULE, resource.getQualifier());
+    return StringUtils.equals(MODULE, resource.getQualifier());
+  }
+
+  /**
+   * @param resource not nullable
+   */
+  public static boolean isDirectory(final Resource resource) {
+    return StringUtils.equals(DIRECTORY, resource.getQualifier());
+  }
+
+  /**
+   * @param resource not nullable
+   */
+  public static boolean isPackage(final Resource resource) {
+    return StringUtils.equals(PACKAGE, resource.getQualifier());
+  }
+
+  /**
+   * @param resource not nullable
+   */
+  public static boolean isFile(final Resource resource) {
+    return StringUtils.equals(FILE, resource.getQualifier());
+  }
+
+  /**
+   * @param resource not nullable
+   */
+  public static boolean isClass(final Resource resource) {
+    return StringUtils.equals(CLASS, resource.getQualifier());
+  }
+
+  /**
+   * @param resource not nullable
+   */
+  public static boolean isMethod(final Resource resource) {
+    return StringUtils.equals(METHOD, resource.getQualifier());
+  }
+
+  /**
+   * @param resource not nullable
+   */
+  public static boolean isParagraph(final Resource resource) {
+    return StringUtils.equals(PARAGRAPH, resource.getQualifier());
   }
 }

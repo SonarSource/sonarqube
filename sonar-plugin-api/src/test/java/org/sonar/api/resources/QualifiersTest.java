@@ -27,14 +27,6 @@ import static org.junit.Assert.assertThat;
 public class QualifiersTest {
 
   @Test
-  public void testNullValues() {
-    assertThat(Qualifiers.isView(null, true), is(false));
-    assertThat(Qualifiers.isView(null, false), is(false));
-    assertThat(Qualifiers.isProject(null, true), is(false));
-    assertThat(Qualifiers.isProject(null, false), is(false));
-  }
-
-  @Test
   public void testRootView() {
     View root = View.createRootView();
     assertThat(Qualifiers.isView(root, true), is(true));
