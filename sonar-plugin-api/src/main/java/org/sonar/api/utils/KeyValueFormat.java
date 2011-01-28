@@ -23,8 +23,8 @@ import com.google.common.collect.Multiset;
 import org.apache.commons.collections.Bag;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.sonar.api.rules.RulePriority;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.rules.RulePriority;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * Util class to format key/value data. Output is a string representation ready to be
  * injected into the database
- *
+ * 
  * @since 1.10
  */
 public final class KeyValueFormat {
@@ -43,8 +43,8 @@ public final class KeyValueFormat {
   /**
    * Transforms a string with the following format : "key1=value1;key2=value2..."
    * into a Map<KEY, VALUE>. Requires to implement the transform(key,value) method
-   *
-   * @param data        the input string
+   * 
+   * @param data the input string
    * @param transformer the interface to implement
    * @return a Map of <key, value>
    */
@@ -63,7 +63,7 @@ public final class KeyValueFormat {
   /**
    * Transforms a string with the following format : "key1=value1;key2=value2..."
    * into a Map<String,String>
-   *
+   * 
    * @param data the string to parse
    * @return a map
    */
@@ -81,7 +81,7 @@ public final class KeyValueFormat {
 
   /**
    * Transforms a map<KEY,VALUE> into a string with the format : "key1=value1;key2=value2..."
-   *
+   * 
    * @param map the map to transform
    * @return the formatted string
    */
@@ -107,6 +107,7 @@ public final class KeyValueFormat {
    * @since 1.11
    * @deprecated use Multiset from google collections instead of commons-collections bags
    */
+  @Deprecated
   public static String format(Bag bag) {
     return format(bag, 0);
   }
@@ -115,6 +116,7 @@ public final class KeyValueFormat {
    * @since 1.11
    * @deprecated use Multiset from google collections instead of commons-collections bags
    */
+  @Deprecated
   public static String format(Bag bag, int var) {
     StringBuilder sb = new StringBuilder();
     if (bag != null) {
@@ -134,7 +136,7 @@ public final class KeyValueFormat {
 
   /**
    * Transforms a Multiset<?> into a string with the format : "key1=count1;key2=count2..."
-   *
+   * 
    * @param set the set to transform
    * @return the formatted string
    */
@@ -157,7 +159,7 @@ public final class KeyValueFormat {
 
   /**
    * Transforms a Object... into a string with the format : "object1=object2;object3=object4..."
-   *
+   * 
    * @param objects the object list to transform
    * @return the formatted string
    */
@@ -223,8 +225,7 @@ public final class KeyValueFormat {
           value = "0";
         }
         return new KeyValue<RulePriority, Integer>(RulePriority.valueOf(key.toUpperCase()), Integer.parseInt(value));
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         LoggerFactory.getLogger(RulePriorityNumbersPairTransformer.class).warn("Property " + key + " has invalid value: " + value, e);
         return null;
       }

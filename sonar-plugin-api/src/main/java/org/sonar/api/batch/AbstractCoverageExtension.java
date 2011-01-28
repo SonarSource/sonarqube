@@ -26,7 +26,7 @@ import org.sonar.api.resources.Project;
 /**
  * This class implements the management of the code coverage engine if there are several.
  * It is a pre-implementation for Sensors and Decorators
- *
+ * 
  * @since 1.10
  */
 public abstract class AbstractCoverageExtension implements BatchExtension {
@@ -43,10 +43,11 @@ public abstract class AbstractCoverageExtension implements BatchExtension {
 
   /**
    * Default constructor
-   *
+   * 
    * @param plugins the list of plugins available
    * @deprecated since 2.3. Use the default constructor
    */
+  @Deprecated
   public AbstractCoverageExtension(Plugins plugins) {
   }
 

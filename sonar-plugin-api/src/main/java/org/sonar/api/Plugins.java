@@ -29,6 +29,7 @@ import java.util.Collection;
  * @since 1.10
  * @deprecated since 2.1
  */
+@Deprecated
 public class Plugins {
 
   private PluginRepository pluginProvider;
