@@ -22,15 +22,12 @@ package org.sonar.maven;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.execution.ReactorManager;
 import org.apache.maven.lifecycle.LifecycleExecutor;
-import org.sonar.api.batch.maven.MavenPlugin;
-import org.sonar.api.batch.maven.MavenPluginHandler;
-import org.sonar.api.resources.Project;
-import org.sonar.api.utils.SonarException;
-import org.sonar.batch.MavenPluginExecutor;
+import org.apache.maven.project.MavenProject;
+import org.sonar.batch.AbstractMavenPluginExecutor;
 
 import java.util.Arrays;
 
-public class Maven2PluginExecutor implements MavenPluginExecutor {
+public class Maven2PluginExecutor extends AbstractMavenPluginExecutor {
 
   private LifecycleExecutor lifecycleExecutor;
   private MavenSession mavenSession;
@@ -40,43 +37,19 @@ public class Maven2PluginExecutor implements MavenPluginExecutor {
     this.mavenSession = mavenSession;
   }
 
-  public MavenPluginHandler execute(Project project, MavenPluginHandler handler) {
-    for (String goal : handler.getGoals()) {
-      MavenPlugin plugin = MavenPlugin.getPlugin(project.getPom(), handler.getGroupId(), handler.getArtifactId());
-      execute(project, getGoal(handler.getGroupId(), handler.getArtifactId(), plugin.getPlugin().getVersion(), goal));
-    }
-    return handler;
+  @Override
+  public void concreteExecute(MavenProject pom, String goal) throws Exception {
+    ReactorManager reactor = new ReactorManager(Arrays.asList(pom));
+    MavenSession clonedSession = new MavenSession(mavenSession.getContainer(),
+        mavenSession.getSettings(),
+        mavenSession.getLocalRepository(),
+        mavenSession.getEventDispatcher(),
+        reactor,
+        Arrays.asList(goal),
+        mavenSession.getExecutionRootDirectory(),
+        mavenSession.getExecutionProperties(),
+        mavenSession.getStartTime());
+    lifecycleExecutor.execute(clonedSession, reactor, clonedSession.getEventDispatcher());
   }
 
-  public void execute(Project project, String goal) {
-    try {
-      ReactorManager reactor = new ReactorManager(Arrays.asList(project.getPom()));
-      MavenSession clonedSession = new MavenSession(mavenSession.getContainer(),
-          mavenSession.getSettings(),
-          mavenSession.getLocalRepository(),
-          mavenSession.getEventDispatcher(),
-          reactor,
-          Arrays.asList(goal),
-          mavenSession.getExecutionRootDirectory(),
-          mavenSession.getExecutionProperties(),
-          mavenSession.getStartTime()
-      );
-      lifecycleExecutor.execute(clonedSession, reactor, clonedSession.getEventDispatcher());
-
-    } catch (Exception e) {
-      throw new SonarException("Unable to execute maven plugin", e);
-
-    }
-  }
-
-  protected static String getGoal(String groupId, String artifactId, String version, String goal) {
-    String defaultVersion = (version==null ? "" : version);
-    return new StringBuilder()
-        .append(groupId).append(":")
-        .append(artifactId).append(":")
-        .append(defaultVersion)
-        .append(":")
-        .append(goal)
-        .toString();
-  }
 }
