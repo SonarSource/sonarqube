@@ -20,6 +20,7 @@
 package org.sonar.batch;
 
 import org.apache.commons.configuration.*;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.maven.project.MavenProject;
 import org.sonar.api.CoreProperties;
@@ -79,17 +80,22 @@ public class MavenProjectBuilder {
     MavenProject pom = project.getPom();
     if (pom != null) {
       /*
-       * TODO actually this is a dirty hack to get Java source and target versions from maven-compiler-plugin
+       * TODO actually this is a dirty hack
        * See http://jira.codehaus.org/browse/SONAR-2148
-       * In fact we should try to get rid of it and use concept of configurator,
-       * which would be active only in Maven environment
-       * and would be responsible for setting values from corresponding maven-plugin.
+       * Get Java source and target versions from maven-compiler-plugin.
        */
-      if (projectConfiguration.getProperty(JavaUtils.JAVA_SOURCE_PROPERTY) == null) {
+      if (StringUtils.isBlank(projectConfiguration.getString(JavaUtils.JAVA_SOURCE_PROPERTY))) {
         projectConfiguration.setProperty(JavaUtils.JAVA_SOURCE_PROPERTY, MavenUtils.getJavaSourceVersion(pom));
       }
-      if (projectConfiguration.getProperty(JavaUtils.JAVA_TARGET_PROPERTY) == null) {
+      if (StringUtils.isBlank(projectConfiguration.getString(JavaUtils.JAVA_TARGET_PROPERTY))) {
         projectConfiguration.setProperty(JavaUtils.JAVA_TARGET_PROPERTY, MavenUtils.getJavaVersion(pom));
+      }
+      /*
+       * See http://jira.codehaus.org/browse/SONAR-2151
+       * Get source encoding from POM
+       */
+      if (StringUtils.isBlank(projectConfiguration.getString(CoreProperties.ENCODING_PROPERTY))) {
+        projectConfiguration.setProperty(CoreProperties.ENCODING_PROPERTY, MavenUtils.getSourceEncoding(pom));
       }
     }
     project.setConfiguration(projectConfiguration)

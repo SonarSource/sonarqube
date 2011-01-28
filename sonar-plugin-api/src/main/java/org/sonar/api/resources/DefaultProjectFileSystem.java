@@ -25,6 +25,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.*;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.FileFilter;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
@@ -63,8 +64,7 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
   }
 
   public Charset getSourceCharset() {
-    // TODO was return MavenUtils.getSourceCharset(project.getPom());
-    String encoding = project.getConfiguration().getString("project.build.sourceEncoding");
+    String encoding = project.getConfiguration().getString(CoreProperties.ENCODING_PROPERTY);
     if (StringUtils.isNotEmpty(encoding)) {
       try {
         return Charset.forName(encoding);

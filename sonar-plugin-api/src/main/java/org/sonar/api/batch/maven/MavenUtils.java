@@ -30,7 +30,7 @@ import java.util.Collection;
 
 /**
  * An utility class to manipulate Maven concepts
- *
+ * 
  * @since 1.10
  */
 public final class MavenUtils {
@@ -44,7 +44,7 @@ public final class MavenUtils {
 
   /**
    * Returns the version of Java used by the maven compiler plugin
-   *
+   * 
    * @param pom the project pom
    * @return the java version
    */
@@ -66,7 +66,7 @@ public final class MavenUtils {
 
   /**
    * Queries a collection of plugins based on a group id and an artifact id and returns the plugin if it exists
-   *
+   * 
    * @param plugins the plugins collection
    * @param groupId the group id
    * @param artifactId the artifact id
@@ -85,7 +85,7 @@ public final class MavenUtils {
 
   /**
    * Tests whether a plugin has got a given artifact id and group id
-   *
+   * 
    * @param plugin the plugin to test
    * @param groupId the group id
    * @param artifactId the artifact id
@@ -103,7 +103,7 @@ public final class MavenUtils {
 
   /**
    * Tests whether a ReportPlugin has got a given artifact id and group id
-   *
+   * 
    * @param plugin the ReportPlugin to test
    * @param groupId the group id
    * @param artifactId the artifact id
@@ -120,13 +120,20 @@ public final class MavenUtils {
   }
 
   /**
+   * @return source encoding
+   */
+  public static String getSourceEncoding(MavenProject pom) {
+    return pom.getProperties().getProperty("project.build.sourceEncoding");
+  }
+
+  /**
    * Returns the charset of a pom
-   *
+   * 
    * @param pom the project pom
-   * @return thee charset
+   * @return the charset
    */
   public static Charset getSourceCharset(MavenProject pom) {
-    String encoding = pom.getProperties().getProperty("project.build.sourceEncoding");
+    String encoding = getSourceEncoding(pom);
     if (StringUtils.isNotEmpty(encoding)) {
       try {
         return Charset.forName(encoding);

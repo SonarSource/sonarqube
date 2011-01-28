@@ -19,11 +19,14 @@
  */
 package org.sonar.api.test;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.project.MavenProject;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.maven.MavenUtils;
 import org.sonar.api.resources.DefaultProjectFileSystem;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Languages;
@@ -66,9 +69,13 @@ public final class MavenTestUtils {
 
   public static Project loadProjectFromPom(Class clazz, String path) {
     MavenProject pom = loadPom(clazz, path);
+    Configuration configuration = new MapConfiguration(pom.getProperties());
     Project project = new Project(pom.getGroupId() + ":" + pom.getArtifactId())
         .setPom(pom)
-        .setConfiguration(new MapConfiguration(pom.getProperties()));
+        .setConfiguration(configuration);
+    configuration.setProperty("sonar.java.source", MavenUtils.getJavaSourceVersion(pom));
+    configuration.setProperty("sonar.java.target", MavenUtils.getJavaVersion(pom));
+    configuration.setProperty(CoreProperties.ENCODING_PROPERTY, MavenUtils.getSourceEncoding(pom));
     DefaultProjectFileSystem fs = new DefaultProjectFileSystem(project, new Languages(Java.INSTANCE));
     project.setFileSystem(fs);
     return project;

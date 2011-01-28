@@ -19,6 +19,8 @@
  */
 package org.sonar.api;
 
+import org.sonar.api.resources.ProjectFileSystem;
+
 /**
  * CoreProperties is used to group various properties of Sonar as well
  * as default values of configuration in a single place
@@ -36,6 +38,13 @@ public interface CoreProperties {
    * @since 2.6
    */
   String PROJECT_KEY_PROPERTY = "sonar.projectKey";
+
+  /**
+   * To determine value of this property use {@link ProjectFileSystem#getSourceCharset()}.
+   * 
+   * @since 2.6
+   */
+  String ENCODING_PROPERTY = "sonar.sourceEncoding";
 
   /**
    * Value format is yyyy-MM-dd
