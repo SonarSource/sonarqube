@@ -205,13 +205,19 @@ public abstract class Resource<PARENT extends Resource> {
     return this;
   }
 
+  /**
+   * @deprecated since 2.6 should use SensorContext#isExcluded(resource). It will make inheritance of Resource easier.
+   */
+  @Deprecated
   public final boolean isExcluded() {
     return isExcluded;
   }
 
   /**
    * Internal use only
+   * @deprecated since 2.6 should use SensorContext#isExcluded(resource). It will make inheritance of Resource easier.
    */
+  @Deprecated
   public final Resource setExcluded(boolean b) {
     isExcluded = b;
     return this;
