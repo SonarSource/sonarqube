@@ -78,12 +78,13 @@ public class InMemoryPomCreator {
     pom.setArtifacts(Collections.EMPTY_SET);
 
     // Configure fake directories
-    String buildDirectory = properties.getProperty("project.build.directory", project.getBaseDir().getAbsolutePath() + "/target");
+    File workDir = project.getWorkDir();
+    String buildDirectory = workDir.getAbsolutePath() + "/target";
     pom.getBuild().setDirectory(buildDirectory);
-    String buildOutputDirectory = properties.getProperty("project.build.outputDirectory", buildDirectory + "/classes");
+    String buildOutputDirectory = buildDirectory + "/classes";
     pom.getBuild().setOutputDirectory(buildOutputDirectory);
     Reporting reporting = new Reporting();
-    String reportingOutputDirectory = properties.getProperty("project.reporting.outputDirectory", buildDirectory + "/site");
+    String reportingOutputDirectory = buildDirectory + "/site";
     reporting.setOutputDirectory(reportingOutputDirectory);
     pom.setReporting(reporting);
 

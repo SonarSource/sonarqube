@@ -35,6 +35,7 @@ import java.util.Properties;
 public class ProjectDefinition {
 
   private File baseDir;
+  private File workDir;
   private Properties properties;
   private List<String> sourceDirs = Lists.newArrayList();
   private List<String> testDirs = Lists.newArrayList();
@@ -43,13 +44,18 @@ public class ProjectDefinition {
    * @param baseDir project base directory
    * @param properties project properties
    */
-  public ProjectDefinition(File baseDir, Properties properties) {
+  public ProjectDefinition(File baseDir, File workDir, Properties properties) {
     this.baseDir = baseDir;
+    this.workDir = workDir;
     this.properties = properties;
   }
 
   public File getBaseDir() {
     return baseDir;
+  }
+
+  public File getWorkDir() {
+    return workDir;
   }
 
   public Properties getProperties() {

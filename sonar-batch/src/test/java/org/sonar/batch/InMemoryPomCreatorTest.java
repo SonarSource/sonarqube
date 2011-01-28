@@ -41,7 +41,8 @@ public class InMemoryPomCreatorTest {
   public void setUp() {
     properties = new Properties();
     File baseDir = new File(".");
-    project = new ProjectDefinition(baseDir, properties);
+    File workDir = new File(baseDir, "sonar");
+    project = new ProjectDefinition(baseDir, workDir, properties);
   }
 
   @Test
@@ -54,6 +55,11 @@ public class InMemoryPomCreatorTest {
     assertThat(pom.getGroupId(), is("org.example"));
     assertThat(pom.getArtifactId(), is("example"));
     assertThat(pom.getProperties(), is(project.getProperties()));
+    assertThat(pom.getBasedir(), is(project.getBaseDir()));
+    String buildDirectory = project.getWorkDir().getAbsolutePath() + "/target";
+    assertThat(pom.getBuild().getDirectory(), is(buildDirectory));
+    assertThat(pom.getBuild().getOutputDirectory(), is(buildDirectory + "/classes"));
+    assertThat(pom.getReporting().getOutputDirectory(), is(buildDirectory + "/site"));
   }
 
   @Test
@@ -81,33 +87,6 @@ public class InMemoryPomCreatorTest {
 
     assertThat(pom.getCompileClasspathElements().size(), is(1));
     assertThat((String) pom.getCompileClasspathElements().get(0), is("junit.jar"));
-  }
-
-  @Test
-  public void standardDirectoriesLayout() {
-    createRequiredProperties();
-
-    MavenProject pom = create();
-
-    assertThat(pom.getBasedir(), is(project.getBaseDir()));
-    String buildDirectory = project.getBaseDir().getAbsolutePath() + "/target";
-    assertThat(pom.getBuild().getDirectory(), is(buildDirectory));
-    assertThat(pom.getBuild().getOutputDirectory(), is(buildDirectory + "/classes"));
-    assertThat(pom.getReporting().getOutputDirectory(), is(buildDirectory + "/site"));
-  }
-
-  @Test
-  public void nonStandardDirectoriesLayout() {
-    createRequiredProperties();
-    properties.setProperty("project.build.directory", "build");
-    properties.setProperty("project.build.outputDirectory", "classes");
-    properties.setProperty("project.reporting.outputDirectory", "reports");
-
-    MavenProject pom = create();
-
-    assertThat(pom.getBuild().getDirectory(), is("build"));
-    assertThat(pom.getBuild().getOutputDirectory(), is("classes"));
-    assertThat(pom.getReporting().getOutputDirectory(), is("reports"));
   }
 
   @Test
