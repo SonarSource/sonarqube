@@ -66,5 +66,25 @@ public class ScopesTest {
     assertThat(Scopes.isType(resource), is(false));
   }
 
+  @Test
+  public void shouldBeHigherThan() {
+    assertThat(Scopes.isHigherThan(Scopes.PROJECT, Scopes.PROJECT), is(false));
+    assertThat(Scopes.isHigherThan(Scopes.PROJECT, Scopes.DIRECTORY), is(true));
+    assertThat(Scopes.isHigherThan(Scopes.PROJECT, Scopes.BLOCK_UNIT), is(true));
 
+    assertThat(Scopes.isHigherThan(Scopes.FILE, Scopes.FILE), is(false));
+    assertThat(Scopes.isHigherThan(Scopes.FILE, Scopes.DIRECTORY), is(false));
+    assertThat(Scopes.isHigherThan(Scopes.FILE, Scopes.BLOCK_UNIT), is(true));
+  }
+
+  @Test
+  public void shouldBeHigherThanOrEquals() {
+    assertThat(Scopes.isHigherThanOrEquals(Scopes.PROJECT, Scopes.PROJECT), is(true));
+    assertThat(Scopes.isHigherThanOrEquals(Scopes.PROJECT, Scopes.DIRECTORY), is(true));
+    assertThat(Scopes.isHigherThanOrEquals(Scopes.PROJECT, Scopes.BLOCK_UNIT), is(true));
+
+    assertThat(Scopes.isHigherThanOrEquals(Scopes.FILE, Scopes.FILE), is(true));
+    assertThat(Scopes.isHigherThanOrEquals(Scopes.FILE, Scopes.DIRECTORY), is(false));
+    assertThat(Scopes.isHigherThanOrEquals(Scopes.FILE, Scopes.BLOCK_UNIT), is(true));
+  }
 }

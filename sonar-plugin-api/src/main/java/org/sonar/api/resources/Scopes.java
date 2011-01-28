@@ -19,6 +19,7 @@
  */
 package org.sonar.api.resources;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -63,24 +64,46 @@ public final class Scopes {
    */
   public static final String BLOCK_UNIT = "BLU";
 
+  public static final String[] SORTED_SCOPES = {PROJECT, DIRECTORY, FILE, TYPE, BLOCK_UNIT};
+
 
   public static boolean isProject(final Resource resource) {
-    return resource!=null && StringUtils.equals(PROJECT, resource.getScope());
+    return StringUtils.equals(PROJECT, resource.getScope());
   }
 
   public static boolean isDirectory(final Resource resource) {
-    return resource!=null && StringUtils.equals(DIRECTORY, resource.getScope());
+    return StringUtils.equals(DIRECTORY, resource.getScope());
   }
 
   public static boolean isFile(final Resource resource) {
-    return resource!=null && StringUtils.equals(FILE, resource.getScope());
+    return StringUtils.equals(FILE, resource.getScope());
   }
 
   public static boolean isType(final Resource resource) {
-    return resource!=null && StringUtils.equals(TYPE, resource.getScope());
+    return StringUtils.equals(TYPE, resource.getScope());
   }
 
   public static boolean isBlockUnit(final Resource resource) {
-    return resource!=null && StringUtils.equals(BLOCK_UNIT, resource.getScope());
+    return StringUtils.equals(BLOCK_UNIT, resource.getScope());
+  }
+
+  public static boolean isHigherThan(final Resource resource, final String than) {
+    return isHigherThan(resource.getScope(), than);
+  }
+
+  public static boolean isHigherThan(final String scope, final String than) {
+    int index = ArrayUtils.indexOf(SORTED_SCOPES, scope);
+    int thanIndex = ArrayUtils.indexOf(SORTED_SCOPES, than);
+    return index<thanIndex;
+  }
+
+  public static boolean isHigherThanOrEquals(final Resource resource, final String than) {
+    return isHigherThanOrEquals(resource.getScope(), than);
+  }
+
+  public static boolean isHigherThanOrEquals(final String scope, final String than) {
+    int index = ArrayUtils.indexOf(SORTED_SCOPES, scope);
+    int thanIndex = ArrayUtils.indexOf(SORTED_SCOPES, than);
+    return index<=thanIndex;
   }
 }
