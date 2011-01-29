@@ -4389,5 +4389,157 @@ public @NonNegative Integer example(@Negative Integer value) {
       This method does not override the <code>toString()</code> 
       method in <code>java.lang.Object</code>, which is probably what was intended.
       </p>]]></description>
-  </rule>            
+  </rule>
+
+  <rule key="BAC_BAD_APPLET_CONSTRUCTOR" priority="INFO">
+    <name><![CDATA[Experimental - Bad Applet Constructor relies on uninitialized AppletStub]]></name>
+    <configKey><![CDATA[BAC_BAD_APPLET_CONSTRUCTOR]]></configKey>
+    <description><![CDATA[<p>
+      This constructor calls methods in the parent Applet that rely on the AppletStub. Since the AppletStub
+      isn't initialized until the init() method of this applet is called, these methods will not perform
+      correctly.
+      </p>]]></description>
+  </rule>
+
+  <rule key="UOE_USE_OBJECT_EQUALS" priority="INFO">
+    <name><![CDATA[Experimental - Calls to equals on a final class that doesn't override Object's equals method]]></name>
+    <configKey><![CDATA[UOE_USE_OBJECT_EQUALS]]></configKey>
+    <description><![CDATA[<p>
+      This method invokes the .equals(Object o) method on a final class that doesn't override the equals method
+      in the Object class, effectively making the equals method test for sameness, like ==. It is good to use
+      the .equals method, but you should consider adding an .equals method in this class.
+      </p>
+      <p>[Bill Pugh]: Sorry, but I strongly disagree that this should be a warning, and I think your code
+      is just fine. Users of your code shouldn't care how you've implemented equals(), and they should never
+      depend on == to compare instances, since that bypasses the libraries ability to control how objects
+      are compared.
+      </p>]]></description>
+  </rule>
+
+  <rule key="CD_CIRCULAR_DEPENDENCY" priority="INFO">
+    <name><![CDATA[Experimental - Test for circular dependencies among classes]]></name>
+    <configKey><![CDATA[CD_CIRCULAR_DEPENDENCY]]></configKey>
+    <description><![CDATA[<p>
+      This class has a circular dependency with other classes. This makes building these classes
+      difficult, as each is dependent on the other to build correctly. Consider using interfaces
+      to break the hard dependency.
+      </p>]]></description>
+  </rule>
+
+  <rule key="IMA_INEFFICIENT_MEMBER_ACCESS" priority="INFO">
+    <name><![CDATA[Experimental - Method accesses a private member variable of owning class]]></name>
+    <configKey><![CDATA[IMA_INEFFICIENT_MEMBER_ACCESS]]></configKey>
+    <description><![CDATA[<p>
+      This method of an inner class reads from or writes to a private member variable of the owning class,
+      or calls a private method of the owning class. The compiler must generate a special method to access this
+      private member, causing this to be less efficient. Relaxing the protection of the member variable or method
+      will allow the compiler to treat this as a normal access.
+      </p>]]></description>
+  </rule>
+
+  <rule key="USM_USELESS_SUBCLASS_METHOD" priority="INFO">
+    <name><![CDATA[Experimental - Method superfluously delegates to parent class method]]></name>
+    <configKey><![CDATA[USM_USELESS_SUBCLASS_METHOD]]></configKey>
+    <description><![CDATA[<p>
+      This derived method merely calls the same superclass method passing in the exact parameters
+      received. This method can be removed, as it provides no additional value.
+      </p>]]></description>
+  </rule>
+
+  <rule key="USM_USELESS_ABSTRACT_METHOD" priority="INFO">
+    <name><![CDATA[Experimental - Abstract Method is already defined in implemented interface]]></name>
+    <configKey><![CDATA[USM_USELESS_ABSTRACT_METHOD]]></configKey>
+    <description><![CDATA[<p>
+      This abstract method is already defined in an interface that is implemented by this abstract 
+      class. This method can be removed, as it provides no additional value.
+      </p>]]></description>
+  </rule>
+
+  <rule key="OBL_UNSATISFIED_OBLIGATION" priority="INFO">
+    <name><![CDATA[Experimental - Method may fail to clean up stream or resource]]></name>
+    <configKey><![CDATA[OBL_UNSATISFIED_OBLIGATION]]></configKey>
+    <description><![CDATA[<p>
+      This method may fail to clean up (close, dispose of) a stream,
+      database object, or other
+      resource requiring an explicit cleanup operation.
+      </p>
+      <p>
+      In general, if a method opens a stream or other resource,
+      the method should use a try/finally block to ensure that
+      the stream or resource is cleaned up before the method
+      returns.
+      </p>
+      <p>
+      This bug pattern is essentially the same as the
+      OS_OPEN_STREAM and ODR_OPEN_DATABASE_RESOURCE
+      bug patterns, but is based on a different
+      (and hopefully better) static analysis technique.
+      We are interested is getting feedback about the
+      usefulness of this bug pattern.
+      To send feedback, either:
+      </p>
+      <ul>
+        <li>send email to findbugs@cs.umd.edu</li>
+        <li>file a bug report: <a href="http://findbugs.sourceforge.net/reportingBugs.html">http://findbugs.sourceforge.net/reportingBugs.html</a></li>
+      </ul>
+      <p>
+      In particular,
+      the false-positive suppression heuristics for this
+      bug pattern have not been extensively tuned, so
+      reports about false positives are helpful to us.
+      </p>
+      <p>
+      See Weimer and Necula, <i>Finding and Preventing Run-Time Error Handling Mistakes</i>, for
+      a description of the analysis technique.
+      </p>]]></description>
+  </rule>
+
+  <rule key="FB_UNEXPECTED_WARNING" priority="INFO">
+    <name><![CDATA[Experimental - Unexpected/undesired warning from FindBugs]]></name>
+    <configKey><![CDATA[FB_UNEXPECTED_WARNING]]></configKey>
+    <description><![CDATA[<p>
+      FindBugs generated a warning that, according to a @NoWarning annotated,
+      is unexpected or undesired
+      </p>]]></description>
+  </rule>
+
+  <rule key="FB_MISSING_EXPECTED_WARNING" priority="INFO">
+    <name><![CDATA[Experimental - Missing expected or desired warning from FindBugs]]></name>
+    <configKey><![CDATA[FB_MISSING_EXPECTED_WARNING]]></configKey>
+    <description><![CDATA[<p>
+      FindBugs didn't generate generated a warning that, according to a @ExpectedWarning annotated,
+      is expected or desired
+      </p>]]></description>
+  </rule>
+
+  <rule key="LG_LOST_LOGGER_DUE_TO_WEAK_REFERENCE" priority="INFO">
+    <name><![CDATA[Experimental - Potential lost logger changes due to weak reference in OpenJDK]]></name>
+    <configKey><![CDATA[LG_LOST_LOGGER_DUE_TO_WEAK_REFERENCE]]></configKey>
+    <description><![CDATA[<p>
+      OpenJDK introduces a potential incompatibility.
+      In particular, the java.util.logging.Logger behavior has
+      changed. Instead of using strong references, it now uses weak references
+      internally. That's a reasonable change, but unfortunately some code relies on
+      the old behavior - when changing logger configuration, it simply drops the
+      logger reference. That means that the garbage collector is free to reclaim
+      that memory, which means that the logger configuration is lost. For example,
+      consider:
+      </p>
+      <p><pre>public static void initLogging() throws Exception {
+      Logger logger = Logger.getLogger("edu.umd.cs");
+      logger.addHandler(new FileHandler()); // call to change logger configuration
+      logger.setUseParentHandlers(false); // another call to change logger configuration
+      }</pre></p>
+      <p>The logger reference is lost at the end of the method (it doesn't
+      escape the method), so if you have a garbage collection cycle just
+      after the call to initLogging, the logger configuration is lost
+      (because Logger only keeps weak references).</p>
+      <p><pre>public static void main(String[] args) throws Exception {
+      initLogging(); // adds a file handler to the logger
+      System.gc(); // logger configuration lost
+      Logger.getLogger("edu.umd.cs").info("Some message"); // this isn't logged to the file as expected
+      }</pre></p>
+      <p><em>Ulf Ochsenfahrt and Eric Fellheimer</em>
+    </p>]]></description>
+  </rule>
 </rules>
