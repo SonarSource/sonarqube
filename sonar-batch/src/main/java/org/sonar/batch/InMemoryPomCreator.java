@@ -73,6 +73,9 @@ public class InMemoryPomCreator {
     pom.setArtifactId(keys[1]);
     pom.setVersion(getPropertyOrDie(properties, CoreProperties.PROJECT_VERSION_PROPERTY));
 
+    pom.setName(properties.getProperty(CoreProperties.PROJECT_NAME_PROPERTY, "Unnamed - " + key));
+    pom.setDescription(properties.getProperty(CoreProperties.PROJECT_DESCRIPTION_PROPERTY, ""));
+
     pom.getModel().setProperties(properties);
 
     pom.setArtifacts(Collections.EMPTY_SET);

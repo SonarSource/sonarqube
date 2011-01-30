@@ -40,6 +40,16 @@ public interface CoreProperties {
   String PROJECT_KEY_PROPERTY = "sonar.projectKey";
 
   /**
+   * @since 2.6
+   */
+  String PROJECT_NAME_PROPERTY = "sonar.projectName";
+
+  /**
+   * @since 2.6
+   */
+  String PROJECT_DESCRIPTION_PROPERTY = "sonar.projectDescription";
+
+  /**
    * To determine value of this property use {@link ProjectFileSystem#getSourceCharset()}.
    * 
    * @since 2.6

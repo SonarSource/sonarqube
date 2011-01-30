@@ -54,12 +54,27 @@ public class InMemoryPomCreatorTest {
     assertThat(pom.getBasedir(), is(project.getBaseDir()));
     assertThat(pom.getGroupId(), is("org.example"));
     assertThat(pom.getArtifactId(), is("example"));
+    assertThat(pom.getName(), is("Unnamed - org.example:example"));
+    assertThat(pom.getDescription(), is(""));
     assertThat(pom.getProperties(), is(project.getProperties()));
     assertThat(pom.getBasedir(), is(project.getBaseDir()));
     String buildDirectory = project.getWorkDir().getAbsolutePath() + "/target";
     assertThat(pom.getBuild().getDirectory(), is(buildDirectory));
     assertThat(pom.getBuild().getOutputDirectory(), is(buildDirectory + "/classes"));
     assertThat(pom.getReporting().getOutputDirectory(), is(buildDirectory + "/site"));
+  }
+
+  @Test
+  public void nameAndDescription() {
+    createRequiredProperties();
+
+    properties.setProperty(CoreProperties.PROJECT_NAME_PROPERTY, "Foo");
+    properties.setProperty(CoreProperties.PROJECT_DESCRIPTION_PROPERTY, "Bar");
+
+    MavenProject pom = create();
+
+    assertThat(pom.getName(), is("Foo"));
+    assertThat(pom.getDescription(), is("Bar"));
   }
 
   @Test
