@@ -100,7 +100,7 @@ public class BatchDownloader {
     } catch (Exception e) {
       BootstrapperIOUtils.closeQuietly(output);
       BootstrapperIOUtils.deleteFileQuietly(toFile);
-      throw new RuntimeException("Fail to download the file: " + fullUrl);
+      throw new RuntimeException("Fail to download the file: " + fullUrl, e);
     } finally {
       BootstrapperIOUtils.closeQuietly(input);
       BootstrapperIOUtils.closeQuietly(output);
