@@ -51,10 +51,11 @@ public class BatchResourcesServlet extends HttpServlet {
     if (StringUtils.isEmpty(resource)) {
       PrintWriter writer = null;
       try {
-        String libs = StringUtils.join(getLibs(), ",");
         response.setContentType("text/html");
         writer = response.getWriter();
-        writer.println(libs);
+        for (String lib : getLibs()) {
+          writer.println(lib);
+        }
       } catch (IOException e) {
         LOG.error("Unable to provide list of batch resources", e);
         response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

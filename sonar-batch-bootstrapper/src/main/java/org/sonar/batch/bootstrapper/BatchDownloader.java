@@ -76,10 +76,12 @@ public class BatchDownloader {
 
       String libs = remoteContent(BATCH_PATH);
 
-      for (String lib : libs.split(",")) {
-        File file = new File(toDir, lib);
-        remoteContentToFile(BATCH_PATH + lib, file);
-        files.add(file);
+      for (String lib : libs.split("\n")) {
+        if ("".equals(lib)) {
+          File file = new File(toDir, lib);
+          remoteContentToFile(BATCH_PATH + lib, file);
+          files.add(file);
+        }
       }
 
       return files;
