@@ -618,7 +618,7 @@
       <dependency>
         <groupId>org.jruby.rack</groupId>
         <artifactId>jruby-rack</artifactId>
-        <version>1.0.4</version>
+        <version>1.0.5</version>
       </dependency>
       <dependency>
         <groupId>mysql</groupId>
