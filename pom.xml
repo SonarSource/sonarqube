@@ -947,7 +947,7 @@
     </profile>
 
     <profile>
-      <id>check-java-api</id>
+      <id>sanity-checks</id>
       <build>
         <plugins>
           <!-- check compatibility with Java 5 -->
