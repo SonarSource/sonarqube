@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.codehaus.sonar</groupId>
@@ -94,7 +95,7 @@
     <jdk.min.version>1.5</jdk.min.version>
 
     <!-- default GWT configuration. It's overridden by the profile 'dev' to speed up compilation in dev environments-->
-    <gwt.permutationSuffix />
+    <gwt.permutationSuffix/>
     <gwt.extraJvmArgs>-Xmx512m -Xss1024k</gwt.extraJvmArgs>
   </properties>
 
@@ -189,6 +190,11 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jxr-plugin</artifactId>
           <version>2.2</version>
+        </plugin>
+        <plugin>
+          <groupId>com.mycila.maven-license-plugin</groupId>
+          <artifactId>maven-license-plugin</artifactId>
+          <version>1.9.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -819,7 +825,7 @@
     <developerConnection>scm:git:git@github.com:SonarSource/sonar.git</developerConnection>
     <url>scm:git:git@github.com:SonarSource/sonar.git</url>
   </scm>
-  
+
   <ciManagement>
     <system>bamboo</system>
     <url>http://bamboo.ci.codehaus.org/browse/SONAR-DEF</url>
@@ -944,6 +950,7 @@
       <id>check-java-api</id>
       <build>
         <plugins>
+          <!-- check compatibility with Java 5 -->
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>animal-sniffer-maven-plugin</artifactId>
@@ -961,6 +968,39 @@
                     <version>1.0</version>
                   </signature>
                 </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+
+          <!-- check copyright/license headers -->
+          <plugin>
+            <inherited>false</inherited>
+            <groupId>com.mycila.maven-license-plugin</groupId>
+            <artifactId>maven-license-plugin</artifactId>
+            <configuration>
+              <header>${project.basedir}/copyright.txt</header>
+              <failIfMissing>true</failIfMissing>
+              <strictCheck>true</strictCheck>
+              <aggregate>true</aggregate>
+              <includes>
+                <include>**/sonar-*/src/main/java/**</include>
+                <include>**/sonar-*/src/test/java/**</include>
+              </includes>
+              <excludes>
+                <exclude>tests/**</exclude>
+              </excludes>
+              <mapping>
+                <java>SLASHSTAR_STYLE</java>
+              </mapping>
+            </configuration>
+            <executions>
+              <execution>
+                <id>enforce-license-headers</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>check</goal>
+                </goals>
               </execution>
             </executions>
           </plugin>

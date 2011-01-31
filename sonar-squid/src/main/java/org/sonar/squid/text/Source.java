@@ -19,14 +19,14 @@
  */
 package org.sonar.squid.text;
 
+import org.sonar.squid.measures.Metric;
+import org.sonar.squid.recognizer.CodeRecognizer;
+
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.sonar.squid.measures.Metric;
-import org.sonar.squid.recognizer.CodeRecognizer;
 
 public class Source {
 
