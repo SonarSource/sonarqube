@@ -75,4 +75,20 @@ public class BatchResourcesServletTest {
     assertThat(servlet.getLibs().size(), is(1));
     assertThat(servlet.getLibs().get(0), is("sonar-core-2.6.jar"));
   }
+
+  @Test
+  public void shouldIgnore() {
+    assertThat(BatchResourcesServlet.isIgnored("sonar-batch-2.6-SNAPSHOT.jar"), is(false));
+    assertThat(BatchResourcesServlet.isIgnored("derby-10.6.1.0.jar"), is(true));
+    assertThat(BatchResourcesServlet.isIgnored("derbyclient-10.6.1.0.jar"), is(true));
+    assertThat(BatchResourcesServlet.isIgnored("derbynet-10.6.1.0.jar"), is(true));
+    assertThat(BatchResourcesServlet.isIgnored("mysql-connector-java-5.1.13.jar"), is(true));
+    assertThat(BatchResourcesServlet.isIgnored("postgresql-9.0-801.jdbc3.jar"), is(true));
+    assertThat(BatchResourcesServlet.isIgnored("jtds-1.2.4.jar"), is(true));
+    assertThat(BatchResourcesServlet.isIgnored("jfreechart-1.0.9.jar"), is(true));
+    assertThat(BatchResourcesServlet.isIgnored("eastwood-1.1.0.jar"), is(true));
+    assertThat(BatchResourcesServlet.isIgnored("jetty-util-6.1.24.jar"), is(true));
+    assertThat(BatchResourcesServlet.isIgnored("jruby-complete-1.5.6.jar"), is(true));
+    assertThat(BatchResourcesServlet.isIgnored("jruby-rack-1.0.5.jar"), is(true));
+  }
 }

@@ -87,10 +87,27 @@ public class BatchResourcesServlet extends HttpServlet {
     for (Object obj : paths) {
       String path = (String) obj;
       if (StringUtils.endsWith(path, ".jar")) {
-        libs.add(StringUtils.removeStart(path, "/WEB-INF/lib/"));
+        String filename = StringUtils.removeStart(path, "/WEB-INF/lib/");
+        if (!isIgnored(filename)) {
+          libs.add(filename);
+        }
       }
     }
     return libs;
+  }
+
+  private static String[] IGNORE = { "derby", "jtds", "mysql", "postgresql", "jruby", "jfreechart", "eastwood", "jetty" };
+
+  /**
+   * Dirty hack to disable downloading for certain files.
+   */
+  static boolean isIgnored(String filename) {
+    for (String prefix : IGNORE) {
+      if (StringUtils.startsWith(filename, prefix)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
