@@ -28,10 +28,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrapper.ProjectDefinition;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * This is a dirty hack for for non-Maven environments,
@@ -46,8 +43,11 @@ public class InMemoryPomCreator {
   }
 
   public MavenProject create() {
+    File workDir = project.getWorkDir();
+    String buildDirectory = workDir.getAbsolutePath() + "/target";
     Properties properties = project.getProperties();
-    final String[] binaries = StringUtils.split(properties.getProperty("sonar.projectBinaries", ""), ',');
+    final String binaries = properties.getProperty("sonar.projectBinaries", buildDirectory + "/classes");
+    final String[] libraries = StringUtils.split(properties.getProperty("sonar.projectLibraries", ""), ',');
 
     final MavenProject pom = new MavenProject() {
       /**
@@ -59,11 +59,14 @@ public class InMemoryPomCreator {
       };
 
       /**
-       * This allows to specify project binaries.
+       * This allows to specify project classpath (binaries + libraries).
        */
       @Override
       public List<String> getCompileClasspathElements() throws DependencyResolutionRequiredException {
-        return Arrays.asList(binaries);
+        List<String> cp = new ArrayList<String>();
+        cp.add(binaries);
+        cp.addAll(Arrays.asList(libraries));
+        return cp;
       }
     };
 
@@ -81,11 +84,8 @@ public class InMemoryPomCreator {
     pom.setArtifacts(Collections.EMPTY_SET);
 
     // Configure fake directories
-    File workDir = project.getWorkDir();
-    String buildDirectory = workDir.getAbsolutePath() + "/target";
     pom.getBuild().setDirectory(buildDirectory);
-    String buildOutputDirectory = buildDirectory + "/classes";
-    pom.getBuild().setOutputDirectory(buildOutputDirectory);
+    pom.getBuild().setOutputDirectory(binaries);
     Reporting reporting = new Reporting();
     String reportingOutputDirectory = buildDirectory + "/site";
     reporting.setOutputDirectory(reportingOutputDirectory);

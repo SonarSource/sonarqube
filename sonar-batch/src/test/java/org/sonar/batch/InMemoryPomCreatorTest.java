@@ -27,6 +27,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrapper.ProjectDefinition;
 
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 
 import static org.hamcrest.Matchers.is;
@@ -96,12 +97,15 @@ public class InMemoryPomCreatorTest {
   @Test
   public void classpath() throws Exception {
     createRequiredProperties();
-    properties.setProperty("sonar.projectBinaries", "junit.jar");
+    properties.setProperty("sonar.projectBinaries", "/classes");
+    properties.setProperty("sonar.projectLibraries", "junit.jar");
 
     MavenProject pom = create();
 
-    assertThat(pom.getCompileClasspathElements().size(), is(1));
-    assertThat((String) pom.getCompileClasspathElements().get(0), is("junit.jar"));
+    List<String> cp = pom.getCompileClasspathElements();
+    assertThat(cp.size(), is(2));
+    assertThat(cp.get(0), is("/classes"));
+    assertThat(cp.get(1), is("junit.jar"));
   }
 
   @Test
@@ -109,7 +113,7 @@ public class InMemoryPomCreatorTest {
     createRequiredProperties();
 
     MavenProject pom = create();
-    assertThat(pom.getCompileClasspathElements().size(), is(0));
+    assertThat(pom.getCompileClasspathElements().size(), is(1));
   }
 
   private void createRequiredProperties() {
