@@ -6,11 +6,11 @@
   <rules id="2" name="bar" description="test" plugin_config_key="checker/bar"
          plugin_rule_key="checkstyle.rule2" plugin_name="plugin" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
 
-  <rules_profiles id="1" provided="false" name="parent" default_profile="0" language="java" parent_name="[null]"/>
+  <rules_profiles id="1" provided="false" name="parent" default_profile="0" language="java" parent_name="[null]" enabled="true"/>
   
-  <rules_profiles id="2" provided="false" name="new_parent" default_profile="0" language="java" parent_name="[null]"/>
+  <rules_profiles id="2" provided="false" name="new_parent" default_profile="0" language="java" parent_name="[null]" enabled="true"/>
   
-  <rules_profiles id="3" provided="false" name="child" default_profile="0" language="java" parent_name="new_parent"/>
+  <rules_profiles id="3" provided="false" name="child" default_profile="0" language="java" parent_name="new_parent" enabled="true"/>
 
   <active_rules id="1" profile_id="1" rule_id="1" failure_level="2" inheritance="[null]"/>
 

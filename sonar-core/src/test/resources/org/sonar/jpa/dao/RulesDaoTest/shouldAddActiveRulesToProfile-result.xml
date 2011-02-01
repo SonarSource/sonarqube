@@ -1,6 +1,6 @@
 <dataset>
 
-  <rules_profiles id="1" parent_name="[null]" provided="true" name="profile" default_profile="1" language="java"/>
+  <rules_profiles id="1" parent_name="[null]" provided="true" name="profile" default_profile="1" language="java" enabled="true"/>
 
   <rules_categories id="1" name="category one" description="[null]"/>
 

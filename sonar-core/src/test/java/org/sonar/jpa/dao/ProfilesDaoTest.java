@@ -25,10 +25,8 @@ import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ProfilesDaoTest extends AbstractDbUnitTestCase {
 
@@ -39,14 +37,6 @@ public class ProfilesDaoTest extends AbstractDbUnitTestCase {
     profilesDao = new ProfilesDao(getSession());
   }
 
-  @Test
-  public void shouldGetProfiles() {
-    setupData("shouldGetProfiles");
-
-    List<RulesProfile> profiles = profilesDao.getProfiles("java");
-
-    assertThat(profiles.size(), is(2));
-  }
 
   @Test
   public void testGetActiveProfile() {

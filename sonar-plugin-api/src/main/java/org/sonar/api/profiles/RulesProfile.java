@@ -29,10 +29,9 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.persistence.*;
 
 /**
  * This class is badly named. It should be "QualityProfile". Indeed it does not relate only to rules but to metric thresholds too.
@@ -69,6 +68,9 @@ public class RulesProfile implements Cloneable {
 
   @Column(name = "provided", updatable = true, nullable = false)
   private Boolean provided = Boolean.FALSE;
+
+  @Column(name = "enabled", updatable = true, nullable = false)
+  private boolean enabled = true;
 
   @Column(name = "language", updatable = true, nullable = false)
   private String language;
@@ -175,6 +177,15 @@ public class RulesProfile implements Cloneable {
    */
   public void setProvided(Boolean b) {
     this.provided = b;
+  }
+
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  public RulesProfile setEnabled(boolean b) {
+    this.enabled = b;
+    return this;
   }
 
   /**

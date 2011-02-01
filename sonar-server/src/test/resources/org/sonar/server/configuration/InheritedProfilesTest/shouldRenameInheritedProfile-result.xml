@@ -3,10 +3,10 @@
   <rules id="1" name="foo" description="test" plugin_config_key="checker/foo"
          plugin_rule_key="checkstyle.rule1" plugin_name="plugin" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
 
-  <rules_profiles id="1" provided="false" name="newName" default_profile="0" language="java" parent_name="[null]"/>
+  <rules_profiles id="1" provided="false" name="newName" default_profile="0" language="java" parent_name="[null]" enabled="true"/>
   
-  <rules_profiles id="2" provided="false" name="level2" default_profile="0" language="java" parent_name="newName"/>
+  <rules_profiles id="2" provided="false" name="level2" default_profile="0" language="java" parent_name="newName" enabled="true"/>
   
-  <rules_profiles id="3" provided="false" name="level3" default_profile="0" language="java" parent_name="level2"/>
+  <rules_profiles id="3" provided="false" name="level3" default_profile="0" language="java" parent_name="level2" enabled="true"/>
 
 </dataset>
