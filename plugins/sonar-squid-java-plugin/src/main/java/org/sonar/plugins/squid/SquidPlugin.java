@@ -24,7 +24,9 @@ import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.plugins.squid.decorators.ClassComplexityDistributionBuilder;
+import org.sonar.plugins.squid.decorators.ClassesDecorator;
 import org.sonar.plugins.squid.decorators.FunctionComplexityDistributionBuilder;
+import org.sonar.plugins.squid.decorators.FunctionsDecorator;
 
 import java.util.Arrays;
 import java.util.List;
@@ -61,7 +63,8 @@ public class SquidPlugin implements Plugin {
 
   public List getExtensions() {
     return Arrays.asList(SquidSearchProxy.class, SquidSensor.class, SquidRuleRepository.class, JavaSourceImporter.class,
-        ClassComplexityDistributionBuilder.class, FunctionComplexityDistributionBuilder.class);
+        ClassComplexityDistributionBuilder.class, FunctionComplexityDistributionBuilder.class, ClassesDecorator.class,
+        FunctionsDecorator.class);
   }
 
   @Override

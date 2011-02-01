@@ -39,7 +39,6 @@ public final class CopyBasicMeasuresBridge extends Bridge {
   @Override
   public void onFile(SourceFile squidFile, Resource sonarResource) {
     copyStandard(squidFile, sonarResource);
-    copy(squidFile, sonarResource, Metric.CLASSES, CoreMetrics.CLASSES);
     copy(squidFile, sonarResource, Metric.FILES, CoreMetrics.FILES);
     context.saveMeasure(sonarResource, CoreMetrics.PUBLIC_DOCUMENTED_API_DENSITY, ParsingUtils.scaleValue(squidFile.getDouble(Metric.PUBLIC_DOCUMENTED_API_DENSITY) * 100, 2));
   }
@@ -58,12 +57,13 @@ public final class CopyBasicMeasuresBridge extends Bridge {
     copy(squidCode, sonarResource, Metric.LINES_OF_CODE, CoreMetrics.NCLOC);
     copy(squidCode, sonarResource, Metric.LINES, CoreMetrics.LINES);
     copy(squidCode, sonarResource, Metric.COMMENT_LINES_WITHOUT_HEADER, CoreMetrics.COMMENT_LINES);
-    copy(squidCode, sonarResource, Metric.METHODS, CoreMetrics.FUNCTIONS);
     copy(squidCode, sonarResource, Metric.ACCESSORS, CoreMetrics.ACCESSORS);
     copy(squidCode, sonarResource, Metric.PUBLIC_API, CoreMetrics.PUBLIC_API);
     copy(squidCode, sonarResource, Metric.COMPLEXITY, CoreMetrics.COMPLEXITY);
     copy(squidCode, sonarResource, Metric.STATEMENTS, CoreMetrics.STATEMENTS);
     copy(squidCode, sonarResource, Metric.COMMENTED_OUT_CODE_LINES, CoreMetrics.COMMENTED_OUT_CODE_LINES);
+
+
   }
 
   private void copy(SourceCode squidResource, Resource sonarResource, Metric squidMetric, org.sonar.api.measures.Metric sonarMetric) {

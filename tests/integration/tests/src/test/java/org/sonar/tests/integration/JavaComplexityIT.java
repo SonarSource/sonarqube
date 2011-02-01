@@ -39,6 +39,21 @@ public class JavaComplexityIT {
   }
 
   @Test
+  public void testClasses() {
+    assertThat(getMeasure("org.sonar.tests:java-complexity:foo.AnonymousClass", CoreMetrics.CLASSES_KEY).getIntValue(), is(1));
+    assertThat(getMeasure("org.sonar.tests:java-complexity:foo.ZeroComplexity", CoreMetrics.CLASSES_KEY).getIntValue(), is(1));
+    assertThat(getMeasure("org.sonar.tests:java-complexity", CoreMetrics.CLASSES_KEY).getIntValue(), is(6));
+  }
+
+  @Test
+  public void testMethods() {
+    assertThat(getMeasure("org.sonar.tests:java-complexity:foo.AnonymousClass", CoreMetrics.FUNCTIONS_KEY).getIntValue(), is(2));
+    assertThat(getMeasure("org.sonar.tests:java-complexity:foo.ZeroComplexity", CoreMetrics.FUNCTIONS_KEY).getIntValue(), is(0));
+    assertThat(getMeasure("org.sonar.tests:java-complexity:foo.ContainsInnerClasses", CoreMetrics.FUNCTIONS_KEY).getIntValue(), is(4));
+    assertThat(getMeasure("org.sonar.tests:java-complexity", CoreMetrics.FUNCTIONS_KEY).getIntValue(), is(8));
+  }
+
+  @Test
   public void testFileComplexity() {
     assertThat(getMeasure("org.sonar.tests:java-complexity:foo.Helloworld", CoreMetrics.COMPLEXITY_KEY).getIntValue(), is(6));
     assertThat(getMeasure("org.sonar.tests:java-complexity:foo.ContainsInnerClasses", CoreMetrics.COMPLEXITY_KEY).getIntValue(), is(5));
@@ -46,12 +61,12 @@ public class JavaComplexityIT {
 
   @Test
   public void testPackageComplexity() {
-    assertThat(getMeasure("org.sonar.tests:java-complexity:foo", CoreMetrics.COMPLEXITY_KEY).getIntValue(), is(11));
+    assertThat(getMeasure("org.sonar.tests:java-complexity:foo", CoreMetrics.COMPLEXITY_KEY).getIntValue(), is(15));
   }
 
   @Test
   public void testProjectComplexity() {
-    assertThat(getMeasure("org.sonar.tests:java-complexity", CoreMetrics.COMPLEXITY_KEY).getIntValue(), is(11));
+    assertThat(getMeasure("org.sonar.tests:java-complexity", CoreMetrics.COMPLEXITY_KEY).getIntValue(), is(15));
   }
 
   @Test
@@ -64,9 +79,17 @@ public class JavaComplexityIT {
     // complexity 5 / 4 methods. Real value is 1.25 but round up to 1.3
     assertThat(getMeasure("org.sonar.tests:java-complexity:foo.ContainsInnerClasses", CoreMetrics.FUNCTION_COMPLEXITY_KEY).getValue(), is(1.3));
 
-    // 3.0 * 2 + 1.25 * 4 = 11 for 6 methods
-    assertThat(getMeasure("org.sonar.tests:java-complexity:foo", CoreMetrics.FUNCTION_COMPLEXITY_KEY).getValue(), is(1.8));
-    assertThat(getMeasure("org.sonar.tests:java-complexity", CoreMetrics.FUNCTION_COMPLEXITY_KEY).getValue(), is(1.8));
+    // (1 + 3) / 2 = 2
+    assertThat(getMeasure("org.sonar.tests:java-complexity:foo.AnonymousClass", CoreMetrics.FUNCTION_COMPLEXITY_KEY).getValue(), is(2.0));
+
+    // ContainsInnerClasses: 5/4
+    // Helloworld: 6/2
+    // AnonymousClass: 4/2
+    // => 15/8=1.875
+    // BUG http://jira.codehaus.org/browse/SONAR-2152
+    // Should use sum of method complexity, not class complexity.
+    assertThat(getMeasure("org.sonar.tests:java-complexity:foo", CoreMetrics.FUNCTION_COMPLEXITY_KEY).getValue(), is(1.9));
+    assertThat(getMeasure("org.sonar.tests:java-complexity", CoreMetrics.FUNCTION_COMPLEXITY_KEY).getValue(), is(1.9));
   }
 
   @Test
@@ -76,23 +99,24 @@ public class JavaComplexityIT {
     // 1 + 1 + 3 => complexity 5/3
     assertThat(getMeasure("org.sonar.tests:java-complexity:foo.ContainsInnerClasses", CoreMetrics.CLASS_COMPLEXITY_KEY).getValue(), is(1.7));
 
-    // 1 + 1 + 3 + 6 => 11/4 = 2.75
-    assertThat(getMeasure("org.sonar.tests:java-complexity:foo", CoreMetrics.CLASS_COMPLEXITY_KEY).getValue(), is(2.8));
+    // 1 + 1 + 3 + 6 + 0 + 4 => 15/6 = 2.5
+    assertThat(getMeasure("org.sonar.tests:java-complexity:foo", CoreMetrics.CLASS_COMPLEXITY_KEY).getValue(), is(2.5));
   }
 
   @Test
   public void testDistributionOfClassComplexity() {
-    // 1 + 1 + 3 + 6 => 3 in range [0,5[ and 1 in range [5,10[
-    assertThat(getMeasure("org.sonar.tests:java-complexity:foo", CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION_KEY).getData(), is("0=3;5=1;10=0;20=0;30=0;60=0;90=0"));
-    assertThat(getMeasure("org.sonar.tests:java-complexity", CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION_KEY).getData(), is("0=3;5=1;10=0;20=0;30=0;60=0;90=0"));
+    // 1 + 1 + 3 + 6 + 0 + 4 => 5 in range [0,5[ and 1 in range [5,10[
+    assertThat(getMeasure("org.sonar.tests:java-complexity:foo", CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION_KEY).getData(), is("0=5;5=1;10=0;20=0;30=0;60=0;90=0"));
+    assertThat(getMeasure("org.sonar.tests:java-complexity", CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION_KEY).getData(), is("0=5;5=1;10=0;20=0;30=0;60=0;90=0"));
   }
 
   @Test
   public void testDistributionOfMethodComplexity() {
     // ContainsInnerClasses: 1+ 1 + 2 + 1
     // Helloworld: 1 + 3 (static block is not a method)
-    assertThat(getMeasure("org.sonar.tests:java-complexity:foo", CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY).getData(), is("1=4;2=2;4=0;6=0;8=0;10=0;12=0"));
-    assertThat(getMeasure("org.sonar.tests:java-complexity", CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY).getData(), is("1=4;2=2;4=0;6=0;8=0;10=0;12=0"));
+    // Anonymous class : 1 + 3
+    assertThat(getMeasure("org.sonar.tests:java-complexity:foo", CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY).getData(), is("1=5;2=3;4=0;6=0;8=0;10=0;12=0"));
+    assertThat(getMeasure("org.sonar.tests:java-complexity", CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY).getData(), is("1=5;2=3;4=0;6=0;8=0;10=0;12=0"));
   }
 
   @Test

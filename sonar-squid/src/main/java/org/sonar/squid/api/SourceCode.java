@@ -20,15 +20,15 @@
 
 package org.sonar.squid.api;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import org.sonar.squid.measures.Measurable;
 import org.sonar.squid.measures.Measures;
 import org.sonar.squid.measures.Metric;
 import org.sonar.squid.measures.MetricDef;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public abstract class SourceCode implements Measurable, Comparable<SourceCode> {
 
@@ -210,6 +210,17 @@ public abstract class SourceCode implements Measurable, Comparable<SourceCode> {
       return (SOURCECODE) parent;
     }
     return parent.getParent(sourceCode);
+  }
+
+  public <SOURCECODE extends SourceCode> SOURCECODE getAncestor(Class<SOURCECODE> withClass) {
+    SOURCECODE ancestor = getParent(withClass);
+    if (ancestor!=null) {
+      SOURCECODE parentAncestor = ancestor.getAncestor(withClass);
+      if (parentAncestor!=null) {
+        ancestor = parentAncestor;
+      }
+    }
+    return ancestor;
   }
 
   public void log(CheckMessage message) {

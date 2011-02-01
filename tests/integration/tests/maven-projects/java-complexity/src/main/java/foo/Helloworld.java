@@ -1,11 +1,11 @@
 package foo;
 
-// complexity: 6
+// class complexity: 6
 public class Helloworld {
 
   private String field = null;
 
-  // this is considered as a method
+  // this is considered as a method (bug http://jira.codehaus.org/browse/SONAR-2152)
   // complexity: 2
   static {
     int i = 0;
@@ -14,7 +14,7 @@ public class Helloworld {
     }
   }
 
-  // complexity: 1
+  // method complexity: 1
   public Helloworld(String s) {
     this.field = s;
   }
@@ -31,7 +31,7 @@ public class Helloworld {
     this.field = s;
   }
 
-  // complexity: 3
+  // method complexity: 3
   public void sayHello() {
     for (int i = 0; i < 5; i++) {
       if (field != null) {

@@ -99,7 +99,7 @@ public class Struts139IT {
   public void sizeMetrics() {
     assertThat(getProjectMeasure("lines").getIntValue(), is(114621));
     assertThat(getProjectMeasure("ncloc").getIntValue(), is(50080));
-    assertThat(getProjectMeasure("functions").getIntValue(), is(4292));
+    assertThat(getProjectMeasure("functions").getIntValue(), is(4234));
     assertThat(getProjectMeasure("accessors").getIntValue(), is(1133));
     assertThat(getProjectMeasure("classes").getIntValue(), is(518));
     assertThat(getProjectMeasure("packages").getIntValue(), is(49));
@@ -134,8 +134,8 @@ public class Struts139IT {
   @Test
   public void classComplexityDistribution() throws Exception {
     assertThat(sonar.find(ResourceQuery.createForMetrics("org.apache.struts:struts-core:org.apache.struts.config", "class_complexity_distribution")).getMeasure("class_complexity_distribution").getData(), is("0=10;5=3;10=2;20=1;30=4;60=4;90=1"));
-    assertThat(getCoreModuleMeasure("class_complexity_distribution").getData(), is("0=49;5=26;10=24;20=14;30=18;60=9;90=10"));
-    assertThat(getProjectMeasure("class_complexity_distribution").getData(), is("0=173;5=90;10=86;20=55;30=69;60=34;90=17"));
+    assertThat(getCoreModuleMeasure("class_complexity_distribution").getData(), is("0=47;5=26;10=24;20=12;30=18;60=9;90=10"));
+    assertThat(getProjectMeasure("class_complexity_distribution").getData(), is("0=171;5=90;10=84;20=53;30=69;60=34;90=17"));
   }
 
   @Test

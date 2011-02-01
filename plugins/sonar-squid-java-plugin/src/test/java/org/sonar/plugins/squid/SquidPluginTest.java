@@ -31,6 +31,6 @@ public class SquidPluginTest {
   @Test
   public void coverageForFun() {
     assertThat(new SquidPlugin().getKey(), not(nullValue()));
-    assertThat(new SquidPlugin().getExtensions().size(), is(6));
+    assertThat(new SquidPlugin().getExtensions().size(), is(8));
   }
 }

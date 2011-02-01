@@ -1,23 +1,23 @@
 package foo;
 
-
+// class complexity: 5
 public class ContainsInnerClasses {
 
-  // complexity: 1
+  // method complexity: 1
   public ContainsInnerClasses() {
 
   }
 
-  // complexity: 3
+  // class complexity: 3
   public static class InnerClass {
     private String field;
 
-    // complexity: 1
+    // method complexity: 1
     public InnerClass() {
 
     }
 
-    // complexity: 2
+    // method complexity: 2
     public InnerClass(String s) {
       if (s != null) {
         field = s;
@@ -26,11 +26,11 @@ public class ContainsInnerClasses {
   }
 }
 
-// complexity: 1
+// class complexity: 1
 class PackageClass {
     private String field;
 
-    // complexity: 1
+    // method complexity: 1
     public PackageClass() {
 
     }

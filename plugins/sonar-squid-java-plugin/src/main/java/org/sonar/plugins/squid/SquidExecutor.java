@@ -53,7 +53,7 @@ public final class SquidExecutor {
   private CheckFactory checkFactory;
 
   public SquidExecutor(boolean analyzePropertyAccessors, String fieldNamesToExcludeFromLcom4Computation, CheckFactory checkFactory,
-      Charset sourcesCharset) {
+                       Charset sourcesCharset) {
     JavaSquidConfiguration conf = createJavaSquidConfiguration(analyzePropertyAccessors, fieldNamesToExcludeFromLcom4Computation,
         sourcesCharset);
     squid = new Squid(conf);
@@ -61,13 +61,13 @@ public final class SquidExecutor {
   }
 
   private JavaSquidConfiguration createJavaSquidConfiguration(boolean analyzePropertyAccessors,
-      String fieldNamesToExcludeFromLcom4Computation,
-      Charset sourcesCharset) {
+                                                              String fieldNamesToExcludeFromLcom4Computation,
+                                                              Charset sourcesCharset) {
     JavaSquidConfiguration conf = new JavaSquidConfiguration(analyzePropertyAccessors, sourcesCharset);
 
-    if ( !StringUtils.isBlank(fieldNamesToExcludeFromLcom4Computation)) {
+    if (!StringUtils.isBlank(fieldNamesToExcludeFromLcom4Computation)) {
       for (String fieldName : fieldNamesToExcludeFromLcom4Computation.split(",")) {
-        if ( !StringUtils.isBlank(fieldName)) {
+        if (!StringUtils.isBlank(fieldName)) {
           conf.addFieldToExcludeFromLcom4Calculation(fieldName);
         }
       }
@@ -136,8 +136,11 @@ public final class SquidExecutor {
     Collection<SourceCode> squidClasses = squid.search(new QueryByType(SourceClass.class));
     for (SourceCode squidClass : squidClasses) {
       Resource sonarClass = resourceIndex.get(squidClass);
-      for (Bridge bridge : bridges) {
-        bridge.onClass((SourceClass) squidClass, (JavaClass)sonarClass);
+      // can be null with anonymous classes
+      if (sonarClass != null) {
+        for (Bridge bridge : bridges) {
+          bridge.onClass((SourceClass) squidClass, (JavaClass) sonarClass);
+        }
       }
     }
   }
@@ -145,9 +148,11 @@ public final class SquidExecutor {
   private void saveMethods(ResourceIndex resourceIndex, List<Bridge> bridges) {
     Collection<SourceCode> squidMethods = squid.search(new QueryByType(SourceMethod.class));
     for (SourceCode squidMethod : squidMethods) {
-      JavaMethod sonarMethod = (JavaMethod)resourceIndex.get(squidMethod);
-      for (Bridge bridge : bridges) {
-        bridge.onMethod((SourceMethod) squidMethod, sonarMethod);
+      JavaMethod sonarMethod = (JavaMethod) resourceIndex.get(squidMethod);
+      if (sonarMethod != null) {
+        for (Bridge bridge : bridges) {
+          bridge.onMethod((SourceMethod) squidMethod, sonarMethod);
+        }
       }
     }
   }

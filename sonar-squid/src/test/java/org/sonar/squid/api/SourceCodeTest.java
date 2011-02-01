@@ -95,6 +95,24 @@ public class SourceCodeTest {
   }
 
   @Test
+  public void testGetAncestorByType() {
+    SourceFile file = new SourceFile("org.from.From.java", "From.java");
+    SourceClass class1 = new SourceClass("org.from.From", "From");
+    SourceClass class2 = new SourceClass("org.from.From$Foo", "From$Foo");
+    SourceMethod method = new SourceMethod(class2, "foo()", 10);
+    file.addChild(class1);
+    class1.addChild(class2);
+    class2.addChild(method);
+
+    assertEquals(file, class1.getAncestor(SourceFile.class));
+    assertEquals(class1, class2.getAncestor(SourceClass.class));
+    assertEquals(file, class2.getAncestor(SourceFile.class));
+    assertEquals(class1, method.getAncestor(SourceClass.class));
+    assertEquals(file, method.getAncestor(SourceFile.class));
+  }
+
+
+  @Test
   public void testHasAmongParents() {
     assertTrue(cla.hasAmongParents(prj));
     assertTrue(cla.hasAmongParents(pac));
