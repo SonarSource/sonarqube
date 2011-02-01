@@ -28,7 +28,10 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrapper.ProjectDefinition;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * This is a dirty hack for for non-Maven environments,
@@ -46,8 +49,10 @@ public class InMemoryPomCreator {
     File workDir = project.getWorkDir();
     String buildDirectory = workDir.getAbsolutePath() + "/target";
     Properties properties = project.getProperties();
-    final String binaries = properties.getProperty("sonar.projectBinaries", buildDirectory + "/classes");
-    final String[] libraries = StringUtils.split(properties.getProperty("sonar.projectLibraries", ""), ',');
+
+    if (project.getBinaries().size() == 0) {
+      project.addBinaryDir(buildDirectory + "/classes");
+    }
 
     final MavenProject pom = new MavenProject() {
       /**
@@ -64,8 +69,8 @@ public class InMemoryPomCreator {
       @Override
       public List<String> getCompileClasspathElements() throws DependencyResolutionRequiredException {
         List<String> cp = new ArrayList<String>();
-        cp.add(binaries);
-        cp.addAll(Arrays.asList(libraries));
+        cp.addAll(project.getBinaries());
+        cp.addAll(project.getLibraries());
         return cp;
       }
     };
@@ -85,7 +90,7 @@ public class InMemoryPomCreator {
 
     // Configure fake directories
     pom.getBuild().setDirectory(buildDirectory);
-    pom.getBuild().setOutputDirectory(binaries);
+    pom.getBuild().setOutputDirectory(project.getBinaries().get(0));
     Reporting reporting = new Reporting();
     String reportingOutputDirectory = buildDirectory + "/site";
     reporting.setOutputDirectory(reportingOutputDirectory);

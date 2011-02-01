@@ -39,6 +39,8 @@ public class ProjectDefinition {
   private Properties properties;
   private List<String> sourceDirs = Lists.newArrayList();
   private List<String> testDirs = Lists.newArrayList();
+  private List<String> binaries = Lists.newArrayList();
+  private List<String> libraries = Lists.newArrayList();
 
   /**
    * @param baseDir project base directory
@@ -84,5 +86,30 @@ public class ProjectDefinition {
    */
   public void addTestDir(String path) {
     testDirs.add(path);
+  }
+
+  public List<String> getBinaries() {
+    return binaries;
+  }
+
+  /**
+   * @param path path to directory with compiled source. In case of Java this is directory with class files.
+   *          It can be absolute or relative to project directory.
+   * @TODO currently Sonar supports only one such directory due to dependency on MavenProject
+   */
+  public void addBinaryDir(String path) {
+    binaries.add(path);
+  }
+
+  public List<String> getLibraries() {
+    return libraries;
+  }
+
+  /**
+   * @param path path to file with third-party library. In case of Java this is path to jar file.
+   *          It can be absolute or relative to project directory.
+   */
+  public void addLibrary(String path) {
+    libraries.add(path);
   }
 }

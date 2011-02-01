@@ -81,7 +81,6 @@ public class InMemoryPomCreatorTest {
   @Test
   public void sourceDirectories() {
     createRequiredProperties();
-    properties.setProperty("sonar.projectBinaries", "junit.jar");
     project.addSourceDir("src");
     project.addTestDir("test");
 
@@ -97,8 +96,8 @@ public class InMemoryPomCreatorTest {
   @Test
   public void classpath() throws Exception {
     createRequiredProperties();
-    properties.setProperty("sonar.projectBinaries", "/classes");
-    properties.setProperty("sonar.projectLibraries", "junit.jar");
+    project.addBinaryDir("/classes");
+    project.addLibrary("junit.jar");
 
     MavenProject pom = create();
 
