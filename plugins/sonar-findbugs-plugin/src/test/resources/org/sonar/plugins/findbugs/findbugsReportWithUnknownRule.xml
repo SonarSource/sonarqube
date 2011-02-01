@@ -1,7 +1,8 @@
 <BugCollection version="1.3.9" sequence="0" timestamp="1289571354000" analysisTimestamp="1289571687788" release="">
   <Project projectName="">
   </Project>
-  <BugInstance type="OBL_UNSATISFIED_OBLIGATION" priority="2" abbrev="OBL" category="EXPERIMENTAL" instanceHash="4d5bb62bd620a4713ef04e9450237c02" instanceOccurrenceNum="0" instanceOccurrenceMax="0">
+  <!-- Before SONAR-1280 type was OBL_UNSATISFIED_OBLIGATION -->
+  <BugInstance type="UNKNOWN" priority="2" abbrev="OBL" category="EXPERIMENTAL" instanceHash="4d5bb62bd620a4713ef04e9450237c02" instanceOccurrenceNum="0" instanceOccurrenceMax="0">
     <ShortMessage>Method may fail to clean up stream or resource</ShortMessage>
     <LongMessage>Method com.exedio.csvtools.DBTool.executeUpdate(String) may fail to clean up java.sql.Statement</LongMessage>
     <Class classname="com.exedio.csvtools.DBTool" primary="true">
