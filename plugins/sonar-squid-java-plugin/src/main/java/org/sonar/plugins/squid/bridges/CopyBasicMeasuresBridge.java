@@ -57,7 +57,6 @@ public final class CopyBasicMeasuresBridge extends Bridge {
     copy(squidCode, sonarResource, Metric.LINES_OF_CODE, CoreMetrics.NCLOC);
     copy(squidCode, sonarResource, Metric.LINES, CoreMetrics.LINES);
     copy(squidCode, sonarResource, Metric.COMMENT_LINES_WITHOUT_HEADER, CoreMetrics.COMMENT_LINES);
-    copy(squidCode, sonarResource, Metric.ACCESSORS, CoreMetrics.ACCESSORS);
     copy(squidCode, sonarResource, Metric.PUBLIC_API, CoreMetrics.PUBLIC_API);
     copy(squidCode, sonarResource, Metric.COMPLEXITY, CoreMetrics.COMPLEXITY);
     copy(squidCode, sonarResource, Metric.STATEMENTS, CoreMetrics.STATEMENTS);
