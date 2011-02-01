@@ -76,7 +76,7 @@ public class ViolationPersisterTest extends AbstractDbUnitTestCase {
   @Test
   public void shouldUpdateViolation() {
     Violation violation = Violation.create(rule1, javaFile)
-        .setLineId(20).setCost(55.6);
+        .setLineId(20).setCost(55.6).setSeverity(RulePriority.MINOR);
     RuleFailureModel model = getSession().getSingleResult(RuleFailureModel.class, "id", 1);
 
     violationPersister.saveOrUpdateViolation(new Project("project"), violation, model, null);

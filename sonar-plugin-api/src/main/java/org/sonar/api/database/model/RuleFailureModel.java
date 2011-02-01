@@ -42,7 +42,7 @@ public class RuleFailureModel extends BaseIdentifiable {
   @Column(name = "rule_id", updatable = false, nullable = false)
   private Integer ruleId;
 
-  @Column(name = "failure_level", updatable = false, nullable = false)
+  @Column(name = "failure_level", updatable = true, nullable = false)
   @Enumerated(EnumType.ORDINAL)
   private RulePriority priority;
 
