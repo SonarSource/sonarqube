@@ -19,8 +19,6 @@
  */
 package org.sonar.api.utils;
 
-import java.lang.annotation.Annotation;
-
 /**
  * A utility class for annotations
  *
@@ -35,14 +33,23 @@ public final class AnnotationUtils {
    * Searches for a class annotation. All inheritance tree is analysed.
    */
   public static <A> A getClassAnnotation(final Object object, final Class<A> annotationClass) {
-    Class aClass = (object instanceof Class ? (Class)object : object.getClass());
-    while (aClass != null) {
-      Annotation annotation = aClass.getAnnotation(annotationClass);
-      if (annotation != null) {
-        return (A) annotation;
-      }
+    Class initialClass = (object instanceof Class ? (Class) object : object.getClass());
+    A result = null;
+    Class aClass=initialClass;
+    while (aClass != null && result == null) {
+      result = (A)aClass.getAnnotation(annotationClass);
       aClass = aClass.getSuperclass();
     }
-    return null;
+
+    if (result==null) {
+      Class[] interfaces = initialClass.getInterfaces();
+      for (Class anInterface : interfaces) {
+        result = (A)anInterface.getAnnotation(annotationClass);
+        if (result!=null) {
+          break;
+        }
+      }
+    }
+    return result;
   }
 }

@@ -19,15 +19,16 @@
  */
 package org.sonar.api.utils;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertThat;
 
 public class AnnotationUtilsTest {
 
@@ -40,6 +41,12 @@ public class AnnotationUtilsTest {
   @Test
   public void searchClassAnnotationInSuperClass() {
     FakeAnnotation annotation = AnnotationUtils.getClassAnnotation(new ChildClass(), FakeAnnotation.class);
+    assertThat(annotation.value(), is("foo"));
+  }
+
+  @Test
+  public void searchClassAnnotationInInterface() {
+    FakeAnnotation annotation = AnnotationUtils.getClassAnnotation(new ImplementedClass(), FakeAnnotation.class);
     assertThat(annotation.value(), is("foo"));
   }
 
@@ -71,5 +78,13 @@ class SuperClass {
 }
 
 class ChildClass extends SuperClass {
+
+}
+
+@FakeAnnotation("foo")
+interface AnnotatedInterface {
+}
+
+class ImplementedClass implements AnnotatedInterface {
 
 }
