@@ -32,7 +32,6 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.*;
-import org.sonar.jpa.dao.ProfilesDao;
 import org.sonar.jpa.dao.RulesDao;
 
 import java.util.*;
@@ -63,7 +62,7 @@ public class ProfilesBackup implements Backupable {
   }
 
   public void exportXml(SonarConfig sonarConfig) {
-    this.profiles = this.profiles == null ? new ProfilesDao(session).getProfiles() : this.profiles;
+    this.profiles = (this.profiles == null ? session.getResults(RulesProfile.class) : this.profiles);
     // the profiles objects must be cloned to avoid issues CGLib
     List<RulesProfile> cloned = new ArrayList<RulesProfile>();
     for (RulesProfile profile : this.profiles) {

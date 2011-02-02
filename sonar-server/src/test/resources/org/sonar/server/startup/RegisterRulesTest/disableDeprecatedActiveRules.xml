@@ -8,7 +8,7 @@
 
   <rules_parameters id="1" rule_id="1" name="deprecated-prop" description="[null]" param_type="[null]"/>
 
-  <rules_profiles id="1" name="sonar way" language="java" default_profile="false" provided="true" />
+  <rules_profiles id="1" name="sonar way" language="java" default_profile="false" provided="true"  enabled="true"/>
   <active_rules id="1" rule_id="1" profile_id="1" failure_level="4" />
   <active_rules id="2" rule_id="2" profile_id="1" failure_level="0" />
 

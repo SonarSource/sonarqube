@@ -23,44 +23,22 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.profiles.RulesProfile;
 
-import java.util.List;
-
 public class ProfilesDao extends BaseDao {
 
   public ProfilesDao(DatabaseSession session) {
     super(session);
   }
 
-  public List<RulesProfile> getActiveProfiles() {
-    return getSession().getResults(RulesProfile.class, "defaultProfile", true);
-  }
-
   public RulesProfile getActiveProfile(String languageKey, String projectResourceKey) {
     ResourceModel projectResource = getSession().getSingleResult(ResourceModel.class, "key", projectResourceKey, "scope", ResourceModel.SCOPE_PROJECT);
-    if (projectResource != null && projectResource.getRulesProfile() != null) {
+    if (projectResource != null && projectResource.getRulesProfile() != null && projectResource.getRulesProfile().isEnabled()) {
       return projectResource.getRulesProfile();
     }
-    return getSession().getSingleResult(RulesProfile.class, "defaultProfile", true, "language", languageKey);
-  }
-
-  public List<RulesProfile> getProfiles(String languageKey) {
-    return getSession().getResults(RulesProfile.class, "language", languageKey);
-  }
-
-  public List<RulesProfile> getProfiles() {
-    return getSession().getResults(RulesProfile.class);
-  }
-
-  public List<RulesProfile> getProvidedProfiles() {
-    return getSession().getResults(RulesProfile.class, "provided", true);
+    return getSession().getSingleResult(RulesProfile.class, "defaultProfile", true, "language", languageKey, "enabled", true);
   }
 
   public RulesProfile getProfile(String languageKey, String profileName) {
-    return getSession().getSingleResult(RulesProfile.class, "language", languageKey, "name", profileName);
-  }
-
-  public RulesProfile getProfileById(int profileId) {
-    return getSession().getEntityManager().getReference(RulesProfile.class, profileId);
+    return getSession().getSingleResult(RulesProfile.class, "language", languageKey, "name", profileName, "enabled", true);
   }
 
 }

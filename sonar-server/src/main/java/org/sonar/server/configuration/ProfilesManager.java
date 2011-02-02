@@ -222,7 +222,8 @@ public class ProfilesManager extends BaseDao {
     return getSession().getResults(RulesProfile.class,
         "language", parent.getLanguage(),
         "parentName", parent.getName(),
-        "provided", false);
+        "provided", false,
+        "enabled", true);
   }
 
   private void removeActiveRule(RulesProfile profile, ActiveRule activeRule) {
@@ -233,7 +234,8 @@ public class ProfilesManager extends BaseDao {
   RulesProfile getProfile(String language, String name) {
     return getSession().getSingleResult(RulesProfile.class,
         "language", language,
-        "name", name);
+        "name", name,
+        "enabled", true);
   }
 
   RulesProfile getParentProfile(RulesProfile profile) {
