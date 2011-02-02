@@ -70,7 +70,7 @@ public class RulesProfile implements Cloneable {
   private Boolean provided = Boolean.FALSE;
 
   @Column(name = "enabled", updatable = true, nullable = false)
-  private boolean enabled = true;
+  private Boolean enabled = Boolean.TRUE;
 
   @Column(name = "language", updatable = true, nullable = false)
   private String language;
@@ -179,11 +179,15 @@ public class RulesProfile implements Cloneable {
     this.provided = b;
   }
 
-  public boolean isEnabled() {
+  public Boolean getEnabled() {
     return enabled;
   }
 
-  public RulesProfile setEnabled(boolean b) {
+  public boolean isEnabled() {
+    return enabled==Boolean.TRUE;
+  }
+
+  public RulesProfile setEnabled(Boolean b) {
     this.enabled = b;
     return this;
   }

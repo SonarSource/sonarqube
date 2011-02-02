@@ -103,11 +103,15 @@ public class Backup {
   public void importXml(String xml) {
     try {
       startDb();
-      SonarConfig sonarConfig = getSonarConfigFromXml(xml);
-      importBackupablesXml(sonarConfig);
+      doImportXml(xml);
     } finally {
       stopDb();
     }
+  }
+
+  void doImportXml(String xml) {
+    SonarConfig sonarConfig = getSonarConfigFromXml(xml);
+    importBackupablesXml(sonarConfig);
   }
 
   protected void importBackupablesXml(SonarConfig sonarConfig) {
