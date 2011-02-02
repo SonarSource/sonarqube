@@ -5,10 +5,15 @@
          version="2.4">
 
   <display-name>Sonar</display-name>
-  
+
   <context-param>
     <param-name>public.root</param-name>
     <param-value>/</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>rails.env</param-name>
+    <param-value>production</param-value>
   </context-param>
 
   <context-param>
@@ -34,12 +39,7 @@
   </filter>
   <filter>
     <filter-name>RackFilter</filter-name>
-    <filter-class>org.sonar.server.ui.SonarRackFilter</filter-class>
-    <init-param>
-      <description>List of files extensions that will not be processed by the rack filter</description>
-      <param-name>exclusions</param-name>
-      <param-value>gif,png,ico,jpg,jpeg,css,js</param-value>
-    </init-param>
+    <filter-class>org.jruby.rack.RackFilter</filter-class>
   </filter>
   <filter>
     <filter-name>GZIPFilter</filter-name>
@@ -104,11 +104,10 @@
     <listener-class>org.sonar.server.platform.PlatformLifecycleListener</listener-class>
   </listener>
   <listener>
+    <listener-class>org.jruby.rack.rails.RailsServletContextListener</listener-class>
+  </listener>
+  <listener>
     <listener-class>ch.qos.logback.classic.selector.servlet.ContextDetachingSCL</listener-class>
   </listener>
-
-  <session-config>
-    <session-timeout>30</session-timeout>
-  </session-config>
 
 </web-app>
