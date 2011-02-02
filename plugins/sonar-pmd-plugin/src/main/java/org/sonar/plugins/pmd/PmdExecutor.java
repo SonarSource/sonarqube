@@ -142,13 +142,19 @@ public class PmdExecutor implements BatchExtension {
     return xmlReport;
   }
 
-  private void setJavaVersion(PMD pmd, Project project) {
-    String javaVersion = JavaUtils.getSourceVersion(project);
-    if (StringUtils.isNotBlank(javaVersion)) {
-      if ("1.1".equals(javaVersion) || "1.2".equals(javaVersion)) {
-        javaVersion = "1.3";
-      }
+  static String getNormalizedJavaVersion(String javaVersion) {
+    if (StringUtils.equals("1.1", javaVersion) || StringUtils.equals("1.2", javaVersion)) {
+      javaVersion = "1.3";
+    } else if (StringUtils.equals("5", javaVersion)) {
+      javaVersion = "1.5";
+    } else if (StringUtils.equals("6", javaVersion)) {
+      javaVersion = "1.6";
     }
+    return javaVersion;
+  }
+
+  private void setJavaVersion(PMD pmd, Project project) {
+    String javaVersion = getNormalizedJavaVersion(JavaUtils.getSourceVersion(project));
     if (javaVersion != null) {
       SourceType sourceType = SourceType.getSourceTypeForId("java " + javaVersion);
       if (sourceType != null) {

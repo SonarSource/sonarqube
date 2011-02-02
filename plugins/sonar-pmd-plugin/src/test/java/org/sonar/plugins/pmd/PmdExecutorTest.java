@@ -33,12 +33,12 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 
 public class PmdExecutorTest {
 
@@ -85,4 +85,16 @@ public class PmdExecutorTest {
     File xmlReport = executor.execute();
     assertThat(xmlReport.exists(), is(true));
   }
+
+  @Test
+  public void shouldNormalizeJavaVersion() {
+    assertThat(PmdExecutor.getNormalizedJavaVersion(null), nullValue());
+    assertThat(PmdExecutor.getNormalizedJavaVersion(""), is(""));
+    assertThat(PmdExecutor.getNormalizedJavaVersion("1.1"), is("1.3"));
+    assertThat(PmdExecutor.getNormalizedJavaVersion("1.2"), is("1.3"));
+    assertThat(PmdExecutor.getNormalizedJavaVersion("1.4"), is("1.4"));
+    assertThat(PmdExecutor.getNormalizedJavaVersion("5"), is("1.5"));
+    assertThat(PmdExecutor.getNormalizedJavaVersion("6"), is("1.6"));
+  }
+
 }
