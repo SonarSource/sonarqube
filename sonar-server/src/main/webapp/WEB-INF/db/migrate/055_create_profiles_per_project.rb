@@ -23,7 +23,7 @@ class CreateProfilesPerProject < ActiveRecord::Migration
     add_column :projects, :profile_id, :integer, :null => true
     Project.reset_column_information 
     rename_column :rules_profiles, :active, :default_profile 
-    RulesProfile.reset_column_information 
+    Profile.reset_column_information
   end
 
 end

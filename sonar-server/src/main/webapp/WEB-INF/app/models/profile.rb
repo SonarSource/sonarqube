@@ -50,20 +50,20 @@ class Profile < ActiveRecord::Base
   end
 
   def self.find_by_name_and_language(name, language)
-    Profile.find(:first, :conditions => {:name => name, :language => language})
+    Profile.find(:first, :conditions => {:name => name, :language => language, :enabled => true})
   end
 
   def self.find_active_profile_by_language(language)
-    Profile.find(:first, :conditions => {:default_profile => true, :language => language})
+    Profile.find(:first, :conditions => {:default_profile => true, :language => language, :enabled => true})
   end
 
   def self.default_profile
-    Profile.find(:first, :conditions => {:default_profile => true})
+    Profile.find(:first, :conditions => {:default_profile => true, :enabled => true})
   end
 
   def set_as_default
     default_profile=nil
-    Profile.find(:all, :conditions => {:language => language}).each do |profile|
+    Profile.find(:all, :conditions => {:language => language, :enabled => true}).each do |profile|
       if profile.id==id
         profile.default_profile=true
         default_profile=profile
@@ -81,7 +81,7 @@ class Profile < ActiveRecord::Base
 
   def self.options_for_select
     array=[]
-    Profile.find(:all, :order => 'name').each do |profile|
+    Profile.find(:all, :conditions => {:enabled => true}, :order => 'name').each do |profile|
       label = profile.name
       label = label + ' (active)' if profile.default_profile?
       array<<[label, profile.id]
@@ -119,7 +119,7 @@ class Profile < ActiveRecord::Base
     @parent||=
       begin
         if parent_name.present?
-          Profile.find(:first, :conditions => ['language=? and name=?', language, parent_name])
+          Profile.find(:first, :conditions => ['language=? and name=? and enabled=?', language, parent_name, true])
         else
           nil
         end
@@ -141,7 +141,7 @@ class Profile < ActiveRecord::Base
   def children
     @children ||=
       begin
-        Profile.find(:all, :conditions => ['language=? and parent_name=?', language, name], :order => 'name')
+        Profile.find(:all, :conditions => ['language=? and parent_name=? and enabled=?', language, name, true], :order => 'name')
       end
   end
 end

@@ -21,6 +21,6 @@ class AddRulesProfilesLanguage < ActiveRecord::Migration
 
   def self.up
     add_column 'rules_profiles', 'language', :string, :limit => 16, :null => true
-    RulesProfile.reset_column_information
+    Profile.reset_column_information
   end
 end

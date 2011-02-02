@@ -21,7 +21,7 @@ class AddRulesProfilesProvidedColumn < ActiveRecord::Migration
 
   def self.up
     add_column(:rules_profiles, :provided, :boolean, :default => false, :null => false)
-    RulesProfile.reset_column_information
+    Profile.reset_column_information
   end
 
 end

@@ -32,7 +32,7 @@ class ProfilesController < ApplicationController
   #
   #
   def index
-    @profiles = Profile.find(:all, :order => 'name')
+    @profiles = Profile.find(:all, :conditions => ['enabled=?', true], :order => 'name')
   end
 
 
@@ -58,7 +58,7 @@ class ProfilesController < ApplicationController
     if profile_name.blank?|| language.blank?
       flash[:warning]='Please type a profile name.'
     else
-      profile=Profile.find(:first, :conditions => {:name => profile_name, :language => language})
+      profile=Profile.find_by_name_and_language(profile_name, language)
       if profile
         flash[:error]="This profile already exists: #{profile_name}"
 
@@ -193,7 +193,7 @@ class ProfilesController < ApplicationController
   def inheritance
     @profile = Profile.find(params[:id])
     
-    profiles=Profile.find(:all, :conditions => ['language=? and id<>? and (parent_name is null or parent_name<>?)', @profile.language, @profile.id, @profile.name], :order => 'name')
+    profiles=Profile.find(:all, :conditions => ['language=? and id<>? and (parent_name is null or parent_name<>?) and enabled=?', @profile.language, @profile.id, @profile.name, true], :order => 'name')
     @select_parent = [['None', nil]] + profiles.collect{ |profile| [profile.name, profile.name] }
   end
 
@@ -271,7 +271,7 @@ class ProfilesController < ApplicationController
     if name.blank?
       flash[:warning]='Profile name can not be blank.'
     else
-      existing=Profile.find(:first, :conditions => {:name => name, :language => profile.language})
+      existing=Profile.find(:first, :conditions => {:name => name, :language => profile.language, :enabled => true})
       if existing
         flash[:warning]='This profile name already exists.'
       elsif !profile.provided?
