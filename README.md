@@ -12,5 +12,5 @@ http://nemo.sonarsource.org/dashboard/index/org.codehaus.sonar:sonar
 Issue tracking:
 http://jira.codehaus.org/browse/SONAR
 
-Wiki:
+Wiki: 
 http://docs.codehaus.org/display/SONAR
