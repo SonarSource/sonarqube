@@ -26,8 +26,9 @@ import java.lang.annotation.Target;
 
 /**
  * This annotation allows to specify in which environments {@link org.sonar.api.BatchExtension} would be active.
- * Consult to {@link org.sonar.api.platform.Environment} to find possible values, for example - "maven2".
- * We strictly recommend you to not overuse this annotation - most preferable is to design extensions to work in all environments.
+ * For example: "maven", "ant".
+ * Usage of this annotation is discouraged and we strictly recommend you to not overuse it.
+ * Most preferable is to design extensions to work in all environments.
  * 
  * @since 2.6
  */

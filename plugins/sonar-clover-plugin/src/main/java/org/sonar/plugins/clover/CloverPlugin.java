@@ -41,8 +41,7 @@ import java.util.List;
         key = CloverConstants.VERSION_PROPERTY,
         name = "Clover version",
         description = "Override the Clover version to use. Default value is read from pom, else " + CloverConstants.DEFAULT_VERSION,
-        project = true, global = true)
-})
+        project = true, global = true) })
 public class CloverPlugin implements Plugin {
 
   public String getKey() {
@@ -58,6 +57,6 @@ public class CloverPlugin implements Plugin {
   }
 
   public List getExtensions() {
-    return Arrays.asList(CloverMavenPluginHandler.class, CloverSensor.class);
+    return Arrays.asList(CloverMavenPluginHandler.class, CloverMavenInitializer.class, CloverSensor.class);
   }
 }

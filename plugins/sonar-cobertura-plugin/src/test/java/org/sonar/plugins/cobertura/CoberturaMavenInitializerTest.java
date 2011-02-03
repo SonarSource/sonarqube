@@ -17,38 +17,47 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.clover;
+package org.sonar.plugins.cobertura;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Project;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class CloverSensorTest {
+public class CoberturaMavenInitializerTest {
+
+  private Project project;
+  private CoberturaMavenInitializer initializer;
+
+  @Before
+  public void setUp() {
+    project = mock(Project.class);
+    initializer = new CoberturaMavenInitializer(new CoberturaMavenPluginHandler());
+  }
 
   @Test
   public void doNotExecuteMavenPluginIfReuseReports() {
-    Project project = mock(Project.class);
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.REUSE_REPORTS);
-    assertThat(new CloverSensor(new CloverMavenPluginHandler(new PropertiesConfiguration())).getMavenPluginHandler(project), nullValue());
+    assertThat(initializer.getMavenPluginHandler(project), nullValue());
   }
 
   @Test
   public void doNotExecuteMavenPluginIfStaticAnalysis() {
-    Project project = mock(Project.class);
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.STATIC);
-    assertThat(new CloverSensor(new CloverMavenPluginHandler(new PropertiesConfiguration())).getMavenPluginHandler(project), nullValue());
+    assertThat(initializer.getMavenPluginHandler(project), nullValue());
   }
 
   @Test
   public void executeMavenPluginIfDynamicAnalysis() {
-    Project project = mock(Project.class);
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.DYNAMIC);
-    assertThat(new CloverSensor(new CloverMavenPluginHandler(new PropertiesConfiguration())).getMavenPluginHandler(project), not(nullValue()));
+    assertThat(initializer.getMavenPluginHandler(project), not(nullValue()));
+    assertThat(initializer.getMavenPluginHandler(project).getArtifactId(), is("cobertura-maven-plugin"));
   }
+
 }

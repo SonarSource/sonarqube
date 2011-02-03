@@ -19,31 +19,22 @@
  */
 package org.sonar.plugins.cobertura;
 
+import java.io.File;
+
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.AbstractCoverageExtension;
+import org.sonar.api.batch.CoverageExtension;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.maven.DependsUponMavenPlugin;
-import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.plugins.cobertura.api.AbstractCoberturaParser;
 import org.sonar.plugins.cobertura.api.CoberturaUtils;
 
-import java.io.File;
+public class CoberturaSensor implements Sensor, CoverageExtension {
 
-public class CoberturaSensor extends AbstractCoverageExtension implements Sensor, DependsUponMavenPlugin {
-
-  private CoberturaMavenPluginHandler handler;
-
-  public CoberturaSensor(CoberturaMavenPluginHandler handler) {
-    this.handler = handler;
-  }
-
-  @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return super.shouldExecuteOnProject(project) && project.getFileSystem().hasJavaSourceFiles();
+    return project.getFileSystem().hasJavaSourceFiles();
   }
 
   public void analyse(Project project, SensorContext context) {
@@ -51,13 +42,6 @@ public class CoberturaSensor extends AbstractCoverageExtension implements Sensor
     if (report != null) {
       parseReport(report, context);
     }
-  }
-
-  public MavenPluginHandler getMavenPluginHandler(Project project) {
-    if (project.getAnalysisType().equals(Project.AnalysisType.DYNAMIC)) {
-      return handler;
-    }
-    return null;
   }
 
   protected void parseReport(File xmlFile, final SensorContext context) {
@@ -74,4 +58,5 @@ public class CoberturaSensor extends AbstractCoverageExtension implements Sensor
   public String toString() {
     return getClass().getSimpleName();
   }
+
 }

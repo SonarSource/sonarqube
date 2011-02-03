@@ -17,20 +17,30 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.batch.maven;
+package org.sonar.api.batch;
 
-import org.sonar.api.BatchExtension;
-import org.sonar.api.batch.SupportedEnvironment;
+import org.sonar.api.batch.Phase.Name;
 import org.sonar.api.resources.Project;
 
 /**
- * Used for Sensors and PostJobs only.
- * 
- * @since 1.10
+ * @since 2.6
  */
-@SupportedEnvironment("maven")
-public interface DependsUponMavenPlugin extends BatchExtension {
+@Phase(name = Name.PRE)
+public abstract class AbstractInitializer implements Sensor {
 
-  MavenPluginHandler getMavenPluginHandler(Project project);
+  public boolean shouldExecuteOnProject(Project project) {
+    return true;
+  }
+
+  public void analyse(Project project, SensorContext context) {
+    prepare(project);
+  }
+
+  public abstract void prepare(Project project);
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
+  }
 
 }

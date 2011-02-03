@@ -19,15 +19,15 @@
  */
 package org.sonar.plugins.clover;
 
-import org.junit.Test;
-
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertThat;
+
+import org.junit.Test;
 
 public class CloverPluginTest {
 
   @Test
   public void someExtensions() {
-    assertThat(new CloverPlugin().getExtensions().size(), is(2));
+    assertThat(new CloverPlugin().getExtensions().size(), greaterThan(1));
   }
 }

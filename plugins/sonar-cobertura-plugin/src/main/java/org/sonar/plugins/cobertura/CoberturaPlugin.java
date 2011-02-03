@@ -37,8 +37,7 @@ import java.util.List;
         name = "Maxmem",
         description = "Maximum memory to pass to JVM of Cobertura processes",
         project = true,
-        global = true)
-})
+        global = true) })
 public class CoberturaPlugin implements Plugin {
 
   public String getKey() {
@@ -57,6 +56,7 @@ public class CoberturaPlugin implements Plugin {
     List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();
     list.add(CoberturaSensor.class);
     list.add(CoberturaMavenPluginHandler.class);
+    list.add(CoberturaMavenInitializer.class);
     return list;
   }
 

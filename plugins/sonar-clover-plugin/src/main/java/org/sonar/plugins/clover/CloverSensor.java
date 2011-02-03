@@ -19,34 +19,22 @@
  */
 package org.sonar.plugins.clover;
 
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.AbstractCoverageExtension;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.maven.DependsUponMavenPlugin;
-import org.sonar.api.batch.maven.MavenPlugin;
-import org.sonar.api.batch.maven.MavenPluginHandler;
-import org.sonar.api.resources.Project;
-
 import java.io.File;
 
-public class CloverSensor extends AbstractCoverageExtension implements Sensor, DependsUponMavenPlugin {
+import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.CoverageExtension;
+import org.sonar.api.batch.Sensor;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.resources.Project;
 
-  private CloverMavenPluginHandler handler;
+public class CloverSensor implements Sensor, CoverageExtension {
 
-  public CloverSensor(CloverMavenPluginHandler handler) {
-    this.handler = handler;
-  }
-
-  public MavenPluginHandler getMavenPluginHandler(Project project) {
-    if (project.getAnalysisType().equals(Project.AnalysisType.DYNAMIC)) {
-      return handler;
-    }
-    return null;
+  public boolean shouldExecuteOnProject(Project project) {
+    return project.getFileSystem().hasJavaSourceFiles();
   }
 
   public void analyse(Project project, SensorContext context) {
-    File report = getReport(project);
+    File report = getReportFromProperty(project);
     if (reportExists(report)) {
       new XmlReportParser(context).collect(report);
     } else {
@@ -54,47 +42,16 @@ public class CloverSensor extends AbstractCoverageExtension implements Sensor, D
     }
   }
 
-  @Override
-  public boolean shouldExecuteOnProject(Project project) {
-    return super.shouldExecuteOnProject(project) &&
-        project.getFileSystem().hasJavaSourceFiles();
-  }
-
-  protected File getReport(Project pom) {
-    File report = getReportFromProperty(pom);
-    if (report == null) {
-      report = getReportFromPluginConfiguration(pom);
-    }
-    if (report == null) {
-      report = getReportFromDefaultPath(pom);
-    }
-    return report;
-  }
-
-  private File getReportFromProperty(Project pom) {
-    String path = (String) pom.getProperty(CloverConstants.REPORT_PATH_PROPERTY);
+  private File getReportFromProperty(Project project) {
+    String path = (String) project.getProperty(CloverConstants.REPORT_PATH_PROPERTY);
     if (path != null) {
-      return pom.getFileSystem().resolvePath(path);
+      return project.getFileSystem().resolvePath(path);
     }
     return null;
-  }
-
-  private File getReportFromPluginConfiguration(Project pom) {
-    MavenPlugin plugin = MavenPlugin.getPlugin(pom.getPom(), CloverConstants.MAVEN_GROUP_ID, CloverConstants.MAVEN_ARTIFACT_ID);
-    if (plugin != null) {
-      String path = plugin.getParameter("outputDirectory");
-      if (path != null) {
-        return new File(pom.getFileSystem().resolvePath(path), "clover.xml");
-      }
-    }
-    return null;
-  }
-
-  private File getReportFromDefaultPath(Project pom) {
-    return new File(pom.getFileSystem().getReportOutputDir(), "clover/clover.xml");
   }
 
   private boolean reportExists(File report) {
     return report != null && report.exists() && report.isFile();
   }
+
 }
