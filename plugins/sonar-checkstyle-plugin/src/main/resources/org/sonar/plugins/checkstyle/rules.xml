@@ -1,7 +1,8 @@
  <rules>
 
   <!-- Checkstyle 5.0 -->
-  <rule key="com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Header]]></name>
     <configKey><![CDATA[Checker/Header]]></configKey>
 
@@ -23,7 +24,8 @@
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.header.RegexpHeaderCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.header.RegexpHeaderCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Regexp Header]]></name>
     <configKey><![CDATA[Checker/RegexpHeader]]></configKey>
 
@@ -65,7 +67,8 @@
   </rule>
 
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Annotation Use Style]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AnnotationUseStyle]]></configKey>
 
@@ -81,7 +84,8 @@
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.annotation.MissingDeprecatedCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.annotation.MissingDeprecatedCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Missing Deprecated]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MissingDeprecated]]></configKey>
     
@@ -89,7 +93,8 @@
       <![CDATA[Verifies that both the java.lang.Deprecated annotation is present and the @deprecated Javadoc tag is present when either is present.]]></description>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.annotation.MissingOverrideCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.annotation.MissingOverrideCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Missing Override]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MissingOverride]]></configKey>
     
@@ -101,7 +106,8 @@
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.annotation.PackageAnnotationCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.annotation.PackageAnnotationCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Package Annotation]]></name>
     <configKey><![CDATA[Checker/TreeWalker/PackageAnnotation]]></configKey>
     
@@ -110,7 +116,8 @@
 <p>The JLS does not enforce the placement of package annotations. This placement may vary based on implementation. The JLS does highly recommend that all package annotations are placed in the package-info.java file. See <a href="http://java.sun.com/docs/books/jls/third_edition/html/j3TOC.html">Java Language specification, sections 7.4.1.1</a>.</p>]]></description>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.annotation.SuppressWarningsCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.annotation.SuppressWarningsCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Suppress Warnings]]></name>
     <configKey><![CDATA[Checker/TreeWalker/SuppressWarnings]]></configKey>
     
@@ -128,7 +135,8 @@ For example: @SupressWarnings((false) ? (true) ? "unchecked" : "foo" : "unused")
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.EqualsAvoidNullCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.EqualsAvoidNullCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Equals Avoid Null]]></name>
     <configKey><![CDATA[Checker/TreeWalker/EqualsAvoidNull]]></configKey>
     
@@ -161,7 +169,8 @@ should be refactored to:
   </rule>
 
 
-<rule key="com.puppycrawl.tools.checkstyle.checks.coding.NoCloneCheck" priority="MAJOR">
+<rule key="com.puppycrawl.tools.checkstyle.checks.coding.NoCloneCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[No Clone Check]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NoCloneCheck]]></configKey>
     
@@ -207,14 +216,16 @@ should be refactored to:
   </rule>
 
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.NoFinalizerCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.NoFinalizerCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[No Finalizer]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NoFinalizer]]></configKey>
     
     <description><![CDATA[<p>Verifies there are no finalize() methods defined in a class.</p>]]></description>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.imports.AvoidStaticImportCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.imports.AvoidStaticImportCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Avoid Static Import]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AvoidStaticImport]]></configKey>
     
@@ -227,7 +238,8 @@ For example: Excluding java.lang.Math.*. will allow the import of each static me
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocPackageCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocPackageCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Javadoc Package]]></name>
     <configKey><![CDATA[Checker/JavadocPackage]]></configKey>
     
@@ -238,7 +250,8 @@ For example: Excluding java.lang.Math.*. will allow the import of each static me
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpMultilineCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpMultilineCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Regexp Multiline]]></name>
     <configKey><![CDATA[Checker/RegexpMultiline]]></configKey>
     
@@ -261,7 +274,8 @@ For example: Excluding java.lang.Math.*. will allow the import of each static me
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Regexp Singleline]]></name>
     <configKey><![CDATA[Checker/RegexpSingleline]]></configKey>
     
@@ -284,7 +298,8 @@ For example: Excluding java.lang.Math.*. will allow the import of each static me
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineJavaCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineJavaCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Regexp Singleline Java]]></name>
     <configKey><![CDATA[Checker/TreeWalker/RegexpSinglelineJava]]></configKey>
     
@@ -310,7 +325,8 @@ For example: Excluding java.lang.Math.*. will allow the import of each static me
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.OuterTypeNumberCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.OuterTypeNumberCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Outer Type Number]]></name>
     <configKey><![CDATA[Checker/TreeWalker/OuterTypeNumber]]></configKey>
 
@@ -320,7 +336,8 @@ For example: Excluding java.lang.Math.*. will allow the import of each static me
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.FileTabCharacterCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.FileTabCharacterCheck">
+<priority>MINOR</priority>
     <name><![CDATA[File Tab Character]]></name>
     <configKey><![CDATA[Checker/FileTabCharacter]]></configKey>
 
@@ -334,7 +351,8 @@ For example: Excluding java.lang.Math.*. will allow the import of each static me
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.GenericWhitespaceCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.GenericWhitespaceCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Generic Whitespace]]></name>
     <configKey><![CDATA[Checker/TreeWalker/GenericWhitespace]]></configKey>
 
@@ -359,7 +377,8 @@ But the following example is not:
   <!-- Checkstyle 4.4 and less -->
   
   
-  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.JavaNCSSCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.JavaNCSSCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[JavaNCSS]]></name>
     <configKey><![CDATA[Checker/TreeWalker/JavaNCSS]]></configKey>
     
@@ -383,7 +402,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.imports.RedundantImportCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.imports.RedundantImportCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Redundant import]]></name>
     <configKey><![CDATA[Checker/TreeWalker/RedundantImport]]></configKey>
 
@@ -395,7 +415,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 ]]></description>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.AbstractClassNameCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.AbstractClassNameCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Abstract Class Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AbstractClassName]]></configKey>
 
@@ -406,7 +427,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
         <![CDATA[Validates identifiers for abstract classes. Default is ^Abstract.*$|^.*Factory$]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Anon Inner Length]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AnonInnerLength]]></configKey>
     
@@ -415,13 +437,15 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[maximum allowable number of lines. Default is 20.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ArrayTrailingCommaCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ArrayTrailingCommaCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Array Trailing Comma]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ArrayTrailingComma]]></configKey>
 
     <description><![CDATA[Checks if array initialization contains optional trailing comma.]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.ArrayTypeStyleCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.ArrayTypeStyleCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Array Type Style]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ArrayTypeStyle]]></configKey>
 
@@ -432,13 +456,15 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
         <![CDATA[Controls whether to enforce Java style (true) or C style (false). Default is true.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.AvoidInlineConditionalsCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.AvoidInlineConditionalsCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Avoid Inline Conditionals]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AvoidInlineConditionals]]></configKey>
 
     <description><![CDATA[Detects inline conditionals.]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.blocks.AvoidNestedBlocksCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.blocks.AvoidNestedBlocksCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Avoid Nested Blocks]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AvoidNestedBlocks]]></configKey>
 
@@ -447,7 +473,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[Allow nested blocks in case statements. Default is false.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Avoid Star Import]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AvoidStarImport]]></configKey>
     
@@ -457,7 +484,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
         <![CDATA[packages where star imports are allowed. Note that this property is not recursive, subpackages of excluded packages are not automatically excluded.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.BooleanExpressionComplexityCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.BooleanExpressionComplexityCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Boolean Expression Complexity]]></name>
     <configKey><![CDATA[Checker/TreeWalker/BooleanExpressionComplexity]]></configKey>
     
@@ -471,7 +499,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[tokens to check. Default is LAND,BAND,LOR,BOR,BXOR.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.ClassDataAbstractionCouplingCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.ClassDataAbstractionCouplingCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Class Data Abstraction Coupling]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ClassDataAbstractionCoupling]]></configKey>
     
@@ -481,7 +510,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[the maximum threshold allowed. Default is 7.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.ClassFanOutComplexityCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.ClassFanOutComplexityCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Class Fan Out Complexity]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ClassFanOutComplexity]]></configKey>
     
@@ -490,7 +520,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[the maximum threshold allowed. Default is 20.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.ConstantNameCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.ConstantNameCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Constant Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ConstantName]]></configKey>
 
@@ -501,14 +532,16 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
         <![CDATA[Validates identifiers for constants (static,  final fields). Default is ^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.CovariantEqualsCheck" priority="CRITICAL">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.CovariantEqualsCheck">
+<priority>CRITICAL</priority>
     <name><![CDATA[Covariant Equals]]></name>
     <configKey><![CDATA[Checker/TreeWalker/CovariantEquals]]></configKey>
     
     <description>
       <![CDATA[Checks that if a class defines a covariant method equals, then it defines method equals(java.lang.Object).]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.CyclomaticComplexityCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.CyclomaticComplexityCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Cyclomatic Complexity]]></name>
     <configKey><![CDATA[Checker/TreeWalker/CyclomaticComplexity]]></configKey>
     
@@ -518,33 +551,38 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[the maximum threshold allowed. Default is 10.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.DeclarationOrderCheck" priority="INFO">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.DeclarationOrderCheck">
+<priority>INFO</priority>
     <name><![CDATA[Declaration Order]]></name>
     <configKey><![CDATA[Checker/TreeWalker/DeclarationOrder]]></configKey>
 
     <description>
       <![CDATA[Checks that the parts of a class or interface declaration appear in the order suggested by the Code Convention for the Java Programming Language : <ul><li>Class (static) variables. First the public class variables, then the protected, then package level (no access modifier), and then the private.</li><li>Instance variables. First the public class variables, then the protected, then package level (no access modifier), and then the private.</li><li>Constructors</li><li>Methods</li></ul>]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.DefaultComesLastCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.DefaultComesLastCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Default Comes Last]]></name>
     <configKey><![CDATA[Checker/TreeWalker/DefaultComesLast]]></configKey>
 
     <description><![CDATA[Check that the default is after all the cases in a switch statement.]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.design.DesignForExtensionCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.design.DesignForExtensionCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Design For Extension]]></name>
     <configKey><![CDATA[Checker/TreeWalker/DesignForExtension]]></configKey>
     
     <description><![CDATA[Checks that classes are designed for inheritance.]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.DoubleCheckedLockingCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.DoubleCheckedLockingCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Double Checked Locking]]></name>
     <configKey><![CDATA[Checker/TreeWalker/DoubleCheckedLocking]]></configKey>
     
     <description>
       <![CDATA[Detect the double-checked locking idiom, a technique that tries to avoid synchronization overhead but is incorrect because of subtle artifacts of the java memory model.]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.blocks.EmptyBlockCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.blocks.EmptyBlockCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Empty Block]]></name>
     <configKey><![CDATA[Checker/TreeWalker/EmptyBlock]]></configKey>
     
@@ -557,7 +595,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[blocks to check]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.EmptyForInitializerPadCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.EmptyForInitializerPadCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Empty For Initializer Pad]]></name>
     <configKey><![CDATA[Checker/TreeWalker/EmptyForInitializerPad]]></configKey>
 
@@ -567,7 +606,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[policy on how to pad an empty for iterator]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.EmptyForIteratorPadCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.EmptyForIteratorPadCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Empty For Iterator Pad]]></name>
     <configKey><![CDATA[Checker/TreeWalker/EmptyForIteratorPad]]></configKey>
 
@@ -577,19 +617,22 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[policy on how to pad an empty for iterator]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.EmptyStatementCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.EmptyStatementCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Empty Statement]]></name>
     <configKey><![CDATA[Checker/TreeWalker/EmptyStatement]]></configKey>
     
     <description><![CDATA[Detects empty statements (standalone ';').]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.EqualsHashCodeCheck" priority="CRITICAL">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.EqualsHashCodeCheck">
+<priority>CRITICAL</priority>
     <name><![CDATA[Equals Hash Code]]></name>
     <configKey><![CDATA[Checker/TreeWalker/EqualsHashCode]]></configKey>
     
     <description><![CDATA[Checks that classes that override equals() also override hashCode().]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Executable Statement Count]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ExecutableStatementCount]]></configKey>
     
@@ -603,14 +646,16 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[members to check]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ExplicitInitializationCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ExplicitInitializationCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Explicit Initialization]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ExplicitInitialization]]></configKey>
     
     <description>
       <![CDATA[Checks if any class or object member explicitly initialized to default for its type value (null for object references, zero for numeric types and char and false for boolean.]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.FallThroughCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.FallThroughCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Fall Through]]></name>
     <configKey><![CDATA[Checker/TreeWalker/FallThrough]]></configKey>
     
@@ -625,7 +670,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.FileLengthCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.FileLengthCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[File Length]]></name>
     <configKey><![CDATA[Checker/FileLength]]></configKey>
     
@@ -635,13 +681,15 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[maximum allowable number of lines. Default is 2000.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.design.FinalClassCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.design.FinalClassCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Final Class]]></name>
     <configKey><![CDATA[Checker/TreeWalker/FinalClass]]></configKey>
 
     <description><![CDATA[Checks that class which has only private constructors is declared as final.]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.FinalLocalVariableCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.FinalLocalVariableCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Final Local Variable]]></name>
     <configKey><![CDATA[Checker/TreeWalker/FinalLocalVariable]]></configKey>
 
@@ -651,7 +699,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[tokens to check]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.FinalParametersCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.FinalParametersCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Final Parameters]]></name>
     <configKey><![CDATA[Checker/TreeWalker/FinalParameters]]></configKey>
 
@@ -661,7 +710,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.HiddenFieldCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.HiddenFieldCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Hidden Field]]></name>
     <configKey><![CDATA[Checker/TreeWalker/HiddenField]]></configKey>
 
@@ -687,14 +737,16 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
         <![CDATA[Controls whether to ignore parameters of abstract methods. Default is false.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.design.HideUtilityClassConstructorCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.design.HideUtilityClassConstructorCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Hide Utility Class Constructor]]></name>
     <configKey><![CDATA[Checker/TreeWalker/HideUtilityClassConstructor]]></configKey>
     
     <description>
       <![CDATA[Make sure that utility classes (classes that contain only static methods) do not have a public constructor.]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalCatchCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalCatchCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Illegal Catch]]></name>
     <configKey><![CDATA[Checker/TreeWalker/IllegalCatch]]></configKey>
     
@@ -704,7 +756,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[exception class names to reject]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.imports.IllegalImportCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.imports.IllegalImportCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Illegal Import]]></name>
     <configKey><![CDATA[Checker/TreeWalker/IllegalImport]]></configKey>
 
@@ -713,7 +766,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[packages to reject]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalInstantiationCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalInstantiationCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Illegal Instantiation]]></name>
     <configKey><![CDATA[Checker/TreeWalker/IllegalInstantiation]]></configKey>
     
@@ -723,7 +777,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[classes that should not be instantiated]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalThrowsCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalThrowsCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Illegal Throws]]></name>
     <configKey><![CDATA[Checker/TreeWalker/IllegalThrows]]></configKey>
     
@@ -733,7 +788,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[throw class names to reject]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalTokenCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalTokenCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Illegal Token]]></name>
     <configKey><![CDATA[Checker/TreeWalker/IllegalToken]]></configKey>
 
@@ -743,7 +799,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[tokens to check. Default value is LITERAL_SWITCH, POST_INC, POST_DEC.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalTokenTextCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalTokenTextCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Illegal Token Text]]></name>
     <configKey><![CDATA[Checker/TreeWalker/IllegalTokenText]]></configKey>
 
@@ -763,7 +820,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
         <![CDATA[Message which is used to notify about violations; if empty then the default message is used.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalTypeCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalTypeCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Illegal Type]]></name>
     <configKey><![CDATA[Checker/TreeWalker/IllegalType]]></configKey>
     
@@ -786,7 +844,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[pattern for illegal class name]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.imports.ImportOrderCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.imports.ImportOrderCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Import Order]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ImportOrder]]></configKey>
 
@@ -819,7 +878,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
         <![CDATA[whether string comparision should be case sensitive or not. Default is true.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.indentation.IndentationCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.indentation.IndentationCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Indentation]]></name>
     <configKey><![CDATA[Checker/TreeWalker/Indentation]]></configKey>
 
@@ -835,7 +895,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[how much to indent a case label. Default is 4.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.InnerAssignmentCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.InnerAssignmentCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Inner Assignment]]></name>
     <configKey><![CDATA[Checker/TreeWalker/InnerAssignment]]></configKey>
 
@@ -846,7 +907,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[assignments to check]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.design.InterfaceIsTypeCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.design.InterfaceIsTypeCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Interface Is Type]]></name>
     <configKey><![CDATA[Checker/TreeWalker/InterfaceIsType]]></configKey>
 
@@ -858,7 +920,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Javadoc Method]]></name>
     <configKey><![CDATA[Checker/TreeWalker/JavadocMethod]]></configKey>
 
@@ -922,7 +985,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocStyleCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocStyleCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Javadoc Style]]></name>
     <configKey><![CDATA[Checker/TreeWalker/JavadocStyle]]></configKey>
 
@@ -965,7 +1029,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[definitions to check]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocTypeCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocTypeCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Javadoc Type]]></name>
     <configKey><![CDATA[Checker/TreeWalker/JavadocType]]></configKey>
 
@@ -993,7 +1058,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[definitions to check]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocVariableCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocVariableCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Javadoc Variable]]></name>
     <configKey><![CDATA[Checker/TreeWalker/JavadocVariable]]></configKey>
 
@@ -1005,7 +1071,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[visibility scope where Javadoc comments are not checked]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.blocks.LeftCurlyCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.blocks.LeftCurlyCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Left Curly]]></name>
     <configKey><![CDATA[Checker/TreeWalker/LeftCurly]]></configKey>
 
@@ -1024,7 +1091,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.LineLengthCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.LineLengthCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Line Length]]></name>
     <configKey><![CDATA[Checker/TreeWalker/LineLength]]></configKey>
     
@@ -1041,7 +1109,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[number of expanded spaces for a tab character. Default is 8.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.LocalFinalVariableNameCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.LocalFinalVariableNameCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Local Final Variable Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/LocalFinalVariableName]]></configKey>
 
@@ -1052,7 +1121,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
         <![CDATA[Validates identifiers for local, final variables, including catch parameters]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.LocalVariableNameCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.LocalVariableNameCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Local Variable Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/LocalVariableName]]></configKey>
 
@@ -1067,7 +1137,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
         <![CDATA[Controls whether the check applies to variable declarations or catch clause parameters]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Magic Number]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MagicNumber]]></configKey>
     
@@ -1079,7 +1150,9 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[non-magic numbers. Default is -1,0,1,2.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.MemberNameCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.MemberNameCheck" >
+<priority>MAJOR</priority>
+    <cardinality>MULTIPLE</cardinality>
     <name><![CDATA[Member Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MemberName]]></configKey>
 
@@ -1102,7 +1175,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[Controls whether to apply the check to private member. Default is true.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Method Length]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MethodLength]]></configKey>
     
@@ -1118,7 +1192,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[blocks to check]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.MethodNameCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.MethodNameCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Method Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MethodName]]></configKey>
 
@@ -1128,7 +1203,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[Validates identifiers for methods]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.MethodParamPadCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.MethodParamPadCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Method Param Pad]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MethodParamPad]]></configKey>
 
@@ -1145,34 +1221,39 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[tokens to check]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.MissingCtorCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.MissingCtorCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Missing Constructor]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MissingCtor]]></configKey>
 
     <description>
       <![CDATA[Checks that classes (except abstract one) define a constructor and don't rely on the default one.]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.MissingSwitchDefaultCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.MissingSwitchDefaultCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Missing Switch Default]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MissingSwitchDefault]]></configKey>
     
     <description><![CDATA[Checks that switch statement has default clause.]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ModifiedControlVariableCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ModifiedControlVariableCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Modified Control Variable]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ModifiedControlVariable]]></configKey>
     
     <description>
       <![CDATA[Check for ensuring that for loop control variables are not modified inside the for block.]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.modifier.ModifierOrderCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.modifier.ModifierOrderCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Modifier Order]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ModifierOrder]]></configKey>
 
     <description>
       <![CDATA[Checks that the order of modifiers conforms to the suggestions in the Java Language specification, sections 8.1.1, 8.3.1 and 8.4.3. The correct order is : public, protected, private, abstract, static, final, transient, volatile, synchronized, native, strictfp.]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.MultipleStringLiteralsCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.MultipleStringLiteralsCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Multiple String Literals]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MultipleStringLiterals]]></configKey>
     <cardinality>MULTIPLE</cardinality>
@@ -1191,14 +1272,16 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
         <![CDATA[Token type names where duplicate strings are ignored even if they don't match ignoredStringsRegexp. This allows you to exclude syntactical contexts like Annotations or static initializers from the check.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.MultipleVariableDeclarationsCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.MultipleVariableDeclarationsCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Multiple Variable Declarations]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MultipleVariableDeclarations]]></configKey>
 
     <description>
       <![CDATA[Checks that each variable declaration is in its own statement and on its own line.]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.design.MutableExceptionCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.design.MutableExceptionCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Mutable Exception]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MutableException]]></configKey>
 
@@ -1209,7 +1292,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.NPathComplexityCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.NPathComplexityCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[NPath Complexity]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NPathComplexity]]></configKey>
     
@@ -1220,7 +1304,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.blocks.NeedBracesCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.blocks.NeedBracesCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Need Braces]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NeedBraces]]></configKey>
 
@@ -1229,7 +1314,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[blocks to check]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.NestedIfDepthCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.NestedIfDepthCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Nested If Depth]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NestedIfDepth]]></configKey>
     
@@ -1238,7 +1324,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[allowed nesting depth. Default is 1.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.NestedTryDepthCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.NestedTryDepthCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Nested Try Depth]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NestedTryDepth]]></configKey>
     
@@ -1247,7 +1334,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[allowed nesting depth. Default is 1.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.NewlineAtEndOfFileCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.NewlineAtEndOfFileCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Newline At End Of File]]></name>
     <configKey><![CDATA[Checker/NewlineAtEndOfFile]]></configKey>
 
@@ -1262,7 +1350,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.NoWhitespaceAfterCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.NoWhitespaceAfterCheck">
+<priority>MINOR</priority>
     <name><![CDATA[No Whitespace After]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NoWhitespaceAfter]]></configKey>
 
@@ -1276,7 +1365,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[tokens to check]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.NoWhitespaceBeforeCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.NoWhitespaceBeforeCheck">
+<priority>MINOR</priority>
     <name><![CDATA[No Whitespace Before]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NoWhitespaceBefore]]></configKey>
 
@@ -1289,7 +1379,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[tokens to check]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.OperatorWrapCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.OperatorWrapCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Operator Wrap]]></name>
     <configKey><![CDATA[Checker/TreeWalker/OperatorWrap]]></configKey>
 
@@ -1304,14 +1395,16 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.PackageDeclarationCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.PackageDeclarationCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Package Declaration]]></name>
     <configKey><![CDATA[Checker/TreeWalker/PackageDeclaration]]></configKey>
     
     <description><![CDATA[Ensures there is a package declaration.]]></description>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.PackageNameCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.PackageNameCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Package Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/PackageName]]></configKey>
 
@@ -1322,13 +1415,15 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ParameterAssignmentCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ParameterAssignmentCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Parameter Assignment]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ParameterAssignment]]></configKey>
 
     <description><![CDATA[Disallow assignment of parameters.]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.ParameterNameCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.ParameterNameCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Parameter Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ParameterName]]></configKey>
 
@@ -1339,7 +1434,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.ParameterNumberCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.ParameterNumberCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Parameter Number]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ParameterNumber]]></configKey>
     
@@ -1353,7 +1449,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.ParenPadCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.ParenPadCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Paren Pad]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ParenPad]]></configKey>
 
@@ -1366,7 +1463,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[tokens to check]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.modifier.RedundantModifierCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.modifier.RedundantModifierCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Redundant Modifier]]></name>
     <configKey><![CDATA[Checker/TreeWalker/RedundantModifier]]></configKey>
     
@@ -1375,7 +1473,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[tokens to check]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.RedundantThrowsCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.RedundantThrowsCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Redundant Throws]]></name>
     <configKey><![CDATA[Checker/TreeWalker/RedundantThrows]]></configKey>
     
@@ -1390,7 +1489,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
         <![CDATA[whether subclass of another declared exception is allowed in throws clause. Default is false.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.RegexpCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.RegexpCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Regexp]]></name>
     <configKey><![CDATA[Checker/TreeWalker/Regexp]]></configKey>
 
@@ -1421,7 +1521,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.RequireThisCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.RequireThisCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Require This]]></name>
     <configKey><![CDATA[Checker/TreeWalker/RequireThis]]></configKey>
 
@@ -1434,7 +1535,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
     </param>
   </rule>
   
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ReturnCountCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ReturnCountCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Return Count]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ReturnCount]]></configKey>
     
@@ -1446,7 +1548,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[method names to ingone]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.blocks.RightCurlyCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.blocks.RightCurlyCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Right Curly]]></name>
     <configKey><![CDATA[Checker/TreeWalker/RightCurly]]></configKey>
 
@@ -1460,19 +1563,22 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.SimplifyBooleanExpressionCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.SimplifyBooleanExpressionCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Simplify Boolean Expression]]></name>
     <configKey><![CDATA[Checker/TreeWalker/SimplifyBooleanExpression]]></configKey>
     
     <description><![CDATA[Checks for overly complicated boolean expressions.]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.SimplifyBooleanReturnCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.SimplifyBooleanReturnCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Simplify Boolean Return]]></name>
     <configKey><![CDATA[Checker/TreeWalker/SimplifyBooleanReturn]]></configKey>
     
     <description><![CDATA[Checks for overly complicated boolean return statements.]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.StaticVariableNameCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.StaticVariableNameCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Static Variable Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/StaticVariableName]]></configKey>
 
@@ -1482,7 +1588,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[Validates identifiers for static, non-final fields]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.duplicates.StrictDuplicateCodeCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.duplicates.StrictDuplicateCodeCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Strict Duplicate Code]]></name>
     <configKey><![CDATA[Checker/StrictDuplicateCode]]></configKey>
     
@@ -1495,25 +1602,29 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[name of the file charset]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.StringLiteralEqualityCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.StringLiteralEqualityCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[String Literal Equality]]></name>
     <configKey><![CDATA[Checker/TreeWalker/StringLiteralEquality]]></configKey>
     
     <description><![CDATA[Checks that string literals are not used with == or !=.]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.SuperCloneCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.SuperCloneCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Super Clone]]></name>
     <configKey><![CDATA[Checker/TreeWalker/SuperClone]]></configKey>
     
     <description><![CDATA[Checks that an overriding clone() method invokes super.clone().]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.SuperFinalizeCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.SuperFinalizeCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Super Finalize]]></name>
     <configKey><![CDATA[Checker/TreeWalker/SuperFinalize]]></configKey>
     
     <description><![CDATA[Checks that an overriding finalize() method invokes super.finalize().]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.design.ThrowsCountCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.design.ThrowsCountCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Throws Count]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ThrowsCount]]></configKey>
     
@@ -1522,7 +1633,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[maximum allowed number of throws statments]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Comment pattern matcher]]></name>
     <configKey><![CDATA[Checker/TreeWalker/TodoComment]]></configKey>
     
@@ -1532,7 +1644,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[Regular expression pattern to check. Default is TODO:]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.indentation.TrailingCommentCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.indentation.TrailingCommentCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Trailing Comment]]></name>
     <configKey><![CDATA[Checker/TreeWalker/TrailingComment]]></configKey>
 
@@ -1549,7 +1662,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
    <!--
    Deactivated. See http://jira.codehaus.org/browse/SONAR-1698
 
-   <rule key="com.puppycrawl.tools.checkstyle.checks.TranslationCheck" priority="MINOR">
+   <rule key="com.puppycrawl.tools.checkstyle.checks.TranslationCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Translation]]></name>
     <configKey><![CDATA[Checker/Translation]]></configKey>
     
@@ -1562,7 +1676,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
     </param>
   </rule>-->
    
-  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.TypeNameCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.TypeNameCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Type Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/TypeName]]></configKey>
 
@@ -1575,7 +1690,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.TypecastParenPadCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.TypecastParenPadCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Typecast Paren Pad]]></name>
     <configKey><![CDATA[Checker/TreeWalker/TypecastParenPad]]></configKey>
 
@@ -1589,7 +1705,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.UncommentedMainCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.UncommentedMainCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Uncommented Main]]></name>
     <configKey><![CDATA[Checker/TreeWalker/UncommentedMain]]></configKey>
 
@@ -1600,26 +1717,30 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.UnnecessaryParenthesesCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.UnnecessaryParenthesesCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Unnecessary Parentheses]]></name>
     <configKey><![CDATA[Checker/TreeWalker/UnnecessaryParentheses]]></configKey>
 
     <description><![CDATA[Checks if unnecessary parentheses are used in a statement or expression.]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.imports.UnusedImportsCheck" priority="INFO">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.imports.UnusedImportsCheck">
+<priority>INFO</priority>
     <name><![CDATA[Unused Imports]]></name>
     <configKey><![CDATA[Checker/TreeWalker/UnusedImports]]></configKey>
     
     <description><![CDATA[Checks for unused import statements.]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.UpperEllCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.UpperEllCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Upper Ell]]></name>
     <configKey><![CDATA[Checker/TreeWalker/UpperEll]]></configKey>
 
     <description><![CDATA[Checks that long constants are defined with an upper ell. That is ' L' and not 'l'. 
     This is in accordance to the Java Language Specification, <a href="http://java.sun.com/docs/books/jls/second_edition/html/lexical.doc.html#48282">Section 3.10.1</a>.]]></description>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.design.VisibilityModifierCheck" priority="MAJOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.design.VisibilityModifierCheck" >
+<priority>MAJOR</priority>
     <name><![CDATA[Visibility Modifier]]></name>
     <configKey><![CDATA[Checker/TreeWalker/VisibilityModifier]]></configKey>
     
@@ -1636,7 +1757,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
         <![CDATA[pattern for public members that should be ignored. Default is ^serialVersionUID$.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.WhitespaceAfterCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.WhitespaceAfterCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Whitespace After]]></name>
     <configKey><![CDATA[Checker/TreeWalker/WhitespaceAfter]]></configKey>
 
@@ -1646,7 +1768,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[tokens to check]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.WhitespaceAroundCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.WhitespaceAroundCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Whitespace Around]]></name>
     <configKey><![CDATA[Checker/TreeWalker/WhitespaceAround]]></configKey>
 
@@ -1664,7 +1787,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[allow empty method bodies. Default is false.]]></description>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.WriteTagCheck" priority="MINOR">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.WriteTagCheck">
+<priority>MINOR</priority>
     <name><![CDATA[Write Tag]]></name>
     <configKey><![CDATA[Checker/TreeWalker/WriteTag]]></configKey>
 
