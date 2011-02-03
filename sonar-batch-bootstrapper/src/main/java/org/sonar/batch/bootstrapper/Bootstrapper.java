@@ -21,11 +21,12 @@ package org.sonar.batch.bootstrapper;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BatchDownloader {
+public class Bootstrapper {
 
   private static final String VERSION_PATH = "/api/server/version";
   private static final String BATCH_PATH = "/batch/";
@@ -33,10 +34,13 @@ public class BatchDownloader {
   public static final int CONNECT_TIMEOUT_MILLISECONDS = 30000;
   public static final int READ_TIMEOUT_MILLISECONDS = 60000;
 
+  private File bootDir;
   private String serverUrl;
   private String serverVersion;
 
-  public BatchDownloader(String serverUrl) {
+  public Bootstrapper(String serverUrl, File workDir) {
+    bootDir = new File(workDir, "batch");
+    bootDir.mkdirs();
     if (serverUrl.endsWith("/")) {
       this.serverUrl = serverUrl.substring(0, serverUrl.length() - 1);
     } else {
@@ -59,33 +63,34 @@ public class BatchDownloader {
       try {
         serverVersion = remoteContent(VERSION_PATH);
       } catch (IOException e) {
-        throw new RuntimeException(e.getMessage(), e);
+        throw new BootstrapException(e.getMessage(), e);
       }
     }
     return serverVersion;
   }
 
   /**
+   * Download batch files from server and creates {@link BootstrapClassLoader}.
    * To use this method version of Sonar should be at least 2.6.
    * 
-   * @return list of downloaded files
+   * @param urls additional URLs for loading classes and resources
+   * @param parent parent ClassLoader
+   * @param unmaskedPackages only classes and resources from those packages would be available for loading from parent
    */
-  public List<File> downloadBatchFiles(File toDir) {
-    try {
-      List<File> files = new ArrayList<File>();
-
-      String libs = remoteContent(BATCH_PATH);
-
-      for (String lib : libs.split(",")) {
-        File file = new File(toDir, lib);
-        remoteContentToFile(BATCH_PATH + lib, file);
-        files.add(file);
-      }
-
-      return files;
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+  public BootstrapClassLoader createClassLoader(URL[] urls, ClassLoader parent, String... unmaskedPackages) {
+    BootstrapClassLoader classLoader = new BootstrapClassLoader(parent, unmaskedPackages);
+    List<File> files = downloadBatchFiles();
+    for (URL url : urls) {
+      classLoader.addURL(url);
     }
+    for (File file : files) {
+      try {
+        classLoader.addURL(file.toURI().toURL());
+      } catch (MalformedURLException e) {
+        throw new BootstrapException(e);
+      }
+    }
+    return classLoader;
   }
 
   private void remoteContentToFile(String path, File toFile) {
@@ -97,10 +102,10 @@ public class BatchDownloader {
       output = new FileOutputStream(toFile, false);
       input = connection.getInputStream();
       BootstrapperIOUtils.copyLarge(input, output);
-    } catch (Exception e) {
+    } catch (IOException e) {
       BootstrapperIOUtils.closeQuietly(output);
       BootstrapperIOUtils.deleteFileQuietly(toFile);
-      throw new RuntimeException("Fail to download the file: " + fullUrl, e);
+      throw new BootstrapException("Fail to download the file: " + fullUrl, e);
     } finally {
       BootstrapperIOUtils.closeQuietly(input);
       BootstrapperIOUtils.closeQuietly(output);
@@ -133,4 +138,18 @@ public class BatchDownloader {
     return connection;
   }
 
+  private List<File> downloadBatchFiles() {
+    try {
+      List<File> files = new ArrayList<File>();
+      String libs = remoteContent(BATCH_PATH);
+      for (String lib : libs.split(",")) {
+        File file = new File(bootDir, lib);
+        remoteContentToFile(BATCH_PATH + lib, file);
+        files.add(file);
+      }
+      return files;
+    } catch (Exception e) {
+      throw new BootstrapException(e);
+    }
+  }
 }

@@ -19,36 +19,18 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import org.junit.Test;
+public class BootstrapException extends RuntimeException {
 
-import java.io.IOException;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
-public class BatchDownloaderTest {
-
-  @Test
-  public void shouldRemoveLastUrlSlash() {
-    BatchDownloader bootstrapper = new BatchDownloader("http://test/");
-    assertThat(bootstrapper.getServerUrl(), is("http://test"));
+  public BootstrapException(String message) {
+    super(message);
   }
 
-  @Test(expected = Exception.class)
-  public void shouldFailIfCanNotConnectServer() {
-    BatchDownloader bootstrapper = new BatchDownloader("http://unknown.foo");
-    bootstrapper.getServerVersion();
+  public BootstrapException(Throwable cause) {
+    super(cause);
   }
 
-  @Test
-  public void shouldReturnValidVersion() {
-    BatchDownloader bootstrapper = new BatchDownloader("http://test") {
-      @Override
-      String remoteContent(String path) throws IOException {
-        return "2.6";
-      }
-    };
-    assertThat(bootstrapper.getServerVersion(), is("2.6"));
+  public BootstrapException(String message, Throwable cause) {
+    super(message, cause);
   }
 
 }

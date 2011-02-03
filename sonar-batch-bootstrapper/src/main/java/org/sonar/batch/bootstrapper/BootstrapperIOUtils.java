@@ -21,9 +21,10 @@ package org.sonar.batch.bootstrapper;
 
 import java.io.*;
 
-final class BootstrapperIOUtils {
+public final class BootstrapperIOUtils {
 
   private BootstrapperIOUtils() {
+    // only static methods
   }
 
   /**
@@ -39,8 +40,7 @@ final class BootstrapperIOUtils {
       if (closeable != null) {
         closeable.close();
       }
-    } catch (IOException ioe) {
-      // ignore
+    } catch (IOException ioe) { // NOSONAR
     }
   }
 
