@@ -62,7 +62,7 @@ public final class ActivateDefaultProfiles {
       Iterator<RulesProfile> iterator = profiles.iterator();
       while (iterator.hasNext() && !oneProfileIsActivated) {
         RulesProfile profile = iterator.next();
-        oneProfileIsActivated |= profile.getDefaultProfile();
+        oneProfileIsActivated = profile.getDefaultProfile();
         if (RulesProfile.SONAR_WAY_NAME.equals(profile.getName())) {
           profileToActivate = profile;
         }

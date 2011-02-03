@@ -19,6 +19,7 @@
  */
 package org.sonar.api.profiles;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.StringUtils;
@@ -78,14 +79,14 @@ public class RulesProfile implements Cloneable {
   @Column(name = "parent_name", updatable = true, nullable = true)
   private String parentName;
 
-  @OneToMany(mappedBy = "rulesProfile", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
-  private List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
+  @OneToMany(mappedBy = "rulesProfile", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
+  private List<ActiveRule> activeRules = Lists.newArrayList();
 
-  @OneToMany(mappedBy = "rulesProfile", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
-  private List<Alert> alerts = new ArrayList<Alert>();
+  @OneToMany(mappedBy = "rulesProfile", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
+  private List<Alert> alerts = Lists.newArrayList();
 
   @OneToMany(mappedBy = "rulesProfile", fetch = FetchType.LAZY)
-  private List<ResourceModel> projects = new ArrayList<ResourceModel>();
+  private List<ResourceModel> projects = Lists.newArrayList();
 
   /**
    * @deprecated use the factory method create()
@@ -101,9 +102,9 @@ public class RulesProfile implements Cloneable {
   public RulesProfile(String name, String language) {
     this.name = name;
     this.language = language;
-    this.activeRules = new ArrayList<ActiveRule>();
-    this.alerts = new ArrayList<Alert>();
-    this.projects = new ArrayList<ResourceModel>();
+    this.activeRules = Lists.newArrayList();
+    this.alerts = Lists.newArrayList();
+    this.projects = Lists.newArrayList();
   }
 
   /**
@@ -139,7 +140,33 @@ public class RulesProfile implements Cloneable {
    * @return the list of active rules
    */
   public List<ActiveRule> getActiveRules() {
-    return activeRules;
+    return getActiveRules(false);
+  }
+
+  /**
+   * @return the list of active rules
+   */
+  public List<ActiveRule> getActiveRules(boolean acceptDisabledRules) {
+    if (acceptDisabledRules) {
+      return activeRules;
+    }
+    List<ActiveRule> result = Lists.newArrayList();
+    for (ActiveRule activeRule : activeRules) {
+      if (activeRule.isEnabled()) {
+        result.add(activeRule);
+      }
+    }
+    return result;
+  }
+
+  public RulesProfile removeActiveRule(ActiveRule activeRule) {
+    activeRules.remove(activeRule);
+    return this;
+  }
+
+  public RulesProfile addActiveRule(ActiveRule activeRule) {
+    activeRules.add(activeRule);
+    return this;
   }
 
   /**
@@ -184,7 +211,7 @@ public class RulesProfile implements Cloneable {
   }
 
   public boolean isEnabled() {
-    return enabled==Boolean.TRUE;
+    return enabled == Boolean.TRUE;
   }
 
   public RulesProfile setEnabled(Boolean b) {
@@ -209,7 +236,7 @@ public class RulesProfile implements Cloneable {
 
   /**
    * For internal use only.
-   * 
+   *
    * @since 2.5
    */
   public String getParentName() {
@@ -218,7 +245,7 @@ public class RulesProfile implements Cloneable {
 
   /**
    * For internal use only.
-   * 
+   *
    * @since 2.5
    */
   public void setParentName(String parentName) {
@@ -254,12 +281,13 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * @return the list of active rules for a given priority
+   * Note: disabled rules are excluded.
+   * @return the list of active rules for a given severity
    */
-  public List<ActiveRule> getActiveRules(RulePriority priority) {
-    List<ActiveRule> result = new ArrayList<ActiveRule>();
-    for (ActiveRule activeRule : getActiveRules()) {
-      if (activeRule.getSeverity().equals(priority)) {
+  public List<ActiveRule> getActiveRules(RulePriority severity) {
+    List<ActiveRule> result = Lists.newArrayList();
+    for (ActiveRule activeRule : activeRules) {
+      if (activeRule.getSeverity().equals(severity) && activeRule.isEnabled()) {
         result.add(activeRule);
       }
     }
@@ -274,10 +302,14 @@ public class RulesProfile implements Cloneable {
     return getActiveRulesByRepository(repositoryKey);
   }
 
+  /**
+   * Get the active rules of a specific repository.
+   * Only enabled rules are selected. Disabled rules are excluded.
+   */
   public List<ActiveRule> getActiveRulesByRepository(String repositoryKey) {
-    List<ActiveRule> result = new ArrayList<ActiveRule>();
-    for (ActiveRule activeRule : getActiveRules()) {
-      if (repositoryKey.equals(activeRule.getRepositoryKey())) {
+    List<ActiveRule> result = Lists.newArrayList();
+    for (ActiveRule activeRule : activeRules) {
+      if (repositoryKey.equals(activeRule.getRepositoryKey()) && activeRule.isEnabled()) {
         result.add(activeRule);
       }
     }
@@ -285,25 +317,33 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
+   * Note: disabled rules are excluded.
    * @return an active rule from a plugin key and a rule key if the rule is activated, null otherwise
    */
   public ActiveRule getActiveRule(String repositoryKey, String ruleKey) {
-    for (ActiveRule activeRule : getActiveRules()) {
-      if (StringUtils.equals(activeRule.getRepositoryKey(), repositoryKey) && StringUtils.equals(activeRule.getRuleKey(), ruleKey)) {
+    for (ActiveRule activeRule : activeRules) {
+      if (StringUtils.equals(activeRule.getRepositoryKey(), repositoryKey) && StringUtils.equals(activeRule.getRuleKey(), ruleKey) && activeRule.isEnabled()) {
         return activeRule;
       }
     }
     return null;
   }
 
+  /**
+   * Note: disabled rules are excluded.
+   */
   public ActiveRule getActiveRuleByConfigKey(String repositoryKey, String configKey) {
-    for (ActiveRule activeRule : getActiveRules()) {
-      if (StringUtils.equals(activeRule.getRepositoryKey(), repositoryKey) && StringUtils.equals(activeRule.getConfigKey(), configKey)) {
+    for (ActiveRule activeRule : activeRules) {
+      if (StringUtils.equals(activeRule.getRepositoryKey(), repositoryKey) && StringUtils.equals(activeRule.getConfigKey(), configKey) && activeRule.isEnabled()) {
         return activeRule;
       }
     }
     return null;
   }
+
+  /**
+   * Note: disabled rules are excluded.
+   */
 
   public ActiveRule getActiveRule(Rule rule) {
     return getActiveRule(rule.getRepositoryKey(), rule.getKey());
@@ -344,8 +384,8 @@ public class RulesProfile implements Cloneable {
     clone.setDefaultProfile(getDefaultProfile());
     clone.setProvided(getProvided());
     clone.setParentName(getParentName());
-    if (CollectionUtils.isNotEmpty(getActiveRules())) {
-      clone.setActiveRules(new ArrayList<ActiveRule>(CollectionUtils.collect(getActiveRules(), new Transformer() {
+    if (CollectionUtils.isNotEmpty(activeRules)) {
+      clone.setActiveRules(new ArrayList<ActiveRule>(CollectionUtils.collect(activeRules, new Transformer() {
         public Object transform(Object input) {
           return ((ActiveRule) input).clone();
         }

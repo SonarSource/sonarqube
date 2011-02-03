@@ -163,7 +163,6 @@ public final class Platform {
     servicesContainer.as(Characteristics.CACHE).addComponent(Views.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(CodeColorizers.class);
     servicesContainer.as(Characteristics.NO_CACHE).addComponent(RulesDao.class);
-    servicesContainer.as(Characteristics.NO_CACHE).addComponent(org.sonar.api.database.daos.RulesDao.class);
     servicesContainer.as(Characteristics.NO_CACHE).addComponent(MeasuresDao.class);
     servicesContainer.as(Characteristics.NO_CACHE).addComponent(org.sonar.api.database.daos.MeasuresDao.class);
     servicesContainer.as(Characteristics.NO_CACHE).addComponent(ProfilesDao.class);
@@ -200,6 +199,7 @@ public final class Platform {
       startupContainer.as(Characteristics.CACHE).addComponent(RegisterMetrics.class);
       startupContainer.as(Characteristics.CACHE).addComponent(RegisterRules.class);
       startupContainer.as(Characteristics.CACHE).addComponent(RegisterProvidedProfiles.class);
+      startupContainer.as(Characteristics.CACHE).addComponent(EnableProfiles.class);
       startupContainer.as(Characteristics.CACHE).addComponent(ActivateDefaultProfiles.class);
       startupContainer.as(Characteristics.CACHE).addComponent(JdbcDriverDeployer.class);
       startupContainer.as(Characteristics.CACHE).addComponent(ServerMetadataPersister.class);

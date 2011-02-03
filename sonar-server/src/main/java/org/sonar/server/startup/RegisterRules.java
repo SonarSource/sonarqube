@@ -19,6 +19,8 @@
  */
 package org.sonar.server.startup;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.rules.*;
@@ -61,15 +63,11 @@ public final class RegisterRules {
     disableDeprecatedUserRules(session);
     profiler.stop();
 
-    profiler.start("Disable deprecated active rules");
-    deleteDisabledActiveRules(session);
-    profiler.stop();
-
     session.commit();
   }
 
   private void disableDeprecatedUserRules(DatabaseSession session) {
-    List<Integer> deprecatedUserRuleIds = new ArrayList<Integer>();
+    List<Integer> deprecatedUserRuleIds = Lists.newLinkedList();
     deprecatedUserRuleIds.addAll(session.createQuery(
         "SELECT r.id FROM " + Rule.class.getSimpleName() +
             " r WHERE r.parent IS NOT NULL AND NOT EXISTS(FROM " + Rule.class.getSimpleName() + " p WHERE r.parent=p)").getResultList());
@@ -91,7 +89,7 @@ public final class RegisterRules {
   }
 
   private void registerRepository(RuleRepository repository, DatabaseSession session) {
-    Map<String, Rule> rulesByKey = new HashMap<String, Rule>();
+    Map<String, Rule> rulesByKey = Maps.newHashMap();
     for (Rule rule : repository.createRules()) {
       rule.setRepositoryKey(repository.getKey());
       rulesByKey.put(rule.getKey(), rule);
@@ -108,16 +106,6 @@ public final class RegisterRules {
     }
 
     saveNewRules(rulesByKey.values(), session);
-  }
-
-  private void deleteDisabledActiveRules(DatabaseSession session) {
-    List<ActiveRule> deprecatedActiveRules = session
-        .createQuery("from " + ActiveRule.class.getSimpleName() + " where rule.enabled=:enabled")
-        .setParameter("enabled", false)
-        .getResultList();
-    for (ActiveRule deprecatedActiveRule : deprecatedActiveRules) {
-      session.removeWithoutFlush(deprecatedActiveRule);
-    }
   }
 
   private void updateRule(Rule persistedRule, Rule rule, DatabaseSession session) {

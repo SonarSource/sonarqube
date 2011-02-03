@@ -163,7 +163,7 @@ public class ProfilesManager extends BaseDao {
       activeRule = (ActiveRule) parentActiveRule.clone();
       activeRule.setRulesProfile(profile);
       activeRule.setInheritance(ActiveRule.INHERITED);
-      profile.getActiveRules().add(activeRule);
+      profile.addActiveRule(activeRule);
       getSession().saveWithoutFlush(activeRule);
 
       for (RulesProfile child : getChildren(profile)) {
@@ -188,7 +188,7 @@ public class ProfilesManager extends BaseDao {
     activeRule = (ActiveRule) parentActiveRule.clone();
     activeRule.setRulesProfile(profile);
     activeRule.setInheritance(ActiveRule.INHERITED);
-    profile.getActiveRules().add(activeRule);
+    profile.addActiveRule(activeRule);
     getSession().saveWithoutFlush(activeRule);
 
     for (RulesProfile child : getChildren(profile)) {
@@ -227,7 +227,7 @@ public class ProfilesManager extends BaseDao {
   }
 
   private void removeActiveRule(RulesProfile profile, ActiveRule activeRule) {
-    profile.getActiveRules().remove(activeRule);
+    profile.removeActiveRule(activeRule);
     getSession().removeWithoutFlush(activeRule);
   }
 

@@ -78,7 +78,6 @@ public class ProjectBatch {
     batchContainer.as(Characteristics.CACHE)
         .addComponent(globalContainer.getComponent(DefaultResourcePersister.class).getSnapshot(project));
 
-    batchContainer.as(Characteristics.CACHE).addComponent(org.sonar.api.database.daos.RulesDao.class);
     batchContainer.as(Characteristics.CACHE).addComponent(org.sonar.api.database.daos.MeasuresDao.class);
     batchContainer.as(Characteristics.CACHE).addComponent(ProfilesDao.class);
     batchContainer.as(Characteristics.CACHE).addComponent(AsyncMeasuresDao.class);

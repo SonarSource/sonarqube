@@ -1,0 +1,9 @@
+<dataset>
+  <rules_profiles id="1" provided="true" name="Java 1" default_profile="0" language="java" enabled="true" PARENT_NAME="[null]"/>
+  <rules_profiles id="2" provided="false" name="Java 2" default_profile="1" language="java" enabled="true" PARENT_NAME="[null]"/>
+  <rules_profiles id="3" provided="true" name="Php" default_profile="0" language="php" enabled="true" PARENT_NAME="[null]"/>
+
+  <!-- disabled -->
+  <rules_profiles id="4" provided="true" name="Cobol 1" default_profile="1" language="cobol" enabled="false" PARENT_NAME="[null]"/>
+  <rules_profiles id="5" provided="false" name="Cobol 2" default_profile="0" language="cobol" enabled="false" PARENT_NAME="[null]"/>
+</dataset>

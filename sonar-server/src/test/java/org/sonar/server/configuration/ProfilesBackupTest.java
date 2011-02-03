@@ -119,8 +119,8 @@ public class ProfilesBackupTest extends AbstractDbUnitTestCase {
     RulesProfile testProfile = new RulesProfile("testProfile", "lang", false, false);
     ActiveRule ar = new ActiveRule(null, new Rule("testPlugin", "testKey"), RulePriority.MAJOR);
     ar.getActiveRuleParams().add(new ActiveRuleParam(null, new RuleParam(null, "paramKey", null, null), "testValue"));
-    testProfile.getActiveRules().add(ar);
-    testProfile.getActiveRules().add(new ActiveRule(null, new Rule("testPlugin", "testKey2"), RulePriority.MINOR));
+    testProfile.addActiveRule(ar);
+    testProfile.addActiveRule(new ActiveRule(null, new Rule("testPlugin", "testKey2"), RulePriority.MINOR));
 
     testProfile.getAlerts().add(new Alert(null, new Metric("testKey"), Alert.OPERATOR_EQUALS, "10", "22"));
     testProfile.getAlerts().add(new Alert(null, new Metric("testKey2"), Alert.OPERATOR_GREATER, "10", "22"));

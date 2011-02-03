@@ -3,12 +3,13 @@ package foo;
 import java.io.Serializable;
 import java.lang.Runnable;
 
-// class complexity: 4
 public class AnonymousClass {
 
-  // method complexity: 3
-  public void anonymousClassWithComplexity() {
+  // method complexity: 1 or 3 ?
+  public void hasComplexAnonymousClass() {
     Runnable runnable = new Runnable() {
+	
+	  // method complexity: 2
       public void run() {
         if (true) {
           System.out.println("true");
@@ -18,7 +19,7 @@ public class AnonymousClass {
   }
 
   // method complexity: 1
-  public void anonymousClassWithZeroComplexity() {
+  public void hasEmptyAnonymousClass() {
     Serializable serializable = new Serializable() {
 
     };

@@ -86,7 +86,7 @@
       <td><a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => profile.id -%>" id="rules-<%= language.getKey() -%>-<%= u(profile.name) -%>"><%= h profile.name %></a></td>
       
       <td align="right">
-        <span id="activated_rules_<%= u profile.key -%>"><%= profile.active_rules.count -%></span>
+        <span id="activated_rules_<%= u profile.key -%>"><%= profile.count_active_rules -%></span>
       </td>
 
       <td align="right"><span id="alerts_<%= u profile.key -%>"><%= profile.alerts.size -%></span></td>

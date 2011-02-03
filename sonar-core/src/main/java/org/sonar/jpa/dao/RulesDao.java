@@ -57,60 +57,9 @@ public class RulesDao extends BaseDao {
     return getSession().getSingleResult(Rule.class, "key", ruleKey, "pluginName", repositoryKey, "enabled", true);
   }
 
-  public Long countRules(List<String> plugins) {
-    return (Long) getSession().createQuery(
-        "SELECT COUNT(r) FROM Rule r WHERE r.pluginName IN (:pluginNames) AND r.enabled=true").
-        setParameter("pluginNames", plugins).
-        getSingleResult();
-  }
-
-  public List<RuleParam> getRuleParams() {
-    return getSession().getResults(RuleParam.class);
-  }
 
   public RuleParam getRuleParam(Rule rule, String paramKey) {
     return getSession().getSingleResult(RuleParam.class, "rule", rule, "key", paramKey);
-  }
-
-  public void addActiveRulesToProfile(List<ActiveRule> activeRules, int profileId, String pluginKey) {
-    RulesProfile rulesProfile = getProfileById(profileId);
-    for (ActiveRule activeRule : activeRules) {
-      synchronizeRuleOfActiveRule(activeRule, pluginKey);
-      activeRule.setRulesProfile(rulesProfile);
-      getSession().save(activeRule);
-    }
-  }
-
-  public List<RuleFailureModel> getViolations(Snapshot snapshot) {
-    return getSession().getResults(RuleFailureModel.class, "snapshotId", snapshot.getId());
-  }
-
-  public void synchronizeRuleOfActiveRule(ActiveRule activeRule, String pluginKey) {
-    Rule rule = activeRule.getRule();
-    Rule ruleFromDataBase = getRuleByKey(pluginKey, rule.getKey());
-    activeRule.setRule(ruleFromDataBase);
-    List<RuleParam> ruleParamsFromDataBase = getRuleParams();
-    for (ActiveRuleParam activeRuleParam : activeRule.getActiveRuleParams()) {
-      boolean found = false;
-      Iterator<RuleParam> iterator = ruleParamsFromDataBase.iterator();
-      while (iterator.hasNext() && !found) {
-        RuleParam ruleParamFromDataBase = iterator.next();
-        if (isRuleParamEqual(activeRuleParam.getRuleParam(), ruleParamFromDataBase, rule.getKey(), pluginKey)) {
-          activeRuleParam.setRuleParam(ruleParamFromDataBase);
-          found = true;
-        }
-      }
-    }
-  }
-
-  public boolean isRuleParamEqual(RuleParam ruleParam, RuleParam ruleParamFromDatabase, String ruleKey, String pluginKey) {
-    return ruleParam.getKey().equals(ruleParamFromDatabase.getKey()) &&
-        ruleKey.equals(ruleParamFromDatabase.getRule().getKey()) &&
-        ruleParamFromDatabase.getRule().getPluginName().equals(pluginKey);
-  }
-
-  public RulesProfile getProfileById(int profileId) {
-    return getSession().getEntityManager().getReference(RulesProfile.class, profileId);
   }
 
 }

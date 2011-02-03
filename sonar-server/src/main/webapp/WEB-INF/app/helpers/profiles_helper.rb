@@ -23,7 +23,7 @@ module ProfilesHelper
   end
 
   def label_for_rules_count(profile)
-    label="#{profile.active_rules.count} rules"
+    label="#{profile.count_active_rules} rules"
 
     count_overriding=profile.count_overriding_rules
     if count_overriding>0

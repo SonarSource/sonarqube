@@ -18,23 +18,23 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
  class ActiveRuleParameter < ActiveRecord::Base
- belongs_to :active_rule
- belongs_to :rules_parameter
+   belongs_to :active_rule
+   belongs_to :rules_parameter
 
- def name
-  rules_parameter.name  
- end
+   def name
+    rules_parameter.name
+   end
 
- def parameter
-   rules_parameter
- end
+   def parameter
+     rules_parameter
+   end
 
- def validate_on_update 
-   rules_parameter.validate_value(value, errors, "value" )
- end
- 
- def copy
-   ActiveRuleParameter.new(:rules_parameter => rules_parameter, :value => value)
- end  
+   def validate_on_update
+     rules_parameter.validate_value(value, errors, "value" )
+   end
+
+   def copy
+     ActiveRuleParameter.new(:rules_parameter => rules_parameter, :value => value)
+   end
 
  end

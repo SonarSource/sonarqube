@@ -126,6 +126,10 @@ class Profile < ActiveRecord::Base
       end
   end
 
+  def count_active_rules
+    active_rules.select{|ar| ar.rule.enabled}.size
+  end
+
   def ancestors
     @ancestors ||=
       begin

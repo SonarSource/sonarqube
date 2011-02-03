@@ -284,4 +284,10 @@ public class ActiveRule implements Cloneable {
     return clone;
   }
 
+  /**
+   * @since 2.6
+   */
+  public boolean isEnabled() {
+    return getRule().isEnabled();
+  }
 }
