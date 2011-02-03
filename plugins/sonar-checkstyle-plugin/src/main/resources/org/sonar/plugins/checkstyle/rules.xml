@@ -88,7 +88,7 @@
 <priority>MAJOR</priority>
     <name><![CDATA[Missing Deprecated]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MissingDeprecated]]></configKey>
-    
+
     <description>
       <![CDATA[Verifies that both the java.lang.Deprecated annotation is present and the @deprecated Javadoc tag is present when either is present.]]></description>
   </rule>
@@ -97,7 +97,7 @@
 <priority>MAJOR</priority>
     <name><![CDATA[Missing Override]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MissingOverride]]></configKey>
-    
+
     <description>
       <![CDATA[Verifies that the java.lang.Override annotation is present when the {@inheritDoc} javadoc tag is present.]]></description>
     <param key="javaFiveCompatibility" type="b">
@@ -110,7 +110,7 @@
 <priority>MINOR</priority>
     <name><![CDATA[Package Annotation]]></name>
     <configKey><![CDATA[Checker/TreeWalker/PackageAnnotation]]></configKey>
-    
+
     <description><![CDATA[<p>This check makes sure that all package annotations are in the package-info.java file.</p>
 <p>According to the Java JLS 3rd ed.</p>
 <p>The JLS does not enforce the placement of package annotations. This placement may vary based on implementation. The JLS does highly recommend that all package annotations are placed in the package-info.java file. See <a href="http://java.sun.com/docs/books/jls/third_edition/html/j3TOC.html">Java Language specification, sections 7.4.1.1</a>.</p>]]></description>
@@ -120,7 +120,7 @@
 <priority>MAJOR</priority>
     <name><![CDATA[Suppress Warnings]]></name>
     <configKey><![CDATA[Checker/TreeWalker/SuppressWarnings]]></configKey>
-    
+
     <description>
       <![CDATA[<p> This check allows you to specify what warnings that SuppressWarnings is not allowed to suppress. You can also specify a list of TokenTypes that the configured warning(s) cannot be suppressed on.</p>
 <p>Limitations: This check does not consider conditionals inside the SuppressWarnings annotation.
@@ -139,7 +139,7 @@ For example: @SupressWarnings((false) ? (true) ? "unchecked" : "foo" : "unused")
 <priority>MAJOR</priority>
     <name><![CDATA[Equals Avoid Null]]></name>
     <configKey><![CDATA[Checker/TreeWalker/EqualsAvoidNull]]></configKey>
-    
+
     <description>
       <![CDATA[<p>Checks that any combination of String literals with optional assignment is on the left side of an equals() comparison.</p>
 <p>Rationale: Calling the equals() method on String literals will avoid a potential NullPointerException. Also, it is pretty common to see null check right before equals comparisons which is not necessary in the below example.</p>
@@ -173,7 +173,7 @@ should be refactored to:
 <priority>MAJOR</priority>
     <name><![CDATA[No Clone Check]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NoCloneCheck]]></configKey>
-    
+
     <description><![CDATA[<p> Checks that the clone method is not overridden from the Object class.</p>
 
 <p>Rationale: The clone method relies on strange/hard to follow rules that do not work it all situations. Consequently, it is difficult to override correctly. Below are some of the rules/reasons why the clone method should be avoided.
@@ -220,7 +220,7 @@ should be refactored to:
 <priority>MAJOR</priority>
     <name><![CDATA[No Finalizer]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NoFinalizer]]></configKey>
-    
+
     <description><![CDATA[<p>Verifies there are no finalize() methods defined in a class.</p>]]></description>
   </rule>
 
@@ -228,7 +228,7 @@ should be refactored to:
 <priority>MINOR</priority>
     <name><![CDATA[Avoid Static Import]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AvoidStaticImport]]></configKey>
-    
+
     <description><![CDATA[<p> Checks that there are no static import statements. Rationale: Importing static members can lead to naming conflicts between class' members. It may lead to poor code readability since it may no longer be clear what class a member resides in (without looking at the import statement).</p>]]></description>
     <param key="excludes" type="s{}">
       <description>
@@ -242,7 +242,7 @@ For example: Excluding java.lang.Math.*. will allow the import of each static me
 <priority>MINOR</priority>
     <name><![CDATA[Javadoc Package]]></name>
     <configKey><![CDATA[Checker/JavadocPackage]]></configKey>
-    
+
     <description><![CDATA[<p>Checks that each Java package has a Javadoc file used for commenting. By default it only allows a package-info.java file, but can be configured to allow a package.html file. An error will be reported if both files exist as this is not allowed by the Javadoc tool.</p>]]></description>
     <param key="allowLegacy" type="b">
       <description>
@@ -254,7 +254,7 @@ For example: Excluding java.lang.Math.*. will allow the import of each static me
 <priority>MAJOR</priority>
     <name><![CDATA[Regexp Multiline]]></name>
     <configKey><![CDATA[Checker/RegexpMultiline]]></configKey>
-    
+
     <cardinality>MULTIPLE</cardinality>
     <description><![CDATA[<p>A check for detecting that matches across multiple lines. Rationale: This check can be used to when the regular expression can be span multiple lines.</p>]]></description>
     <param key="format" type="s">
@@ -278,7 +278,7 @@ For example: Excluding java.lang.Math.*. will allow the import of each static me
 <priority>MAJOR</priority>
     <name><![CDATA[Regexp Singleline]]></name>
     <configKey><![CDATA[Checker/RegexpSingleline]]></configKey>
-    
+
     <description><![CDATA[<p> A check for detecting single lines that match a supplied regular expression. Works with any file type. Rationale: This check can be used to prototype checks and to find common bad practice such as calling ex.printStacktrace(), System.out.println(), System.exit(), etc.</p>]]></description>
     <cardinality>MULTIPLE</cardinality>
     <param key="format" type="s">
@@ -302,7 +302,7 @@ For example: Excluding java.lang.Math.*. will allow the import of each static me
 <priority>MAJOR</priority>
     <name><![CDATA[Regexp Singleline Java]]></name>
     <configKey><![CDATA[Checker/TreeWalker/RegexpSinglelineJava]]></configKey>
-    
+
     <description><![CDATA[<p>This class is variation on RegexpSingleline for detecting single lines that match a supplied regular expression in Java files. It supports suppressing matches in Java comments.</p>]]></description>
     <cardinality>MULTIPLE</cardinality>
     <param key="format" type="s">
@@ -373,15 +373,15 @@ But the following example is not:
 </pre>]]></description>
   </rule>
 
-  
+
   <!-- Checkstyle 4.4 and less -->
-  
-  
+
+
   <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.JavaNCSSCheck" >
 <priority>MAJOR</priority>
     <name><![CDATA[JavaNCSS]]></name>
     <configKey><![CDATA[Checker/TreeWalker/JavaNCSS]]></configKey>
-    
+
     <description><![CDATA[ Determines complexity of methods, classes and files by counting the Non Commenting Source Statements (NCSS). This check adheres to the  specification for the JavaNCSS-Tool  written by Chr. Clemens Lee.
 Rougly said the NCSS metric is calculated by counting the source lines which are not comments, (nearly) equivalent to counting the semicolons and opening curly braces.
 The NCSS for a class is summarized from the NCSS of all its methods, the NCSS of its nested classes and the number of member variable declarations.
@@ -431,7 +431,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Anon Inner Length]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AnonInnerLength]]></configKey>
-    
+
     <description><![CDATA[Checks for long anonymous inner classes.]]></description>
     <param key="max" type="i">
       <description><![CDATA[maximum allowable number of lines. Default is 20.]]></description>
@@ -477,7 +477,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MINOR</priority>
     <name><![CDATA[Avoid Star Import]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AvoidStarImport]]></configKey>
-    
+
     <description><![CDATA[Check that finds import statements that use the * notation.]]></description>
     <param key="excludes" type="s{}">
       <description>
@@ -488,7 +488,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Boolean Expression Complexity]]></name>
     <configKey><![CDATA[Checker/TreeWalker/BooleanExpressionComplexity]]></configKey>
-    
+
     <description>
       <![CDATA[Restricts nested boolean operators (&&, || and ^) to a specified depth (default = 3).]]></description>
     <param key="max" type="i">
@@ -503,7 +503,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Class Data Abstraction Coupling]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ClassDataAbstractionCoupling]]></configKey>
-    
+
     <description>
       <![CDATA[This metric measures the number of instantiations of other classes within the given class.]]></description>
     <param key="max" type="i">
@@ -514,7 +514,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Class Fan Out Complexity]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ClassFanOutComplexity]]></configKey>
-    
+
     <description><![CDATA[The number of other classes a given class relies on.]]></description>
     <param key="max" type="i">
       <description><![CDATA[the maximum threshold allowed. Default is 20.]]></description>
@@ -536,7 +536,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>CRITICAL</priority>
     <name><![CDATA[Covariant Equals]]></name>
     <configKey><![CDATA[Checker/TreeWalker/CovariantEquals]]></configKey>
-    
+
     <description>
       <![CDATA[Checks that if a class defines a covariant method equals, then it defines method equals(java.lang.Object).]]></description>
   </rule>
@@ -544,7 +544,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Cyclomatic Complexity]]></name>
     <configKey><![CDATA[Checker/TreeWalker/CyclomaticComplexity]]></configKey>
-    
+
     <description>
       <![CDATA[Checks cyclomatic complexity of methods against a specified limit. The complexity is measured by the number of if, while, do, for, ?:, catch, switch, case  statements, and operators && and || (plus one) in the body of a constructor, method, static initializer, or instance initializer. It is a measure of the minimum number of possible paths through the source and therefore the number of required tests. Generally 1-4 is considered good, 5-7 ok, 8-10 consider re-factoring, and 11+ re-factor now !]]></description>
     <param key="max" type="i">
@@ -570,14 +570,14 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MINOR</priority>
     <name><![CDATA[Design For Extension]]></name>
     <configKey><![CDATA[Checker/TreeWalker/DesignForExtension]]></configKey>
-    
+
     <description><![CDATA[Checks that classes are designed for inheritance.]]></description>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.DoubleCheckedLockingCheck" >
 <priority>MAJOR</priority>
     <name><![CDATA[Double Checked Locking]]></name>
     <configKey><![CDATA[Checker/TreeWalker/DoubleCheckedLocking]]></configKey>
-    
+
     <description>
       <![CDATA[Detect the double-checked locking idiom, a technique that tries to avoid synchronization overhead but is incorrect because of subtle artifacts of the java memory model.]]></description>
   </rule>
@@ -585,7 +585,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Empty Block]]></name>
     <configKey><![CDATA[Checker/TreeWalker/EmptyBlock]]></configKey>
-    
+
     <description><![CDATA[Checks for empty blocks.]]></description>
     <param key="option" type="s[text,stmt]">
       <description><![CDATA[policy on block contents]]></description>
@@ -621,21 +621,21 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MINOR</priority>
     <name><![CDATA[Empty Statement]]></name>
     <configKey><![CDATA[Checker/TreeWalker/EmptyStatement]]></configKey>
-    
+
     <description><![CDATA[Detects empty statements (standalone ';').]]></description>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.EqualsHashCodeCheck">
 <priority>CRITICAL</priority>
     <name><![CDATA[Equals Hash Code]]></name>
     <configKey><![CDATA[Checker/TreeWalker/EqualsHashCode]]></configKey>
-    
+
     <description><![CDATA[Checks that classes that override equals() also override hashCode().]]></description>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck" >
 <priority>MAJOR</priority>
     <name><![CDATA[Executable Statement Count]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ExecutableStatementCount]]></configKey>
-    
+
     <description>
       <![CDATA[Restricts the number of executable statements to a specified limit (default = 30).]]></description>
     <param key="max" type="i">
@@ -650,7 +650,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Explicit Initialization]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ExplicitInitialization]]></configKey>
-    
+
     <description>
       <![CDATA[Checks if any class or object member explicitly initialized to default for its type value (null for object references, zero for numeric types and char and false for boolean.]]></description>
   </rule>
@@ -658,7 +658,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Fall Through]]></name>
     <configKey><![CDATA[Checker/TreeWalker/FallThrough]]></configKey>
-    
+
     <description>
       <![CDATA[Checks for fall through in switch statements Finds locations where a case contains Java code - but lacks a break, return, throw or continue statement.]]></description>
     <param key="checkLastCaseGroup" type="b">
@@ -674,7 +674,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[File Length]]></name>
     <configKey><![CDATA[Checker/FileLength]]></configKey>
-    
+
     <description><![CDATA[<p>Checks for long source files.</p>
     <p>Rationale: If a source file becomes very long it is hard to understand. Therefore long classes should usually be refactored into several individual classes that focus on a specific task.</p>]]></description>
     <param key="max" type="i">
@@ -741,7 +741,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Hide Utility Class Constructor]]></name>
     <configKey><![CDATA[Checker/TreeWalker/HideUtilityClassConstructor]]></configKey>
-    
+
     <description>
       <![CDATA[Make sure that utility classes (classes that contain only static methods) do not have a public constructor.]]></description>
   </rule>
@@ -749,7 +749,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Illegal Catch]]></name>
     <configKey><![CDATA[Checker/TreeWalker/IllegalCatch]]></configKey>
-    
+
     <description>
       <![CDATA[Catching java.lang.Exception, java.lang.Error or java.lang.RuntimeException is almost never acceptable.]]></description>
     <param key="illegalClassNames" type="s{}">
@@ -770,7 +770,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Illegal Instantiation]]></name>
     <configKey><![CDATA[Checker/TreeWalker/IllegalInstantiation]]></configKey>
-    
+
     <description>
       <![CDATA[Checks for illegal instantiations where a factory method is preferred. Depending on the project, for some classes it might be preferable to create instances through factory methods rather than calling the constructor. A simple example is the <code>java.lang.Boolean</code> class. In order to save memory and CPU cycles, it is preferable to use the predefined constants TRUE and FALSE. Constructor invocations should be replaced by calls to <code>Boolean.valueOf()</code>. Some extremely performance sensitive projects may require the use of factory methods for other classes as well, to enforce the usage of number caches or object pools.]]></description>
     <param key="classes" type="s{}">
@@ -781,7 +781,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Illegal Throws]]></name>
     <configKey><![CDATA[Checker/TreeWalker/IllegalThrows]]></configKey>
-    
+
     <description>
       <![CDATA[Throwing java.lang.Error or java.lang.RuntimeException is almost never acceptable.]]></description>
     <param key="illegalClassNames" type="s{}">
@@ -824,7 +824,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Illegal Type]]></name>
     <configKey><![CDATA[Checker/TreeWalker/IllegalType]]></configKey>
-    
+
     <description>
       <![CDATA[Checks that particular class are never used as types in variable declarations, return values or parameters.]]></description>
     <param key="tokens" type="s[PARAMETER_DEF,VARIABLE_DEF,METHOD_DEF]">
@@ -1095,7 +1095,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Line Length]]></name>
     <configKey><![CDATA[Checker/TreeWalker/LineLength]]></configKey>
-    
+
     <description><![CDATA[Checks for long lines.]]></description>
     <param key="ignorePattern" type="r">
       <description><![CDATA[pattern for lines to ignore]]></description>
@@ -1123,6 +1123,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.naming.LocalVariableNameCheck" >
 <priority>MAJOR</priority>
+    <cardinality>MULTIPLE</cardinality>
     <name><![CDATA[Local Variable Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/LocalVariableName]]></configKey>
 
@@ -1141,7 +1142,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MINOR</priority>
     <name><![CDATA[Magic Number]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MagicNumber]]></configKey>
-    
+
     <description><![CDATA[Checks for magic numbers.]]></description>
     <param key="tokens" type="s[NUM_DOUBLE,NUM_FLOAT,NUM_INT,NUM_LONG]">
       <description><![CDATA[tokens to check]]></description>
@@ -1157,7 +1158,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
     <configKey><![CDATA[Checker/TreeWalker/MemberName]]></configKey>
 
     <description>
-      <![CDATA[Checks that instance variable names conform to a format specified by the format property.]]></description>
+      <![CDATA[Checks that name of non-static fields conform to a format specified by the format property.]]></description>
     <param key="format" type="r">
       <description><![CDATA[Validates identifiers for non-static fields]]></description>
     </param>
@@ -1179,7 +1180,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Method Length]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MethodLength]]></configKey>
-    
+
     <description><![CDATA[Checks for long methods.]]></description>
     <param key="max" type="i">
       <description><![CDATA[maximum allowable number of lines. Default is 150.]]></description>
@@ -1233,14 +1234,14 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Missing Switch Default]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MissingSwitchDefault]]></configKey>
-    
+
     <description><![CDATA[Checks that switch statement has default clause.]]></description>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ModifiedControlVariableCheck" >
 <priority>MAJOR</priority>
     <name><![CDATA[Modified Control Variable]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ModifiedControlVariable]]></configKey>
-    
+
     <description>
       <![CDATA[Check for ensuring that for loop control variables are not modified inside the for block.]]></description>
   </rule>
@@ -1257,7 +1258,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
     <name><![CDATA[Multiple String Literals]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MultipleStringLiterals]]></configKey>
     <cardinality>MULTIPLE</cardinality>
-    
+
     <description>
       <![CDATA[Checks for multiple occurrences of the same string literal within a single file. Code duplication makes maintenance more difficult, so it can be better to replace the multiple occurrences with a constant.]]></description>
     <param key="allowedDuplicates" type="i">
@@ -1296,7 +1297,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[NPath Complexity]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NPathComplexity]]></configKey>
-    
+
     <description>
       <![CDATA[Checks the npath complexity of a method against a specified limit (default = 200). The NPATH metric computes the number of possible execution paths through a function. It takes into account the nesting of conditional statements and multi-part boolean expressions (e.g., A && B, C || D, etc.).]]></description>
     <param key="max" type="i">
@@ -1318,7 +1319,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Nested If Depth]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NestedIfDepth]]></configKey>
-    
+
     <description><![CDATA[Restricts nested if-else blocks to a specified depth (default = 1).]]></description>
     <param key="max" type="i">
       <description><![CDATA[allowed nesting depth. Default is 1.]]></description>
@@ -1328,7 +1329,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Nested Try Depth]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NestedTryDepth]]></configKey>
-    
+
     <description><![CDATA[Restricts nested try-catch-finally blocks to a specified depth (default = 1).]]></description>
     <param key="max" type="i">
       <description><![CDATA[allowed nesting depth. Default is 1.]]></description>
@@ -1399,7 +1400,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Package Declaration]]></name>
     <configKey><![CDATA[Checker/TreeWalker/PackageDeclaration]]></configKey>
-    
+
     <description><![CDATA[Ensures there is a package declaration.]]></description>
   </rule>
 
@@ -1438,7 +1439,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Parameter Number]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ParameterNumber]]></configKey>
-    
+
     <description><![CDATA[Checks the number of parameters that a method or constructor has.]]></description>
     <param key="max" type="i">
       <description><![CDATA[maximum allowable number of parameters. Default is 7.]]></description>
@@ -1467,7 +1468,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MINOR</priority>
     <name><![CDATA[Redundant Modifier]]></name>
     <configKey><![CDATA[Checker/TreeWalker/RedundantModifier]]></configKey>
-    
+
     <description><![CDATA[Checks for redundant modifiers in interface and annotation definitions.]]></description>
     <param key="tokens" type="s[METHOD_DEF,VARIABLE_DEF,ANNOTATION_FIELD_DEF]">
       <description><![CDATA[tokens to check]]></description>
@@ -1477,7 +1478,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MINOR</priority>
     <name><![CDATA[Redundant Throws]]></name>
     <configKey><![CDATA[Checker/TreeWalker/RedundantThrows]]></configKey>
-    
+
     <description>
       <![CDATA[Checks for redundant exceptions declared in throws clause such as duplicates, unchecked exceptions or subclasses of another declared exception.]]></description>
     <param key="allowUnchecked" type="b">
@@ -1534,12 +1535,12 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description><![CDATA[whether we should check methods usage or not. Default is true.]]></description>
     </param>
   </rule>
-  
+
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ReturnCountCheck" >
 <priority>MAJOR</priority>
     <name><![CDATA[Return Count]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ReturnCount]]></configKey>
-    
+
     <description><![CDATA[Restricts return statements to a specified count (default = 2).]]></description>
     <param key="max" type="i">
       <description><![CDATA[maximum allowed number of return statments]]></description>
@@ -1567,14 +1568,14 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Simplify Boolean Expression]]></name>
     <configKey><![CDATA[Checker/TreeWalker/SimplifyBooleanExpression]]></configKey>
-    
+
     <description><![CDATA[Checks for overly complicated boolean expressions.]]></description>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.SimplifyBooleanReturnCheck" >
 <priority>MAJOR</priority>
     <name><![CDATA[Simplify Boolean Return]]></name>
     <configKey><![CDATA[Checker/TreeWalker/SimplifyBooleanReturn]]></configKey>
-    
+
     <description><![CDATA[Checks for overly complicated boolean return statements.]]></description>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.naming.StaticVariableNameCheck" >
@@ -1592,7 +1593,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Strict Duplicate Code]]></name>
     <configKey><![CDATA[Checker/StrictDuplicateCode]]></configKey>
-    
+
     <description>
       <![CDATA[Performs a line-by-line comparison of all code lines and reports duplicate code if a sequence of lines differs only in indentation.]]></description>
     <param key="min" type="i">
@@ -1606,28 +1607,28 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[String Literal Equality]]></name>
     <configKey><![CDATA[Checker/TreeWalker/StringLiteralEquality]]></configKey>
-    
+
     <description><![CDATA[Checks that string literals are not used with == or !=.]]></description>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.SuperCloneCheck" >
 <priority>MAJOR</priority>
     <name><![CDATA[Super Clone]]></name>
     <configKey><![CDATA[Checker/TreeWalker/SuperClone]]></configKey>
-    
+
     <description><![CDATA[Checks that an overriding clone() method invokes super.clone().]]></description>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.SuperFinalizeCheck" >
 <priority>MAJOR</priority>
     <name><![CDATA[Super Finalize]]></name>
     <configKey><![CDATA[Checker/TreeWalker/SuperFinalize]]></configKey>
-    
+
     <description><![CDATA[Checks that an overriding finalize() method invokes super.finalize().]]></description>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.design.ThrowsCountCheck" >
 <priority>MAJOR</priority>
     <name><![CDATA[Throws Count]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ThrowsCount]]></configKey>
-    
+
     <description><![CDATA[Restricts throws statements to a specified count (default = 1).]]></description>
     <param key="max" type="i">
       <description><![CDATA[maximum allowed number of throws statments]]></description>
@@ -1637,7 +1638,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MINOR</priority>
     <name><![CDATA[Comment pattern matcher]]></name>
     <configKey><![CDATA[Checker/TreeWalker/TodoComment]]></configKey>
-    
+
     <cardinality>MULTIPLE</cardinality>
     <description><![CDATA[This rule allows to find any kind of pattern inside comments like TODO, NOPMD, ..., except NOSONAR]]></description>
     <param key="format" type="r">
@@ -1675,7 +1676,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 
     </param>
   </rule>-->
-   
+
   <rule key="com.puppycrawl.tools.checkstyle.checks.naming.TypeNameCheck" >
 <priority>MAJOR</priority>
     <name><![CDATA[Type Name]]></name>
@@ -1728,7 +1729,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>INFO</priority>
     <name><![CDATA[Unused Imports]]></name>
     <configKey><![CDATA[Checker/TreeWalker/UnusedImports]]></configKey>
-    
+
     <description><![CDATA[Checks for unused import statements.]]></description>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.UpperEllCheck">
@@ -1743,7 +1744,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Visibility Modifier]]></name>
     <configKey><![CDATA[Checker/TreeWalker/VisibilityModifier]]></configKey>
-    
+
     <description>
       <![CDATA[Checks visibility of class members. Only static final members may be public; other class members must be private unless property protectedAllowed or packageAllowed is set.]]></description>
     <param key="packageAllowed" type="b">
