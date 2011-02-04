@@ -288,6 +288,6 @@ public class ActiveRule implements Cloneable {
    * @since 2.6
    */
   public boolean isEnabled() {
-    return getRule().isEnabled();
+    return getRule()!=null && getRule().isEnabled();
   }
 }

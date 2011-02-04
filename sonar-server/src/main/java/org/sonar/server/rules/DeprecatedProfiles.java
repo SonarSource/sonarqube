@@ -103,7 +103,7 @@ public final class DeprecatedProfiles {
     for (int index = 0; index < repository.getProvidedProfiles().size(); index++) {
       RulesProfile deprecated = (RulesProfile) repository.getProvidedProfiles().get(index);
       DefaultProfileDefinition providedProfile = DefaultProfileDefinition.create(deprecated.getName(), repository.getLanguage().getKey());
-      for (ActiveRule deprecatedActiveRule : deprecated.getActiveRules()) {
+      for (ActiveRule deprecatedActiveRule : deprecated.getActiveRules(true)) {
         String repositoryKey = deprecatedActiveRule.getRepositoryKey();
         if (StringUtils.isBlank(repositoryKey)) {
           repositoryKey = getPluginKey(repository);
@@ -161,7 +161,7 @@ public final class DeprecatedProfiles {
     }
 
     public List<ActiveRule> getRules() {
-      return profile.getActiveRules();
+      return profile.getActiveRules(true);
     }
 
     public List<ActiveRule> getRulesByRepositoryKey(String repositoryKey) {
