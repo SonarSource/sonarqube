@@ -19,7 +19,7 @@
  */
 package org.sonar.maven2;
 
-import org.sonar.batch.MavenReactor;
+import java.io.InputStream;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
@@ -31,6 +31,7 @@ import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactCollector;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.execution.RuntimeInformation;
 import org.apache.maven.lifecycle.LifecycleExecutor;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -40,10 +41,9 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.platform.Environment;
 import org.sonar.batch.Batch;
-
-import java.io.InputStream;
+import org.sonar.batch.MavenReactor;
+import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
 /**
  * @goal internal
@@ -80,7 +80,7 @@ public final class BatchMojo extends AbstractMojo {
 
   /**
    * The artifact factory to use.
-   *
+   * 
    * @component
    * @required
    * @readonly
@@ -89,7 +89,7 @@ public final class BatchMojo extends AbstractMojo {
 
   /**
    * The artifact repository to use.
-   *
+   * 
    * @parameter expression="${localRepository}"
    * @required
    * @readonly
@@ -98,7 +98,7 @@ public final class BatchMojo extends AbstractMojo {
 
   /**
    * The artifact metadata source to use.
-   *
+   * 
    * @component
    * @required
    * @readonly
@@ -107,7 +107,7 @@ public final class BatchMojo extends AbstractMojo {
 
   /**
    * The artifact collector to use.
-   *
+   * 
    * @component
    * @required
    * @readonly
@@ -116,7 +116,7 @@ public final class BatchMojo extends AbstractMojo {
 
   /**
    * The dependency tree builder to use.
-   *
+   * 
    * @component
    * @required
    * @readonly
@@ -130,19 +130,30 @@ public final class BatchMojo extends AbstractMojo {
    */
   private MavenProjectBuilder projectBuilder;
 
+  /**
+   * @component
+   * @required
+   * @readonly
+   */
+  private RuntimeInformation runtimeInformation;
+
   public void execute() throws MojoExecutionException, MojoFailureException {
     initLogging();
     executeBatch();
   }
-
 
   private void executeBatch() throws MojoExecutionException {
     MavenReactor reactor = new MavenReactor(session);
     Batch batch = new Batch(getInitialConfiguration(), reactor, session, project,
         getLog(), lifecycleExecutor, pluginManager, artifactFactory,
         localRepository, artifactMetadataSource, artifactCollector,
-        dependencyTreeBuilder, projectBuilder, Environment.MAVEN2, Maven2PluginExecutor.class);
+        dependencyTreeBuilder, projectBuilder, getEnvironmentInformation(), Maven2PluginExecutor.class);
     batch.execute();
+  }
+
+  private EnvironmentInformation getEnvironmentInformation() {
+    String mavenVersion = runtimeInformation.getApplicationVersion().toString();
+    return new EnvironmentInformation("Maven", mavenVersion);
   }
 
   private Configuration getInitialConfiguration() {

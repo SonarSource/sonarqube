@@ -17,30 +17,9 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.bootstrapper;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
- * Describes order of projects.
- * 
- * @since 2.6
+ * This package is a part of bootstrap process, so we should take care about backward compatibility.
  */
-public class Reactor {
+package org.sonar.batch.bootstrapper;
 
-  private List<ProjectDefinition> projects;
-
-  public Reactor(ProjectDefinition project) {
-    this.projects = Collections.singletonList(project);
-  }
-
-  public Reactor(List<ProjectDefinition> sortedProjects) {
-    this.projects = sortedProjects;
-  }
-
-  public List<ProjectDefinition> getSortedProjects() {
-    return projects;
-  }
-
-}

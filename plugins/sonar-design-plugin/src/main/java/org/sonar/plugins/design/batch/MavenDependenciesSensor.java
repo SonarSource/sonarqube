@@ -44,7 +44,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
 
-@SupportedEnvironment({ "maven2", "maven3" })
+@SupportedEnvironment("maven")
 public class MavenDependenciesSensor implements Sensor {
 
   private ArtifactRepository localRepository;

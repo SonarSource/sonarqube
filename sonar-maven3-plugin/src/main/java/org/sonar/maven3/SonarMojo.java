@@ -19,6 +19,8 @@
  */
 package org.sonar.maven3;
 
+import java.io.InputStream;
+
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
@@ -29,6 +31,7 @@ import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactCollector;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.execution.RuntimeInformation;
 import org.apache.maven.lifecycle.LifecycleExecutor;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -37,11 +40,9 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.platform.Environment;
 import org.sonar.batch.Batch;
 import org.sonar.batch.MavenReactor;
-
-import java.io.InputStream;
+import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
 /**
  * @goal sonar
@@ -122,6 +123,13 @@ public final class SonarMojo extends AbstractMojo {
    */
   private MavenProjectBuilder projectBuilder;
 
+  /**
+   * @component
+   * @required
+   * @readonly
+   */
+  private RuntimeInformation runtimeInformation;
+
   public void execute() throws MojoExecutionException, MojoFailureException {
     initLogging();
     executeBatch();
@@ -132,8 +140,13 @@ public final class SonarMojo extends AbstractMojo {
     Batch batch = new Batch(getInitialConfiguration(),
         reactor, session, project, getLog(), lifecycleExecutor, artifactFactory,
         localRepository, artifactMetadataSource, artifactCollector, dependencyTreeBuilder,
-        projectBuilder, Environment.MAVEN3, Maven3PluginExecutor.class);
+        projectBuilder, getEnvironmentInformation(), Maven3PluginExecutor.class);
     batch.execute();
+  }
+
+  private EnvironmentInformation getEnvironmentInformation() {
+    String mavenVersion = runtimeInformation.getApplicationVersion().toString();
+    return new EnvironmentInformation("Maven", mavenVersion);
   }
 
   private void initLogging() throws MojoExecutionException {

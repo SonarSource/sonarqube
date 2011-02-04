@@ -17,34 +17,38 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.platform;
+package org.sonar.batch.bootstrapper;
 
 import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
 
 /**
- * @since 2.2
+ * Describes execution environment.
+ * 
+ * @since 2.6
  */
-public enum Environment implements BatchComponent, ServerComponent {
+public class EnvironmentInformation implements BatchComponent {
 
-  /*
-   * When will GRADLE, ANT, ECLIPSE, INTELLIJ_IDEA be added to this list ? :-)
+  private String key;
+  private String version;
+
+  public EnvironmentInformation(String key, String version) {
+    this.key = key;
+    this.version = version;
+  }
+
+  /**
+   * @return unique key of environment, for example - "maven", "ant"
    */
-  SERVER, MAVEN3, MAVEN2, ANT;
-
-  public boolean isServer() {
-    return this==SERVER;
+  public String getKey() {
+    return key;
   }
 
-  public boolean isMaven2Batch() {
-    return this==MAVEN2;
+  /**
+   * @return version of environment, for example Maven can have "2.2.1" or "3.0.2",
+   *         but there is no guarantees about format - it's just a string.
+   */
+  public String getVersion() {
+    return version;
   }
 
-  public boolean isMaven3Batch() {
-    return this==MAVEN3;
-  }
-
-  public boolean isBatch() {
-    return isMaven2Batch() || isMaven3Batch();
-  }
 }

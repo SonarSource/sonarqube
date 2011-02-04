@@ -37,11 +37,11 @@ import org.sonar.api.Plugin;
 import org.sonar.api.batch.AbstractCoverageExtension;
 import org.sonar.api.batch.CoverageExtension;
 import org.sonar.api.batch.SupportedEnvironment;
-import org.sonar.api.platform.Environment;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.core.classloaders.ClassLoadersCollection;
 import org.sonar.core.plugin.AbstractPluginRepository;
 import org.sonar.core.plugin.JpaPlugin;
@@ -56,12 +56,13 @@ public class BatchPluginRepository extends AbstractPluginRepository {
 
   private ClassLoadersCollection classLoaders;
   private ExtensionDownloader extensionDownloader;
-  private Environment environment;
+  private EnvironmentInformation environment;
 
-  public BatchPluginRepository(JpaPluginDao dao, ExtensionDownloader extensionDownloader, Environment environment) {
+  public BatchPluginRepository(JpaPluginDao dao, ExtensionDownloader extensionDownloader, EnvironmentInformation environment) {
     this.dao = dao;
     this.extensionDownloader = extensionDownloader;
     this.environment = environment;
+    LOG.info("Execution environment: {} {}", environment.getKey(), environment.getVersion());
   }
 
   /**
@@ -133,7 +134,7 @@ public class BatchPluginRepository extends AbstractPluginRepository {
       return true;
     }
     for (String supported : env.value()) {
-      if (StringUtils.equalsIgnoreCase(environment.toString(), supported)) {
+      if (StringUtils.equalsIgnoreCase(environment.getKey(), supported)) {
         return true;
       }
     }

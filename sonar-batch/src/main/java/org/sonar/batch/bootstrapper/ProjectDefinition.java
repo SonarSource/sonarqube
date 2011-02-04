@@ -19,16 +19,15 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import com.google.common.collect.Lists;
-
 import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
+import com.google.common.collect.Lists;
+
 /**
- * Defines project in a form suitable to bootstrap Sonar batch.
+ * Describes project in a form suitable to bootstrap Sonar batch.
  * We assume that project is just a set of configuration properties and directories.
- * This is a part of bootstrap process, so we should take care about backward compatibility.
  * 
  * @since 2.6
  */

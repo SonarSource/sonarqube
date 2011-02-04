@@ -26,7 +26,6 @@ import org.picocontainer.MutablePicoContainer;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugins;
 import org.sonar.api.database.configuration.DatabaseConfiguration;
-import org.sonar.api.platform.Environment;
 import org.sonar.api.platform.Server;
 import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.XMLProfileParser;
@@ -126,7 +125,6 @@ public final class Platform {
 
   private void startCoreComponents() {
     coreContainer = rootContainer.makeChildContainer();
-    coreContainer.as(Characteristics.CACHE).addComponent(Environment.SERVER);
     coreContainer.as(Characteristics.CACHE).addComponent(PluginClassLoaders.class);
     coreContainer.as(Characteristics.CACHE).addComponent(PluginDeployer.class);
     coreContainer.as(Characteristics.CACHE).addComponent(ServerImpl.class);
