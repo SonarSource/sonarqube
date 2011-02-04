@@ -916,17 +916,6 @@
     </profile>
 
     <profile>
-      <id>integration-tests</id>
-      <modules>
-        <module>sonar-core-maven-plugin</module>
-        <module>sonar-server</module>
-        <module>sonar-application</module>
-        <module>tests/integration</module>
-        <module>tests/volume</module>
-      </modules>
-    </profile>
-
-    <profile>
       <id>release</id>
       <build>
         <plugins>
