@@ -21,6 +21,8 @@ package org.sonar.plugins.squid.bridges;
 
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Resource;
+import org.sonar.java.api.JavaClass;
+import org.sonar.squid.api.SourceClass;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.measures.Metric;
 
@@ -30,11 +32,12 @@ public class ChidamberKemererBridge extends Bridge {
     super(true);
   }
 
+
   @Override
   public final void onFile(SourceFile squidFile, Resource sonarFile) {
     context.saveMeasure(sonarFile, CoreMetrics.DEPTH_IN_TREE, squidFile.getDouble(Metric.DIT));
-    context.saveMeasure(sonarFile, CoreMetrics.RFC, squidFile.getDouble(Metric.RFC));
     context.saveMeasure(sonarFile, CoreMetrics.NUMBER_OF_CHILDREN, squidFile.getDouble(Metric.NOC));
+    context.saveMeasure(sonarFile, CoreMetrics.RFC, squidFile.getDouble(Metric.RFC));
     context.saveMeasure(sonarFile, CoreMetrics.LCOM4, squidFile.getDouble(Metric.LCOM4));
   }
 }

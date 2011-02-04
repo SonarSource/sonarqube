@@ -37,7 +37,7 @@ public final class BridgeFactory {
   private static List<Bridge> create(NoSonarFilter noSonarFilter) {
     return Arrays.asList(new CopyBasicMeasuresBridge(), new PackagesBridge(), new PublicUndocumentedApiBridge(),
         new NoSonarFilterLoader(noSonarFilter),
-        new ChidamberKemererBridge(), new RobertCMartinBridge(), new ChidamberKemererDistributionBridge(), new DesignBridge(),
+        new ChidamberKemererBridge(), new RobertCMartinBridge(), new DesignBridge(),
         new Lcom4BlocksBridge(), new ChecksBridge());
   }
 

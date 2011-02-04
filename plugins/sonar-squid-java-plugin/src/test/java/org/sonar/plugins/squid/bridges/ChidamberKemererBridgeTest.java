@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.squid.bridges;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.JavaFile;
