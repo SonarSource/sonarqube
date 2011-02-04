@@ -29,6 +29,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.resources.Scopes;
 
 import java.util.Collection;
 import java.util.List;
@@ -47,10 +48,10 @@ public class SuspectLcom4DensityDecorator implements Decorator {
   public void decorate(Resource resource, DecoratorContext context) {
     if (ResourceUtils.isFile(resource)) {
       // do nothing
-    } else if (ResourceUtils.isDirectory(resource)) {
+    } else if (Scopes.isDirectory(resource)) {
       decorateDirectory(context);
 
-    } else {
+    } else if (Scopes.isProject(resource)) {
       decorateProject(context);
     }
   }
@@ -60,24 +61,29 @@ public class SuspectLcom4DensityDecorator implements Decorator {
     int totalFiles = 0;
 
     List<DecoratorContext> children = context.getChildren();
+    boolean hasLcom4=false;
     for (DecoratorContext child : children) {
       int files = MeasureUtils.getValue(child.getMeasure(CoreMetrics.FILES), 0.0).intValue();
       totalFiles += files;
-      total += MeasureUtils.getValue(child.getMeasure(CoreMetrics.SUSPECT_LCOM4_DENSITY), 0.0) * files;
+      Measure childSuspectDensity = child.getMeasure(CoreMetrics.SUSPECT_LCOM4_DENSITY);
+      if (childSuspectDensity!=null && childSuspectDensity.getValue()!=null) {
+        hasLcom4=true;
+        total += childSuspectDensity.getValue() * files;
+      }
     }
 
-    if (totalFiles > 0) {
+    if (hasLcom4 && totalFiles > 0) {
       context.saveMeasure(CoreMetrics.SUSPECT_LCOM4_DENSITY, (total / totalFiles));
     }
   }
 
   private void decorateDirectory(DecoratorContext context) {
+    Collection<Measure> fileLcoms = context.getChildrenMeasures(CoreMetrics.LCOM4);
     double files = MeasureUtils.getValue(context.getMeasure(CoreMetrics.FILES), 0.0);
-    if (files > 0.0) {
+    if (!fileLcoms.isEmpty() && files>0.0) {
       double suspectFiles = 0.0;
 
       // directory children are files
-      Collection<Measure> fileLcoms = context.getChildrenMeasures(CoreMetrics.LCOM4);
       for (Measure fileLcom : fileLcoms) {
         if (MeasureUtils.getValue(fileLcom, 0.0) > 1.0) {
           suspectFiles++;
