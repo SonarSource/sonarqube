@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch;
 
-import org.sonar.api.BatchExtension;
 import org.sonar.api.Plugins;
 import org.sonar.api.resources.Project;
 
@@ -28,8 +27,9 @@ import org.sonar.api.resources.Project;
  * It is a pre-implementation for Sensors and Decorators
  * 
  * @since 1.10
+ * @deprecated since 2.6 was superseded by interface {@link CoverageExtension}
  */
-public abstract class AbstractCoverageExtension implements BatchExtension {
+public abstract class AbstractCoverageExtension implements CoverageExtension {
 
   /**
    * The plugin key to retrieve the coverage engine to be used

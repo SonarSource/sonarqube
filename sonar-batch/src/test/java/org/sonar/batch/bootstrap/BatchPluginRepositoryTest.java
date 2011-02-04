@@ -31,8 +31,8 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.batch.AbstractCoverageExtension;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Project.AnalysisType;
 import org.sonar.api.utils.IocContainer;
-import org.sonar.batch.bootstrap.BatchPluginRepository;
 
 public class BatchPluginRepositoryTest {
 
@@ -83,11 +83,11 @@ public class BatchPluginRepositoryTest {
   }
 
   private static Project newJavaProject() {
-    return new Project("foo").setLanguageKey(Java.KEY);
+    return new Project("foo").setLanguageKey(Java.KEY).setAnalysisType(AnalysisType.DYNAMIC);
   }
 
   private static Project newGroovyProject() {
-    return new Project("foo").setLanguageKey("grvy");
+    return new Project("foo").setLanguageKey("grvy").setAnalysisType(AnalysisType.DYNAMIC);
   }
 
   public static class FakeBatchExtension implements BatchExtension {

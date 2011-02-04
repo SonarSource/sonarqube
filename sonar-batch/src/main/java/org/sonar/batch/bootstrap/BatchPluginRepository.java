@@ -19,6 +19,11 @@
  */
 package org.sonar.batch.bootstrap;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
+
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.ArrayUtils;
@@ -30,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.Plugin;
 import org.sonar.api.batch.AbstractCoverageExtension;
+import org.sonar.api.batch.CoverageExtension;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.platform.Environment;
 import org.sonar.api.resources.Java;
@@ -41,11 +47,6 @@ import org.sonar.core.plugin.AbstractPluginRepository;
 import org.sonar.core.plugin.JpaPlugin;
 import org.sonar.core.plugin.JpaPluginDao;
 import org.sonar.core.plugin.JpaPluginFile;
-
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
 
 public class BatchPluginRepository extends AbstractPluginRepository {
 
@@ -116,7 +117,7 @@ public class BatchPluginRepository extends AbstractPluginRepository {
       ok = false;
       LOG.debug("The following extension is ignored: " + extension + " due to execution environment.");
     }
-    if (ok && isType(extension, AbstractCoverageExtension.class)) {
+    if (ok && isType(extension, CoverageExtension.class)) {
       ok = shouldRegisterCoverageExtension(pluginKey, container.getComponent(Project.class), container.getComponent(Configuration.class));
       if (!ok) {
         LOG.debug("The following extension is ignored: " + extension + ". See the parameter " + AbstractCoverageExtension.PARAM_PLUGIN);
@@ -140,14 +141,17 @@ public class BatchPluginRepository extends AbstractPluginRepository {
   }
 
   boolean shouldRegisterCoverageExtension(String pluginKey, Project project, Configuration conf) {
-    boolean ok = true;
+    if (!project.getAnalysisType().isDynamic(true)) {
+      // not dynamic and not reuse reports
+      return false;
+    }
     if (StringUtils.equals(project.getLanguageKey(), Java.KEY)) {
       String[] selectedPluginKeys = conf.getStringArray(AbstractCoverageExtension.PARAM_PLUGIN);
       if (ArrayUtils.isEmpty(selectedPluginKeys)) {
         selectedPluginKeys = new String[] { AbstractCoverageExtension.DEFAULT_PLUGIN };
       }
-      ok = ArrayUtils.contains(selectedPluginKeys, pluginKey);
+      return ArrayUtils.contains(selectedPluginKeys, pluginKey);
     }
-    return ok;
+    return true;
   }
 }
