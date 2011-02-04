@@ -1,6 +1,6 @@
 @echo off
 
-rem Copyright (C) 2009 SonarSource SA
+rem Copyright (C) 2008-2011 SonarSource
 rem mailto:contact AT sonarsource DOT com
 rem 
 rem Sonar is free software; you can redistribute it and/or

@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# Copyright (C) 2009 SonarSource SA
+# Copyright (C) 2008-2011 SonarSource
 # mailto:contact AT sonarsource DOT com
 # 
 # Sonar is free software; you can redistribute it and/or
