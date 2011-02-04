@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.squid;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.checks.CheckFactory;
@@ -172,7 +173,7 @@ public final class SquidExecutor {
   }
 
   void scanBytecode(Collection<File> bytecodeFilesOrDirectories) {
-    if (bytecodeFilesOrDirectories != null && !bytecodeFilesOrDirectories.isEmpty()) {
+    if (hasBytecode(bytecodeFilesOrDirectories)) {
       TimeProfiler profiler = new TimeProfiler(getClass()).start("Java bytecode scan");
       BytecodeScanner bytecodeScanner = squid.register(BytecodeScanner.class);
       bytecodeScanner.scan(bytecodeFilesOrDirectories);
@@ -181,6 +182,20 @@ public final class SquidExecutor {
     } else {
       bytecodeScanned = false;
     }
+  }
+
+  static boolean hasBytecode(Collection<File> bytecodeFilesOrDirectories) {
+    if (bytecodeFilesOrDirectories == null) {
+      return false;
+    }
+    for (File bytecodeFilesOrDirectory : bytecodeFilesOrDirectories) {
+      if (bytecodeFilesOrDirectory.exists() &&
+          (bytecodeFilesOrDirectory.isFile() ||
+          !FileUtils.listFiles(bytecodeFilesOrDirectory, new String[]{"class"}, true).isEmpty())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   void scanSquidIndex() {

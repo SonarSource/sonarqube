@@ -21,7 +21,9 @@ package org.sonar.plugins.squid;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.atLeast;
@@ -99,6 +101,18 @@ public class SquidExecutorTest {
     executor.save(new Project("p1"), context, null);
 
     verify(context, atLeast(100)).saveMeasure((Resource) anyObject(), (org.sonar.api.measures.Metric) anyObject(), anyDouble());
+  }
+
+  @Test
+  public void shouldNotHaveBytecode() {
+    assertFalse(SquidExecutor.hasBytecode(Collections.<File>emptyList()));
+
+    assertFalse(SquidExecutor.hasBytecode(Arrays.asList(new File("unknown"))));
+  }
+
+  @Test
+  public void shouldHaveBytecode() {
+    assertTrue(SquidExecutor.hasBytecode(Arrays.asList(new File("test-resources/commons-collections-3.2.1/bin"))));
   }
 
   @Test
