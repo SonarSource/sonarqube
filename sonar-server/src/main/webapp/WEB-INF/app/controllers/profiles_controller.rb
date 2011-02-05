@@ -63,7 +63,7 @@ class ProfilesController < ApplicationController
         flash[:error]="This profile already exists: #{profile_name}"
 
       else
-        profile = Profile.create(:name => profile_name, :language => language, :default_profile => false)
+        profile = Profile.create(:name => profile_name, :language => language, :default_profile => false, :enabled => true)
         ok=profile.errors.empty?
         if ok && params[:backup]
           params[:backup].each_pair do |importer_key, file|
