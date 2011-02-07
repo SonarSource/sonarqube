@@ -419,13 +419,20 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Abstract Class Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AbstractClassName]]></configKey>
-
     <description>
-      <![CDATA[Ensures that the names of abstract classes conforming to some regular expression.]]></description>
+      <![CDATA[Checks that abstract class names conform to the specified format]]></description>
     <param key="format" type="r">
-      <description>
-        <![CDATA[Validates identifiers for abstract classes. Default is ^Abstract.*$|^.*Factory$]]></description>
+      <defaultValue>^Abstract.*$|^.*Factory$</defaultValue>
     </param>
+    <param key="ignoreModifier" type="b">
+      <description>Controls whether to ignore checking for the abstract modifier on classes that match the name.</description>
+      <defaultValue>false</defaultValue>
+    </param>
+    <param key="ignoreName" type="b">
+      <description>Controls whether to ignore checking the name. Realistically only useful if using the check to identify that match name and do not have the abstract modifier name.</description>
+      <defaultValue>false</defaultValue>
+    </param>
+
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck" >
 <priority>MAJOR</priority>
@@ -526,10 +533,25 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
     <configKey><![CDATA[Checker/TreeWalker/ConstantName]]></configKey>
 
     <description>
-      <![CDATA[Checks that constant names conform to a format specified by the format property.]]></description>
+      <![CDATA[Checks that constant names conform to the specified format]]></description>
     <param key="format" type="r">
-      <description>
-        <![CDATA[Validates identifiers for constants (static,  final fields). Default is ^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$]]></description>
+      <defaultValue>^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$</defaultValue>
+    </param>
+    <param key="applyToPublic" type="b">
+      <description>Controls whether to apply the check to public member</description>
+      <defaultValue>true</defaultValue>
+    </param>
+    <param key="applyToProtected" type="b">
+      <description>Controls whether to apply the check to protected member</description>
+      <defaultValue>true</defaultValue>
+    </param>
+    <param key="applyToPackage" type="b">
+      <description>Controls whether to apply the check to package-private member</description>
+      <defaultValue>true</defaultValue>
+    </param>
+    <param key="applyToPrivate" type="b">
+      <description>Controls whether to apply the check to private member</description>
+      <defaultValue>true</defaultValue>
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.CovariantEqualsCheck">
@@ -882,17 +904,22 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MINOR</priority>
     <name><![CDATA[Indentation]]></name>
     <configKey><![CDATA[Checker/TreeWalker/Indentation]]></configKey>
-
     <description><![CDATA[Checks correct indentation of Java Code.]]></description>
     <param key="basicOffset" type="i">
-      <description><![CDATA[how many spaces to use for new indentation level. Default is 4.]]></description>
+      <description><![CDATA[how many spaces to use for new indentation level]]></description>
+      <defaultValue>4</defaultValue>
     </param>
     <param key="braceAdjustment" type="i">
-      <description><![CDATA[how far brace should be indented when on next line. Default is 0.]]></description>
-
+      <description><![CDATA[how far brace should be indented when on next line]]></description>
+      <defaultValue>0</defaultValue>
     </param>
     <param key="caseIndent" type="i">
-      <description><![CDATA[how much to indent a case label. Default is 4.]]></description>
+      <description><![CDATA[how much to indent a case label]]></description>
+      <defaultValue>4</defaultValue>
+    </param>
+    <param key="tabWidth" type="i">
+      <description><![CDATA[number of expanded spaces for a tab character]]></description>
+      <defaultValue>8</defaultValue>
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.InnerAssignmentCheck" >
@@ -1113,12 +1140,10 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Local Final Variable Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/LocalFinalVariableName]]></configKey>
-
     <description>
-      <![CDATA[Checks that local final variable names conform to a format specified by the format property.]]></description>
+      <![CDATA[Checks that local final variable names, including catch parameters, conform to the specified format]]></description>
     <param key="format" type="r">
-      <description>
-        <![CDATA[Validates identifiers for local, final variables, including catch parameters]]></description>
+      <defaultValue>^[a-z][a-zA-Z0-9]*$</defaultValue>
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.naming.LocalVariableNameCheck" >
@@ -1126,12 +1151,10 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
     <cardinality>MULTIPLE</cardinality>
     <name><![CDATA[Local Variable Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/LocalVariableName]]></configKey>
-
     <description>
-      <![CDATA[Checks that local, non-final variable names conform to a format specified by the format property.]]></description>
+      <![CDATA[Checks that local, non-final variable names conform to the specified format]]></description>
     <param key="format" type="r">
-      <description>
-        <![CDATA[Validates identifiers for local, non-final variables, including catch parameters]]></description>
+      <defaultValue>^[a-z][a-zA-Z0-9]*$</defaultValue>
     </param>
     <param key="tokens" type="s[VARIABLE_DEF,PARAMETER_DEF]">
       <description>
@@ -1154,26 +1177,28 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
   <rule key="com.puppycrawl.tools.checkstyle.checks.naming.MemberNameCheck" >
 <priority>MAJOR</priority>
     <cardinality>MULTIPLE</cardinality>
-    <name><![CDATA[Member Name]]></name>
+    <name><![CDATA[Member name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MemberName]]></configKey>
-
     <description>
-      <![CDATA[Checks that name of non-static fields conform to a format specified by the format property.]]></description>
+      <![CDATA[Checks that name of non-static fields conform to the specified format]]></description>
     <param key="format" type="r">
-      <description><![CDATA[Validates identifiers for non-static fields]]></description>
+      <defaultValue>^[a-z][a-zA-Z0-9]*$</defaultValue>
     </param>
     <param key="applyToPublic" type="b">
-      <description><![CDATA[Controls whether to apply the check to public member. Default is true.]]></description>
+      <description>Controls whether to apply the check to public member</description>
+      <defaultValue>true</defaultValue>
     </param>
     <param key="applyToProtected" type="b">
-      <description><![CDATA[Controls whether to apply the check to protected member. Default is true.]]></description>
+      <description>Controls whether to apply the check to protected member</description>
+      <defaultValue>true</defaultValue>
     </param>
     <param key="applyToPackage" type="b">
-      <description>
-        <![CDATA[Controls whether to apply the check to package-private member. Default is true.]]></description>
+      <description>Controls whether to apply the check to package-private member</description>
+      <defaultValue>true</defaultValue>
     </param>
     <param key="applyToPrivate" type="b">
-      <description><![CDATA[Controls whether to apply the check to private member. Default is true.]]></description>
+      <description>Controls whether to apply the check to private member</description>
+      <defaultValue>true</defaultValue>
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck" >
@@ -1197,11 +1222,14 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Method Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MethodName]]></configKey>
-
     <description>
-      <![CDATA[Checks that method names conform to a format specified by the format property.]]></description>
+      <![CDATA[Checks that method names conform to the specified format]]></description>
     <param key="format" type="r">
-      <description><![CDATA[Validates identifiers for methods]]></description>
+      <defaultValue>^[a-z][a-zA-Z0-9]*$</defaultValue>
+    </param>
+    <param key="allowClassName" type="b">
+      <description>Controls whether to allow a method name to have the same name as the residing class name. This is not to be confused with a constructor. An easy mistake is to place a return type on a constructor declaration which turns it into a method.</description>
+      <defaultValue>false</defaultValue>
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.MethodParamPadCheck" >
@@ -1406,14 +1434,16 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 
   <rule key="com.puppycrawl.tools.checkstyle.checks.naming.PackageNameCheck" >
 <priority>MAJOR</priority>
-    <name><![CDATA[Package Name]]></name>
+    <name><![CDATA[Package name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/PackageName]]></configKey>
 
     <description>
-      <![CDATA[Checks that package names conform to a format specified by the format property.]]></description>
+      <![CDATA[Checks that package names conform to the specified format. The default value of format
+       has been chosen to match the requirements in the Java Language specification and the Sun coding conventions.
+       However both underscores and uppercase letters are rather uncommon, so most configurations should probably
+       assign value ^[a-z]+(\.[a-z][a-z0-9]*)*$ to format]]></description>
     <param key="format" type="r">
-      <description><![CDATA[Validates identifiers for packages]]></description>
-
+      <defaultValue>^[a-z]+(\.[a-zA-Z_][a-zA-Z0-9_]*)*$</defaultValue>
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ParameterAssignmentCheck" >
@@ -1427,12 +1457,10 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Parameter Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ParameterName]]></configKey>
-
     <description>
-      <![CDATA[Checks that parameter names conform to a format specified by the format property.]]></description>
+      <![CDATA[Checks that parameter names conform to the specified format]]></description>
     <param key="format" type="r">
-      <description><![CDATA[Validates identifiers for parameters]]></description>
-
+      <defaultValue>^[a-z][a-zA-Z0-9]*$</defaultValue>
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.ParameterNumberCheck" >
@@ -1584,9 +1612,25 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
     <configKey><![CDATA[Checker/TreeWalker/StaticVariableName]]></configKey>
 
     <description>
-      <![CDATA[Checks that static, non-final variable names conform to a format specified by the format property.]]></description>
+      <![CDATA[Checks that static, non-final fields conform to the specified format]]></description>
     <param key="format" type="r">
-      <description><![CDATA[Validates identifiers for static, non-final fields]]></description>
+      <defaultValue>^[a-z][a-zA-Z0-9]*$</defaultValue>
+    </param>
+    <param key="applyToPublic" type="b">
+      <description>Controls whether to apply the check to public member</description>
+      <defaultValue>true</defaultValue>
+    </param>
+    <param key="applyToProtected" type="b">
+      <description>Controls whether to apply the check to protected member</description>
+      <defaultValue>true</defaultValue>
+    </param>
+    <param key="applyToPackage" type="b">
+      <description>Controls whether to apply the check to package-private member</description>
+      <defaultValue>true</defaultValue>
+    </param>
+    <param key="applyToPrivate" type="b">
+      <description>Controls whether to apply the check to private member</description>
+      <defaultValue>true</defaultValue>
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.duplicates.StrictDuplicateCodeCheck" >
@@ -1681,14 +1725,28 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Type Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/TypeName]]></configKey>
-
-    <description><![CDATA[Checks that type names conform to a format specified by the format property.]]></description>
+    <description><![CDATA[Checks that type names conform to the specified format]]></description>
     <param key="format" type="r">
-      <description><![CDATA[Validates identifiers for classes and interfaces]]></description>
+      <defaultValue>^[A-Z][a-zA-Z0-9]*$</defaultValue>
     </param>
     <param key="tokens" type="s[CLASS_DEF,INTERFACE_DEF]">
       <description><![CDATA[Control whether the check applies to classes or interfaces]]></description>
-
+    </param>
+    <param key="applyToPublic" type="b">
+      <description>Controls whether to apply the check to public member</description>
+      <defaultValue>true</defaultValue>
+    </param>
+    <param key="applyToProtected" type="b">
+      <description>Controls whether to apply the check to protected member</description>
+      <defaultValue>true</defaultValue>
+    </param>
+    <param key="applyToPackage" type="b">
+      <description>Controls whether to apply the check to package-private member</description>
+      <defaultValue>true</defaultValue>
+    </param>
+    <param key="applyToPrivate" type="b">
+      <description>Controls whether to apply the check to private member</description>
+      <defaultValue>true</defaultValue>
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.TypecastParenPadCheck" >
