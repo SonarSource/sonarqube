@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.ResourceFilter;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.Scopes;
 
 /**
  * @since 1.12
@@ -34,7 +35,7 @@ public class ResourceFilters {
   private ResourceFilter[] filters;
 
   public ResourceFilters(ResourceFilter[] filters) {
-    this.filters = (filters==null ? new ResourceFilter[0] : filters);
+    this.filters = (filters == null ? new ResourceFilter[0] : filters);
   }
 
   public ResourceFilters() {
@@ -50,14 +51,16 @@ public class ResourceFilters {
    */
   public boolean isExcluded(Resource resource) {
     boolean ignored = false;
-    int index = 0;
-    while (!ignored && index < filters.length) {
-      ResourceFilter filter = filters[index];
-      ignored = filter.isIgnored(resource);
-      if (ignored && LOG.isDebugEnabled()) {
-        LOG.debug("Resource {} is excluded by the filter {}", resource, filter);
+    if (Scopes.isHigherThanOrEquals(resource, Scopes.FILE)) {
+      int index = 0;
+      while (!ignored && index < filters.length) {
+        ResourceFilter filter = filters[index];
+        ignored = filter.isIgnored(resource);
+        if (ignored && LOG.isDebugEnabled()) {
+          LOG.debug("Resource {} is excluded by the filter {}", resource, filter);
+        }
+        index++;
       }
-      index++;
     }
     return ignored;
   }
