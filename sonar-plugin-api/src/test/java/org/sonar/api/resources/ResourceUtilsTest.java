@@ -78,7 +78,7 @@ public class ResourceUtilsTest {
   @Test
   public void shouldNotBePersistable() {
     Resource javaClass = mock(Resource.class);
-    when(javaClass.getScope()).thenReturn(Scopes.TYPE);
+    when(javaClass.getScope()).thenReturn(Scopes.PROGRAM_UNIT);
     Resource javaMethod = mock(Resource.class);
     when(javaMethod.getScope()).thenReturn(Scopes.BLOCK_UNIT);
 

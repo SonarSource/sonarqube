@@ -50,7 +50,7 @@ public final class ClassComplexityDistributionBuilder implements Decorator {
     if (shouldExecuteOn(resource, context)) {
       RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, LIMITS);
       for (DecoratorContext childContext : context.getChildren()) {
-        if (Scopes.isType(childContext.getResource())) {
+        if (Scopes.isProgramUnit(childContext.getResource())) {
           Measure complexity = childContext.getMeasure(CoreMetrics.COMPLEXITY);
           if (complexity != null) {
             builder.add(complexity.getValue());

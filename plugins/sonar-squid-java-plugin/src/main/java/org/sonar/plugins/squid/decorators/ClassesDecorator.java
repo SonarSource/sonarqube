@@ -34,7 +34,7 @@ public final class ClassesDecorator implements Decorator {
     if (Scopes.isFile(resource)) {
       int classes = 0;
       for (DecoratorContext child : context.getChildren()) {
-        if (Scopes.isType(child.getResource())) {
+        if (Scopes.isProgramUnit(child.getResource())) {
           classes++;
         }
       }

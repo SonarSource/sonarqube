@@ -32,7 +32,7 @@ import org.sonar.java.api.JavaMethod;
 public final class FunctionsDecorator implements Decorator {
 
   public void decorate(Resource resource, DecoratorContext context) {
-    if (Scopes.isType(resource)) {
+    if (Scopes.isProgramUnit(resource)) {
       int methods=0, accessors=0;
       for (DecoratorContext child : context.getChildren()) {
         if (child.getResource() instanceof JavaMethod) {

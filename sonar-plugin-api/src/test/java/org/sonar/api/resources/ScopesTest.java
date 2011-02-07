@@ -33,7 +33,7 @@ public class ScopesTest {
     assertThat(Scopes.isDirectory(resource), is(false));
     assertThat(Scopes.isFile(resource), is(false));
     assertThat(Scopes.isBlockUnit(resource), is(false));
-    assertThat(Scopes.isType(resource), is(false));
+    assertThat(Scopes.isProgramUnit(resource), is(false));
   }
 
   @Test
@@ -43,7 +43,7 @@ public class ScopesTest {
     assertThat(Scopes.isDirectory(resource), is(false));
     assertThat(Scopes.isFile(resource), is(false));
     assertThat(Scopes.isBlockUnit(resource), is(false));
-    assertThat(Scopes.isType(resource), is(false));
+    assertThat(Scopes.isProgramUnit(resource), is(false));
   }
 
   @Test
@@ -53,7 +53,7 @@ public class ScopesTest {
     assertThat(Scopes.isDirectory(resource), is(true));
     assertThat(Scopes.isFile(resource), is(false));
     assertThat(Scopes.isBlockUnit(resource), is(false));
-    assertThat(Scopes.isType(resource), is(false));
+    assertThat(Scopes.isProgramUnit(resource), is(false));
   }
 
   @Test
@@ -63,7 +63,7 @@ public class ScopesTest {
     assertThat(Scopes.isDirectory(resource), is(false));
     assertThat(Scopes.isFile(resource), is(true));
     assertThat(Scopes.isBlockUnit(resource), is(false));
-    assertThat(Scopes.isType(resource), is(false));
+    assertThat(Scopes.isProgramUnit(resource), is(false));
   }
 
   @Test

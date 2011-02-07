@@ -25,9 +25,9 @@ import org.apache.commons.lang.StringUtils;
 /**
  * Resource scopes are used to group some types of resources. For example Java methods, Flex methods, C functions
  * and Cobol paragraphs are grouped in the scope "block unit".
- * 
+ * <p/>
  * Scopes are generally used in UI to display/hide some services or in web services.
- *
+ * <p/>
  * Scopes are not extensible by plugins.
  *
  * @since 2.6
@@ -37,6 +37,7 @@ public final class Scopes {
   private Scopes() {
     // only static methods
   }
+
   /**
    * For example view, subview, project, module or library. Persisted in database.
    */
@@ -57,14 +58,14 @@ public final class Scopes {
   /**
    * Types like Java classes/interfaces. Not persisted in database.
    */
-  public static final String TYPE = "TYP";
+  public static final String PROGRAM_UNIT = "PGU";
 
   /**
    * Block units like methods, functions or Cobol paragraphs.
    */
   public static final String BLOCK_UNIT = "BLU";
 
-  public static final String[] SORTED_SCOPES = {PROJECT, DIRECTORY, FILE, TYPE, BLOCK_UNIT};
+  public static final String[] SORTED_SCOPES = {PROJECT, DIRECTORY, FILE, PROGRAM_UNIT, BLOCK_UNIT};
 
 
   public static boolean isProject(final Resource resource) {
@@ -75,12 +76,18 @@ public final class Scopes {
     return StringUtils.equals(DIRECTORY, resource.getScope());
   }
 
+  /**
+   * This scope is sometimes called a "compilation unit".
+   */
   public static boolean isFile(final Resource resource) {
     return StringUtils.equals(FILE, resource.getScope());
   }
 
-  public static boolean isType(final Resource resource) {
-    return StringUtils.equals(TYPE, resource.getScope());
+  /**
+   * A program unit can be a Java class.
+   */
+  public static boolean isProgramUnit(final Resource resource) {
+    return StringUtils.equals(PROGRAM_UNIT, resource.getScope());
   }
 
   public static boolean isBlockUnit(final Resource resource) {
@@ -94,7 +101,7 @@ public final class Scopes {
   public static boolean isHigherThan(final String scope, final String than) {
     int index = ArrayUtils.indexOf(SORTED_SCOPES, scope);
     int thanIndex = ArrayUtils.indexOf(SORTED_SCOPES, than);
-    return index<thanIndex;
+    return index < thanIndex;
   }
 
   public static boolean isHigherThanOrEquals(final Resource resource, final String than) {
@@ -104,6 +111,6 @@ public final class Scopes {
   public static boolean isHigherThanOrEquals(final String scope, final String than) {
     int index = ArrayUtils.indexOf(SORTED_SCOPES, scope);
     int thanIndex = ArrayUtils.indexOf(SORTED_SCOPES, than);
-    return index<=thanIndex;
+    return index <= thanIndex;
   }
 }

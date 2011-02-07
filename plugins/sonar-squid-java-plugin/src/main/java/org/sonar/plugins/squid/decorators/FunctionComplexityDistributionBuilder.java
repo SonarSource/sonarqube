@@ -66,7 +66,7 @@ public final class FunctionComplexityDistributionBuilder implements Decorator {
   }
 
   boolean shouldExecuteOn(Resource resource, DecoratorContext context) {
-    return Scopes.isType(resource) && context.getMeasure(CoreMetrics.COMPLEXITY) != null;
+    return Scopes.isProgramUnit(resource) && context.getMeasure(CoreMetrics.COMPLEXITY) != null;
   }
 
   public boolean shouldExecuteOnProject(Project project) {

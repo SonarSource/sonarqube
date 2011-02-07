@@ -27,7 +27,7 @@ import org.sonar.api.resources.*;
  */
 public final class JavaClass extends Resource {
 
-  public static final String SCOPE = Scopes.TYPE;
+  public static final String SCOPE = Scopes.PROGRAM_UNIT;
   public static final String QUALIFIER = Qualifiers.CLASS;
   public static final int UNKNOWN_LINE = -1;
 
