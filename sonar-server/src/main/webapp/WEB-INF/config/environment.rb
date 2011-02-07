@@ -209,44 +209,6 @@ module JdbcSpec
   end
 end
 
-module ActionView
-  module Helpers
-    module NumberHelper
-
-      def number_with_precision(number, *args)
-        options = args.extract_options!
-        options.symbolize_keys!
-
-        defaults           = I18n.translate('number.format', :locale => options[:locale], :raise => true) rescue {}
-
-        # SONAR : do not merge with 'number.precision.format'. It usually removes definitions of delimiter and separator.
-        # It looks to be fixed in Rails 2.3.
-        #precision_defaults = I18n.translate('number.precision.format''number.precision.format', :locale => options[:locale],
-        #defaults           = defaults.merge(precision_defaults)
-
-        unless args.empty?
-          ActiveSupport::Deprecation.warn('number_with_precision takes an option hash ' +
-            'instead of a separate precision argument.', caller)
-          precision = args[0] || defaults[:precision]
-        end
-
-        precision ||= (options[:precision] || defaults[:precision])
-        separator ||= (options[:separator] || defaults[:separator])
-        delimiter ||= (options[:delimiter] || defaults[:delimiter])
-
-        begin
-          rounded_number = (Float(number) * (10 ** precision)).round.to_f / 10 ** precision
-          number_with_delimiter("%01.#{precision}f" % rounded_number,
-            :separator => separator,
-            :delimiter => delimiter)
-        rescue
-          number
-        end
-      end
-    end
-  end
-end
-
 # patch for SONAR-1182. GWT does not support ISO8601 dates that end with 'Z'
 # http://google-web-toolkit.googlecode.com/svn/javadoc/1.6/com/google/gwt/i18n/client/DateTimeFormat.html
 module ActiveSupport
@@ -258,9 +220,11 @@ module ActiveSupport
   end
 end
 
+#
 # other patches :
-# - activerecord 2.2.2: fix Oracle bug when more than 1000 elements in IN clause. See lib/active_record/association_preload.rb
-# See https://rails.lighthouseapp.com/projects/8994/tickets/1533-preloading-more-than-1000-associated-records-causes-activerecordstatementinvalid-when-using-oracle
+# - activerecord : fix Oracle bug when more than 1000 elements in IN clause. See lib/active_record/association_preload.rb
+#   See https://rails.lighthouseapp.com/projects/8994/tickets/1533-preloading-more-than-1000-associated-records-causes-activerecordstatementinvalid-when-using-oracle
+# - actionview NumberHelper, patch for number_with_precision()
 
 require File.dirname(__FILE__) + '/../lib/sonar_webservice_plugins.rb'
 require File.dirname(__FILE__) + '/../lib/database_version.rb'

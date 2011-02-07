@@ -333,14 +333,22 @@ module ActiveRecord
             end
           end
           conditions = "#{table_name}.#{connection.quote_column_name(primary_key)} #{in_or_equals_for_ids(ids)}"
+
+          #SONAR
+          conditions = ([conditions] * (ids.size.to_f/1000).ceil).join(" OR ")
+          #SONAR
+
           conditions << append_conditions(reflection, preload_options)
+
+          #SONAR
           associated_records = klass.with_exclusive_scope do
-            klass.find(:all, :conditions => [conditions, ids],
+            klass.find(:all, :conditions => [conditions, *ids.in_groups_of(1000, false)],
                                           :include => options[:include],
                                           :select => options[:select],
                                           :joins => options[:joins],
                                           :order => options[:order])
           end
+          #SONAR
           set_association_single_records(id_map, reflection.name, associated_records, primary_key)
         end
       end
@@ -355,6 +363,10 @@ module ActiveRecord
           foreign_key = reflection.primary_key_name
           conditions = "#{reflection.klass.quoted_table_name}.#{foreign_key} #{in_or_equals_for_ids(ids)}"
         end
+
+        #SONAR patch for Oracle IN clause with more than 1000 elements
+        conditions = ([conditions] * (ids.size.to_f/1000).ceil).join(" OR ")
+        #SONAR
 
         conditions << append_conditions(reflection, preload_options)
 

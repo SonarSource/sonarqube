@@ -198,9 +198,13 @@ module ActionView
         options.symbolize_keys!
 
         defaults           = I18n.translate(:'number.format', :locale => options[:locale], :raise => true) rescue {}
-        precision_defaults = I18n.translate(:'number.precision.format', :locale => options[:locale],
-                                                                        :raise => true) rescue {}
-        defaults           = defaults.merge(precision_defaults)
+
+        #SONAR do not merge with 'number.precision.format'. It usually removes definitions of delimiter and separator.
+        # The 2 following statements must be commented:
+        #precision_defaults = I18n.translate(:'number.precision.format', :locale => options[:locale],
+        #                                                                :raise => true) rescue {}
+        #defaults           = defaults.merge(precision_defaults)
+        #SONAR
 
         unless args.empty?
           ActiveSupport::Deprecation.warn('number_with_precision takes an option hash ' +
