@@ -69,7 +69,7 @@ public final class DbCleanerPlugin implements Plugin {
 
         // purges
         PurgeOrphanResources.class, PurgeEntities.class, PurgeRuleMeasures.class, PurgeUnprocessed.class,
-        PurgeDeletedResources.class, PurgeDeprecatedLast.class, UnflagLastDoublons.class, PurgeDisabledResources.class,
+        PurgeDeletedResources.class, PurgeDeprecatedLast.class, PurgeDisabledResources.class,
         PurgeResourceRoles.class, PurgeEventOrphans.class, PurgePropertyOrphans.class, PeriodPurge.class, PurgeDependencies.class,
 
         // post-job
