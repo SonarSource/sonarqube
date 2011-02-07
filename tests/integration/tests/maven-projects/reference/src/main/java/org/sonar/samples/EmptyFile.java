@@ -1,1 +1,0 @@
-// empty class file with only a comment see http://jira.codehaus.org/browse/SONAR-864
