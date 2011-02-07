@@ -533,7 +533,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MINOR</priority>
     <name><![CDATA[Constant Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ConstantName]]></configKey>
-
+    <cardinality>MULTIPLE</cardinality>
     <description>
       <![CDATA[Checks that constant names conform to the specified format]]></description>
     <param key="format" type="r">
@@ -1612,7 +1612,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
 <priority>MAJOR</priority>
     <name><![CDATA[Static Variable Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/StaticVariableName]]></configKey>
-
+    <cardinality>MULTIPLE</cardinality>
     <description>
       <![CDATA[Checks that static, non-final fields conform to the specified format]]></description>
     <param key="format" type="r">
@@ -1724,9 +1724,10 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
   </rule>-->
 
   <rule key="com.puppycrawl.tools.checkstyle.checks.naming.TypeNameCheck" >
-<priority>MAJOR</priority>
+    <priority>MAJOR</priority>
     <name><![CDATA[Type Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/TypeName]]></configKey>
+    <cardinality>MULTIPLE</cardinality>
     <description><![CDATA[Checks that type names conform to the specified format]]></description>
     <param key="format" type="r">
       <defaultValue>^[A-Z][a-zA-Z0-9]*$</defaultValue>
