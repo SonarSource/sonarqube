@@ -26,6 +26,7 @@ import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.resources.Java;
+import org.sonar.plugins.core.batch.MavenInitializer;
 import org.sonar.plugins.core.batch.ExcludedResourceFilter;
 import org.sonar.plugins.core.charts.DistributionAreaChart;
 import org.sonar.plugins.core.charts.DistributionBarChart;
@@ -170,6 +171,9 @@ public class CorePlugin implements Plugin {
 
   public List getExtensions() {
     List extensions = Lists.newLinkedList();
+
+    // maven
+    extensions.add(MavenInitializer.class);
 
     // languages
     extensions.add(Java.class);

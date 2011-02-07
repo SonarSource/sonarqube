@@ -19,24 +19,21 @@
  */
 package org.sonar.batch;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.apache.commons.configuration.*;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.maven.project.MavenProject;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.maven.MavenUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
-import org.sonar.java.api.JavaUtils;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class MavenProjectBuilder {
 
@@ -78,26 +75,6 @@ public class MavenProjectBuilder {
   void configure(Project project, Configuration projectConfiguration) {
     Date analysisDate = loadAnalysisDate(projectConfiguration);
     MavenProject pom = project.getPom();
-    if (pom != null) {
-      /*
-       * TODO actually this is a dirty hack
-       * See http://jira.codehaus.org/browse/SONAR-2148
-       * Get Java source and target versions from maven-compiler-plugin.
-       */
-      if (StringUtils.isBlank(projectConfiguration.getString(JavaUtils.JAVA_SOURCE_PROPERTY))) {
-        projectConfiguration.setProperty(JavaUtils.JAVA_SOURCE_PROPERTY, MavenUtils.getJavaSourceVersion(pom));
-      }
-      if (StringUtils.isBlank(projectConfiguration.getString(JavaUtils.JAVA_TARGET_PROPERTY))) {
-        projectConfiguration.setProperty(JavaUtils.JAVA_TARGET_PROPERTY, MavenUtils.getJavaVersion(pom));
-      }
-      /*
-       * See http://jira.codehaus.org/browse/SONAR-2151
-       * Get source encoding from POM
-       */
-      if (StringUtils.isBlank(projectConfiguration.getString(CoreProperties.ENCODING_PROPERTY))) {
-        projectConfiguration.setProperty(CoreProperties.ENCODING_PROPERTY, MavenUtils.getSourceEncoding(pom));
-      }
-    }
     project.setConfiguration(projectConfiguration)
         .setExclusionPatterns(loadExclusionPatterns(projectConfiguration))
         .setAnalysisDate(analysisDate)
