@@ -294,7 +294,10 @@ public final class DefaultIndex extends SonarIndex {
     Resource resource = violation.getResource();
     if (resource == null) {
       violation.setResource(currentProject);
+    } else if (!Scopes.isHigherThanOrEquals(resource, Scopes.FILE)){
+      throw new IllegalArgumentException("Violations are only supported on files, directories and project");
     }
+    
     Bucket bucket = checkIndexed(resource);
     if (bucket != null && !bucket.isExcluded()) {
       boolean isIgnored = !force && violationFilters != null && violationFilters.isIgnored(violation);
