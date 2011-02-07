@@ -424,6 +424,8 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
     <param key="format" type="r">
       <defaultValue>^Abstract.*$|^.*Factory$</defaultValue>
     </param>
+    <!--
+    Not supported yet
     <param key="ignoreModifier" type="b">
       <description>Controls whether to ignore checking for the abstract modifier on classes that match the name.</description>
       <defaultValue>false</defaultValue>
@@ -432,7 +434,7 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
       <description>Controls whether to ignore checking the name. Realistically only useful if using the check to identify that match name and do not have the abstract modifier name.</description>
       <defaultValue>false</defaultValue>
     </param>
-
+    -->
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck" >
 <priority>MAJOR</priority>
