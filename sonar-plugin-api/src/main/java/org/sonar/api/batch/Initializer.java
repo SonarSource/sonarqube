@@ -17,26 +17,34 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.batch.maven;
+package org.sonar.api.batch;
 
 import org.sonar.api.BatchExtension;
-import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.resources.Project;
 
 /**
- * Can be used only for {@link org.sonar.api.batch.Initializer Initializers}, {@link org.sonar.api.batch.Sensor Sensors} and
- * {@link org.sonar.api.batch.PostJob PostJobs}.
- * 
  * <p>
- * If extension implements this interface, then it would be available only when Sonar executed from Maven. So we recommend to use this
- * interface for Initializers instead of Sensors.
+ * Initializer can execute external tool (like a Maven plugin), change project configuration. For example CoberturaMavenInitializer invokes
+ * the Codehaus Cobertura Mojo and sets path to Cobertura report according to Maven POM.
  * </p>
  * 
- * @since 1.10
+ * <p>
+ * Initializers are executed first and once during project analysis.
+ * </p>
+ * 
+ * @since 2.6
  */
-@SupportedEnvironment("maven")
-public interface DependsUponMavenPlugin extends BatchExtension {
+public abstract class Initializer implements BatchExtension, CheckProject {
 
-  MavenPluginHandler getMavenPluginHandler(Project project);
+  public boolean shouldExecuteOnProject(Project project) {
+    return true;
+  }
+
+  public abstract void execute(Project project);
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
+  }
 
 }

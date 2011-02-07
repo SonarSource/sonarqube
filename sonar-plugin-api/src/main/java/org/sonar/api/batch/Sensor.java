@@ -23,38 +23,41 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.resources.Project;
 
 /**
- * <p>A Sensor is invoked once during the analysis of a project. The sensor can invoke a maven plugin,
- * parse a flat file, connect to a web server... For example the Cobertura Sensor invokes the Codehaus Cobertura MOJO.
- * Then the generated XML file is parsed and used to save the first-level of measures on resources
- * (project, package or class).</p>
- *
- * <p>Sensors are executed first during project analysis. Sensor are generally used to add measure at the
- * lowest level of the resource tree. A sensor can access and save measures on the whole tree of resources.</p>
- *
- * <p>A particular attention should be given to resource exclusion. Sonar already manages exclusions at file level : if
- * you try to save a measure on a resource that is excluded in the settings, then Sonar will not save the measure.
- * When handling a plugin or an external tool, you should make sure that exclusions are passed if you are going to get
- * back consolidated data.</p>
- *
+ * <p>
+ * A Sensor is invoked once during the analysis of a project. The sensor can parse a flat file, connect to a web server... Sensor are
+ * generally used to add measure at the lowest level of the resource tree. A sensor can access and save measures on the whole tree of
+ * resources.
+ * </p>
+ * 
+ * <p>
+ * For example the Cobertura Sensor parses Cobertura report and saves the first-level of measures on resources.
+ * </p>
+ * 
+ * <p>
+ * A particular attention should be given to resource exclusion. Sonar already manages exclusions at file level : if you try to save a
+ * measure on a resource that is excluded in the settings, then Sonar will not save the measure. When handling a plugin or an external tool,
+ * you should make sure that exclusions are passed if you are going to get back consolidated data.
+ * </p>
+ * 
  * @since 1.10
  */
 public interface Sensor extends BatchExtension, CheckProject {
 
   /**
    * Sensors that depend upon Squid must declare the following method :
-   * <code>
-   *
-   * @DependsUpon public String dependsUponSquidAnalysis() {
-   * return Sensor.FLAG_SQUID_ANALYSIS;
+   * 
+   * <pre>
+   * &#064;DependsUpon
+   * public String dependsUponSquidAnalysis() {
+   *   return Sensor.FLAG_SQUID_ANALYSIS;
    * }
-   * </code>
-   * }
+   * </pre>
    */
   String FLAG_SQUID_ANALYSIS = "squid";
 
   /**
    * The method that is going to be run when the sensor is called
-   *
+   * 
    * @param project the project the sensor runs on
    * @param context the context
    */

@@ -19,27 +19,28 @@
  */
 package org.sonar.batch.phases;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.PersistenceManager;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 public final class Phases {
 
   public static Collection<Class> getPhaseClasses() {
-    return Arrays.<Class>asList(
+    return Arrays.<Class> asList(
         DecoratorsExecutor.class, MavenPhaseExecutor.class, MavenPluginsConfigurator.class,
-        PostJobsExecutor.class, SensorsExecutor.class, UpdateStatusJob.class
-    );
+        PostJobsExecutor.class, SensorsExecutor.class, UpdateStatusJob.class,
+        InitializersExecutor.class);
   }
 
   private DecoratorsExecutor decoratorsExecutor;
   private MavenPhaseExecutor mavenPhaseExecutor;
   private MavenPluginsConfigurator mavenPluginsConfigurator;
   private PostJobsExecutor postJobsExecutor;
+  private InitializersExecutor initializersExecutor;
   private SensorsExecutor sensorsExecutor;
   private UpdateStatusJob updateStatusJob;
   private PersistenceManager persistenceManager;
@@ -47,13 +48,14 @@ public final class Phases {
   private DefaultIndex index;
 
   public Phases(DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
-                MavenPluginsConfigurator mavenPluginsConfigurator,
+                MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
                 PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor, UpdateStatusJob updateStatusJob,
                 PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index) {
     this.decoratorsExecutor = decoratorsExecutor;
     this.mavenPhaseExecutor = mavenPhaseExecutor;
     this.mavenPluginsConfigurator = mavenPluginsConfigurator;
     this.postJobsExecutor = postJobsExecutor;
+    this.initializersExecutor = initializersExecutor;
     this.sensorsExecutor = sensorsExecutor;
     this.updateStatusJob = updateStatusJob;
     this.persistenceManager = persistenceManager;
@@ -67,6 +69,7 @@ public final class Phases {
   public void execute(Project project) {
     mavenPluginsConfigurator.execute(project);
     mavenPhaseExecutor.execute(project);
+    initializersExecutor.execute(project);
 
     persistenceManager.setDelayedMode(true);
     sensorsExecutor.execute(project, sensorContext);

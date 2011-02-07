@@ -19,28 +19,25 @@
  */
 package org.sonar.api.batch;
 
-import org.sonar.api.batch.Phase.Name;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+
+import org.junit.Test;
 import org.sonar.api.resources.Project;
 
-/**
- * @since 2.6
- */
-@Phase(name = Name.PRE)
-public abstract class AbstractInitializer implements Sensor {
+public class InitializerTest {
 
-  public boolean shouldExecuteOnProject(Project project) {
-    return true;
+  @Test
+  public void shouldBeExecutedByDefault() {
+    Project project = mock(Project.class);
+    assertThat(new FakeInitializer().shouldExecuteOnProject(project), is(true));
   }
 
-  public void analyse(Project project, SensorContext context) {
-    prepare(project);
-  }
-
-  public abstract void prepare(Project project);
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
+  private class FakeInitializer extends Initializer {
+    @Override
+    public void execute(Project project) {
+    }
   }
 
 }

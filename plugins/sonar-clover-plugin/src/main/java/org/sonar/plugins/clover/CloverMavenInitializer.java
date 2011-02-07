@@ -20,10 +20,8 @@
 package org.sonar.plugins.clover;
 
 import org.apache.commons.configuration.Configuration;
-import org.sonar.api.batch.AbstractInitializer;
 import org.sonar.api.batch.CoverageExtension;
-import org.sonar.api.batch.Phase;
-import org.sonar.api.batch.Phase.Name;
+import org.sonar.api.batch.Initializer;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
@@ -33,8 +31,7 @@ import org.sonar.api.resources.Project;
  * Provides {@link CloverMavenPluginHandler} and configures correct path to report.
  * Enabled only in Maven environment.
  */
-@Phase(name = Name.PRE)
-public class CloverMavenInitializer extends AbstractInitializer implements CoverageExtension, DependsUponMavenPlugin {
+public class CloverMavenInitializer extends Initializer implements CoverageExtension, DependsUponMavenPlugin {
 
   private CloverMavenPluginHandler handler;
 
@@ -56,7 +53,7 @@ public class CloverMavenInitializer extends AbstractInitializer implements Cover
   }
 
   @Override
-  public void prepare(Project project) {
+  public void execute(Project project) {
     Configuration conf = project.getConfiguration();
     if (!conf.containsKey(CloverConstants.REPORT_PATH_PROPERTY)) {
       String report = getReportPathFromPluginConfiguration(project);
