@@ -19,6 +19,8 @@
  */
 package org.sonar.server.plugins;
 
+import java.util.List;
+
 import org.picocontainer.Characteristics;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.PicoContainer;
@@ -26,19 +28,15 @@ import org.sonar.api.Plugin;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.plugin.AbstractPluginRepository;
-import org.sonar.core.plugin.JpaPlugin;
-import org.sonar.core.plugin.JpaPluginDao;
 
 /**
  * @since 2.2
  */
 public class ServerPluginRepository extends AbstractPluginRepository {
 
-  private JpaPluginDao dao;
   private PluginClassLoaders classloaders;
 
-  public ServerPluginRepository(JpaPluginDao dao, PluginClassLoaders classloaders) {
-    this.dao = dao;
+  public ServerPluginRepository(PluginClassLoaders classloaders) {
     this.classloaders = classloaders;
   }
 
@@ -50,20 +48,18 @@ public class ServerPluginRepository extends AbstractPluginRepository {
 
   public void registerPlugins(MutablePicoContainer pico) {
     // Create ClassLoaders
-    for (JpaPlugin jpaPlugin : dao.getPlugins()) {
-      classloaders.getClassLoader(jpaPlugin.getKey());
-    }
-    classloaders.done();
+    List<PluginMetadata> register = classloaders.completeCreation();
     // Register plugins
-    for (JpaPlugin jpaPlugin : dao.getPlugins()) {
+    for (PluginMetadata pluginMetadata : register) {
       try {
-        Class pluginClass = classloaders.getClassLoader(jpaPlugin.getKey()).loadClass(jpaPlugin.getPluginClass());
+        Class pluginClass = classloaders.getClassLoader(pluginMetadata.getKey()).loadClass(pluginMetadata.getMainClass());
         pico.as(Characteristics.CACHE).addComponent(pluginClass);
         Plugin plugin = (Plugin) pico.getComponent(pluginClass);
-        registerPlugin(pico, plugin, jpaPlugin.getKey());
+        registerPlugin(pico, plugin, pluginMetadata.getKey());
 
       } catch (ClassNotFoundException e) {
-        throw new SonarException("Please check the plugin manifest. The main plugin class does not exist: " + jpaPlugin.getPluginClass(), e);
+        throw new SonarException(
+            "Please check the plugin manifest. The main plugin class does not exist: " + pluginMetadata.getMainClass(), e);
       }
     }
     invokeExtensionProviders(pico);

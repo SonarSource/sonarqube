@@ -19,16 +19,16 @@
  */
 package org.sonar.server.plugins;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.core.plugin.JpaPlugin;
 import org.sonar.updatecenter.common.PluginManifest;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @since 2.2
@@ -47,6 +47,7 @@ public class PluginMetadata {
   private String homepage;
   private boolean core;
   private boolean useChildFirstClassLoader;
+  private String basePlugin;
   private String[] dependencyPaths = new String[0];
   public List<File> deployedFiles = new ArrayList<File>();
 
@@ -167,6 +168,14 @@ public class PluginMetadata {
     return useChildFirstClassLoader;
   }
 
+  public void setBasePlugin(String key) {
+    this.basePlugin = key;
+  }
+
+  public String getBasePlugin() {
+    return basePlugin;
+  }
+
   public void setDependencyPaths(String[] paths) {
     this.dependencyPaths = paths;
   }
@@ -229,6 +238,7 @@ public class PluginMetadata {
     metadata.setDependencyPaths(manifest.getDependencies());
     metadata.setCore(corePlugin);
     metadata.setUseChildFirstClassLoader(manifest.isUseChildFirstClassLoader());
+    metadata.setBasePlugin(manifest.getExtendPlugin());
     return metadata;
   }
 
@@ -243,6 +253,7 @@ public class PluginMetadata {
     jpaPlugin.setHomepage(getHomepage());
     jpaPlugin.setCore(isCore());
     jpaPlugin.setUseChildFirstClassLoader(isUseChildFirstClassLoader());
+    jpaPlugin.setBasePlugin(getBasePlugin());
     jpaPlugin.removeFiles();
     for (File file : getDeployedFiles()) {
       jpaPlugin.createFile(file.getName());

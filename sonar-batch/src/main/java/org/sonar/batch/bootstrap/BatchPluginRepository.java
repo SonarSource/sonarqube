@@ -57,6 +57,7 @@ public class BatchPluginRepository extends AbstractPluginRepository {
   private ClassLoadersCollection classLoaders;
   private ExtensionDownloader extensionDownloader;
   private EnvironmentInformation environment;
+  private List<JpaPlugin> register;
 
   public BatchPluginRepository(JpaPluginDao dao, ExtensionDownloader extensionDownloader, EnvironmentInformation environment) {
     this.dao = dao;
@@ -69,36 +70,59 @@ public class BatchPluginRepository extends AbstractPluginRepository {
    * for unit tests only
    */
   BatchPluginRepository() {
+  }
 
+  private List<URL> download(JpaPlugin pluginMetadata) {
+    List<URL> urls = Lists.newArrayList();
+    for (JpaPluginFile pluginFile : pluginMetadata.getFiles()) {
+      File file = extensionDownloader.downloadExtension(pluginFile);
+      try {
+        urls.add(file.toURI().toURL());
+
+      } catch (MalformedURLException e) {
+        throw new SonarException("Can not get the URL of: " + file, e);
+      }
+    }
+    return urls;
   }
 
   public void start() {
+    register = Lists.newArrayList();
     classLoaders = new ClassLoadersCollection(Thread.currentThread().getContextClassLoader());
-    for (JpaPlugin pluginMetadata : dao.getPlugins()) {
-      String key = pluginMetadata.getKey();
-      List<URL> urls = Lists.newArrayList();
-      for (JpaPluginFile pluginFile : pluginMetadata.getFiles()) {
-        File file = extensionDownloader.downloadExtension(pluginFile);
-        try {
-          urls.add(file.toURI().toURL());
 
-        } catch (MalformedURLException e) {
-          throw new SonarException("Can not get the URL of: " + file, e);
-        }
+    List<JpaPlugin> jpaPlugins = dao.getPlugins();
+
+    for (JpaPlugin pluginMetadata : jpaPlugins) {
+      if (StringUtils.isEmpty(pluginMetadata.getBasePlugin())) {
+        String key = pluginMetadata.getKey();
+        List<URL> urls = download(pluginMetadata);
+        classLoaders.createClassLoader(key, urls, pluginMetadata.isUseChildFirstClassLoader() == Boolean.TRUE);
+        register.add(pluginMetadata);
       }
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Classloader of plugin " + key + ":");
-        for (URL url : urls) {
-          LOG.debug("   -> " + url);
-        }
-      }
-      classLoaders.createClassLoader(key, urls, pluginMetadata.isUseChildFirstClassLoader() == Boolean.TRUE);
     }
+
+    // Extend plugins by other plugins
+    for (JpaPlugin pluginMetadata : jpaPlugins) {
+      String pluginKey = pluginMetadata.getKey();
+      String basePluginKey = pluginMetadata.getBasePlugin();
+      if (StringUtils.isNotEmpty(basePluginKey)) {
+        if (classLoaders.get(basePluginKey) != null) {
+          LOG.debug("Plugin {} extends {}", pluginKey, basePluginKey);
+          List<URL> urls = download(pluginMetadata);
+          classLoaders.extend(basePluginKey, pluginKey, urls);
+          register.add(pluginMetadata);
+        } else {
+          // Ignored, because base plugin doesn't exists
+          LOG.warn("Plugin {} extends nonexistent plugin {}", pluginKey, basePluginKey);
+        }
+      }
+    }
+
     classLoaders.done();
   }
 
   public void registerPlugins(MutablePicoContainer pico) {
-    for (JpaPlugin pluginMetadata : dao.getPlugins()) {
+    for (JpaPlugin pluginMetadata : register) {
       try {
         Class claz = classLoaders.get(pluginMetadata.getKey()).loadClass(pluginMetadata.getPluginClass());
         Plugin plugin = (Plugin) claz.newInstance();

@@ -19,24 +19,27 @@
  */
 package org.sonar.server.plugins;
 
-import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.ServerComponent;
-import org.sonar.core.classloaders.ClassLoadersCollection;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.ServerComponent;
+import org.sonar.api.utils.Logs;
+import org.sonar.core.classloaders.ClassLoadersCollection;
+
 public class PluginClassLoaders implements ServerComponent {
 
   private ClassLoadersCollection classLoaders = new ClassLoadersCollection(getClass().getClassLoader());
 
-  public ClassLoader create(PluginMetadata plugin) {
-    return create(plugin.getKey(), plugin.getDeployedFiles(), plugin.isUseChildFirstClassLoader());
+  private List<PluginMetadata> metadata = Lists.newArrayList();
+
+  public void addForCreation(PluginMetadata plugin) {
+    metadata.add(plugin);
   }
 
   ClassLoader create(String pluginKey, Collection<File> classloaderFiles, boolean useChildFirstClassLoader) {
@@ -46,6 +49,18 @@ public class PluginClassLoaders implements ServerComponent {
         urls.add(toUrl(file));
       }
       return classLoaders.createClassLoader(pluginKey, urls, useChildFirstClassLoader);
+    } catch (MalformedURLException e) {
+      throw new RuntimeException("Fail to load the classloader of the plugin: " + pluginKey, e);
+    }
+  }
+
+  private void extend(String basePluginKey, String pluginKey, Collection<File> classloaderFiles) {
+    try {
+      List<URL> urls = Lists.newArrayList();
+      for (File file : classloaderFiles) {
+        urls.add(toUrl(file));
+      }
+      classLoaders.extend(basePluginKey, pluginKey, urls);
     } catch (MalformedURLException e) {
       throw new RuntimeException("Fail to load the classloader of the plugin: " + pluginKey, e);
     }
@@ -86,7 +101,30 @@ public class PluginClassLoaders implements ServerComponent {
     return clazz;
   }
 
-  public void done() {
+  public List<PluginMetadata> completeCreation() {
+    List<PluginMetadata> created = Lists.newArrayList();
+    for (PluginMetadata pluginMetadata : metadata) {
+      if (StringUtils.isEmpty(pluginMetadata.getBasePlugin())) {
+        create(pluginMetadata.getKey(), pluginMetadata.getDeployedFiles(), pluginMetadata.isUseChildFirstClassLoader());
+        created.add(pluginMetadata);
+      }
+    }
+    // Extend plugins by other plugins
+    for (PluginMetadata pluginMetadata : metadata) {
+      String pluginKey = pluginMetadata.getKey();
+      String basePluginKey = pluginMetadata.getBasePlugin();
+      if (StringUtils.isNotEmpty(pluginMetadata.getBasePlugin())) {
+        if (classLoaders.get(basePluginKey) != null) {
+          Logs.INFO.debug("Plugin {} extends {}", pluginKey, basePluginKey);
+          extend(basePluginKey, pluginKey, pluginMetadata.getDeployedFiles());
+          created.add(pluginMetadata);
+        } else {
+          // Ignored, because base plugin doesn't exists
+          Logs.INFO.warn("Plugin {} extends nonexistent plugin {}", pluginKey, basePluginKey);
+        }
+      }
+    }
     classLoaders.done();
+    return created;
   }
 }

@@ -91,6 +91,7 @@ public class PluginDeployerTest extends AbstractDbUnitTestCase {
     assertThat(deployedJar.isFile(), is(true));
 
     // check that the plugin has its own classloader
+    classloaders.completeCreation();
     ClassLoader classloader = classloaders.getClassLoader("foo");
     assertNotNull(classloader);
   }
@@ -118,6 +119,7 @@ public class PluginDeployerTest extends AbstractDbUnitTestCase {
     assertThat(deployedJar.isFile(), is(true));
 
     // check that the plugin has its own classloader
+    classloaders.completeCreation();
     ClassLoader classloader = classloaders.getClassLoader("buildbreaker");
     assertNotNull(classloader);
     assertNotNull(classloader.loadClass("org.sonar.plugins.buildbreaker.BuildBreakerPlugin"));
@@ -143,6 +145,7 @@ public class PluginDeployerTest extends AbstractDbUnitTestCase {
     assertThat(deployedJar.isFile(), is(true));
 
     // check that the extension is in the classloader
+    classloaders.completeCreation();
     ClassLoader classloader = classloaders.getClassLoader("foo");
     File extensionFile = FileUtils.toFile(classloader.getResource("foo-extension.txt"));
     assertThat(extensionFile.exists(), is(true));

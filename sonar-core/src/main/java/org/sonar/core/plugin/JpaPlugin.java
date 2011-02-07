@@ -78,16 +78,19 @@ public class JpaPlugin extends BaseIdentifiable {
 
   @Column(name = "core", updatable = true, nullable = true)
   private Boolean core;
-  
+
   @Column(name = "child_first_classloader", updatable = true, nullable = true)
   private Boolean childFirstClassLoader = Boolean.FALSE;
 
-  @Cascade({org.hibernate.annotations.CascadeType.SAVE_UPDATE,
+  @Column(name = "base_plugin", updatable = true, nullable = true)
+  private String basePlugin;
+
+  @Cascade({ org.hibernate.annotations.CascadeType.SAVE_UPDATE,
             org.hibernate.annotations.CascadeType.DELETE,
             org.hibernate.annotations.CascadeType.MERGE,
             org.hibernate.annotations.CascadeType.PERSIST,
-            org.hibernate.annotations.CascadeType.DELETE_ORPHAN})
-  @OneToMany(mappedBy = "plugin", cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+            org.hibernate.annotations.CascadeType.DELETE_ORPHAN })
+  @OneToMany(mappedBy = "plugin", cascade = { CascadeType.ALL }, fetch = FetchType.EAGER)
   private List<JpaPluginFile> files = new ArrayList<JpaPluginFile>();
 
   public JpaPlugin() {
@@ -216,6 +219,14 @@ public class JpaPlugin extends BaseIdentifiable {
   public JpaPlugin setUseChildFirstClassLoader(boolean use) {
     this.childFirstClassLoader = use;
     return this;
+  }
+
+  public String getBasePlugin() {
+    return basePlugin;
+  }
+
+  public void setBasePlugin(String basePlugin) {
+    this.basePlugin = basePlugin;
   }
 
   public void createFile(String filename) {

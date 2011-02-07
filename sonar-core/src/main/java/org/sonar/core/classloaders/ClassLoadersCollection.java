@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
@@ -32,8 +33,6 @@ import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
-
-import com.google.common.collect.Lists;
 
 /**
  * Encapsulates manipulations with ClassLoaders, such as creation and establishing dependencies. Current implementation based on
@@ -108,13 +107,27 @@ public class ClassLoadersCollection {
     }
   }
 
+  public void extend(String baseKey, String key, Collection<URL> urls) {
+    try {
+      ClassRealm base = world.getRealm(baseKey);
+      base.createChildRealm(key); // we create new realm to be able to return it by key without conversion to baseKey
+      for (URL url : urls) {
+        base.addURL(url);
+      }
+    } catch (NoSuchRealmException e) {
+      throw new SonarException(e);
+    } catch (DuplicateRealmException e) {
+      throw new SonarException(e);
+    }
+  }
+
   /**
    * Establishes dependencies among ClassLoaders.
    */
   public void done() {
     for (Object o : world.getRealms()) {
       ClassRealm realm = (ClassRealm) o;
-      if ( !StringUtils.endsWith(realm.getId(), "-parent")) {
+      if (!StringUtils.endsWith(realm.getId(), "-parent")) {
         String[] packagesToExport = new String[PREFIXES_TO_EXPORT.length];
         for (int i = 0; i < PREFIXES_TO_EXPORT.length; i++) {
           // important to have dot at the end of package name only for classworlds 1.1
@@ -132,7 +145,7 @@ public class ClassLoadersCollection {
     Logs.INFO.debug("Exporting " + Arrays.toString(packages) + " from " + realm.getId());
     for (Object o : world.getRealms()) {
       ClassRealm dep = (ClassRealm) o;
-      if ( !StringUtils.equals(dep.getId(), realm.getId())) {
+      if (!StringUtils.equals(dep.getId(), realm.getId())) {
         try {
           for (String packageName : packages) {
             dep.importFrom(realm.getId(), packageName);

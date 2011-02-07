@@ -22,13 +22,12 @@ package org.sonar.server.plugins;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 
-import org.junit.Test;
-import org.sonar.test.TestUtils;
-
-import com.google.common.collect.Lists;
-
 import java.io.File;
 import java.io.IOException;
+
+import com.google.common.collect.Lists;
+import org.junit.Test;
+import org.sonar.test.TestUtils;
 
 public class PluginClassLoadersTest {
 
@@ -43,7 +42,7 @@ public class PluginClassLoadersTest {
     assertNull(getClass().getClassLoader().getResource("foo.txt"));
 
     PluginClassLoaders classloaders = new PluginClassLoaders();
-    ClassLoader classloader = classloaders.create(metadata);
+    ClassLoader classloader = classloaders.create(metadata.getKey(), metadata.getDeployedFiles(), metadata.isUseChildFirstClassLoader());
 
     assertNotNull(classloader);
     assertNotNull(classloader.getResource("foo.txt"));
