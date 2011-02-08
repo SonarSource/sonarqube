@@ -841,23 +841,24 @@
 
   <developers>
     <developer>
+      <id>evgeny.mandrikov</id>
+      <name>Evgeny Mandrikov</name>
+      <email>evgeny.mandrikov@sonarsource.com</email>
+      <organization>SonarSource</organization>
+      <timezone>+3</timezone>
+    </developer>
+    <developer>
+      <id>fabrice.bellingard</id>
+      <name>Fabrice Bellingard</name>
+      <email>fabrice.bellingard@sonarsource.com</email>
+      <organization>SonarSource</organization>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
       <id>freddy.mallet</id>
       <name>Freddy Mallet</name>
       <email>freddy.mallet@sonarsource.com</email>
       <organization>SonarSource</organization>
-      <roles>
-        <role>product owner</role>
-      </roles>
-      <timezone>+1</timezone>
-    </developer>
-    <developer>
-      <id>simon.brandhof</id>
-      <name>Simon Brandhof</name>
-      <email>simon.brandhof@sonarsource.com</email>
-      <organization>SonarSource</organization>
-      <roles>
-        <role>developer</role>
-      </roles>
       <timezone>+1</timezone>
     </developer>
     <developer>
@@ -868,17 +869,15 @@
       <timezone>+1</timezone>
     </developer>
     <developer>
-      <id>godin</id>
-      <name>Evgeny Mandrikov</name>
-      <email>mandrikov@gmail.com</email>
-      <roles>
-        <role>developer</role>
-      </roles>
-      <timezone>+3</timezone>
+      <id>simon.brandhof</id>
+      <name>Simon Brandhof</name>
+      <email>simon.brandhof@sonarsource.com</email>
+      <organization>SonarSource</organization>
+      <timezone>+1</timezone>
     </developer>
   </developers>
-  <profiles>
 
+  <profiles>
     <profile>
       <id>all</id>
       <activation>
