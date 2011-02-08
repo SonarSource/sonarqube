@@ -238,7 +238,7 @@ public class PluginMetadata {
     metadata.setDependencyPaths(manifest.getDependencies());
     metadata.setCore(corePlugin);
     metadata.setUseChildFirstClassLoader(manifest.isUseChildFirstClassLoader());
-    metadata.setBasePlugin(manifest.getExtendPlugin());
+    metadata.setBasePlugin(manifest.getBasePlugin());
     return metadata;
   }
 
