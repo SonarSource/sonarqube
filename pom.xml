@@ -877,30 +877,6 @@
       <timezone>+3</timezone>
     </developer>
   </developers>
-
-  <contributors>
-    <contributor>
-      <name>Carlo Jelmini</name>
-    </contributor>
-    <contributor>
-      <name>Franck Arnulfo</name>
-    </contributor>
-    <contributor>
-      <name>Cedric Munger</name>
-    </contributor>
-    <contributor>
-      <name>Julien Lancelot</name>
-    </contributor>
-    <contributor>
-      <name>Jene Jasper</name>
-      <organization>ABZ</organization>
-      <organizationUrl>http://www.abz.nl/</organizationUrl>
-    </contributor>
-    <contributor>
-      <name>Andreas Klug</name>
-    </contributor>
-  </contributors>
-
   <profiles>
 
     <profile>
