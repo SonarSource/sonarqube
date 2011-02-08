@@ -23,7 +23,8 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.resources.Resource;
 
 /**
- * Filter resources to save. For example, ignore a resource if its path matches an exclusion pattern (defined on the project)
+ * Filter resources to save. For example, ignore a resource if its path matches an exclusion pattern (defined on the project).
+ * Filters are applied to files, directories and packages only.
  *
  * If the method start(), without parameters, exists, then it is executed at startup.
  *
