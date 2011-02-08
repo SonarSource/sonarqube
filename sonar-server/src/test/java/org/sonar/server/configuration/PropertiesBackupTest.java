@@ -20,14 +20,20 @@
 package org.sonar.server.configuration;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.CharEncoding;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.database.configuration.Property;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.sonar.test.TestUtils;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.collection.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -87,4 +93,19 @@ public class PropertiesBackupTest extends AbstractDbUnitTestCase {
     checkTables("shouldImportProperties", "properties");
   }
 
+  @Test
+  public void shouldImportMultilineProperties() throws Exception {
+    setupData("shouldImportMultilineProperties");
+
+    new Backup(getSession()).doImportXml(
+        FileUtils.readFileToString(
+            TestUtils.getResource(getClass(), "backup-with-multiline-property.xml"), CharEncoding.UTF_8));
+
+    getSession().commit();
+
+    Property property = getSession().getSingleResult(Property.class, "key", "sonar.multiline.secured");
+    assertThat(property.getValue(), startsWith("ONQwdcwcwwdadalkdmaiQGMqMVnhtAbhxwjjoVkHbWgx"));
+    assertThat(property.getValue(), endsWith("mmmm"));
+
+  }
 }
