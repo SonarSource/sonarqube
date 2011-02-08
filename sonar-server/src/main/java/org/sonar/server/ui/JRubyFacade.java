@@ -49,6 +49,7 @@ import org.sonar.updatecenter.common.Version;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public final class JRubyFacade implements ServerComponent {
 
@@ -157,7 +158,7 @@ public final class JRubyFacade implements ServerComponent {
     return getContainer().getComponent(RulesConsole.class).getRepository(repositoryKey);
   }
 
-  public List<RuleRepository> getRuleRepositoriesByLanguage(String languageKey) {
+  public Set<RuleRepository> getRuleRepositoriesByLanguage(String languageKey) {
     return getContainer().getComponent(RulesConsole.class).getRepositoriesByLanguage(languageKey);
   }
 

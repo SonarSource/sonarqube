@@ -50,7 +50,7 @@ class RulesConfigurationController < ApplicationController
     end
     
     init_params()
-    
+
     @select_plugins = ANY_SELECTION + java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| [repo.getName(true), repo.getKey()]}.sort
     @select_priority = ANY_SELECTION + RULE_PRIORITIES
     @select_status = [['Any',''], ["Active", STATUS_ACTIVE], ["Inactive", STATUS_INACTIVE]]

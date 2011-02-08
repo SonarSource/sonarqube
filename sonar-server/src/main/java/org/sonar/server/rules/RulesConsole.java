@@ -19,22 +19,23 @@
  */
 package org.sonar.server.rules;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.SetMultimap;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rules.RuleRepository;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public final class RulesConsole implements ServerComponent {
 
   private List<RuleRepository> repositories = Lists.newArrayList();
   private Map<String, RuleRepository> repositoryByKey = Maps.newHashMap();
-  private ListMultimap<String, RuleRepository> repositoriesByLanguage = ArrayListMultimap.create();
+  private SetMultimap<String, RuleRepository> repositoriesByLanguage = HashMultimap.create();
 
 
   public RulesConsole(RuleRepository[] repositories, DeprecatedRuleRepositories deprecatedRuleRepositories) {
@@ -47,12 +48,14 @@ public final class RulesConsole implements ServerComponent {
       this.repositories.addAll(deprecatedBridge.create());
     }
     for (RuleRepository repository : this.repositories) {
-      repositoriesByLanguage.put(repository.getLanguage(), repository);
-      repositoryByKey.put(repository.getKey(), repository);
+      if (!repositoryByKey.containsKey(repository.getKey())) {
+        repositoriesByLanguage.put(repository.getLanguage(), repository);
+        repositoryByKey.put(repository.getKey(), repository);
+      }
     }
   }
 
-  public List<RuleRepository> getRepositoriesByLanguage(String language) {
+  public Set<RuleRepository> getRepositoriesByLanguage(String language) {
     return repositoriesByLanguage.get(language);
   }
 
