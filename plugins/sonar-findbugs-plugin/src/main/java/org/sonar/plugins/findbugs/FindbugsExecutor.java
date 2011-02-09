@@ -19,23 +19,31 @@
  */
 package org.sonar.plugins.findbugs;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.lang.reflect.Field;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.*;
 import edu.umd.cs.findbugs.config.UserPreferences;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
-
-import java.io.File;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @since 2.4
@@ -57,6 +65,8 @@ public class FindbugsExecutor implements BatchExtension {
 
     OutputStream xmlOutput = null;
     try {
+      DetectorFactoryCollection detectorFactory = loadFindbugsPlugins();
+
       final FindBugs2 engine = new FindBugs2();
 
       Project project = configuration.getFindbugsProject();
@@ -85,7 +95,7 @@ public class FindbugsExecutor implements BatchExtension {
       engine.addFilter(configuration.saveIncludeConfigXml().getAbsolutePath(), true);
       engine.addFilter(configuration.saveExcludeConfigXml().getAbsolutePath(), false);
 
-      engine.setDetectorFactoryCollection(DetectorFactoryCollection.instance());
+      engine.setDetectorFactoryCollection(detectorFactory);
       engine.setAnalysisFeatureSettings(FindBugs.DEFAULT_EFFORT);
 
       engine.finishSettings();
@@ -93,6 +103,9 @@ public class FindbugsExecutor implements BatchExtension {
       Executors.newSingleThreadExecutor().submit(new FindbugsTask(engine)).get(configuration.getTimeout(), TimeUnit.MILLISECONDS);
 
       profiler.stop();
+
+      resetDetectorFactoryCollection();
+
       return xmlReport;
     } catch (Exception e) {
       throw new SonarException("Can not execute Findbugs", e);
@@ -113,6 +126,43 @@ public class FindbugsExecutor implements BatchExtension {
     public Object call() throws Exception {
       engine.execute();
       return null;
+    }
+  }
+
+  private DetectorFactoryCollection loadFindbugsPlugins() {
+    List<URL> plugins = Lists.newArrayList();
+    try {
+      Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources("findbugs.xml");
+      while (urls.hasMoreElements()) {
+        URL url = urls.nextElement();
+        String path = StringUtils.removeStart(StringUtils.substringBefore(url.toString(), "!"), "jar:");
+        Logs.INFO.info("Found findbugs plugin: " + path);
+        plugins.add(new URL(path));
+      }
+    } catch (IOException e) {
+      throw new SonarException(e);
+    }
+
+    resetDetectorFactoryCollection();
+    DetectorFactoryCollection detectorFactory = DetectorFactoryCollection.rawInstance();
+    detectorFactory.setPluginList(plugins.toArray(new URL[plugins.size()]));
+    for (Plugin plugin : detectorFactory.plugins()) {
+      Logs.INFO.info("Loaded plugin " + plugin.getPluginId());
+    }
+
+    return detectorFactory;
+  }
+
+  /**
+   * Unfortunately without reflection it's impossible to reset {@link DetectorFactoryCollection}.
+   */
+  private static void resetDetectorFactoryCollection() {
+    try {
+      Field field = DetectorFactoryCollection.class.getDeclaredField("theInstance");
+      field.setAccessible(true);
+      field.set(null, null);
+    } catch (Exception e) {
+      throw new SonarException(e);
     }
   }
 }
