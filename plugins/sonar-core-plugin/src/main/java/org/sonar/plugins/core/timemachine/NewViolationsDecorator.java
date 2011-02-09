@@ -59,8 +59,9 @@ public class NewViolationsDecorator implements Decorator {
 
   @DependedUpon
   public List<Metric> generatesMetric() {
-    return Arrays.asList(CoreMetrics.NEW_VIOLATIONS,
-        CoreMetrics.NEW_BLOCKER_VIOLATIONS, CoreMetrics.NEW_CRITICAL_VIOLATIONS, CoreMetrics.NEW_MAJOR_VIOLATIONS, CoreMetrics.NEW_MINOR_VIOLATIONS, CoreMetrics.NEW_INFO_VIOLATIONS);
+    return Arrays.asList(
+        CoreMetrics.NEW_VIOLATIONS, CoreMetrics.NEW_BLOCKER_VIOLATIONS, CoreMetrics.NEW_CRITICAL_VIOLATIONS,
+        CoreMetrics.NEW_MAJOR_VIOLATIONS, CoreMetrics.NEW_MINOR_VIOLATIONS, CoreMetrics.NEW_INFO_VIOLATIONS);
   }
 
   public void decorate(Resource resource, DecoratorContext context) {

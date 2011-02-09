@@ -30,6 +30,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.DefaultIndex;
 
@@ -89,10 +90,14 @@ public class DefaultTimeMachine implements TimeMachine {
     } else {
       sb.append("SELECT s.createdAt, m.metricId, m.value ");
     }
-    sb.append(" FROM " + MeasureModel.class.getSimpleName() + " m, " + Snapshot.class.getSimpleName() + " s WHERE m.snapshotId=s.id AND s.resourceId=:resourceId AND s.status=:status AND m.characteristic IS NULL AND s.qualifier<>:lib");
+    sb.append(" FROM ")
+        .append(MeasureModel.class.getSimpleName())
+        .append(" m, ")
+        .append(Snapshot.class.getSimpleName())
+        .append(" s WHERE m.snapshotId=s.id AND s.resourceId=:resourceId AND s.status=:status AND m.characteristic IS NULL AND s.qualifier<>:lib");
     params.put("resourceId", resource.getId());
     params.put("status", Snapshot.STATUS_PROCESSED);
-    params.put("lib", Project.QUALIFIER_LIB);
+    params.put("lib", Qualifiers.LIBRARY);
 
     sb.append(" AND m.ruleId IS NULL AND m.rulePriority IS NULL ");
     if (!metricIds.isEmpty()) {

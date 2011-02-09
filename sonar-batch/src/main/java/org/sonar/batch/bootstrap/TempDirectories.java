@@ -92,7 +92,9 @@ public final class TempDirectories {
 
     // Deleting temp directory does not work on MS Windows and Sun JVM because URLClassLoader locks JARs and resources.
     // The workaround is that sonar deletes orphans itself.
-    rootDir.setLastModified(System.currentTimeMillis() - AGE_BEFORE_DELETION - 60 * 60 * 1000); // older than AGE_BEFORE_DELETION to be sure that the current dir is deleted on mac and linux.
+
+    // older than AGE_BEFORE_DELETION to be sure that the current dir is deleted on mac and linux.
+    rootDir.setLastModified(System.currentTimeMillis() - AGE_BEFORE_DELETION - 60 * 60 * 1000);
 
     File[] directoriesToDelete = rootDir.getParentFile().listFiles((FileFilter) new AndFileFilter(Arrays.asList(
         DirectoryFileFilter.DIRECTORY, new PrefixFileFilter(DIR_PREFIX), new AgeFileFilter(System.currentTimeMillis() - AGE_BEFORE_DELETION))));

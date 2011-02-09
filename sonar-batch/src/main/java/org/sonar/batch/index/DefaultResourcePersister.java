@@ -25,10 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Library;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.resources.*;
 import org.sonar.api.utils.SonarException;
 
 import javax.persistence.NonUniqueResultException;
@@ -151,7 +148,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
 
       // see http://jira.codehaus.org/browse/SONAR-1850
       // The qualifier must be LIB, even if the resource is TRK, because this snapshot has no measures.
-      snapshot.setQualifier(Resource.QUALIFIER_LIB);
+      snapshot.setQualifier(Qualifiers.LIBRARY);
       snapshot = session.save(snapshot);
     }
     session.commit();
@@ -159,7 +156,8 @@ public final class DefaultResourcePersister implements ResourcePersister {
   }
 
   private Snapshot findLibrarySnapshot(Integer resourceId, String version) {
-    Query query = session.createQuery("from " + Snapshot.class.getSimpleName() + " s WHERE s.resourceId=:resourceId AND s.version=:version AND s.scope=:scope AND s.qualifier<>:qualifier AND s.last=:last");
+    Query query = session.createQuery("from " + Snapshot.class.getSimpleName() +
+        " s WHERE s.resourceId=:resourceId AND s.version=:version AND s.scope=:scope AND s.qualifier<>:qualifier AND s.last=:last");
     query.setParameter("resourceId", resourceId);
     query.setParameter("version", version);
     query.setParameter("scope", Resource.SCOPE_SET);
@@ -167,7 +165,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     query.setParameter("last", Boolean.TRUE);
     List<Snapshot> snapshots = query.getResultList();
     if (snapshots.isEmpty()) {
-      snapshots = session.getResults(Snapshot.class, "resourceId", resourceId, "version", version, "scope", Resource.SCOPE_SET, "qualifier", Resource.QUALIFIER_LIB);
+      snapshots = session.getResults(Snapshot.class, "resourceId", resourceId, "version", version, "scope", Scopes.PROJECT, "qualifier", Qualifiers.LIBRARY);
     }
     return (snapshots.isEmpty() ? null : snapshots.get(0));
   }
