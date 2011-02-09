@@ -36,9 +36,14 @@ public class Bootstrapper {
 
   private File bootDir;
   private String serverUrl;
+  private String productToken;
   private String serverVersion;
 
-  public Bootstrapper(String serverUrl, File workDir) {
+  /**
+   * @param productToken part of User-Agent request-header field - see http://tools.ietf.org/html/rfc1945#section-10.15
+   */
+  public Bootstrapper(String productToken, String serverUrl, File workDir) {
+    this.productToken = productToken;
     bootDir = new File(workDir, "batch");
     bootDir.mkdirs();
     if (serverUrl.endsWith("/")) {
@@ -128,13 +133,20 @@ public class Bootstrapper {
     }
   }
 
-  static HttpURLConnection newHttpConnection(URL url) throws IOException {
+  /**
+   * By convention, the product tokens are listed in order of their significance for identifying the application.
+   */
+  String getUserAgent() {
+    return "sonar-bootstrapper/" + BootstrapperVersion.getVersion() + " " + productToken;
+  }
+
+  HttpURLConnection newHttpConnection(URL url) throws IOException {
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
     connection.setConnectTimeout(CONNECT_TIMEOUT_MILLISECONDS);
     connection.setReadTimeout(READ_TIMEOUT_MILLISECONDS);
     connection.setInstanceFollowRedirects(true);
     connection.setRequestMethod("GET");
-    // TODO connection.setRequestProperty("User-Agent", userAgent);
+    connection.setRequestProperty("User-Agent", getUserAgent());
     return connection;
   }
 

@@ -19,31 +19,39 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import org.junit.Test;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
 
 public class BootstrapperTest {
 
   @Test
   public void shouldRemoveLastUrlSlash() {
-    Bootstrapper bootstrapper = new Bootstrapper("http://test/", new File("target"));
+    Bootstrapper bootstrapper = new Bootstrapper("", "http://test/", new File("target"));
     assertThat(bootstrapper.getServerUrl(), is("http://test"));
   }
 
   @Test(expected = Exception.class)
   public void shouldFailIfCanNotConnectServer() {
-    Bootstrapper bootstrapper = new Bootstrapper("http://unknown.foo", new File("target"));
+    Bootstrapper bootstrapper = new Bootstrapper("", "http://unknown.foo", new File("target"));
     bootstrapper.getServerVersion();
   }
 
   @Test
+  public void shouldReturnUserAgent() {
+    Bootstrapper bootstrapper = new Bootstrapper("test/0.1", "http://unknown.foo", new File("target"));
+    String userAgent = bootstrapper.getUserAgent();
+    assertThat(userAgent.length(), greaterThan(0));
+    assertThat(userAgent, allOf(startsWith("sonar-bootstrapper/"), endsWith(" test/0.1")));
+  }
+
+  @Test
   public void shouldReturnValidVersion() {
-    Bootstrapper bootstrapper = new Bootstrapper("http://test", new File("target")) {
+    Bootstrapper bootstrapper = new Bootstrapper("", "http://test", new File("target")) {
       @Override
       String remoteContent(String path) throws IOException {
         return "2.6";
