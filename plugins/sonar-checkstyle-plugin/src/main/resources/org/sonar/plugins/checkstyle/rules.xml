@@ -171,8 +171,8 @@ should be refactored to:
 
 <rule key="com.puppycrawl.tools.checkstyle.checks.coding.NoCloneCheck" >
 <priority>MAJOR</priority>
-    <name><![CDATA[No Clone Check]]></name>
-    <configKey><![CDATA[Checker/TreeWalker/NoCloneCheck]]></configKey>
+    <name><![CDATA[No Clone]]></name>
+    <configKey><![CDATA[Checker/TreeWalker/NoClone]]></configKey>
 
     <description><![CDATA[<p> Checks that the clone method is not overridden from the Object class.</p>
 
