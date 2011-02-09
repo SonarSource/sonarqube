@@ -366,8 +366,7 @@ public class Project extends Resource {
   }
 
   /**
-   * @deprecated since 2.6. See http://jira.codehaus.org/browse/SONAR-2126
-   *             ProjectFileSystem can be retrieved as an IoC dependency
+   * Note: it's better to get a reference on ProjectFileSystem as an IoC dependency (constructor parameter)
    */
   public ProjectFileSystem getFileSystem() {
     return fileSystem;
