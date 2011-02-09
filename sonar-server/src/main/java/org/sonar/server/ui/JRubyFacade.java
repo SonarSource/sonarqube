@@ -234,10 +234,6 @@ public final class JRubyFacade implements ServerComponent {
     getAsyncMeasuresService().deleteMeasure(asyncMeasureId);
   }
 
-  private DefaultRulesManager getRulesManager() {
-    return getContainer().getComponent(DefaultRulesManager.class);
-  }
-
   private ProfilesManager getProfilesManager() {
     return getContainer().getComponent(ProfilesManager.class);
   }

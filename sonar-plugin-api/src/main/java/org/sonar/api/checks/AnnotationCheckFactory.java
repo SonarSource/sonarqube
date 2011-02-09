@@ -123,16 +123,16 @@ public final class AnnotationCheckFactory extends CheckFactory {
         field.setByte(check, Byte.parseByte(value));
 
       } else if (field.getType().equals(Integer.class)) {
-        field.set(check, new Integer(Integer.parseInt(value)));
+        field.set(check, Integer.parseInt(value));
 
       } else if (field.getType().equals(Long.class)) {
-        field.set(check, new Long(Long.parseLong(value)));
+        field.set(check, Long.parseLong(value));
 
       } else if (field.getType().equals(Double.class)) {
-        field.set(check, new Double(Double.parseDouble(value)));
+        field.set(check, Double.parseDouble(value));
 
       } else if (field.getType().equals(Boolean.class)) {
-        field.set(check, Boolean.valueOf(Boolean.parseBoolean(value)));
+        field.set(check, Boolean.parseBoolean(value));
 
       } else {
         throw new SonarException("The type of the field " + field + " is not supported: " + field.getType());

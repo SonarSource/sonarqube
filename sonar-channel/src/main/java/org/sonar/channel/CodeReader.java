@@ -125,7 +125,7 @@ public class CodeReader extends CodeBuffer {
   }
 
   /**
-   * @see peekTo(EndMatcher matcher, Appendable appendable)
+   * @deprecated use peekTo(EndMatcher matcher, Appendable appendable)
    */
   @Deprecated
   public final String peekTo(EndMatcher matcher) {
@@ -135,7 +135,7 @@ public class CodeReader extends CodeBuffer {
   }
 
   /**
-   * @see popTo(Matcher matcher, Appendable appendable)
+   * @deprecated use popTo(Matcher matcher, Appendable appendable)
    */
   @Deprecated
   public final void popTo(EndMatcher matcher, Appendable appendable) {

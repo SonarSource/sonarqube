@@ -188,8 +188,8 @@ public class XmlReportParser {
   }
 
   private boolean canBeIncludedInFileMetrics(SMInputCursor metricsCursor) throws ParseException, XMLStreamException {
-    // skip class elements on 1.x xml format
     while (metricsCursor.getNext() != null && metricsCursor.getLocalName().equals("class")) {
+      // skip class elements on 1.x xml format
     }
     return ParsingUtils.parseNumber(metricsCursor.getAttrValue("elements")) > 0;
   }

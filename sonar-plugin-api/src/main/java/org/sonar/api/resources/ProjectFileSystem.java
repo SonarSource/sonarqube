@@ -64,6 +64,7 @@ public interface ProjectFileSystem extends BatchComponent {
    * @deprecated since 2.6 - ProjectFileSystem should be immutable
    *             See http://jira.codehaus.org/browse/SONAR-2126
    */
+  @Deprecated
   ProjectFileSystem addSourceDir(File dir);
 
   /**
@@ -78,6 +79,7 @@ public interface ProjectFileSystem extends BatchComponent {
    * @deprecated since 2.6 - ProjectFileSystem should be immutable
    *             See http://jira.codehaus.org/browse/SONAR-2126
    */
+  @Deprecated
   ProjectFileSystem addTestDir(File dir);
 
   /**
@@ -100,7 +102,7 @@ public interface ProjectFileSystem extends BatchComponent {
    * Source files, excluding unit tests and files matching project exclusion patterns.
    * 
    * @param langs language filter. Check all files, whatever their language, if null or empty.
-   * @deprecated since 2.6 use {@link #mainFiles(Language...)} instead.
+   * @deprecated since 2.6 use {@link #mainFiles(String...)} instead.
    *             See http://jira.codehaus.org/browse/SONAR-2126
    */
   @Deprecated
@@ -109,7 +111,7 @@ public interface ProjectFileSystem extends BatchComponent {
   /**
    * Java source files, excluding unit tests and files matching project exclusion patterns. Shortcut for getSourceFiles(Java.INSTANCE)
    * 
-   * @deprecated since 2.6 use {@link #mainFiles(Language...)} instead.
+   * @deprecated since 2.6 use {@link #mainFiles(String...)} instead.
    *             See http://jira.codehaus.org/browse/SONAR-2126
    */
   @Deprecated
@@ -126,7 +128,7 @@ public interface ProjectFileSystem extends BatchComponent {
   /**
    * Unit test files, excluding files matching project exclusion patterns.
    * 
-   * @deprecated since 2.6 use {@link #testFiles(Language...)} instead.
+   * @deprecated since 2.6 use {@link #testFiles(String...)} instead.
    *             See http://jira.codehaus.org/browse/SONAR-2126
    */
   @Deprecated
@@ -160,7 +162,7 @@ public interface ProjectFileSystem extends BatchComponent {
   List<InputFile> mainFiles(String... langs);
 
   /**
-   * TODO comment me
+   * Source files of unit tests. Exclusion patterns are not applied.
    * 
    * @param langs language filter. If null or empty, will return empty list
    * @since 2.6

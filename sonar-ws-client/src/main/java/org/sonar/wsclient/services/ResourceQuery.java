@@ -141,6 +141,7 @@ public class ResourceQuery extends Query<Resource> {
    * @param ruleCategories values: Maintainability, Usability, Reliability, Efficiency, Portability
    * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
    */
+  @Deprecated
   public ResourceQuery setRuleCategories(String... ruleCategories) {
     return this;
   }
@@ -190,6 +191,7 @@ public class ResourceQuery extends Query<Resource> {
   /**
    * @deprecated since 2.5 not used anymore
    */
+  @Deprecated
   public boolean isExcludeRuleCategories() {
     return false;
   }
@@ -197,6 +199,7 @@ public class ResourceQuery extends Query<Resource> {
   /**
    * @deprecated since 2.5 not used anymore
    */
+  @Deprecated
   public ResourceQuery setExcludeRuleCategories(boolean b) {
     return this;
   }

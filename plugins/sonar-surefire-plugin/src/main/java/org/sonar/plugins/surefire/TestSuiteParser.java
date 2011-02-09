@@ -119,8 +119,8 @@ public class TestSuiteParser implements XmlStreamHandler {
         setStackAndMessage(detail, childNode);
       }
     }
-    // make sure we loop till the end of the elements cursor
     while (childNode.getNext() != null) {
+      // make sure we loop till the end of the elements cursor
     }
     detail.setTimeMS(time.intValue());
     detail.setStatus(status);

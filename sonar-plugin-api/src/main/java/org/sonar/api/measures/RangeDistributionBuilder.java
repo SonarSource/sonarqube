@@ -77,7 +77,7 @@ public class RangeDistributionBuilder implements MeasureBuilder {
     }
     if (onlyInts) {
       for (int i=0 ; i<bottomLimits.length ; i++) {
-        bottomLimits[i] = new Integer(bottomLimits[i].intValue());
+        bottomLimits[i] = bottomLimits[i].intValue();
       }
     }
   }
