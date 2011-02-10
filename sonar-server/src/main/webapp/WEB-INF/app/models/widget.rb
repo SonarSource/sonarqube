@@ -34,6 +34,14 @@ class Widget < ActiveRecord::Base
     nil
   end
 
+  def key
+    widget_key
+  end
+
+  def html_id
+    "block_#{id}"
+  end
+
   def property_value(key, default_value=nil)
     prop=property(key)
     (prop ? prop.value : nil) || default_value

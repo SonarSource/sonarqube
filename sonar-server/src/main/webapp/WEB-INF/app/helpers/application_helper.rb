@@ -215,9 +215,12 @@ module ApplicationHelper
     end
 
     if options[:resource]
-      url_for(:controller => 'drilldown', :action => 'measures', :id => options[:resource], :metric => metric_key, :highlight => options[:highlight], :viewer_plugin_key => options[:viewer_plugin_key])
+      url_for(:controller => 'drilldown', :action => 'measures', :id => options[:resource], :metric => metric_key,
+        :highlight => options[:highlight], :viewer_plugin_key => options[:viewer_plugin_key], :model => options[:model], :characteristic => options[:characteristic])
     elsif @project
-      url_for(:controller => 'drilldown', :action => 'measures', :id => @project.id, :metric => metric_key, :highlight => options[:highlight], :viewer_plugin_key => options[:viewer_plugin_key])
+      url_for(:controller => 'drilldown', :action => 'measures', :id => @project.id, :metric => metric_key,
+        :highlight => options[:highlight], :viewer_plugin_key => options[:viewer_plugin_key],
+        :model => options[:model], :characteristic => options[:characteristic])
     else
       ''
     end
