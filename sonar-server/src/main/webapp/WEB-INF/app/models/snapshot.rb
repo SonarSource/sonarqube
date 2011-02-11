@@ -200,6 +200,18 @@ class Snapshot < ActiveRecord::Base
     result
   end
 
+  def period_mode(period_index)
+    project_snapshot.send "period#{period_index}_mode"
+  end
+
+  def period_param(period_index)
+    project_snapshot.send "period#{period_index}_param"
+  end
+
+  def period_datetime(period_index)
+    project_snapshot.send "period#{period_index}_date"
+  end
+
   private
 
   def measures_hash

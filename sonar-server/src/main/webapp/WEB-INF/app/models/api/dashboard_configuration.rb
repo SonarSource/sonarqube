@@ -19,12 +19,13 @@
 #
 class Api::DashboardConfiguration
 
-  attr_accessor :dashboard, :period_index, :selected_period
+  attr_accessor :dashboard, :period_index, :selected_period, :snapshot
 
   def initialize(dashboard, options={})
     @dashboard=dashboard
     @period_index=options[:period_index].to_i
     @selected_period=(@period_index>0)
+    @snapshot=options[:snapshot]
   end
 
   def name
@@ -47,4 +48,11 @@ class Api::DashboardConfiguration
     @selected_period
   end
 
+  def from_datetime
+    if selected_period? && @snapshot
+      @snapshot.period_datetime(@period_index)
+    else
+      nil
+    end
+  end
 end

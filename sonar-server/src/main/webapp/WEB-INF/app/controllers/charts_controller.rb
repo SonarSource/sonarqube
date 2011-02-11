@@ -31,18 +31,26 @@ class ChartsController < ApplicationController
 
 
     metric_keys=params[:metrics]
-    metrics=[]
+    metric_ids=[]
     if metric_keys
       metric_keys.split(',').each do |key|
-        metrics<<Metric.by_key(key)
+        metric_ids<<Metric.by_key(key)
       end
     end
-    unless metrics.empty?
+    unless metric_ids.empty?
       width=(params[:w] ? params[:w].to_i :  DEFAULT_TRENDS_WIDTH)
       height=(params[:h] ? params[:h].to_i :  DEFAULT_TRENDS_HEIGHT)
       display_legend = (params[:legend] ? params[:legend]=='true' : true)
 
-      stream = TrendsChart.png_chart(width, height, resource, metrics, params[:sids], params[:locale] || I18n.locale, display_legend)
+      options={}
+      if params[:from]
+        options[:from]=Date::strptime(params[:from])
+      end
+      if params[:to]
+        options[:to]=Date::strptime(params[:to])
+      end
+
+      stream = TrendsChart.png_chart(width, height, resource, metric_ids, params[:locale] || I18n.locale, display_legend, options)
       send_data stream, :type => 'image/png', :disposition => 'inline' 
     end
   end

@@ -26,21 +26,21 @@ class DashboardController < ApplicationController
 
   def index
     # TODO display error page if no dashboard or no resource
-    load_dashboard()
     load_resource()
+    load_dashboard()
     load_authorized_widget_definitions()
   end
 
   def configure
     # TODO display error page if no dashboard or no resource
-    load_dashboard()
     load_resource()
+    load_dashboard()
     load_widget_definitions()
   end
 
   def edit_layout
-    load_dashboard()
     load_resource()
+    load_dashboard()
   end
 
   def set_layout
@@ -169,7 +169,7 @@ class DashboardController < ApplicationController
       end
     end
     @dashboard=(@active ? @active.dashboard : nil)
-    @dashboard_configuration=Api::DashboardConfiguration.new(@dashboard, :period_index => params[:period])
+    @dashboard_configuration=Api::DashboardConfiguration.new(@dashboard, :period_index => params[:period], :snapshot => @snapshot)
   end
 
   def load_resource

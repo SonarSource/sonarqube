@@ -77,9 +77,9 @@ module ApplicationHelper
 
   def period_label(snapshot, period_index)
     return nil if snapshot.nil? || snapshot.project_snapshot.nil?
-    mode=snapshot.project_snapshot.send "period#{period_index}_mode"
-    mode_param=snapshot.project_snapshot.send "period#{period_index}_param"
-    date=snapshot.project_snapshot.send "period#{period_index}_date"
+    mode=snapshot.period_mode(period_index)
+    mode_param=snapshot.period_param(period_index)
+    date=snapshot.period_datetime(period_index)
 
     label=nil
     if mode

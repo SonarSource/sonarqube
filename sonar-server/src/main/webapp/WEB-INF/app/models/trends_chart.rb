@@ -19,13 +19,13 @@
 #
 class TrendsChart
 
-  def self.png_chart(width, height, resource, metrics, snapshots_id, locale, display_legend)
+  def self.png_chart(width, height, resource, metrics, locale, display_legend, options={})
     java_chart = Java::OrgSonarServerChartsJruby::TrendsChart.new(width, height, locale.gsub(/\-/, '_'), display_legend)
 
     init_series(java_chart, metrics)
     metric_ids=metrics.map{|m| m.id}
-    add_measures(java_chart, time_machine_measures(resource, metric_ids))
-    add_measures(java_chart, time_machine_reviews(resource, metric_ids))
+    add_measures(java_chart, time_machine_measures(resource, metric_ids, options))
+    add_measures(java_chart, time_machine_reviews(resource, metric_ids, options))
     add_labels(java_chart, resource);
 
     export_chart_as_png(java_chart)
@@ -40,32 +40,56 @@ class TrendsChart
     end
   end
 
-  def self.time_machine_measures(resource, metric_ids)
+  def self.time_machine_measures(resource, metric_ids, options={})
     unless metric_ids.empty?
-      sql = Project.send(:sanitize_sql, [
-          "select s.created_at as created_at, m.value as value, m.metric_id as metric_id " +
+      sql= "select s.created_at as created_at, m.value as value, m.metric_id as metric_id " +
             " from project_measures m LEFT OUTER JOIN snapshots s ON s.id=m.snapshot_id " +
             " where m.rule_id is null " +
-            " and s.status='%s' " +
-            " and s.project_id=%s " +
-            " and m.metric_id in (%s) " + 
-            " and m.rule_priority is null and m.characteristic_id is null", Snapshot::STATUS_PROCESSED, resource.id, metric_ids * ','] )
-      ProjectMeasure.connection.select_all( sql )
+            " and s.status=? " +
+            " and s.project_id=? " +
+            " and m.metric_id in (?) " +
+            " and m.rule_priority is null and m.characteristic_id is null"
+      if (options[:from])
+        sql += ' and s.created_at>=?'
+      end
+      if (options[:to])
+        sql += ' and s.created_at<=?'
+      end
+      conditions=[sql, Snapshot::STATUS_PROCESSED, resource.id, metric_ids]
+      if (options[:from])
+        conditions<<options[:from]
+      end
+      if (options[:to])
+        conditions<<options[:to]
+      end
+      ProjectMeasure.connection.select_all(Project.send(:sanitize_sql, conditions))
     end
   end
   
-  def self.time_machine_reviews(resource, metric_ids)
+  def self.time_machine_reviews(resource, metric_ids, options={})
     unless metric_ids.empty?
-      sql = Project.send(:sanitize_sql, [
-          "SELECT m.measure_date as created_at, m.value as value, m.metric_id as metric_id " +
+    sql= "SELECT m.measure_date as created_at, m.value as value, m.metric_id as metric_id " +
             "FROM project_measures m " +
             "WHERE m.snapshot_id IS NULL " +
             "AND m.rule_id is null " +
-            "AND m.project_id=%s " +
-            "AND m.metric_id in (%s) " + 
-            "and m.rule_priority is null and m.characteristic_id IS NULL", resource.id, metric_ids * ','] )
-      ProjectMeasure.connection.select_all( sql )
-    end    
+            "AND m.project_id=? " +
+            "AND m.metric_id in (?) " +
+            "and m.rule_priority is null and m.characteristic_id IS NULL"
+      if (options[:from])
+        sql += ' and m.measure_date>=?'
+      end
+      if (options[:to])
+        sql += ' and m.measure_date<=?'
+      end
+      conditions=[sql, resource.id, metric_ids]
+      if (options[:from])
+        conditions<<options[:from]
+      end
+      if (options[:to])
+        conditions<<options[:to]
+      end
+      ProjectMeasure.connection.select_all(Project.send(:sanitize_sql, conditions))
+    end
   end  
   
   def self.add_measures(java_chart, sqlresult)
