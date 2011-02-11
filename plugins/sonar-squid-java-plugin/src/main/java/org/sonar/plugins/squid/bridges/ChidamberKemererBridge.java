@@ -32,12 +32,15 @@ public class ChidamberKemererBridge extends Bridge {
     super(true);
   }
 
-
   @Override
   public final void onFile(SourceFile squidFile, Resource sonarFile) {
     context.saveMeasure(sonarFile, CoreMetrics.DEPTH_IN_TREE, squidFile.getDouble(Metric.DIT));
     context.saveMeasure(sonarFile, CoreMetrics.NUMBER_OF_CHILDREN, squidFile.getDouble(Metric.NOC));
     context.saveMeasure(sonarFile, CoreMetrics.RFC, squidFile.getDouble(Metric.RFC));
-    context.saveMeasure(sonarFile, CoreMetrics.LCOM4, squidFile.getDouble(Metric.LCOM4));
+
+    double lcom4 = squidFile.getDouble(Metric.LCOM4);
+    if (lcom4>0.0) {
+      context.saveMeasure(sonarFile, CoreMetrics.LCOM4, lcom4);
+    }
   }
 }
