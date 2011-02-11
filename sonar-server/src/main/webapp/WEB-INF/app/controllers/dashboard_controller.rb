@@ -29,13 +29,20 @@ class DashboardController < ApplicationController
     load_resource()
     load_dashboard()
     load_authorized_widget_definitions()
+    unless @dashboard
+      redirect_to home_path
+    end
   end
 
   def configure
     # TODO display error page if no dashboard or no resource
     load_resource()
     load_dashboard()
-    load_widget_definitions()
+      load_widget_definitions()
+    unless @dashboard
+      redirect_to home_path
+    end
+
   end
 
   def edit_layout
@@ -169,7 +176,7 @@ class DashboardController < ApplicationController
       end
     end
     @dashboard=(@active ? @active.dashboard : nil)
-    @dashboard_configuration=Api::DashboardConfiguration.new(@dashboard, :period_index => params[:period], :snapshot => @snapshot)
+    @dashboard_configuration=Api::DashboardConfiguration.new(@dashboard, :period_index => params[:period], :snapshot => @snapshot) if @dashboard && @snapshot
   end
 
   def load_resource
@@ -185,16 +192,18 @@ class DashboardController < ApplicationController
   end
 
   def load_authorized_widget_definitions()
-    @widget_definitions = java_facade.getWidgets(@resource.scope, @resource.qualifier, @resource.language)
-    @widget_definitions=@widget_definitions.select do |widget|
-      authorized=widget.getUserRoles().size==0
-      unless authorized
-        widget.getUserRoles().each do |role|
-          authorized=(role=='user') || (role=='viewer') || has_role?(role, @resource)
-          break if authorized
+    if @resource
+      @widget_definitions = java_facade.getWidgets(@resource.scope, @resource.qualifier, @resource.language)
+      @widget_definitions=@widget_definitions.select do |widget|
+        authorized=widget.getUserRoles().size==0
+        unless authorized
+          widget.getUserRoles().each do |role|
+            authorized=(role=='user') || (role=='viewer') || has_role?(role, @resource)
+            break if authorized
+          end
         end
+        authorized
       end
-      authorized
     end
   end
 
