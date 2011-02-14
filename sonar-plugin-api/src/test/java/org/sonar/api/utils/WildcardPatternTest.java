@@ -19,12 +19,13 @@
  */
 package org.sonar.api.utils;
 
-import org.junit.Test;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+
+import org.junit.Ignore;
+import org.junit.Test;
 
 public class WildcardPatternTest {
 
@@ -100,6 +101,19 @@ public class WildcardPatternTest {
     assertFalse(match("**/Reader", "org/sonar/channel/CodeReader"));
 
     assertTrue(match("**", "java/io/Reader"));
+  }
+
+  /**
+   * See http://jira.codehaus.org/browse/SONAR-2193
+   */
+  @Ignore
+  @Test
+  public void issue2193() {
+    assertTrue(match("**/app/**", "com.app.Utils", "."));
+    assertFalse(match("**/app/**", "com.application.MyService", "."));
+
+    assertTrue(match("**/app/**", "com/app/Utils"));
+    assertFalse(match("**/app/**", "com/application/MyService"));
   }
 
   @Test
