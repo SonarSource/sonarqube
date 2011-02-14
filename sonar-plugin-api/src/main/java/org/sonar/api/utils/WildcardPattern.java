@@ -48,7 +48,7 @@ public class WildcardPattern {
     String patternStr = removeSlahesToIgnore(wildcardPattern);
     patternStr = StringUtils.replace(patternStr, "**/**", "**");
     patternStr = StringUtils.replace(patternStr, "**/", "(&/|)");
-    patternStr = StringUtils.replace(patternStr, "/**", "&");
+    patternStr = StringUtils.replace(patternStr, "/**", "/&");
     patternStr = StringUtils.replace(patternStr, "**", "&");
     StringBuilder sb = new StringBuilder();
 

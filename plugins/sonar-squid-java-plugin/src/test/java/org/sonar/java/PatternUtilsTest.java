@@ -34,6 +34,6 @@ public class PatternUtilsTest {
 
     assertThat(patterns.length, is(2));
     assertThat(patterns[0].match("org/sonar/Foo"), is(true));
-    assertThat(patterns[1].match("javax.Bar"), is(true));
+    assertThat(patterns[1].match("javax/Bar"), is(true));
   }
 }
