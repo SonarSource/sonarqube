@@ -25,7 +25,7 @@ import org.sonar.api.resources.*;
 /**
  * @since 2.6
  */
-public final class JavaMethod extends BlockUnit {
+public final class JavaMethod extends Method {
 
   public static final String QUALIFIER = Qualifiers.METHOD;
 
@@ -89,20 +89,6 @@ public final class JavaMethod extends BlockUnit {
   @Override
   public Resource getParent() {
     return null;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    JavaMethod that = (JavaMethod) o;
-    return getKey().equals(that.getKey());
-  }
-
-  @Override
-  public int hashCode() {
-    return getKey().hashCode();
   }
 
   @Override

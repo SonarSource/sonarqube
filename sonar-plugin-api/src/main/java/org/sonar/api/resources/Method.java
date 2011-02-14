@@ -19,14 +19,14 @@
  */
 package org.sonar.api.resources;
 
-public class BlockUnit extends Resource {
+public class Method extends Resource {
 
   public static final String SCOPE = Scopes.BLOCK_UNIT;
 
   protected String qualifier;
   protected Language language;
 
-  protected BlockUnit(String key, String qualifier, Language language) {
+  protected Method(String key, String qualifier, Language language) {
     setKey(key);
     this.qualifier = qualifier;
     this.language = language;
@@ -73,32 +73,32 @@ public class BlockUnit extends Resource {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public final boolean equals(Object o) {
     if (this == o) {
       return true;
     }
-    if (o == null || getClass() != o.getClass()) {
+    if (!(o instanceof Method)) {
       return false;
     }
-    if (!super.equals(o)) {
+    Method method = (Method) o;
+    if (!getKey().equals(method.getKey())) {
       return false;
     }
-    BlockUnit blockUnit = (BlockUnit) o;
-    if (!qualifier.equals(blockUnit.qualifier)) {
+    if (!qualifier.equals(method.qualifier)) {
       return false;
     }
-    return getKey().equals(blockUnit.getKey());
+    return true;
   }
 
   @Override
-  public int hashCode() {
+  public final int hashCode() {
     int result = super.hashCode();
-    result = 31 * result + getKey().hashCode();
     result = 31 * result + qualifier.hashCode();
+    result = 31 * result + getKey().hashCode();
     return result;
   }
 
-  public static BlockUnit createMethod(String key, Language language) {
-    return new BlockUnit(key, Qualifiers.METHOD, language);
+  public static Method createMethod(String key, Language language) {
+    return new Method(key, Qualifiers.METHOD, language);
   }
 }
