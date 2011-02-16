@@ -81,6 +81,29 @@
       <unpack>false</unpack>
       <scope>runtime</scope>
     </dependencySet>
+    <dependencySet>
+      <outputDirectory>bin</outputDirectory>
+      <includes>
+        <include>org.sonatype.jsw-binaries:jsw-binaries</include>
+      </includes>
+      <unpack>true</unpack>
+      <scope>provided</scope>
+      <unpackOptions>
+        <excludes>
+          <exclude>**/app</exclude>
+          <exclude>**/*.bat</exclude>
+          <exclude>**/sample*/**</exclude>
+        </excludes>
+      </unpackOptions>
+    </dependencySet>
+    <dependencySet>
+      <outputDirectory>lib</outputDirectory>
+      <includes>
+        <include>tanukisoft:wrapper</include>
+      </includes>
+      <unpack>false</unpack>
+      <scope>runtime</scope>
+    </dependencySet>
   </dependencySets>
 
   <fileSets>
