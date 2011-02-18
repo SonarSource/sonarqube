@@ -37,7 +37,6 @@
     <module>plugins/sonar-checkstyle-plugin</module>
     <module>plugins/sonar-pmd-plugin</module>
     <module>plugins/sonar-cobertura-plugin</module>
-    <module>plugins/sonar-clover-plugin</module>
     <module>plugins/sonar-surefire-plugin</module>
     <module>plugins/sonar-googleanalytics-plugin</module>
     <module>plugins/sonar-findbugs-plugin</module>
