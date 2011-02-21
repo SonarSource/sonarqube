@@ -40,10 +40,10 @@ public class ChartParameters {
   public static final String PARAM_WIDTH = "w";
   public static final String PARAM_BACKGROUND_COLOR = "bgc";
   public static final String PARAM_HEIGHT = "h";
-  public static final int MAX_WIDTH = 700;
+  public static final int MAX_WIDTH = 900;
   public static final String PARAM_LOCALE = "locale";
 
-  public static final int MAX_HEIGHT = 500;
+  public static final int MAX_HEIGHT = 900;
   public static final int DEFAULT_WIDTH = 200;
 
   public static final int DEFAULT_HEIGHT = 200;
