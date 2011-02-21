@@ -19,15 +19,15 @@
  */
 package org.sonar.batch;
 
+import java.net.URLClassLoader;
+import java.util.Arrays;
+
 import org.apache.commons.configuration.Configuration;
-import org.picocontainer.Characteristics;
-import org.picocontainer.MutablePicoContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugins;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.HttpDownloader;
-import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.ServerHttpClient;
 import org.sonar.batch.bootstrap.BatchPluginRepository;
 import org.sonar.batch.bootstrap.BootstrapClassLoader;
@@ -43,9 +43,6 @@ import org.sonar.jpa.session.DatabaseSessionProvider;
 import org.sonar.jpa.session.DriverDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
 
-import java.net.URLClassLoader;
-import java.util.Arrays;
-
 public class Batch {
 
   private static final Logger LOG = LoggerFactory.getLogger(Batch.class);
@@ -59,79 +56,82 @@ public class Batch {
   }
 
   public void execute() {
-    MutablePicoContainer container = null;
+    Module bootstrapComponents = null;
     try {
-      container = buildPicoContainer();
-      container.start();
-      analyzeModules(container);
-
+      bootstrapComponents = new BootstrapComponents().init().start();
+      analyzeModules(bootstrapComponents);
     } finally {
-      if (container != null) {
-        container.stop();
+      if (bootstrapComponents != null) {
+        bootstrapComponents.stop();
       }
     }
   }
 
-  private void analyzeModules(MutablePicoContainer container) {
-    // a child container is built to ensure database connector is up
-    MutablePicoContainer batchContainer = container.makeChildContainer();
-    batchContainer.as(Characteristics.CACHE).addComponent(ProjectTree.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(DefaultResourceCreationLock.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(DefaultIndex.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(DefaultPersistenceManager.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(DependencyPersister.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(EventPersister.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(LinkPersister.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(MeasurePersister.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(DefaultResourcePersister.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(SourcePersister.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(ViolationPersister.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(JpaPluginDao.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(BatchPluginRepository.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(Plugins.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(ServerHttpClient.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(MeasuresDao.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(CacheRuleFinder.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(CacheMetricFinder.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(PastSnapshotFinderByDate.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(PastSnapshotFinderByDays.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(PastSnapshotFinderByPreviousAnalysis.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(PastSnapshotFinderByVersion.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(PastMeasuresLoader.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(PastSnapshotFinder.class);
-    batchContainer.start();
+  private void analyzeModules(Module bootstrapComponents) {
+    Module batchComponents = bootstrapComponents.installChild(new BatchComponents());
+    batchComponents.start();
 
-    ProjectTree projectTree = batchContainer.getComponent(ProjectTree.class);
-    DefaultIndex index = batchContainer.getComponent(DefaultIndex.class);
-    analyzeModule(batchContainer, index, projectTree.getRootProject());
+    ProjectTree projectTree = batchComponents.getComponent(ProjectTree.class);
+    DefaultIndex index = batchComponents.getComponent(DefaultIndex.class);
+    analyzeModule(batchComponents, index, projectTree.getRootProject());
 
     // batchContainer is stopped by its parent
   }
 
-  private MutablePicoContainer buildPicoContainer() {
-    MutablePicoContainer container = IocContainer.buildPicoContainer();
-
-    register(container, configuration);
-    register(container, ServerMetadata.class);// registered here because used by BootstrapClassLoader
-    register(container, TempDirectories.class);// registered here because used by BootstrapClassLoader
-    register(container, HttpDownloader.class);// registered here because used by BootstrapClassLoader
-    register(container, ExtensionDownloader.class);// registered here because used by BootstrapClassLoader
-    register(container, BootstrapClassLoader.class);
-
-    URLClassLoader bootstrapClassLoader = container.getComponent(BootstrapClassLoader.class).getClassLoader();
-    // set as the current context classloader for hibernate, else it does not find the JDBC driver.
-    Thread.currentThread().setContextClassLoader(bootstrapClassLoader);
-
-    register(container, new DriverDatabaseConnector(configuration, bootstrapClassLoader));
-    register(container, ThreadLocalDatabaseSessionFactory.class);
-    container.as(Characteristics.CACHE).addAdapter(new DatabaseSessionProvider());
-    for (Object component : components) {
-      register(container, component);
+  private static class BatchComponents extends Module {
+    @Override
+    protected void configure() {
+      addComponent(ProjectTree.class);
+      addComponent(DefaultResourceCreationLock.class);
+      addComponent(DefaultIndex.class);
+      addComponent(DefaultPersistenceManager.class);
+      addComponent(DependencyPersister.class);
+      addComponent(EventPersister.class);
+      addComponent(LinkPersister.class);
+      addComponent(MeasurePersister.class);
+      addComponent(DefaultResourcePersister.class);
+      addComponent(SourcePersister.class);
+      addComponent(ViolationPersister.class);
+      addComponent(JpaPluginDao.class);
+      addComponent(BatchPluginRepository.class);
+      addComponent(Plugins.class);
+      addComponent(ServerHttpClient.class);
+      addComponent(MeasuresDao.class);
+      addComponent(CacheRuleFinder.class);
+      addComponent(CacheMetricFinder.class);
+      addComponent(PastSnapshotFinderByDate.class);
+      addComponent(PastSnapshotFinderByDays.class);
+      addComponent(PastSnapshotFinderByPreviousAnalysis.class);
+      addComponent(PastSnapshotFinderByVersion.class);
+      addComponent(PastMeasuresLoader.class);
+      addComponent(PastSnapshotFinder.class);
     }
-    if (!isMavenPluginExecutorRegistered()) {
-      register(container, FakeMavenPluginExecutor.class);
+  }
+
+  private class BootstrapComponents extends Module {
+    @Override
+    protected void configure() {
+      addComponent(configuration);
+      addComponent(ServerMetadata.class);// registered here because used by BootstrapClassLoader
+      addComponent(TempDirectories.class);// registered here because used by BootstrapClassLoader
+      addComponent(HttpDownloader.class);// registered here because used by BootstrapClassLoader
+      addComponent(ExtensionDownloader.class);// registered here because used by BootstrapClassLoader
+      addComponent(BootstrapClassLoader.class);
+
+      URLClassLoader bootstrapClassLoader = getComponent(BootstrapClassLoader.class).getClassLoader();
+      // set as the current context classloader for hibernate, else it does not find the JDBC driver.
+      Thread.currentThread().setContextClassLoader(bootstrapClassLoader);
+
+      addComponent(new DriverDatabaseConnector(configuration, bootstrapClassLoader));
+      addComponent(ThreadLocalDatabaseSessionFactory.class);
+      addAdapter(new DatabaseSessionProvider());
+      for (Object component : components) {
+        addComponent(component);
+      }
+      if (!isMavenPluginExecutorRegistered()) {
+        addComponent(FakeMavenPluginExecutor.class);
+      }
     }
-    return container;
   }
 
   boolean isMavenPluginExecutorRegistered() {
@@ -143,13 +143,9 @@ public class Batch {
     return false;
   }
 
-  private void register(MutablePicoContainer container, Object component) {
-    container.as(Characteristics.CACHE).addComponent(component);
-  }
-
-  private void analyzeModule(MutablePicoContainer container, DefaultIndex index, Project project) {
+  private void analyzeModule(Module batchComponents, DefaultIndex index, Project project) {
     for (Project module : project.getModules()) {
-      analyzeModule(container, index, module);
+      analyzeModule(batchComponents, index, module);
     }
     LOG.info("-------------  Analyzing {}", project.getName());
 
@@ -158,6 +154,6 @@ public class Batch {
       LOG.info("Excluded sources : {}", Arrays.toString(exclusionPatterns));
     }
 
-    new ProjectBatch(container).execute(index, project);
+    new ProjectBatch(batchComponents).execute(index, project);
   }
 }

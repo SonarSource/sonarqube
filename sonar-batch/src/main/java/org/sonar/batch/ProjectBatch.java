@@ -19,8 +19,6 @@
  */
 package org.sonar.batch;
 
-import org.picocontainer.Characteristics;
-import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.ProjectClasspath;
 import org.sonar.api.measures.CoreMetrics;
@@ -29,7 +27,6 @@ import org.sonar.api.measures.Metrics;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.*;
 import org.sonar.api.rules.DefaultRulesManager;
-import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.BatchPluginRepository;
 import org.sonar.batch.components.PastViolationsLoader;
@@ -42,114 +39,117 @@ import org.sonar.jpa.dao.*;
 
 public class ProjectBatch {
 
-  private MutablePicoContainer globalContainer;
-  private MutablePicoContainer batchContainer;
+  private Module globalComponents;
 
-  public ProjectBatch(MutablePicoContainer container) {
-    this.globalContainer = container;
+  public ProjectBatch(Module globalComponents) {
+    this.globalComponents = globalComponents;
   }
 
   public void execute(DefaultIndex index, Project project) {
+    Module projectComponents = null;
     try {
-      startChildContainer(index, project);
-      batchContainer.getComponent(Phases.class).execute(project);
+      projectComponents = startChildContainer(index, project);
+
+      projectComponents.getComponent(Phases.class).execute(project);
 
     } finally {
-      stop();
+      if (projectComponents != null) {
+        try {
+          globalComponents.uninstallChild(projectComponents);
+          projectComponents.stop();
+        } catch (Exception e) {
+          // do not log
+        }
+      }
     }
   }
 
-  public void startChildContainer(DefaultIndex index, Project project) {
-    batchContainer = globalContainer.makeChildContainer();
-
-    batchContainer.as(Characteristics.CACHE).addComponent(project);
-    batchContainer.as(Characteristics.CACHE).addComponent(project.getPom());
-    batchContainer.as(Characteristics.CACHE).addComponent(ProjectClasspath.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(DefaultProjectFileSystem.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(project.getConfiguration());
-
-    // need to be registered after the Configuration
-    batchContainer.getComponent(BatchPluginRepository.class).registerPlugins(batchContainer);
-
-    batchContainer.as(Characteristics.CACHE).addComponent(DaoFacade.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(RulesDao.class);
-
-    // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
-    batchContainer.as(Characteristics.CACHE)
-        .addComponent(globalContainer.getComponent(DefaultResourcePersister.class).getSnapshot(project));
-
-    batchContainer.as(Characteristics.CACHE).addComponent(org.sonar.api.database.daos.MeasuresDao.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(ProfilesDao.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(AsyncMeasuresDao.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(AsyncMeasuresService.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(DefaultRulesManager.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(DefaultSensorContext.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(Languages.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(BatchExtensionDictionnary.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(DefaultTimeMachine.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(ViolationFilters.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(ResourceFilters.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(DefaultModelFinder.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(TimeMachineConfiguration.class);
-    batchContainer.as(Characteristics.CACHE).addComponent(PastViolationsLoader.class);
-    batchContainer.addAdapter(new ProfileProvider());
-    batchContainer.addAdapter(new CheckProfileProvider());
-    loadCoreComponents(batchContainer);
-    batchContainer.as(Characteristics.CACHE).addComponent(new IocContainer(batchContainer));
-    batchContainer.start();
+  public Module startChildContainer(DefaultIndex index, Project project) {
+    Module projectComponents = globalComponents.installChild(new ProjectComponents(project));
+    projectComponents.install(new ProjectCoreComponents());
+    projectComponents.start();
 
     // post-initializations
-    prepareProject(project, index);
-  }
 
-  private void prepareProject(Project project, DefaultIndex index) {
-    Language language = getComponent(Languages.class).get(project.getLanguageKey());
+    Language language = projectComponents.getComponent(Languages.class).get(project.getLanguageKey());
     if (language == null) {
       throw new SonarException("Language with key '" + project.getLanguageKey() + "' not found");
     }
     project.setLanguage(language);
 
     index.setCurrentProject(project,
-        getComponent(ResourceFilters.class),
-        getComponent(ViolationFilters.class),
-        getComponent(RulesProfile.class));
+        projectComponents.getComponent(ResourceFilters.class),
+        projectComponents.getComponent(ViolationFilters.class),
+        projectComponents.getComponent(RulesProfile.class));
 
     // TODO See http://jira.codehaus.org/browse/SONAR-2126
     // previously MavenProjectBuilder was responsible for creation of ProjectFileSystem
-    project.setFileSystem(getComponent(ProjectFileSystem.class));
+    project.setFileSystem(projectComponents.getComponent(ProjectFileSystem.class));
+
+    return projectComponents;
   }
 
-  private void loadCoreComponents(MutablePicoContainer container) {
-    container.as(Characteristics.CACHE).addComponent(Phases.class);
-    for (Class clazz : Phases.getPhaseClasses()) {
-      container.as(Characteristics.CACHE).addComponent(clazz);
+  private static class ProjectComponents extends Module {
+    private Project project;
+
+    public ProjectComponents(Project project) {
+      this.project = project;
     }
-    for (Metric metric : CoreMetrics.getMetrics()) {
-      container.as(Characteristics.CACHE).addComponent(metric.getKey(), metric);
+
+    @Override
+    protected void configure() {
+      addComponent(project);
+      addComponent(project.getPom());
+      addComponent(ProjectClasspath.class);
+      addComponent(DefaultProjectFileSystem.class);
+      addComponent(project.getConfiguration());
+
+      // need to be registered after the Configuration
+      getComponent(BatchPluginRepository.class).registerPlugins(getContainer());
+
+      addComponent(DaoFacade.class);
+      addComponent(RulesDao.class);
+
+      // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
+      addComponent(getComponent(DefaultResourcePersister.class).getSnapshot(project));
+      // TODO was addComponent(globalComponents.getComponent(DefaultResourcePersister.class).getSnapshot(project));
+
+      addComponent(org.sonar.api.database.daos.MeasuresDao.class);
+      addComponent(ProfilesDao.class);
+      addComponent(AsyncMeasuresDao.class);
+      addComponent(AsyncMeasuresService.class);
+      addComponent(DefaultRulesManager.class);
+      addComponent(DefaultSensorContext.class);
+      addComponent(Languages.class);
+      addComponent(BatchExtensionDictionnary.class);
+      addComponent(DefaultTimeMachine.class);
+      addComponent(ViolationFilters.class);
+      addComponent(ResourceFilters.class);
+      addComponent(DefaultModelFinder.class);
+      addComponent(TimeMachineConfiguration.class);
+      addComponent(PastViolationsLoader.class);
+
+      addAdapter(new ProfileProvider());
+      addAdapter(new CheckProfileProvider());
     }
-    for (Metrics metricRepo : container.getComponents(Metrics.class)) {
-      for (Metric metric : metricRepo.getMetrics()) {
-        container.as(Characteristics.CACHE).addComponent(metric.getKey(), metric);
+  }
+
+  private static class ProjectCoreComponents extends Module {
+    @Override
+    protected void configure() {
+      addComponent(Phases.class);
+      for (Class clazz : Phases.getPhaseClasses()) {
+        addComponent(clazz);
+      }
+      for (Metric metric : CoreMetrics.getMetrics()) {
+        addComponent(metric.getKey(), metric);
+      }
+      for (Metrics metricRepo : getComponents(Metrics.class)) {
+        for (Metric metric : metricRepo.getMetrics()) {
+          addComponent(metric.getKey(), metric);
+        }
       }
     }
   }
 
-  private void stop() {
-    if (batchContainer != null) {
-      try {
-        globalContainer.removeChildContainer(batchContainer);
-        batchContainer.stop();
-        batchContainer = null;
-      } catch (Exception e) {
-        // do not log
-      }
-    }
-  }
-
-  public <T> T getComponent(Class<T> clazz) {
-    if (batchContainer != null) {
-      return batchContainer.getComponent(clazz);
-    }
-    return globalContainer.getComponent(clazz);
-  }
 }
