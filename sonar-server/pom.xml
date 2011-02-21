@@ -444,12 +444,6 @@
         </dependency>
         <dependency>
           <groupId>org.codehaus.sonar.plugins</groupId>
-          <artifactId>sonar-clover-plugin</artifactId>
-          <version>${project.version}</version>
-          <scope>provided</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.codehaus.sonar.plugins</groupId>
           <artifactId>sonar-surefire-plugin</artifactId>
           <version>${project.version}</version>
           <scope>provided</scope>
