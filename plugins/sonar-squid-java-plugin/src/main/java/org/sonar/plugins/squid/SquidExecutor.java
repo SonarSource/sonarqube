@@ -213,9 +213,8 @@ public final class SquidExecutor {
     return bytecodeScanned;
   }
 
-  public void initSonarProxy(SquidSearchProxy proxy) {
+  void flush() {
     squid.flush();
-    proxy.setTarget(squid);
   }
 
   public Squid getSquid() {

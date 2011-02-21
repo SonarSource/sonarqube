@@ -59,7 +59,7 @@ public class SquidPlugin implements Plugin {
   }
 
   public List getExtensions() {
-    return Arrays.asList(SquidSearchProxy.class, SquidSensor.class, SquidRuleRepository.class, JavaSourceImporter.class,
+    return Arrays.asList(SquidSensor.class, SquidRuleRepository.class, JavaSourceImporter.class,
         ClassComplexityDistributionBuilder.class, FunctionComplexityDistributionBuilder.class, ClassesDecorator.class,
         ChidamberKemererDistributionBuilder.class, FunctionsDecorator.class);
   }

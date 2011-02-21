@@ -41,14 +41,12 @@ import java.util.List;
 @DependedUpon(value = JavaUtils.BARRIER_AFTER_SQUID, classes = NoSonarFilter.class)
 public class SquidSensor implements Sensor {
 
-  private SquidSearchProxy proxy;
   private NoSonarFilter noSonarFilter;
   private RulesProfile profile;
   private ProjectClasspath projectClasspath;
   private ResourceCreationLock lock;
 
-  public SquidSensor(RulesProfile profile, SquidSearchProxy proxy, NoSonarFilter noSonarFilter, ProjectClasspath projectClasspath, ResourceCreationLock lock) {
-    this.proxy = proxy;
+  public SquidSensor(RulesProfile profile, NoSonarFilter noSonarFilter, ProjectClasspath projectClasspath, ResourceCreationLock lock) {
     this.noSonarFilter = noSonarFilter;
     this.profile = profile;
     this.projectClasspath = projectClasspath;
@@ -79,7 +77,7 @@ public class SquidSensor implements Sensor {
     SquidExecutor squidExecutor = new SquidExecutor(analyzePropertyAccessors, fieldNamesToExcludeFromLcom4Computation, factory, charset);
     squidExecutor.scan(getMainSourceFiles(project), getMainBytecodeFiles(project));
     squidExecutor.save(project, context, noSonarFilter);
-    squidExecutor.initSonarProxy(proxy);
+    squidExecutor.flush();
   }
 
   private void browseTestSources(Project project, SensorContext context) {

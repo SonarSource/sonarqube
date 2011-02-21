@@ -115,15 +115,6 @@ public class SquidExecutorTest {
     assertTrue(SquidExecutor.hasBytecode(Arrays.asList(new File("test-resources/commons-collections-3.2.1/bin"))));
   }
 
-  @Test
-  public void flushSquidAfterUsage() {
-    Squid squid = mock(Squid.class);
-    SquidExecutor executor = new SquidExecutor(squid);
-    executor.initSonarProxy(new SquidSearchProxy());
-
-    verify(squid).flush();
-  }
-
   private CheckFactory createCheckFactory() {
     RulesProfile profile = RulesProfile.create();
     CheckFactory checkFactory = AnnotationCheckFactory.create(profile, "repo", Collections.<Class> emptyList());
