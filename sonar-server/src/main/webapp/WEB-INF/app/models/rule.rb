@@ -57,6 +57,10 @@ class Rule < ActiveRecord::Base
   def <=>(rule)
     name<=>rule.name
   end
+  
+  def config_key
+    plugin_config_key
+  end
 
   def self.to_i(key_or_id)
     id=key_or_id.to_i
@@ -87,7 +91,7 @@ class Rule < ActiveRecord::Base
   end
 
   def to_hash_json(profile)
-    json = {'title' => name, 'key' => key, 'plugin' => plugin_name}
+    json = {'title' => name, 'key' => key, 'plugin' => plugin_name, 'config_key' => config_key}
     json['description'] = description
     active_rule = nil
     if profile
@@ -106,11 +110,11 @@ class Rule < ActiveRecord::Base
     json
   end
 
-  def to_xml(profile)
-    xml = Builder::XmlMarkup.new
+  def to_xml(profile, xml)
     xml.rule do
       xml.title(name)
       xml.key(key)
+      xml.config_key(config_key)
       xml.plugin(plugin_name)
       xml.description {xml.cdata!(description)}
       active_rule = nil
@@ -127,7 +131,7 @@ class Rule < ActiveRecord::Base
         xml.priority(priority_text)
       end
       parameters.each do |parameter|
-        xml << parameter.to_xml(active_rule)
+        parameter.to_xml(active_rule, xml)
       end
     end
   end

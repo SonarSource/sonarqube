@@ -109,8 +109,7 @@ class RulesParameter < ActiveRecord::Base
     json
   end
 
-  def to_xml(active_rule)
-    xml = Builder::XmlMarkup.new
+  def to_xml(active_rule, xml)
     xml.param do
       xml.name(name)
       xml.description {xml.cdata!(description)}

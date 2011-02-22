@@ -80,7 +80,7 @@ class Api::RulesController < Api::RestController
     xml.instruct!
     xml.rules do
       rules.each do |rule|
-        xml << rule.to_xml(profile)
+        rule.to_xml(profile, xml)
       end
     end
   end

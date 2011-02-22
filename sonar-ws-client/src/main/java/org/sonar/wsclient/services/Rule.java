@@ -28,6 +28,7 @@ public class Rule extends Model {
 
   private String title = null;
   private String key = null;
+  private String configKey = null;
   private String repository = null;
   private String description = null;
   private String severity = null;
@@ -49,6 +50,22 @@ public class Rule extends Model {
 
   public Rule setKey(String key) {
     this.key = key;
+    return this;
+  }
+
+  /**
+   * @since 2.7
+   */
+  public String getConfigKey() {
+    return configKey;
+  }
+
+  /**
+   * @since 2.7
+   */
+
+  public Rule setConfigKey(String s) {
+    this.configKey = s;
     return this;
   }
 

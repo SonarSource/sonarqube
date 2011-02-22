@@ -44,6 +44,7 @@ public class RuleUnmarshaller extends AbstractUnmarshaller<Rule> {
 
     rule.setTitle(utils.getString(json, "title"))
         .setKey(utils.getString(json, "key"))
+        .setConfigKey(utils.getString(json, "config_key"))
         .setRepository(utils.getString(json, "plugin"))
         .setDescription(utils.getString(json, "description"))
         .setSeverity(utils.getString(json, "priority"))
