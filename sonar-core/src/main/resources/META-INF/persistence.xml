@@ -35,7 +35,9 @@
     <class>org.sonar.api.database.model.AsyncMeasureSnapshot</class>
     <class>org.sonar.api.batch.Event</class>
     <class>org.sonar.api.profiles.Alert</class>
-
+    <class>org.sonar.api.rules.ActiveRuleChange</class>
+    <class>org.sonar.api.rules.ActiveRuleParamChange</class>
+    
     <properties>
       <property name="hibernate.current_session_context_class" value="thread"/>
       <property name="hibernate.connection.release_mode" value="after_transaction"/>

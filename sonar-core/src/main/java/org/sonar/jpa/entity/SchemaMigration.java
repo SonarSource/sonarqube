@@ -31,7 +31,7 @@ import javax.persistence.*;
 public class SchemaMigration {
 
   public final static int VERSION_UNKNOWN = -1;
-  public static final int LAST_VERSION = 181;
+  public static final int LAST_VERSION = 182;
 
   public final static String TABLE_NAME = "schema_migrations";
 
