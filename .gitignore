@@ -1,5 +1,8 @@
 sonar-server/src/main/webapp/stylesheets/sonar-colorizer.css
 
+# javadoc
+docs.tar
+
 # Maven
 target/
 
