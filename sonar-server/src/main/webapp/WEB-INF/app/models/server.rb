@@ -54,7 +54,7 @@ class Server
     add_property(system_statistics, 'Max Memory') {"#{java.lang.Runtime.getRuntime().maxMemory() / 1000000} MB"}
     add_property(system_statistics, 'Heap') {"#{java.lang.management.ManagementFactory.getMemoryMXBean().getHeapMemoryUsage()}"}
     add_property(system_statistics, 'Non Heap') {"#{java.lang.management.ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage()}"}
-    add_property(system_statistics, 'System Load Average (last minute)') {"#{format_double(100.0 * java.lang.management.ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage())}%"}
+    add_property(system_statistics, 'System Load Average (last minute)') {system_load_average()}
     add_property(system_statistics, 'Loaded Classes (currently/total/unloaded)') {"#{java.lang.management.ManagementFactory.getClassLoadingMXBean().getLoadedClassCount()} / #{java.lang.management.ManagementFactory.getClassLoadingMXBean().getTotalLoadedClassCount()} / #{java.lang.management.ManagementFactory.getClassLoadingMXBean().getUnloadedClassCount()}"}
     add_property(system_statistics, 'Start Time') {"#{format_date(java.util.Date.new(java.lang.management.ManagementFactory.getRuntimeMXBean().getStartTime()))}"}
     add_property(system_statistics, 'Threads (total/peak/daemon)') {"#{java.lang.management.ManagementFactory.getThreadMXBean().getThreadCount()} / #{java.lang.management.ManagementFactory.getThreadMXBean().getPeakThreadCount()} / #{java.lang.management.ManagementFactory.getThreadMXBean().getDaemonThreadCount() }" }
@@ -134,5 +134,14 @@ class Server
       begin
         ActiveRecord::Base.connection.instance_variable_get('@connection').connection.get_meta_data
       end
+  end
+
+  def system_load_average
+    begin
+      "#{format_double(100.0 * java.lang.management.ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage())}%"
+    rescue
+      # not available on Java 5. See http://jira.codehaus.org/browse/SONAR-2208
+      'N/A'
+    end
   end
 end
