@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.index;
 
+import java.util.*;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -41,9 +43,7 @@ import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.ViolationFilters;
 
-import java.util.*;
-
-public final class DefaultIndex extends SonarIndex {
+public class DefaultIndex extends SonarIndex {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultIndex.class);
 
@@ -132,7 +132,6 @@ public final class DefaultIndex extends SonarIndex {
 
     lock.unlock();
   }
-
 
   public Measure getMeasure(Resource resource, Metric metric) {
     Bucket bucket = buckets.get(resource);
@@ -294,10 +293,10 @@ public final class DefaultIndex extends SonarIndex {
     Resource resource = violation.getResource();
     if (resource == null) {
       violation.setResource(currentProject);
-    } else if (!Scopes.isHigherThanOrEquals(resource, Scopes.FILE)){
+    } else if (!Scopes.isHigherThanOrEquals(resource, Scopes.FILE)) {
       throw new IllegalArgumentException("Violations are only supported on files, directories and project");
     }
-    
+
     Bucket bucket = checkIndexed(resource);
     if (bucket != null && !bucket.isExcluded()) {
       boolean isIgnored = !force && violationFilters != null && violationFilters.isIgnored(violation);
@@ -371,7 +370,6 @@ public final class DefaultIndex extends SonarIndex {
     }
   }
 
-
   /**
    * Does nothing if the resource is already registered.
    */
@@ -410,7 +408,6 @@ public final class DefaultIndex extends SonarIndex {
   public List<Resource> getChildren(Resource resource) {
     return getChildren(resource, false);
   }
-
 
   public List<Resource> getChildren(Resource resource, boolean acceptExcluded) {
     List<Resource> children = Lists.newLinkedList();
@@ -506,7 +503,6 @@ public final class DefaultIndex extends SonarIndex {
     }
     return bucket;
   }
-
 
   public boolean isExcluded(Resource reference) {
     Bucket bucket = getBucket(reference, true);

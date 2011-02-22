@@ -115,11 +115,11 @@ public abstract class Module {
     container.addAdapter(componentAdapter);
   }
 
-  protected final <T> T getComponent(Class<T> componentType) {
+  public final <T> T getComponent(Class<T> componentType) {
     return container.getComponent(componentType);
   }
 
-  protected final <T> List<T> getComponents(Class<T> componentType) {
+  public final <T> List<T> getComponents(Class<T> componentType) {
     return container.getComponents(componentType);
   }
 
