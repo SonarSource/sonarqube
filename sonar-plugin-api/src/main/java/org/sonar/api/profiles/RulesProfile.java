@@ -64,6 +64,9 @@ public class RulesProfile implements Cloneable {
   @Column(name = "name", updatable = true, nullable = false)
   private String name;
 
+  @Column(name = "version", updatable = true, nullable = false)
+  private int version = 1;
+
   @Column(name = "default_profile", updatable = true, nullable = false)
   private Boolean defaultProfile = Boolean.FALSE;
 
@@ -72,6 +75,9 @@ public class RulesProfile implements Cloneable {
 
   @Column(name = "enabled", updatable = true, nullable = false)
   private Boolean enabled = Boolean.TRUE;
+
+  @Column(name = "used_profile", updatable = true, nullable = false)
+  private Boolean used = Boolean.FALSE;
 
   @Column(name = "language", updatable = true, nullable = false)
   private String language;
@@ -133,6 +139,24 @@ public class RulesProfile implements Cloneable {
    */
   public RulesProfile setName(String s) {
     this.name = s;
+    return this;
+  }
+  
+  public int getVersion() {
+    return version;
+  }
+  
+  public RulesProfile setVersion(int version) {
+    this.version = version;
+    return this;
+  }
+  
+  public Boolean getUsed() {
+    return used;
+  }
+  
+  public RulesProfile setUsed(Boolean used) {
+    this.used = used;
     return this;
   }
 

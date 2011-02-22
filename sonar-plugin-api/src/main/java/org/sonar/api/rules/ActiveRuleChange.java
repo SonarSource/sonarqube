@@ -53,6 +53,9 @@ public class ActiveRuleChange extends BaseIdentifiable {
   @JoinColumn(name = "profile_id", updatable = false, nullable = false)
   private RulesProfile rulesProfile;
 
+  @Column(name = "profile_version", updatable = false, nullable = false)
+  private int profileVersion;
+
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "rule_id", updatable = false, nullable = false)
   private Rule rule;
@@ -83,6 +86,7 @@ public class ActiveRuleChange extends BaseIdentifiable {
   public ActiveRuleChange(String modifierLogin, RulesProfile profile, Rule rule) {
     this.modifierLogin = modifierLogin;
     this.rulesProfile = profile;
+    this.profileVersion = profile.getVersion();
     this.rule = rule;
     this.date = Calendar.getInstance().getTime();
   }

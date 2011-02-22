@@ -227,10 +227,19 @@ public class ProfilesManager extends BaseDao {
     }
   }
   
+  private synchronized void incrementProfileVersionIfNeeded(RulesProfile profile) {
+    if (profile.getUsed()) {
+      profile.setVersion(profile.getVersion() + 1);
+      profile.setUsed(false);
+      getSession().saveWithoutFlush(profile);
+    }    
+  }
+  
   /**
    * Deal with creation of ActiveRuleChange item when a rule param is changed on a profile
    */
   private void ruleParamChanged(RulesProfile profile, Rule rule, String paramKey, String oldValue, String newValue, String userLogin) {
+    incrementProfileVersionIfNeeded(profile);
     ActiveRuleChange rc = new ActiveRuleChange(userLogin, profile, rule);
     if (oldValue != newValue) {
       rc.setParameterChange(paramKey, oldValue, newValue);
@@ -242,6 +251,7 @@ public class ProfilesManager extends BaseDao {
    * Deal with creation of ActiveRuleChange item when a rule severity is changed on a profile
    */
   private void ruleSeverityChanged(RulesProfile profile, Rule rule, RulePriority oldSeverity, RulePriority newSeverity, String userLogin) {
+    incrementProfileVersionIfNeeded(profile);
     ActiveRuleChange rc = new ActiveRuleChange(userLogin, profile, rule);
     if (oldSeverity != newSeverity) {
       rc.setOldSeverity(oldSeverity);
@@ -254,6 +264,7 @@ public class ProfilesManager extends BaseDao {
    * Deal with creation of ActiveRuleChange item when a rule is changed (severity and/or param(s)) on a profile
    */
   private void ruleChanged(RulesProfile profile, ActiveRule oldActiveRule, ActiveRule newActiveRule, String userLogin) {
+    incrementProfileVersionIfNeeded(profile);
     ActiveRuleChange rc = new ActiveRuleChange(userLogin, profile, newActiveRule.getRule());
     
     if (oldActiveRule.getSeverity() != newActiveRule.getSeverity()) {
@@ -277,6 +288,7 @@ public class ProfilesManager extends BaseDao {
    * Deal with creation of ActiveRuleChange item when a rule is enabled on a profile
    */
   private void ruleEnabled(RulesProfile profile, ActiveRule newActiveRule, String userLogin) {
+    incrementProfileVersionIfNeeded(profile);
     ActiveRuleChange rc = new ActiveRuleChange(userLogin, profile, newActiveRule.getRule());
     rc.setEnabled(true);
     rc.setNewSeverity(newActiveRule.getSeverity());
@@ -295,6 +307,7 @@ public class ProfilesManager extends BaseDao {
    * Deal with creation of ActiveRuleChange item when a rule is disabled on a profile
    */
   private void ruleDisabled(RulesProfile profile, Rule rule, String userLogin) {
+    incrementProfileVersionIfNeeded(profile);
     ActiveRuleChange rc = new ActiveRuleChange(userLogin, profile, rule);
     rc.setEnabled(false);
     getSession().saveWithoutFlush(rc);

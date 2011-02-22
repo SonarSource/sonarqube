@@ -27,6 +27,7 @@ class CreateRuleChanges < ActiveRecord::Migration
     create_table :active_rule_changes do |t|
       t.column :user_login,              :string,    :limit => 40,  :null => false
       t.column :profile_id,              :integer,   :null => false
+      t.column :profile_version,         :integer,   :null => false
       t.column :rule_id,                 :integer,   :null => false
       t.column :change_date,             :datetime,  :null => false
       t.column :enabled,                 :boolean,   :null => true
@@ -42,6 +43,9 @@ class CreateRuleChanges < ActiveRecord::Migration
       t.column :new_value,               :string,    :limit => 4000, :null => true
     end
     add_index :active_rule_param_changes, [:active_rule_change_id], :name => 'active_rule_param_changes_rulechangeid'
+
+    add_column 'rules_profiles', 'version',      :integer, :null => false, :default => 1
+    add_column 'rules_profiles', 'used_profile', :boolean, :null => false, :default => false
 
   end
 end 
