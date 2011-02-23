@@ -19,60 +19,71 @@
  */
 package org.sonar.plugins.pmd;
 
-import org.apache.commons.lang.StringUtils;
-import org.codehaus.staxmate.in.SMInputCursor;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.AbstractViolationsStaxParser;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.RulesManager;
+import java.io.File;
 
 import javax.xml.stream.XMLStreamException;
 
-class PmdViolationsXmlParser extends AbstractViolationsStaxParser {
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.staxmate.in.SMHierarchicCursor;
+import org.codehaus.staxmate.in.SMInputCursor;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.Violation;
+import org.sonar.api.utils.StaxParser;
+
+class PmdViolationsXmlParser {
 
   private Project project;
+  private RuleFinder ruleFinder;
+  private SensorContext context;
 
-  PmdViolationsXmlParser(Project project, SensorContext context, RulesManager rulesManager, RulesProfile profile) {
-    super(context, rulesManager, profile);
+  public PmdViolationsXmlParser(Project project, RuleFinder ruleFinder, SensorContext context) {
     this.project = project;
+    this.ruleFinder = ruleFinder;
+    this.context = context;
   }
 
-  @Override
-  protected String keyForPlugin() {
-    return CoreProperties.PMD_PLUGIN;
+  public void parse(File file) throws XMLStreamException {
+    StaxParser parser = new StaxParser(new StreamHandler(), true);
+    parser.parse(file);
   }
 
-  @Override
-  protected SMInputCursor cursorForResources(SMInputCursor rootCursor) throws XMLStreamException {
-    return rootCursor.descendantElementCursor("file");
+  private class StreamHandler implements StaxParser.XmlStreamHandler {
+    public void stream(SMHierarchicCursor rootCursor) throws XMLStreamException {
+      rootCursor.advance();
+
+      SMInputCursor fileCursor = rootCursor.descendantElementCursor("file");
+      while (fileCursor.getNext() != null) {
+        String name = fileCursor.getAttrValue("name");
+        Resource resource = JavaFile.fromAbsolutePath(name, project.getFileSystem().getSourceDirs(), false);
+
+        // Save violations only for existing resources
+        if (context.getResource(resource) != null) {
+          streamViolations(fileCursor, resource);
+        }
+      }
+    }
+
+    private void streamViolations(SMInputCursor fileCursor, Resource resource) throws XMLStreamException {
+      SMInputCursor violationCursor = fileCursor.descendantElementCursor("violation");
+      while (violationCursor.getNext() != null) {
+        int lineId = Integer.parseInt(violationCursor.getAttrValue("beginline"));
+        String ruleKey = violationCursor.getAttrValue("rule");
+        String message = StringUtils.trim(violationCursor.collectDescendantText());
+
+        Rule rule = ruleFinder.findByKey(CoreProperties.PMD_PLUGIN, ruleKey);
+        // Save violations only for enabled rules
+        if (rule != null) {
+          Violation violation = Violation.create(rule, resource).setLineId(lineId).setMessage(message);
+          context.saveViolation(violation);
+        }
+      }
+    }
   }
 
-  @Override
-  protected SMInputCursor cursorForViolations(SMInputCursor resourcesCursor) throws XMLStreamException {
-    return resourcesCursor.descendantElementCursor("violation");
-  }
-
-  @Override
-  protected String lineNumberForViolation(SMInputCursor violationCursor) throws XMLStreamException {
-    return violationCursor.getAttrValue("beginline");
-  }
-
-  @Override
-  protected String messageFor(SMInputCursor violationCursor) throws XMLStreamException {
-    return StringUtils.trim(violationCursor.collectDescendantText());
-  }
-
-  @Override
-  protected String ruleKey(SMInputCursor violationCursor) throws XMLStreamException {
-    return violationCursor.getAttrValue("rule");
-  }
-
-  @Override
-  protected Resource toResource(SMInputCursor resourcesCursor) throws XMLStreamException {
-    return JavaFile.fromAbsolutePath(resourcesCursor.getAttrValue("name"), project.getFileSystem().getSourceDirs(), false);
-  }
 }

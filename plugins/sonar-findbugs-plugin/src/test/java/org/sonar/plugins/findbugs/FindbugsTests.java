@@ -19,25 +19,18 @@
  */
 package org.sonar.plugins.findbugs;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.api.rules.RulesManager;
 import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.test.TestUtils;
 import org.xml.sax.SAXException;
@@ -68,22 +61,6 @@ public abstract class FindbugsTests {
     ActiveRule activeRule2 = new ActiveRule(null, rules.get(1), RulePriority.MAJOR);
     activeRules.add(activeRule2);
     return activeRules;
-  }
-
-  protected RulesManager createRulesManager() {
-    RulesManager rulesManager = mock(RulesManager.class);
-
-    when(rulesManager.getPluginRule(eq(CoreProperties.FINDBUGS_PLUGIN), anyString())).thenAnswer(new Answer<Rule>() {
-
-      public Rule answer(InvocationOnMock invocationOnMock) throws Throwable {
-        Object[] args = invocationOnMock.getArguments();
-        Rule rule = Rule.create();
-        rule.setPluginName((String) args[0]);
-        rule.setKey((String) args[1]);
-        return rule;
-      }
-    });
-    return rulesManager;
   }
 
   protected RulesProfile createRulesProfileWithActiveRules() {

@@ -19,26 +19,33 @@
  */
 package org.sonar.plugins.pmd;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.junit.Test;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.DefaultProjectFileSystem;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.Project;
-import org.sonar.api.rules.*;
-import org.sonar.api.test.IsViolation;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+
+import javax.xml.stream.XMLStreamException;
+
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.resources.DefaultProjectFileSystem;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.Project;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.Violation;
+import org.sonar.api.test.IsViolation;
 
 public class PmdViolationsXmlParserTest {
 
@@ -49,16 +56,17 @@ public class PmdViolationsXmlParserTest {
     Project project = mock(Project.class);
     when(project.getFileSystem()).thenReturn(fileSystem);
 
-    RulesManager manager = mock(RulesManager.class);
-    when(manager.getPluginRule(anyString(), anyString())).thenAnswer(new Answer<Rule>() {
-      public Rule answer(InvocationOnMock invocation) {
+    RuleFinder ruleFinder = mock(RuleFinder.class);
+    when(ruleFinder.findByKey(anyString(), anyString())).thenAnswer(new Answer<Rule>() {
+      public Rule answer(InvocationOnMock invocation) throws Throwable {
         Object[] args = invocation.getArguments();
-        return new Rule((String) args[1], (String) args[1], null, (String) args[0], "");
+        return Rule.create((String) args[0], (String) args[1], "");
       }
     });
-    RulesProfile profile = mock(RulesProfile.class);
-    when(profile.getActiveRule(anyString(), anyString())).thenReturn(new ActiveRule(null, null, RulePriority.MINOR));
-    PmdViolationsXmlParser parser = new PmdViolationsXmlParser(project, context, manager, profile);
+
+    when(context.getResource((JavaFile) any())).thenReturn(new JavaFile(""));
+
+    PmdViolationsXmlParser parser = new PmdViolationsXmlParser(project, ruleFinder, context);
 
     File xmlFile = new File(getClass().getResource(xmlPath).toURI());
     parser.parse(xmlFile);
@@ -72,7 +80,7 @@ public class PmdViolationsXmlParserTest {
     verify(context, times(30)).saveViolation(argThat(new IsViolationOnJavaClass()));
     verify(context, times(4)).saveViolation(argThat(new IsViolationOnJavaClass(new JavaFile("ch.hortis.sonar.mvn.ClassWithComments"))));
 
-    Violation wanted = Violation.create((Rule)null, new JavaFile("ch.hortis.sonar.mvn.ClassWithComments"))
+    Violation wanted = Violation.create((Rule) null, new JavaFile("ch.hortis.sonar.mvn.ClassWithComments"))
         .setMessage("Avoid unused local variables such as 'toto'.")
         .setLineId(22);
     verify(context, times(1)).saveViolation(argThat(new IsViolation(wanted)));
@@ -92,14 +100,12 @@ public class PmdViolationsXmlParserTest {
     verify(context, times(2)).saveViolation(argThat(new IsViolationOnJavaClass(new JavaFile("test.Test"))));
   }
 
-
   @Test
   public void ISOControlCharsXMLFile() throws URISyntaxException, XMLStreamException {
     SensorContext context = mock(SensorContext.class);
     parse(context, "/org/sonar/plugins/pmd/pmd-result-with-control-char.xml");
     verify(context, times(1)).saveViolation(argThat(new IsViolationOnJavaClass(new JavaFile("test.Test"))));
   }
-
 
   private class IsViolationOnJavaClass extends BaseMatcher<Violation> {
 

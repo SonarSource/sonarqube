@@ -19,26 +19,25 @@
  */
 package org.sonar.plugins.pmd;
 
-import org.sonar.api.batch.AbstractViolationsStaxParser;
+import java.io.File;
+
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.rules.RulesManager;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.XmlParserException;
-
-import java.io.File;
 
 public class PmdSensor implements Sensor {
 
   private RulesProfile profile;
-  private RulesManager rulesManager;
+  private RuleFinder rulesFinder;
   private PmdExecutor executor;
 
-  public PmdSensor(RulesProfile profile, RulesManager rulesManager, PmdExecutor executor) {
+  public PmdSensor(RulesProfile profile, RuleFinder rulesFinder, PmdExecutor executor) {
     this.profile = profile;
-    this.rulesManager = rulesManager;
+    this.rulesFinder = rulesFinder;
     this.executor = executor;
   }
 
@@ -48,8 +47,7 @@ public class PmdSensor implements Sensor {
     }
     try {
       File xmlReport = executor.execute();
-      AbstractViolationsStaxParser parser = getStaxParser(project, context);
-      parser.parse(xmlReport);
+      getStaxParser(project, context).parse(xmlReport);
 
     } catch (Exception e) {
       // TOFIX
@@ -62,8 +60,8 @@ public class PmdSensor implements Sensor {
         (!profile.getActiveRulesByRepository(PmdConstants.REPOSITORY_KEY).isEmpty() || project.getReuseExistingRulesConfig());
   }
 
-  private AbstractViolationsStaxParser getStaxParser(Project project, SensorContext context) {
-    return new PmdViolationsXmlParser(project, context, rulesManager, profile);
+  private PmdViolationsXmlParser getStaxParser(Project project, SensorContext context) {
+    return new PmdViolationsXmlParser(project, rulesFinder, context);
   }
 
   @Override
