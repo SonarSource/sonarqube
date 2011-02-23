@@ -582,6 +582,9 @@ public final class CoreMetrics {
   public static final Metric PROFILE = new Metric(PROFILE_KEY, "Profile", "Selected quality profile", Metric.ValueType.DATA,
       Metric.DIRECTION_NONE, false, DOMAIN_GENERAL);
 
+  public static final String PROFILE_VERSION_KEY = "profile_version";
+  public static final Metric PROFILE_VERSION = new Metric(PROFILE_VERSION_KEY, "Profile version", "Selected quality profile version", Metric.ValueType.INT,
+      Metric.DIRECTION_BETTER, false, DOMAIN_GENERAL);
 
   // SCM
 

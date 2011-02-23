@@ -21,6 +21,7 @@ package org.sonar.plugins.core.sensors;
 
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.profiles.RulesProfile;
@@ -28,10 +29,12 @@ import org.sonar.api.resources.Project;
 
 public class ProfileSensor implements Sensor {
 
-  private RulesProfile profile;
+  private final RulesProfile profile;
+  private final DatabaseSession session;
 
-  public ProfileSensor(RulesProfile profile) {
+  public ProfileSensor(RulesProfile profile, DatabaseSession session) {
     this.profile = profile;
+    this.session = session;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -41,10 +44,15 @@ public class ProfileSensor implements Sensor {
   public void analyse(Project project, SensorContext context) {
     if (profile != null) {
       Measure measure = new Measure(CoreMetrics.PROFILE, profile.getName());
+      Measure measureVersion = new Measure(CoreMetrics.PROFILE_VERSION, Integer.valueOf(profile.getVersion()).doubleValue());
       if (profile.getId() != null) {
         measure.setValue(profile.getId().doubleValue());
+        
+        profile.setUsed(true);
+        session.merge(profile);
       }
       context.saveMeasure(measure);
+      context.saveMeasure(measureVersion);
     }
   }
 

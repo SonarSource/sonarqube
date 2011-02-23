@@ -34,6 +34,7 @@ import java.util.Date;
 public class Event extends BaseIdentifiable {
   public static final String CATEGORY_VERSION = "Version";
   public static final String CATEGORY_ALERT = "Alert";
+  public static final String CATEGORY_PROFILE = "Profile";
 
   @Column(name = "name", updatable = true, nullable = true, length = 50)
   private String name;
@@ -112,6 +113,10 @@ public class Event extends BaseIdentifiable {
 
   public boolean isVersionCategory() {
     return CATEGORY_VERSION.equalsIgnoreCase(category);
+  }
+
+  public boolean isProfileCategory() {
+    return CATEGORY_PROFILE.equalsIgnoreCase(category);
   }
 
   public Date getDate() {

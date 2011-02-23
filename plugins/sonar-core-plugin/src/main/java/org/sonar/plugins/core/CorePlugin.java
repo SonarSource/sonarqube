@@ -212,6 +212,7 @@ public class CorePlugin implements Plugin {
 
     // batch
     extensions.add(ProfileSensor.class);
+    extensions.add(ProfileEventsSensor.class);
     extensions.add(ProjectLinksSensor.class);
     extensions.add(AsynchronousMeasuresSensor.class);
     extensions.add(UnitTestDecorator.class);
