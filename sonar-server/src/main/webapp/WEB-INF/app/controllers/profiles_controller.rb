@@ -196,6 +196,18 @@ class ProfilesController < ApplicationController
     profiles=Profile.find(:all, :conditions => ['language=? and id<>? and (parent_name is null or parent_name<>?) and enabled=?', @profile.language, @profile.id, @profile.name, true], :order => 'name')
     @select_parent = [['None', nil]] + profiles.collect{ |profile| [profile.name, profile.name] }
   end
+  
+  #
+  #
+  # GET /profiles/changelog?id=<profile id>
+  #
+  #
+  def changelog
+    @profile = Profile.find(params[:id])
+    
+    @changes=ActiveRuleChange.find(:all, :conditions => ['profile_id=?', @profile.id], :order => 'id desc')
+    
+  end
 
 
   #
