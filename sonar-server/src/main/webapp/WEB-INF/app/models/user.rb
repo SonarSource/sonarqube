@@ -60,9 +60,6 @@ class User < ActiveRecord::Base
     result.blank? ? login : result
   end
 
-  def login=(value)
-    write_attribute :login, (value ? value.downcase : nil)
-  end
 
   def email=(value)
     write_attribute :email, (value ? value.downcase : nil)
