@@ -224,7 +224,6 @@ public class CorePlugin implements Plugin {
     extensions.add(LineCoverageDecorator.class);
     extensions.add(CoverageDecorator.class);
     extensions.add(BranchCoverageDecorator.class);
-    extensions.add(UncoveredComplexityDecorator.class);
     extensions.add(ApplyProjectRolesDecorator.class);
     extensions.add(ExcludedResourceFilter.class);
     extensions.add(CommentDensityDecorator.class);

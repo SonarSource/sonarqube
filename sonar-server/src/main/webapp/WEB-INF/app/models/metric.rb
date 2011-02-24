@@ -244,7 +244,6 @@ class Metric < ActiveRecord::Base
   AVG_CMPX_BY_FILE = 'file_complexity'
   CLASSES_CMPX_DISTRIBUTION = 'class_complexity_distribution'
   FUNCTIONS_CMPX_DISTRIBUTION = 'function_complexity_distribution'
-  UNCOVERED_CMPX_BY_TESTS = 'uncovered_complexity_by_tests'
 
   DUPLICATED_FILES = 'duplicated_files'
   DUPLICATED_LINES = 'duplicated_lines'

@@ -296,18 +296,6 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_TESTS)
       .create();
 
-  /**
-   * @deprecated replaced since 1.11 by UNCOVERED_LINES and UNCOVERED_CONDITIONS
-   */
-  @Deprecated
-  public static final String UNCOVERED_COMPLEXITY_BY_TESTS_KEY = "uncovered_complexity_by_tests";
-  /**
-   * @deprecated replaced since 1.11 by UNCOVERED_LINES and UNCOVERED_CONDITIONS
-   */
-  @Deprecated
-  public static final Metric UNCOVERED_COMPLEXITY_BY_TESTS = new Metric(UNCOVERED_COMPLEXITY_BY_TESTS_KEY, "Uncovered complexity",
-      "Uncovered complexity", Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_COMPLEXITY).setFormula(new SumChildValuesFormula(
-      false));
 
   public static final String DUPLICATED_LINES_KEY = "duplicated_lines";
   public static final Metric DUPLICATED_LINES = new Metric(DUPLICATED_LINES_KEY, "Duplicated lines", "Duplicated lines",
