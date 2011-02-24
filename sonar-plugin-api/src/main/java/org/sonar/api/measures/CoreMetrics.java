@@ -19,15 +19,13 @@
  */
 package org.sonar.api.measures;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.SonarException;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @since 1.10
@@ -43,6 +41,7 @@ public final class CoreMetrics {
   public static final String DOMAIN_COMPLEXITY = "Complexity";
   public static final String DOMAIN_DOCUMENTATION = "Documentation";
   public static final String DOMAIN_RULES = "Rules";
+  public static final String DOMAIN_SCM = "SCM";
 
   /**
    * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
@@ -180,7 +179,12 @@ public final class CoreMetrics {
       "Commented lines of code", Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_DOCUMENTATION).setFormula(
       new SumChildValuesFormula(false)).setBestValue(0.0).setOptimizedBestValue(true);
 
-  /* unit tests */
+
+
+
+
+  // UNIT TESTS
+
   public static final String TESTS_KEY = "tests";
   public static final Metric TESTS = new Metric(TESTS_KEY, "Unit tests", "Number of unit tests", Metric.ValueType.INT,
       Metric.DIRECTION_WORST, false, DOMAIN_TESTS);
@@ -214,33 +218,83 @@ public final class CoreMetrics {
   public static final Metric LINES_TO_COVER = new Metric(LINES_TO_COVER_KEY, "Lines to cover", "Lines to cover", Metric.ValueType.INT,
       Metric.DIRECTION_BETTER, false, DOMAIN_TESTS).setFormula(new SumChildValuesFormula(false)).setHidden(true);
 
+
   public static final String UNCOVERED_LINES_KEY = "uncovered_lines";
-  public static final Metric UNCOVERED_LINES = new Metric(UNCOVERED_LINES_KEY, "Uncovered lines", "Uncovered lines", Metric.ValueType.INT,
-      Metric.DIRECTION_WORST, false, DOMAIN_TESTS).setFormula(new SumChildValuesFormula(false));
+  public static final Metric UNCOVERED_LINES = new Metric.Builder(UNCOVERED_LINES_KEY, Metric.ValueType.INT)
+      .setName("Uncovered lines")
+      .setDescription("Uncovered lines")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setDomain(DOMAIN_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
+
+  public static final String NEW_UNCOVERED_LINES_KEY = "new_uncovered_lines";
+  public static final Metric NEW_UNCOVERED_LINES = new Metric.Builder(NEW_UNCOVERED_LINES_KEY, Metric.ValueType.INT)
+      .setName("New uncovered lines")
+      .setDescription("New uncovered lines")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setDomain(DOMAIN_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
   public static final String LINE_COVERAGE_KEY = "line_coverage";
   public static final Metric LINE_COVERAGE = new Metric(LINE_COVERAGE_KEY, "Line coverage", "Line coverage", Metric.ValueType.PERCENT,
       Metric.DIRECTION_BETTER, true, DOMAIN_TESTS);
 
   public static final String COVERAGE_LINE_HITS_DATA_KEY = "coverage_line_hits_data";
-  public static final Metric COVERAGE_LINE_HITS_DATA = new Metric(COVERAGE_LINE_HITS_DATA_KEY, "Coverage hits data",
-      "Code coverage line hits data", Metric.ValueType.DATA, Metric.DIRECTION_NONE, false, DOMAIN_TESTS);
+  public static final Metric COVERAGE_LINE_HITS_DATA = new Metric.Builder(COVERAGE_LINE_HITS_DATA_KEY, Metric.ValueType.DATA)
+      .setDomain(DOMAIN_TESTS)
+      .create();
 
   public static final String CONDITIONS_TO_COVER_KEY = "conditions_to_cover";
   public static final Metric CONDITIONS_TO_COVER = new Metric(CONDITIONS_TO_COVER_KEY, "Conditions to cover", "Conditions to cover",
       Metric.ValueType.INT, Metric.DIRECTION_BETTER, false, DOMAIN_TESTS).setFormula(new SumChildValuesFormula(false)).setHidden(true);
 
   public static final String UNCOVERED_CONDITIONS_KEY = "uncovered_conditions";
-  public static final Metric UNCOVERED_CONDITIONS = new Metric(UNCOVERED_CONDITIONS_KEY, "Uncovered conditions", "Uncovered conditions",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_TESTS).setFormula(new SumChildValuesFormula(false));
+  public static final Metric UNCOVERED_CONDITIONS = new Metric.Builder(UNCOVERED_CONDITIONS_KEY, Metric.ValueType.INT)
+      .setName("Uncovered conditions")
+      .setDescription("Uncovered conditions")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setDomain(DOMAIN_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
+
+  public static final String NEW_UNCOVERED_CONDITIONS_KEY = "new_uncovered_conditions";
+  public static final Metric NEW_UNCOVERED_CONDITIONS = new Metric.Builder(NEW_UNCOVERED_CONDITIONS_KEY, Metric.ValueType.INT)
+      .setName("New uncovered conditions")
+      .setDescription("New uncovered conditions")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setDomain(DOMAIN_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
   public static final String BRANCH_COVERAGE_KEY = "branch_coverage";
   public static final Metric BRANCH_COVERAGE = new Metric(BRANCH_COVERAGE_KEY, "Branch coverage", "Branch coverage",
       Metric.ValueType.PERCENT, Metric.DIRECTION_BETTER, true, DOMAIN_TESTS).setWorstValue(0.0).setBestValue(100.0);
 
   public static final String BRANCH_COVERAGE_HITS_DATA_KEY = "branch_coverage_hits_data";
-  public static final Metric BRANCH_COVERAGE_HITS_DATA = new Metric(BRANCH_COVERAGE_HITS_DATA_KEY, "Branch coverage hits",
-      "Branch coverage hits", Metric.ValueType.DATA, Metric.DIRECTION_NONE, false, DOMAIN_TESTS);
+  public static final Metric BRANCH_COVERAGE_HITS_DATA = new Metric.Builder(BRANCH_COVERAGE_HITS_DATA_KEY, Metric.ValueType.DATA)
+      .setName("Branch coverage hits")
+      .setDomain(DOMAIN_TESTS)
+      .create();
+
+  public static final String CONDITIONS_BY_LINE_DATA_KEY = "conditions_by_line_data";
+
+  /**
+   * @since 2.7
+   */
+  public static final Metric CONDITIONS_BY_LINE_DATA = new Metric.Builder(CONDITIONS_BY_LINE_DATA_KEY, Metric.ValueType.DATA)
+      .setDomain(DOMAIN_TESTS)
+      .create();
+
+  public static final String COVERED_CONDITIONS_BY_LINE_DATA_KEY = "covered_conditions_by_line_data";
+
+  /**
+   * @since 2.7
+   */ 
+  public static final Metric COVERED_CONDITIONS_BY_LINE_DATA = new Metric.Builder(COVERED_CONDITIONS_BY_LINE_DATA_KEY, Metric.ValueType.DATA)
+      .setDomain(DOMAIN_TESTS)
+      .create();
 
   /**
    * @deprecated replaced since 1.11 by UNCOVERED_LINES and UNCOVERED_CONDITIONS
@@ -398,7 +452,11 @@ public final class CoreMetrics {
   public static final Metric NEW_INFO_VIOLATIONS = new Metric(NEW_INFO_VIOLATIONS_KEY, "New Info violations", "New Info violations",
       Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setHidden(true).setBestValue(0.0).setOptimizedBestValue(true);
 
-  /* Design */
+
+
+
+
+  // DESIGN
 
   public static final String ABSTRACTNESS_KEY = "abstractness";
   public static final Metric ABSTRACTNESS = new Metric(ABSTRACTNESS_KEY, "Abstractness", "Abstractness", Metric.ValueType.PERCENT,
@@ -506,9 +564,28 @@ public final class CoreMetrics {
   public static final Metric PROFILE = new Metric(PROFILE_KEY, "Profile", "Selected quality profile", Metric.ValueType.DATA,
       Metric.DIRECTION_NONE, false, DOMAIN_GENERAL);
 
-  public static List<Metric> metrics = new ArrayList<Metric>();
 
-  public static Set<String> metricKeys = new HashSet<String>();
+
+
+
+  // SCM
+
+  public static final String SCM_AUTHORS_BY_LINE_KEY = "blame_authors_data";//"scm_authors_by_line";
+  public static final Metric SCM_AUTHORS_BY_LINE = new Metric.Builder(SCM_AUTHORS_BY_LINE_KEY, Metric.ValueType.DATA)
+      .setDomain(DOMAIN_SCM)
+      .create();
+
+  public static final String SCM_REVISIONS_BY_LINE_KEY = "blame_revision_data";//"scm_revisions_by_line";
+  public static final Metric SCM_REVISIONS_BY_LINE = new Metric.Builder(SCM_REVISIONS_BY_LINE_KEY, Metric.ValueType.DATA)
+      .setDomain(DOMAIN_SCM)
+      .create();
+
+  public static final String SCM_LAST_UPDATE_DATETIME_BY_LINE_KEY = "blame_date_data";//"scm_last_update_datetime_by_line";
+  public static final Metric SCM_LAST_UPDATE_DATETIME_BY_LINE = new Metric.Builder(SCM_LAST_UPDATE_DATETIME_BY_LINE_KEY, Metric.ValueType.DATA)
+      .setDomain(DOMAIN_SCM)
+      .create();
+
+  public static List<Metric> metrics = Lists.newLinkedList();
 
   public static List<Metric> getMetrics() {
     if (metrics.isEmpty()) {

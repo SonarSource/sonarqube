@@ -19,36 +19,31 @@
  */
 package org.sonar.plugins.cobertura.api;
 
-import static java.util.Locale.ENGLISH;
-import static org.sonar.api.utils.ParsingUtils.parseNumber;
-import static org.sonar.api.utils.ParsingUtils.scaleValue;
-
+import com.google.common.collect.Maps;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.CoverageMeasuresBuilder;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.PersistenceMode;
-import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.StaxParser;
 import org.sonar.api.utils.XmlParserException;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import javax.xml.stream.XMLStreamException;
+import static java.util.Locale.ENGLISH;
+import static org.sonar.api.utils.ParsingUtils.parseNumber;
 
 /**
  * @since 2.4
  */
 public abstract class AbstractCoberturaParser {
+
   public void parseReport(File xmlFile, final SensorContext context) {
     try {
       StaxParser parser = new StaxParser(new StaxParser.XmlStreamHandler() {
@@ -70,110 +65,57 @@ public abstract class AbstractCoberturaParser {
 
   private void collectPackageMeasures(SMInputCursor pack, SensorContext context) throws ParseException, XMLStreamException {
     while (pack.getNext() != null) {
-      Map<String, FileData> fileDataPerFilename = new HashMap<String, FileData>();
-      collectFileMeasures(pack.descendantElementCursor("class"), fileDataPerFilename);
-      for (FileData cci : fileDataPerFilename.values()) {
-        if (isFileExist(context, cci.getFile())) {
-          for (Measure measure : cci.getMeasures()) {
-            context.saveMeasure(cci.getFile(), measure);
+      Map<String, CoverageMeasuresBuilder> builderByFilename = Maps.newHashMap();
+      collectFileMeasures(pack.descendantElementCursor("class"), builderByFilename);
+      for (Map.Entry<String, CoverageMeasuresBuilder> entry : builderByFilename.entrySet()) {
+        String filename = sanitizeFilename(entry.getKey());
+        Resource file = getResource(filename);
+        if (fileExists(context, file)) {
+          for (Measure measure : entry.getValue().createMeasures()) {
+            System.out.println(file + " -> " + measure);
+            context.saveMeasure(file, measure);
           }
         }
       }
     }
   }
 
-  private boolean isFileExist(SensorContext context, Resource<?> file) {
+  private boolean fileExists(SensorContext context, Resource file) {
     return context.getResource(file) != null;
   }
 
-  private void collectFileMeasures(SMInputCursor clazz, Map<String, FileData> dataPerFilename) throws ParseException, XMLStreamException {
+  private void collectFileMeasures(SMInputCursor clazz, Map<String, CoverageMeasuresBuilder> builderByFilename) throws ParseException, XMLStreamException {
     while (clazz.getNext() != null) {
-      String fileName = FilenameUtils.removeExtension(clazz.getAttrValue("filename"));
-      fileName = fileName.replace('/', '.').replace('\\', '.');
-      FileData data = dataPerFilename.get(fileName);
-      if (data == null) {
-        data = new FileData(getResource(fileName));
-        dataPerFilename.put(fileName, data);
+      String fileName = clazz.getAttrValue("filename");
+      CoverageMeasuresBuilder builder = builderByFilename.get(fileName);
+      if (builder==null) {
+        builder = CoverageMeasuresBuilder.create();
+        builderByFilename.put(fileName, builder);
       }
-      collectFileData(clazz, data);
+      collectFileData(clazz, builder);
     }
   }
 
-  private void collectFileData(SMInputCursor clazz, FileData data) throws ParseException, XMLStreamException {
+  private void collectFileData(SMInputCursor clazz, CoverageMeasuresBuilder builder) throws ParseException, XMLStreamException {
     SMInputCursor line = clazz.childElementCursor("lines").advance().childElementCursor("line");
     while (line.getNext() != null) {
-      String lineId = line.getAttrValue("number");
-      data.addLine(lineId, (int) parseNumber(line.getAttrValue("hits"), ENGLISH));
+      int lineId = Integer.parseInt(line.getAttrValue("number"));
+      builder.setHits(lineId, (int) parseNumber(line.getAttrValue("hits"), ENGLISH));
 
       String isBranch = line.getAttrValue("branch");
       String text = line.getAttrValue("condition-coverage");
       if (StringUtils.equals(isBranch, "true") && StringUtils.isNotBlank(text)) {
         String[] conditions = StringUtils.split(StringUtils.substringBetween(text, "(", ")"), "/");
-        data.addConditionLine(lineId, Integer.parseInt(conditions[0]), Integer.parseInt(conditions[1]), StringUtils.substringBefore(text, " "));
+        builder.setConditions(lineId, Integer.parseInt(conditions[1]), Integer.parseInt(conditions[0]));
       }
     }
   }
 
-  private class FileData {
-
-    private int lines = 0;
-    private int conditions = 0;
-    private int coveredLines = 0;
-    private int coveredConditions = 0;
-
-    private Resource<?> file;
-    private PropertiesBuilder<String, Integer> lineHitsBuilder = new PropertiesBuilder<String, Integer>(CoreMetrics.COVERAGE_LINE_HITS_DATA);
-    private PropertiesBuilder<String, String> branchHitsBuilder = new PropertiesBuilder<String, String>(CoreMetrics.BRANCH_COVERAGE_HITS_DATA);
-
-    public void addLine(String lineId, int lineHits) {
-      lines++;
-      if (lineHits > 0) {
-        coveredLines++;
-      }
-      lineHitsBuilder.add(lineId, lineHits);
-    }
-
-    public void addConditionLine(String lineId, int coveredConditions, int conditions, String label) {
-      this.conditions += conditions;
-      this.coveredConditions += coveredConditions;
-      branchHitsBuilder.add(lineId, label);
-    }
-
-    public FileData(Resource<?> file) {
-      this.file = file;
-    }
-
-    public List<Measure> getMeasures() {
-      List<Measure> measures = new ArrayList<Measure>();
-      if (lines > 0) {
-        measures.add(new Measure(CoreMetrics.COVERAGE, calculateCoverage(coveredLines + coveredConditions, lines + conditions)));
-
-        measures.add(new Measure(CoreMetrics.LINE_COVERAGE, calculateCoverage(coveredLines, lines)));
-        measures.add(new Measure(CoreMetrics.LINES_TO_COVER, (double) lines));
-        measures.add(new Measure(CoreMetrics.UNCOVERED_LINES, (double) lines - coveredLines));
-        measures.add(lineHitsBuilder.build().setPersistenceMode(PersistenceMode.DATABASE));
-
-        if (conditions > 0) {
-          measures.add(new Measure(CoreMetrics.BRANCH_COVERAGE, calculateCoverage(coveredConditions, conditions)));
-          measures.add(new Measure(CoreMetrics.CONDITIONS_TO_COVER, (double) conditions));
-          measures.add(new Measure(CoreMetrics.UNCOVERED_CONDITIONS, (double) conditions - coveredConditions));
-          measures.add(branchHitsBuilder.build().setPersistenceMode(PersistenceMode.DATABASE));
-        }
-      }
-      return measures;
-    }
-
-    public Resource<?> getFile() {
-      return file;
-    }
+  private String sanitizeFilename(String s) {
+    String fileName = FilenameUtils.removeExtension(s);
+    fileName = fileName.replace('/', '.').replace('\\', '.');
+    return fileName;
   }
 
-  private double calculateCoverage(int coveredElements, int elements) {
-    if (elements > 0) {
-      return scaleValue(100.0 * ((double) coveredElements / (double) elements));
-    }
-    return 0.0;
-  }
-
-  protected abstract Resource<?> getResource(String fileName);
+  protected abstract Resource getResource(String fileName);
 }

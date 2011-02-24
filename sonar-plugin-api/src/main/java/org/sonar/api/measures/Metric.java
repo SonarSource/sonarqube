@@ -105,7 +105,7 @@ public class Metric implements ServerExtension, BatchExtension {
 
   @Column(name = "origin", updatable = true, nullable = true, length = 3)
   @Enumerated(EnumType.STRING)
-  private Origin origin;
+  private Origin origin = Origin.JAV;
 
   @Column(name = "worst_value", updatable = true, nullable = true, precision = 30, scale = 20)
   private Double worstValue;
@@ -118,7 +118,6 @@ public class Metric implements ServerExtension, BatchExtension {
 
   @Column(name = "hidden", updatable = true, nullable = true)
   private Boolean hidden = Boolean.FALSE;
-
 
   /**
    * Creates an empty metric
@@ -214,6 +213,23 @@ public class Metric implements ServerExtension, BatchExtension {
       this.bestValue = (direction == DIRECTION_BETTER ? 100.0 : 0.0);
       this.worstValue = (direction == DIRECTION_BETTER ? 0.0 : 100.0);
     }
+  }
+
+  private Metric(String key, String name, ValueType type, String description, Integer direction, String domain, Boolean qualitative, Double worstValue, Double bestValue, Boolean optimizedBestValue, Boolean hidden, Formula formula) {
+    this.key = key;
+    this.name = name;
+    this.description = description;
+    this.type = type;
+    this.direction = direction;
+    this.domain = domain;
+    this.qualitative = qualitative;
+    this.userManaged = Boolean.FALSE;
+    this.enabled = Boolean.TRUE;
+    this.worstValue = worstValue;
+    this.optimizedBestValue = optimizedBestValue;
+    this.bestValue = bestValue;
+    this.hidden = hidden;
+    this.formula = formula;
   }
 
   /**
@@ -553,5 +569,82 @@ public class Metric implements ServerExtension, BatchExtension {
     this.origin = with.origin;
     this.hidden = with.hidden;
     return this;
+  }
+
+  public static final class Builder {
+    private String key;
+    private Metric.ValueType type;
+    private String name;
+    private String description;
+    private Integer direction = DIRECTION_NONE;
+    private Boolean qualitative = Boolean.FALSE;
+    private String domain = null;
+    private Formula formula;
+    private Double worstValue;
+    private Double bestValue;
+    private boolean optimizedBestValue = false;
+    private boolean hidden = false;
+
+    public Builder(String key, ValueType type) {
+      this.key = key;
+      this.type = type;
+    }
+
+    public Builder setName(String s) {
+      this.name = s;
+      return this;
+    }
+
+    public Builder setDescription(String s) {
+      this.description = s;
+      return this;
+    }
+
+    /**
+     * Used for numeric values only
+     */
+    public Builder setDirection(Integer i) {
+      this.direction = i;
+      return this;
+    }
+
+    public Builder setQualitative(Boolean b) {
+      this.qualitative = b;
+      return this;
+    }
+
+    public Builder setDomain(String s) {
+      this.domain = s;
+      return this;
+    }
+
+    public Builder setFormula(Formula f) {
+      this.formula = f;
+      return this;
+    }
+
+    public Builder setWorstValue(Double d) {
+      this.worstValue = d;
+      return this;
+    }
+
+    public Builder setBestValue(Double d) {
+      this.bestValue = d;
+      return this;
+    }
+
+    public Builder setOptimizedBestValue(boolean b) {
+      this.optimizedBestValue = b;
+      return this;
+    }
+
+    public Builder setHidden(boolean b) {
+      this.hidden = b;
+      return this;
+    }
+
+    public Metric create() {
+      return new Metric(key, name, type, description, direction, domain, qualitative, worstValue, bestValue, optimizedBestValue, hidden, formula);
+    }
   }
 }

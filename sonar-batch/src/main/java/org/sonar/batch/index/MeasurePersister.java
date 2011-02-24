@@ -29,7 +29,6 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.RuleMeasure;
-import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rules.Rule;
@@ -90,12 +89,12 @@ public final class MeasurePersister {
     return measure.getId() == null &&
         metric.isOptimizedBestValue() == Boolean.TRUE &&
         metric.getBestValue() != null &&
-        (measure.getValue()==null || NumberUtils.compare(metric.getBestValue(), measure.getValue()) == 0) &&
+        (measure.getValue() == null || NumberUtils.compare(metric.getBestValue(), measure.getValue()) == 0) &&
         measure.getAlertStatus() == null &&
         measure.getDescription() == null &&
         measure.getTendency() == null &&
         measure.getUrl() == null &&
-        measure.getData() == null &&
+        !measure.hasData() &&
         (measure.getVariation1() == null || NumberUtils.compare(measure.getVariation1().doubleValue(), 0.0) == 0) &&
         (measure.getVariation2() == null || NumberUtils.compare(measure.getVariation2().doubleValue(), 0.0) == 0) &&
         (measure.getVariation3() == null || NumberUtils.compare(measure.getVariation3().doubleValue(), 0.0) == 0) &&

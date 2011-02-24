@@ -23,9 +23,7 @@ import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.JavaPackage;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.api.test.IsResource;
 
@@ -37,10 +35,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class CoberturaSensorTest {
 
@@ -103,7 +98,6 @@ public class CoberturaSensorTest {
     new CoberturaSensor().parseReport(getCoverageReport(), context);
 
     final JavaFile file = new JavaFile("org.apache.commons.chain.config.ConfigParser");
-    // verify(context).saveMeasure(eq(file), argThat(new IsMeasure(CoreMetrics.LINE_COVERAGE, 83.3)));
     verify(context).saveMeasure(eq(file), argThat(new IsMeasure(CoreMetrics.LINES_TO_COVER, 30.0)));
     verify(context).saveMeasure(eq(file), argThat(new IsMeasure(CoreMetrics.UNCOVERED_LINES, 5.0)));
   }
@@ -115,7 +109,6 @@ public class CoberturaSensorTest {
     new CoberturaSensor().parseReport(getCoverageReport(), context);
 
     final JavaFile file = new JavaFile("org.apache.commons.chain.config.ConfigParser");
-    verify(context).saveMeasure(eq(file), argThat(new IsMeasure(CoreMetrics.BRANCH_COVERAGE, 66.7)));
     verify(context).saveMeasure(eq(file), argThat(new IsMeasure(CoreMetrics.CONDITIONS_TO_COVER, 6.0)));
     verify(context).saveMeasure(eq(file), argThat(new IsMeasure(CoreMetrics.UNCOVERED_CONDITIONS, 2.0)));
   }
@@ -153,56 +146,40 @@ public class CoberturaSensorTest {
     when(context.getResource(any(Resource.class))).thenReturn(new JavaFile("org.sonar.MyClass"));
     new CoberturaSensor().parseReport(coverage, context);
 
-    verify(context).saveMeasure(argThat(new IsResource(Resource.SCOPE_ENTITY, Resource.QUALIFIER_CLASS, "org.sonar.samples.InnerClass")),
-        argThat(new IsMeasure(CoreMetrics.LINE_COVERAGE, 37.1)));
-    verify(context).saveMeasure(argThat(new IsResource(Resource.SCOPE_ENTITY, Resource.QUALIFIER_CLASS, "org.sonar.samples.InnerClass")),
+    verify(context).saveMeasure(argThat(new IsResource(Scopes.FILE, Qualifiers.CLASS, "org.sonar.samples.InnerClass")),
         argThat(new IsMeasure(CoreMetrics.LINES_TO_COVER, 35.0)));
-    verify(context).saveMeasure(argThat(new IsResource(Resource.SCOPE_ENTITY, Resource.QUALIFIER_CLASS, "org.sonar.samples.InnerClass")),
+    verify(context).saveMeasure(argThat(new IsResource(Scopes.FILE, Qualifiers.CLASS, "org.sonar.samples.InnerClass")),
         argThat(new IsMeasure(CoreMetrics.UNCOVERED_LINES, 22.0)));
 
-    verify(context).saveMeasure(argThat(new IsResource(Resource.SCOPE_ENTITY, Resource.QUALIFIER_CLASS, "org.sonar.samples.InnerClass")),
-        argThat(new IsMeasure(CoreMetrics.BRANCH_COVERAGE, 25.0)));
-    verify(context).saveMeasure(argThat(new IsResource(Resource.SCOPE_ENTITY, Resource.QUALIFIER_CLASS, "org.sonar.samples.InnerClass")),
+    verify(context).saveMeasure(argThat(new IsResource(Scopes.FILE, Qualifiers.CLASS, "org.sonar.samples.InnerClass")),
         argThat(new IsMeasure(CoreMetrics.CONDITIONS_TO_COVER, 4.0)));
-    verify(context).saveMeasure(argThat(new IsResource(Resource.SCOPE_ENTITY, Resource.QUALIFIER_CLASS, "org.sonar.samples.InnerClass")),
+    verify(context).saveMeasure(argThat(new IsResource(Scopes.FILE, Qualifiers.CLASS, "org.sonar.samples.InnerClass")),
         argThat(new IsMeasure(CoreMetrics.UNCOVERED_CONDITIONS, 3.0)));
 
     verify(context, never()).saveMeasure(
-        argThat(new IsResource(Resource.SCOPE_ENTITY, Resource.QUALIFIER_CLASS, "org.sonar.samples.InnerClass$InnerClassInside")),
-        argThat(new IsMeasure(CoreMetrics.LINE_COVERAGE)));
-    verify(context, never()).saveMeasure(
-        argThat(new IsResource(Resource.SCOPE_ENTITY, Resource.QUALIFIER_CLASS, "org.sonar.samples.InnerClass$InnerClassInside")),
-        argThat(new IsMeasure(CoreMetrics.BRANCH_COVERAGE)));
-    verify(context, never()).saveMeasure(
-        argThat(new IsResource(Resource.SCOPE_ENTITY, Resource.QUALIFIER_CLASS, "org.sonar.samples.InnerClass$InnerClassInside")),
+        argThat(new IsResource(Scopes.FILE, Qualifiers.CLASS, "org.sonar.samples.InnerClass$InnerClassInside")),
         argThat(new IsMeasure(CoreMetrics.LINES_TO_COVER)));
     verify(context, never()).saveMeasure(
-        argThat(new IsResource(Resource.SCOPE_ENTITY, Resource.QUALIFIER_CLASS, "org.sonar.samples.InnerClass$InnerClassInside")),
+        argThat(new IsResource(Scopes.FILE, Qualifiers.CLASS, "org.sonar.samples.InnerClass$InnerClassInside")),
         argThat(new IsMeasure(CoreMetrics.CONDITIONS_TO_COVER)));
     verify(context, never()).saveMeasure(
-        argThat(new IsResource(Resource.SCOPE_ENTITY, Resource.QUALIFIER_CLASS, "org.sonar.samples.InnerClass$InnerClassInside")),
+        argThat(new IsResource(Scopes.FILE, Qualifiers.CLASS, "org.sonar.samples.InnerClass$InnerClassInside")),
         argThat(new IsMeasure(CoreMetrics.UNCOVERED_CONDITIONS)));
     verify(context, never()).saveMeasure(
-        argThat(new IsResource(Resource.SCOPE_ENTITY, Resource.QUALIFIER_CLASS, "org.sonar.samples.InnerClass$InnerClassInside")),
+        argThat(new IsResource(Scopes.FILE, Qualifiers.CLASS, "org.sonar.samples.InnerClass$InnerClassInside")),
         argThat(new IsMeasure(CoreMetrics.UNCOVERED_LINES)));
 
     verify(context, never()).saveMeasure(
-        argThat(new IsResource(Resource.SCOPE_ENTITY, Resource.QUALIFIER_CLASS, "org.sonar.samples.PrivateClass")),
-        argThat(new IsMeasure(CoreMetrics.LINE_COVERAGE)));
-    verify(context, never()).saveMeasure(
-        argThat(new IsResource(Resource.SCOPE_ENTITY, Resource.QUALIFIER_CLASS, "org.sonar.samples.PrivateClass")),
-        argThat(new IsMeasure(CoreMetrics.BRANCH_COVERAGE)));
-    verify(context, never()).saveMeasure(
-        argThat(new IsResource(Resource.SCOPE_ENTITY, Resource.QUALIFIER_CLASS, "org.sonar.samples.PrivateClass")),
+        argThat(new IsResource(Scopes.FILE, Qualifiers.CLASS, "org.sonar.samples.PrivateClass")),
         argThat(new IsMeasure(CoreMetrics.LINES_TO_COVER)));
     verify(context, never()).saveMeasure(
-        argThat(new IsResource(Resource.SCOPE_ENTITY, Resource.QUALIFIER_CLASS, "org.sonar.samples.PrivateClass")),
+        argThat(new IsResource(Scopes.FILE, Qualifiers.CLASS, "org.sonar.samples.PrivateClass")),
         argThat(new IsMeasure(CoreMetrics.CONDITIONS_TO_COVER)));
     verify(context, never()).saveMeasure(
-        argThat(new IsResource(Resource.SCOPE_ENTITY, Resource.QUALIFIER_CLASS, "org.sonar.samples.PrivateClass")),
+        argThat(new IsResource(Scopes.FILE, Qualifiers.CLASS, "org.sonar.samples.PrivateClass")),
         argThat(new IsMeasure(CoreMetrics.UNCOVERED_CONDITIONS)));
     verify(context, never()).saveMeasure(
-        argThat(new IsResource(Resource.SCOPE_ENTITY, Resource.QUALIFIER_CLASS, "org.sonar.samples.PrivateClass")),
+        argThat(new IsResource(Scopes.FILE, Qualifiers.CLASS, "org.sonar.samples.PrivateClass")),
         argThat(new IsMeasure(CoreMetrics.UNCOVERED_LINES)));
 
     verify(context)
@@ -221,7 +198,7 @@ public class CoberturaSensorTest {
     verify(context).saveMeasure(
         eq(new JavaFile("org.apache.commons.chain.impl.CatalogBase")),
         argThat(new IsMeasure(CoreMetrics.COVERAGE_LINE_HITS_DATA,
-            "111=18;121=0;122=0;125=0;126=0;127=0;128=0;131=0;133=0;48=117;56=234;66=0;67=0;68=0;84=999;86=999;98=318")));
+            "48=117;56=234;66=0;67=0;68=0;84=999;86=999;98=318;111=18;121=0;122=0;125=0;126=0;127=0;128=0;131=0;133=0")));
   }
 
   @Test
