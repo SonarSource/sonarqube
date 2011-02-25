@@ -387,8 +387,8 @@ public final class KeyValueFormat {
     return formatEntries(multiset.entrySet(), keyConverter);
   }
 
-  public static String format(Multiset<String> multiset) {
-    return formatEntries(multiset.entrySet(), StringConverter.INSTANCE);
+  public static String format(Multiset multiset) {
+    return formatEntries(multiset.entrySet(), ToStringConverter.INSTANCE);
   }
 
 
