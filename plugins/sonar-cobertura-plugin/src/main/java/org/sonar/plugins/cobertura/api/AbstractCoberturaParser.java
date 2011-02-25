@@ -72,7 +72,6 @@ public abstract class AbstractCoberturaParser {
         Resource file = getResource(filename);
         if (fileExists(context, file)) {
           for (Measure measure : entry.getValue().createMeasures()) {
-            System.out.println(file + " -> " + measure);
             context.saveMeasure(file, measure);
           }
         }
