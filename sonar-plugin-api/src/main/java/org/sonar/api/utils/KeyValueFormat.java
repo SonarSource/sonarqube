@@ -72,6 +72,23 @@ public final class KeyValueFormat {
     }
   }
 
+  public static final class ToStringConverter extends Converter<Object> {
+    static final ToStringConverter INSTANCE = new ToStringConverter();
+
+    private ToStringConverter() {
+    }
+
+    @Override
+    String format(Object o) {
+      return o.toString();
+    }
+
+    @Override
+    String parse(String s) {
+      throw new IllegalStateException("Can not parse with ToStringConverter: " + s);
+    }
+  }
+
   public static final class IntegerConverter extends Converter<Integer> {
     static final IntegerConverter INSTANCE = new IntegerConverter();
 
@@ -169,7 +186,7 @@ public final class KeyValueFormat {
     return map;
   }
 
-  public static Map<String, String> parse(String data) {
+  public static Map parse(String data) {
     return parse(data, StringConverter.INSTANCE, StringConverter.INSTANCE);
   }
 
@@ -316,8 +333,8 @@ public final class KeyValueFormat {
   /**
    * @since 2.7
    */
-  public static String format(Map<String, String> map) {
-    return format(map, StringConverter.INSTANCE, StringConverter.INSTANCE);
+  public static String format(Map map) {
+    return format(map, ToStringConverter.INSTANCE, ToStringConverter.INSTANCE);
   }
 
   /**
@@ -407,31 +424,6 @@ public final class KeyValueFormat {
     return sb.toString();
   }
 
-
-  /**
-   * Transforms a Object... into a string with the format : "object1=object2;object3=object4..."
-   *
-   * @param objects the object list to transform
-   * @return the formatted string
-   * @deprecated since 2.7 because there's not the inverse method to parse.
-   */
-  @Deprecated
-  public static String format(Object... objects) {
-    StringBuilder sb = new StringBuilder();
-    boolean first = true;
-    if (objects != null) {
-      for (int i = 0; i < objects.length; i++) {
-        if (!first) {
-          sb.append(PAIR_SEPARATOR);
-        }
-        sb.append(objects[i++].toString());
-        sb.append(FIELD_SEPARATOR);
-        sb.append(objects[i]);
-        first = false;
-      }
-    }
-    return sb.toString();
-  }
 
   @Deprecated
   public interface Transformer<KEY, VALUE> {

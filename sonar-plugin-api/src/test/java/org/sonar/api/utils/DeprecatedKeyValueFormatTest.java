@@ -21,15 +21,16 @@ package org.sonar.api.utils;
 
 import com.google.common.collect.Multiset;
 import com.google.common.collect.TreeMultiset;
-import static junit.framework.Assert.assertEquals;
 import org.apache.commons.collections.bag.TreeBag;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.sonar.api.rules.RulePriority;
 
 import java.util.Map;
 import java.util.TreeMap;
+
+import static junit.framework.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class DeprecatedKeyValueFormatTest {
 
@@ -65,11 +66,6 @@ public class DeprecatedKeyValueFormatTest {
     set.add("hello", 1);
     set.add("key", 3);
     assertThat(KeyValueFormat.format(set), is("hello=1;key=3"));
-  }
-
-  @Test
-  public void formatVarargs() {
-    assertThat(KeyValueFormat.format("hello", 1, "key", 3), is("hello=1;key=3"));
   }
 
   @Test
