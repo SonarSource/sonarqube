@@ -180,9 +180,6 @@ public final class CoreMetrics {
       new SumChildValuesFormula(false)).setBestValue(0.0).setOptimizedBestValue(true);
 
 
-
-
-
   // UNIT TESTS
 
   public static final String TESTS_KEY = "tests";
@@ -269,30 +266,43 @@ public final class CoreMetrics {
       .create();
 
   public static final String BRANCH_COVERAGE_KEY = "branch_coverage";
-  public static final Metric BRANCH_COVERAGE = new Metric(BRANCH_COVERAGE_KEY, "Branch coverage", "Branch coverage",
-      Metric.ValueType.PERCENT, Metric.DIRECTION_BETTER, true, DOMAIN_TESTS).setWorstValue(0.0).setBestValue(100.0);
+  public static final Metric BRANCH_COVERAGE = new Metric.Builder(BRANCH_COVERAGE_KEY, Metric.ValueType.PERCENT)
+      .setName("Branch coverage")
+      .setDescription("Branch coverage")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_TESTS)
+      .setWorstValue(0.0)
+      .setBestValue(100.0)
+      .create();
 
+  @Deprecated
   public static final String BRANCH_COVERAGE_HITS_DATA_KEY = "branch_coverage_hits_data";
+
+  /**
+   * @deprecated since 2.7 replaced by metrics CONDITIONS_BY_LINE and COVERED_CONDITIONS_BY_LINE
+   */
+  @Deprecated
   public static final Metric BRANCH_COVERAGE_HITS_DATA = new Metric.Builder(BRANCH_COVERAGE_HITS_DATA_KEY, Metric.ValueType.DATA)
       .setName("Branch coverage hits")
       .setDomain(DOMAIN_TESTS)
       .create();
 
-  public static final String CONDITIONS_BY_LINE_DATA_KEY = "conditions_by_line_data";
+  public static final String CONDITIONS_BY_LINE_KEY = "conditions_by_line";
 
   /**
    * @since 2.7
    */
-  public static final Metric CONDITIONS_BY_LINE_DATA = new Metric.Builder(CONDITIONS_BY_LINE_DATA_KEY, Metric.ValueType.DATA)
+  public static final Metric CONDITIONS_BY_LINE = new Metric.Builder(CONDITIONS_BY_LINE_KEY, Metric.ValueType.DATA)
       .setDomain(DOMAIN_TESTS)
       .create();
 
-  public static final String COVERED_CONDITIONS_BY_LINE_DATA_KEY = "covered_conditions_by_line_data";
+  public static final String COVERED_CONDITIONS_BY_LINE_KEY = "covered_conditions_by_line";
 
   /**
    * @since 2.7
-   */ 
-  public static final Metric COVERED_CONDITIONS_BY_LINE_DATA = new Metric.Builder(COVERED_CONDITIONS_BY_LINE_DATA_KEY, Metric.ValueType.DATA)
+   */
+  public static final Metric COVERED_CONDITIONS_BY_LINE = new Metric.Builder(COVERED_CONDITIONS_BY_LINE_KEY, Metric.ValueType.DATA)
       .setDomain(DOMAIN_TESTS)
       .create();
 
@@ -441,9 +451,6 @@ public final class CoreMetrics {
       Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setHidden(true).setBestValue(0.0).setOptimizedBestValue(true);
 
 
-
-
-
   // DESIGN
 
   public static final String ABSTRACTNESS_KEY = "abstractness";
@@ -552,24 +559,40 @@ public final class CoreMetrics {
   public static final Metric PROFILE = new Metric(PROFILE_KEY, "Profile", "Selected quality profile", Metric.ValueType.DATA,
       Metric.DIRECTION_NONE, false, DOMAIN_GENERAL);
 
-
-
-
+  
 
   // SCM
 
-  public static final String SCM_AUTHORS_BY_LINE_KEY = "blame_authors_data";//"scm_authors_by_line";
+  public static final String SCM_COMMITS_KEY = "commits";
+  public static final Metric SCM_COMMITS = new Metric.Builder(SCM_COMMITS_KEY, Metric.ValueType.INT)
+      .setName("Commits")
+      .setDomain(DOMAIN_SCM)
+      .create();
+
+  public static final String SCM_LAST_COMMIT_DATE_KEY = "last_commit_date";
+  public static final Metric SCM_LAST_COMMIT_DATE = new Metric.Builder(SCM_LAST_COMMIT_DATE_KEY, Metric.ValueType.STRING /* TODO: move to date */)
+      .setName("Last commit")
+      .setDomain(DOMAIN_SCM)
+      .create();
+
+  public static final String SCM_REVISION_KEY = "revision";
+  public static final Metric SCM_REVISION = new Metric.Builder(SCM_REVISION_KEY, Metric.ValueType.STRING)
+      .setName("Revision")
+      .setDomain(DOMAIN_SCM)
+      .create();
+
+  public static final String SCM_AUTHORS_BY_LINE_KEY = "authors_by_line";
   public static final Metric SCM_AUTHORS_BY_LINE = new Metric.Builder(SCM_AUTHORS_BY_LINE_KEY, Metric.ValueType.DATA)
       .setDomain(DOMAIN_SCM)
       .create();
 
-  public static final String SCM_REVISIONS_BY_LINE_KEY = "blame_revision_data";//"scm_revisions_by_line";
+  public static final String SCM_REVISIONS_BY_LINE_KEY = "revisions_by_line";
   public static final Metric SCM_REVISIONS_BY_LINE = new Metric.Builder(SCM_REVISIONS_BY_LINE_KEY, Metric.ValueType.DATA)
       .setDomain(DOMAIN_SCM)
       .create();
 
-  public static final String SCM_LAST_UPDATE_DATETIME_BY_LINE_KEY = "blame_date_data";//"scm_last_update_datetime_by_line";
-  public static final Metric SCM_LAST_UPDATE_DATETIME_BY_LINE = new Metric.Builder(SCM_LAST_UPDATE_DATETIME_BY_LINE_KEY, Metric.ValueType.DATA)
+  public static final String SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY = "last_commit_datetimes_by_line";
+  public static final Metric SCM_LAST_COMMIT_DATETIMES_BY_LINE = new Metric.Builder(SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY, Metric.ValueType.DATA)
       .setDomain(DOMAIN_SCM)
       .create();
 
