@@ -224,6 +224,15 @@ public final class CoreMetrics {
   public static final Metric LINES_TO_COVER = new Metric(LINES_TO_COVER_KEY, "Lines to cover", "Lines to cover", Metric.ValueType.INT,
       Metric.DIRECTION_BETTER, false, DOMAIN_TESTS).setFormula(new SumChildValuesFormula(false)).setHidden(true);
 
+  public static final String NEW_LINES_TO_COVER_KEY = "new_lines_to_cover";
+  public static final Metric NEW_LINES_TO_COVER = new Metric.Builder(NEW_LINES_TO_COVER_KEY, Metric.ValueType.INT)
+      .setName("New lines to cover")
+      .setDescription("New lines to cover")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setDomain(DOMAIN_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .setHidden(true)
+      .create();
 
   public static final String UNCOVERED_LINES_KEY = "uncovered_lines";
   public static final Metric UNCOVERED_LINES = new Metric.Builder(UNCOVERED_LINES_KEY, Metric.ValueType.INT)
@@ -256,7 +265,15 @@ public final class CoreMetrics {
   public static final Metric CONDITIONS_TO_COVER = new Metric.Builder(CONDITIONS_TO_COVER_KEY, Metric.ValueType.INT)
       .setName("Conditions to cover")
       .setDescription("Conditions to cover")
-      .setDirection(Metric.DIRECTION_BETTER)
+      .setDomain(DOMAIN_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .setHidden(true)
+      .create();
+
+  public static final String NEW_CONDITIONS_TO_COVER_KEY = "new_conditions_to_cover";
+  public static final Metric NEW_CONDITIONS_TO_COVER = new Metric.Builder(NEW_CONDITIONS_TO_COVER_KEY, Metric.ValueType.INT)
+      .setName("New conditions to cover")
+      .setDescription("New conditions to cover")
       .setDomain(DOMAIN_TESTS)
       .setFormula(new SumChildValuesFormula(false))
       .setHidden(true)
@@ -565,7 +582,6 @@ public final class CoreMetrics {
       Metric.ValueType.INT, Metric.DIRECTION_BETTER, false, DOMAIN_DESIGN).setHidden(true);
 
 
-
   // Alerts
   public static final String ALERT_STATUS_KEY = "alert_status";
   public static final Metric ALERT_STATUS = new Metric.Builder(ALERT_STATUS_KEY, Metric.ValueType.LEVEL)
@@ -575,7 +591,7 @@ public final class CoreMetrics {
       .setQualitative(true)
       .setDomain(DOMAIN_GENERAL)
       .create();
-  
+
 
   /* quality profile */
   public static final String PROFILE_KEY = "profile";

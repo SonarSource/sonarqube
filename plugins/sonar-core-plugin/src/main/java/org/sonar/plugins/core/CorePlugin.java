@@ -237,6 +237,7 @@ public class CorePlugin implements Plugin {
     extensions.add(ViolationPersisterDecorator.class);
     extensions.add(NewViolationsDecorator.class);
     extensions.add(TimeMachineConfigurationPersister.class);
+    extensions.add(NewCoverageDecorator.class);
 
     return extensions;
   }

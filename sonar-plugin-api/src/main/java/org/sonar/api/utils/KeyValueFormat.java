@@ -141,10 +141,10 @@ public final class KeyValueFormat {
   }
 
   public static class DateConverter extends Converter<Date> {
-    private DateFormat dateFormat;
+    private SimpleDateFormat dateFormat;
 
     public DateConverter() {
-      this("yyyy-MM-dd");
+      this(DateUtils.DATE_FORMAT);
     }
 
     DateConverter(String format) {
@@ -161,14 +161,14 @@ public final class KeyValueFormat {
       try {
         return StringUtils.isBlank(s) ? null : dateFormat.parse(s);
       } catch (ParseException e) {
-        throw new SonarException("Not a date: " + s, e);
+        throw new SonarException("Not a date with format: " + dateFormat.toPattern(), e);
       }
     }
   }
 
   public static class DateTimeConverter extends DateConverter {
     public DateTimeConverter() {
-      super("yyyy-MM-dd'T'HH:mm:ssZ");
+      super(DateUtils.DATETIME_FORMAT);
     }
   }
 
@@ -223,6 +223,13 @@ public final class KeyValueFormat {
    */
   public static Map<Integer, Date> parseIntDate(String data) {
     return parse(data, IntegerConverter.INSTANCE, new DateConverter());
+  }
+
+  /**
+   * @since 2.7
+   */
+  public static Map<Integer, Integer> parseIntInt(String data) {
+    return parse(data, IntegerConverter.INSTANCE, IntegerConverter.INSTANCE);
   }
 
   /**
