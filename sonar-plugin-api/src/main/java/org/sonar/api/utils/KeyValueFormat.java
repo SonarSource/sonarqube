@@ -19,10 +19,10 @@
  */
 package org.sonar.api.utils;
 
+import com.google.common.collect.LinkedHashMultiset;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multiset;
-import com.google.common.collect.SortedSetMultimap;
-import com.google.common.collect.TreeMultimap;
 import org.apache.commons.collections.Bag;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -35,28 +35,24 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * Util class to format key/value data. Output is a string representation ready to be
- * injected into the database
+ * Formats and parses key/value pairs with the string representation : "key1=value1;key2=value2". Conversion
+ * of fields is supported and can be extended.
  *
  * @since 1.10
  */
-public final class KeyValueFormat<K extends Comparable, V extends Comparable> {
+public final class KeyValueFormat {
 
   public static final String PAIR_SEPARATOR = ";";
   public static final String FIELD_SEPARATOR = "=";
 
-  private Converter<K> keyConverter;
-  private Converter<V> valueConverter;
-
-  private KeyValueFormat(Converter<K> keyConverter, Converter<V> valueConverter) {
-    this.keyConverter = keyConverter;
-    this.valueConverter = valueConverter;
+  private KeyValueFormat() {
+    // only static methods
   }
 
   public static abstract class Converter<TYPE> {
-    abstract String toString(TYPE type);
+    abstract String format(TYPE type);
 
-    abstract TYPE fromString(String s);
+    abstract TYPE parse(String s);
   }
 
   public static final class StringConverter extends Converter<String> {
@@ -66,12 +62,12 @@ public final class KeyValueFormat<K extends Comparable, V extends Comparable> {
     }
 
     @Override
-    String toString(String s) {
+    String format(String s) {
       return s;
     }
 
     @Override
-    String fromString(String s) {
+    String parse(String s) {
       return s;
     }
   }
@@ -83,29 +79,29 @@ public final class KeyValueFormat<K extends Comparable, V extends Comparable> {
     }
 
     @Override
-    String toString(Integer s) {
+    String format(Integer s) {
       return (s == null ? "" : String.valueOf(s));
     }
 
     @Override
-    Integer fromString(String s) {
+    Integer parse(String s) {
       return StringUtils.isBlank(s) ? null : NumberUtils.toInt(s);
     }
   }
 
-  public static final class SeverityConverter extends Converter<RulePriority> {
-    static final SeverityConverter INSTANCE = new SeverityConverter();
+  public static final class PriorityConverter extends Converter<RulePriority> {
+    static final PriorityConverter INSTANCE = new PriorityConverter();
 
-    private SeverityConverter() {
+    private PriorityConverter() {
     }
 
     @Override
-    String toString(RulePriority s) {
+    String format(RulePriority s) {
       return (s == null ? "" : s.toString());
     }
 
     @Override
-    RulePriority fromString(String s) {
+    RulePriority parse(String s) {
       return StringUtils.isBlank(s) ? null : RulePriority.valueOf(s);
     }
   }
@@ -117,12 +113,12 @@ public final class KeyValueFormat<K extends Comparable, V extends Comparable> {
     }
 
     @Override
-    String toString(Double d) {
+    String format(Double d) {
       return (d == null ? "" : String.valueOf(d));
     }
 
     @Override
-    Double fromString(String s) {
+    Double parse(String s) {
       return StringUtils.isBlank(s) ? null : NumberUtils.toDouble(s);
     }
   }
@@ -139,12 +135,12 @@ public final class KeyValueFormat<K extends Comparable, V extends Comparable> {
     }
 
     @Override
-    String toString(Date d) {
+    String format(Date d) {
       return (d == null ? "" : dateFormat.format(d));
     }
 
     @Override
-    Date fromString(String s) {
+    Date parse(String s) {
       try {
         return StringUtils.isBlank(s) ? null : dateFormat.parse(s);
       } catch (ParseException e) {
@@ -159,95 +155,101 @@ public final class KeyValueFormat<K extends Comparable, V extends Comparable> {
     }
   }
 
-  public static <K extends Comparable, V extends Comparable> KeyValueFormat<K, V> create(Converter<K> keyConverter, Converter<V> valueConverter) {
-    return new KeyValueFormat<K, V>(keyConverter, valueConverter);
-  }
-
-  public static KeyValueFormat<String, String> createStringString() {
-    return new KeyValueFormat<String, String>(StringConverter.INSTANCE, StringConverter.INSTANCE);
-  }
-
-  public static KeyValueFormat<String, Date> createStringDate() {
-    return new KeyValueFormat<String, Date>(StringConverter.INSTANCE, new DateConverter());
-  }
-
-  public static KeyValueFormat<String, Date> createStringDateTime() {
-    return new KeyValueFormat<String, Date>(StringConverter.INSTANCE, new DateTimeConverter());
-  }
-
-  public static KeyValueFormat<Integer, String> createIntString() {
-    return new KeyValueFormat<Integer, String>(IntegerConverter.INSTANCE, StringConverter.INSTANCE);
-  }
-
-  public static KeyValueFormat<Integer, Integer> createIntInt() {
-    return new KeyValueFormat<Integer, Integer>(IntegerConverter.INSTANCE, IntegerConverter.INSTANCE);
-  }
-
-  public static KeyValueFormat<Integer, Double> createIntDouble() {
-    return new KeyValueFormat<Integer, Double>(IntegerConverter.INSTANCE, DoubleConverter.INSTANCE);
-  }
-
-  public static KeyValueFormat<Integer, Date> createIntDate() {
-    return new KeyValueFormat<Integer, Date>(IntegerConverter.INSTANCE, new DateConverter());
-  }
-
-  public static KeyValueFormat<Integer, Date> createIntDateTime() {
-    return new KeyValueFormat<Integer, Date>(IntegerConverter.INSTANCE, new DateTimeConverter());
-  }
-
-  public String toString(Map<K, V> map) {
-    return toString(map.entrySet());
-  }
-
-  public String toString(Multimap<K, V> multimap) {
-    return toString(multimap.entries());
-  }
-
-  private String toString(Collection<Map.Entry<K, V>> entries) {
-    StringBuilder sb = new StringBuilder();
-    boolean first = true;
-    for (Map.Entry<K, V> entry : entries) {
-      if (!first) {
-        sb.append(PAIR_SEPARATOR);
-      }
-      sb.append(keyConverter.toString(entry.getKey()));
-      sb.append(FIELD_SEPARATOR);
-      if (entry.getValue() != null) {
-        sb.append(valueConverter.toString(entry.getValue()));
-      }
-      first = false;
-    }
-    return sb.toString();
-  }
-
-  public SortedMap<K, V> toSortedMap(String data) {
-    SortedMap<K, V> map = new TreeMap<K, V>();
+  public static <K, V> Map<K, V> parse(String data, Converter<K> keyConverter, Converter<V> valueConverter) {
+    Map<K, V> map = Maps.newLinkedHashMap();
     if (data != null) {
       String[] pairs = StringUtils.split(data, PAIR_SEPARATOR);
       for (String pair : pairs) {
         String[] keyValue = StringUtils.split(pair, FIELD_SEPARATOR);
         String key = keyValue[0];
         String value = (keyValue.length == 2 ? keyValue[1] : "");
-        map.put(keyConverter.fromString(key), valueConverter.fromString(value));
+        map.put(keyConverter.parse(key), valueConverter.parse(value));
       }
     }
     return map;
   }
 
-  public SortedSetMultimap<K, V> toSortedMultimap(String data) {
-    SortedSetMultimap<K, V> map = TreeMultimap.create();
+  public static Map<String, String> parse(String data) {
+    return parse(data, StringConverter.INSTANCE, StringConverter.INSTANCE);
+  }
+
+  /**
+   * @since 2.7
+   */
+  public static Map<String, Integer> parseStringInt(String data) {
+    return parse(data, StringConverter.INSTANCE, IntegerConverter.INSTANCE);
+  }
+
+  /**
+   * @since 2.7
+   */
+  public static Map<String, Double> parseStringDouble(String data) {
+    return parse(data, StringConverter.INSTANCE, DoubleConverter.INSTANCE);
+  }
+
+  /**
+   * @since 2.7
+   */
+  public static Map<Integer, String> parseIntString(String data) {
+    return parse(data, IntegerConverter.INSTANCE, StringConverter.INSTANCE);
+  }
+
+  /**
+   * @since 2.7
+   */
+  public static Map<Integer, Double> parseIntDouble(String data) {
+    return parse(data, IntegerConverter.INSTANCE, DoubleConverter.INSTANCE);
+  }
+
+  /**
+   * @since 2.7
+   */
+  public static Map<Integer, Date> parseIntDate(String data) {
+    return parse(data, IntegerConverter.INSTANCE, new DateConverter());
+  }
+
+  /**
+   * @since 2.7
+   */
+  public static Map<Integer, Date> parseIntDateTime(String data) {
+    return parse(data, IntegerConverter.INSTANCE, new DateTimeConverter());
+  }
+
+  /**
+   * Value of pairs is the occurrences of the same single key. A multiset is sometimes called a bag.
+   * For example parsing "foo=2;bar=1" creates a multiset with 3 elements : foo, foo and bar.
+   */
+  /**
+   * @since 2.7
+   */
+  public static <K> Multiset<K> parseMultiset(String data, Converter<K> keyConverter) {
+    Multiset<K> multiset = LinkedHashMultiset.create();// to keep the same order
     if (data != null) {
       String[] pairs = StringUtils.split(data, PAIR_SEPARATOR);
       for (String pair : pairs) {
         String[] keyValue = StringUtils.split(pair, FIELD_SEPARATOR);
         String key = keyValue[0];
-        String value = (keyValue.length == 2 ? keyValue[1] : "");
-        map.put(keyConverter.fromString(key), valueConverter.fromString(value));
+        String value = (keyValue.length == 2 ? keyValue[1] : "0");
+        multiset.add(keyConverter.parse(key), IntegerConverter.INSTANCE.parse(value));
       }
     }
-    return map;
+    return multiset;
   }
 
+
+  /**
+   * @since 2.7
+   */
+  public static Multiset<Integer> parseIntegerMultiset(String data) {
+    return parseMultiset(data, IntegerConverter.INSTANCE);
+  }
+
+  /**
+   * @since 2.7
+   */
+  public static Multiset<String> parseMultiset(String data) {
+    return parseMultiset(data, StringConverter.INSTANCE);
+  }
 
   /**
    * Transforms a string with the following format : "key1=value1;key2=value2..."
@@ -256,7 +258,7 @@ public final class KeyValueFormat<K extends Comparable, V extends Comparable> {
    * @param data        the input string
    * @param transformer the interface to implement
    * @return a Map of <key, value>
-   * @deprecated since 2.7. Use instance methods instead of static methods, for example KeyValueFormat.createIntString().parse(String)
+   * @deprecated since 2.7
    */
   @Deprecated
   public static <KEY, VALUE> Map<KEY, VALUE> parse(String data, Transformer<KEY, VALUE> transformer) {
@@ -271,52 +273,108 @@ public final class KeyValueFormat<K extends Comparable, V extends Comparable> {
     return map;
   }
 
-  /**
-   * Transforms a string with the following format : "key1=value1;key2=value2..."
-   * into a Map<String,String>
-   *
-   * @param data the string to parse
-   * @return a map
-   * @deprecated since 2.7. Use instance methods instead of static methods, for example KeyValueFormat.createIntString().parse(String)
-   */
-  @Deprecated
-  public static Map<String, String> parse(String data) {
-    Map<String, String> map = new HashMap<String, String>();
-    String[] pairs = StringUtils.split(data, PAIR_SEPARATOR);
-    for (String pair : pairs) {
-      String[] keyValue = StringUtils.split(pair, FIELD_SEPARATOR);
-      String key = keyValue[0];
-      String value = (keyValue.length == 2 ? keyValue[1] : "");
-      map.put(key, value);
-    }
-    return map;
-  }
-
-  /**
-   * Transforms a map<KEY,VALUE> into a string with the format : "key1=value1;key2=value2..."
-   *
-   * @param map the map to transform
-   * @return the formatted string
-   * @deprecated since 2.7. Use instance methods instead of static methods, for example KeyValueFormat.createIntString().parse(String)
-   */
-  @Deprecated
-  public static <KEY, VALUE> String format(Map<KEY, VALUE> map) {
+  private static <K, V> String formatEntries(Collection<Map.Entry<K, V>> entries, Converter<K> keyConverter, Converter<V> valueConverter) {
     StringBuilder sb = new StringBuilder();
     boolean first = true;
-    for (Map.Entry<?, ?> entry : map.entrySet()) {
+    for (Map.Entry<K, V> entry : entries) {
       if (!first) {
         sb.append(PAIR_SEPARATOR);
       }
-      sb.append(entry.getKey().toString());
+      sb.append(keyConverter.format(entry.getKey()));
       sb.append(FIELD_SEPARATOR);
       if (entry.getValue() != null) {
-        sb.append(entry.getValue());
+        sb.append(valueConverter.format(entry.getValue()));
       }
       first = false;
     }
-
     return sb.toString();
   }
+
+  private static <K> String formatEntries(Set<Multiset.Entry<K>> entries, Converter<K> keyConverter) {
+    StringBuilder sb = new StringBuilder();
+    boolean first = true;
+    for (Multiset.Entry<K> entry : entries) {
+      if (!first) {
+        sb.append(PAIR_SEPARATOR);
+      }
+      sb.append(keyConverter.format(entry.getElement()));
+      sb.append(FIELD_SEPARATOR);
+      sb.append(IntegerConverter.INSTANCE.format(entry.getCount()));
+      first = false;
+    }
+    return sb.toString();
+  }
+
+
+  /**
+   * @since 2.7
+   */
+  public static <K, V> String format(Map<K, V> map, Converter<K> keyConverter, Converter<V> valueConverter) {
+    return formatEntries(map.entrySet(), keyConverter, valueConverter);
+  }
+
+  /**
+   * @since 2.7
+   */
+  public static String format(Map<String, String> map) {
+    return format(map, StringConverter.INSTANCE, StringConverter.INSTANCE);
+  }
+
+  /**
+   * @since 2.7
+   */
+  public static String formatIntString(Map<Integer, String> map) {
+    return format(map, IntegerConverter.INSTANCE, StringConverter.INSTANCE);
+  }
+
+  /**
+   * @since 2.7
+   */
+  public static String formatIntDouble(Map<Integer, Double> map) {
+    return format(map, IntegerConverter.INSTANCE, DoubleConverter.INSTANCE);
+  }
+
+  /**
+   * @since 2.7
+   */
+  public static String formatIntDate(Map<Integer, Date> map) {
+    return format(map, IntegerConverter.INSTANCE, new DateConverter());
+  }
+
+  /**
+   * @since 2.7
+   */
+  public static String formatIntDateTime(Map<Integer, Date> map) {
+    return format(map, IntegerConverter.INSTANCE, new DateTimeConverter());
+  }
+
+  /**
+   * @since 2.7
+   */
+  public static String formatStringInt(Map<String, Integer> map) {
+    return format(map, StringConverter.INSTANCE, IntegerConverter.INSTANCE);
+  }
+
+  /**
+   * Limitation: there's currently no methods to parse into Multimap.
+   * @since 2.7
+   */
+  public static <K, V> String format(Multimap<K, V> map, Converter<K> keyConverter, Converter<V> valueConverter) {
+    return formatEntries(map.entries(), keyConverter, valueConverter);
+  }
+
+  /**
+   * @since 2.7
+   */
+  public static <K> String format(Multiset<K> multiset, Converter<K> keyConverter) {
+    return formatEntries(multiset.entrySet(), keyConverter);
+  }
+
+  public static String format(Multiset<String> multiset) {
+    return formatEntries(multiset.entrySet(), StringConverter.INSTANCE);
+  }
+
+
 
   /**
    * @since 1.11
@@ -349,37 +407,13 @@ public final class KeyValueFormat<K extends Comparable, V extends Comparable> {
     return sb.toString();
   }
 
-  /**
-   * Transforms a Multiset<?> into a string with the format : "key1=count1;key2=count2..."
-   *
-   * @param set the set to transform
-   * @return the formatted string
-   * @deprecated since 2.7. Use instance methods instead of static methods, for example KeyValueFormat.createIntString().parse(String)
-   */
-  @Deprecated
-  public static String format(Multiset<?> set) {
-    StringBuilder sb = new StringBuilder();
-    if (set != null) {
-      boolean first = true;
-      for (Multiset.Entry<?> entry : set.entrySet()) {
-        if (!first) {
-          sb.append(PAIR_SEPARATOR);
-        }
-        sb.append(entry.getElement().toString());
-        sb.append(FIELD_SEPARATOR);
-        sb.append(entry.getCount());
-        first = false;
-      }
-    }
-    return sb.toString();
-  }
 
   /**
    * Transforms a Object... into a string with the format : "object1=object2;object3=object4..."
    *
    * @param objects the object list to transform
    * @return the formatted string
-   * @deprecated since 2.7. Use instance methods instead of static methods, for example KeyValueFormat.createIntString().parse(String)
+   * @deprecated since 2.7 because there's not the inverse method to parse.
    */
   @Deprecated
   public static String format(Object... objects) {

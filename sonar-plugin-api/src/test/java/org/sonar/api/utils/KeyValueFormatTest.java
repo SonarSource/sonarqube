@@ -19,7 +19,9 @@
  */
 package org.sonar.api.utils;
 
+import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multiset;
 import org.junit.Test;
 import org.sonar.api.rules.RulePriority;
 
@@ -27,7 +29,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
-import java.util.SortedMap;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -40,7 +41,7 @@ public class KeyValueFormatTest {
     Map<String,String> map = Maps.newLinkedHashMap();
     map.put("lucky", "luke");
     map.put("aste", "rix");
-    String s = KeyValueFormat.createStringString().toString(map);
+    String s = KeyValueFormat.format(map);
     assertThat(s, is("lucky=luke;aste=rix"));// same order
   }
 
@@ -49,7 +50,7 @@ public class KeyValueFormatTest {
     Map<Integer,String> map = Maps.newLinkedHashMap();
     map.put(3, "three");
     map.put(5, "five");
-    String s = KeyValueFormat.createIntString().toString(map);
+    String s = KeyValueFormat.formatIntString(map);
     assertThat(s, is("3=three;5=five"));// same order
   }
 
@@ -58,7 +59,7 @@ public class KeyValueFormatTest {
     Map<Integer,Double> map = Maps.newLinkedHashMap();
     map.put(13, 2.0);
     map.put(5, 5.75);
-    String s = KeyValueFormat.createIntDouble().toString(map);
+    String s = KeyValueFormat.formatIntDouble(map);
     assertThat(s, is("13=2.0;5=5.75"));// same order
   }
 
@@ -67,14 +68,14 @@ public class KeyValueFormatTest {
     Map<Integer,Double> map = Maps.newLinkedHashMap();
     map.put(13, null);
     map.put(5, 5.75);
-    String s = KeyValueFormat.createIntDouble().toString(map);
+    String s = KeyValueFormat.formatIntDouble(map);
     assertThat(s, is("13=;5=5.75"));// same order
   }
 
   @Test
   public void shouldFormatBlank() {
     Map<Integer,String> map = Maps.newTreeMap();
-    String s = KeyValueFormat.createIntString().toString(map);
+    String s = KeyValueFormat.formatIntString(map);
     assertThat(s, is(""));
   }
 
@@ -84,13 +85,13 @@ public class KeyValueFormatTest {
     map.put(4, new SimpleDateFormat("yyyy-MM-dd").parse("2010-12-25"));
     map.put(20, new SimpleDateFormat("yyyy-MM-dd").parse("2009-05-28"));
     map.put(12, null);
-    String s = KeyValueFormat.createIntDate().toString(map);
+    String s = KeyValueFormat.formatIntDate(map);
     assertThat(s, is("4=2010-12-25;20=2009-05-28;12="));
   }
 
   @Test
   public void shouldParseStrings() throws ParseException {
-    SortedMap<String,String> map = KeyValueFormat.createStringString().toSortedMap("one=un;two=deux");
+    Map<String,String> map = KeyValueFormat.parse("one=un;two=deux");
     assertThat(map.size(), is(2));
     assertThat(map.get("one"), is("un"));
     assertThat(map.get("two"), is("deux"));
@@ -99,19 +100,19 @@ public class KeyValueFormatTest {
 
   @Test
   public void shouldParseBlank() throws ParseException {
-    SortedMap<String,String> map = KeyValueFormat.createStringString().toSortedMap("");
+    Map<String,String> map = KeyValueFormat.parse("");
     assertThat(map.size(), is(0));
   }
 
   @Test
   public void shouldParseNull() throws ParseException {
-    SortedMap<String,String> map = KeyValueFormat.createStringString().toSortedMap(null);
+    Map<String,String> map = KeyValueFormat.parse(null);
     assertThat(map.size(), is(0));
   }
 
   @Test
   public void shouldParseEmptyFields() throws ParseException {
-    SortedMap<Integer,Double> map = KeyValueFormat.createIntDouble().toSortedMap("4=4.2;2=;6=6.68");
+    Map<Integer,Double> map = KeyValueFormat.parseIntDouble("4=4.2;2=;6=6.68");
     assertThat(map.size(), is(3));
     assertThat(map.get(4), is(4.2));
     assertThat(map.get(2), nullValue());
@@ -119,11 +120,37 @@ public class KeyValueFormatTest {
   }
 
   @Test
-  public void shouldConvertSeverity() {
-    assertThat(KeyValueFormat.SeverityConverter.INSTANCE.toString(RulePriority.BLOCKER), is("BLOCKER"));
-    assertThat(KeyValueFormat.SeverityConverter.INSTANCE.toString(null), is(""));
+  public void shouldConvertPriority() {
+    assertThat(KeyValueFormat.PriorityConverter.INSTANCE.format(RulePriority.BLOCKER), is("BLOCKER"));
+    assertThat(KeyValueFormat.PriorityConverter.INSTANCE.format(null), is(""));
 
-    assertThat(KeyValueFormat.SeverityConverter.INSTANCE.fromString("MAJOR"), is(RulePriority.MAJOR));
-    assertThat(KeyValueFormat.SeverityConverter.INSTANCE.fromString(""), nullValue());
+    assertThat(KeyValueFormat.PriorityConverter.INSTANCE.parse("MAJOR"), is(RulePriority.MAJOR));
+    assertThat(KeyValueFormat.PriorityConverter.INSTANCE.parse(""), nullValue());
+  }
+
+  @Test
+  public void shouldFormatMultiset() {
+    Multiset<String> set = LinkedHashMultiset.create();
+    set.add("foo");
+    set.add("foo");
+    set.add("bar");
+    assertThat(KeyValueFormat.format(set), is("foo=2;bar=1"));
+  }
+
+  @Test
+  public void shouldParseMultiset() {
+    Multiset<String> multiset = KeyValueFormat.parseMultiset("foo=2;bar=1;none=");
+    assertThat(multiset.count("foo"), is(2));
+    assertThat(multiset.count("bar"), is(1));
+    assertThat(multiset.count("none"), is(0));
+    assertThat(multiset.contains("none"), is(false));
+  }
+
+  @Test
+  public void shouldKeepOrderWhenParsingMultiset() {
+    Multiset<String> multiset = KeyValueFormat.parseMultiset("foo=2;bar=1");
+
+    // first one is foo
+    assertThat(multiset.iterator().next(), is("foo"));
   }
 }
