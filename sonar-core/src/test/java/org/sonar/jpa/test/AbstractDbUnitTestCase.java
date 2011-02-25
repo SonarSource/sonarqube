@@ -29,7 +29,9 @@ import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.CompositeDataSet;
 import org.dbunit.dataset.DataSetException;
 import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
+import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.ext.hsqldb.HsqldbDataTypeFactory;
 import org.dbunit.operation.DatabaseOperation;
@@ -147,12 +149,17 @@ public abstract class AbstractDbUnitTestCase {
   }
 
   protected final void checkTables(String testName, String... tables) {
+    checkTables(testName, new String[] {}, tables);
+  }
+  
+  protected final void checkTables(String testName, String[] excludedColumnNames, String... tables) {
     getSession().commit();
     try {
       IDataSet dataSet = getCurrentDataSet();
       IDataSet expectedDataSet = getExpectedData(testName);
       for (String table : tables) {
-        Assertion.assertEquals(expectedDataSet.getTable(table), dataSet.getTable(table));
+        ITable filteredTable = DefaultColumnFilter.excludedColumnsTable(dataSet.getTable(table), excludedColumnNames);
+        Assertion.assertEquals(expectedDataSet.getTable(table), filteredTable);
       }
     } catch (DataSetException e) {
       throw translateException("Error while checking results", e);
