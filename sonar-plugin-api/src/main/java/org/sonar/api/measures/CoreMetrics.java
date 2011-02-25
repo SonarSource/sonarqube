@@ -199,10 +199,19 @@ public final class CoreMetrics {
   public static final String TEST_FAILURES_KEY = "test_failures";
   public static final Metric TEST_FAILURES = new Metric(TEST_FAILURES_KEY, "Unit test failures", "Number of unit test failures",
       Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_TESTS).setBestValue(0.0).setOptimizedBestValue(true);
+
   public static final String TEST_SUCCESS_DENSITY_KEY = "test_success_density";
-  public static final Metric TEST_SUCCESS_DENSITY = new Metric(TEST_SUCCESS_DENSITY_KEY, "Unit test success (%)",
-      "Density of successful unit tests", Metric.ValueType.PERCENT, Metric.DIRECTION_BETTER, true, DOMAIN_TESTS).setWorstValue(0.0)
-      .setBestValue(100.0).setOptimizedBestValue(true);
+  public static final Metric TEST_SUCCESS_DENSITY = new Metric.Builder(TEST_SUCCESS_DENSITY_KEY, Metric.ValueType.PERCENT)
+      .setName("Unit test success (%)")
+      .setDescription("Density of successful unit tests")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_TESTS)
+      .setWorstValue(0.0)
+      .setBestValue(100.0)
+      .setOptimizedBestValue(true)
+      .create();
+
   public static final String TEST_DATA_KEY = "test_data";
   public static final Metric TEST_DATA = new Metric(TEST_DATA_KEY, "Unit tests details", "Unit tests details", Metric.ValueType.DATA,
       Metric.DIRECTION_WORST, false, DOMAIN_TESTS);
@@ -244,8 +253,14 @@ public final class CoreMetrics {
       .create();
 
   public static final String CONDITIONS_TO_COVER_KEY = "conditions_to_cover";
-  public static final Metric CONDITIONS_TO_COVER = new Metric(CONDITIONS_TO_COVER_KEY, "Conditions to cover", "Conditions to cover",
-      Metric.ValueType.INT, Metric.DIRECTION_BETTER, false, DOMAIN_TESTS).setFormula(new SumChildValuesFormula(false)).setHidden(true);
+  public static final Metric CONDITIONS_TO_COVER = new Metric.Builder(CONDITIONS_TO_COVER_KEY, Metric.ValueType.INT)
+      .setName("Conditions to cover")
+      .setDescription("Conditions to cover")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setDomain(DOMAIN_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .setHidden(true)
+      .create();
 
   public static final String UNCOVERED_CONDITIONS_KEY = "uncovered_conditions";
   public static final Metric UNCOVERED_CONDITIONS = new Metric.Builder(UNCOVERED_CONDITIONS_KEY, Metric.ValueType.INT)
@@ -549,17 +564,24 @@ public final class CoreMetrics {
   public static final Metric FILE_EDGES_WEIGHT = new Metric(FILE_EDGES_WEIGHT_KEY, "File edges weight", "File edges weight",
       Metric.ValueType.INT, Metric.DIRECTION_BETTER, false, DOMAIN_DESIGN).setHidden(true);
 
-  /* alerts */
+
+
+  // Alerts
   public static final String ALERT_STATUS_KEY = "alert_status";
-  public static final Metric ALERT_STATUS = new Metric(ALERT_STATUS_KEY, "Alert", "Alert", Metric.ValueType.LEVEL, Metric.DIRECTION_BETTER,
-      true, DOMAIN_GENERAL);
+  public static final Metric ALERT_STATUS = new Metric.Builder(ALERT_STATUS_KEY, Metric.ValueType.LEVEL)
+      .setName("Alert")
+      .setDescription("Alert")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_GENERAL)
+      .create();
+  
 
   /* quality profile */
   public static final String PROFILE_KEY = "profile";
   public static final Metric PROFILE = new Metric(PROFILE_KEY, "Profile", "Selected quality profile", Metric.ValueType.DATA,
       Metric.DIRECTION_NONE, false, DOMAIN_GENERAL);
 
-  
 
   // SCM
 
