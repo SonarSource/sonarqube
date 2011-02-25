@@ -114,8 +114,15 @@
       <directoryMode>0755</directoryMode>
     </fileSet>
     <fileSet>
-      <directory>src/main/assembly/bin</directory>
+      <directory>src/main/assembly</directory>
       <outputDirectory>extensions/jdbc-driver/oracle/</outputDirectory>
+      <excludes>
+        <exclude>**/*</exclude>
+      </excludes>
+    </fileSet>
+	<fileSet>
+      <directory>src/main/assembly</directory>
+      <outputDirectory>logs/</outputDirectory>
       <excludes>
         <exclude>**/*</exclude>
       </excludes>
