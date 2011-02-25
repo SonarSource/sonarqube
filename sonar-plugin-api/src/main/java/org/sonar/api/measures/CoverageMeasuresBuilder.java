@@ -35,8 +35,8 @@ public final class CoverageMeasuresBuilder {
    */
   public static final List<Metric> METRICS = Arrays.asList(
       CoreMetrics.LINES_TO_COVER, CoreMetrics.UNCOVERED_LINES, CoreMetrics.COVERAGE_LINE_HITS_DATA,
-      CoreMetrics.CONDITIONS_TO_COVER, CoreMetrics.UNCOVERED_CONDITIONS, CoreMetrics.CONDITIONS_BY_LINE_DATA,
-      CoreMetrics.COVERED_CONDITIONS_BY_LINE_DATA, CoreMetrics.BRANCH_COVERAGE_HITS_DATA);
+      CoreMetrics.CONDITIONS_TO_COVER, CoreMetrics.UNCOVERED_CONDITIONS, CoreMetrics.CONDITIONS_BY_LINE,
+      CoreMetrics.COVERED_CONDITIONS_BY_LINE);
 
 
   private int totalCoveredLines = 0, totalConditions = 0, totalCoveredConditions = 0;
@@ -59,25 +59,23 @@ public final class CoverageMeasuresBuilder {
   }
 
   public CoverageMeasuresBuilder setHits(int lineId, int hits) {
-    if (hitsByLine.containsKey(lineId)) {
-      throw new IllegalArgumentException("Line " + lineId + " is count twice (hits=" + hits + ")");
-    }
-    hitsByLine.put(lineId, hits);
-    if (hits > 0) {
-      totalCoveredLines += 1;
+    if (!hitsByLine.containsKey(lineId)) {
+      hitsByLine.put(lineId, hits);
+      if (hits > 0) {
+        totalCoveredLines += 1;
+      }
     }
     return this;
   }
 
   public CoverageMeasuresBuilder setConditions(int lineId, int conditions, int coveredConditions) {
-    if (conditionsByLine.containsKey(lineId)) {
-      throw new IllegalArgumentException("Line " + lineId + " is count twice (conditions=" + conditions + ")");
-    }
-    if (conditions > 0) {
-      totalConditions += conditions;
-      totalCoveredConditions += coveredConditions;
-      conditionsByLine.put(lineId, conditions);
-      coveredConditionsByLine.put(lineId, coveredConditions);
+    if (!conditionsByLine.containsKey(lineId)) {
+      if (conditions > 0) {
+        totalConditions += conditions;
+        totalCoveredConditions += coveredConditions;
+        conditionsByLine.put(lineId, conditions);
+        coveredConditionsByLine.put(lineId, coveredConditions);
+      }
     }
     return this;
   }
@@ -120,39 +118,22 @@ public final class CoverageMeasuresBuilder {
     if (getConditions() > 0) {
       measures.add(new Measure(CoreMetrics.CONDITIONS_TO_COVER, (double) getConditions()));
       measures.add(new Measure(CoreMetrics.UNCOVERED_CONDITIONS, (double) (getConditions() - getCoveredConditions())));
-      measures.add(createConditionsByLineData());
-      measures.add(createCoveredConditionsByLineData());
-      measures.add(createBranchCoverageByLine());
+      measures.add(createConditionsByLine());
+      measures.add(createCoveredConditionsByLine());
     }
     return measures;
   }
 
-  private Measure createCoveredConditionsByLineData() {
-    return new Measure(CoreMetrics.COVERED_CONDITIONS_BY_LINE_DATA)
+  private Measure createCoveredConditionsByLine() {
+    return new Measure(CoreMetrics.COVERED_CONDITIONS_BY_LINE)
         .setData(KeyValueFormat.format(coveredConditionsByLine))
         .setPersistenceMode(PersistenceMode.DATABASE);
   }
 
-  private Measure createConditionsByLineData() {
-    return new Measure(CoreMetrics.CONDITIONS_BY_LINE_DATA)
+  private Measure createConditionsByLine() {
+    return new Measure(CoreMetrics.CONDITIONS_BY_LINE)
         .setData(KeyValueFormat.format(conditionsByLine))
         .setPersistenceMode(PersistenceMode.DATABASE);
-  }
-
-  private Measure createBranchCoverageByLine() {
-    PropertiesBuilder<Integer, String> builder = new PropertiesBuilder<Integer, String>(CoreMetrics.BRANCH_COVERAGE_HITS_DATA);
-    for (Map.Entry<Integer, Integer> entry : conditionsByLine.entrySet()) {
-      Integer lineId = entry.getKey();
-      int conditions = entry.getValue();
-      int coveredConditions = coveredConditionsByLine.get(lineId);
-      builder.add(lineId, formatBranchCoverage(conditions, coveredConditions));
-    }
-    return builder.build().setPersistenceMode(PersistenceMode.DATABASE);
-  }
-
-  static String formatBranchCoverage(int conditions, int coveredConditions) {
-    long branchCoverage = Math.round(100.0 * coveredConditions / conditions);
-    return branchCoverage + "%";
   }
 
   public static CoverageMeasuresBuilder create() {

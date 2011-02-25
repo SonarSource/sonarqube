@@ -43,13 +43,6 @@ public class CoverageMeasuresBuilderTest {
     assertThat(find(builder.createMeasures(), CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY).getData(), is("1=0;2=3;4=2"));
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void shouldFailIfDuplicatedLineHits() {
-    CoverageMeasuresBuilder builder = CoverageMeasuresBuilder.create();
-    builder.setHits(1, 0);
-    builder.setHits(1, 3);
-  }
-
   @Test
   public void shouldCreateUncoveredLines() {
     CoverageMeasuresBuilder builder = CoverageMeasuresBuilder.create();
@@ -64,9 +57,8 @@ public class CoverageMeasuresBuilderTest {
     CoverageMeasuresBuilder builder = CoverageMeasuresBuilder.create();
     builder.setConditions(1, 2, 2);
     builder.setConditions(2, 1, 0);
-    assertThat(find(builder.createMeasures(), CoreMetrics.CONDITIONS_BY_LINE_DATA_KEY).getData(), is("1=2;2=1"));
-    assertThat(find(builder.createMeasures(), CoreMetrics.COVERED_CONDITIONS_BY_LINE_DATA_KEY).getData(), is("1=2;2=0"));
-    assertThat(find(builder.createMeasures(), CoreMetrics.BRANCH_COVERAGE_HITS_DATA_KEY).getData(), is("1=100%;2=0%"));
+    assertThat(find(builder.createMeasures(), CoreMetrics.CONDITIONS_BY_LINE_KEY).getData(), is("1=2;2=1"));
+    assertThat(find(builder.createMeasures(), CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY).getData(), is("1=2;2=0"));
   }
 
   @Test
@@ -91,17 +83,31 @@ public class CoverageMeasuresBuilderTest {
     CoverageMeasuresBuilder builder = CoverageMeasuresBuilder.create();
     builder.setConditions(1, 0, 0);
     builder.setConditions(2, 1, 0);
-    assertThat(find(builder.createMeasures(), CoreMetrics.CONDITIONS_BY_LINE_DATA_KEY).getData(), is("2=1"));
-    assertThat(find(builder.createMeasures(), CoreMetrics.COVERED_CONDITIONS_BY_LINE_DATA_KEY).getData(), is("2=0"));
-    assertThat(find(builder.createMeasures(), CoreMetrics.BRANCH_COVERAGE_HITS_DATA_KEY).getData(), is("2=0%"));
+    assertThat(find(builder.createMeasures(), CoreMetrics.CONDITIONS_BY_LINE_KEY).getData(), is("2=1"));
+    assertThat(find(builder.createMeasures(), CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY).getData(), is("2=0"));
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void shouldFailIfDuplicatedLineConditions() {
+  @Test
+  public void shouldIgnoreDuplicatedSetHits() {
     CoverageMeasuresBuilder builder = CoverageMeasuresBuilder.create();
-    builder.setConditions(1, 3, 0);
-    builder.setConditions(1, 3, 1);
+    builder.setHits(2, 3);
+    builder.setHits(2, 5);// to ignore
+    assertThat(builder.getLinesToCover(), is(1));
+    assertThat(builder.getCoveredLines(), is(1));
+    assertThat(builder.getHitsByLine().get(2), is(3));
   }
+
+  @Test
+  public void shouldIgnoreDuplicatedSetConditions() {
+    CoverageMeasuresBuilder builder = CoverageMeasuresBuilder.create();
+    builder.setConditions(1, 3, 2);
+    builder.setConditions(1, 1, 0);// to ignore
+    assertThat(builder.getConditions(), is(3));
+    assertThat(builder.getCoveredConditions(), is(2));
+    assertThat(builder.getConditionsByLine().get(1), is(3));
+    assertThat(builder.getCoveredConditionsByLine().get(1), is(2));
+  }
+
 
   @Test
   public void shouldResetFields() {

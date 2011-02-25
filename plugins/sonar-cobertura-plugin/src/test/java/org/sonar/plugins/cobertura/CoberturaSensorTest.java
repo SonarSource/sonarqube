@@ -62,7 +62,6 @@ public class CoberturaSensorTest {
     new CoberturaSensor().parseReport(getCoverageReport(), context);
 
     verify(context, never()).saveMeasure(eq(CoreMetrics.BRANCH_COVERAGE), anyDouble());
-    verify(context, never()).saveMeasure(argThat(new IsMeasure(CoreMetrics.BRANCH_COVERAGE_HITS_DATA)));
   }
 
   @Test
@@ -201,25 +200,6 @@ public class CoberturaSensorTest {
             "48=117;56=234;66=0;67=0;68=0;84=999;86=999;98=318;111=18;121=0;122=0;125=0;126=0;127=0;128=0;131=0;133=0")));
   }
 
-  @Test
-  public void collectFileBranchHitsData() throws URISyntaxException {
-    SensorContext context = mock(SensorContext.class);
-    when(context.getResource(any(Resource.class))).thenReturn(new JavaFile("org.sonar.MyClass"));
-    new CoberturaSensor().parseReport(getCoverageReport(), context);
-
-    // no conditions
-    verify(context, never()).saveMeasure(
-        eq(new JavaFile("org.apache.commons.chain.config.ConfigRuleSet")),
-        argThat(new IsMeasure(CoreMetrics.BRANCH_COVERAGE_HITS_DATA)));
-
-    verify(context).saveMeasure(
-        eq(new JavaFile("org.apache.commons.chain.config.ConfigParser")),
-        argThat(new IsMeasure(CoreMetrics.BRANCH_COVERAGE_HITS_DATA, "73=50%;76=50%;93=100%")));
-
-    verify(context).saveMeasure(
-        eq(new JavaFile("org.apache.commons.chain.generic.CopyCommand")),
-        argThat(new IsMeasure(CoreMetrics.BRANCH_COVERAGE_HITS_DATA, "132=0%;136=0%")));
-  }
 
   private File getCoverageReport() throws URISyntaxException {
     return new File(getClass().getResource("/org/sonar/plugins/cobertura/CoberturaSensorTest/commons-chain-coverage.xml").toURI());
