@@ -600,6 +600,7 @@ public final class CoreMetrics {
 
 
   // SCM
+  // These metrics are computed by the SCM Activity plugin, since version 1.2.
 
   public static final String SCM_COMMITS_KEY = "commits";
   public static final Metric SCM_COMMITS = new Metric.Builder(SCM_COMMITS_KEY, Metric.ValueType.INT)

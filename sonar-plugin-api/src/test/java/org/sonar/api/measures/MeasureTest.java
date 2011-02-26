@@ -114,4 +114,17 @@ public class MeasureTest {
     assertFalse(measure.equals(ruleMeasure));
     assertFalse(ruleMeasure.equals(measure));
   }
+
+  @Test
+  public void shouldUnsetData() {
+    String data = "1=10;21=456";
+    Measure measure = new Measure(CoreMetrics.CONDITIONS_BY_LINE).setData( data);
+    assertThat(measure.hasData(), is(true));
+    assertThat(measure.getData(), is(data));
+
+    measure.unsetData();
+
+    assertThat(measure.hasData(), is(false));
+    assertThat(measure.getData(), nullValue());
+  }
 }

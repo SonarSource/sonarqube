@@ -45,11 +45,14 @@ public final class MeasurePersister {
   private DatabaseSession session;
   private ResourcePersister resourcePersister;
   private RuleFinder ruleFinder;
+  private MemoryOptimizer memoryOptimizer;
 
-  public MeasurePersister(DatabaseSession session, ResourcePersister resourcePersister, RuleFinder ruleFinder) {
+
+  public MeasurePersister(DatabaseSession session, ResourcePersister resourcePersister, RuleFinder ruleFinder, MemoryOptimizer memoryOptimizer) {
     this.session = session;
     this.resourcePersister = resourcePersister;
     this.ruleFinder = ruleFinder;
+    this.memoryOptimizer = memoryOptimizer;
   }
 
   public void setDelayedMode(boolean delayedMode) {
@@ -63,20 +66,28 @@ public final class MeasurePersister {
 
     } else {
       Snapshot snapshot = resourcePersister.getSnapshotOrFail(resource);
+      MeasureModel model = null;
       if (measure.getId() != null) {
         // update
-        MeasureModel model = session.reattach(MeasureModel.class, measure.getId());
+        model = session.reattach(MeasureModel.class, measure.getId());
         model = mergeModel(measure, model);
         model.save(session);
 
       } else if (shouldPersistMeasure(resource, measure)) {
         // insert
-        MeasureModel model = createModel(measure);
+        model = createModel(measure);
         model.setSnapshotId(snapshot.getId());
         model.save(session);
         measure.setId(model.getId()); // could be removed
       }
+      if (model != null) {
+        memoryOptimizer.evictDataMeasure(measure, model);
+      }
     }
+  }
+
+  public Measure reloadMeasure(Measure measure) {
+    return memoryOptimizer.reloadMeasure(measure);
   }
 
   static boolean shouldPersistMeasure(Resource resource, Measure measure) {

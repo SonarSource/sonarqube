@@ -130,7 +130,9 @@ public class Metric implements ServerExtension, BatchExtension {
    * Creates a metric based on its key. Shortcut to Metric(key, ValueType.INT)
    *
    * @param key the metric key
+   * @deprecated since 2.7 use the Builder factory.
    */
+  @Deprecated
   public Metric(String key) {
     this(key, ValueType.INT);
   }
@@ -141,11 +143,17 @@ public class Metric implements ServerExtension, BatchExtension {
    *
    * @param key  the key
    * @param type the type
+   * @deprecated since 2.7 use the Builder factory.
    */
+  @Deprecated
   public Metric(String key, ValueType type) {
     this(key, key, key, type, -1, Boolean.FALSE, null, false);
   }
 
+  /**
+   * @deprecated since 2.7 use the Builder factory.
+   */
+  @Deprecated
   public Metric(String key, String name, String description, ValueType type, Integer direction, Boolean qualitative, String domain) {
     this(key, name, description, type, direction, qualitative, domain, false);
   }
@@ -164,6 +172,7 @@ public class Metric implements ServerExtension, BatchExtension {
    * @param qualitative whether the metric is qualitative
    * @param domain      the metric domain
    * @param userManaged whether the metric is user managed
+   * @deprecated since 2.7 use the Builder factory.
    */
   @Deprecated
   public Metric(String key, String name, String description, ValueType type, Integer direction, Boolean qualitative, String domain, boolean userManaged) {
@@ -197,7 +206,9 @@ public class Metric implements ServerExtension, BatchExtension {
    * @param qualitative whether the metric is qualitative
    * @param domain      the metric domain
    * @param formula     the metric formula
+   * @deprecated since 2.7 use the Builder factory.
    */
+  @Deprecated
   public Metric(String key, String name, ValueType type, Integer direction, Boolean qualitative, String domain, Formula formula) {
     this.key = key;
     this.name = name;

@@ -23,7 +23,6 @@ import org.sonar.api.batch.Event;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
@@ -44,6 +43,8 @@ public interface PersistenceManager {
   void setSource(Resource file, String source);
 
   void saveMeasure(Resource resource, Measure measure);
+
+  Measure reloadMeasure(Measure measure);
 
   void saveDependency(Project project, Dependency dependency, Dependency parentDependency);
 

@@ -34,6 +34,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.batch.DecoratorsSelector;
 import org.sonar.batch.DefaultDecoratorContext;
 import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.index.MemoryOptimizer;
 
 import java.util.Collection;
 import java.util.IdentityHashMap;
@@ -46,11 +47,14 @@ public class DecoratorsExecutor implements BatchComponent {
   private DatabaseSession session;
   private static final Logger LOG = LoggerFactory.getLogger(DecoratorsExecutor.class);
   private DefaultIndex index;
+  private MemoryOptimizer memoryOptimizer;
 
-  public DecoratorsExecutor(BatchExtensionDictionnary extensionDictionnary, DefaultIndex index, DatabaseSession session) {
+  public DecoratorsExecutor(BatchExtensionDictionnary extensionDictionnary, DefaultIndex index, DatabaseSession session,
+                            MemoryOptimizer memoryOptimizer) {
     this.decoratorsSelector = new DecoratorsSelector(extensionDictionnary);
     this.session = session;
     this.index = index;
+    this.memoryOptimizer = memoryOptimizer;
   }
 
 
@@ -81,6 +85,7 @@ public class DecoratorsExecutor implements BatchComponent {
       for (Decorator decorator : decorators) {
         profiler.start(decorator);
         decorator.decorate(resource, context);
+        memoryOptimizer.flushMemory();
         profiler.stop();
       }
     }

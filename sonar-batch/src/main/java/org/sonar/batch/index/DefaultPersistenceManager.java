@@ -84,6 +84,10 @@ public final class DefaultPersistenceManager implements PersistenceManager {
     }
   }
 
+  public Measure reloadMeasure(Measure measure) {
+    return measurePersister.reloadMeasure(measure);
+  }
+
   public void saveDependency(Project project, Dependency dependency, Dependency parentDependency) {
     if (ResourceUtils.isPersistable(dependency.getFrom()) && ResourceUtils.isPersistable(dependency.getTo())) {
       dependencyPersister.saveDependency(project, dependency, parentDependency);

@@ -19,6 +19,7 @@
  */
 package org.sonar.batch;
 
+import com.google.common.collect.Lists;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.Event;
 import org.sonar.api.database.DatabaseSession;
@@ -32,7 +33,10 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.batch.index.DefaultIndex;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 public class DefaultDecoratorContext implements DecoratorContext {
 
@@ -79,11 +83,11 @@ public class DefaultDecoratorContext implements DecoratorContext {
   }
 
   public Measure getMeasure(Metric metric) {
-    return index.getMeasures(resource, MeasuresFilters.metric(metric));
+    return index.getMeasure(resource, metric);
   }
 
   public Collection<Measure> getChildrenMeasures(MeasuresFilter filter) {
-    List<Measure> result = new ArrayList<Measure>();
+    List<Measure> result = Lists.newArrayList();
     for (DecoratorContext childContext : childrenContexts) {
       Object childResult = childContext.getMeasures(filter);
       if (childResult != null) {

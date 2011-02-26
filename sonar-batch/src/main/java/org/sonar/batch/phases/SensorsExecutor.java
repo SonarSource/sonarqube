@@ -32,6 +32,7 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.MavenPluginExecutor;
+import org.sonar.batch.index.MemoryOptimizer;
 
 import java.util.Collection;
 
@@ -41,11 +42,14 @@ public class SensorsExecutor implements BatchComponent {
   private Collection<Sensor> sensors;
   private DatabaseSession session;
   private MavenPluginExecutor mavenExecutor;
+  private MemoryOptimizer memoryOptimizer;
 
-  public SensorsExecutor(BatchExtensionDictionnary selector, Project project, DatabaseSession session, MavenPluginExecutor mavenExecutor) {
+  public SensorsExecutor(BatchExtensionDictionnary selector, Project project, DatabaseSession session, MavenPluginExecutor mavenExecutor,
+                         MemoryOptimizer memoryOptimizer) {
     this.sensors = selector.select(Sensor.class, project, true);
     this.session = session;
     this.mavenExecutor = mavenExecutor;
+    this.memoryOptimizer = memoryOptimizer;
   }
 
   public void execute(Project project, SensorContext context) {
@@ -58,6 +62,7 @@ public class SensorsExecutor implements BatchComponent {
 
       TimeProfiler profiler = new TimeProfiler(logger).start("Sensor " + sensor);
       sensor.analyse(project, context);
+      memoryOptimizer.flushMemory();
       session.commit();
       profiler.stop();
     }

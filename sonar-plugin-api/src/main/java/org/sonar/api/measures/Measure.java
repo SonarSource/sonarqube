@@ -323,6 +323,14 @@ public class Measure {
   }
 
   /**
+   * @since 2.7
+   */
+  public Measure unsetData() {
+    this.data=null;
+    return this;
+  }
+  
+  /**
    * @return the description of the measure
    */
   public String getDescription() {

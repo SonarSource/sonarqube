@@ -1,0 +1,8 @@
+<dataset>
+
+  
+  <measure_data id="2" measure_id="2" snapshot_id="2" data="[null]"/>
+  <measure_data id="500" measure_id="12345" snapshot_id="1" data="value from database"/>
+
+
+</dataset>

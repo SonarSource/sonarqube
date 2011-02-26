@@ -36,11 +36,13 @@ import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class MeasurePersisterTest extends AbstractDbUnitTestCase {
@@ -57,6 +59,7 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
   private JavaFile aFile = new JavaFile("org.foo.Bar");
   private Snapshot projectSnapshot, packageSnapshot, fileSnapshot;
   private Metric ncloc, coverage;
+  private MemoryOptimizer memoryOptimizer;
 
   @Before
   public void mockResourcePersister() {
@@ -73,7 +76,8 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
     when(resourcePersister.getSnapshot(project)).thenReturn(projectSnapshot);
     when(resourcePersister.getSnapshot(aPackage)).thenReturn(packageSnapshot);
     when(resourcePersister.getSnapshot(aFile)).thenReturn(fileSnapshot);
-    measurePersister = new MeasurePersister(getSession(), resourcePersister, new DefaultRuleFinder(getSessionFactory()));
+    memoryOptimizer = mock(MemoryOptimizer.class);
+    measurePersister = new MeasurePersister(getSession(), resourcePersister, new DefaultRuleFinder(getSessionFactory()), memoryOptimizer);
   }
 
   @Test
@@ -84,6 +88,16 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
 
     checkTables("shouldInsertMeasure", "project_measures");
   }
+
+  @Test
+  public void shouldRegisterPersistedMeasureToMemoryOptimizer() {
+    Measure measure = new Measure(ncloc).setValue(1234.0);
+
+    measurePersister.saveMeasure(project, measure);
+
+    verify(memoryOptimizer).evictDataMeasure(eq(measure), (MeasureModel)anyObject());
+  }
+
 
   @Test
   public void shouldUpdateMeasure() {

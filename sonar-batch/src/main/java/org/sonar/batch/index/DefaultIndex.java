@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.index;
 
-import java.util.*;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -42,6 +40,8 @@ import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.ViolationFilters;
+
+import java.util.*;
 
 public class DefaultIndex extends SonarIndex {
 
@@ -136,7 +136,10 @@ public class DefaultIndex extends SonarIndex {
   public Measure getMeasure(Resource resource, Metric metric) {
     Bucket bucket = buckets.get(resource);
     if (bucket != null) {
-      return bucket.getMeasures(MeasuresFilters.metric(metric));
+      Measure measure = bucket.getMeasures(MeasuresFilters.metric(metric));
+      if (measure!=null) {
+        return persistence.reloadMeasure(measure);
+      }
     }
     return null;
   }
@@ -144,6 +147,7 @@ public class DefaultIndex extends SonarIndex {
   public <M> M getMeasures(Resource resource, MeasuresFilter<M> filter) {
     Bucket bucket = buckets.get(resource);
     if (bucket != null) {
+      // TODO the data measures which are not kept in memory are not reloaded yet. Use getMeasure().
       return bucket.getMeasures(filter);
     }
     return null;
@@ -160,13 +164,11 @@ public class DefaultIndex extends SonarIndex {
         throw new SonarException("Unknown metric: " + measure.getMetricKey());
       }
       measure.setMetric(metric);
-      if (measure.getPersistenceMode().useMemory()) {
-        bucket.addMeasure(measure);
-      }
+      bucket.addMeasure(measure);
+
       if (measure.getPersistenceMode().useDatabase()) {
         persistence.saveMeasure(resource, measure);
       }
-      // TODO keep database measures in cache but remove data
     }
     return measure;
   }

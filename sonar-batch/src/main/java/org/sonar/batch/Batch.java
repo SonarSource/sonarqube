@@ -19,9 +19,6 @@
  */
 package org.sonar.batch;
 
-import java.net.URLClassLoader;
-import java.util.Arrays;
-
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +39,9 @@ import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.session.DatabaseSessionProvider;
 import org.sonar.jpa.session.DriverDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
+
+import java.net.URLClassLoader;
+import java.util.Arrays;
 
 public class Batch {
 
@@ -89,6 +89,7 @@ public class Batch {
       addComponent(EventPersister.class);
       addComponent(LinkPersister.class);
       addComponent(MeasurePersister.class);
+      addComponent(MemoryOptimizer.class);
       addComponent(DefaultResourcePersister.class);
       addComponent(SourcePersister.class);
       addComponent(ViolationPersister.class);
