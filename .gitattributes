@@ -1,0 +1,5 @@
+plugins/sonar-pmd-plugin/src/test/resources/org/sonar/plugins/pmd/export_simple.xml                                         eol=lf
+plugins/sonar-pmd-plugin/src/test/resources/org/sonar/plugins/pmd/export_xpath_rules.xml                                    eol=lf
+sonar-colorizer/src/test/resources/org/sonar/colorizer/samples/Sample.java                                                  eol=lf
+sonar-colorizer/src/test/resources/org/sonar/colorizer/samples/Sample.groovy                                                eol=lf
+sonar-server/src/test/resources/org/sonar/server/configuration/PropertiesBackupTest/backup-with-multiline-property.xml      eol=lf
