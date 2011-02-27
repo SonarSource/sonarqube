@@ -61,6 +61,21 @@ class ProjectMeasure < ActiveRecord::Base
     end
   end
 
+  def data_as_line_distribution
+    @line_distribution ||=
+      begin
+        hash={}
+        if data
+          parts=data.split(';')
+          parts.each do |part|
+            fields=part.split('=')
+            hash[fields[0].to_i]=fields[1]
+          end
+        end
+        hash
+      end
+  end
+
   def formatted_value
     if metric.nil?
       return value.to_s

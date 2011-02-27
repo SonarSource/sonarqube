@@ -33,6 +33,7 @@ class Snapshot < ActiveRecord::Base
   
   has_many :events, :dependent => :destroy, :order => 'event_date DESC'
   has_one :source, :class_name => 'SnapshotSource', :dependent => :destroy
+  has_many :violations, :class_name => 'RuleFailure'
 
   has_many :async_measure_snapshots
   has_many :async_measures, :through => :async_measure_snapshots
