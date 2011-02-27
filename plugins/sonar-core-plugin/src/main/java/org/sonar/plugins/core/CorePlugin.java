@@ -201,6 +201,7 @@ public class CorePlugin implements Plugin {
     extensions.add(SizeWidget.class);
     extensions.add(EventsWidget.class);
     extensions.add(CustomMeasuresWidget.class);
+    extensions.add(NewCoverageWidget.class);
 
     // chart
     extensions.add(XradarChart.class);
@@ -237,7 +238,8 @@ public class CorePlugin implements Plugin {
     extensions.add(ViolationPersisterDecorator.class);
     extensions.add(NewViolationsDecorator.class);
     extensions.add(TimeMachineConfigurationPersister.class);
-    extensions.add(NewCoverageDecorator.class);
+    extensions.add(NewCoverageFileAnalyzer.class);
+    extensions.add(NewCoverageAggregator.class);
 
     return extensions;
   }

@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import org.apache.commons.lang.NumberUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Test;
@@ -37,7 +36,7 @@ import java.util.List;
 
 import static org.mockito.Mockito.*;
 
-public class NewCoverageDecoratorTest {
+public class NewCoverageFileAnalyzerTest {
 
   @Test
   public void shouldDoNothingIfNoScmData() throws ParseException {
@@ -45,7 +44,7 @@ public class NewCoverageDecoratorTest {
     when(context.getMeasure(CoreMetrics.COVERAGE_LINE_HITS_DATA))
         .thenReturn(new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "1=10"));
 
-    NewCoverageDecorator decorator = newDecorator();
+    NewCoverageFileAnalyzer decorator = newDecorator();
     decorator.doDecorate(context);
     verify(context, never()).saveMeasure((Measure) anyObject());
   }
@@ -56,7 +55,7 @@ public class NewCoverageDecoratorTest {
     when(context.getMeasure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE))
         .thenReturn(new Measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "10=2008-05-18T00:00:00+0000"));
 
-    NewCoverageDecorator decorator = newDecorator();
+    NewCoverageFileAnalyzer decorator = newDecorator();
     decorator.doDecorate(context);
 
     verify(context, never()).saveMeasure((Measure) anyObject());
@@ -70,7 +69,7 @@ public class NewCoverageDecoratorTest {
     when(context.getMeasure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE)).thenReturn(
         new Measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "10=2007-01-15T00:00:00+0000;11=2011-01-01T00:00:00+0000"));
 
-    NewCoverageDecorator decorator = newDecorator();
+    NewCoverageFileAnalyzer decorator = newDecorator();
     decorator.doDecorate(context);
 
     // line 11 has been updated after date1 (2009-12-25). This line is covered.
@@ -102,7 +101,7 @@ public class NewCoverageDecoratorTest {
     when(context.getMeasure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE)).thenReturn(
         new Measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "10=2007-01-15T00:00:00+0000;11=2011-01-01T00:00:00+0000"));
 
-    NewCoverageDecorator decorator = newDecorator();
+    NewCoverageFileAnalyzer decorator = newDecorator();
     decorator.doDecorate(context);
 
     // line 11 has been updated after date1 (2009-12-25). This line has 1 covered condition amongst 4
@@ -134,7 +133,7 @@ public class NewCoverageDecoratorTest {
     when(context.getMeasure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE)).thenReturn(
         new Measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "10=2007-01-15T00:00:00+0000;11=2011-01-01T00:00:00+0000"));
 
-    NewCoverageDecorator decorator = newDecorator();
+    NewCoverageFileAnalyzer decorator = newDecorator();
     decorator.doDecorate(context);
 
     // line 11 has been updated after date1 (2009-12-25) but it has no conditions
@@ -170,11 +169,11 @@ public class NewCoverageDecoratorTest {
     }
   }
 
-  private NewCoverageDecorator newDecorator() throws ParseException {
-    List<NewCoverageDecorator.PeriodStruct> structs = Arrays.asList(
-        new NewCoverageDecorator.PeriodStruct(1, newDate("2009-12-25")),
-        new NewCoverageDecorator.PeriodStruct(3, newDate("2011-02-18")));
-    return new NewCoverageDecorator(structs);
+  private NewCoverageFileAnalyzer newDecorator() throws ParseException {
+    List<NewCoverageFileAnalyzer.PeriodStruct> structs = Arrays.asList(
+        new NewCoverageFileAnalyzer.PeriodStruct(1, newDate("2009-12-25")),
+        new NewCoverageFileAnalyzer.PeriodStruct(3, newDate("2011-02-18")));
+    return new NewCoverageFileAnalyzer(structs);
   }
 
   private Date newDate(String s) throws ParseException {

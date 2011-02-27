@@ -21,7 +21,6 @@ package org.sonar.plugins.core.timemachine;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.commons.lang.NumberUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
@@ -46,18 +45,18 @@ import java.util.Map;
 /**
  * @since 2.7
  */
-public final class NewCoverageDecorator implements Decorator {
+public final class NewCoverageFileAnalyzer implements Decorator {
 
   private List<PeriodStruct> structs;
 
-  public NewCoverageDecorator(TimeMachineConfiguration timeMachineConfiguration) {
+  public NewCoverageFileAnalyzer(TimeMachineConfiguration timeMachineConfiguration) {
     structs = Lists.newArrayList();
     for (PastSnapshot pastSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
       structs.add(new PeriodStruct(pastSnapshot));
     }
   }
 
-  NewCoverageDecorator(List<PeriodStruct> structs) {
+  NewCoverageFileAnalyzer(List<PeriodStruct> structs) {
     this.structs = structs;
   }
 
@@ -67,7 +66,7 @@ public final class NewCoverageDecorator implements Decorator {
   }
 
   private boolean shouldDecorate(Resource resource) {
-    return isFile(resource);
+    return Scopes.isFile(resource) && !Qualifiers.UNIT_TEST_FILE.equals(resource.getQualifier());
   }
 
   @DependsUpon
@@ -156,10 +155,6 @@ public final class NewCoverageDecorator implements Decorator {
   }
 
 
-  private boolean isFile(Resource resource) {
-    return Scopes.isFile(resource) && !Qualifiers.UNIT_TEST_FILE.equals(resource.getQualifier());
-  }
-
   public static final class PeriodStruct {
     int index;
     Date date;
@@ -167,7 +162,7 @@ public final class NewCoverageDecorator implements Decorator {
 
     PeriodStruct(PastSnapshot pastSnapshot) {
       this.index = pastSnapshot.getIndex();
-      this.date = pastSnapshot.getDate();
+      this.date = pastSnapshot.getTargetDate();
     }
 
     PeriodStruct(int index, Date date) {
@@ -187,7 +182,7 @@ public final class NewCoverageDecorator implements Decorator {
         //TODO warning
 
       } else if (lineDate.after(date)) {
-        // TODO experiment if date comparison is faster or not
+        // TODO test if string comparison is faster or not
         addLine(hits > 0);
         addConditions(conditions, coveredConditions);
       }

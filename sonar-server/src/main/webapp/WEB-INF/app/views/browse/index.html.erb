@@ -1,0 +1,198 @@
+<style>
+#source_metrics {
+  width: 100%;
+}
+#source_metrics {
+  width: 100%;
+}
+.sources2 {
+  width: 100%;
+  border: 1px solid #DDD;
+  margin: 0;
+}
+.sources2 td.lid {
+  background-color: #ECECEC;
+  border-right: 1px solid #DDDDDD;
+  border-left: 1px solid #DDDDDD;
+  text-align: right;
+  padding: 2px 0.5em 0 0.5em;
+  vertical-align: top;
+  font-size: 11px;
+}
+.sources2 td.lid a {
+  text-decoration: none;
+  color: #AAA;
+}
+.sources2 td.scm {
+  border-right: 1px solid #DDD;
+  background-color: #ECECEC;
+}
+.sources2 td.revision {
+  border-top: 1px solid #DDD;
+  vertical-align: top;
+  padding: 2px 0.3em;
+  white-space: nowrap;
+}
+.sources2 span.date, .sources2 span.date a {
+  color: #AAA;
+  font-size: 11px;
+  text-decoration: none;
+}
+.sources2 span.author, .sources2 span.author a {
+  font-size: 11px;
+}
+.sources2 td.rule {
+  padding: 1px 0.5em;
+}
+.sources2 td.violations {
+  background-color: #ECECEC;
+  min-width: 400px;
+}
+span.rulename, span.rulename a {
+  color: #4183C4;
+  text-decoration: none;
+}
+span.rulename a:hover {
+  text-decoration: underline;
+}
+.sources2 td.violations img {
+  vertical-align: sub;
+}
+.sources2 td.line {
+  padding-left: 1em;
+  width: 100%;
+  white-space: pre;
+  font-size: 12px;
+  font-family: monospace;
+}
+.sources2 td.section {
+  border-top: 1px solid #DDD;
+  border-bottom: 1px solid #DDD;
+}
+.sources2 td.ind {
+  border-right: 1px solid #DDD;
+  min-width: 1.5em;
+  padding: 0 0.3em;
+  text-align: center;
+  vertical-align: middle;
+}
+.sources2 td.ok {
+  background-color: #ACE97C;
+  border-top: 1px solid #6EC563;
+  border-bottom: 1px solid #6EC563;
+}
+.sources2 td.sev0, .sources2 td.sev1, .sources2 td.warn {
+  /* info, minor */
+  background-color: #FFF6BF;
+  border-top: 1px solid #FFD324;
+  border-bottom: 1px solid #FFD324;
+}
+.sources2 td.sev2, .sources2 td.sev3, .sources2 td.sev4, .sources2 td.ko {
+  /* major, critical, blocker */
+  background-color: #FF9090;
+  border-top: 1px solid #FF5252;
+  border-bottom: 1px solid #FF5252;
+}
+
+#source_title {
+  padding: 10px 0;
+}
+#source_title span.h1 {
+  font-size: 16px;
+  margin-right: 10px;
+}
+.source_links {
+  font-size: 11px;
+}
+#global_violations {
+  width: 100%;
+  border: 1px solid #DDD;
+  margin-bottom: 10px;
+}
+#global_violations td {
+  background-color: #ECECEC;
+  padding: 3px 0.5em;
+}
+#global_violations td img, #source_title img {
+  vertical-align: sub;
+}
+</style>
+
+<div id="source_title">
+  <span class="h1"><%= qualifier_icon(@resource) -%> <%= @resource.long_name -%></span>
+  <% if @lines  %>
+    | <span class="source_link"><a href="<%= ApplicationController.root_context -%>/api/sources?resource=<%= @resource.key -%>&format=txt" target="raw">raw</a></span>
+  <% end %>
+</div>
+<table id="source_metrics" cellpadding="0" cellspacing="0" border="0">
+
+</table>
+
+<% if @display_violations && @global_violations && @global_violations.size>0 -%>
+  <table id="global_violations" cellpadding="0" cellspacing="0" border="0">
+    <% @global_violations.each do |violation| %>
+      <tr>
+        <td><%= render :partial => 'violation', :locals => {:violation => violation} -%></td>
+      </tr>
+    <% end %>
+  </table>
+<% end %>
+
+<% if @lines && @lines.size>0 %>
+<table id="sources" class="sources2 code" cellpadding="0" cellspacing="0" border="0">
+  <%
+    @lines.each_with_index do |line, index|
+      status=hits_status=conditions_status=''
+      if @display_coverage && line.hits
+        hits_status=(line.hits>0 ? 'ok' : 'ko')
+        if line.conditions && line.conditions>0 && line.covered_conditions
+          if line.covered_conditions==0
+            status='ko'
+            conditions_status='ko'
+          elsif line.covered_conditions==line.conditions
+            status=''
+            conditions_status='ok'
+          else
+            conditions_status='warn'
+            status='warn'
+          end
+        elsif line.hits
+          status=(line.hits>0 ? '' : 'ko')
+        end
+      elsif @display_violations
+        status="sev#{line.violation_severity}"
+      end
+  %>
+  <tr>
+    <% if @display_scm
+         if line.display_scm
+           title = "Revision #{h(line.revision)} (#{line.date})"
+    %>
+            <td class="scm revision"><span class="date"><a href="#" title="<%= title -%>" alt="<%= title -%>"><%= line.date[0..9] -%></a></span> <span class="author"><%= h(line.author) -%></span></td>
+    <%   else %>
+            <td class="scm"></td>
+    <%   end
+       end %>
+    <% if @display_violations %>
+      <td class="rule <%= 'violations section' if line.violations? -%>">
+        <% if line.violations?
+             line.violations.each_with_index do |violation, violation_index| %>
+               <%= '<br/>' if violation_index>0 %>
+               <%= render :partial => 'violation', :locals => {:violation => violation} -%>
+        <%
+             end
+           end
+        %>
+      </td>
+    <% end %>
+    <td class="lid <%= ' section' if line.violations? -%>" id="L<%= index+1 -%>"><a name="L<%= index+1 -%>" href="#L<%= index+1 -%>"><%= index + 1 -%></a></td>
+
+    <% if @display_coverage  %>
+      <td class="ind <%= hits_status -%>"><%= line.hits -%></td>
+      <td class="ind <%= conditions_status -%>"><% if line.conditions && line.conditions>0 %><%= line.covered_conditions -%>/<%= line.conditions -%><% end %></td>
+    <% end %>
+    <td class="line <%= status -%>"><%= line.source -%></td>
+  </tr>
+  <% end %>
+</table>
+<% end %>
