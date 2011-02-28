@@ -201,6 +201,18 @@ public class CoberturaSensorTest {
   }
 
 
+  @Test
+  public void shouldNotCountTwiceAnonymousClasses() throws URISyntaxException {
+    File coverage = new File(getClass().getResource("/org/sonar/plugins/cobertura/CoberturaSensorTest/shouldNotCountTwiceAnonymousClasses.xml").toURI());
+    SensorContext context = mock(SensorContext.class);
+    when(context.getResource(any(Resource.class))).thenReturn(new JavaFile("org.sonar.samples.MyClass"));
+    new CoberturaSensor().parseReport(coverage, context);
+
+    verify(context).saveMeasure(argThat(new IsResource(Scopes.FILE, Qualifiers.CLASS, "org.sonar.samples.MyFile")),
+        argThat(new IsMeasure(CoreMetrics.LINES_TO_COVER, 5.0))); // do not count line 26 twice
+  }
+
+
   private File getCoverageReport() throws URISyntaxException {
     return new File(getClass().getResource("/org/sonar/plugins/cobertura/CoberturaSensorTest/commons-chain-coverage.xml").toURI());
   }
