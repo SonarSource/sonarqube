@@ -28,27 +28,46 @@ import org.sonar.api.measures.Metric;
 import java.util.Arrays;
 import java.util.List;
 
-public class LineCoverageDecorator extends AbstractCoverageDecorator {
-
-  @Override
-  protected Metric getTargetMetric() {
-    return CoreMetrics.LINE_COVERAGE;
-  }
+public final class LineCoverageDecorator extends AbstractCoverageDecorator {
 
   @DependsUpon
   public List<Metric> dependsUponMetrics() {
-    return Arrays.asList(CoreMetrics.UNCOVERED_LINES, CoreMetrics.LINES_TO_COVER);
+    return Arrays.asList(CoreMetrics.UNCOVERED_LINES, CoreMetrics.LINES_TO_COVER, CoreMetrics.NEW_UNCOVERED_LINES,
+        CoreMetrics.NEW_LINES_TO_COVER);
   }
 
   @Override
-  protected Double countCoveredElements(DecoratorContext context) {
-    double uncoveredLines = MeasureUtils.getValue(context.getMeasure(CoreMetrics.UNCOVERED_LINES), 0.0);
-    double lines = MeasureUtils.getValue(context.getMeasure(CoreMetrics.LINES_TO_COVER), 0.0);
+  protected Metric getGeneratedMetric() {
+    return CoreMetrics.LINE_COVERAGE;
+  }
+
+  @Override
+  protected Long countElements(DecoratorContext context) {
+    return MeasureUtils.getValueAsLong(context.getMeasure(CoreMetrics.LINES_TO_COVER), 0L);
+  }
+
+  @Override
+  protected long countCoveredElements(DecoratorContext context) {
+    long uncoveredLines = MeasureUtils.getValueAsLong(context.getMeasure(CoreMetrics.UNCOVERED_LINES), 0L);
+    long lines = MeasureUtils.getValueAsLong(context.getMeasure(CoreMetrics.LINES_TO_COVER), 0L);
     return lines - uncoveredLines;
   }
 
+
   @Override
-  protected Double countElements(DecoratorContext context) {
-    return MeasureUtils.getValue(context.getMeasure(CoreMetrics.LINES_TO_COVER), 0.0);
+  protected Metric getGeneratedMetricForNewCode() {
+    return CoreMetrics.NEW_LINE_COVERAGE;
+  }
+
+  @Override
+  protected Long countElementsForNewCode(DecoratorContext context, int periodIndex) {
+    return MeasureUtils.getVariationAsLong(context.getMeasure(CoreMetrics.NEW_LINES_TO_COVER), periodIndex);
+  }
+
+  @Override
+  protected long countCoveredElementsForNewCode(DecoratorContext context, int periodIndex) {
+    long uncoveredLines = MeasureUtils.getVariationAsLong(context.getMeasure(CoreMetrics.NEW_UNCOVERED_LINES), periodIndex, 0L);
+    long lines = MeasureUtils.getVariationAsLong(context.getMeasure(CoreMetrics.NEW_LINES_TO_COVER), periodIndex, 0L);
+    return lines - uncoveredLines;
   }
 }

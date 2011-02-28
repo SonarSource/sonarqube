@@ -107,6 +107,57 @@ public final class CoreMetrics {
   public static final Metric PUBLIC_API = new Metric(PUBLIC_API_KEY, "Public API", "Public API", Metric.ValueType.INT,
       Metric.DIRECTION_WORST, false, DOMAIN_SIZE).setFormula(new SumChildValuesFormula(false));
 
+
+
+
+
+
+  //--------------------------------------------------------------------------------------------------------------------
+  //
+  // DOCUMENTATION
+  //
+  //--------------------------------------------------------------------------------------------------------------------
+
+  public static final String COMMENT_LINES_KEY = "comment_lines";
+  public static final Metric COMMENT_LINES = new Metric(COMMENT_LINES_KEY, "Comment lines", "Number of comment lines",
+      Metric.ValueType.INT, Metric.DIRECTION_BETTER, false, DOMAIN_DOCUMENTATION).setFormula(new SumChildValuesFormula(false));
+
+  public static final String COMMENT_LINES_DENSITY_KEY = "comment_lines_density";
+  public static final Metric COMMENT_LINES_DENSITY = new Metric(COMMENT_LINES_DENSITY_KEY, "Comments (%)",
+      "Comments balanced by ncloc + comment lines", Metric.ValueType.PERCENT, Metric.DIRECTION_BETTER, true, DOMAIN_DOCUMENTATION);
+
+  public static final String COMMENT_BLANK_LINES_KEY = "comment_blank_lines";
+  public static final Metric COMMENT_BLANK_LINES = new Metric(COMMENT_BLANK_LINES_KEY, "Blank comments",
+      "Comments that do not contain comments", Metric.ValueType.INT, Metric.DIRECTION_WORST, false, CoreMetrics.DOMAIN_DOCUMENTATION)
+      .setFormula(new SumChildValuesFormula(false)).setBestValue(0.0).setOptimizedBestValue(true);
+
+  public static final String PUBLIC_DOCUMENTED_API_DENSITY_KEY = "public_documented_api_density";
+  public static final Metric PUBLIC_DOCUMENTED_API_DENSITY = new Metric(PUBLIC_DOCUMENTED_API_DENSITY_KEY, "Public documented API (%)",
+      "Public documented classes and methods balanced by ncloc", Metric.ValueType.PERCENT, Metric.DIRECTION_BETTER, true,
+      DOMAIN_DOCUMENTATION).setWorstValue(0.0).setBestValue(100.0).setOptimizedBestValue(true);
+
+  public static final String PUBLIC_UNDOCUMENTED_API_KEY = "public_undocumented_api";
+  public static final Metric PUBLIC_UNDOCUMENTED_API = new Metric(PUBLIC_UNDOCUMENTED_API_KEY, "Public undocumented API",
+      "Public undocumented classes, methods and variables", Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_DOCUMENTATION)
+      .setBestValue(0.0).setDirection(Metric.DIRECTION_WORST).setOptimizedBestValue(true).setFormula(
+          new SumChildValuesFormula(false));
+
+  public static final String COMMENTED_OUT_CODE_LINES_KEY = "commented_out_code_lines";
+  public static final Metric COMMENTED_OUT_CODE_LINES = new Metric(COMMENTED_OUT_CODE_LINES_KEY, "Commented LOCs",
+      "Commented lines of code", Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_DOCUMENTATION).setFormula(
+      new SumChildValuesFormula(false)).setBestValue(0.0).setOptimizedBestValue(true);
+
+
+  
+
+
+
+  //--------------------------------------------------------------------------------------------------------------------
+  //
+  // COMPLEXITY
+  //
+  //--------------------------------------------------------------------------------------------------------------------
+
   public static final String COMPLEXITY_KEY = "complexity";
   public static final Metric COMPLEXITY = new Metric(COMPLEXITY_KEY, "Complexity", "Cyclomatic complexity", Metric.ValueType.INT,
       Metric.DIRECTION_WORST, false, DOMAIN_COMPLEXITY).setFormula(new SumChildValuesFormula(false));
@@ -150,37 +201,12 @@ public final class CoreMetrics {
       "Paragraph distribution /complexity", "Paragraph distribution /complexity", Metric.ValueType.DISTRIB, Metric.DIRECTION_NONE, true,
       DOMAIN_COMPLEXITY).setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY));
 
-  public static final String COMMENT_LINES_KEY = "comment_lines";
-  public static final Metric COMMENT_LINES = new Metric(COMMENT_LINES_KEY, "Comment lines", "Number of comment lines",
-      Metric.ValueType.INT, Metric.DIRECTION_BETTER, false, DOMAIN_DOCUMENTATION).setFormula(new SumChildValuesFormula(false));
 
-  public static final String COMMENT_LINES_DENSITY_KEY = "comment_lines_density";
-  public static final Metric COMMENT_LINES_DENSITY = new Metric(COMMENT_LINES_DENSITY_KEY, "Comments (%)",
-      "Comments balanced by ncloc + comment lines", Metric.ValueType.PERCENT, Metric.DIRECTION_BETTER, true, DOMAIN_DOCUMENTATION);
-
-  public static final String COMMENT_BLANK_LINES_KEY = "comment_blank_lines";
-  public static final Metric COMMENT_BLANK_LINES = new Metric(COMMENT_BLANK_LINES_KEY, "Blank comments",
-      "Comments that do not contain comments", Metric.ValueType.INT, Metric.DIRECTION_WORST, false, CoreMetrics.DOMAIN_DOCUMENTATION)
-      .setFormula(new SumChildValuesFormula(false)).setBestValue(0.0).setOptimizedBestValue(true);
-
-  public static final String PUBLIC_DOCUMENTED_API_DENSITY_KEY = "public_documented_api_density";
-  public static final Metric PUBLIC_DOCUMENTED_API_DENSITY = new Metric(PUBLIC_DOCUMENTED_API_DENSITY_KEY, "Public documented API (%)",
-      "Public documented classes and methods balanced by ncloc", Metric.ValueType.PERCENT, Metric.DIRECTION_BETTER, true,
-      DOMAIN_DOCUMENTATION).setWorstValue(0.0).setBestValue(100.0).setOptimizedBestValue(true);
-
-  public static final String PUBLIC_UNDOCUMENTED_API_KEY = "public_undocumented_api";
-  public static final Metric PUBLIC_UNDOCUMENTED_API = new Metric(PUBLIC_UNDOCUMENTED_API_KEY, "Public undocumented API",
-      "Public undocumented classes, methods and variables", Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_DOCUMENTATION)
-      .setBestValue(0.0).setDirection(Metric.DIRECTION_WORST).setOptimizedBestValue(true).setFormula(
-          new SumChildValuesFormula(false));
-
-  public static final String COMMENTED_OUT_CODE_LINES_KEY = "commented_out_code_lines";
-  public static final Metric COMMENTED_OUT_CODE_LINES = new Metric(COMMENTED_OUT_CODE_LINES_KEY, "Commented LOCs",
-      "Commented lines of code", Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_DOCUMENTATION).setFormula(
-      new SumChildValuesFormula(false)).setBestValue(0.0).setOptimizedBestValue(true);
-
-
+  //--------------------------------------------------------------------------------------------------------------------
+  //
   // UNIT TESTS
+  //
+  //--------------------------------------------------------------------------------------------------------------------
 
   public static final String TESTS_KEY = "tests";
   public static final Metric TESTS = new Metric(TESTS_KEY, "Unit tests", "Number of unit tests", Metric.ValueType.INT,
@@ -217,8 +243,26 @@ public final class CoreMetrics {
       Metric.DIRECTION_WORST, false, DOMAIN_TESTS);
 
   public static final String COVERAGE_KEY = "coverage";
-  public static final Metric COVERAGE = new Metric(COVERAGE_KEY, "Coverage", "Coverage by unit tests", Metric.ValueType.PERCENT,
-      Metric.DIRECTION_BETTER, true, DOMAIN_TESTS).setWorstValue(0.0).setBestValue(100.0);
+  public static final Metric COVERAGE = new Metric.Builder(COVERAGE_KEY, Metric.ValueType.PERCENT)
+      .setName("Coverage")
+      .setDescription("Coverage by unit tests")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_TESTS)
+      .setWorstValue(0.0)
+      .setBestValue(100.0)
+      .create();
+
+  public static final String NEW_COVERAGE_KEY = "new_coverage";
+  public static final Metric NEW_COVERAGE = new Metric.Builder(NEW_COVERAGE_KEY, Metric.ValueType.PERCENT)
+      .setName("New coverage")
+      .setDescription("Coverage of new/changed code")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_TESTS)
+      .setWorstValue(0.0)
+      .setBestValue(100.0)
+      .create();
 
   public static final String LINES_TO_COVER_KEY = "lines_to_cover";
   public static final Metric LINES_TO_COVER = new Metric(LINES_TO_COVER_KEY, "Lines to cover", "Lines to cover", Metric.ValueType.INT,
@@ -253,8 +297,24 @@ public final class CoreMetrics {
       .create();
 
   public static final String LINE_COVERAGE_KEY = "line_coverage";
-  public static final Metric LINE_COVERAGE = new Metric(LINE_COVERAGE_KEY, "Line coverage", "Line coverage", Metric.ValueType.PERCENT,
-      Metric.DIRECTION_BETTER, true, DOMAIN_TESTS);
+  public static final Metric LINE_COVERAGE = new Metric.Builder(LINE_COVERAGE_KEY, Metric.ValueType.PERCENT)
+      .setName("Line coverage")
+      .setDescription("Line coverage")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_TESTS)
+      .create();
+
+  public static final String NEW_LINE_COVERAGE_KEY = "new_line_coverage";
+  public static final Metric NEW_LINE_COVERAGE = new Metric.Builder(NEW_LINE_COVERAGE_KEY, Metric.ValueType.PERCENT)
+      .setName("New line coverage")
+      .setDescription("Line coverage of added/changed code")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setWorstValue(0.0)
+      .setBestValue(100.0)
+      .setDomain(DOMAIN_TESTS)
+      .create();
 
   public static final String COVERAGE_LINE_HITS_DATA_KEY = "coverage_line_hits_data";
   public static final Metric COVERAGE_LINE_HITS_DATA = new Metric.Builder(COVERAGE_LINE_HITS_DATA_KEY, Metric.ValueType.DATA)
@@ -308,6 +368,17 @@ public final class CoreMetrics {
       .setBestValue(100.0)
       .create();
 
+  public static final String NEW_BRANCH_COVERAGE_KEY = "new_branch_coverage";
+  public static final Metric NEW_BRANCH_COVERAGE = new Metric.Builder(NEW_BRANCH_COVERAGE_KEY, Metric.ValueType.PERCENT)
+      .setName("NEw branch coverage")
+      .setDescription("Branch coverage of new/changed code")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_TESTS)
+      .setWorstValue(0.0)
+      .setBestValue(100.0)
+      .create();
+
   @Deprecated
   public static final String BRANCH_COVERAGE_HITS_DATA_KEY = "branch_coverage_hits_data";
 
@@ -339,6 +410,12 @@ public final class CoreMetrics {
       .create();
 
 
+  //--------------------------------------------------------------------------------------------------------------------
+  //
+  // DUPLICATIONS
+  //
+  //--------------------------------------------------------------------------------------------------------------------
+
   public static final String DUPLICATED_LINES_KEY = "duplicated_lines";
   public static final Metric DUPLICATED_LINES = new Metric(DUPLICATED_LINES_KEY, "Duplicated lines", "Duplicated lines",
       Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_DUPLICATION).setBestValue(0.0).setOptimizedBestValue(true);
@@ -360,7 +437,12 @@ public final class CoreMetrics {
   public static final Metric DUPLICATIONS_DATA = new Metric(DUPLICATIONS_DATA_KEY, "Duplications details", "Duplications details",
       Metric.ValueType.DATA, Metric.DIRECTION_NONE, false, DOMAIN_DUPLICATION);
 
-  /* coding rules */
+
+  //--------------------------------------------------------------------------------------------------------------------
+  //
+  // CODING RULES
+  //
+  //--------------------------------------------------------------------------------------------------------------------
   /**
    * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
    */
@@ -483,7 +565,11 @@ public final class CoreMetrics {
       Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setHidden(true).setBestValue(0.0).setOptimizedBestValue(true);
 
 
+  //--------------------------------------------------------------------------------------------------------------------
+  //
   // DESIGN
+  //
+  //--------------------------------------------------------------------------------------------------------------------
 
   public static final String ABSTRACTNESS_KEY = "abstractness";
   public static final Metric ABSTRACTNESS = new Metric(ABSTRACTNESS_KEY, "Abstractness", "Abstractness", Metric.ValueType.PERCENT,
@@ -582,25 +668,12 @@ public final class CoreMetrics {
       Metric.ValueType.INT, Metric.DIRECTION_BETTER, false, DOMAIN_DESIGN).setHidden(true);
 
 
-  // Alerts
-  public static final String ALERT_STATUS_KEY = "alert_status";
-  public static final Metric ALERT_STATUS = new Metric.Builder(ALERT_STATUS_KEY, Metric.ValueType.LEVEL)
-      .setName("Alert")
-      .setDescription("Alert")
-      .setDirection(Metric.DIRECTION_BETTER)
-      .setQualitative(true)
-      .setDomain(DOMAIN_GENERAL)
-      .create();
-
-
-  /* quality profile */
-  public static final String PROFILE_KEY = "profile";
-  public static final Metric PROFILE = new Metric(PROFILE_KEY, "Profile", "Selected quality profile", Metric.ValueType.DATA,
-      Metric.DIRECTION_NONE, false, DOMAIN_GENERAL);
-
-
+  //--------------------------------------------------------------------------------------------------------------------
+  //
   // SCM
   // These metrics are computed by the SCM Activity plugin, since version 1.2.
+  //
+  //--------------------------------------------------------------------------------------------------------------------
 
   public static final String SCM_COMMITS_KEY = "commits";
   public static final Metric SCM_COMMITS = new Metric.Builder(SCM_COMMITS_KEY, Metric.ValueType.INT)
@@ -634,6 +707,27 @@ public final class CoreMetrics {
   public static final Metric SCM_LAST_COMMIT_DATETIMES_BY_LINE = new Metric.Builder(SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY, Metric.ValueType.DATA)
       .setDomain(DOMAIN_SCM)
       .create();
+
+
+  //--------------------------------------------------------------------------------------------------------------------
+  //
+  // OTHERS
+  //
+  //--------------------------------------------------------------------------------------------------------------------
+  public static final String ALERT_STATUS_KEY = "alert_status";
+  public static final Metric ALERT_STATUS = new Metric.Builder(ALERT_STATUS_KEY, Metric.ValueType.LEVEL)
+      .setName("Alert")
+      .setDescription("Alert")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_GENERAL)
+      .create();
+
+
+  public static final String PROFILE_KEY = "profile";
+  public static final Metric PROFILE = new Metric(PROFILE_KEY, "Profile", "Selected quality profile", Metric.ValueType.DATA,
+      Metric.DIRECTION_NONE, false, DOMAIN_GENERAL);
+
 
   public static List<Metric> metrics = Lists.newLinkedList();
 

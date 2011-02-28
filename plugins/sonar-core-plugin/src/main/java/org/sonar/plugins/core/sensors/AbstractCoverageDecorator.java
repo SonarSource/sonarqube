@@ -22,10 +22,14 @@ package org.sonar.plugins.core.sensors;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 public abstract class AbstractCoverageDecorator implements Decorator {
 
@@ -34,36 +38,60 @@ public abstract class AbstractCoverageDecorator implements Decorator {
   }
 
   @DependedUpon
-  public Metric generatesCoverage() {
-    return getTargetMetric();
+  public Collection<Metric> generatedMetrics() {
+    return Arrays.asList(getGeneratedMetric(), getGeneratedMetricForNewCode());
   }
 
   public void decorate(final Resource resource, final DecoratorContext context) {
     if (shouldDecorate(resource, context)) {
-      saveLineCoverage(context);
+      computeMeasure(context);
+      computeMeasureForNewCode(context);
     }
   }
 
   protected boolean shouldDecorate(final Resource resource, final DecoratorContext context) {
-    return context.getMeasure(getTargetMetric()) == null && !ResourceUtils.isUnitTestClass(resource);
+    return context.getMeasure(getGeneratedMetric()) == null && !ResourceUtils.isUnitTestClass(resource);
   }
 
-  private void saveLineCoverage(DecoratorContext context) {
-    Double elements = countElements(context);
-    Double coveredElements = countCoveredElements(context);
-
-    if (elements != null && elements > 0.0 && coveredElements != null) {
-      context.saveMeasure(getTargetMetric(), calculateCoverage(coveredElements, elements));
+  private void computeMeasure(DecoratorContext context) {
+    Long elements = countElements(context);
+    if (elements != null && elements > 0L) {
+      Long coveredElements = countCoveredElements(context);
+      context.saveMeasure(getGeneratedMetric(), calculateCoverage(coveredElements, elements));
     }
   }
 
-  private double calculateCoverage(final Double coveredLines, final Double lines) {
+  private void computeMeasureForNewCode(DecoratorContext context) {
+    Measure measure = new Measure(getGeneratedMetricForNewCode());
+    boolean hasValue = false;
+    /* TODO remove this magic number */
+    for (int periodIndex = 1; periodIndex <= 5; periodIndex++) {
+      Long elements = countElementsForNewCode(context, periodIndex);
+
+      if (elements != null && elements > 0L) {
+        long coveredElements = countCoveredElementsForNewCode(context, periodIndex);
+        measure.setVariation(periodIndex, calculateCoverage(coveredElements, elements));
+        hasValue = true;
+      }
+    }
+    if (hasValue) {
+      context.saveMeasure(measure);
+    }
+  }
+
+  private double calculateCoverage(final long coveredLines, final long lines) {
     return (100.0 * coveredLines) / lines;
   }
 
-  protected abstract Metric getTargetMetric();
+  protected abstract Metric getGeneratedMetric();
 
-  protected abstract Double countCoveredElements(DecoratorContext context);
+  protected abstract Long countElements(DecoratorContext context);
 
-  protected abstract Double countElements(DecoratorContext context);
+  protected abstract long countCoveredElements(DecoratorContext context);
+
+  protected abstract Metric getGeneratedMetricForNewCode();
+
+  protected abstract Long countElementsForNewCode(DecoratorContext context, int periodIndex);
+
+  protected abstract long countCoveredElementsForNewCode(DecoratorContext context, int periodIndex);
 }

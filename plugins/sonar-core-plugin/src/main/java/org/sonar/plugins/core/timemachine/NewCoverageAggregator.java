@@ -56,7 +56,7 @@ public final class NewCoverageAggregator implements Decorator {
     }
   }
 
-  private void aggregate(DecoratorContext context, Metric metric, int maxPeriods) {
+  void aggregate(DecoratorContext context, Metric metric, int maxPeriods) {
     int[] variations = {0,0,0,0,0};
     boolean[] hasValues = {false,false,false,false,false};
     for (Measure child : context.getChildrenMeasures(metric)) {
@@ -80,7 +80,7 @@ public final class NewCoverageAggregator implements Decorator {
     }
   }
 
-  private boolean shouldDecorate(Resource resource) {
+  boolean shouldDecorate(Resource resource) {
     return Scopes.isHigherThan(resource, Scopes.FILE);
   }
 }

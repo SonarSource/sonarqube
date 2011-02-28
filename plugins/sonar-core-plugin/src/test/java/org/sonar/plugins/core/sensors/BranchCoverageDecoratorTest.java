@@ -31,7 +31,7 @@ import org.sonar.api.resources.Project;
 public class BranchCoverageDecoratorTest {
 
   @Test
-  public void noBranchCoverageIfMissingConditions() {
+  public void shouldNotSaveBranchCoverageIfMissingConditions() {
     Project resource = mock(Project.class);
     when(resource.getScope()).thenReturn(Project.SCOPE_SET);
     when(resource.getQualifier()).thenReturn(Project.QUALIFIER_SUBVIEW);
@@ -43,7 +43,7 @@ public class BranchCoverageDecoratorTest {
   }
 
   @Test
-  public void branchCoverage() {
+  public void shouldSaveBranchCoverage() {
     Project resource = mock(Project.class);
     when(resource.getScope()).thenReturn(Project.SCOPE_SET);
     when(resource.getQualifier()).thenReturn(Project.QUALIFIER_PROJECT);
