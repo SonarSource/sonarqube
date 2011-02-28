@@ -57,9 +57,9 @@ public final class MeasureUtils {
   /**
    * Get the value of a measure, or alternatively a default value
    *
-   * @param measure the measure
+   * @param measure      the measure
    * @param defaultValue the default value
-   * @return  <code>defaultValue</code> if measure is null or has no values.
+   * @return <code>defaultValue</code> if measure is null or has no values.
    */
 
   public static Double getValue(Measure measure, Double defaultValue) {
@@ -67,6 +67,38 @@ public final class MeasureUtils {
       return measure.getValue();
     }
     return defaultValue;
+  }
+
+  public static Long getValueAsLong(Measure measure, Long defaultValue) {
+    if (MeasureUtils.hasValue(measure)) {
+      return measure.getValue().longValue();
+    }
+    return defaultValue;
+  }
+
+
+  public static Double getVariation(Measure measure, int periodIndex) {
+    return getVariation(measure, periodIndex, null);
+  }
+
+  public static Double getVariation(Measure measure, int periodIndex, Double defaultValue) {
+    Double result = null;
+    if (measure != null) {
+      result = measure.getVariation(periodIndex);
+    }
+    return (result != null ? result : defaultValue);
+  }
+
+  public static Long getVariationAsLong(Measure measure, int periodIndex) {
+    return getVariationAsLong(measure, periodIndex, null);
+  }
+
+  public static Long getVariationAsLong(Measure measure, int periodIndex, Long defaultValue) {
+    Double result = null;
+    if (measure != null) {
+      result = measure.getVariation(periodIndex);
+    }
+    return result == null ? defaultValue : Long.valueOf(result.longValue());
   }
 
   /**
@@ -93,7 +125,7 @@ public final class MeasureUtils {
    * Sums a series of measures
    *
    * @param zeroIfNone whether to return 0 or null in case measures is null
-   * @param measures the series of measures
+   * @param measures   the series of measures
    * @return the sum of the measure series
    */
   public static Double sum(boolean zeroIfNone, Collection<Measure> measures) {
@@ -107,7 +139,7 @@ public final class MeasureUtils {
    * Sums a series of measures
    *
    * @param zeroIfNone whether to return 0 or null in case measures is null
-   * @param measures the series of measures
+   * @param measures   the series of measures
    * @return the sum of the measure series
    */
   public static Double sum(boolean zeroIfNone, Measure... measures) {

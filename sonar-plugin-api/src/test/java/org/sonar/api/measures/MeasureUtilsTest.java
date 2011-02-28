@@ -80,7 +80,7 @@ public class MeasureUtilsTest {
   }
 
   @Test
-  public void haveValues() {
+  public void shouldHaveValues() {
     assertThat(MeasureUtils.haveValues(), is(false));
     assertThat(MeasureUtils.haveValues(null, null), is(false));
     assertThat(MeasureUtils.haveValues(new Measure(CoreMetrics.CLASSES, (Double) null)), is(false));
@@ -88,4 +88,27 @@ public class MeasureUtilsTest {
     assertThat(MeasureUtils.haveValues(new Measure(CoreMetrics.CLASSES, 3.2), new Measure(CoreMetrics.COMPLEXITY, "foo")), is(false));
     assertThat(MeasureUtils.haveValues(new Measure(CoreMetrics.CLASSES, 3.2), new Measure(CoreMetrics.COMPLEXITY, 2.5)), is(true));
   }
+
+  @Test
+  public void shouldGetVariation() {
+    assertThat(MeasureUtils.getVariation(null, 2, 3.14), is(3.14));
+    assertThat(MeasureUtils.getVariation(null, 2), nullValue());
+
+    assertThat(MeasureUtils.getVariation(new Measure(), 2, 3.14), is(3.14));
+    assertThat(MeasureUtils.getVariation(new Measure(), 2), nullValue());
+
+    assertThat(MeasureUtils.getVariation(new Measure().setVariation2(1.618), 2, 3.14), is(1.618));
+  }
+
+  @Test
+  public void shouldGetVariationAsLong() {
+    assertThat(MeasureUtils.getVariationAsLong(null, 2, 3L), is(3L));
+    assertThat(MeasureUtils.getVariationAsLong(null, 2), nullValue());
+
+    assertThat(MeasureUtils.getVariationAsLong(new Measure(), 2, 3L), is(3L));
+    assertThat(MeasureUtils.getVariationAsLong(new Measure(), 2), nullValue());
+
+    assertThat(MeasureUtils.getVariationAsLong(new Measure().setVariation2(222.0), 2, 3L), is(222L));
+  }
+
 }
