@@ -26,8 +26,8 @@ import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.resources.Java;
-import org.sonar.plugins.core.batch.MavenInitializer;
 import org.sonar.plugins.core.batch.ExcludedResourceFilter;
+import org.sonar.plugins.core.batch.MavenInitializer;
 import org.sonar.plugins.core.charts.DistributionAreaChart;
 import org.sonar.plugins.core.charts.DistributionBarChart;
 import org.sonar.plugins.core.charts.XradarChart;
@@ -201,7 +201,6 @@ public class CorePlugin implements Plugin {
     extensions.add(SizeWidget.class);
     extensions.add(EventsWidget.class);
     extensions.add(CustomMeasuresWidget.class);
-    extensions.add(NewCoverageWidget.class);
 
     // chart
     extensions.add(XradarChart.class);

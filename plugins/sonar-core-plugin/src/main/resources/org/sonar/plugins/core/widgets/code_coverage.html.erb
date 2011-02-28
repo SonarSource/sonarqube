@@ -71,3 +71,26 @@
 </tr>
 </table>
 <% end %>
+
+
+<%
+if dashboard_configuration.selected_period?
+  new_lines_to_cover_measure=measure('new_lines_to_cover')
+  if new_lines_to_cover_measure
+    new_lines=new_lines_to_cover_measure.variation(dashboard_configuration.period_index)
+    if new_lines
+      new_coverage=measure('new_coverage')
+      new_line_coverage=measure('new_line_coverage')
+      new_branch_coverage=measure('new_branch_coverage')
+%>
+    <h3>on changed code (<%= new_lines.to_i -%> new lines to cover)</h3>
+    <p>
+      Coverage: <%= new_coverage.format_numeric_value(variation_value(new_coverage)) -%><br/>
+      Line coverage: <%= new_line_coverage.format_numeric_value(variation_value(new_line_coverage)) -%><br/>
+      Branch coverage: <%= new_branch_coverage.format_numeric_value(variation_value(new_branch_coverage)) -%>
+    </p>
+<%
+    end
+  end
+end
+%>
