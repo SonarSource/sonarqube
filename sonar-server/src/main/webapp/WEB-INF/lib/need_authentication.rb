@@ -88,17 +88,25 @@ module NeedAuthentication
       #
       def authenticate(login, password)
         return nil if login.blank?
+        java_facade = Java::OrgSonarServerUi::JRubyFacade.new
+
+        # Downcase login (typically for Active Directory)
+        # Note that login in Sonar DB is case-sensitive, however in this case authentication and automatic user creation will always happen with downcase login
+        downcase = java_facade.getConfigurationValue('sonar.authenticator.downcase')
+        if downcase == 'true'
+          login = login.downcase
+        end
+
         return nil if !AuthenticatorFactory.authenticator.authenticate?(login, password)
         user = User.find_by_login(login)
 
         # Automatically create a user in the sonar db if authentication has been successfully done
-        java_facade = Java::OrgSonarServerUi::JRubyFacade.new
-        create_user = java_facade.getConfigurationValue('sonar.authenticator.createUsers');
+        create_user = java_facade.getConfigurationValue('sonar.authenticator.createUsers')
         if !user && create_user=='true'
           user=User.new(:login => login, :name => login, :email => '', :password => password, :password_confirmation => password)
           user.save!
 
-          default_group_name = java_facade.getConfigurationValue('sonar.defaultGroup') || 'sonar-users';
+          default_group_name = java_facade.getConfigurationValue('sonar.defaultGroup') || 'sonar-users'
           default_group=Group.find_by_name(default_group_name)
           if default_group
             user.groups<<default_group
