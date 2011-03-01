@@ -57,7 +57,7 @@ public class CoberturaMavenInitializer extends Initializer implements CoverageEx
   @Override
   public void execute(Project project) {
     Configuration conf = project.getConfiguration();
-    if (conf.containsKey(CoreProperties.COBERTURA_REPORT_PATH_PROPERTY)) {
+    if (!conf.containsKey(CoreProperties.COBERTURA_REPORT_PATH_PROPERTY)) {
       String report = getReportPathFromPluginConfiguration(project);
       if (report == null) {
         report = getDefaultReportPath(project);

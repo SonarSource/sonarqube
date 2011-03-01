@@ -19,16 +19,24 @@
  */
 package org.sonar.plugins.cobertura;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.resources.Project;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import org.apache.commons.configuration.Configuration;
+import org.apache.maven.project.MavenProject;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.resources.Project;
+import org.sonar.api.test.MavenTestUtils;
 
 public class CoberturaMavenInitializerTest {
 
@@ -60,4 +68,22 @@ public class CoberturaMavenInitializerTest {
     assertThat(initializer.getMavenPluginHandler(project).getArtifactId(), is("cobertura-maven-plugin"));
   }
 
+  @Test
+  public void doNotSetReportPathIfAlreadyConfigured() {
+    Configuration configuration = mock(Configuration.class);
+    when(configuration.containsKey(CoreProperties.COBERTURA_REPORT_PATH_PROPERTY)).thenReturn(true);
+    when(project.getConfiguration()).thenReturn(configuration);
+    initializer.execute(project);
+    verify(configuration, never()).setProperty(eq(CoreProperties.COBERTURA_REPORT_PATH_PROPERTY), anyString());
+  }
+
+  @Test
+  public void shouldSetReportPathFromPom() {
+    Configuration configuration = mock(Configuration.class);
+    when(project.getConfiguration()).thenReturn(configuration);
+    MavenProject pom = MavenTestUtils.loadPom("/org/sonar/plugins/cobertura/CoberturaSensorTest/shouldGetReportPathFromPom/pom.xml");
+    when(project.getPom()).thenReturn(pom);
+    initializer.execute(project);
+    verify(configuration).setProperty(eq(CoreProperties.COBERTURA_REPORT_PATH_PROPERTY), eq("overridden/dir/coverage.xml"));
+  }
 }
