@@ -259,6 +259,7 @@ public final class CoreMetrics {
       .setDescription("Coverage of new/changed code")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
+      .setHidden(true)
       .setDomain(DOMAIN_TESTS)
       .setWorstValue(0.0)
       .setBestValue(100.0)
@@ -293,6 +294,7 @@ public final class CoreMetrics {
       .setDescription("New uncovered lines")
       .setDirection(Metric.DIRECTION_WORST)
       .setDomain(DOMAIN_TESTS)
+      .setHidden(true)
       .setFormula(new SumChildValuesFormula(false))
       .create();
 
@@ -313,6 +315,7 @@ public final class CoreMetrics {
       .setQualitative(true)
       .setWorstValue(0.0)
       .setBestValue(100.0)
+      .setHidden(true)
       .setDomain(DOMAIN_TESTS)
       .create();
 
@@ -354,6 +357,7 @@ public final class CoreMetrics {
       .setDescription("New uncovered conditions")
       .setDirection(Metric.DIRECTION_WORST)
       .setDomain(DOMAIN_TESTS)
+      .setHidden(true)
       .setFormula(new SumChildValuesFormula(false))
       .create();
 
@@ -370,10 +374,11 @@ public final class CoreMetrics {
 
   public static final String NEW_BRANCH_COVERAGE_KEY = "new_branch_coverage";
   public static final Metric NEW_BRANCH_COVERAGE = new Metric.Builder(NEW_BRANCH_COVERAGE_KEY, Metric.ValueType.PERCENT)
-      .setName("NEw branch coverage")
+      .setName("New branch coverage")
       .setDescription("Branch coverage of new/changed code")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
+      .setHidden(true)
       .setDomain(DOMAIN_TESTS)
       .setWorstValue(0.0)
       .setBestValue(100.0)

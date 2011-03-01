@@ -48,7 +48,10 @@ class DrilldownController < ApplicationController
       @characteristic=Characteristic.find(:first, :select => 'id', :include => 'quality_model', :conditions => ['quality_models.name=? AND characteristics.kee=? AND characteristics.enabled=?', params[:model], params[:characteristic], true])
     end
     options[:characteristic]=@characteristic
-
+    if params[:period]
+      @period=params[:period].to_i
+      options[:period]=@period
+    end
 
     # load data
     @drilldown = Drilldown.new(@project, @metric, selected_rids, options)
@@ -66,10 +69,10 @@ class DrilldownController < ApplicationController
 
     # variation measures
     if params[:period].blank?
-      @period_index=nil
+      @period=nil
       metric_prefix = ''
     else
-      @period_index=params[:period].to_i
+      @period=params[:period].to_i
       metric_prefix = 'new_'
     end
 
@@ -93,7 +96,7 @@ class DrilldownController < ApplicationController
 
 
     # options for Drilldown
-    options={:exclude_zero_value => true, :period_index => @period_index}
+    options={:exclude_zero_value => true, :period => @period}
     if @rule
       params[:rule]=@rule.key  # workaround for SONAR-1767 : the javascript hash named "rp" in the HTML source must contain the rule key, but not the rule id
       options[:rule_id]=@rule.id

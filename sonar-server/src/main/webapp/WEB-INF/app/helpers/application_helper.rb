@@ -199,13 +199,20 @@ module ApplicationHelper
   # * <tt>:resource</tt> - id or key of the selected resource
   # * <tt>:highlight</tt> - key of the metric to highlight, different than the metric to drilldown.
   #  *<tt>:viewer_plugin_key</tt> - the default GWT plugin to be used when clicking on a resource in the drilldown to view it's source
+  # * <tt>:period</tt> - period index
+  # * <tt>:only_periods</tt> - true if only v
   #
   # === Examples
   #
   #   url_for_drilldown('ncloc')
   #   url_for_drilldown('ncloc', {:resource => 'org.apache.struts:struts-parent', :highlight => 'lines'})
   #   url_for_drilldown('ncloc', {:resource => 'org.apache.struts:struts-parent', :viewer_plugin_key => 'org.sonar.plugins.core.violationsviewer.GwtViolationsViewer'})
+  #
   def url_for_drilldown(metric_or_measure, options={})
+    if options[:resource].nil? && !@project
+      return ''
+    end
+
     if metric_or_measure.is_a? ProjectMeasure
       metric_key = metric_or_measure.metric.key
     elsif metric_or_measure.is_a? Metric
@@ -214,16 +221,9 @@ module ApplicationHelper
       metric_key = metric_or_measure
     end
 
-    if options[:resource]
-      url_for(:controller => 'drilldown', :action => 'measures', :id => options[:resource], :metric => metric_key,
-        :highlight => options[:highlight], :viewer_plugin_key => options[:viewer_plugin_key], :model => options[:model], :characteristic => options[:characteristic])
-    elsif @project
-      url_for(:controller => 'drilldown', :action => 'measures', :id => @project.id, :metric => metric_key,
-        :highlight => options[:highlight], :viewer_plugin_key => options[:viewer_plugin_key],
-        :model => options[:model], :characteristic => options[:characteristic])
-    else
-      ''
-    end
+    url_params={:controller => 'drilldown', :action => 'measures', :metric => metric_key, :id => options[:resource]||@project.id}
+    
+    url_for(options.merge(url_params))
   end
 
   #
@@ -258,7 +258,9 @@ module ApplicationHelper
       link_rel=''
       show_link= !options[:url].blank?
 
-      if m.metric.val_type==Metric::VALUE_TYPE_LEVEL
+      if options[:period]
+        html=m.format_numeric_value(m.variation(options[:period].to_i))
+      elsif m.metric.val_type==Metric::VALUE_TYPE_LEVEL
         html=image_tag("levels/#{m.data.downcase}.png") unless m.data.blank?
       else
         html=m.formatted_value
@@ -456,7 +458,7 @@ module ApplicationHelper
   # === Examples
   # variation_value('ncloc')
   # variation_value(measure('ncloc'))
-  # variation_value('ncloc', :index => 3)
+  # variation_value('ncloc', :period => 3)
   #
   def variation_value(metric_or_measure, options={})
     if metric_or_measure.is_a?(ProjectMeasure)
@@ -465,7 +467,7 @@ module ApplicationHelper
       m = @snapshot.measure(metric_or_measure)
     end
 
-    index=options[:index]
+    index=options[:period]||options[:index]
     if index.nil? && defined?(@dashboard_configuration) && @dashboard_configuration.selected_period?
       index = @dashboard_configuration.period_index
     end
@@ -480,12 +482,12 @@ module ApplicationHelper
   #
   # === Optional parameters
   # * color: true|false. Default is true.
-  # * index: integer between 1 and 5. By default the index is defined by the dashboard variation select-box
+  # * period: integer between 1 and 5. By default the index is defined by the dashboard variation select-box
   # * style: light|normal. Default is normal (parenthesis + bold)
   #
   # === Examples
   # format_variation('ncloc')
-  # format_variation(measure('ncloc'), :index => 3, :color => true)
+  # format_variation(measure('ncloc'), :period => 3, :color => true)
   #
   def format_variation(metric_or_measure, options={})
     if metric_or_measure.is_a?(ProjectMeasure)

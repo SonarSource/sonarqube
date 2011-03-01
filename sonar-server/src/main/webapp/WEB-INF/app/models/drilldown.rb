@@ -45,7 +45,7 @@ class DrilldownColumn
     @scope=scope
     @snapshot = snapshot
 
-    value_column = (options[:period_index] ? "variation_value_#{options[:period_index]}" : 'value')
+    value_column = (options[:period] ? "variation_value_#{options[:period]}" : 'value')
     order="project_measures.#{value_column}"
     if metric.direction<0
       order += ' DESC'

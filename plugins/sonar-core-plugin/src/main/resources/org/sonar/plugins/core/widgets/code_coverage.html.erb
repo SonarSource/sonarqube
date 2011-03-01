@@ -18,14 +18,14 @@
         <% line_coverage=measure(Metric::LINE_COVERAGE)
           if line_coverage %>
           <p>
-            <%= format_measure(line_coverage, :suffix => ' line coverage', :url => url_for_drilldown(Metric::UNCOVERED_LINES, :highlight =>  Metric::LINE_COVERAGE)) %>
+            <%= format_measure(line_coverage, :suffix => ' line coverage', :url => url_for_drilldown('uncovered_lines', :highlight =>  'line_coverage')) %>
             <%= dashboard_configuration.selected_period? ? format_variation(line_coverage) : trend_icon(line_coverage) -%>
           </p>
         <% end %>
         <% branch_coverage=measure(Metric::BRANCH_COVERAGE)
           if branch_coverage %>
           <p>
-            <%= format_measure(branch_coverage, :suffix => ' branch coverage', :url => url_for_drilldown(Metric::UNCOVERED_CONDITIONS, :highlight =>  Metric::BRANCH_COVERAGE)) %>
+            <%= format_measure(branch_coverage, :suffix => ' branch coverage', :url => url_for_drilldown('uncovered_conditions', :highlight =>  'branch_coverage')) %>
             <%= dashboard_configuration.selected_period? ? format_variation(branch_coverage) : trend_icon(branch_coverage) -%>
           </p>
         <% end %>
@@ -85,9 +85,15 @@ if dashboard_configuration.selected_period?
 %>
     <h3>on changed code (<%= new_lines.to_i -%> new lines to cover)</h3>
     <p>
-      Coverage: <%= new_coverage.format_numeric_value(variation_value(new_coverage)) -%><br/>
-      Line coverage: <%= new_line_coverage.format_numeric_value(variation_value(new_line_coverage)) -%><br/>
-      Branch coverage: <%= new_branch_coverage.format_numeric_value(variation_value(new_branch_coverage)) -%>
+      <% if new_coverage %>
+        Coverage: <a href="<%= url_for_drilldown('new_coverage', :period => dashboard_configuration.period_index, :only_periods => true) -%>"><%= new_coverage.format_numeric_value(variation_value(new_coverage)) -%></a><br/>
+      <% end %>
+      <% if new_line_coverage %>
+        Line coverage: <a href="<%= url_for_drilldown('new_uncovered_lines', :highlight => 'new_line_coverage', :period => dashboard_configuration.period_index, :only_periods => true) -%>"><%= new_line_coverage.format_numeric_value(variation_value(new_line_coverage)) -%></a><br/>
+      <% end %>
+      <% if new_branch_coverage %>
+        Branch coverage: <a href="<%= url_for_drilldown('new_uncovered_conditions', :highlight => 'new_branch_coverage', :period => dashboard_configuration.period_index, :only_periods => true) -%>"><%= new_branch_coverage.format_numeric_value(variation_value(new_branch_coverage)) -%></a>
+      <% end %>
     </p>
 <%
     end
