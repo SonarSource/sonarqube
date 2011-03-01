@@ -368,6 +368,7 @@
             <configuration>
               <webAppConfig>
                 <contextPath>/dev</contextPath>
+                <defaultsDescriptor>${basedir}/src/dev/webdefault.xml</defaultsDescriptor><!-- Prevent static file lock on Windows -->
                 <descriptor>${basedir}/src/dev/web.xml</descriptor>
               </webAppConfig>
               <connectors>
