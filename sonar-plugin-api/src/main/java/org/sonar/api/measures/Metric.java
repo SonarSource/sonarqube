@@ -19,6 +19,7 @@
  */
 package org.sonar.api.measures;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
@@ -596,14 +597,19 @@ public class Metric implements ServerExtension, BatchExtension {
     private boolean optimizedBestValue = false;
     private boolean hidden = false;
 
-    public Builder(String key, ValueType type) {
+    public Builder(String key, String name, ValueType type) {
+      if (StringUtils.isBlank(key)) {
+        throw new IllegalArgumentException("Metric key can not be blank");
+      }
+      if (StringUtils.isBlank(name)) {
+        throw new IllegalArgumentException("Metric name can not be blank");
+      }
+      if (type==null) {
+        throw new IllegalArgumentException("Metric type can not be null");
+      }
       this.key = key;
+      this.name = name;
       this.type = type;
-    }
-
-    public Builder setName(String s) {
-      this.name = s;
-      return this;
     }
 
     public Builder setDescription(String s) {

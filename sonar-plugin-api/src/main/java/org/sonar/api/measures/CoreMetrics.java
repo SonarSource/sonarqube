@@ -108,10 +108,6 @@ public final class CoreMetrics {
       Metric.DIRECTION_WORST, false, DOMAIN_SIZE).setFormula(new SumChildValuesFormula(false));
 
 
-
-
-
-
   //--------------------------------------------------------------------------------------------------------------------
   //
   // DOCUMENTATION
@@ -146,10 +142,6 @@ public final class CoreMetrics {
   public static final Metric COMMENTED_OUT_CODE_LINES = new Metric(COMMENTED_OUT_CODE_LINES_KEY, "Commented LOCs",
       "Commented lines of code", Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_DOCUMENTATION).setFormula(
       new SumChildValuesFormula(false)).setBestValue(0.0).setOptimizedBestValue(true);
-
-
-  
-
 
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -227,8 +219,7 @@ public final class CoreMetrics {
       Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_TESTS).setBestValue(0.0).setOptimizedBestValue(true);
 
   public static final String TEST_SUCCESS_DENSITY_KEY = "test_success_density";
-  public static final Metric TEST_SUCCESS_DENSITY = new Metric.Builder(TEST_SUCCESS_DENSITY_KEY, Metric.ValueType.PERCENT)
-      .setName("Unit test success (%)")
+  public static final Metric TEST_SUCCESS_DENSITY = new Metric.Builder(TEST_SUCCESS_DENSITY_KEY, "Unit test success (%)", Metric.ValueType.PERCENT)
       .setDescription("Density of successful unit tests")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
@@ -239,12 +230,14 @@ public final class CoreMetrics {
       .create();
 
   public static final String TEST_DATA_KEY = "test_data";
-  public static final Metric TEST_DATA = new Metric(TEST_DATA_KEY, "Unit tests details", "Unit tests details", Metric.ValueType.DATA,
-      Metric.DIRECTION_WORST, false, DOMAIN_TESTS);
+  public static final Metric TEST_DATA = new Metric.Builder(TEST_DATA_KEY, "Unit tests details", Metric.ValueType.DATA)
+      .setDescription("Unit tests details")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setDomain(DOMAIN_TESTS)
+      .create();
 
   public static final String COVERAGE_KEY = "coverage";
-  public static final Metric COVERAGE = new Metric.Builder(COVERAGE_KEY, Metric.ValueType.PERCENT)
-      .setName("Coverage")
+  public static final Metric COVERAGE = new Metric.Builder(COVERAGE_KEY, "Coverage", Metric.ValueType.PERCENT)
       .setDescription("Coverage by unit tests")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
@@ -254,8 +247,7 @@ public final class CoreMetrics {
       .create();
 
   public static final String NEW_COVERAGE_KEY = "new_coverage";
-  public static final Metric NEW_COVERAGE = new Metric.Builder(NEW_COVERAGE_KEY, Metric.ValueType.PERCENT)
-      .setName("New coverage")
+  public static final Metric NEW_COVERAGE = new Metric.Builder(NEW_COVERAGE_KEY, "New coverage", Metric.ValueType.PERCENT)
       .setDescription("Coverage of new/changed code")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
@@ -270,8 +262,7 @@ public final class CoreMetrics {
       Metric.DIRECTION_BETTER, false, DOMAIN_TESTS).setFormula(new SumChildValuesFormula(false)).setHidden(true);
 
   public static final String NEW_LINES_TO_COVER_KEY = "new_lines_to_cover";
-  public static final Metric NEW_LINES_TO_COVER = new Metric.Builder(NEW_LINES_TO_COVER_KEY, Metric.ValueType.INT)
-      .setName("New lines to cover")
+  public static final Metric NEW_LINES_TO_COVER = new Metric.Builder(NEW_LINES_TO_COVER_KEY, "New lines to cover", Metric.ValueType.INT)
       .setDescription("New lines to cover")
       .setDirection(Metric.DIRECTION_BETTER)
       .setDomain(DOMAIN_TESTS)
@@ -280,8 +271,7 @@ public final class CoreMetrics {
       .create();
 
   public static final String UNCOVERED_LINES_KEY = "uncovered_lines";
-  public static final Metric UNCOVERED_LINES = new Metric.Builder(UNCOVERED_LINES_KEY, Metric.ValueType.INT)
-      .setName("Uncovered lines")
+  public static final Metric UNCOVERED_LINES = new Metric.Builder(UNCOVERED_LINES_KEY, "Uncovered lines", Metric.ValueType.INT)
       .setDescription("Uncovered lines")
       .setDirection(Metric.DIRECTION_WORST)
       .setDomain(DOMAIN_TESTS)
@@ -289,8 +279,7 @@ public final class CoreMetrics {
       .create();
 
   public static final String NEW_UNCOVERED_LINES_KEY = "new_uncovered_lines";
-  public static final Metric NEW_UNCOVERED_LINES = new Metric.Builder(NEW_UNCOVERED_LINES_KEY, Metric.ValueType.INT)
-      .setName("New uncovered lines")
+  public static final Metric NEW_UNCOVERED_LINES = new Metric.Builder(NEW_UNCOVERED_LINES_KEY, "New uncovered lines", Metric.ValueType.INT)
       .setDescription("New uncovered lines")
       .setDirection(Metric.DIRECTION_WORST)
       .setDomain(DOMAIN_TESTS)
@@ -299,8 +288,7 @@ public final class CoreMetrics {
       .create();
 
   public static final String LINE_COVERAGE_KEY = "line_coverage";
-  public static final Metric LINE_COVERAGE = new Metric.Builder(LINE_COVERAGE_KEY, Metric.ValueType.PERCENT)
-      .setName("Line coverage")
+  public static final Metric LINE_COVERAGE = new Metric.Builder(LINE_COVERAGE_KEY, "Line coverage", Metric.ValueType.PERCENT)
       .setDescription("Line coverage")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
@@ -308,8 +296,7 @@ public final class CoreMetrics {
       .create();
 
   public static final String NEW_LINE_COVERAGE_KEY = "new_line_coverage";
-  public static final Metric NEW_LINE_COVERAGE = new Metric.Builder(NEW_LINE_COVERAGE_KEY, Metric.ValueType.PERCENT)
-      .setName("New line coverage")
+  public static final Metric NEW_LINE_COVERAGE = new Metric.Builder(NEW_LINE_COVERAGE_KEY, "New line coverage", Metric.ValueType.PERCENT)
       .setDescription("Line coverage of added/changed code")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
@@ -320,13 +307,12 @@ public final class CoreMetrics {
       .create();
 
   public static final String COVERAGE_LINE_HITS_DATA_KEY = "coverage_line_hits_data";
-  public static final Metric COVERAGE_LINE_HITS_DATA = new Metric.Builder(COVERAGE_LINE_HITS_DATA_KEY, Metric.ValueType.DATA)
+  public static final Metric COVERAGE_LINE_HITS_DATA = new Metric.Builder(COVERAGE_LINE_HITS_DATA_KEY, "Coverage hits by line", Metric.ValueType.DATA)
       .setDomain(DOMAIN_TESTS)
       .create();
 
   public static final String CONDITIONS_TO_COVER_KEY = "conditions_to_cover";
-  public static final Metric CONDITIONS_TO_COVER = new Metric.Builder(CONDITIONS_TO_COVER_KEY, Metric.ValueType.INT)
-      .setName("Conditions to cover")
+  public static final Metric CONDITIONS_TO_COVER = new Metric.Builder(CONDITIONS_TO_COVER_KEY, "Conditions to cover", Metric.ValueType.INT)
       .setDescription("Conditions to cover")
       .setDomain(DOMAIN_TESTS)
       .setFormula(new SumChildValuesFormula(false))
@@ -334,8 +320,7 @@ public final class CoreMetrics {
       .create();
 
   public static final String NEW_CONDITIONS_TO_COVER_KEY = "new_conditions_to_cover";
-  public static final Metric NEW_CONDITIONS_TO_COVER = new Metric.Builder(NEW_CONDITIONS_TO_COVER_KEY, Metric.ValueType.INT)
-      .setName("New conditions to cover")
+  public static final Metric NEW_CONDITIONS_TO_COVER = new Metric.Builder(NEW_CONDITIONS_TO_COVER_KEY, "New conditions to cover", Metric.ValueType.INT)
       .setDescription("New conditions to cover")
       .setDomain(DOMAIN_TESTS)
       .setFormula(new SumChildValuesFormula(false))
@@ -343,8 +328,7 @@ public final class CoreMetrics {
       .create();
 
   public static final String UNCOVERED_CONDITIONS_KEY = "uncovered_conditions";
-  public static final Metric UNCOVERED_CONDITIONS = new Metric.Builder(UNCOVERED_CONDITIONS_KEY, Metric.ValueType.INT)
-      .setName("Uncovered conditions")
+  public static final Metric UNCOVERED_CONDITIONS = new Metric.Builder(UNCOVERED_CONDITIONS_KEY, "Uncovered conditions", Metric.ValueType.INT)
       .setDescription("Uncovered conditions")
       .setDirection(Metric.DIRECTION_WORST)
       .setDomain(DOMAIN_TESTS)
@@ -352,8 +336,7 @@ public final class CoreMetrics {
       .create();
 
   public static final String NEW_UNCOVERED_CONDITIONS_KEY = "new_uncovered_conditions";
-  public static final Metric NEW_UNCOVERED_CONDITIONS = new Metric.Builder(NEW_UNCOVERED_CONDITIONS_KEY, Metric.ValueType.INT)
-      .setName("New uncovered conditions")
+  public static final Metric NEW_UNCOVERED_CONDITIONS = new Metric.Builder(NEW_UNCOVERED_CONDITIONS_KEY, "New uncovered conditions", Metric.ValueType.INT)
       .setDescription("New uncovered conditions")
       .setDirection(Metric.DIRECTION_WORST)
       .setDomain(DOMAIN_TESTS)
@@ -362,8 +345,7 @@ public final class CoreMetrics {
       .create();
 
   public static final String BRANCH_COVERAGE_KEY = "branch_coverage";
-  public static final Metric BRANCH_COVERAGE = new Metric.Builder(BRANCH_COVERAGE_KEY, Metric.ValueType.PERCENT)
-      .setName("Branch coverage")
+  public static final Metric BRANCH_COVERAGE = new Metric.Builder(BRANCH_COVERAGE_KEY, "Branch coverage", Metric.ValueType.PERCENT)
       .setDescription("Branch coverage")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
@@ -373,8 +355,7 @@ public final class CoreMetrics {
       .create();
 
   public static final String NEW_BRANCH_COVERAGE_KEY = "new_branch_coverage";
-  public static final Metric NEW_BRANCH_COVERAGE = new Metric.Builder(NEW_BRANCH_COVERAGE_KEY, Metric.ValueType.PERCENT)
-      .setName("New branch coverage")
+  public static final Metric NEW_BRANCH_COVERAGE = new Metric.Builder(NEW_BRANCH_COVERAGE_KEY, "New branch coverage", Metric.ValueType.PERCENT)
       .setDescription("Branch coverage of new/changed code")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
@@ -391,8 +372,7 @@ public final class CoreMetrics {
    * @deprecated since 2.7 replaced by metrics CONDITIONS_BY_LINE and COVERED_CONDITIONS_BY_LINE
    */
   @Deprecated
-  public static final Metric BRANCH_COVERAGE_HITS_DATA = new Metric.Builder(BRANCH_COVERAGE_HITS_DATA_KEY, Metric.ValueType.DATA)
-      .setName("Branch coverage hits")
+  public static final Metric BRANCH_COVERAGE_HITS_DATA = new Metric.Builder(BRANCH_COVERAGE_HITS_DATA_KEY, "Branch coverage hits", Metric.ValueType.DATA)
       .setDomain(DOMAIN_TESTS)
       .create();
 
@@ -401,7 +381,7 @@ public final class CoreMetrics {
   /**
    * @since 2.7
    */
-  public static final Metric CONDITIONS_BY_LINE = new Metric.Builder(CONDITIONS_BY_LINE_KEY, Metric.ValueType.DATA)
+  public static final Metric CONDITIONS_BY_LINE = new Metric.Builder(CONDITIONS_BY_LINE_KEY, "Conditions by line", Metric.ValueType.DATA)
       .setDomain(DOMAIN_TESTS)
       .create();
 
@@ -410,7 +390,7 @@ public final class CoreMetrics {
   /**
    * @since 2.7
    */
-  public static final Metric COVERED_CONDITIONS_BY_LINE = new Metric.Builder(COVERED_CONDITIONS_BY_LINE_KEY, Metric.ValueType.DATA)
+  public static final Metric COVERED_CONDITIONS_BY_LINE = new Metric.Builder(COVERED_CONDITIONS_BY_LINE_KEY, "Covered conditions by line", Metric.ValueType.DATA)
       .setDomain(DOMAIN_TESTS)
       .create();
 
@@ -681,35 +661,32 @@ public final class CoreMetrics {
   //--------------------------------------------------------------------------------------------------------------------
 
   public static final String SCM_COMMITS_KEY = "commits";
-  public static final Metric SCM_COMMITS = new Metric.Builder(SCM_COMMITS_KEY, Metric.ValueType.INT)
-      .setName("Commits")
+  public static final Metric SCM_COMMITS = new Metric.Builder(SCM_COMMITS_KEY, "Commits", Metric.ValueType.INT)
       .setDomain(DOMAIN_SCM)
       .create();
 
   public static final String SCM_LAST_COMMIT_DATE_KEY = "last_commit_date";
-  public static final Metric SCM_LAST_COMMIT_DATE = new Metric.Builder(SCM_LAST_COMMIT_DATE_KEY, Metric.ValueType.STRING /* TODO: move to date */)
-      .setName("Last commit")
+  public static final Metric SCM_LAST_COMMIT_DATE = new Metric.Builder(SCM_LAST_COMMIT_DATE_KEY, "Last commit", Metric.ValueType.STRING /* TODO: move to date */)
       .setDomain(DOMAIN_SCM)
       .create();
 
   public static final String SCM_REVISION_KEY = "revision";
-  public static final Metric SCM_REVISION = new Metric.Builder(SCM_REVISION_KEY, Metric.ValueType.STRING)
-      .setName("Revision")
+  public static final Metric SCM_REVISION = new Metric.Builder(SCM_REVISION_KEY, "Revision", Metric.ValueType.STRING)
       .setDomain(DOMAIN_SCM)
       .create();
 
   public static final String SCM_AUTHORS_BY_LINE_KEY = "authors_by_line";
-  public static final Metric SCM_AUTHORS_BY_LINE = new Metric.Builder(SCM_AUTHORS_BY_LINE_KEY, Metric.ValueType.DATA)
+  public static final Metric SCM_AUTHORS_BY_LINE = new Metric.Builder(SCM_AUTHORS_BY_LINE_KEY, "Authors by line", Metric.ValueType.DATA)
       .setDomain(DOMAIN_SCM)
       .create();
 
   public static final String SCM_REVISIONS_BY_LINE_KEY = "revisions_by_line";
-  public static final Metric SCM_REVISIONS_BY_LINE = new Metric.Builder(SCM_REVISIONS_BY_LINE_KEY, Metric.ValueType.DATA)
+  public static final Metric SCM_REVISIONS_BY_LINE = new Metric.Builder(SCM_REVISIONS_BY_LINE_KEY, "Revisions by line", Metric.ValueType.DATA)
       .setDomain(DOMAIN_SCM)
       .create();
 
   public static final String SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY = "last_commit_datetimes_by_line";
-  public static final Metric SCM_LAST_COMMIT_DATETIMES_BY_LINE = new Metric.Builder(SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY, Metric.ValueType.DATA)
+  public static final Metric SCM_LAST_COMMIT_DATETIMES_BY_LINE = new Metric.Builder(SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY, "Last commit dates by line", Metric.ValueType.DATA)
       .setDomain(DOMAIN_SCM)
       .create();
 
@@ -720,8 +697,7 @@ public final class CoreMetrics {
   //
   //--------------------------------------------------------------------------------------------------------------------
   public static final String ALERT_STATUS_KEY = "alert_status";
-  public static final Metric ALERT_STATUS = new Metric.Builder(ALERT_STATUS_KEY, Metric.ValueType.LEVEL)
-      .setName("Alert")
+  public static final Metric ALERT_STATUS = new Metric.Builder(ALERT_STATUS_KEY, "Alert", Metric.ValueType.LEVEL)
       .setDescription("Alert")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)

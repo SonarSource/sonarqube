@@ -29,9 +29,8 @@ public class MetricTest {
 
   @Test
   public void shouldCreateMetric() {
-    Metric metric = new Metric.Builder("foo", Metric.ValueType.INT)
+    Metric metric = new Metric.Builder("foo", "Foo", Metric.ValueType.INT)
         .setDomain("my domain")
-        .setName("Foo")
         .create();
 
     assertThat(metric.getKey(), is("foo"));
@@ -41,7 +40,7 @@ public class MetricTest {
 
   @Test
   public void shouldCreateMetricWithDefaultValues() {
-    Metric metric = new Metric.Builder("foo", Metric.ValueType.INT)
+    Metric metric = new Metric.Builder("foo", "Foo", Metric.ValueType.INT)
         .create();
 
     assertThat(metric.getBestValue(), nullValue());
