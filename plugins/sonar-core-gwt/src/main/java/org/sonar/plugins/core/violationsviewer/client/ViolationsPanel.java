@@ -155,7 +155,7 @@ public class ViolationsPanel extends SourcePanel {
           + "\" onclick=\"window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;\" title=\""
           + violation.getRuleKey() + "\"><b>"
           + Utils.escapeHtml(violation.getRuleName()) + "</b></a> : "
-          + Utils.escapeHtml(violation.getMessage()) + age + "</div>";
+          + stackLineBreaks(Utils.escapeHtml(violation.getMessage())) + age + "</div>";
     }
 
     @SuppressWarnings("deprecation")
@@ -174,6 +174,14 @@ public class ViolationsPanel extends SourcePanel {
       differenceDouble = Math.max(1.0D, differenceDouble);
       difference = (int) differenceDouble;
       return difference;
+    }
+
+    private String stackLineBreaks(String s) {
+      StringBuilder stack = new StringBuilder(256);
+      for (String el : s.split("\n")) {
+        stack.append(el.trim()).append("<br/>");
+      }
+      return stack.toString();
     }
   }
 
