@@ -52,6 +52,10 @@ span.rulename, span.rulename a {
   color: #4183C4;
   text-decoration: none;
 }
+span.violation_date {
+  color: #AAA;
+  font-size: 11px;
+}
 span.rulename a:hover {
   text-decoration: underline;
 }
@@ -121,12 +125,41 @@ span.rulename a:hover {
 <div id="source_title">
   <span class="h1"><%= qualifier_icon(@resource) -%> <%= @resource.long_name -%></span>
   <% if @lines  %>
-    | <span class="source_link"><a href="<%= ApplicationController.root_context -%>/api/sources?resource=<%= @resource.key -%>&format=txt" target="raw">raw</a></span>
+    | <span class="source_link"><a href="<%= ApplicationController.root_context -%>/api/sources?resource=<%= @resource.key -%>&format=txt">raw</a></span>
   <% end %>
 </div>
-<table id="source_metrics" cellpadding="0" cellspacing="0" border="0">
 
-</table>
+<ul id="source_tabs" class="tabs">
+  <li><a href="<%= url_for(:overwrite_params => {:tab => 'source'}) -%>" class="<%= 'selected' if params[:tab]=='source' || params[:tab].blank? -%>">source</a></li>
+  <li><a href="<%= url_for(:overwrite_params => {:tab => 'coverage'}) -%>"  class="<%= 'selected' if params[:tab]=='coverage' -%>">coverage</a></li>
+  <li><a href="<%= url_for(:overwrite_params => {:tab => 'violations'}) -%>" class="<%= 'selected' if params[:tab]=='violations' -%>">violations</a></li>
+</ul>
+
+<div id="source_header">
+  <form method="GET" action="<%= url_for :controller => 'browse', :id => @resource.key -%>">
+    <input type="hidden" name="tab" value="<%= params[:tab] -%>"/>
+    <% if @scm_available %>
+      <input type="checkbox" value="true" name="scm" id="scm" <%= 'checked' if @display_scm -%> onclick="submit()"/>
+      <label for="scm">Authors</label>
+    <% end %>
+
+    <% if @snapshot.project_snapshot.periods? %>
+      <select id="period" name="period" class="small" onchange="submit()">
+        <option value="">Time changes...</option>
+        <%= period_select_options(@snapshot, 1) -%>
+        <%= period_select_options(@snapshot, 2) -%>
+        <%= period_select_options(@snapshot, 3) -%>
+        <%= period_select_options(@snapshot, 4) -%>
+        <%= period_select_options(@snapshot, 5) -%>
+      </select>
+    <% end %>
+
+    <% if @expandable %>
+      <input type="checkbox" value="true" name="expand" id="expand" <%= 'checked' if @expanded -%> onclick="submit()"/>
+      <label for="expand">Expand</label>
+    <% end %>
+  </form>
+</div>
 
 <% if @display_violations && @global_violations && @global_violations.size>0 -%>
   <table id="global_violations" cellpadding="0" cellspacing="0" border="0">
@@ -141,7 +174,10 @@ span.rulename a:hover {
 <% if @lines && @lines.size>0 %>
 <table id="sources" class="sources2 code" cellpadding="0" cellspacing="0" border="0">
   <%
+    current_revision=nil
     @lines.each_with_index do |line, index|
+      next if line.hidden
+      
       status=hits_status=conditions_status=''
       if @display_coverage && line.hits
         hits_status=(line.hits>0 ? 'ok' : 'ko')
@@ -165,10 +201,11 @@ span.rulename a:hover {
   %>
   <tr>
     <% if @display_scm
-         if line.display_scm
-           title = "Revision #{h(line.revision)} (#{line.date})"
+         if current_revision!=line.revision
+           current_revision=line.revision
+           title = "Revision #{h(line.revision)} (#{l(line.datetime)})"
     %>
-            <td class="scm revision"><span class="date"><a href="#" title="<%= title -%>" alt="<%= title -%>"><%= line.date[0..9] -%></a></span> <span class="author"><%= h(line.author) -%></span></td>
+            <td class="scm revision"><span class="date"><a href="#" title="<%= title -%>" alt="<%= title -%>"><%= l(line.date) -%></a></span> <span class="author"><%= h(line.author) -%></span></td>
     <%   else %>
             <td class="scm"></td>
     <%   end

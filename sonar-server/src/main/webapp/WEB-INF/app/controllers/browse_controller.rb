@@ -20,7 +20,8 @@
 class BrowseController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
-
+  helper DashboardHelper
+  
   def index
     @resource = Project.by_key(params[:id])
 
@@ -36,27 +37,24 @@ class BrowseController < ApplicationController
 
 
   def render_resource
+    @period = params[:period].to_i unless params[:period].blank?
+    @expanded=(params[:expand]=='true')
+
     @source = @snapshot.source
     if @source
       source_lines=Java::OrgSonarServerUi::JRubyFacade.new.colorizeCode(@source.data, @snapshot.project.language).split("\n")
       load_scm()
 
       @lines=[]
-      current_revision=nil
       source_lines.each_with_index do |source, index|
         line=Line.new(source)
         @lines<<line
 
         line.revision=@revisions_by_line[index+1]
         line.author=@authors_by_line[index+1]
-        line.date=@dates_by_line[index+1]
 
-        if line.revision
-          if current_revision!=line.revision
-            current_revision=line.revision
-            line.display_scm=true
-          end
-        end
+        date_string=@dates_by_line[index+1]
+        line.datetime=(date_string ? DateTime::strptime(date_string): nil)
       end
      end
 
@@ -104,11 +102,14 @@ class BrowseController < ApplicationController
         line.covered_conditions=@covered_conditions_by_line[line_id].to_i
       end
     end
+
+    filter_lines_by_date()
   end
 
   def load_violations_tab
     @display_violations=true
     @global_violations=[]
+    @expandable=true
 
     conditions='snapshot_id=?'
     values=[@snapshot.id]
@@ -124,9 +125,14 @@ class BrowseController < ApplicationController
       end
     end
 
-    unless params[:date].blank?
-      conditions+=' AND created_at>=?'
-      values<<Date::strptime(params[:date])
+    if @period
+      date=@snapshot.period_datetime(@period)
+      if date
+        conditions+=' AND created_at>=?'
+        values<<date
+      else
+        conditions+=' AND id=-1'
+      end
     end
 
     RuleFailure.find(:all, :include => 'rule', :conditions => [conditions] + values, :order => 'failure_level DESC').each do |violation|
@@ -137,18 +143,40 @@ class BrowseController < ApplicationController
         @global_violations<<violation
       end
     end
+
+    unless @expanded
+      @lines.each_with_index do |line,index|
+        if line.violations?
+          for i in index-4..index+4
+            @lines[i].hidden=false if i>=0 && i<@lines.size
+          end
+        elsif line.hidden==nil
+          line.hidden=true
+        end
+      end
+    end
   end
 
   def load_source_tab
+    filter_lines_by_date()
+  end
 
+  def filter_lines_by_date
+    if @period
+      date=@snapshot.period_datetime(@period)
+      if date
+        @lines.each do |line|
+          line.hidden=true if line.datetime==nil || line.datetime<date
+        end
+      end
+    end
   end
 
   class Line
-    attr_accessor :source, :revision, :author, :date, :display_scm, :violations, :hits, :conditions, :covered_conditions
+    attr_accessor :source, :revision, :author, :datetime, :violations, :hits, :conditions, :covered_conditions, :hidden
 
     def initialize(source)
       @source=source
-      @display_scm=false
     end
 
     def add_violation(violation)
@@ -167,6 +195,10 @@ class BrowseController < ApplicationController
       else
         nil
       end
+    end
+
+    def date
+      @datetime ? @datetime.to_date : nil
     end
   end
 end
