@@ -7,7 +7,8 @@
 }
 .sources2 {
   width: 100%;
-  border: 1px solid #DDD;
+  border-top: 1px solid #DDD;
+  border-bottom: 1px solid #DDD;
   margin: 0;
 }
 .sources2 td.lid {
@@ -25,6 +26,7 @@
 }
 .sources2 td.scm {
   border-right: 1px solid #DDD;
+  border-left: 1px solid #DDD;
   background-color: #ECECEC;
 }
 .sources2 td.revision {
@@ -43,10 +45,11 @@
 }
 .sources2 td.rule {
   padding: 1px 0.5em;
+  border-left: 1px solid #DDDDDD;
 }
 .sources2 td.violations {
   background-color: #ECECEC;
-  min-width: 400px;
+  min-width: 450px;
 }
 span.rulename, span.rulename a {
   color: #4183C4;
@@ -68,6 +71,7 @@ span.rulename a:hover {
   white-space: pre;
   font-size: 12px;
   font-family: monospace;
+  border-right: 1px solid #DDD;
 }
 .sources2 td.section {
   border-top: 1px solid #DDD;
@@ -97,7 +101,11 @@ span.rulename a:hover {
   border-top: 1px solid #FF5252;
   border-bottom: 1px solid #FF5252;
 }
-
+.sources2 td.new_section {
+  border-top: 1px solid #DDD;
+  border-bottom: 1px solid #DDD;
+  height: 40px;
+}
 #source_title {
   padding: 10px 0;
 }
@@ -175,9 +183,29 @@ span.rulename a:hover {
 <table id="sources" class="sources2 code" cellpadding="0" cellspacing="0" border="0">
   <%
     current_revision=nil
+    colspan=2
+    colspan+=1 if @display_scm
+    colspan+=1 if @display_violations
+    colspan+=2 if @display_coverage
+    previous_hidden=false
+    first_section=true
     @lines.each_with_index do |line, index|
-      next if line.hidden
-      
+      if line.hidden
+        previous_hidden=true
+        next
+      end
+
+      if previous_hidden && !first_section
+       current_revision=nil
+%>
+  <tr>
+    <td colspan="<%= colspan -%>" class="new_section"> </td>
+  </tr>
+<%
+      end
+      previous_hidden=false
+      first_section=false
+
       status=hits_status=conditions_status=''
       if @display_coverage && line.hits
         hits_status=(line.hits>0 ? 'ok' : 'ko')
