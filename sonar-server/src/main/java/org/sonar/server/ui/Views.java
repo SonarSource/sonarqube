@@ -40,16 +40,23 @@ public class Views implements ServerComponent {
   }
 
   public Views(View[] views) {
+    for (View view : DefaultPages.getPages()) {
+      register(view);
+    }
     for (View view : views) {
-      ViewProxy proxy = new ViewProxy(view);
-      if (view instanceof Widget) {
-        widgets.add(proxy);
-        widgetsPerId.put(proxy.getId(), proxy);
+      register(view);
+    }
+  }
 
-      } else if (view instanceof Page) {
-        pagesPerId.put(proxy.getId(), proxy);
-        pages.add(proxy);
-      }
+  private void register(View view) {
+    ViewProxy proxy = new ViewProxy(view);
+    if (view instanceof Widget) {
+      widgets.add(proxy);
+      widgetsPerId.put(proxy.getId(), proxy);
+
+    } else if (view instanceof Page) {
+      pagesPerId.put(proxy.getId(), proxy);
+      pages.add(proxy);
     }
   }
 

@@ -27,7 +27,23 @@ class BrowseController < ApplicationController
 
     if (@resource && has_role?(:user, @resource))
       @snapshot=@resource.last_snapshot
-      render_resource()
+
+      params[:layout]='false'
+      load_extensions()
+
+      if @extension
+        if (@extension.getId()=='violations')
+          render_violations()
+        elsif (@extension.getId()=='coverage')
+          render_coverage()
+        elsif (@extension.getId()=='source')
+          render_source()
+        else
+          render_extension()
+        end
+      else
+        render_nothing()
+      end
     else
       access_denied
     end
@@ -35,8 +51,23 @@ class BrowseController < ApplicationController
 
   private
 
+  def load_extensions
+    @extensions=[]
+    java_facade.getResourceTabs(@resource.scope, @resource.qualifier, @resource.language).each do |tab|
+      tab.getUserRoles().each do |role|
+        if has_role?(role, @resource)
+          @extensions<<tab
+          break
+        end
+      end
+    end
 
-  def render_resource
+    selected_tab_id=params[:tab]
+    @extension=@extensions.find{|extension| extension.getId()==selected_tab_id} unless selected_tab_id.blank?
+    @extension=@extensions.find{|extension| extension.isDefaultTab()} if @extension==nil
+  end
+
+  def load_sources
     @period = params[:period].to_i unless params[:period].blank?
     @expanded=(params[:expand]=='true')
 
@@ -57,19 +88,9 @@ class BrowseController < ApplicationController
         line.datetime=(date_string ? DateTime::strptime(date_string): nil)
       end
      end
-
-    if (params[:tab]=='violations')
-      load_violations_tab()
-    elsif (params[:tab]=='coverage')
-      load_coverage_tab()
-    else
-      load_source_tab()
-    end
-
-    params[:layout]='false'
   end
 
-  def load_scm()
+  def load_scm
     @scm_available=(@snapshot.measure('last_commit_datetimes_by_line')!=nil)
     @display_scm=(params[:scm]=='true')
     if @display_scm
@@ -88,7 +109,8 @@ class BrowseController < ApplicationController
     m ? m.data_as_line_distribution() : {}
   end
 
-  def load_coverage_tab
+  def render_coverage
+    load_sources()
     @display_coverage=true
     @hits_by_line=load_distribution('coverage_line_hits_data')
     @conditions_by_line=load_distribution('conditions_by_line')
@@ -104,9 +126,13 @@ class BrowseController < ApplicationController
     end
 
     filter_lines_by_date()
+    render :action => 'index'
   end
 
-  def load_violations_tab
+  
+  
+  def render_violations
+    load_sources()
     @display_violations=true
     @global_violations=[]
     @expandable=true
@@ -135,7 +161,8 @@ class BrowseController < ApplicationController
       end
     end
 
-    RuleFailure.find(:all, :include => 'rule', :conditions => [conditions] + values, :order => 'failure_level DESC').each do |violation|
+    @violations=RuleFailure.find(:all, :include => 'rule', :conditions => [conditions] + values, :order => 'failure_level DESC')
+    @violations.each do |violation|
       # sorted by severity => from blocker to info
       if violation.line && violation.line>0
         @lines[violation.line-1].add_violation(violation)
@@ -155,12 +182,19 @@ class BrowseController < ApplicationController
         end
       end
     end
+    render :action => 'index'
   end
+  
+  
+  
 
-  def load_source_tab
+  def render_source
+    load_sources()
     filter_lines_by_date()
+    render :action => 'index'
   end
 
+  
   def filter_lines_by_date
     if @period
       date=@snapshot.period_datetime(@period)
@@ -200,5 +234,16 @@ class BrowseController < ApplicationController
     def date
       @datetime ? @datetime.to_date : nil
     end
+  end
+
+  
+  
+
+  def render_extension()
+    render :action => 'extension'
+  end
+
+def render_nothing()
+    render :action => 'nothing'
   end
 end

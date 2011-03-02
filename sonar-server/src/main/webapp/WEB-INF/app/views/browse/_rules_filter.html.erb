@@ -1,0 +1,47 @@
+<%
+      blocker_violations = @snapshot.measure('blocker_violations')
+	    critical_violations = @snapshot.measure('critical_violations')
+	    major_violations = @snapshot.measure('major_violations')
+	    minor_violations = @snapshot.measure('minor_violations')
+	    info_violations = @snapshot.measure('info_violations')
+
+   rule_counts={}
+   rules=[]
+
+   @violations.each do |violation|
+     count=(rule_counts[violation.rule_id]||0) +1
+     rule_counts[violation.rule_id]=count
+     rules<<violation.rule
+   end
+
+
+   rule_options=[]
+   rules.uniq.sort_by{|rule| rule.name}.each do |rule|
+     rule_options<<["#{h rule.name} (#{rule_counts[rule.id]})", rule.key]
+   end
+%>
+<select id="rule" name="rule" class="small" onchange="submit()">
+  <option value="">No filters</option>
+  <optgroup label="Severity">
+    <% if blocker_violations && blocker_violations.value>0 %>
+      <option value="<%= Sonar::RulePriority::PRIORITY_BLOCKER-%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::PRIORITY_BLOCKER.to_s -%>>Blocker (<%= blocker_violations.formatted_value -%>)</option>
+    <% end %>
+    <% if critical_violations && critical_violations.value>0 %>
+      <option value="<%= Sonar::RulePriority::PRIORITY_CRITICAL -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::PRIORITY_CRITICAL.to_s -%>>Critical (<%= critical_violations.formatted_value -%>)</option>
+    <% end %>
+    <% if major_violations && major_violations.value>0 %>
+      <option value="<%= Sonar::RulePriority::PRIORITY_MAJOR -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::PRIORITY_MAJOR.to_s -%>>Major (<%= major_violations.formatted_value -%>)</option>
+    <% end %>
+    <% if minor_violations && minor_violations.value>0 %>
+      <option value="<%= Sonar::RulePriority::PRIORITY_MINOR -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::PRIORITY_MINOR.to_s -%>>Minor (<%= minor_violations.formatted_value -%>)</option>
+    <% end %>
+    <% if info_violations && info_violations.value>0 %>
+      <option value="<%= Sonar::RulePriority::PRIORITY_INFO -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::PRIORITY_INFO.to_s -%>>Info (<%= info_violations.formatted_value -%>)</option>
+    <% end %>
+  </optgroup>
+
+
+  <optgroup label="Rule">
+    <%= options_for_select(rule_options, params[:rule]) -%>
+  </optgroup>
+</select>

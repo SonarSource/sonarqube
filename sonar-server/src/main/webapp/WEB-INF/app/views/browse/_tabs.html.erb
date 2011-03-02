@@ -1,0 +1,168 @@
+<style>
+#source_metrics {
+  width: 100%;
+}
+#source_metrics {
+  width: 100%;
+}
+.sources2 {
+  width: 100%;
+  border-top: 1px solid #DDD;
+  border-bottom: 1px solid #DDD;
+  margin: 0;
+}
+.sources2 td.lid {
+  background-color: #ECECEC;
+  border-right: 1px solid #DDDDDD;
+  border-left: 1px solid #DDDDDD;
+  text-align: right;
+  padding: 2px 0.5em 0 0.5em;
+  vertical-align: top;
+  font-size: 11px;
+}
+.sources2 td.lid a {
+  text-decoration: none;
+  color: #AAA;
+}
+.sources2 td.scm {
+  border-right: 1px solid #DDD;
+  border-left: 1px solid #DDD;
+  background-color: #ECECEC;
+}
+.sources2 td.revision {
+  border-top: 1px solid #DDD;
+  vertical-align: top;
+  padding: 2px 0.3em;
+  white-space: nowrap;
+}
+.sources2 span.date, .sources2 span.date a {
+  color: #AAA;
+  font-size: 11px;
+  text-decoration: none;
+}
+.sources2 span.author, .sources2 span.author a {
+  font-size: 11px;
+}
+.sources2 td.rule {
+  padding: 1px 0.5em;
+  border-left: 1px solid #DDDDDD;
+}
+.sources2 td.violations {
+  background-color: #ECECEC;
+  min-width: 450px;
+}
+span.rulename, span.rulename a {
+  color: #4183C4;
+  text-decoration: none;
+}
+span.violation_date {
+  color: #AAA;
+  font-size: 11px;
+}
+span.rulename a:hover {
+  text-decoration: underline;
+}
+.sources2 td.violations img {
+  vertical-align: sub;
+}
+.sources2 td.line {
+  padding-left: 1em;
+  width: 100%;
+  white-space: pre;
+  font-size: 12px;
+  font-family: monospace;
+  border-right: 1px solid #DDD;
+}
+.sources2 td.section {
+  border-top: 1px solid #DDD;
+  border-bottom: 1px solid #DDD;
+}
+.sources2 td.ind {
+  border-right: 1px solid #DDD;
+  min-width: 1.5em;
+  padding: 0 0.3em;
+  text-align: center;
+  vertical-align: middle;
+}
+.sources2 td.ok {
+  background-color: #ACE97C;
+  border-top: 1px solid #6EC563;
+  border-bottom: 1px solid #6EC563;
+}
+.sources2 td.sev0, .sources2 td.sev1, .sources2 td.warn {
+  /* info, minor */
+  background-color: #FFF6BF;
+  border-top: 1px solid #FFD324;
+  border-bottom: 1px solid #FFD324;
+}
+.sources2 td.sev2, .sources2 td.sev3, .sources2 td.sev4, .sources2 td.ko {
+  /* major, critical, blocker */
+  background-color: #FF9090;
+  border-top: 1px solid #FF5252;
+  border-bottom: 1px solid #FF5252;
+}
+.sources2 td.new_section {
+  border-top: 1px solid #DDD;
+  border-bottom: 1px solid #DDD;
+  height: 40px;
+}
+#source_title {
+  padding: 10px 0;
+}
+#source_title span.h1 {
+  font-size: 16px;
+  margin-right: 10px;
+}
+.source_links {
+  font-size: 11px;
+}
+#global_violations {
+  width: 100%;
+  border: 1px solid #DDD;
+  margin-bottom: 10px;
+}
+#global_violations td {
+  background-color: #ECECEC;
+  padding: 3px 0.5em;
+}
+#global_violations td img, #source_title img {
+  vertical-align: sub;
+}
+.tab_header {
+  width: 100%;
+  border: 1px solid #DDD;
+  border-top-width: 0;
+  background-color: #ECECEC;
+  padding: 5px 10px;
+  margin-bottom: 10px;
+  color: #555555;
+}
+
+.tab_header table.col {
+  margin-right: 30px;
+  float: left;
+}
+.tab_header td {
+  padding-right: 7px;
+}
+.tab_header td.name {
+  font-weight: bold;
+  text-align: left;
+}
+.tab_header td.value {
+  text-align: right;
+}
+</style>
+
+<div id="source_title">
+  <span class="h1"><%= qualifier_icon(@resource) -%> <%= @resource.long_name -%></span>
+  <% if @lines  %>
+    | <span class="source_link"><a href="<%= ApplicationController.root_context -%>/api/sources?resource=<%= @resource.key -%>&format=txt">raw</a></span>
+  <% end %>
+</div>
+
+<ul id="source_tabs" class="tabs">
+  <% @extensions.each do |extension| %>
+    <li><a href="<%= url_for(:overwrite_params => {:tab => extension.getId()}) -%>" class="<%= 'selected' if @extension.getId()==extension.getId() -%>"><%= extension.getTitle() -%></a></li>
+  <% end %>
+</ul>

@@ -32,12 +32,16 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.hasItem;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ViewsTest {
 
-  private static final View[] VIEWS = {new FakePage(), new FakeResourceViewer(), new FakeWidget()};
+  private static FakeResourceViewer FAKE_TAB = new FakeResourceViewer();
+  private static FakeWidget FAKE_WIDGET = new FakeWidget();
+  private static FakePage FAKE_PAGE = new FakePage();
+  private static final View[] VIEWS = {FAKE_PAGE, FAKE_TAB, FAKE_WIDGET};
 
   @Test
   public void getPageById() {
@@ -63,9 +67,9 @@ public class ViewsTest {
   @Test
   public void getResourceViewers() {
     final Views views = new Views(VIEWS);
-    List<ViewProxy<Page>> resourceViewers = views.getPages(NavigationSection.RESOURCE_TAB);
-    assertThat(resourceViewers.size(), is(1));
-    assertThat(resourceViewers.get(0).getTarget(), is(FakeResourceViewer.class));
+    List resourceViewers = views.getPages(NavigationSection.RESOURCE_TAB);
+    assertThat(resourceViewers.size(), is(1 + 3 /* default */));
+    assertThat(resourceViewers.contains(new ViewProxy((View)FAKE_TAB)), is(true));
   }
 
   @Test

@@ -28,7 +28,6 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Language;
-import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.api.web.*;
@@ -130,6 +129,10 @@ public final class JRubyFacade implements ServerComponent {
 
   public List<ViewProxy<Page>> getResourceTabs() {
     return getContainer().getComponent(Views.class).getPages(NavigationSection.RESOURCE_TAB, null, null, null);
+  }
+
+  public List<ViewProxy<Page>> getResourceTabs(String scope, String qualifier, String language) {
+    return getContainer().getComponent(Views.class).getPages(NavigationSection.RESOURCE_TAB, scope, qualifier, language);
   }
 
   public ViewProxy<Page> getPage(String id) {
