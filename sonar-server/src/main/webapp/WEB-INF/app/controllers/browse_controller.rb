@@ -125,6 +125,16 @@ class BrowseController < ApplicationController
       end
     end
 
+    if @snapshot.measure('conditions_by_line').nil?
+      deprecated_branches_by_line=load_distribution('branch_coverage_hits_data')
+      deprecated_branches_by_line.each_pair do |line_id,label|
+        line=@lines[line_id-1]
+        if line
+          line.deprecated_conditions_label=label
+        end
+      end
+    end
+
     filter_lines_by_date()
     render :action => 'index'
   end
@@ -161,8 +171,7 @@ class BrowseController < ApplicationController
       end
     end
 
-    @violations=RuleFailure.find(:all, :include => 'rule', :conditions => [conditions] + values, :order => 'failure_level DESC')
-    @violations.each do |violation|
+    RuleFailure.find(:all, :include => 'rule', :conditions => [conditions] + values, :order => 'failure_level DESC').each do |violation|
       # sorted by severity => from blocker to info
       if violation.line && violation.line>0
         @lines[violation.line-1].add_violation(violation)
@@ -207,7 +216,7 @@ class BrowseController < ApplicationController
   end
 
   class Line
-    attr_accessor :source, :revision, :author, :datetime, :violations, :hits, :conditions, :covered_conditions, :hidden
+    attr_accessor :source, :revision, :author, :datetime, :violations, :hits, :conditions, :covered_conditions, :hidden, :deprecated_conditions_label
 
     def initialize(source)
       @source=source
@@ -233,6 +242,22 @@ class BrowseController < ApplicationController
 
     def date
       @datetime ? @datetime.to_date : nil
+    end
+
+    def deprecated_conditions_label=(label)
+      if label
+        @deprecated_conditions_label=label
+          if label=='0%'
+            @conditions=2
+            @covered_conditions=0
+          elsif label=='100%'
+            @conditions=2
+            @covered_conditions=2
+          else
+            @conditions=2
+            @covered_conditions=1
+        end
+      end
     end
   end
 

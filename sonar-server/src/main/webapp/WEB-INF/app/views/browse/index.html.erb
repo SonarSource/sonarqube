@@ -116,7 +116,13 @@
 
     <% if @display_coverage  %>
       <td class="ind <%= hits_status -%>"><%= line.hits -%></td>
-      <td class="ind <%= conditions_status -%>"><% if line.conditions && line.conditions>0 %><%= line.covered_conditions -%>/<%= line.conditions -%><% end %></td>
+      <td class="ind <%= conditions_status -%>">
+        <% if line.deprecated_conditions_label -%>
+          <%= line.deprecated_conditions_label -%>
+        <% elsif line.conditions && line.conditions>0 -%>
+          <%= line.covered_conditions -%>/<%= line.conditions -%>
+        <% end %>
+      </td>
     <% end %>
     <td class="line <%= status -%>"><%= line.source -%></td>
   </tr>

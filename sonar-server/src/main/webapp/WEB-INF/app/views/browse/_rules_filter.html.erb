@@ -7,13 +7,11 @@
 
    rule_counts={}
    rules=[]
-
-   @violations.each do |violation|
-     count=(rule_counts[violation.rule_id]||0) +1
-     rule_counts[violation.rule_id]=count
-     rules<<violation.rule
+   rule_measures=ProjectMeasure.find(:all, :include => 'rule', :conditions => ['metric_id=? AND snapshot_id=? AND rule_id IS NOT NULL AND characteristic_id IS NULL', Metric.by_key('violations').id, @snapshot.id])
+   rule_measures.each do |rule_measure|
+     rule_counts[rule_measure.rule_id]=rule_measure.value.to_i
+     rules<<rule_measure.rule
    end
-
 
    rule_options=[]
    rules.uniq.sort_by{|rule| rule.name}.each do |rule|
