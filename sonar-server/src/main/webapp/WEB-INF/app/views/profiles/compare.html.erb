@@ -1,0 +1,145 @@
+<h1 class="marginbottom10"><%= link_to 'Quality profiles', :controller => 'profiles', :action => 'index' -%> / <%= h @profile1.language -%> / Compare <%= h @profile1.name %> and <%= h @profile2.name %></h1>
+
+<table>
+  <tr>
+    <td>
+	  <% form_tag({:action => 'compare'}, {:method => :get}) do -%>
+	    <input type="hidden" id="refresh_compare_1" name="id1" value="<%= @profile1.id -%>" />
+	    <input type="hidden" id="refresh_compare_2" name="id2" value="<%= @profile2.id -%>" />
+	    <div class="line-block marginbottom10">
+		  <ul class="horizontal">
+		    <li class="marginleft10 refresh">
+		      <a href="#" onclick="$('refresh_compare_1').form.submit()" id="refresh-link">Refresh</a>
+		    </li>
+		  </ul>
+		</div>
+	  <% end%>
+    </td>
+    <td>
+  	  <% form_tag({:action => 'compare'}, {:method => :get}) do -%>
+	    <input type="hidden" id="switch_compare_1" name="id1" value="<%= @profile2.id -%>" />
+	    <input type="hidden" id="switch_compare_2" name="id2" value="<%= @profile1.id -%>" />
+	    <div class="line-block marginbottom10">
+		  <ul class="horizontal">
+		    <li class="marginleft10 switch">
+		      <a href="#" onclick="$('switch_compare_1').form.submit()" id="switch-link" title="Switch left and right view">Switch</a>
+		    </li>
+		  </ul>
+		</div>
+	  <% end%>          
+    </td>
+  </tr>
+</table>
+<%= image_tag('controls/add.png') %> Added rules: <%= @diff[:added] -%> / 
+<%= image_tag('controls/delete.png') %> Removed rules: <%= @diff[:removed] -%> / 
+<%= image_tag('controls/warning.gif') %> Modified rules: <%= @diff[:modified] -%> /
+<%= image_tag('accept.png') %> Same rules (not displayed): <%= @diff[:same] -%></td>    
+<br/>
+<table class="data width100 marginbottom10" id="result_table">
+  <thead>
+    <tr>
+        <th class="center" width="48%">
+          <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile1.id -%>" id="profile-<%= u(@profile1.name) -%>"><%= h @profile1.name %></a>
+        </th>
+        <th class="center" width="4%">
+        </th>
+        <th class="center" width="48%">
+          <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile2.id -%>" id="profile-<%= u(@profile2.name) -%>"><%= h @profile2.name %></a>
+        </th>
+    </tr>
+</thead>
+<tbody>
+<% if @diff[:rules].empty? %>
+<tr><td colspan="3" class="even">Profiles are identical.</td></tr>
+<% end %>
+
+<%
+  @diff[:rules].each do |rule, activerules|
+  begin
+    active_rule1 = activerules[0]
+    active_rule2 = activerules[1]
+%>
+    
+  <tr id="rule_<%= rule.id -%>">
+      <%
+        if active_rule1 
+          if not active_rule2 
+            cssclass = 'diffleft'
+          else 
+            cssclass = ''
+          end
+        else
+          cssclass = 'diffempty'
+        end
+      %>
+      <td class="<%= cssclass -%>">
+        <% if active_rule1%>
+          <span class="rulename"><a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => rule.key, :layout => 'false' -%>"><%= h(rule.name) -%></a></span>
+        <% end %>
+      </td>
+      <td align="center">
+        <%= image_tag('controls/warning.gif') if active_rule1 and active_rule2 %>
+        <%= image_tag('controls/add.png') if not active_rule1 and active_rule2 %>
+        <%= image_tag('controls/delete.png') if active_rule1 and not active_rule2 %>
+      </td>
+      <%
+        if active_rule2
+          if not active_rule1 
+            cssclass = 'diffright'
+          else 
+            cssclass = ''
+          end
+        else
+          cssclass = 'diffempty'
+        end
+      %>
+      <td class="<%= cssclass -%>">
+        <% if active_rule2%>
+          <span class="rulename"><a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => rule.key, :layout => 'false' -%>"><%= h(rule.name) -%></a></span>
+        <% end %>
+      </td>
+  </tr>
+  
+<%    if active_rule1 and active_rule2
+        if active_rule1.priority != active_rule2.priority
+%>
+  <tr id="rule_<%= rule.id -%>_severity">
+      <td class="diffleft diffremoved diffindent">
+        <img src="<%= ApplicationController.root_context -%>/images/priority/<%=active_rule1.priority-%>.png"/>
+        <%= active_rule1.priority_text %>
+      </td>
+      <td></td>
+      <td class="diffright diffindent">
+        <img src="<%= ApplicationController.root_context -%>/images/priority/<%=active_rule2.priority-%>.png"/>
+        <%= active_rule2.priority_text %>
+      </td>
+  </tr>
+<%
+        end
+        rule.parameters.each do |param|
+          paramVal1 = active_rule1.value(param.id)
+          paramVal2 = active_rule2.value(param.id)
+          if paramVal1 != paramVal2
+%>
+  <tr id="rule_param_<%= param.id -%>">
+      <td class="<%= (paramVal1 != nil)?"diffleft":"diffempty" -%> diffindent">
+        <% if paramVal1 %>
+          <%= param.name + ': <span class="diffremoved">' + paramVal1.gsub(',', ', ') + '</span>' %>
+        <% end %>
+      </td>
+      <td></td>
+      <td class="<%= (paramVal2 != nil) ?"diffright":"diffempty" -%> diffindent">
+        <% if paramVal2 %>
+        	<%= param.name + ': ' + paramVal2.gsub(',', ', ') %>
+        <% end %>
+      </td>
+  </tr>
+<%
+          end
+        end
+      end 
+    end
+  end
+%>
+</tbody>
+</table>

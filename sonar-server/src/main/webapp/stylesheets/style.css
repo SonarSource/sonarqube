@@ -255,6 +255,11 @@ a {
 .left {
   text-align: left;
 }
+
+.center {
+  text-align: center;
+}
+
 code {
   font-size: 93%;
 }
@@ -1469,4 +1474,36 @@ table.nowrap td, td.nowrap {
   display: block;
   background: url("../images/restore.gif") no-repeat scroll left 50% transparent;
   padding: 2px 0 2px 20px;
+}
+.compare {
+  display: block;
+  background: url("../images/compare.png") no-repeat scroll left 50% transparent;
+  padding: 2px 0 2px 20px;
+}
+.refresh {
+  display: block;
+  background: url("../images/refresh.png") no-repeat scroll left 50% transparent;
+  padding: 2px 0 2px 20px;
+}
+.switch{
+  display: block;
+  background: url("../images/switch.png") no-repeat scroll left 50% transparent;
+  padding: 2px 0 2px 20px;
+}
+
+/* Profile diff */
+.diffempty {
+  background-color: #f4f4f4;
+}
+.diffleft {
+  background-color: RGB(255,200,100);
+}
+.diffright {
+  background-color: RGB(255,255,0);
+}
+.diffremoved {
+  text-decoration:line-through;
+}
+td.diffindent {
+  padding-left:50px !important;
 }

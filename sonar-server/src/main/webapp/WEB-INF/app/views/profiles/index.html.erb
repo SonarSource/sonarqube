@@ -70,6 +70,7 @@
 <table class="data width100" id="profiles_<%= language.getKey() -%>">
     <thead>
       <tr>
+        <th class="left"></th>
         <th class="left">Name</th>
         <th class="right">Rules</th>
         <th class="right">Alerts</th>
@@ -83,6 +84,9 @@
     <tbody>
     <% @profiles.select{|p| p.language==language.getKey()}.each do |profile| %>
     <tr class="<%= cycle 'even', 'odd', :name => language.getKey() -%>" id="<%= u profile.key %>">
+      <td align="center">
+        <input type="checkbox" id="cb_select_<%= profile.id.to_s %>" name="selected_<%= language.getKey() -%>" value="<%= profile.id.to_s %>"/>
+      </td>
       <td><a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => profile.id -%>" id="rules-<%= language.getKey() -%>-<%= u(profile.name) -%>"><%= h profile.name %></a></td>
       
       <td align="right">
@@ -150,5 +154,30 @@
     <% end %>
     </tbody>
 </table>
+<% if administrator? %>
+<script type="text/javascript">
+  function compareCheck<%= language.getKey() -%>() {
+    var selected = $$('input[name=selected_<%= language.getKey() -%>]').findAll(function(cb) { return cb.checked; });
+    if (selected.length != 2) {
+      alert("Please select 2 profiles for the <%= language.getName() -%> language to compare");
+      return false;
+    }
+    $("compare_<%= language.getKey() -%>_1").value=selected[0].value;
+    $("compare_<%= language.getKey() -%>_2").value=selected[1].value;
+    return true;
+  }
+</script>
+  <% form_tag({:action => 'compare'}, {:method => :get}) do -%>
+    <input type="hidden" id="compare_<%= language.getKey() -%>_1" name="id1" />
+    <input type="hidden" id="compare_<%= language.getKey() -%>_2" name="id2" />
+	<div class="line-block marginbottom10">
+	  <ul class="horizontal">
+	    <li class="marginleft10 compare">
+	      <a href="#" onclick="if (compareCheck<%= language.getKey() -%>()) {$('compare_<%= language.getKey() -%>_1').form.submit();} else {return false;}" id="compare-link">Compare selected profiles</a>
+	    </li>
+	  </ul>
+	</div>
+  <% end%>
+<% end %>
 <br/><br/>
 <% end %>
