@@ -73,14 +73,15 @@ class BrowseController < ApplicationController
     @extension=@extensions.find{|extension| extension.isDefaultTab()} if @extension==nil
   end
 
-  def load_sources
+  def load_sources(use_scm_for_periods=true)
     @period = params[:period].to_i unless params[:period].blank?
+    @display_scm=(params[:scm]=='true')
     @expanded=(params[:expand]=='true')
 
     @source = @snapshot.source
     if @source
       source_lines=Java::OrgSonarServerUi::JRubyFacade.new.colorizeCode(@source.data, @snapshot.project.language).split("\n")
-      load_scm()
+      init_scm((@period && use_scm_for_periods) || @display_scm)
 
       @lines=[]
       source_lines.each_with_index do |source, index|
@@ -96,10 +97,9 @@ class BrowseController < ApplicationController
      end
   end
 
-  def load_scm
+  def init_scm(scm)
     @scm_available=(@snapshot.measure('last_commit_datetimes_by_line')!=nil)
-    @display_scm=(params[:scm]=='true')
-    if @display_scm
+    if scm
       @authors_by_line=load_distribution('authors_by_line')
       @revisions_by_line=load_distribution('revisions_by_line')
       @dates_by_line=load_distribution('last_commit_datetimes_by_line')
@@ -116,7 +116,7 @@ class BrowseController < ApplicationController
   end
 
   def render_coverage
-    load_sources()
+    load_sources(true)
     @display_coverage=true
     @hits_by_line=load_distribution('coverage_line_hits_data')
     @conditions_by_line=load_distribution('conditions_by_line')
@@ -148,7 +148,7 @@ class BrowseController < ApplicationController
   
   
   def render_violations
-    load_sources()
+    load_sources(false)
     @display_violations=true
     @global_violations=[]
     @expandable=true
@@ -156,14 +156,14 @@ class BrowseController < ApplicationController
     conditions='snapshot_id=?'
     values=[@snapshot.id]
     unless params[:rule].blank?
-      if params[:rule].include?(':')
+      severity=Sonar::RulePriority.id(params[:rule])
+      if severity
+        conditions += ' AND failure_level=?'
+        values<<severity
+      else
         rule=Rule.by_key_or_id(params[:rule])
         conditions += ' AND rule_id=?'
         values<<(rule ? rule.id : -1)
-      else
-        # severity
-        conditions += ' AND failure_level=?'
-        values<<params[:rule].to_i
       end
     end
 
@@ -204,7 +204,7 @@ class BrowseController < ApplicationController
   
 
   def render_source
-    load_sources()
+    load_sources(true)
     filter_lines_by_date()
     render :action => 'index', :layout => !request.xhr?
   end

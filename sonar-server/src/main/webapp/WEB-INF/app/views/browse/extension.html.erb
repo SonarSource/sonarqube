@@ -8,6 +8,8 @@
 
   <% else %>
     <%= render :partial => 'gwt/base', :locals => {:resource => @resource, :popup => false, :metric => nil} -%>
+    <%= render :partial => 'gwt/resource_viewers' -%>
+
     <div id="gwtpage"> </div>
     <!-- for SmartGWT -->
     <script>var isomorphicDir = "<%= "#{ApplicationController.root_context}/deploy/gwt/#{@extension.getId()}" -%>/sc/";</script>

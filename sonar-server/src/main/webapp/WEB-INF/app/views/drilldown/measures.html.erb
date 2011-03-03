@@ -1,25 +1,5 @@
-<%= render :partial => 'gwt/base', :locals => {:resource => @highlighted_resource, :popup => false, :metric => @metric.key} %>
-<%= render :partial => 'gwt/resource_viewers', :locals => {:resource => @drilldown.highlighted_resource || @project} %>
+<%= render :partial => 'header' -%>
 
-<script>
-  /* display resource */
-  function d(resourceId) {
-    new Ajax.Updater('resource_container', '<%= ApplicationController.root_context-%>/browse/' + resourceId + '?metric=<%= @metric.key -%>', {asynchronous:true, evalScripts:true});
-    return false;
-  }
-
-  function loadAjaxTab(resourceId, tab) {
-    $('resource-loading').show();
-    new Ajax.Updater('resource_container', '<%= ApplicationController.root_context-%>/browse/' + resourceId + '?tab=' + tab, {asynchronous:true, evalScripts:true});
-    return false;
-  }
-
-  /* display GWT component, executed from tabs */
-  function loadGWT(gwtId, resourceId, resourceKey, resourceName, resourceScope, resourceQualifier, resourceLanguage) {
-    config["resource"]=[{"id": resourceId, "key": resourceKey, "name" : resourceName, "scope": resourceScope, "qualifier": resourceQualifier, "lang": resourceLanguage}];
-    modules[gwtId]();
-  }
-</script>
 <div class="dashbox">
   <% if @characteristic %>
     <h3><%= @highlighted_metric.short_name -%> / <%= h(@characteristic.name(true)) -%></h3>
@@ -90,4 +70,4 @@ $$('#col_<%= column.scope -%> tr.selected').each(function(item) {item.scrollInto
 <% end %>
 </script>
 
-<div id="resource_container"> </div>
+<%= render :partial => 'footer' -%>

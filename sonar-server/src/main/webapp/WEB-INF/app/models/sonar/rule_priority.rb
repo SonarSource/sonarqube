@@ -23,6 +23,12 @@ include_class "org.sonar.api.rules.RulePriority"
 
 class Sonar::RulePriority
 
+  INFO = Java::OrgSonarApiRules::RulePriority::INFO
+  MINOR = Java::OrgSonarApiRules::RulePriority::MINOR
+  MAJOR = Java::OrgSonarApiRules::RulePriority::MAJOR
+  CRITICAL = Java::OrgSonarApiRules::RulePriority::CRITICAL
+  BLOCKER = Java::OrgSonarApiRules::RulePriority::BLOCKER
+
   PRIORITY_INFO = Java::OrgSonarApiRules::RulePriority::INFO.ordinal()
   PRIORITY_MINOR = Java::OrgSonarApiRules::RulePriority::MINOR.ordinal()
   PRIORITY_MAJOR = Java::OrgSonarApiRules::RulePriority::MAJOR.ordinal()
@@ -45,7 +51,12 @@ class Sonar::RulePriority
   end
   
   def self.id(priority)
-    Java::OrgSonarApiRules::RulePriority.valueOf(priority).ordinal
+    begin
+      javaPriority=Java::OrgSonarApiRules::RulePriority.valueOf(priority)
+      javaPriority ? javaPriority.ordinal : nil
+    rescue
+      nil
+    end
   end
   
   def self.as_array

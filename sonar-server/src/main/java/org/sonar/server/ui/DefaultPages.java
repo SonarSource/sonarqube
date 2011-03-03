@@ -20,6 +20,7 @@
 package org.sonar.server.ui;
 
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.web.*;
 
@@ -34,9 +35,10 @@ public final class DefaultPages {
     return PAGES;
   }
 
-  @ResourceScope(Resource.SCOPE_ENTITY)
+  // should be qualifier FILE only but waiting for java refactoring
   @NavigationSection(NavigationSection.RESOURCE_TAB)
   @DefaultTab
+  @ResourceQualifier({Qualifiers.FILE, Qualifiers.CLASS, Qualifiers.UNIT_TEST_FILE})
   @UserRole(UserRole.CODEVIEWER)
   private static final class SourceTab implements RubyRailsPage {
     public String getTemplate() {
@@ -54,9 +56,13 @@ public final class DefaultPages {
   }
 
 
-  @ResourceQualifier(Resource.QUALIFIER_CLASS)
   @NavigationSection(NavigationSection.RESOURCE_TAB)
-  @DefaultTab(metrics = {CoreMetrics.COVERAGE_KEY, CoreMetrics.LINES_TO_COVER_KEY, CoreMetrics.UNCOVERED_LINES_KEY, CoreMetrics.LINE_COVERAGE_KEY, CoreMetrics.CONDITIONS_TO_COVER_KEY, CoreMetrics.UNCOVERED_CONDITIONS_KEY, CoreMetrics.BRANCH_COVERAGE_KEY})
+  @ResourceQualifier({Qualifiers.FILE, Qualifiers.CLASS})
+  @DefaultTab(metrics = {CoreMetrics.COVERAGE_KEY, CoreMetrics.LINES_TO_COVER_KEY, CoreMetrics.UNCOVERED_LINES_KEY, CoreMetrics.LINE_COVERAGE_KEY,
+      CoreMetrics.CONDITIONS_TO_COVER_KEY, CoreMetrics.UNCOVERED_CONDITIONS_KEY, CoreMetrics.BRANCH_COVERAGE_KEY,
+      CoreMetrics.NEW_COVERAGE_KEY, CoreMetrics.NEW_UNCOVERED_LINES_KEY, CoreMetrics.NEW_LINE_COVERAGE_KEY,
+      CoreMetrics.NEW_LINES_TO_COVER_KEY, CoreMetrics.NEW_BRANCH_COVERAGE_KEY, CoreMetrics.NEW_CONDITIONS_TO_COVER_KEY
+  })
   @UserRole(UserRole.CODEVIEWER)
   private static final class CoverageTab implements RubyRailsPage {
     public String getTemplate() {
@@ -74,8 +80,11 @@ public final class DefaultPages {
   }
 
   @NavigationSection(NavigationSection.RESOURCE_TAB)
-  @DefaultTab(metrics = {CoreMetrics.VIOLATIONS_DENSITY_KEY, CoreMetrics.WEIGHTED_VIOLATIONS_KEY, CoreMetrics.VIOLATIONS_KEY, CoreMetrics.BLOCKER_VIOLATIONS_KEY, CoreMetrics.CRITICAL_VIOLATIONS_KEY, CoreMetrics.MAJOR_VIOLATIONS_KEY, CoreMetrics.MINOR_VIOLATIONS_KEY, CoreMetrics.INFO_VIOLATIONS_KEY})
-  @ResourceQualifier({Resource.QUALIFIER_CLASS, Resource.QUALIFIER_FILE})
+  @DefaultTab(metrics = {CoreMetrics.VIOLATIONS_DENSITY_KEY, CoreMetrics.WEIGHTED_VIOLATIONS_KEY, CoreMetrics.VIOLATIONS_KEY, CoreMetrics.BLOCKER_VIOLATIONS_KEY,
+      CoreMetrics.CRITICAL_VIOLATIONS_KEY, CoreMetrics.MAJOR_VIOLATIONS_KEY, CoreMetrics.MINOR_VIOLATIONS_KEY, CoreMetrics.INFO_VIOLATIONS_KEY,
+      CoreMetrics.NEW_VIOLATIONS_KEY, CoreMetrics.NEW_BLOCKER_VIOLATIONS_KEY, CoreMetrics.NEW_CRITICAL_VIOLATIONS_KEY, CoreMetrics.NEW_MAJOR_VIOLATIONS_KEY,
+      CoreMetrics.NEW_MINOR_VIOLATIONS_KEY, CoreMetrics.NEW_INFO_VIOLATIONS_KEY})
+  @ResourceQualifier({Qualifiers.VIEW, Qualifiers.SUBVIEW, Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.PACKAGE, Qualifiers.DIRECTORY, Qualifiers.FILE, Qualifiers.CLASS}) /* all exept unit tests...*/
   @UserRole(UserRole.CODEVIEWER)
   private static final class ViolationsTab implements RubyRailsPage {
     public String getTemplate() {

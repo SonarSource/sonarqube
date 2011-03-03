@@ -1,0 +1,23 @@
+<%= render :partial => 'gwt/base', :locals => {:popup => false, :metric => @metric.key} -%>
+<%= render :partial => 'gwt/resource_viewers' -%>
+
+<script>
+  /* display resource */
+  function d(resourceId) {
+    new Ajax.Updater('resource_container', '<%= ApplicationController.root_context-%>/browse/' + resourceId + '?metric=<%= @metric.id if @metric -%>&rule=<%= @rule ? @rule.id : params[:priority] -%>&period=<%= @period -%>', {asynchronous:true, evalScripts:true});
+    return false;
+  }
+
+  function loadAjaxTab(resourceId, tab) {
+    $('resource-loading').show();
+    new Ajax.Updater('resource_container', '<%= ApplicationController.root_context-%>/browse/' + resourceId + '?tab=' + tab, {asynchronous:true, evalScripts:true});
+    return false;
+  }
+
+  /* display GWT component, executed from tabs */
+  function loadGWT(gwtId, resourceId, resourceKey, resourceName, resourceScope, resourceQualifier, resourceLanguage) {
+    config["resource"]=[{"id": resourceId, "key": resourceKey, "name" : resourceName, "scope": resourceScope, "qualifier": resourceQualifier, "lang": resourceLanguage}];
+    config["resource_key"]=resourceId;
+    modules[gwtId]();
+  }
+</script>

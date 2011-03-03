@@ -129,7 +129,6 @@ span.rulename a:hover {
   vertical-align: sub;
 }
 .tab_header {
-  width: 100%;
   border: 1px solid #DDD;
   border-top-width: 0;
   background-color: #ECECEC;
@@ -152,16 +151,29 @@ span.rulename a:hover {
 .tab_header td.value {
   text-align: right;
 }
+#source_options {
+  float: right;
+}
 </style>
 
 <div id="source_title">
   <span class="h1"><%= qualifier_icon(@resource) -%> <%= @resource.long_name -%></span>
-  <% if @lines  %>
-    | <span class="source_link"><a href="<%= ApplicationController.root_context -%>/api/sources?resource=<%= @resource.key -%>&format=txt">raw</a></span>
-  <% end %>
 </div>
 
-<ul id="source_tabs" class="tabs">
+<div id="source_tabs">
+  <ul class="tablinks">
+    <%
+       sep=false
+       if @lines
+         sep=true
+    %>
+      <li><a href="<%= ApplicationController.root_context -%>/api/sources?resource=<%= @resource.key -%>&format=txt">Raw</a></li>
+    <% if request.xhr? %>
+      <li class="<%= 'withsep' if sep -%>"><a href="<%= ApplicationController.root_context -%>/browse/<%= @resource.key -%>" target="sonar">New Window</a></li>
+    <% end %>
+  <% end %>
+  </ul>
+  <ul class="tabs" >
   <% if request.xhr? %>
     <% @extensions.each do |extension| %>
       <li><a href="#" onclick="loadAjaxTab('<%= @resource.id -%>','<%= extension.getId() -%>')" class="<%= 'selected' if @extension.getId()==extension.getId() -%>"><%= extension.getTitle() -%></a></li>
@@ -172,5 +184,8 @@ span.rulename a:hover {
       <li><a href="#" onClick="loadTab('<%= url_for(:overwrite_params => {:tab => extension.getId()}) -%>')" class="<%= 'selected' if @extension.getId()==extension.getId() -%>"><%= extension.getTitle() -%></a></li>
     <% end %>
   <% end %>
-  <img src="<%= ApplicationController.root_context -%>/images/loading.gif" id="resource-loading" style="display:none"/>
-</ul>
+  <li>
+    <img src="<%= ApplicationController.root_context -%>/images/loading.gif" id="resource-loading" style="display:none"/>
+  </li>
+  </ul>
+</div>

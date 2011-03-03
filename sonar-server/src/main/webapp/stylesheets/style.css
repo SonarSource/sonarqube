@@ -1015,9 +1015,18 @@ ul.bullet li {
 }
 .tablinks {
   float:right;
-  padding-right: 10px;
-  align: right;
+  padding: 0 5px 0 10px;
+  text-align: right;
 }
+.tablinks li {
+  float:left;
+  padding: 0 7px;
+  text-align: right;
+}
+.tablinks li.withsep {
+  background: url("../images/sep12.png") no-repeat scroll 0 50% transparent;
+}
+
 .tablinks a {
   text-decoration: underline;
   color: #555;

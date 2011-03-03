@@ -34,7 +34,6 @@ import org.sonar.plugins.core.charts.XradarChart;
 import org.sonar.plugins.core.clouds.Clouds;
 import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
 import org.sonar.plugins.core.coverageviewer.CoverageViewerDefinition;
-import org.sonar.plugins.core.defaultsourceviewer.DefaultSourceViewer;
 import org.sonar.plugins.core.duplicationsviewer.DuplicationsViewerDefinition;
 import org.sonar.plugins.core.hotspots.Hotspots;
 import org.sonar.plugins.core.metrics.UserManagedMetrics;
@@ -42,8 +41,6 @@ import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.*;
 import org.sonar.plugins.core.testdetailsviewer.TestsViewerDefinition;
 import org.sonar.plugins.core.timemachine.*;
-import org.sonar.plugins.core.ui.pageselector.GwtPageSelector;
-import org.sonar.plugins.core.violationsviewer.ViolationsViewerDefinition;
 import org.sonar.plugins.core.widgets.*;
 
 import java.util.List;
@@ -182,10 +179,6 @@ public class CorePlugin implements Plugin {
     extensions.add(UserManagedMetrics.class);
 
     // pages
-    extensions.add(GwtPageSelector.class);
-    extensions.add(DefaultSourceViewer.class);
-    extensions.add(CoverageViewerDefinition.class);
-    extensions.add(ViolationsViewerDefinition.class);
     extensions.add(DuplicationsViewerDefinition.class);
     extensions.add(TestsViewerDefinition.class);
     extensions.add(Clouds.class);

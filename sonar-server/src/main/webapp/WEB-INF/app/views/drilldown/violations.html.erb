@@ -1,3 +1,6 @@
+<%= render :partial => 'header' -%>
+
+
 <div id="snapshot_title" class="page_title">
 <h4>
 <%
@@ -24,8 +27,6 @@
   <div class="warning">This service is experimental. <a target="faq"  href="http://docs.codehaus.org/display/SONAR/Frequently+Asked+Questions#FrequentlyAskedQuestions-Iamnotgettingexpectednewviolationsinthedifferentialviewsofdrilldown%3F">More</a>.</div>
 <% end %>
 
-<%= render :partial => 'gwt/base', :locals => {:resource => @highlighted_resource, :popup => false, :metric => 'violations'} %>
-<%= render :partial => 'gwt/resource_viewers', :locals => {:resource => @project} %>
 
 <table width="100%" cellpadding="0" cellspacing="0" id="columns">
 <tr>
@@ -153,7 +154,7 @@
        <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => nil, :id => resource.copy_resource_id}}) -%>
      <% else %>
        <%= qualifier_icon(resource) %>
-       <a href="#" onclick="sr('<%= resource.id -%>');" alt="<%= resource.name(true) -%>" title="<%= resource.name(true) -%>"><%= resource.name(false) %></a>
+       <a href="#" onclick="d(<%= resource.id -%>, '<%= @period_index -%>', '<%= @rule ? @rule.key : params[:priority] -%>');" alt="<%= resource.name(true) -%>" title="<%= resource.name(true) -%>"><%= resource.name(false) %></a>
    <%
      end
    else %>
@@ -199,4 +200,5 @@ $$('#col_rules tr.selected').each(function(item) {item.scrollIntoView(true);});
 $$('#col_<%= column.scope -%> tr.selected').each(function(item) {item.scrollIntoView(true);});
 <% end %>
 </script>
-<div id="pageselector"> </div>
+
+<%= render :partial => 'footer' -%>

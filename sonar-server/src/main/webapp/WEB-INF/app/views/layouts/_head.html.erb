@@ -6,6 +6,8 @@
     title="Sonar - #{h(@page_title)}"
   elsif @project
     title="Sonar - #{h(@project.name)}"
+  elsif @resource
+    title="#{h(@resource.long_name)}"
   else
     title='Sonar'
   end
