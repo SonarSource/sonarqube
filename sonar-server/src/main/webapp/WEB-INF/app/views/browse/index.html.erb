@@ -14,15 +14,29 @@
 <% end %>
 
 <div id="source_options">
-  <form method="GET" action="<%= url_for :controller => 'browse', :id => @resource.key -%>">
+  <script>
+    applyOptions=function() {
+      $('resource-loading').show();
+      <% if request.xhr? %>
+        var params = Form.serialize($('options-form'));
+        new Ajax.Updater('resource_container', '<%= url_for :controller => 'browse', :id => @resource.key -%>', {asynchronous:true, parameters:params});
+        return true;
+      <% else %>
+        $('options-form').submit();
+        return false;
+      <% end %>
+    };
+  </script>
+  <form method="GET" action="<%= url_for :controller => 'browse', :id => @resource.key -%>" id="options-form">
     <input type="hidden" name="tab" value="<%= params[:tab] -%>"/>
+    <input type="hidden" name="metric" value="<%= params[:metric] -%>"/>
     <% if @scm_available %>
-      <input type="checkbox" value="true" name="scm" id="scm" <%= 'checked' if @display_scm -%> onclick="submit()"/>
+      <input type="checkbox" value="true" name="scm" id="scm" <%= 'checked' if @display_scm -%> onclick="applyOptions()"/>
       <label for="scm">Authors</label>
     <% end %>
 
     <% if @snapshot.project_snapshot.periods? %>
-      <select id="period" name="period" class="small" onchange="submit()">
+      <select id="period" name="period" class="small" onchange="applyOptions()">
         <option value="">Time changes...</option>
         <%= period_select_options(@snapshot, 1) -%>
         <%= period_select_options(@snapshot, 2) -%>
@@ -33,7 +47,7 @@
     <% end %>
 
     <% if @expandable %>
-      <input type="checkbox" value="true" name="expand" id="expand" <%= 'checked' if @expanded -%> onclick="submit()"/>
+      <input type="checkbox" value="true" name="expand" id="expand" <%= 'checked' if @expanded -%> onclick="applyOptions()"/>
       <label for="expand">Expand</label>
     <% end %>
 

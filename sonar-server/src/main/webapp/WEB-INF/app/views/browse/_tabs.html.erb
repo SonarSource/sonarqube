@@ -162,7 +162,15 @@ span.rulename a:hover {
 </div>
 
 <ul id="source_tabs" class="tabs">
-  <% @extensions.each do |extension| %>
-    <li><a href="<%= url_for(:overwrite_params => {:tab => extension.getId()}) -%>" class="<%= 'selected' if @extension.getId()==extension.getId() -%>"><%= extension.getTitle() -%></a></li>
+  <% if request.xhr? %>
+    <% @extensions.each do |extension| %>
+      <li><a href="#" onclick="loadAjaxTab('<%= @resource.id -%>','<%= extension.getId() -%>')" class="<%= 'selected' if @extension.getId()==extension.getId() -%>"><%= extension.getTitle() -%></a></li>
+    <% end %>
+  <% else %>
+    <script>function loadTab(url) {$('resource-loading').show();document.location.href=url;return false;}</script>
+    <% @extensions.each do |extension| %>
+      <li><a href="#" onClick="loadTab('<%= url_for(:overwrite_params => {:tab => extension.getId()}) -%>')" class="<%= 'selected' if @extension.getId()==extension.getId() -%>"><%= extension.getTitle() -%></a></li>
+    <% end %>
   <% end %>
+  <img src="<%= ApplicationController.root_context -%>/images/loading.gif" id="resource-loading" style="display:none"/>
 </ul>

@@ -7,27 +7,35 @@
 
   <table class="col">
     <tr>
-      <td><%= image_tag 'priority/BLOCKER.png'-%></td>
+      <td><%= image_tag 'priority/BLOCKER.png' -%></td>
       <td class="name">Blocker:</td>
       <td class="value"><%= format_measure('blocker_violations', :default => 0) -%></td>
     </tr>
+  </table>
+  <table class="col">
     <tr>
-      <td><%= image_tag 'priority/CRITICAL.png'-%></td>
+      <td><%= image_tag 'priority/CRITICAL.png' -%></td>
       <td class="name">Critical:</td>
       <td class="value"><%= format_measure('critical_violations', :default => 0) -%></td>
     </tr>
+  </table>
+  <table class="col">
     <tr>
-      <td><%= image_tag 'priority/MAJOR.png'-%></td>
+      <td><%= image_tag 'priority/MAJOR.png' -%></td>
       <td class="name">Major:</td>
       <td class="value"><%= format_measure('major_violations', :default => 0) -%></td>
     </tr>
+  </table>
+  <table class="col">
     <tr>
-      <td><%= image_tag 'priority/MINOR.png'-%></td>
+      <td><%= image_tag 'priority/MINOR.png' -%></td>
       <td class="name">Minor:</td>
       <td class="value"><%= format_measure('minor_violations', :default => 0) -%></td>
     </tr>
+  </table>
+  <table class="col">
     <tr>
-      <td><%= image_tag 'priority/INFO.png'-%></td>
+      <td><%= image_tag 'priority/INFO.png' -%></td>
       <td class="name">Info:</td>
       <td class="value"><%= format_measure('info_violations', :default => 0) -%></td>
     </tr>

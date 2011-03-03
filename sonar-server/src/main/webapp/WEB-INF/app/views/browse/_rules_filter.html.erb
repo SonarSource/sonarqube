@@ -18,7 +18,7 @@
      rule_options<<["#{h rule.name} (#{rule_counts[rule.id]})", rule.key]
    end
 %>
-<select id="rule" name="rule" class="small" onchange="submit()">
+<select id="rule" name="rule" class="small" onchange="applyOptions()">
   <option value="">No filters</option>
   <optgroup label="Severity">
     <% if blocker_violations && blocker_violations.value>0 %>

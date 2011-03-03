@@ -26,9 +26,9 @@ class BrowseController < ApplicationController
     @resource = Project.by_key(params[:id])
 
     if (@resource && has_role?(:user, @resource))
+      params[:layout]='false'
       @snapshot=@resource.last_snapshot
 
-      params[:layout]='false'
       load_extensions()
 
       if @extension
@@ -62,8 +62,14 @@ class BrowseController < ApplicationController
       end
     end
 
-    selected_tab_id=params[:tab]
-    @extension=@extensions.find{|extension| extension.getId()==selected_tab_id} unless selected_tab_id.blank?
+    if !params[:tab].blank?
+      @extension=@extensions.find{|extension| extension.getId()==params[:tab]}
+
+    elsif !params[:metric].blank?
+      metric=Metric.by_key(params[:metric])
+      @extension=@extensions.find{|extension| extension.getDefaultTabForMetrics().include?(metric.key)}
+
+    end
     @extension=@extensions.find{|extension| extension.isDefaultTab()} if @extension==nil
   end
 
@@ -136,7 +142,7 @@ class BrowseController < ApplicationController
     end
 
     filter_lines_by_date()
-    render :action => 'index'
+    render :action => 'index', :layout => !request.xhr?
   end
 
   
@@ -191,7 +197,7 @@ class BrowseController < ApplicationController
         end
       end
     end
-    render :action => 'index'
+    render :action => 'index', :layout => !request.xhr?
   end
   
   
@@ -200,7 +206,7 @@ class BrowseController < ApplicationController
   def render_source
     load_sources()
     filter_lines_by_date()
-    render :action => 'index'
+    render :action => 'index', :layout => !request.xhr?
   end
 
   
@@ -265,10 +271,10 @@ class BrowseController < ApplicationController
   
 
   def render_extension()
-    render :action => 'extension'
+    render :action => 'extension', :layout => !request.xhr?
   end
 
 def render_nothing()
-    render :action => 'nothing'
+    render :action => 'nothing', :layout => !request.xhr?
   end
 end
