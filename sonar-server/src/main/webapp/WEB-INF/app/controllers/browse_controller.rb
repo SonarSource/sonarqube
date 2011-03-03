@@ -78,9 +78,8 @@ class BrowseController < ApplicationController
     @display_scm=(params[:scm]=='true')
     @expanded=(params[:expand]=='true')
 
-    @source = @snapshot.source
-    if @source
-      source_lines=Java::OrgSonarServerUi::JRubyFacade.new.colorizeCode(@source.data, @snapshot.project.language).split("\n")
+    if @snapshot.source
+      source_lines=Java::OrgSonarServerUi::JRubyFacade.new.colorizeCode(@snapshot.source.data, @snapshot.project.language).split("\n")
       init_scm((@period && use_scm_for_periods) || @display_scm)
 
       @lines=[]
@@ -94,7 +93,7 @@ class BrowseController < ApplicationController
         date_string=@dates_by_line[index+1]
         line.datetime=(date_string ? DateTime::strptime(date_string): nil)
       end
-     end
+    end
   end
 
   def init_scm(scm)
@@ -179,14 +178,14 @@ class BrowseController < ApplicationController
 
     RuleFailure.find(:all, :include => 'rule', :conditions => [conditions] + values, :order => 'failure_level DESC').each do |violation|
       # sorted by severity => from blocker to info
-      if violation.line && violation.line>0
+      if violation.line && violation.line>0 && @lines
         @lines[violation.line-1].add_violation(violation)
       else
         @global_violations<<violation
       end
     end
 
-    unless @expanded
+    if !@expanded && @lines
       @lines.each_with_index do |line,index|
         if line.violations?
           for i in index-4..index+4

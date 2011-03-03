@@ -171,8 +171,8 @@ a {
   display: block;
 }
 #sidebarconf {
-  background-color: #eee;
-  border: 2px solid #ccc;
+  background-color: #ECECEC;
+  border: 2px solid #DDD;
   color: #666;
   line-height: 1.1em;
   margin-top: 10px;
@@ -344,7 +344,7 @@ h4, .h4 {
   color: #777;
   font-size: 85%;
   margin-bottom: 10px;
-  background-color: #f4f4f4;
+  background-color: #ECECEC;
   border: 1px solid #cdcdcd;
   padding: 4px;
 }
@@ -415,7 +415,7 @@ h4, .h4 {
 }
 .doc pre, pre.code {
 	color: #777;
-	background-color: #f4f4f4;
+	background-color: #ECECEC;
 	padding: 10px;
 	margin: 10px 0;
 	border: 1px dashed #777;
@@ -454,9 +454,9 @@ table.data th img, table.data td img {
   vertical-align: top;
 }
 .data thead tr.total {
-  background-color: #eee;
+  background-color: #ECECEC;
   font-weight: normal;
-  border: 1px solid #ddd;
+  border: 1px solid #DDD;
 }
 .data thead tr.total th {
   font-weight: normal;
@@ -581,7 +581,7 @@ ul.operations {
   float: right;
   list-style-type: none;
   margin: 0;
-  background-color: #f4f4f4;
+  background-color: #ECECEC;
   border: 1px solid #cdcdcd;
   border-radius: 3px;
   -moz-border-radius: 3px;
@@ -608,67 +608,185 @@ ul.operations li a {
 .resourceName h1 {
 	margin: 5px 0;
 }
-#source {
-  margin: 1px;
-  padding: 15px 2px 2px;
-}
 
-#source h2 {
-  border-bottom: 1px solid #dedede;
-  margin-bottom: 5px;
-  font-size: 100%;
-  font-weight: bold;
-  padding: 0 0 5px 5px;
-}
 
-#source pre {
-  font-size: 93%;
-  text-align: left;
-  margin-top: 10px;
-  border: 1px solid #ccc;
-  background-color: #fff;
-}
 
-#source span {
-  padding-left: 4px;
+/* SOURCE */
+#source_metrics {
+  width: 100%;
 }
-
-#source .error {
+#source_metrics {
+  width: 100%;
+}
+.sources2 {
+  width: 100%;
+  border-top: 1px solid #DDD;
+  border-bottom: 1px solid #DDD;
+  margin: 0;
+}
+.sources2 td.lid {
+  background-color: #ECECEC;
+  border-right: 1px solid #DDDDDD;
+  border-left: 1px solid #DDDDDD;
+  text-align: right;
+  padding: 2px 0.5em 0 0.5em;
+  vertical-align: top;
+  font-size: 85%;
+}
+.sources2 td.lid a {
+  text-decoration: none;
+  color: #AAA;
+}
+.sources2 td.scm {
+  border-right: 1px solid #DDD;
+  border-left: 1px solid #DDD;
+  background-color: #ECECEC;
+}
+.sources2 td.revision {
+  border-top: 1px solid #DDD;
+  vertical-align: top;
+  padding: 2px 0.3em;
+  white-space: nowrap;
+}
+.sources2 span.date, .sources2 span.date a {
+  color: #AAA;
+  font-size: 85%;
+  text-decoration: none;
+}
+.sources2 span.author, .sources2 span.author a {
+  font-size: 85%;
+}
+.sources2 td.rule {
+  padding: 1px 0.5em;
+  border-left: 1px solid #DDDDDD;
+}
+.sources2 td.violations {
+  background-color: #ECECEC;
+  min-width: 450px;
+}
+span.rulename, span.rulename a {
+  color: #4183C4;
+  text-decoration: none;
+}
+span.violation_date {
+  color: #AAA;
+  font-size: 85%;
+}
+span.rulename a:hover {
+  text-decoration: underline;
+}
+.sources2 td.violations img {
+  vertical-align: sub;
+}
+.sources2 td.line {
+  padding-left: 1em;
+  width: 100%;
+  font-size: 12px;
+  font-family: monospace;
+  border-right: 1px solid #DDD;
+}
+.sources2 td.section {
+  border-top: 1px solid #DDD;
+  border-bottom: 1px solid #DDD;
+}
+.sources2 td.ind {
+  border-right: 1px solid #DDD;
+  min-width: 1.5em;
+  padding: 0 0.3em;
+  text-align: center;
+  vertical-align: middle;
+}
+.sources2 td.ok {
+  background-color: #ACE97C;
+  border-top: 1px solid #6EC563;
+  border-bottom: 1px solid #6EC563;
+}
+.sources2 td.sev0, .sources2 td.sev1, .sources2 td.warn {
+  /* info, minor */
+  background-color: #FFF6BF;
+  border-top: 1px solid #FFD324;
+  border-bottom: 1px solid #FFD324;
+}
+.sources2 td.sev2, .sources2 td.sev3, .sources2 td.sev4, .sources2 td.ko {
+  /* major, critical, blocker */
   background-color: #FF9090;
-  border: 0;
-  color: #000;
-  margin: 0;
-  padding: 0;
+  border-top: 1px solid #FF5252;
+  border-bottom: 1px solid #FF5252;
 }
-
-#source .warning {
-  background-color: #FFFFAF;
-  border: 0;
-  color: #000;
-  margin: 0;
-  padding: 0;
+.sources2 td.new_section {
+  border-top: 1px solid #DDD;
+  border-bottom: 1px solid #DDD;
+  height: 40px;
 }
-
-#source .info {
-  background-color: #80FF80;
-  border: 0;
-  color: #000;
-  margin: 0;
-  padding: 0;
+#source_title {
+  padding: 10px 0;
 }
-
-#source .ln {
-  color: #666;
-  padding-right: 4px;
-  border-right: solid 1px #ccc;
-  margin-right: 4px;
-  background-color: #eee;
+#source_title span.h1 {
+  font-size: 16px;
+  margin-right: 10px;
 }
-
-#source .big {
-  font-size: 100%;
+.source_links {
+  font-size: 11px;
+}
+#global_violations {
+  width: 100%;
+  border: 1px solid #DDD;
+  margin-bottom: 10px;
+}
+#global_violations td {
+  background-color: #ECECEC;
+  padding: 3px 0.5em;
+}
+#global_violations td img, #source_title img {
+  vertical-align: sub;
+}
+.tab_header {
+  border: 1px solid #DDD;
+  border-top-width: 0;
+  background-color: #ECECEC;
+  padding: 5px 10px;
+  margin-bottom: 10px;
+  color: #444;
+}
+.tab_header table.col {
+  margin-right: 20px;
+  display: inline-block;
+  vertical-align: top;
+}
+.tab_header table.bottomcol {
+  margin-right: 20px;
+  display: inline-block;
+  vertical-align: bottom;
+}
+.tab_header table.col td, .tab_header table.bottomcol td {
+  padding-right: 7px;
+}
+.tab_header td.name {
+  font-weight: bold;
   text-align: left;
 }
+.tab_header td.value {
+  text-align: right;
+}
+#source_options {
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid #ddd;
+  font-size: 85%;
+}
+#source_options td {
+  background: url("../images/sep12.png") no-repeat scroll 0 50% transparent;
+  padding: 0 10px;
+}
+#source_options td.first {
+  background: none;
+  padding: 0 10px 0 0;
+}
+
+
+
+
+
 #gwtpage {
 	width: 100%;
 	clear: both;
@@ -682,11 +800,11 @@ ul.operations li a {
 }
 
 .gwt-SourcePanel .ln {
-  background-color: #eee;
+  background-color: #ECECEC;
   white-space: nowrap;
   text-align: right;
   color: #777;
-  border-right: 1px solid silver;
+  border-right: 1px solid #DDD;
   padding: 0 3px;
   height: 14px;
 }
@@ -697,8 +815,8 @@ ul.operations li a {
 }
 
 .gwt-SourcePanel .val {
-  background-color: #eee;
-  border-right: 1px solid silver;
+  background-color: #ECECEC;
+  border-right: 1px solid #DDD;
   text-align: right;
   color: #777;
   padding: 0 3px;
@@ -734,7 +852,7 @@ ul.operations li a {
   height: 1.6em;
   background-position: 5px 1px;
   background-repeat: no-repeat;
-  background-color: #eee;
+  background-color: #ECECEC;
 }
 
 .gwt-SourcePanel .warn {
@@ -806,8 +924,9 @@ ul.operations li a {
 }
 
 .gwt-ViewerHeader {
-  background-color: #eee;
-  border-bottom: 1px solid silver;
+  background-color: #ECECEC;
+  border: 1px solid #DDD;
+  border-top: none;
   margin-bottom: 8px;
   color: #333;
   vertical-align: bottom;
@@ -899,8 +1018,8 @@ ul.operations li a {
 
 /* ------------------- HELP ------------------- */
 .help {
-  border: 1px solid #ccc;
-  background-color: #eee;
+  border: 1px solid #DDD;
+  background-color: #ECECEC;
   color: #444;
   padding: 5px;
 }
@@ -936,7 +1055,7 @@ ul.operations li a {
 /* ------------------- BOXES ------------------- */
 .box {
   border: 1px solid #ccc;
-  background-color: #f4f4f4;
+  background-color: #ECECEC;
   margin-bottom: 5px;
   color: #444;
   padding: 10px;
@@ -1020,16 +1139,18 @@ ul.bullet li {
 }
 .tablinks li {
   float:left;
-  padding: 0 7px;
   text-align: right;
-}
-.tablinks li.withsep {
   background: url("../images/sep12.png") no-repeat scroll 0 50% transparent;
+  margin-left: 7px;
+  padding: 0 0 0 7px;
 }
-
+.tablinks li.first {
+  background: none;
+}
 .tablinks a {
   text-decoration: underline;
-  color: #555;
+  color: #777;
+  font-size: 85%;
 }
 .tabs li {
   display: inline;
@@ -1045,7 +1166,7 @@ ul.bullet li {
 }
 .tabs li a:link, .tabs li a:visited {
   float: left;
-  background-color: #f4f4f4;
+  background-color: #ECECEC;
   color: #555;
   vertical-align: bottom;
   height: 17px;
@@ -1082,7 +1203,7 @@ ul.bullet li {
   text-decoration: none;
   color: #777;
   background-color: #FFF;
-  border: 1px solid silver;
+  border: 1px solid #DDD;
   border-bottom: 0;
   vertical-align: middle;
   white-space: nowrap;
@@ -1092,12 +1213,12 @@ ul.bullet li {
 
 .smalltabs .tab.selected {
   font-weight: bold;
-  background-color: #EEE;
+  background-color: #ECECEC;
 }
 
 .smalltabs .tab.selected a {
   text-decoration: none;
-  background-color: #EEE;
+  background-color: #ECECEC;
   color: #777;
 }
 
@@ -1143,8 +1264,8 @@ ul.bullet li {
 }
 
 #time_machine #selector {
-  background-color: #eee;
-  border: 1px solid #ccc;
+  background-color: #ECECEC;
+  border: 1px solid #DDD;
 }
 .comments {
   color: #777;
@@ -1224,7 +1345,7 @@ ul.bullet li {
   font-weight: normal;
   text-decoration: underline;
   color: #555;
-  background-color: #f4f4f4;
+  background-color: #ECECEC;
   vertical-align: middle;
   white-space: nowrap;
   padding: 0.3em 0.6em;
@@ -1378,7 +1499,7 @@ h4 a, h4 a:visited, .gray, table.data tfoot a, table.data tfoot a:visited {
 }
 
 .even, table.sortable tr.rowodd {
-  background-color: #f4f4f4;
+  background-color: #F4F4F4;
 }
 
 .bordered, table.data > thead {
@@ -1454,7 +1575,7 @@ table.nowrap td, td.nowrap {
   white-space: nowrap;
 }
 .background-gray {
-  background-color: #f4f4f4;
+  background-color: #ECECEC;
   color: #444;
 }
 

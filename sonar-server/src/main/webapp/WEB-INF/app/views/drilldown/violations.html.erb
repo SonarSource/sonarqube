@@ -178,7 +178,7 @@
 </tr>
 </table>
 <br/>
-<div style="font-size: 90%;background-color: #eee;color: #777;padding: 4px 5px;border: 1px solid #ccc;">
+<div style="font-size: 85%;background-color: #eee;color: #777;padding: 4px 5px;border: 1px solid #ddd;margin-bottom: 20px;">
 <b>Path:</b>
 <% if @priority_id %>
 <%= Sonar::RulePriority.to_s(@priority_id) %> <%= link_to 'clear', {:overwrite_params => {:priority => nil}} %>
@@ -199,6 +199,11 @@ $$('#col_rules tr.selected').each(function(item) {item.scrollIntoView(true);});
 <% @drilldown.columns.each do |column| %>
 $$('#col_<%= column.scope -%> tr.selected').each(function(item) {item.scrollIntoView(true);});
 <% end %>
+
+<% if @drilldown.highlighted_resource %>
+    d(<%= @drilldown.highlighted_resource.id -%>);
+<% end %>
+
 </script>
 
 <%= render :partial => 'footer' -%>
