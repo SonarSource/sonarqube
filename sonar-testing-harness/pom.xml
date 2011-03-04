@@ -10,16 +10,6 @@
   <packaging>jar</packaging>
   <name>Sonar :: Testing Harness</name>
 
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <skip>false</skip>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
   <dependencies>
     <dependency>
       <groupId>junit</groupId>

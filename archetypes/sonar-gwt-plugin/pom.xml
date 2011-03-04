@@ -54,12 +54,6 @@
         <version>2.0-alpha-4</version>
         <extensions>true</extensions>
       </plugin>
-      <plugin>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <skip>false</skip>
-        </configuration>
-      </plugin>
     </plugins>
   </build>
 </project>

@@ -12,12 +12,11 @@
 
   <dependencies>
     <!-- used only for GWT compilation -->
-    
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-ws-client</artifactId>
     </dependency>
-	<dependency>
+    <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-ws-client</artifactId>
       <classifier>sources</classifier>
@@ -44,7 +43,7 @@
         <directory>src/main/resources</directory>
       </resource>
     </resources>
-    
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -74,12 +73,6 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<configuration>
-					<skip>false</skip>
-				</configuration>
       </plugin>
     </plugins>
   </build>
