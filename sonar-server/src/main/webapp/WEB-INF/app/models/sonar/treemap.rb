@@ -76,7 +76,7 @@ class Sonar::Treemap
       "document.location='#{ApplicationController.root_context}/dashboard/index/#{snapshot.project.copy_resource_id || snapshot.project_id}'"
     else
       color_metric_key=(@color_metric ? @color_metric.key : nil)
-      "window.open('#{ApplicationController.root_context}/resource/index/#{snapshot.project_id}?viewer_metric_key=#{color_metric_key}','resource','height=800,width=900,scrollbars=1,resizable=1');return false;"
+      "window.open('#{ApplicationController.root_context}/resource/index/#{snapshot.project_id}?metric=#{color_metric_key}','resource','height=800,width=900,scrollbars=1,resizable=1');return false;"
     end 
   end
     

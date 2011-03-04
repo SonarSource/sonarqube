@@ -198,7 +198,6 @@ module ApplicationHelper
   #
   # * <tt>:resource</tt> - id or key of the selected resource
   # * <tt>:highlight</tt> - key of the metric to highlight, different than the metric to drilldown.
-  #  *<tt>:viewer_plugin_key</tt> - the default GWT plugin to be used when clicking on a resource in the drilldown to view it's source
   # * <tt>:period</tt> - period index
   # * <tt>:only_periods</tt> - true if only v
   #
@@ -206,7 +205,7 @@ module ApplicationHelper
   #
   #   url_for_drilldown('ncloc')
   #   url_for_drilldown('ncloc', {:resource => 'org.apache.struts:struts-parent', :highlight => 'lines'})
-  #   url_for_drilldown('ncloc', {:resource => 'org.apache.struts:struts-parent', :viewer_plugin_key => 'org.sonar.plugins.core.violationsviewer.GwtViolationsViewer'})
+  #   url_for_drilldown('ncloc', {:resource => 'org.apache.struts:struts-parent'})
   #
   def url_for_drilldown(metric_or_measure, options={})
     if options[:resource].nil? && !@project
