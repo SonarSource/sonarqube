@@ -105,14 +105,29 @@ module NeedAuthentication
         if !user && create_user=='true'
           user=User.new(:login => login, :name => login, :email => '', :password => password, :password_confirmation => password)
           user.save!
+          
+          admin_users = (java_facade.getConfigurationValue('sonar.authenticator.adminUsers') || "").split(/,\s*/)
+          default_group_names = java_facade.getConfigurationValue('sonar.defaultGroup') || 'sonar-users'
 
-          default_group_name = java_facade.getConfigurationValue('sonar.defaultGroup') || 'sonar-users'
-          default_group=Group.find_by_name(default_group_name)
-          if default_group
-            user.groups<<default_group
+          if admin_users.include?(login) && default_group_names != 'sonar-administrators'
+            default_group_names << ",sonar-administrators"
+          end
+
+          default_groups = []
+          default_group_names.split(",").each do |group_name|
+              grp = Group.find_by_name(group_name)
+              if grp
+                  default_groups << grp
+              else
+                  logger.error("Group #{grp} does not exist!")
+              end 
+          end
+
+          if default_groups
+            user.groups<<default_groups
             user.save
           else
-            logger.error("The default user group does not exist: #{default_group_name}. Please check the parameter 'Default user group' in general settings.")
+            logger.error("The default user group does not exist. Please check the parameter 'Default user group' in general settings.")
           end
         end
 
