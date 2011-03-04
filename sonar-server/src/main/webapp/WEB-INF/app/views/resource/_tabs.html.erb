@@ -1,0 +1,37 @@
+<style>
+
+</style>
+
+<div id="source_title">
+  <span class="h1"><%= qualifier_icon(@resource) -%> <%= @resource.long_name -%></span>
+</div>
+
+<div id="source_tabs">
+  <ul class="tablinks">
+    <%
+       first=true
+       if @snapshot.source
+    %>
+      <li class="<%= 'first' if first -%>"><a href="<%= ApplicationController.root_context -%>/api/sources?resource=<%= @resource.key -%>&format=txt">Raw</a></li>
+    <%   first=false
+       end
+       if request.xhr? %>
+      <li class="<%= 'first' if first -%>"><a href="<%= ApplicationController.root_context -%>/resource/index/<%= @resource.key -%>" target="sonar">New Window</a></li>
+    <% end %>
+  </ul>
+  <ul class="tabs" >
+  <% if request.xhr? %>
+    <% @extensions.each do |extension| %>
+      <li><a href="#" onclick="loadAjaxTab('<%= @resource.id -%>','<%= extension.getId() -%>')" class="<%= 'selected' if @extension.getId()==extension.getId() -%>"><%= extension.getTitle() -%></a></li>
+    <% end %>
+  <% else %>
+    <script>function loadTab(url) {$('resource-loading').show();document.location.href=url;return false;}</script>
+    <% @extensions.each do |extension| %>
+      <li><a href="#" onClick="loadTab('<%= url_for(:overwrite_params => {:tab => extension.getId()}) -%>')" class="<%= 'selected' if @extension.getId()==extension.getId() -%>"><%= extension.getTitle() -%></a></li>
+    <% end %>
+  <% end %>
+  <li>
+    <img src="<%= ApplicationController.root_context -%>/images/loading.gif" id="resource-loading" style="display:none"/>
+  </li>
+  </ul>
+</div>
