@@ -1,6 +1,0 @@
-<module rename-to="org.sonar.plugins.core.violationsviewer.ViolationsViewer">
-  <inherits name="org.sonar.plugins.core.violationsviewer.ViolationsViewer"/>
-  <inherits name="org.sonar.SonarDev"/>
-
-  <entry-point class="org.sonar.plugins.core.violationsviewer.client.ViolationsViewer"/>
-</module>

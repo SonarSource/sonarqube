@@ -33,7 +33,6 @@ import org.sonar.plugins.core.charts.DistributionBarChart;
 import org.sonar.plugins.core.charts.XradarChart;
 import org.sonar.plugins.core.clouds.Clouds;
 import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
-import org.sonar.plugins.core.coverageviewer.CoverageViewerDefinition;
 import org.sonar.plugins.core.duplicationsviewer.DuplicationsViewerDefinition;
 import org.sonar.plugins.core.hotspots.Hotspots;
 import org.sonar.plugins.core.metrics.UserManagedMetrics;

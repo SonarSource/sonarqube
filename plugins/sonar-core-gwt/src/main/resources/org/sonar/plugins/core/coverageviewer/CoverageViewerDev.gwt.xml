@@ -1,6 +1,0 @@
-<module rename-to="org.sonar.plugins.core.coverageviewer.CoverageViewer">
-  <inherits name="org.sonar.plugins.core.coverageviewer.CoverageViewer"/>
-  <inherits name="org.sonar.SonarDev"/>
-
-  <entry-point class="org.sonar.plugins.core.coverageviewer.client.CoverageViewer"/>
-</module>

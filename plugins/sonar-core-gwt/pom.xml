@@ -58,11 +58,7 @@
           <execution>
             <configuration>
               <modules>
-                <module>org.sonar.plugins.core.ui.pageselector.PageSelector${gwt.permutationSuffix}</module>
                 <module>org.sonar.plugins.core.clouds.GwtClouds${gwt.permutationSuffix}</module>
-                <module>org.sonar.plugins.core.violationsviewer.ViolationsViewer${gwt.permutationSuffix}</module>
-                <module>org.sonar.plugins.core.coverageviewer.CoverageViewer${gwt.permutationSuffix}</module>
-                <module>org.sonar.plugins.core.defaultsourceviewer.GwtDefaultSourceViewer${gwt.permutationSuffix}</module>
                 <module>org.sonar.plugins.core.duplicationsviewer.DuplicationsViewer${gwt.permutationSuffix}</module>
                 <module>org.sonar.plugins.core.testdetailsviewer.TestsViewer${gwt.permutationSuffix}</module>
                 <module>org.sonar.plugins.core.hotspots.GwtHotspots${gwt.permutationSuffix}</module>
