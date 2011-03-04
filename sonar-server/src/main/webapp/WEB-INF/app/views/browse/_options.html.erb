@@ -1,3 +1,7 @@
+<% display_options = @scm_available || @expandable || @snapshot.project_snapshot.periods? || @display_violations
+   if display_options
+%>
+
 <div id="source_options">
   <script>
     applyOptions=function() {
@@ -58,3 +62,4 @@
     </table>
   </form>
 </div>
+<% end %>
