@@ -8,7 +8,7 @@
       $('resource-loading').show();
       <% if request.xhr? %>
         var params = Form.serialize($('options-form'));
-        new Ajax.Updater('resource_container', '<%= url_for :controller => 'browse', :id => @resource.key -%>', {asynchronous:true, parameters:params});
+        new Ajax.Updater('resource_container', '<%= url_for :controller => 'resource', :id => @resource.key -%>', {asynchronous:true, parameters:params});
         return true;
       <% else %>
         $('options-form').submit();
