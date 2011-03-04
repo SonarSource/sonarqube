@@ -16,7 +16,7 @@
     <%   first=false
        end
        if request.xhr? %>
-      <li class="<%= 'first' if first -%>"><a href="<%= ApplicationController.root_context -%>/resource/index/<%= @resource.key -%>" target="sonar">New Window</a></li>
+      <li class="<%= 'first' if first -%>"><a href="<%= ApplicationController.root_context -%>/resource/index/<%= @resource.key -%>" target="resource">New Window</a></li>
     <% end %>
   </ul>
   <ul class="tabs" >
