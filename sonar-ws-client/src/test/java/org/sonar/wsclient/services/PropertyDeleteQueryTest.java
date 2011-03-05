@@ -19,12 +19,12 @@
  */
 package org.sonar.wsclient.services;
 
-import org.junit.Test;
-
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class PropertyDeleteQueryTest {
+import org.junit.Test;
+
+public class PropertyDeleteQueryTest extends QueryTestCase {
 
   @Test
   public void delete() {
@@ -35,6 +35,6 @@ public class PropertyDeleteQueryTest {
   @Test
   public void deleteResourceProp() {
     PropertyDeleteQuery query = new PropertyDeleteQuery("foo", "my:resource");
-    assertThat(query.getUrl(), is("/api/properties/foo?resource=my:resource&"));
+    assertThat(query.getUrl(), is("/api/properties/foo?resource=my%3Aresource&"));
   }
 }

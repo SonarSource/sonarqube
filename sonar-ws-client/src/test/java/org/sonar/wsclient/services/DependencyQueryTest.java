@@ -19,13 +19,13 @@
  */
 package org.sonar.wsclient.services;
 
-import org.junit.Test;
-
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
-public class DependencyQueryTest {
+import org.junit.Test;
+
+public class DependencyQueryTest extends QueryTestCase {
 
   @Test
   public void createAllDependencies() {

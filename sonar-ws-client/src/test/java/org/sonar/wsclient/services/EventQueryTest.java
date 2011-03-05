@@ -19,22 +19,16 @@
  */
 package org.sonar.wsclient.services;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.wsclient.JdkUtils;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
 
-public final class EventQueryTest {
-
-  @Before
-  public void before() {
-    // WSUtils is called during getUrl()
-    // It has to be initialized.
-    WSUtils.setInstance(new JdkUtils());
-  }
+public final class EventQueryTest extends QueryTestCase {
 
   @Test
   public void from() {
@@ -59,7 +53,7 @@ public final class EventQueryTest {
   @Test
   public void urlWithTime() {
     EventQuery query = new EventQuery("key");
-    query.setCategories(new String[]{"category"});
+    query.setCategories(new String[] { "category" });
     Date date = new Date();
     query.setTo(date, true);
     query.setFrom(date, true);
@@ -76,7 +70,7 @@ public final class EventQueryTest {
   @Test
   public void urlWithoutTime() {
     EventQuery query = new EventQuery("key");
-    query.setCategories(new String[]{"category"});
+    query.setCategories(new String[] { "category" });
     Date date = new Date();
     query.setTo(date, false);
     query.setFrom(date, false);
@@ -92,7 +86,7 @@ public final class EventQueryTest {
   @Test
   public void urlWithoutDate() {
     EventQuery query = new EventQuery("key");
-    query.setCategories(new String[]{"category"});
+    query.setCategories(new String[] { "category" });
 
     final String url = query.getUrl();
     assertNotNull(url);

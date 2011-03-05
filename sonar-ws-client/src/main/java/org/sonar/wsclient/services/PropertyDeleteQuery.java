@@ -62,7 +62,7 @@ public class PropertyDeleteQuery extends DeleteQuery<Property> {
   public String getUrl() {
     StringBuilder url = new StringBuilder();
     url.append(PropertyQuery.BASE_URL);
-    url.append("/").append(key);
+    url.append("/").append(encode(key));
     url.append('?');
     appendUrlParameter(url, "resource", resourceKeyOrId);
     return url.toString();

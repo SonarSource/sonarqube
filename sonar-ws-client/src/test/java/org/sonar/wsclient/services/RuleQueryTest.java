@@ -19,12 +19,12 @@
  */
 package org.sonar.wsclient.services;
 
-import org.junit.Test;
-
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class RuleQueryTest {
+import org.junit.Test;
+
+public class RuleQueryTest extends QueryTestCase {
 
   @Test
   public void languageRules() {

@@ -19,17 +19,17 @@
  */
 package org.sonar.wsclient.services;
 
-import org.junit.Test;
-
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ViolationQueryTest {
+import org.junit.Test;
+
+public class ViolationQueryTest extends QueryTestCase {
 
   @Test
   public void resourceViolations() {
     ViolationQuery query = ViolationQuery.createForResource("myproject:org.foo:bar");
-    assertThat(query.getUrl(), is("/api/violations?resource=myproject:org.foo:bar&"));
+    assertThat(query.getUrl(), is("/api/violations?resource=myproject%3Aorg.foo%3Abar&"));
     assertThat(query.getModelClass().getName(), is(Violation.class.getName()));
   }
 
@@ -41,6 +41,8 @@ public class ViolationQueryTest {
         .setSeverities("MAJOR", "BLOCKER")
         .setQualifiers("FIL")
         .setRuleKeys("checkstyle:foo", "pmd:bar");
-    assertThat(query.getUrl(), is("/api/violations?resource=myproject&depth=-1&limit=20&qualifiers=FIL&rules=checkstyle:foo,pmd:bar&priorities=MAJOR,BLOCKER&"));
+    assertThat(
+        query.getUrl(),
+        is("/api/violations?resource=myproject&depth=-1&limit=20&qualifiers=FIL&rules=checkstyle%3Afoo,pmd%3Abar&priorities=MAJOR,BLOCKER&"));
   }
 }

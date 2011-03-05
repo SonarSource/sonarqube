@@ -46,8 +46,8 @@ public class SourceQuery extends Query<Source> {
 
   /**
    * Get only a few lines
-   *
-   * @param from       Index of the first line, starts to 1
+   * 
+   * @param from Index of the first line, starts to 1
    * @param excludedTo Index of the last line (excluded).
    */
   public SourceQuery setFromLineToLine(int from, int excludedTo) {
@@ -78,9 +78,8 @@ public class SourceQuery extends Query<Source> {
   @Override
   public String getUrl() {
     StringBuilder url = new StringBuilder(BASE_URL);
-    url.append("?resource=")
-        .append(resourceKeyOrId)
-        .append("&");
+    url.append('?');
+    appendUrlParameter(url, "resource", resourceKeyOrId);
     if (from > 0 && to > 0) {
       url.append("from=").append(from).append("&to=").append(to).append("&");
     }

@@ -21,7 +21,7 @@ package org.sonar.wsclient.services;
 
 /**
  * Get properties of the authenticated user.
- *
+ * 
  * @since 2.2
  */
 public class UserPropertyQuery extends Query<Property> {
@@ -55,7 +55,7 @@ public class UserPropertyQuery extends Query<Property> {
   public String getUrl() {
     String url = BASE_URL;
     if (key != null) {
-      url += "/" + key;
+      url += "/" + encode(key);
     }
     return url + "?";
   }

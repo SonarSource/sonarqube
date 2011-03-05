@@ -19,12 +19,12 @@
  */
 package org.sonar.wsclient.services;
 
-import org.junit.Test;
-
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class MetricQueryTest {
+import org.junit.Test;
+
+public class MetricQueryTest extends QueryTestCase {
 
   @Test
   public void all() {

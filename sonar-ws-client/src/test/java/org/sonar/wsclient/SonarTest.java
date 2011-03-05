@@ -19,6 +19,14 @@
  */
 package org.sonar.wsclient;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.junit.Assert.assertThat;
+
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,15 +35,11 @@ import org.mortbay.jetty.testing.ServletTester;
 import org.sonar.wsclient.connectors.ConnectionException;
 import org.sonar.wsclient.connectors.HttpClient3Connector;
 import org.sonar.wsclient.connectors.HttpClient4Connector;
-import org.sonar.wsclient.services.*;
-
-import java.util.Arrays;
-import java.util.Collection;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertThat;
+import org.sonar.wsclient.services.Metric;
+import org.sonar.wsclient.services.MetricQuery;
+import org.sonar.wsclient.services.Query;
+import org.sonar.wsclient.services.Server;
+import org.sonar.wsclient.services.ServerQuery;
 
 @RunWith(value = Parameterized.class)
 public class SonarTest {
@@ -64,12 +68,11 @@ public class SonarTest {
     baseUrl = tester.createSocketConnector(true);
     tester.start();
 
-    return Arrays.asList(new Object[][]{
-        {new Sonar(new HttpClient4Connector(new Host(baseUrl)))},
-        {new Sonar(new HttpClient3Connector(new Host(baseUrl)))}
+    return Arrays.asList(new Object[][] {
+        { new Sonar(new HttpClient4Connector(new Host(baseUrl))) },
+        { new Sonar(new HttpClient3Connector(new Host(baseUrl))) }
     });
   }
-
 
   @AfterClass
   public static void stopServer() throws Exception {
@@ -87,12 +90,6 @@ public class SonarTest {
     Query<Metric> query = new EmptyQuery();
     Collection<Metric> metrics = sonar.findAll(query);
     assertThat(metrics.size(), is(0));
-  }
-
-  @Test
-  public void urlWithCharactersToEncode() {
-    sonar.find(new QueryWithInvalidCharacters());
-    // no exception
   }
 
   @Test
@@ -124,15 +121,4 @@ public class SonarTest {
     }
   }
 
-  static class QueryWithInvalidCharacters extends Query<Metric> {
-    public String getUrl() {
-      // [] must be encoded
-      return "/api/violations?resource=myproject:[default]:Foo";
-    }
-
-    public Class<Metric> getModelClass() {
-      return Metric.class;
-    }
-  }
 }
-

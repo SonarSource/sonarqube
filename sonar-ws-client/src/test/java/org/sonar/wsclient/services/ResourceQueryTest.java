@@ -19,18 +19,18 @@
  */
 package org.sonar.wsclient.services;
 
-import org.junit.Test;
-
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
-public class ResourceQueryTest {
+import org.junit.Test;
+
+public class ResourceQueryTest extends QueryTestCase {
 
   @Test
   public void resource() {
     ResourceQuery query = new ResourceQuery("org.foo:bar");
-    assertThat(query.getUrl(), is("/api/resources?resource=org.foo:bar&verbose=false&"));
+    assertThat(query.getUrl(), is("/api/resources?resource=org.foo%3Abar&verbose=false&"));
     assertThat(query.getResourceKeyOrId(), is("org.foo:bar"));
     assertThat(query.isVerbose(), is(false));
   }
@@ -62,7 +62,7 @@ public class ResourceQueryTest {
   @Test
   public void measuresOnRulePriorities() {
     ResourceQuery query = new ResourceQuery().setMetrics("violations");
-    query.setRuleSeverities("MAJOR,MINOR");
+    query.setRuleSeverities("MAJOR", "MINOR");
 
     assertThat(query.getUrl(), is("/api/resources?metrics=violations&rule_priorities=MAJOR,MINOR&verbose=false&"));
   }

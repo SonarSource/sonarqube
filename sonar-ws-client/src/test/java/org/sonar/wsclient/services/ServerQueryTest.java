@@ -19,15 +19,12 @@
  */
 package org.sonar.wsclient.services;
 
-import org.junit.Test;
-
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-/**
- * @author Evgeny Mandrikov
- */
-public class ServerQueryTest {
+import org.junit.Test;
+
+public class ServerQueryTest extends QueryTestCase {
   @Test
   public void index() {
     ServerQuery query = new ServerQuery();

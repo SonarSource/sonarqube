@@ -53,23 +53,9 @@ public class DependencyTreeQuery extends Query<DependencyTree> {
   @Override
   public String getUrl() {
     StringBuilder url = new StringBuilder(BASE_URL);
-    url.append("?resource=")
-        .append(resourceId)
-        .append("&");
-    if (scopes != null) {
-      url.append("scopes=");
-      if (scopes != null) {
-        for (int index = 0; index < scopes.length; index++) {
-          if (index > 0) {
-            url.append(',');
-          }
-          if (scopes[index] != null) {
-            url.append(scopes[index]);
-          }
-        }
-        url.append('&');
-      }
-    }
+    url.append('?');
+    appendUrlParameter(url, "resource", resourceId);
+    appendUrlParameter(url, "scopes", scopes);
     return url.toString();
   }
 

@@ -33,6 +33,6 @@ public class FavouriteDeleteQuery extends DeleteQuery<Favourite> {
 
   @Override
   public String getUrl() {
-    return new StringBuilder().append(FavouriteQuery.BASE_URL).append('/').append(idOrKey).toString();
+    return new StringBuilder().append(FavouriteQuery.BASE_URL).append('/').append(encode(idOrKey)).toString();
   }
 }

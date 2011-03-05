@@ -19,12 +19,12 @@
  */
 package org.sonar.wsclient.services;
 
-import org.junit.Test;
-
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class PropertyQueryTest {
+import org.junit.Test;
+
+public class PropertyQueryTest extends QueryTestCase {
 
   @Test
   public void all() {
@@ -40,7 +40,7 @@ public class PropertyQueryTest {
 
   @Test
   public void byKeyAndResource() {
-    assertThat(PropertyQuery.createForResource("myprop", "my:resource").getUrl(), is("/api/properties/myprop?resource=my:resource&"));
+    assertThat(PropertyQuery.createForResource("myprop", "my:resource").getUrl(), is("/api/properties/myprop?resource=my%3Aresource&"));
     assertThat(PropertyQuery.createForResource("myprop", "my:resource").getModelClass().getName(), is(Property.class.getName()));
   }
 }

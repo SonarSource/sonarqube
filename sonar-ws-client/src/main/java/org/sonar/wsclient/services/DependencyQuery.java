@@ -59,18 +59,10 @@ public class DependencyQuery extends Query<Dependency> {
   public String getUrl() {
     StringBuilder url = new StringBuilder(BASE_URL);
     url.append('?');
-    if (resourceIdOrKey != null) {
-      url.append("resource=").append(resourceIdOrKey).append('&');
-    }
-    if (direction != null) {
-      url.append("dir=").append(direction).append('&');
-    }
-    if (parentId !=null) {
-      url.append("parent=").append(parentId).append('&');
-    }
-    if (id !=null) {
-      url.append("id=").append(id).append('&');
-    }
+    appendUrlParameter(url, "resource", resourceIdOrKey);
+    appendUrlParameter(url, "dir", direction);
+    appendUrlParameter(url, "parent", parentId);
+    appendUrlParameter(url, "id", id);
     return url.toString();
   }
 
@@ -99,7 +91,7 @@ public class DependencyQuery extends Query<Dependency> {
 
   /**
    * Resources that depend upon a resource
-   *
+   * 
    * @param resourceIdOrKey the target resource. Can be the primary key (a number) or the logical key (String)
    */
   public static DependencyQuery createForIncomingDependencies(String resourceIdOrKey) {
@@ -111,7 +103,7 @@ public class DependencyQuery extends Query<Dependency> {
 
   /**
    * Resources that are depended upon a resource = all the resources that a resource depends upon
-   *
+   * 
    * @param resourceIdOrKey the target resource. Can be the primary key (an integer) or the logical key (String)
    */
   public static DependencyQuery createForOutgoingDependencies(String resourceIdOrKey) {
@@ -124,7 +116,7 @@ public class DependencyQuery extends Query<Dependency> {
   /**
    * Resources that depend upon or are depended upon a resource. It equals the merge of createForIncomingDependencies(resourceIdOrKey)
    * and createForOutgoingDependencies(resourceIdOrKey)
-   *
+   * 
    * @param resourceIdOrKey the target resource. Can be the primary key (an integer) or the logical key (String)
    */
   public static DependencyQuery createForResource(String resourceIdOrKey) {

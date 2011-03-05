@@ -29,7 +29,9 @@ public class FavouriteCreateQuery extends CreateQuery<Favourite> {
 
   @Override
   public String getUrl() {
-    return new StringBuilder().append(FavouriteQuery.BASE_URL).append("?key=").append(idOrKey).toString();
+    StringBuilder url = new StringBuilder(FavouriteQuery.BASE_URL).append('?');
+    appendUrlParameter(url, "key", idOrKey);
+    return url.toString();
   }
 
   @Override

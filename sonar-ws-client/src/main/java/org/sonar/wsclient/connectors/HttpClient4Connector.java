@@ -19,10 +19,24 @@
  */
 package org.sonar.wsclient.connectors;
 
-import org.apache.http.*;
-import org.apache.http.auth.*;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.auth.AuthScheme;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.AuthState;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -38,13 +52,11 @@ import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.sonar.wsclient.Host;
+import org.sonar.wsclient.services.AbstractQuery;
 import org.sonar.wsclient.services.CreateQuery;
 import org.sonar.wsclient.services.DeleteQuery;
 import org.sonar.wsclient.services.Query;
 import org.sonar.wsclient.services.UpdateQuery;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 /**
  * @since 2.1
@@ -85,7 +97,9 @@ public class HttpClient4Connector extends Connector {
           json = EntityUtils.toString(entity);
 
         } else if (response.getStatusLine().getStatusCode() != HttpStatus.SC_NOT_FOUND) {
-          throw new ConnectionException("HTTP error: " + response.getStatusLine().getStatusCode() + ", msg: " + response.getStatusLine().getReasonPhrase() + ", query: " + request.toString());
+          throw new ConnectionException("HTTP error: " + response.getStatusLine().getStatusCode()
+              + ", msg: " + response.getStatusLine().getReasonPhrase()
+              + ", query: " + request.toString());
         }
       }
 
@@ -104,7 +118,8 @@ public class HttpClient4Connector extends Connector {
     HttpConnectionParams.setConnectionTimeout(params, TIMEOUT_MS);
     HttpConnectionParams.setSoTimeout(params, TIMEOUT_MS);
     if (server.getUsername() != null) {
-      client.getCredentialsProvider().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(server.getUsername(), server.getPassword()));
+      client.getCredentialsProvider()
+          .setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(server.getUsername(), server.getPassword()));
     }
     return client;
   }
@@ -138,28 +153,26 @@ public class HttpClient4Connector extends Connector {
 
   private HttpPost newPostMethod(CreateQuery<?> query) {
     HttpPost post = new HttpPost(server.getHost() + query.getUrl());
-    if (query.getBody() != null) {
-      try {
-        post.setEntity(new StringEntity(query.getBody(), "UTF-8"));
-      } catch (UnsupportedEncodingException e) {
-        throw new ConnectionException("Encoding is not supported", e);
-      }
-    }
     setJsonHeader(post);
+    setRequestEntity(post, query);
     return post;
   }
 
   private HttpPut newPutMethod(UpdateQuery<?> query) {
     HttpPut put = new HttpPut(server.getHost() + query.getUrl());
+    setJsonHeader(put);
+    setRequestEntity(put, query);
+    return put;
+  }
+
+  private void setRequestEntity(HttpEntityEnclosingRequestBase request, AbstractQuery<?> query) {
     if (query.getBody() != null) {
       try {
-        put.setEntity(new StringEntity(query.getBody(), "UTF-8"));
+        request.setEntity(new StringEntity(query.getBody(), "UTF-8"));
       } catch (UnsupportedEncodingException e) {
         throw new ConnectionException("Encoding is not supported", e);
       }
     }
-    setJsonHeader(put);
-    return put;
   }
 
   private void setJsonHeader(HttpRequestBase request) {

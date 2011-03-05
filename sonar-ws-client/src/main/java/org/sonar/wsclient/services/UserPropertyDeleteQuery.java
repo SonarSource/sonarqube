@@ -45,6 +45,6 @@ public class UserPropertyDeleteQuery extends DeleteQuery<Property> {
 
   @Override
   public String getUrl() {
-    return new StringBuilder().append(UserPropertyQuery.BASE_URL).append('/').append(key).toString();
+    return new StringBuilder().append(UserPropertyQuery.BASE_URL).append('/').append(encode(key)).toString();
   }
 }

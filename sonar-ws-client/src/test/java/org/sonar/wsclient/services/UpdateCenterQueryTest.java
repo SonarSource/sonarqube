@@ -17,15 +17,14 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
 package org.sonar.wsclient.services;
-
-import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class UpdateCenterQueryTest {
+import org.junit.Test;
+
+public class UpdateCenterQueryTest extends QueryTestCase {
 
   @Test
   public void index() {

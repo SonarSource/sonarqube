@@ -19,18 +19,16 @@
  */
 package org.sonar.wsclient.services;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import org.junit.BeforeClass;
+import org.sonar.wsclient.JdkUtils;
 
-import org.junit.Test;
+public abstract class QueryTestCase {
 
-public class UserPropertyCreateQueryTest extends QueryTestCase {
-
-  @Test
-  public void create() {
-    UserPropertyCreateQuery query = new UserPropertyCreateQuery("foo", "bar");
-    assertThat(query.getUrl(), is("/api/user_properties?key=foo&value=bar&"));
-    assertThat(query.getModelClass().getName(), is(Property.class.getName()));
+  @BeforeClass
+  public static void setupWsUtils() {
+    // WSUtils is called during getUrl()
+    // It has to be initialized.
+    WSUtils.setInstance(new JdkUtils());
   }
 
 }

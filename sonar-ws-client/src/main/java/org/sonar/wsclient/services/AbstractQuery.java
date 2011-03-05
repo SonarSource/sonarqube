@@ -28,21 +28,36 @@ public abstract class AbstractQuery<MODEL extends Model> {
 
   /**
    * Must start with a slash, for example: /api/metrics
+   * <p>
+   * IMPORTANT: In implementations of this method we must use helper methods to construct URL.
+   * </p>
+   * 
+   * @see #encode(String)
+   * @see #appendUrlParameter(StringBuilder, String, Object)
+   * @see #appendUrlParameter(StringBuilder, String, Object[])
+   * @see #appendUrlParameter(StringBuilder, String, Date, boolean)
    */
   public abstract String getUrl();
 
   /**
-   * Request body. By defaut it is empty but it can be overriden. 
+   * Request body. By default it is empty but it can be overridden.
    */
   public String getBody() {
     return null;
+  }
+
+  /**
+   * Encodes single parameter value.
+   */
+  protected static String encode(String value) {
+    return WSUtils.getINSTANCE().encodeUrl(value);
   }
 
   protected static void appendUrlParameter(StringBuilder url, String paramKey, Object paramValue) {
     if (paramValue != null) {
       url.append(paramKey)
           .append('=')
-          .append(paramValue)
+          .append(encode(paramValue.toString()))
           .append('&');
     }
   }
@@ -55,7 +70,7 @@ public abstract class AbstractQuery<MODEL extends Model> {
           url.append(',');
         }
         if (paramValues[index] != null) {
-          url.append(paramValues[index]);
+          url.append(encode(paramValues[index].toString()));
         }
       }
       url.append('&');
@@ -67,7 +82,7 @@ public abstract class AbstractQuery<MODEL extends Model> {
       String format = (includeTime ? "yyyy-MM-dd'T'HH:mm:ssZ" : "yyyy-MM-dd");
       url.append(paramKey)
           .append('=')
-          .append(WSUtils.getINSTANCE().encodeUrl(WSUtils.getINSTANCE().format(paramValue, format)))
+          .append(encode(WSUtils.getINSTANCE().format(paramValue, format)))
           .append('&');
     }
   }

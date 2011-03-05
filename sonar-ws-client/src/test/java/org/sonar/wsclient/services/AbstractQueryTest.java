@@ -17,20 +17,19 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
 package org.sonar.wsclient.services;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.sonar.wsclient.JdkUtils;
+import static junit.framework.Assert.assertEquals;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import static junit.framework.Assert.assertEquals;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.sonar.wsclient.JdkUtils;
 
 public class AbstractQueryTest {
 
@@ -42,6 +41,20 @@ public class AbstractQueryTest {
   @AfterClass
   public static void after() {
     WSUtils.setInstance(null);
+  }
+
+  @Test
+  public void appendSpecialChars() {
+    StringBuilder url = new StringBuilder();
+    AbstractQuery.appendUrlParameter(url, "foo", "should escape []()");
+    assertEquals("foo=should+escape+%5B%5D%28%29&", url.toString());
+  }
+
+  @Test
+  public void appendSpecialCharsInArray() {
+    StringBuilder url = new StringBuilder();
+    AbstractQuery.appendUrlParameter(url, "foo", new String[] { "should escape", "[]()" });
+    assertEquals("foo=should+escape,%5B%5D%28%29&", url.toString());
   }
 
   @Test
@@ -70,7 +83,7 @@ public class AbstractQueryTest {
   @Test
   public void appendUrlArrayParameter() {
     StringBuilder url = new StringBuilder();
-    AbstractQuery.appendUrlParameter(url, "foo", new String[]{"bar", "bar2"});
+    AbstractQuery.appendUrlParameter(url, "foo", new String[] { "bar", "bar2" });
     assertEquals("foo=bar,bar2&", url.toString());
   }
 

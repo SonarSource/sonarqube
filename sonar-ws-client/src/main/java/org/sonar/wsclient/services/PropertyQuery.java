@@ -47,7 +47,7 @@ public class PropertyQuery extends Query<Property> {
   public String getUrl() {
     StringBuilder url = new StringBuilder(BASE_URL);
     if (key != null) {
-      url.append("/").append(key);
+      url.append("/").append(encode(key));
     }
     url.append('?');
     appendUrlParameter(url, "resource", resourceKeyOrId);

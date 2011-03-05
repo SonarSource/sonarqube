@@ -19,28 +19,31 @@
  */
 package org.sonar.wsclient.services;
 
-import org.junit.Test;
-
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class SourceQueryTest {
+import org.junit.Test;
+
+public class SourceQueryTest extends QueryTestCase {
 
   @Test
   public void create() {
-    assertThat(SourceQuery.create("myproject:org.foo.Bar").getUrl(), is("/api/sources?resource=myproject:org.foo.Bar&"));
+    assertThat(SourceQuery.create("myproject:org.foo.Bar").getUrl(), is("/api/sources?resource=myproject%3Aorg.foo.Bar&"));
     assertThat(SourceQuery.create("myproject:org.foo.Bar").getModelClass().getName(), is(Source.class.getName()));
   }
 
   @Test
   public void createWithHighlightedSyntax() {
-    assertThat(SourceQuery.createWithHighlightedSyntax("myproject:org.foo.Bar").getUrl(), is("/api/sources?resource=myproject:org.foo.Bar&color=true&"));
+    assertThat(SourceQuery.createWithHighlightedSyntax("myproject:org.foo.Bar").getUrl(),
+        is("/api/sources?resource=myproject%3Aorg.foo.Bar&color=true&"));
     assertThat(SourceQuery.createWithHighlightedSyntax("myproject:org.foo.Bar").getModelClass().getName(), is(Source.class.getName()));
   }
 
   @Test
   public void getOnlyAFewLines() {
-    assertThat(SourceQuery.create("myproject:org.foo.Bar").setFromLineToLine(10, 30).getUrl(), is("/api/sources?resource=myproject:org.foo.Bar&from=10&to=30&"));
-    assertThat(SourceQuery.create("myproject:org.foo.Bar").setLinesFromLine(10, 20).getUrl(), is("/api/sources?resource=myproject:org.foo.Bar&from=10&to=30&"));
+    assertThat(SourceQuery.create("myproject:org.foo.Bar").setFromLineToLine(10, 30).getUrl(),
+        is("/api/sources?resource=myproject%3Aorg.foo.Bar&from=10&to=30&"));
+    assertThat(SourceQuery.create("myproject:org.foo.Bar").setLinesFromLine(10, 20).getUrl(),
+        is("/api/sources?resource=myproject%3Aorg.foo.Bar&from=10&to=30&"));
   }
 }

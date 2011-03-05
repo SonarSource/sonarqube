@@ -36,7 +36,7 @@ public final class MetricQuery extends Query<Metric> {
     StringBuilder sb = new StringBuilder(BASE_URL);
     if (key != null && !"".equals(key)) {
       sb.append("/");
-      sb.append(key);
+      sb.append(encode(key));
     }
     sb.append("?");
     return sb.toString();
