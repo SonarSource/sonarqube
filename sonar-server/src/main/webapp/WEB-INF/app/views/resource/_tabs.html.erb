@@ -16,7 +16,7 @@
     <%   first=false
        end
        if request.xhr? %>
-      <li class="<%= 'first' if first -%>"><a href="<%= ApplicationController.root_context -%>/resource/index/<%= @resource.key -%>" target="resource">New Window</a></li>
+      <li class="<%= 'first' if first -%>"><a href="<%= ApplicationController.root_context -%>/resource/index/<%= @resource.key -%>" onclick="window.open(this.href,'resource','height=800,width=900,scrollbars=1,resizable=1');return false;">New Window</a></li>
     <% end %>
   </ul>
   <ul class="tabs" >

@@ -738,7 +738,7 @@ span.rulename a:hover {
   padding: 3px 0.5em;
 }
 #global_violations td img, #source_title img {
-  vertical-align: sub;
+  vertical-align: text-bottom;
 }
 .tab_header {
   border: 1px solid #DDD;
