@@ -43,7 +43,7 @@ import org.sonar.plugins.pmd.xml.PmdRuleset;
 public class PmdProfileImporter extends ProfileImporter {
 
   private final RuleFinder ruleFinder;
-  private static Logger LOG = LoggerFactory.getLogger(PmdProfileImporter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PmdProfileImporter.class);
 
   public PmdProfileImporter(RuleFinder ruleFinder) {
     super(PmdConstants.REPOSITORY_KEY, PmdConstants.PLUGIN_NAME);
@@ -54,8 +54,7 @@ public class PmdProfileImporter extends ProfileImporter {
   @Override
   public RulesProfile importProfile(Reader pmdConfigurationFile, ValidationMessages messages) {
     PmdRuleset pmdRuleset = parsePmdRuleset(pmdConfigurationFile, messages);
-    RulesProfile profile = createRuleProfile(pmdRuleset, messages);
-    return profile;
+    return createRuleProfile(pmdRuleset, messages);
   }
 
   protected RulesProfile createRuleProfile(PmdRuleset pmdRuleset, ValidationMessages messages) {

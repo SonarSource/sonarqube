@@ -19,12 +19,17 @@
  */
 package org.sonar.plugins.pmd;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jdom.CDATA;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
@@ -34,12 +39,6 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.pmd.xml.PmdProperty;
 import org.sonar.plugins.pmd.xml.PmdRule;
 import org.sonar.plugins.pmd.xml.PmdRuleset;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
 
 public class PmdProfileExporter extends ProfileExporter {
 
@@ -63,7 +62,7 @@ public class PmdProfileExporter extends ProfileExporter {
   protected PmdRuleset createPmdRuleset(List<ActiveRule> activeRules, String profileName) {
     PmdRuleset ruleset = new PmdRuleset(profileName);
     for (ActiveRule activeRule : activeRules) {
-      if (activeRule.getRule().getPluginName().equals(CoreProperties.PMD_PLUGIN)) {
+      if (activeRule.getRule().getRepositoryKey().equals(PmdConstants.REPOSITORY_KEY)) {
         String configKey = activeRule.getRule().getConfigKey();
         PmdRule rule = new PmdRule(configKey, PmdLevelUtils.toLevel(activeRule.getSeverity()));
         if (activeRule.getActiveRuleParams() != null && !activeRule.getActiveRuleParams().isEmpty()) {

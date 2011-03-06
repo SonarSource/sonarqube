@@ -19,6 +19,15 @@
  */
 package org.sonar.plugins.checkstyle;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Properties;
+
 import com.puppycrawl.tools.checkstyle.ConfigurationLoader;
 import com.puppycrawl.tools.checkstyle.DefaultConfiguration;
 import com.puppycrawl.tools.checkstyle.PropertiesExpander;
@@ -34,14 +43,9 @@ import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 
-import java.io.*;
-import java.nio.charset.Charset;
-import java.util.List;
-import java.util.Properties;
-
 public class CheckstyleConfiguration implements BatchExtension {
 
-  private static Logger LOG = LoggerFactory.getLogger(CheckstyleConfiguration.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CheckstyleConfiguration.class);
 
   private CheckstyleProfileExporter confExporter;
   private RulesProfile profile;
