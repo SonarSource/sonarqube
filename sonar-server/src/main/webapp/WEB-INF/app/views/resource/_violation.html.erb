@@ -1,3 +1,4 @@
+<div class="violation">
 <img src="<%= ApplicationController.root_context -%>/images/priority/<%=violation.failure_level-%>.png"/>
 
 <span class="rulename"><a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => violation.rule.key, :layout => 'false' -%>"><%= h(violation.rule.name) -%></a></span>
@@ -10,3 +11,4 @@
 %>
   <span class="violation_date"><%= duration==0 ? 'today' : "#{duration} days ago" -%></span>
 <% end %>
+  </div>

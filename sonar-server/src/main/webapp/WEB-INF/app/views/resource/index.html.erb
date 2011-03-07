@@ -19,7 +19,6 @@
     current_revision=nil
     colspan=2
     colspan+=1 if @display_scm
-    colspan+=1 if @display_violations
     colspan+=2 if @display_coverage
     previous_hidden=false
     first_section=true
@@ -72,18 +71,6 @@
             <td class="scm"></td>
     <%   end
        end %>
-    <% if @display_violations %>
-      <td class="rule <%= 'violations section' if line.violations? -%>">
-        <% if line.violations?
-             line.violations.each_with_index do |violation, violation_index| %>
-               <%= '<br/>' if violation_index>0 %>
-               <%= render :partial => 'violation', :locals => {:violation => violation} -%>
-        <%
-             end
-           end
-        %>
-      </td>
-    <% end %>
     <td class="lid <%= ' section' if line.violations? -%>" id="L<%= index+1 -%>"><a name="L<%= index+1 -%>" href="#L<%= index+1 -%>"><%= index + 1 -%></a></td>
 
     <% if @display_coverage  %>
@@ -96,7 +83,14 @@
         <% end %>
       </td>
     <% end %>
-    <td class="line <%= status -%>"><pre><%= line.source -%></pre></td>
+    <td class="line <%= status -%>">
+      <pre><%= line.source -%></pre>
+      <% if @display_violations && line.violations? %>
+        <% line.violations.each do |violation| %>
+          <%= render :partial => 'violation', :locals => {:violation => violation} -%>
+        <% end %>
+      <% end %>
+    </td>
   </tr>
   <% end %>
 </table>

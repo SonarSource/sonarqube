@@ -656,13 +656,11 @@ ul.operations li a {
 .sources2 span.author, .sources2 span.author a {
   font-size: 85%;
 }
-.sources2 td.rule {
-  padding: 1px 0.5em;
-  border-left: 1px solid #DDDDDD;
-}
-.sources2 td.violations {
-  background-color: #ECECEC;
-  min-width: 450px;
+.sources2 div.violation {
+  padding: 3px 0.5em;
+  border: 1px solid #DDDDDD;
+  background-color: #EFEFEF;
+  margin: 5px 10px;
 }
 span.rulename, span.rulename a {
   color: #4183C4;
@@ -675,15 +673,17 @@ span.violation_date {
 span.rulename a:hover {
   text-decoration: underline;
 }
-.sources2 td.violations img {
+.sources2 div.violation img {
   vertical-align: sub;
 }
 .sources2 td.line {
-  padding-left: 1em;
   width: 100%;
+  border-right: 1px solid #DDD;
+}
+.sources2 td.line pre {
   font-size: 12px;
   font-family: monospace;
-  border-right: 1px solid #DDD;
+  margin-left: 1em;
 }
 .sources2 td.section {
   border-top: 1px solid #DDD;
@@ -748,8 +748,11 @@ span.rulename a:hover {
   margin-bottom: 10px;
   color: #444;
 }
-.tab_header table.col {
-  margin-right: 20px;
+.tab_header .col {
+  vertical-align:top;
+}
+.tab_header table.metrics {
+  margin-right: 10px;
   display: inline-block;
   vertical-align: top;
 }
@@ -758,15 +761,17 @@ span.rulename a:hover {
   display: inline-block;
   vertical-align: bottom;
 }
-.tab_header table.col td, .tab_header table.bottomcol td {
+.tab_header table.metrics td, .tab_header table.bottomcol td {
   padding-right: 7px;
 }
 .tab_header td.name {
   font-weight: bold;
   text-align: left;
+  white-space: nowrap;
 }
 .tab_header td.value {
   text-align: right;
+  white-space: nowrap;
 }
 #source_options {
   margin-top: 5px;
