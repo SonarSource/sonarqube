@@ -25,7 +25,7 @@ class DrilldownController < ApplicationController
   SECTION=Navigation::SECTION_RESOURCE
 
   def measures
-    @metric = select_metric(params[:metric], Metric::NCLOC)
+    @metric = select_metric(params[:metric], 'ncloc')
     @highlighted_metric = Metric.by_key(params[:highlight]) || @metric
 
     # selected resources
@@ -120,7 +120,6 @@ class DrilldownController < ApplicationController
     @project = project_key ? Project.by_key(project_key) : nil
     if @project.nil?
       render :text => "Project [#{project_key}] not found", :status => 404
-      return
     end
   end
 

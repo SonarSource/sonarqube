@@ -199,7 +199,6 @@ module ApplicationHelper
   # * <tt>:resource</tt> - id or key of the selected resource
   # * <tt>:highlight</tt> - key of the metric to highlight, different than the metric to drilldown.
   # * <tt>:period</tt> - period index
-  # * <tt>:only_periods</tt> - true if only v
   #
   # === Examples
   #

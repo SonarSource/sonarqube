@@ -44,20 +44,20 @@
             <% if new_lines.to_i>0 %>
               <% if new_coverage %>
                 <p>
-                  <span class="big"><a href="<%= url_for_drilldown('new_coverage', :period => dashboard_configuration.period_index, :only_periods => true) -%>"><%= new_coverage.format_numeric_value(variation_value(new_coverage))||'-' -%></a></span> coverage
+                  <span class="big"><a href="<%= url_for_drilldown('new_coverage', :period => dashboard_configuration.period_index) -%>"><%= new_coverage.format_numeric_value(variation_value(new_coverage))||'-' -%></a></span> coverage
                 </p>
               <% end %>
               <p>
-                <%= new_lines.to_i -%> new lines to cover
+                <a href="<%= url_for_drilldown('new_lines_to_cover', :period => dashboard_configuration.period_index) -%>"><%= new_lines.to_i -%></a> new lines to cover
               </p>
               <% if new_line_coverage %>
                 <p>
-                  <a href="<%= url_for_drilldown('new_uncovered_lines', :highlight => 'new_line_coverage', :period => dashboard_configuration.period_index, :only_periods => true) -%>"><%= new_line_coverage.format_numeric_value(variation_value(new_line_coverage))||'-' -%></a> line coverage
+                  <a href="<%= url_for_drilldown('new_uncovered_lines', :highlight => 'new_line_coverage', :period => dashboard_configuration.period_index) -%>"><%= new_line_coverage.format_numeric_value(variation_value(new_line_coverage))||'-' -%></a> line coverage
                 </p>
               <% end %>
               <% if new_branch_coverage %>
                 <p>
-                  <a href="<%= url_for_drilldown('new_uncovered_conditions', :highlight => 'new_branch_coverage', :period => dashboard_configuration.period_index, :only_periods => true) -%>"><%= new_branch_coverage.format_numeric_value(variation_value(new_branch_coverage))||'-' -%></a> branch coverage
+                  <a href="<%= url_for_drilldown('new_uncovered_conditions', :highlight => 'new_branch_coverage', :period => dashboard_configuration.period_index) -%>"><%= new_branch_coverage.format_numeric_value(variation_value(new_branch_coverage))||'-' -%></a> branch coverage
                 </p>
               <%
                  end

@@ -18,10 +18,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class Drilldown
-  attr_reader :snapshot, :columns
+  attr_reader :snapshot, :columns, :metric
 
   def initialize(resource, metric, selected_resource_ids, options={})
     @snapshot=Snapshot.find(:first, :conditions => {:islast => true, :project_id => resource.id}, :include => [:project])
+    @metric=metric
     @columns=[]
 
     column=nil
@@ -35,6 +36,14 @@ class Drilldown
 
   def highlighted_resource
     @highlighted_resource
+  end
+
+  def display_value?
+    ProjectMeasure.exists?(["snapshot_id=? and metric_id=? and value is not null", @snapshot.id, @metric.id])
+  end
+
+  def display_period?(period_index)
+    ProjectMeasure.exists?(["snapshot_id=? and metric_id=? and variation_value_#{period_index.to_i} is not null", @snapshot.id, @metric.id])
   end
 end
 

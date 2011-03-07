@@ -264,7 +264,8 @@ public final class CoreMetrics {
   public static final String NEW_LINES_TO_COVER_KEY = "new_lines_to_cover";
   public static final Metric NEW_LINES_TO_COVER = new Metric.Builder(NEW_LINES_TO_COVER_KEY, "New lines to cover", Metric.ValueType.INT)
       .setDescription("New lines to cover")
-      .setDirection(Metric.DIRECTION_BETTER)
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
       .setDomain(DOMAIN_TESTS)
       .setFormula(new SumChildValuesFormula(false))
       .setHidden(true)
