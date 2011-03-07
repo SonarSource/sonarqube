@@ -4,6 +4,9 @@
 <script>
   /* display resource */
   function d(resourceId) {
+    var loading = new Image();
+    loading.src = "<%= ApplicationController.root_context-%>/images/loading.gif";
+    $('resource_container').update(loading);
     new Ajax.Updater('resource_container', '<%= ApplicationController.root_context-%>/resource/index/' + resourceId + '?metric=<%= @metric.id if @metric -%>&rule=<%= @rule ? @rule.id : params[:priority] -%>&period=<%= @period -%>', {asynchronous:true, evalScripts:true});
     return false;
   }
