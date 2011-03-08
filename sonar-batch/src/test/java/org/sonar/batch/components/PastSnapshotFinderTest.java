@@ -81,7 +81,7 @@ public class PastSnapshotFinderTest {
   public void shouldFindByDate() throws ParseException {
     final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     final Date date = format.parse("2010-05-18");
-    when(finderByDate.findByDate(null, date)).thenReturn(new PastSnapshot("date", new Snapshot()));
+    when(finderByDate.findByDate(null, date)).thenReturn(new PastSnapshot("date", date, new Snapshot()));
 
     PastSnapshot variationSnapshot = finder.find(null, 2, "2010-05-18");
 
@@ -115,7 +115,7 @@ public class PastSnapshotFinderTest {
     final Date date = format.parse("2010-05-18");
     Snapshot snapshot = new Snapshot();
     snapshot.setCreatedAt(date);
-    when(finderByPreviousAnalysis.findByPreviousAnalysis(null)).thenReturn(new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, snapshot));
+    when(finderByPreviousAnalysis.findByPreviousAnalysis(null)).thenReturn(new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, date, snapshot));
 
     PastSnapshot variationSnapshot = finder.find(null, 2, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
 
@@ -138,7 +138,7 @@ public class PastSnapshotFinderTest {
 
   @Test
   public void shouldFindByVersion() {
-    when(finderByVersion.findByVersion(null, "1.2")).thenReturn(new PastSnapshot("version", new Snapshot()));
+    when(finderByVersion.findByVersion(null, "1.2")).thenReturn(new PastSnapshot("version", new Date(), new Snapshot()));
 
     PastSnapshot variationSnapshot = finder.find(null, 2, "1.2");
 
@@ -160,7 +160,7 @@ public class PastSnapshotFinderTest {
 
   @Test
   public void shouldNotFailIfUnknownFormat() {
-    when(finderByPreviousAnalysis.findByPreviousAnalysis(null)).thenReturn(new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, new Snapshot())); // should not be called
+    when(finderByPreviousAnalysis.findByPreviousAnalysis(null)).thenReturn(new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, new Date(), new Snapshot())); // should not be called
     assertNull(finder.find(null, 2, "foooo"));
   }
 

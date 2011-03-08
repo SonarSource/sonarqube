@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.Logs;
 
@@ -56,9 +57,9 @@ public class TimeMachineConfiguration implements BatchExtension {
   }
 
   private void log(PastSnapshot pastSnapshot) {
-    String qualifier = pastSnapshot.getProjectSnapshot().getQualifier();
+    String qualifier = pastSnapshot.getQualifier();
     // hack to avoid too many logs when the views plugin is installed
-    if (StringUtils.equals(Resource.QUALIFIER_VIEW, qualifier) || StringUtils.equals(Resource.QUALIFIER_SUBVIEW, qualifier)) {
+    if (StringUtils.equals(Qualifiers.VIEW, qualifier) || StringUtils.equals(Qualifiers.SUBVIEW, qualifier)) {
       LoggerFactory.getLogger(getClass()).debug(pastSnapshot.toString());
     } else {
       Logs.INFO.info(pastSnapshot.toString());

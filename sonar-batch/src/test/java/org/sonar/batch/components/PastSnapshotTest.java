@@ -32,25 +32,25 @@ public class PastSnapshotTest {
 
   @Test
   public void testToStringForVersion() {
-    PastSnapshot pastSnapshot = new PastSnapshot(PastSnapshotFinderByVersion.MODE, new Snapshot()).setModeParameter("2.3");
+    PastSnapshot pastSnapshot = new PastSnapshot(PastSnapshotFinderByVersion.MODE, new Date()).setModeParameter("2.3");
     assertThat(pastSnapshot.toString(), startsWith("Compare to version 2.3"));
   }
 
   @Test
   public void testToStringForNumberOfDays() {
-    PastSnapshot pastSnapshot = new PastSnapshot(PastSnapshotFinderByDays.MODE, new Snapshot()).setModeParameter("30");
+    PastSnapshot pastSnapshot = new PastSnapshot(PastSnapshotFinderByDays.MODE, new Date()).setModeParameter("30");
     assertThat(pastSnapshot.toString(), startsWith("Compare over 30 days"));
   }
 
   @Test
   public void testToStringForDate() {
-    PastSnapshot pastSnapshot = new PastSnapshot(PastSnapshotFinderByDate.MODE, new Snapshot()).setTargetDate(new Date());
+    PastSnapshot pastSnapshot = new PastSnapshot(PastSnapshotFinderByDate.MODE, new Date());
     assertThat(pastSnapshot.toString(), startsWith("Compare to date "));
   }
 
   @Test
   public void testToStringForPreviousAnalysis() {
-    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, new Snapshot()).setTargetDate(new Date());
+    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, new Date(), new Snapshot().setCreatedAt(new Date()));
     assertThat(pastSnapshot.toString(), startsWith("Compare to previous analysis"));
   }
 }

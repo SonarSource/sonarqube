@@ -23,7 +23,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
 
 import java.util.Date;
 import java.util.List;
@@ -45,12 +45,8 @@ public class PastSnapshotFinderByDays implements BatchExtension {
         .setParameter("date", projectSnapshot.getCreatedAt())
         .setParameter("resourceId", projectSnapshot.getResourceId())
         .setParameter("status", Snapshot.STATUS_PROCESSED)
-        .setParameter("lib", Project.QUALIFIER_LIB)
+        .setParameter("lib", Qualifiers.LIBRARY)
         .getResultList();
-
-    if (snapshots.isEmpty()) {
-      return null;
-    }
 
     Snapshot snapshot = getNearestToTarget(snapshots, targetDate);
     return new PastSnapshot(MODE, targetDate, snapshot).setModeParameter(String.valueOf(days));

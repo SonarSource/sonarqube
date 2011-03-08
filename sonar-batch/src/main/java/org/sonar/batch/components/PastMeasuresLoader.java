@@ -62,7 +62,7 @@ public class PastMeasuresLoader implements BatchExtension {
   }
 
   public List<MeasureModel> getPastMeasures(Resource resource, Snapshot projectSnapshot) {
-    if (isPersisted(resource)) {
+    if (isPersisted(resource) && projectSnapshot!=null) {
       return getPastMeasures(resource.getId(), projectSnapshot);
     }
     return Collections.emptyList();

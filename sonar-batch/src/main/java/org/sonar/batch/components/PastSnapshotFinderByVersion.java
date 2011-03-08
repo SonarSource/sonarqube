@@ -22,7 +22,7 @@ package org.sonar.batch.components;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
 
 import java.util.List;
 
@@ -42,7 +42,7 @@ public class PastSnapshotFinderByVersion implements BatchExtension {
         .setParameter("version", version)
         .setParameter("resourceId", projectSnapshot.getResourceId())
         .setParameter("status", Snapshot.STATUS_PROCESSED)
-        .setParameter("lib", Project.QUALIFIER_LIB)
+        .setParameter("lib", Qualifiers.LIBRARY)
         .setMaxResults(1)
         .getResultList();
 

@@ -66,7 +66,7 @@ public class PastSnapshotFinderByDaysTest extends AbstractDbUnitTestCase {
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1009); // 2008-11-16
     PastSnapshotFinderByDays finder = new PastSnapshotFinderByDays(getSession());
 
-    assertThat(finder.findFromDays(projectSnapshot, 1), nullValue());
+    assertThat(finder.findFromDays(projectSnapshot, 1).getProjectSnapshot(), nullValue());
   }
 
   @Test

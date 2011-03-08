@@ -22,7 +22,8 @@ package org.sonar.batch.components;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.DateUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -39,20 +40,25 @@ public class PastSnapshotFinderByDate implements BatchExtension {
   }
 
   PastSnapshot findByDate(Snapshot projectSnapshot, Date date) {
+    Snapshot snapshot = null;
+    if (projectSnapshot != null) {
+      snapshot = findSnapshot(projectSnapshot, date);
+    }
+    SimpleDateFormat format = new SimpleDateFormat(DateUtils.DATE_FORMAT);
+    return new PastSnapshot(MODE, date, snapshot).setModeParameter(format.format(date));
+  }
+
+
+  private Snapshot findSnapshot(Snapshot projectSnapshot, Date date) {
     String hql = "from " + Snapshot.class.getSimpleName() + " where createdAt>=:date AND resourceId=:resourceId AND status=:status AND qualifier<>:lib order by createdAt asc";
     List<Snapshot> snapshots = session.createQuery(hql)
         .setParameter("date", date)
         .setParameter("resourceId", projectSnapshot.getResourceId())
         .setParameter("status", Snapshot.STATUS_PROCESSED)
-        .setParameter("lib", Project.QUALIFIER_LIB)
+        .setParameter("lib", Qualifiers.LIBRARY)
         .setMaxResults(1)
         .getResultList();
-    if (snapshots.isEmpty()) {
-      return null;
-    }
 
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    return new PastSnapshot(MODE, date, snapshots.get(0)).setModeParameter(format.format(date));
+    return (snapshots.isEmpty() ? null : snapshots.get(0));
   }
-
 }

@@ -24,6 +24,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.DateUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -51,7 +52,7 @@ public class PastSnapshotFinderByPreviousAnalysis implements BatchExtension {
       return null;
     }
     Snapshot snapshot = snapshots.get(0);
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    SimpleDateFormat format = new SimpleDateFormat(DateUtils.DATE_FORMAT);
     return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, snapshot.getCreatedAt(), snapshot).setModeParameter(format.format(snapshot.getCreatedAt()));
   }
 
