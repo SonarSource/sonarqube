@@ -106,9 +106,9 @@ class RulesConfigurationController < ApplicationController
       if priority.blank?
         # deactivate the rule
         if active_rule
+          java_facade.ruleDeactivated(profile.id, active_rule.id, current_user.login)
           active_rule.destroy
           active_rule=nil
-          java_facade.ruleDeactivated(profile.id, rule.id, current_user.login)
         end
       else
         # activate the rule

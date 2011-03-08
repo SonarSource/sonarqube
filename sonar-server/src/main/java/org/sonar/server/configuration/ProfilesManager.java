@@ -181,12 +181,12 @@ public class ProfilesManager extends BaseDao {
   /**
    * Rule was deactivated in parent profile.
    */
-  public void deactivated(int parentProfileId, int ruleId, String userLogin) {
-    Rule rule = getSession().getEntity(Rule.class, ruleId);
+  public void deactivated(int parentProfileId, int deactivatedRuleId, String userLogin) {
+    ActiveRule parentActiveRule = getSession().getEntity(ActiveRule.class, deactivatedRuleId);
     RulesProfile profile = getSession().getEntity(RulesProfile.class, parentProfileId);
-    ruleDisabled(profile, rule, userLogin);
+    ruleDisabled(profile, parentActiveRule, userLogin);
     for (RulesProfile child : getChildren(parentProfileId)) {
-      deactivate(child, rule, userLogin);
+      deactivate(child, parentActiveRule.getRule(), userLogin);
     }
     getSession().commit();
   }
@@ -306,10 +306,19 @@ public class ProfilesManager extends BaseDao {
   /**
    * Deal with creation of ActiveRuleChange item when a rule is disabled on a profile
    */
-  private void ruleDisabled(RulesProfile profile, Rule rule, String userLogin) {
+  private void ruleDisabled(RulesProfile profile, ActiveRule disabledRule, String userLogin) {
     incrementProfileVersionIfNeeded(profile);
-    ActiveRuleChange rc = new ActiveRuleChange(userLogin, profile, rule);
+    ActiveRuleChange rc = new ActiveRuleChange(userLogin, profile, disabledRule.getRule());
     rc.setEnabled(false);
+    rc.setOldSeverity(disabledRule.getSeverity());
+    if (disabledRule.getRule().getParams() != null) {
+      for (RuleParam p : disabledRule.getRule().getParams()) {
+        String oldParam = disabledRule.getParameter(p.getKey());
+        if (oldParam != null) {
+          rc.setParameterChange(p.getKey(), oldParam, null);
+        }
+      }
+    }
     getSession().saveWithoutFlush(rc);
   }
 
@@ -346,8 +355,8 @@ public class ProfilesManager extends BaseDao {
     ActiveRule activeRule = profile.getActiveRule(rule);
     if (activeRule != null) {
       if (activeRule.isInherited()) {
+        ruleDisabled(profile, activeRule, userLogin);
         removeActiveRule(profile, activeRule);
-        ruleDisabled(profile, activeRule.getRule(), userLogin);
       } else {
         activeRule.setInheritance(null);
         getSession().saveWithoutFlush(activeRule);

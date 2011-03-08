@@ -29,7 +29,7 @@
         %> 
     <tr class="<%= cycle 'even', 'odd', :name => change.profile_version -%>">
       <td valign="top"><%=case change.enabled
-                when true then "Added"
+                when true then "Enabled"
                 when false then "Disabled"
                 when nil then "Modified"
              end%></td>
@@ -37,22 +37,34 @@
       <td valign="top"><%=change.change_date.strftime("%Y-%m-%d %H:%M:%S")%></td>
       <td valign="top"><%=change.rule.name%></td>
       <td valign="top">
-        <% if change.old_severity %>
-           <%= change.old_severity_text %> =>
-        <% end %>
-        <% if change.new_severity %>
-           <%= change.new_severity_text %>
-           <% if change.parameters.size > 0 %>
-             <br/>
-           <% end %>
+        <% if change.old_severity
+             if change.new_severity %>
+            Severity changed from <i><%= change.old_severity_text %></i> to
+          <% else %>
+            Severity was <i><%= change.old_severity_text %></i>
+          <% end
+           end %>
+        <% if change.new_severity 
+             if change.old_severity %>
+           <i><%= change.new_severity_text %></i>
+          <% else %>
+           Severity set to <i><%= change.new_severity_text %></i>
+          <% end
+           end %>
+        <% if (change.old_severity or change.new_severity) and change.parameters.size > 0 %>
+          <br/>
         <% end %>
         <% change.parameters.each do |param_change| %>
           Parameter <i><%=param_change.name %></i>
           <% if not param_change.old_value %>
              set to <i><%= param_change.new_value %></i>
-          <% elsif not param_change.new_value %>
-             reset to default value (was <i><%= param_change.old_value %></i>)
-          <% else %>
+          <% elsif not param_change.new_value 
+               if change.enabled == false %>
+                 was <i><%= param_change.old_value %></i>
+            <% else %>
+                 reset to default value (was <i><%= param_change.old_value %></i>)
+            <% end
+             else %>
              changed from <i><%= param_change.old_value %></i> to <i><%= param_change.new_value %></i>
           <% end %>
           <%= "<br/>" unless param_change == change.parameters.last %>

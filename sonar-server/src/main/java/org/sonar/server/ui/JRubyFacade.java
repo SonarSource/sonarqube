@@ -220,8 +220,8 @@ public final class JRubyFacade implements ServerComponent {
         RulePriority.values()[newSeverityId], userLogin);
   }
 
-  public void ruleDeactivated(int parentProfileId, int ruleId, String userLogin) {
-    getProfilesManager().deactivated(parentProfileId, ruleId, userLogin);
+  public void ruleDeactivated(int parentProfileId, int deactivatedRuleId, String userLogin) {
+    getProfilesManager().deactivated(parentProfileId, deactivatedRuleId, userLogin);
   }
 
   public void revertRule(int profileId, int activeRuleId, String userLogin) {
