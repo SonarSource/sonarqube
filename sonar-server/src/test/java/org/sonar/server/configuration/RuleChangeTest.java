@@ -63,7 +63,7 @@ public class RuleChangeTest extends AbstractDbUnitTestCase {
   @Test
   public void testRuleDeactivated() {
     setupData("initialData");
-    profilesManager.deactivated(2, 2, "admin");
+    profilesManager.deactivated(2, 3, "admin");
     checkTables("ruleDeactivated", new String[] {"change_date"}, "active_rule_changes");
   }
 
