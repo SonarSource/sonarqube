@@ -19,6 +19,11 @@
  */
 package org.sonar.api.resources;
 
+import com.google.common.collect.Lists;
+
+import java.util.Collection;
+import java.util.List;
+
 /**
  * @TODO Actually this class incorrectly named, because provides information not about project, but about Java project.
  *       And seems that only core plugins use this class.
@@ -51,5 +56,16 @@ public final class ProjectUtils {
       return project.getConfiguration().getString("sonar.java.source");
     }
     return null;
+  }
+
+  /**
+   * @since 2.7
+   */
+  public static List<java.io.File> toIoFiles(Collection<InputFile> inputFiles) {
+    List<java.io.File> files = Lists.newArrayList();
+    for (InputFile inputFile : inputFiles) {
+      files.add(inputFile.getFile());
+    }
+    return files;
   }
 }
