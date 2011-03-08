@@ -19,10 +19,51 @@
  */
 package org.sonar.api.utils;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * @since 2.7
  */
-public interface DateUtils {
-  String DATE_FORMAT = "yyyy-MM-dd";
-  String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
+public final class DateUtils {
+  public static final String DATE_FORMAT = "yyyy-MM-dd";
+  public static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
+
+  /**
+   * This method is not optimized. The DateFormat instance is created each time. Please use it sporadically.
+   */
+  public static String formatDate(Date d) {
+    return new SimpleDateFormat(DATE_FORMAT).format(d);
+  }
+
+  /**
+   * This method is not optimized. The DateFormat instance is created each time. Please use it sporadically.
+   */
+  public static String formatDateTime(Date d) {
+    return new SimpleDateFormat(DATETIME_FORMAT).format(d);
+  }
+
+  /**
+   * This method is not optimized. The DateFormat instance is created each time. Please use it sporadically.
+   */
+  public static Date parseDate(String s) {
+    return parse(s, DATE_FORMAT);
+  }
+
+  /**
+   * This method is not optimized. The DateFormat instance is created each time. Please use it sporadically.
+   */
+  public static Date parseDateTime(String s) {
+    return parse(s, DATETIME_FORMAT);
+  }
+
+  private static Date parse(String s, String format) {
+    try {
+      return new SimpleDateFormat(format).parse(s);
+
+    } catch (ParseException e) {
+      throw new SonarException("The date '" + s + "' does not respect format '" + format + "'");
+    }
+  }
 }
