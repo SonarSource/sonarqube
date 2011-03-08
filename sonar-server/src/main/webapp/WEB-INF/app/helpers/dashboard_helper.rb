@@ -37,4 +37,38 @@ module DashboardHelper
       nil
     end
   end
+
+  def violation_period_select_options(snapshot, index)
+    return nil if snapshot.nil? || snapshot.project_snapshot.nil?
+    mode=snapshot.project_snapshot.send "period#{index}_mode"
+    mode_param=snapshot.project_snapshot.send "period#{index}_param"
+    date=snapshot.project_snapshot.send "period#{index}_date"
+
+    if mode
+      if mode=='days'
+        label = "Added over %s days" % mode_param
+      elsif mode=='version'
+        label = "Added since version %s" % mode_param
+      elsif mode=='previous_analysis'
+        label = "Added since previous analysis (%s)" % date.strftime("%Y %b. %d")
+      elsif mode=='date'
+        label = "Added since #{date.strftime("%Y %b %d")}"
+      end
+      if label
+        selected=(params[:period]==index.to_s ? 'selected' : '')
+        "<option value='#{index}' #{selected}>#{label}</option>"
+      end
+    else
+      nil
+    end
+
+  end
+
+  def measure_or_variation_value(measure)
+    if measure
+      @period_index ? measure.variation(@period_index) : measure.value
+    else
+      nil
+    end
+  end
 end

@@ -470,7 +470,11 @@ module ApplicationHelper
       index = @dashboard_configuration.period_index
     end
 
-    m.variation(index)
+    if m
+      m.variation(index)||options[:default]
+    else
+      options[:default]
+    end
   end
 
 
@@ -521,6 +525,8 @@ module ApplicationHelper
         end
         html="<span class='#{css_class}'>#{formatted_val}</span>"
       end
+    else
+      html = options[:default].to_s
     end
     html
   end

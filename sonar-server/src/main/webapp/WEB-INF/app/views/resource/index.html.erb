@@ -64,7 +64,7 @@
     <% if @display_scm
          if current_revision!=line.revision
            current_revision=line.revision
-           title = "Revision #{h(line.revision)} (#{l(line.datetime)})"
+           title = "Revision #{h(line.revision)} » #{l(line.datetime) if line.datetime}"
     %>
             <td class="scm revision"><span class="date"><a href="#" title="<%= title -%>" alt="<%= title -%>"><%= l(line.date) -%></a></span> <span class="author"><%= h(line.author) -%></span></td>
     <%   else %>

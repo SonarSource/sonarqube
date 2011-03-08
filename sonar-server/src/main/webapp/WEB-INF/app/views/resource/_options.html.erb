@@ -40,7 +40,7 @@
       <%   first=false
          end %>
       
-      <% if @snapshot.project_snapshot.periods? %>
+      <% if @snapshot.project_snapshot.periods? && !@display_violations %>
         <td class="<%= 'first' if first -%>">
           <select id="period" name="period" onchange="applyOptions()">
             <option value="">Time changes...</option>
@@ -56,6 +56,17 @@
          end %>
 
       <% if @display_violations %>
+        <td class="<%= 'first' if first -%>">
+          <select id="period" name="period" onchange="applyOptions()">
+            <option value="">Time changes...</option>
+            <%= violation_period_select_options(@snapshot, 1) -%>
+            <%= violation_period_select_options(@snapshot, 2) -%>
+            <%= violation_period_select_options(@snapshot, 3) -%>
+            <%= violation_period_select_options(@snapshot, 4) -%>
+            <%= violation_period_select_options(@snapshot, 5) -%>
+          </select>
+        </td>
+
         <td class="<%= 'first' if first -%>"><%= render :partial => 'rules_filter' -%></td>
       <% end %>
       </tr>

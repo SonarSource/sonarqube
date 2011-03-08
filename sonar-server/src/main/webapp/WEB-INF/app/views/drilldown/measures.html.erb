@@ -13,7 +13,7 @@
         <option value="">Time changes...</option>
         <% end %>
         <% for period_index in 1..5 do %>
-          <%= period_select_options(@snapshot, 1) if @drilldown.display_period?(period_index) -%>
+          <%= period_select_options(@snapshot, period_index) if @drilldown.display_period?(period_index) -%>
         <% end %>
     </select>
     </form>

@@ -1,8 +1,8 @@
 <tr class="<%= css -%> <%= 'selected' if Sonar::RulePriority.to_s(priority_id)==params[:priority] -%>">
 	<td><%= image_tag "priority/#{priority_id}.png" %></td>
-  <td><%= link_to label, {:controller => 'drilldown', :action => 'violations', :id => @project.id, :priority => Sonar::RulePriority.to_s(priority_id), :period => @period_index} %></td>
+  <td><%= link_to label, {:controller => 'drilldown', :action => 'violations', :id => @project.id, :priority => Sonar::RulePriority.to_s(priority_id), :period => @period} %></td>
   <td style="padding-left: 10px;" align="right">
-	  <%= @period_index ? format_variation(measure, :index => @period_index, :style => 'light') : format_measure(measure) -%>
+	  <%= @period ? format_variation(measure, :index => @period, :style => 'light') : format_measure(measure) -%>
   </td>
   <td align="left">
     <% value = measure_or_variation_value(measure) %>

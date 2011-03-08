@@ -12,11 +12,11 @@
 - <form method="GET" action="<%= url_for :only_path=>true, :overwrite_params => {:period => nil} -%>" style="display: inline">
     <select id="select-comparison" name="period" onchange="submit()" class="small">
       <option value="">Time changes...</option>
-      <%= period_select_options(@snapshot, 1) -%>
-      <%= period_select_options(@snapshot, 2) -%>
-      <%= period_select_options(@snapshot, 3) -%>
-      <%= period_select_options(@snapshot, 4) -%>
-      <%= period_select_options(@snapshot, 5) -%>
+      <%= violation_period_select_options(@snapshot, 1) -%>
+      <%= violation_period_select_options(@snapshot, 2) -%>
+      <%= violation_period_select_options(@snapshot, 3) -%>
+      <%= violation_period_select_options(@snapshot, 4) -%>
+      <%= violation_period_select_options(@snapshot, 5) -%>
     </select>
   </form>
 <% end %>

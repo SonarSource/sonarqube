@@ -20,7 +20,7 @@
 class DrilldownController < ApplicationController
   before_filter :init_project
 
-  helper ProjectHelper
+  helper ProjectHelper, DashboardHelper
 
   SECTION=Navigation::SECTION_RESOURCE
 

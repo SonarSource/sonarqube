@@ -171,8 +171,8 @@ class ResourceController < ApplicationController
     if @period
       date=@snapshot.period_datetime(@period)
       if date
-        conditions+=' AND created_at>=?'
-        values<<date
+        conditions+=' AND created_at>?'
+        values<<date.advance(:minutes => 1)
       else
         conditions+=' AND id=-1'
       end
@@ -213,10 +213,10 @@ class ResourceController < ApplicationController
   
   def filter_lines_by_date
     if @period
-      date=@snapshot.period_datetime(@period)
-      if date
+      to=@snapshot.period_datetime(@period)
+      if to
         @lines.each do |line|
-          line.hidden=true if line.datetime==nil || line.datetime<date
+          line.hidden=true if line.datetime==nil || line.datetime<to
         end
       end
     end
