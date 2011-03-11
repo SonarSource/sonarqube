@@ -81,7 +81,7 @@ public class CpdAnalyser {
             continue;
           }
 
-          processClassMeasure(duplicationsData, firstFile, firstLine, secondFile, secondLine, match.getLineCount());
+          processClassMeasure(duplicationsData, firstFile, firstLine, secondFile, secondLine, match.getLineCount(), match);
         }
       }
     }
@@ -92,21 +92,21 @@ public class CpdAnalyser {
   }
 
   private void processClassMeasure(Map<Resource, DuplicationsData> fileContainer, Resource file, int duplicationStartLine,
-      Resource targetFile, int targetDuplicationStartLine, int duplicatedLines) {
+      Resource targetFile, int targetDuplicationStartLine, int duplicatedLines, Match match) {
     if (file != null && targetFile != null) {
       DuplicationsData data = fileContainer.get(file);
       if (data == null) {
         data = new DuplicationsData(file, context);
         fileContainer.put(file, data);
       }
-      data.cumulate(targetFile, targetDuplicationStartLine, duplicationStartLine, duplicatedLines);
+      data.cumulate(targetFile, targetDuplicationStartLine, duplicationStartLine, duplicatedLines, match);
     }
   }
 
   private static final class DuplicationsData {
 
     protected Set<Integer> duplicatedLines = new HashSet<Integer>();
-    protected double duplicatedBlocks;
+    protected Set<Match> duplicatedBlocks = new HashSet<Match>();
     protected Resource resource;
     private SensorContext context;
     private List<StringBuilder> duplicationXMLEntries = new ArrayList<StringBuilder>();
@@ -116,11 +116,12 @@ public class CpdAnalyser {
       this.resource = resource;
     }
 
-    protected void cumulate(Resource targetResource, int targetDuplicationStartLine, int duplicationStartLine, int duplicatedLines) {
+    protected void cumulate(Resource targetResource, int targetDuplicationStartLine, int duplicationStartLine, int duplicatedLines,
+        Match match) {
       StringBuilder xml = new StringBuilder();
-      xml.append("<duplication lines=\"").append(duplicatedLines).append("\" start=\"").append(duplicationStartLine).append(
-          "\" target-start=\"").append(targetDuplicationStartLine).append("\" target-resource=\"").append(
-          context.saveResource(targetResource)).append("\"/>");
+      xml.append("<duplication lines=\"").append(duplicatedLines).append("\" start=\"").append(duplicationStartLine)
+          .append("\" target-start=\"").append(targetDuplicationStartLine).append("\" target-resource=\"")
+          .append(context.saveResource(targetResource)).append("\"/>");
 
       duplicationXMLEntries.add(xml);
 
@@ -128,13 +129,13 @@ public class CpdAnalyser {
       for (int duplicatedLine = duplicationStartLine; duplicatedLine < duplicationStartLine + duplicatedLines; duplicatedLine++) {
         this.duplicatedLines.add(duplicatedLine);
       }
-      this.duplicatedBlocks++;
+      duplicatedBlocks.add(match);
     }
 
     protected void saveUsing(SensorContext context) {
       context.saveMeasure(resource, CoreMetrics.DUPLICATED_FILES, 1d);
       context.saveMeasure(resource, CoreMetrics.DUPLICATED_LINES, (double) duplicatedLines.size());
-      context.saveMeasure(resource, CoreMetrics.DUPLICATED_BLOCKS, duplicatedBlocks);
+      context.saveMeasure(resource, CoreMetrics.DUPLICATED_BLOCKS, (double) duplicatedBlocks.size());
       context.saveMeasure(resource, new Measure(CoreMetrics.DUPLICATIONS_DATA, getDuplicationXMLData()));
     }
 

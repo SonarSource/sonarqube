@@ -194,7 +194,7 @@ public class CpdAnalyserTest {
     cpdAnalyser.analyse(Arrays.asList(match).iterator());
 
     verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_FILES, 1d);
-    verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_BLOCKS, 3d);
+    verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_BLOCKS, 1d);
     verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_LINES, 200d);
     verify(context).saveMeasure(
         eq(resource1),
@@ -205,7 +205,7 @@ public class CpdAnalyserTest {
 
     verify(context).saveMeasure(resource3, CoreMetrics.DUPLICATED_FILES, 1d);
     verify(context).saveMeasure(resource3, CoreMetrics.DUPLICATED_LINES, 200d);
-    verify(context).saveMeasure(resource3, CoreMetrics.DUPLICATED_BLOCKS, 3d);
+    verify(context).saveMeasure(resource3, CoreMetrics.DUPLICATED_BLOCKS, 1d);
     verify(context).saveMeasure(
         eq(resource2),
         argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA, "<duplications>"
@@ -215,7 +215,7 @@ public class CpdAnalyserTest {
 
     verify(context).saveMeasure(resource2, CoreMetrics.DUPLICATED_FILES, 1d);
     verify(context).saveMeasure(resource2, CoreMetrics.DUPLICATED_LINES, 200d);
-    verify(context).saveMeasure(resource2, CoreMetrics.DUPLICATED_BLOCKS, 3d);
+    verify(context).saveMeasure(resource2, CoreMetrics.DUPLICATED_BLOCKS, 1d);
     verify(context).saveMeasure(
         eq(resource3),
         argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA, "<duplications>"
@@ -225,7 +225,7 @@ public class CpdAnalyserTest {
 
     verify(context).saveMeasure(resource4, CoreMetrics.DUPLICATED_LINES, 200d);
     verify(context).saveMeasure(resource4, CoreMetrics.DUPLICATED_FILES, 1d);
-    verify(context).saveMeasure(resource4, CoreMetrics.DUPLICATED_BLOCKS, 3d);
+    verify(context).saveMeasure(resource4, CoreMetrics.DUPLICATED_BLOCKS, 1d);
     verify(context).saveMeasure(
         eq(resource4),
         argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA, "<duplications>"
@@ -261,18 +261,17 @@ public class CpdAnalyserTest {
     cpdAnalyser.analyse(Arrays.asList(match1).iterator());
 
     verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_FILES, 1d);
-    verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_BLOCKS, 2d);
     verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_LINES, 400d);
+    verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_BLOCKS, 1d);
     verify(context).saveMeasure(
         eq(resource1),
         argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA, "<duplications>"
-            + "<duplication lines=\"200\" start=\"5\" target-start=\"215\" target-resource=\"key1\"/>" 
-            + "<duplication lines=\"200\" start=\"215\" target-start=\"5\" target-resource=\"key1\"/>"
-            + "</duplications>")));
-    
+            + "<duplication lines=\"200\" start=\"5\" target-start=\"215\" target-resource=\"key1\"/>"
+            + "<duplication lines=\"200\" start=\"215\" target-start=\"5\" target-resource=\"key1\"/>" + "</duplications>")));
+
     verify(context, atLeastOnce()).saveResource(resource1);
   }
-  
+
   private static TokenEntry createTokenEntry(String sourceId, int line) {
     TokenEntry entry = new TokenEntry(null, sourceId, line);
     entry.setHashCode(sourceId.hashCode() + line);
