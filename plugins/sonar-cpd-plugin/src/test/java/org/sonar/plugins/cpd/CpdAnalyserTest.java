@@ -262,7 +262,7 @@ public class CpdAnalyserTest {
 
     verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_FILES, 1d);
     verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_LINES, 400d);
-    verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_BLOCKS, 1d);
+    verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_BLOCKS, 2d);
     verify(context).saveMeasure(
         eq(resource1),
         argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA, "<duplications>"

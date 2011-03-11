@@ -69,6 +69,9 @@ public class CpdAnalyser {
           continue;
         }
 
+        DuplicationsData firstFileData = getDuplicationsData(duplicationsData, firstFile);
+        firstFileData.incrementDuplicatedBlock();
+
         for (TokenEntry tokenEntry : match.getMarkSet()) {
           String secondAbsolutePath = tokenEntry.getTokenSrcID();
           int secondLine = tokenEntry.getBeginLine();
@@ -81,7 +84,7 @@ public class CpdAnalyser {
             continue;
           }
 
-          processClassMeasure(duplicationsData, firstFile, firstLine, secondFile, secondLine, match.getLineCount(), match);
+          firstFileData.cumulate(secondFile, secondLine, firstLine, match.getLineCount(), match);
         }
       }
     }
@@ -91,22 +94,19 @@ public class CpdAnalyser {
     }
   }
 
-  private void processClassMeasure(Map<Resource, DuplicationsData> fileContainer, Resource file, int duplicationStartLine,
-      Resource targetFile, int targetDuplicationStartLine, int duplicatedLines, Match match) {
-    if (file != null && targetFile != null) {
-      DuplicationsData data = fileContainer.get(file);
-      if (data == null) {
-        data = new DuplicationsData(file, context);
-        fileContainer.put(file, data);
-      }
-      data.cumulate(targetFile, targetDuplicationStartLine, duplicationStartLine, duplicatedLines, match);
+  private DuplicationsData getDuplicationsData(Map<Resource, DuplicationsData> fileContainer, Resource file) {
+    DuplicationsData data = fileContainer.get(file);
+    if (data == null) {
+      data = new DuplicationsData(file, context);
+      fileContainer.put(file, data);
     }
+    return data;
   }
 
   private static final class DuplicationsData {
 
     protected Set<Integer> duplicatedLines = new HashSet<Integer>();
-    protected Set<Match> duplicatedBlocks = new HashSet<Match>();
+    protected double duplicatedBlocks = 0;
     protected Resource resource;
     private SensorContext context;
     private List<StringBuilder> duplicationXMLEntries = new ArrayList<StringBuilder>();
@@ -129,13 +129,16 @@ public class CpdAnalyser {
       for (int duplicatedLine = duplicationStartLine; duplicatedLine < duplicationStartLine + duplicatedLines; duplicatedLine++) {
         this.duplicatedLines.add(duplicatedLine);
       }
-      duplicatedBlocks.add(match);
+    }
+
+    protected void incrementDuplicatedBlock() {
+      duplicatedBlocks++;
     }
 
     protected void saveUsing(SensorContext context) {
       context.saveMeasure(resource, CoreMetrics.DUPLICATED_FILES, 1d);
       context.saveMeasure(resource, CoreMetrics.DUPLICATED_LINES, (double) duplicatedLines.size());
-      context.saveMeasure(resource, CoreMetrics.DUPLICATED_BLOCKS, (double) duplicatedBlocks.size());
+      context.saveMeasure(resource, CoreMetrics.DUPLICATED_BLOCKS, duplicatedBlocks);
       context.saveMeasure(resource, new Measure(CoreMetrics.DUPLICATIONS_DATA, getDuplicationXMLData()));
     }
 
