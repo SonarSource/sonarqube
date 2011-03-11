@@ -19,10 +19,10 @@
  */
 package org.sonar.batch.events;
 
-import java.util.List;
-
 import com.google.common.collect.Lists;
 import org.sonar.api.utils.Logs;
+
+import java.util.List;
 
 /**
  * Dispatches {@link SonarEvent}s. Eases decoupling by allowing objects to interact without having direct dependencies upon one another, and
@@ -47,7 +47,7 @@ public class EventBus {
 
   private void doFireEvent(SonarEvent event) {
     List<EventHandler> handlers = getDispatchList(event.getType());
-    Logs.INFO.debug("Dispatch event {} for {}", event, handlers);
+    Logs.INFO.trace("Dispatch event {} for {}", event, handlers);
     for (EventHandler handler : handlers) {
       event.dispatch(handler);
     }
