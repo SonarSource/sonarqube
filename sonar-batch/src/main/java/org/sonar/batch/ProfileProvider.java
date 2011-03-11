@@ -22,43 +22,18 @@ package org.sonar.batch;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.jpa.dao.ProfilesDao;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.rules.ActiveRule;
 
 public class ProfileProvider extends ProviderAdapter {
 
-  public static final String PARAM_PROFILE = "sonar.profile";
-
   private static final Logger LOG = LoggerFactory.getLogger(ProfileProvider.class);
+
   private RulesProfile profile;
 
-  public RulesProfile provide(Project project, ProfilesDao dao) {
+  public RulesProfile provide(Project project, ProfileLoader profileLoader) {
     if (profile == null) {
-      String profileName = (String) project.getProperty(PARAM_PROFILE);
-      if (profileName == null) {
-        Project root = project.getRoot();
-        profile = dao.getActiveProfile(root.getLanguageKey(), root.getKey());
-        if (profile == null) {
-          throw new RuntimeException("Quality profile not found for " + root.getKey() + ", language " + root.getLanguageKey());
-        }
-
-      } else {
-        profile = dao.getProfile(project.getLanguageKey(), profileName);
-        if (profile == null) {
-          throw new RuntimeException("Quality profile not found : " + profileName + ", language " + project.getLanguageKey());
-        }
-      }
-
-      // hack to lazy initialize the profile collections
-      profile.getActiveRules().size();
-      for (ActiveRule activeRule : profile.getActiveRules()) {
-        activeRule.getActiveRuleParams().size();
-        activeRule.getRule().getParams().size();
-      }
-      profile.getAlerts().size();
-
+      profile = profileLoader.load(project);
       LOG.info("Selected quality profile : {}", profile);
     }
     return profile;
