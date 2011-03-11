@@ -22,10 +22,7 @@ package org.sonar.plugins.core.timemachine;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ObjectUtils;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.*;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -45,6 +42,7 @@ import java.util.Map;
 /**
  * @since 2.7
  */
+@DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
 public final class NewCoverageFileAnalyzer implements Decorator {
 
   private List<PeriodStruct> structs;

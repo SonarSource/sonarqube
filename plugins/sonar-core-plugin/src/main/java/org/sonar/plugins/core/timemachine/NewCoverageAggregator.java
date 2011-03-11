@@ -21,6 +21,7 @@ package org.sonar.plugins.core.timemachine;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorBarriers;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.measures.CoreMetrics;
@@ -34,6 +35,7 @@ import org.sonar.api.resources.Scopes;
 import java.util.Arrays;
 import java.util.List;
 
+@DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
 public final class NewCoverageAggregator implements Decorator {
 
   public boolean shouldExecuteOnProject(Project project) {
