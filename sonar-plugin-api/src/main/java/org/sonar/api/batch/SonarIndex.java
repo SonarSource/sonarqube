@@ -117,6 +117,11 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
   public abstract <M> M getMeasures(Resource resource, MeasuresFilter<M> filter);
 
   /**
+   * @since 2.7
+   */
+  public abstract List<Violation> getViolations(Resource resource);
+
+  /**
    * @since 2.5
    */
   public abstract void addViolation(Violation violation, boolean force);

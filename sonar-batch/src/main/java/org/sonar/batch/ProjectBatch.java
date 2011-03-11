@@ -121,7 +121,6 @@ public class ProjectBatch {
 
       // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
       addComponent(getComponent(DefaultResourcePersister.class).getSnapshot(project));
-      // TODO was addComponent(globalComponents.getComponent(DefaultResourcePersister.class).getSnapshot(project));
 
       addComponent(org.sonar.api.database.daos.MeasuresDao.class);
       addComponent(ProfilesDao.class);

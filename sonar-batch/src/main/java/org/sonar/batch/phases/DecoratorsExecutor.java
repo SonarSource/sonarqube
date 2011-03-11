@@ -19,15 +19,12 @@
  */
 package org.sonar.batch.phases;
 
-import java.util.Collection;
-import java.util.List;
-
 import com.google.common.collect.Lists;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.DecoratorsSelector;
@@ -35,18 +32,18 @@ import org.sonar.batch.DefaultDecoratorContext;
 import org.sonar.batch.events.DecoratorExecutionEvent;
 import org.sonar.batch.events.DecoratorsPhaseEvent;
 import org.sonar.batch.events.EventBus;
-import org.sonar.batch.index.DefaultIndex;
+
+import java.util.Collection;
+import java.util.List;
 
 public class DecoratorsExecutor implements BatchComponent {
 
   private DecoratorsSelector decoratorsSelector;
-  private DatabaseSession session;
-  private DefaultIndex index;
+  private SonarIndex index;
   private EventBus eventBus;
 
-  public DecoratorsExecutor(BatchExtensionDictionnary extensionDictionnary, DefaultIndex index, DatabaseSession session, EventBus eventBus) {
+  public DecoratorsExecutor(BatchExtensionDictionnary extensionDictionnary, SonarIndex index, EventBus eventBus) {
     this.decoratorsSelector = new DecoratorsSelector(extensionDictionnary);
-    this.session = session;
     this.index = index;
     this.eventBus = eventBus;
   }
@@ -66,7 +63,7 @@ public class DecoratorsExecutor implements BatchComponent {
       childrenContexts.add(childContext.setReadOnly(true));
     }
 
-    DefaultDecoratorContext context = new DefaultDecoratorContext(resource, index, childrenContexts, session);
+    DefaultDecoratorContext context = new DefaultDecoratorContext(resource, index, childrenContexts);
     if (executeDecorators) {
       for (Decorator decorator : decorators) {
         eventBus.fireEvent(new DecoratorExecutionEvent(decorator, true));

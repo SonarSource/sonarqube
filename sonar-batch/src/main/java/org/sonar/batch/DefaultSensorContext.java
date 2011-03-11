@@ -21,13 +21,13 @@ package org.sonar.batch;
 
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.*;
 import org.sonar.api.rules.Violation;
-import org.sonar.batch.index.DefaultIndex;
 
 import java.util.Collection;
 import java.util.Date;
@@ -36,10 +36,10 @@ import java.util.Set;
 
 public class DefaultSensorContext implements SensorContext {
 
-  private DefaultIndex index;
+  private SonarIndex index;
   private Project project;
 
-  public DefaultSensorContext(DefaultIndex index, Project project) {
+  public DefaultSensorContext(SonarIndex index, Project project) {
     this.index = index;
     this.project = project;
   }

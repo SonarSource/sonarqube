@@ -19,10 +19,15 @@
  */
 package org.sonar.batch;
 
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
 import com.google.common.collect.Lists;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.Event;
-import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
@@ -31,28 +36,19 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
-import org.sonar.batch.index.DefaultIndex;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 public class DefaultDecoratorContext implements DecoratorContext {
 
-  private DatabaseSession session;
-  private DefaultIndex index;
+  private SonarIndex index;
   private Resource resource;
   private boolean readOnly = false;
 
   private List<DecoratorContext> childrenContexts;
 
   public DefaultDecoratorContext(Resource resource,
-                                 DefaultIndex index,
-                                 List<DecoratorContext> childrenContexts,
-                                 DatabaseSession session) {
+                                 SonarIndex index,
+                                 List<DecoratorContext> childrenContexts) {
     this.index = index;
-    this.session = session;
     this.resource = resource;
     this.childrenContexts = childrenContexts;
   }
@@ -121,7 +117,6 @@ public class DefaultDecoratorContext implements DecoratorContext {
     return this;
   }
 
-
   public List<Violation> getViolations() {
     return index.getViolations(resource);
   }
@@ -143,10 +138,6 @@ public class DefaultDecoratorContext implements DecoratorContext {
     return index.getOutgoingEdges(resource);
   }
 
-  protected DatabaseSession getSession() {
-    return session;
-  }
-
   public List<Event> getEvents() {
     return index.getEvents(resource);
   }
@@ -158,7 +149,7 @@ public class DefaultDecoratorContext implements DecoratorContext {
   public void deleteEvent(Event event) {
     index.deleteEvent(event);
   }
-  
+
   public DefaultDecoratorContext saveViolation(Violation violation, boolean force) {
     if (violation.getResource() == null) {
       violation.setResource(resource);
