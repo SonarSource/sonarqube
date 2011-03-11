@@ -25,7 +25,11 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.DefaultProjectFileSystem;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Languages;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.BatchPluginRepository;
@@ -35,7 +39,11 @@ import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.phases.Phases;
 import org.sonar.core.components.DefaultModelFinder;
-import org.sonar.jpa.dao.*;
+import org.sonar.jpa.dao.AsyncMeasuresDao;
+import org.sonar.jpa.dao.AsyncMeasuresService;
+import org.sonar.jpa.dao.DaoFacade;
+import org.sonar.jpa.dao.ProfilesDao;
+import org.sonar.jpa.dao.RulesDao;
 
 public class ProjectBatch {
 
@@ -128,6 +136,7 @@ public class ProjectBatch {
       addComponent(DefaultModelFinder.class);
       addComponent(TimeMachineConfiguration.class);
       addComponent(PastViolationsLoader.class);
+      addComponent(ProfileLoader.class, DefaultProfileLoader.class);
 
       addAdapter(new ProfileProvider());
       addAdapter(new CheckProfileProvider());
