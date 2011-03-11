@@ -82,7 +82,7 @@ public class MemoryOptimizer {
   }
 
   public void flushMemory() {
-    if (LOG.isDebugEnabled() && loadedMeasures.size() > 0) {
+    if (LOG.isDebugEnabled() && !loadedMeasures.isEmpty()) {
       LOG.debug("Flush " + loadedMeasures.size() + " data measures from memory: ");
     }
     for (Measure measure : loadedMeasures) {
@@ -92,6 +92,6 @@ public class MemoryOptimizer {
   }
 
   boolean isTracked(Long measureId) {
-    return dataIdByMeasureId.get(measureId)!=null;
+    return dataIdByMeasureId.get(measureId) != null;
   }
 }

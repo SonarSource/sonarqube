@@ -29,6 +29,8 @@ import org.sonar.api.utils.DateUtils;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import org.sonar.api.resources.Qualifiers;
+
 public class PastSnapshotFinderByPreviousAnalysis implements BatchExtension {
 
   private DatabaseSession session;
@@ -44,7 +46,7 @@ public class PastSnapshotFinderByPreviousAnalysis implements BatchExtension {
         .setParameter("resourceId", projectSnapshot.getResourceId())
         .setParameter("status", Snapshot.STATUS_PROCESSED)
         .setParameter("last", true)
-        .setParameter("lib", Project.QUALIFIER_LIB)
+        .setParameter("lib", Qualifiers.LIBRARY)
         .setMaxResults(1)
         .getResultList();
 

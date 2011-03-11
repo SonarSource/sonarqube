@@ -68,7 +68,7 @@ public final class ViolationPersister {
   private RuleFailureModel mergeModel(Violation violation, RuleFailureModel merge) {
     Rule rule = ruleFinder.findByKey(violation.getRule().getRepositoryKey(), violation.getRule().getKey());
     merge.setRuleId(rule.getId());
-    merge.setPriority(violation.getPriority());
+    merge.setPriority(violation.getSeverity());
     merge.setLine(violation.getLineId());
     merge.setMessage(violation.getMessage());
     merge.setCost(violation.getCost());

@@ -137,7 +137,7 @@ public class DefaultIndex extends SonarIndex {
     Bucket bucket = buckets.get(resource);
     if (bucket != null) {
       Measure measure = bucket.getMeasures(MeasuresFilters.metric(metric));
-      if (measure!=null) {
+      if (measure != null) {
         return persistence.reloadMeasure(measure);
       }
     }
@@ -390,7 +390,7 @@ public class DefaultIndex extends SonarIndex {
 
   static String createUID(Project project, Resource resource) {
     String uid = resource.getKey();
-    if (!StringUtils.equals(Resource.SCOPE_SET, resource.getScope())) {
+    if (!StringUtils.equals(Scopes.PROJECT, resource.getScope())) {
       // not a project nor a library
       uid = new StringBuilder(ResourceModel.KEY_SIZE)
           .append(project.getKey())
@@ -416,8 +416,9 @@ public class DefaultIndex extends SonarIndex {
     Bucket bucket = getBucket(resource, acceptExcluded);
     if (bucket != null) {
       for (Bucket childBucket : bucket.getChildren()) {
-        if (acceptExcluded || !childBucket.isExcluded())
+        if (acceptExcluded || !childBucket.isExcluded()) {
           children.add(childBucket.getResource());
+        }
       }
     }
     return children;

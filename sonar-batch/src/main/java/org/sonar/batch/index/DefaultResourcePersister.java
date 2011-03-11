@@ -30,6 +30,11 @@ import org.sonar.api.utils.SonarException;
 
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
+
+import org.sonar.api.resources.Qualifiers;
+
+import org.sonar.api.resources.Scopes;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -160,8 +165,8 @@ public final class DefaultResourcePersister implements ResourcePersister {
         " s WHERE s.resourceId=:resourceId AND s.version=:version AND s.scope=:scope AND s.qualifier<>:qualifier AND s.last=:last");
     query.setParameter("resourceId", resourceId);
     query.setParameter("version", version);
-    query.setParameter("scope", Resource.SCOPE_SET);
-    query.setParameter("qualifier", Resource.QUALIFIER_LIB);
+    query.setParameter("scope", Scopes.PROJECT);
+    query.setParameter("qualifier", Qualifiers.LIBRARY);
     query.setParameter("last", Boolean.TRUE);
     List<Snapshot> snapshots = query.getResultList();
     if (snapshots.isEmpty()) {
