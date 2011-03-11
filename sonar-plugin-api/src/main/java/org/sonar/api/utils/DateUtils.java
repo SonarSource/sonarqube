@@ -19,37 +19,31 @@
  */
 package org.sonar.api.utils;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.lang.ref.SoftReference;
+import java.text.*;
 import java.util.Date;
 
 /**
+ * Parses and formats ISO 8601 dates. See http://en.wikipedia.org/wiki/ISO_8601.
+ * This class is thread-safe.
+ *
  * @since 2.7
  */
 public final class DateUtils {
   public static final String DATE_FORMAT = "yyyy-MM-dd";
   public static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
 
-  private static final SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-  private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATETIME_FORMAT);
+  private static final DateFormat dateFormat = new ThreadSafeDateFormat(DATE_FORMAT);
+  private static final DateFormat dateTimeFormat = new ThreadSafeDateFormat(DATETIME_FORMAT);
 
-  /**
-   * This method is not thread-safe.
-   */
   public static String formatDate(Date d) {
     return dateFormat.format(d);
   }
 
-  /**
-   * This method is not thread-safe.
-   */
   public static String formatDateTime(Date d) {
     return dateTimeFormat.format(d);
   }
 
-  /**
-   * This method is not thread-safe.
-   */
   public static Date parseDate(String s) {
     try {
       return dateFormat.parse(s);
@@ -59,15 +53,43 @@ public final class DateUtils {
     }
   }
 
-  /**
-   * This method is not thread-safe.
-   */
   public static Date parseDateTime(String s) {
     try {
       return dateTimeFormat.parse(s);
 
     } catch (ParseException e) {
       throw new SonarException("The date '" + s + "' does not respect format '" + DATETIME_FORMAT + "'");
+    }
+  }
+
+  static class ThreadSafeDateFormat extends DateFormat {
+    private final String format;
+
+    ThreadSafeDateFormat(String format) {
+      this.format = format;
+    }
+
+    private final ThreadLocal cache = new ThreadLocal() {
+      public Object get() {
+        SoftReference softRef = (SoftReference) super.get();
+        if (softRef == null || softRef.get() == null) {
+          softRef = new SoftReference(new SimpleDateFormat(format));
+          super.set(softRef);
+        }
+        return softRef;
+      }
+    };
+
+    private DateFormat getDateFormat() {
+      return (DateFormat) ((SoftReference) cache.get()).get();
+    }
+
+    public StringBuffer format(Date date,StringBuffer toAppendTo, FieldPosition fieldPosition) {
+      return getDateFormat().format(date, toAppendTo, fieldPosition);
+    }
+
+    public Date parse(String source, ParsePosition pos) {
+      return getDateFormat().parse(source, pos);
     }
   }
 }
