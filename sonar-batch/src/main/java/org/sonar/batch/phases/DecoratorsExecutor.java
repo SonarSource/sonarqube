@@ -19,11 +19,10 @@
  */
 package org.sonar.batch.phases;
 
+import java.util.Collection;
+import java.util.List;
+
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Decorator;
@@ -33,99 +32,49 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.DecoratorsSelector;
 import org.sonar.batch.DefaultDecoratorContext;
+import org.sonar.batch.events.DecoratorExecutionEvent;
+import org.sonar.batch.events.DecoratorsPhaseEvent;
+import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.MemoryOptimizer;
-
-import java.util.Collection;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
 
 public class DecoratorsExecutor implements BatchComponent {
 
   private DecoratorsSelector decoratorsSelector;
   private DatabaseSession session;
-  private static final Logger LOG = LoggerFactory.getLogger(DecoratorsExecutor.class);
   private DefaultIndex index;
-  private MemoryOptimizer memoryOptimizer;
+  private EventBus eventBus;
 
-  public DecoratorsExecutor(BatchExtensionDictionnary extensionDictionnary, DefaultIndex index, DatabaseSession session,
-                            MemoryOptimizer memoryOptimizer) {
+  public DecoratorsExecutor(BatchExtensionDictionnary extensionDictionnary, DefaultIndex index, DatabaseSession session, EventBus eventBus) {
     this.decoratorsSelector = new DecoratorsSelector(extensionDictionnary);
     this.session = session;
     this.index = index;
-    this.memoryOptimizer = memoryOptimizer;
+    this.eventBus = eventBus;
   }
-
 
   public void execute(Project project) {
-    LoggerFactory.getLogger(DecoratorsExecutor.class).info("Execute decorators...");
     Collection<Decorator> decorators = decoratorsSelector.select(project);
-
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Decorators: {}", StringUtils.join(decorators, " -> "));
-    }
-
-    DecoratorsProfiler profiler = new DecoratorsProfiler(decorators);
-    decorateResource(project, decorators, true, profiler);
-    session.commit();
-    profiler.log();
+    eventBus.fireEvent(new DecoratorsPhaseEvent(decorators, true));
+    decorateResource(project, decorators, true);
+    eventBus.fireEvent(new DecoratorsPhaseEvent(decorators, false));
   }
 
-  private DecoratorContext decorateResource(Resource resource, Collection<Decorator> decorators, boolean executeDecorators, DecoratorsProfiler profiler) {
+  private DecoratorContext decorateResource(Resource resource, Collection<Decorator> decorators, boolean executeDecorators) {
     List<DecoratorContext> childrenContexts = Lists.newArrayList();
     for (Resource child : index.getChildren(resource)) {
       boolean isModule = (child instanceof Project);
-      DefaultDecoratorContext childContext = (DefaultDecoratorContext) decorateResource(child, decorators, !isModule, profiler);
+      DefaultDecoratorContext childContext = (DefaultDecoratorContext) decorateResource(child, decorators, !isModule);
       childrenContexts.add(childContext.setReadOnly(true));
     }
 
     DefaultDecoratorContext context = new DefaultDecoratorContext(resource, index, childrenContexts, session);
     if (executeDecorators) {
       for (Decorator decorator : decorators) {
-        profiler.start(decorator);
+        eventBus.fireEvent(new DecoratorExecutionEvent(decorator, true));
         decorator.decorate(resource, context);
-        memoryOptimizer.flushMemory();
-        profiler.stop();
+        eventBus.fireEvent(new DecoratorExecutionEvent(decorator, false));
       }
     }
     return context;
   }
 
-
-  static class DecoratorsProfiler {
-    Collection<Decorator> decorators;
-    Map<Decorator, Long> durations = new IdentityHashMap<Decorator, Long>();
-    long startTime;
-    Decorator currentDecorator;
-
-    DecoratorsProfiler(Collection<Decorator> decorators) {
-      this.decorators = decorators;
-      for (Decorator decorator : decorators) {
-        durations.put(decorator, 0L);
-      }
-    }
-
-    void start(Decorator decorator) {
-      this.startTime = System.currentTimeMillis();
-      this.currentDecorator = decorator;
-    }
-
-    void stop() {
-      Long cumulatedDuration = durations.get(currentDecorator);
-      durations.put(currentDecorator, cumulatedDuration + (System.currentTimeMillis() - startTime));
-    }
-
-    void log() {
-      LOG.debug(getMessage());
-    }
-
-    String getMessage() {
-      StringBuilder sb = new StringBuilder("Decorator time:").append(SystemUtils.LINE_SEPARATOR);
-      for (Decorator decorator : decorators) {
-        sb.append("\t").append(decorator.toString()).append(": ").append(durations.get(decorator)).append("ms").append(SystemUtils.LINE_SEPARATOR);
-      }
-      return sb.toString();
-    }
-  }
 }

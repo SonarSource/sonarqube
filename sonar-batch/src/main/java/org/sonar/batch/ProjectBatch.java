@@ -38,6 +38,7 @@ import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.phases.Phases;
+import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.core.components.DefaultModelFinder;
 import org.sonar.jpa.dao.AsyncMeasuresDao;
 import org.sonar.jpa.dao.AsyncMeasuresService;
@@ -147,6 +148,7 @@ public class ProjectBatch {
     @Override
     protected void configure() {
       addComponent(Phases.class);
+      addComponent(PhasesTimeProfiler.class);
       for (Class clazz : Phases.getPhaseClasses()) {
         addComponent(clazz);
       }

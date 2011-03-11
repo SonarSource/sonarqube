@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.index;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
@@ -28,14 +31,17 @@ import org.sonar.api.database.model.MeasureData;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.PersistenceMode;
-
-import java.util.List;
-import java.util.Map;
+import org.sonar.batch.events.DecoratorExecutionEvent;
+import org.sonar.batch.events.DecoratorExecutionHandler;
+import org.sonar.batch.events.DecoratorsPhaseEvent;
+import org.sonar.batch.events.DecoratorsPhaseHandler;
+import org.sonar.batch.events.SensorExecutionEvent;
+import org.sonar.batch.events.SensorExecutionHandler;
 
 /**
  * @since 2.7
  */
-public class MemoryOptimizer {
+public class MemoryOptimizer implements SensorExecutionHandler, DecoratorExecutionHandler, DecoratorsPhaseHandler {
 
   private static final Logger LOG = LoggerFactory.getLogger(MemoryOptimizer.class);
 
@@ -94,4 +100,24 @@ public class MemoryOptimizer {
   boolean isTracked(Long measureId) {
     return dataIdByMeasureId.get(measureId) != null;
   }
+
+  public void onSensorExecution(SensorExecutionEvent event) {
+    if (event.isDoneExecution()) {
+      flushMemory();
+      session.commit();
+    }
+  }
+
+  public void onDecoratorExecution(DecoratorExecutionEvent event) {
+    if (event.isDoneExecution()) {
+      flushMemory();
+    }
+  }
+
+  public void onDecoratorsPhase(DecoratorsPhaseEvent event) {
+    if (event.isPhaseDone()) {
+      session.commit();
+    }
+  }
+
 }

@@ -19,18 +19,15 @@
  */
 package org.sonar.batch.phases;
 
+import static org.hamcrest.number.OrderingComparisons.greaterThanOrEqualTo;
+import static org.hamcrest.number.OrderingComparisons.lessThan;
+import static org.junit.Assert.assertThat;
+
 import org.junit.Test;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static org.hamcrest.number.OrderingComparisons.greaterThanOrEqualTo;
-import static org.hamcrest.number.OrderingComparisons.lessThan;
-import static org.junit.Assert.assertThat;
 
 public class DecoratorsExecutorTest {
 
@@ -38,8 +35,7 @@ public class DecoratorsExecutorTest {
   public void shouldProfileExecutionTime() {
     Decorator1 decorator1 = new Decorator1();
     Decorator2 decorator2 = new Decorator2();
-    List<Decorator> decorators = Arrays.asList(decorator1, decorator2);
-    DecoratorsExecutor.DecoratorsProfiler profiler = new DecoratorsExecutor.DecoratorsProfiler(decorators);
+    PhasesTimeProfiler.DecoratorsProfiler profiler = new PhasesTimeProfiler.DecoratorsProfiler();
 
     profiler.start(decorator1);
     profiler.stop();

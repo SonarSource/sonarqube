@@ -19,7 +19,8 @@
  */
 package org.sonar.batch.phases;
 
-import org.apache.commons.lang.StringUtils;
+import java.util.Collection;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
@@ -28,51 +29,45 @@ import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.MavenPluginExecutor;
-import org.sonar.batch.index.MemoryOptimizer;
-
-import java.util.Collection;
+import org.sonar.batch.events.EventBus;
+import org.sonar.batch.events.SensorExecutionEvent;
+import org.sonar.batch.events.SensorsPhaseEvent;
 
 public class SensorsExecutor implements BatchComponent {
-  private static final Logger logger = LoggerFactory.getLogger(SensorsExecutor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SensorsExecutor.class);
 
   private Collection<Sensor> sensors;
-  private DatabaseSession session;
   private MavenPluginExecutor mavenExecutor;
-  private MemoryOptimizer memoryOptimizer;
+  private EventBus eventBus;
 
-  public SensorsExecutor(BatchExtensionDictionnary selector, Project project, DatabaseSession session, MavenPluginExecutor mavenExecutor,
-                         MemoryOptimizer memoryOptimizer) {
+  public SensorsExecutor(BatchExtensionDictionnary selector, Project project, MavenPluginExecutor mavenExecutor, EventBus eventBus) {
     this.sensors = selector.select(Sensor.class, project, true);
-    this.session = session;
     this.mavenExecutor = mavenExecutor;
-    this.memoryOptimizer = memoryOptimizer;
+    this.eventBus = eventBus;
   }
 
   public void execute(Project project, SensorContext context) {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Sensors : {}", StringUtils.join(sensors, " -> "));
-    }
+    eventBus.fireEvent(new SensorsPhaseEvent(sensors, true));
 
     for (Sensor sensor : sensors) {
       executeMavenPlugin(project, sensor);
 
-      TimeProfiler profiler = new TimeProfiler(logger).start("Sensor " + sensor);
+      eventBus.fireEvent(new SensorExecutionEvent(sensor, true));
       sensor.analyse(project, context);
-      memoryOptimizer.flushMemory();
-      session.commit();
-      profiler.stop();
+      eventBus.fireEvent(new SensorExecutionEvent(sensor, false));
     }
+
+    eventBus.fireEvent(new SensorsPhaseEvent(sensors, false));
   }
 
   private void executeMavenPlugin(Project project, Sensor sensor) {
     if (sensor instanceof DependsUponMavenPlugin) {
       MavenPluginHandler handler = ((DependsUponMavenPlugin) sensor).getMavenPluginHandler(project);
       if (handler != null) {
-        TimeProfiler profiler = new TimeProfiler(logger).start("Execute maven plugin " + handler.getArtifactId());
+        TimeProfiler profiler = new TimeProfiler(LOG).start("Execute maven plugin " + handler.getArtifactId());
         mavenExecutor.execute(project, handler);
         profiler.stop();
       }
