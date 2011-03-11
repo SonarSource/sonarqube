@@ -19,6 +19,9 @@
  */
 package org.sonar.api.resources;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Java language implementation
  *
@@ -57,4 +60,8 @@ public class Java extends AbstractLanguage {
     return SUFFIXES;
   }
 
+  public static boolean isJavaFile(java.io.File file) {
+    String suffix = StringUtils.substringAfterLast(file.getName(), ".");
+    return ArrayUtils.contains(SUFFIXES, suffix);
+  }
 }
