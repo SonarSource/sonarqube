@@ -30,40 +30,44 @@ public final class DateUtils {
   public static final String DATE_FORMAT = "yyyy-MM-dd";
   public static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
 
+  private static final SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+  private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATETIME_FORMAT);
+
   /**
-   * This method is not optimized. The DateFormat instance is created each time. Please use it sporadically.
+   * This method is not thread-safe.
    */
   public static String formatDate(Date d) {
-    return new SimpleDateFormat(DATE_FORMAT).format(d);
+    return dateFormat.format(d);
   }
 
   /**
-   * This method is not optimized. The DateFormat instance is created each time. Please use it sporadically.
+   * This method is not thread-safe.
    */
   public static String formatDateTime(Date d) {
-    return new SimpleDateFormat(DATETIME_FORMAT).format(d);
+    return dateTimeFormat.format(d);
   }
 
   /**
-   * This method is not optimized. The DateFormat instance is created each time. Please use it sporadically.
+   * This method is not thread-safe.
    */
   public static Date parseDate(String s) {
-    return parse(s, DATE_FORMAT);
+    try {
+      return dateFormat.parse(s);
+
+    } catch (ParseException e) {
+      throw new SonarException("The date '" + s + "' does not respect format '" + DATE_FORMAT + "'");
+    }
   }
 
   /**
-   * This method is not optimized. The DateFormat instance is created each time. Please use it sporadically.
+   * This method is not thread-safe.
    */
   public static Date parseDateTime(String s) {
-    return parse(s, DATETIME_FORMAT);
-  }
-
-  private static Date parse(String s, String format) {
     try {
-      return new SimpleDateFormat(format).parse(s);
+      return dateTimeFormat.parse(s);
 
     } catch (ParseException e) {
-      throw new SonarException("The date '" + s + "' does not respect format '" + format + "'");
+      throw new SonarException("The date '" + s + "' does not respect format '" + DATETIME_FORMAT + "'");
     }
   }
 }
