@@ -808,7 +808,8 @@ span.rulename a:hover {
   background-color: #ECECEC;
   white-space: nowrap;
   text-align: right;
-  color: #777;
+  font-size: 85%;
+  color: #AAAAAA;
   border-right: 1px solid #DDD;
   padding: 0 3px;
   height: 14px;
