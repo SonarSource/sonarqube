@@ -74,10 +74,18 @@ public class RuleFailureModel extends BaseIdentifiable {
     return StringUtils.abbreviate(StringUtils.trim(message), MESSAGE_COLUMN_SIZE);
   }
 
+  /**
+   * @deprecated since 2.7. Replace by getPriority()
+   */
+  @Deprecated
   public RulePriority getLevel() {
     return priority;
   }
 
+  /**
+   * @deprecated since 2.7. Replace by setPriority()
+   */
+  @Deprecated
   public void setLevel(RulePriority priority) {
     this.priority = priority;
   }

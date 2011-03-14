@@ -40,38 +40,30 @@ public final class ViolationPersister {
   }
 
   void saveViolation(Project project, Violation violation) {
-    saveOrUpdateViolation(project, violation, null, null);
+    saveViolation(project, violation, null);
   }
 
-  public void saveOrUpdateViolation(Project project, Violation violation, RuleFailureModel model, String checksum) {
+  public void saveViolation(Project project, Violation violation, String checksum) {
     Snapshot snapshot = resourcePersister.saveResource(project, violation.getResource());
-    if (model != null) {
-      // update
-      model = session.reattach(RuleFailureModel.class, model.getId());
-      model = mergeModel(violation, model);
-    } else {
-      // insert
-      model = createModel(violation);
-      model.setCreatedAt(snapshot.getCreatedAt());
+    if (violation.getCreatedAt()==null) {
+      violation.setCreatedAt(snapshot.getCreatedAt());
     }
+    RuleFailureModel model = createModel(violation);
     model.setSnapshotId(snapshot.getId());
     model.setChecksum(checksum);
     session.save(model);
     violation.setMessage(model.getMessage());// the message can be changed in the class RuleFailure (truncate + trim)
-    violation.setCreatedAt(model.getCreatedAt());
   }
 
   private RuleFailureModel createModel(Violation violation) {
-    return mergeModel(violation, new RuleFailureModel());
-  }
-
-  private RuleFailureModel mergeModel(Violation violation, RuleFailureModel merge) {
+    RuleFailureModel model = new RuleFailureModel();
     Rule rule = ruleFinder.findByKey(violation.getRule().getRepositoryKey(), violation.getRule().getKey());
-    merge.setRuleId(rule.getId());
-    merge.setPriority(violation.getSeverity());
-    merge.setLine(violation.getLineId());
-    merge.setMessage(violation.getMessage());
-    merge.setCost(violation.getCost());
-    return merge;
+    model.setRuleId(rule.getId());
+    model.setPriority(violation.getSeverity());
+    model.setCreatedAt(violation.getCreatedAt());
+    model.setLine(violation.getLineId());
+    model.setMessage(violation.getMessage());
+    model.setCost(violation.getCost());
+    return model;
   }
 }

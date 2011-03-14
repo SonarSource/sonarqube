@@ -93,11 +93,14 @@ public class ViolationPersisterDecorator implements Decorator {
     for (Violation violation : context.getViolations()) {
       RuleFailureModel pastViolation = selectPastViolation(violation, pastViolationsByRule);
       if (pastViolation != null) {
-        // remove violation from past, since would be updated and shouldn't affect other violations anymore
+        // remove violation, since would be updated and shouldn't affect other violations anymore
         pastViolationsByRule.remove(violation.getRule(), pastViolation);
+        violation.setCreatedAt(pastViolation.getCreatedAt());
+      } else {
+        violation.setCreatedAt(null);//avoid plugins to set date
       }
       String checksum = getChecksumForLine(checksums, violation.getLineId());
-      violationPersister.saveOrUpdateViolation(context.getProject(), violation, pastViolation, checksum);
+      violationPersister.saveViolation(context.getProject(), violation, checksum);
     }
   }
 

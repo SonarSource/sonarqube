@@ -73,15 +73,4 @@ public class ViolationPersisterTest extends AbstractDbUnitTestCase {
     checkTables("shouldInsertViolations", "rule_failures");
   }
 
-  @Test
-  public void shouldUpdateViolation() {
-    Violation violation = Violation.create(rule1, javaFile)
-        .setLineId(20).setCost(55.6).setSeverity(RulePriority.MINOR);
-    RuleFailureModel model = getSession().getSingleResult(RuleFailureModel.class, "id", 1);
-
-    violationPersister.saveOrUpdateViolation(new Project("project"), violation, model, null);
-
-    assertThat(violation.getCreatedAt(), notNullValue());
-    checkTables("shouldUpdateViolation", "rule_failures");
-  }
 }
