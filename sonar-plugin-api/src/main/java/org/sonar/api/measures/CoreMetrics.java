@@ -258,8 +258,14 @@ public final class CoreMetrics {
       .create();
 
   public static final String LINES_TO_COVER_KEY = "lines_to_cover";
-  public static final Metric LINES_TO_COVER = new Metric(LINES_TO_COVER_KEY, "Lines to cover", "Lines to cover", Metric.ValueType.INT,
-      Metric.DIRECTION_BETTER, false, DOMAIN_TESTS).setFormula(new SumChildValuesFormula(false)).setHidden(true);
+  public static final Metric LINES_TO_COVER = new Metric.Builder(LINES_TO_COVER_KEY, "Lines to cover", Metric.ValueType.INT)
+      .setDescription("Lines to cover")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(false)
+      .setDomain(DOMAIN_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .setHidden(true)
+      .create();
 
   public static final String NEW_LINES_TO_COVER_KEY = "new_lines_to_cover";
   public static final Metric NEW_LINES_TO_COVER = new Metric.Builder(NEW_LINES_TO_COVER_KEY, "New lines to cover", Metric.ValueType.INT)
@@ -403,12 +409,22 @@ public final class CoreMetrics {
   //--------------------------------------------------------------------------------------------------------------------
 
   public static final String DUPLICATED_LINES_KEY = "duplicated_lines";
-  public static final Metric DUPLICATED_LINES = new Metric(DUPLICATED_LINES_KEY, "Duplicated lines", "Duplicated lines",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_DUPLICATION).setBestValue(0.0).setOptimizedBestValue(true);
+  public static final Metric DUPLICATED_LINES = new Metric.Builder(DUPLICATED_LINES_KEY, "Duplicated lines", Metric.ValueType.INT)
+      .setDescription("Duplicated lines")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setDomain(DOMAIN_DUPLICATION)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .create();
 
   public static final String DUPLICATED_BLOCKS_KEY = "duplicated_blocks";
-  public static final Metric DUPLICATED_BLOCKS = new Metric(DUPLICATED_BLOCKS_KEY, "Duplicated blocks", "Duplicated blocks",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_DUPLICATION).setBestValue(0.0).setOptimizedBestValue(true);
+  public static final Metric DUPLICATED_BLOCKS = new Metric.Builder(DUPLICATED_BLOCKS_KEY, "Duplicated blocks", Metric.ValueType.INT)
+      .setDescription("Duplicated blocks")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setDomain(DOMAIN_DUPLICATION)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .create();
 
   public static final String DUPLICATED_FILES_KEY = "duplicated_files";
   public static final Metric DUPLICATED_FILES = new Metric(DUPLICATED_FILES_KEY, "Duplicated files", "Duplicated files",
@@ -707,8 +723,10 @@ public final class CoreMetrics {
 
 
   public static final String PROFILE_KEY = "profile";
-  public static final Metric PROFILE = new Metric(PROFILE_KEY, "Profile", "Selected quality profile", Metric.ValueType.DATA,
-      Metric.DIRECTION_NONE, false, DOMAIN_GENERAL);
+  public static final Metric PROFILE = new Metric.Builder(PROFILE_KEY, "Profile", Metric.ValueType.DATA)
+      .setDescription("Selected quality profile")
+      .setDomain(DOMAIN_GENERAL)
+      .create();
 
 
   public static List<Metric> metrics = Lists.newLinkedList();
