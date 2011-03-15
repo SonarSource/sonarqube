@@ -100,7 +100,7 @@ class Api::ProfilesController < Api::ApiController
       alerts<<alert_hash
     end
     result[:alerts]=alerts unless alerts.empty?
-    result
+    [result]
   end
 
   def to_xml
