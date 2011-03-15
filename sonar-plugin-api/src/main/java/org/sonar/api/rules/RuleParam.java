@@ -20,11 +20,16 @@
 package org.sonar.api.rules;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "rules_parameters")
@@ -110,14 +115,14 @@ public class RuleParam {
   }
 
   public Boolean getDefaultValueAsBoolean() {
-    if (defaultValue!=null) {
+    if (defaultValue != null) {
       return Boolean.parseBoolean(defaultValue);
     }
     return null;
   }
 
   public Integer getDefaultValueAsInteger() {
-    if (defaultValue!=null) {
+    if (defaultValue != null) {
       return Integer.parseInt(defaultValue);
     }
     return null;
@@ -137,17 +142,12 @@ public class RuleParam {
       return true;
     }
     RuleParam other = (RuleParam) obj;
-    return new EqualsBuilder()
-        //.append(rule, other.getRule())
-        .append(key, other.getKey()).isEquals();
+    return other.key.equals(key);
   }
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(17, 37)
-        //.append(rule)
-        .append(key)
-        .toHashCode();
+    return key.hashCode();
   }
 
   @Override

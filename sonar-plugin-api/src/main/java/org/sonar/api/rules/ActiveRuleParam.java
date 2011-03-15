@@ -19,15 +19,18 @@
  */
 package org.sonar.api.rules;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "active_rule_parameters")
 public class ActiveRuleParam implements Cloneable {
-
 
   @Id
   @Column(name = "id")
@@ -112,22 +115,19 @@ public class ActiveRuleParam implements Cloneable {
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof RuleParam)) {
+    if (!(obj instanceof ActiveRuleParam)) {
       return false;
     }
     if (this == obj) {
       return true;
     }
-    RuleParam other = (RuleParam) obj;
-    return new EqualsBuilder()
-        .append(getId(), other.getKey()).isEquals();
+    ActiveRuleParam other = (ActiveRuleParam) obj;
+    return other.getKey().equals(getKey());
   }
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(17, 37)
-        .append(getId())
-        .toHashCode();
+    return getKey().hashCode();
   }
 
   @Override
