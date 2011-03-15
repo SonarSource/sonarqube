@@ -35,6 +35,11 @@ public class ProfileUnmarshaller extends AbstractUnmarshaller<Profile> {
         .setParentName(utils.getString(json, "parent"))
         .setProvided(utils.getBoolean(json, "provided"));
 
+    parseRules(utils, profile, json);
+    return profile;
+  }
+
+  private void parseRules(WSUtils utils, Profile profile, Object json) {
     Object rulesJson = utils.getField(json, "rules");
     if (rulesJson != null) {
       for (int i = 0; i < utils.getArraySize(rulesJson); i++) {
@@ -46,18 +51,21 @@ public class ProfileUnmarshaller extends AbstractUnmarshaller<Profile> {
           rule.setSeverity(utils.getString(ruleJson, "severity"));
           rule.setInheritance(utils.getString(ruleJson, "inheritance"));
 
-          Object paramsJson = utils.getField(ruleJson, "params");
-          if (paramsJson != null) {
-            for (int indexParam = 0; indexParam < utils.getArraySize(paramsJson); indexParam++) {
-              Object paramJson = utils.getArrayElement(paramsJson, indexParam);
-              rule.addParameter(utils.getString(paramJson, "key"), utils.getString(paramJson, "value"));
-            }
-          }
+          parseRuleParameters(utils, rule, ruleJson);
           profile.addRule(rule);
         }
       }
     }
-    return profile;
+  }
+
+  private void parseRuleParameters(WSUtils utils, Profile.Rule rule, Object ruleJson) {
+    Object paramsJson = utils.getField(ruleJson, "params");
+    if (paramsJson != null) {
+      for (int indexParam = 0; indexParam < utils.getArraySize(paramsJson); indexParam++) {
+        Object paramJson = utils.getArrayElement(paramsJson, indexParam);
+        rule.addParameter(utils.getString(paramJson, "key"), utils.getString(paramJson, "value"));
+      }
+    }
   }
 
 }
