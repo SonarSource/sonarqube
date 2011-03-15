@@ -44,10 +44,6 @@
     </rule>
     <rule>
       <repositoryKey>checkstyle</repositoryKey>
-      <key>com.puppycrawl.tools.checkstyle.checks.coding.IllegalInstantiationCheck</key>
-    </rule>
-    <rule>
-      <repositoryKey>checkstyle</repositoryKey>
       <key>com.puppycrawl.tools.checkstyle.checks.design.HideUtilityClassConstructorCheck</key>
     </rule>
     <rule>
