@@ -18,7 +18,7 @@
   <%
     current_revision=nil
     colspan=2
-    colspan+=1 if @display_scm
+    colspan+=1 if @scm_available
     colspan+=2 if @display_coverage
     previous_hidden=false
     first_section=true
