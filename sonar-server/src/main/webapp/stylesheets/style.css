@@ -645,7 +645,7 @@ ul.operations li a {
 .sources2 td.revision {
   border-top: 1px solid #DDD;
   vertical-align: top;
-  padding: 2px 0.3em;
+  padding: 0 0.3em;
   white-space: nowrap;
 }
 .sources2 span.date, .sources2 span.date a {
