@@ -251,7 +251,6 @@ public final class CoreMetrics {
       .setDescription("Coverage of new/changed code")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
-      .setHidden(true)
       .setDomain(DOMAIN_TESTS)
       .setWorstValue(0.0)
       .setBestValue(100.0)
@@ -274,7 +273,6 @@ public final class CoreMetrics {
       .setQualitative(false)
       .setDomain(DOMAIN_TESTS)
       .setFormula(new SumChildValuesFormula(false))
-      .setHidden(true)
       .create();
 
   public static final String UNCOVERED_LINES_KEY = "uncovered_lines";
@@ -290,7 +288,6 @@ public final class CoreMetrics {
       .setDescription("New uncovered lines")
       .setDirection(Metric.DIRECTION_WORST)
       .setDomain(DOMAIN_TESTS)
-      .setHidden(true)
       .setFormula(new SumChildValuesFormula(false))
       .create();
 
@@ -309,7 +306,6 @@ public final class CoreMetrics {
       .setQualitative(true)
       .setWorstValue(0.0)
       .setBestValue(100.0)
-      .setHidden(true)
       .setDomain(DOMAIN_TESTS)
       .create();
 
@@ -331,7 +327,6 @@ public final class CoreMetrics {
       .setDescription("New conditions to cover")
       .setDomain(DOMAIN_TESTS)
       .setFormula(new SumChildValuesFormula(false))
-      .setHidden(true)
       .create();
 
   public static final String UNCOVERED_CONDITIONS_KEY = "uncovered_conditions";
@@ -347,7 +342,6 @@ public final class CoreMetrics {
       .setDescription("New uncovered conditions")
       .setDirection(Metric.DIRECTION_WORST)
       .setDomain(DOMAIN_TESTS)
-      .setHidden(true)
       .setFormula(new SumChildValuesFormula(false))
       .create();
 
@@ -366,7 +360,6 @@ public final class CoreMetrics {
       .setDescription("Branch coverage of new/changed code")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
-      .setHidden(true)
       .setDomain(DOMAIN_TESTS)
       .setWorstValue(0.0)
       .setBestValue(100.0)

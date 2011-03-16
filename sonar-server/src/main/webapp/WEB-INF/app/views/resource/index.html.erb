@@ -22,11 +22,13 @@
     colspan+=2 if @display_coverage
     previous_hidden=false
     first_section=true
+    has_displayed_lines=false
     @lines.each_with_index do |line, index|
       if line.hidden
         previous_hidden=true
         next
       end
+      has_displayed_lines=true
 
       if previous_hidden && !first_section
        current_revision=nil
@@ -93,4 +95,8 @@
   </tr>
   <% end %>
 </table>
+
+  <% if @filtered && !has_displayed_lines %>
+  <p>No lines match your filter criteria.</p>
+  <% end %>
 <% end %>

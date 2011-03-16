@@ -40,7 +40,7 @@
 <table id="drilldown" class="width100">
 <% if @highlighted_metric!=@metric %>
 <tr>
-<td colspan="<%= @drilldown.columns.size -%>">Drilldown on <b><span id="m_<%= u @metric.key -%>"><%= @snapshot.f_measure(@metric.key) -%></span> <%= @metric.short_name -%></b></td>
+<td colspan="<%= @drilldown.columns.size -%>">Drilldown on <b><%= format_measure(@metric.key, :period => @period) -%> <%= @metric.short_name -%></b></td>
 </tr>
 <tr>
 <% end

@@ -146,6 +146,7 @@ class ResourceController < ApplicationController
     @display_violations=true
     @global_violations=[]
     @expandable=(@lines!=nil)
+    @filtered=!@expanded
 
     conditions='snapshot_id=?'
     values=[@snapshot.id]
@@ -206,6 +207,7 @@ class ResourceController < ApplicationController
   
   def filter_lines_by_date
     if @period
+      @filtered=true
       to=@snapshot.period_datetime(@period)
       if to
         @lines.each do |line|

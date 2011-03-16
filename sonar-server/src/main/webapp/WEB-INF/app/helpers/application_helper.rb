@@ -232,6 +232,7 @@ module ApplicationHelper
   # * <tt>:url</tt> - add an url on the measure.
   # * <tt>:prefix</tt> - add a prefix. Default is ''.
   # * <tt>:suffix</tt> - add a suffix. Default is ''.
+  # * <tt>:period</tt> - period index, from 1 to 5. Optional. Default is nil.
   # * <tt>:default</tt> - text to return if metric or measure not found. Default is blank string.
   #
   # === Examples
