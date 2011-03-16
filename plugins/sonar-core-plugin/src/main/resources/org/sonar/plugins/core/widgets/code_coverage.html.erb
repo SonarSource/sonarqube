@@ -40,11 +40,13 @@
               new_line_coverage=measure('new_line_coverage')
               new_branch_coverage=measure('new_branch_coverage')
         %>  <br/>
-            <h3>On new code:</h3>
-            <% if new_lines.to_i>0 %>
+            <h3>On new code: </h3>
+            <% if new_lines.to_i==0 %>
+              <p>No new lines to cover</p>
+            <% else %>
               <% if new_coverage %>
                 <p>
-                  <span class="big"><a href="<%= url_for_drilldown('new_coverage', :period => dashboard_configuration.period_index) -%>"><%= new_coverage.format_numeric_value(variation_value(new_coverage))||'-' -%></a></span> coverage
+                  <span class="big"><a href="<%= url_for_drilldown('new_coverage', :period => dashboard_configuration.period_index) -%>"><%= new_coverage.format_numeric_value(variation_value(new_coverage))||'-' -%></a></span>
                 </p>
               <% end %>
               <p>
