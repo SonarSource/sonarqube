@@ -38,7 +38,7 @@ class Sonar::TimemachineRow
   end
 
   def <=>(other)
-    (self.domain <=> other.domain).nonzero? || (self.metric.description <=> other.metric.description)
+    (self.domain <=> other.domain).nonzero? || (self.metric.short_name <=> other.metric.short_name)
   end
 
   def sparkline_url
