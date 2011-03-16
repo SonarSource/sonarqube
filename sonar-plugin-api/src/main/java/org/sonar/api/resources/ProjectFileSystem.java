@@ -93,8 +93,8 @@ public interface ProjectFileSystem extends BatchComponent {
   File getSonarWorkingDirectory();
 
   /**
-   * Get file from path. It can be absolute or relative to project basedir. For example resolvePath("pom.xml") or
-   * resolvePath("src/main/java")
+   * @return file in canonical form from specified path. Path can be absolute or relative to project basedir.
+   *         For example resolvePath("pom.xml") or resolvePath("src/main/java")
    */
   File resolvePath(String path);
 

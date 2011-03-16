@@ -143,7 +143,11 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
   public File resolvePath(String path) {
     File file = new File(path);
     if (!file.isAbsolute()) {
-      file = new File(getBasedir(), path);
+      try {
+        file = new File(getBasedir(), path).getCanonicalFile();
+      } catch (IOException e) {
+        throw new SonarException("Unable to resolve path '" + path + "'", e);
+      }
     }
     return file;
   }

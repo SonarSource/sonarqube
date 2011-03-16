@@ -19,8 +19,17 @@
  */
 package org.sonar.api.resources;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
+import org.apache.maven.project.MavenProject;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -31,11 +40,6 @@ import org.sonar.api.test.MavenTestUtils;
 
 import java.io.File;
 import java.util.List;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
 
 public class DefaultProjectFileSystemTest {
 
@@ -141,6 +145,20 @@ public class DefaultProjectFileSystemTest {
     ProjectFileSystem fs = newDefaultProjectFileSystem(project);
     List<File> files = fs.getSourceFiles(new NoSuffixLanguage());
     assertThat(files.size(), is(2));
+  }
+
+  /**
+   * See http://jira.codehaus.org/browse/SONAR-2280
+   */
+  @Test
+  public void resolvePathShouldReturnCanonicalFile() {
+    MavenProject pom = mock(MavenProject.class);
+    when(pom.getBasedir()).thenReturn(new File("/project"));
+    Project project = new Project("").setPom(pom);
+    DefaultProjectFileSystem fs = new DefaultProjectFileSystem(project, null);
+
+    assertThat(fs.resolvePath(".").getAbsolutePath(), endsWith("project"));
+    assertThat(fs.resolvePath("../project").getAbsolutePath(), endsWith("project"));
   }
 
   /**
