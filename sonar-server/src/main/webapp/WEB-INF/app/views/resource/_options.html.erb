@@ -23,16 +23,9 @@
 
     <table>
       <tr>
-        <% first=true %>
-      <% if @scm_available %>
-        <td class="<%= 'first' if first -%>">
-          <input type="checkbox" value="true" name="scm" id="scm" <%= 'checked' if @display_scm -%> onclick="applyOptions()"/>
-          <label for="scm">Show commits</label>
-        </td>
-      <%   first=false
-         end %>
-
-      <% if @expandable %>
+      <%
+         first=true
+         if @expandable %>
         <td class="<%= 'first' if first -%>">
           <input type="checkbox" value="true" name="expand" id="expand" <%= 'checked' if @expanded -%> onclick="applyOptions()"/>
           <label for="expand">Show full source</label>

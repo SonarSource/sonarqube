@@ -73,14 +73,13 @@ class ResourceController < ApplicationController
     @extension=@extensions.find{|extension| extension.isDefaultTab()} if @extension==nil
   end
 
-  def load_sources(use_scm_for_periods=true)
+  def load_sources
     @period = params[:period].to_i unless params[:period].blank?
-    @display_scm=(params[:scm]=='true')
     @expanded=(params[:expand]=='true')
 
     if @snapshot.source
       source_lines=Java::OrgSonarServerUi::JRubyFacade.new.colorizeCode(@snapshot.source.data, @snapshot.project.language).split("\n")
-      init_scm((@period && use_scm_for_periods) || @display_scm)
+      init_scm()
 
       @lines=[]
       source_lines.each_with_index do |source, index|
@@ -96,17 +95,11 @@ class ResourceController < ApplicationController
     end
   end
 
-  def init_scm(scm)
+  def init_scm
     @scm_available=(@snapshot.measure('last_commit_datetimes_by_line')!=nil)
-    if scm
-      @authors_by_line=load_distribution('authors_by_line')
-      @revisions_by_line=load_distribution('revisions_by_line')
-      @dates_by_line=load_distribution('last_commit_datetimes_by_line')
-    else
-      @authors_by_line={}
-      @revisions_by_line={}
-      @dates_by_line={}
-    end
+    @authors_by_line=load_distribution('authors_by_line')
+    @revisions_by_line=load_distribution('revisions_by_line')
+    @dates_by_line=load_distribution('last_commit_datetimes_by_line')
   end
 
   def load_distribution(metric_key)
@@ -115,7 +108,7 @@ class ResourceController < ApplicationController
   end
 
   def render_coverage
-    load_sources(true)
+    load_sources()
     @display_coverage=true
     if @lines
       @hits_by_line=load_distribution('coverage_line_hits_data')
@@ -149,7 +142,7 @@ class ResourceController < ApplicationController
   
   
   def render_violations
-    load_sources(false)
+    load_sources()
     @display_violations=true
     @global_violations=[]
     @expandable=(@lines!=nil)
@@ -205,7 +198,7 @@ class ResourceController < ApplicationController
   
 
   def render_source
-    load_sources(true)
+    load_sources()
     filter_lines_by_date()
     render :action => 'index', :layout => !request.xhr?
   end
