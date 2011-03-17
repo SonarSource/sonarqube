@@ -33,7 +33,7 @@
       <%   first=false
          end %>
       
-      <% if @snapshot.project_snapshot.periods? && !@display_violations %>
+      <% if @scm_available && !@display_violations && @snapshot.project_snapshot.periods?  %>
         <td class="<%= 'first' if first -%>">
           <select id="period" name="period" onchange="applyOptions()">
             <option value="">Time changes...</option>
@@ -61,7 +61,20 @@
         </td>
 
         <td class="<%= 'first' if first -%>"><%= render :partial => 'rules_filter' -%></td>
-      <% end %>
+      <%   first=false
+         end %>
+
+        <% if @display_coverage %>
+        <td class="<%= 'first' if first -%>">
+          <select id="coverage_filter" name="coverage_filter" onchange="applyOptions()">
+            <option value="lines_to_cover" <%= 'selected' if @coverage_filter=='lines_to_cover' -%>>Lines to cover</option>
+            <option value="uncovered_lines" <%= 'selected' if @coverage_filter=='uncovered_lines' -%>>Uncovered lines</option>
+            <option value="conditions_to_cover" <%= 'selected' if @coverage_filter=='conditions_to_cover' -%>>Branches to cover</option>
+            <option value="uncovered_conditions" <%= 'selected' if @coverage_filter=='uncovered_conditions' -%>>Uncovered branches</option>
+          </select>
+        </td>
+      <%   first=false
+         end %>
       </tr>
     </table>
   </form>

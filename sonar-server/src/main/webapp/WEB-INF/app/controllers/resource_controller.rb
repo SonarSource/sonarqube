@@ -90,7 +90,7 @@ class ResourceController < ApplicationController
         line.author=@authors_by_line[index+1]
 
         date_string=@dates_by_line[index+1]
-        line.datetime=(date_string ? DateTime::strptime(date_string): nil)
+        line.datetime=(date_string ? Java::OrgSonarApiUtils::DateUtils.parseDateTime(date_string): nil)
       end
     end
   end
@@ -110,6 +110,7 @@ class ResourceController < ApplicationController
   def render_coverage
     load_sources()
     @display_coverage=true
+    @expandable=(@lines!=nil)
     if @lines
       @hits_by_line=load_distribution('coverage_line_hits_data')
       @conditions_by_line=load_distribution('conditions_by_line')
@@ -125,6 +126,7 @@ class ResourceController < ApplicationController
       end
 
       if @snapshot.measure('conditions_by_line').nil?
+        # TODO remove this code when branch_coverage_hits_data is fully removed from CoreMetrics
         deprecated_branches_by_line=load_distribution('branch_coverage_hits_data')
         deprecated_branches_by_line.each_pair do |line_id,label|
           line=@lines[line_id-1]
@@ -134,7 +136,28 @@ class ResourceController < ApplicationController
         end
       end
 
-      filter_lines_by_date()
+      to=(@period ? Java::JavaUtil::Date.new(@snapshot.period_datetime(@period).to_f * 1000) : nil)
+      metric=Metric.by_key(params[:coverage_filter]||params[:metric])
+      @coverage_filter=(metric ? metric.key : 'coverage')
+      @filtered=true
+      if ('lines_to_cover'==@coverage_filter || 'coverage'==@coverage_filter || 'line_coverage'==@coverage_filter ||
+          'new_lines_to_cover'==@coverage_filter || 'new_coverage'==@coverage_filter || 'new_line_coverage'==@coverage_filter)
+        @coverage_filter='lines_to_cover'
+        filter_lines{|line| line.hits && line.after(to)}
+
+      elsif 'uncovered_lines'==@coverage_filter || 'new_uncovered_lines'==@coverage_filter
+        @coverage_filter='uncovered_lines'
+        filter_lines{|line| line.hits && line.hits==0 && line.after(to)}
+
+      elsif 'conditions_to_cover'==@coverage_filter || 'branch_coverage'==@coverage_filter ||
+            'new_conditions_to_cover'==@coverage_filter || 'new_branch_coverage'==@coverage_filter
+        @coverage_filter='conditions_to_cover'
+        filter_lines{|line| line.conditions && line.conditions>0 && line.after(to)}
+
+      elsif 'uncovered_conditions'==@coverage_filter || 'new_uncovered_conditions'==@coverage_filter
+        @coverage_filter='uncovered_conditions'
+        filter_lines{|line| line.conditions && line.covered_conditions && line.covered_conditions<line.conditions && line.after(to)}
+      end
     end
     render :action => 'index', :layout => !request.xhr?
   end
@@ -182,22 +205,12 @@ class ResourceController < ApplicationController
     end
 
     if !@expanded && @lines
-      @lines.each_with_index do |line,index|
-        if line.violations?
-          for i in index-4..index+4
-            @lines[i].hidden=false if i>=0 && i<@lines.size
-          end
-        elsif line.hidden==nil
-          line.hidden=true
-        end
-      end
+      filter_lines{|line| line.violations?}
     end
     render :action => 'index', :layout => !request.xhr?
   end
   
   
-  
-
   def render_source
     load_sources()
     filter_lines_by_date()
@@ -208,17 +221,33 @@ class ResourceController < ApplicationController
   def filter_lines_by_date
     if @period
       @filtered=true
-      to=@snapshot.period_datetime(@period)
+      to=Java::JavaUtil::Date.new(@snapshot.period_datetime(@period).to_f * 1000)
       if to
         @lines.each do |line|
-          line.hidden=true if line.datetime==nil || line.datetime<to
+          line.flag_as_hidden() if !line.after(to)
         end
       end
     end
   end
 
+  def filter_lines(&block)
+    @lines.each_with_index do |line,index|
+      if yield(line)
+        for i in index-4...index
+          @lines[i].flag_as_highlight_context() if i>=0
+        end
+        line.flag_as_highlighted()
+        for i in index+1..index+4
+          @lines[i].flag_as_highlight_context() if i<@lines.size
+        end
+      else
+        line.flag_as_hidden()
+      end
+    end
+  end
+
   class Line
-    attr_accessor :source, :revision, :author, :datetime, :violations, :hits, :conditions, :covered_conditions, :hidden, :deprecated_conditions_label
+    attr_accessor :source, :revision, :author, :datetime, :violations, :hits, :conditions, :covered_conditions, :hidden, :highlighted, :deprecated_conditions_label
 
     def initialize(source)
       @source=source
@@ -242,8 +271,39 @@ class ResourceController < ApplicationController
       end
     end
 
-    def date
-      @datetime ? @datetime.to_date : nil
+    def after(date)
+      if date && @datetime
+        @datetime.after(date)
+      else
+        true
+      end
+    end
+
+    def flag_as_highlighted
+      @highlighted=true
+      @hidden=false
+    end
+
+    def flag_as_highlight_context
+      # do not force if highlighted has already been set to true
+      @highlighted=false if @highlighted.nil?
+      @hidden=false
+    end
+
+    def flag_as_hidden
+      # do not force if it has already been flagged as visible
+      if @hidden.nil?
+        @hidden=true
+        @highlighted=false
+      end
+    end
+
+    def hidden?
+      @hidden==true
+    end
+
+    def highlighted?
+      !hidden? && @highlighted==true
     end
 
     def deprecated_conditions_label=(label)
@@ -263,14 +323,11 @@ class ResourceController < ApplicationController
     end
   end
 
-  
-  
-
   def render_extension()
     render :action => 'extension', :layout => !request.xhr?
   end
 
-def render_nothing()
+  def render_nothing()
     render :action => 'nothing', :layout => !request.xhr?
   end
 end

@@ -24,11 +24,10 @@
     first_section=true
     has_displayed_lines=false
     @lines.each_with_index do |line, index|
-      if line.hidden
+      if line.hidden? && !@expanded
         previous_hidden=true
         next
       end
-      has_displayed_lines=true
 
       if previous_hidden && !first_section
        current_revision=nil
@@ -42,39 +41,43 @@
       first_section=false
 
       status=hits_status=conditions_status=''
-      if @display_coverage && line.hits
-        hits_status=(line.hits>0 ? 'ok' : 'ko')
-        if line.conditions && line.conditions>0 && line.covered_conditions
-          if line.covered_conditions==0
-            status='ko'
-            conditions_status='ko'
-          elsif line.covered_conditions==line.conditions
-            status=''
-            conditions_status='ok'
-          else
-            conditions_status='warn'
-            status='warn'
+      if line.highlighted?
+        has_displayed_lines=true
+        if @display_coverage && line.hits
+          hits_status=(line.hits>0 ? 'ok' : 'ko')
+          if line.conditions && line.conditions>0 && line.covered_conditions
+            if line.covered_conditions==0
+              status='ko'
+              conditions_status='ko'
+            elsif line.covered_conditions==line.conditions
+              status=''
+              conditions_status='ok'
+            else
+              conditions_status='warn'
+              status='warn'
+            end
+          elsif line.hits
+            status=(line.hits>0 ? '' : 'ko')
           end
-        elsif line.hits
-          status=(line.hits>0 ? '' : 'ko')
+        elsif @display_violations
+          status="sev#{line.violation_severity}"
         end
-      elsif @display_violations
-        status="sev#{line.violation_severity}"
       end
   %>
   <tr>
     <%
          if current_revision!=line.revision
            current_revision=line.revision
-           title = "Revision #{h(line.revision)} » #{l(line.datetime) if line.datetime}"
+           title = "Revision #{h(line.revision)}"
     %>
-            <td class="scm revision"><span class="date"><a href="#" title="<%= title -%>" alt="<%= title -%>"><%= l(line.date) if line.date -%></a></span> <span class="author"><%= h(line.author) -%></span></td>
+            <td class="scm revision"><span class="date"><a href="#" title="<%= title -%>" alt="<%= title -%>"><%= Java::OrgSonarApiUtils::DateUtils.formatDate(line.datetime) if line.datetime -%></a></span> <span class="author"><%= h(line.author) -%></span></td>
     <%   else %>
             <td class="scm"></td>
     <%   end %>
     <td class="lid <%= ' section' if line.violations? -%>" id="L<%= index+1 -%>"><a name="L<%= index+1 -%>" href="#L<%= index+1 -%>"><%= index + 1 -%></a></td>
 
     <% if @display_coverage  %>
+      <% if line.highlighted? %>
       <td class="ind <%= hits_status -%>"><%= line.hits -%></td>
       <td class="ind <%= conditions_status -%>">
         <% if line.deprecated_conditions_label -%>
@@ -83,6 +86,10 @@
           <%= line.covered_conditions -%>/<%= line.conditions -%>
         <% end %>
       </td>
+      <% else %>
+        <td class="ind"> </td>
+        <td class="ind"> </td>
+      <% end %>
     <% end %>
     <td class="line <%= status -%>">
       <pre><%= line.source -%></pre>

@@ -27,7 +27,7 @@
   <% else %>
     <script>function loadTab(url) {$('resource-loading').show();document.location.href=url;return false;}</script>
     <% @extensions.each do |extension| %>
-      <li><a href="#" onClick="loadTab('<%= url_for(:overwrite_params => {:tab => extension.getId()}) -%>')" class="<%= 'selected' if @extension.getId()==extension.getId() -%>"><%= extension.getTitle() -%></a></li>
+      <li><a href="#" onClick="loadTab('<%= url_for(:overwrite_params => {:tab => extension.getId(), :metric => nil}) -%>')" class="<%= 'selected' if @extension.getId()==extension.getId() -%>"><%= extension.getTitle() -%></a></li>
     <% end %>
   <% end %>
   <li>
