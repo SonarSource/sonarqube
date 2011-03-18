@@ -66,6 +66,7 @@
   %>
   <tr>
     <%
+      if @scm_available
          if current_revision!=line.revision
            current_revision=line.revision
            title = "Revision #{h(line.revision)}"
@@ -73,7 +74,9 @@
             <td class="scm revision"><span class="date"><a href="#" title="<%= title -%>" alt="<%= title -%>"><%= Java::OrgSonarApiUtils::DateUtils.formatDate(line.datetime) if line.datetime -%></a></span> <span class="author"><%= h(line.author) -%></span></td>
     <%   else %>
             <td class="scm"></td>
-    <%   end %>
+    <%   end
+       end
+    %>
     <td class="lid <%= ' section' if line.violations? -%>" id="L<%= index+1 -%>"><a name="L<%= index+1 -%>" href="#L<%= index+1 -%>"><%= index + 1 -%></a></td>
 
     <% if @display_coverage  %>
