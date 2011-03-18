@@ -202,6 +202,14 @@ class Metric < ActiveRecord::Base
     enabled && !hidden && numeric? && !domain.blank?
   end
 
+  # temporary method since 2.7. Will replace it by a field in database.
+  def on_new_code?
+    @on_new_code ||=
+      begin
+        key.start_with?('new_')
+      end
+  end
+
   def to_xml(options={})
     xml = Builder::XmlMarkup.new
     xml.metric do
