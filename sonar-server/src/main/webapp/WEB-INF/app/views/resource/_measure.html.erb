@@ -2,9 +2,7 @@
   <td class="name"><%= h(title) -%>: </td>
   <td class="value">
     <%= format_measure(measure) -%>
-    <% if defined?(ratio) && ratio %>
-    /<%= format_measure(ratio) -%>
-    <% end %>
+    <% if defined?(ratio) && ratio %> / <%= format_measure(ratio) -%><% end %>
   </td>
 <% else %>
   <td colspan="2"></td>

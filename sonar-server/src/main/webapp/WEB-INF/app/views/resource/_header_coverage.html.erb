@@ -1,7 +1,7 @@
 <div id="coverage_header" class="tab_header">
     <% if @period && measure('new_coverage') %>
       <p>On new code:</p>
-      <table class="metrics">
+      <table>
         <tr>
           <td class="big" rowspan="2"><%= format_variation('new_coverage', :period => @period, :style => 'none') -%></td>
 
@@ -41,7 +41,7 @@
         </tr>
       </table>
     <% else %>
-      <table class="metrics">
+      <table>
         <tr>
           <td class="big" rowspan="2"><%= format_measure('coverage', :default => '-') -%></td>
           <td class="sep"> </td>
@@ -60,6 +60,5 @@
     <% end %>
   
   <%= render :partial => 'options' -%>
-  <div class="clear"></div>
 </div>
 

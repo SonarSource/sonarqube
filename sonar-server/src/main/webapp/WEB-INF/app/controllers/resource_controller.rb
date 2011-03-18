@@ -303,7 +303,8 @@ class ResourceController < ApplicationController
     end
 
     def highlighted?
-      !hidden? && @highlighted==true
+      # highlighted if the @highlighted has not been set or has been set to true
+      !hidden? && @highlighted!=false
     end
 
     def deprecated_conditions_label=(label)

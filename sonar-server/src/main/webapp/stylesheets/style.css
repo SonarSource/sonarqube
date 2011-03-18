@@ -612,12 +612,6 @@ ul.operations li a {
 
 
 /* SOURCE */
-#source_metrics {
-  width: 100%;
-}
-#source_metrics {
-  width: 100%;
-}
 .sources2 {
   width: 100%;
   border-top: 1px solid #DDD;
@@ -748,20 +742,7 @@ span.rulename a:hover {
   margin-bottom: 10px;
   color: #444;
 }
-.tab_header .col {
-  vertical-align:top;
-}
-.tab_header table.metrics {
-  margin-right: 10px;
-  display: inline-block;
-  vertical-align: top;
-}
-.tab_header table.bottomcol {
-  margin-right: 10px;
-  display: inline-block;
-  vertical-align: bottom;
-}
-.tab_header table.metrics td, .tab_header table.bottomcol td {
+.tab_header td {
   padding-right: 7px;
 }
 .tab_header td.name {
@@ -787,8 +768,6 @@ span.rulename a:hover {
   background: none;
   padding: 0 10px 0 0;
 }
-
-
 
 
 

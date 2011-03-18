@@ -1,40 +1,30 @@
 <div id="violations_header" class="tab_header">
   <% if @period && measure('new_violations') %>
-    <table class="bottomcol">
+    <table>
       <tr>
         <td><span class="big"><%= format_variation('new_violations', :default => 0, :period => @period, :style => 'none') -%></span> new violations</td>
-      </tr>
-    </table>
-    <table class="bottomcol">
-      <tr>
+
+        <td class="sep"> </td>
         <td><%= image_tag 'priority/BLOCKER.png' -%></td>
         <td class="name">Blocker:</td>
         <td class="value"><%= format_variation('new_blocker_violations', :default => 0, :period => @period, :style => 'none') -%></td>
-      </tr>
-    </table>
-    <table class="bottomcol">
-      <tr>
+
+        <td class="sep"> </td>
         <td><%= image_tag 'priority/CRITICAL.png' -%></td>
         <td class="name">Critical:</td>
         <td class="value"><%= format_variation('new_critical_violations', :default => 0, :period => @period, :style => 'none') -%></td>
-      </tr>
-    </table>
-    <table class="bottomcol">
-      <tr>
+
+        <td class="sep"> </td>
         <td><%= image_tag 'priority/MAJOR.png' -%></td>
         <td class="name">Major:</td>
         <td class="value"><%= format_variation('new_major_violations', :default => 0, :period => @period, :style => 'none') -%></td>
-      </tr>
-    </table>
-    <table class="bottomcol">
-      <tr>
+
+        <td class="sep"> </td>
         <td><%= image_tag 'priority/MINOR.png' -%></td>
         <td class="name">Minor:</td>
         <td class="value"><%= format_variation('new_minor_violations', :default => 0, :period => @period, :style => 'none') -%></td>
-      </tr>
-    </table>
-    <table class="bottomcol">
-      <tr>
+
+        <td class="sep"> </td>
         <td><%= image_tag 'priority/INFO.png' -%></td>
         <td class="name">Info:</td>
         <td class="value"><%= format_variation('new_info_violations', :default => 0, :period => @period, :style => 'none') -%></td>
@@ -42,41 +32,31 @@
     </table>
 
   <% else %>
-    <table class="bottomcol">
+    <table class="sourceHeader">
       <tr>
-        <td><span class="big"><%= format_measure('violations', :default => 0) -%></span> violations</td>
-      </tr>
-    </table>
-    <table class="bottomcol">
-      <tr>
-        <td><%= image_tag 'priority/BLOCKER.png' -%></td>
+        <td nowrap><span class="big"><%= format_measure('violations', :default => 0) -%></span> violations</td>
+
+        <td class="sep"> </td>
+        <td nowrap><%= image_tag 'priority/BLOCKER.png' -%></td>
         <td class="name">Blocker:</td>
         <td class="value"><%= format_measure('blocker_violations', :default => 0) -%></td>
-      </tr>
-    </table>
-    <table class="bottomcol">
-      <tr>
+
+        <td class="sep"> </td>
         <td><%= image_tag 'priority/CRITICAL.png' -%></td>
         <td class="name">Critical:</td>
         <td class="value"><%= format_measure('critical_violations', :default => 0) -%></td>
-      </tr>
-    </table>
-    <table class="bottomcol">
-      <tr>
+
+        <td class="sep"> </td>
         <td><%= image_tag 'priority/MAJOR.png' -%></td>
         <td class="name">Major:</td>
         <td class="value"><%= format_measure('major_violations', :default => 0) -%></td>
-      </tr>
-    </table>
-    <table class="bottomcol">
-      <tr>
+
+        <td class="sep"> </td>
         <td><%= image_tag 'priority/MINOR.png' -%></td>
         <td class="name">Minor:</td>
         <td class="value"><%= format_measure('minor_violations', :default => 0) -%></td>
-      </tr>
-    </table>
-    <table class="bottomcol">
-      <tr>
+
+        <td class="sep"> </td>
         <td><%= image_tag 'priority/INFO.png' -%></td>
         <td class="name">Info:</td>
         <td class="value"><%= format_measure('info_violations', :default => 0) -%></td>
@@ -85,6 +65,6 @@
   <% end %>
 
   <%= render :partial => 'options' -%>
-  <div class="clear"></div>
+  
 </div>
 
