@@ -61,7 +61,7 @@ class TimemachineController < ApplicationController
     measures.each do |measure|
       next unless measure.metric
       
-      if measure.metric.timemachine? && measure.value
+      if measure.metric.timemachine? && (measure.value || measure.text_value)
         row=rows_by_metric_id[measure.metric_id]
         unless row
           row=Sonar::TimemachineRow.new(measure.metric)
