@@ -64,7 +64,7 @@ public class EmbeddedDatabase {
     String dirName = configuration.getString(DatabaseProperties.PROP_EMBEDDED_DATA_DIR);
     if (dirName == null) {
       File sonarHome = new File(configuration.getString(CoreProperties.SONAR_HOME));
-      if ( !sonarHome.isDirectory() || !sonarHome.exists()) {
+      if (!sonarHome.isDirectory() || !sonarHome.exists()) {
         throw new ServerStartException("Sonar home directory does not exist");
       }
       return new File(sonarHome, "data");
@@ -80,7 +80,7 @@ public class EmbeddedDatabase {
     if (dbHome.exists() && !dbHome.isDirectory()) {
       throw new SonarException("Database home " + dbHome.getPath() + " is not a directory");
     }
-    if ( !dbHome.exists()) {
+    if (!dbHome.exists()) {
       dbHome.mkdirs();
     }
     System.setProperty("derby.system.home", dbHome.getPath());
@@ -95,7 +95,7 @@ public class EmbeddedDatabase {
       int port = Integer.parseInt(dbProps.getProperty("derby.drda.portNumber"));
       String host = dbProps.getProperty("derby.drda.host");
       serverControl = new NetworkServerControl(InetAddress.getByName(host), port, DEFAULT_USER, DEFAULT_PWD);
-      Logs.INFO.info("Embedded database: " + serverControl);
+      Logs.INFO.info("Starting embedded database on port " + port);
       serverControl.start(dbLog);
       ensureServerIsUp();
     } catch (Exception e) {
@@ -122,44 +122,53 @@ public class EmbeddedDatabase {
     if (serverControl != null) {
       try {
         serverControl.shutdown();
+        ensureServerIsDown();
+        serverControl = null;
+        Logs.INFO.info("Embedded database stopped");
+
       } catch (Exception e) {
         throw new SonarException(e);
       }
-      ensureServerIsDown();
-      serverControl = null;
-      Logs.INFO.info("Embedded database stopped.");
     }
   }
 
   private void ensureServerIsUp() {
-    for (int retry = 0; retry < 16; retry++) {
+    for (int retry = 0; retry < 100; retry++) {
       try {
         serverControl.ping();
         return;
+
       } catch (Exception ex) {
-        sleep(250);
+        sleep(300);
       }
     }
     throw new SonarException("Embedded database does not respond to ping requests");
   }
 
+  private void ensureServerIsDown() {
+    for (int retry = 0; retry < 100; retry++) {
+      try {
+        serverControl.ping();
+        sleep(300);
+
+      } catch (SonarException se) {
+        throw se;
+
+      } catch (Exception e) {
+        // normal case: the database does not respond to ping
+        return;
+      }
+    }
+    throw new SonarException("Fail to stop embedded database");
+  }
+
+
   private void sleep(long time) {
     try {
       Thread.sleep(time);
     } catch (InterruptedException e) {
+      throw new SonarException("Fail to ping embedded database", e);
     }
-  }
-
-  private void ensureServerIsDown() {
-    for (int retry = 0; retry < 16; retry++) {
-      try {
-        serverControl.ping();
-        sleep(250);
-      } catch (Exception ex) {
-        return;
-      }
-    }
-    throw new SonarException("Embedded database is not stopped");
   }
 
   public static Properties getDefaultProperties(Configuration configuration) {

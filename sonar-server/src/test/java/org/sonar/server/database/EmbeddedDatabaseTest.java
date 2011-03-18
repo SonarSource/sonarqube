@@ -19,10 +19,12 @@
  */
 package org.sonar.server.database;
 
-import junit.framework.TestCase;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.derby.jdbc.ClientDriver;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +33,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
 
-public class EmbeddedDatabaseTest extends TestCase {
+import static junit.framework.Assert.fail;
+import static org.junit.Assert.assertTrue;
+
+public class EmbeddedDatabaseTest {
 
   private final static String TEST_ROOT_DIR = "./target/";
   private final static String TEST_DB_DIR_PREFIX = "testDB";
@@ -41,8 +46,8 @@ public class EmbeddedDatabaseTest extends TestCase {
   private Properties defaultProps;
   private static String testPort;
 
-  @Override
-  protected void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     windowsCleanup();
     if (testPort == null) {
       testPort = Integer.toString(findFreeServerPort());
@@ -77,11 +82,12 @@ public class EmbeddedDatabaseTest extends TestCase {
     return port;
   }
 
-  public void testStart() throws Exception {
+  @Test
+  public void shouldStart() throws Exception {
     database = new EmbeddedDatabase(new File(TEST_ROOT_DIR + TEST_DB_DIR_PREFIX + "Start" + testPort), defaultProps);
     database.start();
     ClientDriver.class.newInstance();
-    Connection conn = null;
+    Connection conn;
     try {
       conn = DriverManager.getConnection(driverUrl);
       conn.close();
@@ -102,11 +108,12 @@ public class EmbeddedDatabaseTest extends TestCase {
     database.stop();
   }
 
-  public void testStop() throws Exception {
+  @Test
+  public void shouldStop() throws Exception {
     database = new EmbeddedDatabase(new File(TEST_ROOT_DIR + TEST_DB_DIR_PREFIX + "Stop" + testPort), defaultProps);
     database.start();
     ClientDriver.class.newInstance();
-    Connection conn = null;
+    Connection conn;
     try {
       conn = DriverManager.getConnection(driverUrl);
       conn.close();
@@ -123,7 +130,7 @@ public class EmbeddedDatabaseTest extends TestCase {
     }
   }
 
-  @Override
+  @After
   public void tearDown() throws IOException {
     if (database.getDataDir().exists()) {
       String os = System.getProperty("os.name");
