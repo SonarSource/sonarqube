@@ -650,11 +650,15 @@ ul.operations li a {
 .sources2 span.author, .sources2 span.author a {
   font-size: 85%;
 }
-.sources2 div.violation {
-  padding: 3px 0.5em;
-  border: 1px solid #DDDDDD;
+.sources2 div.violations {
   background-color: #EFEFEF;
-  margin: 5px 10px;
+  margin: 2px;
+  border: 1px solid #DDD;
+}
+.sources2 div.violation {
+  background-color: #EFEFEF;
+  margin: 0;
+  padding: 3px 5px;
 }
 span.rulename, span.rulename a {
   color: #4183C4;

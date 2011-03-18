@@ -97,9 +97,11 @@
     <td class="line <%= status -%>">
       <pre><%= line.source -%></pre>
       <% if @display_violations && line.violations? %>
+        <div class="violations">
         <% line.violations.each do |violation| %>
           <%= render :partial => 'violation', :locals => {:violation => violation} -%>
         <% end %>
+        </div>
       <% end %>
     </td>
   </tr>
