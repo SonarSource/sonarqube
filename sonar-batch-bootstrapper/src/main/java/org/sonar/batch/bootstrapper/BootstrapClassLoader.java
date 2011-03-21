@@ -19,8 +19,10 @@
  */
 package org.sonar.batch.bootstrapper;
 
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Enumeration;
 
 /**
  * Special {@link URLClassLoader} to execute Sonar, which restricts loading from parent.
@@ -88,6 +90,24 @@ public class BootstrapClassLoader extends URLClassLoader {
       resolveClass(c);
     }
     return c;
+  }
+
+  /**
+   * Unlike {@link URLClassLoader#getResource(String)} don't return resource from parent.
+   * See http://jira.codehaus.org/browse/SONAR-2276
+   */
+  @Override
+  public URL getResource(String name) {
+    return findResource(name);
+  }
+
+  /**
+   * Unlike {@link URLClassLoader#getResources(String)} don't return resources from parent.
+   * See http://jira.codehaus.org/browse/SONAR-2276
+   */
+  @Override
+  public Enumeration<URL> getResources(String name) throws IOException {
+    return findResources(name);
   }
 
 }
