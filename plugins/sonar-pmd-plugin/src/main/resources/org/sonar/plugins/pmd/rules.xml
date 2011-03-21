@@ -1110,6 +1110,9 @@ public class JumbledIncrementerRule1 {
     <configKey><![CDATA[rulesets/basic.xml/UselessOverridingMethod]]></configKey>
     
     <description><![CDATA[The overriding method merely calls the same method defined in a superclass]]></description>
+    <param key="ignoreAnnotations" type="b">
+      <description><![CDATA[Ignore annotations. Default is false.]]></description>
+    </param>
   </rule>
   <rule key="ClassCastExceptionWithToArray" >
 <priority>MAJOR</priority>
