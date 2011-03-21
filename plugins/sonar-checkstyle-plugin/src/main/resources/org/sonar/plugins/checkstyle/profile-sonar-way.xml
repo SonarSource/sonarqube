@@ -126,10 +126,6 @@
     </rule>
     <rule>
       <repositoryKey>checkstyle</repositoryKey>
-      <key>com.puppycrawl.tools.checkstyle.checks.design.DesignForExtensionCheck</key>
-    </rule>
-    <rule>
-      <repositoryKey>checkstyle</repositoryKey>
       <key>com.puppycrawl.tools.checkstyle.checks.naming.LocalVariableNameCheck</key>
     </rule>
     <rule>
