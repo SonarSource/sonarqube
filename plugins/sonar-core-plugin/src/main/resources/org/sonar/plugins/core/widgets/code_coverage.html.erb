@@ -50,16 +50,16 @@
                 </p>
               <% end %>
               <p>
-                <a href="<%= url_for_drilldown('new_lines_to_cover', :period => dashboard_configuration.period_index) -%>"><%= new_lines.to_i -%></a> lines to cover
+                <a href="<%= url_for_drilldown('new_lines_to_cover', :period => dashboard_configuration.period_index) -%>"><%= new_lines.to_i -%> lines to cover</a>
               </p>
               <% if new_line_coverage %>
                 <p>
-                  <a href="<%= url_for_drilldown('new_uncovered_lines', :highlight => 'new_line_coverage', :period => dashboard_configuration.period_index) -%>"><%= new_line_coverage.format_numeric_value(variation_value(new_line_coverage))||'-' -%></a> line coverage
+                  <a href="<%= url_for_drilldown('new_uncovered_lines', :highlight => 'new_line_coverage', :period => dashboard_configuration.period_index) -%>"><%= new_line_coverage.format_numeric_value(variation_value(new_line_coverage))||'-' -%> line coverage</a>
                 </p>
               <% end %>
               <% if new_branch_coverage %>
                 <p>
-                  <a href="<%= url_for_drilldown('new_uncovered_conditions', :highlight => 'new_branch_coverage', :period => dashboard_configuration.period_index) -%>"><%= new_branch_coverage.format_numeric_value(variation_value(new_branch_coverage))||'-' -%></a> branch coverage
+                  <a href="<%= url_for_drilldown('new_uncovered_conditions', :highlight => 'new_branch_coverage', :period => dashboard_configuration.period_index) -%>"><%= new_branch_coverage.format_numeric_value(variation_value(new_branch_coverage))||'-' -%> branch coverage</a>
                 </p>
               <%
                  end
