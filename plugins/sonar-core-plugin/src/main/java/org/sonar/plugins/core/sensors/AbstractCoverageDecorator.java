@@ -50,32 +50,36 @@ public abstract class AbstractCoverageDecorator implements Decorator {
   }
 
   protected boolean shouldDecorate(final Resource resource, final DecoratorContext context) {
-    return context.getMeasure(getGeneratedMetric()) == null && !ResourceUtils.isUnitTestClass(resource);
+    return !ResourceUtils.isUnitTestClass(resource);
   }
 
   private void computeMeasure(DecoratorContext context) {
-    Long elements = countElements(context);
-    if (elements != null && elements > 0L) {
-      Long coveredElements = countCoveredElements(context);
-      context.saveMeasure(getGeneratedMetric(), calculateCoverage(coveredElements, elements));
+    if (context.getMeasure(getGeneratedMetric()) == null) {
+      Long elements = countElements(context);
+      if (elements != null && elements > 0L) {
+        Long coveredElements = countCoveredElements(context);
+        context.saveMeasure(getGeneratedMetric(), calculateCoverage(coveredElements, elements));
+      }
     }
   }
 
   private void computeMeasureForNewCode(DecoratorContext context) {
-    Measure measure = new Measure(getGeneratedMetricForNewCode());
-    boolean hasValue = false;
-    /* TODO remove this magic number */
-    for (int periodIndex = 1; periodIndex <= 5; periodIndex++) {
-      Long elements = countElementsForNewCode(context, periodIndex);
+    if (context.getMeasure(getGeneratedMetricForNewCode()) == null) {
+      Measure measure = new Measure(getGeneratedMetricForNewCode());
+      boolean hasValue = false;
+      /* TODO remove this magic number */
+      for (int periodIndex = 1; periodIndex <= 5; periodIndex++) {
+        Long elements = countElementsForNewCode(context, periodIndex);
 
-      if (elements != null && elements > 0L) {
-        long coveredElements = countCoveredElementsForNewCode(context, periodIndex);
-        measure.setVariation(periodIndex, calculateCoverage(coveredElements, elements));
-        hasValue = true;
+        if (elements != null && elements > 0L) {
+          long coveredElements = countCoveredElementsForNewCode(context, periodIndex);
+          measure.setVariation(periodIndex, calculateCoverage(coveredElements, elements));
+          hasValue = true;
+        }
       }
-    }
-    if (hasValue) {
-      context.saveMeasure(measure);
+      if (hasValue) {
+        context.saveMeasure(measure);
+      }
     }
   }
 
