@@ -12,7 +12,7 @@
        first=true
        if @snapshot.source
     %>
-      <li class="<%= 'first' if first -%>"><a href="<%= ApplicationController.root_context -%>/api/sources?resource=<%= @resource.key -%>&format=txt">Raw</a></li>
+      <li class="<%= 'first' if first -%>"><a href="<%= ApplicationController.root_context -%>/api/sources?resource=<%= @resource.key -%>&amp;format=txt">Raw</a></li>
     <%   first=false
        end
        if request.xhr? %>
@@ -22,12 +22,12 @@
   <ul class="tabs" >
   <% if request.xhr? %>
     <% @extensions.each do |extension| %>
-      <li><a href="#" onclick="loadAjaxTab('<%= @resource.id -%>','<%= extension.getId() -%>')" class="<%= 'selected' if @extension.getId()==extension.getId() -%>"><%= extension.getTitle() -%></a></li>
+      <li><a href="#" onclick="loadAjaxTab('<%= @resource.id -%>','<%= extension.getId() -%>')" class="<%= 'selected' if @extension && @extension.getId()==extension.getId() -%>"><%= extension.getTitle() -%></a></li>
     <% end %>
   <% else %>
     <script>function loadTab(url) {$('resource-loading').show();document.location.href=url;return false;}</script>
     <% @extensions.each do |extension| %>
-      <li><a href="#" onClick="loadTab('<%= url_for(:overwrite_params => {:tab => extension.getId(), :metric => nil}) -%>')" class="<%= 'selected' if @extension.getId()==extension.getId() -%>"><%= extension.getTitle() -%></a></li>
+      <li><a href="#" onClick="loadTab('<%= url_for(:overwrite_params => {:tab => extension.getId(), :metric => nil}) -%>')" class="<%= 'selected' if @extension && @extension.getId()==extension.getId() -%>"><%= extension.getTitle() -%></a></li>
     <% end %>
   <% end %>
   <li>
