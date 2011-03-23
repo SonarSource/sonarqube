@@ -35,7 +35,7 @@
       <% if @expandable %>
         <td class="<%= 'first' if first -%>">
           <input type="checkbox" value="true" name="expand" id="expand" <%= 'checked' if @expanded -%> onclick="applyOptions()"/>
-          <label for="expand">Show full source</label>
+          <label for="expand">Full source</label>
         </td>
       <%   first=false
          end %>
