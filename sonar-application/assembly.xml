@@ -6,6 +6,7 @@
   </formats>
   <includeBaseDirectory>true</includeBaseDirectory>
   <dependencySets>
+    <!-- Libraries -->
     <dependencySet>
       <outputDirectory>lib</outputDirectory>
       <useTransitiveFiltering>true</useTransitiveFiltering>
@@ -18,6 +19,8 @@
         <exclude>org.codehaus.sonar.plugins:*</exclude>
         <exclude>org.codehaus.sonar.runtime:*</exclude>
       </excludes>
+      <fileMode>0644</fileMode>
+      <directoryMode>0755</directoryMode>
     </dependencySet>
     <dependencySet>
       <outputDirectory>lib/deprecated-maven-plugin</outputDirectory>
@@ -25,30 +28,30 @@
       <includes>
         <include>org.codehaus.sonar.runtime:sonar-core-maven-plugin</include>
       </includes>
+      <fileMode>0644</fileMode>
+      <directoryMode>0755</directoryMode>
     </dependencySet>
-
+    <!-- Plugins -->
     <dependencySet>
       <outputDirectory>lib/core-plugins</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <includes>
         <include>org.codehaus.sonar.plugins:*</include>
       </includes>
+      <fileMode>0644</fileMode>
+      <directoryMode>0755</directoryMode>
     </dependencySet>
-
-    <dependencySet>
-      <outputDirectory>lib/core-plugins</outputDirectory>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <includes>
-        <include>org.codehaus.sonar.plugins:*</include>
-      </includes>
-    </dependencySet>
+    <!-- Server -->
     <dependencySet>
       <outputDirectory>war/sonar-server</outputDirectory>
       <includes>
         <include>org.codehaus.sonar:sonar-server</include>
       </includes>
       <unpack>true</unpack>
+      <fileMode>0644</fileMode>
+      <directoryMode>0755</directoryMode>
     </dependencySet>
+    <!-- JDBC drivers -->
     <dependencySet>
       <outputDirectory>extensions/jdbc-driver/mysql/</outputDirectory>
       <includes>
@@ -56,6 +59,8 @@
       </includes>
       <unpack>false</unpack>
       <scope>runtime</scope>
+      <fileMode>0644</fileMode>
+      <directoryMode>0755</directoryMode>
     </dependencySet>
     <dependencySet>
       <outputDirectory>extensions/jdbc-driver/derby/</outputDirectory>
@@ -64,6 +69,8 @@
       </includes>
       <unpack>false</unpack>
       <scope>runtime</scope>
+      <fileMode>0644</fileMode>
+      <directoryMode>0755</directoryMode>
     </dependencySet>
     <dependencySet>
       <outputDirectory>extensions/jdbc-driver/postgresql/</outputDirectory>
@@ -72,6 +79,8 @@
       </includes>
       <unpack>false</unpack>
       <scope>runtime</scope>
+      <fileMode>0644</fileMode>
+      <directoryMode>0755</directoryMode>
     </dependencySet>
     <dependencySet>
       <outputDirectory>extensions/jdbc-driver/mssql/</outputDirectory>
@@ -80,7 +89,10 @@
       </includes>
       <unpack>false</unpack>
       <scope>runtime</scope>
+      <fileMode>0644</fileMode>
+      <directoryMode>0755</directoryMode>
     </dependencySet>
+    <!-- Java Service Wrapper -->
     <dependencySet>
       <outputDirectory>bin</outputDirectory>
       <includes>
@@ -96,23 +108,49 @@
         </excludes>
       </unpackOptions>
     </dependencySet>
-    <dependencySet>
-      <outputDirectory>lib</outputDirectory>
-      <includes>
-        <include>tanukisoft:wrapper</include>
-      </includes>
-      <unpack>false</unpack>
-      <scope>runtime</scope>
-    </dependencySet>
   </dependencySets>
 
   <fileSets>
+    <!-- Windows Scripts -->
     <fileSet>
       <directory>src/main/assembly</directory>
       <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>**/*.bat</include>
+        <include>**/*.cmd</include>
+      </includes>
+      <lineEnding>dos</lineEnding>
+      <fileMode>0644</fileMode>
+      <directoryMode>0755</directoryMode>
+    </fileSet>
+    <!-- Linux Scripts -->
+    <fileSet>
+      <directory>src/main/assembly</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>**/*.sh</include>
+        <include>**/ant</include>
+        <include>**/antRun</include>
+      </includes>
+      <lineEnding>unix</lineEnding>
       <fileMode>0755</fileMode>
       <directoryMode>0755</directoryMode>
     </fileSet>
+    <!-- Other stuff -->
+    <fileSet>
+      <directory>src/main/assembly</directory>
+      <outputDirectory>/</outputDirectory>
+      <excludes>
+        <exclude>**/*.bat</exclude>
+        <exclude>**/*.cmd</exclude>
+        <exclude>**/*.sh</exclude>
+        <exclude>**/ant</exclude>
+        <exclude>**/antRun</exclude>
+      </excludes>
+      <fileMode>0644</fileMode>
+      <directoryMode>0755</directoryMode>
+    </fileSet>
+    <!-- Empty directories -->
     <fileSet>
       <directory>src/main/assembly</directory>
       <outputDirectory>extensions/jdbc-driver/oracle/</outputDirectory>
@@ -120,7 +158,7 @@
         <exclude>**/*</exclude>
       </excludes>
     </fileSet>
-	<fileSet>
+    <fileSet>
       <directory>src/main/assembly</directory>
       <outputDirectory>logs/</outputDirectory>
       <excludes>
