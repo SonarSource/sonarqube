@@ -23,6 +23,7 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.sonar.wsclient.gwt.GwtUtils;
@@ -33,9 +34,6 @@ import org.sonar.wsclient.unmarshallers.ResourceUnmarshaller;
 public abstract class Page implements EntryPoint {
 
   private static final ResourceUnmarshaller RESOURCE_UNMARSHALLER = new ResourceUnmarshaller();
-
-  private Widget currentWidget = null;
-  private Integer currentResourceId = null;
 
   public final void onModuleLoad() {
     export(GWT.getModuleName(), this);
@@ -65,15 +63,10 @@ public abstract class Page implements EntryPoint {
 
       RootPanel container = getRootPanel();
       container.clear();
-      if (resource.getId().equals(currentResourceId) && currentWidget != null) {
-        container.add(currentWidget);
 
-      } else {
-        currentWidget = doOnResourceLoad(resource);
-        currentResourceId = resource.getId();
-        if (currentWidget != null) {
-          container.add(currentWidget);
-        }
+      Widget currentWidget = doOnResourceLoad(resource);
+      if (currentWidget != null) {
+        container.add(currentWidget);
       }
     }
   }
