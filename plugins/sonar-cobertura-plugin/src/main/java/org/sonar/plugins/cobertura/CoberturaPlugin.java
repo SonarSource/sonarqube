@@ -38,19 +38,7 @@ import java.util.List;
         description = "Maximum memory to pass to JVM of Cobertura processes",
         project = true,
         global = true) })
-public class CoberturaPlugin implements Plugin {
-
-  public String getKey() {
-    return CoreProperties.COBERTURA_PLUGIN;
-  }
-
-  public String getName() {
-    return "Cobertura";
-  }
-
-  public String getDescription() {
-    return "Cobertura is a tool that calculates the percentage of code accessed by tests. It can be used to identify which parts of Java program are lacking test coverage. You can find more by going to the <a href='http://cobertura.sourceforge.net'>Cobertura web site</a>.";
-  }
+public class CoberturaPlugin extends SonarPlugin {
 
   public List<Class<? extends Extension>> getExtensions() {
     List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();
@@ -58,10 +46,5 @@ public class CoberturaPlugin implements Plugin {
     list.add(CoberturaMavenPluginHandler.class);
     list.add(CoberturaMavenInitializer.class);
     return list;
-  }
-
-  @Override
-  public String toString() {
-    return getKey();
   }
 }

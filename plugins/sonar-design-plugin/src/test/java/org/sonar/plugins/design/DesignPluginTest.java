@@ -17,17 +17,17 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.squid;
+package org.sonar.plugins.design;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
 
-public class SquidPluginTest {
+public class DesignPluginTest {
 
   @Test
-  public void coverageForFun() {
-    assertThat(new SquidPlugin().getExtensions().size(), is(8));
+  public void getExtensions() {
+    DesignPlugin plugin = new DesignPlugin();
+    assertThat(plugin.getExtensions().size(), greaterThan(1));
   }
 }

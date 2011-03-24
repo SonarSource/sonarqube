@@ -20,9 +20,9 @@
 package org.sonar.plugins.cpd;
 
 import org.sonar.api.CoreProperties;
-import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
+import org.sonar.api.SonarPlugin;
 import org.sonar.plugins.cpd.decorators.DuplicationDensityDecorator;
 import org.sonar.plugins.cpd.decorators.SumDuplicationsDecorator;
 
@@ -64,19 +64,7 @@ import java.util.List;
         module = true,
         global = true)
 })
-public class CpdPlugin implements Plugin {
-
-  public String getKey() {
-    return CoreProperties.CPD_PLUGIN;
-  }
-
-  public String getName() {
-    return "Duplications";
-  }
-
-  public String getDescription() {
-    return "Find duplicated source code within project.";
-  }
+public class CpdPlugin extends SonarPlugin {
 
   public List getExtensions() {
     return Arrays.asList(CpdSensor.class, SumDuplicationsDecorator.class, DuplicationDensityDecorator.class, JavaCpdMapping.class);

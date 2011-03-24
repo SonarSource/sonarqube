@@ -19,10 +19,9 @@
  */
 package org.sonar.plugins.squid;
 
-import org.sonar.api.CoreProperties;
-import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
+import org.sonar.api.SonarPlugin;
 import org.sonar.plugins.squid.decorators.*;
 
 import java.util.Arrays;
@@ -44,19 +43,7 @@ import java.util.List;
             + "The best example is a logger used by all methods of a class. " +
             "All field names to exclude from LCOM4 computation must be separated by a comma.",
         project = true, global = true)})
-public class SquidPlugin implements Plugin {
-
-  public String getKey() {
-    return CoreProperties.SQUID_PLUGIN;
-  }
-
-  public String getName() {
-    return "Squid";
-  }
-
-  public String getDescription() {
-    return "Squid collects standard metrics on source code, such as lines of code, cyclomatic complexity, documentation level...";
-  }
+public class SquidPlugin extends SonarPlugin {
 
   public List getExtensions() {
     return Arrays.asList(SquidSensor.class, SquidRuleRepository.class, JavaSourceImporter.class,
@@ -64,8 +51,4 @@ public class SquidPlugin implements Plugin {
         ChidamberKemererDistributionBuilder.class, FunctionsDecorator.class);
   }
 
-  @Override
-  public String toString() {
-    return getKey();
-  }
 }

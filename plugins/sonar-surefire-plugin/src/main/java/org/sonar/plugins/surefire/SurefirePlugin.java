@@ -32,19 +32,7 @@ import java.util.List;
         project = true,
         global = false)
 })
-public class SurefirePlugin implements Plugin {
-
-  public String getKey() {
-    return CoreProperties.SUREFIRE_PLUGIN;
-  }
-
-  public String getName() {
-    return "Surefire";
-  }
-
-  public String getDescription() {
-    return "<a href=' http://maven.apache.org/plugins/maven-surefire-plugin/'>Surefire</a> is a test framework for Maven.";
-  }
+public class SurefirePlugin extends SonarPlugin {
 
   public List<Class<? extends Extension>> getExtensions() {
     List<Class<? extends Extension>> extensions = new ArrayList<Class<? extends Extension>>();

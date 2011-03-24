@@ -19,9 +19,9 @@
  */
 package org.sonar.plugins.dbcleaner;
 
-import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
+import org.sonar.api.SonarPlugin;
 import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
 import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.plugins.dbcleaner.period.PeriodPurge;
@@ -43,24 +43,7 @@ import java.util.List;
     @Property(key = DbCleanerConstants.MONTHS_BEFORE_DELETING_ALL_SNAPSHOTS, defaultValue = DbCleanerConstants.FIVE_YEARS,
         name = "Number of months before starting to delete all remaining snapshots",
         description = "After this number of months, all snapshots are fully deleted.", global = true, project = true)})
-public final class DbCleanerPlugin implements Plugin {
-
-  @Override
-  public String toString() {
-    return DbCleanerConstants.PLUGIN_NAME;
-  }
-
-  public String getKey() {
-    return DbCleanerConstants.PLUGIN_KEY;
-  }
-
-  public String getName() {
-    return DbCleanerConstants.PLUGIN_NAME;
-  }
-
-  public String getDescription() {
-    return "The DbCleaner optimizes the Sonar DB performances by removing old and useless quality snapshots.";
-  }
+public final class DbCleanerPlugin extends SonarPlugin {
 
   public List getExtensions() {
     return Arrays.asList(

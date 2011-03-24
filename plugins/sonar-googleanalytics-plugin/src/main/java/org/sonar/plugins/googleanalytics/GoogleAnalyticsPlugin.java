@@ -30,19 +30,7 @@ import java.util.List;
         name = "Account key",
         description = "Example : UA-1234567-8")
 })
-public class GoogleAnalyticsPlugin implements Plugin {
-
-  public String getKey() {
-    return CoreProperties.GOOGLE_ANALYTICS_PLUGIN;
-  }
-
-  public String getName() {
-    return "Google analytics";
-  }
-
-  public String getDescription() {
-    return "Google analytics is a tool that collects data on the traffic of web sites and then, through a powerful interface, enables to get reporting, segmentation, chart, .. on the traffic. You can find more by going to the  <a href='http://www.google.com/analytics/'>Google analytics web site</a>.";
-  }
+public class GoogleAnalyticsPlugin extends SonarPlugin {
 
   public List<Class<? extends Extension>> getExtensions() {
     List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();
@@ -50,8 +38,4 @@ public class GoogleAnalyticsPlugin implements Plugin {
     return list;
   }
 
-  @Override
-  public String toString() {
-    return getKey();
-  }
 }

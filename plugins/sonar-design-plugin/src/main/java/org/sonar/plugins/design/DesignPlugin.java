@@ -40,19 +40,7 @@ import java.util.List;
         project = true,
         global = true)
 })
-public class DesignPlugin implements Plugin {
-
-  public String getKey() {
-    return "design";
-  }
-
-  public String getName() {
-    return "Design";
-  }
-
-  public String getDescription() {
-    return "";
-  }
+public class DesignPlugin extends SonarPlugin {
 
   public List<Class<? extends Extension>> getExtensions() {
     List<Class<? extends Extension>> extensions = new ArrayList<Class<? extends Extension>>();
@@ -74,10 +62,5 @@ public class DesignPlugin implements Plugin {
     extensions.add(GwtLcom4Tab.class);
 
     return extensions;
-  }
-
-  @Override
-  public String toString() {
-    return getKey();
   }
 }

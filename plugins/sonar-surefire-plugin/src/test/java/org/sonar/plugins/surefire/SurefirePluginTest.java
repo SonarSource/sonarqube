@@ -17,17 +17,19 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.squid;
+package org.sonar.plugins.surefire;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-public class SquidPluginTest {
+public class SurefirePluginTest {
 
   @Test
-  public void coverageForFun() {
-    assertThat(new SquidPlugin().getExtensions().size(), is(8));
+  public void testGetExtensions() {
+    SurefirePlugin plugin = new SurefirePlugin();
+    assertThat(plugin.getExtensions().size(), greaterThan(0));
   }
+
 }

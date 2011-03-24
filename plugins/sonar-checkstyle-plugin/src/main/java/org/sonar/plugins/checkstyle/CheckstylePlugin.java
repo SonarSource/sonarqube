@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.checkstyle;
 
+import org.sonar.api.SonarPlugin;
+
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
@@ -35,20 +37,7 @@ import java.util.List;
         + "This property allows to configure all those filters with a native XML format."
           + " See <a href='http://checkstyle.sourceforge.net/config.html'>Checkstyle configuration page</a> to get more information on those filters.", 
           project = false, global = true) })
-public class CheckstylePlugin implements Plugin {
-
-  public String getKey() {
-    return CoreProperties.CHECKSTYLE_PLUGIN;
-  }
-
-  public String getName() {
-    return CheckstyleConstants.PLUGIN_NAME;
-  }
-
-  public String getDescription() {
-    return "Checkstyle is a rule engine that helps programmers writing Java code that adheres to a coding standard. " +
-        "You can find more by going to the <a href='http://checkstyle.sourceforge.net'>Checkstyle web site</a>.";
-  }
+public class CheckstylePlugin extends SonarPlugin {
 
   public List getExtensions() {
     return Arrays.asList(

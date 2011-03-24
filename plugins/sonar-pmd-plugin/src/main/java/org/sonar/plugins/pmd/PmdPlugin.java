@@ -19,33 +19,21 @@
  */
 package org.sonar.plugins.pmd;
 
+import org.sonar.api.SonarPlugin;
+
 import java.util.Arrays;
 import java.util.List;
 
-import org.sonar.api.Plugin;
-
-public class PmdPlugin implements Plugin {
-
-  public String getKey() {
-    return PmdConstants.PLUGIN_KEY;
-  }
-
-  public String getName() {
-    return PmdConstants.PLUGIN_NAME;
-  }
-
-  public String getDescription() {
-    return "PMD is a tool that looks for potential problems like possible bugs, dead code, suboptimal code,  overcomplicated expressions or duplicate code. You can find more by going to the <a href='http://pmd.sourceforge.net'>PMD web site</a>.";
-  }
+public class PmdPlugin extends SonarPlugin {
 
   public List getExtensions() {
     return Arrays.asList(
-        PmdSensor.class, 
-        PmdConfiguration.class, 
-        PmdExecutor.class, 
+        PmdSensor.class,
+        PmdConfiguration.class,
+        PmdExecutor.class,
         PmdRuleRepository.class,
         PmdProfileExporter.class,
-        PmdProfileImporter.class,        
+        PmdProfileImporter.class,
         SonarWayProfile.class,
         SonarWayWithFindbugsProfile.class,
         SunConventionsProfile.class

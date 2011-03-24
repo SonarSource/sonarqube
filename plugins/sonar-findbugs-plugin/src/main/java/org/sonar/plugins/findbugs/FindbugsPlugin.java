@@ -39,20 +39,7 @@ import java.util.List;
         description = "Specifies the amount of time, in milliseconds, that FindBugs may run before it is assumed to be hung and is terminated. " +
             "The default is 600,000 milliseconds, which is ten minutes.",
         project = true, module = true, global = true) })
-public class FindbugsPlugin implements Plugin {
-
-  public String getKey() {
-    return CoreProperties.FINDBUGS_PLUGIN;
-  }
-
-  public String getName() {
-    return "Findbugs";
-  }
-
-  public String getDescription() {
-    return "FindBugs is a program that uses static analysis to look for bugs in Java code. It can detect a variety of common coding mistakes, " +
-        "including thread synchronization problems, misuse of API methods... You can find more by going to the <a href='http://findbugs.sourceforge.net'>Findbugs web site</a>.";
-  }
+public class FindbugsPlugin extends SonarPlugin {
 
   public List<Class<? extends Extension>> getExtensions() {
     List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();

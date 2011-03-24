@@ -29,6 +29,7 @@ import java.util.List;
  *
  * @see org.sonar.api.Extension
  * @since 1.10
+ * @deprecated in 2.8. Use {@link SonarPlugin} instead.
  */
 public interface Plugin {
 

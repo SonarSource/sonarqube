@@ -17,17 +17,33 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.squid;
+package org.sonar.api;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+/**
+ * A plugin is a group of extensions. See {@link Extension} interface to get all extension points.
+ * 
+ * @since 2.8
+ */
+public abstract class SonarPlugin implements Plugin {
 
-import org.junit.Test;
-
-public class SquidPluginTest {
-
-  @Test
-  public void coverageForFun() {
-    assertThat(new SquidPlugin().getExtensions().size(), is(8));
+  public final String getKey() {
+    throw new UnsupportedOperationException();
   }
+
+  public final String getName() {
+    throw new UnsupportedOperationException();
+  }
+
+  public final String getDescription() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Returns a string representation of the plugin, suitable for debugging purposes only.
+   */
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
+  }
+
 }

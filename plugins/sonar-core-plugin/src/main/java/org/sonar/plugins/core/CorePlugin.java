@@ -21,7 +21,7 @@ package org.sonar.plugins.core;
 
 import com.google.common.collect.Lists;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.Plugin;
+import org.sonar.api.SonarPlugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.checks.NoSonarFilter;
@@ -155,19 +155,7 @@ import java.util.List;
         defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_5
     )
 })
-public class CorePlugin implements Plugin {
-
-  public String getKey() {
-    return CoreProperties.CORE_PLUGIN;
-  }
-
-  public String getName() {
-    return "General";
-  }
-
-  public String getDescription() {
-    return "";
-  }
+public class CorePlugin extends SonarPlugin {
 
   public List getExtensions() {
     List extensions = Lists.newLinkedList();
@@ -237,10 +225,5 @@ public class CorePlugin implements Plugin {
     extensions.add(NewCoverageAggregator.class);
 
     return extensions;
-  }
-
-  @Override
-  public String toString() {
-    return getKey();
   }
 }
