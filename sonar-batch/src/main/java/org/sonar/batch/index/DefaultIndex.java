@@ -299,6 +299,11 @@ public class DefaultIndex extends SonarIndex {
       throw new IllegalArgumentException("Violations are only supported on files, directories and project");
     }
 
+    if (violation.getRule() == null) {
+      LOG.warn("Rule is null, ignoring violation {}", violation);
+      return;
+    }
+
     Bucket bucket = checkIndexed(resource);
     if (bucket != null && !bucket.isExcluded()) {
       boolean isIgnored = !force && violationFilters != null && violationFilters.isIgnored(violation);

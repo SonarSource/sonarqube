@@ -19,9 +19,14 @@
  */
 package org.sonar.batch.index;
 
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.batch.ResourceFilter;
 import org.sonar.api.measures.CoreMetrics;
@@ -30,17 +35,13 @@ import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.*;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.ViolationFilters;
-
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class DefaultIndexTest {
 
@@ -61,10 +62,9 @@ public class DefaultIndexTest {
         return StringUtils.containsIgnoreCase(resource.getKey(), "excluded");
       }
     };
-    index.setCurrentProject(project, new ResourceFilters(new ResourceFilter[]{filter}), new ViolationFilters(), RulesProfile.create());
+    index.setCurrentProject(project, new ResourceFilters(new ResourceFilter[] { filter }), new ViolationFilters(), RulesProfile.create());
     index.doStart(project);
   }
-
 
   @Test
   public void shouldCreateUID() {
@@ -135,7 +135,6 @@ public class DefaultIndexTest {
     assertThat(index.getParent(fileRef), nullValue());
   }
 
-
   /**
    * Only a warning is logged when index is locked.
    */
@@ -173,5 +172,17 @@ public class DefaultIndexTest {
 
     assertThat(index.isIndexed(dir, true), is(true));
     assertThat(index.getMeasures(dir, MeasuresFilters.metric("ncloc")).getIntValue(), is(50));
+  }
+
+  /**
+   * See http://jira.codehaus.org/browse/SONAR-2107
+   */
+  @Test
+  public void shouldNotFailWhenSavingViolationOnNullRule() {
+    File file = new File("org/foo/Bar.java");
+    Violation violation = Violation.create((Rule) null, file);
+    index.addViolation(violation);
+
+    assertThat(index.getViolations(file).size(), is(0));
   }
 }
