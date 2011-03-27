@@ -17,10 +17,33 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.events;
+package org.sonar.batch.phases;
 
-public interface SensorsPhaseHandler extends EventHandler {
+import org.sonar.api.batch.events.ProjectAnalysisHandler;
+import org.sonar.api.resources.Project;
 
-  void onSensorsPhase(SensorsPhaseEvent event);
+class ProjectAnalysisEvent extends AbstractPhaseEvent<ProjectAnalysisHandler>
+    implements org.sonar.api.batch.events.ProjectAnalysisHandler.ProjectAnalysisEvent {
+
+  private final Project project;
+
+  ProjectAnalysisEvent(Project project, boolean start) {
+    super(start);
+    this.project = project;
+  }
+
+  public Project getProject() {
+    return project;
+  }
+
+  @Override
+  protected void dispatch(ProjectAnalysisHandler handler) {
+    handler.onProjectAnalysis(this);
+  }
+
+  @Override
+  protected Class getType() {
+    return ProjectAnalysisHandler.class;
+  }
 
 }

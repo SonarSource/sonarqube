@@ -17,10 +17,31 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.events;
+package org.sonar.api.batch.events;
 
-public interface DecoratorsPhaseHandler extends EventHandler {
+import org.sonar.api.batch.Sensor;
 
-  void onDecoratorsPhase(DecoratorsPhaseEvent event);
+/**
+ * @since 2.8
+ */
+public interface SensorExecutionHandler extends EventHandler {
+
+  /**
+   * This interface is not intended to be implemented by clients.
+   */
+  public interface SensorExecutionEvent {
+
+    Sensor getSensor();
+
+    boolean isStart();
+
+    boolean isEnd();
+
+  }
+
+  /**
+   * Called before and after execution of {@link Sensor}.
+   */
+  void onSensorExecution(SensorExecutionEvent event);
 
 }

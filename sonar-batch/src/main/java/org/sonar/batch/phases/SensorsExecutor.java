@@ -19,8 +19,7 @@
  */
 package org.sonar.batch.phases;
 
-import java.util.Collection;
-
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
@@ -33,8 +32,8 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.MavenPluginExecutor;
 import org.sonar.batch.events.EventBus;
-import org.sonar.batch.events.SensorExecutionEvent;
-import org.sonar.batch.events.SensorsPhaseEvent;
+
+import java.util.Collection;
 
 public class SensorsExecutor implements BatchComponent {
   private static final Logger LOG = LoggerFactory.getLogger(SensorsExecutor.class);
@@ -50,7 +49,7 @@ public class SensorsExecutor implements BatchComponent {
   }
 
   public void execute(Project project, SensorContext context) {
-    eventBus.fireEvent(new SensorsPhaseEvent(sensors, true));
+    eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(sensors), true));
 
     for (Sensor sensor : sensors) {
       executeMavenPlugin(project, sensor);
@@ -60,7 +59,7 @@ public class SensorsExecutor implements BatchComponent {
       eventBus.fireEvent(new SensorExecutionEvent(sensor, false));
     }
 
-    eventBus.fireEvent(new SensorsPhaseEvent(sensors, false));
+    eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(sensors), false));
   }
 
   private void executeMavenPlugin(Project project, Sensor sensor) {

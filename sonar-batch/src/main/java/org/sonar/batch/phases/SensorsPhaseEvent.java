@@ -17,28 +17,35 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.events;
+package org.sonar.batch.phases;
 
-/**
- * Root of all Sonar events.
- * 
- * @param <H> handler type
- * @since 2.7
- */
-public abstract class SonarEvent<H extends EventHandler> {
+import org.sonar.api.batch.Sensor;
+import org.sonar.api.batch.events.SensorsPhaseHandler;
 
-  protected SonarEvent() {
+import java.util.List;
+
+class SensorsPhaseEvent extends AbstractPhaseEvent<SensorsPhaseHandler>
+    implements org.sonar.api.batch.events.SensorsPhaseHandler.SensorsPhaseEvent {
+
+  private final List<Sensor> sensors;
+
+  SensorsPhaseEvent(List<Sensor> sensors, boolean start) {
+    super(start);
+    this.sensors = sensors;
   }
 
-  /**
-   * Do not call directly - should be called only by {@link EventBus}.
-   * Typically should be implemented as following: <code>handler.onEvent(this)</code>
-   */
-  protected abstract void dispatch(H handler);
+  public List<Sensor> getSensors() {
+    return sensors;
+  }
 
-  /**
-   * Returns class of associated handler. Used by {@link EventBus} to dispatch events to the correct handlers.
-   */
-  protected abstract Class getType();
+  @Override
+  protected void dispatch(SensorsPhaseHandler handler) {
+    handler.onSensorsPhase(this);
+  }
+
+  @Override
+  protected Class getType() {
+    return SensorsPhaseHandler.class;
+  }
 
 }

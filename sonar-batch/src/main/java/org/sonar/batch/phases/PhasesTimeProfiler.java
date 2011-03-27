@@ -19,25 +19,21 @@
  */
 package org.sonar.batch.phases;
 
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.events.DecoratorExecutionHandler;
+import org.sonar.api.batch.events.DecoratorsPhaseHandler;
+import org.sonar.api.batch.events.SensorExecutionHandler;
+import org.sonar.api.batch.events.SensorsPhaseHandler;
 import org.sonar.api.utils.TimeProfiler;
-import org.sonar.batch.events.DecoratorExecutionEvent;
-import org.sonar.batch.events.DecoratorExecutionHandler;
-import org.sonar.batch.events.DecoratorsPhaseEvent;
-import org.sonar.batch.events.DecoratorsPhaseHandler;
-import org.sonar.batch.events.SensorExecutionEvent;
-import org.sonar.batch.events.SensorExecutionHandler;
-import org.sonar.batch.events.SensorsPhaseEvent;
-import org.sonar.batch.events.SensorsPhaseHandler;
+
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PhasesTimeProfiler implements SensorExecutionHandler, DecoratorExecutionHandler, DecoratorsPhaseHandler, SensorsPhaseHandler {
 
@@ -47,13 +43,13 @@ public class PhasesTimeProfiler implements SensorExecutionHandler, DecoratorExec
   private DecoratorsProfiler decoratorsProfiler = new DecoratorsProfiler();
 
   public void onSensorsPhase(SensorsPhaseEvent event) {
-    if (event.isPhaseStart()) {
+    if (event.isStart()) {
       LOG.debug("Sensors : {}", StringUtils.join(event.getSensors(), " -> "));
     }
   }
 
   public void onSensorExecution(SensorExecutionEvent event) {
-    if (event.isStartExecution()) {
+    if (event.isStart()) {
       profiler.start("Sensor " + event.getSensor());
     } else {
       profiler.stop();
@@ -61,7 +57,7 @@ public class PhasesTimeProfiler implements SensorExecutionHandler, DecoratorExec
   }
 
   public void onDecoratorExecution(DecoratorExecutionEvent event) {
-    if (event.isStartExecution()) {
+    if (event.isStart()) {
       decoratorsProfiler.start(event.getDecorator());
     } else {
       decoratorsProfiler.stop();
@@ -69,7 +65,7 @@ public class PhasesTimeProfiler implements SensorExecutionHandler, DecoratorExec
   }
 
   public void onDecoratorsPhase(DecoratorsPhaseEvent event) {
-    if (event.isPhaseStart()) {
+    if (event.isStart()) {
       LOG.info("Execute decorators...");
       if (LOG.isDebugEnabled()) {
         LOG.debug("Decorators: {}", StringUtils.join(event.getDecorators(), " -> "));

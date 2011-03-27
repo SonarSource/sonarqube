@@ -17,45 +17,33 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.events;
+package org.sonar.batch.phases;
 
 import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.events.DecoratorExecutionHandler;
 
-import java.util.Collection;
+class DecoratorExecutionEvent extends AbstractPhaseEvent<DecoratorExecutionHandler>
+    implements org.sonar.api.batch.events.DecoratorExecutionHandler.DecoratorExecutionEvent {
 
-/**
- * Fired before execution of {@link Decorator}s and after.
- */
-public class DecoratorsPhaseEvent extends SonarEvent<DecoratorsPhaseHandler> {
+  private final Decorator decorator;
 
-  private Collection<Decorator> decorators;
-  private boolean start;
-
-  public DecoratorsPhaseEvent(Collection<Decorator> decorators, boolean start) {
-    this.decorators = decorators;
-    this.start = start;
+  DecoratorExecutionEvent(Decorator decorator, boolean start) {
+    super(start);
+    this.decorator = decorator;
   }
 
-  public Collection<Decorator> getDecorators() {
-    return decorators;
-  }
-
-  public boolean isPhaseStart() {
-    return start;
-  }
-
-  public boolean isPhaseDone() {
-    return !start;
+  public Decorator getDecorator() {
+    return decorator;
   }
 
   @Override
-  protected void dispatch(DecoratorsPhaseHandler handler) {
-    handler.onDecoratorsPhase(this);
+  public void dispatch(DecoratorExecutionHandler handler) {
+    handler.onDecoratorExecution(this);
   }
 
   @Override
-  protected Class getType() {
-    return DecoratorsPhaseHandler.class;
+  public Class getType() {
+    return DecoratorExecutionHandler.class;
   }
 
 }

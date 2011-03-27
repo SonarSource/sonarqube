@@ -29,8 +29,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.DecoratorsSelector;
 import org.sonar.batch.DefaultDecoratorContext;
-import org.sonar.batch.events.DecoratorExecutionEvent;
-import org.sonar.batch.events.DecoratorsPhaseEvent;
 import org.sonar.batch.events.EventBus;
 
 import java.util.Collection;
@@ -50,9 +48,9 @@ public class DecoratorsExecutor implements BatchComponent {
 
   public void execute(Project project) {
     Collection<Decorator> decorators = decoratorsSelector.select(project);
-    eventBus.fireEvent(new DecoratorsPhaseEvent(decorators, true));
+    eventBus.fireEvent(new DecoratorsPhaseEvent(Lists.newArrayList(decorators), true));
     decorateResource(project, decorators, true);
-    eventBus.fireEvent(new DecoratorsPhaseEvent(decorators, false));
+    eventBus.fireEvent(new DecoratorsPhaseEvent(Lists.newArrayList(decorators), false));
   }
 
   private DecoratorContext decorateResource(Resource resource, Collection<Decorator> decorators, boolean executeDecorators) {

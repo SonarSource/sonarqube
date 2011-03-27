@@ -19,13 +19,14 @@
  */
 package org.sonar.batch.phases;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.PersistenceManager;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 public final class Phases {
 
@@ -36,6 +37,7 @@ public final class Phases {
         InitializersExecutor.class);
   }
 
+  private EventBus eventBus;
   private DecoratorsExecutor decoratorsExecutor;
   private MavenPhaseExecutor mavenPhaseExecutor;
   private MavenPluginsConfigurator mavenPluginsConfigurator;
@@ -50,7 +52,8 @@ public final class Phases {
   public Phases(DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
                 MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
                 PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor, UpdateStatusJob updateStatusJob,
-                PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index) {
+                PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
+                EventBus eventBus) {
     this.decoratorsExecutor = decoratorsExecutor;
     this.mavenPhaseExecutor = mavenPhaseExecutor;
     this.mavenPluginsConfigurator = mavenPluginsConfigurator;
@@ -67,6 +70,7 @@ public final class Phases {
    * Executed on each module
    */
   public void execute(Project project) {
+    eventBus.fireEvent(new ProjectAnalysisEvent(project, true));
     mavenPluginsConfigurator.execute(project);
     mavenPhaseExecutor.execute(project);
     initializersExecutor.execute(project);
@@ -82,6 +86,7 @@ public final class Phases {
       postJobsExecutor.execute(project, sensorContext);
     }
     cleanMemory();
+    eventBus.fireEvent(new ProjectAnalysisEvent(project, false));
   }
 
   private void cleanMemory() {

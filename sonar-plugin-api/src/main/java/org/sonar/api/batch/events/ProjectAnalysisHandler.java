@@ -17,43 +17,31 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.events;
+package org.sonar.api.batch.events;
 
-import org.sonar.api.batch.Sensor;
+import org.sonar.api.resources.Project;
 
 /**
- * Fired on each execution of {@link Sensor} on start and on finish.
+ * @since 2.8
  */
-public class SensorExecutionEvent extends SonarEvent<SensorExecutionHandler> {
+public interface ProjectAnalysisHandler extends EventHandler {
 
-  private Sensor sensor;
-  private boolean start;
+  /**
+   * This interface is not intended to be implemented by clients.
+   */
+  public interface ProjectAnalysisEvent {
 
-  public SensorExecutionEvent(Sensor sensor, boolean start) {
-    this.sensor = sensor;
-    this.start = start;
+    Project getProject();
+
+    boolean isStart();
+
+    boolean isEnd();
+
   }
 
-  public Sensor getSensor() {
-    return sensor;
-  }
-
-  public boolean isStartExecution() {
-    return start;
-  }
-
-  public boolean isDoneExecution() {
-    return !start;
-  }
-
-  @Override
-  public void dispatch(SensorExecutionHandler handler) {
-    handler.onSensorExecution(this);
-  }
-
-  @Override
-  public Class getType() {
-    return SensorExecutionHandler.class;
-  }
+  /**
+   * Called before and after analysis of project.
+   */
+  void onProjectAnalysis(ProjectAnalysisEvent event);
 
 }

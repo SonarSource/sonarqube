@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.events;
 
+import org.sonar.api.batch.events.EventHandler;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -45,7 +47,7 @@ public class EventBusTest {
     void onEvent(FirstEvent event);
   }
 
-  static class FirstEvent extends SonarEvent<FirstHandler> {
+  static class FirstEvent extends BatchEvent<FirstHandler> {
     @Override
     protected void dispatch(FirstHandler handler) {
       handler.onEvent(this);
@@ -61,7 +63,7 @@ public class EventBusTest {
     void onEvent(SecondEvent event);
   }
 
-  static class SecondEvent extends SonarEvent<SecondHandler> {
+  static class SecondEvent extends BatchEvent<SecondHandler> {
     @Override
     protected void dispatch(SecondHandler handler) {
       handler.onEvent(this);

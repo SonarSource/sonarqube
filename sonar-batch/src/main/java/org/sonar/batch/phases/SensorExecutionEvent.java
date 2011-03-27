@@ -17,13 +17,33 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.events;
+package org.sonar.batch.phases;
 
-/**
- * Marker interface for event handlers.
- * 
- * @since 2.7
- */
-public interface EventHandler {
+import org.sonar.api.batch.Sensor;
+import org.sonar.api.batch.events.SensorExecutionHandler;
+
+class SensorExecutionEvent extends AbstractPhaseEvent<SensorExecutionHandler>
+    implements org.sonar.api.batch.events.SensorExecutionHandler.SensorExecutionEvent {
+
+  private final Sensor sensor;
+
+  SensorExecutionEvent(Sensor sensor, boolean start) {
+    super(start);
+    this.sensor = sensor;
+  }
+
+  public Sensor getSensor() {
+    return sensor;
+  }
+
+  @Override
+  public void dispatch(SensorExecutionHandler handler) {
+    handler.onSensorExecution(this);
+  }
+
+  @Override
+  public Class getType() {
+    return SensorExecutionHandler.class;
+  }
 
 }

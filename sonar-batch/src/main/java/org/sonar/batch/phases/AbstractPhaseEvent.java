@@ -17,41 +17,25 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.events;
+package org.sonar.batch.phases;
 
-import org.sonar.api.batch.Sensor;
+import org.sonar.api.batch.events.EventHandler;
+import org.sonar.batch.events.BatchEvent;
 
-import java.util.Collection;
+abstract class AbstractPhaseEvent<H extends EventHandler> extends BatchEvent<H> {
 
-/**
- * Fired before execution of {@link Sensor}s and after.
- */
-public class SensorsPhaseEvent extends SonarEvent<SensorsPhaseHandler> {
+  private final boolean start;
 
-  private Collection<Sensor> sensors;
-  private boolean start;
-
-  public SensorsPhaseEvent(Collection<Sensor> sensors, boolean start) {
-    this.sensors = sensors;
+  AbstractPhaseEvent(boolean start) {
     this.start = start;
   }
 
-  public Collection<Sensor> getSensors() {
-    return sensors;
-  }
-
-  public boolean isPhaseStart() {
+  public final boolean isStart() {
     return start;
   }
 
-  @Override
-  protected void dispatch(SensorsPhaseHandler handler) {
-    handler.onSensorsPhase(this);
-  }
-
-  @Override
-  protected Class getType() {
-    return SensorsPhaseHandler.class;
+  public final boolean isEnd() {
+    return !start;
   }
 
 }

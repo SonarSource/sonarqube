@@ -17,10 +17,31 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.events;
+package org.sonar.api.batch.events;
 
+import org.sonar.api.batch.Decorator;
+
+/**
+ * @since 2.8
+ */
 public interface DecoratorExecutionHandler extends EventHandler {
 
+  /**
+   * This interface is not intended to be implemented by clients.
+   */
+  public interface DecoratorExecutionEvent {
+
+    Decorator getDecorator();
+
+    boolean isStart();
+
+    boolean isEnd();
+
+  }
+
+  /**
+   * Called before and after execution of {@link Decorator}.
+   */
   void onDecoratorExecution(DecoratorExecutionEvent event);
 
 }

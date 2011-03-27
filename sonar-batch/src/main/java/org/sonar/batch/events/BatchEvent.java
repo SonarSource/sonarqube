@@ -19,41 +19,27 @@
  */
 package org.sonar.batch.events;
 
-import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.events.EventHandler;
 
 /**
- * Fired on each execution of {@link Decorator} on start and on finish.
+ * Root of all Sonar Batch events.
+ * 
+ * @param <H> handler type
  */
-public class DecoratorExecutionEvent extends SonarEvent<DecoratorExecutionHandler> {
+public abstract class BatchEvent<H extends EventHandler> {
 
-  private Decorator decorator;
-  private boolean start;
-
-  public DecoratorExecutionEvent(Decorator decorator, boolean start) {
-    this.decorator = decorator;
-    this.start = start;
+  protected BatchEvent() {
   }
 
-  public Decorator getDecorator() {
-    return decorator;
-  }
+  /**
+   * Do not call directly - should be called only by {@link EventBus}.
+   * Typically should be implemented as following: <code>handler.onEvent(this)</code>
+   */
+  protected abstract void dispatch(H handler);
 
-  public boolean isStartExecution() {
-    return start;
-  }
-
-  public boolean isDoneExecution() {
-    return !start;
-  }
-
-  @Override
-  public void dispatch(DecoratorExecutionHandler handler) {
-    handler.onDecoratorExecution(this);
-  }
-
-  @Override
-  public Class getType() {
-    return DecoratorExecutionHandler.class;
-  }
+  /**
+   * Returns class of associated handler. Used by {@link EventBus} to dispatch events to the correct handlers.
+   */
+  protected abstract Class getType();
 
 }
