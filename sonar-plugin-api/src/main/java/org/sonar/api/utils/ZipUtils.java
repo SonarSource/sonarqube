@@ -157,7 +157,7 @@ public final class ZipUtils {
     }
   }
 
-  private static interface ZipEntryFilter {
+  public static interface ZipEntryFilter {
     boolean accept(ZipEntry entry);
   }
 
