@@ -58,7 +58,7 @@ public final class ConfigurationFactory {
     return result;
   }
 
-  protected PropertiesConfiguration getConfigurationFromPropertiesFile(String filename) throws ConfigurationException {
+  protected PropertiesConfiguration getConfigurationFromPropertiesFile(String filename) {
     try {
       return new PropertiesConfiguration(ConfigurationFactory.class.getResource(filename));
 
@@ -67,7 +67,7 @@ public final class ConfigurationFactory {
     }
   }
 
-  public PropertiesConfiguration getConfigurationFromPropertiesFile() throws ConfigurationException {
+  public PropertiesConfiguration getConfigurationFromPropertiesFile() {
     return getConfigurationFromPropertiesFile("/conf/sonar.properties");
   }
 

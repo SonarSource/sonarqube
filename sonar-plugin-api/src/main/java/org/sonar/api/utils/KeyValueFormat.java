@@ -432,7 +432,7 @@ public final class KeyValueFormat {
 
 
   /**
-   * @deprecated since 2.7 replaced by Converter
+   * @deprecated since 2.7. Replaced by Converter
    */
   @Deprecated
   public interface Transformer<KEY, VALUE> {
@@ -452,6 +452,7 @@ public final class KeyValueFormat {
 
   /**
    * Implementation of Transformer<Double, Double>
+   * @deprecated since 2.7. Replaced by Converter
    */
   @Deprecated
   public static class DoubleNumbersPairTransformer implements Transformer<Double, Double> {
@@ -462,6 +463,7 @@ public final class KeyValueFormat {
 
   /**
    * Implementation of Transformer<Integer, Integer>
+   * @deprecated since 2.7. Replaced by Converter
    */
   @Deprecated
   public static class IntegerNumbersPairTransformer implements Transformer<Integer, Integer> {
@@ -473,6 +475,7 @@ public final class KeyValueFormat {
 
   /**
    * Implementation of Transformer<RulePriority, Integer>
+   * @deprecated since 2.7. Replaced by Converter
    */
   @Deprecated
   public static class RulePriorityNumbersPairTransformer implements Transformer<RulePriority, Integer> {

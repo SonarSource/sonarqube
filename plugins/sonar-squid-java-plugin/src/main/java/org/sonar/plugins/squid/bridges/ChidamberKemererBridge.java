@@ -21,8 +21,6 @@ package org.sonar.plugins.squid.bridges;
 
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Resource;
-import org.sonar.java.api.JavaClass;
-import org.sonar.squid.api.SourceClass;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.measures.Metric;
 
@@ -39,7 +37,7 @@ public class ChidamberKemererBridge extends Bridge {
     context.saveMeasure(sonarFile, CoreMetrics.RFC, squidFile.getDouble(Metric.RFC));
 
     double lcom4 = squidFile.getDouble(Metric.LCOM4);
-    if (lcom4>0.0) {
+    if (lcom4 > 0.0) {
       context.saveMeasure(sonarFile, CoreMetrics.LCOM4, lcom4);
     }
   }

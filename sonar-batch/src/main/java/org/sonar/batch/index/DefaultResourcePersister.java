@@ -228,7 +228,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
       return model;
 
     } catch (NonUniqueResultException e) {
-      throw new SonarException("The resource '" + resource.getEffectiveKey() + "' is duplicated in database.");
+      throw new SonarException("The resource '" + resource.getEffectiveKey() + "' is duplicated in database.", e);
     }
   }
 

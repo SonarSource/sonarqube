@@ -96,7 +96,7 @@ public class ServerHttpClient implements BatchComponent {
 
   protected String executeAction(String action) {
     String result = getRemoteContent(url + action);
-    if (result.trim().length() == 0) {
+    if (StringUtils.isBlank(result)) {
       throw new ServerApiEmptyContentException("Empty " + action + " returned from server");
     }
     return result;

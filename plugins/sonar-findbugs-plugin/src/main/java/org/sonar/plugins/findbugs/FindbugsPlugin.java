@@ -19,27 +19,25 @@
  */
 package org.sonar.plugins.findbugs;
 
+import org.sonar.api.*;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.sonar.api.CoreProperties;
-import org.sonar.api.Extension;
-import org.sonar.api.Plugin;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
 
 @Properties({
     @Property(
         key = CoreProperties.FINDBUGS_EFFORT_PROPERTY,
         defaultValue = CoreProperties.FINDBUGS_EFFORT_DEFAULT_VALUE,
         name = "Effort",
-        description = "Effort of the bug finders. Valid values are Min, Default and Max. Setting 'Max' increases precision but also increases memory consumption.",
+        description = "Effort of the bug finders. Valid values are Min, Default and Max. Setting 'Max' increases precision but also increases " +
+            "memory consumption.",
         project = true, module = true, global = true),
     @Property(
         key = CoreProperties.FINDBUGS_TIMEOUT_PROPERTY,
         defaultValue = CoreProperties.FINDBUGS_TIMEOUT_DEFAULT_VALUE + "",
         name = "Timeout",
-        description = "Specifies the amount of time, in milliseconds, that FindBugs may run before it is assumed to be hung and is terminated. The default is 600,000 milliseconds, which is ten minutes.",
+        description = "Specifies the amount of time, in milliseconds, that FindBugs may run before it is assumed to be hung and is terminated. " +
+            "The default is 600,000 milliseconds, which is ten minutes.",
         project = true, module = true, global = true) })
 public class FindbugsPlugin implements Plugin {
 
@@ -52,7 +50,8 @@ public class FindbugsPlugin implements Plugin {
   }
 
   public String getDescription() {
-    return "FindBugs is a program that uses static analysis to look for bugs in Java code. It can detect a variety of common coding mistakes, including thread synchronization problems, misuse of API methods... You can find more by going to the <a href='http://findbugs.sourceforge.net'>Findbugs web site</a>.";
+    return "FindBugs is a program that uses static analysis to look for bugs in Java code. It can detect a variety of common coding mistakes, " +
+        "including thread synchronization problems, misuse of API methods... You can find more by going to the <a href='http://findbugs.sourceforge.net'>Findbugs web site</a>.";
   }
 
   public List<Class<? extends Extension>> getExtensions() {

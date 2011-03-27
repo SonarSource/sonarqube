@@ -19,11 +19,14 @@
  */
 package org.sonar.plugins.cpd;
 
-import org.sonar.api.*;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.Plugin;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
 import org.sonar.plugins.cpd.decorators.DuplicationDensityDecorator;
 import org.sonar.plugins.cpd.decorators.SumDuplicationsDecorator;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Properties({
@@ -36,14 +39,14 @@ import java.util.List;
         module = true,
         global = true),
     @Property(
-            key = CoreProperties.CPD_IGNORE_LITERALS_PROPERTY,
-            defaultValue = CoreProperties.CPD_IGNORE_LITERALS_DEFAULT_VALUE + "",
-            name = "Ignore literals",
-            description = "if true, CPD ignores literal value differences when evaluating a duplicate block. " +
-            		"This means that foo=\"first string\"; and foo=\"second string\"; will be seen as equivalent.",
-            project = true,
-            module = true,
-            global = true),
+        key = CoreProperties.CPD_IGNORE_LITERALS_PROPERTY,
+        defaultValue = CoreProperties.CPD_IGNORE_LITERALS_DEFAULT_VALUE + "",
+        name = "Ignore literals",
+        description = "if true, CPD ignores literal value differences when evaluating a duplicate block. " +
+            "This means that foo=\"first string\"; and foo=\"second string\"; will be seen as equivalent.",
+        project = true,
+        module = true,
+        global = true),
     @Property(
         key = CoreProperties.CPD_IGNORE_IDENTIFIERS_PROPERTY,
         defaultValue = CoreProperties.CPD_IGNORE_IDENTIFIERS_DEFAULT_VALUE + "",
@@ -75,12 +78,7 @@ public class CpdPlugin implements Plugin {
     return "Find duplicated source code within project.";
   }
 
-  public List<Class<? extends Extension>> getExtensions() {
-    List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();
-    list.add(CpdSensor.class);
-    list.add(SumDuplicationsDecorator.class);
-    list.add(DuplicationDensityDecorator.class);
-    list.add(JavaCpdMapping.class);
-    return list;
+  public List getExtensions() {
+    return Arrays.asList(CpdSensor.class, SumDuplicationsDecorator.class, DuplicationDensityDecorator.class, JavaCpdMapping.class);
   }
 }

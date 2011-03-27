@@ -50,7 +50,7 @@ public final class DateUtils {
       return dateFormat.parse(s);
 
     } catch (ParseException e) {
-      throw new SonarException("The date '" + s + "' does not respect format '" + DATE_FORMAT + "'");
+      throw new SonarException("The date '" + s + "' does not respect format '" + DATE_FORMAT + "'", e);
     }
   }
 
@@ -59,7 +59,7 @@ public final class DateUtils {
       return dateTimeFormat.parse(s);
 
     } catch (ParseException e) {
-      throw new SonarException("The date '" + s + "' does not respect format '" + DATETIME_FORMAT + "'");
+      throw new SonarException("The date '" + s + "' does not respect format '" + DATETIME_FORMAT + "'", e);
     }
   }
 

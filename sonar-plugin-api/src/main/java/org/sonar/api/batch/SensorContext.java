@@ -194,7 +194,7 @@ public interface SensorContext {
    *          if the source has already been set on this resource
    * @since 1.10. Returns a boolean since 2.6.
    */
-  void saveSource(Resource reference, String source) throws DuplicatedSourceException;
+  void saveSource(Resource reference, String source);
 
   // ----------- LINKS --------------
 

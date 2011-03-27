@@ -29,8 +29,7 @@ public final class RegisterQualityModels {
   /**
    * @param registerRulesBeforeModels used only to be started after the creation of check templates
    */
-  // NOSONAR the parameter registerRulesBeforeModels is only used to provide the execution order by picocontainer
-  public RegisterQualityModels(ModelManager manager, RegisterRules registerRulesBeforeModels) {
+  public RegisterQualityModels(ModelManager manager, RegisterRules registerRulesBeforeModels) {// NOSONAR the parameter registerRulesBeforeModels is only used to provide the execution order by picocontainer
     this.manager = manager;
   }
 

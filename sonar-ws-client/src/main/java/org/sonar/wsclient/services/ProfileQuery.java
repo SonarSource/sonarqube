@@ -22,7 +22,7 @@ package org.sonar.wsclient.services;
 /**
  * @since 2.7
  */
-public class ProfileQuery extends Query<Profile> {
+public final class ProfileQuery extends Query<Profile> {
   public static final String BASE_URL = "/api/profiles";
 
   private String language;

@@ -107,13 +107,13 @@ public class TestUtils {
       try {
         FileUtils.deleteDirectory(dir);
       } catch (IOException e) {
-        throw new RuntimeException("Can not delete the directory " + dir);
+        throw new SonarException("Can not delete the directory " + dir, e);
       }
     }
     try {
       FileUtils.forceMkdir(dir);
     } catch (IOException e) {
-      throw new RuntimeException("Can not create the directory " + dir);
+      throw new SonarException("Can not create the directory " + dir, e);
     }
     return dir;
   }
@@ -134,7 +134,6 @@ public class TestUtils {
 
   static Diff isSimilarXml(String expectedXml, String xml) throws IOException, SAXException {
     XMLUnit.setIgnoreWhitespace(true);
-    Diff diff = XMLUnit.compareXML(xml, expectedXml);
-    return diff;
+    return XMLUnit.compareXML(xml, expectedXml);
   }
 }

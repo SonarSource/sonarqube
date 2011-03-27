@@ -21,7 +21,6 @@ package org.sonar.test.channel;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.sonar.channel.Channel;
 import org.sonar.channel.CodeReader;
 
 public class ReaderHasNextCharMatcher extends BaseMatcher<CodeReader> {

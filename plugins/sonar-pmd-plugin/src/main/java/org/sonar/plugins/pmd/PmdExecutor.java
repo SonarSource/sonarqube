@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.java.api.JavaUtils;
 
@@ -122,7 +123,7 @@ public class PmdExecutor implements BatchExtension {
       return stream;
 
     } catch (FileNotFoundException e) {
-      throw new RuntimeException("The PMD ruleset can not be found: " + rulesetPath);
+      throw new SonarException("The PMD ruleset can not be found: " + rulesetPath, e);
     }
   }
 
@@ -159,7 +160,7 @@ public class PmdExecutor implements BatchExtension {
         LOG.info("Java version: " + javaVersion);
         pmd.setJavaVersion(sourceType);
       } else {
-        throw new RuntimeException("Unsupported Java version for PMD: " + javaVersion);
+        throw new SonarException("Unsupported Java version for PMD: " + javaVersion);
       }
     }
   }

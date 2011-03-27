@@ -23,13 +23,11 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.DateUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
-
-import org.sonar.api.resources.Qualifiers;
 
 public class PastSnapshotFinderByPreviousAnalysis implements BatchExtension {
 

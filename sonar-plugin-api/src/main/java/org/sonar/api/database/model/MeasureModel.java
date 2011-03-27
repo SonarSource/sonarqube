@@ -20,7 +20,6 @@
 package org.sonar.api.database.model;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.Metric;

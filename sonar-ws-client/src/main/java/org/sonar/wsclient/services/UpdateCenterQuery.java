@@ -22,7 +22,7 @@ package org.sonar.wsclient.services;
 /**
  * @since 2.4
  */
-public class UpdateCenterQuery extends Query<Plugin> {
+public final class UpdateCenterQuery extends Query<Plugin> {
 
   public static final String BASE_URL = "/api/updatecenter/";
   private String action;

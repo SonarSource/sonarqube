@@ -365,6 +365,9 @@ public final class CoreMetrics {
       .setBestValue(100.0)
       .create();
 
+  /**
+   * @deprecated since 2.7. Replaced by COVERED_CONDITIONS_BY_LINE_KEY and COVERED_CONDITIONS_BY_LINE_KEY
+   */
   @Deprecated
   public static final String BRANCH_COVERAGE_HITS_DATA_KEY = "branch_coverage_hits_data";
 

@@ -46,7 +46,7 @@ public final class RegisterProvidedProfiles {
   private RuleFinder ruleFinder;
 
   public RegisterProvidedProfiles(RuleFinder ruleFinder, DatabaseSessionFactory sessionFactory,
-                                  DeprecatedProfiles deprecatedBridge, RegisterRules registerRulesBefore,
+                                  DeprecatedProfiles deprecatedBridge, RegisterRules registerRulesBefore,// NOSONAR the parameter registerRulesBefore is unused must be declared for execution order of tasks
                                   ProfileDefinition[] definitions) {
     this.ruleFinder = ruleFinder;
     this.sessionFactory = sessionFactory;
@@ -55,7 +55,7 @@ public final class RegisterProvidedProfiles {
   }
 
   public RegisterProvidedProfiles(RuleFinder ruleFinder, DatabaseSessionFactory sessionFactory,
-                                  DeprecatedProfiles deprecatedBridge, RegisterRules registerRulesBefore) {
+                                  DeprecatedProfiles deprecatedBridge, RegisterRules registerRulesBefore) {// NOSONAR the parameter registerRulesBefore is unused must be declared for execution order of tasks
     this.ruleFinder = ruleFinder;
     this.sessionFactory = sessionFactory;
     this.deprecatedProfiles = deprecatedBridge;

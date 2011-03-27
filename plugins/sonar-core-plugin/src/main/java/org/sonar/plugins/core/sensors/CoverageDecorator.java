@@ -20,7 +20,6 @@
 package org.sonar.plugins.core.sensors;
 
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.MeasureUtils;
@@ -28,7 +27,6 @@ import org.sonar.api.measures.Metric;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 public final class CoverageDecorator extends AbstractCoverageDecorator {
 
@@ -61,7 +59,6 @@ public final class CoverageDecorator extends AbstractCoverageDecorator {
   }
 
 
-
   @Override
   protected Metric getGeneratedMetricForNewCode() {
     return CoreMetrics.NEW_COVERAGE;
@@ -70,7 +67,7 @@ public final class CoverageDecorator extends AbstractCoverageDecorator {
   @Override
   protected Long countElementsForNewCode(DecoratorContext context, int periodIndex) {
     Long newLinesToCover = MeasureUtils.getVariationAsLong(context.getMeasure(CoreMetrics.NEW_LINES_TO_COVER), periodIndex);
-    if (newLinesToCover!=null) {
+    if (newLinesToCover != null) {
       long newConditionsToCover = MeasureUtils.getVariationAsLong(context.getMeasure(CoreMetrics.NEW_CONDITIONS_TO_COVER), periodIndex, 0L);
       return newLinesToCover + newConditionsToCover;
     }

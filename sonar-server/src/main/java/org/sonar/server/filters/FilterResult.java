@@ -21,6 +21,7 @@ package org.sonar.server.filters;
 
 import org.apache.commons.collections.comparators.ReverseComparator;
 
+import java.io.Serializable;
 import java.util.*;
 
 public class FilterResult {
@@ -97,7 +98,8 @@ public class FilterResult {
     }
   }
 
-  static class RowComparator implements Comparator {
+  static final class RowComparator implements Comparator, Serializable {
+    private static final long serialVersionUID = 4627704879575964978L;
     private int index;
 
     RowComparator(int index) {

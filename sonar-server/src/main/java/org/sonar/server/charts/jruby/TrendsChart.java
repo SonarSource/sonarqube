@@ -45,12 +45,13 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 public class TrendsChart extends BaseChart {
 
   private XYPlot plot;
-  private TreeMap<Long, TimeSeries> seriesById;
+  private SortedMap<Long, TimeSeries> seriesById;
   private int percentAxisId = -1;
   private boolean displayLegend;
 

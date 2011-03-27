@@ -20,15 +20,9 @@
 package org.sonar.jpa.dao;
 
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.model.RuleFailureModel;
-import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 
-import java.util.Iterator;
 import java.util.List;
 
 public class RulesDao extends BaseDao {

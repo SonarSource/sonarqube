@@ -46,7 +46,7 @@ public abstract class Module {
   /**
    * @return this
    */
-  private final Module init(MutablePicoContainer container) {
+  private Module init(MutablePicoContainer container) {
     this.container = container;
     configure();
     return this;

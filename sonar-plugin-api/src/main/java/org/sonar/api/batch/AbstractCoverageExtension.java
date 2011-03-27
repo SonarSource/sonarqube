@@ -29,6 +29,7 @@ import org.sonar.api.resources.Project;
  * @since 1.10
  * @deprecated since 2.6 was superseded by interface {@link CoverageExtension}
  */
+@Deprecated
 public abstract class AbstractCoverageExtension implements CoverageExtension {
 
   /**

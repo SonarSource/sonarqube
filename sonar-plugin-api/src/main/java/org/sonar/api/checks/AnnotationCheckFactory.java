@@ -138,7 +138,7 @@ public final class AnnotationCheckFactory extends CheckFactory {
         throw new SonarException("The type of the field " + field + " is not supported: " + field.getType());
       }
     } catch (IllegalAccessException e) {
-      throw new SonarException("Can not set the value of the field " + field + " in the class: " + check.getClass().getName());
+      throw new SonarException("Can not set the value of the field " + field + " in the class: " + check.getClass().getName(), e);
     }
   }
 

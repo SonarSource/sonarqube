@@ -141,6 +141,7 @@ public abstract class SourceCode implements Measurable, Comparable<SourceCode> {
   /**
    * @deprecated since 2.1. It's replaced by getData(MetricDef). It's still defined for binary compatibility.
    */
+  @Deprecated
   public Object getData(Metric metric) {
     return measures.getData(metric);
   }

@@ -20,16 +20,12 @@
 package org.sonar.server.platform;
 
 import org.apache.commons.configuration.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.server.configuration.ConfigurationFactory;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 public final class PlatformLifecycleListener implements ServletContextListener {
-
-  private static final Logger LOG = LoggerFactory.getLogger(PlatformLifecycleListener.class);
 
   public void contextInitialized(ServletContextEvent event) {
     Configuration configuration = new ConfigurationFactory().getConfiguration(event);
