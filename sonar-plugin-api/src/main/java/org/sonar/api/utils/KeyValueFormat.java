@@ -29,7 +29,6 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.rules.RulePriority;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -432,6 +431,9 @@ public final class KeyValueFormat {
   }
 
 
+  /**
+   * @deprecated since 2.7 replaced by Converter
+   */
   @Deprecated
   public interface Transformer<KEY, VALUE> {
     KeyValue<KEY, VALUE> transform(String key, String value);
@@ -439,6 +441,7 @@ public final class KeyValueFormat {
 
   /**
    * Implementation of Transformer<String, Double>
+   * @deprecated since 2.7 replaced by Converter
    */
   @Deprecated
   public static class StringNumberPairTransformer implements Transformer<String, Double> {

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rules;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.Plugins;
 import org.sonar.api.checks.profiles.Check;
@@ -42,23 +43,23 @@ public final class DeprecatedProfiles {
   private CheckProfileProvider[] deprecatedCheckProfileProviders;
 
   public DeprecatedProfiles(Plugins plugins, RuleFinder ruleFinder, RulesRepository[] r, CheckProfile[] deprecatedCheckProfiles, CheckProfileProvider[] deprecatedCheckProfileProviders) {
-    this.deprecatedRepositories = r;
+    this.deprecatedRepositories = (RulesRepository[])ArrayUtils.clone(r);
     this.plugins = plugins;
     this.ruleFinder = ruleFinder;
-    this.deprecatedCheckProfiles = deprecatedCheckProfiles;
-    this.deprecatedCheckProfileProviders = deprecatedCheckProfileProviders;
+    this.deprecatedCheckProfiles = (CheckProfile[])ArrayUtils.clone(deprecatedCheckProfiles);
+    this.deprecatedCheckProfileProviders = (CheckProfileProvider[])ArrayUtils.clone(deprecatedCheckProfileProviders);
   }
 
   public DeprecatedProfiles(Plugins plugins, RuleFinder ruleFinder, RulesRepository[] r, CheckProfile[] deprecatedCheckProfiles) {
-    this.deprecatedRepositories = r;
+    this.deprecatedRepositories = (RulesRepository[])ArrayUtils.clone(r);
     this.plugins = plugins;
     this.ruleFinder = ruleFinder;
-    this.deprecatedCheckProfiles = deprecatedCheckProfiles;
+    this.deprecatedCheckProfiles = (CheckProfile[])ArrayUtils.clone(deprecatedCheckProfiles);
     this.deprecatedCheckProfileProviders = new CheckProfileProvider[0];
   }
 
   public DeprecatedProfiles(Plugins plugins, RuleFinder ruleFinder, RulesRepository[] r, CheckProfileProvider[] deprecatedCheckProfileProviders) {
-    this.deprecatedRepositories = r;
+    this.deprecatedRepositories = (RulesRepository[])ArrayUtils.clone(r);
     this.plugins = plugins;
     this.ruleFinder = ruleFinder;
     this.deprecatedCheckProfiles = new CheckProfile[0];
@@ -66,7 +67,7 @@ public final class DeprecatedProfiles {
   }
 
   public DeprecatedProfiles(Plugins plugins, RuleFinder ruleFinder, RulesRepository[] r) {
-    this.deprecatedRepositories = r;
+    this.deprecatedRepositories = (RulesRepository[])ArrayUtils.clone(r);
     this.plugins = plugins;
     this.ruleFinder = ruleFinder;
     this.deprecatedCheckProfiles = new CheckProfile[0];

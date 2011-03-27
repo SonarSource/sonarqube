@@ -27,7 +27,7 @@ public class Cycle {
   private int hashcode = 0;
 
   public Cycle(List<Edge> edges) {
-    this.edges = edges.toArray(new Edge[0]);
+    this.edges = edges.toArray(new Edge[edges.size()]);
     for(Edge edge : edges) {
       hashcode += edge.hashCode();
     }

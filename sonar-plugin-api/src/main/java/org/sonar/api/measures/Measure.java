@@ -598,7 +598,7 @@ public class Measure {
     if (this == o) {
       return true;
     }
-    if (!(o.getClass().equals(Measure.class))) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
 

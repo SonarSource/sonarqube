@@ -73,7 +73,7 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
 
     DefaultTab defaultTabAnnotation = AnnotationUtils.getClassAnnotation(view, DefaultTab.class);
     if (defaultTabAnnotation != null) {
-      if (defaultTabAnnotation == null || defaultTabAnnotation.metrics().length == 0) {
+      if (defaultTabAnnotation.metrics().length == 0) {
         isDefaultTab = true;
         defaultForMetrics = new String[0];
 

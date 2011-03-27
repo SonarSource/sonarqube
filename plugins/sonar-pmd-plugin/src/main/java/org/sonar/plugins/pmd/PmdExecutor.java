@@ -19,27 +19,10 @@
  */
 package org.sonar.plugins.pmd;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.List;
-
-import net.sourceforge.pmd.PMD;
-import net.sourceforge.pmd.PMDException;
-import net.sourceforge.pmd.Report;
-import net.sourceforge.pmd.RuleContext;
-import net.sourceforge.pmd.RuleSetFactory;
-import net.sourceforge.pmd.RuleSets;
-import net.sourceforge.pmd.SourceType;
+import net.sourceforge.pmd.*;
 import net.sourceforge.pmd.renderers.Renderer;
 import net.sourceforge.pmd.renderers.XMLRenderer;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -49,6 +32,9 @@ import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.java.api.JavaUtils;
+
+import java.io.*;
+import java.util.List;
 
 public class PmdExecutor implements BatchExtension {
 
@@ -147,13 +133,10 @@ public class PmdExecutor implements BatchExtension {
     xmlRenderer.start();
     xmlRenderer.renderFileReport(report);
     xmlRenderer.end();
-    String buffer = stringwriter.toString();
 
     File xmlReport = new File(project.getFileSystem().getSonarWorkingDirectory(), "pmd-result.xml");
     LOG.info("PMD output report: " + xmlReport.getAbsolutePath());
-    Writer writer = new FileWriter(xmlReport);
-    writer.write(buffer, 0, buffer.length());
-    writer.close();
+    FileUtils.write(xmlReport, stringwriter.toString());
     return xmlReport;
   }
 

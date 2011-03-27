@@ -19,17 +19,7 @@
  */
 package org.sonar.plugins.cpd;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import net.sourceforge.pmd.cpd.TokenEntry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.CpdMapping;
@@ -39,6 +29,9 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.duplications.cpd.Match;
+
+import java.io.File;
+import java.util.*;
 
 public class CpdAnalyser {
 
@@ -84,7 +77,7 @@ public class CpdAnalyser {
             continue;
           }
 
-          firstFileData.cumulate(secondFile, secondLine, firstLine, match.getLineCount(), match);
+          firstFileData.cumulate(secondFile, secondLine, firstLine, match.getLineCount());
         }
       }
     }
@@ -116,8 +109,7 @@ public class CpdAnalyser {
       this.resource = resource;
     }
 
-    protected void cumulate(Resource targetResource, int targetDuplicationStartLine, int duplicationStartLine, int duplicatedLines,
-        Match match) {
+    protected void cumulate(Resource targetResource, int targetDuplicationStartLine, int duplicationStartLine, int duplicatedLines) {
       StringBuilder xml = new StringBuilder();
       xml.append("<duplication lines=\"").append(duplicatedLines).append("\" start=\"").append(duplicationStartLine)
           .append("\" target-start=\"").append(targetDuplicationStartLine).append("\" target-resource=\"")
@@ -125,7 +117,6 @@ public class CpdAnalyser {
 
       duplicationXMLEntries.add(xml);
 
-      int duplicatedLinesBefore = this.duplicatedLines.size();
       for (int duplicatedLine = duplicationStartLine; duplicatedLine < duplicationStartLine + duplicatedLines; duplicatedLine++) {
         this.duplicatedLines.add(duplicatedLine);
       }

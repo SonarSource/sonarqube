@@ -19,6 +19,7 @@
  */
 package org.sonar.api.utils;
 
+import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.text.*;
 import java.util.Date;
@@ -33,8 +34,8 @@ public final class DateUtils {
   public static final String DATE_FORMAT = "yyyy-MM-dd";
   public static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
 
-  private static final DateFormat dateFormat = new ThreadSafeDateFormat(DATE_FORMAT);
-  private static final DateFormat dateTimeFormat = new ThreadSafeDateFormat(DATETIME_FORMAT);
+  private static final ThreadSafeDateFormat dateFormat = new ThreadSafeDateFormat(DATE_FORMAT);
+  private static final ThreadSafeDateFormat dateTimeFormat = new ThreadSafeDateFormat(DATETIME_FORMAT);
 
   public static String formatDate(Date d) {
     return dateFormat.format(d);
@@ -69,9 +70,9 @@ public final class DateUtils {
       this.format = format;
     }
 
-    private final ThreadLocal cache = new ThreadLocal() {
+    private final transient ThreadLocal cache = new ThreadLocal() {
       public Object get() {
-        SoftReference softRef = (SoftReference) super.get();
+        Reference softRef = (Reference)super.get();
         if (softRef == null || softRef.get() == null) {
           softRef = new SoftReference(new SimpleDateFormat(format));
           super.set(softRef);
@@ -81,7 +82,7 @@ public final class DateUtils {
     };
 
     private DateFormat getDateFormat() {
-      return (DateFormat) ((SoftReference) cache.get()).get();
+      return (DateFormat) ((Reference)cache.get()).get();
     }
 
     public StringBuffer format(Date date,StringBuffer toAppendTo, FieldPosition fieldPosition) {

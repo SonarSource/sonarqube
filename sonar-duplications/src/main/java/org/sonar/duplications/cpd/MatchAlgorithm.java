@@ -94,7 +94,7 @@ public class MatchAlgorithm {
     }
     cpdListener.phaseUpdate(CPDListener.GROUPING);
     matches = matchCollector.getMatches();
-    matchCollector = null;
+
     for (Match match : matches) {
       for (Iterator<TokenEntry> occurrences = match.iterator(); occurrences.hasNext();) {
         TokenEntry mark = occurrences.next();
