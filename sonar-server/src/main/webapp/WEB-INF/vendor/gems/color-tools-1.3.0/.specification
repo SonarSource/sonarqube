@@ -1,0 +1,101 @@
+--- !ruby/object:Gem::Specification 
+name: color-tools
+version: !ruby/object:Gem::Version 
+  prerelease: false
+  segments: 
+    - 1
+    - 3
+    - 0
+  version: 1.3.0
+platform: ruby
+authors: 
+  - Austin Ziegler
+autorequire: color
+bindir: bin
+cert_chain: 
+date: 2005-08-07 00:00:00 +02:00
+default_executable: 
+dependencies: []
+
+description: color-tools is a Ruby library to provide RGB, CMYK, and other colourspace support to applications that require it. It also provides 152 named RGB colours. It offers 152 named RGB colours (184 with spelling variations) that are commonly supported and used in HTML, SVG, and X11 applications. A technique for generating a monochromatic contrasting palette is also included.
+email: austin@rubyforge.org
+executables: []
+
+extensions: []
+
+extra_rdoc_files: 
+  - README
+  - Install
+  - Changelog
+files: 
+  - Changelog
+  - Install
+  - lib
+  - metaconfig
+  - pre-setup.rb
+  - Rakefile
+  - README
+  - setup.rb
+  - tests
+  - lib/color
+  - lib/color.rb
+  - lib/color/cmyk.rb
+  - lib/color/css.rb
+  - lib/color/grayscale.rb
+  - lib/color/hsl.rb
+  - lib/color/palette
+  - lib/color/palette.rb
+  - lib/color/rgb
+  - lib/color/rgb-colors.rb
+  - lib/color/rgb.rb
+  - lib/color/yiq.rb
+  - lib/color/palette/gimp.rb
+  - lib/color/palette/monocontrast.rb
+  - lib/color/rgb/metallic.rb
+  - tests/testall.rb
+  - tests/test_cmyk.rb
+  - tests/test_css.rb
+  - tests/test_gimp.rb
+  - tests/test_grayscale.rb
+  - tests/test_hsl.rb
+  - tests/test_monocontrast.rb
+  - tests/test_rgb.rb
+  - tests/test_yiq.rb
+has_rdoc: true
+homepage: http://rubyforge.org/projects/ruby-pdf
+licenses: []
+
+post_install_message: 
+rdoc_options: 
+  - --title
+  - color-tools
+  - --main
+  - README
+  - --line-numbers
+require_paths: 
+  - lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  requirements: 
+    - - ">"
+      - !ruby/object:Gem::Version 
+        segments: 
+          - 0
+          - 0
+          - 0
+        version: 0.0.0
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        segments: 
+          - 0
+        version: "0"
+requirements: []
+
+rubyforge_project: ruby-pdf
+rubygems_version: 1.3.6
+signing_key: 
+specification_version: 1
+summary: color-tools provides colour space definition and manpiulation as well as commonly named RGB colours.
+test_files: []
+

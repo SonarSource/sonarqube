@@ -1,0 +1,101 @@
+--- !ruby/object:Gem::Specification 
+name: fastercsv
+version: !ruby/object:Gem::Version 
+  prerelease: false
+  segments: 
+    - 1
+    - 4
+    - 0
+  version: 1.4.0
+platform: ruby
+authors: 
+  - James Edward Gray II
+autorequire: 
+bindir: bin
+cert_chain: []
+
+date: 2008-09-10 00:00:00 +02:00
+default_executable: 
+dependencies: []
+
+description: FasterCSV is intended as a complete replacement to the CSV standard library. It is significantly faster and smaller while still being pure Ruby code. It also strives for a better interface.
+email: james@grayproductions.net
+executables: []
+
+extensions: []
+
+extra_rdoc_files: 
+  - AUTHORS
+  - COPYING
+  - README
+  - INSTALL
+  - TODO
+  - CHANGELOG
+  - LICENSE
+files: 
+  - lib/faster_csv.rb
+  - lib/fastercsv.rb
+  - test/tc_csv_parsing.rb
+  - test/tc_csv_writing.rb
+  - test/tc_data_converters.rb
+  - test/tc_encodings.rb
+  - test/tc_features.rb
+  - test/tc_headers.rb
+  - test/tc_interface.rb
+  - test/tc_row.rb
+  - test/tc_serialization.rb
+  - test/tc_speed.rb
+  - test/tc_table.rb
+  - test/ts_all.rb
+  - examples/csv_converters.rb
+  - examples/csv_filter.rb
+  - examples/csv_reading.rb
+  - examples/csv_table.rb
+  - examples/csv_writing.rb
+  - examples/shortcut_interface.rb
+  - test/test_data.csv
+  - examples/purchase.csv
+  - Rakefile
+  - setup.rb
+  - AUTHORS
+  - COPYING
+  - README
+  - INSTALL
+  - TODO
+  - CHANGELOG
+  - LICENSE
+has_rdoc: true
+homepage: http://fastercsv.rubyforge.org
+licenses: []
+
+post_install_message: 
+rdoc_options: 
+  - --title
+  - FasterCSV Documentation
+  - --main
+  - README
+require_paths: 
+  - lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        segments: 
+          - 0
+        version: "0"
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        segments: 
+          - 0
+        version: "0"
+requirements: []
+
+rubyforge_project: fastercsv
+rubygems_version: 1.3.6
+signing_key: 
+specification_version: 2
+summary: FasterCSV is CSV, but faster, smaller, and cleaner.
+test_files: 
+  - test/ts_all.rb
