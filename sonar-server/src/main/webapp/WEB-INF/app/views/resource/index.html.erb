@@ -59,8 +59,8 @@
           elsif line.hits
             status=(line.hits>0 ? '' : 'ko')
           end
-        elsif @display_violations
-          status="sev#{line.violation_severity}"
+        elsif @display_violations && line.violations?
+          status="ko"
         end
       end
   %>

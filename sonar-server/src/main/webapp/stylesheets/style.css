@@ -699,17 +699,11 @@ span.rulename a:hover {
   border-top: 1px solid #6EC563;
   border-bottom: 1px solid #6EC563;
 }
-.sources2 td.sev0, .sources2 td.sev1, .sources2 td.warn {
-  /* info, minor */
+.sources2 td.warn {
   background-color: #FFF6BF;
-  border-top: 1px solid #FFD324;
-  border-bottom: 1px solid #FFD324;
 }
-.sources2 td.sev2, .sources2 td.sev3, .sources2 td.sev4, .sources2 td.ko {
-  /* major, critical, blocker */
+.sources2 td.ko {
   background-color: #FF9090;
-  border-top: 1px solid #FF5252;
-  border-bottom: 1px solid #FF5252;
 }
 .sources2 td.new_section {
   border-top: 1px solid #DDD;
