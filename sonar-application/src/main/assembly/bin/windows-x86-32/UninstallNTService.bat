@@ -1,18 +1,9 @@
 @echo off
 setlocal
 
-rem Copyright (c) 1999, 2008 Tanuki Software, Inc.
-rem http://www.tanukisoftware.com
-rem All rights reserved.
+rem Copyright (c) 1999, 2006 Tanuki Software Inc.
 rem
-rem This software is the confidential and proprietary information
-rem of Tanuki Software.  ("Confidential Information").  You shall
-rem not disclose such Confidential Information and shall use it
-rem only in accordance with the terms of the license agreement you
-rem entered into with Tanuki Software.
-rem
-rem Java Service Wrapper general NT service uninstall script.
-rem Optimized for use with version 3.3.0 of the Wrapper.
+rem Java Service Wrapper general NT service uninstall script
 rem
 
 if "%OS%"=="Windows_NT" goto nt

@@ -1,15 +1,7 @@
 #! /bin/sh
 
 #
-# Copyright (c) 1999, 2008 Tanuki Software, Inc.
-# http://www.tanukisoftware.com
-# All rights reserved.
-#
-# This software is the confidential and proprietary information
-# of Tanuki Software.  ("Confidential Information").  You shall
-# not disclose such Confidential Information and shall use it
-# only in accordance with the terms of the license agreement you
-# entered into with Tanuki Software.
+# Copyright (c) 1999, 2006 Tanuki Software Inc.
 #
 # Java Service Wrapper sh script.  Suitable for starting and stopping
 #  wrapped Java applications on UNIX platforms.
@@ -17,11 +9,17 @@
 
 #-----------------------------------------------------------------------------
 # These settings can be modified to fit the needs of your application
-# Optimized for use with version 3.3.0 of the Wrapper.
+
+# Default values for the Application variables, below. 
+# 
+# NOTE: The build for specific applications may override this during the resource-copying
+# phase, to fill in a concrete name and avoid the use of the defaults specified here.
+DEF_APP_NAME="sonar"
+DEF_APP_LONG_NAME="sonar"
 
 # Application
-APP_NAME="sonar"
-APP_LONG_NAME="sonar"
+APP_NAME="${DEF_APP_NAME}"
+APP_LONG_NAME="${DEF_APP_LONG_NAME}"
 
 # Wrapper
 WRAPPER_CMD="./wrapper"
@@ -39,19 +37,6 @@ PIDDIR="."
 #  TERM signals.
 #IGNORE_SIGNALS=true
 
-# Wrapper will start the JVM asynchronously. Your application may have some
-#  initialization tasks and it may be desirable to wait a few seconds
-#  before returning.  For example, to delay the invocation of following
-#  startup scripts.  Setting WAIT_AFTER_STARTUP to a positive number will
-#  cause the start command to delay for the indicated period of time
-#  (in seconds).
-#
-WAIT_AFTER_STARTUP=0
-
-# If set, the status, start_msg and stop_msg commands will print out detailed
-#   state information on the Wrapper and Java processes.
-#DETAIL_STATUS=true
-
 # If specified, the Wrapper will be run as the specified user.
 # IMPORTANT - Make sure that the user has the required privileges to write
 #  the PID file and wrapper.log files.  Failure to be able to write the log
@@ -65,20 +50,7 @@ WAIT_AFTER_STARTUP=0
 # The following two lines are used by the chkconfig command. Change as is
 #  appropriate for your application.  They should remain commented.
 # chkconfig: 2345 20 80
-# description: "Sonar Server"
-
-# Initialization block for the install_initd and remove_initd scripts used by
-#  SUSE linux distributions.
-### BEGIN INIT INFO
-# Provides: @app.name@
-# Required-Start: $local_fs $network $syslog
-# Should-Start:
-# Required-Stop:
-# Default-Start: 2 3 4 5
-# Default-Stop: 0 1 6
-# Short-Description: @app.long.name@
-# Description: @app.description@
-### END INIT INFO
+# description: Test Wrapper Sample Application
 
 # Do not modify anything beyond this point
 #-----------------------------------------------------------------------------
@@ -155,8 +127,6 @@ fi
 
 # Process ID
 ANCHORFILE="$PIDDIR/$APP_NAME.anchor"
-STATUSFILE="$PIDDIR/$APP_NAME.status"
-JAVASTATUSFILE="$PIDDIR/$APP_NAME.java.status"
 PIDFILE="$PIDDIR/$APP_NAME.pid"
 LOCKDIR="/var/lock/subsys"
 LOCKFILE="$LOCKDIR/$APP_NAME"
@@ -182,10 +152,7 @@ case "$DIST_OS" in
         DIST_OS="solaris"
         ;;
     'hp-ux' | 'hp-ux64')
-        # HP-UX needs the XPG4 version of ps (for -o args)
         DIST_OS="hpux"
-        UNIX95=""
-        export UNIX95
         ;;
     'darwin')
         DIST_OS="macosx"
@@ -196,52 +163,31 @@ case "$DIST_OS" in
 esac
 
 # Resolve the architecture
-if [ "$DIST_OS" = "macosx" ]
+DIST_ARCH=`uname -p | tr [:upper:] [:lower:] | tr -d [:blank:]`
+if [ "$DIST_ARCH" = "unknown" ]
 then
-    DIST_ARCH="universal"
-else
-    DIST_ARCH=
-    DIST_ARCH=`uname -p 2>/dev/null | tr [:upper:] [:lower:] | tr -d [:blank:]`
-    if [ "X$DIST_ARCH" = "X" ]
-    then
-        DIST_ARCH="unknown"
-    fi
-    if [ "$DIST_ARCH" = "unknown" ]
-    then
-        DIST_ARCH=`uname -m 2>/dev/null | tr [:upper:] [:lower:] | tr -d [:blank:]`
-    fi
-    case "$DIST_ARCH" in
-        'amd64' | 'athlon' | 'i386' | 'i486' | 'i586' | 'i686' | 'x86_64')
-            DIST_ARCH="x86"
-            ;;
-        'ia32' | 'ia64' | 'ia64n' | 'ia64w')
-            DIST_ARCH="ia"
-            ;;
-        'ip27')
-            DIST_ARCH="mips"
-            ;;
-        'power' | 'powerpc' | 'power_pc' | 'ppc64')
-            DIST_ARCH="ppc"
-            ;;
-        'pa_risc' | 'pa-risc')
-            DIST_ARCH="parisc"
-            ;;
-        'sun4u' | 'sparcv9')
-            DIST_ARCH="sparc"
-            ;;
-        '9000/800')
-            DIST_ARCH="parisc"
-            ;;
-    esac
+    DIST_ARCH=`uname -m | tr [:upper:] [:lower:] | tr -d [:blank:]`
 fi
-
-# OSX always places Java in the same location so we can reliably set JAVA_HOME
-if [ "$DIST_OS" = "macosx" ]
-then
-    if [ -z "$JAVA_HOME" ]; then
-        JAVA_HOME="/Library/Java/Home"; export JAVA_HOME
-    fi
-fi
+case "$DIST_ARCH" in
+    'amd64' | 'athlon' | 'ia32' | 'ia64' | 'i386' | 'i486' | 'i586' | 'i686' | 'x86_64')
+        DIST_ARCH="x86"
+        ;;
+    'ip27')
+        DIST_ARCH="mips"
+        ;;
+    'power' | 'powerpc' | 'power_pc' | 'ppc64')
+        DIST_ARCH="ppc"
+        ;;
+    'pa_risc' | 'pa-risc')
+        DIST_ARCH="parisc"
+        ;;
+    'sun4u' | 'sparcv9')
+        DIST_ARCH="sparc"
+        ;;
+    '9000/800')
+        DIST_ARCH="parisc"
+        ;;
+esac
 
 outputFile() {
     if [ -f "$1" ]
@@ -256,23 +202,56 @@ outputFile() {
 # If a 32-bit wrapper binary exists then it will work on 32 or 64 bit
 #  platforms, if the 64-bit binary exists then the distribution most
 #  likely wants to use long names.  Otherwise, look for the default.
+# For macosx, we also want to look for universal binaries.
 WRAPPER_TEST_CMD="$WRAPPER_CMD-$DIST_OS-$DIST_ARCH-32"
 if [ -x "$WRAPPER_TEST_CMD" ]
 then
     WRAPPER_CMD="$WRAPPER_TEST_CMD"
 else
-    WRAPPER_TEST_CMD="$WRAPPER_CMD-$DIST_OS-$DIST_ARCH-64"
-    if [ -x "$WRAPPER_TEST_CMD" ]
+    if [ "$DIST_OS" = "macosx" ]
     then
-        WRAPPER_CMD="$WRAPPER_TEST_CMD"
-    else
-        if [ ! -x "$WRAPPER_CMD" ]
+        WRAPPER_TEST_CMD="$WRAPPER_CMD-$DIST_OS-universal-32"
+        if [ -x "$WRAPPER_TEST_CMD" ]
         then
-            echo "Unable to locate any of the following binaries:"
-            outputFile "$WRAPPER_CMD-$DIST_OS-$DIST_ARCH-32"
-            outputFile "$WRAPPER_CMD-$DIST_OS-$DIST_ARCH-64"
-            outputFile "$WRAPPER_CMD"
-            exit 1
+            WRAPPER_CMD="$WRAPPER_TEST_CMD"
+        else
+            WRAPPER_TEST_CMD="$WRAPPER_CMD-$DIST_OS-$DIST_ARCH-64"
+            if [ -x "$WRAPPER_TEST_CMD" ]
+            then
+                WRAPPER_CMD="$WRAPPER_TEST_CMD"
+            else
+                WRAPPER_TEST_CMD="$WRAPPER_CMD-$DIST_OS-universal-64"
+                if [ -x "$WRAPPER_TEST_CMD" ]
+                then
+                    WRAPPER_CMD="$WRAPPER_TEST_CMD"
+                else
+                    if [ ! -x "$WRAPPER_CMD" ]
+                    then
+                        echo "Unable to locate any of the following binaries:"
+                        outputFile "$WRAPPER_CMD-$DIST_OS-$DIST_ARCH-32"
+                        outputFile "$WRAPPER_CMD-$DIST_OS-universal-32"
+                        outputFile "$WRAPPER_CMD-$DIST_OS-$DIST_ARCH-64"
+                        outputFile "$WRAPPER_CMD-$DIST_OS-universal-64"
+                        outputFile "$WRAPPER_CMD"
+                        exit 1
+                    fi
+                fi
+            fi
+        fi
+    else
+        WRAPPER_TEST_CMD="$WRAPPER_CMD-$DIST_OS-$DIST_ARCH-64"
+        if [ -x "$WRAPPER_TEST_CMD" ]
+        then
+            WRAPPER_CMD="$WRAPPER_TEST_CMD"
+        else
+            if [ ! -x "$WRAPPER_CMD" ]
+            then
+                echo "Unable to locate any of the following binaries:"
+                outputFile "$WRAPPER_CMD-$DIST_OS-$DIST_ARCH-32"
+                outputFile "$WRAPPER_CMD-$DIST_OS-$DIST_ARCH-64"
+                outputFile "$WRAPPER_CMD"
+                exit 1
+            fi
         fi
     fi
 fi
@@ -293,14 +272,6 @@ then
 else
    ANCHORPROP=wrapper.anchorfile=\"$ANCHORFILE\"
    IGNOREPROP=wrapper.ignore_signals=TRUE
-fi
-
-# Build the status file clause.
-if [ "X$DETAIL_STATUS" = "X" ]
-then
-   STATUSPROP=
-else
-   STATUSPROP="wrapper.statusfile=\"$STATUSFILE\" wrapper.java.statusfile=\"$JAVASTATUSFILE\""
 fi
 
 # Build the lock file clause.  Only create a lock file if the lock directory exists on this platform.
@@ -349,7 +320,7 @@ checkUser() {
         then
             if [ "X$1" != "X" ]
             then
-                # Resolve the primary group
+                # Resolve the primary group 
                 RUN_AS_GROUP=`groups $RUN_AS_USER | awk '{print $3}' | tail -1`
                 if [ "X$RUN_AS_GROUP" = "X" ]
                 then
@@ -362,15 +333,7 @@ checkUser() {
 
         # Still want to change users, recurse.  This means that the user will only be
         #  prompted for a password once. Variables shifted by 1
-        #
-        # Use "runuser" if this exists.  runuser should be used on RedHat in preference to su.
-        #
-        if test -f "/sbin/runuser"
-        then
-            /sbin/runuser - $RUN_AS_USER -c "\"$REALPATH\" $2"
-        else
-            su - $RUN_AS_USER -c "\"$REALPATH\" $2"
-        fi
+        su -m $RUN_AS_USER -c "\"$REALPATH\" $2"
 
         # Now that we are the original user again, we may need to clean up the lock file.
         if [ "X$LOCKPROP" != "X" ]
@@ -391,7 +354,6 @@ checkUser() {
 }
 
 getpid() {
-    pid=""
     if [ -f "$PIDFILE" ]
     then
         if [ -r "$PIDFILE" ]
@@ -404,15 +366,7 @@ getpid() {
                 #  common is during system startup after an unclean shutdown.
                 # The ps statement below looks for the specific wrapper command running as
                 #  the pid.  If it is not found then the pid file is considered to be stale.
-                case "$DIST_OS" in
-                    'macosx')
-                        pidtest=`$PSEXE -ww -p $pid -o command | grep "$WRAPPER_CMD" | tail -1`
-                        ;;
-                    *)
-                        pidtest=`$PSEXE -p $pid -o args | grep "$WRAPPER_CMD" | tail -1`
-                        ;;
-                esac
-
+                pidtest=`$PSEXE -p $pid -o args | grep "$WRAPPER_CMD" | tail -1`
                 if [ "X$pidtest" = "X" ]
                 then
                     # This is a stale pid file.
@@ -425,34 +379,6 @@ getpid() {
             echo "Cannot read $PIDFILE."
             exit 1
         fi
-    fi
-}
-
-getstatus() {
-    STATUS=
-    if [ -f "$STATUSFILE" ]
-    then
-        if [ -r "$STATUSFILE" ]
-        then
-            STATUS=`cat "$STATUSFILE"`
-        fi
-    fi
-    if [ "X$STATUS" = "X" ]
-    then
-        STATUS="Unknown"
-    fi
-
-    JAVASTATUS=
-    if [ -f "$JAVASTATUSFILE" ]
-    then
-        if [ -r "$JAVASTATUSFILE" ]
-        then
-            JAVASTATUS=`cat "$JAVASTATUSFILE"`
-        fi
-    fi
-    if [ "X$JAVASTATUS" = "X" ]
-    then
-        JAVASTATUS="Unknown"
     fi
 }
 
@@ -472,52 +398,35 @@ console() {
     if [ "X$pid" = "X" ]
     then
         # The string passed to eval must handles spaces in paths correctly.
-        COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" wrapper.name=\"$APP_NAME\" wrapper.displayname=\"$APP_LONG_NAME\" $ANCHORPROP $STATUSPROP $LOCKPROP"
+        COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" wrapper.syslog.ident=$APP_NAME wrapper.pidfile=\"$PIDFILE\" $ANCHORPROP $LOCKPROP"
         eval $COMMAND_LINE
     else
         echo "$APP_LONG_NAME is already running."
         exit 1
     fi
 }
-
+ 
 start() {
-    echo -n "Starting $APP_LONG_NAME..."
+    echo "Starting $APP_LONG_NAME..."
     getpid
     if [ "X$pid" = "X" ]
     then
         # The string passed to eval must handles spaces in paths correctly.
-        COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" wrapper.name=\"$APP_NAME\" wrapper.displayname=\"$APP_LONG_NAME\" wrapper.daemonize=TRUE $ANCHORPROP $IGNOREPROP $STATUSPROP $LOCKPROP"
+        COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" wrapper.syslog.ident=$APP_NAME wrapper.pidfile=\"$PIDFILE\" wrapper.daemonize=TRUE $ANCHORPROP $IGNOREPROP $LOCKPROP"
         eval $COMMAND_LINE
     else
         echo "$APP_LONG_NAME is already running."
         exit 1
     fi
-
-    # Sleep for a few seconds to allow for intialization if required
-    #  then test to make sure we're still running.
-    #
-    i=0
-    while [ $i -lt $WAIT_AFTER_STARTUP ]
-    do
-        sleep 1
-        echo -n "."
-        i=`expr $i + 1`
-    done
-    if [ $WAIT_AFTER_STARTUP -gt 0 ]
+    getpid
+    if [ "X$pid" != "X" ]
     then
-        getpid
-        if [ "X$pid" = "X" ]
-        then
-            echo " WARNING: $APP_LONG_NAME may have failed to start."
-            exit 1
-        else
-            echo " running ($pid)."
-        fi
+        echo "Started $APP_LONG_NAME."
     else
-        echo ""
-    fi
+        echo "Failed to start $APP_LONG_NAME."
+    fi    
 }
-
+ 
 stopit() {
     echo "Stopping $APP_LONG_NAME..."
     getpid
@@ -587,13 +496,7 @@ status() {
         echo "$APP_LONG_NAME is not running."
         exit 1
     else
-        if [ "X$DETAIL_STATUS" = "X" ]
-        then
-            echo "$APP_LONG_NAME is running (PID:$pid)."
-        else
-            getstatus
-            echo "$APP_LONG_NAME is running (PID:$pid, Wrapper:$STATUS, Java:$JAVASTATUS)"
-        fi
+        echo "$APP_LONG_NAME is running ($pid)."
         exit 0
     fi
 }
@@ -604,6 +507,7 @@ dump() {
     if [ "X$pid" = "X" ]
     then
         echo "$APP_LONG_NAME was not running."
+
     else
         kill -3 $pid
 
@@ -613,40 +517,6 @@ dump() {
             exit 1
         else
             echo "Dumped $APP_LONG_NAME."
-        fi
-    fi
-}
-
-# Used by HP-UX init scripts.
-startmsg() {
-    getpid
-    if [ "X$pid" = "X" ]
-    then
-        echo "Starting $APP_LONG_NAME... (Wrapper:Stopped)"
-    else
-        if [ "X$DETAIL_STATUS" = "X" ]
-        then
-            echo "Starting $APP_LONG_NAME... (Wrapper:Running)"
-        else
-            getstatus
-            echo "Starting $APP_LONG_NAME... (Wrapper:$STATUS, Java:$JAVASTATUS)"
-        fi
-    fi
-}
-
-# Used by HP-UX init scripts.
-stopmsg() {
-    getpid
-    if [ "X$pid" = "X" ]
-    then
-        echo "Stopping $APP_LONG_NAME... (Wrapper:Stopped)"
-    else
-        if [ "X$DETAIL_STATUS" = "X" ]
-        then
-            echo "Stopping $APP_LONG_NAME... (Wrapper:Running)"
-        else
-            getstatus
-            echo "Stopping $APP_LONG_NAME... (Wrapper:$STATUS, Java:$JAVASTATUS)"
         fi
     fi
 }
@@ -682,16 +552,6 @@ case "$1" in
     'dump')
         checkUser "" $1
         dump
-        ;;
-
-    'start_msg')
-        checkUser "" $1
-        startmsg
-        ;;
-
-    'stop_msg')
-        checkUser "" $1
-        stopmsg
         ;;
 
     *)
