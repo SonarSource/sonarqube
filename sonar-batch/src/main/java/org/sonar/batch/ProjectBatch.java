@@ -25,26 +25,19 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.DefaultProjectFileSystem;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.resources.*;
 import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.BatchPluginRepository;
 import org.sonar.batch.components.PastViolationsLoader;
 import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.phases.Phases;
 import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.core.components.DefaultModelFinder;
-import org.sonar.jpa.dao.AsyncMeasuresDao;
-import org.sonar.jpa.dao.AsyncMeasuresService;
-import org.sonar.jpa.dao.DaoFacade;
-import org.sonar.jpa.dao.ProfilesDao;
-import org.sonar.jpa.dao.RulesDao;
+import org.sonar.jpa.dao.*;
 
 public class ProjectBatch {
 
@@ -146,6 +139,7 @@ public class ProjectBatch {
   private static class ProjectCoreComponents extends Module {
     @Override
     protected void configure() {
+      addComponent(EventBus.class);
       addComponent(Phases.class);
       addComponent(PhasesTimeProfiler.class);
       for (Class clazz : Phases.getPhaseClasses()) {

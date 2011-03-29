@@ -19,9 +19,6 @@
  */
 package org.sonar.batch;
 
-import java.net.URLClassLoader;
-import java.util.Arrays;
-
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,23 +30,8 @@ import org.sonar.batch.bootstrap.BatchPluginRepository;
 import org.sonar.batch.bootstrap.BootstrapClassLoader;
 import org.sonar.batch.bootstrap.ExtensionDownloader;
 import org.sonar.batch.bootstrap.TempDirectories;
-import org.sonar.batch.components.PastMeasuresLoader;
-import org.sonar.batch.components.PastSnapshotFinder;
-import org.sonar.batch.components.PastSnapshotFinderByDate;
-import org.sonar.batch.components.PastSnapshotFinderByDays;
-import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
-import org.sonar.batch.components.PastSnapshotFinderByVersion;
-import org.sonar.batch.events.EventBus;
-import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.DefaultPersistenceManager;
-import org.sonar.batch.index.DefaultResourcePersister;
-import org.sonar.batch.index.DependencyPersister;
-import org.sonar.batch.index.EventPersister;
-import org.sonar.batch.index.LinkPersister;
-import org.sonar.batch.index.MeasurePersister;
-import org.sonar.batch.index.MemoryOptimizer;
-import org.sonar.batch.index.SourcePersister;
-import org.sonar.batch.index.ViolationPersister;
+import org.sonar.batch.components.*;
+import org.sonar.batch.index.*;
 import org.sonar.core.components.CacheMetricFinder;
 import org.sonar.core.components.CacheRuleFinder;
 import org.sonar.core.plugin.JpaPluginDao;
@@ -57,6 +39,9 @@ import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.session.DatabaseSessionProvider;
 import org.sonar.jpa.session.DriverDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
+
+import java.net.URLClassLoader;
+import java.util.Arrays;
 
 public class Batch {
 
@@ -104,7 +89,6 @@ public class Batch {
       addComponent(EventPersister.class);
       addComponent(LinkPersister.class);
       addComponent(MeasurePersister.class);
-      addComponent(EventBus.class);
       addComponent(MemoryOptimizer.class);
       addComponent(DefaultResourcePersister.class);
       addComponent(SourcePersister.class);
