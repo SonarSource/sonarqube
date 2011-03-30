@@ -10,7 +10,7 @@
     <option value=""></option>
     <%= options_for_profiles(@profiles, params[:id2].to_i) %>
   </select>
-  <input type="submit" value="Compare" class="small"/>
+  <input type="submit" value="Compare" class="small" id="submit-compare"/>
   <% if @profile1 && @profile2 %>
     <a href="<%= url_for :action => 'compare', :id1 => @profile2.id, :id2 => @profile1.id -%>" id="switch" title="Switch left and right view"><%= image_tag 'switch.png'-%></a>
   <% end %>
@@ -24,7 +24,7 @@
 <% unless @in1.empty? %>
   <tr>
   <td  width="49%">
-    <table class="data width100 marginbottom10">
+    <table class="data width100 marginbottom10" id="in1-rules">
       <thead>
         <tr>
           <th><%= @in1.size -%> rules only in <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile1.id -%>"><%= h @profile1.name %></a></th>
@@ -49,7 +49,7 @@
     <td width="49%"></td>
     <td width="2%"> </td>
     <td width="49%">
-      <table class="data width100 marginbottom10">
+      <table class="data width100 marginbottom10" id="in2-rules">
         <thead>
           <tr>
             <th><%= @in2.size -%> rules only in <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile2.id -%>"><%= h @profile2.name %></a></th>
@@ -71,7 +71,7 @@
 <% unless @modified.empty? %>
 <tr>
     <td colspan="3">
-    <table class="data width100 marginbottom10">
+    <table class="data width100 marginbottom10" id="modified-rules">
       <thead>
         <tr>
           <th width="49%"><%= @modified.size -%> rules have a different configuration<br/>
