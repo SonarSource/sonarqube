@@ -1,7 +1,12 @@
 <% if administrator? %>
 <div class="line-block marginbottom10">
-  <ul style="float: right" class="horizontal">
-    <li class="marginleft10 restore">
+  <ul class="operations">
+    <li>
+      <%= image_tag 'compare.png' -%>
+      <a href="<%= ApplicationController.root_context-%>/profiles/compare" id="compare-link">Compare profiles</a>
+    </li>
+    <li class="last">
+      <%= image_tag 'restore.gif' -%>
       <a href="#" onclick="$('restore-form').show();return false;" id="restore-link">Restore profile</a>
     </li>
   </ul>
@@ -15,7 +20,7 @@
 
       <tr>
         <td colspan="2">
-          <input type="submit" value="Restore profile"></input>
+          <input type="submit" value="Restore profile"/>
           <a href="#" onclick="$('restore-form').reset();$('restore-form').hide();return false;">Cancel</a>
         </td>
       </tr>

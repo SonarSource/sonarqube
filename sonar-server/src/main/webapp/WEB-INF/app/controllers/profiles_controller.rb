@@ -197,7 +197,8 @@ class ProfilesController < ApplicationController
     @select_parent = [['None', nil]] + profiles.collect{ |profile| [profile.name, profile.name] }
   end
 
-
+  
+  
   #
   #
   # POST /profiles/change_parent?id=<profile id>&parent_name=<parent profile name>
@@ -282,7 +283,164 @@ class ProfilesController < ApplicationController
   end
 
 
+  #
+  #
+  # GET /profiles/compare?id1=<profile1 id>&id2=<profile2 id>
+  #
+  #
+  def compare
+    @profiles = Profile.find(:all, :conditions => ['enabled=?', true], :order => 'language asc, name')
+    if params[:id1].present? && params[:id2].present?
+      @profile1 = Profile.find(params[:id1])
+      @profile2 = Profile.find(params[:id2])
+      
+      arules1 = ActiveRule.find(:all, :include => [{:active_rule_parameters => :rules_parameter}, :rule],
+        :conditions => ['active_rules.profile_id=?', @profile1.id])
+      arules2 = ActiveRule.find(:all, :order => 'rules.plugin_name, rules.plugin_rule_key', :include => [{:active_rule_parameters => :rules_parameter}, :rule],
+        :conditions => ['active_rules.profile_id=?', @profile2.id])
+
+      diffs_by_rule={}
+      arules1.each do |arule1|
+        diffs_by_rule[arule1.rule]||=RuleDiff.new(arule1.rule)
+        diffs_by_rule[arule1.rule].arule1=arule1
+      end
+      arules2.each do |arule2|
+        diffs_by_rule[arule2.rule]||=RuleDiff.new(arule2.rule)
+        diffs_by_rule[arule2.rule].arule2=arule2
+      end
+      @in1=[]
+      @in2=[]
+      @modified=[]
+      @sames=[]
+      diffs_by_rule.values.sort.each do |diff|
+        case diff.status
+        when DIFF_IN1: @in1<<diff
+        when DIFF_IN2: @in2<<diff
+        when DIFF_MODIFIED: @modified<<diff
+        when DIFF_SAME: @sames<<diff
+        end
+      end
+    end
+  end
+
+  DIFF_IN1=1
+  DIFF_IN2=2
+  DIFF_MODIFIED=3
+  DIFF_SAME=4
+  
   private
+
+  class RuleDiff
+    attr_reader :rule, :removed_params, :added_params
+    attr_accessor :arule1, :arule2
+
+    def initialize(rule)
+      @rule=rule
+    end
+
+    def status
+      @status ||=
+          begin
+            if @arule1.nil?
+              @status=(@arule2 ? DIFF_IN2 : nil)
+            else
+              if @arule2
+                # compare severity and parameters
+                @removed_params=[]
+                @added_params=[]
+                @rule.parameters.each do |param|
+                  v1=@arule1.value(param.id)
+                  v2=@arule2.value(param.id)
+                  if v1
+                    if v2
+                      if v1!=v2
+                        @removed_params<<@arule1.parameter(param.name)
+                        @added_params<<@arule2.parameter(param.name)
+                      end
+                    else
+                      @removed_params<<@arule1.parameter(param.name)
+                    end          
+                  elsif v2
+                    @added_params<<@arule2.parameter(param.name)
+                  end
+                end
+                diff=(@arule1.priority!=@arule2.priority) || !@removed_params.empty? || !@added_params.empty?
+                @status=(diff ? DIFF_MODIFIED : DIFF_SAME)
+              else
+                @status=DIFF_IN1
+              end
+            end
+          end
+    end
+
+    def <=>(other)
+      rule.name()<=>other.rule.name
+    end
+  end
+  
+  #
+  # Remove active rules that are identical in both collections (same severity and same parameters)
+  # and return a map with results {:added => X, :removed => Y, :modified => Z, 
+  # :rules => {rule1 => [activeruleleft1, activeruleright1], rule2 => [activeruleleft2, nil], ...]}
+  # Assume both collections are ordered by rule key
+  #
+  def compute_diff(arules1, arules2)
+    rules = {}
+    removed = 0
+    added = 0
+    modified = 0
+    same = 0
+    begin
+      diff = false
+      #take first item of each collection
+      active_rule1 = arules1.first
+      active_rule2 = arules2.first
+      if active_rule1 != nil and active_rule2 != nil
+        order = active_rule1.rule.key <=> active_rule2.rule.key
+        if order < 0
+          active_rule2 = nil
+          rule = active_rule1.rule
+          diff = true
+          removed = removed +1
+        elsif order > 0
+          active_rule1 = nil
+          rule = active_rule2.rule
+          diff = true
+          added = added +1
+        else
+          rule = active_rule1.rule # = active_rule2.rule
+          #compare severity
+          diff = true if active_rule1.priority != active_rule2.priority
+          #compare parameters
+          rule.parameters.each do |param|
+            diff = true if active_rule1.value(param.id) != active_rule2.value(param.id)
+          end
+          if diff
+            modified = modified + 1
+          else
+            same = same +1
+          end
+        end
+      elsif active_rule1 != nil
+        #no more rule in right collection
+        diff = true
+        removed = removed +1
+        rule = active_rule1.rule
+      elsif active_rule2 != nil
+        #no more rule in left collection
+        diff = true
+        added = added +1
+        rule = active_rule2.rule
+      end
+      # remove processed rule(s)
+      arules1 = arules1.drop(1) if active_rule1 != nil
+      arules2 = arules2.drop(1) if active_rule2 != nil
+      if diff
+        rules[rule] = [active_rule1, active_rule2]
+      end
+    end while !arules1.empty? || !arules2.empty?
+    return {:same => same, :added => added, :removed => removed, :modified => modified,  :rules => rules}
+  end
 
   def read_file_param(configuration_file)
     # configuration file is a StringIO

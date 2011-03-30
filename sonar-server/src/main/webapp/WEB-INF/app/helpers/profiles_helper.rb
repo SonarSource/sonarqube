@@ -32,4 +32,16 @@ module ProfilesHelper
     end
     label
   end
+
+  def options_for_profiles(profiles, selected_id=nil)
+    html=""
+    profiles.group_by(&:language).each do |language, profiles|
+      html += "<optgroup label=\"#{html_escape(language)}\">"
+      profiles.each do |profile|
+        html += "<option value='#{profile.id}' #{'selected' if profile.id==selected_id}>#{html_escape(profile.name)}</option>"
+      end
+      html += "</optgroup>"
+    end
+    html
+  end
 end

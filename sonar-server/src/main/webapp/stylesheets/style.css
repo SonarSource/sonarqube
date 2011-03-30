@@ -255,6 +255,11 @@ a {
 .left {
   text-align: left;
 }
+
+.center {
+  text-align: center;
+}
+
 code {
   font-size: 93%;
 }
@@ -284,6 +289,12 @@ code {
 .small {
   font-size: 85%;
 }
+em {
+  color: #AAA;
+  font-size: 85%;
+  font-style: normal;
+}
+
 a.external {
 	background: url('../images/links/external.png') no-repeat 100% 0;
 	padding: 0 16px 0px 0;
@@ -602,6 +613,10 @@ ul.operations li.last {
 }
 ul.operations li a {
   color: #555;
+}
+ul.operations li img {
+  vertical-align: middle;
+  margin-right: 5px;
 }
 
 /* RESOURCE VIEWER */
@@ -1582,4 +1597,14 @@ table.nowrap td, td.nowrap {
   display: block;
   background: url("../images/restore.gif") no-repeat scroll left 50% transparent;
   padding: 2px 0 2px 20px;
+}
+.compare {
+  display: block;
+  background: url("../images/compare.png") no-repeat scroll left 50% transparent;
+  padding: 2px 0 2px 20px;
+}
+
+/* Profile diff */
+.diffParam {
+  font-family: 'Bitstream Vera Sans Mono','Courier',monospace;
 }
