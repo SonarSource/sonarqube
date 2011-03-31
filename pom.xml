@@ -274,6 +274,20 @@
               </rules>
             </configuration>
           </execution>
+		  <execution>
+            <id>enforce-dependency-versions</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireReleaseDeps>
+                  <message>No SNAPSHOT versions allowed for dependencies</message>
+                  <onlyWhenRelease>true</onlyWhenRelease>
+                </requireReleaseDeps>
+              </rules>
+            </configuration>
+          </execution>
           <execution>
             <id>enforce-java-version</id>
             <goals>
@@ -903,7 +917,7 @@
               <execution>
                 <id>attach-javadocs</id>
                 <goals>
-                  <goal>aggregate-jar</goal>
+                  <goal>jar</goal>
                 </goals>
               </execution>
             </executions>
