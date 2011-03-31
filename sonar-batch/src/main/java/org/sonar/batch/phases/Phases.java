@@ -64,6 +64,7 @@ public final class Phases {
     this.persistenceManager = persistenceManager;
     this.sensorContext = sensorContext;
     this.index = index;
+    this.eventBus = eventBus;
   }
 
   /**
