@@ -29,14 +29,14 @@ import java.util.Set;
  */
 public abstract class WSUtils {
 
-  private static WSUtils INSTANCE = null;
+  private static WSUtils instance = null;
 
   public static void setInstance(WSUtils utils) {
-    INSTANCE = utils;
+    instance = utils;
   }
 
   public static WSUtils getINSTANCE() {
-    return INSTANCE;
+    return instance;
   }
 
   public abstract String format(Date date, String format);

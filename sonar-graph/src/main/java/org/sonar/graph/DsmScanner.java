@@ -19,6 +19,8 @@
  */
 package org.sonar.graph;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.Reader;
@@ -56,17 +58,15 @@ public final class DsmScanner {
 
   private void readRow(int i) throws IOException {
     String[] tokens = splitLine(reader.readLine());
-    if (tokens != null) {
-      for (int j = 1; j < tokens.length - 1; j++) {
-        int toVertexIndex = j - 1;
-        int weight = extractWeight(tokens[j]);
-        if (i != toVertexIndex) {
-          StringEdge edge = new StringEdge(vertices[toVertexIndex], vertices[i], weight);
-          if (isFeedbackEdge(tokens[j])) {
-            feedbackEdges.add(edge);
-          }
-          graph.addEdge(edge);
+    for (int j = 1; j < tokens.length - 1; j++) {
+      int toVertexIndex = j - 1;
+      int weight = extractWeight(tokens[j]);
+      if (i != toVertexIndex) {
+        StringEdge edge = new StringEdge(vertices[toVertexIndex], vertices[i], weight);
+        if (isFeedbackEdge(tokens[j])) {
+          feedbackEdges.add(edge);
         }
+        graph.addEdge(edge);
       }
     }
   }
@@ -93,6 +93,9 @@ public final class DsmScanner {
   }
 
   private String[] splitLine(String line) {
+    if (line == null) {
+      return ArrayUtils.EMPTY_STRING_ARRAY;
+    }
     String[] tokens = line.split("\\" + CELL_SEPARATOR);
     String[] result = new String[tokens.length];
     for (int i = 0; i < tokens.length; i++) {

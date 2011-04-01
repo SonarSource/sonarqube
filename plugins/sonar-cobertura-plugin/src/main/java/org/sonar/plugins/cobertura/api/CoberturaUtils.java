@@ -32,8 +32,8 @@ import java.io.File;
  */
 public final class CoberturaUtils {
 
-  public static String COBERTURA_GROUP_ID = MavenUtils.GROUP_ID_CODEHAUS_MOJO;
-  public static String COBERTURA_ARTIFACT_ID = "cobertura-maven-plugin";
+  public static final String COBERTURA_GROUP_ID = MavenUtils.GROUP_ID_CODEHAUS_MOJO;
+  public static final String COBERTURA_ARTIFACT_ID = "cobertura-maven-plugin";
 
   public static File getReport(Project project) {
     File report = getReportFromProperty(project);

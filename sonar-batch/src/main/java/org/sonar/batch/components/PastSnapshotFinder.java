@@ -64,7 +64,7 @@ public class PastSnapshotFinder implements BatchExtension {
       case 2: defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_2; break;
       case 3: defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_3; break;
       case 4: defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_4; break;
-      case 5: defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_5; break;
+      case 5: defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_5; break;// NOSONAR false-positive: constant 5 is the same than 4 (empty string)
     }
     return conf.getString(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index, defaultValue);
   }

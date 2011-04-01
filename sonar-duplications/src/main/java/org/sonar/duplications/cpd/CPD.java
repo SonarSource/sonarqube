@@ -29,7 +29,10 @@ import net.sourceforge.pmd.util.FileFinder;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class CPD {
 
@@ -39,8 +42,6 @@ public class CPD {
   private int minimumTileSize;
   private MatchAlgorithm matchAlgorithm;
   private Language language;
-  private boolean skipDuplicates;
-  public static boolean debugEnable = false;
   private boolean loadSourceCodeSlices = true;
   private String encoding = System.getProperty("file.encoding");
 
@@ -48,10 +49,6 @@ public class CPD {
     TokenEntry.clearImages(); // workaround for bug 1947823
     this.minimumTileSize = minimumTileSize;
     this.language = language;
-  }
-
-  public void skipDuplicates() {
-    this.skipDuplicates = true;
   }
 
   public void setCpdListener(CPDListener cpdListener) {
@@ -96,7 +93,7 @@ public class CPD {
   }
 
   private void addDirectory(String dir, boolean recurse) throws IOException {
-    if ( !(new File(dir)).exists()) {
+    if (!(new File(dir)).exists()) {
       throw new FileNotFoundException("Couldn't find directory " + dir);
     }
     FileFinder finder = new FileFinder();
@@ -104,23 +101,9 @@ public class CPD {
     add(finder.findFilesFrom(dir, language.getFileFilter(), recurse));
   }
 
-  private Set<String> current = new HashSet<String>();
-
   private void add(int fileCount, File file) throws IOException {
-
-    if (skipDuplicates) {
-      // TODO refactor this thing into a separate class
-      String signature = file.getName() + '_' + file.length();
-      if (current.contains(signature)) {
-        System.err.println("Skipping " + file.getAbsolutePath()
-            + " since it appears to be a duplicate file and --skip-duplicate-files is set");
-        return;
-      }
-      current.add(signature);
-    }
-
-    if ( !file.getCanonicalPath().equals(new File(file.getAbsolutePath()).getCanonicalPath())) {
-      System.err.println("Skipping " + file + " since it appears to be a symlink");
+    if (!file.getCanonicalPath().equals(new File(file.getAbsolutePath()).getCanonicalPath())) {
+      System.out.println("Skipping " + file + " since it appears to be a symlink");
       return;
     }
 

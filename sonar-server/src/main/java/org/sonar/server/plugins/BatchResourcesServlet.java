@@ -96,7 +96,7 @@ public class BatchResourcesServlet extends HttpServlet {
     return libs;
   }
 
-  private static String[] IGNORE = { "derby", "jtds", "mysql", "postgresql", "jruby", "jfreechart", "eastwood", "jetty" };
+  private static final String[] IGNORE = { "derby", "jtds", "mysql", "postgresql", "jruby", "jfreechart", "eastwood", "jetty" };
 
   /**
    * Dirty hack to disable downloading for certain files.

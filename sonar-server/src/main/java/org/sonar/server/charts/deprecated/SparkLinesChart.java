@@ -124,15 +124,15 @@ public class SparkLinesChart extends BaseChartWeb implements DeprecatedChart {
     if (values != null && values.length() > 0) {
       StringTokenizer st = new StringTokenizer(values, ",");
       while (st.hasMoreTokens()) {
-        double v_x = convertParamToDouble(st.nextToken());
-        double v_y = 0.0;
+        double vX = convertParamToDouble(st.nextToken());
+        double vY = 0.0;
         if (st.hasMoreTokens()) {
-          v_y = convertParamToDouble(st.nextToken());
+          vY = convertParamToDouble(st.nextToken());
         }
-        series1.add(v_x, v_y);
+        series1.add(vX, vY);
 
-        min = (v_y < min ? v_y : min);
-        max = (v_y > max ? v_y : max);
+        min = (vY < min ? vY : min);
+        max = (vY > max ? vY : max);
       }
       dataset.addSeries(series1);
       y.setRange(min-1, max+1);

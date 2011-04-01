@@ -69,7 +69,7 @@ public class DistributionBarChart extends AbstractChart {
     return plot;
   }
 
-  private void configureValues(DefaultCategoryDataset dataset, String[] series, String xSuffix) {
+  static void configureValues(DefaultCategoryDataset dataset, String[] series, String xSuffix) {
     int index = 0;
     while (index < series.length) {
       String[] pairs = StringUtils.split(series[index], ";");
