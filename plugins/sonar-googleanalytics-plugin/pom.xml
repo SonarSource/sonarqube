@@ -34,10 +34,8 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-plugin-api</artifactId>
-      <version>${project.version}</version>
+      <artifactId>sonar-testing-harness</artifactId>
       <scope>test</scope>
-      <type>test-jar</type>
     </dependency>
   </dependencies>
 
