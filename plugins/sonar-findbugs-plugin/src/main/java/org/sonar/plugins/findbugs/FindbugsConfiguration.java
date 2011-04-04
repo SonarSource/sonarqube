@@ -19,12 +19,6 @@
  */
 package org.sonar.plugins.findbugs;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringWriter;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -37,6 +31,8 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.findbugs.xml.ClassFilter;
 import org.sonar.plugins.findbugs.xml.FindBugsFilter;
 import org.sonar.plugins.findbugs.xml.Match;
+
+import java.io.*;
 
 /**
  * @since 2.4
@@ -75,12 +71,12 @@ public class FindbugsConfiguration implements BatchExtension {
     }
     findbugsProject.addFile(classesDir.getAbsolutePath());
     for (File file : projectClasspath.getElements()) {
-      if ( !file.equals(classesDir)) {
+      if (!file.equals(classesDir)) {
         findbugsProject.addAuxClasspathEntry(file.getAbsolutePath());
       }
     }
-    findbugsProject.addAuxClasspathEntry(copyLib("/annotations-" + FindbugsVersion.getVersion() + ".jar").getAbsolutePath());
-    findbugsProject.addAuxClasspathEntry(copyLib("/jsr305-" + FindbugsVersion.getVersion() + ".jar").getAbsolutePath());
+    findbugsProject.addAuxClasspathEntry(annotationsLib.getAbsolutePath());
+    findbugsProject.addAuxClasspathEntry(jsr305Lib.getAbsolutePath());
     findbugsProject.setCurrentWorkingDirectory(project.getFileSystem().getBuildDir());
     return findbugsProject;
   }
@@ -111,11 +107,29 @@ public class FindbugsConfiguration implements BatchExtension {
     return project.getConfiguration().getLong(CoreProperties.FINDBUGS_TIMEOUT_PROPERTY, CoreProperties.FINDBUGS_TIMEOUT_DEFAULT_VALUE);
   }
 
+  private File jsr305Lib;
+  private File annotationsLib;
+
+  /**
+   * Invoked by PicoContainer to extract additional FindBugs libraries into temporary files.
+   */
+  public void start() {
+    jsr305Lib = copyLib("/jsr305-" + FindbugsVersion.getVersion() + ".jar");
+    annotationsLib = copyLib("/annotations-" + FindbugsVersion.getVersion() + ".jar");
+  }
+
+  /**
+   * Invoked by PicoContainer to remove temporary files.
+   */
+  public void stop() {
+    jsr305Lib.delete();
+    annotationsLib.delete();
+  }
+
   private File copyLib(String name) {
     try {
       InputStream is = getClass().getResourceAsStream(name);
       File temp = File.createTempFile("findbugs", ".jar");
-      FileUtils.forceDeleteOnExit(temp);
       OutputStream os = FileUtils.openOutputStream(temp);
       IOUtils.copy(is, os);
       return temp;
