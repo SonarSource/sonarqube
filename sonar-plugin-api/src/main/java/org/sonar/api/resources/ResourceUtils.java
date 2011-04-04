@@ -33,56 +33,56 @@ public final class ResourceUtils {
    * @return whether the resource is a view
    */
   public static boolean isView(Resource resource) {
-    return isSet(resource) && Resource.QUALIFIER_VIEW.equals(resource.getQualifier());
+    return isSet(resource) && Qualifiers.VIEW.equals(resource.getQualifier());
   }
 
   /**
    * @return whether the resource is a subview (in the view tree)
    */
   public static boolean isSubview(Resource resource) {
-    return isSet(resource) && Resource.QUALIFIER_SUBVIEW.equals(resource.getQualifier());
+    return isSet(resource) && Qualifiers.SUBVIEW.equals(resource.getQualifier());
   }
 
   /**
    * @return whether the resource is the root project
    */
   public static boolean isRootProject(Resource resource) {
-    return Resource.QUALIFIER_PROJECT.equals(resource.getQualifier());
+    return Qualifiers.PROJECT.equals(resource.getQualifier());
   }
 
   /**
    * @return whether a resource is a maven module of project
    */
   public static boolean isModuleProject(Resource resource) {
-    return Resource.QUALIFIER_MODULE.equals(resource.getQualifier());
+    return Qualifiers.MODULE.equals(resource.getQualifier());
   }
 
   /**
    * @return whether a resource is a package
    */
   public static boolean isPackage(Resource resource) {
-    return resource != null && Resource.QUALIFIER_PACKAGE.equals(resource.getQualifier());
+    return resource != null && Qualifiers.PACKAGE.equals(resource.getQualifier());
   }
 
   /**
    * @return whether a resource is a set
    */
   public static boolean isSet(Resource resource) {
-    return resource != null && Resource.SCOPE_SET.equals(resource.getScope());
+    return resource != null && Scopes.PROJECT.equals(resource.getScope());
   }
 
   /**
    * @return whether a resource is a space
    */
   public static boolean isSpace(Resource resource) {
-    return resource != null && Resource.SCOPE_SPACE.equals(resource.getScope());
+    return resource != null && Scopes.DIRECTORY.equals(resource.getScope());
   }
 
   /**
    * @return whether a resource is an entity.
    */
   public static boolean isEntity(Resource resource) {
-    return resource != null && Resource.SCOPE_ENTITY.equals(resource.getScope());
+    return resource != null && Scopes.FILE.equals(resource.getScope());
   }
 
   /**
@@ -112,7 +112,7 @@ public final class ResourceUtils {
    * @return whether a resource is a class
    */
   public static boolean isClass(Resource resource) {
-    return Resource.QUALIFIER_CLASS.equals(resource.getQualifier());
+    return Qualifiers.CLASS.equals(resource.getQualifier());
   }
 
   /**
@@ -126,7 +126,7 @@ public final class ResourceUtils {
    * @return whether a resource is a library
    */
   public static boolean isLibrary(Resource resource) {
-    return Resource.QUALIFIER_LIB.equals(resource.getQualifier());
+    return Qualifiers.LIBRARY.equals(resource.getQualifier());
   }
 
   /**

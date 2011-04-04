@@ -35,7 +35,7 @@ public class JavaPackage extends Resource {
   public static final String DEFAULT_PACKAGE_NAME = "[default]";
 
   /**
-   * Defaul constructor
+   * Default constructor
    */
   public JavaPackage() {
     this(null);
@@ -49,7 +49,7 @@ public class JavaPackage extends Resource {
   }
 
   /**
-   * @return whether the JavaPackage key is the defult key
+   * @return whether the JavaPackage key is the default key
    */
   public boolean isDefault() {
     return StringUtils.equals(getKey(), DEFAULT_PACKAGE_NAME);
@@ -73,7 +73,7 @@ public class JavaPackage extends Resource {
    * @return SCOPE_SPACE
    */
   public String getScope() {
-    return Resource.SCOPE_SPACE;
+    return Scopes.DIRECTORY;
   }
 
   /**

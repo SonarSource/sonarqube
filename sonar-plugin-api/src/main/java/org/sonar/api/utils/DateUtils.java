@@ -27,7 +27,7 @@ import java.util.Date;
 /**
  * Parses and formats ISO 8601 dates. See http://en.wikipedia.org/wiki/ISO_8601.
  * This class is thread-safe.
- *
+ * 
  * @since 2.7
  */
 public final class DateUtils {
@@ -36,6 +36,9 @@ public final class DateUtils {
 
   private static final ThreadSafeDateFormat dateFormat = new ThreadSafeDateFormat(DATE_FORMAT);
   private static final ThreadSafeDateFormat dateTimeFormat = new ThreadSafeDateFormat(DATETIME_FORMAT);
+
+  private DateUtils() {
+  }
 
   public static String formatDate(Date d) {
     return dateFormat.format(d);
@@ -72,7 +75,7 @@ public final class DateUtils {
 
     private final transient ThreadLocal cache = new ThreadLocal() {
       public Object get() {
-        Reference softRef = (Reference)super.get();
+        Reference softRef = (Reference) super.get();
         if (softRef == null || softRef.get() == null) {
           softRef = new SoftReference(new SimpleDateFormat(format));
           super.set(softRef);
@@ -82,10 +85,10 @@ public final class DateUtils {
     };
 
     private DateFormat getDateFormat() {
-      return (DateFormat) ((Reference)cache.get()).get();
+      return (DateFormat) ((Reference) cache.get()).get();
     }
 
-    public StringBuffer format(Date date,StringBuffer toAppendTo, FieldPosition fieldPosition) {
+    public StringBuffer format(Date date, StringBuffer toAppendTo, FieldPosition fieldPosition) {
       return getDateFormat().format(date, toAppendTo, fieldPosition);
     }
 

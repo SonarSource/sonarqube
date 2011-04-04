@@ -21,7 +21,10 @@ package org.sonar.test.channel;
 
 import org.sonar.channel.CodeReader;
 
-public class ChannelMatchers {
+public final class ChannelMatchers {
+
+  private ChannelMatchers() {
+  }
 
   public static <OUTPUT> ChannelMatcher<OUTPUT> consume(String sourceCode, OUTPUT output) {
     return new ChannelMatcher<OUTPUT>(sourceCode, output);

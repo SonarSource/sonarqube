@@ -122,6 +122,8 @@ public class Metric implements ServerExtension, BatchExtension {
 
   /**
    * Creates an empty metric
+   * 
+   * @deprecated in 1.12
    */
   @Deprecated
   public Metric() {

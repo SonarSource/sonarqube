@@ -281,14 +281,14 @@ public class Project extends Resource {
    * @return the scope of the current object
    */
   public String getScope() {
-    return SCOPE_SET;
+    return Scopes.PROJECT;
   }
 
   /**
    * @return the qualifier of the current object
    */
   public String getQualifier() {
-    return isRoot() ? QUALIFIER_PROJECT : QUALIFIER_MODULE;
+    return isRoot() ? Qualifiers.PROJECT : Qualifiers.MODULE;
   }
 
   @Override

@@ -23,8 +23,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.database.BaseIdentifiable;
 import org.sonar.api.database.model.Snapshot;
 
-import javax.persistence.*;
 import java.util.Date;
+
+import javax.persistence.*;
 
 /**
  * @since 1.10
@@ -69,6 +70,9 @@ public class Event extends BaseIdentifiable {
     this.category = category;
   }
 
+  /**
+   * @deprecated in 2.5
+   */
   @Deprecated
   public Event(String name, String description, String category, Date date, Integer resourceId) {
     this.name = name;
@@ -78,6 +82,9 @@ public class Event extends BaseIdentifiable {
     this.resourceId = resourceId;
   }
 
+  /**
+   * @deprecated in 2.5
+   */
   @Deprecated
   public Event(String name, String description, String category, Snapshot snapshot) {
     this.name = name;

@@ -42,6 +42,7 @@ public class Measure extends Model {
   /**
    * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
    */
+  @Deprecated
   private String ruleCategory;
 
   private Double variation1, variation2, variation3, variation4, variation5;

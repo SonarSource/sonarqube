@@ -31,23 +31,23 @@ import java.util.List;
 
 /**
  * A pre-implementation for a sensor that imports sources
- *
+ * 
  * @since 1.10
  */
 @Phase(name = Phase.Name.PRE)
 public abstract class AbstractSourceImporter implements Sensor {
 
   /**
-   * @deprecated replaced by CoreProperties.CORE_IMPORT_SOURCES_PROPERTY since 1.11
+   * @deprecated in 1.11. Use {@link CoreProperties#CORE_IMPORT_SOURCES_PROPERTY} instead.
    */
   @Deprecated
-  public static final String KEY_IMPORT_SOURCES = "sonar.importSources";
+  public static final String KEY_IMPORT_SOURCES = CoreProperties.CORE_IMPORT_SOURCES_PROPERTY;
 
   /**
-   * @deprecated replaced by CoreProperties.CORE_IMPORT_SOURCES_DEFAULT_VALUE since 1.11
+   * @deprecated in 1.11. Use {@link CoreProperties#CORE_IMPORT_SOURCES_DEFAULT_VALUE} instead.
    */
   @Deprecated
-  public static final boolean DEFAULT_IMPORT_SOURCES = true;
+  public static final boolean DEFAULT_IMPORT_SOURCES = CoreProperties.CORE_IMPORT_SOURCES_DEFAULT_VALUE;
 
   private Language language;
 

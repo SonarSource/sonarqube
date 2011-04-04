@@ -19,6 +19,11 @@
  */
 package org.sonar.test;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.CharUtils;
@@ -32,15 +37,15 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
-
 /**
  * Utilities for unit tests
  * 
  * @since 2.2
  */
-public class TestUtils {
+public final class TestUtils {
+
+  private TestUtils() {
+  }
 
   /**
    * Search for a test resource in the classpath. For example getResource("org/sonar/MyClass/foo.txt");
@@ -50,7 +55,7 @@ public class TestUtils {
    */
   public static File getResource(String path) {
     String resourcePath = path;
-    if ( !resourcePath.startsWith("/")) {
+    if (!resourcePath.startsWith("/")) {
       resourcePath = "/" + resourcePath;
     }
     URL url = TestUtils.class.getResource(resourcePath);
@@ -81,7 +86,7 @@ public class TestUtils {
    */
   public static File getResource(Class baseClass, String path) {
     String resourcePath = StringUtils.replaceChars(baseClass.getCanonicalName(), '.', '/');
-    if ( !path.startsWith("/")) {
+    if (!path.startsWith("/")) {
       resourcePath += "/";
     }
     resourcePath += path;
@@ -97,6 +102,7 @@ public class TestUtils {
 
   /**
    * Create a temporary directory for unit tests.
+   * 
    * @param baseClass the unit test class
    * @param testName the test name
    * @param clean remove all the sub-directories and files ?
