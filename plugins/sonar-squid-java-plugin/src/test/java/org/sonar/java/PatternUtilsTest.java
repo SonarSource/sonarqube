@@ -36,4 +36,16 @@ public class PatternUtilsTest {
     assertThat(patterns[0].match("org/sonar/Foo"), is(true));
     assertThat(patterns[1].match("javax/Bar"), is(true));
   }
+
+  /**
+   * See http://jira.codehaus.org/browse/SONAR-2303
+   */
+  @Test
+  public void shouldTrim() {
+    WildcardPattern[] patterns = PatternUtils.createPatterns("org.foo.*,\n org.bar.*");
+
+    assertThat(patterns[0].match("org/foo/Foo"), is(true));
+    assertThat(patterns[1].match("org/bar/Bar"), is(true));
+  }
+
 }
