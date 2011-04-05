@@ -107,7 +107,7 @@ public final class CommandExecutor {
           logger.info(line);
         }
       } catch (IOException ioe) {
-        logger.error("Error while reading Obeo analyzer output", ioe);
+        logger.error("Error while reading stream", ioe);
 
       } finally {
         IOUtils.closeQuietly(br);
