@@ -18,16 +18,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class ReviewData < ActiveRecord::Base
-  belongs_to :users
-  belongs_to :reviews
+  belongs_to :user
+  belongs_to :review
+  validates_presence_of :user
+  validates_presence_of :review
+  validates_length_of :review_text, :minimum => 1, :too_short => "Your review cannot be empty."
 
-  
-
-  def inherited?
-    inheritance=='INHERITED'
-  end
-
-  def overrides?
-    inheritance=='OVERRIDES'
-  end
 end
