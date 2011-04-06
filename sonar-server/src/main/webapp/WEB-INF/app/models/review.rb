@@ -21,15 +21,9 @@ class Review < ActiveRecord::Base
   belongs_to :user
   belongs_to :rule_failure
   belongs_to :resource, :class_name => 'Project', :foreign_key => 'resource_id'
-  has_many :review_data, :order => created_at, :dependent => :destroy
+  has_many :review_data, :order => "created_at", :dependent => :destroy
   validates_presence_of :user
   validates_presence_of :review_type
   validates_presence_of :status
-  validate :review_must_have_at_least_one_comment
-
-  def review_must_have_at_least_one_comment
-    errors.add("A review must have at least one comment.") if
-      review_data.length < 1
-  end
 
 end

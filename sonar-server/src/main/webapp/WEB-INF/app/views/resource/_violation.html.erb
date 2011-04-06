@@ -1,14 +1,40 @@
 <div class="violation">
-<img src="<%= ApplicationController.root_context -%>/images/priority/<%=violation.failure_level-%>.png"/>
-
-<span class="rulename"><a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => violation.rule.key, :layout => 'false' -%>"><%= h(violation.rule.name) -%></a></span>
- »
-<%= violation_html_message(violation) -%>
-<%
-   if violation.created_at
-    duration=Date.today - violation.created_at.to_date
-
-%>
-  <span class="violation_date"><%= duration==0 ? 'today' : "#{duration} days ago" -%></span>
-<% end %>
-  </div>
+  <table>
+    <tr>
+    
+      <td width="30px" valign="top">
+      	<% if current_user %>
+          <%= link_to_remote(image_tag("add.png"), 
+        		:update => "review" + violation.id.to_s , 
+        		:url => { :controller => "reviews", :action => "form", :violation_id => violation.id }) -%>
+      	<% end %>
+      </td>
+      
+      <td>
+		<img src="<%= ApplicationController.root_context -%>/images/priority/<%=violation.failure_level-%>.png"/>
+		
+		<span class="rulename"><a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => violation.rule.key, :layout => 'false' -%>"><%= h(violation.rule.name) -%></a></span>
+		 »
+		<%= h(violation.message) -%>
+		<%
+		   if violation.created_at
+		    duration=Date.today - violation.created_at.to_date
+		%>
+		  <span class="violation_date"><%= duration==0 ? 'today' : "#{duration} days ago" -%></span>
+		<% end %>
+			
+		<div id="review<%= violation.id -%>" style="padding:5px; background:white">
+		  <% unless violation.reviews.blank? 
+		       violation.reviews.each do |review|
+		  %>
+		    <%= render :partial => "reviews/view", :locals => { :review => review } %>
+		  <% 
+		       end
+		     end
+		  %>
+		</div>
+      </td>
+      
+    </tr>
+  </table>
+</div>

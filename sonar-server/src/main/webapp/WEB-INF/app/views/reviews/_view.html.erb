@@ -1,0 +1,24 @@
+<div>
+      Review Id: <%= review.id -%>
+      <br/>
+      Review Id: <%= review.user.name -%>
+      <br/>
+      Review type: <%= review.review_type -%>
+      <br/>
+      Status: <%= review.status -%>
+      <br/>
+      Severity: <%= review.severity -%>
+      <br/>
+      External Link: <%= review.external_link -%>
+      <br/>
+      
+		  <% unless review.review_data.blank? 
+		       review.review_data.each do |review_data|
+		  %>
+		    Comment: <%= review_data.review_text -%>
+            <br/>
+		  <% 
+		       end
+		     end
+		  %>
+</div>

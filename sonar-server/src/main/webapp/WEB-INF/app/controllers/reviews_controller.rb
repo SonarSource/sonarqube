@@ -17,13 +17,38 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class ReviewData < ActiveRecord::Base
-  set_table_name :review_data
 
-  belongs_to :user
-  belongs_to :review
-  validates_presence_of :user
-  validates_presence_of :review
-  validates_length_of :review_text, :minimum => 1, :too_short => "Your review cannot be empty."
+class ReviewsController < ApplicationController
 
+	SECTION=Navigation::SECTION_CONFIGURATION
+	
+	def index
+	end
+	
+	def form
+	  @review = Review.new
+	  @review.rule_failure_id = params[:violation_id]
+	  @review.user = current_user
+	  @review_data = ReviewData.new
+	  @review_data.user = current_user
+	  @review_data.review = @review
+	  @review_data.review_text = "Enter your review here"
+	  render "_form", :layout => false
+	end
+	
+	def create
+	  review = Review.new(params[:review])
+	  review.user = current_user
+	  review.save
+      review_data = ReviewData.new(params[:review_data])
+	  review_data.user = current_user
+	  review_data.review_id = review.id
+	  review_data.save
+	  #render "_view", :layout => false
+	end
+	
+	def cancel_create
+	  render :nothing => true
+	end
+	
 end

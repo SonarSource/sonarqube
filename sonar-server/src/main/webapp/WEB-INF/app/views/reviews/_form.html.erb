@@ -1,0 +1,23 @@
+<% form_for :review, @review, :url => { :action => 'create', :id => @review.id } do |f| %>
+      <%= f.hidden_field :rule_failure_id %>
+      Review by: <%= @review.user.login -%>
+      <br/>
+      Review type: <%= f.text_field :review_type %>
+      <br/>
+      Status: <%= f.text_field :status %>
+      <br/>
+      Severity: <%= f.text_field :severity %>
+      <br/>
+      External Link: <%= f.text_field :external_link %>
+      <br/>
+      Comment:
+      <br/>
+      <%= text_area :review_data, :review_text, :rows => 10 %>
+      <br/>
+      <%= submit_to_remote 'create_btn', 'Create review', 
+                     :url => { :action => 'create', :id => @review.id },
+                     :update => { :success => "review" + @review.rule_failure_id.to_s, :failure => "fail" } %>
+      <%= submit_to_remote 'cancel_btn', 'Cancel', 
+                     :url => { :action => 'cancel_create' },
+                     :update => { :success => "review" + @review.rule_failure_id.to_s } %>
+<% end %>

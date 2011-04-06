@@ -22,6 +22,7 @@ class RuleFailure < ActiveRecord::Base
 
   belongs_to :rule
   belongs_to :snapshot
+  has_many :reviews, :order => "created_at"
 
   def to_hash_json
     json = {}
