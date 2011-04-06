@@ -5,7 +5,7 @@
       <td width="30px" valign="top">
       	<% if current_user %>
           <%= link_to_remote(image_tag("add.png"), 
-        		:update => "review" + violation.id.to_s , 
+        		:update => "reviewFailure" + violation.id.to_s, 
         		:url => { :controller => "reviews", :action => "form", :violation_id => violation.id }) -%>
       	<% end %>
       </td>
@@ -22,16 +22,9 @@
 		%>
 		  <span class="violation_date"><%= duration==0 ? 'today' : "#{duration} days ago" -%></span>
 		<% end %>
-			
-		<div id="review<%= violation.id -%>" style="padding:5px; background:white">
-		  <% unless violation.reviews.blank? 
-		       violation.reviews.each do |review|
-		  %>
-		    <%= render :partial => "reviews/view", :locals => { :review => review } %>
-		  <% 
-		       end
-		     end
-		  %>
+		
+		<div id="reviewFailure<%= violation.id -%>" style="padding:5px; background:white">
+		  <%= render :partial => "reviews/list", :locals => { :reviews => violation.reviews } %>
 		</div>
       </td>
       

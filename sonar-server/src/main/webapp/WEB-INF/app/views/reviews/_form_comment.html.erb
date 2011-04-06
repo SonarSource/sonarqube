@@ -1,0 +1,15 @@
+<% form_for :review_comment, @review_comment do |f| %>
+      <%= f.hidden_field :review_id %>
+      Review by: <%= :user -%>
+      <br/>
+      Comment:
+      <br/>
+      <%= f.text_area :review_text, :rows => 10 %>
+      <br/>
+      <%= submit_to_remote 'create_btn', 'Add comment', 
+                     :url => { :action => 'createComment', :rule_failure_id => @rule_failure_id },
+                     :update => { :success => "reviewFailure" + @rule_failure_id.to_s, :failure => "fail" } %>
+      <%= submit_to_remote 'cancel_btn', 'Cancel', 
+                     :url => { :action => 'list', :rule_failure_id => @rule_failure_id.to_s },
+                     :update => { :success => "reviewFailure" + @rule_failure_id.to_s } %>
+<% end %>

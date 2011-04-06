@@ -1,4 +1,5 @@
-<% form_for :review, @review, :url => { :action => 'create', :id => @review.id } do |f| %>
+<h3>Create a new review</h3>
+<% form_for :review, @review do |f| %>
       <%= f.hidden_field :rule_failure_id %>
       Review by: <%= @review.user.login -%>
       <br/>
@@ -15,9 +16,9 @@
       <%= text_area :review_comment, :review_text, :rows => 10 %>
       <br/>
       <%= submit_to_remote 'create_btn', 'Create review', 
-                     :url => { :action => 'create', :id => @review.id },
-                     :update => { :success => "review" + @review.rule_failure_id.to_s, :failure => "fail" } %>
+                     :url => { :action => 'create' },
+                     :update => { :success => "reviewFailure" + @review.rule_failure_id.to_s, :failure => "fail" } %>
       <%= submit_to_remote 'cancel_btn', 'Cancel', 
-                     :url => { :action => 'cancel_create' },
-                     :update => { :success => "review" + @review.rule_failure_id.to_s } %>
+                     :url => { :action => 'list', :rule_failure_id => @review.rule_failure_id.to_s },
+                     :update => { :success => "reviewFailure" + @review.rule_failure_id.to_s } %>
 <% end %>

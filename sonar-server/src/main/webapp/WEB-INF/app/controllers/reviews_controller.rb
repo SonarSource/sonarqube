@@ -25,6 +25,11 @@ class ReviewsController < ApplicationController
 	def index
 	end
 	
+	def list
+	  reviews = Review.find :all, :conditions => ['rule_failure_id=?', params[:rule_failure_id]]
+	  render :partial => "list", :locals => { :reviews => reviews }, :layout => false
+	end
+	
 	def form
 	  @review = Review.new
 	  @review.rule_failure_id = params[:violation_id]
@@ -36,19 +41,35 @@ class ReviewsController < ApplicationController
 	  render "_form", :layout => false
 	end
 	
+	def formComment
+	  @review_comment = ReviewComment.new
+	  @review_comment.user = current_user
+	  @review_comment.review_id = params[:review_id]
+	  @review_comment.review_text = ""
+	  @rule_failure_id = params[:rule_failure_id]
+	  render "_form_comment", :layout => false
+	end
+	
 	def create
 	  review = Review.new(params[:review])
 	  review.user = current_user
 	  review.save
+	  #review.review_comments.create(params[:review_comment])
       review_comment = ReviewComment.new(params[:review_comment])
 	  review_comment.user = current_user
 	  review_comment.review_id = review.id
 	  review_comment.save
-	  render "create", :layout => false
+	  
+	  params[:rule_failure_id] = review.rule_failure_id
+	  list
 	end
 	
-	def cancel_create
-	  render :nothing => true
+	def createComment
+      review_comment = ReviewComment.new(params[:review_comment])
+      review_comment.user = current_user
+	  review_comment.save
+	  
+	  list
 	end
 	
 end

@@ -1,4 +1,4 @@
-<div>
+  <div id="review<%= review.id -%>" style="border:solid 1px black; margin:2px">
       User name: <%= h(review.user.name) -%>
       <br/>
       Status: <%= h(review.status) -%>
@@ -8,15 +8,26 @@
       External Link: <%= h(review.external_link) -%>
       <br/>
       
-		  <% unless review.review_comments.blank? 
-		       review.review_comments.each do |review_comment|
-		  %>
+      <div>
+        <% unless review.review_comments.blank? 
+		     review.review_comments.each do |review_comment|
+		%>
+		<div id="commentReview" style="border:solid 1px grey; margin:2px">
 		    <%= l review_comment.created_at -%>, by <%= h(review_comment.user.name) -%>
 		    » 
 		    <%= h(review_comment.review_text) -%>
             <br/>
-		  <% 
-		       end
+        </div>
+		<% 
 		     end
-		  %>
-</div>
+		   end
+		%>
+      </div>
+      
+      <%= link_to_remote("Add a comment", 
+        		:update => "createComment" + review.id.to_s, 
+        		:url => { :controller => "reviews", :action => "formComment", :review_id => review.id, :rule_failure_id => review.rule_failure_id }) -%>
+       <div id="createComment<%= review.id -%>">
+       
+       </div>
+  </div>

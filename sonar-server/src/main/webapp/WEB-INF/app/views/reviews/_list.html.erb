@@ -1,0 +1,11 @@
+<% 
+   unless reviews.blank? 
+     reviews.each do |review|
+%>
+
+  <%= render :partial => "reviews/view", :locals => { :review => review } %>
+
+<% 
+     end
+   end
+%>
