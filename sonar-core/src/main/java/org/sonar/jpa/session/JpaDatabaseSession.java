@@ -23,14 +23,12 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 
+import java.util.*;
+
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 public class JpaDatabaseSession extends DatabaseSession {
 
@@ -43,6 +41,10 @@ public class JpaDatabaseSession extends DatabaseSession {
     this.connector = connector;
   }
 
+  /**
+   * Note that usage of this method is discouraged, because it allows to construct and execute queries without additional exception handling,
+   * which done in methods of this class.
+   */
   public EntityManager getEntityManager() {
     return entityManager;
   }
@@ -143,17 +145,43 @@ public class JpaDatabaseSession extends DatabaseSession {
     }
   }
 
-
+  /**
+   * Note that not recommended to directly execute {@link Query#getSingleResult()}, because it will bypass exception handling,
+   * which done in {@link #getSingleResult(Query, Object)}.
+   */
   public Query createQuery(String hql) {
     startTransaction();
     return entityManager.createQuery(hql);
   }
 
+  /**
+   * @return the result or <code>defaultValue</code>, if not found
+   * @throws NonUniqueResultException if more than one result
+   */
   public <T> T getSingleResult(Query query, T defaultValue) {
-    try {
-      return (T) query.getSingleResult();
-    } catch (NoResultException ex) {
+    /*
+     * See http://jira.codehaus.org/browse/SONAR-2225
+     * By default Hibernate throws NonUniqueResultException without meaningful information about context,
+     * so we improve it here by adding all results in error message.
+     * Note that in some rare situations we can receive too many results, which may lead to OOME,
+     * but actually it will mean that database is corrupted as we don't expect more than one result
+     * and in fact org.hibernate.ejb.QueryImpl#getSingleResult() anyway does loading of several results under the hood.
+     */
+    List<T> result = query.getResultList();
+
+    if (result.size() == 1) {
+      return result.get(0);
+
+    } else if (result.isEmpty()) {
       return defaultValue;
+
+    } else {
+      Set<T> uniqueResult = new HashSet<T>(result);
+      if (uniqueResult.size() > 1) {
+        throw new NonUniqueResultException("Expected single result, but got : " + result.toString());
+      } else {
+        return uniqueResult.iterator().next();
+      }
     }
   }
 
@@ -162,11 +190,19 @@ public class JpaDatabaseSession extends DatabaseSession {
     return getEntityManager().find(entityClass, id);
   }
 
+  /**
+   * @return the result or <code>null</code>, if not found
+   * @throws NonUniqueResultException if more than one result
+   */
   public <T> T getSingleResult(Class<T> entityClass, Object... criterias) {
     try {
       return getSingleResult(getQueryForCriterias(entityClass, true, criterias), (T) null);
 
     } catch (NonUniqueResultException ex) {
+      /*
+       * TODO Log and throw is anti-pattern ( see http://today.java.net/article/2006/04/04/exception-handling-antipatterns#logAndThrow ),
+       * but NonUniqueResultException doesn't have a constructor with cause
+       */
       LoggerFactory.getLogger(JpaDatabaseSession.class).warn("NonUniqueResultException on entity {} with criterias : {}",
           entityClass.getSimpleName(), StringUtils.join(criterias, ","));
       throw ex;
