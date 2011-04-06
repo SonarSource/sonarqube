@@ -33,19 +33,7 @@ import java.util.List;
         project = true,
         global = false)
 })
-public class SurefirePlugin implements Plugin {
-
-  public String getKey() {
-    return CoreProperties.SUREFIRE_PLUGIN;
-  }
-
-  public String getName() {
-    return "Surefire";
-  }
-
-  public String getDescription() {
-    return "Support of JUnit and TestNG unit test frameworks";
-  }
+public final class SurefirePlugin extends SonarPlugin {
 
   public List getExtensions() {
     return Arrays.asList(SurefireSensor.class);
