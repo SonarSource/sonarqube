@@ -19,17 +19,15 @@
  */
 package org.sonar.plugins.surefire;
 
+import org.junit.Test;
+
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
 
 public class SurefirePluginTest {
 
   @Test
-  public void testGetExtensions() {
-    SurefirePlugin plugin = new SurefirePlugin();
-    assertThat(plugin.getExtensions().size(), greaterThan(0));
+  public void shouldGetExtensions() {
+    assertThat(new SurefirePlugin().getExtensions().size(), greaterThan(0));
   }
-
 }

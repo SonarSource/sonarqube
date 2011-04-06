@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" skipped="0" tests="2" time="0.061" failures="0" name="ch.hortis.sonar.mvn.mc.CloverCollectorTest">
+  <properties>
+    <property value="Java(TM) 2 Runtime Environment, Standard Edition" name="java.runtime.name"/>
+    <property value="/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Libraries"
+              name="sun.boot.library.path"/>
+    <property value="1.5.0_06-64" name="java.vm.version"/>
+    <property value="true" name="awt.nativeDoubleBuffering"/>
+    <property value="false" name="gopherProxySet"/>
+    <property value="&quot;Apple Computer, Inc.&quot;" name="java.vm.vendor"/>
+    <property value="http://apple.com/" name="java.vendor.url"/>
+    <property value=":" name="path.separator"/>
+    <property value="Java HotSpot(TM) Client VM" name="java.vm.name"/>
+    <property value="sun.io" name="file.encoding.pkg"/>
+    <property value="FR" name="user.country"/>
+    <property value="unknown" name="sun.os.patch.level"/>
+    <property value="Java Virtual Machine Specification" name="java.vm.specification.name"/>
+    <property value="/Users/cmunger/Documents/workspace/sonar/sonar-maven-plugin" name="user.dir"/>
+    <property value="1.5.0_06-112" name="java.runtime.version"/>
+    <property value="apple.awt.CGraphicsEnvironment" name="java.awt.graphicsenv"/>
+    <property value="/Users/cmunger/Documents/workspace/sonar/sonar-maven-plugin" name="basedir"/>
+    <property value="/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/lib/endorsed"
+              name="java.endorsed.dirs"/>
+    <property value="ppc" name="os.arch"/>
+    <property value="/tmp" name="java.io.tmpdir"/>
+    <property value="
+" name="line.separator"/>
+    <property value="Sun Microsystems Inc." name="java.vm.specification.vendor"/>
+    <property value="Mac OS X" name="os.name"/>
+    <property value="MacRoman" name="sun.jnu.encoding"/>
+    <property value=".:/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java"
+              name="java.library.path"/>
+    <property value="Java Platform API Specification" name="java.specification.name"/>
+    <property value="49.0" name="java.class.version"/>
+    <property value="HotSpot Client Compiler" name="sun.management.compiler"/>
+    <property value="10.4.8" name="os.version"/>
+    <property value="/Users/cmunger" name="user.home"/>
+    <property value="" name="user.timezone"/>
+    <property value="apple.awt.CPrinterJob" name="java.awt.printerjob"/>
+    <property value="MacRoman" name="file.encoding"/>
+    <property value="1.5" name="java.specification.version"/>
+    <property value="cmunger" name="user.name"/>
+    <property
+        value="/Users/cmunger/.m2/repository/org/apache/maven/surefire/surefire-api/2.0/surefire-api-2.0.jar:/Users/cmunger/.m2/repository/org/codehaus/plexus/plexus-utils/1.1/plexus-utils-1.1.jar:/Users/cmunger/.m2/repository/org/apache/maven/surefire/surefire-booter/2.0/surefire-booter-2.0.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/.compatibility/14compatibility.jar"
+        name="java.class.path"/>
+    <property value="1.0" name="java.vm.specification.version"/>
+    <property value="32" name="sun.arch.data.model"/>
+    <property value="/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home" name="java.home"/>
+    <property value="Sun Microsystems Inc." name="java.specification.vendor"/>
+    <property value="fr" name="user.language"/>
+    <property value="apple.awt.CToolkit" name="awt.toolkit"/>
+    <property value="mixed mode, sharing" name="java.vm.info"/>
+    <property value="1.5.0_06" name="java.version"/>
+    <property
+        value="/Library/Java/Extensions:/System/Library/Java/Extensions:/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Home/lib/ext"
+        name="java.ext.dirs"/>
+    <property
+        value="/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/classes.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/ui.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/laf.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/sunrsasign.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/jsse.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/jce.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/charsets.jar"
+        name="sun.boot.class.path"/>
+    <property value="Apple Computer, Inc." name="java.vendor"/>
+    <property value="/Users/cmunger/.m2/repository" name="localRepository"/>
+    <property value="/" name="file.separator"/>
+    <property value="http://developer.apple.com/java/" name="java.vendor.url.bug"/>
+    <property value="big" name="sun.cpu.endian"/>
+    <property value="UnicodeBig" name="sun.io.unicode.encoding"/>
+    <property value="1040.1.5.0_06-112" name="mrj.version"/>
+    <property value="" name="sun.cpu.isalist"/>
+  </properties>
+  <testcase time="0.035" name="testGetUnKnownCollector"/>
+  <testcase time="0" name="testGetJDependsCollector"/>
+  <testcase time="0" name="testGetJavaNCSSCollector"/>
+  <testcase time="0" name="testGetCloverCollector"/>
+  <testcase time="0.644" name="testCollectWithoutPluginConfiguration"/>
+  <testcase time="0.015" name="testCollectWithPluginConfiguration"/>
+  <testcase time="0.044" name="testCollectWithoutPluginConfiguration"/>
+  <testcase time="0.013" name="testCollectWithPluginConfiguration"/>
+</testsuite>

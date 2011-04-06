@@ -17,13 +17,10 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.surefire;
+package org.sonar.plugins.surefire.data;
 
 import java.text.ParseException;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -35,9 +32,13 @@ import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.utils.ParsingUtils;
 import org.sonar.api.utils.StaxParser.XmlStreamHandler;
 
-public class TestSuiteParser implements XmlStreamHandler {
+public class SurefireStaxHandler implements XmlStreamHandler {
 
-  private Map<String, TestSuiteReport> reportsPerClass = new HashMap<String, TestSuiteReport>();
+  private UnitTestIndex index;
+
+  public SurefireStaxHandler(UnitTestIndex index) {
+    this.index = index;
+  }
 
   public void stream(SMHierarchicCursor rootCursor) throws XMLStreamException {
     SMInputCursor testSuite = rootCursor.constructDescendantCursor(new ElementFilter("testsuite"));
@@ -54,84 +55,67 @@ public class TestSuiteParser implements XmlStreamHandler {
         while ((event = testCase.getNext()) != null) {
           if (event.compareTo(SMEvent.START_ELEMENT) == 0) {
             String testClassName = getClassname(testCase, testSuiteClassName);
-            TestSuiteReport report = reportsPerClass.get(testClassName);
-            if (report == null) {
-              report = new TestSuiteReport(testClassName);
-              reportsPerClass.put(testClassName, report);
-            }
-            cumulateTestCaseDetails(testCase, report);
+            UnitTestClassReport classReport = index.index(testClassName);
+            parseTestCase(testCase, classReport);
           }
         }
       }
     }
   }
 
-  public Collection<TestSuiteReport> getParsedReports() {
-    return reportsPerClass.values();
-  }
-
   private String getClassname(SMInputCursor testCaseCursor, String defaultClassname) throws XMLStreamException {
     String testClassName = testCaseCursor.getAttrValue("classname");
-    testClassName = StringUtils.substringBeforeLast(testClassName, "$");
-    return testClassName == null ? defaultClassname : testClassName;
+    return StringUtils.defaultIfBlank(testClassName, defaultClassname);
   }
 
-  private void cumulateTestCaseDetails(SMInputCursor testCaseCursor, TestSuiteReport report) throws XMLStreamException {
-    TestCaseDetails detail = getTestCaseDetails(testCaseCursor);
-    if (detail.getStatus().equals(TestCaseDetails.STATUS_SKIPPED)) {
-      report.setSkipped(report.getSkipped() + 1);
-    } else if (detail.getStatus().equals(TestCaseDetails.STATUS_FAILURE)) {
-      report.setFailures(report.getFailures() + 1);
-    } else if (detail.getStatus().equals(TestCaseDetails.STATUS_ERROR)) {
-      report.setErrors(report.getErrors() + 1);
-    }
-    report.setTests(report.getTests() + 1);
-    report.setTimeMS(report.getTimeMS() + detail.getTimeMS());
-    report.getDetails().add(detail);
+  private void parseTestCase(SMInputCursor testCaseCursor, UnitTestClassReport report) throws XMLStreamException {
+    report.add(parseTestResult(testCaseCursor));
   }
 
-  private void setStackAndMessage(TestCaseDetails detail, SMInputCursor stackAndMessageCursor) throws XMLStreamException {
-    detail.setErrorMessage(stackAndMessageCursor.getAttrValue("message"));
+  private void setStackAndMessage(UnitTestResult result, SMInputCursor stackAndMessageCursor) throws XMLStreamException {
+    result.setMessage(stackAndMessageCursor.getAttrValue("message"));
     String stack = stackAndMessageCursor.collectDescendantText();
-    detail.setStackTrace(stack);
+    result.setStackTrace(stack);
   }
 
-  private TestCaseDetails getTestCaseDetails(SMInputCursor testCaseCursor) throws XMLStreamException {
-    TestCaseDetails detail = new TestCaseDetails();
+  private UnitTestResult parseTestResult(SMInputCursor testCaseCursor) throws XMLStreamException {
+    UnitTestResult detail = new UnitTestResult();
     String name = getTestCaseName(testCaseCursor);
     detail.setName(name);
 
-    String status = TestCaseDetails.STATUS_OK;
-    Double time = getTimeAttributeInMS(testCaseCursor);
+    String status = UnitTestResult.STATUS_OK;
+    long duration = getTimeAttributeInMS(testCaseCursor);
 
     SMInputCursor childNode = testCaseCursor.descendantElementCursor();
     if (childNode.getNext() != null) {
       String elementName = childNode.getLocalName();
-      if (elementName.equals("skipped")) {
-        status = TestCaseDetails.STATUS_SKIPPED;
+      if ("skipped".equals(elementName)) {
+        status = UnitTestResult.STATUS_SKIPPED;
         // bug with surefire reporting wrong time for skipped tests
-        time = 0d;
-      } else if (elementName.equals("failure")) {
-        status = TestCaseDetails.STATUS_FAILURE;
+        duration = 0L;
+
+      } else if ("failure".equals(elementName)) {
+        status = UnitTestResult.STATUS_FAILURE;
         setStackAndMessage(detail, childNode);
-      } else if (elementName.equals("error")) {
-        status = TestCaseDetails.STATUS_ERROR;
+
+      } else if ("error".equals(elementName)) {
+        status = UnitTestResult.STATUS_ERROR;
         setStackAndMessage(detail, childNode);
       }
     }
     while (childNode.getNext() != null) {
       // make sure we loop till the end of the elements cursor
     }
-    detail.setTimeMS(time.intValue());
+    detail.setDurationMilliseconds(duration);
     detail.setStatus(status);
     return detail;
   }
 
-  private Double getTimeAttributeInMS(SMInputCursor testCaseCursor) throws XMLStreamException {
+  private long getTimeAttributeInMS(SMInputCursor testCaseCursor) throws XMLStreamException {
     // hardcoded to Locale.ENGLISH see http://jira.codehaus.org/browse/SONAR-602
     try {
       Double time = ParsingUtils.parseNumber(testCaseCursor.getAttrValue("time"), Locale.ENGLISH);
-      return !Double.isNaN(time) ? ParsingUtils.scaleValue(time * 1000, 3) : 0;
+      return !Double.isNaN(time) ? new Double(ParsingUtils.scaleValue(time * 1000, 3)).longValue() : 0L;
     } catch (ParseException e) {
       throw new XMLStreamException(e);
     }

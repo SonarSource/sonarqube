@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.surefire.api;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
@@ -28,19 +27,16 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.ParsingUtils;
+import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.StaxParser;
-import org.sonar.api.utils.XmlParserException;
-import org.sonar.plugins.surefire.TestCaseDetails;
-import org.sonar.plugins.surefire.TestSuiteParser;
-import org.sonar.plugins.surefire.TestSuiteReport;
+import org.sonar.plugins.surefire.data.SurefireStaxHandler;
+import org.sonar.plugins.surefire.data.UnitTestClassReport;
+import org.sonar.plugins.surefire.data.UnitTestIndex;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.xml.transform.TransformerException;
+import java.util.Map;
 
 /**
  * @since 2.4
@@ -68,74 +64,83 @@ public abstract class AbstractSurefireParser {
     });
   }
 
-  private void insertZeroWhenNoReports(Project pom, SensorContext context) {
-    if ( !StringUtils.equalsIgnoreCase("pom", pom.getPackaging())) {
+  private void insertZeroWhenNoReports(Project project, SensorContext context) {
+    if (!StringUtils.equalsIgnoreCase("pom", project.getPackaging())) {
       context.saveMeasure(CoreMetrics.TESTS, 0.0);
     }
   }
 
   private void parseFiles(SensorContext context, File[] reports) {
-    Set<TestSuiteReport> analyzedReports = new HashSet<TestSuiteReport>();
-    try {
-      for (File report : reports) {
-        TestSuiteParser parserHandler = new TestSuiteParser();
-        StaxParser parser = new StaxParser(parserHandler, false);
+    UnitTestIndex index = new UnitTestIndex();
+    parseFiles(reports, index);
+    sanitize(index, context);
+    save(index, context);
+
+  }
+
+  private void parseFiles(File[] reports, UnitTestIndex index) {
+    SurefireStaxHandler staxParser = new SurefireStaxHandler(index);
+    StaxParser parser = new StaxParser(staxParser, false);
+    for (File report : reports) {
+      try {
         parser.parse(report);
+      } catch (XMLStreamException e) {
+        throw new SonarException("Fail to parse the Surefire report: " + report, e);
+      }
+    }
+  }
 
-        for (TestSuiteReport fileReport : parserHandler.getParsedReports()) {
-          if ( !fileReport.isValid() || analyzedReports.contains(fileReport)) {
-            continue;
-          }
-          if (fileReport.getTests() > 0) {
-            double testsCount = fileReport.getTests() - fileReport.getSkipped();
-            saveClassMeasure(context, fileReport, CoreMetrics.SKIPPED_TESTS, fileReport.getSkipped());
-            saveClassMeasure(context, fileReport, CoreMetrics.TESTS, testsCount);
-            saveClassMeasure(context, fileReport, CoreMetrics.TEST_ERRORS, fileReport.getErrors());
-            saveClassMeasure(context, fileReport, CoreMetrics.TEST_FAILURES, fileReport.getFailures());
-            saveClassMeasure(context, fileReport, CoreMetrics.TEST_EXECUTION_TIME, fileReport.getTimeMS());
-            double passedTests = testsCount - fileReport.getErrors() - fileReport.getFailures();
-            if (testsCount > 0) {
-              double percentage = passedTests * 100d / testsCount;
-              saveClassMeasure(context, fileReport, CoreMetrics.TEST_SUCCESS_DENSITY, ParsingUtils.scaleValue(percentage));
-            }
-            saveTestsDetails(context, fileReport);
-            analyzedReports.add(fileReport);
-          }
+  private void sanitize(UnitTestIndex index, SensorContext context) {
+    for (String classname : index.getClassnames()) {
+      Resource resource = getUnitTestResource(classname);
+      if (resource != null && context.isIndexed(resource, false)) {
+        // ok
+
+      } else if (StringUtils.contains(classname, "$")) {
+        // Java inner class
+        String parentClassName = StringUtils.substringBeforeLast(classname, "$");
+        Resource parentResource = getUnitTestResource(parentClassName);
+        if (parentResource != null && context.isIndexed(parentResource, false)) {
+          index.merge(classname, parentClassName);
+        } else {
+          index.remove(classname);
         }
-      }
-
-    } catch (Exception e) {
-      throw new XmlParserException("Can not parse surefire reports", e);
-    }
-  }
-
-  private void saveTestsDetails(SensorContext context, TestSuiteReport fileReport) throws TransformerException {
-    StringBuilder testCaseDetails = new StringBuilder(256);
-    testCaseDetails.append("<tests-details>");
-    List<TestCaseDetails> details = fileReport.getDetails();
-    for (TestCaseDetails detail : details) {
-      testCaseDetails.append("<testcase status=\"").append(detail.getStatus())
-          .append("\" time=\"").append(detail.getTimeMS())
-          .append("\" name=\"").append(detail.getName()).append("\"");
-      boolean isError = detail.getStatus().equals(TestCaseDetails.STATUS_ERROR);
-      if (isError || detail.getStatus().equals(TestCaseDetails.STATUS_FAILURE)) {
-        testCaseDetails.append(">")
-            .append(isError ? "<error message=\"" : "<failure message=\"")
-            .append(StringEscapeUtils.escapeXml(detail.getErrorMessage())).append("\">")
-            .append("<![CDATA[").append(StringEscapeUtils.escapeXml(detail.getStackTrace())).append("]]>")
-            .append(isError ? "</error>" : "</failure>").append("</testcase>");
       } else {
-        testCaseDetails.append("/>");
+        index.remove(classname);
       }
     }
-    testCaseDetails.append("</tests-details>");
-    context.saveMeasure(getUnitTestResource(fileReport.getClassKey()), new Measure(CoreMetrics.TEST_DATA, testCaseDetails.toString()));
   }
 
-  private void saveClassMeasure(SensorContext context, TestSuiteReport fileReport, Metric metric, double value) {
-    if ( !Double.isNaN(value)) {
-      context.saveMeasure(getUnitTestResource(fileReport.getClassKey()), metric, value);
+  private void save(UnitTestIndex index, SensorContext context) {
+    for (Map.Entry<String, UnitTestClassReport> entry : index.getIndexByClassname().entrySet()) {
+      UnitTestClassReport report = entry.getValue();
+      if (report.getTests() > 0) {
+        Resource resource = getUnitTestResource(entry.getKey());
+        double testsCount = report.getTests() - report.getSkipped();
+        saveMeasure(context, resource, CoreMetrics.SKIPPED_TESTS, report.getSkipped());
+        saveMeasure(context, resource, CoreMetrics.TESTS, testsCount);
+        saveMeasure(context, resource, CoreMetrics.TEST_ERRORS, report.getErrors());
+        saveMeasure(context, resource, CoreMetrics.TEST_FAILURES, report.getFailures());
+        saveMeasure(context, resource, CoreMetrics.TEST_EXECUTION_TIME, report.getDurationMilliseconds());
+        double passedTests = testsCount - report.getErrors() - report.getFailures();
+        if (testsCount > 0) {
+          double percentage = passedTests * 100d / testsCount;
+          saveMeasure(context, resource, CoreMetrics.TEST_SUCCESS_DENSITY, ParsingUtils.scaleValue(percentage));
+        }
+        saveResults(context, resource, report);
+      }
     }
+  }
+
+
+  private void saveMeasure(SensorContext context, Resource resource, Metric metric, double value) {
+    if (!Double.isNaN(value)) {
+      context.saveMeasure(resource, metric, value);
+    }
+  }
+
+  private void saveResults(SensorContext context, Resource resource, UnitTestClassReport report) {
+    context.saveMeasure(resource, new Measure(CoreMetrics.TEST_DATA, report.toXml()));
   }
 
   protected abstract Resource<?> getUnitTestResource(String classKey);

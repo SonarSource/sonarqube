@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.surefire;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AbstractCoverageExtension;
@@ -39,7 +40,7 @@ public class SurefireSensor implements Sensor {
   private static Logger logger = LoggerFactory.getLogger(SurefireSensor.class);
 
   @DependsUpon
-  public Class<?> dependsUponCoverageSensors() {
+  public Class dependsUponCoverageSensors() {
     return AbstractCoverageExtension.class;
   }
 
@@ -57,7 +58,11 @@ public class SurefireSensor implements Sensor {
     new AbstractSurefireParser() {
       @Override
       protected Resource<?> getUnitTestResource(String classKey) {
-        return new JavaFile(classKey, true);
+        if (!StringUtils.contains(classKey, "$")) {
+          // temporary hack waiting for http://jira.codehaus.org/browse/SONAR-1865
+          return new JavaFile(classKey, true);
+        }
+        return null;
       }
     }.collect(project, context, reportsDir);
   }

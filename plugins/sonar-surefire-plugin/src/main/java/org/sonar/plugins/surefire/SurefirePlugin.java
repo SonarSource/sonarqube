@@ -22,6 +22,7 @@ package org.sonar.plugins.surefire;
 import org.sonar.api.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Properties({
@@ -32,12 +33,22 @@ import java.util.List;
         project = true,
         global = false)
 })
-public class SurefirePlugin extends SonarPlugin {
+public class SurefirePlugin implements Plugin {
 
-  public List<Class<? extends Extension>> getExtensions() {
-    List<Class<? extends Extension>> extensions = new ArrayList<Class<? extends Extension>>();
-    extensions.add(SurefireSensor.class);
-    return extensions;
+  public String getKey() {
+    return CoreProperties.SUREFIRE_PLUGIN;
+  }
+
+  public String getName() {
+    return "Surefire";
+  }
+
+  public String getDescription() {
+    return "Support of JUnit and TestNG unit test frameworks";
+  }
+
+  public List getExtensions() {
+    return Arrays.asList(SurefireSensor.class);
   }
 
 }
