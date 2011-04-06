@@ -25,7 +25,10 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Languages;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.BatchPluginRepository;
@@ -103,7 +106,7 @@ public class ProjectBatch {
       addComponent(project);
       addComponent(project.getPom());
       addComponent(ProjectClasspath.class);
-      addComponent(DefaultProjectFileSystem.class);
+      addComponent(MavenProjectFileSystem.class);
       addComponent(project.getConfiguration());
 
       // need to be registered after the Configuration

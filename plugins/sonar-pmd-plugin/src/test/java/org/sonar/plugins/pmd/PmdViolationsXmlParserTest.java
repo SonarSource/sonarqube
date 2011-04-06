@@ -39,7 +39,7 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.DefaultProjectFileSystem;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.Rule;
@@ -50,7 +50,7 @@ import org.sonar.api.test.IsViolation;
 public class PmdViolationsXmlParserTest {
 
   private void parse(SensorContext context, String xmlPath) throws URISyntaxException, XMLStreamException {
-    DefaultProjectFileSystem fileSystem = mock(DefaultProjectFileSystem.class);
+    ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
     when(fileSystem.getSourceDirs()).thenReturn(Arrays.asList(new File("/test/src/main/java")));
 
     Project project = mock(Project.class);

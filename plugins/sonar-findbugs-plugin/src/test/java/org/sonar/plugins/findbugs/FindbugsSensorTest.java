@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.DefaultProjectFileSystem;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -147,7 +147,7 @@ public class FindbugsSensorTest extends FindbugsTests {
   }
 
   private Project createProject() {
-    DefaultProjectFileSystem fileSystem = mock(DefaultProjectFileSystem.class);
+    ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
     when(fileSystem.hasJavaSourceFiles()).thenReturn(Boolean.TRUE);
 
     Project project = mock(Project.class);

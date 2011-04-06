@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.resources.DefaultProjectFileSystem;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.MavenTestUtils;
 
@@ -37,7 +37,7 @@ import java.net.URISyntaxException;
 public class CoberturaUtilsTest {
   @Test
   public void shouldGetReportPathFromProperty() throws URISyntaxException {
-    DefaultProjectFileSystem fileSystem = mock(DefaultProjectFileSystem.class);
+    ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
     when(fileSystem.resolvePath("foo")).thenReturn(getCoverageReport());
 
     Project project = mock(Project.class);
@@ -53,7 +53,7 @@ public class CoberturaUtilsTest {
   public void shouldGetReportPathFromPom() {
     MavenProject pom = MavenTestUtils.loadPom("/org/sonar/plugins/cobertura/CoberturaSensorTest/shouldGetReportPathFromPom/pom.xml");
 
-    DefaultProjectFileSystem fileSystem = mock(DefaultProjectFileSystem.class);
+    ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
 
     Project project = mock(Project.class);
     when(project.getPom()).thenReturn(pom);

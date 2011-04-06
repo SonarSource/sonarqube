@@ -152,7 +152,7 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
     return file;
   }
 
-  private List<File> resolvePaths(List<String> paths) {
+  protected List<File> resolvePaths(List<String> paths) {
     List<File> result = Lists.newArrayList();
     if (paths != null) {
       for (String path : paths) {
@@ -204,7 +204,7 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
         List<File> files = (List<File>) FileUtils.listFiles(dir, new AndFileFilter(dirFilters), HiddenFileFilter.VISIBLE);
         for (File file : files) {
           String relativePath = DefaultProjectFileSystem.getRelativePath(file, dir);
-          result.add(new DefaultInputFile(dir, relativePath));
+          result.add(InputFileUtils.create(dir, relativePath));
         }
       }
     }
@@ -361,27 +361,5 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
    */
   public List<InputFile> testFiles(String... langs) {
     return getFiles(getTestDirs(), false /* FIXME should be true? */, langs);
-  }
-
-  private static final class DefaultInputFile implements InputFile {
-    private File basedir;
-    private String relativePath;
-
-    DefaultInputFile(File basedir, String relativePath) {
-      this.basedir = basedir;
-      this.relativePath = relativePath;
-    }
-
-    public File getFileBaseDir() {
-      return basedir;
-    }
-
-    public File getFile() {
-      return new File(basedir, relativePath);
-    }
-
-    public String getRelativePath() {
-      return relativePath;
-    }
   }
 }

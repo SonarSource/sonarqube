@@ -53,7 +53,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.exceptions.verification.junit.ArgumentsAreDifferent;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.resources.DefaultProjectFileSystem;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Language;
@@ -143,7 +143,7 @@ public class AbstractSourceImporterTest {
   }
 
   private void fileEncodingTest(Project project, SensorContext context, String encoding, String testFile) {
-    DefaultProjectFileSystem fileSystem = mock(DefaultProjectFileSystem.class);
+    ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
     when(project.getFileSystem()).thenReturn(fileSystem);
     when(fileSystem.getSourceCharset()).thenReturn(Charset.forName(encoding));
     when(project.getConfiguration()).thenReturn(new MapConfiguration(new HashMap<String, String>()));
