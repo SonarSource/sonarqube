@@ -36,7 +36,7 @@ class CreateReview < ActiveRecord::Migration
       t.column 'resource_line', 	:integer, 	:null => true      
     end
     
-    create_table 'review_data' do |t|
+    create_table 'review_comments' do |t|
       t.column 'created_at', 		:datetime
       t.column 'review_id', 		:integer
       t.column 'user_id', 			:integer, 	:null => true

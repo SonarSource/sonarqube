@@ -1,21 +1,19 @@
 <div>
-      Review Id: <%= review.id -%>
+      User name: <%= h(review.user.name) -%>
       <br/>
-      Review Id: <%= review.user.name -%>
+      Status: <%= h(review.status) -%>
       <br/>
-      Review type: <%= review.review_type -%>
+      Severity: <%= h(review.severity) -%>
       <br/>
-      Status: <%= review.status -%>
-      <br/>
-      Severity: <%= review.severity -%>
-      <br/>
-      External Link: <%= review.external_link -%>
+      External Link: <%= h(review.external_link) -%>
       <br/>
       
-		  <% unless review.review_data.blank? 
-		       review.review_data.each do |review_data|
+		  <% unless review.review_comments.blank? 
+		       review.review_comments.each do |review_comment|
 		  %>
-		    Comment: <%= review_data.review_text -%>
+		    <%= l review_comment.created_at -%>, by <%= h(review_comment.user.name) -%>
+		    » 
+		    <%= h(review_comment.review_text) -%>
             <br/>
 		  <% 
 		       end

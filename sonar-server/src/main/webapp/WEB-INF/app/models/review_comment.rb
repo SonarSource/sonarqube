@@ -17,9 +17,7 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class ReviewData < ActiveRecord::Base
-  set_table_name :review_data
-
+class ReviewComment < ActiveRecord::Base
   belongs_to :user
   belongs_to :review
   validates_presence_of :user

@@ -195,7 +195,7 @@ class ResourceController < ApplicationController
       end
     end
 
-    RuleFailure.find(:all, :include => ['rule', 'reviews', { 'reviews' => 'review_data' } ], :conditions => [conditions] + values, :order => 'failure_level DESC').each do |violation|
+    RuleFailure.find(:all, :include => ['rule', 'reviews' ], :conditions => [conditions] + values, :order => 'failure_level DESC').each do |violation|
       # sorted by severity => from blocker to info
       if violation.line && violation.line>0 && @lines
         @lines[violation.line-1].add_violation(violation)

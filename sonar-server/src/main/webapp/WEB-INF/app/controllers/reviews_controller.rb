@@ -29,10 +29,10 @@ class ReviewsController < ApplicationController
 	  @review = Review.new
 	  @review.rule_failure_id = params[:violation_id]
 	  @review.user = current_user
-	  @review_data = ReviewData.new
-	  @review_data.user = current_user
-	  @review_data.review = @review
-	  @review_data.review_text = "Enter your review here"
+	  @review_comment = ReviewComment.new
+	  @review_comment.user = current_user
+	  @review_comment.review = @review
+	  @review_comment.review_text = "Enter your review here"
 	  render "_form", :layout => false
 	end
 	
@@ -40,11 +40,11 @@ class ReviewsController < ApplicationController
 	  review = Review.new(params[:review])
 	  review.user = current_user
 	  review.save
-      review_data = ReviewData.new(params[:review_data])
-	  review_data.user = current_user
-	  review_data.review_id = review.id
-	  review_data.save
-	  #render "_view", :layout => false
+      review_comment = ReviewComment.new(params[:review_comment])
+	  review_comment.user = current_user
+	  review_comment.review_id = review.id
+	  review_comment.save
+	  render "create", :layout => false
 	end
 	
 	def cancel_create

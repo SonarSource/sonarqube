@@ -12,7 +12,7 @@
       <br/>
       Comment:
       <br/>
-      <%= text_area :review_data, :review_text, :rows => 10 %>
+      <%= text_area :review_comment, :review_text, :rows => 10 %>
       <br/>
       <%= submit_to_remote 'create_btn', 'Create review', 
                      :url => { :action => 'create', :id => @review.id },
