@@ -26,4 +26,25 @@ class Review < ActiveRecord::Base
   validates_presence_of :review_type, :message => "can't be empty"
   validates_presence_of :status, :message => "can't be empty"
 
+  INFO = "info"
+  MINOR = "minor"
+  MAJOR = "major"
+  CRITICAL = "critical"
+  BLOCKER = "blocker"
+
+
+  def self.default_severity
+    return MAJOR
+  end
+  
+  def self.severity_options
+    severity_ops = []
+    severity_ops << ["Info", INFO]
+    severity_ops << ["Minor", MINOR]
+    severity_ops << ["Major", MAJOR]
+    severity_ops << ["Critical", CRITICAL]
+    severity_ops << ["Blocker", BLOCKER]
+    return severity_ops
+  end
+
 end

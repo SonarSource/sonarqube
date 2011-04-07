@@ -3,7 +3,8 @@
       <%= f.hidden_field :rule_failure_id %>
       Review made by: <%= @review.user.name -%>
       <br/>
-      Severity: <%= f.text_field :severity %>
+      Severity: 
+      <%= select_tag "review[severity]", options_for_select(Review.severity_options, @review.severity)  %>
       <br/>
       Comment:
       <br/>

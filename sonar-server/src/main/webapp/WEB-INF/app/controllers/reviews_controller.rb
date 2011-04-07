@@ -33,6 +33,7 @@ class ReviewsController < ApplicationController
 	  @review = Review.new
 	  @review.rule_failure_id = params[:violation_id]
 	  @review.user = current_user
+	  @review.severity = Review.default_severity
 	  @review_comment = ReviewComment.new
 	  @review_comment.review_text = ""
 	  render :partial => "form"
