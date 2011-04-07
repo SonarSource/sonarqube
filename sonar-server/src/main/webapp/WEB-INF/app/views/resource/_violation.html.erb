@@ -32,7 +32,7 @@
 		<% end %>
 		
 		<div id="reviewFailure<%= violation.id -%>" style="padding:5px; background:white; display:<%= displayReviewFailureDiv -%>">
-		  <%= render :partial => "reviews/list", :locals => { :reviews => violation.reviews } %>
+		  <%= render :partial => "reviews/index", :locals => { :reviews => violation.reviews } %>
 		</div>
       </td>
       

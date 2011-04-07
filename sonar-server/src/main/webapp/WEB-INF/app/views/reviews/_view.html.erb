@@ -25,7 +25,7 @@
       </div>
       
       <%= link_to_remote "Add a comment", 
-        		:url => { :controller => "reviews", :action => "formComment", :review_id => review.id, :rule_failure_id => review.rule_failure_id },
+        		:url => { :controller => "reviews", :action => "form_comment", :review_id => review.id, :rule_failure_id => review.rule_failure_id },
         		:update => "createComment" + review.id.to_s, 
         		:complete => "$('commentText" + review.id.to_s + "').focus()" -%>
       

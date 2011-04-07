@@ -25,11 +25,8 @@ class ReviewsController < ApplicationController
 	#verify :method => :post, :only => [  :create, :...... ], :redirect_to => { :action => :index }
 	
 	def index
-	end
-	
-	def list
 	  reviews = Review.find :all, :conditions => ['rule_failure_id=?', params[:rule_failure_id]]
-	  render :partial => "list", :locals => { :reviews => reviews }
+	  render :partial => "index", :locals => { :reviews => reviews }
 	end
 	
 	def form
@@ -43,7 +40,7 @@ class ReviewsController < ApplicationController
 	  render :partial => "form"
 	end
 	
-	def formComment
+	def form_comment
 	  @review_comment = ReviewComment.new
 	  @review_comment.user = current_user
 	  @review_comment.review_id = params[:review_id]
@@ -65,17 +62,17 @@ class ReviewsController < ApplicationController
 	  review_comment.save
 	  
 	  params[:rule_failure_id] = review.rule_failure_id
-	  list
+	  index
 	end
 	
-	def createComment
+	def create_comment
 	  #return access_denied unless has_role?(:user, @project)
 	
       review_comment = ReviewComment.new(params[:review_comment])
       review_comment.user = current_user
 	  review_comment.save
 	  
-	  list
+	  index
 	end
 	
 end
