@@ -24,10 +24,11 @@
 		%>
       </div>
       
-      <%= link_to_remote("Add a comment", 
+      <%= link_to_remote "Add a comment", 
+        		:url => { :controller => "reviews", :action => "formComment", :review_id => review.id, :rule_failure_id => review.rule_failure_id },
         		:update => "createComment" + review.id.to_s, 
-        		:url => { :controller => "reviews", :action => "formComment", :review_id => review.id, :rule_failure_id => review.rule_failure_id }) -%>
-       <div id="createComment<%= review.id -%>">
-       
-       </div>
+        		:complete => "$('commentText" + review.id.to_s + "').focus()" -%>
+      
+      <div id="createComment<%= review.id -%>"></div>
+
   </div>

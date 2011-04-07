@@ -4,7 +4,7 @@
       <br/>
       Comment:
       <br/>
-      <%= f.text_area :review_text, :rows => 10 %>
+      <%= f.text_area :review_text, :rows => 10, :id => "commentText" + @review_comment.review_id.to_s %>
       <br/>
       <%= submit_to_remote 'create_btn', 'Add comment', 
                      :url => { :action => 'createComment', :rule_failure_id => @rule_failure_id },

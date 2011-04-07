@@ -20,14 +20,16 @@
 
 class ReviewsController < ApplicationController
 
-	SECTION=Navigation::SECTION_CONFIGURATION
+	SECTION=Navigation::SECTION_RESOURCE
+	
+	#verify :method => :post, :only => [  :create, :...... ], :redirect_to => { :action => :index }
 	
 	def index
 	end
 	
 	def list
 	  reviews = Review.find :all, :conditions => ['rule_failure_id=?', params[:rule_failure_id]]
-	  render :partial => "list", :locals => { :reviews => reviews }, :layout => false
+	  render :partial => "list", :locals => { :reviews => reviews }
 	end
 	
 	def form
@@ -38,7 +40,7 @@ class ReviewsController < ApplicationController
 	  @review_comment.user = current_user
 	  @review_comment.review = @review
 	  @review_comment.review_text = "Enter your review here"
-	  render "_form", :layout => false
+	  render :partial => "form"
 	end
 	
 	def formComment
@@ -47,13 +49,15 @@ class ReviewsController < ApplicationController
 	  @review_comment.review_id = params[:review_id]
 	  @review_comment.review_text = ""
 	  @rule_failure_id = params[:rule_failure_id]
-	  render "_form_comment", :layout => false
+	  render :partial => "form_comment"
 	end
 	
 	def create
 	  review = Review.new(params[:review])
 	  review.user = current_user
+	  # save!
 	  review.save
+	  # --> Build?
 	  #review.review_comments.create(params[:review_comment])
       review_comment = ReviewComment.new(params[:review_comment])
 	  review_comment.user = current_user
@@ -65,6 +69,8 @@ class ReviewsController < ApplicationController
 	end
 	
 	def createComment
+	  #return access_denied unless has_role?(:user, @project)
+	
       review_comment = ReviewComment.new(params[:review_comment])
       review_comment.user = current_user
 	  review_comment.save

@@ -1,12 +1,20 @@
+<% 
+  displayReviewFailureDiv = 'block'
+  if violation.reviews.blank?
+    displayReviewFailureDiv = 'none'
+  end
+%>
 <div class="violation">
   <table>
     <tr>
     
       <td width="30px" valign="top">
-      	<% if current_user %>
-          <%= link_to_remote(image_tag("add.png"), 
-        		:update => "reviewFailure" + violation.id.to_s, 
-        		:url => { :controller => "reviews", :action => "form", :violation_id => violation.id }) -%>
+      	<% if current_user && violation.reviews.blank? %>
+          <%= link_to_remote image_tag("add.png"),  
+        		:url => { :controller => "reviews", :action => "form", :violation_id => violation.id },
+        		:update => "reviewFailure" + violation.id.to_s,
+        		:html => { :id => "createReviewLink" + violation.id.to_s },
+        		:complete => "$('reviewFailure" + violation.id.to_s + "').style.display='';$('reviewText').focus();" -%>
       	<% end %>
       </td>
       
@@ -23,7 +31,7 @@
 		  <span class="violation_date"><%= duration==0 ? 'today' : "#{duration} days ago" -%></span>
 		<% end %>
 		
-		<div id="reviewFailure<%= violation.id -%>" style="padding:5px; background:white">
+		<div id="reviewFailure<%= violation.id -%>" style="padding:5px; background:white; display:<%= displayReviewFailureDiv -%>">
 		  <%= render :partial => "reviews/list", :locals => { :reviews => violation.reviews } %>
 		</div>
       </td>
