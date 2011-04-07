@@ -1,6 +1,6 @@
 <% form_for :review_comment, @review_comment do |f| %>
       <%= f.hidden_field :review_id %>
-      Review by: <%= :user -%>
+      Review by: <%= @review_comment.user.name -%>
       <br/>
       Comment:
       <br/>

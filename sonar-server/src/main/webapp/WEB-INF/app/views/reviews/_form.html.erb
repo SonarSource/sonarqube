@@ -1,15 +1,9 @@
 <h3>Create a new review</h3>
 <% form_for :review, @review do |f| %>
       <%= f.hidden_field :rule_failure_id %>
-      Review by: <%= @review.user.login -%>
-      <br/>
-      Review type: <%= f.text_field :review_type %>
-      <br/>
-      Status: <%= f.text_field :status %>
+      Review made by: <%= @review.user.name -%>
       <br/>
       Severity: <%= f.text_field :severity %>
-      <br/>
-      External Link: <%= f.text_field :external_link %>
       <br/>
       Comment:
       <br/>

@@ -30,7 +30,6 @@ class CreateReview < ActiveRecord::Migration
       t.column 'review_type', 		:string, 	:null => true,	:limit => 10
       t.column 'status', 			:string, 	:null => true,	:limit => 10
       t.column 'severity', 			:string, 	:null => true,	:limit => 10
-      t.column 'external_link', 	:string, 	:null => true, 	:limit => 200  
       t.column 'rule_failure_id', 	:integer, 	:null => true   
       t.column 'resource_id', 		:integer, 	:null => true   
       t.column 'resource_line', 	:integer, 	:null => true      
