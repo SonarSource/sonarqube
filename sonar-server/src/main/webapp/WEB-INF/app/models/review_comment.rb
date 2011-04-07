@@ -20,8 +20,11 @@
 class ReviewComment < ActiveRecord::Base
   belongs_to :user
   belongs_to :review
-  validates_presence_of :user
-  validates_presence_of :review
-  validates_length_of :review_text, :minimum => 1, :too_short => "Your review cannot be empty."
+  validates_presence_of :user => "can't be empty"
+  validate :comment_should_not_be_empty
+  
+  def comment_should_not_be_empty
+    errors.add("Comment", " cannot be empty") if review_text.strip.blank?
+  end
 
 end

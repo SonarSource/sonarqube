@@ -16,7 +16,10 @@
       <%= text_area :review_comment, :review_text, :id => "reviewText", :rows => 10 %>
       <br/>
       <input type="button" name="create_btn" value="Create review" 
-             onclick="new Ajax.Updater({success:'reviewFailure<%= @review.rule_failure_id.to_s -%>'}, '<%= ApplicationController.root_context -%>/reviews/create?rule_failure_id=<%= @review.rule_failure_id.to_s -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this.form), onSuccess:function(request){$('createReviewLink<%= @review.rule_failure_id.to_s -%>').style.display='none';} });">
+             onclick="new Ajax.Updater({success:'reviewFailure<%= @review.rule_failure_id.to_s -%>', failure:'reviewFailure<%= @review.rule_failure_id.to_s -%>'}, '<%= ApplicationController.root_context -%>/reviews/create?rule_failure_id=<%= @review.rule_failure_id.to_s -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this.form), onSuccess:function(request){$('createReviewLink<%= @review.rule_failure_id.to_s -%>').style.display='none';} });">
       <input type="button" name="cancel_btn" value="Cancel" 
              onclick="new Ajax.Updater({success:'reviewFailure<%= @review.rule_failure_id.to_s -%>'}, '<%= ApplicationController.root_context -%>/reviews/list?rule_failure_id=<%= @review.rule_failure_id.to_s -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this.form), }); $('reviewFailure<%= @review.rule_failure_id.to_s -%>').style.display='none';">
+
+      <%= f.error_messages :header_message => "Can't create the review", :message => "", :header_tag => :h3 %>
+      
 <% end %>

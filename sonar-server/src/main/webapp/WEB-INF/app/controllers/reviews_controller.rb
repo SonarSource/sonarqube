@@ -34,9 +34,7 @@ class ReviewsController < ApplicationController
 	  @review.rule_failure_id = params[:violation_id]
 	  @review.user = current_user
 	  @review_comment = ReviewComment.new
-	  @review_comment.user = current_user
-	  @review_comment.review = @review
-	  @review_comment.review_text = "Enter your review here"
+	  @review_comment.review_text = ""
 	  render :partial => "form"
 	end
 	
@@ -52,17 +50,18 @@ class ReviewsController < ApplicationController
 	def create
 	  review = Review.new(params[:review])
 	  review.user = current_user
-	  # save!
-	  review.save
-	  # --> Build?
-	  #review.review_comments.create(params[:review_comment])
-      review_comment = ReviewComment.new(params[:review_comment])
+	  review_comment = ReviewComment.new(params[:review_comment])
 	  review_comment.user = current_user
-	  review_comment.review_id = review.id
-	  review_comment.save
-	  
-	  params[:rule_failure_id] = review.rule_failure_id
-	  index
+	  review.review_comments << review_comment
+	  if review.valid?
+	    review.save
+	    params[:rule_failure_id] = review.rule_failure_id
+	  	index
+	  else 
+	    @review = review
+	    @review_comment = review_comment
+	    render :partial => "form"
+	  end
 	end
 	
 	def create_comment
@@ -70,9 +69,15 @@ class ReviewsController < ApplicationController
 	
       review_comment = ReviewComment.new(params[:review_comment])
       review_comment.user = current_user
-	  review_comment.save
-	  
-	  index
+      if review_comment.valid?
+	    review_comment.save
+	    index
+	  else
+	    @review_comment = review_comment
+	    @rule_failure_id = params[:rule_failure_id]
+	    # TODO Find a way to update the right DIV...
+	    render :partial => "form_comment"
+	  end
 	end
 	
 end
