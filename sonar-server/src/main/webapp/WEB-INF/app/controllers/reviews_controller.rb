@@ -22,7 +22,7 @@ class ReviewsController < ApplicationController
 
 	SECTION=Navigation::SECTION_RESOURCE
 	
-	#verify :method => :post, :only => [  :create, :...... ], :redirect_to => { :action => :index }
+	verify :method => :post, :only => [  :create, :create_comment ], :redirect_to => { :action => :error_not_post }
 	
 	def index
 	  reviews = Review.find :all, :conditions => ['rule_failure_id=?', params[:rule_failure_id]]
@@ -48,6 +48,11 @@ class ReviewsController < ApplicationController
 	end
 	
 	def create
+	  unless hasRightsToCreate? params[:review][:rule_failure_id]
+	    render :text => "<b>Cannot create the review</b> : access denied."
+	    return
+	  end
+	  	  
 	  review = Review.new(params[:review])
 	  review.user = current_user
 	  review.status = "open"
@@ -67,7 +72,10 @@ class ReviewsController < ApplicationController
 	end
 	
 	def create_comment
-	  #return access_denied unless has_role?(:user, @project)
+	  unless hasRightsToCreate? params[:rule_failure_id]
+	    render :text => "<b>Cannot create the comment</b> : access denied."
+	    return
+	  end
 	
       review_comment = ReviewComment.new(params[:review_comment])
       review_comment.user = current_user
@@ -80,6 +88,22 @@ class ReviewsController < ApplicationController
 	    # TODO Find a way to update the right DIV...
 	    render :partial => "form_comment"
 	  end
+	end
+	
+	private
+	
+	def hasRightsToCreate? ( rule_failure_id )
+	  return false unless current_user
+	  
+	  project = RuleFailure.find( rule_failure_id, :include => ['snapshot'] ).snapshot.root_project
+	  unless has_role?(:user, project)
+	    return false
+	  end
+	  return true
+	end
+	
+	def error_not_post
+	  render :text => "Create actions must use POST method."
 	end
 	
 end
