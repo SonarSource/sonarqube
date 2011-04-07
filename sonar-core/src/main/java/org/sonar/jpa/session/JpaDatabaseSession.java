@@ -109,7 +109,15 @@ public class JpaDatabaseSession extends DatabaseSession {
   }
 
   private void internalSave(Object model, boolean flushIfNeeded) {
-    entityManager.persist(model);
+    try {
+      entityManager.persist(model);
+    } catch (PersistenceException e) {
+      /*
+       * See http://jira.codehaus.org/browse/SONAR-2234
+       * In some cases Hibernate can throw exceptions without meaningful information about context, so we improve them here.
+       */
+      throw new PersistenceException("Unable to persist : " + model, e);
+    }
     if (flushIfNeeded && (++index % BATCH_SIZE == 0)) {
       commit();
     }
