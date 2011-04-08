@@ -56,8 +56,8 @@ class ReviewsController < ApplicationController
 	  	  
 	  @review = Review.new(params[:review])
 	  @review.user = current_user
-	  @review.status = "open"
-	  @review.review_type = "simple"
+	  @review.status = Review.default_status
+	  @review.review_type = Review.default_type
 	  @review_comment = ReviewComment.new(params[:review_comment])
 	  @review_comment.user = current_user
 	  @review.review_comments << @review_comment
