@@ -20,7 +20,6 @@
 package org.sonar.jpa.session;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 
 import java.util.*;
@@ -207,13 +206,10 @@ public class JpaDatabaseSession extends DatabaseSession {
       return getSingleResult(getQueryForCriterias(entityClass, true, criterias), (T) null);
 
     } catch (NonUniqueResultException ex) {
-      /*
-       * TODO Log and throw is anti-pattern ( see http://today.java.net/article/2006/04/04/exception-handling-antipatterns#logAndThrow ),
-       * but NonUniqueResultException doesn't have a constructor with cause
-       */
-      LoggerFactory.getLogger(JpaDatabaseSession.class).warn("NonUniqueResultException on entity {} with criterias : {}",
-          entityClass.getSimpleName(), StringUtils.join(criterias, ","));
-      throw ex;
+      NonUniqueResultException e = new NonUniqueResultException("Expected single result for entitiy " + entityClass.getSimpleName()
+          + " with criterias : " + StringUtils.join(criterias, ","));
+      e.initCause(ex);
+      throw e;
     }
   }
 
