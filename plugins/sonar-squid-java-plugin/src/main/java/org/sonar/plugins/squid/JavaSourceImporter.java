@@ -19,9 +19,13 @@
  */
 package org.sonar.plugins.squid;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.Phase;
+import org.sonar.api.batch.Sensor;
+import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.*;
 import org.sonar.api.utils.SonarException;
 import org.sonar.java.api.JavaUtils;
@@ -31,15 +35,25 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 @Phase(name = Phase.Name.PRE)
-@DependsUpon(classes = SquidSensor.class)
-@DependedUpon(JavaUtils.BARRIER_AFTER_SQUID)
+@DependedUpon(JavaUtils.BARRIER_BEFORE_SQUID)
 public final class JavaSourceImporter implements Sensor {
+
+  private boolean importSources = false;
+
+  public JavaSourceImporter(Configuration conf) {
+    this.importSources = conf.getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY,
+        CoreProperties.CORE_IMPORT_SOURCES_DEFAULT_VALUE);
+  }
+
+  JavaSourceImporter(boolean importSources) {
+    this.importSources = importSources;
+  }
 
   /**
    * {@inheritDoc}
    */
   public boolean shouldExecuteOnProject(Project project) {
-    return isEnabled(project) && Java.KEY.equals(project.getLanguageKey());
+    return Java.KEY.equals(project.getLanguageKey());
   }
 
   /**
@@ -63,24 +77,17 @@ public final class JavaSourceImporter implements Sensor {
 
   void importSource(SensorContext context, JavaFile javaFile, InputFile inputFile, Charset sourcesEncoding) {
     try {
-      //if (!context.isIndexed(javaFile, true)) {
-      // See http://jira.codehaus.org/browse/SONAR-791
-      // Squid is the reference plugin to index files. If a file is not indexed,
-      //  throw new SonarException("Invalid file: " + javaFile + ". Please check that Java source directories match root directories" +
-      //    " as defined by packages.");
-      //}
-      String source = FileUtils.readFileToString(inputFile.getFile(), sourcesEncoding.name());
-      context.saveSource(javaFile, source);
+      context.index(javaFile);
+
+      if (importSources) {
+        String source = FileUtils.readFileToString(inputFile.getFile(), sourcesEncoding.name());
+        context.saveSource(javaFile, source);
+      }
 
     } catch (IOException e) {
       throw new SonarException("Unable to read and import the source file : '" + inputFile.getFile().getAbsolutePath() + "' with the charset : '"
           + sourcesEncoding.name() + "'.", e);
     }
-  }
-
-  boolean isEnabled(Project project) {
-    return project.getConfiguration().getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY,
-        CoreProperties.CORE_IMPORT_SOURCES_DEFAULT_VALUE);
   }
 
   @Override

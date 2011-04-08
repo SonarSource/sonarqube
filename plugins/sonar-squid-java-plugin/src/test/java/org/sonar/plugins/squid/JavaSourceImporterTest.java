@@ -48,7 +48,7 @@ public class JavaSourceImporterTest {
     when(inputFile.getRelativePath()).thenReturn("UndocumentedApi.java");
     when(inputFile.getFile()).thenReturn(fileToImport);
     when(inputFile.getFileBaseDir()).thenReturn(fileToImport.getParentFile());
-    importer = new JavaSourceImporter();
+    importer = new JavaSourceImporter(true);
     context = mock(SensorContext.class);
   }
 
@@ -61,11 +61,4 @@ public class JavaSourceImporterTest {
     verify(context).saveSource(eq(javaFile), anyString());
   }
 
-  @Test(expected = SonarException.class)
-  @Ignore("see SONAR-791")
-  public void shouldFailWhenSquidDidNotIndexFile() throws IOException {
-    JavaFile javaFile = new JavaFile("Bar");
-    when(context.isIndexed(javaFile, true)).thenReturn(false);
-    importer.importSource(context, javaFile, inputFile, Charset.defaultCharset());
-  }
 }

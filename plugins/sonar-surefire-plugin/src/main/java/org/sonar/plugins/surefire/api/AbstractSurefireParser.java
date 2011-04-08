@@ -73,7 +73,7 @@ public abstract class AbstractSurefireParser {
   private void parseFiles(SensorContext context, File[] reports) {
     UnitTestIndex index = new UnitTestIndex();
     parseFiles(reports, index);
-    sanitize(index, context);
+    sanitize(index);
     save(index, context);
 
   }
@@ -90,23 +90,12 @@ public abstract class AbstractSurefireParser {
     }
   }
 
-  private void sanitize(UnitTestIndex index, SensorContext context) {
+  private void sanitize(UnitTestIndex index) {
     for (String classname : index.getClassnames()) {
-      Resource resource = getUnitTestResource(classname);
-      if (resource != null && context.isIndexed(resource, false)) {
-        // ok
-
-      } else if (StringUtils.contains(classname, "$")) {
-        // Java inner class
+      if (StringUtils.contains(classname, "$")) {
+        // Surefire reports classes whereas sonar supports files
         String parentClassName = StringUtils.substringBeforeLast(classname, "$");
-        Resource parentResource = getUnitTestResource(parentClassName);
-        if (parentResource != null && context.isIndexed(parentResource, false)) {
-          index.merge(classname, parentClassName);
-        } else {
-          index.remove(classname);
-        }
-      } else {
-        index.remove(classname);
+        index.merge(classname, parentClassName);
       }
     }
   }

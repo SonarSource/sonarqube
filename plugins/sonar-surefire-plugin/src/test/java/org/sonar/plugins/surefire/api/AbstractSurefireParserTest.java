@@ -83,29 +83,6 @@ public class AbstractSurefireParserTest {
     verify(context, never()).saveMeasure(eq(CoreMetrics.TESTS), anyDouble());
   }
 
-  /**
-   * This use-case occurs in projects mixing Groovy and Java tests. All test files are listed in surefire reports,
-   * but only Java files are indexed into sonar.
-   */
-  @Test
-  public void shouldIgnoreNonIndexedFiles() throws URISyntaxException {
-    AbstractSurefireParser parser = newParser();
-
-    SensorContext context = mock(SensorContext.class);
-    when(context.isIndexed(argThat(new BaseMatcher<Resource>(){
-      public boolean matches(Object o) {
-        return ((Resource)o).getName().startsWith("java");
-      }
-      public void describeTo(Description description) {
-      }
-    }), eq(false))).thenReturn(true);
-
-    parser.collect(new Project("foo"), context, getDir("groovyAndJavaTests"));
-
-    verify(context).saveMeasure(argThat(new IsResource(Scopes.FILE, Qualifiers.FILE, "java.Foo")), eq(CoreMetrics.TESTS), eq(6.0));
-    verify(context, never()).saveMeasure(argThat(new IsResource(Scopes.FILE, Qualifiers.FILE, "groovy.Foo")), any(Metric.class), anyDouble());
-  }
-
   @Test
   public void shouldMergeInnerClasses() throws URISyntaxException {
     AbstractSurefireParser parser = newParser();

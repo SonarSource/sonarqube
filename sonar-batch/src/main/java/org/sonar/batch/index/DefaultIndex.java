@@ -490,7 +490,6 @@ public class DefaultIndex extends SonarIndex {
       if (lock.isFailWhenLocked()) {
         throw new SonarException("Index is locked, resource can not be indexed: " + resource);
       }
-      LOG.warn("Resource will be ignored in next Sonar versions, index is locked: " + resource);
     }
   }
 

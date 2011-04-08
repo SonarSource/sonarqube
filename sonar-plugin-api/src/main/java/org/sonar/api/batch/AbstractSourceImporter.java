@@ -30,26 +30,17 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 /**
- * A pre-implementation for a sensor that imports sources
- * 
+ * A pre-implementation for a sensor that imports sources.
+ * It became too much ugly because of extensability. Methods can't be
+ * refactored because they are heavily overridden in plugins.
+ *
  * @since 1.10
  */
 @Phase(name = Phase.Name.PRE)
 public abstract class AbstractSourceImporter implements Sensor {
 
-  /**
-   * @deprecated in 1.11. Use {@link CoreProperties#CORE_IMPORT_SOURCES_PROPERTY} instead.
-   */
-  @Deprecated
-  public static final String KEY_IMPORT_SOURCES = CoreProperties.CORE_IMPORT_SOURCES_PROPERTY;
-
-  /**
-   * @deprecated in 1.11. Use {@link CoreProperties#CORE_IMPORT_SOURCES_DEFAULT_VALUE} instead.
-   */
-  @Deprecated
-  public static final boolean DEFAULT_IMPORT_SOURCES = CoreProperties.CORE_IMPORT_SOURCES_DEFAULT_VALUE;
-
   private Language language;
+  private boolean enabled = false;
 
   public AbstractSourceImporter(Language language) {
     this.language = language;
@@ -59,13 +50,14 @@ public abstract class AbstractSourceImporter implements Sensor {
    * {@inheritDoc}
    */
   public boolean shouldExecuteOnProject(Project project) {
-    return isEnabled(project) && language.equals(project.getLanguage());
+    return language.equals(project.getLanguage());
   }
 
   /**
    * {@inheritDoc}
    */
   public void analyse(Project project, SensorContext context) {
+    enabled = isEnabled(project);
     analyse(project.getFileSystem(), context);
     onFinished();
   }
@@ -84,12 +76,14 @@ public abstract class AbstractSourceImporter implements Sensor {
       Resource resource = createResource(file, sourceDirs, unitTest);
       if (resource != null) {
         try {
-          String source = FileUtils.readFileToString(file, sourcesEncoding.name());
           context.index(resource);
-          context.saveSource(resource, source);
+          if (enabled) {
+            String source = FileUtils.readFileToString(file, sourcesEncoding.name());
+            context.saveSource(resource, source);
+          }
         } catch (IOException e) {
           throw new SonarException("Unable to read and import the source file : '" + file.getAbsolutePath() + "' with the charset : '"
-              + sourcesEncoding.name() + "'.", e);
+              + sourcesEncoding.name() + "'. You should check the property " + CoreProperties.ENCODING_PROPERTY, e);
         }
       }
     }
