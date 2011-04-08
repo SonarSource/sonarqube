@@ -60,5 +60,12 @@ class Review < ActiveRecord::Base
     severity_ops << ["Blocker", SEVERITY_BLOCKER]
     return severity_ops
   end
+  
+  def self.status_options
+    status_ops = []
+    status_ops << ["Open", STATUS_OPEN]
+    status_ops << ["Closed", STATUS_CLOSED]
+    return status_ops
+  end
 
 end

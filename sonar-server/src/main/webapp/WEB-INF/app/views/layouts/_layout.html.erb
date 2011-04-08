@@ -26,6 +26,7 @@
         <ul>
         <% if selected_section==Navigation::SECTION_HOME %>
           <li class="<%= 'selected' if controller.controller_path=='filters' -%>"><a href="<%= ApplicationController.root_context -%>/filters/index">Filters</a></li>
+          <li class="<%= 'selected' if controller.controller_path=='reviews' -%>"><a href="<%= ApplicationController.root_context -%>/reviews/index">Reviews</a></li>
           <li class="<%= 'selected' if controller.controller_path=='dependencies' -%>"><a href="<%= ApplicationController.root_context -%>/dependencies/index">Dependencies</a></li>
 
           <% controller.java_facade.getPages(Navigation::SECTION_HOME, nil, nil, nil).each do |page|

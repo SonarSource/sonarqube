@@ -1,0 +1,45 @@
+<h1>Reviews</h1>
+
+<div class="tabs-panel marginbottom10 background-gray">
+  <% form_tag({:action => 'index'}, {:method => 'get'}) do %>
+   <table class="spaced" id="search_table">
+     <tr>
+       <td class="left" valign="top" width="1%" nowrap>
+         <span class="note">Created by</span><br/>
+         <%= select_tag "review_authors", options_for_select(@user_names, @review_authors), :multiple => true, :size => 6 %>
+       </td>
+       <td class="left" valign="top" width="1%" nowrap>
+         <span class="note">Commented by</span><br/>
+         <%= select_tag "comment_authors", options_for_select(@user_names, @comment_authors), :multiple => true, :size => 6 %>
+       </td>
+       <td class="left" valign="top" width="1%" nowrap>
+         <span class="note">Severity</span><br/>
+         <%= select_tag "severities", options_for_select(ReviewsHelper.severity_options_with_any, @severities), :multiple => true, :size => 6 %>
+       </td>
+       <td class="left" valign="top" width="1%" nowrap>
+         <span class="note">Status</span><br/>
+         <%= select_tag "statuses", options_for_select(ReviewsHelper.status_options_with_any, @statuses), :multiple => true, :size => 6 %>
+       </td>
+       <td class="left" valign="top" >
+         <br/>
+         <%= submit_tag "Search", :id => 'submit_search' %>
+       </td>
+     </tr>
+   </table>
+  <% end %>
+</div>
+
+<div id="reviewList">
+<% 
+   unless @reviews.blank? 
+     @reviews.each do |review|
+%>
+
+  <%= render :partial => "reviews/view", :locals => { :review => review } %>
+
+<% 
+     end
+   end
+%>
+<div>
+
