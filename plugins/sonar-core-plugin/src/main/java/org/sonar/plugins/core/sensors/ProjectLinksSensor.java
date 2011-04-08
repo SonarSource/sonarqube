@@ -26,9 +26,11 @@ import org.apache.maven.model.Scm;
 import org.apache.maven.project.MavenProject;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
 
+@SupportedEnvironment("maven")
 public class ProjectLinksSensor implements Sensor {
 
   public static final String KEY_HOME = "homepage";

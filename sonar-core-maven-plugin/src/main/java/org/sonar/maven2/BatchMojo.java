@@ -19,8 +19,6 @@
  */
 package org.sonar.maven2;
 
-import java.io.InputStream;
-
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
@@ -42,8 +40,12 @@ import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.slf4j.LoggerFactory;
 import org.sonar.batch.Batch;
-import org.sonar.batch.MavenReactor;
+import org.sonar.batch.MavenProjectConverter;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.batch.bootstrapper.ProjectDefinition;
+import org.sonar.batch.bootstrapper.Reactor;
+
+import java.io.InputStream;
 
 /**
  * @goal internal
@@ -143,7 +145,9 @@ public final class BatchMojo extends AbstractMojo {
   }
 
   private void executeBatch() throws MojoExecutionException {
-    MavenReactor reactor = new MavenReactor(session);
+    ProjectDefinition def = MavenProjectConverter.convert(session.getSortedProjects());
+    Reactor reactor = new Reactor(def);
+
     Batch batch = new Batch(getInitialConfiguration(), reactor, session, project,
         getLog(), lifecycleExecutor, pluginManager, artifactFactory,
         localRepository, artifactMetadataSource, artifactCollector,

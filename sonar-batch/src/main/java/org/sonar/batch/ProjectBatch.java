@@ -19,8 +19,8 @@
  */
 package org.sonar.batch;
 
+import org.apache.maven.project.MavenProject;
 import org.sonar.api.batch.BatchExtensionDictionnary;
-import org.sonar.api.batch.ProjectClasspath;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
@@ -32,6 +32,7 @@ import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.BatchPluginRepository;
+import org.sonar.batch.bootstrapper.ProjectDefinition;
 import org.sonar.batch.components.PastViolationsLoader;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.events.EventBus;
@@ -103,10 +104,21 @@ public class ProjectBatch {
 
     @Override
     protected void configure() {
+      ProjectDefinition projectDefinition = getComponent(ProjectTree.class).getProjectDefinition(project.getKey());
+      addComponent(projectDefinition);
+      for (Object component : projectDefinition.getContainerExtensions()) {
+        addComponent(component);
+        if (component instanceof MavenProject) {
+          // For backward compatibility we must set POM and actual packaging
+          MavenProject pom = (MavenProject) component;
+          project.setPom(pom);
+          project.setPackaging(pom.getPackaging());
+        }
+      }
+
       addComponent(project);
-      addComponent(project.getPom());
-      addComponent(ProjectClasspath.class);
-      addComponent(MavenProjectFileSystem.class);
+      addComponent(DefaultProjectClasspath.class);
+      addComponent(DefaultProjectFileSystem2.class);
       addComponent(project.getConfiguration());
 
       // need to be registered after the Configuration

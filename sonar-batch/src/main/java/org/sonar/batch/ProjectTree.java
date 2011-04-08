@@ -21,42 +21,30 @@ package org.sonar.batch;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.project.MavenProject;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.bootstrapper.ProjectDefinition;
 import org.sonar.batch.bootstrapper.Reactor;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
 public class ProjectTree {
 
   private List<Project> projects;
-  private List<MavenProject> poms;
   private MavenProjectBuilder projectBuilder;
+  private List<ProjectDefinition> definitions;
 
-  public ProjectTree(MavenReactor mavenReactor, DatabaseSession databaseSession) {
-    this.poms = mavenReactor.getSortedProjects();
-    this.projectBuilder = new MavenProjectBuilder(databaseSession);
-  }
-
-  /**
-   * Hack for non-Maven environments.
-   */
   public ProjectTree(Reactor sonarReactor, DatabaseSession databaseSession) {
-    this(createMavenReactor(sonarReactor), databaseSession);
-  }
-
-  private static MavenReactor createMavenReactor(Reactor sonarReactor) {
-    List<ProjectDefinition> sonarProjects = sonarReactor.getSortedProjects();
-    List<MavenProject> mavenProjects = Lists.newArrayList();
-    for (ProjectDefinition project : sonarProjects) {
-      mavenProjects.add(new InMemoryPomCreator(project).create());
+    this.projectBuilder = new MavenProjectBuilder(databaseSession);
+    definitions = Lists.newArrayList();
+    for (ProjectDefinition project : sonarReactor.getSortedProjects()) {
+      collectProjects(project, definitions);
     }
-    return new MavenReactor(mavenProjects);
   }
 
   /**
@@ -64,7 +52,8 @@ public class ProjectTree {
    */
   protected ProjectTree(MavenProjectBuilder projectBuilder, List<MavenProject> poms) {
     this.projectBuilder = projectBuilder;
-    this.poms = poms;
+    definitions = Lists.newArrayList();
+    collectProjects(MavenProjectConverter.convert(poms), definitions);
   }
 
   /**
@@ -74,36 +63,40 @@ public class ProjectTree {
     this.projects = new ArrayList<Project>(projects);
   }
 
+  /**
+   * Populates list of projects from hierarchy.
+   */
+  private static void collectProjects(ProjectDefinition root, List<ProjectDefinition> collected) {
+    collected.add(root);
+    for (ProjectDefinition module : root.getModules()) {
+      collectProjects(module, collected);
+    }
+  }
+
   public void start() throws IOException {
     projects = Lists.newArrayList();
-    Map<String, Project> paths = Maps.newHashMap(); // projects by canonical path
+    Map<ProjectDefinition, Project> map = Maps.newHashMap();
 
-    for (MavenProject pom : poms) {
-      Project project = projectBuilder.create(pom);
+    for (ProjectDefinition def : definitions) {
+      Project project = projectBuilder.create(def);
+      map.put(def, project);
       projects.add(project);
-      paths.put(pom.getBasedir().getCanonicalPath(), project);
     }
 
-    for (Map.Entry<String, Project> entry : paths.entrySet()) {
+    for (Map.Entry<ProjectDefinition, Project> entry : map.entrySet()) {
+      ProjectDefinition def = entry.getKey();
       Project project = entry.getValue();
-      MavenProject pom = project.getPom();
-      for (Object moduleId : pom.getModules()) {
-        File modulePath = new File(pom.getBasedir(), (String) moduleId);
-        Project module = paths.get(modulePath.getCanonicalPath());
-        if (module != null) {
-          module.setParent(project);
-        }
+      for (ProjectDefinition module : def.getModules()) {
+        map.get(module).setParent(project);
       }
     }
 
-    configureProjects();
-    applyModuleExclusions();
-  }
-
-  private void configureProjects() {
-    for (Project project : projects) {
-      projectBuilder.configure(project);
+    // Configure
+    for (Map.Entry<ProjectDefinition, Project> entry : map.entrySet()) {
+      projectBuilder.configure(entry.getValue(), entry.getKey());
     }
+
+    applyModuleExclusions();
   }
 
   void applyModuleExclusions() {
@@ -125,7 +118,7 @@ public class ProjectTree {
 
       if (!includedModulesIdSet.isEmpty()) {
         for (Project currentProject : projects) {
-          if (!includedModulesIdSet.contains(currentProject.getPom().getArtifactId())) {
+          if (!includedModulesIdSet.contains(getArtifactId(currentProject))) {
             exclude(currentProject);
           }
         }
@@ -160,9 +153,19 @@ public class ProjectTree {
     return projects;
   }
 
+  private String getArtifactId(Project project) {
+    String key = project.getKey();
+    if (StringUtils.isNotBlank(project.getBranch())) {
+      // remove branch part
+      key = StringUtils.removeEnd(project.getKey(), ":" + project.getBranch());
+    }
+    return StringUtils.substringAfterLast(key, ":");
+  }
+
   public Project getProjectByArtifactId(String artifactId) {
     for (Project project : projects) {
-      if (project.getPom().getArtifactId().equals(artifactId)) {
+      // TODO see http://jira.codehaus.org/browse/SONAR-2324
+      if (StringUtils.equals(getArtifactId(project), artifactId)) {
         return project;
       }
     }
@@ -176,5 +179,28 @@ public class ProjectTree {
       }
     }
     throw new IllegalStateException("Can not find the root project from the list of Maven modules");
+  }
+
+  private String getProjectKey(ProjectDefinition def) {
+    String key = def.getProperties().getProperty(CoreProperties.PROJECT_KEY_PROPERTY);
+    String branch = def.getProperties().getProperty(CoreProperties.PROJECT_BRANCH_PROPERTY);
+    if (StringUtils.isNotBlank(branch)) {
+      return key + ":" + branch;
+    } else {
+      return key;
+    }
+  }
+
+  public ProjectDefinition getProjectDefinition(String key) {
+    for (ProjectDefinition def : definitions) {
+      if (StringUtils.equals(key, getProjectKey(def))) {
+        return def;
+      }
+    }
+    return null;
+  }
+
+  public List<Object> getProjectExtensions(String key) {
+    return getProjectDefinition(key).getContainerExtensions();
   }
 }

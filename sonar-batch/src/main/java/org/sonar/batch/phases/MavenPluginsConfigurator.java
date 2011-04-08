@@ -60,16 +60,18 @@ public class MavenPluginsConfigurator implements BatchComponent {
 
   protected void savePom(Project project) {
     MavenProject pom = project.getPom();
-    File targetPom = new File(project.getFileSystem().getSonarWorkingDirectory(), "sonar-pom.xml");
-    FileWriter fileWriter = null;
-    try {
-      fileWriter = new FileWriter(targetPom, false);
-      pom.writeModel(fileWriter);
+    if (pom != null) {
+      File targetPom = new File(project.getFileSystem().getSonarWorkingDirectory(), "sonar-pom.xml");
+      FileWriter fileWriter = null;
+      try {
+        fileWriter = new FileWriter(targetPom, false);
+        pom.writeModel(fileWriter);
 
-    } catch (IOException e) {
-      throw new SonarException("Can not save pom to " + targetPom, e);
-    } finally {
-      IOUtils.closeQuietly(fileWriter);
+      } catch (IOException e) {
+        throw new SonarException("Can not save pom to " + targetPom, e);
+      } finally {
+        IOUtils.closeQuietly(fileWriter);
+      }
     }
   }
 }

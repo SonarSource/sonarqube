@@ -20,20 +20,26 @@
 package org.sonar.batch;
 
 import org.apache.commons.configuration.*;
-import org.apache.maven.project.MavenProject;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
+
+import java.util.Properties;
 
 public class ProjectConfiguration extends CompositeConfiguration {
   private PropertiesConfiguration runtimeConfiguration;
 
+  // FIXME remove
   public ProjectConfiguration(DatabaseSession session, Project project) {
+    this(session, project, project.getPom().getProperties());
+  }
+
+  public ProjectConfiguration(DatabaseSession session, Project project, Properties properties) {
     runtimeConfiguration = new PropertiesConfiguration();
     addConfiguration(runtimeConfiguration);
 
     loadSystemSettings();
     loadProjectDatabaseSettings(session, project);
-    loadMavenSettings(project.getPom());
+    addConfiguration(new MapConfiguration(properties));
     loadGlobalDatabaseSettings(session);
   }
 
@@ -56,13 +62,8 @@ public class ProjectConfiguration extends CompositeConfiguration {
     addConfiguration(new EnvironmentConfiguration());
   }
 
-  private void loadMavenSettings(MavenProject pom) {
-    addConfiguration(new MapConfiguration(pom.getModel().getProperties()));
-  }
-
   @Override
   public void setProperty(String s, Object o) {
     runtimeConfiguration.setProperty(s, o);
   }
 }
-

@@ -19,6 +19,11 @@
  */
 package org.sonar.batch;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNull;
+import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
+
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Model;
@@ -26,20 +31,14 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Test;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import org.sonar.api.resources.Project;
+import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
-
 
 public class ProjectTreeTest extends AbstractDbUnitTestCase {
 
@@ -70,7 +69,6 @@ public class ProjectTreeTest extends AbstractDbUnitTestCase {
 
     ProjectTree tree = new ProjectTree(newProjectBuilder(), Arrays.asList(parent, module1, module2));
     tree.start();
-
 
     Project root = tree.getRootProject();
     assertThat(root.getModules().size(), is(2));
@@ -105,7 +103,6 @@ public class ProjectTreeTest extends AbstractDbUnitTestCase {
     assertThat(tree.getRootProject().getName(), is("Project BRANCH-1.X"));
   }
 
-
   @Test
   public void keyIncludesDeprecatedBranch() throws IOException, XmlPullParserException, URISyntaxException {
     MavenProject pom = loadProject("/org/sonar/batch/ProjectTreeTest/keyIncludesDeprecatedBranch/pom.xml", true);
@@ -130,7 +127,7 @@ public class ProjectTreeTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void skipModule() {
+  public void skipModule() throws IOException {
     Project root = newProjectWithArtifactId("root");
     root.getConfiguration().setProperty("sonar.skippedModules", "sub1");
     Project sub1 = newProjectWithArtifactId("sub1");
@@ -191,7 +188,7 @@ public class ProjectTreeTest extends AbstractDbUnitTestCase {
   private Project newProjectWithArtifactId(String artifactId) {
     MavenProject pom = new MavenProject();
     pom.setArtifactId(artifactId);
-    return new Project(artifactId).setPom(pom).setConfiguration(new PropertiesConfiguration());
+    return new Project("org.example:" + artifactId).setPom(pom).setConfiguration(new PropertiesConfiguration());
   }
 
   private MavenProject loadProject(String pomPath, boolean isRoot) throws URISyntaxException, IOException, XmlPullParserException {

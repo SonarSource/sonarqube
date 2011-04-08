@@ -43,8 +43,9 @@ import java.util.List;
  * For internal use only.
  * 
  * @since 1.10
- * @TODO in fact this class should not be located in sonar-plugin-api
+ * @deprecated in 2.8. In fact this class should not be located in sonar-plugin-api and most of the methods were overridden by a component in sonar-batch.
  */
+@Deprecated
 public class DefaultProjectFileSystem implements ProjectFileSystem {
 
   private Project project;

@@ -19,14 +19,9 @@
  */
 package org.sonar.batch;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import org.apache.commons.configuration.*;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.maven.project.MavenProject;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
@@ -34,7 +29,14 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.bootstrapper.ProjectDefinition;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+// TODO Godin: rename to ProjectBuilder ?
 public class MavenProjectBuilder {
 
   private DatabaseSession databaseSession;
@@ -43,43 +45,55 @@ public class MavenProjectBuilder {
     this.databaseSession = databaseSession;
   }
 
-  public Project create(MavenProject pom) {
-    Configuration configuration = getStartupConfiguration(pom);
-    return new Project(loadProjectKey(pom), loadProjectBranch(configuration), pom.getName())
-        .setPom(pom)
-        .setDescription(pom.getDescription())
-        .setPackaging(pom.getPackaging());
+  public Project create(ProjectDefinition project) {
+    Configuration configuration = getStartupConfiguration(project);
+    return new Project(loadProjectKey(project), loadProjectBranch(configuration), loadProjectName(project))
+        .setDescription(project.getProperties().getProperty(CoreProperties.PROJECT_DESCRIPTION_PROPERTY))
+        .setPackaging("jar"); // FIXME http://jira.codehaus.org/browse/SONAR-2341
   }
 
-  Configuration getStartupConfiguration(MavenProject pom) {
+  Configuration getStartupConfiguration(ProjectDefinition project) {
     CompositeConfiguration configuration = new CompositeConfiguration();
     configuration.addConfiguration(new SystemConfiguration());
     configuration.addConfiguration(new EnvironmentConfiguration());
-    configuration.addConfiguration(new MapConfiguration(pom.getModel().getProperties()));
+    configuration.addConfiguration(new MapConfiguration(project.getProperties()));
     return configuration;
   }
 
-  String loadProjectKey(MavenProject pom) {
-    return new StringBuilder().append(pom.getGroupId()).append(":").append(pom.getArtifactId()).toString();
+  private String getPropertyOrDie(ProjectDefinition project, String key) {
+    String value = project.getProperties().getProperty(key);
+    if (StringUtils.isBlank(value)) {
+      throw new SonarException("Property '" + key + "' must be specified");
+    }
+    return value;
+  }
+
+  String loadProjectKey(ProjectDefinition projectDefinition) {
+    return getPropertyOrDie(projectDefinition, CoreProperties.PROJECT_KEY_PROPERTY);
+  }
+
+  String loadProjectName(ProjectDefinition projectDefinition) {
+    return projectDefinition.getProperties().getProperty(
+        CoreProperties.PROJECT_NAME_PROPERTY,
+        "Unnamed - " + loadProjectKey(projectDefinition));
   }
 
   String loadProjectBranch(Configuration configuration) {
     return configuration.getString(CoreProperties.PROJECT_BRANCH_PROPERTY, configuration.getString("branch" /* deprecated property */));
   }
 
-  public void configure(Project project) {
-    ProjectConfiguration projectConfiguration = new ProjectConfiguration(databaseSession, project);
+  public void configure(Project project, ProjectDefinition def) {
+    ProjectConfiguration projectConfiguration = new ProjectConfiguration(databaseSession, project, def.getProperties());
     configure(project, projectConfiguration);
   }
 
   void configure(Project project, Configuration projectConfiguration) {
     Date analysisDate = loadAnalysisDate(projectConfiguration);
-    MavenProject pom = project.getPom();
     project.setConfiguration(projectConfiguration)
         .setExclusionPatterns(loadExclusionPatterns(projectConfiguration))
         .setAnalysisDate(analysisDate)
         .setLatestAnalysis(isLatestAnalysis(project.getKey(), analysisDate))
-        .setAnalysisVersion(loadAnalysisVersion(projectConfiguration, pom))
+        .setAnalysisVersion(loadAnalysisVersion(projectConfiguration))
         .setAnalysisType(loadAnalysisType(projectConfiguration))
         .setLanguageKey(loadLanguageKey(projectConfiguration));
   }
@@ -133,12 +147,8 @@ public class MavenProjectBuilder {
     return Project.AnalysisType.STATIC;
   }
 
-  String loadAnalysisVersion(Configuration configuration, MavenProject pom) {
-    String version = configuration.getString(CoreProperties.PROJECT_VERSION_PROPERTY);
-    if (version == null && pom != null) {
-      version = pom.getVersion();
-    }
-    return version;
+  String loadAnalysisVersion(Configuration configuration) {
+    return configuration.getString(CoreProperties.PROJECT_VERSION_PROPERTY);
   }
 
   String loadLanguageKey(Configuration configuration) {

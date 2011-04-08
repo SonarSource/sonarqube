@@ -19,11 +19,13 @@
  */
 package org.sonar.batch.bootstrapper;
 
+import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
+
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-
-import com.google.common.collect.Lists;
 
 /**
  * Describes project in a form suitable to bootstrap Sonar batch.
@@ -33,13 +35,19 @@ import com.google.common.collect.Lists;
  */
 public class ProjectDefinition {
 
+  private static final String PROJECT_SOURCES_PROPERTY = "sonar.sources";
+  private static final String PROJECT_TESTS_PROPERTY = "sonar.tests";
+  private static final String PROJECT_BINARIES_PROPERTY = "sonar.binaries";
+  private static final String PROJECT_LIBRARIES_PROPERTY = "sonar.libraries";
+
+  private static final char SEPARATOR = ',';
+
   private File baseDir;
   private File workDir;
   private Properties properties;
-  private List<String> sourceDirs = Lists.newArrayList();
-  private List<String> testDirs = Lists.newArrayList();
-  private List<String> binaries = Lists.newArrayList();
-  private List<String> libraries = Lists.newArrayList();
+  private List<ProjectDefinition> modules = Lists.newArrayList();
+
+  private List<Object> containerExtensions = Lists.newArrayList();
 
   /**
    * @param baseDir project base directory
@@ -63,8 +71,14 @@ public class ProjectDefinition {
     return properties;
   }
 
+  private void appendProperty(String key, String value) {
+    String newValue = properties.getProperty(key, "") + SEPARATOR + value;
+    properties.put(key, newValue);
+  }
+
   public List<String> getSourceDirs() {
-    return sourceDirs;
+    String sources = properties.getProperty(PROJECT_SOURCES_PROPERTY, "");
+    return Arrays.asList(StringUtils.split(sources, SEPARATOR));
   }
 
   /**
@@ -72,11 +86,12 @@ public class ProjectDefinition {
    *          It can be absolute or relative to project directory.
    */
   public void addSourceDir(String path) {
-    sourceDirs.add(path);
+    appendProperty(PROJECT_SOURCES_PROPERTY, path);
   }
 
   public List<String> getTestDirs() {
-    return testDirs;
+    String sources = properties.getProperty(PROJECT_TESTS_PROPERTY, "");
+    return Arrays.asList(StringUtils.split(sources, SEPARATOR));
   }
 
   /**
@@ -84,11 +99,12 @@ public class ProjectDefinition {
    *          It can be absolute or relative to project directory.
    */
   public void addTestDir(String path) {
-    testDirs.add(path);
+    appendProperty(PROJECT_TESTS_PROPERTY, path);
   }
 
   public List<String> getBinaries() {
-    return binaries;
+    String sources = properties.getProperty(PROJECT_BINARIES_PROPERTY, "");
+    return Arrays.asList(StringUtils.split(sources, SEPARATOR));
   }
 
   /**
@@ -97,11 +113,12 @@ public class ProjectDefinition {
    * @TODO currently Sonar supports only one such directory due to dependency on MavenProject
    */
   public void addBinaryDir(String path) {
-    binaries.add(path);
+    appendProperty(PROJECT_BINARIES_PROPERTY, path);
   }
 
   public List<String> getLibraries() {
-    return libraries;
+    String sources = properties.getProperty(PROJECT_LIBRARIES_PROPERTY, "");
+    return Arrays.asList(StringUtils.split(sources, SEPARATOR));
   }
 
   /**
@@ -109,6 +126,36 @@ public class ProjectDefinition {
    *          It can be absolute or relative to project directory.
    */
   public void addLibrary(String path) {
-    libraries.add(path);
+    appendProperty(PROJECT_LIBRARIES_PROPERTY, path);
+  }
+
+  /**
+   * Adds an extension, which would be available in PicoContainer during analysis of this project.
+   * 
+   * @since 2.8
+   */
+  public void addContainerExtension(Object extension) {
+    containerExtensions.add(extension);
+  }
+
+  /**
+   * @since 2.8
+   */
+  public List<Object> getContainerExtensions() {
+    return containerExtensions;
+  }
+
+  /**
+   * @since 2.8
+   */
+  public void addModule(ProjectDefinition projectDefinition) {
+    modules.add(projectDefinition);
+  }
+
+  /**
+   * @since 2.8
+   */
+  public List<ProjectDefinition> getModules() {
+    return modules;
   }
 }

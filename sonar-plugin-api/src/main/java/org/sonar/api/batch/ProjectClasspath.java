@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class ProjectClasspath implements BatchComponent {
 
-  private MavenProject pom;
+  protected MavenProject pom;
   private List<File> elements;
   private URLClassLoader classloader;
 
