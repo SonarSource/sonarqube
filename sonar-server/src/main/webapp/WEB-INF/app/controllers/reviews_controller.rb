@@ -54,22 +54,19 @@ class ReviewsController < ApplicationController
 	    return
 	  end
 	  	  
-	  review = Review.new(params[:review])
-	  review.user = current_user
-	  review.status = "open"
-	  review.review_type = "simple"
-	  review_comment = ReviewComment.new(params[:review_comment])
-	  review_comment.user = current_user
-	  review.review_comments << review_comment
-	  if review.valid?
-	    review.save
-	    params[:rule_failure_id] = review.rule_failure_id
-	  	index
-	  else 
-	    @review = review
-	    @review_comment = review_comment
-	    render :partial => "form"
+	  @review = Review.new(params[:review])
+	  @review.user = current_user
+	  @review.status = "open"
+	  @review.review_type = "simple"
+	  @review_comment = ReviewComment.new(params[:review_comment])
+	  @review_comment.user = current_user
+	  @review.review_comments << @review_comment
+	  if @review.valid?
+	    @review.save
+	  	 #@reviews = Review.find :all, :conditions => ['rule_failure_id=?', @review.rule_failure_id]
+	  	 @reviews = findReviewsForRuleFailure @review.rule_failure_id
 	  end
+	  render "create_result"
 	end
 	
 	def create_comment
@@ -92,6 +89,10 @@ class ReviewsController < ApplicationController
 	end
 	
 	private
+	
+	def findReviewsForRuleFailure ( rule_failure_id )
+	  return Review.find :all, :conditions => ['rule_failure_id=?', rule_failure_id]
+	end
 	
 	def hasRightsToCreate? ( rule_failure_id )
 	  return false unless current_user

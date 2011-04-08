@@ -1,0 +1,6 @@
+if @reviews
+  page.hide "createReviewLink" + @review.rule_failure_id.to_s
+  page.replace_html "reviewFailure" + @review.rule_failure_id.to_s, :partial => "index", :locals => { :reviews => @reviews }
+else
+  page.replace_html "reviewFailure" + @review.rule_failure_id.to_s, :partial => "form"
+end
