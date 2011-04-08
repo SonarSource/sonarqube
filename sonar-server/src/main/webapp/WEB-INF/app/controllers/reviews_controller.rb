@@ -25,7 +25,7 @@ class ReviewsController < ApplicationController
 	verify :method => :post, :only => [  :create, :create_comment ], :redirect_to => { :action => :error_not_post }
 	
 	def index
-	  reviews = Review.find :all, :conditions => ['rule_failure_id=?', params[:rule_failure_id]]
+	  reviews = findReviewsForRuleFailure params[:rule_failure_id]
 	  render :partial => "index", :locals => { :reviews => reviews }
 	end
 	
@@ -63,8 +63,7 @@ class ReviewsController < ApplicationController
 	  @review.review_comments << @review_comment
 	  if @review.valid?
 	    @review.save
-	  	 #@reviews = Review.find :all, :conditions => ['rule_failure_id=?', @review.rule_failure_id]
-	  	 @reviews = findReviewsForRuleFailure @review.rule_failure_id
+	  	@reviews = findReviewsForRuleFailure @review.rule_failure_id
 	  end
 	  render "create_result"
 	end
@@ -75,17 +74,14 @@ class ReviewsController < ApplicationController
 	    return
 	  end
 	
-      review_comment = ReviewComment.new(params[:review_comment])
-      review_comment.user = current_user
-      if review_comment.valid?
-	    review_comment.save
-	    index
-	  else
-	    @review_comment = review_comment
-	    @rule_failure_id = params[:rule_failure_id]
-	    # TODO Find a way to update the right DIV...
-	    render :partial => "form_comment"
+      @review_comment = ReviewComment.new(params[:review_comment])
+      @review_comment.user = current_user
+      @rule_failure_id = params[:rule_failure_id]
+      if @review_comment.valid?
+	    @review_comment.save
+	    @reviews = findReviewsForRuleFailure @rule_failure_id
 	  end
+      render "create_comment_result"
 	end
 	
 	private

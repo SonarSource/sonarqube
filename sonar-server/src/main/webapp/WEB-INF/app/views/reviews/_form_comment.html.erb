@@ -7,8 +7,7 @@
       <%= f.text_area :review_text, :rows => 10, :id => "commentText" + @review_comment.review_id.to_s %>
       <br/>
       <%= submit_to_remote 'create_btn', 'Add comment', 
-                     :url => { :action => 'create_comment', :rule_failure_id => @rule_failure_id },
-                     :update => { :success => "reviewFailure" + @rule_failure_id.to_s } %>
+                     :url => { :action => 'create_comment', :rule_failure_id => @rule_failure_id } %>
       <%= submit_to_remote 'cancel_btn', 'Cancel', 
                      :url => { :action => 'index', :rule_failure_id => @rule_failure_id.to_s },
                      :update => { :success => "reviewFailure" + @rule_failure_id.to_s } %>
