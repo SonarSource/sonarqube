@@ -35,7 +35,7 @@ class ReviewsController < ApplicationController
   
   def list
     reviews = findReviewsForRuleFailure params[:rule_failure_id]
-    render :partial => "index", :locals => { :reviews => reviews }
+    render :partial => "list", :locals => { :reviews => reviews }
   end
   
   def form
