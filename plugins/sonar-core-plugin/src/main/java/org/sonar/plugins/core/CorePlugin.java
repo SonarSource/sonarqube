@@ -214,6 +214,7 @@ public class CorePlugin extends SonarPlugin {
     extensions.add(NoSonarFilter.class);
     extensions.add(DirectoriesDecorator.class);
     extensions.add(FilesDecorator.class);
+    extensions.add(ReviewsDecorator.class);
 
     // time machine
     extensions.add(TendencyDecorator.class);
