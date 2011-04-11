@@ -21,11 +21,11 @@ package org.sonar.java.bytecode.visitor;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.bytecode.BytecodeScanner;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
@@ -40,8 +40,8 @@ public class LCOM4VisitorTest {
     JavaSquidConfiguration conf = new JavaSquidConfiguration();
     conf.addFieldToExcludeFromLcom4Calculation("LOG");
     squid = new Squid(conf);
-    squid.register(JavaAstScanner.class).scanDirectory(getFile("/bytecode/lcom4/src"));
-    squid.register(BytecodeScanner.class).scanDirectory(getFile("/bytecode/lcom4/bin"));
+    squid.register(JavaAstScanner.class).scanDirectory(SquidTestUtils.getFile("/bytecode/lcom4/src"));
+    squid.register(BytecodeScanner.class).scanDirectory(SquidTestUtils.getFile("/bytecode/lcom4/bin"));
     squid.decorateSourceCodeTreeWith(Metric.values());
   }
 

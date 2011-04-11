@@ -20,14 +20,14 @@
 package org.sonar.java.bytecode.asm;
 
 import org.junit.Test;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.bytecode.ClassworldsClassLoader;
 
 import static org.junit.Assert.*;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 public class AsmMethodVisitorTest {
 
-  private AsmClassProvider asmClassProvider = new AsmClassProviderImpl(ClassworldsClassLoader.create(getFile("/bytecode/bin/")));
+  private AsmClassProvider asmClassProvider = new AsmClassProviderImpl(ClassworldsClassLoader.create(SquidTestUtils.getFile("/bytecode/bin/")));
 
   @Test
   public void testVisitFieldInsn() {

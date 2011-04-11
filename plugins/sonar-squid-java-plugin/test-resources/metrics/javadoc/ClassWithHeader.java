@@ -3,7 +3,7 @@
  * 
  * multi lines
  */
-package test;
+
 
 import nothing;
 //single comment 1

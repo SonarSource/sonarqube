@@ -21,15 +21,17 @@ package org.sonar.java.ast.visitor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.resources.InputFile;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.SourceCode;
@@ -54,9 +56,9 @@ public class FileVisitorTest {
 
   @Test
   public void analyseTest003() {
-    List<File> files = new ArrayList<File>();
-    files.add(getFile("/metrics/loc/Test002.java"));
-    files.add(getFile("/metrics/classes/Test003.java"));
+    List<InputFile> files = Lists.newArrayList();
+    files.add(SquidTestUtils.getInputFile("/metrics/loc/Test002.java"));
+    files.add(SquidTestUtils.getInputFile("/metrics/classes/Test003.java"));
     squid.register(JavaAstScanner.class).scanFiles(files);
     SourceCode project = squid.aggregate();
     assertEquals(2, project.getInt(Metric.FILES));

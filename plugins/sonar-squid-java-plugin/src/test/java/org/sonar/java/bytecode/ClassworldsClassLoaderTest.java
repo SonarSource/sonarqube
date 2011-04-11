@@ -20,6 +20,7 @@
 package org.sonar.java.bytecode;
 
 import org.junit.Test;
+import org.sonar.java.ast.SquidTestUtils;
 
 import java.io.File;
 import java.util.Collections;
@@ -28,7 +29,6 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 public class ClassworldsClassLoaderTest {
 
@@ -41,7 +41,7 @@ public class ClassworldsClassLoaderTest {
 
   @Test
   public void createFromDirectory() throws ClassNotFoundException {
-    File dir = getFile("/bytecode/bin/");
+    File dir = SquidTestUtils.getFile("/bytecode/bin/");
     ClassLoader classloader = ClassworldsClassLoader.create(dir);
     assertThat(classloader.loadClass("tags.TagName"), not(nullValue()));
 
@@ -55,7 +55,7 @@ public class ClassworldsClassLoaderTest {
 
   @Test
   public void createFromJar() throws ClassNotFoundException {
-    File jar = getFile("/bytecode/lib/hello.jar");
+    File jar = SquidTestUtils.getFile("/bytecode/lib/hello.jar");
     ClassLoader classloader = ClassworldsClassLoader.create(jar);
     assertThat(classloader.loadClass("org.sonar.tests.Hello"), not(nullValue()));
     assertThat(classloader.getResource("org/sonar/tests/Hello.class"), not(nullValue()));
@@ -70,7 +70,7 @@ public class ClassworldsClassLoaderTest {
 
   @Test
   public void unknownJarIsIgnored() throws ClassNotFoundException {
-    File jar = getFile("/bytecode/lib/unknown.jar");
+    File jar = SquidTestUtils.getFile("/bytecode/lib/unknown.jar");
     ClassLoader classloader = ClassworldsClassLoader.create(jar);
     assertThat(classloader.getResource("org/sonar/tests/Hello.class"), nullValue());
   }

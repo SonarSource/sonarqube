@@ -21,6 +21,7 @@ package org.sonar.java.bytecode.visitor;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.bytecode.ClassworldsClassLoader;
 import org.sonar.java.bytecode.asm.AsmClass;
 import org.sonar.java.bytecode.asm.AsmClassProvider;
@@ -28,7 +29,6 @@ import org.sonar.java.bytecode.asm.AsmClassProviderImpl;
 import org.sonar.java.bytecode.asm.AsmMethod;
 
 import static org.junit.Assert.*;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 public class AccessorVisitorTest {
 
@@ -38,7 +38,7 @@ public class AccessorVisitorTest {
 
   @BeforeClass
   public static void init() {
-    asmClassProvider = new AsmClassProviderImpl(ClassworldsClassLoader.create(getFile("/bytecode/bin/")));
+    asmClassProvider = new AsmClassProviderImpl(ClassworldsClassLoader.create(SquidTestUtils.getFile("/bytecode/bin/")));
     javaBean = asmClassProvider.getClass("properties/JavaBean");
     accessorVisitor.visitClass(javaBean);
     for (AsmMethod method : javaBean.getMethods()) {

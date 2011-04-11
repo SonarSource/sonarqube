@@ -21,13 +21,13 @@ package org.sonar.java.ast.visitor;
 
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.measures.Metric;
 
 import static org.junit.Assert.assertEquals;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 public class AccessorVisitorTest {
 
@@ -36,10 +36,10 @@ public class AccessorVisitorTest {
   @Test
   public void analyzePureJavaBean() {
     squid = new Squid(new JavaSquidConfiguration(true));
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/accessors/PureJavaBean.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/accessors/PureJavaBean.java"));
     SourceCode res = squid.aggregate();
-    assertEquals(55, res.getInt(Metric.LINES_OF_CODE));
-    assertEquals(95, res.getInt(Metric.LINES));
+    assertEquals(54, res.getInt(Metric.LINES_OF_CODE));
+    assertEquals(94, res.getInt(Metric.LINES));
     assertEquals(6, res.getInt(Metric.ACCESSORS));
     assertEquals(10, res.getInt(Metric.METHODS));
   }
@@ -47,10 +47,10 @@ public class AccessorVisitorTest {
   @Test
   public void considerAccessorAsMethod() {
     squid = new Squid(new JavaSquidConfiguration(false));
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/accessors/JavaBeanWithApiDoc.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/accessors/JavaBeanWithApiDoc.java"));
     SourceCode res = squid.aggregate();
-    assertEquals(11, res.getInt(Metric.LINES_OF_CODE));
-    assertEquals(31, res.getInt(Metric.LINES));
+    assertEquals(10, res.getInt(Metric.LINES_OF_CODE));
+    assertEquals(30, res.getInt(Metric.LINES));
     assertEquals(2, res.getInt(Metric.METHODS));
     assertEquals(0, res.getInt(Metric.ACCESSORS));
     assertEquals(4, res.getInt(Metric.PUBLIC_API));
@@ -60,10 +60,10 @@ public class AccessorVisitorTest {
   @Test
   public void analyseVarAccessorsImpactOnOtherMeasures() {
     squid = new Squid(new JavaSquidConfiguration());
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/accessors/JavaBeanWithApiDoc.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/accessors/JavaBeanWithApiDoc.java"));
     SourceCode res = squid.aggregate();
-    assertEquals(11, res.getInt(Metric.LINES_OF_CODE));
-    assertEquals(31, res.getInt(Metric.LINES));
+    assertEquals(10, res.getInt(Metric.LINES_OF_CODE));
+    assertEquals(30, res.getInt(Metric.LINES));
     assertEquals(1, res.getInt(Metric.METHODS));
     assertEquals(1, res.getInt(Metric.ACCESSORS));
     assertEquals(3, res.getInt(Metric.PUBLIC_API));

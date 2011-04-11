@@ -24,7 +24,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,6 +38,7 @@ import org.junit.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.util.TraceClassVisitor;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.bytecode.asm.AsmResource;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
@@ -67,8 +67,8 @@ public class BytecodeVisitorsTest {
   @BeforeClass
   public static void setup() {
     squid = new Squid(new JavaSquidConfiguration());
-    squid.register(JavaAstScanner.class).scanDirectory(getFile("/bytecode/src"));
-    squid.register(BytecodeScanner.class).scanDirectory(getFile("/bytecode/bin"));
+    squid.register(JavaAstScanner.class).scanDirectory(SquidTestUtils.getFile("/bytecode/src"));
+    squid.register(BytecodeScanner.class).scanDirectory(SquidTestUtils.getFile("/bytecode/bin"));
     squid.decorateSourceCodeTreeWith(Metric.values());
     tag = squid.search("tags/Tag");
     tagFile = squid.search("tags/Tag.java");
@@ -240,11 +240,11 @@ public class BytecodeVisitorsTest {
 
   @Test
   @Ignore
-  public void testClassWithEnum() throws FileNotFoundException, IOException {
+  public void testClassWithEnum() throws IOException {
     SourceFile classWithEnum = (SourceFile) squid.search("specialCases/ClassWithEnum.java");
     SourceClass myEnum = (SourceClass) squid.search("specialCases/ClassWithEnum$MyEnum");
 
-    ClassReader asmReader = new ClassReader(new FileInputStream(getFile("/bytecode/bin/specialCases/ClassWithEnum$MyEnum.class")));
+    ClassReader asmReader = new ClassReader(new FileInputStream(SquidTestUtils.getFile("/bytecode/bin/specialCases/ClassWithEnum$MyEnum.class")));
     TraceClassVisitor classVisitor = new TraceClassVisitor(new PrintWriter(System.out));
     asmReader.accept(classVisitor, 0);
     classVisitor.print(new PrintWriter(System.out));

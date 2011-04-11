@@ -20,11 +20,11 @@
 package org.sonar.java.ast.visitor;
 
 import static org.junit.Assert.assertEquals;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.SourceCode;
@@ -41,23 +41,23 @@ public class ComplexityVisitorTest {
 
   @Test
   public void testNoBranches() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/branches/NoBranches.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/branches/NoBranches.java"));
     SourceCode res = squid.aggregate();
     assertEquals(3, res.getInt(Metric.COMPLEXITY));
   }
 
   @Test
   public void testSimpleBranches() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/branches/SimpleBranches.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/branches/SimpleBranches.java"));
     SourceCode res = squid.aggregate();
     assertEquals(15, res.getInt(Metric.COMPLEXITY));
-    SourceCode simpleSwitch = squid.search("Car#simpleSwitch()V");
+    SourceCode simpleSwitch = squid.search("SimpleBranches#simpleSwitch()V");
     assertEquals(3, simpleSwitch.getInt(Metric.COMPLEXITY));
   }
 
   @Test
   public void testInstanceAndStaticInitBlocks() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/complexity/InstanceAndStaticInitBlocks.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/complexity/InstanceAndStaticInitBlocks.java"));
     SourceCode res = squid.aggregate();
     assertEquals(2, res.getInt(Metric.COMPLEXITY));
   }

@@ -24,13 +24,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import java.util.Iterator;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.SourceClass;
@@ -49,7 +49,7 @@ public class ClassVisitorTest {
 
   @Test
   public void analyseTest003() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/classes/Test003.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/classes/Test003.java"));
     SourceCode project = squid.aggregate();
     SourceCode defaultPackage = project.getFirstChild();
     SourceCode file = defaultPackage.getFirstChild();
@@ -68,7 +68,7 @@ public class ClassVisitorTest {
 
   @Test
   public void analyseClassCounterEnum() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/classes/ClassCounterEnum.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/classes/ClassCounterEnum.java"));
     SourceCode project = squid.aggregate();
     SourceCode defaultPackage = project.getFirstChild();
     assertEquals(1, defaultPackage.getInt(Metric.CLASSES));
@@ -76,37 +76,37 @@ public class ClassVisitorTest {
 
   @Test
   public void analyseAnnotationDefinition() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/special_cases/annotations/AnnotationDefinition.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/special_cases/annotations/AnnotationDefinition.java"));
     SourceCode project = squid.aggregate();
     SourceCode annotation = project.getFirstChild();
     assertEquals(1, annotation.getInt(Metric.CLASSES));
-    assertNotNull(squid.search("org/sonar/plugins/api/AnnotationDefinition"));
+    assertNotNull(squid.search("AnnotationDefinition"));
   }
 
   @Test
   public void analyseInterface() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/classes/Interface.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/classes/Interface.java"));
     SourceCode project = squid.aggregate();
     assertEquals(1, project.getInt(Metric.INTERFACES));
   }
 
   @Test
   public void analyseAbstractClass() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/classes/AbstractClass.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/classes/AbstractClass.java"));
     SourceCode project = squid.aggregate();
     assertEquals(1, project.getInt(Metric.ABSTRACT_CLASSES));
   }
 
   @Test
   public void testStartAtLine() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/classes/AbstractClass.java"));
-    SourceCode classTest = squid.search("org/sonar/AbstractClass");
-    assertEquals(4, classTest.getStartAtLine());
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/classes/AbstractClass.java"));
+    SourceCode classTest = squid.search("AbstractClass");
+    assertEquals(2, classTest.getStartAtLine());
   }
 
   @Test
   public void analysePrivateInnerClass() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/classes/InnerClassTests.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/classes/InnerClassTests.java"));
     SourceCode project = squid.aggregate();
     SourceCode defaultPackage = project.getFirstChild();
     SourceCode defaultClassFile = defaultPackage.getFirstChild();
@@ -124,7 +124,7 @@ public class ClassVisitorTest {
 
   @Test
   public void detectSuppressWarningsAnnotation() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/rules/ClassWithSuppressWarningsAnnotation.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/rules/ClassWithSuppressWarningsAnnotation.java"));
     SourceClass sourceClass = (SourceClass) squid.search("ClassWithSuppressWarningsAnnotation");
     assertThat(sourceClass.isSuppressWarnings(), is(true));
   }

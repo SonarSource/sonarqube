@@ -1,7 +1,7 @@
 /*
  * Header
  */
-package test;
+
 
 public class EmptyConstructor {
     

@@ -1,4 +1,3 @@
-package org.sonar.plugins.api;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

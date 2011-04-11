@@ -1,4 +1,3 @@
-package java.bean.test;
 
 public class PureJavaBean {
   

@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.checks.CheckFactory;
 import org.sonar.api.checks.NoSonarFilter;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.TimeProfiler;
@@ -76,11 +77,7 @@ public final class SquidExecutor {
     return conf;
   }
 
-  protected SquidExecutor(Squid squid) {
-    this.squid = squid;
-  }
-
-  public void scan(Collection<File> sourceFiles, Collection<File> bytecodeFilesOrDirectories) {
+  public void scan(Collection<InputFile> sourceFiles, Collection<File> bytecodeFilesOrDirectories) {
     for (Object checker : checkFactory.getChecks()) {
       squid.registerVisitor((CodeVisitor) checker);
     }
@@ -159,7 +156,7 @@ public final class SquidExecutor {
   }
 
 
-  void scanSources(Collection<File> sourceFiles) {
+  void scanSources(Collection<InputFile> sourceFiles) {
     if (sourceFiles != null && !sourceFiles.isEmpty()) {
       TimeProfiler profiler = new TimeProfiler(getClass()).start("Java AST scan");
       JavaAstScanner sourceScanner = squid.register(JavaAstScanner.class);

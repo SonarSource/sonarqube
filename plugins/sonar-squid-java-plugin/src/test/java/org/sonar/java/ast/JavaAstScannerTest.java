@@ -20,7 +20,8 @@
 package org.sonar.java.ast;
 
 import static org.junit.Assert.assertEquals;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -46,7 +47,7 @@ public class JavaAstScannerTest {
   @Test
   public void testMacRomanEncoding() {
     squid = new Squid(new JavaSquidConfiguration(false, Charset.forName("MacRoman")));
-    squid.register(JavaAstScanner.class).scanFile(getFile("/special_cases/encoding/MacRomanEncoding.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/special_cases/encoding/MacRomanEncoding.java"));
     SourceProject prj = squid.aggregate();
     assertEquals(4, prj.getInt(Metric.METHODS));
   }
@@ -54,37 +55,41 @@ public class JavaAstScannerTest {
   @Test(expected = AnalysisException.class)
   public void testCP1252EncodingWithWrongDefined() {
     squid = new Squid(new JavaSquidConfiguration(true, Charset.forName("MacRoman")));
-    squid.register(JavaAstScanner.class).scanFile(getFile("/special_cases/encoding/CP1252Encoding.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/special_cases/encoding/CP1252Encoding.java"));
   }
 
   @Test
   public void testCheckstyleParsingBug() {
     // see
     // http://sourceforge.net/tracker/?func=detail&atid=397078&aid=1667137&group_id=29721
-    squid.register(JavaAstScanner.class).scanFile(getFile("/special_cases/parsingErrors/CheckstyleBug.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/special_cases/parsingErrors/CheckstyleBug.java"));
     SourceProject prj = squid.aggregate();
     assertEquals(0, prj.getInt(Metric.CLASSES));
   }
 
   @Test
   public void testEmptyClassWithComment() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/special_cases/emptyFiles/ClassWithOnlyComment.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/special_cases/emptyFiles/ClassWithOnlyComment.java"));
     SourceProject prj = squid.aggregate();
     assertEquals(0, prj.getInt(Metric.CLASSES));
-    assertEquals(0, prj.getInt(Metric.PACKAGES));
+    assertEquals(1, prj.getInt(Metric.PACKAGES));
+    assertEquals(1, prj.getInt(Metric.FILES));
     assertEquals(1, prj.getInt(Metric.COMMENT_LINES));
+
+    assertNotNull(squid.search("ClassWithOnlyComment.java"));//file
+    assertNull(squid.search("ClassWithOnlyComment"));//class
   }
 
   @Test
   public void testEmptyFileWithBlankLines() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/special_cases/emptyFiles/EmptyFileWithBlankLines.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/special_cases/emptyFiles/EmptyFileWithBlankLines.java"));
     SourceProject prj = squid.aggregate();
     assertEquals(0, prj.getDouble(Metric.COMMENT_LINES_DENSITY), 0.01);
   }
 
   @Test
   public void testClassWithPackageImportsComment() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/special_cases/emptyFiles/ClassWithPackageImportsComment.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/special_cases/emptyFiles", "foo/ClassWithPackageImportsComment.java"));
     SourceProject prj = squid.aggregate();
     assertEquals(0, prj.getInt(Metric.CLASSES));
     assertEquals(1, prj.getInt(Metric.PACKAGES));
@@ -105,11 +110,11 @@ public class JavaAstScannerTest {
       }
       System.setProperty("file.encoding", "MacRoman");
       squid = new Squid(new JavaSquidConfiguration(false));
-      squid.register(JavaAstScanner.class).scanFile(getFile("/special_cases/encoding/MacRomanEncoding.java"));
+      squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/special_cases/encoding/MacRomanEncoding.java"));
       macRoman = squid.aggregate();
       System.setProperty("file.encoding", "CP1252");
       squid = new Squid(new JavaSquidConfiguration(false));
-      squid.register(JavaAstScanner.class).scanFile(getFile("/special_cases/encoding/CP1252Encoding.java"));
+      squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/special_cases/encoding/CP1252Encoding.java"));
       cp1252 = squid.aggregate();
     } finally {
       System.setProperty("file.encoding", currentEncoding);
@@ -121,7 +126,7 @@ public class JavaAstScannerTest {
   @Test
   public void testCP1252Encoding() {
     squid = new Squid(new JavaSquidConfiguration(false, Charset.forName("CP1252")));
-    squid.register(JavaAstScanner.class).scanFile(getFile("/special_cases/encoding/CP1252Encoding.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/special_cases/encoding/CP1252Encoding.java"));
     SourceProject prj = squid.aggregate();
     assertEquals(4, prj.getInt(Metric.METHODS));
   }
@@ -129,17 +134,17 @@ public class JavaAstScannerTest {
   @Test
   public void testUTF8Encoding() {
     squid = new Squid(new JavaSquidConfiguration(false, Charset.forName(CharEncoding.UTF_8)));
-    squid.register(JavaAstScanner.class).scanFile(getFile("/special_cases/encoding/Utf8Encoding.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/special_cases/encoding/Utf8Encoding.java"));
     SourceProject prj = squid.aggregate();
     assertEquals(4, prj.getInt(Metric.METHODS));
   }
 
   @Test
   public void testInterfaceWithAnnotations() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/special_cases/annotations/InterfaceWithAnnotation.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/special_cases/annotations/InterfaceWithAnnotation.java"));
     SourceProject prj = squid.aggregate();
-    assertEquals(12, prj.getInt(Metric.LINES));
-    assertEquals(7, prj.getInt(Metric.LINES_OF_CODE));
+    assertEquals(11, prj.getInt(Metric.LINES));
+    assertEquals(6, prj.getInt(Metric.LINES_OF_CODE));
     assertEquals(0, prj.getInt(Metric.STATEMENTS));
     assertEquals(2, prj.getInt(Metric.METHODS));
     assertEquals(2, prj.getInt(Metric.COMPLEXITY));
@@ -147,7 +152,7 @@ public class JavaAstScannerTest {
 
   @Test
   public void testClassesWithGenerics() {
-    squid.register(JavaAstScanner.class).scanDirectory(getFile("/special_cases/generics"));
+    squid.register(JavaAstScanner.class).scanDirectory(SquidTestUtils.getFile("/special_cases/generics"));
     SourceProject prj = squid.aggregate();
     assertEquals(2, prj.getInt(Metric.FILES));
     assertEquals(3, prj.getInt(Metric.METHODS));
@@ -155,7 +160,7 @@ public class JavaAstScannerTest {
 
   @Test
   public void testPackageInfo() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/special_cases/package-info.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/special_cases/packageInfo", "org/apache/cxf/jaxrs/ext/logging/package-info.java"));
     SourceProject prj = squid.aggregate();
     assertEquals(1, prj.getInt(Metric.FILES));
     assertEquals(4, prj.getInt(Metric.LINES_OF_CODE));

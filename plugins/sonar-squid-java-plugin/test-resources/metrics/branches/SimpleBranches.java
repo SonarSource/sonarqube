@@ -1,10 +1,10 @@
 import java.util.ArrayList;
 
-public class Car {
+public class SimpleBranches {
 	private int n;
 	private String s;
 
-	public AClass(int n, String s) {
+	public SimpleBranches(int n, String s) {
 		this.n = n;
 		this.s = s;
 	}

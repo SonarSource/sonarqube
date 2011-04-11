@@ -24,7 +24,6 @@ import static org.hamcrest.number.OrderingComparisons.lessThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import java.util.Collection;
 import java.util.Map;
@@ -33,6 +32,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.graph.IncrementalCyclesAndFESSolver;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.bytecode.BytecodeScanner;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.api.SourceCode;
@@ -55,8 +55,8 @@ public class SquidUserGuideTest {
   @BeforeClass
   public static void setup() {
     squid = new Squid(new JavaSquidConfiguration());
-    squid.register(JavaAstScanner.class).scanDirectory(getFile("/commons-collections-3.2.1/src"));
-    squid.register(BytecodeScanner.class).scanDirectory(getFile("/commons-collections-3.2.1/bin"));
+    squid.register(JavaAstScanner.class).scanDirectory(SquidTestUtils.getFile("/commons-collections-3.2.1/src"));
+    squid.register(BytecodeScanner.class).scanDirectory(SquidTestUtils.getFile("/commons-collections-3.2.1/bin"));
     project = squid.aggregate();
   }
 

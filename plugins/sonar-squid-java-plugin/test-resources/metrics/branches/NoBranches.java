@@ -1,8 +1,8 @@
-public class Car {
+public class NoBranches {
 	private int n;
 	private String s;
 
-	public AClass(int n, String s) {
+	public NoBranches(int n, String s) {
 		this.n = n;
 		this.s = s;
 	}

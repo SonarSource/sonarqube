@@ -86,8 +86,8 @@ public class SquidSensor implements Sensor {
     }
   }
 
-  private List<File> getMainSourceFiles(Project project) {
-    return project.getFileSystem().getJavaSourceFiles();
+  private List<InputFile> getMainSourceFiles(Project project) {
+    return project.getFileSystem().mainFiles(Java.KEY);
   }
 
   private Collection<File> getMainBytecodeFiles(Project project) {

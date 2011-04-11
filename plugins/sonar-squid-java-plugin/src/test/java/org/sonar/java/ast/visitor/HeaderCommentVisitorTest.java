@@ -20,11 +20,11 @@
 package org.sonar.java.ast.visitor;
 
 import static org.junit.Assert.assertEquals;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.SourceCode;
@@ -41,17 +41,17 @@ public class HeaderCommentVisitorTest {
 
   @Test
   public void analyseHeaderCommentsStandard() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/javadoc/ClassWithHeader.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/javadoc/ClassWithHeader.java"));
     SourceCode res = squid.aggregate();
     assertEquals(7, res.getInt(Metric.COMMENT_LINES_WITHOUT_HEADER));
     assertEquals(32, res.getInt(Metric.LINES));
-    assertEquals(11, res.getInt(Metric.LINES_OF_CODE));
+    assertEquals(10, res.getInt(Metric.LINES_OF_CODE));
     assertEquals(2, res.getInt(Metric.HEADER_COMMENT_LINES));
   }
 
   @Test
   public void analyseHeaderCommentsAndNoPackage() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/javadoc/ClassWithHeaderAndNoPackage.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/javadoc/ClassWithHeaderAndNoPackage.java"));
     SourceCode res = squid.aggregate();
     assertEquals(7, res.getInt(Metric.COMMENT_LINES_WITHOUT_HEADER));
     assertEquals(30, res.getInt(Metric.LINES));
@@ -61,7 +61,7 @@ public class HeaderCommentVisitorTest {
 
   @Test
   public void analyseHeaderCommentsAndNoPackageNoImports() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/javadoc/ClassWithHeaderAndNoPackageNoImports.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/javadoc/ClassWithHeaderAndNoPackageNoImports.java"));
     SourceCode res = squid.aggregate();
     assertEquals(3, res.getInt(Metric.COMMENT_LINES_WITHOUT_HEADER));
     assertEquals(23, res.getInt(Metric.LINES));
@@ -71,7 +71,7 @@ public class HeaderCommentVisitorTest {
 
   @Test
   public void analyseJavadocHeaderAndPackage() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/javadoc/ClassWithPackageAndJavadocHeader.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/javadoc/", "foo/ClassWithPackageAndJavadocHeader.java"));
     SourceCode res = squid.aggregate();
     assertEquals(2, res.getInt(Metric.HEADER_COMMENT_LINES));
     assertEquals(3, res.getInt(Metric.COMMENT_LINES_WITHOUT_HEADER));
@@ -81,7 +81,7 @@ public class HeaderCommentVisitorTest {
 
   @Test
   public void analyseCCommentWithoutHeader() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/javadoc/ClassWithoutHeaderAndWithCComment.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/javadoc/ClassWithoutHeaderAndWithCComment.java"));
     SourceCode res = squid.aggregate();
     assertEquals(3, res.getInt(Metric.COMMENT_LINES_WITHOUT_HEADER));
     assertEquals(0, res.getInt(Metric.HEADER_COMMENT_LINES));

@@ -20,11 +20,11 @@
 package org.sonar.java.ast.visitor;
 
 import static org.junit.Assert.assertEquals;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.SourceCode;
@@ -41,7 +41,7 @@ public class LinesOfCodeVisitorTest {
 
   @Test
   public void analyseTestNcloc() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/ncloc/TestNcloc.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/ncloc/TestNcloc.java"));
     SourceCode res = squid.aggregate();
     assertEquals(39, res.getInt(Metric.LINES));
     assertEquals(9, res.getInt(Metric.BLANK_LINES));
@@ -56,7 +56,7 @@ public class LinesOfCodeVisitorTest {
 
   @Test
   public void analyseTestNclocWithClassComment() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/ncloc/TestNclocWithClassComment.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/ncloc/TestNclocWithClassComment.java"));
     SourceCode res = squid.aggregate();
     assertEquals(46, res.getInt(Metric.LINES));
     assertEquals(9, res.getInt(Metric.BLANK_LINES));
@@ -67,12 +67,12 @@ public class LinesOfCodeVisitorTest {
 
   @Test
   public void analyseTestNclocWithHeader() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/ncloc/TestNclocWithHeader.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/ncloc/TestNclocWithHeader.java"));
     SourceCode res = squid.aggregate();
     assertEquals(59, res.getInt(Metric.LINES));
-    assertEquals(11, res.getInt(Metric.BLANK_LINES));
+    assertEquals(12, res.getInt(Metric.BLANK_LINES));
     assertEquals(4, res.getInt(Metric.HEADER_COMMENT_LINES));
     assertEquals(12, res.getInt(Metric.COMMENT_BLANK_LINES));
-    assertEquals(27, res.getInt(Metric.LINES_OF_CODE));
+    assertEquals(26, res.getInt(Metric.LINES_OF_CODE));
   }
 }

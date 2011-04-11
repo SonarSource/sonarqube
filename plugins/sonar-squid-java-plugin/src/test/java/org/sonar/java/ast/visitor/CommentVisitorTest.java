@@ -22,11 +22,13 @@ package org.sonar.java.ast.visitor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.sonar.api.resources.InputFile;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.SourceCode;
@@ -75,6 +77,18 @@ public class CommentVisitorTest {
   }
 
   @Test
+  @Ignore("TODO")
+  public void testCommentedOutFile() {
+    SourceProject res = scan("/metrics/commentedCode", "org/foo/CommentedOutFile.java");
+  }
+
+  @Test
+  @Ignore("TODO")
+  public void shouldGuessPackageOfcommentedOutFile() {
+    SourceProject res = scan("/metrics/commentedCode", "org/foo/CommentedOutFile.java");
+  }
+
+  @Test
   public void testNoSonarTagDetection() {
     scan("/rules/FileWithNOSONARTags.java");
     SourceFile file = (SourceFile) squid.search("FileWithNOSONARTags.java");
@@ -101,8 +115,14 @@ public class CommentVisitorTest {
     assertEquals(0, project.getInt(Metric.COMMENTED_OUT_CODE_LINES));
   }
 
-  private SourceProject scan(String path) {
-    squid.register(JavaAstScanner.class).scanFile(getFile(path));
+  private SourceProject scan(String filePath) {
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile(filePath));
+    return squid.aggregate();
+  }
+
+  private SourceProject scan(String basedir, String filePath) {
+    InputFile inputFile = SquidTestUtils.getInputFile(basedir, filePath);
+    squid.register(JavaAstScanner.class).scanFile(inputFile);
     return squid.aggregate();
   }
 }

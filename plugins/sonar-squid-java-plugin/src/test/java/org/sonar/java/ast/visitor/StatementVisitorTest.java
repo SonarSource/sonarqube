@@ -20,11 +20,11 @@
 package org.sonar.java.ast.visitor;
 
 import static org.junit.Assert.assertEquals;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.SourceCode;
@@ -41,7 +41,7 @@ public class StatementVisitorTest {
 
   @Test
   public void testNoStatements() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/statements/NoStatements.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/statements/NoStatements.java"));
     SourceCode res = squid.aggregate();
     assertEquals(12, res.getInt(Metric.STATEMENTS));
     SourceCode simpleIf = squid.search("Car#simpleIf(LString;)V");

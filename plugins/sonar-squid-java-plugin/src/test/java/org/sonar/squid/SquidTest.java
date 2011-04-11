@@ -20,11 +20,11 @@
 package org.sonar.squid;
 
 import static org.junit.Assert.assertNotNull;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 
 public class SquidTest {
@@ -38,9 +38,9 @@ public class SquidTest {
 
   @Test
   public void searchSingleResult() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/accessors/JavaBeanWithApiDoc.java"));
-    assertNotNull(squid.search("java/bean/test"));
-    assertNotNull(squid.search("java/bean/test/JavaBeanWithApiDoc.java"));
-    assertNotNull(squid.search("java/bean/test/JavaBeanWithAPIDoc"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/packages/", "org/foo/SimpleBean.java"));
+    assertNotNull(squid.search("org/foo"));
+    assertNotNull(squid.search("org/foo/SimpleBean.java"));
+    assertNotNull(squid.search("org/foo/SimpleBean"));
   }
 }

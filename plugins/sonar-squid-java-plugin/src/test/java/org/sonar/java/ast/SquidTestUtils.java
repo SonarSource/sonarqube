@@ -19,9 +19,25 @@
  */
 package org.sonar.java.ast;
 
+import org.sonar.api.resources.InputFile;
+import org.sonar.api.resources.InputFileUtils;
+
 import java.io.File;
 
 public final class SquidTestUtils {
+
+  /**
+   * Assumes that the Java file has no package. It's declared in the root directory.
+   */
+  public static InputFile getInputFile(String relativePath) {
+    File file = getFile(relativePath);
+    return InputFileUtils.create(file.getParentFile(), file);
+  }
+
+  public static InputFile getInputFile(String basedir, String relativePath) {
+    File file = getFile(basedir + "/" + relativePath);
+    return InputFileUtils.create(getFile(basedir), file);
+  }
 
   public static File getFile(String relativePath) {
     return new File("test-resources" + relativePath);

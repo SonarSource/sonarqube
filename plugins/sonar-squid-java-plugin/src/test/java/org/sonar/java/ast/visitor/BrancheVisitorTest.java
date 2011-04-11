@@ -20,11 +20,11 @@
 package org.sonar.java.ast.visitor;
 
 import static org.junit.Assert.assertEquals;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.SourceCode;
@@ -41,21 +41,21 @@ public class BrancheVisitorTest {
 
   @Test
   public void testNoBranches() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/branches/NoBranches.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/branches/NoBranches.java"));
     SourceCode res = squid.aggregate();
     assertEquals(0, res.getInt(Metric.BRANCHES));
   }
 
   @Test
   public void testSimpleBranches() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/branches/SimpleBranches.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/branches/SimpleBranches.java"));
     SourceCode res = squid.aggregate();
     assertEquals(8, res.getInt(Metric.BRANCHES));
   }
 
   @Test
   public void testComplexBranches() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/branches/ComplexBranches.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/branches/ComplexBranches.java"));
     SourceCode res = squid.aggregate();
     assertEquals(6, res.getInt(Metric.BRANCHES));
   }

@@ -19,11 +19,14 @@
  */
 package org.sonar.java.ast;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.resources.InputFile;
+import org.sonar.api.resources.InputFileUtils;
 import org.sonar.java.ast.visitor.*;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.api.AnalysisException;
@@ -57,33 +60,6 @@ public class JavaAstScanner extends CodeScanner<JavaAstVisitor> {
     this.project = project;
   }
 
-  /**
-   * Create and execute the Checkstyle engine.
-   * 
-   * @param files
-   *          collection of files to analyse. This list shouldn't contain and directory.
-   * @param charset
-   *          the default charset to use to read files
-   */
-  private void launchCheckstyleEngine(Collection<File> files, Charset charset) {
-    Checker c = createChecker(charset);
-    ClassLoader initialClassLoader = Thread.currentThread().getContextClassLoader();
-    Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-    try {
-      c.setClassloader(getClass().getClassLoader());
-      c.setModuleClassLoader(getClass().getClassLoader());
-      c.process(new ArrayList<File>(files));
-      c.destroy();
-    } finally {
-      Thread.currentThread().setContextClassLoader(initialClassLoader);
-    }
-  }
-
-  /**
-   * Creates the Checkstyle Checker object.
-   * 
-   * @return a nice new fresh Checkstyle Checker
-   */
   private Checker createChecker(Charset charset) {
     InputStream checkstyleConfig = null;
     try {
@@ -110,20 +86,23 @@ public class JavaAstScanner extends CodeScanner<JavaAstVisitor> {
   }
 
   public JavaAstScanner scanDirectory(File javaSourceDirectory) {
-    List<File> files = new ArrayList<File>(FileUtils.listFiles(javaSourceDirectory, FileFilterUtils.fileFileFilter(), FileFilterUtils
-        .directoryFileFilter()));
-    return scanFiles(files);
+    List<InputFile> inputFiles = Lists.newArrayList();
+    Collection<File> files = FileUtils.listFiles(javaSourceDirectory, FileFilterUtils.fileFileFilter(), FileFilterUtils.directoryFileFilter());
+    for (File file : files) {
+      inputFiles.add(InputFileUtils.create(javaSourceDirectory, file));
+    }
+    return scanFiles(inputFiles);
   }
 
-  public JavaAstScanner scanFile(File javaFile) {
+  public JavaAstScanner scanFile(InputFile javaFile) {
     return scanFiles(Arrays.asList(javaFile));
   }
 
-  public JavaAstScanner scanFiles(Collection<File> javaFiles) {
+  public JavaAstScanner scanFiles(Collection<InputFile> inputFiles) {
     if (LOG.isDebugEnabled()) {
       LOG.debug("----- Java sources analyzed by Squid:");
-      for (File javaFile : javaFiles) {
-        LOG.debug(javaFile.getAbsolutePath());
+      for (InputFile inputFile : inputFiles) {
+        LOG.debug(inputFile.toString());
       }
       LOG.debug("-----");
     }
@@ -135,13 +114,29 @@ public class JavaAstScanner extends CodeScanner<JavaAstVisitor> {
     }
     CheckstyleSquidBridge.setASTVisitors(getVisitors());
     CheckstyleSquidBridge.setSquidConfiguration(conf);
-    launchCheckstyleEngine(javaFiles, conf.getCharset());
+    CheckstyleSquidBridge.setInputFiles(inputFiles);
+    launchCheckstyle(InputFileUtils.toFiles(inputFiles), conf.getCharset());
     return this;
   }
 
+  private void launchCheckstyle(Collection<File> files, Charset charset) {
+    Checker c = createChecker(charset);
+    ClassLoader initialClassLoader = Thread.currentThread().getContextClassLoader();
+    Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+    try {
+      c.setClassloader(getClass().getClassLoader());
+      c.setModuleClassLoader(getClass().getClassLoader());
+      c.process(Lists.<File>newArrayList(files));
+      c.destroy();
+    } finally {
+      Thread.currentThread().setContextClassLoader(initialClassLoader);
+    }
+  }
+
+
   @Override
   public Collection<Class<? extends JavaAstVisitor>> getVisitorClasses() {
-    List<Class<? extends JavaAstVisitor>> visitorClasses = new ArrayList<Class<? extends JavaAstVisitor>>();
+    List<Class<? extends JavaAstVisitor>> visitorClasses = Lists.newArrayList();
     visitorClasses.add(PackageVisitor.class);
     visitorClasses.add(FileVisitor.class);
     visitorClasses.add(ClassVisitor.class);

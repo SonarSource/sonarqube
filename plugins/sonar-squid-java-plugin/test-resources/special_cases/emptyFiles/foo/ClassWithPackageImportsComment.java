@@ -1,5 +1,5 @@
 // some comment
-package test;
+package foo;
 
 import java.lang.Runtime;
 import org.apache.commons.*;

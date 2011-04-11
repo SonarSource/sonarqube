@@ -36,6 +36,7 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.checks.AnnotationCheckFactory;
 import org.sonar.api.checks.CheckFactory;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.squid.Squid;
@@ -62,7 +63,7 @@ public class SquidExecutorTest {
   @Test
   public void doNotScanBytecodeIfNoSources() throws IOException, URISyntaxException {
     SquidExecutor executor = new SquidExecutor(true, "LOG, logger", createCheckFactory(), Charset.defaultCharset());
-    executor.scan(Collections.<File> emptyList(), Arrays.asList(SquidTestUtils.getStrutsCoreJar()));
+    executor.scan(Collections.<InputFile> emptyList(), Arrays.asList(SquidTestUtils.getStrutsCoreJar()));
 
     assertThat(executor.isSourceScanned(), is(false));
     assertThat(executor.isBytecodeScanned(), is(false));

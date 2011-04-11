@@ -19,12 +19,13 @@
  */
 package org.sonar.java.ast;
 
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.io.File;
+import java.util.*;
 
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.resources.InputFile;
 import org.sonar.java.ast.visitor.JavaAstVisitor;
 import org.sonar.java.recognizer.JavaFootprint;
 import org.sonar.java.squid.JavaSquidConfiguration;
@@ -40,6 +41,7 @@ public class CheckstyleSquidBridge extends Check {
   private static JavaAstVisitor[] visitors;
   private static int[] allTokens;
   private static CodeRecognizer codeRecognizer;
+  private static Map<java.io.File,InputFile> inputFilesByPath = Maps.newHashMap();
 
   static void setASTVisitors(List<JavaAstVisitor> visitors) {
     CheckstyleSquidBridge.visitors = visitors.toArray(new JavaAstVisitor[visitors.size()]);
@@ -63,6 +65,17 @@ public class CheckstyleSquidBridge extends Check {
     return allTokens; //NOSONAR returning directly the array is not a security flaw here
   }
 
+  public static InputFile getInputFile(File path) {
+    return inputFilesByPath.get(path);
+  }
+
+  public static void setInputFiles(Collection<InputFile> inputFiles) {
+    inputFilesByPath.clear();
+    for (InputFile inputFile : inputFiles) {
+      inputFilesByPath.put(inputFile.getFile(), inputFile);
+    }
+  }
+
   @Override
   public void beginTree(DetailAST ast) {
     try {
@@ -70,6 +83,7 @@ public class CheckstyleSquidBridge extends Check {
       for (JavaAstVisitor visitor : visitors) {
         visitor.setFileContents(getFileContents());
         visitor.setSource(source);
+        visitor.setInputFile(getInputFile(new java.io.File(getFileContents().getFilename())));
         visitor.visitFile(ast);
       }
     } catch (RuntimeException e) {

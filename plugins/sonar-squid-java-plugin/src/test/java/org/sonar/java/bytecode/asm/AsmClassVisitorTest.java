@@ -20,17 +20,17 @@
 package org.sonar.java.bytecode.asm;
 
 import org.junit.Test;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.bytecode.ClassworldsClassLoader;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 public class AsmClassVisitorTest {
 
-  private static AsmClassProvider asmClassProvider = new AsmClassProviderImpl(ClassworldsClassLoader.create(getFile("/bytecode/bin/")));
+  private static AsmClassProvider asmClassProvider = new AsmClassProviderImpl(ClassworldsClassLoader.create(SquidTestUtils.getFile("/bytecode/bin/")));
 
   @Test
   public void testVisit() {

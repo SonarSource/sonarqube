@@ -22,15 +22,20 @@ package org.sonar.java.ast.check;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.resources.InputFileUtils;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
+
+import java.io.File;
+import java.util.Collection;
 
 public class BreakCheckTest {
 
@@ -40,7 +45,11 @@ public class BreakCheckTest {
   public void setUp() {
     squid = new Squid(new JavaSquidConfiguration());
     squid.registerVisitor(BreakCheck.class);
-    squid.register(JavaAstScanner.class).scanDirectory(getFile("/commons-collections-3.2.1/src/org/apache/commons/collections/map"));
+
+    File basedir = SquidTestUtils.getFile("/commons-collections-3.2.1/src");
+    Collection<File> files = FileUtils.listFiles(new File(basedir, "org/apache/commons/collections/map"), new String[]{"java"}, true);
+
+    squid.register(JavaAstScanner.class).scanFiles(InputFileUtils.create(basedir, files));
   }
 
   @Test

@@ -1,4 +1,3 @@
-package com.toto;
 
 public interface InterfaceWithAnnotation {
 

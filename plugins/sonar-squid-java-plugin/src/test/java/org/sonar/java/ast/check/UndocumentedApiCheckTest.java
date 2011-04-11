@@ -22,7 +22,6 @@ package org.sonar.java.ast.check;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,6 +30,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.java.squid.SquidScanner;
 import org.sonar.squid.Squid;
@@ -48,7 +48,7 @@ public class UndocumentedApiCheckTest {
   public void setUp() {
     squid = new Squid(new JavaSquidConfiguration());
     squid.registerVisitor(UndocumentedApiCheck.class);
-    squid.register(JavaAstScanner.class).scanFile(getFile("/rules/UndocumentedApi.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/rules/UndocumentedApi.java"));
     squid.decorateSourceCodeTreeWith(Metric.values());
     squid.register(SquidScanner.class).scan();
   }

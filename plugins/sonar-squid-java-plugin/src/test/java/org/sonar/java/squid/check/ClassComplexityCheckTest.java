@@ -22,11 +22,11 @@ package org.sonar.java.squid.check;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.java.squid.SquidScanner;
 import org.sonar.squid.Squid;
@@ -45,8 +45,8 @@ public class ClassComplexityCheckTest {
     check.setMax(5);
     squid.registerVisitor(check);
     JavaAstScanner scanner = squid.register(JavaAstScanner.class);
-    scanner.scanFile(getFile("/metrics/branches/NoBranches.java"));
-    scanner.scanFile(getFile("/metrics/branches/ComplexBranches.java"));
+    scanner.scanFile(SquidTestUtils.getInputFile("/metrics/branches/NoBranches.java"));
+    scanner.scanFile(SquidTestUtils.getInputFile("/metrics/branches/ComplexBranches.java"));
     squid.decorateSourceCodeTreeWith(Metric.values());
     squid.register(SquidScanner.class).scan();
   }

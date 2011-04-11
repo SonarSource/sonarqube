@@ -20,10 +20,10 @@
 package org.sonar.java.ast.visitor;
 
 import static org.junit.Assert.assertEquals;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
 
@@ -32,14 +32,14 @@ public class EndAtLineVisitorTest {
   @Test
   public void testEndAtLineForMethod() {
     Squid squid = new Squid(new JavaSquidConfiguration());
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/methods/ClassWithStaticMethods.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/methods/ClassWithStaticMethods.java"));
     assertEquals(17, squid.search("ClassWithStaticMethods#doJob2()V").getEndAtLine());
   }
 
   @Test
   public void testEndAtLineForClass() {
     Squid squid = new Squid(new JavaSquidConfiguration());
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/methods/ClassWithStaticMethods.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/methods/ClassWithStaticMethods.java"));
     assertEquals(30, squid.search("ClassWithStaticMethods").getEndAtLine());
   }
 }

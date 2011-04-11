@@ -23,11 +23,11 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.SourceCode;
@@ -46,7 +46,7 @@ public class MethodVisitorTest {
 
   @Test
   public void analyseClassWithStaticMethods() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/methods/ClassWithStaticMethods.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/methods/ClassWithStaticMethods.java"));
     SourceCode prj = squid.decorateSourceCodeTreeWith(Metric.values());
     assertEquals(3, prj.getInt(Metric.METHODS));
     assertEquals(8, prj.getInt(Metric.COMPLEXITY));
@@ -54,7 +54,7 @@ public class MethodVisitorTest {
 
   @Test
   public void methodWithAnonymousInnerClass() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/methods/MethodWithAnonymousInnerClass.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/methods/MethodWithAnonymousInnerClass.java"));
     SourceCode prj = squid.decorateSourceCodeTreeWith(Metric.values());
     assertEquals(4, prj.getInt(Metric.METHODS));
     assertEquals(4, squid.search(new QueryByType(SourceMethod.class)).size());
@@ -63,14 +63,14 @@ public class MethodVisitorTest {
 
   @Test
   public void testStartAtLine() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/methods/ClassWithStaticMethods.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/methods/ClassWithStaticMethods.java"));
     SourceCode doJob2Method = squid.search("ClassWithStaticMethods#doJob1()V");
     assertEquals(3, doJob2Method.getStartAtLine());
   }
 
   @Test
   public void testMethodSignature() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/methods/ClassWithDifferentMethodSignatures.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/methods/ClassWithDifferentMethodSignatures.java"));
     assertNotNull(squid.search("ClassWithDifferentMethodSignatures#<init>()V"));
     assertNotNull(squid.search("ClassWithDifferentMethodSignatures#<init>(LList;)V"));
     assertNotNull(squid.search("ClassWithDifferentMethodSignatures#method()V"));
@@ -87,14 +87,14 @@ public class MethodVisitorTest {
 
   @Test
   public void testConstructorsMetric() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/methods/ClassWithDifferentMethodSignatures.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/methods/ClassWithDifferentMethodSignatures.java"));
     SourceCode source = squid.decorateSourceCodeTreeWith(Metric.values());
     assertEquals(2, source.getInt(Metric.CONSTRUCTORS));
   }
 
   @Test
   public void detectSuppressWarningsAnnotation() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/rules/ClassWithSuppressWarningsAnnotation.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/rules/ClassWithSuppressWarningsAnnotation.java"));
 
     assertThat(getMethod("ClassWithSuppressWarningsAnnotation#fullyQualifiedName()V").isSuppressWarnings(), is(true));
     assertThat(getMethod("ClassWithSuppressWarningsAnnotation#singleValue()V").isSuppressWarnings(), is(true));

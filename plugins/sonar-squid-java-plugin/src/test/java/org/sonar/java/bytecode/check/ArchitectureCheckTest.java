@@ -21,6 +21,7 @@ package org.sonar.java.bytecode.check;
 
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.bytecode.BytecodeScanner;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
@@ -29,7 +30,6 @@ import org.sonar.squid.api.SourceFile;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 public class ArchitectureCheckTest {
 
@@ -78,8 +78,8 @@ public class ArchitectureCheckTest {
     check.setToClasses(toClasses);
 
     squid = new Squid(new JavaSquidConfiguration());
-    squid.register(JavaAstScanner.class).scanDirectory(getFile("/bytecode/architecture/src"));
+    squid.register(JavaAstScanner.class).scanDirectory(SquidTestUtils.getFile("/bytecode/architecture/src"));
     squid.registerVisitor(check);
-    squid.register(BytecodeScanner.class).scanDirectory(getFile("/bytecode/architecture/bin"));
+    squid.register(BytecodeScanner.class).scanDirectory(SquidTestUtils.getFile("/bytecode/architecture/bin"));
   }
 }

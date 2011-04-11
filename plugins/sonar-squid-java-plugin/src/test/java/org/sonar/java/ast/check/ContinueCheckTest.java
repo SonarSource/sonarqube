@@ -22,11 +22,11 @@ package org.sonar.java.ast.check;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.CheckMessage;
@@ -41,7 +41,7 @@ public class ContinueCheckTest {
     squid = new Squid(new JavaSquidConfiguration());
     squid.registerVisitor(ContinueCheck.class);
     squid.register(JavaAstScanner.class).scanFile(
-        getFile("/commons-collections-3.2.1/src/org/apache/commons/collections/ExtendedProperties.java"));
+        SquidTestUtils.getInputFile("/commons-collections-3.2.1/src", "org/apache/commons/collections/ExtendedProperties.java"));
   }
 
   @Test

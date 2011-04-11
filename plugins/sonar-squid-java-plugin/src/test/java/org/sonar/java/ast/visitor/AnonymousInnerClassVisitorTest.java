@@ -20,11 +20,11 @@
 package org.sonar.java.ast.visitor;
 
 import static org.junit.Assert.assertNotNull;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
 
@@ -39,7 +39,7 @@ public class AnonymousInnerClassVisitorTest {
 
   @Test
   public void testCreateInnerSquidClass() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/classes/AnonymousInnerClass.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/classes/AnonymousInnerClass.java"));
     squid.aggregate();
     assertNotNull(squid.search("AnonymousInnerClass$1"));
     assertNotNull(squid.search("AnonymousInnerClass$2"));

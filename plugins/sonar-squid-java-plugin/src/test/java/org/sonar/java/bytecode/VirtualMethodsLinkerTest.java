@@ -21,11 +21,10 @@ package org.sonar.java.bytecode;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
-import org.sonar.java.bytecode.BytecodeScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.bytecode.check.UnusedProtectedMethodCheck;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
@@ -37,9 +36,9 @@ public class VirtualMethodsLinkerTest {
   @Test
   public void testLinkingRunMethodVirtualMethodToItsImplementation() {
     Squid squid = new Squid(new JavaSquidConfiguration());
-    squid.register(JavaAstScanner.class).scanDirectory(getFile("/bytecode/virtualMethodsLinker/src"));
+    squid.register(JavaAstScanner.class).scanDirectory(SquidTestUtils.getFile("/bytecode/virtualMethodsLinker/src"));
     squid.registerVisitor(UnusedProtectedMethodCheck.class);
-    squid.register(BytecodeScanner.class).scanDirectory(getFile("/bytecode/virtualMethodsLinker/bin"));
+    squid.register(BytecodeScanner.class).scanDirectory(SquidTestUtils.getFile("/bytecode/virtualMethodsLinker/bin"));
     squid.decorateSourceCodeTreeWith(Metric.values());
 
     SourceFile file = (SourceFile) squid.search("Animal.java");

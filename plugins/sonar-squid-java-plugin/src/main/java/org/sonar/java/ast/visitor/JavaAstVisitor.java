@@ -19,18 +19,18 @@
  */
 package org.sonar.java.ast.visitor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
-
-import org.sonar.squid.text.Source;
+import com.google.common.collect.Lists;
+import com.puppycrawl.tools.checkstyle.api.DetailAST;
+import com.puppycrawl.tools.checkstyle.api.FileContents;
+import org.sonar.api.resources.InputFile;
 import org.sonar.squid.api.CodeVisitor;
 import org.sonar.squid.api.SourceClass;
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.api.SourcePackage;
+import org.sonar.squid.text.Source;
 
-import com.puppycrawl.tools.checkstyle.api.DetailAST;
-import com.puppycrawl.tools.checkstyle.api.FileContents;
+import java.util.List;
+import java.util.Stack;
 
 public abstract class JavaAstVisitor implements CodeVisitor {
 
@@ -38,9 +38,11 @@ public abstract class JavaAstVisitor implements CodeVisitor {
 
   private FileContents fileContents;
 
+  private InputFile inputFile;
+
   private Source source;
 
-  private static final List<Integer> emptyWantedTokens = new ArrayList<Integer>();
+  private static final List<Integer> emptyWantedTokens = Lists.newArrayList();
 
   public final void setFileContents(FileContents fileContents) {
     this.fileContents = fileContents;
@@ -52,6 +54,14 @@ public abstract class JavaAstVisitor implements CodeVisitor {
 
   public final void setSource(Source source) {
     this.source = source;
+  }
+
+  public final InputFile getInputFile() {
+    return inputFile;
+  }
+
+  public final void setInputFile(InputFile inputFile) {
+    this.inputFile = inputFile;
   }
 
   final Source getSource() {

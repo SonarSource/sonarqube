@@ -20,11 +20,11 @@
 package org.sonar.java.ast.visitor;
 
 import static org.junit.Assert.assertEquals;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.SourceCode;
@@ -41,25 +41,25 @@ public class BlankLinesVisitorTest {
 
   @Test
   public void analyseTest002() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/loc/Test002.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/loc/Test002.java"));
     assertEquals(5, squid.aggregate().getInt(Metric.BLANK_LINES));
   }
 
   @Test
   public void analyseTest001() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/loc/Test001.java"));
-    assertEquals(3, squid.aggregate().getInt(Metric.BLANK_LINES));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/loc/Test001.java"));
+    assertEquals(4, squid.aggregate().getInt(Metric.BLANK_LINES));
 
-    SourceCode classSource = squid.search("test/Something");
+    SourceCode classSource = squid.search("Something");
     assertEquals(2, classSource.getInt(Metric.BLANK_LINES));
   }
 
   @Test
   public void analyseClassWithHeaderAndBlankLines() {
-    squid.register(JavaAstScanner.class).scanFile(getFile("/metrics/javadoc/ClassWithHeaderAndBlankLines.java"));
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/javadoc/ClassWithHeaderAndBlankLines.java"));
     SourceCode sources = squid.aggregate();
-    assertEquals(4, sources.getInt(Metric.LINES_OF_CODE));
-    assertEquals(3, sources.getInt(Metric.BLANK_LINES));
+    assertEquals(3, sources.getInt(Metric.LINES_OF_CODE));
+    assertEquals(4, sources.getInt(Metric.BLANK_LINES));
     assertEquals(6, sources.getInt(Metric.COMMENT_BLANK_LINES));
   }
 }

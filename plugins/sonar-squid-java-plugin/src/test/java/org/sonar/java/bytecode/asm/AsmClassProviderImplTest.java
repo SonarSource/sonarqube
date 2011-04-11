@@ -20,6 +20,7 @@
 package org.sonar.java.bytecode.asm;
 
 import org.junit.Test;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.bytecode.ClassworldsClassLoader;
 import org.sonar.java.bytecode.asm.AsmClassProvider.DETAIL_LEVEL;
 
@@ -27,7 +28,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 public class AsmClassProviderImplTest {
 
@@ -85,7 +85,7 @@ public class AsmClassProviderImplTest {
 
   @Test
   public void testPersonalClassLoader() {
-    asmClassProviderImpl = new AsmClassProviderImpl(ClassworldsClassLoader.create(getFile("/bytecode/bin/")));
+    asmClassProviderImpl = new AsmClassProviderImpl(ClassworldsClassLoader.create(SquidTestUtils.getFile("/bytecode/bin/")));
     assertEquals(DETAIL_LEVEL.STRUCTURE_AND_CALLS, asmClassProviderImpl.getClass("tags/Line", DETAIL_LEVEL.STRUCTURE_AND_CALLS).getDetailLevel());
   }
 }

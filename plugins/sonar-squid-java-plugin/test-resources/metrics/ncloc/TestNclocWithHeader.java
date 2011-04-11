@@ -7,7 +7,7 @@
  * lines
  */
 
-package test;
+
 
 /**
  * This is a nice comments header

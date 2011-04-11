@@ -21,11 +21,11 @@ package org.sonar.java.squid.check;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.sonar.java.ast.SquidTestUtils.getFile;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.java.ast.JavaAstScanner;
+import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.java.squid.SquidScanner;
 import org.sonar.squid.Squid;
@@ -42,8 +42,8 @@ public class NoSonarCheckTest {
     NoSonarCheck check = new NoSonarCheck();
     squid.registerVisitor(check);
     JavaAstScanner scanner = squid.register(JavaAstScanner.class);
-    scanner.scanFile(getFile("/rules/FileWithNOSONARTags.java"));
-    scanner.scanFile(getFile("/rules/FileWithoutNOSONARTags.java"));
+    scanner.scanFile(SquidTestUtils.getInputFile("/rules/FileWithNOSONARTags.java"));
+    scanner.scanFile(SquidTestUtils.getInputFile("/rules/FileWithoutNOSONARTags.java"));
     squid.decorateSourceCodeTreeWith(Metric.values());
     squid.register(SquidScanner.class).scan();
   }
