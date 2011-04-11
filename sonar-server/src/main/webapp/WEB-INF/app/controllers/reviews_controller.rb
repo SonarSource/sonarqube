@@ -21,23 +21,23 @@
 class ReviewsController < ApplicationController
 
   SECTION=Navigation::SECTION_HOME
-  
+
   verify :method => :post, :only => [  :create, :create_comment ], :redirect_to => { :action => :error_not_post }
-  
+
   def index
     init_params
-    
+
     @reviews = []
     unless params.blank?
       find_reviews_for_user_query
     end
   end
-  
+
   def list
     reviews = find_reviews_for_rule_failure params[:rule_failure_id]
     render :partial => "list", :locals => { :reviews => reviews }
   end
-  
+
   def form
     @review = Review.new
     @review.rule_failure_id = params[:violation_id]
@@ -47,7 +47,7 @@ class ReviewsController < ApplicationController
     @review_comment.review_text = ""
     render :partial => "form"
   end
-  
+
   def form_comment
     @review_comment = ReviewComment.new
     @review_comment.user = current_user
@@ -56,13 +56,13 @@ class ReviewsController < ApplicationController
     @rule_failure_id = params[:rule_failure_id]
     render :partial => "form_comment"
   end
-  
+
   def create
     unless has_rights_to_create? params[:review][:rule_failure_id]
       render :text => "<b>Cannot create the review</b> : access denied."
       return
     end
-        
+
     @review = Review.new(params[:review])
     @review.user = current_user
     @review.status = Review.default_status
@@ -76,31 +76,30 @@ class ReviewsController < ApplicationController
     end
     render "create_result"
   end
-  
+
   def create_comment
     unless has_rights_to_create? params[:rule_failure_id]
       render :text => "<b>Cannot create the comment</b> : access denied."
       return
     end
-  
-      @review_comment = ReviewComment.new(params[:review_comment])
-      @review_comment.user = current_user
-      @rule_failure_id = params[:rule_failure_id]
-      if @review_comment.valid?
+
+    @review_comment = ReviewComment.new(params[:review_comment])
+    @review_comment.user = current_user
+    @rule_failure_id = params[:rule_failure_id]
+    if @review_comment.valid?
       @review_comment.save
       @reviews = find_reviews_for_rule_failure @rule_failure_id
     end
-      render "create_comment_result"
+    render "create_comment_result"
   end
-  
-  
+
   ## -------------- PRIVATE -------------- ##
   private
-  
+
   def init_params
     @user_names = [["Any", ""]]
     default_user = [""]
-    if current_user 
+    if current_user
       @user_names << ["Me", current_user.id]
       default_user = [current_user.id]
     end
@@ -112,59 +111,54 @@ class ReviewsController < ApplicationController
     @severities = filter_any(params[:severities]) || [""]
     @statuses = filter_any(params[:statuses]) || ["open"]
   end
-  
+
   def filter_any(array)
     if array && array.size>1 && array.include?("")
       array=[""]
     end
     array
   end
-  
+
   def find_reviews_for_user_query
-    @conditions=""
-    @values=[]
-    @need_and = false;
-    @need_or = false;
-    add_sql_query_param "status", @statuses
-    add_sql_query_param "severity", @severities
-    add_sql_query_param "reviews.user_id", @review_authors
-    add_sql_query_param "review_comments.user_id", @comment_authors
-    
-    @reviews = Review.find( :all, :order => "created_at DESC", :joins => :review_comments, :conditions => [@conditions] + @values ).uniq
-  end
-  
-  def add_sql_query_param ( field, search_params )
-    unless search_params == [""]
-      @conditions += " AND" if @need_and
-      @conditions += "("
-      search_params.each do |search_param|
-        @conditions += " OR" if @need_or
-        @conditions += " " + field + "=?"
-        @values << search_param
-        @need_or = true
-      end
-      @conditions += ")"
-      @need_or = false;
-      @need_and = true;
+    conditions=[]
+    values={}
+
+    unless @statuses == [""]
+      conditions << "reviews.status in (:statuses)"
+      values[:statuses]=@statuses
     end
+    unless @severities == [""]
+      conditions << "reviews.severity in (:severities)"
+      values[:severities]=@severities
+    end
+    unless @review_authors == [""]
+      conditions << "reviews.user_id in (:review_authors)"
+      values[:review_authors]=@review_authors
+    end
+    unless @comment_authors == [""]
+      conditions << "review_comments.user_id in (:comment_authors)"
+      values[:comment_authors]=@comment_authors
+    end
+
+    @reviews = Review.find( :all, :order => "created_at DESC", :joins => :review_comments, :conditions => [ conditions.join(" AND "), values] ).uniq
   end
-  
+
   def find_reviews_for_rule_failure ( rule_failure_id )
     return Review.find :all, :conditions => ['rule_failure_id=?', rule_failure_id]
   end
-  
+
   def has_rights_to_create? ( rule_failure_id )
     return false unless current_user
-    
+
     project = RuleFailure.find( rule_failure_id, :include => ['snapshot'] ).snapshot.root_project
     unless has_role?(:user, project)
       return false
     end
     return true
   end
-  
+
   def error_not_post
     render :text => "Create actions must use POST method."
   end
-  
+
 end
