@@ -22,6 +22,7 @@ package org.sonar.api.resources;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
@@ -36,14 +37,27 @@ public final class InputFileUtils {
 
   /**
    * @param inputFiles not nullable
-   * @return not null collection
+   * @return not null list
    */
-  public static Collection<java.io.File> toFiles(Collection<InputFile> inputFiles) {
-    Collection<java.io.File> files = Lists.newArrayList();
+  public static List<java.io.File> toFiles(Collection<InputFile> inputFiles) {
+    List<java.io.File> files = Lists.newArrayList();
     for (InputFile inputFile : inputFiles) {
       files.add(inputFile.getFile());
     }
     return files;
+  }
+
+  /**
+   * Extract the directory from relative path. Examples :
+   * - returns "org/foo" when relative path is "org/foo/Bar.java"
+   * - returns "" when relative path is "Bar.java"
+   */
+  public static String getRelativeDirectory(InputFile inputFile) {
+    String relativePath = inputFile.getRelativePath();
+    if (StringUtils.contains(relativePath, "/")) {
+      return StringUtils.substringBeforeLast(relativePath, "/");
+    }
+    return "";
   }
 
   /**
@@ -62,6 +76,20 @@ public final class InputFileUtils {
    */
   public static InputFile create(java.io.File basedir, String relativePath) {
     return new DefaultInputFile(basedir, relativePath);
+  }
+
+  /**
+   * For internal and for testing purposes. Please use the FileSystem component to access files.
+   */
+  public static List<InputFile> create(java.io.File basedir, Collection<java.io.File> files) {
+    List<InputFile> inputFiles = Lists.newArrayList();
+    for (File file : files) {
+      InputFile inputFile = create(basedir, file);
+      if (inputFile != null) {
+        inputFiles.add(inputFile);
+      }
+    }
+    return inputFiles;
   }
 
   static String getRelativePath(java.io.File basedir, java.io.File file) {
