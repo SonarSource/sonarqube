@@ -29,7 +29,7 @@ class ReviewsController < ApplicationController
     
     @reviews = []
     unless params.blank?
-      @reviews = Review.find :all, :conditions => ['status=?', @statuses]
+      findReviewsForUserQuery
     end
   end
   
@@ -98,22 +98,54 @@ class ReviewsController < ApplicationController
   private
   
   def init_params
-    users = User.find :all
     @user_names = [["Any", ""]]
-    users.each do |user|
+    default_user = [""]
+    if current_user 
+      @user_names << ["Me", current_user.id]
+      default_user = [current_user.id]
+    end
+    User.find( :all ).each do |user|
       @user_names << [user.name, user.id.to_s]
     end
-    @review_authors = filter_any(params[:review_authors]) || [""]
-    @comment_authors = filter_any(params[:comment_authors]) || [""]
+    @review_authors = filter_any(params[:review_authors]) || default_user
+    @comment_authors = filter_any(params[:comment_authors]) || default_user
     @severities = filter_any(params[:severities]) || [""]
     @statuses = filter_any(params[:statuses]) || ["open"]
   end
   
   def filter_any(array)
-    if array && array.size>1 && array.include?('')
-      array=['']  #keep only 'any'
+    if array && array.size>1 && array.include?("")
+      array=[""]
     end
     array
+  end
+  
+  def findReviewsForUserQuery
+    @conditions=""
+    @values=[]
+    @need_and = false;
+    @need_or = false;
+    add_sql_query_param "status", @statuses
+    add_sql_query_param "severity", @severities
+    add_sql_query_param "user_id", @review_authors
+    
+    @reviews = Review.find :all, :conditions => [@conditions] + @values
+  end
+  
+  def add_sql_query_param ( field, search_params )
+    unless search_params == [""]
+      @conditions += " AND" if @need_and
+      @conditions += "("
+      search_params.each do |search_param|
+        @conditions += " OR" if @need_or
+        @conditions += " " + field + "=?"
+        @values << search_param
+        @need_or = true
+      end
+      @conditions += ")"
+      @need_or = false;
+      @need_and = true;
+    end
   end
   
   def findReviewsForRuleFailure ( rule_failure_id )
