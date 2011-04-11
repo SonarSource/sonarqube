@@ -127,9 +127,10 @@ class ReviewsController < ApplicationController
     @need_or = false;
     add_sql_query_param "status", @statuses
     add_sql_query_param "severity", @severities
-    add_sql_query_param "user_id", @review_authors
+    add_sql_query_param "reviews.user_id", @review_authors
+    add_sql_query_param "review_comments.user_id", @comment_authors
     
-    @reviews = Review.find :all, :conditions => [@conditions] + @values
+    @reviews = Review.find( :all, :order => "created_at DESC", :joins => :review_comments, :conditions => [@conditions] + @values ).uniq
   end
   
   def add_sql_query_param ( field, search_params )
