@@ -29,12 +29,12 @@ class ReviewsController < ApplicationController
     
     @reviews = []
     unless params.blank?
-      findReviewsForUserQuery
+      find_reviews_for_user_query
     end
   end
   
   def list
-    reviews = findReviewsForRuleFailure params[:rule_failure_id]
+    reviews = find_reviews_for_rule_failure params[:rule_failure_id]
     render :partial => "list", :locals => { :reviews => reviews }
   end
   
@@ -58,7 +58,7 @@ class ReviewsController < ApplicationController
   end
   
   def create
-    unless hasRightsToCreate? params[:review][:rule_failure_id]
+    unless has_rights_to_create? params[:review][:rule_failure_id]
       render :text => "<b>Cannot create the review</b> : access denied."
       return
     end
@@ -72,13 +72,13 @@ class ReviewsController < ApplicationController
     @review.review_comments << @review_comment
     if @review.valid?
       @review.save
-      @reviews = findReviewsForRuleFailure @review.rule_failure_id
+      @reviews = find_reviews_for_rule_failure @review.rule_failure_id
     end
     render "create_result"
   end
   
   def create_comment
-    unless hasRightsToCreate? params[:rule_failure_id]
+    unless has_rights_to_create? params[:rule_failure_id]
       render :text => "<b>Cannot create the comment</b> : access denied."
       return
     end
@@ -88,7 +88,7 @@ class ReviewsController < ApplicationController
       @rule_failure_id = params[:rule_failure_id]
       if @review_comment.valid?
       @review_comment.save
-      @reviews = findReviewsForRuleFailure @rule_failure_id
+      @reviews = find_reviews_for_rule_failure @rule_failure_id
     end
       render "create_comment_result"
   end
@@ -120,7 +120,7 @@ class ReviewsController < ApplicationController
     array
   end
   
-  def findReviewsForUserQuery
+  def find_reviews_for_user_query
     @conditions=""
     @values=[]
     @need_and = false;
@@ -149,11 +149,11 @@ class ReviewsController < ApplicationController
     end
   end
   
-  def findReviewsForRuleFailure ( rule_failure_id )
+  def find_reviews_for_rule_failure ( rule_failure_id )
     return Review.find :all, :conditions => ['rule_failure_id=?', rule_failure_id]
   end
   
-  def hasRightsToCreate? ( rule_failure_id )
+  def has_rights_to_create? ( rule_failure_id )
     return false unless current_user
     
     project = RuleFailure.find( rule_failure_id, :include => ['snapshot'] ).snapshot.root_project
