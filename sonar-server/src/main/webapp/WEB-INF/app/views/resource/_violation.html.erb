@@ -10,7 +10,7 @@
     
       <td width="30px" valign="top">
       	<% if current_user && violation.reviews.blank? %>
-          <%= link_to_remote image_tag("add.png"),  
+          <%= link_to_remote image_tag("reviews/add.png"),  
         		:url => { :controller => "reviews", :action => "form", :violation_id => violation.id },
         		:update => "reviewFailure" + violation.id.to_s,
         		:html => { :id => "createReviewLink" + violation.id.to_s },
