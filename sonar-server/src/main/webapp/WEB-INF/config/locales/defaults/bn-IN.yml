@@ -67,34 +67,34 @@ bn-IN:
       half_a_minute: "অার্ধেক মিনিট" 
       less_than_x_seconds:
         one:  "১ সেকেন্ডর কম " 
-        other: "{{count}} সেকেন্ডের কম"
+        other: "%{count} সেকেন্ডের কম"
       x_seconds:
         one:  "১ সেকেন্ড" 
-        other: "{{count}} সেকেন্ড" 
+        other: "%{count} সেকেন্ড" 
       less_than_x_minutes:
         one:  "১ মিনিটের কম" 
-        other: "{{count}} মিনিটের কম" 
+        other: "%{count} মিনিটের কম" 
       x_minutes:
         one:  "১ মিনিট" 
-        other: "{{count}} মিনিট" 
+        other: "%{count} মিনিট" 
       about_x_hours:
         one:  "প্রায় ১ ঘন্টা" 
-        other: "প্রায় {{count}} ঘন্টা" 
+        other: "প্রায় %{count} ঘন্টা" 
       x_days:
         one:  "১ দিন" 
-        other: "{{count}} দিন" 
+        other: "%{count} দিন" 
       about_x_months:
         one:  "প্রায় ১ মাস" 
-        other: "প্রায় {{count}} মাস" 
+        other: "প্রায় %{count} মাস" 
       x_months:
         one:  "১ মাস" 
-        other: "{{count}} মাস" 
+        other: "%{count} মাস" 
       about_x_years:
         one:  "প্রায় ১ বছর" 
-        other: "প্রায় {{count}} বছর" 
+        other: "প্রায় %{count} বছর" 
       over_x_years:
         one:  "১ বছরের বেশি" 
-        other: "{{count}} বছরের বেশি"
+        other: "%{count} বছরের বেশি"
     prompts:
       year:   "বছর"
       month:  "মাস"
@@ -107,8 +107,8 @@ bn-IN:
     errors:
       template:
         header:
-          one:   "১ টি ত্রুটির কারনে {{model}} সংরক্ষন করা সম্ভব হয়নি" 
-          other:  "{{count}} টি ত্রুটির কারনে {{model}} সংরক্ষন করা সম্ভব হয়নি" 
+          one:   "১ টি ত্রুটির কারনে %{model} সংরক্ষন করা সম্ভব হয়নি" 
+          other:  "%{count} টি ত্রুটির কারনে %{model} সংরক্ষন করা সম্ভব হয়নি" 
         # The variable :count is also available
         body: "এই ফিল্ডগুলোতে কিছু সমস্যা দেখা দিয়েছে:" 
 
@@ -122,16 +122,16 @@ bn-IN:
         accepted: "গ্রাহ্য করতে হবে"
         empty: "খালি রাখা যাবে না"
         blank: "ফাঁকা রাখা যাবে না"
-        too_long: "খুব বড়ো (সর্বোচ্চ {{count}} অক্ষর)"
-        too_short: "খুব ছোটো (সর্বনিম্ন {{count}} অক্ষর)"
-        wrong_length: "দৈর্ঘ্যটি সঠিক নয় ({{count}} অক্ষর হতে হবে)"
+        too_long: "খুব বড়ো (সর্বোচ্চ %{count} অক্ষর)"
+        too_short: "খুব ছোটো (সর্বনিম্ন %{count} অক্ষর)"
+        wrong_length: "দৈর্ঘ্যটি সঠিক নয় (%{count} অক্ষর হতে হবে)"
         taken: "অাগেই নিয়ে নেওয়া হয়েছে"
         not_a_number: "নম্বর নয়"
-        greater_than: "{{count}} থেকে বড়ো হতে হবে"
-        greater_than_or_equal_to: "{{count}} থেকে বড়ো অথবা তার সমান হতে হবে"
-        equal_to: "{{count}} এর সঙ্গে সমান হতে হবে"
-        less_than: "{{count}} থেকে ছোটো হতে হবে"
-        less_than_or_equal_to: "{{count}} থেকে ছোটো অথবা তার সমান হতে হবে"
+        greater_than: "%{count} থেকে বড়ো হতে হবে"
+        greater_than_or_equal_to: "%{count} থেকে বড়ো অথবা তার সমান হতে হবে"
+        equal_to: "%{count} এর সঙ্গে সমান হতে হবে"
+        less_than: "%{count} থেকে ছোটো হতে হবে"
+        less_than_or_equal_to: "%{count} থেকে ছোটো অথবা তার সমান হতে হবে"
         odd: "বেজোড় হতে হবে"
         even: "জোড় হতে হবে"
 
@@ -159,7 +159,10 @@ bn-IN:
     month_names: [~, জানুয়ারি, ফেব্রুয়ারি, মার্চ, এপ্রিল, মে, জুন, জুলাই, অগাস্ট, সেপ্টেমবার, অক্টোবার, নভেম্বার, ডিসেম্বার]
     abbr_month_names: [~, জানুয়ারি, ফেব্রুয়ারি, মার্চ, এপ্রিল, মে, জুন, জুলাই, অগাস্ট, সেপ্টেমবার, অক্টোবার, নভেম্বার, ডিসেম্বার]
     # Used in date_select and datime_select.
-    order: [ :year, :month, :day ]
+    order:
+      - :year
+      - :month
+      - :day
 
   time:
     formats:

@@ -47,6 +47,18 @@ ca:
         # separator: 
         delimiter: "" 
         precision: 1
+      storage_units:
+        # Storage units output formatting.
+        # %u is the storage unit, %n is the number (default: 2 MB)
+        format: "%n %u"
+        units:
+          byte:
+            one:   "Byte"
+            other: "Bytes"
+          kb: "KB"
+          mb: "MB"
+          gb: "GB"
+          tb: "TB"
  
   # Used in distance_of_time_in_words(), distance_of_time_in_words_to_now(), time_ago_in_words()
   datetime:
@@ -54,41 +66,41 @@ ca:
       half_a_minute: "mig minut" 
       less_than_x_seconds:
         one:  "menys d'1 segon" 
-        other: "menys de {{count}} segons"
+        other: "menys de %{count} segons"
       x_seconds:
         one:  "1 segon" 
-        other: "{{count}} segons" 
+        other: "%{count} segons" 
       less_than_x_minutes:
         one:  "menys d'1 minut" 
-        other: "menys de {{count}} minuts" 
+        other: "menys de %{count} minuts" 
       x_minutes:
         one:  "1 minut" 
-        other: "{{count}} minuts" 
+        other: "%{count} minuts" 
       about_x_hours:
         one:  "aproximadament 1 hora" 
-        other: "aproximadament {{count}} hores" 
+        other: "aproximadament %{count} hores" 
       x_days:
         one:  "1 dia" 
-        other: "{{count}} dies" 
+        other: "%{count} dies" 
       about_x_months:
         one:  "aproximadament 1 mes" 
-        other: "aproximadament {{count}} mesos" 
+        other: "aproximadament %{count} mesos" 
       x_months:
         one:  "1 mes" 
-        other: "{{count}} mesos" 
+        other: "%{count} mesos" 
       about_x_years:
         one:  "aproximadament 1 any" 
-        other: "aproximadament {{count}} anys" 
+        other: "aproximadament %{count} anys" 
       over_x_years:
         one:  "més d'1 any" 
-        other: "més de {{count}} anys" 
+        other: "més de %{count} anys" 
  
   activerecord:
     errors:
       template:
         header:
-          one:   "No s'ha pogut desar aquest/a {{model}} perquè hi ha 1 error" 
-          other:  "No s'ha pogut desar aquest/a {{model}} perquè hi ha hagut {{count}} errors" 
+          one:   "No s'ha pogut desar aquest/a %{model} perquè hi ha 1 error" 
+          other:  "No s'ha pogut desar aquest/a %{model} perquè hi ha hagut %{count} errors" 
         # The variable :count is also available
         body: "Hi ha hagut problemes amb els següents camps:" 
  
@@ -102,16 +114,16 @@ ca:
         accepted: "ha de ser acceptat"
         empty: "no pot estar buit"
         blank: "no pot estar en blanc"
-        too_long: "és massa llarg ({{count}} caràcters màxim)"
-        too_short: "és massa curt ({{count}} caràcters mínim)"
-        wrong_length: "no té la longitud correcte ({{count}} caràcters exactament)"
+        too_long: "és massa llarg (%{count} caràcters màxim)"
+        too_short: "és massa curt (%{count} caràcters mínim)"
+        wrong_length: "no té la longitud correcte (%{count} caràcters exactament)"
         taken: "no està disponible"
         not_a_number: "no és un número"
-        greater_than: "ha de ser més gran que {{count}}"
-        greater_than_or_equal_to: "ha de ser més gran o igual a {{count}}"
-        equal_to: "ha de ser igual a {{count}}"
-        less_than: "ha de ser menor que {{count}}"
-        less_than_or_equal_to: "ha de ser menor o igual a {{count}}"
+        greater_than: "ha de ser més gran que %{count}"
+        greater_than_or_equal_to: "ha de ser més gran o igual a %{count}"
+        equal_to: "ha de ser igual a %{count}"
+        less_than: "ha de ser menor que %{count}"
+        less_than_or_equal_to: "ha de ser menor o igual a %{count}"
         odd: "ha de ser imparell"
         even: "ha de ser parell"
  
@@ -139,7 +151,10 @@ ca:
     month_names: [~, gener, febrer, març, abril, maig, juny, juliol, agost, setembre, octubre, novembre, desembre]
     abbr_month_names: [~, Gen, Feb, Mar, Abr, Mai, Jun, Jul, Ago, Set, Oct, Nov, Des]
     # Used in date_select and datime_select.
-    order: [ :day, :month, :year ]
+    order:
+      - :day
+      - :month
+      - :year
  
   time:
     formats:

@@ -1,0 +1,2 @@
+1. Clone rails-i18n from https://github.com/svenfuchs/rails-i18n
+2. Copy rails/locale/* to webapp/WEB-INF/config/locales/defaults

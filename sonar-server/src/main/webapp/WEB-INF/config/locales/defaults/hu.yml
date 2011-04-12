@@ -14,7 +14,10 @@
     abbr_day_names: [v., h., k., sze., cs., p., szo.]
     month_names: [~, január, február, március, április, május, június, július, augusztus, szeptember, október, november, december]
     abbr_month_names: [~, jan., febr., márc., ápr., máj., jún., júl., aug., szept., okt., nov., dec.]
-    order: [ :year, :month, :day ]
+    order:
+      - :year
+      - :month
+      - :day
 
   time:
     formats:
@@ -30,35 +33,38 @@
       less_than_x_seconds:
 #        zero: 'kevesebb, mint 1 másodperc'
         one: 'kevesebb, mint 1 másodperc'
-        other: 'kevesebb, mint {{count}} másodperc'
+        other: 'kevesebb, mint %{count} másodperc'
       x_seconds:
         one: '1 másodperc'
-        other: '{{count}} másodperc'
+        other: '%{count} másodperc'
       less_than_x_minutes:
 #        zero: 'kevesebb, mint 1 perc'
         one: 'kevesebb, mint 1 perc'
-        other: 'kevesebb, mint {{count}} perc'
+        other: 'kevesebb, mint %{count} perc'
       x_minutes:
         one: '1 perc'
-        other: '{{count}} perc'
+        other: '%{count} perc'
       about_x_hours:
-        one: 'majdnem 1 óra'
-        other: 'majdnem {{count}} óra'
+        one: 'kb 1 óra'
+        other: 'kb %{count} óra'
       x_days:
         one: '1 nap'
-        other: '{{count}} nap'
+        other: '%{count} nap'
       about_x_months:
-        one: 'majdnem 1 hónap'
-        other: 'majdnem {{count}} hónap'
+        one: 'kb 1 hónap'
+        other: 'kb %{count} hónap'
       x_months:
         one: '1 hónap'
-        other: '{{count}} hónap'
+        other: '%{count} hónap'
       about_x_years:
-        one: 'majdnem 1 év'
-        other: 'majdnem {{count}} év'
+        one: 'kb 1 év'
+        other: 'kb %{count} év'
       over_x_years:
         one: 'több, mint 1 év'
-        other: 'több, mint {{count}} év'
+        other: 'több, mint %{count} év'
+      almost_x_years:
+        one:   "majdnem 1 év"
+        other: "majdnem %{count} év"
     prompts:
       year:   "Év"
       month:  "Hónap"
@@ -89,21 +95,23 @@
       format:
         delimiter: ""
         precision: 1
-      storage_units: [bájt, KB, MB, GB, TB]
+      storage_units:
+        format: "%n %u"
+        units:
+          byte:
+            one:   "bájt"
+            other: "bájt"
+          kb: "KB"
+          mb: "MB"
+          gb: "GB"
+          tb: "TB"
 
-  support:
-    array:
-#      sentence_connector: "és"
-#      skip_last_comma: true
-      words_connector: ", "
-      two_words_connector: " és "
-      last_word_connector: " és "
   activerecord:
     errors:
       template:
         header:
-          one: "1 hiba miatt nem menthető a következő: {{model}}"
-          other: "{{count}} hiba miatt nem menthető a következő: {{model}}"
+          one: "1 hiba miatt nem menthető a következő: %{model}"
+          other: "%{count} hiba miatt nem menthető a következő: %{model}"
         body: "Problémás mezők:"
       messages:
         inclusion: "nincs a listában"
@@ -113,15 +121,27 @@
         accepted: "nincs elfogadva"
         empty: "nincs megadva"
         blank: "nincs megadva"
-        too_long: "túl hosszú (nem lehet több {{count}} karakternél)"
-        too_short: "túl rövid (legalább {{count}} karakter kell legyen)"
-        wrong_length: "nem megfelelő hosszúságú ({{count}} karakter szükséges)"
+        too_long: "túl hosszú (nem lehet több %{count} karakternél)"
+        too_short: "túl rövid (legalább %{count} karakter kell legyen)"
+        wrong_length: "nem megfelelő hosszúságú (%{count} karakter szükséges)"
         taken: "már foglalt"
         not_a_number: "nem szám"
-        greater_than: "nagyobb kell legyen, mint {{count}}"
-        greater_than_or_equal_to: "legalább {{count}} kell legyen"
-        equal_to: "pontosan {{count}} kell legyen"
-        less_than: "kevesebb, mint {{count}} kell legyen"
-        less_than_or_equal_to: "legfeljebb {{count}} lehet"
+        greater_than: "nagyobb kell legyen, mint %{count}"
+        greater_than_or_equal_to: "legalább %{count} kell legyen"
+        equal_to: "pontosan %{count} kell legyen"
+        less_than: "kevesebb, mint %{count} kell legyen"
+        less_than_or_equal_to: "legfeljebb %{count} lehet"
         odd: "páratlan kell legyen"
         even: "páros kell legyen"
+        record_invalid: "Sikertelen validálás %{errors}"
+
+  support:
+    array:
+#      sentence_connector: "és"
+#      skip_last_comma: true
+      words_connector: ", "
+      two_words_connector: " és "
+      last_word_connector: " és "
+    select:
+      # default value for :prompt => true in FormOptionsHelper
+      prompt: "Válasszon"

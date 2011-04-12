@@ -13,7 +13,10 @@
     abbr_day_names: [Нед, Пон, Уто, Сре, Чет, Пет, Суб]
     month_names: [~, Јануар, Фабруар, Март, Април, Мај, Јун, Јул, Август, Септембар, Октобар, Новембар, Децембар]
     abbr_month_names: [~, Јан, Феб, Мар, Апр, Мај, Јун, Јул, Авг, Сеп, Окт, Нов, Дец]
-    order: [ :day, :month, :year ]
+    order:
+      - :day
+      - :month
+      - :year
 
   time:
     formats:
@@ -36,40 +39,40 @@
       less_than_x_seconds:
         zero: 'мање од 1 секунде'
         one: 'мање од 1 секунд'
-        few: 'мање од {{count}} секунде'
-        other: 'мање од {{count}} секунди'
+        few: 'мање од %{count} секунде'
+        other: 'мање од %{count} секунди'
       x_seconds:
         one: '1 секунда'
-        few: '{{count}} секунде'
-        other: '{{count}} секунди'
+        few: '%{count} секунде'
+        other: '%{count} секунди'
       less_than_x_minutes:
         zero: 'мање од минута'
         one: 'мање од 1 минут'
-        other: 'мање од {{count}} минута'
+        other: 'мање од %{count} минута'
       x_minutes:
         one: '1 минут'
-        other: '{{count}} минута'
+        other: '%{count} минута'
       about_x_hours:
         one: 'око 1 сат'
-        few: 'око {{count}} сата'
-        other: 'око {{count}} сати'
+        few: 'око %{count} сата'
+        other: 'око %{count} сати'
       x_days:
         one: '1 дан'
-        other: '{{count}} дана'
+        other: '%{count} дана'
       about_x_months:
         one: 'око 1 месец'
-        few: 'око {{count}} месеца'
-        other: 'око {{count}} месеци'
+        few: 'око %{count} месеца'
+        other: 'око %{count} месеци'
       x_months:
         one: '1 месец'
-        few: '{{count}} месеца'
-        other: '{{count}} месеци'
+        few: '%{count} месеца'
+        other: '%{count} месеци'
       about_x_years:
         one: 'око 1 године'
-        other: 'око {{count}} године'
+        other: 'око %{count} године'
       over_x_years:
         one: 'преко 1 године'
-        other: 'преко {{count}} године'
+        other: 'преко %{count} године'
 
   number:
     format:
@@ -90,9 +93,9 @@
     errors:
       template:
         header:
-          one: 'Нисам успео сачувати {{model}}: 1 грешка.'
-          few: 'Нисам успео сачувати {{model}}: {{count}} грешке.'
-          other: 'Нисам успео сачувати {{model}}: {{count}} грешки.'
+          one: 'Нисам успео сачувати %{model}: 1 грешка.'
+          few: 'Нисам успео сачувати %{model}: %{count} грешке.'
+          other: 'Нисам успео сачувати %{model}: %{count} грешки.'
         body: "Молим Вас да проверите следећа поља:"
       messages:
         inclusion: "није у листи"
@@ -102,15 +105,15 @@
         accepted: "мора бити прихваћено"
         empty: "мора бити дат"
         blank: "мора бити дат"
-        too_long: "је предугачак (не више од {{count}} карактера)"
-        too_short: "је прекратак (не мање од {{count}} карактера)"
-        wrong_length: "није одговарајуће дужине (мора имати {{count}} карактера)"
+        too_long: "је предугачак (не више од %{count} карактера)"
+        too_short: "је прекратак (не мање од %{count} карактера)"
+        wrong_length: "није одговарајуће дужине (мора имати %{count} карактера)"
         taken: "је заузето"
         not_a_number: "није број"
-        greater_than: "мора бити веће од {{count}}"
-        greater_than_or_equal_to: "мора бити веће или једнако {{count}}"
-        equal_to: "кора бити једнако {{count}}"
-        less_than: "мора бити мање од {{count}}"
-        less_than_or_equal_to: "мора бити мање или једнако {{count}}"
+        greater_than: "мора бити веће од %{count}"
+        greater_than_or_equal_to: "мора бити веће или једнако %{count}"
+        equal_to: "кора бити једнако %{count}"
+        less_than: "мора бити мање од %{count}"
+        less_than_or_equal_to: "мора бити мање или једнако %{count}"
         odd: "мора бити непарно"
         even: "мора бити парно"

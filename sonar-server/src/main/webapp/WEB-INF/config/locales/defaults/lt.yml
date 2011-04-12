@@ -28,41 +28,52 @@ lt:
       format:
         delimiter: ""
         precision: 1
-      storage_units: [baitai, KB, MB, GB, TB]
+      storage_units:
+        # Storage units output formatting.
+        # %u is the storage unit, %n is the number (default: 2 MB)
+        format: "%n %u"
+        units:
+          byte:
+            one:   "Baitas"
+            other: "Baitai"
+          kb: "KB"
+          mb: "MB"
+          gb: "GB"
+          tb: "TB"
 
   datetime:
     distance_in_words:
       half_a_minute: "pusė minutės"
       less_than_x_seconds:
         one:   "mažiau nei 1 sekundė"
-        other: "mažiau nei {{count}} sekundės"
+        other: "mažiau nei %{count} sekundės"
       x_seconds:
         one:   "1 sekundė"
-        other: "{{count}} sekundės"
+        other: "%{count} sekundės"
       less_than_x_minutes:
         one:   "mažiau nei minutė"
-        other: "mažiau nei {{count}} minutės"
+        other: "mažiau nei %{count} minutės"
       x_minutes:
         one:   "1 minutė"
-        other: "{{count}} minutės"
+        other: "%{count} minutės"
       about_x_hours:
         one:   "apie 1 valanda"
-        other: "apie {{count}} valandų"
+        other: "apie %{count} valandų"
       x_days:
         one:   "1 diena"
-        other: "{{count}} dienų"
+        other: "%{count} dienų"
       about_x_months:
         one:   "apie 1 mėnuo"
-        other: "apie {{count}} mėnesiai"
+        other: "apie %{count} mėnesiai"
       x_months:
         one:   "1 mėnuo"
-        other: "{{count}} mėnesiai"
+        other: "%{count} mėnesiai"
       about_x_years:
         one:   "apie 1 metai"
-        other: "apie {{count}} metų"
+        other: "apie %{count} metų"
       over_x_years:
         one:   "virš 1 metų"
-        other: "virš {{count}} metų"
+        other: "virš %{count} metų"
     prompts:
       year:   "Metai"
       month:  "Mėnuo"
@@ -75,8 +86,8 @@ lt:
     errors:
       template:
         header:
-          one:    "Išsaugant objektą {{model}} rasta klaida"
-          other:  "Išsaugant objektą {{model}} rastos {{count}} klaidos"
+          one:    "Išsaugant objektą %{model} rasta klaida"
+          other:  "Išsaugant objektą %{model} rastos %{count} klaidos"
         body: "Šiuose laukuose yra klaidų:"
 
       messages:
@@ -87,16 +98,16 @@ lt:
         accepted: "turi būti patvirtintas"
         empty: "negali būti tuščias"
         blank: "negali būti tuščias"
-        too_long: "per ilgas (daugiausiai {{count}} simboliai)"
-        too_short: "per trumpas (mažiausiai {{count}} simboliai)"
-        wrong_length: "neteisingo ilgio (turi būti {{count}} simboliai)"
+        too_long: "per ilgas (daugiausiai %{count} simboliai)"
+        too_short: "per trumpas (mažiausiai %{count} simboliai)"
+        wrong_length: "neteisingo ilgio (turi būti %{count} simboliai)"
         taken: "jau užimtas"
         not_a_number: "ne skaičius"
-        greater_than: "turi būti didesnis už {{count}}"
-        greater_than_or_equal_to: "turi būti didesnis arba lygus {{count}}"
-        equal_to: "turi būti lygus {{count}}"
-        less_than: "turi būti mažesnis už {{count}}"
-        less_than_or_equal_to: "turi būti mažesnis arba lygus {{count}}"
+        greater_than: "turi būti didesnis už %{count}"
+        greater_than_or_equal_to: "turi būti didesnis arba lygus %{count}"
+        equal_to: "turi būti lygus %{count}"
+        less_than: "turi būti mažesnis už %{count}"
+        less_than_or_equal_to: "turi būti mažesnis arba lygus %{count}"
         odd: "turi būti nelyginis"
         even: "turi būti lyginis"
     
@@ -113,7 +124,10 @@ lt:
       
     month_names: [~, sausio, vasario, kovo, balandžio, gegužės, birželio, liepos, rugpjūčio, rugsėjo, spalio, lapkričio, gruodžio]
     abbr_month_names: [~, Sau, Vas, Kov, Bal, Geg, Bir, Lie, Rgp, Rgs, Spa, Lap, Grd]
-    order: [ :year, :month, :day ]
+    order:
+      - :year
+      - :month
+      - :day
 
   time:
     formats:

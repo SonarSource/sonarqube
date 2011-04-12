@@ -68,34 +68,34 @@ vi:
       half_a_minute: "30 giây"
       less_than_x_seconds:
         one:   "chưa tới 1 giây"
-        other: "chưa tới {{count}} giây"
+        other: "chưa tới %{count} giây"
       x_seconds:
         one:   "1 giây"
-        other: "{{count}} giây"
+        other: "%{count} giây"
       less_than_x_minutes:
         one:   "chưa tới 1 phút"
-        other: "chưa tới {{count}} phút"
+        other: "chưa tới %{count} phút"
       x_minutes:
         one:   "1 phút"
-        other: "{{count}} phút"
+        other: "%{count} phút"
       about_x_hours:
         one:   "khoảng 1 giờ"
-        other: "khoảng {{count}} giờ"
+        other: "khoảng %{count} giờ"
       x_days:
         one:   "1 ngày"
-        other: "{{count}} ngày"
+        other: "%{count} ngày"
       about_x_months:
         one:   "khoảng 1 tháng"
-        other: "khoảng {{count}} tháng"
+        other: "khoảng %{count} tháng"
       x_months:
         one:   "1 tháng"
-        other: "{{count}} tháng"
+        other: "%{count} tháng"
       about_x_years:
         one:   "khoảng 1 năm"
-        other: "khoảng {{count}} năm"
+        other: "khoảng %{count} năm"
       over_x_years:
         one:   "hơn 1 năm"
-        other: "hơn {{count}} năm"
+        other: "hơn %{count} năm"
     prompts:
       year:   "Năm"
       month:  "Tháng"
@@ -108,8 +108,8 @@ vi:
     errors:
       template:
         header:
-          one:   "1 lỗi ngăn không cho lưu {{model}} này"
-          other: "{{count}} lỗi ngăn không cho lưu {{model}} này"
+          one:   "1 lỗi ngăn không cho lưu %{model} này"
+          other: "%{count} lỗi ngăn không cho lưu %{model} này"
         # The variable :count is also available
         body: "Có lỗi với các mục sau:"
 
@@ -123,16 +123,16 @@ vi:
         accepted: "phải được đồng ý"
         empty: "không thể rỗng"
         blank: "không thể để trắng"
-        too_long: "quá dài (tối đa {{count}} ký tự)"
-        too_short: "quá ngắn (tối thiểu {{count}} ký tự)"
-        wrong_length: "độ dài không đúng (phải là {{count}} ký tự)"
+        too_long: "quá dài (tối đa %{count} ký tự)"
+        too_short: "quá ngắn (tối thiểu %{count} ký tự)"
+        wrong_length: "độ dài không đúng (phải là %{count} ký tự)"
         taken: "đã có"
         not_a_number: "không phải là số"
-        greater_than: "phải lớn hơn {{count}}"
-        greater_than_or_equal_to: "phải lớn hơn hoặc bằng {{count}}"
-        equal_to: "phải bằng {{count}}"
-        less_than: "phải nhỏ hơn {{count}}"
-        less_than_or_equal_to: "phải nhỏ hơn hoặc bằng {{count}}"
+        greater_than: "phải lớn hơn %{count}"
+        greater_than_or_equal_to: "phải lớn hơn hoặc bằng %{count}"
+        equal_to: "phải bằng %{count}"
+        less_than: "phải nhỏ hơn %{count}"
+        less_than_or_equal_to: "phải nhỏ hơn hoặc bằng %{count}"
         odd: "phải là số chẵn"
         even: "phải là số lẻ"
         # Append your own errors here or at the model/attributes scope.
@@ -143,7 +143,7 @@ vi:
       # For example,
       #   models:
       #     user:
-      #       blank: "This is a custom blank message for {{model}}: {{attribute}}"
+      #       blank: "This is a custom blank message for %{model}: %{attribute}"
       #       attributes:
       #         login:
       #           blank: "This is a custom blank message for User login"
@@ -180,7 +180,10 @@ vi:
     month_names: [~, "Tháng một", "Tháng hai", "Tháng ba", "Tháng tư", "Tháng năm", "Tháng sáu", "Tháng bảy", "Tháng tám", "Tháng chín", "Tháng mười", "Tháng mười một", "Tháng mười hai"]
     abbr_month_names: [~, "Tháng một", "Tháng hai", "Tháng ba", "Tháng tư", "Tháng năm", "Tháng sáu", "Tháng bảy", "Tháng tám", "Tháng chín", "Tháng mười", "Tháng mười một", "Tháng mười hai"]
     # Used in date_select and datime_select.
-    order: [ :day, :month, :year ]
+    order:
+      - :day
+      - :month
+      - :year
 
   time:
     formats:

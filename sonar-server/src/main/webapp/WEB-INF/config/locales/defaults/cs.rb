@@ -1,7 +1,7 @@
 # Czech translations for Ruby on Rails 
 # by Karel Minařík (karmi@karmi.cz)
 
-{ :'cz' => {
+{ :'cs' => {
 
     # ActiveSupport
     :support => {
@@ -88,43 +88,43 @@
         :half_a_minute => 'půl minutou',
         :less_than_x_seconds => {
           :one => 'asi před sekundou',
-          :other => 'asi před {{count}} sekundami'
+          :other => 'asi před %{count} sekundami'
         },
         :x_seconds => {
           :one => 'sekundou',
-          :other => '{{count}} sekundami'
+          :other => '%{count} sekundami'
         },
         :less_than_x_minutes => {
           :one => 'před necelou minutou',
-          :other => 'před ani ne {{count}} minutami'
+          :other => 'před ani ne %{count} minutami'
         },
         :x_minutes => {
           :one => 'minutou',
-          :other => '{{count}} minutami'
+          :other => '%{count} minutami'
         },
         :about_x_hours => {
           :one => 'asi hodinou',
-          :other => 'asi {{count}} hodinami'
+          :other => 'asi %{count} hodinami'
         },
         :x_days => {
           :one => '24 hodinami',
-          :other => '{{count}} dny'
+          :other => '%{count} dny'
         },
         :about_x_months => {
           :one => 'asi měsícem',
-          :other => 'asi {{count}} měsíci'
+          :other => 'asi %{count} měsíci'
         },
         :x_months => {
           :one => 'měsícem',
-          :other => '{{count}} měsíci'
+          :other => '%{count} měsíci'
         },
         :about_x_years => {
           :one => 'asi rokem',
-          :other => 'asi {{count}} roky'
+          :other => 'asi %{count} roky'
         },
         :over_x_years => {
           :one => 'více než před rokem',
-          :other => 'více než {{count}} roky'
+          :other => 'více než %{count} roky'
         }
       }
     },
@@ -140,23 +140,23 @@
           :accepted            => "musí být potvrzeno",
           :empty               => "nesmí být prázdný/é",
           :blank               => "je povinná položka", # alternate formulation: "is required"
-          :too_long            => "je příliš dlouhá/ý (max. {{count}} znaků)",
-          :too_short           => "je příliš krátký/á (min. {{count}} znaků)",
-          :wrong_length        => "nemá správnou délku (očekáváno {{count}} znaků)",
+          :too_long            => "je příliš dlouhá/ý (max. %{count} znaků)",
+          :too_short           => "je příliš krátký/á (min. %{count} znaků)",
+          :wrong_length        => "nemá správnou délku (očekáváno %{count} znaků)",
           :taken               => "již databáze obsahuje",
           :not_a_number        => "není číslo",
-          :greater_than        => "musí být větší než {{count}}",
-          :greater_than_or_equal_to => "musí být větší nebo rovno {{count}}",
-          :equal_to            => "musí být rovno {{count}}",
-          :less_than           => "musí být méně než {{count}}",
-          :less_than_or_equal_to    => "musí být méně nebo rovno {{count}}",
+          :greater_than        => "musí být větší než %{count}",
+          :greater_than_or_equal_to => "musí být větší nebo rovno %{count}",
+          :equal_to            => "musí být rovno %{count}",
+          :less_than           => "musí být méně než %{count}",
+          :less_than_or_equal_to    => "musí být méně nebo rovno %{count}",
           :odd                 => "musí být liché číslo",
           :even                => "musí být sudé číslo"
         },
         :template => {
           :header   => {
-            :one => "Při ukládání objektu {{model}} došlo k chybám a nebylo jej možné uložit",
-            :other => "Při ukládání objektu {{model}} došlo ke {{count}} chybám a nebylo možné jej uložit"
+            :one => "Při ukládání objektu %{model} došlo k chybám a nebylo jej možné uložit",
+            :other => "Při ukládání objektu %{model} došlo ke %{count} chybám a nebylo možné jej uložit"
           },
           :body  => "Následující pole obsahují chybně vyplněné údaje:"
         }
