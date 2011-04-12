@@ -5,21 +5,18 @@
   end
 %>
 <div class="violation">
-  <table>
+  <table style="width:100%">
     <tr>
-    
-      <td width="30px" valign="top">
+      <td style="width: 30px; vertical-align: top; text-align: center;">
       	<% if current_user && violation.reviews.blank? %>
           <%= link_to_remote image_tag("reviews/+review.png"),  
         		:url => { :controller => "reviews", :action => "form", :violation_id => violation.id },
         		:update => "reviewFailure" + violation.id.to_s,
         		:html => { :id => "createReviewLink" + violation.id.to_s, :title => "Add a review" },
         		:complete => "$('reviewFailure" + violation.id.to_s + "').style.display='';$('reviewText').focus();" -%>
-          <%= link_to_remote image_tag("reviews/+false-positive.png"),  
-        		:url => { :controller => "reviews", :action => "form", :violation_id => violation.id },
-        		:update => "reviewFailure" + violation.id.to_s,
-        		:html => { :id => "createReviewLink" + violation.id.to_s, :title => "Flag as false-positive" },
-        		:complete => "$('reviewFailure" + violation.id.to_s + "').style.display='';$('reviewText').focus();" -%>
+      	<% end %>
+      	<% unless violation.reviews.blank? %>
+      	  <%= image_tag("reviews/review.png") -%>
       	<% end %>
       </td>
       
@@ -36,11 +33,16 @@
 		  <span class="violation_date"><%= duration==0 ? 'today' : "#{duration} days ago" -%></span>
 		<% end %>
 		
-		<div id="reviewFailure<%= violation.id -%>" style="display:<%= displayReviewFailureDiv -%>">
+      </td>
+    </tr>
+    
+    <tr>
+      <td colspan="2">
+		<div id="reviewFailure<%= violation.id -%>" style="margin-left: 13px; padding: 10px 5px 5px 10px; border-left: 2px solid #EFEFEF; display:<%= displayReviewFailureDiv -%>">
 		  <%= render :partial => "reviews/list", :locals => { :reviews => violation.reviews } %>
 		</div>
       </td>
-      
     </tr>
+    
   </table>
 </div>

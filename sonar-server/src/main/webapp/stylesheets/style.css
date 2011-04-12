@@ -666,12 +666,12 @@ ul.operations li img {
   font-size: 85%;
 }
 .sources2 div.violations {
-  background-color: #EFEFEF;
+  background-color: #FFFFFF; /* #EFEFEF */
   margin: 2px;
   border: 1px solid #DDD;
 }
 .sources2 div.violation {
-  background-color: #EFEFEF;
+  background-color: #FFFFFF; /* #EFEFEF */
   margin: 0;
   padding: 3px 5px;
 }
