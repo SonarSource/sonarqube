@@ -26,9 +26,8 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.database.BaseIdentifiable;
 import org.sonar.api.rules.RulePriority;
 
-import java.util.Date;
-
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name = "rule_failures")
@@ -64,6 +63,9 @@ public class RuleFailureModel extends BaseIdentifiable {
 
   @Column(name = "permanent_id", updatable = true, nullable = true)
   private Integer permanentId;
+
+  @Column(name = "switched_off", updatable = true, nullable = true)
+  private Boolean switchedOff = Boolean.FALSE;
 
   public String getMessage() {
     return message;
@@ -156,6 +158,15 @@ public class RuleFailureModel extends BaseIdentifiable {
 
   public RuleFailureModel setPermanentId(Integer i) {
     this.permanentId = i;
+    return this;
+  }
+
+  public boolean isSwitchedOff() {
+    return (switchedOff != null && switchedOff.booleanValue());
+  }
+
+  public RuleFailureModel setSwitchedOff(boolean b) {
+    this.switchedOff = b;
     return this;
   }
 
