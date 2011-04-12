@@ -1,5 +1,5 @@
 if @reviews
-  page.hide "createReviewLink" + @review.rule_failure_id.to_s
+  page.replace_html "createReviewLink" + @review.rule_failure_id.to_s, image_tag("reviews/review.png")
   page.replace_html "reviewFailure" + @review.rule_failure_id.to_s, :partial => "list", :locals => { :reviews => @reviews }
 else
   page.replace_html "reviewFailure" + @review.rule_failure_id.to_s, :partial => "form"
