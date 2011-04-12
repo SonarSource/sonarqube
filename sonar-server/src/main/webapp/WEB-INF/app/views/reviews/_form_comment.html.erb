@@ -1,10 +1,8 @@
 <% form_for :review_comment, @review_comment do |f| %>
       <%= f.hidden_field :review_id %>
-      Review by: <%= @review_comment.user.name -%>
-      <br/>
-      Comment:
-      <br/>
-      <%= f.text_area :review_text, :rows => 10, :id => "commentText" + @review_comment.review_id.to_s %>
+      <%= f.text_area :review_text, :rows => 8, 
+            :id => "commentText" + @review_comment.review_id.to_s,
+            :style => "width:100%" %>
       <br/>
       <%= submit_to_remote 'create_btn', 'Add comment', 
                      :url => { :action => 'create_comment', :rule_failure_id => @rule_failure_id } %>

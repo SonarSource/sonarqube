@@ -1,34 +1,39 @@
-  <div id="review<%= review.id -%>" style="border:solid 1px black; margin:2px">
-      User name: <%= h(review.user.name) -%>
-      <br/>
-      Status: <%= h(review.status) -%>
-      <br/>
-      Severity: <%= h(review.severity) -%>
-      <br/>
+  <div id="review<%= review.id -%>" style="margin: 5px 5px 5px 20px">
+	  <div>
+      	<b>Reviewed by <%= h(review.user.name) -%></b> - <%= l review.created_at -%>
+        <br/>
+        Status: <%= h(review.status) -%> / Severity: <%= h(review.severity) -%>      
+      </div>
       
-      <div>
+      <div style="margin: 5px 0px 0px 30px">
+        <table style="border-left:solid 3px grey">
         <% unless review.review_comments.blank? 
 		     review.review_comments.each do |review_comment|
 		%>
-		<div id="commentReview" style="border:solid 1px grey; margin:2px">
-		    <%= l review_comment.created_at -%>, by <%= h(review_comment.user.name) -%>
-		    » 
-		    <%= h(review_comment.review_text) -%>
-            <br/>
-        </div>
+		  <tr>
+		    <td style="width:180px; vertical-align:top; padding: 5px; border:solid 1px grey">
+				<%= image_tag("user.png") -%> <b><%= h(review_comment.user.name) -%></b> »
+				<br/><%= l review_comment.created_at -%>
+		    </td>
+		    <td style="width:1000px; vertical-align:top; padding: 5px; border:solid 1px grey; background: white">
+		    	<%= h(review_comment.review_text) -%>
+		    </td>
+		  </tr>
 		<% 
 		     end
 		   end
 		%>
-      </div>
+		</table>
       
-      <% if current_user %>
-         <%= link_to_remote "Add a comment", 
+        <% if current_user %>
+           <div style="width:1200px; text-align: right; padding: 5px">
+             <%= link_to_remote "Add a comment", 
         		:url => { :controller => "reviews", :action => "form_comment", :review_id => review.id, :rule_failure_id => review.rule_failure_id },
         		:update => "createComment" + review.id.to_s, 
         		:complete => "$('commentText" + review.id.to_s + "').focus()" -%>
-      
-         <div id="createComment<%= review.id -%>"></div>
-      <% end %>
+           </div>
+           <div id="createComment<%= review.id -%>"></div>
+        <% end %>
+      </div>
 
   </div>
