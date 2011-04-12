@@ -43,8 +43,8 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void lastSnapshotIsNotUpdatedWhenAnalyzingPastSnapshot() {
-    assertAnalysis(6, "lastSnapshotIsNotUpdatedWhenAnalyzingPastSnapshot");
+  public void shouldNotEnableSnapshotWhenNotLatest() {
+    assertAnalysis(6, "shouldNotEnableSnapshotWhenNotLatest");
   }
 
   private void assertAnalysis(int snapshotId, String fixture) {

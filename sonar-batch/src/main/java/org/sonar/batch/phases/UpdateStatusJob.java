@@ -23,10 +23,12 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Scopes;
 import org.sonar.batch.ServerMetadata;
 import org.sonar.batch.index.ResourcePersister;
 
 import javax.persistence.Query;
+import java.util.List;
 
 public class UpdateStatusJob implements BatchComponent {
 
@@ -43,17 +45,28 @@ public class UpdateStatusJob implements BatchComponent {
   }
 
   public void execute() {
-    Snapshot previousLastSnapshot = resourcePersister.getLastSnapshot(snapshot, false);
-    updateFlags(snapshot, previousLastSnapshot);
+    disablePreviousSnapshot();
+    enableCurrentSnapshot();
   }
 
-  private void updateFlags(Snapshot rootSnapshot, Snapshot previousLastSnapshot) {
-    if (previousLastSnapshot != null && previousLastSnapshot.getCreatedAt().before(rootSnapshot.getCreatedAt())) {
-      setFlags(previousLastSnapshot, false, null);
+  private void disablePreviousSnapshot() {
+    // disable on all modules
+    Query query = session.createQuery("FROM " + Snapshot.class.getSimpleName() + " WHERE (root_snapshot_id=:rootId OR id=:rootId) AND scope=:scope");
+    query.setParameter("rootId", snapshot.getId());
+    query.setParameter("scope", Scopes.PROJECT);
+    List<Snapshot> moduleSnapshots = query.getResultList();
+    for (Snapshot moduleSnapshot : moduleSnapshots) {
+      Snapshot previousLastSnapshot = resourcePersister.getLastSnapshot(moduleSnapshot, true);
+      if (previousLastSnapshot != null) {
+        setFlags(previousLastSnapshot, false, null);
+      }
     }
+  }
 
-    boolean isLast = (previousLastSnapshot == null || previousLastSnapshot.getCreatedAt().before(rootSnapshot.getCreatedAt()));
-    setFlags(rootSnapshot, isLast, Snapshot.STATUS_PROCESSED);
+  private void enableCurrentSnapshot() {
+    Snapshot previousLastSnapshot = resourcePersister.getLastSnapshot(snapshot, false);
+    boolean isLast = (previousLastSnapshot == null || previousLastSnapshot.getCreatedAt().before(snapshot.getCreatedAt()));
+    setFlags(snapshot, isLast, Snapshot.STATUS_PROCESSED);
     LoggerFactory.getLogger(getClass()).info("ANALYSIS SUCCESSFUL, you can browse {}", server.getURL());
   }
 
