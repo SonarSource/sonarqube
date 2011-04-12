@@ -19,12 +19,7 @@
  */
 package org.sonar.java.ast.visitor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.resources.InputFile;
 import org.sonar.java.ast.JavaAstScanner;
@@ -35,6 +30,9 @@ import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.api.SourceProject;
 import org.sonar.squid.measures.Metric;
+
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.junit.Assert.*;
 
 public class CommentVisitorTest {
 
@@ -77,15 +75,10 @@ public class CommentVisitorTest {
   }
 
   @Test
-  @Ignore("TODO")
-  public void testCommentedOutFile() {
-    SourceProject res = scan("/metrics/commentedCode", "org/foo/CommentedOutFile.java");
-  }
-
-  @Test
-  @Ignore("TODO")
-  public void shouldGuessPackageOfcommentedOutFile() {
-    SourceProject res = scan("/metrics/commentedCode", "org/foo/CommentedOutFile.java");
+  public void shouldGetCommentedOutLinesOfEmptyFiles() {
+    scan("/metrics/commentedCode", "org/foo/CommentedOutFile.java");
+    SourceCode file = squid.search("org/foo/CommentedOutFile.java");
+    assertThat(file.getInt(Metric.COMMENTED_OUT_CODE_LINES), greaterThan(1));
   }
 
   @Test

@@ -19,24 +19,19 @@
  */
 package org.sonar.java.recognizer;
 
-import java.util.HashSet;
+import com.google.common.collect.Sets;
+import org.sonar.squid.recognizer.*;
+
 import java.util.Set;
 
-import org.sonar.squid.recognizer.CamelCaseDetector;
-import org.sonar.squid.recognizer.ContainsDetector;
-import org.sonar.squid.recognizer.Detector;
-import org.sonar.squid.recognizer.EndWithDetector;
-import org.sonar.squid.recognizer.KeywordsDetector;
-import org.sonar.squid.recognizer.LanguageFootprint;
+public final class JavaFootprint implements LanguageFootprint {
 
-public class JavaFootprint implements LanguageFootprint {
-
-  private final Set<Detector> detectors = new HashSet<Detector>();
+  private final Set<Detector> detectors = Sets.newHashSet();
 
   public JavaFootprint() {
     detectors.add(new EndWithDetector(0.95, '}', ';', '{')); // NOSONAR Magic number is suitable in that case
     detectors.add(new KeywordsDetector(0.7, "||", "&&")); // NOSONAR
-    detectors.add(new KeywordsDetector(0.3, "public", "abstract", "class", "implements", "extends", "return","throw",// NOSONAR
+    detectors.add(new KeywordsDetector(0.3, "public", "abstract", "class", "implements", "extends", "return", "throw",// NOSONAR
         "private", "protected", "enum", "continue", "assert", "package", "synchronized", "boolean", "this", "double", "instanceof",
         "final", "interface", "static", "void", "long", "int", "float", "super", "true", "case:"));
     detectors.add(new ContainsDetector(0.95, "++", "for(", "if(", "while(", "catch(", "switch(", "try{", "else{"));// NOSONAR

@@ -42,8 +42,7 @@ public class PackageVisitor extends JavaAstVisitor {
 
   @Override
   public void visitFile(DetailAST ast) {
-    SourceCode packageRes = null;
-
+    SourceCode packageRes;
     if (ast == null) {
       // ast can be null for empty files (all the file is commented-out)
       packageRes = guessPackage();
