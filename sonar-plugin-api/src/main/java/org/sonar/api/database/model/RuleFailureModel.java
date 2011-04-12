@@ -62,6 +62,9 @@ public class RuleFailureModel extends BaseIdentifiable {
   @Column(name = "checksum", updatable = true, nullable = true, length = 1000)
   private String checksum;
 
+  @Column(name = "permanent_id", updatable = true, nullable = true)
+  private Integer permanentId;
+
   public String getMessage() {
     return message;
   }
@@ -145,6 +148,15 @@ public class RuleFailureModel extends BaseIdentifiable {
 
   public void setChecksum(String checksum) {
     this.checksum = checksum;
+  }
+
+  public Integer getPermanentId() {
+    return permanentId;
+  }
+
+  public RuleFailureModel setPermanentId(Integer i) {
+    this.permanentId = i;
+    return this;
   }
 
   @Override

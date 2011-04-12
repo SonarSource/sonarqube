@@ -40,19 +40,33 @@ public final class ViolationPersister {
   }
 
   void saveViolation(Project project, Violation violation) {
-    saveViolation(project, violation, null);
+    saveViolation(project, violation, null, null);
   }
 
-  public void saveViolation(Project project, Violation violation, String checksum) {
+  public void saveViolation(Project project, Violation violation, RuleFailureModel pastViolation, String checksum) {
     Snapshot snapshot = resourcePersister.saveResource(project, violation.getResource());
-    if (violation.getCreatedAt()==null) {
-      violation.setCreatedAt(snapshot.getCreatedAt());
-    }
+
     RuleFailureModel model = createModel(violation);
+    if (pastViolation!=null) {
+      model.setCreatedAt(pastViolation.getCreatedAt());
+      model.setPermanentId(pastViolation.getPermanentId());
+
+    } else {
+      // avoid plugins setting date
+      model.setCreatedAt(snapshot.getCreatedAt());
+    }
     model.setSnapshotId(snapshot.getId());
     model.setChecksum(checksum);
     session.save(model);
+
+    if (model.getPermanentId()==null) {
+      model.setPermanentId(model.getId());
+      session.save(model);
+    }
+
+    // the following fields can have been changed
     violation.setMessage(model.getMessage());// the message can be changed in the class RuleFailure (truncate + trim)
+    violation.setCreatedAt(model.getCreatedAt());
   }
 
   private RuleFailureModel createModel(Violation violation) {
@@ -60,7 +74,6 @@ public final class ViolationPersister {
     Rule rule = ruleFinder.findByKey(violation.getRule().getRepositoryKey(), violation.getRule().getKey());
     model.setRuleId(rule.getId());
     model.setPriority(violation.getSeverity());
-    model.setCreatedAt(violation.getCreatedAt());
     model.setLine(violation.getLineId());
     model.setMessage(violation.getMessage());
     model.setCost(violation.getCost());
