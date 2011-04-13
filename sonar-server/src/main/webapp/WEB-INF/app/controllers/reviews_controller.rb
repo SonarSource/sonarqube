@@ -34,13 +34,13 @@ class ReviewsController < ApplicationController
   end
 
   def list
-    reviews = find_reviews_for_rule_failure params[:rule_failure_id]
+    reviews = find_reviews_for_rule_failure params[:rule_failure_permanent_id]
     render :partial => "list", :locals => { :reviews => reviews }
   end
 
   def form
     @review = Review.new
-    @review.rule_failure_id = params[:violation_id]
+    @review.rule_failure_permanent_id = params[:rule_failure_permanent_id]
     @review.user = current_user
     @review.severity = Review.default_severity
     @review_comment = ReviewComment.new
@@ -53,12 +53,12 @@ class ReviewsController < ApplicationController
     @review_comment.user = current_user
     @review_comment.review_id = params[:review_id]
     @review_comment.review_text = ""
-    @rule_failure_id = params[:rule_failure_id]
+    @rule_failure_permanent_id = params[:rule_failure_permanent_id]
     render :partial => "form_comment"
   end
 
   def create
-    unless has_rights_to_create? params[:review][:rule_failure_id]
+    unless has_rights_to_create? params[:review][:rule_failure_permanent_id]
       render :text => "<b>Cannot create the review</b> : access denied."
       return
     end
@@ -67,28 +67,34 @@ class ReviewsController < ApplicationController
     @review.user = current_user
     @review.status = Review.default_status
     @review.review_type = Review.default_type
+    @review.resource = RuleFailure.find( @review.rule_failure_permanent_id, :include => ['snapshot'] ).snapshot.project
     @review_comment = ReviewComment.new(params[:review_comment])
     @review_comment.user = current_user
     @review.review_comments << @review_comment
     if @review.valid?
       @review.save
-      @reviews = find_reviews_for_rule_failure @review.rule_failure_id
+      @reviews = find_reviews_for_rule_failure @review.rule_failure_permanent_id
     end
     render "create_result"
   end
 
   def create_comment
-    unless has_rights_to_create? params[:rule_failure_id]
+    unless has_rights_to_create? params[:rule_failure_permanent_id]
       render :text => "<b>Cannot create the comment</b> : access denied."
       return
     end
 
     @review_comment = ReviewComment.new(params[:review_comment])
     @review_comment.user = current_user
-    @rule_failure_id = params[:rule_failure_id]
+    @rule_failure_permanent_id = params[:rule_failure_permanent_id]
     if @review_comment.valid?
       @review_comment.save
-      @reviews = find_reviews_for_rule_failure @rule_failure_id
+      # -- TODO : should create a Review#create_comment and put the following logic in it
+      review = @review_comment.review
+      review.updated_at = @review_comment.created_at
+      review.save
+      # -- End of TODO code --
+      @reviews = find_reviews_for_rule_failure @rule_failure_permanent_id
     end
     render "create_comment_result"
   end
@@ -143,14 +149,18 @@ class ReviewsController < ApplicationController
     @reviews = Review.find( :all, :order => "created_at DESC", :joins => :review_comments, :conditions => [ conditions.join(" AND "), values] ).uniq
   end
 
-  def find_reviews_for_rule_failure ( rule_failure_id )
-    return Review.find :all, :conditions => ['rule_failure_id=?', rule_failure_id]
+  def find_reviews_for_rule_failure ( rule_failure_permanent_id )
+    return Review.find :all, :conditions => ['rule_failure_permanent_id=?', rule_failure_permanent_id]
   end
 
-  def has_rights_to_create? ( rule_failure_id )
-    return false unless current_user
+  def find_rule_failure_with_permanent_id ( rule_failure_permanent_id )
+    return RuleFailure.last( :all, :conditions => [ "permanent_id = ?", rule_failure_permanent_id ], :include => ['snapshot'] )
+  end
 
-    project = RuleFailure.find( rule_failure_id, :include => ['snapshot'] ).snapshot.root_project
+  def has_rights_to_create? ( rule_failure_permanent_id )
+    return false unless current_user
+    
+    project = find_rule_failure_with_permanent_id( rule_failure_permanent_id).snapshot.root_project
     unless has_role?(:user, project)
       return false
     end

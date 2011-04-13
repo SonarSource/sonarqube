@@ -25,19 +25,20 @@ class CreateReview < ActiveRecord::Migration
 
   def self.up
     create_table 'reviews' do |t|
-      t.column 'created_at', 		:datetime
-      t.column 'updated_at', 		:datetime
-      t.column 'user_id', 			:integer, 	:null => true
-      t.column 'review_type', 		:string, 	:null => true,	:limit => 10
-      t.column 'status', 			:string, 	:null => true,	:limit => 10
-      t.column 'severity', 			:string, 	:null => true,	:limit => 10
-      t.column 'rule_failure_id', 	:integer, 	:null => true   
-      t.column 'resource_id', 		:integer, 	:null => true   
-      t.column 'resource_line', 	:integer, 	:null => true      
+      t.column 'created_at', 					:datetime
+      t.column 'updated_at', 					:datetime
+      t.column 'user_id', 						:integer, 	:null => true
+      t.column 'review_type', 					:string, 	:null => true,	:limit => 10
+      t.column 'status', 						:string, 	:null => true,	:limit => 10
+      t.column 'severity', 						:string, 	:null => true,	:limit => 10
+      t.column 'rule_failure_permanent_id', 	:integer, 	:null => true   
+      t.column 'resource_id', 					:integer, 	:null => true   
+      t.column 'resource_line', 				:integer, 	:null => true      
     end
     
     create_table 'review_comments' do |t|
       t.column 'created_at', 		:datetime
+      t.column 'updated_at', 		:datetime
       t.column 'review_id', 		:integer
       t.column 'user_id', 			:integer, 	:null => true
       t.column 'review_text', 		:text, 		:null => true

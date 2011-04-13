@@ -1,6 +1,6 @@
 if @reviews
-  page.replace_html "createReviewLink" + @review.rule_failure_id.to_s, image_tag("reviews/review.png")
-  page.replace_html "reviewFailure" + @review.rule_failure_id.to_s, :partial => "list", :locals => { :reviews => @reviews }
+  page.replace_html "createReviewLink" + @review.rule_failure_permanent_id.to_s, image_tag("reviews/review.png")
+  page.replace_html "reviewFailure" + @review.rule_failure_permanent_id.to_s, :partial => "list", :locals => { :reviews => @reviews }
 else
-  page.replace_html "reviewFailure" + @review.rule_failure_id.to_s, :partial => "form"
+  page.replace_html "reviewFailure" + @review.rule_failure_permanent_id.to_s, :partial => "form"
 end

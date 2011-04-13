@@ -5,10 +5,10 @@
             :style => "width:100%" %>
       <br/>
       <%= submit_to_remote 'create_btn', 'Add comment', 
-                     :url => { :action => 'create_comment', :rule_failure_id => @rule_failure_id } %>
+                     :url => { :action => 'create_comment', :rule_failure_permanent_id => @rule_failure_permanent_id } %>
       <%= submit_to_remote 'cancel_btn', 'Cancel', 
-                     :url => { :action => 'list', :rule_failure_id => @rule_failure_id.to_s },
-                     :update => { :success => "reviewFailure" + @rule_failure_id.to_s } %>
+                     :url => { :action => 'list', :rule_failure_permanent_id => @rule_failure_permanent_id.to_s },
+                     :update => { :success => "reviewFailure" + @rule_failure_permanent_id.to_s } %>
       
       <%= f.error_messages :header_message => "Can't save the comment", :message => "", :header_tag => :h3%>
       

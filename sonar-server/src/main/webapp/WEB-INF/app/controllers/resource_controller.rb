@@ -78,7 +78,7 @@ class ResourceController < ApplicationController
     @expanded=(params[:expand]=='true')
 
     if @snapshot.source
-      source_lines=@snapshot.source.syntax_highlighted_lines()
+      source_lines=Java::OrgSonarServerUi::JRubyFacade.new.colorizeCode(@snapshot.source.data, @snapshot.project.language).split("\n")
       init_scm()
 
       @lines=[]
@@ -201,6 +201,11 @@ class ResourceController < ApplicationController
         @lines[violation.line-1].add_violation(violation)
       else
         @global_violations<<violation
+      end
+      # if the permanent_id does not exist, set it to the current id
+      unless violation.permanent_id
+        violation.permanent_id = violation.id
+        violation.save
       end
     end
 

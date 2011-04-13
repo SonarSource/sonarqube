@@ -10,10 +10,10 @@
       <td style="width: 30px; vertical-align: top; text-align: center;">
       	<% if current_user && violation.reviews.blank? %>
           <%= link_to_remote image_tag("reviews/+review.png"),  
-        		:url => { :controller => "reviews", :action => "form", :violation_id => violation.id },
-        		:update => "reviewFailure" + violation.id.to_s,
-        		:html => { :id => "createReviewLink" + violation.id.to_s, :title => "Add a review" },
-        		:complete => "$('reviewFailure" + violation.id.to_s + "').style.display='';$('reviewText').focus();" -%>
+        		:url => { :controller => "reviews", :action => "form", :rule_failure_permanent_id => violation.permanent_id },
+        		:update => "reviewFailure" + violation.permanent_id.to_s,
+        		:html => { :id => "createReviewLink" + violation.permanent_id.to_s, :title => "Add a review" },
+        		:complete => "$('reviewFailure" + violation.permanent_id.to_s + "').style.display='';$('reviewText').focus();" -%>
       	<% end %>
       	<% unless violation.reviews.blank? %>
       	  <%= image_tag("reviews/review.png") -%>
@@ -38,7 +38,7 @@
     
     <tr>
       <td colspan="2">
-		<div id="reviewFailure<%= violation.id -%>" style="margin-left: 13px; padding: 10px 5px 5px 10px; border-left: 2px solid #EFEFEF; display:<%= displayReviewFailureDiv -%>">
+		<div id="reviewFailure<%= violation.permanent_id -%>" style="margin-left: 13px; padding: 10px 5px 5px 10px; border-left: 2px solid #EFEFEF; display:<%= displayReviewFailureDiv -%>">
 		  <%= render :partial => "reviews/list", :locals => { :reviews => violation.reviews } %>
 		</div>
       </td>
