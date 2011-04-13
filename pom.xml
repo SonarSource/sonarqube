@@ -135,11 +135,6 @@
           <version>2.4.1</version>
         </plugin>
         <plugin>
-          <groupId>com.atlassian.maven.plugins</groupId>
-          <artifactId>maven-clover2-plugin</artifactId>
-          <version>2.6.1</version>
-        </plugin>
-        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>2.3.2</version>
