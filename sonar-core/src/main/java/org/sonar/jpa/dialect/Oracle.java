@@ -34,10 +34,6 @@ public class Oracle implements Dialect {
     return "oracle";
   }
 
-  public String getActiveRecordDialectCode() {
-    return "oracle";
-  }
-
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
     return Oracle10gWithDecimalDialect.class;
   }

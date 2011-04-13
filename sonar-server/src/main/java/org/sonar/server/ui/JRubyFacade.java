@@ -46,11 +46,19 @@ import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.updatecenter.common.Version;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public final class JRubyFacade implements ServerComponent {
+public final class JRubyFacade {
+
+  private static final JRubyFacade SINGLETON = new JRubyFacade();
+
+  public static JRubyFacade getInstance() {
+    return SINGLETON;
+  }
 
   public FilterResult executeFilter(Filter filter) {
     return getContainer().getComponent(FilterExecutor.class).execute(filter);
@@ -251,6 +259,10 @@ public final class JRubyFacade implements ServerComponent {
 
   public String getConfigurationValue(String key) {
     return getContainer().getComponent(Configuration.class).getString(key, null);
+  }
+
+  public Connection getConnection() throws SQLException {
+    return getContainer().getComponent(DatabaseConnector.class).getConnection();
   }
 
   public Object getCoreComponentByClassname(String className) {

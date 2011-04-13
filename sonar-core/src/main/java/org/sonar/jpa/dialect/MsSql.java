@@ -32,10 +32,6 @@ public class MsSql implements Dialect {
     return "mssql";
   }
 
-  public String getActiveRecordDialectCode() {
-    return "sqlserver";
-  }
-
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
     return MsSqlDialect.class;
   }

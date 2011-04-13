@@ -34,10 +34,6 @@ public class MySql implements Dialect {
     return "mysql";
   }
 
-  public String getActiveRecordDialectCode() {
-    return "mysql";
-  }
-
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
     return MySqlWithDecimalDialect.class;
   }

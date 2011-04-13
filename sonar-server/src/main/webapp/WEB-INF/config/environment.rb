@@ -1,11 +1,5 @@
-# Be sure to restart your server when you modify this file
-
-# Uncomment below to force Rails into production mode when
-# you don't control web/app server and can't set it the proper way
-# ENV['RAILS_ENV'] ||= 'production'
-
 # Specifies gem version of Rails to use when vendor/rails is not present
-RAILS_GEM_VERSION = '2.3.5' unless defined? RAILS_GEM_VERSION
+#RAILS_GEM_VERSION = '2.3.5' unless defined? RAILS_GEM_VERSION
 
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
@@ -20,19 +14,6 @@ Rails::Initializer.run do |config|
   # Skip frameworks you're not going to use. To use Rails without a database
   # you must remove the Active Record framework.
   config.frameworks -= [ :action_mailer ]
-
-  # Specify gems that this application depends on. 
-  # They can then be installed with "rake gems:install" on new installations.
-  # You have to specify the :lib option for libraries, where the Gem name (sqlite3-ruby) differs from the file itself (sqlite3)
-  # config.gem "bj"
-  # config.gem "hpricot", :version => '0.6', :source => "http://code.whytheluckystiff.net"
-  # config.gem "sqlite3-ruby", :lib => "sqlite3"
-  # config.gem "aws-s3", :lib => "aws/s3"
-
-  # Only load the plugins named here, in the order given. By default, all plugins 
-  # in vendor/plugins are loaded in alphabetical order.
-  # :all can be used as a placeholder for all plugins not explicitly named
-  # config.plugins = [ :exception_notification, :ssl_requirement, :all ]
 
   # Add additional load paths for your own custom dirs
   # config.load_paths += %W( #{RAILS_ROOT}/extras )
@@ -68,8 +49,37 @@ Rails::Initializer.run do |config|
   # config.active_record.observers = :cacher, :garbage_collector, :forum_observer
 end
 
-class ActiveRecord::Migration
 
+module ActiveRecord
+  module ConnectionAdapters
+
+    # Patch to delegate configuration of JDBC datasource to Sonar.
+    # See vendor/gems/activerecord-jdbc-adapter/lib/active_record/connection_adapters/jdbc_adapter.rb
+    class JdbcConnection
+      def initialize(config)
+        @config = config.symbolize_keys!
+        @config[:retry_count] ||= 5
+        @config[:connection_alive_sql] ||= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.validationQuery')
+
+        @jndi_connection = true # used in JndiConnectionPoolCallbacks to close this initial connection
+        
+        @connection_factory = JdbcConnectionFactory.impl do
+          ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConnection()
+        end
+        @config[:driver] = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.driverClassName')
+
+        connection # force the connection to load
+        set_native_database_types
+        @stmts = {}
+      rescue Exception => e
+        raise "Fail to connect to database: #{e}"
+      end
+    end
+  end
+end
+
+
+class ActiveRecord::Migration
   def self.alter_to_big_primary_key(tablename)
     dialect = ActiveRecord::Base.configurations[ ENV['RAILS_ENV'] ]["dialect"]
     case dialect

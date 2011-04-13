@@ -70,7 +70,7 @@ class Server
     add_property(sonar_info, 'Database Login') {sonar_property('sonar.jdbc.username')}
     add_property(sonar_info, 'Database Driver') {"#{jdbc_metadata.getDriverName()} #{jdbc_metadata.getDriverVersion()}"}
     add_property(sonar_info, 'Database Driver Class') {sonar_property('sonar.jdbc.driverClassName')}
-    add_property(sonar_info, 'Database Dialect (Hibernate/Rails)') {"#{@java_facade.getDialect().getId()} (#{@java_facade.getDialect().getHibernateDialectClass().getName()} / #{@java_facade.getDialect().getActiveRecordDialectCode()})"}
+    add_property(sonar_info, 'Database Dialect (Hibernate)') {"#{@java_facade.getDialect().getId()} (#{@java_facade.getDialect().getHibernateDialectClass().getName()})"}
     add_property(sonar_info, 'Database Validation Query') {sonar_property('sonar.jdbc.validationQuery')}
     add_property(sonar_info, 'Hibernate Default Schema') {sonar_property('sonar.hibernate.default_schema')}
     add_property(sonar_info, 'External User Authentication') {sonar_property(org.sonar.api.CoreProperties.CORE_AUTHENTICATOR_CLASS)}
