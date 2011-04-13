@@ -26,6 +26,7 @@ class CreateReview < ActiveRecord::Migration
   def self.up
     create_table 'reviews' do |t|
       t.column 'created_at', 		:datetime
+      t.column 'updated_at', 		:datetime
       t.column 'user_id', 			:integer, 	:null => true
       t.column 'review_type', 		:string, 	:null => true,	:limit => 10
       t.column 'status', 			:string, 	:null => true,	:limit => 10
