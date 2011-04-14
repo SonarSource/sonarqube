@@ -42,9 +42,6 @@ public class PmdSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
-    if (project.getReuseExistingRulesConfig()) {
-      Logs.INFO.warn("Reusing existing PMD configuration is not supported any more.");
-    }
     try {
       File xmlReport = executor.execute();
       getStaxParser(project, context).parse(xmlReport);
@@ -57,7 +54,7 @@ public class PmdSensor implements Sensor {
 
   public boolean shouldExecuteOnProject(Project project) {
     return project.getFileSystem().hasJavaSourceFiles() &&
-        (!profile.getActiveRulesByRepository(PmdConstants.REPOSITORY_KEY).isEmpty() || project.getReuseExistingRulesConfig());
+        !profile.getActiveRulesByRepository(PmdConstants.REPOSITORY_KEY).isEmpty();
   }
 
   private PmdViolationsXmlParser getStaxParser(Project project, SensorContext context) {

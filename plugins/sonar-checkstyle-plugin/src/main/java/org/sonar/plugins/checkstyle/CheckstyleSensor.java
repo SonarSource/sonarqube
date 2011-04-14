@@ -37,13 +37,10 @@ public class CheckstyleSensor implements Sensor {
 
   public boolean shouldExecuteOnProject(Project project) {
     return project.getFileSystem().hasJavaSourceFiles() &&
-        (!profile.getActiveRulesByRepository(CheckstyleConstants.REPOSITORY_KEY).isEmpty() || project.getReuseExistingRulesConfig());
+        !profile.getActiveRulesByRepository(CheckstyleConstants.REPOSITORY_KEY).isEmpty();
   }
 
   public void analyse(Project project, SensorContext context) {
-    if (project.getReuseExistingRulesConfig()) {
-      Logs.INFO.warn("Reusing existing Checkstyle configuration is not supported any more.");
-    }
     executor.execute();
   }
 

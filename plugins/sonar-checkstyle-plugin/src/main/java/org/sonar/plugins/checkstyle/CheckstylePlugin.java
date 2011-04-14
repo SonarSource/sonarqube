@@ -20,9 +20,6 @@
 package org.sonar.plugins.checkstyle;
 
 import org.sonar.api.SonarPlugin;
-
-import org.sonar.api.CoreProperties;
-import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 

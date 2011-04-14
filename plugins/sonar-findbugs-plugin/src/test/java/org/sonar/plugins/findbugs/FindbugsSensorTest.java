@@ -50,14 +50,6 @@ public class FindbugsSensorTest extends FindbugsTests {
   }
 
   @Test
-  public void shouldExecuteWhenReuseExistingRulesConfig() throws Exception {
-    FindbugsSensor analyser = new FindbugsSensor(RulesProfile.create(), new FakeRuleFinder(), null);
-    Project project = createProject();
-    when(project.getReuseExistingRulesConfig()).thenReturn(true);
-    assertTrue(analyser.shouldExecuteOnProject(project));
-  }
-
-  @Test
   public void shouldNotExecuteWhenNoRulesAreActive() throws Exception {
     FindbugsSensor analyser = new FindbugsSensor(RulesProfile.create(), new FakeRuleFinder(), null);
     Project project = createProject();
