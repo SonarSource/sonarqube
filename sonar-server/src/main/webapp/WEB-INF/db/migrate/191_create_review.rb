@@ -28,6 +28,8 @@ class CreateReview < ActiveRecord::Migration
       t.column 'created_at', 					:datetime
       t.column 'updated_at', 					:datetime
       t.column 'user_id', 						:integer, 	:null => true
+      t.column 'assignee_id', 					:integer, 	:null => true
+      t.column 'title',		 					:string, 	:null => true,	:limit => 500
       t.column 'review_type', 					:string, 	:null => true,	:limit => 10
       t.column 'status', 						:string, 	:null => true,	:limit => 10
       t.column 'severity', 						:string, 	:null => true,	:limit => 10

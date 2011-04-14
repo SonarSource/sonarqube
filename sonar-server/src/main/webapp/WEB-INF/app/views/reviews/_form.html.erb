@@ -1,8 +1,10 @@
-<b>Create a new review</b>
 <% form_for :review, @review do |f| %>
       <%= f.hidden_field :rule_failure_permanent_id %>
-      Severity: 
-      <%= select_tag "review[severity]", options_for_select(Review.severity_options, @review.severity)  %>
+      <b>New review</b>: 
+      <%= f.text_field :title, :size => 100 %>
+      <br/>
+      Assignee: 
+      <%= select_tag "review[assignee_id]", options_for_select(@user_options, @review.assignee.id.to_s)  %>
       <br/>
       <%= text_area :review_comment, :review_text, :id => "reviewText", :rows => 8, :style => "width:100%" %>
       <br/>

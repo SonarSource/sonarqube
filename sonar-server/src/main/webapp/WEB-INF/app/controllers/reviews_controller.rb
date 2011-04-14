@@ -39,10 +39,13 @@ class ReviewsController < ApplicationController
   end
 
   def form
+    rule_failure = find_last_rule_failure_with_permanent_id params[:rule_failure_permanent_id]
     @review = Review.new
-    @review.rule_failure_permanent_id = params[:rule_failure_permanent_id]
+    @review.rule_failure_permanent_id = rule_failure.permanent_id
     @review.user = current_user
-    @review.severity = Review.default_severity
+    @review.assignee = current_user
+    @user_options = add_all_users []
+    @review.title = rule_failure.message
     @review_comment = ReviewComment.new
     @review_comment.review_text = ""
     render :partial => "form"
@@ -58,7 +61,8 @@ class ReviewsController < ApplicationController
   end
 
   def create
-    unless has_rights_to_create? params[:review][:rule_failure_permanent_id]
+    rule_failure = find_last_rule_failure_with_permanent_id params[:review][:rule_failure_permanent_id]
+    unless has_rights_to_create? rule_failure
       render :text => "<b>Cannot create the review</b> : access denied."
       return
     end
@@ -67,6 +71,7 @@ class ReviewsController < ApplicationController
     @review.user = current_user
     @review.status = Review.default_status
     @review.review_type = Review.default_type
+    @review.severity = Sonar::RulePriority.to_s rule_failure.failure_level
     @review.resource = RuleFailure.find( @review.rule_failure_permanent_id, :include => ['snapshot'] ).snapshot.project
     @review_comment = ReviewComment.new(params[:review_comment])
     @review_comment.user = current_user
@@ -74,12 +79,15 @@ class ReviewsController < ApplicationController
     if @review.valid?
       @review.save
       @reviews = find_reviews_for_rule_failure @review.rule_failure_permanent_id
+    else
+      @user_options = add_all_users []
     end
     render "create_result"
   end
 
   def create_comment
-    unless has_rights_to_create? params[:rule_failure_permanent_id]
+    rule_failure = find_last_rule_failure_with_permanent_id params[:rule_failure_permanent_id]
+    unless has_rights_to_create? rule_failure
       render :text => "<b>Cannot create the comment</b> : access denied."
       return
     end
@@ -109,13 +117,18 @@ class ReviewsController < ApplicationController
       @user_names << ["Me", current_user.id]
       default_user = [current_user.id]
     end
-    User.find( :all ).each do |user|
-      @user_names << [user.name, user.id.to_s]
-    end
+    add_all_users @user_names
     @review_authors = filter_any(params[:review_authors]) || default_user
     @comment_authors = filter_any(params[:comment_authors]) || default_user
     @severities = filter_any(params[:severities]) || [""]
     @statuses = filter_any(params[:statuses]) || ["open"]
+  end
+  
+  def add_all_users ( user_options )
+    User.find( :all ).each do |user|
+      user_options << [user.name, user.id.to_s]
+    end
+    return user_options
   end
 
   def filter_any(array)
@@ -153,14 +166,14 @@ class ReviewsController < ApplicationController
     return Review.find :all, :conditions => ['rule_failure_permanent_id=?', rule_failure_permanent_id]
   end
 
-  def find_rule_failure_with_permanent_id ( rule_failure_permanent_id )
+  def find_last_rule_failure_with_permanent_id ( rule_failure_permanent_id )
     return RuleFailure.last( :all, :conditions => [ "permanent_id = ?", rule_failure_permanent_id ], :include => ['snapshot'] )
   end
 
-  def has_rights_to_create? ( rule_failure_permanent_id )
+  def has_rights_to_create? ( rule_failure )
     return false unless current_user
     
-    project = find_rule_failure_with_permanent_id( rule_failure_permanent_id).snapshot.root_project
+    project = rule_failure.snapshot.root_project
     unless has_role?(:user, project)
       return false
     end

@@ -19,18 +19,20 @@
 #
 class Review < ActiveRecord::Base
   belongs_to :user
-  belongs_to :rule_failure
+  belongs_to :assignee, :class_name => "User", :foreign_key => "assignee_id"
   belongs_to :resource, :class_name => "Project", :foreign_key => "resource_id"
   has_many :review_comments, :order => "created_at", :dependent => :destroy
   validates_presence_of :user, :message => "can't be empty"
+  validates_presence_of :assignee, :message => "can't be empty"
+  validates_presence_of :title, :message => "can't be empty"
   validates_presence_of :review_type, :message => "can't be empty"
   validates_presence_of :status, :message => "can't be empty"
 
-  SEVERITY_INFO = "info"
-  SEVERITY_MINOR = "minor"
-  SEVERITY_MAJOR = "major"
-  SEVERITY_CRITICAL = "critical"
-  SEVERITY_BLOCKER = "blocker"
+  SEVERITY_INFO = "INFO"
+  SEVERITY_MINOR = "MINOR"
+  SEVERITY_MAJOR = "MAJOR"
+  SEVERITY_CRITICAL = "CRITICAL"
+  SEVERITY_BLOCKER = "BLOCKER"
   
   TYPE_COMMENTS = "comments"
   TYPE_FALSE_POSITIVE = "f-positive"
