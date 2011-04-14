@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseProperties;
+import org.sonar.api.utils.Logs;
 import org.sonar.jpa.dialect.Dialect;
 import org.sonar.jpa.dialect.DialectRepository;
 import org.sonar.jpa.entity.SchemaMigration;
@@ -106,6 +107,7 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
         throw new DatabaseException(databaseVersion, SchemaMigration.LAST_VERSION);
       }
       if (upToDate) {
+        Logs.INFO.info("Initializing Hibernate");
         factory = createEntityManagerFactory();
         operational = true;
       }

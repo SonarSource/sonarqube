@@ -20,12 +20,19 @@
 package org.sonar.server.database;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.dbcp.BasicDataSourceFactory;
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.cfg.Environment;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.Logs;
+import org.sonar.api.utils.SonarException;
 import org.sonar.jpa.entity.SchemaMigration;
 import org.sonar.jpa.session.AbstractDatabaseConnector;
 
-import javax.naming.*;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -34,10 +41,13 @@ import java.util.Properties;
 
 public class JndiDatabaseConnector extends AbstractDatabaseConnector {
 
+  static final String JNDI_ENV_CONTEXT = "java:comp/env";
   private DataSource datasource = null;
+  private String jndiKey;
 
   public JndiDatabaseConnector(Configuration configuration) {
     super(configuration, false);
+    jndiKey = getConfiguration().getString(DatabaseProperties.PROP_JNDI_NAME);
   }
 
   @Override
@@ -53,11 +63,10 @@ public class JndiDatabaseConnector extends AbstractDatabaseConnector {
   @Override
   public void start() {
     if (!isStarted()) {
-      // get the datasource from JNDI
-      datasource = loadDatasourceFromJndi();
-      // bind the datasource to JNDI if it is not already done
-      if (datasource == null) {
-        createAndBindDatasource();
+      if (StringUtils.isNotBlank(jndiKey)) {
+        loadJndiDatasource();
+      } else {
+        createDatasource();
       }
     }
     if (!super.isOperational()) {
@@ -71,81 +80,47 @@ public class JndiDatabaseConnector extends AbstractDatabaseConnector {
     super.stop();
   }
 
-  private String getJndiName() {
-    return getConfiguration().getString(DatabaseProperties.PROP_JNDI_NAME, "jdbc/sonar");
-  }
 
-  private DataSource loadDatasourceFromJndi() {
+  private void loadJndiDatasource() {
     Context ctx;
     try {
       ctx = new InitialContext();
+
     } catch (NamingException e) {
-      throw new JndiException("can not instantiate a JNDI context", e);
+      throw new SonarException("Can not instantiate JNDI context", e);
     }
 
     try {
-      String jndiName = getJndiName();
-      DataSource source = (DataSource) ctx.lookup(jndiName);
-      Logs.INFO.info("Use JDBC datasource from JNDI, name=" + jndiName);
-      return source;
+      Context envCtx = (Context) ctx.lookup(JNDI_ENV_CONTEXT);
+      datasource = (DataSource)envCtx.lookup(jndiKey);
+      Logs.INFO.info("JDBC datasource loaded from JNDI: " + jndiKey);
+
     } catch (NamingException e) {
-      // datasource not found
+      throw new SonarException("JNDI context of JDBC datasource not found: " + jndiKey, e);
+
     } finally {
       try {
         ctx.close();
       } catch (NamingException e) {
       }
     }
-    return null;
   }
 
-  private void createAndBindDatasource() {
-    Reference ref = createDatasourceReference();
-
-    // bind the datasource to JNDI
-    Context ctx = null;
+  private void createDatasource() {
     try {
-      ctx = new InitialContext();
-      createJNDISubContexts(ctx, getJndiName());
-      ctx.rebind(getJndiName(), ref);
-      datasource = (DataSource) ctx.lookup(getJndiName());
-      Logs.INFO.info("JDBC datasource bound to JNDI, name=" + getJndiName());
-
-    } catch (NamingException e) {
-      throw new JndiException("Can not bind JDBC datasource to JNDI", e);
-
-    } finally {
-      if (ctx != null) {
-        try {
-          ctx.close();
-        } catch (NamingException e) {
-        }
-      }
-    }
-  }
-
-  private Reference createDatasourceReference() {
-    try {
-      Reference ref = new Reference(DataSource.class.getName(), UniqueDatasourceFactory.class.getName(), null);
+      Logs.INFO.info("Creating JDBC datasource");
+      Properties properties = new Properties();
       Configuration dsConfig = getConfiguration().subset("sonar.jdbc");
       for (Iterator<String> it = dsConfig.getKeys(); it.hasNext();) {
         String key = it.next();
-        String value = dsConfig.getString(key);
-        ref.add(new StringRefAddr(key, value));
-
-        // backward compatibility
-        if (value != null && key.equals("user")) {
-          ref.add(new StringRefAddr("username", value));
-        }
-        if (value != null && key.equals("driver")) {
-          ref.add(new StringRefAddr("driverClassName", value));
-        }
+        properties.setProperty(key, dsConfig.getString(key));
       }
-      return ref;
-    } catch (Exception e) {
-      throw new RuntimeException("Cannot create the JDBC datasource", e);
-    }
 
+      datasource = BasicDataSourceFactory.createDataSource(properties);
+      CustomHibernateConnectionProvider.datasource=datasource;
+    } catch (Exception e) {
+      throw new SonarException("Fail to connect to database", e);
+    }
   }
 
   public Connection getConnection() throws SQLException {
@@ -161,21 +136,10 @@ public class JndiDatabaseConnector extends AbstractDatabaseConnector {
 
   @Override
   public void setupEntityManagerFactory(Properties factoryProps) {
-    factoryProps.put("hibernate.connection.datasource", getJndiName());
-  }
-
-  private void createJNDISubContexts(Context ctx, String jndiBinding) throws NamingException {
-    Name name = new CompositeName(jndiBinding);
-    for (int i = 0; i < name.size() - 1; i++) {
-      String namingContext = name.get(i);
-      try {
-        Object obj = ctx.lookup(namingContext);
-        if (!(obj instanceof Context)) {
-          throw new NamingException(namingContext + " is not a JNDI Context");
-        }
-      } catch (NameNotFoundException ex) {
-        ctx = ctx.createSubcontext(namingContext);
-      }
+    if (StringUtils.isNotBlank(jndiKey)) {
+      factoryProps.put(Environment.DATASOURCE, JNDI_ENV_CONTEXT + "/" + jndiKey);
+    } else {
+      factoryProps.put(Environment.CONNECTION_PROVIDER, CustomHibernateConnectionProvider.class.getName());
     }
   }
 

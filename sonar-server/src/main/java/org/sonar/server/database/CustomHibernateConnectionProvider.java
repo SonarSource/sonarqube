@@ -17,21 +17,22 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+
 package org.sonar.server.database;
 
-public class JndiException extends RuntimeException {
-  public JndiException() {
-  }
+import org.hibernate.HibernateException;
+import org.hibernate.ejb.connection.InjectedDataSourceConnectionProvider;
 
-  public JndiException(String s) {
-    super(s);
-  }
+import javax.sql.DataSource;
+import java.util.Properties;
 
-  public JndiException(String s, Throwable throwable) {
-    super(s, throwable);
-  }
+public class CustomHibernateConnectionProvider extends InjectedDataSourceConnectionProvider {
 
-  public JndiException(Throwable throwable) {
-    super(throwable);
+  static DataSource datasource;
+
+  @Override
+  public void configure(Properties props) throws HibernateException {
+    setDataSource(datasource);
+    super.configure(props);
   }
 }

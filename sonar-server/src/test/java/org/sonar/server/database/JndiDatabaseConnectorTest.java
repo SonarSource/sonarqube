@@ -20,6 +20,7 @@
 package org.sonar.server.database;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,9 +50,9 @@ public class JndiDatabaseConnectorTest {
 
   @Before
   public void setup() {
-    conf = mock(Configuration.class);
-    when(conf.getString(eq(DatabaseProperties.PROP_JNDI_NAME), anyString())).thenReturn("test");
-    when(conf.getString(eq(DatabaseProperties.PROP_DIALECT))).thenReturn(DatabaseProperties.DIALECT_HSQLDB);
+    conf = new PropertiesConfiguration();
+    conf.setProperty(DatabaseProperties.PROP_JNDI_NAME, "jdbc/sonar");
+    conf.setProperty(DatabaseProperties.PROP_DIALECT, DatabaseProperties.DIALECT_HSQLDB);
     currentInitialContextFacto = System.getProperty(Context.INITIAL_CONTEXT_FACTORY);
     connector = getTestJndiConnector(conf);
     System.setProperty(Context.INITIAL_CONTEXT_FACTORY, TestInitialContextFactory.class.getName());
@@ -80,7 +81,7 @@ public class JndiDatabaseConnectorTest {
   @Test
   public void transactionIsolationCorrectlySet() throws Exception {
     int fakeTransactionIsolation = 9;
-    when(conf.getInteger(eq(DatabaseProperties.PROP_ISOLATION), (Integer) anyObject())).thenReturn(fakeTransactionIsolation);
+    conf.setProperty(DatabaseProperties.PROP_ISOLATION, fakeTransactionIsolation);
     connector.start();
     Connection c = connector.getConnection();
     // start method call get a connection to test it, so total number is 2
@@ -109,19 +110,22 @@ public class JndiDatabaseConnectorTest {
     private Connection c;
 
     public Context getInitialContext(Hashtable env) {
-      Context ctx = mock(Context.class);
+      Context envContext = mock(Context.class);
+      Context context = mock(Context.class);
       DataSource ds = mock(DataSource.class);
       DatabaseMetaData m = mock(DatabaseMetaData.class);
       c = mock(Connection.class);
       try {
-        when(ctx.lookup(anyString())).thenReturn(ds);
+        when(envContext.lookup(JndiDatabaseConnector.JNDI_ENV_CONTEXT)).thenReturn(context);
+        when(context.lookup("jdbc/sonar")).thenReturn(ds);
         when(ds.getConnection()).thenReturn(c);
-        when(m.getURL()).thenReturn("testdbcUrl");
+        when(m.getURL()).thenReturn("jdbc:test");
         when(c.getMetaData()).thenReturn(m);
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
-      return ctx;
+
+      return envContext;
     }
   }
 
