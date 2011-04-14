@@ -65,6 +65,8 @@ public abstract class DatabaseSession implements BatchComponent {
   public abstract <T> T reattach(Class<T> entityClass, Object primaryKey);
 
   public abstract Query createQuery(String hql);
+  
+  public abstract Query createNativeQuery(String sql);
 
   public abstract <T> T getSingleResult(Query query, T defaultValue);
 

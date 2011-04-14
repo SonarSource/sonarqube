@@ -68,6 +68,10 @@ public final class ViolationPersister {
     violation.setMessage(model.getMessage());// the message can be changed in the class RuleFailure (truncate + trim)
     violation.setCreatedAt(model.getCreatedAt());
   }
+  
+  public void commit() {
+    session.commit();
+  }
 
   private RuleFailureModel createModel(Violation violation) {
     RuleFailureModel model = new RuleFailureModel();
@@ -79,4 +83,5 @@ public final class ViolationPersister {
     model.setCost(violation.getCost());
     return model;
   }
+
 }

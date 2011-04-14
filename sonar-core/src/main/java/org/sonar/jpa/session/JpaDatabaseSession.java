@@ -160,6 +160,12 @@ public class JpaDatabaseSession extends DatabaseSession {
     startTransaction();
     return entityManager.createQuery(hql);
   }
+  
+  @Override
+  public Query createNativeQuery(String sql) {
+    startTransaction();
+    return entityManager.createNativeQuery(sql);
+  }
 
   /**
    * @return the result or <code>defaultValue</code>, if not found

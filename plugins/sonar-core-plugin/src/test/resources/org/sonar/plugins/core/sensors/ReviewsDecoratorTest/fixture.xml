@@ -1,0 +1,53 @@
+<dataset>
+
+  <snapshots 
+             id="11" 
+             project_id="555"/>
+  <snapshots 
+             id="111" 
+             project_id="555"/>
+  <snapshots 
+             id="22" 
+             project_id="666"/>
+  <snapshots 
+             id="222" 
+             project_id="666"/>
+
+  <rule_failures 
+             id="1"
+             permament_id="1"
+             snapshot_id="11"/>
+  <rule_failures 
+             id="2"
+             permament_id="2"
+             snapshot_id="22"/>
+  <rule_failures 
+             id="3"
+             permament_id="3"
+             snapshot_id="22"/>
+  <rule_failures 
+             id="4"
+             permament_id="1"
+             snapshot_id="111"/>
+  <rule_failures 
+             id="5"
+             permament_id="3"
+             snapshot_id="222"/>
+
+  <reviews
+  			id="1"
+  			status="open"
+  			rule_failure_permanent_id="1"
+  			resource_id="555"/>
+  <reviews
+  			id="2"
+  			status="open"
+  			rule_failure_permanent_id="2"
+  			resource_id="666"/>
+  <reviews
+  			id="3"
+  			status="open"
+  			rule_failure_permanent_id="3"
+  			resource_id="666"/>
+
+</dataset>
