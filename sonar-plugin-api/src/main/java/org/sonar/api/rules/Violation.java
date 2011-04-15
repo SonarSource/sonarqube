@@ -38,6 +38,7 @@ public class Violation {
   private Integer lineId;
   private Double cost;
   private Date createdAt;
+  private boolean switchedOff;
 
   /**
    * Creates of a violation from a rule. Will need to define the resource later on
@@ -52,8 +53,10 @@ public class Violation {
   /**
    * Creates a fully qualified violation
    * 
-   * @param rule the rule that has been violated
-   * @param resource the resource the violation should be attached to
+   * @param rule
+   *          the rule that has been violated
+   * @param resource
+   *          the resource the violation should be attached to
    * @deprecated since 2.3. Use the factory method create()
    */
   @Deprecated
@@ -195,27 +198,43 @@ public class Violation {
     return this;
   }
 
+  /**
+   * Switches off the current violation. This is a kind of "mute", which means the violation exists but won't be counted as an active
+   * violation (and thus, won't be counted in the total number of violations).
+   * 
+   * @since 2.8
+   * @param switchedOff
+   *          if true, the violation is considered OFF
+   */
+  public void setSwitchedOff(boolean switchedOff) {
+    this.switchedOff = switchedOff;
+  }
+
+  /**
+   * Tells wether this violation is ON or OFF.
+   * 
+   * @since 2.8
+   * @return true if the violation has been switched off
+   */
+  public boolean isSwitchedOff() {
+    return switchedOff;
+  }
+
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof Violation)) {
+    if ( !(obj instanceof Violation)) {
       return false;
     }
     if (this == obj) {
       return true;
     }
     Violation other = (Violation) obj;
-    return new EqualsBuilder()
-        .append(rule, other.getRule())
-        .append(resource, other.getResource())
-        .isEquals();
+    return new EqualsBuilder().append(rule, other.getRule()).append(resource, other.getResource()).isEquals();
   }
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(17, 37)
-        .append(getRule())
-        .append(getResource())
-        .toHashCode();
+    return new HashCodeBuilder(17, 37).append(getRule()).append(getResource()).toHashCode();
   }
 
   @Override

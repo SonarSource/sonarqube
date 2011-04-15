@@ -80,4 +80,17 @@ public class ViolationPersisterTest extends AbstractDbUnitTestCase {
 
     checkTables("shouldCopyPermanentIdFromPastViolation", "rule_failures");
   }
+
+  @Test
+  public void shouldCopySwitchedOffFromPastViolation() {
+    RuleFailureModel pastViolation1 = getSession().getSingleResult(RuleFailureModel.class, "id", 1);
+    Violation violation1 = Violation.create(rule1, javaFile).setSeverity(RulePriority.MAJOR).setMessage("new message");
+    violationPersister.saveViolation(project, violation1, pastViolation1, "line_checksum");
+
+    RuleFailureModel pastViolation2 = getSession().getSingleResult(RuleFailureModel.class, "id", 2);
+    Violation violation2 = Violation.create(rule1, javaFile).setSeverity(RulePriority.MAJOR).setMessage("new message");
+    violationPersister.saveViolation(project, violation2, pastViolation2, "line_checksum");
+
+    checkTables("shouldCopySwitchedOffFromPastViolation", "rule_failures");
+  }
 }

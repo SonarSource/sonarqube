@@ -50,7 +50,7 @@ public final class ViolationPersister {
     if (pastViolation!=null) {
       model.setCreatedAt(pastViolation.getCreatedAt());
       model.setPermanentId(pastViolation.getPermanentId());
-
+      model.setSwitchedOff(pastViolation.isSwitchedOff());
     } else {
       // avoid plugins setting date
       model.setCreatedAt(snapshot.getCreatedAt());
@@ -67,6 +67,7 @@ public final class ViolationPersister {
     // the following fields can have been changed
     violation.setMessage(model.getMessage());// the message can be changed in the class RuleFailure (truncate + trim)
     violation.setCreatedAt(model.getCreatedAt());
+    violation.setSwitchedOff(model.isSwitchedOff());
   }
   
   public void commit() {
