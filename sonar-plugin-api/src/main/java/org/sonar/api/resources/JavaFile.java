@@ -54,9 +54,6 @@ public class JavaFile extends Resource<JavaPackage> {
     if (className == null) {
       throw new IllegalArgumentException("Java filename can not be null");
     }
-    if (className.indexOf('$') >= 0) {
-      throw new IllegalArgumentException("Java inner classes are not supported : " + className);
-    }
     this.filename = StringUtils.trim(className);
     String key;
     if (StringUtils.isBlank(packageKey)) {
@@ -87,9 +84,6 @@ public class JavaFile extends Resource<JavaPackage> {
   public JavaFile(String key, boolean unitTest) {
     if (key == null) {
       throw new IllegalArgumentException("Java filename can not be null");
-    }
-    if (key.indexOf('$') >= 0) {
-      throw new IllegalArgumentException("Java inner classes are not supported : " + key);
     }
     String realKey = StringUtils.trim(key);
     this.unitTest = unitTest;

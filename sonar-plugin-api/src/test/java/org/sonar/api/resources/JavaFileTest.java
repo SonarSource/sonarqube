@@ -55,14 +55,11 @@ public class JavaFileTest {
     assertThat(javaClass.getParent().getKey(), is("org.foo.bar"));
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void doNotAcceptInnerClasses() {
-    new JavaFile("org.foo.bar", "Hello$Bar");
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void doNotAcceptInnerClasses2() {
-    new JavaFile("org.foo.bar.Hello$Bar");
+  @Test
+  public void shouldAcceptFilenamesWithDollars() {
+    // $ is not used only for inner classes !!!
+    JavaFile javaFile = new JavaFile("org.foo.bar", "Hello$Bar");
+    assertThat(javaFile.getKey(), is("org.foo.bar.Hello$Bar"));
   }
 
   @Test
