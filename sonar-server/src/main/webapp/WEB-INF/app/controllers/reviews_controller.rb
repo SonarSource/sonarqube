@@ -57,6 +57,10 @@ class ReviewsController < ApplicationController
     @review_comment.review_id = params[:review_id]
     @review_comment.review_text = ""
     @rule_failure_permanent_id = params[:rule_failure_permanent_id]
+    if params[:update_comment]
+      @update_comment = "true"
+      @review_comment.review_text = params[:review_text]
+    end
     render :partial => "form_comment"
   end
 
@@ -105,6 +109,24 @@ class ReviewsController < ApplicationController
       @reviews = find_reviews_for_rule_failure @rule_failure_permanent_id
     end
     render "create_comment_result"
+  end
+
+  def update_comment
+    review = Review.find params[:review_comment][:review_id]
+    @review_comment = review.review_comments.last
+    unless current_user && current_user.id == @review_comment.user_id
+      render :text => "<b>Cannot modify the comment</b> : access denied."
+      return
+    end
+
+    @review_comment.review_text = params[:review_comment][:review_text]
+    @review_comment.created_at = DateTime.now
+    @rule_failure_permanent_id = params[:rule_failure_permanent_id]
+    if @review_comment.valid?
+      @review_comment.save
+      @reviews = find_reviews_for_rule_failure @rule_failure_permanent_id
+    end
+    render "update_comment_result"
   end
 
   ## -------------- PRIVATE -------------- ##

@@ -1,0 +1,6 @@
+if @reviews
+  page.replace_html "reviewFailure" + @rule_failure_permanent_id.to_s, :partial => "list", :locals => { :reviews => @reviews }
+else
+  @update_comment = "true"
+  page.replace_html "lastComment" + @review_comment.review_id.to_s, :partial => "form_comment"
+end

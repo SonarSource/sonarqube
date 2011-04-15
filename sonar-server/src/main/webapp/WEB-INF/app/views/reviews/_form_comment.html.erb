@@ -4,8 +4,15 @@
             :id => "commentText" + @review_comment.review_id.to_s,
             :style => "width:100%" %>
       <br/>
-      <%= submit_to_remote 'create_btn', 'Post', 
-                     :url => { :action => 'create_comment', :rule_failure_permanent_id => @rule_failure_permanent_id } %>
+      <% if @update_comment %>
+        <%= submit_to_remote 'create_btn', 'Update', 
+                     :url => { :action => 'update_comment', 
+                               :rule_failure_permanent_id => @rule_failure_permanent_id } %>      
+      <% else %>
+        <%= submit_to_remote 'create_btn', 'Post', 
+                     :url => { :action => 'create_comment', 
+                               :rule_failure_permanent_id => @rule_failure_permanent_id } %>
+      <% end %>
       <%= submit_to_remote 'cancel_btn', 'Cancel', 
                      :url => { :action => 'list', :rule_failure_permanent_id => @rule_failure_permanent_id.to_s },
                      :update => { :success => "reviewFailure" + @rule_failure_permanent_id.to_s } %>
