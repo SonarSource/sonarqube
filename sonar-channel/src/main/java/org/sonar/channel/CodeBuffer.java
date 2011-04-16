@@ -94,6 +94,7 @@ public class CodeBuffer implements CharSequence {
   }
 
   private void updateCursorPosition(int character) {
+    //see Java Language Specification : http://java.sun.com/docs/books/jls/third_edition/html/lexical.html#3.4
     if (character == LF || character == CR) {
       if ((lastChar != LF && lastChar != CR) || lastChar == character || lastChar == LF) {
         cursor.line++;

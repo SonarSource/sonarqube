@@ -80,7 +80,7 @@ public class HtmlDecoratorTest {
   public void shouldAddTagsBetweenEachLine() {
     HtmlOptions options = new HtmlOptions().setGenerateTable(true).setGenerateHtmlHeader(false);
     HtmlDecorator decorator = new HtmlDecorator(options);
-    CodeReader code = new CodeReader("\n\r\n");
+    CodeReader code = new CodeReader("\r\n\r");
     HtmlCodeBuilder output = new HtmlCodeBuilder();
 
     output.appendWithoutTransforming(decorator.getTagBeginOfFile());

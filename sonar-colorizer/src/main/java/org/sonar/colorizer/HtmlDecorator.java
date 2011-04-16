@@ -30,7 +30,7 @@ public class HtmlDecorator extends Tokenizer {
   private static final String CSS_PATH = "/sonar-colorizer.css";
 
   private HtmlOptions options;
-  private int lineId = 1;
+  private int lineId;
 
   private static final int LF = (int) '\n';
   private static final int CR = (int) '\r';
@@ -76,18 +76,15 @@ public class HtmlDecorator extends Tokenizer {
 
   @Override
   public boolean consume(CodeReader code, HtmlCodeBuilder codeBuilder) {
-    int currentChar = code.peek();
-
-    if (currentChar == LF) {
-      codeBuilder.appendWithoutTransforming(getTagAfter());
-      codeBuilder.appendWithoutTransforming(getTagBefore());
-    }
-
-    if (currentChar == LF || currentChar == CR) {
+    int lineNumber = code.getLinePosition();
+    if (code.peek() == LF || code.peek() == CR) {
       code.pop();
+      if (lineNumber != code.getLinePosition()) {
+        codeBuilder.appendWithoutTransforming(getTagAfter());
+        codeBuilder.appendWithoutTransforming(getTagBefore());
+      }
       return true;
     }
-
     return false;
   }
 
