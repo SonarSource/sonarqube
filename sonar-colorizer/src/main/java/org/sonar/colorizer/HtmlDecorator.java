@@ -31,9 +31,9 @@ public class HtmlDecorator extends Tokenizer {
 
   private HtmlOptions options;
   private int lineId = 1;
-  private boolean checked = false;
-  private boolean beginOfLine = true;
-  private boolean endOfLine = false;
+
+  private static final int LF = (int) '\n';
+  private static final int CR = (int) '\r';
 
   public HtmlDecorator(HtmlOptions options) {
     this.options = options;
@@ -53,6 +53,7 @@ public class HtmlDecorator extends Tokenizer {
       sb.append(options.getTableId());
     }
     sb.append("\"><tbody>");
+    sb.append("<tr id=\"" + lineId++ + "\"><td><pre>");
     return sb.toString();
   }
 
@@ -66,46 +67,28 @@ public class HtmlDecorator extends Tokenizer {
   }
 
   public String getTagBefore() {
-    StringBuilder sb = new StringBuilder();
-    if (beginOfLine) {
-      sb.append("<tr id=\"");
-      sb.append(lineId++);
-      sb.append("\"><td><pre>");
-    }
-    return sb.toString();
+    return "<tr id=\"" + lineId++ + "\"><td><pre>";
   }
 
   public String getTagAfter() {
-    if (endOfLine) {
-      return "</pre></td></tr>";
-    }
-    return "";
-  }
-
-  private boolean hasNextToken(CodeReader code) {
-    if (checked) {
-      checked = false;
-      return false;
-    }
-    int lastChar = code.lastChar();
-    beginOfLine = (lastChar == -1 || lastChar == (int) '\n');
-
-    int peek = code.peek();
-    endOfLine = (peek == (int) '\n' || peek == -1);
-
-    checked = beginOfLine || endOfLine;
-    return checked;
+    return "</pre></td></tr>";
   }
 
   @Override
   public boolean consume(CodeReader code, HtmlCodeBuilder codeBuilder) {
-    if (hasNextToken(code)) {
-      codeBuilder.appendWithoutTransforming(getTagBefore());
+    int currentChar = code.peek();
+
+    if (currentChar == LF) {
       codeBuilder.appendWithoutTransforming(getTagAfter());
-      return true;
-    } else {
-      return false;
+      codeBuilder.appendWithoutTransforming(getTagBefore());
     }
+
+    if (currentChar == LF || currentChar == CR) {
+      code.pop();
+      return true;
+    }
+
+    return false;
   }
 
   public static String getCss() {

@@ -26,7 +26,11 @@ import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -37,7 +41,6 @@ import java.util.concurrent.Future;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class CodeColorizerTest {
@@ -53,7 +56,6 @@ public class CodeColorizerTest {
   }
 
   @Test
-  @Ignore("see http://jira.codehaus.org/browse/SONAR-2115")
   public void shouldSupportWindowsEndOfLines() throws IOException {
     StringBuilder windowsFile = new StringBuilder();
     List<String> lines = FileUtils.readLines(FileUtils.toFile(getClass().getResource("/org/sonar/colorizer/samples/Sample.java")));

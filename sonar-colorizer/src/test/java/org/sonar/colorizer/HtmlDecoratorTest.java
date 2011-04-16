@@ -19,11 +19,14 @@
  */
 package org.sonar.colorizer;
 
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertThat;
-import org.junit.Test;
 import static org.junit.internal.matchers.StringContains.containsString;
+
+import org.junit.Test;
+import org.sonar.channel.CodeReader;
 
 public class HtmlDecoratorTest {
 
@@ -74,11 +77,31 @@ public class HtmlDecoratorTest {
   }
 
   @Test
+  public void shouldAddTagsBetweenEachLine() {
+    HtmlOptions options = new HtmlOptions().setGenerateTable(true).setGenerateHtmlHeader(false);
+    HtmlDecorator decorator = new HtmlDecorator(options);
+    CodeReader code = new CodeReader("\n\r\n");
+    HtmlCodeBuilder output = new HtmlCodeBuilder();
+
+    output.appendWithoutTransforming(decorator.getTagBeginOfFile());
+    assertThat(decorator.consume(code, output), is(true));
+    assertThat(decorator.consume(code, output), is(true));
+    assertThat(decorator.consume(code, output), is(true));
+    output.appendWithoutTransforming(decorator.getTagEndOfFile());
+    
+    assertThat(output.toString(), is(
+        "<table class=\"code\" id=\"\"><tbody>"
+        + "<tr id=\"1\"><td><pre></pre></td></tr>" 
+        + "<tr id=\"2\"><td><pre></pre></td></tr>" 
+        + "<tr id=\"3\"><td><pre></pre></td></tr>"
+        + "</tbody></table>"));
+  }
+
+  @Test
   public void getCss() {
     assertThat(HtmlDecorator.getCss().length(), greaterThan(100));
     assertThat(HtmlDecorator.getCss(), containsString(".code"));
   }
-
 
   public void assertContains(String html, String... strings) {
     for (String string : strings) {
