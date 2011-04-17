@@ -26,11 +26,11 @@ class SnapshotSource < ActiveRecord::Base
     from = (options[:from] ? options[:from].to_i - 1 : 0)
     to = (options[:to] ? options[:to].to_i - 2 : -1)
 
-   if (options[:color]=='true')
-      lines=Java::OrgSonarServerUi::JRubyFacade.new.colorizeCode(data, snapshot.project.language).split("\n")
-   else
-     lines=lines(false)
-   end
+    if (options[:color]=='true')
+      lines=syntax_highlighted_lines()
+    else
+      lines=lines(false)
+    end
 
     json = {}
     lines[from..to].each_with_index do |line, id|
@@ -67,7 +67,22 @@ class SnapshotSource < ActiveRecord::Base
   end
 
   def lines(encode)
-    encoded_data(encode).split("\n")
+    SnapshotSource.split_newlines(encoded_data(encode))
+  end
+  
+  def syntax_highlighted_source
+    @syntax_highlighted_source||=
+      begin
+        data ? Java::OrgSonarServerUi::JRubyFacade.getInstance().colorizeCode(data, snapshot.project.language) : ''
+      end
+  end
+  
+  def syntax_highlighted_lines
+    SnapshotSource.split_newlines(syntax_highlighted_source)
   end
 
+  private
+  def self.split_newlines(input)
+    input.split(/\r?\n|\r/)
+  end
 end

@@ -212,7 +212,7 @@ class Snapshot < ActiveRecord::Base
   def period_datetime(period_index)
     project_snapshot.send "period#{period_index}_date"
   end
-
+  
   private
 
   def measures_hash

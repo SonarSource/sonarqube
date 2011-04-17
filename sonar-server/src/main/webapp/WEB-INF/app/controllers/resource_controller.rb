@@ -78,7 +78,7 @@ class ResourceController < ApplicationController
     @expanded=(params[:expand]=='true')
 
     if @snapshot.source
-      source_lines=Java::OrgSonarServerUi::JRubyFacade.new.colorizeCode(@snapshot.source.data, @snapshot.project.language).split("\n")
+      source_lines=@snapshot.source.syntax_highlighted_lines()
       init_scm()
 
       @lines=[]
