@@ -19,11 +19,11 @@
  */
 package org.sonar.colorizer;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.apache.commons.io.IOUtils;
 import org.sonar.channel.CodeReader;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class HtmlDecorator extends Tokenizer {
 
@@ -52,8 +52,7 @@ public class HtmlDecorator extends Tokenizer {
     if (options.getTableId() != null) {
       sb.append(options.getTableId());
     }
-    sb.append("\"><tbody>");
-    sb.append("<tr id=\"" + lineId++ + "\"><td><pre>");
+    sb.append("\"><tbody><tr id=\"").append(lineId++).append("\"><td><pre>");
     return sb.toString();
   }
 
