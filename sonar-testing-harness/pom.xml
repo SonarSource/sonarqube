@@ -37,6 +37,10 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.dbunit</groupId>
       <artifactId>dbunit</artifactId>
       <exclusions>
