@@ -1,6 +1,6 @@
 /*
  * Sonar, open source software quality management tool.
- * Copyright (C) 2008-2011 SonarSource
+ * Copyright (C) 2009 SonarSource SA
  * mailto:contact AT sonarsource DOT com
  *
  * Sonar is free software; you can redistribute it and/or
@@ -28,6 +28,10 @@ import org.hibernate.dialect.HSQLDialect;
 public class HsqlDb implements Dialect {
 
   public String getId() {
+    return "hsqldb";
+  }
+
+  public String getActiveRecordDialectCode() {
     return "hsqldb";
   }
 

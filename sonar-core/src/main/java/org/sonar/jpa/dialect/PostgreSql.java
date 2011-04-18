@@ -1,6 +1,6 @@
 /*
  * Sonar, open source software quality management tool.
- * Copyright (C) 2008-2011 SonarSource
+ * Copyright (C) 2009 SonarSource SA
  * mailto:contact AT sonarsource DOT com
  *
  * Sonar is free software; you can redistribute it and/or
@@ -31,6 +31,10 @@ public class PostgreSql implements Dialect {
 
   public String getId() {
     return "postgresql";
+  }
+
+  public String getActiveRecordDialectCode() {
+    return "postgre";
   }
 
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {

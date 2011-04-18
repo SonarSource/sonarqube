@@ -1,6 +1,6 @@
 /*
  * Sonar, open source software quality management tool.
- * Copyright (C) 2008-2011 SonarSource
+ * Copyright (C) 2009 SonarSource SA
  * mailto:contact AT sonarsource DOT com
  *
  * Sonar is free software; you can redistribute it and/or
@@ -33,6 +33,11 @@ public interface Dialect {
    * @return the hibernate dialect class to be used
    */
   Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass();
+
+  /**
+   * @return the activerecord dialect to be used
+   */
+  String getActiveRecordDialectCode();
 
   /**
    * Used to autodetect a dialect for a given driver URL

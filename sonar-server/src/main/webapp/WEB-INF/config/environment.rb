@@ -62,11 +62,11 @@ module ActiveRecord
         @config[:connection_alive_sql] ||= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.validationQuery')
 
         @jndi_connection = true # used in JndiConnectionPoolCallbacks to close this initial connection
-        
+
         @connection_factory = JdbcConnectionFactory.impl do
           ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConnection()
         end
-        @config[:driver] = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.driverClassName')
+        @config[:dialect] = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDialect().getActiveRecordDialectCode()
 
         connection # force the connection to load
         set_native_database_types
@@ -81,7 +81,7 @@ end
 
 class ActiveRecord::Migration
   def self.alter_to_big_primary_key(tablename)
-    dialect = ActiveRecord::Base.configurations[ ENV['RAILS_ENV'] ]["dialect"]
+    dialect = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDialect().getActiveRecordDialectCode()
     case dialect
     when "postgre"
       execute "ALTER TABLE #{tablename} ALTER COLUMN id TYPE bigint"

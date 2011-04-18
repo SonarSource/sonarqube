@@ -21,6 +21,7 @@ package org.sonar.jpa.session;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.cfg.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseProperties;
@@ -154,7 +155,7 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
       props.put("hibernate.connection.isolation", Integer.toString(transactionIsolation));
     }
     props.put("hibernate.hbm2ddl.auto", getConfiguration().getString(DatabaseProperties.PROP_HIBERNATE_HBM2DLL, "validate"));
-    props.put("hibernate.dialect", getDialectClass());
+    props.put(Environment.DIALECT, getDialectClass());
 
     props.put("hibernate.generate_statistics", getConfiguration().getBoolean(DatabaseProperties.PROP_HIBERNATE_GENERATE_STATISTICS, false));
     props.put("hibernate.show_sql", Boolean.valueOf(LOG_SQL.isInfoEnabled()).toString());

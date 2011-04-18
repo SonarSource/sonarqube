@@ -35,6 +35,10 @@ public class Derby implements Dialect {
     return "derby";
   }
 
+  public String getActiveRecordDialectCode() {
+    return "derby";
+  }
+
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
     return DerbyWithDecimalDialect.class;
   }
