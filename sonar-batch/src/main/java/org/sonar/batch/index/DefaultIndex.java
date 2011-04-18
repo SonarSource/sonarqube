@@ -36,6 +36,7 @@ import org.sonar.api.resources.*;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
@@ -283,12 +284,27 @@ public class DefaultIndex extends SonarIndex {
   //
   //
 
-  public List<Violation> getViolations(Resource resource) {
+  /**
+   * {@inheritDoc}
+   */
+  public List<Violation> getViolations(ViolationQuery violationQuery) {
+    Resource resource = violationQuery.getResource();
+    if (resource == null) {
+      throw new IllegalArgumentException("A resource must be set on the ViolationQuery in order to search for violations.");
+    }
     Bucket bucket = buckets.get(resource);
     if (bucket == null) {
       return Collections.emptyList();
     }
-    return bucket.getViolations();
+    List<Violation> filteredViolations = Lists.newArrayList();
+    boolean ignoreSwitchedOff = violationQuery.ignoreSwitchedOff();
+    for (Violation violation : bucket.getViolations()) {
+      if ( ignoreSwitchedOff && violation.isSwitchedOff()) {
+        continue;
+      }
+      filteredViolations.add(violation);
+    }
+    return filteredViolations;
   }
 
   public void addViolation(Violation violation, boolean force) {

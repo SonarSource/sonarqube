@@ -34,10 +34,19 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Directory;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.JavaPackage;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Library;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
@@ -47,6 +56,7 @@ public class DefaultIndexTest {
 
   private DefaultIndex index = null;
   private DefaultResourceCreationLock lock;
+  private Rule rule;
 
   @Before
   public void createIndex() {
@@ -58,11 +68,15 @@ public class DefaultIndexTest {
     Project project = new Project("project");
 
     ResourceFilter filter = new ResourceFilter() {
+
       public boolean isIgnored(Resource resource) {
         return StringUtils.containsIgnoreCase(resource.getKey(), "excluded");
       }
     };
-    index.setCurrentProject(project, new ResourceFilters(new ResourceFilter[] { filter }), new ViolationFilters(), RulesProfile.create());
+    RulesProfile rulesProfile = RulesProfile.create();
+    rule = Rule.create("repoKey", "ruleKey", "Rule");
+    rulesProfile.activateRule(rule, null);
+    index.setCurrentProject(project, new ResourceFilters(new ResourceFilter[] { filter }), new ViolationFilters(), rulesProfile);
     index.doStart(project);
   }
 
@@ -185,4 +199,40 @@ public class DefaultIndexTest {
 
     assertThat(index.getViolations(file).size(), is(0));
   }
+
+  @Test
+  public void testGetViolations() {
+    File file = new File("org/foo/Bar.java");
+    Violation violation1 = Violation.create(rule, file);
+    index.addViolation(violation1);
+    Violation violation2 = Violation.create(rule, file);
+    violation2.setSwitchedOff(true);
+    index.addViolation(violation2);
+    Violation violation3 = Violation.create(rule, file);
+    violation3.setSwitchedOff(true);
+    index.addViolation(violation3);
+
+    assertThat(index.getViolations(file).size(), is(1));
+  }
+
+  @Test
+  public void testGetViolationsWithQuery() {
+    File file = new File("org/foo/Bar.java");
+    Violation violation1 = Violation.create(rule, file);
+    index.addViolation(violation1);
+    Violation violation2 = Violation.create(rule, file);
+    violation2.setSwitchedOff(true);
+    index.addViolation(violation2);
+    Violation violation3 = Violation.create(rule, file);
+    violation3.setSwitchedOff(true);
+    index.addViolation(violation3);
+
+    assertThat(index.getViolations(ViolationQuery.create().forResource(file).ignoreSwitchedOff(false)).size(), is(3));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGetViolationsWithQueryWithNoResource() {
+    index.getViolations(ViolationQuery.create());
+  }
+
 }

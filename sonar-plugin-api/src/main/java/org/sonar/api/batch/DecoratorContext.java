@@ -26,6 +26,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.violations.ViolationQuery;
 
 import java.util.Collection;
 import java.util.Date;
@@ -101,7 +102,19 @@ public interface DecoratorContext {
   // RULES
 
   /**
-   * Read-only rule violations.
+   * Returns the violations that match the {@link ViolationQuery} parameters.
+   * 
+   * @since 2.8
+   * @param violationQuery
+   *          the request parameters specified as a {@link ViolationQuery}
+   * @return the list of violations that match those parameters
+   */
+  public abstract List<Violation> getViolations(ViolationQuery violationQuery);
+
+  /**
+   * Returns all the active (= non switched-off) violations found on the current resource.
+   * 
+   * @return the list of violations
    */
   List<Violation> getViolations();
 

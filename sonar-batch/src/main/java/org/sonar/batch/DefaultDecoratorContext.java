@@ -36,6 +36,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.violations.ViolationQuery;
 
 public class DefaultDecoratorContext implements DecoratorContext {
 
@@ -117,6 +118,16 @@ public class DefaultDecoratorContext implements DecoratorContext {
     return this;
   }
 
+  /**
+  * {@inheritDoc}
+  */
+  public List<Violation> getViolations(ViolationQuery violationQuery) {
+    return index.getViolations(violationQuery);
+  }
+  
+  /**
+  * {@inheritDoc}
+  */
   public List<Violation> getViolations() {
     return index.getViolations(resource);
   }
