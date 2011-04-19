@@ -48,9 +48,11 @@ public class ViolationPersisterDecoratorTest {
   public void shouldGenerateCorrectChecksums() {
     List<String> crlf = ViolationPersisterDecorator.getChecksums("Hello\r\nWorld");
     List<String> lf = ViolationPersisterDecorator.getChecksums("Hello\nWorld");
+    List<String> cr = ViolationPersisterDecorator.getChecksums("Hello\rWorld");
     assertThat(crlf.size(), is(2));
     assertThat(crlf.get(0), not(equalTo(crlf.get(1))));
     assertThat(lf, equalTo(crlf));
+    assertThat(cr, equalTo(crlf));
 
     assertThat(ViolationPersisterDecorator.getChecksum("\tvoid  method()  {\n"),
         equalTo(ViolationPersisterDecorator.getChecksum("  void method() {")));
