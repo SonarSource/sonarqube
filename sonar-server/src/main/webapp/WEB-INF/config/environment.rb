@@ -100,7 +100,7 @@ class ActiveRecord::Migration
   end
 
   def self.alter_to_big_integer(tablename, columnname, indexname=nil)
-    dialect = ActiveRecord::Base.configurations[ ENV['RAILS_ENV'] ]["dialect"]
+    dialect = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDialect().getActiveRecordDialectCode()
     case dialect
      when "sqlserver"
      		execute "DROP INDEX #{indexname} on #{tablename}" if indexname
