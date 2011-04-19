@@ -22,7 +22,6 @@ package org.sonar.plugins.surefire.api;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Test;
-import org.mockito.internal.matchers.StartsWith;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
@@ -60,7 +59,7 @@ public class AbstractSurefireParserTest {
 
     parser.collect(new Project("foo"), context, getDir("noReports"));
 
-    verify(context).saveMeasure(CoreMetrics.TESTS, 0.0);
+    verifyZeroInteractions(context);
   }
 
   @Test

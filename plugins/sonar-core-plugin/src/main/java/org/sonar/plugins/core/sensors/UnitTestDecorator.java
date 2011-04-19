@@ -60,6 +60,9 @@ public class UnitTestDecorator implements Decorator {
       if (isPositive(tests, true) && isPositive(errors, false) && isPositive(failures, false)) {
         Double errorsAndFailuresRatio = (errors + failures) * 100.0 / tests;
         context.saveMeasure(CoreMetrics.TEST_SUCCESS_DENSITY, 100.0 - errorsAndFailuresRatio);
+      } else if (tests == null && ResourceUtils.isProject(resource)) {
+        // See http://jira.codehaus.org/browse/SONAR-2371
+        context.saveMeasure(CoreMetrics.TESTS, 0.0);
       }
     }
   }

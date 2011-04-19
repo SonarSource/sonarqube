@@ -33,10 +33,11 @@ import org.sonar.plugins.surefire.data.SurefireStaxHandler;
 import org.sonar.plugins.surefire.data.UnitTestClassReport;
 import org.sonar.plugins.surefire.data.UnitTestIndex;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Map;
+
+import javax.xml.stream.XMLStreamException;
 
 /**
  * @since 2.4
@@ -46,9 +47,7 @@ public abstract class AbstractSurefireParser {
   public void collect(Project project, SensorContext context, File reportsDir) {
     File[] xmlFiles = getReports(reportsDir);
 
-    if (xmlFiles.length == 0) {
-      insertZeroWhenNoReports(project, context);
-    } else {
+    if (xmlFiles.length != 0) {
       parseFiles(context, xmlFiles);
     }
   }
@@ -64,18 +63,11 @@ public abstract class AbstractSurefireParser {
     });
   }
 
-  private void insertZeroWhenNoReports(Project project, SensorContext context) {
-    if (!StringUtils.equalsIgnoreCase("pom", project.getPackaging())) {
-      context.saveMeasure(CoreMetrics.TESTS, 0.0);
-    }
-  }
-
   private void parseFiles(SensorContext context, File[] reports) {
     UnitTestIndex index = new UnitTestIndex();
     parseFiles(reports, index);
     sanitize(index);
     save(index, context);
-
   }
 
   private void parseFiles(File[] reports, UnitTestIndex index) {
@@ -120,7 +112,6 @@ public abstract class AbstractSurefireParser {
       }
     }
   }
-
 
   private void saveMeasure(SensorContext context, Resource resource, Metric metric, double value) {
     if (!Double.isNaN(value)) {

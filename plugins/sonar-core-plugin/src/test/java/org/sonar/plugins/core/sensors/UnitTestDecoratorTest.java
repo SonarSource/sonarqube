@@ -21,25 +21,52 @@ package org.sonar.plugins.core.sensors;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import org.junit.Test;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Project;
 
 public class UnitTestDecoratorTest {
 
+  private UnitTestDecorator decorator;
+
+  @Before
+  public void setUp() {
+    decorator = new UnitTestDecorator();
+  }
+
   @Test
   public void generatesMetrics() {
-    assertThat(new UnitTestDecorator().generatesMetrics().size(), is(5));
+    assertThat(decorator.generatesMetrics().size(), is(5));
   }
 
   @Test
   public void doNotDecorateStaticAnalysis() {
     Project project = mock(Project.class);
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.STATIC);
-    assertThat(new UnitTestDecorator().shouldExecuteOnProject(project), is(false));
+    assertThat(decorator.shouldExecuteOnProject(project), is(false));
 
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.DYNAMIC);
-    assertThat(new UnitTestDecorator().shouldExecuteOnProject(project), is(true));
+    assertThat(decorator.shouldExecuteOnProject(project), is(true));
   }
+
+  /**
+   * See http://jira.codehaus.org/browse/SONAR-2371
+   */
+  @Test
+  public void shouldSaveZeroOnProject() {
+    DecoratorContext context = mock(DecoratorContext.class);
+    Project project = new Project("");
+    project.setAnalysisType(Project.AnalysisType.DYNAMIC);
+
+    decorator.decorate(project, context);
+
+    verify(context).saveMeasure(CoreMetrics.TESTS, 0.0);
+  }
+
 }
