@@ -96,7 +96,7 @@
       <td><% if logged_in? %><%= link_to_favourite(snapshot.project) -%><% end %></td>
       <% filter.columns.each do |column| %>
       <td class="<%= column_align(column) -%>">
-        <% if column.on_metric?
+        <% if column.on_metric? && column.metric
              measure = @filter_context.measure(snapshot, column.metric)
         %>
           <% if column.variation %>
