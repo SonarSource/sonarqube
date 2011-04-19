@@ -46,6 +46,9 @@ class CreateReview < ActiveRecord::Migration
       t.column 'review_text', 		:text, 		:null => true
     end
     
+    alter_to_big_primary_key('reviews')
+    alter_to_big_primary_key('review_comments')
+    
   end
 
 end
