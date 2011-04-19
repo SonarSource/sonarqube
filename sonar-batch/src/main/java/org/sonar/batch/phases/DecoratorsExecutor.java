@@ -27,6 +27,7 @@ import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DecoratorsSelector;
 import org.sonar.batch.DefaultDecoratorContext;
 import org.sonar.batch.events.EventBus;
@@ -53,7 +54,7 @@ public class DecoratorsExecutor implements BatchComponent {
     eventBus.fireEvent(new DecoratorsPhaseEvent(Lists.newArrayList(decorators), false));
   }
 
-  private DecoratorContext decorateResource(Resource resource, Collection<Decorator> decorators, boolean executeDecorators) {
+  DecoratorContext decorateResource(Resource resource, Collection<Decorator> decorators, boolean executeDecorators) {
     List<DecoratorContext> childrenContexts = Lists.newArrayList();
     for (Resource child : index.getChildren(resource)) {
       boolean isModule = (child instanceof Project);
@@ -64,12 +65,22 @@ public class DecoratorsExecutor implements BatchComponent {
     DefaultDecoratorContext context = new DefaultDecoratorContext(resource, index, childrenContexts);
     if (executeDecorators) {
       for (Decorator decorator : decorators) {
-        eventBus.fireEvent(new DecoratorExecutionEvent(decorator, true));
-        decorator.decorate(resource, context);
-        eventBus.fireEvent(new DecoratorExecutionEvent(decorator, false));
+        executeDecorator(decorator, context, resource);
       }
     }
     return context;
+  }
+
+  void executeDecorator(Decorator decorator, DefaultDecoratorContext context, Resource resource) {
+    try {
+      eventBus.fireEvent(new DecoratorExecutionEvent(decorator, true));
+      decorator.decorate(resource, context);
+      eventBus.fireEvent(new DecoratorExecutionEvent(decorator, false));
+      
+    } catch (Exception e) {
+      // SONAR-2278 the resource should not be lost in exception stacktrace.
+      throw new SonarException("Fail to decorate '" + resource + "'", e);
+    }
   }
 
 }
