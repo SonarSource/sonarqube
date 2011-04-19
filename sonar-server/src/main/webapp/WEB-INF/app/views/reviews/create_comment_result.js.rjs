@@ -1,5 +1,5 @@
-if @reviews
-  page.replace_html "reviewFailure" + @rule_failure_permanent_id.to_s, :partial => "list", :locals => { :reviews => @reviews }
+if @violation
+  page.replace "vId" + @violation.permanent_id.to_s, :partial => "resource/violation", :locals => { :violation => @violation }
 else
-  page.replace_html "createComment" + @review_comment.review_id.to_s, :partial => "form_comment"
+  page.replace_html "reviewForm" + @rule_failure_permanent_id.to_s, :partial => "form_comment"
 end

@@ -1,22 +1,28 @@
 <% form_for :review_comment, @review_comment do |f| %>
       <%= f.hidden_field :review_id %>
       <%= f.text_area :review_text, :rows => 8, 
-            :id => "commentText" + @review_comment.review_id.to_s,
-            :style => "width:100%" %>
+            :id => "commentText" + @rule_failure_permanent_id.to_s,
+            :style => "width:100%",
+            :onKeyUp => "if (this.value=='') $('submit_btn').disabled='true'; else $('submit_btn').disabled='';" %>
       <br/>
-      <% if @update_comment %>
-        <%= submit_to_remote 'create_btn', 'Update', 
-                     :url => { :action => 'update_comment', 
-                               :rule_failure_permanent_id => @rule_failure_permanent_id } %>      
-      <% else %>
-        <%= submit_to_remote 'create_btn', 'Post', 
-                     :url => { :action => 'create_comment', 
-                               :rule_failure_permanent_id => @rule_failure_permanent_id } %>
-      <% end %>
-      <%= submit_to_remote 'cancel_btn', 'Cancel', 
-                     :url => { :action => 'list', :rule_failure_permanent_id => @rule_failure_permanent_id.to_s },
-                     :update => { :success => "reviewFailure" + @rule_failure_permanent_id.to_s } %>
       
-      <%= f.error_messages :header_message => "Can't save the comment", :message => "", :header_tag => :h3%>
+      <% if @update_comment %>
+        <%= submit_to_remote 'submit_btn', 'Update comment', 
+                     :url => { :action => 'update_comment', 
+                               :rule_failure_permanent_id => @rule_failure_permanent_id },
+                     :html => { :id => "submit_btn" } %>
+        &nbsp;&nbsp;
+        <%= link_to_remote 'Cancel', 
+                     :url => { :action => 'display_violation', 
+                               :rule_failure_permanent_id => @rule_failure_permanent_id },
+                     :update => "vId" + @rule_failure_permanent_id.to_s %>     
+      <% else %>
+        <%= submit_to_remote 'submit_btn', 'Post comment', 
+                     :url => { :action => 'create_comment', 
+                               :rule_failure_permanent_id => @rule_failure_permanent_id },
+                     :html => { :id => "submit_btn", :disabled => true } %>
+        &nbsp;&nbsp;
+        <a onclick="$('reviewForm<%= @rule_failure_permanent_id.to_s -%>').style.display='none'; $('commentAction<%= @rule_failure_permanent_id.to_s -%>').style.display='';" href="#">Cancel</a>
+      <% end %>
       
 <% end %>

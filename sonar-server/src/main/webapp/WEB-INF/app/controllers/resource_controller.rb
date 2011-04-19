@@ -171,7 +171,7 @@ class ResourceController < ApplicationController
     @expandable=(@lines!=nil)
     @filtered=!@expanded
 
-    conditions='snapshot_id=?'
+    conditions='switched_off is not true AND snapshot_id=?'
     values=[@snapshot.id]
     unless params[:rule].blank?
       severity=Sonar::RulePriority.id(params[:rule])

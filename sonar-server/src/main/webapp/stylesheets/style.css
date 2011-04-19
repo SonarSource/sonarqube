@@ -665,23 +665,47 @@ ul.operations li img {
 .sources2 span.author, .sources2 span.author a {
   font-size: 85%;
 }
-.sources2 div.violations {
-  background-color: #FFFFFF; /* #EFEFEF */
-  margin: 2px;
+.sources2 div.violation {
+  background-color:#FFF;
+  margin:0;
   border: 1px solid #DDD;
 }
-.sources2 div.violation {
-  background-color: #FFFFFF; /* #EFEFEF */
-  margin: 0;
-  padding: 3px 5px;
+.sources2 div.comment{
+  background-color:#FBFBFB;
+  margin:0;
+  padding:5px 10px;
+  border-top: 1px solid #DDD;
+  line-height: 1.5em;
+}
+.sources2 div.comment h4{
+  font-size: 90%;
+  margin-bottom: 2px;
+}
+.sources2 div.violation .actions{
+  visibility: hidden;
+}
+.sources2 div.violation:hover .actions{
+  visibility: visible;
+}
+.sources2 div.vtitle{
+  background-color:#E4ECF3;
+  margin:0;
+  padding:0 10px;
+  line-height: 2.2em;
+  text-shadow: 1px 1px 0 #FFF;
+  color:#777
+}
+.sources2 div.vtitle a.action {
+  color: #777;
 }
 span.rulename, span.rulename a {
-  color: #4183C4;
-  text-decoration: none;
+  color:#4183C4;
+  text-decoration:none;
+  font-weight: bold;
 }
 span.violation_date {
-  color: #AAA;
-  font-size: 85%;
+  color:#777;
+  font-size:90%;
 }
 span.rulename a:hover {
   text-decoration: underline;
@@ -724,6 +748,13 @@ span.rulename a:hover {
   border-top: 1px solid #DDD;
   border-bottom: 1px solid #DDD;
   height: 40px;
+}
+.sources2 td.violations{
+  background-color: #FFF;
+  padding: 10px;
+  border-bottom: 1px solid #DDD;
+  border-right: 1px solid #DDD;
+  border-top: 1px solid #DDD;
 }
 #source_title {
   padding: 10px 0;

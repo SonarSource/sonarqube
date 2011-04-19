@@ -1,6 +1,5 @@
-if @reviews
-  page.replace_html "createReviewLink" + @review.rule_failure_permanent_id.to_s, image_tag("reviews/review.png")
-  page.replace_html "reviewFailure" + @review.rule_failure_permanent_id.to_s, :partial => "list", :locals => { :reviews => @reviews }
-else
-  page.replace_html "reviewFailure" + @review.rule_failure_permanent_id.to_s, :partial => "form"
+if @violation
+  page.replace "vId" + @violation.permanent_id.to_s, :partial => "resource/violation", :locals => { :violation => @violation }
+else 
+  page.replace_html "reviewForm" + @review.rule_failure_permanent_id.to_s, :partial => "form"
 end

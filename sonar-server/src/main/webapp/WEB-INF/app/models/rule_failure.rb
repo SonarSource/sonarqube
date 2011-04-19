@@ -24,6 +24,15 @@ class RuleFailure < ActiveRecord::Base
   belongs_to :snapshot
   has_many :reviews, :primary_key => "permanent_id", :foreign_key => "rule_failure_permanent_id", :order => "created_at"
 
+  def get_open_review
+    reviews.each do |review|
+      if review.status == "open"
+        return review
+      end
+    end
+    return nil
+  end
+  
   def to_hash_json
     json = {}
     json['message'] = message

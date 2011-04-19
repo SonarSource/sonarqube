@@ -1,48 +1,120 @@
-<% 
-  displayReviewFailureDiv = 'block'
-  if violation.reviews.blank?
-    displayReviewFailureDiv = 'none'
-  end
+<div id="vId<%= violation.permanent_id -%>">
+<%
+  current_open_review = violation.get_open_review
 %>
+
 <div class="violation">
-  <table style="width:100%">
-    <tr>
-      <td style="width: 30px; vertical-align: top; text-align: center;">
-      	<% if current_user && violation.reviews.blank? %>
-          <%= link_to_remote image_tag("reviews/+review.png"),  
+
+  <div class="vtitle">
+    <% if current_open_review %>
+    <div style="float: right"><span class="violation_date">#<%= current_open_review.id.to_s -%></span></div>
+    <% end %>
+    
+    <%= image_tag("priority/" + violation.failure_level.to_s + ".png") -%>
+    &nbsp;
+    <%= image_tag("sep12.png") -%>
+    &nbsp;&nbsp;
+    <span class="rulename">
+      <a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => violation.rule.key, :layout => 'false' -%>"><%= h(violation.rule.name) -%></a>
+    </span>
+    &nbsp;&nbsp;
+    <%= image_tag("sep12.png") -%>
+    &nbsp;&nbsp;
+    <%
+	  if violation.created_at
+		duration=Date.today - violation.created_at.to_date
+    %>
+	  <span class="violation_date"><%= duration==0 ? 'today' : "#{duration} days ago" -%></span>
+    <% end %>
+    <% if current_open_review && current_open_review.assignee %>
+      <%= image_tag("sep12.png") -%>
+      &nbsp;&nbsp;
+      <%= h(current_open_review.assignee.name) -%>
+    <% end %>
+    
+    
+    <% if current_user %>
+    <span class="actions" id="vActions<%= violation.permanent_id.to_s -%>">
+      &nbsp;&nbsp;
+      <%= image_tag("sep12.png") -%>
+      &nbsp;&nbsp;
+      <% if current_open_review %>
+        <%= link_to_remote "Close review",  
+        		:url => { :controller => "reviews", :action => "close_review", :review_id => current_open_review.id, :rule_failure_permanent_id => violation.permanent_id },
+        		:update => "vId" + violation.permanent_id.to_s -%>
+        &nbsp;&nbsp;
+        <% if current_open_review.assignee == nil %>
+          <%= link_to_remote "Assign",  
+        		:url => { :controller => "reviews", :action => "form_assign", :review_id => current_open_review.id, :rule_failure_permanent_id => violation.permanent_id },
+        		:update => "vActions" + violation.permanent_id.to_s -%>
+          &nbsp;&nbsp;
+        <% end %>
+      <% end %>
+      <% unless current_open_review %>
+        <%= link_to_remote "Review",  
         		:url => { :controller => "reviews", :action => "form", :rule_failure_permanent_id => violation.permanent_id },
-        		:update => "reviewFailure" + violation.permanent_id.to_s,
-        		:html => { :id => "createReviewLink" + violation.permanent_id.to_s, :title => "Add a review" },
-        		:complete => "$('reviewFailure" + violation.permanent_id.to_s + "').style.display='';$('reviewText').focus();" -%>
-      	<% end %>
-      	<% unless violation.reviews.blank? %>
-      	  <%= image_tag("reviews/review.png") -%>
-      	<% end %>
-      </td>
-      
-      <td>
-		<img src="<%= ApplicationController.root_context -%>/images/priority/<%=violation.failure_level-%>.png"/>
-		
-		<span class="rulename"><a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => violation.rule.key, :layout => 'false' -%>"><%= h(violation.rule.name) -%></a></span>
-		 »
-		<%= h(violation.message) -%>
-		<%
-		   if violation.created_at
-		    duration=Date.today - violation.created_at.to_date
-		%>
-		  <span class="violation_date"><%= duration==0 ? 'today' : "#{duration} days ago" -%></span>
-		<% end %>
-		
-      </td>
-    </tr>
+        		:update => "reviewForm" + violation.permanent_id.to_s,
+        		:complete => "$('reviewForm" + violation.permanent_id.to_s + "').style.display='';$('reviewText').focus();" -%>
+        &nbsp;&nbsp;
+      <% end %>
+      <%= link_to_remote "Switch-off",  
+        		:url => { :controller => "reviews", :action => "form", :rule_failure_permanent_id => violation.permanent_id, :switch_off => true },
+        		:update => "reviewForm" + violation.permanent_id.to_s,
+        		:complete => "$('reviewForm" + violation.permanent_id.to_s + "').style.display='';$('reviewText').focus();" -%>
+      &nbsp;&nbsp;
+    </span>
+    <% end %>
     
-    <tr>
-      <td colspan="2">
-		<div id="reviewFailure<%= violation.permanent_id -%>" style="margin-left: 13px; padding: 10px 5px 5px 10px; border-left: 2px solid #EFEFEF; display:<%= displayReviewFailureDiv -%>">
-		  <%= render :partial => "reviews/list", :locals => { :reviews => violation.reviews } %>
-		</div>
-      </td>
-    </tr>
-    
-  </table>
+  </div>
+
+  <div class="comment">
+    <%= h(violation.message) -%>
+  </div>
+
+  <% 
+    if current_open_review
+      last_comment = current_open_review.review_comments.last
+      current_open_review.review_comments.each do |review_comment|
+  %>
+  <div class="comment">
+    <h4><%= image_tag("reviews/comment.png") -%> &nbsp;<b><%= review_comment.user.name -%></b> on <%= l review_comment.created_at -%>
+    <% if review_comment == last_comment && current_user && current_user.id == review_comment.user.id %>
+      <span class="actions">
+        &nbsp;&nbsp;
+        <%= image_tag("sep12.png") -%>
+        &nbsp;&nbsp;
+        <%= link_to_remote "Edit", 
+      		:url => { :controller => "reviews", :action => "form_comment", :review_id => current_open_review.id, :rule_failure_permanent_id => violation.permanent_id, :review_text => last_comment.review_text, :update_comment => "true" },
+      		:update => "lastComment" + violation.permanent_id.to_s,
+      		:complete => "$('commentText" + violation.permanent_id.to_s + "').focus()" -%>
+      </span>
+    <% end %>
+    </h4> 
+      <% if review_comment == last_comment %>
+        <div id="lastComment<%= violation.id -%>">
+          <%= h(review_comment.review_text) -%>
+        </div>
+      <% else %>
+        <%= h(review_comment.review_text) -%>
+      <% end %>
+  </div>
+  <% 
+      end
+    end
+  %>
+
+  <div class="comment" id="reviewForm<%= violation.permanent_id.to_s -%>" style="display: none">
+  </div>
+
 </div>
+
+<% if current_user && current_open_review %>
+<div style="padding: 5px" id="commentAction<%= violation.permanent_id -%>">
+  <%= link_to_remote "Add comment", 
+      		:url => { :controller => "reviews", :action => "form_comment", :review_id => current_open_review.id, :rule_failure_permanent_id => violation.permanent_id },
+      		:update => "reviewForm" + violation.permanent_id.to_s, 
+      		:complete => "$('commentAction" + violation.permanent_id.to_s + "').style.display='none';$('reviewForm" + violation.permanent_id.to_s + "').style.display='';$('commentText" + violation.permanent_id.to_s + "').focus()" -%>
+</div>
+<% end %>
+
+<div>

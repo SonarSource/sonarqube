@@ -23,7 +23,6 @@ class Review < ActiveRecord::Base
   belongs_to :resource, :class_name => "Project", :foreign_key => "resource_id"
   has_many :review_comments, :order => "created_at", :dependent => :destroy
   validates_presence_of :user, :message => "can't be empty"
-  validates_presence_of :assignee, :message => "can't be empty"
   validates_presence_of :title, :message => "can't be empty"
   validates_presence_of :review_type, :message => "can't be empty"
   validates_presence_of :status, :message => "can't be empty"

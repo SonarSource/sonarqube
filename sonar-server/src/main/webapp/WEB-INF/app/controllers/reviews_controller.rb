@@ -38,30 +38,23 @@ class ReviewsController < ApplicationController
     render :partial => "list", :locals => { :reviews => reviews }
   end
 
+  def display_violation
+    violation = find_last_rule_failure_with_permanent_id params[:rule_failure_permanent_id]
+    render :partial => "resource/violation", :locals => { :violation => violation }
+  end
+
   def form
     rule_failure = find_last_rule_failure_with_permanent_id params[:rule_failure_permanent_id]
     @review = Review.new
     @review.rule_failure_permanent_id = rule_failure.permanent_id
-    @review.user = current_user
-    @review.assignee = current_user
-    @user_options = add_all_users []
-    @review.title = rule_failure.message
     @review_comment = ReviewComment.new
     @review_comment.review_text = ""
-    render :partial => "form"
-  end
-
-  def form_comment
-    @review_comment = ReviewComment.new
-    @review_comment.user = current_user
-    @review_comment.review_id = params[:review_id]
-    @review_comment.review_text = ""
-    @rule_failure_permanent_id = params[:rule_failure_permanent_id]
-    if params[:update_comment]
-      @update_comment = "true"
-      @review_comment.review_text = params[:review_text]
+    if params[:switch_off]
+      @review.review_type = "f-positive"
+    else
+      @review.review_type = Review.default_type
     end
-    render :partial => "form_comment"
+    render :partial => "form"
   end
 
   def create
@@ -73,20 +66,43 @@ class ReviewsController < ApplicationController
 
     @review = Review.new(params[:review])
     @review.user = current_user
+    if params[:assign_to_me]
+      @review.assignee = current_user
+    end
+    @review.title = rule_failure.message
     @review.status = Review.default_status
-    @review.review_type = Review.default_type
     @review.severity = Sonar::RulePriority.to_s rule_failure.failure_level
     @review.resource = RuleFailure.find( @review.rule_failure_permanent_id, :include => ['snapshot'] ).snapshot.project
     @review_comment = ReviewComment.new(params[:review_comment])
     @review_comment.user = current_user
     @review.review_comments << @review_comment
     if @review.valid?
+      if @review.review_type == "f-positive" 
+        if rule_failure.get_open_review
+          current_open_review = rule_failure.get_open_review
+          current_open_review.status = "closed"
+          current_open_review.save
+        end
+        rule_failure.switched_off = true
+        rule_failure.save
+      end
       @review.save
-      @reviews = find_reviews_for_rule_failure @review.rule_failure_permanent_id
-    else
-      @user_options = add_all_users []
+      @violation = rule_failure
     end
     render "create_result"
+  end
+
+  def form_comment
+    @review_comment = ReviewComment.new
+    @review_comment.user = current_user
+    @review_comment.review_id = params[:review_id]
+    @review_comment.review_text = ""
+    @rule_failure_permanent_id = params[:rule_failure_permanent_id]
+    if params[:update_comment]
+      @update_comment = true
+      @review_comment.review_text = params[:review_text]
+    end
+    render :partial => "form_comment"
   end
 
   def create_comment
@@ -106,7 +122,7 @@ class ReviewsController < ApplicationController
       review.updated_at = @review_comment.created_at
       review.save
       # -- End of TODO code --
-      @reviews = find_reviews_for_rule_failure @rule_failure_permanent_id
+      @violation = rule_failure
     end
     render "create_comment_result"
   end
@@ -124,9 +140,44 @@ class ReviewsController < ApplicationController
     @rule_failure_permanent_id = params[:rule_failure_permanent_id]
     if @review_comment.valid?
       @review_comment.save
-      @reviews = find_reviews_for_rule_failure @rule_failure_permanent_id
+      review.updated_at = @review_comment.updated_at
+      review.save
+      @violation = find_last_rule_failure_with_permanent_id review.rule_failure_permanent_id
     end
-    render "update_comment_result"
+    render "create_comment_result"
+  end
+  
+  def form_assign
+    @user_options = add_all_users []
+    @review_id = params[:review_id]
+    @rule_failure_permanent_id = params[:rule_failure_permanent_id]
+    render :partial => "form_assign"
+  end
+  
+  def assign
+    review = Review.find params[:review_id]
+    unless current_user
+      render :text => "<b>Cannot edit the review</b> : access denied."
+      return
+    end
+    
+    review.assignee = User.find params[:assignee_id]
+    review.save
+    violation = find_last_rule_failure_with_permanent_id review.rule_failure_permanent_id
+    render :partial => "resource/violation", :locals => { :violation => violation }
+  end
+  
+  def close_review
+    review = Review.find params[:review_id]
+    unless current_user
+      render :text => "<b>Cannot edit the review</b> : access denied."
+      return
+    end
+    
+    review.status = "closed"
+    review.save
+    violation = find_last_rule_failure_with_permanent_id review.rule_failure_permanent_id
+    render :partial => "resource/violation", :locals => { :violation => violation }
   end
 
   ## -------------- PRIVATE -------------- ##
@@ -136,7 +187,6 @@ class ReviewsController < ApplicationController
     @user_names = [["Any", ""]]
     default_user = [""]
     if current_user
-      @user_names << ["Me", current_user.id]
       default_user = [current_user.id]
     end
     add_all_users @user_names
@@ -148,7 +198,11 @@ class ReviewsController < ApplicationController
   
   def add_all_users ( user_options )
     User.find( :all ).each do |user|
-      user_options << [user.name, user.id.to_s]
+      userName = user.name
+      if current_user.id == user.id
+        userName = "Me (" + user.name + ")"
+      end
+      user_options << [userName, user.id.to_s]
     end
     return user_options
   end
