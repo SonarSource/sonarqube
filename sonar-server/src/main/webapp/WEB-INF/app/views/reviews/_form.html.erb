@@ -3,7 +3,7 @@
       <%= f.hidden_field :review_type -%>
       
       <% if @review.review_type == "f-positive" %>
-          <b>Reason for flagging this violation as a false-positive:</b>
+          <b>Why is it a false-positive ?</b>
       <% end %>
       <%= text_area :review_comment, :review_text, 
            :id => "reviewText", :rows => 8, 

@@ -687,6 +687,9 @@ ul.operations li img {
 .sources2 div.violation:hover .actions{
   visibility: visible;
 }
+.sources2 div.violation .actions form {
+  display: inline;
+}
 .sources2 div.vtitle{
   background-color:#E4ECF3;
   margin:0;

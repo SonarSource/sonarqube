@@ -1,6 +1,7 @@
 <div id="vId<%= violation.permanent_id -%>">
 <%
   current_open_review = violation.get_open_review
+  false_positive = (current_open_review && current_open_review.review_type == "f-positive")
 %>
 
 <div class="violation">
@@ -25,6 +26,12 @@
 		duration=Date.today - violation.created_at.to_date
     %>
 	  <span class="violation_date"><%= duration==0 ? 'today' : "#{duration} days ago" -%></span>
+      &nbsp;&nbsp;
+    <% end %>
+    <% if false_positive %>
+      <%= image_tag("sep12.png") -%>
+      &nbsp;&nbsp;
+      False-Positive
     <% end %>
     <% if current_open_review && current_open_review.assignee %>
       <%= image_tag("sep12.png") -%>
@@ -35,20 +42,18 @@
     
     <% if current_user %>
     <span class="actions" id="vActions<%= violation.permanent_id.to_s -%>">
-      &nbsp;&nbsp;
       <%= image_tag("sep12.png") -%>
       &nbsp;&nbsp;
-      <% if current_open_review %>
+      <% if current_open_review && !false_positive %>
         <%= link_to_remote "Close review",  
         		:url => { :controller => "reviews", :action => "close_review", :review_id => current_open_review.id, :rule_failure_permanent_id => violation.permanent_id },
         		:update => "vId" + violation.permanent_id.to_s -%>
         &nbsp;&nbsp;
-        <% if current_open_review.assignee == nil %>
-          <%= link_to_remote "Assign",  
+        <%= link_to_remote (current_open_review.assignee == nil ? "Assign" : "Reassign"),  
         		:url => { :controller => "reviews", :action => "form_assign", :review_id => current_open_review.id, :rule_failure_permanent_id => violation.permanent_id },
-        		:update => "vActions" + violation.permanent_id.to_s -%>
-          &nbsp;&nbsp;
-        <% end %>
+        		:update => "vActions" + violation.permanent_id.to_s,
+        		:complete => "$('vActions" + violation.permanent_id.to_s + "').style.visibility='visible';$('assignee_id').focus();" -%>
+        &nbsp;&nbsp;
       <% end %>
       <% unless current_open_review %>
         <%= link_to_remote "Review",  
@@ -77,7 +82,8 @@
       current_open_review.review_comments.each do |review_comment|
   %>
   <div class="comment">
-    <h4><%= image_tag("reviews/comment.png") -%> &nbsp;<b><%= review_comment.user.name -%></b> on <%= l review_comment.created_at -%>
+    <% duration=Date.today - review_comment.created_at.to_date %>
+    <h4><%= image_tag("reviews/comment.png") -%> &nbsp;<b><%= review_comment.user.name -%></b> (<%= duration==0 ? 'today' : "#{duration} days ago" -%>)
     <% if review_comment == last_comment && current_user && current_user.id == review_comment.user.id %>
       <span class="actions">
         &nbsp;&nbsp;

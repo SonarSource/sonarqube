@@ -1,4 +1,6 @@
-<% form_tag do %>
+<%= image_tag("sep12.png") -%>
+&nbsp;&nbsp;
+<% form_tag :html => {:style => "display:inline"} do %>
   <%= hidden_field_tag :review_id, @review_id -%>
   <%= select_tag "assignee_id", options_for_select(@user_options, current_user.id.to_s)  %>
   &nbsp;&nbsp;
