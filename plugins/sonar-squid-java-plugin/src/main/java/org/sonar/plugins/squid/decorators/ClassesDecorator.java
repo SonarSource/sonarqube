@@ -23,15 +23,12 @@ import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.Scopes;
+import org.sonar.api.resources.*;
 
 public final class ClassesDecorator implements Decorator {
 
   public void decorate(Resource resource, DecoratorContext context) {
-    if (Scopes.isFile(resource)) {
+    if (Scopes.isFile(resource) && !Qualifiers.UNIT_TEST_FILE.equals(resource.getQualifier())) {
       int classes = 0;
       for (DecoratorContext child : context.getChildren()) {
         if (Scopes.isProgramUnit(child.getResource())) {
