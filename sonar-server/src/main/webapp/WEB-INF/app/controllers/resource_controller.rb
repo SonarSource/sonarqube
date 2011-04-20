@@ -171,7 +171,7 @@ class ResourceController < ApplicationController
     @expandable=(@lines!=nil)
     @filtered=!@expanded
 
-    conditions='switched_off is not true AND snapshot_id=?'
+    conditions='snapshot_id=?'
     values=[@snapshot.id]
     unless params[:rule].blank?
       severity=Sonar::RulePriority.id(params[:rule])
@@ -193,6 +193,15 @@ class ResourceController < ApplicationController
       else
         conditions+=' AND id=-1'
       end
+    end
+    
+    if params[:switchedOff]
+      @switchedOff=true
+      conditions+='AND switched_off=?'
+      values<<true
+    else
+      conditions+='AND (switched_off IS NULL OR switched_off=?)'
+      values<<false
     end
 
     RuleFailure.find(:all, :include => ['rule', 'reviews' ], :conditions => [conditions] + values, :order => 'failure_level DESC').each do |violation|

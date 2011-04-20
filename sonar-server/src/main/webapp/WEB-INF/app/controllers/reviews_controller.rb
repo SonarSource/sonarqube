@@ -199,7 +199,7 @@ class ReviewsController < ApplicationController
   def add_all_users ( user_options )
     User.find( :all ).each do |user|
       userName = user.name
-      if current_user.id == user.id
+      if current_user && current_user.id == user.id
         userName = "Me (" + user.name + ")"
       end
       user_options << [userName, user.id.to_s]
