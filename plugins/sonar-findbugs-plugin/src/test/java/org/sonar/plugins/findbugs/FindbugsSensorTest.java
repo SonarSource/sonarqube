@@ -57,14 +57,6 @@ public class FindbugsSensorTest extends FindbugsTests {
   }
 
   @Test
-  public void shouldNotExecuteOnEar() {
-    Project project = createProject();
-    when(project.getPackaging()).thenReturn("ear");
-    FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithActiveRules(), new FakeRuleFinder(), null);
-    assertFalse(analyser.shouldExecuteOnProject(project));
-  }
-
-  @Test
   public void shouldExecuteFindbugsWhenNoReportProvided() throws Exception {
     Project project = createProject();
     FindbugsExecutor executor = mock(FindbugsExecutor.class);

@@ -73,7 +73,6 @@ public class SurefireSensorTest {
     new SurefireSensor().collect(project, mock(SensorContext.class), new File("unknown"));
   }
 
-
   private SensorContext mockContext() {
     SensorContext context = mock(SensorContext.class);
     when(context.isIndexed(any(Resource.class), eq(false))).thenReturn(true);
@@ -83,17 +82,17 @@ public class SurefireSensorTest {
   @Test
   public void shouldHandleTestSuiteDetails() throws URISyntaxException {
     SensorContext context = mockContext();
-    new SurefireSensor().collect(newJarProject(), context, new File(getClass().getResource(
+    new SurefireSensor().collect(new Project("key"), context, new File(getClass().getResource(
         "/org/sonar/plugins/surefire/SurefireSensorTest/shouldHandleTestSuiteDetails/").toURI()));
 
     // 3 classes, 6 measures by class
-    verify(context, times(3)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, Qualifiers.UNIT_TEST_FILE)),
+    verify(context, times(3)).saveMeasure(argThat(new IsResource(Scopes.FILE, Qualifiers.UNIT_TEST_FILE)),
         eq(CoreMetrics.SKIPPED_TESTS), anyDouble());
-    verify(context, times(3)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, Qualifiers.UNIT_TEST_FILE)),
+    verify(context, times(3)).saveMeasure(argThat(new IsResource(Scopes.FILE, Qualifiers.UNIT_TEST_FILE)),
         eq(CoreMetrics.TESTS), anyDouble());
-    verify(context, times(18)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, Qualifiers.UNIT_TEST_FILE)),
+    verify(context, times(18)).saveMeasure(argThat(new IsResource(Scopes.FILE, Qualifiers.UNIT_TEST_FILE)),
         (Metric) anyObject(), anyDouble());
-    verify(context, times(3)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, Qualifiers.UNIT_TEST_FILE)),
+    verify(context, times(3)).saveMeasure(argThat(new IsResource(Scopes.FILE, Qualifiers.UNIT_TEST_FILE)),
         argThat(new IsMeasure(CoreMetrics.TEST_DATA)));
 
     verify(context).saveMeasure(eq(new JavaFile("org.sonar.core.ExtensionsFinderTest", true)), eq(CoreMetrics.TESTS), eq(4d));
@@ -127,18 +126,18 @@ public class SurefireSensorTest {
   @Test
   public void shouldSaveErrorsAndFailuresInXML() throws URISyntaxException {
     SensorContext context = mockContext();
-    new SurefireSensor().collect(newJarProject(), context, new File(getClass().getResource(
+    new SurefireSensor().collect(new Project("key"), context, new File(getClass().getResource(
         "/org/sonar/plugins/surefire/SurefireSensorTest/shouldSaveErrorsAndFailuresInXML/").toURI()));
 
     // 1 classes, 6 measures by class
-    verify(context, times(1)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, Qualifiers.UNIT_TEST_FILE)),
+    verify(context, times(1)).saveMeasure(argThat(new IsResource(Scopes.FILE, Qualifiers.UNIT_TEST_FILE)),
         eq(CoreMetrics.SKIPPED_TESTS), anyDouble());
 
-    verify(context, times(1)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, Qualifiers.UNIT_TEST_FILE)),
+    verify(context, times(1)).saveMeasure(argThat(new IsResource(Scopes.FILE, Qualifiers.UNIT_TEST_FILE)),
         eq(CoreMetrics.TESTS), anyDouble());
-    verify(context, times(6)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, Qualifiers.UNIT_TEST_FILE)),
+    verify(context, times(6)).saveMeasure(argThat(new IsResource(Scopes.FILE, Qualifiers.UNIT_TEST_FILE)),
         (Metric) anyObject(), anyDouble());
-    verify(context, times(1)).saveMeasure(argThat(new IsResource(JavaFile.SCOPE_ENTITY, Qualifiers.UNIT_TEST_FILE)),
+    verify(context, times(1)).saveMeasure(argThat(new IsResource(Scopes.FILE, Qualifiers.UNIT_TEST_FILE)),
         argThat(new IsMeasure(CoreMetrics.TEST_DATA)));
 
     verify(context).saveMeasure(eq(new JavaFile("org.sonar.core.ExtensionsFinderTest", true)),
@@ -148,7 +147,7 @@ public class SurefireSensorTest {
   @Test
   public void shouldManageClassesWithDefaultPackage() throws URISyntaxException {
     SensorContext context = mockContext();
-    new SurefireSensor().collect(newJarProject(), context, new File(getClass().getResource(
+    new SurefireSensor().collect(new Project("key"), context, new File(getClass().getResource(
         "/org/sonar/plugins/surefire/SurefireSensorTest/shouldManageClassesWithDefaultPackage/").toURI()));
 
     verify(context).saveMeasure(new JavaFile("NoPackagesTest", true), CoreMetrics.TESTS, 2d);
@@ -157,7 +156,7 @@ public class SurefireSensorTest {
   @Test
   public void successRatioIsZeroWhenAllTestsFail() throws URISyntaxException {
     SensorContext context = mockContext();
-    new SurefireSensor().collect(newJarProject(), context, new File(getClass().getResource(
+    new SurefireSensor().collect(new Project("key"), context, new File(getClass().getResource(
         "/org/sonar/plugins/surefire/SurefireSensorTest/successRatioIsZeroWhenAllTestsFail/").toURI()));
 
     verify(context).saveMeasure(eq(new JavaFile("org.sonar.Foo", true)), eq(CoreMetrics.TESTS), eq(2d));
@@ -169,7 +168,7 @@ public class SurefireSensorTest {
   @Test
   public void measuresShouldNotIncludeSkippedTests() throws URISyntaxException {
     SensorContext context = mockContext();
-    new SurefireSensor().collect(newJarProject(), context, new File(getClass().getResource(
+    new SurefireSensor().collect(new Project("key"), context, new File(getClass().getResource(
         "/org/sonar/plugins/surefire/SurefireSensorTest/measuresShouldNotIncludeSkippedTests/").toURI()));
 
     verify(context).saveMeasure(eq(new JavaFile("org.sonar.Foo", true)), eq(CoreMetrics.TESTS), eq(2d));
@@ -182,7 +181,7 @@ public class SurefireSensorTest {
   @Test
   public void noSuccessRatioIfNoTests() throws URISyntaxException {
     SensorContext context = mockContext();
-    new SurefireSensor().collect(newJarProject(), context, new File(getClass().getResource(
+    new SurefireSensor().collect(new Project("key"), context, new File(getClass().getResource(
         "/org/sonar/plugins/surefire/SurefireSensorTest/noSuccessRatioIfNoTests/").toURI()));
 
     verify(context).saveMeasure(eq(new JavaFile("org.sonar.Foo", true)), eq(CoreMetrics.TESTS), eq(0d));
@@ -195,7 +194,7 @@ public class SurefireSensorTest {
   @Test
   public void ignoreSuiteAsInnerClass() throws URISyntaxException {
     SensorContext context = mockContext();
-    new SurefireSensor().collect(newJarProject(), context, new File(getClass().getResource(
+    new SurefireSensor().collect(new Project("key"), context, new File(getClass().getResource(
         "/org/sonar/plugins/surefire/SurefireSensorTest/ignoreSuiteAsInnerClass/").toURI()));
 
     // ignore TestHandler$Input.xml
@@ -231,13 +230,5 @@ public class SurefireSensorTest {
         d.appendText("XML differences in " + xmlBaseFile + ": " + dd.getAllDifferences());
       }
     };
-  }
-
-  private static Project newJarProject() {
-    return new Project("key").setPackaging("jar");
-  }
-
-  private static Project newPomProject() {
-    return new Project("key").setPackaging("pom");
   }
 }
