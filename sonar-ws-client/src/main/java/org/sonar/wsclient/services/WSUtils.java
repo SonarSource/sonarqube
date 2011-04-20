@@ -50,7 +50,8 @@ public abstract class WSUtils {
   public abstract Object getField(Object json, String field);
 
   /**
-   * @return String value of specified field from specified JSON object,
+   * @return value of a string field from specified JSON object,
+   *         or string representation of a numeric field,
    *         or <code>null</code> if field does not exist
    */
   public abstract String getString(Object json, String field);

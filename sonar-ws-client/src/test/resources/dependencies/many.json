@@ -1,6 +1,6 @@
 [
   {
-    "id":"1649",
+    "id": 1649,
     "fi": 33,
     "ti": 45,
     "fk":"org.apache.shiro:shiro-core:org.apache.shiro.authc.pam",
@@ -9,7 +9,7 @@
     "w":5
   },
   {
-    "id":"1686",
+    "id": 1686,
     "fi": 333,
     "ti": 453,
     "fk":"org.apache.shiro:shiro-core:org.apache.shiro.realm",
@@ -18,7 +18,7 @@
     "w":3
   },
   {
-    "id":"1690",
+    "id": 1690,
     "fi": 334,
     "ti": 454,
     "fk":"org.apache.shiro:shiro-core:org.apache.shiro.realm",
@@ -27,7 +27,7 @@
     "w":2
   },
   {
-    "id":"1693",
+    "id": 1693,
     "fi": 335,
     "ti": 455,
     "fk":"org.apache.shiro:shiro-core:org.apache.shiro.realm",
@@ -36,7 +36,7 @@
     "w":3
   },
   {
-    "id":"1697",
+    "id": 1697,
     "fi": 336,
     "ti": 456,
     "fk":"org.apache.shiro:shiro-core:org.apache.shiro.realm",
@@ -45,7 +45,7 @@
     "w":16
   },
   {
-    "id":"1714",
+    "id": 1714,
     "fi": 337,
     "ti": 457,
     "fk":"org.apache.shiro:shiro-core:org.apache.shiro.realm",
@@ -54,7 +54,7 @@
     "w":6
   },
   {
-    "id":"1721",
+    "id": 1721,
     "fi": 3338,
     "ti": 4258,
     "fk":"org.apache.shiro:shiro-core:org.apache.shiro.realm",
@@ -63,7 +63,7 @@
     "w":9
   },
   {
-    "id":"1731",
+    "id": 1731,
     "fi": 343,
     "ti": 4445,
     "fk":"org.apache.shiro:shiro-core:org.apache.shiro.realm",
@@ -72,7 +72,7 @@
     "w":3
   },
   {
-    "id":"1735",
+    "id": 1735,
     "fi": 3443,
     "ti": 455,
     "fk":"org.apache.shiro:shiro-core:org.apache.shiro.realm.ldap",
@@ -81,7 +81,7 @@
     "w":1
   },
   {
-    "id":"1775",
+    "id": 1775,
     "fi": 373,
     "ti": 6645,
     "fk":"org.apache.shiro:shiro-core:org.apache.shiro.mgt",
@@ -90,7 +90,7 @@
     "w":2
   },
   {
-    "id":"1886",
+    "id": 1886,
     "fi": 339,
     "ti": 495,
     "fk":"org.apache.shiro:shiro-core:org.apache.shiro.realm.jdbc",
@@ -99,7 +99,7 @@
     "w":1
   },
   {
-    "id":"1962",
+    "id": 1962,
     "fi": 373,
     "ti": 485,
     "fk":"org.apache.shiro:shiro-core:org.apache.shiro.config",
@@ -108,7 +108,7 @@
     "w":4
   },
   {
-    "id":"1995",
+    "id": 1995,
     "fi": 363,
     "ti": 445,
     "fk":"org.apache.shiro:shiro-core:org.apache.shiro.realm.jndi",
@@ -117,7 +117,7 @@
     "w":2
   },
   {
-    "id":"2098",
+    "id": 2098,
     "fi": 333,
     "ti": 415,
     "fk":"org.apache.shiro:shiro-core:org.apache.shiro.realm.text",
@@ -126,7 +126,7 @@
     "w":1
   },
   {
-    "id":"2119",
+    "id": 2119,
     "fi": 332,
     "ti": 451,
     "fk":"org.apache.shiro:shiro-core:org.apache.shiro.authz",

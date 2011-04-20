@@ -57,6 +57,13 @@ public class JsonUtilsTest extends UnmarshallerTestCase {
   }
 
   @Test
+  public void getNumberAsString() {
+    JSONObject obj = (JSONObject) JSONValue.parse("{\"one\": 1, \"two\": 2}");
+    assertThat(JsonUtils.getString(obj, "one"), is("1"));
+    assertThat(JsonUtils.getString(obj, "two"), is("2"));
+  }
+
+  @Test
   public void getDateField() {
     JSONObject obj = (JSONObject) JSONValue.parse("{\"foo\": \"2009-12-25\", \"two\": \"2\"}");
     Date date = JsonUtils.getDate(obj, "foo");

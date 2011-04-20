@@ -36,8 +36,8 @@ public final class JsonUtils {
 
   public static String getString(Map obj, String field) {
     Object value = obj.get(field);
-    if (value != null) {
-      return (String) value;
+    if (value instanceof String || value instanceof Number) {
+      return value.toString();
     }
     return null;
   }
