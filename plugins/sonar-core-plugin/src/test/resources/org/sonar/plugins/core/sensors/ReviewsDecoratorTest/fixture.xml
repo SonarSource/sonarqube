@@ -2,37 +2,46 @@
 
   <snapshots 
              id="11" 
-             project_id="555"/>
+             project_id="555"
+             status="P" islast="false"/>
   <snapshots 
              id="111" 
-             project_id="555"/>
+             project_id="555"
+             status="P" islast="false"/>
   <snapshots 
              id="22" 
-             project_id="666"/>
+             project_id="666"
+             status="P" islast="false"/>
   <snapshots 
              id="222" 
-             project_id="666"/>
+             project_id="666"
+             status="P" islast="false"/>
 
   <rule_failures 
              id="1"
-             permament_id="1"
-             snapshot_id="11"/>
+             permanent_id="1"
+             snapshot_id="11"
+             rule_id="1" failure_level="1"/>
   <rule_failures 
              id="2"
-             permament_id="2"
-             snapshot_id="22"/>
+             permanent_id="2"
+             snapshot_id="22"
+             rule_id="1" failure_level="1"/>
   <rule_failures 
              id="3"
-             permament_id="3"
-             snapshot_id="22"/>
+             permanent_id="3"
+             snapshot_id="22"
+             rule_id="1" failure_level="1"/>
   <rule_failures 
              id="4"
-             permament_id="1"
-             snapshot_id="111"/>
+             permanent_id="1"
+             snapshot_id="111"
+             rule_id="1" failure_level="1"/>
   <rule_failures 
              id="5"
-             permament_id="3"
-             snapshot_id="222"/>
+             permanent_id="3"
+             snapshot_id="222"
+             rule_id="1" failure_level="1"/>
 
   <reviews
   			id="1"

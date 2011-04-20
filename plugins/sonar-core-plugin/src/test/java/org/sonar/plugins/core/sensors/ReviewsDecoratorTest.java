@@ -19,40 +19,28 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import org.junit.Ignore;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
+import java.sql.Statement;
+
 import org.junit.Test;
-import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.utils.DateUtils;
-import org.sonar.batch.components.PastSnapshot;
-import org.sonar.batch.components.TimeMachineConfiguration;
-import org.sonar.batch.index.ResourcePersister;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.sonar.test.persistence.DatabaseTestCase;
 
-import java.text.ParseException;
-import java.util.Arrays;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-public class ReviewsDecoratorTest extends AbstractDbUnitTestCase {
+public class ReviewsDecoratorTest extends DatabaseTestCase {
 
   @Test
-  @Ignore("DBUnit needs Hibernate mapping...")
-  public void shouldSaveConfigurationInSnapshotsTable() throws ParseException {
+  public void shouldCloseReviewWithoutCorrespondingViolation() throws Exception {
     setupData("fixture");
-    
-    File resource = new File("Foo");
-    Snapshot snapshot = new Snapshot();
-    snapshot.setId(666);
-    snapshot.setResourceId(111);
-    ResourcePersister persister = mock(ResourcePersister.class);
-    when(persister.getSnapshot(resource)).thenReturn(snapshot);
 
-    ReviewsDecorator reviewsDecorator = new ReviewsDecorator(persister, getSession());
-    reviewsDecorator.decorate(resource, null);
+    ReviewsDecorator reviewsDecorator = new ReviewsDecorator(null, null);
+    String sqlRequest = reviewsDecorator.generateSqlRequest(666, 222);
+    System.out.println(sqlRequest);
 
-    //checkTables("shouldSaveConfigurationInSnapshotsTable", "snapshots");
+    Statement stmt = getConnection().createStatement();
+    int count = stmt.executeUpdate(sqlRequest);
+
+    assertThat(count, is(1));
+    assertTables("shouldCloseReviewWithoutCorrespondingViolation", "reviews");
   }
 }

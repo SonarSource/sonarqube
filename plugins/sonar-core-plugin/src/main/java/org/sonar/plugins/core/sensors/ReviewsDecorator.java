@@ -19,15 +19,12 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
@@ -60,12 +57,16 @@ public class ReviewsDecorator implements Decorator {
     if (currentSnapshot != null) {
       int resourceId = currentSnapshot.getResourceId();
       int snapshotId = currentSnapshot.getId();
-      Query query = databaseSession.createNativeQuery("UPDATE reviews SET status='closed' " + "WHERE resource_id = " + resourceId
-          + " AND rule_failure_permanent_id NOT IN " + "(SELECT permanent_id FROM rule_failures WHERE snapshot_id = " + snapshotId + ")");
+      Query query = databaseSession.createNativeQuery(generateSqlRequest(resourceId, snapshotId));
       int rowUpdated = query.executeUpdate();
       LOG.debug("- {} reviews set to 'closed' on resource #{}", rowUpdated, resourceId);
       databaseSession.commit();
     }
+  }
+
+  protected String generateSqlRequest(int resourceId, int snapshotId) {
+    return "UPDATE reviews SET status='closed' " + "WHERE resource_id = " + resourceId + " AND rule_failure_permanent_id NOT IN "
+        + "(SELECT permanent_id FROM rule_failures WHERE snapshot_id = " + snapshotId + ")";
   }
 
 }
