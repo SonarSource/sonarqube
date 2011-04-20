@@ -27,6 +27,14 @@
               <descriptors>
                 <descriptor>assembly.xml</descriptor>
               </descriptors>
+              <archiverConfig>
+                <!-- Workaround for http://jira.codehaus.org/browse/MASSEMBLY-422 -->
+                <!-- 420(dec) = 644(oct) -->
+                <fileMode>420</fileMode>
+                <!-- 493(dec) = 755(oct) -->
+                <directoryMode>493</directoryMode>
+                <defaultDirectoryMode>493</defaultDirectoryMode>
+              </archiverConfig>
             </configuration>
           </execution>
         </executions>

@@ -19,8 +19,6 @@
         <exclude>org.codehaus.sonar.plugins:*</exclude>
         <exclude>org.codehaus.sonar.runtime:*</exclude>
       </excludes>
-      <fileMode>0644</fileMode>
-      <directoryMode>0755</directoryMode>
     </dependencySet>
     <dependencySet>
       <outputDirectory>lib/deprecated-maven-plugin</outputDirectory>
@@ -28,8 +26,6 @@
       <includes>
         <include>org.codehaus.sonar.runtime:sonar-core-maven-plugin</include>
       </includes>
-      <fileMode>0644</fileMode>
-      <directoryMode>0755</directoryMode>
     </dependencySet>
     <!-- Plugins -->
     <dependencySet>
@@ -38,8 +34,6 @@
       <includes>
         <include>org.codehaus.sonar.plugins:*</include>
       </includes>
-      <fileMode>0644</fileMode>
-      <directoryMode>0755</directoryMode>
     </dependencySet>
     <!-- Server -->
     <dependencySet>
@@ -48,8 +42,6 @@
         <include>org.codehaus.sonar:sonar-server</include>
       </includes>
       <unpack>true</unpack>
-      <fileMode>0644</fileMode>
-      <directoryMode>0755</directoryMode>
     </dependencySet>
     <!-- JDBC drivers -->
     <dependencySet>
@@ -59,8 +51,6 @@
       </includes>
       <unpack>false</unpack>
       <scope>runtime</scope>
-      <fileMode>0644</fileMode>
-      <directoryMode>0755</directoryMode>
     </dependencySet>
     <dependencySet>
       <outputDirectory>extensions/jdbc-driver/derby/</outputDirectory>
@@ -69,8 +59,6 @@
       </includes>
       <unpack>false</unpack>
       <scope>runtime</scope>
-      <fileMode>0644</fileMode>
-      <directoryMode>0755</directoryMode>
     </dependencySet>
     <dependencySet>
       <outputDirectory>extensions/jdbc-driver/postgresql/</outputDirectory>
@@ -79,8 +67,6 @@
       </includes>
       <unpack>false</unpack>
       <scope>runtime</scope>
-      <fileMode>0644</fileMode>
-      <directoryMode>0755</directoryMode>
     </dependencySet>
     <dependencySet>
       <outputDirectory>extensions/jdbc-driver/mssql/</outputDirectory>
@@ -89,8 +75,6 @@
       </includes>
       <unpack>false</unpack>
       <scope>runtime</scope>
-      <fileMode>0644</fileMode>
-      <directoryMode>0755</directoryMode>
     </dependencySet>
     <!-- Java Service Wrapper -->
     <dependencySet>
@@ -107,6 +91,7 @@
           <exclude>**/sample*/**</exclude>
         </excludes>
       </unpackOptions>
+      <fileMode>0755</fileMode>
     </dependencySet>
   </dependencySets>
 
@@ -121,7 +106,6 @@
       </includes>
       <lineEnding>dos</lineEnding>
       <fileMode>0644</fileMode>
-      <directoryMode>0755</directoryMode>
     </fileSet>
     <!-- Linux Scripts -->
     <fileSet>
@@ -134,7 +118,6 @@
       </includes>
       <lineEnding>unix</lineEnding>
       <fileMode>0755</fileMode>
-      <directoryMode>0755</directoryMode>
     </fileSet>
     <!-- Other stuff -->
     <fileSet>
@@ -148,7 +131,6 @@
         <exclude>**/antRun</exclude>
       </excludes>
       <fileMode>0644</fileMode>
-      <directoryMode>0755</directoryMode>
     </fileSet>
     <!-- Empty directories -->
     <fileSet>
