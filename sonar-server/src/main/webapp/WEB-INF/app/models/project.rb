@@ -28,7 +28,7 @@ class Project < ActiveRecord::Base
   belongs_to :profile, :class_name => 'Profile', :foreign_key => 'profile_id'
   has_many :user_roles, :foreign_key => 'resource_id'
   has_many :group_roles, :foreign_key => 'resource_id'
-
+  belongs_to :root, :class_name => 'Project', :foreign_key => 'root_id'
 
   def self.by_key(k)
     begin
@@ -38,7 +38,11 @@ class Project < ActiveRecord::Base
       Project.find(:first, :conditions => {:kee => k})
     end
   end
-
+  
+  def project
+    root||self
+  end
+  
   def last_snapshot
     @last_snapshot ||=
       begin

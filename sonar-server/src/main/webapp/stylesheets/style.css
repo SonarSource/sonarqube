@@ -1036,7 +1036,44 @@ span.rulename a:hover {
   padding: 10px;
 }
 
-
+.search-filter-box {
+	background-color: #ECECEC;
+	color: #444;
+	border: 1px solid #DDD;
+	margin: 0 0 10px 0;
+}
+.search-filter-box td {
+	padding: 10px;
+	text-align: left;
+	vertical-align: top;
+}
+select.with-icons option {
+	background-repeat: no-repeat;
+	background-position: 2px 0;
+	padding: 0 2px 0 22px;
+	vertical-align: middle;
+}
+option.status_open {
+	background-image: url('../images/status/open.png');
+}
+option.status_closed {
+	background-image: url('../images/status/closed.png');
+}
+option.sev_INFO {
+	background-image: url('../images/priority/INFO.png');
+}
+option.sev_MINOR {
+	background-image: url('../images/priority/MINOR.png');
+}
+option.sev_MAJOR {
+	background-image: url('../images/priority/MAJOR.png');
+}
+option.sev_CRITICAL {
+	background-image: url('../images/priority/CRITICAL.png');
+}
+option.sev_BLOCKER {
+	background-image: url('../images/priority/BLOCKER.png');
+}
 /* ------------------- VARIATIONS ------------------- */
 .var {
   color: #444 !important;

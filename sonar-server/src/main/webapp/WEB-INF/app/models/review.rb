@@ -21,27 +21,25 @@ class Review < ActiveRecord::Base
   belongs_to :user
   belongs_to :assignee, :class_name => "User", :foreign_key => "assignee_id"
   belongs_to :resource, :class_name => "Project", :foreign_key => "resource_id"
+  belongs_to :project, :class_name => "Project", :foreign_key => "project_id"
   has_many :review_comments, :order => "created_at", :dependent => :destroy
+  belongs_to :rule_failure, :foreign_key => 'rule_failure_permanent_id'
+  
   validates_presence_of :user, :message => "can't be empty"
   validates_presence_of :title, :message => "can't be empty"
   validates_presence_of :review_type, :message => "can't be empty"
   validates_presence_of :status, :message => "can't be empty"
-
-  SEVERITY_INFO = "INFO"
-  SEVERITY_MINOR = "MINOR"
-  SEVERITY_MAJOR = "MAJOR"
-  SEVERITY_CRITICAL = "CRITICAL"
-  SEVERITY_BLOCKER = "BLOCKER"
+  
+  before_save :assign_project
   
   TYPE_COMMENTS = "comments"
   TYPE_FALSE_POSITIVE = "f-positive"
   
   STATUS_OPEN = "open"
   STATUS_CLOSED = "closed"
-
-
+  
   def self.default_severity
-    return SEVERITY_MAJOR
+    return Severity::MAJOR
   end
   
   def self.default_type
@@ -51,22 +49,16 @@ class Review < ActiveRecord::Base
   def self.default_status
     return STATUS_OPEN
   end
-  
-  def self.severity_options
-    severity_ops = []
-    severity_ops << ["Info", SEVERITY_INFO]
-    severity_ops << ["Minor", SEVERITY_MINOR]
-    severity_ops << ["Major", SEVERITY_MAJOR]
-    severity_ops << ["Critical", SEVERITY_CRITICAL]
-    severity_ops << ["Blocker", SEVERITY_BLOCKER]
-    return severity_ops
-  end
-  
-  def self.status_options
-    status_ops = []
-    status_ops << ["Open", STATUS_OPEN]
-    status_ops << ["Closed", STATUS_CLOSED]
-    return status_ops
+    
+  def source?
+    resource!=nil && resource.last_snapshot!=nil && resource.last_snapshot.source!=nil
   end
 
+  private
+  
+  def assign_project
+    if self.project.nil? && self.resource
+      self.project=self.resource.project
+    end
+  end
 end

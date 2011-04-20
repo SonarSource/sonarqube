@@ -14,18 +14,17 @@
 # Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public
-# License along with Sonar; if not, write to the Free Software
+# License along with {library}; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-module ReviewsHelper
+
+class Severity
+
+  INFO = "INFO"
+  MINOR = "MINOR"
+  MAJOR = "MAJOR"
+  CRITICAL = "CRITICAL"
+  BLOCKER = "BLOCKER"
   
-  def options_for_project_select
-    options=[['Any', '']]
-    projects=Project.find(:all, :select => 'id,name', :conditions => ['enabled=? AND scope=? AND qualifier IN (?)', true, 'PRJ', ['TRK', 'VW','SVW']], :order => 'name ASC')
-    projects.each do |project|
-      options<<[project.name, project.id]
-    end
-    options_for_select(options, @projects)
-  end
-  
+  SEVERITIES=[INFO,MINOR,MAJOR,CRITICAL,BLOCKER]
 end

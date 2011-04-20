@@ -26,11 +26,12 @@ class ReviewsController < ApplicationController
 
   def index
     init_params
-
-    @reviews = []
-    unless params.blank?
-      find_reviews_for_user_query
-    end
+    search_reviews
+  end
+  
+  def show
+    @review=Review.find(params[:id], :include => ['resource', 'project'])
+    render :partial => 'reviews/show'
   end
 
   def list
@@ -202,15 +203,13 @@ class ReviewsController < ApplicationController
 
   def init_params
     @user_names = [["Any", ""]]
-    default_user = [""]
-    if current_user
-      default_user = [current_user.id]
-    end
+    default_user = (current_user ? [current_user.id.to_s] : [''])
     add_all_users @user_names
-    @review_authors = filter_any(params[:review_authors]) || default_user
-    @comment_authors = filter_any(params[:comment_authors]) || default_user
-    @severities = filter_any(params[:severities]) || [""]
-    @statuses = filter_any(params[:statuses]) || ["open"]
+    @authors = filter_any(params[:authors]) || ['']
+    @assignees = filter_any(params[:assignees]) || default_user
+    @severities = filter_any(params[:severities]) || ['']
+    @statuses = filter_any(params[:statuses]) || [Review::STATUS_OPEN]
+    @projects = filter_any(params[:projects]) || ['']
   end
   
   def add_all_users ( user_options )
@@ -231,28 +230,28 @@ class ReviewsController < ApplicationController
     array
   end
 
-  def find_reviews_for_user_query
+  def search_reviews
     conditions=[]
     values={}
 
     unless @statuses == [""]
-      conditions << "reviews.status in (:statuses)"
+      conditions << "status in (:statuses)"
       values[:statuses]=@statuses
     end
     unless @severities == [""]
-      conditions << "reviews.severity in (:severities)"
+      conditions << "severity in (:severities)"
       values[:severities]=@severities
     end
-    unless @review_authors == [""]
-      conditions << "reviews.user_id in (:review_authors)"
-      values[:review_authors]=@review_authors
+    unless @authors == [""]
+      conditions << "user_id in (:authors)"
+      values[:authors]=@authors
     end
-    unless @comment_authors == [""]
-      conditions << "review_comments.user_id in (:comment_authors)"
-      values[:comment_authors]=@comment_authors
+    unless @assignees == [""]
+      conditions << "assignee_id in (:assignees)"
+      values[:assignees]=@assignees
     end
 
-    @reviews = Review.find( :all, :order => "created_at DESC", :joins => :review_comments, :conditions => [ conditions.join(" AND "), values] ).uniq
+    @reviews = Review.find( :all, :order => "created_at DESC", :conditions => [ conditions.join(" AND "), values] ).uniq
   end
 
   def find_reviews_for_rule_failure ( rule_failure_permanent_id )
