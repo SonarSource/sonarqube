@@ -2,7 +2,9 @@
 	  <div>
       	<b>Review #<%= review.id -%> - <%= h(review.title) -%></b>
       	<br/>
+      	<% if review.assignee %>
       	<i>Assigned to <%= h(review.assignee.name) -%></i>
+      	<% end %>
       </div>
       
       <div style="margin-top: 10px; margin-left: 20px">
