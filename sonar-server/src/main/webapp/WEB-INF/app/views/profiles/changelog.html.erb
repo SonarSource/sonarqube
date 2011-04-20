@@ -1,0 +1,77 @@
+<h1 class="marginbottom10"><%= link_to 'Quality profiles', :controller => 'profiles', :action => 'index' -%> / <%= h @profile.language -%> / <%= h @profile.name %></h1>
+<%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'changelog'} %>
+
+<div class="tabs-panel marginbottom10">
+
+  <table  class="data width100">
+    <thead>
+      <tr>
+        <th>Action</th>
+        <th>By</th>
+        <th>Date</th>
+        <th>Rule name</th>
+        <th>Parameters</th>
+      </tr>
+    </thead>
+    <% current_version = -1 
+      @changes.each do |change|
+    %>
+        <% if current_version != change.profile_version %>
+    <tr>
+      <td align="left" colspan="5">
+      	<div class="line-block">
+  	      <h2>Version <%=change.profile_version%></h2>
+		</div>
+      </td>
+    </tr>
+        <%   current_version = change.profile_version
+           end
+        %> 
+    <tr class="<%= cycle 'even', 'odd', :name => change.profile_version -%>">
+      <td valign="top"><%=case change.enabled
+                when true then "Enabled"
+                when false then "Disabled"
+                when nil then "Modified"
+             end%></td>
+      <td valign="top"><%=change.user_login%></td>
+      <td valign="top"><%=change.change_date.strftime("%Y-%m-%d %H:%M:%S")%></td>
+      <td valign="top"><%=change.rule.name%></td>
+      <td valign="top">
+        <% if change.old_severity
+             if change.new_severity %>
+            Severity changed from <i><%= change.old_severity_text %></i> to
+          <% else %>
+            Severity was <i><%= change.old_severity_text %></i>
+          <% end
+           end %>
+        <% if change.new_severity 
+             if change.old_severity %>
+           <i><%= change.new_severity_text %></i>
+          <% else %>
+           Severity set to <i><%= change.new_severity_text %></i>
+          <% end
+           end %>
+        <% if (change.old_severity or change.new_severity) and change.parameters.size > 0 %>
+          <br/>
+        <% end %>
+        <% change.parameters.each do |param_change| %>
+          Parameter <i><%=param_change.name %></i>
+          <% if not param_change.old_value %>
+             set to <i><%= param_change.new_value %></i>
+          <% elsif not param_change.new_value 
+               if change.enabled == false %>
+                 was <i><%= param_change.old_value %></i>
+            <% else %>
+                 reset to default value (was <i><%= param_change.old_value %></i>)
+            <% end
+             else %>
+             changed from <i><%= param_change.old_value %></i> to <i><%= param_change.new_value %></i>
+          <% end %>
+          <%= "<br/>" unless param_change == change.parameters.last %>
+        <% end%>
+      </td>
+    </tr>
+    <% end %>
+  </table>
+
+</div>
