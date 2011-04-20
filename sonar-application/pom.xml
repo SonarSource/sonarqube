@@ -133,8 +133,8 @@
       <groupId>org.mortbay.jetty</groupId>
       <artifactId>jetty-ajp</artifactId>
     </dependency>
-    
-    <!-- deprecated -->    
+
+    <!-- deprecated -->
     <dependency>
       <groupId>org.codehaus.sonar.runtime</groupId>
       <artifactId>sonar-core-maven-plugin</artifactId>
@@ -142,8 +142,7 @@
       <scope>runtime</scope>
     </dependency>
 
-    
-    <!-- core plugins --> 
+    <!-- core plugins -->
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-core-plugin</artifactId>
