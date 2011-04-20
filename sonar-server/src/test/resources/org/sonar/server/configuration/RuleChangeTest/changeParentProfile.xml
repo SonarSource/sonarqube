@@ -7,9 +7,9 @@
          plugin_rule_key="checkstyle.rule2" plugin_name="plugin" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
   <rules_parameters id="13" rule_id="2" name="param1" description="[null]" param_type="r"/>
 
-  <rules_profiles id="1" provided="false" name="parent" default_profile="0" language="java" parent_name="[null]" enabled="true"/>
+  <rules_profiles id="1" version="1" used_profile="true" provided="false" name="parent" default_profile="0" language="java" parent_name="[null]" enabled="true"/>
   
-  <rules_profiles id="2" provided="false" name="child" default_profile="0" language="java" parent_name="[null]" enabled="true"/>
+  <rules_profiles id="2" version="1" used_profile="true" provided="false" name="child" default_profile="0" language="java" parent_name="[null]" enabled="true"/>
 
   <active_rules id="1" profile_id="1" rule_id="1" failure_level="2" inheritance="[null]"/>
 

@@ -29,6 +29,7 @@ create table ACTIVE_RULE_CHANGES (
   ID INTEGER not null,
   USER_LOGIN VARCHAR(40) not null,
   PROFILE_ID INTEGER not null,
+  PROFILE_VERSION INTEGER not null,
   RULE_ID INTEGER not null,
   CHANGE_DATE TIMESTAMP not null,
   ENABLED SMALLINT,
@@ -384,6 +385,8 @@ create table RULES_PROFILES (
   LANGUAGE VARCHAR(16),
   PARENT_NAME VARCHAR(100),
   ENABLED SMALLINT,
+  VERSION INTEGER not null,
+  USED_PROFILE SMALLINT not null,
   primary key (id)
 );
 

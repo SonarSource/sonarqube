@@ -89,6 +89,14 @@ public class ProfilesBackup implements Backupable {
       // backward-compatibility with versions < 2.6. The field "enabled" did not exist. Default value is true.
       toImport.setEnabled(true);
     }
+    if (toImport.getVersion()==0) {
+      // backward-compatibility with versions < 2.7. The field "version" did not exist. Default value is 1.
+      toImport.setVersion(1);
+    }
+    if (toImport.getUsed() == null) {
+      // backward-compatibility with versions < 2.7. The field "used_profile" did not exist. Default value is false.
+      toImport.setUsed(false);
+    }
     importActiveRules(rulesDao, toImport);
     importAlerts(toImport);
     session.save(toImport);
