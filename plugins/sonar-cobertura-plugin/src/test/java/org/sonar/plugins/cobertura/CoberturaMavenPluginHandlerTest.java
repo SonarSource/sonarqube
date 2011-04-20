@@ -43,7 +43,7 @@ public class CoberturaMavenPluginHandlerTest {
   @Test
   public void notFixedVersion() {
     // first of all, version was fixed : see http://jira.codehaus.org/browse/SONAR-1055
-    // but it's more reasonable to let users fix the version : see http://jira.codehaus.org/browse/SONAR-1310
+    // but it's more reasonable to let users change the version : see http://jira.codehaus.org/browse/SONAR-1310
     assertThat(new CoberturaMavenPluginHandler().isFixedVersion(), is(false));
   }
 
