@@ -28,7 +28,7 @@ public class DependencyUnmarshaller extends AbstractUnmarshaller<Dependency> {
   protected Dependency parse(Object json) {
     WSUtils utils = WSUtils.getINSTANCE();
     return new Dependency()
-        .setId(utils.getString(json, "id"))
+        .setId(String.valueOf(utils.getLong(json, "id")))
         .setFromId(utils.getLong(json, "fi"))
         .setToId(utils.getLong(json, "ti"))
         .setFromKey(utils.getString(json, "fk"))
