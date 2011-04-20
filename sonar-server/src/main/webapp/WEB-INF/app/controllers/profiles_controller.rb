@@ -208,9 +208,9 @@ class ProfilesController < ApplicationController
     id = params[:id].to_i
     parent_name = params[:parent_name]
     if parent_name.blank?
-      messages = java_facade.changeParentProfile(id, nil)
+      messages = java_facade.changeParentProfile(id, nil, current_user.login)
     else
-      messages = java_facade.changeParentProfile(id, parent_name)
+      messages = java_facade.changeParentProfile(id, parent_name, current_user.login)
     end
     flash_validation_messages(messages)
     redirect_to :action => 'inheritance', :id => id

@@ -1,0 +1,7 @@
+<dataset>
+
+  <rules_profiles id="1" provided="false" name="parent" default_profile="0" language="java" parent_name="[null]" enabled="true"/>
+  
+  <rules_profiles id="2" provided="false" name="child" default_profile="0" language="java" parent_name="parent" enabled="true"/>
+
+</dataset>
