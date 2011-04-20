@@ -19,7 +19,16 @@
  */
 package org.sonar.plugins.pmd;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.CharSequenceReader;
 import org.apache.commons.lang.StringUtils;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.profiles.RulesProfile;
@@ -38,12 +47,6 @@ import java.io.StringWriter;
 import java.util.Collection;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-
 public class PmdProfileExporterTest {
 
   private PmdProfileExporter exporter = new PmdProfileExporter();
@@ -61,7 +64,8 @@ public class PmdProfileExporterTest {
 
     StringWriter xmlOutput = new StringWriter();
     exporter.exportProfile(rulesProfile, xmlOutput);
-    assertEquals(TestUtils.getResourceContent("/org/sonar/plugins/pmd/export_simple.xml"), StringUtils.remove(xmlOutput.toString(), '\r'));
+
+    assertThat(xmlOutput.toString(), new IsEqualIgnoringEOL(TestUtils.getResourceContent("/org/sonar/plugins/pmd/export_simple.xml")));
   }
 
   @Test
@@ -69,15 +73,35 @@ public class PmdProfileExporterTest {
     StringWriter xmlOutput = new StringWriter();
     RulesProfile profile = RulesProfile.create();
     Rule xpathTemplate = Rule.create(PmdConstants.REPOSITORY_KEY, "MyOwnRule", "This is my own xpath rule.")
-        .setConfigKey(PmdConstants.XPATH_CLASS).setPluginName(PmdConstants.REPOSITORY_KEY);
+        .setConfigKey(PmdConstants.XPATH_CLASS).setRepositoryKey(PmdConstants.REPOSITORY_KEY);
     xpathTemplate.createParameter(PmdConstants.XPATH_EXPRESSION_PARAM);
     xpathTemplate.createParameter(PmdConstants.XPATH_MESSAGE_PARAM);
     ActiveRule xpath = profile.activateRule(xpathTemplate, null);
     xpath.setParameter(PmdConstants.XPATH_EXPRESSION_PARAM, "//FieldDeclaration");
     xpath.setParameter(PmdConstants.XPATH_MESSAGE_PARAM, "This is bad");
     exporter.exportProfile(profile, xmlOutput);
-    assertEquals(TestUtils.getResourceContent("/org/sonar/plugins/pmd/export_xpath_rules.xml"),
-        StringUtils.remove(xmlOutput.toString(), '\r'));
+    assertThat(xmlOutput.toString(), new IsEqualIgnoringEOL(TestUtils.getResourceContent("/org/sonar/plugins/pmd/export_xpath_rules.xml")));
+  }
+
+  private static class IsEqualIgnoringEOL extends TypeSafeMatcher<CharSequence> {
+    private String expected;
+
+    public IsEqualIgnoringEOL(CharSequence expected) {
+      this.expected = normalize(expected);
+    }
+
+    public void describeTo(Description description) {
+      description.appendText("string equal ").appendText(expected);
+    }
+
+    @Override
+    public boolean matchesSafely(CharSequence item) {
+      return StringUtils.equals(expected, normalize(item));
+    }
+
+    private static String normalize(CharSequence charSequence) {
+      return StringUtils.join(IOUtils.lineIterator(new CharSequenceReader(charSequence)), IOUtils.LINE_SEPARATOR_UNIX);
+    }
   }
 
   @Test(expected = SonarException.class)
@@ -145,7 +169,7 @@ public class PmdProfileExporterTest {
     public Rule find(RuleQuery query) {
       for (Rule rule : rules) {
         if (query.getConfigKey().equals(rule.getConfigKey())) {
-          rule.setPluginName(PmdConstants.REPOSITORY_KEY);
+          rule.setRepositoryKey(PmdConstants.REPOSITORY_KEY);
           return rule;
         }
       }

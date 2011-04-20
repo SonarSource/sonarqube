@@ -26,8 +26,9 @@ import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import org.apache.commons.io.IOUtils;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -38,10 +39,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.junit.Test;
 
 public class CodeColorizerTest {
 
@@ -57,13 +54,9 @@ public class CodeColorizerTest {
 
   @Test
   public void shouldSupportWindowsEndOfLines() throws IOException {
-    StringBuilder windowsFile = new StringBuilder();
-    List<String> lines = FileUtils.readLines(FileUtils.toFile(getClass().getResource("/org/sonar/colorizer/samples/Sample.java")));
-    for (String line : lines) {
-      windowsFile.append(line).append(IOUtils.LINE_SEPARATOR_WINDOWS);
-    }
+    Reader windowsFile = readFile("/org/sonar/colorizer/samples/Sample.java", IOUtils.LINE_SEPARATOR_WINDOWS);
 
-    String html = CodeColorizer.javaToHtml(new StringReader(windowsFile.toString()), HtmlOptions.DEFAULT);
+    String html = CodeColorizer.javaToHtml(windowsFile, HtmlOptions.DEFAULT);
 
     assertHtml(html);
     assertContains(html, "<pre><span class=\"k\">public</span> <span class=\"k\">class</span> Sample {</pre>");
@@ -97,7 +90,7 @@ public class CodeColorizerTest {
   }
 
   @Test
-  public void mustBeThreadsafe() throws FileNotFoundException, InterruptedException, ExecutionException {
+  public void mustBeThreadsafe() throws InterruptedException, ExecutionException, IOException {
     final int taskCount = 50;
     final int threadCount = 5;
 
@@ -105,7 +98,7 @@ public class CodeColorizerTest {
 
       Reader java;
 
-      ColorizerTask() throws FileNotFoundException {
+      ColorizerTask() throws IOException {
         this.java = readFile("/org/sonar/colorizer/samples/Sample.java");
       }
 
@@ -129,8 +122,22 @@ public class CodeColorizerTest {
     }
   }
 
-  private FileReader readFile(String path) throws FileNotFoundException {
-    return new FileReader(FileUtils.toFile(getClass().getResource(path)));
+  /**
+   * @return Reader for specified file with EOL normalized to specified one.
+   */
+  private Reader readFile(String path, String eol) throws IOException {
+    StringBuilder sb = new StringBuilder();
+    for (String line : IOUtils.readLines(getClass().getResourceAsStream(path))) {
+      sb.append(line).append(eol);
+    }
+    return new StringReader(sb.toString());
+  }
+
+  /**
+   * @return Reader for specified file with EOL normalized to LF.
+   */
+  private Reader readFile(String path) throws IOException {
+    return readFile(path, IOUtils.LINE_SEPARATOR_UNIX);
   }
 
   private void assertHtml(String html) {
