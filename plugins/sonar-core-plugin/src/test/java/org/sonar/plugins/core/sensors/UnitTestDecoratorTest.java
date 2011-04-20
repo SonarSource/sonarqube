@@ -22,6 +22,7 @@ package org.sonar.plugins.core.sensors;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -29,15 +30,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Project;
 
 public class UnitTestDecoratorTest {
 
   private UnitTestDecorator decorator;
+  private DecoratorContext context;
 
   @Before
   public void setUp() {
     decorator = new UnitTestDecorator();
+    context = mock(DecoratorContext.class);
   }
 
   @Test
@@ -60,13 +64,24 @@ public class UnitTestDecoratorTest {
    */
   @Test
   public void shouldSaveZeroOnProject() {
-    DecoratorContext context = mock(DecoratorContext.class);
-    Project project = new Project("");
-    project.setAnalysisType(Project.AnalysisType.DYNAMIC);
+    Project project = new Project("").setAnalysisType(Project.AnalysisType.DYNAMIC);
 
     decorator.decorate(project, context);
 
     verify(context).saveMeasure(CoreMetrics.TESTS, 0.0);
+  }
+
+  /**
+   * See http://jira.codehaus.org/browse/SONAR-2371
+   */
+  @Test
+  public void shouldNotSaveZeroOnPackage() {
+    JavaPackage pkg = new JavaPackage();
+
+    decorator.decorate(pkg, context);
+
+    assertThat(decorator.shouldDecorateResource(pkg), is(true));
+    verify(context, never()).saveMeasure(CoreMetrics.TESTS, 0.0);
   }
 
 }
