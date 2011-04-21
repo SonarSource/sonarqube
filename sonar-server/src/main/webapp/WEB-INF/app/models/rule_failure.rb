@@ -53,6 +53,8 @@ class RuleFailure < ActiveRecord::Base
       :qualifier => snapshot.project.qualifier,
       :language => snapshot.project.language
     }
+    open_review = get_open_review
+    json['review'] = open_review.to_hash_json ( false ) if open_review
     json
   end
 

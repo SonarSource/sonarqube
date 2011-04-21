@@ -61,4 +61,31 @@ class Review < ActiveRecord::Base
       self.project=self.resource.project
     end
   end
+
+  def to_hash_json ( extended )
+    json = {}
+    json['id'] = id
+    json['updatedAt'] = updated_at
+    json['author'] = user.login
+    json['assignee'] = assignee.login if assignee
+    json['title'] = title
+    json['type'] = review_type
+    json['status'] = status
+    json['severity'] = severity
+    comments = []
+    review_comments.each do |comment|
+      comments << {
+        'author' => comment.user.login,
+        'updatedAt' => comment.updated_at,
+        'comment' => comment.review_text
+      }
+    end
+    json['comments'] = comments
+    if ( extended )
+      json['line'] = resource_line if resource_line
+      json['resource'] = resource.kee if resource
+    end
+    json
+  end
+  
 end
