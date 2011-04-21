@@ -73,6 +73,14 @@ class Api::ViolationsController < Api::ResourceRestController
         Sonar::RulePriority.id(p)
       end.compact
     end
+    
+    if params[:switched_off] && params[:switched_off] == "true"
+      conditions << 'switched_off=:switched_off'
+      values[:switched_off] = true
+    else
+      conditions << '(switched_off IS NULL OR switched_off=:switched_off)'
+      values[:switched_off] = false
+    end
 
     limit = (params[:limit] ? [params[:limit].to_i,5000].min : 5000) 
     violations = RuleFailure.find(:all,
