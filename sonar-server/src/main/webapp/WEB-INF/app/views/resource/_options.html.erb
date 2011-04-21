@@ -50,10 +50,6 @@
 
       <% if @display_violations %>
         <td class="<%= 'first' if first -%>">
-          <input type="checkbox" value="true" name="switchedOff" id="switchedOff" <%= 'checked' if @switchedOff -%> onclick="applyOptions()"/>
-          <label for="expand">Show only switched-off violations</label>
-        </td>
-        <td class="<%= 'first' if first -%>">
           <select id="period" name="period" onchange="applyOptions()">
             <option value="">Time changes...</option>
             <%= violation_period_select_options(@snapshot, 1) -%>

@@ -32,11 +32,13 @@
       <%= image_tag("sep12.png") -%>
       &nbsp;&nbsp;
       False-Positive
+      &nbsp;&nbsp;
     <% end %>
     <% if current_open_review && current_open_review.assignee %>
       <%= image_tag("sep12.png") -%>
       &nbsp;&nbsp;
       <%= h(current_open_review.assignee.name) -%>
+      &nbsp;&nbsp;
     <% end %>
     
     
@@ -62,10 +64,16 @@
         		:complete => "$('reviewForm" + violation.permanent_id.to_s + "').style.display='';$('reviewText').focus();" -%>
         &nbsp;&nbsp;
       <% end %>
-      <%= link_to_remote "Switch-off",  
+      <% if violation.switched_off %>
+        <%= link_to_remote "Switch-on",  
+        		:url => { :controller => "reviews", :action => "switch_on_violation", :rule_failure_id => violation.id },
+        		:update => "vId" + violation.permanent_id.to_s -%>
+      <% else %>
+        <%= link_to_remote "Switch-off",  
         		:url => { :controller => "reviews", :action => "form", :rule_failure_permanent_id => violation.permanent_id, :switch_off => true },
         		:update => "reviewForm" + violation.permanent_id.to_s,
         		:complete => "$('reviewForm" + violation.permanent_id.to_s + "').style.display='';$('reviewText').focus();" -%>
+      <% end %>
       &nbsp;&nbsp;
     </span>
     <% end %>

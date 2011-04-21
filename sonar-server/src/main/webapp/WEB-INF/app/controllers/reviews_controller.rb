@@ -59,7 +59,7 @@ class ReviewsController < ApplicationController
 
   def create
     rule_failure = find_last_rule_failure_with_permanent_id params[:review][:rule_failure_permanent_id]
-    unless has_rights_to_create? rule_failure
+    unless has_rights_to_modify? rule_failure
       render :text => "<b>Cannot create the review</b> : access denied."
       return
     end
@@ -107,7 +107,7 @@ class ReviewsController < ApplicationController
 
   def create_comment
     rule_failure = find_last_rule_failure_with_permanent_id params[:rule_failure_permanent_id]
-    unless has_rights_to_create? rule_failure
+    unless has_rights_to_modify? rule_failure
       render :text => "<b>Cannot create the comment</b> : access denied."
       return
     end
@@ -179,6 +179,23 @@ class ReviewsController < ApplicationController
     violation = find_last_rule_failure_with_permanent_id review.rule_failure_permanent_id
     render :partial => "resource/violation", :locals => { :violation => violation }
   end
+  
+  def switch_on_violation
+    rule_failure = RuleFailure.find params[:rule_failure_id]
+    unless has_rights_to_modify? rule_failure
+      render :text => "<b>Cannot switch on the violation</b> : access denied."
+      return
+    end
+    
+    rule_failure.switched_off = false
+    rule_failure.save
+    
+    review = rule_failure.get_open_review
+    review.status = "closed"
+    review.save
+    
+    render :partial => "resource/violation", :locals => { :violation => rule_failure }
+  end
 
   ## -------------- PRIVATE -------------- ##
   private
@@ -246,7 +263,7 @@ class ReviewsController < ApplicationController
     return RuleFailure.last( :all, :conditions => [ "permanent_id = ?", rule_failure_permanent_id ], :include => ['snapshot'] )
   end
 
-  def has_rights_to_create? ( rule_failure )
+  def has_rights_to_modify? ( rule_failure )
     return false unless current_user
     
     project = rule_failure.snapshot.root_project

@@ -32,7 +32,8 @@
    end
 %>
 <select id="rule" name="rule" onchange="applyOptions()">
-  <option value="">No filters</option>
+  <option value="">All violations</option>
+  <option value="f-positive" <%= 'selected' if params[:rule]=="f-positive" -%>>False-Positives only</option>
   <optgroup label="Severity">
     <% if blocker_violations
          value=(@period ? blocker_violations.variation(@period) : blocker_violations.value)

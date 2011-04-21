@@ -173,15 +173,25 @@ class ResourceController < ApplicationController
 
     conditions='snapshot_id=?'
     values=[@snapshot.id]
-    unless params[:rule].blank?
-      severity=Sonar::RulePriority.id(params[:rule])
-      if severity
-        conditions += ' AND failure_level=?'
-        values<<severity
+    if params[:rule].blank?
+      conditions+='AND (switched_off IS NULL OR switched_off=?)'
+      values<<false
+    else
+      if params[:rule] == "f-positive"
+        conditions+='AND switched_off=?'
+        values<<true
       else
-        rule=Rule.by_key_or_id(params[:rule])
-        conditions += ' AND rule_id=?'
-        values<<(rule ? rule.id : -1)
+        conditions+='AND (switched_off IS NULL OR switched_off=?)'
+        values<<false
+        severity=Sonar::RulePriority.id(params[:rule])
+        if severity
+          conditions += ' AND failure_level=?'
+          values<<severity
+        else
+          rule=Rule.by_key_or_id(params[:rule])
+          conditions += ' AND rule_id=?'
+          values<<(rule ? rule.id : -1)
+        end
       end
     end
 
@@ -193,15 +203,6 @@ class ResourceController < ApplicationController
       else
         conditions+=' AND id=-1'
       end
-    end
-    
-    if params[:switchedOff]
-      @switchedOff=true
-      conditions+='AND switched_off=?'
-      values<<true
-    else
-      conditions+='AND (switched_off IS NULL OR switched_off=?)'
-      values<<false
     end
 
     RuleFailure.find(:all, :include => ['rule', 'reviews' ], :conditions => [conditions] + values, :order => 'failure_level DESC').each do |violation|
