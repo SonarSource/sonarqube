@@ -37,7 +37,9 @@ public class DependencyUnmarshallerTest extends UnmarshallerTestCase {
 
     dependency = new DependencyUnmarshaller().toModel(loadFile("/dependencies/single.json"));
     assertThat(dependency.getId(), is("1649"));
+    assertThat(dependency.getFromId(), is(33L));
     assertThat(dependency.getFromKey(), is("org.apache.shiro:shiro-core:org.apache.shiro.authc.pam"));
+    assertThat(dependency.getToId(), is(45L));
     assertThat(dependency.getToKey(), is("org.apache.shiro:shiro-core:org.apache.shiro.realm"));
     assertThat(dependency.getUsage(), is("USES"));
     assertThat(dependency.getWeight(), is(5));

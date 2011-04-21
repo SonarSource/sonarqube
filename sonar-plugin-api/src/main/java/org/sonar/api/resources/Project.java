@@ -146,7 +146,9 @@ public class Project extends Resource {
 
   /**
    * @return the project's packaging
+   * @deprecated in 2.8. See http://jira.codehaus.org/browse/SONAR-2341
    */
+  @Deprecated
   public String getPackaging() {
     return packaging;
   }
@@ -181,7 +183,10 @@ public class Project extends Resource {
 
   /**
    * For internal use only.
+   * 
+   * @deprecated in 2.8. See http://jira.codehaus.org/browse/SONAR-2341
    */
+  @Deprecated
   public Project setPackaging(String packaging) {
     this.packaging = packaging;
     return this;

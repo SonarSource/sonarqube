@@ -1,6 +1,6 @@
 [
   {
-    "id":"1649",
+    "id": 1649,
     "fi": 33,
     "ti": 45,
     "fk":"org.apache.shiro:shiro-core:org.apache.shiro.authc.pam",
