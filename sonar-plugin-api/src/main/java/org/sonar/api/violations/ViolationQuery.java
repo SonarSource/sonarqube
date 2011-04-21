@@ -28,7 +28,7 @@ import org.sonar.api.resources.Resource;
  */
 public final class ViolationQuery {
 
-  private boolean ignoreSwitchedOff;
+  private boolean isSwitchedOff;
   private Resource resource;
 
   /**
@@ -50,21 +50,21 @@ public final class ViolationQuery {
    * Specifies if the query should returned switched-off violations or not.
    * 
    * @param ignore
-   *          if true, the query will return only active violations.
+   *          if true, the query will return only switched-off violations. if false, it will return only active violations.
    * @return the current violation query
    */
-  public ViolationQuery ignoreSwitchedOff(boolean ignore) {
-    this.ignoreSwitchedOff = ignore;
+  public ViolationQuery setSwitchedOff(boolean ignore) {
+    this.isSwitchedOff = ignore;
     return this;
   }
 
   /**
-   * Tells if the query should returned switched-off violations or not.
+   * Tells if the query should returned switched-off violations or active violations.
    * 
    * @return
    */
-  public boolean ignoreSwitchedOff() {
-    return ignoreSwitchedOff;
+  public boolean isSwitchedOff() {
+    return isSwitchedOff;
   }
 
   /**

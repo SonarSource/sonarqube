@@ -19,16 +19,16 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.junit.Test;
-import org.sonar.wsclient.services.Violation;
-
-import java.util.List;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
+
+import java.util.List;
+
+import org.junit.Test;
+import org.sonar.wsclient.services.Violation;
 
 public class ViolationUnmarshallerTest extends UnmarshallerTestCase {
 
@@ -52,6 +52,7 @@ public class ViolationUnmarshallerTest extends UnmarshallerTestCase {
     assertThat(violation.getResourceName(), is("TraceableResourceLimitingPool"));
     assertThat(violation.getResourceQualifier(), is("CLA"));
     assertThat(violation.getResourceScope(), is("FIL"));
+    assertThat(violation.isSwitchedOff(), is(true));
   }
 
   @Test

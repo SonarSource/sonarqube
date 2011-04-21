@@ -138,7 +138,7 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
    * @return the list of violations
    */
   public final List<Violation> getViolations(Resource resource) {
-    return getViolations(ViolationQuery.create().forResource(resource).ignoreSwitchedOff(true));
+    return getViolations(ViolationQuery.create().forResource(resource));
   }
 
   /**

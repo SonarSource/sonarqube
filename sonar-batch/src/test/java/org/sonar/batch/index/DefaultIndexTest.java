@@ -227,7 +227,7 @@ public class DefaultIndexTest {
     violation3.setSwitchedOff(true);
     index.addViolation(violation3);
 
-    assertThat(index.getViolations(ViolationQuery.create().forResource(file).ignoreSwitchedOff(false)).size(), is(3));
+    assertThat(index.getViolations(ViolationQuery.create().forResource(file).setSwitchedOff(true)).size(), is(2));
   }
 
   @Test(expected = IllegalArgumentException.class)

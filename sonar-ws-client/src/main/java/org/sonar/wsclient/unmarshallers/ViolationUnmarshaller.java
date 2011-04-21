@@ -33,6 +33,7 @@ public class ViolationUnmarshaller extends AbstractUnmarshaller<Violation> {
     violation.setLine(utils.getInteger(json, "line"));
     violation.setSeverity(utils.getString(json, "priority"));
     violation.setCreatedAt(utils.getDateTime(json, "createdAt"));
+    violation.setSwitchedOff(utils.getBoolean(json, "switchedOff"));
 
     Object rule = utils.getField(json, "rule");
     if (rule != null) {

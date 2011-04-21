@@ -33,6 +33,7 @@ public class Violation extends Model {
   private String resourceScope = null;
   private String resourceQualifier = null;
   private Date createdAt = null;
+  private boolean switchedOff;
 
   public String getMessage() {
     return message;
@@ -152,6 +153,22 @@ public class Violation extends Model {
    * @since 2.5
    */
   public boolean isCreatedAfter(Date date) {
-    return createdAt!=null && date!=null && createdAt.after(date);
+    return createdAt != null && date != null && createdAt.after(date);
   }
+
+  /**
+   * @since 2.8
+   */
+  public Violation setSwitchedOff(boolean switchedOff) {
+    this.switchedOff = switchedOff;
+    return this;
+  }
+
+  /**
+   * @since 2.8
+   */
+  public boolean isSwitchedOff() {
+    return switchedOff;
+  }
+
 }
