@@ -31,7 +31,6 @@ public class ViolationQuery extends Query<Violation> {
   private String[] categories;
   private String[] severities;
   private Integer limit;
-  private boolean isSwitchedOff;
 
   public ViolationQuery(String resourceKeyOrId) {
     this.resourceKeyOrId = resourceKeyOrId;
@@ -129,21 +128,6 @@ public class ViolationQuery extends Query<Violation> {
     return this;
   }
 
-  /**
-   * @since 2.8
-   */
-  public ViolationQuery setSwitchedOff(boolean ignore) {
-    this.isSwitchedOff = ignore;
-    return this;
-  }
-
-  /**
-   * @since 2.8
-   */
-  public boolean isSwitchedOff() {
-    return isSwitchedOff;
-  }
-
   @Override
   public String getUrl() {
     StringBuilder url = new StringBuilder(BASE_URL);
@@ -158,7 +142,6 @@ public class ViolationQuery extends Query<Violation> {
     appendUrlParameter(url, "rules", ruleKeys);
     appendUrlParameter(url, "categories", categories);
     appendUrlParameter(url, "priorities", severities);
-    appendUrlParameter(url, "switched_off", isSwitchedOff);
 
     return url.toString();
   }
