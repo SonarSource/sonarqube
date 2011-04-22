@@ -84,8 +84,8 @@ public class CodeBufferTest {
     assertThat(reader.getLinePosition(), is(3));
     assertThat((char) reader.pop(), is('s'));
     reader.pop(); // \r
-    assertThat(reader.getColumnPosition(), is(0));
-    assertThat(reader.getLinePosition(), is(4));
+    assertThat(reader.getColumnPosition(), is(2));
+    assertThat(reader.getLinePosition(), is(3));
     reader.pop(); // \n
     assertThat(reader.getColumnPosition(), is(0));
     assertThat(reader.getLinePosition(), is(4));
