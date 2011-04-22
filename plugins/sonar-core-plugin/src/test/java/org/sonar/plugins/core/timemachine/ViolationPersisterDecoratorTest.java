@@ -19,21 +19,22 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 
-import java.util.List;
-
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import com.google.common.collect.Lists;
 
 public class ViolationPersisterDecoratorTest {
 
@@ -41,7 +42,7 @@ public class ViolationPersisterDecoratorTest {
 
   @Before
   public void setUp() {
-    decorator = new ViolationPersisterDecorator(null, null, null);
+    decorator = new ViolationPersisterDecorator(null, null);
   }
 
   @Test
@@ -59,95 +60,97 @@ public class ViolationPersisterDecoratorTest {
   }
 
   @Test
-  public void sameRuleLineMessage() {
-    Rule rule = Rule.create().setKey("rule");
-    rule.setId(50);
-    Violation violation = Violation.create(rule, null)
-        .setLineId(1).setMessage("message");
+  public void checksumShouldHaveGreaterPriorityThanLine() {
+    RuleFailureModel pastViolation1 = newPastViolation("message", 1, 50, "checksum1");
+    RuleFailureModel pastViolation2 = newPastViolation("message", 3, 50, "checksum2");
 
-    RuleFailureModel pastViolation = newPastViolation(rule, 1, "message");
+    Violation newViolation1 = newViolation("message", 3, 50, "checksum1");
+    Violation newViolation2 = newViolation("message", 5, 50, "checksum2");
 
-    Multimap<Rule, RuleFailureModel> pastViolationsByRule = LinkedHashMultimap.create();
-    pastViolationsByRule.put(rule, pastViolation);
-
-    RuleFailureModel found = decorator.selectPastViolation(violation, pastViolationsByRule);
-    assertThat(found, equalTo(pastViolation));
+    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation1, newViolation2),
+        Lists.newArrayList(pastViolation1, pastViolation2));
+    assertThat(mapping.get(newViolation1), equalTo(pastViolation1));
+    assertThat(mapping.get(newViolation2), equalTo(pastViolation2));
   }
 
   @Test
-  public void sameRuleAndMessageButDifferentLine() {
-    Rule rule = Rule.create().setKey("rule");
-    rule.setId(50);
-    Violation violation = Violation.create(rule, null)
-        .setLineId(1).setMessage("message");
-    decorator.checksums = ViolationPersisterDecorator.getChecksums("violation");
+  public void sameRuleAndLineMessage() {
+    Violation newViolation = newViolation("message", 1, 50, "checksum1");
+    RuleFailureModel pastViolation = newPastViolation("message", 1, 50, "checksum2");
 
-    RuleFailureModel pastViolation = newPastViolation(rule, 2, "message");
-    pastViolation.setChecksum(ViolationPersisterDecorator.getChecksum("violation"));
-
-    Multimap<Rule, RuleFailureModel> pastViolationsByRule = LinkedHashMultimap.create();
-    pastViolationsByRule.put(rule, pastViolation);
-
-    RuleFailureModel found = decorator.selectPastViolation(violation, pastViolationsByRule);
-    assertThat(found, equalTo(pastViolation));
+    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(pastViolation));
+    assertThat(mapping.get(newViolation), equalTo(pastViolation));
   }
 
   @Test
-  public void shouldCreateNewViolation() {
-    Rule rule = Rule.create().setKey("rule");
-    Violation violation = Violation.create(rule, null)
-        .setLineId(1).setMessage("message");
+  public void sameRuleAndMessageAndChecksumButDifferentLine() {
+    Violation newViolation = newViolation("message", 1, 50, "checksum1");
+    RuleFailureModel pastViolation = newPastViolation("message", 2, 50, "checksum1");
 
-    RuleFailureModel pastViolation = newPastViolation(rule, 2, "message");
+    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(pastViolation));
+    assertThat(mapping.get(newViolation), equalTo(pastViolation));
+  }
 
-    Multimap<Rule, RuleFailureModel> pastViolationsByRule = LinkedHashMultimap.create();
-    pastViolationsByRule.put(rule, pastViolation);
+  @Test
+  public void shouldCreateNewViolationWhenSameRuleSameMessageButDifferentLineAndChecksum() {
+    Violation newViolation = newViolation("message", 1, 50, "checksum1");
+    RuleFailureModel pastViolation = newPastViolation("message", 2, 50, "checksum2");
 
-    RuleFailureModel found = decorator.selectPastViolation(violation, pastViolationsByRule);
-    assertThat(found, nullValue());
+    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(pastViolation));
+    assertThat(mapping.get(newViolation), is(nullValue()));
   }
 
   @Test
   public void shouldNotTrackViolationIfDifferentRule() {
-    Rule rule = Rule.create().setKey("rule");
-    rule.setId(50);
-    Violation violation = Violation.create(rule, null)
-        .setLineId(1).setMessage("message");
+    Violation newViolation = newViolation("message", 1, 50, "checksum1");
+    RuleFailureModel pastViolation = newPastViolation("message", 1, 51, "checksum1");
 
-    Rule otherRule = Rule.create().setKey("anotherRule");
-    otherRule.setId(244);
-    RuleFailureModel pastViolationOnOtherRule = newPastViolation(otherRule, 1, "message");
-
-    Multimap<Rule, RuleFailureModel> pastViolationsByRule = LinkedHashMultimap.create();
-    pastViolationsByRule.put(otherRule, pastViolationOnOtherRule);
-
-    RuleFailureModel found = decorator.selectPastViolation(violation, pastViolationsByRule);
-    assertThat(found, nullValue());
+    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(pastViolation));
+    assertThat(mapping.get(newViolation), is(nullValue()));
   }
 
   @Test
   public void shouldCompareViolationsWithDatabaseFormat() {
     // violation messages are trimmed and can be abbreviated when persisted in database.
     // Comparing violation messages must use the same format.
-    Rule rule = Rule.create().setKey("rule");
-    rule.setId(50);
-    Violation violation = Violation.create(rule, null)
-        .setLineId(30).setMessage("   message     "); // starts and ends with whitespaces
+    Violation newViolation = newViolation("message", 1, 50, "checksum1");
+    RuleFailureModel pastViolation = newPastViolation("       message       ", 1, 50, "checksum2");
 
-    RuleFailureModel pastViolation = newPastViolation(rule, 30, "message"); // trimmed in database
-
-    Multimap<Rule, RuleFailureModel> pastViolationsByRule = LinkedHashMultimap.create();
-    pastViolationsByRule.put(rule, pastViolation);
-
-    RuleFailureModel found = decorator.selectPastViolation(violation, pastViolationsByRule);
-    assertThat(found, equalTo(pastViolation));
+    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(pastViolation));
+    assertThat(mapping.get(newViolation), equalTo(pastViolation));
   }
 
-  private RuleFailureModel newPastViolation(Rule rule, Integer line, String message) {
+  private Violation newViolation(String message, int lineId, int ruleId) {
+    Rule rule = Rule.create().setKey("rule");
+    rule.setId(ruleId);
+    Violation violation = Violation.create(rule, null).setLineId(lineId).setMessage(message);
+    return violation;
+  }
+
+  private Violation newViolation(String message, int lineId, int ruleId, String lineChecksum) {
+    Violation violation = newViolation(message, lineId, ruleId);
+    if (decorator.checksums == null) {
+      decorator.checksums = Lists.newArrayListWithExpectedSize(100);
+    }
+    for (int i = decorator.checksums.size() - 1; i < lineId; i++) {
+      decorator.checksums.add("");
+    }
+    decorator.checksums.set(lineId - 1, ViolationPersisterDecorator.getChecksum(lineChecksum));
+    return violation;
+  }
+
+  private RuleFailureModel newPastViolation(String message, int lineId, int ruleId) {
     RuleFailureModel pastViolation = new RuleFailureModel();
-    pastViolation.setLine(line);
+    pastViolation.setId(lineId + ruleId);
+    pastViolation.setLine(lineId);
     pastViolation.setMessage(message);
-    pastViolation.setRuleId(rule.getId());
+    pastViolation.setRuleId(ruleId);
+    return pastViolation;
+  }
+
+  private RuleFailureModel newPastViolation(String message, int lineId, int ruleId, String lineChecksum) {
+    RuleFailureModel pastViolation = newPastViolation(message, lineId, ruleId);
+    pastViolation.setChecksum(ViolationPersisterDecorator.getChecksum(lineChecksum));
     return pastViolation;
   }
 

@@ -19,33 +19,38 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.plexus.util.StringInputStream;
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorBarriers;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.database.model.SnapshotSource;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.components.PastViolationsLoader;
 import org.sonar.batch.index.ViolationPersister;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 
 @DependsUpon(DecoratorBarriers.END_OF_VIOLATIONS_GENERATION)
-@DependedUpon("ViolationPersisterDecorator") /* temporary workaround - see NewViolationsDecorator */
+@DependedUpon("ViolationPersisterDecorator")
+/* temporary workaround - see NewViolationsDecorator */
 public class ViolationPersisterDecorator implements Decorator {
 
   /**
@@ -53,14 +58,12 @@ public class ViolationPersisterDecorator implements Decorator {
    */
   private static final String SPACE_CHARS = "\t\n\r ";
 
-  private RuleFinder ruleFinder;
   private PastViolationsLoader pastViolationsLoader;
   private ViolationPersister violationPersister;
 
-  List<String> checksums = Lists.newArrayList();
+  List<String> checksums;
 
-  public ViolationPersisterDecorator(RuleFinder ruleFinder, PastViolationsLoader pastViolationsLoader, ViolationPersister violationPersister) {
-    this.ruleFinder = ruleFinder;
+  public ViolationPersisterDecorator(PastViolationsLoader pastViolationsLoader, ViolationPersister violationPersister) {
     this.pastViolationsLoader = pastViolationsLoader;
     this.violationPersister = violationPersister;
   }
@@ -73,40 +76,125 @@ public class ViolationPersisterDecorator implements Decorator {
     if (context.getViolations().isEmpty()) {
       return;
     }
+    // Load new violations
+    List<Violation> newViolations = context.getViolations();
+
     // Load past violations
     List<RuleFailureModel> pastViolations = pastViolationsLoader.getPastViolations(resource);
-    // Load current source and calculate checksums
+
+    // Load current source code and calculate checksums for each line
     checksums = getChecksums(pastViolationsLoader.getSource(resource));
-    // Save violations
-    compareWithPastViolations(context, pastViolations);
+
+    // Map new violations with old ones
+    Map<Violation, RuleFailureModel> violationMap = mapViolations(newViolations, pastViolations);
+
+    for (Violation newViolation : newViolations) {
+      String checksum = getChecksumForLine(checksums, newViolation.getLineId());
+      violationPersister.saveViolation(context.getProject(), newViolation, violationMap.get(newViolation), checksum);
+    }
+    violationPersister.commit();
     // Clear cache
     checksums.clear();
   }
 
-  private void compareWithPastViolations(DecoratorContext context, List<RuleFailureModel> pastViolations) {
-    Multimap<Rule, RuleFailureModel> pastViolationsByRule = LinkedHashMultimap.create();
+  Map<Violation, RuleFailureModel> mapViolations(List<Violation> newViolations, List<RuleFailureModel> pastViolations) {
+    Map<Violation, RuleFailureModel> violationMap = new IdentityHashMap<Violation, RuleFailureModel>();
+
+    Multimap<Integer, RuleFailureModel> pastViolationsByRule = LinkedHashMultimap.create();
     for (RuleFailureModel pastViolation : pastViolations) {
-      Rule rule = ruleFinder.findById(pastViolation.getRuleId());
-      pastViolationsByRule.put(rule, pastViolation);
+      pastViolationsByRule.put(pastViolation.getRuleId(), pastViolation);
     }
-    // for each violation, search equivalent past violation
-    for (Violation violation : context.getViolations()) {
-      RuleFailureModel pastViolation = selectPastViolation(violation, pastViolationsByRule);
-      if (pastViolation != null) {
-        // remove violation, since would be updated and shouldn't affect other violations anymore
-        pastViolationsByRule.remove(violation.getRule(), pastViolation);
+
+    // Try first an exact matching : same rule, same message, same line and same checkum
+    for (Violation newViolation : newViolations) {
+      mapViolation(newViolation,
+          findPastViolationWithSameLineAndChecksumAndMessage(newViolation, pastViolationsByRule.get(newViolation.getRule().getId())),
+          pastViolationsByRule, violationMap);
+    }
+
+    // If each new violation matches an old one we can stop the matching mechanism
+    if (violationMap.size() != newViolations.size()) {
+
+      // Try then to match violations on same rule with same message and with same checkum
+      for (Violation newViolation : newViolations) {
+        if (isNotAlreadyMapped(newViolation, violationMap)) {
+          mapViolation(newViolation,
+              findPastViolationWithSameChecksumAndMessage(newViolation, pastViolationsByRule.get(newViolation.getRule().getId())),
+              pastViolationsByRule, violationMap);
+        }
       }
-      String checksum = getChecksumForLine(checksums, violation.getLineId());
-      violationPersister.saveViolation(context.getProject(), violation, pastViolation, checksum);
+
+      // Try then to match violations on same rule with same line and with same message
+      for (Violation newViolation : newViolations) {
+        if (isNotAlreadyMapped(newViolation, violationMap)) {
+          mapViolation(newViolation,
+              findPastViolationWithSameLineAndMessage(newViolation, pastViolationsByRule.get(newViolation.getRule().getId())),
+              pastViolationsByRule, violationMap);
+        }
+      }
     }
-    violationPersister.commit();
+
+    return violationMap;
+  }
+
+  private final boolean isNotAlreadyMapped(Violation newViolation, Map<Violation, RuleFailureModel> violationMap) {
+    return violationMap.get(newViolation) == null;
+  }
+
+  private RuleFailureModel findPastViolationWithSameLineAndMessage(Violation newViolation, Collection<RuleFailureModel> pastViolations) {
+    for (RuleFailureModel pastViolation : pastViolations) {
+      if (isSameLine(newViolation, pastViolation) && isSameMessage(newViolation, pastViolation)) {
+        return pastViolation;
+      }
+    }
+    return null;
+  }
+
+  private RuleFailureModel findPastViolationWithSameChecksumAndMessage(Violation newViolation, Collection<RuleFailureModel> pastViolations) {
+    for (RuleFailureModel pastViolation : pastViolations) {
+      if (isSameChecksum(newViolation, pastViolation) && isSameMessage(newViolation, pastViolation)) {
+        return pastViolation;
+      }
+    }
+    return null;
+  }
+
+  private RuleFailureModel findPastViolationWithSameLineAndChecksumAndMessage(Violation newViolation,
+      Collection<RuleFailureModel> pastViolations) {
+    for (RuleFailureModel pastViolation : pastViolations) {
+      if (isSameLine(newViolation, pastViolation) && isSameChecksum(newViolation, pastViolation)
+          && isSameMessage(newViolation, pastViolation)) {
+        return pastViolation;
+      }
+    }
+    return null;
+  }
+
+  private final boolean isSameChecksum(Violation newViolation, RuleFailureModel pastViolation) {
+    return pastViolation.getChecksum().equals(getChecksumForLine(checksums, newViolation.getLineId()));
+  }
+
+  private final boolean isSameLine(Violation newViolation, RuleFailureModel pastViolation) {
+    return pastViolation.getLine() == newViolation.getLineId();
+  }
+
+  private final boolean isSameMessage(Violation newViolation, RuleFailureModel pastViolation) {
+    return StringUtils.equals(RuleFailureModel.abbreviateMessage(newViolation.getMessage()), pastViolation.getMessage());
+  }
+
+  private void mapViolation(Violation newViolation, RuleFailureModel pastViolation,
+      Multimap<Integer, RuleFailureModel> pastViolationsByRule, Map<Violation, RuleFailureModel> violationMap) {
+    if (pastViolation != null) {
+      pastViolationsByRule.remove(newViolation.getRule().getId(), pastViolation);
+      violationMap.put(newViolation, pastViolation);
+    }
   }
 
   /**
    * @return checksums, never null
    */
   private List<String> getChecksums(SnapshotSource source) {
-    return source == null || source.getData() == null ? Collections.<String>emptyList() : getChecksums(source.getData());
+    return source == null || source.getData() == null ? Collections.<String> emptyList() : getChecksums(source.getData());
   }
 
   static List<String> getChecksums(String data) {
@@ -119,7 +207,7 @@ public class ViolationPersisterDecorator implements Decorator {
       }
     } catch (IOException e) {
       throw new SonarException("Unable to calculate checksums", e);
-      
+
     } finally {
       IOUtils.closeQuietly(stream);
     }
@@ -139,53 +227,6 @@ public class ViolationPersisterDecorator implements Decorator {
       return null;
     }
     return checksums.get(line - 1);
-  }
-
-  /**
-   * Search for past violation.
-   */
-  RuleFailureModel selectPastViolation(Violation violation, Multimap<Rule, RuleFailureModel> pastViolationsByRule) {
-    Collection<RuleFailureModel> pastViolations = pastViolationsByRule.get(violation.getRule());
-    if (pastViolations==null || pastViolations.isEmpty()) {
-      // skip violation, if there is no past violations with same rule
-      return null;
-    }
-    String dbFormattedMessage = RuleFailureModel.abbreviateMessage(violation.getMessage());
-    RuleFailureModel found = selectPastViolationUsingLine(violation, dbFormattedMessage, pastViolations);
-    if (found == null) {
-      found = selectPastViolationUsingChecksum(violation, dbFormattedMessage, pastViolations);
-    }
-    return found;
-  }
-
-  /**
-   * Search for past violation with same message and line.
-   */
-  private RuleFailureModel selectPastViolationUsingLine(Violation violation, String dbFormattedMessage, Collection<RuleFailureModel> pastViolations) {
-    for (RuleFailureModel pastViolation : pastViolations) {
-      if (ObjectUtils.equals(violation.getLineId(), pastViolation.getLine()) && StringUtils.equals(dbFormattedMessage, pastViolation.getMessage())) {
-        return pastViolation;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Search for past violation with same message and checksum.
-   */
-  private RuleFailureModel selectPastViolationUsingChecksum(Violation violation, String dbFormattedMessage, Collection<RuleFailureModel> pastViolations) {
-    String checksum = getChecksumForLine(checksums, violation.getLineId());
-    // skip violation, which not attached to line
-    if (checksum == null) {
-      return null;
-    }
-    for (RuleFailureModel pastViolation : pastViolations) {
-      String pastChecksum = pastViolation.getChecksum();
-      if (StringUtils.equals(checksum, pastChecksum) && StringUtils.equals(dbFormattedMessage, pastViolation.getMessage())) {
-        return pastViolation;
-      }
-    }
-    return null;
   }
 
   @Override
