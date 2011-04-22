@@ -19,7 +19,7 @@ function backReviews() {
 <div id="reviews-search">
   <h1>Reviews</h1>
   <% form_tag({:action => 'index'}, {:method => 'get'}) do %>
-   <table id="reviews-form" class="search-filter-box">
+   <table id="reviews-form" class="searchFilterBox">
 	 <thead>
 		<tr><th colspan="6"></th></tr>
 	</thead>
@@ -27,7 +27,7 @@ function backReviews() {
      <tr>
 	   <td width="1%" nowrap>
          <span class="note">Status</span><br/>
-		 <select size="6" name="statuses[]" multiple="multiple" id="statuses" class="with-icons">
+		 <select size="6" name="statuses[]" multiple="multiple" id="statuses" class="withIcons">
 			<option <%= 'selected' if @statuses.include?('') -%> value="">Any</option>
 		    <option value="<%= Review::STATUS_OPEN -%>" class="status_open" <%= 'selected' if @statuses.include?(Review::STATUS_OPEN) -%>>Open</option>
             <option value="<%= Review::STATUS_CLOSED -%>" class="status_closed" <%= 'selected' if @statuses.include?(Review::STATUS_CLOSED) -%>>Closed</option>
@@ -35,11 +35,18 @@ function backReviews() {
 
        <td width="1%" nowrap>
          <span class="note">Project</span><br/>
-         <%= select_tag "projects", options_for_project_select(), :multiple => true, :size => 6 %>
+		<select size="6" name="projects[]" multiple="multiple" id="projects">
+			<option <%= 'selected' if @projects.include?('') -%> value="">Any</option>
+			<% projects_for_select.each do |project| 
+				name=project.name(true)
+			%>
+		      <option value="<%= project.id -%>" title="<%= h(name)-%>" <%= 'selected' if @projects.include?(project.id.to_s) -%>><%= h(truncate(name, :length => 20)) -%></option>
+		    <% end %>
+		</select>
        </td>
        <td width="1%" nowrap>
          <span class="note">Severity</span><br/>
-		<select size="6" name="severities[]" multiple="multiple" id="severities" class="with-icons">
+		<select size="6" name="severities[]" multiple="multiple" id="severities" class="withIcons">
           <option <%= 'selected' if @severities.include?('') -%> value="">Any</option>
           <option value="<%= Severity::BLOCKER -%>" class="sev_BLOCKER" <%= 'selected' if @severities.include?(Severity::BLOCKER) -%>>Blocker</option>
           <option value="<%= Severity::CRITICAL -%>" class="sev_CRITICAL" <%= 'selected' if @severities.include?(Severity::CRITICAL) -%>>Critical</option>

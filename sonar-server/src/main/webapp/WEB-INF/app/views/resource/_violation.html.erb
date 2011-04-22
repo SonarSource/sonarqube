@@ -80,7 +80,7 @@
     
   </div>
 
-  <div class="comment">
+  <div class="discussionComment first">
     <%= h(violation.message) -%>
   </div>
 
@@ -89,7 +89,7 @@
       last_comment = current_open_review.review_comments.last
       current_open_review.review_comments.each do |review_comment|
   %>
-  <div class="comment">
+  <div class="discussionComment">
     <% duration=Date.today - review_comment.created_at.to_date %>
     <h4><%= image_tag("reviews/comment.png") -%> &nbsp;<b><%= review_comment.user.name -%></b> (<%= duration==0 ? 'today' : "#{duration} days ago" -%>)
     <% if review_comment == last_comment && current_user && current_user.id == review_comment.user.id %>

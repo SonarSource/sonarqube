@@ -670,17 +670,6 @@ ul.operations li img {
   margin:0;
   border: 1px solid #DDD;
 }
-.sources2 div.comment{
-  background-color:#FBFBFB;
-  margin:0;
-  padding:5px 10px;
-  border-top: 1px solid #DDD;
-  line-height: 1.5em;
-}
-.sources2 div.comment h4{
-  font-size: 90%;
-  margin-bottom: 2px;
-}
 .sources2 div.violation .actions{
   visibility: hidden;
 }
@@ -690,7 +679,7 @@ ul.operations li img {
 .sources2 div.violation .actions form {
   display: inline;
 }
-.sources2 div.vtitle{
+div.vtitle{
   background-color:#E4ECF3;
   margin:0;
   padding:0 10px;
@@ -698,7 +687,7 @@ ul.operations li img {
   text-shadow: 1px 1px 0 #FFF;
   color:#777
 }
-.sources2 div.vtitle a.action {
+div.vtitle a.action {
   color: #777;
 }
 span.rulename, span.rulename a {
@@ -815,6 +804,68 @@ span.rulename a:hover {
   background: none;
   padding: 0 10px 0 0;
 }
+
+
+
+
+
+div.reportTitle {
+	background-color: #CAE3F2;
+	color: #4B9FD5;
+	line-height: 2.2em;
+	margin: 0;
+	padding: 0 10px;
+	border: 1px solid #4B9FD5;
+}
+div.reportTitle h2 {
+	color: #4183C4;
+	font-weight: bold;
+	display: inline;
+	font-size: 100%;
+	text-shadow: 0 1px 0 #FFFFFF;
+}
+table.reportDetails {
+	width: 100%;
+	border: 0;
+}
+table.reportDetails td {
+	vertical-align: top;
+	text-align: left;
+	padding: 5px 10px;
+}
+table.reportDetails td.key {
+  white-space: nowrap;	
+  min-width: 1%;
+  color: #777;
+}
+table.reportDetails td img {
+	vertical-align: bottom;
+}
+
+div.discussion {
+	width: 100%;
+	border: 1px solid #DDDDDD;
+}
+.discussionComment.first {
+	border-top: none;
+}
+div.discussionComment {
+	background-color: #F4F4F4;
+	border-top: 1px solid #DDDDDD;
+	line-height: 1.5em;
+	margin: 0;
+	padding: 5px 10px;
+}
+div.discussionComment h4 {
+  font-size: 90%;
+  margin-bottom: 2px;
+}
+div.discussionComment h4 img {
+  vertical-align: sub;
+}
+
+
+
 
 
 
@@ -1036,18 +1087,18 @@ span.rulename a:hover {
   padding: 10px;
 }
 
-.search-filter-box {
+.searchFilterBox {
 	background-color: #ECECEC;
 	color: #444;
 	border: 1px solid #DDD;
 	margin: 0 0 10px 0;
 }
-.search-filter-box td {
+.searchFilterBox td {
 	padding: 10px;
 	text-align: left;
 	vertical-align: top;
 }
-select.with-icons option {
+select.withIcons option {
 	background-repeat: no-repeat;
 	background-position: 2px 0;
 	padding: 0 2px 0 22px;

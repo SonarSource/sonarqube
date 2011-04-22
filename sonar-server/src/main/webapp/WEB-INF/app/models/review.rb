@@ -50,8 +50,19 @@ class Review < ActiveRecord::Base
     return STATUS_OPEN
   end
     
-  def source?
-    resource!=nil && resource.last_snapshot!=nil && resource.last_snapshot.source!=nil
+  def on_project?
+    resource_id==project_id
+  end
+  
+  def rule
+    @rule ||= 
+      begin
+        rule_failure ? rule_failure.rule : nil
+      end
+  end
+  
+  def comments
+    review_comments
   end
 
   private

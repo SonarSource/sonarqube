@@ -19,13 +19,8 @@
 #
 module ReviewsHelper
   
-  def options_for_project_select
-    options=[['Any', '']]
-    projects=Project.find(:all, :select => 'id,name', :conditions => ['enabled=? AND scope=? AND qualifier IN (?)', true, 'PRJ', ['TRK', 'VW','SVW']], :order => 'name ASC')
-    projects.each do |project|
-      options<<[project.name, project.id]
-    end
-    options_for_select(options, @projects)
+  def projects_for_select
+    Project.find(:all, :select => 'id,name,long_name', :conditions => ['enabled=? AND scope=? AND qualifier IN (?)', true, 'PRJ', ['TRK', 'VW','SVW']], :order => 'name ASC')
   end
   
 end

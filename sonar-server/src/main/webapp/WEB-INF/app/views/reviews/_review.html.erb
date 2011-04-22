@@ -1,0 +1,75 @@
+<div id="rev_<%= review.id -%>">
+  <div class="reportTitle">
+    <div style="float: right"><span class="violation_date">#<%= review.id.to_s -%></span></div>  
+    <h2><%= h(review.title) -%></h2>
+  </div>
+
+  <table class="reportDetails">
+	 <tr>
+	   <td class="key">
+	     Status:	
+	   </td>
+	   <td  class="val">
+		<%= image_tag "status/#{review.status}.png" -%> <%= review.status -%>
+	   </td>
+	   <td class="key">
+         Severity:
+	   </td>
+	   <td  class="val">
+          <%= image_tag "priority/#{review.severity}.png" -%> <%= review.severity -%>
+	   </td>
+	 </tr>
+	 <tr>
+	   <td class="key">
+	     Assignee:	
+	   </td>
+	   <td  class="val">
+		<%= review.assignee ? h(review.assignee.name) : '-'-%>
+	   </td>
+	   <td class="key">
+		  Created: 
+	   </td>
+	   <td  class="val">
+  		  by <%= h(review.user.name) -%> at <%= l(review.created_at) -%>
+	   </td>
+	 </tr>
+	<% if review.rule %>
+   	<tr>
+	   <td class="key">
+	     Rule:	
+	   </td>
+	   <td class="val" colspan="3">
+		  <a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => review.rule.key, :layout => 'false' -%>"><%= h(review.rule.key) -%></a>
+	   </td>
+	</tr>
+	<% end %>
+	<tr>
+	   <td class="key">
+	     File:	
+	   </td>
+	   <td class="val" colspan="3">
+		<%= qualifier_icon(@review.resource) -%> 
+		<% if !review.on_project? %> <%= @review.project.long_name -%> <%= image_tag 'sep12.png' -%> <% end %>
+		<%= link_to_resource(review.resource, review.resource.long_name) %>
+	   </td>
+	 </tr>
+  </table>
+
+  <% if review.rule_failure %>
+    
+  <% end %>
+
+  <div class="discussion">
+	 <% if review.rule_failure %>
+	   <div class="discussionComment first">
+	    <%= h(review.rule_failure.message) -%>
+	   </div>
+	 <% end %>
+	 <% review.comments.each do |comment| %>
+	   <div class="discussionComment">
+		 <h4><%= image_tag("reviews/comment.png") -%> &nbsp;<b><%= comment.user.name -%></b> (<%= distance_of_time_in_words_to_now(comment.created_at) -%>)</h4>
+	    <%= h(comment.review_text) -%>
+	   </div>
+	 <% end %>
+  </div>
+<div>
