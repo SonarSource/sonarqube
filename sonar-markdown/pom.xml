@@ -8,11 +8,14 @@
 		<version>2.8-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>sonar-channel</artifactId>
-	<name>Sonar :: Channel</name>
-	<description>Code Channel</description>
+	<artifactId>sonar-markdown</artifactId>
+	<name>Sonar :: Markdown</name>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.codehaus.sonar</groupId>
+			<artifactId>sonar-channel</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
@@ -27,13 +30,13 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.hamcrest</groupId>
-			<artifactId>hamcrest-all</artifactId>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-all</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

@@ -20,6 +20,7 @@
 
 package org.sonar.channel;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -34,13 +35,18 @@ public class ChannelDispatcher<OUTPUT> extends Channel<OUTPUT> {
   private final Channel[] channels;
 
   @SuppressWarnings("rawtypes")
-  public ChannelDispatcher(List<Channel> tokenizers) {
-    this(tokenizers, false);
+  public ChannelDispatcher(List<Channel> channels) {
+    this(channels, false);
   }
 
   @SuppressWarnings("rawtypes")
-  public ChannelDispatcher(List<Channel> tokenizers, boolean failIfNoChannelToConsumeOneCharacter) {
-    this.channels = tokenizers.toArray(new Channel[0]); // NOSONAR, lack of performance is not an issue here
+  public ChannelDispatcher(Channel... channels) {
+    this(Arrays.asList(channels), false);
+  }
+
+  @SuppressWarnings("rawtypes")
+  public ChannelDispatcher(List<Channel> channels, boolean failIfNoChannelToConsumeOneCharacter) {
+    this.channels = channels.toArray(new Channel[0]); // NOSONAR, lack of performance is not an issue here
     this.failIfNoChannelToConsumeOneCharacter = failIfNoChannelToConsumeOneCharacter;
   }
 

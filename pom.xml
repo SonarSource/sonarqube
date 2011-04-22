@@ -25,6 +25,7 @@
     <module>sonar-graph</module>
     <module>sonar-gwt-api</module>
     <module>sonar-java-api</module>
+    <module>sonar-markdown</module>    
     <module>sonar-maven-plugin</module>
     <module>sonar-maven3-plugin</module>
     <module>sonar-plugin-api</module>
