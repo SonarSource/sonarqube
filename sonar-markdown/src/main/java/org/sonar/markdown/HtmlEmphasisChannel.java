@@ -24,11 +24,13 @@ import org.sonar.channel.RegexChannel;
 class HtmlEmphasisChannel extends RegexChannel<MarkdownOutput> {
 
   public HtmlEmphasisChannel() {
-    super("\\*[^\n\r]*\\*");
+    super("\\*\\S[^\n\r\\*\\s]*\\*");
   }
 
   @Override
   protected void consume(CharSequence token, MarkdownOutput output) {
-    output.append("<em>" + token.subSequence(1, token.length() - 1) + "</em>");
+    output.append("<em>");
+    output.append(token.subSequence(1, token.length() - 1));
+    output.append("</em>");
   }
 }

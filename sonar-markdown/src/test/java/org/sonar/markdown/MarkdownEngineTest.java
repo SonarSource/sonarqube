@@ -40,6 +40,15 @@ public class MarkdownEngineTest {
   public void shouldEmphaseText() {
     assertThat(MarkdownEngine.convertToHtml("This is *important*"), is("This is <em>important</em>"));
     assertThat(MarkdownEngine.convertToHtml("This should not be * \n emphase"), is("This should not be * <br/> emphase"));
+    assertThat(MarkdownEngine.convertToHtml("This is *very* very *important*"), is("This is <em>very</em> very <em>important</em>"));
+    assertThat(MarkdownEngine.convertToHtml("Not * emphase * because of whitespaces"), is("Not * emphase * because of whitespaces"));
+    assertThat(MarkdownEngine.convertToHtml("Not *emphase * because of whitespace"), is("Not *emphase * because of whitespace"));
+    assertThat(MarkdownEngine.convertToHtml("Not * emphase* because of whitespace"), is("Not * emphase* because of whitespace"));
+    assertThat(MarkdownEngine.convertToHtml("emphase*inside*word"), is("emphase<em>inside</em>word"));
+
+    // not supported yet
+    //assertThat(MarkdownEngine.convertToHtml("\\*surrounded by literal asterisks\\*"), is("\\*surrounded by literal asterisks\\*"));
+
   }
 
   @Test
