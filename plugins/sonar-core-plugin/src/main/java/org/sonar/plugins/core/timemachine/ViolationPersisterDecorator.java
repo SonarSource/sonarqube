@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -27,9 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.plexus.util.StringInputStream;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorBarriers;
 import org.sonar.api.batch.DecoratorContext;
@@ -40,7 +37,6 @@ import org.sonar.api.database.model.SnapshotSource;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
-import org.sonar.api.utils.SonarException;
 import org.sonar.batch.components.PastViolationsLoader;
 import org.sonar.batch.index.ViolationPersister;
 
@@ -197,19 +193,15 @@ public class ViolationPersisterDecorator implements Decorator {
     return source == null || source.getData() == null ? Collections.<String> emptyList() : getChecksums(source.getData());
   }
 
+  /**
+   * @param data
+   *          can't be null
+   */
   static List<String> getChecksums(String data) {
+    String[] lines = data.split("\r?\n|\r", -1);
     List<String> result = Lists.newArrayList();
-    StringInputStream stream = new StringInputStream(data);
-    try {
-      List<String> lines = IOUtils.readLines(stream);
-      for (String line : lines) {
-        result.add(getChecksum(line));
-      }
-    } catch (IOException e) {
-      throw new SonarException("Unable to calculate checksums", e);
-
-    } finally {
-      IOUtils.closeQuietly(stream);
+    for (String line : lines) {
+      result.add(getChecksum(line));
     }
     return result;
   }
