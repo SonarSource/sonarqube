@@ -22,12 +22,21 @@ package org.sonar.channel;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * The RegexChannel can be used to be called each time the next characters in the character stream match a regular expression
+ */
 public abstract class RegexChannel<OUTPUT> extends Channel<OUTPUT> {
 
   private final StringBuilder tmpBuilder = new StringBuilder();
   private final Matcher matcher;
   private final String regex;
 
+  /**
+   * Create a RegexChannel object with the required regular expression
+   * 
+   * @param regex
+   *          regular expression to be used to try matching the next characters in the stream
+   */
   public RegexChannel(String regex) {
     matcher = Pattern.compile(regex).matcher("");
     this.regex = regex;
@@ -52,5 +61,14 @@ public abstract class RegexChannel<OUTPUT> extends Channel<OUTPUT> {
     }
   }
 
+  /**
+   * The consume method is called each time the regular expression used to create the RegexChannel object matches the next characters in the
+   * character streams.
+   * 
+   * @param token
+   *          the token consumed in the character stream and matching the regular expression
+   * @param the
+   *          OUPUT object which can be optionally fed
+   */
   protected abstract void consume(CharSequence token, OUTPUT output);
 }

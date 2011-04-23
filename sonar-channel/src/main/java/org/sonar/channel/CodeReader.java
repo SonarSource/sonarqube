@@ -24,10 +24,8 @@ import java.io.Reader;
 import java.util.regex.Matcher;
 
 /**
- * The CodeReader class provides all the basic features to lex a source code. Those features are :
- * <ul>
- * <li>Read and consume next characters until a regular expression is matched</li>
- * </ul>
+ * The CodeReader class provides some advanced features to read a source code. The most important one is the ability to try consuming the
+ * next characters in the stream according to a regular expression.
  */
 public class CodeReader extends CodeBuffer {
 
