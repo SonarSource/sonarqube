@@ -23,6 +23,10 @@ class ReviewComment < ActiveRecord::Base
   validates_presence_of :user => "can't be empty"
   validate :comment_should_not_be_empty
   
+  alias_attribute :text, :review_text
+    
+  private
+  
   def comment_should_not_be_empty
     errors.add("Comment", " cannot be empty") if review_text.strip.blank?
   end

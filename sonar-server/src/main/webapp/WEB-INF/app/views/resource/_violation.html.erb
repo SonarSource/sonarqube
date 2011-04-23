@@ -106,10 +106,10 @@
     </h4> 
       <% if review_comment == last_comment %>
         <div id="lastComment<%= violation.id -%>">
-          <%= h(review_comment.review_text) -%>
+          <%= markdown_to_html(review_comment.text) -%>
         </div>
       <% else %>
-        <%= h(review_comment.review_text) -%>
+        <%= markdown_to_html(review_comment.text) -%>
       <% end %>
   </div>
   <% 
@@ -131,4 +131,4 @@
 </div>
 <% end %>
 
-<div>
+</div>

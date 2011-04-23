@@ -20,7 +20,7 @@
 class ResourceController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
-  helper DashboardHelper
+  helper :dashboard, :markdown
   
   def index
     @resource = Project.by_key(params[:id])

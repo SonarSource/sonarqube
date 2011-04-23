@@ -289,10 +289,13 @@ code {
 .small {
   font-size: 85%;
 }
-em {
+small {
   color: #AAA;
   font-size: 85%;
   font-style: normal;
+}
+em {
+  font-weight: bold;
 }
 
 a.external {

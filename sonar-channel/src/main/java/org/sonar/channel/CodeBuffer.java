@@ -258,9 +258,9 @@ public class CodeBuffer implements CharSequence {
   public final String toString() {
     StringBuilder result = new StringBuilder();
     result.append("CodeReader(");
-    result.append("line:" + cursor.line);
-    result.append("|column:" + cursor.column);
-    result.append("|cursor value:'" + (char) peek() + "'");
+    result.append("line:").append(cursor.line);
+    result.append("|column:").append(cursor.column);
+    result.append("|cursor value:'").append((char) peek()).append("'");
     result.append(")");
     return result.toString();
   }

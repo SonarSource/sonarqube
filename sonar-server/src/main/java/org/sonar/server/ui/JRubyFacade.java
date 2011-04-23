@@ -34,6 +34,7 @@ import org.sonar.api.web.*;
 import org.sonar.jpa.dao.AsyncMeasuresService;
 import org.sonar.jpa.dialect.Dialect;
 import org.sonar.jpa.session.DatabaseConnector;
+import org.sonar.markdown.MarkdownEngine;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.CoreConfiguration;
 import org.sonar.server.configuration.ProfilesManager;
@@ -64,7 +65,7 @@ public final class JRubyFacade {
     return getContainer().getComponent(FilterExecutor.class).execute(filter);
   }
 
-  /* UPDATE CENTER */
+  // UPDATE CENTER ------------------------------------------------------------
 
   public void downloadPlugin(String pluginKey, String pluginVersion) {
     getContainer().getComponent(PluginDownloader.class).download(pluginKey, Version.create(pluginVersion));
@@ -94,7 +95,7 @@ public final class JRubyFacade {
     return getContainer().getComponent(UpdateCenterMatrixFactory.class).getMatrix(forceReload);
   }
 
-  /* PLUGINS */
+  // PLUGINS ------------------------------------------------------------------
 
   public Property[] getPluginProperties(PluginMetadata metadata) {
     Plugins plugins = getContainer().getComponent(Plugins.class);
@@ -109,6 +110,9 @@ public final class JRubyFacade {
     return getContainer().getComponent(PluginDeployer.class).getPluginsMetadata();
   }
 
+
+  // SYNTAX HIGHLIGHTING ------------------------------------------------------
+
   public String colorizeCode(String code, String language) {
     try {
       return getContainer().getComponent(CodeColorizers.class).toHtml(code, language);
@@ -118,6 +122,14 @@ public final class JRubyFacade {
       return code;
     }
   }
+
+  public static String markdownToHtml(String input) {
+    return MarkdownEngine.convertToHtml(input);
+  }
+
+
+
+  
 
   public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage) {
     return getContainer().getComponent(Views.class).getWidgets(resourceScope, resourceQualifier, resourceLanguage);
