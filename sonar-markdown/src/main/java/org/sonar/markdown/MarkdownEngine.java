@@ -26,6 +26,9 @@ import org.sonar.channel.Channel;
 import org.sonar.channel.ChannelDispatcher;
 import org.sonar.channel.CodeReader;
 
+/**
+ * Entry point of the Markdown library
+ */
 public class MarkdownEngine {
 
   private MarkdownOutput output;

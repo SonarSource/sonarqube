@@ -17,21 +17,9 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+/**
+ * Basic implementation of the Markdown markup language (see http://en.wikipedia.org/wiki/Markdown)
+ * 
+ */
 package org.sonar.markdown;
 
-import org.sonar.channel.RegexChannel;
-
-/**
- * Channel used only to improve performances of the Markdown engine by consuming any sequence of letter or digit.
- */
-class IdentifierAndNumberChannel extends RegexChannel<MarkdownOutput> {
-
-  public IdentifierAndNumberChannel() {
-    super("[\\w\\d]++");
-  }
-
-  @Override
-  protected void consume(CharSequence token, MarkdownOutput output) {
-    output.append(token);
-  }
-}

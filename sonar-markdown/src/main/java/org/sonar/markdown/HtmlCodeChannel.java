@@ -21,6 +21,11 @@ package org.sonar.markdown;
 
 import org.sonar.channel.RegexChannel;
 
+/**
+ * Markdown treats double simple quotes ('') as indicators of code. Text wrapped with two '' will be wrapped with an HTML <code> tag.
+ * 
+ * E.g., the input ''printf()'' will produce <code>printf()</code>
+ */
 class HtmlCodeChannel extends RegexChannel<MarkdownOutput> {
 
   public HtmlCodeChannel() {

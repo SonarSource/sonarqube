@@ -21,6 +21,10 @@ package org.sonar.markdown;
 
 import org.sonar.channel.RegexChannel;
 
+/**
+ * Markdown will wrap any URL with an HTML <a href="URL"> tag.
+ * 
+ */
 class HtmlUrlChannel extends RegexChannel<MarkdownOutput> {
 
   public HtmlUrlChannel() {
@@ -29,6 +33,6 @@ class HtmlUrlChannel extends RegexChannel<MarkdownOutput> {
 
   @Override
   protected void consume(CharSequence token, MarkdownOutput output) {
-    output.append("<a href=\"" +token + "\">" + token + "</a>");
+    output.append("<a href=\"" + token + "\">" + token + "</a>");
   }
 }
