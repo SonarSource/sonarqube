@@ -27,10 +27,10 @@
 		<%= review.assignee ? h(review.assignee.name) : '-'-%>
 	   </td>
 	   <td class="key">
-		  Created: 
+		  Created by:
 	   </td>
 	   <td  class="val">
-  		  by <%= h(review.user.name) -%> at <%= l(review.created_at) -%>
+  		  <%= h(review.user.name) -%> at <%= l(review.created_at) -%>
 	   </td>
 	 </tr>
 	<% if review.rule %>
@@ -68,8 +68,8 @@
 	 <% review.comments.each do |comment| %>
 	   <div class="discussionComment">
 		 <h4><%= image_tag("reviews/comment.png") -%> &nbsp;<b><%= comment.user.name -%></b> (<%= distance_of_time_in_words_to_now(comment.created_at) -%>)</h4>
-	    <%= h(comment.review_text) -%>
+	    <%= markdown_to_html(comment.text) -%>
 	   </div>
 	 <% end %>
   </div>
-<div>
+</div>

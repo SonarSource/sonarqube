@@ -46,7 +46,7 @@ public class ChannelDispatcher<OUTPUT> extends Channel<OUTPUT> {
 
   @SuppressWarnings("rawtypes")
   public ChannelDispatcher(List<Channel> channels, boolean failIfNoChannelToConsumeOneCharacter) {
-    this.channels = channels.toArray(new Channel[0]); // NOSONAR, lack of performance is not an issue here
+    this.channels = channels.toArray(new Channel[channels.size()]);
     this.failIfNoChannelToConsumeOneCharacter = failIfNoChannelToConsumeOneCharacter;
   }
 

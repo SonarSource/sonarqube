@@ -24,6 +24,8 @@ class ReviewsController < ApplicationController
 
   verify :method => :post, :only => [  :create, :create_comment ], :redirect_to => { :action => :error_not_post }
 
+  helper(:reviews, :markdown)
+  
   def index
     init_params
     search_reviews

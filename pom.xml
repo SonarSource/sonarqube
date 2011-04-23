@@ -392,6 +392,11 @@
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
+        <artifactId>sonar-markdown</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-check-api</artifactId>
         <version>${project.version}</version>
       </dependency>
