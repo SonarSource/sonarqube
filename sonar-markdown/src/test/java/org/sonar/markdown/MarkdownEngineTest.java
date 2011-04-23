@@ -37,6 +37,12 @@ public class MarkdownEngineTest {
   }
 
   @Test
+  public void shouldDecorateCode() {
+    assertThat(MarkdownEngine.convertToHtml("This is a ''line of code''"), is("This is a <code>line of code</code>"));
+    assertThat(MarkdownEngine.convertToHtml("This is not a ''line of code"), is("This is not a ''line of code"));
+  }
+
+  @Test
   public void shouldEmphaseText() {
     assertThat(MarkdownEngine.convertToHtml("This is *important*"), is("This is <em>important</em>"));
     assertThat(MarkdownEngine.convertToHtml("This should not be * \n emphase"), is("This should not be * <br/> emphase"));
@@ -47,7 +53,7 @@ public class MarkdownEngineTest {
     assertThat(MarkdownEngine.convertToHtml("emphase*inside*word"), is("emphase<em>inside</em>word"));
 
     // not supported yet
-    //assertThat(MarkdownEngine.convertToHtml("\\*surrounded by literal asterisks\\*"), is("\\*surrounded by literal asterisks\\*"));
+    // assertThat(MarkdownEngine.convertToHtml("\\*surrounded by literal asterisks\\*"), is("\\*surrounded by literal asterisks\\*"));
 
   }
 

@@ -21,14 +21,16 @@ package org.sonar.markdown;
 
 import org.sonar.channel.RegexChannel;
 
-class HtmlUrlChannel extends RegexChannel<MarkdownOutput> {
+class HtmlCodeChannel extends RegexChannel<MarkdownOutput> {
 
-  public HtmlUrlChannel() {
-    super("https?://[\\w\\d:#@%/;$()~_?\\+-=\\.&]++");
+  public HtmlCodeChannel() {
+    super("''.+?''");
   }
 
   @Override
   protected void consume(CharSequence token, MarkdownOutput output) {
-    output.append("<a href=\"" +token + "\">" + token + "</a>");
+    output.append("<code>");
+    output.append(token.subSequence(2, token.length() - 2));
+    output.append("</code>");
   }
 }

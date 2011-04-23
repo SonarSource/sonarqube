@@ -24,7 +24,7 @@ import org.sonar.channel.RegexChannel;
 class IdentifierAndNumberChannel extends RegexChannel<MarkdownOutput> {
 
   public IdentifierAndNumberChannel() {
-    super("[\\p{Alpha}\\d]++");
+    super("[\\w\\d]++");
   }
 
   @Override
