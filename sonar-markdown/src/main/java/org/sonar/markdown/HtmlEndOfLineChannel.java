@@ -22,7 +22,7 @@ package org.sonar.markdown;
 import org.sonar.channel.RegexChannel;
 
 /**
- * Markdown replace any line return by an HTML <br/>
+ * Markdown replace any line return by an HTML {@literal <br/>}
  * tag.
  * 
  */

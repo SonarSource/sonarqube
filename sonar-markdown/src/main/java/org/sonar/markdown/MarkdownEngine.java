@@ -40,6 +40,7 @@ public class MarkdownEngine {
     markdownChannels.add(new HtmlUrlChannel());
     markdownChannels.add(new HtmlEndOfLineChannel());
     markdownChannels.add(new HtmlEmphasisChannel());
+    markdownChannels.add(new HtmlListChannel());
     markdownChannels.add(new HtmlCodeChannel());
     markdownChannels.add(new IdentifierAndNumberChannel());
     markdownChannels.add(new BlackholeChannel());

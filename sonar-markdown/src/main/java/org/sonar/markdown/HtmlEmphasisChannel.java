@@ -22,9 +22,9 @@ package org.sonar.markdown;
 import org.sonar.channel.RegexChannel;
 
 /**
- * Markdown treats asterisks (*) as indicators of emphasis. Text wrapped with one * will be wrapped with an HTML <em> tag.
+ * Markdown treats asterisks (*) as indicators of emphasis. Text wrapped with one * will be wrapped with an HTML {@literal <em>} tag.
  * 
- * E.g., the input *word* will produce <em>work</word>
+ * E.g., the input *word* will produce {@literal <em>}work{@literal </word>}
  */
 class HtmlEmphasisChannel extends RegexChannel<MarkdownOutput> {
 

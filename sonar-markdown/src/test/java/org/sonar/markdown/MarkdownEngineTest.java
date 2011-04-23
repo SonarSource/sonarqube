@@ -35,6 +35,11 @@ public class MarkdownEngineTest {
   public void shouldDecorateEndOfLine() {
     assertThat(MarkdownEngine.convertToHtml("1\r2\r\n3\n"), is("1<br/>2<br/>3<br/>"));
   }
+  
+  @Test
+  public void shouldDecorateList() {
+    assertThat(MarkdownEngine.convertToHtml("  * one\r* two\r\n* three\n * \n *five"), is("<ul><li>one</li>\r<li>two</li>\r\n<li>three</li>\n<li> </li>\n</ul> *five"));
+  }
 
   @Test
   public void shouldDecorateCode() {

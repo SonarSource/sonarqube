@@ -22,7 +22,7 @@ package org.sonar.markdown;
 import org.sonar.channel.RegexChannel;
 
 /**
- * Markdown will wrap any URL with an HTML <a href="URL"> tag.
+ * Markdown will wrap any URL with an HTML {@literal <a href="URL">} tag.
  * 
  */
 class HtmlUrlChannel extends RegexChannel<MarkdownOutput> {
