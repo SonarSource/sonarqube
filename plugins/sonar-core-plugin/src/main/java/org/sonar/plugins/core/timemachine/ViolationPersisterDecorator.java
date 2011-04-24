@@ -194,8 +194,7 @@ public class ViolationPersisterDecorator implements Decorator {
   }
 
   /**
-   * @param data
-   *          can't be null
+   * @param data can't be null
    */
   static List<String> getChecksums(String data) {
     String[] lines = data.split("\r?\n|\r", -1);

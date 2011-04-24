@@ -45,8 +45,18 @@ public class ViolationPersisterDecoratorTest {
     decorator = new ViolationPersisterDecorator(null, null);
   }
 
+  /**
+   * See http://jira.codehaus.org/browse/SONAR-2358
+   */
   @Test
   public void shouldGenerateCorrectChecksums() {
+    List<String> encoding = ViolationPersisterDecorator.getChecksums("Привет Мир");
+    assertThat(encoding.size(), is(1));
+    assertThat(encoding.get(0), is("5ba3a45e1299ede07f56e5531351be52"));
+  }
+
+  @Test
+  public void shouldSplitLinesAndIgnoreSpaces() {
     List<String> crlf = ViolationPersisterDecorator.getChecksums("Hello\r\nWorld");
     List<String> lf = ViolationPersisterDecorator.getChecksums("Hello\nWorld");
     List<String> cr = ViolationPersisterDecorator.getChecksums("Hello\rWorld");
