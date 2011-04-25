@@ -1,5 +1,0 @@
-if @violation
-  page.replace "vId" + @violation.permanent_id.to_s, :partial => "resource/violation", :locals => { :violation => @violation }
-else 
-  page.replace_html "reviewForm" + @review.rule_failure_permanent_id.to_s, :partial => "form"
-end

@@ -1,124 +1,130 @@
 <script>
-function onReviewLoading() {
-	$('reviews-search').hide();
-	$('review').hide();
-	$('review-loading').show();
-}
-function onReviewLoaded() {
-	$('reviews-search').hide();
-	$('review-loading').hide();
-	$('review').show();
-}
-function backReviews() {
-  	$('review').hide();
-	$('review-loading').hide();
-    $('reviews-search').show();	
-}
+  function onReviewLoading() {
+    $('reviews-search').hide();
+    $('review').hide();
+    $('review-loading').show();
+  }
+  function onReviewLoaded() {
+    $('reviews-search').hide();
+    $('review-loading').hide();
+    $('review').show();
+  }
+  function backReviews() {
+    $('review').hide();
+    $('review-loading').hide();
+    $('reviews-search').show();
+  }
 </script>
 
 <div id="reviews-search">
   <h1>Reviews</h1>
   <% form_tag({:action => 'index'}, {:method => 'get'}) do %>
-   <table id="reviews-form" class="searchFilterBox">
-	 <thead>
-		<tr><th colspan="6"></th></tr>
-	</thead>
-	<tbody>
-     <tr>
-	   <td width="1%" nowrap>
-         <span class="note">Status</span><br/>
-		 <select size="6" name="statuses[]" multiple="multiple" id="statuses" class="withIcons">
-			<option <%= 'selected' if @statuses.include?('') -%> value="">Any</option>
-		    <option value="<%= Review::STATUS_OPEN -%>" class="status_open" <%= 'selected' if @statuses.include?(Review::STATUS_OPEN) -%>>Open</option>
-            <option value="<%= Review::STATUS_CLOSED -%>" class="status_closed" <%= 'selected' if @statuses.include?(Review::STATUS_CLOSED) -%>>Closed</option>
-       </td>
-
-       <td width="1%" nowrap>
-         <span class="note">Project</span><br/>
-		<select size="6" name="projects[]" multiple="multiple" id="projects">
-			<option <%= 'selected' if @projects.include?('') -%> value="">Any</option>
-			<% projects_for_select.each do |project| 
-				name=project.name(true)
-			%>
-		      <option value="<%= project.id -%>" title="<%= h(name)-%>" <%= 'selected' if @projects.include?(project.id.to_s) -%>><%= h(truncate(name, :length => 20)) -%></option>
-		    <% end %>
-		</select>
-       </td>
-       <td width="1%" nowrap>
-         <span class="note">Severity</span><br/>
-		<select size="6" name="severities[]" multiple="multiple" id="severities" class="withIcons">
-          <option <%= 'selected' if @severities.include?('') -%> value="">Any</option>
-          <option value="<%= Severity::BLOCKER -%>" class="sev_BLOCKER" <%= 'selected' if @severities.include?(Severity::BLOCKER) -%>>Blocker</option>
-          <option value="<%= Severity::CRITICAL -%>" class="sev_CRITICAL" <%= 'selected' if @severities.include?(Severity::CRITICAL) -%>>Critical</option>
-          <option value="<%= Severity::MAJOR -%>" class="sev_MAJOR" <%= 'selected' if @severities.include?(Severity::MAJOR) -%>>Major</option>
-          <option value="<%= Severity::MINOR -%>" class="sev_MINOR" <%= 'selected' if @severities.include?(Severity::MINOR) -%>>Minor</option>
-          <option value="<%= Severity::INFO -%>" class="sev_INFO" <%= 'selected' if @severities.include?(Severity::INFO) -%>>Info</option>
-       </td>
-    
-       <td width="1%" nowrap>
-         <span class="note">Created by</span><br/>
-         <%= select_tag "authors", options_for_select(@user_names, @authors), :multiple => true, :size => 6 %>
-       </td>
-       <td width="1%" nowrap>
-         <span class="note">Assigned to</span><br/>
-         <%= select_tag "assignees", options_for_select(@user_names, @assignees), :multiple => true, :size => 6 %>
-       </td>
-       <td>
-         <br/>
-         <%= submit_tag "Search", :id => 'submit_search' %>
-       </td>
-     </tr>
-    </tbody>
-   </table>
-<% end %>
-
-
-<% 
-   if @reviews && !@reviews.empty?
-%>
-  <table id="reviews-list" class="data width100">
-	<thead>
-		<tr>
-			<th width="1%" nowrap>St.</th>
-			<th width="1%">Project</th>
-			<th>Title</th>
-			<th width="1%" nowrap>Se.</th>
-			<th>Assignee</th>
-			<th>Age</th>
-			
-		</tr>
-	</thead>
-	<tfoot>
-		<tr><td colspan="6"><%= @reviews.size -%> results</tr>
-	</tfoot>
-	<tbody>
-<%
-     @reviews.each do |review|
-%>
-      <tr class="<%= cycle('even', 'odd') -%>">
-	    <td><img src="<%= ApplicationController.root_context -%>/images/status/<%= review.status -%>.png"/></td>
-    	<td><%= review.project.name -%><br/><span class="note"><%= review.resource.long_name -%></span></td>
-	    <td>
-	      <%= link_to_remote(h(review.title), :update => 'review', :url => {:action => 'show', :id => review.id}, :loading => 'onReviewLoading()', :complete => "onReviewLoaded()") -%>
-	    </td>
-    	<td><img src="<%= ApplicationController.root_context -%>/images/priority/<%= review.severity -%>.png"/></td>
-		<td><%= review.assignee ? h(review.assignee.name) : '-' -%></td>
-		<td><%= distance_of_time_in_words_to_now(review.created_at) -%></td>
+    <table id="reviews-form" class="searchFilterBox">
+      <thead>
+      <tr>
+        <th colspan="6"></th>
       </tr>
-<% 
+      </thead>
+      <tbody>
+      <tr>
+        <td width="1%" nowrap>
+          <span class="note">Status</span><br/>
+          <select size="6" name="statuses[]" multiple="multiple" id="statuses" class="withIcons">
+            <option <%= 'selected' if @statuses.include?('') -%> value="">Any</option>
+            <option value="<%= Review::STATUS_OPEN -%>" class="status_open" <%= 'selected' if @statuses.include?(Review::STATUS_OPEN) -%>>Open</option>
+            <option value="<%= Review::STATUS_CLOSED -%>" class="status_closed" <%= 'selected' if @statuses.include?(Review::STATUS_CLOSED) -%>>Closed</option>
+          </select>
+        </td>
+
+        <td width="1%" nowrap>
+          <span class="note">Project</span><br/>
+          <select size="6" name="projects[]" multiple="multiple" id="projects">
+            <option <%= 'selected' if @projects.include?('') -%> value="">Any</option>
+            <% projects_for_select.each do |project|
+              name=project.name(true)
+            %>
+              <option value="<%= project.id -%>" title="<%= h(name) -%>" <%= 'selected' if @projects.include?(project.id.to_s) -%>><%= h(truncate(name, :length => 20)) -%></option>
+            <% end %>
+          </select>
+        </td>
+        <td width="1%" nowrap>
+          <span class="note">Severity</span><br/>
+          <select size="6" name="severities[]" multiple="multiple" id="severities" class="withIcons">
+            <option <%= 'selected' if @severities.include?('') -%> value="">Any</option>
+            <option value="<%= Severity::BLOCKER -%>" class="sev_BLOCKER" <%= 'selected' if @severities.include?(Severity::BLOCKER) -%>>Blocker</option>
+            <option value="<%= Severity::CRITICAL -%>" class="sev_CRITICAL" <%= 'selected' if @severities.include?(Severity::CRITICAL) -%>>Critical</option>
+            <option value="<%= Severity::MAJOR -%>" class="sev_MAJOR" <%= 'selected' if @severities.include?(Severity::MAJOR) -%>>Major</option>
+            <option value="<%= Severity::MINOR -%>" class="sev_MINOR" <%= 'selected' if @severities.include?(Severity::MINOR) -%>>Minor</option>
+            <option value="<%= Severity::INFO -%>" class="sev_INFO" <%= 'selected' if @severities.include?(Severity::INFO) -%>>Info</option>
+           </select>
+        </td>
+
+        <td width="1%" nowrap>
+          <span class="note">Created by</span><br/>
+          <%= select_tag "authors", options_for_select(@user_names, @authors), :multiple => true, :size => 6 %>
+        </td>
+        <td width="1%" nowrap>
+          <span class="note">Assigned to</span><br/>
+          <%= select_tag "assignees", options_for_select(@user_names, @assignees), :multiple => true, :size => 6 %>
+        </td>
+        <td>
+          <br/>
+          <%= submit_tag "Search", :id => 'submit_search' %>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  <% end %>
+
+
+  <%
+     if @reviews && !@reviews.empty?
+  %>
+    <table id="reviews-list" class="data width100">
+      <thead>
+      <tr>
+        <th width="1%" nowrap>St.</th>
+        <th width="1%">Project</th>
+        <th>Title</th>
+        <th width="1%" nowrap>Se.</th>
+        <th>Assignee</th>
+        <th>Age</th>
+
+      </tr>
+      </thead>
+      <tfoot>
+      <tr>
+        <td colspan="6"><%= @reviews.size -%> results
+      </tr>
+      </tfoot>
+      <tbody>
+      <%
+         @reviews.each do |review|
+      %>
+        <tr class="<%= cycle('even', 'odd') -%>">
+          <td><img src="<%= ApplicationController.root_context -%>/images/status/<%= review.status -%>.png"/></td>
+          <td><%= review.project.name -%>
+            <br/><span class="note"><%= review.resource.long_name -%></span></td>
+          <td>
+            <%= link_to_remote(h(review.title), :update => 'review', :url => {:action => 'show', :id => review.id}, :loading => 'onReviewLoading()', :complete => "onReviewLoaded()") -%>
+          </td>
+          <td><img src="<%= ApplicationController.root_context -%>/images/priority/<%= review.severity -%>.png"/></td>
+          <td><%= review.assignee ? h(review.assignee.name) : '-' -%></td>
+          <td><%= distance_of_time_in_words_to_now(review.created_at) -%></td>
+        </tr>
+      <%
+         end
+      %>
+      </tbody>
+    </table>
+  <%
+     elsif @reviews
+  %>
+    <p>No results</p>
+  <%
      end
-%> 
-   </tbody>
-  </table>
-<%
-   elsif @reviews
-%>
-  <p>No results</p>
-<%	
-   end
-%>
+  %>
 </div>
-	
+
 <div id="review-loading" style="display: none"><%= image_tag 'loading.gif' -%></div>
 <div id="review" style="display: none"></div>
-

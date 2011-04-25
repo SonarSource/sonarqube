@@ -22,10 +22,9 @@ class ReviewsController < ApplicationController
 
   SECTION=Navigation::SECTION_HOME
 
-  verify :method => :post, :only => [  :create, :create_comment ], :redirect_to => { :action => :error_not_post }
+  verify :method => :post, :only => [:violation_assign, :violation_flag_as_false_positive,:violation_save_comment, :violation_delete_comment], :redirect_to => {:action => :error_not_post}
+  helper(:reviews,:markdown)
 
-  helper(:reviews, :markdown)
-  
   def index
     init_params
     search_reviews
@@ -36,193 +35,149 @@ class ReviewsController < ApplicationController
     render :partial => 'reviews/show'
   end
 
-  def list
-    reviews = find_reviews_for_rule_failure params[:rule_failure_permanent_id]
-    render :partial => "list", :locals => { :reviews => reviews }
-  end
 
+  #
+  #
+  # ACTIONS FROM VIOLATIONS TAB OF RESOURCE VIEWER
+  #
+  #
+
+  # GET
   def display_violation
-    violation = find_last_rule_failure_with_permanent_id params[:rule_failure_permanent_id]
+    violation = RuleFailure.find(params[:id])
     render :partial => "resource/violation", :locals => { :violation => violation }
   end
 
-  def form
-    rule_failure = find_last_rule_failure_with_permanent_id params[:rule_failure_permanent_id]
-    @review = Review.new
-    @review.rule_failure_permanent_id = rule_failure.permanent_id
-    @review_comment = ReviewComment.new
-    @review_comment.review_text = ""
-    if params[:switch_off]
-      @review.review_type = "f-positive"
-    else
-      @review.review_type = Review.default_type
-    end
-    render :partial => "form"
+  # GET
+  def violation_assign_form
+    @user_options = options_for_users()
+    render :partial => "violation_assign_form"
   end
 
-  def create
-    rule_failure = find_last_rule_failure_with_permanent_id params[:review][:rule_failure_permanent_id]
-    unless has_rights_to_modify? rule_failure
-      render :text => "<b>Cannot create the review</b> : access denied."
-      return
-    end
-
-    @review = Review.new(params[:review])
-    @review.user = current_user
-    if params[:assign_to_me]
-      @review.assignee = current_user
-    end
-    @review.title = rule_failure.message
-    @review.status = Review.default_status
-    @review.severity = Sonar::RulePriority.to_s rule_failure.failure_level
-    @review.resource = RuleFailure.find( @review.rule_failure_permanent_id, :include => ['snapshot'] ).snapshot.project
-    @review_comment = ReviewComment.new(params[:review_comment])
-    @review_comment.user = current_user
-    @review.review_comments << @review_comment
-    if @review.valid?
-      if @review.review_type == "f-positive" 
-        if rule_failure.get_open_review
-          current_open_review = rule_failure.get_open_review
-          current_open_review.status = "closed"
-          current_open_review.save
-        end
-        rule_failure.switched_off = true
-        rule_failure.save
-      end
-      @review.save
-      @violation = rule_failure
-    end
-    render "create_result"
-  end
-
-  def form_comment
-    @review_comment = ReviewComment.new
-    @review_comment.user = current_user
-    @review_comment.review_id = params[:review_id]
-    @review_comment.review_text = ""
-    @rule_failure_permanent_id = params[:rule_failure_permanent_id]
-    if params[:update_comment]
-      @update_comment = true
-      @review_comment.review_text = params[:review_text]
-    end
-    render :partial => "form_comment"
-  end
-
-  def create_comment
-    rule_failure = find_last_rule_failure_with_permanent_id params[:rule_failure_permanent_id]
-    unless has_rights_to_modify? rule_failure
-      render :text => "<b>Cannot create the comment</b> : access denied."
-      return
-    end
-
-    @review_comment = ReviewComment.new(params[:review_comment])
-    @review_comment.user = current_user
-    @rule_failure_permanent_id = params[:rule_failure_permanent_id]
-    if @review_comment.valid?
-      @review_comment.save
-      # -- TODO : should create a Review#create_comment and put the following logic in it
-      review = @review_comment.review
-      review.updated_at = @review_comment.created_at
-      review.save
-      # -- End of TODO code --
-      @violation = rule_failure
-    end
-    render "create_comment_result"
-  end
-
-  def update_comment
-    review = Review.find params[:review_comment][:review_id]
-    @review_comment = review.review_comments.last
-    unless current_user && current_user.id == @review_comment.user_id
-      render :text => "<b>Cannot modify the comment</b> : access denied."
-      return
-    end
-
-    @review_comment.review_text = params[:review_comment][:review_text]
-    @review_comment.created_at = DateTime.now
-    @rule_failure_permanent_id = params[:rule_failure_permanent_id]
-    if @review_comment.valid?
-      @review_comment.save
-      review.updated_at = @review_comment.updated_at
-      review.save
-      @violation = find_last_rule_failure_with_permanent_id review.rule_failure_permanent_id
-    end
-    render "create_comment_result"
-  end
-  
-  def form_assign
-    @user_options = add_all_users []
-    @review_id = params[:review_id]
-    @rule_failure_permanent_id = params[:rule_failure_permanent_id]
-    render :partial => "form_assign"
-  end
-  
-  def assign
-    review = Review.find params[:review_id]
+  # POST
+  def violation_assign
+    violation = RuleFailure.find(params[:id])
     unless current_user
       render :text => "<b>Cannot edit the review</b> : access denied."
       return
     end
-    
-    review.assignee = User.find params[:assignee_id]
-    review.save
-    violation = find_last_rule_failure_with_permanent_id review.rule_failure_permanent_id
+    sanitize_violation(violation)
+
+    violation.build_review(:user_id => current_user.id)
+    violation.review.assignee = User.find params[:assignee_id]
+    violation.review.save!
+    violation.save
+
     render :partial => "resource/violation", :locals => { :violation => violation }
   end
-  
-  def close_review
-    review = Review.find params[:review_id]
-    unless current_user
-      render :text => "<b>Cannot edit the review</b> : access denied."
-      return
-    end
-    
-    review.status = "closed"
-    review.save
-    violation = find_last_rule_failure_with_permanent_id review.rule_failure_permanent_id
-    render :partial => "resource/violation", :locals => { :violation => violation }
+
+  # GET
+  def violation_false_positive_form
+    render :partial => 'reviews/violation_false_positive_form'
   end
-  
-  def switch_on_violation
-    rule_failure = RuleFailure.find params[:rule_failure_id]
-    unless has_rights_to_modify? rule_failure
+
+  # POST
+  def violation_flag_as_false_positive
+    violation=RuleFailure.find params[:id]
+    unless has_rights_to_modify?(violation)
       render :text => "<b>Cannot switch on the violation</b> : access denied."
       return
     end
-    
-    rule_failure.switched_off = false
-    rule_failure.save
-    
-    review = rule_failure.get_open_review
-    review.status = "closed"
-    review.save
-    
-    render :partial => "resource/violation", :locals => { :violation => rule_failure }
+    sanitize_violation(violation)
+    false_positive=(params[:false_positive]=='true')
+    violation.switched_off=false_positive
+    violation.save!
+
+    unless params[:comment].blank?
+      if violation.review.nil?
+        violation.build_review(:user_id => current_user.id)
+      end
+      violation.review.review_type=(false_positive ? Review::TYPE_FALSE_POSITIVE : Review::TYPE_VIOLATION)
+      violation.review.status=(false_positive ? Review::STATUS_CLOSED : Review::STATUS_OPEN)
+      violation.review.save!
+      violation.review.comments.create(:review_text => params[:comment], :user_id => current_user.id)
+    end
+
+    render :partial => "resource/violation", :locals => { :violation => violation }
   end
+
+  # GET
+  def violation_comment_form
+    @violation = RuleFailure.find params[:id]
+    if !params[:comment_id].blank? && @violation.review
+      @comment = @violation.review.comments.find(params[:comment_id])
+    end
+    render :partial => 'reviews/violation_comment_form'
+  end
+
+  # POST
+  def violation_save_comment
+    violation = RuleFailure.find params[:id]
+    unless has_rights_to_modify?(violation)
+      render :text => "<b>Cannot create the comment</b> : access denied."
+      return
+    end
+    sanitize_violation(violation)
+
+    unless violation.review
+      violation.create_review!(
+          :assignee => (params['assign_to_me']=='me' ? current_user : nil),
+          :user => current_user)
+    end
+
+    if params[:comment_id]
+      comment=violation.review.comments.find(params[:comment_id].to_i)
+      if comment
+        comment.text=params[:text]
+        comment.save!
+      end
+    else
+      violation.review.comments.create!(:user => current_user, :text => params[:text])
+    end
+
+    render :partial => "resource/violation", :locals => { :violation => violation }
+  end
+
+  # POST
+  def violation_delete_comment
+    violation = RuleFailure.find params[:id]
+    unless has_rights_to_modify?(violation)
+      render :text => "<b>Cannot delete the comment</b> : access denied."
+      return
+    end
+    sanitize_violation(violation)
+    if violation.review
+      comment=violation.review.comments.find(params[:comment_id].to_i)
+      comment.delete if comment
+    end
+    render :partial => "resource/violation", :locals => { :violation => violation }
+  end
+
+
 
   ## -------------- PRIVATE -------------- ##
   private
 
   def init_params
-    @user_names = [["Any", ""]]
+    @user_names = [["Any", ""]] + options_for_users
     default_user = (current_user ? [current_user.id.to_s] : [''])
-    add_all_users @user_names
     @authors = filter_any(params[:authors]) || ['']
     @assignees = filter_any(params[:assignees]) || default_user
     @severities = filter_any(params[:severities]) || ['']
     @statuses = filter_any(params[:statuses]) || [Review::STATUS_OPEN]
     @projects = filter_any(params[:projects]) || ['']
   end
-  
-  def add_all_users ( user_options )
+
+  def options_for_users
+    options=[]
     User.find( :all ).each do |user|
-      userName = user.name
+      username = user.name
       if current_user && current_user.id == user.id
-        userName = "Me (" + user.name + ")"
+        username = "Me (" + user.name + ")"
       end
-      user_options << [userName, user.id.to_s]
+      options<<[username, user.id.to_s]
     end
-    return user_options
+    options
   end
 
   def filter_any(array)
@@ -233,8 +188,8 @@ class ReviewsController < ApplicationController
   end
 
   def search_reviews
-    conditions=[]
-    values={}
+    conditions=['review_type<>:not_type']
+    values={:not_type => Review::TYPE_FALSE_POSITIVE}
 
     unless @statuses == [""]
       conditions << "status in (:statuses)"
@@ -246,36 +201,30 @@ class ReviewsController < ApplicationController
     end
     unless @authors == [""]
       conditions << "user_id in (:authors)"
-      values[:authors]=@authors
+      values[:authors]=@authors.map{|s| s.to_i}
     end
     unless @assignees == [""]
       conditions << "assignee_id in (:assignees)"
-      values[:assignees]=@assignees
+      values[:assignees]=@assignees.map{|s| s.to_i}
     end
 
     @reviews = Review.find( :all, :order => "created_at DESC", :conditions => [ conditions.join(" AND "), values] ).uniq
   end
 
-  def find_reviews_for_rule_failure ( rule_failure_permanent_id )
-    return Review.find :all, :conditions => ['rule_failure_permanent_id=?', rule_failure_permanent_id]
-  end
-
-  def find_last_rule_failure_with_permanent_id ( rule_failure_permanent_id )
-    return RuleFailure.last( :all, :conditions => [ "permanent_id = ?", rule_failure_permanent_id ], :include => ['snapshot'] )
-  end
-
-  def has_rights_to_modify? ( rule_failure )
-    return false unless current_user
-    
-    project = rule_failure.snapshot.root_project
-    unless has_role?(:user, project)
-      return false
-    end
-    return true
+  def has_rights_to_modify?(violation)
+    current_user && has_role?(:user, violation.snapshot)
   end
 
   def error_not_post
     render :text => "Create actions must use POST method."
   end
 
+  def sanitize_violation(violation)
+    # the field RULE_FAILURES.PERMANENT_ID is not set when upgrading to version 2.8.
+    # It must be manually set when using a violation created before v2.8.
+    if violation.permanent_id.nil?
+      violation.permanent_id=violation.id
+      violation.save
+    end
+  end
 end

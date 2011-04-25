@@ -1,0 +1,14 @@
+<%= image_tag("sep12.png") -%>
+&nbsp;&nbsp;
+<% form_tag :html => {:style => "display:inline"} do %>
+  <%= hidden_field_tag :id, params[:violation_id] -%>
+  <%= select_tag "assignee_id", options_for_select(@user_options, current_user.id.to_s)  %>
+  &nbsp;&nbsp;
+  <%= submit_to_remote "submit_btn", "Assign", 
+         :url => { :action => 'violation_assign' },
+         :update => "vId" + params[:violation_id] -%>
+  &nbsp;&nbsp;
+  <%= link_to_remote 'Cancel', 
+         :url => { :action => 'display_violation', :id => params[:violation_id] },
+         :update => "vId" + params[:violation_id] %>
+<% end %>

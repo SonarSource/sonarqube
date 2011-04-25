@@ -687,8 +687,11 @@ div.vtitle{
   margin:0;
   padding:0 10px;
   line-height: 2.2em;
-  text-shadow: 1px 1px 0 #FFF;
+  text-shadow: 0 1px 0 #FFF;
   color:#777
+}
+.falsePositive {
+  background-color: #FFF6BF;
 }
 div.vtitle a.action {
   color: #777;
@@ -1108,10 +1111,10 @@ select.withIcons option {
 	vertical-align: middle;
 }
 option.status_open {
-	background-image: url('../images/status/open.png');
+	background-image: url('../images/status/OPEN.png');
 }
 option.status_closed {
-	background-image: url('../images/status/closed.png');
+	background-image: url('../images/status/CLOSED.png');
 }
 option.sev_INFO {
 	background-image: url('../images/priority/INFO.png');

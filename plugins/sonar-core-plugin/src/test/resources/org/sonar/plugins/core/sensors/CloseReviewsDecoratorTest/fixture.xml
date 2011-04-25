@@ -45,17 +45,17 @@
 
   <reviews
   			id="1"
-  			status="open"
+  			status="OPEN"
   			rule_failure_permanent_id="1"
   			resource_id="555"/>
   <reviews
   			id="2"
-  			status="open"
+  			status="OPEN"
   			rule_failure_permanent_id="2"
   			resource_id="666"/>
   <reviews
   			id="3"
-  			status="open"
+  			status="OPEN"
   			rule_failure_permanent_id="3"
   			resource_id="666"/>
 

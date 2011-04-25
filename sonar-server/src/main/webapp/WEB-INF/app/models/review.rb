@@ -23,32 +23,20 @@ class Review < ActiveRecord::Base
   belongs_to :resource, :class_name => "Project", :foreign_key => "resource_id"
   belongs_to :project, :class_name => "Project", :foreign_key => "project_id"
   has_many :review_comments, :order => "created_at", :dependent => :destroy
+  alias_attribute :comments, :review_comments
   belongs_to :rule_failure, :foreign_key => 'rule_failure_permanent_id'
   
   validates_presence_of :user, :message => "can't be empty"
-  validates_presence_of :title, :message => "can't be empty"
   validates_presence_of :review_type, :message => "can't be empty"
   validates_presence_of :status, :message => "can't be empty"
   
   before_save :assign_project
   
-  TYPE_COMMENTS = "comments"
-  TYPE_FALSE_POSITIVE = "f-positive"
+  TYPE_VIOLATION = 'VIOLATION'
+  TYPE_FALSE_POSITIVE = 'FALSE_POSITIVE'
   
-  STATUS_OPEN = "open"
-  STATUS_CLOSED = "closed"
-  
-  def self.default_severity
-    return Severity::MAJOR
-  end
-  
-  def self.default_type
-    return TYPE_COMMENTS
-  end
-
-  def self.default_status
-    return STATUS_OPEN
-  end
+  STATUS_OPEN = 'OPEN'
+  STATUS_CLOSED = 'CLOSED'
     
   def on_project?
     resource_id==project_id
@@ -61,10 +49,6 @@ class Review < ActiveRecord::Base
       end
   end
   
-  def comments
-    review_comments
-  end
-
   private
   
   def assign_project

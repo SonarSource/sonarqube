@@ -36,14 +36,14 @@ import org.sonar.batch.index.ResourcePersister;
  * Decorator that currently only closes a review when its corresponding violation has been fixed.
  */
 @DependsUpon("ViolationPersisterDecorator")
-public class ReviewsDecorator implements Decorator {
+public class CloseReviewsDecorator implements Decorator {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ReviewsDecorator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CloseReviewsDecorator.class);
 
   private ResourcePersister resourcePersister;
   private DatabaseSession databaseSession;
 
-  public ReviewsDecorator(ResourcePersister resourcePersister, DatabaseSession databaseSession) {
+  public CloseReviewsDecorator(ResourcePersister resourcePersister, DatabaseSession databaseSession) {
     this.resourcePersister = resourcePersister;
     this.databaseSession = databaseSession;
   }
@@ -64,9 +64,9 @@ public class ReviewsDecorator implements Decorator {
     }
   }
 
-  protected String generateSqlRequest(int resourceId, int snapshotId) {
-    return "UPDATE reviews SET status='closed' " + "WHERE resource_id = " + resourceId + " AND rule_failure_permanent_id NOT IN "
-        + "(SELECT permanent_id FROM rule_failures WHERE snapshot_id = " + snapshotId + ")";
+  String generateSqlRequest(int resourceId, int snapshotId) {
+    return "UPDATE reviews SET status='CLOSED' " + "WHERE resource_id = " + resourceId + " AND rule_failure_permanent_id NOT IN "
+        + "(SELECT permanent_id FROM rule_failures WHERE snapshot_id = " + snapshotId + " AND permanent_id IS NOT NULL)";
   }
 
 }

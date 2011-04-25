@@ -28,7 +28,7 @@ class ReviewComment < ActiveRecord::Base
   private
   
   def comment_should_not_be_empty
-    errors.add("Comment", " cannot be empty") if review_text.strip.blank?
+    errors.add("Comment", " cannot be empty") if review_text.blank?
   end
 
 end

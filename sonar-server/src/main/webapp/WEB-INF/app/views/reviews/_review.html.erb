@@ -10,13 +10,13 @@
 	     Status:	
 	   </td>
 	   <td  class="val">
-		<%= image_tag "status/#{review.status}.png" -%> <%= review.status -%>
+		<%= image_tag "status/#{review.status}.png" -%> <%= review.status.capitalize -%>
 	   </td>
 	   <td class="key">
          Severity:
 	   </td>
 	   <td  class="val">
-          <%= image_tag "priority/#{review.severity}.png" -%> <%= review.severity -%>
+          <%= image_tag "priority/#{review.severity}.png" -%> <%= review.severity.capitalize -%>
 	   </td>
 	 </tr>
 	 <tr>
@@ -39,7 +39,7 @@
 	     Rule:	
 	   </td>
 	   <td class="val" colspan="3">
-		  <a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => review.rule.key, :layout => 'false' -%>"><%= h(review.rule.key) -%></a>
+		  <a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => review.rule.key, :layout => 'false' -%>"><%= h(review.rule.name) -%></a>
 	   </td>
 	</tr>
 	<% end %>

@@ -22,17 +22,25 @@ class RuleFailure < ActiveRecord::Base
 
   belongs_to :rule
   belongs_to :snapshot
-  has_many :reviews, :primary_key => "permanent_id", :foreign_key => "rule_failure_permanent_id", :order => "created_at"
+  has_one :review, :primary_key => "permanent_id", :foreign_key => "rule_failure_permanent_id", :order => "created_at"
 
-  def get_open_review
-    reviews.each do |review|
-      if review.status == "open"
-        return review
-      end
-    end
-    return nil
+  def false_positive?
+    switched_off==true
   end
-  
+
+  # first line of message
+  def title
+    @title||=
+        begin
+          if message.blank?
+            rule.name
+          else
+            parts=message.split(/\r?\n|\r/, -1)
+            parts.size==0 ? rule.name : parts[0]
+          end
+        end
+  end
+
   def to_hash_json
     json = {}
     json['message'] = message
@@ -53,8 +61,7 @@ class RuleFailure < ActiveRecord::Base
       :qualifier => snapshot.project.qualifier,
       :language => snapshot.project.language
     }
-    open_review = get_open_review
-    json['review'] = open_review.to_hash_json ( false ) if open_review
+    json['review'] = review.to_hash_json(false) if review
     json
   end
 
@@ -85,4 +92,20 @@ class RuleFailure < ActiveRecord::Base
     datetime.strftime("%Y-%m-%dT%H:%M:%S%z")
   end
 
+  def build_review(options={})
+    if review.nil?
+      self.review=Review.new(
+        {:review_type => Review::TYPE_VIOLATION,
+        :status => Review::STATUS_OPEN,
+        :severity => Sonar::RulePriority.to_s(failure_level),
+        :resource_line => line,
+        :resource => snapshot.resource,
+        :title => title}.merge(options))
+    end
+  end
+
+  def create_review!(options={})
+    build_review(options)
+    self.review.save!
+  end
 end

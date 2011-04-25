@@ -30,7 +30,7 @@ class CreateReview < ActiveRecord::Migration
       t.column 'user_id', 						:integer, 	:null => true
       t.column 'assignee_id', 					:integer, 	:null => true
       t.column 'title',		 					:string, 	:null => true,	:limit => 500
-      t.column 'review_type', 					:string, 	:null => true,	:limit => 10
+      t.column 'review_type', 					:string, 	:null => true,	:limit => 15
       t.column 'status', 						:string, 	:null => true,	:limit => 10
       t.column 'severity', 						:string, 	:null => true,	:limit => 10
       t.column 'rule_failure_permanent_id', 	:integer, 	:null => true   

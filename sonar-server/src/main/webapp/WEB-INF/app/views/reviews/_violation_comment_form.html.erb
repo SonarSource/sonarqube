@@ -1,0 +1,18 @@
+<%
+  button=(@comment ? 'Update comment' : 'Add comment')
+%>
+
+<form method="POST" action="'violation_save_comment'">
+  <input type="hidden" name="id" value="<%= params[:id] -%>"/>
+  <% if @comment %>
+    <input type="hidden" name="comment_id" value="<%= @comment.id -%>"/>
+  <% end %>
+  <textarea id="commentText<%= params[:id] -%>" rows="8" name="text" style="width: 100%" onkeyup="if (this.value=='') $('submit_btn').disabled='true'; else $('submit_btn').disabled='';"><%= @comment.text if @comment -%></textarea>
+  <%= submit_to_remote "submit_btn", button, :url => { :action => 'violation_save_comment'}, :html => { :id => "submit_btn", :disabled => "true" }, :update => 'vId'+params[:id] -%>
+  <%= link_to_remote 'Cancel', :url => {:action => 'display_violation', :id => params[:id]}, :update => 'vId' + params[:id] -%>
+
+  <% if @violation.review.nil? || @violation.review.comments.size==0 %>
+    &nbsp;&nbsp;
+    <%= check_box_tag "assign_to_me", "me", true -%> <label for="assign_to_me">Assign to me</label>
+  <% end %>
+</form>

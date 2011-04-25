@@ -27,16 +27,15 @@ import java.sql.Statement;
 import org.junit.Test;
 import org.sonar.test.persistence.DatabaseTestCase;
 
-public class ReviewsDecoratorTest extends DatabaseTestCase {
+public class CloseReviewsDecoratorTest extends DatabaseTestCase {
 
   @Test
   public void shouldCloseReviewWithoutCorrespondingViolation() throws Exception {
     setupData("fixture");
 
-    ReviewsDecorator reviewsDecorator = new ReviewsDecorator(null, null);
+    CloseReviewsDecorator reviewsDecorator = new CloseReviewsDecorator(null, null);
     String sqlRequest = reviewsDecorator.generateSqlRequest(666, 222);
-    System.out.println(sqlRequest);
-
+    
     Statement stmt = getConnection().createStatement();
     int count = stmt.executeUpdate(sqlRequest);
 
