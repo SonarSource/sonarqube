@@ -52,34 +52,34 @@ es-PE:
       half_a_minute: "medio minuto"
       less_than_x_seconds:
         one: "menos de 1 segundo"
-        other: "menos de {{count}} segundos"
+        other: "menos de %{count} segundos"
       x_seconds:
         one: "1 segundo"
-        other: "{{count}} segundos"
+        other: "%{count} segundos"
       less_than_x_minutes:
         one: "menos de 1 minuto"
-        other: "menos de {{count}} minutos"
+        other: "menos de %{count} minutos"
       x_minutes:
         one: "1 minuto"
-        other: "{{count}} minutos"
+        other: "%{count} minutos"
       about_x_hours:
         one: "cerca de 1 hora"
-        other: "cerca de {{count}} horas"
+        other: "cerca de %{count} horas"
       x_days:
         one: "1 día"
-        other: "{{count}} días"
+        other: "%{count} días"
       about_x_months:
         one: "cerca de 1 mes"
-        other: "cerca de {{count}} meses"
+        other: "cerca de %{count} meses"
       x_months:
         one: "1 mes"
-        other: "{{count}} meses"
+        other: "%{count} meses"
       about_x_years:
-        other: "cerca de {{count}} años"
+        other: "cerca de %{count} años"
         one: "cerca de 1 año"
       over_x_years:
         one: "más de 1 año"
-        other: "más de {{count}} años"
+        other: "más de %{count} años"
     prompts:
       hour: 'Hora'
       minute: 'Minuto'
@@ -92,7 +92,7 @@ es-PE:
       template:
         header:
           one: "{{model}} no pudo guardarse debido a 1 error"
-          other: "{{model}} no pudo guardarse debido a {{count}} errores"
+          other: "{{model}} no pudo guardarse debido a %{count} errores"
         body: "Revise que los siguientes campos sean válidos:"
       messages:
         record_invalid: "Falla de validación: {{errors}}"
@@ -106,19 +106,19 @@ es-PE:
         empty: "no puede estar vacío"
         not_a_number: "no es un número"
         taken: "ya ha sido tomado"
-        less_than: "debe ser menor que {{count}}"
-        less_than_or_equal_to: "debe ser menor o igual que {{count}}"
-        greater_than: "debe ser mayor que {{count}}"
-        greater_than_or_equal_to: "debe ser mayor o igual que {{count}}"
+        less_than: "debe ser menor que %{count}"
+        less_than_or_equal_to: "debe ser menor o igual que %{count}"
+        greater_than: "debe ser mayor que %{count}"
+        greater_than_or_equal_to: "debe ser mayor o igual que %{count}"
         too_short:
           one: "es demasiado corto (mínimo 1 caracter)"
-          other: "es demasiado corto (mínimo {{count}} caracteres)"
+          other: "es demasiado corto (mínimo %{count} caracteres)"
         too_long:
           one: "es demasiado largo (máximo 1 caracter)"
-          other: "es demasiado largo (máximo {{count}} caracteres)"
-        equal_to: "debe ser igual a {{count}}"
+          other: "es demasiado largo (máximo %{count} caracteres)"
+        equal_to: "debe ser igual a %{count}"
         wrong_length:
           one: "longitud errónea (debe ser de 1 caracter)"
-          other: "longitud errónea (debe ser de {{count}} caracteres)"
+          other: "longitud errónea (debe ser de %{count} caracteres)"
         even: "debe ser un número par"
         odd: "debe ser un número non"
