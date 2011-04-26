@@ -48,6 +48,46 @@ class Review < ActiveRecord::Base
         rule_failure ? rule_failure.rule : nil
       end
   end
+
+  def self.search(options={})
+    conditions=['review_type<>:not_type']
+    values={:not_type => Review::TYPE_FALSE_POSITIVE}
+
+    ids=options['ids']
+    if options[:id]
+      conditions << "id=:id"
+      values[:id]=options[:id].to_i
+    elsif ids && ids.size>0 && !ids[0].blank?
+      conditions << "id in (:ids)"
+      values[:ids]=ids.map{|id| id.to_i}
+    end
+
+    statuses=options['statuses']
+    if statuses && statuses.size>0 && !statuses[0].blank?
+      conditions << "status in (:statuses)"
+      values[:statuses]=statuses
+    end
+
+    severities=options['severities']
+    if severities && severities.size>0 && !severities[0].blank?
+      conditions << "severity in (:severities)"
+      values[:severities]=severities
+    end
+
+    authors=options['authors']
+    if authors && authors.size>0 && !authors[0].blank?
+      conditions << "user_id in (:authors)"
+      values[:authors]=User.logins_to_ids(authors)
+    end
+
+    assignees=options['assignees']
+    if assignees && assignees.size>0 && !assignees[0].blank?
+      conditions << "assignee_id in (:assignees)"
+      values[:assignees]=User.logins_to_ids(assignees)
+    end
+
+    Review.find(:all, :order => "created_at DESC", :conditions => [conditions.join(" AND "), values], :limit => 200)
+  end
   
   private
   
@@ -55,32 +95,6 @@ class Review < ActiveRecord::Base
     if self.project.nil? && self.resource
       self.project=self.resource.project
     end
-  end
-
-  def to_hash_json ( extended )
-    json = {}
-    json['id'] = id
-    json['updatedAt'] = updated_at
-    json['author'] = user.login
-    json['assignee'] = assignee.login if assignee
-    json['title'] = title
-    json['type'] = review_type
-    json['status'] = status
-    json['severity'] = severity
-    comments = []
-    review_comments.each do |comment|
-      comments << {
-        'author' => comment.user.login,
-        'updatedAt' => comment.updated_at,
-        'comment' => comment.review_text
-      }
-    end
-    json['comments'] = comments
-    if ( extended )
-      json['line'] = resource_line if resource_line
-      json['resource'] = resource.kee if resource
-    end
-    json
   end
   
 end

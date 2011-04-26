@@ -74,7 +74,7 @@ class Api::ViolationsController < Api::ResourceRestController
       end.compact
     end
     
-    if params[:switched_off] && params[:switched_off] == "true"
+    if params[:switched_off] == "true"
       conditions << 'switched_off=:switched_off'
       values[:switched_off] = true
     else
@@ -85,7 +85,7 @@ class Api::ViolationsController < Api::ResourceRestController
     limit = (params[:limit] ? [params[:limit].to_i,5000].min : 5000) 
     violations = RuleFailure.find(:all,
       :conditions => [ conditions.join(' AND '), values],
-      :include => [:snapshot, {:snapshot => :project}, :rule],
+      :include => [:snapshot, {:snapshot => :project}, :rule, :review],
       :order => 'rule_failures.failure_level DESC',
       :limit => limit)
     rest_render(violations)

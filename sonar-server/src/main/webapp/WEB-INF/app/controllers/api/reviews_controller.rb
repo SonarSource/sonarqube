@@ -22,42 +22,72 @@ require "json"
 
 class Api::ReviewsController < Api::ApiController
 
+  include MarkdownHelper
+
   def index
-    @reviews = []
-    @reviews << Review.find ( params[:id] )
+    convert_markdown=(params[:html]=='true')
+    reviews=Review.search(params)
     
     respond_to do |format|
-      format.json { render :json => jsonp(to_json) }
-      format.xml {render :xml => to_xml}
+      format.json { render :json => jsonp(to_json(reviews, convert_markdown)) }
+      format.xml {render :xml => to_xml(reviews, convert_markdown)}
       format.text { render :text => text_not_supported }
     end
   end
-  
-  def to_xml
+
+
+  private
+
+  def to_xml(reviews, convert_markdown)
     xml = Builder::XmlMarkup.new(:indent => 0)
     xml.instruct!
     
     xml.reviews do
-      @reviews.each do |review|
+      reviews.each do |review|
         xml.review do
-          xml.id(review.id)
-          xml.updatedAt(review.updated_at)
+          xml.id(review.id.to_i)
+          xml.updatedAt(format_datetime(review.updated_at))
           xml.user(review.user.login)
           xml.assignee(review.assignee.login)
           xml.title(review.title)
           xml.type(review.review_type)
           xml.status(review.status)
           xml.severity(review.severity)
-          xml.resourceLine(review.resource_line)
+          xml.resource(review.resource.kee)  if review.resource
+          xml.line(review.resource_line) if review.resource_line
           
-          # Continue here with resource + violation + comments
+          # Continue here with resource + comments
         end
       end
     end
   end
   
-  def to_json
-    JSON(@reviews.collect{|review| review.to_hash_json(true)})
+  def to_json(reviews, convert_markdown=false)
+    JSON(reviews.collect{|review| review_to_json(review, convert_markdown)})
   end
-    
+
+  def review_to_json(review, html=false)
+    json = {}
+    json['id'] = review.id.to_i
+    json['updatedAt'] = review.updated_at
+    json['author'] = review.user.login
+    json['assignee'] = review.assignee.login if review.assignee
+    json['title'] = review.title if review.title
+    json['type'] = review.review_type
+    json['status'] = review.status
+    json['severity'] = review.severity
+    comments = []
+    review.review_comments.each do |comment|
+      comments << {
+        'author' => comment.user.login,
+        'updatedAt' => format_datetime(comment.updated_at),
+        'comment' => (html ? markdown_to_html(comment.review_text): comment.review_text)
+      }
+    end
+    json['comments'] = comments
+    json['line'] = review.resource_line if review.resource_line
+    json['resource'] = review.resource.kee if review.resource
+    json
+  end
+
 end

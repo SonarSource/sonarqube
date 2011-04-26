@@ -117,6 +117,14 @@ class User < ActiveRecord::Base
       properties.delete(prop)
     end
   end
+
+  def self.logins_to_ids(logins=[])
+    if logins.size>0
+      User.find(:all, :select => 'id', :conditions => ['login in (?)', logins]).map{|user| user.id}
+    else
+      []
+    end
+  end
   
   #---------------------------------------------------------------------
   # FAVOURITES

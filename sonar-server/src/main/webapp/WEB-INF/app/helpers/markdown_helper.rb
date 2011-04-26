@@ -20,7 +20,7 @@
 module MarkdownHelper
 
   def markdown_to_html(input)
-    input ? Java::OrgSonarServerUi::JRubyFacade.markdownToHtml(h(input)) : ''
+    input ? Java::OrgSonarServerUi::JRubyFacade.markdownToHtml(ERB::Util.html_escape(input)) : ''
   end
 
 end

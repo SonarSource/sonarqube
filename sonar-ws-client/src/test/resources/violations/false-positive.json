@@ -1,0 +1,3 @@
+[
+  {"message":"throw java.lang.Exception","falsePositive": true, "review": 123, "priority":"MAJOR","rule":{"key":"pmd:SignatureDeclareThrowsException","name":"Signature Declare Throws Exception","category":"Maintainability"},"resource":{"key":"org.apache.excalibur.components:excalibur-pool-instrumented:org.apache.avalon.excalibur.pool.TraceableResourceLimitingPool","name":"TraceableResourceLimitingPool","scope":"FIL","qualifier":"CLA","language":"java"}}
+]

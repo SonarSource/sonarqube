@@ -19,21 +19,21 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
+import org.junit.Test;
+import org.sonar.wsclient.services.Violation;
+
+import java.util.List;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 
-import java.util.List;
-
-import org.junit.Test;
-import org.sonar.wsclient.services.Violation;
-
 public class ViolationUnmarshallerTest extends UnmarshallerTestCase {
 
   @Test
-  public void toModels() {
+  public void testToModels() {
     Violation violation = new ViolationUnmarshaller().toModel("[]");
     assertThat(violation, nullValue());
 
@@ -52,15 +52,22 @@ public class ViolationUnmarshallerTest extends UnmarshallerTestCase {
     assertThat(violation.getResourceName(), is("TraceableResourceLimitingPool"));
     assertThat(violation.getResourceQualifier(), is("CLA"));
     assertThat(violation.getResourceScope(), is("FIL"));
-    assertThat(violation.isSwitchedOff(), is(true));
+    assertThat(violation.isFalsePositive(), is(false));
+    assertThat(violation.getReviewId(), nullValue());
   }
 
   @Test
-  public void violationWithoutLineNumber() {
+  public void testViolationWithoutLineNumber() {
     Violation violation = new ViolationUnmarshaller().toModel(loadFile("/violations/violation-without-optional-fields.json"));
     assertThat(violation.getMessage(), not(nullValue()));
     assertThat(violation.getLine(), nullValue());
     assertThat(violation.getCreatedAt(), nullValue());
   }
 
+  @Test
+  public void testFalsePositive() {
+    Violation violation = new ViolationUnmarshaller().toModel(loadFile("/violations/false-positive.json"));
+    assertThat(violation.isFalsePositive(), is(true));
+    assertThat(violation.getReviewId(), is(123L));
+  }
 }
