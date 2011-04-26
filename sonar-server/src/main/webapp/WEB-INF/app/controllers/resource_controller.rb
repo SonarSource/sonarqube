@@ -175,14 +175,14 @@ class ResourceController < ApplicationController
     conditions='snapshot_id=?'
     values=[@snapshot.id]
     if params[:rule].blank?
-      conditions+='AND (switched_off IS NULL OR switched_off=?)'
+      conditions+=' AND (switched_off IS NULL OR switched_off=?)'
       values<<false
     else
       if params[:rule] == "f-positive"
-        conditions+='AND switched_off=?'
+        conditions+=' AND switched_off=?'
         values<<true
       else
-        conditions+='AND (switched_off IS NULL OR switched_off=?)'
+        conditions+=' AND (switched_off IS NULL OR switched_off=?)'
         values<<false
         severity=Sonar::RulePriority.id(params[:rule])
         if severity
