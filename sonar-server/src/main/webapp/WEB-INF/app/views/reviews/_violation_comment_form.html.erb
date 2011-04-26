@@ -1,18 +1,46 @@
+
+
 <%
   button=(@comment ? 'Update comment' : 'Add comment')
 %>
-
-<form method="POST" action="'violation_save_comment'">
+<form method="POST" action="violation_save_comment">
   <input type="hidden" name="id" value="<%= params[:id] -%>"/>
   <% if @comment %>
     <input type="hidden" name="comment_id" value="<%= @comment.id -%>"/>
   <% end %>
-  <textarea id="commentText<%= params[:id] -%>" rows="8" name="text" style="width: 100%" onkeyup="if (this.value=='') $('submit_btn').disabled='true'; else $('submit_btn').disabled='';"><%= @comment.text if @comment -%></textarea>
-  <%= submit_to_remote "submit_btn", button, :url => { :action => 'violation_save_comment'}, :html => { :id => "submit_btn", :disabled => "true" }, :update => 'vId'+params[:id] -%>
-  <%= link_to_remote 'Cancel', :url => {:action => 'display_violation', :id => params[:id]}, :update => 'vId' + params[:id] -%>
 
-  <% if @violation.review.nil? || @violation.review.comments.size==0 %>
-    &nbsp;&nbsp;
-    <%= check_box_tag "assign_to_me", "me", true -%> <label for="assign_to_me">Assign to me</label>
-  <% end %>
+  <table class="width100">
+    <tr>
+      <td style="vertical-align:top">
+        <textarea id="commentText<%= params[:id] -%>" rows="8" name="text" style="width: 100%" onkeyup="if (this.value=='') $('submit_btn').disabled='true'; else $('submit_btn').disabled='';"><%= @comment.text if @comment -%></textarea>
+        <br/>
+        <%= submit_to_remote "submit_btn", button, :url => { :action => 'violation_save_comment'}, :html => { :id => "submit_btn", :disabled => "true" }, :update => 'vId'+params[:id] -%>
+        <%= link_to_remote 'Cancel', :url => {:action => 'display_violation', :id => params[:id]}, :update => 'vId' + params[:id] -%>
+
+        <% if @violation.review.nil? || @violation.review.comments.size==0 %>
+          &nbsp;
+          <%= check_box_tag "assign_to_me", "me", true -%> <label for="assign_to_me">Assign to me</label>
+        <% end %>
+      </td>
+      <td class="sep"></td>
+      <td style="vertical-align:top;width: 90px">
+        <h3>Help Tips</h3>
+        <table>
+          <tr>
+            <td>*bold*</td>
+            <td class="sep"></td>
+            <td><b>bold</b></td>
+          </tr>
+          <tr>
+            <td>''code''</td>
+            <td class="sep"></td>
+            <td><code>code</code></td>
+          </tr>
+          <tr>
+            <td colspan="3">* Bulleted point</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </form>

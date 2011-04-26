@@ -26,8 +26,8 @@ class ReviewsController < ApplicationController
   helper(:reviews,:markdown)
 
   def index
-    init_params
-    search_reviews
+    init_params()
+    search_reviews()
   end
   
   def show
