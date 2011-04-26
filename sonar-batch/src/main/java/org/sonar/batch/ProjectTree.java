@@ -36,11 +36,11 @@ import java.util.*;
 public class ProjectTree {
 
   private List<Project> projects;
-  private MavenProjectBuilder projectBuilder;
+  private ProjectBuilder projectBuilder;
   private List<ProjectDefinition> definitions;
 
   public ProjectTree(Reactor sonarReactor, DatabaseSession databaseSession) {
-    this.projectBuilder = new MavenProjectBuilder(databaseSession);
+    this.projectBuilder = new ProjectBuilder(databaseSession);
     definitions = Lists.newArrayList();
     for (ProjectDefinition project : sonarReactor.getSortedProjects()) {
       collectProjects(project, definitions);
@@ -50,7 +50,7 @@ public class ProjectTree {
   /**
    * for unit tests
    */
-  protected ProjectTree(MavenProjectBuilder projectBuilder, List<MavenProject> poms) {
+  protected ProjectTree(ProjectBuilder projectBuilder, List<MavenProject> poms) {
     this.projectBuilder = projectBuilder;
     definitions = Lists.newArrayList();
     collectProjects(MavenProjectConverter.convert(poms), definitions);

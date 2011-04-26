@@ -35,13 +35,13 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class MavenProjectBuilderTest extends AbstractDbUnitTestCase {
+public class ProjectBuilderTest extends AbstractDbUnitTestCase {
 
-  private MavenProjectBuilder builder = null;
+  private ProjectBuilder builder = null;
 
   @Before
   public void before() {
-    builder = new MavenProjectBuilder(getSession());
+    builder = new ProjectBuilder(getSession());
   }
 
   @Test

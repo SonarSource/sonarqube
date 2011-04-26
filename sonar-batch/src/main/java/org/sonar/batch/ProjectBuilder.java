@@ -36,12 +36,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-// TODO Godin: rename to ProjectBuilder ?
-public class MavenProjectBuilder {
+public class ProjectBuilder {
 
   private DatabaseSession databaseSession;
 
-  public MavenProjectBuilder(DatabaseSession databaseSession) {
+  public ProjectBuilder(DatabaseSession databaseSession) {
     this.databaseSession = databaseSession;
   }
 
@@ -49,7 +48,7 @@ public class MavenProjectBuilder {
     Configuration configuration = getStartupConfiguration(project);
     return new Project(loadProjectKey(project), loadProjectBranch(configuration), loadProjectName(project))
         .setDescription(project.getProperties().getProperty(CoreProperties.PROJECT_DESCRIPTION_PROPERTY))
-        .setPackaging("jar"); // FIXME http://jira.codehaus.org/browse/SONAR-2341
+        .setPackaging("jar");
   }
 
   Configuration getStartupConfiguration(ProjectDefinition project) {
