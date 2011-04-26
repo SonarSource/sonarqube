@@ -213,11 +213,6 @@ class ResourceController < ApplicationController
       else
         @global_violations<<violation
       end
-      # if the permanent_id does not exist, set it to the current id
-      unless violation.permanent_id
-        violation.permanent_id = violation.id
-        violation.save
-      end
     end
 
     if !@expanded && @lines
