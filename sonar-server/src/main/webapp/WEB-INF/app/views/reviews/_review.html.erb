@@ -30,7 +30,7 @@
 		  Created by:
 	   </td>
 	   <td  class="val">
-  		  <%= h(review.user.name) -%> at <%= l(review.created_at) -%>
+  		  <%= h(review.user.name) -%> on <%= l(review.created_at, :format => :long) -%>
 	   </td>
 	 </tr>
 	<% if review.rule %>
