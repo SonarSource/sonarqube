@@ -197,7 +197,16 @@ public class CodeBufferTest {
   @Test
   public void theLengthShouldBeTheSameThanTheStringLength() {
     String myCode = "myCode";
-    assertThat(new CodeBuffer(myCode, new CodeReaderConfiguration()).length(), is(myCode.length()));
+    assertThat(new CodeBuffer(myCode, new CodeReaderConfiguration()).length(), is(6));
+  }
+
+  @Test
+  public void theLengthShouldDecreaseEachTimeTheInputStreamIsConsumed() {
+    String myCode = "myCode";
+    CodeBuffer codeBuffer = new CodeBuffer(myCode, new CodeReaderConfiguration());
+    codeBuffer.pop();
+    codeBuffer.pop();
+    assertThat(codeBuffer.length(), is(4));
   }
 
   @Test

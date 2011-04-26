@@ -29,7 +29,7 @@ import org.sonar.channel.RegexChannel;
 class HtmlEmphasisChannel extends RegexChannel<MarkdownOutput> {
 
   public HtmlEmphasisChannel() {
-    super("\\*[^\n\r\\*\\s]++\\*");
+    super("\\*[^\\s\\*][^\n\r]+?[^\\s\\*]\\*");
   }
 
   @Override

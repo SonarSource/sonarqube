@@ -39,6 +39,7 @@ public class MarkdownEngineTest {
   @Test
   public void shouldDecorateList() {
     assertThat(MarkdownEngine.convertToHtml("  * one\r* two\r\n* three\n * \n *five"), is("<ul><li>one</li>\r<li>two</li>\r\n<li>three</li>\n<li> </li>\n</ul> *five"));
+    assertThat(MarkdownEngine.convertToHtml("  * one\r* two"), is("<ul><li>one</li>\r<li>two</li></ul>"));
   }
 
   @Test
@@ -56,10 +57,7 @@ public class MarkdownEngineTest {
     assertThat(MarkdownEngine.convertToHtml("Not *emphase * because of whitespace"), is("Not *emphase * because of whitespace"));
     assertThat(MarkdownEngine.convertToHtml("Not * emphase* because of whitespace"), is("Not * emphase* because of whitespace"));
     assertThat(MarkdownEngine.convertToHtml("emphase*inside*word"), is("emphase<em>inside</em>word"));
-
-    // not supported yet
-    // assertThat(MarkdownEngine.convertToHtml("\\*surrounded by literal asterisks\\*"), is("\\*surrounded by literal asterisks\\*"));
-
+    assertThat(MarkdownEngine.convertToHtml("*Emphase many words*"), is("<em>Emphase many words</em>"));
   }
 
   @Test

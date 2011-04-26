@@ -240,14 +240,14 @@ public class CodeBuffer implements CharSequence {
   }
 
   /**
-   * Warning : this method always returns Integer.MAX_VALUE as the length of the stream can't be known before having consumed all
-   * characters.
+   * Warning : this method returns Integer.MAX_VALUE when the buffer is fully used 
+   * as the length of the stream can't be known before having consumed all characters.
    * 
    * Integer.MAX_VALUE is returned to prevent regular expression matchers to stop consuming the stream of characters (see
    * http://jira.codehaus.org/browse/SONAR-2010)
    */
   public final int length() {
-    return (bufferSize == bufferCapacity ? Integer.MAX_VALUE : bufferSize);
+    return (bufferSize == bufferCapacity ? Integer.MAX_VALUE : bufferSize - bufferPosition);
   }
 
   public final CharSequence subSequence(int start, int end) {
