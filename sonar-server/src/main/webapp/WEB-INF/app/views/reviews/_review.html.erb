@@ -2,6 +2,25 @@
   <div class="reportTitle">
     <div style="float: right"><span class="violation_date">#<%= review.id.to_s -%></span></div>  
     <h2><%= h(review.title) -%></h2>
+    
+    <% if current_user && review.status != "CLOSED" %>
+    <span class="actions" id="rActions">
+        &nbsp;
+        <%= image_tag("sep12.png") -%>
+        &nbsp;
+        <%= link_to_remote (review.assignee_id ? "Reassign" : "Assign"),  
+        		:url => { :controller => "reviews", :action => "assign_form", :review_id => review.id},
+        		:update => "assignForm",
+        		:complete => "$('rActions').hide(); $('commentAction').hide(); $('assignee_id').focus();" -%>
+      
+        &nbsp;
+        <%= link_to_remote ("Flag as false-positive"),
+        		:url => { :controller => "reviews", :action => "false_positive_form", :id => review.id },
+        		:update => "reviewForm",
+        		:complete => "$('rActions').hide(); $('commentAction').hide(); $('reviewForm').show();$('commentText').focus();" -%>
+    </span>
+    <% end %>
+    
   </div>
 
   <table class="reportDetails">
@@ -24,7 +43,9 @@
 	     Assignee:	
 	   </td>
 	   <td  class="val">
-		<%= review.assignee ? h(review.assignee.name) : '-'-%>
+	     <span id="assignForm">
+		 <%= review.assignee ? h(review.assignee.name) : '-'-%>
+	     </span>
 	   </td>
 	   <td class="key">
 		  Created by:
@@ -72,4 +93,15 @@
 	   </div>
 	 <% end %>
   </div>
+  
+  <% if current_user && review.status != "CLOSED" %>
+  <div class="discussionComment" id="reviewForm" style="display:none"></div>
+  <div style="padding: 5px" id="commentAction">
+    <%= link_to_remote "Add comment",
+      		:url => { :controller => "reviews", :action => "comment_form", :id => review.id },
+      		:update => "reviewForm",
+      		:complete => "$('rActions').hide();$('commentAction').hide();$('reviewForm').show();$('commentText').focus()" -%>
+  </div>
+  <% end %>
+  
 </div>

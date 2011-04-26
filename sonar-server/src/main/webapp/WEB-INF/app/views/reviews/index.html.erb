@@ -84,11 +84,12 @@
       <thead>
       <tr>
         <th width="1%" nowrap>St.</th>
-        <th width="1%">Project</th>
         <th>Title</th>
+        <th width="1%">Project</th>
         <th width="1%" nowrap>Se.</th>
         <th>Assignee</th>
         <th>Age</th>
+        <th width="1%" nowrap>Id</th>
 
       </tr>
       </thead>
@@ -103,14 +104,17 @@
       %>
         <tr class="<%= cycle('even', 'odd') -%>">
           <td><img src="<%= ApplicationController.root_context -%>/images/status/<%= review.status -%>.png"/></td>
-          <td><%= review.project.name -%>
-            <br/><span class="note"><%= review.resource.long_name -%></span></td>
           <td>
             <%= link_to_remote(h(review.title), :update => 'review', :url => {:action => 'show', :id => review.id}, :loading => 'onReviewLoading()', :complete => "onReviewLoaded()") -%>
           </td>
+          <td><%= review.project.name -%>
+            <br/><span class="note"><%= review.resource.long_name -%></span></td>
           <td><img src="<%= ApplicationController.root_context -%>/images/priority/<%= review.severity -%>.png"/></td>
           <td><%= review.assignee ? h(review.assignee.name) : '-' -%></td>
           <td><%= distance_of_time_in_words_to_now(review.created_at) -%></td>
+          <td style="font-weight:bold">
+            <%= link_to_remote( "#"+h(review.id), :update => 'review', :url => {:action => 'show', :id => review.id}, :loading => 'onReviewLoading()', :complete => "onReviewLoaded()") -%>
+          </td>
         </tr>
       <%
          end

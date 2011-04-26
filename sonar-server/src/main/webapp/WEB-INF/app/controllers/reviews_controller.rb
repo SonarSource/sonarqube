@@ -22,7 +22,10 @@ class ReviewsController < ApplicationController
 
   SECTION=Navigation::SECTION_HOME
 
-  verify :method => :post, :only => [:violation_assign, :violation_flag_as_false_positive,:violation_save_comment, :violation_delete_comment], :redirect_to => {:action => :error_not_post}
+  verify :method => :post, 
+         :only => [:assign, :comment_form, :flag_as_false_positive, 
+                   :violation_assign, :violation_flag_as_false_positive,:violation_save_comment, :violation_delete_comment], 
+         :redirect_to => {:action => :error_not_post}
   helper(:reviews,:markdown)
 
   def index
@@ -33,6 +36,81 @@ class ReviewsController < ApplicationController
   def show
     @review=Review.find(params[:id], :include => ['resource', 'project'])
     render :partial => 'reviews/show'
+  end
+
+  # GET
+  def assign_form
+    @user_options = options_for_users()
+    render :partial => "assign_form"
+  end
+
+  # POST
+  def assign
+    @review = Review.find (params[:id])
+    unless current_user
+      render :text => "<b>Cannot edit the review</b> : access denied."
+      return
+    end
+
+    @review.assignee = User.find params[:assignee_id]
+    @review.save
+
+    render :partial => 'reviews/show'
+  end
+
+  # GET
+  def comment_form
+    @review = Review.find (params[:id])
+    render :partial => 'reviews/comment_form'
+  end
+
+  # POST
+  def save_comment
+    @review = Review.find (params[:id])
+    unless current_user
+      render :text => "<b>Cannot create the comment</b> : access denied."
+      return
+    end
+
+    if params[:comment_id]
+      comment = @review.comments.find(params[:comment_id].to_i)
+      if comment
+        comment.text=params[:text]
+        comment.save!
+      end
+    else
+      @review.comments.create!(:user => current_user, :text => params[:text])
+    end
+
+    render :partial => "reviews/show"
+  end
+
+  # GET
+  def false_positive_form
+    render :partial => 'reviews/false_positive_form'
+  end
+
+  # POST
+  def flag_as_false_positive
+    @review = Review.find (params[:id])
+    unless current_user
+      render :text => "<b>Cannot create the comment</b> : access denied."
+      return
+    end
+    
+    RuleFailure.find( :all, :conditions => [ "permanent_id = ?", @review.rule_failure_permanent_id ] ).each do |violation|
+      violation.switched_off=true
+      violation.save!
+    end
+
+    @review.review_type = Review::TYPE_FALSE_POSITIVE
+    @review.status = Review::STATUS_CLOSED
+    @review.save!
+    unless params[:comment].blank?
+      @review.comments.create(:review_text => params[:comment], :user_id => current_user.id)
+    end
+
+    render :partial => "reviews/show"
   end
 
 

@@ -816,7 +816,7 @@ span.rulename a:hover {
 
 
 div.reportTitle {
-	background-color: #CAE3F2;
+	background-color: #E4ECF3;
 	color: #4B9FD5;
 	line-height: 2.2em;
 	margin: 0;
@@ -829,6 +829,9 @@ div.reportTitle h2 {
 	display: inline;
 	font-size: 100%;
 	text-shadow: 0 1px 0 #FFFFFF;
+}
+div.reportTitle span.actions {
+	font-size: 12px;
 }
 table.reportDetails {
 	width: 100%;
@@ -868,6 +871,9 @@ div.discussionComment h4 {
 }
 div.discussionComment h4 img {
   vertical-align: sub;
+}
+div.discussionComment li {
+  list-style: square inside;
 }
 
 
