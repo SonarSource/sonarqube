@@ -53,7 +53,7 @@ public class ViolationUnmarshallerTest extends UnmarshallerTestCase {
     assertThat(violation.getResourceName(), is("TraceableResourceLimitingPool"));
     assertThat(violation.getResourceQualifier(), is("CLA"));
     assertThat(violation.getResourceScope(), is("FIL"));
-    assertThat(violation.isFalsePositive(), is(false));
+    assertThat(violation.isSwitchedOff(), is(false));
     assertThat(violation.getReviewId(), nullValue());
   }
 
@@ -67,9 +67,9 @@ public class ViolationUnmarshallerTest extends UnmarshallerTestCase {
   }
 
   @Test
-  public void testFalsePositive() {
+  public void testSwitchedOff() {
     Violation violation = new ViolationUnmarshaller().toModel(loadFile("/violations/false-positive.json"));
-    assertThat(violation.isFalsePositive(), is(true));
+    assertThat(violation.isSwitchedOff(), is(true));
     assertThat(violation.getReviewId(), is(123L));
   }
 

@@ -46,7 +46,7 @@ class RuleFailure < ActiveRecord::Base
     json['message'] = message
     json['line'] = line if line && line>=1
     json['priority'] = Sonar::RulePriority.to_s(failure_level).upcase
-    json['falsePositive']=true if false_positive?
+    json['switchedOff']=true if switched_off?
     if created_at
       json['createdAt'] = format_datetime(created_at)
     end
@@ -61,7 +61,7 @@ class RuleFailure < ActiveRecord::Base
       :qualifier => snapshot.project.qualifier,
       :language => snapshot.project.language
     }
-    json['review']=review.id if review
+    json['review']=review.id.to_i if review
     json
   end
 
@@ -70,7 +70,7 @@ class RuleFailure < ActiveRecord::Base
       xml.message(message)
       xml.line(line) if line && line>=1
       xml.priority(Sonar::RulePriority.to_s(failure_level))
-      xml.falsePositive(true) if false_positive?
+      xml.switchedOff(true) if switched_off?
       if created_at
         xml.createdAt(format_datetime(created_at))
       end
@@ -85,7 +85,7 @@ class RuleFailure < ActiveRecord::Base
         xml.qualifier(snapshot.project.qualifier)
         xml.language(snapshot.project.language)
       end
-      xml.review(review.id) if review
+      xml.review(review.id.to_i) if review
     end
   end
 

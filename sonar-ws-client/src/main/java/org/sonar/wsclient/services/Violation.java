@@ -33,7 +33,7 @@ public class Violation extends Model {
   private String resourceScope = null;
   private String resourceQualifier = null;
   private Date createdAt = null;
-  private boolean falsePositive;
+  private boolean switchedOff;
   private Long reviewId = null;
 
   public String getMessage() {
@@ -180,16 +180,16 @@ public class Violation extends Model {
   /**
    * @since 2.8
    */
-  public Violation setFalsePositive(Boolean b) {
-    this.falsePositive = (b != null && b);
+  public Violation setSwitchedOff(Boolean b) {
+    this.switchedOff = (b != null && b);
     return this;
   }
 
   /**
    * @since 2.8
    */
-  public boolean isFalsePositive() {
-    return falsePositive;
+  public boolean isSwitchedOff() {
+    return switchedOff;
   }
 
   public Long getReviewId() {
