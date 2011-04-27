@@ -1,6 +1,6 @@
 <%
   granted_users=users(@role, params[:resource])
-  ungranted_users=all_users - granted_users
+  ungranted_users=(all_users - granted_users)
   if @project
      title=h(@project.name)
    elsif @role.starts_with?('default-')

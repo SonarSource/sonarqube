@@ -78,7 +78,7 @@ class User < ActiveRecord::Base
   end
 
   def <=>(other)
-    login<=>other.login
+    name<=>other.name
   end
 
 

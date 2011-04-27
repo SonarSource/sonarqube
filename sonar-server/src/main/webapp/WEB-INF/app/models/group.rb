@@ -29,13 +29,13 @@ class Group < ActiveRecord::Base
 
   # all the users that are NOT members of this group
   def available_users
-    User.all - users
+    User.find(:all, :order => 'name') - users
   end
 
   def set_users(new_users=[])
     self.users.clear
     
-    new_users=(new_users || []).compact.uniq
+    new_users=(new_users||[]).compact.uniq
     self.users = User.find(new_users)
     save
   end
