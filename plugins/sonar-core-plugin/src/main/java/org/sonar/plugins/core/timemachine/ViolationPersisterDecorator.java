@@ -45,9 +45,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 @DependsUpon(DecoratorBarriers.END_OF_VIOLATIONS_GENERATION)
-@DependedUpon("ViolationPersisterDecorator")
+@DependedUpon(ViolationPersisterDecorator.BARRIER)
 /* temporary workaround - see NewViolationsDecorator */
 public class ViolationPersisterDecorator implements Decorator {
+
+  public static final String BARRIER = "ViolationPersisterDecorator";
 
   /**
    * Those chars would be ignored during generation of checksums.

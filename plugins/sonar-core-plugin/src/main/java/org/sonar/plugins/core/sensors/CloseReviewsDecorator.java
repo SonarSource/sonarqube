@@ -31,11 +31,12 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.ResourcePersister;
+import org.sonar.plugins.core.timemachine.ViolationPersisterDecorator;
 
 /**
  * Decorator that currently only closes a review when its corresponding violation has been fixed.
  */
-@DependsUpon("ViolationPersisterDecorator")
+@DependsUpon(ViolationPersisterDecorator.BARRIER)
 public class CloseReviewsDecorator implements Decorator {
 
   private static final Logger LOG = LoggerFactory.getLogger(CloseReviewsDecorator.class);

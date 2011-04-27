@@ -30,13 +30,14 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
+import org.sonar.plugins.core.timemachine.ViolationPersisterDecorator;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-@DependsUpon(value = DecoratorBarriers.END_OF_VIOLATIONS_GENERATION)
+@DependsUpon(value = ViolationPersisterDecorator.BARRIER)
 public class ViolationsDecorator implements Decorator {
 
   // temporary data for current resource
