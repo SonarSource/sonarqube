@@ -74,12 +74,32 @@ public class Violation extends Model {
     this.severity = priority;
   }
 
+  /**
+   * @return line number (numeration starts from 1), or <code>null</code> if violation doesn't belong to concrete line
+   * @see #hasLine()
+   */
   public Integer getLine() {
     return line;
   }
 
   public void setLine(Integer line) {
-    this.line = line;
+    if (line != null && line < 1) {
+      /*
+       * This shouldn't happen, however line would be normalized to null if web service returns incorrect value (less than 1)
+       * in compliance with a contract for getLine method. Normalization added in 2.8 - see http://jira.codehaus.org/browse/SONAR-2386
+       */
+      this.line = null;
+    } else {
+      this.line = line;
+    }
+  }
+
+  /**
+   * @return <code>true<code> if violation belongs to concrete line
+   * @since 2.8
+   */
+  public boolean hasLine() {
+    return line != null;
   }
 
   public String getResourceKey() {

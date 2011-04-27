@@ -42,6 +42,7 @@ public class ViolationUnmarshallerTest extends UnmarshallerTestCase {
 
     violation = violations.get(0);
     assertThat(violation.getMessage(), is("throw java.lang.Exception"));
+    assertThat(violation.hasLine(), is(true));
     assertThat(violation.getLine(), is(97));
     assertThat(violation.getCreatedAt(), notNullValue());
     assertThat(violation.getSeverity(), is("MAJOR"));
@@ -60,6 +61,7 @@ public class ViolationUnmarshallerTest extends UnmarshallerTestCase {
   public void testViolationWithoutLineNumber() {
     Violation violation = new ViolationUnmarshaller().toModel(loadFile("/violations/violation-without-optional-fields.json"));
     assertThat(violation.getMessage(), not(nullValue()));
+    assertThat(violation.hasLine(), is(false));
     assertThat(violation.getLine(), nullValue());
     assertThat(violation.getCreatedAt(), nullValue());
   }
@@ -69,5 +71,15 @@ public class ViolationUnmarshallerTest extends UnmarshallerTestCase {
     Violation violation = new ViolationUnmarshaller().toModel(loadFile("/violations/false-positive.json"));
     assertThat(violation.isFalsePositive(), is(true));
     assertThat(violation.getReviewId(), is(123L));
+  }
+
+  /**
+   * See http://jira.codehaus.org/browse/SONAR-2386
+   */
+  @Test
+  public void testIncorrectLine() {
+    Violation violation = new ViolationUnmarshaller().toModel(loadFile("/violations/violation-with-incorrect-line.json"));
+    assertThat(violation.hasLine(), is(false));
+    assertThat(violation.getLine(), nullValue());
   }
 }

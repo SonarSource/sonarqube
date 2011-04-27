@@ -1,0 +1,19 @@
+[
+	{
+		"message":"1 branches need to be covered by unit tests to reach the minimum threshold of 65.0% branch coverage.",
+		"line":0,
+		"priority":"MAJOR",
+		"createdAt":"2011-03-07T16:21:39+0000",
+		"rule":{
+			"key":"sqale-java:BranchCoverageCheck",
+			"name":"Insufficient branch coverage by unit tests"
+		},
+		"resource":{
+			"key":"org.codehaus.sonar.plugins:sonar-pmd-plugin:org.sonar.plugins.pmd.PmdRuleRepository",
+			"name":"PmdRuleRepository",
+			"scope":"FIL",
+			"qualifier":"CLA",
+			"language":"java"
+		}
+	}
+]

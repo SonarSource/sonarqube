@@ -23,6 +23,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.utils.Logs;
 
 import java.util.Date;
 
@@ -108,20 +109,36 @@ public class Violation {
   }
 
   /**
-   * @see #setLineId(Integer)
+   * @return line number (numeration starts from 1), or <code>null</code> if violation doesn't belong to concrete line
+   * @see #hasLineId()
    */
   public Integer getLineId() {
     return lineId;
   }
 
   /**
-   * Sets the violation line. Note that numbering starts from 1.
+   * Sets the violation line.
    * 
+   * @param lineId line number (numeration starts from 1), or <code>null</code> if violation doesn't belong to concrete line
    * @return the current object
    */
   public Violation setLineId(Integer lineId) {
-    this.lineId = lineId;
+    if (lineId != null && lineId < 1) {
+      // TODO this normalization was added in 2.8, throw exception in future versions - see http://jira.codehaus.org/browse/SONAR-2386
+      Logs.INFO.warn("line must not be less than 1 - in future versions this will cause IllegalArgumentException");
+      this.lineId = null;
+    } else {
+      this.lineId = lineId;
+    }
     return this;
+  }
+
+  /**
+   * @return <code>true<code> if violation belongs to concrete line
+   * @since 2.8
+   */
+  public boolean hasLineId() {
+    return lineId != null;
   }
 
   /**
@@ -222,7 +239,7 @@ public class Violation {
 
   @Override
   public boolean equals(Object obj) {
-    if ( !(obj instanceof Violation)) {
+    if (!(obj instanceof Violation)) {
       return false;
     }
     if (this == obj) {
