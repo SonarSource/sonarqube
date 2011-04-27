@@ -46,7 +46,7 @@ class ReviewsController < ApplicationController
 
   # POST
   def assign
-    @review = Review.find (params[:id])
+    @review = Review.find(params[:id])
     unless current_user
       render :text => "<b>Cannot edit the review</b> : access denied."
       return
@@ -60,7 +60,7 @@ class ReviewsController < ApplicationController
 
   # GET
   def comment_form
-    @review = Review.find (params[:id])
+    @review = Review.find(params[:id])
     if !params[:comment_id].blank? && @review
       @comment = @review.comments.find(params[:comment_id])
     end
@@ -69,7 +69,7 @@ class ReviewsController < ApplicationController
 
   # POST
   def save_comment
-    @review = Review.find (params[:id])
+    @review = Review.find(params[:id])
     unless current_user
       render :text => "<b>Cannot create the comment</b> : access denied."
       return
@@ -95,7 +95,7 @@ class ReviewsController < ApplicationController
 
   # POST
   def flag_as_false_positive
-    @review = Review.find (params[:id])
+    @review = Review.find(params[:id])
     unless current_user
       render :text => "<b>Cannot create the comment</b> : access denied."
       return
@@ -118,7 +118,7 @@ class ReviewsController < ApplicationController
 
   # POST
   def delete_comment
-    @review = Review.find (params[:id])
+    @review = Review.find(params[:id])
     unless current_user
       render :text => "<b>Cannot delete the comment</b> : access denied."
       return
