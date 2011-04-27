@@ -1090,7 +1090,7 @@ div.discussionComment li {
   vertical-align: top;
   text-align: left;
   min-width: 60px;
-  padding: 0 7px 7px 0;
+  padding: 0 10px 7px 0;
 }
 
 .big {
@@ -1104,14 +1104,15 @@ div.discussionComment li {
   padding: 10px;
 }
 
-.searchFilterBox {
+table.header1 {
 	background-color: #ECECEC;
 	color: #444;
 	border: 1px solid #DDD;
 	margin: 0 0 10px 0;
+  width: 100%;
 }
-.searchFilterBox td {
-	padding: 10px;
+table.header1 td {
+	padding: 10px 0 10px 10px;
 	text-align: left;
 	vertical-align: top;
 }

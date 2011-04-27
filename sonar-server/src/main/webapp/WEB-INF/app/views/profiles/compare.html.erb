@@ -1,4 +1,5 @@
-<h1 class="marginbottom10"><%= link_to 'Quality profiles', :controller => 'profiles', :action => 'index' -%> / Compare</h1>
+<h1 class="marginbottom10"><%= link_to 'Quality profiles', :controller => 'profiles', :action => 'index' -%> /
+  Compare</h1>
 
 <form method="GET" class="marginbottom10">
   <select name="id1" class="small">
@@ -12,125 +13,135 @@
   </select>
   <input type="submit" value="Compare" class="small" id="submit-compare"/>
   <% if @profile1 && @profile2 %>
-    <a href="<%= url_for :action => 'compare', :id1 => @profile2.id, :id2 => @profile1.id -%>" id="switch" title="Switch left and right view"><%= image_tag 'switch.png'-%></a>
+    <a href="<%= url_for :action => 'compare', :id1 => @profile2.id, :id2 => @profile1.id -%>" id="switch" title="Switch left and right view"><%= image_tag 'switch.png' -%></a>
   <% end %>
 </form>
 
 <% if @profile1 && @profile2 %>
 
-<table class="width100 marginbottom10" id="profile_diff_table">
-<tbody>
+  <table class="header1">
+    <tr>
+      <td width="25%">
+        <p>Only in <%= h(@profile1.name) -%></p>
+        <span class="big"><a href="#in1"><%= @in1.size -%></a></span> rules
+      </td>
+      <td width="25%">
+        <p>Only in <%= h(@profile2.name) -%></p>
+        <span class="big"><a href="#in2"><%= @in2.size -%></a></span> rules
+      </td>
+      <td width="25%">
+        <p>With different configuration</p>
+        <span class="big"><a href="#modified"><%= @modified.size -%></a></span> rules
+      </td>
+      <td width="25%">
+        <p>With same configuration</p>
+        <span class="big"><%= @sames.size -%></span> rules
+      </td>
+    </tr>
+  </table>
 
-<% unless @in1.empty? %>
-  <tr>
-  <td  width="49%">
-    <table class="data width100 marginbottom10" id="in1-rules">
-      <thead>
-        <tr>
-          <th><%= @in1.size -%> rules only in <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile1.id -%>"><%= h @profile1.name %></a></th>
-        </tr>
-      </thead>
-      <% @in1.each do |diff| %>
-        <tr id="rule_<%= u(diff.rule.key) -%>">
-          <td class="<%= cycle('even','odd', :name => 'in1')-%>">
-            <%= render :partial => 'diff_rule', :locals => {:arule => diff.arule1} %>
-          </td>
-        </tr>
-      <% end %>
-    </table>
-  </td>
-  <td width="2%"> </td>
-  <td width="49%"> </td>
-  </tr>
-<% end %>
+  <table class="width100 marginbottom10" id="profile_diff_table">
+    <tbody>
 
-<% unless @in2.empty? %>
-  <tr>
-    <td width="49%"></td>
-    <td width="2%"> </td>
-    <td width="49%">
-      <table class="data width100 marginbottom10" id="in2-rules">
-        <thead>
-          <tr>
-            <th><%= @in2.size -%> rules only in <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile2.id -%>"><%= h @profile2.name %></a></th>
-          </tr>
-        </thead>
-        <% @in2.each do |diff| %>
-          <tr id="rule_<%= u(diff.rule.key) -%>">
-            <td class="<%= cycle('even','odd', :name => 'in2')-%>">
-              <%= render :partial => 'diff_rule', :locals => {:arule => diff.arule2} %>
-            </td>
-          </tr>
-        <% end %>
-      </table>
-    </td>
-  </tr>
-<% end %>
+    <% unless @in1.empty? %>
+      <tr>
+        <td width="49%">
+          <table class="data width100 marginbottom10" id="in1-rules">
+            <thead>
+            <tr>
+              <th><a name="in1"/><%= @in1.size -%> rules only in
+                <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile1.id -%>"><%= h @profile1.name %></a>
+              </th>
+            </tr>
+            </thead>
+            <% @in1.each do |diff| %>
+              <tr id="rule_<%= u(diff.rule.key) -%>">
+                <td class="<%= cycle('even', 'odd', :name => 'in1') -%>">
+                  <%= render :partial => 'diff_rule', :locals => {:arule => diff.arule1} %>
+                </td>
+              </tr>
+            <% end %>
+          </table>
+        </td>
+        <td width="2%"></td>
+        <td width="49%"></td>
+      </tr>
+    <% end %>
+
+    <% unless @in2.empty? %>
+      <tr>
+        <td width="49%"></td>
+        <td width="2%"></td>
+        <td width="49%">
+          <table class="data width100 marginbottom10" id="in2-rules">
+            <thead>
+            <tr>
+              <th><a name="in2"/><%= @in2.size -%> rules only in
+                <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile2.id -%>"><%= h @profile2.name %></a>
+              </th>
+            </tr>
+            </thead>
+            <% @in2.each do |diff| %>
+              <tr id="rule_<%= u(diff.rule.key) -%>">
+                <td class="<%= cycle('even', 'odd', :name => 'in2') -%>">
+                  <%= render :partial => 'diff_rule', :locals => {:arule => diff.arule2} %>
+                </td>
+              </tr>
+            <% end %>
+          </table>
+        </td>
+      </tr>
+    <% end %>
 
 
-<% unless @modified.empty? %>
-<tr>
-    <td colspan="3">
-    <table class="data width100 marginbottom10" id="modified-rules">
-      <thead>
-        <tr>
-          <th width="49%"><%= @modified.size -%> rules have a different configuration<br/>
-            <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile1.id -%>"><%= h @profile1.name %></a>
-          </th>
-          <th width="2%"></th>
-          <th width="49%"><br/><a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile2.id -%>"><%= h @profile2.name %></a></th>
-        </tr>
-      </thead>
-      <% @modified.each do |diff|
-           td_css=cycle('even','odd', :name => 'modified')
-      %>
-        <tr id="rule_<%= u(diff.rule.key) -%>">
-          <td class="<%= td_css -%>" width="49%">
-            <%= render :partial => 'diff_rule', :locals => {:arule => diff.arule1} %>
-            <% if diff.removed_params && !diff.removed_params.empty? %>
-		        <ul>
-			        <% diff.removed_params.each do |parameter| %>
-		  	      <li><%= h(parameter.name) -%>: <span class="diffParam"><%= parameter.value.gsub(',', ', ') -%></span></li>
-		          <% end %>
-		        </ul>
-		        <% end %>
-          </td>
-          <td width="2%" class="<%= td_css -%>"> </td>
-          <td class="<%= td_css -%>" width="49%">
-            <%= render :partial => 'diff_rule', :locals => {:arule => diff.arule2} %>
-            <% if diff.added_params && !diff.added_params.empty? %>
-		        <ul>
-			        <% diff.added_params.each do |parameter| %>
-		  	      <li><%= h(parameter.name) -%>: <span class="diffParam"><%= parameter.value.gsub(',', ', ') -%></span></li>
-		          <% end %>
-		        </ul>
-		        <% end %>
-          </td>
-        </tr>
-      <% end %>
-    </table>
-    </td>
-  </tr>
-<% end %>
-
-<% unless @sames.empty? %>
-<tr>
-    <td colspan="3">
-    <table class="data width100 marginbottom10">
-      <thead>
-        <tr>
-          <th><%= @sames.size -%> rules have the same configuration</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="even">Not displayed</td>
-        </tr>
-      </tbody>
-    </table>
-    </td>
-  </tr>
-<% end %>
-</tbody>
-</table>
+    <% unless @modified.empty? %>
+      <tr>
+        <td colspan="3">
+          <table class="data width100 marginbottom10" id="modified-rules">
+            <thead>
+            <tr>
+              <th width="49%"><a name="modified"/><%= @modified.size -%> rules have a different configuration<br/>
+                <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile1.id -%>"><%= h @profile1.name %></a>
+              </th>
+              <th width="2%"></th>
+              <th width="49%">
+                <br/><a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile2.id -%>"><%= h @profile2.name %></a>
+              </th>
+            </tr>
+            </thead>
+            <% @modified.each do |diff|
+              td_css=cycle('even', 'odd', :name => 'modified')
+            %>
+              <tr id="rule_<%= u(diff.rule.key) -%>">
+                <td class="<%= td_css -%>" width="49%">
+                  <%= render :partial => 'diff_rule', :locals => {:arule => diff.arule1} %>
+                  <% if diff.removed_params && !diff.removed_params.empty? %>
+                    <ul>
+                      <% diff.removed_params.each do |parameter| %>
+                        <li><%= h(parameter.name) -%>:
+                          <span class="diffParam"><%= parameter.value.gsub(',', ', ') -%></span></li>
+                      <% end %>
+                    </ul>
+                  <% end %>
+                </td>
+                <td width="2%" class="<%= td_css -%>"></td>
+                <td class="<%= td_css -%>" width="49%">
+                  <%= render :partial => 'diff_rule', :locals => {:arule => diff.arule2} %>
+                  <% if diff.added_params && !diff.added_params.empty? %>
+                    <ul>
+                      <% diff.added_params.each do |parameter| %>
+                        <li><%= h(parameter.name) -%>:
+                          <span class="diffParam"><%= parameter.value.gsub(',', ', ') -%></span></li>
+                      <% end %>
+                    </ul>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </table>
+        </td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
 <% end %>
