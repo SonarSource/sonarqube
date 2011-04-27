@@ -9,7 +9,7 @@
     previous_hidden=false
     first_section=true
     has_displayed_lines=false
-    panel.html_lines.each_with_index do |line, index|
+    panel.html_lines.each do |line|
       if line.hidden? && panel.expanded
         previous_hidden=true
         next
@@ -27,8 +27,11 @@
       first_section=false
 
       status=hits_status=conditions_status=''
-      if line.highlighted?
+      if line.selected?
         has_displayed_lines=true
+        if line.highlighted
+          status='ko'
+        end
 #        if @display_coverage && line.hits
 #          hits_status=(line.hits>0 ? 'ok' : 'ko')
 #          if line.conditions && line.conditions>0 && line.covered_conditions
@@ -63,7 +66,7 @@
     <%   end
        end
     %>
-    <td class="lid <%= ' section' if line.violations? -%>" id="L<%= index+1 -%>"><a name="L<%= index+1 -%>" href="#L<%= index+1 -%>"><%= index + 1 -%></a></td>
+    <td class="lid <%= ' section' if line.violations? -%>" id="L<%= line.id -%>"><a name="L<%= line.id -%>" href="#L<%= line.id -%>"><%= line.id -%></a></td>
 
 
     <td class="line <%= status -%>">

@@ -44,13 +44,17 @@ module SourceHelper
 
     panel.html_lines=[]
     line_range=sanitize_line_range(options[:line_range])
-    snapshot.source.syntax_highlighted_lines()[line_range].each_with_index do |source, index|
-      html_line=HtmlLine.new(source)
-      html_line.revision=revisions_by_line[index+1]
-      html_line.author=authors_by_line[index+1]
-      date_string=dates_by_line[index+1]
-      html_line.datetime=(date_string ? Java::OrgSonarApiUtils::DateUtils.parseDateTime(date_string): nil)
-      panel.html_lines<<html_line
+    highlighted_lines=options[:highlighted_lines]||[]
+    snapshot.source.syntax_highlighted_lines().each_with_index do |source, index|
+      if line_range.include?(index+1)
+        html_line=HtmlLine.new(source, index+1)
+        html_line.revision=revisions_by_line[index+1]
+        html_line.author=authors_by_line[index+1]
+        html_line.highlighted=(highlighted_lines.include?(index+1))
+        date_string=dates_by_line[index+1]
+        html_line.datetime=(date_string ? Java::OrgSonarApiUtils::DateUtils.parseDateTime(date_string): nil)
+        panel.html_lines<<html_line
+      end
     end
 
     panel.filter_min_date(options[:min_date]) if options[:min_date]
@@ -90,10 +94,11 @@ module SourceHelper
   end
 
   class HtmlLine
-    attr_accessor :source, :revision, :author, :datetime, :violations, :hits, :conditions, :covered_conditions, :hidden, :highlighted, :deprecated_conditions_label
+    attr_accessor :id, :source, :revision, :author, :datetime, :violations, :hits, :conditions, :covered_conditions, :hidden, :selected, :highlighted, :deprecated_conditions_label
 
-    def initialize(source)
+    def initialize(source, id)
       @source=source
+      @id=id
     end
 
     def add_violation(violation)
@@ -122,14 +127,14 @@ module SourceHelper
       end
     end
 
-    def flag_as_highlighted
-      @highlighted=true
+    def flag_as_selected
+      @selected=true
       @hidden=false
     end
 
-    def flag_as_highlight_context
-      # do not force if highlighted has already been set to true
-      @highlighted=false if @highlighted.nil?
+    def flag_as_selected_context
+      # do not force if selected has already been set to true
+      @selected=false if @selected.nil?
       @hidden=false
     end
 
@@ -137,7 +142,7 @@ module SourceHelper
       # do not force if it has already been flagged as visible
       if @hidden.nil?
         @hidden=true
-        @highlighted=false
+        @selected=false
       end
     end
 
@@ -145,9 +150,9 @@ module SourceHelper
       @hidden==true
     end
 
-    def highlighted?
-      # highlighted if the @highlighted has not been set or has been set to true
-      !hidden? && @highlighted!=false
+    def selected?
+      # selected if the @selected has not been set or has been set to true
+      !hidden? && @selected!=false
     end
 
     def deprecated_conditions_label=(label)

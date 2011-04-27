@@ -76,8 +76,10 @@
 	 </tr>
   </table>
 
-  <% if review.rule_failure %>
-    
+  <% if review.rule_failure && review.resource_line && review.rule_failure.snapshot %>
+    <div class="marginbottom10">
+      <%= snapshot_source_to_html(review.rule_failure.snapshot, {:line_range => (review.resource_line-5)..(review.resource_line+5), :highlighted_lines => [review.resource_line]}) -%>
+    </div>
   <% end %>
 
   <div class="discussion">
