@@ -19,6 +19,8 @@
  */
 package org.sonar.batch;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.project.MavenProject;
 import org.sonar.api.resources.DefaultProjectFileSystem;
@@ -83,12 +85,14 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
   }
 
   public List<File> getSourceDirs() {
+    List<File> unfiltered;
     if (pom != null) {
       // Maven can modify source directories during Sonar execution - see MavenPhaseExecutor.
-      return resolvePaths(pom.getCompileSourceRoots());
+      unfiltered = resolvePaths(pom.getCompileSourceRoots());
     } else {
-      return resolvePaths(def.getSourceDirs());
+      unfiltered = resolvePaths(def.getSourceDirs());
     }
+    return ImmutableList.copyOf(Iterables.filter(unfiltered, DIRECTORY_EXISTS));
   }
 
   /**
@@ -111,12 +115,14 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
    * Maven can modify test directories during Sonar execution - see MavenPhaseExecutor.
    */
   public List<File> getTestDirs() {
+    List<File> unfiltered;
     if (pom != null) {
       // Maven can modify test directories during Sonar execution - see MavenPhaseExecutor.
-      return resolvePaths(pom.getTestCompileSourceRoots());
+      unfiltered = resolvePaths(pom.getTestCompileSourceRoots());
     } else {
-      return resolvePaths(def.getTestDirs());
+      unfiltered = resolvePaths(def.getTestDirs());
     }
+    return ImmutableList.copyOf(Iterables.filter(unfiltered, DIRECTORY_EXISTS));
   }
 
   /**

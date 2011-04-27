@@ -50,6 +50,18 @@ public class DefaultProjectFileSystemTest {
     project = MavenTestUtils.loadProjectFromPom(DefaultProjectFileSystemTest.class, "sample/pom.xml");
   }
 
+  /**
+   * See http://jira.codehaus.org/browse/SONAR-2266
+   */
+  @Test
+  public void shouldReturnOnlyExistingSourceAndTestDirectories() {
+    // in this example : "src/main/java" is a file, "src/test/java" doesn't exists
+    project = MavenTestUtils.loadProjectFromPom(DefaultProjectFileSystemTest.class, "nonexistent-dirs/pom.xml");
+    DefaultProjectFileSystem fs = newDefaultProjectFileSystem(project);
+    assertThat(fs.getSourceDirs().size(), is(0));
+    assertThat(fs.getTestDirs().size(), is(0));
+  }
+
   @Test
   public void getJavaSourceFiles() {
     final DefaultProjectFileSystem fs = newDefaultProjectFileSystem(project);

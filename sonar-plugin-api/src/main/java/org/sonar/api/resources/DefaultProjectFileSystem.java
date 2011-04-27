@@ -19,6 +19,9 @@
  */
 package org.sonar.api.resources;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -47,6 +50,13 @@ import java.util.List;
  */
 @Deprecated
 public class DefaultProjectFileSystem implements ProjectFileSystem {
+
+  protected static final Predicate<File> DIRECTORY_EXISTS = new Predicate<File>() {
+    public boolean apply(File input) {
+      System.out.println(input.toString() + " " + input.exists());
+      return input.exists() && input.isDirectory();
+    }
+  };
 
   private Project project;
   private Languages languages;
@@ -92,7 +102,7 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
    * Maven can modify source directories during Sonar execution - see MavenPhaseExecutor.
    */
   public List<File> getSourceDirs() {
-    return resolvePaths(project.getPom().getCompileSourceRoots());
+    return ImmutableList.copyOf(Iterables.filter(resolvePaths(project.getPom().getCompileSourceRoots()), DIRECTORY_EXISTS));
   }
 
   /**
@@ -111,7 +121,7 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
    * Maven can modify test directories during Sonar execution - see MavenPhaseExecutor.
    */
   public List<File> getTestDirs() {
-    return resolvePaths(project.getPom().getTestCompileSourceRoots());
+    return ImmutableList.copyOf(Iterables.filter(resolvePaths(project.getPom().getTestCompileSourceRoots()), DIRECTORY_EXISTS));
   }
 
   /**

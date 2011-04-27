@@ -53,7 +53,7 @@ public interface ProjectFileSystem extends BatchComponent {
   File getBuildOutputDir();
 
   /**
-   * The list of directories for sources
+   * The list of existing directories with sources
    */
   List<File> getSourceDirs();
 
@@ -68,7 +68,7 @@ public interface ProjectFileSystem extends BatchComponent {
   ProjectFileSystem addSourceDir(File dir);
 
   /**
-   * The list of directories for tests
+   * The list of existing directories with tests
    */
   List<File> getTestDirs();
 
