@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public class MavenProjectConverter {
+public final class MavenProjectConverter {
 
   private MavenProjectConverter() {
   }

@@ -24,7 +24,6 @@ import org.apache.maven.project.MavenProject;
 import org.sonar.api.resources.DefaultProjectFileSystem;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrapper.ProjectDefinition;
 
@@ -33,7 +32,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Implementation of {@link ProjectFileSystem} based on {@link ProjectDefinition} and {@link MavenProject}.
+ * Implementation of {@link org.sonar.api.resources.ProjectFileSystem} based on {@link ProjectDefinition} and {@link MavenProject}.
  */
 public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
 
