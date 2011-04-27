@@ -89,7 +89,7 @@
     <level value="ERROR"/>
   </logger>
 
-  <!-- set INFO to activate Hibernate SQL logs. NOT RECOMMENDED  -->
+  <!-- set DEBUG to activate Hibernate SQL logs. NOT RECOMMENDED  -->
   <logger name="org.hibernate.SQL">
     <level value="ERROR"/>
   </logger>
