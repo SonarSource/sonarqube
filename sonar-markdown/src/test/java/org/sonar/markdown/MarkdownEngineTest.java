@@ -28,17 +28,19 @@ public class MarkdownEngineTest {
 
   @Test
   public void shouldDecorateUrl() {
-    assertThat(MarkdownEngine.convertToHtml("http://google.com"), is("<a href=\"http://google.com\">http://google.com</a>"));
+    assertThat(MarkdownEngine.convertToHtml("http://google.com"),
+        is("<a href=\"http://google.com\" target=\"_blank\">http://google.com</a>"));
   }
 
   @Test
   public void shouldDecorateEndOfLine() {
     assertThat(MarkdownEngine.convertToHtml("1\r2\r\n3\n"), is("1<br/>2<br/>3<br/>"));
   }
-  
+
   @Test
   public void shouldDecorateList() {
-    assertThat(MarkdownEngine.convertToHtml("  * one\r* two\r\n* three\n * \n *five"), is("<ul><li>one</li>\r<li>two</li>\r\n<li>three</li>\n<li> </li>\n</ul> *five"));
+    assertThat(MarkdownEngine.convertToHtml("  * one\r* two\r\n* three\n * \n *five"),
+        is("<ul><li>one</li>\r<li>two</li>\r\n<li>three</li>\n<li> </li>\n</ul> *five"));
     assertThat(MarkdownEngine.convertToHtml("  * one\r* two"), is("<ul><li>one</li>\r<li>two</li></ul>"));
   }
 
