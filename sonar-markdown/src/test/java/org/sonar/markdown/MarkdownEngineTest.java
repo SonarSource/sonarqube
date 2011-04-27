@@ -44,8 +44,8 @@ public class MarkdownEngineTest {
 
   @Test
   public void shouldDecorateCode() {
-    assertThat(MarkdownEngine.convertToHtml("This is a ''line of code''"), is("This is a <code>line of code</code>"));
-    assertThat(MarkdownEngine.convertToHtml("This is not a ''line of code"), is("This is not a ''line of code"));
+    assertThat(MarkdownEngine.convertToHtml("This is a ``line of code``"), is("This is a <code>line of code</code>"));
+    assertThat(MarkdownEngine.convertToHtml("This is not a ``line of code"), is("This is not a ``line of code"));
   }
 
   @Test
