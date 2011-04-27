@@ -88,10 +88,38 @@
 	    <%= h(review.rule_failure.message) -%>
 	   </div>
 	 <% end %>
-	 <% review.comments.each do |comment| %>
+	 <% 
+	    review.comments.each_with_index do |comment, comment_index| 
+	      is_last_comment=(comment_index==review.comments.size-1)
+	 %>
 	   <div class="discussionComment">
-		 <h4><%= image_tag("reviews/comment.png") -%> &nbsp;<b><%= comment.user.name -%></b> (<%= distance_of_time_in_words_to_now(comment.created_at) -%>)</h4>
-	    <%= markdown_to_html(comment.text) -%>
+		 <h4>
+		   <%= image_tag("reviews/comment.png") -%> &nbsp;<b><%= comment.user.name -%></b> (<%= distance_of_time_in_words_to_now(comment.created_at) -%>)
+           <% if is_last_comment && current_user && current_user.id == comment.user_id %>
+           <span class="actions" id="editActions">
+             &nbsp;&nbsp;
+             <%= image_tag("sep12.png") -%>
+             &nbsp;&nbsp;
+             <%= link_to_remote "Edit", 
+                 :url => { :controller => "reviews", :action => "comment_form", :comment_id => comment.id, :id => review.id },
+      		     :update => "lastComment",
+      		     :complete => "$('rActions').hide();$('commentAction').hide();$('editActions').hide();$('commentText').focus();" -%>
+      		 <% unless comment_index == 0 %>
+               <%= link_to_remote "Delete",
+      		     :url => { :controller => "reviews", :action => "delete_comment", :comment_id => comment.id, :id => review.id },
+      	         :update => "review",
+                 :confirm => "Do you want to delete this comment ?" -%>
+             <% end %>
+           </span>
+           <% end %>
+         </h4>
+         <% if is_last_comment %>
+           <div id="lastComment">
+             <%= markdown_to_html(comment.text) -%>
+           </div>
+         <% else %>
+           <%= markdown_to_html(comment.text) -%>
+         <% end %>
 	   </div>
 	 <% end %>
   </div>
@@ -102,7 +130,7 @@
     <%= link_to_remote "Add comment",
       		:url => { :controller => "reviews", :action => "comment_form", :id => review.id },
       		:update => "reviewForm",
-      		:complete => "$('rActions').hide();$('commentAction').hide();$('reviewForm').show();$('commentText').focus()" -%>
+      		:complete => "$('rActions').hide();$('commentAction').hide();$('reviewForm').show();$('commentText').focus();$('editActions').hide();" -%>
   </div>
   <% end %>
   

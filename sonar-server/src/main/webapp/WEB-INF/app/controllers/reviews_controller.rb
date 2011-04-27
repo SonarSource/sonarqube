@@ -61,6 +61,9 @@ class ReviewsController < ApplicationController
   # GET
   def comment_form
     @review = Review.find (params[:id])
+    if !params[:comment_id].blank? && @review
+      @comment = @review.comments.find(params[:comment_id])
+    end
     render :partial => 'reviews/comment_form'
   end
 
@@ -110,6 +113,21 @@ class ReviewsController < ApplicationController
       @review.comments.create(:review_text => params[:comment], :user_id => current_user.id)
     end
 
+    render :partial => "reviews/show"
+  end
+
+  # POST
+  def delete_comment
+    @review = Review.find (params[:id])
+    unless current_user
+      render :text => "<b>Cannot delete the comment</b> : access denied."
+      return
+    end
+    
+    if @review
+      comment=@review.comments.find(params[:comment_id].to_i)
+      comment.delete if comment
+    end
     render :partial => "reviews/show"
   end
 
