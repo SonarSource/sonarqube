@@ -71,6 +71,7 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
   public String getDialectId() {
     return dialect.getId();
   }
+
   /**
    * Indicates if the connector is operational : database connection OK and schema version OK
    */
@@ -158,19 +159,18 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
     props.put(Environment.DIALECT, getDialectClass());
 
     props.put("hibernate.generate_statistics", getConfiguration().getBoolean(DatabaseProperties.PROP_HIBERNATE_GENERATE_STATISTICS, false));
-    props.put("hibernate.show_sql", Boolean.valueOf(LOG_SQL.isInfoEnabled()).toString());
+    props.put("hibernate.show_sql", Boolean.valueOf(LOG_SQL.isDebugEnabled()).toString());
 
     Configuration subset = getConfiguration().subset("sonar.hibernate");
     for (Iterator keys = subset.getKeys(); keys.hasNext();) {
       String key = (String) keys.next();
-      if (StringUtils.isNotBlank((String)subset.getProperty(key))) {
+      if (StringUtils.isNotBlank((String) subset.getProperty(key))) {
         props.put("hibernate." + key, subset.getProperty(key));
       }
     }
 
     // custom impl setup
     setupEntityManagerFactory(props);
-
 
     return props;
   }

@@ -12,7 +12,7 @@
     <level value="WARN"/>
   </logger>
 
-  <!-- set INFO to activate SQL logs. NOT RECOMMENDED  -->
+  <!-- set DEBUG to activate SQL logs. NOT RECOMMENDED  -->
   <logger name="org.hibernate.SQL">
     <level value="ERROR"/>
   </logger>
