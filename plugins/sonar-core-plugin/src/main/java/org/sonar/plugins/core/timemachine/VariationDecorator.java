@@ -19,16 +19,14 @@
  */
 package org.sonar.plugins.core.timemachine;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.*;
-import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.measures.*;
-import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
-import org.sonar.api.rules.RulePriority;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
@@ -41,15 +39,14 @@ import java.util.Map;
 public class VariationDecorator implements Decorator {
 
   private List<PastSnapshot> projectPastSnapshots;
-  private PastMeasuresLoader pastMeasuresLoader;
   private MetricFinder metricFinder;
+  private PastMeasuresLoader pastMeasuresLoader;
+
 
   public VariationDecorator(PastMeasuresLoader pastMeasuresLoader, MetricFinder metricFinder, TimeMachineConfiguration configuration) {
     this(pastMeasuresLoader, metricFinder, configuration.getProjectPastSnapshots());
-
   }
-
-  VariationDecorator(PastMeasuresLoader pastMeasuresLoader, MetricFinder metricFinder, List<PastSnapshot> projectPastSnapshots) {
+  public VariationDecorator(PastMeasuresLoader pastMeasuresLoader, MetricFinder metricFinder, List<PastSnapshot> projectPastSnapshots) {
     this.pastMeasuresLoader = pastMeasuresLoader;
     this.projectPastSnapshots = projectPastSnapshots;
     this.metricFinder = metricFinder;
@@ -78,30 +75,32 @@ public class VariationDecorator implements Decorator {
   }
 
   private void calculateVariation(Resource resource, DecoratorContext context, PastSnapshot pastSnapshot) {
-    List<MeasureModel> pastMeasures = pastMeasuresLoader.getPastMeasures(resource, pastSnapshot);
+    List<Object[]> pastMeasures = pastMeasuresLoader.getPastMeasures(resource, pastSnapshot);
     compareWithPastMeasures(context, pastSnapshot.getIndex(), pastMeasures);
   }
 
-  void compareWithPastMeasures(DecoratorContext context, int index, List<MeasureModel> pastMeasures) {
-    Map<MeasureKey, MeasureModel> pastMeasuresByKey = Maps.newHashMap();
-    for (MeasureModel pastMeasure : pastMeasures) {
+  void compareWithPastMeasures(DecoratorContext context, int index, List<Object[]> pastMeasures) {
+    Map<MeasureKey, Object[]> pastMeasuresByKey = Maps.newHashMap();
+    for (Object[] pastMeasure : pastMeasures) {
       pastMeasuresByKey.put(new MeasureKey(pastMeasure), pastMeasure);
     }
 
     // for each measure, search equivalent past measure
-    for (Measure measure : context.getMeasures(MeasuresFilters.all())) {
+    for (Measure measure : context.getMeasures(new CustomMeasureFilter())) {
       // compare with past measure
-      Integer metricId = (measure.getMetric().getId()!=null ? measure.getMetric().getId() : metricFinder.findByKey(measure.getMetric().getKey()).getId());
-      MeasureModel pastMeasure = pastMeasuresByKey.get(new MeasureKey(measure, metricId));
+      Integer metricId = (measure.getMetric().getId() != null ? measure.getMetric().getId() : metricFinder.findByKey(measure.getMetric().getKey()).getId());
+      Integer characteristicId = (measure.getCharacteristic() != null ? measure.getCharacteristic().getId() : null);
+
+      Object[] pastMeasure = pastMeasuresByKey.get(new MeasureKey(metricId, characteristicId));
       if (updateVariation(measure, pastMeasure, index)) {
         context.saveMeasure(measure);
       }
     }
   }
 
-  boolean updateVariation(Measure measure, MeasureModel pastMeasure, int index) {
-    if (pastMeasure != null && pastMeasure.getValue() != null && measure.getValue() != null) {
-      double variation = (measure.getValue().doubleValue() - pastMeasure.getValue().doubleValue());
+  boolean updateVariation(Measure measure, Object[] pastMeasure, int index) {
+    if (pastMeasure != null && PastMeasuresLoader.hasValue(pastMeasure) && measure.getValue() != null) {
+      double variation = (measure.getValue().doubleValue() - PastMeasuresLoader.getValue(pastMeasure));
       measure.setVariation(index, variation);
       return true;
     }
@@ -113,28 +112,30 @@ public class VariationDecorator implements Decorator {
     return getClass().getSimpleName();
   }
 
-  static class MeasureKey {
-    Integer metricId;
-    Integer ruleId;
-    RulePriority priority;
-    Characteristic characteristic;
+  static class CustomMeasureFilter implements MeasuresFilter<Collection<Measure>> {
+    public Collection<Measure> filter(Collection<Measure> measures) {
+      List<Measure> result = Lists.newArrayList();
+      for (Measure measure : measures) {
+        if (!(measure instanceof RuleMeasure)) {
+          result.add(measure);
+        }
+      }
+      return result;
+    }
+  }
 
-    MeasureKey(MeasureModel model) {
-      metricId = model.getMetricId();
-      ruleId = model.getRuleId();
-      priority = model.getRulePriority();
-      characteristic = model.getCharacteristic();
+  static final class MeasureKey {
+    Integer metricId;
+    Integer characteristicId;
+
+    MeasureKey(Object[] pastFields) {
+      metricId = PastMeasuresLoader.getMetricId(pastFields);
+      characteristicId = PastMeasuresLoader.getCharacteristicId(pastFields);
     }
 
-    MeasureKey(Measure measure, Integer metricId) {
+    MeasureKey(Integer metricId, Integer characteristicId) {
       this.metricId = metricId;
-      this.characteristic = measure.getCharacteristic();
-      // TODO merge RuleMeasure into Measure
-      if (measure instanceof RuleMeasure) {
-        RuleMeasure rm = (RuleMeasure) measure;
-        this.ruleId = (rm.getRule() == null ? null : rm.getRule().getId());
-        this.priority = rm.getRulePriority();
-      }
+      this.characteristicId = characteristicId;
     }
 
     @Override
@@ -145,18 +146,11 @@ public class VariationDecorator implements Decorator {
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-
       MeasureKey that = (MeasureKey) o;
-      if (characteristic != null ? !characteristic.equals(that.characteristic) : that.characteristic != null) {
+      if (characteristicId != null ? !characteristicId.equals(that.characteristicId) : that.characteristicId != null) {
         return false;
       }
       if (!metricId.equals(that.metricId)) {
-        return false;
-      }
-      if (priority != that.priority) {
-        return false;
-      }
-      if (ruleId != null ? !ruleId.equals(that.ruleId) : that.ruleId != null) {
         return false;
       }
       return true;
@@ -165,9 +159,7 @@ public class VariationDecorator implements Decorator {
     @Override
     public int hashCode() {
       int result = metricId.hashCode();
-      result = 31 * result + (ruleId != null ? ruleId.hashCode() : 0);
-      result = 31 * result + (priority != null ? priority.hashCode() : 0);
-      result = 31 * result + (characteristic != null ? characteristic.hashCode() : 0);
+      result = 31 * result + (characteristicId != null ? characteristicId.hashCode() : 0);
       return result;
     }
   }

@@ -43,8 +43,11 @@ import static org.mockito.Mockito.*;
 
 public class VariationDecoratorTest extends AbstractDbUnitTestCase {
 
-  public static final Metric NCLOC = new Metric("ncloc").setId(12);
-  public static final Metric COVERAGE = new Metric("coverage").setId(16);
+  public static final int NCLOC_ID = 12;
+  public static final Metric NCLOC = new Metric("ncloc").setId(NCLOC_ID);
+
+  public static final int COVERAGE_ID = 16;
+  public static final Metric COVERAGE = new Metric("coverage").setId(COVERAGE_ID);
 
   @Test
   public void shouldNotCalculateVariationsOnFiles() {
@@ -67,12 +70,12 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
 
     // first past analysis
     when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot1)).thenReturn(Arrays.asList(
-        newMeasureModel(NCLOC, 180.0),
-        newMeasureModel(COVERAGE, 75.0)));
+        new Object[]{NCLOC_ID, null, 180.0},
+        new Object[]{COVERAGE_ID, null, 75.0}));
 
     // second past analysis
-    when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot3)).thenReturn(Arrays.asList(
-        newMeasureModel(NCLOC, 240.0)));
+    when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot3)).thenReturn(Arrays.<Object[]>asList(
+        new Object[]{NCLOC_ID, null, 240.0}));
 
     // current analysis
     DecoratorContext context = mock(DecoratorContext.class);
@@ -80,7 +83,8 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
     Measure currentCoverage = newMeasure(COVERAGE, 80.0);
     when(context.getMeasures(Matchers.<MeasuresFilter>anyObject())).thenReturn(Arrays.asList(currentNcloc, currentCoverage));
 
-    VariationDecorator decorator = new VariationDecorator(pastMeasuresLoader, mock(MetricFinder.class), Arrays.asList(pastSnapshot1, pastSnapshot3));
+    VariationDecorator decorator = new VariationDecorator(pastMeasuresLoader, mock(MetricFinder.class),
+        Arrays.asList(pastSnapshot1, pastSnapshot3));
     decorator.decorate(javaPackage, context);
 
     // context updated for each variation : 2 times for ncloc and 1 time for coverage

@@ -23,7 +23,6 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
@@ -57,24 +56,18 @@ public class PastMeasuresLoader implements BatchExtension {
     return metricByIds.values();
   }
 
-  public List<MeasureModel> getPastMeasures(Resource resource, PastSnapshot projectPastSnapshot) {
-    return getPastMeasures(resource, projectPastSnapshot.getProjectSnapshot());
-  }
-
-  public List<MeasureModel> getPastMeasures(Resource resource, Snapshot projectSnapshot) {
-    if (isPersisted(resource) && projectSnapshot!=null) {
-      return getPastMeasures(resource.getId(), projectSnapshot);
+  public List<Object[]> getPastMeasures(Resource resource, PastSnapshot projectPastSnapshot) {
+    if (isPersisted(resource) && projectPastSnapshot != null && projectPastSnapshot.getProjectSnapshot()!=null) {
+      return getPastMeasures(resource.getId(), projectPastSnapshot.getProjectSnapshot());
     }
     return Collections.emptyList();
   }
 
-  public List<MeasureModel> getPastMeasures(int resourceId, Snapshot projectSnapshot) {
-    // TODO improvement : select only some columns
-    // TODO support measure on characteristics
-    String hql = "select m from " + MeasureModel.class.getSimpleName() + " m, " + Snapshot.class.getSimpleName() + " s " +
-        "where m.snapshotId=s.id and m.metricId in (:metricIds) and m.ruleId=null and m.rulePriority=null and m.characteristic=null "
-        + "and (s.rootId=:rootSnapshotId or s.id=:rootSnapshotId) and s.resourceId=:resourceId and s.status=:status";
-    return session.createQuery(hql)
+  public List<Object[]> getPastMeasures(int resourceId, Snapshot projectSnapshot) {
+    String sql = "select m.metric_id, m.characteristic_id, m.value from project_measures m, snapshots s" +
+        " where m.snapshot_id=s.id and m.metric_id in (:metricIds) and m.rule_id is null and m.rule_priority is null " +
+        " and (s.root_snapshot_id=:rootSnapshotId or s.id=:rootSnapshotId) and s.project_id=:resourceId and s.status=:status";
+    return session.createNativeQuery(sql)
         .setParameter("metricIds", metricByIds.keySet())
         .setParameter("rootSnapshotId", ObjectUtils.defaultIfNull(projectSnapshot.getRootId(), projectSnapshot.getId()))
         .setParameter("resourceId", resourceId)
@@ -83,6 +76,22 @@ public class PastMeasuresLoader implements BatchExtension {
   }
 
   private boolean isPersisted(Resource resource) {
-    return resource.getId()!=null;
+    return resource.getId() != null;
+  }
+
+  public static Integer getMetricId(Object[] row) {
+    return (Integer) row[0];
+  }
+
+  public static Integer getCharacteristicId(Object[] row) {
+    return (Integer) row[1];
+  }
+
+  public static boolean hasValue(Object[] row) {
+    return row[2] != null;
+  }
+
+  public static double getValue(Object[] row) {
+    return ((Number) row[2]).doubleValue();
   }
 }

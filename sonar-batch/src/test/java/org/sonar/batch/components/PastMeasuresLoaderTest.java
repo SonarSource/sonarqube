@@ -32,6 +32,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.internal.matchers.IsCollectionContaining.hasItems;
 
 public class PastMeasuresLoaderTest extends AbstractDbUnitTestCase {
@@ -48,13 +49,18 @@ public class PastMeasuresLoaderTest extends AbstractDbUnitTestCase {
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", PROJECT_SNAPSHOT_ID);
 
     PastMeasuresLoader loader = new PastMeasuresLoader(getSession(), metrics);
-    List<MeasureModel> measures = loader.getPastMeasures(FILE_ID, projectSnapshot);
+    List<Object[]> measures = loader.getPastMeasures(FILE_ID, projectSnapshot);
     assertThat(measures.size(), is(2));
 
-    for (MeasureModel measure : measures) {
-      assertThat(measure.getId(), anyOf(is(5L), is(6L)));
-      assertThat(measure.getValue(), anyOf(is(5.0), is(60.0)));
-    }
+    Object[] pastMeasure = measures.get(0);
+    assertThat(PastMeasuresLoader.getMetricId(pastMeasure), is(1));
+    assertThat(PastMeasuresLoader.getCharacteristicId(pastMeasure), nullValue());
+    assertThat(PastMeasuresLoader.getValue(pastMeasure), is(5.0));
+
+    pastMeasure = measures.get(1);
+    assertThat(PastMeasuresLoader.getMetricId(pastMeasure), is(2));
+    assertThat(PastMeasuresLoader.getCharacteristicId(pastMeasure), nullValue());
+    assertThat(PastMeasuresLoader.getValue(pastMeasure), is(60.0));
   }
 
   @Test
@@ -65,13 +71,18 @@ public class PastMeasuresLoaderTest extends AbstractDbUnitTestCase {
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", PROJECT_SNAPSHOT_ID);
 
     PastMeasuresLoader loader = new PastMeasuresLoader(getSession(), metrics);
-    List<MeasureModel> measures = loader.getPastMeasures(PROJECT_ID, projectSnapshot);
+    List<Object[]> measures = loader.getPastMeasures(PROJECT_ID, projectSnapshot);
     assertThat(measures.size(), is(2));
 
-    for (MeasureModel measure : measures) {
-      assertThat(measure.getId(), anyOf(is(1L), is(2L)));
-      assertThat(measure.getValue(), anyOf(is(60.0), is(80.0)));
-    }
+    Object[] pastMeasure = measures.get(0);
+    assertThat(PastMeasuresLoader.getMetricId(pastMeasure), is(1));
+    assertThat(PastMeasuresLoader.getCharacteristicId(pastMeasure), nullValue());
+    assertThat(PastMeasuresLoader.getValue(pastMeasure), is(60.0));
+
+    pastMeasure = measures.get(1);
+    assertThat(PastMeasuresLoader.getMetricId(pastMeasure), is(2));
+    assertThat(PastMeasuresLoader.getCharacteristicId(pastMeasure), nullValue());
+    assertThat(PastMeasuresLoader.getValue(pastMeasure), is(80.0));
   }
 
   @Test
