@@ -50,7 +50,7 @@ class ChartsController < ApplicationController
         options[:to]=Date::strptime(params[:to])
       end
 
-      stream = TrendsChart.png_chart(width, height, resource, metric_ids, params[:locale] || I18n.locale, display_legend, options)
+      stream = TrendsChart.png_chart(width, height, resource, metric_ids, params[:locale] || I18n.locale.to_s, display_legend, options)
       send_data stream, :type => 'image/png', :disposition => 'inline' 
     end
   end

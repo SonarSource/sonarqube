@@ -20,7 +20,7 @@
 class TrendsChart
 
   def self.png_chart(width, height, resource, metrics, locale, display_legend, options={})
-    java_chart = Java::OrgSonarServerChartsJruby::TrendsChart.new(width, height, locale.gsub(/\-/, '_'), display_legend)
+    java_chart = Java::OrgSonarServerChartsJruby::TrendsChart.new(width, height, locale.to_s.gsub(/\-/, '_'), display_legend)
 
     init_series(java_chart, metrics)
     metric_ids=metrics.map{|m| m.id}
