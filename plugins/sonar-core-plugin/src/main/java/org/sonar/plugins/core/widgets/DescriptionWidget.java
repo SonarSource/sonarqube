@@ -22,7 +22,7 @@ package org.sonar.plugins.core.widgets;
 import org.sonar.api.web.*;
 
 @WidgetLayout(WidgetLayoutType.NONE)
-@Description("Displays general project information taken from the pom.xml")
+@Description("Displays general project information")
 public class DescriptionWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
     return "description";

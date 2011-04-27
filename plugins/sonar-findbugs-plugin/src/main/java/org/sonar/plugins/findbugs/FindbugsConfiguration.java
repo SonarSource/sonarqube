@@ -62,7 +62,7 @@ public class FindbugsConfiguration implements BatchExtension {
     File classesDir = project.getFileSystem().getBuildOutputDir();
     if (classesDir == null || !classesDir.exists()) {
       throw new SonarException("Findbugs needs sources to be compiled. "
-          + "Please build project or edit pom.xml to set the <outputDirectory> property before executing sonar.");
+          + "Please build project before executing sonar and check the location of compiled classes.");
     }
 
     edu.umd.cs.findbugs.Project findbugsProject = new edu.umd.cs.findbugs.Project();

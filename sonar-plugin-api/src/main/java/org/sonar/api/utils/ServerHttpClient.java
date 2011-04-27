@@ -76,7 +76,7 @@ public class ServerHttpClient implements BatchComponent {
    */
   public void checkUp() {
     String exceptionLabel = "Sonar server at " + url +
-        " is unreacheable. Either start it or setup the sonar.host.url maven setting if the URL is incorrect";
+        " is unreacheable. Either start it or setup the sonar.host.url setting if the URL is incorrect";
     if (getId() == null) {
       throw new ServerConnectionException(exceptionLabel);
     }
