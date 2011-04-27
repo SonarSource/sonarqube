@@ -83,8 +83,9 @@
     <% if enable_modification %>
       <li class="marginleft10">
         <div class="bulk-edit">Bulk Change:
-        <% rule_ids_string=@rules.map{|r| r.id}.join(',') %>
-        <form action="<%= url_for params.merge({:action => 'bulk_edit', :id => @profile.id, :bulk_rule_ids => rule_ids_string})-%>" method="POST" style="display: inline;vertical-align: middle" id="bulk-form">
+        <form action="<%= ApplicationController.root_context -%>/rules_configuration/bulk_edit" method="POST" style="display: inline;vertical-align: middle" id="bulk-form">
+          <input type="hidden" name="id" value="<%= @profile.id -%>"/>
+          <input type="hidden" name="bulk_rule_ids" value="<%= @rules.map{|r| r.id}.join(',') -%>"/>
           <select name="bulk_action" onChange="submitBulkForm()" style="height: 16px;margin: 0; padding: 0;vertical-align: top">
             <option value="" selected></option>
             <option value="activate">Activate all</option>
