@@ -194,8 +194,12 @@ public class Violation {
    * @since 2.4
    */
   public Violation setCost(Double d) {
-    this.cost = d;
-    return this;
+    if (d >= 0) {
+      this.cost = d;
+      return this;
+    } else {
+      throw new IllegalArgumentException("Cost to fix violation can't be negative or NaN");
+    }
   }
 
   /**
@@ -228,7 +232,7 @@ public class Violation {
   }
 
   /**
-   * Tells wether this violation is ON or OFF.
+   * Tells whether this violation is ON or OFF.
    * 
    * @since 2.8
    * @return true if the violation has been switched off

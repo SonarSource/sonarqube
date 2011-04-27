@@ -23,16 +23,22 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class ViolationTest {
+  private Violation violation;
+
+  @Before
+  public void setUp() {
+    violation = Violation.create((Rule) null, null);
+  }
+
   /**
    * See http://jira.codehaus.org/browse/SONAR-2386
    */
   @Test
   public void testLineIdContract() {
-    Violation violation = Violation.create((Rule) null, null);
-
     violation.setLineId(null);
     assertThat(violation.hasLineId(), is(false));
     assertThat(violation.getLineId(), nullValue());
@@ -44,5 +50,15 @@ public class ViolationTest {
     violation.setLineId(1);
     assertThat(violation.hasLineId(), is(true));
     assertThat(violation.getLineId(), is(1));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testCostContract_NaN() {
+    violation.setCost(Double.NaN);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testCostContract_Negative() {
+    violation.setCost(-1.0);
   }
 }
