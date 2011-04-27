@@ -44,11 +44,11 @@ public class CommandExecutorTest {
     String executable = getScript("forever");
     long start = System.currentTimeMillis();
     try {
-      CommandExecutor.create().execute(Command.create(executable), 100L);
+      CommandExecutor.create().execute(Command.create(executable), 300L);
       fail();
     } catch (CommandException e) {
       long duration = System.currentTimeMillis()-start;
-      assertThat(e.getMessage(), duration, greaterThanOrEqualTo(100L));
+      assertThat(e.getMessage(), duration, greaterThanOrEqualTo(300L));
       assertThat(e.getMessage(), duration, lessThan(1000L));
     }
   }
