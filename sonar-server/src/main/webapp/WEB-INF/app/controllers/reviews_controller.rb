@@ -262,6 +262,7 @@ class ReviewsController < ApplicationController
     @severities = filter_any(params[:severities]) || ['']
     @statuses = filter_any(params[:statuses]) || [Review::STATUS_OPEN]
     @projects = filter_any(params[:projects]) || ['']
+    @id = params[:id] || ""
   end
 
   def options_for_users
@@ -303,10 +304,23 @@ class ReviewsController < ApplicationController
       conditions << "assignee_id in (:assignees)"
       values[:assignees]=@assignees.map{|s| s.to_i}
     end
+    unless @id  == ""
+      if is_number? @id
+        conditions << "id = :id"
+        values[:id] = @id
+      else
+        conditions << "id = :id"
+        values[:id] = -1
+      end
+    end
 
     @reviews = Review.find( :all, :order => "created_at DESC", :conditions => [ conditions.join(" AND "), values] ).uniq
   end
 
+  def is_number?(s)
+    true if Float(s) rescue false
+  end
+  
   def has_rights_to_modify?(violation)
     current_user && has_role?(:user, violation.snapshot)
   end

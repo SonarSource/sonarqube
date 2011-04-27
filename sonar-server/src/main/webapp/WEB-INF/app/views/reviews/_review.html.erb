@@ -51,7 +51,7 @@
 		  Created by:
 	   </td>
 	   <td  class="val">
-  		  <%= h(review.user.name) -%> on <%= l(review.created_at, :format => :long) -%>
+  		  <%= h(review.user.name) -%>, on <%= l(review.created_at, :format => :long) -%>
 	   </td>
 	 </tr>
 	<% if review.rule %>
@@ -77,7 +77,7 @@
   </table>
 
   <% if review.rule_failure && review.resource_line && review.rule_failure.snapshot %>
-    <div class="marginbottom10">
+    <div class="marginbottom10 marginleft10">
       <%= snapshot_source_to_html(review.rule_failure.snapshot, {:line_range => (review.resource_line-5)..(review.resource_line+5), :highlighted_lines => [review.resource_line]}) -%>
     </div>
   <% end %>

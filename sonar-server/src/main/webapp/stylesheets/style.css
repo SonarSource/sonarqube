@@ -814,7 +814,12 @@ span.rulename a:hover {
 
 
 
-
+div#review .actions{
+  visibility: hidden;
+}
+div#review:hover .actions{
+  visibility: visible;
+}
 div.reportTitle {
 	background-color: #E4ECF3;
 	color: #4B9FD5;

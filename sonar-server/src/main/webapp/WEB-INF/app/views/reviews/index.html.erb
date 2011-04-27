@@ -67,9 +67,18 @@
           <span class="note">Assigned to</span><br/>
           <%= select_tag "assignees", options_for_select(@user_names, @assignees), :multiple => true, :size => 6 %>
         </td>
-        <td>
+        <td width="1%" nowrap>
+          <span class="note">Id</span><br/>
+          <%= text_field_tag "id", @id, :size => 10 -%>
           <br/>
+          <br/>
+          <br/>
+          <br/>
+          <div style="width:100%; text-align: right">
           <%= submit_tag "Search", :id => 'submit_search' %>
+          </div>
+        </td>
+        <td>
         </td>
       </tr>
       </tbody>
