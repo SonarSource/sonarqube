@@ -44,7 +44,7 @@ class RuleFailure < ActiveRecord::Base
   def to_hash_json
     json = {}
     json['message'] = message
-    json['line'] = line if line
+    json['line'] = line if line && line>=1
     json['priority'] = Sonar::RulePriority.to_s(failure_level).upcase
     json['falsePositive']=true if false_positive?
     if created_at
@@ -68,7 +68,7 @@ class RuleFailure < ActiveRecord::Base
   def to_xml(xml=Builder::XmlMarkup.new(:indent => 0))
     xml.violation do
       xml.message(message)
-      xml.line(line) if line
+      xml.line(line) if line && line>=1
       xml.priority(Sonar::RulePriority.to_s(failure_level))
       xml.falsePositive(true) if false_positive?
       if created_at
