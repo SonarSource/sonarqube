@@ -93,11 +93,11 @@ public class CoberturaMavenInitializerTest {
   @Test
   public void shouldSetDefaultReportPath() {
     ProjectFileSystem pfs = mock(ProjectFileSystem.class);
-    when(pfs.getReportOutputDir()).thenReturn(new File("target/sites"));
+    when(pfs.getReportOutputDir()).thenReturn(new File("reportOutputDir"));
     Configuration configuration = mock(Configuration.class);
     when(project.getConfiguration()).thenReturn(configuration);
     when(project.getFileSystem()).thenReturn(pfs);
     initializer.execute(project);
-    verify(configuration).setProperty(eq(CoreProperties.COBERTURA_REPORT_PATH_PROPERTY), eq("target/sites/cobertura/coverage.xml"));
+    verify(configuration).setProperty(eq(CoreProperties.COBERTURA_REPORT_PATH_PROPERTY), eq("reportOutputDir/cobertura/coverage.xml"));
   }
 }
