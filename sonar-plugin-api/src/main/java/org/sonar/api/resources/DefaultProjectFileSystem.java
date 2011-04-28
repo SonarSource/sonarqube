@@ -53,7 +53,6 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
 
   protected static final Predicate<File> DIRECTORY_EXISTS = new Predicate<File>() {
     public boolean apply(File input) {
-      System.out.println(input.toString() + " " + input.exists());
       return input.exists() && input.isDirectory();
     }
   };
