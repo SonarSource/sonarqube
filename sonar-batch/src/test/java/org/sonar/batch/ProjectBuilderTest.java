@@ -19,21 +19,21 @@
  */
 package org.sonar.batch;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.CoreProperties;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Project;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.Project;
+import org.sonar.jpa.test.AbstractDbUnitTestCase;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class ProjectBuilderTest extends AbstractDbUnitTestCase {
 
@@ -64,6 +64,23 @@ public class ProjectBuilderTest extends AbstractDbUnitTestCase {
     assertThat(project.getExclusionPatterns()[0], is("**/*"));
     assertThat(project.getExclusionPatterns()[1], is("foo"));
     assertThat(project.getExclusionPatterns()[2], is("*/bar"));
+  }
+
+  /**
+   * See http://jira.codehaus.org/browse/SONAR-2261
+   * Note that several exclusions separated by comma would be correctly trimmed by commons-configuration library.
+   * So issue is only with a single pattern, which contains spaces.
+   */
+  @Test
+  public void trimExclusionPatterns() {
+    PropertiesConfiguration configuration = new PropertiesConfiguration();
+    configuration.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, " foo ");
+
+    Project project = new Project("key");
+    builder.configure(project, configuration);
+
+    assertThat(project.getExclusionPatterns().length, is(1));
+    assertThat(project.getExclusionPatterns()[0], is("foo"));
   }
 
   @Test

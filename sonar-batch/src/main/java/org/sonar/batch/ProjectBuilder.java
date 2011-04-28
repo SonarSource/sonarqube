@@ -102,6 +102,9 @@ public class ProjectBuilder {
     if (exclusionPatterns == null) {
       exclusionPatterns = new String[0];
     }
+    for (int i = 0; i < exclusionPatterns.length; i++) {
+      exclusionPatterns[i] = StringUtils.trim(exclusionPatterns[i]);
+    }
     return exclusionPatterns;
   }
 

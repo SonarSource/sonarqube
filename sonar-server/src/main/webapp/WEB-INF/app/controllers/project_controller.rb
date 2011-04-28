@@ -165,7 +165,8 @@ class ProjectController < ApplicationController
     if patterns.empty?
       Property.clear('sonar.exclusions', @project.id)
     else
-      Property.set('sonar.exclusions', patterns.join(','), @project.id)
+      # Trim spaces in patterns before merging into one String - see http://jira.codehaus.org/browse/SONAR-2261
+      Property.set('sonar.exclusions', patterns.collect{|x| x.strip}.join(','), @project.id)
     end
     flash[:notice]='Filters added'
     redirect_to :action => 'settings', :id => @project.id
