@@ -62,7 +62,7 @@ class Review < ActiveRecord::Base
       values={:not_type => Review::TYPE_FALSE_POSITIVE}
     end
     
-    ids=options['ids']
+    ids=options['ids'].split(',') if options['ids']
     if options[:id]
       conditions << "id=:id"
       values[:id]=options[:id].to_i
@@ -71,46 +71,66 @@ class Review < ActiveRecord::Base
       values[:ids]=ids.map{|id| id.to_i}
     end
 
-    statuses=options['statuses']
+    projects=options['projects'].split(',') if options['projects']
+    if projects && projects.size>0 && !projects[0].blank?
+      conditions << "project_id in (:projects)"
+      projectIds = []
+      projects.each do |project|
+        foundProject = Project.by_key(project)
+        projectIds << foundProject.id if foundProject
+      end
+      values[:projects]=projectIds
+    end
+
+    resources=options['resources'].split(',') if options['resources']
+    if resources && resources.size>0 && !resources[0].blank?
+      conditions << "resource_id in (:resources)"
+      resourceIds = []
+      resources.each do |resource|
+        foundResource = Project.by_key(resource)
+        resourceIds << foundResource.id if foundResource
+      end
+      values[:resources]=resourceIds
+    end
+
+    statuses=options['statuses'].split(',') if options['statuses']
     if statuses && statuses.size>0 && !statuses[0].blank?
       conditions << "status in (:statuses)"
       values[:statuses]=statuses
     end
 
-    projects=options['projects']
-    if projects && projects.size>0 && !projects[0].blank?
-      conditions << "project_id in (:projects)"
-      values[:projects]=projects
-    end
-
-    resources=options['resources']
-    if resources && resources.size>0 && !resources[0].blank?
-      conditions << "resource_id in (:resources)"
-      values[:resources]=resources
-    end
-
-    severities=options['severities']
+    severities=options['severities'].split(',') if options['severities']
     if severities && severities.size>0 && !severities[0].blank?
       conditions << "severity in (:severities)"
       values[:severities]=severities
     end
 
-    authors=options['authors']
+    authors=options['authors'].split(',') if options['authors']
     if authors && authors.size>0 && !authors[0].blank?
       conditions << "user_id in (:authors)"
-      values[:authors]=User.logins_to_ids(authors)
+      unless is_number?(authors[0])
+        authors=User.logins_to_ids(authors)
+      end
+      values[:authors]=authors
     end
 
-    assignees=options['assignees']
+    assignees=options['assignees'].split(',') if options['assignees']
     if assignees && assignees.size>0 && !assignees[0].blank?
       conditions << "assignee_id in (:assignees)"
-      values[:assignees]=User.logins_to_ids(assignees)
+      unless is_number?(assignees[0])
+        assignees=User.logins_to_ids(assignees)
+      end
+      values[:assignees]=assignees
     end
 
     Review.find(:all, :include => [ 'review_comments' ], :order => "created_at DESC", :conditions => [conditions.join(" AND "), values], :limit => 200)
   end
   
   private
+  
+  def self.is_number?(s)
+    true if Float(s) rescue false
+  end
   
   def assign_project
     if self.project.nil? && self.resource
