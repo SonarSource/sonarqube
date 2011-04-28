@@ -19,17 +19,18 @@
  */
 package org.sonar.plugins.cobertura;
 
-import java.io.File;
-
 import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.CoverageExtension;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.utils.Logs;
 import org.sonar.plugins.cobertura.api.AbstractCoberturaParser;
-import org.sonar.plugins.cobertura.api.CoberturaUtils;
+
+import java.io.File;
 
 public class CoberturaSensor implements Sensor, CoverageExtension {
 
@@ -38,10 +39,17 @@ public class CoberturaSensor implements Sensor, CoverageExtension {
   }
 
   public void analyse(Project project, SensorContext context) {
-    File report = CoberturaUtils.getReport(project);
-    if (report != null) {
-      parseReport(report, context);
+    String path = (String) project.getProperty(CoreProperties.COBERTURA_REPORT_PATH_PROPERTY);
+    if (path == null) {
+      // wasn't configured - skip
+      return;
     }
+    File report = project.getFileSystem().resolvePath(path);
+    if (!report.exists() || !report.isFile()) {
+      Logs.INFO.warn("Cobertura report not found at {}", report);
+      return;
+    }
+    parseReport(report, context);
   }
 
   protected void parseReport(File xmlFile, final SensorContext context) {

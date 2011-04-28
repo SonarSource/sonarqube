@@ -36,7 +36,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.test.MavenTestUtils;
+
+import java.io.File;
 
 public class CoberturaMavenInitializerTest {
 
@@ -85,5 +88,16 @@ public class CoberturaMavenInitializerTest {
     when(project.getPom()).thenReturn(pom);
     initializer.execute(project);
     verify(configuration).setProperty(eq(CoreProperties.COBERTURA_REPORT_PATH_PROPERTY), eq("overridden/dir/coverage.xml"));
+  }
+
+  @Test
+  public void shouldSetDefaultReportPath() {
+    ProjectFileSystem pfs = mock(ProjectFileSystem.class);
+    when(pfs.getReportOutputDir()).thenReturn(new File("target/sites"));
+    Configuration configuration = mock(Configuration.class);
+    when(project.getConfiguration()).thenReturn(configuration);
+    when(project.getFileSystem()).thenReturn(pfs);
+    initializer.execute(project);
+    verify(configuration).setProperty(eq(CoreProperties.COBERTURA_REPORT_PATH_PROPERTY), eq("target/sites/cobertura/coverage.xml"));
   }
 }

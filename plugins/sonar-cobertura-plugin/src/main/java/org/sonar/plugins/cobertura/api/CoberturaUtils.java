@@ -35,6 +35,10 @@ public final class CoberturaUtils {
   public static final String COBERTURA_GROUP_ID = MavenUtils.GROUP_ID_CODEHAUS_MOJO;
   public static final String COBERTURA_ARTIFACT_ID = "cobertura-maven-plugin";
 
+  /**
+   * @deprecated in 2.8, because assumes that Sonar executed from Maven. Not used any more in sonar-cobertura-plugin.
+   *             See http://jira.codehaus.org/browse/SONAR-2321
+   */
   public static File getReport(Project project) {
     File report = getReportFromProperty(project);
     if (report == null) {
