@@ -154,18 +154,18 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
 
   @Override
   public File getSonarWorkingDirectory() {
+    File dir;
     if (pom != null) {
-      try {
-        File dir = new File(getBuildDir(), "sonar");
-        FileUtils.forceMkdir(dir);
-        return dir;
-
-      } catch (IOException e) {
-        throw new SonarException("Unable to retrieve Sonar working directory.", e);
-      }
+      dir = new File(getBuildDir(), "sonar");
     } else {
-      return def.getWorkDir();
+      dir = def.getWorkDir();
     }
+    try {
+      FileUtils.forceMkdir(dir);
+    } catch (IOException e) {
+      throw new SonarException("Unable to retrieve Sonar working directory.", e);
+    }
+    return dir;
   }
 
 }
