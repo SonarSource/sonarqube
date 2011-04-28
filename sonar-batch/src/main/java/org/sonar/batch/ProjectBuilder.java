@@ -47,7 +47,7 @@ public class ProjectBuilder {
   public Project create(ProjectDefinition project) {
     Configuration configuration = getStartupConfiguration(project);
     return new Project(loadProjectKey(project), loadProjectBranch(configuration), loadProjectName(project))
-        .setDescription(project.getProperties().getProperty(CoreProperties.PROJECT_DESCRIPTION_PROPERTY))
+        .setDescription(project.getProperties().getProperty(CoreProperties.PROJECT_DESCRIPTION_PROPERTY, ""))
         .setPackaging("jar");
   }
 
