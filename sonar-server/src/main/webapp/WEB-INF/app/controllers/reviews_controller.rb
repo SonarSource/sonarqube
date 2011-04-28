@@ -292,6 +292,10 @@ class ReviewsController < ApplicationController
       conditions << "status in (:statuses)"
       values[:statuses]=@statuses
     end
+    unless @projects == [""]
+      conditions << "project_id in (:projects)"
+      values[:projects]=@projects
+    end
     unless @severities == [""]
       conditions << "severity in (:severities)"
       values[:severities]=@severities

@@ -50,9 +50,18 @@ class Review < ActiveRecord::Base
   end
 
   def self.search(options={})
-    conditions=['review_type<>:not_type']
-    values={:not_type => Review::TYPE_FALSE_POSITIVE}
-
+    conditions=[]
+    values={}
+      
+    review_type = options['review_type']
+    if review_type
+      conditions << "review_type=:type"
+      values[:type] = review_type.upcase
+    else
+      conditions=['review_type<>:not_type']
+      values={:not_type => Review::TYPE_FALSE_POSITIVE}
+    end
+    
     ids=options['ids']
     if options[:id]
       conditions << "id=:id"
@@ -66,6 +75,18 @@ class Review < ActiveRecord::Base
     if statuses && statuses.size>0 && !statuses[0].blank?
       conditions << "status in (:statuses)"
       values[:statuses]=statuses
+    end
+
+    projects=options['projects']
+    if projects && projects.size>0 && !projects[0].blank?
+      conditions << "project_id in (:projects)"
+      values[:projects]=projects
+    end
+
+    resources=options['resources']
+    if resources && resources.size>0 && !resources[0].blank?
+      conditions << "resource_id in (:resources)"
+      values[:resources]=resources
     end
 
     severities=options['severities']
@@ -86,7 +107,7 @@ class Review < ActiveRecord::Base
       values[:assignees]=User.logins_to_ids(assignees)
     end
 
-    Review.find(:all, :order => "created_at DESC", :conditions => [conditions.join(" AND "), values], :limit => 200)
+    Review.find(:all, :include => [ 'review_comments' ], :order => "created_at DESC", :conditions => [conditions.join(" AND "), values], :limit => 200)
   end
   
   private

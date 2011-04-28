@@ -46,17 +46,25 @@ class Api::ReviewsController < Api::ApiController
       reviews.each do |review|
         xml.review do
           xml.id(review.id.to_i)
+          xml.createdAt(format_datetime(review.created_at))
           xml.updatedAt(format_datetime(review.updated_at))
           xml.user(review.user.login)
-          xml.assignee(review.assignee.login)
+          xml.assignee(review.assignee.login) if review.assignee
           xml.title(review.title)
           xml.type(review.review_type)
           xml.status(review.status)
           xml.severity(review.severity)
           xml.resource(review.resource.kee)  if review.resource
-          xml.line(review.resource_line) if review.resource_line
-          
-          # Continue here with resource + comments
+          xml.line(review.resource_line) if review.resource_line > 0
+          xml.comments do
+            review.review_comments.each do |comment|
+              xml.comment do
+                xml.author(comment.user.login)
+                xml.updatedAt(format_datetime(comment.updated_at))
+                xml.text(convert_markdown ? markdown_to_html(comment.review_text): comment.review_text)
+              end
+            end
+          end
         end
       end
     end
@@ -69,24 +77,25 @@ class Api::ReviewsController < Api::ApiController
   def review_to_json(review, html=false)
     json = {}
     json['id'] = review.id.to_i
-    json['updatedAt'] = review.updated_at
+    json['createdAt'] = format_datetime(review.created_at)
+    json['updatedAt'] = format_datetime(review.updated_at)
     json['author'] = review.user.login
     json['assignee'] = review.assignee.login if review.assignee
     json['title'] = review.title if review.title
     json['type'] = review.review_type
     json['status'] = review.status
     json['severity'] = review.severity
+    json['resource'] = review.resource.kee if review.resource
+    json['line'] = review.resource_line if review.resource_line > 0
     comments = []
     review.review_comments.each do |comment|
       comments << {
         'author' => comment.user.login,
         'updatedAt' => format_datetime(comment.updated_at),
-        'comment' => (html ? markdown_to_html(comment.review_text): comment.review_text)
+        'text' => (html ? markdown_to_html(comment.review_text): comment.review_text)
       }
     end
     json['comments'] = comments
-    json['line'] = review.resource_line if review.resource_line
-    json['resource'] = review.resource.kee if review.resource
     json
   end
 

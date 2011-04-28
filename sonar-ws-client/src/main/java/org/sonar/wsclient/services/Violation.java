@@ -192,10 +192,16 @@ public class Violation extends Model {
     return switchedOff;
   }
 
+  /**
+   * @since 2.8
+   */
   public Long getReviewId() {
     return reviewId;
   }
 
+  /**
+   * @since 2.8
+   */
   public Violation setReviewId(Long l) {
     this.reviewId = l;
     return this;
