@@ -52,6 +52,13 @@ public abstract class DatabaseTestCase {
 
   @BeforeClass
   public static void startDatabase() throws Exception {
+    System.setProperty("derby.stream.error.file", "target/derby.log");
+
+    /*
+    Note: we could use a datasource instead of a direct JDBC connection.
+    See org.apache.derby.jdbc.ClientDataSource (http://db.apache.org/derby/papers/DerbyClientSpec.html#Connection+URL+Format)
+    and org.dbunit.DataSourceDatabaseTester
+     */
     EmbeddedDriver driver = new EmbeddedDriver();
     DriverManager.registerDriver(driver);
     databaseTester = new JdbcDatabaseTester(driver.getClass().getName(), JDBC_URL + ";create=true");
