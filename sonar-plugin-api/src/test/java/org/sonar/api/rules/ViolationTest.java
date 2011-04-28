@@ -52,6 +52,15 @@ public class ViolationTest {
     assertThat(violation.getLineId(), is(1));
   }
 
+  @Test
+  public void testCostContract() {
+    violation.setCost(null);
+    assertThat(violation.getCost(), nullValue());
+
+    violation.setCost(1.0);
+    assertThat(violation.getCost(), is(1.0));
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void testCostContract_NaN() {
     violation.setCost(Double.NaN);

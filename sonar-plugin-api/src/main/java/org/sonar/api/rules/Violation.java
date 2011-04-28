@@ -194,7 +194,7 @@ public class Violation {
    * @since 2.4
    */
   public Violation setCost(Double d) {
-    if (d >= 0) {
+    if (d == null || d >= 0) {
       this.cost = d;
       return this;
     } else {
