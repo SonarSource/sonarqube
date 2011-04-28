@@ -673,13 +673,13 @@ ul.operations li img {
   margin:0;
   border: 1px solid #DDD;
 }
-.sources2 div.violation .actions{
+.sources2 div.violation .actions, #global_violations div.violation .actions {
   visibility: hidden;
 }
-.sources2 div.violation:hover .actions{
+.sources2 div.violation:hover .actions, #global_violations div.violation:hover .actions {
   visibility: visible;
 }
-.sources2 div.violation .actions form {
+.sources2 div.violation .actions form, #global_violations div.violation .actions form {
   display: inline;
 }
 div.vtitle{
@@ -770,11 +770,12 @@ span.rulename a:hover {
 }
 #global_violations {
   width: 100%;
-  border: 1px solid #DDD;
   margin-bottom: 10px;
 }
+#global_violations > tbody > tr > td {
+  padding-bottom: 10px;
+}
 #global_violations td {
-  background-color: #ECECEC;
   padding: 3px 0.5em;
 }
 #global_violations td img, #source_title img {
