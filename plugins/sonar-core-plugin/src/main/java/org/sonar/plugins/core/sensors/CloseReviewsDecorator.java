@@ -19,11 +19,10 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import javax.persistence.Query;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorBarriers;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.database.DatabaseSession;
@@ -31,12 +30,13 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.ResourcePersister;
-import org.sonar.plugins.core.timemachine.ViolationPersisterDecorator;
+
+import javax.persistence.Query;
 
 /**
  * Decorator that currently only closes a review when its corresponding violation has been fixed.
  */
-@DependsUpon(ViolationPersisterDecorator.BARRIER)
+@DependsUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
 public class CloseReviewsDecorator implements Decorator {
 
   private static final Logger LOG = LoggerFactory.getLogger(CloseReviewsDecorator.class);

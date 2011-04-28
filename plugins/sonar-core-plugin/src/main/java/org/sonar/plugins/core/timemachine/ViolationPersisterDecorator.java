@@ -19,19 +19,12 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorBarriers;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.*;
 import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.database.model.SnapshotSource;
 import org.sonar.api.resources.Project;
@@ -40,16 +33,11 @@ import org.sonar.api.rules.Violation;
 import org.sonar.batch.components.PastViolationsLoader;
 import org.sonar.batch.index.ViolationPersister;
 
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
+import java.util.*;
 
-@DependsUpon(DecoratorBarriers.END_OF_VIOLATIONS_GENERATION)
-@DependedUpon(ViolationPersisterDecorator.BARRIER)
-/* temporary workaround - see NewViolationsDecorator */
+@DependsUpon({DecoratorBarriers.END_OF_VIOLATIONS_GENERATION, DecoratorBarriers.START_VIOLATION_TRACKING})
+@DependedUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
 public class ViolationPersisterDecorator implements Decorator {
-
-  public static final String BARRIER = "ViolationPersisterDecorator";
 
   /**
    * Those chars would be ignored during generation of checksums.

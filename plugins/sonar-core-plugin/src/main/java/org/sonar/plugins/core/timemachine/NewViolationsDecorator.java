@@ -21,10 +21,7 @@ package org.sonar.plugins.core.timemachine;
 
 import com.google.common.collect.*;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.*;
 import org.sonar.api.measures.*;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -38,8 +35,7 @@ import org.sonar.batch.components.TimeMachineConfiguration;
 
 import java.util.*;
 
-/* temporary workaround - the attributes classes() should be used but it is buggy */
-@DependsUpon(ViolationPersisterDecorator.BARRIER)
+@DependsUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
 public class NewViolationsDecorator implements Decorator {
 
   private TimeMachineConfiguration timeMachineConfiguration;

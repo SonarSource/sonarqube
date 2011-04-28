@@ -20,8 +20,13 @@
 package org.sonar.api.batch;
 
 /**
- * Barriers are used to define the order of execution of Decorators.
- * 
+ * Barriers are used to define the order of execution of Decorators. Decorators must be annotated with the following :
+ *
+ * <ul>
+ *   <li{@code @DependsUpon(BARRIER)} in order to be executed after BARRIER
+ *   <li{@code @DependedUpon(BARRIER)} in order to be executed before BARRIER
+ * </ul>
+ *
  * @since 2.3
  */
 public interface DecoratorBarriers {
@@ -32,16 +37,39 @@ public interface DecoratorBarriers {
    * This barrier is used by a decorator in order to :
    * <ul>
    * <li>be executed after all the decorators which generate violations :
-   * <code>@DependsUpon(value=DecoratorBarriers.END_OF_VIOLATIONS_GENERATION</code></li>
-   * <li>declare that it generates violations : <code>@DependedUpon(value=DecoratorBarriers.END_OF_VIOLATIONS_GENERATION</code></li>
+   * {@code @DependsUpon(value=DecoratorBarriers.END_OF_VIOLATIONS_GENERATION}</li>
+   * <li>declare that it generates violations : {@code @DependedUpon(value=DecoratorBarriers.END_OF_VIOLATIONS_GENERATION}</li>
    * </ul>
    */
   String END_OF_VIOLATIONS_GENERATION = "END_OF_VIOLATIONS_GENERATION";
 
   /**
+   * Extensions which call the method {@code Violation#setSwitchedOff} must be executed before this barrier
+   * ({@code @DependedUpon(value=DecoratorBarriers.VIOLATION_TRACKING})
+   *
+   * This barrier is after {@code END_OF_VIOLATIONS_GENERATION}
+   *
+   * @since 2.8
+   */
+  String START_VIOLATION_TRACKING = "START_VIOLATION_TRACKING";
+
+  /*
+  * This barrier is after {@code END_OF_VIOLATIONS_GENERATION} and {@code START_VIOLATION_TRACKING}.
+  * Decorators executed after this barrier ({@code @DependsUpon(value=DecoratorBarriers.END_OF_VIOLATION_TRACKING})
+  * can benefit from all the features of violation tracking :
+  * <ul>
+  *   <li>{@code Violation#getCreatedAt()}</li>
+  *   <li>{@code Violation#isSwitchedOff()}, usually to know if a violation has been flagged as false-positives in UI</li>
+  * </ul>
+  *
+  * @since 2.8
+  */
+  String END_OF_VIOLATION_TRACKING = "END_OF_VIOLATION_TRACKING";
+
+  /**
    * Any kinds of time machine data are calculated before this barrier. Decorators executed after this barrier can use
    * Measure#getVariationValue() and Measure#getTendency() methods.
-   * 
+   *
    * @since 2.5
    */
   String END_OF_TIME_MACHINE = "END_OF_TIME_MACHINE";

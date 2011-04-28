@@ -39,7 +39,7 @@ public class Violation {
   private Integer lineId;
   private Double cost;
   private Date createdAt;
-  private boolean switchedOff;
+  private boolean switchedOff=false;
 
   /**
    * Creates of a violation from a rule. Will need to define the resource later on
@@ -221,14 +221,17 @@ public class Violation {
 
   /**
    * Switches off the current violation. This is a kind of "mute", which means the violation exists but won't be counted as an active
-   * violation (and thus, won't be counted in the total number of violations).
+   * violation (and thus, won't be counted in the total number of violations). It's usually used for false-positives.
+   *
+   * The extensions which call this method must be executed
    * 
    * @since 2.8
-   * @param switchedOff
+   * @param b
    *          if true, the violation is considered OFF
    */
-  public void setSwitchedOff(boolean switchedOff) {
-    this.switchedOff = switchedOff;
+  public Violation setSwitchedOff(boolean b) {
+    this.switchedOff = b;
+    return this;
   }
 
   /**
