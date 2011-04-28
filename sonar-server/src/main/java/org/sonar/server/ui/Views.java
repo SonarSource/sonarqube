@@ -79,6 +79,16 @@ public class Views implements ServerComponent {
     return result;
   }
 
+  public List<ViewProxy<Page>> getPagesForMetric(String section, String resourceScope, String resourceQualifier, String resourceLanguage, String metric) {
+    List<ViewProxy<Page>> result = Lists.newArrayList();
+    for (ViewProxy<Page> proxy : pages) {
+      if (accept(proxy, section, resourceScope, resourceQualifier, resourceLanguage) && proxy.supportsMetric(metric)) {
+        result.add(proxy);
+      }
+    }
+    return result;
+  }
+
   public ViewProxy<Widget> getWidget(String id) {
     return widgetsPerId.get(id);
   }

@@ -1,7 +1,5 @@
 <%= render :partial => 'header' -%>
 
-
-
 <% if params[:period] && @snapshot.project_snapshot.periods? %>
 <div id="snapshot_title" class="page_title">
   <h4>
@@ -20,9 +18,6 @@
   </h4>
 </div>
 <% end %>
-
-
-
 
 <div class="dashbox">
   <% if @characteristic %>

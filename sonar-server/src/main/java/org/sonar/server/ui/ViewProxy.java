@@ -158,6 +158,10 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     return defaultForMetrics;
   }
 
+  public boolean supportsMetric(String metricKey) {
+    return ArrayUtils.contains(defaultForMetrics, metricKey);
+  }
+
   public boolean isWidget() {
     return isWidget;
   }

@@ -19,5 +19,4 @@
  #
 module DrilldownHelper
 
-
 end

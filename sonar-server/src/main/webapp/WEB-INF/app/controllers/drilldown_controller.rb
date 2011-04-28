@@ -62,6 +62,8 @@ class DrilldownController < ApplicationController
     if @highlighted_resource.nil? && @drilldown.columns.empty?
       @highlighted_resource=@project
     end
+
+    @display_viewers=display_metric_viewers?(@highlighted_resource||@project, @highlighted_metric.key)
   end
 
   def violations
@@ -111,9 +113,11 @@ class DrilldownController < ApplicationController
     if @highlighted_resource.nil? && @drilldown.columns.empty?
       @highlighted_resource=@project
     end
+
+    @display_viewers=display_violation_viewers?(@snapshot)
   end
 
-  protected
+  private
 
   def init_project
     project_key = params[:id]
@@ -151,4 +155,20 @@ class DrilldownController < ApplicationController
     hash
   end
 
+  def display_metric_viewers?(resource,metric_key)
+    return true if resource.file?
+    java_facade.getResourceTabsForMetric(resource.scope, resource.qualifier, resource.language, metric_key).each do |tab|
+      tab.getUserRoles().each do |role|
+        if has_role?(role, resource)
+          return true
+        end
+      end
+    end
+    false
+  end
+
+  def display_violation_viewers?(snapshot)
+    return true if snapshot.file?
+    snapshot.violations.size>0
+  end
 end

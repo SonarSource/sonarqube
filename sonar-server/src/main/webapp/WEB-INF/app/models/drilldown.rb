@@ -18,9 +18,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class Drilldown
-  attr_reader :snapshot, :columns, :metric
+  attr_reader :snapshot, :columns, :metric, :resource
 
   def initialize(resource, metric, selected_resource_ids, options={})
+    @resource=resource
     @snapshot=Snapshot.find(:first, :conditions => {:islast => true, :project_id => resource.id}, :include => [:project])
     @metric=metric
     @columns=[]

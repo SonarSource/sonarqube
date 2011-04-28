@@ -24,7 +24,6 @@ import org.picocontainer.PicoContainer;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugins;
 import org.sonar.api.Property;
-import org.sonar.api.ServerComponent;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Language;
@@ -153,6 +152,10 @@ public final class JRubyFacade {
 
   public List<ViewProxy<Page>> getResourceTabs(String scope, String qualifier, String language) {
     return getContainer().getComponent(Views.class).getPages(NavigationSection.RESOURCE_TAB, scope, qualifier, language);
+  }
+
+  public List<ViewProxy<Page>> getResourceTabsForMetric(String scope, String qualifier, String language, String metric) {
+    return getContainer().getComponent(Views.class).getPagesForMetric(NavigationSection.RESOURCE_TAB, scope, qualifier, language, metric);
   }
 
   public ViewProxy<Page> getPage(String id) {
