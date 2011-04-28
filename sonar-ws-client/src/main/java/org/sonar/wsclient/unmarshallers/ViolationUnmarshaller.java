@@ -34,7 +34,12 @@ public class ViolationUnmarshaller extends AbstractUnmarshaller<Violation> {
     violation.setSeverity(utils.getString(json, "priority"));
     violation.setCreatedAt(utils.getDateTime(json, "createdAt"));
     violation.setSwitchedOff(utils.getBoolean(json, "switchedOff"));
-    violation.setReviewId(utils.getLong(json, "review"));
+
+    Object review = utils.getField(json, "review");
+    if (review != null) {
+      ReviewUnmarshaller reviewUnmarshaller = new ReviewUnmarshaller();
+      violation.setReview(reviewUnmarshaller.parse(review));
+    }
 
     Object rule = utils.getField(json, "rule");
     if (rule != null) {

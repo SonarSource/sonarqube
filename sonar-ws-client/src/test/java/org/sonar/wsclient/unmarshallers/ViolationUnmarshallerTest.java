@@ -20,6 +20,7 @@
 package org.sonar.wsclient.unmarshallers;
 
 import org.junit.Test;
+import org.sonar.wsclient.services.Review;
 import org.sonar.wsclient.services.Violation;
 
 import java.util.List;
@@ -28,6 +29,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 public class ViolationUnmarshallerTest extends UnmarshallerTestCase {
@@ -54,7 +56,7 @@ public class ViolationUnmarshallerTest extends UnmarshallerTestCase {
     assertThat(violation.getResourceQualifier(), is("CLA"));
     assertThat(violation.getResourceScope(), is("FIL"));
     assertThat(violation.isSwitchedOff(), is(false));
-    assertThat(violation.getReviewId(), nullValue());
+    assertThat(violation.getReview(), nullValue());
   }
 
   @Test
@@ -70,7 +72,16 @@ public class ViolationUnmarshallerTest extends UnmarshallerTestCase {
   public void testSwitchedOff() {
     Violation violation = new ViolationUnmarshaller().toModel(loadFile("/violations/false-positive.json"));
     assertThat(violation.isSwitchedOff(), is(true));
-    assertThat(violation.getReviewId(), is(123L));
+  }
+
+  @Test
+  public void testViolationDecoratedWithReview() {
+    Violation violation = new ViolationUnmarshaller().toModel(loadFile("/violations/violation-with-review.json"));
+    Review review = violation.getReview();
+    assertNotNull(review);
+    assertThat(review.getId(), is(3L));
+    assertThat(review.getComments().size(), is(4));
+    assertThat(review.getComments().get(1).getText(), is("<em>Bold on multiple line?</em>"));
   }
 
   /**

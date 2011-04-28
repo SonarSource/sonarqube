@@ -20,6 +20,8 @@
 
 class RuleFailure < ActiveRecord::Base
 
+  include MarkdownHelper, ReviewsHelper
+  
   belongs_to :rule
   belongs_to :snapshot
   has_one :review, :primary_key => "permanent_id", :foreign_key => "rule_failure_permanent_id", :order => "created_at"
@@ -41,7 +43,12 @@ class RuleFailure < ActiveRecord::Base
         end
   end
 
+  # in case to_has_json was used somewhere else before the "include_review" param was introduced
   def to_hash_json
+    to_hash_json(false)
+  end
+
+  def to_hash_json(include_review=false)
     json = {}
     json['message'] = message
     json['line'] = line if line && line>=1
@@ -61,11 +68,16 @@ class RuleFailure < ActiveRecord::Base
       :qualifier => snapshot.project.qualifier,
       :language => snapshot.project.language
     }
-    json['review']=review.id.to_i if review
+    json['review'] = review_to_json(review, true) if review && include_review
     json
   end
 
-  def to_xml(xml=Builder::XmlMarkup.new(:indent => 0))
+  # in case to_xml was used somewhere else before the "include_review" param was introduced
+  def to_xml(xml)
+    to_xml(xml, false)
+  end
+  
+  def to_xml(xml=Builder::XmlMarkup.new(:indent => 0), include_review=false)
     xml.violation do
       xml.message(message)
       xml.line(line) if line && line>=1
@@ -85,7 +97,7 @@ class RuleFailure < ActiveRecord::Base
         xml.qualifier(snapshot.project.qualifier)
         xml.language(snapshot.project.language)
       end
-      xml.review(review.id.to_i) if review
+      review_to_xml(xml, review, true) if review && include_review
     end
   end
 

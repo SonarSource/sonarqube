@@ -92,7 +92,7 @@ class Api::ViolationsController < Api::ResourceRestController
   end
 
   def rest_to_json(rule_failures)
-    JSON(rule_failures.collect{|rule_failure| rule_failure.to_hash_json})
+    JSON(rule_failures.collect{|rule_failure| rule_failure.to_hash_json(params['include_review']=="true"?true:false)})
   end
 
   def rest_to_xml(rule_failures)
@@ -100,7 +100,7 @@ class Api::ViolationsController < Api::ResourceRestController
     xml.instruct!
     xml.violations do
       rule_failures.each do |rule_failure|
-        rule_failure.to_xml(xml)
+        rule_failure.to_xml(xml, params['include_review']=="true"?true:false)
       end
     end
   end

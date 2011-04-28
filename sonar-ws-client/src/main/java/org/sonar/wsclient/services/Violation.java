@@ -34,7 +34,7 @@ public class Violation extends Model {
   private String resourceQualifier = null;
   private Date createdAt = null;
   private boolean switchedOff;
-  private Long reviewId = null;
+  private Review review = null;
 
   public String getMessage() {
     return message;
@@ -195,15 +195,15 @@ public class Violation extends Model {
   /**
    * @since 2.8
    */
-  public Long getReviewId() {
-    return reviewId;
+  public Review getReview() {
+    return review;
   }
 
   /**
    * @since 2.8
    */
-  public Violation setReviewId(Long l) {
-    this.reviewId = l;
+  public Violation setReview(Review review) {
+    this.review = review;
     return this;
   }
 }
