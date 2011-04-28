@@ -2,7 +2,7 @@
 <div class="violation">
   <div class="vtitle">
     <% if violation.review %>
-      <div style="float: right"><span class="violation_date">#<%= violation.review.id -%></span></div>
+      <div style="float: right"><span class="review_permalink"><%= link_to "#"+violation.review.id.to_s, :controller => "reviews", :action => "view", :id => violation.review.id -%></span></div>
     <% end %>
     
     <%= image_tag("priority/" + violation.failure_level.to_s + '.png') -%>
@@ -76,21 +76,34 @@
   %>
   <div class="discussionComment">
     <h4><%= image_tag("reviews/comment.png") -%> &nbsp;<b><%= review_comment.user.name -%></b> (<%= distance_of_time_in_words_to_now(review_comment.created_at) -%>)
-    <% if is_last_comment && current_user && current_user.id == review_comment.user_id %>
-      <span class="actions">
+    <!-- && current_user.id == review_comment.user_id -->
+    <% if is_last_comment && current_user %>
+      <span class="actions" id="commentActions<%= violation.id -%>">
         &nbsp;&nbsp;
         <%= image_tag("sep12.png") -%>
         &nbsp;&nbsp;
-        <%= link_to_remote "Edit", 
-      		:url => { :controller => "reviews", :action => "violation_comment_form", :comment_id => review_comment.id, :id => violation.id },
-      		:update => "lastComment" + violation.id.to_s,
-      		:complete => "$('reviewForm#{violation.id}').hide();$('vActions#{violation.id}').hide();$('commentAction#{violation.id}').hide();$('commentText#{violation.id}').focus();" -%>
-        <% unless comment_index == 0 %>
+        <%= link_to_remote "Add comment",
+      		:url => { :controller => "reviews", :action => "violation_comment_form", :id => violation.id },
+      		:update => "reviewForm" + violation.id.to_s,
+      		:complete => "$('vActions#{violation.id}').hide();$('commentActions" + violation.id.to_s + "').hide();$('reviewForm" + violation.id.to_s + "').show();$('commentText" + violation.id.to_s + "').focus()" -%>
+        <% 
+          if current_user.id == review_comment.user_id 
+        %>
+          &nbsp;
+          <%= link_to_remote "Edit", 
+            :url => { :controller => "reviews", :action => "violation_comment_form", :comment_id => review_comment.id, :id => violation.id },
+            :update => "lastComment" + violation.id.to_s,
+            :complete => "$('reviewForm#{violation.id}').hide();$('vActions#{violation.id}').hide();$('commentAction#{violation.id}').hide();$('commentText#{violation.id}').focus();" -%>
+          <% unless comment_index == 0 %>
+          &nbsp;
           <%= link_to_remote "Delete",
       		:url => { :controller => "reviews", :action => "violation_delete_comment", :comment_id => review_comment.id, :id => violation.id },
       		:update => "vId" + violation.id.to_s,
             :confirm => "Do you want to delete this comment ?" -%>
-        <% end %>
+          <% end %>
+        <%
+          end 
+        %>
       </span>
     <% end %>
     </h4> 
@@ -109,16 +122,5 @@
 
   <div class="discussionComment" id="reviewForm<%= violation.id -%>" style="display:none"></div>
 </div>
-
-
-
-<% if current_user && violation.review %>
-<div style="padding: 5px" id="commentAction<%= violation.id -%>">
-  <%= link_to_remote "Add comment",
-      		:url => { :controller => "reviews", :action => "violation_comment_form", :id => violation.id },
-      		:update => "reviewForm" + violation.id.to_s,
-      		:complete => "$('vActions#{violation.id}').hide();$('commentAction" + violation.id.to_s + "').hide();$('reviewForm" + violation.id.to_s + "').show();$('commentText" + violation.id.to_s + "').focus()" -%>
-</div>
-<% end %>
 
 </div>

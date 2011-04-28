@@ -705,6 +705,10 @@ span.violation_date {
   color:#777;
   font-size:90%;
 }
+span.review_permalink a {
+  color:#777;
+  font-size:90%;
+}
 span.rulename a:hover {
   text-decoration: underline;
 }

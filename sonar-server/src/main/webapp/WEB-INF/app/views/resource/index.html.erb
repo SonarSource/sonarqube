@@ -105,8 +105,11 @@
       <% end %>
       <td class="lid section"></td>
       <td class="violations">
-        <% line.violations.each do |violation| %>
+        <% line.violations.each_with_index do |violation, index| %>
           <%= render :partial => 'violation', :locals => {:violation => violation} -%>
+          <% if index < line.violations.size-1 %>
+            &nbsp;
+          <% end %>
         <% end %>
       </td>
     </tr>

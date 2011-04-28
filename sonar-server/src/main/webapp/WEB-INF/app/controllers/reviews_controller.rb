@@ -33,6 +33,19 @@ class ReviewsController < ApplicationController
     search_reviews()
   end
   
+  # Used for the permalink, e.g. http://localhost:9000/reviews/view/1
+  def view
+    @review=Review.find(params[:id], :include => ['resource', 'project'])
+    render 'reviews/_review', :locals => {:review => @review}
+  end
+
+
+  #
+  #
+  # ACTIONS FROM REVIEW SERVICE PAGE
+  #
+  #
+
   def show
     @review=Review.find(params[:id], :include => ['resource', 'project'])
     render :partial => 'reviews/show'
@@ -262,7 +275,7 @@ class ReviewsController < ApplicationController
     @severities = filter_any(params[:severities]) || ['']
     @statuses = filter_any(params[:statuses]) || [Review::STATUS_OPEN]
     @projects = filter_any(params[:projects]) || ['']
-    @id = params[:id] || ""
+    @id = params[:review_id] || ""
   end
 
   def options_for_users

@@ -95,21 +95,33 @@
 	   <div class="discussionComment">
 		 <h4>
 		   <%= image_tag("reviews/comment.png") -%> &nbsp;<b><%= comment.user.name -%></b> (<%= distance_of_time_in_words_to_now(comment.created_at) -%>)
-           <% if is_last_comment && current_user && current_user.id == comment.user_id %>
+           <% if is_last_comment && current_user %>
            <span class="actions" id="editActions">
              &nbsp;&nbsp;
              <%= image_tag("sep12.png") -%>
              &nbsp;&nbsp;
-             <%= link_to_remote "Edit", 
+             <%= link_to_remote "Add comment",
+      		     :url => { :controller => "reviews", :action => "comment_form", :id => review.id },
+      		     :update => "reviewForm",
+      		     :complete => "$('rActions').hide();$('editActions').hide();$('reviewForm').show();$('commentText').focus();" -%>
+             <%
+               if current_user.id == comment.user_id
+             %>
+               &nbsp;
+               <%= link_to_remote "Edit", 
                  :url => { :controller => "reviews", :action => "comment_form", :comment_id => comment.id, :id => review.id },
       		     :update => "lastComment",
-      		     :complete => "$('rActions').hide();$('commentAction').hide();$('editActions').hide();$('commentText').focus();" -%>
-      		 <% unless comment_index == 0 %>
+      		     :complete => "$('rActions').hide();$('editActions').hide();$('commentText').focus();" -%>
+      		   <% unless comment_index == 0 %>
+               &nbsp;
                <%= link_to_remote "Delete",
       		     :url => { :controller => "reviews", :action => "delete_comment", :comment_id => comment.id, :id => review.id },
       	         :update => "review",
                  :confirm => "Do you want to delete this comment ?" -%>
-             <% end %>
+               <% end %>
+             <% 
+               end 
+             %>
            </span>
            <% end %>
          </h4>
@@ -124,14 +136,6 @@
 	 <% end %>
   </div>
   
-  <% if current_user && review.status != "CLOSED" %>
   <div class="discussionComment" id="reviewForm" style="display:none"></div>
-  <div style="padding: 5px" id="commentAction">
-    <%= link_to_remote "Add comment",
-      		:url => { :controller => "reviews", :action => "comment_form", :id => review.id },
-      		:update => "reviewForm",
-      		:complete => "$('rActions').hide();$('commentAction').hide();$('reviewForm').show();$('commentText').focus();$('editActions').hide();" -%>
-  </div>
-  <% end %>
   
 </div>
