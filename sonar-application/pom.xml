@@ -44,10 +44,10 @@
           <execution>
             <phase>package</phase>
             <configuration>
-              <tasks>
+              <target>
                 <checksum file="${project.build.directory}/sonar-${project.version}.zip" algorithm="md5" />
                 <checksum file="${project.build.directory}/sonar-${project.version}.zip" algorithm="sha" />
-              </tasks>
+              </target>
             </configuration>
             <goals>
               <goal>run</goal>
