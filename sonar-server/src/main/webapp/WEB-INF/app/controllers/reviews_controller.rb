@@ -298,40 +298,31 @@ class ReviewsController < ApplicationController
   end
 
   def search_reviews
-    conditions=['review_type<>:not_type']
-    values={:not_type => Review::TYPE_FALSE_POSITIVE}
-
-    unless @statuses == [""]
-      conditions << "status in (:statuses)"
-      values[:statuses]=@statuses
+    options = {}
+    unless @statuses == ['']
+      options['statuses']=@statuses.join(',')
     end
-    unless @projects == [""]
-      conditions << "project_id in (:projects)"
-      values[:projects]=@projects
+    unless @projects == ['']
+      options['projects']=@projects.join(',')
     end
-    unless @severities == [""]
-      conditions << "severity in (:severities)"
-      values[:severities]=@severities
+    unless @severities == ['']
+      options['severities']=@severities.join(',')
     end
-    unless @authors == [""]
-      conditions << "user_id in (:authors)"
-      values[:authors]=@authors.map{|s| s.to_i}
+    unless @authors == ['']
+      options['authors']=@authors.map{|s| s.to_i}.join(',')
     end
-    unless @assignees == [""]
-      conditions << "assignee_id in (:assignees)"
-      values[:assignees]=@assignees.map{|s| s.to_i}
+    unless @assignees == ['']
+      options['assignees']=@assignees.map{|s| s.to_i}.join(',')
     end
-    unless @id  == ""
+    unless @id  == ''
       if is_number? @id
-        conditions << "id = :id"
-        values[:id] = @id
+        options['id'] = @id
       else
-        conditions << "id = :id"
-        values[:id] = -1
+        options['id'] = -1
       end
     end
-
-    @reviews = Review.find( :all, :order => "created_at DESC", :conditions => [ conditions.join(" AND "), values] ).uniq
+    
+    @reviews = Review.search(options)
   end
 
   def is_number?(s)
