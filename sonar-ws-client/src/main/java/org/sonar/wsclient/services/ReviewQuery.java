@@ -31,11 +31,10 @@ public class ReviewQuery extends Query<Review> {
   private Long[] ids;
   private String[] statuses;
   private String[] severities;
-  private Long[] projects;
-  private Long[] resources;
-  private Long[] authors;
-  private Long[] assignees;
-  private Boolean html;
+  private String[] projectKeysOrIds;
+  private String[] resourceKeysOrIds;
+  private String[] authorLoginsOrIds;
+  private String[] assigneeLoginsOrIds;
 
   public ReviewQuery() {
   }
@@ -119,93 +118,72 @@ public class ReviewQuery extends Query<Review> {
     this.severities = severities;
     return this;
   }
-
-  /**
-   * @return the projects
-   */
-  public Long[] getProjects() {
-    return projects;
-  }
-
-  /**
-   * Specify the IDs of the projects.
-   * 
-   * @param projects
-   *          the project IDs to set
-   */
-  public ReviewQuery setProjects(Long... projects) {
-    this.projects = projects;
-    return this;
-  }
-
-  /**
-   * @return the resources
-   */
-  public Long[] getResources() {
-    return resources;
-  }
-
-  /**
-   * Specify the IDs of the resources.
-   * 
-   * @param resources
-   *          the resource IDs to set
-   */
-  public ReviewQuery setResources(Long... resources) {
-    this.resources = resources;
-    return this;
-  }
-
-  /**
-   * @return the authors
-   */
-  public Long[] getAuthors() {
-    return authors;
-  }
-
-  /**
-   * Specify the IDs of the authors.
-   * 
-   * @param authors
-   *          the author IDs to set
-   */
-  public ReviewQuery setAuthors(Long... authors) {
-    this.authors = authors;
-    return this;
-  }
-
-  /**
-   * @return the assignees
-   */
-  public Long[] getAssignees() {
-    return assignees;
-  }
-
-  /**
-   * Specify the IDs of the assignees.
-   * 
-   * @param assignees
-   *          the assignee IDs to set
-   */
-  public ReviewQuery setAssignees(Long... assignees) {
-    this.assignees = assignees;
-    return this;
-  }
+  
   
   /**
-   * @return the html
+   * @return the projectKeysOrIds
    */
-  public Boolean getHtml() {
-    return html;
+  public String[] getProjectKeysOrIds() {
+    return projectKeysOrIds;
   }
+
   
   /**
-   * If true, the comments will be generated in HTML. Otherwise, they will be in raw text.
-   * 
-   * @param html the html to set
+   * @param projectKeysOrIds the projectKeysOrIds to set
    */
-  public ReviewQuery setHtml(Boolean html) {
-    this.html = html;
+  public ReviewQuery setProjectKeysOrIds(String... projectKeysOrIds) {
+    this.projectKeysOrIds = projectKeysOrIds;
+    return this;
+  }
+
+  
+  /**
+   * @return the resourceKeysOrIds
+   */
+  public String[] getResourceKeysOrIds() {
+    return resourceKeysOrIds;
+  }
+
+  
+  /**
+   * @param resourceKeysOrIds the resourceKeysOrIds to set
+   */
+  public ReviewQuery setResourceKeysOrIds(String... resourceKeysOrIds) {
+    this.resourceKeysOrIds = resourceKeysOrIds;
+    return this;
+  }
+
+  
+  /**
+   * @return the authorLoginsOrIds
+   */
+  public String[] getAuthorLoginsOrIds() {
+    return authorLoginsOrIds;
+  }
+
+  
+  /**
+   * @param authorLoginsOrIds the authorLoginsOrIds to set
+   */
+  public ReviewQuery setAuthorLoginsOrIds(String... authorLoginsOrIds) {
+    this.authorLoginsOrIds = authorLoginsOrIds;
+    return this;
+  }
+
+  
+  /**
+   * @return the assigneeLoginsOrIds
+   */
+  public String[] getAssigneeLoginsOrIds() {
+    return assigneeLoginsOrIds;
+  }
+
+  
+  /**
+   * @param assigneeLoginsOrIds the assigneeLoginsOrIds to set
+   */
+  public ReviewQuery setAssigneeLoginsOrIds(String... assigneeLoginsOrIds) {
+    this.assigneeLoginsOrIds = assigneeLoginsOrIds;
     return this;
   }
 
@@ -221,11 +199,10 @@ public class ReviewQuery extends Query<Review> {
     appendUrlParameter(url, "review_type", reviewType);
     appendUrlParameter(url, "statuses", statuses);
     appendUrlParameter(url, "severities", severities);
-    appendUrlParameter(url, "projects", projects);
-    appendUrlParameter(url, "resources", resources);
-    appendUrlParameter(url, "authors", authors);
-    appendUrlParameter(url, "assignees", assignees);
-    appendUrlParameter(url, "html", html);
+    appendUrlParameter(url, "projects", projectKeysOrIds);
+    appendUrlParameter(url, "resources", resourceKeysOrIds);
+    appendUrlParameter(url, "authors", authorLoginsOrIds);
+    appendUrlParameter(url, "assignees", assigneeLoginsOrIds);
 
     return url.toString();
   }

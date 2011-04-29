@@ -44,13 +44,12 @@ public class ReviewQueryTest extends QueryTestCase {
     query.setReviewType("FALSE_POSITIVE");
     query.setStatuses("OPEN");
     query.setSeverities("MINOR", "INFO");
-    query.setProjects(1L);
-    query.setResources(2L, 3L);
-    query.setAuthors(20L);
-    query.setAssignees(21L);
-    query.setHtml(Boolean.TRUE);
+    query.setProjectKeysOrIds("com.sonar.foo:bar");
+    query.setResourceKeysOrIds("2", "3");
+    query.setAuthorLoginsOrIds("20");
+    query.setAssigneeLoginsOrIds("admin");
     assertThat(
         query.getUrl(),
-        is("/api/reviews?ids=10,11&review_type=FALSE_POSITIVE&statuses=OPEN&severities=MINOR,INFO&projects=1&resources=2,3&authors=20&assignees=21&html=true&"));
+        is("/api/reviews?ids=10,11&review_type=FALSE_POSITIVE&statuses=OPEN&severities=MINOR,INFO&projects=com.sonar.foo%3Abar&resources=2,3&authors=20&assignees=admin&"));
   }
 }
