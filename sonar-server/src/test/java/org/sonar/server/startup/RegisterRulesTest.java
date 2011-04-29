@@ -132,9 +132,13 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
     // new parameter
     assertNotNull(rule.getParam("param2"));
+    assertThat(rule.getParam("param2").getDescription(), is("parameter two"));
+    assertThat(rule.getParam("param2").getDefaultValue(), is("default value two"));
 
     // updated parameter
+    assertNotNull(rule.getParam("param1"));
     assertThat(rule.getParam("param1").getDescription(), is("parameter one"));
+    assertThat(rule.getParam("param1").getDefaultValue(), is("default value one"));
 
     // deleted parameter
     assertNull(rule.getParam("deprecated_param"));
@@ -182,8 +186,8 @@ class FakeRepository extends RuleRepository {
     rule1.setDescription("Description of One");
     rule1.setSeverity(RulePriority.BLOCKER);
     rule1.setConfigKey("config1");
-    rule1.createParameter("param1").setDescription("parameter one");
-    rule1.createParameter("param2").setDescription("parameter two");
+    rule1.createParameter("param1").setDescription("parameter one").setDefaultValue("default value one");
+    rule1.createParameter("param2").setDescription("parameter two").setDefaultValue("default value two");
 
     Rule rule2 = Rule.create("fake", "rule2", "Two");
     rule2.setSeverity(RulePriority.INFO);

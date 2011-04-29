@@ -134,6 +134,7 @@ public final class RegisterRules {
         }
         persistedParam.setDescription(param.getDescription());
         persistedParam.setType(param.getType());
+        persistedParam.setDefaultValue(param.getDefaultValue());
       }
     }
   }
