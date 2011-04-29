@@ -177,6 +177,19 @@ module NeedAuthorization
       result
     end
 
+    def select_authorized(role, objects, resource_method=nil)
+      if resource_method
+        booleans=has_role?(role, objects.map{|obj| obj.send(resource_method)})
+      else
+        booleans=has_role?(role, objects)
+      end
+      result=[]
+      objects.each_with_index do |obj, index|
+        result<<obj if booleans[index]==true
+      end
+      result
+    end
+    
     #
     # Filter method to enforce a login admin requirement.
     #

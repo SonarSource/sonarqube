@@ -23,7 +23,7 @@ require 'json'
 class Api::ReviewsController < Api::ApiController
 
   def index
-    reviews=Review.search(params)
+    reviews=select_authorized(:user, Review.search(params), :project)
     
     respond_to do |format|
       format.json { render :json => jsonp(Review.reviews_to_json(reviews)) }

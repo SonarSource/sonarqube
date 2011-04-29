@@ -35,8 +35,12 @@ class ReviewsController < ApplicationController
   
   # Used for the permalink, e.g. http://localhost:9000/reviews/view/1
   def view
-    @review=Review.find(params[:id], :include => ['resource', 'project'])
-    render 'reviews/_review', :locals => {:review => @review}
+    @review=Review.find(params[:id], :include => ['project'])
+    if has_role?(:user, @review.project)
+      render 'reviews/_review', :locals => {:review => @review}
+    else
+      render :text => "<b>Cannot access this review</b> : access denied."
+    end
   end
 
 
@@ -47,7 +51,7 @@ class ReviewsController < ApplicationController
   #
 
   def show
-    @review=Review.find(params[:id], :include => ['resource', 'project'])
+    @review=Review.find(params[:id], :include => ['project'])
     render :partial => 'reviews/show'
   end
 
@@ -322,7 +326,11 @@ class ReviewsController < ApplicationController
       end
     end
     
-    @reviews = Review.search(options)
+    found_reviews = Review.search(options)
+    @reviews = select_authorized(:user, found_reviews, :project)
+    if found_reviews.size != @reviews.size
+      @security_exclusions = true
+    end
   end
 
   def is_number?(s)

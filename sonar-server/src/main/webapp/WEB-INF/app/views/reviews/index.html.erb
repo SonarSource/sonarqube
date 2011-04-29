@@ -137,6 +137,12 @@
   <%
      end
   %>
+  
+  <% if @security_exclusions %>
+    <br/>
+    <p class="notes">Due to security settings, some results are not being displayed.</p>
+  <% end %>
+  
 </div>
 
 <div id="review-loading" style="display: none"><%= image_tag 'loading.gif' -%></div>
