@@ -57,11 +57,11 @@ public final class ViolationPersister {
     }
     model.setSnapshotId(snapshot.getId());
     model.setChecksum(checksum);
-    session.save(model);
+    session.saveWithoutFlush(model);
 
     if (model.getPermanentId()==null) {
       model.setPermanentId(model.getId());
-      session.save(model);
+      session.saveWithoutFlush(model);
     }
 
     // the following fields can have been changed
