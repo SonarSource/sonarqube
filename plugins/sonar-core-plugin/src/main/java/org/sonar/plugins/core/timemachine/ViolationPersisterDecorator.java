@@ -156,15 +156,15 @@ public class ViolationPersisterDecorator implements Decorator {
     return null;
   }
 
-  private final boolean isSameChecksum(Violation newViolation, RuleFailureModel pastViolation) {
-    return pastViolation.getChecksum().equals(getChecksumForLine(checksums, newViolation.getLineId()));
+  private boolean isSameChecksum(Violation newViolation, RuleFailureModel pastViolation) {
+    return pastViolation.getChecksum()!=null && StringUtils.equals(pastViolation.getChecksum(), getChecksumForLine(checksums, newViolation.getLineId()));
   }
 
-  private final boolean isSameLine(Violation newViolation, RuleFailureModel pastViolation) {
+  private boolean isSameLine(Violation newViolation, RuleFailureModel pastViolation) {
     return pastViolation.getLine() == newViolation.getLineId();
   }
 
-  private final boolean isSameMessage(Violation newViolation, RuleFailureModel pastViolation) {
+  private boolean isSameMessage(Violation newViolation, RuleFailureModel pastViolation) {
     return StringUtils.equals(RuleFailureModel.abbreviateMessage(newViolation.getMessage()), pastViolation.getMessage());
   }
 

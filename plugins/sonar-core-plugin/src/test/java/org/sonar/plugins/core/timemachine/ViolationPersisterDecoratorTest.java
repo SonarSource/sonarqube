@@ -19,22 +19,18 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 
-import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.Map;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 public class ViolationPersisterDecoratorTest {
 
@@ -93,6 +89,15 @@ public class ViolationPersisterDecoratorTest {
   }
 
   @Test
+  public void pastMeasureHasNoChecksum() {
+    Violation newViolation = newViolation("message", 1, 50, "checksum1");
+    RuleFailureModel pastViolation = newPastViolation("message", 1, 51, null);
+
+    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(pastViolation));
+    assertThat(mapping.get(newViolation), is(nullValue()));
+  }
+
+  @Test
   public void sameRuleAndMessageAndChecksumButDifferentLine() {
     Violation newViolation = newViolation("message", 1, 50, "checksum1");
     RuleFailureModel pastViolation = newPastViolation("message", 2, 50, "checksum1");
@@ -133,8 +138,7 @@ public class ViolationPersisterDecoratorTest {
   private Violation newViolation(String message, int lineId, int ruleId) {
     Rule rule = Rule.create().setKey("rule");
     rule.setId(ruleId);
-    Violation violation = Violation.create(rule, null).setLineId(lineId).setMessage(message);
-    return violation;
+    return Violation.create(rule, null).setLineId(lineId).setMessage(message);
   }
 
   private Violation newViolation(String message, int lineId, int ruleId, String lineChecksum) {
@@ -160,7 +164,9 @@ public class ViolationPersisterDecoratorTest {
 
   private RuleFailureModel newPastViolation(String message, int lineId, int ruleId, String lineChecksum) {
     RuleFailureModel pastViolation = newPastViolation(message, lineId, ruleId);
-    pastViolation.setChecksum(ViolationPersisterDecorator.getChecksum(lineChecksum));
+    if (lineChecksum != null) {
+      pastViolation.setChecksum(ViolationPersisterDecorator.getChecksum(lineChecksum));
+    }
     return pastViolation;
   }
 
