@@ -37,7 +37,7 @@ class ReviewsController < ApplicationController
   def view
     @review = Review.find(params[:id], :include => ['project'])
     if current_user && has_role?(:user, @review.project)
-      render 'reviews/_review', :locals => {:review => @review}
+      render 'reviews/_view', :locals => {:review => @review}
     else
       render :text => "<b>Cannot access this review</b> : access denied."
     end
