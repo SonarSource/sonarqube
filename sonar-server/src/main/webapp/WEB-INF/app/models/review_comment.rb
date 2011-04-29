@@ -21,14 +21,18 @@ class ReviewComment < ActiveRecord::Base
   belongs_to :user
   belongs_to :review
   validates_presence_of :user => "can't be empty"
-  validate :comment_should_not_be_empty
+  validate :comment_should_not_be_blank
   
   alias_attribute :text, :review_text
-    
+
+  def html_text
+    Api::Utils.markdown_to_html(review_text)
+  end
+
   private
-  
-  def comment_should_not_be_empty
-    errors.add("Comment", " cannot be empty") if review_text.blank?
+
+  def comment_should_not_be_blank
+    errors.add("Comment", " cannot be blank") if review_text.blank?
   end
 
 end

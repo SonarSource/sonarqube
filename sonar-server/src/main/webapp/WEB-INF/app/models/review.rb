@@ -108,7 +108,7 @@ class Review < ActiveRecord::Base
     authors=options['authors'].split(',') if options['authors']
     if authors && authors.size>0 && !authors[0].blank?
       conditions << 'user_id in (:authors)'
-      unless is_number?(authors[0])
+      unless Api::Utils.is_number?(authors[0])
         authors=User.logins_to_ids(authors)
       end
       values[:authors]=authors
@@ -117,7 +117,7 @@ class Review < ActiveRecord::Base
     assignees=options['assignees'].split(',') if options['assignees']
     if assignees && assignees.size>0 && !assignees[0].blank?
       conditions << 'assignee_id in (:assignees)'
-      unless is_number?(assignees[0])
+      unless Api::Utils.is_number?(assignees[0])
         assignees=User.logins_to_ids(assignees)
       end
       values[:assignees]=assignees
@@ -125,12 +125,77 @@ class Review < ActiveRecord::Base
 
     Review.find(:all, :include => [ 'review_comments' ], :order => 'created_at DESC', :conditions => [conditions.join(' AND '), values], :limit => 200)
   end
+
+  def self.reviews_to_xml(reviews)
+    xml = Builder::XmlMarkup.new(:indent => 0)
+    xml.instruct!
+    xml.reviews do
+      reviews.each do |review|
+        review.to_xml(xml)
+      end
+    end
+  end
+
+  def to_xml(xml)
+    xml.review do
+      xml.id(id.to_i)
+      xml.createdAt(Api::Utils.format_datetime(created_at))
+      xml.updatedAt(Api::Utils.format_datetime(updated_at))
+      xml.user(user.login)
+      xml.assignee(assignee.login) if assignee
+      xml.title(title)
+      xml.type(review_type)
+      xml.status(status)
+      xml.severity(severity)
+      xml.resource(resource.kee)  if resource
+      xml.line(resource_line) if resource_line && resource_line>0
+      xml.comments do
+        review_comments.each do |comment|
+          xml.comment do
+            xml.author(comment.user.login)
+            xml.updatedAt(Api::Utils.format_datetime(comment.updated_at))
+            xml.text(comment.html_text)
+          end
+        end
+      end
+    end
+  end
+
+  def self.reviews_to_json(reviews)
+    JSON(reviews.collect{|review| review.to_json()})
+  end
+
+  def to_json
+    json = {}
+    json['id'] = id.to_i
+    json['createdAt'] = Api::Utils.format_datetime(created_at)
+    json['updatedAt'] = Api::Utils.format_datetime(updated_at)
+    json['author'] = user.login
+    json['assignee'] = assignee.login if assignee
+    json['title'] = title if title
+    json['type'] = review_type
+    json['status'] = status
+    json['severity'] = severity
+    json['resource'] = resource.kee if resource
+    json['line'] = resource_line if resource_line && resource_line>0
+    comments = []
+    review_comments.each do |comment|
+      comments << {
+        'author' => comment.user.login,
+        'updatedAt' => Api::Utils.format_datetime(comment.updated_at),
+        'text' => comment.html_text
+      }
+    end
+    json['comments'] = comments
+    json
+  end
+
+  
+
   
   private
   
-  def self.is_number?(s)
-    true if Float(s) rescue false
-  end
+
   
   def assign_project
     if self.project.nil? && self.resource

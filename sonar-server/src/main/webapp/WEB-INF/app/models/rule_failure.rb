@@ -20,15 +20,9 @@
 
 class RuleFailure < ActiveRecord::Base
 
-  include MarkdownHelper, ReviewsHelper
-  
   belongs_to :rule
   belongs_to :snapshot
   has_one :review, :primary_key => "permanent_id", :foreign_key => "rule_failure_permanent_id", :order => "created_at"
-
-  def false_positive?
-    switched_off==true
-  end
 
   # first line of message
   def title
@@ -43,19 +37,14 @@ class RuleFailure < ActiveRecord::Base
         end
   end
 
-  # in case to_has_json was used somewhere else before the "include_review" param was introduced
-  def to_hash_json
-    to_hash_json(false)
-  end
-
-  def to_hash_json(include_review=false)
+  def to_json(include_review=false)
     json = {}
     json['message'] = message
     json['line'] = line if line && line>=1
     json['priority'] = Sonar::RulePriority.to_s(failure_level).upcase
     json['switchedOff']=true if switched_off?
     if created_at
-      json['createdAt'] = format_datetime(created_at)
+      json['createdAt'] = Api::Utils.format_datetime(created_at)
     end
     json['rule'] = {
       :key => rule.key,
@@ -68,15 +57,10 @@ class RuleFailure < ActiveRecord::Base
       :qualifier => snapshot.project.qualifier,
       :language => snapshot.project.language
     }
-    json['review'] = review_to_json(review, true) if review && include_review
+    json['review'] = review.to_json if include_review && review
     json
   end
 
-  # in case to_xml was used somewhere else before the "include_review" param was introduced
-  def to_xml(xml)
-    to_xml(xml, false)
-  end
-  
   def to_xml(xml=Builder::XmlMarkup.new(:indent => 0), include_review=false)
     xml.violation do
       xml.message(message)
@@ -84,7 +68,7 @@ class RuleFailure < ActiveRecord::Base
       xml.priority(Sonar::RulePriority.to_s(failure_level))
       xml.switchedOff(true) if switched_off?
       if created_at
-        xml.createdAt(format_datetime(created_at))
+        xml.createdAt(Api::Utils.format_datetime(created_at))
       end
       xml.rule do
         xml.key(rule.key)
@@ -97,12 +81,8 @@ class RuleFailure < ActiveRecord::Base
         xml.qualifier(snapshot.project.qualifier)
         xml.language(snapshot.project.language)
       end
-      review_to_xml(xml, review, true) if review && include_review
+      review.to_xml(xml) if include_review && review
     end
-  end
-
-  def format_datetime(datetime)
-    datetime.strftime("%Y-%m-%dT%H:%M:%S%z")
   end
 
   def build_review(options={})

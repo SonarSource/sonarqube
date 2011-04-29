@@ -305,7 +305,7 @@ class Api::ResourcesController < Api::ApiController
       'name' => resource.name,
       'scope' => resource.scope,
       'qualifier' => resource.qualifier,
-      'date' => format_datetime(snapshot.created_at)}
+      'date' => Api::Utils.format_datetime(snapshot.created_at)}
     json['lname']=resource.long_name if resource.long_name
     json['lang']=resource.language if resource.language
     json['version']=snapshot.version if snapshot.version
@@ -315,23 +315,23 @@ class Api::ResourcesController < Api::ApiController
     if include_trends
       json[:p1]=snapshot.period1_mode if snapshot.period1_mode
       json[:p1p]=snapshot.period1_param if snapshot.period1_param
-      json[:p1d]=format_datetime(snapshot.period1_date) if snapshot.period1_date
+      json[:p1d]=Api::Utils.format_datetime(snapshot.period1_date) if snapshot.period1_date
 
       json[:p2]=snapshot.period2_mode if snapshot.period2_mode
       json[:p2p]=snapshot.period2_param if snapshot.period2_param
-      json[:p2d]=format_datetime(snapshot.period2_date) if snapshot.period2_date
+      json[:p2d]=Api::Utils.format_datetime(snapshot.period2_date) if snapshot.period2_date
 
       json[:p3]=snapshot.period3_mode if snapshot.period3_mode
       json[:p3p]=snapshot.period3_param if snapshot.period3_param
-      json[:p3d]=format_datetime(snapshot.period3_date) if snapshot.period3_date
+      json[:p3d]=Api::Utils.format_datetime(snapshot.period3_date) if snapshot.period3_date
 
       json[:p4]=snapshot.period4_mode if snapshot.period4_mode
       json[:p4p]=snapshot.period4_param if snapshot.period4_param
-      json[:p4d]=format_datetime(snapshot.period4_date) if snapshot.period4_date
+      json[:p4d]=Api::Utils.format_datetime(snapshot.period4_date) if snapshot.period4_date
 
       json[:p5]=snapshot.period5_mode if snapshot.period5_mode
       json[:p5p]=snapshot.period5_param if snapshot.period5_param
-      json[:p5d]=format_datetime(snapshot.period5_date) if snapshot.period5_date
+      json[:p5d]=Api::Utils.format_datetime(snapshot.period5_date) if snapshot.period5_date
     end
     if measures
       json_measures=[]
@@ -395,30 +395,30 @@ class Api::ResourcesController < Api::ApiController
       xml.qualifier(resource.qualifier)
       xml.lang(resource.language) if resource.language
       xml.version(snapshot.version) if snapshot.version
-      xml.date(format_datetime(snapshot.created_at))
+      xml.date(Api::Utils.format_datetime(snapshot.created_at))
       xml.description(resource.description) if include_descriptions && resource.description
       xml.copy(resource.copy_resource_id) if resource.copy_resource_id
 
       if include_trends
         xml.period1(snapshot.period1_mode) if snapshot.period1_mode
         xml.period1_param(snapshot.period1_param) if snapshot.period1_param
-        xml.period1_date(format_datetime(snapshot.period1_date)) if snapshot.period1_date
+        xml.period1_date(Api::Utils.format_datetime(snapshot.period1_date)) if snapshot.period1_date
 
         xml.period2(snapshot.period2_mode) if snapshot.period2_mode
         xml.period2_param(snapshot.period2_param) if snapshot.period2_param
-        xml.period2_date(format_datetime(snapshot.period2_date)) if snapshot.period2_date
+        xml.period2_date(Api::Utils.format_datetime(snapshot.period2_date)) if snapshot.period2_date
 
         xml.period3(snapshot.period3_mode) if snapshot.period3_mode
         xml.period3_param(snapshot.period3_param) if snapshot.period3_param
-        xml.period3_date(format_datetime(snapshot.period3_date)) if snapshot.period3_date
+        xml.period3_date(Api::Utils.format_datetime(snapshot.period3_date)) if snapshot.period3_date
 
         xml.period4(snapshot.period4_mode) if snapshot.period4_mode
         xml.period4_param(snapshot.period4_param) if snapshot.period4_param
-        xml.period4_date(format_datetime(snapshot.period4_date)) if snapshot.period4_date
+        xml.period4_date(Api::Utils.format_datetime(snapshot.period4_date)) if snapshot.period4_date
 
         xml.period5(snapshot.period5_mode) if snapshot.period5_mode
         xml.period5_param(snapshot.period5_param) if snapshot.period5_param
-        xml.period5_date(format_datetime(snapshot.period5_date)) if snapshot.period5_date
+        xml.period5_date(Api::Utils.format_datetime(snapshot.period5_date)) if snapshot.period5_date
       end
 
       if measures

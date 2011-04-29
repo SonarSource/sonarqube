@@ -134,7 +134,7 @@ class Api::ProjectsController < Api::ApiController
         versions={}
         @snapshots_by_pid[project.id].sort{|s1,s2| s2.version <=> s1.version}.each do |snapshot|
           version={:sid => snapshot.id.to_s}
-          version[:d]=format_datetime(snapshot.created_at) if snapshot.created_at
+          version[:d]=Api::Utils.format_datetime(snapshot.created_at) if snapshot.created_at
           if snapshot.last?
             hash[:lv]=snapshot.version
           end
@@ -160,7 +160,7 @@ class Api::ProjectsController < Api::ApiController
           if @snapshots_by_pid && @snapshots_by_pid[project.id]
             @snapshots_by_pid[project.id].sort{|s1,s2| s2.version <=> s1.version}.each do |snapshot|
               attributes={:sid => snapshot.id.to_s, :last => snapshot.last?}
-              attributes[:date]=format_datetime(snapshot.created_at) if snapshot.created_at
+              attributes[:date]=Api::Utils.format_datetime(snapshot.created_at) if snapshot.created_at
               xml.version(snapshot.version, attributes)
             end
           end

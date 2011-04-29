@@ -206,7 +206,7 @@ class Api::EventsController < Api::ApiController
     hash[:rk]=event.resource.key if event.resource
     hash[:n]=event.name if event.name
     hash[:c]=event.category
-    hash[:dt]=format_datetime(event.event_date) if event.event_date
+    hash[:dt]=Api::Utils.format_datetime(event.event_date) if event.event_date
     hash[:ds]=event.description if event.description
     hash[:data]=event.data if event.data
     hash
@@ -226,7 +226,7 @@ class Api::EventsController < Api::ApiController
       xml.name(event.name) if event.name
       xml.resourceKey(event.resource.key) if event.resource
       xml.category(event.category)
-      xml.date(format_datetime(event.event_date)) if event.event_date
+      xml.date(Api::Utils.format_datetime(event.event_date)) if event.event_date
       xml.description(event.description) if event.description
       xml.data(event.data) if event.data
     end

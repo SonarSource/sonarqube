@@ -18,7 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 
-require "json"
+require 'json'
 
 class Api::ViolationsController < Api::ResourceRestController
 
@@ -92,15 +92,17 @@ class Api::ViolationsController < Api::ResourceRestController
   end
 
   def rest_to_json(rule_failures)
-    JSON(rule_failures.collect{|rule_failure| rule_failure.to_hash_json(params['include_review']=="true")})
+    include_review=(params['include_review']=='true')
+    JSON(rule_failures.collect{|rule_failure| rule_failure.to_json(include_review)})
   end
 
   def rest_to_xml(rule_failures)
+    include_review=(params['include_review']=='true')
     xml = Builder::XmlMarkup.new(:indent => 0)
     xml.instruct!
     xml.violations do
       rule_failures.each do |rule_failure|
-        rule_failure.to_xml(xml, params['include_review']=="true")
+        rule_failure.to_xml(xml, include_review)
       end
     end
   end

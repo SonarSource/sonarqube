@@ -191,7 +191,7 @@ class Api::TimemachineController < Api::ApiController
     end
 
     @sids.each do |snapshot_id|
-      cell={:d => format_datetime(@dates_by_sid[snapshot_id])}
+      cell={:d => Api::Utils.format_datetime(@dates_by_sid[snapshot_id])}
       cell_values=[]
       cell[:v]=cell_values
 
@@ -216,7 +216,7 @@ class Api::TimemachineController < Api::ApiController
       end
       csv << header
       @sids.each do |snapshot_id|
-        row=[format_datetime(@dates_by_sid[snapshot_id])]
+        row=[Api::Utils.format_datetime(@dates_by_sid[snapshot_id])]
         @metadata.each do |metadata|
           measure=@measures_by_sid[snapshot_id][metadata.to_id]
           if measure

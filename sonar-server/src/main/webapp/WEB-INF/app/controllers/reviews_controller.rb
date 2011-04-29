@@ -26,7 +26,7 @@ class ReviewsController < ApplicationController
          :only => [:assign, :comment_form, :flag_as_false_positive, 
                    :violation_assign, :violation_flag_as_false_positive,:violation_save_comment, :violation_delete_comment], 
          :redirect_to => {:action => :error_not_post}
-  helper ReviewsHelper, MarkdownHelper, SourceHelper
+  helper SourceHelper
 
   def index
     init_params()

@@ -17,19 +17,28 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
+require 'time'
 
-require 'json'
+class Api::Utils
 
-class Api::ReviewsController < Api::ApiController
+  # Format dateTime to ISO format
+  def self.format_datetime(datetime)
+    datetime.strftime("%Y-%m-%dT%H:%M:%S%z")
+  end
 
-  def index
-    reviews=Review.search(params)
-    
-    respond_to do |format|
-      format.json { render :json => jsonp(Review.reviews_to_json(reviews)) }
-      format.xml {render :xml => Review.reviews_to_xml(reviews)}
-      format.text { render :text => text_not_supported }
+  def self.parse_datetime(datetime_string, default_is_now=true)
+    if datetime_string.blank?
+      return (default_is_now ? Time.now : nil)
     end
+    Time.parse(datetime_string)
+  end
+
+  def self.is_number?(s)
+    true if Float(s) rescue false
+  end
+
+  def self.markdown_to_html(markdown)
+    markdown ? Java::OrgSonarServerUi::JRubyFacade.markdownToHtml(ERB::Util.html_escape(markdown)) : ''
   end
 
 end
