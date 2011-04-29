@@ -77,16 +77,15 @@ class Api::ApiController < ApplicationController
   def render_success(msg)
     render_error(msg, 200)
   end
-  
+
+  # deprecated. Use Api::Utils.format_datetime
   def format_datetime(datetime)
-    datetime.strftime("%Y-%m-%dT%H:%M:%S%z")
+    Api::Utils.format_datetime(datetime)
   end
-  
+
+  # deprecated. Use Api::Utils.parse_datetime
   def parse_datetime(datetime_string, default_is_now=true)
-    if datetime_string.blank?
-      return (default_is_now ? Time.now : nil)
-    end
-    Time.parse(datetime_string)
+    Api::Utils.parse_datetime(datetime_string, default_is_now)
   end
 
   class ApiException < Exception
