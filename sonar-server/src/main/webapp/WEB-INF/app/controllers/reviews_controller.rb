@@ -35,8 +35,8 @@ class ReviewsController < ApplicationController
   
   # Used for the permalink, e.g. http://localhost:9000/reviews/view/1
   def view
-    @review=Review.find(params[:id], :include => ['project'])
-    if has_role?(:user, @review.project)
+    @review = Review.find(params[:id], :include => ['project'])
+    if current_user && has_role?(:user, @review.project)
       render 'reviews/_review', :locals => {:review => @review}
     else
       render :text => "<b>Cannot access this review</b> : access denied."
@@ -51,7 +51,7 @@ class ReviewsController < ApplicationController
   #
 
   def show
-    @review=Review.find(params[:id], :include => ['project'])
+    @review = Review.find(params[:id], :include => ['project'])
     render :partial => 'reviews/show'
   end
 
@@ -63,8 +63,8 @@ class ReviewsController < ApplicationController
 
   # POST
   def assign
-    @review = Review.find(params[:id])
-    unless current_user
+    @review = Review.find(params[:id], :include => ['project'])
+    unless has_rights_to_modify?(@review.project)
       render :text => "<b>Cannot edit the review</b> : access denied."
       return
     end
@@ -86,8 +86,8 @@ class ReviewsController < ApplicationController
 
   # POST
   def save_comment
-    @review = Review.find(params[:id])
-    unless current_user
+    @review = Review.find(params[:id], :include => ['project'])
+    unless has_rights_to_modify?(@review.project)
       render :text => "<b>Cannot create the comment</b> : access denied."
       return
     end
@@ -112,8 +112,8 @@ class ReviewsController < ApplicationController
 
   # POST
   def flag_as_false_positive
-    @review = Review.find(params[:id])
-    unless current_user
+    @review = Review.find(params[:id], :include => ['project'])
+    unless has_rights_to_modify?(@review.project)
       render :text => "<b>Cannot create the comment</b> : access denied."
       return
     end
@@ -135,8 +135,8 @@ class ReviewsController < ApplicationController
 
   # POST
   def delete_comment
-    @review = Review.find(params[:id])
-    unless current_user
+    @review = Review.find(params[:id], :include => ['project'])
+    unless has_rights_to_modify?(@review.project)
       render :text => "<b>Cannot delete the comment</b> : access denied."
       return
     end
@@ -169,8 +169,8 @@ class ReviewsController < ApplicationController
 
   # POST
   def violation_assign
-    violation = RuleFailure.find(params[:id])
-    unless current_user
+    violation = RuleFailure.find(params[:id], :include => 'snapshot')
+    unless has_rights_to_modify?(violation.snapshot)
       render :text => "<b>Cannot edit the review</b> : access denied."
       return
     end
@@ -191,8 +191,8 @@ class ReviewsController < ApplicationController
 
   # POST
   def violation_flag_as_false_positive
-    violation=RuleFailure.find params[:id]
-    unless has_rights_to_modify?(violation)
+    violation=RuleFailure.find(params[:id], :include => 'snapshot')
+    unless has_rights_to_modify?(violation.snapshot)
       render :text => "<b>Cannot switch on the violation</b> : access denied."
       return
     end
@@ -225,8 +225,8 @@ class ReviewsController < ApplicationController
 
   # POST
   def violation_save_comment
-    violation = RuleFailure.find params[:id]
-    unless has_rights_to_modify?(violation)
+    violation = RuleFailure.find(params[:id], :include => 'snapshot')
+    unless has_rights_to_modify?(violation.snapshot)
       render :text => "<b>Cannot create the comment</b> : access denied."
       return
     end
@@ -253,8 +253,8 @@ class ReviewsController < ApplicationController
 
   # POST
   def violation_delete_comment
-    violation = RuleFailure.find params[:id]
-    unless has_rights_to_modify?(violation)
+    violation = RuleFailure.find(params[:id], :include => 'snapshot')
+    unless has_rights_to_modify?(violation.snapshot)
       render :text => "<b>Cannot delete the comment</b> : access denied."
       return
     end
@@ -337,8 +337,8 @@ class ReviewsController < ApplicationController
     true if Float(s) rescue false
   end
   
-  def has_rights_to_modify?(violation)
-    current_user && has_role?(:user, violation.snapshot)
+  def has_rights_to_modify?(object)
+    current_user && has_role?(:user, object)
   end
 
   def error_not_post
