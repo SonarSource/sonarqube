@@ -19,18 +19,22 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import com.google.common.collect.Lists;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 
-import java.util.List;
-import java.util.Map;
-
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import com.google.common.collect.Lists;
 
 public class ViolationPersisterDecoratorTest {
 
@@ -90,7 +94,7 @@ public class ViolationPersisterDecoratorTest {
 
   @Test
   public void pastMeasureHasNoChecksum() {
-    Violation newViolation = newViolation("message", 1, 50, "checksum1");
+    Violation newViolation = newViolation("message", 1, 50, null);
     RuleFailureModel pastViolation = newPastViolation("message", 1, 51, null);
 
     Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(pastViolation));
@@ -149,7 +153,9 @@ public class ViolationPersisterDecoratorTest {
     for (int i = decorator.checksums.size() - 1; i < lineId; i++) {
       decorator.checksums.add("");
     }
-    decorator.checksums.set(lineId - 1, ViolationPersisterDecorator.getChecksum(lineChecksum));
+    if (lineChecksum != null) {
+      decorator.checksums.set(lineId - 1, ViolationPersisterDecorator.getChecksum(lineChecksum));
+    }
     return violation;
   }
 

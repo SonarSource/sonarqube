@@ -161,7 +161,7 @@ public class ViolationPersisterDecorator implements Decorator {
   }
 
   private boolean isSameLine(Violation newViolation, RuleFailureModel pastViolation) {
-    return pastViolation.getLine() == newViolation.getLineId();
+    return pastViolation.getLine() == newViolation.getLineId(); //When lines are null, we also return true
   }
 
   private boolean isSameMessage(Violation newViolation, RuleFailureModel pastViolation) {
