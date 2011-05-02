@@ -13,6 +13,7 @@
         <textarea id="commentText" rows="8" name="text" style="width: 100%" onkeyup="if (this.value=='') $('submit_btn').disabled='true'; else $('submit_btn').disabled='';"><%= @comment.text if @comment -%></textarea>
         <br/>
         <%= submit_to_remote "submit_btn", button, :url => { :action => 'save_comment'}, :html => { :id => "submit_btn", :disabled => "true" }, :update => 'review' -%>
+        &nbsp;
         <%= link_to_remote 'Cancel', :url => {:action => 'show', :id => params[:id]}, :update => 'review' -%>
       </td>
       <td class="sep"></td>

@@ -11,13 +11,13 @@
         <%= link_to_remote (review.assignee_id ? "Reassign" : "Assign"),  
         		:url => { :controller => "reviews", :action => "assign_form", :review_id => review.id},
         		:update => "assignForm",
-        		:complete => "$('rActions').hide(); $('commentAction').hide(); $('assignee_id').focus();" -%>
+        		:complete => "$('rActions').hide(); $('editActions').hide(); $('assignee_id').focus();" -%>
       
         &nbsp;
         <%= link_to_remote ("Flag as false-positive"),
         		:url => { :controller => "reviews", :action => "false_positive_form", :id => review.id },
         		:update => "reviewForm",
-        		:complete => "$('rActions').hide(); $('commentAction').hide(); $('reviewForm').show();$('commentText').focus();" -%>
+        		:complete => "$('reviewForm').show(); $('rActions').hide(); $('editActions').hide(); $('commentText').focus();" -%>
     </span>
     <% end %>
     
