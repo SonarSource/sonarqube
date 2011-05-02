@@ -109,18 +109,20 @@ class Review < ActiveRecord::Base
     if authors && authors.size>0 && !authors[0].blank?
       conditions << 'user_id in (:authors)'
       unless Api::Utils.is_number?(authors[0])
-        authors=User.logins_to_ids(authors)
+        values[:authors]=User.logins_to_ids(authors)
+      else
+        values[:authors]=authors.map{|user_id| user_id.to_i}
       end
-      values[:authors]=authors
     end
 
     assignees=options['assignees'].split(',') if options['assignees']
     if assignees && assignees.size>0 && !assignees[0].blank?
       conditions << 'assignee_id in (:assignees)'
       unless Api::Utils.is_number?(assignees[0])
-        assignees=User.logins_to_ids(assignees)
+        values[:assignees]=User.logins_to_ids(assignees)
+      else
+        values[:assignees]=assignees.map{|user_id| user_id.to_i}
       end
-      values[:assignees]=assignees
     end
 
     Review.find(:all, :include => [ 'review_comments' ], :order => 'created_at DESC', :conditions => [conditions.join(' AND '), values], :limit => 200)
