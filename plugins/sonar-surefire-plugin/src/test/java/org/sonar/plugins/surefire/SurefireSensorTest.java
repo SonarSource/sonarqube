@@ -19,6 +19,12 @@
  */
 package org.sonar.plugins.surefire;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.custommonkey.xmlunit.DetailedDiff;
 import org.custommonkey.xmlunit.Diff;
@@ -39,15 +45,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.StringReader;
 import java.net.URISyntaxException;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyDouble;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
 
 public class SurefireSensorTest {
 

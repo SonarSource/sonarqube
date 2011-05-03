@@ -26,11 +26,11 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.*;
-import org.sonar.api.resources.File;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.api.test.IsResource;
 
 import java.net.URISyntaxException;
+import java.util.Arrays;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
@@ -52,14 +52,33 @@ public class AbstractSurefireParserTest {
     verify(context, times(6)).saveMeasure(argThat(new IsResource(Scopes.FILE, Qualifiers.FILE)), argThat(new IsMeasure(CoreMetrics.TEST_DATA)));
   }
 
+  /**
+   * See http://jira.codehaus.org/browse/SONAR-2371
+   */
   @Test
-  public void shouldNotFailIfNoReports() throws URISyntaxException {
+  public void shouldInsertZeroWhenNoReports() throws URISyntaxException {
     AbstractSurefireParser parser = newParser();
     SensorContext context = mockContext();
+    Project project = mock(Project.class);
 
-    parser.collect(new Project("foo"), context, getDir("noReports"));
+    parser.collect(project, context, getDir("noReports"));
 
-    verifyZeroInteractions(context);
+    verify(context).saveMeasure(CoreMetrics.TESTS, 0.0);
+  }
+
+  /**
+   * See http://jira.codehaus.org/browse/SONAR-2371
+   */
+  @Test
+  public void shouldNotInsertZeroWhenNoReports() throws URISyntaxException {
+    AbstractSurefireParser parser = newParser();
+    SensorContext context = mockContext();
+    Project project = mock(Project.class);
+    when(project.getModules()).thenReturn(Arrays.asList(new Project("foo")));
+
+    parser.collect(project, context, getDir("noReports"));
+
+    verify(context, never()).saveMeasure(CoreMetrics.TESTS, 0.0);
   }
 
   @Test
@@ -70,16 +89,6 @@ public class AbstractSurefireParserTest {
     parser.collect(new Project("foo"), context, getDir("noTests"));
 
     verify(context, never()).saveMeasure(any(Resource.class),(Metric)anyObject(), anyDouble());
-  }
-
-  @Test
-  public void shouldNotInsertMeasuresOnPomProjects() throws URISyntaxException {
-    AbstractSurefireParser parser = newParser();
-    SensorContext context = mockContext();
-
-    parser.collect(new Project("foo").setPackaging("pom"), context, getDir("noReports"));
-
-    verify(context, never()).saveMeasure(eq(CoreMetrics.TESTS), anyDouble());
   }
 
   @Test

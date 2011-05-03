@@ -47,7 +47,12 @@ public abstract class AbstractSurefireParser {
   public void collect(Project project, SensorContext context, File reportsDir) {
     File[] xmlFiles = getReports(reportsDir);
 
-    if (xmlFiles.length != 0) {
+    if (xmlFiles.length == 0) {
+      // See http://jira.codehaus.org/browse/SONAR-2371
+      if (project.getModules().isEmpty()) {
+        context.saveMeasure(CoreMetrics.TESTS, 0.0);
+      }
+    } else {
       parseFiles(context, xmlFiles);
     }
   }

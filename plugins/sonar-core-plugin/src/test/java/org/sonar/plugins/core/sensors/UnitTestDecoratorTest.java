@@ -32,7 +32,6 @@ import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Project;
 
 import java.util.Arrays;
@@ -86,9 +85,6 @@ public class UnitTestDecoratorTest {
     when(context.getChildrenMeasures(metric)).thenReturn(Arrays.asList(new Measure(metric, value), new Measure(metric, value)));
   }
 
-  /**
-   * See http://jira.codehaus.org/browse/SONAR-2371
-   */
   @Test
   public void doNotDecorateIfTestsMeasureAlreadyExists() {
     Project project = mock(Project.class);
@@ -99,31 +95,6 @@ public class UnitTestDecoratorTest {
     assertThat(decorator.shouldDecorateResource(project, context), is(false));
     verify(context, atLeastOnce()).getMeasure(CoreMetrics.TESTS);
     verifyNoMoreInteractions(context);
-  }
-
-  /**
-   * See http://jira.codehaus.org/browse/SONAR-2371
-   */
-  @Test
-  public void shouldSaveZeroOnProject() {
-    Project project = new Project("").setAnalysisType(Project.AnalysisType.DYNAMIC);
-
-    decorator.decorate(project, context);
-
-    verify(context).saveMeasure(CoreMetrics.TESTS, 0.0);
-  }
-
-  /**
-   * See http://jira.codehaus.org/browse/SONAR-2371
-   */
-  @Test
-  public void shouldNotSaveZeroOnPackage() {
-    JavaPackage pkg = new JavaPackage();
-
-    decorator.decorate(pkg, context);
-
-    assertThat(decorator.shouldDecorateResource(pkg, context), is(true));
-    verify(context, never()).saveMeasure(CoreMetrics.TESTS, 0.0);
   }
 
 }
