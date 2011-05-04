@@ -1,5 +1,11 @@
 package com.mycompany.sonar.standard;
 
+import com.mycompany.sonar.standard.batch.RandomDecorator;
+import com.mycompany.sonar.standard.batch.SampleSensor;
+import com.mycompany.sonar.standard.rules.SampleQualityProfile;
+import com.mycompany.sonar.standard.rules.SampleRuleRepository;
+import com.mycompany.sonar.standard.ui.SampleFooter;
+import com.mycompany.sonar.standard.ui.SampleRubyWidget;
 import org.sonar.api.SonarPlugin;
 
 import java.util.Arrays;
@@ -13,9 +19,13 @@ public final class SamplePlugin extends SonarPlugin {
   // This is where you're going to declare all your Sonar extensions
   public List getExtensions() {
     return Arrays.asList(
-        SampleMetrics.class, SampleSensor.class, SampleRubyWidget.class,
+        // Definitions
+        SampleRuleRepository.class, SampleMetrics.class, SampleQualityProfile.class,
+
+        // Batch
+        SampleSensor.class, RandomDecorator.class,
 
         // UI
-        SampleFooter.class);
+        SampleFooter.class, SampleRubyWidget.class);
   }
 }

@@ -1,9 +1,10 @@
-package com.mycompany.sonar.standard;
+package com.mycompany.sonar.standard.ui;
 
 import org.sonar.api.web.*;
 
 @UserRole(UserRole.USER)
 @Description("Show how to use Ruby Widget API")
+@WidgetCategory("Sample")
 @WidgetProperties({
   @WidgetProperty(key="param1",
     description="This is a mandatory parameter",

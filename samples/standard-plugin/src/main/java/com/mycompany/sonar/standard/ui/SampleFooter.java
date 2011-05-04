@@ -1,4 +1,4 @@
-package com.mycompany.sonar.standard;
+package com.mycompany.sonar.standard.ui;
 
 import org.sonar.api.web.Footer;
 
