@@ -130,6 +130,16 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
           <version>2.2.1</version>
+          <configuration>
+            <archiverConfig>
+              <!-- Workaround for http://jira.codehaus.org/browse/MASSEMBLY-422 -->
+              <!-- 420(dec) = 644(oct) -->
+              <fileMode>420</fileMode>
+              <!-- 493(dec) = 755(oct) -->
+              <directoryMode>493</directoryMode>
+              <defaultDirectoryMode>493</defaultDirectoryMode>
+            </archiverConfig>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
