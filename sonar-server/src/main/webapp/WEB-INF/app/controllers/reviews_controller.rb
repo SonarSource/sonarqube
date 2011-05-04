@@ -36,7 +36,7 @@ class ReviewsController < ApplicationController
   # Used for the permalink, e.g. http://localhost:9000/reviews/view/1
   def view
     @review = Review.find(params[:id], :include => ['project'])
-    if current_user && has_role?(:user, @review.project)
+    if has_role?(:user, @review.project)
       render 'reviews/_view', :locals => {:review => @review}
     else
       render :text => "<b>Cannot access this review</b> : access denied."

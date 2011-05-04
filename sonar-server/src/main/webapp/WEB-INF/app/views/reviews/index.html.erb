@@ -114,7 +114,7 @@
         <tr class="<%= cycle('even', 'odd') -%>">
           <td><img src="<%= ApplicationController.root_context -%>/images/status/<%= review.status -%>.png" title="<%= review.status.capitalize -%>"/></td>
           <td>
-            <%= link_to_remote( "#"+h(review.id), :update => 'review', :url => {:action => 'show', :id => review.id}, :loading => 'onReviewLoading()', :complete => "onReviewLoaded()") -%>
+            <%= link_to_remote( h(review.id), :update => 'review', :url => {:action => 'show', :id => review.id}, :loading => 'onReviewLoading()', :complete => "onReviewLoaded()") -%>
           </td>
           <td><img src="<%= ApplicationController.root_context -%>/images/priority/<%= review.severity -%>.png" title="<%= review.severity.capitalize -%>"/></td>
           <td>
