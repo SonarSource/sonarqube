@@ -78,7 +78,7 @@ public class ProjectBuilder {
   }
 
   String loadProjectBranch(Configuration configuration) {
-    return configuration.getString(CoreProperties.PROJECT_BRANCH_PROPERTY, configuration.getString("branch" /* deprecated property */));
+    return configuration.getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
   }
 
   public void configure(Project project, ProjectDefinition def) {

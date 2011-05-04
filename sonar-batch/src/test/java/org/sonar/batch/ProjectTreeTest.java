@@ -104,17 +104,6 @@ public class ProjectTreeTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void keyIncludesDeprecatedBranch() throws IOException, XmlPullParserException, URISyntaxException {
-    MavenProject pom = loadProject("/org/sonar/batch/ProjectTreeTest/keyIncludesDeprecatedBranch/pom.xml", true);
-
-    ProjectTree tree = new ProjectTree(newProjectBuilder(), Arrays.asList(pom));
-    tree.start();
-
-    assertThat(tree.getRootProject().getKey(), is("org.test:project:BRANCH-1.X"));
-    assertThat(tree.getRootProject().getName(), is("Project BRANCH-1.X"));
-  }
-
-  @Test
   public void doNotSkipAnyModules() {
     Project foo = newProjectWithArtifactId("root");
     Project bar = newProjectWithArtifactId("sub1");
