@@ -62,7 +62,13 @@ public class Batch {
       analyzeModules(bootstrapComponents);
     } finally {
       if (bootstrapComponents != null) {
-        bootstrapComponents.stop();
+        try {
+          bootstrapComponents.stop();
+        } catch (Exception e) {
+          // See http://jira.codehaus.org/browse/SONAR-2346
+          // This exception must not override the exception thrown during start() phase.
+          LOG.error("Fail to stop IoC container", e);
+        }
       }
     }
   }
