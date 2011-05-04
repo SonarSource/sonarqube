@@ -201,6 +201,15 @@ public final class CoreMetrics {
   //--------------------------------------------------------------------------------------------------------------------
 
   public static final String TESTS_KEY = "tests";
+
+  /**
+   * Value of measure for this metric can be saved from Sensor, taking into account following rules:
+   * <ul>
+   * <li>If tool (like Maven Surefire Plugin) has not been activated to run unit tests, then Sensor should not save anything. For example there is no such tool for COBOL.</li>
+   * <li>If tool has been activated, but there was no unit tests to run, then zero value should be saved for project.</li>
+   * <li>Non-zero value should be saved for resources representing tests. And Sonar provides default Decorator, which will decorate parent resources.</li>
+   * </ul>
+   */
   public static final Metric TESTS = new Metric(TESTS_KEY, "Unit tests", "Number of unit tests", Metric.ValueType.INT,
       Metric.DIRECTION_WORST, false, DOMAIN_TESTS);
 
@@ -366,13 +375,13 @@ public final class CoreMetrics {
       .create();
 
   /**
-   * @deprecated since 2.7. Replaced by COVERED_CONDITIONS_BY_LINE_KEY and COVERED_CONDITIONS_BY_LINE_KEY
+   * @deprecated in 2.7. Replaced by {@link #CONDITIONS_BY_LINE_KEY} and {@link #COVERED_CONDITIONS_BY_LINE_KEY}
    */
   @Deprecated
   public static final String BRANCH_COVERAGE_HITS_DATA_KEY = "branch_coverage_hits_data";
 
   /**
-   * @deprecated since 2.7 replaced by metrics CONDITIONS_BY_LINE and COVERED_CONDITIONS_BY_LINE
+   * @deprecated in 2.7. Replaced by metrics {@link #CONDITIONS_BY_LINE} and {@link #COVERED_CONDITIONS_BY_LINE}
    */
   @Deprecated
   public static final Metric BRANCH_COVERAGE_HITS_DATA = new Metric.Builder(BRANCH_COVERAGE_HITS_DATA_KEY, "Branch coverage hits", Metric.ValueType.DATA)
