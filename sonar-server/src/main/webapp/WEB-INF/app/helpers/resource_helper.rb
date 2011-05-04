@@ -19,7 +19,4 @@
 #
 module ResourceHelper
   
-  def violation_html_message(violation)
-    violation.message ? h(violation.message).split(/\r?\n|\r/).join('<br/>') : ''
-  end
 end

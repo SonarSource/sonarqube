@@ -41,4 +41,10 @@ class Api::Utils
     markdown ? Java::OrgSonarServerUi::JRubyFacade.markdownToHtml(ERB::Util.html_escape(markdown)) : ''
   end
 
+  # splits a string into an array of lines
+  def self.split_newlines(input)
+    # Don't limit number of returned fields and don't suppress trailing empty fields by setting second parameter to negative value.
+    # See http://jira.codehaus.org/browse/SONAR-2282
+    input.split(/\r?\n|\r/, -1)
+  end
 end

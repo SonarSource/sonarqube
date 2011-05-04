@@ -67,7 +67,7 @@ class SnapshotSource < ActiveRecord::Base
   end
 
   def lines(encode)
-    SnapshotSource.split_newlines(encoded_data(encode))
+    Api::Utils.split_newlines(encoded_data(encode))
   end
   
   def syntax_highlighted_source
@@ -78,13 +78,7 @@ class SnapshotSource < ActiveRecord::Base
   end
   
   def syntax_highlighted_lines
-    SnapshotSource.split_newlines(syntax_highlighted_source)
+    Api::Utils.split_newlines(syntax_highlighted_source)
   end
 
-  private
-  def self.split_newlines(input)
-    # Don't limit number of returned fields and don't suppress trailing empty fields by setting second parameter to negative value.
-    # See http://jira.codehaus.org/browse/SONAR-2282
-    input.split(/\r?\n|\r/, -1)
-  end
 end

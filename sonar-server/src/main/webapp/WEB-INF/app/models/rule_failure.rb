@@ -31,10 +31,17 @@ class RuleFailure < ActiveRecord::Base
           if message.blank?
             rule.name
           else
-            parts=message.split(/\r?\n|\r/, -1)
+            parts=Api::Utils.split_newlines(message)
             parts.size==0 ? rule.name : parts[0]
           end
         end
+  end
+  
+  def html_message
+    @html_message ||=
+      begin
+        message ? Api::Utils.split_newlines(ERB::Util.html_escape(message)).join('<br/>') : ''
+      end
   end
 
   def to_json(include_review=false)
