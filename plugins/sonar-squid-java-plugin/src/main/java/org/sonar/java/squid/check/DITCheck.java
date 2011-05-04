@@ -37,8 +37,10 @@ import org.sonar.squid.measures.Metric;
         + "'inheritance' when 'composition' would suit better.</p>")
 public class DITCheck extends SquidCheck {
 
-  @RuleProperty(description = "Maximum depth of the inheritance tree.", defaultValue = "5")
-  private Integer max;
+  public static final int DEFAULT_MAX = 5;
+
+  @RuleProperty(description = "Maximum depth of the inheritance tree.", defaultValue = "" + DEFAULT_MAX)
+  private Integer max = DEFAULT_MAX;
 
   @Override
   public void visitClass(SourceClass sourceClass) {

@@ -39,8 +39,10 @@ import org.sonar.squid.measures.Metric;
         + "and which should be re-factored to be split in several classes.</p>")
 public class ClassComplexityCheck extends SquidCheck {
 
-  @RuleProperty(description = "Maximum complexity allowed.", defaultValue = "200")
-  private Integer max;
+  public static final int DEFAULT_MAX = 200;
+
+  @RuleProperty(description = "Maximum complexity allowed.", defaultValue = "" + DEFAULT_MAX)
+  private Integer max = DEFAULT_MAX;
 
   @Override
   public void visitClass(SourceClass sourceClass) {

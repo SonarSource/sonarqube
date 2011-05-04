@@ -39,8 +39,10 @@ import org.sonar.squid.measures.Metric;
         + "so the risk of regression increases exponentially.</p>")
 public class MethodComplexityCheck extends SquidCheck {
 
-  @RuleProperty(description = "Maximum complexity allowed.", defaultValue = "10")
-  private Integer max;
+  public static final int DEFAULT_MAX = 10;
+
+  @RuleProperty(description = "Maximum complexity allowed.", defaultValue = "" + DEFAULT_MAX)
+  private Integer max = DEFAULT_MAX;
 
   @Override
   public void visitMethod(SourceMethod sourceMethod) {
