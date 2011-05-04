@@ -12,9 +12,6 @@
     <%= options_for_profiles(@profiles, params[:id2].to_i) %>
   </select>
   <input type="submit" value="Compare" class="small" id="submit-compare"/>
-  <% if @profile1 && @profile2 %>
-    <a href="<%= url_for :action => 'compare', :id1 => @profile2.id, :id2 => @profile1.id -%>" id="switch" title="Switch left and right view"><%= image_tag 'switch.png' -%></a>
-  <% end %>
 </form>
 
 <% if @profile1 && @profile2 %>
