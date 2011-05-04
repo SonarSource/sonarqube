@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+  <id>distribution</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <includeBaseDirectory>true</includeBaseDirectory>
+
+  <fileSets>
+    <fileSet>
+      <directory>standard-plugin</directory>
+      <outputDirectory>standard-plugin</outputDirectory>
+      <includes>
+        <include>src/**/*</include>
+        <include>pom.xml</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>gwt-plugin</directory>
+      <outputDirectory>gwt-plugin</outputDirectory>
+      <includes>
+        <include>src/**/*</include>
+        <include>pom.xml</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+</assembly>
