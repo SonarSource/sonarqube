@@ -93,16 +93,18 @@ class Api::ViolationsController < Api::ResourceRestController
 
   def rest_to_json(rule_failures)
     include_review=(params['include_review']=='true')
-    JSON(rule_failures.collect{|rule_failure| rule_failure.to_json(include_review)})
+    convert_markdown=(params[:output]=='html')
+    JSON(rule_failures.collect{|rule_failure| rule_failure.to_json(include_review, convert_markdown)})
   end
 
   def rest_to_xml(rule_failures)
     include_review=(params['include_review']=='true')
+    convert_markdown=(params[:output]=='html')
     xml = Builder::XmlMarkup.new(:indent => 0)
     xml.instruct!
     xml.violations do
       rule_failures.each do |rule_failure|
-        rule_failure.to_xml(xml, include_review)
+        rule_failure.to_xml(xml, include_review, convert_markdown)
       end
     end
   end

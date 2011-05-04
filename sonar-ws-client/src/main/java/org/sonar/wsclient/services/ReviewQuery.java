@@ -35,6 +35,7 @@ public class ReviewQuery extends Query<Review> {
   private String[] resourceKeysOrIds;
   private String[] authorLoginsOrIds;
   private String[] assigneeLoginsOrIds;
+  private String output;
 
   public ReviewQuery() {
   }
@@ -187,6 +188,21 @@ public class ReviewQuery extends Query<Review> {
     return this;
   }
 
+  /**
+   * @return the output
+   */
+  public String getOutput() {
+    return output;
+  }
+
+  /**
+   * @param output the output to set
+   */
+  public ReviewQuery setOutput(String output) {
+    this.output = output;
+    return this;
+  }
+
   @Override
   public String getUrl() {
     StringBuilder url = new StringBuilder(BASE_URL);
@@ -203,6 +219,7 @@ public class ReviewQuery extends Query<Review> {
     appendUrlParameter(url, "resources", resourceKeysOrIds);
     appendUrlParameter(url, "authors", authorLoginsOrIds);
     appendUrlParameter(url, "assignees", assigneeLoginsOrIds);
+    appendUrlParameter(url, "output", output);
 
     return url.toString();
   }

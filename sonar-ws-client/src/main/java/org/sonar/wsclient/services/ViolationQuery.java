@@ -32,6 +32,7 @@ public class ViolationQuery extends Query<Violation> {
   private String[] severities;
   private Integer limit;
   private Boolean includeReview;
+  private String output;
 
   public ViolationQuery(String resourceKeyOrId) {
     this.resourceKeyOrId = resourceKeyOrId;
@@ -144,6 +145,21 @@ public class ViolationQuery extends Query<Violation> {
     return this;
   }
 
+  /**
+   * @since 2.8
+   */
+  public String getOutput() {
+    return output;
+  }
+
+  /**
+   * @since 2.8
+   */
+  public ViolationQuery setOutput(String output) {
+    this.output = output;
+    return this;
+  }
+
   @Override
   public String getUrl() {
     StringBuilder url = new StringBuilder(BASE_URL);
@@ -159,6 +175,7 @@ public class ViolationQuery extends Query<Violation> {
     appendUrlParameter(url, "categories", categories);
     appendUrlParameter(url, "priorities", severities);
     appendUrlParameter(url, "include_review", includeReview);
+    appendUrlParameter(url, "output", output);
 
     return url.toString();
   }

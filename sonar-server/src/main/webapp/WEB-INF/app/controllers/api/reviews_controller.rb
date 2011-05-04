@@ -23,11 +23,12 @@ require 'json'
 class Api::ReviewsController < Api::ApiController
 
   def index
+    convert_markdown=(params[:output]=='html')
     reviews=select_authorized(:user, Review.search(params), :project)
     
     respond_to do |format|
-      format.json { render :json => jsonp(Review.reviews_to_json(reviews)) }
-      format.xml {render :xml => Review.reviews_to_xml(reviews)}
+      format.json { render :json => jsonp(Review.reviews_to_json(reviews, convert_markdown)) }
+      format.xml {render :xml => Review.reviews_to_xml(reviews, convert_markdown)}
       format.text { render :text => text_not_supported }
     end
   end

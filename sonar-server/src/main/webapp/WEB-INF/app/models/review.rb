@@ -128,17 +128,17 @@ class Review < ActiveRecord::Base
     Review.find(:all, :include => [ 'review_comments' ], :order => 'created_at DESC', :conditions => [conditions.join(' AND '), values], :limit => 200)
   end
 
-  def self.reviews_to_xml(reviews)
+  def self.reviews_to_xml(reviews, convert_markdown=false)
     xml = Builder::XmlMarkup.new(:indent => 0)
     xml.instruct!
     xml.reviews do
       reviews.each do |review|
-        review.to_xml(xml)
+        review.to_xml(xml, convert_markdown)
       end
     end
   end
 
-  def to_xml(xml)
+  def to_xml(xml, convert_markdown=false)
     xml.review do
       xml.id(id.to_i)
       xml.createdAt(Api::Utils.format_datetime(created_at))
@@ -156,18 +156,22 @@ class Review < ActiveRecord::Base
           xml.comment do
             xml.author(comment.user.login)
             xml.updatedAt(Api::Utils.format_datetime(comment.updated_at))
-            xml.text(comment.html_text)
+            if convert_markdown 
+              xml.text(comment.html_text)
+            else
+              xml.text(comment.review_text)
+            end
           end
         end
       end
     end
   end
 
-  def self.reviews_to_json(reviews)
-    JSON(reviews.collect{|review| review.to_json()})
+  def self.reviews_to_json(reviews, convert_markdown=false)
+    JSON(reviews.collect{|review| review.to_json(convert_markdown)})
   end
 
-  def to_json
+  def to_json(convert_markdown=false)
     json = {}
     json['id'] = id.to_i
     json['createdAt'] = Api::Utils.format_datetime(created_at)
@@ -185,7 +189,7 @@ class Review < ActiveRecord::Base
       comments << {
         'author' => comment.user.login,
         'updatedAt' => Api::Utils.format_datetime(comment.updated_at),
-        'text' => comment.html_text
+        'text' => convert_markdown ? comment.html_text : comment.review_text
       }
     end
     json['comments'] = comments

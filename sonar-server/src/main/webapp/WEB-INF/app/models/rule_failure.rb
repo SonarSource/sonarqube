@@ -44,7 +44,7 @@ class RuleFailure < ActiveRecord::Base
       end
   end
 
-  def to_json(include_review=false)
+  def to_json(include_review=false, convert_markdown=false)
     json = {}
     json['message'] = message
     json['line'] = line if line && line>=1
@@ -64,11 +64,11 @@ class RuleFailure < ActiveRecord::Base
       :qualifier => snapshot.project.qualifier,
       :language => snapshot.project.language
     }
-    json['review'] = review.to_json if include_review && review
+    json['review'] = review.to_json(convert_markdown) if include_review && review
     json
   end
 
-  def to_xml(xml=Builder::XmlMarkup.new(:indent => 0), include_review=false)
+  def to_xml(xml=Builder::XmlMarkup.new(:indent => 0), include_review=false, convert_markdown=false)
     xml.violation do
       xml.message(message)
       xml.line(line) if line && line>=1
@@ -88,7 +88,7 @@ class RuleFailure < ActiveRecord::Base
         xml.qualifier(snapshot.project.qualifier)
         xml.language(snapshot.project.language)
       end
-      review.to_xml(xml) if include_review && review
+      review.to_xml(xml, convert_markdown) if include_review && review
     end
   end
 

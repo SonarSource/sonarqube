@@ -40,16 +40,11 @@ public class ReviewQueryTest extends QueryTestCase {
   @Test
   public void resourceTreeViolations() {
     ReviewQuery query = new ReviewQuery();
-    query.setIds(10L, 11L);
-    query.setReviewType("FALSE_POSITIVE");
-    query.setStatuses("OPEN");
-    query.setSeverities("MINOR", "INFO");
-    query.setProjectKeysOrIds("com.sonar.foo:bar");
-    query.setResourceKeysOrIds("2", "3");
-    query.setAuthorLoginsOrIds("20");
-    query.setAssigneeLoginsOrIds("admin");
+    query.setIds(10L, 11L).setReviewType("FALSE_POSITIVE").setStatuses("OPEN").setSeverities("MINOR", "INFO")
+        .setProjectKeysOrIds("com.sonar.foo:bar").setResourceKeysOrIds("2", "3").setAuthorLoginsOrIds("20").setAssigneeLoginsOrIds("admin")
+        .setOutput("html");
     assertThat(
         query.getUrl(),
-        is("/api/reviews?ids=10,11&review_type=FALSE_POSITIVE&statuses=OPEN&severities=MINOR,INFO&projects=com.sonar.foo%3Abar&resources=2,3&authors=20&assignees=admin&"));
+        is("/api/reviews?ids=10,11&review_type=FALSE_POSITIVE&statuses=OPEN&severities=MINOR,INFO&projects=com.sonar.foo%3Abar&resources=2,3&authors=20&assignees=admin&output=html&"));
   }
 }
