@@ -1,0 +1,13 @@
+<rules>
+  <rule>
+    <key>com.mycompany.sonar.checkstyle.MethodsCountCheck</key>
+    <name>Methods Count</name>
+    <configKey>Checker/TreeWalker/com.mycompany.sonar.checkstyle.MethodsCountCheck</configKey>
+    <description>Count methods</description>
+    <param>
+      <key>minMethodsCount</key>
+      <description>Mimimun threshold</description>
+      <defaultValue>10</defaultValue>
+    </param>
+  </rule>
+ </rules>

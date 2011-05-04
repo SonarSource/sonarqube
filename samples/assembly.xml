@@ -23,5 +23,20 @@
         <include>pom.xml</include>
       </includes>
     </fileSet>
+    <fileSet>
+      <directory>checkstyle-extensions-plugin</directory>
+      <outputDirectory>checkstyle-extensions-plugin</outputDirectory>
+      <includes>
+        <include>src/**/*</include>
+        <include>pom.xml</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>${project.basedir}</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>*.txt</include>
+      </includes>
+    </fileSet>
   </fileSets>
 </assembly>

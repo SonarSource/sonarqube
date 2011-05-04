@@ -16,6 +16,7 @@
   <modules>
     <module>standard-plugin</module>
     <module>gwt-plugin</module>
+    <module>checkstyle-extensions-plugin</module>
   </modules>
 
   <build>
