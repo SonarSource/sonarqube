@@ -7,4 +7,9 @@
 
 === How to activate Checkstyle extensions
 
-Install the plugin "checkstyle-extensions" then search for the rule "Methods count"  in the administration console of Quality profiles.
+Install the plugin "checkstyle-extensions-plugin" then search for the rule "Methods count"  in the administration console of Quality profiles.
+
+
+=== How to activate PMD extensions
+
+Install the plugin "pmd-extensions-plugin" then search for the rules "MaximumMethodsCountCheck", "AvoidIfWithoutBrace" and "PreventUseOfEmptyClass"  in the administration console of Quality profiles.
