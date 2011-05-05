@@ -61,18 +61,22 @@ class DrilldownColumn
       order += ' DESC'
     end
 
-    conditions='snapshots.root_snapshot_id=:root_sid AND snapshots.islast=:islast AND snapshots.scope=:scope AND snapshots.path LIKE :path AND project_measures.metric_id=:metric_id'
-
-    if options[:exclude_zero_value]
-      conditions += " AND project_measures.#{value_column}<>0"
-    end
-
+    conditions="snapshots.root_snapshot_id=:root_sid AND snapshots.islast=:islast AND snapshots.scope=:scope AND snapshots.path LIKE :path AND project_measures.metric_id=:metric_id AND project_measures.#{value_column} IS NOT NULL"
     condition_values={
       :root_sid => (snapshot.root_snapshot_id || snapshot.id),
       :islast=>true,
       :scope => scope,
       :metric_id=>metric.id,
       :path => "#{snapshot.path}#{snapshot.id}.%"}
+
+    if value_column=='value' && metric.best_value
+      conditions<<' AND project_measures.value<>:best_value'
+      condition_values[:best_value]=metric.best_value
+    end
+
+    if options[:exclude_zero_value]
+      conditions += " AND project_measures.#{value_column}<>0"
+    end
 
     if options[:rule_id]
       conditions += ' AND project_measures.rule_id=:rule'
