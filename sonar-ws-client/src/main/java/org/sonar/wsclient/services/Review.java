@@ -52,8 +52,9 @@ public class Review extends Model {
    * @param id
    *          the id to set
    */
-  public void setId(Long id) {
+  public Review setId(Long id) {
     this.id = id;
+    return this;
   }
 
   /**
@@ -67,8 +68,9 @@ public class Review extends Model {
    * @param createdAt
    *          the createdAt to set
    */
-  public void setCreatedAt(Date createdAt) {
+  public Review setCreatedAt(Date createdAt) {
     this.createdAt = createdAt;
+    return this;
   }
 
   /**
@@ -82,8 +84,9 @@ public class Review extends Model {
    * @param updatedAt
    *          the updatedAt to set
    */
-  public void setUpdatedAt(Date updatedAt) {
+  public Review setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
+    return this;
   }
 
   /**
@@ -94,11 +97,12 @@ public class Review extends Model {
   }
 
   /**
-   * @param authorLogin
+   * @param s
    *          the authorLogin to set
    */
-  public void setAuthorLogin(String authorLogin) {
-    this.authorLogin = authorLogin;
+  public Review setAuthorLogin(String s) {
+    this.authorLogin = s;
+    return this;
   }
 
   /**
@@ -109,11 +113,12 @@ public class Review extends Model {
   }
 
   /**
-   * @param assigneeLogin
+   * @param s
    *          the assigneeLogin to set
    */
-  public void setAssigneeLogin(String assigneeLogin) {
-    this.assigneeLogin = assigneeLogin;
+  public Review setAssigneeLogin(String s) {
+    this.assigneeLogin = s;
+    return this;
   }
 
   /**
@@ -124,11 +129,12 @@ public class Review extends Model {
   }
 
   /**
-   * @param title
+   * @param s
    *          the title to set
    */
-  public void setTitle(String title) {
-    this.title = title;
+  public Review setTitle(String s) {
+    this.title = s;
+    return this;
   }
 
   /**
@@ -139,11 +145,12 @@ public class Review extends Model {
   }
 
   /**
-   * @param type
+   * @param s
    *          the type to set
    */
-  public void setType(String type) {
-    this.type = type;
+  public Review setType(String s) {
+    this.type = s;
+    return this;
   }
 
   /**
@@ -157,8 +164,9 @@ public class Review extends Model {
    * @param status
    *          the status to set
    */
-  public void setStatus(String status) {
+  public Review setStatus(String status) {
     this.status = status;
+    return this;
   }
 
   /**
@@ -172,8 +180,9 @@ public class Review extends Model {
    * @param severity
    *          the severity to set
    */
-  public void setSeverity(String severity) {
+  public Review setSeverity(String severity) {
     this.severity = severity;
+    return this;
   }
 
   /**
@@ -187,8 +196,9 @@ public class Review extends Model {
    * @param resourceKee
    *          the resourceKee to set
    */
-  public void setResourceKee(String resourceKee) {
+  public Review setResourceKee(String resourceKee) {
     this.resourceKee = resourceKee;
+    return this;
   }
 
   /**
@@ -202,8 +212,9 @@ public class Review extends Model {
    * @param line
    *          the line to set
    */
-  public void setLine(Integer line) {
+  public Review setLine(Integer line) {
     this.line = line;
+    return this;
   }
 
   /**
@@ -213,18 +224,15 @@ public class Review extends Model {
     return comments;
   }
 
-  /**
-   * @param comments
-   *          the comments to set
-   */
-  public void addComments(Date updatedAt, String authorLogin, String text) {
+  public Review addComments(Date updatedAt, String authorLogin, String text) {
     this.comments.add(new Review.Comment(updatedAt, authorLogin, text));
+    return this;
   }
 
   /**
    * @since 2.8
    */
-  public class Comment extends Model {
+  public static final class Comment extends Model {
 
     private String authorLogin = null;
     private Date updatedAt = null;

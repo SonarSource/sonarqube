@@ -25,6 +25,10 @@ import java.util.List;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.Timer;
 
+/**
+ * @deprecated since 2.8. Use sonar-gwt-api instead.
+ */
+@Deprecated
 public class SequentialQueries extends Query<VoidResponse> {
   
   private List<AjaxQuery<?>> queries = new ArrayList<AjaxQuery<?>>();

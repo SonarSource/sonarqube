@@ -19,37 +19,45 @@
  */
 package org.sonar.markdown;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.sonar.channel.Channel;
 import org.sonar.channel.ChannelDispatcher;
 import org.sonar.channel.CodeReader;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Entry point of the Markdown library
  */
-public class MarkdownEngine {
+public final class MarkdownEngine {
 
-  private MarkdownOutput output;
   private ChannelDispatcher<MarkdownOutput> dispatcher;
 
   private MarkdownEngine() {
-    output = new MarkdownOutput();
-    List<Channel> markdownChannels = new ArrayList<Channel>();
-    markdownChannels.add(new HtmlUrlChannel());
-    markdownChannels.add(new HtmlEndOfLineChannel());
-    markdownChannels.add(new HtmlEmphasisChannel());
-    markdownChannels.add(new HtmlListChannel());
-    markdownChannels.add(new HtmlCodeChannel());
-    markdownChannels.add(new IdentifierAndNumberChannel());
-    markdownChannels.add(new BlackholeChannel());
+    List<Channel> markdownChannels = Arrays.<Channel>asList(
+        new HtmlUrlChannel(),
+        new HtmlEndOfLineChannel(),
+        new HtmlEmphasisChannel(),
+        new HtmlListChannel(),
+        new HtmlCodeChannel(),
+        new IdentifierAndNumberChannel(),
+        new BlackholeChannel());
     dispatcher = new ChannelDispatcher<MarkdownOutput>(markdownChannels);
   }
 
+  private String convert(String input) {
+    CodeReader reader = new CodeReader(input);
+    try {
+      MarkdownOutput output = new MarkdownOutput();
+      dispatcher.consume(reader, output);
+      return output.toString();
+      
+    } finally {
+      reader.close();
+    }
+  }
+
   public static String convertToHtml(String input) {
-    MarkdownEngine engine = new MarkdownEngine();
-    engine.dispatcher.consume(new CodeReader(input), engine.output);
-    return engine.output.toString();
+    return new MarkdownEngine().convert(input);
   }
 }

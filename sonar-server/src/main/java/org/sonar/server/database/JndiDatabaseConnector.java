@@ -23,7 +23,6 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.cfg.Environment;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
@@ -92,7 +91,7 @@ public class JndiDatabaseConnector extends AbstractDatabaseConnector {
 
     try {
       Context envCtx = (Context) ctx.lookup(JNDI_ENV_CONTEXT);
-      datasource = (DataSource)envCtx.lookup(jndiKey);
+      datasource = (DataSource) envCtx.lookup(jndiKey);
       Logs.INFO.info("JDBC datasource loaded from JNDI: " + jndiKey);
 
     } catch (NamingException e) {
@@ -117,7 +116,7 @@ public class JndiDatabaseConnector extends AbstractDatabaseConnector {
       }
 
       datasource = BasicDataSourceFactory.createDataSource(properties);
-      CustomHibernateConnectionProvider.datasource=datasource;
+      CustomHibernateConnectionProvider.datasource = datasource;
     } catch (Exception e) {
       throw new SonarException("Fail to connect to database", e);
     }

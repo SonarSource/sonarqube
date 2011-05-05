@@ -21,6 +21,10 @@ package org.sonar.api.web.gwt.client;
 
 import com.google.gwt.i18n.client.Dictionary;
 
+/**
+ * @deprecated since 2.8. Use sonar-gwt-api instead.
+ */
+@Deprecated
 public final class ResourceDictionary {
 
   public final static String CONF_PERMALINK_BASE = "permalink_url_base";

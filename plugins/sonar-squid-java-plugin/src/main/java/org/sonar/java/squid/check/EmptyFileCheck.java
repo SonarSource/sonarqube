@@ -22,9 +22,7 @@ package org.sonar.java.squid.check;
 
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.check.RuleProperty;
 import org.sonar.squid.api.CheckMessage;
-import org.sonar.squid.api.SourceClass;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.measures.Metric;
 
@@ -35,7 +33,7 @@ public final class EmptyFileCheck extends SquidCheck {
   @Override
   public void visitFile(SourceFile file) {
     int loc = file.getInt(Metric.LINES_OF_CODE);
-    if (loc==0) {
+    if (loc == 0) {
       CheckMessage message = new CheckMessage(this, "This Java file is empty");
       file.log(message);
     }

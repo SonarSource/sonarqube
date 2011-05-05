@@ -19,9 +19,11 @@
  */
 package org.sonar.plugins.surefire;
 
-import org.sonar.api.*;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
+import org.sonar.api.SonarPlugin;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

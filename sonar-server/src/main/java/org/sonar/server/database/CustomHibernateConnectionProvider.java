@@ -20,7 +20,6 @@
 
 package org.sonar.server.database;
 
-import org.hibernate.HibernateException;
 import org.hibernate.ejb.connection.InjectedDataSourceConnectionProvider;
 
 import javax.sql.DataSource;
@@ -31,7 +30,7 @@ public class CustomHibernateConnectionProvider extends InjectedDataSourceConnect
   static DataSource datasource;
 
   @Override
-  public void configure(Properties props) throws HibernateException {
+  public void configure(Properties props) {
     setDataSource(datasource);
     super.configure(props);
   }

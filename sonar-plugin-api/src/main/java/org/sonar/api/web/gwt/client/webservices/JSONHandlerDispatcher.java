@@ -21,6 +21,10 @@ package org.sonar.api.web.gwt.client.webservices;
 
 import com.google.gwt.core.client.JavaScriptObject;
 
+/**
+ * @deprecated since 2.8. Use sonar-gwt-api instead.
+ */
+@Deprecated
 public abstract class JSONHandlerDispatcher<P extends ResponsePOJO> implements JsonUtils.JSONHandler {
 
   private QueryCallBack<P> callBack;

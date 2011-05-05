@@ -23,7 +23,6 @@ import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.utils.Logs;
 
 public class CheckstyleSensor implements Sensor {
 

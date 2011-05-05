@@ -19,6 +19,10 @@
  */
 package org.sonar.api.web.gwt.client.webservices;
 
+/**
+ * @deprecated since 2.8. Use sonar-gwt-api instead.
+ */
+@Deprecated
 public abstract class Query<R extends ResponsePOJO> {
 
   public abstract void execute(final QueryCallBack<R> callback);

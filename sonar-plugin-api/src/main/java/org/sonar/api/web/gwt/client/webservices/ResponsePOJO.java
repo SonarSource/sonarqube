@@ -22,6 +22,10 @@ package org.sonar.api.web.gwt.client.webservices;
 /**
  * Marker class for WS query response objects
  */
+/**
+ * @deprecated since 2.8. Use sonar-gwt-api instead.
+ */
+@Deprecated
 public abstract class ResponsePOJO {
 
 }

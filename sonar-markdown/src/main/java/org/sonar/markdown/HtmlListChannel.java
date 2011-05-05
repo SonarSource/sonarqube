@@ -34,6 +34,7 @@ class HtmlListChannel extends Channel<MarkdownOutput> {
     try {
       if (code.getColumnPosition() == 0 && listElement.consume(code, output)) {
         while (endOfLine.consume(code, output) && listElement.consume(code, output)) {
+          // consume input
         }
         output.append("</ul>");
         return true;
@@ -52,7 +53,7 @@ class HtmlListChannel extends Channel<MarkdownOutput> {
 
     @Override
     protected void consume(CharSequence token, MarkdownOutput output) {
-      if ( !pendingListConstruction) {
+      if (!pendingListConstruction) {
         output.append("<ul>");
         pendingListConstruction = true;
       }
@@ -75,7 +76,7 @@ class HtmlListChannel extends Channel<MarkdownOutput> {
     }
   }
 
-  private class EndOfLine extends RegexChannel<MarkdownOutput> {
+  private static final class EndOfLine extends RegexChannel<MarkdownOutput> {
 
     public EndOfLine() {
       super("(\r?\n)|(\r)");

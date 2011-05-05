@@ -32,7 +32,9 @@ import java.util.Set;
  * A class of web utility
  *
  * @since 1.10
+ * @deprecated since 2.8. Use sonar-gwt-api instead.
  */
+@Deprecated
 public final class Utils {
   private Utils() {
   }
