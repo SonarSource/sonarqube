@@ -16,23 +16,23 @@
 
 <% if @profile1 && @profile2 %>
 
-  <table class="header1">
+  <table class="header1" id="comparison-header">
     <tr>
       <td width="25%">
         <p>Only in <%= h(@profile1.name) -%></p>
-        <span class="big"><a href="#in1"><%= @in1.size -%></a></span> rules
+        <span class="big"><a href="#in1" id="in1Value"><%= @in1.size -%></a></span> rules
       </td>
       <td width="25%">
         <p>Only in <%= h(@profile2.name) -%></p>
-        <span class="big"><a href="#in2"><%= @in2.size -%></a></span> rules
+        <span class="big"><a href="#in2" id="in2Value"><%= @in2.size -%></a></span> rules
       </td>
       <td width="25%">
         <p>With different configuration</p>
-        <span class="big"><a href="#modified"><%= @modified.size -%></a></span> rules
+        <span class="big"><a href="#modified" id="modifiedValue"><%= @modified.size -%></a></span> rules
       </td>
       <td width="25%">
         <p>With same configuration</p>
-        <span class="big"><%= @sames.size -%></span> rules
+        <span class="big" id="sameValue"><%= @sames.size -%></span> rules
       </td>
     </tr>
   </table>
