@@ -33,7 +33,7 @@ import org.sonar.api.web.*;
 import org.sonar.jpa.dao.AsyncMeasuresService;
 import org.sonar.jpa.dialect.Dialect;
 import org.sonar.jpa.session.DatabaseConnector;
-import org.sonar.markdown.MarkdownEngine;
+import org.sonar.markdown.Markdown;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.CoreConfiguration;
 import org.sonar.server.configuration.ProfilesManager;
@@ -123,7 +123,7 @@ public final class JRubyFacade {
   }
 
   public static String markdownToHtml(String input) {
-    return MarkdownEngine.convertToHtml(input);
+    return Markdown.convertToHtml(input);
   }
 
 

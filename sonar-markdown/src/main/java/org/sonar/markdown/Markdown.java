@@ -29,11 +29,11 @@ import java.util.List;
 /**
  * Entry point of the Markdown library
  */
-public final class MarkdownEngine {
+public final class Markdown {
 
   private ChannelDispatcher<MarkdownOutput> dispatcher;
 
-  private MarkdownEngine() {
+  private Markdown() {
     List<Channel> markdownChannels = Arrays.<Channel>asList(
         new HtmlUrlChannel(),
         new HtmlEndOfLineChannel(),
@@ -58,6 +58,6 @@ public final class MarkdownEngine {
   }
 
   public static String convertToHtml(String input) {
-    return new MarkdownEngine().convert(input);
+    return new Markdown().convert(input);
   }
 }
