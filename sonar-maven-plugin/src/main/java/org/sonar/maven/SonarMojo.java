@@ -145,7 +145,7 @@ public final class SonarMojo extends AbstractMojo {
   }
 
   private void executeBatch() throws MojoExecutionException {
-    ProjectDefinition def = MavenProjectConverter.convert(session.getSortedProjects());
+    ProjectDefinition def = MavenProjectConverter.convert(session.getSortedProjects(), project);
     Reactor reactor = new Reactor(def);
 
     Batch batch = new Batch(getInitialConfiguration(),

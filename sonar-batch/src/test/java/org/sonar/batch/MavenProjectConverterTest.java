@@ -33,19 +33,19 @@ import java.util.Properties;
 
 public class MavenProjectConverterTest {
   @Test
-  public void test2() {
+  public void shouldConvertModules() {
     MavenProject root = new MavenProject();
     root.setFile(new File("/foo/pom.xml"));
     root.getModules().add("module");
     MavenProject module = new MavenProject();
     module.setFile(new File("/foo/module/pom.xml"));
-    ProjectDefinition project = MavenProjectConverter.convert(Arrays.asList(root, module));
+    ProjectDefinition project = MavenProjectConverter.convert(Arrays.asList(root, module), root);
 
     assertThat(project.getModules().size(), is(1));
   }
 
   @Test
-  public void test() {
+  public void shouldConvertProperties() {
     MavenProject pom = new MavenProject();
     pom.setGroupId("foo");
     pom.setArtifactId("bar");

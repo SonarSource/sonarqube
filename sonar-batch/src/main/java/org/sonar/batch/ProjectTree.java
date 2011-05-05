@@ -53,7 +53,7 @@ public class ProjectTree {
   protected ProjectTree(ProjectBuilder projectBuilder, List<MavenProject> poms) {
     this.projectBuilder = projectBuilder;
     definitions = Lists.newArrayList();
-    collectProjects(MavenProjectConverter.convert(poms), definitions);
+    collectProjects(MavenProjectConverter.convert(poms, poms.get(0)), definitions);
   }
 
   /**
