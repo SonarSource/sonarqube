@@ -39,6 +39,7 @@ public final class CoberturaUtils {
    * @deprecated in 2.8, because assumes that Sonar executed from Maven. Not used any more in sonar-cobertura-plugin.
    *             See http://jira.codehaus.org/browse/SONAR-2321
    */
+  @Deprecated
   public static File getReport(Project project) {
     File report = getReportFromProperty(project);
     if (report == null) {

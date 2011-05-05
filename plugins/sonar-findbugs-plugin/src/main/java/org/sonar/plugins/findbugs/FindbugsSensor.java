@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.findbugs;
 
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;

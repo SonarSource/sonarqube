@@ -22,6 +22,10 @@ package org.sonar.api.web.gwt.client.webservices;
 import org.sonar.api.web.gwt.client.Utils;
 import org.sonar.api.web.gwt.client.widgets.LoadingLabel;
 
+/**
+ * @deprecated since 2.8. Use sonar-gwt-api instead.
+ */
+@Deprecated
 public abstract class BaseQueryCallback<P extends ResponsePOJO> implements QueryCallBack<P> {
 
   private LoadingLabel loading;

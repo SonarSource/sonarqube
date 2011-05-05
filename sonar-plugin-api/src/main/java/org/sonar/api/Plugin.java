@@ -31,6 +31,7 @@ import java.util.List;
  * @since 1.10
  * @deprecated in 2.8. Use {@link SonarPlugin} instead.
  */
+@Deprecated
 public interface Plugin {
 
   /**

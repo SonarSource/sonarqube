@@ -24,6 +24,10 @@ import com.google.gwt.core.client.JavaScriptObject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @deprecated since 2.8. Use sonar-gwt-api instead.
+ */
+@Deprecated
 public final class WSMetrics {
 
   private WSMetrics() {

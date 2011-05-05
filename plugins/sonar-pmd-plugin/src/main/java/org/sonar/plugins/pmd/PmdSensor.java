@@ -19,15 +19,14 @@
  */
 package org.sonar.plugins.pmd;
 
-import java.io.File;
-
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.XmlParserException;
+
+import java.io.File;
 
 public class PmdSensor implements Sensor {
 

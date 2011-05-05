@@ -52,7 +52,7 @@ public abstract class RegexChannel<OUTPUT> extends Channel<OUTPUT> {
       }
       return false;
     } catch (StackOverflowError e) {
-      throw new RuntimeException(
+      throw new IllegalArgumentException(
           "The regular expression "
               + regex
               + " has led to a stack overflow error. "

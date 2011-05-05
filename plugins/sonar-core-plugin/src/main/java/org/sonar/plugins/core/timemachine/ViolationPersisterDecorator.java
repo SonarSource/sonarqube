@@ -23,7 +23,9 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.sonar.api.batch.*;
 import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.database.model.SnapshotSource;
@@ -123,7 +125,7 @@ public class ViolationPersisterDecorator implements Decorator {
     return violationMap;
   }
 
-  private final boolean isNotAlreadyMapped(Violation newViolation, Map<Violation, RuleFailureModel> violationMap) {
+  private boolean isNotAlreadyMapped(Violation newViolation, Map<Violation, RuleFailureModel> violationMap) {
     return violationMap.get(newViolation) == null;
   }
 
@@ -161,7 +163,10 @@ public class ViolationPersisterDecorator implements Decorator {
   }
 
   private boolean isSameLine(Violation newViolation, RuleFailureModel pastViolation) {
-    return pastViolation.getLine() == newViolation.getLineId(); //When lines are null, we also return true
+    if (pastViolation.getLine()==null && newViolation.getLineId()==null) {
+      return true;
+    }
+    return ObjectUtils.equals(pastViolation.getLine(), newViolation.getLineId());
   }
 
   private boolean isSameMessage(Violation newViolation, RuleFailureModel pastViolation) {
