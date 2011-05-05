@@ -29,6 +29,10 @@ class ReviewComment < ActiveRecord::Base
     Api::Utils.markdown_to_html(review_text)
   end
 
+  def plain_text
+    Api::Utils.convert_string_to_unix_newlines(review_text)
+  end
+
   private
 
   def comment_should_not_be_blank

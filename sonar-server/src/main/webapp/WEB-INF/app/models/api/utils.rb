@@ -47,4 +47,8 @@ class Api::Utils
     # See http://jira.codehaus.org/browse/SONAR-2282
     input.split(/\r?\n|\r/, -1)
   end
+
+  def self.convert_string_to_unix_newlines(input)
+    split_newlines(input).join('\n')
+  end
 end

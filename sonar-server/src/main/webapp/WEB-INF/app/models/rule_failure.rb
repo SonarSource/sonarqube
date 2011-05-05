@@ -36,7 +36,14 @@ class RuleFailure < ActiveRecord::Base
           end
         end
   end
-  
+
+  def plain_message
+    @plain_message ||=
+        begin
+          Api::Utils.convert_string_to_unix_newlines(message)
+        end
+  end
+
   def html_message
     @html_message ||=
       begin
@@ -46,7 +53,7 @@ class RuleFailure < ActiveRecord::Base
 
   def to_json(include_review=false, convert_markdown=false)
     json = {}
-    json['message'] = message
+    json['message'] = plain_message if plain_message
     json['line'] = line if line && line>=1
     json['priority'] = Sonar::RulePriority.to_s(failure_level).upcase
     json['switchedOff']=true if switched_off?
@@ -70,7 +77,7 @@ class RuleFailure < ActiveRecord::Base
 
   def to_xml(xml=Builder::XmlMarkup.new(:indent => 0), include_review=false, convert_markdown=false)
     xml.violation do
-      xml.message(message)
+      xml.message(plain_message) if plain_message
       xml.line(line) if line && line>=1
       xml.priority(Sonar::RulePriority.to_s(failure_level))
       xml.switchedOff(true) if switched_off?

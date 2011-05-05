@@ -26,6 +26,9 @@ public class ReviewQuery extends Query<Review> {
 
   public static final String BASE_URL = "/api/reviews";
 
+  public static final String OUTPUT_PLAIN = "PLAIN";
+  public static final String OUTPUT_HTML = "HTML";
+
   private String reviewType;
   private Long id;
   private Long[] ids;
@@ -195,9 +198,6 @@ public class ReviewQuery extends Query<Review> {
     return output;
   }
 
-  /**
-   * @param output the output to set
-   */
   public ReviewQuery setOutput(String output) {
     this.output = output;
     return this;

@@ -23,7 +23,7 @@ require 'json'
 class Api::ReviewsController < Api::ApiController
 
   def index
-    convert_markdown=(params[:output]=='html')
+    convert_markdown=(params[:output]=='HTML')
     reviews=select_authorized(:user, Review.search(params), :project)
     
     respond_to do |format|

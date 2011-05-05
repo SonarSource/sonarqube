@@ -143,7 +143,7 @@ class Review < ActiveRecord::Base
       xml.id(id.to_i)
       xml.createdAt(Api::Utils.format_datetime(created_at))
       xml.updatedAt(Api::Utils.format_datetime(updated_at))
-      xml.user(user.login)
+      xml.author(user.login)
       xml.assignee(assignee.login) if assignee
       xml.title(title)
       xml.type(review_type)
@@ -159,7 +159,7 @@ class Review < ActiveRecord::Base
             if convert_markdown 
               xml.text(comment.html_text)
             else
-              xml.text(comment.review_text)
+              xml.text(comment.plain_text)
             end
           end
         end
@@ -189,7 +189,7 @@ class Review < ActiveRecord::Base
       comments << {
         'author' => comment.user.login,
         'updatedAt' => Api::Utils.format_datetime(comment.updated_at),
-        'text' => convert_markdown ? comment.html_text : comment.review_text
+        'text' => convert_markdown ? comment.html_text : comment.plain_text
       }
     end
     json['comments'] = comments
