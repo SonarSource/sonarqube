@@ -8,6 +8,9 @@ import org.sonar.api.rules.RuleRepository;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This class declares rules. It is not the engine used to execute rules during project analysis.
+ */
 public class SampleRuleRepository extends RuleRepository {
 
   public static final String REPOSITORY_KEY = "sample";

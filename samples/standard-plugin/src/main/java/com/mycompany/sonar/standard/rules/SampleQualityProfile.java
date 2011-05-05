@@ -3,6 +3,7 @@ package com.mycompany.sonar.standard.rules;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
+import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 
@@ -19,7 +20,8 @@ public class SampleQualityProfile extends ProfileDefinition {
   public RulesProfile createProfile(ValidationMessages validation) {
     RulesProfile profile = RulesProfile.create("Sample profile", Java.KEY);
     profile.activateRule(ruleRepository.getRule1(), RulePriority.MAJOR);
-    profile.activateRule(ruleRepository.getRule1(), null);
+    profile.activateRule(ruleRepository.getRule2(), null);
+    profile.activateRule(Rule.create("checkstyle", "com.puppycrawl.tools.checkstyle.checks.coding.CovariantEqualsCheck", null), null);
     return profile;
   }
 }
