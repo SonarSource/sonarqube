@@ -929,11 +929,11 @@
     
     <profile>
       <id>dev</id>
-      <activation>
-        <property>
-          <name>dev</name>
-        </property>
-      </activation>
+      <properties>
+	    <!-- used in sonar-core-gwt and sonar-design-plugin -->
+        <gwt.permutationSuffix>Dev</gwt.permutationSuffix>
+        <gwt.extraJvmArgs>-Xmx512m -Xss1024k -Dgwt.draftCompile=true</gwt.extraJvmArgs>
+      </properties>
     </profile>
 
     <profile>

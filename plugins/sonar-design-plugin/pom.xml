@@ -67,7 +67,7 @@
         </configuration>
       </plugin>
 
-            <plugin>
+      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>gwt-maven-plugin</artifactId>
         <executions>
@@ -112,19 +112,4 @@
       </plugin>
     </plugins>
   </build>
-  
-  <profiles>
-    <profile>
-      <id>dev</id>
-      <activation>
-        <property>
-          <name>dev</name>
-        </property>
-      </activation>
-      <properties>
-        <gwt.permutationSuffix>Dev</gwt.permutationSuffix>
-        <gwt.extraJvmArgs>-Xmx512m -Xss1024k -Dgwt.draftCompile=true</gwt.extraJvmArgs>
-      </properties>
-    </profile>
-  </profiles>
 </project>
