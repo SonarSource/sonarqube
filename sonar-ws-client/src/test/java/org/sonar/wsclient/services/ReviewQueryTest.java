@@ -33,7 +33,7 @@ public class ReviewQueryTest extends QueryTestCase {
     Resource resource = mock(Resource.class);
     when(resource.getId()).thenReturn(69);
     ReviewQuery query = ReviewQuery.createForResource(resource);
-    assertThat(query.getUrl(), is("/api/reviews?id=69&"));
+    assertThat(query.getUrl(), is("/api/reviews?resources=69&"));
     assertThat(query.getModelClass().getName(), is(Review.class.getName()));
   }
 

@@ -230,7 +230,7 @@ public class ReviewQuery extends Query<Review> {
   }
 
   public static ReviewQuery createForResource(Resource resource) {
-    return new ReviewQuery().setId(new Long(resource.getId()));
+    return new ReviewQuery().setResourceKeysOrIds(resource.getId().toString());
   }
 
 }
