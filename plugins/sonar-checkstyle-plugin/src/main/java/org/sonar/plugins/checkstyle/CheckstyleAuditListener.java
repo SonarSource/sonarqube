@@ -84,7 +84,7 @@ public class CheckstyleAuditListener implements AuditListener, BatchExtension {
     }
   }
 
-  private String getRuleKey(AuditEvent event) {
+  static String getRuleKey(AuditEvent event) {
     String key = null;
     try {
       key = event.getModuleId();
@@ -101,7 +101,7 @@ public class CheckstyleAuditListener implements AuditListener, BatchExtension {
     return key;
   }
 
-  private String getMessage(AuditEvent event) {
+  static String getMessage(AuditEvent event) {
     try {
       return event.getMessage();
 
@@ -111,13 +111,15 @@ public class CheckstyleAuditListener implements AuditListener, BatchExtension {
     }
   }
 
-  private int getLineId(AuditEvent event) {
+  static Integer getLineId(AuditEvent event) {
     try {
-      return event.getLine();
+      int line = event.getLine();
+      // checkstyle returns 0 if there is no relation to a file content, but we use null
+      return line == 0 ? null : line;
 
     } catch (Exception e) {
-      // checkstyle can throw a NullPointer if the message is not set
-      return 0;
+      // checkstyle can throw a NullPointerException if the message is not set
+      return null;
     }
   }
 
