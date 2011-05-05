@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<ruleset name="PMD extensions"
+         xmlns="http://pmd.sf.net/ruleset/1.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sf.net/ruleset/1.0.0 http://pmd.sf.net/ruleset_xml_schema.xsd"
+         xsi:noNamespaceSchemaLocation="http://pmd.sf.net/ruleset_xml_schema.xsd">
+
+  <rule name="MaximumMethodsCountCheck"
+        message="Avoid too many methods"
+        class="com.mycompany.sonar.pmd.MaximumMethodsCountCheck">
+    <description>
+      Avoid too many methods
+    </description>
+    <priority>3</priority>
+    <properties>
+      <property name="maxAuthorisedMethodsCount" description="Maximum number of methods authorised" value="3"/>
+    </properties>
+    <example>
+      <![CDATA[
+          // too many methods!
+            public void doSomething() {}
+            public void doSomething2() {}      
+            public void doSomething3() {}
+            public void doSomething4() {}             
+            
+        ]]>
+    </example>
+  </rule>
+  
+  <rule name="AvoidIfWithoutBrace"
+        message="Avoid if without using brace"
+        class="net.sourceforge.pmd.rules.XPathRule">
+    <description>
+      Avoid if without using brace
+    </description>
+    <properties>
+      <property name="xpath">
+        <value>
+          <![CDATA[
+            //IfStatement[not(Statement/Block)]
+        ]]>
+        </value>
+      </property>
+    </properties>
+    <example>
+      <![CDATA[
+       // don't do this!
+       if (true)
+        test = "test";
+      ]]>
+    </example>
+  </rule>
+</ruleset>

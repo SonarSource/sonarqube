@@ -32,6 +32,14 @@
       </includes>
     </fileSet>
     <fileSet>
+      <directory>pmd-extensions-plugin</directory>
+      <outputDirectory>pmd-extensions-plugin</outputDirectory>
+      <includes>
+        <include>src/**/*</include>
+        <include>pom.xml</include>
+      </includes>
+    </fileSet>
+    <fileSet>
       <directory>${project.basedir}</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
