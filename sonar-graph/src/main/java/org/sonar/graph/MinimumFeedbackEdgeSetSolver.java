@@ -105,7 +105,6 @@ public class MinimumFeedbackEdgeSetSolver {
     if (level == cyclesNumber) {
       minimumFeedbackEdgesWeight = pendingWeight;
       feedbackEdges = new HashSet<FeedbackEdge>(pendingFeedbackEdges);
-      //System.out.println("Weight : " + minimumFeedbackEdgesWeight + " in " + numberOfLoops + " loops");
       return;
     }
 

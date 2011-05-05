@@ -74,7 +74,6 @@ public class LCOM4Visitor extends BytecodeVisitor {
   }
 
   public void leaveClass(AsmClass asmClass) {
-    // filterIsolatedMethods();
     int lcom4 = unrelatedBlocks.size();
     if (lcom4 == 0) {
       lcom4 = 1;

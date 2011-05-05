@@ -75,7 +75,6 @@ public class FindbugsExecutor implements BatchExtension {
       XMLBugReporter xmlBugReporter = new XMLBugReporter(project);
       xmlBugReporter.setPriorityThreshold(Detector.LOW_PRIORITY);
       xmlBugReporter.setAddMessages(true);
-      // xmlBugReporter.setErrorVerbosity(BugReporter.SILENT);
 
       File xmlReport = configuration.getTargetXMLReport();
       if (xmlReport != null) {

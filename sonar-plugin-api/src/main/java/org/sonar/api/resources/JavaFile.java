@@ -224,24 +224,4 @@ public class JavaFile extends Resource<JavaPackage> {
     return getKey();
   }
 
-//  @Override
-//  public boolean equals(Object o) {
-//    if (this == o) return true;
-//    if (o == null || getClass() != o.getClass()) return false;
-//    if (!super.equals(o)) return false;
-//
-//    JavaFile javaFile = (JavaFile) o;
-//    if (unitTest != javaFile.unitTest) return false;
-//    if (!getKey().equals(javaFile.getKey())) return false;
-//
-//    return true;
-//  }
-//
-//  @Override
-//  public int hashCode() {
-//    int result = super.hashCode();
-//    result = 31 * result + getKey().hashCode();
-//    result = 31 * result + (unitTest ? 1 : 0);
-//    return result;
-//  }
 }

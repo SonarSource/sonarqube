@@ -101,7 +101,7 @@ public class JettyEmbedder {
 
   public void configureRequestLogs(String filenamePattern) {
     RequestLogHandler requestLogHandler = new RequestLogHandler();
-    NCSARequestLog requestLog = new NCSARequestLog(filenamePattern);//"../../logs/jetty-yyyy_mm_dd.request.log");
+    NCSARequestLog requestLog = new NCSARequestLog(filenamePattern);
     requestLog.setRetainDays(7);
     requestLog.setAppend(true);
     requestLog.setExtended(true);
