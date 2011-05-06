@@ -10,9 +10,9 @@
   <table class="width100">
     <tr>
       <td style="vertical-align:top">
-        <textarea id="commentText<%= params[:id] -%>" rows="8" name="text" style="width: 100%" onkeyup="if (this.value=='') $('submit_btn').disabled='true'; else $('submit_btn').disabled='';"><%= @comment.text if @comment -%></textarea>
+        <textarea id="commentText<%= params[:id] -%>" rows="8" name="text" style="width: 100%" onkeyup="if (this.value=='') $('submit_btn<%= params[:id] -%>').disabled='true'; else $('submit_btn<%= params[:id] -%>').disabled='';"><%= @comment.text if @comment -%></textarea>
         <br/>
-        <%= submit_to_remote "submit_btn", button, :url => { :action => 'violation_save_comment'}, :html => { :id => "submit_btn", :disabled => "true" }, :update => 'vId'+params[:id] -%>
+        <%= submit_to_remote "submit_btn"+params[:id] , button, :url => { :action => 'violation_save_comment'}, :html => { :id => "submit_btn"+params[:id], :disabled => "true" }, :update => 'vId'+params[:id] -%>
         &nbsp;
         <%= link_to_remote 'Cancel', :url => {:action => 'display_violation', :id => params[:id]}, :update => 'vId' + params[:id] -%>
 
