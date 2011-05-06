@@ -49,7 +49,6 @@ public class CommandExecutorTest {
     } catch (CommandException e) {
       long duration = System.currentTimeMillis()-start;
       assertThat(e.getMessage(), duration, greaterThanOrEqualTo(300L));
-      assertThat(e.getMessage(), duration, lessThan(1000L));
     }
   }
 
