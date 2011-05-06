@@ -1,2 +1,2 @@
 #!/bin/sh
-mvn clean jetty:run -Pdev,derby
+mvn clean jetty:run -Pstart-dev-server,derby

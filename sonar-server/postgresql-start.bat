@@ -1,1 +1,1 @@
-mvn clean jetty:run -Pdev,postgresql
+mvn clean jetty:run -Pstart-dev-server,postgresql

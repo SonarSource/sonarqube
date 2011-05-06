@@ -342,7 +342,7 @@
 
   <profiles>
     <profile>
-      <id>dev</id>
+      <id>start-dev-server</id>
       <build>
         <plugins>
           <plugin>

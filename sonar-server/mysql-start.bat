@@ -1,1 +1,1 @@
-mvn clean jetty:run -Pdev,mysql
+mvn clean jetty:run -Pstart-dev-server,mysql
