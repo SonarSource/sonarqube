@@ -18,7 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class Drilldown
-  attr_reader :snapshot, :columns, :metric, :resource
+  attr_reader :snapshot, :columns, :metric, :resource, :highlighted_resource, :highlighted_snapshot
 
   def initialize(resource, metric, selected_resource_ids, options={})
     @resource=resource
@@ -31,12 +31,11 @@ class Drilldown
       snapshot = (column ? column.next_snapshot : @snapshot)
       column=DrilldownColumn.new(snapshot, metric, Project::SCOPES[index], selected_resource_ids, options)
       @columns<<column if column.display?
-      @highlighted_resource=column.selected_snapshot.project if column.selected_snapshot
+      if column.selected_snapshot
+        @highlighted_snapshot=column.selected_snapshot
+        @highlighted_resource=column.selected_snapshot.project         
+      end
     end
-  end
-
-  def highlighted_resource
-    @highlighted_resource
   end
 
   def display_value?

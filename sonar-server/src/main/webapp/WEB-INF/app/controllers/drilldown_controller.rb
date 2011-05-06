@@ -114,7 +114,7 @@ class DrilldownController < ApplicationController
       @highlighted_resource=@project
     end
 
-    @display_viewers=display_violation_viewers?(@snapshot)
+    @display_viewers=display_violation_viewers?(@drilldown.highlighted_snapshot || @snapshot)
   end
 
   private
