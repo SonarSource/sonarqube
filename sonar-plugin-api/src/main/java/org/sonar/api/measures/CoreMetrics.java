@@ -54,58 +54,123 @@ public final class CoreMetrics {
   public static final String DOMAIN_DESIGN = "Design";
 
   public static final String LINES_KEY = "lines";
-  public static final Metric LINES = new Metric(LINES_KEY, "Lines", "Lines", Metric.ValueType.INT, Metric.DIRECTION_WORST, false,
-      DOMAIN_SIZE).setFormula(new SumChildValuesFormula(false));
+  public static final Metric LINES = new Metric.Builder(LINES_KEY, "Lines", Metric.ValueType.INT)
+      .setDescription("Lines")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SIZE)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
   public static final String GENERATED_LINES_KEY = "generated_lines";
-  public static final Metric GENERATED_LINES = new Metric(GENERATED_LINES_KEY, "Generated Lines", "Number of generated lines",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_SIZE).setBestValue(0.0).setOptimizedBestValue(true).setFormula(
-      new SumChildValuesFormula(false));
+  public static final Metric GENERATED_LINES = new Metric.Builder(GENERATED_LINES_KEY, "Generated Lines", Metric.ValueType.INT)
+      .setDescription("Number of generated lines")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SIZE)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
   public static final String NCLOC_KEY = "ncloc";
-  public static final Metric NCLOC = new Metric(NCLOC_KEY, "Lines of code", "Non Commenting Lines of Code", Metric.ValueType.INT,
-      Metric.DIRECTION_WORST, false, DOMAIN_SIZE).setFormula(new SumChildValuesFormula(false));
+  public static final Metric NCLOC = new Metric.Builder(NCLOC_KEY, "Lines of code", Metric.ValueType.INT)
+      .setDescription("Non Commenting Lines of Code")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SIZE)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
   public static final String GENERATED_NCLOC_KEY = "generated_ncloc";
-  public static final Metric GENERATED_NCLOC = new Metric(GENERATED_NCLOC_KEY, "Generated lines of code",
-      "Generated non Commenting Lines of Code", Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_SIZE).setBestValue(0.0)
-      .setOptimizedBestValue(true).setFormula(new SumChildValuesFormula(false));
+  public static final Metric GENERATED_NCLOC = new Metric.Builder(GENERATED_NCLOC_KEY, "Generated lines of code", Metric.ValueType.INT)
+      .setDescription("Generated non Commenting Lines of Code")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SIZE)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
   public static final String CLASSES_KEY = "classes";
-  public static final Metric CLASSES = new Metric(CLASSES_KEY, "Classes", "Classes", Metric.ValueType.INT, Metric.DIRECTION_WORST, false,
-      DOMAIN_SIZE).setFormula(new SumChildValuesFormula(false));
+  public static final Metric CLASSES = new Metric.Builder(CLASSES_KEY, "Classes", Metric.ValueType.INT)
+      .setDescription("Classes")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SIZE)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
   public static final String FILES_KEY = "files";
-  public static final Metric FILES = new Metric(FILES_KEY, "Files", "Number of files", Metric.ValueType.INT, Metric.DIRECTION_WORST, false,
-      DOMAIN_SIZE);
+  public static final Metric FILES = new Metric.Builder(FILES_KEY, "Files", Metric.ValueType.INT)
+      .setDescription("Number of files")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SIZE)
+      .create();
 
   public static final String DIRECTORIES_KEY = "directories";
-  public static final Metric DIRECTORIES = new Metric(DIRECTORIES_KEY, "Directories", "Directories", Metric.ValueType.INT,
-      Metric.DIRECTION_WORST, false, DOMAIN_SIZE);
+  public static final Metric DIRECTORIES = new Metric.Builder(DIRECTORIES_KEY, "Directories", Metric.ValueType.INT)
+      .setDescription("Directories")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SIZE)
+      .create();
 
   public static final String PACKAGES_KEY = "packages";
-  public static final Metric PACKAGES = new Metric(PACKAGES_KEY, "Packages", "Packages", Metric.ValueType.INT, Metric.DIRECTION_WORST,
-      false, DOMAIN_SIZE).setFormula(new SumChildValuesFormula(false));
+  public static final Metric PACKAGES = new Metric.Builder(PACKAGES_KEY, "Packages", Metric.ValueType.INT)
+      .setDescription("Packages")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SIZE)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
   public static final String FUNCTIONS_KEY = "functions";
-  public static final Metric FUNCTIONS = new Metric(FUNCTIONS_KEY, "Methods", "Methods", Metric.ValueType.INT, Metric.DIRECTION_WORST,
-      false, DOMAIN_SIZE).setFormula(new SumChildValuesFormula(false));
+  public static final Metric FUNCTIONS = new Metric.Builder(FUNCTIONS_KEY, "Methods", Metric.ValueType.INT)
+      .setDescription("Methods")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SIZE)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
   public static final String ACCESSORS_KEY = "accessors";
-  public static final Metric ACCESSORS = new Metric(ACCESSORS_KEY, "Accessors", "Accessors", Metric.ValueType.INT, Metric.DIRECTION_WORST,
-      false, DOMAIN_SIZE).setFormula(new SumChildValuesFormula(false));
+  public static final Metric ACCESSORS = new Metric.Builder(ACCESSORS_KEY, "Accessors", Metric.ValueType.INT)
+      .setDescription("Accessors")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SIZE)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
   public static final String PARAGRAPHS_KEY = "paragraphs";
-  public static final Metric PARAGRAPHS = new Metric(PARAGRAPHS_KEY, "Paragraphs", "Number of paragraphs", Metric.ValueType.INT,
-      Metric.DIRECTION_WORST, false, DOMAIN_SIZE).setFormula(new SumChildValuesFormula(false));
+  public static final Metric PARAGRAPHS = new Metric.Builder(PARAGRAPHS_KEY, "Paragraphs", Metric.ValueType.INT)
+      .setDescription("Number of paragraphs")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SIZE)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
   public static final String STATEMENTS_KEY = "statements";
-  public static final Metric STATEMENTS = new Metric(STATEMENTS_KEY, "Statements", "Number of statements", Metric.ValueType.INT,
-      Metric.DIRECTION_WORST, false, DOMAIN_SIZE).setFormula(new SumChildValuesFormula(false));
+  public static final Metric STATEMENTS = new Metric.Builder(STATEMENTS_KEY, "Statements", Metric.ValueType.INT)
+      .setDescription("Number of statements")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SIZE)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
   public static final String PUBLIC_API_KEY = "public_api";
-  public static final Metric PUBLIC_API = new Metric(PUBLIC_API_KEY, "Public API", "Public API", Metric.ValueType.INT,
-      Metric.DIRECTION_WORST, false, DOMAIN_SIZE).setFormula(new SumChildValuesFormula(false));
+  public static final Metric PUBLIC_API = new Metric.Builder(PUBLIC_API_KEY, "Public API", Metric.ValueType.INT)
+      .setDescription("Public API")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SIZE)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -115,33 +180,66 @@ public final class CoreMetrics {
   //--------------------------------------------------------------------------------------------------------------------
 
   public static final String COMMENT_LINES_KEY = "comment_lines";
-  public static final Metric COMMENT_LINES = new Metric(COMMENT_LINES_KEY, "Comment lines", "Number of comment lines",
-      Metric.ValueType.INT, Metric.DIRECTION_BETTER, false, DOMAIN_DOCUMENTATION).setFormula(new SumChildValuesFormula(false));
+  public static final Metric COMMENT_LINES = new Metric.Builder(COMMENT_LINES_KEY, "Comment lines", Metric.ValueType.INT)
+      .setDescription("Number of comment lines")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(false)
+      .setDomain(DOMAIN_DOCUMENTATION)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
   public static final String COMMENT_LINES_DENSITY_KEY = "comment_lines_density";
-  public static final Metric COMMENT_LINES_DENSITY = new Metric(COMMENT_LINES_DENSITY_KEY, "Comments (%)",
-      "Comments balanced by ncloc + comment lines", Metric.ValueType.PERCENT, Metric.DIRECTION_BETTER, true, DOMAIN_DOCUMENTATION);
+  public static final Metric COMMENT_LINES_DENSITY = new Metric.Builder(COMMENT_LINES_DENSITY_KEY, "Comments (%)", Metric.ValueType.PERCENT)
+      .setDescription("Comments balanced by ncloc + comment lines")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_DOCUMENTATION)
+      .create();
 
   public static final String COMMENT_BLANK_LINES_KEY = "comment_blank_lines";
-  public static final Metric COMMENT_BLANK_LINES = new Metric(COMMENT_BLANK_LINES_KEY, "Blank comments",
-      "Comments that do not contain comments", Metric.ValueType.INT, Metric.DIRECTION_WORST, false, CoreMetrics.DOMAIN_DOCUMENTATION)
-      .setFormula(new SumChildValuesFormula(false)).setBestValue(0.0).setOptimizedBestValue(true);
+  public static final Metric COMMENT_BLANK_LINES = new Metric.Builder(COMMENT_BLANK_LINES_KEY, "Blank comments", Metric.ValueType.INT)
+      .setDescription("Comments that do not contain comments")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_DOCUMENTATION)
+      .setFormula(new SumChildValuesFormula(false))
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .create();
 
   public static final String PUBLIC_DOCUMENTED_API_DENSITY_KEY = "public_documented_api_density";
-  public static final Metric PUBLIC_DOCUMENTED_API_DENSITY = new Metric(PUBLIC_DOCUMENTED_API_DENSITY_KEY, "Public documented API (%)",
-      "Public documented classes and methods balanced by ncloc", Metric.ValueType.PERCENT, Metric.DIRECTION_BETTER, true,
-      DOMAIN_DOCUMENTATION).setWorstValue(0.0).setBestValue(100.0).setOptimizedBestValue(true);
+  public static final Metric PUBLIC_DOCUMENTED_API_DENSITY = new Metric.Builder(PUBLIC_DOCUMENTED_API_DENSITY_KEY, "Public documented API (%)", Metric.ValueType.PERCENT)
+      .setDescription("Public documented classes and methods balanced by ncloc")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_DOCUMENTATION)
+      .setWorstValue(0.0)
+      .setBestValue(100.0)
+      .setOptimizedBestValue(true)
+      .create();
 
   public static final String PUBLIC_UNDOCUMENTED_API_KEY = "public_undocumented_api";
-  public static final Metric PUBLIC_UNDOCUMENTED_API = new Metric(PUBLIC_UNDOCUMENTED_API_KEY, "Public undocumented API",
-      "Public undocumented classes, methods and variables", Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_DOCUMENTATION)
-      .setBestValue(0.0).setDirection(Metric.DIRECTION_WORST).setOptimizedBestValue(true).setFormula(
-          new SumChildValuesFormula(false));
+  public static final Metric PUBLIC_UNDOCUMENTED_API = new Metric.Builder(PUBLIC_UNDOCUMENTED_API_KEY, "Public undocumented API", Metric.ValueType.INT)
+      .setDescription("Public undocumented classes, methods and variables")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_DOCUMENTATION)
+      .setBestValue(0.0)
+      .setDirection(Metric.DIRECTION_WORST)
+      .setOptimizedBestValue(true)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
   public static final String COMMENTED_OUT_CODE_LINES_KEY = "commented_out_code_lines";
-  public static final Metric COMMENTED_OUT_CODE_LINES = new Metric(COMMENTED_OUT_CODE_LINES_KEY, "Commented LOCs",
-      "Commented lines of code", Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_DOCUMENTATION).setFormula(
-      new SumChildValuesFormula(false)).setBestValue(0.0).setOptimizedBestValue(true);
+  public static final Metric COMMENTED_OUT_CODE_LINES = new Metric.Builder(COMMENTED_OUT_CODE_LINES_KEY, "Commented LOCs", Metric.ValueType.INT)
+      .setDescription("Commented lines of code")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_DOCUMENTATION)
+      .setFormula(new SumChildValuesFormula(false))
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .create();
 
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -151,48 +249,85 @@ public final class CoreMetrics {
   //--------------------------------------------------------------------------------------------------------------------
 
   public static final String COMPLEXITY_KEY = "complexity";
-  public static final Metric COMPLEXITY = new Metric(COMPLEXITY_KEY, "Complexity", "Cyclomatic complexity", Metric.ValueType.INT,
-      Metric.DIRECTION_WORST, false, DOMAIN_COMPLEXITY).setFormula(new SumChildValuesFormula(false));
+  public static final Metric COMPLEXITY = new Metric.Builder(COMPLEXITY_KEY, "Complexity", Metric.ValueType.INT)
+      .setDescription("Cyclomatic complexity")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_COMPLEXITY)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
   public static final String CLASS_COMPLEXITY_KEY = "class_complexity";
-  public static final Metric CLASS_COMPLEXITY = new Metric(CLASS_COMPLEXITY_KEY, "Complexity /class", "Complexity average by class",
-      Metric.ValueType.FLOAT, Metric.DIRECTION_WORST, true, DOMAIN_COMPLEXITY)
-      .setFormula(new AverageComplexityFormula(CoreMetrics.CLASSES));
+  public static final Metric CLASS_COMPLEXITY = new Metric.Builder(CLASS_COMPLEXITY_KEY, "Complexity /class", Metric.ValueType.FLOAT)
+      .setDescription("Complexity average by class")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_COMPLEXITY)
+      .setFormula(new AverageComplexityFormula(CoreMetrics.CLASSES))
+      .create();
 
   public static final String FUNCTION_COMPLEXITY_KEY = "function_complexity";
-  public static final Metric FUNCTION_COMPLEXITY = new Metric(FUNCTION_COMPLEXITY_KEY, "Complexity /method",
-      "Complexity average by method", Metric.ValueType.FLOAT, Metric.DIRECTION_WORST, true, DOMAIN_COMPLEXITY)
-      .setFormula(new AverageComplexityFormula(CoreMetrics.FUNCTIONS));
+  public static final Metric FUNCTION_COMPLEXITY = new Metric.Builder(FUNCTION_COMPLEXITY_KEY, "Complexity /method", Metric.ValueType.FLOAT)
+      .setDescription("Complexity average by method")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_COMPLEXITY)
+      .setFormula(new AverageComplexityFormula(CoreMetrics.FUNCTIONS))
+      .create();
 
   public static final String FILE_COMPLEXITY_KEY = "file_complexity";
-  public static final Metric FILE_COMPLEXITY = new Metric(FILE_COMPLEXITY_KEY, "Complexity /file", "Complexity average by file",
-      Metric.ValueType.FLOAT, Metric.DIRECTION_WORST, true, DOMAIN_COMPLEXITY).setFormula(new AverageComplexityFormula(CoreMetrics.FILES));
+  public static final Metric FILE_COMPLEXITY = new Metric.Builder(FILE_COMPLEXITY_KEY, "Complexity /file", Metric.ValueType.FLOAT)
+      .setDescription("Complexity average by file")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_COMPLEXITY)
+      .setFormula(new AverageComplexityFormula(CoreMetrics.FILES))
+      .create();
 
   public static final String PARAGRAPH_COMPLEXITY_KEY = "paragraph_complexity";
-  public static final Metric PARAGRAPH_COMPLEXITY = new Metric(PARAGRAPH_COMPLEXITY_KEY, "Complexity /paragraph",
-      "Complexity average by paragraph", Metric.ValueType.FLOAT, Metric.DIRECTION_WORST, true, DOMAIN_COMPLEXITY)
-      .setFormula(new AverageComplexityFormula(CoreMetrics.PARAGRAPHS));
+  public static final Metric PARAGRAPH_COMPLEXITY = new Metric.Builder(PARAGRAPH_COMPLEXITY_KEY, "Complexity /paragraph", Metric.ValueType.FLOAT)
+      .setDescription("Complexity average by paragraph")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_COMPLEXITY)
+      .setFormula(new AverageComplexityFormula(CoreMetrics.PARAGRAPHS))
+      .create();
 
   public static final String CLASS_COMPLEXITY_DISTRIBUTION_KEY = "class_complexity_distribution";
-  public static final Metric CLASS_COMPLEXITY_DISTRIBUTION = new Metric(CLASS_COMPLEXITY_DISTRIBUTION_KEY,
-      "Classes distribution /complexity", "Classes distribution /complexity", Metric.ValueType.DISTRIB, Metric.DIRECTION_NONE, true,
-      DOMAIN_COMPLEXITY).setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY));
+  public static final Metric CLASS_COMPLEXITY_DISTRIBUTION = new Metric.Builder(CLASS_COMPLEXITY_DISTRIBUTION_KEY, "Classes distribution /complexity", Metric.ValueType.DISTRIB)
+      .setDescription("Classes distribution /complexity")
+      .setDirection(Metric.DIRECTION_NONE)
+      .setQualitative(true)
+      .setDomain(DOMAIN_COMPLEXITY)
+      .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
+      .create();
 
   public static final String FUNCTION_COMPLEXITY_DISTRIBUTION_KEY = "function_complexity_distribution";
-  public static final Metric FUNCTION_COMPLEXITY_DISTRIBUTION = new Metric(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY,
-      "Functions distribution /complexity", "Functions distribution /complexity", Metric.ValueType.DISTRIB, Metric.DIRECTION_NONE, true,
-      DOMAIN_COMPLEXITY).setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY));
+  public static final Metric FUNCTION_COMPLEXITY_DISTRIBUTION = new Metric.Builder(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, "Functions distribution /complexity", Metric.ValueType.DISTRIB)
+      .setDescription("Functions distribution /complexity")
+      .setDirection(Metric.DIRECTION_NONE)
+      .setQualitative(true)
+      .setDomain(DOMAIN_COMPLEXITY)
+      .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
+      .create();
 
   public static final String FILE_COMPLEXITY_DISTRIBUTION_KEY = "file_complexity_distribution";
-  public static final Metric FILE_COMPLEXITY_DISTRIBUTION = new Metric(FILE_COMPLEXITY_DISTRIBUTION_KEY, "Files distribution /complexity",
-      "Files distribution /complexity", Metric.ValueType.DISTRIB, Metric.DIRECTION_NONE, true, DOMAIN_COMPLEXITY)
-      .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY));
+  public static final Metric FILE_COMPLEXITY_DISTRIBUTION = new Metric.Builder(FILE_COMPLEXITY_DISTRIBUTION_KEY, "Files distribution /complexity", Metric.ValueType.DISTRIB)
+      .setDescription("Files distribution /complexity")
+      .setDirection(Metric.DIRECTION_NONE)
+      .setQualitative(true)
+      .setDomain(DOMAIN_COMPLEXITY)
+      .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
+      .create();
 
   public static final String PARAGRAPH_COMPLEXITY_DISTRIBUTION_KEY = "paragraph_complexity_distribution";
-  public static final Metric PARAGRAPH_COMPLEXITY_DISTRIBUTION = new Metric(PARAGRAPH_COMPLEXITY_DISTRIBUTION_KEY,
-      "Paragraph distribution /complexity", "Paragraph distribution /complexity", Metric.ValueType.DISTRIB, Metric.DIRECTION_NONE, true,
-      DOMAIN_COMPLEXITY).setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY));
-
+  public static final Metric PARAGRAPH_COMPLEXITY_DISTRIBUTION = new Metric.Builder(PARAGRAPH_COMPLEXITY_DISTRIBUTION_KEY, "Paragraph distribution /complexity", Metric.ValueType.DISTRIB)
+      .setDescription("Paragraph distribution /complexity")
+      .setDirection(Metric.DIRECTION_NONE)
+      .setQualitative(true)
+      .setDomain(DOMAIN_COMPLEXITY)
+      .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
+      .create();
 
   //--------------------------------------------------------------------------------------------------------------------
   //
@@ -211,22 +346,50 @@ public final class CoreMetrics {
    * <li>Should include {@link #TEST_FAILURES} and {@link #TEST_ERRORS}, but should not include {@link #SKIPPED_TESTS}.</li>
    * </ul>
    */
-  public static final Metric TESTS = new Metric(TESTS_KEY, "Unit tests", "Number of unit tests", Metric.ValueType.INT,
-      Metric.DIRECTION_WORST, false, DOMAIN_TESTS);
+  public static final Metric TESTS = new Metric.Builder(TESTS_KEY, "Unit tests", Metric.ValueType.INT)
+      .setDescription("Number of unit tests")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_TESTS)
+      .create();
 
   public static final String TEST_EXECUTION_TIME_KEY = "test_execution_time";
-  public static final Metric TEST_EXECUTION_TIME = new Metric(TEST_EXECUTION_TIME_KEY, "Unit tests duration",
-      "Execution duration of unit tests ", Metric.ValueType.MILLISEC, Metric.DIRECTION_WORST, false, DOMAIN_TESTS);
+  public static final Metric TEST_EXECUTION_TIME = new Metric.Builder(TEST_EXECUTION_TIME_KEY, "Unit tests duration", Metric.ValueType.MILLISEC)
+      .setDescription("Execution duration of unit tests")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_TESTS)
+      .create();
 
   public static final String TEST_ERRORS_KEY = "test_errors";
-  public static final Metric TEST_ERRORS = new Metric(TEST_ERRORS_KEY, "Unit test errors", "Number of unit test errors",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_TESTS).setBestValue(0.0).setOptimizedBestValue(true);
+  public static final Metric TEST_ERRORS = new Metric.Builder(TEST_ERRORS_KEY, "Unit test errors", Metric.ValueType.INT)
+      .setDescription("Number of unit test errors")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_TESTS)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .create();
+
   public static final String SKIPPED_TESTS_KEY = "skipped_tests";
-  public static final Metric SKIPPED_TESTS = new Metric(SKIPPED_TESTS_KEY, "Skipped unit tests", "Number of skipped unit tests",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_TESTS).setBestValue(0.0).setOptimizedBestValue(true);
+  public static final Metric SKIPPED_TESTS = new Metric.Builder(SKIPPED_TESTS_KEY, "Skipped unit tests", Metric.ValueType.INT)
+      .setDescription("Number of skipped unit tests")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_TESTS)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .create();
+
   public static final String TEST_FAILURES_KEY = "test_failures";
-  public static final Metric TEST_FAILURES = new Metric(TEST_FAILURES_KEY, "Unit test failures", "Number of unit test failures",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_TESTS).setBestValue(0.0).setOptimizedBestValue(true);
+  public static final Metric TEST_FAILURES = new Metric.Builder(TEST_FAILURES_KEY, "Unit test failures", Metric.ValueType.INT)
+      .setDescription("Number of unit test failures")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_TESTS)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .create();
 
   public static final String TEST_SUCCESS_DENSITY_KEY = "test_success_density";
   public static final Metric TEST_SUCCESS_DENSITY = new Metric.Builder(TEST_SUCCESS_DENSITY_KEY, "Unit test success (%)", Metric.ValueType.PERCENT)
@@ -463,17 +626,33 @@ public final class CoreMetrics {
       .create();
 
   public static final String DUPLICATED_FILES_KEY = "duplicated_files";
-  public static final Metric DUPLICATED_FILES = new Metric(DUPLICATED_FILES_KEY, "Duplicated files", "Duplicated files",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_DUPLICATION).setBestValue(0.0).setOptimizedBestValue(true);
+  public static final Metric DUPLICATED_FILES = new Metric.Builder(DUPLICATED_FILES_KEY, "Duplicated files", Metric.ValueType.INT)
+      .setDescription("Duplicated files")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_DUPLICATION)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .create();
 
   public static final String DUPLICATED_LINES_DENSITY_KEY = "duplicated_lines_density";
-  public static final Metric DUPLICATED_LINES_DENSITY = new Metric(DUPLICATED_LINES_DENSITY_KEY, "Duplicated lines (%)",
-      "Duplicated lines balanced by statements", Metric.ValueType.PERCENT, Metric.DIRECTION_WORST, true, DOMAIN_DUPLICATION).setWorstValue(
-      50.0).setBestValue(0.0).setOptimizedBestValue(true);
+  public static final Metric DUPLICATED_LINES_DENSITY = new Metric.Builder(DUPLICATED_LINES_DENSITY_KEY, "Duplicated lines (%)", Metric.ValueType.PERCENT)
+      .setDescription("Duplicated lines balanced by statements")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_DUPLICATION)
+      .setWorstValue(50.0)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .create();
 
   public static final String DUPLICATIONS_DATA_KEY = "duplications_data";
-  public static final Metric DUPLICATIONS_DATA = new Metric(DUPLICATIONS_DATA_KEY, "Duplications details", "Duplications details",
-      Metric.ValueType.DATA, Metric.DIRECTION_NONE, false, DOMAIN_DUPLICATION);
+  public static final Metric DUPLICATIONS_DATA = new Metric.Builder(DUPLICATIONS_DATA_KEY, "Duplications details", Metric.ValueType.DATA)
+      .setDescription("Duplications details")
+      .setDirection(Metric.DIRECTION_NONE)
+      .setQualitative(false)
+      .setDomain(DOMAIN_DUPLICATION)
+      .create();
 
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -543,40 +722,91 @@ public final class CoreMetrics {
    * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
    */
   @Deprecated
-  public static final Metric MAINTAINABILITY = new Metric(MAINTAINABILITY_KEY, "Maintainability", "Maintainability",
-      Metric.ValueType.PERCENT, Metric.DIRECTION_BETTER, true, DOMAIN_RULE_CATEGORIES).setBestValue(100.0).setOptimizedBestValue(true);
+  public static final Metric MAINTAINABILITY = new Metric.Builder(MAINTAINABILITY_KEY, "Maintainability", Metric.ValueType.PERCENT)
+      .setDescription("Maintainability")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_RULE_CATEGORIES)
+      .setBestValue(100.0)
+      .setOptimizedBestValue(true)
+      .create();
 
   public static final String WEIGHTED_VIOLATIONS_KEY = "weighted_violations";
-  public static final Metric WEIGHTED_VIOLATIONS = new Metric(WEIGHTED_VIOLATIONS_KEY, "Weighted violations", "Weighted Violations",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setHidden(true);
+  public static final Metric WEIGHTED_VIOLATIONS = new Metric.Builder(WEIGHTED_VIOLATIONS_KEY, "Weighted violations", Metric.ValueType.INT)
+      .setDescription("Weighted Violations")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_RULES)
+      .setHidden(true)
+      .create();
 
   public static final String VIOLATIONS_DENSITY_KEY = "violations_density";
-  public static final Metric VIOLATIONS_DENSITY = new Metric(VIOLATIONS_DENSITY_KEY, "Rules compliance", "Rules compliance",
-      Metric.ValueType.PERCENT, Metric.DIRECTION_BETTER, true, DOMAIN_RULES);
+  public static final Metric VIOLATIONS_DENSITY = new Metric.Builder(VIOLATIONS_DENSITY_KEY, "Rules compliance", Metric.ValueType.PERCENT)
+      .setDescription("Rules compliance")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_RULES)
+      .create();
 
   public static final String VIOLATIONS_KEY = "violations";
-  public static final Metric VIOLATIONS = new Metric(VIOLATIONS_KEY, "Violations", "Violations", Metric.ValueType.INT,
-      Metric.DIRECTION_WORST, true, DOMAIN_RULES).setBestValue(0.0).setOptimizedBestValue(true);
+  public static final Metric VIOLATIONS = new Metric.Builder(VIOLATIONS_KEY, "Violations", Metric.ValueType.INT)
+      .setDescription("Violations")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_RULES)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .create();
 
   public static final String BLOCKER_VIOLATIONS_KEY = "blocker_violations";
-  public static final Metric BLOCKER_VIOLATIONS = new Metric(BLOCKER_VIOLATIONS_KEY, "Blocker violations", "Blocker violations",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setBestValue(0.0).setOptimizedBestValue(true);
+  public static final Metric BLOCKER_VIOLATIONS = new Metric.Builder(BLOCKER_VIOLATIONS_KEY, "Blocker violations", Metric.ValueType.INT)
+      .setDescription("Blocker violations")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_RULES)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .create();
 
   public static final String CRITICAL_VIOLATIONS_KEY = "critical_violations";
-  public static final Metric CRITICAL_VIOLATIONS = new Metric(CRITICAL_VIOLATIONS_KEY, "Critical violations", "Critical violations",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setBestValue(0.0).setOptimizedBestValue(true);
+  public static final Metric CRITICAL_VIOLATIONS = new Metric.Builder(CRITICAL_VIOLATIONS_KEY, "Critical violations", Metric.ValueType.INT)
+      .setDescription("Critical violations")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_RULES)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .create();
 
   public static final String MAJOR_VIOLATIONS_KEY = "major_violations";
-  public static final Metric MAJOR_VIOLATIONS = new Metric(MAJOR_VIOLATIONS_KEY, "Major violations", "Major violations",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setBestValue(0.0).setOptimizedBestValue(true);
+  public static final Metric MAJOR_VIOLATIONS = new Metric.Builder(MAJOR_VIOLATIONS_KEY, "Major violations", Metric.ValueType.INT)
+      .setDescription("Major violations")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_RULES)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .create();
 
   public static final String MINOR_VIOLATIONS_KEY = "minor_violations";
-  public static final Metric MINOR_VIOLATIONS = new Metric(MINOR_VIOLATIONS_KEY, "Minor violations", "Minor violations",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, true, DOMAIN_RULES).setBestValue(0.0).setOptimizedBestValue(true);
+  public static final Metric MINOR_VIOLATIONS = new Metric.Builder(MINOR_VIOLATIONS_KEY, "Minor violations", Metric.ValueType.INT)
+      .setDescription("Minor violations")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_RULES)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .create();
 
   public static final String INFO_VIOLATIONS_KEY = "info_violations";
-  public static final Metric INFO_VIOLATIONS = new Metric(INFO_VIOLATIONS_KEY, "Info violations", "Info violations", Metric.ValueType.INT,
-      Metric.DIRECTION_WORST, true, DOMAIN_RULES).setBestValue(0.0).setOptimizedBestValue(true);
+  public static final Metric INFO_VIOLATIONS = new Metric.Builder(INFO_VIOLATIONS_KEY, "Info violations", Metric.ValueType.INT)
+      .setDescription("Info violations")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_RULES)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .create();
 
   public static final String NEW_VIOLATIONS_KEY = "new_violations";
   public static final Metric NEW_VIOLATIONS = new Metric.Builder(NEW_VIOLATIONS_KEY, "New Violations", Metric.ValueType.INT)
@@ -646,100 +876,211 @@ public final class CoreMetrics {
   //--------------------------------------------------------------------------------------------------------------------
 
   public static final String ABSTRACTNESS_KEY = "abstractness";
-  public static final Metric ABSTRACTNESS = new Metric(ABSTRACTNESS_KEY, "Abstractness", "Abstractness", Metric.ValueType.PERCENT,
-      Metric.DIRECTION_NONE, false, DOMAIN_DESIGN);
+  public static final Metric ABSTRACTNESS = new Metric.Builder(ABSTRACTNESS_KEY, "Abstractness", Metric.ValueType.PERCENT)
+      .setDescription("Abstractness")
+      .setDirection(Metric.DIRECTION_NONE)
+      .setQualitative(false)
+      .setDomain(DOMAIN_DESIGN)
+      .create();
+
   public static final String INSTABILITY_KEY = "instability";
-  public static final Metric INSTABILITY = new Metric(INSTABILITY_KEY, "Instability", "Instability", Metric.ValueType.PERCENT,
-      Metric.DIRECTION_NONE, false, DOMAIN_DESIGN);
+  public static final Metric INSTABILITY = new Metric.Builder(INSTABILITY_KEY, "Instability", Metric.ValueType.PERCENT)
+      .setDescription("Instability")
+      .setDirection(Metric.DIRECTION_NONE)
+      .setQualitative(false)
+      .setDomain(DOMAIN_DESIGN)
+      .create();
+
   public static final String DISTANCE_KEY = "distance";
-  public static final Metric DISTANCE = new Metric(DISTANCE_KEY, "Distance", "Distance", Metric.ValueType.FLOAT, Metric.DIRECTION_NONE,
-      false, DOMAIN_DESIGN);
+  public static final Metric DISTANCE = new Metric.Builder(DISTANCE_KEY, "Distance", Metric.ValueType.FLOAT)
+      .setDescription("Distance")
+      .setDirection(Metric.DIRECTION_NONE)
+      .setQualitative(false)
+      .setDomain(DOMAIN_DESIGN)
+      .create();
 
   public static final String DEPTH_IN_TREE_KEY = "dit";
-  public static final Metric DEPTH_IN_TREE = new Metric(DEPTH_IN_TREE_KEY, "Depth in Tree", "Depth in Inheritance Tree",
-      Metric.ValueType.INT, Metric.DIRECTION_NONE, false, DOMAIN_DESIGN);
+  public static final Metric DEPTH_IN_TREE = new Metric.Builder(DEPTH_IN_TREE_KEY, "Depth in Tree", Metric.ValueType.INT)
+      .setDescription("Depth in Inheritance Tree")
+      .setDirection(Metric.DIRECTION_NONE)
+      .setQualitative(false)
+      .setDomain(DOMAIN_DESIGN)
+      .create();
 
   public static final String NUMBER_OF_CHILDREN_KEY = "noc";
-  public static final Metric NUMBER_OF_CHILDREN = new Metric(NUMBER_OF_CHILDREN_KEY, "Number of Children", "Number of Children",
-      Metric.ValueType.INT, Metric.DIRECTION_NONE, false, DOMAIN_DESIGN);
+  public static final Metric NUMBER_OF_CHILDREN = new Metric.Builder(NUMBER_OF_CHILDREN_KEY, "Number of Children", Metric.ValueType.INT)
+      .setDescription("Number of Children")
+      .setDirection(Metric.DIRECTION_NONE)
+      .setQualitative(false)
+      .setDomain(DOMAIN_DESIGN)
+      .create();
 
   public static final String RFC_KEY = "rfc";
-  public static final Metric RFC = new Metric(RFC_KEY, "RFC", "Response for Class", Metric.ValueType.INT, Metric.DIRECTION_WORST, false,
-      DOMAIN_DESIGN).setFormula(new WeightedMeanAggregationFormula(CoreMetrics.FILES, false));
+  public static final Metric RFC = new Metric.Builder(RFC_KEY, "RFC", Metric.ValueType.INT)
+      .setDescription("Response for Class")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_DESIGN)
+      .setFormula(new WeightedMeanAggregationFormula(CoreMetrics.FILES, false))
+      .create();
 
   public static final String RFC_DISTRIBUTION_KEY = "rfc_distribution";
-  public static final Metric RFC_DISTRIBUTION = new Metric(RFC_DISTRIBUTION_KEY, "Class distribution /RFC", "Class distribution /RFC",
-      Metric.ValueType.DISTRIB, Metric.DIRECTION_NONE, true, DOMAIN_DESIGN)
-      .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY));
+  public static final Metric RFC_DISTRIBUTION = new Metric.Builder(RFC_DISTRIBUTION_KEY, "Class distribution /RFC", Metric.ValueType.DISTRIB)
+      .setDescription("Class distribution /RFC")
+      .setDirection(Metric.DIRECTION_NONE)
+      .setQualitative(true)
+      .setDomain(DOMAIN_DESIGN)
+      .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
+      .create();
 
   public static final String LCOM4_KEY = "lcom4";
-  public static final Metric LCOM4 = new Metric(LCOM4_KEY, "LCOM4", "Lack of Cohesion of Methods", Metric.ValueType.FLOAT,
-      Metric.DIRECTION_WORST, true, DOMAIN_DESIGN).setFormula(new WeightedMeanAggregationFormula(CoreMetrics.FILES, false));
+  public static final Metric LCOM4 = new Metric.Builder(LCOM4_KEY, "LCOM4", Metric.ValueType.FLOAT)
+      .setDescription("Lack of Cohesion of Methods")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_DESIGN)
+      .setFormula(new WeightedMeanAggregationFormula(CoreMetrics.FILES, false))
+      .create();
 
   public static final String LCOM4_BLOCKS_KEY = "lcom4_blocks";
-  public static final Metric LCOM4_BLOCKS = new Metric(LCOM4_BLOCKS_KEY, "LCOM4 blocks", "LCOM4 blocks", Metric.ValueType.DATA,
-      Metric.DIRECTION_NONE, false, DOMAIN_DESIGN).setHidden(true);
+  public static final Metric LCOM4_BLOCKS = new Metric.Builder(LCOM4_BLOCKS_KEY, "LCOM4 blocks", Metric.ValueType.DATA)
+      .setDescription("LCOM4 blocks")
+      .setDirection(Metric.DIRECTION_NONE)
+      .setQualitative(false)
+      .setDomain(DOMAIN_DESIGN)
+      .setHidden(true)
+      .create();
 
   public static final String LCOM4_DISTRIBUTION_KEY = "lcom4_distribution";
-  public static final Metric LCOM4_DISTRIBUTION = new Metric(LCOM4_DISTRIBUTION_KEY, "Class distribution /LCOM4",
-      "Class distribution /LCOM4", Metric.ValueType.DISTRIB, Metric.DIRECTION_NONE, true, DOMAIN_DESIGN)
-      .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY));
+  public static final Metric LCOM4_DISTRIBUTION = new Metric.Builder(LCOM4_DISTRIBUTION_KEY, "Class distribution /LCOM4", Metric.ValueType.DISTRIB)
+      .setDescription("Class distribution /LCOM4")
+      .setDirection(Metric.DIRECTION_NONE)
+      .setQualitative(true)
+      .setDomain(DOMAIN_DESIGN)
+      .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
+      .create();
 
   public static final String SUSPECT_LCOM4_DENSITY_KEY = "suspect_lcom4_density";
-  public static final Metric SUSPECT_LCOM4_DENSITY = new Metric(SUSPECT_LCOM4_DENSITY_KEY, "Suspect LCOM4 density",
-      "Density of classes having LCOM4>1", Metric.ValueType.PERCENT, Metric.DIRECTION_WORST, true, DOMAIN_DESIGN);
+  public static final Metric SUSPECT_LCOM4_DENSITY = new Metric.Builder(SUSPECT_LCOM4_DENSITY_KEY, "Suspect LCOM4 density", Metric.ValueType.PERCENT)
+      .setDescription("Density of classes having LCOM4>1")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_DESIGN)
+      .create();
 
   public static final String AFFERENT_COUPLINGS_KEY = "ca";
-  public static final Metric AFFERENT_COUPLINGS = new Metric(AFFERENT_COUPLINGS_KEY, "Afferent couplings", "Afferent couplings",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_DESIGN);
+  public static final Metric AFFERENT_COUPLINGS = new Metric.Builder(AFFERENT_COUPLINGS_KEY, "Afferent couplings", Metric.ValueType.INT)
+      .setDescription("Afferent couplings")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_DESIGN)
+      .create();
+
   public static final String EFFERENT_COUPLINGS_KEY = "ce";
-  public static final Metric EFFERENT_COUPLINGS = new Metric(EFFERENT_COUPLINGS_KEY, "Efferent couplings", "Efferent couplings",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_DESIGN);
+  public static final Metric EFFERENT_COUPLINGS = new Metric.Builder(EFFERENT_COUPLINGS_KEY, "Efferent couplings", Metric.ValueType.INT)
+      .setDescription("Efferent couplings")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_DESIGN)
+      .create();
 
   public static final String DEPENDENCY_MATRIX_KEY = "dsm";
-  public static final Metric DEPENDENCY_MATRIX = new Metric(DEPENDENCY_MATRIX_KEY, "Dependency Matrix", "Dependency Matrix",
-      Metric.ValueType.DATA, Metric.DIRECTION_NONE, false, DOMAIN_DESIGN);
+  public static final Metric DEPENDENCY_MATRIX = new Metric.Builder(DEPENDENCY_MATRIX_KEY, "Dependency Matrix", Metric.ValueType.DATA)
+      .setDescription("Dependency Matrix")
+      .setDirection(Metric.DIRECTION_NONE)
+      .setQualitative(false)
+      .setDomain(DOMAIN_DESIGN)
+      .create();
 
   public static final String PACKAGE_CYCLES_KEY = "package_cycles";
-  public static final Metric PACKAGE_CYCLES = new Metric(PACKAGE_CYCLES_KEY, "Package cycles", "Package cycles", Metric.ValueType.INT,
-      Metric.DIRECTION_WORST, true, DOMAIN_DESIGN).setFormula(new SumChildValuesFormula(false));
+  public static final Metric PACKAGE_CYCLES = new Metric.Builder(PACKAGE_CYCLES_KEY, "Package cycles", Metric.ValueType.INT)
+      .setDescription("Package cycles")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_DESIGN)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
   public static final String PACKAGE_TANGLE_INDEX_KEY = "package_tangle_index";
-  public static final Metric PACKAGE_TANGLE_INDEX = new Metric(PACKAGE_TANGLE_INDEX_KEY, "Package tangle index", "Package tangle index",
-      Metric.ValueType.PERCENT, Metric.DIRECTION_WORST, true, DOMAIN_DESIGN);
+  public static final Metric PACKAGE_TANGLE_INDEX = new Metric.Builder(PACKAGE_TANGLE_INDEX_KEY, "Package tangle index", Metric.ValueType.PERCENT)
+      .setDescription("Package tangle index")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_DESIGN)
+      .create();
 
   public static final String PACKAGE_TANGLES_KEY = "package_tangles";
-  public static final Metric PACKAGE_TANGLES = new Metric(PACKAGE_TANGLES_KEY, "File dependencies to cut", "File dependencies to cut",
-      Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_DESIGN).setFormula(new SumChildValuesFormula(false));
+  public static final Metric PACKAGE_TANGLES = new Metric.Builder(PACKAGE_TANGLES_KEY, "File dependencies to cut", Metric.ValueType.INT)
+      .setDescription("File dependencies to cut")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_DESIGN)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
   public static final String PACKAGE_FEEDBACK_EDGES_KEY = "package_feedback_edges";
-  public static final Metric PACKAGE_FEEDBACK_EDGES = new Metric(PACKAGE_FEEDBACK_EDGES_KEY, "Package dependencies to cut",
-      "Package dependencies to cut", Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_DESIGN)
-      .setFormula(new SumChildValuesFormula(false));
+  public static final Metric PACKAGE_FEEDBACK_EDGES = new Metric.Builder(PACKAGE_FEEDBACK_EDGES_KEY, "Package dependencies to cut", Metric.ValueType.INT)
+      .setDescription("Package dependencies to cut")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_DESIGN)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
   public static final String PACKAGE_EDGES_WEIGHT_KEY = "package_edges_weight";
-  public static final Metric PACKAGE_EDGES_WEIGHT = new Metric(PACKAGE_EDGES_WEIGHT_KEY, "Package edges weight", "Package edges weight",
-      Metric.ValueType.INT, Metric.DIRECTION_BETTER, false, DOMAIN_DESIGN).setFormula(new SumChildValuesFormula(false)).setHidden(true);
+  public static final Metric PACKAGE_EDGES_WEIGHT = new Metric.Builder(PACKAGE_EDGES_WEIGHT_KEY, "Package edges weight", Metric.ValueType.INT)
+      .setDescription("Package edges weight")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(false)
+      .setDomain(DOMAIN_DESIGN)
+      .setFormula(new SumChildValuesFormula(false))
+      .setHidden(true)
+      .create();
 
   public static final String FILE_CYCLES_KEY = "file_cycles";
-  public static final Metric FILE_CYCLES = new Metric(FILE_CYCLES_KEY, "File cycles", "File cycles", Metric.ValueType.INT,
-      Metric.DIRECTION_WORST, true, DOMAIN_DESIGN).setHidden(true);
+  public static final Metric FILE_CYCLES = new Metric.Builder(FILE_CYCLES_KEY, "File cycles", Metric.ValueType.INT)
+      .setDescription("File cycles")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_DESIGN)
+      .setHidden(true)
+      .create();
 
   public static final String FILE_TANGLE_INDEX_KEY = "file_tangle_index";
-  public static final Metric FILE_TANGLE_INDEX = new Metric(FILE_TANGLE_INDEX_KEY, "File tangle index", "File tangle index",
-      Metric.ValueType.PERCENT, Metric.DIRECTION_WORST, true, DOMAIN_DESIGN).setHidden(true);
+  public static final Metric FILE_TANGLE_INDEX = new Metric.Builder(FILE_TANGLE_INDEX_KEY, "File tangle index", Metric.ValueType.PERCENT)
+      .setDescription("File tangle index")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_DESIGN)
+      .setHidden(true)
+      .create();
 
   public static final String FILE_TANGLES_KEY = "file_tangles";
-  public static final Metric FILE_TANGLES = new Metric(FILE_TANGLES_KEY, "File tangles", "Files tangles", Metric.ValueType.INT,
-      Metric.DIRECTION_WORST, false, DOMAIN_DESIGN).setHidden(true);
+  public static final Metric FILE_TANGLES = new Metric.Builder(FILE_TANGLES_KEY, "File tangles", Metric.ValueType.INT)
+      .setDescription("Files tangles")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_DESIGN)
+      .setHidden(true)
+      .create();
 
   public static final String FILE_FEEDBACK_EDGES_KEY = "file_feedback_edges";
-  public static final Metric FILE_FEEDBACK_EDGES = new Metric(FILE_FEEDBACK_EDGES_KEY, "Suspect file dependencies",
-      "Suspect file dependencies", Metric.ValueType.INT, Metric.DIRECTION_WORST, false, DOMAIN_DESIGN).setHidden(true);
+  public static final Metric FILE_FEEDBACK_EDGES = new Metric.Builder(FILE_FEEDBACK_EDGES_KEY, "Suspect file dependencies", Metric.ValueType.INT)
+      .setDescription("Suspect file dependencies")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_DESIGN)
+      .setHidden(true)
+      .create();
 
   public static final String FILE_EDGES_WEIGHT_KEY = "file_edges_weight";
-  public static final Metric FILE_EDGES_WEIGHT = new Metric(FILE_EDGES_WEIGHT_KEY, "File edges weight", "File edges weight",
-      Metric.ValueType.INT, Metric.DIRECTION_BETTER, false, DOMAIN_DESIGN).setHidden(true);
+  public static final Metric FILE_EDGES_WEIGHT = new Metric.Builder(FILE_EDGES_WEIGHT_KEY, "File edges weight", Metric.ValueType.INT)
+      .setDescription("File edges weight")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(false)
+      .setDomain(DOMAIN_DESIGN)
+      .setHidden(true)
+      .create();
 
 
   //--------------------------------------------------------------------------------------------------------------------
