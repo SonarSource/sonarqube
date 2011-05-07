@@ -208,6 +208,7 @@ public final class CoreMetrics {
    * <li>If tool (like Maven Surefire Plugin) has not been activated to run unit tests, then Sensor should not save anything. For example there is no such tool for COBOL.</li>
    * <li>If tool has been activated, but there was no unit tests to run, then zero value should be saved for project.</li>
    * <li>Non-zero value should be saved for resources representing tests. And Sonar provides default Decorator, which will decorate parent resources.</li>
+   * <li>Should include {@link #TEST_FAILURES} and {@link #TEST_ERRORS}, but should not include {@link #SKIPPED_TESTS}.</li>
    * </ul>
    */
   public static final Metric TESTS = new Metric(TESTS_KEY, "Unit tests", "Number of unit tests", Metric.ValueType.INT,
@@ -266,6 +267,10 @@ public final class CoreMetrics {
       .create();
 
   public static final String LINES_TO_COVER_KEY = "lines_to_cover";
+
+  /**
+   * Use {@link CoverageMeasuresBuilder} to build measure for this metric.
+   */
   public static final Metric LINES_TO_COVER = new Metric.Builder(LINES_TO_COVER_KEY, "Lines to cover", Metric.ValueType.INT)
       .setDescription("Lines to cover")
       .setDirection(Metric.DIRECTION_BETTER)
@@ -285,6 +290,10 @@ public final class CoreMetrics {
       .create();
 
   public static final String UNCOVERED_LINES_KEY = "uncovered_lines";
+
+  /**
+   * Use {@link CoverageMeasuresBuilder} to build measure for this metric.
+   */
   public static final Metric UNCOVERED_LINES = new Metric.Builder(UNCOVERED_LINES_KEY, "Uncovered lines", Metric.ValueType.INT)
       .setDescription("Uncovered lines")
       .setDirection(Metric.DIRECTION_WORST)
@@ -319,11 +328,19 @@ public final class CoreMetrics {
       .create();
 
   public static final String COVERAGE_LINE_HITS_DATA_KEY = "coverage_line_hits_data";
+
+  /**
+   * Use {@link CoverageMeasuresBuilder} to build measure for this metric.
+   */
   public static final Metric COVERAGE_LINE_HITS_DATA = new Metric.Builder(COVERAGE_LINE_HITS_DATA_KEY, "Coverage hits by line", Metric.ValueType.DATA)
       .setDomain(DOMAIN_TESTS)
       .create();
 
   public static final String CONDITIONS_TO_COVER_KEY = "conditions_to_cover";
+
+  /**
+   * Use {@link CoverageMeasuresBuilder} to build measure for this metric.
+   */
   public static final Metric CONDITIONS_TO_COVER = new Metric.Builder(CONDITIONS_TO_COVER_KEY, "Conditions to cover", Metric.ValueType.INT)
       .setDescription("Conditions to cover")
       .setDomain(DOMAIN_TESTS)
@@ -339,6 +356,10 @@ public final class CoreMetrics {
       .create();
 
   public static final String UNCOVERED_CONDITIONS_KEY = "uncovered_conditions";
+
+  /**
+   * Use {@link CoverageMeasuresBuilder} to build measure for this metric.
+   */
   public static final Metric UNCOVERED_CONDITIONS = new Metric.Builder(UNCOVERED_CONDITIONS_KEY, "Uncovered conditions", Metric.ValueType.INT)
       .setDescription("Uncovered conditions")
       .setDirection(Metric.DIRECTION_WORST)
@@ -391,6 +412,8 @@ public final class CoreMetrics {
   public static final String CONDITIONS_BY_LINE_KEY = "conditions_by_line";
 
   /**
+   * Use {@link CoverageMeasuresBuilder} to build measure for this metric.
+   *
    * @since 2.7
    */
   public static final Metric CONDITIONS_BY_LINE = new Metric.Builder(CONDITIONS_BY_LINE_KEY, "Conditions by line", Metric.ValueType.DATA)
@@ -400,6 +423,8 @@ public final class CoreMetrics {
   public static final String COVERED_CONDITIONS_BY_LINE_KEY = "covered_conditions_by_line";
 
   /**
+   * Use {@link CoverageMeasuresBuilder} to build measure for this metric.
+   *
    * @since 2.7
    */
   public static final Metric COVERED_CONDITIONS_BY_LINE = new Metric.Builder(COVERED_CONDITIONS_BY_LINE_KEY, "Covered conditions by line", Metric.ValueType.DATA)
