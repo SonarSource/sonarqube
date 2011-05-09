@@ -681,6 +681,7 @@ ul.operations li img {
 }
 .sources2 div.violation .actions form, #global_violations div.violation .actions form {
   display: inline;
+  visibility: visible;
 }
 div.vtitle{
   background-color:#E4ECF3;
