@@ -79,12 +79,15 @@ public class PastMeasuresLoader implements BatchExtension {
     return resource.getId() != null;
   }
 
-  public static Integer getMetricId(Object[] row) {
-    return (Integer) row[0];
+  public static int getMetricId(Object[] row) {
+    // can be BigDecimal on Oracle
+    return ((Number)row[0]).intValue();
   }
 
   public static Integer getCharacteristicId(Object[] row) {
-    return (Integer) row[1];
+    // can be BigDecimal on Oracle
+    Number number = (Number) row[1];
+    return number!=null ? number.intValue() : null;
   }
 
   public static boolean hasValue(Object[] row) {

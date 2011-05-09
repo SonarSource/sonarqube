@@ -125,7 +125,7 @@ public class VariationDecorator implements Decorator {
   }
 
   static final class MeasureKey {
-    Integer metricId;
+    int metricId;
     Integer characteristicId;
 
     MeasureKey(Object[] pastFields) {
@@ -133,7 +133,7 @@ public class VariationDecorator implements Decorator {
       characteristicId = PastMeasuresLoader.getCharacteristicId(pastFields);
     }
 
-    MeasureKey(Integer metricId, Integer characteristicId) {
+    MeasureKey(int metricId, Integer characteristicId) {
       this.metricId = metricId;
       this.characteristicId = characteristicId;
     }
@@ -147,10 +147,10 @@ public class VariationDecorator implements Decorator {
         return false;
       }
       MeasureKey that = (MeasureKey) o;
-      if (characteristicId != null ? !characteristicId.equals(that.characteristicId) : that.characteristicId != null) {
+      if (metricId != that.metricId) {
         return false;
       }
-      if (!metricId.equals(that.metricId)) {
+      if (characteristicId != null ? !characteristicId.equals(that.characteristicId) : that.characteristicId != null) {
         return false;
       }
       return true;
@@ -158,7 +158,7 @@ public class VariationDecorator implements Decorator {
 
     @Override
     public int hashCode() {
-      int result = metricId.hashCode();
+      int result = metricId;
       result = 31 * result + (characteristicId != null ? characteristicId.hashCode() : 0);
       return result;
     }
