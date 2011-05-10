@@ -6,13 +6,12 @@
   <groupId>com.mycompany.sonar</groupId>
   <artifactId>sonar-checkstyle-extensions-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
-  <version>2.8-SNAPSHOT</version>
+  <version>0.1-SNAPSHOT</version>
   <name>Sonar :: Samples :: Checkstyle extensions</name>
   <description>Checkstyle extensions for Sonar</description>
 
   <properties>
-    <!-- To be replaced with the minimum required version of Sonar -->
-    <sonar.buildVersion>${project.version}</sonar.buildVersion>
+    <sonar.buildVersion>2.8-RC2</sonar.buildVersion>
   </properties>
 
   <dependencies>
