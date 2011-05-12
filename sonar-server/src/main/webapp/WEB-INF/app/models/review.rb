@@ -24,7 +24,7 @@ class Review < ActiveRecord::Base
   belongs_to :project, :class_name => "Project", :foreign_key => "project_id"
   has_many :review_comments, :order => "created_at", :dependent => :destroy
   alias_attribute :comments, :review_comments
-  belongs_to :rule_failure, :foreign_key => 'rule_failure_permanent_id'
+  belongs_to :rule_failure, :foreign_key => 'rule_failure_permanent_id', :primary_key => 'permanent_id'
   
   validates_presence_of :user, :message => "can't be empty"
   validates_presence_of :review_type, :message => "can't be empty"
