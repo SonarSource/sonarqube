@@ -52,7 +52,11 @@ class ReviewsController < ApplicationController
 
   def show
     @review = Review.find(params[:id], :include => ['project'])
-    render :partial => 'reviews/show'
+    if has_role?(:user, @review.project)
+      render :partial => 'reviews/show'
+    else
+      render :text => "access denied"
+    end
   end
 
   # GET
