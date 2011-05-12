@@ -24,11 +24,15 @@ class Plugins::ResourceController < ApplicationController
 
   def index
     @project = ::Project.by_key(params[:id])
+    return redirect_to home_url if @project.nil?
+
     @snapshot=@project.last_snapshot
 
     page_id=params[:page]
     @page_proxy=java_facade.getPage(page_id)
 
+    return redirect_to home_url if @page_proxy.nil?
+    
     authorized=@page_proxy.getUserRoles().size==0
     unless authorized
       @page_proxy.getUserRoles().each do |role|
