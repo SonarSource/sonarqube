@@ -205,7 +205,7 @@ class Review < ActiveRecord::Base
   
   def assign_project
     if self.project.nil? && self.resource
-      self.project=self.resource.project
+      self.project=self.resource.root_project
     end
   end
   
