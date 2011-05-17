@@ -2,8 +2,6 @@ package com.mycompany.sonar.standard;
 
 import com.mycompany.sonar.standard.batch.RandomDecorator;
 import com.mycompany.sonar.standard.batch.SampleSensor;
-import com.mycompany.sonar.standard.rules.SampleQualityProfile;
-import com.mycompany.sonar.standard.rules.SampleRuleRepository;
 import com.mycompany.sonar.standard.ui.SampleFooter;
 import com.mycompany.sonar.standard.ui.SampleRubyWidget;
 import org.sonar.api.SonarPlugin;
@@ -20,7 +18,7 @@ public final class SamplePlugin extends SonarPlugin {
   public List getExtensions() {
     return Arrays.asList(
         // Definitions
-        SampleRuleRepository.class, SampleMetrics.class, SampleQualityProfile.class,
+        SampleMetrics.class,
 
         // Batch
         SampleSensor.class, RandomDecorator.class,
