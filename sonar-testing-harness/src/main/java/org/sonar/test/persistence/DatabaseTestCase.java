@@ -196,6 +196,20 @@ public abstract class DatabaseTestCase {
     }
   }
 
+  protected final void assertTables(String testName, String[] tables, String[] ignoreCols) {
+    try {
+      IDataSet dataSet = getCurrentDataSet();
+      IDataSet expectedDataSet = getExpectedData(testName);
+      for (String table : tables) {
+        Assertion.assertEqualsIgnoreCols(expectedDataSet.getTable(table), dataSet.getTable(table), ignoreCols);
+      }
+    } catch (DataSetException e) {
+      throw translateException("Error while checking results", e);
+    } catch (DatabaseUnitException e) {
+      fail(e.getMessage());
+    }
+  }
+
   protected final void assertEmptyTables(String... emptyTables) {
     for (String table : emptyTables) {
       try {
