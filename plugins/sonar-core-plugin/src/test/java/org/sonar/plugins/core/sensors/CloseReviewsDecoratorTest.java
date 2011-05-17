@@ -37,7 +37,7 @@ public class CloseReviewsDecoratorTest extends DatabaseTestCase {
     setupData("fixture");
 
     CloseReviewsDecorator reviewsDecorator = new CloseReviewsDecorator(null, null);
-    String sqlRequest = reviewsDecorator.generateSqlRequest(666, 222);
+    String sqlRequest = reviewsDecorator.generateUpdateOnResourceSqlRequest(666, 222);
 
     Statement stmt = getConnection().createStatement();
     int count = stmt.executeUpdate(sqlRequest);
