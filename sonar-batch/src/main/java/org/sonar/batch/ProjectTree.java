@@ -21,10 +21,10 @@ package org.sonar.batch;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.project.MavenProject;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.bootstrapper.ProjectDefinition;
@@ -35,9 +35,10 @@ import java.util.*;
 
 public class ProjectTree {
 
-  private List<Project> projects;
   private ProjectBuilder projectBuilder;
+  private List<Project> projects;
   private List<ProjectDefinition> definitions;
+  private Map<ProjectDefinition, Project> projectsMap;
 
   public ProjectTree(Reactor sonarReactor, DatabaseSession databaseSession) {
     this.projectBuilder = new ProjectBuilder(databaseSession);
@@ -75,24 +76,24 @@ public class ProjectTree {
 
   public void start() throws IOException {
     projects = Lists.newArrayList();
-    Map<ProjectDefinition, Project> map = Maps.newHashMap();
+    projectsMap = Maps.newHashMap();
 
     for (ProjectDefinition def : definitions) {
       Project project = projectBuilder.create(def);
-      map.put(def, project);
+      projectsMap.put(def, project);
       projects.add(project);
     }
 
-    for (Map.Entry<ProjectDefinition, Project> entry : map.entrySet()) {
+    for (Map.Entry<ProjectDefinition, Project> entry : projectsMap.entrySet()) {
       ProjectDefinition def = entry.getKey();
       Project project = entry.getValue();
       for (ProjectDefinition module : def.getModules()) {
-        map.get(module).setParent(project);
+        projectsMap.get(module).setParent(project);
       }
     }
 
     // Configure
-    for (Map.Entry<ProjectDefinition, Project> entry : map.entrySet()) {
+    for (Map.Entry<ProjectDefinition, Project> entry : projectsMap.entrySet()) {
       projectBuilder.configure(entry.getValue(), entry.getKey());
     }
 
@@ -181,26 +182,12 @@ public class ProjectTree {
     throw new IllegalStateException("Can not find the root project from the list of Maven modules");
   }
 
-  private String getProjectKey(ProjectDefinition def) {
-    String key = def.getProperties().getProperty(CoreProperties.PROJECT_KEY_PROPERTY);
-    String branch = def.getProperties().getProperty(CoreProperties.PROJECT_BRANCH_PROPERTY);
-    if (StringUtils.isNotBlank(branch)) {
-      return key + ":" + branch;
-    } else {
-      return key;
-    }
-  }
-
-  public ProjectDefinition getProjectDefinition(String key) {
-    for (ProjectDefinition def : definitions) {
-      if (StringUtils.equals(key, getProjectKey(def))) {
-        return def;
+  public ProjectDefinition getProjectDefinition(Project project) {
+    for (Map.Entry<ProjectDefinition, Project> entry : projectsMap.entrySet()) {
+      if (ObjectUtils.equals(entry.getValue(), project)) {
+        return entry.getKey();
       }
     }
-    return null;
-  }
-
-  public List<Object> getProjectExtensions(String key) {
-    return getProjectDefinition(key).getContainerExtensions();
+    throw new IllegalStateException("Can not find ProjectDefinition for " + project);
   }
 }
