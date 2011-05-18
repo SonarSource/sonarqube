@@ -1,21 +1,3 @@
-<script>
-  function onReviewLoading() {
-    $('reviews-search').hide();
-    $('review').hide();
-    $('review-loading').show();
-  }
-  function onReviewLoaded() {
-    $('reviews-search').hide();
-    $('review-loading').hide();
-    $('review').show();
-  }
-  function backReviews() {
-    $('review').hide();
-    $('review-loading').hide();
-    $('reviews-search').show();
-  }
-</script>
-
 <div id="reviews-search">
   <h1>Reviews</h1>
   <% form_tag({:action => 'index'}, {:method => 'get'}) do %>
@@ -114,11 +96,11 @@
         <tr class="<%= cycle('even', 'odd') -%>">
           <td><img src="<%= ApplicationController.root_context -%>/images/status/<%= review.status -%>.png" title="<%= review.status.capitalize -%>"/></td>
           <td>
-            <%= link_to_remote( h(review.id), :update => 'review', :url => {:action => 'show', :id => review.id}, :loading => 'onReviewLoading()', :complete => "onReviewLoaded()") -%>
+            <%= link_to h(review.id), :controller => "reviews", :action => "view", :id => review.id -%>
           </td>
           <td><img src="<%= ApplicationController.root_context -%>/images/priority/<%= review.severity -%>.png" title="<%= review.severity.capitalize -%>"/></td>
           <td>
-            <%= link_to_remote(h(review.title), :update => 'review', :url => {:action => 'show', :id => review.id}, :loading => 'onReviewLoading()', :complete => "onReviewLoaded()") -%>
+            <%= link_to h(review.title), :controller => "reviews", :action => "view", :id => review.id -%>
           </td>
           <td><%= review.project.name -%>
             <br/><span class="note"><%= review.resource.long_name -%></span></td>
@@ -145,8 +127,6 @@
   
 </div>
 
-<div id="review-loading" style="display: none"><%= image_tag 'loading.gif' -%></div>
-<div id="review" style="display: none"></div>
 <script>
   $('review_id').focus();
 </script>

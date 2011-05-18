@@ -53,7 +53,7 @@ class ReviewsController < ApplicationController
   def show
     @review = Review.find(params[:id], :include => ['project'])
     if has_role?(:user, @review.project)
-      render :partial => 'reviews/show'
+      render :partial => 'reviews/view'
     else
       render :text => "access denied"
     end
@@ -76,7 +76,7 @@ class ReviewsController < ApplicationController
     @review.assignee = User.find params[:assignee_id]
     @review.save
 
-    render :partial => 'reviews/show'
+    render :partial => 'reviews/view'
   end
 
   # GET
@@ -106,7 +106,7 @@ class ReviewsController < ApplicationController
       @review.comments.create!(:user => current_user, :text => params[:text])
     end
 
-    render :partial => "reviews/show"
+    render :partial => "reviews/view"
   end
 
   # GET
@@ -134,7 +134,7 @@ class ReviewsController < ApplicationController
       @review.comments.create(:review_text => params[:comment], :user_id => current_user.id)
     end
 
-    render :partial => "reviews/show"
+    render :partial => "reviews/view"
   end
 
   # POST
@@ -149,7 +149,7 @@ class ReviewsController < ApplicationController
       comment=@review.comments.find(params[:comment_id].to_i)
       comment.delete if comment
     end
-    render :partial => "reviews/show"
+    render :partial => "reviews/view"
   end
 
 
