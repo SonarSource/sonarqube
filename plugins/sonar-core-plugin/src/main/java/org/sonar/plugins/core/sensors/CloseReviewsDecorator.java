@@ -81,8 +81,8 @@ public class CloseReviewsDecorator implements Decorator {
   }
 
   protected String generateUpdateOnProjectSqlRequest(int projectId, int projectSnapshotId) {
-    return "UPDATE reviews rv SET status='CLOSED', updated_at=CURRENT_TIMESTAMP WHERE rv.status='OPEN' AND rv.project_id=" + projectId
-        + " AND rv.resource_id IN ( SELECT prev.project_id FROM snapshots prev  WHERE prev.root_project_id=" + projectId
+    return "UPDATE reviews SET status='CLOSED', updated_at=CURRENT_TIMESTAMP WHERE status='OPEN' AND project_id=" + projectId
+        + " AND resource_id IN ( SELECT prev.project_id FROM snapshots prev  WHERE prev.root_project_id=" + projectId
         + " AND prev.islast=? AND NOT EXISTS ( SELECT cur.id FROM snapshots cur WHERE cur.root_snapshot_id=" + projectSnapshotId
         + " AND cur.created_at > prev.created_at AND cur.root_project_id=" + projectId + " AND cur.project_id=prev.project_id ) )";
   }
