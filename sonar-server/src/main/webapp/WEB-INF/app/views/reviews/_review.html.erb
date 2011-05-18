@@ -1,7 +1,6 @@
 <div id="rev_<%= review.id -%>">
   <div class="reportTitle">
-    <div style="float: right"><span class="violation_date"><%= review.id.to_s -%></span></div>  
-    <h2><%= h(review.title) -%></h2>
+    <h2>Review #<%= h(review.id.to_s) -%> - <%= h(review.title) -%></h2>
     
     <% if current_user && review.status != "CLOSED" %>
     <span class="actions" id="rActions">
