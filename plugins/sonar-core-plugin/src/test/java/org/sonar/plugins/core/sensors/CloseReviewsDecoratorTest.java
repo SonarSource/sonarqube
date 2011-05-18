@@ -21,16 +21,28 @@ package org.sonar.plugins.core.sensors;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.sql.Statement;
 
 import junit.framework.ComparisonFailure;
 
 import org.junit.Test;
+import org.sonar.api.resources.Project;
 import org.sonar.test.persistence.DatabaseTestCase;
 
 public class CloseReviewsDecoratorTest extends DatabaseTestCase {
+
+  @Test
+  public void testShouldExecuteOnProject() throws Exception {
+    Project project = mock(Project.class);
+    when(project.isLatestAnalysis()).thenReturn(true);
+    CloseReviewsDecorator reviewsDecorator = new CloseReviewsDecorator(null, null);
+    assertTrue(reviewsDecorator.shouldExecuteOnProject(project));
+  }
 
   @Test
   public void shouldCloseReviewWithoutCorrespondingViolation() throws Exception {
