@@ -63,7 +63,7 @@ public class CloseReviewsDecorator implements Decorator {
       int rowUpdated = query.executeUpdate();
       LOG.debug("- {} reviews set to 'closed' on resource #{}", rowUpdated, resourceId);
 
-      if (ResourceUtils.isProject(resource)) {
+      if (ResourceUtils.isRootProject(resource)) {
         query = databaseSession.createNativeQuery(generateUpdateOnProjectSqlRequest(resourceId, currentSnapshot.getId()));
         query.setParameter(1, Boolean.TRUE);
         rowUpdated = query.executeUpdate();
