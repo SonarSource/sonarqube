@@ -18,7 +18,7 @@
 
         <% if @violation.review.nil? || @violation.review.comments.size==0 %>
           &nbsp;
-          Assign to: 
+          Assignee: 
           <%= select_tag "assignee_id", options_for_select(@user_options, current_user.id.to_s)  %>
         <% end %>
       </td>

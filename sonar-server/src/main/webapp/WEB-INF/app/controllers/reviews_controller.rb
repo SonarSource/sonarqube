@@ -224,7 +224,7 @@ class ReviewsController < ApplicationController
     if !params[:comment_id].blank? && @violation.review
       @comment = @violation.review.comments.find(params[:comment_id])
     end
-    @user_options = options_for_users()
+    @user_options = [["Unassigned", ""]] + options_for_users
     render :partial => 'reviews/violation_comment_form'
   end
 
@@ -238,7 +238,7 @@ class ReviewsController < ApplicationController
     sanitize_violation(violation)
 
     unless violation.review
-      assignee = User.find params[:assignee_id]
+      assignee = User.find params[:assignee_id] unless params[:assignee_id].blank?
       violation.create_review!(
           :assignee => assignee,
           :user => current_user)
