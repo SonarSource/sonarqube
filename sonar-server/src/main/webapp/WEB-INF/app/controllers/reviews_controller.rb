@@ -308,7 +308,7 @@ class ReviewsController < ApplicationController
   end
 
   def search_reviews
-    options = {}
+    options = {'review_type' => 'VIOLATION'}
     unless @statuses == ['']
       options['statuses']=@statuses.join(',')
     end

@@ -53,13 +53,10 @@ class Review < ActiveRecord::Base
     conditions=[]
     values={}
       
-    review_type = options['review_type']
-    if review_type
-      conditions << 'review_type=:type'
-      values[:type] = review_type.upcase
-    else
-      conditions=['review_type<>:not_type']
-      values={:not_type => Review::TYPE_FALSE_POSITIVE}
+    review_type = options['review_type'].split(',') if options['review_type']
+    if review_type && review_type.size>0 && !review_type[0].blank?
+      conditions << 'review_type in (:review_type)'
+      values[:review_type]=review_type
     end
     
     ids=options['ids'].split(',') if options['ids']
