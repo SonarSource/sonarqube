@@ -17,8 +17,8 @@
         <%= link_to_remote 'Cancel', :url => {:action => 'display_violation', :id => params[:id]}, :update => 'vId' + params[:id] -%>
 
         <% if @violation.review.nil? || @violation.review.comments.size==0 %>
-          &nbsp;
-          Assignee: 
+          &nbsp;&nbsp;
+          <span>Assignee:</span> 
           <%= select_tag "assignee_id", options_for_select(@user_options, current_user.id.to_s)  %>
         <% end %>
       </td>
