@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import javax.persistence.Query;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
@@ -29,9 +31,8 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.index.ResourcePersister;
-
-import javax.persistence.Query;
 
 /**
  * Decorator that currently only closes a review when its corresponding violation has been fixed.
@@ -50,7 +51,7 @@ public class CloseReviewsDecorator implements Decorator {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return true;
+    return project.isLatestAnalysis();
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
@@ -58,16 +59,32 @@ public class CloseReviewsDecorator implements Decorator {
     if (currentSnapshot != null) {
       int resourceId = currentSnapshot.getResourceId();
       int snapshotId = currentSnapshot.getId();
-      Query query = databaseSession.createNativeQuery(generateSqlRequest(resourceId, snapshotId));
+      Query query = databaseSession.createNativeQuery(generateUpdateOnResourceSqlRequest(resourceId, snapshotId));
       int rowUpdated = query.executeUpdate();
       LOG.debug("- {} reviews set to 'closed' on resource #{}", rowUpdated, resourceId);
+
+      if (ResourceUtils.isRootProject(resource)) {
+        query = databaseSession.createNativeQuery(generateUpdateOnProjectSqlRequest(resourceId, currentSnapshot.getId()));
+        query.setParameter(1, Boolean.TRUE);
+        rowUpdated = query.executeUpdate();
+        LOG.debug("- {} reviews set to 'closed' on project #{}", rowUpdated, resourceId);
+      }
+
       databaseSession.commit();
     }
   }
 
-  String generateSqlRequest(int resourceId, int snapshotId) {
-    return "UPDATE reviews SET status='CLOSED' WHERE resource_id = " + resourceId + " AND rule_failure_permanent_id NOT IN "
-        + "(SELECT permanent_id FROM rule_failures WHERE snapshot_id = " + snapshotId + " AND permanent_id IS NOT NULL)";
+  protected String generateUpdateOnResourceSqlRequest(int resourceId, int snapshotId) {
+    return "UPDATE reviews SET status='CLOSED', updated_at=CURRENT_TIMESTAMP WHERE resource_id = " + resourceId
+        + " AND rule_failure_permanent_id NOT IN " + "(SELECT permanent_id FROM rule_failures WHERE snapshot_id = " + snapshotId
+        + " AND permanent_id IS NOT NULL)";
+  }
+
+  protected String generateUpdateOnProjectSqlRequest(int projectId, int projectSnapshotId) {
+    return "UPDATE reviews SET status='CLOSED', updated_at=CURRENT_TIMESTAMP WHERE status='OPEN' AND project_id=" + projectId
+        + " AND resource_id IN ( SELECT prev.project_id FROM snapshots prev  WHERE prev.root_project_id=" + projectId
+        + " AND prev.islast=? AND NOT EXISTS ( SELECT cur.id FROM snapshots cur WHERE cur.root_snapshot_id=" + projectSnapshotId
+        + " AND cur.created_at > prev.created_at AND cur.root_project_id=" + projectId + " AND cur.project_id=prev.project_id ) )";
   }
 
 }

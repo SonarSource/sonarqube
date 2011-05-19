@@ -43,6 +43,13 @@ class Project < ActiveRecord::Base
     root||self
   end
   
+  def root_project
+    @root_project ||= 
+      begin
+        parent_module(self)
+      end
+  end
+  
   def last_snapshot
     @last_snapshot ||=
       begin
@@ -153,4 +160,9 @@ class Project < ActiveRecord::Base
     end
     chart_measures
   end
+  
+  def parent_module(current_module)
+    current_module.root ? parent_module(current_module.root) : current_module
+  end
+  
 end

@@ -107,11 +107,11 @@ function reviewIdFieldModified(field) {
         <tr class="<%= cycle('even', 'odd') -%>">
           <td><img src="<%= ApplicationController.root_context -%>/images/status/<%= review.status -%>.png" title="<%= review.status.capitalize -%>"/></td>
           <td>
-            <%= link_to h(review.id), :controller => "reviews", :action => "view", :id => review.id -%>
+            <%= link_to_remote( h(review.id), :update => 'review', :url => {:action => 'show', :id => review.id}, :loading => 'onReviewLoading()', :complete => "onReviewLoaded()") -%>
           </td>
           <td><img src="<%= ApplicationController.root_context -%>/images/priority/<%= review.severity -%>.png" title="<%= review.severity.capitalize -%>"/></td>
           <td>
-            <%= link_to h(review.title), :controller => "reviews", :action => "view", :id => review.id -%>
+            <%= link_to_remote(h(review.title), :update => 'review', :url => {:action => 'show', :id => review.id}, :loading => 'onReviewLoading()', :complete => "onReviewLoaded()") -%>
           </td>
           <td><%= review.project.name -%>
             <br/><span class="note"><%= review.resource.long_name -%></span></td>
@@ -138,6 +138,8 @@ function reviewIdFieldModified(field) {
   
 </div>
 
+<div id="review-loading" style="display: none"><%= image_tag 'loading.gif' -%></div>
+<div id="review" style="display: none"></div>
 <script>
   $('review_id').focus();
 </script>

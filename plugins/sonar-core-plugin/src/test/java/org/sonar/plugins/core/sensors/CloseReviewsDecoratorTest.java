@@ -21,25 +21,47 @@ package org.sonar.plugins.core.sensors;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.sql.Statement;
 
+import junit.framework.ComparisonFailure;
+
 import org.junit.Test;
+import org.sonar.api.resources.Project;
 import org.sonar.test.persistence.DatabaseTestCase;
 
 public class CloseReviewsDecoratorTest extends DatabaseTestCase {
+
+  @Test
+  public void testShouldExecuteOnProject() throws Exception {
+    Project project = mock(Project.class);
+    when(project.isLatestAnalysis()).thenReturn(true);
+    CloseReviewsDecorator reviewsDecorator = new CloseReviewsDecorator(null, null);
+    assertTrue(reviewsDecorator.shouldExecuteOnProject(project));
+  }
 
   @Test
   public void shouldCloseReviewWithoutCorrespondingViolation() throws Exception {
     setupData("fixture");
 
     CloseReviewsDecorator reviewsDecorator = new CloseReviewsDecorator(null, null);
-    String sqlRequest = reviewsDecorator.generateSqlRequest(666, 222);
-    
+    String sqlRequest = reviewsDecorator.generateUpdateOnResourceSqlRequest(666, 222);
+
     Statement stmt = getConnection().createStatement();
     int count = stmt.executeUpdate(sqlRequest);
 
     assertThat(count, is(1));
-    assertTables("shouldCloseReviewWithoutCorrespondingViolation", "reviews");
+    assertTables("shouldCloseReviewWithoutCorrespondingViolation", new String[] { "reviews" }, new String[] { "updated_at" });
+
+    try {
+      assertTables("shouldCloseReviewWithoutCorrespondingViolation", new String[] { "reviews" });
+      fail("'updated_at' columns are identical whereas they should be different.");
+    } catch (ComparisonFailure e) {
+      // "updated_at" column must be different, so the comparison should raise this exception
+    }
   }
 }

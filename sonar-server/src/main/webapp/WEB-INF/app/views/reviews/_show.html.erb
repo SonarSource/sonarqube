@@ -1,0 +1,11 @@
+<div id="backReviewDiv" class="marginbottom10">
+	<a href="#" onclick="backReviews()">&laquo; Back to reviews</a>
+</div>
+<script>
+  if ($('reviews-search')==null) {
+    // This happens when this page results from a call made from the review permalink page
+    $('backReviewDiv').hide();
+  }
+</script>
+
+<%= render :partial => 'reviews/review', :locals => {:review => @review} -%>

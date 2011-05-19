@@ -32,6 +32,8 @@ class SettingsController < ApplicationController
       project=Project.by_key(params[:resource_id])
       return access_denied unless is_admin?(project)
       resource_id=project.id
+    else
+      return access_denied unless is_admin?
     end
 
     plugins = java_facade.getPluginsMetadata()

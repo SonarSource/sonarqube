@@ -686,7 +686,7 @@ ul.operations li img {
 div.vtitle{
   background-color:#E4ECF3;
   margin:0;
-  padding:0 0 0 10px;
+  padding:0 10px;
   line-height: 2.2em;
   text-shadow: 0 1px 0 #FFF;
   color:#777
@@ -706,24 +706,9 @@ span.violation_date {
   color:#777;
   font-size:90%;
 }
-div.review_permalink {
-  float: right;
-  background-color: #F4F4F4;
-  border-color: #CDCDCD;
-  border-style: none none none solid;
-  border-width: 1px;
-  color: #333333;
-  font-size: 12px;
-  font-weight: bold;
-  margin: 0;
-  padding: 0 10px;
-  text-shadow: 1px 1px 0 #FFFFFF;
-}
 span.review_permalink a {
   color:#777;
   font-size:90%;
-  padding: 0 0 0 20px;
-  background: url('../images/zoom.png') no-repeat left;
 }
 span.rulename a:hover {
   text-decoration: underline;

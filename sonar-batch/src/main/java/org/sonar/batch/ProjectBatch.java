@@ -104,7 +104,7 @@ public class ProjectBatch {
 
     @Override
     protected void configure() {
-      ProjectDefinition projectDefinition = getComponent(ProjectTree.class).getProjectDefinition(project.getKey());
+      ProjectDefinition projectDefinition = getComponent(ProjectTree.class).getProjectDefinition(project);
       addComponent(projectDefinition);
       for (Object component : projectDefinition.getContainerExtensions()) {
         addComponent(component);
