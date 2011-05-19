@@ -1,5 +1,5 @@
 =begin
-= $RCSfile: x509.rb,v $ -- Ruby-space definitions that completes C-space funcs for X509 and subclasses
+= $RCSfile$ -- Ruby-space definitions that completes C-space funcs for X509 and subclasses
 
 = Info
   'OpenSSL for Ruby 2' project
@@ -11,7 +11,7 @@
   (See the file 'LICENCE'.)
 
 = Version
-  $Id: x509.rb,v 1.4.2.2 2004/12/19 08:28:33 gotoyuzo Exp $
+  $Id: x509.rb 11708 2007-02-12 23:01:19Z shyouhei $
 =end
 
 require "openssl"
