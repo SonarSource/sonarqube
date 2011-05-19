@@ -299,6 +299,7 @@ public final class CoreMetrics {
       .setDirection(Metric.DIRECTION_WORST)
       .setDomain(DOMAIN_TESTS)
       .setFormula(new SumChildValuesFormula(false))
+      .setBestValue(0.0)
       .create();
 
   public static final String NEW_UNCOVERED_LINES_KEY = "new_uncovered_lines";
@@ -307,6 +308,7 @@ public final class CoreMetrics {
       .setDirection(Metric.DIRECTION_WORST)
       .setDomain(DOMAIN_TESTS)
       .setFormula(new SumChildValuesFormula(false))
+      .setBestValue(0.0)
       .create();
 
   public static final String LINE_COVERAGE_KEY = "line_coverage";
@@ -315,6 +317,8 @@ public final class CoreMetrics {
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
       .setDomain(DOMAIN_TESTS)
+      .setWorstValue(0.0)
+      .setBestValue(100.0)
       .create();
 
   public static final String NEW_LINE_COVERAGE_KEY = "new_line_coverage";
@@ -365,6 +369,7 @@ public final class CoreMetrics {
       .setDirection(Metric.DIRECTION_WORST)
       .setDomain(DOMAIN_TESTS)
       .setFormula(new SumChildValuesFormula(false))
+      .setBestValue(0.0)
       .create();
 
   public static final String NEW_UNCOVERED_CONDITIONS_KEY = "new_uncovered_conditions";
@@ -373,6 +378,7 @@ public final class CoreMetrics {
       .setDirection(Metric.DIRECTION_WORST)
       .setDomain(DOMAIN_TESTS)
       .setFormula(new SumChildValuesFormula(false))
+      .setBestValue(0.0)
       .create();
 
   public static final String BRANCH_COVERAGE_KEY = "branch_coverage";
