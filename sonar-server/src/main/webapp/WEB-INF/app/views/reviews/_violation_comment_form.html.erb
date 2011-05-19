@@ -18,7 +18,8 @@
 
         <% if @violation.review.nil? || @violation.review.comments.size==0 %>
           &nbsp;
-          <%= check_box_tag "assign_to_me", "me", true -%> <label for="assign_to_me">Assign to me</label>
+          Assign to: 
+          <%= select_tag "assignee_id", options_for_select(@user_options, current_user.id.to_s)  %>
         <% end %>
       </td>
       <td class="sep"></td>
