@@ -1,3 +1,14 @@
+<script>
+function reviewIdFieldModified(field) {
+  if (field.value!='') {
+    $('statuses').value = ''
+    $('severities').value = ''
+    $('projects').value = ''
+    $('authors').value = ''
+    $('assignees').value = ''
+  }
+}
+</script>
 <div id="reviews-search">
   <h1>Reviews</h1>
   <% form_tag({:action => 'index'}, {:method => 'get'}) do %>
@@ -51,7 +62,7 @@
         </td>
         <td width="1%" nowrap>
           <span class="note">Id</span><br/>
-          <%= text_field_tag "review_id", @id, :size => 10 -%>
+          <%= text_field_tag "review_id", @id, :size => 10, :onkeyup => "reviewIdFieldModified(this)" -%>
           <br/>
           <br/>
           <br/>
