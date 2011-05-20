@@ -144,7 +144,20 @@ class Review < ActiveRecord::Base
       end
     end
 
-    Review.find(:all, :include => [ 'review_comments', 'project', 'user', 'assignee', 'resource' ], :order => 'created_at DESC', :conditions => [conditions.join(' AND '), values], :limit => 200)
+    sort=options['sort']
+    asc=options['asc']
+    if sort 
+      if asc
+        sort += ' ASC, reviews.updated_at DESC'
+      else
+        sort += ' DESC, reviews.updated_at DESC'
+      end
+    else
+      sort = 'reviews.updated_at DESC'
+    end
+    
+    # We define 'assignee' before 'user' in the ':include' so that it is possible to sort on the assignee.name
+    Review.find(:all, :include => [ 'review_comments', 'project', 'assignee', 'resource', 'user' ], :conditions => [conditions.join(' AND '), values], :order => sort, :limit => 200)
   end
 
   def self.reviews_to_xml(reviews, convert_markdown=false)

@@ -276,6 +276,8 @@ class ReviewsController < ApplicationController
     @statuses = filter_any(params[:statuses]) || [Review::STATUS_OPEN]
     @projects = filter_any(params[:projects]) || ['']
     @id = params[:review_id] || ""
+    @sort = params[:sort]
+    @asc = params[:asc] == "true"
   end
 
   def options_for_users
@@ -321,6 +323,8 @@ class ReviewsController < ApplicationController
         options['id'] = -1
       end
     end
+    options['sort'] = @sort unless @sort.blank?
+    options['asc'] = @asc
     
     found_reviews = Review.search(options)
     @reviews = select_authorized(:user, found_reviews, :project)
