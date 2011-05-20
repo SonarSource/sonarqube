@@ -47,20 +47,24 @@
 	     </span>
 	   </td>
 	   <td class="key">
-		  Created by:
+		  Author:
 	   </td>
 	   <td  class="val">
-  		  <%= h(review.user.name) -%>, on <%= l(review.created_at, :format => :long) -%>
+  		  <%= h(review.user.name) -%>
 	   </td>
 	 </tr>
 	 <tr>
-	   <td class="key">&nbsp;</td>
-	   <td  class="val">&nbsp;</td>
 	   <td class="key">
-		  Last updated:
+	     Created:
+       </td>
+	   <td  class="val">
+         <%= l(review.created_at, :format => "%m/%b/%y %H:%M") -%>
+       </td>
+	   <td class="key">
+		  Updated:
 	   </td>
 	   <td  class="val">
-  		  <%= distance_of_time_in_words_to_now(review.updated_at) -%> (<%= l(review.updated_at, :format => :long) -%>)
+  		  <%= l(review.updated_at, :format => "%m/%b/%y %H:%M") -%>
 	   </td>
 	 </tr>
 	<% if review.rule %>
