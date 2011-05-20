@@ -53,6 +53,16 @@
   		  <%= h(review.user.name) -%>, on <%= l(review.created_at, :format => :long) -%>
 	   </td>
 	 </tr>
+	 <tr>
+	   <td class="key">&nbsp;</td>
+	   <td  class="val">&nbsp;</td>
+	   <td class="key">
+		  Last updated:
+	   </td>
+	   <td  class="val">
+  		  <%= distance_of_time_in_words_to_now(review.updated_at) -%> (<%= l(review.updated_at, :format => :long) -%>)
+	   </td>
+	 </tr>
 	<% if review.rule %>
    	<tr>
 	   <td class="key">
