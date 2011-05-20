@@ -144,7 +144,7 @@ class Review < ActiveRecord::Base
       end
     end
 
-    Review.find(:all, :include => [ 'review_comments' ], :order => 'created_at DESC', :conditions => [conditions.join(' AND '), values], :limit => 200)
+    Review.find(:all, :include => [ 'review_comments', 'project', 'user', 'assignee', 'resource' ], :order => 'created_at DESC', :conditions => [conditions.join(' AND '), values], :limit => 200)
   end
 
   def self.reviews_to_xml(reviews, convert_markdown=false)
