@@ -708,10 +708,6 @@ span.violation_date {
 }
 div.review_permalink {
   float: right;
-  background-color: #F4F4F4;
-  border-color: #CDCDCD;
-  border-style: none none none solid;
-  border-width: 1px;
   color: #333333;
   font-size: 12px;
   font-weight: bold;
