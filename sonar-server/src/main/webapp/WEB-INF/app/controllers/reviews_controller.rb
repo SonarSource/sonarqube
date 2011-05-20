@@ -97,15 +97,11 @@ class ReviewsController < ApplicationController
     end
 
     if params[:comment_id]
-      comment = @review.comments.find(params[:comment_id].to_i)
-      if comment
-        comment.text=params[:text]
-        comment.save!
-      end
+      @review.edit_comment(params[:comment_id].to_i, params[:text])
     else
-      @review.comments.create!(:user => current_user, :text => params[:text])
+      @review.create_comment(:user => current_user, :text => params[:text])
     end
-
+    
     render :partial => "reviews/view"
   end
 
@@ -146,8 +142,7 @@ class ReviewsController < ApplicationController
     end
     
     if @review
-      comment=@review.comments.find(params[:comment_id].to_i)
-      comment.delete if comment
+      @review.delete_comment(params[:comment_id].to_i)
     end
     render :partial => "reviews/view"
   end
@@ -245,13 +240,9 @@ class ReviewsController < ApplicationController
     end
 
     if params[:comment_id]
-      comment=violation.review.comments.find(params[:comment_id].to_i)
-      if comment
-        comment.text=params[:text]
-        comment.save!
-      end
+      violation.review.edit_comment(params[:comment_id].to_i, params[:text])
     else
-      violation.review.comments.create!(:user => current_user, :text => params[:text])
+      violation.review.create_comment(:user => current_user, :text => params[:text])
     end
 
     render :partial => "resource/violation", :locals => { :violation => violation }
@@ -266,8 +257,7 @@ class ReviewsController < ApplicationController
     end
     sanitize_violation(violation)
     if violation.review
-      comment=violation.review.comments.find(params[:comment_id].to_i)
-      comment.delete if comment
+      violation.review.delete_comment(params[:comment_id].to_i)
     end
     render :partial => "resource/violation", :locals => { :violation => violation }
   end

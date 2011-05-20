@@ -49,6 +49,28 @@ class Review < ActiveRecord::Base
       end
   end
 
+  def create_comment(options={})
+    comments.create!(options)
+    touch
+  end
+
+  def edit_comment(comment_id, comment_text)
+    comment=comments.find(comment_id)
+    if comment
+      comment.text=comment_text
+      comment.save!
+      touch
+    end
+  end
+  
+  def delete_comment(comment_id)
+    comment=comments.find(comment_id)
+    if comment
+      comment.delete
+      touch
+    end
+  end
+  
   def self.search(options={})
     conditions=[]
     values={}
