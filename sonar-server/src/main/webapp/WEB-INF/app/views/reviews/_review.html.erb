@@ -2,19 +2,26 @@
   <div class="reportTitle">
     <h2>Review #<%= h(review.id.to_s) -%> - <%= h(review.title) -%></h2>
     
-    <% if current_user && review.status != "CLOSED" %>
+    <% 
+      if current_user && review.status != "CLOSED" && review.rule_failure
+        violation_switched_off = review.rule_failure.switched_off?
+    %>
     <span class="actions" id="rActions">
         &nbsp;
         <%= image_tag("sep12.png") -%>
         &nbsp;
+        <% 
+          if !violation_switched_off
+        %>
         <%= link_to_remote (review.assignee_id ? "Reassign" : "Assign"),  
         		:url => { :controller => "reviews", :action => "assign_form", :review_id => review.id},
         		:update => "assignForm",
         		:complete => "$('rActions').hide(); $('editActions').hide(); $('assignee_id').focus();" -%>
       
         &nbsp;
-        <%= link_to_remote ("Flag as false-positive"),
-        		:url => { :controller => "reviews", :action => "false_positive_form", :id => review.id },
+        <% end %>
+        <%= link_to_remote (violation_switched_off ? "Unflag as false-positive" : "Flag as false-positive"),
+        		:url => { :controller => "reviews", :action => "false_positive_form", :id => review.id, :false_positive => !violation_switched_off },
         		:update => "reviewForm",
         		:complete => "$('reviewForm').show(); $('rActions').hide(); $('editActions').hide(); $('commentText').focus();" -%>
     </span>

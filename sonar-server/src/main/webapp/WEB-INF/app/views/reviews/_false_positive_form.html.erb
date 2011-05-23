@@ -1,5 +1,8 @@
 <form method="POST" action="violation_flag_as_false_positive">
   <input type="hidden" name="id" value="<%= params[:id] -%>"/>
+  <% if params[:false_positive]=='true' -%>
+    <input type="hidden" name="false_positive" value="true"/>
+  <% end %>
   <h3>Why is it a false-positive ?</h3>
   <textarea id="commentText" rows="8" name="comment" style="width: 100%" onkeyup="if (this.value=='') $('submit_btn').disabled='true'; else $('submit_btn').disabled='';"></textarea>
   <%= submit_to_remote "submit_btn", "Flag as false-positive", :url => { :action => 'flag_as_false_positive' }, :html => { :id => "submit_btn", :disabled => "true" }, :update => 'review' -%>

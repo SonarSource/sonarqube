@@ -49,6 +49,14 @@ class Review < ActiveRecord::Base
       end
   end
 
+  
+  
+  #
+  #
+  # REVIEW CORE METHODS
+  #
+  #
+  
   def create_comment(options={})
     comments.create!(options)
     touch
@@ -70,6 +78,14 @@ class Review < ActiveRecord::Base
       touch
     end
   end
+  
+  
+  
+  #
+  #
+  # SEARCH METHODS
+  #
+  #  
   
   def self.search(options={})
     conditions=[]
@@ -160,6 +176,14 @@ class Review < ActiveRecord::Base
     Review.find(:all, :include => [ 'review_comments', 'project', 'assignee', 'resource', 'user' ], :conditions => [conditions.join(' AND '), values], :order => sort, :limit => 200)
   end
 
+  
+  
+  #
+  #
+  # XML AND JSON UTILITY METHODS
+  #
+  #
+  
   def self.reviews_to_xml(reviews, convert_markdown=false)
     xml = Builder::XmlMarkup.new(:indent => 0)
     xml.instruct!
@@ -230,10 +254,12 @@ class Review < ActiveRecord::Base
 
   
 
-  
+  #
+  #
+  # PRIVATE METHODS
+  #
+  #
   private
-  
-
   
   def assign_project
     if self.project.nil? && self.resource

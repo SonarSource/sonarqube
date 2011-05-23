@@ -118,13 +118,13 @@ class ReviewsController < ApplicationController
       return
     end
     
+    false_positive=(params[:false_positive]=='true')
     RuleFailure.find( :all, :conditions => [ "permanent_id = ?", @review.rule_failure_permanent_id ] ).each do |violation|
-      violation.switched_off=true
+      violation.switched_off=false_positive
       violation.save!
     end
 
-    @review.review_type = Review::TYPE_FALSE_POSITIVE
-    @review.status = Review::STATUS_CLOSED
+    @review.review_type = (false_positive ? Review::TYPE_FALSE_POSITIVE : Review::TYPE_VIOLATION)
     @review.assignee = nil
     @review.save!
     unless params[:comment].blank?
@@ -206,7 +206,6 @@ class ReviewsController < ApplicationController
         violation.build_review(:user_id => current_user.id)
       end
       violation.review.review_type=(false_positive ? Review::TYPE_FALSE_POSITIVE : Review::TYPE_VIOLATION)
-      violation.review.status=(false_positive ? Review::STATUS_CLOSED : Review::STATUS_OPEN)
       violation.review.assignee=nil
       violation.review.save!
       violation.review.comments.create(:review_text => params[:comment], :user_id => current_user.id)
