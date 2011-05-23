@@ -55,4 +55,20 @@ public class MetricTest {
     assertThat(metric.isHidden(), is(false));
     assertThat(metric.isOptimizedBestValue(), is(false));
   }
+
+  @Test
+  public void shouldCreatePercentMetricWithDefaultValues() {
+    Metric better = new Metric.Builder("foo", "Foo", Metric.ValueType.PERCENT)
+        .setDirection(Metric.DIRECTION_BETTER)
+        .create();
+    Metric worst = new Metric.Builder("foo", "Foo", Metric.ValueType.PERCENT)
+        .setDirection(Metric.DIRECTION_WORST)
+        .create();
+
+    assertThat(better.getBestValue(), is(100.0));
+    assertThat(better.getWorstValue(), is(0.0));
+    assertThat(worst.getBestValue(), is(0.0));
+    assertThat(worst.getWorstValue(), is(100.0));
+  }
+
 }
