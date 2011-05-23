@@ -125,6 +125,7 @@ class ReviewsController < ApplicationController
 
     @review.review_type = Review::TYPE_FALSE_POSITIVE
     @review.status = Review::STATUS_CLOSED
+    @review.assignee = nil
     @review.save!
     unless params[:comment].blank?
       @review.comments.create(:review_text => params[:comment], :user_id => current_user.id)
@@ -206,6 +207,7 @@ class ReviewsController < ApplicationController
       end
       violation.review.review_type=(false_positive ? Review::TYPE_FALSE_POSITIVE : Review::TYPE_VIOLATION)
       violation.review.status=(false_positive ? Review::STATUS_CLOSED : Review::STATUS_OPEN)
+      violation.review.assignee=nil
       violation.review.save!
       violation.review.comments.create(:review_text => params[:comment], :user_id => current_user.id)
     end
