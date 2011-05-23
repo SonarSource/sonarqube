@@ -145,11 +145,9 @@ function launchSearch(columnName, link) {
           <td><img src="<%= ApplicationController.root_context -%>/images/priority/<%= review.severity -%>.png" title="<%= review.severity.capitalize -%>"/></td>
           <td>
             <%= link_to h(review.title), :controller => "reviews", :action => "view", :id => review.id -%>
-            <div class="discussionComment">
-              <h4>
-                <%= image_tag("reviews/comment.png") -%> &nbsp;<b><%= comment.user.name -%></b> (<%= distance_of_time_in_words_to_now(comment.created_at) -%>)
-		      </h4>
-		      <%= comment.html_text -%>
+            <div class="comment-excerpt">
+              <%= image_tag("reviews/comment.png") -%> &nbsp;<b><%= comment.user.name -%> :</b> 
+              <%= comment.excerpt -%>
 	        </div>            
           </td>
           <td><%= review.project.name -%>

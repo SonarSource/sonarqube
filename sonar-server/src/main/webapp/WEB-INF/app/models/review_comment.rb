@@ -32,6 +32,15 @@ class ReviewComment < ActiveRecord::Base
   def plain_text
     Api::Utils.convert_string_to_unix_newlines(review_text)
   end
+  
+  def excerpt
+    text = plain_text
+    if text.size > 101
+      plain_text[0..100] + " ..."
+    else
+      text 
+    end
+  end
 
   private
 

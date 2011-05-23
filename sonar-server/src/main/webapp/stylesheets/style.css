@@ -887,13 +887,6 @@ div.discussionComment {
 	margin: 0;
 	padding: 5px 10px;
 }
-table#reviews-list div.discussionComment {
-	background-color: transparent;
-	border-top: none;
-	border-left: 1px solid #DDDDDD;
-	margin: 5px 0 0 10px;
-	padding: 0px 10px;
-}
 div.discussionComment h4 {
   font-size: 90%;
   margin-bottom: 2px;
@@ -903,6 +896,13 @@ div.discussionComment h4 img {
 }
 div.discussionComment li {
   list-style: square inside;
+}
+div.comment-excerpt {
+	background-color: transparent;
+	margin: 5px;
+	padding: 0px 10px;
+	color: #777777;
+	font-size: 90%;
 }
 
 
