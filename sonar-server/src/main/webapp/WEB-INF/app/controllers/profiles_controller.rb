@@ -196,7 +196,18 @@ class ProfilesController < ApplicationController
     profiles=Profile.find(:all, :conditions => ['language=? and id<>? and (parent_name is null or parent_name<>?) and enabled=?', @profile.language, @profile.id, @profile.name, true], :order => 'name')
     @select_parent = [['None', nil]] + profiles.collect{ |profile| [profile.name, profile.name] }
   end
-
+  
+  #
+  #
+  # GET /profiles/changelog?id=<profile id>
+  #
+  #
+  def changelog
+    @profile = Profile.find(params[:id])
+    
+    @changes=ActiveRuleChange.find(:all, :conditions => ['profile_id=?', @profile.id], :order => 'id desc')
+    
+  end
   
   
   #
@@ -208,9 +219,9 @@ class ProfilesController < ApplicationController
     id = params[:id].to_i
     parent_name = params[:parent_name]
     if parent_name.blank?
-      messages = java_facade.changeParentProfile(id, nil)
+      messages = java_facade.changeParentProfile(id, nil, current_user.login)
     else
-      messages = java_facade.changeParentProfile(id, parent_name)
+      messages = java_facade.changeParentProfile(id, parent_name, current_user.login)
     end
     flash_validation_messages(messages)
     redirect_to :action => 'inheritance', :id => id

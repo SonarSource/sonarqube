@@ -5,9 +5,9 @@
   
   <rules_parameters id="1" rule_id="1" name="param1" description="[null]" param_type="r"/>
 
-  <rules_profiles id="1" provided="false" name="parent" default_profile="0" language="java" parent_name="[null]" enabled="true"/>
+  <rules_profiles id="1" version="2" used_profile="false" provided="false" name="parent" default_profile="0" language="java" parent_name="[null]" enabled="true"/>
   
-  <rules_profiles id="2" provided="false" name="child" default_profile="0" language="java" parent_name="parent" enabled="true"/>
+  <rules_profiles id="2" version="2" used_profile="false" provided="false" name="child" default_profile="0" language="java" parent_name="parent" enabled="true"/>
 
   <active_rules id="1" profile_id="1" rule_id="1" failure_level="2" inheritance="[null]"/>
   <active_rule_parameters id="1" active_rule_id="1" rules_parameter_id="1" value="30"/>
