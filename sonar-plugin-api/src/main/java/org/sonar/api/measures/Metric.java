@@ -123,7 +123,7 @@ public class Metric implements ServerExtension, BatchExtension {
   /**
    * Creates an empty metric
    * 
-   * @deprecated in 1.12
+   * @deprecated in 1.12. Use the {@link Builder} factory.
    */
   @Deprecated
   public Metric() {
@@ -133,7 +133,7 @@ public class Metric implements ServerExtension, BatchExtension {
    * Creates a metric based on its key. Shortcut to Metric(key, ValueType.INT)
    *
    * @param key the metric key
-   * @deprecated since 2.7 use the Builder factory.
+   * @deprecated since 2.7 use the {@link Builder} factory.
    */
   @Deprecated
   public Metric(String key) {
@@ -146,7 +146,7 @@ public class Metric implements ServerExtension, BatchExtension {
    *
    * @param key  the key
    * @param type the type
-   * @deprecated since 2.7 use the Builder factory.
+   * @deprecated since 2.7 use the {@link Builder} factory.
    */
   @Deprecated
   public Metric(String key, ValueType type) {
@@ -154,7 +154,7 @@ public class Metric implements ServerExtension, BatchExtension {
   }
 
   /**
-   * @deprecated since 2.7 use the Builder factory.
+   * @deprecated since 2.7 use the {@link Builder} factory.
    */
   @Deprecated
   public Metric(String key, String name, String description, ValueType type, Integer direction, Boolean qualitative, String domain) {
@@ -175,7 +175,7 @@ public class Metric implements ServerExtension, BatchExtension {
    * @param qualitative whether the metric is qualitative
    * @param domain      the metric domain
    * @param userManaged whether the metric is user managed
-   * @deprecated since 2.7 use the Builder factory.
+   * @deprecated since 2.7 use the {@link Builder} factory.
    */
   @Deprecated
   public Metric(String key, String name, String description, ValueType type, Integer direction, Boolean qualitative, String domain, boolean userManaged) {
@@ -209,7 +209,7 @@ public class Metric implements ServerExtension, BatchExtension {
    * @param qualitative whether the metric is qualitative
    * @param domain      the metric domain
    * @param formula     the metric formula
-   * @deprecated since 2.7 use the Builder factory.
+   * @deprecated since 2.7 use the {@link Builder} factory.
    */
   @Deprecated
   public Metric(String key, String name, ValueType type, Integer direction, Boolean qualitative, String domain, Formula formula) {
@@ -585,6 +585,9 @@ public class Metric implements ServerExtension, BatchExtension {
     return this;
   }
 
+  /**
+   * @since 2.7
+   */
   public static final class Builder {
     private String key;
     private Metric.ValueType type;
