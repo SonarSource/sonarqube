@@ -20,6 +20,7 @@
 
 package org.sonar.channel;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,43 +35,96 @@ public class ChannelDispatcher<OUTPUT> extends Channel<OUTPUT> {
   @SuppressWarnings("rawtypes")
   private final Channel[] channels;
 
+  /**
+   * @deprecated please use the builder() method
+   */
   @SuppressWarnings("rawtypes")
+  @Deprecated
   public ChannelDispatcher(List<Channel> channels) {
     this(channels, false);
   }
 
+  /**
+   * @deprecated please use the builder() method
+   */
   @SuppressWarnings("rawtypes")
+  @Deprecated
   public ChannelDispatcher(Channel... channels) {
     this(Arrays.asList(channels), false);
   }
 
+  /**
+   * @deprecated please use the builder() method
+   */
   @SuppressWarnings("rawtypes")
+  @Deprecated
   public ChannelDispatcher(List<Channel> channels, boolean failIfNoChannelToConsumeOneCharacter) {
     this.channels = channels.toArray(new Channel[channels.size()]);
     this.failIfNoChannelToConsumeOneCharacter = failIfNoChannelToConsumeOneCharacter;
   }
 
+  private ChannelDispatcher(Builder builder) {
+    this.channels = builder.channels.toArray(new Channel[builder.channels.size()]);
+    this.failIfNoChannelToConsumeOneCharacter = builder.failIfNoChannelToConsumeOneCharacter;
+  }
+
   public boolean consume(CodeReader code, OUTPUT output) {
     int nextChar = code.peek();
     while (nextChar != -1) {
-      boolean channelConsumed = false;
+      boolean characterConsumed = false;
       for (Channel<OUTPUT> channel : channels) {
         if (channel.consume(code, output)) {
-          channelConsumed = true;
+          characterConsumed = true;
           break;
         }
       }
-      if ( !channelConsumed) {
-        String message = "None of the channel has been able to handle character '" + (char) code.peek() + "' (decimal value " + code.peek()
-            + ") at line " + code.getLinePosition() + ", column " + code.getColumnPosition();
-        if (failIfNoChannelToConsumeOneCharacter) {
-          throw new IllegalStateException(message);
+      if ( !characterConsumed) {
+        if (logger.isDebugEnabled() || failIfNoChannelToConsumeOneCharacter) {
+          String message = "None of the channel has been able to handle character '" + (char) code.peek() + "' (decimal value "
+              + code.peek() + ") at line " + code.getLinePosition() + ", column " + code.getColumnPosition();
+          if (failIfNoChannelToConsumeOneCharacter) {
+            throw new IllegalStateException(message);
+          }
+          logger.debug(message);
         }
-        logger.debug(message);
         code.pop();
       }
       nextChar = code.peek();
     }
     return true;
+  }
+
+  /**
+   * Get a Builder instance to build a new ChannelDispatcher
+   */
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static final class Builder {
+
+    private List<Channel> channels = new ArrayList<Channel>();
+    private boolean failIfNoChannelToConsumeOneCharacter = false;
+
+    private Builder() {
+    }
+
+    public Builder addChannel(Channel channel) {
+      channels.add(channel);
+      return this;
+    }
+
+    /**
+     * If this option is activated, an IllegalStateException will be thrown as soon as a character won't be consumed by any channel.
+     */
+    public Builder failIfNoChannelToConsumeOneCharacter() {
+      failIfNoChannelToConsumeOneCharacter = true;
+      return this;
+    }
+
+    public <OUTPUT> ChannelDispatcher<OUTPUT> build() {
+      return new ChannelDispatcher<OUTPUT>(this);
+    }
+
   }
 }
