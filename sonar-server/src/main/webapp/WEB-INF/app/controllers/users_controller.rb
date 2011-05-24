@@ -21,8 +21,8 @@
 class UsersController < ApplicationController
 
   SECTION=Navigation::SECTION_CONFIGURATION
-  before_filter :admin_required, :except => ['new', 'signup']
-  skip_before_filter :check_authentication, :only => ['new', 'signup']
+  before_filter :admin_required, :except => ['new', 'signup', 'autocomplete']
+  skip_before_filter :check_authentication, :only => ['new', 'signup', 'autocomplete']
 
   def create
     return unless request.post?
@@ -129,4 +129,11 @@ class UsersController < ApplicationController
     user.groups<<default_group if default_group
     user
   end
+  
+  def autocomplete
+    @users = User.find(:all, :conditions => ["UPPER(name) like UPPER(?)", params[:user_name_start]+"%"])
+    @char_count = params[:user_name_start].size
+    render :partial => 'autocomplete'
+  end
+  
 end

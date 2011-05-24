@@ -830,7 +830,7 @@ span.rulename a:hover {
 
 
 
-
+/* REVIEWS */
 div#review .actions{
   visibility: hidden;
 }
@@ -906,7 +906,39 @@ div.comment-excerpt {
 }
 
 
-
+/* AUTOCOMPLETE FIELDS */
+div.autocomplete {
+  position:absolute;
+  width:250px;
+  background-color:#fff;
+  border:1px solid #ccc;
+  margin:0;
+  padding:0;
+  color: #111;
+  line-height: 1em;
+}
+div.autocomplete ul {
+  list-style-type:none;
+  margin:0;
+  padding:0;
+}
+div.autocomplete ul li.selected { 
+  background-color: #4b9fd5;
+  color: #fff;
+  margin: 0;
+}
+div.autocomplete ul li {
+  list-style-type:none;
+  display:block;
+  margin:0;
+  padding: 5px 10px;
+  cursor:pointer;
+  color: #333;
+  line-height: 1em;
+}
+div.autocomplete strong {
+  font-weight: bold;
+}
 
 
 

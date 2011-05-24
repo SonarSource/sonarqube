@@ -1,0 +1,17 @@
+  <input type="text" id="autocompleteText-<%= param_id_name -%>" value="<%= param_displayed_value -%>" onkeyup="if (this.value=='') $('<%= param_id_name -%>').value='';"/>
+  <input type="hidden" id="<%= param_id_name -%>" name="<%= param_id_name -%>" value="<%= param_id_value -%>"/>
+  <span id="load-<%= param_id_name -%>" style="display: none">
+    <%= image_tag("loading.gif") -%>
+  </span>
+  <div id="autocomplete-<%= param_id_name -%>" class="autocomplete"></div>
+  <script>
+    new Ajax.Autocompleter("autocompleteText-<%= param_id_name -%>", "autocomplete-<%= param_id_name -%>", "<%= server_url -%>", {
+      paramName: "user_name_start", 
+      minChars: 2, 
+      indicator: 'load-<%= param_id_name -%>',
+      afterUpdateElement : getSelection<%= param_id_name -%>
+    });
+    function getSelection<%= param_id_name -%>(text, li) {
+      $('<%= param_id_name -%>').value = li.id
+    }
+  </script>

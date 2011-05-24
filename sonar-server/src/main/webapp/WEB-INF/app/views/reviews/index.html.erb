@@ -4,8 +4,10 @@ function reviewIdFieldModified(field) {
     $('statuses').value = ''
     $('severities').value = ''
     $('projects').value = ''
-    $('authors').value = ''
-    $('assignees').value = ''
+    $('author_id').value = ''
+    $('autocompleteText-author_id').value = ''
+    $('assignee_id').value = ''
+    $('autocompleteText-assignee_id').value = ''    
   }
 }
 function launchSearch(columnName, link) {
@@ -48,7 +50,6 @@ function launchSearch(columnName, link) {
             <option value="<%= Severity::INFO -%>" class="sev_INFO" <%= 'selected' if @severities.include?(Severity::INFO) -%>>Info</option>
            </select>
         </td>
-
         <td width="1%" nowrap>
           <span class="note">Project</span><br/>
           <select size="6" name="projects[]" multiple="multiple" id="projects">
@@ -60,14 +61,13 @@ function launchSearch(columnName, link) {
             <% end %>
           </select>
         </td>
-
         <td width="1%" nowrap>
           <span class="note">Created by</span><br/>
-          <%= select_tag "authors", options_for_select(@user_names, @authors), :multiple => true, :size => 6 %>
-        </td>
-        <td width="1%" nowrap>
+          <%= user_autocomplete_field "author_id", @author_id -%>
+          <br/>
           <span class="note">Assigned to</span><br/>
-          <%= select_tag "assignees", options_for_select(@user_names, @assignees), :multiple => true, :size => 6 %>
+          <%= user_autocomplete_field "assignee_id", @assignee_id -%>
+          <br/>
         </td>
         <td width="1%" nowrap>
           <span class="note">Id</span><br/>

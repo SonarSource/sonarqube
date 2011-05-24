@@ -26,7 +26,7 @@ class ReviewsController < ApplicationController
          :only => [:assign, :comment_form, :flag_as_false_positive, 
                    :violation_assign, :violation_flag_as_false_positive,:violation_save_comment, :violation_delete_comment], 
          :redirect_to => {:action => :error_not_post}
-  helper SourceHelper
+  helper SourceHelper, UsersHelper
 
   def index
     init_params()
@@ -270,9 +270,9 @@ class ReviewsController < ApplicationController
 
   def init_params
     @user_names = [["Any", ""]] + options_for_users
-    default_user = (current_user ? [current_user.id.to_s] : [''])
-    @authors = filter_any(params[:authors]) || ['']
-    @assignees = filter_any(params[:assignees]) || default_user
+    default_user = (current_user ? current_user.id : '')
+    @assignee_id = params[:assignee_id] || default_user
+    @author_id = params[:author_id] || ''
     @severities = filter_any(params[:severities]) || ['']
     @statuses = filter_any(params[:statuses]) || [Review::STATUS_OPEN]
     @projects = filter_any(params[:projects]) || ['']
@@ -311,11 +311,11 @@ class ReviewsController < ApplicationController
     unless @severities == ['']
       options['severities']=@severities.join(',')
     end
-    unless @authors == ['']
-      options['authors']=@authors.map{|s| s.to_i}.join(',')
+    if @author_id
+      options['authors']=@author_id.to_s
     end
-    unless @assignees == ['']
-      options['assignees']=@assignees.map{|s| s.to_i}.join(',')
+    if @assignee_id
+      options['assignees']=@assignee_id.to_s
     end
     unless @id  == ''
       if is_number? @id
