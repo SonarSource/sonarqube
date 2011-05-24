@@ -19,12 +19,8 @@
  */
 package org.sonar.markdown;
 
-import org.sonar.channel.Channel;
 import org.sonar.channel.ChannelDispatcher;
 import org.sonar.channel.CodeReader;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Entry point of the Markdown library
@@ -34,15 +30,15 @@ public final class Markdown {
   private ChannelDispatcher<MarkdownOutput> dispatcher;
 
   private Markdown() {
-    List<Channel> markdownChannels = Arrays.<Channel>asList(
-        new HtmlUrlChannel(),
-        new HtmlEndOfLineChannel(),
-        new HtmlEmphasisChannel(),
-        new HtmlListChannel(),
-        new HtmlCodeChannel(),
-        new IdentifierAndNumberChannel(),
-        new BlackholeChannel());
-    dispatcher = new ChannelDispatcher<MarkdownOutput>(markdownChannels);
+    dispatcher = ChannelDispatcher.builder()
+      .addChannel(new HtmlUrlChannel())
+      .addChannel(new HtmlEndOfLineChannel())
+      .addChannel(new HtmlEmphasisChannel())
+      .addChannel(new HtmlListChannel())
+      .addChannel(new HtmlCodeChannel())
+      .addChannel(new IdentifierAndNumberChannel())
+      .addChannel(new BlackholeChannel())
+      .build();
   }
 
   private String convert(String input) {
@@ -51,7 +47,7 @@ public final class Markdown {
       MarkdownOutput output = new MarkdownOutput();
       dispatcher.consume(reader, output);
       return output.toString();
-      
+
     } finally {
       reader.close();
     }
