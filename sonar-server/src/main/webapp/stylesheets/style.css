@@ -916,6 +916,7 @@ div.autocomplete {
   padding:0;
   color: #111;
   line-height: 1em;
+  text-shadow: none;
 }
 div.autocomplete ul {
   list-style-type:none;

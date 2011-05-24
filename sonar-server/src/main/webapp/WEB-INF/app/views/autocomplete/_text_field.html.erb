@@ -1,4 +1,4 @@
-  <input type="text" id="autocompleteText-<%= param_id_name -%>" value="<%= param_displayed_value -%>" onkeyup="if (this.value=='') $('<%= param_id_name -%>').value='';"/>
+  <input type="text" id="autocompleteText-<%= param_id_name -%>" value="<%= param_displayed_value -%>" onfocus="$('<%= param_id_name -%>').value=''; this.value=''"/>
   <input type="hidden" id="<%= param_id_name -%>" name="<%= param_id_name -%>" value="<%= param_id_value -%>"/>
   <span id="load-<%= param_id_name -%>" style="display: none">
     <%= image_tag("loading.gif") -%>

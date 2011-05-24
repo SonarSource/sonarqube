@@ -76,7 +76,6 @@
   %>
   <div class="discussionComment">
     <h4><%= image_tag("reviews/comment.png") -%> &nbsp;<b><%= review_comment.user.name -%></b> (<%= distance_of_time_in_words_to_now(review_comment.created_at) -%>)
-    <!-- && current_user.id == review_comment.user_id -->
     <% if is_last_comment && current_user %>
       <span class="actions" id="commentActions<%= violation.id -%>">
         &nbsp;&nbsp;

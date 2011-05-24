@@ -61,7 +61,6 @@ class ReviewsController < ApplicationController
 
   # GET
   def assign_form
-    @user_options = options_for_users()
     render :partial => "assign_form"
   end
 
@@ -163,7 +162,6 @@ class ReviewsController < ApplicationController
 
   # GET
   def violation_assign_form
-    @user_options = options_for_users()
     render :partial => "violation_assign_form"
   end
 
@@ -220,7 +218,6 @@ class ReviewsController < ApplicationController
     if !params[:comment_id].blank? && @violation.review
       @comment = @violation.review.comments.find(params[:comment_id])
     end
-    @user_options = [["Unassigned", ""]] + options_for_users
     render :partial => 'reviews/violation_comment_form'
   end
 
@@ -269,7 +266,6 @@ class ReviewsController < ApplicationController
   private
 
   def init_params
-    @user_names = [["Any", ""]] + options_for_users
     default_user = (current_user ? current_user.id : '')
     @assignee_id = params[:assignee_id] || default_user
     @author_id = params[:author_id] || ''
@@ -279,18 +275,6 @@ class ReviewsController < ApplicationController
     @id = params[:review_id] || ""
     @sort = params[:sort]
     @asc = params[:asc] == "true"
-  end
-
-  def options_for_users
-    options=[]
-    User.find( :all ).each do |user|
-      username = user.name
-      if current_user && current_user.id == user.id
-        username = "Me (" + user.name + ")"
-      end
-      options<<[username, user.id.to_s]
-    end
-    options
   end
 
   def filter_any(array)

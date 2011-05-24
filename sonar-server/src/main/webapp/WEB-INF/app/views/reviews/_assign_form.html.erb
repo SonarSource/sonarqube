@@ -1,12 +1,17 @@
-<% form_tag :html => {:style => "display:inline"} do %>
+<form method="post"
+      onsubmit="if ($('assignee_id').value != '') { new Ajax.Updater('review', '<%= url_for :action => 'assign' -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); };return false;">
   <%= hidden_field_tag :id, params[:review_id] -%>
-  <%= select_tag "assignee_id", options_for_select(@user_options, current_user.id.to_s)  %>
+  <%= user_autocomplete_field "assignee_id", "" -%>
   &nbsp;&nbsp;
   <%= submit_to_remote "submit_btn", "Assign", 
          :url => { :action => 'assign' },
-         :update => "review" -%>
+         :update => "review",
+         :condition => "$('assignee_id').value != ''" -%>
   &nbsp;&nbsp;
   <%= link_to_remote 'Cancel', 
          :url => { :action => 'show', :id => params[:review_id] },
          :update => "review" %>
-<% end %>
+  <script>
+  	$('autocompleteText-assignee_id').focus()
+  </script>
+</form>
