@@ -131,7 +131,7 @@ class UsersController < ApplicationController
   end
   
   def autocomplete
-    @users = User.find(:all, :conditions => ["UPPER(name) like UPPER(?)", params[:user_name_start]+"%"])
+    @users = User.find(:all, :conditions => ["UPPER(name) like ?", params[:user_name_start].clone.upcase+"%"])
     @char_count = params[:user_name_start].size
     render :partial => 'autocomplete'
   end
