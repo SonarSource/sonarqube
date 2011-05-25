@@ -34,9 +34,9 @@ class ReviewComment < ActiveRecord::Base
   end
   
   def excerpt
-    text = plain_text
+    text = plain_text.gsub("\\n", " ")
     if text.size > 101
-      plain_text[0..100] + " ..."
+      text[0..100] + " ..."
     else
       text 
     end

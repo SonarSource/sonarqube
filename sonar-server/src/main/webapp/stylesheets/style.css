@@ -899,8 +899,8 @@ div.discussionComment li {
 }
 div.comment-excerpt {
 	background-color: transparent;
-	margin: 5px;
-	padding: 0px 10px;
+	margin-top: 5px;
+	margin-bottom: 5px;
 	color: #777777;
 	font-size: 90%;
 }
