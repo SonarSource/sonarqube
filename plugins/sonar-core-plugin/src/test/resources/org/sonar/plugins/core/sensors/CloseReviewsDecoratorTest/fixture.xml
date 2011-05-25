@@ -58,5 +58,10 @@
   			status="OPEN"
   			rule_failure_permanent_id="3"
   			resource_id="666"/>
+  <reviews
+  			id="4"
+  			status="CLOSED"
+  			rule_failure_permanent_id="2"
+  			resource_id="666"/>
 
 </dataset>

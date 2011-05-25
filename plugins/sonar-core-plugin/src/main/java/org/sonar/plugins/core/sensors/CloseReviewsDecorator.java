@@ -75,7 +75,7 @@ public class CloseReviewsDecorator implements Decorator {
   }
 
   protected String generateUpdateOnResourceSqlRequest(int resourceId, int snapshotId) {
-    return "UPDATE reviews SET status='CLOSED', updated_at=CURRENT_TIMESTAMP WHERE resource_id = " + resourceId
+    return "UPDATE reviews SET status='CLOSED', updated_at=CURRENT_TIMESTAMP WHERE status='OPEN' AND resource_id = " + resourceId
         + " AND rule_failure_permanent_id NOT IN " + "(SELECT permanent_id FROM rule_failures WHERE snapshot_id = " + snapshotId
         + " AND permanent_id IS NOT NULL)";
   }
