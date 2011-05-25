@@ -23,11 +23,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.rules.*;
+import org.sonar.api.rules.ActiveRuleParam;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleParam;
+import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.jpa.session.DatabaseSessionFactory;
-import org.sonar.server.rules.DeprecatedRuleRepositories;
 
 import java.util.*;
 
@@ -36,16 +38,13 @@ public final class RegisterRules {
   private DatabaseSessionFactory sessionFactory;
   private List<RuleRepository> repositories = new ArrayList<RuleRepository>();
 
-  public RegisterRules(DatabaseSessionFactory sessionFactory, DeprecatedRuleRepositories repositories, RuleRepository[] repos) {
+  public RegisterRules(DatabaseSessionFactory sessionFactory, RuleRepository[] repos) {
     this.sessionFactory = sessionFactory;
     this.repositories.addAll(Arrays.asList(repos));
-    if (repositories != null) {
-      this.repositories.addAll(repositories.create());
-    }
   }
 
-  public RegisterRules(DatabaseSessionFactory sessionFactory, DeprecatedRuleRepositories repositories) {
-    this(sessionFactory, repositories, new RuleRepository[0]);
+  public RegisterRules(DatabaseSessionFactory sessionFactory) {
+    this(sessionFactory, new RuleRepository[0]);
   }
 
   public void start() {
@@ -141,7 +140,7 @@ public final class RegisterRules {
 
   private void deleteDeprecatedParameters(Rule persistedRule, Rule rule, DatabaseSession session) {
     if (persistedRule.getParams() != null && persistedRule.getParams().size() > 0) {
-      for (Iterator<RuleParam> it = persistedRule.getParams().iterator(); it.hasNext();) {
+      for (Iterator<RuleParam> it = persistedRule.getParams().iterator(); it.hasNext(); ) {
         RuleParam persistedParam = it.next();
         if (rule.getParam(persistedParam.getKey()) == null) {
           it.remove();

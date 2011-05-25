@@ -30,7 +30,6 @@ import org.sonar.api.rules.*;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.jpa.session.DatabaseSessionFactory;
-import org.sonar.server.rules.DeprecatedProfiles;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,23 +41,20 @@ public final class RegisterProvidedProfiles {
 
   private DatabaseSessionFactory sessionFactory;
   private List<ProfileDefinition> definitions = Lists.newArrayList();
-  private DeprecatedProfiles deprecatedProfiles = null;
   private RuleFinder ruleFinder;
 
   public RegisterProvidedProfiles(RuleFinder ruleFinder, DatabaseSessionFactory sessionFactory,
-                                  DeprecatedProfiles deprecatedBridge, RegisterRules registerRulesBefore,// NOSONAR the parameter registerRulesBefore is unused must be declared for execution order of tasks
+                                  RegisterRules registerRulesBefore,// NOSONAR the parameter registerRulesBefore is unused must be declared for execution order of tasks
                                   ProfileDefinition[] definitions) {
     this.ruleFinder = ruleFinder;
     this.sessionFactory = sessionFactory;
     this.definitions.addAll(Arrays.asList(definitions));
-    this.deprecatedProfiles = deprecatedBridge;
   }
 
   public RegisterProvidedProfiles(RuleFinder ruleFinder, DatabaseSessionFactory sessionFactory,
-                                  DeprecatedProfiles deprecatedBridge, RegisterRules registerRulesBefore) {// NOSONAR the parameter registerRulesBefore is unused must be declared for execution order of tasks
+                                  RegisterRules registerRulesBefore) {// NOSONAR the parameter registerRulesBefore is unused must be declared for execution order of tasks
     this.ruleFinder = ruleFinder;
     this.sessionFactory = sessionFactory;
-    this.deprecatedProfiles = deprecatedBridge;
   }
 
   public void start() {
@@ -74,10 +70,6 @@ public final class RegisterProvidedProfiles {
 
   List<RulesProfile> createProfiles() {
     List<RulesProfile> result = Lists.newArrayList();
-
-    // this must not be moved in the constructor, because rules are still not saved
-    definitions.addAll(deprecatedProfiles.getProfiles());
-
     for (ProfileDefinition definition : definitions) {
       ValidationMessages validation = ValidationMessages.create();
       RulesProfile profile = definition.createProfile(validation);

@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.api.BatchComponent;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.ServerMetadata;
@@ -28,7 +29,10 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public final class ExtensionDownloader {
+/**
+ * TODO this class should be renamed ArtifactDownloader, because it does not relate only to plugin extensions.
+ */
+public final class ExtensionDownloader implements BatchComponent {
 
   private HttpDownloader httpDownloader;
   private TempDirectories workingDirectories;

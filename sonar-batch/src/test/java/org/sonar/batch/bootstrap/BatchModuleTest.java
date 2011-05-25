@@ -17,14 +17,11 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.rules;
+package org.sonar.batch.bootstrap;
 
-import java.util.List;
-import org.sonar.api.rules.Rule;
+import org.junit.Ignore;
 
-@Deprecated
-public interface ConfigurationImportable {
-
-  List<ActiveRule> importConfiguration(String configuration, List<Rule> rules);
+@Ignore
+public class BatchModuleTest {
 
 }

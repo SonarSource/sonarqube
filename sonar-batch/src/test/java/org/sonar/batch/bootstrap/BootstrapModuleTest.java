@@ -17,26 +17,33 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.checks.templates;
+package org.sonar.batch.bootstrap;
 
 import org.junit.Test;
+import org.sonar.api.batch.maven.MavenPluginHandler;
+import org.sonar.api.resources.Project;
+import org.sonar.batch.MavenPluginExecutor;
 
-import java.util.Locale;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
-import static org.junit.Assert.assertEquals;
+public class BootstrapModuleTest {
 
-public class DefaultCheckTemplateTest {
+  class MyMavenPluginExecutor implements MavenPluginExecutor {
+    public void execute(Project project, String goal) {
+    }
+
+    public MavenPluginHandler execute(Project project, MavenPluginHandler handler) {
+      return handler;
+    }
+  }
 
   @Test
-  public void isNotInternationalized() {
-    DefaultCheckTemplate check = new DefaultCheckTemplate("key1");
-    check.setTitle("title");
-    check.setDescription("desc");
+  public void shouldSearchMavenPluginExecutor() {
+    BootstrapModule module = new BootstrapModule(null, MyMavenPluginExecutor.class);
+    assertThat(module.isMavenPluginExecutorRegistered(), is(true));
 
-    assertEquals("title", check.getTitle(Locale.ENGLISH));
-    assertEquals(check.getTitle(Locale.ENGLISH), check.getTitle(Locale.FRENCH));
-
-    assertEquals("desc", check.getDescription(Locale.ENGLISH));
-    assertEquals(check.getDescription(Locale.ENGLISH), check.getDescription(Locale.FRENCH));
+    module = new BootstrapModule(null);
+    assertThat(module.isMavenPluginExecutorRegistered(), is(false));
   }
 }

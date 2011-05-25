@@ -45,27 +45,13 @@ public final class ProfilesConsole implements ServerComponent {
   private List<ProfileImporter> importers = new ArrayList<ProfileImporter>();
 
   public ProfilesConsole(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, XMLProfileSerializer xmlProfileSerializer,
-                         ProfileExporter[] exporters, DeprecatedProfileExporters deprecatedExporters,
-                         ProfileImporter[] importers, DeprecatedProfileImporters deprecatedImporters) {
+                         ProfileExporter[] exporters,
+                         ProfileImporter[] importers) {
     this.xmlProfileParser = xmlProfileParser;
     this.xmlProfileSerializer = xmlProfileSerializer;
     this.sessionFactory = sessionFactory;
-    initProfileExporters(exporters, deprecatedExporters);
-    initProfileImporters(importers, deprecatedImporters);
-  }
-
-  private void initProfileExporters(ProfileExporter[] exporters, DeprecatedProfileExporters deprecatedExporters) {
     this.exporters.addAll(Arrays.asList(exporters));
-    for (ProfileExporter exporter : deprecatedExporters.create()) {
-      this.exporters.add(exporter);
-    }
-  }
-
-  private void initProfileImporters(ProfileImporter[] importers, DeprecatedProfileImporters deprecatedImporters) {
     this.importers.addAll(Arrays.asList(importers));
-    for (ProfileImporter importer : deprecatedImporters.create()) {
-      this.importers.add(importer);
-    }
   }
 
   public String backupProfile(int profileId) {

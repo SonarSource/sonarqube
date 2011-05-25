@@ -38,7 +38,7 @@ public class RulesConsoleTest {
         new FakeRepository("findbugs", "java"),
         new FakeRepository("findbugs", "java"), // for example fb-contrib
     };
-    RulesConsole console = new RulesConsole(repositories, null);
+    RulesConsole console = new RulesConsole(repositories);
 
     assertThat(console.getRepository("findbugs"), not(Matchers.nullValue()));
     assertThat(console.getRepositoriesByLanguage("java").size(), is(1));

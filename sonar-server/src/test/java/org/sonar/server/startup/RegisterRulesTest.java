@@ -38,7 +38,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void saveNewRepositories() {
     setupData("shared");
-    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[] { new FakeRepository() });
+    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[] { new FakeRepository() });
     task.start();
 
     List<Rule> result = getSession().getResults(Rule.class, "pluginName", "fake");
@@ -54,7 +54,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void disableDeprecatedRepositories() {
     setupData("shared");
-    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[] { new FakeRepository() });
+    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[] { new FakeRepository() });
     task.start();
 
     List<Rule> rules = (List<Rule>) getSession()
@@ -69,7 +69,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void disableDeprecatedActiveRules() {
     setupData("disableDeprecatedActiveRules");
-    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[] { new FakeRepository() });
+    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[] { new FakeRepository() });
     task.start();
 
     List<Rule> result = getSession().getResults(Rule.class, "pluginName", "fake");
@@ -86,7 +86,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void disableDeprecatedActiveRuleParameters() {
     setupData("disableDeprecatedActiveRuleParameters");
-    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[] { new FakeRepository() });
+    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[] { new FakeRepository() });
     task.start();
 
     ActiveRule arule = getSession().getSingleResult(ActiveRule.class, "id", 1);
@@ -97,7 +97,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void disableDeprecatedRules() {
     setupData("disableDeprecatedRules");
-    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[] { new FakeRepository() });
+    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[] { new FakeRepository() });
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
@@ -110,7 +110,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void updateRuleFields() {
     setupData("updadeRuleFields");
-    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[] { new FakeRepository() });
+    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[] { new FakeRepository() });
     task.start();
 
     // fields have been updated with new values
@@ -124,7 +124,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void updateRuleParameters() {
     setupData("updateRuleParameters");
-    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[] { new FakeRepository() });
+    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[] { new FakeRepository() });
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
@@ -148,7 +148,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void doNotDisableUserRulesIfParentIsEnabled() {
     setupData("doNotDisableUserRulesIfParentIsEnabled");
-    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[] { new FakeRepository() });
+    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[] { new FakeRepository() });
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
@@ -158,7 +158,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void disableUserRulesIfParentIsDisabled() {
     setupData("disableUserRulesIfParentIsDisabled");
-    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[] { new FakeRepository() });
+    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[] { new FakeRepository() });
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
@@ -168,7 +168,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void volumeTesting() {
     setupData("shared");
-    RegisterRules task = new RegisterRules(getSessionFactory(), null, new RuleRepository[] { new VolumeRepository() });
+    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[] { new VolumeRepository() });
     task.start();
 
     List<Rule> result = getSession().getResults(Rule.class, "enabled", true);

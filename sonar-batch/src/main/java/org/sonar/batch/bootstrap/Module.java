@@ -17,18 +17,20 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch;
-
-import java.util.List;
+package org.sonar.batch.bootstrap;
 
 import org.picocontainer.Characteristics;
 import org.picocontainer.ComponentAdapter;
 import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.utils.IocContainer;
 
+import java.util.List;
+
 /**
  * Module describes group of components - {@link #configure()}.
  * Several modules can be grouped together - {@link #install(Module)}, {@link #installChild(Module)}.
+ * <p/>
+ * TODO Move to org.sonar.batch.bootstrap ?
  */
 public abstract class Module {
 
@@ -38,9 +40,7 @@ public abstract class Module {
    * @return this
    */
   public final Module init() {
-    this.container = IocContainer.buildPicoContainer();
-    configure();
-    return this;
+    return init(IocContainer.buildPicoContainer());
   }
 
   /**
@@ -54,7 +54,7 @@ public abstract class Module {
 
   /**
    * Installs module into this module.
-   * 
+   *
    * @return this
    */
   public final Module install(Module module) {
@@ -64,37 +64,51 @@ public abstract class Module {
 
   /**
    * Installs module into new scope - see http://picocontainer.org/scopes.html
-   * 
+   *
    * @return installed module
    */
-  public final Module installChild(Module module) {
-    MutablePicoContainer child = container.makeChildContainer();
+  public final Module installChild(Module child) {
+    MutablePicoContainer childContainer = container.makeChildContainer();
     // register container as a component, because it used for example in BatchExtensionDictionnary,
     // but in fact this is anti-pattern - http://picocontainer.codehaus.org/container-dependency-antipattern.html
-    child.addComponent(new IocContainer(child));
-    child.setName(module.toString());
-    module.init(child);
-    return module;
+    childContainer.addComponent(new IocContainer(childContainer));
+    childContainer.setName(child.toString());
+    child.init(childContainer);
+    return child;
   }
 
-  public final void uninstallChild(Module module) {
-    container.removeChildContainer(module.container);
+  public final void uninstallChild(Module child) {
+    container.removeChildContainer(child.container);
   }
 
   /**
    * @return this
    */
-  public Module start() {
+  public final Module start() {
     container.start();
+    doStart();
     return this;
+  }
+
+  protected void doStart() {
+    // empty method to be overridden
   }
 
   /**
    * @return this
    */
-  public Module stop() {
-    container.stop();
+  public final Module stop() {
+    try {
+      doStop();
+      container.stop();
+    } catch (Exception e) {
+      // ignore
+    }
     return this;
+  }
+
+  protected void doStop() {
+    // empty method to be overridden
   }
 
   /**
@@ -104,7 +118,11 @@ public abstract class Module {
   protected abstract void configure();
 
   protected final void addComponent(Object component) {
-    container.as(Characteristics.CACHE).addComponent(component);
+    if (component instanceof Class) {
+      container.as(Characteristics.CACHE).addComponent(component);
+    } else {
+      container.as(Characteristics.CACHE).addComponent(component.getClass().getCanonicalName() + "-" + component.toString(), component);
+    }
   }
 
   protected final void addComponent(Object componentKey, Object component) {
@@ -124,7 +142,7 @@ public abstract class Module {
   }
 
   /**
-   * @TODO should not be used and should be removed
+   * TODO should not be used and should be removed
    */
   public final MutablePicoContainer getContainer() {
     return container;

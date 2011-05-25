@@ -19,76 +19,47 @@
  */
 package org.sonar.batch.bootstrap;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
-
 import com.google.common.collect.Lists;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.lang.ArrayUtils;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
-import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.PicoContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchExtension;
 import org.sonar.api.Plugin;
-import org.sonar.api.batch.AbstractCoverageExtension;
-import org.sonar.api.batch.CoverageExtension;
-import org.sonar.api.batch.SupportedEnvironment;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Project;
-import org.sonar.api.utils.AnnotationUtils;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
+import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.core.classloaders.ClassLoadersCollection;
-import org.sonar.core.plugin.AbstractPluginRepository;
 import org.sonar.core.plugin.JpaPlugin;
 import org.sonar.core.plugin.JpaPluginDao;
 import org.sonar.core.plugin.JpaPluginFile;
 
-public class BatchPluginRepository extends AbstractPluginRepository {
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+public class BatchPluginRepository implements PluginRepository {
 
   private static final Logger LOG = LoggerFactory.getLogger(BatchPluginRepository.class);
 
   private JpaPluginDao dao;
+  private ExtensionDownloader artifactDownloader;
+  private Map<String, Plugin> pluginsByKey;
 
-  private ClassLoadersCollection classLoaders;
-  private ExtensionDownloader extensionDownloader;
-  private EnvironmentInformation environment;
-  private List<JpaPlugin> register;
-
-  public BatchPluginRepository(JpaPluginDao dao, ExtensionDownloader extensionDownloader, EnvironmentInformation environment) {
+  public BatchPluginRepository(JpaPluginDao dao, ExtensionDownloader artifactDownloader) {
     this.dao = dao;
-    this.extensionDownloader = extensionDownloader;
-    this.environment = environment;
-    LOG.info("Execution environment: {} {}", environment.getKey(), environment.getVersion());
-  }
-
-  /**
-   * for unit tests only
-   */
-  BatchPluginRepository() {
-  }
-
-  private List<URL> download(JpaPlugin pluginMetadata) {
-    List<URL> urls = Lists.newArrayList();
-    for (JpaPluginFile pluginFile : pluginMetadata.getFiles()) {
-      File file = extensionDownloader.downloadExtension(pluginFile);
-      try {
-        urls.add(file.toURI().toURL());
-
-      } catch (MalformedURLException e) {
-        throw new SonarException("Can not get the URL of: " + file, e);
-      }
-    }
-    return urls;
+    this.artifactDownloader = artifactDownloader;
+//  TODO reactivate somewhere else:  LOG.info("Execution environment: {} {}", environment.getKey(), environment.getVersion());
   }
 
   public void start() {
-    register = Lists.newArrayList();
-    classLoaders = new ClassLoadersCollection(Thread.currentThread().getContextClassLoader());
+    List<JpaPlugin> pluginsMetadata = Lists.newArrayList();
+    pluginsByKey = Maps.newHashMap();
+    ClassLoadersCollection classLoaders = new ClassLoadersCollection(Thread.currentThread().getContextClassLoader());
 
     List<JpaPlugin> jpaPlugins = dao.getPlugins();
 
@@ -97,7 +68,7 @@ public class BatchPluginRepository extends AbstractPluginRepository {
         String key = pluginMetadata.getKey();
         List<URL> urls = download(pluginMetadata);
         classLoaders.createClassLoader(key, urls, pluginMetadata.isUseChildFirstClassLoader() == Boolean.TRUE);
-        register.add(pluginMetadata);
+        pluginsMetadata.add(pluginMetadata);
       }
     }
 
@@ -110,7 +81,8 @@ public class BatchPluginRepository extends AbstractPluginRepository {
           LOG.debug("Plugin {} extends {}", pluginKey, basePluginKey);
           List<URL> urls = download(pluginMetadata);
           classLoaders.extend(basePluginKey, pluginKey, urls);
-          register.add(pluginMetadata);
+          pluginsMetadata.add(pluginMetadata);
+
         } else {
           // Ignored, because base plugin doesn't exists
           LOG.warn("Plugin {} extends nonexistent plugin {}", pluginKey, basePluginKey);
@@ -118,65 +90,54 @@ public class BatchPluginRepository extends AbstractPluginRepository {
       }
     }
 
-    classLoaders.done();
-  }
-
-  public void registerPlugins(MutablePicoContainer pico) {
-    for (JpaPlugin pluginMetadata : register) {
+    for (JpaPlugin pluginMetadata : jpaPlugins) {
       try {
         Class claz = classLoaders.get(pluginMetadata.getKey()).loadClass(pluginMetadata.getPluginClass());
         Plugin plugin = (Plugin) claz.newInstance();
-        registerPlugin(pico, plugin, pluginMetadata.getKey());
+        pluginsByKey.put(pluginMetadata.getKey(), plugin);
 
       } catch (Exception e) {
-        throw new SonarException("Fail to load extensions from plugin " + pluginMetadata.getKey(), e);
+        throw new SonarException("Fail to load plugin " + pluginMetadata.getKey(), e);
       }
     }
-    invokeExtensionProviders(pico);
+
+    classLoaders.done();
   }
 
-  @Override
-  protected boolean shouldRegisterExtension(PicoContainer container, String pluginKey, Object extension) {
-    boolean ok = isType(extension, BatchExtension.class);
-    if (ok && !isSupportsEnvironment(extension)) {
-      ok = false;
-      LOG.debug("The following extension is ignored: " + extension + " due to execution environment.");
-    }
-    if (ok && isType(extension, CoverageExtension.class)) {
-      ok = shouldRegisterCoverageExtension(pluginKey, container.getComponent(Project.class), container.getComponent(Configuration.class));
-      if (!ok) {
-        LOG.debug("The following extension is ignored: " + extension + ". See the parameter " + AbstractCoverageExtension.PARAM_PLUGIN);
+  private List<URL> download(JpaPlugin pluginMetadata) {
+    List<URL> urls = Lists.newArrayList();
+    for (JpaPluginFile pluginFile : pluginMetadata.getFiles()) {
+      File file = artifactDownloader.downloadExtension(pluginFile);
+      try {
+        urls.add(file.toURI().toURL());
+
+      } catch (MalformedURLException e) {
+        throw new SonarException("Can not get the URL of: " + file, e);
       }
     }
-    return ok;
+    return urls;
   }
 
-  private boolean isSupportsEnvironment(Object extension) {
-    Class clazz = (extension instanceof Class ? (Class) extension : extension.getClass());
-    SupportedEnvironment env = AnnotationUtils.getClassAnnotation(clazz, SupportedEnvironment.class);
-    if (env == null) {
-      return true;
-    }
-    for (String supported : env.value()) {
-      if (StringUtils.equalsIgnoreCase(environment.getKey(), supported)) {
-        return true;
-      }
-    }
-    return false;
+  public Collection<Plugin> getPlugins() {
+    return pluginsByKey.values();
   }
 
-  boolean shouldRegisterCoverageExtension(String pluginKey, Project project, Configuration conf) {
-    if (!project.getAnalysisType().isDynamic(true)) {
-      // not dynamic and not reuse reports
-      return false;
-    }
-    if (StringUtils.equals(project.getLanguageKey(), Java.KEY)) {
-      String[] selectedPluginKeys = conf.getStringArray(AbstractCoverageExtension.PARAM_PLUGIN);
-      if (ArrayUtils.isEmpty(selectedPluginKeys)) {
-        selectedPluginKeys = new String[] { AbstractCoverageExtension.DEFAULT_PLUGIN };
+  public Plugin getPlugin(String key) {
+    return pluginsByKey.get(key);
+  }
+
+  public Map<String, Plugin> getPluginsByKey() {
+    return Collections.unmodifiableMap(pluginsByKey);
+  }
+
+  // TODO remove this method. Not used in batch.
+  public Property[] getProperties(Plugin plugin) {
+    if (plugin != null) {
+      Class<? extends Plugin> classInstance = plugin.getClass();
+      if (classInstance.isAnnotationPresent(Properties.class)) {
+        return classInstance.getAnnotation(Properties.class).value();
       }
-      return ArrayUtils.contains(selectedPluginKeys, pluginKey);
     }
-    return true;
+    return new Property[0];
   }
 }

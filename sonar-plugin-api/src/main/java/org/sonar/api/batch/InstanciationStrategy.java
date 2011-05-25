@@ -17,46 +17,30 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.checks.templates;
+package org.sonar.api.batch;
 
-import org.sonar.api.checks.templates.CheckTemplateProperty;
-
-import java.util.Locale;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * @since 2.1
+ * Define instanciation strategy of batch extensions. If an extension is not annotated, then default value
+ * is {@link org.sonar.api.batch.InstanciationStrategy#PER_PROJECT}.
  */
-public class DefaultCheckTemplateProperty extends CheckTemplateProperty {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface InstanciationStrategy {
 
-  private String title;
-  private String description;
+  /**
+   * Shared extension. Lifecycle is the full analysis.
+   */
+  public static final String PER_BATCH = "PER_BATCH";
 
-  public String getTitle() {
-    if (title == null || "".equals(title)) {
-      return getKey();
-    }
-    return title;
-  }
+  /**
+   * Created and initialized for each project and sub-project (a project is a module in Maven terminology).
+   */
+  public static final String PER_PROJECT = "PER_PROJECT";
 
-  @Override
-  public String getTitle(Locale locale) {
-    return getTitle();
-  }
-
-  public void setTitle(String s) {
-    this.title = s;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String s) {
-    this.description = s;
-  }
-
-  @Override
-  public String getDescription(Locale locale) {
-    return getDescription();
-  }
+  String value();
 }

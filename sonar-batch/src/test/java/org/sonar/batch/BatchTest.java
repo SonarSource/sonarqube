@@ -20,31 +20,43 @@
 package org.sonar.batch;
 
 import org.junit.Test;
-import org.sonar.api.batch.maven.MavenPluginHandler;
-import org.sonar.api.resources.Project;
+import org.sonar.batch.bootstrap.Module;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class BatchTest {
 
-  class MyMavenPluginExecutor implements MavenPluginExecutor {
-    public void execute(Project project, String goal) {
-    }
-
-    public MavenPluginHandler execute(Project project, MavenPluginHandler handler) {
-      return handler;
-    }
-  }
-
   @Test
-  public void shouldSearchMavenPluginExecutor() {
-    Batch batch;
+  public void shouldExecute() {
+    FakeModule module = new FakeModule();
+    module.init();
+    new Batch(module).execute();
 
-    batch = new Batch(null, MyMavenPluginExecutor.class);
-    assertThat(batch.isMavenPluginExecutorRegistered(), is(true));
-
-    batch = new Batch(null);
-    assertThat(batch.isMavenPluginExecutorRegistered(), is(false));
+    assertThat(module.started, is(true));
+    assertThat(module.stopped, is(true));
   }
+
+  public static class FakeModule extends Module {
+    private boolean started=false;
+    private boolean stopped=false;
+
+    @Override
+    protected void doStart() {
+      started = true;
+    }
+
+    @Override
+    protected void doStop() {
+      if (!started) {
+        throw new IllegalStateException("Not started");
+      }
+      stopped = true;
+    }
+
+    @Override
+    protected void configure() {
+    }
+  }
+
 }

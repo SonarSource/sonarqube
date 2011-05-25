@@ -38,15 +38,12 @@ public final class RulesConsole implements ServerComponent {
   private SetMultimap<String, RuleRepository> repositoriesByLanguage = HashMultimap.create();
 
 
-  public RulesConsole(RuleRepository[] repositories, DeprecatedRuleRepositories deprecatedRuleRepositories) {
-    initRepositories(repositories, deprecatedRuleRepositories);
+  public RulesConsole(RuleRepository[] repositories) {
+    initRepositories(repositories);
   }
 
-  private void initRepositories(RuleRepository[] repositories, DeprecatedRuleRepositories deprecatedBridge) {
+  private void initRepositories(RuleRepository[] repositories) {
     this.repositories.addAll(Arrays.asList(repositories));
-    if (deprecatedBridge != null) {
-      this.repositories.addAll(deprecatedBridge.create());
-    }
     for (RuleRepository repository : this.repositories) {
       if (!repositoryByKey.containsKey(repository.getKey())) {
         repositoriesByLanguage.put(repository.getLanguage(), repository);

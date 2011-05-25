@@ -54,14 +54,6 @@ public class Plugins {
   public Plugin getPlugin(String key) {
     return pluginProvider.getPlugin(key);
   }
-
-  /**
-   * Returns a plugin based on its extension
-   */
-  public Plugin getPluginByExtension(Extension extension) {
-    return pluginProvider.getPluginForExtension(extension);
-  }
-
   /**
    * Returns the list of properties of a plugin
    */
