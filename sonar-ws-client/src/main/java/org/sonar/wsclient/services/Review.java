@@ -39,6 +39,7 @@ public class Review extends Model {
   private String severity = null;
   private String resourceKee = null;
   private Integer line = null;
+  private Boolean falsePositive = null;
   private List<Review.Comment> comments = new ArrayList<Review.Comment>();
 
   /**
@@ -138,6 +139,7 @@ public class Review extends Model {
   }
 
   /**
+   * @deprecated since 2.9. Use {@link #getFalsePositive()} instead.
    * @return the type
    */
   public String getType() {
@@ -145,11 +147,18 @@ public class Review extends Model {
   }
 
   /**
+   * @deprecated since 2.9. Use {@link #setFalsePositive(Boolean)} instead.
    * @param s
    *          the type to set
    */
   public Review setType(String s) {
     this.type = s;
+    // the following code is only here to ensure backward compatibility with 2.8
+    if ("FALSE_POSITIVE".equals(type)) {
+      falsePositive = Boolean.TRUE;
+    } else if ("VIOLATION".equals(type)) {
+      falsePositive = Boolean.FALSE;
+    }
     return this;
   }
 
@@ -214,6 +223,24 @@ public class Review extends Model {
    */
   public Review setLine(Integer line) {
     this.line = line;
+    return this;
+  }
+
+  /**
+   * @since 2.9
+   * @return the falsePositive
+   */
+  public Boolean getFalsePositive() {
+    return falsePositive;
+  }
+
+  /**
+   * @since 2.9
+   * @param falsePositive
+   *          true if false positive
+   */
+  public Review setFalsePositive(Boolean falsePositive) {
+    this.falsePositive = falsePositive;
     return this;
   }
 

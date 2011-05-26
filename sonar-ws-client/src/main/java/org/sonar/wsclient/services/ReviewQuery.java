@@ -29,6 +29,7 @@ public class ReviewQuery extends Query<Review> {
   public static final String OUTPUT_PLAIN = "PLAIN";
   public static final String OUTPUT_HTML = "HTML";
 
+  @Deprecated
   private String reviewType;
   private Long id;
   private Long[] ids;
@@ -39,18 +40,21 @@ public class ReviewQuery extends Query<Review> {
   private String[] authorLoginsOrIds;
   private String[] assigneeLoginsOrIds;
   private String output;
+  private String falsePositives;
 
   public ReviewQuery() {
   }
 
   /**
-   * @return the reviewType
+   * @deprecated since 2.9
+   * @return NULL
    */
   public String getReviewType() {
     return reviewType;
   }
 
   /**
+   * @deprecated since 2.9
    * @param reviewType
    *          the reviewType to set
    */
@@ -122,8 +126,7 @@ public class ReviewQuery extends Query<Review> {
     this.severities = severities;
     return this;
   }
-  
-  
+
   /**
    * @return the projectKeysOrIds
    */
@@ -131,16 +134,15 @@ public class ReviewQuery extends Query<Review> {
     return projectKeysOrIds;
   }
 
-  
   /**
-   * @param projectKeysOrIds the projectKeysOrIds to set
+   * @param projectKeysOrIds
+   *          the projectKeysOrIds to set
    */
   public ReviewQuery setProjectKeysOrIds(String... projectKeysOrIds) {
     this.projectKeysOrIds = projectKeysOrIds;
     return this;
   }
 
-  
   /**
    * @return the resourceKeysOrIds
    */
@@ -148,16 +150,15 @@ public class ReviewQuery extends Query<Review> {
     return resourceKeysOrIds;
   }
 
-  
   /**
-   * @param resourceKeysOrIds the resourceKeysOrIds to set
+   * @param resourceKeysOrIds
+   *          the resourceKeysOrIds to set
    */
   public ReviewQuery setResourceKeysOrIds(String... resourceKeysOrIds) {
     this.resourceKeysOrIds = resourceKeysOrIds;
     return this;
   }
 
-  
   /**
    * @return the authorLoginsOrIds
    */
@@ -165,16 +166,15 @@ public class ReviewQuery extends Query<Review> {
     return authorLoginsOrIds;
   }
 
-  
   /**
-   * @param authorLoginsOrIds the authorLoginsOrIds to set
+   * @param authorLoginsOrIds
+   *          the authorLoginsOrIds to set
    */
   public ReviewQuery setAuthorLoginsOrIds(String... authorLoginsOrIds) {
     this.authorLoginsOrIds = authorLoginsOrIds;
     return this;
   }
 
-  
   /**
    * @return the assigneeLoginsOrIds
    */
@@ -182,9 +182,9 @@ public class ReviewQuery extends Query<Review> {
     return assigneeLoginsOrIds;
   }
 
-  
   /**
-   * @param assigneeLoginsOrIds the assigneeLoginsOrIds to set
+   * @param assigneeLoginsOrIds
+   *          the assigneeLoginsOrIds to set
    */
   public ReviewQuery setAssigneeLoginsOrIds(String... assigneeLoginsOrIds) {
     this.assigneeLoginsOrIds = assigneeLoginsOrIds;
@@ -198,9 +198,40 @@ public class ReviewQuery extends Query<Review> {
     return output;
   }
 
+  /**
+   * 
+   * @param output
+   *          the output
+   */
   public ReviewQuery setOutput(String output) {
     this.output = output;
     return this;
+  }
+
+  /**
+   * @since 2.9
+   * @return the false_positives
+   */
+  public String getFalsePositives() {
+    return falsePositives;
+  }
+
+  /**
+   * Sets the 'false_positives' parameter that can be:
+   * <ul>
+   * <li>only</li>
+   * <li>with</li>
+   * <li>without</li>
+   * </ul>
+   * , 'with' being the default one on the server side. <br>
+   * <br>
+   * 
+   * @since 2.9
+   * @param falsePositives
+   *          the false_positives
+   */
+  public void setFalsePositives(String falsePositives) {
+    this.falsePositives = falsePositives;
   }
 
   @Override
@@ -212,7 +243,6 @@ public class ReviewQuery extends Query<Review> {
     } else if (ids != null) {
       appendUrlParameter(url, "ids", ids);
     }
-    appendUrlParameter(url, "review_type", reviewType);
     appendUrlParameter(url, "statuses", statuses);
     appendUrlParameter(url, "severities", severities);
     appendUrlParameter(url, "projects", projectKeysOrIds);
@@ -220,6 +250,11 @@ public class ReviewQuery extends Query<Review> {
     appendUrlParameter(url, "authors", authorLoginsOrIds);
     appendUrlParameter(url, "assignees", assigneeLoginsOrIds);
     appendUrlParameter(url, "output", output);
+    appendUrlParameter(url, "false_positives", falsePositives);
+    if (falsePositives == null && reviewType != null) {
+      // Use of the 2.8 deprecated API: handle backward compatibility
+      appendUrlParameter(url, "review_type", reviewType);
+    }
 
     return url.toString();
   }

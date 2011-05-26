@@ -27,13 +27,9 @@ class Review < ActiveRecord::Base
   belongs_to :rule_failure, :foreign_key => 'rule_failure_permanent_id', :primary_key => 'permanent_id'
   
   validates_presence_of :user, :message => "can't be empty"
-  validates_presence_of :review_type, :message => "can't be empty"
   validates_presence_of :status, :message => "can't be empty"
   
   before_save :assign_project
-  
-  TYPE_VIOLATION = 'VIOLATION'
-  TYPE_FALSE_POSITIVE = 'FALSE_POSITIVE'
   
   STATUS_OPEN = 'OPEN'
   STATUS_CLOSED = 'CLOSED'
@@ -90,11 +86,27 @@ class Review < ActiveRecord::Base
   def self.search(options={})
     conditions=[]
     values={}
+    
+    # --- 'review_type' is deprecated since 2.9 ---
+    # Following code just for backward compatibility
+    review_type = options['review_type']
+    if review_type
+      conditions << 'false_positive=:false_positive'
+      if review_type == 'FALSE_POSITIVE'
+        values[:false_positive]=true
+      else
+        values[:false_positive]=false
+      end
+    end
+    # --- End of code for backward compatibility code ---
       
-    review_type = options['review_type'].split(',') if options['review_type']
-    if review_type && review_type.size>0 && !review_type[0].blank?
-      conditions << 'review_type in (:review_type)'
-      values[:review_type]=review_type
+    false_positives = options['false_positives']
+    if false_positives == "only"
+      conditions << 'false_positive=:false_positive'
+      values[:false_positive]=true
+    elsif false_positives == "without"
+      conditions << 'false_positive=:false_positive'
+      values[:false_positive]=false    
     end
     
     ids=options['ids'].split(',') if options['ids']
@@ -202,7 +214,7 @@ class Review < ActiveRecord::Base
       xml.author(user.login)
       xml.assignee(assignee.login) if assignee
       xml.title(title)
-      xml.type(review_type)
+      xml.falsePositive(false_positive)
       xml.status(status)
       xml.severity(severity)
       xml.resource(resource.kee)  if resource
@@ -235,7 +247,7 @@ class Review < ActiveRecord::Base
     json['author'] = user.login
     json['assignee'] = assignee.login if assignee
     json['title'] = title if title
-    json['type'] = review_type
+    json['falsePositive'] = false_positive
     json['status'] = status
     json['severity'] = severity
     json['resource'] = resource.kee if resource

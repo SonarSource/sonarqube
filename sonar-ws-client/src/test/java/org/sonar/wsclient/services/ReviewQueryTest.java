@@ -40,11 +40,22 @@ public class ReviewQueryTest extends QueryTestCase {
   @Test
   public void resourceTreeViolations() {
     ReviewQuery query = new ReviewQuery();
+    query.setIds(10L, 11L).setStatuses("OPEN").setSeverities("MINOR", "INFO").setProjectKeysOrIds("com.sonar.foo:bar")
+        .setResourceKeysOrIds("2", "3").setAuthorLoginsOrIds("20").setAssigneeLoginsOrIds("admin").setOutput("html")
+        .setFalsePositives("without");
+    assertThat(
+        query.getUrl(),
+        is("/api/reviews?ids=10,11&statuses=OPEN&severities=MINOR,INFO&projects=com.sonar.foo%3Abar&resources=2,3&authors=20&assignees=admin&output=html&false_positives=without&"));
+  }
+
+  @Test
+  public void resourceTreeViolationsForSonar2_8() {
+    ReviewQuery query = new ReviewQuery();
     query.setIds(10L, 11L).setReviewType("FALSE_POSITIVE").setStatuses("OPEN").setSeverities("MINOR", "INFO")
         .setProjectKeysOrIds("com.sonar.foo:bar").setResourceKeysOrIds("2", "3").setAuthorLoginsOrIds("20").setAssigneeLoginsOrIds("admin")
         .setOutput("html");
     assertThat(
         query.getUrl(),
-        is("/api/reviews?ids=10,11&review_type=FALSE_POSITIVE&statuses=OPEN&severities=MINOR,INFO&projects=com.sonar.foo%3Abar&resources=2,3&authors=20&assignees=admin&output=html&"));
+        is("/api/reviews?ids=10,11&statuses=OPEN&severities=MINOR,INFO&projects=com.sonar.foo%3Abar&resources=2,3&authors=20&assignees=admin&output=html&review_type=FALSE_POSITIVE&"));
   }
 }

@@ -123,7 +123,7 @@ class ReviewsController < ApplicationController
       violation.save!
     end
 
-    @review.review_type = (false_positive ? Review::TYPE_FALSE_POSITIVE : Review::TYPE_VIOLATION)
+    @review.false_positive = false_positive
     @review.assignee = nil
     @review.save!
     unless params[:comment].blank?
@@ -203,7 +203,7 @@ class ReviewsController < ApplicationController
       if violation.review.nil?
         violation.build_review(:user_id => current_user.id)
       end
-      violation.review.review_type=(false_positive ? Review::TYPE_FALSE_POSITIVE : Review::TYPE_VIOLATION)
+      violation.review.false_positive=false_positive
       violation.review.assignee=nil
       violation.review.save!
       violation.review.comments.create(:review_text => params[:comment], :user_id => current_user.id)
@@ -285,7 +285,7 @@ class ReviewsController < ApplicationController
   end
 
   def search_reviews
-    options = {'review_type' => 'VIOLATION'}
+    options = { 'false_positives' => 'without' }
     unless @statuses == ['']
       options['statuses']=@statuses.join(',')
     end

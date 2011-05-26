@@ -102,8 +102,7 @@ class RuleFailure < ActiveRecord::Base
   def build_review(options={})
     if review.nil?
       self.review=Review.new(
-        {:review_type => Review::TYPE_VIOLATION,
-        :status => Review::STATUS_OPEN,
+        {:status => Review::STATUS_OPEN,
         :severity => Sonar::RulePriority.to_s(failure_level),
         :resource_line => line,
         :resource => snapshot.resource,

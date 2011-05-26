@@ -5,24 +5,24 @@
   			status="OPEN"
   			rule_failure_permanent_id="1"
   			resource_id="555"
-  			created_at="[null]" updated_at="[null]" user_id="[null]" assignee_id="[null]" title="[null]" review_type="[null]" severity="[null]" resource_line="[null]" project_id="[null]"/>
+  			created_at="[null]" updated_at="[null]" user_id="[null]" assignee_id="[null]" title="[null]" false_positive="[null]" severity="[null]" resource_line="[null]" project_id="[null]"/>
   <reviews
   			id="2"
   			status="CLOSED"
   			rule_failure_permanent_id="2"
   			resource_id="666"
-  			created_at="[null]" updated_at="[null]" user_id="[null]" assignee_id="[null]" title="[null]" review_type="[null]" severity="[null]" resource_line="[null]" project_id="[null]"/>
+  			created_at="[null]" updated_at="[null]" user_id="[null]" assignee_id="[null]" title="[null]" false_positive="[null]" severity="[null]" resource_line="[null]" project_id="[null]"/>
   <reviews
   			id="3"
   			status="OPEN"
   			rule_failure_permanent_id="3"
   			resource_id="666"
-  			created_at="[null]" updated_at="[null]" user_id="[null]" assignee_id="[null]" title="[null]" review_type="[null]" severity="[null]" resource_line="[null]" project_id="[null]"/>
+  			created_at="[null]" updated_at="[null]" user_id="[null]" assignee_id="[null]" title="[null]" false_positive="[null]" severity="[null]" resource_line="[null]" project_id="[null]"/>
   <reviews
   			id="4"
   			status="CLOSED"
   			rule_failure_permanent_id="2"
   			resource_id="666"
-  			created_at="[null]" updated_at="[null]" user_id="[null]" assignee_id="[null]" title="[null]" review_type="[null]" severity="[null]" resource_line="[null]" project_id="[null]"/>
+  			created_at="[null]" updated_at="[null]" user_id="[null]" assignee_id="[null]" title="[null]" false_positive="[null]" severity="[null]" resource_line="[null]" project_id="[null]"/>
 
 </dataset>

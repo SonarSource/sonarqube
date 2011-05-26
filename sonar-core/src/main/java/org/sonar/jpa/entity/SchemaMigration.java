@@ -40,7 +40,7 @@ public class SchemaMigration {
       - complete the Derby DDL file used for unit tests : sonar-testing-harness/src/main/resources/org/sonar/test/persistence/sonar-test.ddl
 
    */
-  public static final int LAST_VERSION = 200;
+  public static final int LAST_VERSION = 201;
 
   public final static String TABLE_NAME = "schema_migrations";
 

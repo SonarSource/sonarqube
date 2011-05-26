@@ -33,14 +33,49 @@ import org.sonar.wsclient.services.Review.Comment;
 public class ReviewUnmarshallerTest extends UnmarshallerTestCase {
 
   @Test
-  public void testToModels() {
+  public void testEmptyJSON() {
     Review review = new ReviewUnmarshaller().toModel("[]");
     assertThat(review, nullValue());
+  }
 
-    List<Review> reviews = new ReviewUnmarshaller().toModels(loadFile("/reviews/reviews.json"));
+  @Test
+  public void testToModels() {
+    List<Review> reviews = new ReviewUnmarshaller().toModels(loadFile("/reviews/reviews-2.9.json"));
     assertThat(reviews.size(), is(2));
 
-    review = reviews.get(0);
+    Review review = reviews.get(0);
+    assertThat(review.getId(), is(3L));
+    assertNotNull(review.getCreatedAt());
+    assertNotNull(review.getUpdatedAt());
+    assertThat(review.getAuthorLogin(), is("admin"));
+    assertThat(review.getAssigneeLogin(), is("admin"));
+    assertThat(review.getTitle(), is("'static' modifier out of order with the JLS suggestions."));
+    assertThat(review.getFalsePositive(), is(Boolean.FALSE));
+    assertThat(review.getStatus(), is("OPEN"));
+    assertThat(review.getSeverity(), is("MINOR"));
+    assertThat(review.getResourceKee(), is("org.codehaus.sonar:sonar-channel:org.sonar.channel.CodeReaderConfiguration"));
+    assertThat(review.getLine(), is(33));
+    List<Comment> comments = review.getComments();
+    assertThat(comments.size(), is(4));
+    Comment comment = comments.get(0);
+    assertNotNull(comment.getUpdatedAt());
+    assertThat(comment.getAuthorLogin(), is("admin"));
+    assertThat(comment.getText(), is("This is a review.<br/>And this is on multiple lines...<br/><br/><code>Wouhou!!!!!</code>"));
+
+    review = reviews.get(1);
+    assertThat(review.getAssigneeLogin(), nullValue());
+    assertThat(review.getFalsePositive(), is(Boolean.TRUE));
+  }
+
+  /*
+   * Test Unmarshaller with JSON data received from a Sonar 2.8
+   */
+  @Test
+  public void testToModelsForSonar2_8() {
+    List<Review> reviews = new ReviewUnmarshaller().toModels(loadFile("/reviews/reviews-2.8.json"));
+    assertThat(reviews.size(), is(2));
+
+    Review review = reviews.get(0);
     assertThat(review.getAssigneeLogin(), nullValue());
 
     review = reviews.get(1);
