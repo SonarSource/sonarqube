@@ -23,6 +23,7 @@ import org.junit.Test;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.test.IsMeasure;
@@ -34,11 +35,14 @@ public class ProfileSensorTest {
     RulesProfile profile = mock(RulesProfile.class);
     when(profile.getId()).thenReturn(22);
     when(profile.getName()).thenReturn("fake");
+    when(profile.getVersion()).thenReturn(2);
     SensorContext context = mock(SensorContext.class);
+    DatabaseSession session = mock(DatabaseSession.class);
 
-    ProfileSensor sensor = new ProfileSensor(profile);
+    ProfileSensor sensor = new ProfileSensor(profile, session);
     sensor.analyse(null, context);
 
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.PROFILE, 22d)));
+    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.PROFILE_VERSION, 2d)));
   }
 }

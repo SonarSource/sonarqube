@@ -1141,6 +1141,12 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_GENERAL)
       .create();
 
+  public static final String PROFILE_VERSION_KEY = "profile_version";
+  public static final Metric PROFILE_VERSION = new Metric.Builder(PROFILE_VERSION_KEY, "Profile version", Metric.ValueType.INT)
+      .setDescription("Selected quality profile version")
+      .setQualitative(false)
+      .setDomain(DOMAIN_GENERAL)
+      .create();
 
   public static List<Metric> metrics = Lists.newLinkedList();
 

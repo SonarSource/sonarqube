@@ -23,6 +23,7 @@ class EventCategory
 
   KEY_VERSION='Version'
   KEY_ALERT='Alert'
+  KEY_PROFILE='Profile'
 
   def initialize(name=nil, description=nil)
     @name=name
@@ -80,13 +81,14 @@ class EventCategory
   end
 
   def editable?
-    !([KEY_VERSION, KEY_ALERT].include?(name))
+    !([KEY_VERSION, KEY_ALERT, KEY_PROFILE].include?(name))
   end
 
   def self.defaults
     [
       EventCategory.new(KEY_VERSION, 'Application version'),
-      EventCategory.new(KEY_ALERT, 'Alert')
+      EventCategory.new(KEY_ALERT, 'Alert'),
+      EventCategory.new(KEY_PROFILE, 'Profile change')
     ]
   end
 

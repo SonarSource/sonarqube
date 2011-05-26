@@ -54,4 +54,10 @@ public class RulesProfileTest {
     profile.activateRule(rule, RulePriority.MINOR);
     assertThat(profile.getActiveRule("repo", "key1").getSeverity(), is(RulePriority.MINOR));
   }
+
+  @Test
+  public void defaultVersionIs1() {
+    RulesProfile profile = RulesProfile.create();    
+    assertThat(profile.getVersion(), is(1));
+  }
 }

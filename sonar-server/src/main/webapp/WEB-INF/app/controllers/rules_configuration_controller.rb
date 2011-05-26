@@ -84,7 +84,7 @@ class RulesConfigurationController < ApplicationController
   def revert_rule
     id = params[:id].to_i
     rule_id = params[:active_rule_id].to_i
-    java_facade.revertRule(id, rule_id)
+    java_facade.revertRule(id, rule_id, current_user.login)
     redirect_to request.query_parameters.merge({:action => 'index', :id => params[:id], :commit => nil})
   end
 
@@ -105,20 +105,29 @@ class RulesConfigurationController < ApplicationController
       active_rule=profile.active_by_rule_id(rule.id)
       if priority.blank?
         # deactivate the rule
-        active_rule.destroy if active_rule
-        active_rule=nil
-        java_facade.ruleDeactivated(profile.id, rule.id)
+        if active_rule
+          java_facade.ruleDeactivated(profile.id, active_rule.id, current_user.login)
+          active_rule.destroy
+          active_rule=nil
+        end
       else
         # activate the rule
+        activated = false
         if active_rule.nil?
           active_rule = ActiveRule.new(:profile_id => profile.id, :rule => rule)
           rule.parameters.select{|p| p.default_value.present?}.each do |p|
             active_rule.active_rule_parameters.build(:rules_parameter => p, :value => p.default_value)
           end
+          activated = true
         end
+        old_severity = active_rule.failure_level
         active_rule.failure_level=Sonar::RulePriority.id(priority)
         active_rule.save!
-        java_facade.ruleActivatedOrChanged(profile.id, active_rule.id)
+        if activated
+            java_facade.ruleActivated(profile.id, active_rule.id, current_user.login)
+        else
+            java_facade.ruleSeverityChanged(profile.id, active_rule.id, old_severity, active_rule.failure_level, current_user.login)
+        end
       end
       if active_rule
         active_rule.reload
@@ -286,15 +295,18 @@ class RulesConfigurationController < ApplicationController
     if !profile.provided?
       if value != ""
         active_param = ActiveRuleParameter.new(:rules_parameter => rule_param, :active_rule => active_rule ) if active_param.nil?
+        old_value = active_param.value
         active_param.value = value
         active_param.save
         active_param.valid?
         active_param.reload
+        java_facade.ruleParamChanged(profile.id, active_rule.id, rule_param.name, old_value, value, current_user.login)
       elsif !active_param.nil?
+        old_value = active_param.value
         active_param.destroy
         active_param = nil
+        java_facade.ruleParamChanged(profile.id, active_rule.id, rule_param.name, old_value, nil, current_user.login)
       end
-      java_facade.ruleActivatedOrChanged(profile.id, active_rule.id)
     end
     render :partial => 'rule_param', :object => nil,
       :locals => {:parameter => rule_param, :active_parameter => active_param, :profile => profile, :active_rule => active_rule, :is_admin => is_admin }
@@ -311,7 +323,7 @@ class RulesConfigurationController < ApplicationController
       count = rules_to_activate.size
       rules_to_activate.each do |rule|
         active_rule = profile.active_rules.create(:rule => rule, :failure_level => rule.priority)
-        java_facade.ruleActivatedOrChanged(profile.id, active_rule.id)
+        java_facade.ruleActivated(profile.id, active_rule.id, current_user.login)
       end
     end
     count
@@ -322,7 +334,7 @@ class RulesConfigurationController < ApplicationController
     profile.active_rules.each do |ar|
       if rule_ids.include?(ar.rule_id) && !ar.inheritance.present?
         ar.destroy
-        java_facade.ruleDeactivated(profile.id, ar.rule_id)
+        java_facade.ruleDeactivated(profile.id, ar.rule_id, current_user.login)
         count+=1
       end
     end
