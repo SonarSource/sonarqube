@@ -1,6 +1,11 @@
 <div id="rev_<%= review.id -%>">
   <div class="reportTitle">
     <h2>Review #<%= h(review.id.to_s) -%> - <%= h(review.title) -%></h2>
+    <% if review.false_positive %>
+      <%= image_tag("sep12.png") -%>
+      &nbsp;
+      <span class="falsePositive">False-Positive</span>
+    <% end %>
     
     <% 
       if current_user && review.status != "CLOSED" && review.rule_failure
@@ -91,7 +96,7 @@
 	   <td class="val" colspan="3">
 		<%= qualifier_icon(@review.resource) -%> 
 		<% if !review.on_project? %> <%= @review.project.long_name -%> <%= image_tag 'sep12.png' -%> <% end %>
-		<%= link_to_resource(review.resource, review.resource.long_name, { :tab => :violations } ) %>
+		<%= link_to_resource(review.resource, review.resource.long_name, { :tab => :violations, :rule => "f-positive" } ) %>
 	   </td>
 	 </tr>
   </table>

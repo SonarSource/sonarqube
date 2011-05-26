@@ -117,11 +117,14 @@ module UsersHelper
   # field that is submitted is a hidden one that contains the user ID that corresponds
   # to the typed name (if the user exists, of course).
   #
+  # The 'options' argument can be used to pass HTML elements to the text field.
+  # (for the moment 'class' is supported).
+  #
   # Example:
   #   <%= user_autocomplete_field "assignee_id", @assignee_id -%>
   #   # => generates an input field for the parameter 'assignee_id'
   #
-  def user_autocomplete_field(param_id, param_value)
+  def user_autocomplete_field(param_id, param_value, options={})
     param_id_name = param_id
     param_id_value = param_value
     
@@ -134,7 +137,8 @@ module UsersHelper
     server_url = url_for :controller => 'users', :action => 'autocomplete'
     
     render :partial => 'autocomplete/text_field', :locals => {:param_id_name => param_id_name, :param_id_value => param_id_value, 
-                                                              :param_displayed_value => param_displayed_value, :server_url => server_url }
+                                                              :param_displayed_value => param_displayed_value, :server_url => server_url,
+                                                              :options => options.to_options}
   end
 
 end

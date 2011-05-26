@@ -272,7 +272,8 @@ class ReviewsController < ApplicationController
     @severities = filter_any(params[:severities]) || ['']
     @statuses = filter_any(params[:statuses]) || [Review::STATUS_OPEN]
     @projects = filter_any(params[:projects]) || ['']
-    @id = params[:review_id] || ""
+    @false_positives = params[:false_positives] || 'without'
+    @id = params[:review_id] || ''
     @sort = params[:sort]
     @asc = params[:asc] == "true"
   end
@@ -285,7 +286,7 @@ class ReviewsController < ApplicationController
   end
 
   def search_reviews
-    options = { 'false_positives' => 'without' }
+    options = {}
     unless @statuses == ['']
       options['statuses']=@statuses.join(',')
     end
@@ -300,6 +301,9 @@ class ReviewsController < ApplicationController
     end
     if @assignee_id
       options['assignees']=@assignee_id.to_s
+    end
+    if @false_positives
+      options['false_positives']=@false_positives
     end
     unless @id  == ''
       if is_number? @id

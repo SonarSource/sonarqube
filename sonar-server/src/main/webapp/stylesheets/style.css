@@ -693,6 +693,8 @@ div.vtitle{
 }
 .falsePositive {
   background-color: #FFF6BF;
+  padding-left: 5px;
+  padding-right: 5px;
 }
 div.vtitle a.action {
   color: #777;
@@ -898,11 +900,23 @@ div.discussionComment li {
   list-style: square inside;
 }
 div.comment-excerpt {
-	background-color: transparent;
-	margin-top: 5px;
-	margin-bottom: 5px;
-	color: #777777;
-	font-size: 90%;
+  background-color: transparent;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  color: #777777;
+  font-size: 90%;
+}
+.max-width {
+  width: 100%;
+}
+option.sel-with-false-positives {
+  background-image: url('../images/reviews/with_false_positives.png');
+}
+option.sel-only-false-positives {
+  background-image: url('../images/reviews/false_positive.png');
+}
+option.sel-without-false-positives {
+  background-image: url('../images/reviews/comment.png');
 }
 
 

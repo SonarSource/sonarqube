@@ -1,4 +1,8 @@
-  <input type="text" id="autocompleteText-<%= param_id_name -%>" value="<%= param_displayed_value -%>" onfocus="$('<%= param_id_name -%>').value=''; this.value=''"/>
+  <input type="text" 
+         id="autocompleteText-<%= param_id_name -%>" 
+         value="<%= param_displayed_value -%>" 
+         onfocus="$('<%= param_id_name -%>').value=''; this.value=''"
+         <%= "class=\"" + options[:class] + "\"" if options[:class] -%>/>
   <input type="hidden" id="<%= param_id_name -%>" name="<%= param_id_name -%>" value="<%= param_id_value -%>"/>
   <div id="autocomplete-<%= param_id_name -%>" class="autocomplete"></div>
   <script>

@@ -7,7 +7,8 @@ function reviewIdFieldModified(field) {
     $('author_id').value = ''
     $('autocompleteText-author_id').value = ''
     $('assignee_id').value = ''
-    $('autocompleteText-assignee_id').value = ''    
+    $('autocompleteText-assignee_id').value = ''  
+    $('false_positives').value = 'with'  
   }
 }
 function launchSearch(columnName, link) {
@@ -63,13 +64,19 @@ function launchSearch(columnName, link) {
         </td>
         <td width="1%" nowrap>
           <span class="note">Created by</span><br/>
-          <%= user_autocomplete_field "author_id", @author_id -%>
+          <%= user_autocomplete_field "author_id", @author_id, { :class => "max-width" } -%>
           <br/>
           <span class="note">Assigned to</span><br/>
-          <%= user_autocomplete_field "assignee_id", @assignee_id -%>
+          <%= user_autocomplete_field "assignee_id", @assignee_id, { :class => "max-width" } -%>
           <br/>
+          <br/>
+          <select name="false_positives" id="false_positives" class="withIcons">
+            <option <%= 'selected' if @false_positives=='without' -%> value="without" class="sel-without-false-positives">Without false positives</option>
+            <option <%= 'selected' if @false_positives=='only' -%> value="only" class="sel-only-false-positives">Only false positives</option>
+            <option <%= 'selected' if @false_positives=='with' -%> value="with" class="sel-with-false-positives">With false positives</option>
+          </select>
         </td>
-        <td width="1%" nowrap>
+        <td width="1%" style="padding-left: 20px" nowrap>
           <span class="note">Id</span><br/>
           <%= text_field_tag "review_id", @id, :size => 10, :onkeyup => "reviewIdFieldModified(this)" -%>
           <br/>
@@ -140,7 +147,8 @@ function launchSearch(columnName, link) {
           <td>
             <%= link_to h(review.title), :controller => "reviews", :action => "view", :id => review.id -%>
             <div class="comment-excerpt">
-              <%= image_tag("reviews/comment.png") -%> &nbsp;<b><%= comment.user.name -%> :</b> 
+              <img src="<%= ApplicationController.root_context -%>/images/reviews/<%= review.false_positive ? "false_positive" : "comment" -%>.png" title="<%= 'False positive' if review.false_positive -%>"/>
+              &nbsp;<b><%= comment.user.name -%> :</b> 
               <%= comment.excerpt -%>
 	        </div>            
           </td>
