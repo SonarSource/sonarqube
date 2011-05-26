@@ -22,7 +22,7 @@ package org.sonar.batch.bootstrap;
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
-import org.sonar.api.batch.InstanciationStrategy;
+import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
@@ -33,22 +33,22 @@ public class ExtensionUtilsTest {
 
   @Test
   public void shouldBeBatchInstantiationStrategy() {
-    assertThat(ExtensionUtils.isInstantiationStrategy(BatchService.class, InstanciationStrategy.PER_BATCH), is(true));
-    assertThat(ExtensionUtils.isInstantiationStrategy(new BatchService(), InstanciationStrategy.PER_BATCH), is(true));
-    assertThat(ExtensionUtils.isInstantiationStrategy(ProjectService.class, InstanciationStrategy.PER_BATCH), is(false));
-    assertThat(ExtensionUtils.isInstantiationStrategy(new ProjectService(), InstanciationStrategy.PER_BATCH), is(false));
-    assertThat(ExtensionUtils.isInstantiationStrategy(DefaultService.class, InstanciationStrategy.PER_BATCH), is(false));
-    assertThat(ExtensionUtils.isInstantiationStrategy(new DefaultService(), InstanciationStrategy.PER_BATCH), is(false));
+    assertThat(ExtensionUtils.isInstantiationStrategy(BatchService.class, InstantiationStrategy.PER_BATCH), is(true));
+    assertThat(ExtensionUtils.isInstantiationStrategy(new BatchService(), InstantiationStrategy.PER_BATCH), is(true));
+    assertThat(ExtensionUtils.isInstantiationStrategy(ProjectService.class, InstantiationStrategy.PER_BATCH), is(false));
+    assertThat(ExtensionUtils.isInstantiationStrategy(new ProjectService(), InstantiationStrategy.PER_BATCH), is(false));
+    assertThat(ExtensionUtils.isInstantiationStrategy(DefaultService.class, InstantiationStrategy.PER_BATCH), is(false));
+    assertThat(ExtensionUtils.isInstantiationStrategy(new DefaultService(), InstantiationStrategy.PER_BATCH), is(false));
   }
 
   @Test
   public void shouldBeProjectInstantiationStrategy() {
-    assertThat(ExtensionUtils.isInstantiationStrategy(BatchService.class, InstanciationStrategy.PER_PROJECT), is(false));
-    assertThat(ExtensionUtils.isInstantiationStrategy(new BatchService(), InstanciationStrategy.PER_PROJECT), is(false));
-    assertThat(ExtensionUtils.isInstantiationStrategy(ProjectService.class, InstanciationStrategy.PER_PROJECT), is(true));
-    assertThat(ExtensionUtils.isInstantiationStrategy(new ProjectService(), InstanciationStrategy.PER_PROJECT), is(true));
-    assertThat(ExtensionUtils.isInstantiationStrategy(DefaultService.class, InstanciationStrategy.PER_PROJECT), is(true));
-    assertThat(ExtensionUtils.isInstantiationStrategy(new DefaultService(), InstanciationStrategy.PER_PROJECT), is(true));
+    assertThat(ExtensionUtils.isInstantiationStrategy(BatchService.class, InstantiationStrategy.PER_PROJECT), is(false));
+    assertThat(ExtensionUtils.isInstantiationStrategy(new BatchService(), InstantiationStrategy.PER_PROJECT), is(false));
+    assertThat(ExtensionUtils.isInstantiationStrategy(ProjectService.class, InstantiationStrategy.PER_PROJECT), is(true));
+    assertThat(ExtensionUtils.isInstantiationStrategy(new ProjectService(), InstantiationStrategy.PER_PROJECT), is(true));
+    assertThat(ExtensionUtils.isInstantiationStrategy(DefaultService.class, InstantiationStrategy.PER_PROJECT), is(true));
+    assertThat(ExtensionUtils.isInstantiationStrategy(new DefaultService(), InstantiationStrategy.PER_PROJECT), is(true));
   }
 
   @Test
@@ -69,12 +69,12 @@ public class ExtensionUtilsTest {
     assertThat(ExtensionUtils.isSupportedEnvironment(new BuildToolService(), new EnvironmentInformation("eclipse", "0.1")), is(false));
   }
 
-  @InstanciationStrategy(InstanciationStrategy.PER_BATCH)
+  @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
   public static class BatchService implements BatchExtension {
 
   }
 
-  @InstanciationStrategy(InstanciationStrategy.PER_PROJECT)
+  @InstantiationStrategy(InstantiationStrategy.PER_PROJECT)
   public static class ProjectService implements BatchExtension {
 
   }

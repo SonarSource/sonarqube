@@ -82,7 +82,7 @@ public final class DialectRepository {
     } catch (ClassNotFoundException e) {
       // dialectId was not a class name :)
     } catch (Exception e) {
-      throw new SonarException("Unable to instanciate dialect class", e);
+      throw new SonarException("Unable to instantiate dialect class", e);
     }
     return null;
   }

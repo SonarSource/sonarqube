@@ -23,7 +23,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.api.batch.CoverageExtension;
-import org.sonar.api.batch.InstanciationStrategy;
+import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
 import java.util.List;
@@ -64,9 +64,9 @@ public final class BatchExtensionInstaller implements BatchComponent {
   void installExtension(Module module, Object extension) {
     if (ExtensionUtils.isBatchExtension(extension) &&
         ExtensionUtils.isSupportedEnvironment(extension, environment) &&
-        ExtensionUtils.isInstantiationStrategy(extension, InstanciationStrategy.PER_BATCH)) {
+        ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_BATCH)) {
       if (ExtensionUtils.isType(extension, CoverageExtension.class)) {
-        throw new IllegalArgumentException("Instantiation strategy " + InstanciationStrategy.PER_BATCH + " is not supported on CoverageExtension components: " + extension);
+        throw new IllegalArgumentException("Instantiation strategy " + InstantiationStrategy.PER_BATCH + " is not supported on CoverageExtension components: " + extension);
       }
       module.addComponent(extension);
     }

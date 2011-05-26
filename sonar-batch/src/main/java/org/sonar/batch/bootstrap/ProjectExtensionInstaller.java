@@ -26,7 +26,7 @@ import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.api.batch.AbstractCoverageExtension;
 import org.sonar.api.batch.CoverageExtension;
-import org.sonar.api.batch.InstanciationStrategy;
+import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
@@ -71,7 +71,7 @@ public final class ProjectExtensionInstaller implements BatchComponent {
   private Object installExtension(Module module, Object extension, Project project, String pluginKey) {
     if (ExtensionUtils.isBatchExtension(extension) &&
         ExtensionUtils.isSupportedEnvironment(extension, environment) &&
-        ExtensionUtils.isInstantiationStrategy(extension, InstanciationStrategy.PER_PROJECT) &&
+        ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_PROJECT) &&
         !isDeactivatedCoverageExtension(extension, project, pluginKey)) {
 
       module.addComponent(extension);

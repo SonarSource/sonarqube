@@ -22,7 +22,7 @@ package org.sonar.batch.bootstrap;
 import org.junit.Test;
 import org.sonar.api.*;
 import org.sonar.api.batch.CoverageExtension;
-import org.sonar.api.batch.InstanciationStrategy;
+import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
 import java.util.Arrays;
@@ -93,7 +93,7 @@ public class BatchExtensionInstallerTest {
     }
   }
 
-  @InstanciationStrategy(InstanciationStrategy.PER_BATCH)
+  @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
   public static class BatchService implements BatchExtension {
 
   }
@@ -106,7 +106,7 @@ public class BatchExtensionInstallerTest {
 
   }
 
-  @InstanciationStrategy(InstanciationStrategy.PER_BATCH)
+  @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
   public static class BatchServiceProvider extends ExtensionProvider implements BatchExtension {
 
     @Override
@@ -122,7 +122,7 @@ public class BatchExtensionInstallerTest {
     }
   }
 
-  @InstanciationStrategy(InstanciationStrategy.PER_BATCH)
+  @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
   public static class InvalidCoverageExtension implements CoverageExtension {
     // strategy PER_BATCH is not allowed
   }

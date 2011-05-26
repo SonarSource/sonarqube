@@ -22,7 +22,7 @@ package org.sonar.batch.bootstrap;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.Extension;
-import org.sonar.api.batch.InstanciationStrategy;
+import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
@@ -35,11 +35,11 @@ public final class ExtensionUtils {
 
   static boolean isInstantiationStrategy(Object extension, String strategy) {
     Class clazz = (extension instanceof Class ? (Class) extension : extension.getClass());
-    InstanciationStrategy extStrategy = AnnotationUtils.getClassAnnotation(clazz, InstanciationStrategy.class);
+    InstantiationStrategy extStrategy = AnnotationUtils.getClassAnnotation(clazz, InstantiationStrategy.class);
     if (extStrategy != null) {
       return strategy.equals(extStrategy.value());
     }
-    return InstanciationStrategy.PER_PROJECT.equals(strategy);
+    return InstantiationStrategy.PER_PROJECT.equals(strategy);
   }
 
   static boolean isBatchExtension(Object extension) {

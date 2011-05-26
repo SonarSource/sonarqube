@@ -25,12 +25,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Define instanciation strategy of batch extensions. If an extension is not annotated, then default value
- * is {@link org.sonar.api.batch.InstanciationStrategy#PER_PROJECT}.
+ * Define instantiation strategy of batch extensions. If an extension is not annotated, then default value
+ * is {@link org.sonar.api.batch.InstantiationStrategy#PER_PROJECT}.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface InstanciationStrategy {
+public @interface InstantiationStrategy {
 
   /**
    * Shared extension. Lifecycle is the full analysis.
