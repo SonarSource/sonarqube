@@ -1506,10 +1506,10 @@ Autocompleter.Base = Class.create({
     var value = '';
     if (this.options.select) {
       var nodes = $(selectedElement).select('.' + this.options.select) || [];
-      if(nodes.length>0) value = Element.collectTextNodes(nodes[0], this.options.select);
+      if(nodes.length>0) value = Element.collectTextNodes(nodes[0], this.options.select);      
     } else
       value = Element.collectTextNodesIgnoreClass(selectedElement, 'informal');
-
+    
     var bounds = this.getTokenBounds();
     if (bounds[0] != -1) {
       var newValue = this.element.value.substr(0, bounds[0]);
@@ -1521,7 +1521,9 @@ Autocompleter.Base = Class.create({
       this.element.value = value;
     }
     this.oldElementValue = this.element.value;
-    this.element.focus();
+    // Following line was commented for SONAR-1688 because in our autosuggest text fields, we use
+    // the onfocus() method to reinitialize the value of the input field to ''.
+    //this.element.focus();
 
     if (this.options.afterUpdateElement)
       this.options.afterUpdateElement(this.element, selectedElement);
