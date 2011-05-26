@@ -184,7 +184,6 @@ class Review < ActiveRecord::Base
       sort = 'reviews.updated_at DESC'
     end
     
-    # We define 'assignee' before 'user' in the ':include' so that it is possible to sort on the assignee.name
     Review.find(:all, :include => [ 'review_comments', 'project', 'assignee', 'resource', 'user' ], :conditions => [conditions.join(' AND '), values], :order => sort, :limit => 200)
   end
 

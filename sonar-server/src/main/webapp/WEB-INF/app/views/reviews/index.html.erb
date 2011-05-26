@@ -112,14 +112,8 @@ function launchSearch(columnName, link) {
           <a href="#" onClick="launchSearch('title', this)">Title</a>
           <%= image_tag(@asc ? "asc12.png" : "desc12.png") if @sort == 'title' -%>
         </th>
-        <th width="1%">
-          <a href="#" onClick="launchSearch('projects.name', this)">Project</a>
-          <%= image_tag(@asc ? "asc12.png" : "desc12.png") if @sort == 'projects.name' -%>
-        </th>
-        <th>
-          <a href="#" onClick="launchSearch('users.name', this)">Assignee</a>
-          <%= image_tag(@asc ? "asc12.png" : "desc12.png") if @sort == 'users.name' -%>
-        </th>
+        <th width="1%">Project</th>
+        <th>Assignee</th>
         <th>
           <a href="#" onClick="launchSearch('updated_at', this)">Age</a>
           <%= image_tag(@asc ? "asc12.png" : "desc12.png") if @sort == 'updated_at' -%>
