@@ -19,6 +19,8 @@
  */
 package org.sonar.api.batch.bootstrap;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
 
 import java.io.File;
@@ -26,27 +28,50 @@ import java.util.Properties;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.hasItem;
 
 public class ProjectBuilderTest {
 
   @Test
-  public void shouldBuild() {
-    FakeProjectBuilder builder = new FakeProjectBuilder(new ProjectReactor(new ProjectDefinition(new File("."), new File("."), new Properties())));
+  public void shouldChangeProject() {
+    // this reactor is created and injected by Sonar
+    ProjectReactor projectReactor = new ProjectReactor(new ProjectDefinition(new File("."), new File("."), new Properties()));
+
+    ProjectBuilder builder = new ProjectBuilderSample(projectReactor, new PropertiesConfiguration());
     builder.start();
 
-    assertThat(builder.built, is(true));
+    assertThat(projectReactor.getProjects().size(), is(2));
+    ProjectDefinition root = projectReactor.getRoot();
+    assertThat(root.getName(), is("Name changed by plugin"));
+    assertThat(root.getSubProjects().size(), is(1));
+    assertThat(root.getSubProjects().get(0).getSourceDirs(), hasItem("src"));
   }
 
-  private static class FakeProjectBuilder extends ProjectBuilder {
-    private boolean built=false;
+  final static class ProjectBuilderSample extends ProjectBuilder {
+    private Configuration conf;
 
-    FakeProjectBuilder(final ProjectReactor reactor) {
+    public ProjectBuilderSample(ProjectReactor reactor, Configuration conf) {
       super(reactor);
+
+      // A real implementation should for example use the configuration
+      this.conf = conf;
     }
 
     @Override
     protected void build(ProjectReactor reactor) {
-      built=true;
+      // change name of root project
+      ProjectDefinition root = reactor.getRoot();
+      root.setName("Name changed by plugin");
+
+      // add sub-project
+      File baseDir = new File(root.getBaseDir(), "path/to/subproject");
+      ProjectDefinition subProject = new ProjectDefinition(baseDir, new File(baseDir, "target/.sonar"), new Properties());
+      subProject.setKey("groupId:subProjectId");
+      subProject.setVersion(root.getVersion());
+      subProject.setName("Sub Project");
+      subProject.setSourceDir("src");
+      root.addSubProject(subProject);
     }
   }
+
 }
