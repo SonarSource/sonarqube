@@ -17,35 +17,43 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.bootstrapper;
+package org.sonar.api.batch.bootstrap;
 
-import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.BatchComponent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Describes order of projects.
- * 
- * @since 2.6
+ * @since 2.9
  */
-public class Reactor {
+public final class ProjectReactor implements BatchComponent {
 
   private ProjectDefinition root;
 
-  public Reactor(ProjectDefinition root) {
+  public ProjectReactor(ProjectDefinition root) {
+    if (root.getParent()!=null) {
+      throw new IllegalArgumentException("Not a root project: " + root);
+    }
     this.root = root;
   }
 
-  public Reactor(List<ProjectDefinition> sortedProjects) {
-    throw new IllegalArgumentException("This constructor is not supported anymore");
+  public List<ProjectDefinition> getProjects() {
+    return collectProjects(root, new ArrayList<ProjectDefinition>());
   }
 
-  public List<ProjectDefinition> getSortedProjects() {
-    throw new IllegalArgumentException("The method getSortedProjects() is not supported anymore");
+  /**
+   * Populates list of projects from hierarchy.
+   */
+  private static List<ProjectDefinition> collectProjects(ProjectDefinition def, List<ProjectDefinition> collected) {
+    collected.add(def);
+    for (ProjectDefinition child : def.getSubProjects()) {
+      collectProjects(child, collected);
+    }
+    return collected;
   }
 
-  public ProjectReactor toProjectReactor() {
-    return new ProjectReactor(root.toNewProjectDefinition());
+  public ProjectDefinition getRoot() {
+    return root;
   }
-
 }

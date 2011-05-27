@@ -20,15 +20,46 @@
 package org.sonar.batch;
 
 import org.apache.commons.configuration.Configuration;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.BootstrapModule;
 import org.sonar.batch.bootstrap.Module;
+import org.sonar.batch.bootstrapper.Reactor;
 
 public final class Batch {
 
   private Module bootstrapModule;
 
+  /**
+   * @deprecated since 2.9. Replaced by the factory method.
+   */
+  @Deprecated
   public Batch(Configuration configuration, Object... bootstrapperComponents) {
-    this.bootstrapModule = new BootstrapModule(configuration, bootstrapperComponents).init();
+    this.bootstrapModule = new BootstrapModule(extractProjectReactor(bootstrapperComponents), configuration, bootstrapperComponents).init();
+  }
+
+  static ProjectReactor extractProjectReactor(Object[] components) {
+    Reactor deprecatedReactor = null;
+    for (Object component : components) {
+      if (component instanceof ProjectReactor) {
+        return (ProjectReactor) component;
+      }
+      if (component instanceof Reactor) {
+        deprecatedReactor = (Reactor) component;
+      }
+    }
+
+    if (deprecatedReactor == null) {
+      throw new IllegalArgumentException("Project reactor is not defined");
+    }
+    return deprecatedReactor.toProjectReactor();
+  }
+
+  private Batch(ProjectReactor reactor, Configuration configuration, Object... bootstrapperComponents) {
+    this.bootstrapModule = new BootstrapModule(reactor, configuration, bootstrapperComponents).init();
+  }
+
+  public static Batch create(ProjectReactor projectReactor, Configuration configuration, Object... bootstrapperComponents) {
+    return new Batch(projectReactor, configuration, bootstrapperComponents);
   }
 
   /**

@@ -22,33 +22,43 @@ package org.sonar.batch;
 import org.apache.commons.configuration.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.maven.project.MavenProject;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.bootstrapper.ProjectDefinition;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class ProjectBuilder {
+public class ProjectConfigurator {
 
   private DatabaseSession databaseSession;
 
-  public ProjectBuilder(DatabaseSession databaseSession) {
+  public ProjectConfigurator(DatabaseSession databaseSession) {
     this.databaseSession = databaseSession;
   }
 
-  public Project create(ProjectDefinition project) {
-    Configuration configuration = getStartupConfiguration(project);
-    return new Project(loadProjectKey(project), loadProjectBranch(configuration), loadProjectName(project))
-        .setDescription(project.getProperties().getProperty(CoreProperties.PROJECT_DESCRIPTION_PROPERTY, ""))
+  public Project create(ProjectDefinition definition) {
+    Configuration configuration = getStartupConfiguration(definition);
+    Project project = new Project(definition.getKey(), loadProjectBranch(configuration), definition.getName())
+        .setDescription(StringUtils.defaultString(definition.getDescription(), ""))
         .setPackaging("jar");
+    // For backward compatibility we must set POM and actual packaging
+    for (Object component : definition.getContainerExtensions()) {
+      if (component instanceof MavenProject) {
+        MavenProject pom = (MavenProject) component;
+        project.setPom(pom);
+        project.setPackaging(pom.getPackaging());
+      }
+    }
+    return project;
   }
 
   Configuration getStartupConfiguration(ProjectDefinition project) {
@@ -57,24 +67,6 @@ public class ProjectBuilder {
     configuration.addConfiguration(new EnvironmentConfiguration());
     configuration.addConfiguration(new MapConfiguration(project.getProperties()));
     return configuration;
-  }
-
-  private String getPropertyOrDie(ProjectDefinition project, String key) {
-    String value = project.getProperties().getProperty(key);
-    if (StringUtils.isBlank(value)) {
-      throw new SonarException("Property '" + key + "' must be specified");
-    }
-    return value;
-  }
-
-  String loadProjectKey(ProjectDefinition projectDefinition) {
-    return getPropertyOrDie(projectDefinition, CoreProperties.PROJECT_KEY_PROPERTY);
-  }
-
-  String loadProjectName(ProjectDefinition projectDefinition) {
-    return projectDefinition.getProperties().getProperty(
-        CoreProperties.PROJECT_NAME_PROPERTY,
-        "Unnamed - " + loadProjectKey(projectDefinition));
   }
 
   String loadProjectBranch(Configuration configuration) {

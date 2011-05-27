@@ -50,7 +50,6 @@ public final class ProjectExtensionInstaller implements BatchComponent {
         installExtension(module, extension, project, entry.getKey());
       }
     }
-
     installExtensionProviders(module, project);
   }
 
@@ -72,12 +71,17 @@ public final class ProjectExtensionInstaller implements BatchComponent {
     if (ExtensionUtils.isBatchExtension(extension) &&
         ExtensionUtils.isSupportedEnvironment(extension, environment) &&
         ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_PROJECT) &&
-        !isDeactivatedCoverageExtension(extension, project, pluginKey)) {
+        !isDeactivatedCoverageExtension(extension, project, pluginKey) &&
+        !isMavenExtensionOnEmulatedMavenProject(extension, project)) {
 
       module.addComponent(extension);
       return extension;
     }
     return null;
+  }
+
+  boolean isMavenExtensionOnEmulatedMavenProject(Object extension, Project project) {
+    return ExtensionUtils.isMavenExtensionOnly(extension) && project.getPom() == null;
   }
 
   /**

@@ -60,6 +60,12 @@ public final class ExtensionUtils {
     return false;
   }
 
+  static boolean isMavenExtensionOnly(Object extension) {
+    Class clazz = (extension instanceof Class ? (Class) extension : extension.getClass());
+    SupportedEnvironment env = AnnotationUtils.getClassAnnotation(clazz, SupportedEnvironment.class);
+    return env!=null && env.value().length==1 && StringUtils.equalsIgnoreCase("maven", env.value()[0]);
+  }
+
   static boolean isType(Object extension, Class<? extends Extension> extensionClass) {
     Class clazz = (extension instanceof Class ? (Class) extension : extension.getClass());
     return extensionClass.isAssignableFrom(clazz);

@@ -21,6 +21,7 @@ package org.sonar.batch.bootstrap;
 
 import org.apache.commons.configuration.Configuration;
 import org.sonar.api.Plugin;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.batch.FakeMavenPluginExecutor;
 import org.sonar.batch.MavenPluginExecutor;
@@ -39,14 +40,17 @@ public class BootstrapModule extends Module {
 
   private Configuration configuration;
   private Object[] boostrapperComponents;
+  private ProjectReactor reactor;
 
-  public BootstrapModule(Configuration configuration, Object... boostrapperComponents) {
+  public BootstrapModule(ProjectReactor reactor, Configuration configuration, Object... boostrapperComponents) {
+    this.reactor = reactor;
     this.configuration = configuration;
     this.boostrapperComponents = boostrapperComponents;
   }
 
   @Override
   protected void configure() {
+    addComponent(reactor);
     addComponent(configuration);
     addComponent(ServerMetadata.class);// registered here because used by BootstrapClassLoader
     addComponent(TempDirectories.class);// registered here because used by BootstrapClassLoader

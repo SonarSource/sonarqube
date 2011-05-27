@@ -17,35 +17,36 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.bootstrapper;
+package org.sonar.api.batch.bootstrap;
 
-import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.junit.Test;
 
-import java.util.List;
+import java.io.File;
+import java.util.Properties;
 
-/**
- * Describes order of projects.
- * 
- * @since 2.6
- */
-public class Reactor {
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
-  private ProjectDefinition root;
+public class ProjectBuilderTest {
 
-  public Reactor(ProjectDefinition root) {
-    this.root = root;
+  @Test
+  public void shouldBuild() {
+    FakeProjectBuilder builder = new FakeProjectBuilder(new ProjectReactor(new ProjectDefinition(new File("."), new File("."), new Properties())));
+    builder.start();
+
+    assertThat(builder.built, is(true));
   }
 
-  public Reactor(List<ProjectDefinition> sortedProjects) {
-    throw new IllegalArgumentException("This constructor is not supported anymore");
-  }
+  private static class FakeProjectBuilder extends ProjectBuilder {
+    private boolean built=false;
 
-  public List<ProjectDefinition> getSortedProjects() {
-    throw new IllegalArgumentException("The method getSortedProjects() is not supported anymore");
-  }
+    FakeProjectBuilder(final ProjectReactor reactor) {
+      super(reactor);
+    }
 
-  public ProjectReactor toProjectReactor() {
-    return new ProjectReactor(root.toNewProjectDefinition());
+    @Override
+    protected void build(ProjectReactor reactor) {
+      built=true;
+    }
   }
-
 }

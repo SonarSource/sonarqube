@@ -21,19 +21,18 @@ package org.sonar.batch;
 
 import com.google.common.collect.Maps;
 import org.apache.maven.project.MavenProject;
-import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.bootstrapper.ProjectDefinition;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 public final class MavenProjectConverter {
 
   private MavenProjectConverter() {
+    // only static methods
   }
 
   public static ProjectDefinition convert(List<MavenProject> poms, MavenProject root) {
@@ -52,7 +51,7 @@ public final class MavenProjectConverter {
         for (Object moduleId : pom.getModules()) {
           File modulePath = new File(pom.getBasedir(), (String) moduleId);
           MavenProject module = paths.get(modulePath.getCanonicalPath());
-          defs.get(pom).addModule(defs.get(module));
+          defs.get(pom).addSubProject(defs.get(module));
         }
       }
     } catch (IOException e) {
@@ -66,23 +65,12 @@ public final class MavenProjectConverter {
    * Visibility has been relaxed for tests.
    */
   static ProjectDefinition convert(MavenProject pom) {
-    Properties properties = new Properties();
-
     String key = new StringBuilder().append(pom.getGroupId()).append(":").append(pom.getArtifactId()).toString();
-    setProperty(properties, CoreProperties.PROJECT_KEY_PROPERTY, key);
-    setProperty(properties, CoreProperties.PROJECT_VERSION_PROPERTY, pom.getVersion());
-    setProperty(properties, CoreProperties.PROJECT_NAME_PROPERTY, pom.getName());
-    setProperty(properties, CoreProperties.PROJECT_DESCRIPTION_PROPERTY, pom.getDescription());
-    properties.putAll(pom.getModel().getProperties());
-
-    ProjectDefinition def = new ProjectDefinition(pom.getBasedir(), null, properties); // TODO work directory ?
-    def.addContainerExtension(pom);
-    return def;
-  }
-
-  private static void setProperty(Properties properties, String key, String value) {
-    if (value != null) {
-      properties.setProperty(key, value);
-    }
+    return new ProjectDefinition(pom.getBasedir(), null, pom.getModel().getProperties()) // TODO work directory ?
+        .setKey(key)
+        .setVersion(pom.getVersion())
+        .setName(pom.getName())
+        .setDescription(pom.getDescription())
+        .addContainerExtension(pom);
   }
 }

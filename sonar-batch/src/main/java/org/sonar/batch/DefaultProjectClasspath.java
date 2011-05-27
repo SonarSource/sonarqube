@@ -22,8 +22,8 @@ package org.sonar.batch;
 import com.google.common.collect.Lists;
 import org.apache.maven.project.MavenProject;
 import org.sonar.api.batch.ProjectClasspath;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.batch.bootstrapper.ProjectDefinition;
 
 import java.io.File;
 import java.util.List;

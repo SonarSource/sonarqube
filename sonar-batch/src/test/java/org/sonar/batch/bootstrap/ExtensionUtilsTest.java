@@ -69,6 +69,12 @@ public class ExtensionUtilsTest {
     assertThat(ExtensionUtils.isSupportedEnvironment(new BuildToolService(), new EnvironmentInformation("eclipse", "0.1")), is(false));
   }
 
+  @Test
+  public void shouldBeMavenExtensionOnly() {
+    assertThat(ExtensionUtils.isMavenExtensionOnly(MavenService.class), is(true));
+    assertThat(ExtensionUtils.isMavenExtensionOnly(BuildToolService.class), is(false));
+  }
+
   @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
   public static class BatchService implements BatchExtension {
 

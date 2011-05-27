@@ -38,12 +38,11 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.Batch;
 import org.sonar.batch.MavenProjectConverter;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.batch.bootstrapper.ProjectDefinition;
-import org.sonar.batch.bootstrapper.Reactor;
-
 import java.io.InputStream;
 
 /**
@@ -139,10 +138,10 @@ public final class SonarMojo extends AbstractMojo {
 
   private void executeBatch() throws MojoExecutionException {
     ProjectDefinition def = MavenProjectConverter.convert(session.getSortedProjects(), project);
-    Reactor reactor = new Reactor(def);
+    ProjectReactor reactor = new ProjectReactor(def);
 
-    Batch batch = new Batch(getInitialConfiguration(),
-        reactor, session, project, getLog(), lifecycleExecutor, artifactFactory,
+    Batch batch = Batch.create(reactor, getInitialConfiguration(),
+        session, getLog(), lifecycleExecutor, artifactFactory,
         localRepository, artifactMetadataSource, artifactCollector, dependencyTreeBuilder,
         projectBuilder, getEnvironmentInformation(), Maven3PluginExecutor.class);
     batch.execute();

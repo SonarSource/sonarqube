@@ -23,11 +23,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.project.MavenProject;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.resources.DefaultProjectFileSystem;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.bootstrapper.ProjectDefinition;
 
 import java.io.File;
 import java.io.IOException;

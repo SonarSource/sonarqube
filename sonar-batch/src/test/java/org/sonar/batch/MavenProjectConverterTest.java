@@ -19,17 +19,26 @@
  */
 package org.sonar.batch;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
-import org.sonar.batch.bootstrapper.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Properties;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 public class MavenProjectConverterTest {
   @Test
@@ -41,7 +50,7 @@ public class MavenProjectConverterTest {
     module.setFile(new File("/foo/module/pom.xml"));
     ProjectDefinition project = MavenProjectConverter.convert(Arrays.asList(root, module), root);
 
-    assertThat(project.getModules().size(), is(1));
+    assertThat(project.getSubProjects().size(), is(1));
   }
 
   @Test
@@ -59,5 +68,69 @@ public class MavenProjectConverterTest {
     assertThat(properties.getProperty(CoreProperties.PROJECT_VERSION_PROPERTY), is("1.0.1"));
     assertThat(properties.getProperty(CoreProperties.PROJECT_NAME_PROPERTY), is("Test"));
     assertThat(properties.getProperty(CoreProperties.PROJECT_DESCRIPTION_PROPERTY), is("just test"));
+  }
+
+  @Test
+  public void moduleNameShouldEqualArtifactId() throws Exception {
+    File rootDir = FileUtils.toFile(getClass().getResource("/org/sonar/batch/MavenProjectConverterTest/moduleNameShouldEqualArtifactId/"));
+    MavenProject parent = loadPom("/org/sonar/batch/MavenProjectConverterTest/moduleNameShouldEqualArtifactId/pom.xml", true);
+    MavenProject module1 = loadPom("/org/sonar/batch/MavenProjectConverterTest/moduleNameShouldEqualArtifactId/module1/pom.xml", false);
+    MavenProject module2 = loadPom("/org/sonar/batch/MavenProjectConverterTest/moduleNameShouldEqualArtifactId/module2/pom.xml", false);
+
+    ProjectDefinition rootDef = MavenProjectConverter.convert(Arrays.asList(parent, module1, module2), parent);
+
+    assertThat(rootDef.getSubProjects().size(), Is.is(2));
+    assertThat(rootDef.getKey(), Is.is("org.test:parent"));
+    assertNull(rootDef.getParent());
+    assertThat(rootDef.getBaseDir(), is(rootDir));
+
+    ProjectDefinition module1Def = rootDef.getSubProjects().get(0);
+    assertThat(module1Def.getKey(), Is.is("org.test:module1"));
+    assertThat(module1Def.getParent(), Is.is(rootDef));
+    assertThat(module1Def.getBaseDir(), Is.is(new File(rootDir, "module1")));
+    assertThat(module1Def.getSubProjects().size(), Is.is(0));
+  }
+
+  @Test
+  public void moduleNameDifferentThanArtifactId() throws Exception {
+    File rootDir = FileUtils.toFile(getClass().getResource("/org/sonar/batch/MavenProjectConverterTest/moduleNameDifferentThanArtifactId/"));
+    MavenProject parent = loadPom("/org/sonar/batch/MavenProjectConverterTest/moduleNameDifferentThanArtifactId/pom.xml", true);
+    MavenProject module1 = loadPom("/org/sonar/batch/MavenProjectConverterTest/moduleNameDifferentThanArtifactId/path1/pom.xml", false);
+    MavenProject module2 = loadPom("/org/sonar/batch/MavenProjectConverterTest/moduleNameDifferentThanArtifactId/path2/pom.xml", false);
+
+    ProjectDefinition rootDef = MavenProjectConverter.convert(Arrays.asList(parent, module1, module2), parent);
+
+    assertThat(rootDef.getSubProjects().size(), is(2));
+    assertThat(rootDef.getKey(), is("org.test:parent"));
+    assertNull(rootDef.getParent());
+    assertThat(rootDef.getBaseDir(), is(rootDir));
+
+    ProjectDefinition module1Def = rootDef.getSubProjects().get(0);
+    assertThat(module1Def.getKey(), Is.is("org.test:module1"));
+    assertThat(module1Def.getParent(), Is.is(rootDef));
+    assertThat(module1Def.getBaseDir(), Is.is(new File(rootDir, "path1")));
+    assertThat(module1Def.getSubProjects().size(), Is.is(0));
+  }
+
+  @Test
+  public void testSingleProjectWithoutModules() throws Exception {
+    File rootDir = FileUtils.toFile(getClass().getResource("/org/sonar/batch/MavenProjectConverterTest/singleProjectWithoutModules/"));
+    MavenProject pom = loadPom("/org/sonar/batch/MavenProjectConverterTest/singleProjectWithoutModules/pom.xml", true);
+
+    ProjectDefinition rootDef = MavenProjectConverter.convert(Arrays.asList(pom), pom);
+
+    assertThat(rootDef.getKey(), is("org.test:parent"));
+    assertThat(rootDef.getSubProjects().size(), is(0));
+    assertNull(rootDef.getParent());
+    assertThat(rootDef.getBaseDir(), is(rootDir));
+  }
+
+  private MavenProject loadPom(String pomPath, boolean isRoot) throws URISyntaxException, IOException, XmlPullParserException {
+    File pomFile = new File(getClass().getResource(pomPath).toURI());
+    Model model = new MavenXpp3Reader().read(new StringReader(FileUtils.readFileToString(pomFile)));
+    MavenProject pom = new MavenProject(model);
+    pom.setFile(pomFile);
+    pom.setExecutionRoot(isRoot);
+    return pom;
   }
 }

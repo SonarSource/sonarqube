@@ -17,35 +17,27 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.bootstrapper;
+package org.sonar.api.batch.bootstrap;
 
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-
-import java.util.List;
+import org.sonar.api.BatchExtension;
+import org.sonar.api.batch.InstantiationStrategy;
 
 /**
- * Describes order of projects.
  * 
- * @since 2.6
+ * @since 2.9
  */
-public class Reactor {
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
+public abstract class ProjectBuilder implements BatchExtension {
 
-  private ProjectDefinition root;
+  private ProjectReactor reactor;
 
-  public Reactor(ProjectDefinition root) {
-    this.root = root;
+  protected ProjectBuilder(final ProjectReactor reactor) {
+    this.reactor = reactor;
   }
 
-  public Reactor(List<ProjectDefinition> sortedProjects) {
-    throw new IllegalArgumentException("This constructor is not supported anymore");
+  public final void start() {
+    build(reactor);
   }
 
-  public List<ProjectDefinition> getSortedProjects() {
-    throw new IllegalArgumentException("The method getSortedProjects() is not supported anymore");
-  }
-
-  public ProjectReactor toProjectReactor() {
-    return new ProjectReactor(root.toNewProjectDefinition());
-  }
-
+  protected abstract void build(ProjectReactor reactor);
 }

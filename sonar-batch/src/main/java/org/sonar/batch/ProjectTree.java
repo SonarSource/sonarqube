@@ -23,84 +23,68 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.project.MavenProject;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.bootstrap.ProjectBuilder;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.bootstrapper.ProjectDefinition;
-import org.sonar.batch.bootstrapper.Reactor;
 
 import java.io.IOException;
 import java.util.*;
 
 public class ProjectTree {
 
-  private ProjectBuilder projectBuilder;
+  private ProjectConfigurator configurator;
+  private ProjectReactor projectReactor;
+
   private List<Project> projects;
-  private List<ProjectDefinition> definitions;
-  private Map<ProjectDefinition, Project> projectsMap;
-
-  public ProjectTree(Reactor sonarReactor, DatabaseSession databaseSession) {
-    this.projectBuilder = new ProjectBuilder(databaseSession);
-    definitions = Lists.newArrayList();
-    for (ProjectDefinition project : sonarReactor.getSortedProjects()) {
-      collectProjects(project, definitions);
-    }
+  private Map<ProjectDefinition, Project> projectsByDef;
+ 
+  public ProjectTree(ProjectReactor projectReactor, DatabaseSession databaseSession, /* Must be executed after ProjectBuilders */ ProjectBuilder[] builders) {
+    this(projectReactor, databaseSession);
   }
 
-  /**
-   * for unit tests
-   */
-  protected ProjectTree(ProjectBuilder projectBuilder, List<MavenProject> poms) {
-    this.projectBuilder = projectBuilder;
-    definitions = Lists.newArrayList();
-    collectProjects(MavenProjectConverter.convert(poms, poms.get(0)), definitions);
+  public ProjectTree(ProjectReactor projectReactor, DatabaseSession databaseSession) {
+    configurator = new ProjectConfigurator(databaseSession);
+    this.projectReactor = projectReactor;
   }
 
-  /**
-   * for unit tests
-   */
-  protected ProjectTree(List<Project> projects) {
-    this.projects = new ArrayList<Project>(projects);
-  }
-
-  /**
-   * Populates list of projects from hierarchy.
-   */
-  private static void collectProjects(ProjectDefinition root, List<ProjectDefinition> collected) {
-    collected.add(root);
-    for (ProjectDefinition module : root.getModules()) {
-      collectProjects(module, collected);
-    }
+  ProjectTree(ProjectConfigurator configurator) {
+    this.configurator = configurator;
   }
 
   public void start() throws IOException {
+    doStart(projectReactor.getProjects());
+  }
+
+  void doStart(List<ProjectDefinition> definitions) {
     projects = Lists.newArrayList();
-    projectsMap = Maps.newHashMap();
+    projectsByDef = Maps.newHashMap();
 
     for (ProjectDefinition def : definitions) {
-      Project project = projectBuilder.create(def);
-      projectsMap.put(def, project);
+      Project project = configurator.create(def);
+      projectsByDef.put(def, project);
       projects.add(project);
     }
 
-    for (Map.Entry<ProjectDefinition, Project> entry : projectsMap.entrySet()) {
+    for (Map.Entry<ProjectDefinition, Project> entry : projectsByDef.entrySet()) {
       ProjectDefinition def = entry.getKey();
       Project project = entry.getValue();
-      for (ProjectDefinition module : def.getModules()) {
-        projectsMap.get(module).setParent(project);
+      for (ProjectDefinition module : def.getSubProjects()) {
+        projectsByDef.get(module).setParent(project);
       }
     }
 
     // Configure
-    for (Map.Entry<ProjectDefinition, Project> entry : projectsMap.entrySet()) {
-      projectBuilder.configure(entry.getValue(), entry.getKey());
+    for (Map.Entry<ProjectDefinition, Project> entry : projectsByDef.entrySet()) {
+      configurator.configure(entry.getValue(), entry.getKey());
     }
 
-    applyModuleExclusions();
+    applyExclusions();
   }
 
-  void applyModuleExclusions() {
+  void applyExclusions() {
     for (Project project : projects) {
       String[] excludedArtifactIds = project.getConfiguration().getStringArray("sonar.skippedModules");
       String[] includedArtifactIds = project.getConfiguration().getStringArray("sonar.includedModules");
@@ -131,7 +115,7 @@ public class ProjectTree {
       }
     }
 
-    for (Iterator<Project> it = projects.iterator(); it.hasNext();) {
+    for (Iterator<Project> it = projects.iterator(); it.hasNext(); ) {
       Project project = it.next();
       if (project.isExcluded()) {
         LoggerFactory.getLogger(getClass()).info("Module {} is excluded from analysis", project.getName());
@@ -183,7 +167,7 @@ public class ProjectTree {
   }
 
   public ProjectDefinition getProjectDefinition(Project project) {
-    for (Map.Entry<ProjectDefinition, Project> entry : projectsMap.entrySet()) {
+    for (Map.Entry<ProjectDefinition, Project> entry : projectsByDef.entrySet()) {
       if (ObjectUtils.equals(entry.getValue(), project)) {
         return entry.getKey();
       }

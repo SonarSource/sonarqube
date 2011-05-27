@@ -35,19 +35,19 @@ import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class ProjectBuilderTest extends AbstractDbUnitTestCase {
+public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
 
-  private ProjectBuilder builder = null;
+  private ProjectConfigurator configurator = null;
 
   @Before
   public void before() {
-    builder = new ProjectBuilder(getSession());
+    configurator = new ProjectConfigurator(getSession());
   }
 
   @Test
   public void noExclusionPatterns() {
     Project project = new Project("key");
-    builder.configure(project, new PropertiesConfiguration());
+    configurator.configure(project, new PropertiesConfiguration());
 
     assertThat(project.getExclusionPatterns().length, is(0));
   }
@@ -58,7 +58,7 @@ public class ProjectBuilderTest extends AbstractDbUnitTestCase {
     configuration.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*,foo,*/bar");
 
     Project project = new Project("key");
-    builder.configure(project, configuration);
+    configurator.configure(project, configuration);
 
     assertThat(project.getExclusionPatterns().length, is(3));
     assertThat(project.getExclusionPatterns()[0], is("**/*"));
@@ -77,7 +77,7 @@ public class ProjectBuilderTest extends AbstractDbUnitTestCase {
     configuration.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, " foo ");
 
     Project project = new Project("key");
-    builder.configure(project, configuration);
+    configurator.configure(project, configuration);
 
     assertThat(project.getExclusionPatterns().length, is(1));
     assertThat(project.getExclusionPatterns()[0], is("foo"));
@@ -89,7 +89,7 @@ public class ProjectBuilderTest extends AbstractDbUnitTestCase {
     configuration.setProperty(CoreProperties.PROJECT_LANGUAGE_PROPERTY, "foo");
 
     Project project = new Project("key");
-    builder.configure(project, configuration);
+    configurator.configure(project, configuration);
 
     assertThat(project.getLanguageKey(), is("foo"));
   }
@@ -97,7 +97,7 @@ public class ProjectBuilderTest extends AbstractDbUnitTestCase {
   @Test
   public void defaultLanguageIsJava() {
     Project project = new Project("key");
-    builder.configure(project, new PropertiesConfiguration());
+    configurator.configure(project, new PropertiesConfiguration());
 
     assertThat(project.getLanguageKey(), is(Java.KEY));
   }
@@ -105,7 +105,7 @@ public class ProjectBuilderTest extends AbstractDbUnitTestCase {
   @Test
   public void analysisIsTodayByDefault() {
     Project project = new Project("key");
-    builder.configure(project, new PropertiesConfiguration());
+    configurator.configure(project, new PropertiesConfiguration());
     Date today = new Date();
     assertTrue(today.getTime() - project.getAnalysisDate().getTime() < 1000);
   }
@@ -115,7 +115,7 @@ public class ProjectBuilderTest extends AbstractDbUnitTestCase {
     PropertiesConfiguration configuration = new PropertiesConfiguration();
     configuration.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2005-01-30");
     Project project = new Project("key");
-    builder.configure(project, configuration);
+    configurator.configure(project, configuration);
 
     assertEquals("30012005", new SimpleDateFormat("ddMMyyyy").format(project.getAnalysisDate()));
   }
@@ -125,7 +125,7 @@ public class ProjectBuilderTest extends AbstractDbUnitTestCase {
     PropertiesConfiguration configuration = new PropertiesConfiguration();
     configuration.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2005/30/01");
     Project project = new Project("key");
-    builder.configure(project, configuration);
+    configurator.configure(project, configuration);
 
     project.getAnalysisDate();
   }
@@ -135,7 +135,7 @@ public class ProjectBuilderTest extends AbstractDbUnitTestCase {
     PropertiesConfiguration configuration = new PropertiesConfiguration();
     configuration.setProperty("sonar.light", "true");
     Project project = new Project("key");
-    builder.configure(project, configuration);
+    configurator.configure(project, configuration);
 
     assertThat(project.getAnalysisType(), is(Project.AnalysisType.STATIC));
   }
@@ -143,7 +143,7 @@ public class ProjectBuilderTest extends AbstractDbUnitTestCase {
   @Test
   public void defaultAnalysisTypeIsDynamic() {
     Project project = new Project("key");
-    builder.configure(project, new PropertiesConfiguration());
+    configurator.configure(project, new PropertiesConfiguration());
     assertThat(project.getAnalysisType(), is(Project.AnalysisType.DYNAMIC));
   }
 
@@ -152,7 +152,7 @@ public class ProjectBuilderTest extends AbstractDbUnitTestCase {
     PropertiesConfiguration configuration = new PropertiesConfiguration();
     configuration.setProperty(CoreProperties.DYNAMIC_ANALYSIS_PROPERTY, "true");
     Project project = new Project("key");
-    builder.configure(project, configuration);
+    configurator.configure(project, configuration);
     assertThat(project.getAnalysisType(), is(Project.AnalysisType.DYNAMIC));
   }
 
@@ -161,7 +161,7 @@ public class ProjectBuilderTest extends AbstractDbUnitTestCase {
     PropertiesConfiguration configuration = new PropertiesConfiguration();
     configuration.setProperty(CoreProperties.DYNAMIC_ANALYSIS_PROPERTY, "false");
     Project project = new Project("key");
-    builder.configure(project, configuration);
+    configurator.configure(project, configuration);
     assertThat(project.getAnalysisType(), is(Project.AnalysisType.STATIC));
   }
 
@@ -170,7 +170,7 @@ public class ProjectBuilderTest extends AbstractDbUnitTestCase {
     PropertiesConfiguration configuration = new PropertiesConfiguration();
     configuration.setProperty(CoreProperties.DYNAMIC_ANALYSIS_PROPERTY, "reuseReports");
     Project project = new Project("key");
-    builder.configure(project, configuration);
+    configurator.configure(project, configuration);
     assertThat(project.getAnalysisType(), is(Project.AnalysisType.REUSE_REPORTS));
   }
 
@@ -194,7 +194,7 @@ public class ProjectBuilderTest extends AbstractDbUnitTestCase {
     configuration.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2010-12-25");
 
     Project project = new Project("my:key");
-    builder.configure(project, configuration);
+    configurator.configure(project, configuration);
 
     assertThat(project.isLatestAnalysis(), is(true));
   }
@@ -207,7 +207,7 @@ public class ProjectBuilderTest extends AbstractDbUnitTestCase {
     configuration.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2010-12-25");
 
     Project project = new Project("my:key");
-    builder.configure(project, configuration);
+    configurator.configure(project, configuration);
 
     assertThat(project.isLatestAnalysis(), is(true));
   }
@@ -220,7 +220,7 @@ public class ProjectBuilderTest extends AbstractDbUnitTestCase {
     configuration.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2005-12-25");
 
     Project project = new Project("my:key");
-    builder.configure(project, configuration);
+    configurator.configure(project, configuration);
 
     assertThat(project.isLatestAnalysis(), is(false));
   }

@@ -20,6 +20,8 @@
 package org.sonar.batch.bootstrap;
 
 import org.junit.Test;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.MavenPluginExecutor;
@@ -40,10 +42,11 @@ public class BootstrapModuleTest {
 
   @Test
   public void shouldSearchMavenPluginExecutor() {
-    BootstrapModule module = new BootstrapModule(null, MyMavenPluginExecutor.class);
+    ProjectReactor projectReactor = new ProjectReactor(ProjectDefinition.create());
+    BootstrapModule module = new BootstrapModule(projectReactor, null, MyMavenPluginExecutor.class);
     assertThat(module.isMavenPluginExecutorRegistered(), is(true));
 
-    module = new BootstrapModule(null);
+    module = new BootstrapModule(projectReactor, null);
     assertThat(module.isMavenPluginExecutorRegistered(), is(false));
   }
 }

@@ -19,11 +19,8 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
-
 import java.io.File;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -32,66 +29,44 @@ import java.util.Properties;
  * We assume that project is just a set of configuration properties and directories.
  * 
  * @since 2.6
+ * @deprecated since 2.9. Move into org.sonar.api.batch.bootstrap
  */
+@Deprecated
 public class ProjectDefinition {
 
-  private static final String PROJECT_SOURCES_PROPERTY = "sonar.sources";
-  private static final String PROJECT_TESTS_PROPERTY = "sonar.tests";
-  private static final String PROJECT_BINARIES_PROPERTY = "sonar.binaries";
-  private static final String PROJECT_LIBRARIES_PROPERTY = "sonar.libraries";
-
-  private static final char SEPARATOR = ',';
-
-  private File baseDir;
-  private File workDir;
-  private Properties properties;
-  private List<ProjectDefinition> modules = Lists.newArrayList();
-
-  private List<Object> containerExtensions = Lists.newArrayList();
+  private org.sonar.api.batch.bootstrap.ProjectDefinition target = null;
+  private List<ProjectDefinition> children = new ArrayList<ProjectDefinition>();
 
   /**
    * @param baseDir project base directory
    * @param properties project properties
    */
   public ProjectDefinition(File baseDir, File workDir, Properties properties) {
-    this.baseDir = baseDir;
-    this.workDir = workDir;
-    this.properties = properties;
+    target = new org.sonar.api.batch.bootstrap.ProjectDefinition(baseDir, workDir, properties);
   }
 
   public File getBaseDir() {
-    return baseDir;
+    return target.getBaseDir();
   }
 
   public File getWorkDir() {
-    return workDir;
+    return target.getWorkDir();
   }
 
   public Properties getProperties() {
-    return properties;
-  }
-
-  private void appendProperty(String key, String value) {
-    String newValue = properties.getProperty(key, "") + SEPARATOR + value;
-    properties.put(key, newValue);
+    return target.getProperties();
   }
 
   public List<String> getSourceDirs() {
-    String sources = properties.getProperty(PROJECT_SOURCES_PROPERTY, "");
-    return Arrays.asList(StringUtils.split(sources, SEPARATOR));
+    return target.getSourceDirs();
   }
 
-  /**
-   * @param path path to directory with main sources.
-   *          It can be absolute or relative to project directory.
-   */
   public void addSourceDir(String path) {
-    appendProperty(PROJECT_SOURCES_PROPERTY, path);
+    target.addSourceDir(path);
   }
 
   public List<String> getTestDirs() {
-    String sources = properties.getProperty(PROJECT_TESTS_PROPERTY, "");
-    return Arrays.asList(StringUtils.split(sources, SEPARATOR));
+    return target.getTestDirs();
   }
 
   /**
@@ -99,12 +74,11 @@ public class ProjectDefinition {
    *          It can be absolute or relative to project directory.
    */
   public void addTestDir(String path) {
-    appendProperty(PROJECT_TESTS_PROPERTY, path);
+    target.addTestDir(path);
   }
 
   public List<String> getBinaries() {
-    String sources = properties.getProperty(PROJECT_BINARIES_PROPERTY, "");
-    return Arrays.asList(StringUtils.split(sources, SEPARATOR));
+    return target.getBinaries();
   }
 
   /**
@@ -113,12 +87,11 @@ public class ProjectDefinition {
    * @TODO currently Sonar supports only one such directory due to dependency on MavenProject
    */
   public void addBinaryDir(String path) {
-    appendProperty(PROJECT_BINARIES_PROPERTY, path);
+    target.addBinaryDir(path);
   }
 
   public List<String> getLibraries() {
-    String sources = properties.getProperty(PROJECT_LIBRARIES_PROPERTY, "");
-    return Arrays.asList(StringUtils.split(sources, SEPARATOR));
+    return target.getLibraries();
   }
 
   /**
@@ -126,7 +99,7 @@ public class ProjectDefinition {
    *          It can be absolute or relative to project directory.
    */
   public void addLibrary(String path) {
-    appendProperty(PROJECT_LIBRARIES_PROPERTY, path);
+    target.addLibrary(path);
   }
 
   /**
@@ -135,27 +108,32 @@ public class ProjectDefinition {
    * @since 2.8
    */
   public void addContainerExtension(Object extension) {
-    containerExtensions.add(extension);
+    target.addContainerExtension(extension);
   }
 
   /**
    * @since 2.8
    */
   public List<Object> getContainerExtensions() {
-    return containerExtensions;
+    return target.getContainerExtensions();
   }
 
   /**
    * @since 2.8
    */
   public void addModule(ProjectDefinition projectDefinition) {
-    modules.add(projectDefinition);
+    target.addSubProject(projectDefinition.toNewProjectDefinition());
+    children.add(projectDefinition);
   }
 
   /**
    * @since 2.8
    */
   public List<ProjectDefinition> getModules() {
-    return modules;
+    return children;
+  }
+
+  public org.sonar.api.batch.bootstrap.ProjectDefinition toNewProjectDefinition() {
+    return target;
   }
 }
