@@ -23,7 +23,15 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 
 /**
- * 
+ * This extension point allows to change project structure at runtime. It is executed once during batch startup.
+ * Some use-cases :
+ * <ul>
+ *   <li>Add sub-projects which are not defined in batch bootstrapper. For example the C# plugin gets the hierarchy
+ *   of sub-projects from the Visual Studio metadata file. The single root pom.xml does not contain any declarations of
+ *   modules</li>
+ *   <li>Change project metadata like description or source directories.</li>
+ * </ul>
+ *
  * @since 2.9
  */
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)

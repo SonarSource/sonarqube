@@ -30,6 +30,9 @@ import java.util.List;
 import java.util.Properties;
 
 /**
+ * Defines project metadata (key, name, source directories, ...). It's generally used by the
+ * {@link org.sonar.api.batch.bootstrap.ProjectBuilder extension point}
+ * 
  * @since 2.9
  */
 public final class ProjectDefinition implements BatchComponent {
@@ -48,9 +51,6 @@ public final class ProjectDefinition implements BatchComponent {
   private List<ProjectDefinition> subProjects = Lists.newArrayList();
   private List<Object> containerExtensions = Lists.newArrayList();
 
-  /**
-   * TODO use factory methods
-   */
   public ProjectDefinition(File baseDir, File workDir, Properties properties) {
     this.baseDir = baseDir;
     this.workDir = workDir;
