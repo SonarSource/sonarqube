@@ -33,7 +33,7 @@ import java.net.URISyntaxException;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
-public class ExtensionDownloaderTest {
+public class ArtifactDownloaderTest {
 
   @Test
   public void shouldDownloadJdbcDriver() throws IOException, URISyntaxException {
@@ -43,7 +43,7 @@ public class ExtensionDownloaderTest {
     HttpDownloader httpDownloader = mock(HttpDownloader.class);
     TempDirectories workingDirectories = new TempDirectories();
 
-    ExtensionDownloader downloader = new ExtensionDownloader(httpDownloader, workingDirectories, server);
+    ArtifactDownloader downloader = new ArtifactDownloader(httpDownloader, workingDirectories, server);
     File jdbcDriver = downloader.downloadJdbcDriver();
 
     assertNotNull(jdbcDriver);
@@ -58,7 +58,7 @@ public class ExtensionDownloaderTest {
     HttpDownloader httpDownloader = mock(HttpDownloader.class);
     TempDirectories workingDirectories = new TempDirectories();
 
-    ExtensionDownloader downloader = new ExtensionDownloader(httpDownloader, workingDirectories, server);
+    ArtifactDownloader downloader = new ArtifactDownloader(httpDownloader, workingDirectories, server);
     JpaPluginFile extension = new JpaPluginFile(new JpaPlugin("findbugs"), "bcel.jar");
     File bcel = downloader.downloadExtension(extension);
 

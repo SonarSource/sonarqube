@@ -47,10 +47,10 @@ public class BatchPluginRepository implements PluginRepository {
   private static final Logger LOG = LoggerFactory.getLogger(BatchPluginRepository.class);
 
   private JpaPluginDao dao;
-  private ExtensionDownloader artifactDownloader;
+  private ArtifactDownloader artifactDownloader;
   private Map<String, Plugin> pluginsByKey;
 
-  public BatchPluginRepository(JpaPluginDao dao, ExtensionDownloader artifactDownloader) {
+  public BatchPluginRepository(JpaPluginDao dao, ArtifactDownloader artifactDownloader) {
     this.dao = dao;
     this.artifactDownloader = artifactDownloader;
 //  TODO reactivate somewhere else:  LOG.info("Execution environment: {} {}", environment.getKey(), environment.getVersion());

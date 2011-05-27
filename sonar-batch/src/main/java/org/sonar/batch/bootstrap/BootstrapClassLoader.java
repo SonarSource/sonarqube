@@ -33,7 +33,7 @@ public class BootstrapClassLoader {
 
   private URLClassLoader classLoader;
 
-  public BootstrapClassLoader(ExtensionDownloader extensionDownloader) {
+  public BootstrapClassLoader(ArtifactDownloader extensionDownloader) {
     this(extensionDownloader.downloadJdbcDriver());
   }
 

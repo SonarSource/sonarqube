@@ -29,16 +29,13 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-/**
- * TODO this class should be renamed ArtifactDownloader, because it does not relate only to plugin extensions.
- */
-public class ExtensionDownloader implements BatchComponent {
+public class ArtifactDownloader implements BatchComponent {
 
   private HttpDownloader httpDownloader;
   private TempDirectories workingDirectories;
   private String baseUrl;
 
-  public ExtensionDownloader(HttpDownloader httpDownloader, TempDirectories workingDirectories, ServerMetadata server) {
+  public ArtifactDownloader(HttpDownloader httpDownloader, TempDirectories workingDirectories, ServerMetadata server) {
     this.httpDownloader = httpDownloader;
     this.workingDirectories = workingDirectories;
     this.baseUrl = server.getURL();

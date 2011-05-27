@@ -43,7 +43,7 @@ public class BatchPluginRepositoryTest {
 
   @Test
   public void shouldLoadPlugin() {
-    ExtensionDownloader extensionDownloader = mock(ExtensionDownloader.class);
+    ArtifactDownloader extensionDownloader = mock(ArtifactDownloader.class);
     when(extensionDownloader.downloadExtension(any(JpaPluginFile.class))).thenReturn(
         FileUtils.toFile(getClass().getResource("/org/sonar/batch/bootstrap/BatchPluginRepositoryTest/sonar-artifact-size-plugin-0.2.jar")));
     BatchPluginRepository repository = new BatchPluginRepository(null, extensionDownloader);
@@ -64,7 +64,7 @@ public class BatchPluginRepositoryTest {
    */
   @Test
   public void shouldPluginExtensionInTheSameClassloader() {
-    ExtensionDownloader extensionDownloader = mock(ExtensionDownloader.class);
+    ArtifactDownloader extensionDownloader = mock(ArtifactDownloader.class);
     prepareDownloader(extensionDownloader, "artifactsize", "/org/sonar/batch/bootstrap/BatchPluginRepositoryTest/sonar-artifact-size-plugin-0.2.jar");
     prepareDownloader(extensionDownloader, "clirr", "/org/sonar/batch/bootstrap/BatchPluginRepositoryTest/sonar-clirr-plugin-1.1.jar");
     BatchPluginRepository repository = new BatchPluginRepository(null, extensionDownloader);
@@ -85,7 +85,7 @@ public class BatchPluginRepositoryTest {
     assertThat(entryPointBase.getClass().getClassLoader(), is(entryPointExtension.getClass().getClassLoader()));
   }
 
-  private void prepareDownloader(ExtensionDownloader extensionDownloader, final String pluginKey, final String filename) {
+  private void prepareDownloader(ArtifactDownloader extensionDownloader, final String pluginKey, final String filename) {
     when(extensionDownloader.downloadExtension(argThat(new BaseMatcher<JpaPluginFile>() {
       public boolean matches(Object o) {
         return o != null && ((JpaPluginFile) o).getPluginKey().equals(pluginKey);

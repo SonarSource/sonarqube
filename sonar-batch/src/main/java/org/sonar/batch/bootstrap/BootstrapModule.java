@@ -55,7 +55,7 @@ public class BootstrapModule extends Module {
     addComponent(ServerMetadata.class);// registered here because used by BootstrapClassLoader
     addComponent(TempDirectories.class);// registered here because used by BootstrapClassLoader
     addComponent(HttpDownloader.class);// registered here because used by BootstrapClassLoader
-    addComponent(ExtensionDownloader.class);// registered here because used by BootstrapClassLoader
+    addComponent(ArtifactDownloader.class);// registered here because used by BootstrapClassLoader
     addComponent(BootstrapClassLoader.class);
 
     URLClassLoader bootstrapClassLoader = getComponent(BootstrapClassLoader.class).getClassLoader();

@@ -30,7 +30,6 @@ import java.util.List;
  * Module describes group of components - {@link #configure()}.
  * Several modules can be grouped together - {@link #install(Module)}, {@link #installChild(Module)}.
  * <p/>
- * TODO Move to org.sonar.batch.bootstrap ?
  */
 public abstract class Module {
 
