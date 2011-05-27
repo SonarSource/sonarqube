@@ -19,24 +19,83 @@
  */
 package org.sonar.batch.bootstrap;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.junit.Ignore;
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
+import org.codehaus.plexus.util.FileUtils;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.junit.Test;
-import org.picocontainer.MutablePicoContainer;
-import org.sonar.api.BatchExtension;
-import org.sonar.api.ServerExtension;
-import org.sonar.api.batch.AbstractCoverageExtension;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Project.AnalysisType;
-import org.sonar.api.utils.IocContainer;
+import org.sonar.api.Plugin;
+import org.sonar.core.plugin.JpaPlugin;
+import org.sonar.core.plugin.JpaPluginFile;
 
-@Ignore
+import java.util.Arrays;
+
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class BatchPluginRepositoryTest {
+
+  @Test
+  public void shouldLoadPlugin() {
+    ExtensionDownloader extensionDownloader = mock(ExtensionDownloader.class);
+    when(extensionDownloader.downloadExtension(any(JpaPluginFile.class))).thenReturn(
+        FileUtils.toFile(getClass().getResource("/org/sonar/batch/bootstrap/BatchPluginRepositoryTest/sonar-artifact-size-plugin-0.2.jar")));
+    BatchPluginRepository repository = new BatchPluginRepository(null, extensionDownloader);
+
+    JpaPlugin plugin = new JpaPlugin("artifactsize");
+    plugin.setPluginClass("org.sonar.plugins.artifactsize.ArtifactSizePlugin");
+    plugin.createFile("sonar-artifact-size-plugin-0.2.jar");
+    repository.doStart(Arrays.asList(plugin));
+
+    Plugin entryPoint = repository.getPlugin("artifactsize");
+    assertThat(entryPoint, not(nullValue()));
+    ClassRealm classloader = (ClassRealm) entryPoint.getClass().getClassLoader();
+    assertThat(classloader.getId(), is("artifactsize"));
+  }
+
+  /**
+   * Of course clirr does not extend artifact-size plugin in real life !
+   */
+  @Test
+  public void shouldPluginExtensionInTheSameClassloader() {
+    ExtensionDownloader extensionDownloader = mock(ExtensionDownloader.class);
+    prepareDownloader(extensionDownloader, "artifactsize", "/org/sonar/batch/bootstrap/BatchPluginRepositoryTest/sonar-artifact-size-plugin-0.2.jar");
+    prepareDownloader(extensionDownloader, "clirr", "/org/sonar/batch/bootstrap/BatchPluginRepositoryTest/sonar-clirr-plugin-1.1.jar");
+    BatchPluginRepository repository = new BatchPluginRepository(null, extensionDownloader);
+
+    JpaPlugin pluginBase = new JpaPlugin("artifactsize");
+    pluginBase.setPluginClass("org.sonar.plugins.artifactsize.ArtifactSizePlugin");
+    pluginBase.createFile("sonar-artifact-size-plugin-0.2.jar");
+
+    JpaPlugin pluginExtension = new JpaPlugin("clirr");
+    pluginExtension.setBasePlugin("artifactsize");
+    pluginExtension.setPluginClass("org.sonar.plugins.clirr.ClirrPlugin");
+    pluginExtension.createFile("sonar-clirr-plugin-1.1.jar");
+
+    repository.doStart(Arrays.asList(pluginBase, pluginExtension));
+
+    Plugin entryPointBase = repository.getPlugin("artifactsize");
+    Plugin entryPointExtension = repository.getPlugin("clirr");
+    assertThat(entryPointBase.getClass().getClassLoader(), is(entryPointExtension.getClass().getClassLoader()));
+  }
+
+  private void prepareDownloader(ExtensionDownloader extensionDownloader, final String pluginKey, final String filename) {
+    when(extensionDownloader.downloadExtension(argThat(new BaseMatcher<JpaPluginFile>() {
+      public boolean matches(Object o) {
+        return o!=null && ((JpaPluginFile) o).getPluginKey().equals(pluginKey);
+      }
+
+      public void describeTo(Description description) {
+
+      }
+    }))).thenReturn(FileUtils.toFile(getClass().getResource(filename)));
+  }
 
 //  @Test
 //  public void shouldRegisterBatchExtension() {

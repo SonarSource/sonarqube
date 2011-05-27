@@ -32,7 +32,7 @@ import java.net.URISyntaxException;
 /**
  * TODO this class should be renamed ArtifactDownloader, because it does not relate only to plugin extensions.
  */
-public final class ExtensionDownloader implements BatchComponent {
+public class ExtensionDownloader implements BatchComponent {
 
   private HttpDownloader httpDownloader;
   private TempDirectories workingDirectories;

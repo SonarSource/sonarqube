@@ -57,40 +57,23 @@ public class BatchPluginRepository implements PluginRepository {
   }
 
   public void start() {
-    List<JpaPlugin> pluginsMetadata = Lists.newArrayList();
+    doStart(dao.getPlugins());
+  }
+
+  public void doStart(List<JpaPlugin> basePlugins) {
     pluginsByKey = Maps.newHashMap();
     ClassLoadersCollection classLoaders = new ClassLoadersCollection(Thread.currentThread().getContextClassLoader());
 
-    List<JpaPlugin> jpaPlugins = dao.getPlugins();
+    List<JpaPlugin> pluginsMetadata = Lists.newArrayList(basePlugins);
+    createClassloaders(classLoaders, basePlugins);
+    pluginsMetadata.addAll(extendClassloaders(classLoaders, pluginsMetadata));
+    instantiatePluginEntryPoints(classLoaders, pluginsMetadata);
 
-    for (JpaPlugin pluginMetadata : jpaPlugins) {
-      if (StringUtils.isEmpty(pluginMetadata.getBasePlugin())) {
-        String key = pluginMetadata.getKey();
-        List<URL> urls = download(pluginMetadata);
-        classLoaders.createClassLoader(key, urls, pluginMetadata.isUseChildFirstClassLoader() == Boolean.TRUE);
-        pluginsMetadata.add(pluginMetadata);
-      }
-    }
+    classLoaders.done();
+  }
 
-    // Extend plugins by other plugins
-    for (JpaPlugin pluginMetadata : jpaPlugins) {
-      String pluginKey = pluginMetadata.getKey();
-      String basePluginKey = pluginMetadata.getBasePlugin();
-      if (StringUtils.isNotEmpty(basePluginKey)) {
-        if (classLoaders.get(basePluginKey) != null) {
-          LOG.debug("Plugin {} extends {}", pluginKey, basePluginKey);
-          List<URL> urls = download(pluginMetadata);
-          classLoaders.extend(basePluginKey, pluginKey, urls);
-          pluginsMetadata.add(pluginMetadata);
-
-        } else {
-          // Ignored, because base plugin doesn't exists
-          LOG.warn("Plugin {} extends nonexistent plugin {}", pluginKey, basePluginKey);
-        }
-      }
-    }
-
-    for (JpaPlugin pluginMetadata : jpaPlugins) {
+  private void instantiatePluginEntryPoints(ClassLoadersCollection classLoaders, List<JpaPlugin> pluginsMetadata) {
+    for (JpaPlugin pluginMetadata : pluginsMetadata) {
       try {
         Class claz = classLoaders.get(pluginMetadata.getKey()).loadClass(pluginMetadata.getPluginClass());
         Plugin plugin = (Plugin) claz.newInstance();
@@ -100,8 +83,38 @@ public class BatchPluginRepository implements PluginRepository {
         throw new SonarException("Fail to load plugin " + pluginMetadata.getKey(), e);
       }
     }
+  }
 
-    classLoaders.done();
+  private List<JpaPlugin> extendClassloaders(ClassLoadersCollection classLoaders, List<JpaPlugin> pluginsMetadata) {
+    List<JpaPlugin> extensions = Lists.newArrayList();
+    // Extend plugins by other plugins
+    for (JpaPlugin pluginMetadata : pluginsMetadata) {
+      String pluginKey = pluginMetadata.getKey();
+      String basePluginKey = pluginMetadata.getBasePlugin();
+      if (StringUtils.isNotEmpty(basePluginKey)) {
+        if (classLoaders.get(basePluginKey) != null) {
+          LOG.debug("Plugin {} extends {}", pluginKey, basePluginKey);
+          List<URL> urls = download(pluginMetadata);
+          classLoaders.extend(basePluginKey, pluginKey, urls);
+          extensions.add(pluginMetadata);
+
+        } else {
+          // Ignored, because base plugin doesn't exists
+          LOG.warn("Plugin {} extends nonexistent plugin {}", pluginKey, basePluginKey);
+        }
+      }
+    }
+    return extensions;
+  }
+
+  private void createClassloaders(ClassLoadersCollection classLoaders, List<JpaPlugin> basePlugins) {
+    for (JpaPlugin pluginMetadata : basePlugins) {
+      if (StringUtils.isEmpty(pluginMetadata.getBasePlugin())) {
+        String key = pluginMetadata.getKey();
+        List<URL> urls = download(pluginMetadata);
+        classLoaders.createClassLoader(key, urls, pluginMetadata.isUseChildFirstClassLoader() == Boolean.TRUE);
+      }
+    }
   }
 
   private List<URL> download(JpaPlugin pluginMetadata) {
