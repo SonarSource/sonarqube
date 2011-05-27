@@ -22,6 +22,7 @@ package org.sonar.batch.bootstrap;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.api.batch.AbstractCoverageExtension;
@@ -73,21 +74,25 @@ public final class ProjectExtensionInstaller implements BatchComponent {
         ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_PROJECT) &&
         !isDeactivatedCoverageExtension(extension, project, pluginKey) &&
         !isMavenExtensionOnEmulatedMavenProject(extension, project)) {
-
       module.addComponent(extension);
       return extension;
     }
     return null;
   }
 
-  boolean isMavenExtensionOnEmulatedMavenProject(Object extension, Project project) {
+  /**
+   * Special use-case: the extension point ProjectBuilder is used in a Maven environment to define some
+   * new sub-projects without pom.
+   * Example : C# plugin adds sub-projects at runtime, even if they are not defined in root pom.
+   */
+  static boolean isMavenExtensionOnEmulatedMavenProject(Object extension, Project project) {
     return ExtensionUtils.isMavenExtensionOnly(extension) && project.getPom() == null;
   }
 
   /**
    * TODO this code is specific to Java projects and should be moved somewhere else
    */
-  boolean isDeactivatedCoverageExtension(Object extension, Project project, String pluginKey) {
+  static boolean isDeactivatedCoverageExtension(Object extension, Project project, String pluginKey) {
     if (!ExtensionUtils.isType(extension, CoverageExtension.class)) {
       return false;
     }
@@ -98,7 +103,7 @@ public final class ProjectExtensionInstaller implements BatchComponent {
     }
 
     if (StringUtils.equals(project.getLanguageKey(), Java.KEY)) {
-      String[] selectedPluginKeys = project.getConfiguration().getStringArray(AbstractCoverageExtension.PARAM_PLUGIN);
+      String[] selectedPluginKeys = project.getConfiguration().getStringArray(CoreProperties.CORE_COVERAGE_PLUGIN_PROPERTY);
       if (ArrayUtils.isEmpty(selectedPluginKeys)) {
         selectedPluginKeys = new String[]{AbstractCoverageExtension.DEFAULT_PLUGIN};
       }
