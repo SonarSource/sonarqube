@@ -95,7 +95,6 @@ public class ProjectModule extends Module {
     addComponent(PastViolationsLoader.class);
     addComponent(ProfileLoader.class, DefaultProfileLoader.class);
     addAdapter(new ProfileProvider());
-    addAdapter(new CheckProfileProvider());
   }
 
   private void addCoreComponents() {
