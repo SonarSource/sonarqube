@@ -53,8 +53,11 @@ class Review < ActiveRecord::Base
   #
   #
   
-  def create_comment(options={})
-    comments.create!(options)
+  # params are mandatory:
+  # - :user
+  # - :text
+  def create_comment(params={})
+    comments.create!(params)
     touch
   end
 
@@ -66,12 +69,47 @@ class Review < ActiveRecord::Base
       touch
     end
   end
+
+  def edit_last_comment(comment_text)
+    comment=comments.last
+    comment.text=comment_text
+    comment.save!
+    touch
+  end
   
   def delete_comment(comment_id)
     comment=comments.find(comment_id)
     if comment
       comment.delete
       touch
+    end
+  end
+  
+  def reassign(user)
+    self.assignee = user
+    self.save!
+  end
+  
+  # params are mandatory:
+  # - :user (mandatory)
+  # - :text (mandatory)
+  # - :violation_id (optional: the violation to switch off - if not provided, a search will be done on rule_failure_permanent_id)
+  def set_false_positive(is_false_positive, params={})
+    if params[:user] && params[:text]
+      if params[:violation_id]
+        violation = RuleFailure.find(params[:violation_id])
+        violation.switched_off=is_false_positive
+        violation.save!
+      else
+        RuleFailure.find( :all, :conditions => [ "permanent_id = ?", self.rule_failure_permanent_id ] ).each do |violation|
+          violation.switched_off=is_false_positive
+          violation.save!
+        end
+      end
+      create_comment(:user => params[:user], :text => params[:text])
+      self.false_positive = is_false_positive
+      self.assignee = nil
+      self.save!      
     end
   end
   
