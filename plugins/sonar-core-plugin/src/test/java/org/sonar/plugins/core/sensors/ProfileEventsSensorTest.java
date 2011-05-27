@@ -19,11 +19,10 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -54,6 +53,14 @@ public class ProfileEventsSensorTest {
   }
 
   @Test
+  public void shouldExecute() {
+    ProfileEventsSensor sensor = new ProfileEventsSensor(null, null);
+
+    assertThat(sensor.shouldExecuteOnProject(project), is(true));
+    verifyZeroInteractions(project);
+  }
+
+  @Test
   public void shouldDoNothingIfNoProfile() throws ParseException {
     ProfileEventsSensor sensor = new ProfileEventsSensor(null, null);
 
@@ -64,89 +71,78 @@ public class ProfileEventsSensorTest {
 
   @Test
   public void shouldDoNothingIfNoProfileChange() throws ParseException {
-    RulesProfile profile = mockProfile(1);
-    TimeMachine timeMachine = mockTM(project, 22.0, 1.0); // Same profile, same version
+    RulesProfile profile = mockProfileWithVersion(1);
+    TimeMachine timeMachine = mockTM(project, 22.0, "Foo", 1.0); // Same profile, same version
     ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);
 
     sensor.analyse(project, context);
 
-    verify(context, never()).createEvent((Resource) anyObject(), anyString(), anyString(), anyString(), (Date) anyObject());
+    verifyZeroInteractions(context);
   }
 
   @Test
   public void shouldCreateEventIfProfileChange() throws ParseException {
-    RulesProfile profile = mockProfile(1);
-    TimeMachine timeMachine = mockTM(project, 21.0, 1.0); // Different profile
+    RulesProfile profile = mockProfileWithVersion(1);
+    TimeMachine timeMachine = mockTM(project, 21.0, "Bar", 1.0); // Different profile
     ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);
 
     sensor.analyse(project, context);
 
-    verify(context).createEvent(same(project), eq("Profile V1"), eq("A different quality profile was used"),
+    verify(context).createEvent(same(project),
+        eq("Foo version 1"),
+        eq("Foo version 1 is used instead of Bar version 1"),
         same(Event.CATEGORY_PROFILE), (Date) anyObject());
   }
 
   @Test
   public void shouldCreateEventIfProfileVersionChange() throws ParseException {
-    RulesProfile profile = mockProfile(2);
-    TimeMachine timeMachine = mockTM(project, 22.0, 1.0); // Same profile, different version
+    RulesProfile profile = mockProfileWithVersion(2);
+    TimeMachine timeMachine = mockTM(project, 22.0, "Foo", 1.0); // Same profile, different version
     ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);
 
     sensor.analyse(project, context);
 
-    verify(context).createEvent(same(project), eq("Profile V2"), eq("A new version of the quality profile was used"),
+    verify(context).createEvent(same(project),
+        eq("Foo version 2"),
+        eq("Foo version 2 is used instead of Foo version 1"),
         same(Event.CATEGORY_PROFILE), (Date) anyObject());
   }
 
   @Test
-  public void shouldCreateEventIfFirstAnalysis() throws ParseException {
-    RulesProfile profile = mockProfile(2);
+  public void shouldNotCreateEventIfFirstAnalysis() throws ParseException {
+    RulesProfile profile = mockProfileWithVersion(2);
     TimeMachine timeMachine = mockTM(project, null, null);
     ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);
 
     sensor.analyse(project, context);
 
-    verify(context).createEvent(same(project), eq("Profile V2"), eq("A different quality profile was used"),
-        same(Event.CATEGORY_PROFILE), (Date) anyObject());
+    verifyZeroInteractions(context);
   }
 
   @Test
-  public void shouldNotCreateEventIfFirstProfileVersionAndStillV1() throws ParseException {
-    RulesProfile profile = mockProfile(1);
-    TimeMachine timeMachine = mockTMWithNullVersion(project, 22.0);
+  public void shouldCreateEventIfFirstAnalysisWithVersionsAndVersionMoreThan1() throws ParseException {
+    RulesProfile profile = mockProfileWithVersion(2);
+    TimeMachine timeMachine = mockTM(project, 22.0, "Foo", null);
     ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);
 
     sensor.analyse(project, context);
 
-    verify(context, never()).createEvent((Resource) anyObject(), anyString(), anyString(), anyString(), (Date) anyObject());
-  }
-
-  @Test
-  public void shouldCreateEventIfFirstProfileVersionAndMoreThanV1() throws ParseException {
-    RulesProfile profile = mockProfile(2);
-    TimeMachine timeMachine = mockTMWithNullVersion(project, 22.0);
-    ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);
-
-    sensor.analyse(project, context);
-
-    verify(context).createEvent(same(project), eq("Profile V2"), eq("A new version of the quality profile was used"),
+    verify(context).createEvent(same(project),
+        eq("Foo version 2"),
+        eq("Foo version 2 is used instead of Foo version 1"),
         same(Event.CATEGORY_PROFILE), (Date) anyObject());
   }
 
-  private RulesProfile mockProfile(int version) {
+  private RulesProfile mockProfileWithVersion(int version) {
     RulesProfile profile = mock(RulesProfile.class);
     when(profile.getId()).thenReturn(22);
-    when(profile.getName()).thenReturn("Profile");
-    when(profile.getVersion()).thenReturn(version); // New version
+    when(profile.getName()).thenReturn("Foo");
+    when(profile.getVersion()).thenReturn(version);
     return profile;
   }
 
-  private TimeMachine mockTM(Project project, double profileValue, double versionValue) {
-    return mockTM(project, new Measure(CoreMetrics.PROFILE, profileValue),
-        new Measure(CoreMetrics.PROFILE_VERSION, versionValue));
-  }
-
-  private TimeMachine mockTMWithNullVersion(Project project, double profileValue) {
-    return mockTM(project, new Measure(CoreMetrics.PROFILE, profileValue), null);
+  private TimeMachine mockTM(Project project, double profileId, String profileName, Double versionValue) {
+    return mockTM(project, new Measure(CoreMetrics.PROFILE, profileId, profileName), versionValue == null ? null : new Measure(CoreMetrics.PROFILE_VERSION, versionValue));
   }
 
   private TimeMachine mockTM(Project project, Measure result1, Measure result2) {

@@ -46,33 +46,44 @@ public class ProfileEventsSensor implements Sensor {
     if (profile == null) {
       return;
     }
-    String currentProfile = profile.getName();
+
+    Measure pastProfileMeasure = getPreviousMeasure(project, CoreMetrics.PROFILE);
+    if (pastProfileMeasure == null) {
+      return; // first analysis
+    }
+    int pastProfileId = pastProfileMeasure.getIntValue();
+    Measure pastProfileVersionMeasure = getPreviousMeasure(project, CoreMetrics.PROFILE_VERSION);
+    final int pastProfileVersion;
+    if (pastProfileVersionMeasure == null) { // first analysis with versions
+      pastProfileVersion = 1;
+    } else {
+      pastProfileVersion = pastProfileVersionMeasure.getIntValue();
+    }
+    String pastProfile = formatProfileDescription(pastProfileMeasure.getData(), pastProfileVersion);
+
     int currentProfileId = profile.getId();
     int currentProfileVersion = profile.getVersion();
+    String currentProfile = formatProfileDescription(profile.getName(), currentProfileVersion);
 
-    int pastProfileId = getPreviousMeasureValue(project, CoreMetrics.PROFILE, -1);
-    int pastProfileVersion = getPreviousMeasureValue(project, CoreMetrics.PROFILE, 1);
-
-    if (pastProfileId != currentProfileId) {
-      // A different profile is used for this project
-      context.createEvent(project, currentProfile + " V" + currentProfileVersion,
-          "A different quality profile was used", Event.CATEGORY_PROFILE, null);
-    } else if (pastProfileVersion != currentProfileVersion) {
-      // Same profile but new version
-      context.createEvent(project, currentProfile + " V" + currentProfileVersion,
-          "A new version of the quality profile was used", Event.CATEGORY_PROFILE, null);
+    if ((pastProfileId != currentProfileId) || (pastProfileVersion != currentProfileVersion)) {
+      // A different profile is used for this project or new version of same profile
+      context.createEvent(project, currentProfile, currentProfile + " is used instead of " + pastProfile, Event.CATEGORY_PROFILE, null);
     }
   }
 
-  private int getPreviousMeasureValue(Project project, Metric metric, int defaultValue) {
+  private static String formatProfileDescription(String name, int version) {
+    return name + " version " + version;
+  }
+
+  private Measure getPreviousMeasure(Project project, Metric metric) {
     TimeMachineQuery query = new TimeMachineQuery(project)
         .setOnlyLastAnalysis(true)
         .setMetrics(metric);
     List<Measure> measures = timeMachine.getMeasures(query);
     if (measures.isEmpty()) {
-      return defaultValue;
+      return null;
     }
-    return measures.get(0).getIntValue();
+    return measures.get(0);
   }
 
   @Override
