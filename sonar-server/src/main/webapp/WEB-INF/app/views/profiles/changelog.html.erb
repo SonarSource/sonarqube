@@ -6,66 +6,62 @@
   <table  class="data width100">
     <thead>
       <tr>
-        <th>Action</th>
-        <th>By</th>
         <th>Date</th>
-        <th>Rule name</th>
+        <th>User</th>
+        <th>Action</th>
+        <th>Rule</th>
         <th>Parameters</th>
       </tr>
     </thead>
-    <% current_version = -1 
+    <% current_version = -1
       @changes.each do |change|
     %>
         <% if current_version != change.profile_version %>
     <tr>
       <td align="left" colspan="5">
-      	<div class="line-block">
-  	      <h2>Version <%=change.profile_version%></h2>
-		</div>
+        <div class="line-block">
+          <h2>Version <%=change.profile_version%></h2>
+        </div>
       </td>
     </tr>
         <%   current_version = change.profile_version
            end
-        %> 
+        %>
     <tr class="<%= cycle 'even', 'odd', :name => change.profile_version -%>">
-      <td valign="top"><%=case change.enabled
-                when true then "Enabled"
-                when false then "Disabled"
-                when nil then "Modified"
-             end%></td>
-      <td valign="top"><%=change.user_login%></td>
       <td valign="top"><%=change.change_date.strftime("%Y-%m-%d %H:%M:%S")%></td>
+      <td valign="top"><%=change.user_login%></td>
+      <td valign="top"><%=change.action_text%></td>
       <td valign="top"><%=change.rule.name%></td>
       <td valign="top">
         <% if change.old_severity
              if change.new_severity %>
-            Severity changed from <i><%= change.old_severity_text %></i> to
+            Severity changed from <%= image_tag "priority/#{change.old_severity_text}.png" %><b><%= change.old_severity_text %></b> to
           <% else %>
-            Severity was <i><%= change.old_severity_text %></i>
+            Severity was <%= image_tag "priority/#{change.old_severity_text}.png" %><b><%= change.old_severity_text %></b>
           <% end
            end %>
-        <% if change.new_severity 
+        <% if change.new_severity
              if change.old_severity %>
-           <i><%= change.new_severity_text %></i>
+           <%= image_tag "priority/#{change.new_severity_text}.png" %><b><%= change.new_severity_text %></b>
           <% else %>
-           Severity set to <i><%= change.new_severity_text %></i>
+           Severity set to <%= image_tag "priority/#{change.new_severity_text}.png" %><b><%= change.new_severity_text %></b>
           <% end
            end %>
         <% if (change.old_severity or change.new_severity) and change.parameters.size > 0 %>
           <br/>
         <% end %>
         <% change.parameters.each do |param_change| %>
-          Parameter <i><%=param_change.name %></i>
+          Parameter <b><%=param_change.name %></b>
           <% if not param_change.old_value %>
-             set to <i><%= param_change.new_value %></i>
-          <% elsif not param_change.new_value 
+             set to <b><%= param_change.new_value %></b>
+          <% elsif not param_change.new_value
                if change.enabled == false %>
-                 was <i><%= param_change.old_value %></i>
+                 was <b><%= param_change.old_value %></b>
             <% else %>
-                 reset to default value (was <i><%= param_change.old_value %></i>)
+                 reset to default value (was <b><%= param_change.old_value %></b>)
             <% end
              else %>
-             changed from <i><%= param_change.old_value %></i> to <i><%= param_change.new_value %></i>
+             changed from <b><%= param_change.old_value %></b> to <b><%= param_change.new_value %></b>
           <% end %>
           <%= "<br/>" unless param_change == change.parameters.last %>
         <% end%>

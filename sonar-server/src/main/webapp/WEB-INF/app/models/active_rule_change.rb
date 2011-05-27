@@ -22,6 +22,14 @@ class ActiveRuleChange < ActiveRecord::Base
   belongs_to :rule
   has_many :active_rule_param_changes, :dependent => :destroy
 
+  def action_text
+    case enabled
+      when true then "enabled"
+      when false then "disabled"
+      when nil then "modified"
+    end
+  end
+
   def old_severity_text
     Sonar::RulePriority.to_s old_severity
   end
