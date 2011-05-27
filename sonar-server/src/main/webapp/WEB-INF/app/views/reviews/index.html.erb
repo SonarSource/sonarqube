@@ -70,7 +70,7 @@ function launchSearch(columnName, link) {
           <%= user_autocomplete_field "assignee_id", @assignee_id, { :class => "max-width" } -%>
           <br/>
           <br/>
-          <select name="false_positives" id="false_positives" class="withIcons">
+          <select name="false_positives" id="false_positives" class="withIcons" onchange="if(this.value=='only' || this.value=='with') {$('assignee_id').value = ''; $('autocompleteText-assignee_id').value = '';};">
             <option <%= 'selected' if @false_positives=='without' -%> value="without" class="sel-without-false-positives">Without false positives</option>
             <option <%= 'selected' if @false_positives=='only' -%> value="only" class="sel-only-false-positives">Only false positives</option>
             <option <%= 'selected' if @false_positives=='with' -%> value="with" class="sel-with-false-positives">With false positives</option>
