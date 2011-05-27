@@ -2,6 +2,18 @@
 <%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'changelog'} %>
 
 <div class="tabs-panel marginbottom10">
+  <% if @versions.empty? %>
+    No changes has been done on this quality profile.
+  <% else %>
+
+  <% if !@past_versions.empty? %>
+    <% form_tag({:action => 'changelog'}, {:method => 'post'}) do %>
+      <%= hidden_field_tag "id", @profile.id %>
+      Changelog between last version (<%= @versions[0].change_date.strftime("%Y/%m/%d %H:%M:%S") %>) and
+      <%= select_tag "since", options_for_select(@past_versions.map {|u| ["version " + u.profile_version.to_s + " (" + u.change_date.strftime("%Y/%m/%d %H:%M:%S") + ")", u.profile_version]}, @since_version) %>
+      <%= submit_tag "Load", :id => 'submit_since'%>
+    <% end %>
+  <% end %>
 
   <table  class="data width100">
     <thead>
@@ -70,4 +82,5 @@
     <% end %>
   </table>
 
+  <% end %>
 </div>
