@@ -19,10 +19,10 @@
  */
 package org.sonar.colorizer;
 
-import java.util.Arrays;
-
 import org.sonar.channel.CodeReader;
 import org.sonar.channel.EndMatcher;
+
+import java.util.Arrays;
 
 public abstract class InlineDocTokenizer extends Tokenizer {
 
@@ -40,17 +40,18 @@ public abstract class InlineDocTokenizer extends Tokenizer {
   public boolean consume(CodeReader code, HtmlCodeBuilder codeBuilder) {
     if (code.peek() == startToken[0] && Arrays.equals(code.peek(startToken.length), startToken)) {
       codeBuilder.appendWithoutTransforming(tagBefore);
-      code.popTo(new EndMatcher() {
-
-        public boolean match(int endFlag) {
-          return endFlag == '\r' || endFlag == '\n';
-        }
-      }, codeBuilder);
+      code.popTo(LINE_END_MATCHER, codeBuilder);
       codeBuilder.appendWithoutTransforming(tagAfter);
       return true;
     } else {
       return false;
     }
   }
+
+  private static final EndMatcher LINE_END_MATCHER = new EndMatcher() {
+    public boolean match(int endFlag) {
+      return endFlag == '\r' || endFlag == '\n';
+    }
+  };
 
 }

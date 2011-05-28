@@ -31,7 +31,7 @@ public interface SensorsPhaseHandler extends EventHandler {
   /**
    * This interface is not intended to be implemented by clients.
    */
-  public interface SensorsPhaseEvent {
+  interface SensorsPhaseEvent {
 
     /**
      * @return list of Sensors in the order of execution

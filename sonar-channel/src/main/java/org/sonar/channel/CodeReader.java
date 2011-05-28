@@ -79,7 +79,7 @@ public class CodeReader extends CodeBuffer {
     try {
       appendable.append((char) pop());
     } catch (IOException e) {
-      throw new ChannelException(e.getMessage());
+      throw new ChannelException(e.getMessage(), e);
     }
   }
 

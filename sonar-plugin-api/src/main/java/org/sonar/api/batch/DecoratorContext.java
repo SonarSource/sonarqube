@@ -109,7 +109,7 @@ public interface DecoratorContext {
    *          the request parameters specified as a {@link ViolationQuery}
    * @return the list of violations that match those parameters
    */
-  abstract List<Violation> getViolations(ViolationQuery violationQuery);
+  List<Violation> getViolations(ViolationQuery violationQuery);
 
   /**
    * Returns all the active (= non switched-off) violations found on the current resource.

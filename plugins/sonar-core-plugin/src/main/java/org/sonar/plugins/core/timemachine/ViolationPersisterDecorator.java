@@ -25,7 +25,6 @@ import com.google.common.collect.Multimap;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.sonar.api.batch.*;
 import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.database.model.SnapshotSource;

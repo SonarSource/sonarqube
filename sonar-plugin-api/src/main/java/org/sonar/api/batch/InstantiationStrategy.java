@@ -35,12 +35,12 @@ public @interface InstantiationStrategy {
   /**
    * Shared extension. Lifecycle is the full analysis.
    */
-  public static final String PER_BATCH = "PER_BATCH";
+  String PER_BATCH = "PER_BATCH";
 
   /**
    * Created and initialized for each project and sub-project (a project is a module in Maven terminology).
    */
-  public static final String PER_PROJECT = "PER_PROJECT";
+  String PER_PROJECT = "PER_PROJECT";
 
   String value();
 }

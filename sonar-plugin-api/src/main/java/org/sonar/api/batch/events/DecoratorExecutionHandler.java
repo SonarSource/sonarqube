@@ -29,7 +29,7 @@ public interface DecoratorExecutionHandler extends EventHandler {
   /**
    * This interface is not intended to be implemented by clients.
    */
-  public interface DecoratorExecutionEvent {
+  interface DecoratorExecutionEvent {
 
     Decorator getDecorator();
 

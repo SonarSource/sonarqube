@@ -35,7 +35,7 @@ import org.sonar.java.api.JavaMethod;
  */
 public final class FunctionComplexityDistributionBuilder implements Decorator {
 
-  public static final Number[] LIMITS = {1, 2, 4, 6, 8, 10, 12};
+  private static final Number[] LIMITS = { 1, 2, 4, 6, 8, 10, 12 };
 
   @DependsUpon
   public Metric dependOnComplexity() {
@@ -52,7 +52,7 @@ public final class FunctionComplexityDistributionBuilder implements Decorator {
       RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION, LIMITS);
       for (DecoratorContext childContext : context.getChildren()) {
         if (childContext.getResource() instanceof JavaMethod) {
-          JavaMethod javaMethod = (JavaMethod)childContext.getResource();
+          JavaMethod javaMethod = (JavaMethod) childContext.getResource();
           Measure complexity = childContext.getMeasure(CoreMetrics.COMPLEXITY);
           if (!javaMethod.isAccessor() && complexity != null) {
             builder.add(complexity.getValue());
@@ -73,4 +73,3 @@ public final class FunctionComplexityDistributionBuilder implements Decorator {
     return Java.KEY.equals(project.getLanguageKey());
   }
 }
-

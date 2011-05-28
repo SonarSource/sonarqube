@@ -29,7 +29,7 @@ public interface SensorExecutionHandler extends EventHandler {
   /**
    * This interface is not intended to be implemented by clients.
    */
-  public interface SensorExecutionEvent {
+  interface SensorExecutionEvent {
 
     Sensor getSensor();
 

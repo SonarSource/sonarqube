@@ -20,27 +20,19 @@
 
 package org.sonar.squid;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.graph.DirectedGraph;
 import org.sonar.graph.DirectedGraphAccessor;
-import org.sonar.squid.api.CodeScanner;
-import org.sonar.squid.api.CodeVisitor;
-import org.sonar.squid.api.Query;
-import org.sonar.squid.api.SourceCode;
-import org.sonar.squid.api.SourceCodeEdge;
-import org.sonar.squid.api.SourceCodeSearchEngine;
-import org.sonar.squid.api.SourceCodeTreeDecorator;
-import org.sonar.squid.api.SourceProject;
-import org.sonar.squid.api.SquidConfiguration;
+import org.sonar.squid.api.*;
 import org.sonar.squid.indexer.SquidIndex;
 import org.sonar.squid.measures.Metric;
 import org.sonar.squid.measures.MetricDef;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class Squid implements DirectedGraphAccessor<SourceCode, SourceCodeEdge>, SourceCodeSearchEngine {
 
@@ -79,7 +71,7 @@ public class Squid implements DirectedGraphAccessor<SourceCode, SourceCodeEdge>,
     SCANNER scanner = pico.getComponent(scannerClass);
     for (Object clazz : scanner.getVisitorClasses()) {
       addToPicocontainer((Class) clazz);
-      scanner.accept(pico.<CodeVisitor>getComponent((Class) clazz));
+      scanner.accept(pico.<CodeVisitor> getComponent((Class) clazz));
     }
     for (CodeVisitor externalVisitor : externalCodeVisitors) {
       scanner.accept(externalVisitor);
@@ -87,6 +79,9 @@ public class Squid implements DirectedGraphAccessor<SourceCode, SourceCodeEdge>,
     return scanner;
   }
 
+  /**
+   * @deprecated use {@link #decorateSourceCodeTreeWith(MetricDef...)} instead
+   */
   @Deprecated
   public SourceProject aggregate() {
     return decorateSourceCodeTreeWith(Metric.values());

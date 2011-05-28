@@ -34,10 +34,13 @@ public class QueryByMeasure implements Query {
   public enum Operator {
     GREATER_THAN, EQUALS, GREATER_THAN_EQUALS, LESS_THAN, LESS_THAN_EQUALS
   }
-  
+
+  /**
+   * @deprecated use {@link #QueryByMeasure(MetricDef, Operator, double)} instead
+   */
   @Deprecated
   public QueryByMeasure(Metric metric, Operator operator, double value) {
-    this((MetricDef)metric, operator, value);
+    this((MetricDef) metric, operator, value);
   }
 
   public QueryByMeasure(MetricDef metric, Operator operator, double value) {

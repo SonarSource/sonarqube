@@ -62,7 +62,7 @@ public class CodeBuffer implements CharSequence {
     buffer = new char[bufferCapacity];
     Reader reader = initialCodeReader;
     for (CodeReaderFilter<?> codeReaderFilter : configuration.getCodeReaderFilters()) {
-      reader = new Filter(reader, codeReaderFilter);
+      reader = new Filter(reader, codeReaderFilter, configuration);
     }
     this.code = reader;
     fillBuffer();
@@ -240,7 +240,7 @@ public class CodeBuffer implements CharSequence {
   }
 
   /**
-   * Warning : this method returns Integer.MAX_VALUE when the buffer is fully used 
+   * Warning : this method returns Integer.MAX_VALUE when the buffer is fully used
    * as the length of the stream can't be known before having consumed all characters.
    * 
    * Integer.MAX_VALUE is returned to prevent regular expression matchers to stop consuming the stream of characters (see
@@ -289,14 +289,14 @@ public class CodeBuffer implements CharSequence {
   /**
    * Bridge class between CodeBuffer and CodeReaderFilter
    */
-  final class Filter extends FilterReader {
+  static final class Filter extends FilterReader {
 
     private CodeReaderFilter<?> codeReaderFilter;
 
-    public Filter(Reader in, CodeReaderFilter<?> codeReaderFilter) {
+    public Filter(Reader in, CodeReaderFilter<?> codeReaderFilter, CodeReaderConfiguration configuration) {
       super(in);
       this.codeReaderFilter = codeReaderFilter;
-      this.codeReaderFilter.setConfiguration(CodeBuffer.this.configuration.cloneWithoutCodeReaderFilters());
+      this.codeReaderFilter.setConfiguration(configuration.cloneWithoutCodeReaderFilters());
       this.codeReaderFilter.setReader(in);
     }
 

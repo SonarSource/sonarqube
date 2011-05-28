@@ -29,7 +29,7 @@ public interface ProjectAnalysisHandler extends EventHandler {
   /**
    * This interface is not intended to be implemented by clients.
    */
-  public interface ProjectAnalysisEvent {
+  interface ProjectAnalysisEvent {
 
     Project getProject();
 

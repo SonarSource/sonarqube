@@ -31,7 +31,7 @@ public interface DecoratorsPhaseHandler extends EventHandler {
   /**
    * This interface is not intended to be implemented by clients.
    */
-  public interface DecoratorsPhaseEvent {
+  interface DecoratorsPhaseEvent {
 
     /**
      * @return list of Decorators in the order of execution
