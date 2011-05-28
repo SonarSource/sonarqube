@@ -1,6 +1,13 @@
 module ActiveRecord
   # See ActiveRecord::AssociationPreload::ClassMethods for documentation.
   module AssociationPreload #:nodoc:
+
+    # SONAR
+    # see https://github.com/alexrothenberg/oracle-enhanced/commit/dbb1c82533ae5d0c0f3c0ad5f2ed2f62d892593b#L0R94
+    MAX_IDS_PER_ORACLE_QUERY = 1000
+    # END SONAR
+
+
     def self.included(base)
       base.extend(ClassMethods)
     end
@@ -183,13 +190,27 @@ module ActiveRecord
         conditions = "t0.#{reflection.primary_key_name} #{in_or_equals_for_ids(ids)}"
         conditions << append_conditions(reflection, preload_options)
 
-        associated_records = reflection.klass.with_exclusive_scope do
-          reflection.klass.find(:all, :conditions => [conditions, ids],
-            :include => options[:include],
-            :joins => "INNER JOIN #{connection.quote_table_name options[:join_table]} t0 ON #{reflection.klass.quoted_table_name}.#{reflection.klass.primary_key} = t0.#{reflection.association_foreign_key}",
-            :select => "#{options[:select] || table_name+'.*'}, t0.#{reflection.primary_key_name} as the_parent_record_id",
-            :order => options[:order])
+        # SONAR - the following must be replaced - see https://github.com/alexrothenberg/oracle-enhanced/commit/dbb1c82533ae5d0c0f3c0ad5f2ed2f62d892593b#L0R94
+        #associated_records = reflection.klass.with_exclusive_scope do
+        #  reflection.klass.find(:all, :conditions => [conditions, ids],
+        #    :include => options[:include],
+        #    :joins => "INNER JOIN #{connection.quote_table_name options[:join_table]} t0 ON #{reflection.klass.quoted_table_name}.#{reflection.klass.primary_key} = t0.#{reflection.association_foreign_key}",
+        #    :select => "#{options[:select] || table_name+'.*'}, t0.#{reflection.primary_key_name} as the_parent_record_id",
+        #    :order => options[:order])
+        #end
+
+        # Make several queries with no more than 1000 ids in each one, combining the results into a single array
+        associated_records = []
+        ids.each_slice(MAX_IDS_PER_ORACLE_QUERY) do |safe_for_oracle_ids|
+          associated_records += reflection.klass.with_exclusive_scope do
+            reflection.klass.find(:all, :conditions => [conditions, safe_for_oracle_ids],
+              :include => options[:include],
+              :joins => "INNER JOIN #{connection.quote_table_name options[:join_table]} t0 ON #{reflection.klass.quoted_table_name}.#{reflection.klass.primary_key} = t0.#{reflection.association_foreign_key}",
+              :select => "#{options[:select] || table_name+'.*'}, t0.#{reflection.primary_key_name} as the_parent_record_id",
+              :order => options[:order])
+          end
         end
+        # END SONAR
         set_association_collection_records(id_to_record_map, reflection.name, associated_records, 'the_parent_record_id')
       end
 
@@ -335,14 +356,14 @@ module ActiveRecord
           conditions = "#{table_name}.#{connection.quote_column_name(primary_key)} #{in_or_equals_for_ids(ids)}"
 
           #SONAR
-          conditions = ([conditions] * (ids.size.to_f/1000).ceil).join(" OR ")
+          conditions = ([conditions] * (ids.size.to_f/MAX_IDS_PER_ORACLE_QUERY).ceil).join(" OR ")
           #SONAR
 
           conditions << append_conditions(reflection, preload_options)
 
           #SONAR
           associated_records = klass.with_exclusive_scope do
-            klass.find(:all, :conditions => [conditions, *ids.in_groups_of(1000, false)],
+            klass.find(:all, :conditions => [conditions, *ids.in_groups_of(MAX_IDS_PER_ORACLE_QUERY, false)],
                                           :include => options[:include],
                                           :select => options[:select],
                                           :joins => options[:joins],
@@ -365,7 +386,7 @@ module ActiveRecord
         end
 
         #SONAR patch for Oracle IN clause with more than 1000 elements
-        conditions = ([conditions] * (ids.size.to_f/1000).ceil).join(" OR ")
+        conditions = ([conditions] * (ids.size.to_f/MAX_IDS_PER_ORACLE_QUERY).ceil).join(" OR ")
         #SONAR
 
         conditions << append_conditions(reflection, preload_options)
