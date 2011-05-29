@@ -21,6 +21,7 @@ package org.sonar.plugins.squid;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.checks.CheckFactory;
 import org.sonar.api.checks.NoSonarFilter;
@@ -93,7 +94,14 @@ public final class SquidExecutor {
     if (sourceScanned) {
       TimeProfiler profiler = new TimeProfiler(getClass()).start("Squid extraction");
       ResourceIndex resourceIndex = new ResourceIndex().loadSquidResources(squid, context, project);
-      List<Bridge> bridges = BridgeFactory.create(bytecodeScanned, context, checkFactory, resourceIndex, squid, noSonarFilter);
+
+      boolean skipPackageDesignAnalysis = CoreProperties.DESIGN_SKIP_PACKAGE_DESIGN_DEFAULT_VALUE;
+      if (project.getConfiguration() != null) {
+        skipPackageDesignAnalysis = project.getConfiguration()
+            .getBoolean(CoreProperties.DESIGN_SKIP_PACKAGE_DESIGN_PROPERTY, CoreProperties.DESIGN_SKIP_PACKAGE_DESIGN_DEFAULT_VALUE);
+      }
+
+      List<Bridge> bridges = BridgeFactory.create(bytecodeScanned, skipPackageDesignAnalysis, context, checkFactory, resourceIndex, squid, noSonarFilter);
       saveProject(resourceIndex, bridges);
       savePackages(resourceIndex, bridges);
       saveFiles(resourceIndex, bridges);
@@ -155,7 +163,6 @@ public final class SquidExecutor {
     }
   }
 
-
   void scanSources(Collection<InputFile> sourceFiles) {
     if (sourceFiles != null && !sourceFiles.isEmpty()) {
       TimeProfiler profiler = new TimeProfiler(getClass()).start("Java AST scan");
@@ -188,7 +195,7 @@ public final class SquidExecutor {
     for (File bytecodeFilesOrDirectory : bytecodeFilesOrDirectories) {
       if (bytecodeFilesOrDirectory.exists() &&
           (bytecodeFilesOrDirectory.isFile() ||
-          !FileUtils.listFiles(bytecodeFilesOrDirectory, new String[]{"class"}, true).isEmpty())) {
+          !FileUtils.listFiles(bytecodeFilesOrDirectory, new String[] { "class" }, true).isEmpty())) {
         return true;
       }
     }

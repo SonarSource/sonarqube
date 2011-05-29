@@ -19,13 +19,13 @@
  */
 package org.sonar.plugins.squid.bridges;
 
+import com.google.common.collect.Lists;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.checks.CheckFactory;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.squid.Squid;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public final class BridgeFactory {
@@ -34,17 +34,26 @@ public final class BridgeFactory {
     // only static methods
   }
 
-  private static List<Bridge> create(NoSonarFilter noSonarFilter) {
-    return Arrays.asList(new CopyBasicMeasuresBridge(), new PackagesBridge(), new PublicUndocumentedApiBridge(),
+  private static List<Bridge> create(NoSonarFilter noSonarFilter, boolean skipPackageDesignAnalysis) {
+    ArrayList<Bridge> result = Lists.newArrayList(
+        new CopyBasicMeasuresBridge(),
+        new PackagesBridge(),
+        new PublicUndocumentedApiBridge(),
         new NoSonarFilterLoader(noSonarFilter),
-        new ChidamberKemererBridge(), new RobertCMartinBridge(), new DesignBridge(),
-        new Lcom4BlocksBridge(), new ChecksBridge());
+        new ChidamberKemererBridge(),
+        new RobertCMartinBridge(),
+        new Lcom4BlocksBridge(),
+        new ChecksBridge());
+    if (!skipPackageDesignAnalysis) {
+      result.add(new DesignBridge());
+    }
+    return result;
   }
 
-  public static List<Bridge> create(boolean bytecodeScanned, SensorContext context, CheckFactory checkFactory,
+  public static List<Bridge> create(boolean bytecodeScanned, boolean skipPackageDesignAnalysis, SensorContext context, CheckFactory checkFactory,
                                     ResourceIndex resourceIndex, Squid squid, NoSonarFilter noSonarFilter) {
     List<Bridge> result = new ArrayList<Bridge>();
-    for (Bridge bridge : create(noSonarFilter)) {
+    for (Bridge bridge : create(noSonarFilter, skipPackageDesignAnalysis)) {
       bridge.setCheckFactory(checkFactory);
       if (!bridge.needsBytecode() || bytecodeScanned) {
         bridge.setContext(context);

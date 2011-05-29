@@ -118,6 +118,14 @@ public interface CoreProperties {
   String DESIGN_SKIP_DESIGN_PROPERTY = "sonar.skipDesign";
   boolean DESIGN_SKIP_DESIGN_DEFAULT_VALUE = false;
 
+  /**
+   * Indicates whether Package Design Analysis should be skipped.
+   * 
+   * @since 2.9
+   */
+  String DESIGN_SKIP_PACKAGE_DESIGN_PROPERTY = "sonar.skipPackageDesign";
+  boolean DESIGN_SKIP_PACKAGE_DESIGN_DEFAULT_VALUE = false;
+
   /* Findbugs */
   String FINDBUGS_PLUGIN = "findbugs";
   String FINDBUGS_EFFORT_PROPERTY = "sonar.findbugs.effort";

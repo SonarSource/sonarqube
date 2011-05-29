@@ -19,28 +19,36 @@
  */
 package org.sonar.plugins.squid.bridges;
 
-import java.util.List;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import java.util.List;
 
 public class BridgeFactoryTest {
 
   @Test
   public void createForSourceAnalysis() {
-    List<Bridge> astBridges = BridgeFactory.create(false, null, null, null, null, null);
+    List<Bridge> astBridges = BridgeFactory.create(false, true, null, null, null, null, null);
     assertFalse(has(astBridges, DesignBridge.class));
     assertTrue(has(astBridges, CopyBasicMeasuresBridge.class));
   }
 
   @Test
   public void createForSourceAndBytecodeAnalysis() {
-    List<Bridge> allBridges = BridgeFactory.create(true, null, null, null, null, null);
+    List<Bridge> allBridges = BridgeFactory.create(true, false, null, null, null, null, null);
     assertTrue(has(allBridges, DesignBridge.class));
     assertTrue(has(allBridges, CopyBasicMeasuresBridge.class));
+    assertTrue(has(allBridges, Lcom4BlocksBridge.class));
+  }
 
+  @Test
+  public void createForSourceAndBytecodeWithoutDesignAnalysis() {
+    List<Bridge> allBridges = BridgeFactory.create(true, true, null, null, null, null, null);
+    assertFalse(has(allBridges, DesignBridge.class));
+    assertTrue(has(allBridges, CopyBasicMeasuresBridge.class));
+    assertTrue(has(allBridges, Lcom4BlocksBridge.class));
   }
 
   private boolean has(List<Bridge> bridges, Class<? extends Bridge> bridgeClass) {
