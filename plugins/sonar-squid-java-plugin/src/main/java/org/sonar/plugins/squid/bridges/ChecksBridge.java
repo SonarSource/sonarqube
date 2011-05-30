@@ -31,7 +31,7 @@ import org.sonar.squid.api.SourceFile;
 public class ChecksBridge extends Bridge {
 
   protected ChecksBridge() {
-    super(true);
+    super(false);
   }
 
   @Override
