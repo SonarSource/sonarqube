@@ -260,6 +260,7 @@ class Review < ActiveRecord::Base
       xml.comments do
         review_comments.each do |comment|
           xml.comment do
+            xml.id(comment.id)
             xml.author(comment.user.login)
             xml.updatedAt(Api::Utils.format_datetime(comment.updated_at))
             if convert_markdown 
@@ -293,6 +294,7 @@ class Review < ActiveRecord::Base
     comments = []
     review_comments.each do |comment|
       comments << {
+        'id' => comment.id,
         'author' => comment.user.login,
         'updatedAt' => Api::Utils.format_datetime(comment.updated_at),
         'text' => convert_markdown ? comment.html_text : comment.plain_text

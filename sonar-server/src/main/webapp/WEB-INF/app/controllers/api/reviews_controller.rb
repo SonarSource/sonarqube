@@ -173,18 +173,17 @@ class Api::ReviewsController < Api::ApiController
   # DELETE /api/reviews
   # Required parameters:
   # - 'id' : the review id
-  # - 'comment_id' : for the moment, only 'last_comment' value is accepted
+  # - 'comment_id' : the id of the comment to delete (for the moment, only the last comment can be deleted)
   #
   # Example :
-  # - DELETE "/api/reviews/update?id=1&comment=last_comment
+  # - DELETE "/api/reviews/update?id=1&comment=5
   #
   def delete
     begin
       # 1- Get some parameters
       convert_markdown=(params[:output]=='HTML')
       comment_id = params[:comment_id]
-      raise "'comment' parameter is missing." unless comment_id
-      raise "Currently, only 'last_comment' is accepted for the 'comment' parameter." unless comment_id == 'last_comment'
+      raise "'comment_id' parameter is missing." unless comment_id
         
       # 2- Get the review or create one
       raise "No 'id' parameter has been provided." unless params[:id]
@@ -197,6 +196,7 @@ class Api::ReviewsController < Api::ApiController
       # 3- Delete the last comment if possible
       raise "Cannot delete the only existing comment of this review." if review.comments.size == 1
       last_comment = review.comments.last
+      raise "Only the last comment of a review can be deleted" unless last_comment.id == comment_id
       raise "You do not have the rights to edit this comment as it is not yours." unless last_comment.user == current_user
       review.delete_comment(last_comment.id)
       

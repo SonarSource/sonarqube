@@ -58,6 +58,7 @@ public class ReviewUnmarshallerTest extends UnmarshallerTestCase {
     List<Comment> comments = review.getComments();
     assertThat(comments.size(), is(4));
     Comment comment = comments.get(0);
+    assertThat(comment.getId(), is(1L));
     assertNotNull(comment.getUpdatedAt());
     assertThat(comment.getAuthorLogin(), is("admin"));
     assertThat(comment.getText(), is("This is a review.<br/>And this is on multiple lines...<br/><br/><code>Wouhou!!!!!</code>"));

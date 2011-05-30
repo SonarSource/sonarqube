@@ -251,8 +251,8 @@ public class Review extends Model {
     return comments;
   }
 
-  public Review addComments(Date updatedAt, String authorLogin, String text) {
-    this.comments.add(new Review.Comment(updatedAt, authorLogin, text));
+  public Review addComments(Long id, Date updatedAt, String authorLogin, String text) {
+    this.comments.add(new Review.Comment(id, updatedAt, authorLogin, text));
     return this;
   }
 
@@ -261,14 +261,24 @@ public class Review extends Model {
    */
   public static final class Comment extends Model {
 
+    private Long id = null;
     private String authorLogin = null;
     private Date updatedAt = null;
     private String text = null;
 
-    private Comment(Date updatedAt, String authorLogin, String text) {
+    private Comment(Long id, Date updatedAt, String authorLogin, String text) {
+      this.id = id;
       this.updatedAt = updatedAt;
       this.authorLogin = authorLogin;
       this.text = text;
+    }
+
+    /**
+     * @since 2.9
+     * @return the id
+     */
+    public Long getId() {
+      return id;
     }
 
     /**

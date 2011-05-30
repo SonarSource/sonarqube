@@ -49,7 +49,8 @@ public class ReviewUnmarshaller extends AbstractUnmarshaller<Review> {
     if (comments != null) {
       for (int i = 0; i < utils.getArraySize(comments); i++) {
         Object comment = utils.getArrayElement(comments, i);
-        review.addComments(utils.getDateTime(comment, "updatedAt"), utils.getString(comment, "author"), utils.getString(comment, "text"));
+        review.addComments(utils.getLong(comment, "id"), utils.getDateTime(comment, "updatedAt"), utils.getString(comment, "author"),
+            utils.getString(comment, "text"));
       }
     }
 
