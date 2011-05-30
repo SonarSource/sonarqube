@@ -55,6 +55,7 @@ public class ReviewUnmarshallerTest extends UnmarshallerTestCase {
     assertThat(review.getSeverity(), is("MINOR"));
     assertThat(review.getResourceKee(), is("org.codehaus.sonar:sonar-channel:org.sonar.channel.CodeReaderConfiguration"));
     assertThat(review.getLine(), is(33));
+    assertThat(review.getViolationId(), is(1L));
     List<Comment> comments = review.getComments();
     assertThat(comments.size(), is(4));
     Comment comment = comments.get(0);

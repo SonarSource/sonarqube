@@ -257,6 +257,7 @@ class Review < ActiveRecord::Base
       xml.severity(severity)
       xml.resource(resource.kee)  if resource
       xml.line(resource_line) if resource_line && resource_line>0
+      xml.violationId(rule_failure_permanent_id) if rule_failure_permanent_id
       xml.comments do
         review_comments.each do |comment|
           xml.comment do
@@ -291,6 +292,7 @@ class Review < ActiveRecord::Base
     json['severity'] = severity
     json['resource'] = resource.kee if resource
     json['line'] = resource_line if resource_line && resource_line>0
+    json['violationId'] = rule_failure_permanent_id if rule_failure_permanent_id
     comments = []
     review_comments.each do |comment|
       comments << {

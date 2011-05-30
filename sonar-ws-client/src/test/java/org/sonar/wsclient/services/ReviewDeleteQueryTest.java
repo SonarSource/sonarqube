@@ -30,7 +30,6 @@ public class ReviewDeleteQueryTest extends QueryTestCase {
   public void testAddComment() {
     ReviewDeleteQuery query = ReviewDeleteQuery.deleteCommentQuery(13L, 2L);
     assertThat(query.getUrl(), is("/api/reviews/?id=13&comment_id=2&"));
-    assertThat(query.getModelClass().getName(), is(Review.class.getName()));
   }
 
 }

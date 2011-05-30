@@ -264,6 +264,10 @@ public class ReviewQuery extends Query<Review> {
     return Review.class;
   }
 
+  public static ReviewQuery createForReview(Long id) {
+    return new ReviewQuery().setId(id);
+  }
+
   public static ReviewQuery createForResource(Resource resource) {
     return new ReviewQuery().setResourceKeysOrIds(resource.getId().toString());
   }

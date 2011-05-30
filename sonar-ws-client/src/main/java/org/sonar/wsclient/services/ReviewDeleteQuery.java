@@ -22,7 +22,7 @@ package org.sonar.wsclient.services;
 /**
  * @since 2.9
  */
-public class ReviewDeleteQuery extends CreateQuery<Review> {
+public class ReviewDeleteQuery extends DeleteQuery<Review> {
 
   private Long reviewId;
   private Long commentId;
@@ -73,10 +73,5 @@ public class ReviewDeleteQuery extends CreateQuery<Review> {
     appendUrlParameter(url, "id", getReviewId());
     appendUrlParameter(url, "comment_id", getCommentId());
     return url.toString();
-  }
-
-  @Override
-  public Class<Review> getModelClass() {
-    return Review.class;
   }
 }

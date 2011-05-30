@@ -43,6 +43,7 @@ public class ReviewUnmarshaller extends AbstractUnmarshaller<Review> {
     review.setResourceKee(utils.getString(json, "resource"));
     review.setLine(utils.getInteger(json, "line"));
     review.setFalsePositive(utils.getBoolean(json, "falsePositive"));
+    review.setViolationId(utils.getLong(json, "violationId"));
     review.setType(utils.getString(json, "type"));
 
     Object comments = utils.getField(json, "comments");

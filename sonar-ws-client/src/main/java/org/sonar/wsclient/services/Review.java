@@ -40,6 +40,7 @@ public class Review extends Model {
   private String resourceKee = null;
   private Integer line = null;
   private Boolean falsePositive = null;
+  private Long violationId;
   private List<Review.Comment> comments = new ArrayList<Review.Comment>();
 
   /**
@@ -241,6 +242,23 @@ public class Review extends Model {
    */
   public Review setFalsePositive(Boolean falsePositive) {
     this.falsePositive = falsePositive;
+    return this;
+  }
+  
+  /**
+   * @since 2.9
+   * @return the violation id
+   */
+  public Long getViolationId() {
+    return violationId;
+  }
+
+  /**
+   * @param id
+   *          the violation id to set
+   */
+  public Review setViolationId(Long violationId) {
+    this.violationId = violationId;
     return this;
   }
 
