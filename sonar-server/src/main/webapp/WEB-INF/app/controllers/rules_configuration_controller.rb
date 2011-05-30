@@ -333,8 +333,8 @@ class RulesConfigurationController < ApplicationController
     count=0
     profile.active_rules.each do |ar|
       if rule_ids.include?(ar.rule_id) && !ar.inheritance.present?
+        java_facade.ruleDeactivated(profile.id, ar.id, current_user.login)
         ar.destroy
-        java_facade.ruleDeactivated(profile.id, ar.rule_id, current_user.login)
         count+=1
       end
     end

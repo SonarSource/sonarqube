@@ -19,14 +19,11 @@
  */
 package org.sonar.server.configuration;
 
+import org.codehaus.plexus.util.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.ActiveRuleChange;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleParam;
-import org.sonar.api.rules.RulePriority;
+import org.sonar.api.rules.*;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.jpa.dao.BaseDao;
 import org.sonar.jpa.dao.RulesDao;
@@ -70,10 +67,10 @@ public class ProfilesManager extends BaseDao {
   public void deleteProfile(int profileId) {
     RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
     if (profile != null && !profile.getProvided() && getChildren(profile).isEmpty()) {
-      //Remove history of rule changes
+      // Remove history of rule changes
       String hqlDeleteRc = "DELETE " + ActiveRuleChange.class.getSimpleName() + " rc WHERE rc.rulesProfile=:rulesProfile";
       getSession().createQuery(hqlDeleteRc).setParameter("rulesProfile", profile).executeUpdate();
-      
+
       String hql = "UPDATE " + ResourceModel.class.getSimpleName() + " o SET o.rulesProfile=null WHERE o.rulesProfile=:rulesProfile";
       getSession().createQuery(hql).setParameter("rulesProfile", profile).executeUpdate();
       getSession().remove(profile);
@@ -82,7 +79,7 @@ public class ProfilesManager extends BaseDao {
   }
 
   public void deleteAllProfiles() {
-    //Remove history of rule changes
+    // Remove history of rule changes
     String hqlDeleteRc = "DELETE " + ActiveRuleChange.class.getSimpleName() + " rc";
     getSession().createQuery(hqlDeleteRc).executeUpdate();
 
@@ -133,7 +130,7 @@ public class ProfilesManager extends BaseDao {
     ActiveRule activeRule = getSession().getEntity(ActiveRule.class, activeRuleId);
     RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
     ruleEnabled(profile, activeRule, userLogin);
-    //Notify child profiles
+    // Notify child profiles
     activatedOrChanged(profileId, activeRuleId, userLogin);
   }
 
@@ -143,10 +140,10 @@ public class ProfilesManager extends BaseDao {
   public void ruleParamChanged(int profileId, int activeRuleId, String paramKey, String oldValue, String newValue, String userLogin) {
     ActiveRule activeRule = getSession().getEntity(ActiveRule.class, activeRuleId);
     RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
-    
+
     ruleParamChanged(profile, activeRule.getRule(), paramKey, oldValue, newValue, userLogin);
-    
-    //Notify child profiles
+
+    // Notify child profiles
     activatedOrChanged(profileId, activeRuleId, userLogin);
   }
 
@@ -156,10 +153,10 @@ public class ProfilesManager extends BaseDao {
   public void ruleSeverityChanged(int profileId, int activeRuleId, RulePriority oldSeverity, RulePriority newSeverity, String userLogin) {
     ActiveRule activeRule = getSession().getEntity(ActiveRule.class, activeRuleId);
     RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
-    
+
     ruleSeverityChanged(profile, activeRule.getRule(), oldSeverity, newSeverity, userLogin);
-    
-    //Notify child profiles
+
+    // Notify child profiles
     activatedOrChanged(profileId, activeRuleId, userLogin);
   }
 
@@ -215,8 +212,8 @@ public class ProfilesManager extends BaseDao {
       newActiveRule.setInheritance(ActiveRule.INHERITED);
       profile.addActiveRule(newActiveRule);
       getSession().saveWithoutFlush(newActiveRule);
-      
-      //Compute change
+
+      // Compute change
       ruleChanged(profile, oldActiveRule, newActiveRule, userLogin);
 
       for (RulesProfile child : getChildren(profile)) {
@@ -226,22 +223,22 @@ public class ProfilesManager extends BaseDao {
       getSession().commit();
     }
   }
-  
+
   private synchronized void incrementProfileVersionIfNeeded(RulesProfile profile) {
     if (profile.getUsed()) {
       profile.setVersion(profile.getVersion() + 1);
       profile.setUsed(false);
       getSession().saveWithoutFlush(profile);
-    }    
+    }
   }
-  
+
   /**
    * Deal with creation of ActiveRuleChange item when a rule param is changed on a profile
    */
   private void ruleParamChanged(RulesProfile profile, Rule rule, String paramKey, String oldValue, String newValue, String userLogin) {
     incrementProfileVersionIfNeeded(profile);
     ActiveRuleChange rc = new ActiveRuleChange(userLogin, profile, rule);
-    if (oldValue != newValue) {
+    if (!StringUtils.equals(oldValue, newValue)) {
       rc.setParameterChange(paramKey, oldValue, newValue);
       getSession().saveWithoutFlush(rc);
     }
@@ -266,7 +263,7 @@ public class ProfilesManager extends BaseDao {
   private void ruleChanged(RulesProfile profile, ActiveRule oldActiveRule, ActiveRule newActiveRule, String userLogin) {
     incrementProfileVersionIfNeeded(profile);
     ActiveRuleChange rc = new ActiveRuleChange(userLogin, profile, newActiveRule.getRule());
-    
+
     if (oldActiveRule.getSeverity() != newActiveRule.getSeverity()) {
       rc.setOldSeverity(oldActiveRule.getSeverity());
       rc.setNewSeverity(newActiveRule.getSeverity());
@@ -275,12 +272,12 @@ public class ProfilesManager extends BaseDao {
       for (RuleParam p : oldActiveRule.getRule().getParams()) {
         String oldParam = oldActiveRule.getParameter(p.getKey());
         String newParam = newActiveRule.getParameter(p.getKey());
-        if (oldParam != newParam) {
+        if (!StringUtils.equals(oldParam, newParam)) {
           rc.setParameterChange(p.getKey(), oldParam, newParam);
         }
       }
     }
-    
+
     getSession().saveWithoutFlush(rc);
   }
 
@@ -302,7 +299,7 @@ public class ProfilesManager extends BaseDao {
     }
     getSession().saveWithoutFlush(rc);
   }
-  
+
   /**
    * Deal with creation of ActiveRuleChange item when a rule is disabled on a profile
    */
@@ -338,11 +335,10 @@ public class ProfilesManager extends BaseDao {
     newActiveRule.setInheritance(ActiveRule.INHERITED);
     profile.addActiveRule(newActiveRule);
     getSession().saveWithoutFlush(newActiveRule);
-    
+
     if (oldActiveRule != null) {
       ruleChanged(profile, oldActiveRule, newActiveRule, userLogin);
-    }
-    else {
+    } else {
       ruleEnabled(profile, newActiveRule, userLogin);
     }
 
