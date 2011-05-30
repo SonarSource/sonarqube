@@ -42,7 +42,7 @@ public final class PurgeOrphanResources extends Purge {
     Query query = getSession().createQuery("SELECT r1.id FROM " + ResourceModel.class.getSimpleName() +
         " r1 WHERE r1.rootId IS NOT NULL AND NOT EXISTS(FROM " + ResourceModel.class.getSimpleName() + " r2 WHERE r1.rootId=r2.id)");
     List<Integer> idsToDelete = query.getResultList();
-    if (idsToDelete.size() > 0) {
+    if (!idsToDelete.isEmpty()) {
       PurgeUtils.executeQuery(getSession(), "", idsToDelete, "DELETE FROM " + ResourceModel.class.getSimpleName() + " WHERE id in (:ids)");
     }
   }

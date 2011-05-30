@@ -70,7 +70,7 @@ public class UnitTestDecorator implements Decorator {
 
   private Double sumChildren(DecoratorContext jobContext, Metric metric) {
     Collection<Measure> childrenMeasures = jobContext.getChildrenMeasures(metric);
-    if (childrenMeasures != null && childrenMeasures.size() > 0) {
+    if (childrenMeasures != null && !childrenMeasures.isEmpty()) {
       Double sum = 0.0;
       boolean hasChildrenMeasures = false;
       for (Measure measure : childrenMeasures) {

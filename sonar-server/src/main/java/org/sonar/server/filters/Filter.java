@@ -121,7 +121,7 @@ public class Filter {
   }
 
   public boolean hasQualifiers() {
-    return qualifiers != null && qualifiers.size() > 0;
+    return qualifiers != null && !qualifiers.isEmpty();
   }
 
   public Filter setQualifiers(Set<String> qualifiers) {

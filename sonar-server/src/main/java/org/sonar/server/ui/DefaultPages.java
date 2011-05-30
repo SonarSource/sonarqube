@@ -31,7 +31,7 @@ public final class DefaultPages {
   private static final View[] PAGES = {new SourceTab(), new CoverageTab(), new ViolationsTab()};
 
   public static View[] getPages() {
-    return PAGES;
+    return PAGES.clone();
   }
 
   // should be qualifier FILE only but waiting for java refactoring

@@ -49,7 +49,7 @@ public final class PurgePropertyOrphans extends Purge {
     Query query = getSession().createQuery("SELECT p.id FROM " + Property.class.getSimpleName() +
         " p WHERE p.resourceId IS NOT NULL AND NOT EXISTS(FROM " + ResourceModel.class.getSimpleName() + " r WHERE r.id=p.resourceId)");
     List<Integer> idsToDelete = query.getResultList();
-    if (idsToDelete.size() > 0) {
+    if (!idsToDelete.isEmpty()) {
       PurgeUtils.executeQuery(getSession(), "", idsToDelete, "DELETE FROM " + Property.class.getSimpleName() + " WHERE id in (:ids)");
     }
   }
@@ -58,7 +58,7 @@ public final class PurgePropertyOrphans extends Purge {
     Query query = getSession().createQuery("SELECT p.id FROM " + Property.class.getSimpleName() +
         " p WHERE p.userId IS NOT NULL AND NOT EXISTS(FROM " + User.class.getSimpleName() + " u WHERE u.id=p.userId)");
     List<Integer> idsToDelete = query.getResultList();
-    if (idsToDelete.size() > 0) {
+    if (!idsToDelete.isEmpty()) {
       PurgeUtils.executeQuery(getSession(), "", idsToDelete, "DELETE FROM " + Property.class.getSimpleName() + " WHERE id in (:ids)");
     }
   }
