@@ -25,6 +25,7 @@ class Api::ReviewsController < Api::ApiController
   # GETs should be safe (see http://www.w3.org/2001/tag/doc/whenToUseGet.html)
   verify :method => :put, :only => [ :update ]
   verify :method => :post, :only => [ :create ]
+  verify :method => :delete, :only => [ :delete ]
   
   def index
     convert_markdown=(params[:output]=='HTML')
@@ -38,8 +39,8 @@ class Api::ReviewsController < Api::ApiController
   #
   # POST /api/reviews
   # Required parameters:
-  # - 'text' : the text of the comment
   # - 'violation_id' : the violation on which the review shoul be created
+  # - 'text' : the text of the comment
   #
   # Optional parameters :
   # - 'assignee' : login used to create a review directly assigned 
@@ -133,6 +134,7 @@ class Api::ReviewsController < Api::ApiController
       # 3- Modify the review
       if !false_positive.blank?
         raise "'false_positive' parameter must be either 'true' or 'false'." unless false_positive=='true' || false_positive=='false'
+        raise "Review 'false_positive' status is already " + false_positive if review.false_positive == false_positive
         raise "'new_text' parameter is mandatory with 'false_positive'." if new_text.blank?
         review.set_false_positive(false_positive=='true', :user => current_user, :text => new_text)
       elsif !assignee.blank?
@@ -159,6 +161,51 @@ class Api::ReviewsController < Api::ApiController
     rescue ApiException => e
       render_error(e.msg, e.code)
 
+    rescue Exception => e
+      render_error(e.message, 400)
+    end
+  end
+  
+  
+  #
+  # --- Delete the last comment of a review --- 
+  #
+  # DELETE /api/reviews
+  # Required parameters:
+  # - 'id' : the review id
+  # - 'comment_id' : for the moment, only 'last_comment' value is accepted
+  #
+  # Example :
+  # - DELETE "/api/reviews/update?id=1&comment=last_comment
+  #
+  def delete
+    begin
+      # 1- Get some parameters
+      convert_markdown=(params[:output]=='HTML')
+      comment_id = params[:comment_id]
+      raise "'comment' parameter is missing." unless comment_id
+      raise "Currently, only 'last_comment' is accepted for the 'comment' parameter." unless comment_id == 'last_comment'
+        
+      # 2- Get the review or create one
+      raise "No 'id' parameter has been provided." unless params[:id]
+      review = Review.find(params[:id], :include => ['project', 'review_comments'])
+      unless has_rights_to_modify?(review.project)
+        access_denied
+        return
+      end
+      
+      # 3- Delete the last comment if possible
+      raise "Cannot delete the only existing comment of this review." if review.comments.size == 1
+      last_comment = review.comments.last
+      raise "You do not have the rights to edit this comment as it is not yours." unless last_comment.user == current_user
+      review.delete_comment(last_comment.id)
+      
+      # 4- And finally send back the review
+      render_reviews([review], convert_markdown)
+    
+    rescue ApiException => e
+      render_error(e.msg, e.code)
+  
     rescue Exception => e
       render_error(e.message, 400)
     end

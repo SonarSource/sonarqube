@@ -79,6 +79,7 @@ class Review < ActiveRecord::Base
   
   def delete_comment(comment_id)
     comment=comments.find(comment_id)
+    comments.pop
     if comment
       comment.delete
       touch
