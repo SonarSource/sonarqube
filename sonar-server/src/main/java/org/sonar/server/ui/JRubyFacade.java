@@ -229,29 +229,29 @@ public final class JRubyFacade {
     getProfilesManager().deleteProfile((int) profileId);
   }
 
-  public ValidationMessages changeParentProfile(int profileId, String parentName, String userLogin) {
-    return getProfilesManager().changeParentProfile(profileId, parentName, userLogin);
+  public ValidationMessages changeParentProfile(int profileId, String parentName, String userName) {
+    return getProfilesManager().changeParentProfile(profileId, parentName, userName);
   }
 
-  public void ruleActivated(int parentProfileId, int activeRuleId, String userLogin) {
-    getProfilesManager().activated(parentProfileId, activeRuleId, userLogin);
+  public void ruleActivated(int parentProfileId, int activeRuleId, String userName) {
+    getProfilesManager().activated(parentProfileId, activeRuleId, userName);
   }
 
-  public void ruleParamChanged(int parentProfileId, int activeRuleId, String paramKey, String oldValue, String newValue, String userLogin) {
-    getProfilesManager().ruleParamChanged(parentProfileId, activeRuleId, paramKey, oldValue, newValue, userLogin);
+  public void ruleParamChanged(int parentProfileId, int activeRuleId, String paramKey, String oldValue, String newValue, String userName) {
+    getProfilesManager().ruleParamChanged(parentProfileId, activeRuleId, paramKey, oldValue, newValue, userName);
   }
 
-  public void ruleSeverityChanged(int parentProfileId, int activeRuleId, int oldSeverityId, int newSeverityId, String userLogin) {
+  public void ruleSeverityChanged(int parentProfileId, int activeRuleId, int oldSeverityId, int newSeverityId, String userName) {
     getProfilesManager().ruleSeverityChanged(parentProfileId, activeRuleId, RulePriority.values()[oldSeverityId], 
-        RulePriority.values()[newSeverityId], userLogin);
+        RulePriority.values()[newSeverityId], userName);
   }
 
-  public void ruleDeactivated(int parentProfileId, int deactivatedRuleId, String userLogin) {
-    getProfilesManager().deactivated(parentProfileId, deactivatedRuleId, userLogin);
+  public void ruleDeactivated(int parentProfileId, int deactivatedRuleId, String userName) {
+    getProfilesManager().deactivated(parentProfileId, deactivatedRuleId, userName);
   }
 
-  public void revertRule(int profileId, int activeRuleId, String userLogin) {
-    getProfilesManager().revert(profileId, activeRuleId, userLogin);
+  public void revertRule(int profileId, int activeRuleId, String userName) {
+    getProfilesManager().revert(profileId, activeRuleId, userName);
   }
 
   public List<Footer> getWebFooters() {

@@ -25,7 +25,7 @@ class CreateRuleChanges < ActiveRecord::Migration
 
   def self.up
     create_table :active_rule_changes do |t|
-      t.column :user_login,              :string,    :limit => 40,  :null => false
+      t.column :user_name,               :string,    :limit => 200,  :null => false
       t.column :profile_id,              :integer,   :null => false
       t.column :profile_version,         :integer,   :null => false
       t.column :rule_id,                 :integer,   :null => false

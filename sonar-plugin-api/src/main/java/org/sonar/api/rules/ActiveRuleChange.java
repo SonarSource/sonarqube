@@ -19,37 +19,30 @@
  */
 package org.sonar.api.rules;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.database.BaseIdentifiable;
 import org.sonar.api.profiles.RulesProfile;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.*;
+
 /**
  * A class to map a RuleChange to the hibernate model
- *
+ * 
  * @since 2.9
  */
 @Entity
 @Table(name = "active_rule_changes")
 public class ActiveRuleChange extends BaseIdentifiable {
 
-  @Column(name = "user_login", updatable = false, nullable = false)
-  private String modifierLogin;
+  @Column(name = "user_name", updatable = false, nullable = false)
+  private String userName;
 
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "profile_id", updatable = false, nullable = false)
@@ -80,12 +73,12 @@ public class ActiveRuleChange extends BaseIdentifiable {
   @Column(name = "new_severity", updatable = false, nullable = true)
   @Enumerated(EnumType.ORDINAL)
   private RulePriority newSeverity;
-  
+
   @OneToMany(mappedBy = "activeRuleChange", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
   private List<ActiveRuleParamChange> activeRuleParamChanges = new ArrayList<ActiveRuleParamChange>();
 
-  public ActiveRuleChange(String modifierLogin, RulesProfile profile, Rule rule) {
-    this.modifierLogin = modifierLogin;
+  public ActiveRuleChange(String userName, RulesProfile profile, Rule rule) {
+    this.userName = userName;
     this.rulesProfile = profile;
     this.profileVersion = profile.getVersion();
     this.rule = rule;
@@ -150,8 +143,8 @@ public class ActiveRuleChange extends BaseIdentifiable {
     return activeRuleParamChanges;
   }
 
-  public String getModifierLogin() {
-    return modifierLogin;
+  public String getUserName() {
+    return userName;
   }
 
   public ActiveRuleChange setParameterChange(String key, String oldValue, String newValue) {
@@ -176,7 +169,7 @@ public class ActiveRuleChange extends BaseIdentifiable {
     ActiveRuleChange rhs = (ActiveRuleChange) obj;
     return new EqualsBuilder()
         .appendSuper(super.equals(obj))
-        .append(modifierLogin, rhs.modifierLogin)
+        .append(userName, rhs.userName)
         .append(rulesProfile, rhs.rulesProfile)
         .append(rule, rhs.rule)
         .append(date, rhs.date)
@@ -188,7 +181,7 @@ public class ActiveRuleChange extends BaseIdentifiable {
   @Override
   public int hashCode() {
     return new HashCodeBuilder(41, 33)
-        .append(modifierLogin)
+        .append(userName)
         .append(rulesProfile)
         .append(rule)
         .append(date)
@@ -203,7 +196,7 @@ public class ActiveRuleChange extends BaseIdentifiable {
         .append("id", getId())
         .append("profile", rulesProfile)
         .append("rule", rule)
-        .append("modifier", modifierLogin)
+        .append("modifier", userName)
         .append("changed at", date)
         .append("enabled", enabled)
         .append("new severity", newSeverity)

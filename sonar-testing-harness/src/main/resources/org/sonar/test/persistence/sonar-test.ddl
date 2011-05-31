@@ -27,7 +27,7 @@ create table ACTIVE_RULES (
 
 create table ACTIVE_RULE_CHANGES (
   ID INTEGER not null,
-  USER_LOGIN VARCHAR(40) not null,
+  USER_NAME VARCHAR(200) not null,
   PROFILE_ID INTEGER not null,
   PROFILE_VERSION INTEGER not null,
   RULE_ID INTEGER not null,

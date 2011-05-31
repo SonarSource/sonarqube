@@ -19,8 +19,6 @@
  */
 package org.sonar.api.batch;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.measures.Metric;
@@ -233,10 +231,4 @@ public class TimeMachineQuery {
         .append("to", to)
         .toString();
   }
-  
-  @Override
-  public boolean equals(Object obj) {
-    return EqualsBuilder.reflectionEquals(this, obj);
-  }
-  
 }

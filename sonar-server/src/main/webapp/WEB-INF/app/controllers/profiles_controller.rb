@@ -205,20 +205,27 @@ class ProfilesController < ApplicationController
   def changelog
     @profile = Profile.find(params[:id])
 
-    @versions = ActiveRuleChange.find(:all, :select => 'profile_version, MAX(change_date) AS change_date', :conditions => ['profile_id=?', @profile.id], :group => 'profile_version')
-    @versions.sort! { |a,b| b.profile_version <=> a.profile_version }
+    versions = ActiveRuleChange.find(:all, :select => 'profile_version, MAX(change_date) AS change_date', :conditions => ['profile_id=?', @profile.id], :group => 'profile_version')
+    versions.sort! { |a,b| b.profile_version <=> a.profile_version }
 
-    if @versions.empty?
-      @last_version = 1
-    else
-      @last_version = @versions[0].profile_version
-      @past_versions = @versions[1, @versions.length]
+    if !versions.empty?
+      last_version = versions[0].profile_version
       if params[:since].blank?
-        @since_version = @last_version - 1
+        @since_version = last_version - 1
       else
         @since_version = params[:since].to_i
       end
-      @changes = ActiveRuleChange.find(:all, :conditions => ['profile_id=? and profile_version>?', @profile.id, @since_version], :order => 'id desc')
+      if params[:to].blank?
+        @to_version = last_version
+      else
+        @to_version = params[:to].to_i
+      end
+      if @since_version > @to_version
+        @since_version, @to_version = @to_version, @since_version
+      end
+      @changes = ActiveRuleChange.find(:all, :conditions => ['profile_id=? and ?<profile_version and profile_version<=?', @profile.id, @since_version, @to_version], :order => 'id desc')
+
+      @select_versions = versions.map {|u| ["version " + u.profile_version.to_s + " (" + u.change_date.strftime("%Y/%m/%d %H:%M:%S") + ")", u.profile_version]} | [["no version", 0]];
     end
   end
 
@@ -232,9 +239,9 @@ class ProfilesController < ApplicationController
     id = params[:id].to_i
     parent_name = params[:parent_name]
     if parent_name.blank?
-      messages = java_facade.changeParentProfile(id, nil, current_user.login)
+      messages = java_facade.changeParentProfile(id, nil, current_user.name)
     else
-      messages = java_facade.changeParentProfile(id, parent_name, current_user.login)
+      messages = java_facade.changeParentProfile(id, parent_name, current_user.name)
     end
     flash_validation_messages(messages)
     redirect_to :action => 'inheritance', :id => id

@@ -2,22 +2,23 @@
 <%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'changelog'} %>
 
 <div class="tabs-panel marginbottom10">
-  <% if @versions.empty? %>
+  <% if @select_versions.nil? %>
     No changes has been done on this quality profile.
   <% else %>
 
-  <% if !@past_versions.empty? %>
-    <% form_tag({:action => 'changelog'}, {:method => 'post'}) do %>
-      <%= hidden_field_tag "id", @profile.id %>
-      Changelog between last version (<%= @versions[0].change_date.strftime("%Y/%m/%d %H:%M:%S") %>) and
-      <%= select_tag "since", options_for_select(@past_versions.map {|u| ["version " + u.profile_version.to_s + " (" + u.change_date.strftime("%Y/%m/%d %H:%M:%S") + ")", u.profile_version]}, @since_version) %>
-      <%= submit_tag "Load", :id => 'submit_since'%>
-    <% end %>
+  <% form_tag({:action => 'changelog'}, {:method => 'post'}) do %>
+    <%= hidden_field_tag "id", @profile.id %>
+    Cahngelog between
+    <%= select_tag "since", options_for_select(@select_versions, @since_version) %>
+    and
+    <%= select_tag "to", options_for_select(@select_versions, @to_version) %>
+    <%= submit_tag "Load", :id => 'submit'%>
   <% end %>
 
-  <table  class="data width100">
+  <table  class="data width100" style="word-wrap:break-word; table-layout: fixed;">
     <thead>
       <tr>
+        <th>Profile version</th>
         <th>Date</th>
         <th>User</th>
         <th>Action</th>
@@ -25,23 +26,13 @@
         <th>Parameters</th>
       </tr>
     </thead>
-    <% current_version = -1
+    <%
       @changes.each do |change|
     %>
-        <% if current_version != change.profile_version %>
-    <tr>
-      <td align="left" colspan="5">
-        <div class="line-block">
-          <h2>Version <%=change.profile_version%></h2>
-        </div>
-      </td>
-    </tr>
-        <%   current_version = change.profile_version
-           end
-        %>
-    <tr class="<%= cycle 'even', 'odd', :name => change.profile_version -%>">
+    <tr class="<%= cycle('even', 'odd') -%>">
+      <td valign="top"><%= change.profile_version - 1 %> -> <%= change.profile_version %></td>
       <td valign="top"><%=change.change_date.strftime("%Y-%m-%d %H:%M:%S")%></td>
-      <td valign="top"><%=change.user_login%></td>
+      <td valign="top"><%=change.user_name%></td>
       <td valign="top"><%=change.action_text%></td>
       <td valign="top"><%=change.rule.name%></td>
       <td valign="top">
