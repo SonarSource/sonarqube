@@ -53,6 +53,7 @@ class RuleFailure < ActiveRecord::Base
 
   def to_json(include_review=false, convert_markdown=false)
     json = {}
+    json['id'] = id
     json['message'] = plain_message if plain_message
     json['line'] = line if line && line>=1
     json['priority'] = Sonar::RulePriority.to_s(failure_level).upcase
@@ -77,6 +78,7 @@ class RuleFailure < ActiveRecord::Base
 
   def to_xml(xml=Builder::XmlMarkup.new(:indent => 0), include_review=false, convert_markdown=false)
     xml.violation do
+      xml.id(id)
       xml.message(plain_message) if plain_message
       xml.line(line) if line && line>=1
       xml.priority(Sonar::RulePriority.to_s(failure_level))

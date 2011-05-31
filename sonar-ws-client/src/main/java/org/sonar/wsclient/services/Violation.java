@@ -23,6 +23,7 @@ import java.util.Date;
 
 public class Violation extends Model {
 
+  private Long id = null;
   private String message = null;
   private String severity = null;
   private Integer line = null;
@@ -85,8 +86,8 @@ public class Violation extends Model {
   public void setLine(Integer line) {
     if (line != null && line < 1) {
       /*
-       * This shouldn't happen, however line would be normalized to null if web service returns incorrect value (less than 1)
-       * in compliance with a contract for getLine method. Normalization added in 2.8 - see http://jira.codehaus.org/browse/SONAR-2386
+       * This shouldn't happen, however line would be normalized to null if web service returns incorrect value (less than 1) in compliance
+       * with a contract for getLine method. Normalization added in 2.8 - see http://jira.codehaus.org/browse/SONAR-2386
        */
       this.line = null;
     } else {
@@ -205,5 +206,19 @@ public class Violation extends Model {
   public Violation setReview(Review review) {
     this.review = review;
     return this;
+  }
+
+  /**
+   * @since 2.9
+   */
+  public Long getId() {
+    return id;
+  }
+
+  /**
+   * @since 2.9
+   */
+  public void setId(Long id) {
+    this.id = id;
   }
 }

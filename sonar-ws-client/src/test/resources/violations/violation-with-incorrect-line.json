@@ -1,5 +1,6 @@
 [
 	{
+		"id":1,
 		"message":"1 branches need to be covered by unit tests to reach the minimum threshold of 65.0% branch coverage.",
 		"line":0,
 		"priority":"MAJOR",
