@@ -11,7 +11,7 @@
   <description>Checkstyle extensions for Sonar</description>
 
   <properties>
-    <sonar.buildVersion>2.8-RC2</sonar.buildVersion>
+    <sonar.buildVersion>2.8</sonar.buildVersion>
   </properties>
 
   <dependencies>
@@ -52,4 +52,19 @@
       </plugin>
     </plugins>
   </build>
+
+  <repositories>
+    <repository>
+      <!-- for checkstyle 5.1-->
+      <id>sonarsource</id>
+      <name>SonarSource</name>
+      <url>http://repository.sonarsource.org/content/repositories/sonar</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 </project>

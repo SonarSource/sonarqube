@@ -75,7 +75,7 @@
 
   <repositories>
     <repository>
-      <!-- for gwt-incubator july-14-2009 -->
+      <!-- for gwt-incubator july-14-2009 and checkstyle 5.1-->
       <id>sonar</id>
       <name>Sonar</name>
       <url>http://repository.sonarsource.org/content/repositories/sonar</url>
