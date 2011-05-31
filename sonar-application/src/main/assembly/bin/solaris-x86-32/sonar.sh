@@ -367,7 +367,7 @@ getpid() {
                 # The ps statement below looks for the specific wrapper command running as
                 #  the pid.  If it is not found then the pid file is considered to be stale.
 
-                dir=`echo ${WRAPPER_CMD:0:60}`
+                dir=`echo ${WRAPPER_CMD}`
                 #echo "searching for $dir in command args for PID verification..."
 
                 #echo "args for PID: ${pid}:"
