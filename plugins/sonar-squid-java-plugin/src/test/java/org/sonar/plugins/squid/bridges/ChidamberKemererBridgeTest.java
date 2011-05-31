@@ -19,18 +19,24 @@
  */
 package org.sonar.plugins.squid.bridges;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.JavaPackage;
-
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import org.junit.Test;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.JavaPackage;
+
 public class ChidamberKemererBridgeTest extends BridgeTestCase {
+
+  @Test
+  public void requiresBytecode() {
+    assertThat(new ChidamberKemererBridge().needsBytecode(), is(true));
+  }
 
   @Test
   public void depthInTree() {

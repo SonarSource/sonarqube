@@ -19,22 +19,16 @@
  */
 package org.sonar.plugins.squid.bridges;
 
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.Resource;
-import org.sonar.squid.api.SourceFile;
-import org.sonar.squid.measures.Metric;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
-public class ChidamberKemererBridge extends Bridge {
+import org.junit.Test;
 
-  protected ChidamberKemererBridge() {
-    super(true);
+public class ChecksBridgeTest {
+
+  @Test
+  public void notRequiresBytecode() {
+    assertThat(new ChecksBridge().needsBytecode(), is(false));
   }
 
-  @Override
-  public final void onFile(SourceFile squidFile, Resource sonarFile) {
-    context.saveMeasure(sonarFile, CoreMetrics.DEPTH_IN_TREE, squidFile.getDouble(Metric.DIT));
-    context.saveMeasure(sonarFile, CoreMetrics.NUMBER_OF_CHILDREN, squidFile.getDouble(Metric.NOC));
-    context.saveMeasure(sonarFile, CoreMetrics.RFC, squidFile.getDouble(Metric.RFC));
-    context.saveMeasure(sonarFile, CoreMetrics.LCOM4, squidFile.getDouble(Metric.LCOM4));
-  }
 }

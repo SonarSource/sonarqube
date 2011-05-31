@@ -115,6 +115,12 @@ public interface CoreProperties {
   String CPD_SKIP_PROPERTY = "sonar.cpd.skip";
 
   /* Design */
+
+  /**
+   * Indicates whether Java bytecode analysis should be skipped.
+   * 
+   * @since 2.0
+   */
   String DESIGN_SKIP_DESIGN_PROPERTY = "sonar.skipDesign";
   boolean DESIGN_SKIP_DESIGN_DEFAULT_VALUE = false;
 

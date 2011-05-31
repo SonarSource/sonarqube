@@ -34,7 +34,7 @@ import org.sonar.api.resources.Scopes;
  */
 public final class ClassComplexityDistributionBuilder implements Decorator {
 
-  public static final Number[] LIMITS = {0, 5, 10, 20, 30, 60, 90};
+  private static final Number[] LIMITS = { 0, 5, 10, 20, 30, 60, 90 };
 
   @DependsUpon
   public Metric dependOnComplexity() {

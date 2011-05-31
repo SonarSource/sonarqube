@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.squid;
 
-import org.apache.commons.io.FileUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.*;
 import org.sonar.api.checks.AnnotationCheckFactory;
@@ -34,6 +33,7 @@ import org.sonar.java.api.JavaUtils;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Phase(name = Phase.Name.PRE)
@@ -57,7 +57,6 @@ public class SquidSensor implements Sensor {
     return Java.KEY.equals(project.getLanguageKey());
   }
 
-  @SuppressWarnings("unchecked")
   public void analyse(Project project, SensorContext context) {
     analyzeMainSources(project, context);
     browseTestSources(project, context);
@@ -75,7 +74,7 @@ public class SquidSensor implements Sensor {
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, SquidConstants.REPOSITORY_KEY, SquidRuleRepository.getCheckClasses());
 
     SquidExecutor squidExecutor = new SquidExecutor(analyzePropertyAccessors, fieldNamesToExcludeFromLcom4Computation, factory, charset);
-    squidExecutor.scan(getMainSourceFiles(project), getMainBytecodeFiles(project));
+    squidExecutor.scan(getMainSourceFiles(project), getBytecodeFiles(project));
     squidExecutor.save(project, context, noSonarFilter);
     squidExecutor.flush();
   }
@@ -90,26 +89,16 @@ public class SquidSensor implements Sensor {
     return project.getFileSystem().mainFiles(Java.KEY);
   }
 
-  private Collection<File> getMainBytecodeFiles(Project project) {
-    Collection<File> bytecodeFiles = projectClasspath.getElements();
-    if (!hasProjectBytecodeFiles(project)) {
-      File classesDir = project.getFileSystem().getBuildOutputDir();
-      if (classesDir != null && classesDir.exists()) {
-        bytecodeFiles.remove(classesDir);
-      }
+  /**
+   * Visibility has been relaxed to make the code testable.
+   * 
+   * @return collection of jar-files and directories with classes for analysis
+   */
+  protected Collection<File> getBytecodeFiles(Project project) {
+    if (project.getConfiguration().getBoolean(CoreProperties.DESIGN_SKIP_DESIGN_PROPERTY, CoreProperties.DESIGN_SKIP_DESIGN_DEFAULT_VALUE)) {
+      return Collections.emptyList();
     }
-    return bytecodeFiles;
-  }
-
-  private boolean hasProjectBytecodeFiles(Project project) {
-    if (!project.getConfiguration()
-        .getBoolean(CoreProperties.DESIGN_SKIP_DESIGN_PROPERTY, CoreProperties.DESIGN_SKIP_DESIGN_DEFAULT_VALUE)) {
-      File classesDir = project.getFileSystem().getBuildOutputDir();
-      if (classesDir != null && classesDir.exists()) {
-        return !FileUtils.listFiles(classesDir, new String[]{"class"}, true).isEmpty();
-      }
-    }
-    return false;
+    return projectClasspath.getElements();
   }
 
   @Override
