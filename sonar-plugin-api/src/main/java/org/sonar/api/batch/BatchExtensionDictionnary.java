@@ -24,6 +24,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ClassUtils;
 import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.PicoContainer;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
@@ -86,7 +87,16 @@ public class BatchExtensionDictionnary {
   }
 
   private List<BatchExtension> getExtensions() {
-    return picoContainer.getComponents(BatchExtension.class);
+    List<BatchExtension> extensions = Lists.newArrayList();
+    completeBatchExtensions(picoContainer, extensions);
+    return extensions;
+  }
+
+  private void completeBatchExtensions(PicoContainer picoContainer, List<BatchExtension> extensions) {
+    if (picoContainer!=null) {
+      extensions.addAll(picoContainer.getComponents(BatchExtension.class));
+      completeBatchExtensions(picoContainer.getParent(), extensions);
+    }
   }
 
   private <T> List<T> getFilteredExtensions(Class<T> type, Project project) {

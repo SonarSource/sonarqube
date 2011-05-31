@@ -24,6 +24,8 @@ import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.api.batch.CoverageExtension;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.Metrics;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
 import java.util.List;
@@ -45,6 +47,15 @@ public final class BatchExtensionInstaller implements BatchComponent {
       }
     }
     installExtensionProviders(module);
+    installMetrics(module);
+  }
+
+  private void installMetrics(Module module) {
+    for (Metrics metrics : module.getComponents(Metrics.class)) {
+      for (Metric metric : metrics.getMetrics()) {
+        module.addComponent(metric.getKey(), metric);
+      }
+    }
   }
 
   void installExtensionProviders(Module module) {

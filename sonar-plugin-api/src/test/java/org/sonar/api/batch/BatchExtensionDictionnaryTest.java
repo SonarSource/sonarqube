@@ -21,8 +21,13 @@ package org.sonar.api.batch;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
+import org.picocontainer.Characteristics;
+import org.picocontainer.DefaultPicoContainer;
+import org.picocontainer.PicoContainer;
 import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 
 import java.util.ArrayList;
@@ -33,6 +38,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
+import static org.junit.internal.matchers.IsCollectionContaining.hasItems;
 import static org.mockito.Mockito.mock;
 
 public class BatchExtensionDictionnaryTest {
@@ -47,7 +53,7 @@ public class BatchExtensionDictionnaryTest {
   }
 
   @Test
-  public void getFilteredExtensions() {
+  public void testGetFilteredExtensions() {
     Sensor sensor1 = new FakeSensor(), sensor2 = new FakeSensor();
     Decorator decorator = mock(Decorator.class);
 
@@ -57,6 +63,22 @@ public class BatchExtensionDictionnaryTest {
     assertThat(sensors, hasItem(sensor1));
     assertThat(sensors, hasItem(sensor2));
     assertEquals(2, sensors.size());
+  }
+
+  @Test
+  public void shouldSearchInParentContainers() {
+    TransientPicoContainer grandParent = new TransientPicoContainer();
+    grandParent.as(Characteristics.CACHE).addComponent("ncloc", CoreMetrics.NCLOC);
+
+    DefaultPicoContainer parent = (DefaultPicoContainer)grandParent.makeChildContainer();
+    parent.as(Characteristics.CACHE).addComponent("coverage", CoreMetrics.COVERAGE);
+
+    DefaultPicoContainer child = (DefaultPicoContainer)parent.makeChildContainer();
+    child.as(Characteristics.CACHE).addComponent("complexity", CoreMetrics.COMPLEXITY);
+
+    BatchExtensionDictionnary dictionnary = new BatchExtensionDictionnary(child);
+    assertThat(dictionnary.select(Metric.class).size(), is(3));
+    assertThat(dictionnary.select(Metric.class), hasItems(CoreMetrics.NCLOC, CoreMetrics.COVERAGE, CoreMetrics.COMPLEXITY));
   }
 
   @Test

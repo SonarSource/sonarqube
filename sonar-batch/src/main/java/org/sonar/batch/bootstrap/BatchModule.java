@@ -20,6 +20,9 @@
 package org.sonar.batch.bootstrap;
 
 import org.sonar.api.Plugins;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.Metrics;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.ServerHttpClient;
 import org.sonar.batch.DefaultResourceCreationLock;
@@ -59,12 +62,19 @@ public class BatchModule extends Module {
     addComponent(PastSnapshotFinderByVersion.class);
     addComponent(PastMeasuresLoader.class);
     addComponent(PastSnapshotFinder.class);
+    addCoreMetrics();
     addBatchExtensions();
   }
 
   private void addBatchExtensions() {
     BatchExtensionInstaller installer = getComponent(BatchExtensionInstaller.class);
     installer.install(this);
+  }
+
+  void addCoreMetrics() {
+    for (Metric metric : CoreMetrics.getMetrics()) {
+      addComponent(metric.getKey(), metric);
+    }
   }
 
   @Override

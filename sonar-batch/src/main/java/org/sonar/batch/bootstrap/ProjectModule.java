@@ -104,16 +104,6 @@ public class ProjectModule extends Module {
     for (Class clazz : Phases.getPhaseClasses()) {
       addComponent(clazz);
     }
-
-    // TODO move metrics to BatchComponents
-    for (Metric metric : CoreMetrics.getMetrics()) {
-      addComponent(metric.getKey(), metric);
-    }
-    for (Metrics metricRepo : getComponents(Metrics.class)) {
-      for (Metric metric : metricRepo.getMetrics()) {
-        addComponent(metric.getKey(), metric);
-      }
-    }
   }
 
   private void addProjectPluginExtensions() {
