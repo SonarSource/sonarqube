@@ -25,7 +25,7 @@ class Api::ReviewsController < Api::ApiController
   # GETs should be safe (see http://www.w3.org/2001/tag/doc/whenToUseGet.html)
   verify :method => :put, :only => [ :update ]
   verify :method => :post, :only => [ :create ]
-  verify :method => :delete, :only => [ :delete ]
+  verify :method => :delete, :only => [ :destroy ]
   
   def index
     convert_markdown=(params[:output]=='HTML')
@@ -47,8 +47,8 @@ class Api::ReviewsController < Api::ApiController
   # - 'false_positive' : if "true", creates a false-positive review
   #
   # Example :
-  # - POST "/api/reviews/create?violation_id=1&assignee=fabrice&text=Hello%20World!
-  # - POST "/api/reviews/create?violation_id=2&false_positive=true&text=No%20violation%20here
+  # - POST "/api/reviews/?violation_id=1&assignee=fabrice&text=Hello%20World!
+  # - POST "/api/reviews/?violation_id=2&false_positive=true&text=No%20violation%20here
   #
   def create
     begin
@@ -108,11 +108,11 @@ class Api::ReviewsController < Api::ApiController
   #                                   state 'false_positive' of the review
   #
   # Example :
-  # - PUT "/api/reviews/update?id=1&false_positive=true&new_text=Because
-  # - PUT "/api/reviews/update?id=1&assignee=fabrice
-  # - PUT "/api/reviews/update?id=1&assignee=none
-  # - PUT "/api/reviews/update?id=1&new_text=New%20Comment!
-  # - PUT "/api/reviews/update?id=1&text=Modified%20Comment!
+  # - PUT "/api/reviews/?id=1&false_positive=true&new_text=Because
+  # - PUT "/api/reviews/?id=1&assignee=fabrice
+  # - PUT "/api/reviews/?id=1&assignee=none
+  # - PUT "/api/reviews/?id=1&new_text=New%20Comment!
+  # - PUT "/api/reviews/?id=1&text=Modified%20Comment!
   #
   def update
     begin
@@ -176,9 +176,9 @@ class Api::ReviewsController < Api::ApiController
   # - 'comment_id' : the id of the comment to delete (for the moment, only the last comment can be deleted)
   #
   # Example :
-  # - DELETE "/api/reviews/update?id=1&comment=5
+  # - DELETE "/api/reviews/?id=1&comment=5
   #
-  def delete
+  def destroy
     begin
       # 1- Get some parameters
       convert_markdown=(params[:output]=='HTML')

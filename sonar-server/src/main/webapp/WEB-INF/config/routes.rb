@@ -11,6 +11,7 @@ ActionController::Routing::Routes.draw do |map|
     api.resources :events, :only => [:index, :show, :create, :destroy]
     api.resources :user_properties, :only => [:index, :show, :create, :destroy], :requirements => { :id => /.*/ }
     api.resources :favorites, :only => [:index, :show, :create, :destroy], :requirements => { :id => /.*/ }
+    api.resources :reviews, :only => [:index, :create, :update, :destroy], :requirements => { :id => /.*/ }
   end
   
   map.connect 'api/metrics', :controller => 'api/metrics', :action => 'index', :conditions => { :method => :get }
