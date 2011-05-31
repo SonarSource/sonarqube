@@ -230,8 +230,9 @@ public class ReviewQuery extends Query<Review> {
    * @param falsePositives
    *          the false_positives
    */
-  public void setFalsePositives(String falsePositives) {
+  public ReviewQuery setFalsePositives(String falsePositives) {
     this.falsePositives = falsePositives;
+    return this;
   }
 
   @Override
