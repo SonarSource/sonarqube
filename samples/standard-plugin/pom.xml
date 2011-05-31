@@ -11,7 +11,7 @@
   <description>Description of standard plugin</description>
 
   <properties>
-    <sonar.buildVersion>2.8-RC2</sonar.buildVersion>
+    <sonar.buildVersion>2.8</sonar.buildVersion>
   </properties>
 
   <dependencies>
