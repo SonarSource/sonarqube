@@ -45,7 +45,7 @@ class User < ActiveRecord::Base
   validates_confirmation_of :password, :if => :password_required?
 
   validates_presence_of     :login
-  validates_length_of       :login,    :within => 3..40
+  validates_length_of       :login,    :within => 2..40
   validates_uniqueness_of   :login, :case_sensitive => true
   validates_format_of       :login,    :with => Authentication.login_regex, :message => Authentication.bad_login_message
   
