@@ -909,15 +909,6 @@ div.comment-excerpt {
 .max-width {
   width: 100%;
 }
-option.sel-with-false-positives {
-  background-image: url('../images/reviews/with_false_positives.png');
-}
-option.sel-only-false-positives {
-  background-image: url('../images/reviews/false_positive.png');
-}
-option.sel-without-false-positives {
-  background-image: url('../images/reviews/comment.png');
-}
 
 
 /* AUTOCOMPLETE FIELDS */
