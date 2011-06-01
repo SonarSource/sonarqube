@@ -72,7 +72,8 @@ class ReviewsController < ApplicationController
       return
     end
 
-    @review.assignee = User.find params[:assignee_id]
+    assignee = User.find params[:assignee_id] unless params[:assignee_id].blank?
+    @review.assignee = assignee
     @review.save
 
     render :partial => 'reviews/view'
@@ -175,7 +176,8 @@ class ReviewsController < ApplicationController
     sanitize_violation(violation)
 
     violation.build_review(:user_id => current_user.id)
-    violation.review.assignee = User.find params[:assignee_id]
+    assignee = User.find params[:assignee_id] unless params[:assignee_id].blank?
+    violation.review.assignee = assignee
     violation.review.save!
     violation.save
 

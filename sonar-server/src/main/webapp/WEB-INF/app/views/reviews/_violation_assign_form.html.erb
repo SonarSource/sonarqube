@@ -7,8 +7,7 @@
   &nbsp;&nbsp;
   <%= submit_to_remote "submit_btn", "Assign", 
          :url => { :action => 'violation_assign' },
-         :update => "vId" + params[:violation_id],
-         :condition => "$('assignee_id').value != ''" -%>
+         :update => "vId" + params[:violation_id] -%>
   &nbsp;&nbsp;
   <%= link_to_remote 'Cancel', 
          :url => { :action => 'display_violation', :id => params[:violation_id] },
