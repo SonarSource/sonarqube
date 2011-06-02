@@ -82,6 +82,15 @@ public class ViolationPersisterDecoratorTest {
     assertThat(mapping.get(newViolation1), equalTo(pastViolation1));
     assertThat(mapping.get(newViolation2), equalTo(pastViolation2));
   }
+  
+  @Test
+  public void sameRuleAndLineAndChecksumButDifferentMessages() {
+    Violation newViolation = newViolation("new message", 1, 50, "checksum1");
+    RuleFailureModel pastViolation = newPastViolation("old message", 1, 50, "checksum1");
+
+    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(pastViolation));
+    assertThat(mapping.get(newViolation), equalTo(pastViolation));
+  }
 
   @Test
   public void sameRuleAndLineMessage() {

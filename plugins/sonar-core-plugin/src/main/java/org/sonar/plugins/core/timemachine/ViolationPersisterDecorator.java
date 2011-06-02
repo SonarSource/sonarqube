@@ -19,13 +19,20 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorBarriers;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.database.model.SnapshotSource;
 import org.sonar.api.resources.Project;
@@ -34,9 +41,11 @@ import org.sonar.api.rules.Violation;
 import org.sonar.batch.components.PastViolationsLoader;
 import org.sonar.batch.index.ViolationPersister;
 
-import java.util.*;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 
-@DependsUpon({DecoratorBarriers.END_OF_VIOLATIONS_GENERATION, DecoratorBarriers.START_VIOLATION_TRACKING})
+@DependsUpon({ DecoratorBarriers.END_OF_VIOLATIONS_GENERATION, DecoratorBarriers.START_VIOLATION_TRACKING })
 @DependedUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
 public class ViolationPersisterDecorator implements Decorator {
 
@@ -92,10 +101,10 @@ public class ViolationPersisterDecorator implements Decorator {
       pastViolationsByRule.put(pastViolation.getRuleId(), pastViolation);
     }
 
-    // Try first an exact matching : same rule, same message, same line and same checkum
+    // Try first to match violations on same rule with same line and with same checkum (but not necessarily with same message)
     for (Violation newViolation : newViolations) {
       mapViolation(newViolation,
-          findPastViolationWithSameLineAndChecksumAndMessage(newViolation, pastViolationsByRule.get(newViolation.getRule().getId())),
+          findPastViolationWithSameLineAndChecksum(newViolation, pastViolationsByRule.get(newViolation.getRule().getId())),
           pastViolationsByRule, violationMap);
     }
 
@@ -146,11 +155,9 @@ public class ViolationPersisterDecorator implements Decorator {
     return null;
   }
 
-  private RuleFailureModel findPastViolationWithSameLineAndChecksumAndMessage(Violation newViolation,
-      Collection<RuleFailureModel> pastViolations) {
+  private RuleFailureModel findPastViolationWithSameLineAndChecksum(Violation newViolation, Collection<RuleFailureModel> pastViolations) {
     for (RuleFailureModel pastViolation : pastViolations) {
-      if (isSameLine(newViolation, pastViolation) && isSameChecksum(newViolation, pastViolation)
-          && isSameMessage(newViolation, pastViolation)) {
+      if (isSameLine(newViolation, pastViolation) && isSameChecksum(newViolation, pastViolation)) {
         return pastViolation;
       }
     }
@@ -158,11 +165,12 @@ public class ViolationPersisterDecorator implements Decorator {
   }
 
   private boolean isSameChecksum(Violation newViolation, RuleFailureModel pastViolation) {
-    return pastViolation.getChecksum()!=null && StringUtils.equals(pastViolation.getChecksum(), getChecksumForLine(checksums, newViolation.getLineId()));
+    return pastViolation.getChecksum() != null
+        && StringUtils.equals(pastViolation.getChecksum(), getChecksumForLine(checksums, newViolation.getLineId()));
   }
 
   private boolean isSameLine(Violation newViolation, RuleFailureModel pastViolation) {
-    if (pastViolation.getLine()==null && newViolation.getLineId()==null) {
+    if (pastViolation.getLine() == null && newViolation.getLineId() == null) {
       return true;
     }
     return ObjectUtils.equals(pastViolation.getLine(), newViolation.getLineId());
@@ -188,7 +196,8 @@ public class ViolationPersisterDecorator implements Decorator {
   }
 
   /**
-   * @param data can't be null
+   * @param data
+   *          can't be null
    */
   static List<String> getChecksums(String data) {
     String[] lines = data.split("\r?\n|\r", -1);
