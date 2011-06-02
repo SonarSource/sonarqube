@@ -160,7 +160,7 @@ public class JpaDatabaseSession extends DatabaseSession {
     startTransaction();
     return entityManager.createQuery(hql);
   }
-  
+
   @Override
   public Query createNativeQuery(String sql) {
     startTransaction();
@@ -214,8 +214,7 @@ public class JpaDatabaseSession extends DatabaseSession {
     } catch (NonUniqueResultException ex) {
       NonUniqueResultException e = new NonUniqueResultException("Expected single result for entitiy " + entityClass.getSimpleName()
           + " with criterias : " + StringUtils.join(criterias, ","));
-      e.initCause(ex);
-      throw e;
+      throw (NonUniqueResultException) e.initCause(ex);
     }
   }
 

@@ -29,6 +29,9 @@ public class ReviewQuery extends Query<Review> {
   public static final String OUTPUT_PLAIN = "PLAIN";
   public static final String OUTPUT_HTML = "HTML";
 
+  /**
+   * @deprecated since 2.9, but kept for backward compatibility
+   */
   @Deprecated
   private String reviewType;
   private Long id;
@@ -49,6 +52,7 @@ public class ReviewQuery extends Query<Review> {
    * @deprecated since 2.9
    * @return NULL
    */
+  @Deprecated
   public String getReviewType() {
     return reviewType;
   }
@@ -58,6 +62,7 @@ public class ReviewQuery extends Query<Review> {
    * @param reviewType
    *          the reviewType to set
    */
+  @Deprecated
   public ReviewQuery setReviewType(String reviewType) {
     this.reviewType = reviewType;
     return this;

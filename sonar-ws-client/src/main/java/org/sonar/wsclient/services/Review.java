@@ -143,6 +143,7 @@ public class Review extends Model {
    * @deprecated since 2.9. Use {@link #getFalsePositive()} instead.
    * @return the type
    */
+  @Deprecated
   public String getType() {
     return type;
   }
@@ -152,6 +153,7 @@ public class Review extends Model {
    * @param s
    *          the type to set
    */
+  @Deprecated
   public Review setType(String s) {
     this.type = s;
     // the following code is only here to ensure backward compatibility with 2.8
@@ -244,7 +246,7 @@ public class Review extends Model {
     this.falsePositive = falsePositive;
     return this;
   }
-  
+
   /**
    * @since 2.9
    * @return the violation id

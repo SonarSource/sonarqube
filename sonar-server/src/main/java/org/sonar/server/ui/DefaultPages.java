@@ -28,7 +28,10 @@ import org.sonar.api.web.*;
  */
 public final class DefaultPages {
 
-  private static final View[] PAGES = {new SourceTab(), new CoverageTab(), new ViolationsTab()};
+  private static final View[] PAGES = { new SourceTab(), new CoverageTab(), new ViolationsTab() };
+
+  private DefaultPages() {
+  }
 
   public static View[] getPages() {
     return PAGES.clone();
