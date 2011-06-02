@@ -21,7 +21,7 @@
     %>
     <tr>
       <td>Profile:</td>
-      <td id="resource_profile"><%= link_to profile_measure.data, {:controller => '/rules_configuration', :action => 'index', :id => profile_measure.value.to_i}, :id => 'profile_link' -%> (version <%= format_measure('profile_version', :default => '1') -%>)</td>
+      <td><span id="resource_profile"><%= link_to profile_measure.data, {:controller => '/rules_configuration', :action => 'index', :id => profile_measure.value.to_i}, :id => 'profile_link' -%></span> (version <%= format_measure('profile_version', :default => '1') -%>)</td>
     </tr>
     <% end %>
     <% if Project::SCOPE_SET==@project.scope %>
