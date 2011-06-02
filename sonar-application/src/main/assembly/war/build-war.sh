@@ -17,8 +17,8 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 # 
-# Use this DOS script to create a Sonar WAR archive.
+# Use this Shell script to create a Sonar WAR archive.
 
-ANT_HOME="./apache-ant-1.7.0"
+export ANT_HOME="./apache-ant-1.7.0"
 
 ./apache-ant-1.7.0/bin/ant
