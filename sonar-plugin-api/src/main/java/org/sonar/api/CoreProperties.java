@@ -103,6 +103,8 @@ public interface CoreProperties {
   String SERVER_STARTTIME = "sonar.core.startTime"; // format is yyyy-MM-dd'T'HH:mm:ssZ
   String SKIP_TENDENCIES_PROPERTY = "sonar.skipTendencies";
   boolean SKIP_TENDENCIES_DEFAULT_VALUE = false;
+  String INCLUDE_PLUGINS = "sonar.includePlugins";
+  String EXCLUDE_PLUGINS = "sonar.excludePlugins";
 
   /* CPD */
   String CPD_PLUGIN = "cpd";

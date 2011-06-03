@@ -19,11 +19,17 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
@@ -37,10 +43,7 @@ import org.sonar.core.plugin.JpaPluginFile;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BatchPluginRepository implements PluginRepository {
 
@@ -49,15 +52,31 @@ public class BatchPluginRepository implements PluginRepository {
   private JpaPluginDao dao;
   private ArtifactDownloader artifactDownloader;
   private Map<String, Plugin> pluginsByKey;
+  private String[] whiteList = null;
+  private String[] blackList = null;
 
-  public BatchPluginRepository(JpaPluginDao dao, ArtifactDownloader artifactDownloader) {
+  public BatchPluginRepository(JpaPluginDao dao, ArtifactDownloader artifactDownloader, Configuration configuration) {
     this.dao = dao;
     this.artifactDownloader = artifactDownloader;
+    if (configuration.getString(CoreProperties.INCLUDE_PLUGINS)!=null) {
+      whiteList = configuration.getStringArray(CoreProperties.INCLUDE_PLUGINS);
+    }
+    if (configuration.getString(CoreProperties.EXCLUDE_PLUGINS)!=null) {
+      blackList = configuration.getStringArray(CoreProperties.EXCLUDE_PLUGINS);
+    }
 //  TODO reactivate somewhere else:  LOG.info("Execution environment: {} {}", environment.getKey(), environment.getVersion());
   }
 
   public void start() {
-    doStart(dao.getPlugins());
+    doStart(filter(dao.getPlugins()));
+  }
+
+  List<JpaPlugin> filter(List<JpaPlugin> plugins) {
+    return ImmutableList.copyOf(Iterables.filter(plugins, new Predicate<JpaPlugin>() {
+      public boolean apply(JpaPlugin p) {
+        return isAccepted(p.getKey()) && (StringUtils.isBlank(p.getBasePlugin()) || isAccepted(p.getBasePlugin()));
+      }
+    }));
   }
 
   public void doStart(List<JpaPlugin> basePlugins) {
@@ -152,5 +171,15 @@ public class BatchPluginRepository implements PluginRepository {
       }
     }
     return new Property[0];
+  }
+
+  boolean isAccepted(String pluginKey) {
+    if (whiteList!=null) {
+      return ArrayUtils.contains(whiteList, pluginKey);
+    }
+    if (blackList!=null) {
+      return !ArrayUtils.contains(blackList, pluginKey);
+    }
+    return true;
   }
 }
