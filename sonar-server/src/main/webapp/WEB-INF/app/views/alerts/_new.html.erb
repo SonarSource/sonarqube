@@ -15,7 +15,8 @@
     <option value="" <%= 'selected' if @alert.metric.nil? %>>Select a metric</option>
   <% Metric.domains.each do |domain| %>
   <optgroup label="<%= h domain -%>">
-    <% Metric.by_domain(domain).select{|m| m.alertable? }.each do |metric| %>
+    <%# 'new_' metrics excluded due to SONAR-2396 %>
+    <% Metric.by_domain(domain).select{ |m| m.alertable? && !m.name.start_with?("new_") }.each do |metric| %>
       <option value="<%= metric.id -%>" <%= 'selected' if @alert.metric_id==metric.id -%>><%= metric.short_name %></option>
     <% end %>
   </optgroup>
