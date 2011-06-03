@@ -112,6 +112,26 @@ public class ProjectDefinitionTest {
     assertThat(child.getParent(), is(root));
   }
 
+  @Test
+  public void shouldResetSourceDirs() {
+    ProjectDefinition root = new ProjectDefinition(new File("."), new File("."), new Properties());
+    root.addSourceDirs("src", "src2/main");
+    assertThat(root.getSourceDirs().size(), is(2));
+
+    root.resetSourceDirs();
+    assertThat(root.getSourceDirs().size(), is(0));
+  }
+
+  @Test
+  public void shouldResetTestDirs() {
+    ProjectDefinition root = new ProjectDefinition(new File("."), new File("."), new Properties());
+    root.addTestDirs("src", "src2/test");
+    assertThat(root.getTestDirs().size(), is(2));
+
+    root.resetTestDirs();
+    assertThat(root.getTestDirs().size(), is(0));
+  }
+
   private static void assertFiles(List<String> paths, String... values) {
     assertThat(paths.size(), is(values.length));
     for (int i = 0; i < values.length; i++) {
