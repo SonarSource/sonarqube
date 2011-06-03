@@ -46,7 +46,7 @@ public class ProjectLinksSensor implements Sensor {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return true;
+    return project.isLatestAnalysis();
   }
 
   public void analyse(Project project, SensorContext context) {

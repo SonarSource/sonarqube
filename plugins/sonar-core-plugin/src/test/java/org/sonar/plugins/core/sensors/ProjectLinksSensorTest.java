@@ -19,6 +19,11 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.*;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.project.MavenProject;
 import org.hamcrest.BaseMatcher;
@@ -29,11 +34,18 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.test.MavenTestUtils;
 
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
 public class ProjectLinksSensorTest {
+
+  @Test
+  public void shouldExecuteOnlyForLatestAnalysis() {
+    MavenProject pom = mock(MavenProject.class);
+    Project project = mock(Project.class);
+    when(project.isLatestAnalysis()).thenReturn(true).thenReturn(false);
+    assertThat(new ProjectLinksSensor(pom).shouldExecuteOnProject(project), is(true));
+    assertThat(new ProjectLinksSensor(pom).shouldExecuteOnProject(project), is(false));
+    verify(project, times(2)).isLatestAnalysis();
+    verifyNoMoreInteractions(project);
+  }
 
   @Test
   public void shouldSaveLinks() {
