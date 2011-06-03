@@ -19,11 +19,9 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.*;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -52,23 +50,27 @@ public class BatchPluginRepository implements PluginRepository {
   private JpaPluginDao dao;
   private ArtifactDownloader artifactDownloader;
   private Map<String, Plugin> pluginsByKey;
-  private String[] whiteList = null;
-  private String[] blackList = null;
+  private Set<String> whiteList = null;
+  private Set<String> blackList = null;
 
   public BatchPluginRepository(JpaPluginDao dao, ArtifactDownloader artifactDownloader, Configuration configuration) {
     this.dao = dao;
     this.artifactDownloader = artifactDownloader;
     if (configuration.getString(CoreProperties.INCLUDE_PLUGINS)!=null) {
-      whiteList = configuration.getStringArray(CoreProperties.INCLUDE_PLUGINS);
+      whiteList = Sets.newTreeSet(Arrays.asList(configuration.getStringArray(CoreProperties.INCLUDE_PLUGINS)));
+      LOG.info("Include plugins: " + Joiner.on(", ").join(whiteList));
     }
     if (configuration.getString(CoreProperties.EXCLUDE_PLUGINS)!=null) {
-      blackList = configuration.getStringArray(CoreProperties.EXCLUDE_PLUGINS);
+      blackList = Sets.newTreeSet(Arrays.asList(configuration.getStringArray(CoreProperties.EXCLUDE_PLUGINS)));
+      LOG.info("Exclude plugins: " + Joiner.on(", ").join(blackList));
     }
 //  TODO reactivate somewhere else:  LOG.info("Execution environment: {} {}", environment.getKey(), environment.getVersion());
   }
 
   public void start() {
-    doStart(filter(dao.getPlugins()));
+    List<JpaPlugin> plugins = filter(dao.getPlugins());
+    LOG.debug("Starting plugins: " + Joiner.on(", ").join(plugins));
+    doStart(plugins);
   }
 
   List<JpaPlugin> filter(List<JpaPlugin> plugins) {
@@ -175,10 +177,10 @@ public class BatchPluginRepository implements PluginRepository {
 
   boolean isAccepted(String pluginKey) {
     if (whiteList!=null) {
-      return ArrayUtils.contains(whiteList, pluginKey);
+      return whiteList.contains(pluginKey);
     }
     if (blackList!=null) {
-      return !ArrayUtils.contains(blackList, pluginKey);
+      return !blackList.contains(pluginKey);
     }
     return true;
   }
