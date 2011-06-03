@@ -20,6 +20,7 @@
 package org.sonar.api.batch.bootstrap;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
@@ -32,13 +33,15 @@ import java.util.Properties;
 /**
  * Defines project metadata (key, name, source directories, ...). It's generally used by the
  * {@link org.sonar.api.batch.bootstrap.ProjectBuilder extension point}
- * 
+ *
  * @since 2.9
  */
 public final class ProjectDefinition implements BatchComponent {
 
-  public static final String SOURCES_PROPERTY = "sonar.sources";
-  public static final String TESTS_PROPERTY = "sonar.tests";
+  public static final String SOURCE_DIRS_PROPERTY = "sonar.sources";
+  public static final String SOURCE_FILES_PROPERTY = "sonar.sourceFiles";
+  public static final String TEST_DIRS_PROPERTY = "sonar.tests";
+  public static final String TEST_FILES_PROPERTY = "sonar.testFiles";
   public static final String BINARIES_PROPERTY = "sonar.binaries";
   public static final String LIBRARIES_PROPERTY = "sonar.libraries";
 
@@ -132,26 +135,30 @@ public final class ProjectDefinition implements BatchComponent {
   }
 
   public List<String> getSourceDirs() {
-    String sources = properties.getProperty(SOURCES_PROPERTY, "");
+    String sources = properties.getProperty(SOURCE_DIRS_PROPERTY, "");
     return Arrays.asList(StringUtils.split(sources, SEPARATOR));
   }
 
   /**
-   * @param path path to directory with main sources.
-   *          It can be absolute or relative to project directory.
+   * @param paths paths to directory with main sources.
+   *              They can be absolute or relative to project base directory.
    */
-  public ProjectDefinition addSourceDir(String path) {
-    appendProperty(SOURCES_PROPERTY, path);
+  public ProjectDefinition addSourceDirs(String... paths) {
+    for (String path : paths) {
+      appendProperty(SOURCE_DIRS_PROPERTY, FilenameUtils.normalize(path));
+    }
     return this;
   }
 
-  public ProjectDefinition addSourceDir(File path) {
-    addSourceDir(path.getAbsolutePath());
+  public ProjectDefinition addSourceDirs(File... dirs) {
+    for (File dir : dirs) {
+      addSourceDirs(dir);
+    }
     return this;
   }
 
   public ProjectDefinition setSourceDir(String path) {
-    properties.setProperty(SOURCES_PROPERTY, path);
+    properties.setProperty(SOURCE_DIRS_PROPERTY, FilenameUtils.normalize(path));
     return this;
   }
 
@@ -160,19 +167,83 @@ public final class ProjectDefinition implements BatchComponent {
     return this;
   }
 
+  /**
+   * Adding source files is possible only if no source directories have been set.
+   * Absolute path or relative path from project base dir. 
+   */
+  public ProjectDefinition addSourceFiles(String... paths) {
+    for (String path : paths) {
+      appendProperty(SOURCE_FILES_PROPERTY, FilenameUtils.normalize(path));
+    }
+    return this;
+  }
+
+  /**
+   * Adding source files is possible only if no source directories have been set.
+   */
+  public ProjectDefinition addSourceFiles(File... files) {
+    for (File file : files) {
+      addSourceFiles(file.getAbsolutePath());
+    }
+    return this;
+  }
+
+  public List<String> getSourceFiles() {
+    String sources = properties.getProperty(SOURCE_FILES_PROPERTY, "");
+    return Arrays.asList(StringUtils.split(sources, SEPARATOR));
+  }
+
+
   public List<String> getTestDirs() {
-    String sources = properties.getProperty(TESTS_PROPERTY, "");
+    String sources = properties.getProperty(TEST_DIRS_PROPERTY, "");
     return Arrays.asList(StringUtils.split(sources, SEPARATOR));
   }
 
   /**
-   * @param path path to directory with test sources.
-   *          It can be absolute or relative to project directory.
+   * @param paths path to directory with test sources.
+   *              It can be absolute or relative to project directory.
    */
-  public ProjectDefinition addTestDir(String path) {
-    appendProperty(TESTS_PROPERTY, path);
+  public ProjectDefinition addTestDirs(String... paths) {
+    for (String path : paths) {
+      appendProperty(TEST_DIRS_PROPERTY, FilenameUtils.normalize(path));
+    }
     return this;
   }
+
+  public ProjectDefinition addTestDirs(File... dirs) {
+    for (File dir : dirs) {
+      addTestDirs(dir.getAbsolutePath());
+    }
+    return this;
+  }
+
+
+  /**
+   * Adding source files is possible only if no source directories have been set.
+   * Absolute path or relative path from project base dir.
+   */
+  public ProjectDefinition addTestFiles(String... paths) {
+    for (String path : paths) {
+      appendProperty(TEST_FILES_PROPERTY, FilenameUtils.normalize(path));
+    }
+    return this;
+  }
+
+  /**
+   * Adding source files is possible only if no source directories have been set.
+   */
+  public ProjectDefinition addTestFiles(File... files) {
+    for (File file : files) {
+      addTestFiles(file.getAbsolutePath());
+    }
+    return this;
+  }
+
+  public List<String> getTestFiles() {
+    String sources = properties.getProperty(TEST_FILES_PROPERTY, "");
+    return Arrays.asList(StringUtils.split(sources, SEPARATOR));
+  }
+
 
   public List<String> getBinaries() {
     String sources = properties.getProperty(BINARIES_PROPERTY, "");
@@ -181,11 +252,11 @@ public final class ProjectDefinition implements BatchComponent {
 
   /**
    * @param path path to directory with compiled source. In case of Java this is directory with class files.
-   *          It can be absolute or relative to project directory.
+   *             It can be absolute or relative to project directory.
    * @TODO currently Sonar supports only one such directory due to dependency on MavenProject
    */
   public ProjectDefinition addBinaryDir(String path) {
-    appendProperty(BINARIES_PROPERTY, path);
+    appendProperty(BINARIES_PROPERTY, FilenameUtils.normalize(path));
     return this;
   }
 
@@ -196,10 +267,10 @@ public final class ProjectDefinition implements BatchComponent {
 
   /**
    * @param path path to file with third-party library. In case of Java this is path to jar file.
-   *          It can be absolute or relative to project directory.
+   *             It can be absolute or relative to project directory.
    */
   public void addLibrary(String path) {
-    appendProperty(LIBRARIES_PROPERTY, path);
+    appendProperty(LIBRARIES_PROPERTY, FilenameUtils.normalize(path));
   }
 
   /**

@@ -32,6 +32,7 @@ import org.apache.commons.lang.SystemUtils;
 import org.apache.maven.project.MavenProject;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +40,7 @@ import org.sonar.api.batch.FileFilter;
 import org.sonar.api.test.MavenTestUtils;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 public class DefaultProjectFileSystemTest {
@@ -203,6 +205,19 @@ public class DefaultProjectFileSystemTest {
     DefaultProjectFileSystem fsWithFilter = new DefaultProjectFileSystem(project, new Languages(Java.INSTANCE), filter);
     assertThat(fsWithFilter.getSourceFiles().size(), is(1));
     assertThat(fsWithFilter.getSourceFiles(), not(hasItem(named("Bar.java"))));
+  }
+
+  @Test
+  public void testSelectiveFileFilter() {
+    DefaultProjectFileSystem.FileSelectionFilter filter = new DefaultProjectFileSystem.FileSelectionFilter(
+        Arrays.asList(new File("foo/Bar.java"), new File("hello/Bar.java"), new File("hello/World.java")));
+    assertThat(filter.accept(new File("foo/Bar.java")), Matchers.is(true));
+    assertThat(filter.accept(new File("hello/Bar.java")), Matchers.is(true));
+    assertThat(filter.accept(new File("hello/World.java")), Matchers.is(true));
+
+    assertThat(filter.accept(new File("foo/Unknown.java")), Matchers.is(false));
+    assertThat(filter.accept(new File("foo/bar/Bar.java")), Matchers.is(false));
+    assertThat(filter.accept(new File("foo/World.java")), Matchers.is(false));
   }
 
   private DefaultProjectFileSystem newDefaultProjectFileSystem(Project project) {

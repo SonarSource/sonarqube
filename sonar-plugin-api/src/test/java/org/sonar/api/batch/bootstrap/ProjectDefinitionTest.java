@@ -74,19 +74,29 @@ public class ProjectDefinitionTest {
   @Test
   public void shouldAddDirectories() {
     ProjectDefinition def = new ProjectDefinition(new File("."), new File("."), new Properties());
-    def.addSourceDir("src/main/java");
-    def.addSourceDir("src/main/java2");
-    def.addTestDir("src/test/java");
-    def.addTestDir("src/test/java2");
+    def.addSourceDirs("src/main/java", "src/main/java2");
+    def.addTestDirs("src/test/java");
+    def.addTestDirs("src/test/java2");
     def.addBinaryDir("target/classes");
     def.addBinaryDir("target/classes2");
     def.addLibrary("junit.jar");
     def.addLibrary("mockito.jar");
 
-    assertDirs(def.getSourceDirs(), "src/main/java", "src/main/java2");
-    assertDirs(def.getTestDirs(), "src/test/java", "src/test/java2");
-    assertDirs(def.getBinaries(), "target/classes", "target/classes2");
-    assertDirs(def.getLibraries(), "junit.jar", "mockito.jar");
+    assertFiles(def.getSourceDirs(), "src/main/java", "src/main/java2");
+    assertFiles(def.getTestDirs(), "src/test/java", "src/test/java2");
+    assertFiles(def.getBinaries(), "target/classes", "target/classes2");
+    assertFiles(def.getLibraries(), "junit.jar", "mockito.jar");
+  }
+
+  @Test
+  public void shouldAddFiles() {
+    ProjectDefinition def = new ProjectDefinition(new File("."), new File("."), new Properties());
+    def.addSourceFiles("src/main/java/foo/Bar.java", "src/main/java/hello/World.java");
+    def.addTestFiles("src/test/java/foo/BarTest.java", "src/test/java/hello/WorldTest.java");
+
+    assertFiles(def.getSourceFiles(), "src/main/java/foo/Bar.java", "src/main/java/hello/World.java");
+    assertFiles(def.getTestFiles(), "src/test/java/foo/BarTest.java", "src/test/java/hello/WorldTest.java");
+
   }
 
   @Test
@@ -102,10 +112,10 @@ public class ProjectDefinitionTest {
     assertThat(child.getParent(), is(root));
   }
 
-  private static void assertDirs(List<String> dirs, String... values) {
-    assertThat(dirs.size(), is(values.length));
+  private static void assertFiles(List<String> paths, String... values) {
+    assertThat(paths.size(), is(values.length));
     for (int i = 0; i < values.length; i++) {
-      assertThat(dirs.get(i), is(values[i]));
+      assertThat(paths.get(i), is(values[i]));
     }
   }
 }

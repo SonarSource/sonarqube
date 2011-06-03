@@ -62,7 +62,7 @@ public class ProjectDefinition {
   }
 
   public void addSourceDir(String path) {
-    target.addSourceDir(path);
+    target.addSourceDirs(path);
   }
 
   public List<String> getTestDirs() {
@@ -74,7 +74,7 @@ public class ProjectDefinition {
    *          It can be absolute or relative to project directory.
    */
   public void addTestDir(String path) {
-    target.addTestDir(path);
+    target.addTestDirs(path);
   }
 
   public List<String> getBinaries() {

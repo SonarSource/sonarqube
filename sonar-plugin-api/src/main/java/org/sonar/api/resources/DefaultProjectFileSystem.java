@@ -20,9 +20,7 @@
 package org.sonar.api.resources;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import com.google.common.collect.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.*;
@@ -37,9 +35,7 @@ import org.sonar.api.utils.WildcardPattern;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * An implementation of {@link ProjectFileSystem}.
@@ -196,7 +192,7 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
     return !testFiles(lang.getKey()).isEmpty();
   }
 
-  private List<InputFile> getFiles(List<File> directories, boolean applyExclusionPatterns, String... langs) {
+  private List<InputFile> getFiles(List<File> directories, List<File> initialFiles, boolean applyExclusionPatterns, String... langs) {
     List<InputFile> result = Lists.newArrayList();
     if (directories == null) {
       return result;
@@ -205,13 +201,19 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
     IOFileFilter suffixFilter = getFileSuffixFilter(langs);
     WildcardPattern[] exclusionPatterns = getExclusionPatterns(applyExclusionPatterns);
 
+    IOFileFilter initialFilesFilter = TrueFileFilter.INSTANCE;
+    if (initialFiles!=null && !initialFiles.isEmpty()) {
+      initialFilesFilter = new FileSelectionFilter(initialFiles);
+    }
+
     for (File dir : directories) {
       if (dir.exists()) {
         IOFileFilter exclusionFilter = new ExclusionFilter(dir, exclusionPatterns);
         IOFileFilter visibleFileFilter = HiddenFileFilter.VISIBLE;
-        List<IOFileFilter> dirFilters = Lists.newArrayList(visibleFileFilter, suffixFilter, exclusionFilter);
-        dirFilters.addAll(this.filters);
-        List<File> files = (List<File>) FileUtils.listFiles(dir, new AndFileFilter(dirFilters), HiddenFileFilter.VISIBLE);
+        List<IOFileFilter> fileFilters = Lists.newArrayList(visibleFileFilter, suffixFilter, exclusionFilter, initialFilesFilter);
+        fileFilters.addAll(this.filters);
+        
+        List<File> files = (List<File>) FileUtils.listFiles(dir, new AndFileFilter(fileFilters), HiddenFileFilter.VISIBLE);
         for (File file : files) {
           String relativePath = DefaultProjectFileSystem.getRelativePath(file, dir);
           result.add(InputFileUtils.create(dir, relativePath));
@@ -262,6 +264,22 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
         }
       }
       return true;
+    }
+
+    public boolean accept(File file, String name) {
+      return accept(file);
+    }
+  }
+
+  static class FileSelectionFilter implements IOFileFilter {
+    private Set<File> files;
+
+    public FileSelectionFilter(List<File> f) {
+      files = Sets.newHashSet(f);
+    }
+
+    public boolean accept(File file) {
+      return files.contains(file);
     }
 
     public boolean accept(File file, String name) {
@@ -363,13 +381,21 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
    * @since 2.6
    */
   public List<InputFile> mainFiles(String... langs) {
-    return getFiles(getSourceDirs(), true, langs);
+    return getFiles(getSourceDirs(), getInitialSourceFiles(), true, langs);
   }
 
   /**
    * @since 2.6
    */
   public List<InputFile> testFiles(String... langs) {
-    return getFiles(getTestDirs(), false /* FIXME should be true? */, langs);
+    return getFiles(getTestDirs(), getInitialTestFiles(), false /* FIXME should be true? */, langs);
+  }
+
+  protected List<File> getInitialSourceFiles() {
+    return Collections.emptyList();
+  }
+
+  protected List<File> getInitialTestFiles() {
+    return Collections.emptyList();
   }
 }

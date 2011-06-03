@@ -21,6 +21,7 @@ package org.sonar.batch;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.project.MavenProject;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -31,6 +32,7 @@ import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -84,6 +86,7 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
     }
   }
 
+  @Override
   public List<File> getSourceDirs() {
     List<File> unfiltered;
     if (pom != null) {
@@ -106,7 +109,7 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
     if (pom != null) {
       pom.getCompileSourceRoots().add(0, dir.getAbsolutePath());
     } else {
-      def.addSourceDir(dir.getAbsolutePath());
+      def.addSourceDirs(dir.getAbsolutePath());
     }
     return this;
   }
@@ -114,6 +117,7 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
   /**
    * Maven can modify test directories during Sonar execution - see MavenPhaseExecutor.
    */
+  @Override
   public List<File> getTestDirs() {
     List<File> unfiltered;
     if (pom != null) {
@@ -136,7 +140,7 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
     if (pom != null) {
       pom.getTestCompileSourceRoots().add(0, dir.getAbsolutePath());
     } else {
-      def.addTestDir(dir.getAbsolutePath());
+      def.addTestDirs(dir.getAbsolutePath());
     }
     return this;
   }
@@ -168,4 +172,13 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
     return dir;
   }
 
+  @Override
+  protected List<File> getInitialSourceFiles() {
+    return resolvePaths(def.getSourceFiles());
+  }
+
+  @Override
+  protected List<File> getInitialTestFiles() {
+    return resolvePaths(def.getTestFiles());
+  }
 }
