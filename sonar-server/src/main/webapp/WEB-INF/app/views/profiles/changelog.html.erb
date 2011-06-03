@@ -8,9 +8,9 @@
 
   <% form_tag({:action => 'changelog'}, {:method => 'post'}) do %>
     <%= hidden_field_tag "id", @profile.id %>
-    Cahngelog between
+    Changelog from
     <%= select_tag "since", options_for_select(@select_versions, @since_version) %>
-    and
+    to
     <%= select_tag "to", options_for_select(@select_versions, @to_version) %>
     <%= submit_tag "Load", :id => 'submit'%>
   <% end %>
@@ -31,10 +31,10 @@
     %>
     <tr class="<%= cycle('even', 'odd') -%>">
       <td valign="top"><%= change.profile_version - 1 %> -> <%= change.profile_version %></td>
-      <td valign="top"><%=change.change_date.strftime("%Y-%m-%d %H:%M:%S")%></td>
-      <td valign="top"><%=change.user_name%></td>
-      <td valign="top"><%=change.action_text%></td>
-      <td valign="top"><%=change.rule.name%></td>
+      <td valign="top"><%= l(change.change_date) -%></td>
+      <td valign="top"><%= change.user_name %></td>
+      <td valign="top"><%= change.action_text %></td>
+      <td valign="top"><%= change.rule.name %></td>
       <td valign="top">
         <% if change.old_severity
              if change.new_severity %>

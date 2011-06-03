@@ -24,8 +24,8 @@ class ActiveRuleChange < ActiveRecord::Base
 
   def action_text
     case enabled
-      when true then "enabled"
-      when false then "disabled"
+      when true then "on"
+      when false then "off"
       when nil then "modified"
     end
   end
