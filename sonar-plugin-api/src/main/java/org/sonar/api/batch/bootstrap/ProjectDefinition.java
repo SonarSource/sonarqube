@@ -20,7 +20,6 @@
 package org.sonar.api.batch.bootstrap;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
@@ -145,7 +144,7 @@ public final class ProjectDefinition implements BatchComponent {
    */
   public ProjectDefinition addSourceDirs(String... paths) {
     for (String path : paths) {
-      appendProperty(SOURCE_DIRS_PROPERTY, FilenameUtils.normalize(path));
+      appendProperty(SOURCE_DIRS_PROPERTY, path);
     }
     return this;
   }
@@ -158,7 +157,7 @@ public final class ProjectDefinition implements BatchComponent {
   }
 
   public ProjectDefinition setSourceDir(String path) {
-    properties.setProperty(SOURCE_DIRS_PROPERTY, FilenameUtils.normalize(path));
+    properties.setProperty(SOURCE_DIRS_PROPERTY, path);
     return this;
   }
 
@@ -169,11 +168,11 @@ public final class ProjectDefinition implements BatchComponent {
 
   /**
    * Adding source files is possible only if no source directories have been set.
-   * Absolute path or relative path from project base dir. 
+   * Absolute path or relative path from project base dir.
    */
   public ProjectDefinition addSourceFiles(String... paths) {
     for (String path : paths) {
-      appendProperty(SOURCE_FILES_PROPERTY, FilenameUtils.normalize(path));
+      appendProperty(SOURCE_FILES_PROPERTY, path);
     }
     return this;
   }
@@ -205,7 +204,7 @@ public final class ProjectDefinition implements BatchComponent {
    */
   public ProjectDefinition addTestDirs(String... paths) {
     for (String path : paths) {
-      appendProperty(TEST_DIRS_PROPERTY, FilenameUtils.normalize(path));
+      appendProperty(TEST_DIRS_PROPERTY, path);
     }
     return this;
   }
@@ -224,7 +223,7 @@ public final class ProjectDefinition implements BatchComponent {
    */
   public ProjectDefinition addTestFiles(String... paths) {
     for (String path : paths) {
-      appendProperty(TEST_FILES_PROPERTY, FilenameUtils.normalize(path));
+      appendProperty(TEST_FILES_PROPERTY, path);
     }
     return this;
   }
@@ -256,7 +255,7 @@ public final class ProjectDefinition implements BatchComponent {
    * @TODO currently Sonar supports only one such directory due to dependency on MavenProject
    */
   public ProjectDefinition addBinaryDir(String path) {
-    appendProperty(BINARIES_PROPERTY, FilenameUtils.normalize(path));
+    appendProperty(BINARIES_PROPERTY, path);
     return this;
   }
 
@@ -270,7 +269,7 @@ public final class ProjectDefinition implements BatchComponent {
    *             It can be absolute or relative to project directory.
    */
   public void addLibrary(String path) {
-    appendProperty(LIBRARIES_PROPERTY, FilenameUtils.normalize(path));
+    appendProperty(LIBRARIES_PROPERTY, path);
   }
 
   /**
