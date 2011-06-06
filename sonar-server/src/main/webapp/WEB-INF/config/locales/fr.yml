@@ -7,4 +7,4 @@ fr:
 
   time:
     formats:
-      default: "%d %b %Y, %H:%M"
+      default: "%d %b %Y %H:%M"

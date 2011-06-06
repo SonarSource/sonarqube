@@ -1,14 +1,3 @@
-# Russian localization for Ruby on Rails 2.2+
-# by Yaroslav Markin <yaroslav@markin.net>
-#
-# Be sure to check out "russian" gem (http://github.com/yaroslav/russian) for
-# full Russian language support in Rails (month names, pluralization, etc). 
-# The following is an excerpt from that gem.
-#
-# Для полноценной поддержки русского языка (варианты названий месяцев, 
-# плюрализация и так далее) в Rails 2.2 нужно использовать gem "russian" 
-# (http://github.com/yaroslav/russian). Следующие данные -- выдержка их него, чтобы
-# была возможность минимальной локализации приложения на русский язык.
 
 ru:
   date:
@@ -17,7 +6,4 @@ ru:
 
   time:
     formats:
-      default: "%d %b %Y, %H:%M"
-
-    am: "утра"
-    pm: "вечера"
+      default: "%d %b %Y %H:%M"
