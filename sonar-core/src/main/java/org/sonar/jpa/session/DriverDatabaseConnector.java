@@ -27,11 +27,13 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Enumeration;
 import java.util.Properties;
 
 public class DriverDatabaseConnector extends AbstractDatabaseConnector {
 
   private ClassLoader classloader;
+  private boolean driverProxyRegistered = false;
 
   public DriverDatabaseConnector(Configuration configuration) {
     super(configuration, true);
@@ -74,21 +76,50 @@ public class DriverDatabaseConnector extends AbstractDatabaseConnector {
   }
 
   public Connection getConnection() throws SQLException {
-    try {
-      /*
-       * The sonar batch downloads the JDBC driver in a separated classloader.
-       * This is a well-know problem of java.sql.DriverManager. The workaround
-       * is to use a proxy.
-       * See http://stackoverflow.com/questions/288828/how-to-use-a-jdbc-driver-from-an-arbitrary-location
-       */
-      Driver driver = (Driver) classloader.loadClass(getDriver()).newInstance();
-      DriverManager.registerDriver(new DriverProxy(driver));
-
-    } catch (Exception e) {
-      SQLException ex = new SQLException("SQL driver not found " + getDriver());
-      throw (SQLException) ex.initCause(e);
+    /*
+     * The Sonar batch downloads the JDBC driver in a separated class loader.
+     * This is a well-know problem of java.sql.DriverManager. The workaround
+     * is to use a proxy.
+     * See http://stackoverflow.com/questions/288828/how-to-use-a-jdbc-driver-from-an-arbitrary-location
+     */
+    if (!driverProxyRegistered) {
+      driverProxyRegistered = true;
+      try {
+        Driver driver = (Driver) classloader.loadClass(getDriver()).newInstance();
+        DriverManager.registerDriver(new DriverProxy(driver));
+      } catch (Exception e) {
+        SQLException ex = new SQLException("SQL driver not found " + getDriver());
+        throw (SQLException) ex.initCause(e);
+      }
     }
     return DriverManager.getConnection(getUrl(), getUsername(), getPassword());
+  }
+
+  @Override
+  public void stop() {
+    super.stop();
+
+    deregisterDriverProxy();
+  }
+
+  /**
+   * Due to memory leak in DriverManager we also should deregister original driver,
+   * but we can't do it here, because DriverManager checks the class loader of the calling class.
+   * So actually we might have a memory leak, but it supposed to be handled by Sonar batch.
+   */
+  private void deregisterDriverProxy() {
+    Enumeration<Driver> drivers = DriverManager.getDrivers();
+    while (drivers.hasMoreElements()) {
+      Driver driver = drivers.nextElement();
+      if (driver instanceof DriverProxy) {
+        try {
+          DriverManager.deregisterDriver(driver);
+          LOG.debug("JDBC Driver [{}] deregistered", driver);
+        } catch (SQLException e) {
+          LOG.warn("JDBC driver deregistration failed", e);
+        }
+      }
+    }
   }
 
   @Override

@@ -56,9 +56,9 @@ public class BootstrapModule extends Module {
     addComponent(TempDirectories.class);// registered here because used by BootstrapClassLoader
     addComponent(HttpDownloader.class);// registered here because used by BootstrapClassLoader
     addComponent(ArtifactDownloader.class);// registered here because used by BootstrapClassLoader
-    addComponent(BootstrapClassLoader.class);
+    addComponent(JdbcDriverHolder.class);
 
-    URLClassLoader bootstrapClassLoader = getComponent(BootstrapClassLoader.class).getClassLoader();
+    URLClassLoader bootstrapClassLoader = getComponent(JdbcDriverHolder.class).getClassLoader();
     // set as the current context classloader for hibernate, else it does not find the JDBC driver.
     Thread.currentThread().setContextClassLoader(bootstrapClassLoader);
 
