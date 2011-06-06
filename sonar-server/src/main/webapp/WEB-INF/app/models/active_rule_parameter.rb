@@ -29,8 +29,8 @@
      rules_parameter
    end
 
-   def validate_on_update
-     rules_parameter.validate_value(value, errors, "value" )
+   def validate
+     rules_parameter.validate_value(value, errors, "value")
    end
 
    def copy
