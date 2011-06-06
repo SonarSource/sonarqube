@@ -20,6 +20,7 @@
 package org.sonar.batch;
 
 import org.apache.maven.project.MavenProject;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
@@ -31,11 +32,16 @@ import org.sonar.api.utils.TimeProfiler;
  */
 public abstract class AbstractMavenPluginExecutor implements MavenPluginExecutor {
 
-  public final MavenPluginHandler execute(Project project, MavenPluginHandler handler) {
+  public final MavenPluginHandler execute(Project project, ProjectDefinition projectDefinition, MavenPluginHandler handler) {
     for (String goal : handler.getGoals()) {
       MavenPlugin plugin = MavenPlugin.getPlugin(project.getPom(), handler.getGroupId(), handler.getArtifactId());
-      execute(project, getGoal(handler.getGroupId(), handler.getArtifactId(), plugin.getPlugin().getVersion(), goal));
+      execute(project, getGoal(handler.getGroupId(), handler.getArtifactId(), (plugin!=null && plugin.getPlugin()!=null ? plugin.getPlugin().getVersion() : null), goal));
     }
+
+    if (project.getPom()!=null) {
+      MavenProjectConverter.synchronizeFileSystem(project.getPom(), projectDefinition);
+    }
+
     return handler;
   }
 

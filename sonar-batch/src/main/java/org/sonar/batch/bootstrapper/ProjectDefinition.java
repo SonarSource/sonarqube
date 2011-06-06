@@ -27,7 +27,7 @@ import java.util.Properties;
 /**
  * Describes project in a form suitable to bootstrap Sonar batch.
  * We assume that project is just a set of configuration properties and directories.
- * 
+ *
  * @since 2.6
  * @deprecated since 2.9. Move into org.sonar.api.batch.bootstrap
  */
@@ -38,11 +38,14 @@ public class ProjectDefinition {
   private List<ProjectDefinition> children = new ArrayList<ProjectDefinition>();
 
   /**
-   * @param baseDir project base directory
+   * @param baseDir    project base directory
    * @param properties project properties
    */
   public ProjectDefinition(File baseDir, File workDir, Properties properties) {
-    target = new org.sonar.api.batch.bootstrap.ProjectDefinition(baseDir, workDir, properties);
+    target = org.sonar.api.batch.bootstrap.ProjectDefinition.create()
+        .setBaseDir(baseDir)
+        .setWorkDir(workDir)
+        .setProperties(properties);
   }
 
   public File getBaseDir() {
@@ -71,7 +74,7 @@ public class ProjectDefinition {
 
   /**
    * @param path path to directory with test sources.
-   *          It can be absolute or relative to project directory.
+   *             It can be absolute or relative to project directory.
    */
   public void addTestDir(String path) {
     target.addTestDirs(path);
@@ -83,7 +86,7 @@ public class ProjectDefinition {
 
   /**
    * @param path path to directory with compiled source. In case of Java this is directory with class files.
-   *          It can be absolute or relative to project directory.
+   *             It can be absolute or relative to project directory.
    * @TODO currently Sonar supports only one such directory due to dependency on MavenProject
    */
   public void addBinaryDir(String path) {
@@ -96,7 +99,7 @@ public class ProjectDefinition {
 
   /**
    * @param path path to file with third-party library. In case of Java this is path to jar file.
-   *          It can be absolute or relative to project directory.
+   *             It can be absolute or relative to project directory.
    */
   public void addLibrary(String path) {
     target.addLibrary(path);
@@ -104,7 +107,7 @@ public class ProjectDefinition {
 
   /**
    * Adds an extension, which would be available in PicoContainer during analysis of this project.
-   * 
+   *
    * @since 2.8
    */
   public void addContainerExtension(Object extension) {

@@ -66,11 +66,33 @@ public final class MavenProjectConverter {
    */
   static ProjectDefinition convert(MavenProject pom) {
     String key = new StringBuilder().append(pom.getGroupId()).append(":").append(pom.getArtifactId()).toString();
-    return new ProjectDefinition(pom.getBasedir(), null, pom.getModel().getProperties()) // TODO work directory ?
+    ProjectDefinition definition = ProjectDefinition.create();
+    definition.setProperties(pom.getModel().getProperties())
         .setKey(key)
         .setVersion(pom.getVersion())
         .setName(pom.getName())
         .setDescription(pom.getDescription())
         .addContainerExtension(pom);
+    synchronizeFileSystem(pom, definition);
+    return definition;
+  }
+
+  public static void synchronizeFileSystem(MavenProject pom, ProjectDefinition into) {
+    into.setBaseDir(pom.getBasedir());
+    into.setWorkDir(new File(resolvePath(pom.getBuild().getDirectory(), pom.getBasedir()), "sonar"));
+    into.setSourceDirs((String[]) pom.getCompileSourceRoots().toArray(new String[pom.getCompileSourceRoots().size()]));
+    into.setTestDirs((String[]) pom.getTestCompileSourceRoots().toArray(new String[pom.getTestCompileSourceRoots().size()]));
+  }
+
+  static File resolvePath(String path, File basedir) {
+    File file = new File(path);
+    if (!file.isAbsolute()) {
+      try {
+        file = new File(basedir, path).getCanonicalFile();
+      } catch (IOException e) {
+        throw new SonarException("Unable to resolve path '" + path + "'", e);
+      }
+    }
+    return file;
   }
 }

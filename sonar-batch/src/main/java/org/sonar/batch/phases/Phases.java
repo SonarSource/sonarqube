@@ -74,17 +74,17 @@ public final class Phases {
     eventBus.fireEvent(new ProjectAnalysisEvent(project, true));
     mavenPluginsConfigurator.execute(project);
     mavenPhaseExecutor.execute(project);
-    initializersExecutor.execute(project);
+    initializersExecutor.execute();
 
     persistenceManager.setDelayedMode(true);
-    sensorsExecutor.execute(project, sensorContext);
-    decoratorsExecutor.execute(project);
+    sensorsExecutor.execute(sensorContext);
+    decoratorsExecutor.execute();
     persistenceManager.dump();
     persistenceManager.setDelayedMode(false);
 
     if (project.isRoot()) {
       updateStatusJob.execute();
-      postJobsExecutor.execute(project, sensorContext);
+      postJobsExecutor.execute(sensorContext);
     }
     cleanMemory();
     eventBus.fireEvent(new ProjectAnalysisEvent(project, false));

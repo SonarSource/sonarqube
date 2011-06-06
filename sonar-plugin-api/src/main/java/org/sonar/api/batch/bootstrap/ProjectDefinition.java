@@ -31,7 +31,8 @@ import java.util.Properties;
 
 /**
  * Defines project metadata (key, name, source directories, ...). It's generally used by the
- * {@link org.sonar.api.batch.bootstrap.ProjectBuilder extension point}
+ * {@link org.sonar.api.batch.bootstrap.ProjectBuilder extension point} and must not be used
+ * by other standard extensions.
  *
  * @since 2.9
  */
@@ -48,22 +49,21 @@ public final class ProjectDefinition implements BatchComponent {
 
   private File baseDir;
   private File workDir;
-  private Properties properties;
+  private Properties properties = new Properties();
   private ProjectDefinition parent = null;
   private List<ProjectDefinition> subProjects = Lists.newArrayList();
   private List<Object> containerExtensions = Lists.newArrayList();
-
-  public ProjectDefinition(File baseDir, File workDir, Properties properties) {
-    this.baseDir = baseDir;
-    this.workDir = workDir;
-    this.properties = properties;
-  }
 
   private ProjectDefinition() {
   }
 
   public static ProjectDefinition create() {
     return new ProjectDefinition();
+  }
+
+  public ProjectDefinition setProperties(Properties p) {
+    this.properties = p;
+    return this;
   }
 
   public File getBaseDir() {
@@ -151,13 +151,8 @@ public final class ProjectDefinition implements BatchComponent {
 
   public ProjectDefinition addSourceDirs(File... dirs) {
     for (File dir : dirs) {
-      addSourceDirs(dir);
+      addSourceDirs(dir.getAbsolutePath());
     }
-    return this;
-  }
-
-  public ProjectDefinition setSourceDir(String path) {
-    properties.setProperty(SOURCE_DIRS_PROPERTY, path);
     return this;
   }
 
@@ -166,9 +161,14 @@ public final class ProjectDefinition implements BatchComponent {
     return this;
   }
 
-  public ProjectDefinition setSourceDir(File path) {
-    setSourceDir(path.getAbsolutePath());
-    return this;
+  public ProjectDefinition setSourceDirs(String... paths) {
+    resetSourceDirs();
+    return addSourceDirs(paths);
+  }
+
+  public ProjectDefinition setSourceDirs(File... dirs) {
+    resetSourceDirs();
+    return setSourceDirs(dirs);
   }
 
   /**
@@ -221,6 +221,16 @@ public final class ProjectDefinition implements BatchComponent {
     return this;
   }
 
+  public ProjectDefinition setTestDirs(String... paths) {
+    resetTestDirs();
+    return addTestDirs(paths);
+  }
+
+  public ProjectDefinition setTestDirs(File... dirs) {
+    resetTestDirs();
+    return setTestDirs(dirs);
+  }
+
   public ProjectDefinition resetTestDirs() {
     properties.remove(TEST_DIRS_PROPERTY);
     return this;
@@ -268,6 +278,11 @@ public final class ProjectDefinition implements BatchComponent {
     appendProperty(BINARIES_PROPERTY, path);
     return this;
   }
+
+  public ProjectDefinition addBinaryDir(File f) {
+    return addBinaryDir(f.getAbsolutePath());
+  }
+
 
   public List<String> getLibraries() {
     String sources = properties.getProperty(LIBRARIES_PROPERTY, "");

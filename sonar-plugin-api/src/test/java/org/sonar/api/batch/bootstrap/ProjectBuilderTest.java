@@ -35,7 +35,7 @@ public class ProjectBuilderTest {
   @Test
   public void shouldChangeProject() {
     // this reactor is created and injected by Sonar
-    ProjectReactor projectReactor = new ProjectReactor(new ProjectDefinition(new File("."), new File("."), new Properties()));
+    ProjectReactor projectReactor = new ProjectReactor(ProjectDefinition.create());
 
     ProjectBuilder builder = new ProjectBuilderSample(projectReactor, new PropertiesConfiguration());
     builder.start();
@@ -65,11 +65,13 @@ public class ProjectBuilderTest {
 
       // add sub-project
       File baseDir = new File(root.getBaseDir(), "path/to/subproject");
-      ProjectDefinition subProject = new ProjectDefinition(baseDir, new File(baseDir, "target/.sonar"), new Properties());
+      ProjectDefinition subProject = ProjectDefinition.create();
+      subProject.setBaseDir(baseDir);
+      subProject.setWorkDir(new File(baseDir, "target/.sonar"));
       subProject.setKey("groupId:subProjectId");
       subProject.setVersion(root.getVersion());
       subProject.setName("Sub Project");
-      subProject.setSourceDir("src");
+      subProject.setSourceDirs("src");
       root.addSubProject(subProject);
     }
   }

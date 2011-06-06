@@ -45,9 +45,11 @@ public class MavenProjectConverterTest {
   public void shouldConvertModules() {
     MavenProject root = new MavenProject();
     root.setFile(new File("/foo/pom.xml"));
+    root.getBuild().setDirectory("target");
     root.getModules().add("module");
     MavenProject module = new MavenProject();
     module.setFile(new File("/foo/module/pom.xml"));
+    module.getBuild().setDirectory("target");
     ProjectDefinition project = MavenProjectConverter.convert(Arrays.asList(root, module), root);
 
     assertThat(project.getSubProjects().size(), is(1));
@@ -61,6 +63,8 @@ public class MavenProjectConverterTest {
     pom.setVersion("1.0.1");
     pom.setName("Test");
     pom.setDescription("just test");
+    pom.setFile(new File("/foo/pom.xml"));
+    pom.getBuild().setDirectory("target");
     ProjectDefinition project = MavenProjectConverter.convert(pom);
 
     Properties properties = project.getProperties();
@@ -130,6 +134,7 @@ public class MavenProjectConverterTest {
     Model model = new MavenXpp3Reader().read(new StringReader(FileUtils.readFileToString(pomFile)));
     MavenProject pom = new MavenProject(model);
     pom.setFile(pomFile);
+    pom.getBuild().setDirectory("target");
     pom.setExecutionRoot(isRoot);
     return pom;
   }

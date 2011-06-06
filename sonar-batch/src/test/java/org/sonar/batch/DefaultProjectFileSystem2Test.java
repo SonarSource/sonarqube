@@ -19,17 +19,29 @@
  */
 package org.sonar.batch;
 
+import org.apache.commons.io.FileUtils;
+import org.hamcrest.core.Is;
+import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.maven.MavenPluginHandler;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 
-public final class FakeMavenPluginExecutor implements MavenPluginExecutor {
-  public void execute(Project project, String goal) {
-    // do nothing
-  }
+import java.io.File;
 
-  public MavenPluginHandler execute(Project project, ProjectDefinition projectDefinition, MavenPluginHandler handler) {
-    // do nothing
-    return handler;
+import static org.junit.Assert.assertThat;
+import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
+
+public class DefaultProjectFileSystem2Test {
+  @Test
+  public void shouldIgnoreInexistingSourceDirs() {
+    File exists = FileUtils.toFile(getClass().getResource("/org/sonar/batch/DefaultProjectFileSystem2Test/shouldIgnoreInexistingSourceDirs"));
+    File notExists = new File("target/unknown");
+
+    ProjectDefinition definition = ProjectDefinition.create().addSourceDirs(exists, notExists);
+
+    DefaultProjectFileSystem2 fs = new DefaultProjectFileSystem2(new Project("foo"), new Languages(), definition);
+    assertThat(fs.getSourceDirs().size(), Is.is(1));
+    assertThat(fs.getSourceDirs(), hasItem(exists));
+
   }
 }

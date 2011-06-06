@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.bootstrap;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 
@@ -29,19 +30,20 @@ import java.util.Properties;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.hasItem;
 
 public class ProjectDefinitionTest {
 
   @Test
   public void shouldSetKey() {
-    ProjectDefinition def = new ProjectDefinition(new File("."), new File("."), new Properties());
+    ProjectDefinition def = ProjectDefinition.create();
     def.setKey("mykey");
     assertThat(def.getKey(), is("mykey"));
   }
 
   @Test
   public void shouldSetOptionalFields() {
-    ProjectDefinition def = new ProjectDefinition(new File("."), new File("."), new Properties());
+    ProjectDefinition def = ProjectDefinition.create();
     def.setName("myname");
     def.setDescription("desc");
     assertThat(def.getName(), is("myname"));
@@ -50,7 +52,7 @@ public class ProjectDefinitionTest {
 
   @Test
   public void shouldSupportDefaultName() {
-    ProjectDefinition def = new ProjectDefinition(new File("."), new File("."), new Properties());
+    ProjectDefinition def = ProjectDefinition.create();
     def.setKey("myKey");
     assertThat(def.getName(), is("Unnamed - myKey"));
   }
@@ -58,13 +60,14 @@ public class ProjectDefinitionTest {
   public void shouldGetKeyFromProperties() {
     Properties props = new Properties();
     props.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "foo");
-    ProjectDefinition def = new ProjectDefinition(new File("."), new File("."), props);
+    ProjectDefinition def = ProjectDefinition.create();
+    def.setProperties(props);
     assertThat(def.getKey(), is("foo"));
   }
 
   @Test
   public void testDefaultValues() {
-    ProjectDefinition def = new ProjectDefinition(new File("."), new File("."), new Properties());
+    ProjectDefinition def = ProjectDefinition.create();
     assertThat(def.getSourceDirs().size(), is(0));
     assertThat(def.getTestDirs().size(), is(0));
     assertThat(def.getBinaries().size(), is(0));
@@ -72,8 +75,8 @@ public class ProjectDefinitionTest {
   }
 
   @Test
-  public void shouldAddDirectories() {
-    ProjectDefinition def = new ProjectDefinition(new File("."), new File("."), new Properties());
+  public void shouldAddDirectoriesAsPath() {
+    ProjectDefinition def = ProjectDefinition.create();
     def.addSourceDirs("src/main/java", "src/main/java2");
     def.addTestDirs("src/test/java");
     def.addTestDirs("src/test/java2");
@@ -89,8 +92,20 @@ public class ProjectDefinitionTest {
   }
 
   @Test
+  public void shouldAddDirectories() {
+    ProjectDefinition def = ProjectDefinition.create();
+    def.addSourceDirs(new File("src/main/java"), new File("src/main/java2"));
+    def.addTestDirs(new File("src/test/java"), new File("src/test/java2"));
+    def.addBinaryDir(new File("target/classes"));
+
+    assertThat(def.getSourceDirs().size(), is(2));
+    assertThat(def.getTestDirs().size(), CoreMatchers.is(2));
+    assertThat(def.getBinaries().size(), CoreMatchers.is(1));
+  }
+
+  @Test
   public void shouldAddFiles() {
-    ProjectDefinition def = new ProjectDefinition(new File("."), new File("."), new Properties());
+    ProjectDefinition def = ProjectDefinition.create();
     def.addSourceFiles("src/main/java/foo/Bar.java", "src/main/java/hello/World.java");
     def.addTestFiles("src/test/java/foo/BarTest.java", "src/test/java/hello/WorldTest.java");
 
@@ -101,8 +116,8 @@ public class ProjectDefinitionTest {
 
   @Test
   public void shouldManageRelationships() {
-    ProjectDefinition root = new ProjectDefinition(new File("."), new File("."), new Properties());
-    ProjectDefinition child = new ProjectDefinition(new File("."), new File("."), new Properties());
+    ProjectDefinition root = ProjectDefinition.create();
+    ProjectDefinition child = ProjectDefinition.create();
     root.addSubProject(child);
 
     assertThat(root.getSubProjects().size(), is(1));
@@ -114,7 +129,7 @@ public class ProjectDefinitionTest {
 
   @Test
   public void shouldResetSourceDirs() {
-    ProjectDefinition root = new ProjectDefinition(new File("."), new File("."), new Properties());
+    ProjectDefinition root = ProjectDefinition.create();
     root.addSourceDirs("src", "src2/main");
     assertThat(root.getSourceDirs().size(), is(2));
 
@@ -124,7 +139,7 @@ public class ProjectDefinitionTest {
 
   @Test
   public void shouldResetTestDirs() {
-    ProjectDefinition root = new ProjectDefinition(new File("."), new File("."), new Properties());
+    ProjectDefinition root = ProjectDefinition.create();
     root.addTestDirs("src", "src2/test");
     assertThat(root.getTestDirs().size(), is(2));
 

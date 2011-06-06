@@ -19,18 +19,19 @@
  */
 package org.sonar.batch.phases;
 
-import java.util.Collection;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Initializer;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.MavenPluginExecutor;
+
+import java.util.Collection;
 
 public class InitializersExecutor {
 
@@ -39,19 +40,23 @@ public class InitializersExecutor {
   private MavenPluginExecutor mavenExecutor;
 
   private Collection<Initializer> initializers;
+  private ProjectDefinition projectDef;
+  private Project project;
 
-  public InitializersExecutor(BatchExtensionDictionnary selector, Project project, MavenPluginExecutor mavenExecutor) {
+  public InitializersExecutor(BatchExtensionDictionnary selector, Project project, ProjectDefinition projectDef, MavenPluginExecutor mavenExecutor) {
     this.initializers = selector.select(Initializer.class, project, true);
     this.mavenExecutor = mavenExecutor;
+    this.project = project;
+    this.projectDef = projectDef;
   }
 
-  public void execute(Project project) {
+  public void execute() {
     if (logger.isDebugEnabled()) {
       logger.debug("Initializers : {}", StringUtils.join(initializers, " -> "));
     }
 
     for (Initializer initializer : initializers) {
-      executeMavenPlugin(project, initializer);
+      executeMavenPlugin(initializer);
 
       TimeProfiler profiler = new TimeProfiler(logger).start("Initializer " + initializer);
       initializer.execute(project);
@@ -59,12 +64,12 @@ public class InitializersExecutor {
     }
   }
 
-  private void executeMavenPlugin(Project project, Initializer sensor) {
+  private void executeMavenPlugin(Initializer sensor) {
     if (sensor instanceof DependsUponMavenPlugin) {
       MavenPluginHandler handler = ((DependsUponMavenPlugin) sensor).getMavenPluginHandler(project);
       if (handler != null) {
         TimeProfiler profiler = new TimeProfiler(logger).start("Execute maven plugin " + handler.getArtifactId());
-        mavenExecutor.execute(project, handler);
+        mavenExecutor.execute(project, projectDef, handler);
         profiler.stop();
       }
     }

@@ -19,13 +19,18 @@
  */
 package org.sonar.batch;
 
+import org.apache.maven.project.MavenProject;
 import org.junit.Test;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 
+import java.io.File;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
 
 public class AbstractMavenPluginExecutorTest {
 
@@ -34,13 +39,36 @@ public class AbstractMavenPluginExecutorTest {
     assertThat(AbstractMavenPluginExecutor.getGoal("group", "artifact", null, "goal"), is("group:artifact::goal"));
   }
 
-  static class FakeCheckstyleMavenPluginHandler implements MavenPluginHandler {
+  /**
+   * The maven plugin sometimes changes the project structure (for example mvn build-helper:add-source). These changes
+   * must be applied to the internal structure.
+   */
+  @Test
+  public void shouldUpdateProjectAfterExecution() {
+    AbstractMavenPluginExecutor executor = new AbstractMavenPluginExecutor() {
+      @Override
+      public void concreteExecute(MavenProject pom, String goal) throws Exception {
+        pom.addCompileSourceRoot("src/java");
+      }
+    };
+    MavenProject pom = new MavenProject();
+    pom.setFile(new File("target/AbstractMavenPluginExecutorTest/pom.xml"));
+    pom.getBuild().setDirectory("target");
+    Project foo = new Project("foo");
+    foo.setPom(pom);
+    ProjectDefinition definition = ProjectDefinition.create();
+    executor.execute(foo, definition, new AddSourceMavenPluginHandler());
+
+    assertThat(definition.getSourceDirs(), hasItem("src/java"));
+  }
+
+  static class AddSourceMavenPluginHandler implements MavenPluginHandler {
     public String getGroupId() {
-      return "org.apache.maven.plugins";
+      return "fake";
     }
 
     public String getArtifactId() {
-      return "maven-checkstyle-plugin";
+      return "fake";
     }
 
     public String getVersion() {
@@ -52,7 +80,7 @@ public class AbstractMavenPluginExecutorTest {
     }
 
     public String[] getGoals() {
-      return new String[] { "checkstyle" };
+      return new String[] { "fake" };
     }
 
     public void configure(Project project, MavenPlugin plugin) {

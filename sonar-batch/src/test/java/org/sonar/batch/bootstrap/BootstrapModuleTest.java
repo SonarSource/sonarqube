@@ -35,7 +35,7 @@ public class BootstrapModuleTest {
     public void execute(Project project, String goal) {
     }
 
-    public MavenPluginHandler execute(Project project, MavenPluginHandler handler) {
+    public MavenPluginHandler execute(Project project, ProjectDefinition projectDef, MavenPluginHandler handler) {
       return handler;
     }
   }

@@ -20,6 +20,7 @@
 package org.sonar.batch;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 
@@ -27,6 +28,6 @@ public interface MavenPluginExecutor extends BatchComponent {
 
   void execute(Project project, String goal);
 
-  MavenPluginHandler execute(Project project, MavenPluginHandler handler);
+  MavenPluginHandler execute(Project project, ProjectDefinition def, MavenPluginHandler handler);
 
 }

@@ -21,7 +21,6 @@ package org.sonar.batch;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.project.MavenProject;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -32,7 +31,6 @@ import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -57,11 +55,7 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
   }
 
   public File getBasedir() {
-    if (pom != null) {
-      return pom.getBasedir();
-    } else {
-      return def.getBaseDir();
-    }
+    return def.getBaseDir();
   }
 
   public File getBuildDir() {
@@ -88,13 +82,7 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
 
   @Override
   public List<File> getSourceDirs() {
-    List<File> unfiltered;
-    if (pom != null) {
-      // Maven can modify source directories during Sonar execution - see MavenPhaseExecutor.
-      unfiltered = resolvePaths(pom.getCompileSourceRoots());
-    } else {
-      unfiltered = resolvePaths(def.getSourceDirs());
-    }
+    List<File> unfiltered = resolvePaths(def.getSourceDirs());
     return ImmutableList.copyOf(Iterables.filter(unfiltered, DIRECTORY_EXISTS));
   }
 
@@ -108,9 +96,8 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
     }
     if (pom != null) {
       pom.getCompileSourceRoots().add(0, dir.getAbsolutePath());
-    } else {
-      def.addSourceDirs(dir.getAbsolutePath());
     }
+    def.addSourceDirs(dir.getAbsolutePath());
     return this;
   }
 
@@ -119,13 +106,7 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
    */
   @Override
   public List<File> getTestDirs() {
-    List<File> unfiltered;
-    if (pom != null) {
-      // Maven can modify test directories during Sonar execution - see MavenPhaseExecutor.
-      unfiltered = resolvePaths(pom.getTestCompileSourceRoots());
-    } else {
-      unfiltered = resolvePaths(def.getTestDirs());
-    }
+    List<File> unfiltered = resolvePaths(def.getTestDirs());
     return ImmutableList.copyOf(Iterables.filter(unfiltered, DIRECTORY_EXISTS));
   }
 
@@ -139,9 +120,8 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
     }
     if (pom != null) {
       pom.getTestCompileSourceRoots().add(0, dir.getAbsolutePath());
-    } else {
-      def.addTestDirs(dir.getAbsolutePath());
     }
+    def.addTestDirs(dir.getAbsolutePath());
     return this;
   }
 
@@ -158,18 +138,12 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
 
   @Override
   public File getSonarWorkingDirectory() {
-    File dir;
-    if (pom != null) {
-      dir = new File(getBuildDir(), "sonar");
-    } else {
-      dir = def.getWorkDir();
-    }
     try {
-      FileUtils.forceMkdir(dir);
+      FileUtils.forceMkdir(def.getWorkDir());
+      return def.getWorkDir();
     } catch (IOException e) {
       throw new SonarException("Unable to retrieve Sonar working directory.", e);
     }
-    return dir;
   }
 
   @Override

@@ -66,7 +66,7 @@ public class DecoratorsExecutorTest {
     Decorator decorator = mock(Decorator.class);
     doThrow(new SonarException()).when(decorator).decorate(any(Resource.class), any(DecoratorContext.class));
 
-    DecoratorsExecutor executor = new DecoratorsExecutor(mock(BatchExtensionDictionnary.class), mock(SonarIndex.class), mock(EventBus.class));
+    DecoratorsExecutor executor = new DecoratorsExecutor(mock(BatchExtensionDictionnary.class), new Project("key"), mock(SonarIndex.class), mock(EventBus.class));
     try {
       executor.executeDecorator(decorator, mock(DefaultDecoratorContext.class), new File("org/foo/Bar.java"));
       fail("Exception has not been thrown");

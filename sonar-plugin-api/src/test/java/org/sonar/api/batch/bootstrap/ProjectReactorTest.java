@@ -31,8 +31,8 @@ public class ProjectReactorTest {
 
   @Test
   public void shouldSupportMultipleProjects() {
-    ProjectDefinition root = new ProjectDefinition(new File("."), new File("."), new Properties());
-    ProjectDefinition child = new ProjectDefinition(new File("."), new File("."), new Properties());
+    ProjectDefinition root = ProjectDefinition.create();
+    ProjectDefinition child = ProjectDefinition.create();
     root.addSubProject(child);
 
     ProjectReactor reactor = new ProjectReactor(root);
@@ -42,8 +42,8 @@ public class ProjectReactorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void shouldFailIfNotRoot() {
-    ProjectDefinition root = new ProjectDefinition(new File("."), new File("."), new Properties());
-    ProjectDefinition child = new ProjectDefinition(new File("."), new File("."), new Properties());
+    ProjectDefinition root = ProjectDefinition.create();
+    ProjectDefinition child = ProjectDefinition.create();
     root.addSubProject(child);
 
     new ProjectReactor(child);

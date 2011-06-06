@@ -40,14 +40,16 @@ public class DecoratorsExecutor implements BatchComponent {
   private DecoratorsSelector decoratorsSelector;
   private SonarIndex index;
   private EventBus eventBus;
+  private Project project;
 
-  public DecoratorsExecutor(BatchExtensionDictionnary extensionDictionnary, SonarIndex index, EventBus eventBus) {
+  public DecoratorsExecutor(BatchExtensionDictionnary extensionDictionnary, Project project, SonarIndex index, EventBus eventBus) {
     this.decoratorsSelector = new DecoratorsSelector(extensionDictionnary);
     this.index = index;
     this.eventBus = eventBus;
+    this.project = project;
   }
 
-  public void execute(Project project) {
+  public void execute() {
     Collection<Decorator> decorators = decoratorsSelector.select(project);
     eventBus.fireEvent(new DecoratorsPhaseEvent(Lists.newArrayList(decorators), true));
     decorateResource(project, decorators, true);

@@ -26,35 +26,40 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.MavenPluginExecutor;
 
 import java.util.Collection;
+import java.util.List;
 
 public class PostJobsExecutor implements BatchComponent {
   private static final Logger LOG = LoggerFactory.getLogger(PostJobsExecutor.class);
 
   private Collection<PostJob> postJobs;
   private MavenPluginExecutor mavenExecutor;
+  private ProjectDefinition projectDefinition;
+  private Project project;
 
-  public PostJobsExecutor(Project project, BatchExtensionDictionnary selector, MavenPluginExecutor mavenExecutor) {
-    postJobs = selector.select(PostJob.class, project, true);
-    this.mavenExecutor = mavenExecutor;
+  public PostJobsExecutor(BatchExtensionDictionnary selector, Project project, ProjectDefinition projectDefinition, MavenPluginExecutor mavenExecutor) {
+    this(selector.select(PostJob.class, project, true), project, projectDefinition, mavenExecutor);
   }
 
-  protected PostJobsExecutor(Collection<PostJob> postJobs, MavenPluginExecutor mavenExecutor) {
-    this.postJobs = postJobs;
+  PostJobsExecutor(Collection<PostJob> jobs, Project project, ProjectDefinition projectDefinition, MavenPluginExecutor mavenExecutor) {
+    this.postJobs = jobs;
     this.mavenExecutor = mavenExecutor;
+    this.project = project;
+    this.projectDefinition = projectDefinition;
   }
 
-  public void execute(Project project, SensorContext context) {
+  public void execute(SensorContext context) {
     logPostJobs();
 
     for (PostJob postJob : postJobs) {
       LOG.info("Executing post-job {}", postJob.getClass());
-      executeMavenPlugin(project, postJob);
+      executeMavenPlugin(postJob);
       postJob.executeOn(project, context);
     }
   }
@@ -65,11 +70,11 @@ public class PostJobsExecutor implements BatchComponent {
     }
   }
 
-  private void executeMavenPlugin(Project project, PostJob job) {
+  private void executeMavenPlugin(PostJob job) {
     if (job instanceof DependsUponMavenPlugin) {
       MavenPluginHandler handler = ((DependsUponMavenPlugin) job).getMavenPluginHandler(project);
       if (handler != null) {
-        mavenExecutor.execute(project, handler);
+        mavenExecutor.execute(project, projectDefinition, handler);
       }
     }
   }

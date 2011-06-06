@@ -22,6 +22,7 @@ package org.sonar.batch.phases;
 import org.junit.Test;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.MavenPluginExecutor;
 
@@ -39,10 +40,11 @@ public class PostJobsExecutorTest {
     PostJob job2 = mock(PostJob.class);
     List<PostJob> jobs = Arrays.asList(job1, job2);
 
-    PostJobsExecutor executor = new PostJobsExecutor(jobs, mock(MavenPluginExecutor.class));
     Project project = new Project("project");
+    ProjectDefinition projectDefinition = ProjectDefinition.create();
+    PostJobsExecutor executor = new PostJobsExecutor(jobs, project, projectDefinition, mock(MavenPluginExecutor.class));
     SensorContext context = mock(SensorContext.class);
-    executor.execute(project, context);
+    executor.execute(context);
 
     verify(job1).executeOn(project, context);
     verify(job2).executeOn(project, context);
