@@ -59,7 +59,7 @@ public final class ProjectDefinition implements BatchComponent {
   }
 
   public static ProjectDefinition create(Properties properties) {
-    return new ProjectDefinition(properties);
+    return new ProjectDefinition((Properties)properties.clone());
   }
 
   public static ProjectDefinition create() {
