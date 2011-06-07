@@ -167,7 +167,10 @@ public final class ProjectDefinition implements BatchComponent {
 
   public ProjectDefinition setSourceDirs(File... dirs) {
     resetSourceDirs();
-    return setSourceDirs(dirs);
+    for (File dir : dirs) {
+      addSourceDirs(dir.getAbsolutePath());
+    }
+    return this;
   }
 
   /**
@@ -227,7 +230,10 @@ public final class ProjectDefinition implements BatchComponent {
 
   public ProjectDefinition setTestDirs(File... dirs) {
     resetTestDirs();
-    return setTestDirs(dirs);
+    for (File dir : dirs) {
+      addTestDirs(dir.getAbsolutePath());
+    }
+    return this;
   }
 
   public ProjectDefinition resetTestDirs() {
