@@ -1,0 +1,15 @@
+<style>
+#cloud a {
+  text-decoration: none;
+}
+</style>
+<div id="cloud">
+<% @snapshots.each do |s|
+  size_measure=@size_measure_by_sid[s.id]
+  if size_measure && size_measure.value
+	color_measure=@color_measure_by_sid[s.id]
+%>
+  <a href=""><span style="font-size: <%= font_size(size_measure.value) -%>%;color: <%= MeasureColor.color(color_measure, :check_alert_status => false).html -%>"><%= s.resource.name %></span></a>
+<%  end 
+  end %>
+</div>
