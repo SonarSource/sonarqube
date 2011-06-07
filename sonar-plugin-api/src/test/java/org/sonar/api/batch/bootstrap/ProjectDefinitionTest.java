@@ -30,7 +30,6 @@ import java.util.Properties;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItem;
 
 public class ProjectDefinitionTest {
 
@@ -56,12 +55,12 @@ public class ProjectDefinitionTest {
     def.setKey("myKey");
     assertThat(def.getName(), is("Unnamed - myKey"));
   }
+
   @Test
   public void shouldGetKeyFromProperties() {
     Properties props = new Properties();
     props.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "foo");
-    ProjectDefinition def = ProjectDefinition.create();
-    def.setProperties(props);
+    ProjectDefinition def = ProjectDefinition.create(props);
     assertThat(def.getKey(), is("foo"));
   }
 

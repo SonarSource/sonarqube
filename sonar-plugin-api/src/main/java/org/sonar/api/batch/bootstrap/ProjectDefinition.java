@@ -54,20 +54,16 @@ public final class ProjectDefinition implements BatchComponent {
   private List<ProjectDefinition> subProjects = Lists.newArrayList();
   private List<Object> containerExtensions = Lists.newArrayList();
 
-  private ProjectDefinition() {
+  private ProjectDefinition(Properties p) {
+    this.properties = p;
+  }
+
+  public static ProjectDefinition create(Properties properties) {
+    return new ProjectDefinition(properties);
   }
 
   public static ProjectDefinition create() {
-    return new ProjectDefinition();
-  }
-
-  public ProjectDefinition setProperties(Properties p) {
-    this.properties = p;
-    return this;
-  }
-
-  public File getBaseDir() {
-    return baseDir;
+    return new ProjectDefinition(new Properties());
   }
 
   public ProjectDefinition setBaseDir(File baseDir) {
@@ -75,6 +71,9 @@ public final class ProjectDefinition implements BatchComponent {
     return this;
   }
 
+  public File getBaseDir() {
+    return baseDir;
+  }
   public ProjectDefinition setWorkDir(File workDir) {
     this.workDir = workDir;
     return this;

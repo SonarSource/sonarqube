@@ -42,10 +42,9 @@ public class ProjectDefinition {
    * @param properties project properties
    */
   public ProjectDefinition(File baseDir, File workDir, Properties properties) {
-    target = org.sonar.api.batch.bootstrap.ProjectDefinition.create()
+    target = org.sonar.api.batch.bootstrap.ProjectDefinition.create(properties)
         .setBaseDir(baseDir)
-        .setWorkDir(workDir)
-        .setProperties(properties);
+        .setWorkDir(workDir);
   }
 
   public File getBaseDir() {

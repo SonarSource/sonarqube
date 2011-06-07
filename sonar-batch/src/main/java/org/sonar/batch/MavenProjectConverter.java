@@ -66,9 +66,8 @@ public final class MavenProjectConverter {
    */
   static ProjectDefinition convert(MavenProject pom) {
     String key = new StringBuilder().append(pom.getGroupId()).append(":").append(pom.getArtifactId()).toString();
-    ProjectDefinition definition = ProjectDefinition.create();
-    definition.setProperties(pom.getModel().getProperties())
-        .setKey(key)
+    ProjectDefinition definition = ProjectDefinition.create(pom.getModel().getProperties());
+    definition.setKey(key)
         .setVersion(pom.getVersion())
         .setName(pom.getName())
         .setDescription(pom.getDescription())
