@@ -146,17 +146,6 @@ public class ProjectDefinitionTest {
     assertThat(root.getTestDirs().size(), is(0));
   }
 
-  @Test
-  public void shouldCloneProperties()  {
-    Properties rootProps = new Properties();
-    rootProps.setProperty(CoreProperties.PROJECT_NAME_PROPERTY, "root");
-    ProjectDefinition def = ProjectDefinition.create(rootProps);
-    def.setName("child");
-
-    assertThat(def.getName(), is("child"));
-    assertThat(rootProps.getProperty(CoreProperties.PROJECT_NAME_PROPERTY), is("root"));
-  }
-
   private static void assertFiles(List<String> paths, String... values) {
     assertThat(paths.size(), is(values.length));
     for (int i = 0; i < values.length; i++) {
