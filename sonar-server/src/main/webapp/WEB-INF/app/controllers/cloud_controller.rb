@@ -27,11 +27,11 @@ class CloudController < ApplicationController
     if @project.nil?
       return render :text => "Resource [#{project_key}] not found", :status => 404
     end
+    return access_denied unless has_role?(:user, @project)
     @snapshot=@project.last_snapshot
 
-    # metrics
-    size_metric=Metric.by_key('ncloc')
-    color_metric=Metric.by_key('violations_density')
+    @size_metric=Metric.by_key(params[:size]||'ncloc')
+    @color_metric=Metric.by_key(params[:color]||'violations_density')
     
     snapshot_conditions='snapshots.islast=:islast AND snapshots.scope=:scope AND snapshots.qualifier!=:test_qualifier AND 
       (snapshots.id=:sid OR (snapshots.root_snapshot_id=:root_sid AND snapshots.path LIKE :path))'
@@ -46,27 +46,27 @@ class CloudController < ApplicationController
     
     @snapshots=Snapshot.find(:all, :conditions => [snapshot_conditions, snapshot_values], :include => 'project', :order => 'projects.name')
         
-    @size_measures=ProjectMeasure.find(:all,
+    size_measures=ProjectMeasure.find(:all,
       :select => 'project_measures.id,project_measures.value,project_measures.metric_id,project_measures.snapshot_id,project_measures.rule_id,project_measures.rule_priority,project_measures.text_value,project_measures.characteristic_id,project_measures.alert_status',
       :joins => :snapshot,
-      :conditions => [snapshot_conditions + " AND project_measures.metric_id=#{size_metric.id}", snapshot_values],
+      :conditions => [snapshot_conditions + " AND project_measures.metric_id=#{@size_metric.id}", snapshot_values],
       :order => 'project_measures.value')
     
-    @color_measures=ProjectMeasure.find(:all,
+    color_measures=ProjectMeasure.find(:all,
         :select => 'project_measures.id,project_measures.value,project_measures.metric_id,project_measures.snapshot_id,project_measures.rule_id,project_measures.rule_priority,project_measures.text_value,project_measures.characteristic_id,project_measures.alert_status',
         :joins => :snapshot,
-        :conditions => [snapshot_conditions + " AND project_measures.metric_id=#{color_metric.id}", snapshot_values],
+        :conditions => [snapshot_conditions + " AND project_measures.metric_id=#{@color_metric.id}", snapshot_values],
         :order => 'project_measures.value')
         
     @size_measure_by_sid={}, @color_measure_by_sid={}
-    @size_measures.each do |m|
+    size_measures.each do |m|
       @size_measure_by_sid[m.snapshot_id]=m
     end
-    @color_measures.each do |m|
+    color_measures.each do |m|
       @color_measure_by_sid[m.snapshot_id]=m
     end
-    @min_size_value=(@size_measures.empty? ? 0.0 : @size_measures.first.value)
-    @max_size_value=(@size_measures.empty? ? 0.0 : @size_measures.last.value)
+    @min_size_value=(size_measures.empty? ? 0.0 : size_measures.first.value)
+    @max_size_value=(size_measures.empty? ? 0.0 : size_measures.last.value)
   end
 
 end

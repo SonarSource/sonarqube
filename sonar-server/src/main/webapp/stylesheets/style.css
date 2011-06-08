@@ -1178,6 +1178,24 @@ table.header1 td {
 	text-align: left;
 	vertical-align: top;
 }
+.headerLine {
+	background-color: #ECECEC;
+	color: #444;
+	border: 1px solid #DDD;
+	margin: 0 0 10px 0;
+  line-height: 30px;
+  height: 30px;
+  width: 100%;
+}
+ul.headerLine li {
+  float: left;
+  display: block;
+  padding: 0 10px 0;
+  background: url("../images/sep12.png") no-repeat scroll 0 50% transparent;
+}
+ul.headerLine li.first {
+  background: none;
+}
 select.withIcons option {
 	background-repeat: no-repeat;
 	background-position: 2px 0;
