@@ -37,7 +37,13 @@
 </form>
 
 <div id="cloud">
-  <% @snapshots.each do |s|
+  <% 
+  color_options={
+    :check_alert_status => false, 
+    :min_color => Color::RGB.from_html("EE0000"), # red
+    :mean_color => Color::RGB.from_html("4D05B1"), # purple
+    :max_color => Color::RGB.from_html("2360BF")} # blue
+  @snapshots.each do |s|
     size_measure=@size_measure_by_sid[s.id]
     if size_measure && size_measure.value
       color_measure=@color_measure_by_sid[s.id]
@@ -51,7 +57,7 @@
        title += " | #{@color_metric.short_name}: #{color_measure.formatted_value}"
      end
   %>
-      <a href="#" onclick="<%= link -%>" title="<%= title -%>"><span style="font-size:<%= font_size(size_measure.value) -%>%;color: <%= MeasureColor.color(color_measure, :check_alert_status => false).html -%>"><%= s.resource.name %></span></a>
+      <a href="#" onclick="<%= link -%>" title="<%= title -%>"><span style="font-size:<%= font_size(size_measure.value) -%>%;color: <%= MeasureColor.color(color_measure, color_options).html -%>"><%= s.resource.name %></span></a>
     <% end
        end %>
 </div>
