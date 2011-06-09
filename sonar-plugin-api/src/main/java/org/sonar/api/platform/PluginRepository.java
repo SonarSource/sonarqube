@@ -32,4 +32,14 @@ public interface PluginRepository extends BatchComponent, ServerComponent {
   Plugin getPlugin(String key);
 
   Property[] getProperties(Plugin plugin);
+
+  /**
+   * @since 2.9
+   */
+  Collection<PluginMetadata> getMetadata();
+
+  /**
+   * @since 2.9
+   */
+  PluginMetadata getMetadata(String pluginKey);
 }

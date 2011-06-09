@@ -26,7 +26,6 @@ import org.sonar.api.utils.HttpDownloader;
 import org.sonar.batch.FakeMavenPluginExecutor;
 import org.sonar.batch.MavenPluginExecutor;
 import org.sonar.batch.ServerMetadata;
-import org.sonar.core.plugin.JpaPluginDao;
 import org.sonar.jpa.session.DatabaseSessionProvider;
 import org.sonar.jpa.session.DriverDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
@@ -74,7 +73,6 @@ public class BootstrapModule extends Module {
 
     // LIMITATION : list of plugins to download is currently loaded from database. It should be loaded from
     // remote HTTP index.
-    addComponent(JpaPluginDao.class);
     addComponent(BatchPluginRepository.class);
     addComponent(BatchExtensionInstaller.class);
     addComponent(ProjectExtensionInstaller.class);

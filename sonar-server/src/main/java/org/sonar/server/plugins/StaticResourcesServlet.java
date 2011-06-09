@@ -44,8 +44,8 @@ public class StaticResourcesServlet extends HttpServlet {
     String pluginKey = getPluginKey(request);
     String resource = getResourcePath(request);
 
-    PluginClassLoaders pluginClassLoaders = Platform.getInstance().getContainer().getComponent(PluginClassLoaders.class);
-    ClassLoader classLoader = pluginClassLoaders.getClassLoader(pluginKey);
+    ServerPluginRepository pluginRepository = Platform.getInstance().getContainer().getComponent(ServerPluginRepository.class);
+    ClassLoader classLoader = pluginRepository.getClassloader(pluginKey);
     if (classLoader == null) {
       LOG.error("Plugin not found: " + pluginKey);
       response.sendError(HttpServletResponse.SC_NOT_FOUND);

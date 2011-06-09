@@ -19,54 +19,113 @@
  */
 package org.sonar.server.plugins;
 
-import java.util.List;
-
 import org.picocontainer.Characteristics;
 import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.PicoContainer;
-import org.sonar.api.Plugin;
-import org.sonar.api.ServerExtension;
-import org.sonar.api.utils.SonarException;
-import org.sonar.core.plugin.AbstractPluginRepository;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.*;
+import org.sonar.api.platform.PluginMetadata;
+import org.sonar.api.platform.PluginRepository;
+import org.sonar.core.plugins.PluginClassloaders;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @since 2.2
  */
-public class ServerPluginRepository extends AbstractPluginRepository {
+public class ServerPluginRepository implements PluginRepository {
 
-  private PluginClassLoaders classloaders;
+  private PluginClassloaders classloaders;
+  private PluginDeployer deployer;
+  private Map<String, Plugin> pluginsByKey;
 
-  public ServerPluginRepository(PluginClassLoaders classloaders) {
-    this.classloaders = classloaders;
+  public ServerPluginRepository(PluginDeployer deployer) {
+    this.classloaders = new PluginClassloaders(getClass().getClassLoader());
+    this.deployer = deployer;
   }
 
-  /**
-   * Only for unit tests
-   */
-  ServerPluginRepository() {
+  public void start() {
+    pluginsByKey = classloaders.init(deployer.getMetadata());
   }
 
-  public void registerPlugins(MutablePicoContainer pico) {
-    // Create ClassLoaders
-    List<PluginMetadata> register = classloaders.completeCreation();
-    // Register plugins
-    for (PluginMetadata pluginMetadata : register) {
+  public Collection<Plugin> getPlugins() {
+    return pluginsByKey.values();
+  }
+
+  public Plugin getPlugin(String key) {
+    return pluginsByKey.get(key);
+  }
+
+  public ClassLoader getClassloader(String pluginKey) {
+    return classloaders.get(pluginKey);
+  }
+
+  public Class getClass(String pluginKey, String classname) {
+    Class clazz = null;
+    ClassLoader classloader = getClassloader(pluginKey);
+    if (classloader != null) {
       try {
-        Class pluginClass = classloaders.getClassLoader(pluginMetadata.getKey()).loadClass(pluginMetadata.getMainClass());
-        pico.as(Characteristics.CACHE).addComponent(pluginClass);
-        Plugin plugin = (Plugin) pico.getComponent(pluginClass);
-        registerPlugin(pico, plugin, pluginMetadata.getKey());
+        clazz = classloader.loadClass(classname);
 
       } catch (ClassNotFoundException e) {
-        throw new SonarException(
-            "Please check the plugin manifest. The main plugin class does not exist: " + pluginMetadata.getMainClass(), e);
+        LoggerFactory.getLogger(getClass()).warn("Class not found in plugin " + pluginKey + ": " + classname, e);
       }
     }
-    invokeExtensionProviders(pico);
+    return clazz;
   }
 
-  @Override
-  protected boolean shouldRegisterExtension(PicoContainer container, String pluginKey, Object extension) {
-    return isType(extension, ServerExtension.class);
+
+  public Property[] getProperties(Plugin plugin) {
+    if (plugin != null) {
+      Class<? extends Plugin> classInstance = plugin.getClass();
+      if (classInstance.isAnnotationPresent(Properties.class)) {
+        return classInstance.getAnnotation(Properties.class).value();
+      }
+    }
+    return new Property[0];
+  }
+
+  public Collection<PluginMetadata> getMetadata() {
+    return deployer.getMetadata();
+  }
+
+  public PluginMetadata getMetadata(String pluginKey) {
+    return deployer.getMetadata(pluginKey);
+  }
+
+  public void registerExtensions(MutablePicoContainer container) {
+    for (Plugin plugin : getPlugins()) {
+      container.as(Characteristics.CACHE).addComponent(plugin);
+      for (Object extension : plugin.getExtensions()) {
+        installExtension(container, extension);
+      }
+    }
+    installExtensionProviders(container);
+  }
+
+  void installExtensionProviders(MutablePicoContainer container) {
+    List<ExtensionProvider> providers = container.getComponents(ExtensionProvider.class);
+    for (ExtensionProvider provider : providers) {
+      Object obj = provider.provide();
+      if (obj instanceof Iterable) {
+        for (Object extension : (Iterable) obj) {
+          installExtension(container, extension);
+        }
+      } else {
+        installExtension(container, obj);
+      }
+    }
+  }
+
+  void installExtension(MutablePicoContainer container, Object extension) {
+    if (isType(extension, ServerExtension.class)) {
+      container.as(Characteristics.CACHE).addComponent(extension);
+    }
+  }
+
+  static boolean isType(Object extension, Class<? extends Extension> extensionClass) {
+    Class clazz = (extension instanceof Class ? (Class) extension : extension.getClass());
+    return extensionClass.isAssignableFrom(clazz);
   }
 }

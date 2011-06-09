@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform;
 
+import com.sun.tools.javac.jvm.ClassFile;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -153,6 +154,10 @@ public class DefaultServerFileSystem implements ServerFileSystem {
 
   public File getPluginExtensionsDir() {
     return new File(getHomeDir(), "extensions/rules");
+  }
+
+  public File getPluginsIndex() {
+    return new File(getDeployDir(), "plugins/index.txt");
   }
 
   public List<File> getExtensions(String dirName, String... suffixes) {

@@ -83,8 +83,8 @@ class Server
   
   def sonar_plugins
     sonar_plugins=[]
-    Plugin.plugins.each do |plugin|
-      add_property(sonar_plugins, plugin.name) {plugin.version}
+    @java_facade.getPluginsMetadata().select{|plugin| !plugin.isCore()}.sort.each do |plugin|
+      add_property(sonar_plugins, plugin.getName()) {plugin.getVersion()}
     end
     sonar_plugins
   end

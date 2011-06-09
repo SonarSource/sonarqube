@@ -20,8 +20,8 @@
 package org.sonar.server.plugins;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.core.plugin.JpaPluginDao;
-import org.sonar.core.plugin.JpaPlugin;
+import org.sonar.api.platform.PluginMetadata;
+import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.platform.Server;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
@@ -32,13 +32,13 @@ import org.sonar.updatecenter.common.Version;
 public final class UpdateCenterMatrixFactory implements ServerComponent {
 
   private UpdateCenterClient centerClient;
-  private JpaPluginDao dao;
   private Version sonarVersion;
   private PluginDownloader downloader;
+  private PluginRepository pluginRepository;
 
-  public UpdateCenterMatrixFactory(UpdateCenterClient centerClient, JpaPluginDao dao, Server server, PluginDownloader downloader) {
+  public UpdateCenterMatrixFactory(UpdateCenterClient centerClient, PluginRepository pluginRepository, Server server, PluginDownloader downloader) {
     this.centerClient = centerClient;
-    this.dao = dao;
+    this.pluginRepository = pluginRepository;
     this.sonarVersion = Version.create(server.getVersion());
     this.downloader = downloader;
   }
@@ -50,8 +50,8 @@ public final class UpdateCenterMatrixFactory implements ServerComponent {
       matrix = new UpdateCenterMatrix(center, sonarVersion);
       matrix.setDate(centerClient.getLastRefreshDate());
 
-      for (JpaPlugin plugin : dao.getPlugins()) {
-        matrix.registerInstalledPlugin(plugin.getKey(), Version.create(plugin.getVersion()));
+      for (PluginMetadata metadata : pluginRepository.getMetadata()) {
+        matrix.registerInstalledPlugin(metadata.getKey(), Version.create(metadata.getVersion()));
       }
       for (String filename : downloader.getDownloads()) {
         matrix.registerPendingPluginsByFilename(filename);

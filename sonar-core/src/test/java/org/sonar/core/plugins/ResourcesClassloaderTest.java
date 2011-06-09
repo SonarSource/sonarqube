@@ -17,26 +17,24 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.plugin;
+
+package org.sonar.core.plugins;
 
 import org.junit.Test;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 
-public class JpaPluginTest {
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
+
+public class ResourcesClassloaderTest {
 
   @Test
-  public void createPlugin() {
-    JpaPlugin plugin = JpaPlugin.create("foo");
-    assertThat(plugin.getKey(), is("foo"));
-
-    assertEquals(plugin, plugin);
-    assertEquals(plugin, JpaPlugin.create("foo"));
-    assertFalse(plugin.equals(JpaPlugin.create("bar")));
+  public void test() throws Exception {
+    List<URL> urls = Arrays.asList(new URL("http://localhost:9000/deploy/plugins/checkstyle/extension.xml"));
+    ResourcesClassloader classLoader = new ResourcesClassloader(urls, null);
+    assertThat(classLoader.findResource("extension.xml"), notNullValue());
   }
-
-  
 }

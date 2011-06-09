@@ -11,9 +11,6 @@
     <class>org.sonar.api.qualitymodel.Model</class>
     <class>org.sonar.api.qualitymodel.Characteristic</class>
     <class>org.sonar.api.qualitymodel.CharacteristicProperty</class>
-    <class>org.sonar.core.plugin.JpaPlugin</class>
-    <class>org.sonar.core.plugin.JpaPluginFile</class>
-    
     <class>org.sonar.api.database.model.User</class>
     <class>org.sonar.api.database.model.Snapshot</class>
     <class>org.sonar.api.database.model.MeasureModel</class>

@@ -18,32 +18,38 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.core.classloaders;
+package org.sonar.core.plugins;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.plexus.classworlds.ClassWorld;
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
+import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.Plugin;
+import org.sonar.api.platform.PluginMetadata;
+import org.sonar.api.utils.Logs;
+import org.sonar.api.utils.SonarException;
+
+import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-
-import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
-import org.codehaus.plexus.classworlds.ClassWorld;
-import org.codehaus.plexus.classworlds.realm.ClassRealm;
-import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
-import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
-import org.sonar.api.utils.Logs;
-import org.sonar.api.utils.SonarException;
+import java.util.Map;
 
 /**
  * Encapsulates manipulations with ClassLoaders, such as creation and establishing dependencies. Current implementation based on
  * {@link ClassWorld}.
- * 
+ * <p/>
  * <h3>IMPORTANT</h3>
  * <p>
  * If we have pluginA , then all classes and resources from package and subpackages of <b>org.sonar.plugins.pluginA.api</b> will be visible
  * for all other plugins even if they located in dependent library.
  * </p>
- * 
+ * <p/>
  * <h4>Search order for {@link ClassRealm} :</h4>
  * <ul>
  * <li>parent class loader (passed via the constructor) if there is one</li>
@@ -51,72 +57,96 @@ import org.sonar.api.utils.SonarException;
  * <li>realm's constituents</li>
  * <li>parent realm</li>
  * </ul>
- * 
- * @since 2.4
  */
-public class ClassLoadersCollection {
+public class PluginClassloaders {
 
-  private static final String[] PREFIXES_TO_EXPORT = { "org.sonar.plugins.", "com.sonar.plugins.", "com.sonarsource.plugins." };
+  private static final String[] PREFIXES_TO_EXPORT = {"org.sonar.plugins.", "com.sonar.plugins.", "com.sonarsource.plugins."};
+  private static final Logger LOG = LoggerFactory.getLogger(PluginClassloaders.class);
 
   private ClassWorld world = new ClassWorld();
-  private ClassLoader baseClassLoader;
+  private ClassLoader baseClassloader;
+  private boolean done = false;
 
-  public ClassLoadersCollection(ClassLoader baseClassLoader) {
-    this.baseClassLoader = baseClassLoader;
+  public PluginClassloaders(ClassLoader baseClassloader) {
+    this.baseClassloader = baseClassloader;
   }
 
-  /**
-   * Generates URLClassLoader with specified delegation model.
-   * 
-   * @param key plugin key
-   * @param urls libraries
-   * @param childFirst true, if child-first delegation model required instead of parent-first
-   * @return created ClassLoader, but actually this method shouldn't return anything, because dependencies must be established - see
-   *         {@link #done()}.
-   */
-  public ClassLoader createClassLoader(String key, Collection<URL> urls, boolean childFirst) {
+  public Map<String, Plugin> init(Collection<PluginMetadata> plugins) {
+    List<PluginMetadata> children = Lists.newArrayList();
+    for (PluginMetadata plugin : plugins) {
+      if (StringUtils.isBlank(plugin.getBasePlugin())) {
+        add(plugin);
+      } else {
+        children.add(plugin);
+      }
+    }
+
+    for (PluginMetadata child : children) {
+      extend(child);
+    }
+
+    done();
+
+    Map<String, Plugin> pluginsByKey = Maps.newHashMap();
+    for (PluginMetadata metadata : plugins) {
+      pluginsByKey.put(metadata.getKey(), instantiatePlugin(metadata));
+    }
+    return pluginsByKey;
+  }
+
+  public ClassLoader add(PluginMetadata plugin) {
+    if (done) {
+      throw new IllegalStateException("Plugin classloaders are already initialized");
+    }
     try {
       List<URL> resources = Lists.newArrayList();
       List<URL> others = Lists.newArrayList();
-      for (URL url : urls) {
-        if (isResource(url)) {
-          resources.add(url);
+      for (File file : plugin.getDeployedFiles()) {
+        if (isResource(file)) {
+          resources.add(file.toURI().toURL());
         } else {
-          others.add(url);
+          others.add(file.toURI().toURL());
         }
       }
       ClassLoader parent;
       if (resources.isEmpty()) {
-        parent = baseClassLoader;
+        parent = baseClassloader;
       } else {
-        parent = new ResourcesClassLoader(resources, baseClassLoader);
+        parent = new ResourcesClassloader(resources, baseClassloader);
       }
       final ClassRealm realm;
-      if (childFirst) {
-        ClassRealm parentRealm = world.newRealm(key + "-parent", parent);
-        realm = parentRealm.createChildRealm(key);
+      if (plugin.isUseChildFirstClassLoader()) {
+        ClassRealm parentRealm = world.newRealm(plugin.getKey() + "-parent", parent);
+        realm = parentRealm.createChildRealm(plugin.getKey());
       } else {
-        realm = world.newRealm(key, parent);
+        realm = world.newRealm(plugin.getKey(), parent);
       }
       for (URL url : others) {
         realm.addURL(url);
       }
       return realm;
-    } catch (DuplicateRealmException e) {
+    } catch (Exception e) {
       throw new SonarException(e);
     }
   }
 
-  public void extend(String baseKey, String key, Collection<URL> urls) {
+  public boolean extend(PluginMetadata plugin) {
+    if (done) {
+      throw new IllegalStateException("Plugin classloaders are already initialized");
+    }
     try {
-      ClassRealm base = world.getRealm(baseKey);
-      base.createChildRealm(key); // we create new realm to be able to return it by key without conversion to baseKey
-      for (URL url : urls) {
-        base.addURL(url);
+      ClassRealm base = world.getRealm(plugin.getBasePlugin());
+      if (base == null) {
+        // Ignored, because base plugin is not installed
+        LOG.debug("Exclude plugin " + plugin.getKey() + " because base plugin is not installed: " + plugin.getBasePlugin());
+        return false;
       }
-    } catch (NoSuchRealmException e) {
-      throw new SonarException(e);
-    } catch (DuplicateRealmException e) {
+      base.createChildRealm(plugin.getKey()); // we create new realm to be able to return it by key without conversion to baseKey
+      for (File file : plugin.getDeployedFiles()) {
+        base.addURL(file.toURI().toURL());
+      }
+      return true;
+    } catch (Exception e) {
       throw new SonarException(e);
     }
   }
@@ -125,6 +155,9 @@ public class ClassLoadersCollection {
    * Establishes dependencies among ClassLoaders.
    */
   public void done() {
+    if (done) {
+      throw new IllegalStateException("Plugin classloaders are already initialized");
+    }
     for (Object o : world.getRealms()) {
       ClassRealm realm = (ClassRealm) o;
       if (!StringUtils.endsWith(realm.getId(), "-parent")) {
@@ -136,6 +169,7 @@ public class ClassLoadersCollection {
         export(realm, packagesToExport);
       }
     }
+    done = true;
   }
 
   /**
@@ -162,6 +196,9 @@ public class ClassLoadersCollection {
    * Note that this method should be called only after creation of all ClassLoaders - see {@link #done()}.
    */
   public ClassLoader get(String key) {
+    if (!done) {
+      throw new IllegalStateException("Plugin classloaders are not initialized");
+    }
     try {
       return world.getRealm(key);
     } catch (NoSuchRealmException e) {
@@ -169,9 +206,28 @@ public class ClassLoadersCollection {
     }
   }
 
-  private boolean isResource(URL url) {
-    String path = url.getPath();
-    return !StringUtils.endsWith(path, ".jar") && !StringUtils.endsWith(path, "/");
+  public Plugin instantiatePlugin(PluginMetadata metadata) {
+    try {
+      Class claz = get(metadata.getKey()).loadClass(metadata.getMainClass());
+      return (Plugin) claz.newInstance();
+
+    } catch (Exception e) {
+      throw new SonarException("Fail to load plugin " + metadata.getKey(), e);
+    }
   }
 
+  private boolean isResource(File file) {
+    return !StringUtils.endsWithIgnoreCase(file.getName(), ".jar") && !file.isDirectory();
+  }
+
+  public void clean() {
+    for (ClassRealm realm : (Collection<ClassRealm>) world.getRealms()) {
+      try {
+        world.disposeRealm(realm.getId());
+      } catch (Exception e) {
+        // Ignore
+      }
+      world=null;
+    }
+  }
 }

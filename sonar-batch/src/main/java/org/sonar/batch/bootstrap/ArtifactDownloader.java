@@ -19,17 +19,25 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.collect.Lists;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.CharUtils;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.ServerMetadata;
-import org.sonar.core.plugin.JpaPluginFile;
 
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 public class ArtifactDownloader implements BatchComponent {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ArtifactDownloader.class);
 
   private HttpDownloader httpDownloader;
   private TempDirectories workingDirectories;
@@ -45,6 +53,7 @@ public class ArtifactDownloader implements BatchComponent {
     String url = baseUrl + "/deploy/jdbc-driver.jar";
     try {
       File jdbcDriver = new File(workingDirectories.getRoot(), "jdbc-driver.jar");
+      LOG.info("Download JDBC driver to " + jdbcDriver);
       httpDownloader.download(new URI(url), jdbcDriver);
       return jdbcDriver;
 
@@ -53,15 +62,87 @@ public class ArtifactDownloader implements BatchComponent {
     }
   }
 
-  public File downloadExtension(JpaPluginFile extension) {
-    File targetFile = new File(workingDirectories.getDir(extension.getPluginKey()), extension.getFilename());
-    String url = baseUrl + "/deploy/plugins/" + extension.getPluginKey() + "/" + extension.getFilename();
+  public File downloadPlugin(RemotePluginLocation remote) {
+    File targetFile = new File(workingDirectories.getDir("plugins/" + remote.getPluginKey()), remote.getFilename());
+    String url = baseUrl + "/deploy/plugins/" + remote.getRemotePath();
     try {
+      FileUtils.forceMkdir(targetFile.getParentFile());
+      LOG.info("Download plugin to " + targetFile);
       httpDownloader.download(new URI(url), targetFile);
       return targetFile;
 
-    } catch (URISyntaxException e) {
+    } catch (Exception e) {
       throw new SonarException("Fail to download extension: " + url, e);
+    }
+  }
+
+  public List<RemotePluginLocation> downloadPluginIndex() {
+    String url = baseUrl + "/deploy/plugins/index.txt";
+    try {
+      String indexContent = httpDownloader.downloadPlainText(new URI(url), "UTF-8");
+      String[] rows = StringUtils.split(indexContent, CharUtils.LF);
+      List<RemotePluginLocation> remoteLocations = Lists.newArrayList();
+      for (String row : rows) {
+        remoteLocations.add(RemotePluginLocation.createFromRow(row));
+      }
+      return remoteLocations;
+
+    } catch (Exception e) {
+      throw new SonarException("Fail to download plugins index: " + url, e);
+    }
+  }
+
+  public static final class RemotePluginLocation {
+    private String pluginKey;
+    private String remotePath;
+    private boolean core;
+
+    private RemotePluginLocation(String pluginKey, String remotePath, boolean core) {
+      this.pluginKey = pluginKey;
+      this.remotePath = remotePath;
+      this.core = core;
+    }
+
+    static RemotePluginLocation create(String key) {
+      return new RemotePluginLocation(key, null, false);
+    }
+
+    static RemotePluginLocation createFromRow(String row) {
+      String[] fields = StringUtils.split(row, ",");
+      return new RemotePluginLocation(fields[0], fields[1], Boolean.parseBoolean(fields[2]));
+    }
+
+    public String getPluginKey() {
+      return pluginKey;
+    }
+
+    public String getRemotePath() {
+      return remotePath;
+    }
+
+    public String getFilename() {
+      return StringUtils.substringAfterLast(remotePath, "/");
+    }
+
+    public boolean isCore() {
+      return core;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      RemotePluginLocation that = (RemotePluginLocation) o;
+      return pluginKey.equals(that.pluginKey);
+    }
+
+    @Override
+    public int hashCode() {
+      return pluginKey.hashCode();
     }
   }
 }

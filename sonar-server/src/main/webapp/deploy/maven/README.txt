@@ -1,1 +1,0 @@
-This is the maven repository started by sonar. It automatically publishes JAR files of JDBC drivers and extensions. 

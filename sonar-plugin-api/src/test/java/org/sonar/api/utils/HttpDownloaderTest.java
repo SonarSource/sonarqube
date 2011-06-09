@@ -43,7 +43,7 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Ignore("Temporarily deactivated because it sometimes freezes on MS Windows") 
+@Ignore("Temporarily deactivated because it sometimes freezes on MS Windows")
 public class HttpDownloaderTest {
 
   private static ServletTester tester;
@@ -160,6 +160,12 @@ public class HttpDownloaderTest {
   public void downloadBytes() throws URISyntaxException {
     byte[] bytes = new HttpDownloader().download(new URI(baseUrl));
     assertThat(bytes.length, greaterThan(10));
+  }
+
+  @Test
+  public void downloadPlainText() throws URISyntaxException {
+    String text = new HttpDownloader().downloadPlainText(new URI(baseUrl), "UTF-8");
+    assertThat(text.length(), greaterThan(10));
   }
 
   @Test(expected = SonarException.class)

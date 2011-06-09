@@ -40,7 +40,6 @@ import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.components.DefaultMetricFinder;
 import org.sonar.core.components.DefaultModelFinder;
 import org.sonar.core.components.DefaultRuleFinder;
-import org.sonar.core.plugin.JpaPluginDao;
 import org.sonar.jpa.dao.*;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.jpa.session.DatabaseSessionProvider;
@@ -125,12 +124,10 @@ public final class Platform {
 
   private void startCoreComponents() {
     coreContainer = rootContainer.makeChildContainer();
-    coreContainer.as(Characteristics.CACHE).addComponent(PluginClassLoaders.class);
     coreContainer.as(Characteristics.CACHE).addComponent(PluginDeployer.class);
+    coreContainer.as(Characteristics.CACHE).addComponent(ServerPluginRepository.class);
     coreContainer.as(Characteristics.CACHE).addComponent(ServerImpl.class);
     coreContainer.as(Characteristics.CACHE).addComponent(DefaultServerFileSystem.class);
-    coreContainer.as(Characteristics.CACHE).addComponent(JpaPluginDao.class);
-    coreContainer.as(Characteristics.CACHE).addComponent(ServerPluginRepository.class);
     coreContainer.as(Characteristics.CACHE).addComponent(ThreadLocalDatabaseSessionFactory.class);
     coreContainer.as(Characteristics.CACHE).addComponent(HttpDownloader.class);
     coreContainer.as(Characteristics.CACHE).addComponent(UpdateCenterClient.class);
@@ -151,7 +148,7 @@ public final class Platform {
     servicesContainer = coreContainer.makeChildContainer();
 
     ServerPluginRepository pluginRepository = servicesContainer.getComponent(ServerPluginRepository.class);
-    pluginRepository.registerPlugins(servicesContainer);
+    pluginRepository.registerExtensions(servicesContainer);
 
     servicesContainer.as(Characteristics.CACHE).addComponent(DefaultModelFinder.class); // depends on plugins
     servicesContainer.as(Characteristics.CACHE).addComponent(DefaultModelManager.class);

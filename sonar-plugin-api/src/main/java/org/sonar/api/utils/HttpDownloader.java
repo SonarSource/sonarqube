@@ -159,6 +159,21 @@ public class HttpDownloader implements BatchComponent, ServerComponent {
     }
   }
 
+  public String downloadPlainText(URI uri, String encoding) {
+    InputStream input = null;
+    try {
+      HttpURLConnection connection = newHttpConnection(uri);
+      input = connection.getInputStream();
+      return IOUtils.toString(input, encoding);
+
+    } catch (Exception e) {
+      throw new SonarException("Fail to download the file: " + uri + " (" + getProxySynthesis(uri) + ")", e);
+
+    } finally {
+      IOUtils.closeQuietly(input);
+    }
+  }
+
   public InputStream openStream(URI uri) {
     try {
       HttpURLConnection connection = newHttpConnection(uri);

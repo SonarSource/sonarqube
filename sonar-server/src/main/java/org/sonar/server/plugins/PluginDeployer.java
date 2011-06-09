@@ -19,50 +19,46 @@
  */
 package org.sonar.server.plugins;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.Plugin;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.platform.Server;
+import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
-import org.sonar.api.utils.ZipUtils;
-import org.sonar.core.plugin.JpaPlugin;
-import org.sonar.core.plugin.JpaPluginDao;
+import org.sonar.core.plugins.DefaultPluginMetadata;
+import org.sonar.core.plugins.PluginFileExtractor;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.ServerStartException;
-import org.sonar.updatecenter.common.PluginKeyUtils;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public final class PluginDeployer implements ServerComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(PluginDeployer.class);
 
-  private Server server;
   private DefaultServerFileSystem fileSystem;
-  private JpaPluginDao dao;
-  private PluginClassLoaders classloaders;
   private Map<String, PluginMetadata> pluginByKeys = Maps.newHashMap();
-  private Map<String, PluginMetadata> deprecatedPlugins = Maps.newHashMap();
+  private PluginFileExtractor extractor;
 
-  public PluginDeployer(Server server, DefaultServerFileSystem fileSystem, JpaPluginDao dao, PluginClassLoaders classloaders) {
-    this.server = server;
+  public PluginDeployer(DefaultServerFileSystem fileSystem) {
+    this(fileSystem, new PluginFileExtractor());
+  }
+
+  PluginDeployer(DefaultServerFileSystem fileSystem, PluginFileExtractor extractor) {
     this.fileSystem = fileSystem;
-    this.dao = dao;
-    this.classloaders = classloaders;
+    this.extractor = extractor;
   }
 
   public void start() throws IOException {
@@ -75,9 +71,8 @@ public final class PluginDeployer implements ServerComponent {
     loadCorePlugins();
 
     deployPlugins();
-    deployDeprecatedPlugins();
 
-    persistPlugins();
+    generateIndexFile();
     profiler.stop();
   }
 
@@ -92,140 +87,37 @@ public final class PluginDeployer implements ServerComponent {
     }
   }
 
-  public void uninstall(String pluginKey) {
-    PluginMetadata metadata = pluginByKeys.get(pluginKey);
-    try {
-      FileUtils.moveFileToDirectory(metadata.getSourceFile(), fileSystem.getRemovedPluginsDir(), true);
-    } catch (IOException e) {
-      throw new SonarException("Fail to uninstall plugin: " + pluginKey, e);
-    }
-  }
-
-  public List<String> getUninstalls() {
-    List<String> names = Lists.newArrayList();
-    if (fileSystem.getRemovedPluginsDir().exists()) {
-      List<File> files = (List<File>) FileUtils.listFiles(fileSystem.getRemovedPluginsDir(), new String[] { "jar" }, false);
-      for (File file : files) {
-        names.add(file.getName());
-      }
-    }
-    return names;
-  }
-
-  public void cancelUninstalls() {
-    if (fileSystem.getRemovedPluginsDir().exists()) {
-      List<File> files = (List<File>) FileUtils.listFiles(fileSystem.getRemovedPluginsDir(), new String[] { "jar" }, false);
-      for (File file : files) {
-        try {
-          FileUtils.moveFileToDirectory(file, fileSystem.getUserPluginsDir(), false);
-        } catch (IOException e) {
-          throw new SonarException("Fail to cancel plugin uninstalls", e);
-        }
-      }
-    }
-  }
-
-  private void persistPlugins() {
-    List<JpaPlugin> previousPlugins = dao.getPlugins();
-    List<JpaPlugin> installedPlugins = new ArrayList<JpaPlugin>();
-    for (PluginMetadata plugin : pluginByKeys.values()) {
-      JpaPlugin installed = searchPlugin(plugin, previousPlugins);
-      if (installed == null) {
-        installed = JpaPlugin.create(plugin.getKey());
-        installed.setInstallationDate(server.getStartedAt());
-      }
-      plugin.copyTo(installed);
-      installedPlugins.add(installed);
-      Logs.INFO.info("Plugin: " + plugin.getName() + " " + StringUtils.defaultString(plugin.getVersion(), "-"));
-    }
-    dao.register(installedPlugins);
-  }
-
-  private JpaPlugin searchPlugin(PluginMetadata plugin, List<JpaPlugin> preinstalledList) {
-    if (preinstalledList != null) {
-      for (JpaPlugin p : preinstalledList) {
-        if (StringUtils.equals(p.getKey(), plugin.getKey())) {
-          return p;
-        }
-      }
-    }
-    return null;
-  }
-
-  private void deployPlugins() {
-    for (PluginMetadata plugin : pluginByKeys.values()) {
-      deploy(plugin);
-    }
-  }
-
-  private void deployDeprecatedPlugins() throws IOException {
-    for (PluginMetadata deprecatedPlugin : deprecatedPlugins.values()) {
-      PluginMetadata metadata = pluginByKeys.get(deprecatedPlugin.getKey());
-      if (metadata != null) {
-        FileUtils.deleteQuietly(deprecatedPlugin.getSourceFile());
-        Logs.INFO.info("Old plugin " + deprecatedPlugin.getFilename() + " replaced by new " + metadata.getFilename());
-      } else {
-        pluginByKeys.put(deprecatedPlugin.getKey(), deprecatedPlugin);
-        deploy(deprecatedPlugin);
-      }
-    }
-  }
-
-  private void deploy(PluginMetadata plugin) {
-    try {
-      LOG.debug("Deploy plugin " + plugin);
-
-      File deployDir = new File(fileSystem.getDeployedPluginsDir(), plugin.getKey());
-      FileUtils.forceMkdir(deployDir);
-      FileUtils.cleanDirectory(deployDir);
-
-      File target = new File(deployDir, plugin.getFilename());
-      FileUtils.copyFile(plugin.getSourceFile(), target);
-      plugin.addDeployedFile(target);
-
-      for (File extension : fileSystem.getExtensions(plugin.getKey())) {
-        target = new File(deployDir, extension.getName());
-        FileUtils.copyFile(extension, target);
-        plugin.addDeployedFile(target);
-      }
-
-      if (plugin.getDependencyPaths().length > 0) {
-        // needs to unzip the jar
-        File tempDir = ZipUtils.unzipToTempDir(plugin.getSourceFile());
-        for (String depPath : plugin.getDependencyPaths()) {
-          File file = new File(tempDir, depPath);
-          target = new File(deployDir, file.getName());
-          FileUtils.copyFile(file, target);
-          plugin.addDeployedFile(target);
-        }
-        FileUtils.deleteQuietly(tempDir);
-      }
-      classloaders.addForCreation(plugin);
-
-    } catch (IOException e) {
-      throw new RuntimeException("Fail to deploy the plugin " + plugin, e);
-    }
-  }
-
-  private void loadCorePlugins() throws IOException {
-    for (File file : fileSystem.getCorePlugins()) {
-      registerPluginMetadata(file, true, false);
-    }
-  }
-
   private void loadUserPlugins() throws IOException {
     for (File file : fileSystem.getUserPlugins()) {
-      registerPluginMetadata(file, false, false);
+      registerPlugin(file, false, false);
+    }
+  }
+
+  private void registerPlugin(File file, boolean isCore, boolean canDelete) throws IOException {
+    DefaultPluginMetadata metadata = extractor.extractMetadata(file, isCore);
+    if (StringUtils.isNotBlank(metadata.getKey())) {
+      PluginMetadata existing = pluginByKeys.get(metadata.getKey());
+      if (existing != null) {
+        if (canDelete) {
+          FileUtils.deleteQuietly(existing.getFile());
+          Logs.INFO.info("Plugin " + metadata.getKey() + " replaced by new version");
+
+        } else {
+          throw new ServerStartException("Found two plugins with the same key '" + metadata.getKey() + "': " + metadata.getFile().getName() + " and "
+              + existing.getFile().getName());
+        }
+      }
+      pluginByKeys.put(metadata.getKey(), metadata);
     }
   }
 
   private void moveAndLoadDownloadedPlugins() throws IOException {
     if (fileSystem.getDownloadedPluginsDir().exists()) {
-      Collection<File> jars = FileUtils.listFiles(fileSystem.getDownloadedPluginsDir(), new String[] { "jar" }, false);
+      Collection<File> jars = FileUtils.listFiles(fileSystem.getDownloadedPluginsDir(), new String[]{"jar"}, false);
       for (File jar : jars) {
         File movedJar = moveDownloadedFile(jar);
         if (movedJar != null) {
-          registerPluginMetadata(movedJar, false, true);
+          registerPlugin(movedJar, false, true);
         }
       }
     }
@@ -249,57 +141,98 @@ public final class PluginDeployer implements ServerComponent {
     }
   }
 
-  private void registerPluginMetadata(File file, boolean corePlugin, boolean canDeleteOld) throws IOException {
-    PluginMetadata metadata = PluginMetadata.createFromJar(file, corePlugin);
-    String pluginKey = metadata.getKey();
-    if (pluginKey != null) {
-      registerPluginMetadata(pluginByKeys, file, metadata, canDeleteOld);
-    } else if (metadata.isOldManifest()) {
-      loadDeprecatedPlugin(metadata);
-      registerPluginMetadata(deprecatedPlugins, file, metadata, canDeleteOld);
+  private void loadCorePlugins() throws IOException {
+    for (File file : fileSystem.getCorePlugins()) {
+      registerPlugin(file, true, false);
     }
   }
 
-  private void registerPluginMetadata(Map<String, PluginMetadata> map, File file, PluginMetadata metadata, boolean canDeleteOld) {
-    String pluginKey = metadata.getKey();
-    PluginMetadata existing = map.get(pluginKey);
-    if (existing != null) {
-      if (canDeleteOld) {
-        FileUtils.deleteQuietly(existing.getSourceFile());
-        map.remove(pluginKey);
-        Logs.INFO.info("Old plugin " + existing.getFilename() + " replaced by new " + metadata.getFilename());
-      } else {
-        throw new ServerStartException("Found two plugins with the same key '" + pluginKey + "': " + metadata.getFilename() + " and "
-            + existing.getFilename());
+
+  private void generateIndexFile() throws IOException {
+    File indexFile = fileSystem.getPluginsIndex();
+    FileUtils.forceMkdir(indexFile.getParentFile());
+    FileWriter writer = new FileWriter(indexFile, false);
+    try {
+      for (PluginMetadata metadata : pluginByKeys.values()) {
+        writer.append(metadata.getKey()).append(",");
+        writer.append(metadata.getKey()).append("/").append(metadata.getFile().getName()).append(",");
+        writer.append(String.valueOf(metadata.isCore())).append(CharUtils.LF);
+      }
+      writer.flush();
+
+    } finally {
+      IOUtils.closeQuietly(writer);
+    }
+  }
+
+
+  public void uninstall(String pluginKey) {
+    PluginMetadata metadata = pluginByKeys.get(pluginKey);
+    if (metadata != null && !metadata.isCore()) {
+      try {
+        File masterFile = new File(fileSystem.getUserPluginsDir(), metadata.getFile().getName());
+        FileUtils.moveFileToDirectory(masterFile, fileSystem.getRemovedPluginsDir(), true);
+      } catch (IOException e) {
+        throw new SonarException("Fail to uninstall plugin: " + pluginKey, e);
       }
     }
-    map.put(metadata.getKey(), metadata);
   }
 
-  private void loadDeprecatedPlugin(PluginMetadata plugin) throws IOException {
-    // URLClassLoader locks files on Windows
-    // => copy the file before in a temp directory
-    File tempFile = new File(fileSystem.getDeprecatedPluginsDir(), plugin.getFilename());
-    FileUtils.copyFile(plugin.getSourceFile(), tempFile);
+  public List<String> getUninstalls() {
+    List<String> names = Lists.newArrayList();
+    if (fileSystem.getRemovedPluginsDir().exists()) {
+      List<File> files = (List<File>) FileUtils.listFiles(fileSystem.getRemovedPluginsDir(), new String[]{"jar"}, false);
+      for (File file : files) {
+        names.add(file.getName());
+      }
+    }
+    return names;
+  }
 
-    String mainClass = plugin.getMainClass();
+  public void cancelUninstalls() {
+    if (fileSystem.getRemovedPluginsDir().exists()) {
+      List<File> files = (List<File>) FileUtils.listFiles(fileSystem.getRemovedPluginsDir(), new String[]{"jar"}, false);
+      for (File file : files) {
+        try {
+          FileUtils.moveFileToDirectory(file, fileSystem.getUserPluginsDir(), false);
+        } catch (IOException e) {
+          throw new SonarException("Fail to cancel plugin uninstalls", e);
+        }
+      }
+    }
+  }
+
+  private void deployPlugins() {
+    for (PluginMetadata metadata : pluginByKeys.values()) {
+      deploy((DefaultPluginMetadata) metadata);
+    }
+  }
+
+  private void deploy(DefaultPluginMetadata plugin) {
     try {
-      URLClassLoader pluginClassLoader = URLClassLoader.newInstance(new URL[] { tempFile.toURI().toURL() }, getClass().getClassLoader());
-      Plugin pluginInstance = (Plugin) pluginClassLoader.loadClass(mainClass).newInstance();
-      plugin.setKey(PluginKeyUtils.sanitize(pluginInstance.getKey()));
-      plugin.setDescription(pluginInstance.getDescription());
-      plugin.setName(pluginInstance.getName());
+      LOG.debug("Deploy plugin " + plugin);
 
-    } catch (Exception e) {
-      throw new RuntimeException("The plugin main class can not be created: plugin=" + plugin.getFilename() + ", class=" + mainClass, e);
-    }
+      File pluginDeployDir = new File(fileSystem.getDeployedPluginsDir(), plugin.getKey());
+      FileUtils.forceMkdir(pluginDeployDir);
+      FileUtils.cleanDirectory(pluginDeployDir);
 
-    if (StringUtils.isBlank(plugin.getKey())) {
-      throw new ServerStartException("Found plugin with empty key: " + plugin.getFilename());
+      List<File> deprecatedExtensions = fileSystem.getExtensions(plugin.getKey());
+      for (File deprecatedExtension : deprecatedExtensions) {
+        plugin.addDeprecatedExtension(deprecatedExtension);
+      }
+
+      extractor.install(plugin, pluginDeployDir);
+
+    } catch (IOException e) {
+      throw new RuntimeException("Fail to deploy the plugin " + plugin, e);
     }
   }
 
-  public Collection<PluginMetadata> getPluginsMetadata() {
+  public Collection<PluginMetadata> getMetadata() {
     return pluginByKeys.values();
+  }
+
+  public PluginMetadata getMetadata(String pluginKey) {
+    return pluginByKeys.get(pluginKey);
   }
 }

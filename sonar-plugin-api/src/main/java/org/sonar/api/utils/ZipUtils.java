@@ -62,7 +62,7 @@ public final class ZipUtils {
     return toDir;
   }
 
-  public static void unzip(File zip, File toDir, ZipEntryFilter filter) throws IOException {
+  public static File unzip(File zip, File toDir, ZipEntryFilter filter) throws IOException {
     if (!toDir.exists()) {
       FileUtils.forceMkdir(toDir);
     }
@@ -93,6 +93,8 @@ public final class ZipUtils {
           }
         }
       }
+      return toDir;
+      
     } finally {
       zipFile.close();
     }

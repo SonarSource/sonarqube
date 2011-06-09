@@ -17,24 +17,34 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+package org.sonar.core.plugins;
 
-package org.sonar.core.classloaders;
+import org.apache.commons.lang.StringUtils;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.notNullValue;
+import com.google.common.collect.Lists;
 
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
+import java.net.URLClassLoader;
+import java.util.Collection;
 
-import org.junit.Test;
+/**
+ * This class loader is used to load resources from a list of URLs - see SONAR-1861.
+ */
+public class ResourcesClassloader extends URLClassLoader {
+  private Collection<URL> urls;
 
-public class ResourcesClassLoaderTest {
+  public ResourcesClassloader(Collection<URL> urls, ClassLoader parent) {
+    super(new URL[] {}, parent);
+    this.urls = Lists.newArrayList(urls);
+  }
 
-  @Test
-  public void test() throws Exception {
-    List<URL> urls = Arrays.asList(new URL("http://localhost:9000/deploy/plugins/checkstyle/extension.xml"));
-    ResourcesClassLoader classLoader = new ResourcesClassLoader(urls, null);
-    assertThat(classLoader.findResource("extension.xml"), notNullValue());
+  @Override
+  public URL findResource(String name) {
+    for (URL url : urls) {
+      if (StringUtils.endsWith(url.getPath(), name)) {
+        return url;
+      }
+    }
+    return null;
   }
 }

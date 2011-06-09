@@ -24,6 +24,8 @@ import org.picocontainer.PicoContainer;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugins;
 import org.sonar.api.Property;
+import org.sonar.api.platform.PluginMetadata;
+import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Language;
@@ -98,16 +100,16 @@ public final class JRubyFacade {
   // PLUGINS ------------------------------------------------------------------
 
   public Property[] getPluginProperties(PluginMetadata metadata) {
-    Plugins plugins = getContainer().getComponent(Plugins.class);
-    return plugins.getProperties(plugins.getPlugin(metadata.getKey()));
+    PluginRepository repository = getContainer().getComponent(PluginRepository.class);
+    return repository.getProperties(repository.getPlugin(metadata.getKey()));
   }
 
   public boolean hasPlugin(String key) {
-    return getContainer().getComponent(Plugins.class).getPlugin(key) != null;
+    return getContainer().getComponent(PluginRepository.class).getPlugin(key) != null;
   }
 
   public Collection<PluginMetadata> getPluginsMetadata() {
-    return getContainer().getComponent(PluginDeployer.class).getPluginsMetadata();
+    return getContainer().getComponent(PluginRepository.class).getMetadata();
   }
 
 
@@ -308,7 +310,7 @@ public final class JRubyFacade {
   public Object getComponentByClassname(String pluginKey, String className) {
     Object component = null;
     PicoContainer container = getContainer();
-    Class componentClass = container.getComponent(PluginClassLoaders.class).getClass(pluginKey, className);
+    Class componentClass = container.getComponent(ServerPluginRepository.class).getClass(pluginKey, className);
     if (componentClass != null) {
       component = container.getComponent(componentClass);
     }
