@@ -135,10 +135,6 @@
       <artifactId>logback-classic</artifactId>
     </dependency>
     <dependency>
-      <groupId>classworlds</groupId>
-      <artifactId>classworlds</artifactId>
-    </dependency>
-    <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-core</artifactId>
     </dependency>

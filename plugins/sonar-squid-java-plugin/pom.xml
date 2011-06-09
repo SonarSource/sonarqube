@@ -76,8 +76,8 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>classworlds</groupId>
-      <artifactId>classworlds</artifactId>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-classworlds</artifactId>
       <scope>provided</scope>
     </dependency>
     <!-- unit tests -->
