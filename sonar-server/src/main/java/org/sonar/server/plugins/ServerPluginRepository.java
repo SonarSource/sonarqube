@@ -49,6 +49,13 @@ public class ServerPluginRepository implements PluginRepository {
     pluginsByKey = classloaders.init(deployer.getMetadata());
   }
 
+  public void stop() {
+    if (classloaders != null) {
+      classloaders.clean();
+      classloaders = null;
+    }
+  }
+
   public Collection<Plugin> getPlugins() {
     return pluginsByKey.values();
   }
@@ -95,7 +102,11 @@ public class ServerPluginRepository implements PluginRepository {
   }
 
   public void registerExtensions(MutablePicoContainer container) {
-    for (Plugin plugin : getPlugins()) {
+    registerExtensions(container, getPlugins());
+  }
+
+  void registerExtensions(MutablePicoContainer container, Collection<Plugin> plugins) {
+    for (Plugin plugin : plugins) {
       container.as(Characteristics.CACHE).addComponent(plugin);
       for (Object extension : plugin.getExtensions()) {
         installExtension(container, extension);

@@ -45,7 +45,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public final class PluginDeployer implements ServerComponent {
+public class PluginDeployer implements ServerComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(PluginDeployer.class);
 
