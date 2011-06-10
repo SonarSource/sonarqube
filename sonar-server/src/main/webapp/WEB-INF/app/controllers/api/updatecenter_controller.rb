@@ -28,11 +28,13 @@ class Api::UpdatecenterController < Api::ApiController
   #
   def installed_plugins
     respond_to do |format|
-      format.json { render :json => jsonp(plugins_to_json(Plugin.user_plugins)) }
-      format.xml  { render :xml => plugins_to_xml(Plugin.user_plugins) }
+      format.json { render :json => jsonp(plugins_to_json(user_plugins())) }
+      format.xml  { render :xml => plugins_to_xml(user_plugins()) }
       format.text { render :text => text_not_supported }
     end
   end
+
+  private
 
   def plugins_to_json(plugins=[])
     json=[]
@@ -44,9 +46,9 @@ class Api::UpdatecenterController < Api::ApiController
 
   def plugin_to_json(plugin)
     hash={}
-    hash['key']=plugin.plugin_key
-    hash['name']=plugin.name
-    hash['version']=plugin.version || '-'
+    hash['key']=plugin.getKey()
+    hash['name']=plugin.getName()
+    hash['version']=plugin.getVersion() || '-'
     hash
   end
 
@@ -54,11 +56,15 @@ class Api::UpdatecenterController < Api::ApiController
     xml.plugins do
       plugins.each do |plugin|
         xml.plugin do
-          xml.key(plugin.plugin_key)
-          xml.name(plugin.name)
-          xml.version(plugin.version || '-')
+          xml.key(plugin.getKey())
+          xml.name(plugin.getName())
+          xml.version(plugin.getVersion() || '-')
         end
       end
     end
+  end
+
+  def user_plugins
+    java_facade.getPluginsMetadata().select{|plugin| !plugin.isCore()}.sort
   end
 end

@@ -24,9 +24,10 @@
 class AddPluginsChildFirstClassloaderColumn < ActiveRecord::Migration
 
   def self.up
-    add_column 'plugins', 'child_first_classloader', :boolean, :null => true
-    Plugin.reset_column_information
-    Plugin.update_all(Plugin.sanitize_sql_for_assignment({:child_first_classloader=>false}))
+    # this table has been removed in 2.9  (see migration 203)
+    #add_column 'plugins', 'child_first_classloader', :boolean, :null => true
+    #Plugin.reset_column_information
+    #Plugin.update_all(Plugin.sanitize_sql_for_assignment({:child_first_classloader=>false}))
   end
 
 end

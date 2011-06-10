@@ -29,8 +29,8 @@ class UpdatecenterController < ApplicationController
     @uninstalls=java_facade.getPluginUninstalls()
     @downloads=java_facade.getPluginDownloads()
 
-    @user_plugins=Plugin.user_plugins
-    @core_plugins=Plugin.core_plugins
+    @user_plugins=user_plugins()
+    @core_plugins=core_plugins()
   end
 
   def updates
@@ -43,8 +43,8 @@ class UpdatecenterController < ApplicationController
     @user_plugins={}
     @last_compatible={}
 
-    Plugin.user_plugins.each do |plugin|
-      @user_plugins[plugin.plugin_key]=plugin.version
+    user_plugins.each do |plugin|
+      @user_plugins[plugin.getKey()]=plugin.getVersion()
     end
 
     load_matrix()
@@ -141,5 +141,13 @@ class UpdatecenterController < ApplicationController
     if update_center_activated!='true'
       redirect_to home_url
     end
+  end
+
+  def user_plugins
+    java_facade.getPluginsMetadata().select{|plugin| !plugin.isCore()}.sort
+  end
+
+  def core_plugins
+    java_facade.getPluginsMetadata().select{|plugin| plugin.isCore()}.sort
   end
 end

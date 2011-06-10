@@ -19,31 +19,31 @@
      <% else
        @user_plugins.each do |plugin|
      %>
-       <tr class="select <%= cycle('even', 'odd', :name => 'user') -%>" id="select_<%= plugin.plugin_key -%>">
-         <td width="1%" nowrap><b><a href="#plugin" onclick="showPlugin('<%= plugin.plugin_key -%>')"><%= h(plugin.name) -%></a></b></td>
-         <td><%= plugin.version || '-' -%></td>
+       <tr class="select <%= cycle('even', 'odd', :name => 'user') -%>" id="select_<%= plugin.getKey() -%>">
+         <td width="1%" nowrap><b><a href="#plugin" onclick="showPlugin('<%= plugin.getKey() -%>')"><%= h(plugin.getName()) -%></a></b></td>
+         <td><%= plugin.getVersion() || '-' -%></td>
          <td>
-         <%= plugin.description -%>
+         <%= plugin.getDescription() -%>
 
-         <div id="detail-<%= plugin.plugin_key -%>" style="display:none">
+         <div id="detail-<%= plugin.getKey() -%>" style="display:none">
          <table class="spaced width100">
-           <% if plugin.license %><tr><td class="thin nowrap"><b>License:</b> </td><td><%= plugin.license -%></td></tr><% end %>
-           <% if plugin.organization %>
+           <% if plugin.getLicense() %><tr><td class="thin nowrap"><b>License:</b> </td><td><%= plugin.getLicense() -%></td></tr><% end %>
+           <% if plugin.getOrganization() %>
              <tr><td class="thin nowrap"><b>Author:</b> </td>
-                 <td><%= link_to_if plugin.organization_url, plugin.organization, plugin.organization_url, :class=>'external' -%></td>
+                 <td><%= link_to_if plugin.getOrganizationUrl(), plugin.getOrganization(), plugin.getOrganizationUrl(), :class=>'external' -%></td>
              </tr>
            <% end %>
 
-           <% if plugin.homepage %>
+           <% if plugin.getHomepage() %>
              <tr>
             <td colspan="2">
-                 <%= link_to 'Homepage', plugin.homepage, :class => 'external' -%>
+                 <%= link_to 'Homepage', plugin.getHomepage(), :class => 'external' -%>
                </td>
              </tr>
            <% end %>
           <tr>
             <td colspan="2">
-             <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/uninstall?key=<%= plugin.plugin_key -%>" style="display: inline-block">
+             <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/uninstall?key=<%= plugin.getKey() -%>" style="display: inline-block">
                <input type="submit" value="Uninstall"></input>
              </form>
               </td>
@@ -67,9 +67,9 @@
    <%
      @core_plugins.each do |plugin|
    %>
-  <tr class="<%= cycle('even','odd', :name => 'core') -%>" id="<%= u plugin.plugin_key -%>">
-    <td width="1%" nowrap><b><%= plugin.name -%></b></td>
-       <td><%= plugin.description %></td>
+  <tr class="<%= cycle('even','odd', :name => 'core') -%>" id="<%= u plugin.getKey() -%>">
+    <td width="1%" nowrap><b><%= plugin.getName() -%></b></td>
+       <td><%= plugin.getDescription() -%></td>
      </tr>
    <% end %>
    </tbody>

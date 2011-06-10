@@ -1,5 +1,5 @@
 #
-# Sonar, open source software quality management tool.
+# Sonar, entreprise quality control tool.
 # Copyright (C) 2008-2011 SonarSource
 # mailto:contact AT sonarsource DOT com
 #
@@ -17,6 +17,15 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class PluginFile < ActiveRecord::Base
-  belongs_to :plugin
+
+#
+# Sonar 2.9
+#
+class DropPluginTables < ActiveRecord::Migration
+
+  def self.up
+    drop_table('plugins')
+    drop_table('plugin_files')
+  end
+
 end

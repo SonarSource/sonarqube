@@ -14,7 +14,6 @@
   <% @server.system_info.each do |data| %>
     <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'system' } %>
   <% end %>
-</thead>
 <tbody>
 </table>
 
@@ -30,7 +29,6 @@
   <% @server.sonar_info.each do |data| %>
     <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'sonar' } %>
   <% end %>
-</thead>
 <tbody>
 </table>
 
@@ -46,7 +44,6 @@
   <% @server.system_statistics.each do |data| %>
     <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'memory' } %>
   <% end %>
-</thead>
 <tbody>
 </table>
 
@@ -59,10 +56,16 @@
   </tr>
 </thead>
 <tbody>
-  <% @server.sonar_plugins.each do |data| %>
-    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'plugins' } %>
-  <% end %>
-</thead>
+  <%
+     user_plugins=@server.sonar_plugins
+     if user_plugins.empty?
+  %>
+    <tr><td colspan="2" class="even">None</td></tr>
+  <% else %>
+    <% user_plugins.each do |data| %>
+      <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'plugins' } %>
+    <% end %>
+  <% end  %>
 <tbody>
 </table>
 
@@ -78,6 +81,5 @@
   <% @server.system_properties.each do |data| %>
     <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'system_properties' } %>
   <% end %>
-</thead>
 <tbody>
 </table>

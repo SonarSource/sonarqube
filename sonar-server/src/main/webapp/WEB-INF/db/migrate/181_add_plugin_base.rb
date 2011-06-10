@@ -24,8 +24,9 @@
 class AddPluginBase < ActiveRecord::Migration
 
   def self.up
-    add_column 'plugins', 'base_plugin', :string, :limit => 100, :null => true
-    Plugin.reset_column_information
+    # this table has been removed in 2.9 (see migration 203)
+    #add_column 'plugins', 'base_plugin', :string, :limit => 100, :null => true
+    #Plugin.reset_column_information
   end
 
 end
