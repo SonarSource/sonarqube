@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform;
 
-import com.sun.tools.javac.jvm.ClassFile;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -37,7 +36,7 @@ import java.util.List;
 
 /**
  * Introspect the filesystem and the classloader to get extension files at startup.
- * 
+ *
  * @since 2.2
  */
 public class DefaultServerFileSystem implements ServerFileSystem {
@@ -67,7 +66,7 @@ public class DefaultServerFileSystem implements ServerFileSystem {
 
   public void start() {
     Logs.INFO.info("Sonar home: " + homeDir.getAbsolutePath());
-    if ( !homeDir.isDirectory() || !homeDir.exists()) {
+    if (!homeDir.isDirectory() || !homeDir.exists()) {
       throw new ServerStartException("Sonar home directory does not exist");
     }
 
