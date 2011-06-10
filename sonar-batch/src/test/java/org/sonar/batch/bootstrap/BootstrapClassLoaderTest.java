@@ -24,7 +24,6 @@ import org.junit.Test;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Arrays;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
@@ -40,6 +39,6 @@ public class BootstrapClassLoaderTest {
     JdbcDriverHolder classloader = new JdbcDriverHolder(new File(url.toURI()));
     assertNotNull(classloader.getClassLoader());
     assertNotNull(classloader.getClassLoader().getResource("foo/foo.txt"));
-    
+
   }
 }

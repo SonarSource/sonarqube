@@ -21,7 +21,6 @@ package org.sonar.batch.bootstrap;
 
 import org.hamcrest.Matchers;
 import org.junit.Test;
-import org.sonar.batch.bootstrap.Module;
 
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
@@ -69,7 +68,7 @@ public class ModuleTest {
   public void componentsShouldBeSingletons() {
     Module module = new FakeModule(FakeService.class).init();
 
-    assertThat(module.getComponent(FakeService.class)==module.getComponent(FakeService.class), is(true));
+    assertThat(module.getComponent(FakeService.class) == module.getComponent(FakeService.class), is(true));
   }
 
   @Test

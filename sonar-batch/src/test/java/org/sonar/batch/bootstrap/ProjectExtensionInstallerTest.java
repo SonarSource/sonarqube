@@ -25,7 +25,6 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 import org.sonar.api.*;
-import org.sonar.api.batch.AbstractCoverageExtension;
 import org.sonar.api.batch.CoverageExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.SupportedEnvironment;
@@ -104,7 +103,7 @@ public class ProjectExtensionInstallerTest {
 
   private static Project newJavaProject(Configuration conf) {
     Project project = new Project("foo").setLanguageKey(Java.KEY).setAnalysisType(Project.AnalysisType.DYNAMIC);
-    project.setConfiguration(conf!=null ? conf : new PropertiesConfiguration());
+    project.setConfiguration(conf != null ? conf : new PropertiesConfiguration());
     return project;
   }
 

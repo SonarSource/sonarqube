@@ -54,7 +54,7 @@ public class ArtifactDownloader implements BatchComponent {
     String url = baseUrl + "/deploy/jdbc-driver.jar";
     try {
       File jdbcDriver = new File(workingDirectories.getRoot(), "jdbc-driver.jar");
-      LOG.info("Download JDBC driver to " + jdbcDriver);
+      LOG.debug("Downloading JDBC driver to " + jdbcDriver);
       httpDownloader.download(new URI(url), jdbcDriver);
       return jdbcDriver;
 
@@ -67,7 +67,7 @@ public class ArtifactDownloader implements BatchComponent {
     try {
       File targetDir = workingDirectories.getDir("plugins/" + remote.getKey());
       FileUtils.forceMkdir(targetDir);
-      LOG.info("Downloading plugin " + remote.getKey() + " into " + targetDir);
+      LOG.debug("Downloading plugin " + remote.getKey() + " into " + targetDir);
 
       List<File> files = Lists.newArrayList();
       for (String filename : remote.getFilenames()) {
@@ -88,6 +88,7 @@ public class ArtifactDownloader implements BatchComponent {
   public List<RemotePlugin> downloadPluginIndex() {
     String url = baseUrl + "/deploy/plugins/index.txt";
     try {
+      LOG.debug("Downloading index of plugins");
       String indexContent = httpDownloader.downloadPlainText(new URI(url), "UTF-8");
       String[] rows = StringUtils.split(indexContent, CharUtils.LF);
       List<RemotePlugin> remoteLocations = Lists.newArrayList();
