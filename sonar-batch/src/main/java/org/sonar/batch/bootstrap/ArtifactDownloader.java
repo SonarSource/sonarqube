@@ -29,6 +29,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.ServerMetadata;
+import org.sonar.core.plugins.RemotePlugin;
 
 import java.io.File;
 import java.net.URI;
@@ -62,28 +63,36 @@ public class ArtifactDownloader implements BatchComponent {
     }
   }
 
-  public File downloadPlugin(RemotePluginLocation remote) {
-    File targetFile = new File(workingDirectories.getDir("plugins/" + remote.getPluginKey()), remote.getFilename());
-    String url = baseUrl + "/deploy/plugins/" + remote.getRemotePath();
+  public List<File> downloadPlugin(RemotePlugin remote) {
     try {
-      FileUtils.forceMkdir(targetFile.getParentFile());
-      LOG.info("Download plugin to " + targetFile);
-      httpDownloader.download(new URI(url), targetFile);
-      return targetFile;
+      File targetDir = workingDirectories.getDir("plugins/" + remote.getKey());
+      FileUtils.forceMkdir(targetDir);
+      LOG.info("Downloading plugin " + remote.getKey() + " into " + targetDir);
+
+      List<File> files = Lists.newArrayList();
+      for (String filename : remote.getFilenames()) {
+        String url = baseUrl + "/deploy/plugins/" + remote.getKey() + "/" + filename;
+        File toFile = new File(targetDir, filename);
+        httpDownloader.download(new URI(url), toFile);
+        files.add(toFile);
+      }
+
+
+      return files;
 
     } catch (Exception e) {
-      throw new SonarException("Fail to download extension: " + url, e);
+      throw new SonarException("Fail to download plugin: " + remote.getKey(), e);
     }
   }
 
-  public List<RemotePluginLocation> downloadPluginIndex() {
+  public List<RemotePlugin> downloadPluginIndex() {
     String url = baseUrl + "/deploy/plugins/index.txt";
     try {
       String indexContent = httpDownloader.downloadPlainText(new URI(url), "UTF-8");
       String[] rows = StringUtils.split(indexContent, CharUtils.LF);
-      List<RemotePluginLocation> remoteLocations = Lists.newArrayList();
+      List<RemotePlugin> remoteLocations = Lists.newArrayList();
       for (String row : rows) {
-        remoteLocations.add(RemotePluginLocation.createFromRow(row));
+        remoteLocations.add(RemotePlugin.unmarshal(row));
       }
       return remoteLocations;
 
@@ -92,57 +101,4 @@ public class ArtifactDownloader implements BatchComponent {
     }
   }
 
-  public static final class RemotePluginLocation {
-    private String pluginKey;
-    private String remotePath;
-    private boolean core;
-
-    private RemotePluginLocation(String pluginKey, String remotePath, boolean core) {
-      this.pluginKey = pluginKey;
-      this.remotePath = remotePath;
-      this.core = core;
-    }
-
-    static RemotePluginLocation create(String key) {
-      return new RemotePluginLocation(key, null, false);
-    }
-
-    static RemotePluginLocation createFromRow(String row) {
-      String[] fields = StringUtils.split(row, ",");
-      return new RemotePluginLocation(fields[0], fields[1], Boolean.parseBoolean(fields[2]));
-    }
-
-    public String getPluginKey() {
-      return pluginKey;
-    }
-
-    public String getRemotePath() {
-      return remotePath;
-    }
-
-    public String getFilename() {
-      return StringUtils.substringAfterLast(remotePath, "/");
-    }
-
-    public boolean isCore() {
-      return core;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      RemotePluginLocation that = (RemotePluginLocation) o;
-      return pluginKey.equals(that.pluginKey);
-    }
-
-    @Override
-    public int hashCode() {
-      return pluginKey.hashCode();
-    }
-  }
 }

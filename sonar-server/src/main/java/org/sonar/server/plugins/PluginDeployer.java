@@ -34,6 +34,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.core.plugins.PluginFileExtractor;
+import org.sonar.core.plugins.RemotePlugin;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.ServerStartException;
 
@@ -154,9 +155,8 @@ public final class PluginDeployer implements ServerComponent {
     FileWriter writer = new FileWriter(indexFile, false);
     try {
       for (PluginMetadata metadata : pluginByKeys.values()) {
-        writer.append(metadata.getKey()).append(",");
-        writer.append(metadata.getKey()).append("/").append(metadata.getFile().getName()).append(",");
-        writer.append(String.valueOf(metadata.isCore())).append(CharUtils.LF);
+        writer.append(RemotePlugin.create((DefaultPluginMetadata)metadata).marshal());
+        writer.append(CharUtils.LF);
       }
       writer.flush();
 

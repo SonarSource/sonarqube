@@ -20,28 +20,28 @@
 package org.sonar.core.plugins;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.Plugin;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.updatecenter.common.PluginKeyUtils;
 import org.sonar.updatecenter.common.PluginManifest;
 
-import javax.swing.plaf.metal.MetalTabbedPaneUI;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.List;
 import java.util.zip.ZipEntry;
 
 public class PluginFileExtractor {
 
-  public DefaultPluginMetadata installInSameLocation(File pluginFile, boolean isCore) {
-    return install(pluginFile, isCore, null);
+  public DefaultPluginMetadata installInSameLocation(File pluginFile, boolean isCore, List<File> deprecatedExtensions) {
+    return install(pluginFile, isCore, deprecatedExtensions, null);
   }
 
-  public DefaultPluginMetadata install(File pluginFile, boolean isCore, File toDir) {
+  public DefaultPluginMetadata install(File pluginFile, boolean isCore, List<File> deprecatedExtensions, File toDir) {
     DefaultPluginMetadata metadata = extractMetadata(pluginFile, isCore);
+    metadata.setDeprecatedExtensions(deprecatedExtensions);
     return install(metadata, toDir);
   }
 
@@ -78,7 +78,9 @@ public class PluginFileExtractor {
 
       for (File extension : metadata.getDeprecatedExtensions()) {
         File toFile = new File(pluginBasedir, extension.getName());
-        FileUtils.copyFile(extension, toFile);
+        if (!toFile.equals(extension)) {
+          FileUtils.copyFile(extension, toFile);
+        }
         metadata.addDeployedFile(toFile);
       }
 
@@ -123,7 +125,7 @@ public class PluginFileExtractor {
       // copy file in a temp directory because Windows+Oracle JVM Classloader lock the JAR file
       File tempFile = File.createTempFile(pluginFile.getName(), null);
       FileUtils.copyFile(pluginFile, tempFile);
-      
+
       URLClassLoader pluginClassLoader = URLClassLoader.newInstance(new URL[]{tempFile.toURI().toURL()}, getClass().getClassLoader());
       Plugin pluginInstance = (Plugin) pluginClassLoader.loadClass(mainClass).newInstance();
       metadata.setKey(PluginKeyUtils.sanitize(pluginInstance.getKey()));

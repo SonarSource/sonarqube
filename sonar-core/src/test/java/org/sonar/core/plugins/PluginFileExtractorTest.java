@@ -64,7 +64,7 @@ public class PluginFileExtractorTest {
     FileUtils.forceMkdir(toDir);
     FileUtils.cleanDirectory(toDir);
 
-    DefaultPluginMetadata metadata = extractor.install(getFile("sonar-checkstyle-plugin-2.8.jar"), true, toDir);
+    DefaultPluginMetadata metadata = extractor.install(getFile("sonar-checkstyle-plugin-2.8.jar"), true, null, toDir);
 
     assertThat(metadata.getKey(), is("checkstyle"));
     assertThat(new File(toDir, "sonar-checkstyle-plugin-2.8.jar").exists(), is(true));
@@ -77,7 +77,7 @@ public class PluginFileExtractorTest {
     FileUtils.forceMkdir(toDir);
     FileUtils.cleanDirectory(toDir);
 
-    extractor.install(getFile("sonar-checkstyle-plugin-2.8.jar"), true, toDir);
+    extractor.install(getFile("sonar-checkstyle-plugin-2.8.jar"), true, null, toDir);
 
     assertThat(new File(toDir, "sonar-checkstyle-plugin-2.8.jar").exists(), is(true));
     assertThat(new File(toDir, "META-INF/MANIFEST.MF").exists(), is(false));

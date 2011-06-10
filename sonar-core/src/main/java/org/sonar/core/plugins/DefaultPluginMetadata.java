@@ -20,14 +20,12 @@
 package org.sonar.core.plugins;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.collections.ComparatorUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.platform.PluginMetadata;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 public final class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginMetadata> {
@@ -79,6 +77,11 @@ public final class DefaultPluginMetadata implements PluginMetadata, Comparable<P
 
   public DefaultPluginMetadata addDeprecatedExtension(File f) {
     this.deprecatedExtensions.add(f);
+    return this;
+  }
+
+  public DefaultPluginMetadata setDeprecatedExtensions(List<File> files) {
+    this.deprecatedExtensions = (files==null ? Lists.<File>newArrayList() : files);
     return this;
   }
 

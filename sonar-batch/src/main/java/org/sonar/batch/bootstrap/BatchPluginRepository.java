@@ -34,6 +34,7 @@ import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
 import org.sonar.core.plugins.PluginClassloaders;
 import org.sonar.core.plugins.PluginFileExtractor;
+import org.sonar.core.plugins.RemotePlugin;
 
 import java.io.File;
 import java.util.*;
@@ -66,13 +67,14 @@ public class BatchPluginRepository implements PluginRepository {
     doStart(artifactDownloader.downloadPluginIndex());
   }
 
-  void doStart(List<ArtifactDownloader.RemotePluginLocation> remoteLocations) {
+  void doStart(List<RemotePlugin> remotePlugins) {
     PluginFileExtractor extractor = new PluginFileExtractor();
     metadataByKey = Maps.newHashMap();
-    for (ArtifactDownloader.RemotePluginLocation remoteLocation : remoteLocations) {
-      if (isAccepted(remoteLocation.getPluginKey())) {
-        File pluginFile = artifactDownloader.downloadPlugin(remoteLocation);
-        PluginMetadata metadata = extractor.installInSameLocation(pluginFile, remoteLocation.isCore());
+    for (RemotePlugin remote : remotePlugins) {
+      if (isAccepted(remote.getKey())) {
+        List<File> pluginFiles = artifactDownloader.downloadPlugin(remote);
+        List<File> extensionFiles = pluginFiles.subList(1, pluginFiles.size());
+        PluginMetadata metadata = extractor.installInSameLocation(pluginFiles.get(0), remote.isCore(), extensionFiles);
         if (StringUtils.isBlank(metadata.getBasePlugin()) || isAccepted(metadata.getBasePlugin())) {
           // TODO log when excluding plugin
           metadataByKey.put(metadata.getKey(), metadata);
