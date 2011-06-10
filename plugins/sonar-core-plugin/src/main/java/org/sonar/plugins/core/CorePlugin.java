@@ -31,7 +31,6 @@ import org.sonar.plugins.core.batch.MavenInitializer;
 import org.sonar.plugins.core.charts.DistributionAreaChart;
 import org.sonar.plugins.core.charts.DistributionBarChart;
 import org.sonar.plugins.core.charts.XradarChart;
-import org.sonar.plugins.core.clouds.Clouds;
 import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
 import org.sonar.plugins.core.duplicationsviewer.DuplicationsViewerDefinition;
 import org.sonar.plugins.core.hotspots.Hotspots;
@@ -172,7 +171,6 @@ public class CorePlugin extends SonarPlugin {
     // pages
     extensions.add(DuplicationsViewerDefinition.class);
     extensions.add(TestsViewerDefinition.class);
-    extensions.add(Clouds.class);
     extensions.add(Hotspots.class);
 
     // widgets

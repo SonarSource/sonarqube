@@ -17,29 +17,17 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class ActiveRuleChange < ActiveRecord::Base
-  belongs_to :rules_profile, :class_name => 'Profile', :foreign_key => 'profile_id'
-  belongs_to :rule
-  has_many :active_rule_param_changes, :dependent => :destroy
-
-  def action_text
-    case enabled
-      when true then "on"
-      when false then "off"
-      when nil then "modified"
+module CloudHelper
+  MIN_SIZE_PERCENT=60.0
+  MAX_SIZE_PERCENT=240.0
+  
+  def font_size(value)
+    divisor=@max_size_value - @min_size_value
+    size=MIN_SIZE_PERCENT
+    if divisor!=0.0
+      multiplier=(MAX_SIZE_PERCENT - MIN_SIZE_PERCENT)/divisor
+      size=MIN_SIZE_PERCENT + ((@max_size_value - (@max_size_value-(value - @min_size_value)))*multiplier)
     end
+    size.to_i
   end
-
-  def old_severity_text
-    Sonar::RulePriority.to_s old_severity
-  end
-
-  def new_severity_text
-    Sonar::RulePriority.to_s new_severity
-  end
-
-  def parameters
-    active_rule_param_changes
-  end
-
 end

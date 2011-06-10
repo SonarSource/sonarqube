@@ -41,6 +41,7 @@
           <li class="<%= 'selected' if request.request_uri.include?('/components/index') -%>"><a href="<%= ApplicationController.root_context -%>/components/index/<%= @project.id -%>">Components</a></li>
           <li class="<%= 'selected' if request.request_uri.include?('/drilldown/violations') -%>"><a href="<%= ApplicationController.root_context -%>/drilldown/violations/<%= @project.id -%>">Violations drilldown</a></li>
           <li class="<%= 'selected' if controller.controller_path=='timemachine' -%>"><a href="<%= ApplicationController.root_context -%>/timemachine/index/<%= @project.id -%>">Time machine</a></li>
+          <li class="<%= 'selected' if request.request_uri.include?('/cloud/index') -%>"><a href="<%= ApplicationController.root_context -%>/cloud/index/<%= @project.id -%>">Clouds</a></li>
           <% controller.java_facade.getPages(Navigation::SECTION_RESOURCE, @project.scope, @project.qualifier, @project.language).each do |page| %>
           <li class="<%= 'selected' if request.request_uri.include?("page=#{page.getId()}") -%>"><a href="<%= ApplicationController.root_context -%>/plugins/resource/<%= @project.id-%>?page=<%= page.getId() -%>"><%= page.getTitle() %></a></li>
           <% end %>

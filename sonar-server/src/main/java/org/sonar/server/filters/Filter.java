@@ -60,8 +60,6 @@ public class Filter {
   private boolean useMeasureValueToSort = true; // only if sortedMetricId is not null
   private boolean ascendingSort = true;
 
-
-
   public Filter setPath(Integer rootSnapshotId, Integer snapshotId, String snapshotPath, boolean isViewContext) {
     this.baseSnapshotId = snapshotId;
     if (rootSnapshotId == null) {
@@ -331,7 +329,7 @@ public class Filter {
   }
 
   public boolean isOnPeriod() {
-    return periodIndex>0;
+    return periodIndex > 0;
   }
 
   static String getVariationColumn(int periodIndex) {
@@ -346,14 +344,15 @@ public class Filter {
         return "variation_value_4";
       case 5:
         return "variation_value_5";
+      default:
+        return null;
     }
-    return null;
   }
 
   String getColumnToSort() {
     String col = "text_value";
     if (useMeasureValueToSort()) {
-      col = (sortedByMeasureVariation==Boolean.TRUE ? getVariationColumn (periodIndex) : "value");
+      col = (sortedByMeasureVariation == Boolean.TRUE ? getVariationColumn(periodIndex) : "value");
     }
     return col;
   }
@@ -361,7 +360,7 @@ public class Filter {
   public boolean mustReturnEmptyResult() {
     boolean hasCriterionOnVariation = false;
     for (MeasureCriterion criterion : measureCriteria) {
-      if (criterion.isVariation()==Boolean.TRUE) {
+      if (criterion.isVariation() == Boolean.TRUE) {
         hasCriterionOnVariation = true;
       }
     }

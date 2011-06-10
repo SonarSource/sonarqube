@@ -44,7 +44,7 @@ class MeasureColor
         percent = value_to_percent(value, min_value, max_value)
       end
     else
-      if !measure.alert_status.blank? && (options[:check_alert_status]||true)
+      if (options[:check_alert_status]||true) && !measure.alert_status.blank?
         case(measure.alert_status)
           when Metric::TYPE_LEVEL_OK : percent=100.0
           when Metric::TYPE_LEVEL_ERROR : percent=0.0
@@ -61,12 +61,15 @@ class MeasureColor
       end
     end
 
+    max_color=options[:max_color]||MAX_COLOR
+    min_color=options[:min_color]||MIN_COLOR
+    mean_color=options[:mean_color]||MEAN_COLOR
     if percent<0.0
       NONE_COLOR
     elsif (percent > 50.0)
-      MAX_COLOR.mix_with(MEAN_COLOR, (percent - 50.0) * 2.0)
+      max_color.mix_with(mean_color, (percent - 50.0) * 2.0)
     else
-      MIN_COLOR.mix_with(MEAN_COLOR, (50.0 - percent) * 2.0)
+      min_color.mix_with(mean_color, (50.0 - percent) * 2.0)
     end
   end
 

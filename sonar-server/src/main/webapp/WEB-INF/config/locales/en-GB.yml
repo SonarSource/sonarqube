@@ -1,6 +1,6 @@
 # Override default locale
 
-en:
+"en-GB":
   date:
     formats:
       default: "%d %b %Y"

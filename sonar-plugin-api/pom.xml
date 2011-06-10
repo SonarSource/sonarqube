@@ -10,19 +10,6 @@
   <packaging>jar</packaging>
   <name>Sonar :: Plugin API</name>
   <build>
-    <resources>
-      <!-- sources of Sonar GWT library -->
-      <resource>
-        <directory>src/main/java</directory>
-        <includes>
-          <include>**/org/sonar/api/web/gwt/**/*</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>src/main/resources</directory>
-      </resource>
-    </resources>
-
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -135,16 +122,6 @@
     <dependency>
       <groupId>xpp3</groupId>
       <artifactId>xpp3</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.google.gwt</groupId>
-      <artifactId>gwt-user</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.gwt</groupId>
-      <artifactId>gwt-incubator</artifactId>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.woodstox</groupId>

@@ -225,7 +225,7 @@ class ProfilesController < ApplicationController
       end
       @changes = ActiveRuleChange.find(:all, :conditions => ['profile_id=? and ?<profile_version and profile_version<=?', @profile.id, @since_version, @to_version], :order => 'id desc')
 
-      @select_versions = versions.map {|u| ["version " + u.profile_version.to_s + " (" + u.change_date.strftime("%Y/%m/%d %H:%M:%S") + ")", u.profile_version]} | [["no version", 0]];
+      @select_versions = versions.map {|u| [ (u.profile_version == last_version ? "last " : "" ) + "version " + u.profile_version.to_s + " (" + l(u.change_date) + ")", u.profile_version]} | [["no version", 0]];
     end
   end
 

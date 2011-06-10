@@ -37,7 +37,7 @@ public class BootstrapClassLoaderTest {
     assertNull(getClass().getClassLoader().getResource("foo/foo.txt"));
 
     URL url = getClass().getResource("/org/sonar/batch/bootstrap/BootstrapClassLoaderTest/foo.jar");
-    BootstrapClassLoader classloader = new BootstrapClassLoader(new File(url.toURI()));
+    JdbcDriverHolder classloader = new JdbcDriverHolder(new File(url.toURI()));
     assertNotNull(classloader.getClassLoader());
     assertNotNull(classloader.getClassLoader().getResource("foo/foo.txt"));
     
