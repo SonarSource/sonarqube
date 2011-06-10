@@ -34,11 +34,16 @@ public interface PluginRepository extends BatchComponent, ServerComponent {
   Property[] getProperties(Plugin plugin);
 
   /**
+   * Metadata of installed plugins. Metadata includes all the fields available in update center
+   * (plugin key, name, version, description, license, ...) and some technical information like
+   * list of embedded libraries and classloader strategy.
+   * 
    * @since 2.9
    */
   Collection<PluginMetadata> getMetadata();
 
   /**
+   * Search for an installed plugin. Returns null if the plugin is not installed.
    * @since 2.9
    */
   PluginMetadata getMetadata(String pluginKey);

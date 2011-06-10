@@ -22,7 +22,6 @@ package org.sonar.batch.bootstrap;
 import org.sonar.api.Plugins;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.Metrics;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.ServerHttpClient;
 import org.sonar.batch.DefaultResourceCreationLock;
