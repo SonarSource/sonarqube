@@ -19,10 +19,6 @@
 #
 class Server
   
-  def initialize(java_facade)
-    @java_facade=java_facade
-  end
-  
   def info
     system_info + sonar_info + system_statistics + sonar_plugins + system_properties
   end
@@ -70,7 +66,7 @@ class Server
     add_property(sonar_info, 'Database Login') {sonar_property('sonar.jdbc.username')}
     add_property(sonar_info, 'Database Driver') {"#{jdbc_metadata.getDriverName()} #{jdbc_metadata.getDriverVersion()}"}
     add_property(sonar_info, 'Database Driver Class') {sonar_property('sonar.jdbc.driverClassName')}
-    add_property(sonar_info, 'Database Dialect (Hibernate)') {"#{@java_facade.getDialect().getId()} (#{@java_facade.getDialect().getHibernateDialectClass().getName()})"}
+    add_property(sonar_info, 'Database Dialect (Hibernate)') {"#{Java::OrgSonarServerUi::JRubyFacade.getInstance().getDialect().getId()} (#{Java::OrgSonarServerUi::JRubyFacade.getInstance().getDialect().getHibernateDialectClass().getName()})"}
     add_property(sonar_info, 'Database Validation Query') {sonar_property('sonar.jdbc.validationQuery')}
     add_property(sonar_info, 'Hibernate Default Schema') {sonar_property('sonar.hibernate.default_schema')}
     add_property(sonar_info, 'External User Authentication') {sonar_property(org.sonar.api.CoreProperties.CORE_AUTHENTICATOR_CLASS)}
@@ -83,7 +79,7 @@ class Server
   
   def sonar_plugins
     sonar_plugins=[]
-    @java_facade.getPluginsMetadata().select{|plugin| !plugin.isCore()}.sort.each do |plugin|
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getPluginsMetadata().select{|plugin| !plugin.isCore()}.sort.each do |plugin|
       add_property(sonar_plugins, plugin.getName()) {plugin.getVersion()}
     end
     sonar_plugins
@@ -126,7 +122,7 @@ class Server
   end
   
   def sonar_property(key)
-    @java_facade.getContainer().getComponent(Java::OrgApacheCommonsConfiguration::Configuration.java_class).getProperty(key)
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getContainer().getComponent(Java::OrgApacheCommonsConfiguration::Configuration.java_class).getProperty(key)
   end
   
   def jdbc_metadata

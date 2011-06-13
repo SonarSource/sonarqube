@@ -47,6 +47,7 @@
     <module>plugins/sonar-cpd-plugin</module>
     <module>plugins/sonar-squid-java-plugin</module>
     <module>plugins/sonar-design-plugin</module>
+    <module>plugins/sonar-i18n-plugin</module>
   </modules>
 
   <organization>

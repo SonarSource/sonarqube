@@ -29,7 +29,7 @@ class ApplicationController < ActionController::Base
   end
     
   def java_facade
-    @java_facade ||= Java::OrgSonarServerUi::JRubyFacade.new
+    Java::OrgSonarServerUi::JRubyFacade.getInstance()
   end
   
   def available_locales

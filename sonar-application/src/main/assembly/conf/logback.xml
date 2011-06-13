@@ -103,6 +103,10 @@
     <level value="INFO"/>
   </logger>
 
+  <logger name="org.sonar.plugins.i18n.I18nManager">
+    <level value="INFO"/>
+  </logger>
+
   <root>
     <level value="WARN"/>
     <appender-ref ref="SONAR_FILE"/>

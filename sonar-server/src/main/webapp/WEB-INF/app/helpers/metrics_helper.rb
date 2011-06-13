@@ -19,14 +19,14 @@
  #
 module MetricsHelper
 
-  def domains(metrics)
-    metrics.map {|m| m.domain}.uniq.compact.sort    
+  def domains(metrics, translate=false)
+    metrics.map {|m| m.domain(translate)}.uniq.compact.sort    
   end
 
   def options_grouped_by_domain(metrics, selected_key='')
     metrics_per_domain={}
     metrics.each do |metric|
-      domain=metric.domain || ''
+      domain=metric.domain(true) || ''
       metrics_per_domain[domain]||=[]
       metrics_per_domain[domain]<<metric
     end
@@ -36,7 +36,7 @@ module MetricsHelper
       html += "<optgroup label=\"#{html_escape(domain)}\">"
       metrics_per_domain[domain].each do |m|
         selected_attr = " selected='selected'" if (m.key==selected_key || m.id==selected_key)
-        html += "<option value='#{html_escape(m.key)}'#{selected_attr}>#{html_escape(m.short_name)}</option>"
+        html += "<option value='#{html_escape(m.key)}'#{selected_attr}>#{html_escape(m.short_name(true))}</option>"
       end
       html += '</optgroup>'
     end

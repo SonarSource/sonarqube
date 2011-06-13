@@ -22,7 +22,6 @@ package org.sonar.server.ui;
 import org.apache.commons.configuration.Configuration;
 import org.picocontainer.PicoContainer;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.Plugins;
 import org.sonar.api.Property;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
@@ -58,6 +57,7 @@ import java.util.Set;
 public final class JRubyFacade {
 
   private static final JRubyFacade SINGLETON = new JRubyFacade();
+  private JRubyI18n i18n;
 
   public static JRubyFacade getInstance() {
     return SINGLETON;
@@ -129,9 +129,6 @@ public final class JRubyFacade {
     return Markdown.convertToHtml(input);
   }
 
-
-
-  
 
   public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage) {
     return getContainer().getComponent(Views.class).getWidgets(resourceScope, resourceQualifier, resourceLanguage);
@@ -244,7 +241,7 @@ public final class JRubyFacade {
   }
 
   public void ruleSeverityChanged(int parentProfileId, int activeRuleId, int oldSeverityId, int newSeverityId, String userName) {
-    getProfilesManager().ruleSeverityChanged(parentProfileId, activeRuleId, RulePriority.values()[oldSeverityId], 
+    getProfilesManager().ruleSeverityChanged(parentProfileId, activeRuleId, RulePriority.values()[oldSeverityId],
         RulePriority.values()[newSeverityId], userName);
   }
 
@@ -315,6 +312,13 @@ public final class JRubyFacade {
       component = container.getComponent(componentClass);
     }
     return component;
+  }
+
+  public String getI18nMessage(String rubyLocale, String key, String defaultValue, Object... parameters) {
+    if (i18n == null) {
+      i18n = getContainer().getComponent(JRubyI18n.class);
+    }
+    return i18n.message(rubyLocale, key, defaultValue, parameters);
   }
 
   public PicoContainer getContainer() {

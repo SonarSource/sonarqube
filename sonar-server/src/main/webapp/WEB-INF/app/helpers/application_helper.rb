@@ -55,6 +55,10 @@ module ApplicationHelper
     end
   end
 
+  # i18n
+  def message(key, default, *parameters)
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, key, default, parameters.to_java)
+  end
 
   # deprecated since 2.5. Use trend_icon() instead
   def tendency_icon(metric_or_measure, small=true, no_tendency_img=true)
@@ -142,7 +146,7 @@ module ApplicationHelper
   end
 
   def configuration(key, default = nil)
-    prop_value = controller.java_facade.getContainer().getComponent(Java::OrgApacheCommonsConfiguration::Configuration.java_class).getProperty(key)
+    prop_value = Java::OrgSonarServerUi::JRubyFacade.getInstance().getContainer().getComponent(Java::OrgApacheCommonsConfiguration::Configuration.java_class).getProperty(key)
     prop_value.nil? ? default : prop_value
   end
 

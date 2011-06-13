@@ -58,6 +58,7 @@ import org.sonar.server.rules.*;
 import org.sonar.server.startup.*;
 import org.sonar.server.ui.AuthenticatorFactory;
 import org.sonar.server.ui.CodeColorizers;
+import org.sonar.server.ui.JRubyI18n;
 import org.sonar.server.ui.Views;
 
 /**
@@ -178,6 +179,7 @@ public final class Platform {
     servicesContainer.as(Characteristics.CACHE).addComponent(DefaultMetricFinder.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(ProfilesConsole.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(RulesConsole.class);
+    servicesContainer.as(Characteristics.CACHE).addComponent(JRubyI18n.class);
 
     servicesContainer.start();
   }

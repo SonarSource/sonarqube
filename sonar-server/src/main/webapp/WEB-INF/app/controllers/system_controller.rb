@@ -24,7 +24,7 @@ class SystemController < ApplicationController
   before_filter :admin_required
 
   def index
-    @server=Server.new(java_facade)
+    @server=Server.new
     
     respond_to do |format|
       format.html

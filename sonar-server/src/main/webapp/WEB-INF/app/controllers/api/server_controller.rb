@@ -48,7 +48,7 @@ class Api::ServerController < Api::ApiController
   end
   
   def system
-    @server=Server.new(java_facade)
+    @server=Server.new
     json=[
       {:system_info => server_properties_to_json(@server.system_info)},
       {:system_statistics => server_properties_to_json(@server.system_statistics)},
