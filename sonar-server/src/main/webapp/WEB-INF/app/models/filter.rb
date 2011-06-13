@@ -140,6 +140,21 @@ class Filter < ActiveRecord::Base
   def period?
     period_index && period_index>0
   end
+  
+  def column_by_id(col_id)
+    columns.each do |col|
+      return col if col.id==col_id
+    end
+    return nil
+  end
+    
+  def clean_columns_order
+    columns.each_with_index do |col, index|
+      col.order_index=index+1
+      col.save
+    end
+    reload
+  end
 
   protected
 

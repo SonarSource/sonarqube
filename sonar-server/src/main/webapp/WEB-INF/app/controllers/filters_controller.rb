@@ -235,6 +235,7 @@ class FiltersController < ApplicationController
     unless editable_filter?(filter)
       return access_denied
     end
+    filter.clean_columns_order() # clean the columns which are badly ordered (see SONAR-1902)
 
     fields=params[:column].split(',')
     family=fields[0]
@@ -254,15 +255,14 @@ class FiltersController < ApplicationController
       return access_denied
     end
 
-    column_index=-1
-    filter.columns.each_index do |index|
-      column_index=index if filter.columns[index]==column
-    end
-    if column_index>0
-      filter.columns[column_index-1].order_index=column_index
-      filter.columns[column_index-1].save
-      filter.columns[column_index].order_index=column_index-1
-      filter.columns[column_index].save
+    filter.clean_columns_order() # clean the columns which are badly ordered (see SONAR-1902)
+    target_column=filter.column_by_id(params[:id].to_i)
+    if target_column.order_index>1
+      target_column.order_index-=1
+      target_column.save
+      old_left_col=filter.columns[target_column.order_index-1]
+      old_left_col.order_index+=1
+      old_left_col.save
     end
     redirect_to :action => 'edit', :id => filter.id
   end
@@ -275,15 +275,14 @@ class FiltersController < ApplicationController
       return access_denied
     end
 
-    column_index=-1
-    filter.columns.each_index do |index|
-      column_index=index if filter.columns[index]==column
-    end
-    if column_index>=0 && column_index<filter.columns.size-1
-      filter.columns[column_index+1].order_index=column_index
-      filter.columns[column_index+1].save
-      filter.columns[column_index].order_index=column_index+1
-      filter.columns[column_index].save
+    filter.clean_columns_order() # clean the columns which are badly ordered (see SONAR-1902)
+    target_column=filter.column_by_id(params[:id].to_i)
+    if target_column.order_index>=1 && target_column.order_index<filter.columns.size
+      target_column.order_index+=1
+      target_column.save
+      old_right_col=filter.columns[target_column.order_index-1]
+      old_right_col.order_index-=1
+      old_right_col.save
     end
     redirect_to :action => 'edit', :id => filter.id
   end
