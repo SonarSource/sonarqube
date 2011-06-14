@@ -26,7 +26,7 @@ module MetricsHelper
   def options_grouped_by_domain(metrics, selected_key='')
     metrics_per_domain={}
     metrics.each do |metric|
-      domain=metric.domain(true) || ''
+      domain=metric.domain || ''
       metrics_per_domain[domain]||=[]
       metrics_per_domain[domain]<<metric
     end
@@ -36,7 +36,7 @@ module MetricsHelper
       html += "<optgroup label=\"#{html_escape(domain)}\">"
       metrics_per_domain[domain].each do |m|
         selected_attr = " selected='selected'" if (m.key==selected_key || m.id==selected_key)
-        html += "<option value='#{html_escape(m.key)}'#{selected_attr}>#{html_escape(m.short_name(true))}</option>"
+        html += "<option value='#{html_escape(m.key)}'#{selected_attr}>#{html_escape(m.short_name)}</option>"
       end
       html += '</optgroup>'
     end
