@@ -17,14 +17,14 @@
     position: static;
     left: 0;
   }
-  #hd, #sb {
+  div#hd, div#sb {
     display: none;
   }
   .with_sidebar, .wo_sidebar {
     padding: 0 !important;
     margin: 0;
   }
-  #content {
+  div#content {
     margin-left: 0 !important;
   }
 }
@@ -46,15 +46,11 @@ a {
   color: #444;
 }
 
-/*
-
-  LAYOUT
-
-*/
-#container {
+/* LAYOUT */
+div#container {
   height: auto !important;
 }
-#hd {
+div#hd {
   background: #262626;
   padding: 0 5px;
   height: 30px;
@@ -98,33 +94,30 @@ a {
   text-align: left;
   margin: 50px 180px 0;
 }
-#ft {
-  height: 30px;
-}
-#body {
+div#footer {
+  padding-top: 10px;
+  margin: 0 10px;
   clear: both;
 }
+div#body {
+  height: 100%;
+}
 .with_sidebar {
-  padding-left: 160px;
+  margin: 0 10px 0 170px;
 }
 .wo_sidebar {
-  padding-left: 20px;
-}
-#content {
   margin: 0 10px 0 10px;
+}
+div#content {
   padding-top: 10px;
-  position: relative;
-  min-height: 400px;
+  width: auto;
 }
-#sb {
-  position: absolute;
+div#sb {
   width: 150px;
-  left: 10px;
-  top: 30px;
-  float: none;
-  margin: 0;
+  float: left;
+  margin: 0 10px;
 }
-#sidebar {
+div#sidebar {
   background-color: #CAE3F2;
   color: #262626;
   text-align: left;
@@ -133,29 +126,28 @@ a {
   border-top: 0;
   padding: 10px 0;
 }
-#sidebar li {
+div#sidebar li {
   list-style-type: none;
   padding: 3px 0 3px 8px;
 }
-#sidebar li.h2 {
+div#sidebar li.h2 {
   color: #003366;
   padding: 20px 0 3px 8px;
   text-transform: uppercase;
   font-size: 100% !important;
   font-weight: bold;
 }
-#sidebar .selected {
+div#sidebar .selected {
   background-color: #4b9fd5;
 }
-#sidebar a, #sidebarpages a:visited {
+div#sidebar a, #sidebarpages a:visited {
   text-decoration: none;
   border-bottom: 0;
 }
-
-#sidebar a:hover {
+div#sidebar a:hover {
   color: #4b9fd5;
 }
-#sidebar .selected a, #sidebar .selected a:hover, #sidebar.selected a:visited {
+div#sidebar .selected a, div#sidebar .selected a:hover, div#sidebar.selected a:visited {
   font-weight: bold;
   color: #efefef;
 }
@@ -233,9 +225,8 @@ a {
   margin-top: 10px;
 }
 #ftlinks a {
-  color: #333;
+  color: #444;
 }
-
 
 /*
   GENERAL
@@ -950,7 +941,6 @@ div.autocomplete strong {
 
 #gwtpage {
 	width: 100%;
-	clear: both;
 }
 .gwt-SourcePanel {
   font-size: 12px;
@@ -1763,11 +1753,9 @@ table.without-header {
   padding-left:18px
 }
 div.break10 {
-  clear: both;
   height: 10px;
 }
 div.break30 {
-  clear: both;
   height: 30px;
 }
 .marginbottom10 {

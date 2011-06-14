@@ -20,7 +20,7 @@
     </ol>
 
   </div>
-  <div id="body" class="with_sidebar">
+  <div id="body">
      <div id="sb">
        <div id="sidebar">
         <ul>
@@ -92,7 +92,7 @@
       <% if @sidebar %><div id="sidebarconf"><%= render :partial => @sidebar %></div><% else %><div id="sidebarconf" class="hidden"> </div><% end %>
 
      </div>
-     <div id="content">
+     <div id="content"  class="with_sidebar">
        <% if @project %><div class="print"><h2><%= @project.name(true) %></h2></div><% end %>
        <div class="error" id="error" style="display:none"><span id="errormsg"></span> &nbsp;&nbsp;[<a href="#" onclick="javascript:$('error').hide();return false;">hide</a>]</div>
        <div class="notice" id="info" style="display:none"><span id="infomsg"></span> &nbsp;&nbsp;[<a href="#" onclick="javascript:$('info').hide();return false;">hide</a>]</div>
@@ -103,7 +103,7 @@
 </div>
 
 <% unless params[:hd]=='false' %>
-<div id="ft">
+<div id="footer">
 <% controller.java_facade.getWebFooters().each do |footer| %>
 <% if footer.getHtml() %><div><%= footer.getHtml().to_s %></div><% end %>
 <% end %>
