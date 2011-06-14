@@ -27,6 +27,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.DateUtils;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class PastSnapshotFinderByPreviousAnalysis implements BatchExtension {
@@ -37,8 +38,15 @@ public class PastSnapshotFinderByPreviousAnalysis implements BatchExtension {
     this.session = session;
   }
 
+  /**
+   * See SONAR-2428 : even if past snapshot does not exist, we should perform comparison.
+   * In this case as a value for target date we use moment just before current snapshot
+   * to be able to perform strict comparison of dates.
+   * Also note that ruby side (resource viewer) has precision in one minute.
+   */
   PastSnapshot findByPreviousAnalysis(Snapshot projectSnapshot) {
-    String hql = "from " + Snapshot.class.getSimpleName() + " where createdAt<:date AND resourceId=:resourceId AND status=:status and last=:last and qualifier<>:lib order by createdAt desc";
+    String hql = "from " + Snapshot.class.getSimpleName()
+        + " where createdAt<:date AND resourceId=:resourceId AND status=:status and last=:last and qualifier<>:lib order by createdAt desc";
     List<Snapshot> snapshots = session.createQuery(hql)
         .setParameter("date", projectSnapshot.getCreatedAt())
         .setParameter("resourceId", projectSnapshot.getResourceId())
@@ -48,12 +56,16 @@ public class PastSnapshotFinderByPreviousAnalysis implements BatchExtension {
         .setMaxResults(1)
         .getResultList();
 
+    Snapshot snapshot;
+    Date targetDate;
     if (snapshots.isEmpty()) {
-      return null;
+      snapshot = null;
+      targetDate = new Date(projectSnapshot.getCreatedAt().getTime() - 1000 * 60);
+    } else {
+      snapshot = snapshots.get(0);
+      targetDate = snapshot.getCreatedAt();
     }
-    Snapshot snapshot = snapshots.get(0);
     SimpleDateFormat format = new SimpleDateFormat(DateUtils.DATE_FORMAT);
-    return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, snapshot.getCreatedAt(), snapshot).setModeParameter(format.format(snapshot.getCreatedAt()));
+    return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, targetDate, snapshot).setModeParameter(format.format(targetDate));
   }
-
 }

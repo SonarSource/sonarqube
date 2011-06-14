@@ -19,15 +19,15 @@
  */
 package org.sonar.batch.components;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertThat;
+
 import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.text.ParseException;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 
 public class PastSnapshotFinderByPreviousAnalysisTest extends AbstractDbUnitTestCase {
 
@@ -43,12 +43,15 @@ public class PastSnapshotFinderByPreviousAnalysisTest extends AbstractDbUnitTest
   }
 
   @Test
-  public void shouldNotFindPreviousAnalysis() throws ParseException {
+  public void shouldReturnPastSnapshotEvenWhenNoPreviousAnalysis() throws ParseException {
     setupData("shouldNotFindPreviousAnalysis");
 
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
     PastSnapshotFinderByPreviousAnalysis finder = new PastSnapshotFinderByPreviousAnalysis(getSession());
 
-    assertNull(finder.findByPreviousAnalysis(projectSnapshot));
+    PastSnapshot pastSnapshot = finder.findByPreviousAnalysis(projectSnapshot);
+    assertThat(pastSnapshot.isRelatedToSnapshot(), is(false));
+    assertThat(pastSnapshot.getProjectSnapshot(), nullValue());
+    assertThat(projectSnapshot.getCreatedAt().getTime() - pastSnapshot.getTargetDate().getTime(), is(1000L * 60));
   }
 }

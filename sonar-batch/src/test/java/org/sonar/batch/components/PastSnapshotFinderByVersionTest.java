@@ -19,13 +19,13 @@
  */
 package org.sonar.batch.components;
 
-import org.junit.Test;
-import org.sonar.api.database.model.Snapshot;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+
+import org.junit.Test;
+import org.sonar.api.database.model.Snapshot;
+import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 public class PastSnapshotFinderByVersionTest extends AbstractDbUnitTestCase {
 
@@ -40,12 +40,15 @@ public class PastSnapshotFinderByVersionTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void shouldNotFindVersion() {
+  public void shouldReturnPastSnapshotEvenWhenNoPreviousAnalysis() {
     setupData("shared");
 
     Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
     PastSnapshotFinderByVersion finder = new PastSnapshotFinderByVersion(getSession());
 
-    assertThat(finder.findByVersion(currentProjectSnapshot, "1.0"), nullValue());
+    PastSnapshot pastSnapshot = finder.findByVersion(currentProjectSnapshot, "1.0");
+    assertThat(pastSnapshot.isRelatedToSnapshot(), is(false));
+    assertThat(pastSnapshot.getProjectSnapshot(), nullValue());
+    assertThat(currentProjectSnapshot.getCreatedAt().getTime() - pastSnapshot.getTargetDate().getTime(), is(1000L * 60));
   }
 }

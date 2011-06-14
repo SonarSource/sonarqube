@@ -54,7 +54,7 @@ public class PastSnapshot {
   }
 
   public boolean isRelatedToSnapshot() {
-    return projectSnapshot!=null;
+    return projectSnapshot != null;
   }
 
   public Snapshot getProjectSnapshot() {
@@ -62,7 +62,7 @@ public class PastSnapshot {
   }
 
   public Date getDate() {
-    return (projectSnapshot!=null ? projectSnapshot.getCreatedAt() : null);
+    return (projectSnapshot != null ? projectSnapshot.getCreatedAt() : null);
   }
 
   public String getMode() {
@@ -86,11 +86,9 @@ public class PastSnapshot {
     return (projectSnapshot != null ? projectSnapshot.getQualifier() : null);
   }
 
-
   public Date getTargetDate() {
     return targetDate;
   }
-
 
   @Override
   public String toString() {
@@ -102,16 +100,20 @@ public class PastSnapshot {
       if (isRelatedToSnapshot()) {
         label += ", analysis of " + getDate();
       }
-      label+=")";
+      label += ")";
       return label;
     }
     if (StringUtils.equals(mode, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS)) {
-      return String.format("Compare to previous analysis  (%s)", DateUtils.formatDate(getDate()));
+      String label = "Compare to previous analysis";
+      if (isRelatedToSnapshot()) {
+        label += String.format(" (%s)", DateUtils.formatDate(getDate()));
+      }
+      return label;
     }
     if (StringUtils.equals(mode, PastSnapshotFinderByDate.MODE)) {
       String label = "Compare to date " + DateUtils.formatDate(getTargetDate());
       if (isRelatedToSnapshot()) {
-        label += String.format("(analysis of %s)", DateUtils.formatDate(getDate()));
+        label += String.format(" (analysis of %s)", DateUtils.formatDate(getDate()));
       }
       return label;
     }
