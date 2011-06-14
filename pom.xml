@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.codehaus.sonar</groupId>
@@ -90,6 +91,11 @@
   </repositories>
 
   <properties>
+    <!--
+    Warning before upgrading Derby to 10.8 : new conversion from BOOLEAN to CHAR.
+    "If you use setBoolean() or setObject() with a CHAR(1) datatype you must change your code and use setInt() or Derby will try to store "true" or
+    "false" strings."
+    -->
     <derby.version>10.7.1.1</derby.version>
     <jetty.version>6.1.24</jetty.version>
     <sonar.skippedModules>sonar-deprecated,sonar-gwt-api,sonar-core-gwt,sonar-testing-harness,sonar-samples</sonar.skippedModules>
@@ -98,7 +104,7 @@
     <jdk.min.version>1.5</jdk.min.version>
 
     <!-- default GWT configuration. It's overridden by the profile 'dev' to speed up compilation in dev environments-->
-    <gwt.permutationSuffix />
+    <gwt.permutationSuffix/>
     <gwt.extraJvmArgs>-Xmx512m -Xss1024k</gwt.extraJvmArgs>
   </properties>
 
@@ -390,7 +396,8 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
-          <excludePackageNames>  net.*:org.sonar.application:org.sonar.server:org.sonar.graph:org.sonar.batch:org.sonar.channel:org.sonar.java:org.sonar.maven*:org.sonar.plugins.*:org.sonar.colorizer:org.sonar.squid:org.sonar.core:org.sonar.jpa:org.sonar.duplications
+          <excludePackageNames>
+            net.*:org.sonar.application:org.sonar.server:org.sonar.graph:org.sonar.batch:org.sonar.channel:org.sonar.java:org.sonar.maven*:org.sonar.plugins.*:org.sonar.colorizer:org.sonar.squid:org.sonar.core:org.sonar.jpa:org.sonar.duplications
           </excludePackageNames>
           <author>false</author>
           <linksource>true</linksource>
@@ -689,10 +696,10 @@
         <version>${derby.version}</version>
       </dependency>
       <dependency>
-         <!--
-         IMPORTANT: DO NOT UPGRADE THIS LIB. Indeed v.1.0.0.1 is a dedicated branch to support Tomcat 5.x. Versions 1.0.5 and greater do not support Tomcat 5.
-         See http://jira.codehaus.org/browse/SONAR-2212
-         -->
+        <!--
+        IMPORTANT: DO NOT UPGRADE THIS LIB. Indeed v.1.0.0.1 is a dedicated branch to support Tomcat 5.x. Versions 1.0.5 and greater do not support Tomcat 5.
+        See http://jira.codehaus.org/browse/SONAR-2212
+        -->
         <groupId>org.jruby.rack</groupId>
         <artifactId>jruby-rack</artifactId>
         <version>1.0.0.1</version>
