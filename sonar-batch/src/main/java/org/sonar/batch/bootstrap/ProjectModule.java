@@ -23,9 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.Metrics;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -49,9 +46,11 @@ import java.util.Arrays;
 public class ProjectModule extends Module {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectModule.class);
   private Project project;
+  private boolean dryRun;
 
-  public ProjectModule(Project project) {
+  public ProjectModule(Project project, boolean dryRun) {
     this.project = project;
+    this.dryRun = dryRun;
   }
 
   @Override
@@ -77,8 +76,12 @@ public class ProjectModule extends Module {
     addComponent(DaoFacade.class);
     addComponent(RulesDao.class);
 
-    // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
-    addComponent(getComponent(DefaultResourcePersister.class).getSnapshot(project));
+    if (!dryRun) {
+      // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
+      addComponent(getComponent(DefaultResourcePersister.class).getSnapshot(project));
+      addComponent(TimeMachineConfiguration.class);
+      addComponent(PastViolationsLoader.class);
+    }
     addComponent(org.sonar.api.database.daos.MeasuresDao.class);
     addComponent(ProfilesDao.class);
     addComponent(AsyncMeasuresDao.class);
@@ -91,8 +94,6 @@ public class ProjectModule extends Module {
     addComponent(ViolationFilters.class);
     addComponent(ResourceFilters.class);
     addComponent(DefaultModelFinder.class);
-    addComponent(TimeMachineConfiguration.class);
-    addComponent(PastViolationsLoader.class);
     addComponent(ProfileLoader.class, DefaultProfileLoader.class);
     addAdapter(new ProfileProvider());
   }
@@ -101,7 +102,7 @@ public class ProjectModule extends Module {
     addComponent(EventBus.class);
     addComponent(Phases.class);
     addComponent(PhasesTimeProfiler.class);
-    for (Class clazz : Phases.getPhaseClasses()) {
+    for (Class clazz : Phases.getPhaseClasses(dryRun)) {
       addComponent(clazz);
     }
   }

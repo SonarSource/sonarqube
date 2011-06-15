@@ -51,6 +51,7 @@ public class BootstrapModule extends Module {
   protected void configure() {
     addComponent(reactor);
     addComponent(configuration);
+    addComponent(DryRun.class);
     addComponent(ServerMetadata.class);// registered here because used by BootstrapClassLoader
     addComponent(TempDirectories.class);// registered here because used by BootstrapClassLoader
     addComponent(HttpDownloader.class);// registered here because used by BootstrapClassLoader
@@ -90,7 +91,8 @@ public class BootstrapModule extends Module {
   @Override
   protected void doStart() {
     addPlugins();
-    Module batchComponents = installChild(new BatchModule());
+    boolean dryRun = getComponent(DryRun.class).isEnabled();
+    Module batchComponents = installChild(new BatchModule(dryRun));
     batchComponents.start();
   }
 

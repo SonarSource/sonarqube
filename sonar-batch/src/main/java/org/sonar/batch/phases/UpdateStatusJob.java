@@ -26,10 +26,12 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Scopes;
 import org.sonar.batch.ServerMetadata;
 import org.sonar.batch.index.ResourcePersister;
+import org.sonar.core.NotDryRun;
 
 import javax.persistence.Query;
 import java.util.List;
 
+@NotDryRun
 public class UpdateStatusJob implements BatchComponent {
 
   private DatabaseSession session;

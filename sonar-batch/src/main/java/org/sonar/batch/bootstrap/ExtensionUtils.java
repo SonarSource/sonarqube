@@ -23,9 +23,11 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.Extension;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.Purge;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.core.NotDryRun;
 
 public final class ExtensionUtils {
 
@@ -58,6 +60,10 @@ public final class ExtensionUtils {
       }
     }
     return false;
+  }
+
+  static boolean checkDryRun(Object extension, boolean dryRun) {
+    return !dryRun || AnnotationUtils.getClassAnnotation(extension, NotDryRun.class)==null;
   }
 
   static boolean isMavenExtensionOnly(Object extension) {

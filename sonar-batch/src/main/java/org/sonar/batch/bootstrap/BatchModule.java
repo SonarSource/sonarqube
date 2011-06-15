@@ -36,20 +36,33 @@ import org.sonar.jpa.dao.MeasuresDao;
  * Level-2 components. Connected to database.
  */
 public class BatchModule extends Module {
+
+  private final boolean dryRun;
+
+  public BatchModule(boolean dryRun) {
+    this.dryRun = dryRun;
+  }
+
   @Override
   protected void configure() {
     addComponent(ProjectTree.class);
     addComponent(DefaultResourceCreationLock.class);
     addComponent(DefaultIndex.class);
-    addComponent(DefaultPersistenceManager.class);
-    addComponent(DependencyPersister.class);
-    addComponent(EventPersister.class);
-    addComponent(LinkPersister.class);
-    addComponent(MeasurePersister.class);
-    addComponent(MemoryOptimizer.class);
-    addComponent(DefaultResourcePersister.class);
-    addComponent(SourcePersister.class);
-    addComponent(ViolationPersister.class);
+
+    if (dryRun) {
+      addComponent(ReadOnlyPersistenceManager.class);
+    } else {
+      addComponent(DefaultPersistenceManager.class);
+      addComponent(DependencyPersister.class);
+      addComponent(EventPersister.class);
+      addComponent(LinkPersister.class);
+      addComponent(MeasurePersister.class);
+      addComponent(MemoryOptimizer.class);
+      addComponent(DefaultResourcePersister.class);
+      addComponent(SourcePersister.class);
+      addComponent(ViolationPersister.class);
+    }
+
     addComponent(Plugins.class);
     addComponent(ServerHttpClient.class);
     addComponent(MeasuresDao.class);
@@ -87,7 +100,7 @@ public class BatchModule extends Module {
       analyze(subProject);
     }
 
-    Module projectComponents = installChild(new ProjectModule(project));
+    Module projectComponents = installChild(new ProjectModule(project, dryRun));
     try {
       projectComponents.start();
     } finally {

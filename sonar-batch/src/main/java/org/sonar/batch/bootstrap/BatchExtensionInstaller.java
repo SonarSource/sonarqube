@@ -34,10 +34,12 @@ public final class BatchExtensionInstaller implements BatchComponent {
 
   private BatchPluginRepository pluginRepository;
   private EnvironmentInformation environment;
+  private DryRun dryRun;
 
-  public BatchExtensionInstaller(BatchPluginRepository pluginRepository, EnvironmentInformation environment) {
+  public BatchExtensionInstaller(BatchPluginRepository pluginRepository, EnvironmentInformation environment, DryRun dryRun) {
     this.pluginRepository = pluginRepository;
     this.environment = environment;
+    this.dryRun = dryRun;
   }
 
   public void install(Module module) {
@@ -75,6 +77,7 @@ public final class BatchExtensionInstaller implements BatchComponent {
   void installExtension(Module module, Object extension) {
     if (ExtensionUtils.isBatchExtension(extension) &&
         ExtensionUtils.isSupportedEnvironment(extension, environment) &&
+        ExtensionUtils.checkDryRun(extension, dryRun.isEnabled()) &&
         ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_BATCH)) {
       if (ExtensionUtils.isType(extension, CoverageExtension.class)) {
         throw new IllegalArgumentException("Instantiation strategy " + InstantiationStrategy.PER_BATCH + " is not supported on CoverageExtension components: " + extension);

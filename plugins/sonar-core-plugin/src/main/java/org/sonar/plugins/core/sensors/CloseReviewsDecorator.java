@@ -33,10 +33,12 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.index.ResourcePersister;
+import org.sonar.core.NotDryRun;
 
 /**
  * Decorator that currently only closes a review when its corresponding violation has been fixed.
  */
+@NotDryRun
 @DependsUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
 public class CloseReviewsDecorator implements Decorator {
 

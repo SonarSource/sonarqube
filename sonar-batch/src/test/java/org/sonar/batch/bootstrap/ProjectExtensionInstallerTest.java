@@ -66,7 +66,7 @@ public class ProjectExtensionInstallerTest {
     });
     when(pluginRepository.getPluginsByKey()).thenReturn(pluginsMap);
     Module module = new FakeModule().init();
-    ProjectExtensionInstaller installer = new ProjectExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"));
+    ProjectExtensionInstaller installer = new ProjectExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new DryRun(false));
 
     installer.install(module, new Project("foo"));
 
@@ -86,7 +86,7 @@ public class ProjectExtensionInstallerTest {
     });
     when(pluginRepository.getPluginsByKey()).thenReturn(pluginsMap);
     Module module = new FakeModule().init();
-    ProjectExtensionInstaller installer = new ProjectExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"));
+    ProjectExtensionInstaller installer = new ProjectExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new DryRun(false));
 
     installer.install(module, new Project("foo"));
 

@@ -44,7 +44,9 @@ import org.sonar.batch.index.ViolationPersister;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import org.sonar.core.NotDryRun;
 
+@NotDryRun
 @DependsUpon({ DecoratorBarriers.END_OF_VIOLATIONS_GENERATION, DecoratorBarriers.START_VIOLATION_TRACKING })
 @DependedUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
 public class ViolationPersisterDecorator implements Decorator {

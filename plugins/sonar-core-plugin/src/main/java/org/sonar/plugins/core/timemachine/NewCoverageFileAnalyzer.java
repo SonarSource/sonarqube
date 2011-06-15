@@ -33,6 +33,7 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.core.NotDryRun;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -42,6 +43,7 @@ import java.util.Map;
 /**
  * @since 2.7
  */
+@NotDryRun
 @DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
 public final class NewCoverageFileAnalyzer implements Decorator {
 

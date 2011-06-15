@@ -27,10 +27,12 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.core.NotDryRun;
 import org.sonar.plugins.dbcleaner.api.Purge;
 
 import javax.persistence.Query;
 
+@NotDryRun
 public final class PurgeRunner implements PostJob {
 
   private DatabaseSession session;

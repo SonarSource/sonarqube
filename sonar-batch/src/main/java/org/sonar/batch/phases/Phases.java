@@ -19,22 +19,26 @@
  */
 package org.sonar.batch.phases;
 
+import com.google.common.collect.Lists;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.PersistenceManager;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 public final class Phases {
 
-  public static Collection<Class> getPhaseClasses() {
-    return Arrays.<Class> asList(
-        DecoratorsExecutor.class, MavenPhaseExecutor.class, MavenPluginsConfigurator.class,
-        PostJobsExecutor.class, SensorsExecutor.class, UpdateStatusJob.class,
+  public static Collection<Class> getPhaseClasses(boolean dryRun) {
+    List<Class> classes = Lists.<Class>newArrayList(DecoratorsExecutor.class, MavenPhaseExecutor.class, MavenPluginsConfigurator.class,
+        PostJobsExecutor.class, SensorsExecutor.class,
         InitializersExecutor.class);
+    if (!dryRun) {
+      classes.add(UpdateStatusJob.class);
+    }
+    return classes;
   }
 
   private EventBus eventBus;
@@ -51,20 +55,29 @@ public final class Phases {
 
   public Phases(DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
                 MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
-                PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor, UpdateStatusJob updateStatusJob,
+                PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
                 PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
-                EventBus eventBus) {
+                EventBus eventBus, UpdateStatusJob updateStatusJob) {
     this.decoratorsExecutor = decoratorsExecutor;
     this.mavenPhaseExecutor = mavenPhaseExecutor;
     this.mavenPluginsConfigurator = mavenPluginsConfigurator;
     this.postJobsExecutor = postJobsExecutor;
     this.initializersExecutor = initializersExecutor;
     this.sensorsExecutor = sensorsExecutor;
-    this.updateStatusJob = updateStatusJob;
     this.persistenceManager = persistenceManager;
     this.sensorContext = sensorContext;
     this.index = index;
     this.eventBus = eventBus;
+    this.updateStatusJob = updateStatusJob;
+  }
+
+  public Phases(DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
+                MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
+                PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
+                PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
+                EventBus eventBus) {
+    this(decoratorsExecutor, mavenPhaseExecutor, mavenPluginsConfigurator, initializersExecutor, postJobsExecutor,
+        sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null);
   }
 
   /**
@@ -83,7 +96,9 @@ public final class Phases {
     persistenceManager.setDelayedMode(false);
 
     if (project.isRoot()) {
-      updateStatusJob.execute();
+      if (updateStatusJob != null) {
+        updateStatusJob.execute();
+      }
       postJobsExecutor.execute(sensorContext);
     }
     cleanMemory();

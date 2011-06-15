@@ -17,22 +17,19 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.phases;
+package org.sonar.core;
 
-import org.junit.Test;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertThat;
-
-public class PhasesTest {
-
-  @Test
-  public void shouldDefinePhaseClasses() {
-    assertThat(Phases.getPhaseClasses(false).size(), greaterThan(4));
-  }
-
-  @Test
-  public void someComponentsShouldBeDisabledOnDryRun() {
-    assertThat(Phases.getPhaseClasses(false).size(), greaterThan(Phases.getPhaseClasses(true).size()));
-  }
+/**
+ * Disables component on dry runs.
+ * This annotation must be used by core modules only. It MUST not be used by external plugins.
+ * @since 2.9
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface NotDryRun {
 }

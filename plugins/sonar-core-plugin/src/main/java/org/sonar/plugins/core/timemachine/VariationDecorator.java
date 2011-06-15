@@ -30,11 +30,13 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.core.NotDryRun;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+@NotDryRun
 @DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
 public class VariationDecorator implements Decorator {
 

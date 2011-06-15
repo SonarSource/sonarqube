@@ -25,6 +25,7 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.core.NotDryRun;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -75,6 +76,18 @@ public class ExtensionUtilsTest {
     assertThat(ExtensionUtils.isMavenExtensionOnly(BuildToolService.class), is(false));
   }
 
+  @Test
+  public void shouldCheckDryRun() {
+    assertThat(ExtensionUtils.checkDryRun(BatchService.class, true), is(true));
+    assertThat(ExtensionUtils.checkDryRun(PersistentService.class, true), is(false));
+  }
+
+  @Test
+  public void shouldNotCheckDryRun() {
+    assertThat(ExtensionUtils.checkDryRun(BatchService.class, false), is(true));
+    assertThat(ExtensionUtils.checkDryRun(PersistentService.class, false), is(true));
+  }
+
   @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
   public static class BatchService implements BatchExtension {
 
@@ -100,6 +113,11 @@ public class ExtensionUtilsTest {
 
   @SupportedEnvironment({"maven", "ant", "gradle"})
   public static class BuildToolService implements BatchExtension {
+
+  }
+
+  @NotDryRun
+  public static class PersistentService implements BatchExtension {
 
   }
 }

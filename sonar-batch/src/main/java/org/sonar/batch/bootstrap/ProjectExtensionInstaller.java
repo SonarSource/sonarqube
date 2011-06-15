@@ -39,10 +39,12 @@ public final class ProjectExtensionInstaller implements BatchComponent {
 
   private BatchPluginRepository pluginRepository;
   private EnvironmentInformation environment;
+  private DryRun dryRun;
 
-  public ProjectExtensionInstaller(BatchPluginRepository pluginRepository, EnvironmentInformation environment) {
+  public ProjectExtensionInstaller(BatchPluginRepository pluginRepository, EnvironmentInformation environment, DryRun dryRun) {
     this.pluginRepository = pluginRepository;
     this.environment = environment;
+    this.dryRun = dryRun;
   }
 
   public void install(Module module, Project project) {
@@ -72,6 +74,7 @@ public final class ProjectExtensionInstaller implements BatchComponent {
     if (ExtensionUtils.isBatchExtension(extension) &&
         ExtensionUtils.isSupportedEnvironment(extension, environment) &&
         ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_PROJECT) &&
+        ExtensionUtils.checkDryRun(extension, dryRun.isEnabled()) &&
         !isDeactivatedCoverageExtension(extension, project, pluginKey) &&
         !isMavenExtensionOnEmulatedMavenProject(extension, project)) {
       module.addComponent(extension);

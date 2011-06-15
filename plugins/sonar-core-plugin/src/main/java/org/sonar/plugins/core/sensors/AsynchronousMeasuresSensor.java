@@ -22,11 +22,13 @@ package org.sonar.plugins.core.sensors;
 import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.core.NotDryRun;
 import org.sonar.jpa.dao.AsyncMeasuresService;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ResourceUtils;
 
+@NotDryRun
 @Phase(name = Phase.Name.PRE)
 public class AsynchronousMeasuresSensor implements Sensor {
 

@@ -17,22 +17,29 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.phases;
+package org.sonar.batch.bootstrap;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.hamcrest.core.Is;
 import org.junit.Test;
 
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertThat;
 
-public class PhasesTest {
+public class DryRunTest {
 
   @Test
-  public void shouldDefinePhaseClasses() {
-    assertThat(Phases.getPhaseClasses(false).size(), greaterThan(4));
+  public void shouldReadConfiguration() {
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    conf.setProperty("sonar.dryRun", "true");
+    assertThat(new DryRun(conf).isEnabled(), Is.is(true));
+
+    conf.setProperty("sonar.dryRun", "false");
+    assertThat(new DryRun(conf).isEnabled(), Is.is(false));
   }
 
   @Test
-  public void someComponentsShouldBeDisabledOnDryRun() {
-    assertThat(Phases.getPhaseClasses(false).size(), greaterThan(Phases.getPhaseClasses(true).size()));
+  public void shouldNotEnableDryRunByDefault() {
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    assertThat(new DryRun(conf).isEnabled(), Is.is(false));
   }
 }

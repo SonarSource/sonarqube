@@ -29,7 +29,6 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
-import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.DefaultIndex;
@@ -68,14 +67,14 @@ public class DefaultTimeMachine implements TimeMachine {
     Map<Integer, Metric> metricById = getMetricsById(query);
     List<Object[]> rows = execute(query, false, metricById.keySet());
     for (Object[] fields : rows) {
-      fields[1]=metricById.get(fields[1]);
+      fields[1] = metricById.get(fields[1]);
     }
     return rows;
   }
 
   protected List execute(TimeMachineQuery query, boolean selectAllFields, Set<Integer> metricIds) {
     Resource resource = query.getResource();
-    if (resource!=null && resource.getId()==null) {
+    if (resource != null && resource.getId() == null) {
       resource = index.getResource(query.getResource());
     }
     if (resource == null) {

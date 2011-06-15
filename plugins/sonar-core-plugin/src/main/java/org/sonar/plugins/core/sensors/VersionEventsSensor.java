@@ -25,9 +25,11 @@ import org.sonar.api.batch.Event;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
+import org.sonar.core.NotDryRun;
 
 import java.util.Iterator;
 
+@NotDryRun
 public class VersionEventsSensor implements Sensor {
 
   private static final String SNAPSHOT_SUFFIX = "-SNAPSHOT";

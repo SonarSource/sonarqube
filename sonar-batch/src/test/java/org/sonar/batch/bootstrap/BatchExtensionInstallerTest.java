@@ -45,7 +45,7 @@ public class BatchExtensionInstallerTest {
       }
     }));
     Module module = new FakeModule().init();
-    BatchExtensionInstaller installer = new BatchExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"));
+    BatchExtensionInstaller installer = new BatchExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new DryRun(false));
 
     installer.install(module);
 
@@ -63,7 +63,7 @@ public class BatchExtensionInstallerTest {
       }
     }));
     Module module = new FakeModule().init();
-    BatchExtensionInstaller installer = new BatchExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"));
+    BatchExtensionInstaller installer = new BatchExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new DryRun(false));
 
     installer.install(module);
 
@@ -82,7 +82,7 @@ public class BatchExtensionInstallerTest {
       }
     }));
     Module module = new FakeModule().init();
-    BatchExtensionInstaller installer = new BatchExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"));
+    BatchExtensionInstaller installer = new BatchExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new DryRun(false));
 
     installer.install(module);
   }

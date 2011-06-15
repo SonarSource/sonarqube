@@ -27,10 +27,12 @@ import org.sonar.api.database.model.SnapshotSource;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.ResourcePersister;
+import org.sonar.core.NotDryRun;
 
 import java.util.Collections;
 import java.util.List;
 
+@NotDryRun
 public class PastViolationsLoader implements BatchExtension {
 
   private DatabaseSession session;

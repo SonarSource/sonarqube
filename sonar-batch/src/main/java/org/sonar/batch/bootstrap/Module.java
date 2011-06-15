@@ -35,6 +35,7 @@ public abstract class Module {
 
   private MutablePicoContainer container;
 
+
   /**
    * @return this
    */

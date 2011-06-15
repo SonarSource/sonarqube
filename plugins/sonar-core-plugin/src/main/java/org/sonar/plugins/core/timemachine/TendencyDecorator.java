@@ -32,9 +32,11 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.core.NotDryRun;
 
 import java.util.List;
 
+@NotDryRun
 @DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
 public class TendencyDecorator implements Decorator {
 
