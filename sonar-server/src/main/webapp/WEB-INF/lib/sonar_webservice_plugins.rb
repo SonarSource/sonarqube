@@ -23,13 +23,12 @@ module ActionController
     class RouteSet
       def load_sonar_plugins_routes
         logger=Slf4jLogger.new('org.sonar.INFO')
-        logger.info("Loading web services...")
         web_service_plugins = Java::OrgSonarServerUi::JRubyFacade.new.getRubyRailsWebservices()
         web_service_plugins.each do |plugin|
-          logger.info("Loading webservice #{plugin.getId()}")
+          logger.info("Loading webservice /api/plugins/#{plugin.getId()}")
           eval(plugin.getTemplate())
           route = add_route("api/plugins/#{plugin.getId()}/:action/:id", {:controller => "api/#{plugin.getId()}", :requirements => { :id => /.*/ }})
-          logger.info("Loaded webservice #{plugin.getId()} => #{route}")
+          logger.debug("Loaded webservice #{plugin.getId()} => #{route}")
         end
       end
     end
