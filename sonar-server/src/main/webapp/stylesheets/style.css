@@ -687,6 +687,11 @@ div.vtitle{
   padding-left: 5px;
   padding-right: 5px;
 }
+.review-reopened {
+  background-color: #FDC596;
+  padding-left: 5px;
+  padding-right: 5px;
+}
 div.vtitle a.action {
   color: #777;
 }
@@ -1194,6 +1199,12 @@ select.withIcons option {
 }
 option.status_open {
 	background-image: url('../images/status/OPEN.png');
+}
+option.status_reopened {
+	background-image: url('../images/status/REOPENED.png');
+}
+option.status_resolved {
+	background-image: url('../images/status/RESOLVED.png');
 }
 option.status_closed {
 	background-image: url('../images/status/CLOSED.png');

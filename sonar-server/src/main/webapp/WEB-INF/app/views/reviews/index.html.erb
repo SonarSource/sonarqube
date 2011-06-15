@@ -37,6 +37,8 @@ function launchSearch(columnName, link) {
           <select size="6" name="statuses[]" multiple="multiple" id="statuses" class="withIcons">
             <option <%= 'selected' if @statuses.include?('') -%> value="">Any</option>
             <option value="<%= Review::STATUS_OPEN -%>" class="status_open" <%= 'selected' if @statuses.include?(Review::STATUS_OPEN) -%>>Open</option>
+            <option value="<%= Review::STATUS_REOPENED -%>" class="status_reopened" <%= 'selected' if @statuses.include?(Review::STATUS_REOPENED) -%>>Reopened</option>
+            <option value="<%= Review::STATUS_RESOLVED -%>" class="status_resolved" <%= 'selected' if @statuses.include?(Review::STATUS_RESOLVED) -%>>Resolved</option>
             <option value="<%= Review::STATUS_CLOSED -%>" class="status_closed" <%= 'selected' if @statuses.include?(Review::STATUS_CLOSED) -%>>Closed</option>
           </select>
         </td>

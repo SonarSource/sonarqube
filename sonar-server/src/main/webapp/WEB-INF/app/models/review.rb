@@ -32,6 +32,8 @@ class Review < ActiveRecord::Base
   before_save :assign_project
   
   STATUS_OPEN = 'OPEN'
+  STATUS_RESOLVED = 'RESOLVED'
+  STATUS_REOPENED = 'REOPENED'
   STATUS_CLOSED = 'CLOSED'
     
   def on_project?
@@ -112,6 +114,28 @@ class Review < ActiveRecord::Base
       self.assignee = nil
       self.save!      
     end
+  end
+  
+  def isResolved?
+    status == STATUS_RESOLVED
+  end
+  
+  def isClosed?
+    status == STATUS_CLOSED
+  end
+  
+  def isReopened?
+    status == STATUS_REOPENED
+  end
+  
+  def reopen
+    self.status = STATUS_REOPENED
+    self.save!
+  end
+  
+  def resolve
+    self.status = STATUS_RESOLVED
+    self.save!
   end
   
   

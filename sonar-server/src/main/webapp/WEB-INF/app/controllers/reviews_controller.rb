@@ -23,8 +23,8 @@ class ReviewsController < ApplicationController
   SECTION=Navigation::SECTION_HOME
 
   verify :method => :post, 
-         :only => [:assign, :comment_form, :flag_as_false_positive, 
-                   :violation_assign, :violation_flag_as_false_positive,:violation_save_comment, :violation_delete_comment], 
+         :only => [:assign, :flag_as_false_positive, :save_comment, :delete_comment, :change_status,
+                   :violation_assign, :violation_flag_as_false_positive,:violation_save_comment, :violation_delete_comment, :violation_change_status], 
          :redirect_to => {:action => :error_not_post}
   helper SourceHelper, UsersHelper
 
@@ -148,6 +148,24 @@ class ReviewsController < ApplicationController
     render :partial => "reviews/view"
   end
 
+  # POST
+  def change_status
+    @review = Review.find(params[:id], :include => ['project'])
+    unless has_rights_to_modify?(@review.project)
+      render :text => "<b>Cannot create the comment</b> : access denied."
+      return
+    end
+    
+    if @review.isResolved?
+      @review.reopen
+    else
+      # for the moment, if a review is not open, it can only be "RESOLVED"
+      @review.resolve
+    end
+
+    render :partial => "reviews/view"
+  end
+
 
   #
   #
@@ -261,6 +279,28 @@ class ReviewsController < ApplicationController
     end
     render :partial => "resource/violation", :locals => { :violation => violation }
   end
+  
+  # POST
+  def violation_change_status
+    violation = RuleFailure.find(params[:id], :include => 'snapshot')
+    unless has_rights_to_modify?(violation.snapshot)
+      render :text => "<b>Cannot delete the comment</b> : access denied."
+      return
+    end
+    sanitize_violation(violation)
+    
+    if violation.review
+      review = violation.review
+      if review.isResolved?
+        review.reopen
+      else
+        # for the moment, if a review is not open, it can only be "RESOLVED"
+        review.resolve
+      end
+    end    
+
+    render :partial => "resource/violation", :locals => { :violation => violation }
+  end
 
 
 
@@ -272,7 +312,7 @@ class ReviewsController < ApplicationController
     @assignee_id = params[:assignee_id] || default_user
     @author_id = params[:author_id] || ''
     @severities = filter_any(params[:severities]) || ['']
-    @statuses = filter_any(params[:statuses]) || [Review::STATUS_OPEN]
+    @statuses = filter_any(params[:statuses]) || [Review::STATUS_OPEN, Review::STATUS_REOPENED]
     @projects = filter_any(params[:projects]) || ['']
     @false_positives = params[:false_positives] || 'without'
     @id = params[:review_id] || ''

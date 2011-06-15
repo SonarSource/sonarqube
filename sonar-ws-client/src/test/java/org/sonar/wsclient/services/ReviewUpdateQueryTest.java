@@ -51,4 +51,10 @@ public class ReviewUpdateQueryTest extends QueryTestCase {
     assertThat(query.getUrl(), is("/api/reviews/?id=13&new_text=Hello+World%21&false_positive=true&"));
   }
 
+  @Test
+  public void testChangeStatus() {
+    ReviewUpdateQuery query = ReviewUpdateQuery.changeStatusQuery(13L, "RESOLVED");
+    assertThat(query.getUrl(), is("/api/reviews/?id=13&status=RESOLVED&"));
+  }
+
 }

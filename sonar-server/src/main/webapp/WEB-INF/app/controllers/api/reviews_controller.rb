@@ -106,6 +106,7 @@ class Api::ReviewsController < Api::ApiController
   # - 'assignee' : login used to create a review directly assigned. Use 'none' to unassign.
   # - 'false_positive' (true/false) : in conjunction with 'new_text' (mandatory in this case), changes the 
   #                                   state 'false_positive' of the review
+  # - 'status' : used to change the status of the review. For the moment, only "RESOLVED" or "REOPENED" are accepted.
   #
   # Example :
   # - PUT "/api/reviews/?id=1&false_positive=true&new_text=Because
@@ -113,6 +114,7 @@ class Api::ReviewsController < Api::ApiController
   # - PUT "/api/reviews/?id=1&assignee=none
   # - PUT "/api/reviews/?id=1&new_text=New%20Comment!
   # - PUT "/api/reviews/?id=1&text=Modified%20Comment!
+  # - PUT "/api/reviews/?id=1&status=RESOLVED
   #
   def update
     begin
@@ -122,6 +124,7 @@ class Api::ReviewsController < Api::ApiController
       new_text = params[:new_text]
       assignee = params[:assignee]
       false_positive = params[:false_positive]
+      status = params[:status]
         
       # 2- Get the review or create one
       raise "No 'id' parameter has been provided." unless params[:id]
@@ -150,6 +153,10 @@ class Api::ReviewsController < Api::ApiController
       elsif !text.blank?
         raise "You don't have the rights to edit the last comment of this review." unless review.comments.last.user == current_user
         review.edit_last_comment(text)
+      elsif !status.blank?
+        raise "Only 'RESOLVED' or 'REOPENED' can be used as a new status for a review." unless status=='RESOLVED' || status=='REOPENED'
+        review.status=status
+        review.save!
       else
         render_error("The given parameter combination is invalid for updating the review.", 403)
         return

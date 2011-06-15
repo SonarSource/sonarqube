@@ -8,7 +8,7 @@
     <% end %>
     
     <% 
-      if current_user && review.status != "CLOSED" && review.rule_failure
+      if current_user && !review.isClosed? && review.rule_failure
         violation_switched_off = review.rule_failure.switched_off?
     %>
     <span class="actions" id="rActions">
@@ -18,17 +18,26 @@
         <% 
           if !violation_switched_off
         %>
-        <%= link_to_remote (review.assignee_id ? "Reassign" : "Assign"),  
-        		:url => { :controller => "reviews", :action => "assign_form", :review_id => review.id},
-        		:update => "assignForm",
-        		:complete => "$('rActions').hide(); $('editActions').hide(); $('assignee_id').focus();" -%>
-      
-        &nbsp;
+          <%= link_to_remote (review.isResolved? ? "Reopen" : "Resolve"),  
+        		:url => { :controller => "reviews", :action => "change_status", :id => review.id},
+        		:update => "review",
+        		:confirm => review.isResolved? ? "Do you want to reopen this review?" : "Do you want to resolve this review?" -%>
+          &nbsp;
+          <% unless review.isResolved? %>
+	        <%= link_to_remote (review.assignee_id ? "Reassign" : "Assign"),  
+	        		:url => { :controller => "reviews", :action => "assign_form", :review_id => review.id},
+	        		:update => "assignForm",
+	        		:complete => "$('rActions').hide(); $('editActions').hide(); $('assignee_id').focus();" -%>
+	      
+	        &nbsp;
+          <% end %>
         <% end %>
-        <%= link_to_remote (violation_switched_off ? "Unflag as false-positive" : "Flag as false-positive"),
+        <% unless review.isResolved? %>
+          <%= link_to_remote (violation_switched_off ? "Unflag as false-positive" : "Flag as false-positive"),
         		:url => { :controller => "reviews", :action => "false_positive_form", :id => review.id, :false_positive => !violation_switched_off },
         		:update => "reviewForm",
         		:complete => "$('reviewForm').show(); $('rActions').hide(); $('editActions').hide(); $('commentText').focus();" -%>
+        <% end %>
     </span>
     <% end %>
     

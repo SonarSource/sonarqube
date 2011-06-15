@@ -61,12 +61,20 @@ public class CloseReviewsDecorator implements Decorator {
     if (currentSnapshot != null) {
       int resourceId = currentSnapshot.getResourceId();
       int snapshotId = currentSnapshot.getId();
-      Query query = databaseSession.createNativeQuery(generateUpdateOnResourceSqlRequest(resourceId, snapshotId));
+
+      // Close reviews for which violations have been fixed
+      Query query = databaseSession.createNativeQuery(generateUpdateToCloseReviewsForFixedViolation(resourceId, snapshotId));
       int rowUpdated = query.executeUpdate();
       LOG.debug("- {} reviews set to 'closed' on resource #{}", rowUpdated, resourceId);
 
+      // Reopen reviews that had been set to resolved but for which the violation is still here
+      query = databaseSession.createNativeQuery(generateUpdateToReopenResolvedReviewsForNonFixedViolation(resourceId));
+      rowUpdated = query.executeUpdate();
+      LOG.debug("- {} reviews set to 'reopened' on resource #{}", rowUpdated, resourceId);
+
+      // And close reviews that relate to resources that have been deleted or renamed
       if (ResourceUtils.isRootProject(resource)) {
-        query = databaseSession.createNativeQuery(generateUpdateOnProjectSqlRequest(resourceId, currentSnapshot.getId()));
+        query = databaseSession.createNativeQuery(generateUpdateToCloseReviewsForDeletedResources(resourceId, currentSnapshot.getId()));
         query.setParameter(1, Boolean.TRUE);
         rowUpdated = query.executeUpdate();
         LOG.debug("- {} reviews set to 'closed' on project #{}", rowUpdated, resourceId);
@@ -76,14 +84,18 @@ public class CloseReviewsDecorator implements Decorator {
     }
   }
 
-  protected String generateUpdateOnResourceSqlRequest(int resourceId, int snapshotId) {
-    return "UPDATE reviews SET status='CLOSED', updated_at=CURRENT_TIMESTAMP WHERE status='OPEN' AND resource_id = " + resourceId
+  protected String generateUpdateToCloseReviewsForFixedViolation(int resourceId, int snapshotId) {
+    return "UPDATE reviews SET status='CLOSED', updated_at=CURRENT_TIMESTAMP WHERE status!='CLOSED' AND resource_id = " + resourceId
         + " AND rule_failure_permanent_id NOT IN " + "(SELECT permanent_id FROM rule_failures WHERE snapshot_id = " + snapshotId
         + " AND permanent_id IS NOT NULL)";
   }
 
-  protected String generateUpdateOnProjectSqlRequest(int projectId, int projectSnapshotId) {
-    return "UPDATE reviews SET status='CLOSED', updated_at=CURRENT_TIMESTAMP WHERE status='OPEN' AND project_id=" + projectId
+  protected String generateUpdateToReopenResolvedReviewsForNonFixedViolation(int resourceId) {
+    return "UPDATE reviews SET status='REOPENED', updated_at=CURRENT_TIMESTAMP WHERE status='RESOLVED' AND resource_id = " + resourceId;
+  }
+
+  protected String generateUpdateToCloseReviewsForDeletedResources(int projectId, int projectSnapshotId) {
+    return "UPDATE reviews SET status='CLOSED', updated_at=CURRENT_TIMESTAMP WHERE status!='CLOSED' AND project_id=" + projectId
         + " AND resource_id IN ( SELECT prev.project_id FROM snapshots prev  WHERE prev.root_project_id=" + projectId
         + " AND prev.islast=? AND NOT EXISTS ( SELECT cur.id FROM snapshots cur WHERE cur.root_snapshot_id=" + projectSnapshotId
         + " AND cur.created_at > prev.created_at AND cur.root_project_id=" + projectId + " AND cur.project_id=prev.project_id ) )";

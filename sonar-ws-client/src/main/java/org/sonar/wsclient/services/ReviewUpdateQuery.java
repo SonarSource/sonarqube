@@ -29,6 +29,7 @@ public class ReviewUpdateQuery extends UpdateQuery<Review> {
   private String newText;
   private String assignee;
   private Boolean falsePositive;
+  private String status;
 
   public ReviewUpdateQuery() {
   }
@@ -96,6 +97,23 @@ public class ReviewUpdateQuery extends UpdateQuery<Review> {
     return query;
   }
 
+  /**
+   * Builds a request that will change the status of a an existing review.<br/>
+   * <br/>
+   * Currently, only "RESOLVED" and "REOPENED" are supported.
+   * 
+   * @param reviewId
+   *          The id of the review
+   * @param status
+   *          The new status
+   */
+  public static ReviewUpdateQuery changeStatusQuery(Long reviewId, String status) {
+    ReviewUpdateQuery query = new ReviewUpdateQuery();
+    query.setReviewId(reviewId);
+    query.setStatus(status);
+    return query;
+  }
+
   public Long getReviewId() {
     return reviewId;
   }
@@ -141,6 +159,15 @@ public class ReviewUpdateQuery extends UpdateQuery<Review> {
     return this;
   }
 
+  public String getStatus() {
+    return status;
+  }
+
+  public ReviewUpdateQuery setStatus(String status) {
+    this.status = status;
+    return this;
+  }
+
   @Override
   public String getUrl() {
     StringBuilder url = new StringBuilder();
@@ -152,6 +179,7 @@ public class ReviewUpdateQuery extends UpdateQuery<Review> {
     appendUrlParameter(url, "new_text", getNewText());
     appendUrlParameter(url, "assignee", getAssignee());
     appendUrlParameter(url, "false_positive", getFalsePositive());
+    appendUrlParameter(url, "status", getStatus());
     return url.toString();
   }
 

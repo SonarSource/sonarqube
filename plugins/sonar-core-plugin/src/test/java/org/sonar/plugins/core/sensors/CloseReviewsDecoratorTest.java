@@ -49,16 +49,41 @@ public class CloseReviewsDecoratorTest extends DatabaseTestCase {
     setupData("fixture");
 
     CloseReviewsDecorator reviewsDecorator = new CloseReviewsDecorator(null, null);
-    String sqlRequest = reviewsDecorator.generateUpdateOnResourceSqlRequest(666, 222);
+    String sqlRequest = reviewsDecorator.generateUpdateToCloseReviewsForFixedViolation(666, 222);
 
     Statement stmt = getConnection().createStatement();
     int count = stmt.executeUpdate(sqlRequest);
 
-    assertThat(count, is(1));
+    assertThat(count, is(3));
     assertTables("shouldCloseReviewWithoutCorrespondingViolation", new String[] { "reviews" }, new String[] { "updated_at" });
 
     try {
       assertTables("shouldCloseReviewWithoutCorrespondingViolation", new String[] { "reviews" });
+      fail("'updated_at' columns are identical whereas they should be different.");
+    } catch (ComparisonFailure e) {
+      // "updated_at" column must be different, so the comparison should raise this exception
+    }
+  }
+
+  @Test
+  public void shouldReopenResolvedReviewWithNonFixedViolation() throws Exception {
+    setupData("fixture");
+
+    CloseReviewsDecorator reviewsDecorator = new CloseReviewsDecorator(null, null);
+
+    // First we close the reviews for which the violations have been fixed (this is because we use the same "fixture"...)
+    getConnection().createStatement().executeUpdate(reviewsDecorator.generateUpdateToCloseReviewsForFixedViolation(666, 222));
+
+    // And now we reopen the reviews that still have a violation
+    String sqlRequest = reviewsDecorator.generateUpdateToReopenResolvedReviewsForNonFixedViolation(666);
+    Statement stmt = getConnection().createStatement();
+    int count = stmt.executeUpdate(sqlRequest);
+
+    assertThat(count, is(1));
+    assertTables("shouldReopenResolvedReviewWithNonFixedViolation", new String[] { "reviews" }, new String[] { "updated_at" });
+
+    try {
+      assertTables("shouldReopenResolvedReviewWithNonFixedViolation", new String[] { "reviews" });
       fail("'updated_at' columns are identical whereas they should be different.");
     } catch (ComparisonFailure e) {
       // "updated_at" column must be different, so the comparison should raise this exception

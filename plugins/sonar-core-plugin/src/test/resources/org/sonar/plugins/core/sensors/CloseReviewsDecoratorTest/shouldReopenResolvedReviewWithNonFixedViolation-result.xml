@@ -32,7 +32,7 @@
   			created_at="[null]" updated_at="[null]" user_id="[null]" assignee_id="[null]" title="[null]" false_positive="[null]" severity="[null]" resource_line="[null]" project_id="[null]"/>
   <reviews
   			id="6"
-  			status="RESOLVED"
+  			status="REOPENED"
   			rule_failure_permanent_id="3"
   			resource_id="666"
   			created_at="[null]" updated_at="[null]" user_id="[null]" assignee_id="[null]" title="[null]" false_positive="[null]" severity="[null]" resource_line="[null]" project_id="[null]"/>

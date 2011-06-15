@@ -1,5 +1,6 @@
 <dataset>
 
+  <!-- Component 555 -->
   <snapshots 
              id="11" 
              project_id="555"
@@ -8,6 +9,7 @@
              id="111" 
              project_id="555"
              status="P" islast="false"/>
+  <!-- Component 666 -->
   <snapshots 
              id="22" 
              project_id="666"
@@ -17,6 +19,7 @@
              project_id="666"
              status="P" islast="false"/>
 
+  <!-- Violations on previous analysis -->
   <rule_failures 
              id="1"
              permanent_id="1"
@@ -32,17 +35,22 @@
              permanent_id="3"
              snapshot_id="22"
              rule_id="1" failure_level="1"/>
+  <!-- Violations on new analysis -->
+  <!-- Violation #1 still exists -->
   <rule_failures 
              id="4"
              permanent_id="1"
              snapshot_id="111"
              rule_id="1" failure_level="1"/>
+  <!-- Violation #2 has been fixed -->
+  <!-- Violation #3 still exists -->
   <rule_failures 
              id="5"
              permanent_id="3"
              snapshot_id="222"
              rule_id="1" failure_level="1"/>
 
+  <!-- Existing reviews -->
   <reviews
   			id="1"
   			status="OPEN"
@@ -61,6 +69,26 @@
   <reviews
   			id="4"
   			status="CLOSED"
+  			rule_failure_permanent_id="2"
+  			resource_id="666"/>
+  <reviews
+  			id="5"
+  			status="REOPENED"
+  			rule_failure_permanent_id="3"
+  			resource_id="666"/>
+  <reviews
+  			id="6"
+  			status="RESOLVED"
+  			rule_failure_permanent_id="3"
+  			resource_id="666"/>
+  <reviews
+  			id="7"
+  			status="REOPENED"
+  			rule_failure_permanent_id="2"
+  			resource_id="666"/>
+  <reviews
+  			id="8"
+  			status="RESOLVED"
   			rule_failure_permanent_id="2"
   			resource_id="666"/>
 
