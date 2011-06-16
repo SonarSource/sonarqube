@@ -14,7 +14,7 @@
       &raquo; <a href="<%= ApplicationController.root_context -%>/sessions/logout">Log out</a>
       </li>
       <% else %>
-      <li><a href="<%= ApplicationController.root_context -%>/sessions/new"><%= message('app.view.layouts.layout.login', 'Log in') -%></a></li>
+      <li><a href="<%= ApplicationController.root_context -%>/sessions/new"><%= message('web.layouts.login', :default => 'Log {0}', :params => ['in']) -%></a></li>
       <% end %>
       <li><a href="<%= ApplicationController.root_context -%>/profiles">Configuration</a></li>
     </ol>

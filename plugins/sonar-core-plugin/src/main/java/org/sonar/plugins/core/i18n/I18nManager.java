@@ -138,11 +138,14 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
     }
   }
 
-  public String message(final Locale locale, final String key, final String defaultText, final Object... objects) {
+  public String message(final Locale locale, final String key, final String defaultText, final Object... objects)
+  {
     String result = defaultText;
     try {
       String bundleBaseName = keys.get(key);
       if (bundleBaseName == null) {
+        if (result == null)
+          throw new MissingResourceException("UNKNOWN KEY : Key '" + key + "' not found in any bundle.", bundleBaseName, key);
         LOG.warn("UNKNOWN KEY : Key '{}' not found in any bundle. Default value '{}' is returned.", key, defaultText);
         unknownKeys.put(key, defaultText);
       } else {
@@ -151,18 +154,24 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
 
           String value = bundle.getString(key);
           if ("".equals(value)) {
+            if (result == null)
+              throw new MissingResourceException("VOID KEY : Key '" + key + "' (from bundle '" + bundleBaseName + "') returns a void value.", bundleBaseName, key);
             LOG.warn("VOID KEY : Key '{}' (from bundle '{}') returns a void value. Default value '{}' is returned.", new Object[]{key,
                 bundleBaseName, defaultText});
           } else {
             result = value;
           }
         } catch (MissingResourceException e) {
+          if (result == null)
+            throw e;
           LOG.warn("BUNDLE NOT LOADED : Failed loading bundle {} from classloader {}. Default value '{}' is returned.", new Object[]{
               bundleBaseName, bundleClassLoader, defaultText});
         }
       }
     } catch (Exception e) {
       LOG.error("Exception when retrieving I18n string.", e);
+      if (result == null)
+        throw new SonarException("Exception when retrieving I18n string.", e);
     }
 
     if (objects.length > 0) {
