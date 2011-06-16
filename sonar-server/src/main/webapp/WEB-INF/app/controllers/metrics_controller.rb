@@ -26,10 +26,10 @@ class MetricsController < ApplicationController
   
   def index
     @metrics = Metric.all.select {|metric| metric.user_managed?}
-    @domains = Metric.all.map {|metric| metric.domain}.compact.uniq.sort
+    @domains = Metric.all.map {|metric| metric.domain(false)}.compact.uniq.sort
     if params['id']
       @metric=Metric.find(params['id'].to_i)
-      params['domain']=@metric.domain
+      params['domain']=@metric.domain(false)
     else
       @metric=Metric.new
     end
@@ -43,9 +43,11 @@ class MetricsController < ApplicationController
       metric = Metric.new
     end
 
+    logger.error(params[:metric].to_s)
     metric.attributes=params[:metric]
-    if metric.short_name
-      metric.name = metric.short_name.downcase.gsub(/\s/, '_')[0..59]
+    logger.error(metric.attributes.to_s)
+    if metric.short_name(false)
+      metric.name = metric.short_name(false).downcase.gsub(/\s/, '_')[0..59]
     end
     unless params[:newdomain].blank?
       metric.domain = params[:newdomain]
@@ -54,9 +56,11 @@ class MetricsController < ApplicationController
     metric.user_managed = true
     metric.enabled = true
     metric.origin = Metric::ORIGIN_GUI
+    logger.error(metric.attributes.to_s)
 
     begin
       new_rec = metric.new_record?
+      logger.error(new_rec.to_s)
       metric.save!
       Metric.clear_cache
       if new_rec
@@ -64,10 +68,12 @@ class MetricsController < ApplicationController
       else
         flash[:notice] = 'Successfully updated.'
       end
-    rescue
+    rescue => e
+      logger.error(e.message)
+      logger.error(e.backtrace)
       flash[:error] = metric.errors.full_messages.join("<br/>\n")
     end
-    redirect_to :action => 'index', :domain => metric.domain
+    redirect_to :action => 'index', :domain => metric.domain(false)
   end
 
   def delete_from_web

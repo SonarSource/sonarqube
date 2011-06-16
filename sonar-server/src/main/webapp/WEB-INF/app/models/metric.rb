@@ -40,6 +40,8 @@ class Metric < ActiveRecord::Base
   ORIGIN_JAVA='JAV'
 
   CACHE_KEY='metrics'
+  I18N_DOMAIN_CACHE_KEY='i18n_domains'
+  I18N_SHORT_NAME_CACHE_KEY='i18n_metric_short_names'
   
   validates_length_of       :name, :within => 1..64
   validates_uniqueness_of   :name
@@ -60,16 +62,79 @@ class Metric < ActiveRecord::Base
     short_name<=>other.short_name
   end
 
-  def self.domains
+  def self.domains(translate=true)
     all.collect{|metric|
-      metric.domain
+      metric.domain(translate)
     }.compact.uniq.sort
   end
 
+  def self.i18n_domain_for(to_translate)
+    return nil if to_translate.nil?
+    
+    localeMap = Metric.i18n_domain_cache[to_translate]
+    locale = I18n.locale
+    
+    return localeMap[locale] if not localeMap.nil? and localeMap.has_key?(locale)
+    
+    i18n_key = 'domain.' + to_translate
+    result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, i18n_key, to_translate, [].to_java) 
+    localeMap[locale] = result if not localeMap.nil? 
+    result
+  end
+ 
   def key
     name
   end
 
+  def domain(translate=true)
+    default_string = read_attribute(:domain)
+    return default_string unless translate
+    Metric.i18n_domain_for(default_string)
+  end
+ 
+  def domain=(value)
+    write_attribute(:domain, value)
+  end
+ 
+  def short_name(translate=true)
+    default_string = read_attribute(:short_name)
+    return default_string unless translate
+    
+    metric_name = read_attribute(:name)      
+    return nil if metric_name.nil?
+    
+    localeMap = Metric.i18n_short_name_cache[metric_name]
+    locale = I18n.locale
+    
+    return localeMap[locale] if not localeMap.nil? and localeMap.has_key?(locale) 
+    
+    i18n_key = 'metric.' + metric_name + '.name'
+    result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, i18n_key, default_string, [].to_java) 
+    localeMap[locale] = result if not localeMap.nil?
+    result
+  end
+  
+  def short_name=(value)
+    write_attribute(:short_name, value)
+  end
+ 
+  def description(translate=true)
+    default_string = read_attribute(:description)
+    return default_string unless translate
+
+    metric_name = read_attribute(:name)
+      
+    return nil if metric_name.nil?
+    
+    i18n_key = 'metric.' + metric_name + '.description'
+    result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, i18n_key, default_string, [].to_java)
+    result
+  end
+
+  def description=(value)
+    write_attribute(:description, value)
+  end
+ 
   def user_managed?
     user_managed==true
   end
@@ -156,8 +221,8 @@ class Metric < ActiveRecord::Base
     metrics
   end
 
-  def self.by_domain(domain)
-    all.select{|metric| metric.domain==domain}.sort
+  def self.by_domain(domain, translate=true)
+    all.select{|metric| metric.domain(translate)==domain}.sort
   end
 
   def self.major_metrics_id
@@ -166,6 +231,8 @@ class Metric < ActiveRecord::Base
 
   def self.clear_cache
     Caches.clear(CACHE_KEY)
+    Caches.clear(I18N_DOMAIN_CACHE_KEY)
+    Caches.clear(I18N_SHORT_NAME_CACHE_KEY)
   end
 
   def self.default_time_machine_metrics
@@ -309,4 +376,25 @@ class Metric < ActiveRecord::Base
     c
   end
 
+  def self.i18n_domain_cache
+    c = Caches.cache(I18N_DOMAIN_CACHE_KEY)
+    if c.size==0
+      domains(false).each do |domain|
+        locale_map={}
+        c[domain]=locale_map
+      end
+    end
+    c
+  end
+  
+  def self.i18n_short_name_cache
+    c = Caches.cache(I18N_SHORT_NAME_CACHE_KEY)
+    if c.size==0
+      all.each do |metric|
+        locale_map={}
+        c[metric.name]=locale_map
+      end
+    end
+    c
+  end
 end
