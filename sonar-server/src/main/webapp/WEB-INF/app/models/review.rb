@@ -112,6 +112,7 @@ class Review < ActiveRecord::Base
       create_comment(:user => params[:user], :text => params[:text])
       self.false_positive = is_false_positive
       self.assignee = nil
+      self.status = STATUS_OPEN
       self.save!      
     end
   end

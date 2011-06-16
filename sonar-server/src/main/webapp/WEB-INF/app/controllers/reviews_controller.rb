@@ -117,20 +117,11 @@ class ReviewsController < ApplicationController
       render :text => "<b>Cannot create the comment</b> : access denied."
       return
     end
-    
-    false_positive=(params[:false_positive]=='true')
-    RuleFailure.find( :all, :conditions => [ "permanent_id = ?", @review.rule_failure_permanent_id ] ).each do |violation|
-      violation.switched_off=false_positive
-      violation.save!
-    end
 
-    @review.false_positive = false_positive
-    @review.assignee = nil
-    @review.save!
     unless params[:comment].blank?
-      @review.comments.create(:review_text => params[:comment], :user_id => current_user.id)
+      @review.set_false_positive(params[:false_positive]=='true', :user => current_user, :text => params[:comment])
     end
-
+    
     render :partial => "reviews/view"
   end
 
@@ -215,18 +206,14 @@ class ReviewsController < ApplicationController
       return
     end
     sanitize_violation(violation)
-    false_positive=(params[:false_positive]=='true')
-    violation.switched_off=false_positive
-    violation.save!
-
+    
     unless params[:comment].blank?
       if violation.review.nil?
         violation.build_review(:user_id => current_user.id)
       end
-      violation.review.false_positive=false_positive
-      violation.review.assignee=nil
-      violation.review.save!
-      violation.review.comments.create(:review_text => params[:comment], :user_id => current_user.id)
+      violation.review.set_false_positive(params[:false_positive]=='true', :user => current_user, :text => params[:comment], :violation_id => violation.id)
+      # refresh the violation that has been modified when setting the review to false positive
+      violation=RuleFailure.find(params[:id])
     end
 
     render :partial => "resource/violation", :locals => { :violation => violation }
