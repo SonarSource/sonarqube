@@ -229,7 +229,8 @@ public class Metric implements ServerExtension, BatchExtension {
     }
   }
 
-  private Metric(String key, String name, ValueType type, String description, Integer direction, String domain, Boolean qualitative, Double worstValue, Double bestValue, Boolean optimizedBestValue, Boolean hidden, Formula formula) {
+  private Metric(String key, String name, ValueType type, String description, Integer direction, String domain, Boolean qualitative, Double worstValue, Double bestValue,
+      Boolean optimizedBestValue, Boolean hidden, Formula formula) {
     this.key = key;
     this.name = name;
     this.description = description;
@@ -260,7 +261,6 @@ public class Metric implements ServerExtension, BatchExtension {
     this.id = id;
     return this;
   }
-
 
   /**
    * @return the metric formula
@@ -602,6 +602,11 @@ public class Metric implements ServerExtension, BatchExtension {
     private boolean optimizedBestValue = false;
     private boolean hidden = false;
 
+    /**
+     * @param key the metric key, should be unique among all metrics
+     * @param name the metric name
+     * @param type the metric type
+     */
     public Builder(String key, String name, ValueType type) {
       if (StringUtils.isBlank(key)) {
         throw new IllegalArgumentException("Metric key can not be blank");
@@ -609,7 +614,7 @@ public class Metric implements ServerExtension, BatchExtension {
       if (StringUtils.isBlank(name)) {
         throw new IllegalArgumentException("Metric name can not be blank");
       }
-      if (type==null) {
+      if (type == null) {
         throw new IllegalArgumentException("Metric type can not be null");
       }
       this.key = key;
@@ -617,24 +622,37 @@ public class Metric implements ServerExtension, BatchExtension {
       this.type = type;
     }
 
+    /**
+     * Sets the metric description.
+     */
     public Builder setDescription(String s) {
       this.description = s;
       return this;
     }
 
     /**
-     * Used for numeric values only
+     * Sets the metric direction. Used for numeric values only.
+     *
+     * @see Metric#DIRECTION_WORST
+     * @see Metric#DIRECTION_BETTER
+     * @see Metric#DIRECTION_NONE
      */
     public Builder setDirection(Integer i) {
       this.direction = i;
       return this;
     }
 
+    /**
+     * Sets whether the metric is qualitative.
+     */
     public Builder setQualitative(Boolean b) {
       this.qualitative = b;
       return this;
     }
 
+    /**
+     * Sets the domain for the metric (General, Complexity...).
+     */
     public Builder setDomain(String s) {
       this.domain = s;
       return this;
@@ -645,11 +663,17 @@ public class Metric implements ServerExtension, BatchExtension {
       return this;
     }
 
+    /**
+     * Sets the worst value.
+     */
     public Builder setWorstValue(Double d) {
       this.worstValue = d;
       return this;
     }
 
+    /**
+     * Sets the best value. Resources would be hidden on drilldown page, if value of measure equal to best value.
+     */
     public Builder setBestValue(Double d) {
       this.bestValue = d;
       return this;
@@ -660,6 +684,9 @@ public class Metric implements ServerExtension, BatchExtension {
       return this;
     }
 
+    /**
+     * Sets whether the metric should be hidden in UI (e.g. in Time Machine).
+     */
     public Builder setHidden(boolean b) {
       this.hidden = b;
       return this;
