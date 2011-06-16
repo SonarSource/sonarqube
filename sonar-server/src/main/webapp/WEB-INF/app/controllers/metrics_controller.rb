@@ -43,9 +43,7 @@ class MetricsController < ApplicationController
       metric = Metric.new
     end
 
-    logger.error(params[:metric].to_s)
     metric.attributes=params[:metric]
-    logger.error(metric.attributes.to_s)
     if metric.short_name(false)
       metric.name = metric.short_name(false).downcase.gsub(/\s/, '_')[0..59]
     end
@@ -56,11 +54,9 @@ class MetricsController < ApplicationController
     metric.user_managed = true
     metric.enabled = true
     metric.origin = Metric::ORIGIN_GUI
-    logger.error(metric.attributes.to_s)
 
     begin
       new_rec = metric.new_record?
-      logger.error(new_rec.to_s)
       metric.save!
       Metric.clear_cache
       if new_rec
@@ -68,9 +64,7 @@ class MetricsController < ApplicationController
       else
         flash[:notice] = 'Successfully updated.'
       end
-    rescue => e
-      logger.error(e.message)
-      logger.error(e.backtrace)
+    rescue
       flash[:error] = metric.errors.full_messages.join("<br/>\n")
     end
     redirect_to :action => 'index', :domain => metric.domain(false)
