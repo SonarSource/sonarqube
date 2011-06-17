@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class JdbcDriverHolder {
 
-  private static Logger LOG = LoggerFactory.getLogger(JdbcDriverHolder.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JdbcDriverHolder.class);
   private JdbcDriverClassLoader classLoader;
 
   public JdbcDriverHolder(ArtifactDownloader extensionDownloader) {
