@@ -49,6 +49,6 @@ public class PastSnapshotFinderByVersionTest extends AbstractDbUnitTestCase {
     PastSnapshot pastSnapshot = finder.findByVersion(currentProjectSnapshot, "1.0");
     assertThat(pastSnapshot.isRelatedToSnapshot(), is(false));
     assertThat(pastSnapshot.getProjectSnapshot(), nullValue());
-    assertThat(currentProjectSnapshot.getCreatedAt().getTime() - pastSnapshot.getTargetDate().getTime(), is(1000L * 60));
+    assertThat(pastSnapshot.getTargetDate(), nullValue());
   }
 }

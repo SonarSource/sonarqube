@@ -173,7 +173,10 @@ public class NewViolationsDecorator implements Decorator {
   }
 
   private boolean isAfter(Violation violation, Date date) {
-    return violation.getCreatedAt()!= null && violation.getCreatedAt().after(date);
+    if (date == null) {
+      return true;
+    }
+    return violation.getCreatedAt() != null && violation.getCreatedAt().after(date);
   }
 
   private Metric getMetricForSeverity(RulePriority severity) {

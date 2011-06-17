@@ -37,9 +37,6 @@ public class PastSnapshotFinderByVersion implements BatchExtension {
     this.session = session;
   }
 
-  /**
-   * See comments in {@link PastSnapshotFinderByPreviousAnalysis#findByPreviousAnalysis(Snapshot)}
-   */
   PastSnapshot findByVersion(Snapshot projectSnapshot, String version) {
     String hql = "from " + Snapshot.class.getSimpleName() + " where version=:version AND resourceId=:resourceId AND status=:status AND qualifier<>:lib order by createdAt desc";
     List<Snapshot> snapshots = session.createQuery(hql)
@@ -50,15 +47,11 @@ public class PastSnapshotFinderByVersion implements BatchExtension {
         .setMaxResults(1)
         .getResultList();
 
-    Snapshot snapshot;
-    Date targetDate;
     if (snapshots.isEmpty()) {
-      snapshot = null;
-      targetDate = new Date(projectSnapshot.getCreatedAt().getTime() - 1000 * 60);
-    } else {
-      snapshot = snapshots.get(0);
-      targetDate = snapshot.getCreatedAt();
+      return new PastSnapshot(MODE);
     }
+    Snapshot snapshot = snapshots.get(0);
+    Date targetDate = snapshot.getCreatedAt();
     return new PastSnapshot(MODE, targetDate, snapshot).setModeParameter(version);
   }
 

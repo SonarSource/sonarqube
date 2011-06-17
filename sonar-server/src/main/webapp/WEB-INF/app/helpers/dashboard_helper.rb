@@ -50,7 +50,11 @@ module DashboardHelper
       elsif mode=='version'
         label = "Added since version %s" % mode_param
       elsif mode=='previous_analysis'
-        label = "Added since previous analysis (%s)" % date.strftime("%Y %b. %d")
+        if !date.nil?
+          label = "Added since previous analysis (%s)" % date.strftime("%Y %b. %d")
+        else
+          label = "Added since previous analysis"
+        end
       elsif mode=='date'
         label = "Added since #{date.strftime("%Y %b %d")}"
       end

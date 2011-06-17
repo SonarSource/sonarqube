@@ -137,7 +137,7 @@ class ResourceController < ApplicationController
         end
       end
 
-      to=(@period ? Java::JavaUtil::Date.new(@snapshot.period_datetime(@period).to_f * 1000) : nil)
+      to=(@period && @snapshot.period_datetime(@period) ? Java::JavaUtil::Date.new(@snapshot.period_datetime(@period).to_f * 1000) : nil)
       metric=Metric.by_key(params[:coverage_filter]||params[:metric])
       @coverage_filter=(metric ? metric.key : 'coverage')
       @filtered=true
@@ -201,8 +201,6 @@ class ResourceController < ApplicationController
       if date
         conditions+=' AND created_at>?'
         values<<date.advance(:minutes => 1)
-      else
-        conditions+=' AND id=-1'
       end
     end
 
@@ -228,9 +226,9 @@ class ResourceController < ApplicationController
     render :action => 'index', :layout => !request.xhr?
   end
 
-  
+
   def filter_lines_by_date
-    if @period
+    if @period && @snapshot.period_datetime(@period)
       @filtered=true
       to=Java::JavaUtil::Date.new(@snapshot.period_datetime(@period).to_f * 1000)
       if to

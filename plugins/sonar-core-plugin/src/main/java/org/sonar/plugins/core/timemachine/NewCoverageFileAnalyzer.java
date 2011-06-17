@@ -60,7 +60,6 @@ public final class NewCoverageFileAnalyzer implements Decorator {
     this.structs = structs;
   }
 
-
   public boolean shouldExecuteOnProject(Project project) {
     return project.isLatestAnalysis() && !structs.isEmpty();
   }
@@ -146,14 +145,12 @@ public final class NewCoverageFileAnalyzer implements Decorator {
     context.saveMeasure(newUncoveredConditions);
   }
 
-
   private Map<Integer, Integer> parseCountByLine(Measure measure) {
     if (measure != null && measure.hasData()) {
       return KeyValueFormat.parseIntInt(measure.getData());
     }
     return Maps.newHashMap();
   }
-
 
   public static final class PeriodStruct {
     int index;
@@ -179,9 +176,9 @@ public final class NewCoverageFileAnalyzer implements Decorator {
 
     void analyze(Date lineDate, int hits, int conditions, int coveredConditions) {
       if (lineDate == null) {
-        //TODO warning
+        // TODO warning
 
-      } else if (lineDate.after(date)) {
+      } else if (date == null || lineDate.after(date)) {
         // TODO test if string comparison is faster or not
         addLine(hits > 0);
         addConditions(conditions, coveredConditions);

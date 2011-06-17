@@ -38,12 +38,6 @@ public class PastSnapshotFinderByPreviousAnalysis implements BatchExtension {
     this.session = session;
   }
 
-  /**
-   * See SONAR-2428 : even if past snapshot does not exist, we should perform comparison.
-   * In this case as a value for target date we use moment just before current snapshot
-   * to be able to perform strict comparison of dates.
-   * Also note that ruby side (resource viewer) has precision in one minute.
-   */
   PastSnapshot findByPreviousAnalysis(Snapshot projectSnapshot) {
     String hql = "from " + Snapshot.class.getSimpleName()
         + " where createdAt<:date AND resourceId=:resourceId AND status=:status and last=:last and qualifier<>:lib order by createdAt desc";
@@ -56,15 +50,11 @@ public class PastSnapshotFinderByPreviousAnalysis implements BatchExtension {
         .setMaxResults(1)
         .getResultList();
 
-    Snapshot snapshot;
-    Date targetDate;
     if (snapshots.isEmpty()) {
-      snapshot = null;
-      targetDate = new Date(projectSnapshot.getCreatedAt().getTime() - 1000 * 60);
-    } else {
-      snapshot = snapshots.get(0);
-      targetDate = snapshot.getCreatedAt();
+      return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
     }
+    Snapshot snapshot = snapshots.get(0);
+    Date targetDate = snapshot.getCreatedAt();
     SimpleDateFormat format = new SimpleDateFormat(DateUtils.DATE_FORMAT);
     return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, targetDate, snapshot).setModeParameter(format.format(targetDate));
   }

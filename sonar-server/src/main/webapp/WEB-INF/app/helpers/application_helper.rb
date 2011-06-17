@@ -90,9 +90,17 @@ module ApplicationHelper
       if mode=='days'
         label = "over %s days" % mode_param
       elsif mode=='version'
-        label = "since version %s (%s)" % [mode_param, (date.strftime("%Y %b %d"))]
+        if !date.nil?
+          label = "since version %s (%s)" % [mode_param]
+        else
+          label = "since version %s" % [mode_param, (date.strftime("%Y %b %d"))]
+        end
       elsif mode=='previous_analysis'
-        label = "since previous analysis (%s)" % (date.strftime("%Y %b %d"))
+        if !date.nil?
+          label = "since previous analysis (%s)" % (date.strftime("%Y %b %d"))
+        else
+          label = "since previous analysis"
+        end
       elsif mode=='date'
         label = "since #{date.strftime("%Y %b %d")}"
       end

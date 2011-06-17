@@ -44,6 +44,13 @@ public class PastSnapshot {
     this(mode, targetDate, null);
   }
 
+  /**
+   * See SONAR-2428 : even if previous analysis does not exist (no snapshot and no target date), we should perform comparison.
+   */
+  public PastSnapshot(String mode) {
+    this(mode, null, null);
+  }
+
   public PastSnapshot setIndex(int index) {
     this.index = index;
     return this;
@@ -93,7 +100,11 @@ public class PastSnapshot {
   @Override
   public String toString() {
     if (StringUtils.equals(mode, PastSnapshotFinderByVersion.MODE)) {
-      return String.format("Compare to version %s (%s)", modeParameter, DateUtils.formatDate(getTargetDate()));
+      String label = String.format("Compare to version %s", modeParameter);
+      if (getTargetDate() != null) {
+        label += String.format(" (%s)", DateUtils.formatDate(getTargetDate()));
+      }
+      return label;
     }
     if (StringUtils.equals(mode, PastSnapshotFinderByDays.MODE)) {
       String label = String.format("Compare over %s days (%s", modeParameter, DateUtils.formatDate(getTargetDate()));
