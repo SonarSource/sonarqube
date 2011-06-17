@@ -60,7 +60,7 @@
   <tr>
     <td colspan="3">
       <input type="submit" value="Update"></input>
-      <input type="submit" value="Delete" onclick="return deleteRule()"></input>
+      <input type="submit" value="Delete" onclick="return deleteRule()" class="red-button"></input>
       <a href="<%= url_for :action => 'index', :id => @profile.id -%>">Cancel</a>
     </td>
   </tr>

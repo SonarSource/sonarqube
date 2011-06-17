@@ -21,7 +21,7 @@
           </td>
           <td class="left">
           <% if category.editable? %>
-              <form method="post" action="<%= ApplicationController.root_context -%>/event_categories/delete" class="button-to"><div><input type="hidden" name="name" value="<%= category.name -%>"/> <input class="action" id="delete_<%= category.name -%>" onclick="return confirm('Info : events with this category will not be deleted.');" value="Delete" type="submit"></div></form>
+              <form method="post" action="<%= ApplicationController.root_context -%>/event_categories/delete" class="button-to"><div><input type="hidden" name="name" value="<%= category.name -%>"/> <input class="action red-button" id="delete_<%= category.name -%>" onclick="return confirm('Info : events with this category will not be deleted.');" value="Delete" type="submit"></div></form>
           <% end %>
           </td>
         </tr>
