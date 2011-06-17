@@ -78,6 +78,10 @@ public final class DefaultPersistenceManager implements PersistenceManager {
     sourcePersister.saveSource(file, source);
   }
 
+  public String getSource(Resource resource) {
+    return sourcePersister.getSource(resource);
+  }
+
   public void saveMeasure(Resource resource, Measure measure) {
     if (ResourceUtils.isPersistable(resource)) {
       measurePersister.saveMeasure(resource, measure);

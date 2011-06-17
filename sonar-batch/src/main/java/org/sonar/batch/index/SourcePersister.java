@@ -49,6 +49,15 @@ public final class SourcePersister {
     addToCache(snapshot);
   }
 
+  public String getSource(Resource resource) {
+    SnapshotSource source = null;
+    Snapshot snapshot = resourcePersister.getSnapshot(resource);
+    if (snapshot!=null && snapshot.getId()!=null) {
+      source = session.getSingleResult(SnapshotSource.class, "snapshotId", snapshot.getId());
+    }
+    return source!=null ? source.getData() : null;
+  }
+
   private boolean isCached(Snapshot snapshot) {
     return savedSnapshotIds.contains(snapshot.getId());
   }

@@ -99,6 +99,11 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
    */
   public abstract void setSource(Resource reference, String source) throws DuplicatedSourceException;
 
+  /**
+   * @since 2.9
+   */
+  public abstract String getSource(Resource resource);
+
   public abstract Project getProject();
 
   public final Collection<Resource> getResources() {
@@ -133,8 +138,6 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
    * as a parameter.
    * 
    * @since 2.7
-   * @param the
-   *          resource on which violations are searched
    * @return the list of violations
    */
   public final List<Violation> getViolations(Resource resource) {
@@ -153,8 +156,6 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
   /**
    * Warning: the resource is automatically indexed for backward-compatibility, but it should be explictly
    * indexed before. Next versions will deactivate this automatic indexation.
-   *
-   * @throws SonarException if the metric is unknown.
    */
   public abstract Measure addMeasure(Resource resource, Measure measure);
 

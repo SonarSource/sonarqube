@@ -408,6 +408,10 @@ public class DefaultIndex extends SonarIndex {
     }
   }
 
+  public String getSource(Resource resource) {
+    return persistence.getSource(resource);
+  }
+
   /**
    * Does nothing if the resource is already registered.
    */

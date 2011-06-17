@@ -40,6 +40,7 @@ public class Violation {
   private Double cost;
   private Date createdAt;
   private boolean switchedOff=false;
+  private String checksum;
 
   /**
    * Creates of a violation from a rule. Will need to define the resource later on
@@ -238,27 +239,24 @@ public class Violation {
    * Tells whether this violation is ON or OFF.
    * 
    * @since 2.8
-   * @return true if the violation has been switched off
    */
   public boolean isSwitchedOff() {
     return switchedOff;
   }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (!(obj instanceof Violation)) {
-      return false;
-    }
-    if (this == obj) {
-      return true;
-    }
-    Violation other = (Violation) obj;
-    return new EqualsBuilder().append(rule, other.getRule()).append(resource, other.getResource()).isEquals();
+  /**
+   * Checksum is available in decorators executed after the barrier {@link org.sonar.api.batch.DecoratorBarriers#END_OF_VIOLATION_TRACKING}
+   */
+  public String getChecksum() {
+    return checksum;
   }
 
-  @Override
-  public int hashCode() {
-    return new HashCodeBuilder(17, 37).append(getRule()).append(getResource()).toHashCode();
+  /**
+   * For internal use only. Checksum is automatically set by Sonar. Plugins must not call this method.
+   */
+  public Violation setChecksum(String s) {
+    this.checksum = s;
+    return this;
   }
 
   @Override

@@ -42,6 +42,8 @@ public interface PersistenceManager {
 
   void setSource(Resource file, String source);
 
+  String getSource(Resource resource);
+
   void saveMeasure(Resource resource, Measure measure);
 
   Measure reloadMeasure(Measure measure);

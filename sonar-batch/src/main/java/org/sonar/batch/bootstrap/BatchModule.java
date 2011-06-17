@@ -60,7 +60,6 @@ public class BatchModule extends Module {
       addComponent(MemoryOptimizer.class);
       addComponent(DefaultResourcePersister.class);
       addComponent(SourcePersister.class);
-      addComponent(ViolationPersister.class);
     }
 
     addComponent(Plugins.class);

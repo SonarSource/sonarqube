@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.index;
 
+import com.google.common.collect.Maps;
 import org.sonar.api.batch.Event;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
@@ -29,10 +30,14 @@ import org.sonar.api.resources.Resource;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public final class ReadOnlyPersistenceManager implements PersistenceManager {
 
+  private Map<Resource, String> sources = Maps.newHashMap();
+
   public void clear() {
+    sources.clear();
   }
 
   public void setDelayedMode(boolean b) {
@@ -49,6 +54,11 @@ public final class ReadOnlyPersistenceManager implements PersistenceManager {
   }
 
   public void setSource(Resource file, String source) {
+    sources.put(file, source);
+  }
+
+  public String getSource(Resource resource) {
+    return sources.get(resource);
   }
 
   public void saveMeasure(Resource resource, Measure measure) {
