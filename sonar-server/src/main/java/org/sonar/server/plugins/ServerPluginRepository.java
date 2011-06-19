@@ -131,12 +131,19 @@ public class ServerPluginRepository implements PluginRepository {
 
   void installExtension(MutablePicoContainer container, Object extension) {
     if (isType(extension, ServerExtension.class)) {
-      container.as(Characteristics.CACHE).addComponent(extension);
+      container.as(Characteristics.CACHE).addComponent(getExtensionKey(extension), extension);
     }
   }
 
   static boolean isType(Object extension, Class<? extends Extension> extensionClass) {
     Class clazz = (extension instanceof Class ? (Class) extension : extension.getClass());
     return extensionClass.isAssignableFrom(clazz);
+  }
+
+  static Object getExtensionKey(Object component) {
+    if (component instanceof Class) {
+      return component;
+    }
+    return component.getClass().getCanonicalName() + "-" + component.toString();
   }
 }
