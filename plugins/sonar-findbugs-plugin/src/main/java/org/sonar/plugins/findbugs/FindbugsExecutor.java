@@ -29,6 +29,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.collect.Lists;
@@ -64,6 +65,7 @@ public class FindbugsExecutor implements BatchExtension {
     Thread.currentThread().setContextClassLoader(FindBugs2.class.getClassLoader());
 
     OutputStream xmlOutput = null;
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
     try {
       DetectorFactoryCollection detectorFactory = loadFindbugsPlugins();
 
@@ -99,7 +101,7 @@ public class FindbugsExecutor implements BatchExtension {
 
       engine.finishSettings();
 
-      Executors.newSingleThreadExecutor().submit(new FindbugsTask(engine)).get(configuration.getTimeout(), TimeUnit.MILLISECONDS);
+      executorService.submit(new FindbugsTask(engine)).get(configuration.getTimeout(), TimeUnit.MILLISECONDS);
 
       profiler.stop();
 
@@ -109,6 +111,7 @@ public class FindbugsExecutor implements BatchExtension {
     } catch (Exception e) {
       throw new SonarException("Can not execute Findbugs", e);
     } finally {
+      executorService.shutdown();
       IOUtils.closeQuietly(xmlOutput);
       Thread.currentThread().setContextClassLoader(initialClassLoader);
     }
