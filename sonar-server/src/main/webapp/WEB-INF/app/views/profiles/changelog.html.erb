@@ -6,7 +6,7 @@
     No changes has been done on this quality profile.
   <% else %>
 
-  <% form_tag({:action => 'changelog'}, {:method => 'post'}) do %>
+  <% form_tag({:action => 'changelog'}, {:method => 'post', :class => 'marginbottom10'}) do %>
     <%= hidden_field_tag "id", @profile.id %>
     Changelog from
     <%= select_tag "since", options_for_select(@select_versions, @since_version) %>
@@ -15,7 +15,7 @@
     <%= submit_tag "Load", :id => 'submit'%>
   <% end %>
 
-  <table  class="data width100" style="word-wrap:break-word; table-layout: fixed;">
+  <table  class="data width100">
     <thead>
       <tr>
         <th>Profile version</th>
@@ -30,10 +30,10 @@
       @changes.each do |change|
     %>
     <tr class="<%= cycle('even', 'odd') -%>">
-      <td valign="top"><%= change.profile_version - 1 %> -> <%= change.profile_version %></td>
-      <td valign="top"><%= l(change.change_date) -%></td>
-      <td valign="top"><%= change.user_name %></td>
-      <td valign="top"><%= change.action_text %></td>
+      <td valign="top" width="1%" nowrap><%= change.profile_version - 1 %> -> <%= change.profile_version %></td>
+      <td valign="top" width="1%" nowrap><%= l(change.change_date) -%></td>
+      <td valign="top" width="1%" nowrap><%= change.user_name %></td>
+      <td valign="top" width="1%" nowrap><%= change.action_text %></td>
       <td valign="top"><%= change.rule.name %></td>
       <td valign="top">
         <% if change.old_severity
