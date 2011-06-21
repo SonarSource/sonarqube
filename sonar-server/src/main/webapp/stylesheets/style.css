@@ -377,6 +377,18 @@ button:active, .button:active, input[type="submit"]:active, input[type="button"]
   background: -moz-linear-gradient(top,  #AC2F29,  #D35650) !important;
   filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#AC2F29', endColorstr='#D35650') !important;
 }
+button[disabled], .button[disabled], input[type="submit"][disabled], input[type="button"][disabled], 
+.red-button[disabled] {
+  position: relative;
+  top: 0px;
+  text-shadow: 1px 1px 0 #FFFFFF;
+  color: #BBBBBB;
+  border: solid 1px #EBEBEB;
+  background: #EBEBEB;
+  background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#E1E1E1));
+  background: -moz-linear-gradient(top,  #FFFFFF,  #E1E1E1);
+  filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFF', endColorstr='#E1E1E1');
+}
 
 */
 /* ------------------- PAGE ------------------- */
