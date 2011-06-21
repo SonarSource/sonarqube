@@ -355,13 +355,13 @@ module ActiveRecord
           end
           conditions = "#{table_name}.#{connection.quote_column_name(primary_key)} #{in_or_equals_for_ids(ids)}"
 
-          #SONAR
+          # SONAR
           conditions = ([conditions] * (ids.size.to_f/MAX_IDS_PER_ORACLE_QUERY).ceil).join(" OR ")
-          #SONAR
+          # /SONAR
 
           conditions << append_conditions(reflection, preload_options)
 
-          #SONAR
+          # SONAR
           associated_records = klass.with_exclusive_scope do
             klass.find(:all, :conditions => [conditions, *ids.in_groups_of(MAX_IDS_PER_ORACLE_QUERY, false)],
                                           :include => options[:include],
@@ -369,37 +369,39 @@ module ActiveRecord
                                           :joins => options[:joins],
                                           :order => options[:order])
           end
-          #SONAR
+          # /SONAR
           set_association_single_records(id_map, reflection.name, associated_records, primary_key)
         end
       end
 
       def find_associated_records(ids, reflection, preload_options)
-        options = reflection.options
-        table_name = reflection.klass.quoted_table_name
+        # SONAR - iterate over safe_for_oracle_ids
+        associated_records = []
+        ids.each_slice(MAX_IDS_PER_ORACLE_QUERY) do |safe_for_oracle_ids|
+           options = reflection.options
+           table_name = reflection.klass.quoted_table_name
 
-        if interface = reflection.options[:as]
-          conditions = "#{reflection.klass.quoted_table_name}.#{connection.quote_column_name "#{interface}_id"} #{in_or_equals_for_ids(ids)} and #{reflection.klass.quoted_table_name}.#{connection.quote_column_name "#{interface}_type"} = '#{self.base_class.sti_name}'"
-        else
-          foreign_key = reflection.primary_key_name
-          conditions = "#{reflection.klass.quoted_table_name}.#{foreign_key} #{in_or_equals_for_ids(ids)}"
-        end
+           if interface = reflection.options[:as]
+            conditions = "#{reflection.klass.quoted_table_name}.#{connection.quote_column_name "#{interface}_id"} #{in_or_equals_for_ids(safe_for_oracle_ids)} and #{reflection.klass.quoted_table_name}.#{connection.quote_column_name "#{interface}_type"} = '#{self.base_class.sti_name}'"
+           else
+            foreign_key = reflection.primary_key_name
+            conditions = "#{reflection.klass.quoted_table_name}.#{foreign_key} #{in_or_equals_for_ids(safe_for_oracle_ids)}"
+           end
 
-        #SONAR patch for Oracle IN clause with more than 1000 elements
-        conditions = ([conditions] * (ids.size.to_f/MAX_IDS_PER_ORACLE_QUERY).ceil).join(" OR ")
-        #SONAR
+           conditions << append_conditions(reflection, preload_options)
 
-        conditions << append_conditions(reflection, preload_options)
-
-        reflection.klass.with_exclusive_scope do
-          reflection.klass.find(:all,
+           reflection.klass.with_exclusive_scope do
+             associated_records += reflection.klass.find(:all,
                               :select => (preload_options[:select] || options[:select] || "#{table_name}.*"),
                               :include => preload_options[:include] || options[:include],
-                              :conditions => [conditions, ids],
+                              :conditions => [conditions, safe_for_oracle_ids],
                               :joins => options[:joins],
                               :group => preload_options[:group] || options[:group],
                               :order => preload_options[:order] || options[:order])
-        end
+           end
+         end
+         associated_records
+        # /SONAR
       end
 
 

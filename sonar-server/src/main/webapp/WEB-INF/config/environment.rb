@@ -237,7 +237,7 @@ end
 #
 # other patches :
 # - activerecord : fix Oracle bug when more than 1000 elements in IN clause. See lib/active_record/association_preload.rb
-#   See https://rails.lighthouseapp.com/projects/8994/tickets/1533-preloading-more-than-1000-associated-records-causes-activerecordstatementinvalid-when-using-oracle
+#   See https://github.com/rails/rails/issues/585
 # - actionview NumberHelper, patch for number_with_precision()
 
 require File.dirname(__FILE__) + '/../lib/sonar_webservice_plugins.rb'
