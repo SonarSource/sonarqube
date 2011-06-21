@@ -26,6 +26,10 @@ import java.util.Collection;
 import java.util.Locale;
 
 /**
+ *
+ * EXPERIMENTAL - this feature will be fully implemented in version 2.10
+ *
+ *
  * @since 2.9
  */
 public abstract class LanguagePack implements ServerExtension, BatchExtension {
