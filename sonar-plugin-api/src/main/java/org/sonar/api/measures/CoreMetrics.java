@@ -1104,6 +1104,7 @@ public final class CoreMetrics {
   public static final String SCM_REVISION_KEY = "revision";
   public static final Metric SCM_REVISION = new Metric.Builder(SCM_REVISION_KEY, "Revision", Metric.ValueType.STRING)
       .setDomain(DOMAIN_SCM)
+      .setHidden(true)
       .create();
 
   public static final String SCM_AUTHORS_BY_LINE_KEY = "authors_by_line";
