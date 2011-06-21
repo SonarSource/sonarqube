@@ -15,7 +15,7 @@
   color: #333;
   font-size: 93%;
   font-weight: bold;
-  padding: 3px 0px 3px 5px;
+  padding: 3px 0 3px 5px;
   white-space: nowrap;
 }
 .hotspotcol {
@@ -24,8 +24,8 @@
 
 .gwt-Hotspot {
   border: 1px solid #ccc;
-  border-top-width: 2px;
-  border-bottom-width: 2px;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
   margin-left: 5px;
   margin-right: 5px;
   margin-bottom: 10px;
