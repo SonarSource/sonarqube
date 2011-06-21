@@ -103,7 +103,7 @@
     <level value="INFO"/>
   </logger>
 
-  <logger name="org.sonar.plugins.i18n.I18nManager">
+  <logger name="org.sonar.plugins.core.i18n.I18nManager">
     <level value="INFO"/>
   </logger>
 

@@ -118,7 +118,7 @@ public class BatchPluginRepositoryTest {
     when(downloader.downloadPlugin(checkstyleExt)).thenReturn(copyFiles("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"));
 
     PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty(CoreProperties.EXCLUDE_PLUGINS, "checkstyle");
+    conf.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle");
     repository = new BatchPluginRepository(downloader, conf);
 
     repository.doStart(Arrays.asList(checkstyle, checkstyleExt));
@@ -149,17 +149,33 @@ public class BatchPluginRepositoryTest {
   @Test
   public void whiteListShouldTakePrecedenceOverBlackList() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty(CoreProperties.INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
-    conf.setProperty(CoreProperties.EXCLUDE_PLUGINS, "cobertura,pmd");
+    conf.setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
+    conf.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "cobertura,pmd");
     repository = new BatchPluginRepository(mock(ArtifactDownloader.class), conf);
 
     assertThat(repository.isAccepted("pmd"), Matchers.is(true));
   }
 
   @Test
+  public void corePluginShouldAlwaysBeInWhiteList() {
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    conf.setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
+    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), conf);
+    assertThat(repository.isAccepted("core"), Matchers.is(true));
+  }
+
+  @Test
+  public void corePluginShouldNeverBeInBlackList() {
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    conf.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "core,findbugs");
+    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), conf);
+    assertThat(repository.isAccepted("core"), Matchers.is(true));
+  }
+
+  @Test
   public void shouldCheckWhitelist() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty(CoreProperties.INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
+    conf.setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
     repository = new BatchPluginRepository(mock(ArtifactDownloader.class), conf);
 
     assertThat(repository.isAccepted("checkstyle"), Matchers.is(true));
@@ -170,7 +186,7 @@ public class BatchPluginRepositoryTest {
   @Test
   public void shouldCheckBlackListIfNoWhiteList() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty(CoreProperties.EXCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
+    conf.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
     repository = new BatchPluginRepository(mock(ArtifactDownloader.class), conf);
 
     assertThat(repository.isAccepted("checkstyle"), Matchers.is(false));

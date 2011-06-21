@@ -17,17 +17,23 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.i18n;
+package org.sonar.plugins.core.i18n;
 
-import org.junit.Test;
+import org.sonar.api.i18n.LanguagePack;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.number.OrderingComparisons.greaterThanOrEqualTo;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
-public class I18nPluginTest {
+public class FrenchLanguagePack extends LanguagePack {
 
-  @Test
-  public void shouldGetExtensions() {
-    assertThat(new I18nPlugin().getExtensions().size(), greaterThanOrEqualTo(2));
+  @Override
+  public List<String> getPluginKeys() {
+    return Arrays.asList("test");
+  }
+
+  @Override
+  public List<Locale> getLocales() {
+    return Arrays.asList(Locale.FRENCH);
   }
 }

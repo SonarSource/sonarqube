@@ -17,23 +17,30 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.i18n.utils;
+package org.sonar.plugins.core.i18n;
 
-import org.sonar.api.i18n.LanguagePack;
+import com.google.common.collect.Lists;
+import org.sonar.api.Plugin;
+import org.sonar.api.platform.PluginMetadata;
+import org.sonar.api.platform.PluginRepository;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
-public class QuebecLanguagePack extends LanguagePack {
+class InstalledPlugin {
+  String key;
+  ClassLoader classloader;
 
-  @Override
-  public List<String> getPluginKeys() {
-    return Arrays.asList("test");
+  InstalledPlugin(String key, ClassLoader classloader) {
+    this.key = key;
+    this.classloader = classloader;
   }
 
-  @Override
-  public List<Locale> getLocales() {
-    return Arrays.asList(Locale.CANADA_FRENCH);
+  static List<InstalledPlugin> create(PluginRepository pluginRepository) {
+    List<InstalledPlugin> result = Lists.newArrayList();
+    for (PluginMetadata metadata : pluginRepository.getMetadata()) {
+      Plugin entryPoint = pluginRepository.getPlugin(metadata.getKey());
+      result.add(new InstalledPlugin(metadata.getKey(), entryPoint.getClass().getClassLoader()));
+    }
+    return result;
   }
 }

@@ -42,6 +42,7 @@ import java.util.*;
 public class BatchPluginRepository implements PluginRepository {
 
   private static final Logger LOG = LoggerFactory.getLogger(BatchPluginRepository.class);
+  private static final String CORE_PLUGIN = "core";
 
   private ArtifactDownloader artifactDownloader;
   private Map<String, Plugin> pluginsByKey;
@@ -52,12 +53,12 @@ public class BatchPluginRepository implements PluginRepository {
 
   public BatchPluginRepository(ArtifactDownloader artifactDownloader, Configuration configuration) {
     this.artifactDownloader = artifactDownloader;
-    if (configuration.getString(CoreProperties.INCLUDE_PLUGINS) != null) {
-      whiteList = Sets.newTreeSet(Arrays.asList(configuration.getStringArray(CoreProperties.INCLUDE_PLUGINS)));
+    if (configuration.getString(CoreProperties.BATCH_INCLUDE_PLUGINS) != null) {
+      whiteList = Sets.newTreeSet(Arrays.asList(configuration.getStringArray(CoreProperties.BATCH_INCLUDE_PLUGINS)));
       LOG.info("Include plugins: " + Joiner.on(", ").join(whiteList));
     }
-    if (configuration.getString(CoreProperties.EXCLUDE_PLUGINS) != null) {
-      blackList = Sets.newTreeSet(Arrays.asList(configuration.getStringArray(CoreProperties.EXCLUDE_PLUGINS)));
+    if (configuration.getString(CoreProperties.BATCH_EXCLUDE_PLUGINS) != null) {
+      blackList = Sets.newTreeSet(Arrays.asList(configuration.getStringArray(CoreProperties.BATCH_EXCLUDE_PLUGINS)));
       LOG.info("Exclude plugins: " + Joiner.on(", ").join(blackList));
     }
     // TODO reactivate somewhere else:  LOG.info("Execution environment: {} {}", environment.getKey(), environment.getVersion());
@@ -124,6 +125,9 @@ public class BatchPluginRepository implements PluginRepository {
   }
 
   boolean isAccepted(String pluginKey) {
+    if (CORE_PLUGIN.equals(pluginKey)) {
+      return true;
+    }
     if (whiteList != null) {
       return whiteList.contains(pluginKey);
     }

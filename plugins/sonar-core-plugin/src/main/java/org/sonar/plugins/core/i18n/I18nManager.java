@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.i18n;
+package org.sonar.plugins.core.i18n;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -108,7 +108,7 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
         URL propertiesUrl = resources.get(0);
         if (!alreadyLoadedResources.contains(propertiesUrl.toURI())) {
           LOG.debug("Found the ResourceBundle base file : {} from classloader : {}", propertiesUrl, classloader);
-          LOG.info("Add bundleName : {} from classloader : {}", bundleBaseName, classloader);
+          LOG.debug("Add bundleName : {} from classloader : {}", bundleBaseName, classloader);
           bundleClassLoader.addResource(bundleDefaultPropertiesFile, classloader);
           alreadyLoadedResources.add(propertiesUrl.toURI());
 

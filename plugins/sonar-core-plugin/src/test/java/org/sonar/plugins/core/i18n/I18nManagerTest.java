@@ -17,9 +17,10 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.i18n;
+package org.sonar.plugins.core.i18n;
 
 import com.google.common.collect.Lists;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.i18n.LanguagePack;
@@ -36,9 +37,9 @@ import static org.mockito.Mockito.mock;
 
 public class I18nManagerTest {
 
-  public static String TEST_PLUGIN_CLASS_NAME = "org.sonar.plugins.i18n.utils.StandardPlugin";
-  public static String FRENCH_PACK_CLASS_NAME = "org.sonar.plugins.i18n.utils.FrenchLanguagePack";
-  public static String QUEBEC_PACK_CLASS_NAME = "org.sonar.plugins.i18n.utils.QuebecLanguagePack";
+  public static String TEST_PLUGIN_CLASS_NAME = "org.sonar.plugins.core.i18n.StandardPlugin";
+  public static String FRENCH_PACK_CLASS_NAME = "org.sonar.plugins.core.i18n.FrenchLanguagePack";
+  public static String QUEBEC_PACK_CLASS_NAME = "org.sonar.plugins.core.i18n.QuebecLanguagePack";
 
   private static URL classSource = I18nManagerTest.class.getProtectionDomain().getCodeSource().getLocation();
   private I18nManager manager;
@@ -93,8 +94,8 @@ public class I18nManagerTest {
   public void shouldTranslateUnknownValue() {
     String result = manager.message(Locale.FRENCH, "unknown", "Default value for Unknown");
     assertEquals("Default value for Unknown", result);
-    assertEquals(1, manager.getUnknownKeys().size());
-    assertEquals("Default value for Unknown", manager.getUnknownKeys().getProperty("unknown"));
+    Assert.assertEquals(1, manager.getUnknownKeys().size());
+    Assert.assertEquals("Default value for Unknown", manager.getUnknownKeys().getProperty("unknown"));
   }
 
   public static class TestClassLoader extends URLClassLoader {
