@@ -20,45 +20,36 @@
 
 require "json"
 
-class I18nController < Api::ApiController
+class I18nController < ApplicationController
 
   def index
-      render :text => "Use one of the following:<br><ul>" +
-                      "<li>/i18n/unknown_keys?format=text|json</li>" +
-                      "</ul>"
+    render :text => "Use one of the following:<br><ul>" +
+        "<li>/i18n/unknown_keys?format=text|json</li>" +
+        "</ul>"
   end
 
   #
   # GET /i18n/unknown_keys
   #
   def unknown_keys
-    begin
-      output = ""
-      properties = i18n_manager.unknown_keys
+    output = ""
+    properties = i18n_manager.unknown_keys
 
-      properties.keys.sort.each {|key| output += "#{key}=#{properties[key]}\n" }
+    properties.keys.sort.each { |key| output += "#{key}=#{properties[key]}\n" }
 
-      output = "# No unknown keys" if output.empty?
+    output = "# No unknown keys" if output.empty?
 
-      respond_to do |format|
-        format.json { render :json => JSON(properties) }
-        format.xml  { render :xml => xml_not_supported }
-        format.text { render :text => output }
-      end
-
-    rescue ApiException => e
-      render_error(e.msg, e.code)
-
-    rescue Exception => e
-      logger.error("Fails to execute #{request.url} : #{e.message}")
-      render_error(e.message)
+    respond_to do |format|
+      format.json { render :json => JSON(properties) }
+      format.xml { render :xml => xml_not_supported }
+      format.text { render :text => output }
     end
   end
 
   private
 
   def i18n_manager
-    java_facade.getComponentByClassname('i18n', 'org.sonar.plugins.core.i18n.I18nManager')
+    java_facade.getComponentByClassname('core', 'org.sonar.plugins.core.i18n.I18nManager')
   end
 
 end
