@@ -740,7 +740,7 @@ ul.operations li img {
 .sources2 span.author, .sources2 span.author a {
   font-size: 85%;
 }
-.sources2 div.violation {
+.sources2 div.violation, #global_violations div.violation {
   background-color:#FFF;
   margin:0;
   border: 1px solid #DDD;
@@ -867,7 +867,7 @@ span.rulename a:hover {
   padding-bottom: 10px;
 }
 #global_violations td {
-  padding: 3px 0.5em;
+  padding: 3px 0;
 }
 #global_violations td img, #source_title img {
   vertical-align: text-bottom;
