@@ -20,6 +20,7 @@
 package org.sonar.batch.components;
 
 import org.sonar.api.BatchExtension;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Qualifiers;
@@ -30,8 +31,6 @@ import java.util.Date;
 import java.util.List;
 
 public class PastSnapshotFinderByDate implements BatchExtension {
-
-  public static final String MODE = "date";
 
   private DatabaseSession session;
 
@@ -45,7 +44,7 @@ public class PastSnapshotFinderByDate implements BatchExtension {
       snapshot = findSnapshot(projectSnapshot, date);
     }
     SimpleDateFormat format = new SimpleDateFormat(DateUtils.DATE_FORMAT);
-    return new PastSnapshot(MODE, date, snapshot).setModeParameter(format.format(date));
+    return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_DATE, date, snapshot).setModeParameter(format.format(date));
   }
 
 

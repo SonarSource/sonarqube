@@ -69,6 +69,10 @@ public class PastSnapshotFinder implements BatchExtension {
     return conf.getString(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index, defaultValue);
   }
 
+  public PastSnapshot findPreviousAnalysis(Snapshot projectSnapshot) {
+    return finderByPreviousAnalysis.findByPreviousAnalysis(projectSnapshot);
+  }
+
   public PastSnapshot find(Snapshot projectSnapshot, int index, String property) {
     if (StringUtils.isBlank(property)) {
       return null;

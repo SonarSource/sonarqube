@@ -22,36 +22,38 @@ package org.sonar.plugins.core.timemachine;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.*;
 import org.sonar.api.measures.*;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshot;
-import org.sonar.batch.components.TimeMachineConfiguration;
-import org.sonar.core.NotDryRun;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-@NotDryRun
 @DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
 public class VariationDecorator implements Decorator {
 
   private List<PastSnapshot> projectPastSnapshots;
   private MetricFinder metricFinder;
   private PastMeasuresLoader pastMeasuresLoader;
+  private final boolean enabledFileVariation;
 
 
   public VariationDecorator(PastMeasuresLoader pastMeasuresLoader, MetricFinder metricFinder, TimeMachineConfiguration configuration) {
-    this(pastMeasuresLoader, metricFinder, configuration.getProjectPastSnapshots());
+    this(pastMeasuresLoader, metricFinder, configuration.getProjectPastSnapshots(), configuration.isFileVariationEnabled());
   }
-  public VariationDecorator(PastMeasuresLoader pastMeasuresLoader, MetricFinder metricFinder, List<PastSnapshot> projectPastSnapshots) {
+
+  VariationDecorator(PastMeasuresLoader pastMeasuresLoader, MetricFinder metricFinder, List<PastSnapshot> projectPastSnapshots, boolean enabledFileVariation) {
     this.pastMeasuresLoader = pastMeasuresLoader;
     this.projectPastSnapshots = projectPastSnapshots;
     this.metricFinder = metricFinder;
+    this.enabledFileVariation = enabledFileVariation;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -64,19 +66,23 @@ public class VariationDecorator implements Decorator {
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
-    if (shouldCalculateVariations(resource)) {
-      for (PastSnapshot projectPastSnapshot : projectPastSnapshots) {
-        calculateVariation(resource, context, projectPastSnapshot);
+    for (PastSnapshot projectPastSnapshot : projectPastSnapshots) {
+      if (shouldComputeVariation(projectPastSnapshot.getMode(), resource)) {
+        computeVariation(resource, context, projectPastSnapshot);
       }
     }
   }
 
-  static boolean shouldCalculateVariations(Resource resource) {
+  boolean shouldComputeVariation(String variationMode, Resource resource) {
+    if (Scopes.FILE.equals(resource.getScope()) && !Qualifiers.UNIT_TEST_FILE.equals(resource.getQualifier())) {
+      return enabledFileVariation && StringUtils.equals(variationMode, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
+    }
+
     // measures on files are currently purged, so past measures are not available on files
     return StringUtils.equals(Scopes.PROJECT, resource.getScope()) || StringUtils.equals(Scopes.DIRECTORY, resource.getScope());
   }
 
-  private void calculateVariation(Resource resource, DecoratorContext context, PastSnapshot pastSnapshot) {
+  private void computeVariation(Resource resource, DecoratorContext context, PastSnapshot pastSnapshot) {
     List<Object[]> pastMeasures = pastMeasuresLoader.getPastMeasures(resource, pastSnapshot);
     compareWithPastMeasures(context, pastSnapshot.getIndex(), pastMeasures);
   }

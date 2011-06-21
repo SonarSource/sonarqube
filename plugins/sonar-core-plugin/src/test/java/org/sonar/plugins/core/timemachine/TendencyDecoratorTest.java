@@ -29,7 +29,6 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.components.TimeMachineConfiguration;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -61,7 +60,9 @@ public class TendencyDecoratorTest {
   }
 
   private TimeMachineConfiguration newConf() {
-    return new TimeMachineConfiguration(new PropertiesConfiguration());
+    TimeMachineConfiguration configuration = mock(TimeMachineConfiguration.class);
+    when(configuration.getTendencyPeriodInDays()).thenReturn(30);
+    return configuration;
   }
 
   @Test

@@ -38,6 +38,11 @@ public class ProjectTest {
   }
 
   @Test
+  public void effectiveKeyShouldEqualKey() {
+    assertThat(new Project("my:project").getEffectiveKey(), is("my:project"));
+  }
+
+  @Test
   public void createFromMavenIds() {
     Project project = Project.createFromMavenIds("my", "artifact");
     assertThat(project.getKey(), is("my:artifact"));

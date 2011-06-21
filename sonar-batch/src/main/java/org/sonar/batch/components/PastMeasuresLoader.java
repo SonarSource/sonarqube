@@ -23,9 +23,11 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 
 import java.util.Collection;
@@ -57,26 +59,23 @@ public class PastMeasuresLoader implements BatchExtension {
   }
 
   public List<Object[]> getPastMeasures(Resource resource, PastSnapshot projectPastSnapshot) {
-    if (isPersisted(resource) && projectPastSnapshot != null && projectPastSnapshot.getProjectSnapshot()!=null) {
-      return getPastMeasures(resource.getId(), projectPastSnapshot.getProjectSnapshot());
+    if (projectPastSnapshot != null && projectPastSnapshot.getProjectSnapshot()!=null) {
+      return getPastMeasures(resource.getEffectiveKey(), projectPastSnapshot.getProjectSnapshot());
     }
     return Collections.emptyList();
   }
 
-  public List<Object[]> getPastMeasures(int resourceId, Snapshot projectSnapshot) {
+  public List<Object[]> getPastMeasures(String resourceKey, Snapshot projectPastSnapshot) {
     String sql = "select m.metric_id, m.characteristic_id, m.value from project_measures m, snapshots s" +
         " where m.snapshot_id=s.id and m.metric_id in (:metricIds) and m.rule_id is null and m.rule_priority is null " +
-        " and (s.root_snapshot_id=:rootSnapshotId or s.id=:rootSnapshotId) and s.project_id=:resourceId and s.status=:status";
+        " and (s.root_snapshot_id=:rootSnapshotId or s.id=:rootSnapshotId) and s.status=:status and s.project_id=(select p.id from projects p where p.kee=:resourceKey and p.qualifier<>:lib)";
     return session.createNativeQuery(sql)
         .setParameter("metricIds", metricByIds.keySet())
-        .setParameter("rootSnapshotId", ObjectUtils.defaultIfNull(projectSnapshot.getRootId(), projectSnapshot.getId()))
-        .setParameter("resourceId", resourceId)
+        .setParameter("rootSnapshotId", ObjectUtils.defaultIfNull(projectPastSnapshot.getRootId(), projectPastSnapshot.getId()))
+        .setParameter("resourceKey", resourceKey)
+        .setParameter("lib", Qualifiers.LIBRARY)
         .setParameter("status", Snapshot.STATUS_PROCESSED)
         .getResultList();
-  }
-
-  private boolean isPersisted(Resource resource) {
-    return resource.getId() != null;
   }
 
   public static int getMetricId(Object[] row) {

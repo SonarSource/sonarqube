@@ -99,14 +99,14 @@ public class PastSnapshot {
 
   @Override
   public String toString() {
-    if (StringUtils.equals(mode, PastSnapshotFinderByVersion.MODE)) {
+    if (StringUtils.equals(mode, CoreProperties.TIMEMACHINE_MODE_VERSION)) {
       String label = String.format("Compare to version %s", modeParameter);
       if (getTargetDate() != null) {
         label += String.format(" (%s)", DateUtils.formatDate(getTargetDate()));
       }
       return label;
     }
-    if (StringUtils.equals(mode, PastSnapshotFinderByDays.MODE)) {
+    if (StringUtils.equals(mode, CoreProperties.TIMEMACHINE_MODE_DAYS)) {
       String label = String.format("Compare over %s days (%s", modeParameter, DateUtils.formatDate(getTargetDate()));
       if (isRelatedToSnapshot()) {
         label += ", analysis of " + getDate();
@@ -121,7 +121,7 @@ public class PastSnapshot {
       }
       return label;
     }
-    if (StringUtils.equals(mode, PastSnapshotFinderByDate.MODE)) {
+    if (StringUtils.equals(mode, CoreProperties.TIMEMACHINE_MODE_DATE)) {
       String label = "Compare to date " + DateUtils.formatDate(getTargetDate());
       if (isRelatedToSnapshot()) {
         label += String.format(" (analysis of %s)", DateUtils.formatDate(getDate()));

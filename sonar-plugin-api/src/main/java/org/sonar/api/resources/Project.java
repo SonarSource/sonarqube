@@ -111,6 +111,7 @@ public class Project extends Resource {
 
   public Project(String key) {
     setKey(key);
+    setEffectiveKey(key);
   }
 
   public Project(String key, String branch, String name) {
@@ -121,6 +122,7 @@ public class Project extends Resource {
       setKey(key);
       this.name = name;
     }
+    setEffectiveKey(getKey());
     this.branch = branch;
   }
 
@@ -304,6 +306,8 @@ public class Project extends Resource {
   public Project getParent() {
     return parent;
   }
+
+
 
   /**
    * For internal use only.

@@ -159,6 +159,9 @@ public interface CoreProperties {
   /* Time machine periods */
   String TIMEMACHINE_PERIOD_PREFIX = "sonar.timemachine.period";
   String TIMEMACHINE_MODE_PREVIOUS_ANALYSIS = "previous_analysis";
+  String TIMEMACHINE_MODE_DATE = "date";
+  String TIMEMACHINE_MODE_VERSION = "version";
+  String TIMEMACHINE_MODE_DAYS = "days";
   String TIMEMACHINE_DEFAULT_PERIOD_1 = TIMEMACHINE_MODE_PREVIOUS_ANALYSIS;
   String TIMEMACHINE_DEFAULT_PERIOD_2 = "5";
   String TIMEMACHINE_DEFAULT_PERIOD_3 = "30";

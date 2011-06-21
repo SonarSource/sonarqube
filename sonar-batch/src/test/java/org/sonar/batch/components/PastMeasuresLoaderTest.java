@@ -20,10 +20,8 @@
 package org.sonar.batch.components;
 
 import org.junit.Test;
-import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.Metric;
-import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.Arrays;
@@ -38,8 +36,8 @@ import static org.junit.internal.matchers.IsCollectionContaining.hasItems;
 public class PastMeasuresLoaderTest extends AbstractDbUnitTestCase {
 
   private static final int PROJECT_SNAPSHOT_ID = 1000;
-  private static final int PROJECT_ID = 1;
-  private static final int FILE_ID = 3;
+  private static final String PROJECT_KEY = "project";
+  private static final String FILE_KEY = "project:org.foo.Bar";
 
   @Test
   public void shouldGetPastResourceMeasures() {
@@ -49,7 +47,7 @@ public class PastMeasuresLoaderTest extends AbstractDbUnitTestCase {
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", PROJECT_SNAPSHOT_ID);
 
     PastMeasuresLoader loader = new PastMeasuresLoader(getSession(), metrics);
-    List<Object[]> measures = loader.getPastMeasures(FILE_ID, projectSnapshot);
+    List<Object[]> measures = loader.getPastMeasures(FILE_KEY, projectSnapshot);
     assertThat(measures.size(), is(2));
 
     Object[] pastMeasure = measures.get(0);
@@ -71,7 +69,7 @@ public class PastMeasuresLoaderTest extends AbstractDbUnitTestCase {
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", PROJECT_SNAPSHOT_ID);
 
     PastMeasuresLoader loader = new PastMeasuresLoader(getSession(), metrics);
-    List<Object[]> measures = loader.getPastMeasures(PROJECT_ID, projectSnapshot);
+    List<Object[]> measures = loader.getPastMeasures(PROJECT_KEY, projectSnapshot);
     assertThat(measures.size(), is(2));
 
     Object[] pastMeasure = measures.get(0);

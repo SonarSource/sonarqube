@@ -33,37 +33,37 @@ public class PastSnapshotTest {
 
   @Test
   public void testToStringForVersion() {
-    PastSnapshot pastSnapshot = new PastSnapshot(PastSnapshotFinderByVersion.MODE, new Date()).setModeParameter("2.3");
+    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_VERSION, new Date()).setModeParameter("2.3");
     assertThat(pastSnapshot.toString(), startsWith("Compare to version 2.3"));
   }
 
   @Test
   public void testToStringForVersionWithoutDate() {
-    PastSnapshot pastSnapshot = new PastSnapshot(PastSnapshotFinderByVersion.MODE).setModeParameter("2.3");
+    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_VERSION).setModeParameter("2.3");
     assertThat(pastSnapshot.toString(), equalTo("Compare to version 2.3"));
   }
 
   @Test
   public void testToStringForNumberOfDays() {
-    PastSnapshot pastSnapshot = new PastSnapshot(PastSnapshotFinderByDays.MODE, new Date()).setModeParameter("30");
+    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_DAYS, new Date()).setModeParameter("30");
     assertThat(pastSnapshot.toString(), startsWith("Compare over 30 days ("));
   }
 
   @Test
   public void testToStringForNumberOfDaysWithSnapshot() {
-    PastSnapshot pastSnapshot = new PastSnapshot(PastSnapshotFinderByDays.MODE, new Date(), new Snapshot().setCreatedAt(new Date())).setModeParameter("30");
+    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_DAYS, new Date(), new Snapshot().setCreatedAt(new Date())).setModeParameter("30");
     assertThat(pastSnapshot.toString(), startsWith("Compare over 30 days ("));
   }
 
   @Test
   public void testToStringForDate() {
-    PastSnapshot pastSnapshot = new PastSnapshot(PastSnapshotFinderByDate.MODE, new Date());
+    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_DATE, new Date());
     assertThat(pastSnapshot.toString(), startsWith("Compare to date "));
   }
 
   @Test
   public void testToStringForDateWithSnapshot() {
-    PastSnapshot pastSnapshot = new PastSnapshot(PastSnapshotFinderByDate.MODE, new Date(), new Snapshot().setCreatedAt(new Date()));
+    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_DATE, new Date(), new Snapshot().setCreatedAt(new Date()));
     assertThat(pastSnapshot.toString(), startsWith("Compare to date "));
   }
 

@@ -21,6 +21,7 @@ package org.sonar.batch.components;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Qualifiers;
@@ -29,8 +30,6 @@ import java.util.Date;
 import java.util.List;
 
 public class PastSnapshotFinderByDays implements BatchExtension {
-
-  public static final String MODE = "days";
 
   private DatabaseSession session;
 
@@ -49,7 +48,7 @@ public class PastSnapshotFinderByDays implements BatchExtension {
         .getResultList();
 
     Snapshot snapshot = getNearestToTarget(snapshots, targetDate);
-    return new PastSnapshot(MODE, targetDate, snapshot).setModeParameter(String.valueOf(days));
+    return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_DAYS, targetDate, snapshot).setModeParameter(String.valueOf(days));
   }
 
   static Snapshot getNearestToTarget(List<Snapshot> snapshots, Date currentDate, int distanceInDays) {

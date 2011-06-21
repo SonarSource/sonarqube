@@ -20,20 +20,19 @@
 package org.sonar.plugins.core.timemachine;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.utils.DateUtils;
-import org.sonar.batch.components.PastSnapshot;
+import org.sonar.api.resources.Project;
 import org.sonar.batch.components.PastSnapshotFinder;
-import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-
-import java.text.ParseException;
-import java.util.Date;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
@@ -42,32 +41,41 @@ public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
   public void shouldSkipTendencies() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
     conf.setProperty(CoreProperties.SKIP_TENDENCIES_PROPERTY, true);
-    assertThat(new TimeMachineConfiguration(conf).skipTendencies(), is(true));
+    assertThat(new TimeMachineConfiguration(getSession(), new Project("my:project"), conf, mock(PastSnapshotFinder.class)).skipTendencies(), is(true));
   }
 
   @Test
   public void shouldNotSkipTendenciesByDefault() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
-    assertThat(new TimeMachineConfiguration(conf).skipTendencies(), is(false));
+    assertThat(new TimeMachineConfiguration(getSession(), new Project("my:project"), conf, mock(PastSnapshotFinder.class)).skipTendencies(), is(false));
   }
 
   @Test
-  public void shouldInitPastSnapshots() throws ParseException {
+  public void shouldInitPastSnapshots() {
+    setupData("shared");
     PropertiesConfiguration conf = new PropertiesConfiguration();
     PastSnapshotFinder pastSnapshotFinder = mock(PastSnapshotFinder.class);
-    when(pastSnapshotFinder.find(null, conf, 1)).thenReturn(new PastSnapshot("days", new Date(), newSnapshot("2010-10-15")));
-    when(pastSnapshotFinder.find(null, conf, 3)).thenReturn(new PastSnapshot("days", new Date(), newSnapshot("2010-10-13")));
 
-    TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(conf, pastSnapshotFinder, null);
+    new TimeMachineConfiguration(getSession(), new Project("my:project"), conf, pastSnapshotFinder);
 
-    verify(pastSnapshotFinder).find(null, conf, 1);
-    verify(pastSnapshotFinder).find(null, conf, 2);
-    verify(pastSnapshotFinder).find(null, conf, 3);
+    verify(pastSnapshotFinder).find(argThat(new BaseMatcher<Snapshot>() {
+      public boolean matches(Object o) {
+        return ((Snapshot) o).getResourceId() == 2 /* see database in shared.xml */;
+      }
 
-    assertThat(timeMachineConfiguration.getProjectPastSnapshots().size(), is(2));
+      public void describeTo(Description description) {
+      }
+    }), eq(conf), eq(1));
   }
 
-  private Snapshot newSnapshot(String date) throws ParseException {
-    return new Snapshot().setCreatedAt(DateUtils.parseDate(date));
+  @Test
+  public void shouldNotInitPastSnapshotsIfFirstAnalysis() {
+    setupData("shared");
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    PastSnapshotFinder pastSnapshotFinder = mock(PastSnapshotFinder.class);
+
+    new TimeMachineConfiguration(getSession(), new Project("new:project"), conf, pastSnapshotFinder);
+
+    verifyZeroInteractions(pastSnapshotFinder);
   }
 }

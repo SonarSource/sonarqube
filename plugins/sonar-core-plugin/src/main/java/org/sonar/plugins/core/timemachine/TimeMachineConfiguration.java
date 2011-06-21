@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.components;
+package org.sonar.plugins.core.timemachine;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
@@ -25,10 +25,15 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.Logs;
+import org.sonar.batch.components.PastSnapshot;
+import org.sonar.batch.components.PastSnapshotFinder;
 
+import javax.persistence.Query;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,23 +41,47 @@ public class TimeMachineConfiguration implements BatchExtension {
 
   private static final int NUMBER_OF_VARIATION_SNAPSHOTS = 5;
 
+  private Project project;
   private final Configuration configuration;
   private List<PastSnapshot> projectPastSnapshots;
+  private DatabaseSession session;
 
-  public TimeMachineConfiguration(Configuration configuration, PastSnapshotFinder pastSnapshotFinder, Snapshot projectSnapshot) {
+  public TimeMachineConfiguration(DatabaseSession session, Project project, Configuration configuration, PastSnapshotFinder pastSnapshotFinder) {
+    this.session = session;
+    this.project = project;
     this.configuration = configuration;
-    initPastSnapshots(pastSnapshotFinder, projectSnapshot);
+    initPastSnapshots(pastSnapshotFinder);
   }
 
-  private void initPastSnapshots(PastSnapshotFinder pastSnapshotFinder, Snapshot projectSnapshot) {
+  private void initPastSnapshots(PastSnapshotFinder pastSnapshotFinder) {
+    Snapshot projectSnapshot = buildProjectSnapshot();
+
     projectPastSnapshots = Lists.newLinkedList();
-    for (int index = 1; index <= NUMBER_OF_VARIATION_SNAPSHOTS; index++) {
-      PastSnapshot pastSnapshot = pastSnapshotFinder.find(projectSnapshot, configuration, index);
-      if (pastSnapshot != null) {
-        log(pastSnapshot);
-        projectPastSnapshots.add(pastSnapshot);
+    if (projectSnapshot != null) {
+      for (int index = 1; index <= NUMBER_OF_VARIATION_SNAPSHOTS; index++) {
+        PastSnapshot pastSnapshot = pastSnapshotFinder.find(projectSnapshot, configuration, index);
+        if (pastSnapshot != null) {
+          log(pastSnapshot);
+          projectPastSnapshots.add(pastSnapshot);
+        }
       }
     }
+  }
+
+  private Snapshot buildProjectSnapshot() {
+    Query query = session.createNativeQuery("select p.id from projects p where p.kee=:resourceKey and p.qualifier<>:lib and p.enabled=:enabled");
+    query.setParameter("resourceKey", project.getKey());
+    query.setParameter("lib", Qualifiers.LIBRARY);
+    query.setParameter("enabled", Boolean.TRUE);
+
+    Snapshot snapshot = null;
+    Number projectId = session.getSingleResult(query, null);
+    if (projectId != null) {
+      snapshot = new Snapshot();
+      snapshot.setResourceId(projectId.intValue());
+      snapshot.setCreatedAt(project.getAnalysisDate());
+    }
+    return snapshot;
   }
 
   private void log(PastSnapshot pastSnapshot) {
@@ -65,12 +94,6 @@ public class TimeMachineConfiguration implements BatchExtension {
     }
   }
 
-  public TimeMachineConfiguration(Configuration configuration) {
-    this.configuration = configuration;
-    this.projectPastSnapshots = Collections.emptyList();
-  }
-
-
   public boolean skipTendencies() {
     return configuration.getBoolean(CoreProperties.SKIP_TENDENCIES_PROPERTY, CoreProperties.SKIP_TENDENCIES_DEFAULT_VALUE);
   }
@@ -81,5 +104,9 @@ public class TimeMachineConfiguration implements BatchExtension {
 
   public List<PastSnapshot> getProjectPastSnapshots() {
     return projectPastSnapshots;
+  }
+
+  public boolean isFileVariationEnabled() {
+    return configuration.getBoolean("sonar.enableFileVariation", Boolean.FALSE);
   }
 }
