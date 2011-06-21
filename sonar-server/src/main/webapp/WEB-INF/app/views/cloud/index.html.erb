@@ -17,6 +17,7 @@
   }
 </script>
 
+<div>
 <form id="cloudform" action="<%= ApplicationController.root_context -%>/cloud/index/<%= @project.id -%>" method="GET">
   <ul class="headerLine">
     <li class="first">
@@ -27,14 +28,15 @@
       </select>
     </li>
     <li>
-      <input type="radio" name="size" value="ncloc" <%= 'checked' if @size_metric.key=='ncloc' -%> onchange="document.forms['cloudform'].submit()">
-      Quick wins</option>
+      <input type="radio" name="size" value="ncloc" <%= 'checked' if @size_metric.key=='ncloc' -%> onclick="document.forms['cloudform'].submit()" id="radio-quick">
+      <label for="radio-quick">Quick wins</label></option>
       &nbsp;
-      <input type="radio" name="size" value="function_complexity" <%= 'checked' if @size_metric.key=='function_complexity' -%> onchange="document.forms['cloudform'].submit()">
-      Top risk</input>
+      <input type="radio" name="size" value="function_complexity" <%= 'checked' if @size_metric.key=='function_complexity' -%> onclick="document.forms['cloudform'].submit()" id="radio-top">
+      <label for="radio-top">Top risk</label></input>
     </li>
   </ul>
 </form>
+</div>
 
 <div id="cloud">
   <% 
