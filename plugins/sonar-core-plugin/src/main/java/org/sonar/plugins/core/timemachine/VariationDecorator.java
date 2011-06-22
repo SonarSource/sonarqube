@@ -31,6 +31,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshot;
+import org.sonar.batch.components.TimeMachineConfiguration;
 
 import java.util.Collection;
 import java.util.List;

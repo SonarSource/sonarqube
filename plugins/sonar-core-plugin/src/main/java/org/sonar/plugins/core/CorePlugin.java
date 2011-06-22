@@ -218,7 +218,6 @@ public class CorePlugin extends SonarPlugin {
     extensions.add(ReferenceAnalysis.class);
 
     // time machine
-    extensions.add(TimeMachineConfiguration.class);
     extensions.add(TendencyDecorator.class);
     extensions.add(VariationDecorator.class);
     extensions.add(ViolationTrackingDecorator.class);

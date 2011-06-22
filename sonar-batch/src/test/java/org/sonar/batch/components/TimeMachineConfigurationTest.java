@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.timemachine;
+package org.sonar.batch.components;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.hamcrest.BaseMatcher;
@@ -27,6 +27,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.components.PastSnapshotFinder;
+import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import static org.hamcrest.CoreMatchers.is;

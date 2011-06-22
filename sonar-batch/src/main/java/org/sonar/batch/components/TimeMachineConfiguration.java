@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.timemachine;
+package org.sonar.batch.components;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;

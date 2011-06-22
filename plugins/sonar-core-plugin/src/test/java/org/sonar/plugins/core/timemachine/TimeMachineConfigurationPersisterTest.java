@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.components.PastSnapshot;
+import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.text.ParseException;

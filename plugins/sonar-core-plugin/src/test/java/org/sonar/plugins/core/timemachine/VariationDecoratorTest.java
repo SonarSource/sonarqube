@@ -31,6 +31,7 @@ import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.*;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshot;
+import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.Arrays;

@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.TimeMachine;
@@ -29,6 +28,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.components.TimeMachineConfiguration;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

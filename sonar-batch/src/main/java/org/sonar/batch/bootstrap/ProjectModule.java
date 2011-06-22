@@ -31,6 +31,7 @@ import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.*;
+import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.DefaultResourcePersister;
@@ -78,6 +79,7 @@ public class ProjectModule extends Module {
       // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
       addComponent(getComponent(DefaultResourcePersister.class).getSnapshot(project));
     }
+    addComponent(TimeMachineConfiguration.class);
     addComponent(org.sonar.api.database.daos.MeasuresDao.class);
     addComponent(ProfilesDao.class);
     addComponent(AsyncMeasuresDao.class);
