@@ -85,9 +85,12 @@ public final class ZipUtils {
             }
 
             FileOutputStream fos = new FileOutputStream(to);
+            InputStream input = null;
             try {
-              IOUtils.copy(zipFile.getInputStream(entry), fos);
+              input = zipFile.getInputStream(entry);
+              IOUtils.copy(input, fos);
             } finally {
+              IOUtils.closeQuietly(input);
               IOUtils.closeQuietly(fos);
             }
           }
