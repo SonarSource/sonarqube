@@ -110,13 +110,21 @@ class Review < ActiveRecord::Base
         end
       end
       create_comment(:user => params[:user], :text => params[:text])
-      self.false_positive = is_false_positive
       self.assignee = nil
-      self.status = STATUS_OPEN
-      self.save!      
+      self.status = is_false_positive ? STATUS_RESOLVED : STATUS_REOPENED
+      self.resolution = is_false_positive ? 'FALSE-POSITIVE' : nil
+      self.save!
     end
   end
   
+  def false_positive
+    resolution == 'FALSE-POSITIVE'
+  end
+  
+  def can_change_false_positive_flag?
+    (status == STATUS_RESOLVED && resolution == 'FALSE-POSITIVE') || status == STATUS_OPEN || status == STATUS_REOPENED
+  end
+
   def isResolved?
     status == STATUS_RESOLVED
   end
@@ -131,11 +139,13 @@ class Review < ActiveRecord::Base
   
   def reopen
     self.status = STATUS_REOPENED
+    self.resolution = nil
     self.save!
   end
   
   def resolve
     self.status = STATUS_RESOLVED
+    self.resolution = 'FIXED'
     self.save!
   end
   
@@ -155,22 +165,19 @@ class Review < ActiveRecord::Base
     # Following code just for backward compatibility
     review_type = options['review_type']
     if review_type
-      conditions << 'false_positive=:false_positive'
       if review_type == 'FALSE_POSITIVE'
-        values[:false_positive]=true
+        conditions << "resolution='FALSE-POSITIVE'"
       else
-        values[:false_positive]=false
+        conditions << "(resolution<>'FALSE-POSITIVE' OR resolution IS NULL)"
       end
     end
     # --- End of code for backward compatibility code ---
       
     false_positives = options['false_positives']
     if false_positives == "only"
-      conditions << 'false_positive=:false_positive'
-      values[:false_positive]=true
+      conditions << "resolution='FALSE-POSITIVE'"
     elsif false_positives == "without"
-      conditions << 'false_positive=:false_positive'
-      values[:false_positive]=false    
+      conditions << "(resolution<>'FALSE-POSITIVE' OR resolution IS NULL)"
     end
     
     ids=options['ids'].split(',') if options['ids']

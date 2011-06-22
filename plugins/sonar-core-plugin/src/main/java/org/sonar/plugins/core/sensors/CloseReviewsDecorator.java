@@ -91,7 +91,7 @@ public class CloseReviewsDecorator implements Decorator {
   }
 
   protected String generateUpdateToReopenResolvedReviewsForNonFixedViolation(int resourceId) {
-    return "UPDATE reviews SET status='REOPENED', updated_at=CURRENT_TIMESTAMP WHERE status='RESOLVED' AND resource_id = " + resourceId;
+    return "UPDATE reviews SET status='REOPENED', resolution=NULL, updated_at=CURRENT_TIMESTAMP WHERE status='RESOLVED' AND resource_id = " + resourceId;
   }
 
   protected String generateUpdateToCloseReviewsForDeletedResources(int projectId, int projectSnapshotId) {

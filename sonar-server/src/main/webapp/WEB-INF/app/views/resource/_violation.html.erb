@@ -70,7 +70,7 @@
         <% end %>
       
         &nbsp;
-        <% unless violation.review && violation.review.isResolved? %>
+        <% if violation.review && violation.review.can_change_false_positive_flag? %>
         <%= link_to_remote (violation.switched_off? ? "Unflag as false-positive" : "Flag as false-positive"),
         		:url => { :controller => "reviews", :action => "violation_false_positive_form", :id => violation.id, :false_positive => !violation.switched_off? },
         		:update => "reviewForm" + violation.id.to_s,
