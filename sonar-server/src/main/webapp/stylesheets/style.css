@@ -338,18 +338,28 @@ button, .button, input[type="submit"], input[type="button"] {
   zoom: 1; 
   *display: inline;
 }
-.red-button {
-  color: #990000 !important;
-}
 button:hover, .button:hover, input[type="submit"]:hover, input[type="button"]:hover {
   text-decoration: none;
-  text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.3);
+  text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.1);
   color: #FFFFFF;
-  border: 1px solid #0770A0;
-  background: #007ead;
-  background: -webkit-gradient(linear, left top, left bottom, from(#0CA6DD), to(#0770A0));
-  background: -moz-linear-gradient(top,  #0CA6DD,  #0770A0);
-  filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#0CA6DD', endColorstr='#0770A0');
+  border: 1px solid #5281a0;
+  background: #4B9FD5;
+  background: -webkit-gradient(linear, left top, left bottom, from(#78bdea), to(#4B9FD5));
+  background: -moz-linear-gradient(top,  #78bdea,  #4B9FD5);
+  filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#78bdea', endColorstr='#4B9FD5');
+}
+button:active, .button:active, input[type="submit"]:active, input[type="button"]:active {
+  position: relative;
+  top: 1px;
+  text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.1);
+  color: #FFFFFF;
+  border: solid 1px #2790C0;
+  background: -webkit-gradient(linear, left top, left bottom, from(#4B9FD5), to(#78bdea));
+  background: -moz-linear-gradient(top,  #4B9FD5,  #78bdea);
+  filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#4B9FD5', endColorstr='#78bdea');
+}
+.red-button {
+  color: #990000 !important;
 }
 .red-button:hover {
   color: #FFFFFF !important;
@@ -358,16 +368,6 @@ button:hover, .button:hover, input[type="submit"]:hover, input[type="button"]:ho
   background: -webkit-gradient(linear, left top, left bottom, from(#DC5F59), to(#B33630)) !important;
   background: -moz-linear-gradient(top,  #DC5F59,  #B33630) !important;
   filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#DC5F59', endColorstr='#B33630') !important;
-}
-button:active, .button:active, input[type="submit"]:active, input[type="button"]:active {
-  position: relative;
-  top: 1px;
-  text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.3);
-  color: #FFFFFF;
-  border: solid 1px #2790C0;
-  background: -webkit-gradient(linear, left top, left bottom, from(#0076AD), to(#2790C0));
-  background: -moz-linear-gradient(top,  #0076AD,  #2790C0);
-  filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#0076AD', endColorstr='#2790C0');
 }
 .red-button:active {
   color: #FFFFFF !important;
