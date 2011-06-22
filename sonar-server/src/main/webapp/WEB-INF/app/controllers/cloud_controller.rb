@@ -32,7 +32,11 @@ class CloudController < ApplicationController
 
     @size_metric=Metric.by_key(params[:size]||'ncloc')
     @color_metric=Metric.by_key(params[:color]||'coverage')
-    
+
+    if @snapshot.measure(@color_metric).nil?
+      @color_metric=Metric.by_key('violations_density')
+    end
+
     snapshot_conditions='snapshots.islast=:islast AND snapshots.scope=:scope AND snapshots.qualifier!=:test_qualifier AND 
       (snapshots.id=:sid OR (snapshots.root_snapshot_id=:root_sid AND snapshots.path LIKE :path))'
     snapshot_values={
