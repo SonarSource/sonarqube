@@ -163,7 +163,8 @@ table#columns td {
             <input type="submit" value="Save & Close" />
             <span class="spacer"> </span>
             <% if @filter.id %>
-              <input name="delete" class="red-button" type="submit" value="Delete" onclick="return confirm('Do you want to delete this filter ?');">
+              <input name="delete" class="red-button" value="Delete" type="button" 
+                     onclick="if (confirm('Do you want to delete this filter ?')) { var f = document.createElement('form'); f.style.display = 'none'; this.parentNode.appendChild(f); f.method = 'POST'; f.action = '<%= url_for :action => 'delete', :id => @filter.id %>';f.submit(); };return false;">
               <span class="spacer"> </span>
               <a href="<%= url_for :action => 'index', :name => @filter.name -%>">Cancel</a>
             <% else %>
