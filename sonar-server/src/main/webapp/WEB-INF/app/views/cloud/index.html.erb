@@ -23,7 +23,9 @@
     <li class="first">
       <span class="note">Color:</span>
       <select name="color" onchange="document.forms['cloudform'].submit()">
-        <option value="coverage" <%= 'selected' if @color_metric.key=='coverage' -%>>Coverage</option>
+        <% if @snapshot.measure(@color_metric) %>
+          <option value="coverage" <%= 'selected' if @color_metric.key=='coverage' -%>>Coverage</option>
+        <% end %>
         <option value="violations_density" <%= 'selected' if @color_metric.key=='violations_density' -%>>Rules compliance</option>
       </select>
     </li>
