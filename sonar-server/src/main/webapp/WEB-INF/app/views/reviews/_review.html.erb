@@ -27,7 +27,7 @@
 	        <%= link_to_remote (review.assignee_id ? "Reassign" : "Assign"),  
 	        		:url => { :controller => "reviews", :action => "assign_form", :review_id => review.id},
 	        		:update => "assignForm",
-	        		:complete => "$('rActions').hide(); $('editActions').hide(); $('assignee_id').focus();" -%>
+	        		:complete => "$('rActions').hide(); $('editActions').hide(); $('assignee_login').focus();" -%>
 	      
 	        &nbsp;
           <% end %>

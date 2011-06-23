@@ -121,8 +121,8 @@ module UsersHelper
   # (for the moment 'class' is supported).
   #
   # Example:
-  #   <%= user_autocomplete_field "assignee_id", @assignee_id -%>
-  #   # => generates an input field for the parameter 'assignee_id'
+  #   <%= user_autocomplete_field "assignee_login", @assignee_login -%>
+  #   # => generates an input field for the parameter 'assignee_login'
   #
   def user_autocomplete_field(param_id, param_value, options={})
     param_id_name = param_id

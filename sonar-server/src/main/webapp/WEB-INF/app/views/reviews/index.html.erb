@@ -4,10 +4,10 @@ function reviewIdFieldModified(field) {
     $('statuses').value = ''
     $('severities').value = ''
     $('projects').value = ''
-    $('author_id').value = ''
-    $('autocompleteText-author_id').value = ''
-    $('assignee_id').value = ''
-    $('autocompleteText-assignee_id').value = ''  
+    $('author_login').value = ''
+    $('autocompleteText-author_login').value = ''
+    $('assignee_login').value = ''
+    $('autocompleteText-assignee_login').value = ''  
     $('false_positives').value = 'with'  
   }
 }
@@ -72,7 +72,7 @@ function launchSearch(columnName, link) {
           <%= user_autocomplete_field "assignee_login", @assignee_login, { :class => "max-width" } -%>
           <br/>
           <br/>
-          <select name="false_positives" id="false_positives" onchange="if(this.value=='only' || this.value=='with') {$('assignee_id').value = ''; $('autocompleteText-assignee_id').value = '';};">
+          <select name="false_positives" id="false_positives" onchange="if(this.value=='only' || this.value=='with') {$('assignee_login').value = ''; $('autocompleteText-assignee_login').value = ''; $('statuses').value = '';};">
             <option <%= 'selected' if @false_positives=='without' -%> value="without">Without false positives</option>
             <option <%= 'selected' if @false_positives=='only' -%> value="only">Only false positives</option>
           </select>

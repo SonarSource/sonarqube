@@ -238,7 +238,7 @@ class ReviewsController < ApplicationController
     sanitize_violation(violation)
 
     unless violation.review
-      assignee = User.find params[:assignee_id] unless params[:assignee_id].blank?
+      assignee = findUserByLogin(params[:assignee_login]) unless params[:assignee_login].blank?
       violation.create_review!(
           :assignee => assignee,
           :user => current_user)
