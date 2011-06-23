@@ -24,121 +24,63 @@ package org.sonar.wsclient.services;
  */
 public class ReviewUpdateQuery extends UpdateQuery<Review> {
 
-  private Long reviewId;
-  private String text;
-  private String newText;
+  private long reviewId;
+  private String action;
+  private String comment;
   private String assignee;
-  private Boolean falsePositive;
-  private String status;
+  private String resolution;
 
-  public ReviewUpdateQuery() {
+  /**
+   * Creates query to add comment to review.
+   */
+  public static ReviewUpdateQuery addComment(long id, String comment) {
+    return new ReviewUpdateQuery(id, "add_comment").setComment(comment);
   }
 
   /**
-   * Builds a request that will add a comment on a an existing review.
-   * 
-   * @param reviewId
-   *          The id of the review
-   * @param text
-   *          The new comment
+   * Creates query to reassign review.
    */
-  public static ReviewUpdateQuery addCommentQuery(Long reviewId, String text) {
-    ReviewUpdateQuery query = new ReviewUpdateQuery();
-    query.setReviewId(reviewId);
-    query.setNewText(text);
-    return query;
+  public static ReviewUpdateQuery reassign(long id, String assignee) {
+    return new ReviewUpdateQuery(id, "reassign").setAssignee(assignee);
   }
 
   /**
-   * Builds a request that will update the false-positive status of an existing review.
+   * Creates query to resolve review.
+   * If resolution "FALSE-POSITIVE", then you must provide comment using {@link #setComment(String)}.
+   * Otherwise comment is optional.
    * 
-   * @param reviewId
-   *          The id of the review
-   * @param text
-   *          The comment for this modification
-   * @param falsePositive
-   *          the new false positive status of the review
+   * @param resolution
+   *          can be "FIXED" or "FALSE-POSITIVE"
    */
-  public static ReviewUpdateQuery updateFalsePositiveQuery(Long reviewId, String text, Boolean falsePositive) {
-    ReviewUpdateQuery query = addCommentQuery(reviewId, text);
-    query.setFalsePositive(falsePositive);
-    return query;
+  public static ReviewUpdateQuery resolve(long id, String resolution) {
+    return new ReviewUpdateQuery(id, "resolve").setResolution(resolution);
   }
 
   /**
-   * Builds a request that will reassign an existing review to the given user. <br/>
-   * <br/>
-   * To unassign the review, simply pass "none" for the user login.
-   * 
-   * @param reviewId
-   *          The id of the review that is reviewed
-   * @param userLogin
-   *          The login of the user whom this review will be assigned to, or "none" to unassign
+   * Creates query to reopen review.
+   * If review was resolved as "FALSE-POSITIVE", then you must provide comment using {@link #setComment(String)}.
+   * Otherwise comment is optional.
    */
-  public static ReviewUpdateQuery reassignQuery(Long reviewId, String userLogin) {
-    ReviewUpdateQuery query = new ReviewUpdateQuery();
-    query.setReviewId(reviewId);
-    query.setAssignee(userLogin);
-    return query;
+  public static ReviewUpdateQuery reopen(long id) {
+    return new ReviewUpdateQuery(id, "reopen");
   }
 
-  /**
-   * Builds a request that will edit the last comment of a an existing review (if the last comment belongs to the current user).
-   * 
-   * @param reviewId
-   *          The id of the review
-   * @param text
-   *          The new text for the last comment
-   */
-  public static ReviewUpdateQuery editLastCommentQuery(Long reviewId, String text) {
-    ReviewUpdateQuery query = new ReviewUpdateQuery();
-    query.setReviewId(reviewId);
-    query.setText(text);
-    return query;
+  private ReviewUpdateQuery(long id, String action) {
+    this.reviewId = id;
+    this.action = action;
   }
 
-  /**
-   * Builds a request that will change the status of a an existing review.<br/>
-   * <br/>
-   * Currently, only "RESOLVED" and "REOPENED" are supported.
-   * 
-   * @param reviewId
-   *          The id of the review
-   * @param status
-   *          The new status
-   */
-  public static ReviewUpdateQuery changeStatusQuery(Long reviewId, String status) {
-    ReviewUpdateQuery query = new ReviewUpdateQuery();
-    query.setReviewId(reviewId);
-    query.setStatus(status);
-    return query;
-  }
-
-  public Long getReviewId() {
+  public long getReviewId() {
     return reviewId;
   }
 
-  public ReviewUpdateQuery setReviewId(Long reviewId) {
-    this.reviewId = reviewId;
+  public ReviewUpdateQuery setComment(String comment) {
+    this.comment = comment;
     return this;
   }
 
-  public String getText() {
-    return text;
-  }
-
-  public ReviewUpdateQuery setText(String text) {
-    this.text = text;
-    return this;
-  }
-
-  public String getNewText() {
-    return newText;
-  }
-
-  public ReviewUpdateQuery setNewText(String text) {
-    this.newText = text;
-    return this;
+  public String getComment() {
+    return comment;
   }
 
   public String getAssignee() {
@@ -150,45 +92,37 @@ public class ReviewUpdateQuery extends UpdateQuery<Review> {
     return this;
   }
 
-  public Boolean getFalsePositive() {
-    return falsePositive;
+  public String getResolution() {
+    return resolution;
   }
 
-  public ReviewUpdateQuery setFalsePositive(Boolean falsePositive) {
-    this.falsePositive = falsePositive;
-    return this;
-  }
-
-  public String getStatus() {
-    return status;
-  }
-
-  public ReviewUpdateQuery setStatus(String status) {
-    this.status = status;
+  /**
+   * @param resolution
+   *          can be "FIXED" or "FALSE-POSITIVE"
+   */
+  public ReviewUpdateQuery setResolution(String resolution) {
+    this.resolution = resolution;
     return this;
   }
 
   @Override
   public String getUrl() {
     StringBuilder url = new StringBuilder();
-    url.append(ReviewQuery.BASE_URL);
-    url.append("/");
-    url.append('?');
-    appendUrlParameter(url, "id", getReviewId());
-    appendUrlParameter(url, "text", getText());
-    appendUrlParameter(url, "new_text", getNewText());
+    url.append(ReviewQuery.BASE_URL)
+        .append('/').append(action)
+        .append('/').append(reviewId)
+        .append('?');
     appendUrlParameter(url, "assignee", getAssignee());
-    appendUrlParameter(url, "false_positive", getFalsePositive());
-    appendUrlParameter(url, "status", getStatus());
+    appendUrlParameter(url, "resolution", getResolution());
     return url.toString();
   }
 
   /**
-   * Properties 'text' or 'new_text' are transmitted through request body as content may exceed URL size allowed by the server.
+   * Property {@link #comment} transmitted through request body as content may exceed URL size allowed by the server.
    */
   @Override
   public String getBody() {
-    return text == null ? newText : text;
+    return comment;
   }
 
   @Override

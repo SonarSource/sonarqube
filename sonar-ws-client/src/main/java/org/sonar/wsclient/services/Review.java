@@ -39,109 +39,84 @@ public class Review extends Model {
   private String severity = null;
   private String resourceKee = null;
   private Integer line = null;
-  private Boolean falsePositive = null;
+  private String resolution = null;
   private Long violationId;
   private List<Review.Comment> comments = new ArrayList<Review.Comment>();
 
   /**
-   * @return the id
+   * @return id
    */
   public Long getId() {
     return id;
   }
 
-  /**
-   * @param id
-   *          the id to set
-   */
   public Review setId(Long id) {
     this.id = id;
     return this;
   }
 
   /**
-   * @return the createdAt
+   * @return date of creation
    */
   public Date getCreatedAt() {
     return createdAt;
   }
 
-  /**
-   * @param createdAt
-   *          the createdAt to set
-   */
   public Review setCreatedAt(Date createdAt) {
     this.createdAt = createdAt;
     return this;
   }
 
   /**
-   * @return the updatedAt
+   * @return date of last modification
    */
   public Date getUpdatedAt() {
     return updatedAt;
   }
 
-  /**
-   * @param updatedAt
-   *          the updatedAt to set
-   */
   public Review setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
     return this;
   }
 
   /**
-   * @return the authorLogin
+   * @return user that initiated review
    */
   public String getAuthorLogin() {
     return authorLogin;
   }
 
-  /**
-   * @param s
-   *          the authorLogin to set
-   */
   public Review setAuthorLogin(String s) {
     this.authorLogin = s;
     return this;
   }
 
   /**
-   * @return the assigneeLogin
+   * @return assignee
    */
   public String getAssigneeLogin() {
     return assigneeLogin;
   }
 
-  /**
-   * @param s
-   *          the assigneeLogin to set
-   */
   public Review setAssigneeLogin(String s) {
     this.assigneeLogin = s;
     return this;
   }
 
   /**
-   * @return the title
+   * @return title
    */
   public String getTitle() {
     return title;
   }
 
-  /**
-   * @param s
-   *          the title to set
-   */
   public Review setTitle(String s) {
     this.title = s;
     return this;
   }
 
   /**
-   * @deprecated since 2.9. Use {@link #getFalsePositive()} instead.
-   * @return the type
+   * @deprecated since 2.9.
    */
   @Deprecated
   public String getType() {
@@ -149,81 +124,57 @@ public class Review extends Model {
   }
 
   /**
-   * @deprecated since 2.9. Use {@link #setFalsePositive(Boolean)} instead.
-   * @param s
-   *          the type to set
+   * @deprecated since 2.9.
    */
   @Deprecated
   public Review setType(String s) {
     this.type = s;
-    // the following code is only here to ensure backward compatibility with 2.8
-    if ("FALSE_POSITIVE".equals(type)) {
-      falsePositive = Boolean.TRUE;
-    } else if ("VIOLATION".equals(type)) {
-      falsePositive = Boolean.FALSE;
-    }
     return this;
   }
 
   /**
-   * @return the status
+   * @return status
    */
   public String getStatus() {
     return status;
   }
 
-  /**
-   * @param status
-   *          the status to set
-   */
   public Review setStatus(String status) {
     this.status = status;
     return this;
   }
 
   /**
-   * @return the severity
+   * @return severity
    */
   public String getSeverity() {
     return severity;
   }
 
-  /**
-   * @param severity
-   *          the severity to set
-   */
   public Review setSeverity(String severity) {
     this.severity = severity;
     return this;
   }
 
   /**
-   * @return the resourceKee
+   * @return resourceKee
    */
   public String getResourceKee() {
     return resourceKee;
   }
 
-  /**
-   * @param resourceKee
-   *          the resourceKee to set
-   */
   public Review setResourceKee(String resourceKee) {
     this.resourceKee = resourceKee;
     return this;
   }
 
   /**
-   * @return the line
+   * @return line
    */
   public Integer getLine() {
     return line;
   }
 
-  /**
-   * @param line
-   *          the line to set
-   */
   public Review setLine(Integer line) {
     this.line = line;
     return this;
@@ -231,41 +182,34 @@ public class Review extends Model {
 
   /**
    * @since 2.9
-   * @return the falsePositive
    */
-  public Boolean getFalsePositive() {
-    return falsePositive;
+  public String getResolution() {
+    return resolution;
   }
 
   /**
    * @since 2.9
-   * @param falsePositive
-   *          true if false positive
    */
-  public Review setFalsePositive(Boolean falsePositive) {
-    this.falsePositive = falsePositive;
+  public Review setResolution(String resolution) {
+    this.resolution = resolution;
     return this;
   }
 
   /**
    * @since 2.9
-   * @return the violation id
+   * @return violation id
    */
   public Long getViolationId() {
     return violationId;
   }
 
-  /**
-   * @param id
-   *          the violation id to set
-   */
   public Review setViolationId(Long violationId) {
     this.violationId = violationId;
     return this;
   }
 
   /**
-   * @return the comments
+   * @return comments
    */
   public List<Review.Comment> getComments() {
     return comments;
@@ -295,28 +239,28 @@ public class Review extends Model {
 
     /**
      * @since 2.9
-     * @return the id
+     * @return id
      */
     public Long getId() {
       return id;
     }
 
     /**
-     * @return the authorLogin
+     * @return user that created this comment
      */
     public String getAuthorLogin() {
       return authorLogin;
     }
 
     /**
-     * @return the updatedAt
+     * @return date of last modification
      */
     public Date getUpdatedAt() {
       return updatedAt;
     }
 
     /**
-     * @return the text
+     * @return text
      */
     public String getText() {
       return text;

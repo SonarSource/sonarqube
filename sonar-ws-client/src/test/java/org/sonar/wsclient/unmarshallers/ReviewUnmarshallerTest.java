@@ -24,11 +24,11 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-import java.util.List;
-
 import org.junit.Test;
 import org.sonar.wsclient.services.Review;
 import org.sonar.wsclient.services.Review.Comment;
+
+import java.util.List;
 
 public class ReviewUnmarshallerTest extends UnmarshallerTestCase {
 
@@ -50,8 +50,8 @@ public class ReviewUnmarshallerTest extends UnmarshallerTestCase {
     assertThat(review.getAuthorLogin(), is("admin"));
     assertThat(review.getAssigneeLogin(), is("admin"));
     assertThat(review.getTitle(), is("'static' modifier out of order with the JLS suggestions."));
-    assertThat(review.getFalsePositive(), is(Boolean.FALSE));
-    assertThat(review.getStatus(), is("OPEN"));
+    assertThat(review.getStatus(), is("RESOLVED"));
+    assertThat(review.getResolution(), is("FALSE-POSITIVE"));
     assertThat(review.getSeverity(), is("MINOR"));
     assertThat(review.getResourceKee(), is("org.codehaus.sonar:sonar-channel:org.sonar.channel.CodeReaderConfiguration"));
     assertThat(review.getLine(), is(33));
@@ -66,7 +66,8 @@ public class ReviewUnmarshallerTest extends UnmarshallerTestCase {
 
     review = reviews.get(1);
     assertThat(review.getAssigneeLogin(), nullValue());
-    assertThat(review.getFalsePositive(), is(Boolean.TRUE));
+    assertThat(review.getStatus(), is("OPEN"));
+    assertThat(review.getResolution(), nullValue());
   }
 
   /*

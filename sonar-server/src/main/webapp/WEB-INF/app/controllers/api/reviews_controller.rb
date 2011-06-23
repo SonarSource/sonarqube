@@ -23,67 +23,78 @@ require 'json'
 class Api::ReviewsController < Api::ApiController
 
   # GETs should be safe (see http://www.w3.org/2001/tag/doc/whenToUseGet.html)
-  verify :method => :put, :only => [ :update ]
+  verify :method => :put, :only => [ :add_comment, :reassign, :resolve, :reopen ]
   verify :method => :post, :only => [ :create ]
-  verify :method => :delete, :only => [ :destroy ]
-  
+  #verify :method => :delete, :only => [ :destroy ]
+
   def index
-    convert_markdown=(params[:output]=='HTML')
     reviews=select_authorized(:user, Review.search(params), :project)
-    
-    render_reviews(reviews, convert_markdown)
+
+    render_reviews(reviews, params[:output] == 'HTML')
   end
 
   #
-  # --- Creation of a review --- 
+  # --- Creation of a review ---
   #
   # POST /api/reviews
   # Required parameters:
   # - 'violation_id' : the violation on which the review shoul be created
-  # - 'text' : the text of the comment
+  # - 'status' : the initial status (can be 'OPEN' or 'RESOLVED')
+  # - 'comment' : the text of the comment
   #
   # Optional parameters :
-  # - 'assignee' : login used to create a review directly assigned 
-  # - 'false_positive' : if "true", creates a false-positive review
+  # - 'resolution' : if status 'RESOLVED', then resolution must be provided (can be 'FIXED' or 'FALSE-POSITIVE')
+  # - 'assignee' : login used to create a review directly assigned
   #
   # Example :
-  # - POST "/api/reviews/?violation_id=1&assignee=fabrice&text=Hello%20World!
-  # - POST "/api/reviews/?violation_id=2&false_positive=true&text=No%20violation%20here
+  # - POST "/api/reviews/?violation_id=1&status=OPEN&assignee=admin&comment=Please%20fix%20this"
+  # - POST "/api/reviews/?violation_id=2&status=RESOLVED&resolution=FALSE-POSITIVE&comment=No%20violation%20here"
+  # - POST "/api/reviews/?violation_id=3&status=RESOLVED&resolution=FIXED&assignee=admin&comment=This%20violation%20was%20fixed%20by%20me"
   #
   def create
     begin
       # 1- Get some parameters and check some of them
       convert_markdown=(params[:output]=='HTML')
-      false_positive = params[:false_positive]=='true'
       assignee = find_user(params[:assignee])
-      text = params[:text]
-      raise "No 'text' parameter has been provided." unless text && !text.blank?
-        
-      # 2- Create the review
-      if params[:violation_id]
-        violation = RuleFailure.find(params[:violation_id], :include => ['snapshot', 'review'])
+      status = params[:status]
+      resolution = params[:resolution]
+      comment = params[:comment] || request.raw_post
+      violation_id = params[:violation_id]
+      raise "No 'violation_id' parameter has been provided." unless violation_id && !violation_id.blank?
+      raise "No 'status' parameter has been provided." unless status && !status.blank?
+      raise "No 'comment' parameter has been provided." unless comment && !comment.blank?
+
+      Review.transaction do
+        # 2- Create the review
+        violation = RuleFailure.find(violation_id, :include => ['snapshot', 'review'])
         unless has_rights_to_modify?(violation.snapshot)
           access_denied
           return
         end
-        raise "Violation #"+violation.id.to_s+" already has a review." if violation.review
+        raise "Violation #" + violation.id.to_s + " already has a review." if violation.review
         sanitize_violation(violation)
         violation.create_review!(:assignee => assignee, :user => current_user)
-      else
-        raise "No 'violation_id' parameter has been provided."
+        review = violation.review
+
+        # 3- Set status
+        if status == Review::STATUS_OPEN
+          review.create_comment(:user => current_user, :text => comment)
+        elsif status == Review::STATUS_RESOLVED
+          if resolution == 'FALSE-POSITIVE'
+            review.set_false_positive(true, :user => current_user, :text => comment, :violation_id => violation_id)
+          elsif resolution == 'FIXED'
+            review.create_comment(:user => current_user, :text => comment)
+            review.resolve
+          else
+            raise "Incorrect resolution."
+          end
+        else
+          raise "Incorrect status."
+        end
+
+        # 4- And finally send back the review
+        render_reviews([review], convert_markdown)
       end
-      
-      # 3- Create the comment and handle false-positive
-      review = violation.review
-      if false_positive
-        review.set_false_positive(false_positive, :user => current_user, :text => text, :violation_id => params[:violation_id])
-      else
-        review.create_comment(:user => current_user, :text => text)
-      end
-      
-      # 4- And finally send back the review
-      render_reviews([review], convert_markdown)
-    
     rescue ApiException => e
       render_error(e.msg, e.code)
 
@@ -91,136 +102,160 @@ class Api::ReviewsController < Api::ApiController
       render_error(e.message, 400)
     end
   end
-  
-  
+
   #
-  # --- Update a review = reassign, flag as false positive, add/edit a comment --- 
+  # --- Add comment ---
   #
-  # PUT /api/reviews
+  # PUT /api/reviews/add_comment
   # Required parameters:
   # - 'id' : the review id
-  #
-  # Optional parameters :
-  # - 'text' : used to edit the text of the last comment (if the last comment belongs to the current user)
-  # - 'new_text' : used to add a comment 
-  # - 'assignee' : login used to create a review directly assigned. Use 'none' to unassign.
-  # - 'false_positive' (true/false) : in conjunction with 'new_text' (mandatory in this case), changes the 
-  #                                   state 'false_positive' of the review
-  # - 'status' : used to change the status of the review. For the moment, only "RESOLVED" or "REOPENED" are accepted.
+  # - 'comment' : the text of the comment
   #
   # Example :
-  # - PUT "/api/reviews/?id=1&false_positive=true&new_text=Because
-  # - PUT "/api/reviews/?id=1&assignee=fabrice
-  # - PUT "/api/reviews/?id=1&assignee=none
-  # - PUT "/api/reviews/?id=1&new_text=New%20Comment!
-  # - PUT "/api/reviews/?id=1&text=Modified%20Comment!
-  # - PUT "/api/reviews/?id=1&status=RESOLVED
+  # - PUT "/api/reviews/add_comment/1?comment=New%20Comment!"
   #
-  def update
+  def add_comment
     begin
-      # 1- Get some parameters
-      convert_markdown=(params[:output]=='HTML')
-      text = params[:text]
-      new_text = params[:new_text]
-      assignee = params[:assignee]
-      false_positive = params[:false_positive]
-      status = params[:status]
-        
-      # 2- Get the review or create one
-      raise "No 'id' parameter has been provided." unless params[:id]
-      review = Review.find(params[:id], :include => ['project'])
-      unless has_rights_to_modify?(review.project)
-        access_denied
-        return
+      review = get_review(params[:id])
+      review.transaction do
+        comment = params[:comment] || request.raw_post
+        if review.isClosed?
+          raise "Closed review can not be commented."
+        end
+        raise "Comment must be provided." unless comment && !comment.blank?
+        review.create_comment(:user => current_user, :text => comment)
       end
-      
-      # 3- Modify the review
-      if !false_positive.blank?
-        raise "'false_positive' parameter must be either 'true' or 'false'." unless false_positive=='true' || false_positive=='false'
-        raise "Review 'false_positive' status is already " + false_positive if review.false_positive == false_positive
-        raise "'new_text' parameter is mandatory with 'false_positive'." if new_text.blank?
-        review.set_false_positive(false_positive=='true', :user => current_user, :text => new_text)
-      elsif !assignee.blank?
-        if (assignee=='none')
+      render_reviews([review], params[:output] == 'HTML')
+    rescue ApiException => e
+      render_error(e.msg, e.code)
+    rescue Exception => e
+      render_error(e.message, 400)
+    end
+  end
+
+  #
+  # --- Reassign ---
+  #
+  # PUT /api/reviews/reassign
+  # Required parameters:
+  # - 'id' : the review id
+  # - 'assignee' : new assignee
+  #
+  # Example :
+  # - PUT "/api/reviews/reassign/1?assignee=fabrice"
+  # - PUT "/api/reviews/reassign/1?assignee="
+  #
+  def reassign
+    begin
+      review = get_review(params[:id])
+      review.transaction do
+        assignee = params[:assignee]
+        if !review.isOpen? && !review.isReopened?
+          raise "Only open review can be reassigned."
+        end
+        if assignee.blank?
           user = nil
         else
           user = find_user(assignee)
-          raise "No user found with the following login: "+assignee unless user
+          raise "Assignee not found." unless user
         end
         review.reassign(user)
-      elsif !new_text.blank?
-        review.create_comment(:user => current_user, :text => new_text)
-      elsif !text.blank?
-        raise "You don't have the rights to edit the last comment of this review." unless review.comments.last.user == current_user
-        review.edit_last_comment(text)
-      elsif !status.blank?
-        raise "Only 'RESOLVED' or 'REOPENED' can be used as a new status for a review." unless status=='RESOLVED' || status=='REOPENED'
-        review.status=status
-        review.save!
-      else
-        render_error("The given parameter combination is invalid for updating the review.", 403)
-        return
       end
-      
-      # 4- And finally send back the review
-      render_reviews([review], convert_markdown)
-    
+      render_reviews([review], params[:output] == 'HTML')
     rescue ApiException => e
       render_error(e.msg, e.code)
-
     rescue Exception => e
       render_error(e.message, 400)
     end
   end
-  
-  
+
   #
-  # --- Delete the last comment of a review --- 
+  # --- Resolve ---
   #
-  # DELETE /api/reviews
+  # PUT /api/reviews/resolve
   # Required parameters:
   # - 'id' : the review id
-  # - 'comment_id' : the id of the comment to delete (for the moment, only the last comment can be deleted)
+  # - 'resolution' : can be 'FIXED' or 'FALSE-POSITIVE'
+  # - 'comment' : the text of the comment
   #
   # Example :
-  # - DELETE "/api/reviews/?id=1&comment=5
+  # - PUT "/api/reviews/resolve/1?resolution=FALSE-POSITIVE&comment=No%20violation%20here"
+  # - PUT "/api/reviews/resolve/1?resolution=FIXED"
+  # - PUT "/api/reviews/resolve/1?resolution=FIXED&comment=This%20violation%20was%20fixed%20by%20me"
   #
-  def destroy
+  def resolve
     begin
-      # 1- Get some parameters
-      convert_markdown=(params[:output]=='HTML')
-      comment_id = params[:comment_id]
-      raise "'comment_id' parameter is missing." unless comment_id
-        
-      # 2- Get the review or create one
-      raise "No 'id' parameter has been provided." unless params[:id]
-      review = Review.find(params[:id], :include => ['project', 'review_comments'])
-      unless has_rights_to_modify?(review.project)
-        access_denied
-        return
+      review = get_review(params[:id])
+      review.transaction do
+        resolution = params[:resolution]
+        comment = params[:comment] || request.raw_post
+        if !review.isOpen? && !review.isReopened?
+          raise "Only open review can be resolved."
+        end
+        if resolution == 'FALSE-POSITIVE'
+          raise "Comment must be provided." unless comment && !comment.blank?
+          review.set_false_positive(true, :user => current_user, :text => comment)
+        elsif resolution == 'FIXED'
+          review.create_comment(:user => current_user, :text => comment) unless comment.blank?
+          review.resolve
+        else
+          raise "Incorrect resolution."
+        end
       end
-      
-      # 3- Delete the last comment if possible
-      raise "Cannot delete the only existing comment of this review." if review.comments.size == 1
-      last_comment = review.comments.last
-      raise "Only the last comment of a review can be deleted" unless last_comment.id == comment_id
-      raise "You do not have the rights to edit this comment as it is not yours." unless last_comment.user == current_user
-      review.delete_comment(last_comment.id)
-      
-      # 4- And finally send back the review
-      render_reviews([review], convert_markdown)
-    
+      render_reviews([review], params[:output] == 'HTML')
     rescue ApiException => e
       render_error(e.msg, e.code)
-  
     rescue Exception => e
       render_error(e.message, 400)
     end
   end
-  
-  
+
+  #
+  # --- Reopen ---
+  #
+  # PUT /api/reviews/reopen
+  # Required parameters:
+  # - 'id' : the review id
+  # - 'comment' : the text of the comment
+  #
+  # Example :
+  # - PUT "/api/reviews/reopen/1"
+  # - PUT "/api/reviews/reopen/1?comment=Not%20fixed"
+  #
+  def reopen
+    begin
+      review = get_review(params[:id])
+      review.transaction do
+        comment = params[:comment] || request.raw_post
+        if !review.isResolved?
+          raise "Only resolved review can be reopened."
+        end
+        if review.resolution == 'FALSE-POSITIVE'
+          raise "Comment must be provided." unless comment && !comment.blank?
+          review.set_false_positive(false, :user => current_user, :text => comment)
+        else
+          review.reopen
+          review.create_comment(:user => current_user, :text => comment) unless comment.blank?
+        end
+      end
+      render_reviews([review], params[:output] == 'HTML')
+    rescue ApiException => e
+      render_error(e.msg, e.code)
+    rescue Exception => e
+      render_error(e.message, 400)
+    end
+  end
+
+
   private
-  
+
+  def get_review(id)
+    raise "No 'id' parameter has been provided." unless id
+    review = Review.find(id, :include => ['project'])
+    raise ApiException.new(401, 'Unauthorized') unless has_rights_to_modify?(review.project)
+    return review
+  end
+
   def render_reviews(reviews, convert_markdown)
     respond_to do |format|
       format.json { render :json => jsonp(Review.reviews_to_json(reviews, convert_markdown)) }
@@ -228,14 +263,14 @@ class Api::ReviewsController < Api::ApiController
       format.text { render :text => text_not_supported }
     end
   end
-  
+
   def find_user(login)
     unless login.blank?
       users = User.find(:all, :conditions => ["login = ?", login])
       users[0] if users.size > 0
-    end 
+    end
   end
-  
+
   def has_rights_to_modify?(object)
     current_user && has_role?(:user, object)
   end
@@ -248,5 +283,5 @@ class Api::ReviewsController < Api::ApiController
       violation.save
     end
   end
-  
+
 end

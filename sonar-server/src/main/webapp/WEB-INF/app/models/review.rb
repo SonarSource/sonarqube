@@ -137,6 +137,10 @@ class Review < ActiveRecord::Base
     status == STATUS_REOPENED
   end
   
+  def isOpen?
+    status == STATUS_OPEN
+  end
+  
   def reopen
     self.status = STATUS_REOPENED
     self.resolution = nil
@@ -284,8 +288,8 @@ class Review < ActiveRecord::Base
       xml.author(user.login)
       xml.assignee(assignee.login) if assignee
       xml.title(title)
-      xml.falsePositive(false_positive)
       xml.status(status)
+      xml.resolution(resolution) if resolution
       xml.severity(severity)
       xml.resource(resource.kee)  if resource
       xml.line(resource_line) if resource_line && resource_line>0
@@ -319,8 +323,8 @@ class Review < ActiveRecord::Base
     json['author'] = user.login
     json['assignee'] = assignee.login if assignee
     json['title'] = title if title
-    json['falsePositive'] = false_positive
     json['status'] = status
+    json['resolution'] = resolution if resolution
     json['severity'] = severity
     json['resource'] = resource.kee if resource
     json['line'] = resource_line if resource_line && resource_line>0
@@ -337,8 +341,6 @@ class Review < ActiveRecord::Base
     json['comments'] = comments
     json
   end
-
-  
 
   #
   #

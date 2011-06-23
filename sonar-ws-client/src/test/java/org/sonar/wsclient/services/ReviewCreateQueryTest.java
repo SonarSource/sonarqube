@@ -27,22 +27,34 @@ import org.junit.Test;
 public class ReviewCreateQueryTest extends QueryTestCase {
 
   @Test
-  public void testCreateSimpleReview() {
-    ReviewCreateQuery query = ReviewCreateQuery.createSimpleReviewQuery(13L, "Hello World!");
-    assertThat(query.getUrl(), is("/api/reviews/?violation_id=13&text=Hello+World%21&"));
+  public void testCreateReview() {
+    ReviewCreateQuery query = new ReviewCreateQuery()
+        .setViolationId(13L)
+        .setComment("Hello World!");
+    assertThat(query.getUrl(), is("/api/reviews?violation_id=13&"));
+    assertThat(query.getBody(), is("Hello World!"));
     assertThat(query.getModelClass().getName(), is(Review.class.getName()));
   }
 
   @Test
   public void testCreateAssignedReview() {
-    ReviewCreateQuery query = ReviewCreateQuery.createAssignedReviewQuery(13L, "Hello World!", "fabrice");
-    assertThat(query.getUrl(), is("/api/reviews/?violation_id=13&text=Hello+World%21&assignee=fabrice&"));
+    ReviewCreateQuery query = new ReviewCreateQuery()
+        .setViolationId(13L)
+        .setAssignee("fabrice")
+        .setComment("Hello World!");
+    assertThat(query.getUrl(), is("/api/reviews?violation_id=13&assignee=fabrice&"));
+    assertThat(query.getBody(), is("Hello World!"));
   }
 
   @Test
-  public void testCreateFalsePositiveReview() {
-    ReviewCreateQuery query = ReviewCreateQuery.createFalsePositiveReviewQuery(13L, "Hello World!");
-    assertThat(query.getUrl(), is("/api/reviews/?violation_id=13&text=Hello+World%21&false_positive=true&"));
+  public void testCreateResolvedReview() {
+    ReviewCreateQuery query = new ReviewCreateQuery()
+        .setViolationId(13L)
+        .setStatus("RESOLVED")
+        .setResolution("FALSE-POSITIVE")
+        .setComment("Hello World!");
+    assertThat(query.getUrl(), is("/api/reviews?violation_id=13&status=RESOLVED&resolution=FALSE-POSITIVE&"));
+    assertThat(query.getBody(), is("Hello World!"));
   }
 
 }

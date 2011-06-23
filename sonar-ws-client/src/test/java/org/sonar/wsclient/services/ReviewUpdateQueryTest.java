@@ -19,6 +19,7 @@
  */
 package org.sonar.wsclient.services;
 
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -28,33 +29,38 @@ public class ReviewUpdateQueryTest extends QueryTestCase {
 
   @Test
   public void testAddComment() {
-    ReviewUpdateQuery query = ReviewUpdateQuery.addCommentQuery(13L, "Hello World!");
-    assertThat(query.getUrl(), is("/api/reviews/?id=13&new_text=Hello+World%21&"));
+    ReviewUpdateQuery query = ReviewUpdateQuery.addComment(13, "Hello World!");
+    assertThat(query.getUrl(), is("/api/reviews/add_comment/13?"));
+    assertThat(query.getBody(), is("Hello World!"));
     assertThat(query.getModelClass().getName(), is(Review.class.getName()));
   }
 
   @Test
-  public void testEditLastComment() {
-    ReviewUpdateQuery query = ReviewUpdateQuery.editLastCommentQuery(13L, "Hello World!");
-    assertThat(query.getUrl(), is("/api/reviews/?id=13&text=Hello+World%21&"));
-  }
-
-  @Test
   public void testReassign() {
-    ReviewUpdateQuery query = ReviewUpdateQuery.reassignQuery(13L, "fabrice");
-    assertThat(query.getUrl(), is("/api/reviews/?id=13&assignee=fabrice&"));
+    ReviewUpdateQuery query = ReviewUpdateQuery.reassign(13, "fabrice");
+    assertThat(query.getUrl(), is("/api/reviews/reassign/13?assignee=fabrice&"));
+    assertThat(query.getBody(), nullValue());
   }
 
   @Test
-  public void testUpdateFalsePositive() {
-    ReviewUpdateQuery query = ReviewUpdateQuery.updateFalsePositiveQuery(13L, "Hello World!", Boolean.TRUE);
-    assertThat(query.getUrl(), is("/api/reviews/?id=13&new_text=Hello+World%21&false_positive=true&"));
+  public void testResolveAsFalsePositive() {
+    ReviewUpdateQuery query = ReviewUpdateQuery.resolve(13, "FALSE-POSITIVE").setComment("Hello World!");
+    assertThat(query.getUrl(), is("/api/reviews/resolve/13?resolution=FALSE-POSITIVE&"));
+    assertThat(query.getBody(), is("Hello World!"));
   }
 
   @Test
-  public void testChangeStatus() {
-    ReviewUpdateQuery query = ReviewUpdateQuery.changeStatusQuery(13L, "RESOLVED");
-    assertThat(query.getUrl(), is("/api/reviews/?id=13&status=RESOLVED&"));
+  public void testResolveAsFixed() {
+    ReviewUpdateQuery query = ReviewUpdateQuery.resolve(13, "FIXED");
+    assertThat(query.getUrl(), is("/api/reviews/resolve/13?resolution=FIXED&"));
+    assertThat(query.getBody(), nullValue());
+  }
+
+  @Test
+  public void testReopen() {
+    ReviewUpdateQuery query = ReviewUpdateQuery.reopen(13);
+    assertThat(query.getUrl(), is("/api/reviews/reopen/13?"));
+    assertThat(query.getBody(), nullValue());
   }
 
 }

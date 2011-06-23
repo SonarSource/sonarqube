@@ -25,56 +25,12 @@ package org.sonar.wsclient.services;
 public class ReviewCreateQuery extends CreateQuery<Review> {
 
   private Long violationId;
-  private String text;
+  private String comment;
   private String assignee;
-  private Boolean falsePositive;
+  private String status;
+  private String resolution;
 
   public ReviewCreateQuery() {
-  }
-
-  /**
-   * Builds a request that will create a simple review on a violation, without any assignee.
-   * 
-   * @param violationId
-   *          The id of the violation that is reviewed
-   * @param text
-   *          The comment of the review
-   */
-  public static ReviewCreateQuery createSimpleReviewQuery(Long violationId, String text) {
-    ReviewCreateQuery query = new ReviewCreateQuery();
-    query.setText(text);
-    query.setViolationId(violationId);
-    return query;
-  }
-
-  /**
-   * Builds a request that will create a simple review on a violation and that will be assigned to the given user.
-   * 
-   * @param violationId
-   *          The id of the violation that is reviewed
-   * @param text
-   *          The comment of the review
-   * @param userLogin
-   *          The login of the user whom this review will be assigned to
-   */
-  public static ReviewCreateQuery createAssignedReviewQuery(Long violationId, String text, String userLogin) {
-    ReviewCreateQuery query = createSimpleReviewQuery(violationId, text);
-    query.setAssignee(userLogin);
-    return query;
-  }
-
-  /**
-   * Builds a request that will create a false-positive review on a violation.
-   * 
-   * @param violationId
-   *          The id of the violation that is reviewed
-   * @param text
-   *          The comment of the review
-   */
-  public static ReviewCreateQuery createFalsePositiveReviewQuery(Long violationId, String text) {
-    ReviewCreateQuery query = createSimpleReviewQuery(violationId, text);
-    query.setFalsePositive(Boolean.TRUE);
-    return query;
   }
 
   public Long getViolationId() {
@@ -86,12 +42,12 @@ public class ReviewCreateQuery extends CreateQuery<Review> {
     return this;
   }
 
-  public String getText() {
-    return text;
+  public String getComment() {
+    return comment;
   }
 
-  public ReviewCreateQuery setText(String text) {
-    this.text = text;
+  public ReviewCreateQuery setComment(String comment) {
+    this.comment = comment;
     return this;
   }
 
@@ -104,34 +60,41 @@ public class ReviewCreateQuery extends CreateQuery<Review> {
     return this;
   }
 
-  public Boolean getFalsePositive() {
-    return falsePositive;
+  public String getStatus() {
+    return status;
   }
 
-  public ReviewCreateQuery setFalsePositive(Boolean falsePositive) {
-    this.falsePositive = falsePositive;
+  public ReviewCreateQuery setStatus(String status) {
+    this.status = status;
+    return this;
+  }
+
+  public String getResolution() {
+    return resolution;
+  }
+
+  public ReviewCreateQuery setResolution(String resolution) {
+    this.resolution = resolution;
     return this;
   }
 
   @Override
   public String getUrl() {
     StringBuilder url = new StringBuilder();
-    url.append(ReviewQuery.BASE_URL);
-    url.append("/");
-    url.append('?');
+    url.append(ReviewQuery.BASE_URL).append('?');
     appendUrlParameter(url, "violation_id", getViolationId());
-    appendUrlParameter(url, "text", getText());
     appendUrlParameter(url, "assignee", getAssignee());
-    appendUrlParameter(url, "false_positive", getFalsePositive());
+    appendUrlParameter(url, "status", getStatus());
+    appendUrlParameter(url, "resolution", getResolution());
     return url.toString();
   }
 
   /**
-   * Property 'text' is transmitted through request body as content may exceed URL size allowed by the server.
+   * Property {@link #comment} is transmitted through request body as content may exceed URL size allowed by the server.
    */
   @Override
   public String getBody() {
-    return text;
+    return comment;
   }
 
   @Override
