@@ -19,6 +19,10 @@
  */
 package org.sonar.api.utils;
 
+import org.apache.commons.lang.ClassUtils;
+
+import java.util.List;
+
 /**
  * A utility class for annotations
  *
@@ -42,7 +46,7 @@ public final class AnnotationUtils {
     }
 
     if (result==null) {
-      Class[] interfaces = initialClass.getInterfaces();
+      List<Class> interfaces = ClassUtils.getAllInterfaces(initialClass);
       for (Class anInterface : interfaces) {
         result = (A)anInterface.getAnnotation(annotationClass);
         if (result!=null) {

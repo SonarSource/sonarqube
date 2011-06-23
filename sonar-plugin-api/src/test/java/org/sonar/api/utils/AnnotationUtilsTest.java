@@ -85,6 +85,9 @@ class ChildClass extends SuperClass {
 interface AnnotatedInterface {
 }
 
-class ImplementedClass implements AnnotatedInterface {
+abstract class AbstractClass implements AnnotatedInterface {
+  
+}
+class ImplementedClass extends AbstractClass {
 
 }
