@@ -6,7 +6,7 @@
      title = "Why is it not a false-positive anymore ?"
      button = "Unflag as false-positive"
    end
- %>
+%>
 <form method="POST" action="violation_flag_as_false_positive">
   <input type="hidden" name="id" value="<%= params[:id] -%>"/>
   <% if params[:false_positive]=='true' -%>
