@@ -129,9 +129,9 @@ module UsersHelper
     param_id_value = param_value
     
     unless param_id_value.blank?
-      user = User.find(param_id_value)
+      user = User.find(:all, :conditions => [ "login = ?", param_id_value ]).first
       param_displayed_value = user.name if user
-      param_displayed_value += " (me)" if user && current_user && current_user.id == param_id_value.to_i
+      param_displayed_value += " (me)" if user && current_user && current_user.login == param_id_value
     end
     
     server_url = url_for :controller => 'users', :action => 'autocomplete'

@@ -72,7 +72,7 @@ class ReviewsController < ApplicationController
       return
     end
 
-    assignee = User.find params[:assignee_id] unless params[:assignee_id].blank?
+    assignee = findUserByLogin(params[:assignee_login]) unless params[:assignee_login].blank?
     @review.assignee = assignee
     @review.save
 
@@ -185,7 +185,7 @@ class ReviewsController < ApplicationController
     sanitize_violation(violation)
 
     violation.build_review(:user_id => current_user.id)
-    assignee = User.find params[:assignee_id] unless params[:assignee_id].blank?
+    assignee = findUserByLogin(params[:assignee_login]) unless params[:assignee_login].blank?
     violation.review.assignee = assignee
     violation.review.save!
     violation.save
@@ -293,11 +293,15 @@ class ReviewsController < ApplicationController
 
   ## -------------- PRIVATE -------------- ##
   private
-
+  
+  def findUserByLogin(login)
+    User.find(:all, :conditions => [ "login = ?", login ]).first
+  end
+  
   def init_params
-    default_user = (current_user ? current_user.id : '')
-    @assignee_id = params[:assignee_id] || default_user
-    @author_id = params[:author_id] || ''
+    default_user = (current_user ? current_user.login : '')
+    @assignee_login = params[:assignee_login] || default_user
+    @author_login = params[:author_login] || ''
     @severities = filter_any(params[:severities]) || ['']
     @statuses = filter_any(params[:statuses]) || [Review::STATUS_OPEN, Review::STATUS_REOPENED]
     @projects = filter_any(params[:projects]) || ['']
@@ -325,11 +329,11 @@ class ReviewsController < ApplicationController
     unless @severities == ['']
       options['severities']=@severities.join(',')
     end
-    if @author_id
-      options['authors']=@author_id.to_s
+    if @author_login
+      options['authors']=@author_login
     end
-    if @assignee_id
-      options['assignees']=@assignee_id.to_s
+    if @assignee_login
+      options['assignees']=@assignee_login
     end
     if @false_positives
       options['false_positives']=@false_positives

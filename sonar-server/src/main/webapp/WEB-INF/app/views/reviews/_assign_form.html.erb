@@ -1,7 +1,7 @@
 <form method="post"
-      onsubmit="if ($('assignee_id').value != '') { new Ajax.Updater('review', '<%= url_for :action => 'assign' -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); };return false;">
+      onsubmit="if ($('assignee_login').value != '') { new Ajax.Updater('review', '<%= url_for :action => 'assign' -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); };return false;">
   <%= hidden_field_tag :id, params[:review_id] -%>
-  <%= user_autocomplete_field "assignee_id", "" -%>
+  <%= user_autocomplete_field "assignee_login", "" -%>
   &nbsp;&nbsp;
   <%= submit_to_remote "submit_btn", "Assign", 
          :url => { :action => 'assign' },
@@ -11,6 +11,6 @@
          :url => { :action => 'show', :id => params[:review_id] },
          :update => "review" %>
   <script>
-  	$('autocompleteText-assignee_id').focus()
+  	$('autocompleteText-assignee_login').focus()
   </script>
 </form>

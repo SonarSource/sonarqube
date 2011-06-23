@@ -66,10 +66,10 @@ function launchSearch(columnName, link) {
         </td>
         <td width="1%" nowrap>
           <span class="note">Created by</span><br/>
-          <%= user_autocomplete_field "author_id", @author_id, { :class => "max-width" } -%>
+          <%= user_autocomplete_field "author_login", @author_login, { :class => "max-width" } -%>
           <br/>
           <span class="note">Assigned to</span><br/>
-          <%= user_autocomplete_field "assignee_id", @assignee_id, { :class => "max-width" } -%>
+          <%= user_autocomplete_field "assignee_login", @assignee_login, { :class => "max-width" } -%>
           <br/>
           <br/>
           <select name="false_positives" id="false_positives" onchange="if(this.value=='only' || this.value=='with') {$('assignee_id').value = ''; $('autocompleteText-assignee_id').value = '';};">
