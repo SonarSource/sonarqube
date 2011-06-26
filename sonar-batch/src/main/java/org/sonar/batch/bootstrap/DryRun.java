@@ -20,12 +20,16 @@
 package org.sonar.batch.bootstrap;
 
 import org.apache.commons.configuration.Configuration;
+import org.sonar.api.utils.Logs;
 
 public class DryRun {
   private boolean enabled;
 
   public DryRun(Configuration conf) {
-    enabled=conf.getBoolean("sonar.dryRun", Boolean.FALSE);
+    enabled = conf.getBoolean("sonar.dryRun", Boolean.FALSE);
+    if (enabled) {
+      Logs.INFO.info("Dry run");
+    }
   }
 
   DryRun(boolean enabled) {
