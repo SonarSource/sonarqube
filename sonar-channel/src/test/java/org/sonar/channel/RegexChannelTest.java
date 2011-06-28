@@ -28,13 +28,13 @@ public class RegexChannelTest {
 
   @Test
   public void shouldMatch() {
-    ChannelDispatcher<StringBuilder> dispatcher = new ChannelDispatcher<StringBuilder>(new MyWordChannel(), new BlackholeChannel());
+    ChannelDispatcher<StringBuilder> dispatcher = ChannelDispatcher.builder().addChannel(new MyWordChannel()).addChannel(new BlackholeChannel()).build();
     StringBuilder output = new StringBuilder();
     dispatcher.consume(new CodeReader("my word"), output);
     assertThat(output.toString(), is("<w>my</w> <w>word</w>"));
   }
 
-  private class MyWordChannel extends RegexChannel<StringBuilder> {
+  private static class MyWordChannel extends RegexChannel<StringBuilder> {
 
     public MyWordChannel() {
       super("\\w++");
@@ -46,7 +46,7 @@ public class RegexChannelTest {
     }
   }
 
-  class BlackholeChannel extends Channel<StringBuilder> {
+  private static class BlackholeChannel extends Channel<StringBuilder> {
 
     @Override
     public boolean consume(CodeReader code, StringBuilder output) {

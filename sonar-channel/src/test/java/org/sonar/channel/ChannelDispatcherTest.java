@@ -34,14 +34,21 @@ public class ChannelDispatcherTest {
     assertThat(output.toString(), is("twowords"));
   }
 
+  @Test
+  public void shouldAddChannels() {
+    ChannelDispatcher<StringBuilder> dispatcher = ChannelDispatcher.builder().addChannels(new SpaceDeletionChannel(), new FakeChannel()).build();
+    assertThat(dispatcher.getChannels().length, is(2));
+    assertThat(dispatcher.getChannels()[0], is(SpaceDeletionChannel.class));
+    assertThat(dispatcher.getChannels()[1], is(FakeChannel.class));
+  }
+
   @Test(expected = IllegalStateException.class)
   public void shouldThrowExceptionWhenNoChannelToConsumeNextCharacter() {
     ChannelDispatcher<StringBuilder> dispatcher = ChannelDispatcher.builder().failIfNoChannelToConsumeOneCharacter().build();
     dispatcher.consume(new CodeReader("two words"), new StringBuilder());
   }
 
-  private class SpaceDeletionChannel extends Channel<StringBuilder> {
-
+  private static class SpaceDeletionChannel extends Channel<StringBuilder> {
     @Override
     public boolean consume(CodeReader code, StringBuilder output) {
       if (code.peek() == ' ') {
@@ -51,6 +58,13 @@ public class ChannelDispatcherTest {
       }
       return true;
     }
-
   }
+
+  private static class FakeChannel extends Channel<StringBuilder> {
+    @Override
+    public boolean consume(CodeReader code, StringBuilder output) {
+      return true;
+    }
+  }
+
 }

@@ -48,13 +48,11 @@ public class CodeBuffer implements CharSequence {
   private static final char LF = '\n';
   private static final char CR = '\r';
   private int tabWidth;
-  private CodeReaderConfiguration configuration;
 
   private boolean recordingMode = false;
   private StringBuilder recordedCharacters = new StringBuilder();
 
   protected CodeBuffer(Reader initialCodeReader, CodeReaderConfiguration configuration) {
-    this.configuration = configuration;
     lastChar = -1;
     cursor = new Cursor();
     bufferCapacity = configuration.getBufferCapacity();

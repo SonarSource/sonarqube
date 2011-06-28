@@ -36,7 +36,7 @@ public class ChannelDispatcher<OUTPUT> extends Channel<OUTPUT> {
   private final Channel[] channels;
 
   /**
-   * @deprecated please use the builder() method
+   * @deprecated in version 2.9. Please use the builder() method
    */
   @SuppressWarnings("rawtypes")
   @Deprecated
@@ -45,7 +45,7 @@ public class ChannelDispatcher<OUTPUT> extends Channel<OUTPUT> {
   }
 
   /**
-   * @deprecated please use the builder() method
+   * @deprecated in version 2.9. Please use the builder() method
    */
   @SuppressWarnings("rawtypes")
   @Deprecated
@@ -54,7 +54,7 @@ public class ChannelDispatcher<OUTPUT> extends Channel<OUTPUT> {
   }
 
   /**
-   * @deprecated please use the builder() method
+   * @deprecated in version 2.9. Please use the builder() method
    */
   @SuppressWarnings("rawtypes")
   @Deprecated
@@ -94,6 +94,10 @@ public class ChannelDispatcher<OUTPUT> extends Channel<OUTPUT> {
     return true;
   }
 
+  Channel[] getChannels() {
+    return channels;
+  }
+
   /**
    * Get a Builder instance to build a new ChannelDispatcher
    */
@@ -111,6 +115,13 @@ public class ChannelDispatcher<OUTPUT> extends Channel<OUTPUT> {
 
     public Builder addChannel(Channel channel) {
       channels.add(channel);
+      return this;
+    }
+
+    public Builder addChannels(Channel... c) {
+      for (Channel channel : c) {
+        addChannel(channel);
+      }
       return this;
     }
 
