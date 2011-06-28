@@ -43,7 +43,7 @@ public class ReviewQuery extends Query<Review> {
   private String[] authorLoginsOrIds;
   private String[] assigneeLoginsOrIds;
   private String output;
-  private String falsePositives;
+  private String[] resolutions;
 
   public ReviewQuery() {
   }
@@ -215,28 +215,16 @@ public class ReviewQuery extends Query<Review> {
 
   /**
    * @since 2.9
-   * @return the false_positives
    */
-  public String getFalsePositives() {
-    return falsePositives;
+  public String[] getResolutions() {
+    return resolutions;
   }
 
   /**
-   * Sets the 'false_positives' parameter that can be:
-   * <ul>
-   * <li>only</li>
-   * <li>with</li>
-   * <li>without</li>
-   * </ul>
-   * , 'with' being the default one on the server side. <br>
-   * <br>
-   * 
    * @since 2.9
-   * @param falsePositives
-   *          the false_positives
    */
-  public ReviewQuery setFalsePositives(String falsePositives) {
-    this.falsePositives = falsePositives;
+  public ReviewQuery setResolutions(String... resolutions) {
+    this.resolutions = resolutions;
     return this;
   }
 
@@ -256,8 +244,8 @@ public class ReviewQuery extends Query<Review> {
     appendUrlParameter(url, "authors", authorLoginsOrIds);
     appendUrlParameter(url, "assignees", assigneeLoginsOrIds);
     appendUrlParameter(url, "output", output);
-    appendUrlParameter(url, "false_positives", falsePositives);
-    if (falsePositives == null && reviewType != null) {
+    appendUrlParameter(url, "resolutions", resolutions);
+    if (resolutions == null && reviewType != null) {
       // Use of the 2.8 deprecated API: handle backward compatibility
       appendUrlParameter(url, "review_type", reviewType);
     }

@@ -27,6 +27,20 @@ class Api::ReviewsController < Api::ApiController
   verify :method => :post, :only => [ :create ]
   #verify :method => :delete, :only => [ :destroy ]
 
+  #
+  # --- Search reviews ---
+  # Since 2.8
+  #
+  # GET /api/reviews
+  # Optional parameters :
+  # - 'statuses'
+  # - 'resolutions' (since 2.9)
+  # - 'severities'
+  # - 'projects'
+  # - 'resources'
+  # - 'authors'
+  # - 'assignees'
+  #
   def index
     reviews=select_authorized(:user, Review.search(params), :project)
 
@@ -35,6 +49,7 @@ class Api::ReviewsController < Api::ApiController
 
   #
   # --- Creation of a review ---
+  # Since 2.9
   #
   # POST /api/reviews
   # Required parameters:
@@ -105,6 +120,7 @@ class Api::ReviewsController < Api::ApiController
 
   #
   # --- Add comment ---
+  # Since 2.9
   #
   # PUT /api/reviews/add_comment
   # Required parameters:
@@ -135,6 +151,7 @@ class Api::ReviewsController < Api::ApiController
 
   #
   # --- Reassign ---
+  # Since 2.9
   #
   # PUT /api/reviews/reassign
   # Required parameters:
@@ -171,6 +188,7 @@ class Api::ReviewsController < Api::ApiController
 
   #
   # --- Resolve ---
+  # Since 2.9
   #
   # PUT /api/reviews/resolve
   # Required parameters:
@@ -212,6 +230,7 @@ class Api::ReviewsController < Api::ApiController
 
   #
   # --- Reopen ---
+  # Since 2.9
   #
   # PUT /api/reviews/reopen
   # Required parameters:

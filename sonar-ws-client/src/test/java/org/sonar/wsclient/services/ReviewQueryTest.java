@@ -29,7 +29,7 @@ import org.junit.Test;
 public class ReviewQueryTest extends QueryTestCase {
 
   @Test
-  public void testSimpleQueryForResource() {
+  public void queryForResource() {
     Resource resource = mock(Resource.class);
     when(resource.getId()).thenReturn(69);
     ReviewQuery query = ReviewQuery.createForResource(resource);
@@ -38,14 +38,30 @@ public class ReviewQueryTest extends QueryTestCase {
   }
 
   @Test
+  public void queryById() {
+    assertThat(new ReviewQuery().setId(13L).getUrl(), is("/api/reviews?id=13&"));
+    assertThat(new ReviewQuery().setIds(10L, 11L).getUrl(), is("/api/reviews?ids=10,11&"));
+  }
+
+  @Test
+  public void queryByResolution() {
+    ReviewQuery query = new ReviewQuery().setStatuses("RESOLVED").setResolutions("FALSE-POSITIVE");
+    assertThat(query.getUrl(), is("/api/reviews?statuses=RESOLVED&resolutions=FALSE-POSITIVE&"));
+  }
+
+  @Test
   public void resourceTreeViolations() {
-    ReviewQuery query = new ReviewQuery();
-    query.setIds(10L, 11L).setStatuses("OPEN").setSeverities("MINOR", "INFO").setProjectKeysOrIds("com.sonar.foo:bar")
-        .setResourceKeysOrIds("2", "3").setAuthorLoginsOrIds("20").setAssigneeLoginsOrIds("admin").setOutput("html")
-        .setFalsePositives("without");
+    ReviewQuery query = new ReviewQuery()
+        .setStatuses("OPEN")
+        .setSeverities("MINOR", "INFO")
+        .setProjectKeysOrIds("com.sonar.foo:bar")
+        .setResourceKeysOrIds("2", "3")
+        .setAuthorLoginsOrIds("20")
+        .setAssigneeLoginsOrIds("admin")
+        .setOutput("html");
     assertThat(
         query.getUrl(),
-        is("/api/reviews?ids=10,11&statuses=OPEN&severities=MINOR,INFO&projects=com.sonar.foo%3Abar&resources=2,3&authors=20&assignees=admin&output=html&false_positives=without&"));
+        is("/api/reviews?statuses=OPEN&severities=MINOR,INFO&projects=com.sonar.foo%3Abar&resources=2,3&authors=20&assignees=admin&output=html&"));
   }
 
   @Test

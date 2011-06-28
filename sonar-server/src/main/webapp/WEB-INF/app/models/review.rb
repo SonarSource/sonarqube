@@ -176,14 +176,24 @@ class Review < ActiveRecord::Base
       end
     end
     # --- End of code for backward compatibility code ---
-      
+
+    # --- For UI
     false_positives = options['false_positives']
     if false_positives == "only"
       conditions << "resolution='FALSE-POSITIVE'"
     elsif false_positives == "without"
       conditions << "(resolution<>'FALSE-POSITIVE' OR resolution IS NULL)"
     end
-    
+    # --- End
+
+    # --- For web-service
+    resolutions = options['resolutions'].split(',') if options['resolutions']
+    if resolutions && resolutions.size>0 && !resolutions[0].blank?
+      conditions << 'resolution in (:resolutions)'
+      values[:resolutions] = resolutions
+    end
+    # --- End
+
     ids=options['ids'].split(',') if options['ids']
     if options['id']
       conditions << 'id=:id'
