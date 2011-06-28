@@ -81,6 +81,7 @@ public class ViolationTrackingDecoratorTest {
 
     Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(refernceViolation));
     assertThat(mapping.get(newViolation), equalTo(refernceViolation));
+    assertThat(newViolation.isNew(), is(false));
   }
 
   @Test
@@ -117,6 +118,7 @@ public class ViolationTrackingDecoratorTest {
 
     Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
     assertThat(mapping.get(newViolation), is(nullValue()));
+    assertThat(newViolation.isNew(), is(true));
   }
 
   @Test
@@ -128,6 +130,7 @@ public class ViolationTrackingDecoratorTest {
 
     Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
     assertThat(mapping.get(newViolation), equalTo(referenceViolation));
+    assertThat(newViolation.isNew(), is(false));
   }
 
   @Test
@@ -138,10 +141,11 @@ public class ViolationTrackingDecoratorTest {
     Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Collections.<RuleFailureModel>emptyList());
     assertThat(mapping.size(), is(0));
     assertThat(newViolation.getCreatedAt(), is(analysisDate));
+    assertThat(newViolation.isNew(), is(true));
   }
 
   @Test
-  public void shouldCopyViolationDate() {
+  public void shouldCopyDateWhenNotNew() {
     Violation newViolation = newViolation("message", 1, 50, "checksum");
     RuleFailureModel referenceViolation = newReferenceViolation("", 1, 50, "checksum");
     Date referenceDate = DateUtils.parseDate("2009-05-18");
@@ -151,6 +155,7 @@ public class ViolationTrackingDecoratorTest {
     Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.<RuleFailureModel>newArrayList(referenceViolation));
     assertThat(mapping.size(), is(1));
     assertThat(newViolation.getCreatedAt(), is(referenceDate));
+    assertThat(newViolation.isNew(), is(false));
   }
 
   private Violation newViolation(String message, int lineId, int ruleId) {

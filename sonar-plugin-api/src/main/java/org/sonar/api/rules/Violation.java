@@ -41,6 +41,7 @@ public class Violation {
   private Date createdAt;
   private boolean switchedOff=false;
   private String checksum;
+  private boolean isNew=false;
 
   /**
    * Creates of a violation from a rule. Will need to define the resource later on
@@ -256,6 +257,26 @@ public class Violation {
    */
   public Violation setChecksum(String s) {
     this.checksum = s;
+    return this;
+  }
+
+  /**
+   * A violation is considered as "new" if it has been created after the reference analysis
+   * (the "previous" analysis).
+   * This method must be used only by post-jobs and decorators depending on the barrier
+   * {@link org.sonar.api.batch.DecoratorBarriers#END_OF_VIOLATION_TRACKING}
+   * @since 2.9
+   */
+  public boolean isNew() {
+    return isNew;
+  }
+
+  /**
+   * For internal use only. MUST NOT BE SET FROM PLUGINS.
+   * @since 2.9
+   */
+  public Violation setNew(boolean b) {
+    isNew = b;
     return this;
   }
 
