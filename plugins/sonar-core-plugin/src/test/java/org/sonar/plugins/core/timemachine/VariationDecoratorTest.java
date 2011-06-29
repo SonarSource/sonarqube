@@ -24,11 +24,10 @@ import org.mockito.Matchers;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.database.model.MeasureModel;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.MeasuresFilter;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.MetricFinder;
+import org.sonar.api.measures.*;
 import org.sonar.api.resources.*;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RulePriority;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
@@ -49,6 +48,9 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
 
   public static final int COVERAGE_ID = 16;
   public static final Metric COVERAGE = new Metric("coverage").setId(COVERAGE_ID);
+
+  public static final int VIOLATIONS_ID = 17;
+  public static final Metric VIOLATIONS = new Metric("violations").setId(VIOLATIONS_ID);
 
   @Test
   public void shouldComputeVariations() {
@@ -98,12 +100,12 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
 
     // first past analysis
     when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot1)).thenReturn(Arrays.asList(
-        new Object[]{NCLOC_ID, null, 180.0},
-        new Object[]{COVERAGE_ID, null, 75.0}));
+        new Object[]{NCLOC_ID, null, null, null, 180.0},
+        new Object[]{COVERAGE_ID, null, null, null, 75.0}));
 
     // second past analysis
     when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot3)).thenReturn(Arrays.<Object[]>asList(
-        new Object[]{NCLOC_ID, null, 240.0}));
+        new Object[]{NCLOC_ID, null, null, null, 240.0}));
 
     // current analysis
     DecoratorContext context = mock(DecoratorContext.class);
@@ -126,11 +128,41 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
     assertThat(currentCoverage.getVariation3(), nullValue());
   }
 
-  private Measure newMeasure(Metric metric, double value) {
-    return new Measure(metric, value);
+  @Test
+  public void shouldComputeVariationOfRuleMeasures() {
+    Rule rule1 = Rule.create();
+    rule1.setId(1);
+    Rule rule2 = Rule.create();
+    rule2.setId(2);
+
+    Resource javaPackage = new JavaPackage("org.foo");
+
+    PastMeasuresLoader pastMeasuresLoader = mock(PastMeasuresLoader.class);
+    PastSnapshot pastSnapshot1 = new PastSnapshot("days", new Date()).setIndex(1);
+
+    // first past analysis
+    when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot1)).thenReturn(Arrays.asList(
+        new Object[]{VIOLATIONS_ID, null, null, null, 180.0},//total
+        new Object[]{VIOLATIONS_ID, null, rule1.getId(), RulePriority.BLOCKER.ordinal(), 100.0},// rule 1
+        new Object[]{VIOLATIONS_ID, null, rule2.getId(), RulePriority.MAJOR.ordinal(), 80.0})); // rule 2
+
+    // current analysis
+    DecoratorContext context = mock(DecoratorContext.class);
+    Measure violations = newMeasure(VIOLATIONS, 200.0);
+    Measure violationsRule1 = new RuleMeasure(VIOLATIONS, rule1, RulePriority.BLOCKER, null).setValue(130.0);
+    Measure violationsRule2 = new RuleMeasure(VIOLATIONS, rule2, RulePriority.MAJOR, null).setValue(70.0);
+    when(context.getMeasures(Matchers.<MeasuresFilter>anyObject())).thenReturn(Arrays.asList(violations, violationsRule1, violationsRule2));
+
+    VariationDecorator decorator = new VariationDecorator(pastMeasuresLoader, mock(MetricFinder.class), Arrays.asList(pastSnapshot1), false);
+    decorator.decorate(javaPackage, context);
+
+    // context updated for each variation
+    verify(context, times(3)).saveMeasure(Matchers.<Measure>anyObject());
+
+    assertThat(violations.getVariation1(), is(20.0));
   }
 
-  private MeasureModel newMeasureModel(Metric metric, double value) {
-    return new MeasureModel(metric.getId(), value);
+  private Measure newMeasure(Metric metric, double value) {
+    return new Measure(metric, value);
   }
 }

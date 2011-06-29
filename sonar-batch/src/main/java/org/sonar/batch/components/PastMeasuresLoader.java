@@ -66,8 +66,8 @@ public class PastMeasuresLoader implements BatchExtension {
   }
 
   public List<Object[]> getPastMeasures(String resourceKey, Snapshot projectPastSnapshot) {
-    String sql = "select m.metric_id, m.characteristic_id, m.value from project_measures m, snapshots s" +
-        " where m.snapshot_id=s.id and m.metric_id in (:metricIds) and m.rule_id is null and m.rule_priority is null " +
+    String sql = "select m.metric_id, m.characteristic_id, m.rule_id, m.rule_priority, m.value from project_measures m, snapshots s" +
+        " where m.snapshot_id=s.id and m.metric_id in (:metricIds) " +
         " and (s.root_snapshot_id=:rootSnapshotId or s.id=:rootSnapshotId) and s.status=:status and s.project_id=(select p.id from projects p where p.kee=:resourceKey and p.qualifier<>:lib)";
     return session.createNativeQuery(sql)
         .setParameter("metricIds", metricByIds.keySet())
@@ -89,11 +89,23 @@ public class PastMeasuresLoader implements BatchExtension {
     return number!=null ? number.intValue() : null;
   }
 
+  public static Integer getRuleId(Object[] row) {
+    // can be BigDecimal on Oracle
+    Number number = (Number) row[2];
+    return number!=null ? number.intValue() : null;
+  }
+
+  public static Integer getSeverityId(Object[] row) {
+    // can be BigDecimal on Oracle
+    Number number = (Number) row[3];
+    return number!=null ? number.intValue() : null;
+  }
+
   public static boolean hasValue(Object[] row) {
-    return row[2] != null;
+    return row[4] != null;
   }
 
   public static double getValue(Object[] row) {
-    return ((Number) row[2]).doubleValue();
+    return ((Number) row[4]).doubleValue();
   }
 }

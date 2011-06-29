@@ -95,12 +95,14 @@ public class VariationDecorator implements Decorator {
     }
 
     // for each measure, search equivalent past measure
-    for (Measure measure : context.getMeasures(new CustomMeasureFilter())) {
+    for (Measure measure : context.getMeasures(MeasuresFilters.all())) {
       // compare with past measure
       Integer metricId = (measure.getMetric().getId() != null ? measure.getMetric().getId() : metricFinder.findByKey(measure.getMetric().getKey()).getId());
       Integer characteristicId = (measure.getCharacteristic() != null ? measure.getCharacteristic().getId() : null);
+      Integer ruleId =  (measure instanceof RuleMeasure ? ((RuleMeasure)measure).getRule().getId() : null);
+      Integer severityId =  (measure instanceof RuleMeasure ? ((RuleMeasure)measure).getRulePriority().ordinal() : null);
 
-      Object[] pastMeasure = pastMeasuresByKey.get(new MeasureKey(metricId, characteristicId));
+      Object[] pastMeasure = pastMeasuresByKey.get(new MeasureKey(metricId, characteristicId, ruleId, severityId));
       if (updateVariation(measure, pastMeasure, index)) {
         context.saveMeasure(measure);
       }
@@ -121,30 +123,24 @@ public class VariationDecorator implements Decorator {
     return getClass().getSimpleName();
   }
 
-  static class CustomMeasureFilter implements MeasuresFilter<Collection<Measure>> {
-    public Collection<Measure> filter(Collection<Measure> measures) {
-      List<Measure> result = Lists.newArrayList();
-      for (Measure measure : measures) {
-        if (!(measure instanceof RuleMeasure)) {
-          result.add(measure);
-        }
-      }
-      return result;
-    }
-  }
-
   static final class MeasureKey {
     int metricId;
     Integer characteristicId;
+    Integer ruleId;
+    Integer severityId;
 
     MeasureKey(Object[] pastFields) {
       metricId = PastMeasuresLoader.getMetricId(pastFields);
       characteristicId = PastMeasuresLoader.getCharacteristicId(pastFields);
+      ruleId = PastMeasuresLoader.getRuleId(pastFields);
+      severityId = PastMeasuresLoader.getSeverityId(pastFields);
     }
 
-    MeasureKey(int metricId, Integer characteristicId) {
+    MeasureKey(int metricId, Integer characteristicId, Integer ruleId, Integer severityId) {
       this.metricId = metricId;
       this.characteristicId = characteristicId;
+      this.ruleId = ruleId;
+      this.severityId = severityId;
     }
 
     @Override
@@ -162,6 +158,12 @@ public class VariationDecorator implements Decorator {
       if (characteristicId != null ? !characteristicId.equals(that.characteristicId) : that.characteristicId != null) {
         return false;
       }
+      if (ruleId != null ? !ruleId.equals(that.ruleId) : that.ruleId != null) {
+        return false;
+      }
+      if (severityId != null ? !severityId.equals(that.severityId) : that.severityId != null) {
+        return false;
+      }
       return true;
     }
 
@@ -169,6 +171,8 @@ public class VariationDecorator implements Decorator {
     public int hashCode() {
       int result = metricId;
       result = 31 * result + (characteristicId != null ? characteristicId.hashCode() : 0);
+      result = 31 * result + (ruleId != null ? ruleId.hashCode() : 0);
+      result = 31 * result + (severityId != null ? severityId.hashCode() : 0);
       return result;
     }
   }
