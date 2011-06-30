@@ -36,7 +36,6 @@ import org.sonar.core.NotDryRun;
 
 import java.util.*;
 
-@NotDryRun
 @DependsUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
 public class NewViolationsDecorator implements Decorator {
 
