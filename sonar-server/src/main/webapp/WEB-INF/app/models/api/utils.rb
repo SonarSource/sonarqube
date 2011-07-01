@@ -49,6 +49,8 @@ class Api::Utils
   end
 
   def self.convert_string_to_unix_newlines(input)
-    split_newlines(input).join('\n')
+    # Don't use '\n' here
+    # See http://jira.codehaus.org/browse/SONAR-2571
+    split_newlines(input).join("\n")
   end
 end
