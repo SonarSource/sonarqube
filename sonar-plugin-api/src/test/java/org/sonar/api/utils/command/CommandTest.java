@@ -19,9 +19,13 @@
  */
 package org.sonar.api.utils.command;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
+import java.io.File;
+
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class CommandTest {
@@ -44,5 +48,15 @@ public class CommandTest {
     assertThat(command.getExecutable(), is("java"));
     assertThat(command.getArguments().size(), is(2));
     assertThat(command.toCommandLine(), is("java -Xmx512m -Dfoo=bar"));
+  }
+
+  @Test
+  public void shouldSetWorkingDirectory() throws Exception {
+    Command command = Command.create("java");
+    assertThat(command.getDirectory(), nullValue());
+
+    File working = new File("working");
+    command = Command.create("java").setDirectory(working);
+    assertThat(command.getDirectory(), is(working));
   }
 }

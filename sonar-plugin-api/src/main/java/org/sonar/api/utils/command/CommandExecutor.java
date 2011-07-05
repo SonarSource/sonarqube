@@ -54,6 +54,9 @@ public final class CommandExecutor {
     try {
       LoggerFactory.getLogger(getClass()).debug("Executing command: " + command);
       ProcessBuilder builder = new ProcessBuilder(command.toStrings());
+      if (command.getDirectory() != null) {
+        builder.directory(command.getDirectory());
+      }
       process = builder.start();
 
       // consume and display the error and output streams
@@ -75,9 +78,7 @@ public final class CommandExecutor {
       return ft.get(timeoutMilliseconds, TimeUnit.MILLISECONDS);
 
     } catch (TimeoutException te) {
-      if (process != null) {
-        process.destroy();
-      }
+      process.destroy();
       throw new CommandException(command, "Timeout exceeded: " + timeoutMilliseconds + " ms", te);
 
     } catch (Exception e) {

@@ -23,6 +23,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -34,6 +35,7 @@ public final class Command {
 
   private String executable;
   private List<String> arguments = Lists.newArrayList();
+  private File directory;
 
   private Command(String executable) {
     this.executable = executable;
@@ -59,6 +61,15 @@ public final class Command {
 
   public Command addArguments(String[] args) {
     arguments.addAll(Arrays.asList(args));
+    return this;
+  }
+
+  public File getDirectory() {
+    return directory;
+  }
+
+  public Command setDirectory(File d) {
+    this.directory = d;
     return this;
   }
 

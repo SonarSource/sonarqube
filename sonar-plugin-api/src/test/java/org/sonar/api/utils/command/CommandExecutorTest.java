@@ -19,35 +19,51 @@
  */
 package org.sonar.api.utils.command;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.number.OrderingComparisons.greaterThanOrEqualTo;
-import static org.hamcrest.number.OrderingComparisons.lessThan;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 public class CommandExecutorTest {
 
   @Test
-  public void shouldEchoArguments() {
+  public void shouldEchoArguments() throws IOException {
     String executable = getScript("echo");
     int exitCode = CommandExecutor.create().execute(Command.create(executable), 1000L);
     assertThat(exitCode, is(0));
   }
 
   @Test
-  public void shouldStopWithTimeout() {
+  public void shouldConfigureWorkingDirectory() throws IOException {
+    String executable = getScript("echo");
+    File dir = new File("target/tmp/CommandExecutorTest/shouldConfigureWorkingDirectory");
+    FileUtils.forceMkdir(dir);
+    FileUtils.cleanDirectory(dir);
+
+    int exitCode = CommandExecutor.create().execute(Command.create(executable).setDirectory(dir), 1000L);
+    assertThat(exitCode, is(0));
+
+    File log = new File(dir, "echo.log");
+    assertThat(FileUtils.readFileToString(log), containsString(dir.getCanonicalPath()));
+  }
+
+  @Test
+  public void shouldStopWithTimeout() throws IOException {
     String executable = getScript("forever");
     long start = System.currentTimeMillis();
     try {
       CommandExecutor.create().execute(Command.create(executable), 300L);
       fail();
     } catch (CommandException e) {
-      long duration = System.currentTimeMillis()-start;
+      long duration = System.currentTimeMillis() - start;
       // should test >= 300 but it strangly fails during build on windows.
       // The timeout is raised after 297ms (??)
       assertThat(e.getMessage(), duration, greaterThanOrEqualTo(290L));
@@ -59,13 +75,13 @@ public class CommandExecutorTest {
     CommandExecutor.create().execute(Command.create("notfound"), 1000L);
   }
 
-  private String getScript(String name) {
+  private String getScript(String name) throws IOException {
     String filename;
     if (SystemUtils.IS_OS_WINDOWS) {
       filename = name + ".bat";
     } else {
       filename = name + ".sh";
     }
-    return new File("src/test/scripts/" + filename).getPath();
+    return new File("src/test/scripts/" + filename).getCanonicalPath();
   }
 }
