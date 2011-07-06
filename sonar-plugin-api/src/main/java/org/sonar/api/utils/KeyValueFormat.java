@@ -478,14 +478,14 @@ public final class KeyValueFormat {
    * @deprecated since 2.7. Replaced by Converter
    */
   @Deprecated
-  public static class RulePriorityNumbersPairTransformer implements Transformer<RulePriority, Integer> {
+  public static class RulePriorityNumbersPairTransformer implements Transformer<RulePriority, Double> {
 
-    public KeyValue<RulePriority, Integer> transform(String key, String value) {
+    public KeyValue<RulePriority, Double> transform(String key, String value) {
       try {
         if (StringUtils.isBlank(value)) {
           value = "0";
         }
-        return new KeyValue<RulePriority, Integer>(RulePriority.valueOf(key.toUpperCase()), Integer.parseInt(value));
+        return new KeyValue<RulePriority, Double>(RulePriority.valueOf(key.toUpperCase()), Double.parseDouble(value));
       } catch (Exception e) {
         LoggerFactory.getLogger(RulePriorityNumbersPairTransformer.class).warn("Property " + key + " has invalid value: " + value, e);
         return null;

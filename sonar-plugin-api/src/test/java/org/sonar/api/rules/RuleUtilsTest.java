@@ -40,13 +40,13 @@ public class RuleUtilsTest {
     Configuration conf = mock(Configuration.class);
     when(conf.getString(Matchers.eq(CoreProperties.CORE_RULE_WEIGHTS_PROPERTY), anyString())).thenReturn("info=0;minor=1;major=2;critical=5;blocker=10");
 
-    final Map<RulePriority, Integer> map = RuleUtils.getPriorityWeights(conf);
+    final Map<RulePriority, Double> map = RuleUtils.getPriorityWeights(conf);
 
-    assertThat(map.get(RulePriority.BLOCKER), is(10));
-    assertThat(map.get(RulePriority.CRITICAL), is(5));
-    assertThat(map.get(RulePriority.MAJOR), is(2));
-    assertThat(map.get(RulePriority.MINOR), is(1));
-    assertThat(map.get(RulePriority.INFO), is(0));
+    assertThat(map.get(RulePriority.BLOCKER), is(10d));
+    assertThat(map.get(RulePriority.CRITICAL), is(5d));
+    assertThat(map.get(RulePriority.MAJOR), is(2d));
+    assertThat(map.get(RulePriority.MINOR), is(1d));
+    assertThat(map.get(RulePriority.INFO), is(0d));
   }
 
   @Test
@@ -54,13 +54,13 @@ public class RuleUtilsTest {
     Configuration conf = mock(Configuration.class);
     when(conf.getString(Matchers.eq(CoreProperties.CORE_RULE_WEIGHTS_PROPERTY), anyString())).thenReturn("foo=0;bar=1;CRITICAL=5");
 
-    final Map<RulePriority, Integer> map = RuleUtils.getPriorityWeights(conf);
+    final Map<RulePriority, Double> map = RuleUtils.getPriorityWeights(conf);
 
-    assertThat(map.get(RulePriority.BLOCKER), is(1));
-    assertThat(map.get(RulePriority.CRITICAL), is(5));
-    assertThat(map.get(RulePriority.MAJOR), is(1));
-    assertThat(map.get(RulePriority.MINOR), is(1));
-    assertThat(map.get(RulePriority.INFO), is(1));
+    assertThat(map.get(RulePriority.BLOCKER), is(1d));
+    assertThat(map.get(RulePriority.CRITICAL), is(5d));
+    assertThat(map.get(RulePriority.MAJOR), is(1d));
+    assertThat(map.get(RulePriority.MINOR), is(1d));
+    assertThat(map.get(RulePriority.INFO), is(1d));
   }
 
 }

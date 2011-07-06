@@ -108,10 +108,10 @@ public class DeprecatedKeyValueFormatTest {
 
   @Test
   public void parseWithRulePriorityNumbersTransformation() {
-    Map<RulePriority, Integer> map = KeyValueFormat.parse("BLOCKER=1;MAJOR=;INFO=5", new KeyValueFormat.RulePriorityNumbersPairTransformer());
+    Map<RulePriority, Double> map = KeyValueFormat.parse("BLOCKER=1;MAJOR=;INFO=5", new KeyValueFormat.RulePriorityNumbersPairTransformer());
     assertThat(map.size(), is(3));
-    assertEquals(new Integer(1), map.get(RulePriority.BLOCKER));
-    assertEquals(new Integer(0), map.get(RulePriority.MAJOR));
-    assertEquals(new Integer(5), map.get(RulePriority.INFO));
+    assertEquals(new Double(1), map.get(RulePriority.BLOCKER));
+    assertEquals(new Double(0), map.get(RulePriority.MAJOR));
+    assertEquals(new Double(5), map.get(RulePriority.INFO));
   }
 }
