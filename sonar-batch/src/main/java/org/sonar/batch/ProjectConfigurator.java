@@ -74,7 +74,7 @@ public class ProjectConfigurator {
   }
 
   public void configure(Project project, ProjectDefinition def) {
-    ProjectConfiguration projectConfiguration = new ProjectConfiguration(databaseSession, project, def.getProperties());
+    ProjectConfiguration projectConfiguration = new ProjectConfiguration(databaseSession, def);
     configure(project, projectConfiguration);
   }
 

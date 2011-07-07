@@ -21,8 +21,11 @@ package org.sonar.batch;
 
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.resources.Project;
+import org.sonar.jpa.test.AbstractDbUnitTestCase;
+
+import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
@@ -71,17 +74,17 @@ public class ProjectConfigurationTest extends AbstractDbUnitTestCase {
   @Test
   public void mavenSettingsLoadedBeforeGlobalSettings() {
     setupData("global-properties");
-    Project project = newProject();
-    project.getPom().getProperties().put("key1", "maven1");
+    ProjectDefinition project = newProject();
+    project.setProperty("maven.foo", "bar");
     ProjectConfiguration config = new ProjectConfiguration(getSession(), project);
-    assertThat(config.getString("key1"), is("maven1"));
+    assertThat(config.getString("maven.foo"), is("bar"));
   }
 
   @Test
   public void projectSettingsLoadedBeforeMavenSettings() {
     setupData("project-properties");
-    Project project = newProject();
-    project.getPom().getProperties().put("key1", "maven1");
+    ProjectDefinition project = newProject();
+    project.setProperty("key1", "maven1");
     ProjectConfiguration config = new ProjectConfiguration(getSession(), project);
     assertThat(config.getString("key1"), is("overriden_value1"));
   }
@@ -105,13 +108,14 @@ public class ProjectConfigurationTest extends AbstractDbUnitTestCase {
     assertThat(config.getString("key1"), is("new1"));
   }
 
-  private Project newProject() {
-    return new Project("mygroup:myproject").setPom(new MavenProject());
+  private ProjectDefinition newProject() {
+    return ProjectDefinition.create().setKey("mygroup:myproject");
   }
 
-  private Project newModule() {
-    Project module = new Project("mygroup:mymodule").setPom(new MavenProject());
-    module.setParent(newProject());
+  private ProjectDefinition newModule() {
+    ProjectDefinition module = ProjectDefinition.create().setKey("mygroup:mymodule");
+    ProjectDefinition project = newProject();
+    project.addSubProject(module);
     return module;
   }
 }

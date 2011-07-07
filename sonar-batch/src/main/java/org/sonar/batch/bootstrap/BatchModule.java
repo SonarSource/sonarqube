@@ -25,6 +25,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.ServerHttpClient;
 import org.sonar.batch.DefaultResourceCreationLock;
+import org.sonar.batch.ProjectConfiguration;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.components.*;
 import org.sonar.batch.index.*;
@@ -45,6 +46,7 @@ public class BatchModule extends Module {
 
   @Override
   protected void configure() {
+    addComponent(ProjectConfiguration.class);
     addComponent(ProjectTree.class);
     addComponent(DefaultResourceCreationLock.class);
     addComponent(DefaultIndex.class);

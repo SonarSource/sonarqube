@@ -20,6 +20,8 @@
 package org.sonar.batch;
 
 import org.apache.commons.configuration.*;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
 
@@ -28,25 +30,27 @@ import java.util.Properties;
 public class ProjectConfiguration extends CompositeConfiguration {
   private PropertiesConfiguration runtimeConfiguration;
 
-  // FIXME remove
-  public ProjectConfiguration(DatabaseSession session, Project project) {
-    this(session, project, project.getPom().getProperties());
+  /**
+   * Used during batch startup
+   */
+  public ProjectConfiguration(DatabaseSession session, ProjectReactor projectReactor) {
+    this(session, projectReactor.getRoot());
   }
-
-  public ProjectConfiguration(DatabaseSession session, Project project, Properties properties) {
+  
+  public ProjectConfiguration(DatabaseSession session, ProjectDefinition project) {
     runtimeConfiguration = new PropertiesConfiguration();
     addConfiguration(runtimeConfiguration);
 
     loadSystemSettings();
     loadProjectDatabaseSettings(session, project);
-    addConfiguration(new MapConfiguration(properties));
+    addConfiguration(new MapConfiguration(project.getProperties()));
     loadGlobalDatabaseSettings(session);
   }
 
-  private void loadProjectDatabaseSettings(DatabaseSession session, Project project) {
+  private void loadProjectDatabaseSettings(DatabaseSession session, ProjectDefinition project) {
     addConfiguration(new ResourceDatabaseConfiguration(session, project.getKey()));
 
-    Project parent = project.getParent();
+    ProjectDefinition parent = project.getParent();
     while (parent != null && parent.getKey() != null) {
       addConfiguration(new ResourceDatabaseConfiguration(session, parent.getKey()));
       parent = parent.getParent();

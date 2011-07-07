@@ -50,7 +50,7 @@ public class BootstrapModule extends Module {
   @Override
   protected void configure() {
     addComponent(reactor);
-    addComponent(configuration);
+    addComponent(configuration);// this configuration does not access database
     addComponent(DryRun.class);
     addComponent(ServerMetadata.class);// registered here because used by BootstrapClassLoader
     addComponent(TempDirectories.class);// registered here because used by BootstrapClassLoader

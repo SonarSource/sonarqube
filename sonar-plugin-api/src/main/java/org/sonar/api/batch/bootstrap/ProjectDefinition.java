@@ -87,6 +87,11 @@ public final class ProjectDefinition implements BatchComponent {
     return properties;
   }
 
+  public ProjectDefinition setProperty(String key, String value) {
+    properties.setProperty(key, value);
+    return this;
+  }
+
   public ProjectDefinition setKey(String key) {
     properties.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, key);
     return this;
