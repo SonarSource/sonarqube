@@ -46,7 +46,6 @@ public class EventBus {
 
   private void doFireEvent(BatchEvent event) {
     List<EventHandler> handlers = getDispatchList(event.getType());
-    Logs.INFO.trace("Dispatch event {} for {}", event, handlers);
     for (EventHandler handler : handlers) {
       event.dispatch(handler);
     }
