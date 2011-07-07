@@ -39,6 +39,9 @@ public class CommandExecutorTest {
     String executable = getScript("echo");
     int exitCode = CommandExecutor.create().execute(Command.create(executable), 1000L);
     assertThat(exitCode, is(0));
+
+    // the script generates a log in current directory
+    FileUtils.deleteQuietly(new File("echo.log"));
   }
 
   @Test
