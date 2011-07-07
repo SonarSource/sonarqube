@@ -232,9 +232,7 @@ div#sidebar .selected a, div#sidebar .selected a:hover, div#sidebar.selected a:v
   GENERAL
 */
 .loading {
-  background-image: url("../images/loading.gif");
-  background-position: 4px 2px;
-  background-repeat: no-repeat;
+  background: url("../images/loading.gif") no-repeat 4px 2px;
   color: #444;
   padding: 3px 25px;
 }
@@ -326,11 +324,11 @@ button, .button, input[type="submit"], input[type="button"] {
   box-shadow: 0 1px 1px rgba(0,0,0,0.1);
   
   color: #333333;
-  border: 1px solid #DDD;
+  border: 1px solid #CCC;
   background: #EBEBEB;
-  background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#E1E1E1));
-  background: -moz-linear-gradient(top,  #FFFFFF,  #E1E1E1);
-  filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFF', endColorstr='#E1E1E1');
+  background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#E7E7E7));
+  background: -moz-linear-gradient(top,  #FFFFFF,  #E7E7E7);
+  filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFF', endColorstr='#E7E7E7');
   
   vertical-align: baseline;
   display: inline-block;
@@ -611,7 +609,7 @@ table.spacedicon th {
 }
 
 table.spacedicon td {
-  padding: 0px 5px;
+  padding: 0 5px;
   height: 24px;
 }
 
