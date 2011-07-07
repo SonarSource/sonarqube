@@ -39,6 +39,7 @@ public final class Unmarshallers {
     unmarshallers.put(Source.class, new SourceUnmarshaller());
     unmarshallers.put(Violation.class, new ViolationUnmarshaller());
     unmarshallers.put(Server.class, new ServerUnmarshaller());
+    unmarshallers.put(ServerSetup.class, new ServerSetupUnmarshaller());
     unmarshallers.put(DependencyTree.class, new DependencyTreeUnmarshaller());
     unmarshallers.put(Event.class, new EventUnmarshaller());
     unmarshallers.put(Favourite.class, new FavouriteUnmarshaller());
