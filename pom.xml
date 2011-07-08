@@ -378,6 +378,7 @@
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <localCheckout>true</localCheckout>
           <pushChanges>false</pushChanges>
+          <goals>deploy</goals>
         </configuration>
       </plugin>
       <plugin>
