@@ -24,7 +24,8 @@
 class DropPluginTables < ActiveRecord::Migration
 
   def self.up
-    drop_table('plugins')
+  # THIS IS A TEST TO FORCE INTEGRATION TESTS FAIL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    drop_table('projects')
     drop_table('plugin_files')
   end
 
