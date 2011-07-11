@@ -56,8 +56,13 @@ module ApplicationHelper
   end
 
   # i18n
-  def message(key, default, *parameters)
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, key, default, parameters.to_java)
+  def message(key, options={})
+    default = options[:default]
+    params = options[:params]
+    if params.nil? 
+      params=[]
+    end
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, key, default, params.to_java)    
   end
 
   # deprecated since 2.5. Use trend_icon() instead
