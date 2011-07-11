@@ -1,5 +1,5 @@
 <ol id="crumbs">
-  <li><a href="<%= ApplicationController.root_context -%>/">Home</a></li>
+  <li><a href="<%= ApplicationController.root_context -%>/"><%= message('layout.home') -%></a></li>
   <%
 if @snapshot
   resources=[]
