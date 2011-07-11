@@ -65,12 +65,6 @@ class InitialSchema < ActiveRecord::Migration
       t.column :description,         :text
     end
 
-    create_table :parameters do |t|
-      t.column :param_key,           :string,    :null => false, :limit => 100, :null => false
-      t.column :value,               :decimal,   :null => false, :precision => 30, :scale => 20
-      t.column :value2,              :decimal,   :null => true, :precision => 30, :scale => 20
-    end
-
     create_table :rule_failures do |t|
       t.column :snapshot_id,         :integer,   :null => false
       t.column :rule_id,             :integer,   :null => false

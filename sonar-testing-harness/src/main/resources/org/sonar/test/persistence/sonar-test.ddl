@@ -245,14 +245,6 @@ create table METRICS (
 );
 CREATE UNIQUE INDEX METRICS_UNIQUE_NAME ON METRICS (NAME);
 
-create table PARAMETERS (
-  ID INTEGER not null,
-  PARAM_KEY VARCHAR(100) not null,
-  VALUE DECIMAL(30, 20) not null,
-  VALUE2 DECIMAL(30, 20),
-  primary key (id)
-);
-
 create table PROJECTS (
   ID INTEGER not null,
   NAME VARCHAR(256),
