@@ -58,6 +58,42 @@ class Rule < ActiveRecord::Base
     name<=>rule.name
   end
   
+  def name(translate=true)
+    default_string = read_attribute(:name)
+    return default_string unless translate
+    
+    rule_plugin_name = read_attribute(:plugin_name)
+    rule_plugin_rule_key = read_attribute(:plugin_rule_key)
+
+    return nil if (rule_plugin_name.nil? or rule_plugin_rule_key.nil?)
+    
+    i18n_key = 'rule.' + rule_plugin_name + '.' + rule_plugin_rule_key + '.name'   
+    result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, i18n_key, default_string, [].to_java)     
+    result
+  end
+  
+  def name=(value)
+    write_attribute(:name, value)    
+  end
+  
+  def description(translate=true)
+    default_string = read_attribute(:description)
+    return default_string unless translate
+    
+    rule_plugin_name = read_attribute(:plugin_name)
+    rule_plugin_rule_key = read_attribute(:plugin_rule_key)
+    
+    return nil if (rule_plugin_name.nil? or rule_plugin_rule_key.nil?)
+    
+    i18n_key = 'rule.' + rule_plugin_name + '.' + rule_plugin_rule_key + '.description'   
+    result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, i18n_key, default_string, [].to_java)     
+    result
+  end
+
+  def description=(value)
+    write_attribute(:description, value)    
+  end
+
   def config_key
     plugin_config_key
   end

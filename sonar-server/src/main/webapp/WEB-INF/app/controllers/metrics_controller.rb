@@ -26,10 +26,10 @@ class MetricsController < ApplicationController
   
   def index
     @metrics = Metric.all.select {|metric| metric.user_managed?}
-    @domains = Metric.all.map {|metric| metric.domain}.compact.uniq.sort
+    @domains = Metric.all.map {|metric| metric.domain(false)}.compact.uniq.sort
     if params['id']
       @metric=Metric.find(params['id'].to_i)
-      params['domain']=@metric.domain
+      params['domain']=@metric.domain(false)
     else
       @metric=Metric.new
     end
@@ -44,8 +44,8 @@ class MetricsController < ApplicationController
     end
 
     metric.attributes=params[:metric]
-    if metric.short_name
-      metric.name = metric.short_name.downcase.gsub(/\s/, '_')[0..59]
+    if metric.short_name(false)
+      metric.name = metric.short_name(false).downcase.gsub(/\s/, '_')[0..59]
     end
     unless params[:newdomain].blank?
       metric.domain = params[:newdomain]
@@ -67,7 +67,7 @@ class MetricsController < ApplicationController
     rescue
       flash[:error] = metric.errors.full_messages.join("<br/>\n")
     end
-    redirect_to :action => 'index', :domain => metric.domain
+    redirect_to :action => 'index', :domain => metric.domain(false)
   end
 
   def delete_from_web

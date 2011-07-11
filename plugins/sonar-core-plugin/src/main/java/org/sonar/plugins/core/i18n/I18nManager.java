@@ -19,8 +19,21 @@
  */
 package org.sonar.plugins.core.i18n;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.Set;
+
 import org.apache.commons.collections.EnumerationUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -33,12 +46,8 @@ import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.text.MessageFormat;
-import java.util.*;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 public final class I18nManager implements I18n, ServerExtension, BatchExtension {
 
@@ -60,7 +69,6 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
     this(pluginRepository, new LanguagePack[0]);
   }
 
-
   public void start() {
     doStart(InstalledPlugin.create(pluginRepository));
   }
@@ -81,9 +89,10 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
     for (String pluginKey : languagePack.getPluginKeys()) {
       String bundleBaseName = buildBundleBaseName(pluginKey);
       for (Locale locale : languagePack.getLocales()) {
-        String bundlePropertiesFile = new StringBuilder(bundleBaseName).append('_').append(locale.toString()).append(".properties").toString();
+        String bundlePropertiesFile = new StringBuilder(bundleBaseName).append('_').append(locale.toString()).append(".properties")
+            .toString();
         ClassLoader classloader = languagePack.getClass().getClassLoader();
-        LOG.info("Adding locale {} for bundleName : {} from classloader : {}", new Object[]{locale, bundleBaseName, classloader});
+        LOG.info("Adding locale {} for bundleName : {} from classloader : {}", new Object[] { locale, bundleBaseName, classloader });
         bundleClassLoader.addResource(bundlePropertiesFile, classloader);
       }
     }
@@ -106,7 +115,7 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
         }
 
         URL propertiesUrl = resources.get(0);
-        if (!alreadyLoadedResources.contains(propertiesUrl.toURI())) {
+        if ( !alreadyLoadedResources.contains(propertiesUrl.toURI())) {
           LOG.debug("Found the ResourceBundle base file : {} from classloader : {}", propertiesUrl, classloader);
           LOG.debug("Add bundleName : {} from classloader : {}", bundleBaseName, classloader);
           bundleClassLoader.addResource(bundleDefaultPropertiesFile, classloader);
@@ -121,8 +130,8 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
             while (keysToAdd.hasMoreElements()) {
               String key = keysToAdd.nextElement();
               if (keys.containsKey(key)) {
-                LOG.warn("DUPLICATE KEY : Key '{}' defined in bundle '{}' is already defined in bundle '{}'. It is ignored.", new Object[]{
-                    key, bundleBaseName, keys.get(key)});
+                LOG.warn("DUPLICATE KEY : Key '{}' defined in bundle '{}' is already defined in bundle '{}'. It is ignored.", new Object[] {
+                    key, bundleBaseName, keys.get(key) });
               } else {
                 keys.put(key, bundleBaseName);
               }
@@ -143,6 +152,9 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
     try {
       String bundleBaseName = keys.get(key);
       if (bundleBaseName == null) {
+        if (result == null) {
+          throw new MissingResourceException("UNKNOWN KEY : Key '" + key + "' not found in any bundle.", bundleBaseName, key);
+        }
         LOG.warn("UNKNOWN KEY : Key '{}' not found in any bundle. Default value '{}' is returned.", key, defaultText);
         unknownKeys.put(key, defaultText);
       } else {
@@ -151,22 +163,32 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
 
           String value = bundle.getString(key);
           if ("".equals(value)) {
-            LOG.warn("VOID KEY : Key '{}' (from bundle '{}') returns a void value. Default value '{}' is returned.", new Object[]{key,
-                bundleBaseName, defaultText});
+            if (result == null) {
+              throw new MissingResourceException("VOID KEY : Key '" + key + "' (from bundle '" + bundleBaseName
+                  + "') returns a void value.", bundleBaseName, key);
+            }
+            LOG.warn("VOID KEY : Key '{}' (from bundle '{}') returns a void value. Default value '{}' is returned.", new Object[] { key,
+                bundleBaseName, defaultText });
           } else {
             result = value;
           }
         } catch (MissingResourceException e) {
-          LOG.warn("BUNDLE NOT LOADED : Failed loading bundle {} from classloader {}. Default value '{}' is returned.", new Object[]{
-              bundleBaseName, bundleClassLoader, defaultText});
+          if (result == null) {
+            throw e;
+          }
+          LOG.warn("BUNDLE NOT LOADED : Failed loading bundle {} from classloader {}. Default value '{}' is returned.", new Object[] {
+              bundleBaseName, bundleClassLoader, defaultText });
         }
       }
     } catch (Exception e) {
       LOG.error("Exception when retrieving I18n string.", e);
+      if (result == null) {
+        throw new SonarException("Exception when retrieving I18n string.", e);
+      }
     }
 
     if (objects.length > 0) {
-      LOG.debug("Translation : {}, {}, {}, {}", new String[]{locale.toString(), key, defaultText, Arrays.deepToString(objects)});
+      LOG.debug("Translation : {}, {}, {}, {}", new String[] { locale.toString(), key, defaultText, Arrays.deepToString(objects) });
       return MessageFormat.format(result, objects);
     } else {
       return result;
@@ -180,12 +202,12 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
     return unknownKeys;
   }
 
-
   private static class BundleClassLoader extends URLClassLoader {
+
     private Map<String, ClassLoader> resources = Maps.newHashMap();
 
     public BundleClassLoader() {
-      super(new URL[]{}, null);
+      super(new URL[] {}, null);
     }
 
     public void addResource(String resourceName, ClassLoader classloader) {
