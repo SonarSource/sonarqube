@@ -122,7 +122,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>animal-sniffer-maven-plugin</artifactId>
-          <version>1.6</version>
+          <version>1.7</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -172,15 +172,14 @@
           <version>2.6</version>
         </plugin>
         <plugin>
-          <!-- not thread safe -->
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-enforcer-plugin</artifactId>
-          <version>1.0</version>
+          <version>1.0.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>2.6</version>
+          <version>2.9</version>
         </plugin>
         <plugin>
           <!-- not thread safe -->
@@ -267,76 +266,76 @@
         </plugin>
         <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
         <plugin>
-        	<groupId>org.eclipse.m2e</groupId>
-        	<artifactId>lifecycle-mapping</artifactId>
-        	<version>1.0.0</version>
-        	<configuration>
-        		<lifecycleMappingMetadata>
-        			<pluginExecutions>
-        				<pluginExecution>
-        					<pluginExecutionFilter>
-        						<groupId>org.codehaus.sonar</groupId>
-        						<artifactId>
-        							sonar-packaging-maven-plugin
-        						</artifactId>
-        						<versionRange>[1.0,)</versionRange>
-        						<goals>
-        							<goal>check-dependencies</goal>
-        						</goals>
-        					</pluginExecutionFilter>
-        					<action>
-        						<ignore></ignore>
-        					</action>
-        				</pluginExecution>
-        				<pluginExecution>
-        					<pluginExecutionFilter>
-        						<groupId>org.codehaus.mojo</groupId>
-        						<artifactId>
-        							gwt-maven-plugin
-        						</artifactId>
-        						<versionRange>[1.0,)</versionRange>
-        						<goals>
-        							<goal>compile</goal>
-        						</goals>
-        					</pluginExecutionFilter>
-        					<action>
-        						<ignore></ignore>
-        					</action>
-        				</pluginExecution>
-        				<pluginExecution>
-        					<pluginExecutionFilter>
-        						<groupId>org.codehaus.sonar</groupId>
-        						<artifactId>
-        							sonar-dev-maven-plugin
-        						</artifactId>
-        						<versionRange>[1.0,)</versionRange>
-        						<goals>
-        							<goal>trim</goal>
-        						</goals>
-        					</pluginExecutionFilter>
-        					<action>
-        						<ignore></ignore>
-        					</action>
-        				</pluginExecution>
-        				<pluginExecution>
-        					<pluginExecutionFilter>
-        						<groupId>org.apache.maven.plugins</groupId>
-        						<artifactId>
-        							maven-dependency-plugin
-        						</artifactId>
-        						<versionRange>[1.0,)</versionRange>
-        						<goals>
-        							<goal>unpack</goal>
-        							<goal>copy-dependencies</goal>
-        						</goals>
-        					</pluginExecutionFilter>
-        					<action>
-        						<ignore></ignore>
-        					</action>
-        				</pluginExecution>
-        			</pluginExecutions>
-        		</lifecycleMappingMetadata>
-        	</configuration>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.codehaus.sonar</groupId>
+                    <artifactId>
+                      sonar-packaging-maven-plugin
+                    </artifactId>
+                    <versionRange>[1.0,)</versionRange>
+                    <goals>
+                      <goal>check-dependencies</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>
+                      gwt-maven-plugin
+                    </artifactId>
+                    <versionRange>[1.0,)</versionRange>
+                    <goals>
+                      <goal>compile</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.codehaus.sonar</groupId>
+                    <artifactId>
+                      sonar-dev-maven-plugin
+                    </artifactId>
+                    <versionRange>[1.0,)</versionRange>
+                    <goals>
+                      <goal>trim</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>
+                      maven-dependency-plugin
+                    </artifactId>
+                    <versionRange>[1.0,)</versionRange>
+                    <goals>
+                      <goal>unpack</goal>
+                      <goal>copy-dependencies</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
