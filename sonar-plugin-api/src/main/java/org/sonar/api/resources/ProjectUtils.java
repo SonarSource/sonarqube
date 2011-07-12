@@ -20,6 +20,7 @@
 package org.sonar.api.resources;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -41,10 +42,8 @@ public final class ProjectUtils {
    */
   @Deprecated
   public static String getJavaVersion(Project project) {
-    if (project.getConfiguration() != null) {
-      return project.getConfiguration().getString("sonar.java.target");
-    }
-    return null;
+    String version = project.getConfiguration() != null ? project.getConfiguration().getString("sonar.java.target") : null;
+    return StringUtils.isNotBlank(version) ? version : "1.5";
   }
 
   /**
@@ -52,10 +51,8 @@ public final class ProjectUtils {
    */
   @Deprecated
   public static String getJavaSourceVersion(Project project) {
-    if (project.getConfiguration() != null) {
-      return project.getConfiguration().getString("sonar.java.source");
-    }
-    return null;
+    String version = project.getConfiguration() != null ? project.getConfiguration().getString("sonar.java.source") : null;
+    return StringUtils.isNotBlank(version) ? version : "1.5";
   }
 
   /**

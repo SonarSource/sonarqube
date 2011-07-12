@@ -19,10 +19,12 @@
  */
 package org.sonar.java.api;
 
-import org.junit.Test;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+
+import org.apache.commons.configuration.BaseConfiguration;
+import org.junit.Test;
+import org.sonar.api.resources.Project;
 
 public class JavaUtilsTest {
 
@@ -36,4 +38,25 @@ public class JavaUtilsTest {
     assertThat(JavaUtils.abbreviatePackage("com.foo."), is("com.f"));
     assertThat(JavaUtils.abbreviatePackage("com.foo..bar"), is("com.f.b"));
   }
+
+  @Test
+  public void shouldReturnDefaultJavaVersion() {
+    BaseConfiguration configuration = new BaseConfiguration();
+    Project project = new Project("").setConfiguration(configuration);
+
+    assertThat(JavaUtils.getSourceVersion(project), is("1.5"));
+    assertThat(JavaUtils.getTargetVersion(project), is("1.5"));
+  }
+
+  @Test
+  public void shouldReturnSpecifiedJavaVersion() {
+    BaseConfiguration configuration = new BaseConfiguration();
+    Project project = new Project("").setConfiguration(configuration);
+    configuration.setProperty(JavaUtils.JAVA_SOURCE_PROPERTY, "1.4");
+    configuration.setProperty(JavaUtils.JAVA_TARGET_PROPERTY, "1.6");
+
+    assertThat(JavaUtils.getSourceVersion(project), is("1.4"));
+    assertThat(JavaUtils.getTargetVersion(project), is("1.6"));
+  }
+
 }

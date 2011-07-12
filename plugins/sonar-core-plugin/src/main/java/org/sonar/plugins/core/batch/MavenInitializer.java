@@ -44,12 +44,12 @@ public class MavenInitializer extends Initializer {
     if (StringUtils.isBlank(conf.getString(JavaUtils.JAVA_SOURCE_PROPERTY))) {
       String version = MavenUtils.getJavaSourceVersion(pom);
       conf.setProperty(JavaUtils.JAVA_SOURCE_PROPERTY, version);
-      Logs.INFO.info("Java source version: {}", version);
+      Logs.INFO.info("Java source version: {}", JavaUtils.getSourceVersion(project));
     }
     if (StringUtils.isBlank(conf.getString(JavaUtils.JAVA_TARGET_PROPERTY))) {
       String version = MavenUtils.getJavaVersion(pom);
       conf.setProperty(JavaUtils.JAVA_TARGET_PROPERTY, version);
-      Logs.INFO.info("Java target version: {}", version);
+      Logs.INFO.info("Java target version: {}", JavaUtils.getTargetVersion(project));
     }
     /*
      * See http://jira.codehaus.org/browse/SONAR-2151

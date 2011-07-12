@@ -47,9 +47,19 @@ public final class JavaUtils {
   public static final String JAVA_SOURCE_PROPERTY = "sonar.java.source";
 
   /**
+   * Default value for property {@link #JAVA_SOURCE_PROPERTY}.
+   */
+  public static final String JAVA_SOURCE_DEFAULT_VALUE = "1.5";
+
+  /**
    * To determine value of this property use {@link #getTargetVersion(Project)}.
    */
   public static final String JAVA_TARGET_PROPERTY = "sonar.java.target";
+
+  /**
+   * Default value for property {@link #JAVA_TARGET_PROPERTY}.
+   */
+  public static final String JAVA_TARGET_DEFAULT_VALUE = "1.5";
 
   private JavaUtils() {
     // only static methods
@@ -68,16 +78,12 @@ public final class JavaUtils {
   }
 
   public static String getSourceVersion(Project project) {
-    if (project.getConfiguration() != null) {
-      return project.getConfiguration().getString(JAVA_SOURCE_PROPERTY);
-    }
-    return null;
+    String version = project.getConfiguration() != null ? project.getConfiguration().getString(JAVA_SOURCE_PROPERTY) : null;
+    return StringUtils.isNotBlank(version) ? version : JAVA_SOURCE_DEFAULT_VALUE;
   }
 
   public static String getTargetVersion(Project project) {
-    if (project.getConfiguration() != null) {
-      return project.getConfiguration().getString(JAVA_TARGET_PROPERTY);
-    }
-    return null;
+    String version = project.getConfiguration() != null ? project.getConfiguration().getString(JAVA_TARGET_PROPERTY) : null;
+    return StringUtils.isNotBlank(version) ? version : JAVA_TARGET_DEFAULT_VALUE;
   }
 }
