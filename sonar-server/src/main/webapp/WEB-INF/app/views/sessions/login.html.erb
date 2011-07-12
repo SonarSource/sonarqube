@@ -3,7 +3,7 @@
 			<td align="center">
 				<div id="login_form">
 					<form action="<%= url_for :controller => 'sessions', :action => 'login' -%>" method="post">
-						<h3><%= label_tag 'login' %></h3>
+						<h3><%= label_tag message('login') %></h3>
 						<p>
 							<%= text_field_tag 'login', '', {:maxlength => 40, :size => 30, :disabled => false} %>
 
@@ -11,15 +11,15 @@
 							  <br/><span class="desc">Not a member? <%= link_to 'Sign up', :controller => 'users', :action => 'new' -%> for an account.</span>
 							<% end %>
 						</p>
-						<h3><%= label_tag 'password' %></h3>
+						<h3><%= label_tag message('password') %></h3>
 						<p>
 							<%= password_field_tag 'password', nil, :size => 30 %>
 						</p>
 						<p>
-							<%= check_box_tag 'remember_me', '1', @remember_me %> <%= label_tag 'remember_me', 'Remember me on this computer' %>
+							<%= check_box_tag 'remember_me', '1', @remember_me %> <%= label_tag 'remember_me', message('sessions.remember_me') %>
 						</p>
 						<p>
-							<%= submit_tag 'Log in' %> or <a href="<%= home_path -%>" class="action">Cancel</a>
+							<%= submit_tag message('sessions.log_in') %> or <a href="<%= home_path -%>" class="action"><%= message('cancel') -%></a>
 						</p>
 					</form>
 					<% if flash[:loginerror] %>
