@@ -6,7 +6,7 @@
       <li><input type="text" autocomplete="off" size="15" name="search" id="projectSearch" onFocus="this.size=30;this.value='';autocompleteProjects('<%= ApplicationController.root_context -%>/api/resources?scopes=<%= Project::SCOPE_SET -%>&qualifiers=<%= Project::QUALIFIER_VIEW-%>,<%= Project::QUALIFIER_SUBVIEW-%>,<%= Project::QUALIFIER_PROJECT-%>', '<%= ApplicationController.root_context -%>/dashboard/index/', this, $('projectResults'));return true;" onBlur="javacript:this.size=15" value="Search"/><div id="projectResults" style="display:none"></div></li>
       <li>
         <a href="javascript:window.print()"><img src="<%= ApplicationController.root_context -%>/images/print.gif" alt="<%= message('layout.print') -%>" title="<%=message('layout.print')-%>" /></a>
-        <% if @project %><a href="<%= url_for :overwrite_params => {:id => @project.key}-%>" id="permalink"><img src="<%= ApplicationController.root_context -%>/images/permalink.gif" alt="Permalink" title="Permalink" /></a><% end %>
+        <% if @project %><a href="<%= url_for :overwrite_params => {:id => @project.key}-%>" id="permalink"><img src="<%= ApplicationController.root_context -%>/images/permalink.gif" alt="<%=message('layout.permalink')-%>" title="<%=message('layout.permalink')-%>" /></a><% end %>
       </li>
       <% if logged_in? %>
       <li>
@@ -31,7 +31,7 @@
 
           <% controller.java_facade.getPages(Navigation::SECTION_HOME, nil, nil, nil).each do |page|
                selected=request.request_uri.include?("/plugins/home/#{page.getId()}") %>
-          <li class="<%= 'selected' if selected -%>"><a href="<%= ApplicationController.root_context -%>/plugins/home/<%= page.getId() -%>"><%= page.getTitle()-%></a></li>
+          <li class="<%= 'selected' if selected -%>"><a href="<%= ApplicationController.root_context -%>/plugins/home/<%= page.getId() -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) -%></a></li>
           <% end %>
 
         <% elsif (selected_section==Navigation::SECTION_RESOURCE) %>
@@ -43,7 +43,7 @@
           <li class="<%= 'selected' if controller.controller_path=='timemachine' -%>"><a href="<%= ApplicationController.root_context -%>/timemachine/index/<%= @project.id -%>"><%= message('timemachine.page') -%></a></li>
           <li class="<%= 'selected' if request.request_uri.include?('/cloud/index') -%>"><a href="<%= ApplicationController.root_context -%>/cloud/index/<%= @project.id -%>"><%= message('clouds.page') -%></a></li>
           <% controller.java_facade.getPages(Navigation::SECTION_RESOURCE, @project.scope, @project.qualifier, @project.language).each do |page| %>
-          <li class="<%= 'selected' if request.request_uri.include?("page=#{page.getId()}") -%>"><a href="<%= ApplicationController.root_context -%>/plugins/resource/<%= @project.id-%>?page=<%= page.getId() -%>"><%= page.getTitle() %></a></li>
+          <li class="<%= 'selected' if request.request_uri.include?("page=#{page.getId()}") -%>"><a href="<%= ApplicationController.root_context -%>/plugins/resource/<%= @project.id-%>?page=<%= page.getId() -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) %></a></li>
           <% end %>
           <% if has_role?(:admin, @project) && @project.set? %>
             <li class="h2"><%= message('sidebar.project_system') -%></li>
@@ -65,7 +65,7 @@
               <li class="<%= 'selected' if controller.controller_path=='admin_dashboards' -%>"><a href="<%= ApplicationController.root_context -%>/admin_dashboards/index"><%= message('default_dashboards.page') -%></a></li>
               <li class="<%= 'selected' if controller.controller_path=='account' -%>"><a href="<%= ApplicationController.root_context -%>/account/index"><%= message('my_profile.page') -%></a></li>
               <% controller.java_facade.getPages(Navigation::SECTION_CONFIGURATION, nil,nil, nil).each do |page| %>
-                <li class="<%= 'selected' if request.request_uri.include?("plugins/configuration/#{page.getId()}") -%>"><a href="<%= ApplicationController.root_context -%>/plugins/configuration/<%= page.getId() -%>"><%= page.getTitle() %></a></li>
+                <li class="<%= 'selected' if request.request_uri.include?("plugins/configuration/#{page.getId()}") -%>"><a href="<%= ApplicationController.root_context -%>/plugins/configuration/<%= page.getId() -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) %></a></li>
               <% end %>
 
               <li class="h2"><%= message('sidebar.security') -%></li>
@@ -86,7 +86,7 @@
 
         <% end %>
         </ul>
-        <div id="logo"><center><a href="http://www.sonarsource.org/"><%= image_tag('sonar.png', :alt => 'Embrace Quality', :class => 'png') -%></a></center></div>
+        <div id="logo"><center><a href="http://www.sonarsource.org/"><%= image_tag('sonar.png', :alt => message('layout.sonar.slogan'), :class => 'png') -%></a></center></div>
         </div>
 
       <% if @sidebar %><div id="sidebarconf"><%= render :partial => @sidebar %></div><% else %><div id="sidebarconf" class="hidden"> </div><% end %>
@@ -107,6 +107,19 @@
 <% controller.java_facade.getWebFooters().each do |footer| %>
 <% if footer.getHtml() %><div><%= footer.getHtml().to_s %></div><% end %>
 <% end %>
-<div id="ftlinks">Powered by <a href="http://www.sonarsource.com" target="SonarSource" class="external">SonarSource</a> - Open Source <a href="http://www.sonarsource.org/documentation/license/" target="license" class="external">LGPL</a> - v.<%= sonar_version -%> - <a href="http://sonar-plugins.codehaus.org" class="external" target="plugins">Plugins</a> - <a href="http://sonar.codehaus.org/documentation" class="external" target="sonar_doc" class="external">Documentation</a> - <a href="http://sonar.codehaus.org/support/" target="support" class="external">Ask a question</a> - <a href="http://jira.codehaus.org/browse/SONAR" target="issuetracker" class="external">Bug/feature request</a></div>
+<div id="ftlinks">
+  <%= message('layout.powered_by') -%> <a href="http://www.sonarsource.com" target="SonarSource" class="external">SonarSource</a> 
+  - 
+  Open Source <a href="http://www.sonarsource.org/documentation/license/" target="license" class="external">LGPL</a> 
+  - 
+  v.<%= sonar_version -%> 
+  - 
+  <a href="http://sonar-plugins.codehaus.org" class="external" target="plugins"><%= message('layout.plugins') -%></a> 
+  - 
+  <a href="http://sonar.codehaus.org/documentation" class="external" target="sonar_doc" class="external"><%= message('layout.documentation') -%></a> 
+  - 
+  <a href="http://sonar.codehaus.org/support/" target="support" class="external"><%= message('layout.ask_a_questions') -%></a> 
+  - 
+  <a href="http://jira.codehaus.org/browse/SONAR" target="issuetracker" class="external"><%= message('layout.bug_feature_request') -%></a></div>
 </div>
 <% end %>
