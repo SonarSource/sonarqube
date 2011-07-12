@@ -18,80 +18,13 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class ProjectController < ApplicationController
-  verify :method => :post, :only => [  :set_links, :add_review, :set_exclusions, :delete_exclusions ], :redirect_to => { :action => :index }
-  verify :method => :delete, :only => [ :delete, :delete_review ], :redirect_to => { :action => :index }
+  verify :method => :post, :only => [  :set_links, :set_exclusions, :delete_exclusions ], :redirect_to => { :action => :index }
+  verify :method => :delete, :only => [ :delete ], :redirect_to => { :action => :index }
 
   SECTION=Navigation::SECTION_RESOURCE
   
   def index
     redirect_to :overwrite_params => {:controller => :dashboard, :action => 'index'} 
-  end
-
-  def show_reviews
-    @snapshot = Snapshot.find(params[:sid].to_i)
-    render :partial => 'dashboard_reviews'
-  end
-
-  def edit_review
-    @snapshot = Snapshot.find(params[:sid].to_i)
-    return access_denied unless has_role?(:admin, @snapshot)
-
-    @review = ProjectMeasure.new(:measure_date => @snapshot.created_at, :value => 0)
-    @review_types = Metric.review_types
-    render :partial => 'dashboard_edit_review'
-  end
-
-  def add_review
-    @snapshot=Snapshot.find(params[:sid].to_i)
-    return access_denied unless has_role?(:admin, @snapshot)
-
-    measure = ProjectMeasure.new(params[:review])
-    measure.project = @snapshot.project
-
-    if measure.metric.nil?
-      flash[:error] = 'Please select a metric'
-      redirect_to :action => 'index', :id => measure.project_id
-      return
-    end
-
-    if measure.measure_date <= @snapshot.created_at.to_date
-      if measure.metric.val_type==Metric::VALUE_TYPE_STRING
-        measure.text_value=params['review']['value']
-        measure.value=0
-      end
-      measure.url=params[:url] if params[:url]
-      measure.description=params[:description] if params[:description]
-      begin
-        measure.save!
-        java_facade.registerAsyncMeasure(measure.id.to_i)
-        flash[:notice] = 'Measure added'
-      rescue
-        flash[:error] = measure.errors.full_messages.join("<br/>")
-      end
-
-    else
-      flash[:error] = "The date should not be after #{l(@snapshot.created_at.to_date)}"
-    end
-
-    if request.xhr?
-      render :update do |page|
-        page.redirect_to :action => 'index', :id => measure.project_id
-      end
-    else
-      redirect_to :action => 'index', :id => measure.project_id
-    end
-  end
-
-  def delete_review
-    measure = ProjectMeasure.find(params[:id].to_i)
-    if measure && measure.review?
-      return access_denied unless has_role?(:admin, measure.project)
-
-      java_facade.deleteAsyncMeasure(measure.id.to_i)
-      redirect_to :action => 'index', :id => measure.project_id
-    else
-      redirect_to_default
-    end
   end
 
   def delete

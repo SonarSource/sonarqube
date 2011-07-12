@@ -38,7 +38,7 @@ class Filter < ActiveRecord::Base
   def criterion(family, key=nil)
     criteria.each do |criterion|
       if criterion.family==family && criterion.key==key
-        return criterion if ((key.nil? && criterion.key.nil?) || (key && key==criterion.key))
+        return criterion if ((key.nil? && criterion.key.nil?) || (key && key==criterion.key))
       end
     end
     nil
@@ -95,13 +95,6 @@ class Filter < ActiveRecord::Base
     column('links')
   end
 
-  def display_user_managed_metrics?
-    columns.each do |col|
-      return true if col.metric && col.metric.user_managed?
-    end
-    false
-  end
-
   def default_view
     read_attribute(:default_view) || VIEW_LIST
   end
@@ -145,7 +138,7 @@ class Filter < ActiveRecord::Base
     columns.each do |col|
       return col if col.id==col_id
     end
-    return nil
+    nil
   end
     
   def clean_columns_order

@@ -17,32 +17,14 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class AsyncMeasureSnapshot < ActiveRecord::Base
-   
-  belongs_to :async_measure, :foreign_key => 'project_measure_id', :class_name => "ProjectMeasure"
-  belongs_to :snapshot
 
-  def self.search(sids, metric_ids=nil)
-    sql='async_measure_snapshots.snapshot_id IN (:sids)'
-    hash={:sids => sids}
-    if metric_ids
-      sql+=' AND async_measure_snapshots.metric_id IN (:mids)'
-      hash[:mids]=metric_ids
-    end
-    async_measures=AsyncMeasureSnapshot.find(:all,
-        :include => ['async_measure'],
-        :conditions => [sql, hash])
+#
+# Sonar 2.10
+#
+class CreateManualMeasures < ActiveRecord::Migration
 
-    result=[]
-    async_measures.each do |am|
-      clone=am.async_measure.clone
-      clone.snapshot_id=am.snapshot_id
-      result<<clone
-    end
-    result
+  def self.up
+    # TODO
   end
 
-  def measure
-    async_measure
-  end
 end

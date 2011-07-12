@@ -162,11 +162,9 @@ public final class Platform {
     servicesContainer.as(Characteristics.NO_CACHE).addComponent(MeasuresDao.class);
     servicesContainer.as(Characteristics.NO_CACHE).addComponent(org.sonar.api.database.daos.MeasuresDao.class);
     servicesContainer.as(Characteristics.NO_CACHE).addComponent(ProfilesDao.class);
-    servicesContainer.as(Characteristics.NO_CACHE).addComponent(AsyncMeasuresDao.class);
     servicesContainer.as(Characteristics.NO_CACHE).addComponent(DaoFacade.class);
     servicesContainer.as(Characteristics.NO_CACHE).addComponent(DefaultRulesManager.class);
     servicesContainer.as(Characteristics.NO_CACHE).addComponent(ProfilesManager.class);
-    servicesContainer.as(Characteristics.NO_CACHE).addComponent(AsyncMeasuresService.class);
     servicesContainer.as(Characteristics.NO_CACHE).addComponent(Backup.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(AuthenticatorFactory.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(ServerLifecycleNotifier.class);

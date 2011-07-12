@@ -82,8 +82,6 @@ public class ProjectModule extends Module {
     addComponent(TimeMachineConfiguration.class);
     addComponent(org.sonar.api.database.daos.MeasuresDao.class);
     addComponent(ProfilesDao.class);
-    addComponent(AsyncMeasuresDao.class);
-    addComponent(AsyncMeasuresService.class);
     addComponent(DefaultRulesManager.class);
     addComponent(DefaultSensorContext.class);
     addComponent(Languages.class);

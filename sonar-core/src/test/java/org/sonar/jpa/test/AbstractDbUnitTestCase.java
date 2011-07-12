@@ -82,7 +82,7 @@ public abstract class AbstractDbUnitTestCase {
 
   public DaoFacade getDao() {
     if (dao == null) {
-      dao = new DaoFacade(new ProfilesDao(session), new RulesDao(session), new MeasuresDao(session), new AsyncMeasuresDao(session));
+      dao = new DaoFacade(new ProfilesDao(session), new RulesDao(session), new MeasuresDao(session));
     }
     return dao;
   }

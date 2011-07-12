@@ -23,14 +23,12 @@ public class DaoFacade {
 
   private final RulesDao rulesDao;
   private final MeasuresDao measuresDao;
-  private final AsyncMeasuresDao asyncMeasureDao;
   private final ProfilesDao profilesDao;
 
-  public DaoFacade(ProfilesDao profilesDao, RulesDao rulesDao, MeasuresDao measuresDao, AsyncMeasuresDao asyncMeasureDao) {
+  public DaoFacade(ProfilesDao profilesDao, RulesDao rulesDao, MeasuresDao measuresDao) {
     super();
     this.rulesDao = rulesDao;
     this.measuresDao = measuresDao;
-    this.asyncMeasureDao = asyncMeasureDao;
     this.profilesDao = profilesDao;
   }
 
@@ -45,9 +43,4 @@ public class DaoFacade {
   public MeasuresDao getMeasuresDao() {
     return measuresDao;
   }
-
-  public AsyncMeasuresDao getAsyncMeasureDao() {
-    return asyncMeasureDao;
-  }
-
 }

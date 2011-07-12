@@ -35,10 +35,6 @@ class Snapshot < ActiveRecord::Base
   has_one :source, :class_name => 'SnapshotSource', :dependent => :destroy
   has_many :violations, :class_name => 'RuleFailure'
 
-  has_many :async_measure_snapshots
-  has_many :async_measures, :through => :async_measure_snapshots
-
-
   STATUS_UNPROCESSED = 'U'
   STATUS_PROCESSED = 'P'
 
@@ -98,10 +94,6 @@ class Snapshot < ActiveRecord::Base
     parent_snapshot_id.nil?
   end
 
-  def all_measures
-    measures + async_measures
-  end
-  
   def descendants
     children.map(&:descendants).flatten + children
   end
@@ -219,7 +211,7 @@ class Snapshot < ActiveRecord::Base
     @measures_hash ||=
       begin
         hash = {}
-        all_measures.each do |measure|
+        measures.each do |measure|
           hash[measure.metric_id]=measure
         end
         hash

@@ -73,7 +73,6 @@ class MetricsController < ApplicationController
   def delete_from_web
     metric = Metric.by_id(params[:id].to_i) if params[:id] && params[:id].size > 0
     if metric
-      AsyncMeasureSnapshot.delete_all("metric_id = #{metric.id}")
       del_count = Metric.delete(params[:id].to_i)
       flash[:notice] = 'Successfully deleted.' if del_count == 1
       flash[:error] = 'Unable to delete this metric.' if del_count != 1

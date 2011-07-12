@@ -105,7 +105,6 @@ class ComponentsController < ApplicationController
           'rule_id' => nil,
           'rule_priority' => nil,
           'characteristic_id' => nil}))
-        measures.concat(AsyncMeasureSnapshot.search(page_sids, mids))
       end
       measures
     else

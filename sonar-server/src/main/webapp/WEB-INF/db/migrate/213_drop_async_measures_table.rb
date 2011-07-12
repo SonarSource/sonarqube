@@ -17,20 +17,17 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class CreateAsyncMeasureSnapshotsTable < ActiveRecord::Migration
-  
-  def self.up
-    create_table :async_measure_snapshots do |t|
-      t.column :project_measure_id, :integer, :null => true
-      t.column :measure_date, :datetime, :null => true
-      t.column :snapshot_id, :integer, :null => true
-      t.column :snapshot_date, :datetime, :null => true
-      t.column :metric_id, :integer, :null => true
-      t.column :project_id, :integer, :null => true
-    end
-    add_index :async_measure_snapshots, :snapshot_id, :name => 'async_m_s_snapshot_id'
-    add_index :async_measure_snapshots, :project_measure_id, :name => 'async_m_s_measure_id'
-    add_index :async_measure_snapshots, [:project_id, :metric_id], :name => 'async_m_s_project_metric'
-  end
 
+#
+# Sonar 2.10
+#
+class DropAsyncMeasuresTable < ActiveRecord::Migration
+
+  def self.up
+    remove_index('async_measure_snapshots', :name => 'async_m_s_snapshot_id')
+    remove_index('async_measure_snapshots', :name => 'async_m_s_measure_id')
+    remove_index('async_measure_snapshots', :name => 'async_m_s_project_metric')
+    drop_table('async_measure_snapshots')
+  end
+  
 end

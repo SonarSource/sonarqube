@@ -32,7 +32,6 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.api.web.*;
-import org.sonar.jpa.dao.AsyncMeasuresService;
 import org.sonar.jpa.dialect.Dialect;
 import org.sonar.jpa.session.DatabaseConnector;
 import org.sonar.markdown.Markdown;
@@ -261,20 +260,8 @@ public final class JRubyFacade {
     return getContainer().getComponent(Backup.class);
   }
 
-  public void registerAsyncMeasure(long asyncMeasureId) {
-    getAsyncMeasuresService().registerMeasure(asyncMeasureId);
-  }
-
-  public void deleteAsyncMeasure(long asyncMeasureId) {
-    getAsyncMeasuresService().deleteMeasure(asyncMeasureId);
-  }
-
   private ProfilesManager getProfilesManager() {
     return getContainer().getComponent(ProfilesManager.class);
-  }
-
-  private AsyncMeasuresService getAsyncMeasuresService() {
-    return getContainer().getComponent(AsyncMeasuresService.class);
   }
 
   public void reloadConfiguration() {

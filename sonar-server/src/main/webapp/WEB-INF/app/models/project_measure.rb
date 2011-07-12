@@ -31,9 +31,6 @@ class ProjectMeasure < ActiveRecord::Base
   belongs_to :characteristic
   has_one :measure_data, :class_name => 'MeasureData', :foreign_key => 'measure_id'
 
-  has_many :async_measure_snapshots
-  has_many :snapshots, :through => :async_measure_snapshots
-
   validates_numericality_of :value, :if => :numerical_metric?
   validate :validate_date, :validate_value
 
@@ -210,49 +207,6 @@ class ProjectMeasure < ActiveRecord::Base
       text_value || (value ? value.to_i : nil)
     else
       text_value || (value ? value.to_i : nil)
-    end
-  end
-
-  # return reviews from the snapshot and also reviews created after the snapshot
-  def self.find_reviews_for_last_snapshot(snapshot)
-    ProjectMeasure.find(:all, :include => [:async_measure_snapshots, :measure_data],
-      :conditions => ['async_measure_snapshots.project_id=project_measures.project_id AND ' +
-        '((async_measure_snapshots.snapshot_id IS NULL AND project_measures.measure_date>?) ' +
-        'OR async_measure_snapshots.snapshot_id=?) ', snapshot.created_at, snapshot.id])
-  end
-
-  def self.find_reviews_for_last_snapshot_with_opts(snapshot, options)
-    metrics = options[:metrics].nil? ? [] : Metric.ids_from_keys(options[:metrics].split(','))
-    include = (options[:includeparams] == "true") ? [:async_measure_snapshots, :measure_data] : :async_measure_snapshots
-
-    metrics_conditions = (metrics.empty?) ? "" : "AND project_measures.metric_id IN (?)"
-    conditions = 'async_measure_snapshots.project_id=project_measures.project_id AND ' +
-      '((async_measure_snapshots.snapshot_id IS NULL AND project_measures.measure_date>?) ' +
-      'OR async_measure_snapshots.snapshot_id=?) ' + metrics_conditions
-    if metrics.empty?
-      ProjectMeasure.find(:all, :include => include, :conditions => [conditions, snapshot.created_at, snapshot.id])
-    else
-      ProjectMeasure.find(:all, :include => include, :conditions => [conditions, snapshot.created_at, snapshot.id, metrics])
-    end
-  end
-
-  def self.find_reviews(snapshot)
-    conditions = 'async_measure_snapshots.snapshot_id=? ' + metrics_conditions
-    ProjectMeasure.find(:all, :include => [:async_measure_snapshots, :measure_data],
-      :conditions => ['async_measure_snapshots.snapshot_id=? ', snapshot.id])
-  end
-
-
-  def self.find_reviews_with_opts(snapshot, options={})
-    metrics = options[:metrics].nil? ? [] : Metric.ids_from_keys(options[:metrics].split(','))
-    include = (options[:includeparams] == "true") ? [:async_measure_snapshots, :measure_data] : :async_measure_snapshots
-
-    metrics_conditions = (metrics.empty?) ? "" : "AND project_measures.metric_id IN (?)"
-    conditions = 'async_measure_snapshots.snapshot_id=? ' + metrics_conditions
-    if metrics.empty?
-      ProjectMeasure.find(:all, :include => include, :conditions => [conditions, snapshot.id])
-    else
-      ProjectMeasure.find(:all, :include => include, :conditions => [conditions, snapshot.id, metrics])
     end
   end
 

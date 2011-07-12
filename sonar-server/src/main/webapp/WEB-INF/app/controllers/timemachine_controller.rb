@@ -53,7 +53,6 @@ class TimemachineController < ApplicationController
     end
 
     measures=ProjectMeasure.find(:all, :conditions => {:rule_id => nil, :rule_priority => nil, :snapshot_id => @sids, :characteristic_id => nil})
-    measures.concat(AsyncMeasureSnapshot.search(@sids))
 
     rows_by_metric_id={}
     @rows=[]
