@@ -33,6 +33,8 @@ import org.sonar.plugins.findbugs.xml.FindBugsFilter;
 import org.sonar.plugins.findbugs.xml.Match;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @since 2.4
@@ -96,6 +98,18 @@ public class FindbugsConfiguration implements BatchExtension {
       }
     }
     return project.getFileSystem().writeToWorkingDirectory(findBugsFilter.toXml(), "findbugs-exclude.xml");
+  }
+
+  public List<File> getExcludesFilters() {
+    List<File> result = new ArrayList<File>();
+    String[] filters = project.getConfiguration().getStringArray(FindbugsConstants.EXCLUDES_FILTERS_PROPERTY);
+    for (String excludesFilterPath : filters) {
+      excludesFilterPath = StringUtils.trim(excludesFilterPath);
+      if (StringUtils.isNotBlank(excludesFilterPath)) {
+        result.add(project.getFileSystem().resolvePath(excludesFilterPath));
+      }
+    }
+    return result;
   }
 
   public String getEffort() {

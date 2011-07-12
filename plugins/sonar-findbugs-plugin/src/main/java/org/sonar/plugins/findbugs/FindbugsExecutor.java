@@ -19,19 +19,6 @@
  */
 package org.sonar.plugins.findbugs;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.lang.reflect.Field;
-import java.net.URL;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.*;
 import edu.umd.cs.findbugs.config.UserPreferences;
@@ -45,6 +32,19 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.lang.reflect.Field;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @since 2.4
@@ -95,6 +95,14 @@ public class FindbugsExecutor implements BatchExtension {
 
       engine.addFilter(configuration.saveIncludeConfigXml().getAbsolutePath(), true);
       engine.addFilter(configuration.saveExcludeConfigXml().getAbsolutePath(), false);
+
+      for (File filterFile : configuration.getExcludesFilters()) {
+        if (filterFile.isFile()) {
+          engine.addFilter(filterFile.getAbsolutePath(), false);
+        } else {
+          LOG.warn("FindBugs filter-file not found: {}", filterFile);
+        }
+      }
 
       engine.setDetectorFactoryCollection(detectorFactory);
       engine.setAnalysisFeatureSettings(FindBugs.DEFAULT_EFFORT);
@@ -167,4 +175,5 @@ public class FindbugsExecutor implements BatchExtension {
       throw new SonarException(e);
     }
   }
+
 }

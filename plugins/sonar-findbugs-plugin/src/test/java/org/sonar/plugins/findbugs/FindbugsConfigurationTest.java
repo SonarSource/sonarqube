@@ -24,8 +24,8 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
-
+import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,6 +33,8 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.SimpleProjectFileSystem;
+
+import java.io.File;
 
 public class FindbugsConfigurationTest {
 
@@ -62,4 +64,14 @@ public class FindbugsConfigurationTest {
     assertThat(findbugsExcludeFile.exists(), is(true));
   }
 
+  @Test
+  public void shouldReturnExcludesFilters() {
+    Configuration projectConfiguration = new BaseConfiguration();
+    when(project.getConfiguration()).thenReturn(projectConfiguration);
+    FindbugsConfiguration conf = new FindbugsConfiguration(project, RulesProfile.create(), new FindbugsProfileExporter(), null);
+
+    assertThat(conf.getExcludesFilters().size(), is(0));
+    projectConfiguration.setProperty(FindbugsConstants.EXCLUDES_FILTERS_PROPERTY, " foo.xml , bar.xml,");
+    assertThat(conf.getExcludesFilters().size(), is(2));
+  }
 }

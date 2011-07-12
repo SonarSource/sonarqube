@@ -38,6 +38,11 @@ import java.util.List;
         name = "Timeout",
         description = "Specifies the amount of time, in milliseconds, that FindBugs may run before it is assumed to be hung and is terminated. " +
             "The default is 600,000 milliseconds, which is ten minutes.",
+        project = true, module = true, global = true),
+    @Property(
+        key = FindbugsConstants.EXCLUDES_FILTERS_PROPERTY,
+        name = "Excludes Filters",
+        description = "Paths to findbugs filter-files with exclusions (comma-separated).",
         project = true, module = true, global = true) })
 public class FindbugsPlugin extends SonarPlugin {
 
@@ -50,6 +55,7 @@ public class FindbugsPlugin extends SonarPlugin {
     list.add(FindbugsProfileExporter.class);
     list.add(FindbugsProfileImporter.class);
     list.add(SonarWayWithFindbugsProfile.class);
+    list.add(FindbugsMavenInitializer.class);
     return list;
   }
 }
