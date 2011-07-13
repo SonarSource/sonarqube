@@ -184,16 +184,16 @@ $('name').focus();
 <br/>
 
 <% if @filter_context %>
-  <h1>Display</h1>
+  <h1><%= message('display') -%></h1>
   <div class="admin">
     <table class="form" id="view-form">
       <tr>
-        <td class="first">Display as:</td>
+        <td class="first"><%= message('filters.display_as') -%>:</td>
         <td>
           <form action="<%= url_for :action => :set_view, :id => @filter.id -%>" method="POST">
-            <input type="radio" name="view" value="list" <%= 'checked' if @filter.default_view==::Filter::VIEW_LIST -%> id="view-list" onClick="$('view-loading').show();submit();"></input> <label for="view-list">Table</label>
+            <input type="radio" name="view" value="list" <%= 'checked' if @filter.default_view==::Filter::VIEW_LIST -%> id="view-list" onClick="$('view-loading').show();submit();"></input> <label for="view-list"><%= message('table') -%></label>
             <span class="spacer"> </span>
-            <input type="radio" name="view" value="treemap" <%= 'checked' if @filter.default_view==::Filter::VIEW_TREEMAP -%> id="view-treemap" onClick="$('view-loading').show();submit();"></input> <label for="view-treemap">Treemap</label>
+            <input type="radio" name="view" value="treemap" <%= 'checked' if @filter.default_view==::Filter::VIEW_TREEMAP -%> id="view-treemap" onClick="$('view-loading').show();submit();"></input> <label for="view-treemap"><%= message('treemap') -%></label>
             <span class="spacer"> </span>
             <%= image_tag 'loading.gif', :id => 'view-loading', :style=>'display: none' %>
           </form>

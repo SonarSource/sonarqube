@@ -23,7 +23,7 @@ class FilterColumn < ActiveRecord::Base
 
   belongs_to :filter
   validates_inclusion_of :sort_direction, :in => %w( ASC DESC ), :allow_nil => true
-
+  
   def self.create_from_string(string)
     if FAMILIES.include?(string)
       FilterColumn.new(:family => string)
@@ -39,48 +39,14 @@ class FilterColumn < ActiveRecord::Base
 
   def name
     if on_metric?
-      metric ? metric.short_name : kee
+      Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, "metric." + kee + ".name", nil, [].to_java)
     else
-      case family
-      when 'date'
-        'Build date'
-      when 'language'
-        'Language'
-      when 'name'
-        'Name'
-      when 'links'
-        'Links'
-      when 'version'
-        'Version'
-      when 'key'
-        'Key'
-      else
-        kee
-      end
+      Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, family, kee, [].to_java)
     end
   end
 
   def display_name
-    if on_metric?
-      metric ? metric.short_name : kee
-    else
-      case family
-      when 'date'
-        'Build date'
-      when 'language'
-        'Language'
-      when 'name'
-        'Name'
-      when 'links'
-        'Links'
-      when 'version'
-        'Version'
-      when 'key'
-        'Key'
-      else
-        kee
-      end
-    end
+    name
   end
 
   def metric

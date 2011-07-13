@@ -5,14 +5,14 @@
 %>
 <form class="admin" action="<%= url_for :action => 'set_columns', :id => @filter.id -%>" method="POST">
   <tr>
-    <td class="first">Size:</td>
+    <td class="first"><%= message('size') -%>:</td>
     <td>
       <%= select_tag 'columns[]', options_grouped_by_domain(Sonar::TreemapBuilder.size_metrics({:exclude_user_managed => true}), size_metric.key),
         :id => 'size_metric' %>
     </td>
   </tr>
   <tr>
-    <td class="first">Color:</td>
+    <td class="first"><%= message('color') -%>:</td>
     <td>
       <%= select_tag 'columns[]', options_grouped_by_domain(Sonar::TreemapBuilder.color_metrics, color_metric.key),
         :id => 'color_metric' %>
@@ -22,7 +22,7 @@
   <tr>
     <td class="first"> </td>
     <td>
-      <input type="submit" value="Change">
+      <input type="submit" value="<%= message('change_verb') -%>">
     </td>
   </tr>
 </form>

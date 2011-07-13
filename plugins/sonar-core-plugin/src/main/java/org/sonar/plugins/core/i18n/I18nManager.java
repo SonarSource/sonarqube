@@ -153,7 +153,8 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
       String bundleBaseName = keys.get(key);
       if (bundleBaseName == null) {
         if (result == null) {
-          throw new MissingResourceException("UNKNOWN KEY : Key '" + key + "' not found in any bundle.", bundleBaseName, key);
+          throw new MissingResourceException("UNKNOWN KEY : Key '" + key
+              + "' not found in any bundle, and no default value provided. The key is returned.", bundleBaseName, key);
         }
         LOG.warn("UNKNOWN KEY : Key '{}' not found in any bundle. Default value '{}' is returned.", key, defaultText);
         unknownKeys.put(key, defaultText);
@@ -180,10 +181,17 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
               bundleBaseName, bundleClassLoader, defaultText });
         }
       }
-    } catch (Exception e) {
-      LOG.error("Exception when retrieving I18n string.", e);
+    } catch (MissingResourceException e) {
+      LOG.warn(e.getMessage());
       if (result == null) {
-        throw new SonarException("Exception when retrieving I18n string.", e);
+        // when no translation has been found, the key is returned
+        return key;
+      }
+    } catch (Exception e) {
+      LOG.error("Exception when retrieving I18n string: ", e);
+      if (result == null) {
+        // when no translation has been found, the key is returned
+        return key;
       }
     }
 

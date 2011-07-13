@@ -41,7 +41,7 @@ module ApplicationHelper
   def qualifier_icon(object)
     qualifier=(object.respond_to?('qualifier') ? object.qualifier : object.to_s)
     if qualifier
-      image_tag("q/#{qualifier}.png", :alt => Resourceable.qualifier_name(qualifier))
+      image_tag("q/#{qualifier}.png", :alt => message(Resourceable.qualifier_name(qualifier)))
     else
       image_tag('e16.gif')
     end

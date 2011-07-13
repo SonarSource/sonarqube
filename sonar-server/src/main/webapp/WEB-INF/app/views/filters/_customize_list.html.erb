@@ -1,12 +1,12 @@
 <tr>
   <td class="first">
-    Add column:
+    <%= message('filters.add_column') -%>:
   </td>
   <td>
     <form id="add_column_form" action="<%= url_for :action => 'add_column', :id => @filter.id -%>" method="post">
     <select name="column_type" id="select_column_type">
-        <option value="value" selected>Value</option>
-        <option value="variation">Variation</option>
+        <option value="value" selected><%= message('value') -%></option>
+        <option value="variation"><%= message('variation') -%></option>
     </select>
 
     <select name="column" id="select_column">
@@ -17,22 +17,22 @@
             <% if metric.display? %><option value="metric,<%= metric.id -%>"><%= metric.short_name -%></option><% end %>
           <% end %>
           <% if domain=='General' %>
-            <% unless @filter.column('date') %><option value="date">Build date</option><% end %>
-            <% unless @filter.column('key') %><option value="key">Key</option><% end %>
-            <% unless @filter.column('language') %><option value="language">Language</option><% end %>
-            <% unless @filter.column('links') %><option value="links">Links</option><% end %>
-            <% unless @filter.column('name') %><option value="name">Name</option><% end %>
-            <% unless @filter.column('version') %><option value="version">Version</option><% end %>
+            <% unless @filter.column('date') %><option value="date"><%= message('build_date') -%></option><% end %>
+            <% unless @filter.column('key') %><option value="key"><%= message('key') -%></option><% end %>
+            <% unless @filter.column('language') %><option value="language"><%= message('language') -%></option><% end %>
+            <% unless @filter.column('links') %><option value="links"><%= message('links') -%></option><% end %>
+            <% unless @filter.column('name') %><option value="name"><%= message('name') -%></option><% end %>
+            <% unless @filter.column('version') %><option value="version"><%= message('version') -%></option><% end %>
           <% end %>
         </optgroup>
       <% end %>
     </select>
-    <input type="submit" id="add_column_button" value="Add"></input>
+    <input type="submit" id="add_column_button" value="<%= message('add_verb') -%>"></input>
     </form>
   </td>
 </tr>
 <tr>
-  <td class="first">Default sorted column:</td>
+  <td class="first"><%= message('filters.default_sorted_column') -%>:</td>
   <td>
     <form id="sorted_column_form" action="<%= url_for :action => 'set_sorted_column' -%>" method="post">
       <select name="id">
@@ -44,20 +44,20 @@
       <% end %>
       </select>
       <select name="sort">
-        <option value="ASC" <%= 'selected' if default_sorted_column && default_sorted_column.ascending? -%>>Ascending</option>
-        <option value="DESC" <%= 'selected' if default_sorted_column && default_sorted_column.descending? -%>>Descending</option>
+        <option value="ASC" <%= 'selected' if default_sorted_column && default_sorted_column.ascending? -%>><%= message('ascending') -%></option>
+        <option value="DESC" <%= 'selected' if default_sorted_column && default_sorted_column.descending? -%>><%= message('descending') -%></option>
       </select>
-        <input type="submit" id="add_column_submit" value="Change" />
+        <input type="submit" id="add_column_submit" value="<%= message('change_verb') -%>" />
       </form>
    </td>
 </tr>
 <tr>
-  <td class="first">Page size:</td>
+  <td class="first"><%= message('page_size') -%>:</td>
   <td>
     <form id="page_size_form" action="<%= url_for :action => 'set_page_size' -%>" method="post">
       <input type="hidden" name="id" value="<%= @filter.id -%>"></input>
       <input type="text" name="size" value="<%= @filter.page_size -%>" maxsize="3" size="3"></input>
-      <input type="submit" id="set_page_size_submit" value="Change"/>
-      <span class="comments">Min <%= ::Filter::MIN_PAGE_SIZE -%>, max <%= ::Filter::MAX_PAGE_SIZE -%></span>
+      <input type="submit" id="set_page_size_submit" value="<%= message('change_verb') -%>"/>
+      <span class="comments"><%= message('min') -%> <%= ::Filter::MIN_PAGE_SIZE -%>, <%= message('max').downcase -%> <%= ::Filter::MAX_PAGE_SIZE -%></span>
    </td>
 </tr>

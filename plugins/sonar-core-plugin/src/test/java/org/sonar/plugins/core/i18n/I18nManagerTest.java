@@ -19,12 +19,8 @@
  */
 package org.sonar.plugins.core.i18n;
 
-import com.google.common.collect.Lists;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.i18n.LanguagePack;
-import org.sonar.api.platform.PluginRepository;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -32,8 +28,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.i18n.LanguagePack;
+import org.sonar.api.platform.PluginRepository;
+
+import com.google.common.collect.Lists;
 
 public class I18nManagerTest {
 
@@ -46,11 +47,9 @@ public class I18nManagerTest {
 
   @Before
   public void createManager() throws Exception {
-    List<InstalledPlugin> plugins = Lists.newArrayList(
-        new InstalledPlugin("test", new TestClassLoader(getClass().getClassLoader().getResource("StandardPlugin.jar"))),
-        new InstalledPlugin("fake1", getClass().getClassLoader()),
-        new InstalledPlugin("fake2", getClass().getClassLoader())
-    );
+    List<InstalledPlugin> plugins = Lists.newArrayList(new InstalledPlugin("test", new TestClassLoader(getClass().getClassLoader()
+        .getResource("StandardPlugin.jar"))), new InstalledPlugin("fake1", getClass().getClassLoader()), new InstalledPlugin("fake2",
+        getClass().getClassLoader()));
 
     TestClassLoader frenchPackClassLoader = new TestClassLoader(getClass().getClassLoader().getResource("FrenchPlugin.jar"));
     LanguagePack frenchPack = (LanguagePack) frenchPackClassLoader.loadClass(FRENCH_PACK_CLASS_NAME).newInstance();
@@ -58,7 +57,7 @@ public class I18nManagerTest {
     TestClassLoader quebecPackClassLoader = new TestClassLoader(getClass().getClassLoader().getResource("QuebecPlugin.jar"));
     LanguagePack quebecPack = (LanguagePack) quebecPackClassLoader.loadClass(QUEBEC_PACK_CLASS_NAME).newInstance();
 
-    manager = new I18nManager(mock(PluginRepository.class), new LanguagePack[]{frenchPack, quebecPack});
+    manager = new I18nManager(mock(PluginRepository.class), new LanguagePack[] { frenchPack, quebecPack });
     manager.doStart(plugins);
   }
 
@@ -98,9 +97,17 @@ public class I18nManagerTest {
     Assert.assertEquals("Default value for Unknown", manager.getUnknownKeys().getProperty("unknown"));
   }
 
+  @Test
+  public void shouldReturnKeyIfTranslationMissingAndNotDefaultProvided() throws Exception {
+    String result = manager.message(Locale.ENGLISH, "unknown.key", null);
+    assertEquals("unknown.key", result);
+    Assert.assertEquals(0, manager.getUnknownKeys().size());
+  }
+
   public static class TestClassLoader extends URLClassLoader {
+
     public TestClassLoader(URL url) {
-      super(new URL[]{url, classSource}, Thread.currentThread().getContextClassLoader());
+      super(new URL[] { url, classSource }, Thread.currentThread().getContextClassLoader());
     }
 
     protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {

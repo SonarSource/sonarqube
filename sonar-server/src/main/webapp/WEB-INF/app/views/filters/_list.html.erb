@@ -5,7 +5,7 @@
     <div class="operations">
     <form action="<%= url_for :overwrite_params => {:period => nil} -%>" style="display: inline" method="get">
       <select name="period" onchange="submit()" class="small">
-          <option value="">Time changes...</option>
+          <option value=""><%= message('time_changes') -%>...</option>
           <% period_names.each_with_index do |name, index| %>
              <option value="<%= index+1 -%>" <%= 'selected' if @filter_context.period_index==index+1 -%>><%= name -%></value>
           <% end %>
@@ -28,9 +28,9 @@
     <tr class="admin"><th></th>
     <% filter.columns.each do |column| %>
       <th nowrap class="<%= column_align(column) -%>">
-        <%= link_to image_tag("controls/resultset_previous.png"), {:action => 'left_column', :id => column.id}, :title => 'Move left', :method => :post if filter.first_column!=column %>
-        <%= link_to image_tag("bin_closed.png"), {:action => 'delete_column', :id => column.id}, :title => 'Remove this column', :method => :post if column.deletable? %>
-        <%= link_to image_tag("controls/resultset_next.png"), {:action => 'right_column', :id => column.id}, :title => 'Move right', :method => :post if filter.last_column!=column %>
+        <%= link_to image_tag("controls/resultset_previous.png"), {:action => 'left_column', :id => column.id}, :title => message('move_left'), :method => :post if filter.first_column!=column %>
+        <%= link_to image_tag("bin_closed.png"), {:action => 'delete_column', :id => column.id}, :title => message('remove_column'), :method => :post if column.deletable? %>
+        <%= link_to image_tag("controls/resultset_next.png"), {:action => 'right_column', :id => column.id}, :title => message('move_right'), :method => :post if filter.last_column!=column %>
       </th>
     <% end %>
     </tr>
@@ -40,7 +40,7 @@
   <tfoot>
     <tr>
       <td colspan="<%= filter.columns.size + 1 -%>">
-        <span id="results_count"><%= pluralize(@filter_context.size, 'result') %></span>
+        <span id="results_count"><%= pluralize(@filter_context.size, message('result').downcase) %></span>
 
         <% if @filter_context.page_count>1 %>
           |
@@ -53,7 +53,7 @@
 
         <% if @filter.projects_homepage? %>
           &nbsp;&nbsp; <a href="<%= url_for :controller => :feeds, :action => 'projects', :id => EventCategory::KEY_ALERT -%>" class="nolink"><%= image_tag 'rss-12x12.png' %></a>
-          <a href="<%= url_for :controller => :feeds, :action => 'projects', :id => EventCategory::KEY_ALERT -%>" class="action">Alerts feed</a>
+          <a href="<%= url_for :controller => :feeds, :action => 'projects', :id => EventCategory::KEY_ALERT -%>" class="action"><%= message('alerts_feed') -%></a>
         <% end %>
       </td>
     </tr>
@@ -129,6 +129,6 @@
 </table>
 <br/>
 <% if @filter_context.security_exclusions? %>
-  <p class="notes">Due to security settings, some results are not being displayed.</p>
+  <p class="notes"><%= message('results_not_display_due_to_security') -%></p>
 <% end %>
 </div>
