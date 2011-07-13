@@ -449,6 +449,12 @@
           <version>${project.version}</version>
           <scope>provided</scope>
         </dependency>
+        <dependency>
+          <groupId>org.codehaus.sonar.plugins</groupId>
+          <artifactId>sonar-i18n-en-plugin</artifactId>
+          <version>${project.version}</version>
+          <scope>provided</scope>
+        </dependency>
       </dependencies>
     </profile>
 

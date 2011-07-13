@@ -38,7 +38,7 @@ import com.google.common.collect.Lists;
 
 public class I18nManagerTest {
 
-  public static String TEST_PLUGIN_CLASS_NAME = "org.sonar.plugins.core.i18n.StandardPlugin";
+  public static String ENGLISH_PACK_CLASS_NAME = "org.sonar.plugins.core.i18n.EnglishLanguagePack";
   public static String FRENCH_PACK_CLASS_NAME = "org.sonar.plugins.core.i18n.FrenchLanguagePack";
   public static String QUEBEC_PACK_CLASS_NAME = "org.sonar.plugins.core.i18n.QuebecLanguagePack";
 
@@ -47,17 +47,19 @@ public class I18nManagerTest {
 
   @Before
   public void createManager() throws Exception {
-    List<InstalledPlugin> plugins = Lists.newArrayList(new InstalledPlugin("test", new TestClassLoader(getClass().getClassLoader()
-        .getResource("StandardPlugin.jar"))), new InstalledPlugin("fake1", getClass().getClassLoader()), new InstalledPlugin("fake2",
-        getClass().getClassLoader()));
+    List<InstalledPlugin> plugins = Lists.newArrayList(new InstalledPlugin("test", getClass().getClassLoader()), new InstalledPlugin(
+        "fake1", getClass().getClassLoader()), new InstalledPlugin("fake2", getClass().getClassLoader()));
 
-    TestClassLoader frenchPackClassLoader = new TestClassLoader(getClass().getClassLoader().getResource("FrenchPlugin.jar"));
+    TestClassLoader englishPackClassLoader = new TestClassLoader(getClass().getClassLoader().getResource("I18n/EnglishPlugin.jar"));
+    LanguagePack englishPack = (LanguagePack) englishPackClassLoader.loadClass(ENGLISH_PACK_CLASS_NAME).newInstance();
+
+    TestClassLoader frenchPackClassLoader = new TestClassLoader(getClass().getClassLoader().getResource("I18n/FrenchPlugin.jar"));
     LanguagePack frenchPack = (LanguagePack) frenchPackClassLoader.loadClass(FRENCH_PACK_CLASS_NAME).newInstance();
 
-    TestClassLoader quebecPackClassLoader = new TestClassLoader(getClass().getClassLoader().getResource("QuebecPlugin.jar"));
+    TestClassLoader quebecPackClassLoader = new TestClassLoader(getClass().getClassLoader().getResource("I18n/QuebecPlugin.jar"));
     LanguagePack quebecPack = (LanguagePack) quebecPackClassLoader.loadClass(QUEBEC_PACK_CLASS_NAME).newInstance();
 
-    manager = new I18nManager(mock(PluginRepository.class), new LanguagePack[] { frenchPack, quebecPack });
+    manager = new I18nManager(mock(PluginRepository.class), new LanguagePack[] { frenchPack, quebecPack, englishPack });
     manager.doStart(plugins);
   }
 
@@ -113,7 +115,7 @@ public class I18nManagerTest {
     protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
       Class c = findLoadedClass(name);
       if (c == null) {
-        if (name.equals(TEST_PLUGIN_CLASS_NAME) || name.equals(QUEBEC_PACK_CLASS_NAME) || name.equals(FRENCH_PACK_CLASS_NAME)) {
+        if (name.equals(ENGLISH_PACK_CLASS_NAME) || name.equals(QUEBEC_PACK_CLASS_NAME) || name.equals(FRENCH_PACK_CLASS_NAME)) {
           c = findClass(name);
         } else {
           return super.loadClass(name, resolve);

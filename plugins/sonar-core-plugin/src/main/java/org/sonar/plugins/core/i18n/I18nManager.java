@@ -76,12 +76,31 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
   void doStart(List<InstalledPlugin> installedPlugins) {
     Logs.INFO.info("Loading i18n bundles");
     Set<URI> alreadyLoadedResources = Sets.newHashSet();
+    LanguagePack englishPack = findEnglishPack();
+
     for (InstalledPlugin plugin : installedPlugins) {
-      searchAndStoreBundleNames(plugin.key, plugin.classloader, alreadyLoadedResources);
+      searchAndStoreBundleNames(plugin.key, englishPack.getClass().getClassLoader(), alreadyLoadedResources);
     }
+
     for (LanguagePack pack : languagePacks) {
-      addLanguagePack(pack);
+      if ( !pack.equals(englishPack)) {
+        addLanguagePack(pack);
+      }
     }
+  }
+
+  private LanguagePack findEnglishPack() {
+    LanguagePack englishPack = null;
+    for (LanguagePack pack : languagePacks) {
+      if (pack.getLocales().contains(Locale.ENGLISH)) {
+        englishPack = pack;
+        break;
+      }
+    }
+    if (englishPack == null) {
+      throw new SonarException("The I18n English Pack was not found.");
+    }
+    return englishPack;
   }
 
   private void addLanguagePack(LanguagePack languagePack) {
@@ -102,6 +121,7 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
     return packagePathToSearchIn + "/" + pluginKey;
   }
 
+  @SuppressWarnings("unchecked")
   private void searchAndStoreBundleNames(String pluginKey, ClassLoader classloader, Set<URI> alreadyLoadedResources) {
     String bundleBaseName = buildBundleBaseName(pluginKey);
     String bundleDefaultPropertiesFile = bundleBaseName + ".properties";
