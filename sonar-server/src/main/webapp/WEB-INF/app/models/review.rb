@@ -59,8 +59,10 @@ class Review < ActiveRecord::Base
   # - :user
   # - :text
   def create_comment(params={})
-    comments.create!(params)
+    comment = comments.create!(params)
     touch
+
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getReviewsNotificationManager().notifyCommentAdded(id.to_i, comment.user.id.to_i, comment.text.to_java)
   end
 
   def edit_comment(comment_id, comment_text)

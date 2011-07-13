@@ -46,11 +46,20 @@ public final class Review {
     return id;
   }
 
+  public void setId(Long id) {
+    this.id = id;
+  }
+
   /**
    * @return id of user, who created this review
    */
   public Integer getUserId() {
     return userId;
+  }
+
+  public Review setUserId(Integer userId) {
+    this.userId = userId;
+    return this;
   }
 
   /**
@@ -60,8 +69,18 @@ public final class Review {
     return assigneeId;
   }
 
+  public Review setAssigneeId(Integer assigneeId) {
+    this.assigneeId = assigneeId;
+    return this;
+  }
+
   public String getTitle() {
     return title;
+  }
+
+  public Review setTitle(String title) {
+    this.title = title;
+    return this;
   }
 
 }

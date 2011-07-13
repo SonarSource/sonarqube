@@ -41,6 +41,7 @@ import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.filters.Filter;
 import org.sonar.server.filters.FilterExecutor;
 import org.sonar.server.filters.FilterResult;
+import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.plugins.*;
 import org.sonar.server.rules.ProfilesConsole;
@@ -306,6 +307,10 @@ public final class JRubyFacade {
       i18n = getContainer().getComponent(JRubyI18n.class);
     }
     return i18n.message(rubyLocale, key, defaultValue, parameters);
+  }
+
+  public ReviewsNotificationManager getReviewsNotificationManager() {
+    return getContainer().getComponent(ReviewsNotificationManager.class);
   }
 
   public PicoContainer getContainer() {
