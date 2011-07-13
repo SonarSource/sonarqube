@@ -62,13 +62,14 @@
 
   <distributionManagement>
     <repository>
-      <id>codehaus.org</id>
+      <id>codehaus-releases</id>
       <url>dav:https://dav.codehaus.org/repository/sonar</url>
       <uniqueVersion>false</uniqueVersion>
     </repository>
     <snapshotRepository>
-      <id>codehaus.org</id>
-      <url>dav:https://dav.codehaus.org/snapshots.repository/sonar</url>
+      <id>sonar-snapshots</id>
+      <!-- value for Codehaus : dav:https://dav.codehaus.org/snapshots.repository/sonar -->
+      <url>${sonar.snapshotRepository.url}</url>
       <uniqueVersion>false</uniqueVersion>
     </snapshotRepository>
   </distributionManagement>
