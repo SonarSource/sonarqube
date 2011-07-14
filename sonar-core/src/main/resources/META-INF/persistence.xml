@@ -7,6 +7,7 @@
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
 
     <class>org.sonar.jpa.entity.SchemaMigration</class>
+    <class>org.sonar.jpa.entity.ManualMeasure</class>
     <class>org.sonar.api.database.configuration.Property</class>
     <class>org.sonar.api.qualitymodel.Model</class>
     <class>org.sonar.api.qualitymodel.Characteristic</class>

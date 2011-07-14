@@ -43,6 +43,7 @@ class Api::EventsController < Api::ApiController
         conditions<<'resource_id IS NULL'
       end
 
+      from=nil
       if params[:fromDateTime]
         from=parse_datetime(params[:fromDateTime], false)
       elsif params[:fromDate]
@@ -53,6 +54,7 @@ class Api::EventsController < Api::ApiController
         values[:from]=from
       end
 
+      to=nil
       if params[:toDateTime]
         to=parse_datetime(params[:toDateTime], false)
       elsif params[:toDate]

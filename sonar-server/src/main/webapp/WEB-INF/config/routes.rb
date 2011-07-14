@@ -11,6 +11,7 @@ ActionController::Routing::Routes.draw do |map|
     api.resources :events, :only => [:index, :show, :create, :destroy]
     api.resources :user_properties, :only => [:index, :show, :create, :destroy], :requirements => { :id => /.*/ }
     api.resources :favorites, :only => [:index, :show, :create, :destroy], :requirements => { :id => /.*/ }
+    api.resources :manual_measures, :only => [:index, :create, :destroy], :requirements => { :id => /.*/ }
     api.resources :reviews, :only => [:index, :show, :create], :member => {
       :add_comment => :put,
       :reassign => :put,

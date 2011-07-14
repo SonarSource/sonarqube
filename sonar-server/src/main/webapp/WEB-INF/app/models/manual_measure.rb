@@ -17,22 +17,26 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-
-#
-# Sonar 2.10
-#
-class CreateManualMeasures < ActiveRecord::Migration
-
-  def self.up
-    create_table 'manual_measures' do |t|
-      t.column 'metric_id', :integer, :null => false
-      t.column 'resource_id', :integer, :null => true
-      t.column 'value', :decimal,   :null => true, :precision => 30, :scale => 20
-      t.column 'text_value', :string, :null => true, :limit => 4000
-      t.column 'user_id', :integer, :null => true
-      t.timestamps
-    end
-    alter_to_big_primary_key('manual_measures')
+class ManualMeasure < ActiveRecord::Base
+  belongs_to :resource, :class_name => 'Project'
+  belongs_to :user
+  validates_uniqueness_of :metric_id, :scope => :resource_id
+  validates_length_of :text_value, :maximum => 4000, :allow_nil => true, :allow_blank => true
+  validate :validate_metric
+  
+  def metric
+    @metric ||=
+      begin
+        Metric.by_id(metric_id)
+      end
   end
 
+  def metric=(m)
+    @metric = m
+    write_attribute(:metric_id, m.id) if m.id
+  end
+
+  def validate_metric
+    errors.add_to_base("Not a valid metric") unless metric && metric.enabled?
+  end
 end

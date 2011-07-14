@@ -1,0 +1,78 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2008-2011 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
+package org.sonar.jpa.entity;
+
+import javax.persistence.*;
+import java.util.Date;
+
+@Entity
+@Table(name = "manual_measures")
+public final class ManualMeasure {
+  @Id
+  @Column(name = "id")
+  @GeneratedValue
+  private Long id;
+
+  @Column(name = "value", updatable = true, nullable = true, precision = 30, scale = 20)
+  private Double value = null;
+
+  @Column(name = "text_value", updatable = true, nullable = true, length = 4000)
+  private String textValue;
+
+  @Column(name = "metric_id", updatable = false, nullable = false)
+  private Integer metricId;
+
+  @Column(name = "resource_id", updatable = true, nullable = true)
+  private Integer resourceId;
+
+  @Column(name = "created_at", updatable = true, nullable = true)
+  private Date createdAt;
+
+  @Column(name = "updated_at", updatable = true, nullable = true)
+  private Date updatedAt;
+
+  public Long getId() {
+    return id;
+  }
+
+  public Double getValue() {
+    return value;
+  }
+
+  public String getTextValue() {
+    return textValue;
+  }
+
+  public Integer getMetricId() {
+    return metricId;
+  }
+
+  public Integer getResourceId() {
+    return resourceId;
+  }
+
+  public Date getCreatedAt() {
+    return createdAt;
+  }
+
+  public Date getUpdatedAt() {
+    return updatedAt;
+  }
+}

@@ -20,42 +20,93 @@
 require 'json'
 require 'time'
 class Api::ApiController < ApplicationController
-  
-  protected 
-  
+
+  class ApiException < Exception
+    attr_reader :code, :msg
+
+    def initialize(code, msg)
+      @code = code
+      @msg = msg
+    end
+  end
+
+  rescue_from ApiException do |exception|
+    render_error(exception.msg, exception.code)
+  end
+
+  rescue_from ActiveRecord::RecordInvalid do |exception|
+    render_error(exception.message, 400)
+  end
+
+  rescue_from ActiveRecord::RecordNotFound do |exception|
+    render_error(exception.message, 404)
+  end
+
+  protected
+
   def text_not_supported
     "Not supported"
   end
-  
+
   def xml_not_supported
     xml = Builder::XmlMarkup.new(:indent => 0)
     xml.instruct!
     xml.not_supported
   end
-  
+
   def json_not_supported
     JSON({:not_supported => true})
   end
-  
+
   def jsonp(json)
-    text=( (json.is_a? String) ? json : JSON(json))
-      
+    text=((json.is_a? String) ? json : JSON(json))
+
     if params['callback']
-       params['callback'] + '(' + text + ');'
+      params['callback'] + '(' + text + ');'
     else
       text
     end
   end
-  
-  def access_denied
-    render_error('Unauthorized', 401)
+
+    # deprecated. Use Api::Utils.format_datetime
+  def format_datetime(datetime)
+    Api::Utils.format_datetime(datetime)
   end
-  
+
+    # deprecated. Use Api::Utils.parse_datetime
+  def parse_datetime(datetime_string, default_is_now=true)
+    Api::Utils.parse_datetime(datetime_string, default_is_now)
+  end
+
+  def load_resource(resource_key, role=nil)
+    resource=Project.by_key(resource_key)
+    not_found("Resource not found: #{resource_key}") if resource.nil?
+    access_denied if role && !has_role?(role, resource)
+    resource
+  end
+
+
+
+  #----------------------------------------------------------------------------
+  # ERRORS
+  #----------------------------------------------------------------------------
+  def not_found(message)
+    raise ApiException.new(404, message)
+  end
+
+  def bad_request(message)
+    raise ApiException.new(400, message)
+  end
+
+  def access_denied
+    raise ApiException.new(401, 'Unauthorized')
+  end
+
   def render_error(msg, http_status=400)
-    respond_to do |format| 
-      format.json{ render :json => error_to_json(msg, http_status), :status => http_status }
-      format.xml{ render :xml => error_to_xml(msg, http_status), :status => http_status}
-      format.text{ render :text => msg, :status => http_status }
+    respond_to do |format|
+      format.json { render :json => error_to_json(msg, http_status), :status => http_status }
+      format.xml { render :xml => error_to_xml(msg, http_status), :status => http_status }
+      format.text { render :text => msg, :status => http_status }
     end
   end
 
@@ -68,7 +119,7 @@ class Api::ApiController < ApplicationController
 
   def error_to_xml(msg, error_code=nil)
     xml = Builder::XmlMarkup.new(:indent => 0)
-    xml.error do 
+    xml.error do
       xml.code(error_code) if error_code
       xml.msg(msg) if msg
     end
@@ -78,23 +129,5 @@ class Api::ApiController < ApplicationController
     render_error(msg, 200)
   end
 
-  # deprecated. Use Api::Utils.format_datetime
-  def format_datetime(datetime)
-    Api::Utils.format_datetime(datetime)
-  end
-
-  # deprecated. Use Api::Utils.parse_datetime
-  def parse_datetime(datetime_string, default_is_now=true)
-    Api::Utils.parse_datetime(datetime_string, default_is_now)
-  end
-
-  class ApiException < Exception
-    attr_reader :code, :msg
-    def initialize(code, msg)
-      @code = code
-      @msg = msg
-    end
-  end
-  
 end
 
