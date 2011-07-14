@@ -37,6 +37,10 @@ class Api::Utils
     true if Float(s) rescue false
   end
 
+  def self.is_integer?(s)
+    s.to_s =~ /\A[+-]?\d+\Z/
+  end
+
   def self.markdown_to_html(markdown)
     markdown ? Java::OrgSonarServerUi::JRubyFacade.markdownToHtml(ERB::Util.html_escape(markdown)) : ''
   end
