@@ -27,18 +27,15 @@ import org.junit.Test;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.jpa.entity.SchemaMigration;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.spi.InitialContextFactory;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.util.Hashtable;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class JndiDatabaseConnectorTest {
