@@ -19,7 +19,11 @@
  */
 package org.sonar.plugins.core.i18n;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.net.URL;
@@ -104,6 +108,42 @@ public class I18nManagerTest {
     String result = manager.message(Locale.ENGLISH, "unknown.key", null);
     assertEquals("unknown.key", result);
     Assert.assertEquals(0, manager.getUnknownKeys().size());
+  }
+
+  @Test
+  public void testIsKeyForRuleDescription() throws Exception {
+    assertTrue(manager.isKeyForRuleDescription("rule.squid.ArchitecturalConstraint.description"));
+    assertFalse(manager.isKeyForRuleDescription("rule.squid.ArchitecturalConstraint.name"));
+    assertFalse(manager.isKeyForRuleDescription("another.key"));
+  }
+
+  @Test
+  public void testDefineLocaleToUse() throws Exception {
+    assertThat(manager.defineLocaleToUse(Locale.CANADA_FRENCH), is(Locale.CANADA_FRENCH));
+    // Locale not supported => get the English one
+    assertThat(manager.defineLocaleToUse(Locale.JAPAN), is(Locale.ENGLISH));
+  }
+
+  @Test
+  public void testExtractRuleName() throws Exception {
+    assertThat(manager.extractRuleName("rule.squid.ArchitecturalConstraint.description"), is("ArchitecturalConstraint"));
+  }
+
+  @Test
+  public void testComputeHtmlFilePath() throws Exception {
+    assertThat(manager.computeHtmlFilePath("org/sonar/i18n/test", "rule.test.fakerule.description", Locale.FRENCH),
+        is("org/sonar/i18n/test_fr/fakerule.html"));
+    assertThat(manager.computeHtmlFilePath("org/sonar/i18n/test", "rule.test.fakerule.description", Locale.ENGLISH),
+        is("org/sonar/i18n/test/fakerule.html"));
+  }
+
+  @Test
+  public void shouldReturnRuleDescriptionFromHTMLFile() throws Exception {
+    String result = manager.message(Locale.FRENCH, "rule.test.fakerule.description", "foo");
+    assertThat(result, is("<h1>Règle bidon</h1>\nC'est la description de la règle bidon."));
+    // Locale not supported => get the English translation
+    result = manager.message(Locale.JAPAN, "rule.test.fakerule.description", "foo");
+    assertThat(result, is("<h1>Fake Rule</h1>\nThis is the description of the fake rule."));
   }
 
   public static class TestClassLoader extends URLClassLoader {

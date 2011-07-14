@@ -1,0 +1,16 @@
+<p>The use of the 'continue' branching statement increase the
+	essential complexity of the source code and so prevent any refactoring
+	of this source code to replace all well structured control structures
+	with a single statement.</p>
+<p>For instance, in the following java program fragment, it's not
+	possible to apply the 'extract method' refactoring pattern :</p>
+<pre>
+mylabel : for(int i = 0 ; i< 3; i++) {
+  for (int j = 0; j < 4 ; j++) {
+    doSomething();
+    if (checkSomething()) {
+      continue mylabel;
+    }
+  }
+}
+</pre>

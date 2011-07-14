@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.i18n;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
@@ -36,6 +37,7 @@ import java.util.Set;
 
 import org.apache.commons.collections.EnumerationUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
@@ -46,6 +48,7 @@ import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -59,6 +62,7 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
   private Map<String, String> keys = Maps.newHashMap();
   private Properties unknownKeys = new Properties();
   private BundleClassLoader bundleClassLoader = new BundleClassLoader();
+  private List<Locale> registeredLocales = Lists.newArrayList();
 
   public I18nManager(PluginRepository pluginRepository, LanguagePack[] languagePacks) {
     this.pluginRepository = pluginRepository;
@@ -73,13 +77,16 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
     doStart(InstalledPlugin.create(pluginRepository));
   }
 
-  void doStart(List<InstalledPlugin> installedPlugins) {
+  protected void doStart(List<InstalledPlugin> installedPlugins) {
     Logs.INFO.info("Loading i18n bundles");
     Set<URI> alreadyLoadedResources = Sets.newHashSet();
     LanguagePack englishPack = findEnglishPack();
 
     for (InstalledPlugin plugin : installedPlugins) {
+      // look first in the classloader of the English I18n Plugin of the Sonar platform
       searchAndStoreBundleNames(plugin.key, englishPack.getClass().getClassLoader(), alreadyLoadedResources);
+      // then look in the classloader of the plugin
+      searchAndStoreBundleNames(plugin.key, plugin.classloader, alreadyLoadedResources);
     }
 
     for (LanguagePack pack : languagePacks) {
@@ -89,7 +96,7 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
     }
   }
 
-  private LanguagePack findEnglishPack() {
+  protected LanguagePack findEnglishPack() {
     LanguagePack englishPack = null;
     for (LanguagePack pack : languagePacks) {
       if (pack.getLocales().contains(Locale.ENGLISH)) {
@@ -103,7 +110,7 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
     return englishPack;
   }
 
-  private void addLanguagePack(LanguagePack languagePack) {
+  protected void addLanguagePack(LanguagePack languagePack) {
     LOG.debug("Search for bundles in language pack : {}", languagePack);
     for (String pluginKey : languagePack.getPluginKeys()) {
       String bundleBaseName = buildBundleBaseName(pluginKey);
@@ -113,16 +120,17 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
         ClassLoader classloader = languagePack.getClass().getClassLoader();
         LOG.info("Adding locale {} for bundleName : {} from classloader : {}", new Object[] { locale, bundleBaseName, classloader });
         bundleClassLoader.addResource(bundlePropertiesFile, classloader);
+        registeredLocales.add(locale);
       }
     }
   }
 
-  private String buildBundleBaseName(String pluginKey) {
+  protected String buildBundleBaseName(String pluginKey) {
     return packagePathToSearchIn + "/" + pluginKey;
   }
 
   @SuppressWarnings("unchecked")
-  private void searchAndStoreBundleNames(String pluginKey, ClassLoader classloader, Set<URI> alreadyLoadedResources) {
+  protected void searchAndStoreBundleNames(String pluginKey, ClassLoader classloader, Set<URI> alreadyLoadedResources) {
     String bundleBaseName = buildBundleBaseName(pluginKey);
     String bundleDefaultPropertiesFile = bundleBaseName + ".properties";
     try {
@@ -168,59 +176,125 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
   }
 
   public String message(final Locale locale, final String key, final String defaultText, final Object... objects) {
-    String result = defaultText;
+    String translatedMessage = defaultText;
     try {
-      String bundleBaseName = keys.get(key);
-      if (bundleBaseName == null) {
-        if (result == null) {
-          throw new MissingResourceException("UNKNOWN KEY : Key '" + key
-              + "' not found in any bundle, and no default value provided. The key is returned.", bundleBaseName, key);
-        }
-        LOG.warn("UNKNOWN KEY : Key '{}' not found in any bundle. Default value '{}' is returned.", key, defaultText);
-        unknownKeys.put(key, defaultText);
+      if (isKeyForRuleDescription(key)) {
+        // Rule descriptions are in HTML files, not in regular bundles
+        translatedMessage = findRuleDescription(locale, key, defaultText);
       } else {
-        try {
-          ResourceBundle bundle = ResourceBundle.getBundle(bundleBaseName, locale, bundleClassLoader);
-
-          String value = bundle.getString(key);
-          if ("".equals(value)) {
-            if (result == null) {
-              throw new MissingResourceException("VOID KEY : Key '" + key + "' (from bundle '" + bundleBaseName
-                  + "') returns a void value.", bundleBaseName, key);
-            }
-            LOG.warn("VOID KEY : Key '{}' (from bundle '{}') returns a void value. Default value '{}' is returned.", new Object[] { key,
-                bundleBaseName, defaultText });
-          } else {
-            result = value;
-          }
-        } catch (MissingResourceException e) {
-          if (result == null) {
-            throw e;
-          }
-          LOG.warn("BUNDLE NOT LOADED : Failed loading bundle {} from classloader {}. Default value '{}' is returned.", new Object[] {
-              bundleBaseName, bundleClassLoader, defaultText });
-        }
+        translatedMessage = findStandardMessage(locale, key, defaultText, objects);
       }
     } catch (MissingResourceException e) {
       LOG.warn(e.getMessage());
-      if (result == null) {
+      if (translatedMessage == null) {
         // when no translation has been found, the key is returned
         return key;
       }
     } catch (Exception e) {
       LOG.error("Exception when retrieving I18n string: ", e);
-      if (result == null) {
+      if (translatedMessage == null) {
         // when no translation has been found, the key is returned
         return key;
+      }
+    }
+    return translatedMessage;
+  }
+
+  protected boolean isKeyForRuleDescription(String key) {
+    return StringUtils.startsWith(key, "rule.") && StringUtils.endsWith(key, ".description");
+  }
+
+  protected String findRuleDescription(final Locale locale, final String ruleDescriptionKey, final String defaultText) throws IOException {
+    String translation = defaultText;
+    String ruleNameKey = ruleDescriptionKey.replace(".description", ".name");
+
+    String bundleBaseName = keys.get(ruleNameKey);
+    if (bundleBaseName == null) {
+      handleMissingBundle(ruleNameKey, defaultText, bundleBaseName);
+    } else {
+      Locale localeToUse = defineLocaleToUse(locale);
+      String htmlFilePath = computeHtmlFilePath(bundleBaseName, ruleDescriptionKey, localeToUse);
+      ClassLoader classLoader = bundleClassLoader.getClassLoaderForBundle(bundleBaseName, localeToUse);
+      InputStream stream = classLoader.getResourceAsStream(htmlFilePath);
+      if (stream == null) {
+        throw new MissingResourceException("MISSING RULE DESCRIPTION : file '" + htmlFilePath
+            + "' not found in any bundle. Default value is returned.", bundleBaseName, ruleDescriptionKey);
+      }
+      translation = IOUtils.toString(stream, "UTF-8");
+    }
+
+    return translation;
+  }
+
+  protected Locale defineLocaleToUse(final Locale locale) {
+    Locale localeToUse = locale;
+    if ( !registeredLocales.contains(locale)) {
+      localeToUse = Locale.ENGLISH;
+    }
+    return localeToUse;
+  }
+
+  protected String extractRuleName(String ruleDescriptionKey) {
+    int firstDotIndex = ruleDescriptionKey.indexOf(".");
+    int secondDotIndex = ruleDescriptionKey.indexOf(".", firstDotIndex + 1);
+    int thirdDotIndex = ruleDescriptionKey.indexOf(".", secondDotIndex + 1);
+    return ruleDescriptionKey.substring(secondDotIndex + 1, thirdDotIndex);
+  }
+
+  protected String computeHtmlFilePath(String bundleBaseName, String ruleDescriptionKey, Locale locale) {
+    String ruleName = extractRuleName(ruleDescriptionKey);
+    if (Locale.ENGLISH.equals(locale)) {
+      return bundleBaseName + "/" + ruleName + ".html";
+    } else {
+      return bundleBaseName + "_" + locale.toString() + "/" + ruleName + ".html";
+    }
+  }
+
+  protected String findStandardMessage(final Locale locale, final String key, final String defaultText, final Object... objects) {
+    String translation = defaultText;
+
+    String bundleBaseName = keys.get(key);
+    if (bundleBaseName == null) {
+      handleMissingBundle(key, defaultText, bundleBaseName);
+    } else {
+      try {
+        ResourceBundle bundle = ResourceBundle.getBundle(bundleBaseName, locale, bundleClassLoader);
+
+        String value = bundle.getString(key);
+        if ("".equals(value)) {
+          if (translation == null) {
+            throw new MissingResourceException("VOID KEY : Key '" + key + "' (from bundle '" + bundleBaseName + "') returns a void value.",
+                bundleBaseName, key);
+          }
+          LOG.warn("VOID KEY : Key '{}' (from bundle '{}') returns a void value. Default value '{}' is returned.", new Object[] { key,
+              bundleBaseName, defaultText });
+        } else {
+          translation = value;
+        }
+      } catch (MissingResourceException e) {
+        if (translation == null) {
+          throw e;
+        }
+        LOG.warn("BUNDLE NOT LOADED : Failed loading bundle {} from classloader {}. Default value '{}' is returned.", new Object[] {
+            bundleBaseName, bundleClassLoader, defaultText });
       }
     }
 
     if (objects.length > 0) {
       LOG.debug("Translation : {}, {}, {}, {}", new String[] { locale.toString(), key, defaultText, Arrays.deepToString(objects) });
-      return MessageFormat.format(result, objects);
+      return MessageFormat.format(translation, objects);
     } else {
-      return result;
+      return translation;
     }
+  }
+
+  protected void handleMissingBundle(final String key, final String defaultText, String bundleBaseName) {
+    if (defaultText == null) {
+      throw new MissingResourceException("UNKNOWN KEY : Key '" + key
+          + "' not found in any bundle, and no default value provided. The key is returned.", bundleBaseName, key);
+    }
+    LOG.warn("UNKNOWN KEY : Key '{}' not found in any bundle. Default value '{}' is returned.", key, defaultText);
+    unknownKeys.put(key, defaultText);
   }
 
   /**
@@ -240,6 +314,16 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
 
     public void addResource(String resourceName, ClassLoader classloader) {
       resources.put(resourceName, classloader);
+    }
+
+    public ClassLoader getClassLoaderForBundle(String bundleBaseName, Locale locale) {
+      StringBuilder resourceName = new StringBuilder(bundleBaseName);
+      if (locale != null && !locale.equals(Locale.ENGLISH)) {
+        resourceName.append("_");
+        resourceName.append(locale);
+      }
+      resourceName.append(".properties");
+      return resources.get(resourceName.toString());
     }
 
     @Override
