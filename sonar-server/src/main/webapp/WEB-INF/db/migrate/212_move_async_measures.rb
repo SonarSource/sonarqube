@@ -23,8 +23,33 @@
 #
 class MoveAsyncMeasures < ActiveRecord::Migration
 
+  class ManualMeasure < ActiveRecord::Base
+  end
+
+  class ProjectMeasure < ActiveRecord::Base
+  end
+
+  class AsyncMeasureSnapshot < ActiveRecord::Base
+    belongs_to :measure, :foreign_key => 'project_measure_id', :class_name => "ProjectMeasure"
+  end
+
   def self.up
-    # TODO
+    deprecated_measures=AsyncMeasureSnapshot.find(:all, :include => 'measure')
+    
+    say_with_time "Moving #{deprecated_measures.size} measures" do
+      deprecated_measures.each do |dm|
+        ManualMeasure.create(
+            :resource_id => dm.project_id,
+            :metric_id => dm.measure.metric_id,
+            :value => dm.measure.value,
+            :text_value => dm.measure.text_value,
+            :created_at => dm.measure_date,
+            :updated_at => dm.measure_date,
+            :url => dm.measure.url,
+            :description => dm.measure.description
+        )
+      end
+    end
   end
 
 end
