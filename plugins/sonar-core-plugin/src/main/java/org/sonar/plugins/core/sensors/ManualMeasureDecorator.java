@@ -59,6 +59,8 @@ public class ManualMeasureDecorator implements Decorator {
     Measure measure = new Measure(metricFinder.findById(manualMeasure.getMetricId()));
     measure.setValue(manualMeasure.getValue(), 5);
     measure.setData(manualMeasure.getTextValue());
+    measure.setDescription(manualMeasure.getDescription());
+    measure.setUrl(manualMeasure.getUrl());
     return measure;
   }
 

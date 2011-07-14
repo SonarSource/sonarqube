@@ -30,6 +30,8 @@ class CreateManualMeasures < ActiveRecord::Migration
       t.column 'value', :decimal,   :null => true, :precision => 30, :scale => 20
       t.column 'text_value', :string, :null => true, :limit => 4000
       t.column 'user_id', :integer, :null => true
+      t.column 'description', :string, :null => true, :limit => 4000
+      t.column 'url', :string, :null => true, :limit => 4000
       t.timestamps
     end
     alter_to_big_primary_key('manual_measures')

@@ -25,6 +25,8 @@ import java.util.Date;
 @Entity
 @Table(name = "manual_measures")
 public final class ManualMeasure {
+  private static final int MAX_TEXT_SIZE = 4000;
+
   @Id
   @Column(name = "id")
   @GeneratedValue
@@ -33,7 +35,7 @@ public final class ManualMeasure {
   @Column(name = "value", updatable = true, nullable = true, precision = 30, scale = 20)
   private Double value = null;
 
-  @Column(name = "text_value", updatable = true, nullable = true, length = 4000)
+  @Column(name = "text_value", updatable = true, nullable = true, length = MAX_TEXT_SIZE)
   private String textValue;
 
   @Column(name = "metric_id", updatable = false, nullable = false)
@@ -41,6 +43,12 @@ public final class ManualMeasure {
 
   @Column(name = "resource_id", updatable = true, nullable = true)
   private Integer resourceId;
+
+  @Column(name = "description", updatable = true, nullable = true, length = MAX_TEXT_SIZE)
+  private String description;
+
+  @Column(name = "url", updatable = true, nullable = true, length = MAX_TEXT_SIZE)
+  private String url;
 
   @Column(name = "created_at", updatable = true, nullable = true)
   private Date createdAt;
@@ -58,6 +66,14 @@ public final class ManualMeasure {
 
   public String getTextValue() {
     return textValue;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public String getUrl() {
+    return url;
   }
 
   public Integer getMetricId() {

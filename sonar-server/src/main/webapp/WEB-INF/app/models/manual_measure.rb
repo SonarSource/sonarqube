@@ -22,6 +22,8 @@ class ManualMeasure < ActiveRecord::Base
   belongs_to :user
   validates_uniqueness_of :metric_id, :scope => :resource_id
   validates_length_of :text_value, :maximum => 4000, :allow_nil => true, :allow_blank => true
+  validates_length_of :url, :maximum => 4000, :allow_nil => true, :allow_blank => true
+  validates_length_of :description, :maximum => 4000, :allow_nil => true, :allow_blank => true
   validate :validate_metric
   
   def metric

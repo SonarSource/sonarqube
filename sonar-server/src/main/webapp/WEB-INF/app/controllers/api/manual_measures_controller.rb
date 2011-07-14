@@ -65,6 +65,8 @@ class Api::ManualMeasuresController < Api::ApiController
 
     measure.value = value
     measure.text_value = params[:text]
+    measure.description = params[:desc]
+    measure.url = params[:url]
     measure.save!
 
     respond_to do |format|
@@ -102,6 +104,8 @@ class Api::ManualMeasuresController < Api::ApiController
     hash={:id => manual_measure.id, :metric => manual_measure.metric.key}
     hash[:val]=manual_measure.value if manual_measure.value
     hash[:text]=manual_measure.text_value if manual_measure.text_value
+    hash[:desc]=manual_measure.description if manual_measure.description
+    hash[:url]=manual_measure.url if manual_measure.url
     hash[:created_at]=format_datetime(manual_measure.created_at)
     hash[:updated_at]=format_datetime(manual_measure.updated_at) if manual_measure.updated_at
     if manual_measure.user
