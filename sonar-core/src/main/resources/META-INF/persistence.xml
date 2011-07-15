@@ -34,6 +34,7 @@
     <class>org.sonar.api.profiles.Alert</class>
     <class>org.sonar.api.rules.ActiveRuleChange</class>
     <class>org.sonar.api.rules.ActiveRuleParamChange</class>
+    <class>org.sonar.jpa.entity.Review</class>
     
     <properties>
       <property name="hibernate.current_session_context_class" value="thread"/>
