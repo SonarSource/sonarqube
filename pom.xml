@@ -412,6 +412,37 @@
           <javadocDir>${project.reporting.outputDirectory}/${project.version}/apidocs</javadocDir>
         </configuration>
       </plugin>
+      <!-- check copyright/license headers -->
+      <plugin>
+        <inherited>false</inherited>
+        <groupId>com.mycila.maven-license-plugin</groupId>
+        <artifactId>maven-license-plugin</artifactId>
+        <configuration>
+          <header>${project.basedir}/copyright.txt</header>
+          <failIfMissing>true</failIfMissing>
+          <strictCheck>true</strictCheck>
+          <aggregate>true</aggregate>
+          <includes>
+            <include>**/sonar-*/src/main/java/**</include>
+            <include>**/sonar-*/src/test/java/**</include>
+          </includes>
+          <excludes>
+            <exclude>tests/**</exclude>
+          </excludes>
+          <mapping>
+            <java>SLASHSTAR_STYLE</java>
+          </mapping>
+        </configuration>
+        <executions>
+          <execution>
+            <id>enforce-license-headers</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
@@ -1043,39 +1074,6 @@
                     <version>1.0</version>
                   </signature>
                 </configuration>
-              </execution>
-            </executions>
-          </plugin>
-
-
-          <!-- check copyright/license headers -->
-          <plugin>
-            <inherited>false</inherited>
-            <groupId>com.mycila.maven-license-plugin</groupId>
-            <artifactId>maven-license-plugin</artifactId>
-            <configuration>
-              <header>${project.basedir}/copyright.txt</header>
-              <failIfMissing>true</failIfMissing>
-              <strictCheck>true</strictCheck>
-              <aggregate>true</aggregate>
-              <includes>
-                <include>**/sonar-*/src/main/java/**</include>
-                <include>**/sonar-*/src/test/java/**</include>
-              </includes>
-              <excludes>
-                <exclude>tests/**</exclude>
-              </excludes>
-              <mapping>
-                <java>SLASHSTAR_STYLE</java>
-              </mapping>
-            </configuration>
-            <executions>
-              <execution>
-                <id>enforce-license-headers</id>
-                <phase>validate</phase>
-                <goals>
-                  <goal>check</goal>
-                </goals>
               </execution>
             </executions>
           </plugin>
