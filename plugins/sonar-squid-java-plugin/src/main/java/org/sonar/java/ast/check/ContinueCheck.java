@@ -20,32 +20,19 @@
 
 package org.sonar.java.ast.check;
 
-import com.puppycrawl.tools.checkstyle.api.DetailAST;
-import com.puppycrawl.tools.checkstyle.api.TokenTypes;
+import java.util.Arrays;
+import java.util.List;
+
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.api.SourceFile;
 
-import java.util.Arrays;
-import java.util.List;
+import com.puppycrawl.tools.checkstyle.api.DetailAST;
+import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
-@Rule(key = "AvoidContinueStatement", name = "Avoid using 'continue' branching statement",
-    priority = Priority.MAJOR, description = "<p>The use of the 'continue' branching statement increase the essential complexity "
-        + "of the source code and so prevent any refactoring of this source code to replace all well structured control structures "
-        + "with a single statement.</p><p>For instance, in the following java program fragment, it's not possible to apply "
-        + "the 'extract method' refactoring pattern :</p>"
-        + "<pre>"
-        + "mylabel : for(int i = 0 ; i< 3; i++) {\n"
-        + "  for (int j = 0; j < 4 ; j++) {\n"
-        + "    doSomething();\n"
-        + "    if (checkSomething()) {\n"
-        + "      continue mylabel;\n"
-        + "    }\n"
-        + "  }\n"
-        + "}\n"
-        + "</pre>")
+@Rule(key = "AvoidContinueStatement", priority = Priority.MAJOR)
 public class ContinueCheck extends JavaAstCheck {
 
   @Override

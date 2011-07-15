@@ -28,20 +28,12 @@ import org.sonar.squid.api.SourceClass;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.measures.Metric;
 
-@Rule(key = "ClassCyclomaticComplexity", name = "Avoid too complex class",
-    priority = Priority.MAJOR, description = "<p>The Cyclomatic Complexity is measured by the number of (&&, ||) operators "
-        + "and (if, while, do, for, ?:, catch, switch, case, return, throw) statements in the body of a class plus one for "
-        + "each constructor, method (but not getter/setter), static initializer, or instance initializer in the class. "
-        + "The last return stament in method, if exists, is not taken into account.</p>"
-        + "<p>Even when the Cyclomatic Complexity of a class is very high, this complexity might be well distributed among all methods. "
-        + "Nevertheless, most of the time, a very complex class is a class which breaks the "
-        + "<a href='http://en.wikipedia.org/wiki/Single_responsibility_principle'>Single Responsibility Principle</a> "
-        + "and which should be re-factored to be split in several classes.</p>")
+@Rule(key = "ClassCyclomaticComplexity", priority = Priority.MAJOR)
 public class ClassComplexityCheck extends SquidCheck {
 
   public static final int DEFAULT_MAX = 200;
 
-  @RuleProperty(description = "Maximum complexity allowed.", defaultValue = "" + DEFAULT_MAX)
+  @RuleProperty(defaultValue = "" + DEFAULT_MAX)
   private Integer max = DEFAULT_MAX;
 
   @Override

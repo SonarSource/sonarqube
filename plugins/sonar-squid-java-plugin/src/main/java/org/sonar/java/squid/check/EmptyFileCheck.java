@@ -26,8 +26,7 @@ import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.measures.Metric;
 
-@Rule(key = "EmptyFile", name = "Empty file", priority = Priority.MAJOR,
-    description = "Detect empty files, which do not have any lines of code. Example: <pre>\n//package org.foo;\n//\n//public class Bar {}\n</pre>")
+@Rule(key = "EmptyFile", priority = Priority.MAJOR)
 public final class EmptyFileCheck extends SquidCheck {
 
   @Override

@@ -27,15 +27,7 @@ import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.api.SourceMethod;
 
-@Rule(key = "UnusedPrivateMethod", name = "Unused private method",
-    priority = Priority.MAJOR, description = "<p>Private methods that are never executed are dead code. " +
-        "Dead code means unnecessary, inoperative code that should be removed. " +
-        "This helps in maintenance by decreasing the maintained code size, " +
-        "making it easier to understand the program and preventing bugs from being introduced.</p>" +
-        "<p>In the following two cases, private methods are not considered as dead code by Sonar :</p>" +
-        "<ul><li>Private empty constructors that are intentionally used to prevent any direct instantiation of a class.</li>" +
-        "<li>Private methods : readObject(...), writeObject(...), writeReplace(...), readResolve(...) " +
-        "which can contractually be used when implementing the Serializable interface.</li></ul>")
+@Rule(key = "UnusedPrivateMethod", priority = Priority.MAJOR)
 public class UnusedPrivateMethodCheck extends BytecodeCheck {
 
   private AsmClass asmClass;
@@ -47,7 +39,7 @@ public class UnusedPrivateMethodCheck extends BytecodeCheck {
 
   @Override
   public void visitMethod(AsmMethod asmMethod) {
-    if (!asmMethod.isUsed() && asmMethod.isPrivate() && !asmMethod.isDefaultConstructor() && !SerializableContract.methodMatch(asmMethod)) {
+    if ( !asmMethod.isUsed() && asmMethod.isPrivate() && !asmMethod.isDefaultConstructor() && !SerializableContract.methodMatch(asmMethod)) {
       CheckMessage message = new CheckMessage(this, "Private method '" + asmMethod.getName() + "(...)' is never used.");
       SourceMethod sourceMethod = getSourceMethod(asmMethod);
       if (sourceMethod != null) {

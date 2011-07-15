@@ -28,20 +28,12 @@ import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.api.SourceMethod;
 import org.sonar.squid.measures.Metric;
 
-@Rule(key = "MethodCyclomaticComplexity", name = "Avoid too complex method",
-    priority = Priority.MAJOR, description = "<p>The Cyclomatic Complexity is measured by the number of (&&, ||) operators "
-        + "and (if, while, do, for, ?:, catch, switch, case, return, throw) statements in the body of a constructor, "
-        + "method, static initializer, or instance initializer. "
-        + "The minimun Cyclomatic Complexity of a method is 1 and the last return stament, if exists, is not taken into account. "
-        + "The more complex is a method, the more possible different paths through the source code exist. "
-        + "Generally 1-4 is considered good, 5-7 ok, 8-10 consider re-factoring, and 11+ re-factor now. "
-        + "Indeed above 10, it's pretty difficult to be able to think about all possible paths when maintaining the source code, "
-        + "so the risk of regression increases exponentially.</p>")
+@Rule(key = "MethodCyclomaticComplexity", priority = Priority.MAJOR)
 public class MethodComplexityCheck extends SquidCheck {
 
   public static final int DEFAULT_MAX = 10;
 
-  @RuleProperty(description = "Maximum complexity allowed.", defaultValue = "" + DEFAULT_MAX)
+  @RuleProperty(defaultValue = "" + DEFAULT_MAX)
   private Integer max = DEFAULT_MAX;
 
   @Override

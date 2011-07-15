@@ -20,36 +20,19 @@
 
 package org.sonar.java.ast.check;
 
-import com.puppycrawl.tools.checkstyle.api.DetailAST;
-import com.puppycrawl.tools.checkstyle.api.TokenTypes;
+import java.util.Arrays;
+import java.util.List;
+
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.java.ast.visitor.AstUtils;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 
-import java.util.Arrays;
-import java.util.List;
+import com.puppycrawl.tools.checkstyle.api.DetailAST;
+import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
-@Rule(
-    key = "AvoidBreakOutsideSwitch",
-    name = "Avoid using 'break' branching statement outside a 'switch' statement",
-    priority = Priority.MAJOR,
-    description = "<p>The use of the 'break' branching statement increases the essential complexity of the source code and "
-        + "so prevents any refactoring of this source code to replace all well structured control structures with a single statement.</p>"
-        + "<p>For instance, with the following java program fragment, it's not possible to apply "
-        + "the 'extract method' refactoring pattern :</p>"
-        + "<pre>"
-        + "mylabel : for (int i = 0 ; i< 3; i++) {\n"
-        + "  for (int j = 0; j < 4 ; j++) {\n"
-        + "    doSomething();\n"
-        + "    if (checkSomething()) {\n"
-        + "      break mylabel;\n"
-        + "    }\n"
-        + "  }\n"
-        + "}\n"
-        + "</pre>"
-        + "<p>The use of the 'break' branching statement is only authorized inside a 'switch' statement.</p>")
+@Rule(key = "AvoidBreakOutsideSwitch", priority = Priority.MAJOR)
 public class BreakCheck extends JavaAstCheck {
 
   @Override

@@ -19,7 +19,8 @@
  */
 package org.sonar.java.bytecode.check;
 
-import com.google.common.collect.Maps;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.check.Cardinality;
@@ -34,22 +35,15 @@ import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.api.SourceMethod;
 
-import java.util.Map;
+import com.google.common.collect.Maps;
 
-@Rule(key = "ArchitecturalConstraint", name = "Architectural constraint", cardinality = Cardinality.MULTIPLE,
-    priority = Priority.MAJOR,
-    description = "<p>A source code comply to an architectural model when it fully adheres to a set of architectural constraints. " +
-        "A constraint allows to deny references between classes by pattern.</p>" +
-        "<p>You can for instance use this rule to :</p>" +
-        "<ul><li>forbid access to **.web.** from **.dao.** classes</li>" +
-        "<li>forbid access to java.util.Vector, java.util.Hashtable and java.util.Enumeration from any classes</li>" +
-        "<li>forbid access to java.sql.** from **.ui.** and **.web.** classes</li></ul>")
+@Rule(key = "ArchitecturalConstraint", cardinality = Cardinality.MULTIPLE, priority = Priority.MAJOR)
 public class ArchitectureCheck extends BytecodeCheck {
 
-  @RuleProperty(description = "Optional. If this property is not defined, all classes should adhere to this constraint. Ex : **.web.**")
+  @RuleProperty
   private String fromClasses = "";
 
-  @RuleProperty(description = "Mandatory. Ex : java.util.Vector, java.util.Hashtable, java.util.Enumeration")
+  @RuleProperty
   private String toClasses = "";
 
   private WildcardPattern[] fromPatterns;
@@ -98,7 +92,7 @@ public class ArchitectureCheck extends BytecodeCheck {
   public void visitEdge(AsmEdge edge) {
     if (asmClass != null && edge != null) {
       String internalNameTargetClass = edge.getTargetAsmClass().getInternalName();
-      if (!internalNames.containsKey(internalNameTargetClass)) {
+      if ( !internalNames.containsKey(internalNameTargetClass)) {
         if (WildcardPattern.match(getToPatterns(), internalNameTargetClass)) {
           int sourceLineNumber = getSourceLineNumber(edge);
           logMessage(asmClass.getInternalName(), internalNameTargetClass, sourceLineNumber);
