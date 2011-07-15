@@ -39,6 +39,24 @@ class RulesParameter < ActiveRecord::Base
   def get_allowed_tokens
 	  return param_type[2,param_type.length-3].split( "," )
   end
+
+  def description(translate=true)
+    default_string = read_attribute(:description)
+    return default_string unless translate
+    
+    rule_plugin_name = rule.plugin_name
+    rule_plugin_rule_key = rule.plugin_rule_key
+    
+    return nil if (rule_plugin_name.nil? or rule_plugin_rule_key.nil?)
+    
+    i18n_key = 'rule.' + rule_plugin_name + '.' + rule_plugin_rule_key + '.param.' + read_attribute(:name)
+    result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, i18n_key, nil, [].to_java)     
+    result
+  end
+  
+  def description=(value)
+    write_attribute(:description, value)    
+  end
   
   def readable_param_type
     return "String" if param_type == PARAM_TYPE_STRING
