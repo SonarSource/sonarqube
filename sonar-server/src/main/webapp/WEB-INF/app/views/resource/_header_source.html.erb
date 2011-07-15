@@ -5,31 +5,31 @@
       <table class="metrics">
         <% if m=measure('lines') %>
           <tr>
-            <td class="name">Lines:</td>
+            <td class="name"><%= message('metric.lines.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
         <% if m=measure('ncloc') %>
           <tr>
-            <td class="name">Lines of code:</td>
+            <td class="name"><%= message('metric.ncloc.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
         <% if m=measure('functions') %>
           <tr>
-            <td class="name">Methods:</td>
+            <td class="name"><%= message('metric.functions.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
         <% if m=measure('accessors') %>
           <tr>
-            <td class="name">Accessors:</td>
+            <td class="name"><%= message('metric.accessors.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
         <% if m=measure('paragraphs') %>
           <tr>
-            <td class="name">Paragraphs:</td>
+            <td class="name"><%= message('metric.paragraphs.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
@@ -39,25 +39,25 @@
       <table class="metrics">
         <% if m=measure('statements') %>
           <tr>
-            <td class="name">Statements:</td>
+            <td class="name"><%= message('metric.statements.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
         <% if m=measure('complexity') %>
           <tr>
-            <td class="name">Complexity:</td>
+            <td class="name"><%= message('metric.complexity.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
         <% if m=measure('function_complexity') %>
           <tr>
-            <td class="name">Complexity/method:</td>
+            <td class="name"><%= message('metric.function_complexity.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
         <% if m=measure('paragraph_complexity') %>
           <tr>
-            <td class="name">Complexity/paragraph:</td>
+            <td class="name"><%= message('metric.paragraph_complexity.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
@@ -67,25 +67,25 @@
       <table class="metrics">
         <% if m=measure('comment_lines_density') %>
           <tr>
-            <td class="name">Comments:</td>
+            <td class="name"><%= message('metric.comment_lines_density.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
         <% if m=measure('comment_lines') %>
           <tr>
-            <td class="name">Comment lines:</td>
+            <td class="name"><%= message('metric.comment_lines.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
         <% if m=measure('commented_out_code_lines') %>
           <tr>
-            <td class="name">Commented-out LOC:</td>
+            <td class="name"><%= message('metric.commented_out_code_lines.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
         <% if m=measure('comment_blank_lines') %>
           <tr>
-            <td class="name">Blank comments:</td>
+            <td class="name"><%= message('metric.comment_blank_lines.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
@@ -95,19 +95,19 @@
       <table class="metrics">
         <% if m=measure('public_documented_api_density') %>
           <tr>
-            <td class="name">Public documented API:</td>
+            <td class="name"><%= message('metric.public_documented_api_density.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
         <% if m=measure('public_undocumented_api') %>
           <tr>
-            <td class="name">Public undocumented API:</td>
+            <td class="name"><%= message('metric.public_undocumented_api.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
         <% if m=measure('public_api') %>
           <tr>
-            <td class="name">Public API:</td>
+            <td class="name"><%= message('metric.public_api.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
@@ -117,25 +117,25 @@
       <table class="metrics">
         <% if m=measure('classes') %>
           <tr>
-            <td class="name">Classes:</td>
+            <td class="name"><%= message('metric.classes.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
         <% if m=measure('noc') %>
           <tr>
-            <td class="name">Number of Children:</td>
+            <td class="name"><%= message('metric.noc.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
         <% if m=measure('dit') %>
           <tr>
-            <td class="name">Depth in Tree:</td>
+            <td class="name"><%= message('metric.dit.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
         <% if m=measure('rfc') %>
           <tr>
-            <td class="name">Response for Class (RFC):</td>
+            <td class="name"><%= message('metric.rfc.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>

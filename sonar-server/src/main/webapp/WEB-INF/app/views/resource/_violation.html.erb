@@ -22,19 +22,19 @@
     <% if violation.switched_off? %>
       <%= image_tag("sep12.png") -%>
       &nbsp;
-      <span class="falsePositive">False-Positive</span>
+      <span class="falsePositive"><%= message('false_positive') -%></span>
       &nbsp;
     <% end %>
     <% if violation.review && violation.review.isReopened? %>
       <%= image_tag("sep12.png") -%>
       &nbsp;
-      <span class="review-reopened">Reopened</span>
+      <span class="review-reopened"><%= message('reopened') -%></span>
       &nbsp;
     <% end %>
     <% if violation.review && violation.review.assignee_id %>
       <%= image_tag("sep12.png") -%>
       &nbsp;
-      Assigned to: <%= h(violation.review.assignee.name) -%>
+      <%= message('assigned_to') -%>: <%= h(violation.review.assignee.name) -%>
       &nbsp;
     <% end %>
     
@@ -46,14 +46,14 @@
             unless violation.switched_off?
         %>
         &nbsp;
-        <%= link_to_remote (violation.review.isResolved? ? "Reopen" : "Resolve"),  
+        <%= link_to_remote (violation.review.isResolved? ? message('reopen') : message('resolve')),  
         		:url => { :controller => "reviews", :action => "violation_change_status", :id => violation.id},
         		:update => "vId" + violation.id.to_s,
-        		:confirm => violation.review.isResolved? ? "Do you want to reopen this review?" : "Do you want to resolve this review?" -%>
+        		:confirm => violation.review.isResolved? ? message('reviews.do_you_want_to_reopen') : message('reviews.do_you_want_to_resolve') -%>
           
               <% unless violation.review && violation.review.isResolved? %>
 		        &nbsp;
-		        <%= link_to_remote (violation.review.assignee_id ? "Reassign" : "Assign"),  
+		        <%= link_to_remote (violation.review.assignee_id ? message('reassign') : message('assign')),  
 		        		:url => { :controller => "reviews", :action => "violation_assign_form", :violation_id => violation.id},
 		        		:update => "vActions" + violation.id.to_s,
 		        		:complete => "$('vActions" + violation.id.to_s + "').show();$('commentActions" + violation.id.to_s + "').hide();$('assignee_login').focus();" -%>
@@ -63,7 +63,7 @@
           else 
         %>        
         &nbsp;
-        <%= link_to_remote "Review",
+        <%= link_to_remote message('review_verb'),
       		:url => { :controller => "reviews", :action => "violation_comment_form", :id => violation.id },
       		:update => "reviewForm" + violation.id.to_s,
       		:complete => "$('reviewForm" + violation.id.to_s + "').show();$('commentText" + violation.id.to_s + "').focus();$('vActions#{violation.id}').hide();" -%>
@@ -71,7 +71,7 @@
       
         &nbsp;
         <% if (!violation.review) || (violation.review && violation.review.can_change_false_positive_flag?) %>
-        <%= link_to_remote (violation.switched_off? ? "Unflag as false-positive" : "Flag as false-positive"),
+        <%= link_to_remote (violation.switched_off? ? message('reviews.unflag_as_false_positive') : message('reviews.flag_as_false_positive')),
         		:url => { :controller => "reviews", :action => "violation_false_positive_form", :id => violation.id, :false_positive => !violation.switched_off? },
         		:update => "reviewForm" + violation.id.to_s,
         		:complete => "$('reviewForm" + violation.id.to_s + "').show();$('commentText" + violation.id.to_s + "').focus();$('vActions" + violation.id.to_s + "').hide();$('commentActions" + violation.id.to_s + "').hide();" -%>
@@ -97,7 +97,7 @@
         &nbsp;&nbsp;
         <%= image_tag("sep12.png") -%>
         &nbsp;&nbsp;
-        <%= link_to_remote "Add comment",
+        <%= link_to_remote message('add_comment'),
       		:url => { :controller => "reviews", :action => "violation_comment_form", :id => violation.id },
       		:update => "reviewForm" + violation.id.to_s,
       		:complete => "$('vActions#{violation.id}').hide();$('commentActions" + violation.id.to_s + "').hide();$('reviewForm" + violation.id.to_s + "').show();$('commentText" + violation.id.to_s + "').focus()" -%>
@@ -105,16 +105,16 @@
           if current_user.id == review_comment.user_id 
         %>
           &nbsp;
-          <%= link_to_remote "Edit", 
+          <%= link_to_remote message('edit'), 
             :url => { :controller => "reviews", :action => "violation_comment_form", :comment_id => review_comment.id, :id => violation.id },
             :update => "lastComment" + violation.id.to_s,
             :complete => "$('vActions#{violation.id}').hide();$('commentActions#{violation.id}').hide();$('commentText#{violation.id}').focus();" -%>
           <% unless comment_index == 0 %>
           &nbsp;
-          <%= link_to_remote "Delete",
+          <%= link_to_remote message('delete'),
       		:url => { :controller => "reviews", :action => "violation_delete_comment", :comment_id => review_comment.id, :id => violation.id },
       		:update => "vId" + violation.id.to_s,
-            :confirm => "Do you want to delete this comment?" -%>
+            :confirm => message('reviews.do_you_want_to_delete_comment') -%>
           <% end %>
         <%
           end 

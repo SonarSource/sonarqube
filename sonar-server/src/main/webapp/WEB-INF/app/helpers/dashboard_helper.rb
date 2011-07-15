@@ -46,17 +46,17 @@ module DashboardHelper
 
     if mode
       if mode=='days'
-        label = "Added over %s days" % mode_param
+        label = message('added_over_x_days', :params => mode_param.to_s)
       elsif mode=='version'
-        label = "Added since version %s" % mode_param
+        label = message('added_since_version', :params => mode_param.to_s)
       elsif mode=='previous_analysis'
         if !date.nil?
-          label = "Added since previous analysis (%s)" % date.strftime("%Y %b. %d")
+          label = message('added_since_previous_analysis_detailed', :params => date.strftime("%Y %b. %d").to_s)
         else
-          label = "Added since previous analysis"
+          label = message('added_since_previous_analysis')
         end
       elsif mode=='date'
-        label = "Added since #{date.strftime("%Y %b %d")}"
+        label = message('added_since', :params => date.strftime("%Y %b %d").to_s)
       end
       if label
         selected=(params[:period]==index.to_s ? 'selected' : '')

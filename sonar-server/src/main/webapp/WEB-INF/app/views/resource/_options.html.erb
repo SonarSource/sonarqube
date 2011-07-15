@@ -28,7 +28,7 @@
          if @expandable %>
         <td class="<%= 'first' if first -%>">
           <input type="checkbox" value="true" name="expand" id="expand" <%= 'checked' if @expanded -%> onclick="applyOptions()"/>
-          <label for="expand">Full source</label>
+          <label for="expand"><%= message('full_source') -%></label>
         </td>
       <%   first=false
          end %>
@@ -36,7 +36,7 @@
       <% if @scm_available && !@display_violations && @snapshot.project_snapshot.periods?  %>
         <td class="<%= 'first' if first -%>">
           <select id="period" name="period" onchange="applyOptions()">
-            <option value="">Time changes...</option>
+            <option value=""><%= message('time_changes') -%>...</option>
             <%= period_select_options(@snapshot, 1) -%>
             <%= period_select_options(@snapshot, 2) -%>
             <%= period_select_options(@snapshot, 3) -%>
@@ -51,7 +51,7 @@
       <% if @display_violations %>
         <td class="<%= 'first' if first -%>">
           <select id="period" name="period" onchange="applyOptions()">
-            <option value="">Time changes...</option>
+            <option value=""><%= message('time_changes') -%>...</option>
             <%= violation_period_select_options(@snapshot, 1) -%>
             <%= violation_period_select_options(@snapshot, 2) -%>
             <%= violation_period_select_options(@snapshot, 3) -%>
@@ -67,10 +67,10 @@
         <% if @display_coverage %>
         <td class="<%= 'first' if first -%>">
           <select id="coverage_filter" name="coverage_filter" onchange="applyOptions()">
-            <option value="lines_to_cover" <%= 'selected' if @coverage_filter=='lines_to_cover' -%>>Lines to cover</option>
-            <option value="uncovered_lines" <%= 'selected' if @coverage_filter=='uncovered_lines' -%>>Uncovered lines</option>
-            <option value="conditions_to_cover" <%= 'selected' if @coverage_filter=='conditions_to_cover' -%>>Branches to cover</option>
-            <option value="uncovered_conditions" <%= 'selected' if @coverage_filter=='uncovered_conditions' -%>>Uncovered branches</option>
+            <option value="lines_to_cover" <%= 'selected' if @coverage_filter=='lines_to_cover' -%>><%= message('metric.lines_to_cover.name') -%></option>
+            <option value="uncovered_lines" <%= 'selected' if @coverage_filter=='uncovered_lines' -%>><%= message('metric.uncovered_lines.name') -%></option>
+            <option value="conditions_to_cover" <%= 'selected' if @coverage_filter=='conditions_to_cover' -%>><%= message('metric.conditions_to_cover.name') -%></option>
+            <option value="uncovered_conditions" <%= 'selected' if @coverage_filter=='uncovered_conditions' -%>><%= message('metric.uncovered_conditions.name') -%></option>
           </select>
         </td>
       <%   first=false
