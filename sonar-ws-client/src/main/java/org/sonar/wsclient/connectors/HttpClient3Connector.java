@@ -19,34 +19,14 @@
  */
 package org.sonar.wsclient.connectors;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpMethodBase;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.methods.*;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.sonar.wsclient.Host;
-import org.sonar.wsclient.services.AbstractQuery;
-import org.sonar.wsclient.services.CreateQuery;
-import org.sonar.wsclient.services.DeleteQuery;
-import org.sonar.wsclient.services.Query;
-import org.sonar.wsclient.services.UpdateQuery;
+import org.sonar.wsclient.services.*;
+
+import java.io.*;
 
 /**
  * @since 2.1
@@ -71,8 +51,8 @@ public class HttpClient3Connector extends Connector {
 
   private void createClient() {
     final HttpConnectionManagerParams params = new HttpConnectionManagerParams();
-    params.setConnectionTimeout(TIMEOUT_MS);
-    params.setSoTimeout(TIMEOUT_MS);
+    params.setConnectionTimeout(AbstractQuery.DEFAULT_TIMEOUT_MILLISECONDS);
+    params.setSoTimeout(AbstractQuery.DEFAULT_TIMEOUT_MILLISECONDS);
     params.setDefaultMaxConnectionsPerHost(MAX_HOST_CONNECTIONS);
     params.setMaxTotalConnections(MAX_TOTAL_CONNECTIONS);
     final MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
@@ -109,6 +89,7 @@ public class HttpClient3Connector extends Connector {
     String json = null;
     try {
       httpClient.executeMethod(method);
+
       if (method.getStatusCode() == HttpStatus.SC_OK) {
         json = getResponseBodyAsString(method);
 
@@ -132,26 +113,26 @@ public class HttpClient3Connector extends Connector {
 
   private HttpMethodBase newGetRequest(Query<?> query) {
     HttpMethodBase method = new GetMethod(server.getHost() + query.getUrl());
-    setJsonHeader(method);
+    initRequest(method, query);
     return method;
   }
 
   private HttpMethodBase newDeleteRequest(DeleteQuery<?> query) {
     HttpMethodBase method = new DeleteMethod(server.getHost() + query.getUrl());
-    setJsonHeader(method);
+    initRequest(method, query);
     return method;
   }
 
   private HttpMethodBase newPostRequest(CreateQuery<?> query) {
     PostMethod method = new PostMethod(server.getHost() + query.getUrl());
-    setJsonHeader(method);
+    initRequest(method, query);
     setRequestEntity(method, query);
     return method;
   }
 
   private HttpMethodBase newPutRequest(UpdateQuery<?> query) {
     PutMethod method = new PutMethod(server.getHost() + query.getUrl());
-    setJsonHeader(method);
+    initRequest(method, query);
     setRequestEntity(method, query);
     return method;
   }
@@ -166,8 +147,9 @@ public class HttpClient3Connector extends Connector {
     }
   }
 
-  private void setJsonHeader(HttpMethodBase request) {
+  private void initRequest(HttpMethodBase request, AbstractQuery query) {
     request.setRequestHeader("Accept", "application/json");
+    request.getParams().setSoTimeout(query.getTimeoutMilliseconds());
   }
 
   private String getResponseBodyAsString(HttpMethod method) {
@@ -190,9 +172,8 @@ public class HttpClient3Connector extends Connector {
       if (reader != null) {
         try {
           reader.close();
-
         } catch (Exception e) {
-          // TODO
+          throw new RuntimeException("Fail to close HTTP stream", e);
         }
       }
     }

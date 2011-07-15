@@ -45,6 +45,7 @@ import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
@@ -115,8 +116,8 @@ public class HttpClient4Connector extends Connector {
   private DefaultHttpClient createClient() {
     DefaultHttpClient client = new DefaultHttpClient();
     HttpParams params = client.getParams();
-    HttpConnectionParams.setConnectionTimeout(params, TIMEOUT_MS);
-    HttpConnectionParams.setSoTimeout(params, TIMEOUT_MS);
+    HttpConnectionParams.setConnectionTimeout(params, AbstractQuery.DEFAULT_TIMEOUT_MILLISECONDS);
+    HttpConnectionParams.setSoTimeout(params, AbstractQuery.DEFAULT_TIMEOUT_MILLISECONDS);
     if (server.getUsername() != null) {
       client.getCredentialsProvider()
           .setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(server.getUsername(), server.getPassword()));
@@ -141,26 +142,26 @@ public class HttpClient4Connector extends Connector {
 
   private HttpGet newGetMethod(Query<?> query) {
     HttpGet get = new HttpGet(server.getHost() + query.getUrl());
-    setJsonHeader(get);
+    initRequest(get, query);
     return get;
   }
 
   private HttpDelete newDeleteMethod(DeleteQuery<?> query) {
     HttpDelete delete = new HttpDelete(server.getHost() + query.getUrl());
-    setJsonHeader(delete);
+    initRequest(delete, query);
     return delete;
   }
 
   private HttpPost newPostMethod(CreateQuery<?> query) {
     HttpPost post = new HttpPost(server.getHost() + query.getUrl());
-    setJsonHeader(post);
+    initRequest(post, query);
     setRequestEntity(post, query);
     return post;
   }
 
   private HttpPut newPutMethod(UpdateQuery<?> query) {
     HttpPut put = new HttpPut(server.getHost() + query.getUrl());
-    setJsonHeader(put);
+    initRequest(put, query);
     setRequestEntity(put, query);
     return put;
   }
@@ -175,8 +176,9 @@ public class HttpClient4Connector extends Connector {
     }
   }
 
-  private void setJsonHeader(HttpRequestBase request) {
+  private void initRequest(HttpRequestBase request, AbstractQuery query) {
     request.setHeader("Accept", "application/json");
+    request.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, query.getTimeoutMilliseconds());
   }
 
   static final class PreemptiveAuth implements HttpRequestInterceptor {

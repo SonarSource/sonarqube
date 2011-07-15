@@ -27,11 +27,20 @@ import java.util.Date;
 public abstract class AbstractQuery<MODEL extends Model> {
 
   /**
+   * Default timeout for waiting data, in milliseconds.
+   *
+   * @since 2.10
+   */
+  public static final int DEFAULT_TIMEOUT_MILLISECONDS = 30 * 1000;
+
+  private int timeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS;
+
+  /**
    * Must start with a slash, for example: /api/metrics
    * <p>
    * IMPORTANT: In implementations of this method we must use helper methods to construct URL.
    * </p>
-   * 
+   *
    * @see #encode(String)
    * @see #appendUrlParameter(StringBuilder, String, Object)
    * @see #appendUrlParameter(StringBuilder, String, Object[])
@@ -44,6 +53,25 @@ public abstract class AbstractQuery<MODEL extends Model> {
    */
   public String getBody() {
     return null;
+  }
+
+  /**
+   * Get the timeout for waiting data, in milliseconds. A value of zero is interpreted as an infinite timeout.
+   *
+   * @since 2.10
+   */
+  public final int getTimeoutMilliseconds() {
+    return timeoutMilliseconds;
+  }
+
+  /**
+   * Set the timeout for waiting data, in milliseconds. Avalue of zero is interpreted as an infinite timeout.
+   *
+   * @since 2.10
+   */
+  public final AbstractQuery<MODEL> setTimeoutMilliseconds(int i) {
+    this.timeoutMilliseconds = (i < 0 ? 0 : i);
+    return this;
   }
 
   /**

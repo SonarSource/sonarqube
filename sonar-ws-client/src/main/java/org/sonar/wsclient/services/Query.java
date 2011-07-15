@@ -20,8 +20,6 @@
 package org.sonar.wsclient.services;
 
 /**
- * GET HTTP request
- *
  * @since 2.1
  */
 public abstract class Query<MODEL extends Model> extends AbstractQuery<MODEL> {

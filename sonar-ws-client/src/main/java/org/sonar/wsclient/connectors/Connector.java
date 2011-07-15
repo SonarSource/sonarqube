@@ -29,8 +29,6 @@ import org.sonar.wsclient.services.UpdateQuery;
  */
 public abstract class Connector {
 
-  protected static final int TIMEOUT_MS = 30000;
-
   /**
    * @return JSON response or null if 404 NOT FOUND error
    * @throws ConnectionException if connection error or HTTP status not in (200, 404)
