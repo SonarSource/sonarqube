@@ -65,7 +65,7 @@
     <repository>
       <id>codehaus-releases</id>
       <name>Codehaus Release Repository</name>
-      <url>https://nexus.codehaus.org/service/local/staging/deploy/maven2/</url>
+      <url>dav:https://dav.codehaus.org/repository/sonar</url>
     </repository>
     <snapshotRepository>
       <id>sonar-snapshots</id>
