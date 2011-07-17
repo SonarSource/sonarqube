@@ -64,13 +64,13 @@
 
   <distributionManagement>
     <repository>
-      <id>codehaus.org</id>
+      <id>codehaus-releases</id>
+      <name>Codehaus Release Repository</name>
       <url>dav:https://dav.codehaus.org/repository/sonar</url>
-      <uniqueVersion>false</uniqueVersion>
     </repository>
     <snapshotRepository>
-      <id>codehaus.org</id>
-      <url>dav:https://dav.codehaus.org/snapshots.repository/sonar</url>
+      <id>sonar-snapshots</id>
+      <url>${sonar.snapshotRepository.url}</url>
       <uniqueVersion>false</uniqueVersion>
     </snapshotRepository>
   </distributionManagement>
@@ -98,14 +98,15 @@
     -->
     <derby.version>10.7.1.1</derby.version>
     <jetty.version>6.1.24</jetty.version>
-    <sonar.skippedModules>sonar-deprecated,sonar-gwt-api,sonar-core-gwt,sonar-testing-harness,sonar-samples</sonar.skippedModules>
+    <sonar.skippedModules>sonar-deprecated,sonar-gwt-api,sonar-core-gwt,sonar-testing-harness,sonar-samples
+    </sonar.skippedModules>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.min.version>2.0</maven.min.version>
     <jdk.min.version>1.5</jdk.min.version>
 
     <!-- default GWT configuration. It's overridden by the profile 'dev' to speed up compilation in dev environments-->
     <gwt.permutationSuffix/>
     <gwt.extraJvmArgs>-Xmx512m -Xss1024k</gwt.extraJvmArgs>
+    <sonar.snapshotRepository.url>dav:https://dav.codehaus.org/snapshots.repository/sonar</sonar.snapshotRepository.url>
   </properties>
 
   <build>
@@ -183,6 +184,11 @@
           <version>2.9</version>
         </plugin>
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>1.1</version>
+        </plugin>
+        <plugin>
           <!-- not thread safe -->
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>gwt-maven-plugin</artifactId>
@@ -221,7 +227,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
-          <version>2.1</version>
+          <version>2.2</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -336,9 +342,8 @@
             <configuration>
               <rules>
                 <requireMavenVersion>
-                  <message>To build this project Maven ${maven.min.version} (or upper) is required. Please install it.
-                  </message>
-                  <version>${maven.min.version}</version>
+                  <version>(,2.1.0),(2.1.0,2.2.0),(2.2.0,)</version>
+                  <message>Maven 2.1.0 and 2.2.0 produce incorrect GPG signatures and checksums respectively.</message>
                 </requireMavenVersion>
               </rules>
             </configuration>
@@ -375,9 +380,12 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
         <configuration>
+          <tagNameFormat>@{project.version}</tagNameFormat>
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <localCheckout>true</localCheckout>
           <pushChanges>false</pushChanges>
+          <releaseProfiles>release</releaseProfiles>
+          <goals>deploy</goals>
         </configuration>
       </plugin>
       <plugin>
@@ -451,7 +459,7 @@
             <id>attach-sources</id>
             <phase>verify</phase>
             <goals>
-              <goal>jar</goal>
+              <goal>jar-no-fork</goal>
             </goals>
           </execution>
         </executions>
@@ -958,7 +966,7 @@
   <scm>
     <connection>scm:git:git@github.com:SonarSource/sonar.git</connection>
     <developerConnection>scm:git:git@github.com:SonarSource/sonar.git</developerConnection>
-    <url>scm:git:git@github.com:SonarSource/sonar.git</url>
+    <url>https://github.com/SonarSource/sonar</url>
   </scm>
 
   <ciManagement>
@@ -1044,6 +1052,19 @@
                 <id>attach-javadocs</id>
                 <goals>
                   <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
                 </goals>
               </execution>
             </executions>

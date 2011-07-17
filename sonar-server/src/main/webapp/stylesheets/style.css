@@ -77,9 +77,13 @@ div#hd {
   color: #fff;
   padding: 0 0 0 10px;
 }
+#crumbs li {
+  height: 30px;
+  line-height: 30px;
+  vertical-align: middle;
+}
 #crumbs li a, #nav li a {
   color: #fff;
-  vertical-align: middle;
 }
 #crumbs li a:link, #crumbs li a:visited, #nav li a:link, #nav li a:visited {
   text-decoration:none;
@@ -94,13 +98,13 @@ div#hd {
   text-align: left;
   margin: 50px 180px 0;
 }
-div#footer {
-  padding-top: 10px;
-  margin: 0 10px;
-  clear: both;
-}
 div#body {
-  height: 100%;
+  position: relative;
+  width: 100%;
+}
+div#footer {
+  margin: 10px;
+  clear: both;
 }
 .with_sidebar {
   margin: 0 10px 0 170px;
@@ -114,8 +118,10 @@ div#content {
 }
 div#sb {
   width: 150px;
-  float: left;
+  position: absolute;
   margin: 0 10px;
+  top: 0;
+  left: 0;
 }
 div#sidebar {
   background-color: #CAE3F2;
@@ -1226,7 +1232,7 @@ div.autocomplete strong {
   float: left;
   vertical-align: top;
   text-align: left;
-  min-width: 60px;
+  
   padding: 0 10px 7px 0;
 }
 
@@ -1258,18 +1264,24 @@ table.header1 td {
 	color: #444;
 	border: 1px solid #DDD;
 	margin: 0 0 10px 0;
-  line-height: 30px;
-  height: 30px;
+  line-height: 28px;
+  height: 28px;
 }
 ul.headerLine li {
   float: left;
   display: block;
   padding: 0 10px 0;
-  background: url("../images/sep12.png") no-repeat scroll 0 50% transparent;
+  height: 28px;
+  vertical-align: middle;
 }
-ul.headerLine li.first {
-  background: none;
+ul.headerLine li.sep {
+  background: url("../images/sep12.png") no-repeat scroll 50% 50% transparent;
+  padding: 0 5px 0 5px;
 }
+ul.headerLine select, ul.headerLine input, ul.headerLine button, ul.headerLine textarea, ul.headerLine span {
+  vertical-align: middle;
+}
+
 select.withIcons option {
 	background-repeat: no-repeat;
 	background-position: 2px 0;
