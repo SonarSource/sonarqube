@@ -1,10 +1,10 @@
 <div id="rev_<%= review.id -%>">
   <div class="reportTitle">
-    <h2>Review #<%= h(review.id.to_s) -%> - <%= h(review.title) -%></h2>
+    <h2><%= message('reviews.review_number', :params => h(review.id.to_s)) -%> - <%= h(review.title) -%></h2>
     <% if review.false_positive %>
       <%= image_tag("sep12.png") -%>
       &nbsp;
-      <span class="falsePositive">False-Positive</span>
+      <span class="falsePositive"><%= message('false_positive') -%></span>
     <% end %>
     
     <% 
@@ -18,13 +18,13 @@
         <% 
           if !violation_switched_off
         %>
-          <%= link_to_remote (review.isResolved? ? "Reopen" : "Resolve"),  
+          <%= link_to_remote (review.isResolved? ? message('reopen') : message('resolve')),  
         		:url => { :controller => "reviews", :action => "change_status", :id => review.id},
         		:update => "review",
-        		:confirm => review.isResolved? ? "Do you want to reopen this review?" : "Do you want to resolve this review?" -%>
+        		:confirm => review.isResolved? ? message('reviews.do_you_want_to_reopen') : message('reviews.do_you_want_to_resolve') -%>
           &nbsp;
           <% unless review.isResolved? %>
-	        <%= link_to_remote (review.assignee_id ? "Reassign" : "Assign"),  
+	        <%= link_to_remote (review.assignee_id ? message('reassign') : message('assign')),  
 	        		:url => { :controller => "reviews", :action => "assign_form", :review_id => review.id},
 	        		:update => "assignForm",
 	        		:complete => "$('rActions').hide(); $('editActions').hide(); $('assignee_login').focus();" -%>
@@ -33,7 +33,7 @@
           <% end %>
         <% end %>
         <% if review.can_change_false_positive_flag? %>
-          <%= link_to_remote (violation_switched_off ? "Unflag as false-positive" : "Flag as false-positive"),
+          <%= link_to_remote (violation_switched_off ? message('reviews.unflag_as_false_positive') : message('reviews.flag_as_false_positive')),
         		:url => { :controller => "reviews", :action => "false_positive_form", :id => review.id, :false_positive => !violation_switched_off },
         		:update => "reviewForm",
         		:complete => "$('reviewForm').show(); $('rActions').hide(); $('editActions').hide(); $('commentText').focus();" -%>
@@ -46,21 +46,21 @@
   <table class="reportDetails">
 	 <tr>
 	   <td class="key">
-	     Status:	
+	     <%= message('status') -%>:	
 	   </td>
 	   <td  class="val">
-		<%= image_tag "status/#{review.status}.png" -%> <%= review.status.capitalize -%>
+		<%= image_tag "status/#{review.status}.png" -%> <%= message(review.status.downcase).capitalize -%>
 	   </td>
 	   <td class="key">
-         Severity:
+         <%= message('severity') -%>:
 	   </td>
 	   <td  class="val">
-          <%= image_tag "priority/#{review.severity}.png" -%> <%= review.severity.capitalize -%>
+          <%= image_tag "priority/#{review.severity}.png" -%> <%= message(review.severity.downcase).capitalize -%>
 	   </td>
 	 </tr>
 	 <tr>
 	   <td class="key">
-	     Assignee:	
+	     <%= message('assignee') -%>:	
 	   </td>
 	   <td  class="val">
 	     <span id="assignForm">
@@ -68,7 +68,7 @@
 	     </span>
 	   </td>
 	   <td class="key">
-		  Author:
+		  <%= message('author') -%>:
 	   </td>
 	   <td  class="val">
   		  <%= h(review.user.name) -%>
@@ -76,13 +76,13 @@
 	 </tr>
 	 <tr>
 	   <td class="key">
-	     Created:
+	     <%= message('created') -%>:
        </td>
 	   <td  class="val">
          <%= l(review.created_at, :format => "%m/%b/%y %H:%M") -%>
        </td>
 	   <td class="key">
-		  Updated:
+		  <%= message('updated') -%>:
 	   </td>
 	   <td  class="val">
   		  <%= l(review.updated_at, :format => "%m/%b/%y %H:%M") -%>
@@ -91,7 +91,7 @@
 	<% if review.rule %>
    	<tr>
 	   <td class="key">
-	     Rule:	
+	     <%= message('rule') -%>:	
 	   </td>
 	   <td class="val" colspan="3">
 		  <a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => review.rule.key, :layout => 'false' -%>"><%= h(review.rule.name) -%></a>
@@ -100,7 +100,7 @@
 	<% end %>
 	<tr>
 	   <td class="key">
-	     File:	
+	     <%= message('file') -%>:	
 	   </td>
 	   <td class="val" colspan="3">
 		<%= qualifier_icon(@review.resource) -%> 
@@ -134,7 +134,7 @@
              &nbsp;&nbsp;
              <%= image_tag("sep12.png") -%>
              &nbsp;&nbsp;
-             <%= link_to_remote "Add comment",
+             <%= link_to_remote message('add_comment'),
       		     :url => { :controller => "reviews", :action => "comment_form", :id => review.id },
       		     :update => "reviewForm",
       		     :complete => "$('rActions').hide();$('editActions').hide();$('reviewForm').show();$('commentText').focus();" -%>
@@ -142,16 +142,16 @@
                if current_user.id == comment.user_id
              %>
                &nbsp;
-               <%= link_to_remote "Edit", 
+               <%= link_to_remote message('edit'), 
                  :url => { :controller => "reviews", :action => "comment_form", :comment_id => comment.id, :id => review.id },
       		     :update => "lastComment",
       		     :complete => "$('rActions').hide();$('editActions').hide();$('commentText').focus();" -%>
       		   <% unless comment_index == 0 %>
                &nbsp;
-               <%= link_to_remote "Delete",
+               <%= link_to_remote message('delete'),
       		     :url => { :controller => "reviews", :action => "delete_comment", :comment_id => comment.id, :id => review.id },
       	         :update => "review",
-                 :confirm => "Do you want to delete this comment?" -%>
+                 :confirm => message('reviews.do_you_want_to_delete_comment') -%>
                <% end %>
              <% 
                end 

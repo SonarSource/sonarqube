@@ -1,5 +1,5 @@
 <%
-  button=(@comment ? 'Update comment' : 'Add comment')
+  button=(@comment ? message('update_comment') : message('add_comment'))
 %>
 <form method="POST" action="save_comment">
   <input type="hidden" name="id" value="<%= params[:id] -%>"/>
@@ -14,7 +14,7 @@
         <br/>
         <%= submit_to_remote "submit_btn", button, :url => { :action => 'save_comment'}, :html => { :id => "submit_btn", :disabled => "true" }, :update => 'review' -%>
         &nbsp;
-        <%= link_to_remote 'Cancel', :url => {:action => 'show', :id => params[:id]}, :update => 'review' -%>
+        <%= link_to_remote message('cancel'), :url => {:action => 'show', :id => params[:id]}, :update => 'review' -%>
       </td>
       <td class="sep"></td>
       <td style="vertical-align:top;width: 90px">

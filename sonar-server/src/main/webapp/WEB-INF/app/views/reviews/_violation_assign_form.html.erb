@@ -5,11 +5,11 @@
   <%= hidden_field_tag :id, params[:violation_id] -%>
   <%= user_autocomplete_field "assignee_login", "" -%>
   &nbsp;&nbsp;
-  <%= submit_to_remote "submit_btn", "Assign", 
+  <%= submit_to_remote "submit_btn", message('assign'), 
          :url => { :action => 'violation_assign' },
          :update => "vId" + params[:violation_id] -%>
   &nbsp;&nbsp;
-  <%= link_to_remote 'Cancel', 
+  <%= link_to_remote message('cancel'), 
          :url => { :action => 'display_violation', :id => params[:violation_id] },
          :update => "vId" + params[:violation_id] %>
   <script>

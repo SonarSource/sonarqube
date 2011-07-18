@@ -3,11 +3,11 @@
   <%= hidden_field_tag :id, params[:review_id] -%>
   <%= user_autocomplete_field "assignee_login", "" -%>
   &nbsp;&nbsp;
-  <%= submit_to_remote "submit_btn", "Assign", 
+  <%= submit_to_remote "submit_btn", message('assign'), 
          :url => { :action => 'assign' },
          :update => "review" -%>
   &nbsp;&nbsp;
-  <%= link_to_remote 'Cancel', 
+  <%= link_to_remote message('cancel'), 
          :url => { :action => 'show', :id => params[:review_id] },
          :update => "review" %>
   <script>

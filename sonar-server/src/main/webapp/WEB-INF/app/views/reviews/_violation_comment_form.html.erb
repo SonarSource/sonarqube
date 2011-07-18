@@ -1,5 +1,5 @@
 <%
-  button=(@comment ? 'Update comment' : 'Add comment')
+  button=(@comment ? message('update_comment') : message('add_comment'))
 %>
 <form method="POST"
       onsubmit="new Ajax.Updater('vId<%= params[:id] -%>', '<%= url_for :action => 'violation_save_comment' -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)});return false;">
@@ -18,11 +18,11 @@
                   :html => { :id => "submit_btn"+params[:id], :disabled => "true" }, 
                   :update => 'vId'+params[:id] -%>
         &nbsp;
-        <%= link_to_remote 'Cancel', :url => {:action => 'display_violation', :id => params[:id]}, :update => 'vId' + params[:id] -%>
+        <%= link_to_remote message('cancel'), :url => {:action => 'display_violation', :id => params[:id]}, :update => 'vId' + params[:id] -%>
 
         <% if @violation.review.nil? || @violation.review.comments.size==0 %>
           &nbsp;&nbsp;
-          <span>Assignee:</span>
+          <span><%= message('assignee') -%>:</span>
           <%= user_autocomplete_field "assignee_login", current_user.login -%>
         <% end %>
       </td>

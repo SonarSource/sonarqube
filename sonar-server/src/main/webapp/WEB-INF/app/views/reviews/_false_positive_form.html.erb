@@ -1,10 +1,10 @@
 <%
    if params[:false_positive]=='true'
-     title = "Why is it a false-positive ?"
-     button = "Flag as false-positive"
+     title = message('reviews.why_false_positive')
+     button = message('reviews.flag_as_false_positive')
    else
-     title = "Why is it not a false-positive anymore ?"
-     button = "Unflag as false-positive"
+     title = message('reviews.why_not_false_positive')
+     button = message('reviews.unflag_as_false_positive')
    end
 %>
 <form method="POST" action="violation_flag_as_false_positive">
@@ -16,5 +16,5 @@
   <textarea id="commentText" rows="8" name="comment" style="width: 100%" onkeyup="if (this.value=='') $('submit_btn').disabled='true'; else $('submit_btn').disabled='';"></textarea>
   <%= submit_to_remote "submit_btn", button, :url => { :action => 'flag_as_false_positive' }, :html => { :id => "submit_btn", :disabled => "true" }, :update => 'review' -%>
   &nbsp;
-  <%= link_to_remote 'Cancel', :url => {:action => 'show', :id => params[:id]}, :update => 'review' -%>
+  <%= link_to_remote message('cancel'), :url => {:action => 'show', :id => params[:id]}, :update => 'review' -%>
 </form>

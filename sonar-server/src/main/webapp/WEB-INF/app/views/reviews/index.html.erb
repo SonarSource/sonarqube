@@ -22,7 +22,7 @@ function launchSearch(columnName, link) {
 }
 </script>
 <div id="reviews-search">
-  <h1>Reviews</h1>
+  <h1><%= message('reviews') -%></h1>
   <% form_tag({:action => 'index'}, {:method => 'get'}) do %>
     <table id="reviews-form" class="header1">
       <thead>
@@ -33,30 +33,30 @@ function launchSearch(columnName, link) {
       <tbody>
       <tr>
         <td width="1%" nowrap>
-          <span class="note">Status</span><br/>
+          <span class="note"><%= message('status') -%></span><br/>
           <select size="6" name="statuses[]" multiple="multiple" id="statuses" class="withIcons">
-            <option <%= 'selected' if @statuses.include?('') -%> value="">Any</option>
-            <option value="<%= Review::STATUS_OPEN -%>" class="status_open" <%= 'selected' if @statuses.include?(Review::STATUS_OPEN) -%>>Open</option>
-            <option value="<%= Review::STATUS_REOPENED -%>" class="status_reopened" <%= 'selected' if @statuses.include?(Review::STATUS_REOPENED) -%>>Reopened</option>
-            <option value="<%= Review::STATUS_RESOLVED -%>" class="status_resolved" <%= 'selected' if @statuses.include?(Review::STATUS_RESOLVED) -%>>Resolved</option>
-            <option value="<%= Review::STATUS_CLOSED -%>" class="status_closed" <%= 'selected' if @statuses.include?(Review::STATUS_CLOSED) -%>>Closed</option>
+            <option <%= 'selected' if @statuses.include?('') -%> value=""><%= message('any') -%></option>
+            <option value="<%= Review::STATUS_OPEN -%>" class="status_open" <%= 'selected' if @statuses.include?(Review::STATUS_OPEN) -%>><%= message('open') -%></option>
+            <option value="<%= Review::STATUS_REOPENED -%>" class="status_reopened" <%= 'selected' if @statuses.include?(Review::STATUS_REOPENED) -%>><%= message('reopened') -%></option>
+            <option value="<%= Review::STATUS_RESOLVED -%>" class="status_resolved" <%= 'selected' if @statuses.include?(Review::STATUS_RESOLVED) -%>><%= message('resolved') -%></option>
+            <option value="<%= Review::STATUS_CLOSED -%>" class="status_closed" <%= 'selected' if @statuses.include?(Review::STATUS_CLOSED) -%>><%= message('closed') -%></option>
           </select>
         </td>
         <td width="1%" nowrap>
-          <span class="note">Severity</span><br/>
+          <span class="note"><%= message('severity') -%></span><br/>
           <select size="6" name="severities[]" multiple="multiple" id="severities" class="withIcons">
-            <option <%= 'selected' if @severities.include?('') -%> value="">Any</option>
-            <option value="<%= Severity::BLOCKER -%>" class="sev_BLOCKER" <%= 'selected' if @severities.include?(Severity::BLOCKER) -%>>Blocker</option>
-            <option value="<%= Severity::CRITICAL -%>" class="sev_CRITICAL" <%= 'selected' if @severities.include?(Severity::CRITICAL) -%>>Critical</option>
-            <option value="<%= Severity::MAJOR -%>" class="sev_MAJOR" <%= 'selected' if @severities.include?(Severity::MAJOR) -%>>Major</option>
-            <option value="<%= Severity::MINOR -%>" class="sev_MINOR" <%= 'selected' if @severities.include?(Severity::MINOR) -%>>Minor</option>
-            <option value="<%= Severity::INFO -%>" class="sev_INFO" <%= 'selected' if @severities.include?(Severity::INFO) -%>>Info</option>
+            <option <%= 'selected' if @severities.include?('') -%> value=""><%= message('any') -%></option>
+            <option value="<%= Severity::BLOCKER -%>" class="sev_BLOCKER" <%= 'selected' if @severities.include?(Severity::BLOCKER) -%>><%= message('blocker') -%></option>
+            <option value="<%= Severity::CRITICAL -%>" class="sev_CRITICAL" <%= 'selected' if @severities.include?(Severity::CRITICAL) -%>><%= message('critical') -%></option>
+            <option value="<%= Severity::MAJOR -%>" class="sev_MAJOR" <%= 'selected' if @severities.include?(Severity::MAJOR) -%>><%= message('major') -%></option>
+            <option value="<%= Severity::MINOR -%>" class="sev_MINOR" <%= 'selected' if @severities.include?(Severity::MINOR) -%>><%= message('minor') -%></option>
+            <option value="<%= Severity::INFO -%>" class="sev_INFO" <%= 'selected' if @severities.include?(Severity::INFO) -%>><%= message('info') -%></option>
            </select>
         </td>
         <td width="1%" nowrap>
-          <span class="note">Project</span><br/>
+          <span class="note"><%= message('project') -%></span><br/>
           <select size="6" name="projects[]" multiple="multiple" id="projects">
-            <option <%= 'selected' if @projects.include?('') -%> value="">Any</option>
+            <option <%= 'selected' if @projects.include?('') -%> value=""><%= message('any') -%></option>
             <% projects_for_select.each do |project|
               name=project.name(true)
             %>
@@ -65,20 +65,20 @@ function launchSearch(columnName, link) {
           </select>
         </td>
         <td width="1%" nowrap>
-          <span class="note">Created by</span><br/>
+          <span class="note"><%= message('created_by') -%></span><br/>
           <%= user_autocomplete_field "author_login", @author_login, { :class => "max-width" } -%>
           <br/>
-          <span class="note">Assigned to</span><br/>
+          <span class="note"><%= message('assigned_to') -%></span><br/>
           <%= user_autocomplete_field "assignee_login", @assignee_login, { :class => "max-width" } -%>
           <br/>
           <br/>
           <select name="false_positives" id="false_positives" onchange="if(this.value=='only' || this.value=='with') {$('assignee_login').value = ''; $('autocompleteText-assignee_login').value = ''; $('statuses').value = '';};">
-            <option <%= 'selected' if @false_positives=='without' -%> value="without">Without false positives</option>
-            <option <%= 'selected' if @false_positives=='only' -%> value="only">Only false positives</option>
+            <option <%= 'selected' if @false_positives=='without' -%> value="without"><%= message('reviews.without_false_positives') -%></option>
+            <option <%= 'selected' if @false_positives=='only' -%> value="only"><%= message('reviews.only_false_positives') -%></option>
           </select>
         </td>
         <td width="1%" style="padding-left: 20px" nowrap>
-          <span class="note">Id</span><br/>
+          <span class="note"><%= message('identifier_abbreviated') -%></span><br/>
           <%= text_field_tag "review_id", @id, :size => 10, :onkeyup => "reviewIdFieldModified(this)" -%>
           <br/>
           <br/>
@@ -87,7 +87,7 @@ function launchSearch(columnName, link) {
           <div style="width:100%; text-align: right">
           <input type="hidden" name="sort" id="sort" value="<%= @sort -%>"/>
           <input type="hidden" name="asc" id="asc" value="<%= @asc -%>"/>
-          <%= submit_tag "Search", :id => 'submit_search' %>
+          <%= submit_tag message('search_verb'), :id => 'submit_search' %>
           </div>
         </td>
         <td>
@@ -102,38 +102,38 @@ function launchSearch(columnName, link) {
      if @reviews && !@reviews.empty?
   %>
     <% if @false_positives=='only' %>
-    <div style="color:#777777; font-size:93%; padding: 4px 0px 4px 10px;">Showing <span class="falsePositive">false positives</span> only</div>
+    <div style="color:#777777; font-size:93%; padding: 4px 0px 4px 10px;"><span class="falsePositive"><%= message('reviews.showing_false_positives_only') -%></span></div>
     <% end %>
     <table id="reviews-list" class="data width100">
       <thead>
       <tr>
         <th width="1%" nowrap>
-          <a href="#" onClick="launchSearch('status', this)">St.</a>
+          <a href="#" onClick="launchSearch('status', this)"><%= message('status_abbreviated') -%></a>
           <%= image_tag(@asc ? "asc12.png" : "desc12.png") if @sort == 'status' -%>
         </th>
         <th width="1%" nowrap>
-          <a href="#" onClick="launchSearch('id', this)">Id</a>
+          <a href="#" onClick="launchSearch('id', this)"><%= message('identifier_abbreviated') -%></a>
           <%= image_tag(@asc ? "asc12.png" : "desc12.png") if @sort == 'id' -%>
         </th>
         <th width="1%" nowrap>
-          <a href="#" onClick="launchSearch('severity', this)">Se.</a>
+          <a href="#" onClick="launchSearch('severity', this)"><%= message('severity_abbreviated') -%></a>
           <%= image_tag(@asc ? "asc12.png" : "desc12.png") if @sort == 'severity' -%>
         </th>
         <th>
-          <a href="#" onClick="launchSearch('title', this)">Title</a>
+          <a href="#" onClick="launchSearch('title', this)"><%= message('title') -%></a>
           <%= image_tag(@asc ? "asc12.png" : "desc12.png") if @sort == 'title' -%>
         </th>
-        <th width="1%">Project</th>
-        <th>Assignee</th>
+        <th width="1%"><%= message('project') -%></th>
+        <th><%= message('assignee') -%></th>
         <th>
-          <a href="#" onClick="launchSearch('updated_at', this)">Age</a>
+          <a href="#" onClick="launchSearch('updated_at', this)"><%= message('age') -%></a>
           <%= image_tag(@asc ? "asc12.png" : "desc12.png") if @sort == 'updated_at' -%>
         </th>
       </tr>
       </thead>
       <tfoot>
       <tr>
-        <td colspan="6"><%= @reviews.size -%> results
+        <td colspan="6"><%= @reviews.size -%> <%= message('results') -%>
       </tr>
       </tfoot>
       <tbody>
@@ -142,11 +142,11 @@ function launchSearch(columnName, link) {
            comment = review.comments.last
       %>
         <tr class="<%= cycle('even', 'odd') -%>">
-          <td><img src="<%= ApplicationController.root_context -%>/images/status/<%= review.status -%>.png" title="<%= review.status.capitalize -%>"/></td>
+          <td><img src="<%= ApplicationController.root_context -%>/images/status/<%= review.status -%>.png" title="<%= message(review.status.downcase).capitalize -%>"/></td>
           <td>
             <%= link_to h(review.id), :controller => "reviews", :action => "view", :id => review.id -%>
           </td>
-          <td><img src="<%= ApplicationController.root_context -%>/images/priority/<%= review.severity -%>.png" title="<%= review.severity.capitalize -%>"/></td>
+          <td><img src="<%= ApplicationController.root_context -%>/images/priority/<%= review.severity -%>.png" title="<%= message(review.severity.downcase).capitalize -%>"/></td>
           <td>
             <%= link_to h(review.title), :controller => "reviews", :action => "view", :id => review.id -%>
             <div class="comment-excerpt">
@@ -168,14 +168,14 @@ function launchSearch(columnName, link) {
   <%
      elsif @reviews
   %>
-    <p>No results</p>
+    <p><%= message('no_results') -%></p>
   <%
      end
   %>
   
   <% if @security_exclusions %>
     <br/>
-    <p class="notes">Due to security settings, some results are not being displayed.</p>
+    <p class="notes"><%= message('results_not_display_due_to_security') -%></p>
   <% end %>
   
 </div>
