@@ -92,7 +92,7 @@ class DrilldownColumn
     end
 
     @measures=ProjectMeasure.find(:all,
-      :select => "project_measures.id,project_measures.metric_id,project_measures.#{value_column},project_measures.text_value,project_measures.alert_status,project_measures.snapshot_id",
+      :select => "project_measures.id,project_measures.metric_id,project_measures.#{value_column},project_measures.text_value,project_measures.alert_status,project_measures.alert_text,project_measures.snapshot_id",
       :joins => :snapshot,
       :conditions => [conditions, condition_values],
       :order => order,
