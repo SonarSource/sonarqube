@@ -419,10 +419,10 @@ module ApplicationHelper
     resource_id=(resource.is_a?(Fixnum) ? resource : (resource.copy_resource_id || resource.id))
     html_id=options['html_id'] || "fav#{resource_id}"
     initial_class='notfav'
-    initial_tooltip='Click to add to favourites'
+    initial_tooltip=message('click_to_add_to_favourites')
     if current_user.favourite?(resource_id)
       initial_class='fav'
-      initial_tooltip='Click to remove from favourites'
+      initial_tooltip=message('click_to_remove_from_favourites')
     end
 
     link_to_remote('', :url => { :controller => 'favourites', :action => 'toggle', :id => resource_id, :elt => html_id},

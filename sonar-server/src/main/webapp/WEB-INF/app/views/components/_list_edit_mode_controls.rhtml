@@ -4,10 +4,10 @@
       <% addeable_columns = components_configuration.addeable_columns %>
      <% if addeable_columns.size > 0 %>
     <tr>
-	<td colspan="2"><%= image_tag 'warning.png' %> Note that these changes will impact all users and all projects.</td>
+	<td colspan="2"><%= image_tag 'warning.png' %> <%= message('components.note_changes_impact_all_users') -%></td>
 	</tr>
     <tr>
-      <td width="1%" nowrap>Add a column</td>
+      <td width="1%" nowrap><%= message('add_a_column') -%></td>
       <td>
         <form action="<%= url_for :controller => "columns", :action => "add" -%>" >
           <input type="hidden" name="rid" value="<%= @project.id if @project %>" />
@@ -27,12 +27,12 @@
     </tr>
     <% end %>
     <tr>
-      <td width="1%" nowrap>Default sort on </td>
+      <td width="1%" nowrap><%= message('default_sort_on') -%> </td>
       <td>
         <form action="<%= url_for :controller => "columns", :action => "default_sorting" -%>">
           <input type="hidden" name="rid" value="<%= @project.id if @project %>" />
           <select name="id" onchange="$('sort_column_loading').show();submit();" id="select_default_sorting">
-	        <option value="project" <%= 'selected' if components_configuration.sorted_by_project_name? -%>>Project name</option>
+	        <option value="project" <%= 'selected' if components_configuration.sorted_by_project_name? -%>><%= message('project_name') -%></option>
             <% configured_columns.sort_by{|col| col.name}.each do |column| 
                 if column.sortable? %>
                 <option value="<%= column.id -%>" <%= 'selected' if column.sort_default? -%>><%= column.name %></option>
@@ -45,9 +45,9 @@
     </tr>
     <tr>
       <td colspan="2">
-       <%= link_to( "Enable treemap", 
+       <%= link_to( message('enable_treemap'), 
                                 {:controller => "columns", :action => "toggle_treemap", :rid => @project.id}, {:class => 'action'} ) if (!components_configuration.treemap_enabled?) %>
-       <%= link_to( "Disable treemap", 
+       <%= link_to( message('disable_treemap'), 
                                 {:controller => "columns", :action => "toggle_treemap", :rid => @project.id}, {:class => 'action'} ) if components_configuration.treemap_enabled? %>	         
         &nbsp; <%= image_tag("treemap_icon.png") %>
       </td>

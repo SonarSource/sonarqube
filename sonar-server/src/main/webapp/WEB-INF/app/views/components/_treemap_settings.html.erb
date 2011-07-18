@@ -10,11 +10,11 @@ end
 remote_form_for :treemap, :url => url_params, :html => { :id => 'tm_form', :method => 'get' },
     :loading => "$('tm_form').disable();$('tm_loading').show();",
     :complete => "$('tm_form').enable();$('tm_loading').hide();" do |form | %>
-<%= submit_tag(value = "Update", :id => 'submit_treemap', :style => 'display:none;') %>
+<%= submit_tag(value = message('update_verb'), :id => 'submit_treemap', :style => 'display:none;') %>
 <table class="spaced">
 <tr>
     <td valign="bottom">
-      <span class="comments">Size</span>
+      <span class="comments"><%= message('size') -%></span>
       <br/>
       <%= select_tag 'size_metric', options_grouped_by_domain(Sonar::TreemapBuilder.size_metrics, @treemap.size_metric.key),
         :id => 'select_size_metric', :class => 'small',:onchange => "$('submit_treemap').click();" %>
@@ -22,7 +22,7 @@ remote_form_for :treemap, :url => url_params, :html => { :id => 'tm_form', :meth
   </tr>
   <tr>
     <td>
-      <span class="comments">Color</span>&nbsp;&nbsp;
+      <span class="comments"><%= message('color') -%></span>&nbsp;&nbsp;
       <span id="treemap_gradient" class="comments little">
         <%= render :partial => 'components/treemap_gradient', :locals => {:color_metric => @treemap.color_metric} %>
       </span>
@@ -35,7 +35,7 @@ remote_form_for :treemap, :url => url_params, :html => { :id => 'tm_form', :meth
 
   <% if configuring? && has_role?(:admin) %>
   <tr >
-    <td class="admin"><%= button_to 'Set as default', "#", :id => 'set_default_treemap', :onclick => "$('form_set_default').submit()" %></td>
+    <td class="admin"><%= button_to message('set_as_default'), "#", :id => 'set_default_treemap', :onclick => "$('form_set_default').submit()" %></td>
   </tr>
   <% end %>
 </table>
