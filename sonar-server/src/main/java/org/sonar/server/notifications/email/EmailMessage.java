@@ -19,6 +19,8 @@
  */
 package org.sonar.server.notifications.email;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import java.io.Serializable;
 
 /**
@@ -105,6 +107,11 @@ public class EmailMessage implements Serializable {
    */
   public String getMessageId() {
     return messageId;
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this).toString();
   }
 
 }

@@ -19,9 +19,14 @@
  */
 package org.sonar.server.notifications.email;
 
-import org.codehaus.plexus.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.mail.Email;
+import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail.SimpleEmail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.database.model.User;
+import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.notifications.Notification;
 import org.sonar.server.notifications.NotificationChannel;
 
@@ -41,14 +46,27 @@ public class EmailNotificationChannel extends NotificationChannel {
 
   private static final Logger LOG = LoggerFactory.getLogger(EmailNotificationChannel.class);
 
-  private static final String FROM_DEFAULT = "Sonar";
-  private static final String SUBJECT_PREFIX = "[Sonar]";
+  /**
+   * @see Email#setSocketConnectionTimeout(int)
+   * @see Email#setSocketTimeout(int)
+   */
+  private static final int SOCKET_TIMEOUT = 30000;
+
+  private static final String FROM_NAME_DEFAULT = "Sonar";
   private static final String SUBJECT_DEFAULT = "Notification";
 
+  private EmailConfiguration configuration;
   private EmailMessageTemplate[] templates;
+  private DatabaseSessionFactory sessionFactory;
 
-  public EmailNotificationChannel(EmailMessageTemplate[] templates) {
+  public EmailNotificationChannel(EmailConfiguration configuration, EmailMessageTemplate[] templates, DatabaseSessionFactory sessionFactory) {
+    this.configuration = configuration;
     this.templates = templates;
+    this.sessionFactory = sessionFactory;
+  }
+
+  private User getUserById(Integer id) {
+    return sessionFactory.getSession().getEntity(User.class, id);
   }
 
   @Override
@@ -56,7 +74,8 @@ public class EmailNotificationChannel extends NotificationChannel {
     for (EmailMessageTemplate template : templates) {
       EmailMessage email = template.format(notification);
       if (email != null) {
-        email.setTo(userId.toString()); // TODO should be valid email@address
+        User user = getUserById(userId);
+        email.setTo(user.getEmail());
         return email;
       }
     }
@@ -65,47 +84,68 @@ public class EmailNotificationChannel extends NotificationChannel {
 
   @Override
   public void deliver(Serializable notificationData) {
-    EmailMessage email = (EmailMessage) notificationData;
-    LOG.info("Email:\n{}", create(email));
+    if (StringUtils.isBlank(configuration.getSmtpHost())) {
+      LOG.warn("SMTP host was not configured - email will not be sent");
+      return;
+    }
+    try {
+      send((EmailMessage) notificationData);
+    } catch (EmailException e) {
+      LOG.error("Unable to send email", e);
+    }
+  }
+
+  private void send(EmailMessage emailMessage) throws EmailException {
+    LOG.info("Sending email: {}", emailMessage);
+    // TODO
+    String domain = "nemo.sonarsource.org";
+    String listId = "<sonar." + domain + ">";
+    String serverUrl = "http://nemo.sonarsource.org";
+
+    SimpleEmail email = new SimpleEmail();
+    /*
+     * Set headers for proper threading:
+     * GMail will not group messages, even if they have same subject, but don't have "In-Reply-To" and "References" headers.
+     * TODO investigate threading in other clients like KMail, Thunderbird, Outlook
+     */
+    if (StringUtils.isNotEmpty(emailMessage.getMessageId())) {
+      String messageId = "<" + emailMessage.getMessageId() + "@" + domain + ">";
+      email.addHeader("In-Reply-To", messageId);
+      email.addHeader("References", messageId);
+    }
+    // Set headers for proper filtering
+    email.addHeader("List-Id", listId);
+    email.addHeader("List-Archive", serverUrl);
+    // Set general information
+    email.setFrom(configuration.getFrom(), StringUtils.defaultIfBlank(emailMessage.getFrom(), FROM_NAME_DEFAULT));
+    email.addTo(emailMessage.getTo(), " ");
+    String subject = StringUtils.defaultIfBlank(StringUtils.trimToEmpty(configuration.getPrefix()) + " ", "")
+          + StringUtils.defaultString(emailMessage.getSubject(), SUBJECT_DEFAULT);
+    email.setSubject(subject);
+    email.setMsg(emailMessage.getMessage());
+    // Send
+    email.setHostName(configuration.getSmtpHost());
+    email.setSmtpPort(Integer.parseInt(configuration.getSmtpPort()));
+    email.setTLS(configuration.isUseTLS());
+    if (StringUtils.isNotBlank(configuration.getSmtpUsername()) || StringUtils.isNotBlank(configuration.getSmtpPassword())) {
+      email.setAuthentication(configuration.getSmtpUsername(), configuration.getSmtpPassword());
+    }
+    email.setSocketConnectionTimeout(SOCKET_TIMEOUT);
+    email.setSocketTimeout(SOCKET_TIMEOUT);
+    email.send();
   }
 
   /**
-   * Visibility has been relaxed for tests.
+   * Send test email. This method called from Ruby.
+   * 
+   * @throws EmailException when unable to send
    */
-  String create(EmailMessage email) {
-    // TODO
-    String serverUrl = "http://nemo.sonarsource.org";
-    String domain = "nemo.sonarsource.org";
-    String listId = "<sonar." + domain + ">";
-    String from = StringUtils.defaultString(email.getFrom(), FROM_DEFAULT) + " <noreply@" + domain + ">";
-    String subject = SUBJECT_PREFIX + " " + StringUtils.defaultString(email.getSubject(), SUBJECT_DEFAULT);
-    String permalink = null;
-    StringBuilder sb = new StringBuilder();
-    if (StringUtils.isNotEmpty(email.getMessageId())) {
-      subject = "Re: " + subject;
-      String messageId = "<" + email.getMessageId() + "@" + domain + ">";
-      appendHeader(sb, "Message-Id", messageId);
-      appendHeader(sb, "In-Reply-To", messageId);
-      appendHeader(sb, "References", messageId);
-      permalink = serverUrl + '/' + email.getMessageId();
-    }
-    appendHeader(sb, "List-Id", listId);
-    appendHeader(sb, "List-Archive", serverUrl);
-    appendHeader(sb, "From", from);
-    appendHeader(sb, "To", email.getTo());
-    appendHeader(sb, "Subject", subject);
-    sb.append('\n')
-        .append(email.getMessage()).append('\n');
-    if (permalink != null) {
-      sb.append('\n')
-          .append("--\n")
-          .append("View it in Sonar: ").append(permalink);
-    }
-    return sb.toString();
-  }
-
-  private void appendHeader(StringBuilder sb, String header, String value) {
-    sb.append(header).append(": ").append(value).append('\n');
+  public void sendTestEmail(String toAddress, String subject, String message) throws EmailException {
+    EmailMessage emailMessage = new EmailMessage();
+    emailMessage.setTo(toAddress);
+    emailMessage.setSubject(subject);
+    emailMessage.setMessage(message);
+    send(emailMessage);
   }
 
 }

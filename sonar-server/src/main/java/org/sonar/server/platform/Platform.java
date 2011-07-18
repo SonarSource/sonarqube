@@ -58,6 +58,7 @@ import org.sonar.server.mavendeployer.MavenRepository;
 import org.sonar.server.notifications.NotificationManager;
 import org.sonar.server.notifications.NotificationQueue;
 import org.sonar.server.notifications.NotificationService;
+import org.sonar.server.notifications.email.EmailConfiguration;
 import org.sonar.server.notifications.email.EmailNotificationChannel;
 import org.sonar.server.notifications.reviews.CommentOnReviewAssignedToMe;
 import org.sonar.server.notifications.reviews.CommentOnReviewCreatedByMe;
@@ -196,7 +197,8 @@ public final class Platform {
     servicesContainer.as(Characteristics.CACHE).addComponent(NotificationService.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(NotificationManager.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(ReviewsNotificationManager.class);
-    // FIXME next four lines here just for tests:
+    // FIXME next five lines here just for tests:
+    servicesContainer.as(Characteristics.CACHE).addComponent(EmailConfiguration.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(EmailNotificationChannel.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(CommentOnReviewEmailTemplate.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(CommentOnReviewAssignedToMe.class);

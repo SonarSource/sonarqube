@@ -1,0 +1,110 @@
+<h1>Email configuration</h1>
+<% form_tag({:action => 'save'}) do -%>
+  <table>
+    <tr>
+      <td nowrap>
+        <label for="smtp_host"><b>SMTP Host:</b></label>
+      </td>
+      <td class="sep"> </td>
+      <td align="left">
+        <%= text_field_tag 'smtp_host', @smtp_host %>
+      </td>
+    </tr>
+
+    <tr>
+      <td nowrap>
+        <label for="smtp_port"><b>SMTP Port:</b></label>
+      </td>
+      <td class="sep"> </td>
+      <td align="left">
+        <%= text_field_tag 'smtp_port', @smtp_port %>
+      </td>
+    </tr>
+
+    <tr>
+      <td nowrap>
+        <label for="smtp_port"><b>Use TLS:</b></label>
+      </td>
+      <td class="sep"> </td>
+      <td align="left">
+        <%= check_box_tag 'smtp_use_tls', 'true', @smtp_use_tls %>
+      </td>
+    </tr>
+
+    <tr>
+      <td nowrap>
+        <label for="smtp_username"><b>SMTP Username:</b></label>
+      </td>
+      <td class="sep"> </td>
+      <td align="left">
+        <%= text_field_tag 'smtp_username', @smtp_username %>
+      </td>
+    </tr>
+
+    <tr>
+      <td nowrap>
+        <label for="smtp_password"><b>SMTP Password:</b></label>
+      </td>
+      <td class="sep"> </td>
+      <td align="left">
+        <%= password_field_tag 'smtp_password', @smtp_password %>
+      </td>
+    </tr>
+
+    <tr>
+      <td nowrap>
+        <label for="email_from"><b>From address:</b></label>
+      </td>
+      <td class="sep"> </td>
+      <td align="left">
+        <%= text_field_tag 'email_from', @email_from %>
+      </td>
+    </tr>
+
+    <tr>
+      <td nowrap>
+        <label for="email_prefix"><b>Email prefix:</b></label>
+      </td>
+      <td class="sep"> </td>
+      <td align="left">
+        <%= text_field_tag 'email_prefix', @email_prefix %>
+      </td>
+    </tr>
+  </table>
+  <%= submit_tag %>
+<% end -%>
+<br/>
+
+<h1>Send Test Email</h1>
+<% form_tag({:action => 'send_test_email'}) do -%>
+  <table>
+    <tr>
+      <td nowrap>
+        <label for="to_address"><b>To:</b></label>
+      </td>
+      <td class="sep"> </td>
+      <td align="left">
+        <%= text_field_tag 'to_address', current_user.email %>
+      </td>
+    </tr>
+    <tr>
+      <td nowrap>
+        <label for="subject"><b>Subject:</b></label>
+      </td>
+      <td class="sep"> </td>
+      <td align="left">
+        <%= text_field_tag 'subject', 'Test Message from Sonar' %>
+      </td>
+    </tr>
+    <tr>
+      <td nowrap>
+        <label for="message"><b>Message:</b></label>
+      </td>
+      <td class="sep"> </td>
+      <td align="left">
+        <%= text_area_tag 'message', 'This is a test message from Sonar.' %>
+      </td>
+    </tr>
+  <table>
+  <%= submit_tag 'Send' %>
+<% end -%>

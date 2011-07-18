@@ -20,63 +20,160 @@
 package org.sonar.server.notifications.email;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import com.dumbster.smtp.SimpleSmtpServer;
+import com.dumbster.smtp.SmtpMessage;
+import org.apache.commons.mail.EmailException;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.net.ServerSocket;
 
 public class EmailNotificationChannelTest {
 
+  private static int port;
+
+  private SimpleSmtpServer server;
+
+  private EmailConfiguration configuration;
   private EmailNotificationChannel channel;
+
+  @BeforeClass
+  public static void selectPort() {
+    port = getNextAvailablePort();
+  }
+
+  private static int getNextAvailablePort() {
+    try {
+      ServerSocket socket = new ServerSocket(0);
+      int unusedPort = socket.getLocalPort();
+      socket.close();
+      return unusedPort;
+    } catch (IOException e) {
+      throw new RuntimeException("Error getting an available port from system", e);
+    }
+  }
 
   @Before
   public void setUp() {
-    channel = new EmailNotificationChannel(null);
+    server = SimpleSmtpServer.start(port);
+    configuration = mock(EmailConfiguration.class);
+    channel = new EmailNotificationChannel(configuration, null, null);
+  }
+
+  @After
+  public void tearDown() {
+    if (!server.isStopped()) {
+      server.stop();
+    }
   }
 
   @Test
-  public void shouldCreateEmail() {
-    EmailMessage email = new EmailMessage()
+  public void shouldSendTestEmail() throws Exception {
+    configure();
+    channel.sendTestEmail("user@nowhere", "Test Message from Sonar", "This is a test message from Sonar.");
+
+    assertThat(server.getReceivedEmailSize(), is(1));
+    SmtpMessage email = (SmtpMessage) server.getReceivedEmail().next();
+
+    assertThat(email.getHeaderValue("From"), is("Sonar <server@nowhere>"));
+    assertThat(email.getHeaderValue("To"), is("<user@nowhere>"));
+    assertThat(email.getHeaderValue("Subject"), is("[SONAR] Test Message from Sonar"));
+    assertThat(email.getBody(), is("This is a test message from Sonar."));
+  }
+
+  @Test(expected = EmailException.class)
+  public void shouldThrowAnExceptionWhenUnableToSendTestEmail() throws Exception {
+    configure();
+    server.stop();
+
+    channel.sendTestEmail("user@nowhere", "Test Message from Sonar", "This is a test message from Sonar.");
+  }
+
+  @Test
+  public void shouldNotSendEmailWhenHostnameNotConfigured() throws Exception {
+    EmailMessage emailMessage = new EmailMessage()
+        .setTo("user@nowhere")
+        .setSubject("Foo")
+        .setMessage("Bar");
+    channel.deliver(emailMessage);
+    assertThat(server.getReceivedEmailSize(), is(0));
+  }
+
+  @Test
+  public void shouldSendThreadedEmail() throws Exception {
+    configure();
+    EmailMessage emailMessage = new EmailMessage()
         .setMessageId("reviews/view/1")
-        .setFrom("Evgeny Mandrikov")
-        .setTo("simon.brandhof@sonarcource.com")
+        .setFrom("Full Username")
+        .setTo("user@nowhere")
         .setSubject("Review #3")
         .setMessage("I'll take care of this violation.");
-    String expected = "" +
-        "Message-Id: <reviews/view/1@nemo.sonarsource.org>\n" +
-        "In-Reply-To: <reviews/view/1@nemo.sonarsource.org>\n" +
-        "References: <reviews/view/1@nemo.sonarsource.org>\n" +
-        "List-Id: <sonar.nemo.sonarsource.org>\n" +
-        "List-Archive: http://nemo.sonarsource.org\n" +
-        "From: Evgeny Mandrikov <noreply@nemo.sonarsource.org>\n" +
-        "To: simon.brandhof@sonarcource.com\n" +
-        "Subject: Re: [Sonar] Review #3\n" +
-        "\n" +
-        "I'll take care of this violation.\n" +
-        "\n" +
-        "--\n" +
-        "View it in Sonar: http://nemo.sonarsource.org/reviews/view/1";
-    String message = channel.create(email);
-    System.out.println(message);
-    assertThat(message, is(expected));
+    channel.deliver(emailMessage);
+
+    assertThat(server.getReceivedEmailSize(), is(1));
+    SmtpMessage email = (SmtpMessage) server.getReceivedEmail().next();
+
+    assertThat(email.getHeaderValue("In-Reply-To"), is("<reviews/view/1@nemo.sonarsource.org>"));
+    assertThat(email.getHeaderValue("References"), is("<reviews/view/1@nemo.sonarsource.org>"));
+
+    assertThat(email.getHeaderValue("List-Id"), is("<sonar.nemo.sonarsource.org>"));
+    assertThat(email.getHeaderValue("List-Archive"), is("http://nemo.sonarsource.org"));
+
+    assertThat(email.getHeaderValue("From"), is("Full Username <server@nowhere>"));
+    assertThat(email.getHeaderValue("To"), is("<user@nowhere>"));
+    assertThat(email.getHeaderValue("Subject"), is("[SONAR] Review #3"));
+    assertThat(email.getBody(), is("I'll take care of this violation."));
   }
 
   @Test
-  public void shouldCreateDefaultEmail() {
-    EmailMessage email = new EmailMessage()
-        .setTo("simon.brandhof@sonarcource.com")
-        .setMessage("Message");
-    String expected = "" +
-        "List-Id: <sonar.nemo.sonarsource.org>\n" +
-        "List-Archive: http://nemo.sonarsource.org\n" +
-        "From: Sonar <noreply@nemo.sonarsource.org>\n" +
-        "To: simon.brandhof@sonarcource.com\n" +
-        "Subject: [Sonar] Notification\n" +
-        "\n" +
-        "Message\n";
-    String message = channel.create(email);
-    System.out.println(message);
-    assertThat(message, is(expected));
+  public void shouldSendNonThreadedEmail() {
+    configure();
+    EmailMessage emailMessage = new EmailMessage()
+        .setTo("user@nowhere")
+        .setSubject("Foo")
+        .setMessage("Bar");
+    channel.deliver(emailMessage);
+
+    assertThat(server.getReceivedEmailSize(), is(1));
+    SmtpMessage email = (SmtpMessage) server.getReceivedEmail().next();
+
+    assertThat(email.getHeaderValue("In-Reply-To"), nullValue());
+    assertThat(email.getHeaderValue("References"), nullValue());
+
+    assertThat(email.getHeaderValue("List-Id"), is("<sonar.nemo.sonarsource.org>"));
+    assertThat(email.getHeaderValue("List-Archive"), is("http://nemo.sonarsource.org"));
+
+    assertThat(email.getHeaderValue("From"), is("Sonar <server@nowhere>"));
+    assertThat(email.getHeaderValue("To"), is("<user@nowhere>"));
+    assertThat(email.getHeaderValue("Subject"), is("[SONAR] Foo"));
+    assertThat(email.getBody(), is("Bar"));
+  }
+
+  @Test
+  public void shouldNotThrowAnExceptionWhenUnableToSendEmail() {
+    configure();
+    server.stop();
+
+    EmailMessage emailMessage = new EmailMessage()
+        .setTo("user@nowhere")
+        .setSubject("Foo")
+        .setMessage("Bar");
+    channel.deliver(emailMessage);
+  }
+
+  private void configure() {
+    when(configuration.getSmtpHost()).thenReturn("localhost");
+    when(configuration.getSmtpPort()).thenReturn(Integer.toString(port));
+    when(configuration.getFrom()).thenReturn("server@nowhere");
+    when(configuration.getPrefix()).thenReturn("[SONAR]");
   }
 
 }

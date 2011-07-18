@@ -35,7 +35,7 @@ public class CommentOnReviewEmailTemplate extends EmailMessageTemplate {
       EmailMessage email = new EmailMessage()
           .setFrom(event.getAuthor().getName())
           .setMessageId("review/" + event.getReview().getId())
-          .setSubject(event.getReview().getTitle())
+          .setSubject("Review #" + event.getReview().getId())
           .setMessage(event.getComment());
       return email;
     }
