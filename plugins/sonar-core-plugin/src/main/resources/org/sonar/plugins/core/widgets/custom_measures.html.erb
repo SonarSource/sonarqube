@@ -1,0 +1,19 @@
+<%
+(1..10).each do |index|
+  metric=widget_properties["metric#{index}"]
+  if metric
+    m=measure(metric)
+    if m
+%>
+  <div class="dashbox">
+    <p class="title"><%= m.metric.short_name -%></p>
+    <p>
+      <span class="big"><%= format_measure(m, :url => url_for_drilldown(m)) -%></span>
+      <%= dashboard_configuration.selected_period? ? format_variation(m) : trend_icon(m) -%>
+    </p>
+  </div>
+<%
+    end
+  end
+end
+%>
