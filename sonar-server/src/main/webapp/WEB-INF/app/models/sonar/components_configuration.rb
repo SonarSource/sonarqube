@@ -119,30 +119,36 @@ class Sonar::ComponentsConfiguration
     if @@available_columns.nil?
       @@available_columns = {}
 
-      @@available_columns[DEFAULT_DOMAIN] = []
+      i18n_default_domain = Metric.i18n_domain_for(DEFAULT_DOMAIN)
+      @@available_columns[i18n_default_domain] = []
+
       col = Sonar::ColumnsView.new
-      col.name = "Links"
+      col_name = "Links"
       col.id = 'links'
+      col.name = Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, col.id, col_name, [].to_java)
       col.col_type = Sonar::ColumnsView::TYPE_LINKS
-      @@available_columns[DEFAULT_DOMAIN] << col
+      @@available_columns[i18n_default_domain] << col
 
       col = Sonar::ColumnsView.new
-      col.name = "Build time"
+      col_name = "Build time"
       col.id = 'build_time'
+      col.name = Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, col.id, col_name, [].to_java)
       col.col_type = Sonar::ColumnsView::TYPE_BUILD_TIME
-      @@available_columns[DEFAULT_DOMAIN] << col
+      @@available_columns[i18n_default_domain] << col
 
       col = Sonar::ColumnsView.new
-      col.name = "Language"
+      col_name = "Language"
       col.id = 'language'
+      col.name = Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, col.id, col_name, [].to_java)
       col.col_type = Sonar::ColumnsView::TYPE_LANGUAGE
-      @@available_columns[DEFAULT_DOMAIN] << col
+      @@available_columns[i18n_default_domain] << col
 
       col = Sonar::ColumnsView.new
-      col.name = "Version"
+      col_name = "Version"
       col.id = 'version'
+      col.name = Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, col.id, col_name, [].to_java)
       col.col_type = Sonar::ColumnsView::TYPE_VERSION
-      @@available_columns[DEFAULT_DOMAIN] << col
+      @@available_columns[i18n_default_domain] << col
       
       Metric.all.select {|m| m.display?}.each do |metric|
         col = Sonar::ColumnsView.new

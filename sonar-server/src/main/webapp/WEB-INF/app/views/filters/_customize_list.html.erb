@@ -16,7 +16,7 @@
           <% Metric.by_domain(domain).each do |metric| %>
             <% if metric.display? %><option value="metric,<%= metric.id -%>"><%= metric.short_name -%></option><% end %>
           <% end %>
-          <% if domain=='General' %>
+          <% if domain==Metric.i18n_domain_for('General') %>
             <% unless @filter.column('date') %><option value="date"><%= message('build_date') -%></option><% end %>
             <% unless @filter.column('key') %><option value="key"><%= message('key') -%></option><% end %>
             <% unless @filter.column('language') %><option value="language"><%= message('language') -%></option><% end %>
