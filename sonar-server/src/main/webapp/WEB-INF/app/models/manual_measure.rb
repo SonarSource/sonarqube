@@ -19,18 +19,24 @@
 #
 class ManualMeasure < ActiveRecord::Base
   belongs_to :resource, :class_name => 'Project'
-  belongs_to :user
   validates_uniqueness_of :metric_id, :scope => :resource_id
   validates_length_of :text_value, :maximum => 4000, :allow_nil => true, :allow_blank => true
   validates_length_of :url, :maximum => 4000, :allow_nil => true, :allow_blank => true
   validates_length_of :description, :maximum => 4000, :allow_nil => true, :allow_blank => true
   validate :validate_metric
-  
+
   def metric
     @metric ||=
-      begin
-        Metric.by_id(metric_id)
-      end
+        begin
+          Metric.by_id(metric_id)
+        end
+  end
+
+  def user
+    @user ||=
+        begin
+          user_login ? User.find(:first, :conditions => ['login=?', user_login]) : nil
+        end
   end
 
   def metric=(m)

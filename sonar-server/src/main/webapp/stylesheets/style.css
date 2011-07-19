@@ -670,6 +670,7 @@ div.operations {
 }
 ul.operations {
   float: right;
+  height: 20px;
   list-style-type: none;
   margin: 0;
   background-color: #ECECEC;
@@ -1871,6 +1872,12 @@ div.break30 {
 }
 .width100 {
   width: 100%;
+}
+textarea.width100 {
+  width: 100%;
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box; /* Firefox, other Gecko */
+  box-sizing: border-box; /* Opera/IE 8+ */
 }
 ul.horizontal {
   list-style-type: none;

@@ -60,7 +60,7 @@ class Api::ManualMeasuresController < Api::ApiController
 
     measure=ManualMeasure.find(:first, :conditions => ['resource_id=? and metric_id=?', resource.id, metric.id])
     if measure.nil?
-      measure=ManualMeasure.new(:resource => resource, :user => current_user, :metric_id => metric.id)
+      measure=ManualMeasure.new(:resource => resource, :user_login => current_user.login, :metric_id => metric.id)
     end
 
     measure.value = value
@@ -109,7 +109,7 @@ class Api::ManualMeasuresController < Api::ApiController
     hash[:created_at]=format_datetime(manual_measure.created_at)
     hash[:updated_at]=format_datetime(manual_measure.updated_at) if manual_measure.updated_at
     if manual_measure.user
-      hash[:login]=manual_measure.user.login
+      hash[:login]=manual_measure.user_login
       hash[:username]=manual_measure.user.name
     end
     hash

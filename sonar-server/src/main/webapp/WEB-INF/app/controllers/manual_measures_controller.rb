@@ -27,6 +27,10 @@ class ManualMeasuresController < ApplicationController
     load_measures()
   end
 
+  def new
+    load_measures()
+  end
+
   def edit
     load_measures()
     @metric=Metric.by_key(params[:metric])
@@ -34,11 +38,15 @@ class ManualMeasuresController < ApplicationController
     render :action => 'index'
   end
 
+  def create
+
+  end
+
   def save
     metric=Metric.by_key(params[:metric])
     measure=ManualMeasure.find(:first, :conditions => ['resource_id=? and metric_id=?', @resource.id, metric.id])
     if measure.nil?
-      measure=ManualMeasure.new(:resource => @resource, :user => current_user, :metric_id => metric.id)
+      measure=ManualMeasure.new(:resource => @resource, :user_login => current_user.login, :metric_id => metric.id)
     end
     # TODO use measure.text_value if string metric
     measure.value = params[:val]

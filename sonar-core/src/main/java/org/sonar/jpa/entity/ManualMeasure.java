@@ -56,6 +56,9 @@ public final class ManualMeasure {
   @Column(name = "updated_at", updatable = true, nullable = true)
   private Date updatedAt;
 
+  @Column(name = "user_login", updatable = true, nullable = true, length = 40)
+  private String userLogin;
+
   public Long getId() {
     return id;
   }
@@ -90,5 +93,9 @@ public final class ManualMeasure {
 
   public Date getUpdatedAt() {
     return updatedAt;
+  }
+
+  public String getUserLogin() {
+    return userLogin;
   }
 }

@@ -1,0 +1,35 @@
+<div class="line-block marginbottom10">
+  <ul class="operations">
+    <li class="last">
+      <a href="<%= ApplicationController.root_context -%>/metrics/index" id="adminMetricsLink">Manage metrics</a>
+    </li>
+  </ul>
+</div>
+
+<form action="<%= url_for :action => 'create' -%>" method="POST" id="createForm">
+  <input type="hidden" name="resource" value="<%= @resource.id -%>"/>
+  <table class="width100 data" id="manualMeasures">
+    <thead>
+    <tr>
+      <th class="thin nowrap">Metric</th>
+      <th class="thin nowrap" style="text-align: right">Value</th>
+      <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr class="admin">
+      <td>
+        <select name="metric">
+          <option>ncloc</option>
+        </select>
+      </td>
+      <td>
+        <input type="text" name="val" size="8"/>
+      </td>
+      <td>
+        <textarea name="desc" rows="3" class="width100"></textarea>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</form>

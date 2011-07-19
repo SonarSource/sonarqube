@@ -3,12 +3,16 @@
   <td class="thin nowrap"><%= measure.metric.short_name -%></td>
   <td class="thin nowrap" align="right"><%= measure.value -%></td>
   <td id="desc"><%= measure.description -%></td>
-  <% unless @edited_measure %>
   <td align="right">
-    <%= measure.user.name if measure.user -%>
-    <span class="note">(<%= l(measure.updated_at) -%>)</span>
+    <% unless @edited_measure %>
+      <%= measure.user.name if measure.user -%>
+    <% end %>
   </td>
-  <% end %>
+  <td align="right">
+    <% unless @edited_measure %>
+      <%= l(measure.updated_at) -%>
+    <% end %>
+  </td>
   <td class="thin nowrap">
     <% unless @edited_measure %>
     <a href="<%= url_for :controller => 'manual_measures', :action => 'edit', :metric => measure.metric.key, :resource => @resource.key -%>">Edit</a>
