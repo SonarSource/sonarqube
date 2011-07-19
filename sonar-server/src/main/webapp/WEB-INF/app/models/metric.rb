@@ -239,10 +239,6 @@ class Metric < ActiveRecord::Base
     [COMPLEXITY, COVERAGE, VIOLATIONS_DENSITY]
   end
 
-  def self.review_types
-    all.select{|metric| metric.user_managed?}
-  end
-
   def self.by_keys(keys)
     result=[]
     keys.each do |k|

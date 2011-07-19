@@ -1,0 +1,14 @@
+<tr class="admin ">
+  <td class="thin nowrap"><%= measure.metric.domain -%></td>
+  <td class="thin nowrap"><%= measure.metric.short_name -%></td>
+  <td class="thin nowrap" align="right">
+    <input type="text" name="val" value="<%= h(measure.value) -%>" id="value_input" size="8"/>
+  </td>
+  <td>
+    <textarea name="desc" rows="3"><%= measure.description -%></textarea>
+  </td>
+  <td class="thin nowrap">
+    <input type="submit" value="Save"/>
+    <a href="<%= url_for :controller => 'manual_measures', :action => 'index', :metric => measure.metric.key, :resource => @resource.key -%>">Cancel</a>
+  </td>
+</tr>

@@ -24,7 +24,7 @@ import org.sonar.api.web.*;
 @WidgetCategory({"Measures"})
 @WidgetProperties(
     {
-        @WidgetProperty(key = "metric1", type = WidgetPropertyType.STRING),
+        @WidgetProperty(key = "metric1", type = WidgetPropertyType.STRING, description = "Key as defined in <a href='http://docs.codehaus.org/display/SONAR/Metric+definitions'>this list</a>"),
         @WidgetProperty(key = "metric2", type = WidgetPropertyType.STRING),
         @WidgetProperty(key = "metric3", type = WidgetPropertyType.STRING),
         @WidgetProperty(key = "metric4", type = WidgetPropertyType.STRING),

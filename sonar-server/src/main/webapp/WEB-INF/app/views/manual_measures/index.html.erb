@@ -1,0 +1,54 @@
+<h1>Manual Measures</h1>
+<style type="text/css">
+  #manualMeasures td {
+    vertical-align: top;
+  }
+
+  #manualMeasures textarea {
+    width: 100%;
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box; /* Firefox, other Gecko */
+    box-sizing: border-box; /* Opera/IE 8+ */
+  }
+</style>
+<form action="<%= url_for :action => 'save'-%>" method="POST" id="edit-form">
+  <input type="hidden" name="resource" value="<%= @resource.id -%>"/>
+  <% if @metric %>
+    <input type="hidden" name="metric" value="<%= @metric.key -%>"/>
+  <% end %>
+  <table class="width100 data" id="manualMeasures">
+    <thead>
+    <tr>
+      <th>Domain</th>
+      <th>Metric</th>
+      <th style="text-align: right">Value</th>
+      <th>Description</th>
+      <% unless @edited_measure %>
+        <th style="text-align: right">Author</th>
+      <% end %>
+      <th>Operations</th>
+    </tr>
+    </thead>
+    <tbody>
+    <%
+       @measures.each do |measure|
+    %>
+      <a name="<%= measure.metric.key -%>"></a>
+      <% if @edited_measure && @edited_measure==measure %>
+        <%= render :partial => 'edit_form', :locals => {:measure => @edited_measure} -%>
+      <% else %>
+        <%= render :partial => 'row', :locals => {:measure => measure} -%>
+
+      <% end
+         end
+      %>
+    </tbody>
+  </table>
+</form>
+
+<% if @edited_measure %>
+  <script type="text/javascript">
+    location.href = '#<%= @edited_measure.metric.key -%>';
+    Form.Element.focus('value_input');
+  </script>
+<% end %>
