@@ -50,11 +50,11 @@
 	%>
     <h3><%= message('severity') -%></h3>
     <table class="spacedicon" style="border: 1px solid #ccc;">
-	  <%= render :partial => 'rule_priority', :locals => {:label => message('blocker'), :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_BLOCKER, :max => max, :measure => blocker_violations }%>
-  	  <%= render :partial => 'rule_priority', :locals => {:label => message('critical'), :css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_CRITICAL, :max => max, :measure => critical_violations }%>
-	  <%= render :partial => 'rule_priority', :locals => {:label => message('major'), :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_MAJOR, :max => max, :measure => major_violations }%>
-	  <%= render :partial => 'rule_priority', :locals => {:label => message('minor'), :css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_MINOR, :max => max, :measure => minor_violations }%>
-	  <%= render :partial => 'rule_priority', :locals => {:label => message('info'), :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_INFO, :max => max, :measure => info_violations }%>
+	  <%= render :partial => 'rule_priority', :locals => {:css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_BLOCKER, :max => max, :measure => blocker_violations }%>
+  	  <%= render :partial => 'rule_priority', :locals => {:css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_CRITICAL, :max => max, :measure => critical_violations }%>
+	  <%= render :partial => 'rule_priority', :locals => {:css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_MAJOR, :max => max, :measure => major_violations }%>
+	  <%= render :partial => 'rule_priority', :locals => {:css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_MINOR, :max => max, :measure => minor_violations }%>
+	  <%= render :partial => 'rule_priority', :locals => {:css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_INFO, :max => max, :measure => info_violations }%>
     </table>
   </td>
   <td class="column" align="left" style="white-space: normal;">
@@ -175,7 +175,7 @@
 <div style="font-size: 85%;background-color: #eee;color: #777;padding: 4px 5px;border: 1px solid #ddd;margin-bottom: 20px;">
 <b><%= message('path') -%>:</b>
 <% if @priority_id %>
-<%= Sonar::RulePriority.to_s(@priority_id) %> <%= link_to message('clear_verb'), {:overwrite_params => {:priority => nil}} %>
+<%= Sonar::RulePriority.to_s(@priority_id, true) %> <%= link_to message('clear_verb'), {:overwrite_params => {:priority => nil}} %>
 <% else %>
 <%= message('drilldown.any_severity') -%>
 <% end %>&nbsp;&raquo;&nbsp;

@@ -35,8 +35,8 @@ class Sonar::RulePriority
   PRIORITY_CRITICAL = Java::OrgSonarApiRules::RulePriority::CRITICAL.ordinal()
   PRIORITY_BLOCKER = Java::OrgSonarApiRules::RulePriority::BLOCKER.ordinal()
 
-  def self.to_s(failure_level)
-    case failure_level
+  def self.to_s(failure_level, translate=false)
+    text = case failure_level
       when Java::OrgSonarApiRules::RulePriority::BLOCKER.ordinal()
         Java::OrgSonarApiRules::RulePriority::BLOCKER.to_s
       when Java::OrgSonarApiRules::RulePriority::CRITICAL.ordinal()
@@ -48,6 +48,12 @@ class Sonar::RulePriority
       when Java::OrgSonarApiRules::RulePriority::INFO.ordinal()
         Java::OrgSonarApiRules::RulePriority::INFO.to_s
     end
+
+    return text unless translate
+    
+    i18n_key = 'severity.' + text
+    result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, i18n_key, as_text_map[text], [].to_java)
+    result
   end
   
   def self.id(priority)
@@ -89,15 +95,26 @@ class Sonar::RulePriority
     priority==PRIORITY_BLOCKER
   end
   
+  @@priority_text_map={}
+  
+  def self.as_text_map
+    return @@priority_text_map if @@priority_text_map.size > 0
+    @@priority_text_map[to_s(PRIORITY_INFO)]='Info'
+    @@priority_text_map[to_s(PRIORITY_MINOR)]='Minor'
+    @@priority_text_map[to_s(PRIORITY_MAJOR)]='Major'
+    @@priority_text_map[to_s(PRIORITY_CRITICAL)]='Critical'
+    @@priority_text_map[to_s(PRIORITY_BLOCKER)]='Blocker'
+    @@priority_text_map    
+  end
+  
   def self.as_options
     @@priority_options ||= []
     return @@priority_options if @@priority_options.size > 0
-    @@priority_options << ['Info', to_s(PRIORITY_INFO)]
-    @@priority_options << ['Minor', to_s(PRIORITY_MINOR)]
-    @@priority_options << ['Major', to_s(PRIORITY_MAJOR)]
-    @@priority_options << ['Critical', to_s(PRIORITY_CRITICAL)]
-    @@priority_options << ['Blocker', to_s(PRIORITY_BLOCKER)]
+    @@priority_options << [as_text_map[to_s(PRIORITY_INFO)], to_s(PRIORITY_INFO)]
+    @@priority_options << [as_text_map[to_s(PRIORITY_MINOR)], to_s(PRIORITY_MINOR)]
+    @@priority_options << [as_text_map[to_s(PRIORITY_MAJOR)], to_s(PRIORITY_MAJOR)]
+    @@priority_options << [as_text_map[to_s(PRIORITY_CRITICAL)], to_s(PRIORITY_CRITICAL)]
+    @@priority_options << [as_text_map[to_s(PRIORITY_BLOCKER)], to_s(PRIORITY_BLOCKER)]
     @@priority_options    
   end
-  
 end
