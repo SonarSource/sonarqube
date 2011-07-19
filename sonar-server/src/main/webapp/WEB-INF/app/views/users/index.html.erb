@@ -7,6 +7,7 @@
           <tr>
             <th class="left">Login</th>
             <th class="left">Name</th>
+            <th class="left">Email</th>
             <th class="left nosort">Groups</th>
             <th class="left nosort" nowrap>Operations</th>
           </tr>
@@ -17,6 +18,7 @@
             <tr id="user-<%= u user.login -%>">
               <td class="left" valign="top"><%=user.login %></td>
               <td class="left" valign="top"><%=user.name %></td>
+              <td class="left" valign="top"><%=user.email %></td>
               <td class="left" valign="top">
                 <%= user.groups.sort.map(&:name).join(', ') %> (<%= link_to "select", {:action => 'select_group', :id => user.id}, :id => "select-#{u user.login}" %>)
               </td>
@@ -59,6 +61,9 @@
         </tr>
         <tr>
           <td class="left" valign="top">Name:<br/><%= f.text_field :name, :size => 30, :maxLength => 200 %></td>
+        </tr>
+        <tr>
+          <td class="left" valign="top">Email:<br/><%= f.text_field :email, :size => 30, :maxLength => 100 %></td>
         </tr>
         <tr>
           <td class="left" valign="top">Password:<br/><%= f.password_field :password, :size => 30, :maxLength => 50 %></td>
