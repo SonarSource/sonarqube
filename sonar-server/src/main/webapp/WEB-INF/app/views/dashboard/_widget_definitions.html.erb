@@ -1,7 +1,7 @@
 <p>
     <ul class="horizontal widget_categs">
-      <li>Filter: </li>
-      <li class="<%= 'selected' if filter_on_category.blank? -%>"><a href="#" onClick="return filterWidgets('')">None</a></li>
+      <li><%= message('filter_verb') -%>: </li>
+      <li class="<%= 'selected' if filter_on_category.blank? -%>"><a href="#" onClick="return filterWidgets('')"><%= message('none') -%></a></li>
     <% @widget_categories.each do |category| %>
       <li class="<%= 'selected' if filter_on_category==category -%>"><a href="#" onClick="return filterWidgets('<%= category -%>')"><%= h(category) -%></a></li>
     <% end %>

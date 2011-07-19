@@ -93,21 +93,21 @@ module ApplicationHelper
     label=nil
     if mode
       if mode=='days'
-        label = "over %s days" % mode_param
+        label = message('over_x_days', :params => mode_param.to_s)
       elsif mode=='version'
         if date
-          label = "since version %s (%s)" % [mode_param, date.strftime("%Y %b %d")]
+          label = message('since_version_detailed', :params => [mode_param.to_s, date.strftime("%Y %b %d").to_s])
         else
-          label = "since version %s" % mode_param
+        label = message('since_version', :params => mode_param.to_s)
         end
       elsif mode=='previous_analysis'
         if !date.nil?
-          label = "since previous analysis (%s)" % (date.strftime("%Y %b %d"))
+          label = message('since_previous_analysis_detailed', :params => date.strftime("%Y %b %d").to_s)
         else
-          label = "since previous analysis"
+          label = message('since_previous_analysis')
         end
       elsif mode=='date'
-        label = "since #{date.strftime("%Y %b %d")}"
+        label = message('since_x', :params => date.strftime("%Y %b %d").to_s)
       end
     end
     label

@@ -2,13 +2,13 @@
 <% if logged_in? %>
   <ul class="operations">
     <% if back %>
-      <li class="last"><%= link_to 'Back to dashboard', {:action => 'index', :did => @dashboard.id, :id => @resource.id } -%></li>
+      <li class="last"><%= link_to message('dashboard.back_to_dashboard'), {:action => 'index', :did => @dashboard.id, :id => @resource.id } -%></li>
     <% else %>
       <% if @dashboard.editable_by?(current_user) %>
-      <li><%= link_to 'Configure widgets', {:action => 'configure', :did => @dashboard.id, :id => @resource.id } -%></li>
-      <li><%= link_to 'Edit layout', {:action => 'edit_layout', :did => @dashboard.id, :id => @resource.id } -%></li>
+      <li><%= link_to message('dashboard.configure_widgets'), {:action => 'configure', :did => @dashboard.id, :id => @resource.id } -%></li>
+      <li><%= link_to message('dashboard.edit_layout'), {:action => 'edit_layout', :did => @dashboard.id, :id => @resource.id } -%></li>
       <% end %>
-      <li class="last"><%= link_to 'Manage dashboards', {:controller => 'dashboards', :action => 'index', :resource => @resource.id } -%></li>
+      <li class="last"><%= link_to message('dashboard.manage_dashboards'), {:controller => 'dashboards', :action => 'index', :resource => @resource.id } -%></li>
     <% end %>
   </ul>
 <% end %>
@@ -22,7 +22,7 @@
     <form method="GET" action="<%= url_for :controller => 'dashboard', :action => 'index', :id => @resource.id -%>" style="display: inline">
     <input type="hidden" name="did" value="<%= @dashboard.id -%>" />
     <select id="select-comparison" name="period" onchange="submit()" class="small">
-      <option value="">Time changes...</option>
+      <option value=""><%= message('time_changes') -%>...</option>
       <%= period_select_options(@snapshot, 1) -%>
       <%= period_select_options(@snapshot, 2) -%>
       <%= period_select_options(@snapshot, 3) -%>

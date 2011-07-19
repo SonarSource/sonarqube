@@ -3,28 +3,28 @@
   <form action="<%= url_for :action => 'create', :resource => params[:resource] -%>" id="create-dashboard-form" method="POST">
     <tbody>
       <tr>
-        <td colspan="2"><h1>Create dashboard</h1></td>
+        <td colspan="2"><h1><%= message('dashboard.create_dashboard') -%></h1></td>
       </tr>
       <tr>
         <td class="left" valign="top">
-        Name:<br/><input type="text" name="name" size="30" maxlength="256"></input>
+        <%= message('name') -%>:<br/><input type="text" name="name" size="30" maxlength="256"></input>
         </td>
       </tr>
       <tr>
         <td class="left" valign="top">
-        Description:<br/><input type="text" name="description" size="30" maxlength="1000"></input>
+        <%= message('description') -%>:<br/><input type="text" name="description" size="30" maxlength="1000"></input>
         </td>
       </tr>
       <% if is_admin? %>
       <tr>
         <td class="left" valign="top">
-        Shared:<br/><input type="checkbox" name="shared" value="true"></input>
+        <%= message('shared') -%>:<br/><input type="checkbox" name="shared" value="true"></input>
         </td>
       </tr>
       <% end %>
       <tr>
         <td class="left" valign="top">
-        <input type="submit" value="Create dashboard"/>
+        <input type="submit" value="<%= message('dashboard.create_dashboard') -%>"/>
         </td>
       </tr>
     </tbody>

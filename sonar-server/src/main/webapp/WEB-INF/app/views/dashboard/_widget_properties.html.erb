@@ -21,9 +21,9 @@
       <% end %>
       <tr>
         <td colspan="2">
-          <%= submit_tag 'Save' %>
+          <%= submit_tag message('save') %>
           <% if widget.configured %>
-            <a href="#" onClick="portal.cancelEditWidget(<%= widget.id -%>);return false;">Cancel</a>
+            <a href="#" onClick="portal.cancelEditWidget(<%= widget.id -%>);return false;"><%= message('cancel') -%></a>
           <% end %>
         </td>
       </tr>
