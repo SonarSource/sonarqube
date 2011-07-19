@@ -22,26 +22,24 @@ class EmailConfigurationController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
   before_filter :admin_required
 
-  EmailConfiguration = org.sonar.server.notifications.email.EmailConfiguration
-
   def index
-    @smtp_host = Property.value(EmailConfiguration::SMTP_HOST, nil, EmailConfiguration::SMTP_HOST_DEFAULT)
-    @smtp_port = Property.value(EmailConfiguration::SMTP_PORT, nil, EmailConfiguration::SMTP_PORT_DEFAULT)
-    @smtp_use_tls = Property.value(EmailConfiguration::SMTP_USE_TLS, nil, EmailConfiguration::SMTP_USE_TLS_DEFAULT) == 'true'
-    @smtp_username = Property.value(EmailConfiguration::SMTP_USERNAME, nil, EmailConfiguration::SMTP_USERNAME_DEFAULT)
-    @smtp_password = Property.value(EmailConfiguration::SMTP_PASSWORD, nil, EmailConfiguration::SMTP_PASSWORD_DEFAULT)
-    @email_from = Property.value(EmailConfiguration::FROM, nil, EmailConfiguration::FROM_DEFAULT)
-    @email_prefix = Property.value(EmailConfiguration::PREFIX, nil, EmailConfiguration::PREFIX_DEFAULT)
+    @smtp_host = Property.value(configuration::SMTP_HOST, nil, configuration::SMTP_HOST_DEFAULT)
+    @smtp_port = Property.value(configuration::SMTP_PORT, nil, configuration::SMTP_PORT_DEFAULT)
+    @smtp_use_tls = Property.value(configuration::SMTP_USE_TLS, nil, configuration::SMTP_USE_TLS_DEFAULT) == 'true'
+    @smtp_username = Property.value(configuration::SMTP_USERNAME, nil, configuration::SMTP_USERNAME_DEFAULT)
+    @smtp_password = Property.value(configuration::SMTP_PASSWORD, nil, configuration::SMTP_PASSWORD_DEFAULT)
+    @email_from = Property.value(configuration::FROM, nil, configuration::FROM_DEFAULT)
+    @email_prefix = Property.value(configuration::PREFIX, nil, configuration::PREFIX_DEFAULT)
   end
 
   def save
-    Property.set(EmailConfiguration::SMTP_HOST, params[:smtp_host])
-    Property.set(EmailConfiguration::SMTP_PORT, params[:smtp_port])
-    Property.set(EmailConfiguration::SMTP_USE_TLS, params[:smtp_use_tls] == 'true')
-    Property.set(EmailConfiguration::SMTP_USERNAME, params[:smtp_username])
-    Property.set(EmailConfiguration::SMTP_PASSWORD, params[:smtp_password])
-    Property.set(EmailConfiguration::FROM, params[:email_from])
-    Property.set(EmailConfiguration::PREFIX, params[:email_prefix])
+    Property.set(configuration::SMTP_HOST, params[:smtp_host])
+    Property.set(configuration::SMTP_PORT, params[:smtp_port])
+    Property.set(configuration::SMTP_USE_TLS, params[:smtp_use_tls] == 'true')
+    Property.set(configuration::SMTP_USERNAME, params[:smtp_username])
+    Property.set(configuration::SMTP_PASSWORD, params[:smtp_password])
+    Property.set(configuration::FROM, params[:email_from])
+    Property.set(configuration::PREFIX, params[:email_prefix])
     redirect_to :action => 'index'
   end
 
@@ -53,12 +51,18 @@ class EmailConfigurationController < ApplicationController
       flash[:notice] = 'You must provide address where to send test email'
     else
       begin
-        java_facade.getCoreComponentByClassname('org.sonar.server.notifications.email.EmailNotificationChannel').sendTestEmail(to_address, subject, message)
+        java_facade.getComponentByClassname('email', 'org.sonar.plugins.email.EmailNotificationChannel').sendTestEmail(to_address, subject, message)
       rescue Exception => e
         flash[:error] = e.message
       end
     end
     redirect_to :action => 'index'
+  end
+
+  private
+
+  def configuration
+    java_facade.getComponentByClassname('email', 'org.sonar.plugins.email.EmailConfiguration').class
   end
 
 end

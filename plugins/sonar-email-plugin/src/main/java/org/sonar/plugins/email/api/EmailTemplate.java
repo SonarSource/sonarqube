@@ -17,34 +17,16 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.notifications;
+package org.sonar.plugins.email.api;
 
 import org.sonar.api.ServerExtension;
-
-import java.io.Serializable;
+import org.sonar.api.notifications.Notification;
 
 /**
- * Provides logic to deliver notification.
- * For example:
- * <ul>
- * <li>email - sends email as soon as possible</li>
- * <li>email (digest) - collects notifications and sends them together once a day</li>
- * <li>gtalk - sends a chat message as soon as possible</li>
- * </ul>
- * 
  * @since 2.10
  */
-public abstract class NotificationChannel implements ServerExtension {
+public abstract class EmailTemplate implements ServerExtension {
 
-  /**
-   * @return unique key of this channel
-   */
-  public String getKey() {
-    return getClass().getSimpleName();
-  }
-
-  public abstract Serializable createDataForPersistance(Notification notification, Integer userId);
-
-  public abstract void deliver(Serializable notificationData);
+  public abstract EmailMessage format(Notification notification);
 
 }

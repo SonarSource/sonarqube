@@ -17,11 +17,10 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.notifications.reviews;
+package org.sonar.plugins.email.reviews;
 
-import org.sonar.jpa.entity.Review;
-import org.sonar.server.notifications.Notification;
-import org.sonar.server.notifications.NotificationDispatcher;
+import org.sonar.api.notifications.Notification;
+import org.sonar.api.notifications.NotificationDispatcher;
 
 /**
  * This dispatcher means: "notify me when when someone comments on review assigned to me". 
@@ -32,11 +31,8 @@ public class CommentOnReviewAssignedToMe extends NotificationDispatcher {
 
   @Override
   public void dispatch(Notification notification, Context context) {
-    if (notification instanceof CommentOnReviewNotification) {
-      Review review = ((CommentOnReviewNotification) notification).getReview();
-      if (review.getAssigneeId() != null) {
-        context.addUser(review.getAssigneeId());
-      }
+    if ("review".equals(notification.getType())) {
+      context.addUser(notification.getFieldValue("assignee"));
     }
   }
 

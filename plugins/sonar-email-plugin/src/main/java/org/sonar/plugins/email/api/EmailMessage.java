@@ -17,16 +17,14 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.notifications.email;
+package org.sonar.plugins.email.api;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-
-import java.io.Serializable;
 
 /**
  * @since 2.10
  */
-public class EmailMessage implements Serializable {
+public class EmailMessage {
 
   private String from;
   private String to;
@@ -111,7 +109,7 @@ public class EmailMessage implements Serializable {
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this).toString();
+    return ToStringBuilder.reflectionToString(this);
   }
 
 }

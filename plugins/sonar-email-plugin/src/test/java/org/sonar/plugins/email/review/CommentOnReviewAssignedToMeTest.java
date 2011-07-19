@@ -17,37 +17,42 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.notifications.reviews;
+package org.sonar.plugins.email.review;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.database.model.User;
-import org.sonar.jpa.entity.Review;
-import org.sonar.server.notifications.NotificationDispatcher;
+import org.sonar.api.notifications.NotificationDispatcher;
+import org.sonar.plugins.email.reviews.CommentOnReviewAssignedToMe;
 
-public class CommentOnReviewCreatedByMeTest {
+public class CommentOnReviewAssignedToMeTest { // FIXME implement me
 
   private NotificationDispatcher.Context context;
-  private CommentOnReviewCreatedByMe dispatcher;
+  private CommentOnReviewAssignedToMe dispatcher;
 
   @Before
   public void setUp() {
     context = mock(NotificationDispatcher.Context.class);
-    dispatcher = new CommentOnReviewCreatedByMe();
+    dispatcher = new CommentOnReviewAssignedToMe();
   }
 
   @Test
-  public void shouldDispatchToCreator() {
-    CommentOnReviewNotification notification = new CommentOnReviewNotification(new Review().setUserId(1), new User(), "comment");
-    dispatcher.dispatch(notification, context);
-    verify(context).addUser(1);
+  public void shouldDispatchToAssignee() {
+    // CommentOnReviewNotification notification = new CommentOnReviewNotification(new Review().setAssigneeId(1), new User(), "comment");
+    // dispatcher.dispatch(notification, context);
+    // verify(context).addUser(1);
+    //
+    // notification = new CommentOnReviewNotification(new Review().setAssigneeId(2), new User(), "comment");
+    // dispatcher.dispatch(notification, context);
+    // verify(context).addUser(2);
+  }
 
-    notification = new CommentOnReviewNotification(new Review().setUserId(2), new User(), "comment");
-    dispatcher.dispatch(notification, context);
-    verify(context).addUser(2);
+  @Test
+  public void shouldNotDispatchWhenNotAssigned() {
+    // CommentOnReviewNotification notification = new CommentOnReviewNotification(new Review(), new User(), "comment");
+    // dispatcher.dispatch(notification, context);
+    // verifyNoMoreInteractions(context);
   }
 
 }

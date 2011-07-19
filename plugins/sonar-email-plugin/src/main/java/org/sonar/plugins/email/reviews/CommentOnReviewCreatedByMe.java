@@ -17,36 +17,23 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.notifications;
+package org.sonar.plugins.email.reviews;
 
-import org.sonar.api.ServerComponent;
-
-import java.io.Serializable;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import org.sonar.api.notifications.Notification;
+import org.sonar.api.notifications.NotificationDispatcher;
 
 /**
+ * This dispatcher means: "notify me when when someone comments on review created by me".
+ * 
  * @since 2.10
  */
-public class NotificationQueue implements ServerComponent {
+public class CommentOnReviewCreatedByMe extends NotificationDispatcher {
 
-  private ConcurrentLinkedQueue<Element> queue = new ConcurrentLinkedQueue<Element>();
-
-  public static class Element {
-    String channelKey;
-    Serializable notificationData;
-
-    public Element(String channelKey, Serializable notificationData) {
-      this.channelKey = channelKey;
-      this.notificationData = notificationData;
+  @Override
+  public void dispatch(Notification notification, Context context) {
+    if ("review".equals(notification.getType())) {
+      context.addUser(notification.getFieldValue("creator"));
     }
-  }
-
-  public Element get() {
-    return queue.poll();
-  }
-
-  public void add(Serializable notificationData, NotificationChannel channel) {
-    queue.add(new Element(channel.getKey(), notificationData));
   }
 
 }

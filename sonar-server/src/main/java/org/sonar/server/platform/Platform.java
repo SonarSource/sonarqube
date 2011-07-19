@@ -40,6 +40,7 @@ import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.components.DefaultMetricFinder;
 import org.sonar.core.components.DefaultModelFinder;
 import org.sonar.core.components.DefaultRuleFinder;
+import org.sonar.core.notifications.DefaultNotificationManager;
 import org.sonar.jpa.dao.DaoFacade;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.dao.ProfilesDao;
@@ -55,14 +56,7 @@ import org.sonar.server.database.EmbeddedDatabaseFactory;
 import org.sonar.server.database.JndiDatabaseConnector;
 import org.sonar.server.filters.FilterExecutor;
 import org.sonar.server.mavendeployer.MavenRepository;
-import org.sonar.server.notifications.NotificationManager;
-import org.sonar.server.notifications.NotificationQueue;
 import org.sonar.server.notifications.NotificationService;
-import org.sonar.server.notifications.email.EmailConfiguration;
-import org.sonar.server.notifications.email.EmailNotificationChannel;
-import org.sonar.server.notifications.reviews.CommentOnReviewAssignedToMe;
-import org.sonar.server.notifications.reviews.CommentOnReviewCreatedByMe;
-import org.sonar.server.notifications.reviews.CommentOnReviewEmailTemplate;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.plugins.*;
 import org.sonar.server.qualitymodel.DefaultModelManager;
@@ -193,16 +187,9 @@ public final class Platform {
     servicesContainer.as(Characteristics.CACHE).addComponent(JRubyI18n.class);
 
     // Notifications
-    servicesContainer.as(Characteristics.CACHE).addComponent(NotificationQueue.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(NotificationService.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(NotificationManager.class);
+    servicesContainer.as(Characteristics.CACHE).addComponent(DefaultNotificationManager.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(ReviewsNotificationManager.class);
-    // FIXME next five lines here just for tests:
-    servicesContainer.as(Characteristics.CACHE).addComponent(EmailConfiguration.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(EmailNotificationChannel.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(CommentOnReviewEmailTemplate.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(CommentOnReviewAssignedToMe.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(CommentOnReviewCreatedByMe.class);
 
     servicesContainer.start();
   }

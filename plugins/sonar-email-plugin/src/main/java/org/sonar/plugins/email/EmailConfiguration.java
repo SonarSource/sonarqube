@@ -17,17 +17,17 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.notifications.email;
+package org.sonar.plugins.email;
 
 import org.apache.commons.configuration.Configuration;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerExtension;
 
 /**
  * Ruby uses constants from this class.
  * 
  * @since 2.10
  */
-public class EmailConfiguration implements ServerComponent {
+public class EmailConfiguration implements ServerExtension {
 
   public static final String SMTP_HOST = "email.smtp_host";
   public static final String SMTP_HOST_DEFAULT = "";

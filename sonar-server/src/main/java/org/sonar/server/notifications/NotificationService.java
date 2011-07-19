@@ -19,13 +19,21 @@
  */
 package org.sonar.server.notifications;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
-import org.sonar.server.notifications.NotificationQueue.Element;
+import org.sonar.api.notifications.Notification;
+import org.sonar.api.notifications.NotificationChannel;
+import org.sonar.api.notifications.NotificationDispatcher;
+import org.sonar.api.utils.TimeProfiler;
+import org.sonar.core.notifications.DefaultNotificationManager;
+import org.sonar.jpa.entity.NotificationQueueElement;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -35,27 +43,28 @@ import java.util.concurrent.TimeUnit;
  */
 public class NotificationService implements ServerComponent {
 
-  private static Logger LOG = LoggerFactory.getLogger(NotificationService.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NotificationService.class);
+  private static final TimeProfiler TIME_PROFILER = new TimeProfiler(LOG);
 
   private ScheduledExecutorService executorService;
   private long period = 10; // FIXME small value just for tests
-  private NotificationQueue queue;
 
-  private Map<String, NotificationChannel> channels = Maps.newHashMap();
+  private DefaultNotificationManager manager;
+  private NotificationChannel[] channels;
+  private NotificationDispatcher[] dispatchers;
 
   /**
    * Default constructor when no channels.
    */
-  public NotificationService(NotificationQueue queue) {
-    this(queue, new NotificationChannel[0]);
+  public NotificationService(DefaultNotificationManager manager, NotificationDispatcher[] dispatchers) {
+    this(manager, dispatchers, new NotificationChannel[0]);
     LOG.warn("There is no channels - all notifications would be ignored!");
   }
 
-  public NotificationService(NotificationQueue queue, NotificationChannel[] channels) {
-    this.queue = queue;
-    for (NotificationChannel channel : channels) {
-      this.channels.put(channel.getKey(), channel);
-    }
+  public NotificationService(DefaultNotificationManager manager, NotificationDispatcher[] dispatchers, NotificationChannel[] channels) {
+    this.manager = manager;
+    this.channels = channels;
+    this.dispatchers = dispatchers;
   }
 
   /**
@@ -89,21 +98,48 @@ public class NotificationService implements ServerComponent {
    * Visibility has been relaxed for tests.
    */
   void processQueue() {
-    NotificationQueue.Element element = queue.get();
-    while (element != null) {
-      deliver(element);
-      element = queue.get();
+    NotificationQueueElement queueElement = manager.getFromQueue();
+    while (queueElement != null) {
+      deliver(queueElement.getNotification());
+      queueElement = manager.getFromQueue();
     }
   }
 
   /**
    * Visibility has been relaxed for tests.
    */
-  void deliver(Element element) {
-    NotificationChannel channel = channels.get(element.channelKey);
-    if (channel != null) {
-      channel.deliver(element.notificationData);
+  void deliver(Notification notification) {
+    TIME_PROFILER.start("Delivering notification " + notification);
+    SetMultimap<String, NotificationChannel> recipients = HashMultimap.create();
+    for (NotificationChannel channel : channels) {
+      for (NotificationDispatcher dispatcher : dispatchers) {
+        final Set<String> possibleRecipients = Sets.newHashSet();
+        NotificationDispatcher.Context context = new NotificationDispatcher.Context() {
+          public void addUser(String username) {
+            if (username != null) {
+              possibleRecipients.add(username);
+            }
+          }
+        };
+        dispatcher.dispatch(notification, context);
+        for (String username : possibleRecipients) {
+          if (isEnabled(username, channel, dispatcher)) {
+            recipients.put(username, channel);
+          }
+        }
+      }
     }
+    for (Map.Entry<String, NotificationChannel> entry : recipients.entries()) {
+      String username = entry.getKey();
+      NotificationChannel channel = entry.getValue();
+      LOG.info("For user {} via {}", username, channel);
+      channel.deliver(notification, username);
+    }
+    TIME_PROFILER.stop();
+  }
+
+  boolean isEnabled(String username, NotificationChannel channel, NotificationDispatcher dispatcher) {
+    return true; // FIXME for the moment we will accept everything
   }
 
 }

@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.notifications;
+package org.sonar.api.notifications;
 
 import org.sonar.api.ServerExtension;
 
@@ -37,7 +37,7 @@ import org.sonar.api.ServerExtension;
 public abstract class NotificationDispatcher implements ServerExtension {
 
   public interface Context {
-    void addUser(Integer userId);
+    void addUser(String username);
   }
 
   /**

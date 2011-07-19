@@ -17,37 +17,30 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.notifications.reviews;
+package org.sonar.api.notifications;
 
-import org.sonar.api.database.model.User;
-import org.sonar.jpa.entity.Review;
-import org.sonar.server.notifications.Notification;
+import org.sonar.api.ServerExtension;
 
 /**
+ * Provides logic to deliver notification.
+ * For example:
+ * <ul>
+ * <li>email - sends email as soon as possible</li>
+ * <li>email (digest) - collects notifications and sends them together once a day</li>
+ * <li>gtalk - sends a chat message as soon as possible</li>
+ * </ul>
+ * 
  * @since 2.10
  */
-public class CommentOnReviewNotification implements Notification {
+public abstract class NotificationChannel implements ServerExtension {
 
-  private Review review;
-  private User author;
-  private String comment;
-
-  public CommentOnReviewNotification(Review review, User author, String comment) {
-    this.review = review;
-    this.author = author;
-    this.comment = comment;
+  /**
+   * @return unique key of this channel
+   */
+  public String getKey() {
+    return getClass().getSimpleName();
   }
 
-  public Review getReview() {
-    return review;
-  }
-
-  public User getAuthor() {
-    return author;
-  }
-
-  public String getComment() {
-    return comment;
-  }
+  public abstract void deliver(Notification notification, String username);
 
 }

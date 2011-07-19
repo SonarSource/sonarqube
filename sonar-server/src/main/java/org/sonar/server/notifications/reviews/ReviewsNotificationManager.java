@@ -20,10 +20,11 @@
 package org.sonar.server.notifications.reviews;
 
 import org.sonar.api.ServerComponent;
+import org.sonar.api.database.model.Review;
 import org.sonar.api.database.model.User;
-import org.sonar.jpa.entity.Review;
+import org.sonar.api.notifications.Notification;
+import org.sonar.api.notifications.NotificationManager;
 import org.sonar.jpa.session.DatabaseSessionFactory;
-import org.sonar.server.notifications.NotificationManager;
 
 /**
  * @since 2.10
@@ -55,7 +56,12 @@ public class ReviewsNotificationManager implements ServerComponent {
   public void notifyCommentAdded(Long reviewId, Integer userId, String comment) {
     Review review = getReviewById(reviewId);
     User author = getUserById(userId);
-    CommentOnReviewNotification notification = new CommentOnReviewNotification(review, author, comment);
+
+    Notification notification = new Notification("review");
+    notification // FIXME include info about review
+        .setFieldValue("author", author.getLogin())
+        .setFieldValue("comment", comment);
+
     notificationManager.scheduleForSending(notification);
   }
 

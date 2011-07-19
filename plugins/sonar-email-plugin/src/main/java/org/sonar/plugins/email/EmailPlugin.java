@@ -17,12 +17,26 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.notifications;
+package org.sonar.plugins.email;
 
-/**
- * Marker interface for data model objects that represents notifications.
- * 
- * @since 2.10
- */
-public interface Notification {
+import org.sonar.api.SonarPlugin;
+import org.sonar.plugins.email.reviews.CommentOnReviewAssignedToMe;
+import org.sonar.plugins.email.reviews.CommentOnReviewCreatedByMe;
+import org.sonar.plugins.email.reviews.CommentOnReviewEmailTemplate;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class EmailPlugin extends SonarPlugin {
+
+  public List getExtensions() {
+    return Arrays.asList(
+        EmailConfiguration.class,
+        EmailNotificationChannel.class,
+
+        CommentOnReviewEmailTemplate.class,
+        CommentOnReviewCreatedByMe.class,
+        CommentOnReviewAssignedToMe.class);
+  }
+
 }

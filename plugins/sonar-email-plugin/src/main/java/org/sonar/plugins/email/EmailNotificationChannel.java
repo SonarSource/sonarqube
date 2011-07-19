@@ -17,20 +17,20 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.notifications.email;
+package org.sonar.plugins.email;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.User;
+import org.sonar.api.notifications.NotificationChannel;
+import org.sonar.api.notifications.Notification;
 import org.sonar.jpa.session.DatabaseSessionFactory;
-import org.sonar.server.notifications.Notification;
-import org.sonar.server.notifications.NotificationChannel;
-
-import java.io.Serializable;
+import org.sonar.plugins.email.api.EmailMessage;
+import org.sonar.plugins.email.api.EmailTemplate;
 
 /**
  * References:
@@ -47,8 +47,8 @@ public class EmailNotificationChannel extends NotificationChannel {
   private static final Logger LOG = LoggerFactory.getLogger(EmailNotificationChannel.class);
 
   /**
-   * @see Email#setSocketConnectionTimeout(int)
-   * @see Email#setSocketTimeout(int)
+   * @see org.apache.commons.mail.Email#setSocketConnectionTimeout(int)
+   * @see org.apache.commons.mail.Email#setSocketTimeout(int)
    */
   private static final int SOCKET_TIMEOUT = 30000;
 
@@ -56,25 +56,33 @@ public class EmailNotificationChannel extends NotificationChannel {
   private static final String SUBJECT_DEFAULT = "Notification";
 
   private EmailConfiguration configuration;
-  private EmailMessageTemplate[] templates;
+  private EmailTemplate[] templates;
   private DatabaseSessionFactory sessionFactory;
 
-  public EmailNotificationChannel(EmailConfiguration configuration, EmailMessageTemplate[] templates, DatabaseSessionFactory sessionFactory) {
+  public EmailNotificationChannel(EmailConfiguration configuration, EmailTemplate[] templates, DatabaseSessionFactory sessionFactory) {
     this.configuration = configuration;
     this.templates = templates;
     this.sessionFactory = sessionFactory;
   }
 
-  private User getUserById(Integer id) {
-    return sessionFactory.getSession().getEntity(User.class, id);
+  private User getUserByLogin(String login) {
+    DatabaseSession session = sessionFactory.getSession();
+    return session.getSingleResult(User.class, "login", login);
   }
 
   @Override
-  public Serializable createDataForPersistance(Notification notification, Integer userId) {
-    for (EmailMessageTemplate template : templates) {
+  public void deliver(Notification notification, String username) {
+    EmailMessage emailMessage = format(notification, username);
+    if (emailMessage != null) {
+      deliver(emailMessage);
+    }
+  }
+
+  private EmailMessage format(Notification notification, String username) {
+    for (EmailTemplate template : templates) {
       EmailMessage email = template.format(notification);
       if (email != null) {
-        User user = getUserById(userId);
+        User user = getUserByLogin(username);
         email.setTo(user.getEmail());
         return email;
       }
@@ -82,14 +90,16 @@ public class EmailNotificationChannel extends NotificationChannel {
     return null;
   }
 
-  @Override
-  public void deliver(Serializable notificationData) {
+  /**
+   * Visibility has been relaxed for tests.
+   */
+  void deliver(EmailMessage emailMessage) {
     if (StringUtils.isBlank(configuration.getSmtpHost())) {
       LOG.warn("SMTP host was not configured - email will not be sent");
       return;
     }
     try {
-      send((EmailMessage) notificationData);
+      send(emailMessage);
     } catch (EmailException e) {
       LOG.error("Unable to send email", e);
     }

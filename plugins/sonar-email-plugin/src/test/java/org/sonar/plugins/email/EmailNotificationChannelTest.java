@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.notifications.email;
+package org.sonar.plugins.email;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -32,6 +32,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.sonar.plugins.email.api.EmailMessage;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -134,7 +135,7 @@ public class EmailNotificationChannelTest {
   }
 
   @Test
-  public void shouldSendNonThreadedEmail() {
+  public void shouldSendNonThreadedEmail() throws Exception {
     configure();
     EmailMessage emailMessage = new EmailMessage()
         .setTo("user@nowhere")
@@ -158,7 +159,7 @@ public class EmailNotificationChannelTest {
   }
 
   @Test
-  public void shouldNotThrowAnExceptionWhenUnableToSendEmail() {
+  public void shouldNotThrowAnExceptionWhenUnableToSendEmail() throws Exception {
     configure();
     server.stop();
 

@@ -17,25 +17,16 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.notifications.reviews;
+package org.sonar.api.notifications;
 
-import org.sonar.jpa.entity.Review;
-import org.sonar.server.notifications.Notification;
-import org.sonar.server.notifications.NotificationDispatcher;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.ServerComponent;
 
 /**
- * This dispatcher means: "notify me when when someone comments on review created by me".
- * 
  * @since 2.10
  */
-public class CommentOnReviewCreatedByMe extends NotificationDispatcher {
+public interface NotificationManager extends ServerComponent, BatchComponent {
 
-  @Override
-  public void dispatch(Notification notification, Context context) {
-    if (notification instanceof CommentOnReviewNotification) {
-      Review review = ((CommentOnReviewNotification) notification).getReview();
-      context.addUser(review.getUserId());
-    }
-  }
+  void scheduleForSending(Notification notification);
 
 }

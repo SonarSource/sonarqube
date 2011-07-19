@@ -17,26 +17,25 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.notifications.reviews;
+package org.sonar.plugins.email.reviews;
 
-import org.sonar.server.notifications.Notification;
-import org.sonar.server.notifications.email.EmailMessage;
-import org.sonar.server.notifications.email.EmailMessageTemplate;
+import org.sonar.api.notifications.Notification;
+import org.sonar.plugins.email.api.EmailMessage;
+import org.sonar.plugins.email.api.EmailTemplate;
 
-/**
- * Email template for {@link CommentOnReviewNotification}.
- */
-public class CommentOnReviewEmailTemplate extends EmailMessageTemplate {
+public class CommentOnReviewEmailTemplate extends EmailTemplate {
 
   @Override
   public EmailMessage format(Notification notification) {
-    if (notification instanceof CommentOnReviewNotification) {
-      CommentOnReviewNotification event = (CommentOnReviewNotification) notification;
+    if ("review".equals(notification.getType())) {
+      String reviewId = notification.getFieldValue("reviewId");
+      String author = notification.getFieldValue("author");
+      String comment = notification.getFieldValue("comment");
       EmailMessage email = new EmailMessage()
-          .setFrom(event.getAuthor().getName())
-          .setMessageId("review/" + event.getReview().getId())
-          .setSubject("Review #" + event.getReview().getId())
-          .setMessage(event.getComment());
+          .setFrom(author)
+          .setMessageId("review/" + reviewId)
+          .setSubject("Review #" + reviewId)
+          .setMessage(comment);
       return email;
     }
     return null;

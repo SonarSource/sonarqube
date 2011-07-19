@@ -17,41 +17,36 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.notifications.reviews;
+package org.sonar.core.notifications;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.database.model.Review;
-import org.sonar.api.database.model.User;
+import org.sonar.api.notifications.Notification;
+import org.sonar.jpa.entity.NotificationQueueElement;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-public class ReviewsNotificationManagerTest extends AbstractDbUnitTestCase {
+public class DefaultNotificationManagerTest extends AbstractDbUnitTestCase {
 
-  private ReviewsNotificationManager manager;
+  private DefaultNotificationManager manager;
 
   @Before
   public void setUp() {
-    setupData(getClass().getResourceAsStream("fixture.xml"));
-    manager = new ReviewsNotificationManager(getSessionFactory(), null);
+    manager = new DefaultNotificationManager(getSessionFactory());
   }
 
   @Test
-  public void shouldGetReviewById() {
-    Review review = manager.getReviewById(3L);
-    assertThat(review.getUserId(), is(1));
-    assertThat(review.getAssigneeId(), is(2));
-    assertThat(review.getTitle(), is("Review #3"));
-  }
+  public void shouldPersist() throws Exception {
+    Notification notification = new Notification("test");
+    manager.scheduleForSending(notification);
 
-  @Test
-  public void shouldGetUserById() {
-    User user = manager.getUserById(1);
-    assertThat(user.getLogin(), is("simon"));
-    assertThat(user.getName(), is("Simon Brandhof"));
-    assertThat(user.getEmail(), is("simon.brandhof@sonarsource.com"));
+    NotificationQueueElement queueElement = manager.getFromQueue();
+    assertThat(queueElement.getNotification(), is(notification));
+
+    assertThat(manager.getFromQueue(), nullValue());
   }
 
 }
