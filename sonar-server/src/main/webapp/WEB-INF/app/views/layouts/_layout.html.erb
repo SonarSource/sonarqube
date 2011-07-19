@@ -1,4 +1,7 @@
-<% selected_section = controller.class::SECTION %>
+<%
+   selected_section = controller.class::SECTION
+   @project=@resource unless @project
+%>
 <div id="container">
   <div id="hd">
     <%= render :partial => 'layouts/breadcrumb' %>

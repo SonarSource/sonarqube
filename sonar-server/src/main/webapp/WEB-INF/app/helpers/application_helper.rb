@@ -259,7 +259,7 @@ module ApplicationHelper
   #
   def format_measure(metric_or_measure, options={})
     html=''
-
+    m=nil
     if metric_or_measure.is_a? ProjectMeasure
       m = metric_or_measure
     elsif @snapshot
