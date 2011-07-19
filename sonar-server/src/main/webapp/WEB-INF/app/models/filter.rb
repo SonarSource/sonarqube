@@ -27,9 +27,9 @@ class Filter < ActiveRecord::Base
 
   belongs_to :user
   belongs_to :resource, :class_name => 'Project', :foreign_key => 'resource_id'
-  has_many :columns, :class_name => 'FilterColumn', :dependent => :delete_all, :validate => true, :order => 'order_index'
-  has_many :criteria, :class_name => 'Criterion', :dependent => :delete_all, :validate => true
-  has_many :active_filters, :dependent => :delete_all
+  has_many :columns, :class_name => 'FilterColumn', :dependent => :destroy, :validate => true, :order => 'order_index'
+  has_many :criteria, :class_name => 'Criterion', :dependent => :destroy, :validate => true
+  has_many :active_filters, :dependent => :destroy
 
   validates_length_of :name, :within => 1..100
   validates_uniqueness_of :name, :scope => :user_id, :if => Proc.new { |filter| filter.user_id }

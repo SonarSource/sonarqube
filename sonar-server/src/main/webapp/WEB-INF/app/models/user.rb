@@ -27,10 +27,10 @@ class User < ActiveRecord::Base
   has_many :user_roles, :dependent => :delete_all
   has_many :properties, :foreign_key => 'user_id', :dependent => :delete_all
   has_many :active_filters, :include => 'filter', :order => 'order_index'
-  has_many :filters, :dependent => :delete_all
+  has_many :filters, :dependent => :destroy
 
-  has_many :active_dashboards, :dependent => :delete_all, :order => 'order_index'
-  has_many :dashboards, :dependent => :delete_all
+  has_many :active_dashboards, :dependent => :destroy, :order => 'order_index'
+  has_many :dashboards, :dependent => :destroy
    
   include Authentication
   include Authentication::ByPassword
