@@ -20,13 +20,12 @@
 package org.sonar.plugins.core.widgets;
 
 import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.Description;
 import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.WidgetCategory;
 
-@WidgetCategory({"Tests"})
-@Description("Reports on units tests and code coverage by unit tests.")
+@WidgetCategory({ "Tests" })
 public class CodeCoverageWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+
   public String getId() {
     return "code_coverage";
   }

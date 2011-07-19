@@ -10,7 +10,7 @@
 	<tr>
 		<td valign="top" width="50%" nowrap>
       <div class="dashbox">
-        <p class="title">Code coverage</p>
+        <p class="title"><%= message('widget.code_coverage.title') -%></p>
         <p>
           <span class="big"><%= format_measure(code_coverage_measure, :suffix => '', :url => url_for_drilldown('coverage'), :default => '-') %></span>
           <%= dashboard_configuration.selected_period? ? format_variation(code_coverage_measure) : trend_icon(code_coverage_measure) -%>
@@ -18,14 +18,14 @@
         <% line_coverage=measure('line_coverage')
           if line_coverage %>
           <p>
-            <%= format_measure(line_coverage, :suffix => ' line coverage', :url => url_for_drilldown('uncovered_lines', :highlight =>  'line_coverage')) %>
+            <%= format_measure(line_coverage, :suffix => message('widget.code_coverage.line_coverage.suffix'), :url => url_for_drilldown('uncovered_lines', :highlight =>  'line_coverage')) %>
             <%= dashboard_configuration.selected_period? ? format_variation(line_coverage) : trend_icon(line_coverage) -%>
           </p>
         <% end %>
         <% branch_coverage=measure('branch_coverage')
           if branch_coverage %>
           <p>
-            <%= format_measure(branch_coverage, :suffix => ' branch coverage', :url => url_for_drilldown('uncovered_conditions', :highlight =>  'branch_coverage')) %>
+            <%= format_measure(branch_coverage, :suffix => message('widget.code_coverage.branch_coverage.suffix'), :url => url_for_drilldown('uncovered_conditions', :highlight =>  'branch_coverage')) %>
             <%= dashboard_configuration.selected_period? ? format_variation(branch_coverage) : trend_icon(branch_coverage) -%>
           </p>
         <% end %>
@@ -40,9 +40,9 @@
               new_line_coverage=measure('new_line_coverage')
               new_branch_coverage=measure('new_branch_coverage')
         %>  <br/>
-            <h3>On new code: </h3>
+            <h3><%= message('widget.code_coverage.on_new_code') -%>: </h3>
             <% if new_lines.to_i==0 %>
-              <p>No new lines to cover</p>
+              <p><%= message('widget.code_coverage.no_new_lines_to_cover') -%></p>
             <% else %>
               <% if new_coverage %>
                 <p>
@@ -50,16 +50,16 @@
                 </p>
               <% end %>
               <p>
-                <a href="<%= url_for_drilldown('new_lines_to_cover', :period => dashboard_configuration.period_index) -%>"><%= new_lines.to_i -%> lines to cover</a>
+                <a href="<%= url_for_drilldown('new_lines_to_cover', :period => dashboard_configuration.period_index) -%>"><%= new_lines.to_i -%><%= message('widget.code_coverage.lines_to_cover.suffix') -%></a>
               </p>
               <% if new_line_coverage %>
                 <p>
-                  <a href="<%= url_for_drilldown('new_uncovered_lines', :highlight => 'new_line_coverage', :period => dashboard_configuration.period_index) -%>"><%= new_line_coverage.format_numeric_value(variation_value(new_line_coverage))||'-' -%> line coverage</a>
+                  <a href="<%= url_for_drilldown('new_uncovered_lines', :highlight => 'new_line_coverage', :period => dashboard_configuration.period_index) -%>"><%= new_line_coverage.format_numeric_value(variation_value(new_line_coverage))||'-' -%><%= message('widget.code_coverage.line_coverage.suffix') -%></a>
                 </p>
               <% end %>
               <% if new_branch_coverage %>
                 <p>
-                  <a href="<%= url_for_drilldown('new_uncovered_conditions', :highlight => 'new_branch_coverage', :period => dashboard_configuration.period_index) -%>"><%= new_branch_coverage.format_numeric_value(variation_value(new_branch_coverage))||'-' -%> branch coverage</a>
+                  <a href="<%= url_for_drilldown('new_uncovered_conditions', :highlight => 'new_branch_coverage', :period => dashboard_configuration.period_index) -%>"><%= new_branch_coverage.format_numeric_value(variation_value(new_branch_coverage))||'-' -%><%= message('widget.code_coverage.branch_coverage.suffix') -%></a>
                 </p>
               <%
                  end
@@ -75,28 +75,28 @@
   if tests_measure
   %>
   <div class="dashbox">
-      <h3>Test success</h3>
+      <h3><%= message('widget.code_coverage.test_success') -%></h3>
       <p><span class="big">
         <%= format_measure(success_percentage, :suffix => '', :url => url_for_drilldown(success_percentage)) %></span>
         <%= dashboard_configuration.selected_period? ? format_variation(success_percentage) : trend_icon(success_percentage) -%>
       </p>
       <p>
-        <%= format_measure(Metric::TEST_FAILURES, :suffix => ' failures', :url => url_for_drilldown(Metric::TEST_FAILURES)) %>
+        <%= format_measure(Metric::TEST_FAILURES, :suffix => message('widget.code_coverage.failures.suffix'), :url => url_for_drilldown(Metric::TEST_FAILURES)) %>
         <%= dashboard_configuration.selected_period? ? format_variation(Metric::TEST_FAILURES) : trend_icon(Metric::TEST_FAILURES) -%>
       </p>
       <p>
-        <%= format_measure(Metric::TEST_ERRORS, :suffix => ' errors', :url => url_for_drilldown(Metric::TEST_ERRORS)) %>
+        <%= format_measure(Metric::TEST_ERRORS, :suffix => message('widget.code_coverage.errors.suffix'), :url => url_for_drilldown(Metric::TEST_ERRORS)) %>
         <%= dashboard_configuration.selected_period? ? format_variation(Metric::TEST_ERRORS) : trend_icon(Metric::TEST_ERRORS) -%>
       </p>
       <p>
-        <%= format_measure(tests_measure, :suffix => ' tests', :url => url_for_drilldown('tests')) %>
+        <%= format_measure(tests_measure, :suffix => message('widget.code_coverage.tests.suffix'), :url => url_for_drilldown('tests')) %>
         <%= dashboard_configuration.selected_period? ? format_variation(tests_measure) : trend_icon(tests_measure) -%>
       </p>
       <% skipped_measure=measure(Metric::SKIPPED_TESTS)
          if dashboard_configuration.selected_period? || (skipped_measure && skipped_measure.value && skipped_measure.value>0)
       %>
       <p>
-        +<%= format_measure(skipped_measure, :suffix => ' skipped', :url => url_for_drilldown(Metric::SKIPPED_TESTS), :default => '0') %>
+        +<%= format_measure(skipped_measure, :suffix => message('widget.code_coverage.skipped.suffix'), :url => url_for_drilldown(Metric::SKIPPED_TESTS), :default => '0') %>
         <%= dashboard_configuration.selected_period? ? format_variation(skipped_measure) : trend_icon(skipped_measure) -%>
       </p>
       <% end %>

@@ -20,11 +20,10 @@
 package org.sonar.plugins.core.widgets;
 
 import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.Description;
 import org.sonar.api.web.RubyRailsWidget;
 
-@Description("Reports general metrics on the size of the project.")
 public class SizeWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+
   public String getId() {
     return "size";
   }

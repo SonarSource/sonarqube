@@ -19,11 +19,13 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.sonar.api.web.*;
+import org.sonar.api.web.AbstractRubyTemplate;
+import org.sonar.api.web.RubyRailsWidget;
+import org.sonar.api.web.WidgetCategory;
 
-@WidgetCategory({"Rules"})
-@Description("Reports violations and compliance index on coding standards.")
+@WidgetCategory({ "Rules" })
 public class RulesWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+
   public String getId() {
     return "rules";
   }

@@ -22,7 +22,6 @@ package org.sonar.plugins.core.widgets;
 import org.sonar.api.web.*;
 
 @WidgetCategory({"Measures"})
-@Description("Select the measures to display")
 @WidgetProperties(
     {
         @WidgetProperty(key = "metric1", type = WidgetPropertyType.STRING),

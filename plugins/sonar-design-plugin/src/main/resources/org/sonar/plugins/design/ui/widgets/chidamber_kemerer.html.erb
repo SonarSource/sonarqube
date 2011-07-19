@@ -12,12 +12,12 @@ if lcom || rfc
       <% if lcom %>
       <td width="50%" valign="top">
         <div class="dashbox">
-          <h3>LCOM4</h3>
+          <h3><%= message('widget.ckjm.lcom4') -%></h3>
           <p>
-            <span class="big"><%= format_measure(lcom, :suffix => '', :default => '-', :url => url_for_drilldown('lcom4')) -%></span> /class <%= dashboard_configuration.selected_period? ? format_variation(lcom) : trend_icon(lcom, :big => true) -%>
+            <span class="big"><%= format_measure(lcom, :suffix => '', :default => '-', :url => url_for_drilldown('lcom4')) -%></span><%= message('widget.ckjm.per_class.suffix') -%> <%= dashboard_configuration.selected_period? ? format_variation(lcom) : trend_icon(lcom, :big => true) -%>
           </p>
           <p>
-            <%= format_measure(suspect_lcom4_density, :suffix => ' files having LCOM4>1', :url => url_for_drilldown('lcom4')) %> <%= dashboard_configuration.selected_period? ? format_variation(suspect_lcom4_density) : trend_icon(suspect_lcom4_density) -%>
+            <%= format_measure(suspect_lcom4_density, :suffix => message('widget.ckjm.files_having_lcom_greater_than_one'), :url => url_for_drilldown('lcom4')) %> <%= dashboard_configuration.selected_period? ? format_variation(suspect_lcom4_density) : trend_icon(suspect_lcom4_density) -%>
           </p>
         </div>
       </td>
@@ -25,9 +25,9 @@ if lcom || rfc
       <% if rfc %>
       <td width="50%" valign="top">
         <div class="dashbox">
-          <h3>RFC</h3>
+          <h3><%= message('widget.ckjm.rfc') -%></h3>
           <p><span class="big">
-            <%= format_measure(rfc, :suffix => '', :default => '-', :url => url_for_drilldown('rfc')) -%></span> /class <%= dashboard_configuration.selected_period? ? format_variation(rfc) : trend_icon(rfc, :big => true) -%>
+            <%= format_measure(rfc, :suffix => '', :default => '-', :url => url_for_drilldown('rfc')) -%></span><%= message('widget.ckjm.per_class.suffix') -%> <%= dashboard_configuration.selected_period? ? format_variation(rfc) : trend_icon(rfc, :big => true) -%>
           </p>
         </div>
       </td>

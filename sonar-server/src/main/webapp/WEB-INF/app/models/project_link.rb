@@ -41,6 +41,14 @@ class ProjectLink < ActiveRecord::Base
     link_type
   end
 
+  def name(translate=true)
+    default_string = read_attribute(:name)
+    return default_string unless translate
+    
+    i18n_key = 'project_links.' + read_attribute(:link_type)
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, i18n_key, default_string, [].to_java)
+  end
+
   def self.name_to_key(s)
     s.tr(' ', '_')[0..19]
   end

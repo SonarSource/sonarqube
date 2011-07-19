@@ -19,12 +19,15 @@
  */
 package org.sonar.plugins.design.ui.widgets;
 
-import org.sonar.api.web.*;
+import org.sonar.api.web.AbstractRubyTemplate;
+import org.sonar.api.web.RubyRailsWidget;
+import org.sonar.api.web.UserRole;
+import org.sonar.api.web.WidgetCategory;
 
 @UserRole(UserRole.USER)
-@WidgetCategory({"Design"})
-@Description("Reports on files dependency cycles and tangle index.")
+@WidgetCategory({ "Design" })
 public final class FileDesignWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+
   public String getId() {
     return "file_design";
   }
