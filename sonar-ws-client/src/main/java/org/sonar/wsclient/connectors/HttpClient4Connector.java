@@ -179,6 +179,7 @@ public class HttpClient4Connector extends Connector {
   private void initRequest(HttpRequestBase request, AbstractQuery query) {
     request.setHeader("Accept", "application/json");
     request.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, query.getTimeoutMilliseconds());
+    request.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, query.getTimeoutMilliseconds());
   }
 
   static final class PreemptiveAuth implements HttpRequestInterceptor {
