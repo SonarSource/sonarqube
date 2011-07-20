@@ -52,4 +52,9 @@ public abstract class NotificationDispatcher implements ServerExtension {
    */
   public abstract void dispatch(Notification notification, Context context);
 
+  @Override
+  public String toString() {
+    return getKey();
+  }
+
 }

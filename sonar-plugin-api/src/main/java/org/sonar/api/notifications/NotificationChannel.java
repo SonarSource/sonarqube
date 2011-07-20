@@ -43,4 +43,9 @@ public abstract class NotificationChannel implements ServerExtension {
 
   public abstract void deliver(Notification notification, String username);
 
+  @Override
+  public String toString() {
+    return getKey();
+  }
+
 }

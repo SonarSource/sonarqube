@@ -63,3 +63,35 @@
   //]]>
 	</script>
 <% end -%>
+<br/>
+
+<h1>Notifications</h1>
+<br/>
+<% form_tag({:action => 'update_notifications'}, {:method => 'post'}) do %>
+  <table>
+    <tr>
+      <td></td>
+      <% for channel in @channels %>
+      <td><%= channel.getKey() %></td>
+      <% end %>
+    </tr>
+    <% for dispatcher in @dispatchers %>
+    <tr>
+      <td><%= dispatcher.getKey() %></td>
+      <td>
+        <%
+        for channel in @channels
+          notification_id = dispatcher.getKey() + '.' + channel.getKey()
+          check_box_id = 'notifications[' + notification_id + ']'
+          check_box_checked = @notifications[notification_id]
+        %>
+          <%= check_box_tag check_box_id, 'true', check_box_checked %>
+        <% end %>
+      </td>
+    </tr>
+    <% end %>
+  </table>
+  <br/>
+  <%= submit_tag %>
+<% end %>
+<br/>

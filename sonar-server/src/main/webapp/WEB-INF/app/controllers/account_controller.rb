@@ -24,7 +24,13 @@ class AccountController < ApplicationController
   before_filter :login_required
 
   def index
-
+    notification_service = java_facade.getCoreComponentByClassname('org.sonar.server.notifications.NotificationService')
+    @channels = notification_service.getChannels()
+    @dispatchers = notification_service.getDispatchers()
+    @notifications = {}
+    for property in Property.find(:all, :conditions => ['prop_key like ? AND user_id = ?', 'notification.%', current_user.id])
+      @notifications[property.key.sub('notification.', '')] = true
+    end
   end
 
   def change_password
@@ -47,4 +53,12 @@ class AccountController < ApplicationController
     end
     redirect_to :controller => 'account', :action => 'index'
   end
+
+  def update_notifications
+    notifications = params[:notifications]
+    Property.delete_all(['prop_key like ? AND user_id = ?', 'notification.%', current_user.id])
+    notifications.each_key { |key| current_user.set_property(:prop_key => 'notification.' + key, :text_value => 'true') } unless notifications.nil?
+    redirect_to :action => 'index'
+  end
+
 end

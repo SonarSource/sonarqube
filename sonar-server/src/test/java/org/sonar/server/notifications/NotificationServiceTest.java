@@ -77,7 +77,7 @@ public class NotificationServiceTest {
     NotificationDispatcher[] dispatchers = new NotificationDispatcher[] { commentOnReviewAssignedToMe, commentOnReviewCreatedByMe };
     NotificationChannel[] channels = new NotificationChannel[] { emailChannel, gtalkChannel };
     manager = mock(DefaultNotificationManager.class);
-    service = spy(new NotificationService(manager, dispatchers, channels));
+    service = spy(new NotificationService(null, manager, dispatchers, channels));
     doReturn(false).when(service).isEnabled(any(String.class), any(NotificationChannel.class), any(NotificationDispatcher.class));
   }
 

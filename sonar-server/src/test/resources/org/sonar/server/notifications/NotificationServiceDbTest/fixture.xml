@@ -1,0 +1,8 @@
+<dataset>
+
+  <users id="1" login="simon" />
+  <users id="2" login="godin" />
+
+  <properties user_id="1" prop_key="notification.CommentOnReviewAssignedToMe.EmailNotificationChannel" text_value="true"/>
+
+</dataset>
