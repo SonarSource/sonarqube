@@ -2,6 +2,13 @@
   #manualMeasures td {
     vertical-align: top;
   }
+
+  #manualMeasures td.pendingMeasure {
+    background-color: orange;
+    width: 4px;
+    padding: 0;
+    cursor: help;
+  }
 </style>
 <div class="line-block marginbottom10">
   <ul class="operations">
@@ -12,42 +19,48 @@
   </ul>
 </div>
 
-<table class="width100 data" id="manualMeasures">
+<table class="width100 data sortable" id="manualMeasures">
   <thead>
   <tr>
-    <th class="thin nowrap">Domain</th>
+    <th style="padding: 0; margin: 0; width: 4px" class="nosort"></th>
+    <th class="thin nowrap sortfirstasc">Domain</th>
     <th class="thin nowrap">Metric</th>
     <th class="thin nowrap" style="text-align: right">Value</th>
     <th>Description</th>
     <th style="text-align: right">Author</th>
     <th style="text-align: right">Date</th>
-    <th class="thin nowrap">Operations</th>
+    <th class="thin nowrap nosort">Operations</th>
   </tr>
   </thead>
   <tbody>
   <% if @measures.empty? %>
-    <td colspan="7" class="even">No measures</td>
+    <td colspan="8" class="even">No measures</td>
   <% end %>
   <%
      @measures.each do |measure|
   %>
     <a name="<%= measure.metric.key -%>"></a>
-    <tr class="<%= cycle('even', 'odd') -%>">
+    <tr>
+      <% if measure.pending?(@snapshot) %>
+        <td class="pendingMeasure" title="Pending. New value will be available during next project analysis."></td>
+      <% else %>
+        <td></td>
+      <% end %>
       <td class="thin nowrap"><%= measure.metric.domain -%></td>
       <td class="thin nowrap"><%= measure.metric.short_name -%></td>
       <td class="thin nowrap" align="right"><%= measure.value -%></td>
       <td id="desc"><%= measure.description -%></td>
-      <td align="right"><%= measure.username  -%>
+      <td align="right"><%= measure.username -%>
       </td>
       <td align="right">
-          <%= l(measure.updated_at) -%>
+        <%= l(measure.updated_at) -%>
       </td>
       <td class="thin nowrap">
-          <a href="<%= url_for :controller => 'manual_measures', :action => 'new', :metric => measure.metric.key, :resource => @resource.key -%>">Edit</a>
-          <%= link_to 'Delete', {:action => 'delete', :metric => measure.metric.key, :resource => @resource.id}, {:method => 'POST', :confirm => "This measure will be deleted during next project analysis", :class => 'action'} -%>
+        <a href="<%= url_for :controller => 'manual_measures', :action => 'new', :metric => measure.metric.key, :resource => @resource.key -%>">Edit</a>
+        <%= link_to 'Delete', {:action => 'delete', :metric => measure.metric.key, :resource => @resource.id}, {:method => 'POST', :confirm => "This measure will be deleted during next project analysis", :class => 'action'} -%>
       </td>
     </tr>
-
   <% end %>
   </tbody>
 </table>
+<script>TableKit.Sortable.init('manualMeasures');</script>

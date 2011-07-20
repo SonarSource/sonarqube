@@ -1,5 +1,5 @@
 <tr>
-  <td class="first">
+  <td class="keyCell">
     <%= message('filters.add_column') -%>:
   </td>
   <td>
@@ -32,7 +32,7 @@
   </td>
 </tr>
 <tr>
-  <td class="first"><%= message('filters.default_sorted_column') -%>:</td>
+  <td class="keyCell"><%= message('filters.default_sorted_column') -%>:</td>
   <td>
     <form id="sorted_column_form" action="<%= url_for :action => 'set_sorted_column' -%>" method="post">
       <select name="id">
@@ -52,7 +52,7 @@
    </td>
 </tr>
 <tr>
-  <td class="first"><%= message('page_size') -%>:</td>
+  <td class="keyCell"><%= message('page_size') -%>:</td>
   <td>
     <form id="page_size_form" action="<%= url_for :action => 'set_page_size' -%>" method="post">
       <input type="hidden" name="id" value="<%= @filter.id -%>"></input>

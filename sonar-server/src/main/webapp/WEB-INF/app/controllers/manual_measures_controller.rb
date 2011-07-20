@@ -21,7 +21,7 @@ class ManualMeasuresController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
   before_filter :load_resource
-  verify :method => :post, :only => [:save, :delete], :redirect_to => { :action => :index }
+  verify :method => :post, :only => [:save, :delete], :redirect_to => {:action => :index}
 
   def index
     load_measures()
@@ -47,7 +47,11 @@ class ManualMeasuresController < ApplicationController
     measure.value = params[:val]
     measure.description = params[:desc]
     measure.save!
-    redirect_to :action => 'index', :resource => params[:resource], :metric => params[:metric]
+    if (params[:redirect_to_new]=='true')
+      redirect_to :action => 'new', :resource => params[:resource]
+    else
+      redirect_to :action => 'index', :resource => params[:resource], :metric => params[:metric]
+    end
   end
 
   def delete
@@ -62,9 +66,10 @@ class ManualMeasuresController < ApplicationController
     @resource=Project.by_key(params[:resource])
     return redirect_to home_path unless @resource
     return access_denied unless has_role?(:admin, @resource)
+    @snapshot=@resource.last_snapshot
   end
 
   def load_measures
-    @measures=ManualMeasure.find(:all, :conditions => ['resource_id=?', @resource.id]).select{|m| m.metric.enabled}.sort_by{|m| m.metric.domain}
+    @measures=ManualMeasure.find(:all, :conditions => ['resource_id=?', @resource.id]).select { |m| m.metric.enabled }
   end
 end

@@ -51,4 +51,11 @@ class ManualMeasure < ActiveRecord::Base
   def validate_metric
     errors.add_to_base("Not a valid metric") unless metric && metric.enabled?
   end
+
+  def pending?(snapshot=nil)
+    if snapshot.nil?
+      snapshot=resource.last_snapshot
+    end
+    snapshot && updated_at && snapshot.created_at<updated_at
+  end
 end

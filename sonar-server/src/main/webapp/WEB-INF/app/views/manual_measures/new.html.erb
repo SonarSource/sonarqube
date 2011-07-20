@@ -3,6 +3,10 @@
     document.location = '<%= ApplicationController.root_context-%>/manual_measures/new?resource=<%= @resource.key -%>&metric=' + $('metricSelect').getValue();
     return false;
   }
+  function saveAndAddNew() {
+    $('redirect_to_new').setValue('true');
+    return true;
+  }
 </script>
 
 <form action="<%= url_for :action => (@measure ? 'save' : 'new') -%>" method="POST" id="createForm">
@@ -10,7 +14,7 @@
   <table class="width100 form">
     <tbody>
     <tr>
-      <td class="first">
+      <td class="keyCell">
         Metric:
       </td>
       <td>
@@ -20,15 +24,17 @@
             <option value="<%= metric.key -%>" <%= 'selected' if @metric && @metric.id==metric.id -%>><%= metric.short_name -%></option>
           <% end %>
         </select>
+        <%= link_to 'Manage metrics', :controller => 'metrics', :action => 'index' -%>
 
-        <% if @metric %>
+        <% if @metric && @metric.description %>
+          <br/>
           <span class="note"><%= @metric.description -%></span>
         <% end %>
       </td>
     </tr>
     <% if @measure %>
       <tr>
-        <td class="first">
+        <td class="keyCell">
           Value:
         </td>
         <td>
@@ -36,7 +42,7 @@
         </td>
       </tr>
       <tr>
-        <td class="first">
+        <td class="keyCell">
           Description:
         </td>
         <td>
@@ -45,7 +51,7 @@
       </tr>
       <% unless @measure.new_record?() %>
         <tr>
-          <td class="first">
+          <td class="keyCell">
             Last change:
           </td>
           <td>
@@ -55,11 +61,13 @@
       <% end %>
     <% end %>
     <tr>
-      <td class="first">
+      <td class="keyCell">
       </td>
       <td>
         <% if @measure %>
+          <input type="hidden" name="redirect_to_new" value="false" id="redirect_to_new"/>
           <input type="submit" value="Save"/>
+          <input type="submit" value="Save & Add new" onclick="saveAndAddNew()"/>
         <% end %>
         <%= link_to 'Cancel', :action => 'index', :resource => @resource.key -%>
       </td>

@@ -23,7 +23,7 @@ table#columns td {
     <table class="form">
       <tbody>
       <tr>
-        <td class="first"><%= message('name') -%>:</td>
+        <td class="keyCell"><%= message('name') -%>:</td>
         <td>
           <input type="text" name="name" id="name" value="<%= @filter.name -%>" class="spaced"></input>
           <% if is_admin? %>
@@ -36,7 +36,7 @@ table#columns td {
       </tbody>
       <tbody id="simple-form">
         <tr>
-          <td class="first"><%= message('path') -%>:</td>
+          <td class="keyCell"><%= message('path') -%>:</td>
           <td>
             <b><span id="path_name"><%= @filter.resource ? @filter.resource.path_name : params[:path_name] -%></span></b>
             <input type="hidden" name="path_id" id="path_id" value="<%= @filter.resource ? @filter.resource.id : params[:path_id] -%>"></input>
@@ -45,7 +45,7 @@ table#columns td {
           </td>
         </tr>
         <tr>
-          <td class="first"><%= message('filters.search_for') -%>:</td>
+          <td class="keyCell"><%= message('filters.search_for') -%>:</td>
           <td>
             <% qualifiers=(@filter.criterion('qualifier') ? @filter.criterion('qualifier').text_values : []) %>
 
@@ -74,19 +74,19 @@ table#columns td {
           </td>
         </tr>
         <tr>
-          <td class="first"><%= message('criteria') -%>:</td>
+          <td class="keyCell"><%= message('criteria') -%>:</td>
           <td>
             <%= render :partial => 'filters/criterion', :locals => {:id => '0', :criterion => (@filter.measure_criteria.size>0 ? @filter.measure_criteria[0] : nil)} %>
           </td>
         </tr>
         <tr>
-          <td class="first"><%= message('and').downcase -%>: </td>
+          <td class="keyCell"><%= message('and').downcase -%>: </td>
           <td>
             <%= render :partial => 'filters/criterion', :locals => {:id => '1', :criterion => (@filter.measure_criteria.size>1 ? @filter.measure_criteria[1] : nil) } %>
           </td>
         </tr>
         <tr>
-          <td class="first"><%= message('and').downcase -%>: </td>
+          <td class="keyCell"><%= message('and').downcase -%>: </td>
           <td>
             <%= render :partial => 'filters/criterion', :locals => {:id => '2', :criterion => (@filter.measure_criteria.size>2 ? @filter.measure_criteria[2] : nil) } %>
           </td>
@@ -100,7 +100,7 @@ table#columns td {
       </tbody>
       <tbody id="advanced-search" style="<%= 'display: none' unless @filter.advanced_search? -%>">
         <tr>
-          <td class="first"><%= message('filters.default_period') -%>:</td>
+          <td class="keyCell"><%= message('filters.default_period') -%>:</td>
           <td>
             <select id="period_index" name="period_index">
               <option value=""><%= message('none') -%></option>
@@ -111,7 +111,7 @@ table#columns td {
           </td>
         </tr>
         <tr>
-          <td class="first"><%= message('language') -%>:</td>
+          <td class="keyCell"><%= message('language') -%>:</td>
           <td>
             <% languages=(@filter.criterion('language') ? @filter.criterion('language').text_values : []) %>
             <% controller.java_facade.getLanguages().each do |language| %>
@@ -121,13 +121,13 @@ table#columns td {
           </td>
         </tr>
         <tr>
-          <td class="first"><%= image_tag 'star.png' %> <label for="favourites"><%= message('filters.favourite_only') -%>:</label></td>
+          <td class="keyCell"><%= image_tag 'star.png' %> <label for="favourites"><%= message('filters.favourite_only') -%>:</label></td>
           <td>
             <input type="checkbox" name="favourites" id="favourites" <%= 'checked' if @filter.favourites -%>></input>
           </td>
         </tr>
         <tr>
-          <td class="first"><label for="key_regexp"><%= message('filters.resource_key_like') -%>:</label></td>
+          <td class="keyCell"><label for="key_regexp"><%= message('filters.resource_key_like') -%>:</label></td>
           <td>
             <% key_regexp_criterion=@filter.criterion('key') %>
             <input type="text" name="key_regexp" id="key_regexp" value="<%= key_regexp_criterion.text_value if key_regexp_criterion -%>"></input>
@@ -135,7 +135,7 @@ table#columns td {
           </td>
         </tr>
         <tr>
-          <td class="first"><label for="name_regexp"><%= message('filters.resource_name_like') -%>:</label></td>
+          <td class="keyCell"><label for="name_regexp"><%= message('filters.resource_name_like') -%>:</label></td>
           <td>
             <% name_regexp_criterion=@filter.criterion('name') %>
             <input type="text" name="name_regexp" id="name_regexp" value="<%= name_regexp_criterion.text_value if name_regexp_criterion -%>"></input>
@@ -143,7 +143,7 @@ table#columns td {
           </td>
         </tr>
         <tr>
-          <td class="first"><label for="date"><%= message('build_date') -%>:</label></td>
+          <td class="keyCell"><label for="date"><%= message('build_date') -%>:</label></td>
           <td>
             <% date_criterion = @filter.criterion('date') %>
             <select id="date_operator" name="date_operator">
@@ -188,7 +188,7 @@ $('name').focus();
   <div class="admin">
     <table class="form" id="view-form">
       <tr>
-        <td class="first"><%= message('filters.display_as') -%>:</td>
+        <td class="keyCell"><%= message('filters.display_as') -%>:</td>
         <td>
           <form action="<%= url_for :action => :set_view, :id => @filter.id -%>" method="POST">
             <input type="radio" name="view" value="list" <%= 'checked' if @filter.default_view==::Filter::VIEW_LIST -%> id="view-list" onClick="$('view-loading').show();submit();"></input> <label for="view-list"><%= message('table') -%></label>

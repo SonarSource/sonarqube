@@ -639,11 +639,11 @@ table.form td {
   padding: 2px 5px;
   vertical-align: top;
 }
-table.form td.first {
-  min-width: 120px;
+table.form td.keyCell {
+  width: 140px;
   text-align: right;
   font-weight: bold;
-  vertical-align: middle;
+  vertical-align: top;
 }
 table.form td img {
   vertical-align: bottom;
