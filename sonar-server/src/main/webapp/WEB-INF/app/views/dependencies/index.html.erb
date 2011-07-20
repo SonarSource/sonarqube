@@ -25,20 +25,19 @@ padding: 5px;
 </style>
 <form action="<%= ApplicationController.root_context -%>/dependencies/index" id="search_form">
   <input type="text" name="search" value="<%= params[:search] -%>" id="search_input"> </input>
-  <input type="submit" value="Search library" id="search_submit"></input><br/>
-  <p class="small gray">Find out which projects depend on a given library.<br/>
-  Search by group, artifact or name. E.g.: org.apache.struts, struts-core or Struts</p>
+  <input type="submit" value="<%= message('dependencies.search_library') -%>" id="search_submit"></input><br/>
+  <p class="small gray"><%= message('dependencies.search_help') -%></p>
 </form>
 
 <div id="deps_drilldown">
   <% if @resources %>
   <div id="artifacts_col" class="drilldown_col">
-    <h3>Select library :</h3>
+    <h3><%= message('dependencies.select_library') -%> :</h3>
     <div class="col">
     <table>
       <tbody>
       <% if @resources.empty? %>
-      <tr class="even"><td>No data</td></tr>
+      <tr class="even"><td><%= message('no_data') -%></td></tr>
       <% end %>
      <% @resources.each do |resource|%>
       <tr class="<%= cycle('even', 'odd', :name => 'lib') -%> <%= 'selected' if resource==@resource -%>">
@@ -53,7 +52,7 @@ padding: 5px;
 
   <% if @versions %>
   <div id="versions_col" class="drilldown_col">
-    <h3>Select version :</h3>
+    <h3><%= message('dependencies.select_version') -%> :</h3>
     <div class="col">
     <table>
       <tbody>
@@ -75,12 +74,12 @@ padding: 5px;
 
   <% if @project_snapshots %>
   <div id="results_col" class="drilldown_col">
-    <h3>Used by :</h3>
+    <h3><%= message('dependencies.used_by') -%> :</h3>
     <div class="col">
     <table>
       <tbody>
       <% if @project_snapshots.empty? %>
-      <tr class="even"><td>Not used</td></tr>
+      <tr class="even"><td><%= message('dependencies.not_used') -%></td></tr>
       <% end %>
      <% @project_snapshots.each do |project_snapshot|%>
       <tr class="<%= cycle('even', 'odd', :name => 'dep') -%>">

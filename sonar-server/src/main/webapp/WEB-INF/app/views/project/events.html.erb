@@ -1,10 +1,10 @@
 <% show_admin_actions=is_admin?(@snapshot) %>
-<h3>Events &nbsp;&nbsp;
+<h3><%= message('events') -%> &nbsp;&nbsp;
 <select class="small" id="select_category" onchange="<%= remote_function(:update => 'events_portlet', :url => { :controller => :project, :action => :events, :id => @snapshot.id },
   :with => "'category=' + $F('select_category')", :method => 'get') -%>">
-<option value="">All</option>
+<option value=""><%= message('all') -%></option>
 <% @categories.each do |categ| %>
-<option value="<%= h categ.name -%>" <%= 'selected' if @category==categ.name -%>><%= h categ.name %></option>
+<option value="<%= h categ.name -%>" <%= 'selected' if @category==categ.name -%>><%= h message('event.category.' + categ.name, :default => categ.name) %></option>
 <% end %>
 </select></h3>
 
@@ -25,7 +25,7 @@
 %>
 <tr class="<%= cycle 'even','odd' -%>">
     <td x="<%= event.event_date -%>"><%= l(event.event_date.to_date) %></td>
-    <td><%= event.category %></td>
+    <td><%= h message('event.category.' + event.category, :default => event.category) %></td>
     <td><%= event.name %></td>
     <td>
         <% unless event.description.blank? %>
@@ -34,8 +34,8 @@
     </td>
     <td>
         <% if show_admin_actions %>
-        <%= link_to_remote 'Edit', {:url => edit_event_path(event), :method => :get, :update => "event_form", :complete => "$('event_form').show();"}, :class => 'action', :id => "edit_event_#{h event.name}" %>
-        <%= link_to 'Delete', event, :confirm => 'Are you sure ?', :method => :delete, :class => 'action',:id => "delete_event_#{h event.name}" %>
+        <%= link_to_remote message('edit'), {:url => edit_event_path(event), :method => :get, :update => "event_form", :complete => "$('event_form').show();"}, :class => 'action', :id => "edit_event_#{h event.name}" %>
+        <%= link_to message('delete'), event, :confirm => message('are_you_sure'), :method => :delete, :class => 'action',:id => "delete_event_#{h event.name}" %>
         <% end %>
     </td>
 </tr>
@@ -49,12 +49,12 @@
 </table>
 
 <% if index>=max_rows %>
-      <a href="#" onclick="$('all_events').show();$('show_more_events').hide()" id="show_more_events" class="action">Show more</a>
+      <a href="#" onclick="$('all_events').show();$('show_more_events').hide()" id="show_more_events" class="action"><%= message('show_more') -%></a>
 <% end %>
 
 
 <% if show_admin_actions %>
-<%= link_to_remote "Add an event", {:url => { :controller => 'events', :action => "new", :rid => @snapshot.project_id, :sid => @snapshot.id },
+<%= link_to_remote message('events.add_an_event'), {:url => { :controller => 'events', :action => "new", :rid => @snapshot.project_id, :sid => @snapshot.id },
     :update => "event_form", :success => "$('event_form').show();"}, {:class => 'action'} %>
 <% end %>
 <div id="event_form" />
