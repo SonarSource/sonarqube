@@ -5,7 +5,7 @@
            enabled="true" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="false"/>
 
 
-  <manual_measures id="1" metric_id="2" resource_id="30" value="3.14" text_value="pi" created_at="[null]" updated_at="[null]" description="this is pi" url="http://pi" user_login="me"/>
-  <manual_measures id="2" metric_id="2" resource_id="40" value="6" text_value="six" created_at="[null]" updated_at="[null]" description="this is six" url="http://six" user_login="me"/>
+  <manual_measures id="1" metric_id="2" resource_id="30" value="3.14" text_value="pi" created_at="[null]" updated_at="[null]" description="this is pi" user_login="me"/>
+  <manual_measures id="2" metric_id="2" resource_id="40" value="6" text_value="six" created_at="[null]" updated_at="[null]" description="this is six" user_login="me"/>
 
 </dataset>

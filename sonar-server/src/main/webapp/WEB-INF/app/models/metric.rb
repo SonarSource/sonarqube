@@ -100,17 +100,17 @@ class Metric < ActiveRecord::Base
     default_string = read_attribute(:short_name)
     return default_string unless translate
     
-    metric_name = read_attribute(:name)      
-    return nil if metric_name.nil?
+    metric_key = read_attribute(:name)
+    return nil if metric_key.nil?
     
-    localeMap = Metric.i18n_short_name_cache[metric_name]
+    localeMap = Metric.i18n_short_name_cache[metric_key]
     locale = I18n.locale
     
-    return localeMap[locale] if not localeMap.nil? and localeMap.has_key?(locale) 
+    return localeMap[locale] if localeMap && localeMap.has_key?(locale)
     
-    i18n_key = 'metric.' + metric_name + '.name'
+    i18n_key = 'metric.' + metric_key + '.name'
     result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, i18n_key, default_string, [].to_java) 
-    localeMap[locale] = result if not localeMap.nil?
+    localeMap[locale] = result if localeMap
     result
   end
   

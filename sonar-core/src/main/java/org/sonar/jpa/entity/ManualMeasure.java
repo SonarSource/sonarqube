@@ -47,9 +47,6 @@ public final class ManualMeasure {
   @Column(name = "description", updatable = true, nullable = true, length = MAX_TEXT_SIZE)
   private String description;
 
-  @Column(name = "url", updatable = true, nullable = true, length = MAX_TEXT_SIZE)
-  private String url;
-
   @Column(name = "created_at", updatable = true, nullable = true)
   private Date createdAt;
 
@@ -73,10 +70,6 @@ public final class ManualMeasure {
 
   public String getDescription() {
     return description;
-  }
-
-  public String getUrl() {
-    return url;
   }
 
   public Integer getMetricId() {

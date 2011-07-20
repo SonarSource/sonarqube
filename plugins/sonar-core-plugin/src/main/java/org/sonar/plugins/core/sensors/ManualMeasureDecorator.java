@@ -60,7 +60,6 @@ public class ManualMeasureDecorator implements Decorator {
     measure.setValue(manualMeasure.getValue(), 5);
     measure.setData(manualMeasure.getTextValue());
     measure.setDescription(manualMeasure.getDescription());
-    measure.setUrl(manualMeasure.getUrl());
     return measure;
   }
 

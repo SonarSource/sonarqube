@@ -5,9 +5,9 @@
 
   #manualMeasures td.pendingMeasure {
     background-color: orange;
-    width: 4px;
-    padding: 0;
     cursor: help;
+    padding: 3px;
+    width: 0;
   }
 </style>
 <div class="line-block marginbottom10">
@@ -22,7 +22,7 @@
 <table class="width100 data sortable" id="manualMeasures">
   <thead>
   <tr>
-    <th style="padding: 0; margin: 0; width: 4px" class="nosort"></th>
+    <th style="padding: 0; margin: 0" class="nosort"></th>
     <th class="thin nowrap sortfirstasc">Domain</th>
     <th class="thin nowrap">Metric</th>
     <th class="thin nowrap" style="text-align: right">Value</th>
@@ -44,7 +44,7 @@
       <% if measure.pending?(@snapshot) %>
         <td class="pendingMeasure" title="Pending. New value will be available during next project analysis."></td>
       <% else %>
-        <td></td>
+        <td style="padding: 0"></td>
       <% end %>
       <td class="thin nowrap"><%= measure.metric.domain -%></td>
       <td class="thin nowrap"><%= measure.metric.short_name -%></td>
