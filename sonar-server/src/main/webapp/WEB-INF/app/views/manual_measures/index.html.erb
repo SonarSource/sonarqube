@@ -5,57 +5,49 @@
 </style>
 <div class="line-block marginbottom10">
   <ul class="operations">
-    <li>
-      <%= image_tag 'add.png' -%>
-      <a href="<%= ApplicationController.root_context-%>/manual_measures/new?resource=<%= @resource.id -%>" id="addMeasureLink">Add measure</a>
-    </li>
     <li class="last">
-      <a href="<%= ApplicationController.root_context-%>/metrics/index" id="adminMetricsLink">Manage metrics</a>
+      <%= image_tag 'add.png' -%>
+      <a href="<%= ApplicationController.root_context -%>/manual_measures/new?resource=<%= @resource.id -%>" id="addMeasureLink">Add measure</a>
     </li>
   </ul>
 </div>
 
-<form action="<%= url_for :action => 'save' -%>" method="POST" id="editForm">
-  <input type="hidden" name="resource" value="<%= @resource.id -%>"/>
-
-  <% if @metric %>
-    <input type="hidden" name="metric" value="<%= @metric.key -%>"/>
+<table class="width100 data" id="manualMeasures">
+  <thead>
+  <tr>
+    <th class="thin nowrap">Domain</th>
+    <th class="thin nowrap">Metric</th>
+    <th class="thin nowrap" style="text-align: right">Value</th>
+    <th>Description</th>
+    <th style="text-align: right">Author</th>
+    <th style="text-align: right">Date</th>
+    <th class="thin nowrap">Operations</th>
+  </tr>
+  </thead>
+  <tbody>
+  <% if @measures.empty? %>
+    <td colspan="7" class="even">No measures</td>
   <% end %>
-  <table class="width100 data" id="manualMeasures">
-    <thead>
-    <tr>
-      <th class="thin nowrap">Domain</th>
-      <th class="thin nowrap">Metric</th>
-      <th class="thin nowrap" style="text-align: right">Value</th>
-      <th>Description</th>
-      <th style="text-align: right"><% unless @edited_measure %>Author<% end %></th>
-      <th style="text-align: right"><% unless @edited_measure %>Date<% end %></th>
-      <th class="thin nowrap">Operations</th>
+  <%
+     @measures.each do |measure|
+  %>
+    <a name="<%= measure.metric.key -%>"></a>
+    <tr class="<%= cycle('even', 'odd') -%>">
+      <td class="thin nowrap"><%= measure.metric.domain -%></td>
+      <td class="thin nowrap"><%= measure.metric.short_name -%></td>
+      <td class="thin nowrap" align="right"><%= measure.value -%></td>
+      <td id="desc"><%= measure.description -%></td>
+      <td align="right"><%= measure.username  -%>
+      </td>
+      <td align="right">
+          <%= l(measure.updated_at) -%>
+      </td>
+      <td class="thin nowrap">
+          <a href="<%= url_for :controller => 'manual_measures', :action => 'new', :metric => measure.metric.key, :resource => @resource.key -%>">Edit</a>
+          <%= link_to 'Delete', {:action => 'delete', :metric => measure.metric.key, :resource => @resource.id}, {:method => 'POST', :confirm => "This measure will be deleted during next project analysis", :class => 'action'} -%>
+      </td>
     </tr>
-    </thead>
-    <tbody>
-    <% if @measures.empty? %>
-      <td colspan="7" class="even">No measures</td>
-    <% end %>
-    <%
-       @measures.each do |measure|
-    %>
-      <a name="<%= measure.metric.key -%>"></a>
-      <% if @edited_measure && @edited_measure==measure %>
-        <%= render :partial => 'edit_form', :locals => {:measure => @edited_measure} -%>
-      <% else %>
-        <%= render :partial => 'row', :locals => {:measure => measure} -%>
 
-      <% end
-         end
-      %>
-    </tbody>
-  </table>
-</form>
-
-<% if @edited_measure %>
-  <script type="text/javascript">
-    location.href = '#<%= @edited_measure.metric.key -%>';
-    Form.Element.focus('value_input');
-  </script>
-<% end %>
+  <% end %>
+  </tbody>
+</table>

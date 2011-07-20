@@ -39,6 +39,10 @@ class ManualMeasure < ActiveRecord::Base
         end
   end
 
+  def username
+    user ? user.name : user_login
+  end
+
   def metric=(m)
     @metric = m
     write_attribute(:metric_id, m.id) if m.id

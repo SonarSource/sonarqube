@@ -28,18 +28,13 @@ class ManualMeasuresController < ApplicationController
   end
 
   def new
-    load_measures()
-  end
-
-  def edit
-    load_measures()
-    @metric=Metric.by_key(params[:metric])
-    @edited_measure=@measures.find{|m| m.metric==@metric}
-    render :action => 'index'
-  end
-
-  def create
-
+    if params[:metric].present?
+      @metric=Metric.by_key(params[:metric])
+      @measure=ManualMeasure.find(:first, :conditions => ['resource_id=? and metric_id=?', @resource.id, @metric.id]) || ManualMeasure.new
+    else
+      @metric=nil
+      @measure=nil
+    end
   end
 
   def save

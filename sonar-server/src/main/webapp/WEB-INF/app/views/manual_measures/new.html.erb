@@ -1,35 +1,75 @@
-<div class="line-block marginbottom10">
-  <ul class="operations">
-    <li class="last">
-      <a href="<%= ApplicationController.root_context -%>/metrics/index" id="adminMetricsLink">Manage metrics</a>
-    </li>
-  </ul>
-</div>
+<script type="text/javascript">
+  function changeMetric() {
+    document.location = '<%= ApplicationController.root_context-%>/manual_measures/new?resource=<%= @resource.key -%>&metric=' + $('metricSelect').getValue();
+    return false;
+  }
+</script>
 
-<form action="<%= url_for :action => 'create' -%>" method="POST" id="createForm">
+<form action="<%= url_for :action => (@measure ? 'save' : 'new') -%>" method="POST" id="createForm">
   <input type="hidden" name="resource" value="<%= @resource.id -%>"/>
-  <table class="width100 data" id="manualMeasures">
-    <thead>
-    <tr>
-      <th class="thin nowrap">Metric</th>
-      <th class="thin nowrap" style="text-align: right">Value</th>
-      <th>Description</th>
-    </tr>
-    </thead>
+  <table class="width100 form">
     <tbody>
-    <tr class="admin">
+    <tr>
+      <td class="first">
+        Metric:
+      </td>
       <td>
-        <select name="metric">
-          <option>ncloc</option>
+        <select name="metric" onchange="changeMetric();" id="metricSelect">
+          <option value="">Select metric</option>
+          <% Metric.all.select { |m| m.user_managed? }.sort.each do |metric| %>
+            <option value="<%= metric.key -%>" <%= 'selected' if @metric && @metric.id==metric.id -%>><%= metric.short_name -%></option>
+          <% end %>
         </select>
+
+        <% if @metric %>
+          <span class="note"><%= @metric.description -%></span>
+        <% end %>
+      </td>
+    </tr>
+    <% if @measure %>
+      <tr>
+        <td class="first">
+          Value:
+        </td>
+        <td>
+          <input type="text" name="val" id="valueText" value="<%= @measure.value -%>"/>
+        </td>
+      </tr>
+      <tr>
+        <td class="first">
+          Description:
+        </td>
+        <td>
+          <textarea rows="5" cols="80" name="desc" class="width100"><%= @measure.description -%></textarea>
+        </td>
+      </tr>
+      <% unless @measure.new_record?() %>
+        <tr>
+          <td class="first">
+            Last change:
+          </td>
+          <td>
+            By <%= @measure.username -%> on <%= l(@measure.updated_at) -%>
+          </td>
+        </tr>
+      <% end %>
+    <% end %>
+    <tr>
+      <td class="first">
       </td>
       <td>
-        <input type="text" name="val" size="8"/>
-      </td>
-      <td>
-        <textarea name="desc" rows="3" class="width100"></textarea>
+        <% if @measure %>
+          <input type="submit" value="Save"/>
+        <% end %>
+        <%= link_to 'Cancel', :action => 'index', :resource => @resource.key -%>
       </td>
     </tr>
     </tbody>
   </table>
 </form>
+
+<% if @metric %>
+  <script type="text/javascript">
+    $('valueText').focus();
+  </script>
+<% end %>
