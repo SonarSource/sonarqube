@@ -78,16 +78,16 @@
 <thead>
     <tr>
         <th valign="top" nowrap="nowrap" style="text-align: left">
-        Show date
+        <%= message('time_machine.show_date') -%>
         <div class="yui-skin-sam" style="display: inline;">
-            <a href="#" id="calendar_link" class="nolink"><%= image_tag('calendar_view_day.png', :alt => 'Calendar') %></a>
+            <a href="#" id="calendar_link" class="nolink"><%= image_tag('calendar_view_day.png', :alt => message('calendar')) %></a>
             <div id="calContainer"> </div>
         </div><br/>
             <%
                selectable_events = @project.events_with_snapshot.select{|event| !(@sids.include?(event.snapshot_id))}
                unless selectable_events.empty?
             %>
-            Show event
+            <%= message('time_machine.show_event') -%>
             <select id="select_label"  onchange="selectSnapshot(this.options[this.selectedIndex].value, true)">
                 <option value=""> </option>
                 <%
@@ -107,7 +107,7 @@
                     <b><%= event.fullname %></b>
                     <br/>
                 <% end %>
-                <a href="#" onClick="unselectSnapshot(<%= snapshot.id -%>, true)" class="action">hide</a>
+                <a href="#" onClick="unselectSnapshot(<%= snapshot.id -%>, true)" class="action"><%= message('hide').downcase -%></a>
             </th>
         <% end %>
         <th> </th>
@@ -150,7 +150,7 @@
                 </tr>
         <% end %>
       <tr>
-          <td class="title"><br/>Distributions</td>
+          <td class="title"><br/><%= message('time_machine.distributions') -%></td>
           <% @snapshots.each_with_index do |snapshot, index| %>
               <td align="right" valign="bottom">
                   <% current_color = ChartsController::CHART_COLORS[index % ChartsController::CHART_COLORS.size ] %>
@@ -176,7 +176,7 @@
     chart_id = "distribution_#{row.metric.key}"
 %>
 <div style="float:left;width: 400px;text-align:center;padding-bottom: 25px;">
-    <%= chart(chart_url, :id => chart_id, :alt => 'Distribution chart', :width => 360, :height => 150) -%><br/>
+    <%= chart(chart_url, :id => chart_id, :alt => message('time_machine.distribution_chart'), :width => 360, :height => 150) -%><br/>
     <b><%= row.metric.short_name -%></b>
 </div>
 <% end %>
@@ -185,9 +185,9 @@
         <tfoot>
         <tr>
             <td colspan="<%= @snapshots.size + 2 -%>">
-                <input type="submit" value="Compare on chart" />
+                <input type="submit" value="<%= message('time_machine.compare_on_chart') -%>" />
             <% if is_admin? %>
-              <a href="#" onClick="collectSelectedMetrics();$('chart_defaults_form').submit();return false;" class="action">Set as default (for all users)</a>
+              <a href="#" onClick="collectSelectedMetrics();$('chart_defaults_form').submit();return false;" class="action"><%= message('time_machine.set_as_default_for_all_users') -%></a>
             <% end %>
             </td>
         </tr>

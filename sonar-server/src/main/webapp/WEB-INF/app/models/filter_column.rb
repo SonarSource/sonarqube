@@ -39,7 +39,7 @@ class FilterColumn < ActiveRecord::Base
 
   def name
     if on_metric?
-      Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, "metric." + kee + ".name", nil, [].to_java)
+      Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, "metric." + kee + ".name", metric.short_name, [].to_java)
     else
       Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, family, kee, [].to_java)
     end

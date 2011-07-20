@@ -8,7 +8,7 @@
 
       <select id="select-comparison" name="period" onchange="submit()" class="small">
         <% if @drilldown.display_value? %>
-        <option value="">Time changes...</option>
+        <option value=""><%= message('time_changes') -%>...</option>
         <% end %>
         <% for period_index in 1..5 do %>
           <%= period_select_options(@snapshot, period_index) if @drilldown.display_period?(period_index) -%>

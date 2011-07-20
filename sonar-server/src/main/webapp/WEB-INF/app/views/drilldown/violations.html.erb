@@ -11,7 +11,7 @@
 <% if @snapshot.project_snapshot.periods? %>
 - <form method="GET" action="<%= url_for :only_path=>true, :overwrite_params => {:period => nil} -%>" style="display: inline">
     <select id="select-comparison" name="period" onchange="submit()" class="small">
-      <option value="">Time changes...</option>
+      <option value=""><%= message('time_changes') -%>...</option>
       <%= violation_period_select_options(@snapshot, 1) -%>
       <%= violation_period_select_options(@snapshot, 2) -%>
       <%= violation_period_select_options(@snapshot, 3) -%>
@@ -49,17 +49,17 @@
 	    max = value if value && value>max
 	  end
 	%>
-    <h3>Severity</h3>
+    <h3><%= message('severity') -%></h3>
     <table class="spacedicon" style="border: 1px solid #ccc;">
-	  <%= render :partial => 'rule_priority', :locals => {:label => 'Blocker', :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_BLOCKER, :max => max, :measure => blocker_violations }%>
-  	<%= render :partial => 'rule_priority', :locals => {:label => 'Critical', :css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_CRITICAL, :max => max, :measure => critical_violations }%>
-	  <%= render :partial => 'rule_priority', :locals => {:label => 'Major', :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_MAJOR, :max => max, :measure => major_violations }%>
-	  <%= render :partial => 'rule_priority', :locals => {:label => 'Minor', :css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_MINOR, :max => max, :measure => minor_violations }%>
-	  <%= render :partial => 'rule_priority', :locals => {:label => 'Info', :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_INFO, :max => max, :measure => info_violations }%>
+	  <%= render :partial => 'rule_priority', :locals => {:label => message('blocker'), :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_BLOCKER, :max => max, :measure => blocker_violations }%>
+  	  <%= render :partial => 'rule_priority', :locals => {:label => message('critical'), :css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_CRITICAL, :max => max, :measure => critical_violations }%>
+	  <%= render :partial => 'rule_priority', :locals => {:label => message('major'), :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_MAJOR, :max => max, :measure => major_violations }%>
+	  <%= render :partial => 'rule_priority', :locals => {:label => message('minor'), :css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_MINOR, :max => max, :measure => minor_violations }%>
+	  <%= render :partial => 'rule_priority', :locals => {:label => message('info'), :css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_INFO, :max => max, :measure => info_violations }%>
     </table>
   </td>
   <td class="column" align="left" style="white-space: normal;">
-   <h3>Rule</h3>
+   <h3><%= message('rule') -%></h3>
    <div class="scrollable">
        <table class="spacedicon" width="100%" id="col_rules">
 	      <%
@@ -97,7 +97,7 @@
 		   %>
                <tr class="<%= clazz -%>">
 	               <td width="1%" nowrap>
-                    <a id="<%= "rule#{rule_index}" -%>" title="Click for more on <%= rule.plugin_name -%>: <%= rule.plugin_rule_key -%>" onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => rule.key, :layout => 'false' -%>"><img src="<%= ApplicationController.root_context -%>/images/priority/<%= rule_measure.rule_priority -%>.png" /></a>
+                    <a id="<%= "rule#{rule_index}" -%>" title="<%= message('drilldown.click_for_more_on_x', :params => [rule.plugin_name, rule.plugin_rule_key]) -%>" onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => rule.key, :layout => 'false' -%>"><img src="<%= ApplicationController.root_context -%>/images/priority/<%= rule_measure.rule_priority -%>.png" /></a>
 		           </td>
 	               <td>
 	                  <%= link_to(rule.name, {:overwrite_params => {:rule => rule.key, :sid => nil, :priority => Sonar::RulePriority.to_s(@priority_id)}}, :title => "#{rule.plugin_name}: #{rule.plugin_rule_key}") %>
@@ -113,7 +113,7 @@
            <% end %>
 
            <% if rule_index==0 %>
-           <tr class="even"><td>No violations</td></tr>
+           <tr class="even"><td><%= message('drilldown.no_violations') -%></td></tr>
            <% end %>
        </table>
    </div>
@@ -174,19 +174,19 @@
 </table>
 <br/>
 <div style="font-size: 85%;background-color: #eee;color: #777;padding: 4px 5px;border: 1px solid #ddd;margin-bottom: 20px;">
-<b>Path:</b>
+<b><%= message('path') -%>:</b>
 <% if @priority_id %>
-<%= Sonar::RulePriority.to_s(@priority_id) %> <%= link_to 'clear', {:overwrite_params => {:priority => nil}} %>
+<%= Sonar::RulePriority.to_s(@priority_id) %> <%= link_to message('clear_verb'), {:overwrite_params => {:priority => nil}} %>
 <% else %>
-Any severity
+<%= message('drilldown.any_severity') -%>
 <% end %>&nbsp;&raquo;&nbsp;
 <% if @rule %>
-<%= h @rule.name %> <%= link_to 'clear', {:overwrite_params => {:rule => nil}} %>
+<%= h @rule.name %> <%= link_to message('clear_verb'), {:overwrite_params => {:rule => nil}} %>
 <% else %>
-Any rule
+<%= message('drilldown.any_rule') -%>
 <% end %>&nbsp;&raquo;&nbsp;
 <% paths.each do |path| %>
-<%= path[0] %> <%= link_to 'clear', {:overwrite_params => {:rids => path[1]}} %>&nbsp;&raquo;&nbsp;
+<%= path[0] %> <%= link_to message('clear_verb'), {:overwrite_params => {:rids => path[1]}} %>&nbsp;&raquo;&nbsp;
 <% end %>
 </div>
 <script>
