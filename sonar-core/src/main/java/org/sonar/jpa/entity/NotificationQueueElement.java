@@ -20,6 +20,7 @@
 package org.sonar.jpa.entity;
 
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.utils.SonarException;
 
 import java.io.*;
 import java.util.Date;
@@ -65,7 +66,7 @@ public class NotificationQueueElement {
       objectOutputStream.close();
       this.data = byteArrayOutputStream.toByteArray();
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new SonarException(e);
     }
   }
 
@@ -80,9 +81,9 @@ public class NotificationQueueElement {
       objectInputStream.close();
       return (Notification) result;
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new SonarException(e);
     } catch (ClassNotFoundException e) {
-      throw new RuntimeException(e);
+      throw new SonarException(e);
     }
   }
 

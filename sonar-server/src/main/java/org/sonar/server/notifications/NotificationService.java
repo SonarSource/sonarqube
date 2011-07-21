@@ -136,9 +136,9 @@ public class NotificationService implements ServerComponent {
     }
     for (Map.Entry<String, Collection<NotificationChannel>> entry : recipients.asMap().entrySet()) {
       String username = entry.getKey();
-      Collection<NotificationChannel> channels = entry.getValue();
-      LOG.info("For user {} via {}", username, channels);
-      for (NotificationChannel channel : channels) {
+      Collection<NotificationChannel> userChannels = entry.getValue();
+      LOG.info("For user {} via {}", username, userChannels);
+      for (NotificationChannel channel : userChannels) {
         channel.deliver(notification, username);
       }
     }

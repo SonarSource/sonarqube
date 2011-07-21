@@ -17,23 +17,27 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.email.reviews;
+package org.sonar.core.components;
 
-import org.sonar.api.notifications.Notification;
-import org.sonar.api.notifications.NotificationDispatcher;
+import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.database.model.User;
+import org.sonar.api.security.UserFinder;
+import org.sonar.jpa.session.DatabaseSessionFactory;
 
 /**
- * This dispatcher means: "notify me when when someone comments on review created by me".
- * 
  * @since 2.10
  */
-public class CommentOnReviewCreatedByMe extends NotificationDispatcher {
+public class DefaultUserFinder implements UserFinder {
 
-  @Override
-  public void dispatch(Notification notification, Context context) {
-    if ("review".equals(notification.getType())) {
-      context.addUser(notification.getFieldValue("creator"));
-    }
+  private DatabaseSessionFactory sessionFactory;
+
+  public DefaultUserFinder(DatabaseSessionFactory sessionFactory) {
+    this.sessionFactory = sessionFactory;
+  }
+
+  public User findByLogin(String login) {
+    DatabaseSession session = sessionFactory.getSession();
+    return session.getSingleResult(User.class, "login", login);
   }
 
 }

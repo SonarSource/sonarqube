@@ -20,9 +20,9 @@
 package org.sonar.plugins.email;
 
 import org.sonar.api.SonarPlugin;
-import org.sonar.plugins.email.reviews.CommentOnReviewAssignedToMe;
-import org.sonar.plugins.email.reviews.CommentOnReviewCreatedByMe;
-import org.sonar.plugins.email.reviews.CommentOnReviewEmailTemplate;
+import org.sonar.plugins.email.reviews.ChangesInReviewAssignedToMe;
+import org.sonar.plugins.email.reviews.ChangesInReviewCreatedByMe;
+import org.sonar.plugins.email.reviews.ReviewEmailTemplate;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,9 +34,9 @@ public class EmailPlugin extends SonarPlugin {
         EmailConfiguration.class,
         EmailNotificationChannel.class,
 
-        CommentOnReviewEmailTemplate.class,
-        CommentOnReviewCreatedByMe.class,
-        CommentOnReviewAssignedToMe.class);
+        ReviewEmailTemplate.class,
+        ChangesInReviewAssignedToMe.class,
+        ChangesInReviewCreatedByMe.class);
   }
 
 }

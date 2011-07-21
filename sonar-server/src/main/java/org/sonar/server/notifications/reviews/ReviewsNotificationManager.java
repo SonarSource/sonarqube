@@ -19,49 +19,69 @@
  */
 package org.sonar.server.notifications.reviews;
 
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.database.model.Review;
-import org.sonar.api.database.model.User;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationManager;
-import org.sonar.jpa.session.DatabaseSessionFactory;
+
+import com.google.common.collect.Sets;
 
 /**
  * @since 2.10
  */
 public class ReviewsNotificationManager implements ServerComponent {
 
-  private DatabaseSessionFactory sessionFactory;
   private NotificationManager notificationManager;
 
-  public ReviewsNotificationManager(DatabaseSessionFactory sessionFactory, NotificationManager notificationManager) {
-    this.sessionFactory = sessionFactory;
+  public ReviewsNotificationManager(NotificationManager notificationManager) {
     this.notificationManager = notificationManager;
   }
 
   /**
-   * Visibility has been relaxed for tests.
+   * @param reviewId id of review, which was modified
+   * @param author author of change (username)
+   * @param creator author of review (username)
+   * @param assignee current assignee (username)
+   * @param oldComment old text of comment
+   * @param comment new text of comment
    */
-  User getUserById(Integer id) {
-    return sessionFactory.getSession().getEntity(User.class, id);
+  public void notifyCommentChanged(Long reviewId, String author, String creator, String assignee, String oldComment, String newComment) {
+    Notification notification = new Notification("review-changed")
+        .setFieldValue("reviewId", String.valueOf(reviewId))
+        .setFieldValue("author", author)
+        .setFieldValue("creator", creator)
+        .setFieldValue("assignee", assignee)
+        .setFieldValue("old.comment", oldComment)
+        .setFieldValue("new.comment", newComment);
+    notificationManager.scheduleForSending(notification);
   }
 
   /**
-   * Visibility has been relaxed for tests.
+   * @param reviewId reviewId id of review, which was modified
+   * @param author author of change (username)
+   * @param oldValues map of old values
+   * @param newValues map of new values
    */
-  Review getReviewById(Long id) {
-    return sessionFactory.getSession().getEntity(Review.class, id);
-  }
-
-  public void notifyCommentAdded(Long reviewId, Integer userId, String comment) {
-    Review review = getReviewById(reviewId);
-    User author = getUserById(userId);
-
-    Notification notification = new Notification("review");
-    notification // FIXME include info about review
-        .setFieldValue("author", author.getLogin())
-        .setFieldValue("comment", comment);
-
+  public void notifyChanged(Long reviewId, String author, Map<String, String> oldValues, Map<String, String> newValues) {
+    Notification notification = new Notification("review-changed")
+        .setFieldValue("reviewId", author)
+        .setFieldValue("author", author)
+        .setFieldValue("creator", newValues.get("creator"))
+        .setFieldValue("assignee", newValues.get("assignee"));
+    Set<String> fields = Sets.newHashSet();
+    fields.addAll(oldValues.keySet());
+    fields.addAll(newValues.keySet());
+    for (String field : fields) {
+      String oldValue = oldValues.get(field);
+      String newValue = newValues.get(field);
+      if ( !StringUtils.equals(oldValue, newValue)) {
+        notification.setFieldValue("new." + field, newValue);
+        notification.setFieldValue("old." + field, oldValue);
+      }
+    }
     notificationManager.scheduleForSending(notification);
   }
 

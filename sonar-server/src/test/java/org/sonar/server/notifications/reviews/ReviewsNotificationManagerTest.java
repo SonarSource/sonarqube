@@ -19,39 +19,31 @@
  */
 package org.sonar.server.notifications.reviews;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 
 import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.database.model.Review;
-import org.sonar.api.database.model.User;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.sonar.api.notifications.Notification;
+import org.sonar.api.notifications.NotificationManager;
 
-public class ReviewsNotificationManagerTest extends AbstractDbUnitTestCase {
+public class ReviewsNotificationManagerTest { // FIXME implement
 
+  private Notification notification;
   private ReviewsNotificationManager manager;
 
   @Before
   public void setUp() {
-    setupData(getClass().getResourceAsStream("fixture.xml"));
-    manager = new ReviewsNotificationManager(getSessionFactory(), null);
-  }
-
-  @Test
-  public void shouldGetReviewById() {
-    Review review = manager.getReviewById(3L);
-    assertThat(review.getUserId(), is(1));
-    assertThat(review.getAssigneeId(), is(2));
-    assertThat(review.getTitle(), is("Review #3"));
-  }
-
-  @Test
-  public void shouldGetUserById() {
-    User user = manager.getUserById(1);
-    assertThat(user.getLogin(), is("simon"));
-    assertThat(user.getName(), is("Simon Brandhof"));
-    assertThat(user.getEmail(), is("simon.brandhof@sonarsource.com"));
+    NotificationManager delegate = mock(NotificationManager.class);
+    doAnswer(new Answer() {
+      public Object answer(InvocationOnMock invocation) throws Throwable {
+        notification = (Notification) invocation.getArguments()[0];
+        return null;
+      }
+    }).when(delegate).scheduleForSending(any(Notification.class));
+    manager = new ReviewsNotificationManager(delegate);
   }
 
 }

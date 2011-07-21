@@ -24,7 +24,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import java.io.Serializable;
-import java.util.Map;
+import java.util.HashMap;
 
 /**
  * @since 2.10
@@ -33,7 +33,7 @@ public class Notification implements Serializable {
 
   private String type;
 
-  private Map<String, String> fields = Maps.newHashMap();
+  private HashMap<String, String> fields = Maps.newHashMap(); // NOSONAR false-positive due to serialization : usage of HashMap instead of Map
 
   public Notification(String type) {
     this.type = type;

@@ -20,6 +20,7 @@
 package org.sonar.plugins.email;
 
 import org.apache.commons.configuration.Configuration;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.ServerExtension;
 
 /**
@@ -76,6 +77,10 @@ public class EmailConfiguration implements ServerExtension {
 
   public String getPrefix() {
     return configuration.getString(PREFIX, PREFIX_DEFAULT);
+  }
+
+  public String getServerBaseURL() {
+    return configuration.getString(CoreProperties.SERVER_BASE_URL, CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
   }
 
 }

@@ -17,42 +17,49 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.email.review;
+package org.sonar.plugins.email.reviews;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationDispatcher;
-import org.sonar.plugins.email.reviews.CommentOnReviewAssignedToMe;
 
-public class CommentOnReviewAssignedToMeTest { // FIXME implement me
+public class ChangesInReviewCreatedByMeTest {
 
   private NotificationDispatcher.Context context;
-  private CommentOnReviewAssignedToMe dispatcher;
+  private ChangesInReviewCreatedByMe dispatcher;
 
   @Before
   public void setUp() {
     context = mock(NotificationDispatcher.Context.class);
-    dispatcher = new CommentOnReviewAssignedToMe();
+    dispatcher = new ChangesInReviewCreatedByMe();
   }
 
   @Test
-  public void shouldDispatchToAssignee() {
-    // CommentOnReviewNotification notification = new CommentOnReviewNotification(new Review().setAssigneeId(1), new User(), "comment");
-    // dispatcher.dispatch(notification, context);
-    // verify(context).addUser(1);
-    //
-    // notification = new CommentOnReviewNotification(new Review().setAssigneeId(2), new User(), "comment");
-    // dispatcher.dispatch(notification, context);
-    // verify(context).addUser(2);
+  public void dispatchToCreator() {
+    Notification notification = new Notification("review-comment-added")
+        .setFieldValue("author", "godin")
+        .setFieldValue("creator", "simon");
+
+    dispatcher.dispatch(notification, context);
+
+    verify(context).addUser("simon");
+    verifyNoMoreInteractions(context);
   }
 
   @Test
-  public void shouldNotDispatchWhenNotAssigned() {
-    // CommentOnReviewNotification notification = new CommentOnReviewNotification(new Review(), new User(), "comment");
-    // dispatcher.dispatch(notification, context);
-    // verifyNoMoreInteractions(context);
+  public void doNotDispatchToAuthorOfChanges() {
+    Notification notification = new Notification("review-comment-added")
+        .setFieldValue("author", "simon")
+        .setFieldValue("creator", "simon");
+
+    dispatcher.dispatch(notification, context);
+
+    verifyNoMoreInteractions(context);
   }
 
 }

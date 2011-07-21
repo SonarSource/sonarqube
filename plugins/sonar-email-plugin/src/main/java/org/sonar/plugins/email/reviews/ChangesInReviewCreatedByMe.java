@@ -19,26 +19,26 @@
  */
 package org.sonar.plugins.email.reviews;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.notifications.Notification;
-import org.sonar.plugins.email.api.EmailMessage;
-import org.sonar.plugins.email.api.EmailTemplate;
+import org.sonar.api.notifications.NotificationDispatcher;
 
-public class CommentOnReviewEmailTemplate extends EmailTemplate {
+/**
+ * This dispatcher means: "notify me when when someone changes review created by me".
+ * 
+ * @since 2.10
+ */
+public class ChangesInReviewCreatedByMe extends NotificationDispatcher {
 
   @Override
-  public EmailMessage format(Notification notification) {
-    if ("review".equals(notification.getType())) {
-      String reviewId = notification.getFieldValue("reviewId");
-      String author = notification.getFieldValue("author");
-      String comment = notification.getFieldValue("comment");
-      EmailMessage email = new EmailMessage()
-          .setFrom(author)
-          .setMessageId("review/" + reviewId)
-          .setSubject("Review #" + reviewId)
-          .setMessage(comment);
-      return email;
+  public void dispatch(Notification notification, Context context) {
+    if (StringUtils.startsWith(notification.getType(), "review")) {
+      String author = notification.getFieldValue("author"); // author of change
+      String creator = notification.getFieldValue("creator"); // creator of review
+      if (!StringUtils.equals(author, creator)) {
+        context.addUser(creator);
+      }
     }
-    return null;
   }
 
 }

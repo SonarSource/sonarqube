@@ -54,15 +54,14 @@ class Review < ActiveRecord::Base
   # REVIEW CORE METHODS
   #
   #
-  
+
   # params are mandatory:
   # - :user
   # - :text
   def create_comment(params={})
     comment = comments.create!(params)
     touch
-
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getReviewsNotificationManager().notifyCommentAdded(id.to_i, comment.user.id.to_i, comment.text.to_java)
+    # TODO notification_manager.notifyCommentChanged(id.to_i, current_user.login.to_java, self.user.login.to_java, self.assignee.login.to_java, nil, comment.text.to_java)
   end
 
   def edit_comment(comment_id, comment_text)
@@ -76,25 +75,61 @@ class Review < ActiveRecord::Base
 
   def edit_last_comment(comment_text)
     comment=comments.last
+    old_comment_text=comment.text
     comment.text=comment_text
     comment.save!
     touch
+    # TODO notification_manager.notifyCommentChanged(id.to_i, current_user.login.to_java, self.user.login.to_java, self.assignee.login.to_java, old_comment.to_java, comment.text.to_java)
   end
-  
+
   def delete_comment(comment_id)
     comment=comments.find(comment_id)
     comments.pop
     if comment
+      old_comment_text=comment.text
       comment.delete
       touch
+      # TODO notification_manager.notifyCommentChanged(id.to_i, current_user.login.to_java, self.user.login.to_java, self.assignee.login.to_java, old_comment_text.to_java, nil)
     end
   end
-  
+
+  def notification_manager
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getReviewsNotificationManager()
+  end
+
+  def to_java_map()
+    map = java.util.HashMap.new({
+      :creator => user.login.to_java,
+      :assignee => assignee == nil ? nil : assignee.login.to_java,
+      :status => status.to_java,
+      :resolution => resolution.to_java
+    })
+    map
+  end
+
   def reassign(user)
+    old = self.to_java_map
     self.assignee = user
     self.save!
+    # TODO notification_manager.notifyChanged(id.to_i, current_user.login.to_java, old, to_java_map)
   end
-  
+
+  def reopen
+    old = self.to_java_map
+    self.status = STATUS_REOPENED
+    self.resolution = nil
+    self.save!
+    # TODO notification_manager.notifyChanged(id.to_i, current_user.login.to_java, old, to_java_map)
+  end
+
+  def resolve
+    old = self.to_java_map
+    self.status = STATUS_RESOLVED
+    self.resolution = 'FIXED'
+    self.save!
+    # TODO notification_manager.notifyChanged(id.to_i, current_user.login.to_java, old, to_java_map)
+  end
+
   # params are mandatory:
   # - :user (mandatory)
   # - :text (mandatory)
@@ -112,13 +147,15 @@ class Review < ActiveRecord::Base
         end
       end
       create_comment(:user => params[:user], :text => params[:text])
+      old = self.to_java_map
       self.assignee = nil
       self.status = is_false_positive ? STATUS_RESOLVED : STATUS_REOPENED
       self.resolution = is_false_positive ? 'FALSE-POSITIVE' : nil
       self.save!
+      # TODO notification_manager.notifyChanged(id.to_i, current_user.login.to_java, old, to_java_map)
     end
   end
-  
+
   def false_positive
     resolution == 'FALSE-POSITIVE'
   end
@@ -142,20 +179,6 @@ class Review < ActiveRecord::Base
   def isOpen?
     status == STATUS_OPEN
   end
-  
-  def reopen
-    self.status = STATUS_REOPENED
-    self.resolution = nil
-    self.save!
-  end
-  
-  def resolve
-    self.status = STATUS_RESOLVED
-    self.resolution = 'FIXED'
-    self.save!
-  end
-  
-  
   
   #
   #

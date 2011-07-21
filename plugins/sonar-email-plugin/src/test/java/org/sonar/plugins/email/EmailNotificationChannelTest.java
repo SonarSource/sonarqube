@@ -25,8 +25,9 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.dumbster.smtp.SimpleSmtpServer;
-import com.dumbster.smtp.SmtpMessage;
+import java.io.IOException;
+import java.net.ServerSocket;
+
 import org.apache.commons.mail.EmailException;
 import org.junit.After;
 import org.junit.Before;
@@ -34,8 +35,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.plugins.email.api.EmailMessage;
 
-import java.io.IOException;
-import java.net.ServerSocket;
+import com.dumbster.smtp.SimpleSmtpServer;
+import com.dumbster.smtp.SmtpMessage;
 
 public class EmailNotificationChannelTest {
 
@@ -125,7 +126,7 @@ public class EmailNotificationChannelTest {
     assertThat(email.getHeaderValue("In-Reply-To"), is("<reviews/view/1@nemo.sonarsource.org>"));
     assertThat(email.getHeaderValue("References"), is("<reviews/view/1@nemo.sonarsource.org>"));
 
-    assertThat(email.getHeaderValue("List-Id"), is("<sonar.nemo.sonarsource.org>"));
+    assertThat(email.getHeaderValue("List-ID"), is("Sonar <sonar.nemo.sonarsource.org>"));
     assertThat(email.getHeaderValue("List-Archive"), is("http://nemo.sonarsource.org"));
 
     assertThat(email.getHeaderValue("From"), is("Full Username <server@nowhere>"));
@@ -149,7 +150,7 @@ public class EmailNotificationChannelTest {
     assertThat(email.getHeaderValue("In-Reply-To"), nullValue());
     assertThat(email.getHeaderValue("References"), nullValue());
 
-    assertThat(email.getHeaderValue("List-Id"), is("<sonar.nemo.sonarsource.org>"));
+    assertThat(email.getHeaderValue("List-ID"), is("Sonar <sonar.nemo.sonarsource.org>"));
     assertThat(email.getHeaderValue("List-Archive"), is("http://nemo.sonarsource.org"));
 
     assertThat(email.getHeaderValue("From"), is("Sonar <server@nowhere>"));
@@ -175,6 +176,7 @@ public class EmailNotificationChannelTest {
     when(configuration.getSmtpPort()).thenReturn(Integer.toString(port));
     when(configuration.getFrom()).thenReturn("server@nowhere");
     when(configuration.getPrefix()).thenReturn("[SONAR]");
+    when(configuration.getServerBaseURL()).thenReturn("http://nemo.sonarsource.org");
   }
 
 }

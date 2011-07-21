@@ -17,35 +17,53 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.email.review;
+package org.sonar.plugins.email.reviews;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationDispatcher;
-import org.sonar.plugins.email.reviews.CommentOnReviewCreatedByMe;
 
-public class CommentOnReviewCreatedByMeTest { // FIXME implement me
+public class ChangesInReviewAssignedToMeTest {
 
   private NotificationDispatcher.Context context;
-  private CommentOnReviewCreatedByMe dispatcher;
+  private ChangesInReviewAssignedToMe dispatcher;
 
   @Before
   public void setUp() {
     context = mock(NotificationDispatcher.Context.class);
-    dispatcher = new CommentOnReviewCreatedByMe();
+    dispatcher = new ChangesInReviewAssignedToMe();
   }
 
   @Test
-  public void shouldDispatchToCreator() {
-    // CommentOnReviewNotification notification = new CommentOnReviewNotification(new Review().setUserId(1), new User(), "comment");
-    // dispatcher.dispatch(notification, context);
-    // verify(context).addUser(1);
-    //
-    // notification = new CommentOnReviewNotification(new Review().setUserId(2), new User(), "comment");
-    // dispatcher.dispatch(notification, context);
-    // verify(context).addUser(2);
+  public void dispatchToOldAndNewAssignee() {
+    Notification notification = new Notification("review-assignee-changed")
+        .setFieldValue("author", "freddy")
+        .setFieldValue("old.assignee", "godin")
+        .setFieldValue("assignee", "simon");
+
+    dispatcher.dispatch(notification, context);
+
+    verify(context).addUser("godin");
+    verify(context).addUser("simon");
+    verifyNoMoreInteractions(context);
+  }
+
+  @Test
+  public void doNotDispatchToAuthorOfChanges() {
+    Notification notification = new Notification("review-assignee-changed")
+        .setFieldValue("author", "simon")
+        .setFieldValue("old.assignee", "simon")
+        .setFieldValue("assignee", "godin");
+
+    dispatcher.dispatch(notification, context);
+
+    verify(context).addUser("godin");
+    verifyNoMoreInteractions(context);
   }
 
 }

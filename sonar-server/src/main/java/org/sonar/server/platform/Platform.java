@@ -40,6 +40,7 @@ import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.components.DefaultMetricFinder;
 import org.sonar.core.components.DefaultModelFinder;
 import org.sonar.core.components.DefaultRuleFinder;
+import org.sonar.core.components.DefaultUserFinder;
 import org.sonar.core.notifications.DefaultNotificationManager;
 import org.sonar.jpa.dao.DaoFacade;
 import org.sonar.jpa.dao.MeasuresDao;
@@ -185,6 +186,7 @@ public final class Platform {
     servicesContainer.as(Characteristics.CACHE).addComponent(ProfilesConsole.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(RulesConsole.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(JRubyI18n.class);
+    servicesContainer.as(Characteristics.CACHE).addComponent(DefaultUserFinder.class);
 
     // Notifications
     servicesContainer.as(Characteristics.CACHE).addComponent(NotificationService.class);
