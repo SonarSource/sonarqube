@@ -1,6 +1,6 @@
 <script type="text/javascript">
   function changeMetric() {
-    document.location = '<%= ApplicationController.root_context-%>/manual_measures/new?resource=<%= @resource.key -%>&metric=' + $('metricSelect').getValue();
+    document.location = '<%= ApplicationController.root_context-%>/manual_measures/new/<%= @resource.id -%>?metric=' + $('metricSelect').getValue();
     return false;
   }
   function saveAndAddNew() {
@@ -10,7 +10,7 @@
 </script>
 
 <form action="<%= url_for :action => (@measure ? 'save' : 'new') -%>" method="POST" id="createForm">
-  <input type="hidden" name="resource" value="<%= @resource.id -%>"/>
+  <input type="hidden" name="id" value="<%= @resource.id -%>"/>
   <table class="width100 form">
     <tbody>
     <tr>
@@ -69,7 +69,7 @@
           <input type="submit" value="Save"/>
           <input type="submit" value="Save & Add new" onclick="saveAndAddNew()"/>
         <% end %>
-        <%= link_to 'Cancel', :action => 'index', :resource => @resource.key -%>
+        <%= link_to 'Cancel', :action => 'index', :id => @resource.id -%>
       </td>
     </tr>
     </tbody>

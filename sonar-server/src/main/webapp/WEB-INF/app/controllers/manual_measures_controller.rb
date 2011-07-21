@@ -48,22 +48,22 @@ class ManualMeasuresController < ApplicationController
     measure.description = params[:desc]
     measure.save!
     if (params[:redirect_to_new]=='true')
-      redirect_to :action => 'new', :resource => params[:resource]
+      redirect_to :action => 'new', :id => params[:id]
     else
-      redirect_to :action => 'index', :resource => params[:resource], :metric => params[:metric]
+      redirect_to :action => 'index', :id => params[:id], :metric => params[:metric]
     end
   end
 
   def delete
     metric=Metric.by_key(params[:metric])
     ManualMeasure.destroy_all(['resource_id=? and metric_id=?', @resource.id, metric.id])
-    redirect_to :action => 'index', :resource => params[:resource], :metric => params[:metric]
+    redirect_to :action => 'index', :id => params[:id], :metric => params[:metric]
   end
 
   private
 
   def load_resource
-    @resource=Project.by_key(params[:resource])
+    @resource=Project.by_key(params[:id])
     return redirect_to home_path unless @resource
     return access_denied unless has_role?(:admin, @resource)
     @snapshot=@resource.last_snapshot

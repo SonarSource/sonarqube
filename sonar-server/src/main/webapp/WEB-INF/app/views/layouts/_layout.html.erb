@@ -50,7 +50,7 @@
           <% end %>
           <% if has_role?(:admin, @project) %>
             <li class="h2"><%= message('sidebar.project_system') -%></li>
-            <li class="<%= 'selected' if request.request_uri.include?('/manual_measures') -%>"><a href="<%= ApplicationController.root_context -%>/manual_measures?resource=<%= @project.id -%>"><%= message('manual_measures.page') -%></a></li>
+            <li class="<%= 'selected' if request.request_uri.include?('/manual_measures') -%>"><a href="<%= ApplicationController.root_context -%>/manual_measures/index/<%= @project.id -%>"><%= message('manual_measures.page') -%></a></li>
             <% if (@project.project? || @project.module?) %>
               <li class="<%= 'selected' if request.request_uri.include?('/project/settings') -%>"><a href="<%= ApplicationController.root_context -%>/project/settings/<%= @project.id -%>"><%= message('project_settings.page') -%></a></li>
             <% end %>

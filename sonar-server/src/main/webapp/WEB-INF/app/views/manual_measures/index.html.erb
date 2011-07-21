@@ -14,7 +14,7 @@
   <ul class="operations">
     <li class="last">
       <%= image_tag 'add.png' -%>
-      <a href="<%= ApplicationController.root_context -%>/manual_measures/new?resource=<%= @resource.id -%>" id="addMeasureLink">Add measure</a>
+      <a href="<%= ApplicationController.root_context -%>/manual_measures/new/<%= @resource.id -%>" id="addMeasureLink">Add measure</a>
     </li>
   </ul>
 </div>
@@ -56,8 +56,8 @@
         <%= l(measure.updated_at) -%>
       </td>
       <td class="thin nowrap">
-        <a href="<%= url_for :controller => 'manual_measures', :action => 'new', :metric => measure.metric.key, :resource => @resource.key -%>">Edit</a>
-        <%= link_to 'Delete', {:action => 'delete', :metric => measure.metric.key, :resource => @resource.id}, {:method => 'POST', :confirm => "This measure will be deleted during next project analysis", :class => 'action'} -%>
+        <a href="<%= url_for :controller => 'manual_measures', :action => 'new', :metric => measure.metric.key, :id => @resource.id -%>">Edit</a>
+        <%= link_to 'Delete', {:action => 'delete', :metric => measure.metric.key, :id => @resource.id}, {:method => 'POST', :confirm => "This measure will be deleted during next project analysis", :class => 'action'} -%>
       </td>
     </tr>
   <% end %>
