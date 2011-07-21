@@ -21,21 +21,21 @@
 <form id="cloudform" action="<%= ApplicationController.root_context -%>/cloud/index/<%= @project.id -%>" method="GET">
   <ul class="headerLine">
     <li>
-      <span>Color:</span>
+      <span><%= message('color') -%>:</span>
       <select name="color" onchange="document.forms['cloudform'].submit()">
         <% if @snapshot.measure('coverage') %>
-          <option value="coverage" <%= 'selected' if @color_metric.key=='coverage' -%>>Coverage</option>
+          <option value="coverage" <%= 'selected' if @color_metric.key=='coverage' -%>><%= message('metric.coverage.name') -%></option>
         <% end %>
-        <option value="violations_density" <%= 'selected' if @color_metric.key=='violations_density' -%>>Rules compliance</option>
+        <option value="violations_density" <%= 'selected' if @color_metric.key=='violations_density' -%>><%= message('metric.violations_density.name') -%></option>
       </select>
     </li>
     <li class="sep"> </li>
     <li>
       <input type="radio" name="size" value="ncloc" <%= 'checked' if @size_metric.key=='ncloc' -%> onclick="document.forms['cloudform'].submit()" id="radio-quick">
-      <label for="radio-quick">Quick wins</label></option>
+      <label for="radio-quick"><%= message('cloud.quick_wins') -%></label></option>
       &nbsp;
       <input type="radio" name="size" value="function_complexity" <%= 'checked' if @size_metric.key=='function_complexity' -%> onclick="document.forms['cloudform'].submit()" id="radio-top">
-      <label for="radio-top">Top risk</label></input>
+      <label for="radio-top"><%= message('cloud.top_risk') -%></label></input>
     </li>
   </ul>
 </form>

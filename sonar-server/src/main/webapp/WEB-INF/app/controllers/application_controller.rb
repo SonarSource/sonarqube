@@ -94,4 +94,15 @@ class ApplicationController < ActionController::Base
       return access_denied
     end
   end
+  
+  # i18n
+  def message(key, options={})
+    default = options[:default]
+    params = options[:params]
+    if params.nil? 
+      params=[]
+    end
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, key, default, params.to_java)    
+  end
+  
 end

@@ -20,7 +20,7 @@
 
 ### Sessions Controller from restful_authentication (http://agilewebdevelopment.com/plugins/restful_authentication)
 class SessionsController < ApplicationController
-
+  
   layout 'nonav'
   skip_before_filter :check_authentication
   
@@ -33,10 +33,10 @@ class SessionsController < ApplicationController
         self.current_user.remember_me
         cookies[:auth_token] = { :value => self.current_user.remember_token , :expires => self.current_user.remember_token_expires_at }
       end
-      flash[:notice] = 'Logged in.'
+      flash[:notice] = message('session.flash_notice.logged_in')
       redirect_to(home_path)
     else
-      flash.now[:loginerror] = 'Authentication failed.'
+      flash.now[:loginerror] = message('session.flash_notice.authentication_failed')
     end
   end
 
@@ -46,7 +46,7 @@ class SessionsController < ApplicationController
       self.current_user.forget_me
     end
     cookies.delete :auth_token    
-    flash[:notice]='You have been logged out.'
+    flash[:notice]=message('session.flash_notice.logged_out')
     redirect_to(home_path)
     reset_session
   end
