@@ -3,7 +3,7 @@
   <table class="spaced">
     <tr>
       <td align="left" nowrap="nowrap" width="1%">
-        Name
+        <%= message('name') -%>
       </td>
       <td align="left">
         <input type="text" name="name"/>
@@ -11,7 +11,7 @@
     </tr>
     <tr>
       <td align="left" nowrap="nowrap">
-        Language
+        <%= message('language') -%>
       </td>
       <td align="left">
         <% languages_select=languages.collect do |language|
@@ -29,7 +29,7 @@
       <% @plugins_by_language[language.getKey()].each do |plugin| %>
       <tr>
         <td align="left" style="vertical-align: top;"  nowrap="nowrap" width="1%">
-          <%= image_tag'bullet.png' %> <%= plugin.getName() %> XML (optional)
+          <%= image_tag'bullet.png' %> <%= plugin.getName() %> XML (<%= message('optional').downcase -%>)
         </td>
         <td align="left">
           <%= file_field_tag plugin.getKey() %>
@@ -43,8 +43,8 @@
   <table class="spaced">
     <tr>
       <td colspan="2" align="left">
-        <%= submit_tag 'create' %>
-        <a href="<%= url_for :controller => 'profiles', :action => 'index' -%>" class="action">cancel</a>
+        <%= submit_tag message('create') %>
+        <a href="<%= url_for :controller => 'profiles', :action => 'index' -%>" class="action"><%= message('cancel') -%></a>
       </td>
     </tr>
   </table>

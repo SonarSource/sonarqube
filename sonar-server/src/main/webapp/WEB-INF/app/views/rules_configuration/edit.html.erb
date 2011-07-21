@@ -1,4 +1,4 @@
-<h1 class="marginbottom10"><%= link_to 'Quality profiles', :controller => 'profiles', :action => 'index' -%> / <%= h @profile.language -%> / <%= h @profile.name %></h1>
+<h1 class="marginbottom10"><%= link_to message('quality_profiles.quality_profiles'), :controller => 'profiles', :action => 'index' -%> / <%= h @profile.language -%> / <%= h @profile.name %></h1>
 
 <%= render :partial => 'profiles/tabs', :locals => {:new_tab => 'Edit rule'} %>
 
@@ -21,17 +21,17 @@
 <form method="POST" action="<%= url_for :action => 'update', :id => @profile.id, :rule_id => @rule.id -%>">
 <table width="100%" class="spaced">
   <tr>
-    <td width="1%" nowrap>Template:</td>
+    <td width="1%" nowrap><%= message('template') -%>:</td>
     <td class="sep"> </td>
     <td><%= h @rule.parent.name -%></td>
   </tr>
   <tr>
-    <td width="1%" nowrap>Name:</td>
+    <td width="1%" nowrap><%= message('name') -%>:</td>
     <td class="sep"> </td>
     <td><input type="text" name="rule[name]" size="80" value="<%= h @rule.name -%>"></input></td>
   </tr>
   <tr>
-    <td width="1%" nowrap>Default severity:</td>
+    <td width="1%" nowrap><%= message('default_severity') -%>:</td>
     <td class="sep"> </td>
     <td>
       <select name="rule[priority]">
@@ -54,14 +54,14 @@
     <td class="sep"> </td>
     <td valign="top">
       <textarea name="rule[description]" cols="80" rows="10" style="vertical-align: baseline"><%= @rule.description -%></textarea>
-      <span class="small">HTML is allowed.</span>
+      <span class="small"><%= message('rules_configuration.html_allowed') -%></span>
     </td>
   </tr>
   <tr>
     <td colspan="3">
-      <input type="submit" value="Update"></input>
-      <input type="submit" value="Delete" onclick="return deleteRule()" class="red-button"></input>
-      <a href="<%= url_for :action => 'index', :id => @profile.id -%>">Cancel</a>
+      <input type="submit" value="<%= message('update_verb') -%>"></input>
+      <input type="submit" value="<%= message('delete') -%>" onclick="return deleteRule()" class="red-button"></input>
+      <a href="<%= url_for :action => 'index', :id => @profile.id -%>"><%= message('cancel') -%></a>
     </td>
   </tr>
 </table>

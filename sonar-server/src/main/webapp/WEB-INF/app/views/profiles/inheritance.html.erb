@@ -1,4 +1,4 @@
-<h1 class="marginbottom10"><%= link_to 'Quality profiles', :controller => 'profiles', :action => 'index' -%> / <%= h @profile.language -%> / <%= h @profile.name %></h1>
+<h1 class="marginbottom10"><%= link_to message('quality_profiles.quality_profiles'), :controller => 'profiles', :action => 'index' -%> / <%= h @profile.language -%> / <%= h @profile.name %></h1>
 <%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'inheritance'} %>
 
 <div class="tabs-panel marginbottom10">
@@ -31,15 +31,15 @@
        <td valign="top" width="300">
          <div class="admin">
          <% if @profile.provided? %>
-           <p>This profile can not be edited.</p>
+           <p><%= message('quality_profiles.profile_cant_be_edited') -%></p>
 
          <% else %>
-           <h3>Set parent:</h3>
-           <p>Inherit rules configuration from the profile:</p>
+           <h3><%= message('quality_profiles.set_parent') -%>:</h3>
+           <p><%= message('quality_profiles.inherit_rules_from_profile') -%>:</p>
            <% form_tag({:action => 'change_parent'}, {:method => 'post'}) do %>
              <%= hidden_field_tag "id", @profile.id %>
              <%= select_tag "parent_name", options_for_select(@select_parent, @profile.parent_name) %>
-             <%= submit_tag "Change", :id => 'submit_parent'%>
+             <%= submit_tag message('change_verb'), :id => 'submit_parent'%>
            <% end %>
          <% end %>
          </div>

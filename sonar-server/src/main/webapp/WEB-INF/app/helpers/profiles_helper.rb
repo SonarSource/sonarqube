@@ -23,11 +23,11 @@ module ProfilesHelper
   end
 
   def label_for_rules_count(profile)
-    label="#{profile.count_active_rules} rules"
+    label="#{profile.count_active_rules} #{message('rules').downcase}"
 
     count_overriding=profile.count_overriding_rules
     if count_overriding>0
-      label += ", incl. #{count_overriding} overriding"
+      label += message('quality_profiles.including_x_overriding.suffix', :params => count_overriding)
       label += image_tag('overrides.png')
     end
     label

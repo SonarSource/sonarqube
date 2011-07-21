@@ -8,13 +8,13 @@
   </td>
   <td width="20%">
     <% if alert.metric && !alert.value_warning.blank? %>
-      <%= image_tag 'levels/warn.png', :alt => 'Warning threshold' %>
+      <%= image_tag 'levels/warn.png', :alt => message('alert.warning_tooltip') %>
       <%= alert.value_warning %> <%= alert.metric.suffix if alert.metric %>
     <% end %>
   </td>
   <td width="20%">
     <% if alert.metric && !alert.value_error.blank? %>
-      <%= image_tag 'levels/error.png', :alt => 'Error threshold' %>
+      <%= image_tag 'levels/error.png', :alt => message('alert.error_tooltip') %>
       <%= alert.value_error %> <%= alert.metric.suffix %>
     <% end %>
   </td>

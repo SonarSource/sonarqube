@@ -20,9 +20,9 @@
 
       <% if active_rule %>
         <% if active_rule.inherited? %>
-          <img src="<%= ApplicationController.root_context -%>/images/inherited.png" alt="Inherited from parent" title="Inherited from parent"/>
+          <img src="<%= ApplicationController.root_context -%>/images/inherited.png" alt="Inherited from parent" title="<%= message('rules_configuration.inherited_from_parent') -%>"/>
         <% elsif active_rule.overrides? %>
-          <img src="<%= ApplicationController.root_context -%>/images/overrides.png" alt="Overrides parent definition" title="Overrides parent definition"/>
+          <img src="<%= ApplicationController.root_context -%>/images/overrides.png" alt="Overrides parent definition" title="<%= message('rules_configuration.overrides_parent_definition') -%>"/>
         <% end %>
       <% end %>
   </form>
@@ -45,19 +45,19 @@
                   </tbody>
               <% end %>
               <tr>
-                <td width="10%" nowrap class="left">Key: &nbsp;</td>
+                <td width="10%" nowrap class="left"><%= message('key') -%>: &nbsp;</td>
                 <td class="left"><%= rule.plugin_rule_key -%></td>
               </tr>
      </table>
       <% if is_admin %>
         <% if rule.template? %>
-        <%= button_to "Copy rule", {:action => 'new', :id => profile.id, :rule_id => rule.id}, :id => "copy-#{u rule.key}" %>
+        <%= button_to message('rules_configuration.copy_rule'), {:action => 'new', :id => profile.id, :rule_id => rule.id}, :id => "copy-#{u rule.key}" %>
         <% end %>
         <% if rule.editable? %>
-        <%= button_to "Edit rule", :action => 'edit', :id => profile.id, :rule_id => rule.id %>
+        <%= button_to message('rules_configuration.edit_rule'), :action => 'edit', :id => profile.id, :rule_id => rule.id %>
         <% end %>
         <% if active_rule && active_rule.overrides? %>
-        <%= button_to "Revert to parent definition", :overwrite_params => {:action => 'revert_rule', :id => profile.id, :active_rule_id => active_rule.id} %><br/>
+        <%= button_to message('rules_configuration.revert_to_parent_definition'), :overwrite_params => {:action => 'revert_rule', :id => profile.id, :active_rule_id => active_rule.id} %><br/>
         <% end %>
       <% end %>
     </div>

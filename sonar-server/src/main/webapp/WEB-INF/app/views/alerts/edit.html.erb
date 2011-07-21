@@ -1,4 +1,4 @@
-<h1>Editing alert</h1>
+<h1><%= message('alert.editing_alert') -%></h1>
 
 <% form_for([@profile, @alert]) do |f| %>
   <%= f.error_messages %>
@@ -12,9 +12,9 @@
     <%= f.text_field :name %>
   </p>
   <p>
-    <%= f.submit "Update" %>
+    <%= f.submit message('update_verb') %>
   </p>
 <% end %>
 
-<%= link_to 'Show', [@profile, @alert] %> |
-<%= link_to 'Back', profile_alerts_path(@profile) %>
+<%= link_to message('show_verb'), [@profile, @alert] %> |
+<%= link_to message('back'), profile_alerts_path(@profile) %>

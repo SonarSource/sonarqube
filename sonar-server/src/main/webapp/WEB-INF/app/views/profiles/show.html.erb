@@ -1,13 +1,13 @@
 <p>
-  <b>Name:</b>
+  <b>message('name'):</b>
   <%=h @profile.name %>
 </p>
 
 <p>
-  <b>Active:</b>
+  <b>message('active'):</b>
   <%=h @profile.active %>
 </p>
 
 
-<%= link_to 'Edit', edit_profile_path(@profile) %> |
-<%= link_to 'Back', profiles_path %>
+<%= link_to message('edit'), edit_profile_path(@profile) %> |
+<%= link_to message('back'), profiles_path %>

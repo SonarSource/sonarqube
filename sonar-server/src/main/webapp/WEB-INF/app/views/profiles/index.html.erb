@@ -3,25 +3,25 @@
   <ul class="operations">
     <li>
       <%= image_tag 'compare.png' -%>
-      <a href="<%= ApplicationController.root_context-%>/profiles/compare" id="compare-link">Compare profiles</a>
+      <a href="<%= ApplicationController.root_context-%>/profiles/compare" id="compare-link"><%= message('quality_profiles.compare_profiles') -%></a>
     </li>
     <li class="last">
       <%= image_tag 'restore.gif' -%>
-      <a href="#" onclick="$('restore-form').show();return false;" id="restore-link">Restore profile</a>
+      <a href="#" onclick="$('restore-form').show();return false;" id="restore-link"><%= message('quality_profiles.restore_profile') -%></a>
     </li>
   </ul>
 </div>
 <form class="admin marginbottom10" id="restore-form" action="<%= url_for :action => 'restore' -%>" enctype="multipart/form-data" style="display: none" method="post">
     <table class="spaced width100">
       <tr>
-        <td width="1%" nowrap>Backup: </td>
+        <td width="1%" nowrap><%= message('backup_verb') -%>: </td>
         <td><%= file_field_tag 'backup' %></td>
       </tr>
 
       <tr>
         <td colspan="2">
-          <input type="submit" value="Restore profile"/>
-          <a href="#" onclick="$('restore-form').reset();$('restore-form').hide();return false;">Cancel</a>
+          <input type="submit" value="<%= message('quality_profiles.restore_profile') -%>"/>
+          <a href="#" onclick="$('restore-form').reset();$('restore-form').hide();return false;"><%= message('cancel') -%></a>
         </td>
       </tr>
     </table>
@@ -37,11 +37,11 @@
   <% if administrator? %>
   <ul style="float: right" class="horizontal">
     <li class="marginleft10 add">
-      <a href="#" onClick="$('create-form-<%= language.getKey() -%>').show();$('create-form-<%= language.getKey() -%>-name').focus();return false;" id="create-link-<%= language.getKey() -%>">Create</a>
+      <a href="#" onClick="$('create-form-<%= language.getKey() -%>').show();$('create-form-<%= language.getKey() -%>-name').focus();return false;" id="create-link-<%= language.getKey() -%>"><%= message('create') -%></a>
     </li>
   </ul>
   <% end %>
-  <h2><%= language.getName() %> profiles</h2>
+  <h2><%= message('quality_profiles.x_language_profiles', :params => language.getName()) -%></h2>
 </div>
 
 <% if administrator? %>
@@ -49,7 +49,7 @@
     <input type="hidden" name="language" value="<%= language.getKey() -%>"></input>
     <table class="spaced width100">
       <tr>
-        <td width="1%" nowrap>Name: </td>
+        <td width="1%" nowrap><%= message('name') -%>: </td>
         <td><input type="text" name="name" id="create-form-<%= language.getKey()-%>-name"></input></td>
       </tr>
       <% importers.to_a.sort{|x,y| x.getName() <=> y.getName()}.each do |importer| %>
@@ -57,15 +57,15 @@
         <td width="1%" nowrap><%= importer.getName() -%>: </td>
         <td>
           <%= file_field_tag "backup[#{importer.getKey()}]" %></input>
-          <span class="note">Optional configuration file</span>
+          <span class="note"><%= message('quality_profiles.optional_configuration_file') -%></span>
         </td>
       </tr>
       <% end %>
 
       <tr>
         <td colspan="2">
-          <input type="submit" value="Create <%= language.getName() %> profile" id="create-submit-<%= language.getKey() -%>"></input>
-          <a href="#" onclick="$('create-form-<%= language.getKey()-%>').reset();$('create-form-<%= language.getKey()-%>').hide();return false;">Cancel</a>
+          <input type="submit" value="<%= message('quality_profiles.create_x_language_profile', :params => language.getName()) -%>" id="create-submit-<%= language.getKey() -%>"></input>
+          <a href="#" onclick="$('create-form-<%= language.getKey()-%>').reset();$('create-form-<%= language.getKey()-%>').hide();return false;"><%= message('cancel') -%></a>
         </td>
       </tr>
     </table>
@@ -75,13 +75,13 @@
 <table class="data width100" id="profiles_<%= language.getKey() -%>">
     <thead>
       <tr>
-        <th class="left">Name</th>
-        <th class="right">Rules</th>
-        <th class="right">Alerts</th>
-        <th class="right">Projects</th>
-        <th class="right">Default</th>
+        <th class="left"><%= message('name') -%></th>
+        <th class="right"><%= message('rules') -%></th>
+        <th class="right"><%= message('alerts') -%></th>
+        <th class="right"><%= message('projects') -%></th>
+        <th class="right"><%= message('default') -%></th>
         <% if administrator? %>
-        <th width="1%" class="right" colspan="4">Operations</th>
+        <th width="1%" class="right" colspan="4"><%= message('operations') -%></th>
         <% end %>
       </tr>
     </thead>
@@ -104,9 +104,9 @@
 
     	<td align="right">
         <% if (!profile.default_profile? && administrator?) %>
-        <%= button_to 'Set as default', { :action => 'set_as_default', :id => profile.id }, :class => 'action',
+        <%= button_to message('set_as_default'), { :action => 'set_as_default', :id => profile.id }, :class => 'action',
                         :id => "activate_#{u profile.key}",
-                        :confirm => "Are you sure that you want to set the profile '#{profile.name}' as default ?",
+                        :confirm => message('quality_profiles.are_you_sure_want_x_profile_as_default', :params => profile.name),
                         :method => :post %>
         <% end %>
         <% if profile.default_profile? %>
@@ -120,7 +120,7 @@
          <td align="right">
           <% if !profile.provided? %>
              <% form_tag(:action => 'backup', :id => profile.id) do -%>
-              <input type="submit" name="button_backup" id="backup_<%= u profile.key %>" value="Backup"></input>
+              <input type="submit" name="button_backup" id="backup_<%= u profile.key %>" value="<%= message('backup_verb') -%>"></input>
             <% end
             end %>
         </td>
@@ -129,7 +129,7 @@
           <% if !(profile.provided?) %>
              <% form_tag(:action => 'rename', :id => profile.id) do -%>
               <%= hidden_field_tag 'rename_' + profile.id.to_s %>
-              <input type="button" name="button_rename" id="rename_<%= u profile.key %>" value="Rename" onClick='var name=prompt("New name"); if (name!=null) {$("rename_<%= profile.id %>").value=name; submit();} else {return false;}'>
+              <input type="button" name="button_rename" id="rename_<%= u profile.key %>" value="<%= message('rename') -%>" onClick='var name=prompt("<%= message('quality_profiles.new_name') -%>"); if (name!=null) {$("rename_<%= profile.id %>").value=name; submit();} else {return false;}'>
             <% end
             end %>
         </td>
@@ -137,15 +137,15 @@
         <td align="right">
              <% form_tag(:action => 'copy', :id => profile.id) do -%>
               <%= hidden_field_tag 'copy_' + profile.id.to_s %>
-              <input type="button" name="button_copy" id="copy_<%= u profile.key %>" value="Copy" onClick='var name=prompt("Name for the new profile"); if (name!=null) {$("copy_<%= profile.id %>").value=name; submit();} else {return false;}'>
+              <input type="button" name="button_copy" id="copy_<%= u profile.key %>" value="<%= message('copy') -%>" onClick='var name=prompt("<%= message('quality_profiles.name_for_new_profile') -%>"); if (name!=null) {$("copy_<%= profile.id %>").value=name; submit();} else {return false;}'>
             <% end %>
         </td>
 
         <td>
             <% if profile.deletable? %>
-            <%= button_to "Delete", { :action => 'delete', :id => profile.id }, :class => 'action red-button',
+            <%= button_to message('delete'), { :action => 'delete', :id => profile.id }, :class => 'action red-button',
                         :id => "delete_#{u profile.key}",
-                        :confirm => "Are you sure that you want to delete the profile '#{profile.name}' ?",
+                        :confirm => message('quality_profiles.are_you_sure_want_delete_profile_x', :params => profile.name),
                         :method => :post %>
           <% end %>
         </td>

@@ -1,10 +1,10 @@
-<h1 class="marginbottom10"><%= link_to 'Quality profiles', :controller => 'profiles', :action => 'index' -%> / <%= h @profile.language -%> / <%= h @profile.name %></h1>
+<h1 class="marginbottom10"><%= link_to message('quality_profiles.quality_profiles'), :controller => 'profiles', :action => 'index' -%> / <%= h @profile.language -%> / <%= h @profile.name %></h1>
 <%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'Permalinks'} %>
 
 <div class="tabs-panel marginbottom10 ">
 	<% exporters=controller.java_facade.getProfileExportersForLanguage(@profile.language) %>
 	<% if exporters.empty? %>
-	  <p>No permalinks</p>
+	  <p><%= message('quality_profiles.no_permalinks') -%></p>
 	<% else %>
 	  <br/>
 	  <table class="data without-header marginbottom10" id="permalinks-table">

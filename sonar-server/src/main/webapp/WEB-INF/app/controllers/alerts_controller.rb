@@ -86,7 +86,7 @@ class AlertsController < ApplicationController
     
     respond_to do |format|
       if @alert.save
-        flash[:notice] = 'Alert is created.'
+        flash[:notice] = message('alert.alert_created')
         format.html { redirect_to :action => 'index', :id=>@profile.id }
         format.js { render :update do |page|
           page.redirect_to :action => 'index', :id=>@profile.id
@@ -116,7 +116,7 @@ class AlertsController < ApplicationController
 
     respond_to do |format|
       if alert.update_attributes(params[:alert])
-        flash[:notice] = 'Alert is updated.'
+        flash[:notice] = message('alert.alert_updated')
         format.html { redirect_to :action => 'index', :id=>@profile.id }
         format.xml  { head :ok }
         format.js { render :update do |page| page.redirect_to :action => 'index', :id=>@profile.id end}
@@ -140,7 +140,7 @@ class AlertsController < ApplicationController
     @profile = Profile.find(params[:profile_id])
     @alert = @profile.alerts.find(params[:id])
     @alert.destroy
-    flash[:notice] = 'Alert is deleted.'
+    flash[:notice] = message('alert.alert_deleted')
 
     respond_to do |format|
       format.html { redirect_to(:action => 'index', :id=>@profile.id) }

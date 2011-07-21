@@ -56,11 +56,11 @@ class ProfilesController < ApplicationController
     profile_name=params[:name]
     language=params[:language]
     if profile_name.blank?|| language.blank?
-      flash[:warning]='Please type a profile name.'
+      flash[:warning]=message('quality_profiles.please_type_profile_name')
     else
       profile=Profile.find_by_name_and_language(profile_name, language)
       if profile
-        flash[:error]="This profile already exists: #{profile_name}"
+        flash[:error]=message('quality_profiles.profile_x_already_exists', :params => profile_name)
 
       else
         profile = Profile.create(:name => profile_name, :language => language, :default_profile => false, :enabled => true)
@@ -75,7 +75,7 @@ class ProfilesController < ApplicationController
           end
         end
         if ok
-          flash[:notice]= "Profile '#{profile.name}' created. Set it as default or link it to a project to use it for next measures."
+          flash[:notice]=message('quality_profiles.profile_x_created', :params => profile.name)
         else
           profile.reload
           profile.destroy
@@ -95,7 +95,7 @@ class ProfilesController < ApplicationController
     @profile = Profile.find(params[:id])
     if @profile && @profile.deletable?
       java_facade.deleteProfile(@profile.id)
-      flash[:notice]="Profile '#{@profile.name}' is deleted."
+      flash[:notice]=message('quality_profiles.profile_x_deleted', :params => @profile.name)
     end
     redirect_to(:controller => 'profiles', :action => 'index')
   end
@@ -109,7 +109,7 @@ class ProfilesController < ApplicationController
   def set_as_default
     profile = Profile.find(params[:id])
     profile.set_as_default
-    flash[:notice]="Default profile is '#{profile.name}'."
+    flash[:notice]=message('quality_profiles.default_profile_is_x', :params => profile.name)
     redirect_to :action => 'index'
   end
 
@@ -127,7 +127,7 @@ class ProfilesController < ApplicationController
     validation_errors = profile.validate_copy(name)
     if validation_errors.empty?
       java_facade.copyProfile(profile.id, name)
-      flash[:notice]= "Profile '#{name}' is created but not activated."
+      flash[:notice]= message('quality_profiles.profile_x_not_activated', :params => name)
     else
       flash[:error] = validation_errors.full_messages.first
     end
@@ -158,7 +158,7 @@ class ProfilesController < ApplicationController
   #
   def restore
     if params[:backup].blank?
-      flash[:warning]='Please upload a backup file.'
+      flash[:warning]=message('quality_profiles.please_upload_backup_file')
     else
       messages=java_facade.restoreProfile(read_file_param(params[:backup]))
       flash_validation_messages(messages)
@@ -194,7 +194,7 @@ class ProfilesController < ApplicationController
     @profile = Profile.find(params[:id])
     
     profiles=Profile.find(:all, :conditions => ['language=? and id<>? and (parent_name is null or parent_name<>?) and enabled=?', @profile.language, @profile.id, @profile.name, true], :order => 'name')
-    @select_parent = [['None', nil]] + profiles.collect{ |profile| [profile.name, profile.name] }
+    @select_parent = [[message('none'), nil]] + profiles.collect{ |profile| [profile.name, profile.name] }
   end
 
   #
@@ -225,7 +225,7 @@ class ProfilesController < ApplicationController
       end
       @changes = ActiveRuleChange.find(:all, :conditions => ['profile_id=? and ?<profile_version and profile_version<=?', @profile.id, @since_version, @to_version], :order => 'id desc')
 
-      @select_versions = versions.map {|u| [ (u.profile_version == last_version ? "last " : "" ) + "version " + u.profile_version.to_s + " (" + l(u.change_date) + ")", u.profile_version]} | [["no version", 0]];
+      @select_versions = versions.map {|u| [ message(u.profile_version == last_version ? 'quality_profiles.last_version_x_with_date' : 'quality_profiles.version_x_with_date', :params => [u.profile_version.to_s, l(u.change_date)]) ]} | [[message('quality_profiles.no_version'), 0]];
     end
   end
 
@@ -285,7 +285,7 @@ class ProfilesController < ApplicationController
 
     projects=Project.find(params[:projects] || [])
     @profile.projects=projects
-    flash[:notice]="Profile '#{@profile.name}' associated to #{projects.size} projects."
+    flash[:notice]=message('quality_profiles.profile_x_associated_to_x_projects', :params => [@profile.name, projects.size])
     redirect_to :action => 'projects', :id => @profile.id
   end
 
@@ -301,11 +301,11 @@ class ProfilesController < ApplicationController
     name = params['rename_' + profile.id.to_s]
 
     if name.blank?
-      flash[:warning]='Profile name can not be blank.'
+      flash[:warning]=message('quality_profiles.profile_name_cant_be_blank')
     else
       existing=Profile.find(:first, :conditions => {:name => name, :language => profile.language, :enabled => true})
       if existing
-        flash[:warning]='This profile name already exists.'
+        flash[:warning]=message('quality_profiles.profile_name_already_exists')
       elsif !profile.provided?
         java_facade.renameProfile(profile.id, name)
       end

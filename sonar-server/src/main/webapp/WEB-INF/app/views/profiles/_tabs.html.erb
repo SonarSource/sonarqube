@@ -4,22 +4,22 @@
 %>
 <ul class="tabs">
   <li>
-    <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile.id %>" <%= "class='selected'" if selected_tab=='Coding rules' -%>>Coding rules</a>
+    <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile.id %>" <%= "class='selected'" if selected_tab=='Coding rules' -%>><%= message('coding_rules') -%></a>
   </li>
   <li>
-    <a href="<%= url_for :controller => 'alerts', :action => 'index', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='Alerts' -%>>Alerts</a>
+    <a href="<%= url_for :controller => 'alerts', :action => 'index', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='Alerts' -%>><%= message('alerts') -%></a>
   </li>
   <li>
-    <a href="<%= url_for :controller => 'profiles', :action => 'projects', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='Projects' -%>>Projects</a>
+    <a href="<%= url_for :controller => 'profiles', :action => 'projects', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='Projects' -%>><%= message('projects') -%></a>
   </li>
   <li>
-    <a href="<%= url_for :controller => 'profiles', :action => 'permalinks', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='Permalinks' -%>>Permalinks</a>
+    <a href="<%= url_for :controller => 'profiles', :action => 'permalinks', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='Permalinks' -%>><%= message('permalinks') -%></a>
   </li>
   <li>
-    <a href="<%= url_for :controller => 'profiles', :action => 'inheritance', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='inheritance' -%>>Profile inheritance</a>
+    <a href="<%= url_for :controller => 'profiles', :action => 'inheritance', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='inheritance' -%>><%= message('quality_profiles.profile_inheritance') -%></a>
   </li>
   <li>
-    <a href="<%= url_for :controller => 'profiles', :action => 'changelog', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='changelog' -%>>Changelog</a>
+    <a href="<%= url_for :controller => 'profiles', :action => 'changelog', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='changelog' -%>><%= message('changelog') -%></a>
   </li>
   <% if new_tab %>
   <li>

@@ -1,5 +1,5 @@
-<h1 class="marginbottom10"><%= link_to 'Quality profiles', :controller => 'profiles', :action => 'index' -%> /
-  Compare</h1>
+<h1 class="marginbottom10"><%= link_to message('quality_profiles.quality_profiles'), :controller => 'profiles', :action => 'index' -%> /
+  <%= message('compare') -%></h1>
 
 <form method="GET" class="marginbottom10">
   <select name="id1" class="small">
@@ -11,7 +11,7 @@
     <option value=""></option>
     <%= options_for_profiles(@profiles, params[:id2].to_i) %>
   </select>
-  <input type="submit" value="Compare" class="small" id="submit-compare"/>
+  <input type="submit" value="<%= message('compare') -%>" class="small" id="submit-compare"/>
 </form>
 
 <% if @profile1 && @profile2 %>
@@ -19,20 +19,20 @@
   <table class="header1" id="comparison-header">
     <tr>
       <td width="25%">
-        <p>Only in <%= h(@profile1.name) -%></p>
-        <span class="big"><a href="#in1" id="in1Value"><%= @in1.size -%></a></span> rules
+        <p><%= message('quality_profiles.only_in_profile_x', :params => h(@profile1.name)) -%></p>
+        <span class="big"><a href="#in1" id="in1Value"><%= @in1.size -%></a></span> <%= message('rules').downcase -%>
       </td>
       <td width="25%">
-        <p>Only in <%= h(@profile2.name) -%></p>
-        <span class="big"><a href="#in2" id="in2Value"><%= @in2.size -%></a></span> rules
+        <p><%= message('quality_profiles.only_in_profile_x', :params => h(@profile2.name)) -%></p>
+        <span class="big"><a href="#in2" id="in2Value"><%= @in2.size -%></a></span> <%= message('rules').downcase -%>
       </td>
       <td width="25%">
-        <p>With different configuration</p>
-        <span class="big"><a href="#modified" id="modifiedValue"><%= @modified.size -%></a></span> rules
+        <p><%= message('quality_profiles.with_different_configuration') -%></p>
+        <span class="big"><a href="#modified" id="modifiedValue"><%= @modified.size -%></a></span> <%= message('rules').downcase -%>
       </td>
       <td width="25%">
-        <p>With same configuration</p>
-        <span class="big" id="sameValue"><%= @sames.size -%></span> rules
+        <p><%= message('quality_profiles.with_same_configuration') -%></p>
+        <span class="big" id="sameValue"><%= @sames.size -%></span> <%= message('rules').downcase -%>
       </td>
     </tr>
   </table>
@@ -46,7 +46,7 @@
           <table class="data width100 marginbottom10" id="in1-rules">
             <thead>
             <tr>
-              <th><a name="in1"/><%= @in1.size -%> rules only in
+              <th><a name="in1"/><%= message('quality_profiles.x_rules_only_in', :params => @in1.size) -%>
                 <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile1.id -%>"><%= h @profile1.name %></a>
               </th>
             </tr>
@@ -73,7 +73,7 @@
           <table class="data width100 marginbottom10" id="in2-rules">
             <thead>
             <tr>
-              <th><a name="in2"/><%= @in2.size -%> rules only in
+              <th><a name="in2"/><%= message('quality_profiles.x_rules_only_in', :params => @in2.size) -%>
                 <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile2.id -%>"><%= h @profile2.name %></a>
               </th>
             </tr>
@@ -97,7 +97,7 @@
           <table class="data width100 marginbottom10" id="modified-rules">
             <thead>
             <tr>
-              <th width="49%"><a name="modified"/><%= @modified.size -%> rules have a different configuration<br/>
+              <th width="49%"><a name="modified"/><%= message('quality_profiles.x_rules_have_different_configuration', :params =>@modified.size) -%><br/>
                 <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile1.id -%>"><%= h @profile1.name %></a>
               </th>
               <th width="2%"></th>

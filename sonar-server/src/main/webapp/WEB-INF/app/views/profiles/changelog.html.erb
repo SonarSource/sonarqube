@@ -1,29 +1,29 @@
-<h1 class="marginbottom10"><%= link_to 'Quality profiles', :controller => 'profiles', :action => 'index' -%> / <%= h @profile.language -%> / <%= h @profile.name %></h1>
+<h1 class="marginbottom10"><%= link_to message('quality_profiles.quality_profiles'), :controller => 'profiles', :action => 'index' -%> / <%= h @profile.language -%> / <%= h @profile.name %></h1>
 <%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'changelog'} %>
 
 <div class="tabs-panel marginbottom10">
   <% if @select_versions.nil? %>
-    No changes has been done on this quality profile.
+    <%= message('quality_profiles.no_changes_done_on_this_profile') -%>
   <% else %>
 
   <% form_tag({:action => 'changelog'}, {:method => 'post', :class => 'marginbottom10'}) do %>
     <%= hidden_field_tag "id", @profile.id %>
-    Changelog from
+    <%= message('quality_profiles.changelog_from') -%>
     <%= select_tag "since", options_for_select(@select_versions, @since_version) %>
-    to
+    <%= message('to').downcase -%>
     <%= select_tag "to", options_for_select(@select_versions, @to_version) %>
-    <%= submit_tag "Load", :id => 'submit'%>
+    <%= submit_tag message('load_verb'), :id => 'submit'%>
   <% end %>
 
   <table  class="data width100">
     <thead>
       <tr>
-        <th>Profile version</th>
-        <th>Date</th>
-        <th>User</th>
-        <th>Action</th>
-        <th>Rule</th>
-        <th>Parameters</th>
+        <th><%= message('quality_profiles.profile_version') -%></th>
+        <th><%= message('date') -%></th>
+        <th><%= message('user') -%></th>
+        <th><%= message('action') -%></th>
+        <th><%= message('rule') -%></th>
+        <th><%= message('parameters') -%></th>
       </tr>
     </thead>
     <%
@@ -38,33 +38,32 @@
       <td valign="top">
         <% if change.old_severity
              if change.new_severity %>
-            Severity changed from <%= image_tag "priority/#{change.old_severity_text}.png" %><b><%= change.old_severity_text %></b> to
+            <%= message('quality_profiles.severity_changed_from_x_to', :params => [image_tag("priority/#{change.old_severity_text}.png"), change.old_severity_text]) -%>
           <% else %>
-            Severity was <%= image_tag "priority/#{change.old_severity_text}.png" %><b><%= change.old_severity_text %></b>
+            <%= message('quality_profiles.severity_was_x', :params => [image_tag("priority/#{change.old_severity_text}.png"), change.old_severity_text]) -%>
           <% end
            end %>
         <% if change.new_severity
              if change.old_severity %>
            <%= image_tag "priority/#{change.new_severity_text}.png" %><b><%= change.new_severity_text %></b>
           <% else %>
-           Severity set to <%= image_tag "priority/#{change.new_severity_text}.png" %><b><%= change.new_severity_text %></b>
+           <%= message('quality_profiles.severity_set_to_x', :params => [image_tag("priority/#{change.new_severity_text}.png"), change.new_severity_text]) -%>
           <% end
            end %>
         <% if (change.old_severity or change.new_severity) and change.parameters.size > 0 %>
           <br/>
         <% end %>
         <% change.parameters.each do |param_change| %>
-          Parameter <b><%=param_change.name %></b>
           <% if not param_change.old_value %>
-             set to <b><%= param_change.new_value %></b>
+             <%= message('quality_profiles.parameter_set_to_x', :params => [param_change.name, param_change.new_value]) -%>
           <% elsif not param_change.new_value
                if change.enabled == false %>
-                 was <b><%= param_change.old_value %></b>
+                 <%= message('quality_profiles.parameter_was_x', :params => [param_change.name, param_change.old_value]) -%>
             <% else %>
-                 reset to default value (was <b><%= param_change.old_value %></b>)
+                 <%= message('quality_profiles.parameter_reset_to_default_value_x', :params => [param_change.name, param_change.old_value]) -%>
             <% end
              else %>
-             changed from <b><%= param_change.old_value %></b> to <b><%= param_change.new_value %></b>
+             <%= message('quality_profiles.parameter_changed_from_x_to_x', :params => [param_change.name, param_change.old_value, param_change.new_value]) -%>
           <% end %>
           <%= "<br/>" unless param_change == change.parameters.last %>
         <% end%>

@@ -26,7 +26,7 @@
         <span id="<%= span_id %>"><%= (param_value.length < 50) ? textfield : textarea %></span>
 
         <% if !read_only %>
-            <%= submit_tag 'update' %>
+            <%= submit_tag message('update_verb') %>
             <img src="<%= ApplicationController.root_context -%>/images/loading.gif" style="display:none;" id="param_loading_<%= parameter.id -%>">
             <% if active_parameter and active_parameter.errors.size>0 %>
               <span class="error"><%= active_parameter.errors.on 'value' %></span>

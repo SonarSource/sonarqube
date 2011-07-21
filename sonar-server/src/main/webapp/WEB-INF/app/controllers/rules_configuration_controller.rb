@@ -53,8 +53,8 @@ class RulesConfigurationController < ApplicationController
 
     @select_plugins = ANY_SELECTION + java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| [repo.getName(true), repo.getKey()]}.sort
     @select_priority = ANY_SELECTION + RULE_PRIORITIES
-    @select_status = [['Any',''], ["Active", STATUS_ACTIVE], ["Inactive", STATUS_INACTIVE]]
-    @select_inheritance = [['Any',''], ["Not inherited", 'NOT'], ["Inherited", 'INHERITED'], ["Overrides", 'OVERRIDES']]
+    @select_status = [[message('any'),''], [message('active'), STATUS_ACTIVE], [message('inactive'), STATUS_INACTIVE]]
+    @select_inheritance = [[message('any'),''], [message('rules_configuration.not_inherited'), 'NOT'], [message('rules_configuration.inherited'), 'INHERITED'], [message('rules_configuration.overrides'), 'OVERRIDES']]
 
     @rules = Rule.search(java_facade, {
         :profile => @profile, :status => @status, :priorities => @priorities, :inheritance => @inheritance,
@@ -179,7 +179,7 @@ class RulesConfigurationController < ApplicationController
       redirect_to :action => 'index', :id => params[:id], :searchtext => rule.name, :rule_status => 'INACTIVE', "plugins[]" => rule.plugin_name
       
     else
-      flash[:error]="Rule is not valid: <br/>#{rule.errors.full_messages.join('<br/>')}"
+      flash[:error]=message('rules_configuration.rule_not_valid_message_x', :params => rule.errors.full_messages.join('<br/>'))
       redirect_to :action => 'new', :id => params[:id], :rule_id => params[:rule_id]
     end   
   end
@@ -222,7 +222,7 @@ class RulesConfigurationController < ApplicationController
       if rule.save
         redirect_to :action => 'index', :id => params[:id], :searchtext => rule.name, :rule_status => '', "plugins[]" => rule.plugin_name
       else
-        flash[:error]="Rule is not valid: <br/>#{rule.errors.full_messages.join('<br/>')}"
+        flash[:error]=message('rules_configuration.rule_not_valid_message_x', :params => rule.errors.full_messages.join('<br/>'))
         redirect_to :action => 'new', :id => params[:id], :rule_id => params[:rule_id]
       end
     else
@@ -246,9 +246,9 @@ class RulesConfigurationController < ApplicationController
       # it's mandatory to execute 'destroy_all' but not 'delete_all' because active_rule_parameters must
       # also be destroyed in cascade.
       ActiveRule.destroy_all("rule_id=#{rule.id}")
-      flash[:notice]='Rule deleted'
+      flash[:notice]=message('rules_configuration.rule_deleted')
     else
-      flash[:error]='Unknown rule'
+      flash[:error]=message('rules_configuration.unknown_rule')
     end
     redirect_to :action => 'index', :id => params[:id]
   end
@@ -270,12 +270,12 @@ class RulesConfigurationController < ApplicationController
     case params[:bulk_action]
     when 'activate'
       count=activate_rules(profile, rule_ids)
-      flash[:notice]="#{count} rules have been activated."
+      flash[:notice]=message('rules_configuration.x_rules_have_been_activated', :params => count)
       status=STATUS_ACTIVE if status==STATUS_INACTIVE
 
     when 'deactivate'
       count=deactivate_rules(profile, rule_ids)
-      flash[:notice]="#{count} rules have been deactivated."
+      flash[:notice]=message('rules_configuration.x_rules_have_been_deactivated', :params => count)
       status=STATUS_INACTIVE if status==STATUS_ACTIVE
     end
 
