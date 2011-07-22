@@ -25,6 +25,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -32,9 +33,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.configuration.Configuration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.i18n.LanguagePack;
 import org.sonar.api.platform.PluginRepository;
 
@@ -63,8 +66,15 @@ public class I18nManagerTest {
     TestClassLoader quebecPackClassLoader = new TestClassLoader(getClass().getClassLoader().getResource("I18n/QuebecPlugin.jar"));
     LanguagePack quebecPack = (LanguagePack) quebecPackClassLoader.loadClass(QUEBEC_PACK_CLASS_NAME).newInstance();
 
-    manager = new I18nManager(mock(PluginRepository.class), new LanguagePack[] { frenchPack, quebecPack, englishPack });
+    Configuration configuration = mock(Configuration.class);
+    when(configuration.getString(CoreProperties.CORE_DEFAULT_LANGUAGE_PROPERTY, CoreProperties.CORE_DEFAULT_LANGUAGE_DEFAULT_VALUE)).thenReturn("fr_CA");
+    manager = new I18nManager(mock(PluginRepository.class), configuration, new LanguagePack[] { frenchPack, quebecPack, englishPack });
     manager.doStart(plugins);
+  }
+
+  @Test
+  public void testDefaultLocale() {
+    assertEquals(Locale.CANADA_FRENCH, manager.getDefaultLocale());
   }
 
   @Test

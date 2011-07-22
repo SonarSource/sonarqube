@@ -43,8 +43,16 @@ import org.sonar.plugins.core.timemachine.*;
 import org.sonar.plugins.core.widgets.*;
 
 import java.util.List;
+import java.util.Locale;
 
-@Properties({
+@Properties({  
+    @Property(
+       key = CoreProperties.CORE_DEFAULT_LANGUAGE_PROPERTY,
+       defaultValue = "en",
+       name = "Default locale",
+       description = "Default locale to use when executing rule engines during analysis.",
+       project = false,
+       global = true),
     @Property(
         key = CoreProperties.CORE_COVERAGE_PLUGIN_PROPERTY,
         defaultValue = "cobertura",

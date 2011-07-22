@@ -57,4 +57,6 @@ public interface I18n extends ServerComponent, BatchComponent {
    * @return the message formatted with the translated pattern and the given parameters 
    */
   public abstract String message(final Locale locale, final String key, final String defaultValue, final Object... parameters);
+
+  public abstract Locale getDefaultLocale();
 }

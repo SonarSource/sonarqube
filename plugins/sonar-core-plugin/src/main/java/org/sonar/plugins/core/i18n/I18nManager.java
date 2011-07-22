@@ -36,11 +36,13 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.apache.commons.collections.EnumerationUtils;
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.i18n.LanguagePack;
@@ -63,20 +65,28 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
   private Properties unknownKeys = new Properties();
   private BundleClassLoader bundleClassLoader = new BundleClassLoader();
   private List<Locale> registeredLocales = Lists.newArrayList();
+  private Locale defaultLocale;
+  private Configuration configuration;
 
-  public I18nManager(PluginRepository pluginRepository, LanguagePack[] languagePacks) {
+  public I18nManager(PluginRepository pluginRepository, Configuration configuration, LanguagePack[] languagePacks) {
     this.pluginRepository = pluginRepository;
     this.languagePacks = languagePacks;
+    this.configuration = configuration;
   }
 
-  public I18nManager(PluginRepository pluginRepository) {
-    this(pluginRepository, new LanguagePack[0]);
+  public I18nManager(PluginRepository pluginRepository, Configuration configuration) {
+    this(pluginRepository, configuration, new LanguagePack[0]);
   }
 
   public void start() {
     doStart(InstalledPlugin.create(pluginRepository));
   }
 
+  public Locale getDefaultLocale()
+  {
+    return defaultLocale;
+  }
+  
   protected void doStart(List<InstalledPlugin> installedPlugins) {
     Logs.INFO.info("Loading i18n bundles");
     Set<URI> alreadyLoadedResources = Sets.newHashSet();
@@ -94,6 +104,22 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
         addLanguagePack(pack);
       }
     }
+
+    String defaultLocaleString = configuration.getString(CoreProperties.CORE_DEFAULT_LANGUAGE_PROPERTY, CoreProperties.CORE_DEFAULT_LANGUAGE_DEFAULT_VALUE);
+    String[] defaultLocaleFields = StringUtils.split(defaultLocaleString, "_");
+    if (defaultLocaleFields.length==1) {
+      defaultLocale = new Locale(defaultLocaleFields[0]);
+    } else {
+      defaultLocale = new Locale(defaultLocaleFields[0], defaultLocaleFields[1]);
+    }    
+    if (defaultLocale.equals(Locale.ENGLISH) || registeredLocales.contains(defaultLocale))
+    {
+      Logs.INFO.info("Default locale for analysis : " + defaultLocale);
+    }
+    else
+    {
+      Logs.INFO.warn("Default locale for analysis (" + defaultLocale + ") is not found in the registered locales.");
+    }      
   }
 
   protected LanguagePack findEnglishPack() {
