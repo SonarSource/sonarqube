@@ -22,7 +22,8 @@ class ManualMeasuresController < ApplicationController
   SECTION=Navigation::SECTION_RESOURCE
   before_filter :load_resource
   verify :method => :post, :only => [:save, :delete], :redirect_to => {:action => :index}
-
+  helper MetricsHelper
+  
   def index
     load_measures()
   end

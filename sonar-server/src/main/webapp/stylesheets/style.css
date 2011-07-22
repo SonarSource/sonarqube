@@ -1330,7 +1330,7 @@ option.sev_BLOCKER {
 /* ------------------- HELP ------------------- */
 .help {
   border: 1px solid #DDD;
-  background-color: #ECECEC;
+  background-color: #F4F4F4;
   color: #444;
   padding: 5px;
 }

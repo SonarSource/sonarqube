@@ -8,7 +8,7 @@
     return true;
   }
 </script>
-
+<h1 class="marginbottom10">Add manual measure</h1>
 <form action="<%= url_for :action => (@measure ? 'save' : 'new') -%>" method="POST" id="createForm">
   <input type="hidden" name="id" value="<%= @resource.id -%>"/>
   <table class="width100 form">
@@ -19,12 +19,9 @@
       </td>
       <td>
         <select name="metric" onchange="changeMetric();" id="metricSelect">
-          <option value="">Select metric</option>
-          <% Metric.all.select { |m| m.user_managed? }.sort.each do |metric| %>
-            <option value="<%= metric.key -%>" <%= 'selected' if @metric && @metric.id==metric.id -%>><%= metric.short_name -%></option>
-          <% end %>
+          <%= options_grouped_by_domain(Metric.all.select { |m| m.user_managed? }, (@metric ? @metric.key : nil), :include_empty => true) -%>
         </select>
-        <%= link_to 'Manage metrics', :controller => 'metrics', :action => 'index' -%>
+        <%= link_to 'Manage metrics', :controller => 'metrics', :action => 'index' if has_role?(:admin)-%>
 
         <% if @metric && @metric.description %>
           <br/>
