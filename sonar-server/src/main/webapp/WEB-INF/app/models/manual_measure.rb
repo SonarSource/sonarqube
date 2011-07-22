@@ -48,7 +48,11 @@ class ManualMeasure < ActiveRecord::Base
   end
 
   def validate_metric
-    errors.add_to_base("Not a valid metric") unless metric && metric.enabled?
+    if metric.nil? || !metric.enabled?
+      errors.add_to_base("Unknown metric")
+    elsif !metric.user_managed?
+      errors.add_to_base("Not a manual metric")
+    end
   end
 
   def pending?(snapshot=nil)

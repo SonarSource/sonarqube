@@ -25,9 +25,8 @@ class Sonar::TreemapBuilder
   CONFIGURATION_DEFAULT_SIZE_METRIC = 'sonar.core.treemap.sizemetric'
   
   def self.size_metrics(options={})
-    exclude_user_managed=options[:exclude_user_managed]||false
-    Metric.all.select{ |metric| 
-      metric.treemap_size? && (!exclude_user_managed || !metric.user_managed?)
+    Metric.all.select{ |metric|
+      metric.treemap_size?
     }.sort
   end
 

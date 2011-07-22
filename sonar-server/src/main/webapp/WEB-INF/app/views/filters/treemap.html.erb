@@ -4,7 +4,7 @@
   <tr>
     <td>
       <span class="comments"><%= message('size') -%>:</span><br/>
-      <%= select_tag 'size_metric', options_grouped_by_domain(Sonar::TreemapBuilder.size_metrics({:exclude_user_managed => true}), @size_metric.key),
+      <%= select_tag 'size_metric', options_grouped_by_domain(Sonar::TreemapBuilder.size_metrics(), @size_metric.key),
         :id => 'size_metric', :class => 'small', :onchange => "load_treemap(this.form.size_metric.value,this.form.color_metric.value, false);return false;" %>
     </td>
     <td class="sep"> </td>

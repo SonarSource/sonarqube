@@ -25,7 +25,7 @@ import org.sonar.api.measures.Metrics;
 import java.util.Arrays;
 import java.util.List;
 
-public class UserManagedMetrics implements Metrics {
+public final class UserManagedMetrics implements Metrics {
   private static final String DOMAIN = "Management";
 
   public List<Metric> getMetrics() {

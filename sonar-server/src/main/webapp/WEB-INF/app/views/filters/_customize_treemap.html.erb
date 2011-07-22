@@ -7,7 +7,7 @@
   <tr>
     <td class="keyCell"><%= message('size') -%>:</td>
     <td>
-      <%= select_tag 'columns[]', options_grouped_by_domain(Sonar::TreemapBuilder.size_metrics({:exclude_user_managed => true}), size_metric.key),
+      <%= select_tag 'columns[]', options_grouped_by_domain(Sonar::TreemapBuilder.size_metrics(), size_metric.key),
         :id => 'size_metric' %>
     </td>
   </tr>

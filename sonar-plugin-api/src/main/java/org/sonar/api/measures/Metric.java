@@ -353,14 +353,14 @@ public class Metric implements ServerExtension, BatchExtension {
   }
 
   /**
-   * @return whether the metric is a managed by the users (manual metric)
+   * @return whether the metric is a managed by the users ("manual metric")
    */
   public Boolean getUserManaged() {
     return userManaged;
   }
 
   /**
-   * Sets whether the metric is user managed
+   * Sets whether the metric is managed by users ("manual metric")
    *
    * @param userManaged whether the metric is user managed
    * @return this
