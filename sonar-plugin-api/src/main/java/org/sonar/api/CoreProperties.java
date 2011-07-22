@@ -106,6 +106,17 @@ public interface CoreProperties {
   String BATCH_INCLUDE_PLUGINS = "sonar.includePlugins";
   String BATCH_EXCLUDE_PLUGINS = "sonar.excludePlugins";
 
+  /**
+   * @since 2.10
+   */
+  String SERVER_BASE_URL = "sonar.core.serverBaseURL";
+
+  /**
+   * @since 2.10
+   * @see #SERVER_BASE_URL
+   */
+  String SERVER_BASE_URL_DEFAULT_VALUE = "http://localhost:9000";
+
   /* CPD */
   String CPD_PLUGIN = "cpd";
   String CPD_MINIMUM_TOKENS_PROPERTY = "sonar.cpd.minimumTokens";

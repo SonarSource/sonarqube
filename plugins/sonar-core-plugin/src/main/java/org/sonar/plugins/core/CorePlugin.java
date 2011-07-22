@@ -89,6 +89,13 @@ import java.util.List;
         project = false,
         global = true),
     @Property(
+        key = CoreProperties.SERVER_BASE_URL,
+        defaultValue = CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE,
+        name = "Server base URL",
+        description = "HTTP address of the Sonar server, such as <i>http://yourhost.yourdomain/sonar</i>. This value is used i.e. to create links in emails.",
+        project = false,
+        global = true),
+    @Property(
         key = CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY,
         defaultValue = "" + CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE,
         name = "Force user authentication",
