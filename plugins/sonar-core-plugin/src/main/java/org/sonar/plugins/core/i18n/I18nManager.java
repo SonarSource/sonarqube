@@ -211,18 +211,28 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
     if (bundleBaseName == null) {
       handleMissingBundle(ruleNameKey, defaultText, bundleBaseName);
     } else {
-      Locale localeToUse = defineLocaleToUse(locale);
-      String htmlFilePath = computeHtmlFilePath(bundleBaseName, ruleDescriptionKey, localeToUse);
-      ClassLoader classLoader = bundleClassLoader.getClassLoaderForBundle(bundleBaseName, localeToUse);
-      InputStream stream = classLoader.getResourceAsStream(htmlFilePath);
+      InputStream stream = extractRuleDescription(locale, ruleDescriptionKey, bundleBaseName);
+      if (stream == null && !Locale.ENGLISH.equals(locale)) {
+        // let's try in the ENGLISH bundles
+        stream = extractRuleDescription(Locale.ENGLISH, ruleDescriptionKey, bundleBaseName);
+      }
       if (stream == null) {
-        throw new MissingResourceException("MISSING RULE DESCRIPTION : file '" + htmlFilePath
-            + "' not found in any bundle. Default value is returned.", bundleBaseName, ruleDescriptionKey);
+        // Definitely, no HTML file found for the description of this rule...
+        throw new MissingResourceException("MISSING RULE DESCRIPTION : HTML file  not found in any bundle. Default value is returned.",
+            bundleBaseName, ruleDescriptionKey);
       }
       translation = IOUtils.toString(stream, "UTF-8");
     }
 
     return translation;
+  }
+
+  private InputStream extractRuleDescription(final Locale locale, final String ruleDescriptionKey, String bundleBaseName) {
+    Locale localeToUse = defineLocaleToUse(locale);
+    String htmlFilePath = computeHtmlFilePath(bundleBaseName, ruleDescriptionKey, localeToUse);
+    ClassLoader classLoader = bundleClassLoader.getClassLoaderForBundle(bundleBaseName, localeToUse);
+    InputStream stream = classLoader.getResourceAsStream(htmlFilePath);
+    return stream;
   }
 
   protected Locale defineLocaleToUse(final Locale locale) {

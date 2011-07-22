@@ -146,6 +146,13 @@ public class I18nManagerTest {
     assertThat(result, is("<h1>Fake Rule</h1>\nThis is the description of the fake rule."));
   }
 
+  @Test
+  public void shouldReturnEnglishRuleDescriptionFromMissingHTMLFileInFrench() throws Exception {
+    String result = manager.message(Locale.FRENCH, "rule.test.anotherfakerule.description", "foo");
+    assertThat(result, is("<h1>Another Fake Rule</h1>\nThis is the description of the fake rule."));
+
+  }
+
   public static class TestClassLoader extends URLClassLoader {
 
     public TestClassLoader(URL url) {
