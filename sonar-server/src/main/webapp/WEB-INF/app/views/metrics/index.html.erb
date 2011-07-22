@@ -4,6 +4,7 @@
       <table class="sortable data width100" id="metrics">
         <thead>
           <tr>
+            <th class="left">Key</th>
             <th class="left">Name</th>
             <th class="left">Description</th>
             <th class="left">Domain</th>
@@ -14,10 +15,11 @@
         <tbody>
       <% @metrics.each do |metric| %>
         <tr>
-          <td class="left" nowrap><%= h metric.short_name %></td>
-          <td class="left"><%= h metric.description %></td>
-          <td class="left" ><%= metric.domain %></td>
-          <td class="left" ><%= metric.value_type_name %></td>
+          <td class="left" nowrap><span class="note"><%= metric.key -%></span></td>
+          <td class="left" nowrap><%= h metric.short_name -%></td>
+          <td class="left"><%= h metric.description -%></td>
+          <td class="left" ><%= metric.domain -%></td>
+          <td class="left" ><%= metric.value_type_name -%></td>
             <td class="left" width="1%" nowrap>
             <% if is_admin? && metric.updatable_online? %>
               <%= button_to 'Edit', {:action => 'index', :id => metric.id}, {:class => 'action', :id => "edit_#{h(metric.short_name)}", :method => 'get'} %>
