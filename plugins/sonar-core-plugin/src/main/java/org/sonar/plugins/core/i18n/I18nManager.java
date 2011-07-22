@@ -45,7 +45,6 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.i18n.LanguagePack;
 import org.sonar.api.platform.PluginRepository;
-import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 
 import com.google.common.collect.Lists;
@@ -78,7 +77,7 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
   }
 
   protected void doStart(List<InstalledPlugin> installedPlugins) {
-    Logs.INFO.info("Loading i18n bundles");
+    LOG.info("Loading i18n bundles");
     Set<URI> alreadyLoadedResources = Sets.newHashSet();
     LanguagePack englishPack = findEnglishPack();
 
@@ -138,7 +137,7 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
       List<URL> resources = EnumerationUtils.toList(classloader.getResources(bundleDefaultPropertiesFile));
       if (resources.size() > 0) {
         if (resources.size() > 1) {
-          LOG.warn("File '{}' found several times in the classloader : {}. Only the first one will be taken in account.",
+          LOG.debug("File '{}' found several times in the classloader : {}. Only the first one will be taken in account.",
               bundleDefaultPropertiesFile, classloader);
         }
 
@@ -158,8 +157,8 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
             while (keysToAdd.hasMoreElements()) {
               String key = keysToAdd.nextElement();
               if (keys.containsKey(key)) {
-                LOG.warn("DUPLICATE KEY : Key '{}' defined in bundle '{}' is already defined in bundle '{}'. It is ignored.", new Object[] {
-                    key, bundleBaseName, keys.get(key) });
+                LOG.debug("DUPLICATE KEY : Key '{}' defined in bundle '{}' is already defined in bundle '{}'. It is ignored.",
+                    new Object[] { key, bundleBaseName, keys.get(key) });
               } else {
                 keys.put(key, bundleBaseName);
               }
@@ -185,7 +184,7 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
         translatedMessage = findStandardMessage(locale, key, defaultText, objects);
       }
     } catch (MissingResourceException e) {
-      LOG.warn(e.getMessage());
+      LOG.debug(e.getMessage());
       if (translatedMessage == null) {
         // when no translation has been found, the key is returned
         return key;
@@ -266,7 +265,7 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
             throw new MissingResourceException("VOID KEY : Key '" + key + "' (from bundle '" + bundleBaseName + "') returns a void value.",
                 bundleBaseName, key);
           }
-          LOG.warn("VOID KEY : Key '{}' (from bundle '{}') returns a void value. Default value '{}' is returned.", new Object[] { key,
+          LOG.debug("VOID KEY : Key '{}' (from bundle '{}') returns a void value. Default value '{}' is returned.", new Object[] { key,
               bundleBaseName, defaultText });
         } else {
           translation = value;
@@ -275,7 +274,7 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
         if (translation == null) {
           throw e;
         }
-        LOG.warn("BUNDLE NOT LOADED : Failed loading bundle {} from classloader {}. Default value '{}' is returned.", new Object[] {
+        LOG.debug("BUNDLE NOT LOADED : Failed loading bundle {} from classloader {}. Default value '{}' is returned.", new Object[] {
             bundleBaseName, bundleClassLoader, defaultText });
       }
     }
@@ -293,7 +292,7 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
       throw new MissingResourceException("UNKNOWN KEY : Key '" + key
           + "' not found in any bundle, and no default value provided. The key is returned.", bundleBaseName, key);
     }
-    LOG.warn("UNKNOWN KEY : Key '{}' not found in any bundle. Default value '{}' is returned.", key, defaultText);
+    LOG.debug("UNKNOWN KEY : Key '{}' not found in any bundle. Default value '{}' is returned.", key, defaultText);
     unknownKeys.put(key, defaultText);
   }
 
