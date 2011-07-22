@@ -49,7 +49,7 @@
           <li class="<%= 'selected' if request.request_uri.include?("page=#{page.getId()}") -%>"><a href="<%= ApplicationController.root_context -%>/plugins/resource/<%= @project.id-%>?page=<%= page.getId() -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) %></a></li>
           <% end %>
           <% if has_role?(:admin, @project) %>
-            <li class="h2"><%= message('sidebar.project_system') -%></li>
+            <li class="h2"><%= message('sidebar.project_settings') -%></li>
             <li class="<%= 'selected' if request.request_uri.include?('/manual_measures') -%>"><a href="<%= ApplicationController.root_context -%>/manual_measures/index/<%= @project.id -%>"><%= message('manual_measures.page') -%></a></li>
             <% if (@project.project? || @project.module?) %>
               <li class="<%= 'selected' if request.request_uri.include?('/project/settings') -%>"><a href="<%= ApplicationController.root_context -%>/project/settings/<%= @project.id -%>"><%= message('project_settings.page') -%></a></li>
@@ -117,9 +117,7 @@
   Open Source <a href="http://www.sonarsource.org/documentation/license/" target="license" class="external">LGPL</a> 
   - 
   v.<%= sonar_version -%> 
-  - 
-  <a href="http://sonar-plugins.codehaus.org" class="external" target="plugins"><%= message('layout.plugins') -%></a> 
-  - 
+  -
   <a href="http://sonar.codehaus.org/documentation" class="external" target="sonar_doc" class="external"><%= message('layout.documentation') -%></a> 
   - 
   <a href="http://sonar.codehaus.org/support/" target="support" class="external"><%= message('layout.ask_a_questions') -%></a> 

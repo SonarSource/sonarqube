@@ -6,10 +6,9 @@
 <%
    profile_measure=@snapshot.measure(Metric::PROFILE)
  %>
-<%= link_to_favourite(@project) -%> Version <%= @snapshot.version -%> - <%= l @snapshot.created_at %>
-<% if profile_measure %> - Profile <%= link_to profile_measure.data, :controller => '/rules_configuration', :action => 'index', :id => profile_measure.value.to_i %><% end %>
+<% if profile_measure %>Profile <%= link_to profile_measure.data, :controller => '/rules_configuration', :action => 'index', :id => profile_measure.value.to_i %> - <% end %>
 <% if @snapshot.project_snapshot.periods? %>
-- <form method="GET" action="<%= url_for :only_path=>true, :overwrite_params => {:period => nil} -%>" style="display: inline">
+<form method="GET" action="<%= url_for :only_path=>true, :overwrite_params => {:period => nil} -%>" style="display: inline">
     <select id="select-comparison" name="period" onchange="submit()" class="small">
       <option value=""><%= message('time_changes') -%>...</option>
       <%= violation_period_select_options(@snapshot, 1) -%>
