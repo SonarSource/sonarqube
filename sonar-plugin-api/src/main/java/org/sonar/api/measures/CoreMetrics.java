@@ -752,7 +752,7 @@ public final class CoreMetrics {
   public static final Metric VIOLATIONS = new Metric.Builder(VIOLATIONS_KEY, "Violations", Metric.ValueType.INT)
       .setDescription("Violations")
       .setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(true)
+      .setQualitative(false)
       .setDomain(DOMAIN_RULES)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
