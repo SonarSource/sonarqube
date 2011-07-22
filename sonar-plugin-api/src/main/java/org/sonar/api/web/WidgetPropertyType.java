@@ -20,5 +20,9 @@
 package org.sonar.api.web;
 
 public enum WidgetPropertyType {
-  INTEGER, BOOLEAN, FLOAT, STRING
+  INTEGER,
+  BOOLEAN,
+  FLOAT,
+  STRING,
+  METRIC // @since 2.10
 }

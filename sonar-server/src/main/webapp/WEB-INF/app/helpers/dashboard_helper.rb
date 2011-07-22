@@ -19,6 +19,7 @@
 #
 module DashboardHelper
   include WidgetPropertiesHelper
+  include MetricsHelper
 
   def formatted_value(measure, default='')
     measure ? measure.formatted_value : default

@@ -22,6 +22,7 @@ class WidgetProperty < ActiveRecord::Base
   TYPE_BOOLEAN = 'BOOLEAN'
   TYPE_FLOAT = 'FLOAT'
   TYPE_STRING = 'STRING'
+  TYPE_METRIC = 'METRIC'
 
   belongs_to :widget
 
@@ -44,6 +45,8 @@ class WidgetProperty < ActiveRecord::Base
       Float(value)
     when TYPE_BOOLEAN
       value=='true'
+    when TYPE_METRIC
+      Metric.by_key(value.to_s)
     else
       value
     end

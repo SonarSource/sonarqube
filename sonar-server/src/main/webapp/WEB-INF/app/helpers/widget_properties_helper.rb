@@ -18,8 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 module WidgetPropertiesHelper
-  
-   
+
   def property_value_field(definition, value)
     val=value || definition.defaultValue()
     if definition.type.name()==WidgetProperty::TYPE_INTEGER
@@ -30,6 +29,9 @@ module WidgetPropertiesHelper
 
     elsif definition.type.name()==WidgetProperty::TYPE_BOOLEAN
       check_box_tag definition.key(), "true", val=='true'
+
+    elsif definition.type.name()==WidgetProperty::TYPE_METRIC
+      select_tag definition.key(), options_grouped_by_domain(Metric.all.select{|m| m.display?}, val, :include_empty => true)
 
     elsif definition.type.name()==WidgetProperty::TYPE_STRING
       text_field_tag definition.key(), val, :size => 10
