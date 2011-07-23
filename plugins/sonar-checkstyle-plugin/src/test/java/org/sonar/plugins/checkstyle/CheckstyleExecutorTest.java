@@ -25,10 +25,12 @@ import org.apache.commons.lang.StringUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Test;
+import org.sonar.api.i18n.I18n;
 
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Locale;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -42,7 +44,7 @@ public class CheckstyleExecutorTest {
   public void execute() throws Exception {
     CheckstyleConfiguration conf = mockConf();
     CheckstyleAuditListener listener = mockListener();
-    CheckstyleExecutor executor = new CheckstyleExecutor(conf, listener, getClass().getClassLoader());
+    CheckstyleExecutor executor = new CheckstyleExecutor(conf, listener, getClass().getClassLoader(), mockI18n());
     executor.execute();
 
     verify(listener, times(1)).auditStarted((AuditEvent) anyObject());
@@ -60,7 +62,7 @@ public class CheckstyleExecutorTest {
     File report = new File("target/test-tmp/checkstyle-report.xml");
     when(conf.getTargetXMLReport()).thenReturn(report);
     CheckstyleAuditListener listener = mockListener();
-    CheckstyleExecutor executor = new CheckstyleExecutor(conf, listener, getClass().getClassLoader());
+    CheckstyleExecutor executor = new CheckstyleExecutor(conf, listener, getClass().getClassLoader(), mockI18n());
     executor.execute();
 
     assertThat(report.exists(), is(true));
@@ -101,5 +103,12 @@ public class CheckstyleExecutorTest {
     when(conf.getCheckstyleConfiguration()).thenReturn(CheckstyleConfiguration.toCheckstyleConfiguration(new File("test-resources/checkstyle-conf.xml")));
     when(conf.getSourceFiles()).thenReturn(Arrays.<File>asList(new File("test-resources/Hello.java"), new File("test-resources/World.java")));
     return conf;
+  }
+  
+  private I18n mockI18n()
+  {
+    I18n i18n = mock(I18n.class);
+    when(i18n.getDefaultLocale()).thenReturn(Locale.CANADA_FRENCH);
+    return i18n;
   }
 }

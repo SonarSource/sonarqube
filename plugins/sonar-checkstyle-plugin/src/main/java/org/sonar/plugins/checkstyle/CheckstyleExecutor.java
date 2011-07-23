@@ -21,6 +21,7 @@ package org.sonar.plugins.checkstyle;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.util.Locale;
 
 import com.puppycrawl.tools.checkstyle.Checker;
 import com.puppycrawl.tools.checkstyle.PackageNamesLoader;
@@ -31,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.ProjectClasspath;
+import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 
@@ -40,17 +42,20 @@ public class CheckstyleExecutor implements BatchExtension {
   private CheckstyleConfiguration configuration;
   private ClassLoader projectClassloader;
   private CheckstyleAuditListener listener;
+  private I18n i18n;
 
-  public CheckstyleExecutor(CheckstyleConfiguration configuration, CheckstyleAuditListener listener, ProjectClasspath classpath) {
+  public CheckstyleExecutor(CheckstyleConfiguration configuration, CheckstyleAuditListener listener, ProjectClasspath classpath, I18n i18n) {
     this.configuration = configuration;
     this.listener = listener;
     this.projectClassloader = classpath.getClassloader();
+    this.i18n = i18n;
   }
 
-  CheckstyleExecutor(CheckstyleConfiguration configuration, CheckstyleAuditListener listener, ClassLoader projectClassloader) {
+  CheckstyleExecutor(CheckstyleConfiguration configuration, CheckstyleAuditListener listener, ClassLoader projectClassloader, I18n i18n) {
     this.configuration = configuration;
     this.listener = listener;
     this.projectClassloader = projectClassloader;
+    this.i18n = i18n;
   }
 
   /**
@@ -78,6 +83,12 @@ public class CheckstyleExecutor implements BatchExtension {
       }
 
       checker.setCharset(configuration.getCharset().name());
+      Locale defaultLocale = i18n.getDefaultLocale();
+      checker.setLocaleLanguage(defaultLocale.getLanguage());
+      if (! defaultLocale.getCountry().isEmpty())
+      {
+        checker.setLocaleCountry(defaultLocale.getCountry());
+      }
       checker.configure(configuration.getCheckstyleConfiguration());
       checker.process(configuration.getSourceFiles());
 
