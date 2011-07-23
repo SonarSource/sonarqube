@@ -111,7 +111,8 @@ public final class I18nManager implements I18n, ServerExtension, BatchExtension 
       defaultLocale = new Locale(defaultLocaleFields[0]);
     } else {
       defaultLocale = new Locale(defaultLocaleFields[0], defaultLocaleFields[1]);
-    }    
+    }
+    Locale.setDefault(defaultLocale);
     if (defaultLocale.equals(Locale.ENGLISH) || registeredLocales.contains(defaultLocale))
     {
       Logs.INFO.info("Default locale for analysis : " + defaultLocale);
