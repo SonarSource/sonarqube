@@ -1,0 +1,8 @@
+<p>This code directly writes an HTTP parameter to an HTTP header, which allows for a HTTP response splitting
+vulnerability. See <a href="http://en.wikipedia.org/wiki/HTTP_response_splitting">http://en.wikipedia.org/wiki/HTTP_response_splitting</a>
+for more information.</p>
+<p>FindBugs looks only for the most blatant, obvious cases of HTTP response splitting.
+If FindBugs found <em>any</em>, you <em>almost certainly</em> have more 
+vulnerabilities that FindBugs doesn't report. If you are concerned about HTTP response splitting, you should seriously 
+consider using a commercial static analysis or pen-testing tool.
+</p>

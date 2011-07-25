@@ -1,0 +1,13 @@
+<p> During the initialization of a class, the class makes an active use of a subclass.
+That subclass will not yet be initialized at the time of this use.
+For example, in the following code, <code>foo</code> will be null.</p>
+
+<pre>
+public class CircularClassInitialization {
+	static class InnerClassSingleton extends CircularClassInitialization {
+		static InnerClassSingleton singleton = new InnerClassSingleton();
+	}
+	
+	static CircularClassInitialization foo = InnerClassSingleton.singleton;
+}
+</pre>

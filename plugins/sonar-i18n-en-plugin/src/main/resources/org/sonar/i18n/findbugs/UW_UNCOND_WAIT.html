@@ -1,0 +1,5 @@
+<p> This method contains a call to <code>java.lang.Object.wait()</code> which
+  is not guarded by conditional control flow.&nbsp; The code should
+	verify that condition it intends to wait for is not already satisfied
+	before calling wait; any previous notifications will be ignored.
+  </p>

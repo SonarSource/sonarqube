@@ -1,0 +1,19 @@
+For any method that returns an array, it's a better behavior to return an empty array rather than a null reference. Example :
+<pre>
+public class Example
+{
+  // Not a good idea...
+  public int []badBehavior()
+  {
+    // ...
+    return null;
+  }
+
+  // Good behavior
+  public String[] bonnePratique()
+  {
+    //...
+    return new String[0];
+  }
+}
+</pre>

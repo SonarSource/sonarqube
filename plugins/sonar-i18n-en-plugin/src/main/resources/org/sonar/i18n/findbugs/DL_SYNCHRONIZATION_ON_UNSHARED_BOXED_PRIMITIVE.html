@@ -1,0 +1,20 @@
+<p> The code synchronizes on an apparently unshared boxed primitive, 
+such as an Integer.
+<pre>
+private static final Integer fileLock = new Integer(1);
+...
+  synchronized(fileLock) { 
+     .. do something ..
+     }
+...
+</pre>
+</p>
+<p>It would be much better, in this code, to redeclare fileLock as
+<pre>
+private static final Object fileLock = new Object();
+</pre>
+The existing code might be OK, but it is confusing and a 
+future refactoring, such as the "Remove Boxing" refactoring in IntelliJ,
+might replace this with the use of an interned Integer object shared 
+throughout the JVM, leading to very confusing behavior and potential deadlock.
+</p>

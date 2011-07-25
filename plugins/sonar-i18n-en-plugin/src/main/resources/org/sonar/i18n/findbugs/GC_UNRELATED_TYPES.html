@@ -1,0 +1,23 @@
+<p> This call to a generic collection method contains an argument
+     with an incompatible class from that of the collection's parameter
+	(i.e., the type of the argument is neither a supertype nor a subtype 
+		of the corresponding generic type argument).
+     Therefore, it is unlikely that the collection contains any objects 
+	that are equal to the method argument used here.
+	Most likely, the wrong value is being passed to the method.</p>
+	<p>In general, instances of two unrelated classes are not equal. 
+	For example, if the <code>Foo</code> and <code>Bar</code> classes
+	are not related by subtyping, then an instance of <code>Foo</code>
+		should not be equal to an instance of <code>Bar</code>.
+	Among other issues, doing so will likely result in an equals method
+	that is not symmetrical. For example, if you define the <code>Foo</code> class
+	so that a <code>Foo</code> can be equal to a <code>String</code>,
+	your equals method isn't symmetrical since a <code>String</code> can only be equal
+	to a <code>String</code>.
+	</p>
+	<p>In rare cases, people do define nonsymmetrical equals methods and still manage to make 
+	their code work. Although none of the APIs document or guarantee it, it is typically
+	the case that if you check if a <code>Collection&lt;String&gt;</code> contains
+	a <code>Foo</code>, the equals method of argument (e.g., the equals method of the 
+	<code>Foo</code> class) used to perform the equality checks.
+	</p>

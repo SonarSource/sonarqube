@@ -1,0 +1,26 @@
+<p>
+      OpenJDK introduces a potential incompatibility.
+      In particular, the java.util.logging.Logger behavior has
+      changed. Instead of using strong references, it now uses weak references
+      internally. That's a reasonable change, but unfortunately some code relies on
+      the old behavior - when changing logger configuration, it simply drops the
+      logger reference. That means that the garbage collector is free to reclaim
+      that memory, which means that the logger configuration is lost. For example,
+      consider:
+      </p>
+      <p><pre>public static void initLogging() throws Exception {
+      Logger logger = Logger.getLogger("edu.umd.cs");
+      logger.addHandler(new FileHandler()); // call to change logger configuration
+      logger.setUseParentHandlers(false); // another call to change logger configuration
+      }</pre></p>
+      <p>The logger reference is lost at the end of the method (it doesn't
+      escape the method), so if you have a garbage collection cycle just
+      after the call to initLogging, the logger configuration is lost
+      (because Logger only keeps weak references).</p>
+      <p><pre>public static void main(String[] args) throws Exception {
+      initLogging(); // adds a file handler to the logger
+      System.gc(); // logger configuration lost
+      Logger.getLogger("edu.umd.cs").info("Some message"); // this isn't logged to the file as expected
+      }</pre></p>
+      <p><em>Ulf Ochsenfahrt and Eric Fellheimer</em>
+    </p>

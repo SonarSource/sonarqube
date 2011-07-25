@@ -1,0 +1,25 @@
+<p>
+        A value specified as carrying a type qualifier annotation is
+        consumed in a location or locations requiring that the value not
+        carry that annotation.
+        </p>
+        
+        <p>
+        More precisely, a value annotated with a type qualifier specifying when=ALWAYS
+        is guaranteed to reach a use or uses where the same type qualifier specifies when=NEVER.
+        </p>
+        
+        <p>
+        For example, say that @NonNegative is a nickname for
+        the type qualifier annotation @Negative(when=When.NEVER).
+        The following code will generate this warning because
+        the return statement requires a @NonNegative value,
+        but receives one that is marked as @Negative.   
+        </p>
+        <blockquote>
+<pre>
+public @NonNegative Integer example(@Negative Integer value) {
+    return value;
+}
+</pre>
+        </blockquote>

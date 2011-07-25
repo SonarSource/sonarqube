@@ -1,0 +1,1 @@
+Java uses the short type to reduce memory usage, not to optimize calculation. On the contrary, the jvm does not has an arithmetic capabilities with the type short. So, the P-code must convert the short into int, then do the proper caculation and then again, convert int to short. So, use of the "short" type may have a great effect on memory usage.

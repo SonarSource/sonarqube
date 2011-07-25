@@ -1,0 +1,21 @@
+<p>
+This code performs integer multiply and then converts the result to a long,
+as in:
+<code>
+<pre> 
+	long convertDaysToMilliseconds(int days) { return 1000*3600*24*days; } 
+</pre></code>
+If the multiplication is done using long arithmetic, you can avoid
+the possibility that the result will overflow. For example, you
+could fix the above code to:
+<code>
+<pre> 
+	long convertDaysToMilliseconds(int days) { return 1000L*3600*24*days; } 
+</pre></code>
+or 
+<code>
+<pre> 
+	static final long MILLISECONDS_PER_DAY = 24L*3600*1000;
+	long convertDaysToMilliseconds(int days) { return days * MILLISECONDS_PER_DAY; } 
+</pre></code>
+</p>

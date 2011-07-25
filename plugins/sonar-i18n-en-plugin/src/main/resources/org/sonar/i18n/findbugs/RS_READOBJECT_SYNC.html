@@ -1,0 +1,6 @@
+<p> This serializable class defines a <code>readObject()</code> which is
+  synchronized.&nbsp; By definition, an object created by deserialization
+  is only reachable by one thread, and thus there is no need for
+  <code>readObject()</code> to be synchronized.&nbsp; If the <code>readObject()</code>
+  method itself is causing the object to become visible to another thread,
+  that is an example of very dubious coding style.</p>

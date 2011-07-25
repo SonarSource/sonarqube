@@ -1,0 +1,25 @@
+<p>Checks that any combination of String literals with optional assignment is on the left side of an equals() comparison.</p>
+<p>Rationale: Calling the equals() method on String literals will avoid a potential NullPointerException. Also, it is pretty common to see null check right before equals comparisons which is not necessary in the below example.</p>
+<p>For example:
+<pre>
+  String nullString = null;
+  nullString.equals("My_Sweet_String");
+</pre>
+</p>
+
+<p>
+should be refactored to:
+<pre>
+  String nullString = null;
+  "My_Sweet_String".equals(nullString);
+</pre>
+</p>
+<p>Limitations: If the equals method is overridden or a covariant equals method is defined and the implementation is incorrect (where s.equals(t) does not return the same result as t.equals(s)) then rearranging the called on object and parameter may have unexpected results.</p>
+<p>Java's Autoboxing feature has an affect on how this check is implemented. Pre Java 5 all IDENT + IDENT object concatenations would not cause a NullPointerException even if null. Those situations could have been included in this check. They would simply act as if they surrounded by String.valueof() which would concatenate the String null.</p>
+<p>The following example will cause a NullPointerException as a result of what autoboxing does.</p>
+<pre>
+  Integer i = null, j = null;
+  String number = "5"
+  number.equals(i + j);
+</pre>
+<p>Since, it is difficult to determine what kind of Object is being concatenated all ident concatenation is considered unsafe.</p>

@@ -1,0 +1,7 @@
+The method name and return type are suspiciously close to hashCode(), which may mean you are intending to override the hashCode() method. Example :
+<pre>
+public class Foo {
+  public int hashcode() {
+  // oops, this probably was supposed to be hashCode
+  }
+}</pre>

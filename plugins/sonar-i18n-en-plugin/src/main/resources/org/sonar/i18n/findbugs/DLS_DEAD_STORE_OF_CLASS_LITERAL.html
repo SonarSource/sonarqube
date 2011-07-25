@@ -1,0 +1,10 @@
+<p>
+This instruction assigns a class literal to a variable and then never uses it.
+<a href="//java.sun.com/j2se/1.5.0/compatibility.html#literal">The behavior of this differs in Java 1.4 and in Java 5.</a>
+In Java 1.4 and earlier, a reference to <code>Foo.class</code> would force the static initializer
+for <code>Foo</code> to be executed, if it has not been executed already.
+In Java 5 and later, it does not.
+</p>
+<p>See Sun's <a href="//java.sun.com/j2se/1.5.0/compatibility.html#literal">article on Java SE compatibility</a>
+for more details and examples, and suggestions on how to force class initialization in Java 5.
+</p>

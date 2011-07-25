@@ -1,0 +1,5 @@
+Checks for redundant import statements. An import statement is considered redundant if:
+<ul>
+    <li>It is a duplicate of another import. This is, when a class is imported more than once.</li>
+    <li>The class imported is from the java.lang package, e.g. importing java.lang.String.</li>
+    <li>The class imported is from the same package.</li></ul>

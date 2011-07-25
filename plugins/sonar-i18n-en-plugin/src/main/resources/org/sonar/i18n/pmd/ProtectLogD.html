@@ -1,0 +1,12 @@
+Log.d calls should be protected by checking Config.LOGD first. Example :
+<pre>
+public class DummyActivity extends Activity {
+  public void foo() {
+    Log.d("TAG", "msg1"); // Bad
+
+    bar();
+
+    if (Config.LOGD) Log.d("TAG", "msg1"); // Good
+  }
+}
+</pre>

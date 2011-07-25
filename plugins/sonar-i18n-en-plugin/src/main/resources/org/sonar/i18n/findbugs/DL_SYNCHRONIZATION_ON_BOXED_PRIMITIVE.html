@@ -1,0 +1,13 @@
+<p> The code synchronizes on a boxed primitive constant, such as an Integer.
+<pre>
+private static Integer count = 0;
+...
+  synchronized(count) { 
+     count++;
+     }
+...
+</pre>
+</p>
+<p>Since Integer objects can be cached and shared,
+this code could be synchronizing on the same object as other, unrelated code, leading to unresponsiveness
+and possible deadlock</p>

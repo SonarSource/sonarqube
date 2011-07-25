@@ -1,0 +1,16 @@
+Swith are designed complex branches, and allow branches to share treatement. Using a switch for only a few branches is ill advised, as switches are not as easy to understand as if. In this case, it's most likely is a good idea to use a if statement instead, at least to increase code readability. Example :
+<pre>
+// With a minimumNumberCaseForASwitch of 3
+public class Foo {
+  public void bar() {
+    switch (condition) {
+      case ONE:
+        instruction;
+        break;
+      default:
+        break; // not enough for a 'switch' stmt,
+               // a simple 'if' stmt would have been more appropriate
+    }
+  }
+}
+</pre>

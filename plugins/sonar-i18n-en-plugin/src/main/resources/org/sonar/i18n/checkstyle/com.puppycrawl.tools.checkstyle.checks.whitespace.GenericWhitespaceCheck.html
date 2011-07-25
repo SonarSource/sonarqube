@@ -1,0 +1,15 @@
+<p>Checks that the whitespace around the Generic tokens < and >  is correct to the typical convention. The convention is not configurable.</p>
+<p>
+For example the following is legal:
+</p>
+<pre>
+  List<Integer> x = new ArrayList<Integer>();
+  List<List<Integer>> y = new ArrayList<List<Integer>>();
+</pre>
+<p>
+But the following example is not:
+</p>
+<pre>
+  List < Integer > x = new ArrayList < Integer > ();
+  List < List < Integer > > y = new ArrayList < List < Integer > > ();
+</pre>

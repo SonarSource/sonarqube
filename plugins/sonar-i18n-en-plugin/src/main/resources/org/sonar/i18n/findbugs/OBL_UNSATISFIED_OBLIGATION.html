@@ -1,0 +1,34 @@
+<p>
+      This method may fail to clean up (close, dispose of) a stream,
+      database object, or other
+      resource requiring an explicit cleanup operation.
+      </p>
+      <p>
+      In general, if a method opens a stream or other resource,
+      the method should use a try/finally block to ensure that
+      the stream or resource is cleaned up before the method
+      returns.
+      </p>
+      <p>
+      This bug pattern is essentially the same as the
+      OS_OPEN_STREAM and ODR_OPEN_DATABASE_RESOURCE
+      bug patterns, but is based on a different
+      (and hopefully better) static analysis technique.
+      We are interested is getting feedback about the
+      usefulness of this bug pattern.
+      To send feedback, either:
+      </p>
+      <ul>
+        <li>send email to findbugs@cs.umd.edu</li>
+        <li>file a bug report: <a href="http://findbugs.sourceforge.net/reportingBugs.html">http://findbugs.sourceforge.net/reportingBugs.html</a></li>
+      </ul>
+      <p>
+      In particular,
+      the false-positive suppression heuristics for this
+      bug pattern have not been extensively tuned, so
+      reports about false positives are helpful to us.
+      </p>
+      <p>
+      See Weimer and Necula, <i>Finding and Preventing Run-Time Error Handling Mistakes</i>, for
+      a description of the analysis technique.
+      </p>

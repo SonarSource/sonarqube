@@ -1,0 +1,15 @@
+Checks the Javadoc of a method or constructor. By default, does not check for unused throws. 
+    To allow documented java.lang.RuntimeExceptions that are not declared, set property allowUndeclaredRTE to true. 
+    The scope to verify is specified using the Scope class and defaults to Scope.PRIVATE. 
+    To verify another scope, set property scope to a different scope.
+    
+    <br><br>Error messages about parameters and type parameters for which no param tags are present can be suppressed by defining property allowMissingParamTags. 
+    Error messages about exceptions which are declared to be thrown, but for which no throws tag is present can be suppressed by defining property allowMissingThrowsTags. 
+    Error messages about methods which return non-void but for which no return tag is present can be suppressed by defining property allowMissingReturnTag.
+
+    <br><br>Javadoc is not required on a method that is tagged with the @Override annotation. 
+    However under Java 5 it is not possible to mark a method required for an interface (this was corrected under Java 6). 
+    Hence Checkstyle supports using the convention of using a single {@inheritDoc} tag instead of all the other tags.
+    
+    <br><br>Note that only inheritable items will allow the {@inheritDoc} tag to be used in place of comments. 
+    Static methods at all visibilities, private non-static methods and constructors are not inheritable.

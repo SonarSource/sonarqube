@@ -1,0 +1,9 @@
+<p>This code is casting the result of calling toArray() on a collection to a type more specific than Object[], as in:</p>
+<pre>
+  String[] getAsArray(Collection<String> c) {
+    return (String[]) c.toArray();
+  }
+</pre>
+<p>This will usually fail by throwing a ClassCastException. The <code>toArray()</code> of almost all collections return an <code>Object[]</code>. They can't really do anything else, since the Collection object has no reference to the declared generic type of the collection.</p>
+<p>The correct way to do get an array of a specific type from a collection is to use <code>c.toArray(new String[]);</code> or <code>c.toArray(new String[c.size()]);</code> (the latter is slightly more efficient).</p>
+<p>There is one common/known exception exception to this. The toArray() method of lists returned by Arrays.asList(...) will return a covariantly typed array. For example, <code>Arrays.asArray(new String[] { "a" }).toArray()</code> will return a String []. FindBugs attempts to detect and suppress such cases, but may miss some.</p>

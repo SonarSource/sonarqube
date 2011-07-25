@@ -1,0 +1,28 @@
+<p> The method in the subclass doesn't override a similar method in a superclass because the type of a parameter doesn't exactly match
+the type of the corresponding parameter in the superclass. For example, if you have:</p>
+
+<blockquote>
+<pre>
+import alpha.Foo;
+public class A {
+  public int f(Foo x) { return 17; }
+}
+----
+import beta.Foo;
+public class B extends A {
+  public int f(Foo x) { return 42; }
+  public int f(alpha.Foo x) { return 27; }
+}
+</pre>
+</blockquote>
+
+<p>The <code>f(Foo)</code> method defined in class <code>B</code> doesn't
+override the 
+<code>f(Foo)</code> method defined in class <code>A</code>, because the argument
+types are <code>Foo</code>'s from different packages.
+</p>
+
+<p>In this case, the subclass does define a method with a signature identical to the method in the superclass,
+so this is presumably understood. However, such methods are exceptionally confusing. You should strongly consider
+removing or deprecating the method with the similar but not identical signature.
+</p>

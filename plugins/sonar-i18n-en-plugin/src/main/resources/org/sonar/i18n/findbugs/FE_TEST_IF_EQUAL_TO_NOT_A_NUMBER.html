@@ -1,0 +1,12 @@
+<p>
+    This code checks to see if a floating point value is equal to the special
+	Not A Number value (e.g., <code>if (x == Double.NaN)</code>). However,
+	because of the special semantics of <code>NaN</code>, no value
+	is equal to <code>Nan</code>, including <code>NaN</code>. Thus,
+	<code>x == Double.NaN</code> always evaluates to false.
+
+	To check to see if a value contained in <code>x</code>
+	is the special Not A Number value, use 
+	<code>Double.isNaN(x)</code> (or <code>Float.isNaN(x)</code> if
+	<code>x</code> is floating point precision).
+    </p>

@@ -1,0 +1,14 @@
+<p>
+This method calls equals(Object) on two references,  one of which is a class
+and the other an interface, where neither the class nor any of its
+non-abstract subclasses implement the interface.
+Therefore, the objects being compared
+are unlikely to be members of the same class at runtime
+(unless some application classes were not analyzed, or dynamic class
+loading can occur at runtime).
+According to the contract of equals(),
+objects of different
+classes should always compare as unequal; therefore, according to the
+contract defined by java.lang.Object.equals(Object),
+the result of this comparison will always be false at runtime.
+</p>

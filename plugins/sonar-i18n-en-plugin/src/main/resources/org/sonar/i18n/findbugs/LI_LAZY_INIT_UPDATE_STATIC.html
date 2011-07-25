@@ -1,0 +1,7 @@
+<p> This method contains an unsynchronized lazy initialization of a static field.
+After the field is set, the object stored into that location is further accessed. 
+The setting of the field is visible to other threads as soon as it is set. If the
+futher accesses in the method that set the field serve to initialize the object, then
+you have a <em>very serious</em> multithreading bug, unless something else prevents
+any other thread from accessing the stored object until it is fully initialized.
+</p>

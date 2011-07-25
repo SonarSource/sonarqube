@@ -1,0 +1,23 @@
+<p> Adds a byte value and a value which is known to the 8 lower bits clear.
+Values loaded from a byte array are sign extended to 32 bits
+before any any bitwise operations are performed on the value.
+Thus, if <code>b[0]</code> contains the value <code>0xff</code>, and
+<code>x</code> is initially 0, then the code 
+<code>((x &lt;&lt; 8) + b[0])</code>  will sign extend <code>0xff</code>
+to get <code>0xffffffff</code>, and thus give the value
+<code>0xffffffff</code> as the result.
+</p>
+
+<p>In particular, the following code for packing a byte array into an int is badly wrong: </p>
+<pre>
+int result = 0;
+for(int i = 0; i &lt; 4; i++) 
+  result = ((result &lt;&lt; 8) + b[i]);
+</pre>
+
+<p>The following idiom will work instead: </p>
+<pre>
+int result = 0;
+for(int i = 0; i &lt; 4; i++) 
+  result = ((result &lt;&lt; 8) + (b[i] &amp; 0xff));
+</pre>

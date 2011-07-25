@@ -1,0 +1,8 @@
+<p>
+	A large String constant is duplicated across multiple class files. 
+	This is likely because a final field is initialized to a String constant, and the Java language
+	mandates that all references to a final field from other classes be inlined into
+that classfile. See <a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6447475">JDK bug 6447475</a>
+	for a description of an occurrence of this bug in the JDK and how resolving it reduced
+	the size of the JDK by 1 megabyte.
+</p>

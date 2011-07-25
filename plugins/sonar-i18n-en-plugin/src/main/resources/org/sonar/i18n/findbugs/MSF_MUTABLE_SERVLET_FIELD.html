@@ -1,0 +1,6 @@
+<p>A web server generally only creates one instance of servlet or jsp class (i.e., treats
+the class as a Singleton), 
+and will 
+have multiple threads invoke methods on that instance to service multiple 
+simultaneous requests.
+Thus, having a mutable instance field generally creates race conditions.

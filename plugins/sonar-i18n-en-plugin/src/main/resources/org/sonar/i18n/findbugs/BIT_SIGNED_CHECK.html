@@ -1,0 +1,11 @@
+<p> This method compares an expression such as
+<pre>((event.detail &amp; SWT.SELECTED) &gt; 0)</pre>.
+Using bit arithmetic and then comparing with the greater than operator can
+lead to unexpected results (of course depending on the value of
+SWT.SELECTED). If SWT.SELECTED is a negative number, this is a candidate
+for a bug. Even when SWT.SELECTED is not negative, it seems good practice
+to use '!= 0' instead of '&gt; 0'.
+</p>
+<p>
+<em>Boris Bokowski</em>
+</p>

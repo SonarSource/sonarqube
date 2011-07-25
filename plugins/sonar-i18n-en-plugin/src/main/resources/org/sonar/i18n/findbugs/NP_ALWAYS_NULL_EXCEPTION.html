@@ -1,0 +1,7 @@
+<p> A pointer which is null on an exception path is dereferenced here.&nbsp;
+This will lead to a <code>NullPointerException</code> when the code is executed.&nbsp;
+Note that because FindBugs currently does not prune infeasible exception paths,
+this may be a false warning.</p>
+
+<p> Also note that FindBugs considers the default case of a switch statement to
+be an exception path, since the default case is often infeasible.</p>

@@ -1,0 +1,7 @@
+<p> An inner class is invoking a method that could be resolved to either a inherited method or a method defined in an outer class. By the Java semantics,
+it will be resolved to invoke the inherited method, but this may not be want
+you intend. If you really intend to invoke the inherited method,
+invoke it by invoking the method on super (e.g., invoke super.foo(17)), and
+thus it will be clear to other readers of your code and to FindBugs
+that you want to invoke the inherited method, not the method in the outer class.
+</p>

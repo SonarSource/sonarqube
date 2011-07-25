@@ -1,0 +1,13 @@
+<p>The code computes the average of two integers using either division or signed right shift,
+and then uses the result as the index of an array.
+If the values being averaged are very large, this can overflow (resulting in the computation
+of a negative average).  Assuming that the result is intended to be nonnegative, you 
+can use an unsigned right shift instead. In other words, rather that using <code>(low+high)/2</code>,
+use <code>(low+high) &gt;&gt;&gt; 1</code>
+</p>
+<p>This bug exists in many earlier implementations of binary search and merge sort.
+Martin Buchholz <a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6412541">found and fixed it</a>
+in the JDK libraries, and Joshua Bloch
+<a href="http://googleresearch.blogspot.com/2006/06/extra-extra-read-all-about-it-nearly.html">widely
+publicized the bug pattern</a>.
+</p>

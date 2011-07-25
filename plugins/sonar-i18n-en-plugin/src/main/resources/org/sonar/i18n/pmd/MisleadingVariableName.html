@@ -1,0 +1,9 @@
+Detects when a non-field has a name starting with 'm_'. This usually indicates a field and thus is confusing. Example :
+<pre>
+public class Foo {
+  private int m_foo; // OK
+  public void bar(String m_baz) {  // Bad
+    int m_boz = 42; // Bad
+  }
+}
+</pre>

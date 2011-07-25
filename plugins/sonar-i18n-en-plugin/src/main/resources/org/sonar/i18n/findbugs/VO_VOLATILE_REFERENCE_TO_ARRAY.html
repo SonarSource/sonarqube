@@ -1,0 +1,6 @@
+<p>This declares a volatile reference to an array, which might not be what
+you want. With a volatile reference to an array, reads and writes of
+the reference to the array are treated as volatile, but the array elements
+are non-volatile. To get volatile array elements, you will need to use
+one of the atomic array classes in java.util.concurrent (provided
+in Java 5.0).</p>

@@ -1,0 +1,15 @@
+<p> This code creates an exception (or error) object, but doesn't do anything with it. For example,
+something like </p>
+<blockquote>
+<pre>
+if (x &lt; 0)
+  new IllegalArgumentException("x must be nonnegative");
+</pre>
+</blockquote>
+<p>It was probably the intent of the programmer to throw the created exception:</p>
+<blockquote>
+<pre>
+if (x &lt; 0)
+  throw new IllegalArgumentException("x must be nonnegative");
+</pre>
+</blockquote>

@@ -1,0 +1,9 @@
+Non-constructor methods should not have the same name as the enclosing class. Example :
+<pre>
+public class MyClass {
+  // this is bad because it is a method
+  public void MyClass() {}
+  // this is OK because it is a constructor
+  public MyClass() {}
+}
+</pre>

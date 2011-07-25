@@ -1,0 +1,7 @@
+<p> This class defines an enumeration, and equality on enumerations are defined
+using object identity. Defining a covariant equals method for an enumeration
+value is exceptionally bad practice, since it would likely result
+in having two different enumeration values that compare as equals using
+the covariant enum method, and as not equal when compared normally.
+Don't do it.
+</p>

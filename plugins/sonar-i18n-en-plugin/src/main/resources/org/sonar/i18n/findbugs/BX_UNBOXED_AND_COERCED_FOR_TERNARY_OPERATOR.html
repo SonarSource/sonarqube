@@ -1,0 +1,8 @@
+<p>A wrapped primitive value is unboxed and converted to another primitive type as part of the
+evaluation of a conditional ternary operator (the <code> b ? e1 : e2</code> operator). The
+semantics of Java mandate that if <code>e1</code> and <code>e2</code> are wrapped
+numeric values, the values are unboxed and converted/coerced to their common type (e.g,
+if <code>e1</code> is of type <code>Integer</code> 
+and <code>e2</code> is of type <code>Float</code>, then <code>e1</code> is unboxed,
+converted to a floating point value, and boxed. See JLS Section 15.25.
+</p>

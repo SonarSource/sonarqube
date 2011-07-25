@@ -1,0 +1,8 @@
+<p>This code directly writes an HTTP parameter to JSP output, which allows for a cross site scripting
+vulnerability. See <a href="http://en.wikipedia.org/wiki/Cross-site_scripting">http://en.wikipedia.org/wiki/Cross-site_scripting</a>
+for more information.</p>
+<p>FindBugs looks only for the most blatant, obvious cases of cross site scripting.
+If FindBugs found <em>any</em>, you <em>almost certainly</em> have more cross site scripting
+vulnerabilities that FindBugs doesn't report. If you are concerned about cross site scripting, you should seriously 
+consider using a commercial static analysis or pen-testing tool.
+</p>

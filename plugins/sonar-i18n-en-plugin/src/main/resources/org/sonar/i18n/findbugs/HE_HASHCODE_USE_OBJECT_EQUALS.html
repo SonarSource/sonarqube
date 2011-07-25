@@ -1,0 +1,14 @@
+<p> This class defines a <code>hashCode()</code> method but inherits its
+  <code>equals()</code> method from <code>java.lang.Object</code>
+  (which defines equality by comparing object references).&nbsp; Although
+  this will probably satisfy the contract that equal objects must have
+  equal hashcodes, it is probably not what was intended by overriding
+  the <code>hashCode()</code> method.&nbsp; (Overriding <code>hashCode()</code>
+  implies that the object's identity is based on criteria more complicated
+  than simple reference equality.)</p>
+<p>If you don't think instances of this class will ever be inserted into a HashMap/HashTable,
+the recommended <code>hashCode</code> implementation to use is:</p>
+<p><pre>public int hashCode() {
+  assert false : "hashCode not designed";
+  return 42; // any arbitrary constant will do 
+  }</pre></p>

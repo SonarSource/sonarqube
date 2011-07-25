@@ -1,0 +1,12 @@
+<p> The code synchronizes on interned String.
+<pre>
+private static String LOCK = "LOCK";
+...
+  synchronized(LOCK) { ...}
+...
+</pre>
+</p>
+<p>Constant Strings are interned and shared across all other classes loaded by the JVM. Thus, this could
+is locking on something that other code might also be locking. This could result in very strange and hard to diagnose
+blocking and deadlock behavior. See <a href="http://www.javalobby.org/java/forums/t96352.html">http://www.javalobby.org/java/forums/t96352.html</a> and <a href="http://jira.codehaus.org/browse/JETTY-352">http://jira.codehaus.org/browse/JETTY-352</a>.
+</p>

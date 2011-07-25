@@ -1,0 +1,15 @@
+<p> The code synchronizes on a boxed primitive constant, such as an Boolean.
+<pre>
+private static Boolean inited = Boolean.FALSE;
+...
+  synchronized(inited) { 
+    if (!inited) {
+       init();
+       inited = Boolean.TRUE;
+       }
+     }
+...
+</pre>
+</p>
+<p>Since there normally exist only two Boolean objects, this code could be synchronizing on the same object as other, unrelated code, leading to unresponsiveness
+and possible deadlock</p>

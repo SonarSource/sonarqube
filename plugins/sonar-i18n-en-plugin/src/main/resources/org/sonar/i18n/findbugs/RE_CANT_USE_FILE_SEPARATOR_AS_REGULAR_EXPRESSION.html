@@ -1,0 +1,9 @@
+<p>
+The code here uses <code>File.separator</code> 
+where a regular expression is required. This will fail on Windows
+platforms, where the <code>File.separator</code> is a backslash, which is interpreted in a
+regular expression as an escape character. Amoung other options, you can just use
+<code>File.separatorChar=='\\' &amp; "\\\\" : File.separator</code> instead of
+<code>File.separator</code>
+
+</p>

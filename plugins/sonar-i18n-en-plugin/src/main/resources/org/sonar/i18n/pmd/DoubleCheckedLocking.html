@@ -1,0 +1,16 @@
+Partially created objects can be returned by the Double Checked Locking pattern when used in Java. An optimizing JRE may assign a reference to the baz variable before it creates the object the reference is intended to point to. <a href="http://www.javaworld.com/javaworld/jw-02-2001/jw-0209-double.html">More details</a>. Example :
+<pre>
+public class Foo {
+  Object baz;
+  Object bar() {
+    if(baz == null) { //baz may be non-null yet not fully created
+      synchronized(this){
+        if(baz == null){
+          baz = new Object();
+        }
+      }
+    }
+    return baz;
+  }
+}
+</pre>

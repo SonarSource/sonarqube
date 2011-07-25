@@ -1,0 +1,1 @@
+A nonstatic initializer block will be called any time a constructor is invoked (just prior to invoking the constructor). While this is a valid language construct, it is rarely used and is confusing. Example :<br/><code>public class MyClass {<br/>// this block gets run before any call to a constructor {<br/>System.out.println("I am about to construct myself");<br/>}<br/>}</code>

@@ -1,0 +1,7 @@
+<p> This method contains an explicit invocation of the <code>finalize()</code>
+  method on an object.&nbsp; Because finalizer methods are supposed to be
+  executed once, and only by the VM, this is a bad idea.</p>
+<p>If a connected set of objects beings finalizable, then the VM will invoke the
+finalize method on all the finalizable object, possibly at the same time in different threads.
+Thus, it is a particularly bad idea, in the finalize method for a class X, invoke finalize
+on objects referenced by X, because they may already be getting finalized in a separate thread.

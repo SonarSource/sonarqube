@@ -1,0 +1,10 @@
+Avoid unnecessary comparisons in boolean expressions - this complicates simple code. Example :
+<pre>
+public class Bar {
+ // can be simplified to
+ // bar = isFoo();
+ private boolean bar = (isFoo() == true);
+
+ public isFoo() { return false;}
+}
+</pre>
