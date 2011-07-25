@@ -19,12 +19,11 @@
  */
 package org.sonar.plugins.core.i18n;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
+import com.google.common.collect.Lists;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.i18n.LanguagePack;
+import org.sonar.api.platform.PluginRepository;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -32,13 +31,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.i18n.LanguagePack;
-import org.sonar.api.platform.PluginRepository;
-
-import com.google.common.collect.Lists;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 public class I18nManagerTest {
 
@@ -63,7 +58,7 @@ public class I18nManagerTest {
     TestClassLoader quebecPackClassLoader = new TestClassLoader(getClass().getClassLoader().getResource("I18n/QuebecPlugin.jar"));
     LanguagePack quebecPack = (LanguagePack) quebecPackClassLoader.loadClass(QUEBEC_PACK_CLASS_NAME).newInstance();
 
-    manager = new I18nManager(mock(PluginRepository.class), new LanguagePack[] { frenchPack, quebecPack, englishPack });
+    manager = new I18nManager(mock(PluginRepository.class), new LanguagePack[]{frenchPack, quebecPack, englishPack});
     manager.doStart(plugins);
   }
 
@@ -99,15 +94,12 @@ public class I18nManagerTest {
   public void shouldTranslateUnknownValue() {
     String result = manager.message(Locale.FRENCH, "unknown", "Default value for Unknown");
     assertEquals("Default value for Unknown", result);
-    Assert.assertEquals(1, manager.getUnknownKeys().size());
-    Assert.assertEquals("Default value for Unknown", manager.getUnknownKeys().getProperty("unknown"));
   }
 
   @Test
   public void shouldReturnKeyIfTranslationMissingAndNotDefaultProvided() throws Exception {
     String result = manager.message(Locale.ENGLISH, "unknown.key", null);
     assertEquals("unknown.key", result);
-    Assert.assertEquals(0, manager.getUnknownKeys().size());
   }
 
   @Test
@@ -156,7 +148,7 @@ public class I18nManagerTest {
   public static class TestClassLoader extends URLClassLoader {
 
     public TestClassLoader(URL url) {
-      super(new URL[] { url, classSource }, Thread.currentThread().getContextClassLoader());
+      super(new URL[]{url, classSource}, Thread.currentThread().getContextClassLoader());
     }
 
     protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {

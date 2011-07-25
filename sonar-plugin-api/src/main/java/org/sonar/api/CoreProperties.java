@@ -81,6 +81,8 @@ public interface CoreProperties {
 
   /* Sonar Core */
   String CORE_PLUGIN = "core";
+  String CORE_VIOLATION_LOCALE_PROPERTY = "sonar.violationLocale";
+  String CORE_VIOLATION_LOCALE_DEFAULT_VALUE = "en";
   String CORE_COVERAGE_PLUGIN_PROPERTY = "sonar.core.codeCoveragePlugin";
   String CORE_IMPORT_SOURCES_PROPERTY = "sonar.importSources";
   boolean CORE_IMPORT_SOURCES_DEFAULT_VALUE = true;

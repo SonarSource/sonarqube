@@ -19,42 +19,29 @@
  */
 package org.sonar.api.i18n;
 
-import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 
 import java.util.Locale;
 
 /**
- *
- *
- *
- * EXPERIMENTAL - this feature will be fully implemented in version 2.10
- *
- * 
- *
- * The <code>I18n</code> Interface is the entry point for the internationalization of the Sonar application and plugins.<br>The corresponding implementation is located in the core plugin.
- * <p/>
- * I18n is managed in Sonar through the use of key-based resource bundles.
- * <br>
- * Though any key can be used, the following key-naming conventions, which are applied in the Sonar application and core plugins, are given as guidelines:
- *
- * @since 2.9
+ * @since 2.10
  */
-public interface I18n extends ServerComponent, BatchComponent {
+public interface I18n extends ServerComponent {
 
   /**
    * Searches the message of the <code>key</code> for the <code>locale</code> in the list of available bundles.
    * <br>
    * If not found in any bundle, <code>defaultText</code> is returned.
-   * 
-   * If additional parameters are given (in the objects list), the result is used as a message pattern 
-   * to use in a MessageFormat object along with the given parameters.  
+   * <p/>
+   * If additional parameters are given (in the objects list), the result is used as a message pattern
+   * to use in a MessageFormat object along with the given parameters.
    *
-   * @param locale the locale to translate into
-   * @param key the key of the pattern to translate
+   * @param locale       the locale to translate into
+   * @param key          the key of the pattern to translate
    * @param defaultValue the default pattern returned when the key is not found in any bundle
-   * @param parameters the parameters used to format the message from the translated pattern.
-   * @return the message formatted with the translated pattern and the given parameters 
+   * @param parameters   the parameters used to format the message from the translated pattern.
+   * @return the message formatted with the translated pattern and the given parameters
    */
   public abstract String message(final Locale locale, final String key, final String defaultValue, final Object... parameters);
+
 }

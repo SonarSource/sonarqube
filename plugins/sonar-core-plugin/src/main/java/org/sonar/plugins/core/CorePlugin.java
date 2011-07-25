@@ -44,7 +44,7 @@ import org.sonar.plugins.core.widgets.*;
 
 import java.util.List;
 
-@Properties({
+@Properties({  
     @Property(
         key = CoreProperties.CORE_COVERAGE_PLUGIN_PROPERTY,
         defaultValue = "cobertura",
@@ -117,6 +117,14 @@ import java.util.List;
         project = false,
         global = true
     ),
+    @Property(
+       key = CoreProperties.CORE_VIOLATION_LOCALE_PROPERTY,
+       defaultValue = "en",
+       name = "Locale used for violation messages",
+       description = "This locale is used when generating violation messages. Settings of user browsers are " +
+           "ignored.",
+       project = true,
+       global = true),
     @Property(
         key = "sonar.timemachine.period1",
         name = "Period 1",
