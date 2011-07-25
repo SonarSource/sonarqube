@@ -35,6 +35,11 @@ public class DefaultUserFinder implements UserFinder {
     this.sessionFactory = sessionFactory;
   }
 
+  public User findById(int id) {
+    DatabaseSession session = sessionFactory.getSession();
+    return session.getSingleResult(User.class, "id", id);
+  }
+
   public User findByLogin(String login) {
     DatabaseSession session = sessionFactory.getSession();
     return session.getSingleResult(User.class, "login", login);

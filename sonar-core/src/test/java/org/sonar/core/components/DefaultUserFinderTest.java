@@ -52,11 +52,26 @@ public class DefaultUserFinderTest extends AbstractDbUnitTestCase {
     assertThat(user.getLogin(), is("godin"));
     assertThat(user.getName(), is("Evgeny Mandrikov"));
     assertThat(user.getEmail(), is("evgeny.mandrikov@sonarsource.com"));
+
+    user = userFinder.findByLogin("user");
+    assertThat(user, nullValue());
   }
 
   @Test
-  public void userNotExists() {
-    User user = userFinder.findByLogin("user");
+  public void shouldFindUserById() {
+    User user = userFinder.findById(1);
+    assertThat(user.getId(), is(1));
+    assertThat(user.getLogin(), is("simon"));
+    assertThat(user.getName(), is("Simon Brandhof"));
+    assertThat(user.getEmail(), is("simon.brandhof@sonarsource.com"));
+
+    user = userFinder.findById(2);
+    assertThat(user.getId(), is(2));
+    assertThat(user.getLogin(), is("godin"));
+    assertThat(user.getName(), is("Evgeny Mandrikov"));
+    assertThat(user.getEmail(), is("evgeny.mandrikov@sonarsource.com"));
+
+    user = userFinder.findById(3);
     assertThat(user, nullValue());
   }
 

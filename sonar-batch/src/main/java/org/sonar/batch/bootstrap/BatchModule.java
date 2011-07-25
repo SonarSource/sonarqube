@@ -31,6 +31,7 @@ import org.sonar.batch.components.*;
 import org.sonar.batch.index.*;
 import org.sonar.core.components.CacheMetricFinder;
 import org.sonar.core.components.CacheRuleFinder;
+import org.sonar.core.components.DefaultUserFinder;
 import org.sonar.core.notifications.DefaultNotificationManager;
 import org.sonar.jpa.dao.MeasuresDao;
 
@@ -77,6 +78,7 @@ public class BatchModule extends Module {
     addComponent(PastMeasuresLoader.class);
     addComponent(PastSnapshotFinder.class);
     addComponent(DefaultNotificationManager.class);
+    addComponent(DefaultUserFinder.class);
     addCoreMetrics();
     addBatchExtensions();
   }

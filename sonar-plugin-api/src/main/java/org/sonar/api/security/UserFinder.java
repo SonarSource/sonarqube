@@ -19,13 +19,16 @@
  */
 package org.sonar.api.security;
 
+import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.database.model.User;
 
 /**
  * @since 2.10
  */
-public interface UserFinder extends ServerComponent {
+public interface UserFinder extends ServerComponent, BatchComponent {
+
+  User findById(int id);
 
   User findByLogin(String login);
 
