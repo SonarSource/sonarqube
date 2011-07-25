@@ -62,4 +62,13 @@ public class ChangesInReviewCreatedByMeTest {
     verifyNoMoreInteractions(context);
   }
 
+  @Test
+  public void shouldNotDispatch() {
+    Notification notification = new Notification("other");
+
+    dispatcher.dispatch(notification, context);
+
+    verifyNoMoreInteractions(context);
+  }
+
 }

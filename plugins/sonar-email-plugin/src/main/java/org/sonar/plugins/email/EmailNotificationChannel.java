@@ -58,25 +58,25 @@ public class EmailNotificationChannel extends NotificationChannel {
    * Email Header Field: "List-ID".
    * Value of this field should contain mailing list identifier as specified in <a href="http://tools.ietf.org/html/rfc2919">RFC 2919</a>.
    */
-  private static String LIST_ID_HEADER = "List-ID";
+  private static final String LIST_ID_HEADER = "List-ID";
 
   /**
    * Email Header Field: "List-Archive".
    * Value of this field should contain URL of mailing list archive as specified in <a href="http://tools.ietf.org/html/rfc2369">RFC 2369</a>.
    */
-  private static String LIST_ARCHIVE_HEADER = "List-Archive";
+  private static final String LIST_ARCHIVE_HEADER = "List-Archive";
 
   /**
    * Email Header Field: "In-Reply-To".
    * Value of this field should contain related message identifier as specified in <a href="http://tools.ietf.org/html/rfc2822">RFC 2822</a>.
    */
-  private static String IN_REPLY_TO_HEADER = "In-Reply-To";
+  private static final String IN_REPLY_TO_HEADER = "In-Reply-To";
 
   /**
    * Email Header Field: "References".
    * Value of this field should contain related message identifier as specified in <a href="http://tools.ietf.org/html/rfc2822">RFC 2822</a>
    */
-  private static String REFERENCES_HEADER = "References";
+  private static final String REFERENCES_HEADER = "References";
 
   private static final String FROM_NAME_DEFAULT = "Sonar";
   private static final String SUBJECT_DEFAULT = "Notification";
