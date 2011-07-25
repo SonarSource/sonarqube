@@ -28,7 +28,7 @@ import java.util.Locale;
 public class EnglishPack extends LanguagePack {
 
   public List<String> getPluginKeys() {
-    return Arrays.asList("core", "design", "squidjava");
+    return Arrays.asList("core", "design", "squidjava", "checkstyle", "findbugs", "pmd");
   }
 
   public List<Locale> getLocales() {
