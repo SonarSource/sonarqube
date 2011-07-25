@@ -19,7 +19,16 @@
  */
 package org.sonar.api.database.model;
 
-import javax.persistence.*;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 @Entity
 @Table(name = "reviews")
@@ -38,6 +47,33 @@ public final class Review {
 
   @Column(name = "title")
   private String title;
+
+  @Column(name = "status")
+  private String status;
+
+  @Column(name = "resolution")
+  private String resolution;
+
+  @Column(name = "rule_failure_permanent_id")
+  private Integer permanentId;
+
+  @Column(name = "project_id")
+  private Integer projectId;
+
+  @Column(name = "resource_id")
+  private Integer resourceId;
+
+  @Column(name = "resource_line")
+  private Integer resourceLine;
+
+  @Column(name = "created_at")
+  private Date createdAt;
+
+  @Column(name = "updated_at")
+  private Date updatedAt;
+
+  @Column(name = "severity")
+  private String severity;
 
   /**
    * @return id of review
@@ -81,6 +117,27 @@ public final class Review {
   public Review setTitle(String title) {
     this.title = title;
     return this;
+  }
+
+  public String getStatus() {
+    return status;
+  }
+
+  public void setStatus(String status) {
+    this.status = status;
+  }
+
+  public String getResolution() {
+    return resolution;
+  }
+
+  public void setResolution(String resolution) {
+    this.resolution = resolution;
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
 }

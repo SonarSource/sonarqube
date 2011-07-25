@@ -23,24 +23,36 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.sql.Statement;
-
 import junit.framework.ComparisonFailure;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.notifications.Notification;
+import org.sonar.api.notifications.NotificationManager;
 import org.sonar.api.resources.Project;
-import org.sonar.test.persistence.DatabaseTestCase;
+import org.sonar.api.security.UserFinder;
+import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-public class CloseReviewsDecoratorTest extends DatabaseTestCase {
+public class CloseReviewsDecoratorTest extends AbstractDbUnitTestCase {
+
+  private NotificationManager notificationManager;
+  private CloseReviewsDecorator reviewsDecorator;
+
+  @Before
+  public void setUp() {
+    notificationManager = mock(NotificationManager.class);
+    reviewsDecorator = new CloseReviewsDecorator(null, getSession(), notificationManager, mock(UserFinder.class));
+  }
 
   @Test
   public void testShouldExecuteOnProject() throws Exception {
     Project project = mock(Project.class);
     when(project.isLatestAnalysis()).thenReturn(true);
-    CloseReviewsDecorator reviewsDecorator = new CloseReviewsDecorator(null, null);
     assertTrue(reviewsDecorator.shouldExecuteOnProject(project));
   }
 
@@ -48,17 +60,14 @@ public class CloseReviewsDecoratorTest extends DatabaseTestCase {
   public void shouldCloseReviewWithoutCorrespondingViolation() throws Exception {
     setupData("fixture");
 
-    CloseReviewsDecorator reviewsDecorator = new CloseReviewsDecorator(null, null);
-    String sqlRequest = reviewsDecorator.generateUpdateToCloseReviewsForFixedViolation(666, 222);
-
-    Statement stmt = getConnection().createStatement();
-    int count = stmt.executeUpdate(sqlRequest);
+    int count = reviewsDecorator.closeReviews(666, 222);
 
     assertThat(count, is(3));
-    assertTables("shouldCloseReviewWithoutCorrespondingViolation", new String[] { "reviews" }, new String[] { "updated_at" });
+    verify(notificationManager, times(3)).scheduleForSending(any(Notification.class));
+    checkTables("shouldCloseReviewWithoutCorrespondingViolation", new String[] { "updated_at" }, new String[] { "reviews" });
 
     try {
-      assertTables("shouldCloseReviewWithoutCorrespondingViolation", new String[] { "reviews" });
+      checkTables("shouldCloseReviewWithoutCorrespondingViolation", new String[] { "reviews" });
       fail("'updated_at' columns are identical whereas they should be different.");
     } catch (ComparisonFailure e) {
       // "updated_at" column must be different, so the comparison should raise this exception
@@ -69,21 +78,18 @@ public class CloseReviewsDecoratorTest extends DatabaseTestCase {
   public void shouldReopenResolvedReviewWithNonFixedViolation() throws Exception {
     setupData("fixture");
 
-    CloseReviewsDecorator reviewsDecorator = new CloseReviewsDecorator(null, null);
-
     // First we close the reviews for which the violations have been fixed (this is because we use the same "fixture"...)
-    getConnection().createStatement().executeUpdate(reviewsDecorator.generateUpdateToCloseReviewsForFixedViolation(666, 222));
+    reviewsDecorator.closeReviews(666, 222);
 
     // And now we reopen the reviews that still have a violation
-    String sqlRequest = reviewsDecorator.generateUpdateToReopenResolvedReviewsForNonFixedViolation(666);
-    Statement stmt = getConnection().createStatement();
-    int count = stmt.executeUpdate(sqlRequest);
+    int count = reviewsDecorator.reopenReviews(666);
 
     assertThat(count, is(1));
-    assertTables("shouldReopenResolvedReviewWithNonFixedViolation", new String[] { "reviews" }, new String[] { "updated_at" });
+    verify(notificationManager, times(4)).scheduleForSending(any(Notification.class));
+    checkTables("shouldReopenResolvedReviewWithNonFixedViolation", new String[] { "updated_at" }, new String[] { "reviews" });
 
     try {
-      assertTables("shouldReopenResolvedReviewWithNonFixedViolation", new String[] { "reviews" });
+      checkTables("shouldReopenResolvedReviewWithNonFixedViolation", new String[] { "reviews" });
       fail("'updated_at' columns are identical whereas they should be different.");
     } catch (ComparisonFailure e) {
       // "updated_at" column must be different, so the comparison should raise this exception

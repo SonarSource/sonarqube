@@ -51,13 +51,23 @@
              rule_id="1" failure_level="1"/>
 
   <!-- Existing reviews -->
-  <!-- Note that DbUnit uses the first tag for a table to define the columns to be populated. So that's why "resolution" column here. -->
+  <!--
+  Note that DbUnit uses the first tag for a table to define the columns to be populated.
+  So that's why "resolution", "created_at", "updated_at", "project_id", "resource_line", "severity" and "user_id" columns here.
+  --> 
   <reviews
   			id="1"
   			status="OPEN"
   			rule_failure_permanent_id="1"
   			resolution="[null]"
+            created_at="[null]"
+            updated_at="[null]"
+            project_id="[null]"
+            resource_line="[null]"
+            severity="[null]"
+            user_id="[null]"
   			resource_id="555"/>
+        
   <reviews
   			id="2"
   			status="OPEN"

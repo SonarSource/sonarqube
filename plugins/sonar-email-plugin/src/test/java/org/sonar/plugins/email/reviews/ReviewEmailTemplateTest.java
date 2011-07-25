@@ -58,7 +58,7 @@ public class ReviewEmailTemplateTest {
    *   This is my first comment
    * 
    * --
-   * See it in Sonar: http://nemo.sonarsource.org/review/1
+   * See it in Sonar: http://nemo.sonarsource.org/review/view/1
    * </pre>
    */
   @Test
@@ -72,7 +72,7 @@ public class ReviewEmailTemplateTest {
     assertThat(message.getMessageId(), is("review/1"));
     assertThat(message.getSubject(), is("Review #1"));
     assertThat(message.getFrom(), is("Freddy Mallet"));
-    assertThat(message.getMessage(), is("Comment:\n  This is my first comment\n\n--\nSee it in Sonar: http://nemo.sonarsource.org/review/1\n"));
+    assertThat(message.getMessage(), is("Comment:\n  This is my first comment\n\n--\nSee it in Sonar: http://nemo.sonarsource.org/review/view/1\n"));
   }
 
   /**
@@ -86,7 +86,7 @@ public class ReviewEmailTemplateTest {
    *   This is my first comment
    * 
    * --
-   * See it in Sonar: http://nemo.sonarsource.org/review/1
+   * See it in Sonar: http://nemo.sonarsource.org/review/view/1
    * </pre>
    */
   @Test
@@ -100,7 +100,7 @@ public class ReviewEmailTemplateTest {
     assertThat(message.getMessageId(), is("review/1"));
     assertThat(message.getSubject(), is("Review #1"));
     assertThat(message.getFrom(), is("Freddy Mallet"));
-    assertThat(message.getMessage(), is("Comment:\n  This is another comment\nWas:\n  This is my first comment\n\n--\nSee it in Sonar: http://nemo.sonarsource.org/review/1\n"));
+    assertThat(message.getMessage(), is("Comment:\n  This is another comment\nWas:\n  This is my first comment\n\n--\nSee it in Sonar: http://nemo.sonarsource.org/review/view/1\n"));
   }
 
   /**
@@ -112,7 +112,7 @@ public class ReviewEmailTemplateTest {
    *   This is deleted comment
    *   
    * --
-   * See it in Sonar: http://nemo.sonarsource.org/review/1
+   * See it in Sonar: http://nemo.sonarsource.org/review/view/1
    * </pre>
    */
   @Test
@@ -126,7 +126,7 @@ public class ReviewEmailTemplateTest {
     assertThat(message.getMessageId(), is("review/1"));
     assertThat(message.getSubject(), is("Review #1"));
     assertThat(message.getFrom(), is("Freddy Mallet"));
-    assertThat(message.getMessage(), is("Comment deleted, was:\n  This is deleted comment\n\n--\nSee it in Sonar: http://nemo.sonarsource.org/review/1\n"));
+    assertThat(message.getMessage(), is("Comment deleted, was:\n  This is deleted comment\n\n--\nSee it in Sonar: http://nemo.sonarsource.org/review/view/1\n"));
   }
 
   /**
@@ -137,7 +137,7 @@ public class ReviewEmailTemplateTest {
    * Assignee: Evgeny Mandrikov
    * 
    * --
-   * See it in Sonar: http://nemo.sonarsource.org/review/1
+   * See it in Sonar: http://nemo.sonarsource.org/review/view/1
    * </pre>
    */
   @Test
@@ -151,7 +151,7 @@ public class ReviewEmailTemplateTest {
     assertThat(message.getMessageId(), is("review/1"));
     assertThat(message.getSubject(), is("Review #1"));
     assertThat(message.getFrom(), is("Freddy Mallet"));
-    assertThat(message.getMessage(), is("Assignee: Evgeny Mandrikov\n\n--\nSee it in Sonar: http://nemo.sonarsource.org/review/1\n"));
+    assertThat(message.getMessage(), is("Assignee: Evgeny Mandrikov\n\n--\nSee it in Sonar: http://nemo.sonarsource.org/review/view/1\n"));
   }
 
   /**
@@ -162,7 +162,7 @@ public class ReviewEmailTemplateTest {
    * Assignee: Simon Brandhof (was Evgeny Mandrikov)
    * 
    * --
-   * See it in Sonar: http://nemo.sonarsource.org/review/1
+   * See it in Sonar: http://nemo.sonarsource.org/review/view/1
    * </pre>
    */
   @Test
@@ -176,7 +176,7 @@ public class ReviewEmailTemplateTest {
     assertThat(message.getMessageId(), is("review/1"));
     assertThat(message.getSubject(), is("Review #1"));
     assertThat(message.getFrom(), is("Freddy Mallet"));
-    assertThat(message.getMessage(), is("Assignee: Simon Brandhof (was Evgeny Mandrikov)\n\n--\nSee it in Sonar: http://nemo.sonarsource.org/review/1\n"));
+    assertThat(message.getMessage(), is("Assignee: Simon Brandhof (was Evgeny Mandrikov)\n\n--\nSee it in Sonar: http://nemo.sonarsource.org/review/view/1\n"));
   }
 
   /**
@@ -187,7 +187,7 @@ public class ReviewEmailTemplateTest {
    * Assignee: (was Simon Brandhof)
    * 
    * --
-   * See it in Sonar: http://nemo.sonarsource.org/review/1
+   * See it in Sonar: http://nemo.sonarsource.org/review/view/1
    * </pre>
    */
   @Test
@@ -201,7 +201,7 @@ public class ReviewEmailTemplateTest {
     assertThat(message.getMessageId(), is("review/1"));
     assertThat(message.getSubject(), is("Review #1"));
     assertThat(message.getFrom(), is("Freddy Mallet"));
-    assertThat(message.getMessage(), is("Assignee:  (was Simon Brandhof)\n\n--\nSee it in Sonar: http://nemo.sonarsource.org/review/1\n"));
+    assertThat(message.getMessage(), is("Assignee:  (was Simon Brandhof)\n\n--\nSee it in Sonar: http://nemo.sonarsource.org/review/view/1\n"));
   }
 
   /**
@@ -212,7 +212,7 @@ public class ReviewEmailTemplateTest {
    * Status: CLOSED (was OPEN)
    * 
    * --
-   * See it in Sonar: http://nemo.sonarsource.org/review/1
+   * See it in Sonar: http://nemo.sonarsource.org/review/view/1
    * </pre>
    */
   @Test
@@ -225,7 +225,7 @@ public class ReviewEmailTemplateTest {
     assertThat(message.getMessageId(), is("review/1"));
     assertThat(message.getSubject(), is("Review #1"));
     assertThat(message.getFrom(), nullValue());
-    assertThat(message.getMessage(), is("Status: CLOSED (was OPEN)\n\n--\nSee it in Sonar: http://nemo.sonarsource.org/review/1\n"));
+    assertThat(message.getMessage(), is("Status: CLOSED (was OPEN)\n\n--\nSee it in Sonar: http://nemo.sonarsource.org/review/view/1\n"));
   }
 
   /**
@@ -237,7 +237,7 @@ public class ReviewEmailTemplateTest {
    * Resolution: (was FIXED)
    * 
    * --
-   * See it in Sonar: http://nemo.sonarsource.org/review/1
+   * See it in Sonar: http://nemo.sonarsource.org/review/view/1
    * </pre>
    */
   @Test
@@ -252,7 +252,7 @@ public class ReviewEmailTemplateTest {
     assertThat(message.getMessageId(), is("review/1"));
     assertThat(message.getSubject(), is("Review #1"));
     assertThat(message.getFrom(), nullValue());
-    assertThat(message.getMessage(), is("Status: REOPENED (was RESOLVED)\nResolution:  (was FIXED)\n\n--\nSee it in Sonar: http://nemo.sonarsource.org/review/1\n"));
+    assertThat(message.getMessage(), is("Status: REOPENED (was RESOLVED)\nResolution:  (was FIXED)\n\n--\nSee it in Sonar: http://nemo.sonarsource.org/review/view/1\n"));
   }
 
   /**
@@ -264,7 +264,7 @@ public class ReviewEmailTemplateTest {
    * Resolution: FIXED
    * 
    * --
-   * See it in Sonar: http://nemo.sonarsource.org/review/1
+   * See it in Sonar: http://nemo.sonarsource.org/review/view/1
    * </pre>
    */
   @Test
@@ -280,7 +280,7 @@ public class ReviewEmailTemplateTest {
     assertThat(message.getMessageId(), is("review/1"));
     assertThat(message.getSubject(), is("Review #1"));
     assertThat(message.getFrom(), is("Simon Brandhof"));
-    assertThat(message.getMessage(), is("Status: RESOLVED (was OPEN)\nResolution: FIXED\n\n--\nSee it in Sonar: http://nemo.sonarsource.org/review/1\n"));
+    assertThat(message.getMessage(), is("Status: RESOLVED (was OPEN)\nResolution: FIXED\n\n--\nSee it in Sonar: http://nemo.sonarsource.org/review/view/1\n"));
   }
 
   /**
@@ -292,7 +292,7 @@ public class ReviewEmailTemplateTest {
    * Resolution: FALSE-POSITIVE
    * 
    * --
-   * See it in Sonar: http://nemo.sonarsource.org/review/1
+   * See it in Sonar: http://nemo.sonarsource.org/review/view/1
    * </pre>
    */
   @Test
@@ -308,7 +308,7 @@ public class ReviewEmailTemplateTest {
     assertThat(message.getMessageId(), is("review/1"));
     assertThat(message.getSubject(), is("Review #1"));
     assertThat(message.getFrom(), is("Freddy Mallet"));
-    assertThat(message.getMessage(), is("Status: RESOLVED (was REOPENED)\nResolution: FALSE-POSITIVE\n\n--\nSee it in Sonar: http://nemo.sonarsource.org/review/1\n"));
+    assertThat(message.getMessage(), is("Status: RESOLVED (was REOPENED)\nResolution: FALSE-POSITIVE\n\n--\nSee it in Sonar: http://nemo.sonarsource.org/review/view/1\n"));
   }
 
   @Test
