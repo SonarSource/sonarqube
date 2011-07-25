@@ -29,6 +29,7 @@ import org.junit.Test;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Locale;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -100,6 +101,7 @@ public class CheckstyleExecutorTest {
     when(conf.getCharset()).thenReturn(Charset.defaultCharset());
     when(conf.getCheckstyleConfiguration()).thenReturn(CheckstyleConfiguration.toCheckstyleConfiguration(new File("test-resources/checkstyle-conf.xml")));
     when(conf.getSourceFiles()).thenReturn(Arrays.<File>asList(new File("test-resources/Hello.java"), new File("test-resources/World.java")));
+    when(conf.getLocale()).thenReturn(Locale.ENGLISH);
     return conf;
   }
 }

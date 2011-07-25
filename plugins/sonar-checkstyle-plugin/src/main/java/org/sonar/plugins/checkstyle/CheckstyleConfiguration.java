@@ -19,29 +19,29 @@
  */
 package org.sonar.plugins.checkstyle;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.Charset;
-import java.util.List;
-import java.util.Properties;
-
 import com.puppycrawl.tools.checkstyle.ConfigurationLoader;
 import com.puppycrawl.tools.checkstyle.DefaultConfiguration;
 import com.puppycrawl.tools.checkstyle.PropertiesExpander;
 import com.puppycrawl.tools.checkstyle.api.CheckstyleException;
-import com.puppycrawl.tools.checkstyle.api.Configuration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharEncoding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.SonarException;
+
+import java.io.*;
+import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Locale;
+import java.util.Properties;
+
 
 public class CheckstyleConfiguration implements BatchExtension {
 
@@ -49,17 +49,19 @@ public class CheckstyleConfiguration implements BatchExtension {
 
   private CheckstyleProfileExporter confExporter;
   private RulesProfile profile;
-  private Project project;
+  private Configuration conf;
+  private ProjectFileSystem fileSystem;
 
-  public CheckstyleConfiguration(CheckstyleProfileExporter confExporter, RulesProfile profile, Project project) {
+  public CheckstyleConfiguration(Configuration conf, CheckstyleProfileExporter confExporter, RulesProfile profile, ProjectFileSystem fileSystem) {
+    this.conf = conf;
     this.confExporter = confExporter;
     this.profile = profile;
-    this.project = project;
+    this.fileSystem = fileSystem;
   }
 
   public File getXMLDefinitionFile() {
     Writer writer = null;
-    File xmlFile = new File(project.getFileSystem().getSonarWorkingDirectory(), "checkstyle.xml");
+    File xmlFile = new File(fileSystem.getSonarWorkingDirectory(), "checkstyle.xml");
     try {
       writer = new OutputStreamWriter(new FileOutputStream(xmlFile, false), CharEncoding.UTF_8);
       confExporter.exportProfile(profile, writer);
@@ -75,32 +77,32 @@ public class CheckstyleConfiguration implements BatchExtension {
   }
 
   public List<File> getSourceFiles() {
-    return project.getFileSystem().getSourceFiles(Java.INSTANCE);
+    return fileSystem.getSourceFiles(Java.INSTANCE);
   }
 
   public File getTargetXMLReport() {
-    if (project.getConfiguration().getBoolean(CheckstyleConstants.GENERATE_XML_KEY, CheckstyleConstants.GENERATE_XML_DEFAULT_VALUE)) {
-      return new File(project.getFileSystem().getSonarWorkingDirectory(), "checkstyle-result.xml");
+    if (conf.getBoolean(CheckstyleConstants.GENERATE_XML_KEY, CheckstyleConstants.GENERATE_XML_DEFAULT_VALUE)) {
+      return new File(fileSystem.getSonarWorkingDirectory(), "checkstyle-result.xml");
     }
     return null;
   }
 
-  public Configuration getCheckstyleConfiguration() throws IOException, CheckstyleException {
+  public com.puppycrawl.tools.checkstyle.api.Configuration getCheckstyleConfiguration() throws IOException, CheckstyleException {
     File xmlConfig = getXMLDefinitionFile();
 
     LOG.info("Checkstyle configuration: " + xmlConfig.getAbsolutePath());
-    Configuration configuration = toCheckstyleConfiguration(xmlConfig);
+    com.puppycrawl.tools.checkstyle.api.Configuration configuration = toCheckstyleConfiguration(xmlConfig);
     defineCharset(configuration);
     return configuration;
   }
 
-  static Configuration toCheckstyleConfiguration(File xmlConfig) throws CheckstyleException {
+  static com.puppycrawl.tools.checkstyle.api.Configuration toCheckstyleConfiguration(File xmlConfig) throws CheckstyleException {
     return ConfigurationLoader.loadConfiguration(xmlConfig.getAbsolutePath(), new PropertiesExpander(new Properties()));
   }
 
-  private void defineCharset(Configuration configuration) {
-    Configuration[] modules = configuration.getChildren();
-    for (Configuration module : modules) {
+  private void defineCharset(com.puppycrawl.tools.checkstyle.api.Configuration configuration) {
+    com.puppycrawl.tools.checkstyle.api.Configuration[] modules = configuration.getChildren();
+    for (com.puppycrawl.tools.checkstyle.api.Configuration module : modules) {
       if ("Checker".equals(module.getName()) || "com.puppycrawl.tools.checkstyle.Checker".equals(module.getName())) {
         if (module instanceof DefaultConfiguration) {
           Charset charset = getCharset();
@@ -111,8 +113,12 @@ public class CheckstyleConfiguration implements BatchExtension {
     }
   }
 
+  public Locale getLocale() {
+    return new Locale(conf.getString(CoreProperties.CORE_VIOLATION_LOCALE_PROPERTY, CoreProperties.CORE_VIOLATION_LOCALE_DEFAULT_VALUE));
+  }
+
   public Charset getCharset() {
-    Charset charset = project.getFileSystem().getSourceCharset();
+    Charset charset = fileSystem.getSourceCharset();
     if (charset == null) {
       charset = Charset.forName(System.getProperty("file.encoding", CharEncoding.UTF_8));
     }

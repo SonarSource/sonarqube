@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.checkstyle;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.sonar.api.profiles.RulesProfile;
@@ -28,6 +29,7 @@ import org.sonar.api.test.MavenTestUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Locale;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -39,11 +41,17 @@ public class CheckstyleConfigurationTest {
     Project project = MavenTestUtils.loadProjectFromPom(getClass(), "writeConfigurationToWorkingDir/pom.xml");
 
     CheckstyleProfileExporter exporter = new FakeExporter();
-    CheckstyleConfiguration configuration = new CheckstyleConfiguration(exporter, null, project);
+    CheckstyleConfiguration configuration = new CheckstyleConfiguration(null, exporter, null, project.getFileSystem());
     File xmlFile = configuration.getXMLDefinitionFile();
 
     assertThat(xmlFile.exists(), is(true));
     assertThat(FileUtils.readFileToString(xmlFile), is("<conf/>"));
+  }
+
+  @Test
+  public void shouldGetDefaultLocaleForMessages() {
+    CheckstyleConfiguration configuration = new CheckstyleConfiguration(new PropertiesConfiguration(), null, null, null);
+    assertThat(configuration.getLocale(), is(Locale.ENGLISH));
   }
 
   public class FakeExporter extends CheckstyleProfileExporter {

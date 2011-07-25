@@ -21,6 +21,7 @@ package org.sonar.plugins.checkstyle;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.util.Locale;
 
 import com.puppycrawl.tools.checkstyle.Checker;
 import com.puppycrawl.tools.checkstyle.PackageNamesLoader;
@@ -78,6 +79,7 @@ public class CheckstyleExecutor implements BatchExtension {
       }
 
       checker.setCharset(configuration.getCharset().name());
+      configureLocale(checker);
       checker.configure(configuration.getCheckstyleConfiguration());
       checker.process(configuration.getSourceFiles());
 
@@ -93,6 +95,12 @@ public class CheckstyleExecutor implements BatchExtension {
       IOUtils.closeQuietly(xmlOutput);
       Thread.currentThread().setContextClassLoader(initialClassLoader);
     }
+  }
+
+  private void configureLocale(Checker checker) {
+    Locale locale = configuration.getLocale();
+    checker.setLocaleLanguage(locale.getLanguage());
+    checker.setLocaleCountry(locale.getCountry());
   }
 
 }
