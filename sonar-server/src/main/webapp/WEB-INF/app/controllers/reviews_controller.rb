@@ -73,8 +73,7 @@ class ReviewsController < ApplicationController
     end
 
     assignee = findUserByLogin(params[:assignee_login]) unless params[:assignee_login].blank?
-    @review.assignee = assignee
-    @review.save
+    @review.reassign(current_user, assignee)
 
     render :partial => 'reviews/view'
   end
@@ -97,7 +96,7 @@ class ReviewsController < ApplicationController
     end
 
     if params[:comment_id]
-      @review.edit_comment(params[:comment_id].to_i, params[:text])
+      @review.edit_comment(current_user, params[:comment_id].to_i, params[:text])
     else
       @review.create_comment(:user => current_user, :text => params[:text])
     end
@@ -134,7 +133,7 @@ class ReviewsController < ApplicationController
     end
     
     if @review
-      @review.delete_comment(params[:comment_id].to_i)
+      @review.delete_comment(current_user, params[:comment_id].to_i)
     end
     render :partial => "reviews/view"
   end
@@ -146,12 +145,12 @@ class ReviewsController < ApplicationController
       render :text => "<b>Cannot create the comment</b> : access denied."
       return
     end
-    
+
     if @review.isResolved?
-      @review.reopen
+      @review.reopen(current_user)
     else
       # for the moment, if a review is not open, it can only be "RESOLVED"
-      @review.resolve
+      @review.resolve(current_user)
     end
 
     render :partial => "reviews/view"
@@ -186,8 +185,7 @@ class ReviewsController < ApplicationController
 
     violation.build_review(:user_id => current_user.id)
     assignee = findUserByLogin(params[:assignee_login]) unless params[:assignee_login].blank?
-    violation.review.assignee = assignee
-    violation.review.save!
+    violation.review.reassign(current_user, assignee)
     violation.save
 
     render :partial => "resource/violation", :locals => { :violation => violation }
@@ -245,7 +243,7 @@ class ReviewsController < ApplicationController
     end
 
     if params[:comment_id]
-      violation.review.edit_comment(params[:comment_id].to_i, params[:text])
+      violation.review.edit_comment(current_user, params[:comment_id].to_i, params[:text])
     else
       violation.review.create_comment(:user => current_user, :text => params[:text])
     end
@@ -262,7 +260,7 @@ class ReviewsController < ApplicationController
     end
     sanitize_violation(violation)
     if violation.review
-      violation.review.delete_comment(params[:comment_id].to_i)
+      violation.review.delete_comment(current_user, params[:comment_id].to_i)
     end
     render :partial => "resource/violation", :locals => { :violation => violation }
   end
@@ -279,10 +277,10 @@ class ReviewsController < ApplicationController
     if violation.review
       review = violation.review
       if review.isResolved?
-        review.reopen
+        review.reopen(current_user)
       else
         # for the moment, if a review is not open, it can only be "RESOLVED"
-        review.resolve
+        review.resolve(current_user)
       end
     end    
 

@@ -41,25 +41,6 @@ public class ReviewsNotificationManager implements ServerComponent {
   }
 
   /**
-   * @param reviewId id of review, which was modified
-   * @param author author of change (username)
-   * @param creator author of review (username)
-   * @param assignee current assignee (username)
-   * @param oldComment old text of comment
-   * @param comment new text of comment
-   */
-  public void notifyCommentChanged(Long reviewId, String author, String creator, String assignee, String oldComment, String newComment) {
-    Notification notification = new Notification("review-changed")
-        .setFieldValue("reviewId", String.valueOf(reviewId))
-        .setFieldValue("author", author)
-        .setFieldValue("creator", creator)
-        .setFieldValue("assignee", assignee)
-        .setFieldValue("old.comment", oldComment)
-        .setFieldValue("new.comment", newComment);
-    notificationManager.scheduleForSending(notification);
-  }
-
-  /**
    * @param reviewId reviewId id of review, which was modified
    * @param author author of change (username)
    * @param oldValues map of old values
@@ -67,7 +48,7 @@ public class ReviewsNotificationManager implements ServerComponent {
    */
   public void notifyChanged(Long reviewId, String author, Map<String, String> oldValues, Map<String, String> newValues) {
     Notification notification = new Notification("review-changed")
-        .setFieldValue("reviewId", author)
+        .setFieldValue("reviewId", String.valueOf(reviewId))
         .setFieldValue("author", author)
         .setFieldValue("creator", newValues.get("creator"))
         .setFieldValue("assignee", newValues.get("assignee"));

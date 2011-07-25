@@ -61,35 +61,38 @@ class Review < ActiveRecord::Base
   def create_comment(params={})
     comment = comments.create!(params)
     touch
-    # TODO notification_manager.notifyCommentChanged(id.to_i, current_user.login.to_java, self.user.login.to_java, self.assignee.login.to_java, nil, comment.text.to_java)
+    notification_manager.notifyChanged(id.to_i, comment.user.login.to_java, to_java_map, to_java_map("comment" => comment.text))
   end
 
-  def edit_comment(comment_id, comment_text)
+  def edit_comment(current_user, comment_id, comment_text)
     comment=comments.find(comment_id)
     if comment
+      old_comment_text=comment.text
       comment.text=comment_text
       comment.save!
       touch
+      notification_manager.notifyChanged(id.to_i, current_user.login.to_java, to_java_map("comment" => old_comment_text), to_java_map("comment" => comment.text))
     end
   end
 
-  def edit_last_comment(comment_text)
+  # TODO Godin: seems that this method not used anymore
+  def edit_last_comment(current_user, comment_text)
     comment=comments.last
     old_comment_text=comment.text
     comment.text=comment_text
     comment.save!
     touch
-    # TODO notification_manager.notifyCommentChanged(id.to_i, current_user.login.to_java, self.user.login.to_java, self.assignee.login.to_java, old_comment.to_java, comment.text.to_java)
+    notification_manager.notifyChanged(id.to_i, current_user.login.to_java, to_java_map("comment" => old_comment_text), to_java_map("comment" => comment.text))
   end
 
-  def delete_comment(comment_id)
+  def delete_comment(current_user, comment_id)
     comment=comments.find(comment_id)
     comments.pop
     if comment
       old_comment_text=comment.text
       comment.delete
       touch
-      # TODO notification_manager.notifyCommentChanged(id.to_i, current_user.login.to_java, self.user.login.to_java, self.assignee.login.to_java, old_comment_text.to_java, nil)
+      notification_manager.notifyChanged(id.to_i, current_user.login.to_java, to_java_map("comment" => old_comment_text), to_java_map)
     end
   end
 
@@ -97,37 +100,40 @@ class Review < ActiveRecord::Base
     Java::OrgSonarServerUi::JRubyFacade.getInstance().getReviewsNotificationManager()
   end
 
-  def to_java_map()
+  def to_java_map(params = {})
     map = java.util.HashMap.new({
-      :creator => user.login.to_java,
-      :assignee => assignee == nil ? nil : assignee.login.to_java,
-      :status => status.to_java,
-      :resolution => resolution.to_java
+      "creator" => user.login.to_java,
+      "assignee" => assignee == nil ? nil : assignee.login.to_java,
+      "status" => status.to_java,
+      "resolution" => resolution.to_java
     })
+    params.each_pair do |k,v|
+      map.put(k.to_java, v.to_java)
+    end
     map
   end
 
-  def reassign(user)
+  def reassign(current_user, assignee)
     old = self.to_java_map
-    self.assignee = user
+    self.assignee = assignee
     self.save!
-    # TODO notification_manager.notifyChanged(id.to_i, current_user.login.to_java, old, to_java_map)
+    notification_manager.notifyChanged(id.to_i, current_user.login.to_java, old, to_java_map)
   end
 
-  def reopen
+  def reopen(current_user)
     old = self.to_java_map
     self.status = STATUS_REOPENED
     self.resolution = nil
     self.save!
-    # TODO notification_manager.notifyChanged(id.to_i, current_user.login.to_java, old, to_java_map)
+    notification_manager.notifyChanged(id.to_i, current_user.login.to_java, old, to_java_map)
   end
 
-  def resolve
+  def resolve(current_user)
     old = self.to_java_map
     self.status = STATUS_RESOLVED
     self.resolution = 'FIXED'
     self.save!
-    # TODO notification_manager.notifyChanged(id.to_i, current_user.login.to_java, old, to_java_map)
+    notification_manager.notifyChanged(id.to_i, current_user.login.to_java, old, to_java_map)
   end
 
   # params are mandatory:
@@ -146,13 +152,13 @@ class Review < ActiveRecord::Base
           violation.save!
         end
       end
-      create_comment(:user => params[:user], :text => params[:text])
+      comment = comments.create!(:user => params[:user], :text => params[:text])
       old = self.to_java_map
       self.assignee = nil
       self.status = is_false_positive ? STATUS_RESOLVED : STATUS_REOPENED
       self.resolution = is_false_positive ? 'FALSE-POSITIVE' : nil
       self.save!
-      # TODO notification_manager.notifyChanged(id.to_i, current_user.login.to_java, old, to_java_map)
+      notification_manager.notifyChanged(id.to_i, comment.user.login.to_java, old, to_java_map("comment" => comment.text))
     end
   end
 

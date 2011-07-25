@@ -99,7 +99,7 @@ class Api::ReviewsController < Api::ApiController
             review.set_false_positive(true, :user => current_user, :text => comment, :violation_id => violation_id)
           elsif resolution == 'FIXED'
             review.create_comment(:user => current_user, :text => comment)
-            review.resolve
+            review.resolve(current_user)
           else
             raise "Incorrect resolution."
           end
@@ -176,7 +176,7 @@ class Api::ReviewsController < Api::ApiController
           user = find_user(assignee)
           raise "Assignee not found." unless user
         end
-        review.reassign(user)
+        review.reassign(current_user, user)
       end
       render_reviews([review], params[:output] == 'HTML')
     rescue ApiException => e
@@ -215,7 +215,7 @@ class Api::ReviewsController < Api::ApiController
           review.set_false_positive(true, :user => current_user, :text => comment)
         elsif resolution == 'FIXED'
           review.create_comment(:user => current_user, :text => comment) unless comment.blank?
-          review.resolve
+          review.resolve(current_user)
         else
           raise "Incorrect resolution."
         end
@@ -253,7 +253,7 @@ class Api::ReviewsController < Api::ApiController
           raise "Comment must be provided." unless comment && !comment.blank?
           review.set_false_positive(false, :user => current_user, :text => comment)
         else
-          review.reopen
+          review.reopen(current_user)
           review.create_comment(:user => current_user, :text => comment) unless comment.blank?
         end
       end
