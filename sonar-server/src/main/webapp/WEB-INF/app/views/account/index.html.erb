@@ -13,6 +13,11 @@
     <td id="name"><%= current_user.name %></td>
   </tr>
   <tr>
+    <td><b>Email:</b></td>
+    <td class="sep"> </td>
+    <td id="name"><%= current_user.email %></td>
+  </tr>
+  <tr>
     <td><b>Groups:</b></td>
     <td class="sep"> </td>
     <td id="groups"><%= current_user.groups.sort.map(&:name).join(', ') %></td>
