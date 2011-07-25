@@ -88,11 +88,11 @@ class Api::ResourcesController < Api::ApiController
         load_measures=true
 
         if params['metrics']!='true'
-          metrics=Metric.by_keys(params[:metrics].split(','))
-          measures_conditions <<'project_measures.metric_id IN (:metrics)'
+          metrics = Metric.by_keys(params[:metrics].split(','))
+          measures_conditions << 'project_measures.metric_id IN (:metrics)'
           measures_values[:metrics]=metrics.select{|m| m.id}
           if metrics.size==1
-            measures_limit = [params[:limit].to_i,500].min if params[:limit]
+            measures_limit = (params[:limit] ? [params[:limit].to_i,500].min : 500)
             measures_order = "project_measures.value #{'DESC' if metrics.first.direction<0}"
           end
         end
@@ -112,9 +112,10 @@ class Api::ResourcesController < Api::ApiController
           measures_by_sid[measure.snapshot_id]<<measure
         end
 
-        if measures_limit && !measures.empty?
+        if measures_limit
           snapshots_conditions << 'snapshots.id IN (:sids)'
-          snapshots_values[:sids]=measures_by_sid.keys
+          # Derby does not support empty lists, that's why a fake value is set
+          snapshots_values[:sids] = (measures_by_sid.empty? ? [-1] : measures_by_sid.keys)
         end
 
         # load coding rules
