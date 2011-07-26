@@ -48,7 +48,7 @@ class EmailConfigurationController < ApplicationController
     subject = params[:subject]
     message = params[:message]
     if to_address.blank?
-      flash[:notice] = message('email_configuration.test.to_address_required')
+      flash[:error] = message('email_configuration.test.to_address_required')
     else
       begin
         java_facade.getComponentByClassname('emailnotifications', 'org.sonar.plugins.emailnotifications.EmailNotificationChannel').sendTestEmail(to_address, subject, message)

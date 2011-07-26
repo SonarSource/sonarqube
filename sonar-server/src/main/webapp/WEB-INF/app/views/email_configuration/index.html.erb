@@ -1,114 +1,63 @@
 <h1><%= message('email_configuration.page') -%></h1>
-<br/>
+<div class="admin">
 <% form_tag({:action => 'save'}) do -%>
-  <table>
+  <table class="form">
     <tr>
-      <td nowrap>
-        <label for="smtp_host"><b><%= message('email_configuration.smtp_host') -%></b></label>
-      </td>
-      <td class="sep"> </td>
-      <td align="left">
-        <%= text_field_tag 'smtp_host', @smtp_host %>
-      </td>
+      <td class="keyCell"><label for="smtp_host"><%= message('email_configuration.smtp_host') -%>:</label></td>
+      <td align="left"><%= text_field_tag 'smtp_host', @smtp_host %></td>
     </tr>
-
     <tr>
-      <td nowrap>
-        <label for="smtp_port"><b><%= message('email_configuration.smtp_port') -%></b></label>
-      </td>
-      <td class="sep"> </td>
-      <td align="left">
-        <%= text_field_tag 'smtp_port', @smtp_port %>
-      </td>
+      <td class="keyCell"><label for="smtp_port"><%= message('email_configuration.smtp_port') -%>:</label></td>
+      <td align="left"><%= text_field_tag 'smtp_port', @smtp_port %></td>
     </tr>
-
     <tr>
-      <td nowrap>
-        <label for="smtp_port"><b><%= message('email_configuration.use_tls') -%></b></label>
-      </td>
-      <td class="sep"> </td>
-      <td align="left">
-        <%= check_box_tag 'smtp_use_tls', 'true', @smtp_use_tls %>
-      </td>
+      <td class="keyCell"><label for="smtp_port"><%= message('email_configuration.use_tls') -%>:</label></td>
+      <td align="left"><%= check_box_tag 'smtp_use_tls', 'true', @smtp_use_tls %></td>
     </tr>
-
     <tr>
-      <td nowrap>
-        <label for="smtp_username"><b><%= message('email_configuration.smtp_username') -%></b></label>
-      </td>
-      <td class="sep"> </td>
-      <td align="left">
-        <%= text_field_tag 'smtp_username', @smtp_username %>
-      </td>
+      <td class="keyCell"><label for="smtp_username"><%= message('email_configuration.smtp_username') -%>:</label></td>
+      <td align="left"><%= text_field_tag 'smtp_username', @smtp_username %></td>
     </tr>
-
     <tr>
-      <td nowrap>
-        <label for="smtp_password"><b><%= message('email_configuration.smtp_password') -%></b></label>
-      </td>
-      <td class="sep"> </td>
-      <td align="left">
-        <%= password_field_tag 'smtp_password', @smtp_password %>
-      </td>
+      <td class="keyCell"><label for="smtp_password"><%= message('email_configuration.smtp_password') -%>:</label></td>
+      <td align="left"><%= password_field_tag 'smtp_password', @smtp_password %></td>
     </tr>
-
     <tr>
-      <td nowrap>
-        <label for="email_from"><b><%= message('email_configuration.from_address') -%></b></label>
-      </td>
-      <td class="sep"> </td>
-      <td align="left">
-        <%= text_field_tag 'email_from', @email_from %>
-      </td>
+      <td class="keyCell"><label for="email_from"><%= message('email_configuration.from_address') -%>:</label></td>
+      <td><%= text_field_tag 'email_from', @email_from %></td>
     </tr>
-
     <tr>
-      <td nowrap>
-        <label for="email_prefix"><b><%= message('email_configuration.email_prefix') -%></b></label>
-      </td>
-      <td class="sep"> </td>
-      <td align="left">
-        <%= text_field_tag 'email_prefix', @email_prefix %>
-      </td>
+      <td class="keyCell"><label for="email_prefix"><%= message('email_configuration.email_prefix') -%>:</label></td>
+      <td><%= text_field_tag 'email_prefix', @email_prefix %></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><%= submit_tag message('save') %></td>
     </tr>
   </table>
-  <br/>
-  <%= submit_tag message('save') %>
 <% end -%>
-<br/>
+</div>
 
 <h1><%= message('email_configuration.test.title') -%></h1>
-<br/>
+<div class="admin">
 <% form_tag({:action => 'send_test_email'}) do -%>
-  <table>
+  <table class="form">
     <tr>
-      <td nowrap>
-        <label for="to_address"><b><%= message('email_configuration.test.to_address') -%></b></label>
-      </td>
-      <td class="sep"> </td>
-      <td align="left">
-        <%= text_field_tag 'to_address', current_user.email %>
-      </td>
+      <td class="keyCell"><label for="to_address"><%= message('email_configuration.test.to_address') -%>:</label></td>
+      <td><%= text_field_tag 'to_address', current_user.email %></td>
     </tr>
     <tr>
-      <td nowrap>
-        <label for="subject"><b><%= message('email_configuration.test.subject') -%></b></label>
-      </td>
-      <td class="sep"> </td>
-      <td align="left">
-        <%= text_field_tag 'subject', message('email_configuration.test.subject_text') %>
-      </td>
+      <td class="keyCell"><label for="subject"><%= message('email_configuration.test.subject') -%>:</label></td>
+      <td><%= text_field_tag 'subject', message('email_configuration.test.subject_text') %></td>
     </tr>
     <tr>
-      <td nowrap>
-        <label for="message"><b><%= message('email_configuration.test.message') -%></b></label>
-      </td>
-      <td class="sep"> </td>
-      <td align="left">
-        <%= text_area_tag 'message', message('email_configuration.test.message_text') %>
-      </td>
+      <td class="keyCell"><label for="message"><%= message('email_configuration.test.message') -%>:</label></td>
+      <td><%= text_area_tag 'message', message('email_configuration.test.message_text') %></td>
     </tr>
-  <table>
-  <br/>
-  <%= submit_tag message('email_configuration.test.send') %>
+    <tr>
+      <td></td>
+      <td><%= submit_tag message('email_configuration.test.send') %></td>
+    </tr>
+  </table>
 <% end -%>
+</div>
