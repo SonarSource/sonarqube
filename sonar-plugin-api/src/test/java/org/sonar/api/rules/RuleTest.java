@@ -64,7 +64,7 @@ public class RuleTest {
   public void shouldRemoveNewLineCharactersInNameWithSecondConstructor() {
     Rule rule;
     for (String example : getExamplesContainingNewLineCharacter()) {
-      rule = new Rule(null, null, example, (RulesCategory) null, null);
+      rule = new Rule(null, null, example, null, null);
       assertThat(rule.getName(), is("test"));
     }
   }

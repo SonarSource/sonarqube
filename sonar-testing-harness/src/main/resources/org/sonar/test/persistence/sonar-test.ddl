@@ -301,7 +301,7 @@ create table QUALITY_MODELS (
 
 create table RULES (
   ID INTEGER not null,
-  NAME VARCHAR(192) not null,
+  NAME VARCHAR(192),
   PLUGIN_RULE_KEY VARCHAR(200) not null,
   PLUGIN_NAME VARCHAR(255) not null,
   DESCRIPTION CLOB,

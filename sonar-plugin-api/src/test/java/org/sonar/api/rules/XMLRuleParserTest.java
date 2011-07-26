@@ -20,6 +20,7 @@
 package org.sonar.api.rules;
 
 import org.hamcrest.core.Is;
+import org.hamcrest.core.IsNull;
 import org.junit.Test;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
@@ -65,9 +66,10 @@ public class XMLRuleParserTest {
     new XMLRuleParser().parse(new StringReader("<rules><rule><name>Foo</name></rule></rules>"));
   }
 
-  @Test(expected = SonarException.class)
-  public void failIfMissingRuleName() {
-    new XMLRuleParser().parse(new StringReader("<rules><rule><key>foo</key></rule></rules>"));
+  @Test
+  public void ruleNameShouldBeOptional() {
+    List<Rule> rules = new XMLRuleParser().parse(new StringReader("<rules><rule><key>foo</key></rule></rules>"));
+    assertThat(rules.get(0).getName(), nullValue());
   }
 
   @Test(expected = SonarException.class)
@@ -76,7 +78,7 @@ public class XMLRuleParserTest {
   }
 
   @Test
-  public void utf8Encoding() {
+  public void testUtf8Encoding() {
     List<Rule> rules = new XMLRuleParser().parse(getClass().getResourceAsStream("/org/sonar/api/rules/XMLRuleParserTest/utf8.xml"));
     assertThat(rules.size(), is(1));
     Rule rule = rules.get(0);
@@ -88,7 +90,7 @@ public class XMLRuleParserTest {
   }
 
   @Test
-  public void supportDeprecatedFormat() {
+  public void shouldSupportDeprecatedFormat() {
     // the deprecated format uses some attributes instead of nodes
     List<Rule> rules = new XMLRuleParser().parse(getClass().getResourceAsStream("/org/sonar/api/rules/XMLRuleParserTest/deprecated.xml"));
     assertThat(rules.size(), is(1));

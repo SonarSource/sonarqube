@@ -47,7 +47,7 @@ public final class Rule {
    */
   public static final RulePriority DEFAULT_PRIORITY = RulePriority.MAJOR;
 
-  @Column(name = "name", updatable = true, nullable = false)
+  @Column(name = "name", updatable = true, nullable = true, length = 200)
   private String name;
 
   @Column(name = "plugin_rule_key", updatable = false, nullable = true, length = 200)

@@ -145,9 +145,6 @@ public final class XMLRuleParser implements ServerComponent {
     if (StringUtils.isEmpty(rule.getKey())) {
       throw new SonarException("Node <key> is missing in <rule>");
     }
-    if (StringUtils.isEmpty(rule.getName())) {
-      throw new SonarException("Node <name> is missing in <rule>");
-    }
   }
 
   private static void processParameter(Rule rule, SMInputCursor ruleC) throws XMLStreamException {
