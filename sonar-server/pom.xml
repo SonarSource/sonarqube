@@ -456,7 +456,7 @@
         </dependency>
         <dependency>
           <groupId>org.codehaus.sonar.plugins</groupId>
-          <artifactId>sonar-email-plugin</artifactId>
+          <artifactId>sonar-email-notifications-plugin</artifactId>
           <version>${project.version}</version>
           <scope>provided</scope>
         </dependency>

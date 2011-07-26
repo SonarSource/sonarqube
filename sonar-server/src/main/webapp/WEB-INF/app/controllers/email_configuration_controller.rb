@@ -48,10 +48,11 @@ class EmailConfigurationController < ApplicationController
     subject = params[:subject]
     message = params[:message]
     if to_address.blank?
-      flash[:notice] = 'You must provide address where to send test email'
+      flash[:notice] = message('email_configuration.test.to_address_required')
     else
       begin
-        java_facade.getComponentByClassname('email', 'org.sonar.plugins.email.EmailNotificationChannel').sendTestEmail(to_address, subject, message)
+        java_facade.getComponentByClassname('emailnotifications', 'org.sonar.plugins.emailnotifications.EmailNotificationChannel').sendTestEmail(to_address, subject, message)
+        flash[:notice] = message('email_configuration.test.email_was_sent_to_x', :params => [to_address])
       rescue Exception => e
         flash[:error] = e.message
       end
@@ -62,7 +63,7 @@ class EmailConfigurationController < ApplicationController
   private
 
   def configuration
-    java_facade.getComponentByClassname('email', 'org.sonar.plugins.email.EmailConfiguration').class
+    java_facade.getComponentByClassname('emailnotifications', 'org.sonar.plugins.emailnotifications.EmailConfiguration').class
   end
 
 end

@@ -86,6 +86,7 @@
               if update_center_activated=='true' %>
                 <li class="<%= 'selected' if controller.controller_path=='updatecenter' -%>"><a href="<%= ApplicationController.root_context -%>/updatecenter"><%= message('update_center.page') -%></a></li>
               <% end %>
+              <li class="<%= 'selected' if controller.controller_path=='email_configuration' -%>"><a href="<%= ApplicationController.root_context -%>/email_configuration"><%= message('email_configuration.page') -%></a></li>
             <% end %>
 
         <% end %>

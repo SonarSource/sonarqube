@@ -29,9 +29,9 @@
 <h1>Change password</h1>
 <br/>
   <% form_tag( {:action => 'change_password' }, :id => 'pass_form_tag', :name => 'pass_form_tag') do -%>
-	<table>
-		<tr>
-			<td nowrap>
+  <table>
+    <tr>
+      <td nowrap>
         <label for="old_password"><b>Old value:</b></label>
       </td>
       <td class="sep"> </td>
@@ -40,7 +40,7 @@
       </td>
     </tr>
     <tr>
-	    <td nowrap>
+      <td nowrap>
         <label for="password"><b>New value:</b></label>
       </td>
       <td class="sep"> </td>
@@ -49,7 +49,7 @@
       </td>
      </tr>
      <tr>
-		 	<td nowrap>
+     <td nowrap>
          <label for="password_confirmation"><b>Confirm new value:</b></label>
       </td>
       <td class="sep"> </td>
@@ -58,15 +58,15 @@
             </td>
       </tr>
 
-	</table>
-	<br/>
-	<%= submit_tag 'Change password' %>
+  </table>
+  <br/>
+  <%= submit_tag 'Change password' %>
   <% end %>
-	<script type="text/javascript">
-	//<![CDATA[
+  <script type="text/javascript">
+  //<![CDATA[
     $('pass_form_tag').focusFirstElement();
   //]]>
-	</script>
+  </script>
 <% end -%>
 <br/>
 
@@ -77,12 +77,12 @@
     <tr>
       <td></td>
       <% for channel in @channels %>
-      <td><%= channel.getKey() %></td>
+      <td><%= message('notification.channel.' + channel.getKey()) -%></td>
       <% end %>
     </tr>
     <% for dispatcher in @dispatchers %>
     <tr>
-      <td><%= dispatcher.getKey() %></td>
+      <td><%= message('notification.dispatcher.' + dispatcher.getKey()) -%></td>
       <td>
         <%
         for channel in @channels

@@ -1,9 +1,10 @@
-<h1>Email configuration</h1>
+<h1><%= message('email_configuration.page') -%></h1>
+<br/>
 <% form_tag({:action => 'save'}) do -%>
   <table>
     <tr>
       <td nowrap>
-        <label for="smtp_host"><b>SMTP Host:</b></label>
+        <label for="smtp_host"><b><%= message('email_configuration.smtp_host') -%></b></label>
       </td>
       <td class="sep"> </td>
       <td align="left">
@@ -13,7 +14,7 @@
 
     <tr>
       <td nowrap>
-        <label for="smtp_port"><b>SMTP Port:</b></label>
+        <label for="smtp_port"><b><%= message('email_configuration.smtp_port') -%></b></label>
       </td>
       <td class="sep"> </td>
       <td align="left">
@@ -23,7 +24,7 @@
 
     <tr>
       <td nowrap>
-        <label for="smtp_port"><b>Use TLS:</b></label>
+        <label for="smtp_port"><b><%= message('email_configuration.use_tls') -%></b></label>
       </td>
       <td class="sep"> </td>
       <td align="left">
@@ -33,7 +34,7 @@
 
     <tr>
       <td nowrap>
-        <label for="smtp_username"><b>SMTP Username:</b></label>
+        <label for="smtp_username"><b><%= message('email_configuration.smtp_username') -%></b></label>
       </td>
       <td class="sep"> </td>
       <td align="left">
@@ -43,7 +44,7 @@
 
     <tr>
       <td nowrap>
-        <label for="smtp_password"><b>SMTP Password:</b></label>
+        <label for="smtp_password"><b><%= message('email_configuration.smtp_password') -%></b></label>
       </td>
       <td class="sep"> </td>
       <td align="left">
@@ -53,7 +54,7 @@
 
     <tr>
       <td nowrap>
-        <label for="email_from"><b>From address:</b></label>
+        <label for="email_from"><b><%= message('email_configuration.from_address') -%></b></label>
       </td>
       <td class="sep"> </td>
       <td align="left">
@@ -63,7 +64,7 @@
 
     <tr>
       <td nowrap>
-        <label for="email_prefix"><b>Email prefix:</b></label>
+        <label for="email_prefix"><b><%= message('email_configuration.email_prefix') -%></b></label>
       </td>
       <td class="sep"> </td>
       <td align="left">
@@ -71,16 +72,18 @@
       </td>
     </tr>
   </table>
-  <%= submit_tag %>
+  <br/>
+  <%= submit_tag message('save') %>
 <% end -%>
 <br/>
 
-<h1>Send Test Email</h1>
+<h1><%= message('email_configuration.test.title') -%></h1>
+<br/>
 <% form_tag({:action => 'send_test_email'}) do -%>
   <table>
     <tr>
       <td nowrap>
-        <label for="to_address"><b>To:</b></label>
+        <label for="to_address"><b><%= message('email_configuration.test.to_address') -%></b></label>
       </td>
       <td class="sep"> </td>
       <td align="left">
@@ -89,22 +92,23 @@
     </tr>
     <tr>
       <td nowrap>
-        <label for="subject"><b>Subject:</b></label>
+        <label for="subject"><b><%= message('email_configuration.test.subject') -%></b></label>
       </td>
       <td class="sep"> </td>
       <td align="left">
-        <%= text_field_tag 'subject', 'Test Message from Sonar' %>
+        <%= text_field_tag 'subject', message('email_configuration.test.subject_text') %>
       </td>
     </tr>
     <tr>
       <td nowrap>
-        <label for="message"><b>Message:</b></label>
+        <label for="message"><b><%= message('email_configuration.test.message') -%></b></label>
       </td>
       <td class="sep"> </td>
       <td align="left">
-        <%= text_area_tag 'message', 'This is a test message from Sonar.' %>
+        <%= text_area_tag 'message', message('email_configuration.test.message_text') %>
       </td>
     </tr>
   <table>
-  <%= submit_tag 'Send' %>
+  <br/>
+  <%= submit_tag message('email_configuration.test.send') %>
 <% end -%>
