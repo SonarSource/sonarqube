@@ -117,8 +117,9 @@ public class I18nManagerTest {
   }
 
   @Test
-  public void testExtractRuleName() throws Exception {
-    assertThat(manager.extractRuleName("rule.squid.ArchitecturalConstraint.description"), is("ArchitecturalConstraint"));
+  public void shouldExtractRuleKey() throws Exception {
+    assertThat(manager.extractRuleKeyFromDescriptionProperty("rule.squid.ArchitecturalConstraint.description"), is("ArchitecturalConstraint"));
+    assertThat(manager.extractRuleKeyFromDescriptionProperty("rule.checkstyle.com.puppycrawl.checkstyle.IllegalRegexp.description"), is("com.puppycrawl.checkstyle.IllegalRegexp"));
   }
 
   @Test

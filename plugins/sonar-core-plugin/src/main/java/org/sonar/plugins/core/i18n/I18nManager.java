@@ -230,15 +230,14 @@ public final class I18nManager implements I18n, ServerExtension {
     return localeToUse;
   }
 
-  protected String extractRuleName(String ruleDescriptionKey) {
-    int firstDotIndex = ruleDescriptionKey.indexOf(".");
-    int secondDotIndex = ruleDescriptionKey.indexOf(".", firstDotIndex + 1);
-    int thirdDotIndex = ruleDescriptionKey.indexOf(".", secondDotIndex + 1);
-    return ruleDescriptionKey.substring(secondDotIndex + 1, thirdDotIndex);
+  String extractRuleKeyFromDescriptionProperty(String ruleDescriptionKey) {
+    // format is "rule.<plugin>.<key>.description"
+    String s = StringUtils.substringAfter(ruleDescriptionKey, "rule.");
+    return StringUtils.substringBetween(s, ".", ".description");
   }
 
   protected String computeHtmlFilePath(String bundleBaseName, String ruleDescriptionKey, Locale locale) {
-    String ruleName = extractRuleName(ruleDescriptionKey);
+    String ruleName = extractRuleKeyFromDescriptionProperty(ruleDescriptionKey);
     if (Locale.ENGLISH.equals(locale)) {
       return bundleBaseName + "/" + ruleName + ".html";
     } else {
