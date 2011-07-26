@@ -121,8 +121,7 @@ import java.util.List;
        key = CoreProperties.CORE_VIOLATION_LOCALE_PROPERTY,
        defaultValue = "en",
        name = "Locale used for violation messages",
-       description = "This locale is used when generating violation messages. Settings of user browsers are " +
-           "ignored.",
+       description = "Locale to be used when generating violation messages. It's up to each rule engine to support this global internationalization property",
        project = true,
        global = true),
     @Property(
