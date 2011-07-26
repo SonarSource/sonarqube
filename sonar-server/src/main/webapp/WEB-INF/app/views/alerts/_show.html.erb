@@ -4,7 +4,7 @@
     <%= h alert.name %>
   </td>
   <td width="10%">
-    <%= operators_for_select(alert).invert[alert.operator] %>
+    <%= message("alert.operator.#{alert.operator}") -%>
   </td>
   <td width="20%">
     <% if alert.metric && !alert.value_warning.blank? %>

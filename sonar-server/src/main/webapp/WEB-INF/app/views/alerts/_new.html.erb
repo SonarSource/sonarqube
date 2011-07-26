@@ -28,8 +28,8 @@
     <select id="alert_operator" name="alert[operator]">
       <%
         default_op=default_operator(@alert)
-        operators_for_select(@alert).each_pair do |name, key| %>
-        <option value="<%= key -%>" <%= 'selected' if default_op==key -%>><%= name -%></option>
+        operators_for_select(@alert).each do |key| %>
+        <option value="<%= key -%>" <%= 'selected' if default_op==key -%>><%= message("alert.operator.#{key}") -%></option>
       <% end %>
     </select>
   </td>

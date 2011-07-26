@@ -18,10 +18,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 module AlertsHelper
-  NUMERIC_THRESOLD_OPERATORS = {'is less than' => '<', 'is greater than' => '>', 'equals' => '=', 'is not' => '!=' }
-  BOOLEAN_THRESOLD_OPERATORS = {'is' => '='}
-  STRING_THRESOLD_OPERATORS = {'equals' => '=', 'is not' => '!=', 'is greater than' => '>', 'is less than' => '<'}
-  LEVEL_THRESOLD_OPERATORS = {'is' => '=', 'is not' => '!='}
+  NUMERIC_THRESOLD_OPERATORS = ['<', '>', '=', '!=']
+  BOOLEAN_THRESOLD_OPERATORS = ['=']
+  STRING_THRESOLD_OPERATORS = ['=', '!=', '>', '<']
+  LEVEL_THRESOLD_OPERATORS = ['=', '!=']
 
   def operators_for_select(alert)
     if alert.metric.nil?
