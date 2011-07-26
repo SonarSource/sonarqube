@@ -1,26 +1,17 @@
  <rules>
 
   <!-- Checkstyle 5.0 -->
-  <rule key="com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck" >
-<priority>MAJOR</priority>
-    <name><![CDATA[Header]]></name>
-    <configKey><![CDATA[Checker/Header]]></configKey>
-
-    <description><![CDATA[<p>Checks that a source file begins with a specified header. Property headerFile specifies a file that contains the required header. Alternatively, the header specification can be set directly in the header property without the need for an external file.</p>
-<p>Property ignoreLines specifies the line numbers to ignore when matching lines in a header file. This property is very useful for supporting headers that contain copyright dates. For example, consider the following header:</p>
-<pre>
-	line 1: ////////////////////////////////////////////////////////////////////
-	line 2: // checkstyle:
-	line 3: // Checks Java source code for adherence to a set of rules.
-	line 4: // Copyright (C) 2002  Oliver Burn
-	line 5: ////////////////////////////////////////////////////////////////////
-</pre>
-<p>Since the year information will change over time, you can tell Checkstyle to ignore line 4 by setting property ignoreLines to 4.</p>]]></description>
-    <param key="header" type="s">
-      <description><![CDATA[the required header specified inline. Individual header lines must be separated by the string "\n" (even on platforms with a different line separator)]]></description>
+  <rule>
+    <key>com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck</key>
+    <priority>MAJOR</priority>
+    <configKey>Checker/Header</configKey>
+    <param>
+      <key>header</key>
+      <type>s</type>
     </param>
-    <param key="ignoreLines" type="s">
-      <description><![CDATA[comma-separated list of line numbers to ignore]]></description>
+    <param>
+      <key>ignoreLines</key>
+      <type>s</type>
     </param>
   </rule>
 
