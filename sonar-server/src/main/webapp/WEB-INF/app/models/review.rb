@@ -102,7 +102,10 @@ class Review < ActiveRecord::Base
 
   def to_java_map(params = {})
     map = java.util.HashMap.new({
-      "creator" => user.login.to_java,
+      "project" => project.long_name.to_java,
+      "resource" => resource.long_name.to_java,
+      "title" => title.to_java,
+      "creator" => user == nil ? nil : user.login.to_java,
       "assignee" => assignee == nil ? nil : assignee.login.to_java,
       "status" => status.to_java,
       "resolution" => resolution.to_java

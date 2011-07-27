@@ -44,13 +44,18 @@ public class ReviewEmailTemplate extends EmailTemplate {
 
   @Override
   public EmailMessage format(Notification notification) {
-    if ( !"review-changed".equals(notification.getType())) {
+    if (!"review-changed".equals(notification.getType())) {
       return null;
     }
     String reviewId = notification.getFieldValue("reviewId");
     String author = notification.getFieldValue("author");
     StringBuilder sb = new StringBuilder();
 
+    append(sb, "Project", null, notification.getFieldValue("project"));
+    append(sb, "Resource", null, notification.getFieldValue("resource"));
+    sb.append('\n');
+    append(sb, null, null, notification.getFieldValue("title"));
+    sb.append('\n');
     append(sb, "Status", notification.getFieldValue("old.status"), notification.getFieldValue("new.status"));
     append(sb, "Resolution", notification.getFieldValue("old.resolution"), notification.getFieldValue("new.resolution"));
     append(sb, "Assignee", getUserFullName(notification.getFieldValue("old.assignee")), getUserFullName(notification.getFieldValue("new.assignee")));
@@ -69,7 +74,9 @@ public class ReviewEmailTemplate extends EmailTemplate {
 
   private void append(StringBuilder sb, String name, String oldValue, String newValue) {
     if (oldValue != null || newValue != null) {
-      sb.append(name).append(": ");
+      if (name != null) {
+        sb.append(name).append(": ");
+      }
       if (newValue != null) {
         sb.append(newValue);
       }

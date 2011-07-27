@@ -54,6 +54,11 @@ public class ReviewEmailTemplateTest {
    * Subject: Review #1
    * From: Freddy Mallet
    * 
+   * Project: Sonar
+   * Resource: org.sonar.server.ui.DefaultPages
+   * 
+   * Utility classes should not have a public or default constructor.
+   * 
    * Comment:
    *   This is my first comment
    * 
@@ -65,6 +70,9 @@ public class ReviewEmailTemplateTest {
   public void shouldFormatCommentAdded() {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", "1")
+        .setFieldValue("project", "Sonar")
+        .setFieldValue("resource", "org.sonar.server.ui.DefaultPages")
+        .setFieldValue("title", "Utility classes should not have a public or default constructor.")
         .setFieldValue("author", "freddy.mallet")
         .setFieldValue("old.comment", null)
         .setFieldValue("new.comment", "This is my first comment");
@@ -73,6 +81,11 @@ public class ReviewEmailTemplateTest {
     assertThat(message.getSubject(), is("Review #1"));
     assertThat(message.getFrom(), is("Freddy Mallet"));
     assertThat(message.getMessage(), is("" +
+        "Project: Sonar\n" +
+        "Resource: org.sonar.server.ui.DefaultPages\n" +
+        "\n" +
+        "Utility classes should not have a public or default constructor.\n" +
+        "\n" +
         "Comment:\n" +
         "  This is my first comment\n" +
         "\n" +
@@ -84,6 +97,11 @@ public class ReviewEmailTemplateTest {
    * <pre>
    * Subject: Review #1
    * From: Freddy Mallet
+   * 
+   * Project: Sonar
+   * Resource: org.sonar.server.ui.DefaultPages
+   * 
+   * Utility classes should not have a public or default constructor.
    * 
    * Comment:
    *   This is another comment
@@ -98,6 +116,9 @@ public class ReviewEmailTemplateTest {
   public void shouldFormatCommentEdited() {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", "1")
+        .setFieldValue("project", "Sonar")
+        .setFieldValue("resource", "org.sonar.server.ui.DefaultPages")
+        .setFieldValue("title", "Utility classes should not have a public or default constructor.")
         .setFieldValue("author", "freddy.mallet")
         .setFieldValue("old.comment", "This is my first comment")
         .setFieldValue("new.comment", "This is another comment");
@@ -106,6 +127,11 @@ public class ReviewEmailTemplateTest {
     assertThat(message.getSubject(), is("Review #1"));
     assertThat(message.getFrom(), is("Freddy Mallet"));
     assertThat(message.getMessage(), is("" +
+        "Project: Sonar\n" +
+        "Resource: org.sonar.server.ui.DefaultPages\n" +
+        "\n" +
+        "Utility classes should not have a public or default constructor.\n" +
+        "\n" +
         "Comment:\n" +
         "  This is another comment\n" +
         "Was:\n" +
@@ -120,6 +146,11 @@ public class ReviewEmailTemplateTest {
    * Subject: Review #1
    * From: Freddy Mallet
    * 
+   * Project: Sonar
+   * Resource: org.sonar.server.ui.DefaultPages
+   * 
+   * Utility classes should not have a public or default constructor.
+   * 
    * Comment deleted, was:
    *   This is deleted comment
    *   
@@ -131,6 +162,9 @@ public class ReviewEmailTemplateTest {
   public void shouldFormatCommentDeleted() {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", "1")
+        .setFieldValue("project", "Sonar")
+        .setFieldValue("resource", "org.sonar.server.ui.DefaultPages")
+        .setFieldValue("title", "Utility classes should not have a public or default constructor.")
         .setFieldValue("old.comment", "This is deleted comment")
         .setFieldValue("new.comment", null)
         .setFieldValue("author", "freddy.mallet");
@@ -139,6 +173,11 @@ public class ReviewEmailTemplateTest {
     assertThat(message.getSubject(), is("Review #1"));
     assertThat(message.getFrom(), is("Freddy Mallet"));
     assertThat(message.getMessage(), is("" +
+        "Project: Sonar\n" +
+        "Resource: org.sonar.server.ui.DefaultPages\n" +
+        "\n" +
+        "Utility classes should not have a public or default constructor.\n" +
+        "\n" +
         "Comment deleted, was:\n" +
         "  This is deleted comment\n" +
         "\n" +
@@ -151,6 +190,11 @@ public class ReviewEmailTemplateTest {
    * Subject: Review #1
    * From: Freddy Mallet
    * 
+   * Project: Sonar
+   * Resource: org.sonar.server.ui.DefaultPages
+   * 
+   * Utility classes should not have a public or default constructor.
+   * 
    * Assignee: Evgeny Mandrikov
    * 
    * --
@@ -161,6 +205,9 @@ public class ReviewEmailTemplateTest {
   public void shouldFormatAssigneed() {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", "1")
+        .setFieldValue("project", "Sonar")
+        .setFieldValue("resource", "org.sonar.server.ui.DefaultPages")
+        .setFieldValue("title", "Utility classes should not have a public or default constructor.")
         .setFieldValue("author", "freddy.mallet")
         .setFieldValue("old.assignee", null)
         .setFieldValue("new.assignee", "evgeny.mandrikov");
@@ -169,6 +216,11 @@ public class ReviewEmailTemplateTest {
     assertThat(message.getSubject(), is("Review #1"));
     assertThat(message.getFrom(), is("Freddy Mallet"));
     assertThat(message.getMessage(), is("" +
+        "Project: Sonar\n" +
+        "Resource: org.sonar.server.ui.DefaultPages\n" +
+        "\n" +
+        "Utility classes should not have a public or default constructor.\n" +
+        "\n" +
         "Assignee: Evgeny Mandrikov\n" +
         "\n" +
         "--\n" +
@@ -180,6 +232,11 @@ public class ReviewEmailTemplateTest {
    * Subject: Review #1
    * From: Freddy Mallet
    * 
+   * Project: Sonar
+   * Resource: org.sonar.server.ui.DefaultPages
+   * 
+   * Utility classes should not have a public or default constructor.
+   * 
    * Assignee: Simon Brandhof (was Evgeny Mandrikov)
    * 
    * --
@@ -190,6 +247,9 @@ public class ReviewEmailTemplateTest {
   public void shouldFormatAssigneedToAnotherPerson() {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", "1")
+        .setFieldValue("project", "Sonar")
+        .setFieldValue("resource", "org.sonar.server.ui.DefaultPages")
+        .setFieldValue("title", "Utility classes should not have a public or default constructor.")
         .setFieldValue("author", "freddy.mallet")
         .setFieldValue("old.assignee", "evgeny.mandrikov")
         .setFieldValue("new.assignee", "simon.brandhof");
@@ -198,6 +258,11 @@ public class ReviewEmailTemplateTest {
     assertThat(message.getSubject(), is("Review #1"));
     assertThat(message.getFrom(), is("Freddy Mallet"));
     assertThat(message.getMessage(), is("" +
+        "Project: Sonar\n" +
+        "Resource: org.sonar.server.ui.DefaultPages\n" +
+        "\n" +
+        "Utility classes should not have a public or default constructor.\n" +
+        "\n" +
         "Assignee: Simon Brandhof (was Evgeny Mandrikov)\n" +
         "\n" +
         "--\n" +
@@ -209,6 +274,11 @@ public class ReviewEmailTemplateTest {
    * Subject: Review #1
    * From: Freddy Mallet
    * 
+   * Project: Sonar
+   * Resource: org.sonar.server.ui.DefaultPages
+   * 
+   * Utility classes should not have a public or default constructor.
+   * 
    * Assignee: (was Simon Brandhof)
    * 
    * --
@@ -219,6 +289,9 @@ public class ReviewEmailTemplateTest {
   public void shouldFormatUnassigned() {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", "1")
+        .setFieldValue("project", "Sonar")
+        .setFieldValue("resource", "org.sonar.server.ui.DefaultPages")
+        .setFieldValue("title", "Utility classes should not have a public or default constructor.")
         .setFieldValue("author", "freddy.mallet")
         .setFieldValue("old.assignee", "simon.brandhof")
         .setFieldValue("new.assignee", null);
@@ -227,6 +300,11 @@ public class ReviewEmailTemplateTest {
     assertThat(message.getSubject(), is("Review #1"));
     assertThat(message.getFrom(), is("Freddy Mallet"));
     assertThat(message.getMessage(), is("" +
+        "Project: Sonar\n" +
+        "Resource: org.sonar.server.ui.DefaultPages\n" +
+        "\n" +
+        "Utility classes should not have a public or default constructor.\n" +
+        "\n" +
         "Assignee:  (was Simon Brandhof)\n" +
         "\n" +
         "--\n" +
@@ -238,6 +316,11 @@ public class ReviewEmailTemplateTest {
    * Subject: Review #1
    * From: Sonar
    * 
+   * Project: Sonar
+   * Resource: org.sonar.server.ui.DefaultPages
+   * 
+   * Utility classes should not have a public or default constructor.
+   * 
    * Status: CLOSED (was OPEN)
    * 
    * --
@@ -248,6 +331,9 @@ public class ReviewEmailTemplateTest {
   public void shouldFormatClosed() {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", "1")
+        .setFieldValue("project", "Sonar")
+        .setFieldValue("resource", "org.sonar.server.ui.DefaultPages")
+        .setFieldValue("title", "Utility classes should not have a public or default constructor.")
         .setFieldValue("old.status", "OPEN")
         .setFieldValue("new.status", "CLOSED");
     EmailMessage message = template.format(notification);
@@ -255,16 +341,26 @@ public class ReviewEmailTemplateTest {
     assertThat(message.getSubject(), is("Review #1"));
     assertThat(message.getFrom(), nullValue());
     assertThat(message.getMessage(), is("" +
-    		"Status: CLOSED (was OPEN)\n" +
-    		"\n" +
+        "Project: Sonar\n" +
+        "Resource: org.sonar.server.ui.DefaultPages\n" +
+        "\n" +
+        "Utility classes should not have a public or default constructor.\n" +
+        "\n" +
+        "Status: CLOSED (was OPEN)\n" +
+        "\n" +
         "--\n" +
-    		"See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
+        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
   }
 
   /**
    * <pre>
    * Subject: Review #1
    * From: Simon Brandhof
+   * 
+   * Project: Sonar
+   * Resource: org.sonar.server.ui.DefaultPages
+   * 
+   * Utility classes should not have a public or default constructor.
    * 
    * Status: REOPENED (was RESOLVED)
    * Resolution: (was FIXED)
@@ -277,6 +373,9 @@ public class ReviewEmailTemplateTest {
   public void shouldFormatReopened() {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", "1")
+        .setFieldValue("project", "Sonar")
+        .setFieldValue("resource", "org.sonar.server.ui.DefaultPages")
+        .setFieldValue("title", "Utility classes should not have a public or default constructor.")
         .setFieldValue("old.resolution", "FIXED")
         .setFieldValue("new.resolution", null)
         .setFieldValue("old.status", "RESOLVED")
@@ -286,6 +385,11 @@ public class ReviewEmailTemplateTest {
     assertThat(message.getSubject(), is("Review #1"));
     assertThat(message.getFrom(), nullValue());
     assertThat(message.getMessage(), is("" +
+        "Project: Sonar\n" +
+        "Resource: org.sonar.server.ui.DefaultPages\n" +
+        "\n" +
+        "Utility classes should not have a public or default constructor.\n" +
+        "\n" +
         "Status: REOPENED (was RESOLVED)\n" +
         "Resolution:  (was FIXED)\n" +
         "\n" +
@@ -298,6 +402,11 @@ public class ReviewEmailTemplateTest {
    * Subject: Review #1
    * From: Simon Brandhof
    * 
+   * Project: Sonar
+   * Resource: org.sonar.server.ui.DefaultPages
+   * 
+   * Utility classes should not have a public or default constructor.
+   * 
    * Status: RESOLVED (was OPEN)
    * Resolution: FIXED
    * 
@@ -309,6 +418,9 @@ public class ReviewEmailTemplateTest {
   public void shouldFormatResolvedAsFixed() {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", "1")
+        .setFieldValue("project", "Sonar")
+        .setFieldValue("resource", "org.sonar.server.ui.DefaultPages")
+        .setFieldValue("title", "Utility classes should not have a public or default constructor.")
         .setFieldValue("author", "simon.brandhof")
         .setFieldValue("old.status", "OPEN")
         .setFieldValue("old.resolution", null)
@@ -319,6 +431,11 @@ public class ReviewEmailTemplateTest {
     assertThat(message.getSubject(), is("Review #1"));
     assertThat(message.getFrom(), is("Simon Brandhof"));
     assertThat(message.getMessage(), is("" +
+        "Project: Sonar\n" +
+        "Resource: org.sonar.server.ui.DefaultPages\n" +
+        "\n" +
+        "Utility classes should not have a public or default constructor.\n" +
+        "\n" +
         "Status: RESOLVED (was OPEN)\n" +
         "Resolution: FIXED\n" +
         "\n" +
@@ -330,6 +447,11 @@ public class ReviewEmailTemplateTest {
    * <pre>
    * Subject: Review #1
    * From: Simon Brandhof
+   * 
+   * Project: Sonar
+   * Resource: org.sonar.server.ui.DefaultPages
+   * 
+   * Utility classes should not have a public or default constructor.
    * 
    * Status: RESOLVED (was REOPENED)
    * Resolution: FALSE-POSITIVE
@@ -344,6 +466,9 @@ public class ReviewEmailTemplateTest {
   public void shouldFormatResolvedAsFalsePositive() {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", "1")
+        .setFieldValue("project", "Sonar")
+        .setFieldValue("resource", "org.sonar.server.ui.DefaultPages")
+        .setFieldValue("title", "Utility classes should not have a public or default constructor.")
         .setFieldValue("author", "freddy.mallet")
         .setFieldValue("old.status", "REOPENED")
         .setFieldValue("old.resolution", null)
@@ -355,6 +480,11 @@ public class ReviewEmailTemplateTest {
     assertThat(message.getSubject(), is("Review #1"));
     assertThat(message.getFrom(), is("Freddy Mallet"));
     assertThat(message.getMessage(), is("" +
+        "Project: Sonar\n" +
+        "Resource: org.sonar.server.ui.DefaultPages\n" +
+        "\n" +
+        "Utility classes should not have a public or default constructor.\n" +
+        "\n" +
         "Status: RESOLVED (was REOPENED)\n" +
         "Resolution: FALSE-POSITIVE\n" +
         "Comment:\n" +
@@ -375,6 +505,7 @@ public class ReviewEmailTemplateTest {
   public void shouldReturnFullNameOrLogin() {
     assertThat(template.getUserFullName("freddy.mallet"), is("Freddy Mallet"));
     assertThat(template.getUserFullName("deleted"), is("deleted"));
+    assertThat(template.getUserFullName(null), nullValue());
   }
 
 }

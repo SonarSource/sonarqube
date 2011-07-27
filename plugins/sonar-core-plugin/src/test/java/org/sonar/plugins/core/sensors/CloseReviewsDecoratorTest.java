@@ -45,8 +45,10 @@ public class CloseReviewsDecoratorTest extends AbstractDbUnitTestCase {
 
   @Before
   public void setUp() {
+    Project project = mock(Project.class);
+    when(project.getRoot()).thenReturn(project);
     notificationManager = mock(NotificationManager.class);
-    reviewsDecorator = new CloseReviewsDecorator(null, getSession(), notificationManager, mock(UserFinder.class));
+    reviewsDecorator = new CloseReviewsDecorator(project, null, getSession(), notificationManager, mock(UserFinder.class));
   }
 
   @Test
@@ -60,7 +62,7 @@ public class CloseReviewsDecoratorTest extends AbstractDbUnitTestCase {
   public void shouldCloseReviewWithoutCorrespondingViolation() throws Exception {
     setupData("fixture");
 
-    int count = reviewsDecorator.closeReviews(666, 222);
+    int count = reviewsDecorator.closeReviews(null, 666, 222);
 
     assertThat(count, is(3));
     verify(notificationManager, times(3)).scheduleForSending(any(Notification.class));
@@ -79,10 +81,10 @@ public class CloseReviewsDecoratorTest extends AbstractDbUnitTestCase {
     setupData("fixture");
 
     // First we close the reviews for which the violations have been fixed (this is because we use the same "fixture"...)
-    reviewsDecorator.closeReviews(666, 222);
+    reviewsDecorator.closeReviews(null, 666, 222);
 
     // And now we reopen the reviews that still have a violation
-    int count = reviewsDecorator.reopenReviews(666);
+    int count = reviewsDecorator.reopenReviews(null, 666);
 
     assertThat(count, is(1));
     verify(notificationManager, times(4)).scheduleForSending(any(Notification.class));

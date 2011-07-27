@@ -49,12 +49,14 @@ public class CloseReviewsDecorator implements Decorator {
 
   private static final Logger LOG = LoggerFactory.getLogger(CloseReviewsDecorator.class);
 
+  private Project project;
   private ResourcePersister resourcePersister;
   private DatabaseSession databaseSession;
   private NotificationManager notificationManager;
   private UserFinder userFinder;
 
-  public CloseReviewsDecorator(ResourcePersister resourcePersister, DatabaseSession databaseSession, NotificationManager notificationManager, UserFinder userFinder) {
+  public CloseReviewsDecorator(Project project, ResourcePersister resourcePersister, DatabaseSession databaseSession, NotificationManager notificationManager, UserFinder userFinder) {
+    this.project = project;
     this.resourcePersister = resourcePersister;
     this.databaseSession = databaseSession;
     this.notificationManager = notificationManager;
@@ -71,8 +73,8 @@ public class CloseReviewsDecorator implements Decorator {
       int resourceId = currentSnapshot.getResourceId();
       int snapshotId = currentSnapshot.getId();
 
-      closeReviews(resourceId, snapshotId);
-      reopenReviews(resourceId);
+      closeReviews(resource, resourceId, snapshotId);
+      reopenReviews(resource, resourceId);
       if (ResourceUtils.isRootProject(resource)) {
         closeReviewsForDeletedResources(resourceId, currentSnapshot.getId());
       }
@@ -84,13 +86,13 @@ public class CloseReviewsDecorator implements Decorator {
   /**
    * Close reviews for which violations have been fixed.
    */
-  protected int closeReviews(int resourceId, int snapshotId) {
+  protected int closeReviews(Resource resource, int resourceId, int snapshotId) {
     String conditions = " WHERE status!='CLOSED' AND resource_id=" + resourceId
         + " AND rule_failure_permanent_id NOT IN " + "(SELECT permanent_id FROM rule_failures WHERE snapshot_id=" + snapshotId
         + " AND permanent_id IS NOT NULL)";
     List<Review> reviews = databaseSession.getEntityManager().createNativeQuery("SELECT * FROM reviews " + conditions, Review.class).getResultList();
     for (Review review : reviews) {
-      notifyClosed(review);
+      notifyClosed(resource, review);
     }
     int rowUpdated = databaseSession.createNativeQuery("UPDATE reviews SET status='CLOSED', updated_at=CURRENT_TIMESTAMP" + conditions).executeUpdate();
     LOG.debug("- {} reviews set to 'closed' on resource #{}", rowUpdated, resourceId);
@@ -100,11 +102,11 @@ public class CloseReviewsDecorator implements Decorator {
   /**
    * Reopen reviews that had been set to resolved but for which the violation is still here.
    */
-  protected int reopenReviews(int resourceId) {
+  protected int reopenReviews(Resource resource, int resourceId) {
     String conditions = " WHERE status='RESOLVED' AND resource_id=" + resourceId;
     List<Review> reviews = databaseSession.getEntityManager().createNativeQuery("SELECT * FROM reviews " + conditions, Review.class).getResultList();
     for (Review review : reviews) {
-      notifyReopened(review);
+      notifyReopened(resource, review);
     }
     int rowUpdated = databaseSession.createNativeQuery("UPDATE reviews SET status='REOPENED', resolution=NULL, updated_at=CURRENT_TIMESTAMP" + conditions).executeUpdate();
     LOG.debug("- {} reviews set to 'reopened' on resource #{}", rowUpdated, resourceId);
@@ -123,7 +125,7 @@ public class CloseReviewsDecorator implements Decorator {
         .setParameter(1, Boolean.TRUE)
         .getResultList();
     for (Review review : reviews) {
-      notifyClosed(review);
+      notifyClosed(null, review);
     }
     int rowUpdated = databaseSession.createNativeQuery("UPDATE reviews SET status='CLOSED', updated_at=CURRENT_TIMESTAMP" + conditions)
         .setParameter(1, Boolean.TRUE)
@@ -148,11 +150,8 @@ public class CloseReviewsDecorator implements Decorator {
     return user != null ? user.getLogin() : null;
   }
 
-  void notifyReopened(Review review) {
-    Notification notification = new Notification("review-changed")
-        .setFieldValue("reviewId", String.valueOf(review.getId()))
-        .setFieldValue("creator", getCreator(review))
-        .setFieldValue("assignee", getAssignee(review))
+  void notifyReopened(Resource resource, Review review) {
+    Notification notification = createReviewNotification(resource, review)
         .setFieldValue("old.status", review.getStatus())
         .setFieldValue("new.status", "REOPENED")
         .setFieldValue("old.resolution", review.getResolution())
@@ -160,14 +159,21 @@ public class CloseReviewsDecorator implements Decorator {
     notificationManager.scheduleForSending(notification);
   }
 
-  void notifyClosed(Review review) {
-    Notification notification = new Notification("review-changed")
-        .setFieldValue("reviewId", String.valueOf(review.getId()))
-        .setFieldValue("creator", getCreator(review))
-        .setFieldValue("assignee", getAssignee(review))
+  void notifyClosed(Resource resource, Review review) {
+    Notification notification = createReviewNotification(resource, review)
         .setFieldValue("old.status", review.getStatus())
         .setFieldValue("new.status", "CLOSED");
     notificationManager.scheduleForSending(notification);
+  }
+
+  private Notification createReviewNotification(Resource resource, Review review) {
+    return new Notification("review-changed")
+        .setFieldValue("reviewId", String.valueOf(review.getId()))
+        .setFieldValue("project", project.getRoot().getLongName())
+        .setFieldValue("resource", resource != null ? resource.getLongName() : null)
+        .setFieldValue("title", review.getTitle())
+        .setFieldValue("creator", getCreator(review))
+        .setFieldValue("assignee", getAssignee(review));
   }
 
 }
