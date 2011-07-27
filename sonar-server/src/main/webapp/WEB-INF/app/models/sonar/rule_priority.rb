@@ -52,7 +52,7 @@ class Sonar::RulePriority
     return text unless translate
     
     i18n_key = 'severity.' + text
-    result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, i18n_key, as_text_map[text], [].to_java)
+    result = Api::Utils.message(i18n_key, :default => as_text_map[text])
     result
   end
   
@@ -64,7 +64,7 @@ class Sonar::RulePriority
       nil
     end
   end
-  
+
   def self.as_array
     @@priorities_a ||= []
     return @@priorities_a if @@priorities_a.size > 0

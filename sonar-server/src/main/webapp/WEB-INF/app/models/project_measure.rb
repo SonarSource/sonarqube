@@ -31,9 +31,6 @@ class ProjectMeasure < ActiveRecord::Base
   belongs_to :characteristic
   has_one :measure_data, :class_name => 'MeasureData', :foreign_key => 'measure_id'
 
-  validates_numericality_of :value, :if => :numerical_metric?
-  validate :validate_date, :validate_value
-
   def metric
     @metric ||=
       begin
@@ -263,47 +260,13 @@ class ProjectMeasure < ActiveRecord::Base
   end
 
   def <=>(other)
-    return value<=>other.value
+    value<=>other.value
   end
 
   private
 
   def numerical_metric?
     [Metric::VALUE_TYPE_INT, Metric::VALUE_TYPE_FLOAT, Metric::VALUE_TYPE_PERCENT, Metric::VALUE_TYPE_MILLISEC].include?(metric.val_type)
-  end
-
-  def validate_date
-    if measure_date.nil?
-      errors.add_to_base('A valid date must be provided')
-    else
-      last_snasphot_date = project.last_snapshot.created_at
-      if project.last_snapshot.created_at < measure_date
-        errors.add_to_base("The date should not be after #{last_snasphot_date.strftime('%Y-%m-%d')}")
-      end
-    end
-  end
-
-  def validate_value
-    case metric.value_type
-    when Metric::VALUE_TYPE_INT
-      errors.add_to_base("A numerical value must be provided") if value.nil?
-    when Metric::VALUE_TYPE_FLOAT
-      errors.add_to_base("A numerical value must be provided") if value.nil?
-    when Metric::VALUE_TYPE_PERCENT
-      errors.add_to_base("A numerical value must be provided") if value.nil?
-    when Metric::VALUE_TYPE_MILLISEC
-      errors.add_to_base("Value must be greater than 0") if value < 0
-    when Metric::VALUE_TYPE_BOOLEAN
-      raw_value = send("value_before_type_cast")
-      if raw_value.instance_of?(String)
-        raw_value = raw_value.downcase
-        errors.add_to_base("Value must be 'No' or 'Yes'") if raw_value != "yes" && raw_value != "no"
-        write_attribute( "value", 1.0) if raw_value == "yes"
-        write_attribute( "value", 0.0) if raw_value == "no"
-      end
-    when Metric::VALUE_TYPE_STRING
-      errors.add_to_base("A text value must be provided") if text_value.blank?
-    end
   end
 
 

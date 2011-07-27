@@ -39,19 +39,22 @@ class ManualMeasuresController < ApplicationController
   end
 
   def save
-    metric=Metric.by_key(params[:metric])
-    measure=ManualMeasure.find(:first, :conditions => ['resource_id=? and metric_id=?', @resource.id, metric.id])
-    if measure.nil?
-      measure=ManualMeasure.new(:resource => @resource, :user_login => current_user.login, :metric_id => metric.id)
+    @metric=Metric.by_key(params[:metric])
+    @measure=ManualMeasure.find(:first, :conditions => ['resource_id=? and metric_id=?', @resource.id, @metric.id])
+    if @measure.nil?
+      @measure=ManualMeasure.new(:resource => @resource, :user_login => current_user.login, :metric_id => @metric.id)
     end
-    # TODO use measure.text_value if string metric
-    measure.value = params[:val]
-    measure.description = params[:desc]
-    measure.save!
-    if (params[:redirect_to_new]=='true')
-      redirect_to :action => 'new', :id => params[:id]
+    @measure.typed_value=params[:val]
+    @measure.description=params[:desc]
+    if @measure.valid?
+      @measure.save
+      if (params[:redirect_to_new]=='true')
+        redirect_to :action => 'new', :id => params[:id]
+      else
+        redirect_to :action => 'index', :id => params[:id], :metric => params[:metric]
+      end
     else
-      redirect_to :action => 'index', :id => params[:id], :metric => params[:metric]
+      render :action => :new, :metric => @metric.id, :id => params[:id]
     end
   end
 

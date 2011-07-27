@@ -57,4 +57,16 @@ class Api::Utils
     # See http://jira.codehaus.org/browse/SONAR-2571
     split_newlines(input).join("\n")
   end
+
+  #
+  # i18n
+  # Since 2.10
+  def self.message(key, options={})
+    default = options[:default]
+    params = options[:params]
+    if params.nil?
+      params=[]
+    end
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, key, default, params.to_java)
+  end
 end

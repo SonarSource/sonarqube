@@ -77,8 +77,8 @@ class Metric < ActiveRecord::Base
     return localeMap[locale] if not localeMap.nil? and localeMap.has_key?(locale)
     
     i18n_key = 'domain.' + to_translate
-    result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, i18n_key, to_translate, [].to_java) 
-    localeMap[locale] = result if not localeMap.nil? 
+    result = Api::Utils.message(i18n_key, :default => to_translate)
+    localeMap[locale] = result if localeMap
     result
   end
  
@@ -109,7 +109,7 @@ class Metric < ActiveRecord::Base
     return localeMap[locale] if localeMap && localeMap.has_key?(locale)
     
     i18n_key = 'metric.' + metric_key + '.name'
-    result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, i18n_key, default_string, [].to_java) 
+    result = Api::Utils.message(i18n_key, :default => default_string)
     localeMap[locale] = result if localeMap
     result
   end
@@ -127,7 +127,7 @@ class Metric < ActiveRecord::Base
     return nil if metric_name.nil?
     
     i18n_key = 'metric.' + metric_name + '.description'
-    result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, i18n_key, default_string, [].to_java)
+    result = Api::Utils.message(i18n_key, :default => default_string)
     result
   end
 

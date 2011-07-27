@@ -68,7 +68,7 @@ class Rule < ActiveRecord::Base
     return nil if (rule_plugin_name.nil? or rule_plugin_rule_key.nil?)
     
     i18n_key = 'rule.' + rule_plugin_name + '.' + rule_plugin_rule_key + '.name'   
-    result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, i18n_key, default_string, [].to_java)     
+    result = Api::Utils.message(i18n_key, :default => default_string)
     result
   end
   
@@ -86,7 +86,7 @@ class Rule < ActiveRecord::Base
     return nil if (rule_plugin_name.nil? or rule_plugin_rule_key.nil?)
     
     i18n_key = 'rule.' + rule_plugin_name + '.' + rule_plugin_rule_key + '.description'   
-    result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, i18n_key, default_string, [].to_java)     
+    result = Api::Utils.message(i18n_key, :default => default_string)
     result
   end
 
