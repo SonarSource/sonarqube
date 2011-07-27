@@ -42,7 +42,7 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
   private ProjectDefinition def;
   private MavenProject pom;
 
-  public DefaultProjectFileSystem2(Project project, Languages languages, ProjectDefinition def, FileFilter... fileFilters) {
+  public DefaultProjectFileSystem2(Project project, Languages languages, ProjectDefinition def, FileFilter[] fileFilters) {
     super(project, languages, fileFilters);
     this.def = def;
   }
@@ -50,11 +50,21 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
   /**
    * For Maven.
    */
-  public DefaultProjectFileSystem2(Project project, Languages languages, ProjectDefinition def, MavenProject pom, FileFilter... fileFilters) {
+  public DefaultProjectFileSystem2(Project project, Languages languages, ProjectDefinition def, MavenProject pom, FileFilter[] fileFilters) {
     this(project, languages, def, fileFilters);
     this.pom = pom;
   }
 
+  public DefaultProjectFileSystem2(Project project, Languages languages, ProjectDefinition def) {
+    this(project, languages, def, new FileFilter[0]);
+  }
+
+  /**
+   * For Maven.
+   */
+  public DefaultProjectFileSystem2(Project project, Languages languages, ProjectDefinition def, MavenProject pom) {
+    this(project, languages, def, pom, new FileFilter[0]);
+  }
 
   public File getBasedir() {
     return def.getBaseDir();
