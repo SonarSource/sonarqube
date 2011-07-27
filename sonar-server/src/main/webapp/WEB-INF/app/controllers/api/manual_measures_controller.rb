@@ -40,7 +40,7 @@ class Api::ManualMeasuresController < Api::ApiController
     end
 
     respond_to do |format|
-      format.json { render :json => jsonp(manual_measures_to_json(result)) }
+      format.json { render :json => jsonp(manual_measures_to_json(resource, result)) }
       format.xml { render :xml => xml_not_supported }
     end
   end
@@ -69,7 +69,7 @@ class Api::ManualMeasuresController < Api::ApiController
     measure.save!
 
     respond_to do |format|
-      format.json { render :json => jsonp(manual_measure_to_json(measure)) }
+      format.json { render :json => jsonp(manual_measure_to_json(resource, measure)) }
       format.xml { render :xml => xml_not_supported }
     end
   end
@@ -91,16 +91,16 @@ class Api::ManualMeasuresController < Api::ApiController
 
   private
 
-  def manual_measures_to_json(manual_measures)
+  def manual_measures_to_json(resource, manual_measures)
     json = []
     manual_measures.each do |m|
-      json<<manual_measure_to_json(m)
+      json<<manual_measure_to_json(resource, m)
     end
     json
   end
 
-  def manual_measure_to_json(manual_measure)
-    hash={:id => manual_measure.id, :metric => manual_measure.metric.key}
+  def manual_measure_to_json(resource, manual_measure)
+    hash={:id => manual_measure.id, :metric => manual_measure.metric.key, :resource => resource.key}
     hash[:val]=manual_measure.value if manual_measure.value
     hash[:text]=manual_measure.text_value if manual_measure.text_value
     hash[:desc]=manual_measure.description if manual_measure.description
