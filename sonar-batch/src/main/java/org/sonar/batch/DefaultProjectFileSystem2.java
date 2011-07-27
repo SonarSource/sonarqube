@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.project.MavenProject;
+import org.sonar.api.batch.FileFilter;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.resources.DefaultProjectFileSystem;
 import org.sonar.api.resources.Languages;
@@ -41,8 +42,21 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
   private ProjectDefinition def;
   private MavenProject pom;
 
+  public DefaultProjectFileSystem2(Project project, Languages languages, ProjectDefinition def, FileFilter[] fileFilters) {
+    super(project, languages, fileFilters);
+    this.def = def;
+  }
+
+  /**
+   * For Maven.
+   */
+  public DefaultProjectFileSystem2(Project project, Languages languages, ProjectDefinition def, FileFilter[] fileFilters, MavenProject pom) {
+    this(project, languages, def, fileFilters);
+    this.pom = pom;
+  }
+
   public DefaultProjectFileSystem2(Project project, Languages languages, ProjectDefinition def) {
-    super(project, languages);
+    super(project, languages, new FileFilter[0]);
     this.def = def;
   }
 
@@ -50,7 +64,7 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
    * For Maven.
    */
   public DefaultProjectFileSystem2(Project project, Languages languages, ProjectDefinition def, MavenProject pom) {
-    this(project, languages, def);
+    this(project, languages, def, new FileFilter[0]);
     this.pom = pom;
   }
 

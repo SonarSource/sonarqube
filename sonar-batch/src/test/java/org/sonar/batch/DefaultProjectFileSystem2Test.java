@@ -22,6 +22,7 @@ package org.sonar.batch;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.core.Is;
 import org.junit.Test;
+import org.sonar.api.batch.FileFilter;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
@@ -39,7 +40,7 @@ public class DefaultProjectFileSystem2Test {
 
     ProjectDefinition definition = ProjectDefinition.create().addSourceDirs(exists, notExists);
 
-    DefaultProjectFileSystem2 fs = new DefaultProjectFileSystem2(new Project("foo"), new Languages(), definition);
+    DefaultProjectFileSystem2 fs = new DefaultProjectFileSystem2(new Project("foo"), new Languages(), definition, new FileFilter[0]);
     assertThat(fs.getSourceDirs().size(), Is.is(1));
     assertThat(fs.getSourceDirs(), hasItem(exists));
 
