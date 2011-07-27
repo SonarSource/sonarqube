@@ -25,7 +25,7 @@ class EmailConfigurationController < ApplicationController
   def index
     @smtp_host = Property.value(configuration::SMTP_HOST, nil, configuration::SMTP_HOST_DEFAULT)
     @smtp_port = Property.value(configuration::SMTP_PORT, nil, configuration::SMTP_PORT_DEFAULT)
-    @smtp_use_tls = Property.value(configuration::SMTP_USE_TLS, nil, configuration::SMTP_USE_TLS_DEFAULT) == 'true'
+    @smtp_secure_connection = Property.value(configuration::SMTP_SECURE_CONNECTION, nil, configuration::SMTP_SECURE_CONNECTION)
     @smtp_username = Property.value(configuration::SMTP_USERNAME, nil, configuration::SMTP_USERNAME_DEFAULT)
     @smtp_password = Property.value(configuration::SMTP_PASSWORD, nil, configuration::SMTP_PASSWORD_DEFAULT)
     @email_from = Property.value(configuration::FROM, nil, configuration::FROM_DEFAULT)
@@ -35,7 +35,7 @@ class EmailConfigurationController < ApplicationController
   def save
     Property.set(configuration::SMTP_HOST, params[:smtp_host])
     Property.set(configuration::SMTP_PORT, params[:smtp_port])
-    Property.set(configuration::SMTP_USE_TLS, params[:smtp_use_tls] == 'true')
+    Property.set(configuration::SMTP_SECURE_CONNECTION, params[:smtp_secure_connection])
     Property.set(configuration::SMTP_USERNAME, params[:smtp_username])
     Property.set(configuration::SMTP_PASSWORD, params[:smtp_password])
     Property.set(configuration::FROM, params[:email_from])

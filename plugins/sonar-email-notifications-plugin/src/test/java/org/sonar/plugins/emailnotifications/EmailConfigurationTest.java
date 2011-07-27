@@ -44,7 +44,7 @@ public class EmailConfigurationTest {
     assertThat(emailConfiguration.getSmtpPort(), is("25"));
     assertThat(emailConfiguration.getSmtpUsername(), is(""));
     assertThat(emailConfiguration.getSmtpPassword(), is(""));
-    assertThat(emailConfiguration.isUseTLS(), is(false));
+    assertThat(emailConfiguration.getSecureConnection(), is(""));
     assertThat(emailConfiguration.getFrom(), is("noreply@nowhere"));
     assertThat(emailConfiguration.getPrefix(), is("[SONAR]"));
     assertThat(emailConfiguration.getServerBaseURL(), is(CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE));

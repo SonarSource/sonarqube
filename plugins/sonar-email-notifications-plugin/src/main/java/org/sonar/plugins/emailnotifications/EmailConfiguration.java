@@ -34,8 +34,8 @@ public class EmailConfiguration implements ServerExtension {
   public static final String SMTP_HOST_DEFAULT = "";
   public static final String SMTP_PORT = "email.smtp_port.secured";
   public static final String SMTP_PORT_DEFAULT = "25";
-  public static final String SMTP_USE_TLS = "email.smtp_use_tls.secured";
-  public static final boolean SMTP_USE_TLS_DEFAULT = false;
+  public static final String SMTP_SECURE_CONNECTION = "email.smtp_secure_connection.secured";
+  public static final String SMTP_SECURE_CONNECTION_DEFAULT = "";
   public static final String SMTP_USERNAME = "email.smtp_username.secured";
   public static final String SMTP_USERNAME_DEFAULT = "";
   public static final String SMTP_PASSWORD = "email.smtp_password.secured";
@@ -59,8 +59,8 @@ public class EmailConfiguration implements ServerExtension {
     return configuration.getString(SMTP_PORT, SMTP_PORT_DEFAULT);
   }
 
-  public boolean isUseTLS() {
-    return configuration.getBoolean(SMTP_USE_TLS, SMTP_USE_TLS_DEFAULT);
+  public String getSecureConnection() {
+    return configuration.getString(SMTP_SECURE_CONNECTION, SMTP_SECURE_CONNECTION_DEFAULT);
   }
 
   public String getSmtpUsername() {

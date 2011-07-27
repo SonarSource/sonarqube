@@ -31,6 +31,7 @@ import org.sonar.api.database.model.User;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.security.UserFinder;
+import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 
@@ -95,7 +96,7 @@ public class EmailNotificationChannel extends NotificationChannel {
   public void deliver(Notification notification, String username) {
     User user = userFinder.findByLogin(username);
     if (StringUtils.isBlank(user.getEmail())) {
-      LOG.warn("Email not defined for user: " + username);
+      LOG.info("Email not defined for user: " + username);
       return;
     }
     EmailMessage emailMessage = format(notification);
@@ -121,7 +122,7 @@ public class EmailNotificationChannel extends NotificationChannel {
    */
   void deliver(EmailMessage emailMessage) {
     if (StringUtils.isBlank(configuration.getSmtpHost())) {
-      LOG.warn("SMTP host was not configured - email will not be sent");
+      LOG.info("SMTP host was not configured - email will not be sent");
       return;
     }
     try {
@@ -164,8 +165,14 @@ public class EmailNotificationChannel extends NotificationChannel {
     email.setMsg(emailMessage.getMessage());
     // Send
     email.setHostName(configuration.getSmtpHost());
-    email.setSmtpPort(Integer.parseInt(configuration.getSmtpPort()));
-    email.setTLS(configuration.isUseTLS());
+    if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "SSL")) {
+      email.setSSL(true);
+      email.setSslSmtpPort(configuration.getSmtpPort());
+    } else if (StringUtils.isBlank(configuration.getSecureConnection())) {
+      email.setSmtpPort(Integer.parseInt(configuration.getSmtpPort()));
+    } else {
+      throw new SonarException("Unknown type of SMTP secure connection: " + configuration.getSecureConnection());
+    }
     if (StringUtils.isNotBlank(configuration.getSmtpUsername()) || StringUtils.isNotBlank(configuration.getSmtpPassword())) {
       email.setAuthentication(configuration.getSmtpUsername(), configuration.getSmtpPassword());
     }
