@@ -20,8 +20,18 @@
 package org.sonar.server.notifications;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -77,7 +87,9 @@ public class NotificationServiceTest {
     NotificationDispatcher[] dispatchers = new NotificationDispatcher[] { commentOnReviewAssignedToMe, commentOnReviewCreatedByMe };
     NotificationChannel[] channels = new NotificationChannel[] { emailChannel, gtalkChannel };
     manager = mock(DefaultNotificationManager.class);
-    service = spy(new NotificationService(null, manager, dispatchers, channels));
+    Configuration configuration = new BaseConfiguration();
+    configuration.setProperty("sonar.notifications.delay", "1"); // delay 1 second
+    service = spy(new NotificationService(configuration, null, manager, dispatchers, channels));
     doReturn(false).when(service).isEnabled(any(String.class), any(NotificationChannel.class), any(NotificationDispatcher.class));
   }
 
@@ -86,15 +98,14 @@ public class NotificationServiceTest {
     NotificationQueueElement queueElement = mock(NotificationQueueElement.class);
     Notification notification = mock(Notification.class);
     when(queueElement.getNotification()).thenReturn(notification);
-    when(manager.getFromQueue()).thenReturn(queueElement).thenReturn(null);
+    when(manager.getFromQueue()).thenReturn(queueElement).thenReturn(null).thenReturn(queueElement).thenReturn(null).thenReturn(queueElement).thenReturn(null);
     doNothing().when(service).deliver(any(Notification.class));
 
-    service.setPeriod(10);
     service.start();
-    Thread.sleep(50);
+    Thread.sleep(1500); // sleep 1.5 second to process queue
     service.stop();
 
-    verify(service).deliver(notification);
+    verify(service, times(3)).deliver(notification); // 3 times - 1 on start, 1 after delay, 1 on stop
   }
 
   /**

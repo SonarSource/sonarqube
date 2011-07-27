@@ -24,6 +24,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import org.apache.commons.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.notifications.NotificationChannel;
@@ -37,11 +38,11 @@ public class NotificationServiceDbTest extends AbstractDbUnitTestCase {
   @Before
   public void setUp() {
     setupData("fixture");
-    notificationService = new NotificationService(getSessionFactory(), null, null);
+    notificationService = new NotificationService(mock(Configuration.class), getSessionFactory(), null, null);
   }
 
   @Test
-  public void should() {
+  public void shouldCheckEnablement() {
     NotificationChannel email = mock(NotificationChannel.class);
     when(email.getKey()).thenReturn("EmailNotificationChannel");
     NotificationDispatcher commentOnReviewAssignedToMe = mock(NotificationDispatcher.class);
