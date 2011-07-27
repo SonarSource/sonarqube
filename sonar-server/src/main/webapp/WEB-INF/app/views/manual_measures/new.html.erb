@@ -8,7 +8,7 @@
     return true;
   }
 </script>
-<h1 class="marginbottom10">Add manual measure</h1>
+<h1 class="marginbottom10"><%= message('manual_measures.add_measure_title') -%></h1>
 <form action="<%= url_for :action => (@measure ? 'save' : 'new') -%>" method="POST" id="createForm">
   <input type="hidden" name="id" value="<%= @resource.id -%>"/>
   <table class="width100 form">
@@ -21,7 +21,7 @@
         <select name="metric" onchange="changeMetric();" id="metricSelect">
           <%= options_grouped_by_domain(Metric.all.select { |m| m.user_managed? }, (@metric ? @metric.key : nil), :include_empty => true) -%>
         </select>
-        <%= link_to 'Manage metrics', :controller => 'metrics', :action => 'index' if has_role?(:admin)-%>
+        <%= link_to message('manual_measures.manage_metrics_link'), :controller => 'metrics', :action => 'index' if has_role?(:admin)-%>
 
         <% if @metric && @metric.description %>
           <br/>
@@ -32,7 +32,7 @@
     <% if @measure %>
       <tr>
         <td class="keyCell">
-          Value:
+          <%= message('manual_measures.col.value') -%>:
         </td>
         <td>
           <input type="text" name="val" id="valueText" value="<%= @measure.value -%>"/>
@@ -40,7 +40,7 @@
       </tr>
       <tr>
         <td class="keyCell">
-          Description:
+          <%= message('manual_measures.col.description') -%>:
         </td>
         <td>
           <textarea rows="5" cols="80" name="desc" class="width100"><%= @measure.description -%></textarea>
@@ -49,10 +49,10 @@
       <% unless @measure.new_record?() %>
         <tr>
           <td class="keyCell">
-            Last change:
+            <%= message('manual_measures.col.last_change') -%>:
           </td>
           <td>
-            By <%= @measure.username -%> on <%= l(@measure.updated_at) -%>
+            <%= message('manual_measures.col.last_change_label', :params => [@measure.username, l(@measure.updated_at)]) -%>
           </td>
         </tr>
       <% end %>
@@ -63,10 +63,10 @@
       <td>
         <% if @measure %>
           <input type="hidden" name="redirect_to_new" value="false" id="redirect_to_new"/>
-          <input type="submit" value="Save"/>
-          <input type="submit" value="Save & Add new" onclick="saveAndAddNew()"/>
+          <input type="submit" value="<%= message('manual_measures.save_button') -%>"/>
+          <input type="submit" value="<%= message('manual_measures.save_and_add_button') -%>" onclick="saveAndAddNew()"/>
         <% end %>
-        <%= link_to 'Cancel', :action => 'index', :id => @resource.id -%>
+        <%= link_to message('cancel'), :action => 'index', :id => @resource.id -%>
       </td>
     </tr>
     </tbody>

@@ -15,10 +15,10 @@
   <ul class="operations">
     <li class="last">
       <%= image_tag 'add.png' -%>
-      <a href="<%= ApplicationController.root_context -%>/manual_measures/new/<%= @resource.id -%>" id="addMeasureLink">Add measure</a>
+      <a href="<%= ApplicationController.root_context -%>/manual_measures/new/<%= @resource.id -%>" id="addMeasureLink"><%= message('manual_measures.add_measure_link') -%></a>
     </li>
   </ul>
-  <h1>Manual measures</h1>
+  <h1><%= message('manual_measures.page') -%></h1>
 </div>
 
 
@@ -26,13 +26,13 @@
   <thead>
   <tr>
     <th style="padding: 0; margin: 0" class="nosort"></th>
-    <th class="thin nowrap sortfirstasc">Domain</th>
-    <th class="thin nowrap">Metric</th>
-    <th class="thin nowrap" style="text-align: right">Value</th>
-    <th>Description</th>
-    <th style="text-align: right">Author</th>
-    <th style="text-align: right">Date</th>
-    <th class="thin nowrap nosort">Operations</th>
+    <th class="thin nowrap sortfirstasc"><%= message('manual_measures.col.domain') -%></th>
+    <th class="thin nowrap"><%= message('manual_measures.col.metric') -%></th>
+    <th class="thin nowrap" style="text-align: right"><%= message('manual_measures.col.value') -%></th>
+    <th><%= message('manual_measures.col.description') -%></th>
+    <th style="text-align: right"><%= message('manual_measures.col.author') -%></th>
+    <th style="text-align: right"><%= message('manual_measures.col.date') -%></th>
+    <th class="thin nowrap nosort"><%= message('manual_measures.col.operations') -%></th>
   </tr>
   </thead>
   <tbody>
@@ -59,8 +59,8 @@
         <%= l(measure.updated_at) -%>
       </td>
       <td class="thin nowrap">
-        <a href="<%= url_for :controller => 'manual_measures', :action => 'new', :metric => measure.metric.key, :id => @resource.id -%>">Edit</a>
-        <%= link_to 'Delete', {:action => 'delete', :metric => measure.metric.key, :id => @resource.id}, {:method => 'POST', :confirm => "This measure will be deleted during next project analysis", :class => 'action'} -%>
+        <a href="<%= url_for :controller => 'manual_measures', :action => 'new', :metric => measure.metric.key, :id => @resource.id -%>"><%= message('edit') -%></a>
+        <%= link_to message('delete'), {:action => 'delete', :metric => measure.metric.key, :id => @resource.id}, {:method => 'POST', :confirm => "This measure will be deleted during next project analysis", :class => 'action'} -%>
       </td>
     </tr>
   <% end %>
