@@ -24,19 +24,27 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationDispatcher;
 
 /**
- * This dispatcher means: "notify me when when someone changes review created by me".
+ * This dispatcher means: "notify me when when someone changes review assigned to me or created by me".
  * 
  * @since 2.10
  */
-public class ChangesInReviewCreatedByMe extends NotificationDispatcher {
+public class ChangesInReviewAssignedToMeOrCreatedByMe extends NotificationDispatcher {
 
   @Override
   public void dispatch(Notification notification, Context context) {
     if (StringUtils.startsWith(notification.getType(), "review")) {
       String author = notification.getFieldValue("author"); // author of change
       String creator = notification.getFieldValue("creator"); // creator of review
-      if (!StringUtils.equals(author, creator)) {
+      String oldAssignee = notification.getFieldValue("old.assignee"); // previous assignee
+      String assignee = notification.getFieldValue("assignee"); // current assignee
+      if (creator != null && !StringUtils.equals(author, creator)) {
         context.addUser(creator);
+      }
+      if (oldAssignee != null && !StringUtils.equals(author, oldAssignee)) {
+        context.addUser(oldAssignee);
+      }
+      if (assignee != null && !StringUtils.equals(author, assignee)) {
+        context.addUser(assignee);
       }
     }
   }

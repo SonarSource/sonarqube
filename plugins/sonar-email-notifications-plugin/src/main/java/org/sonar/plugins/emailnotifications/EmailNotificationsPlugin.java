@@ -19,13 +19,12 @@
  */
 package org.sonar.plugins.emailnotifications;
 
-import org.sonar.api.SonarPlugin;
-import org.sonar.plugins.emailnotifications.reviews.ChangesInReviewAssignedToMe;
-import org.sonar.plugins.emailnotifications.reviews.ChangesInReviewCreatedByMe;
-import org.sonar.plugins.emailnotifications.reviews.ReviewEmailTemplate;
-
 import java.util.Arrays;
 import java.util.List;
+
+import org.sonar.api.SonarPlugin;
+import org.sonar.plugins.emailnotifications.reviews.ChangesInReviewAssignedToMeOrCreatedByMe;
+import org.sonar.plugins.emailnotifications.reviews.ReviewEmailTemplate;
 
 public class EmailNotificationsPlugin extends SonarPlugin {
 
@@ -35,8 +34,7 @@ public class EmailNotificationsPlugin extends SonarPlugin {
         EmailNotificationChannel.class,
 
         ReviewEmailTemplate.class,
-        ChangesInReviewAssignedToMe.class,
-        ChangesInReviewCreatedByMe.class);
+        ChangesInReviewAssignedToMeOrCreatedByMe.class);
   }
 
 }
