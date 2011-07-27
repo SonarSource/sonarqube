@@ -81,7 +81,7 @@ class ManualMeasure < ActiveRecord::Base
       when Metric::VALUE_TYPE_BOOLEAN
         value() == 1 ? 'Yes' : 'No'
       when Metric::VALUE_TYPE_LEVEL
-        Sonar::RulePriority.to_s(value)
+        text_value
       when Metric::VALUE_TYPE_STRING
         text_value
       when Metric::VALUE_TYPE_RATING
@@ -100,8 +100,6 @@ class ManualMeasure < ActiveRecord::Base
       value ? value.to_s : ''
     elsif metric.value_type==Metric::VALUE_TYPE_BOOLEAN
       value ? (value==1 ? 'Yes' : 'No') : ''
-    elsif metric.value_type==Metric::VALUE_TYPE_LEVEL
-      text_value ? Sonar::RulePriority.to_s(text_value) : ''
     else
       text_value
     end
@@ -133,7 +131,7 @@ class ManualMeasure < ActiveRecord::Base
           write_attribute("value", 0.0) if raw_value == "no"
         when Metric::VALUE_TYPE_LEVEL
           raw_value = text_value.upcase
-          errors.add('value', "Value must be BLOCKER, CRITICAL, MAJOR, MINOR or INFO") if !['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'].include?(raw_value)
+          errors.add('value', "Value must be OK, WARN or ERROR") if !['OK', 'WARN', 'ERROR'].include?(raw_value)
           write_attribute("value", Sonar::RulePriority.id(raw_value))
           write_attribute("text_value", raw_value)
       end
