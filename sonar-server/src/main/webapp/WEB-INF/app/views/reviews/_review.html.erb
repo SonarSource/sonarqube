@@ -129,7 +129,7 @@
 	   <div class="discussionComment">
 		 <h4>
 		   <%= image_tag("reviews/comment.png") -%> &nbsp;<b><%= comment.user.name -%></b> (<%= distance_of_time_in_words_to_now(comment.created_at) -%>)
-           <% if is_last_comment && current_user %>
+           <% if is_last_comment && current_user && !review.isClosed? %>
            <span class="actions" id="editActions">
              &nbsp;&nbsp;
              <%= image_tag("sep12.png") -%>
