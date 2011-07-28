@@ -20,6 +20,7 @@
 package org.sonar.server.notifications;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -89,8 +90,8 @@ public class NotificationServiceTest {
     manager = mock(DefaultNotificationManager.class);
     Configuration configuration = new BaseConfiguration();
     configuration.setProperty("sonar.notifications.delay", "1"); // delay 1 second
-    service = spy(new NotificationService(configuration, null, manager, dispatchers, channels));
-    doReturn(false).when(service).isEnabled(any(String.class), any(NotificationChannel.class), any(NotificationDispatcher.class));
+    service = spy(new NotificationService(configuration, manager, dispatchers, channels));
+    doReturn(false).when(manager).isEnabled(any(String.class), any(String.class), any(String.class));
   }
 
   @Test
@@ -120,8 +121,8 @@ public class NotificationServiceTest {
    */
   @Test
   public void scenario1() {
-    doReturn(true).when(service).isEnabled(USER_SIMON, emailChannel, commentOnReviewAssignedToMe);
-    doReturn(true).when(service).isEnabled(USER_SIMON, emailChannel, commentOnReviewCreatedByMe);
+    doReturn(true).when(manager).isEnabled(USER_SIMON, "email", "comment on review assigned to me");
+    doReturn(true).when(manager).isEnabled(USER_SIMON, "email", "comment on review created by me");
 
     Notification notification = mock(Notification.class);
     creator = USER_SIMON;
@@ -129,6 +130,8 @@ public class NotificationServiceTest {
 
     service.deliver(notification);
 
+    verify(emailChannel, atLeast(1)).getKey();
+    verify(gtalkChannel, atLeast(1)).getKey();
     verify(emailChannel).deliver(notification, USER_SIMON);
     verifyNoMoreInteractions(emailChannel);
     verifyNoMoreInteractions(gtalkChannel);
@@ -147,8 +150,8 @@ public class NotificationServiceTest {
    */
   @Test
   public void scenario2() {
-    doReturn(true).when(service).isEnabled(USER_EVGENY, gtalkChannel, commentOnReviewCreatedByMe);
-    doReturn(true).when(service).isEnabled(USER_SIMON, emailChannel, commentOnReviewAssignedToMe);
+    doReturn(true).when(manager).isEnabled(USER_EVGENY, "gtalk", "comment on review created by me");
+    doReturn(true).when(manager).isEnabled(USER_SIMON, "email", "comment on review assigned to me");
 
     Notification notification = mock(Notification.class);
     creator = USER_EVGENY;
@@ -156,6 +159,8 @@ public class NotificationServiceTest {
 
     service.deliver(notification);
 
+    verify(emailChannel, atLeast(1)).getKey();
+    verify(gtalkChannel, atLeast(1)).getKey();
     verify(emailChannel).deliver(notification, USER_SIMON);
     verify(gtalkChannel).deliver(notification, USER_EVGENY);
     verifyNoMoreInteractions(emailChannel);
@@ -174,8 +179,8 @@ public class NotificationServiceTest {
    */
   @Test
   public void scenario3() {
-    doReturn(true).when(service).isEnabled(USER_SIMON, emailChannel, commentOnReviewAssignedToMe);
-    doReturn(true).when(service).isEnabled(USER_SIMON, gtalkChannel, commentOnReviewAssignedToMe);
+    doReturn(true).when(manager).isEnabled(USER_SIMON, "email", "comment on review assigned to me");
+    doReturn(true).when(manager).isEnabled(USER_SIMON, "gtalk", "comment on review assigned to me");
 
     Notification notification = mock(Notification.class);
     creator = USER_EVGENY;
@@ -183,6 +188,8 @@ public class NotificationServiceTest {
 
     service.deliver(notification);
 
+    verify(emailChannel, atLeast(1)).getKey();
+    verify(gtalkChannel, atLeast(1)).getKey();
     verify(emailChannel).deliver(notification, USER_SIMON);
     verify(gtalkChannel).deliver(notification, USER_SIMON);
     verifyNoMoreInteractions(emailChannel);
@@ -207,6 +214,8 @@ public class NotificationServiceTest {
 
     service.deliver(notification);
 
+    verify(emailChannel, atLeast(1)).getKey();
+    verify(gtalkChannel, atLeast(1)).getKey();
     verifyNoMoreInteractions(emailChannel);
     verifyNoMoreInteractions(gtalkChannel);
   }

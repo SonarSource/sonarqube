@@ -30,9 +30,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.configuration.Configuration;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.configuration.Property;
-import org.sonar.api.database.model.User;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
@@ -40,7 +37,6 @@ import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.notifications.DefaultNotificationManager;
 import org.sonar.jpa.entity.NotificationQueueElement;
-import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -59,7 +55,6 @@ public class NotificationService implements ServerComponent {
   private ScheduledExecutorService executorService;
   private long delay;
 
-  private DatabaseSessionFactory sessionFactory;
   private DefaultNotificationManager manager;
   private NotificationChannel[] channels;
   private NotificationDispatcher[] dispatchers;
@@ -67,15 +62,13 @@ public class NotificationService implements ServerComponent {
   /**
    * Default constructor when no channels.
    */
-  public NotificationService(Configuration configuration, DatabaseSessionFactory sessionFactory, DefaultNotificationManager manager, NotificationDispatcher[] dispatchers) {
-    this(configuration, sessionFactory, manager, dispatchers, new NotificationChannel[0]);
+  public NotificationService(Configuration configuration, DefaultNotificationManager manager, NotificationDispatcher[] dispatchers) {
+    this(configuration, manager, dispatchers, new NotificationChannel[0]);
     Logs.INFO.warn("There is no channels - all notifications would be ignored!");
   }
 
-  public NotificationService(Configuration configuration, DatabaseSessionFactory sessionFactory, DefaultNotificationManager manager, NotificationDispatcher[] dispatchers,
-      NotificationChannel[] channels) {
+  public NotificationService(Configuration configuration, DefaultNotificationManager manager, NotificationDispatcher[] dispatchers, NotificationChannel[] channels) {
     delay = configuration.getLong(DELAY, DELAY_DEFAULT);
-    this.sessionFactory = sessionFactory;
     this.manager = manager;
     this.channels = channels;
     this.dispatchers = dispatchers;
@@ -136,7 +129,7 @@ public class NotificationService implements ServerComponent {
           Logs.INFO.warn("Unable to dispatch notification " + notification + " using " + dispatcher, e);
         }
         for (String username : possibleRecipients) {
-          if (isEnabled(username, channel, dispatcher)) {
+          if (manager.isEnabled(username, channel.getKey(), dispatcher.getKey())) {
             recipients.put(username, channel);
           }
         }
@@ -162,17 +155,6 @@ public class NotificationService implements ServerComponent {
 
   public List<NotificationChannel> getChannels() {
     return Arrays.asList(channels);
-  }
-
-  /**
-   * Visibility has been relaxed for tests.
-   */
-  boolean isEnabled(String username, NotificationChannel channel, NotificationDispatcher dispatcher) {
-    DatabaseSession session = sessionFactory.getSession();
-    User user = session.getSingleResult(User.class, "login", username);
-    String notificationKey = "notification." + dispatcher.getKey() + "." + channel.getKey();
-    Property property = session.getSingleResult(Property.class, "userId", user.getId(), "key", notificationKey);
-    return property != null && "true".equals(property.getValue());
   }
 
 }

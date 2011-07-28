@@ -49,4 +49,11 @@ public class DefaultNotificationManagerTest extends AbstractDbUnitTestCase {
     assertThat(manager.getFromQueue(), nullValue());
   }
 
+  @Test
+  public void shouldCheckEnablement() {
+    setupData("fixture");
+    assertThat(manager.isEnabled("simon", "email", "CommentOnReviewAssignedToMe"), is(true));
+    assertThat(manager.isEnabled("godin", "email", "CommentOnReviewAssignedToMe"), is(false));
+  }
+
 }

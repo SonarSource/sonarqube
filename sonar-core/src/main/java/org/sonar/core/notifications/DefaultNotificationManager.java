@@ -19,14 +19,16 @@
  */
 package org.sonar.core.notifications;
 
+import java.util.Date;
+import java.util.List;
+
 import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.database.configuration.Property;
+import org.sonar.api.database.model.User;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationManager;
 import org.sonar.jpa.entity.NotificationQueueElement;
 import org.sonar.jpa.session.DatabaseSessionFactory;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * @since 2.10
@@ -59,6 +61,14 @@ public class DefaultNotificationManager implements NotificationManager {
     session.removeWithoutFlush(notification);
     session.commit();
     return notification;
+  }
+
+  public boolean isEnabled(String username, String channelKey, String dispatcherKey) {
+    DatabaseSession session = sessionFactory.getSession();
+    User user = session.getSingleResult(User.class, "login", username);
+    String notificationKey = "notification." + dispatcherKey + "." + channelKey;
+    Property property = session.getSingleResult(Property.class, "userId", user.getId(), "key", notificationKey);
+    return property != null && "true".equals(property.getValue());
   }
 
 }
