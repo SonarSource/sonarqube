@@ -231,7 +231,7 @@ public final class CoreMetrics {
       .create();
 
   public static final String COMMENTED_OUT_CODE_LINES_KEY = "commented_out_code_lines";
-  public static final Metric COMMENTED_OUT_CODE_LINES = new Metric.Builder(COMMENTED_OUT_CODE_LINES_KEY, "Commented LOCs", Metric.ValueType.INT)
+  public static final Metric COMMENTED_OUT_CODE_LINES = new Metric.Builder(COMMENTED_OUT_CODE_LINES_KEY, "Commented-out LOC", Metric.ValueType.INT)
       .setDescription("Commented lines of code")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
