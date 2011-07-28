@@ -21,9 +21,9 @@ package org.sonar.plugins.core;
 
 import com.google.common.collect.Lists;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.SonarPlugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
+import org.sonar.api.SonarPlugin;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.resources.Java;
 import org.sonar.plugins.core.batch.ExcludedResourceFilter;
@@ -44,7 +44,7 @@ import org.sonar.plugins.core.widgets.*;
 
 import java.util.List;
 
-@Properties({  
+@Properties({
     @Property(
         key = CoreProperties.CORE_COVERAGE_PLUGIN_PROPERTY,
         defaultValue = "cobertura",
@@ -118,12 +118,12 @@ import java.util.List;
         global = true
     ),
     @Property(
-       key = CoreProperties.CORE_VIOLATION_LOCALE_PROPERTY,
-       defaultValue = "en",
-       name = "Locale used for violation messages",
-       description = "Locale to be used when generating violation messages. It's up to each rule engine to support this global internationalization property",
-       project = true,
-       global = true),
+        key = CoreProperties.CORE_VIOLATION_LOCALE_PROPERTY,
+        defaultValue = "en",
+        name = "Locale used for violation messages",
+        description = "Locale to be used when generating violation messages. It's up to each rule engine to support this global internationalization property",
+        project = true,
+        global = true),
     @Property(
         key = "sonar.timemachine.period1",
         name = "Period 1",
@@ -243,7 +243,7 @@ public class CorePlugin extends SonarPlugin {
 
     // i18n
     extensions.add(I18nManager.class);
-
+//    extensions.add(org.sonar.core.i18n.I18nManager.class);
     return extensions;
   }
 }
