@@ -21,6 +21,8 @@ package org.sonar.server.filters;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.resources.Qualifiers;
@@ -67,7 +69,7 @@ public class Filter {
     } else {
       this.rootSnapshotId = rootSnapshotId;
     }
-    this.baseSnapshotPath = snapshotPath;
+    this.baseSnapshotPath = StringUtils.defaultString(snapshotPath, ""); //With Oracle the path can be null (see SONAR-2582)
     this.isViewContext = isViewContext;
     return this;
   }
@@ -77,7 +79,7 @@ public class Filter {
   }
 
   public boolean hasBaseSnapshot() {
-    return rootSnapshotId != null && baseSnapshotId != null && baseSnapshotPath != null;
+    return baseSnapshotId != null;
   }
 
   public Integer getBaseSnapshotId() {
