@@ -59,6 +59,8 @@ public class NotificationService implements ServerComponent {
   private NotificationChannel[] channels;
   private NotificationDispatcher[] dispatchers;
 
+  private boolean stopping = false;
+
   /**
    * Default constructor when no channels.
    */
@@ -86,7 +88,8 @@ public class NotificationService implements ServerComponent {
 
   public void stop() {
     try {
-      executorService.awaitTermination(delay, TimeUnit.SECONDS);
+      stopping = true;
+      executorService.awaitTermination(5, TimeUnit.SECONDS);
       executorService.shutdown();
     } catch (InterruptedException e) {
       Logs.INFO.error("Error during stop of notification service", e);
@@ -102,6 +105,9 @@ public class NotificationService implements ServerComponent {
     NotificationQueueElement queueElement = manager.getFromQueue();
     while (queueElement != null) {
       deliver(queueElement.getNotification());
+      if (stopping) {
+        break;
+      }
       queueElement = manager.getFromQueue();
     }
     TIME_PROFILER.stop();
