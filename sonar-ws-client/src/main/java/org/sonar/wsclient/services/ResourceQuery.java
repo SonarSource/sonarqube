@@ -294,4 +294,11 @@ public class ResourceQuery extends Query<Resource> {
     return new ResourceQuery(resource.getId().toString())
         .setMetrics(metricKeys);
   }
+
+  /**
+   * @since 2.10
+   */
+  public static ResourceQuery create(String resourceKey) {
+    return new ResourceQuery(resourceKey);
+  }
 }

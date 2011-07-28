@@ -426,4 +426,11 @@ public final class Rule {
     return new Rule().setUniqueKey(repositoryKey, key).setName(name);
   }
 
+  /**
+   * Create with all required fields
+   * @since 2.10
+   */
+  public static Rule create(String repositoryKey, String key) {
+    return new Rule().setUniqueKey(repositoryKey, key);
+  }
 }
