@@ -5,37 +5,37 @@
     <tr>
       <td class="keyCell"><label for="smtp_host"><%= message('email_configuration.smtp_host') -%>:</label></td>
       <td><%= text_field_tag 'smtp_host', @smtp_host %></td>
-      <td><%= message('email_configuration.smtp_host.description') -%></td>
+      <td class="comments"><%= message('email_configuration.smtp_host.description') -%></td>
     </tr>
     <tr>
       <td class="keyCell"><label for="smtp_port"><%= message('email_configuration.smtp_port') -%>:</label></td>
       <td><%= text_field_tag 'smtp_port', @smtp_port %></td>
-      <td><%= message('email_configuration.smtp_port.description') -%></td>
+      <td class="comments"><%= message('email_configuration.smtp_port.description') -%></td>
     </tr>
     <tr>
       <td class="keyCell"><label for="smtp_secure_connection"><%= message('email_configuration.smtp_secure_connection') -%>:</label></td>
       <td><%= select_tag 'smtp_secure_connection', options_for_select({'No' => '', 'SSL' => 'ssl'}, @smtp_secure_connection) %></td>
-      <td><%= message('email_configuration.smtp_secure_connection.description') -%></td>
+      <td class="comments"><%= message('email_configuration.smtp_secure_connection.description') -%></td>
     </tr>
     <tr>
       <td class="keyCell"><label for="smtp_username"><%= message('email_configuration.smtp_username') -%>:</label></td>
       <td><%= text_field_tag 'smtp_username', @smtp_username %></td>
-      <td><%= message('email_configuration.smtp_username.description') -%></td>
+      <td class="comments"><%= message('email_configuration.smtp_username.description') -%></td>
     </tr>
     <tr>
       <td class="keyCell"><label for="smtp_password"><%= message('email_configuration.smtp_password') -%>:</label></td>
       <td><%= password_field_tag 'smtp_password', @smtp_password %></td>
-      <td><%= message('email_configuration.smtp_password.description') -%></td>
+      <td class="comments"><%= message('email_configuration.smtp_password.description') -%></td>
     </tr>
     <tr>
       <td class="keyCell"><label for="email_from"><%= message('email_configuration.from_address') -%>:</label></td>
       <td><%= text_field_tag 'email_from', @email_from %></td>
-      <td><%= message('email_configuration.from_address.description') -%></td>
+      <td class="comments"><%= message('email_configuration.from_address.description') -%></td>
     </tr>
     <tr>
       <td class="keyCell"><label for="email_prefix"><%= message('email_configuration.email_prefix') -%>:</label></td>
       <td><%= text_field_tag 'email_prefix', @email_prefix %></td>
-      <td><%= message('email_configuration.email_prefix.description') -%></td>
+      <td class="comments"><%= message('email_configuration.email_prefix.description') -%></td>
     </tr>
     <tr>
       <td></td>
