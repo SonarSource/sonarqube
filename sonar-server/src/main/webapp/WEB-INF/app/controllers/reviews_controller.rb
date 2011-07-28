@@ -95,12 +95,14 @@ class ReviewsController < ApplicationController
       return
     end
 
-    if params[:comment_id]
-      @review.edit_comment(current_user, params[:comment_id].to_i, params[:text])
-    else
-      @review.create_comment(:user => current_user, :text => params[:text])
+    unless params[:text].blank?
+      if params[:comment_id]
+        @review.edit_comment(current_user, params[:comment_id].to_i, params[:text])
+      else
+        @review.create_comment(:user => current_user, :text => params[:text])
+      end
     end
-    
+
     render :partial => "reviews/view"
   end
 
@@ -120,7 +122,7 @@ class ReviewsController < ApplicationController
     unless params[:comment].blank?
       @review.set_false_positive(params[:false_positive]=='true', :user => current_user, :text => params[:comment])
     end
-    
+
     render :partial => "reviews/view"
   end
 
@@ -242,10 +244,12 @@ class ReviewsController < ApplicationController
           :user => current_user)
     end
 
-    if params[:comment_id]
-      violation.review.edit_comment(current_user, params[:comment_id].to_i, params[:text])
-    else
-      violation.review.create_comment(:user => current_user, :text => params[:text])
+    unless params[:text].blank?
+      if params[:comment_id]
+        violation.review.edit_comment(current_user, params[:comment_id].to_i, params[:text])
+      else
+        violation.review.create_comment(:user => current_user, :text => params[:text])
+      end
     end
 
     render :partial => "resource/violation", :locals => { :violation => violation }
