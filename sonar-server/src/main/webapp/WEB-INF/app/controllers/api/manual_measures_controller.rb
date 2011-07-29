@@ -69,7 +69,7 @@ class Api::ManualMeasuresController < Api::ApiController
     measure.save!
 
     respond_to do |format|
-      format.json { render :json => jsonp(manual_measure_to_json(resource, measure)) }
+      format.json { render :json => jsonp(manual_measures_to_json(resource, [measure])) }
       format.xml { render :xml => xml_not_supported }
     end
   end
