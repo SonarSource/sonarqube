@@ -32,6 +32,7 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.api.web.*;
+import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.jpa.dialect.Dialect;
 import org.sonar.jpa.session.DatabaseConnector;
 import org.sonar.markdown.Markdown;
@@ -328,6 +329,13 @@ public final class JRubyFacade {
       i18n = getContainer().getComponent(JRubyI18n.class);
     }
     return i18n.getRuleParamDescription(rubyLocale, repositoryKey, key, paramKey);
+  }
+
+  public List<RuleI18nManager.RuleKey> searchRuleName(String rubyLocale, String searchText) {
+    if (i18n == null) {
+      i18n = getContainer().getComponent(JRubyI18n.class);
+    }
+    return i18n.searchRuleName(rubyLocale, searchText);
   }
 
   public ReviewsNotificationManager getReviewsNotificationManager() {

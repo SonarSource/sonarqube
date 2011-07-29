@@ -1,4 +1,4 @@
- <rules>
+<rules>
 
   <!-- Checkstyle 5.0 -->
   <rule>
@@ -15,1689 +15,1429 @@
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.header.RegexpHeaderCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.header.RegexpHeaderCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Regexp Header]]></name>
     <configKey><![CDATA[Checker/RegexpHeader]]></configKey>
 
-    <description><![CDATA[<p>Checks the header of a source file against a header that contains a regular expression for each line of the source header.</p>
-	<p>Rationale: In some projects checking against a fixed header is not sufficient, e.g. the header might require a copyright line where the year information is not static. For example, consider the following header:</p>
-<pre>
-	line  1: ^/{71}$
-	line  2: ^// checkstyle:$
-	line  3: ^// Checks Java source code for adherence to a set of rules\.$
-	line  4: ^// Copyright \(C\) \d\d\d\d  Oliver Burn$
-	line  5: ^// Last modification by \$Author.*\$$
-	line  6: ^/{71}$
-	line  7:
-	line  8: ^package
-	line  9:
-	line 10: ^import
-	line 11:
-	line 12: ^/\*\*
-	line 13: ^ \*([^/]|$)
-	line 14: ^ \*/
-</pre>
-<p>Lines 1 and 6 demonstrate a more compact notation for 71 '/' characters. Line 4 enforces that the copyright notice includes a four digit year. Line 5 is an example how to enforce revision control keywords in a file header. Lines 12-14 is a template for javadoc (line 13 is so complicated to remove conflict with and of javadoc comment).</p>
-<p>Different programming languages have different comment syntax rules, but all of them start a comment with a non-word character. Hence you can often use the non-word character class to abstract away the concrete comment syntax and allow checking the header for different languages with a single header definition. For example, consider the following header specification (note that this is not the full Apache license header):</p>
-<pre>
-	line 1: ^#!
-	line 2: ^<\?xml.*>$
-	line 3: ^\W*$
-	line 4: ^\W*Copyright 2006 The Apache Software Foundation or its licensors, as applicable\.$
-	line 5: ^\W*Licensed under the Apache License, Version 2\.0 \(the "License"\);$
-	line 6: ^\W*$
-</pre>
-<p>Lines 1 and 2 leave room for technical header lines, e.g. the "#!/bin/sh" line in Unix shell scripts, or the xml file header of XML files. Set the multiline property to "1, 2" so these lines can be ignored for file types where they do no apply. Lines 3 through 6 define the actual header content. Note how lines 2, 4 and 5 use escapes for characters that have special regexp semantics.</p>]]></description>
+
     <param key="header" type="s">
-      <description><![CDATA[the required header specified inline. Individual header lines must be separated by the string "\n" (even on platforms with a different line separator), and regular expressions must not span multiple lines.]]></description>
+
     </param>
     <param key="ignoreLines" type="s">
-      <description><![CDATA[line numbers to repeat (zero or more times)]]></description>
+
     </param>
   </rule>
 
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Annotation Use Style]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AnnotationUseStyle]]></configKey>
 
-    <description><![CDATA[Controls the style with the usage of annotations.]]></description>
+
     <param key="elementStyle" type="s[expanded,compact,compact_no_array,ignore]">
-      <description><![CDATA[Defines the annotation element styles. Default value is compact_no_array.]]></description>
+
     </param>
     <param key="closingParens" type="s[always,never,ignore]">
-      <description><![CDATA[Defines the policy for ending parenthesis. Default is never.]]></description>
+
     </param>
     <param key="trailingArrayComma" type="s[always,never,ignore]">
-      <description><![CDATA[Defines the policy for trailing comma in arrays. Default is never.]]></description>
+
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.annotation.MissingDeprecatedCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.annotation.MissingDeprecatedCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Missing Deprecated]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MissingDeprecated]]></configKey>
 
-    <description>
-      <![CDATA[Verifies that both the java.lang.Deprecated annotation is present and the @deprecated Javadoc tag is present when either is present.]]></description>
+
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.annotation.MissingOverrideCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.annotation.MissingOverrideCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Missing Override]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MissingOverride]]></configKey>
 
-    <description>
-      <![CDATA[Verifies that the java.lang.Override annotation is present when the {@inheritDoc} javadoc tag is present.]]></description>
+
     <param key="javaFiveCompatibility" type="b">
-      <description>
-        <![CDATA[When this property is true this check will only check classes, interfaces, etc. that do not contain the extends or implements keyword or are not anonymous classes. This means it only checks methods overridden from java.lang.Object  Java 5 Compatibility mode severely limits this check. It is recommended to only use it on Java 5 source.]]></description>
+
     </param>
   </rule>
 
   <rule key="com.puppycrawl.tools.checkstyle.checks.annotation.PackageAnnotationCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Package Annotation]]></name>
     <configKey><![CDATA[Checker/TreeWalker/PackageAnnotation]]></configKey>
 
-    <description><![CDATA[<p>This check makes sure that all package annotations are in the package-info.java file.</p>
-<p>According to the Java JLS 3rd ed.</p>
-<p>The JLS does not enforce the placement of package annotations. This placement may vary based on implementation. The JLS does highly recommend that all package annotations are placed in the package-info.java file. See <a href="http://java.sun.com/docs/books/jls/third_edition/html/j3TOC.html">Java Language specification, sections 7.4.1.1</a>.</p>]]></description>
+
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.annotation.SuppressWarningsCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.annotation.SuppressWarningsCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Suppress Warnings]]></name>
     <configKey><![CDATA[Checker/TreeWalker/SuppressWarnings]]></configKey>
 
-    <description>
-      <![CDATA[<p> This check allows you to specify what warnings that SuppressWarnings is not allowed to suppress. You can also specify a list of TokenTypes that the configured warning(s) cannot be suppressed on.</p>
-<p>Limitations: This check does not consider conditionals inside the SuppressWarnings annotation.
-For example: @SupressWarnings((false) ? (true) ? "unchecked" : "foo" : "unused") According to the above example, the "unused" warning is being suppressed not the "unchecked" or "foo" warnings. All of these warnings will be considered and matched against regardless of what the conditional evaluates to.</p>]]></description>
+
     <param key="format" type="s">
-      <description>
-        <![CDATA[The warnings property is a regex pattern. Any warning being suppressed matching this pattern will be flagged. Default is ^$|^\s+$]]></description>
+
     </param>
     <param key="tokens" type="s">
-      <description>
-        <![CDATA[Tokens to check : CLASS_DEF, INTERFACE_DEF, ENUM_DEF, ANNOTATION_DEF, ANNOTATION_FIELD_DEF  ENUM_CONSTANT_DEF, PARAMETER_DEF, VARIABLE_DEF, METHOD_DEF, CTOR_DEF. Default value is LASS_DEF, INTERFACE_DEF, ENUM_DEF, ANNOTATION_DEF, ANNOTATION_FIELD_DEF, ENUM_CONSTANT_DEF, PARAMETER_DEF, VARIABLE_DEF, METHOD_DEF, CTOR_DEF.]]></description>
+
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.EqualsAvoidNullCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.EqualsAvoidNullCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Equals Avoid Null]]></name>
     <configKey><![CDATA[Checker/TreeWalker/EqualsAvoidNull]]></configKey>
 
-    <description>
-      <![CDATA[<p>Checks that any combination of String literals with optional assignment is on the left side of an equals() comparison.</p>
-<p>Rationale: Calling the equals() method on String literals will avoid a potential NullPointerException. Also, it is pretty common to see null check right before equals comparisons which is not necessary in the below example.</p>
-<p>For example:
-<pre>
-  String nullString = null;
-  nullString.equals("My_Sweet_String");
-</pre>
-</p>
 
-<p>
-should be refactored to:
-<pre>
-  String nullString = null;
-  "My_Sweet_String".equals(nullString);
-</pre>
-</p>
-<p>Limitations: If the equals method is overridden or a covariant equals method is defined and the implementation is incorrect (where s.equals(t) does not return the same result as t.equals(s)) then rearranging the called on object and parameter may have unexpected results.</p>
-<p>Java's Autoboxing feature has an affect on how this check is implemented. Pre Java 5 all IDENT + IDENT object concatenations would not cause a NullPointerException even if null. Those situations could have been included in this check. They would simply act as if they surrounded by String.valueof() which would concatenate the String null.</p>
-<p>The following example will cause a NullPointerException as a result of what autoboxing does.</p>
-<pre>
-  Integer i = null, j = null;
-  String number = "5"
-  number.equals(i + j);
-</pre>
-<p>Since, it is difficult to determine what kind of Object is being concatenated all ident concatenation is considered unsafe.</p>]]></description>
   </rule>
 
 
-<rule key="com.puppycrawl.tools.checkstyle.checks.coding.NoCloneCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.NoCloneCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[No Clone]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NoClone]]></configKey>
 
-    <description><![CDATA[<p> Checks that the clone method is not overridden from the Object class.</p>
 
-<p>Rationale: The clone method relies on strange/hard to follow rules that do not work it all situations. Consequently, it is difficult to override correctly. Below are some of the rules/reasons why the clone method should be avoided.
-<ul>
-    <li>Classes supporting the clone method should implement the Cloneable interface but the Cloneable interface does not include the clone method. As a result, it doesn't enforce the method override.</li>
-    <li>The Cloneable interface forces the Object's clone method to work correctly. Without implementing it, the Object's clone method will throw a CloneNotSupportedException.</li>
-    <li>Non-final classes must return the object returned from a call to super.clone().</li>
-    <li>Final classes can use a constructor to create a clone which is different from non-final classes.</li>
-    <li>If a super class implements the clone method incorrectly all subclasses calling super.clone() are doomed to failure.</li>
-    <li>If a class has references to mutable objects then those object references must be replaced with copies in the clone method after calling super.clone().</li>
-    <li>The clone method does not work correctly with final mutable object references because final references cannot be reassigned.</li>
-    <li>If a super class overrides the clone method then all subclasses must provide a correct clone implementation.</li>
-</ul></p>
-<p>Two alternatives to the clone method, in some cases, is a copy constructor or a static factory method to return copies of an object. Both of these approaches are simpler and do not conflict with final fields. The do not force the calling client to handle a CloneNotSuportException. They also are typed therefore no casting is necessary. Finally, they are more flexible since they can take interface types rather than concrete classes.</p>
-
-<p>Sometimes a copy constructor or static factory is not an acceptable alternative to the clone method. The example below highlights the limitation of a copy constructor (or static factory). Assume Square is a subclass for Shape.</p>
-<p>
-<pre>
-  Shape s1 = new Square();
-  System.out.println(s1 instanceof Square); //true
-</pre></p>
-<p>...assume at this point the code knows nothing of s1 being a Square that's the beauty of polymorphism but the code wants to copy the Square which is declared as a Shape, its super type...</p>
-<p>
-<pre>
-  Shape s2 = new Shape(s1); //using the copy constructor
-  System.out.println(s2 instanceof Square); //false
-</pre></p>
-
-<p>The working solution (without knowing about all subclasses and doing many casts) is to do the following (assuming correct clone implementation).<br/>
-<pre>
-  Shape s2 = s1.clone();
-  System.out.println(s2 instanceof Square); //true
-</pre></p>
-
-<p>Just keep in mind if this type of polymorphic cloning is required then a properly implemented clone method may be the best choice.</p>
-
-<p>Much of this information was taken from Effective Java: Programming Language Guide First Edition by Joshua Bloch pages 45-52. Give Bloch credit for writing an excellent book.</p>
-
-<p>This check is almost exactly the same as the "No Finalizer Check".</p>]]></description>
   </rule>
 
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.NoFinalizerCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.NoFinalizerCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[No Finalizer]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NoFinalizer]]></configKey>
 
-    <description><![CDATA[<p>Verifies there are no finalize() methods defined in a class.</p>]]></description>
+
   </rule>
 
   <rule key="com.puppycrawl.tools.checkstyle.checks.imports.AvoidStaticImportCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Avoid Static Import]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AvoidStaticImport]]></configKey>
 
-    <description><![CDATA[<p> Checks that there are no static import statements. Rationale: Importing static members can lead to naming conflicts between class' members. It may lead to poor code readability since it may no longer be clear what class a member resides in (without looking at the import statement).</p>]]></description>
+
     <param key="excludes" type="s{}">
-      <description>
-        <![CDATA[Allows for certain classes via a star notation to be excluded such as java.lang.Math.* or specific static members to be excluded like java.lang.System.out for a variable or java.lang.Math.random for a method.
-If you exclude a starred import on a class this automatically excludes each member individually.
-For example: Excluding java.lang.Math.*. will allow the import of each static member in the Math class individually like java.lang.Math.PI.]]></description>
+
     </param>
   </rule>
 
   <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocPackageCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Javadoc Package]]></name>
     <configKey><![CDATA[Checker/JavadocPackage]]></configKey>
 
-    <description><![CDATA[<p>Checks that each Java package has a Javadoc file used for commenting. By default it only allows a package-info.java file, but can be configured to allow a package.html file. An error will be reported if both files exist as this is not allowed by the Javadoc tool.</p>]]></description>
+
     <param key="allowLegacy" type="b">
-      <description>
-        <![CDATA[If set then allow the use of a package.html file.]]></description>
+
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpMultilineCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpMultilineCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Regexp Multiline]]></name>
     <configKey><![CDATA[Checker/RegexpMultiline]]></configKey>
 
     <cardinality>MULTIPLE</cardinality>
-    <description><![CDATA[<p>A check for detecting that matches across multiple lines. Rationale: This check can be used to when the regular expression can be span multiple lines.</p>]]></description>
+
     <param key="format" type="s">
-      <description><![CDATA[illegal pattern. Default value is ^$ (empty).]]></description>
+
     </param>
     <param key="message" type="s">
-      <description><![CDATA[message which is used to notify about violations, if empty then default(hard-coded) message is used. Default value is "" (empty).]]></description>
+
     </param>
     <param key="ignoreCase" type="b">
-      <description><![CDATA[Controls whether to ignore case when searching. Default value is false.]]></description>
+
     </param>
     <param key="minimum" type="i">
-      <description><![CDATA[The minimum number of matches required in each file. Default value is 0.]]></description>
+
     </param>
     <param key="maximum" type="i">
-      <description><![CDATA[The maximum number of matches required in each file. Default value is 0.]]></description>
+
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Regexp Singleline]]></name>
     <configKey><![CDATA[Checker/RegexpSingleline]]></configKey>
 
-    <description><![CDATA[<p> A check for detecting single lines that match a supplied regular expression. Works with any file type. Rationale: This check can be used to prototype checks and to find common bad practice such as calling ex.printStacktrace(), System.out.println(), System.exit(), etc.</p>]]></description>
+
     <cardinality>MULTIPLE</cardinality>
     <param key="format" type="s">
-      <description><![CDATA[illegal pattern. Default value is ^$ (empty).]]></description>
+
     </param>
     <param key="message" type="s">
-      <description><![CDATA[message which is used to notify about violations, if empty then default(hard-coded) message is used. Default value is "" (empty).]]></description>
+
     </param>
     <param key="ignoreCase" type="b">
-      <description><![CDATA[Controls whether to ignore case when searching. Default value is false.]]></description>
+
     </param>
     <param key="minimum" type="i">
-      <description><![CDATA[The minimum number of matches required in each file. Default value is 0.]]></description>
+
     </param>
     <param key="maximum" type="i">
-      <description><![CDATA[The maximum number of matches required in each file. Default value is 0.]]></description>
+
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineJavaCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineJavaCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Regexp Singleline Java]]></name>
     <configKey><![CDATA[Checker/TreeWalker/RegexpSinglelineJava]]></configKey>
 
-    <description><![CDATA[<p>This class is variation on RegexpSingleline for detecting single lines that match a supplied regular expression in Java files. It supports suppressing matches in Java comments.</p>]]></description>
+
     <cardinality>MULTIPLE</cardinality>
     <param key="format" type="s">
-      <description><![CDATA[illegal pattern. Default value is ^$ (empty).]]></description>
+
     </param>
     <param key="message" type="s">
-      <description><![CDATA[message which is used to notify about violations, if empty then default(hard-coded) message is used. Default value is "" (empty).]]></description>
+
     </param>
     <param key="ignoreCase" type="b">
-      <description><![CDATA[Controls whether to ignore case when searching. Default value is false.]]></description>
+
     </param>
     <param key="minimum" type="i">
-      <description><![CDATA[The minimum number of matches required in each file. Default value is 0.]]></description>
+
     </param>
     <param key="maximum" type="i">
-      <description><![CDATA[The maximum number of matches required in each file. Default value is 0.]]></description>
+
     </param>
     <param key="ignoreComments" type="b">
-      <description><![CDATA[Controls whether to ignore text in comments when searching. Default value is false.]]></description>
+
     </param>
   </rule>
 
   <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.OuterTypeNumberCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Outer Type Number]]></name>
     <configKey><![CDATA[Checker/TreeWalker/OuterTypeNumber]]></configKey>
 
-    <description><![CDATA[<p> Checks for the number of types declared at the outer (or root) level in a file. Rationale: It is considered good practice to only define one outer type per file.</p>]]></description>
+
     <param key="max" type="i">
-      <description><![CDATA[maximum allowable number of outer types. Default is 1.]]></description>
+
     </param>
   </rule>
 
   <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.FileTabCharacterCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[File Tab Character]]></name>
     <configKey><![CDATA[Checker/FileTabCharacter]]></configKey>
 
-    <description><![CDATA[<p>Checks that there are no tab characters ('\t') in the source code. Rationale:
-<ul>
-    <li>Developers should not need to configure the tab width of their text editors in order to be able to read source code.</li>
-    <li>From the Apache jakarta coding standards: In a distributed development environment, when the commit messages get sent to a mailing list, they are almost impossible to read if you use tabs.</li>
-</ul></p>]]></description>
+
     <param key="eachLine" type="b">
-      <description><![CDATA[whether to report on each line containing a tab, or just the first instance. Default is false.]]></description>
+
     </param>
   </rule>
 
   <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.GenericWhitespaceCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Generic Whitespace]]></name>
     <configKey><![CDATA[Checker/TreeWalker/GenericWhitespace]]></configKey>
 
-    <description><![CDATA[<p>Checks that the whitespace around the Generic tokens < and >  is correct to the typical convention. The convention is not configurable.</p>
-<p>
-For example the following is legal:
-</p>
-<pre>
-  List<Integer> x = new ArrayList<Integer>();
-  List<List<Integer>> y = new ArrayList<List<Integer>>();
-</pre>
-<p>
-But the following example is not:
-</p>
-<pre>
-  List < Integer > x = new ArrayList < Integer > ();
-  List < List < Integer > > y = new ArrayList < List < Integer > > ();
-</pre>]]></description>
+
   </rule>
 
 
   <!-- Checkstyle 4.4 and less -->
 
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.JavaNCSSCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.JavaNCSSCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[JavaNCSS]]></name>
     <configKey><![CDATA[Checker/TreeWalker/JavaNCSS]]></configKey>
 
-    <description><![CDATA[ Determines complexity of methods, classes and files by counting the Non Commenting Source Statements (NCSS). This check adheres to the  specification for the JavaNCSS-Tool  written by Chr. Clemens Lee.
-Rougly said the NCSS metric is calculated by counting the source lines which are not comments, (nearly) equivalent to counting the semicolons and opening curly braces.
-The NCSS for a class is summarized from the NCSS of all its methods, the NCSS of its nested classes and the number of member variable declarations.
-The NCSS for a file is summarized from the ncss of all its top level classes, the number of imports and the package declaration.
-<br>
-Rationale: Too large methods and classes are hard to read and costly to maintain. A large NCSS number often means that a method or class has too many responsabilities and/or functionalities which should be decomposed into smaller units.]]></description>
+
     <param key="methodMaximum" type="i">
-      <description>
-        <![CDATA[the maximum allowed number of non commenting lines in a method. Default is 50.]]></description>
+
     </param>
     <param key="classMaximum" type="i">
-      <description>
-        <![CDATA[the maximum allowed number of non commenting lines in a class. Default is 1500.]]></description>
+
     </param>
     <param key="fileMaximum" type="i">
-      <description>
-        <![CDATA[the maximum allowed number of non commenting lines in a file including all top level and nested classes. Default is 2000.]]></description>
+
     </param>
   </rule>
 
   <rule key="com.puppycrawl.tools.checkstyle.checks.imports.RedundantImportCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Redundant import]]></name>
     <configKey><![CDATA[Checker/TreeWalker/RedundantImport]]></configKey>
 
-    <description><![CDATA[Checks for redundant import statements. An import statement is considered redundant if:
-<ul>
-    <li>It is a duplicate of another import. This is, when a class is imported more than once.</li>
-    <li>The class imported is from the java.lang package, e.g. importing java.lang.String.</li>
-    <li>The class imported is from the same package.</li></ul>
-]]></description>
+
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.AbstractClassNameCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.AbstractClassNameCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Abstract Class Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AbstractClassName]]></configKey>
-    <description>
-      <![CDATA[Checks that abstract class names conform to the specified format]]></description>
+
     <param key="format" type="r">
       <defaultValue>^Abstract.*$|^.*Factory$</defaultValue>
     </param>
     <!--
     Not supported yet
     <param key="ignoreModifier" type="b">
-      <description>Controls whether to ignore checking for the abstract modifier on classes that match the name.</description>
+      
       <defaultValue>false</defaultValue>
     </param>
     <param key="ignoreName" type="b">
-      <description>Controls whether to ignore checking the name. Realistically only useful if using the check to identify that match name and do not have the abstract modifier name.</description>
+      
       <defaultValue>false</defaultValue>
     </param>
     -->
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Anon Inner Length]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AnonInnerLength]]></configKey>
 
-    <description><![CDATA[Checks for long anonymous inner classes.]]></description>
+
     <param key="max" type="i">
-      <description><![CDATA[maximum allowable number of lines. Default is 20.]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ArrayTrailingCommaCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ArrayTrailingCommaCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Array Trailing Comma]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ArrayTrailingComma]]></configKey>
 
-    <description><![CDATA[Checks if array initialization contains optional trailing comma.]]></description>
+
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.ArrayTypeStyleCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Array Type Style]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ArrayTypeStyle]]></configKey>
 
-    <description>
-      <![CDATA[Checks the style of array type definitions. Some like Java-style: public static void main(String[] args) and some like C-style: public static void main(String args[])]]></description>
+
     <param key="javaStyle" type="b">
-      <description>
-        <![CDATA[Controls whether to enforce Java style (true) or C style (false). Default is true.]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.AvoidInlineConditionalsCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Avoid Inline Conditionals]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AvoidInlineConditionals]]></configKey>
 
-    <description><![CDATA[Detects inline conditionals.]]></description>
+
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.blocks.AvoidNestedBlocksCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.blocks.AvoidNestedBlocksCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Avoid Nested Blocks]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AvoidNestedBlocks]]></configKey>
 
-    <description><![CDATA[Finds nested blocks.]]></description>
+
     <param key="allowInSwitchCase" type="b">
-      <description><![CDATA[Allow nested blocks in case statements. Default is false.]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Avoid Star Import]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AvoidStarImport]]></configKey>
 
-    <description><![CDATA[Check that finds import statements that use the * notation.]]></description>
+
     <param key="excludes" type="s{}">
-      <description>
-        <![CDATA[packages where star imports are allowed. Note that this property is not recursive, subpackages of excluded packages are not automatically excluded.]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.BooleanExpressionComplexityCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.BooleanExpressionComplexityCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Boolean Expression Complexity]]></name>
     <configKey><![CDATA[Checker/TreeWalker/BooleanExpressionComplexity]]></configKey>
 
-    <description>
-      <![CDATA[Restricts nested boolean operators (&&, || and ^) to a specified depth (default = 3).]]></description>
+
     <param key="max" type="i">
-      <description>
-        <![CDATA[the maximum allowed number of boolean operations in one expression. Default is 3.]]></description>
+
     </param>
     <param key="tokens" type="s[LAND,BAND,LOR,BOR,BXOR]">
-      <description><![CDATA[tokens to check. Default is LAND,BAND,LOR,BOR,BXOR.]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.ClassDataAbstractionCouplingCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.ClassDataAbstractionCouplingCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Class Data Abstraction Coupling]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ClassDataAbstractionCoupling]]></configKey>
 
-    <description>
-      <![CDATA[This metric measures the number of instantiations of other classes within the given class.]]></description>
+
     <param key="max" type="i">
-      <description><![CDATA[the maximum threshold allowed. Default is 7.]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.ClassFanOutComplexityCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.ClassFanOutComplexityCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Class Fan Out Complexity]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ClassFanOutComplexity]]></configKey>
 
-    <description><![CDATA[The number of other classes a given class relies on.]]></description>
+
     <param key="max" type="i">
-      <description><![CDATA[the maximum threshold allowed. Default is 20.]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.naming.ConstantNameCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Constant Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ConstantName]]></configKey>
     <cardinality>MULTIPLE</cardinality>
-    <description>
-      <![CDATA[Checks that constant names conform to the specified format]]></description>
+
     <param key="format" type="r">
       <defaultValue>^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$</defaultValue>
     </param>
     <param key="applyToPublic" type="b">
-      <description>Controls whether to apply the check to public member</description>
+
       <defaultValue>true</defaultValue>
     </param>
     <param key="applyToProtected" type="b">
-      <description>Controls whether to apply the check to protected member</description>
+
       <defaultValue>true</defaultValue>
     </param>
     <param key="applyToPackage" type="b">
-      <description>Controls whether to apply the check to package-private member</description>
       <defaultValue>true</defaultValue>
     </param>
     <param key="applyToPrivate" type="b">
-      <description>Controls whether to apply the check to private member</description>
+
       <defaultValue>true</defaultValue>
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.CovariantEqualsCheck">
-<priority>CRITICAL</priority>
+    <priority>CRITICAL</priority>
     <name><![CDATA[Covariant Equals]]></name>
     <configKey><![CDATA[Checker/TreeWalker/CovariantEquals]]></configKey>
 
-    <description>
-      <![CDATA[Checks that if a class defines a covariant method equals, then it defines method equals(java.lang.Object).]]></description>
+
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.CyclomaticComplexityCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.CyclomaticComplexityCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Cyclomatic Complexity]]></name>
     <configKey><![CDATA[Checker/TreeWalker/CyclomaticComplexity]]></configKey>
 
-    <description>
-      <![CDATA[Checks cyclomatic complexity of methods against a specified limit. The complexity is measured by the number of if, while, do, for, ?:, catch, switch, case  statements, and operators && and || (plus one) in the body of a constructor, method, static initializer, or instance initializer. It is a measure of the minimum number of possible paths through the source and therefore the number of required tests. Generally 1-4 is considered good, 5-7 ok, 8-10 consider re-factoring, and 11+ re-factor now !]]></description>
+
     <param key="max" type="i">
-      <description><![CDATA[the maximum threshold allowed. Default is 10.]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.DeclarationOrderCheck">
-<priority>INFO</priority>
+    <priority>INFO</priority>
     <name><![CDATA[Declaration Order]]></name>
     <configKey><![CDATA[Checker/TreeWalker/DeclarationOrder]]></configKey>
 
-    <description>
-      <![CDATA[Checks that the parts of a class or interface declaration appear in the order suggested by the Code Convention for the Java Programming Language : <ul><li>Class (static) variables. First the public class variables, then the protected, then package level (no access modifier), and then the private.</li><li>Instance variables. First the public class variables, then the protected, then package level (no access modifier), and then the private.</li><li>Constructors</li><li>Methods</li></ul>]]></description>
+
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.DefaultComesLastCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.DefaultComesLastCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Default Comes Last]]></name>
     <configKey><![CDATA[Checker/TreeWalker/DefaultComesLast]]></configKey>
 
-    <description><![CDATA[Check that the default is after all the cases in a switch statement.]]></description>
+
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.design.DesignForExtensionCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Design For Extension]]></name>
     <configKey><![CDATA[Checker/TreeWalker/DesignForExtension]]></configKey>
 
-    <description><![CDATA[Checks that classes are designed for inheritance.]]></description>
+
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.DoubleCheckedLockingCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.DoubleCheckedLockingCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Double Checked Locking]]></name>
     <configKey><![CDATA[Checker/TreeWalker/DoubleCheckedLocking]]></configKey>
 
-    <description>
-      <![CDATA[Detect the double-checked locking idiom, a technique that tries to avoid synchronization overhead but is incorrect because of subtle artifacts of the java memory model.]]></description>
+
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.blocks.EmptyBlockCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.blocks.EmptyBlockCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Empty Block]]></name>
     <configKey><![CDATA[Checker/TreeWalker/EmptyBlock]]></configKey>
 
-    <description><![CDATA[Checks for empty blocks.]]></description>
+
     <param key="option" type="s[text,stmt]">
-      <description><![CDATA[policy on block contents]]></description>
+
     </param>
     <param key="tokens"
            type="s[LITERAL_CATCH,LITERAL_DO,LITERAL_ELSE,LITERAL_FINALLY,LITERAL_IF,LITERAL_FOR,LITERAL_TRY,LITERAL_WHILE,INSTANCE_INIT,STATIC_INIT]">
-      <description><![CDATA[blocks to check]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.EmptyForInitializerPadCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Empty For Initializer Pad]]></name>
     <configKey><![CDATA[Checker/TreeWalker/EmptyForInitializerPad]]></configKey>
 
-    <description>
-      <![CDATA[Checks the padding of an empty for initializer; that is whether a space is required at an empty for initializer, or such spaces are forbidden. Example : <code>for ( ; i < j; i++, j--)</code>]]></description>
+
     <param key="option" type="s[nospace,space]">
-      <description><![CDATA[policy on how to pad an empty for iterator]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.EmptyForIteratorPadCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Empty For Iterator Pad]]></name>
     <configKey><![CDATA[Checker/TreeWalker/EmptyForIteratorPad]]></configKey>
 
-    <description>
-      <![CDATA[Checks the padding of an empty for iterator; that is whether a space is required at an empty for iterator, or such spaces are forbidden. Example : <code>for (Iterator foo = very.long.line.iterator(); foo.hasNext(); )</code>]]></description>
+
     <param key="option" type="s[nospace,space]">
-      <description><![CDATA[policy on how to pad an empty for iterator]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.EmptyStatementCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Empty Statement]]></name>
     <configKey><![CDATA[Checker/TreeWalker/EmptyStatement]]></configKey>
 
-    <description><![CDATA[Detects empty statements (standalone ';').]]></description>
+
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.EqualsHashCodeCheck">
-<priority>CRITICAL</priority>
+    <priority>CRITICAL</priority>
     <name><![CDATA[Equals Hash Code]]></name>
     <configKey><![CDATA[Checker/TreeWalker/EqualsHashCode]]></configKey>
 
-    <description><![CDATA[Checks that classes that override equals() also override hashCode().]]></description>
+
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Executable Statement Count]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ExecutableStatementCount]]></configKey>
 
-    <description>
-      <![CDATA[Restricts the number of executable statements to a specified limit (default = 30).]]></description>
+
     <param key="max" type="i">
-      <description><![CDATA[the maximum threshold allowed. Default is 30.]]></description>
+
 
     </param>
     <param key="tokens" type="s[CTOR_DEF,METHOD_DEF,INSTANCE_INIT,STATIC_INIT]">
-      <description><![CDATA[members to check]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ExplicitInitializationCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ExplicitInitializationCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Explicit Initialization]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ExplicitInitialization]]></configKey>
 
-    <description>
-      <![CDATA[Checks if any class or object member explicitly initialized to default for its type value (null for object references, zero for numeric types and char and false for boolean.]]></description>
+
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.FallThroughCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.FallThroughCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Fall Through]]></name>
     <configKey><![CDATA[Checker/TreeWalker/FallThrough]]></configKey>
 
-    <description>
-      <![CDATA[Checks for fall through in switch statements Finds locations where a case contains Java code - but lacks a break, return, throw or continue statement.]]></description>
+
     <param key="checkLastCaseGroup" type="b">
-      <description><![CDATA[Whether we need to check last case group or not. Default is false.]]></description>
+
     </param>
     <param key="reliefPattern" type="r">
-      <description>
-        <![CDATA[Regulare expression to match the relief comment that supresses the warning about a fall through.]]></description>
+
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.FileLengthCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.FileLengthCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[File Length]]></name>
     <configKey><![CDATA[Checker/FileLength]]></configKey>
 
-    <description><![CDATA[<p>Checks for long source files.</p>
-    <p>Rationale: If a source file becomes very long it is hard to understand. Therefore long classes should usually be refactored into several individual classes that focus on a specific task.</p>]]></description>
+
     <param key="max" type="i">
-      <description><![CDATA[maximum allowable number of lines. Default is 2000.]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.design.FinalClassCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.design.FinalClassCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Final Class]]></name>
     <configKey><![CDATA[Checker/TreeWalker/FinalClass]]></configKey>
 
-    <description><![CDATA[Checks that class which has only private constructors is declared as final.]]></description>
+
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.FinalLocalVariableCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Final Local Variable]]></name>
     <configKey><![CDATA[Checker/TreeWalker/FinalLocalVariable]]></configKey>
 
-    <description>
-      <![CDATA[Ensures that local variables that never get their values changed, must be declared final.]]></description>
+
     <param key="tokens" type="s[PARAMETER_DEF,VARIABLE_DEF]">
-      <description><![CDATA[tokens to check]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.FinalParametersCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Final Parameters]]></name>
     <configKey><![CDATA[Checker/TreeWalker/FinalParameters]]></configKey>
 
-    <description><![CDATA[Check that method/constructor/catch/foreach parameters are final.]]></description>
+
     <param key="tokens" type="s[METHOD_DEF,CTOR_DEF,LITERAL_CATCH]">
-      <description><![CDATA[blocks to check]]></description>
+
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.HiddenFieldCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.HiddenFieldCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Hidden Field]]></name>
     <configKey><![CDATA[Checker/TreeWalker/HiddenField]]></configKey>
 
-    <description>
-      <![CDATA[Checks that a local variable or a parameter does not shadow a field that is defined in the same class.]]></description>
+
     <param key="tokens" type="s[PARAMETER_DEF,VARIABLE_DEF]">
-      <description><![CDATA[tokens to check]]></description>
+
     </param>
     <param key="ignoreFormat" type="r">
-      <description><![CDATA[pattern for names to ignore]]></description>
+
 
     </param>
     <param key="ignoreConstructorParameter" type="b">
-      <description><![CDATA[Controls whether to ignore constructor parameters. Default is false.]]></description>
+
     </param>
     <param key="ignoreSetter" type="b">
-      <description>
-        <![CDATA[Controls whether to ignore the parameter of a property setter method, where the property setter method for field 'xyz' has name 'setXyz', one parameter named 'xyz', and return type void. Default is false.]]></description>
+
 
     </param>
     <param key="ignoreAbstractMethods" type="b">
-      <description>
-        <![CDATA[Controls whether to ignore parameters of abstract methods. Default is false.]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.design.HideUtilityClassConstructorCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.design.HideUtilityClassConstructorCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Hide Utility Class Constructor]]></name>
     <configKey><![CDATA[Checker/TreeWalker/HideUtilityClassConstructor]]></configKey>
 
-    <description>
-      <![CDATA[Make sure that utility classes (classes that contain only static methods) do not have a public constructor.]]></description>
+
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalCatchCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalCatchCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Illegal Catch]]></name>
     <configKey><![CDATA[Checker/TreeWalker/IllegalCatch]]></configKey>
 
-    <description>
-      <![CDATA[Catching java.lang.Exception, java.lang.Error or java.lang.RuntimeException is almost never acceptable.]]></description>
+
     <param key="illegalClassNames" type="s{}">
-      <description><![CDATA[exception class names to reject]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.imports.IllegalImportCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.imports.IllegalImportCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Illegal Import]]></name>
     <configKey><![CDATA[Checker/TreeWalker/IllegalImport]]></configKey>
 
-    <description><![CDATA[Checks for imports from a set of illegal packages, like sun.*]]></description>
+
     <param key="illegalPkgs" type="s{}">
-      <description><![CDATA[packages to reject]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalInstantiationCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalInstantiationCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Illegal Instantiation]]></name>
     <configKey><![CDATA[Checker/TreeWalker/IllegalInstantiation]]></configKey>
 
-    <description>
-      <![CDATA[Checks for illegal instantiations where a factory method is preferred. Depending on the project, for some classes it might be preferable to create instances through factory methods rather than calling the constructor. A simple example is the <code>java.lang.Boolean</code> class. In order to save memory and CPU cycles, it is preferable to use the predefined constants TRUE and FALSE. Constructor invocations should be replaced by calls to <code>Boolean.valueOf()</code>. Some extremely performance sensitive projects may require the use of factory methods for other classes as well, to enforce the usage of number caches or object pools.]]></description>
+
     <param key="classes" type="s{}">
-      <description><![CDATA[classes that should not be instantiated]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalThrowsCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalThrowsCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Illegal Throws]]></name>
     <configKey><![CDATA[Checker/TreeWalker/IllegalThrows]]></configKey>
 
-    <description>
-      <![CDATA[Throwing java.lang.Error or java.lang.RuntimeException is almost never acceptable.]]></description>
+
     <param key="illegalClassNames" type="s{}">
-      <description><![CDATA[throw class names to reject]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalTokenCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalTokenCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Illegal Token]]></name>
     <configKey><![CDATA[Checker/TreeWalker/IllegalToken]]></configKey>
 
-    <description>
-      <![CDATA[Checks for illegal tokens. Certain language features often lead to hard to maintain code or are non-obvious to novice developers. Other features may be discouraged in certain frameworks, such as not having native methods in EJB components.]]></description>
+
     <param key="tokens" type="s{}">
-      <description><![CDATA[tokens to check. Default value is LITERAL_SWITCH, POST_INC, POST_DEC.]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalTokenTextCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalTokenTextCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Illegal Token Text]]></name>
     <configKey><![CDATA[Checker/TreeWalker/IllegalTokenText]]></configKey>
 
     <cardinality>MULTIPLE</cardinality>
-    <description><![CDATA[Checks for illegal token text.]]></description>
+
     <param key="tokens" type="s{}">
-      <description><![CDATA[tokens to check. Default value is empty.]]></description>
+
     </param>
     <param key="format" type="r">
-      <description><![CDATA[illegal pattern]]></description>
+
     </param>
     <param key="ignoreCase" type="b">
-      <description><![CDATA[Controls whether to ignore case when matching. Default is false.]]></description>
+
     </param>
     <param key="message" type="s">
-      <description>
-        <![CDATA[Message which is used to notify about violations; if empty then the default message is used.]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalTypeCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalTypeCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Illegal Type]]></name>
     <configKey><![CDATA[Checker/TreeWalker/IllegalType]]></configKey>
 
-    <description>
-      <![CDATA[Checks that particular class are never used as types in variable declarations, return values or parameters.]]></description>
+
     <param key="tokens" type="s[PARAMETER_DEF,VARIABLE_DEF,METHOD_DEF]">
-      <description><![CDATA[tokens to check]]></description>
+
     </param>
     <param key="illegalClassNames" type="s{}">
-      <description>
-        <![CDATA[classes that should not be used as types in variable declarations, return values or parameters.]]></description>
+
     </param>
     <param key="legalAbstractClassNames" type="s{}">
-      <description><![CDATA[abstract classes that may be used as types. ]]></description>
+
     </param>
     <param key="ignoredMethodNames" type="s{}">
-      <description><![CDATA[methods that should not be checked]]></description>
+
     </param>
     <param key="format" type="r">
-      <description><![CDATA[pattern for illegal class name]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.imports.ImportOrderCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Import Order]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ImportOrder]]></configKey>
 
-    <description><![CDATA[ Checks the ordering/grouping of imports. Features are:<ul>
-    <li>groups imports: ensures that groups of imports come in a specific order (e.g., java. comes first, javax. comes second, then everything else)</li>
-    <li>adds a separation between groups : ensures that a blank line sit between each group</li>
-    <li>sorts imports inside each group: ensures that imports within each group are in lexicographic order</li>
-    <li>sorts according to case: ensures that the comparison between imports is case sensitive</li>
-    <li>groups static imports: ensures the relative order between regular imports and static imports</li>
-    </ul>
-]]></description>
+
     <param key="option" type="s">
-      <description>
-        <![CDATA[policy on the relative order between regular imports and static imports. Values are top, above, inflow, under, bottom. See examples: http://checkstyle.sourceforge.net/property_types.html#importOrder]]></description>
+
     </param>
     <param key="groups" type="s{}">
-      <description><![CDATA[list of imports groups (every group identified by string it's started)]]></description>
+
     </param>
     <param key="ordered" type="b">
-      <description><![CDATA[whether imports within group should be sorted. Default is true.]]></description>
+
 
     </param>
     <param key="separated" type="b">
-      <description>
-        <![CDATA[whether imports groups should be separated by, at least, one blank line. Default is false.]]></description>
+
 
     </param>
     <param key="caseSensitive" type="b">
-      <description>
-        <![CDATA[whether string comparision should be case sensitive or not. Default is true.]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.indentation.IndentationCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Indentation]]></name>
     <configKey><![CDATA[Checker/TreeWalker/Indentation]]></configKey>
-    <description><![CDATA[Checks correct indentation of Java Code.]]></description>
+
     <param key="basicOffset" type="i">
-      <description><![CDATA[how many spaces to use for new indentation level]]></description>
+
       <defaultValue>4</defaultValue>
     </param>
     <param key="braceAdjustment" type="i">
-      <description><![CDATA[how far brace should be indented when on next line]]></description>
+
       <defaultValue>0</defaultValue>
     </param>
     <param key="caseIndent" type="i">
-      <description><![CDATA[how much to indent a case label]]></description>
+
       <defaultValue>4</defaultValue>
     </param>
     <param key="tabWidth" type="i">
-      <description><![CDATA[number of expanded spaces for a tab character]]></description>
+
       <defaultValue>8</defaultValue>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.InnerAssignmentCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.InnerAssignmentCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Inner Assignment]]></name>
     <configKey><![CDATA[Checker/TreeWalker/InnerAssignment]]></configKey>
 
-    <description>
-      <![CDATA[Checks for assignments in subexpressions, such as in String s = Integer.toString(i = 2);.]]></description>
+
     <param key="tokens"
            type="s[ASSIGN,BAND_ASSIGN,BOR_ASSIGN,BSR_ASSIGN,BXOR_ASSIGN,DIV_ASSIGN,MINUS_ASSIGN,MOD_ASSIGN,PLUS_ASSIGN,SL_ASSIGN,SR_ASSIGN,STAR_ASSIGN]">
-      <description><![CDATA[assignments to check]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.design.InterfaceIsTypeCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.design.InterfaceIsTypeCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Interface Is Type]]></name>
     <configKey><![CDATA[Checker/TreeWalker/InterfaceIsType]]></configKey>
 
-    <description>
-      <![CDATA[Implements Bloch, Effective Java, Item 17 - Use Interfaces only to define types.  According to Bloch, an interface should describe a type. It is therefore inappropriate to define an interface that does not contain any methods but only constants. The Standard class javax.swing.SwingConstants is an example of a class that would be flagged by this check. The check can be configured to also disallow marker interfaces like java.io.Serializable, that do not contain methods or constants at all.]]></description>
+
     <param key="allowMarkerInterfaces" type="b">
-      <description>
-        <![CDATA[Controls whether marker interfaces like Serializable are allowed. Default is true.]]></description>
+
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Javadoc Method]]></name>
     <configKey><![CDATA[Checker/TreeWalker/JavadocMethod]]></configKey>
 
-    <description><![CDATA[Checks the Javadoc of a method or constructor. By default, does not check for unused throws. 
-    To allow documented java.lang.RuntimeExceptions that are not declared, set property allowUndeclaredRTE to true. 
-    The scope to verify is specified using the Scope class and defaults to Scope.PRIVATE. 
-    To verify another scope, set property scope to a different scope.
-    
-    <br><br>Error messages about parameters and type parameters for which no param tags are present can be suppressed by defining property allowMissingParamTags. 
-    Error messages about exceptions which are declared to be thrown, but for which no throws tag is present can be suppressed by defining property allowMissingThrowsTags. 
-    Error messages about methods which return non-void but for which no return tag is present can be suppressed by defining property allowMissingReturnTag.
 
-    <br><br>Javadoc is not required on a method that is tagged with the @Override annotation. 
-    However under Java 5 it is not possible to mark a method required for an interface (this was corrected under Java 6). 
-    Hence Checkstyle supports using the convention of using a single {@inheritDoc} tag instead of all the other tags.
-    
-    <br><br>Note that only inheritable items will allow the {@inheritDoc} tag to be used in place of comments. 
-    Static methods at all visibilities, private non-static methods and constructors are not inheritable.]]></description>
     <param key="scope" type="s[nothing,public,protected,package,private,anoninner]">
-      <description><![CDATA[visibility scope where Javadoc comments are checked]]></description>
+
 
     </param>
     <param key="excludeScope" type="s[nothing,public,protected,package,private,anoninner]">
-      <description><![CDATA[visibility scope where Javadoc comments are not checked]]></description>
+
 
     </param>
     <param key="allowUndeclaredRTE" type="b">
-      <description>
-        <![CDATA[whether to allow documented exceptions that are not declared if they are a subclass of java.lang.RuntimeException. Default is false.]]></description>
+
 
     </param>
     <param key="allowThrowsTagsForSubclasses" type="b">
-      <description>
-        <![CDATA[whether to allow documented exceptions that are subclass of one of declared exception. Default is false.]]></description>
+
 
     </param>
     <param key="allowMissingParamTags" type="b">
-      <description>
-        <![CDATA[whether to ignore errors when a method has parameters but does not have matching param tags in the javadoc. Default is false.]]></description>
+
     </param>
     <param key="allowMissingThrowsTags" type="b">
-      <description>
-        <![CDATA[whether to ignore errors when a method declares that it throws exceptions but does have matching throws tags in the javadoc. Default is false.]]></description>
+
 
     </param>
     <param key="allowMissingReturnTag" type="b">
-      <description>
-        <![CDATA[whether to ignore errors when a method returns non-void type does have a return tag in the javadoc. Default is false.]]></description>
+
 
     </param>
     <param key="allowMissingJavadoc" type="b">
-      <description><![CDATA[whether to ignore errors when a method javadoc is missed. Default is false.]]></description>
+
     </param>
     <param key="allowMissingPropertyJavadoc" type="b">
-      <description>
-        <![CDATA[Whether to allow missing Javadoc on accessor methods for properties (setters and getters). The setter and getter methods must match exactly the structures below.  <code> public void setNumber(final int number) { mNumber = number; }  public int getNumber() { return mNumber; }  public boolean isSomething() { return false; } </code>. Default is false.]]></description>
+
 
     </param>
     <param key="tokens" type="s[METHOD_DEF,CTOR_DEF]">
-      <description><![CDATA[definitions to check]]></description>
+
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocStyleCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocStyleCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Javadoc Style]]></name>
     <configKey><![CDATA[Checker/TreeWalker/JavadocStyle]]></configKey>
 
-    <description><![CDATA[Validates Javadoc comments to help ensure they are well formed. The following checks are performed:
-    <ul>
-      <li>Ensures the first sentence ends with proper punctuation (That is a period, question mark, or exclamation mark, by default). 
-      Javadoc automatically places the first sentence in the method summary table and index. With out proper punctuation the Javadoc may be malformed. 
-      All items eligible for the {@inheritDoc} tag are exempt from this requirement.</li>
-      <li>Check text for Javadoc statements that do not have any description. 
-      This includes both completely empty Javadoc, and Javadoc with only tags such as @param and @return.</li>
-      <li>Check text for incomplete HTML tags. Verifies that HTML tags have corresponding end tags and issues an "Unclosed HTML tag found:" error if not. 
-      An "Extra HTML tag found:" error is issued if an end tag is found without a previous open tag.</li>
-      <li>Check that a package Javadoc comment is well-formed (as described above) and NOT missing from any package-info.java files.</li>
-      <li>Check for allowed HTML tags. The list of allowed HTML tags is "a", "abbr", "acronym", "address", "area", "b", 
-      "bdo", "big", "blockquote", "br", "caption", "cite", "code", "colgroup", "del", "div", "dfn", "dl", "em", "fieldset", 
-      "h1" to "h6", "hr", "i", "img", "ins", "kbd", "li", "ol", "p", "pre", "q", "samp", "small", "span", "strong", 
-      "sub", "sup", "table", "tbody", "td", "tfoot", "th", "thread", "tr", "tt", "ul"</li>
-    </ul>]]></description>
+
     <param key="scope" type="s[nothing,public,protected,package,private,anoninner]">
-      <description><![CDATA[visibility scope where Javadoc comments are checked]]></description>
+
 
     </param>
     <param key="excludeScope" type="s[nothing,public,protected,package,private,anoninner]">
-      <description><![CDATA[visibility scope where Javadoc comments are not checked]]></description>
+
 
     </param>
     <param key="checkFirstSentence" type="b">
-      <description>
-        <![CDATA[Whether to check the first sentence for proper end of sentence. Default is true.]]></description>
+
 
     </param>
     <param key="checkEmptyJavadoc" type="b">
-      <description>
-        <![CDATA[Whether to check if the Javadoc is missing a describing text. Default is false.]]></description>
+
     </param>
     <param key="checkHtml" type="b">
-      <description><![CDATA[Whether to check for incomplete html tags. Default is true.]]></description>
+
     </param>
     <param key="tokens" type="s[INTERFACE_DEF,CLASS_DEF,METHOD_DEF,CTOR_DEF,VARIABLE_DEF]">
-      <description><![CDATA[definitions to check]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocTypeCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocTypeCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Javadoc Type]]></name>
     <configKey><![CDATA[Checker/TreeWalker/JavadocType]]></configKey>
 
-    <description><![CDATA[Checks Javadoc comments for class and interface definitions. By default, does not check for author or version tags. 
-    The scope to verify is specified using the Scope class and defaults to Scope.PRIVATE. To verify another scope, set property scope to one of the Scope constants. 
-    To define the format for an author tag or a version tag, set property authorFormat or versionFormat respectively to a regular expression.
-    <br><br>Error messages about type parameters for which no param tags are present can be suppressed by defining property allowMissingParamTags.]]></description>
+
     <param key="scope" type="s[nothing,public,protected,package,private,anoninner]">
-      <description><![CDATA[visibility scope where Javadoc comments are checked]]></description>
+
     </param>
     <param key="excludeScope" type="s[nothing,public,protected,package,private,anoninner]">
-      <description><![CDATA[visibility scope where Javadoc comments are not checked]]></description>
+
     </param>
     <param key="authorFormat" type="r">
-      <description><![CDATA[pattern for @author tag]]></description>
+
     </param>
     <param key="versionFormat" type="r">
-      <description><![CDATA[pattern for @version tag]]></description>
+
     </param>
     <param key="allowMissingParamTags" type="b">
-      <description>
-        <![CDATA[whether to ignore errors when a class has type parameters but does not have matching param tags in the javadoc. Default is false.]]></description>
+
     </param>
     <param key="tokens" type="s[INTERFACE_DEF,CLASS_DEF]">
-      <description><![CDATA[definitions to check]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocVariableCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocVariableCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Javadoc Variable]]></name>
     <configKey><![CDATA[Checker/TreeWalker/JavadocVariable]]></configKey>
 
-    <description><![CDATA[Checks that a variable has Javadoc comment.]]></description>
+
     <param key="scope" type="s[nothing,public,protected,package,private,anoninner]">
-      <description><![CDATA[visibility scope where Javadoc comments are checked]]></description>
+
     </param>
     <param key="excludeScope" type="s[nothing,public,protected,package,private,anoninner]">
-      <description><![CDATA[visibility scope where Javadoc comments are not checked]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.blocks.LeftCurlyCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Left Curly]]></name>
     <configKey><![CDATA[Checker/TreeWalker/LeftCurly]]></configKey>
 
-    <description>
-      <![CDATA[Checks for the placement of left curly braces for code blocks. The policy to verify is specified using property option. Policies <code>eol</code> and <code>nlow</code> take into account property maxLineLength.]]></description>
+
     <param key="option" type="s[eol,nl,nlow]">
-      <description>
-        <![CDATA[policy on placement of a left curly brace ('{'). eol : the brace must always be on the end of the line, nl : he brace must always be on a new line, nlow : ff the brace will fit on the first line of the statement, taking into account maximum line length, then apply eol rule. Otherwise apply the nl rule. nlow is a mnemonic for 'new line on wrap'.]]></description>
+
     </param>
     <param key="maxLineLength" type="i">
-      <description><![CDATA[maximum number of characters in a line. Default is 80.]]></description>
+
     </param>
     <param key="tokens"
            type="s[CLASS_DEF,CTOR_DEF,INTERFACE_DEF,LITERAL_CATCH,LITERAL_DO,LITERAL_ELSE,LITERAL_FINALLY,LITERAL_FOR,LITERAL_IF,LITERAL_SWITCH,LITERAL_SYNCHRONIZED,LITERAL_TRY,LITERAL_WHILE,METHOD_DEF]">
-      <description><![CDATA[blocks to check]]></description>
+
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.LineLengthCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.LineLengthCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Line Length]]></name>
     <configKey><![CDATA[Checker/TreeWalker/LineLength]]></configKey>
 
-    <description><![CDATA[Checks for long lines.]]></description>
+
     <param key="ignorePattern" type="r">
-      <description><![CDATA[pattern for lines to ignore]]></description>
+
 
     </param>
     <param key="max" type="i">
-      <description><![CDATA[maximum allowable line length. Default is 80.]]></description>
+
 
     </param>
     <param key="tabWidth" type="i">
-      <description><![CDATA[number of expanded spaces for a tab character. Default is 8.]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.LocalFinalVariableNameCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.LocalFinalVariableNameCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Local Final Variable Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/LocalFinalVariableName]]></configKey>
-    <description>
-      <![CDATA[Checks that local final variable names, including catch parameters, conform to the specified format]]></description>
+
     <param key="format" type="r">
       <defaultValue>^[a-z][a-zA-Z0-9]*$</defaultValue>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.LocalVariableNameCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.LocalVariableNameCheck">
+    <priority>MAJOR</priority>
     <cardinality>MULTIPLE</cardinality>
     <name><![CDATA[Local Variable Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/LocalVariableName]]></configKey>
-    <description>
-      <![CDATA[Checks that local, non-final variable names conform to the specified format]]></description>
+
     <param key="format" type="r">
       <defaultValue>^[a-z][a-zA-Z0-9]*$</defaultValue>
     </param>
     <param key="tokens" type="s[VARIABLE_DEF,PARAMETER_DEF]">
-      <description>
-        <![CDATA[Controls whether the check applies to variable declarations or catch clause parameters]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Magic Number]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MagicNumber]]></configKey>
 
-    <description><![CDATA[Checks for magic numbers.]]></description>
+
     <param key="tokens" type="s[NUM_DOUBLE,NUM_FLOAT,NUM_INT,NUM_LONG]">
-      <description><![CDATA[tokens to check]]></description>
+
     </param>
     <param key="ignoreNumbers" type="i{}">
-      <description><![CDATA[non-magic numbers. Default is -1,0,1,2.]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.MemberNameCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.MemberNameCheck">
+    <priority>MAJOR</priority>
     <cardinality>MULTIPLE</cardinality>
     <name><![CDATA[Member name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MemberName]]></configKey>
-    <description>
-      <![CDATA[Checks that name of non-static fields conform to the specified format]]></description>
+
     <param key="format" type="r">
       <defaultValue>^[a-z][a-zA-Z0-9]*$</defaultValue>
     </param>
     <param key="applyToPublic" type="b">
-      <description>Controls whether to apply the check to public member</description>
+
       <defaultValue>true</defaultValue>
     </param>
     <param key="applyToProtected" type="b">
-      <description>Controls whether to apply the check to protected member</description>
+
       <defaultValue>true</defaultValue>
     </param>
     <param key="applyToPackage" type="b">
-      <description>Controls whether to apply the check to package-private member</description>
+
       <defaultValue>true</defaultValue>
     </param>
     <param key="applyToPrivate" type="b">
-      <description>Controls whether to apply the check to private member</description>
+
       <defaultValue>true</defaultValue>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Method Length]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MethodLength]]></configKey>
 
-    <description><![CDATA[Checks for long methods.]]></description>
+
     <param key="max" type="i">
-      <description><![CDATA[maximum allowable number of lines. Default is 150.]]></description>
+
     </param>
     <param key="countEmpty" type="b">
-      <description>
-        <![CDATA[whether to count empty lines and single line comments of the form //. Default is true.]]></description>
+
     </param>
     <param key="tokens" type="s[METHOD_DEF,CTOR_DEF]">
-      <description><![CDATA[blocks to check]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.MethodNameCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.MethodNameCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Method Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MethodName]]></configKey>
-    <description>
-      <![CDATA[Checks that method names conform to the specified format]]></description>
+
     <param key="format" type="r">
       <defaultValue>^[a-z][a-zA-Z0-9]*$</defaultValue>
     </param>
     <param key="allowClassName" type="b">
-      <description>Controls whether to allow a method name to have the same name as the residing class name. This is not to be confused with a constructor. An easy mistake is to place a return type on a constructor declaration which turns it into a method.</description>
+
       <defaultValue>false</defaultValue>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.MethodParamPadCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.MethodParamPadCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Method Param Pad]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MethodParamPad]]></configKey>
 
-    <description>
-      <![CDATA[Checks the padding between the identifier of a method definition, constructor definition, method call, or constructor invocation; and the left parenthesis of the parameter list.]]></description>
+
     <param key="allowLineBreaks" type="b">
-      <description>
-        <![CDATA[whether a line break between the identifier and left parenthesis is allowed. Default is false.]]></description>
+
     </param>
     <param key="option" type="s[nospace,space]">
-      <description><![CDATA[policy on how to pad method parameter. Default is nospace.]]></description>
+
     </param>
     <param key="tokens" type="s[CTOR_DEF,LITERAL_NEW,METHOD_CALL,METHOD_DEF,SUPER_CTOR_CALL]">
-      <description><![CDATA[tokens to check]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.MissingCtorCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.MissingCtorCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Missing Constructor]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MissingCtor]]></configKey>
 
-    <description>
-      <![CDATA[Checks that classes (except abstract one) define a constructor and don't rely on the default one.]]></description>
+
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.MissingSwitchDefaultCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.MissingSwitchDefaultCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Missing Switch Default]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MissingSwitchDefault]]></configKey>
 
-    <description><![CDATA[Checks that switch statement has default clause.]]></description>
+
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ModifiedControlVariableCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ModifiedControlVariableCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Modified Control Variable]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ModifiedControlVariable]]></configKey>
 
-    <description>
-      <![CDATA[Check for ensuring that for loop control variables are not modified inside the for block.]]></description>
+
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.modifier.ModifierOrderCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Modifier Order]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ModifierOrder]]></configKey>
 
-    <description>
-      <![CDATA[Checks that the order of modifiers conforms to the suggestions in the Java Language specification, sections 8.1.1, 8.3.1 and 8.4.3. The correct order is : public, protected, private, abstract, static, final, transient, volatile, synchronized, native, strictfp.]]></description>
+
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.MultipleStringLiteralsCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.MultipleStringLiteralsCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Multiple String Literals]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MultipleStringLiterals]]></configKey>
     <cardinality>MULTIPLE</cardinality>
 
-    <description>
-      <![CDATA[Checks for multiple occurrences of the same string literal within a single file. Code duplication makes maintenance more difficult, so it can be better to replace the multiple occurrences with a constant.]]></description>
+
     <param key="allowedDuplicates" type="i">
-      <description>
-        <![CDATA[The maximum number of occurences to allow without generating a warning. Default is 1.]]></description>
+
     </param>
     <param key="ignoreStringsRegexp" type="r">
-      <description><![CDATA[regexp pattern for ignored strings (with quotation marks)]]></description>
+
     </param>
     <param key="ignoreOccurrenceContext" type="s">
-      <description>
-        <![CDATA[Token type names where duplicate strings are ignored even if they don't match ignoredStringsRegexp. This allows you to exclude syntactical contexts like Annotations or static initializers from the check.]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.MultipleVariableDeclarationsCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.MultipleVariableDeclarationsCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Multiple Variable Declarations]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MultipleVariableDeclarations]]></configKey>
 
-    <description>
-      <![CDATA[Checks that each variable declaration is in its own statement and on its own line.]]></description>
+
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.design.MutableExceptionCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.design.MutableExceptionCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Mutable Exception]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MutableException]]></configKey>
 
-    <description>
-      <![CDATA[Ensures that exceptions (defined as any class name conforming to some regular expression) are immutable.]]></description>
+
     <param key="format" type="r">
-      <description><![CDATA[pattern for name of exception class.]]></description>
+
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.NPathComplexityCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.NPathComplexityCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[NPath Complexity]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NPathComplexity]]></configKey>
 
-    <description>
-      <![CDATA[Checks the npath complexity of a method against a specified limit (default = 200). The NPATH metric computes the number of possible execution paths through a function. It takes into account the nesting of conditional statements and multi-part boolean expressions (e.g., A && B, C || D, etc.).]]></description>
+
     <param key="max" type="i">
-      <description><![CDATA[the maximum threshold allowed. Default is 200.]]></description>
+
 
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.blocks.NeedBracesCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Need Braces]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NeedBraces]]></configKey>
 
-    <description><![CDATA[Checks for braces around code blocks.]]></description>
+
     <param key="tokens" type="s[LITERAL_DO,LITERAL_ELSE,LITERAL_IF,LITERAL_FOR,LITERAL_WHILE]">
-      <description><![CDATA[blocks to check]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.NestedIfDepthCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.NestedIfDepthCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Nested If Depth]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NestedIfDepth]]></configKey>
 
-    <description><![CDATA[Restricts nested if-else blocks to a specified depth (default = 1).]]></description>
+
     <param key="max" type="i">
-      <description><![CDATA[allowed nesting depth. Default is 1.]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.NestedTryDepthCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.NestedTryDepthCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Nested Try Depth]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NestedTryDepth]]></configKey>
 
-    <description><![CDATA[Restricts nested try-catch-finally blocks to a specified depth (default = 1).]]></description>
+
     <param key="max" type="i">
-      <description><![CDATA[allowed nesting depth. Default is 1.]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.NewlineAtEndOfFileCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Newline At End Of File]]></name>
     <configKey><![CDATA[Checker/NewlineAtEndOfFile]]></configKey>
 
-    <description>
-      <![CDATA[Checks that there is a newline at the end of each file. Any source files and text files in general should end with a newline character, especially when using SCM systems such as CVS. CVS will even print a warning when it encounters a file that doesn't end with a newline.]]></description>
+
     <param key="lineSeparator" type="s[system,crlf,cr,lf]">
-      <description>
-        <![CDATA[type of line separator. One of 'system' (system default), 'crlf' (Windows-style), 'cr' (Mac-style) and 'lf' (Unix-style).]]></description>
+
     </param>
     <param key="fileExtensions" type="s{}">
-      <description><![CDATA[file type extension of the files to check.]]></description>
+
 
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.NoWhitespaceAfterCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[No Whitespace After]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NoWhitespaceAfter]]></configKey>
 
-    <description><![CDATA[Checks that there is no whitespace after a token.]]></description>
+
     <param key="allowLineBreaks" type="b">
-      <description>
-        <![CDATA[whether whitespace is allowed if the token is at a linebreak. Default is true.]]></description>
+
 
     </param>
     <param key="tokens" type="s[ARRAY_INIT,BNOT,DEC,DOT,INC,LNOT,UNARY_MINUS,UNARY_PLUS,TYPECAST]">
-      <description><![CDATA[tokens to check]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.NoWhitespaceBeforeCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[No Whitespace Before]]></name>
     <configKey><![CDATA[Checker/TreeWalker/NoWhitespaceBefore]]></configKey>
 
-    <description><![CDATA[Checks that there is no whitespace before a token.]]></description>
+
     <param key="allowLineBreaks" type="b">
-      <description>
-        <![CDATA[whether whitespace is allowed if the token is at a linebreak. Default is false.]]></description>
+
     </param>
     <param key="tokens" type="s[SEMI,DOT,POST_DEC,POST_INC]">
-      <description><![CDATA[tokens to check]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.OperatorWrapCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Operator Wrap]]></name>
     <configKey><![CDATA[Checker/TreeWalker/OperatorWrap]]></configKey>
 
-    <description><![CDATA[Checks the policy on how to wrap lines on operators.]]></description>
+
     <param key="option" type="s[nl,eol]">
-      <description>
-        <![CDATA[policy on how to wrap lines. 'nl' : the operator must be on a new line, 'eol' : the operator must be at the end of the line. Default is 'nl'.]]></description>
+
     </param>
     <param key="tokens"
            type="s[ASSIGN,BAND,BAND_ASSIGN,BOR,BOR_ASSIGN,BSR,BSR_ASSIGN,BXOR,BXOR_ASSIGN,COLON,DIV,DIV_ASSIGN,EQUAL,GE,GT,LAND,LE,LITERAL_INSTANCEOF,LOR,LT,MINUS,MINUS_ASSIGN,MOD,MOD_ASSIGN,NOT_EQUAL,PLUS,PLUS_ASSIGN,QUESTION,SL,SL_ASSIGN,SR,SR_ASSIGN,STAR,STAR_ASSIGN]">
-      <description><![CDATA[tokens to check]]></description>
+
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.PackageDeclarationCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.PackageDeclarationCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Package Declaration]]></name>
     <configKey><![CDATA[Checker/TreeWalker/PackageDeclaration]]></configKey>
 
-    <description><![CDATA[Ensures there is a package declaration.]]></description>
+
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.PackageNameCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.PackageNameCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Package name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/PackageName]]></configKey>
 
-    <description>
-      <![CDATA[Checks that package names conform to the specified format. The default value of format
-       has been chosen to match the requirements in the Java Language specification and the Sun coding conventions.
-       However both underscores and uppercase letters are rather uncommon, so most configurations should probably
-       assign value ^[a-z]+(\.[a-z][a-z0-9]*)*$ to format]]></description>
+
     <param key="format" type="r">
       <defaultValue>^[a-z]+(\.[a-zA-Z_][a-zA-Z0-9_]*)*$</defaultValue>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ParameterAssignmentCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ParameterAssignmentCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Parameter Assignment]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ParameterAssignment]]></configKey>
 
-    <description><![CDATA[Disallow assignment of parameters.]]></description>
+
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.ParameterNameCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.ParameterNameCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Parameter Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ParameterName]]></configKey>
-    <description>
-      <![CDATA[Checks that parameter names conform to the specified format]]></description>
+
     <param key="format" type="r">
       <defaultValue>^[a-z][a-zA-Z0-9]*$</defaultValue>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.ParameterNumberCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.ParameterNumberCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Parameter Number]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ParameterNumber]]></configKey>
 
-    <description><![CDATA[Checks the number of parameters that a method or constructor has.]]></description>
+
     <param key="max" type="i">
-      <description><![CDATA[maximum allowable number of parameters. Default is 7.]]></description>
+
 
     </param>
     <param key="tokens" type="s[METHOD_DEF,CTOR_DEF]">
-      <description><![CDATA[declarations to check]]></description>
+
 
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.ParenPadCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Paren Pad]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ParenPad]]></configKey>
 
-    <description>
-      <![CDATA[Checks the padding of parentheses; that is whether a space is required after a left parenthesis and before a right parenthesis, or such spaces are forbidden, with the exception that it does not check for padding of the right parenthesis at an empty for iterator.]]></description>
+
     <param key="option" type="s[nospace,space]">
-      <description><![CDATA[policy on how to pad parentheses]]></description>
+
     </param>
     <param key="tokens" type="s[CTOR_CALL,LPAREN,METHOD_CALL,RPAREN,SUPER_CTOR_CALL]">
-      <description><![CDATA[tokens to check]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.modifier.RedundantModifierCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Redundant Modifier]]></name>
     <configKey><![CDATA[Checker/TreeWalker/RedundantModifier]]></configKey>
 
-    <description><![CDATA[Checks for redundant modifiers in interface and annotation definitions.]]></description>
+
     <param key="tokens" type="s[METHOD_DEF,VARIABLE_DEF,ANNOTATION_FIELD_DEF]">
-      <description><![CDATA[tokens to check]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.RedundantThrowsCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Redundant Throws]]></name>
     <configKey><![CDATA[Checker/TreeWalker/RedundantThrows]]></configKey>
 
-    <description>
-      <![CDATA[Checks for redundant exceptions declared in throws clause such as duplicates, unchecked exceptions or subclasses of another declared exception.]]></description>
+
     <param key="allowUnchecked" type="b">
-      <description>
-        <![CDATA[whether unchecked exceptions in throws are allowed or not. Default is false.]]></description>
+
     </param>
     <param key="allowSubclasses" type="b">
-      <description>
-        <![CDATA[whether subclass of another declared exception is allowed in throws clause. Default is false.]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.RegexpCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.RegexpCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Regexp]]></name>
     <configKey><![CDATA[Checker/TreeWalker/Regexp]]></configKey>
 
     <cardinality>MULTIPLE</cardinality>
-    <description><![CDATA[A check that makes sure that a specified pattern exists (or not) in the file.]]></description>
+
     <param key="format" type="r">
-      <description><![CDATA[pattern]]></description>
+
     </param>
     <param key="message" type="s">
-      <description>
-        <![CDATA[message which is used to notify about violations, if empty then default(hard-coded) message is used.]]></description>
+
     </param>
     <param key="illegalPattern" type="b">
-      <description><![CDATA[Controls whether the pattern is required or illegal. Default is false.]]></description>
+
 
     </param>
     <param key="duplicateLimit" type="i">
-      <description>
-        <![CDATA[Controls whether to check for duplicates of a required pattern, any negative value means no checking for duplicates, any positive value is used as the maximum number of allowed duplicates, if the limit is exceeded errors will be logged. Default is -1.]]></description>
+
 
     </param>
     <param key="errorLimit" type="i">
-      <description>
-        <![CDATA[Controls the maximum number of errors before the check will abort. Default is 100.]]></description>
+
     </param>
     <param key="ignoreComments" type="b">
-      <description><![CDATA[Controls whether to ignore matches found within comments. Default is false.]]></description>
+
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.RequireThisCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.RequireThisCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Require This]]></name>
     <configKey><![CDATA[Checker/TreeWalker/RequireThis]]></configKey>
 
-    <description><![CDATA[Checks that code doesn't rely on the this default.]]></description>
+
     <param key="checkFields" type="b">
-      <description><![CDATA[whether we should check fields usage or not. Default is true.]]></description>
+
     </param>
     <param key="checkMethods" type="b">
-      <description><![CDATA[whether we should check methods usage or not. Default is true.]]></description>
+
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ReturnCountCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.ReturnCountCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Return Count]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ReturnCount]]></configKey>
 
-    <description><![CDATA[Restricts return statements to a specified count (default = 2).]]></description>
+
     <param key="max" type="i">
-      <description><![CDATA[maximum allowed number of return statments]]></description>
+
     </param>
     <param key="format" type="r">
-      <description><![CDATA[method names to ingone]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.blocks.RightCurlyCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Right Curly]]></name>
     <configKey><![CDATA[Checker/TreeWalker/RightCurly]]></configKey>
 
-    <description><![CDATA[Checks the placement of right curly braces.]]></description>
+
     <param key="option" type="s[same,alone]">
-      <description><![CDATA[policy on placement of a right curly brace ('}')]]></description>
+
 
     </param>
     <param key="tokens" type="s[LITERAL_TRY,LITERAL_CATCH,LITERAL_FINALLY,LITERAL_IF,LITERAL_ELSE]">
-      <description><![CDATA[blocks to check]]></description>
+
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.SimplifyBooleanExpressionCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.SimplifyBooleanExpressionCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Simplify Boolean Expression]]></name>
     <configKey><![CDATA[Checker/TreeWalker/SimplifyBooleanExpression]]></configKey>
 
-    <description><![CDATA[Checks for overly complicated boolean expressions.]]></description>
+
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.SimplifyBooleanReturnCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.SimplifyBooleanReturnCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Simplify Boolean Return]]></name>
     <configKey><![CDATA[Checker/TreeWalker/SimplifyBooleanReturn]]></configKey>
 
-    <description><![CDATA[Checks for overly complicated boolean return statements.]]></description>
+
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.StaticVariableNameCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.StaticVariableNameCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Static Variable Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/StaticVariableName]]></configKey>
     <cardinality>MULTIPLE</cardinality>
-    <description>
-      <![CDATA[Checks that static, non-final fields conform to the specified format]]></description>
+
     <param key="format" type="r">
       <defaultValue>^[a-z][a-zA-Z0-9]*$</defaultValue>
     </param>
     <param key="applyToPublic" type="b">
-      <description>Controls whether to apply the check to public member</description>
+
       <defaultValue>true</defaultValue>
     </param>
     <param key="applyToProtected" type="b">
-      <description>Controls whether to apply the check to protected member</description>
+
       <defaultValue>true</defaultValue>
     </param>
     <param key="applyToPackage" type="b">
-      <description>Controls whether to apply the check to package-private member</description>
+
       <defaultValue>true</defaultValue>
     </param>
     <param key="applyToPrivate" type="b">
-      <description>Controls whether to apply the check to private member</description>
+
       <defaultValue>true</defaultValue>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.duplicates.StrictDuplicateCodeCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.duplicates.StrictDuplicateCodeCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Strict Duplicate Code]]></name>
     <configKey><![CDATA[Checker/StrictDuplicateCode]]></configKey>
 
-    <description>
-      <![CDATA[Performs a line-by-line comparison of all code lines and reports duplicate code if a sequence of lines differs only in indentation.]]></description>
+
     <param key="min" type="i">
-      <description><![CDATA[how many lines must be equal to be considered a duplicate. Default is 12.]]></description>
+
     </param>
     <param key="charset" type="s">
-      <description><![CDATA[name of the file charset]]></description>
+
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.StringLiteralEqualityCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.StringLiteralEqualityCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[String Literal Equality]]></name>
     <configKey><![CDATA[Checker/TreeWalker/StringLiteralEquality]]></configKey>
 
-    <description><![CDATA[Checks that string literals are not used with == or !=.]]></description>
+
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.SuperCloneCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.SuperCloneCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Super Clone]]></name>
     <configKey><![CDATA[Checker/TreeWalker/SuperClone]]></configKey>
 
-    <description><![CDATA[Checks that an overriding clone() method invokes super.clone().]]></description>
+
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.SuperFinalizeCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.SuperFinalizeCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Super Finalize]]></name>
     <configKey><![CDATA[Checker/TreeWalker/SuperFinalize]]></configKey>
 
-    <description><![CDATA[Checks that an overriding finalize() method invokes super.finalize().]]></description>
+
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.design.ThrowsCountCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.design.ThrowsCountCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Throws Count]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ThrowsCount]]></configKey>
 
-    <description><![CDATA[Restricts throws statements to a specified count (default = 1).]]></description>
+
     <param key="max" type="i">
-      <description><![CDATA[maximum allowed number of throws statments]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Comment pattern matcher]]></name>
     <configKey><![CDATA[Checker/TreeWalker/TodoComment]]></configKey>
 
     <cardinality>MULTIPLE</cardinality>
-    <description><![CDATA[This rule allows to find any kind of pattern inside comments like TODO, NOPMD, ..., except NOSONAR]]></description>
+
     <param key="format" type="r">
-      <description><![CDATA[Regular expression pattern to check. Default is TODO:]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.indentation.TrailingCommentCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Trailing Comment]]></name>
     <configKey><![CDATA[Checker/TreeWalker/TrailingComment]]></configKey>
 
-    <description><![CDATA[The check to ensure that requires that comments be the only thing on a line.]]></description>
+
     <param key="format" type="r">
-      <description><![CDATA[pattern for string allowed before comment.]]></description>
+
     </param>
     <param key="legalComment" type="r">
-      <description>
-        <![CDATA[pattern for text of trailing comment which is allowed. (this patter will not be applied to multiline comments and text of comment will be trimmed before matching)]]></description>
+
     </param>
   </rule>
 
-   <!--
+  <!--
    Deactivated. See http://jira.codehaus.org/browse/SONAR-1698
 
    <rule key="com.puppycrawl.tools.checkstyle.checks.TranslationCheck">
@@ -1705,156 +1445,148 @@ Rationale: Too large methods and classes are hard to read and costly to maintain
     <name><![CDATA[Translation]]></name>
     <configKey><![CDATA[Checker/Translation]]></configKey>
     
-    <description>
-      <![CDATA[Ensures the correct translation of code by checking property files for consistency regarding their keys. Two property files describing one and the same context are consistent if they contain the same keys.]]></description>
+    
     <param key="fileExtensions" type="s{}">
-      <description>
-        <![CDATA[File type extension to identify translation files. Setting this property is typically only required if your translation files are preprocessed and the original files do not have the extension .properties.]]></description>
+      
 
     </param>
   </rule>-->
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.TypeNameCheck" >
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.TypeNameCheck">
     <priority>MAJOR</priority>
     <name><![CDATA[Type Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/TypeName]]></configKey>
     <cardinality>MULTIPLE</cardinality>
-    <description><![CDATA[Checks that type names conform to the specified format]]></description>
+
     <param key="format" type="r">
       <defaultValue>^[A-Z][a-zA-Z0-9]*$</defaultValue>
     </param>
     <param key="tokens" type="s[CLASS_DEF,INTERFACE_DEF]">
-      <description><![CDATA[Control whether the check applies to classes or interfaces]]></description>
+
     </param>
     <param key="applyToPublic" type="b">
-      <description>Controls whether to apply the check to public member</description>
+
       <defaultValue>true</defaultValue>
     </param>
     <param key="applyToProtected" type="b">
-      <description>Controls whether to apply the check to protected member</description>
+
       <defaultValue>true</defaultValue>
     </param>
     <param key="applyToPackage" type="b">
-      <description>Controls whether to apply the check to package-private member</description>
+
       <defaultValue>true</defaultValue>
     </param>
     <param key="applyToPrivate" type="b">
-      <description>Controls whether to apply the check to private member</description>
+
       <defaultValue>true</defaultValue>
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.TypecastParenPadCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.TypecastParenPadCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Typecast Paren Pad]]></name>
     <configKey><![CDATA[Checker/TreeWalker/TypecastParenPad]]></configKey>
 
-    <description><![CDATA[Checks the padding of parentheses for typecasts.]]></description>
+
     <param key="option" type="s[nospace,space]">
-      <description><![CDATA[policy on how to pad parentheses]]></description>
+
 
     </param>
     <param key="tokens" type="s[TYPECAST,RPAREN]">
-      <description><![CDATA[tokens to check]]></description>
+
 
     </param>
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.UncommentedMainCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.UncommentedMainCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Uncommented Main]]></name>
     <configKey><![CDATA[Checker/TreeWalker/UncommentedMain]]></configKey>
 
-    <description><![CDATA[Detects uncommented main methods.]]></description>
+
     <param key="excludedClasses" type="r">
-      <description>
-        <![CDATA[pattern for qualified names of classes which are allowed to have a main method.]]></description>
+
 
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.UnnecessaryParenthesesCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Unnecessary Parentheses]]></name>
     <configKey><![CDATA[Checker/TreeWalker/UnnecessaryParentheses]]></configKey>
 
-    <description><![CDATA[Checks if unnecessary parentheses are used in a statement or expression.]]></description>
+
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.imports.UnusedImportsCheck">
-<priority>INFO</priority>
+    <priority>INFO</priority>
     <name><![CDATA[Unused Imports]]></name>
     <configKey><![CDATA[Checker/TreeWalker/UnusedImports]]></configKey>
 
-    <description><![CDATA[Checks for unused import statements.]]></description>
+
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.UpperEllCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Upper Ell]]></name>
     <configKey><![CDATA[Checker/TreeWalker/UpperEll]]></configKey>
 
-    <description><![CDATA[Checks that long constants are defined with an upper ell. That is ' L' and not 'l'. 
-    This is in accordance to the Java Language Specification, <a href="http://java.sun.com/docs/books/jls/second_edition/html/lexical.doc.html#48282">Section 3.10.1</a>.]]></description>
+
   </rule>
-  <rule key="com.puppycrawl.tools.checkstyle.checks.design.VisibilityModifierCheck" >
-<priority>MAJOR</priority>
+  <rule key="com.puppycrawl.tools.checkstyle.checks.design.VisibilityModifierCheck">
+    <priority>MAJOR</priority>
     <name><![CDATA[Visibility Modifier]]></name>
     <configKey><![CDATA[Checker/TreeWalker/VisibilityModifier]]></configKey>
 
-    <description>
-      <![CDATA[Checks visibility of class members. Only static final members may be public; other class members must be private unless property protectedAllowed or packageAllowed is set.]]></description>
+
     <param key="packageAllowed" type="b">
-      <description><![CDATA[whether package visible members are allowed. Default is false.]]></description>
+
     </param>
     <param key="protectedAllowed" type="b">
-      <description><![CDATA[whether protected members are allowed. Default is false.]]></description>
+
     </param>
     <param key="publicMemberPattern" type="r">
-      <description>
-        <![CDATA[pattern for public members that should be ignored. Default is ^serialVersionUID$.]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.WhitespaceAfterCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Whitespace After]]></name>
     <configKey><![CDATA[Checker/TreeWalker/WhitespaceAfter]]></configKey>
 
-    <description>
-      <![CDATA[Checks that a token is followed by whitespace, with the exception that it does not check for whitespace after the semicolon of an empty for iterator.]]></description>
+
     <param key="tokens" type="s[COMMA,SEMI,TYPECAST]">
-      <description><![CDATA[tokens to check]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.WhitespaceAroundCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Whitespace Around]]></name>
     <configKey><![CDATA[Checker/TreeWalker/WhitespaceAround]]></configKey>
 
-    <description><![CDATA[Checks that a token is surrounded by whitespace.]]></description>
+
     <param key="tokens"
            type="s[ASSIGN,BAND,BAND_ASSIGN,BOR,BOR_ASSIGN,BSR,BSR_ASSIGN,BXOR,BXOR_ASSIGN,COLON,DIV,DIV_ASSIGN,EQUAL,GE,GT,LAND,LCURLY,LE,LITERAL_ASSERT,LITERAL_CATCH,LITERAL_DO,LITERAL_ELSE,LITERAL_FINALLY,LITERAL_FOR,LITERAL_IF,LITERAL_RETURN,LITERAL_SYNCHRONIZED,LITERAL_TRY,LITERAL_WHILE,LOR,LT,MINUS,MINUS_ASSIGN,MOD,MOD_ASSIGN,NOT_EQUAL,PLUS,PLUS_ASSIGN,QUESTION,RCURLY,SL,SLIST,SL_ASSIGN,SR,SR_ASSIGN,STAR,STAR_ASSIGN,GENERIC_START,GENERIC_END,TYPE_EXTENSION_AND,WILDCARD_TYPE]">
-      <description><![CDATA[tokens to check]]></description>
+
 
     </param>
     <param key="allowEmptyConstructors" type="b">
-      <description><![CDATA[allow empty constructor bodies. Default is false.]]></description>
+
 
     </param>
     <param key="allowEmptyMethods" type="b">
-      <description><![CDATA[allow empty method bodies. Default is false.]]></description>
+
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.WriteTagCheck">
-<priority>MINOR</priority>
+    <priority>MINOR</priority>
     <name><![CDATA[Write Tag]]></name>
     <configKey><![CDATA[Checker/TreeWalker/WriteTag]]></configKey>
 
-    <description>
-      <![CDATA[Outputs a JavaDoc tag as information. Can be used e.g. with the stylesheets that sort the report by author name. To define the format for a tag, set property tagFormat to a regular expression. This check uses two different severity levels. The normal one is used for reporting when the tag is missing. The additional one (tagSeverity) is used for the level of reporting when the tag exists.]]></description>
+
     <param key="tag" type="s">
-      <description><![CDATA[Name of tag]]></description>
+
     </param>
     <param key="tagFormat" type="r">
-      <description><![CDATA[Format of tag]]></description>
+
     </param>
     <param key="tagSeverity" type="s[ignore,info,warning,error]">
-      <description><![CDATA[Severity level when tag is found and printed. Default is info.]]></description>
+
     </param>
   </rule>
 </rules>

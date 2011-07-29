@@ -25,6 +25,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.i18n.I18n;
 import org.sonar.core.i18n.RuleI18nManager;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -80,5 +81,9 @@ public final class JRubyI18n implements ServerComponent {
 
   public String getRuleParamDescription(String rubyLocale, String repositoryKey, String ruleKey, String paramKey) {
     return ruleI18nManager.getParamDescription(repositoryKey, ruleKey, paramKey, toLocale(rubyLocale));
+  }
+
+  public List<RuleI18nManager.RuleKey> searchRuleName(String rubyLocale, String searchText) {
+    return ruleI18nManager.searchNames(searchText, toLocale(rubyLocale));
   }
 }

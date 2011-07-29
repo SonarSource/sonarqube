@@ -131,6 +131,10 @@ public class I18nManager implements I18n, ServerExtension {
     return result;
   }
 
+  Set<String> getPropertyKeys() {
+    return propertyToBundles.keySet();
+  }
+
   ResourceBundle getBundle(String bundleKey, Locale locale) {
     try {
       ClassLoader classloader = bundleToClassloaders.get(bundleKey);

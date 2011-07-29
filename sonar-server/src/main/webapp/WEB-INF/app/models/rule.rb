@@ -207,15 +207,22 @@ class Rule < ActiveRecord::Base
     end
 
     unless options[:searchtext].blank?
-      conditions << "(UPPER(rules.name) LIKE :searchtext OR plugin_rule_key = :key)"
       searchtext = options[:searchtext].to_s.strip
+      search_text_conditions='(UPPER(rules.name) LIKE :searchtext OR plugin_rule_key = :key'
+
+      additional_keys=java_facade.searchRuleName(I18n.locale, searchtext)
+      additional_keys.each do |java_rule_key|
+        search_text_conditions<<" OR (plugin_name='#{java_rule_key.getRepositoryKey()}' AND plugin_rule_key='#{java_rule_key.getKey()}')"
+      end
+      
+      search_text_conditions<<')'
+      conditions << search_text_conditions
       values[:searchtext] = "%" << searchtext.clone.upcase << "%"
       values[:key] = searchtext
     end
 
     includes=(options[:include_parameters] ? :rules_parameters : nil)
     rules = Rule.find(:all, :include => includes, :conditions => [conditions.join(" AND "), values]).sort_by { |rule| rule.name }
-
     filter(rules, options)
   end
 

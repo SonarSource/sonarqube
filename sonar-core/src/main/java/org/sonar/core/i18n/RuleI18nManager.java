@@ -19,93 +19,126 @@
  */
 package org.sonar.core.i18n;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 
+import java.util.List;
 import java.util.Locale;
 
 public class RuleI18nManager implements ServerComponent {
 
   private I18nManager i18nManager;
+  private RuleKey[] ruleKeys;
 
   public RuleI18nManager(I18nManager i18nManager) {
     this.i18nManager = i18nManager;
   }
 
+  public void start() {
+    List<RuleKey> list = Lists.newArrayList();
+    for (String propertyKey : i18nManager.getPropertyKeys()) {
+      if (isRuleProperty(propertyKey)) {
+        list.add(extractRuleKey(propertyKey));
+      }
+    }
+    this.ruleKeys = list.toArray(new RuleKey[list.size()]);
+  }
+
   public String getName(String repositoryKey, String ruleKey, Locale locale) {
-    return message(repositoryKey, ruleKey, locale, ".name", ruleKey);
+    return message(repositoryKey, ruleKey, locale, ".name");
   }
 
   public String getDescription(String repositoryKey, String ruleKey, Locale locale) {
-    String relatedProperty = "rule." + repositoryKey + "." + ruleKey + ".name";
+    String relatedProperty = new StringBuilder().append("rule.").append(repositoryKey).append(".").append(ruleKey).append(".name").toString();
 
     // TODO add cache
     String description = i18nManager.messageFromFile(locale, ruleKey + ".html", relatedProperty);
     if (description == null && !Locale.ENGLISH.equals(locale)) {
       description = i18nManager.messageFromFile(Locale.ENGLISH, ruleKey + ".html", relatedProperty);
     }
-    return StringUtils.defaultString(description, "");
+    return description;
   }
 
   public String getParamDescription(String repositoryKey, String ruleKey, String paramKey, Locale locale) {
-    return message(repositoryKey, ruleKey, locale, ".param." + paramKey, "");
+    return message(repositoryKey, ruleKey, locale, ".param." + paramKey);
   }
 
-  private String message(String repositoryKey, String ruleKey, Locale locale, String suffix, String defaultValue) {
+  String message(String repositoryKey, String ruleKey, Locale locale, String suffix) {
     String propertyKey = new StringBuilder().append("rule.").append(repositoryKey).append(".").append(ruleKey).append(suffix).toString();
-    return i18nManager.message(locale, propertyKey, defaultValue);
+    return i18nManager.message(locale, propertyKey, null);
   }
 
-//  static class RuleKey {
-//    private String repositoryKey;
-//    private String key;
-//
-//    RuleKey(String repositoryKey, String key) {
-//      this.repositoryKey = repositoryKey;
-//      this.key = key;
-//    }
-//
-//    public String getRepositoryKey() {
-//      return repositoryKey;
-//    }
-//
-//    public String getKey() {
-//      return key;
-//    }
-//
-//    @Override
-//    public boolean equals(Object o) {
-//      if (this == o) return true;
-//      if (o == null || getClass() != o.getClass()) return false;
-//
-//      RuleKey ruleKey = (RuleKey) o;
-//
-//      if (!key.equals(ruleKey.key)) return false;
-//      if (!repositoryKey.equals(ruleKey.repositoryKey)) return false;
-//
-//      return true;
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//      int result = repositoryKey.hashCode();
-//      result = 31 * result + key.hashCode();
-//      return result;
-//    }
-//
-//    @Override
-//    public String toString() {
-//      return new StringBuilder().append(repositoryKey).append(":").append(key).toString();
-//    }
-//  }
-//
-//  static class RuleMessages {
-//    private String name;
-//    private String description;
-//
-//    RuleMessages(String name, String description) {
-//      this.name = name;
-//      this.description = description;
-//    }
-//  }
+  public List<RuleKey> searchNames(String search, Locale locale) {
+    List<RuleKey> result = Lists.newArrayList();
+    for (RuleKey ruleKey : ruleKeys) {
+      String name = i18nManager.message(locale, ruleKey.getNameProperty(), null);
+      if (name != null && StringUtils.indexOfIgnoreCase(name, search) >= 0) {
+        result.add(ruleKey);
+      }
+    }
+    return result;
+  }
+
+  RuleKey[] getRuleKeys() {
+    return ruleKeys;
+  }
+
+  static RuleKey extractRuleKey(String propertyKey) {
+    String s = StringUtils.substringBetween(propertyKey, "rule.", ".name");
+    String ruleKey = StringUtils.substringAfter(s, ".");
+    String repository = StringUtils.substringBefore(s, ".");
+    return new RuleKey(repository, ruleKey);
+  }
+
+  static boolean isRuleProperty(String propertyKey) {
+    return StringUtils.startsWith(propertyKey, "rule.") && StringUtils.endsWith(propertyKey, ".name") && propertyKey.indexOf(".param.") < 0;
+  }
+
+  public static class RuleKey {
+    private String repositoryKey;
+    private String key;
+
+    RuleKey(String repositoryKey, String key) {
+      this.repositoryKey = repositoryKey;
+      this.key = key;
+    }
+
+    public String getRepositoryKey() {
+      return repositoryKey;
+    }
+
+    public String getKey() {
+      return key;
+    }
+
+    public String getNameProperty() {
+      return new StringBuilder().append("rule.").append(repositoryKey).append(".").append(key).append(".name").toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      RuleKey ruleKey = (RuleKey) o;
+
+      if (!key.equals(ruleKey.key)) return false;
+      if (!repositoryKey.equals(ruleKey.repositoryKey)) return false;
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      int result = repositoryKey.hashCode();
+      result = 31 * result + key.hashCode();
+      return result;
+    }
+
+    @Override
+    public String toString() {
+      return new StringBuilder().append(repositoryKey).append(":").append(key).toString();
+    }
+  }
 }

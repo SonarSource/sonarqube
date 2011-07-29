@@ -41,7 +41,6 @@ public class FindbugsRuleRepositoryTest {
     assertThat(rules.size(), greaterThan(300));
     for (Rule rule : rules) {
       assertNotNull(rule.getKey());
-      assertNotNull(rule.getDescription());
       assertNotNull(rule.getConfigKey());
       assertNotNull(rule.getName());
     }
