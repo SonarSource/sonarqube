@@ -35,8 +35,15 @@ public class ManualMeasureCreateQueryTest extends QueryTestCase {
 
   @Test
   public void shouldCreateWithAllOptionalProperties() {
-    ManualMeasureCreateQuery query = ManualMeasureCreateQuery.create("foo", "team_size").setValue(3.14).setTextValue("xxx").setDescription("yyy");
-    assertThat(query.getUrl(), is("/api/manual_measures?resource=foo&metric=team_size&val=3.14&text=xxx&desc=yyy&"));
+    ManualMeasureCreateQuery query = ManualMeasureCreateQuery.create("foo", "burned_budget").setValue(3.14).setTextValue("xxx").setDescription("yyy");
+    assertThat(query.getUrl(), is("/api/manual_measures?resource=foo&metric=burned_budget&val=3.14&text=xxx&desc=yyy&"));
+    assertThat(query.getModelClass().getName(), is(ManualMeasure.class.getName()));
+  }
+
+  @Test
+  public void shouldSetIntValue() {
+    ManualMeasureCreateQuery query = ManualMeasureCreateQuery.create("foo", "team_size").setIntValue(45);
+    assertThat(query.getUrl(), is("/api/manual_measures?resource=foo&metric=team_size&val=45&"));
     assertThat(query.getModelClass().getName(), is(ManualMeasure.class.getName()));
   }
 }

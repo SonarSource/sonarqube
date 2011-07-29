@@ -26,6 +26,7 @@ public class ManualMeasureCreateQuery extends CreateQuery<ManualMeasure> {
 
   private String resourceKey;
   private String metricKey;
+  private Integer intValue;
   private Double value;
   private String textValue;
   private String description;
@@ -49,6 +50,15 @@ public class ManualMeasureCreateQuery extends CreateQuery<ManualMeasure> {
 
   public ManualMeasureCreateQuery setValue(Double value) {
     this.value = value;
+    return this;
+  }
+
+  public Integer getIntValue() {
+    return intValue;
+  }
+
+  public ManualMeasureCreateQuery setIntValue(Integer intValue) {
+    this.intValue = intValue;
     return this;
   }
 
@@ -76,7 +86,11 @@ public class ManualMeasureCreateQuery extends CreateQuery<ManualMeasure> {
     url.append(ManualMeasureQuery.BASE_URL);
     appendUrlParameter(url, "resource", resourceKey);
     appendUrlParameter(url, "metric", metricKey);
-    appendUrlParameter(url, "val", value);
+    if (value != null) {
+      appendUrlParameter(url, "val", value);
+    } else if (intValue != null) {
+      appendUrlParameter(url, "val", intValue);
+    }
 
     // limitations : POST body is not used, so the complete URL size is limited
     appendUrlParameter(url, "text", textValue);
