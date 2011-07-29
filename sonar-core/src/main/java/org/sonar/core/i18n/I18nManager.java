@@ -20,50 +20,145 @@
 package org.sonar.core.i18n;
 
 import com.google.common.collect.Maps;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
+import org.sonar.api.utils.SonarException;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class I18nManager implements I18n, ServerExtension {
+  private static Logger LOG = LoggerFactory.getLogger(I18nManager.class);
+
+  public static final String ENGLISH_PACK_PLUGIN_KEY = "i18nen";
+  public static final String BUNDLE_PACKAGE = "org.sonar.i18n.";
 
   private PluginRepository pluginRepository;
-  private Map<String, ClassLoader> bundleToClassloader;
+  private Map<String, ClassLoader> bundleToClassloaders;
+  private Map<String, String> propertyToBundles;
 
   public I18nManager(PluginRepository pluginRepository) {
     this.pluginRepository = pluginRepository;
   }
 
-  I18nManager(Map<String, ClassLoader> bundleToClassloader) {
-    this.bundleToClassloader = bundleToClassloader;
+  I18nManager(Map<String, ClassLoader> bundleToClassloaders) {
+    this.bundleToClassloaders = bundleToClassloaders;
   }
 
   public void start() {
-    ClassLoader coreClassLoader = pluginRepository.getPlugin("i18nen").getClass().getClassLoader();
+    initClassloaders();
+    initProperties();
+  }
 
-    bundleToClassloader = Maps.newHashMap();
-    for (PluginMetadata metadata : pluginRepository.getMetadata()) {
-      if (!metadata.isCore() && !"i18nen".equals(metadata.getBasePlugin())) {
-        ClassLoader classLoader = pluginRepository.getPlugin(metadata.getKey()).getClass().getClassLoader();
-        bundleToClassloader.put(metadata.getKey(), classLoader);
+  private void initClassloaders() {
+    if (bundleToClassloaders == null) {
+      ClassLoader coreClassLoader = pluginRepository.getPlugin(ENGLISH_PACK_PLUGIN_KEY).getClass().getClassLoader();
+      bundleToClassloaders = Maps.newHashMap();
+      for (PluginMetadata metadata : pluginRepository.getMetadata()) {
+        if (!metadata.isCore() && !ENGLISH_PACK_PLUGIN_KEY.equals(metadata.getBasePlugin())) {
+          // plugin but not a language pack
+          // => plugins embedd only their own bundles with all locales
+          ClassLoader classLoader = pluginRepository.getPlugin(metadata.getKey()).getClass().getClassLoader();
+          bundleToClassloaders.put(BUNDLE_PACKAGE + metadata.getKey(), classLoader);
 
-      } else if (metadata.isCore()) {
-        bundleToClassloader.put(metadata.getKey(), coreClassLoader);
+        } else if (metadata.isCore()) {
+          // bundles of core plugins are defined into language packs. All language packs are supposed
+          // to share the same classloader (english pack classloader)
+          bundleToClassloaders.put(BUNDLE_PACKAGE + metadata.getKey(), coreClassLoader);
+        }
       }
     }
+    bundleToClassloaders = Collections.unmodifiableMap(bundleToClassloaders);
+  }
+
+  private void initProperties() {
+    propertyToBundles = Maps.newHashMap();
+    for (Map.Entry<String, ClassLoader> entry : bundleToClassloaders.entrySet()) {
+      try {
+        String bundleKey = entry.getKey();
+        ResourceBundle bundle = ResourceBundle.getBundle(bundleKey, Locale.ENGLISH, entry.getValue());
+        Enumeration<String> keys = bundle.getKeys();
+        while (keys.hasMoreElements()) {
+          String key = keys.nextElement();
+          propertyToBundles.put(key, bundleKey);
+        }
+      } catch (MissingResourceException e) {
+        // ignore
+      }
+    }
+    propertyToBundles = Collections.unmodifiableMap(propertyToBundles);
+    LOG.debug(String.format("Loaded %d properties from English bundles", propertyToBundles.size()));
   }
 
   public String message(Locale locale, String key, String defaultValue, Object... parameters) {
-    String bundle = keyToBundle(key);
-    ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, locale, bundleToClassloader.get(bundle));
-    String value = resourceBundle.getString(key);
-    if (value==null) {
+    String bundleKey = propertyToBundles.get(key);
+    ResourceBundle resourceBundle = getBundle(bundleKey, locale);
+    return message(resourceBundle, key, defaultValue, parameters);
+  }
+
+  /**
+   * Results are not kept in cache.
+   */
+  String messageFromFile(Locale locale, String filename, String relatedProperty) {
+    ClassLoader classloader = getClassLoaderForProperty(relatedProperty);
+    String result = null;
+    if (classloader != null) {
+      String bundleBase = propertyToBundles.get(relatedProperty);
+      String filePath = bundleBase.replace('.', '/');
+      if (locale != Locale.ENGLISH) {
+        filePath += "_" + locale.toString();
+      }
+      filePath += "/" + filename;
+      InputStream input = classloader.getResourceAsStream(filePath);
+      if (input != null) {
+        try {
+          result = IOUtils.toString(input, "UTF-8");
+        } catch (IOException e) {
+          throw new SonarException("Fail to load file: " + filePath, e);
+        } finally {
+          IOUtils.closeQuietly(input);
+        }
+      }
+    }
+    return result;
+  }
+
+  ResourceBundle getBundle(String bundleKey, Locale locale) {
+    try {
+      ClassLoader classloader = bundleToClassloaders.get(bundleKey);
+      if (classloader != null) {
+        return ResourceBundle.getBundle(bundleKey, locale, classloader);
+      }
+    } catch (MissingResourceException e) {
+      // ignore
+    }
+    return null;
+  }
+
+
+  ClassLoader getClassLoaderForProperty(String propertyKey) {
+    String bundleKey = propertyToBundles.get(propertyKey);
+    return (bundleKey != null ? bundleToClassloaders.get(bundleKey) : null);
+  }
+
+  String message(ResourceBundle resourceBundle, String key, String defaultValue, Object... parameters) {
+    String value = null;
+    if (resourceBundle != null) {
+      try {
+        value = resourceBundle.getString(key);
+      } catch (MissingResourceException e) {
+        // ignore
+      }
+    }
+    if (value == null) {
       value = defaultValue;
     }
     if (value != null && parameters.length > 0) {
@@ -72,11 +167,11 @@ public class I18nManager implements I18n, ServerExtension {
     return value;
   }
 
-  String keyToBundle(String key) {
-    String pluginKey = StringUtils.substringBefore(key, ".");
-    if (bundleToClassloader.containsKey(pluginKey)) {
-      return pluginKey;
+  String extractBundleFromKey(String key) {
+    String bundleKey = BUNDLE_PACKAGE + StringUtils.substringBefore(key, ".");
+    if (bundleToClassloaders.containsKey(bundleKey)) {
+      return bundleKey;
     }
-    return "core";
+    return BUNDLE_PACKAGE + "core";
   }
 }

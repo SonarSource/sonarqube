@@ -97,12 +97,7 @@ class ApplicationController < ActionController::Base
   
   # i18n
   def message(key, options={})
-    default = options[:default]
-    params = options[:params]
-    if params.nil? 
-      params=[]
-    end
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, key, default, params.to_java)    
+    Api::Utils.message(key, options)
   end
   
 end

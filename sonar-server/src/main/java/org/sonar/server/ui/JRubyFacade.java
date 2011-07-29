@@ -302,11 +302,32 @@ public final class JRubyFacade {
     return component;
   }
 
-  public String getI18nMessage(String rubyLocale, String key, String defaultValue, Object... parameters) {
+  public String getMessage(String rubyLocale, String key, String defaultValue, Object... parameters) {
     if (i18n == null) {
       i18n = getContainer().getComponent(JRubyI18n.class);
     }
     return i18n.message(rubyLocale, key, defaultValue, parameters);
+  }
+
+  public String getRuleName(String rubyLocale, String repositoryKey, String key) {
+    if (i18n == null) {
+      i18n = getContainer().getComponent(JRubyI18n.class);
+    }
+    return i18n.getRuleName(rubyLocale, repositoryKey, key);
+  }
+
+  public String getRuleDescription(String rubyLocale, String repositoryKey, String key) {
+    if (i18n == null) {
+      i18n = getContainer().getComponent(JRubyI18n.class);
+    }
+    return i18n.getRuleDescription(rubyLocale, repositoryKey, key);
+  }
+
+  public String getRuleParamDescription(String rubyLocale, String repositoryKey, String key, String paramKey) {
+    if (i18n == null) {
+      i18n = getContainer().getComponent(JRubyI18n.class);
+    }
+    return i18n.getRuleParamDescription(rubyLocale, repositoryKey, key, paramKey);
   }
 
   public ReviewsNotificationManager getReviewsNotificationManager() {

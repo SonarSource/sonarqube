@@ -26,6 +26,10 @@ class Rule < ActiveRecord::Base
   has_many :active_rules
   belongs_to :parent, :class_name => 'Rule', :foreign_key => 'parent_id'
 
+  def repository_key
+    plugin_name
+  end
+
   def parameters
     rules_parameters
   end
@@ -57,41 +61,31 @@ class Rule < ActiveRecord::Base
   def <=>(rule)
     name<=>rule.name
   end
-  
-  def name(translate=true)
-    default_string = read_attribute(:name)
-    return default_string unless translate
-    
-    rule_plugin_name = read_attribute(:plugin_name)
-    rule_plugin_rule_key = read_attribute(:plugin_rule_key)
 
-    return nil if (rule_plugin_name.nil? or rule_plugin_rule_key.nil?)
-    
-    i18n_key = 'rule.' + rule_plugin_name + '.' + rule_plugin_rule_key + '.name'   
-    result = Api::Utils.message(i18n_key, :default => default_string)
-    result
+  def name
+    @l10n_name ||=
+        begin
+          result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleName(I18n.locale, repository_key, plugin_rule_key)
+          result = read_attribute(:name) unless result
+          result
+        end
   end
-  
+
   def name=(value)
-    write_attribute(:name, value)    
+    write_attribute(:name, value)
   end
-  
-  def description(translate=true)
-    default_string = read_attribute(:description)
-    return default_string unless translate
-    
-    rule_plugin_name = read_attribute(:plugin_name)
-    rule_plugin_rule_key = read_attribute(:plugin_rule_key)
-    
-    return nil if (rule_plugin_name.nil? or rule_plugin_rule_key.nil?)
-    
-    i18n_key = 'rule.' + rule_plugin_name + '.' + rule_plugin_rule_key + '.description'   
-    result = Api::Utils.message(i18n_key, :default => default_string)
-    result
+
+  def description
+    @l10n_description ||=
+        begin
+          result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleDescription(I18n.locale, repository_key, plugin_rule_key)
+          result = read_attribute(:description) unless result
+          result
+        end
   end
 
   def description=(value)
-    write_attribute(:description, value)    
+    write_attribute(:description, value)
   end
 
   def config_key
@@ -142,7 +136,7 @@ class Rule < ActiveRecord::Base
     else
       json['priority'] = priority_text
     end
-    json['params'] = parameters.collect{|parameter| parameter.to_hash_json(active_rule)} unless parameters.empty?
+    json['params'] = parameters.collect { |parameter| parameter.to_hash_json(active_rule) } unless parameters.empty?
     json
   end
 
@@ -152,7 +146,7 @@ class Rule < ActiveRecord::Base
       xml.key(key)
       xml.config_key(config_key)
       xml.plugin(plugin_name)
-      xml.description {xml.cdata!(description)}
+      xml.description { xml.cdata!(description) }
       active_rule = nil
       if profile
         active_rule = profile.active_by_rule_id(id)
@@ -197,10 +191,10 @@ class Rule < ActiveRecord::Base
     if remove_blank(options[:plugins])
       plugins = options[:plugins]
       unless options[:language].blank?
-        plugins = plugins & java_facade.getRuleRepositoriesByLanguage(options[:language]).collect{ |repo| repo.getKey() }
+        plugins = plugins & java_facade.getRuleRepositoriesByLanguage(options[:language]).collect { |repo| repo.getKey() }
       end
     elsif !options[:language].blank?
-      plugins = java_facade.getRuleRepositoriesByLanguage(options[:language]).collect{ |repo| repo.getKey() }
+      plugins = java_facade.getRuleRepositoriesByLanguage(options[:language]).collect { |repo| repo.getKey() }
     end
 
     if plugins
@@ -220,8 +214,7 @@ class Rule < ActiveRecord::Base
     end
 
     includes=(options[:include_parameters] ? :rules_parameters : nil)
-    rules = Rule.find(:all, :order => 'rules.name', :include => includes,
-      :conditions => [conditions.join(" AND "), values])
+    rules = Rule.find(:all, :include => includes, :conditions => [conditions.join(" AND "), values]).sort_by { |rule| rule.name }
 
     filter(rules, options)
   end

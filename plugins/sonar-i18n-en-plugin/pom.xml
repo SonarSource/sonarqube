@@ -51,7 +51,7 @@
           <pluginName>I18n English Pack</pluginName>
           <pluginClass>org.sonar.plugins.i18n.en.EnglishPackPlugin</pluginClass>
           <pluginDescription>
-            <![CDATA[Language pack for English.]]></pluginDescription>
+            <![CDATA[Language pack for English]]></pluginDescription>
         </configuration>
       </plugin>
     </plugins>

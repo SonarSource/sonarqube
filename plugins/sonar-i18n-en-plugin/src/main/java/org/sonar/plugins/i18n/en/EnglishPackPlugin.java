@@ -21,12 +21,12 @@ package org.sonar.plugins.i18n.en;
 
 import org.sonar.api.SonarPlugin;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-public class EnglishPackPlugin extends SonarPlugin {
+public final class EnglishPackPlugin extends SonarPlugin {
 
   public List getExtensions() {
-    return Arrays.asList(EnglishPack.class);
+    return Collections.emptyList();
   }
 }

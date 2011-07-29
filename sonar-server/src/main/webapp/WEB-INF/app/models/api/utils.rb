@@ -67,6 +67,6 @@ class Api::Utils
     if params.nil?
       params=[]
     end
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getI18nMessage(I18n.locale, key, default, params.to_java)
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getMessage(I18n.locale, key, default, params.to_java)
   end
 end

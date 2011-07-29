@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.i18n.I18n;
+import org.sonar.core.i18n.RuleI18nManager;
 
 import java.util.Locale;
 import java.util.Map;
@@ -33,10 +34,12 @@ import java.util.Map;
 public final class JRubyI18n implements ServerComponent {
 
   private I18n i18n;
-  private Map<String,Locale> localesByRubyKey = Maps.newHashMap();
+  private Map<String, Locale> localesByRubyKey = Maps.newHashMap();
+  private RuleI18nManager ruleI18nManager;
 
-  public JRubyI18n(I18n i18n) {
+  public JRubyI18n(I18n i18n, RuleI18nManager ruleI18nManager) {
     this.i18n = i18n;
+    this.ruleI18nManager = ruleI18nManager;
   }
 
   Locale getLocale(String rubyKey) {
@@ -55,7 +58,7 @@ public final class JRubyI18n implements ServerComponent {
   static Locale toLocale(String rubyKey) {
     Locale locale;
     String[] fields = StringUtils.split(rubyKey, "-");
-    if (fields.length==1) {
+    if (fields.length == 1) {
       locale = new Locale(fields[0]);
     } else {
       locale = new Locale(fields[0], fields[1]);
@@ -65,5 +68,17 @@ public final class JRubyI18n implements ServerComponent {
 
   public String message(String rubyLocale, String key, String defaultValue, Object... parameters) {
     return i18n.message(getLocale(rubyLocale), key, defaultValue, parameters);
+  }
+
+  public String getRuleName(String rubyLocale, String repositoryKey, String key) {
+    return ruleI18nManager.getName(repositoryKey, key, toLocale(rubyLocale));
+  }
+
+  public String getRuleDescription(String rubyLocale, String repositoryKey, String key) {
+    return ruleI18nManager.getDescription(repositoryKey, key, toLocale(rubyLocale));
+  }
+
+  public String getRuleParamDescription(String rubyLocale, String repositoryKey, String ruleKey, String paramKey) {
+    return ruleI18nManager.getParamDescription(repositoryKey, ruleKey, paramKey, toLocale(rubyLocale));
   }
 }

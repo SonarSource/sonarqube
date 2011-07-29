@@ -34,7 +34,6 @@ import org.sonar.plugins.core.charts.XradarChart;
 import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
 import org.sonar.plugins.core.duplicationsviewer.DuplicationsViewerDefinition;
 import org.sonar.plugins.core.hotspots.Hotspots;
-import org.sonar.plugins.core.i18n.I18nManager;
 import org.sonar.plugins.core.metrics.UserManagedMetrics;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.*;
@@ -241,9 +240,6 @@ public class CorePlugin extends SonarPlugin {
     extensions.add(NewCoverageFileAnalyzer.class);
     extensions.add(NewCoverageAggregator.class);
 
-    // i18n
-    extensions.add(I18nManager.class);
-//    extensions.add(org.sonar.core.i18n.I18nManager.class);
     return extensions;
   }
 }
