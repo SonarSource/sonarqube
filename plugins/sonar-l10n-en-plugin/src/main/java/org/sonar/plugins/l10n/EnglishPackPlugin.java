@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.i18n.en;
+package org.sonar.plugins.l10n;
 
 import org.sonar.api.SonarPlugin;
 

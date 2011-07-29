@@ -10,9 +10,9 @@
   </parent>
 
   <groupId>org.codehaus.sonar.plugins</groupId>
-  <artifactId>sonar-i18n-en-plugin</artifactId>
+  <artifactId>sonar-l10n-en-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
-  <name>Sonar :: Plugins :: I18n English Pack</name>
+  <name>Sonar :: Plugins :: English Pack</name>
 
   <dependencies>
     <dependency>
@@ -47,9 +47,8 @@
         <artifactId>sonar-packaging-maven-plugin</artifactId>
         <extensions>true</extensions>
         <configuration>
-          <pluginKey>i18nen</pluginKey>
-          <pluginName>I18n English Pack</pluginName>
-          <pluginClass>org.sonar.plugins.i18n.en.EnglishPackPlugin</pluginClass>
+          <pluginName>English Pack</pluginName>
+          <pluginClass>org.sonar.plugins.l10n.EnglishPackPlugin</pluginClass>
           <pluginDescription>
             <![CDATA[Language pack for English]]></pluginDescription>
         </configuration>

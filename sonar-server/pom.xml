@@ -450,7 +450,7 @@
         </dependency>
         <dependency>
           <groupId>org.codehaus.sonar.plugins</groupId>
-          <artifactId>sonar-i18n-en-plugin</artifactId>
+          <artifactId>sonar-l10n-en-plugin</artifactId>
           <version>${project.version}</version>
           <scope>provided</scope>
         </dependency>
