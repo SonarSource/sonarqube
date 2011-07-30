@@ -10,6 +10,7 @@ ActionController::Routing::Routes.draw do |map|
   map.namespace :api do |api|
     api.resources :events, :only => [:index, :show, :create, :destroy]
     api.resources :user_properties, :only => [:index, :show, :create, :destroy], :requirements => { :id => /.*/ }
+    api.resources :projects, :only => [:index, :destroy], :requirements => { :id => /.*/ }
     api.resources :favorites, :only => [:index, :show, :create, :destroy], :requirements => { :id => /.*/ }
     api.resources :reviews, :only => [:index, :show, :create], :member => {
       :add_comment => :put,
