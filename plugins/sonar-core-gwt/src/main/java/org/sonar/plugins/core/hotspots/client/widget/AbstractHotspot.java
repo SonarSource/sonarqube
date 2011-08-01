@@ -21,11 +21,11 @@ package org.sonar.plugins.core.hotspots.client.widget;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.sonar.gwt.Links;
 import org.sonar.gwt.ui.Loading;
-import org.sonar.plugins.core.hotspots.client.I18nConstants;
 import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
 
@@ -74,7 +74,7 @@ public abstract class AbstractHotspot extends Composite {
 
   protected void renderEmptyResults() {
     Grid grid = new Grid(1, 1);
-    grid.setWidget(0, 0, new HTML(I18nConstants.INSTANCE.noMeasures()));
+    grid.setWidget(0, 0, new HTML(Dictionary.getDictionary("l10n").get("hotspot.noMeasures")));
     grid.getCellFormatter().setStyleName(0, 0, getRowCssClass(0) + " emptyResultsCell");
     grid.setStyleName("gwt-Hotspot");
     render(grid);

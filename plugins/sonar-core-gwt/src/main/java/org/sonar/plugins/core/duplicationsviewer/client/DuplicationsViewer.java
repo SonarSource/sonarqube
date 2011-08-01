@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.duplicationsviewer.client;
 
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Panel;
@@ -59,9 +60,10 @@ public class DuplicationsViewer extends Page {
         addBigCell(panel, measure.getFormattedValue());
       }
 
-      addCell(panel, getDefaultMeasure(resource, Metrics.LINES, "lines"));
-      addCell(panel, getDefaultMeasure(resource, Metrics.DUPLICATED_LINES, "Duplicated lines"));
-      addCell(panel, getDefaultMeasure(resource, Metrics.DUPLICATED_BLOCKS, "Duplicated blocks"));
+      Dictionary l10n = Dictionary.getDictionary("l10n");
+      addCell(panel, getDefaultMeasure(resource, Metrics.LINES, l10n.get("lines")));
+      addCell(panel, getDefaultMeasure(resource, Metrics.DUPLICATED_LINES, l10n.get("duplicated_lines")));
+      addCell(panel, getDefaultMeasure(resource, Metrics.DUPLICATED_BLOCKS, l10n.get("duplicated_blocks")));
     }
 
     private Measure getDefaultMeasure(Resource resource, String metric, String label) {

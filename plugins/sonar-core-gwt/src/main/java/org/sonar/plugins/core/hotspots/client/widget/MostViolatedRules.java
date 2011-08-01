@@ -23,12 +23,12 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.sonar.gwt.Links;
 import org.sonar.gwt.Metrics;
 import org.sonar.gwt.ui.Icons;
-import org.sonar.plugins.core.hotspots.client.I18nConstants;
 import org.sonar.wsclient.gwt.AbstractCallback;
 import org.sonar.wsclient.gwt.Sonar;
 import org.sonar.wsclient.services.Measure;
@@ -45,8 +45,9 @@ public class MostViolatedRules extends AbstractHotspot {
 
   @Override
   Widget createHeader() {
+    Dictionary l10n = Dictionary.getDictionary("l10n");
     severity = new ListBox(false);
-    severity.addItem(I18nConstants.INSTANCE.anySeverity(), "");
+    severity.addItem(l10n.get("hotspot.anySeverity"), "");
     severity.addItem("Blocker", "BLOCKER");
     severity.addItem("Critical", "CRITICAL");
     severity.addItem("Major", "MAJOR");
@@ -59,10 +60,10 @@ public class MostViolatedRules extends AbstractHotspot {
       }
     });
 
-    final Label label = new Label(I18nConstants.INSTANCE.titleMostViolatedRules());
+    final Label label = new Label(l10n.get("hotspot.titleMostViolatedRules"));
     label.setStyleName("header");
 
-    final Anchor moreLink = new Anchor(I18nConstants.INSTANCE.moreDetails());
+    final Anchor moreLink = new Anchor(l10n.get("hotspot.moreDetails"));
     moreLink.getElement().setId("more-rules");
     moreLink.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {

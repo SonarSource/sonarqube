@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.design.ui.libraries.client;
 
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Grid;
@@ -42,21 +43,22 @@ public class Filters extends Grid {
     super(1, 5);
 
     setStyleName("libFilter");
+    Dictionary l10n = Dictionary.getDictionary("l10n");
 
     keywordFilter = new KeywordFilter();
-    setWidget(0, 0, new Label(I18nConstants.INSTANCE.filter()));
+    setWidget(0, 0, new Label(l10n.get("libs.filter")));
     setWidget(0, 1, keywordFilter);
 
-    testCheckbox = new CheckBox(I18nConstants.INSTANCE.displayTests());
+    testCheckbox = new CheckBox(l10n.get("libs.displayTests"));
     testCheckbox.getElement().setId("testCb");
     testCheckbox.setValue(Boolean.valueOf(Configuration.getRequestParameter(PARAM_TEST, "false")));
     setWidget(0, 2, testCheckbox);
 
-    expandCollapse = new Anchor(I18nConstants.INSTANCE.collapse());
+    expandCollapse = new Anchor(l10n.get("libs.collapse"));
     isExpanded = true;
     setWidget(0, 3, expandCollapse);
 
-    usageLink = new Anchor(I18nConstants.INSTANCE.usageLink(), Links.baseUrl() + "/dependencies/index?search=" + resource.getKey());
+    usageLink = new Anchor(l10n.get("libs.usageLink"), Links.baseUrl() + "/dependencies/index?search=" + resource.getKey());
     setWidget(0, 4, usageLink);
   }
 
@@ -98,14 +100,14 @@ public class Filters extends Grid {
 
   public void expand() {
     if (!isExpanded) {
-      expandCollapse.setText(I18nConstants.INSTANCE.collapse());
+      expandCollapse.setText(Dictionary.getDictionary("l10n").get("libs.collapse"));
       isExpanded = true;
     }
   }
 
   public void collapse() {
     if (isExpanded) {
-      expandCollapse.setText(I18nConstants.INSTANCE.expand());
+      expandCollapse.setText(Dictionary.getDictionary("l10n").get("libs.expand"));
       isExpanded = false;
     }
   }

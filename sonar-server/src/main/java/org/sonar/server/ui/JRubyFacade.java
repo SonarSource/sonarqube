@@ -338,6 +338,13 @@ public final class JRubyFacade {
     return i18n.searchRuleName(rubyLocale, searchText);
   }
 
+  public String getJsL10nDictionnary(String rubyLocale) {
+    if (i18n == null) {
+      i18n = getContainer().getComponent(JRubyI18n.class);
+    }
+    return i18n.getJsDictionnary(rubyLocale);
+  }
+
   public ReviewsNotificationManager getReviewsNotificationManager() {
     return getContainer().getComponent(ReviewsNotificationManager.class);
   }

@@ -21,6 +21,7 @@ package org.sonar.plugins.design.ui.page.client;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.sonar.gwt.Configuration;
@@ -95,7 +96,7 @@ public class DependencyInfo extends Composite {
       protected void doOnResponse(Dependency dependency) {
         if (dependency == null) {
           setLoaded();
-          panel.add(new Label(I18nConstants.INSTANCE.noData()));
+          panel.add(new Label(Dictionary.getDictionary("l10n").get("noData")));
         } else {
           loadSubDependencies(dependency);
         }
@@ -168,7 +169,7 @@ public class DependencyInfo extends Composite {
   }
 
   private Widget createNewWindowLink() {
-    Label popup = new Label(I18nConstants.INSTANCE.newWindow());
+    Label popup = new Label(Dictionary.getDictionary("l10n").get("newWindow"));
     popup.setStyleName("newwindow");
     popup.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {

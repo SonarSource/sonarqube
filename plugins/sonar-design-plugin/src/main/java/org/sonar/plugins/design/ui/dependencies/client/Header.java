@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.design.ui.dependencies.client;
 
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.ui.*;
 import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
@@ -49,17 +50,18 @@ public class Header extends Composite {
     header.clear();
     HorizontalPanel panel = new HorizontalPanel();
     header.add(panel);
-    addMeasure(panel, data.getResource(), "classes", I18nConstants.INSTANCE.classes());
-    addMeasure(panel, data.getResource(), "dit", I18nConstants.INSTANCE.dit());
-    addMeasure(panel, data.getResource(), "noc", I18nConstants.INSTANCE.noc());
-    addMeasure(panel, data.getResource(), "rfc", I18nConstants.INSTANCE.rfc());
+    Dictionary l10n = Dictionary.getDictionary("l10n");
+    addMeasure(panel, data.getResource(), "classes", l10n.get("depsTab.classes"));
+    addMeasure(panel, data.getResource(), "dit", l10n.get("depsTab.dit"));
+    addMeasure(panel, data.getResource(), "noc", l10n.get("depsTab.noc"));
+    addMeasure(panel, data.getResource(), "rfc", l10n.get("depsTab.rfc"));
     addLcom4(data, panel);
   }
 
   private void addLcom4(Data data, HorizontalPanel panel) {
     Measure lcom4 = data.getResource().getMeasure("lcom4");
     if (lcom4 != null && lcom4.getIntValue()!=null) {
-      HTML html = new HTML(I18nConstants.INSTANCE.lcom4() + ": ");
+      HTML html = new HTML(Dictionary.getDictionary("l10n").get("depsTab.lcom4") + ": ");
       html.setStyleName("metric");
       panel.add(html);
 

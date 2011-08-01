@@ -23,6 +23,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickHandler;
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.sonar.gwt.Links;
@@ -67,25 +68,26 @@ public class Dsm extends Composite {
   }
 
   private Widget createLegend() {
+    Dictionary l10n = Dictionary.getDictionary("l10n");
     HorizontalPanel legend = new HorizontalPanel();
     legend.getElement().setId("dsmlegend");
     legend.add(new HTML("<div class='square gray'> </div>"));
-    legend.add(new Label(I18nConstants.INSTANCE.legendDependencies()));
+    legend.add(new Label(l10n.get("design.legend.dependencies")));
     legend.add(new HTML("<div class='space'></div>"));
     legend.add(new HTML("<div class='square red'> </div> "));
-    legend.add(new Label(I18nConstants.INSTANCE.legendCycles()));
+    legend.add(new Label(l10n.get("design.legend.cycles")));
     legend.add(new HTML(" <div class='space'></div> "));
     legend.add(new HTML("<div class='square green'></div> "));
-    legend.add(new Label(I18nConstants.INSTANCE.legendUses()));
+    legend.add(new Label(l10n.get("design.legend.uses")));
     legend.add(new HTML("<div class='square blue'></div> "));
-    legend.add(new Label(I18nConstants.INSTANCE.legendUses()));
+    legend.add(new Label(l10n.get("design.legend.uses")));
     legend.add(new HTML(" <div class='square yellow'></div>"));
     return legend;
   }
 
   public void displayNoData() {
     dsm.clear();
-    dsm.add(new Label(I18nConstants.INSTANCE.noData()));
+    dsm.add(new Label(Dictionary.getDictionary("l10n").get("noData")));
   }
 
   public void display(DsmData.Rows data) {
@@ -107,7 +109,8 @@ public class Dsm extends Composite {
   private Widget createHelp() {
     HorizontalPanel help = new HorizontalPanel();
     help.getElement().setId("dsmhelp");
-    Anchor link = new Anchor(I18nConstants.INSTANCE.linkToHelp(), "http://docs.codehaus.org/x/QQFhC", "docsonar");
+    Dictionary l10n = Dictionary.getDictionary("l10n");
+    Anchor link = new Anchor(l10n.get("design.help"), "http://docs.codehaus.org/x/QQFhC", "docsonar");
     help.add(Icons.get().help().createImage());
     help.add(link);
     return help;
@@ -289,7 +292,7 @@ public class Dsm extends Composite {
     cell = buildCell(row, col, weight, (col > row ? GRID_CELL_TOP_RIGHT : GRID_CELL_BOTTOM_LEFT));
 
     if (weight > 0) {
-      String tooltip = data.get(col).getName() + " -> " + data.get(row).getName() + " (" + weight + "). " + I18nConstants.INSTANCE.cellTooltip();
+      String tooltip = data.get(col).getName() + " -> " + data.get(row).getName() + " (" + weight + "). " + Dictionary.getDictionary("l10n").get("design.cellTooltip");
       cell.setTitle(tooltip);
     }
     return cell;
@@ -323,7 +326,7 @@ public class Dsm extends Composite {
       }
     };
     title.setStylePrimaryName(HEADER_TITLE);
-    title.setTitle(I18nConstants.INSTANCE.rowTooltip());
+    title.setTitle(Dictionary.getDictionary("l10n").get("design.rowTooltip"));
     final int finalIndexRow = indexRow;
     title.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
