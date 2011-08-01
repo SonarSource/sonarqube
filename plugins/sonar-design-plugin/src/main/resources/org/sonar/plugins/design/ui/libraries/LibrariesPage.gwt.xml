@@ -5,5 +5,4 @@
   <inherits name="org.sonar.Sonar"/>
   <stylesheet src="libraries.css"/>
   <entry-point class="org.sonar.plugins.design.ui.libraries.client.LibrariesPage"/>
-  <extend-property name="locale" values="fr"/>
 </module>
