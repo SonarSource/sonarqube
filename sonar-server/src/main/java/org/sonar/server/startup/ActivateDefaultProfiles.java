@@ -33,8 +33,7 @@ public final class ActivateDefaultProfiles {
   private final DatabaseSessionFactory sessionFactory;
   private final Language[] languages;
 
-  // NOSONAR the parameter registerProfilesBefore is used to define the execution order of startup components
-  public ActivateDefaultProfiles(DatabaseSessionFactory sessionFactory, Language[] languages, RegisterProvidedProfiles registerProfilesBefore) {
+  public ActivateDefaultProfiles(DatabaseSessionFactory sessionFactory, Language[] languages, RegisterProvidedProfiles registerProfilesBefore) {// NOSONAR the parameter registerProfilesBefore is used to define the execution order of startup components
     this.sessionFactory = sessionFactory;
     this.languages = languages;
   }

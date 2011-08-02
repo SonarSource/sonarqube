@@ -36,7 +36,7 @@ public class Reactor {
     this.root = root;
   }
 
-  public Reactor(List<ProjectDefinition> sortedProjects) {
+  public Reactor(List<ProjectDefinition> sortedProjects) {//NOSONAR unused parameter is kept for backward-compatibility of API
     throw new IllegalArgumentException("This constructor is not supported anymore");
   }
 

@@ -22,7 +22,7 @@ package org.sonar.wsclient.services;
 /**
  * @since 2.9
  */
-public class ReviewUpdateQuery extends UpdateQuery<Review> {
+public final class ReviewUpdateQuery extends UpdateQuery<Review> {
 
   private long reviewId;
   private String action;

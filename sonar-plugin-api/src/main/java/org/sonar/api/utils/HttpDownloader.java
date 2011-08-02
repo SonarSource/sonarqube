@@ -76,9 +76,8 @@ public class HttpDownloader implements BatchComponent, ServerComponent {
   }
 
   private void initUserAgent(String sonarVersion) {
-    String userAgent = (sonarVersion == null ? "Sonar" : String.format("Sonar %s", sonarVersion));
+    userAgent = (sonarVersion == null ? "Sonar" : String.format("Sonar %s", sonarVersion));
     System.setProperty("http.agent", userAgent);
-    this.userAgent = userAgent;
   }
 
   public String getProxySynthesis(URI uri) {

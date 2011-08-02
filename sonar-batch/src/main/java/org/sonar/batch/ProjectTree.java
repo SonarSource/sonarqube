@@ -40,8 +40,10 @@ public class ProjectTree {
 
   private List<Project> projects;
   private Map<ProjectDefinition, Project> projectsByDef;
- 
-  public ProjectTree(ProjectReactor projectReactor, DatabaseSession databaseSession, /* Must be executed after ProjectBuilders */ ProjectBuilder[] builders) {
+
+  public ProjectTree(ProjectReactor projectReactor, //NOSONAR the unused parameter 'builders' is used for the startup order of components
+                     DatabaseSession databaseSession,
+                     /* Must be executed after ProjectBuilders */ ProjectBuilder[] builders) {
     this(projectReactor, databaseSession);
   }
 

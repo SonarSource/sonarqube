@@ -78,7 +78,7 @@ public class MeasureModel implements Cloneable {
    */
   @Deprecated
   @Column(name = "rules_category_id", nullable = true)
-  private Integer rulesCategoryId;
+  private Integer rulesCategoryId;//NOSONAR this field is kept for backward-compatiblity of API
 
   @Column(name = "rule_priority", updatable = false, nullable = true)
   @Enumerated(EnumType.ORDINAL)
