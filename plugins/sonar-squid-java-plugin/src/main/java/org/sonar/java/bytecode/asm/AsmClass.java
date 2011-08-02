@@ -111,7 +111,7 @@ public final class AsmClass extends AsmResource {
   }
 
   private void addChildren(AsmClass asmClass) {
-    if (getInternalName().equals("java/lang/Object")) {
+    if ("java/lang/Object".equals(getInternalName())) {
       return;
     }
     if (children == null) {

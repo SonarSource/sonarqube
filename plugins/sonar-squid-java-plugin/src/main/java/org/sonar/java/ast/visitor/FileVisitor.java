@@ -54,7 +54,7 @@ public class FileVisitor extends JavaAstVisitor {
 
   static SourceFile createSourceFile(SourcePackage parentPackage, String fileName) {
     StringBuilder key = new StringBuilder();
-    if (parentPackage != null && !parentPackage.getKey().equals("")) {
+    if (parentPackage != null && !"".equals(parentPackage.getKey())) {
       key.append(parentPackage.getKey());
       key.append("/");
     }

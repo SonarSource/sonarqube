@@ -28,6 +28,9 @@ import java.util.Locale;
 
 public class RuleI18nManager implements ServerComponent {
 
+  private static final String NAME_SUFFIX = ".name";
+  private static final String RULE_PREFIX = "rule.";
+
   private I18nManager i18nManager;
   private RuleKey[] ruleKeys;
 
@@ -46,11 +49,11 @@ public class RuleI18nManager implements ServerComponent {
   }
 
   public String getName(String repositoryKey, String ruleKey, Locale locale) {
-    return message(repositoryKey, ruleKey, locale, ".name");
+    return message(repositoryKey, ruleKey, locale, NAME_SUFFIX);
   }
 
   public String getDescription(String repositoryKey, String ruleKey, Locale locale) {
-    String relatedProperty = new StringBuilder().append("rule.").append(repositoryKey).append(".").append(ruleKey).append(".name").toString();
+    String relatedProperty = new StringBuilder().append(RULE_PREFIX).append(repositoryKey).append(".").append(ruleKey).append(NAME_SUFFIX).toString();
 
     // TODO add cache
     String description = i18nManager.messageFromFile(locale, ruleKey + ".html", relatedProperty);
@@ -65,7 +68,7 @@ public class RuleI18nManager implements ServerComponent {
   }
 
   String message(String repositoryKey, String ruleKey, Locale locale, String suffix) {
-    String propertyKey = new StringBuilder().append("rule.").append(repositoryKey).append(".").append(ruleKey).append(suffix).toString();
+    String propertyKey = new StringBuilder().append(RULE_PREFIX).append(repositoryKey).append(".").append(ruleKey).append(suffix).toString();
     return i18nManager.message(locale, propertyKey, null);
   }
 
@@ -85,14 +88,14 @@ public class RuleI18nManager implements ServerComponent {
   }
 
   static RuleKey extractRuleKey(String propertyKey) {
-    String s = StringUtils.substringBetween(propertyKey, "rule.", ".name");
+    String s = StringUtils.substringBetween(propertyKey, RULE_PREFIX, NAME_SUFFIX);
     String ruleKey = StringUtils.substringAfter(s, ".");
     String repository = StringUtils.substringBefore(s, ".");
     return new RuleKey(repository, ruleKey);
   }
 
   static boolean isRuleProperty(String propertyKey) {
-    return StringUtils.startsWith(propertyKey, "rule.") && StringUtils.endsWith(propertyKey, ".name") && propertyKey.indexOf(".param.") < 0;
+    return StringUtils.startsWith(propertyKey, RULE_PREFIX) && StringUtils.endsWith(propertyKey, NAME_SUFFIX) && propertyKey.indexOf(".param.") < 0;
   }
 
   public static class RuleKey {
@@ -113,19 +116,24 @@ public class RuleI18nManager implements ServerComponent {
     }
 
     public String getNameProperty() {
-      return new StringBuilder().append("rule.").append(repositoryKey).append(".").append(key).append(".name").toString();
+      return new StringBuilder().append(RULE_PREFIX).append(repositoryKey).append(".").append(key).append(NAME_SUFFIX).toString();
     }
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
-
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
       RuleKey ruleKey = (RuleKey) o;
-
-      if (!key.equals(ruleKey.key)) return false;
-      if (!repositoryKey.equals(ruleKey.repositoryKey)) return false;
-
+      if (!key.equals(ruleKey.key)) {
+        return false;
+      }
+      if (!repositoryKey.equals(ruleKey.repositoryKey)) {
+        return false;
+      }
       return true;
     }
 

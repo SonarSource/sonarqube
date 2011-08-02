@@ -20,14 +20,15 @@
 package org.sonar.server.ui;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.i18n.I18n;
 import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.RuleI18nManager;
 
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Bridge between JRuby webapp and Java I18n component

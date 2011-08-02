@@ -34,7 +34,7 @@ public class ManualMeasure extends Model {
   private Date createdAt;
   private Date updatedAt;
   private String userLogin;
-  private String userName;
+  private String username;
 
   public ManualMeasure() {
   }
@@ -102,12 +102,12 @@ public class ManualMeasure extends Model {
     return this;
   }
 
-  public String getUserName() {
-    return userName;
+  public String getUsername() {
+    return username;
   }
 
-  public ManualMeasure setUserName(String userName) {
-    this.userName = userName;
+  public ManualMeasure setUsername(String username) {
+    this.username = username;
     return this;
   }
 

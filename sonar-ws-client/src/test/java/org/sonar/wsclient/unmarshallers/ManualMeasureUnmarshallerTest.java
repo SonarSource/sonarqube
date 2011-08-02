@@ -21,9 +21,7 @@ package org.sonar.wsclient.unmarshallers;
 
 import org.junit.Test;
 import org.sonar.wsclient.services.ManualMeasure;
-import org.sonar.wsclient.services.Metric;
 
-import java.util.Collection;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -45,7 +43,7 @@ public class ManualMeasureUnmarshallerTest extends UnmarshallerTestCase {
     assertThat(measure.getResourceKey(), is("org.apache.struts:struts-parent"));
     assertThat(measure.getValue(), is(302.5));
     assertThat(measure.getUserLogin(), is("admin"));
-    assertThat(measure.getUserName(), is("Administrator"));
+    assertThat(measure.getUsername(), is("Administrator"));
     assertThat(measure.getCreatedAt().getDate(), is(27));
     assertThat(measure.getUpdatedAt().getDate(), is(3));
   }

@@ -19,11 +19,7 @@
  */
 package org.sonar.java.ast.visitor;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.sonar.java.signature.JvmJavaType;
 import org.sonar.java.signature.MethodSignature;
@@ -41,24 +37,24 @@ public class MethodVisitor extends JavaAstVisitor {
 
   private static final String CONSTRUCTOR = "<init>";
 
-  public static final List<Integer> wantedTokens = Arrays.asList(TokenTypes.CTOR_DEF, TokenTypes.METHOD_DEF);
-  private static final Map<Integer, JvmJavaType> tokenJavaTypeMapping = new HashMap<Integer, JvmJavaType>();
+  public static final List<Integer> WANTED_TOKENS = Arrays.asList(TokenTypes.CTOR_DEF, TokenTypes.METHOD_DEF);
+  private static final Map<Integer, JvmJavaType> TOKEN_JAVA_TYPE_MAPPING = new HashMap<Integer, JvmJavaType>();
 
   static {
-    tokenJavaTypeMapping.put(TokenTypes.LITERAL_BYTE, JvmJavaType.B);
-    tokenJavaTypeMapping.put(TokenTypes.LITERAL_CHAR, JvmJavaType.C);
-    tokenJavaTypeMapping.put(TokenTypes.LITERAL_SHORT, JvmJavaType.S);
-    tokenJavaTypeMapping.put(TokenTypes.LITERAL_INT, JvmJavaType.I);
-    tokenJavaTypeMapping.put(TokenTypes.LITERAL_LONG, JvmJavaType.J);
-    tokenJavaTypeMapping.put(TokenTypes.LITERAL_BOOLEAN, JvmJavaType.Z);
-    tokenJavaTypeMapping.put(TokenTypes.LITERAL_FLOAT, JvmJavaType.F);
-    tokenJavaTypeMapping.put(TokenTypes.LITERAL_DOUBLE, JvmJavaType.D);
-    tokenJavaTypeMapping.put(TokenTypes.LITERAL_VOID, JvmJavaType.V);
+    TOKEN_JAVA_TYPE_MAPPING.put(TokenTypes.LITERAL_BYTE, JvmJavaType.B);
+    TOKEN_JAVA_TYPE_MAPPING.put(TokenTypes.LITERAL_CHAR, JvmJavaType.C);
+    TOKEN_JAVA_TYPE_MAPPING.put(TokenTypes.LITERAL_SHORT, JvmJavaType.S);
+    TOKEN_JAVA_TYPE_MAPPING.put(TokenTypes.LITERAL_INT, JvmJavaType.I);
+    TOKEN_JAVA_TYPE_MAPPING.put(TokenTypes.LITERAL_LONG, JvmJavaType.J);
+    TOKEN_JAVA_TYPE_MAPPING.put(TokenTypes.LITERAL_BOOLEAN, JvmJavaType.Z);
+    TOKEN_JAVA_TYPE_MAPPING.put(TokenTypes.LITERAL_FLOAT, JvmJavaType.F);
+    TOKEN_JAVA_TYPE_MAPPING.put(TokenTypes.LITERAL_DOUBLE, JvmJavaType.D);
+    TOKEN_JAVA_TYPE_MAPPING.put(TokenTypes.LITERAL_VOID, JvmJavaType.V);
   }
 
   @Override
   public List<Integer> getWantedTokens() {
-    return wantedTokens;
+    return WANTED_TOKENS;
   }
 
   @Override
@@ -121,9 +117,9 @@ public class MethodVisitor extends JavaAstVisitor {
 
   private Parameter extractArgumentAndReturnType(DetailAST ast) {
     boolean isArray = isArrayType(ast);
-    for (Integer tokenType : tokenJavaTypeMapping.keySet()) {
+    for (Integer tokenType : TOKEN_JAVA_TYPE_MAPPING.keySet()) {
       if (ast.branchContains(tokenType)) {
-        return new Parameter(tokenJavaTypeMapping.get(tokenType), isArray);
+        return new Parameter(TOKEN_JAVA_TYPE_MAPPING.get(tokenType), isArray);
       }
     }
     if (isObjectType(ast)) {

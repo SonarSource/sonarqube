@@ -25,6 +25,6 @@ class KeepLibrarySnapshotFilter extends SnapshotFilter {
 
   @Override
   boolean filter(Snapshot snapshot) {
-    return snapshot.getQualifier().equals("LIB");
+    return "LIB".equals(snapshot.getQualifier());
   }
 }

@@ -22,7 +22,7 @@ package org.sonar.wsclient.services;
 /**
  * @since 2.10
  */
-public class ManualMeasureCreateQuery extends CreateQuery<ManualMeasure> {
+public final class ManualMeasureCreateQuery extends CreateQuery<ManualMeasure> {
 
   private String resourceKey;
   private String metricKey;

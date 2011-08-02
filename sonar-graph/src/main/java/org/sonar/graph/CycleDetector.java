@@ -93,6 +93,7 @@ public class CycleDetector<V> {
         }
       }
     } catch (MaximumCyclesToFoundException e) {
+      // ignore
     }
   }
 

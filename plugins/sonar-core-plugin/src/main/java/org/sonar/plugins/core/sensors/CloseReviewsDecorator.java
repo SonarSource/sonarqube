@@ -55,7 +55,8 @@ public class CloseReviewsDecorator implements Decorator {
   private NotificationManager notificationManager;
   private UserFinder userFinder;
 
-  public CloseReviewsDecorator(Project project, ResourcePersister resourcePersister, DatabaseSession databaseSession, NotificationManager notificationManager, UserFinder userFinder) {
+  public CloseReviewsDecorator(Project project, ResourcePersister resourcePersister, DatabaseSession databaseSession,
+                               NotificationManager notificationManager, UserFinder userFinder) {
     this.project = project;
     this.resourcePersister = resourcePersister;
     this.databaseSession = databaseSession;

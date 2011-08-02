@@ -36,7 +36,7 @@ import java.text.MessageFormat;
 import java.util.*;
 
 public class I18nManager implements I18n, ServerExtension {
-  private static Logger LOG = LoggerFactory.getLogger(I18nManager.class);
+  private static final Logger LOG = LoggerFactory.getLogger(I18nManager.class);
 
   public static final String ENGLISH_PACK_PLUGIN_KEY = "l10nen";
   public static final String BUNDLE_PACKAGE = "org.sonar.l10n.";

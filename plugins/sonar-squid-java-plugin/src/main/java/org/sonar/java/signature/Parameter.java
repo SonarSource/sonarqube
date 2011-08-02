@@ -34,7 +34,7 @@ public class Parameter {
   }
 
   Parameter(JvmJavaType jvmJavaType, String classCanonicalName, boolean isArray) {
-    if (jvmJavaType == JvmJavaType.L && (classCanonicalName == null || classCanonicalName.equals(""))) {
+    if (jvmJavaType == JvmJavaType.L && (classCanonicalName == null || "".equals(classCanonicalName))) {
       throw new IllegalStateException("With an Object JavaType, this is mandatory to specify the canonical name of the class.");
     }
     this.jvmJavaType = jvmJavaType;

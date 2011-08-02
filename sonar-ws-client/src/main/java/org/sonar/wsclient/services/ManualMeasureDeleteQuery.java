@@ -22,7 +22,7 @@ package org.sonar.wsclient.services;
 /**
  * @since 2.10
  */
-public class ManualMeasureDeleteQuery extends DeleteQuery<ManualMeasure> {
+public final class ManualMeasureDeleteQuery extends DeleteQuery<ManualMeasure> {
 
   private String resourceKey;
   private String metricKey;

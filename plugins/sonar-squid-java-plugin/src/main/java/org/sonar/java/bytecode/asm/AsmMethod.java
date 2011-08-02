@@ -108,11 +108,11 @@ public class AsmMethod extends AsmResource {
   }
 
   public boolean isConstructor() {
-    return name.equals("<init>") || name.equals("<clinit>");
+    return "<init>".equals(name) || "<clinit>".equals(name);
   }
 
   public boolean isDefaultConstructor() {
-    return key.equals("<init>()V");
+    return "<init>()V".equals(key);
   }
 
   void setInherited(boolean inherited) {
@@ -153,7 +153,7 @@ public class AsmMethod extends AsmResource {
   }
 
   public boolean isStaticConstructor() {
-    return name.equals("<init>");
+    return "<init>".equals(name);
   }
 
   public void linkTo(AsmMethod implementationLinkage) {

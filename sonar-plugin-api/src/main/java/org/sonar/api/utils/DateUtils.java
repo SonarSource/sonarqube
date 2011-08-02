@@ -34,23 +34,23 @@ public final class DateUtils {
   public static final String DATE_FORMAT = "yyyy-MM-dd";
   public static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
 
-  private static final ThreadSafeDateFormat dateFormat = new ThreadSafeDateFormat(DATE_FORMAT);
-  private static final ThreadSafeDateFormat dateTimeFormat = new ThreadSafeDateFormat(DATETIME_FORMAT);
+  private static final ThreadSafeDateFormat THREAD_SAFE_DATE_FORMAT = new ThreadSafeDateFormat(DATE_FORMAT);
+  private static final ThreadSafeDateFormat THREAD_SAFE_DATETIME_FORMAT = new ThreadSafeDateFormat(DATETIME_FORMAT);
 
   private DateUtils() {
   }
 
   public static String formatDate(Date d) {
-    return dateFormat.format(d);
+    return THREAD_SAFE_DATE_FORMAT.format(d);
   }
 
   public static String formatDateTime(Date d) {
-    return dateTimeFormat.format(d);
+    return THREAD_SAFE_DATETIME_FORMAT.format(d);
   }
 
   public static Date parseDate(String s) {
     try {
-      return dateFormat.parse(s);
+      return THREAD_SAFE_DATE_FORMAT.parse(s);
 
     } catch (ParseException e) {
       throw new SonarException("The date '" + s + "' does not respect format '" + DATE_FORMAT + "'", e);
@@ -59,7 +59,7 @@ public final class DateUtils {
 
   public static Date parseDateTime(String s) {
     try {
-      return dateTimeFormat.parse(s);
+      return THREAD_SAFE_DATETIME_FORMAT.parse(s);
 
     } catch (ParseException e) {
       throw new SonarException("The date '" + s + "' does not respect format '" + DATETIME_FORMAT + "'", e);
