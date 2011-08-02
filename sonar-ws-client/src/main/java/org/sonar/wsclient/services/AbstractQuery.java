@@ -20,6 +20,7 @@
 package org.sonar.wsclient.services;
 
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * @since 2.2
@@ -34,6 +35,9 @@ public abstract class AbstractQuery<MODEL extends Model> {
   public static final int DEFAULT_TIMEOUT_MILLISECONDS = 30 * 1000;
 
   private int timeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS;
+
+  // accepted-language as defined in http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
+  private String locale;
 
   /**
    * Must start with a slash, for example: /api/metrics
@@ -71,6 +75,25 @@ public abstract class AbstractQuery<MODEL extends Model> {
    */
   public final AbstractQuery<MODEL> setTimeoutMilliseconds(int i) {
     this.timeoutMilliseconds = (i < 0 ? 0 : i);
+    return this;
+  }
+
+  /**
+   * Accepted-language, as defined in http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
+   *
+   * @since 2.10
+   */
+  public final String getLocale() {
+    return locale;
+  }
+
+  /**
+   * Set the Accepted-language HTTP parameter
+   *
+   * @since 2.10
+   */
+  public final AbstractQuery<MODEL> setLocale(String locale) {
+    this.locale = locale;
     return this;
   }
 

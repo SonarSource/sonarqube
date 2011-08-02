@@ -149,6 +149,9 @@ public class HttpClient3Connector extends Connector {
 
   private void initRequest(HttpMethodBase request, AbstractQuery query) {
     request.setRequestHeader("Accept", "application/json");
+    if (query.getLocale() != null) {
+      request.setRequestHeader("Accept-Language", query.getLocale());
+    }
     request.getParams().setSoTimeout(query.getTimeoutMilliseconds());
   }
 

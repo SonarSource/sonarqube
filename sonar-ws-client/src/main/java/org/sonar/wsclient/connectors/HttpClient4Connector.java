@@ -178,6 +178,9 @@ public class HttpClient4Connector extends Connector {
 
   private void initRequest(HttpRequestBase request, AbstractQuery query) {
     request.setHeader("Accept", "application/json");
+    if (query.getLocale() != null) {
+      request.setHeader("Accept-Language", query.getLocale());
+    }
     request.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, query.getTimeoutMilliseconds());
     request.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, query.getTimeoutMilliseconds());
   }
