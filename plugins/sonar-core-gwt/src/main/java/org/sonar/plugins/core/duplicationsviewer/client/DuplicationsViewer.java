@@ -61,9 +61,9 @@ public class DuplicationsViewer extends Page {
       }
 
       Dictionary l10n = Dictionary.getDictionary("l10n");
-      addCell(panel, getDefaultMeasure(resource, Metrics.LINES, l10n.get("lines")));
-      addCell(panel, getDefaultMeasure(resource, Metrics.DUPLICATED_LINES, l10n.get("duplicated_lines")));
-      addCell(panel, getDefaultMeasure(resource, Metrics.DUPLICATED_BLOCKS, l10n.get("duplicated_blocks")));
+      addCell(panel, getDefaultMeasure(resource, Metrics.LINES, l10n.get("dupl.lines")));
+      addCell(panel, getDefaultMeasure(resource, Metrics.DUPLICATED_LINES, l10n.get("dupl.duplicated_lines")));
+      addCell(panel, getDefaultMeasure(resource, Metrics.DUPLICATED_BLOCKS, l10n.get("dupl.duplicated_blocks")));
     }
 
     private Measure getDefaultMeasure(Resource resource, String metric, String label) {
