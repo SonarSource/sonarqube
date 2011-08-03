@@ -15,7 +15,9 @@
             <td valign="top" class="thin nowrap"><b><%= property_def.key() -%></b><%= "*" unless property_def.optional()==true -%>: </td>
             <td id="row_<%= property_def.key() -%>">
               <%= property_value_field(property_def, value) -%>
-              <span class="note"><%= property_def.description() -%></span>
+              <span class="note">
+                <%= message("widget." + widget.key + ".param." + property_def.key(), :default => property_def.description()) -%>
+              </span>
             </td>
           </tr>
       <% end %>
