@@ -173,6 +173,10 @@ public class EmailNotificationChannel extends NotificationChannel {
       if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "SSL")) {
         email.setSSL(true);
         email.setSslSmtpPort(configuration.getSmtpPort());
+
+        // this port is not used except in EmailException message, that's why it's set with the same value than SSL port.
+        // It prevents from getting bad message.
+        email.setSmtpPort(Integer.parseInt(configuration.getSmtpPort()));
       } else if (StringUtils.isBlank(configuration.getSecureConnection())) {
         email.setSmtpPort(Integer.parseInt(configuration.getSmtpPort()));
       } else {
