@@ -41,15 +41,15 @@ class AccountController < ApplicationController
         current_user.password_confirmation = params[:password]
         @result = current_user.save
         if @result
-          flash[:notice] = 'Password changed.'
+          flash[:notice] = message('my_profile.password.changed')
         else
-          flash[:error] = 'Password cannot be empty'
+          flash[:error] = message('my_profile.password.empty')
         end
       else
-        flash[:error] = 'Password mismatch'
+        flash[:error] = message('my_profile.password.mismatch')
       end
     else
-      flash[:error] = 'Wrong old password'
+      flash[:error] = message('my_profile.password.wrong_old')
     end
     redirect_to :controller => 'account', :action => 'index'
   end

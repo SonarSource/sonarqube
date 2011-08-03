@@ -1,45 +1,45 @@
-<h1>My profile</h1>
-<div class="admin">
+<h1><%= message('my_profile.page') -%></h1>
+<div class="admin marginbottom10">
 <table class="form">
   <tr>
-    <td><b>Login:</b></td>
+    <td><b><%= message('my_profile.login') -%>:</b></td>
     <td id="login"><%= current_user.login %></td>
   </tr>
   <tr>
-    <td><b>Name:</b></td>
+    <td><b><%= message('my_profile.name') -%>:</b></td>
     <td id="name"><%= current_user.name %></td>
   </tr>
   <tr>
-    <td><b>Email:</b></td>
-    <td id="name"><%= current_user.email %></td>
+    <td><b><%= message('my_profile.email') -%>:</b></td>
+    <td id="email"><%= current_user.email %></td>
   </tr>
   <tr>
-    <td><b>Groups:</b></td>
+    <td><b><%= message('my_profile.groups') -%>:</b></td>
     <td id="groups"><%= current_user.groups.sort.map(&:name).join(', ') %></td>
   </tr>
 </table>
 </div>
 
 <% if User.editable_password? %>
-<h1>Change password</h1>
-<div class="admin">
+<h1><%= message('my_profile.password.title') -%></h1>
+<div class="admin marginbottom10">
   <% form_tag( {:action => 'change_password' }, :id => 'pass_form_tag', :name => 'pass_form_tag') do -%>
   <table class="form">
     <tr>
-      <td class="keyCell"><label for="old_password"><b>Old value:</b></label></td>
+      <td class="keyCell"><label for="old_password"><b><%= message('my_profile.password.old') -%>:</b></label></td>
       <td><%= password_field_tag 'old_password' %></td>
     </tr>
     <tr>
-      <td class="keyCell"><label for="password"><b>New value:</b></label></td>
+      <td class="keyCell"><label for="password"><b><%= message('my_profile.password.new') -%>:</b></label></td>
       <td><%= password_field_tag 'password' %></td>
     </tr>
     <tr>
-      <td class="keyCell"><label for="password_confirmation"><b>Confirm new value:</b></label></td>
+      <td class="keyCell"><label for="password_confirmation"><b><%= message('my_profile.password.confirm') -%>:</b></label></td>
       <td><%= password_field_tag 'password_confirmation' %></td>
     </tr>
     <tr>
       <td></td>
-      <td><%= submit_tag 'Change password' %></td>
+      <td><%= submit_tag message('my_profile.password.submit') %></td>
     </tr>
   </table>
   <% end %>
@@ -52,8 +52,8 @@
 </div>
 <% end -%>
 
-<h1>Notifications</h1>
-<div class="admin">
+<h1><%= message('my_profile.notifications.title') -%></h1>
+<div class="admin marginbottom10">
 <% form_tag({:action => 'update_notifications'}, {:method => 'post'}) do %>
   <table class="form">
     <tr>
@@ -64,7 +64,7 @@
     </tr>
     <% for dispatcher in @dispatchers %>
     <tr>
-      <td><b><%= message('notification.dispatcher.' + dispatcher.getKey()) -%></b></td>
+      <td><%= message('notification.dispatcher.' + dispatcher.getKey()) -%></td>
       <td>
         <%
         for channel in @channels
@@ -79,7 +79,7 @@
     <% end %>
     <tr>
       <td></td>
-      <td><%= submit_tag %></td>
+      <td><%= submit_tag message('my_profile.notifications.submit') %></td>
     </tr>
   </table>
 <% end %>
