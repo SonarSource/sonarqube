@@ -40,6 +40,7 @@ class EmailConfigurationController < ApplicationController
     Property.set(configuration::SMTP_PASSWORD, params[:smtp_password])
     Property.set(configuration::FROM, params[:email_from])
     Property.set(configuration::PREFIX, params[:email_prefix])
+    flash[:notice] = message('email_configuration.settings_saved')
     redirect_to :action => 'index'
   end
 

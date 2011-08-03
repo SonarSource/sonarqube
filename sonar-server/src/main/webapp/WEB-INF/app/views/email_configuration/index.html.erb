@@ -39,7 +39,7 @@
     </tr>
     <tr>
       <td></td>
-      <td><%= submit_tag message('save') %></td>
+      <td><%= submit_tag message('email_configuration.save_settings'), :disable_with => message('email_configuration.saving_settings') %></td>
     </tr>
   </table>
 <% end -%>
@@ -63,7 +63,7 @@
     </tr>
     <tr>
       <td></td>
-      <td><%= submit_tag message('email_configuration.test.send') %></td>
+      <td><%= submit_tag message('email_configuration.test.send'), :disable_with => message('email_configuration.test.sending') %></td>
     </tr>
   </table>
 <% end -%>
