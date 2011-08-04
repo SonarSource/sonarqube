@@ -22,6 +22,7 @@ package org.sonar.wsclient;
 import org.sonar.wsclient.connectors.Connector;
 import org.sonar.wsclient.connectors.ConnectorFactory;
 import org.sonar.wsclient.services.*;
+import org.sonar.wsclient.unmarshallers.UnmarshalException;
 import org.sonar.wsclient.unmarshallers.Unmarshaller;
 import org.sonar.wsclient.unmarshallers.Unmarshallers;
 
@@ -48,8 +49,12 @@ public class Sonar {
     String json = connector.execute(query);
     MODEL result = null;
     if (json != null) {
-      Unmarshaller<MODEL> unmarshaller = Unmarshallers.forModel(query.getModelClass());
-      result = unmarshaller.toModel(json);
+      try {
+        Unmarshaller<MODEL> unmarshaller = Unmarshallers.forModel(query.getModelClass());
+        result = unmarshaller.toModel(json);
+      } catch (Exception e) {
+        throw new UnmarshalException(query, json, e);
+      }
     }
     return result;
   }
@@ -60,8 +65,12 @@ public class Sonar {
     if (json == null) {
       result = Collections.emptyList();
     } else {
-      Unmarshaller<MODEL> unmarshaller = Unmarshallers.forModel(query.getModelClass());
-      result = unmarshaller.toModels(json);
+      try {
+        Unmarshaller<MODEL> unmarshaller = Unmarshallers.forModel(query.getModelClass());
+        result = unmarshaller.toModels(json);
+      } catch (Exception e) {
+        throw new UnmarshalException(query, json, e);
+      }
     }
     return result;
   }
@@ -70,8 +79,12 @@ public class Sonar {
     String json = connector.execute(query);
     MODEL result = null;
     if (json != null) {
-      Unmarshaller<MODEL> unmarshaller = Unmarshallers.forModel(query.getModelClass());
-      result = unmarshaller.toModel(json);
+      try {
+        Unmarshaller<MODEL> unmarshaller = Unmarshallers.forModel(query.getModelClass());
+        result = unmarshaller.toModel(json);
+      } catch (Exception e) {
+        throw new UnmarshalException(query, json, e);
+      }
     }
     return result;
   }

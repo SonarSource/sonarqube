@@ -19,14 +19,6 @@
  */
 package org.sonar.wsclient;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertThat;
-
-import java.util.Arrays;
-import java.util.Collection;
-
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,11 +27,18 @@ import org.mortbay.jetty.testing.ServletTester;
 import org.sonar.wsclient.connectors.ConnectionException;
 import org.sonar.wsclient.connectors.HttpClient3Connector;
 import org.sonar.wsclient.connectors.HttpClient4Connector;
-import org.sonar.wsclient.services.Metric;
-import org.sonar.wsclient.services.MetricQuery;
-import org.sonar.wsclient.services.Query;
-import org.sonar.wsclient.services.Server;
-import org.sonar.wsclient.services.ServerQuery;
+import org.sonar.wsclient.services.*;
+import org.sonar.wsclient.unmarshallers.UnmarshalException;
+
+import java.util.Arrays;
+import java.util.Collection;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.junit.internal.matchers.StringContains.containsString;
 
 @RunWith(value = Parameterized.class)
 public class SonarTest {
@@ -65,12 +64,13 @@ public class SonarTest {
     tester.addServlet(ServerServlet.class, "/api/server/index");
     tester.addServlet(MetricServlet.class, "/api/metrics");
     tester.addServlet(EmptyServlet.class, "/api/empty");
+    tester.addServlet(BadRulesServlet.class, "/api/rules");
     baseUrl = tester.createSocketConnector(true);
     tester.start();
 
-    return Arrays.asList(new Object[][] {
-        { new Sonar(new HttpClient4Connector(new Host(baseUrl))) },
-        { new Sonar(new HttpClient3Connector(new Host(baseUrl))) }
+    return Arrays.asList(new Object[][]{
+        {new Sonar(new HttpClient4Connector(new Host(baseUrl)))},
+        {new Sonar(new HttpClient3Connector(new Host(baseUrl)))}
     });
   }
 
@@ -109,6 +109,17 @@ public class SonarTest {
     Server server = sonar.find(new ServerQuery());
     assertThat(server.getId(), is("123456789"));
     assertThat(server.getVersion(), is("2.0"));
+  }
+
+  @Test
+  public void shouldPropagateUnmarshalContext() {
+    try {
+      sonar.findAll(new RuleQuery("java"));
+      fail();
+    } catch (UnmarshalException ue) {
+      assertThat(ue.getMessage(), containsString("/api/rules")); // contains request url
+      assertThat(ue.getMessage(), containsString(BadRulesServlet.JSON)); // contains response
+    }
   }
 
   static class EmptyQuery extends Query<Metric> {
