@@ -28,7 +28,11 @@ import org.sonar.api.resources.Resource;
  */
 public final class ViolationQuery {
 
-  private boolean isSwitchedOff;
+  public static enum SwitchMode {
+    OFF, ON, BOTH
+  }
+
+  private SwitchMode switchMode = SwitchMode.ON;
   private Resource resource;
 
   /**
@@ -47,24 +51,33 @@ public final class ViolationQuery {
   }
 
   /**
-   * Specifies if the query should returned switched-off violations or not.
+   * Specifies if the query should return only switched-off violations.
    * 
-   * @param ignore
+   * @param b
    *          if true, the query will return only switched-off violations. if false, it will return only active violations.
    * @return the current violation query
    */
-  public ViolationQuery setSwitchedOff(boolean ignore) {
-    this.isSwitchedOff = ignore;
+  public ViolationQuery setSwitchedOff(boolean b) {
+    this.switchMode = (b ? SwitchMode.OFF : SwitchMode.ON);
     return this;
   }
 
   /**
-   * Tells if the query should returned switched-off violations or active violations.
+   * Tells if the query should return only switched-off violations.
    * 
    * @return
    */
   public boolean isSwitchedOff() {
-    return isSwitchedOff;
+    return switchMode == SwitchMode.OFF;
+  }
+
+  public SwitchMode getSwitchMode() {
+    return switchMode;
+  }
+
+  public ViolationQuery setSwitchMode(SwitchMode s) {
+    this.switchMode = s;
+    return this;
   }
 
   /**

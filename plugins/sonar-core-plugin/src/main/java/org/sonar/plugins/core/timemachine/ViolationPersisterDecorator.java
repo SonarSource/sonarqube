@@ -28,6 +28,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.core.NotDryRun;
 
@@ -59,7 +60,7 @@ public class ViolationPersisterDecorator implements Decorator {
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
-    saveViolations(context.getProject(), context.getViolations());
+    saveViolations(context.getProject(), context.getViolations(ViolationQuery.create().forResource(resource).setSwitchMode(ViolationQuery.SwitchMode.BOTH)));
   }
 
   void saveViolations(Project project, List<Violation> violations) {

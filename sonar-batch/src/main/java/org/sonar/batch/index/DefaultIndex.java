@@ -313,9 +313,11 @@ public class DefaultIndex extends SonarIndex {
       return Collections.emptyList();
     }
     List<Violation> filteredViolations = Lists.newArrayList();
-    boolean isSwitchedOff = violationQuery.isSwitchedOff();
+    ViolationQuery.SwitchMode mode = violationQuery.getSwitchMode();
     for (Violation violation : bucket.getViolations()) {
-      if ( violation.isSwitchedOff() == isSwitchedOff) {
+      if (mode== ViolationQuery.SwitchMode.BOTH ||
+          (mode== ViolationQuery.SwitchMode.OFF && violation.isSwitchedOff()) ||
+          (mode== ViolationQuery.SwitchMode.ON && !violation.isSwitchedOff())) {
         filteredViolations.add(violation);
       }
     }

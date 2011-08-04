@@ -23,7 +23,6 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.*;
@@ -31,9 +30,9 @@ import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.violations.ViolationQuery;
 
 import java.util.Collection;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,7 +57,8 @@ public class ViolationTrackingDecorator implements Decorator {
   public void decorate(Resource resource, DecoratorContext context) {
     referenceViolationsMap.clear();
 
-    if (!context.getViolations().isEmpty()) {
+    ViolationQuery violationQuery = ViolationQuery.create().forResource(resource).setSwitchMode(ViolationQuery.SwitchMode.BOTH);
+    if (!context.getViolations(violationQuery).isEmpty()) {
       // Load new violations
       List<Violation> newViolations = prepareNewViolations(context);
 
@@ -175,6 +175,7 @@ public class ViolationTrackingDecorator implements Decorator {
       newViolation.setNew(false);
       pastViolationsByRule.remove(newViolation.getRule().getId(), pastViolation);
       violationMap.put(newViolation, pastViolation);
+      
     } else {
       newViolation.setNew(true);
       newViolation.setCreatedAt(project.getAnalysisDate());

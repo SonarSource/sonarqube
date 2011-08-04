@@ -104,7 +104,7 @@ public class CloseReviewsDecorator implements Decorator {
    * Reopen reviews that had been set to resolved but for which the violation is still here.
    */
   protected int reopenReviews(Resource resource, int resourceId) {
-    String conditions = " WHERE status='RESOLVED' AND resource_id=" + resourceId;
+    String conditions = " WHERE status='RESOLVED' AND resolution<>'FALSE-POSITIVE' AND resource_id=" + resourceId;
     List<Review> reviews = databaseSession.getEntityManager().createNativeQuery("SELECT * FROM reviews " + conditions, Review.class).getResultList();
     for (Review review : reviews) {
       notifyReopened(resource, review);
