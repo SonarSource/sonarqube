@@ -21,6 +21,7 @@ package org.sonar.plugins.core.testdetailsviewer.client;
 
 import com.google.gwt.gen2.table.override.client.FlexTable;
 import com.google.gwt.gen2.table.override.client.FlexTable.FlexCellFormatter;
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.xml.client.Document;
@@ -75,12 +76,13 @@ public class TestsPanel extends Composite {
       Document parsed = XMLParser.parse(testXMLData);
       NodeList testcasesXML = parsed.getElementsByTagName("testcase");
 
+      Dictionary l10n = Dictionary.getDictionary("l10n");
       FlexTable table = new FlexTable();
       table.setStylePrimaryName("detailsTable");
       table.setText(0, 0, "");
       table.setText(0, 1, "");
-      table.setText(0, 2, "Duration");
-      table.setText(0, 3, "Unit test name");
+      table.setText(0, 2, l10n.get("unittest.duration"));
+      table.setText(0, 3, l10n.get("unittest.name"));
       table.getCellFormatter().getElement(0, 1).setId("iCol");
       table.getCellFormatter().getElement(0, 2).setId("dCol");
       setRowStyle(0, table, "header", false);
@@ -106,7 +108,6 @@ public class TestsPanel extends Composite {
     }
 
     private void renderTestDetails(int row, int testCounter, String testCaseStatus, Element stackTrace, String name, String timeMS, FlexTable table) {
-
       HTML icon = new HTML("&nbsp;");
       icon.setStyleName(testCaseStatus);
       table.setWidget(row, 1, icon);

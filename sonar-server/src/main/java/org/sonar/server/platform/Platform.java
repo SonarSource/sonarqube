@@ -41,6 +41,7 @@ import org.sonar.core.components.DefaultMetricFinder;
 import org.sonar.core.components.DefaultModelFinder;
 import org.sonar.core.components.DefaultRuleFinder;
 import org.sonar.core.components.DefaultUserFinder;
+import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.notifications.DefaultNotificationManager;
@@ -191,6 +192,7 @@ public final class Platform {
     servicesContainer.as(Characteristics.CACHE).addComponent(DefaultUserFinder.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(I18nManager.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(RuleI18nManager.class);
+    servicesContainer.as(Characteristics.CACHE).addComponent(GwtI18n.class);
 
     // Notifications
     servicesContainer.as(Characteristics.CACHE).addComponent(NotificationService.class);

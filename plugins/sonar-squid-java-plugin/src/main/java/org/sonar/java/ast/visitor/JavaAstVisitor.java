@@ -19,7 +19,6 @@
  */
 package org.sonar.java.ast.visitor;
 
-import com.google.common.collect.Lists;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.FileContents;
 import org.sonar.api.resources.InputFile;
@@ -29,6 +28,7 @@ import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.api.SourcePackage;
 import org.sonar.squid.text.Source;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
@@ -41,8 +41,6 @@ public abstract class JavaAstVisitor implements CodeVisitor {
   private InputFile inputFile;
 
   private Source source;
-
-  private static final List<Integer> emptyWantedTokens = Lists.newArrayList();
 
   public final void setFileContents(FileContents fileContents) {
     this.fileContents = fileContents;
@@ -69,7 +67,7 @@ public abstract class JavaAstVisitor implements CodeVisitor {
   }
 
   public List<Integer> getWantedTokens() {
-    return emptyWantedTokens;
+    return Collections.emptyList();
   }
 
   public final void setSourceCodeStack(Stack<SourceCode> sourceCodeStack) {

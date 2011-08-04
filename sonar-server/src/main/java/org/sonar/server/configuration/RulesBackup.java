@@ -157,7 +157,7 @@ public class RulesBackup implements Backupable {
         while (reader.hasMoreChildren()) {
           reader.moveDown();
           valuesRule.put(reader.getNodeName(), reader.getValue());
-          if (reader.getNodeName().equals("params")) {
+          if ("params".equals(reader.getNodeName())) {
             while (reader.hasMoreChildren()) {
               reader.moveDown();
               Map<String, String> valuesParam = readNode(reader);

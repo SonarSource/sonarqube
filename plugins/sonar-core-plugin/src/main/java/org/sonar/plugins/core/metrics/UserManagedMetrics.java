@@ -30,13 +30,23 @@ public final class UserManagedMetrics implements Metrics {
 
   public List<Metric> getMetrics() {
     return Arrays.asList(
-        new Metric("burned_budget", "Burned budget", "The budget already used in the project", Metric.ValueType.FLOAT,
-            Metric.DIRECTION_NONE, false, DOMAIN)
-            .setUserManaged(true),
-        new Metric("team_size", "Team size", "Size of the project team", Metric.ValueType.INT, Metric.DIRECTION_NONE, false, DOMAIN)
-            .setUserManaged(true),
-        new Metric("business_value", "Business value", "An indication on the value of the project for the business",
-            Metric.ValueType.FLOAT, Metric.DIRECTION_BETTER, true, DOMAIN)
-            .setUserManaged(true));
+        new Metric.Builder("burned_budget", "Burned budget", Metric.ValueType.FLOAT)
+            .setDirection(Metric.DIRECTION_NONE)
+            .setQualitative(false)
+            .setDomain(DOMAIN)
+            .setUserManaged(true)
+            .create(),
+        new Metric.Builder("business_value", "Business value", Metric.ValueType.FLOAT)
+            .setDirection(Metric.DIRECTION_BETTER)
+            .setQualitative(true)
+            .setDomain(DOMAIN)
+            .setUserManaged(true)
+            .create(),
+        new Metric.Builder("team_size", "Team size", Metric.ValueType.INT)
+            .setDirection(Metric.DIRECTION_NONE)
+            .setQualitative(false)
+            .setDomain(DOMAIN)
+            .setUserManaged(true)
+            .create());
   }
 }

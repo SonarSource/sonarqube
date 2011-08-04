@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.design.ui.libraries.client;
 
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.ui.*;
 import org.sonar.gwt.ui.Icons;
 import org.sonar.gwt.ui.Loading;
@@ -101,7 +102,7 @@ public class ProjectPanel extends FlowPanel {
   }
 
   private Label createNoLibsMessage() {
-    Label msg = new Label(I18nConstants.INSTANCE.noLibraries());
+    Label msg = new Label(Dictionary.getDictionary("l10n").get("libs.noLibraries"));
     msg.setStyleName("nolibs");
     return msg;
   }

@@ -17,29 +17,18 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.graph;
+package org.sonar.wsclient.services;
 
-import org.junit.Ignore;
 import org.junit.Test;
-import org.sonar.graph.DsmCell;
-import org.sonar.graph.StringEdge;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class DsmCellTest {
+public class ManualMeasureDeleteQueryTest extends QueryTestCase {
 
   @Test
-  @Ignore
-  public void testEquals() {
-    DsmCell cell1 = new DsmCell(new StringEdge("A", "B", 1), true);
-    DsmCell cell1bis = new DsmCell(new StringEdge("A", "B", 1), false);
-    DsmCell cell4 = new DsmCell(new StringEdge("B", "A", 4), true);
-
-    assertThat(cell1, equalTo(cell1));
-    assertThat(cell1, equalTo(cell1bis));
-    assertThat(cell1, not(equalTo(cell4)));
+  public void delete() {
+    ManualMeasureDeleteQuery query = ManualMeasureDeleteQuery.create("foo", "team_size");
+    assertThat(query.getUrl(), is("/api/manual_measures?resource=foo&metric=team_size&"));
   }
-
 }

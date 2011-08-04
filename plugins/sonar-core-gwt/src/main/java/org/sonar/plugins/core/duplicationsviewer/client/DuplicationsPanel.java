@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.duplicationsviewer.client;
 
+import com.google.gwt.i18n.client.Dictionary;
 import org.sonar.gwt.Metrics;
 import org.sonar.gwt.ui.DefaultSourcePanel;
 import org.sonar.gwt.ui.ExpandCollapseLink;
@@ -102,13 +103,14 @@ public class DuplicationsPanel extends Composite {
     }
 
     private FlexTable getDuplicationsTable() {
+      Dictionary l10n = Dictionary.getDictionary("l10n");
       FlexTable table = new FlexTable();
       table.setStylePrimaryName("duplicationsTable");
       table.setText(0, 0, "");
-      table.setText(0, 1, "Nb lines");
-      table.setText(0, 2, "From line");
-      table.setText(0, 3, "File");
-      table.setText(0, 4, "From line");
+      table.setText(0, 1, l10n.get("dupl.colSize"));
+      table.setText(0, 2, l10n.get("dupl.colFromLine"));
+      table.setText(0, 3, l10n.get("dupl.colFile"));
+      table.setText(0, 4, l10n.get("dupl.colFromLine"));
       
       table.getCellFormatter().getElement(0, 0).setId("expandCollapseCol");
       table.getCellFormatter().getElement(0, 1).setId("nbLineCol");

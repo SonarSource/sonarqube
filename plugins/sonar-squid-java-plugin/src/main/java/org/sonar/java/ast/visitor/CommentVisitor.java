@@ -30,11 +30,11 @@ import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
 public class CommentVisitor extends JavaAstVisitor {
 
-  private static final List<Integer> wantedTokens = Arrays.asList(TokenTypes.RCURLY);
+  private static final List<Integer> WANTED_TOKENS = Arrays.asList(TokenTypes.RCURLY);
 
   @Override
   public List<Integer> getWantedTokens() {
-    return wantedTokens;
+    return WANTED_TOKENS;
   }
 
   @Override

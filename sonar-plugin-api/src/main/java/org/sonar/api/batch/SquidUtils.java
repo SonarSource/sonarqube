@@ -36,7 +36,7 @@ public final class SquidUtils {
     }
 
     String convertedKey = key.replace('/', '.');
-    if (convertedKey.indexOf('.') == -1 && !convertedKey.equals("")) {
+    if (convertedKey.indexOf('.') == -1 && !"".equals(convertedKey)) {
       convertedKey = "[default]." + convertedKey;
 
     } else if (convertedKey.indexOf('.') == -1) {

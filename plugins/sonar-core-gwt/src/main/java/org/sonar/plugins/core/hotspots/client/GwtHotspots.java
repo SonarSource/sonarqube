@@ -20,6 +20,7 @@
 package org.sonar.plugins.core.hotspots.client;
 
 import com.google.gwt.gen2.table.override.client.Grid;
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.sonar.gwt.Metrics;
@@ -46,16 +47,17 @@ public class GwtHotspots extends Page {
     VerticalPanel column2 = new VerticalPanel();
     column2.setStyleName("hotspotcol");
 
+    Dictionary l10n = Dictionary.getDictionary("l10n");
     column1.add(new MostViolatedRules(resource));
-    column1.add(new MetricHotspot(resource, Metrics.TEST_EXECUTION_TIME, I18nConstants.INSTANCE.titleLongestTests()));
-    column1.add(new MetricHotspot(resource, Metrics.COMPLEXITY, I18nConstants.INSTANCE.titleMostComplexResources()));
-    column1.add(new MetricHotspot(resource, Metrics.DUPLICATED_LINES, I18nConstants.INSTANCE.titleMostDuplicatedResources()));
+    column1.add(new MetricHotspot(resource, Metrics.TEST_EXECUTION_TIME, l10n.get("hotspot.titleLongestTests")));
+    column1.add(new MetricHotspot(resource, Metrics.COMPLEXITY, l10n.get("hotspot.titleMostComplexResources")));
+    column1.add(new MetricHotspot(resource, Metrics.DUPLICATED_LINES, l10n.get("hotspot.titleMostDuplicatedResources")));
     column1.add(new MostBadlyDesignedFiles(resource));
 
     column2.add(new MostViolatedResources(resource));
-    column2.add(new MetricHotspot(resource, Metrics.UNCOVERED_LINES, I18nConstants.INSTANCE.titleLessTested()));
-    column2.add(new MetricHotspot(resource, Metrics.FUNCTION_COMPLEXITY, I18nConstants.INSTANCE.titleMostComplexMethods()));
-    column2.add(new MetricHotspot(resource, Metrics.PUBLIC_UNDOCUMENTED_API, I18nConstants.INSTANCE.titleMostUndocumentedAPI()));
+    column2.add(new MetricHotspot(resource, Metrics.UNCOVERED_LINES, l10n.get("hotspot.titleLessTested")));
+    column2.add(new MetricHotspot(resource, Metrics.FUNCTION_COMPLEXITY, l10n.get("hotspot.titleMostComplexMethods")));
+    column2.add(new MetricHotspot(resource, Metrics.PUBLIC_UNDOCUMENTED_API, l10n.get("hotspot.titleMostUndocumentedAPI")));
 
     grid.setWidget(0, 0, column1);
     grid.setWidget(0, 1, column2);

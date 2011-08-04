@@ -22,6 +22,7 @@ package org.sonar.server.ui;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.i18n.I18n;
+import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.RuleI18nManager;
 
 import java.util.Locale;
@@ -40,7 +41,7 @@ public class JRubyI18nTest {
 
   @Test
   public void shouldCacheLocales() {
-    JRubyI18n i18n = new JRubyI18n(mock(I18n.class), mock(RuleI18nManager.class));
+    JRubyI18n i18n = new JRubyI18n(mock(I18n.class), mock(RuleI18nManager.class), mock(GwtI18n.class));
     assertThat(i18n.getLocalesByRubyKey().size(), Is.is(0));
 
     i18n.getLocale("fr");

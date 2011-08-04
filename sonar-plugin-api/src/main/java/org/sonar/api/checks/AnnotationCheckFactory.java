@@ -104,22 +104,22 @@ public final class AnnotationCheckFactory extends CheckFactory {
       if (field.getType().equals(String.class)) {
         field.set(check, value);
 
-      } else if (field.getType().getSimpleName().equals("int")) {
+      } else if ("int".equals(field.getType().getSimpleName())) {
         field.setInt(check, Integer.parseInt(value));
 
-      } else if (field.getType().getSimpleName().equals("short")) {
+      } else if ("short".equals(field.getType().getSimpleName())) {
         field.setShort(check, Short.parseShort(value));
 
-      } else if (field.getType().getSimpleName().equals("long")) {
+      } else if ("long".equals(field.getType().getSimpleName())) {
         field.setLong(check, Long.parseLong(value));
 
-      } else if (field.getType().getSimpleName().equals("double")) {
+      } else if ("double".equals(field.getType().getSimpleName())) {
         field.setDouble(check, Double.parseDouble(value));
 
-      } else if (field.getType().getSimpleName().equals("boolean")) {
+      } else if ("boolean".equals(field.getType().getSimpleName())) {
         field.setBoolean(check, Boolean.parseBoolean(value));
 
-      } else if (field.getType().getSimpleName().equals("byte")) {
+      } else if ("byte".equals(field.getType().getSimpleName())) {
         field.setByte(check, Byte.parseByte(value));
 
       } else if (field.getType().equals(Integer.class)) {

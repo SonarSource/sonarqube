@@ -21,6 +21,7 @@ package org.sonar.plugins.design.ui.dependencies.client;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.ui.*;
 import org.sonar.gwt.Links;
 import org.sonar.gwt.ui.Icons;
@@ -43,7 +44,7 @@ public class DependenciesTable extends Composite {
       panel.add(createIncomingColumn(data));
       panel.add(createOutgoingColumn(data));
     } else {
-      panel.add(new Label(I18nConstants.INSTANCE.noData()));
+      panel.add(new Label(Dictionary.getDictionary("l10n").get("noData")));
     }
   }
 
@@ -51,7 +52,7 @@ public class DependenciesTable extends Composite {
   private Panel createIncomingColumn(Data data) {
     FlexTable grid = new FlexTable();
     grid.setStyleName("col");
-    grid.setWidget(0, 1, new HTML("<b>" + I18nConstants.INSTANCE.afferentCouplings() + "</b>: " + data.getResource().getMeasureIntValue("ca")));
+    grid.setWidget(0, 1, new HTML("<b>" + Dictionary.getDictionary("l10n").get("depsTab.afferentCouplings") + "</b>: " + data.getResource().getMeasureIntValue("ca")));
     grid.getRowFormatter().setStyleName(0, "coltitle");
 
     int row = 1;
@@ -69,7 +70,7 @@ public class DependenciesTable extends Composite {
   private Panel createOutgoingColumn(Data data) {
     FlexTable grid = new FlexTable();
     grid.setStyleName("col");
-    grid.setWidget(0, 1, new HTML("<b>" + I18nConstants.INSTANCE.efferentCouplings() + "</b>: " + data.getResource().getMeasureIntValue("ce")));
+    grid.setWidget(0, 1, new HTML("<b>" + Dictionary.getDictionary("l10n").get("depsTab.efferentCouplings") + "</b>: " + data.getResource().getMeasureIntValue("ce")));
     grid.getRowFormatter().setStyleName(0, "coltitle");
 
     int row = 1;

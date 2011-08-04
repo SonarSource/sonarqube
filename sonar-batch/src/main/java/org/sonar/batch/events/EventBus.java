@@ -21,7 +21,6 @@ package org.sonar.batch.events;
 
 import com.google.common.collect.Lists;
 import org.sonar.api.batch.events.EventHandler;
-import org.sonar.api.utils.Logs;
 
 import java.util.List;
 

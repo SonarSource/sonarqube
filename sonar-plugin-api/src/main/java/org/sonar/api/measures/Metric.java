@@ -230,7 +230,7 @@ public class Metric implements ServerExtension, BatchExtension {
   }
 
   private Metric(String key, String name, ValueType type, String description, Integer direction, String domain, Boolean qualitative, Double worstValue, Double bestValue,
-      Boolean optimizedBestValue, Boolean hidden, Formula formula) {
+      Boolean optimizedBestValue, Boolean hidden, Formula formula, boolean userManaged) {
     this.key = key;
     this.name = name;
     this.description = description;
@@ -245,6 +245,7 @@ public class Metric implements ServerExtension, BatchExtension {
     this.bestValue = bestValue;
     this.hidden = hidden;
     this.formula = formula;
+    this.userManaged = userManaged;
   }
 
   /**
@@ -601,6 +602,7 @@ public class Metric implements ServerExtension, BatchExtension {
     private Double bestValue;
     private boolean optimizedBestValue = false;
     private boolean hidden = false;
+    private boolean userManaged = false;
 
     /**
      * @param key the metric key, should be unique among all metrics
@@ -692,12 +694,30 @@ public class Metric implements ServerExtension, BatchExtension {
       return this;
     }
 
+    /**
+     * Values of user-managed metrics can be set online in the "Manual measures" page.
+     * @since 2.10
+     */
+    public boolean isUserManaged() {
+      return userManaged;
+    }
+
+    /**
+     * Values of user-managed metrics can be set online in the "Manual measures" page.
+     * 
+     * @since 2.10
+     */
+    public Builder setUserManaged(boolean b) {
+      this.userManaged = b;
+      return this;
+    }
+
     public Metric create() {
       if (ValueType.PERCENT.equals(this.type)) {
         this.bestValue = (direction == DIRECTION_BETTER ? 100.0 : 0.0);
         this.worstValue = (direction == DIRECTION_BETTER ? 0.0 : 100.0);
       }
-      return new Metric(key, name, type, description, direction, domain, qualitative, worstValue, bestValue, optimizedBestValue, hidden, formula);
+      return new Metric(key, name, type, description, direction, domain, qualitative, worstValue, bestValue, optimizedBestValue, hidden, formula, userManaged);
     }
   }
 }

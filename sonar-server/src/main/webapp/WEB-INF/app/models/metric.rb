@@ -76,7 +76,7 @@ class Metric < ActiveRecord::Base
     
     return localeMap[locale] if not localeMap.nil? and localeMap.has_key?(locale)
     
-    i18n_key = 'domain.' + to_translate
+    i18n_key = 'metric_domain.' + to_translate
     result = Api::Utils.message(i18n_key, :default => to_translate)
     localeMap[locale] = result if localeMap
     result

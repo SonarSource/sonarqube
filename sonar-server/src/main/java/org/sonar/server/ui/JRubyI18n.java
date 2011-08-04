@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.i18n.I18n;
+import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.RuleI18nManager;
 
 import java.util.List;
@@ -37,10 +38,12 @@ public final class JRubyI18n implements ServerComponent {
   private I18n i18n;
   private Map<String, Locale> localesByRubyKey = Maps.newHashMap();
   private RuleI18nManager ruleI18nManager;
+  private GwtI18n gwtI18n;
 
-  public JRubyI18n(I18n i18n, RuleI18nManager ruleI18nManager) {
+  public JRubyI18n(I18n i18n, RuleI18nManager ruleI18nManager, GwtI18n gwtI18n) {
     this.i18n = i18n;
     this.ruleI18nManager = ruleI18nManager;
+    this.gwtI18n = gwtI18n;
   }
 
   Locale getLocale(String rubyKey) {
@@ -85,5 +88,9 @@ public final class JRubyI18n implements ServerComponent {
 
   public List<RuleI18nManager.RuleKey> searchRuleName(String rubyLocale, String searchText) {
     return ruleI18nManager.searchNames(searchText, toLocale(rubyLocale));
+  }
+
+  public String getJsDictionnary(String rubyLocale) {
+    return gwtI18n.getJsDictionnary(toLocale(rubyLocale));
   }
 }

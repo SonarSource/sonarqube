@@ -21,10 +21,10 @@ package org.sonar.plugins.core.hotspots.client.widget;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.sonar.gwt.Links;
-import org.sonar.plugins.core.hotspots.client.I18nConstants;
 import org.sonar.wsclient.gwt.AbstractListCallback;
 import org.sonar.wsclient.gwt.Sonar;
 import org.sonar.wsclient.services.Measure;
@@ -47,10 +47,11 @@ public class MetricHotspot extends AbstractHotspot {
 
   @Override
   Widget createHeader() {
+    Dictionary l10n = Dictionary.getDictionary("l10n");
     final Label label = new Label(title);
     label.setStyleName("header");
 
-    final Anchor moreLink = new Anchor(I18nConstants.INSTANCE.moreDetails());
+    final Anchor moreLink = new Anchor(l10n.get("hotspot.moreDetails"));
     moreLink.getElement().setId("more-" + metric);
     moreLink.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {

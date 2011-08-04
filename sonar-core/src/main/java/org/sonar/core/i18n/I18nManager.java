@@ -36,7 +36,7 @@ import java.text.MessageFormat;
 import java.util.*;
 
 public class I18nManager implements I18n, ServerExtension {
-  private static Logger LOG = LoggerFactory.getLogger(I18nManager.class);
+  private static final Logger LOG = LoggerFactory.getLogger(I18nManager.class);
 
   public static final String ENGLISH_PACK_PLUGIN_KEY = "l10nen";
   public static final String BUNDLE_PACKAGE = "org.sonar.l10n.";
@@ -44,6 +44,7 @@ public class I18nManager implements I18n, ServerExtension {
   private PluginRepository pluginRepository;
   private Map<String, ClassLoader> bundleToClassloaders;
   private Map<String, String> propertyToBundles;
+  private ClassLoader languagePackClassLoader;
 
   public I18nManager(PluginRepository pluginRepository) {
     this.pluginRepository = pluginRepository;
@@ -60,7 +61,7 @@ public class I18nManager implements I18n, ServerExtension {
 
   private void initClassloaders() {
     if (bundleToClassloaders == null) {
-      ClassLoader coreClassLoader = pluginRepository.getPlugin(ENGLISH_PACK_PLUGIN_KEY).getClass().getClassLoader();
+      languagePackClassLoader = pluginRepository.getPlugin(ENGLISH_PACK_PLUGIN_KEY).getClass().getClassLoader();
       bundleToClassloaders = Maps.newHashMap();
       for (PluginMetadata metadata : pluginRepository.getMetadata()) {
         if (!metadata.isCore() && !ENGLISH_PACK_PLUGIN_KEY.equals(metadata.getBasePlugin())) {
@@ -72,7 +73,7 @@ public class I18nManager implements I18n, ServerExtension {
         } else if (metadata.isCore()) {
           // bundles of core plugins are defined into language packs. All language packs are supposed
           // to share the same classloader (english pack classloader)
-          bundleToClassloaders.put(BUNDLE_PACKAGE + metadata.getKey(), coreClassLoader);
+          bundleToClassloaders.put(BUNDLE_PACKAGE + metadata.getKey(), languagePackClassLoader);
         }
       }
     }
@@ -177,5 +178,9 @@ public class I18nManager implements I18n, ServerExtension {
       return bundleKey;
     }
     return BUNDLE_PACKAGE + "core";
+  }
+
+  ClassLoader getLanguagePackClassLoader() {
+    return languagePackClassLoader;
   }
 }

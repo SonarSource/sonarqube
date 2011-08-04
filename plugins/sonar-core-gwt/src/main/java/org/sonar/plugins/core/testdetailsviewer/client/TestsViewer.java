@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.testdetailsviewer.client;
 
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -55,6 +56,7 @@ public class TestsViewer extends Page {
 
     @Override
     protected void display(FlowPanel header, Resource resource) {
+      Dictionary l10n = Dictionary.getDictionary("l10n");
       HorizontalPanel panel = new HorizontalPanel();
       header.add(panel);
 
@@ -68,18 +70,18 @@ public class TestsViewer extends Page {
       String skippedHtml = "";
       Measure skipped = resource.getMeasure(Metrics.SKIPPED_TESTS);
       if (skipped != null && skipped.getValue() > 0.0) {
-        skippedHtml += " (+" + skipped.getFormattedValue() + " skipped)";
+        skippedHtml += " (+" + skipped.getFormattedValue() + " " + l10n.get("unittest.skipped") + ")";
       }
       addCell(panel,
-          "Tests: ",
+          l10n.get("unittest.tests") + ": ",
           resource.getMeasureFormattedValue(Metrics.TESTS, "-") + skippedHtml);
 
       addCell(panel,
-          "Failures/Errors: ",
+          l10n.get("unittest.failures") + ": ",
           resource.getMeasureFormattedValue(Metrics.TEST_FAILURES, "0") + "/" + resource.getMeasureFormattedValue(Metrics.TEST_ERRORS, "0"));
 
       addCell(panel,
-          "Duration: ",
+          l10n.get("unittest.duration") + ": ",
           resource.getMeasureFormattedValue(Metrics.TEST_EXECUTION_TIME, "-"));
     }
   }

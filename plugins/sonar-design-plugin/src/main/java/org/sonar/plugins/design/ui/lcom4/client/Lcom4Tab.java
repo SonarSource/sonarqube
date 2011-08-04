@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.design.ui.lcom4.client;
 
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.ui.*;
 import org.sonar.gwt.ui.Icons;
 import org.sonar.gwt.ui.Loading;
@@ -87,7 +88,7 @@ public class Lcom4Tab extends Page {
       header.setStyleName("gwt-ViewerHeader");
 
       HorizontalPanel panel = new HorizontalPanel();
-      HTML html = new HTML("Lack of Cohesion of Methods: ");
+      HTML html = new HTML(Dictionary.getDictionary("l10n").get("lcom4.metric") + ": ");
       html.setStyleName("metric");
       panel.add(html);
 

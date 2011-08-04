@@ -19,34 +19,22 @@
  */
 package org.sonar.java.bytecode;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.List;
-import java.util.Set;
-
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.util.TraceClassVisitor;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.bytecode.asm.AsmResource;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
-import org.sonar.squid.api.SourceClass;
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.api.SourceCodeEdgeUsage;
-import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.measures.Metric;
+
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class BytecodeVisitorsTest {
 
@@ -236,20 +224,5 @@ public class BytecodeVisitorsTest {
   @Test
   public void testEfferentCouplingAtPackageLevel() {
     assertEquals(0, pacTag.getInt(Metric.CE));
-  }
-
-  @Test
-  @Ignore
-  public void testClassWithEnum() throws IOException {
-    SourceFile classWithEnum = (SourceFile) squid.search("specialCases/ClassWithEnum.java");
-    SourceClass myEnum = (SourceClass) squid.search("specialCases/ClassWithEnum$MyEnum");
-
-    ClassReader asmReader = new ClassReader(new FileInputStream(SquidTestUtils.getFile("/bytecode/bin/specialCases/ClassWithEnum$MyEnum.class")));
-    TraceClassVisitor classVisitor = new TraceClassVisitor(new PrintWriter(System.out));
-    asmReader.accept(classVisitor, 0);
-    classVisitor.print(new PrintWriter(System.out));
-
-    assertThat(classWithEnum, is(notNullValue()));
-    assertThat(myEnum, is(notNullValue()));
   }
 }

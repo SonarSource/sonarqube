@@ -43,16 +43,16 @@ public final class RegisterProvidedProfiles {
   private List<ProfileDefinition> definitions = Lists.newArrayList();
   private RuleFinder ruleFinder;
 
-  public RegisterProvidedProfiles(RuleFinder ruleFinder, DatabaseSessionFactory sessionFactory,
-                                  RegisterRules registerRulesBefore,// NOSONAR the parameter registerRulesBefore is unused must be declared for execution order of tasks
+  public RegisterProvidedProfiles(RuleFinder ruleFinder, DatabaseSessionFactory sessionFactory,// NOSONAR the parameter registerRulesBefore is unused must be declared for execution order of tasks
+                                  RegisterRules registerRulesBefore,
                                   ProfileDefinition[] definitions) {
     this.ruleFinder = ruleFinder;
     this.sessionFactory = sessionFactory;
     this.definitions.addAll(Arrays.asList(definitions));
   }
 
-  public RegisterProvidedProfiles(RuleFinder ruleFinder, DatabaseSessionFactory sessionFactory,
-                                  RegisterRules registerRulesBefore) {// NOSONAR the parameter registerRulesBefore is unused must be declared for execution order of tasks
+  public RegisterProvidedProfiles(RuleFinder ruleFinder, DatabaseSessionFactory sessionFactory,// NOSONAR the parameter registerRulesBefore is unused must be declared for execution order of tasks
+                                  RegisterRules registerRulesBefore) {
     this.ruleFinder = ruleFinder;
     this.sessionFactory = sessionFactory;
   }

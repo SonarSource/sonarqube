@@ -56,6 +56,7 @@
         <configuration>
           <pluginName>Email notifications</pluginName>
           <pluginClass>org.sonar.plugins.emailnotifications.EmailNotificationsPlugin</pluginClass>
+          <useChildFirstClassLoader>true</useChildFirstClassLoader>
         </configuration>
       </plugin>
     </plugins>

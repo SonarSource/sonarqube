@@ -19,9 +19,6 @@
  */
 package org.sonar.plugins.emailnotifications;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
@@ -35,6 +32,9 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 /**
  * References:
  * <ul>
@@ -42,7 +42,7 @@ import org.sonar.plugins.emailnotifications.api.EmailTemplate;
  * <li><a href="http://tools.ietf.org/html/rfc2919">List-Id: A Structured Field and Namespace for the Identification of Mailing Lists</a></li>
  * <li><a href="https://github.com/blog/798-threaded-email-notifications">GitHub: Threaded Email Notifications</a></li>
  * </ul>
- * 
+ *
  * @since 2.10
  */
 public class EmailNotificationChannel extends NotificationChannel {
@@ -133,65 +133,83 @@ public class EmailNotificationChannel extends NotificationChannel {
   }
 
   private void send(EmailMessage emailMessage) throws EmailException {
-    LOG.info("Sending email: {}", emailMessage);
-    String host = null;
-    try {
-      host = new URL(configuration.getServerBaseURL()).getHost();
-    } catch (MalformedURLException e) {
-      // ignore
-    }
+    // Trick to correctly initilize javax.mail library
+    ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+    Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 
-    SimpleEmail email = new SimpleEmail();
-    if (StringUtils.isNotBlank(host)) {
-      /*
-       * Set headers for proper threading: GMail will not group messages, even if they have same subject, but don't have "In-Reply-To" and
-       * "References" headers. TODO investigate threading in other clients like KMail, Thunderbird, Outlook
-       */
-      if (StringUtils.isNotEmpty(emailMessage.getMessageId())) {
-        String messageId = "<" + emailMessage.getMessageId() + "@" + host + ">";
-        email.addHeader(IN_REPLY_TO_HEADER, messageId);
-        email.addHeader(REFERENCES_HEADER, messageId);
+    try {
+      LOG.info("Sending email: {}", emailMessage);
+      String host = null;
+      try {
+        host = new URL(configuration.getServerBaseURL()).getHost();
+      } catch (MalformedURLException e) {
+        // ignore
       }
-      // Set headers for proper filtering
-      email.addHeader(LIST_ID_HEADER, "Sonar <sonar." + host + ">");
-      email.addHeader(LIST_ARCHIVE_HEADER, configuration.getServerBaseURL());
+
+      SimpleEmail email = new SimpleEmail();
+      if (StringUtils.isNotBlank(host)) {
+        /*
+        * Set headers for proper threading: GMail will not group messages, even if they have same subject, but don't have "In-Reply-To" and
+        * "References" headers. TODO investigate threading in other clients like KMail, Thunderbird, Outlook
+        */
+        if (StringUtils.isNotEmpty(emailMessage.getMessageId())) {
+          String messageId = "<" + emailMessage.getMessageId() + "@" + host + ">";
+          email.addHeader(IN_REPLY_TO_HEADER, messageId);
+          email.addHeader(REFERENCES_HEADER, messageId);
+        }
+        // Set headers for proper filtering
+        email.addHeader(LIST_ID_HEADER, "Sonar <sonar." + host + ">");
+        email.addHeader(LIST_ARCHIVE_HEADER, configuration.getServerBaseURL());
+      }
+      // Set general information
+      email.setFrom(configuration.getFrom(), StringUtils.defaultIfBlank(emailMessage.getFrom(), FROM_NAME_DEFAULT));
+      email.addTo(emailMessage.getTo(), " ");
+      String subject = StringUtils.defaultIfBlank(StringUtils.trimToEmpty(configuration.getPrefix()) + " ", "")
+          + StringUtils.defaultString(emailMessage.getSubject(), SUBJECT_DEFAULT);
+      email.setSubject(subject);
+      email.setMsg(emailMessage.getMessage());
+      // Send
+      email.setHostName(configuration.getSmtpHost());
+      if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "SSL")) {
+        email.setSSL(true);
+        email.setSslSmtpPort(configuration.getSmtpPort());
+
+        // this port is not used except in EmailException message, that's why it's set with the same value than SSL port.
+        // It prevents from getting bad message.
+        email.setSmtpPort(Integer.parseInt(configuration.getSmtpPort()));
+      } else if (StringUtils.isBlank(configuration.getSecureConnection())) {
+        email.setSmtpPort(Integer.parseInt(configuration.getSmtpPort()));
+      } else {
+        throw new SonarException("Unknown type of SMTP secure connection: " + configuration.getSecureConnection());
+      }
+      if (StringUtils.isNotBlank(configuration.getSmtpUsername()) || StringUtils.isNotBlank(configuration.getSmtpPassword())) {
+        email.setAuthentication(configuration.getSmtpUsername(), configuration.getSmtpPassword());
+      }
+      email.setSocketConnectionTimeout(SOCKET_TIMEOUT);
+      email.setSocketTimeout(SOCKET_TIMEOUT);
+      email.send();
+
+    } finally {
+      Thread.currentThread().setContextClassLoader(classloader);
     }
-    // Set general information
-    email.setFrom(configuration.getFrom(), StringUtils.defaultIfBlank(emailMessage.getFrom(), FROM_NAME_DEFAULT));
-    email.addTo(emailMessage.getTo(), " ");
-    String subject = StringUtils.defaultIfBlank(StringUtils.trimToEmpty(configuration.getPrefix()) + " ", "")
-        + StringUtils.defaultString(emailMessage.getSubject(), SUBJECT_DEFAULT);
-    email.setSubject(subject);
-    email.setMsg(emailMessage.getMessage());
-    // Send
-    email.setHostName(configuration.getSmtpHost());
-    if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "SSL")) {
-      email.setSSL(true);
-      email.setSslSmtpPort(configuration.getSmtpPort());
-    } else if (StringUtils.isBlank(configuration.getSecureConnection())) {
-      email.setSmtpPort(Integer.parseInt(configuration.getSmtpPort()));
-    } else {
-      throw new SonarException("Unknown type of SMTP secure connection: " + configuration.getSecureConnection());
-    }
-    if (StringUtils.isNotBlank(configuration.getSmtpUsername()) || StringUtils.isNotBlank(configuration.getSmtpPassword())) {
-      email.setAuthentication(configuration.getSmtpUsername(), configuration.getSmtpPassword());
-    }
-    email.setSocketConnectionTimeout(SOCKET_TIMEOUT);
-    email.setSocketTimeout(SOCKET_TIMEOUT);
-    email.send();
   }
 
   /**
    * Send test email. This method called from Ruby.
-   * 
+   *
    * @throws EmailException when unable to send
    */
   public void sendTestEmail(String toAddress, String subject, String message) throws EmailException {
-    EmailMessage emailMessage = new EmailMessage();
-    emailMessage.setTo(toAddress);
-    emailMessage.setSubject(subject);
-    emailMessage.setMessage(message);
-    send(emailMessage);
+    try {
+      EmailMessage emailMessage = new EmailMessage();
+      emailMessage.setTo(toAddress);
+      emailMessage.setSubject(subject);
+      emailMessage.setMessage(message);
+      send(emailMessage);
+    } catch (EmailException e) {
+      LOG.error("Fail to send test email to: " + toAddress, e);
+      throw e;
+    }
   }
 
 }

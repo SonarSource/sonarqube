@@ -13,7 +13,7 @@
    <% if definition.isEditable() %>
      <a class="block-view-toggle" onclick="portal.editWidget(<%= widget.id -%>);return false;"><%= message('edit') -%></a>
    <% end %>
-   <%= definition.getTitle() -%>
+   <%= h message('widget.' + definition.getId() + '.name', :default => definition.getTitle()) -%>
  </div>
 
 

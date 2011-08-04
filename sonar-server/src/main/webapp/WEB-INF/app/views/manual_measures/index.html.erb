@@ -5,7 +5,6 @@
 
   #manualMeasures td.pendingMeasure {
     background-color: orange;
-    cursor: help;
     padding: 0 2px;
     width: 2px;
   }
@@ -21,7 +20,7 @@
   <h1><%= message('manual_measures.page') -%></h1>
 </div>
 
-
+<% has_pendings=false %>
 <table class="width100 data sortable" id="manualMeasures">
   <thead>
   <tr>
@@ -44,8 +43,10 @@
   %>
     <a name="<%= measure.metric.key -%>"></a>
     <tr>
-      <% if measure.pending?(@snapshot) %>
-        <td class="pendingMeasure" title="Pending. New value will be available during next project analysis."></td>
+      <% if measure.pending?(@snapshot)
+           has_pendings=true
+      %>
+        <td class="pendingMeasure"></td>
       <% else %>
         <td style="padding: 0"></td>
       <% end %>
@@ -67,3 +68,12 @@
   </tbody>
 </table>
 <script>TableKit.Sortable.init('manualMeasures');</script>
+
+<% if has_pendings %>
+  <div class="doc">
+    <p>
+      <span style="background-color: orange;width: 8px;height: 8px;display: inline-block;vertical-align: middle;margin-right: 5px"> </span>
+      <%= message('manual_measures.pending_message') -%>
+    </p>
+  </div>
+<% end %>

@@ -24,13 +24,13 @@ import org.sonar.api.rules.RulePriority;
 public class FindbugsLevelUtils {
 
   public RulePriority from(String priority) {
-    if (priority.equals("1")) {
+    if ("1".equals(priority)) {
       return RulePriority.BLOCKER;
     }
-    if (priority.equals("2")) {
+    if ("2".equals(priority)) {
       return RulePriority.MAJOR;
     }
-    if (priority.equals("3")) {
+    if ("3".equals(priority)) {
       return RulePriority.INFO;
     }
     throw new IllegalArgumentException("Priority not supported: " + priority);

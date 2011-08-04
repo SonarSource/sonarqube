@@ -37,7 +37,7 @@ public class ManualMeasureUnmarshaller extends AbstractUnmarshaller<ManualMeasur
         .setCreatedAt(utils.getDateTime(json, "created_at"))
         .setUpdatedAt(utils.getDateTime(json, "updated_at"))
         .setUserLogin(utils.getString(json, "login"))
-        .setUserName(utils.getString(json, "username"))
+        .setUsername(utils.getString(json, "username"))
         .setValue(utils.getDouble(json, "val"))
         .setTextValue(utils.getString(json, "text"))
         ;

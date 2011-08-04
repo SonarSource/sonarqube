@@ -23,9 +23,6 @@ import org.apache.commons.configuration.*;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.resources.Project;
-
-import java.util.Properties;
 
 public class ProjectConfiguration extends CompositeConfiguration {
   private PropertiesConfiguration runtimeConfiguration;
@@ -36,7 +33,7 @@ public class ProjectConfiguration extends CompositeConfiguration {
   public ProjectConfiguration(DatabaseSession session, ProjectReactor projectReactor) {
     this(session, projectReactor.getRoot());
   }
-  
+
   public ProjectConfiguration(DatabaseSession session, ProjectDefinition project) {
     runtimeConfiguration = new PropertiesConfiguration();
     addConfiguration(runtimeConfiguration);
