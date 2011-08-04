@@ -19,6 +19,7 @@
  */
 package org.sonar.jpa.entity;
 
+import org.apache.commons.io.IOUtils;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.SonarException;
 
@@ -59,14 +60,18 @@ public class NotificationQueueElement {
   }
 
   public void setNotification(Notification notification) {
+    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     try {
-      ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
       ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
       objectOutputStream.writeObject(notification);
       objectOutputStream.close();
       this.data = byteArrayOutputStream.toByteArray();
+
     } catch (IOException e) {
       throw new SonarException(e);
+
+    } finally {
+      IOUtils.closeQuietly(byteArrayOutputStream);
     }
   }
 
@@ -74,16 +79,22 @@ public class NotificationQueueElement {
     if (this.data == null) {
       return null;
     }
+    ByteArrayInputStream byteArrayInputStream = null;
     try {
-      ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(this.data);
+      byteArrayInputStream = new ByteArrayInputStream(this.data);
       ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
       Object result = objectInputStream.readObject();
       objectInputStream.close();
       return (Notification) result;
+
     } catch (IOException e) {
       throw new SonarException(e);
+
     } catch (ClassNotFoundException e) {
       throw new SonarException(e);
+      
+    } finally {
+      IOUtils.closeQuietly(byteArrayInputStream);
     }
   }
 

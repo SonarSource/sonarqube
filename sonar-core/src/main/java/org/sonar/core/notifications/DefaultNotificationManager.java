@@ -19,9 +19,6 @@
  */
 package org.sonar.core.notifications;
 
-import java.util.Date;
-import java.util.List;
-
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.configuration.Property;
 import org.sonar.api.database.model.User;
@@ -29,6 +26,9 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationManager;
 import org.sonar.jpa.entity.NotificationQueueElement;
 import org.sonar.jpa.session.DatabaseSessionFactory;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * @since 2.10
@@ -52,15 +52,21 @@ public class DefaultNotificationManager implements NotificationManager {
 
   public NotificationQueueElement getFromQueue() {
     DatabaseSession session = sessionFactory.getSession();
-    String hql = "FROM " + NotificationQueueElement.class.getSimpleName() + " ORDER BY createdAt ASC LIMIT 1";
-    List<NotificationQueueElement> notifications = session.createQuery(hql).getResultList();
+    String hql = "FROM " + NotificationQueueElement.class.getSimpleName() + " ORDER BY createdAt ASC";
+    List<NotificationQueueElement> notifications = session.createQuery(hql).setMaxResults(1).getResultList();
     if (notifications.isEmpty()) {
+      // UGLY - waiting for a clean way to manage JDBC connections without Hibernate - myBatis is coming soon
+      // This code is highly coupled to org.sonar.server.notifications.NotificationService, which periodically executes
+      // several times the methods getFromQueue() and isEnabled(). The session is closed only at the end of the task -
+      // when there are no more notifications to process - to ensure "better" performances.
+      sessionFactory.clear();
       return null;
     }
     NotificationQueueElement notification = notifications.get(0);
     session.removeWithoutFlush(notification);
     session.commit();
     return notification;
+
   }
 
   public boolean isEnabled(String username, String channelKey, String dispatcherKey) {
