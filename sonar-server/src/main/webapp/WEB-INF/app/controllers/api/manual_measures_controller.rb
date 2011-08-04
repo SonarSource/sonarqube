@@ -100,7 +100,7 @@ class Api::ManualMeasuresController < Api::ApiController
   end
 
   def manual_measure_to_json(resource, manual_measure)
-    hash={:id => manual_measure.id, :metric => manual_measure.metric.key, :resource => resource.key}
+    hash={:id => manual_measure.id.to_i, :metric => manual_measure.metric.key, :resource => resource.key}
     hash[:val]=manual_measure.value if manual_measure.value
     hash[:text]=manual_measure.text_value if manual_measure.text_value
     hash[:desc]=manual_measure.description if manual_measure.description
