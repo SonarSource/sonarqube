@@ -448,6 +448,7 @@
           <localCheckout>true</localCheckout>
           <pushChanges>false</pushChanges>
           <mavenExecutorId>forked-path</mavenExecutorId>
+          <preparationGoals>clean install</preparationGoals>
         </configuration>
       </plugin>
       <plugin>
