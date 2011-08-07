@@ -74,7 +74,7 @@ table#columns td {
           </td>
         </tr>
         <tr>
-          <td class="keyCell"><%= message('criteria') -%>:</td>
+          <td class="keyCell"><%= message('filters.criteria') -%>:</td>
           <td>
             <%= render :partial => 'filters/criterion', :locals => {:id => '0', :criterion => (@filter.measure_criteria.size>0 ? @filter.measure_criteria[0] : nil)} %>
           </td>
@@ -143,7 +143,7 @@ table#columns td {
           </td>
         </tr>
         <tr>
-          <td class="keyCell"><label for="date"><%= message('build_date') -%>:</label></td>
+          <td class="keyCell"><label for="date"><%= message('filters.build_date') -%>:</label></td>
           <td>
             <% date_criterion = @filter.criterion('date') %>
             <select id="date_operator" name="date_operator">
@@ -184,16 +184,16 @@ $('name').focus();
 <br/>
 
 <% if @filter_context %>
-  <h1><%= message('display') -%></h1>
+  <h1><%= message('filters.display_form.title') -%></h1>
   <div class="admin">
     <table class="form" id="view-form">
       <tr>
-        <td class="keyCell"><%= message('filters.display_as') -%>:</td>
+        <td class="keyCell"><%= message('filters.display_form.as') -%>:</td>
         <td>
           <form action="<%= url_for :action => :set_view, :id => @filter.id -%>" method="POST">
-            <input type="radio" name="view" value="list" <%= 'checked' if @filter.default_view==::Filter::VIEW_LIST -%> id="view-list" onClick="$('view-loading').show();submit();"></input> <label for="view-list"><%= message('table') -%></label>
+            <input type="radio" name="view" value="list" <%= 'checked' if @filter.default_view==::Filter::VIEW_LIST -%> id="view-list" onClick="$('view-loading').show();submit();"></input> <label for="view-list"><%= message('filters.display_form.table') -%></label>
             <span class="spacer"> </span>
-            <input type="radio" name="view" value="treemap" <%= 'checked' if @filter.default_view==::Filter::VIEW_TREEMAP -%> id="view-treemap" onClick="$('view-loading').show();submit();"></input> <label for="view-treemap"><%= message('treemap') -%></label>
+            <input type="radio" name="view" value="treemap" <%= 'checked' if @filter.default_view==::Filter::VIEW_TREEMAP -%> id="view-treemap" onClick="$('view-loading').show();submit();"></input> <label for="view-treemap"><%= message('filters.display_form.treemap') -%></label>
             <span class="spacer"> </span>
             <%= image_tag 'loading.gif', :id => 'view-loading', :style=>'display: none' %>
           </form>

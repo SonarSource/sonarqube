@@ -71,7 +71,7 @@ public final class JRubyI18n implements ServerComponent {
   }
 
   public String message(String rubyLocale, String key, String defaultValue, Object... parameters) {
-    return i18n.message(getLocale(rubyLocale), key, defaultValue, parameters);
+    return StringUtils.defaultString(i18n.message(getLocale(rubyLocale), key, defaultValue, parameters), key);
   }
 
   public String getRuleName(String rubyLocale, String repositoryKey, String key) {
