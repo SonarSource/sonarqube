@@ -63,10 +63,7 @@ class Api::Utils
   # Since 2.10
   def self.message(key, options={})
     default = options[:default]
-    params = options[:params]
-    if params.nil?
-      params=[]
-    end
+    params = options[:params]||[]
     Java::OrgSonarServerUi::JRubyFacade.getInstance().getMessage(I18n.locale, key, default, params.to_java)
   end
 end

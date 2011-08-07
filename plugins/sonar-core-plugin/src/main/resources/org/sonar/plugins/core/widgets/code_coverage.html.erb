@@ -10,7 +10,7 @@
 	<tr>
 		<td valign="top" width="50%" nowrap>
       <div class="dashbox">
-        <p class="title"><%= message('widget.code_coverage.title') -%></p>
+        <p class="title"><%= message('widget.code_coverage.name') -%></p>
         <p>
           <span class="big"><%= format_measure(code_coverage_measure, :suffix => '', :url => url_for_drilldown('coverage'), :default => '-') %></span>
           <%= dashboard_configuration.selected_period? ? format_variation(code_coverage_measure) : trend_icon(code_coverage_measure) -%>

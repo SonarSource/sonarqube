@@ -13,7 +13,7 @@ complexity=measure('complexity')
     <tr>
       <td valign="top" width="50%">
         <div class="dashbox" >
-         <h3><%= message('widget.complexity.title') -%></h3>
+         <h3><%= message('widget.complexity.name') -%></h3>
          <% if function_complexity %>
            <p>
              <span class="big"><%= format_measure(function_complexity, :suffix => '', :url => url_for_drilldown(function_complexity)) %></span><%= message('widget.complexity.per_method.suffix') -%>
