@@ -45,7 +45,6 @@ class MoveAsyncMeasures < ActiveRecord::Migration
             :text_value => dm.measure.text_value,
             :created_at => dm.measure_date,
             :updated_at => dm.measure_date,
-            :url => dm.measure.url,
             :description => dm.measure.description
         )
       end
