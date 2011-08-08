@@ -39,18 +39,19 @@ public class InitializersExecutor {
 
   private MavenPluginExecutor mavenExecutor;
 
-  private Collection<Initializer> initializers;
   private ProjectDefinition projectDef;
   private Project project;
+  private BatchExtensionDictionnary selector;
 
   public InitializersExecutor(BatchExtensionDictionnary selector, Project project, ProjectDefinition projectDef, MavenPluginExecutor mavenExecutor) {
-    this.initializers = selector.select(Initializer.class, project, true);
+    this.selector = selector;
     this.mavenExecutor = mavenExecutor;
     this.project = project;
     this.projectDef = projectDef;
   }
 
   public void execute() {
+    Collection<Initializer> initializers = selector.select(Initializer.class, project, true);
     if (logger.isDebugEnabled()) {
       logger.debug("Initializers : {}", StringUtils.join(initializers, " -> "));
     }

@@ -42,9 +42,9 @@ public class PostJobsExecutorTest {
 
     Project project = new Project("project");
     ProjectDefinition projectDefinition = ProjectDefinition.create();
-    PostJobsExecutor executor = new PostJobsExecutor(jobs, project, projectDefinition, mock(MavenPluginExecutor.class));
+    PostJobsExecutor executor = new PostJobsExecutor(null, project, projectDefinition, mock(MavenPluginExecutor.class));
     SensorContext context = mock(SensorContext.class);
-    executor.execute(context);
+    executor.execute(context, jobs);
 
     verify(job1).executeOn(project, context);
     verify(job2).executeOn(project, context);

@@ -38,24 +38,25 @@ import java.util.List;
 public class PostJobsExecutor implements BatchComponent {
   private static final Logger LOG = LoggerFactory.getLogger(PostJobsExecutor.class);
 
-  private Collection<PostJob> postJobs;
   private MavenPluginExecutor mavenExecutor;
   private ProjectDefinition projectDefinition;
   private Project project;
+  private BatchExtensionDictionnary selector;
 
   public PostJobsExecutor(BatchExtensionDictionnary selector, Project project, ProjectDefinition projectDefinition, MavenPluginExecutor mavenExecutor) {
-    this(selector.select(PostJob.class, project, true), project, projectDefinition, mavenExecutor);
-  }
-
-  PostJobsExecutor(Collection<PostJob> jobs, Project project, ProjectDefinition projectDefinition, MavenPluginExecutor mavenExecutor) {
-    this.postJobs = jobs;
+    this.selector = selector;
     this.mavenExecutor = mavenExecutor;
     this.project = project;
     this.projectDefinition = projectDefinition;
   }
 
   public void execute(SensorContext context) {
-    logPostJobs();
+    Collection<PostJob> postJobs = selector.select(PostJob.class, project, true);
+    execute(context, postJobs);
+  }
+
+  void execute(SensorContext context, Collection<PostJob> postJobs) {
+    logPostJobs(postJobs);
 
     for (PostJob postJob : postJobs) {
       LOG.info("Executing post-job {}", postJob.getClass());
@@ -64,7 +65,7 @@ public class PostJobsExecutor implements BatchComponent {
     }
   }
 
-  private void logPostJobs() {
+  private void logPostJobs(Collection<PostJob> postJobs) {
     if (LOG.isDebugEnabled()) {
       LOG.debug("Post-jobs : {}", StringUtils.join(postJobs, " -> "));
     }

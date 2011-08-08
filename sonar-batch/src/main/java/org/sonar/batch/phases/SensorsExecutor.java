@@ -39,14 +39,14 @@ import java.util.Collection;
 public class SensorsExecutor implements BatchComponent {
   private static final Logger LOG = LoggerFactory.getLogger(SensorsExecutor.class);
 
-  private Collection<Sensor> sensors;
   private MavenPluginExecutor mavenExecutor;
   private EventBus eventBus;
   private Project project;
   private ProjectDefinition projectDefinition;
+  private BatchExtensionDictionnary selector;
 
   public SensorsExecutor(BatchExtensionDictionnary selector, Project project, ProjectDefinition projectDefinition, MavenPluginExecutor mavenExecutor, EventBus eventBus) {
-    this.sensors = selector.select(Sensor.class, project, true);
+    this.selector = selector;
     this.mavenExecutor = mavenExecutor;
     this.eventBus = eventBus;
     this.project = project;
@@ -54,6 +54,7 @@ public class SensorsExecutor implements BatchComponent {
   }
 
   public void execute(SensorContext context) {
+    Collection<Sensor> sensors = selector.select(Sensor.class, project, true);
     eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(sensors), true));
 
     for (Sensor sensor : sensors) {
