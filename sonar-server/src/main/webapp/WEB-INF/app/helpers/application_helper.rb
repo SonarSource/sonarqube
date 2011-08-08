@@ -434,9 +434,10 @@ module ApplicationHelper
   # === Examples
   # trend_icon('ncloc')
   # trend_icon(measure('ncloc'))
-  # trend_icon('ncloc', :big => true, :empty => true)
+  # trend_icon('ncloc', :empty => true)
   #
   def trend_icon(metric_or_measure, options={})
+    m=nil
     if metric_or_measure.is_a? ProjectMeasure
       m = metric_or_measure
     elsif @snapshot
