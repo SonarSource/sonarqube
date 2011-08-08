@@ -393,11 +393,10 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <excludePackageNames>
-            net.*:org.sonar.application:org.sonar.server:org.sonar.graph:org.sonar.batch:org.sonar.channel:org.sonar.java:org.sonar.maven*:org.sonar.plugins.*:org.sonar.colorizer:org.sonar.squid:org.sonar.core:org.sonar.jpa:org.sonar.duplications
+            net.*
           </excludePackageNames>
           <author>false</author>
           <linksource>true</linksource>
-          <reportOutputDirectory>${project.reporting.outputDirectory}/${project.version}/apidocs</reportOutputDirectory>
         </configuration>
       </plugin>
       <plugin>
