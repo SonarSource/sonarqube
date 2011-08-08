@@ -27,14 +27,8 @@ class ChangeFalsePositiveOnReviews < ActiveRecord::Migration
     add_column 'reviews', 'resolution', :string, :limit => 200, :null => true
     Review.reset_column_information
 
-    Review.find(:all).each do |review|
-      if review.review_type == 'FALSE_POSITIVE'
-        review.status = 'RESOLVED'
-        review.resolution = 'FALSE-POSITIVE'
-      end
-      review.save!
-    end
-
+    Review.update_all("status='RESOLVED', resolution='FALSE-POSITIVE'", "review_type='FALSE_POSITIVE'")
+    
     remove_column 'reviews', 'review_type'
     Review.reset_column_information
   end
