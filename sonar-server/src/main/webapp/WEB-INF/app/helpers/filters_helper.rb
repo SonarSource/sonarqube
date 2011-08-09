@@ -110,9 +110,7 @@ module FiltersHelper
   end
 
   def column_title(column, filter)
-    html=nil
     if column.sortable?
-      asc = (column.descending? || column.sort_direction.nil?)
       html=link_to h(column.display_name), url_for(:overwrite_params => {:asc => (!(column.ascending?)).to_s, :sort => column.id})
     else
       html=h(column.display_name)

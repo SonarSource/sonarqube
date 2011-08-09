@@ -39,9 +39,9 @@ class FilterColumn < ActiveRecord::Base
 
   def name
     if on_metric?
-      Api::Utils.message("metric." + kee + ".name", :default => (metric ? metric.short_name : kee))
+      Api::Utils.message("metric.#{kee}.name", :default => (metric ? metric.short_name : kee))
     else
-      Api::Utils.message(family, :default => kee)
+      Api::Utils.message("filters.col.#{family}", :default => kee)
     end
   end
 
