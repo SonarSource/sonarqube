@@ -40,4 +40,9 @@ public abstract class Server implements BatchComponent, ServerComponent {
    * @since 2.4
    */
   public abstract String getURL();
+
+  /**
+   * @since 2.10
+   */
+  public abstract String getKey();
 }

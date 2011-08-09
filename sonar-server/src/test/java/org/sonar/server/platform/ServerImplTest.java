@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -30,7 +31,8 @@ public class ServerImplTest {
 
   @Test
   public void alwaysReturnTheSameValues() {
-    ServerImpl server = new ServerImpl();
+    ServerImpl server = new ServerImpl(new PropertiesConfiguration());
+    server.start();
 
     assertNotNull(server.getId());
     assertEquals(server.getId(), server.getId());
@@ -44,21 +46,21 @@ public class ServerImplTest {
 
   @Test
   public void getVersionFromFile() throws IOException {
-    assertEquals("1.0", new ServerImpl().loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-with-version.properties"));
+    assertEquals("1.0", new ServerImpl(new PropertiesConfiguration()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-with-version.properties"));
   }
 
   @Test
   public void testFileWithNoVersion() throws IOException {
-    assertEquals("", new ServerImpl().loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-without-version.properties"));
+    assertEquals("", new ServerImpl(new PropertiesConfiguration()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-without-version.properties"));
   }
 
   @Test
   public void testFileWithEmptyVersionParameter() throws IOException {
-    assertEquals("", new ServerImpl().loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-with-empty-version.properties"));
+    assertEquals("", new ServerImpl(new PropertiesConfiguration()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-with-empty-version.properties"));
   }
 
   @Test
   public void shouldNotFailIfFileNotFound() throws IOException {
-    assertEquals("", new ServerImpl().loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/unknown-file.properties"));
+    assertEquals("", new ServerImpl(new PropertiesConfiguration()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/unknown-file.properties"));
   }
 }

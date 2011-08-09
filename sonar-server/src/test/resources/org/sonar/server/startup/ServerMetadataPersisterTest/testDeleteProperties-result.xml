@@ -1,0 +1,7 @@
+<dataset>
+
+  <properties id="1" prop_key="other" resource_id="[null]" text_value="some text" user_id="[null]"/>
+
+  <!-- not null property -->
+  <properties id="5" prop_key="sonar.core.startTime" resource_id="[null]" text_value="2010-05-18T17:59:00+0000" user_id="[null]"/>
+</dataset>

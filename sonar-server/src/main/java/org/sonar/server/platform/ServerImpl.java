@@ -19,8 +19,10 @@
  */
 package org.sonar.server.platform;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.platform.Server;
 
 import java.io.IOException;
@@ -31,28 +33,39 @@ import java.util.Properties;
 
 public final class ServerImpl extends Server {
 
-  private final String id;
-  private final String version;
+  private String id;
+  private String version;
   private final Date startedAt;
+  private String key;
+  private Configuration conf;
 
-  public ServerImpl() {
+  public ServerImpl(Configuration conf) {
+    this(conf, new Date());
+  }
+
+  ServerImpl(Configuration conf, Date startedAt) {
+    this.conf = conf;
+    this.startedAt = startedAt;
+  }
+
+  public void start() {
     try {
-      this.startedAt = new Date();
-      this.id = new SimpleDateFormat("yyyyMMddHHmmss").format(startedAt);
-      this.version = loadVersionFromManifest("/META-INF/maven/org.codehaus.sonar/sonar-plugin-api/pom.properties");
-      if (StringUtils.isBlank(this.version)) {
+      id = new SimpleDateFormat("yyyyMMddHHmmss").format(startedAt);
+      key = initKey(conf);
+      version = loadVersionFromManifest("/META-INF/maven/org.codehaus.sonar/sonar-plugin-api/pom.properties");
+      if (StringUtils.isBlank(version)) {
         throw new ServerStartException("Unknown Sonar version");
       }
 
     } catch (IOException e) {
-      throw new ServerStartException("Can not load Sonar metadata", e);
+      throw new ServerStartException("Can not load metadata", e);
     }
   }
 
-  public ServerImpl(String id, String version, Date startedAt) {
-    this.id = id;
-    this.version = version;
-    this.startedAt = startedAt;
+  private String initKey(Configuration conf) {
+    String organization = conf.getString(CoreProperties.ORGANIZATION);
+    String previousKey = conf.getString(CoreProperties.SERVER_KEY);
+    return new ServerKeyGenerator().generate(organization, previousKey);
   }
 
   public String getId() {
@@ -89,6 +102,10 @@ public final class ServerImpl extends Server {
 
   public String getURL() {
     return null;
+  }
+
+  public String getKey() {
+    return key;
   }
 
   @Override

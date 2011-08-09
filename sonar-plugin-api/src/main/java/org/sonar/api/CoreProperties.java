@@ -180,4 +180,14 @@ public interface CoreProperties {
   String TIMEMACHINE_DEFAULT_PERIOD_3 = "30";
   String TIMEMACHINE_DEFAULT_PERIOD_4 = "";
   String TIMEMACHINE_DEFAULT_PERIOD_5 = "";
+
+  /**
+   * @since 2.11
+   */
+  String ORGANIZATION = "sonar.organization";
+
+  /**
+   * @since 2.11
+   */
+  String SERVER_KEY = "sonar.serverKey.secured";
 }

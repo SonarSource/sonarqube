@@ -99,4 +99,8 @@ class FakeServer extends Server {
   public String getURL() {
     return null;
   }
+
+  public String getKey() {
+    return null;
+  }
 }

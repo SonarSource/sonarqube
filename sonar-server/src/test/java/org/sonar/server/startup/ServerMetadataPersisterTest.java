@@ -19,42 +19,72 @@
  */
 package org.sonar.server.startup;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import org.sonar.api.platform.Server;
-import org.sonar.server.platform.ServerImpl;
+import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class ServerMetadataPersisterTest extends AbstractDbUnitTestCase {
+
+  private TimeZone initialTimeZone;
+
+  @Before
+  public void fixTimeZone() {
+    initialTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
+  }
+
+  @After
+  public void revertTimeZone() {
+    TimeZone.setDefault(initialTimeZone);
+  }
 
   @Test
   public void testSaveProperties() throws ParseException {
     setupData("testSaveProperties");
-    persist();
+    persist(newServer());
     checkTables("testSaveProperties", "properties");
   }
 
   @Test
   public void testUpdateExistingProperties() throws ParseException {
     setupData("testUpdateExistingProperties");
-    persist();
+    persist(newServer());
     checkTables("testUpdateExistingProperties", "properties");
   }
 
-  private void persist() throws ParseException {
-    TimeZone initialZone = TimeZone.getDefault();
-    try {
-      TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-      Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm").parse("2010-05-18 17:59");
-      Server server = new ServerImpl("123", "2.2", date);
-      ServerMetadataPersister persister = new ServerMetadataPersister(server, getSession());
-      persister.start();
-    } finally {
-      TimeZone.setDefault(initialZone);
-    }
+  @Test
+  public void testDeleteProperties() throws ParseException {
+    setupData("testDeleteProperties");
+    Server server = mock(Server.class);
+    when(server.getStartedAt()).thenReturn(new SimpleDateFormat("yyyy-MM-dd HH:mm").parse("2010-05-18 17:59"));//this is a mandatory not-null property
+    persist(server);
+    checkTables("testDeleteProperties", "properties");
+  }
+
+  private void persist(Server server) {
+    ServerMetadataPersister persister = new ServerMetadataPersister(server, getSession());
+    persister.start();
+  }
+
+  private Server newServer() throws ParseException {
+    Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm").parse("2010-05-18 17:59");
+    Server server = mock(Server.class);
+    when(server.getKey()).thenReturn("1abcdef");
+    when(server.getId()).thenReturn("123");
+    when(server.getVersion()).thenReturn("2.2");
+    when(server.getStartedAt()).thenReturn(date);
+
+    return server;
+
   }
 }

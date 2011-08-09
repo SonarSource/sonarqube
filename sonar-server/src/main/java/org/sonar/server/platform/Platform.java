@@ -138,7 +138,6 @@ public final class Platform {
     coreContainer = rootContainer.makeChildContainer();
     coreContainer.as(Characteristics.CACHE).addComponent(PluginDeployer.class);
     coreContainer.as(Characteristics.CACHE).addComponent(ServerPluginRepository.class);
-    coreContainer.as(Characteristics.CACHE).addComponent(ServerImpl.class);
     coreContainer.as(Characteristics.CACHE).addComponent(DefaultServerFileSystem.class);
     coreContainer.as(Characteristics.CACHE).addComponent(ThreadLocalDatabaseSessionFactory.class);
     coreContainer.as(Characteristics.CACHE).addComponent(HttpDownloader.class);
@@ -162,6 +161,7 @@ public final class Platform {
     ServerPluginRepository pluginRepository = servicesContainer.getComponent(ServerPluginRepository.class);
     pluginRepository.registerExtensions(servicesContainer);
 
+    servicesContainer.as(Characteristics.CACHE).addComponent(ServerImpl.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(DefaultModelFinder.class); // depends on plugins
     servicesContainer.as(Characteristics.CACHE).addComponent(DefaultModelManager.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(Plugins.class);

@@ -59,6 +59,7 @@ class Server
 
   def sonar_info
     sonar_info=[]
+    add_property(sonar_info, 'Server Key') {org.sonar.server.platform.Platform.getServer().getKey()}
     add_property(sonar_info, 'Version') {org.sonar.server.platform.Platform.getServer().getVersion()}
     add_property(sonar_info, 'ID') {org.sonar.server.platform.Platform.getServer().getId()}
     add_property(sonar_info, 'Database') {"#{jdbc_metadata. getDatabaseProductName()} #{jdbc_metadata. getDatabaseProductVersion()}"}

@@ -45,6 +45,11 @@ import java.util.List;
 
 @Properties({
     @Property(
+        key = CoreProperties.ORGANIZATION,
+        name = "Organization",
+        description = "Identify your installation. Required to generate the server key and to benefit from licensed plugins. Server must be restarted for the change to take effect.",
+        global = true),
+    @Property(
         key = CoreProperties.CORE_COVERAGE_PLUGIN_PROPERTY,
         defaultValue = "cobertura",
         name = "Code coverage plugin",
