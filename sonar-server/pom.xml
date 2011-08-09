@@ -11,7 +11,6 @@
   <name>Sonar :: Server</name>
 
   <dependencies>
-    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!! TODO Review !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-batch</artifactId>
@@ -349,7 +348,7 @@
                   <overWriteIfNewer>true</overWriteIfNewer>
                   <overWriteReleases>true</overWriteReleases>
                   <overWriteSnapshots>true</overWriteSnapshots>
-                  <outputDirectory>${project.build.directory}/sonar-dev-home/extensions/plugins/</outputDirectory>
+                  <outputDirectory>${project.build.directory}/sonar-dev-home/lib/core-plugins/</outputDirectory>
                 </configuration>
               </execution>
             </executions>
@@ -629,44 +628,6 @@
           <artifactId>derbyclient</artifactId>
         </dependency>
       </dependencies>
-    </profile>
-
-    <profile>
-      <id>rdoc</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.jruby.plugins</groupId>
-            <artifactId>jruby-rake-plugin</artifactId>
-            <version>1.4.0</version>
-            <executions>
-              <execution>
-                <id>install-gems</id>
-                <phase>process-resources</phase>
-                <goals>
-                  <goal>install-gems</goal>
-                </goals>
-                <configuration>
-                  <jrubyHome>${env.JRUBY_HOME}</jrubyHome>
-                  <gems>--no-rdoc --no-ri --user-install -v=2.2.2 rails</gems>
-                </configuration>
-              </execution>
-              <execution>
-                <id>rdoc</id>
-                <phase>process-resources</phase>
-                <goals>
-                  <goal>rake</goal>
-                </goals>
-                <configuration>
-                  <jrubyHome>${env.JRUBY_HOME}</jrubyHome>
-                  <launchDirectory>${basedir}/src/main/webapp/WEB-INF</launchDirectory>
-                  <args>rdoc</args>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
 
     <profile>
