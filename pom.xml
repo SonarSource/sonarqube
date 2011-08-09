@@ -9,6 +9,7 @@
   <version>2.11-SNAPSHOT</version>
   <name>Sonar</name>
   <url>http://www.sonarsource.org</url>
+  <description>Put technical debt under control</description>
 
   <modules>
     <!-- public artifacts to be deployed to central repository -->
