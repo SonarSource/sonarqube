@@ -1,6 +1,7 @@
-<%=
+<%
   new_tab = nil unless defined?(:new_tab)
   selected_tab = nil unless defined?(:selected_tab)
+  is_admin=has_role?(:admin)
 %>
 <ul class="tabs">
   <li>
@@ -9,18 +10,22 @@
   <li>
     <a href="<%= url_for :controller => 'alerts', :action => 'index', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='Alerts' -%>><%= message('alerts') -%></a>
   </li>
+  <% if is_admin %>
   <li>
     <a href="<%= url_for :controller => 'profiles', :action => 'projects', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='Projects' -%>><%= message('projects') -%></a>
   </li>
+  <% end %>
   <li>
     <a href="<%= url_for :controller => 'profiles', :action => 'permalinks', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='Permalinks' -%>><%= message('permalinks') -%></a>
   </li>
   <li>
     <a href="<%= url_for :controller => 'profiles', :action => 'inheritance', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='inheritance' -%>><%= message('quality_profiles.profile_inheritance') -%></a>
   </li>
+  <% if is_admin %>
   <li>
     <a href="<%= url_for :controller => 'profiles', :action => 'changelog', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='changelog' -%>><%= message('changelog') -%></a>
   </li>
+  <% end %>
   <% if new_tab %>
   <li>
     <a href="#" class='selected'><%= new_tab -%></a>

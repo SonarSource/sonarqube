@@ -24,7 +24,7 @@ class ProfilesController < ApplicationController
   verify :method => :post, :only => ['create', 'delete', 'copy', 'set_as_default', 'restore', 'set_projects', 'rename', 'change_parent'], :redirect_to => { :action => 'index' }
 
   # the backup action is allow to non-admin users : see http://jira.codehaus.org/browse/SONAR-2039
-  before_filter :admin_required, :except => [ 'index', 'show', 'projects', 'permalinks', 'export', 'backup', 'inheritance' ]
+  before_filter :admin_required, :except => [ 'index', 'show', 'permalinks', 'export', 'backup', 'inheritance' ]
 
   #
   #
