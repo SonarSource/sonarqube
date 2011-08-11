@@ -32,16 +32,18 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import static junit.framework.Assert.assertFalse;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ServerPluginRepositoryTest {
+public class DefaultServerPluginRepositoryTest {
 
-  private ServerPluginRepository repository;
+  private DefaultServerPluginRepository repository;
 
   @After
   public void stop() {
@@ -53,14 +55,14 @@ public class ServerPluginRepositoryTest {
   @Test
   public void testStart() {
     PluginDeployer deployer = mock(PluginDeployer.class);
-    File pluginFile = FileUtils.toFile(getClass().getResource("/org/sonar/server/plugins/ServerPluginRepositoryTest/sonar-artifact-size-plugin-0.2.jar"));
+    File pluginFile = FileUtils.toFile(getClass().getResource("/org/sonar/server/plugins/DefaultServerPluginRepositoryTest/sonar-artifact-size-plugin-0.2.jar"));
     PluginMetadata plugin = DefaultPluginMetadata.create(pluginFile)
         .setKey("artifactsize")
         .setMainClass("org.sonar.plugins.artifactsize.ArtifactSizePlugin")
         .addDeployedFile(pluginFile);
     when(deployer.getMetadata()).thenReturn(Arrays.asList(plugin));
 
-    repository = new ServerPluginRepository(deployer);
+    repository = new DefaultServerPluginRepository(deployer);
     repository.start();
 
     assertThat(repository.getPlugins().size(), Is.is(1));
@@ -73,7 +75,7 @@ public class ServerPluginRepositoryTest {
 
   @Test
   public void shouldRegisterServerExtensions() {
-    ServerPluginRepository repository = new ServerPluginRepository(mock(PluginDeployer.class));
+    DefaultServerPluginRepository repository = new DefaultServerPluginRepository(mock(PluginDeployer.class));
 
     TransientPicoContainer container = new TransientPicoContainer();
     repository.registerExtensions(container, Arrays.<Plugin>asList(new FakePlugin(Arrays.<Class>asList(FakeBatchExtension.class, FakeServerExtension.class))));
@@ -85,7 +87,7 @@ public class ServerPluginRepositoryTest {
 
   @Test
   public void shouldInvokeServerExtensionProviderss() {
-    ServerPluginRepository repository = new ServerPluginRepository(mock(PluginDeployer.class));
+    DefaultServerPluginRepository repository = new DefaultServerPluginRepository(mock(PluginDeployer.class));
 
     TransientPicoContainer container = new TransientPicoContainer();
     repository.registerExtensions(container, Arrays.<Plugin>asList(new FakePlugin(Arrays.<Class>asList(FakeExtensionProvider.class))));
@@ -93,6 +95,57 @@ public class ServerPluginRepositoryTest {
     assertThat(container.getComponents(Extension.class).size(), is(2));// provider + FakeServerExtension
     assertThat(container.getComponents(FakeServerExtension.class).size(), is(1));
     assertThat(container.getComponents(FakeBatchExtension.class).size(), is(0));
+  }
+
+  @Test
+  public void shouldDisablePlugin() {
+    DefaultServerPluginRepository repository = new DefaultServerPluginRepository(mock(PluginDeployer.class));
+    repository.disable("checkstyle");
+
+    assertTrue(repository.isDisabled("checkstyle"));
+    assertFalse(repository.isDisabled("sqale"));
+  }
+
+  @Test
+  public void shouldDisableDependentPlugins() {
+    PluginDeployer deployer = mock(PluginDeployer.class);
+    List<PluginMetadata> metadata = Arrays.asList(
+        newMetadata("checkstyle", null),
+        newMetadata("checkstyle-extensions", "checkstyle"),
+        newMetadata("sqale", null)
+    );
+    when(deployer.getMetadata()).thenReturn(metadata);
+    DefaultServerPluginRepository repository = new DefaultServerPluginRepository(deployer);
+
+    repository.disable("checkstyle");
+
+    assertTrue(repository.isDisabled("checkstyle"));
+    assertTrue(repository.isDisabled("checkstyle-extensions"));
+    assertFalse(repository.isDisabled("sqale"));
+  }
+
+  @Test
+  public void shouldNotDisableBasePlugin() {
+    PluginDeployer deployer = mock(PluginDeployer.class);
+    List<PluginMetadata> metadata = Arrays.asList(
+        newMetadata("checkstyle", null),
+        newMetadata("checkstyle-extensions", "checkstyle"),
+        newMetadata("sqale", null)
+    );
+    when(deployer.getMetadata()).thenReturn(metadata);
+    DefaultServerPluginRepository repository = new DefaultServerPluginRepository(deployer);
+
+    repository.disable("checkstyle-extensions");
+
+    assertFalse(repository.isDisabled("checkstyle"));
+    assertTrue(repository.isDisabled("checkstyle-extensions"));
+  }
+
+  private PluginMetadata newMetadata(String pluginKey, String basePluginKey) {
+    PluginMetadata plugin = mock(PluginMetadata.class);
+    when(plugin.getKey()).thenReturn(pluginKey);
+    when(plugin.getBasePlugin()).thenReturn(basePluginKey);
+    return plugin;
   }
 
   public static class FakePlugin extends SonarPlugin {

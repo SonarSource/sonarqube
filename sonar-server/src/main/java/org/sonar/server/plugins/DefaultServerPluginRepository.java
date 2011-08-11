@@ -19,28 +19,31 @@
  */
 package org.sonar.server.plugins;
 
+import com.google.common.collect.Sets;
 import org.picocontainer.Characteristics;
 import org.picocontainer.MutablePicoContainer;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.*;
 import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
+import org.sonar.api.platform.ServerPluginRepository;
 import org.sonar.core.plugins.PluginClassloaders;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @since 2.2
  */
-public class ServerPluginRepository implements PluginRepository {
+public class DefaultServerPluginRepository implements ServerPluginRepository {
 
   private PluginClassloaders classloaders;
   private PluginDeployer deployer;
   private Map<String, Plugin> pluginsByKey;
+  private Set<String> disabledPlugins = Sets.newHashSet();
 
-  public ServerPluginRepository(PluginDeployer deployer) {
+  public DefaultServerPluginRepository(PluginDeployer deployer) {
     this.classloaders = new PluginClassloaders(getClass().getClassLoader());
     this.deployer = deployer;
   }
@@ -54,6 +57,19 @@ public class ServerPluginRepository implements PluginRepository {
       classloaders.clean();
       classloaders = null;
     }
+  }
+
+  public void disable(String pluginKey) {
+    disabledPlugins.add(pluginKey);
+    for (PluginMetadata metadata : getMetadata()) {
+      if (pluginKey.equals(metadata.getBasePlugin())) {
+        disable(metadata.getKey());
+      }
+    }
+  }
+
+  public boolean isDisabled(String pluginKey) {
+    return disabledPlugins.contains(pluginKey);
   }
 
   public Collection<Plugin> getPlugins() {

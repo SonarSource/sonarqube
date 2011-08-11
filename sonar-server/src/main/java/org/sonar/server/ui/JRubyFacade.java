@@ -296,7 +296,7 @@ public final class JRubyFacade {
   public Object getComponentByClassname(String pluginKey, String className) {
     Object component = null;
     PicoContainer container = getContainer();
-    Class componentClass = container.getComponent(ServerPluginRepository.class).getClass(pluginKey, className);
+    Class componentClass = container.getComponent(DefaultServerPluginRepository.class).getClass(pluginKey, className);
     if (componentClass != null) {
       component = container.getComponent(componentClass);
     }

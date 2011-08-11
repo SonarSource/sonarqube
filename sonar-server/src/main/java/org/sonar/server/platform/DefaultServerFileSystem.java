@@ -155,7 +155,7 @@ public class DefaultServerFileSystem implements ServerFileSystem {
     return new File(getHomeDir(), "extensions/rules");
   }
 
-  public File getPluginsIndex() {
+  public File getPluginIndex() {
     return new File(getDeployDir(), "plugins/index.txt");
   }
 

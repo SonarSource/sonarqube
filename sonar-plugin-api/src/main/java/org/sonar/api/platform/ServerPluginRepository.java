@@ -19,31 +19,25 @@
  */
 package org.sonar.api.platform;
 
-import org.sonar.api.BatchComponent;
-import org.sonar.api.Plugin;
-import org.sonar.api.Property;
+import org.sonar.api.ServerComponent;
 
-import java.util.Collection;
-
-public interface PluginRepository extends BatchComponent {
-  Collection<Plugin> getPlugins();
-
-  Plugin getPlugin(String key);
-
-  Property[] getProperties(Plugin plugin);
+/**
+ * @since 2.11
+ */
+public interface ServerPluginRepository extends PluginRepository, ServerComponent {
 
   /**
-   * Metadata of installed plugins. Metadata includes all the fields available in update center
-   * (plugin key, name, version, description, license, ...) and some technical information like
-   * list of embedded libraries and classloader strategy.
-   * 
-   * @since 2.9
+   * Disabled plugins are not loaded by batch, but they are still installed :
+   * <ul>
+   *   <li>Plugin properties are available in General Settings</li>
+   *   <li>Plugin is marked as installed in Update Center</li>
+   * </ul>
    */
-  Collection<PluginMetadata> getMetadata();
+  void disable(String pluginKey);
 
   /**
-   * Search for an installed plugin. Returns null if the plugin is not installed.
-   * @since 2.9
+   * @param plugingKey can not be null
    */
-  PluginMetadata getMetadata(String pluginKey);
+  boolean isDisabled(String plugingKey);
+
 }
