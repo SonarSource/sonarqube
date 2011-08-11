@@ -28,16 +28,12 @@ import java.io.IOException;
 
 public final class Mojo extends Artifact {
 
-  private Mojo(String artifactId, String version, File jar, Artifact... deps) {
-    super(BASE_GROUP_ID, artifactId, version, "maven-plugin", jar, deps);
+  private Mojo(String artifactId, String version, File jar) {
+    super(BASE_GROUP_ID, artifactId, version, "maven-plugin", jar);
   }
 
-  public static Mojo createMaven2Plugin(String version, File jar, Artifact... deps) {
-    return new Mojo("sonar-core-maven-plugin", version, jar, deps);
-  }
-
-  public static Mojo createMaven3Plugin(String version, File jar, Artifact... deps) {
-    return new Mojo("sonar-core-maven3-plugin", version, jar, deps);
+  public static Mojo createMaven2Plugin(String version, File jar) {
+    return new Mojo("sonar-core-maven-plugin", version, jar);
   }
 
   @Override

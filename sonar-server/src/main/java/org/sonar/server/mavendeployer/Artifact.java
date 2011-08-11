@@ -36,26 +36,18 @@ public class Artifact {
   private String groupId;
   private String artifactId;
   protected String version;
-  private Artifact[] dependencies;
   protected File jar;
   private String packaging;
 
-  public Artifact(String groupId, String artifactId, String version, String packaging, File jar, Artifact... deps) {
+  public Artifact(String groupId, String artifactId, String version, String packaging, File jar) {
     this.artifactId = artifactId;
     this.groupId = groupId;
     this.version = version;
-    this.dependencies = deps;
     this.jar = jar;
     this.packaging = packaging;
   }
 
-  public void deployTo(File rootDir, boolean deployDependencies) throws IOException {
-    if (deployDependencies && dependencies != null) {
-      for (Artifact dependency : dependencies) {
-        dependency.deployTo(rootDir, true);
-      }
-    }
-
+  public void deployTo(File rootDir) throws IOException {
     File dir = createDir(rootDir);
     savePom(dir);
     saveMetadata(dir);
@@ -83,18 +75,6 @@ public class Artifact {
 
   public String getVersion() {
     return version;
-  }
-
-  public Artifact[] getDependencies() {
-    return dependencies;
-  }
-
-  public File getJar() {
-    return jar;
-  }
-
-  public String getPackaging() {
-    return packaging;
   }
 
   private void saveJar(File dir) throws IOException {
@@ -125,21 +105,11 @@ public class Artifact {
   }
 
   public String getPom() throws IOException {
-    return transformFromTemplatePath(getTemplatePath(), getDependenciesAsString());
+    return transformFromTemplatePath(getTemplatePath());
   }
 
   protected String getTemplatePath() {
     return "/org/sonar/server/mavendeployer/pom.template";
-  }
-
-  private String getDependenciesAsString() throws IOException {
-    StringBuilder sb = new StringBuilder();
-    if (dependencies != null) {
-      for (Artifact dependency : dependencies) {
-        sb.append(dependency.getXmlDefinition());
-      }
-    }
-    return sb.toString();
   }
 
   @Override
@@ -179,11 +149,7 @@ public class Artifact {
     FileUtils.writeStringToFile(metadataFile, getMetadata(), CharEncoding.UTF_8);
   }
 
-  protected String transformFromTemplatePath(String templatePath) throws IOException {
-    return transformFromTemplatePath(templatePath, "");
-  }
-
-  protected final String transformFromTemplatePath(String templatePath, String depsXml) throws IOException {
+  protected final String transformFromTemplatePath(String templatePath) throws IOException {
     InputStream template = this.getClass().getResourceAsStream(templatePath);
     try {
       String content = IOUtils.toString(template);
@@ -192,7 +158,6 @@ public class Artifact {
       content = StringUtils.replace(content, "$version", version);
       content = StringUtils.replace(content, "$timestamp", version);
       content = StringUtils.replace(content, "$packaging", packaging);
-      content = StringUtils.replace(content, "$dependencies", StringUtils.defaultString(depsXml, ""));
       return content;
 
     } finally {
