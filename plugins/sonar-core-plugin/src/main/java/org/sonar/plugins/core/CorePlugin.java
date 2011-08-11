@@ -50,6 +50,13 @@ import java.util.List;
         description = "Identify your installation. Required to generate the server key and to benefit from licensed plugins. Server must be restarted for the change to take effect.",
         global = true),
     @Property(
+        key = CoreProperties.SERVER_BASE_URL,
+        defaultValue = CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE,
+        name = "Server base URL",
+        description = "HTTP address of the Sonar server, such as <i>http://yourhost.yourdomain/sonar</i>. This value is used i.e. to create links in emails and to generate server key.",
+        project = false,
+        global = true),
+    @Property(
         key = CoreProperties.CORE_COVERAGE_PLUGIN_PROPERTY,
         defaultValue = "cobertura",
         name = "Code coverage plugin",
@@ -90,13 +97,6 @@ import java.util.List;
         defaultValue = CoreProperties.CORE_RULE_WEIGHTS_DEFAULT_VALUE,
         name = "Rules weight",
         description = "A weight is associated to each priority to calculate the Rules Compliance Index.",
-        project = false,
-        global = true),
-    @Property(
-        key = CoreProperties.SERVER_BASE_URL,
-        defaultValue = CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE,
-        name = "Server base URL",
-        description = "HTTP address of the Sonar server, such as <i>http://yourhost.yourdomain/sonar</i>. This value is used i.e. to create links in emails.",
         project = false,
         global = true),
     @Property(

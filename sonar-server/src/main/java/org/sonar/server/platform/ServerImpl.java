@@ -64,8 +64,9 @@ public final class ServerImpl extends Server {
 
   private String initKey(Configuration conf) {
     String organization = conf.getString(CoreProperties.ORGANIZATION);
+    String baseUrl = conf.getString(CoreProperties.SERVER_BASE_URL, CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
     String previousKey = conf.getString(CoreProperties.SERVER_KEY);
-    return new ServerKeyGenerator().generate(organization, previousKey);
+    return new ServerKeyGenerator().generate(organization, baseUrl, previousKey);
   }
 
   public String getId() {

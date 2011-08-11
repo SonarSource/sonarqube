@@ -28,7 +28,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import static org.hamcrest.text.StringStartsWith.startsWith;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class ServerKeyGeneratorTest {
 
@@ -41,71 +41,53 @@ public class ServerKeyGeneratorTest {
 
   @Test
   public void keyShouldHaveTenCharacters() {
-    ServerKeyGenerator.ServerKey key = new ServerKeyGenerator.ServerKey("SonarSource", localhost);
-    assertThat(key.getKey().length(), Is.is(10)); // first character is version + 9 characters for checksum
-    assertThat(StringUtils.isBlank(key.getKey()), Is.is(false));
+    String key = new ServerKeyGenerator().toKey("SonarSource", localhost);
+    assertThat(key.length(), Is.is(10)); // first character is version + 9 characters for checksum
+    assertThat(StringUtils.isBlank(key), Is.is(false));
   }
 
   @Test
   public void keyShouldStartWithVersion() {
-    ServerKeyGenerator.ServerKey key = new ServerKeyGenerator.ServerKey("SonarSource", localhost);
-    assertThat(key.getKey(), startsWith(ServerKeyGenerator.VERSION));
+    String key = new ServerKeyGenerator().toKey("SonarSource", localhost);
+    assertThat(key, startsWith(ServerKeyGenerator.VERSION));
   }
 
   @Test
-  public void loopbackAddressesShouldNotBeValid() throws UnknownHostException {
-    assertThat(new ServerKeyGenerator.ServerKey("SonarSource", InetAddress.getByName("127.0.0.1")).isValid(), Is.is(false));
+  public void loopbackAddressesShouldNotBeAccepted() throws UnknownHostException {
+    assertThat(new ServerKeyGenerator().isFixed(InetAddress.getByName("127.0.0.1")), Is.is(false));
   }
 
   @Test
-  public void testEqualsAndHashCode() {
-    ServerKeyGenerator.ServerKey key1 = new ServerKeyGenerator.ServerKey("Corp One", localhost);
-    ServerKeyGenerator.ServerKey key2 = new ServerKeyGenerator.ServerKey("Corp Two", localhost);
-    assertEquals(key1, key1);
-    assertEquals(key1.hashCode(), key1.hashCode());
-
-    assertThat(key1.equals(key2), Is.is(false));
-    assertThat(key2.equals(key1), Is.is(false));
-
-    assertThat(key1.equals("string"), Is.is(false));
+  public void publicAddressesNotBeAccepted() throws UnknownHostException {
+    assertThat(new ServerKeyGenerator().isFixed(InetAddress.getByName("sonarsource.com")), Is.is(true));
   }
 
   @Test
-  public void shouldGenerateKey() {
-    String key = new ServerKeyGenerator().generate("SonarSource");
-    assertThat(StringUtils.isNotBlank(key), Is.is(true));
-  }
-
-  @Test
-  public void organizationShouldBeMandatory() {
-    assertNull(new ServerKeyGenerator().generate(null));
-    assertNull(new ServerKeyGenerator().generate(""));
-    assertNull(new ServerKeyGenerator().generate("    "));
+  public void shouldBeAddressOwner() throws UnknownHostException {
+    assertThat(new ServerKeyGenerator().isOwner(InetAddress.getByName("sonarsource.com")), Is.is(false));
+    assertThat(new ServerKeyGenerator().isOwner(InetAddress.getByName("localhost")), Is.is(true));
+    assertThat(new ServerKeyGenerator().isOwner(InetAddress.getByName("127.0.0.1")), Is.is(true));
   }
 
   @Test
   public void keyShouldBeUniquePerOrganization() {
-    ServerKeyGenerator generator = new ServerKeyGenerator();
-    String k1 = generator.generate("Corp One");
-    String k2 = generator.generate("Corp Two");
+    ServerKeyGenerator generator = new ServerKeyGenerator(true);
+    String k1 = generator.generate("Corp One", "http://localhost:9000");
+    String k2 = generator.generate("Corp Two", "http://localhost:9000");
     assertThat(StringUtils.equals(k1, k2), Is.is(false));
   }
 
   @Test
   public void keyShouldBeReproducible() {
-    ServerKeyGenerator generator = new ServerKeyGenerator();
-    String k1 = generator.generate("SonarSource");
-    String k2 = generator.generate("SonarSource");
+    ServerKeyGenerator generator = new ServerKeyGenerator(true);
+    String k1 = generator.generate("SonarSource", "http://localhost:9000");
+    String k2 = generator.generate("SonarSource", "http://localhost:9000");
     assertThat(StringUtils.equals(k1, k2), Is.is(true));
   }
 
   @Test
-  public void shouldNotKeepPreviousKeyIfNotValid() {
-    ServerKeyGenerator generator = new ServerKeyGenerator();
-    String key = generator.generate("SonarSource", "unvalid");
-    assertNotNull(key);
-    assertThat(StringUtils.equals(key, "unvalid"), Is.is(false));
+  public void shouldExtractAddressFromUrl() {
+    assertThat(new ServerKeyGenerator().extractAddressFromUrl("https://localhost:9000").getHostAddress(), Is.is("127.0.0.1"));
+    assertThat(new ServerKeyGenerator().extractAddressFromUrl("http://sonarsource.com/sonar").getHostName(), Is.is("sonarsource.com"));
   }
-
-
 }
