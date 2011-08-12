@@ -51,10 +51,6 @@ public class ServerKeyGenerator {
   }
 
   public String generate(String organization, String baseUrl) {
-    return generate(organization, baseUrl, null);
-  }
-
-  public String generate(String organization, String baseUrl, String previousKey) {
     String key = null;
     if (StringUtils.isNotBlank(organization) && StringUtils.isNotBlank(baseUrl)) {
       InetAddress address = extractAddressFromUrl(baseUrl);
@@ -62,7 +58,6 @@ public class ServerKeyGenerator {
         key = toKey(organization, address);
       }
     }
-    log(previousKey, key);
     return key;
   }
 
@@ -90,20 +85,6 @@ public class ServerKeyGenerator {
     // Link local addresses are in the range 169.254/16 (IPv4) or fe80::/10 (IPv6). They are "autoconfiguration" addresses.
     // They can assigned pseudorandomly, so they don't guarantee to be the same between two server startups.
     return acceptPrivateAddress || (!address.isLoopbackAddress() && !address.isLinkLocalAddress());
-  }
-
-  void log(String previousKey, String newKey) {
-    if (StringUtils.isNotBlank(newKey) && StringUtils.isNotBlank(previousKey) && !previousKey.equals(newKey)) {
-      LoggerFactory.getLogger(getClass()).warn("Server key has changed. Licensed plugins may be disabled. "
-          + "Please check the organization name (Settings page) and the server IP addresses.");
-    }
-    if (StringUtils.isNotBlank(newKey)) {
-      Logs.INFO.info("Server key: " + newKey);
-
-    } else if (StringUtils.isNotBlank(previousKey)) {
-      LoggerFactory.getLogger(getClass()).warn("Server key has been removed. Licensed plugins may be disabled. "
-          + "Please check the organization name (Settings page) and the server IP addresses.");
-    }
   }
 
   InetAddress extractAddressFromUrl(String baseUrl) {

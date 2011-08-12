@@ -5,5 +5,5 @@
   <properties id="2" prop_key="sonar.core.id" resource_id="[null]" text_value="123" user_id="[null]"/>
   <properties id="3" prop_key="sonar.core.version" resource_id="[null]" text_value="2.2" user_id="[null]"/>
   <properties id="4" prop_key="sonar.core.startTime" resource_id="[null]" text_value="2010-05-18T17:59:00+0000" user_id="[null]"/>
-  <properties id="5" prop_key="sonar.serverKey.secured" resource_id="[null]" text_value="1abcdef" user_id="[null]"/>
+
 </dataset>

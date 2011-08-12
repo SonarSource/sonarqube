@@ -22,8 +22,8 @@ package org.sonar.server.platform;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.database.configuration.Property;
 import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.database.configuration.Property;
 import org.sonar.api.platform.Server;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
@@ -38,7 +38,6 @@ public final class ServerImpl extends Server {
   private String id;
   private String version;
   private final Date startedAt;
-  private String key;
 
   /**
    * This component can't use Configuration because of startup sequence. It must be started before plugins.
@@ -59,7 +58,6 @@ public final class ServerImpl extends Server {
   public void start() {
     try {
       id = new SimpleDateFormat("yyyyMMddHHmmss").format(startedAt);
-      key = initKey();
       version = loadVersionFromManifest("/META-INF/maven/org.codehaus.sonar/sonar-plugin-api/pom.properties");
       if (StringUtils.isBlank(version)) {
         throw new ServerStartException("Unknown Sonar version");
@@ -70,15 +68,13 @@ public final class ServerImpl extends Server {
     }
   }
 
-  private String initKey() {
+  public String getKey() {
     DatabaseSession session = dbSessionFactory.getSession();
     Property organization = session.getSingleResult(Property.class, "key", CoreProperties.ORGANIZATION);
     Property baseUrl = session.getSingleResult(Property.class, "key", CoreProperties.SERVER_BASE_URL);
-    Property previousKey = session.getSingleResult(Property.class, "key", CoreProperties.SERVER_KEY);
     return keyGenerator.generate(
-        organization!=null ? organization.getValue() : null,
-        baseUrl != null ? baseUrl.getValue() : null,
-        previousKey!=null ? previousKey.getValue() : null);
+        organization != null ? organization.getValue() : null,
+        baseUrl != null ? baseUrl.getValue() : null);
   }
 
   public String getId() {
@@ -115,10 +111,6 @@ public final class ServerImpl extends Server {
 
   public String getURL() {
     return null;
-  }
-
-  public String getKey() {
-    return key;
   }
 
   @Override

@@ -72,7 +72,7 @@ public class ServerImplTest extends AbstractDbUnitTestCase {
     setupData("shouldGenerateKey");
 
     ServerKeyGenerator keyGenerator = mock(ServerKeyGenerator.class);
-    when(keyGenerator.generate("World Company", "http://192.168.0.1", null)).thenReturn("abcde");
+    when(keyGenerator.generate("World Company", "http://192.168.0.1")).thenReturn("abcde");
     ServerImpl server = new ServerImpl(getSessionFactory(), keyGenerator, new Date());
     server.start();
 

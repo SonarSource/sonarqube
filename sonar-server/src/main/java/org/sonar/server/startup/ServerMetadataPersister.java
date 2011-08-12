@@ -39,7 +39,6 @@ public class ServerMetadataPersister {
   public void start() {
     setProperty(CoreProperties.SERVER_ID, server.getId());
     setProperty(CoreProperties.SERVER_VERSION, server.getVersion());
-    setProperty(CoreProperties.SERVER_KEY, server.getKey());
     setProperty(CoreProperties.SERVER_STARTTIME, new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(server.getStartedAt()));
     session.commit();
   }
