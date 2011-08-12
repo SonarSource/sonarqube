@@ -43,6 +43,7 @@ SelectBox.init('to');
   <% if @profile.projects.empty? %>
     <p><%= message('quality_profiles.no_projects_associated_to_profile_x', :params => @profile.name) -%></p>
   <% else %>
+  <p><%= message('quality_profiles.projects_warning') -%></p>
   <ol>
     <% @profile.projects.each do |project| %>
       <li><%= project.name %></li>
