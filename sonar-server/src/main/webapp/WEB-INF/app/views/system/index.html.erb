@@ -4,21 +4,6 @@
   </li>
 </ul>
 
-<table class="data width100" id="system_info">
-<thead>
-  <tr>
-    <th colspan="2"><h2>System Info</h2></th>
-  </tr>
-</thead>
-<tbody>
-  <% @server.system_info.each do |data| %>
-    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'system' } %>
-  <% end %>
-<tbody>
-</table>
-
-<br/>
-
 <table class="data width100" id="sonar">
 <thead>
   <tr>
@@ -28,21 +13,6 @@
 <tbody>
   <% @server.sonar_info.each do |data| %>
     <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'sonar' } %>
-  <% end %>
-<tbody>
-</table>
-
-<br/>
-
-<table class="data width100" id="memory">
-<thead>
-  <tr>
-    <th colspan="2"><h2>Java VM Statistics</h2></th>
-  </tr>
-</thead>
-<tbody>
-  <% @server.system_statistics.each do |data| %>
-    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'memory' } %>
   <% end %>
 <tbody>
 </table>
@@ -70,6 +40,37 @@
 </table>
 
 <br/>
+
+<table class="data width100" id="system_info">
+<thead>
+  <tr>
+    <th colspan="2"><h2>System Info</h2></th>
+  </tr>
+</thead>
+<tbody>
+  <% @server.system_info.each do |data| %>
+    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'system' } %>
+  <% end %>
+<tbody>
+</table>
+
+<br/>
+
+<table class="data width100" id="memory">
+<thead>
+  <tr>
+    <th colspan="2"><h2>Java VM Statistics</h2></th>
+  </tr>
+</thead>
+<tbody>
+  <% @server.system_statistics.each do |data| %>
+    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'memory' } %>
+  <% end %>
+<tbody>
+</table>
+
+<br/>
+
 
 <table class="data width100" id="system_properties">
 <thead>
