@@ -31,7 +31,7 @@ class Plugins::ResourceController < ApplicationController
     page_id=params[:page]
     @page_proxy=java_facade.getPage(page_id)
 
-    return redirect_to home_url if @page_proxy.nil?
+    return redirect_to(home_path) unless @page_proxy
     
     authorized=@page_proxy.getUserRoles().size==0
     unless authorized
