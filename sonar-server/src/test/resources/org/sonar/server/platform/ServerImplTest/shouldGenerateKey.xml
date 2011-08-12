@@ -1,0 +1,6 @@
+<dataset>
+
+  <properties id="1" prop_key="sonar.organization" text_value="World Company" resource_id="[null]" user_id="[null]"/>
+  <properties id="2" prop_key="sonar.core.serverBaseURL" text_value="http://192.168.0.1" resource_id="[null]" user_id="[null]"/>
+
+</dataset>

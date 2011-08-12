@@ -144,6 +144,7 @@ public final class Platform {
     coreContainer.as(Characteristics.CACHE).addComponent(UpdateCenterClient.class);
     coreContainer.as(Characteristics.CACHE).addComponent(UpdateCenterMatrixFactory.class);
     coreContainer.as(Characteristics.CACHE).addComponent(PluginDownloader.class);
+    coreContainer.as(Characteristics.CACHE).addComponent(ServerImpl.class);
     coreContainer.as(Characteristics.NO_CACHE).addComponent(FilterExecutor.class);
     coreContainer.as(Characteristics.NO_CACHE).addAdapter(new DatabaseSessionProvider());
     coreContainer.start();
@@ -161,7 +162,6 @@ public final class Platform {
     DefaultServerPluginRepository pluginRepository = servicesContainer.getComponent(DefaultServerPluginRepository.class);
     pluginRepository.registerExtensions(servicesContainer);
 
-    servicesContainer.as(Characteristics.CACHE).addComponent(ServerImpl.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(DefaultModelFinder.class); // depends on plugins
     servicesContainer.as(Characteristics.CACHE).addComponent(DefaultModelManager.class);
     servicesContainer.as(Characteristics.CACHE).addComponent(Plugins.class);

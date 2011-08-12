@@ -19,19 +19,22 @@
  */
 package org.sonar.server.platform;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.hamcrest.core.Is;
 import org.junit.Test;
+import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.io.IOException;
+import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class ServerImplTest {
+public class ServerImplTest extends AbstractDbUnitTestCase {
 
   @Test
   public void alwaysReturnTheSameValues() {
-    ServerImpl server = new ServerImpl(new PropertiesConfiguration());
+    ServerImpl server = new ServerImpl(getSessionFactory());
     server.start();
 
     assertNotNull(server.getId());
@@ -46,21 +49,33 @@ public class ServerImplTest {
 
   @Test
   public void getVersionFromFile() throws IOException {
-    assertEquals("1.0", new ServerImpl(new PropertiesConfiguration()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-with-version.properties"));
+    assertEquals("1.0", new ServerImpl(getSessionFactory()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-with-version.properties"));
   }
 
   @Test
   public void testFileWithNoVersion() throws IOException {
-    assertEquals("", new ServerImpl(new PropertiesConfiguration()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-without-version.properties"));
+    assertEquals("", new ServerImpl(getSessionFactory()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-without-version.properties"));
   }
 
   @Test
   public void testFileWithEmptyVersionParameter() throws IOException {
-    assertEquals("", new ServerImpl(new PropertiesConfiguration()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-with-empty-version.properties"));
+    assertEquals("", new ServerImpl(getSessionFactory()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-with-empty-version.properties"));
   }
 
   @Test
   public void shouldNotFailIfFileNotFound() throws IOException {
-    assertEquals("", new ServerImpl(new PropertiesConfiguration()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/unknown-file.properties"));
+    assertEquals("", new ServerImpl(getSessionFactory()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/unknown-file.properties"));
+  }
+
+  @Test
+  public void shouldGenerateKey() {
+    setupData("shouldGenerateKey");
+
+    ServerKeyGenerator keyGenerator = mock(ServerKeyGenerator.class);
+    when(keyGenerator.generate("World Company", "http://192.168.0.1", null)).thenReturn("abcde");
+    ServerImpl server = new ServerImpl(getSessionFactory(), keyGenerator, new Date());
+    server.start();
+
+    assertThat(server.getKey(), Is.is("abcde"));
   }
 }
