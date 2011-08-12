@@ -135,12 +135,14 @@ public class DefaultServerPluginRepository implements ServerPluginRepository {
     List<ExtensionProvider> providers = container.getComponents(ExtensionProvider.class);
     for (ExtensionProvider provider : providers) {
       Object obj = provider.provide();
-      if (obj instanceof Iterable) {
-        for (Object extension : (Iterable) obj) {
-          installExtension(container, extension);
+      if (obj != null) {
+        if (obj instanceof Iterable) {
+          for (Object extension : (Iterable) obj) {
+            installExtension(container, extension);
+          }
+        } else {
+          installExtension(container, obj);
         }
-      } else {
-        installExtension(container, obj);
       }
     }
   }
