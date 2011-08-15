@@ -48,21 +48,25 @@ import java.util.List;
         key = CoreProperties.ORGANIZATION,
         name = "Organization",
         description = "Identify your installation. Required to generate the server key and to benefit from licensed plugins. Server must be restarted for the change to take effect.",
-        global = true),
+        global = true,
+        category = "General"
+    ),
     @Property(
         key = CoreProperties.SERVER_BASE_URL,
         defaultValue = CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE,
         name = "Server base URL",
         description = "HTTP address of the Sonar server, such as <i>http://yourhost.yourdomain/sonar</i>. This value is used i.e. to create links in emails and to generate server key.",
         project = false,
-        global = true),
+        global = true,
+        category = "General"),
     @Property(
         key = CoreProperties.CORE_COVERAGE_PLUGIN_PROPERTY,
         defaultValue = "cobertura",
         name = "Code coverage plugin",
         description = "Key of the code coverage plugin to use.",
         project = true,
-        global = true),
+        global = true,
+        category = "Coverage"),
     @Property(
         key = CoreProperties.CORE_IMPORT_SOURCES_PROPERTY,
         defaultValue = "" + CoreProperties.CORE_IMPORT_SOURCES_DEFAULT_VALUE,
@@ -70,14 +74,16 @@ import java.util.List;
         description = "Set to false if sources should not be displayed, e.g. for security reasons.",
         project = true,
         module = true,
-        global = true),
+        global = true,
+        category = "General"),
     @Property(
         key = CoreProperties.CORE_TENDENCY_DEPTH_PROPERTY,
         defaultValue = "" + CoreProperties.CORE_TENDENCY_DEPTH_DEFAULT_VALUE,
         name = "Tendency period",
         description = TendencyDecorator.PROP_DAYS_DESCRIPTION,
         project = false,
-        global = true),
+        global = true,
+        category = "General"),
     @Property(
         key = CoreProperties.SKIP_TENDENCIES_PROPERTY,
         defaultValue = "" + CoreProperties.SKIP_TENDENCIES_DEFAULT_VALUE,
@@ -85,41 +91,47 @@ import java.util.List;
         description = "Skip calculation of measure tendencies",
         project = true,
         module = false,
-        global = true),
+        global = true,
+        category = "General"),
     @Property(
         key = CoreProperties.CORE_SKIPPED_MODULES_PROPERTY,
         name = "Exclude modules",
         description = "Maven artifact ids of modules to exclude (comma-separated).",
         project = true,
-        global = false),
+        global = false,
+        category = "General"),
     @Property(
         key = CoreProperties.CORE_RULE_WEIGHTS_PROPERTY,
         defaultValue = CoreProperties.CORE_RULE_WEIGHTS_DEFAULT_VALUE,
         name = "Rules weight",
         description = "A weight is associated to each priority to calculate the Rules Compliance Index.",
         project = false,
-        global = true),
+        global = true,
+        category = "General"),
     @Property(
         key = CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY,
         defaultValue = "" + CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE,
         name = "Force user authentication",
         description = "Forcing user authentication stops un-logged users to access Sonar.",
         project = false,
-        global = true),
+        global = true,
+        category = "General"),
     @Property(
         key = CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY,
         defaultValue = "" + CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_DEAULT_VALUE,
         name = "Allow users to sign up online",
         description = "Users can sign up online.",
         project = false,
-        global = true),
+        global = true,
+        category = "General"),
     @Property(
         key = CoreProperties.CORE_DEFAULT_GROUP,
         defaultValue = CoreProperties.CORE_DEFAULT_GROUP_DEFAULT_VALUE,
         name = "Default user group",
         description = "Any new users will automatically join this group.",
         project = false,
-        global = true
+        global = true,
+        category = "General"
     ),
     @Property(
         key = CoreProperties.CORE_VIOLATION_LOCALE_PROPERTY,
@@ -127,7 +139,8 @@ import java.util.List;
         name = "Locale used for violation messages",
         description = "Locale to be used when generating violation messages. It's up to each rule engine to support this global internationalization property",
         project = true,
-        global = true),
+        global = true,
+        category = "General"),
     @Property(
         key = "sonar.timemachine.period1",
         name = "Period 1",
@@ -136,7 +149,8 @@ import java.util.List;
             "compare to previous analysis</li><li>A version, for example 1.2</li></ul>",
         project = false,
         global = true,
-        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_1
+        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_1,
+        category = "Time Machine"
     ),
     @Property(
         key = "sonar.timemachine.period2",
@@ -144,7 +158,8 @@ import java.util.List;
         description = "See the property 'Period 1'",
         project = false,
         global = true,
-        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_2
+        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_2,
+        category = "Time Machine"
     ),
     @Property(
         key = "sonar.timemachine.period3",
@@ -152,7 +167,8 @@ import java.util.List;
         description = "See the property 'Period 1'",
         project = false,
         global = true,
-        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_3
+        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_3,
+        category = "Time Machine"
     ),
     @Property(
         key = "sonar.timemachine.period4",
@@ -162,7 +178,8 @@ import java.util.List;
             "for example 2010-12-25</li><li>'previous_analysis' to compare to previous analysis</li><li>A version, for example 1.2</li></ul>",
         project = true,
         global = false,
-        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_4
+        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_4,
+        category = "Time Machine"
     ),
     @Property(
         key = "sonar.timemachine.period5",
@@ -170,7 +187,8 @@ import java.util.List;
         description = "See the property 'Period 4'",
         project = true,
         global = false,
-        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_5
+        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_5,
+        category = "Time Machine"
     )
 })
 public class CorePlugin extends SonarPlugin {

@@ -58,6 +58,11 @@ public @interface Property {
   String description() default "";
 
   /**
+   * @since 2.11
+   */
+  String category() default "";
+
+  /**
    * Is the property displayed in projet settings page ?
    */
   boolean project() default false;

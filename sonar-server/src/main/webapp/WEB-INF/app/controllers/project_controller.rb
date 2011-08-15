@@ -71,6 +71,19 @@ class ProjectController < ApplicationController
     if !@project.project? && !@project.module?
       redirect_to :action => 'index', :id => params[:id]
     end
+
+    @category=params[:category] ||= 'General'
+    @properties_per_category={}
+    java_facade.getPluginsMetadata().each do |plugin|
+      properties=java_facade.getPluginProperties(plugin).select { |property|
+        (@project.module? && property.module()) || (@project.project? && property.project())
+      }
+      properties.each do |property|
+        category = (property.category().present? ? property.category() : plugin.name())
+        @properties_per_category[category]||=[]
+        @properties_per_category[category]<<property
+      end
+    end
   end
 
 
