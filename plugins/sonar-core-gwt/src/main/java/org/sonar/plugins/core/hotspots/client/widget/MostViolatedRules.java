@@ -91,7 +91,7 @@ public class MostViolatedRules extends AbstractHotspot {
 
       @Override
       protected void doOnResponse(Resource resource) {
-        if (resource.getMeasures().isEmpty()) {
+        if (resource==null || resource.getMeasures().isEmpty()) {
           renderEmptyResults();
         } else {
           renderGrid(resource);
@@ -133,9 +133,9 @@ public class MostViolatedRules extends AbstractHotspot {
         .setDepth(0)
         .setExcludeRules(false)
         .setLimit(LIMIT);
-    String priority = getSelectedPriority();
-    if (priority!=null) {
-      query.setRulePriorities(priority);
+    String severity = getSelectedPriority();
+    if (severity!=null) {
+      query.setRuleSeverities(severity);
     }
     return query;
   }
