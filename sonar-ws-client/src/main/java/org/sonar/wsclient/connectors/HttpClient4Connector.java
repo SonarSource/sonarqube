@@ -82,7 +82,7 @@ public class HttpClient4Connector extends Connector {
     return executeRequest(newPutMethod(query));
   }
 
-  public String execute(DeleteQuery<?> query) {
+  public String execute(DeleteQuery query) {
     return executeRequest(newDeleteMethod(query));
   }
 
@@ -146,7 +146,7 @@ public class HttpClient4Connector extends Connector {
     return get;
   }
 
-  private HttpDelete newDeleteMethod(DeleteQuery<?> query) {
+  private HttpDelete newDeleteMethod(DeleteQuery query) {
     HttpDelete delete = new HttpDelete(server.getHost() + query.getUrl());
     initRequest(delete, query);
     return delete;

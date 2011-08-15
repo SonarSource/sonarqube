@@ -19,7 +19,7 @@
  */
 package org.sonar.wsclient.services;
 
-public class FavouriteDeleteQuery extends DeleteQuery<Favourite> {
+public class FavouriteDeleteQuery extends DeleteQuery {
 
   private String idOrKey;
 

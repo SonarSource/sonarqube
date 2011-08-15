@@ -19,11 +19,18 @@
  */
 package org.sonar.wsclient.services;
 
-/**
- * DELETE HTTP request
- *
- * @since 2.2
- */
-public abstract class DeleteQuery extends AbstractQuery {
+import org.junit.Test;
+import org.sonar.wsclient.Sonar;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
+public class ProjectDeleteQueryTest extends QueryTestCase {
+
+  @Test
+  public void testUrl() {
+    ProjectDeleteQuery query = ProjectDeleteQuery.create("my:project");
+    assertThat(query.getUrl(), is("/api/projects/my%3Aproject"));
+  }
 
 }

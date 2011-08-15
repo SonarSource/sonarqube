@@ -81,7 +81,7 @@ public class HttpClient3Connector extends Connector {
     return executeRequest(newPutRequest(query));
   }
 
-  public String execute(DeleteQuery<?> query) {
+  public String execute(DeleteQuery query) {
     return executeRequest(newDeleteRequest(query));
   }
 
@@ -117,7 +117,7 @@ public class HttpClient3Connector extends Connector {
     return method;
   }
 
-  private HttpMethodBase newDeleteRequest(DeleteQuery<?> query) {
+  private HttpMethodBase newDeleteRequest(DeleteQuery query) {
     HttpMethodBase method = new DeleteMethod(server.getHost() + query.getUrl());
     initRequest(method, query);
     return method;

@@ -20,51 +20,30 @@
 package org.sonar.wsclient.services;
 
 /**
- * @since 2.6
+ * @since 2.11
  */
-public class PropertyDeleteQuery extends DeleteQuery {
+public final class ProjectDeleteQuery extends DeleteQuery {
 
   private String key;
-  private String resourceKeyOrId;
+  private static final String BASE_URL = "/api/projects/";
 
-  public PropertyDeleteQuery(String key) {
+  private ProjectDeleteQuery(String key) {
     this.key = key;
-  }
-
-  public PropertyDeleteQuery(String key, String resourceKeyOrId) {
-    this.key = key;
-    this.resourceKeyOrId = resourceKeyOrId;
-  }
-
-  public PropertyDeleteQuery(Property property) {
-    this.key = property.getKey();
   }
 
   public String getKey() {
     return key;
   }
 
-  public PropertyDeleteQuery setKey(String key) {
-    this.key = key;
-    return this;
-  }
-
-  public String getResourceKeyOrId() {
-    return resourceKeyOrId;
-  }
-
-  public PropertyDeleteQuery setResourceKeyOrId(String resourceKeyOrId) {
-    this.resourceKeyOrId = resourceKeyOrId;
-    return this;
-  }
-
   @Override
   public String getUrl() {
     StringBuilder url = new StringBuilder();
-    url.append(PropertyQuery.BASE_URL);
-    url.append("/").append(encode(key));
-    url.append('?');
-    appendUrlParameter(url, "resource", resourceKeyOrId);
+    url.append(BASE_URL);
+    url.append(encode(key));
     return url.toString();
+  }
+
+  public static ProjectDeleteQuery create(String projectKeyOrId) {
+    return new ProjectDeleteQuery(projectKeyOrId);
   }
 }

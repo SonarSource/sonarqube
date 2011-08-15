@@ -45,7 +45,7 @@ public abstract class Connector {
    * @return JSON response or null if 404 NOT FOUND error
    * @since 2.2
    */
-  public abstract String execute(DeleteQuery<?> query);
+  public abstract String execute(DeleteQuery query);
 
   /**
    * @return JSON response or null if 404 NOT FOUND error
