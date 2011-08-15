@@ -31,6 +31,15 @@ public class PurgeDependenciesTest extends AbstractDbUnitTestCase {
     assertPurge("purgeDependencies");
   }
 
+  /**
+   * See https://jira.codehaus.org/browse/SONAR-2707
+   * Do not remove dependencies which are computed at the same time in other parallel jobs.
+   */
+  @Test
+  public void shouldNotPurgeUnprocessedSnapshots() throws SQLException {
+    assertPurge("shouldNotPurgeUnprocessedSnapshots");
+  }
+
   private void assertPurge(String testName) {
     setupData(testName);
     new PurgeDependencies(getSession()).purge(null);
