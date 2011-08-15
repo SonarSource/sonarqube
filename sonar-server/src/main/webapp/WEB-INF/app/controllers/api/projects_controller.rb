@@ -18,6 +18,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class Api::ProjectsController < Api::ApiController
+
+  before_filter :admin_required, :only => [ :destroy ]
   
   # PARAMETERS
   #   subprojects [true|false] : load sub-projects ? Default is false. Ignored if the parameter key is set.
@@ -49,7 +51,22 @@ class Api::ProjectsController < Api::ApiController
     end
   end
   
-  
+  #
+  # DELETE /api/projects/<key>
+  # curl -X DELETE  http://localhost:9000/api/projects/<key> -v -u admin:admin
+  #
+  def destroy
+    begin
+      if params[:id]
+        @project = Project.by_key(params[:id])
+        Project.delete_project(@project)
+      end
+      render_success("Project deleted")
+    rescue Exception => e
+      logger.error("Fails to execute #{request.url} : #{e.message}")
+      render_error(e.message)
+    end
+  end
   
   private
   

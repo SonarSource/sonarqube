@@ -39,6 +39,11 @@ class Project < ActiveRecord::Base
       Project.find(:first, :conditions => {:kee => k})
     end
   end
+
+  def self.delete_project(project)
+      Snapshot.update_all(['islast=?', false], ['(root_project_id=? OR project_id=?) AND islast=?', project.id, project.id, true])
+      Project.delete_all(['id=? OR root_id=? or copy_resource_id=?', project.id, project.id, project.id])
+  end
   
   def project
     root||self
