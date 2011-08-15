@@ -37,8 +37,10 @@ public final class PurgeDependencies extends Purge {
 
   public void purge(PurgeContext context) {
     Query query = getSession().createQuery("SELECT d.projectSnapshotId FROM " + DependencyDto.class.getSimpleName() +
-        " d WHERE NOT EXISTS(FROM " + Snapshot.class.getSimpleName() + " s WHERE s.id=d.projectSnapshotId AND s.last=:last)");
-    query.setParameter("last", true);
+        " d WHERE EXISTS(FROM " + Snapshot.class.getSimpleName() + " s WHERE s.id=d.projectSnapshotId AND s.last=:last and s.status=:status)");
+    query.setParameter("last", false);
+    query.setParameter("status", Snapshot.STATUS_PROCESSED);
+
     final List<Integer> projectSnapshotIds = query.getResultList();
     PurgeUtils.executeQuery(getSession(), "", projectSnapshotIds, "DELETE FROM " + DependencyDto.class.getSimpleName() + " WHERE projectSnapshotId in (:ids)");
   }
