@@ -86,7 +86,7 @@
     </tr>
   <% end %>
   <% if @filter_context.empty? %>
-    <tr class="even"><td colspan="<%= 1+filter.columns.size -%>">No results.</td></tr>
+    <tr class="even"><td colspan="<%= 1+filter.columns.size -%>"><%= message('no_results') -%></td></tr>
   <% else %>
     <%
         @filter_context.page_sorted_snapshot_ids.each do |snapshot_id|
