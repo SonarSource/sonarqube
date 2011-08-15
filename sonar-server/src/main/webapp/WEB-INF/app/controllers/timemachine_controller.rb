@@ -29,6 +29,7 @@ class TimemachineController < ApplicationController
 
   def index
     @project = Project.by_key(params[:id])
+    return redirect_to home_url unless @project
     @snapshot=@project.last_snapshot
 
     return access_denied unless is_user?(@snapshot)
