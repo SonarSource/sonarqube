@@ -259,16 +259,13 @@
           <aggregations>
             <aggregation>
               <includes>
-                <include>**/yahoo-dom-event-min.js</include>
-                <include>**/calendar-min.js</include>
                 <include>**/application-min.js</include>
                 <include>**/prototype-min.js</include>
                 <include>**/scriptaculous-min.js</include>
                 <include>**/tablekit-min.js</include>
                 <include>**/prototip-min.js</include>
-                <include>**/tooltip-min.js</include>
                 <include>**/dashboard-min.js</include>
-
+                <include>**/protovis-min.js</include>
               </includes>
               <output>${project.build.directory}/${project.build.finalName}/javascripts/sonar.js</output>
             </aggregation>
@@ -314,7 +311,7 @@
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <packagingExcludes>
-            **/*.log,*.iml,WEB-INF/script/,WEB-INF/test/
+            **/*.log,*.iml,WEB-INF/script/,WEB-INF/test/,javascripts/application*.js,javascripts/prototype*.js,javascripts/scriptaculous*.js,javascripts/tablekit*.js,javascripts/tablekit*.js,javascripts/prototip*.js,javascripts/dashboard*.js,javascripts/protovis*.js
           </packagingExcludes>
           <warSourceExcludes>
             **/*
