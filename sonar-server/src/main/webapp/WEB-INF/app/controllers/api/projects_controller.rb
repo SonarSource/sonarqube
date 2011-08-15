@@ -57,14 +57,14 @@ class Api::ProjectsController < Api::ApiController
   #
   def destroy
     begin
-      if params[:id]
-        @project = Project.by_key(params[:id])
-        Project.delete_project(@project)
+      if params[:id].present?
+        project = Project.by_key(params[:id])
+        Project.delete_project(project)
       end
       render_success("Project deleted")
     rescue Exception => e
       logger.error("Fails to execute #{request.url} : #{e.message}")
-      render_error(e.message)
+      render_error(e.message, 500)
     end
   end
   
