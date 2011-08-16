@@ -48,7 +48,7 @@
                unless @properties_per_category[category].empty?
           %>
               <tr class="select <%= cycle('even', 'odd', :name => 'category') -%> <%= 'selected' if @category==category -%>" id="select_<%= category -%>">
-                <td><%= link_to h(category), :overwrite_params => {:category => category} -%></td>
+                <td><%= link_to message("property.category.#{category}", :default => category), :overwrite_params => {:category => category} -%></td>
               </tr>
             <% end
                end
@@ -60,7 +60,7 @@
 
       <td class="column">
         <% if @category
-          category_name = message("settings.category.#{@category}", :default => @category)
+          category_name = message("property.category.#{@category}", :default => @category)
         %>
 
           <% form_tag :controller => :settings, :action => :update do %>
@@ -85,13 +85,15 @@
                 <tr class="<%= cycle('even', 'odd', :name => 'properties') -%>">
                   <td style="padding:  10px">
                     <h3>
-                      <%= h(property.name()) -%>
+                      <%= message("property.#{property.key()}.name", :default => property.name()) -%>
                       <% if property.project() %>
                         <br/><span class="note"><%= property.key() -%></span>
                       <% end %>
                     </h3>
-                    <% if property.description.present? %>
-                      <p class="marginbottom10"><%= property.description -%></p>
+                    <%
+                       desc=message("property.#{property.key()}.description", :default => property.description())
+                       if desc.present? %>
+                      <p class="marginbottom10"><%= desc -%></p>
                     <% end %>
                     <p>
                       <% span_id = "text_" + property.key().gsub('.', '_') %>
