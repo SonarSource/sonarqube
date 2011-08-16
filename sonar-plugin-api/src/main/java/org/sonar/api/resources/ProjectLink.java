@@ -20,7 +20,9 @@
 package org.sonar.api.resources;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.BaseIdentifiable;
 import org.sonar.api.database.model.ResourceModel;
 
@@ -119,12 +121,7 @@ public class ProjectLink extends BaseIdentifiable {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this)
-        .append("key", key)
-        .append("name", name)
-        .append("href", href)
-        .append("resource", resource)
-        .toString();
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 
   public void copyFieldsFrom(ProjectLink link) {

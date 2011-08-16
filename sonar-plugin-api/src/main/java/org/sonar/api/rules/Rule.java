@@ -20,9 +20,7 @@
 package org.sonar.api.rules;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.*;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.check.Cardinality;
 
@@ -398,13 +396,7 @@ public final class Rule {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this)
-        .append("id", getId())
-        .append("name", name)
-        .append("key", key)
-        .append("configKey", configKey)
-        .append("plugin", pluginName)
-        .toString();
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 
   private String removeNewLineCharacters(String text) {

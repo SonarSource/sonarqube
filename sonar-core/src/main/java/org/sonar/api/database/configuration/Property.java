@@ -19,7 +19,7 @@
  */
 package org.sonar.api.database.configuration;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.BaseIdentifiable;
 
@@ -139,11 +139,6 @@ public class Property extends BaseIdentifiable {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-        .append("key", key)
-        .append("resource", resourceId)
-        .append("user", userId)
-        .append("value", value)
-        .toString();
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 }

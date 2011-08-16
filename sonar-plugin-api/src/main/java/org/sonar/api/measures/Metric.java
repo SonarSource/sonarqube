@@ -20,7 +20,8 @@
 package org.sonar.api.measures;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
 
@@ -122,7 +123,7 @@ public class Metric implements ServerExtension, BatchExtension {
 
   /**
    * Creates an empty metric
-   * 
+   *
    * @deprecated in 1.12. Use the {@link Builder} factory.
    */
   @Deprecated
@@ -230,7 +231,7 @@ public class Metric implements ServerExtension, BatchExtension {
   }
 
   private Metric(String key, String name, ValueType type, String description, Integer direction, String domain, Boolean qualitative, Double worstValue, Double bestValue,
-      Boolean optimizedBestValue, Boolean hidden, Formula formula, boolean userManaged) {
+                 Boolean optimizedBestValue, Boolean hidden, Formula formula, boolean userManaged) {
     this.key = key;
     this.name = name;
     this.description = description;
@@ -548,19 +549,7 @@ public class Metric implements ServerExtension, BatchExtension {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this)
-        .append("key", key)
-        .append("name", name)
-        .append("type", type)
-        .append("enabled", enabled)
-        .append("qualitative", qualitative)
-        .append("direction", direction)
-        .append("domain", domain)
-        .append("worstValue", worstValue)
-        .append("bestValue", bestValue)
-        .append("optimizedBestValue", optimizedBestValue)
-        .append("hidden", hidden)
-        .toString();
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 
   /**
@@ -605,7 +594,7 @@ public class Metric implements ServerExtension, BatchExtension {
     private boolean userManaged = false;
 
     /**
-     * @param key the metric key, should be unique among all metrics
+     * @param key  the metric key, should be unique among all metrics
      * @param name the metric name
      * @param type the metric type
      */
@@ -696,6 +685,7 @@ public class Metric implements ServerExtension, BatchExtension {
 
     /**
      * Values of user-managed metrics can be set online in the "Manual measures" page.
+     *
      * @since 2.10
      */
     public boolean isUserManaged() {
@@ -704,7 +694,7 @@ public class Metric implements ServerExtension, BatchExtension {
 
     /**
      * Values of user-managed metrics can be set online in the "Manual measures" page.
-     * 
+     *
      * @since 2.10
      */
     public Builder setUserManaged(boolean b) {

@@ -19,6 +19,8 @@
  */
 package org.sonar.api.security;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.BaseIdentifiable;
 
 import javax.persistence.Column;
@@ -77,5 +79,10 @@ public class UserRole extends BaseIdentifiable {
   public UserRole setResourceId(Integer resourceId) {
     this.resourceId = resourceId;
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 }

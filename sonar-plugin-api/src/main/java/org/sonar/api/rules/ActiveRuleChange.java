@@ -19,9 +19,7 @@
  */
 package org.sonar.api.rules;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.*;
 import org.sonar.api.database.BaseIdentifiable;
 import org.sonar.api.profiles.RulesProfile;
 
@@ -192,15 +190,7 @@ public class ActiveRuleChange extends BaseIdentifiable {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this)
-        .append("id", getId())
-        .append("profile", rulesProfile)
-        .append("rule", rule)
-        .append("modifier", userName)
-        .append("changed at", date)
-        .append("enabled", enabled)
-        .append("new severity", newSeverity)
-        .toString();
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 
 }

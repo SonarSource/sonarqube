@@ -21,7 +21,8 @@ package org.sonar.api.design;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 import javax.persistence.*;
 
@@ -190,18 +191,6 @@ public class DependencyDto {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this)
-        .append("id", getId())
-        .append("fromSnapshotId", fromSnapshotId)
-        .append("fromResourceId", fromResourceId)
-        .append("fromScope", fromScope)
-        .append("toSnapshotId", toSnapshotId)
-        .append("toResourceId", toResourceId)
-        .append("toScope", toScope)
-        .append("weight", weight)
-        .append("usage", usage)
-        .append("projectSnapshotId", projectSnapshotId)
-        .append("parentDependencyId", parentDependencyId)
-        .toString();
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 }
