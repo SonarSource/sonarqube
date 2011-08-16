@@ -65,33 +65,7 @@ class TrendsChart
       ProjectMeasure.connection.select_all(Project.send(:sanitize_sql, conditions))
     end
   end
-  
-  def self.time_machine_reviews(resource, metric_ids, options={})
-    unless metric_ids.empty?
-    sql= "SELECT m.measure_date as created_at, m.value as value, m.metric_id as metric_id " +
-            "FROM project_measures m " +
-            "WHERE m.snapshot_id IS NULL " +
-            "AND m.rule_id is null " +
-            "AND m.project_id=? " +
-            "AND m.metric_id in (?) " +
-            "and m.rule_priority is null and m.characteristic_id IS NULL"
-      if (options[:from])
-        sql += ' and m.measure_date>=?'
-      end
-      if (options[:to])
-        sql += ' and m.measure_date<=?'
-      end
-      conditions=[sql, resource.id, metric_ids]
-      if (options[:from])
-        conditions<<options[:from]
-      end
-      if (options[:to])
-        conditions<<options[:to]
-      end
-      ProjectMeasure.connection.select_all(Project.send(:sanitize_sql, conditions))
-    end
-  end  
-  
+   
   def self.add_measures(java_chart, sqlresult)
     if sqlresult && sqlresult.size>0
       sqlresult.each do |hash|
