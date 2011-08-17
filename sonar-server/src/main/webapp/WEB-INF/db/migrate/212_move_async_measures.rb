@@ -29,26 +29,25 @@ class MoveAsyncMeasures < ActiveRecord::Migration
   class ProjectMeasure < ActiveRecord::Base
   end
 
-  class AsyncMeasureSnapshot < ActiveRecord::Base
-    belongs_to :measure, :foreign_key => 'project_measure_id', :class_name => "ProjectMeasure"
-  end
-
   def self.up
-    deprecated_measures=AsyncMeasureSnapshot.find(:all, :include => 'measure', :conditions => 'snapshot_id is not null')
+    deprecated_measures=ProjectMeasure.find_by_sql("select p1.* from project_measures p1 where p1.snapshot_id is null and p1.measure_date is not null and not exists(select id from project_measures p2 where p2.project_id=p1.project_id and p2.metric_id=p1.metric_id and p2.measure_date is not null and p2.measure_date>p1.measure_date)")
+
     say_with_time "Moving #{deprecated_measures.size} measures" do
       deprecated_measures.each do |dm|
-        if dm.measure && dm.project_id
+        if dm.project_id
           ManualMeasure.create(
               :resource_id => dm.project_id,
-              :metric_id => dm.measure.metric_id,
-              :value => dm.measure.value,
-              :text_value => dm.measure.text_value,
+              :metric_id => dm.metric_id,
+              :value => dm.value,
+              :text_value => dm.text_value,
               :created_at => dm.measure_date,
               :updated_at => dm.measure_date,
-              :description => dm.measure.description)
+              :description => dm.description)
         end
       end
     end
+
+    ProjectMeasure.delete_all("snapshot_id is null and measure_date is not null")
   end
 
 end
