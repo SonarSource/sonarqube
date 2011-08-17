@@ -53,6 +53,9 @@ public class GwtI18n implements ServerComponent {
     return propertyKeys;
   }
 
+  /**
+   * Used by the JRuby on Rails application
+   */
   public String getJsDictionnary(Locale locale) {
     ResourceBundle bundle = getBundle(locale);
     return getJsDictionnary(bundle);

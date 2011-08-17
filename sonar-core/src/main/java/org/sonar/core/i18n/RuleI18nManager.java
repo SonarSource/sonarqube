@@ -55,10 +55,10 @@ public class RuleI18nManager implements ServerComponent {
   public String getDescription(String repositoryKey, String ruleKey, Locale locale) {
     String relatedProperty = new StringBuilder().append(RULE_PREFIX).append(repositoryKey).append(".").append(ruleKey).append(NAME_SUFFIX).toString();
 
-    // TODO add cache
-    String description = i18nManager.messageFromFile(locale, ruleKey + ".html", relatedProperty);
-    if (description == null && !Locale.ENGLISH.equals(locale)) {
-      description = i18nManager.messageFromFile(Locale.ENGLISH, ruleKey + ".html", relatedProperty);
+    Locale localeWithoutCountry = (locale.getCountry()==null ? locale : new Locale(locale.getLanguage()));
+    String description = i18nManager.messageFromFile(localeWithoutCountry, ruleKey + ".html", relatedProperty, true);
+    if (description == null && !"en".equals(localeWithoutCountry.getLanguage())) {
+      description = i18nManager.messageFromFile(Locale.ENGLISH, ruleKey + ".html", relatedProperty, true);
     }
     return description;
   }
