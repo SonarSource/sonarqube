@@ -20,7 +20,6 @@
 package org.sonar.core.i18n;
 
 import com.google.common.collect.Maps;
-import org.hamcrest.CoreMatchers;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +29,7 @@ import java.net.URLClassLoader;
 import java.util.Locale;
 import java.util.Map;
 
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.sonar.core.i18n.I18nManager.BUNDLE_PACKAGE;
@@ -123,26 +123,48 @@ public class I18nManagerTest {
 
   @Test
   public void shouldFindEnglishFile() {
-    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name" /* any property in the same bundle */);
+    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name" /* any property in the same bundle */, false);
     assertThat(html, Is.is("This is the architecture rule"));
   }
 
   @Test
   public void shouldNotFindFile() {
-    String html = manager.messageFromFile(Locale.ENGLISH, "UnknownRule.html", "checkstyle.rule1.name" /* any property in the same bundle */);
+    String html = manager.messageFromFile(Locale.ENGLISH, "UnknownRule.html", "checkstyle.rule1.name" /* any property in the same bundle */, false);
     assertThat(html, nullValue());
   }
 
   @Test
   public void shouldFindFrenchFile() {
-    String html = manager.messageFromFile(Locale.FRENCH, "ArchitectureRule.html", "checkstyle.rule1.name" /* any property in the same bundle */);
+    String html = manager.messageFromFile(Locale.FRENCH, "ArchitectureRule.html", "checkstyle.rule1.name" /* any property in the same bundle */, false);
     assertThat(html, Is.is("Règle d'architecture"));
   }
 
   @Test
   public void shouldNotFindMissingLocale() {
-    String html = manager.messageFromFile(Locale.CHINA, "ArchitectureRule.html", "checkstyle.rule1.name" /* any property in the same bundle */);
+    String html = manager.messageFromFile(Locale.CHINA, "ArchitectureRule.html", "checkstyle.rule1.name" /* any property in the same bundle */, false);
     assertThat(html, nullValue());
+  }
+
+  @Test
+  public void shouldNotKeepInCache() {
+    assertThat(manager.getFileContentCache().size(), Is.is(0));
+    boolean keepInCache = false;
+    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name" /* any property in the same bundle */, keepInCache);
+
+    assertThat(html, not(nullValue()));
+    assertThat(manager.getFileContentCache().size(), Is.is(0));
+  }
+
+  @Test
+  public void shouldKeepInCache() {
+    assertThat(manager.getFileContentCache().size(), Is.is(0));
+    boolean keepInCache = true;
+    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name" /* any property in the same bundle */, keepInCache);
+
+    assertThat(html, not(nullValue()));
+    Map<String, Map<Locale, String>> cache = manager.getFileContentCache();
+    assertThat(cache.size(), Is.is(1));
+    assertThat(cache.get("ArchitectureRule.html").get(Locale.ENGLISH), Is.is("This is the architecture rule"));
   }
 
 
