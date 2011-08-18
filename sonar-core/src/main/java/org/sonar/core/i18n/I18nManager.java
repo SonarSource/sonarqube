@@ -45,7 +45,7 @@ public class I18nManager implements I18n, ServerExtension {
   private Map<String, ClassLoader> bundleToClassloaders;
   private Map<String, String> propertyToBundles;
   private ClassLoader languagePackClassLoader;
-  private Map<String,Map<Locale,String>> fileContentCache = Maps.newHashMap();
+  private Map<String, Map<Locale, String>> fileContentCache = Maps.newHashMap();
 
   public I18nManager(PluginRepository pluginRepository) {
     this.pluginRepository = pluginRepository;
@@ -108,11 +108,11 @@ public class I18nManager implements I18n, ServerExtension {
 
   /**
    * Only the given locale is searched. Contrary to java.util.ResourceBundle, no strategy for locating the bundle is implemented in
-   * this method. 
+   * this method.
    */
   String messageFromFile(Locale locale, String filename, String relatedProperty, boolean keepInCache) {
-    Map<Locale,String> fileCache = fileContentCache.get(filename);
-    if (fileCache!=null && fileCache.containsKey(locale)) {
+    Map<Locale, String> fileCache = fileContentCache.get(filename);
+    if (fileCache != null && fileCache.containsKey(locale)) {
       return fileCache.get(locale);
     }
 
@@ -129,18 +129,21 @@ public class I18nManager implements I18n, ServerExtension {
       if (input != null) {
         try {
           result = IOUtils.toString(input, "UTF-8");
-          if (keepInCache && result!=null) {
-            if (fileCache==null) {
-              fileCache = Maps.newHashMap();
-              fileContentCache.put(filename, fileCache);
-            }
-            fileCache.put(locale, result);
-          }
+
         } catch (IOException e) {
           throw new SonarException("Fail to load file: " + filePath, e);
         } finally {
           IOUtils.closeQuietly(input);
         }
+      }
+
+      if (keepInCache) {
+        if (fileCache == null) {
+          fileCache = Maps.newHashMap();
+          fileContentCache.put(filename, fileCache);
+        }
+        // put null value for negative caching.
+        fileCache.put(locale, result);
       }
     }
     return result;
