@@ -26,7 +26,7 @@ class SettingsController < ApplicationController
   def index
     return access_denied unless is_admin?
     load_properties(false)
-    @category ||= 'General'
+    @category ||= 'general'
   end
 
   def update

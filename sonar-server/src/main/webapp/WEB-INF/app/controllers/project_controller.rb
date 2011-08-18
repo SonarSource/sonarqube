@@ -72,7 +72,7 @@ class ProjectController < ApplicationController
       redirect_to :action => 'index', :id => params[:id]
     end
 
-    @category=params[:category] ||= 'General'
+    @category=params[:category] ||= 'general'
     @properties_per_category={}
     java_facade.getPluginsMetadata().each do |plugin|
       properties=java_facade.getPluginProperties(plugin).select { |property|

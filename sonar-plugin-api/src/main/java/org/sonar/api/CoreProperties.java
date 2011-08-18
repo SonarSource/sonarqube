@@ -29,6 +29,37 @@ import org.sonar.api.resources.ProjectFileSystem;
  */
 public interface CoreProperties {
 
+  /**
+   * @since 2.11
+   */
+  String CATEGORY_GENERAL = "general";
+
+  /**
+   * @since 2.11
+   */
+  String CATEGORY_CODE_COVERAGE = "codeCoverage";
+
+  /**
+   * @since 2.11
+   */
+  String CATEGORY_SECURITY = "security";
+
+  /**
+   * @since 2.11
+   */
+  String CATEGORY_L10N = "localization";
+
+  /**
+   * @since 2.11
+   */
+  String CATEGORY_JAVA = "java";
+
+  /**
+   * @since 2.11
+   */
+  String CATEGORY_DIFFERENTIAL_VIEWS = "differentialViews";
+
+
   /* Global settings */
   String SONAR_HOME = "sonar.home";
   String PROJECT_BRANCH_PROPERTY = "sonar.branch";

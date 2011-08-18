@@ -19,7 +19,8 @@
  */
 package org.sonar.plugins.design;
 
-import org.sonar.api.*;
+import com.google.common.collect.Lists;
+import org.sonar.api.SonarPlugin;
 import org.sonar.plugins.design.batch.*;
 import org.sonar.plugins.design.ui.dependencies.GwtDependenciesTab;
 import org.sonar.plugins.design.ui.lcom4.GwtLcom4Tab;
@@ -29,21 +30,12 @@ import org.sonar.plugins.design.ui.widgets.ChidamberKemererWidget;
 import org.sonar.plugins.design.ui.widgets.FileDesignWidget;
 import org.sonar.plugins.design.ui.widgets.PackageDesignWidget;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Properties({
-    @Property(
-        key = CoreProperties.DESIGN_SKIP_DESIGN_PROPERTY,
-        defaultValue = "" + CoreProperties.DESIGN_SKIP_DESIGN_DEFAULT_VALUE,
-        name = "Skip design analysis",
-        project = true,
-        global = true)
-})
 public class DesignPlugin extends SonarPlugin {
 
-  public List<Class<? extends Extension>> getExtensions() {
-    List<Class<? extends Extension>> extensions = new ArrayList<Class<? extends Extension>>();
+  public List getExtensions() {
+    List extensions = Lists.newArrayList();
 
     // Batch
     extensions.add(MavenDependenciesSensor.class);
