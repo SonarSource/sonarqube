@@ -214,6 +214,7 @@ public class CorePlugin extends SonarPlugin {
     extensions.add(SizeWidget.class);
     extensions.add(EventsWidget.class);
     extensions.add(CustomMeasuresWidget.class);
+    extensions.add(TimelineWidget.class);
 
     // chart
     extensions.add(XradarChart.class);

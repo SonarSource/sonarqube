@@ -1,0 +1,41 @@
+<%= javascript_include_tag 'protovis-sonar' %>
+
+<div id="timeline-chart"></div>
+
+<script type="text/javascript+protovis">
+
+<%
+  metric_data_map = {}
+  (1..3).each do |index|
+    metric=widget_properties["metric#{index}"]
+    if metric
+      metric_data_map[metric.id] = []
+    end
+  end
+  
+  trends = TrendsChart.time_machine_measures(@resource, metric_data_map.keys, {}).sort { |t1, t2| t1["created_at"] <=> t2["created_at"] }
+  trends.each()  do |trend_item|
+    metric_data_map[trend_item["metric_id"].to_i] << {:date => trend_item["created_at"], :value => trend_item["value"]}
+  end
+
+  js_data = "["
+  metric_data_map.keys.each() do |metric_id|
+    js_data += "["
+    metric_data_map[metric_id].each() do |metric_data|
+      m_date = Time.parse(metric_data[:date])
+      js_data += "{\"x\":new Date("
+                 js_data +=  m_date.strftime("%Y,%m,%d")
+                 js_data +=  "),\"y\":\"" 
+                 js_data +=  metric_data[:value] 
+                 js_data +=  "\"},"
+    end
+    js_data += "],"
+  end
+  js_data += "]"
+   
+%>
+  var data = <%= js_data -%>;
+  
+  displayTrendChart('timeline-chart', data);
+
+</script>
