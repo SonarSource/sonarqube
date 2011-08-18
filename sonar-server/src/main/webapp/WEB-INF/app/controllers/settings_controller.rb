@@ -25,7 +25,7 @@ class SettingsController < ApplicationController
 
   def index
     return access_denied unless is_admin?
-    load_properties()
+    load_properties(false)
     @category ||= 'General'
   end
 
@@ -39,7 +39,7 @@ class SettingsController < ApplicationController
       resource_id=nil
     end
 
-    load_properties()
+    load_properties(true)
 
     if @category && @properties_per_category[@category]
       @properties_per_category[@category].each do |property|
@@ -70,11 +70,11 @@ class SettingsController < ApplicationController
 
   private
 
-  def load_properties
+  def load_properties(all=true)
     @category=params[:category]
     @properties_per_category={}
     java_facade.getPluginsMetadata().each do |plugin|
-      java_facade.getPluginProperties(plugin).select { |property| property.global }.each do |property|
+      java_facade.getPluginProperties(plugin).select { |property| all || property.global }.each do |property|
         category = (property.category().present? ? property.category() : plugin.name())
         @properties_per_category[category]||=[]
         @properties_per_category[category]<<property

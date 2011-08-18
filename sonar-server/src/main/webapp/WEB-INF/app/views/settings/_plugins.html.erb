@@ -59,7 +59,7 @@
       </td>
 
       <td class="column">
-        <% if @category
+        <% if @category && @properties_per_category[@category] && !@properties_per_category[@category].empty?
           category_name = message("property.category.#{@category}", :default => @category)
         %>
 
