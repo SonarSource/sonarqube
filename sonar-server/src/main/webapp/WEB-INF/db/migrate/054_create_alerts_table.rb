@@ -27,9 +27,6 @@ class CreateAlertsTable < ActiveRecord::Migration
       t.column :value_error,    :string, :limit => 64, :null => true
       t.column :value_warning,  :string, :limit => 64, :null => true
     end
-
-    add_column :project_measures, :alert_status, :string, :limit => 5, :null => true
-        
   end
 
 end

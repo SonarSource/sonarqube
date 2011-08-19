@@ -17,11 +17,15 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class AddProjectLanguage < ActiveRecord::Migration
+class CreateProperties < ActiveRecord::Migration
 
   def self.up
-    add_column(:projects, :language, :string, :null => true, :limit => 5)
-    Project.reset_column_information
+    create_table 'properties' do |t|
+      t.column :prop_key,   :string, :limit => 512
+      t.column :resource_id, :integer, :null => true
+	    t.column :text_value, :text, :null => true
+    end
+    add_index :properties, :prop_key, :name => 'properties_key'
   end
 
 end

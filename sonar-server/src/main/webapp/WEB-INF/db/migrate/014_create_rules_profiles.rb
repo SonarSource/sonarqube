@@ -21,8 +21,10 @@ class CreateRulesProfiles < ActiveRecord::Migration
 
   def self.up
     create_table 'rules_profiles'do |t|
-      t.column :name,   :string, :limit => 40, :null => false
-      t.column :active, :boolean, :default => false
+      t.column :name,   :string, :limit => 100, :null => false
+      t.column :default_profile, :boolean, :default => false
+      t.column :provided, :boolean, :default => false, :null => false
+      t.column 'language', :string, :limit => 16, :null => true
     end
 
     create_table 'active_rules' do |t|

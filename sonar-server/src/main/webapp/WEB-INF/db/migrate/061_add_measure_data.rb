@@ -26,20 +26,11 @@ class AddMeasureData < ActiveRecord::Migration
       t.column :data, :binary, :null => true
     end
     add_index :measure_data, :measure_id, :name => 'measure_data_measure_id'   
-    MeasureData061.reset_column_information 
-
-    add_column(:project_measures, :alert_text, :string, :null => true, :limit => 4000)
-    add_column(:project_measures, :url, :string, :null => true, :limit => 2000)
-    add_column(:project_measures, :description, :string, :null => true, :limit => 4000)
-    ProjectMeasure.reset_column_information
+    MeasureData061.reset_column_information
   end
 
   class MeasureData061 < ActiveRecord::Base
     set_table_name :measure_data
   end
   
-  class ProjectMeasure61 < ActiveRecord::Base
-    set_table_name :project_measures
-  end
-
 end

@@ -17,26 +17,13 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class FillSnapshotsRootProjectId < ActiveRecord::Migration
 
+class CreateSnapshotSources < ActiveRecord::Migration
   def self.up
-    snapshots=Snapshot.find(:all, :select => 'id,root_snapshot_id', :conditions => ['islast=?', true])
-    root_sids=[]
-    snapshots.each do |s|
-      root_sids<< (s.root_snapshot_id || s.id)
+    create_table :snapshot_sources do |t|
+      t.column :snapshot_id, :integer,   :null => false
+      t.column :data,        :text
     end
-    root_sids=root_sids.uniq.compact
-    
-    root_sids.each do |root_sid|
-      root_snapshot=Snapshot.find(:first, :conditions => {:id => root_sid})
-      if root_snapshot
-        Snapshot.update_all("root_project_id=#{root_snapshot.project_id}", ['root_snapshot_id=? or id=?', root_sid, root_sid])
-      end
-    end
+    add_index :snapshot_sources, :snapshot_id, :name => 'snap_sources_snapshot_id'
   end
-
-  def self.down
-
-  end
-
 end
