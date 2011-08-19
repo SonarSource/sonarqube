@@ -1,0 +1,452 @@
+== 1.1.3
+
+- Remove AR version < 3 guard around some caching methods (sugg. invadersmustdie)
+- Small bug in arjdbc/discover logic, thanks autotelik.
+- Added bigint serial support + some testcases for native type mapping (postgres only)
+- mssql: use subscript instead of #first. (Kim Toms)
+- #71: fix yield called out of block error
+- Silence Rake::DSL warnings for Rake > 0.9
+
+== 1.1.2
+
+- Update version of H2 driver from 1.1.107 to 1.3.153 (Ketan
+  Padegaonkar, Jeremy Stephens)
+- Fix errors in db:test:clone_structure with PostgreSQL (Andrea Campi)
+- Fixing limit for sqlServer2000 if primary key is not named 'id'
+  (Luca Simone)
+- DB2: define jdbc_columns (fixes table_exists? bug) (Nick Kreucher)
+- ACTIVERECORD_JDBC-152 - omitting limit when dumping bytea fields
+  (Gregor Schmidt)
+- Postgres doesn't support a limit for bytea columns (Alex Tambellini)
+- JRUBY-5642: Default to schema public if no schema given for postgres
+  (Anthony Juckel)
+- Sqlite3 supports float data type so use float (Alex Tambellini)
+- GH #21: Now using sqlite3 driver from
+  http://www.xerial.org/trac/Xerial/wiki/SQLiteJDBC (thanks Ukabu)
+- GH #65: PG: Respect integer sizes (Alex Tambellini)
+- GH #59: PG: Properly escape bytea-escaped string
+- GH #53: oracle: allow configuration of schema through schema: key
+- GH #50: PG: support multiple schema in search_path (Daniel
+  Schreiber)
+- GH #25: Reload ArJdbc.column_types if number of constants changed
+- GH #47: Allow table statistics for indexes to be approximate; speeds
+  up Oracle
+- GH #67: Change primary_keys to use the same catalog/schema/table
+  separation logic as columns_internal (Marcus Brito). This change
+  allows set_table_name to specify a custom schema.
+- GH #49: mssql: quote table names like column names
+- GH #56: mssql: Fix 'select 1' behavior introduced by AR 3.0.7
+- GH #55: Make decimal columns with no precision or scale stay
+  decimals
+- GH #45: Add Arel limit support for Firebird (Systho))
+- GH #39: PG: allow negative integer default values
+- GH #19: Make a stub Mysql::Error class
+- ACTIVERECORD_JDBC-148: mssql: Ensure regex doesn't match 'from' in a
+  field name
+- GH#31: mssql: Remove extra code breaking mssql w/o limit
+- ACTIVERECORD_JDBC-156: mssql: Logic fix for detecting select_count?
+
+== 1.1.1
+
+- Arel 2.0.7 compatibility: fix bugs arising from use of Arel 2.0.7 +
+  ArJdbc 1.1.0.
+  - Gracefully handle changes to limit in Arel's AST
+  - Avoid conflict with Arel 2.0.7's mssql visitor
+- Upgrade to PostgreSQL 9.0.801 JDBC drivers (David Kellum)
+
+== 1.1.0 (12/09/10)
+
+- Don't narrow platform to '-java' only: revert back to 0.9.2 where
+  ar-jdbc can be installed under any Ruby (for easier Bundler/Warbler
+  usage and less confusion on rubygems.org).
+- Upgrade MySQL execute code to use RETURN_GENERATED_KEYS.
+- Upgrade to MySQL driver version 5.1.13
+- Add multi-statement support, idea from oruen. For databases that
+  support it, you can now do:
+      results = Model.connection.execute("select 1; select 2")
+  and receive back an array of multiple result set arrays. For use with
+  MySQL, you need to add
+      options:
+        allowMultiQueries: true
+  in database.yml.
+- ACTIVERECORD_JDBC-144: Fix limits appearing in schema dump for some
+  datatypes (Uwe Kubosch)
+- Fixes for DB2 limit/offset
+- Fix rake db:create for 'jdbc' adapter (Joeri Samson)
+- add create/drop database methods to h2 adapter (sahglie)
+- Use connection getDatabaseProductName instead of getClass.getName
+  when detecting JNDI dialects (Denis Odorcic)
+- ACTIVERECORD_JDBC-146: Fix create_table to not append encoding (Marc Slemko)
+- All green on SQLite3 Rails master ActiveRecord tests
+- ACTIVERECORD_JDBC-140: Sync postgres add/change column code from Rails master
+- ACTIVERECORD_JDBC-139: TEXT/DATE on PostgreSQL should not have limits
+
+== 1.0.3 (11/29/10)
+
+- ACTIVERECORD_JDBC-143: Implement table_exists? fixing association
+  table names with schema prefixes
+- Cleanup of column code for hsqldb (Denis Odorcic)
+- Rails 3.0.3 support - add Arel 2 visitors for all adapters
+- Fix MySQL date types to not have limits (Chris Lowder)
+- ACTIVERECORD_JDBC-141: Better schema support in H2
+
+== 1.0.2
+
+- ACTIVERECORD_JDBC-134: Fix conflicting adapter/column superclasses
+- ACTIVERECORD_JDBC-135: Fix regression on PG with boolean and :limit
+- Slew of Derby fixes courtesy of Denis Odorcic
+
+== 1.0.1
+
+- Fix db:test:purge issue affecting all adapters in 1.0.0 due to
+  incorrect fix to JRUBY-5081 in 8b4b9c5
+
+== 1.0.0
+
+- Thanks to David Kellum, Dmitry Denisov, Dwayne Litzenberger, Gregor
+  Schmidt, James Walker, John Duff, Joshua Suggs, Nicholas J Kreucher,
+  Peter Donald, Geoff Longman, Uwe Kubosch, Youhei Kondou, Michael
+  Pitman, Alex B, and Ryan Bell for their contributions to this
+  release.
+- BIG set of DB2 updates (Thanks Nick Kreucher)
+- Deprecate jdbc_adapter/rake_tasks
+- (1.0.0.beta1)
+- Make database-specific extensions only load when necessary
+- Allow for discovery of database extensions outside of ar-jdbc
+  proper. This should allow for custom database development to be
+  developed and released without relying on AR-JDBC core.
+- Get AR's own tests running as close to 100% as possible. MySQL is
+  currently 100%, SQLite3 is close.
+- JRUBY-4876: Bump up Derby's max index name length (Uwe Kubosch)
+- (1.0.0.beta2)
+- 98 commits since beta1
+- MSSQL updates from dlitz and realityforge
+- ACTIVERECORD_JDBC-131: Fix string slug issue for DB2 (Youhei Kondou)
+- JRUBY-1642: Don't use H2 INFORMATION_SCHEMA in table or column
+  searches
+- JRUBY-4972: Attempt to deal with type(0)/:limit => 0 by not setting
+  it808e213
+- JRUBY-5040: Fix issue with limits on timestamps in MySQL
+- JRUBY-3555: Allow setting Derby schema with 'schema:' option
+- ACTIVERECORD_JDBC-98: Make sure we actuall raise an error when
+  inappropriately configured
+- ACTIVERECORD_JDBC-112: Add schema dumper tests for already-fixed
+  MySQL type limits
+- ACTIVERECORD_JDBC-113: Fix PG float precision issue
+- ACTIVERECORD_JDBC-103: Fix decimal options for PG add/change column
+  (Michael Pitman)
+- ACTIVERECORD_JDBC-127: Fix quoting of Date vs. Time(stamp) for
+  Oracle (Lenny Marks)
+- Oracle: Sort out the NUMBER vs NUMBER(x) vs NUMBER(x,y) situation.
+- JRUBY-3051: Think we finally got the PG mixed-case patches applied.
+- JRUBY-5081: Consolidate code for dropping DB via postgres
+- ACTIVERECORD_JDBC-101: Add override of LONGVARCHAR => CLOB for
+  informix
+- ACTIVERECORD_JDBC-107: Fix MySQL update_all issue on AR 2.3
+- ACTIVERECORD_JDBC-124: Filter out special _row_num column
+- ACTIVERECORD_JDBC-126: Fix sql 2000 limit/offset per Michael Pitman
+- ACTIVERECORD_JDBC-125: Add tweak to limit/offset code for HABTM
+  queries (alex b)
+- ACTIVERECORD_JDBC-129: Don't have limits for text, binary or bit
+  fields
+- (1.0.0 final)
+- Fix a few more SQLite3 AR tests
+- SQLite3: handle ":memory:" database
+- Release new SQLite3 driver 3.6.14.2 and new Derby driver 10.6.2.1
+
+== 0.9.7
+
+- JRUBY-4781: Fix multiple database connection collision issue w/
+  Oracle
+- ACTIVERECORD_JDBC-115: Support SAVEPOINTS for MySQL and PG so that
+  nested transactions can be faked
+- ACTIVERECORD_JDBC-116: Handle schema.table better for MySQL (thanks
+  Dilshod Mukhtarov)
+- Fix 'Wrong # of arguments (2 for 1)' issue with #create_database for
+  MySQL and AR 3.0
+- SQLServer 2000 support (thanks Jay McGaffigan)
+
+== 0.9.6
+
+- The Oracle release!
+- Oracle should be working much better with this release. Also updated
+  to work with Rails 3.
+- Get all unit tests running cleanly on Oracle, fixing previous
+  datetime/timezone issues.
+- ACTIVERECORD_JDBC-83: Add :sequence_start_value option to
+  create_table, following oracle_enhanced adapter
+- ACTIVERECORD_JDBC-33: Don't double-quote table names in oracle
+- ACTIVERECORD_JDBC-17: Fix Oracle primary keys so that /^NUMBER$/ => :integer
+- Fix remaining blockers ACTIVERECORD_JDBC-82, JRUBY-3675,
+  ACTIVERECORD_JDBC-22, ACTIVERECORD_JDBC-27, JRUBY-4759
+
+== 0.9.5
+
+- The MSSQL release, courtesy of Mike Williams and Lonely
+  Planet.
+- JRuby + AR-JDBC is now seen as the hassle-free way of using Rails
+  with SQLServer!
+- Many fixes for MSSQL, including ACTIVERECORD_JDBC-18,
+  ACTIVERECORD_JDBC-41, ACTIVERECORD_JDBC-56, ACTIVERECORD_JDBC-94,
+  ACTIVERECORD_JDBC-99, JRUBY-3805, JRUBY-3793, JRUBY-4221
+- All tests pass on Rails 3.0.0.beta3!
+
+== 0.9.4
+
+- ACTIVERECORD_JDBC-96: DB2 JdbcSpec cannot dump schema correctly
+  (Youhei Kondou)
+- ACTIVERECORD_JDBC-97: Dont use Rails 3 deprecated constants (David
+  Calavera)
+- Updates for rake db:schema:dump compatibility with Rails 2.3+ and
+  MySQL (Joakim Kolsjö)
+- Rails 3.0.0.beta2 compatibility
+- Return of Derby, H2, Hsqldb support (requires AR >= 3.0.0.beta2)
+
+== 0.9.3
+
+- Rails 3 compatibility
+- PLEASE NOTE: ActiveRecord in Rails 3 has changed in a way that
+  doesn't allow non-standard DBs (such as the Derby and H2 embedded
+  DBs) to work. We're investigating the effort required to support
+  these databases and hope to have something for a future release.
+- ACTIVERECORD_JDBC-91: Fix schema search path for PostgreSQL (Alex
+  Kuebo)
+- ACTIVERECORD_JDBC-87: DB2 ID insert fix (Youhei Kondou)
+- ACTIVERECORD_JDBC-90: MSSQL fix for DATEs (jlangenauer)
+- ACTIVERECORD_JDBC-93: Fix string IDs for sqlite3, hsql/h2 (moser)
+- ACTIVERECORD_JDBC-86: Fix Derby queries starting with VALUES (Dwayne Litzenberger)
+- ACTIVERECORD_JDBC-95: Fix INSERT ... RETURNING for PostgreSQL
+
+== 0.9.2
+
+- The main, highly awaited fix for this release is a solution to the
+  rake db:create/db:drop issue. The main change is a new 'jdbc' rails
+  generator that should be run once to prepare a Rails application to
+  use JDBC. The upside of this generator is that you no longer will
+  need to alter database.yml for JDBC. See the README.txt for details.
+- Cleanup and reconnect if errors occur during begin/rollback
+  (Jean-Dominique Morani, Christian Seiler)
+- ACTIVERECORD_JDBC-1: Add #drop_database method for oracle (does the
+  same thing as recreate_database)
+- Sqlite3 and MSSQL fixes (Jean-Dominique Morani)
+- JRUBY-3512: Treat LONGVARCHAR as a CLOB for Mssql
+- JRUBY-3624: Upgrade Derby to 10.5.3.0 and add native limit/offset
+  support (Christopher Saunders)
+- JRUBY-3616: Fix postgres non-sequence primary keys (David Kellum)
+- JRUBY-3669: Fix Oracle case with unconfigured schema (Dan Powell)
+- Fixed quote_column_name of jdbc_oracle to accept numbers (Marcelo
+  Murad)
+- Fix for mysql tables with non standard primary keys such that the
+  schema dump is correct (Nick Zalabak)
+- MSSQL fixes from Mike Luu:
+  - add support for MSSQL uniqueidentifier datatype
+  - always quote strings using unicode identifier for MSSQL
+- Changes primary_key generation to use always instead of by default
+  for DB2 (Amos King)
+- Improves the SQLite adapter by fixing rename_column, change_column,
+  change_column_default, changing remove_column, and adding
+  remove_columns (Ryan Baumann)
+- More oracle love courtesy Ben Browning and Jens Himmelreich
+- JRUBY-3608: Add missing change_column_null method for postgres
+- JRUBY-3508: Fix quoting of integer and float columns
+
+== 0.9.1
+
+- We did a lot of internal cleanup this release in the hopes of
+  simplifying the code and increasing performance.
+- Many SQLite updates (thanks Nils Christian Haugen)
+- JRUBY-2912: Fix MSSQL create/drop database (Joern Hartmann)
+- JRUBY-2767: Mistake in selecting identity with H2/HSQLDB
+- JRUBY-2884: jdbc_postgre.rb issue handling nil booleans (also a fix
+  for hsqldb/h2) + tests
+- JRUBY-2995: activerecord jdbc derby adapter should quote columns
+  called 'year'
+- JRUBY-2897:  jdbc_postgre.rb needs microsecond support
+- JRUBY-3282: Upgrade to derby 10.4.2.0 to allow unique constraints
+  with nullable columns
+- Update h2 from 1.0.63 to 1.1.107 in driver
+- JRUBY-3026: [Derby] Allow select/delete/update conditions with
+  comparison to NULL using '='
+- JRUBY-2996: ...(actually this fixes only remaining issue of this bug
+  which was symbols making into quote were exploding
+- JRUBY-2691: Update sybase driver to pass simple unit tests with jtds
+  and verify it works with the new dialect keyword. patch by Leigh
+  Kennedy
+- Make :float type work on h2,hsql [returned as string]. Make :float
+  work on hsqldb (no paren value supported). Make REAL_TYPE just
+  return RubyFloat
+- JRUBY-3222: Upgrade #type_to_sql to variation of AR 2.1.2 version
+- Add patch supplied in JRUBY-3489 (patch by Jean-Dominique Morani)
+- Various Oracle fixes by edsono
+- JRUBY-2688: Don't hard-code MySQL connection character encoding to
+  utf8
+
+== 0.9
+
+- Now updated to support ActiveRecord 2.2. JNDI-based connections will
+  automatically connect/disconnect for every AR connection pool
+  checkout/checkin. For best results, set your pool: parameter >= the
+  actual maximum size of the JNDI connection pool. (We'll look at how
+  to eliminate the need to configure AR's pool in the future.)
+- NEW! Informix support courtesy of Javier Fernandez-Ivern.
+- Backport another Oracle CLOB issue, thanks Edson César.
+- Rubyforge #22018: chomp final trailing semicolon for oracle
+- JRUBY-2848: Fix NPE error in set_native_database_types
+- Rework oracle lob saving callback to be Rails 2.1 friendly (assist
+  from court3nay)
+- JRUBY-2715: Add create/drop database methods to Postgres (Peter Williams)
+- JRUBY-3183: Fix structure dump for Postgres (Ryan Bell)
+- JRUBY-3184: recreate_database for test database working for PG (Ryan Bell)
+- JRUBY-3186: disable referential integrity for PG (Ryan Bell)
+- Authoritative repository now hosted at
+  git://github.com/nicksieger/activerecord-jdbc-adapter.git; rubyforge
+  svn trunk cleaned out.
+
+== 0.8.2
+
+- Added an optional config key called :dialect. Using :dialect allows you to
+  override the default SQL dialect for the driver class being used. There are
+  a few cases for this:
+  - Using using Sybase w/ the jTDS driver.
+  - Using rebranded drivers.
+  - It makes more sense to use :dialect, rather then :driver when using JNDI.
+- JRUBY-2619: Typo with :test config causing problems with dev database (Igor Minar)
+- 20524, JRUBY-2612: Since when did I think that there was a #true? method on Object?
+
+== 0.8.1
+
+- Now sporting a JDBC sqlite3 adapter! Thanks Joseph Athman.
+- Added support for InterSystems Cache database (Ryan Bell)
+- Fix for JRUBY-2256
+- JRUBY-1638, JRUBY-2404, JRUBY-2463: schema.table handling and Oracle NUMBER fixes (Darcy Schultz & Jesse Hu)
+- Add structure dump and other DDL-ish for DB2 (courtesy abedra and stuarthalloway)
+- Fix missing quote_table_name function under Rails 1.2.6 and earlier
+- Small tweaks to jdbc.rake to select proper config
+- JRUBY-2011: Fix MSSQL string un-quoting issue (Silvio Fonseca)
+- JRUBY-1977, 17427: Fix information_schema select issue with MSSQL (Matt Burke)
+- 20479: Improve get_table_name for MSSQL (Aslak HellesÃ¸y)
+- 20243: numerics improvements for MSSQL (Aslak HellesÃ¸y)
+- 20172: don't quote table names for MSSQL (Thor Marius Henrichsen)
+- 19729: check for primary key existence in postgres during insert (Martin Luder)
+- JRUBY-2297, 18846: retrying failing SQL statements is harmful when not autocommitting (Craig McMillan)
+- 10021: very preliminary sybase support. (Mark Atkinson) Not usable until collision w/ sqlserver driver is resolved.
+- JRUBY-2312, JRUBY-2319, JRUBY-2322: Oracle timestamping issues (Jesse Hu & Michael KÃ¶nig)
+- JRUBY-2422: Fix MySQL referential integrity and rollback issues
+- JRUBY-2382: mysql string quoting fails with ArrayIndexOutofBoundsException
+
+== 0.8
+
+- NOTE: This release is only compatible with JRuby 1.1RC3 or later.
+- Because of recent API changes in trunk in preparation for JRuby 1.1, this release is not
+  backward compatible with previous JRuby releases. Hence the version bump.
+- Internal: convert Java methods to be defined with annotations
+- Fix problem with reserved words coming back pre-quoted from #indexes in postgres
+- JRUBY-2205: Fix N^2 allocation of bytelists for mysql quoting (taw)
+- Attempt a fix for Rubyforge 18059
+- Upgrade derby to 10.3.2.1
+- Fix db:create etc. in the case where JDBC is loaded in Rails' preinitializer.rb
+- Fix db:drop to actually work
+- Fix for Rubyforge #11567 (Matt Williams)
+
+== 0.7.2
+
+- JRUBY-1905: add_column for derby, hsqldb, and postgresql (Stephen Bannasch)
+- Fix db:create for JDBC
+- Support Rails 2 with the old "require 'jdbc_adapter'" approach
+- JRUBY-1966: Instead of searching for just tables, search for views and tables.
+- JRUBY-1583: DB2 numeric quoting (Ryan Shillington)
+- JRUBY-1634: Oracle DATE type mapping (Daniel Wintschel)
+- JRUBY-1543: rename_column issue with more recent MySQL drivers (Oliver Schmelzle)
+- Rubyforge #15074: ConnectionAdapters::JdbcAdapter.indexes is missing name and
+  schema_name parameters in the method signature (Igor Minar)
+- Rubyforge #13558: definition for the indexes method (T Meyarivan)
+- JRUBY-2051: handle schemaname and tablename more correctly for columns
+- JRUBY-2102: Postgres Adapter cannot handle datetime type (Rainer Hahnekamp)
+- JRUBY-2018: Oracle behind ActiveRecord-JDBC fails with "Invalid column index" (K Venkatasubramaniyan)
+- JRUBY-2012: jdbc_mysql structure dump fails for mysql views (Tyler Jennings)
+
+== 0.7.1
+
+- Add adapter and driver for H2 courtesy of Caleb Land
+- Fix "undefined method `last' for {}:Hash" error introduced with new Rake 0.8.1 (JRUBY-1859)
+
+== 0.7
+
+- PLEASE NOTE: This release is not compatible with JRuby releases earlier than
+  1.0.3 or 1.1b2. If you must use JRuby 1.0.2 or earlier, please install the
+  0.6 release.
+- Release coincides with JRuby 1.0.3 and JRuby 1.1b2 releases
+- Simultaneous support for JRuby trunk and 1.0 branch
+- Get rid of log_no_bench method, so we time SQL execution again.
+- Implement #select_rows
+- MySQL migration and quoting updates
+
+== 0.6
+
+- Gem is renamed to "activerecord-jdbc-adapter" to follow new conventions
+  introduced in Rails 2.0 for third-party adapters. Rails 2.0 compatibility is
+  introduced.
+- Add dependency on ActiveRecord >= 1.14 (from the Rails 1.1.x release)
+- New drivers (jdbc-XXX) and adapter (activerecord-jdbcXXX-adapter) gems
+  available separately. See the README.txt file for details.
+- Plain "jdbc" driver is still available if you want to use the full
+  driver/url way of specifying the driver.
+- More bugfixes to Oracle and SQLServer courtesy of Ola & ThoughtWorks
+
+== 0.5
+
+- Release coincides with JRuby 1.0.1 release
+- It is no longer necessary to specify :driver and :url configuration
+  parameters for the mysql, postgresql, oracle, derby, hsqldb, and h2
+  adapters. The previous configuration is still valid and compatible, but for
+  new applications, this makes it possible to use the exact same database.yml
+  configuration as Rails applications running under native Ruby.
+- JDBC drivers can now be dynamically loaded by Ruby code, without being on
+  the classpath prior to launching JRuby. Simply use "require
+  'jdbc-driver.jar'" in JRuby code to add it to the runtime classpath.
+- Updates to HSQL, MS SQLServer, Postgres, Oracle and Derby adapters
+
+== 0.4
+
+- Release coincides with JRuby 1.0 release
+- Shoring up PostgreSQL (courtesy Dudley Flanders) and HSQL (courtesy Matthew
+  Williams)
+- Fix timestamps on Oracle to use DATE (as everything else)
+- Derby fixes: Fix for open result set issue, better structure dump, quoting,
+  column type changing
+- Sybase type recognition fix (courtesy Dean Mao)
+
+== 0.3.1
+
+- Derby critical fixes shortly after 0.3
+
+== 0.3
+
+- Release coincides with JRuby 1.0.0RC1 release
+- Improvements for Derby, Postgres, and Oracle, all of which are running 
+  > 95% of AR tests
+
+== 0.2.4
+
+- Release coincides with JRuby 0.9.9 release
+- JRuby 0.9.9 is required
+- MySQL close to 100% working
+- Derby improvements
+- DECIMAL/NUMERIC/FLOAT/REAL bugs fixed with type recognition for Oracle,
+  Postgres, etc.
+- HSQLDB has regressed this release and may not be functioning; we'll get it
+  fixed for the next one
+
+== 0.2.3
+
+- Release coincides (and compatible) with JRuby 0.9.8 release
+- 8 bugs fixed: see http://rubyurl.com/0Da
+- Improvements and compatibility fixes for Rails 1.2.x
+
+== 0.2.1, 0.2.2
+
+- Early releases, added better support for multiple databases
+
+== 0.0.1
+
+- Initial, very alpha release
