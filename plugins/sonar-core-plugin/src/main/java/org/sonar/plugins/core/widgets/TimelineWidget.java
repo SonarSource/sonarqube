@@ -19,10 +19,15 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.sonar.api.web.*;
+import org.sonar.api.web.AbstractRubyTemplate;
+import org.sonar.api.web.RubyRailsWidget;
+import org.sonar.api.web.WidgetProperties;
+import org.sonar.api.web.WidgetProperty;
+import org.sonar.api.web.WidgetPropertyType;
 
 @WidgetProperties(
     {
+        @WidgetProperty(key = "chartTitle", type = WidgetPropertyType.STRING),
         @WidgetProperty(key = "metric1", type = WidgetPropertyType.METRIC),
         @WidgetProperty(key = "metric2", type = WidgetPropertyType.METRIC),
         @WidgetProperty(key = "metric3", type = WidgetPropertyType.METRIC),
@@ -40,7 +45,7 @@ public class TimelineWidget extends AbstractRubyTemplate implements RubyRailsWid
 
   @Override
   protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/timeline.html.erb";
-    //return "/Users/fbellingard/Documents/Sonar/repos/sonar/plugins/sonar-core-plugin/src/main/resources/org/sonar/plugins/core/widgets/timeline.html.erb";
+    //return "/org/sonar/plugins/core/widgets/timeline.html.erb";
+    return "/Users/fbellingard/Documents/Sonar/repos/sonar/plugins/sonar-core-plugin/src/main/resources/org/sonar/plugins/core/widgets/timeline.html.erb";
   }
 }

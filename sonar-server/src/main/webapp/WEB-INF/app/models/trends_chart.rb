@@ -25,7 +25,6 @@ class TrendsChart
     init_series(java_chart, metrics)
     metric_ids=metrics.map{|m| m.id}
     add_measures(java_chart, time_machine_measures(resource, metric_ids, options))
-    add_measures(java_chart, time_machine_reviews(resource, metric_ids, options))
     add_labels(java_chart, resource);
 
     export_chart_as_png(java_chart)
@@ -55,6 +54,7 @@ class TrendsChart
       if (options[:to])
         sql += ' and s.created_at<=?'
       end
+      sql += ' order by s.created_at ASC'
       conditions=[sql, Snapshot::STATUS_PROCESSED, resource.id, metric_ids]
       if (options[:from])
         conditions<<options[:from]

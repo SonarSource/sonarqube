@@ -266,6 +266,7 @@
                 <include>**/prototip-min.js</include>
                 <include>**/dashboard-min.js</include>
                 <include>**/protovis-min.js</include>
+                <include>**/protovis-sonar-min.js</include>
               </includes>
               <output>${project.build.directory}/${project.build.finalName}/javascripts/sonar.js</output>
             </aggregation>

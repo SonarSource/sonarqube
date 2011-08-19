@@ -1,9 +1,4 @@
 <%= javascript_include_tag 'protovis-sonar' %>
-
-<div id="timeline-chart"></div>
-
-<script type="text/javascript+protovis">
-
 <%
   metric_data_map = {}
   (1..3).each do |index|
@@ -13,8 +8,13 @@
     end
   end
   
-  trends = TrendsChart.time_machine_measures(@resource, metric_data_map.keys, {}).sort { |t1, t2| t1["created_at"] <=> t2["created_at"] }
-  trends.each()  do |trend_item|
+  options = {}
+  from_date = dashboard_configuration.from_datetime
+  if from_date
+    options[:from] = from_date
+  end
+  
+  TrendsChart.time_machine_measures(@resource, metric_data_map.keys, options).each()  do |trend_item|
     metric_data_map[trend_item["metric_id"].to_i] << {:date => trend_item["created_at"], :value => trend_item["value"]}
   end
 
@@ -23,19 +23,35 @@
     js_data += "["
     metric_data_map[metric_id].each() do |metric_data|
       m_date = Time.parse(metric_data[:date])
-      js_data += "{\"x\":new Date("
-                 js_data +=  m_date.strftime("%Y,%m,%d")
-                 js_data +=  "),\"y\":\"" 
-                 js_data +=  metric_data[:value] 
-                 js_data +=  "\"},"
+      js_data += "{\"x\":d("
+                 js_data += m_date.year.to_s
+                 js_data += ","
+                 # Need to decrease by 1 the month as the JS Date object start months at 0 (= January)
+                 js_data += (m_date.month - 1).to_s
+                 js_data += ","
+                 js_data += m_date.day.to_s
+                 js_data +=  "),\"y\":" 
+                 js_data +=  sprintf( "%0.02f", metric_data[:value])
+                 js_data +=  "},"
     end
     js_data += "],"
   end
   js_data += "]"
    
 %>
-  var data = <%= js_data -%>;
-  
-  displayTrendChart('timeline-chart', data);
+
+<% if widget_properties["chartTitle"] %>
+<h3 style="text-align: center; margin-bottom: 10px"><%= h(widget_properties["chartTitle"]) -%></h3>
+<% end %>
+
+
+<div id="timeline-chart-<%= widget.id -%>"></div>
+<script type="text/javascript+protovis">
+  function d(y,m,d) {
+    return new Date(y,m,d);
+  }
+  var data = <%= js_data -%>;  
+  var timeline = new SonarWidgets.Timeline('timeline-chart-<%= widget.id -%>').data(data);
+  timeline.render();
 
 </script>

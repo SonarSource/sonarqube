@@ -1,7 +1,20 @@
-function displayTrendChart(divId, data) {
+window.SonarWidgets = {}
 
+SonarWidgets.Timeline = function (divId) {
+	this.wDivId = divId;
+	this.wData;
+	this.data = function(data) {
+		this.wData = data;
+		return this;
+	}
+}
+
+SonarWidgets.Timeline.prototype.render = function() {
+	
+	var widgetDiv = document.getElementById(this.wDivId);
+	
 	/* Sizing and scales. */
-	var w = 400 - 40, 
+	var w = widgetDiv.parentNode.clientWidth - 60, 
 		h = 300 - 25,
 		S=2;
 
@@ -15,24 +28,24 @@ function displayTrendChart(divId, data) {
 
 	/* The root panel. */
 	var vis = new pv.Panel()
-	.canvas(document.getElementById(divId))
-	.width(w)
-	.height(h)
-	.left(30)
-	.right(10)
-	.bottom(20)
-	.top(5)
-	.strokeStyle("#CCC");
+		.canvas(widgetDiv)
+		.width(w)
+		.height(h)
+		.left(30)
+		.right(20)
+		.bottom(20)
+		.top(5)
+		.strokeStyle("#CCC");
 
 	/* X-axis */
 	vis.add(pv.Rule)
-	.data(x.ticks())
-	.left(x)
-	.bottom(-5)
-	.height(5)
-	.anchor("bottom")
-	.add(pv.Label)
-	.text(x.tickFormat);
+		.data(x.ticks())
+		.left(x)
+		.bottom(-5)
+		.height(5)
+		.anchor("bottom")
+		.add(pv.Label)
+		.text(x.tickFormat);
 
 	/* Y-axis and ticks. */
 	var show_y_axis = (data.length==1)
@@ -48,43 +61,45 @@ function displayTrendChart(divId, data) {
 
 	/* A panel for each data series. */
 	var panel = vis.add(pv.Panel)
-	.data(data);
+		.data(this.wData);
 
 	/* The line. */
 	var line = panel.add(pv.Line)
-	.data(function(array) {return array;})
-	.left(function(d) {return x(d.x);})
-	.bottom(function(d) {return y[this.parent.index](d.y);})
-	.interpolate(function() {return interpolate;})
-	.lineWidth(2);
+		.data(function(array) {return array;})
+		.left(function(d) {return x(d.x);})
+		.bottom(function(d) {return y[this.parent.index](d.y);})
+		.interpolate(function() {return interpolate;})
+		.lineWidth(2);
 
 	/* The mouseover dots and label. */
 	line.add(pv.Dot)
-	.visible(function() {return idx >= 0;})
-	.data(function(d) {return [d[idx]];})
-	.fillStyle(function() {return line.strokeStyle();})
-	.strokeStyle("#000")
-	.size(20) 
-	.lineWidth(1)
-	.add(pv.Dot)
-	.left(10)
-	.bottom(function() {return this.parent.index * 12 + 10;})
-	.anchor("right").add(pv.Label)
-	.text(function(d) {return d.y.toFixed(2);});
+		.visible(function() {return idx >= 0;})
+		.data(function(d) {return [d[idx]];})
+		.fillStyle(function() {return line.strokeStyle();})
+		.strokeStyle("#000")
+		.size(20) 
+		.lineWidth(1)
+		.add(pv.Dot)
+		.left(10)
+		.bottom(function() {return this.parent.index * 12 + 10;})
+		.anchor("right").add(pv.Label)
+		.text(function(d) {return d.y.toFixed(2);});
 
 
 	/* An invisible bar to capture events (without flickering). */
 	vis.add(pv.Bar)
-	.fillStyle("rgba(0,0,0,.001)")
-	.event("mouseout", function() {
-		i = -1;
-		return vis;
-	})
-	.event("mousemove", function() {
-		var mx = x.invert(vis.mouse().x);
-		idx = pv.search(data[0].map(function(d) {return d.x;}), mx);
-		idx = idx < 0 ? (-idx - 2) : idx;
-		return vis;
-	});
+		.fillStyle("rgba(0,0,0,.001)")
+		.event("mouseout", function() {
+			i = -1;
+			return vis;
+		})
+		.event("mousemove", function() {
+			var mx = x.invert(vis.mouse().x);
+			idx = pv.search(data[0].map(function(d) {return d.x;}), mx);
+			idx = idx < 0 ? (-idx - 2) : idx;
+			return vis;
+		});
+	
 	vis.render();
-};
+	
+}
