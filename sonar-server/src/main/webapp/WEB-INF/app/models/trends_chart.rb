@@ -41,7 +41,7 @@ class TrendsChart
 
   def self.time_machine_measures(resource, metric_ids, options={})
     unless metric_ids.empty?
-      sql= "select s.created_at as created_at, m.value as value, m.metric_id as metric_id " +
+      sql= "select s.created_at as created_at, m.value as value, m.metric_id as metric_id, s.id as sid " +
             " from project_measures m LEFT OUTER JOIN snapshots s ON s.id=m.snapshot_id " +
             " where m.rule_id is null " +
             " and s.status=? " +

@@ -2,29 +2,54 @@ window.SonarWidgets = {}
 
 SonarWidgets.Timeline = function (divId) {
 	this.wDivId = divId;
+	this.wHeight;
 	this.wData;
+	this.wSnapshots;
+	this.wMetrics;
+	this.wTranslations;
+	this.height = function(height) {
+		this.wHeight = height;
+		return this;
+	}
 	this.data = function(data) {
 		this.wData = data;
+		return this;
+	}
+	this.snapshots = function(snapshots) {
+		this.wSnapshots = snapshots;
+		return this;
+	}
+	this.metrics = function(metrics) {
+		this.wMetrics = metrics;
+		return this;
+	}
+	this.translations = function(translations) {
+		this.wTranslations = translations;
 		return this;
 	}
 }
 
 SonarWidgets.Timeline.prototype.render = function() {
 	
+	var trendData = this.wData;
+	var metrics = this.wMetrics;
+	var snapshots = this.wSnapshots;
+	var translations = this.wTranslations;
 	var widgetDiv = document.getElementById(this.wDivId);
 	
 	/* Sizing and scales. */
+	var footerHeight = 30 + this.wMetrics.size() * 12;
 	var w = widgetDiv.parentNode.clientWidth - 60, 
-		h = 300 - 25,
+		h = (this.wHeight == null ? 250 : this.wHeight) + footerHeight - 5,
 		S=2;
 
 	var x = pv.Scale.linear(pv.blend(pv.map(data, function(d) {return d;})), function(d) {return d.x}).range(0, w);
 	var y = new Array(data.length);
 	for(var i = 0; i < data.length; i++){ 
-		y[i]=pv.Scale.linear(data[i], function(d) {return d.y;}).range(0, h)
+		y[i]=pv.Scale.linear(data[i], function(d) {return d.y;}).range(10, h-10)
 	}
 	var interpolate = "linear"; /* cardinal or linear */
-	var idx = -1;
+	var idx = this.wData[0].size() - 1;
 
 	/* The root panel. */
 	var vis = new pv.Panel()
@@ -33,7 +58,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 		.height(h)
 		.left(30)
 		.right(20)
-		.bottom(20)
+		.bottom(footerHeight)
 		.top(5)
 		.strokeStyle("#CCC");
 
@@ -61,7 +86,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 
 	/* A panel for each data series. */
 	var panel = vis.add(pv.Panel)
-		.data(this.wData);
+		.data(trendData);
 
 	/* The line. */
 	var line = panel.add(pv.Line)
@@ -71,7 +96,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 		.interpolate(function() {return interpolate;})
 		.lineWidth(2);
 
-	/* The mouseover dots and label. */
+	/* The mouseover dots and label in footer. */
 	line.add(pv.Dot)
 		.visible(function() {return idx >= 0;})
 		.data(function(d) {return [d[idx]];})
@@ -80,12 +105,19 @@ SonarWidgets.Timeline.prototype.render = function() {
 		.size(20) 
 		.lineWidth(1)
 		.add(pv.Dot)
-		.left(10)
-		.bottom(function() {return this.parent.index * 12 + 10;})
+		.left(150)
+		.bottom(function() {return 0 - 30 - this.parent.index * 12;})
 		.anchor("right").add(pv.Label)
-		.text(function(d) {return d.y.toFixed(2);});
-
-
+		.font("12px Arial,Helvetica,sans-serif")
+		.text(function(d) {return metrics[this.parent.index] + ": " + d.y.toFixed(2);});
+	
+	/* The date of the selected dot in footer. */
+	vis.add(pv.Label)
+		.left(0)
+		.bottom(-36)
+		.font("12px Arial,Helvetica,sans-serif")
+		.text(function() {return translations.date + ": " + snapshots[idx].d});
+	
 	/* An invisible bar to capture events (without flickering). */
 	vis.add(pv.Bar)
 		.fillStyle("rgba(0,0,0,.001)")

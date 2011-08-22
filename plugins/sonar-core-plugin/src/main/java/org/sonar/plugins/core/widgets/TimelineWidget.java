@@ -31,7 +31,8 @@ import org.sonar.api.web.WidgetPropertyType;
         @WidgetProperty(key = "metric1", type = WidgetPropertyType.METRIC),
         @WidgetProperty(key = "metric2", type = WidgetPropertyType.METRIC),
         @WidgetProperty(key = "metric3", type = WidgetPropertyType.METRIC),
-        @WidgetProperty(key = "displayEvents", type = WidgetPropertyType.BOOLEAN)
+        @WidgetProperty(key = "displayEvents", type = WidgetPropertyType.BOOLEAN),
+        @WidgetProperty(key = "widgetHeight", type = WidgetPropertyType.INTEGER)
     }
 )
 public class TimelineWidget extends AbstractRubyTemplate implements RubyRailsWidget {
