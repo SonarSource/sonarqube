@@ -3,19 +3,4 @@ development:
   adapter: jdbc
   
 production:
-  <% if ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.jndiName') %>
-  adapter: jndi
-  <% else %>
   adapter: jdbc
-  username: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.username' ) || 'sonar' %>
-  password: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.password') || 'sonar' %>
-  url: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.url') %>
-
-  # PostgreSQL
-  schema_search_path: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.postgreSearchPath') %>
-  connection_alive_sql: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.validationQuery') %>
-  <% end %>
-
-  dialect: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDialect().getActiveRecordDialectCode() %>
-  driver: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.driverClassName') %>
-  pool: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.maxActive') || 10 %>
