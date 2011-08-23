@@ -7,6 +7,7 @@ SonarWidgets.Timeline = function (divId) {
 	this.wSnapshots;
 	this.wMetrics;
 	this.wTranslations;
+	this.wEvents;
 	this.height = function(height) {
 		this.wHeight = height;
 		return this;
@@ -27,6 +28,10 @@ SonarWidgets.Timeline = function (divId) {
 		this.wTranslations = translations;
 		return this;
 	}
+	this.events = function(events) {
+		this.wEvents = events;
+		return this;
+	}
 }
 
 SonarWidgets.Timeline.prototype.render = function() {
@@ -35,10 +40,13 @@ SonarWidgets.Timeline.prototype.render = function() {
 	var metrics = this.wMetrics;
 	var snapshots = this.wSnapshots;
 	var translations = this.wTranslations;
+	var events = this.wEvents;
 	var widgetDiv = document.getElementById(this.wDivId);
 	
+	var footerFont = "12px Arial,Helvetica,sans-serif";
+	
 	/* Sizing and scales. */
-	var footerHeight = 30 + this.wMetrics.size() * 12;
+	var footerHeight = 30 + (events ? 3 : this.wMetrics.size()) * 12;
 	var w = widgetDiv.parentNode.clientWidth - 60, 
 		h = (this.wHeight == null ? 250 : this.wHeight) + footerHeight - 5,
 		S=2;
@@ -46,7 +54,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 	var x = pv.Scale.linear(pv.blend(pv.map(data, function(d) {return d;})), function(d) {return d.x}).range(0, w);
 	var y = new Array(data.length);
 	for(var i = 0; i < data.length; i++){ 
-		y[i]=pv.Scale.linear(data[i], function(d) {return d.y;}).range(10, h-10)
+		y[i]=pv.Scale.linear(data[i], function(d) {return d.y;}).range(20, h-10)
 	}
 	var interpolate = "linear"; /* cardinal or linear */
 	var idx = this.wData[0].size() - 1;
@@ -98,29 +106,57 @@ SonarWidgets.Timeline.prototype.render = function() {
 
 	/* The mouseover dots and label in footer. */
 	line.add(pv.Dot)
-		.visible(function() {return idx >= 0;})
 		.data(function(d) {return [d[idx]];})
 		.fillStyle(function() {return line.strokeStyle();})
 		.strokeStyle("#000")
 		.size(20) 
 		.lineWidth(1)
 		.add(pv.Dot)
-		.left(150)
+		.left(0)
 		.bottom(function() {return 0 - 30 - this.parent.index * 12;})
 		.anchor("right").add(pv.Label)
-		.font("12px Arial,Helvetica,sans-serif")
+		.font(footerFont)
 		.text(function(d) {return metrics[this.parent.index] + ": " + d.y.toFixed(2);});
 	
 	/* The date of the selected dot in footer. */
 	vis.add(pv.Label)
-		.left(0)
+		.left(w/2)
 		.bottom(-36)
-		.font("12px Arial,Helvetica,sans-serif")
-		.text(function() {return translations.date + ": " + snapshots[idx].d});
+		.font(footerFont)
+		.text(function() {return translations.date + ": " + snapshots[idx].d;});
+	
+	/* The event labels */
+	if (events) {
+	  eventColor = "rgba(75,159,213,1)";
+	  eventHoverColor = "rgba(202,227,242,1)";
+	  vis.add(pv.Line)
+		.strokeStyle("rgba(0,0,0,.001)")
+		.data(events)
+		.left(function(e) {return x(e.d);})
+		.bottom(0)
+		.anchor("top")
+		.add(pv.Dot)
+		.bottom(6)
+		.shape("triangle")
+		.strokeStyle("grey")
+		.fillStyle(function(e) {return e.l[0].ld == snapshots[idx].d ? eventHoverColor : eventColor})
+		.add(pv.Dot)
+		.visible(function(e) { return e.l[0].ld == snapshots[idx].d;})
+		.left(w/2+8)
+		.bottom(-42)
+		.shape("triangle")
+		.fillStyle(function(e) {return e.l[0].ld == snapshots[idx].d ? eventHoverColor : eventColor})
+		.strokeStyle("grey")
+		.anchor("right")
+		.add(pv.Label)
+		.font(footerFont)
+		.text(function(e) {return e.l[0].n + ( e.l[1] ? " (... +" + (e.l.size()-1) + ")" : "");});
+	}
 	
 	/* An invisible bar to capture events (without flickering). */
 	vis.add(pv.Bar)
 		.fillStyle("rgba(0,0,0,.001)")
+		.width(w+10)
 		.event("mouseout", function() {
 			i = -1;
 			return vis;
@@ -129,6 +165,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 			var mx = x.invert(vis.mouse().x);
 			idx = pv.search(data[0].map(function(d) {return d.x;}), mx);
 			idx = idx < 0 ? (-idx - 2) : idx;
+			idx = idx < 0 ? 0 : idx;
 			return vis;
 		});
 	

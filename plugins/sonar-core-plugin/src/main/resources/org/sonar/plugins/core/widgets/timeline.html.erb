@@ -54,11 +54,47 @@
   js_snapshots += "]"
   js_metrics += "]"
   
+  # Prepare also event structure if required
+  if widget_properties["displayEvents"]
+    events = {}
+    Event.find(:all, :conditions => {:resource_id => @resource.id}, :order => 'event_date').each() do |event|
+      if events[event.event_date]
+        events[event.event_date] << event
+      else
+        date_entry = [event]
+        events[event.event_date] = date_entry
+      end
+    end
+    js_events = "["
+    events.keys().sort.each() do |e_date|
+      e_details = events[e_date]
+      js_events += "{\"d\":d("
+      js_events += e_date.year.to_s
+      js_events += ","
+      # Need to decrease by 1 the month as the JS Date object start months at 0 (= January)
+      js_events += (e_date.month - 1).to_s
+      js_events += ","
+      js_events += e_date.day.to_s
+      js_events += "),\"l\":["
+      e_details.each() do |e|
+        js_events += "{\"n\":\""
+        js_events += e.name
+        js_events +=  "\",\"ld\":\""
+        js_events += human_short_date(e_date)
+        js_events += "\"},"
+      end 
+      js_events += "]},"
+    end
+    js_events += "]"
+  end
+  
   # And prepare translations for labels
   js_translations = "{"
   js_translations += "\"date\":\"" + message("date") + "\""
   js_translations += "}"
   
+  # Check if the widget height was specified
+  widgetHeight = widget_properties["widgetHeight"].to_i == 0 ? "null" : widget_properties["widgetHeight"]
 %>
 
 <% if widget_properties["chartTitle"] %>
@@ -81,12 +117,14 @@
 	  var snapshots = <%= js_snapshots -%>;
 	  var metrics = <%= js_metrics -%>;
 	  var translations = <%= js_translations -%>;
+	  var events = <%= js_events ? js_events : "null" -%>;
 	  var timeline = new SonarWidgets.Timeline('timeline-chart-<%= widget.id -%>')
-	  						.height(<%= widget_properties["widgetHeight"] ? widget_properties["widgetHeight"] : "null" -%>)
+	  						.height(<%= widgetHeight -%>)
 	  						.data(data)
 	  						.snapshots(snapshots)
 	  						.metrics(metrics)
-	  						.translations(translations);
+	  						.translations(translations)
+	  						.events(events);
 	  timeline.render();
 	
 	</script>
