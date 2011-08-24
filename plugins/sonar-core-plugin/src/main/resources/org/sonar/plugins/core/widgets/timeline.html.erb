@@ -94,7 +94,7 @@
   js_translations += "}"
   
   # Check if the widget height was specified
-  widgetHeight = widget_properties["widgetHeight"].to_i == 0 ? "null" : widget_properties["widgetHeight"]
+  chartHeight = widget_properties["chartHeight"].to_i == 0 ? "null" : widget_properties["chartHeight"]
 %>
 
 <% if widget_properties["chartTitle"] %>
@@ -119,7 +119,7 @@
 	  var translations = <%= js_translations -%>;
 	  var events = <%= js_events ? js_events : "null" -%>;
 	  var timeline = new SonarWidgets.Timeline('timeline-chart-<%= widget.id -%>')
-	  						.height(<%= widgetHeight -%>)
+	  						.height(<%= chartHeight -%>)
 	  						.data(data)
 	  						.snapshots(snapshots)
 	  						.metrics(metrics)
