@@ -9,6 +9,12 @@
       metric_name_map[metric.id] = message('metric.' + metric.name + '.name')
     end
   end
+  if metric_data_map.empty?
+    # No metric has been selected, it's the first time the widget is displayed: 'ncloc' is the default metric
+    ncloc = Metric.find(:all, :conditions => "name = 'ncloc'").first
+    metric_data_map[ncloc.id] = []
+    metric_name_map[ncloc.id] = message('metric.ncloc.name')
+  end
   
   # Retrieve metric trend information
   options = {}
