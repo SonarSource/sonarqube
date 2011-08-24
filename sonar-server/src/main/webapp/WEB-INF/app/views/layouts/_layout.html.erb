@@ -54,6 +54,12 @@
             <% if (@project.project? || @project.module?) %>
               <li class="<%= 'selected' if request.request_uri.include?('/project/settings') -%>"><a href="<%= ApplicationController.root_context -%>/project/settings/<%= @project.id -%>"><%= message('project_settings.page') -%></a></li>
             <% end %>
+            <% if (@project.project? || @project.module?) %>
+              <li class="<%= 'selected' if request.request_uri.include?('/project/exclusions') -%>"><a href="<%= ApplicationController.root_context -%>/project/exclusions/<%= @project.id -%>"><%= message('project_exclusions.page') -%></a></li>
+            <% end %>
+            <% if (@project.project?) %>
+              <li class="<%= 'selected' if request.request_uri.include?('/project/links') -%>"><a href="<%= ApplicationController.root_context -%>/project/links/<%= @project.id -%>"><%= message('project_links.page') -%></a></li>
+            <% end %>
             <% if (@project.project? || @project.view? || @project.subview?) %>
               <li class="<%= 'selected' if request.request_uri.include?('/project_roles') -%>"><a href="<%= ApplicationController.root_context -%>/project_roles/index?resource=<%= @project.id -%>"><%= message('project_roles.page') -%></a></li>
             <% end %>

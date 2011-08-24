@@ -37,6 +37,16 @@ class ProjectController < ApplicationController
     redirect_to_default
   end
 
+  def links
+    @project=Project.by_key(params[:id])
+    return access_denied unless is_admin?(@project)
+
+    @snapshot=@project.last_snapshot
+    if !@project.project?
+      redirect_to :action => 'index', :id => params[:id]
+    end
+  end
+
   def set_links
     project = Project.by_key(params[:project_id])
     return access_denied unless is_admin?(project)
@@ -60,9 +70,10 @@ class ProjectController < ApplicationController
     project.save!
 
     flash[:notice] = 'Links updated.'
-    redirect_to :action => 'settings', :id => project.id
+    redirect_to :action => 'links', :id => project.id
   end
 
+  
   def settings
     @project=Project.by_key(params[:id])
     return access_denied unless is_admin?(@project)
@@ -102,6 +113,16 @@ class ProjectController < ApplicationController
   end
 
 
+  def exclusions
+    @project=Project.by_key(params[:id])
+    return access_denied unless is_admin?(@project)
+  
+    @snapshot=@project.last_snapshot
+    if !@project.project? && !@project.module?
+      redirect_to :action => 'index', :id => params[:id]
+    end
+  end
+
   def set_exclusions
     @project = Project.find(params[:id])
     return access_denied unless is_admin?(@project)
@@ -114,7 +135,7 @@ class ProjectController < ApplicationController
       Property.set('sonar.exclusions', patterns.collect{|x| x.strip}.join(','), @project.id)
     end
     flash[:notice]='Filters added'
-    redirect_to :action => 'settings', :id => @project.id
+    redirect_to :action => 'exclusions', :id => @project.id
   end
 
   def delete_exclusions
@@ -123,7 +144,7 @@ class ProjectController < ApplicationController
     
     Property.clear('sonar.exclusions', @project.id)
     flash[:notice]='Filters deleted'
-    redirect_to :action => 'settings', :id => @project.id
+    redirect_to :action => 'exclusions', :id => @project.id
   end
 
   protected
