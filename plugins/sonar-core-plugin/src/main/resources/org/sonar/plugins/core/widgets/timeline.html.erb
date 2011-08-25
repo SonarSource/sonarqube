@@ -1,5 +1,6 @@
 <%= javascript_include_tag 'protovis-sonar' %>
 <%
+  # Retrieve widget settings
   metric_data_map = {}
   metric_name_map = {}
   (1..3).each do |index|
@@ -11,10 +12,11 @@
   end
   if metric_data_map.empty?
     # No metric has been selected, it's the first time the widget is displayed: 'ncloc' is the default metric
-    ncloc = Metric.find(:all, :conditions => "name = 'ncloc'").first
+    ncloc = Metric.find(:first, :conditions => "name = 'ncloc'")
     metric_data_map[ncloc.id] = []
     metric_name_map[ncloc.id] = message('metric.ncloc.name')
   end
+  chartHeight = widget_properties["chartHeight"].to_i == 0 ? "null" : widget_properties["chartHeight"]
   
   # Retrieve metric trend information
   options = {}
@@ -98,9 +100,7 @@
   js_translations = "{"
   js_translations += "\"date\":\"" + message("date") + "\""
   js_translations += "}"
-  
-  # Check if the widget height was specified
-  chartHeight = widget_properties["chartHeight"].to_i == 0 ? "null" : widget_properties["chartHeight"]
+    
 %>
 
 <% if widget_properties["chartTitle"] %>

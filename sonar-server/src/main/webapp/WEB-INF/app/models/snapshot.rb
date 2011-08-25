@@ -67,6 +67,26 @@ class Snapshot < ActiveRecord::Base
 
     snapshots.compact.uniq
   end
+  
+  def self.for_timemachine_widget(resource, number_of_versions, options={})
+    conditions = ["events.category=? AND events.resource_id=?", "Version", resource.id]
+    if (options[:from])
+      conditions[0] += " AND events.event_date>=?"
+      conditions << options[:from]
+    end
+    
+    events = Event.find(:all, :conditions => conditions, :order => 'events.event_date ASC')
+    events_to_display = events
+    if number_of_versions < events.size
+      events_to_display = [events.first] + events[events.size-number_of_versions+1 .. events.size-1]
+    end
+    sids = []
+    events_to_display.each() do |event|
+      sids << event.snapshot_id
+    end
+    
+    snapshots=Snapshot.find(:all, :conditions => ["snapshots.id IN (?)", sids], :include => 'events', :order => 'snapshots.created_at ASC')
+  end
 
   def last?
     islast

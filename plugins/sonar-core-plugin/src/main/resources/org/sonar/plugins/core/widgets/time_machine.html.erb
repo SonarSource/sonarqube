@@ -1,0 +1,114 @@
+<%
+  # Retrieve widget settings
+  metric_ids = []
+  (1..10).each do |index|
+    metric=widget_properties["metric#{index}"]
+    if metric
+      metric_ids << metric.id
+    end
+  end
+  if metric_ids.empty?
+    # No metric has been selected, it's the first time the widget is displayed: 'ncloc' is the default metric
+    ncloc = Metric.find(:first, :conditions => "name = 'ncloc'")
+    metric_ids << ncloc.id
+  end
+  numberOfVersions = widget_properties["numberOfVersions"].to_i == 0 ? 4 : widget_properties["numberOfVersions"].to_i
+  displaySparkLine = widget_properties["displaySparkLine"]
+  
+  # Retrieve the measures for each metric on each snapshot
+  options = {}
+  from_date = dashboard_configuration.from_datetime
+  if from_date
+    options[:from] = from_date
+  end
+  snapshots=Snapshot.for_timemachine_widget(@resource, numberOfVersions, options)
+  sids = snapshots.collect{|s| s.id}.uniq
+  measures=ProjectMeasure.find(:all, :conditions => {:snapshot_id => sids, :metric_id => metric_ids})
+
+  # And prepare the rows to display
+  snapshot_by_id={}
+  snapshots.each do |s|
+    snapshot_by_id[s.id]=s
+  end
+  rows_by_metric_id={}
+  rows=[]
+  measures.each do |measure|
+    next unless measure.metric
+
+    if measure.metric.timemachine? && (measure.value || measure.text_value)
+      row=rows_by_metric_id[measure.metric_id]
+      unless row
+        row=Sonar::TimemachineRow.new(measure.metric)
+        rows<<row
+        rows_by_metric_id[measure.metric_id]=row
+      end
+
+      #optimization : avoid eager loading of snapshots
+      measure.snapshot=snapshot_by_id[measure.snapshot_id]
+      row.add_measure(measure)
+    end
+  end
+  
+  rows.sort!
+%>
+
+<div class="widget-matrix">
+
+<table class="widget-matrix">
+
+  <thead>
+    <tr>
+      <th valign="top" nowrap="nowrap" style="background-color: #FFFFFF; border: 0px;"> 
+      </th>
+      <% snapshots.each do |snapshot| %>
+        <th nowrap="nowrap" align="right" valign="top">
+            <%= l snapshot.created_at.to_date %>
+            <br/>
+            <% snapshot.user_events.each do |event| %>
+                <b><%= event.name %></b>
+                <br/>
+            <% end %>
+          </th>
+      <% end %>
+      <th> </th>
+  </tr>
+  </thead>
+
+  <tbody>
+    <%
+      previous_domain=''
+      rows.select{|row| row.metric.val_type != Metric::VALUE_TYPE_DISTRIB}.each do |row|
+        if previous_domain != row.domain 
+    %>
+    <tr>
+      <td class="title" colspan="<%= snapshots.size + 2 -%>"><%= row.domain %></td>
+    </tr>
+    <% 
+        end
+        previous_domain = row.domain 
+    %>
+    <tr class="<%= cycle("even", "odd", :name => row.domain) -%>">
+      <td width="1%" nowrap="nowrap" valign="top">
+        <%= row.metric.short_name %>
+      </td>
+    <% 
+      snapshots.each do |snapshot|
+        measure=row.measure(snapshot)
+    %>
+      <td align="right" width="1%" nowrap="nowrap"><%= format_measure(measure, :skip_span_id => true) %></td>
+    <% end %>
+      <td>
+    <%
+      sparkline_url=row.sparkline_url
+      if displaySparkLine && sparkline_url
+    %>
+        <%= image_tag(sparkline_url) %>
+    <% end %>
+      </td>
+    </tr>
+    <% end %>
+  </tbody>
+
+</table>
+
+</div>

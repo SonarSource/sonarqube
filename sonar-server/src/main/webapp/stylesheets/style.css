@@ -1792,6 +1792,37 @@ table.matrix tbody td.title {
   padding: 5px 0 0 5px;
 }
 
+div.widget-matrix {
+ overflow:auto;
+}
+
+table.widget-matrix {
+  font-size: 12px;
+}
+
+table.widget-matrix thead {
+  background-color: #CAE3F2;
+}
+
+table.widget-matrix thead th {
+  text-align: right;
+  border: 1px solid #4b9fd5;
+  padding: 2px;
+  font-size: 11px;
+}
+
+table.widget-matrix tbody td.title {
+  border: none;
+  font-weight: bold;
+  padding: 5px 0 0 0px;
+}
+
+table.widget-matrix tbody td {
+  border: 1px solid #ddd;
+  margin: 0;
+  padding: 1px 0 1px 10px;
+}
+
 
 a.nolink, .dashbox a, .dashbox a:visited {
   text-decoration: none;
