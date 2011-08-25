@@ -28,8 +28,9 @@
         <span class="note"><ul><li>com/mycompany/**/*.java</li><li>**/*Dummy.java</li></ul></span>
       </td></tr>
       <tr><td class=left>
-        <%= submit_tag( "Save filters", :id => 'submit_exclusions') %>
-        <%= link_to 'Delete all filters', {:action => 'delete_exclusions', :id => @project.id}, :method => 'POST', :confirm => "Are you sure you want to delete all exclusion filters ?", :id => 'delete_exclusions' %>
+        <%= submit_tag( "Save exclusion filters", :id => 'submit_exclusions') %>
+        <input type="submit" value="Delete all exclusion filters" id="delete_exclusions" class="action red-button"
+               onclick="if (confirm('Are you sure you want to delete all exclusion filters ?')) { var f = document.createElement('form'); f.style.display = 'none'; this.parentNode.appendChild(f); f.method = 'POST'; f.action = '<%= url_for :action => "delete_exclusions", :id => @project.id -%>';f.submit(); };return false;">
         </td></tr>
     </table>
     <% end %>
