@@ -31,7 +31,7 @@ import org.sonar.api.web.WidgetPropertyType;
         @WidgetProperty(key = "metric1", type = WidgetPropertyType.METRIC, defaultValue = "ncloc"),
         @WidgetProperty(key = "metric2", type = WidgetPropertyType.METRIC),
         @WidgetProperty(key = "metric3", type = WidgetPropertyType.METRIC),
-        @WidgetProperty(key = "displayEvents", type = WidgetPropertyType.BOOLEAN),
+        @WidgetProperty(key = "hideEvents", type = WidgetPropertyType.BOOLEAN),
         @WidgetProperty(key = "chartHeight", type = WidgetPropertyType.INTEGER)
     }
 )

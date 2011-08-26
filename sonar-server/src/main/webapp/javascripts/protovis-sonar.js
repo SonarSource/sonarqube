@@ -46,14 +46,27 @@ SonarWidgets.Timeline.prototype.render = function() {
 	var footerFont = "12px Arial,Helvetica,sans-serif";
 	
 	/* Sizing and scales. */
+	var leftMargin = 20;
+	var show_y_axis = (data.length==1)
+	if (show_y_axis) {
+		// We must evaluate how wide the left margin must be, depending on the values that we get (so that they can be displayed correctly)
+		var maxNumberOnY = 0;
+		for each (var dataArray in trendData) {
+			for each (var d in dataArray) {
+				if (d.y > maxNumberOnY) maxNumberOnY = d.y;
+			}
+		}
+		minMargin = (maxNumberOnY + "").length * 7
+		if (minMargin > leftMargin) leftMargin = minMargin
+	}	
 	var footerHeight = 30 + (events ? 3 : this.wMetrics.size()) * 12;
-	var w = widgetDiv.parentNode.clientWidth - 60, 
-		h = (this.wHeight == null ? 250 : this.wHeight) + footerHeight - 5,
+	var w = widgetDiv.parentNode.clientWidth - leftMargin - 30, 
+		h = (this.wHeight == null ? 80 : this.wHeight) + footerHeight - 5,
 		S=2;
 
 	var x = pv.Scale.linear(pv.blend(pv.map(data, function(d) {return d;})), function(d) {return d.x}).range(0, w);
 	var y = new Array(data.length);
-	for(var i = 0; i < data.length; i++){ 
+	for(var i = 0; i < data.length; i++){
 		y[i]=pv.Scale.linear(data[i], function(d) {return d.y;}).range(20, h-10)
 	}
 	var interpolate = "linear"; /* cardinal or linear */
@@ -64,7 +77,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 		.canvas(widgetDiv)
 		.width(w)
 		.height(h)
-		.left(30)
+		.left(leftMargin)
 		.right(20)
 		.bottom(footerHeight)
 		.top(5)
@@ -81,7 +94,6 @@ SonarWidgets.Timeline.prototype.render = function() {
 		.text(x.tickFormat);
 
 	/* Y-axis and ticks. */
-	var show_y_axis = (data.length==1)
 	if (show_y_axis) { 
 		vis.add(pv.Rule)
 		.data(y[0].ticks(5))
@@ -113,7 +125,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 		.lineWidth(1)
 		.add(pv.Dot)
 		.left(0)
-		.bottom(function() {return 0 - 30 - this.parent.index * 12;})
+		.bottom(function() {return 0 - 30 - this.parent.index * 14;})
 		.anchor("right").add(pv.Label)
 		.font(footerFont)
 		.text(function(d) {return metrics[this.parent.index] + ": " + d.y.toFixed(2);});
@@ -143,7 +155,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 		.add(pv.Dot)
 		.visible(function(e) { return e.l[0].ld == snapshots[idx].d;})
 		.left(w/2+8)
-		.bottom(-42)
+		.bottom(-45)
 		.shape("triangle")
 		.fillStyle(function(e) {return e.l[0].ld == snapshots[idx].d ? eventHoverColor : eventColor})
 		.strokeStyle("grey")

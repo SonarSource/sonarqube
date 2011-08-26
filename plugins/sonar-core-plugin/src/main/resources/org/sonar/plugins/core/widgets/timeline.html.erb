@@ -33,37 +33,39 @@
   js_snapshots = "["
   js_metrics = "["
   metric_data_map.keys.each_with_index() do |metric_id, index|
-    js_metrics += "\"" + metric_name_map[metric_id] + "\","
-    js_data += "["
-    metric_data_map[metric_id].each() do |metric_data|
-      m_date = Time.parse(metric_data[:date])
-      js_data += "{\"x\":d("
-      js_data += m_date.year.to_s
-      js_data += ","
-      # Need to decrease by 1 the month as the JS Date object start months at 0 (= January)
-      js_data += (m_date.month - 1).to_s
-      js_data += ","
-      js_data += m_date.day.to_s
-      js_data += "),\"y\":" 
-      js_data += sprintf( "%0.02f", metric_data[:value])
-      js_data +=  "},"
-      if index == 0
-        # we fill the js_snapshots array (no need to do this more than once)
-        js_snapshots += "{\"sid\":"
-        js_snapshots += metric_data[:sid]
-        js_snapshots += ",\"d\":\""
-        js_snapshots += human_short_date(m_date)
-        js_snapshots += "\"},"
+    unless metric_data_map[metric_id].empty?
+      js_metrics += "\"" + metric_name_map[metric_id] + "\","
+      js_data += "["
+      metric_data_map[metric_id].each() do |metric_data|
+        m_date = Time.parse(metric_data[:date])
+        js_data += "{\"x\":d("
+        js_data += m_date.year.to_s
+        js_data += ","
+        # Need to decrease by 1 the month as the JS Date object start months at 0 (= January)
+        js_data += (m_date.month - 1).to_s
+        js_data += ","
+        js_data += m_date.day.to_s
+        js_data += "),\"y\":" 
+        js_data += sprintf( "%0.02f", metric_data[:value])
+        js_data +=  "},"
+        if index == 0
+          # we fill the js_snapshots array (no need to do this more than once)
+          js_snapshots += "{\"sid\":"
+          js_snapshots += metric_data[:sid]
+          js_snapshots += ",\"d\":\""
+          js_snapshots += human_short_date(m_date)
+          js_snapshots += "\"},"
+        end
       end
+      js_data += "],"
     end
-    js_data += "],"
   end
   js_data += "]"
   js_snapshots += "]"
   js_metrics += "]"
   
   # Prepare also event structure if required
-  if widget_properties["displayEvents"]
+  unless widget_properties["hideEvents"]
     events = {}
     Event.find(:all, :conditions => {:resource_id => @resource.id}, :order => 'event_date').each() do |event|
       if events[event.event_date]
