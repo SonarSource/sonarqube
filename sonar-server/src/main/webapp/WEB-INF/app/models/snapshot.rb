@@ -69,23 +69,35 @@ class Snapshot < ActiveRecord::Base
   end
   
   def self.for_timemachine_widget(resource, number_of_versions, options={})
-    conditions = ["events.category=? AND events.resource_id=?", "Version", resource.id]
+    snapshot_conditions = ["snapshots.project_id=? AND snapshots.status=? AND snapshots.scope=? AND snapshots.qualifier=?", resource.id, STATUS_PROCESSED, resource.scope, resource.qualifier]
+    event_conditions = ["events.category=? AND events.resource_id=?", "Version", resource.id]
     if (options[:from])
-      conditions[0] += " AND events.event_date>=?"
-      conditions << options[:from]
+      snapshot_conditions[0] += " AND snapshots.created_at>=?"
+      snapshot_conditions << options[:from]
+      event_conditions[0] += " AND events.event_date>=?"
+      event_conditions << options[:from]
     end
     
-    events = Event.find(:all, :conditions => conditions, :order => 'events.event_date ASC')
-    events_to_display = events
-    if number_of_versions < events.size
-      events_to_display = [events.first] + events[events.size-number_of_versions+1 .. events.size-1]
+    if number_of_versions == 1
+      # Display only the latest snapshot
+      last_snapshot = Snapshot.find(:last, :conditions => snapshot_conditions, :order => 'snapshots.created_at ASC')
+      return [last_snapshot]
     end
+    
+    # Look for 1rst snapshot of the period
+    first_snapshot=Snapshot.find(:first, :conditions => snapshot_conditions, :order => 'snapshots.created_at ASC')
+    
+    # Look for the number_of_versions-1 last events to display
+    events_to_display = Event.find(:all, :conditions => event_conditions, :order => 'events.event_date ASC').last(number_of_versions-1)
+    
+    # And retrieve the wanted snapshots corresponding to the events
     sids = []
     events_to_display.each() do |event|
-      sids << event.snapshot_id
-    end
+      sids << event.snapshot_id unless event.snapshot_id == first_snapshot.id
+    end    
+    last_snapshots=Snapshot.find(:all, :conditions => ["snapshots.id IN (?)", sids], :include => 'events', :order => 'snapshots.created_at ASC')
     
-    snapshots=Snapshot.find(:all, :conditions => ["snapshots.id IN (?)", sids], :include => 'events', :order => 'snapshots.created_at ASC')
+    return [first_snapshot] + last_snapshots
   end
 
   def last?

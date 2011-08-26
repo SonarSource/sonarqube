@@ -1793,11 +1793,12 @@ table.matrix tbody td.title {
 }
 
 div.widget-matrix {
- overflow:auto;
+  overflow:auto;
 }
 
 table.widget-matrix {
   font-size: 12px;
+  margin: 1px; 
 }
 
 table.widget-matrix thead {
@@ -1820,7 +1821,7 @@ table.widget-matrix tbody td.title {
 table.widget-matrix tbody td {
   border: 1px solid #ddd;
   margin: 0;
-  padding: 1px 0 1px 10px;
+  padding: 1px 2px 1px 10px;
 }
 
 

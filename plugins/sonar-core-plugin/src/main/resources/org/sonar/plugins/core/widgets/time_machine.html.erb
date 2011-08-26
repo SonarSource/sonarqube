@@ -49,6 +49,12 @@
     end
   end
   
+  domains = []
+  rows.select{|row| row.metric.val_type != Metric::VALUE_TYPE_DISTRIB}.each do |row|
+    domains << row.domain
+  end
+  display_domains = domains.uniq.size > 1
+  
   rows.sort!
 %>
 
@@ -70,7 +76,9 @@
             <% end %>
           </th>
       <% end %>
+      <% if displaySparkLine %>
       <th> </th>
+      <% end %>
   </tr>
   </thead>
 
@@ -78,10 +86,10 @@
     <%
       previous_domain=''
       rows.select{|row| row.metric.val_type != Metric::VALUE_TYPE_DISTRIB}.each do |row|
-        if previous_domain != row.domain 
+        if display_domains && previous_domain != row.domain 
     %>
     <tr>
-      <td class="title" colspan="<%= snapshots.size + 2 -%>"><%= row.domain %></td>
+      <td class="title" colspan="<%= snapshots.size + (displaySparkLine ? 2 : 1) -%>"><%= row.domain %></td>
     </tr>
     <% 
         end
@@ -97,14 +105,14 @@
     %>
       <td align="right" width="1%" nowrap="nowrap"><%= format_measure(measure, :skip_span_id => true) %></td>
     <% end %>
-      <td>
     <%
       sparkline_url=row.sparkline_url
       if displaySparkLine && sparkline_url
     %>
+      <td width="1%" >
         <%= image_tag(sparkline_url) %>
-    <% end %>
       </td>
+    <% end %>
     </tr>
     <% end %>
   </tbody>
