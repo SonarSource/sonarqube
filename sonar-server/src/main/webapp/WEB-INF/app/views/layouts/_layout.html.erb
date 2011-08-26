@@ -63,6 +63,9 @@
             <% if (@project.project? || @project.view? || @project.subview?) %>
               <li class="<%= 'selected' if request.request_uri.include?('/project_roles') -%>"><a href="<%= ApplicationController.root_context -%>/project_roles/index?resource=<%= @project.id -%>"><%= message('project_roles.page') -%></a></li>
             <% end %>
+            <% if (@project.project?) %>
+              <li class="<%= 'selected' if request.request_uri.include?('/project/deletion') -%>"><a href="<%= ApplicationController.root_context -%>/project/deletion/<%= @project.id -%>"><%= message('project_deletion.page') -%></a></li>
+            <% end %>
           <% end %>
 
         <% elsif selected_section==Navigation::SECTION_CONFIGURATION %>

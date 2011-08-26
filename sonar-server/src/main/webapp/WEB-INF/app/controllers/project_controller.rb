@@ -27,6 +27,16 @@ class ProjectController < ApplicationController
     redirect_to :overwrite_params => {:controller => :dashboard, :action => 'index'} 
   end
 
+  def deletion
+    @project=Project.by_key(params[:id])
+    return access_denied unless is_admin?(@project)
+
+    @snapshot=@project.last_snapshot
+    if !@project.project?
+      redirect_to :action => 'index', :id => params[:id]
+    end
+  end
+
   def delete
     if params[:id]
       @project = Project.by_key(params[:id])
