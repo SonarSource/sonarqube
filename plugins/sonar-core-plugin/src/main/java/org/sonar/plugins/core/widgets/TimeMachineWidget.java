@@ -27,7 +27,7 @@ import org.sonar.api.web.WidgetPropertyType;
 
 @WidgetProperties(
     {
-        @WidgetProperty(key = "numberOfVersions", type = WidgetPropertyType.INTEGER, defaultValue = "4"),
+        @WidgetProperty(key = "numberOfColumns", type = WidgetPropertyType.INTEGER, defaultValue = "4"),
         @WidgetProperty(key = "displaySparkLine", type = WidgetPropertyType.BOOLEAN),
         @WidgetProperty(key = "metric1", type = WidgetPropertyType.METRIC, defaultValue = "ncloc"),
         @WidgetProperty(key = "metric2", type = WidgetPropertyType.METRIC),

@@ -68,36 +68,30 @@ class Snapshot < ActiveRecord::Base
     snapshots.compact.uniq
   end
   
-  def self.for_timemachine_widget(resource, number_of_versions, options={})
+  def self.for_timemachine_widget(resource, number_of_columns, options={})
+    if number_of_columns == 1
+      # Display only the latest snapshot
+      return [resource.last_snapshot]
+    end
+    
+    # Get 1rst & latests snapshots of the period
     snapshot_conditions = ["snapshots.project_id=? AND snapshots.status=? AND snapshots.scope=? AND snapshots.qualifier=?", resource.id, STATUS_PROCESSED, resource.scope, resource.qualifier]
-    event_conditions = ["events.category=? AND events.resource_id=?", "Version", resource.id]
-    if (options[:from])
+    if options[:from]
       snapshot_conditions[0] += " AND snapshots.created_at>=?"
       snapshot_conditions << options[:from]
-      event_conditions[0] += " AND events.event_date>=?"
-      event_conditions << options[:from]
     end
-    
-    if number_of_versions == 1
-      # Display only the latest snapshot
-      last_snapshot = Snapshot.find(:last, :conditions => snapshot_conditions, :order => 'snapshots.created_at ASC')
-      return [last_snapshot]
-    end
-    
-    # Look for 1rst snapshot of the period
     first_snapshot=Snapshot.find(:first, :conditions => snapshot_conditions, :order => 'snapshots.created_at ASC')
+    last_snapshot=resource.last_snapshot
     
-    # Look for the number_of_versions-1 last events to display
-    events_to_display = Event.find(:all, :conditions => event_conditions, :order => 'events.event_date ASC').last(number_of_versions-1)
+    # Look for the number_of_columns-2 last snapshots to display  (they must have 'Version' events)
+    version_snapshots = []
+    if number_of_columns > 2
+      snapshot_conditions[0] += " AND events.snapshot_id=snapshots.id AND events.category='Version' AND snapshots.id NOT IN (?)"
+      snapshot_conditions << [first_snapshot.id, last_snapshot.id]
+      version_snapshots=Snapshot.find(:all, :conditions => snapshot_conditions, :include => 'events', :order => 'snapshots.created_at ASC').last(number_of_columns-2)
+    end
     
-    # And retrieve the wanted snapshots corresponding to the events
-    sids = []
-    events_to_display.each() do |event|
-      sids << event.snapshot_id unless event.snapshot_id == first_snapshot.id
-    end    
-    last_snapshots=Snapshot.find(:all, :conditions => ["snapshots.id IN (?)", sids], :include => 'events', :order => 'snapshots.created_at ASC')
-    
-    return [first_snapshot] + last_snapshots
+    return [first_snapshot] + version_snapshots + [last_snapshot]
   end
 
   def last?

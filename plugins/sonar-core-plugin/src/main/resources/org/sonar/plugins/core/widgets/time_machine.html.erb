@@ -12,7 +12,7 @@
     ncloc = Metric.find(:first, :conditions => "name = 'ncloc'")
     metric_ids << ncloc.id
   end
-  numberOfVersions = widget_properties["numberOfVersions"].to_i == 0 ? 4 : widget_properties["numberOfVersions"].to_i
+  numberOfColumns = widget_properties["numberOfColumns"].to_i == 0 ? 4 : widget_properties["numberOfColumns"].to_i
   displaySparkLine = widget_properties["displaySparkLine"]
   
   # Retrieve the measures for each metric on each snapshot
@@ -21,7 +21,7 @@
   if from_date
     options[:from] = from_date
   end
-  snapshots=Snapshot.for_timemachine_widget(@resource, numberOfVersions, options)
+  snapshots=Snapshot.for_timemachine_widget(@resource, numberOfColumns, options)
   sids = snapshots.collect{|s| s.id}.uniq
   measures=ProjectMeasure.find(:all, :conditions => {:snapshot_id => sids, :metric_id => metric_ids})
 
