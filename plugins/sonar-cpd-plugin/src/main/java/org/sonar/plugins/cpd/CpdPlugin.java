@@ -19,15 +19,15 @@
  */
 package org.sonar.plugins.cpd;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.SonarPlugin;
 import org.sonar.plugins.cpd.decorators.DuplicationDensityDecorator;
 import org.sonar.plugins.cpd.decorators.SumDuplicationsDecorator;
-
-import java.util.Arrays;
-import java.util.List;
 
 @Properties({
     @Property(
@@ -67,6 +67,7 @@ import java.util.List;
 public class CpdPlugin extends SonarPlugin {
 
   public List getExtensions() {
-    return Arrays.asList(CpdSensor.class, SumDuplicationsDecorator.class, DuplicationDensityDecorator.class, JavaCpdMapping.class);
+    return Arrays.asList(CpdSensor.class, SumDuplicationsDecorator.class, DuplicationDensityDecorator.class, JavaCpdMapping.class, SonarEngine.class, PmdEngine.class);
   }
+
 }
