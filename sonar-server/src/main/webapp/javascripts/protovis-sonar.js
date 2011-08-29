@@ -51,14 +51,14 @@ SonarWidgets.Timeline.prototype.render = function() {
 	if (show_y_axis) {
 		// We must evaluate how wide the left margin must be, depending on the values that we get (so that they can be displayed correctly)
 		var maxNumberOnY = 0;
-		for each (var dataArray in trendData) {
-			for each (var d in dataArray) {
-				if (d.y > maxNumberOnY) maxNumberOnY = d.y;
+		for (var i = 0; i < trendData.length; i++) {
+			for (var j = 0; j < trendData[i].length; j++) {
+				if (trendData[i][j].y > maxNumberOnY) { maxNumberOnY = trendData[i][j].y; }
 			}
 		}
-		minMargin = (maxNumberOnY + "").length * 7
-		if (minMargin > leftMargin) leftMargin = minMargin
-	}	
+		minMargin = (maxNumberOnY + "").length * 7;
+		if (minMargin > leftMargin) { leftMargin = minMargin; }
+	}
 	var footerHeight = 30 + (events ? 3 : this.wMetrics.size()) * 12;
 	var w = widgetDiv.parentNode.clientWidth - leftMargin - 30, 
 		h = (this.wHeight == null ? 80 : this.wHeight) + footerHeight - 5,
