@@ -43,19 +43,19 @@ SonarWidgets.Timeline.prototype.render = function() {
 	var events = this.wEvents;
 	var widgetDiv = document.getElementById(this.wDivId);
 	
-	var footerFont = "12px Arial,Helvetica,sans-serif";
+	var footerFont = "10.5px Arial,Helvetica,sans-serif";
 	var show_y_axis = (data.length==1)
 	
 	/* Sizing and scales. */
-	var footerHeight = 30 + (events ? 3 : this.wMetrics.size()) * 12;
+	var footerHeight = 4 + Math.max(this.wMetrics.size(), events ? 2 : 1) * 18;
 	var w = widgetDiv.parentNode.clientWidth - 60, 
-		h = (this.wHeight == null ? 80 : this.wHeight) + footerHeight - 5,
+		h = (this.wHeight == null ? 80 : this.wHeight) + footerHeight,
 		S=2;
 
 	var x = pv.Scale.linear(pv.blend(pv.map(data, function(d) {return d;})), function(d) {return d.x}).range(0, w);
 	var y = new Array(data.length);
 	for(var i = 0; i < data.length; i++){
-		y[i]=pv.Scale.linear(data[i], function(d) {return d.y;}).range(20, h-10)
+		y[i]=pv.Scale.linear(data[i], function(d) {return d.y;}).range(20, h-footerHeight)
 	}
 	var interpolate = "linear"; /* cardinal or linear */
 	var idx = this.wData[0].size() - 1;
@@ -67,7 +67,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 		.height(h)
 		.left(20)
 		.right(20)
-		.bottom(footerHeight)
+		.bottom(20)
 		.top(5)
 		.strokeStyle("#CCC");
 
@@ -101,8 +101,9 @@ SonarWidgets.Timeline.prototype.render = function() {
 		.size(20) 
 		.lineWidth(1)
 		.add(pv.Dot)
-		.left(0)
-		.bottom(function() {return 0 - 30 - this.parent.index * 14;})
+		.radius(3)
+		.left(10)
+		.top(function() {return 10 + this.parent.index * 14;})
 		.anchor("right").add(pv.Label)
 		.font(footerFont)
 		.text(function(d) {return metrics[this.parent.index] + ": " + d.y.toFixed(2);});
@@ -110,7 +111,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 	/* The date of the selected dot in footer. */
 	vis.add(pv.Label)
 		.left(w/2)
-		.bottom(-36)
+		.top(16)
 		.font(footerFont)
 		.text(function() {return translations.date + ": " + snapshots[idx].d;});
 	
@@ -130,9 +131,10 @@ SonarWidgets.Timeline.prototype.render = function() {
 		.strokeStyle("grey")
 		.fillStyle(function(e) {return e.l[0].ld == snapshots[idx].d ? eventHoverColor : eventColor})
 		.add(pv.Dot)
+		.radius(3)
 		.visible(function(e) { return e.l[0].ld == snapshots[idx].d;})
 		.left(w/2+8)
-		.bottom(-45)
+		.top(24)
 		.shape("triangle")
 		.fillStyle(function(e) {return e.l[0].ld == snapshots[idx].d ? eventHoverColor : eventColor})
 		.strokeStyle("grey")
