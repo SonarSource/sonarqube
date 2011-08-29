@@ -31,7 +31,6 @@
     snapshot_by_id[s.id]=s
   end
   rows_by_metric_id={}
-  rows=[]
   measures.each do |measure|
     next unless measure.metric
 
@@ -39,7 +38,6 @@
       row=rows_by_metric_id[measure.metric_id]
       unless row
         row=Sonar::TimemachineRow.new(measure.metric)
-        rows<<row
         rows_by_metric_id[measure.metric_id]=row
       end
 
@@ -49,32 +47,29 @@
     end
   end
   
-  domains = []
-  rows.select{|row| row.metric.val_type != Metric::VALUE_TYPE_DISTRIB}.each do |row|
-    domains << row.domain
+  # Create the list of rows to display in the same order as defined by the user
+  rows=[]
+  metric_ids.each do |metric_id|
+    row = rows_by_metric_id[metric_id]
+    if row
+      rows<<row
+    end
   end
-  display_domains = domains.uniq.size > 1
-  
-  rows.sort!
 %>
 
 <div class="widget-matrix">
 
-<table class="widget-matrix">
+<table class="data">
 
   <thead>
     <tr>
-      <th valign="top" nowrap="nowrap" style="background-color: #FFFFFF; border: 0px;"> 
-      </th>
+      <th> </th>
       <% snapshots.each do |snapshot| %>
-        <th nowrap="nowrap" align="right" valign="top">
-            <%= l snapshot.created_at.to_date %>
+        <th nowrap="nowrap">
+            <%= l snapshot.created_at.to_date -%>
             <br/>
-            <% snapshot.user_events.each do |event| %>
-                <b><%= event.name %></b>
-                <br/>
-            <% end %>
-          </th>
+            <%= snapshot.event('Version').name -%>
+        </th>
       <% end %>
       <% if displaySparkLine %>
       <th> </th>
@@ -84,26 +79,17 @@
 
   <tbody>
     <%
-      previous_domain=''
       rows.select{|row| row.metric.val_type != Metric::VALUE_TYPE_DISTRIB}.each do |row|
-        if display_domains && previous_domain != row.domain 
     %>
-    <tr>
-      <td class="title" colspan="<%= snapshots.size + (displaySparkLine ? 2 : 1) -%>"><%= row.domain %></td>
-    </tr>
-    <% 
-        end
-        previous_domain = row.domain 
-    %>
-    <tr class="<%= cycle("even", "odd", :name => row.domain) -%>">
-      <td width="1%" nowrap="nowrap" valign="top">
+    <tr class="<%= cycle 'even','odd' -%>">
+      <td width="1%" nowrap="nowrap" class="left text">
         <%= row.metric.short_name %>
       </td>
     <% 
       snapshots.each do |snapshot|
         measure=row.measure(snapshot)
     %>
-      <td align="right" width="1%" nowrap="nowrap"><%= format_measure(measure, :skip_span_id => true) %></td>
+      <td width="1%" nowrap="nowrap" class="right"><%= format_measure(measure, :skip_span_id => true) %></td>
     <% end %>
     <%
       sparkline_url=row.sparkline_url
