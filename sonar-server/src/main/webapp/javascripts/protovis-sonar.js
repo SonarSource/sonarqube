@@ -44,23 +44,11 @@ SonarWidgets.Timeline.prototype.render = function() {
 	var widgetDiv = document.getElementById(this.wDivId);
 	
 	var footerFont = "12px Arial,Helvetica,sans-serif";
+	var show_y_axis = (data.length==1)
 	
 	/* Sizing and scales. */
-	var leftMargin = 20;
-	var show_y_axis = (data.length==1)
-	if (show_y_axis) {
-		// We must evaluate how wide the left margin must be, depending on the values that we get (so that they can be displayed correctly)
-		var maxNumberOnY = 0;
-		for (var i = 0; i < trendData.length; i++) {
-			for (var j = 0; j < trendData[i].length; j++) {
-				if (trendData[i][j].y > maxNumberOnY) { maxNumberOnY = trendData[i][j].y; }
-			}
-		}
-		minMargin = (maxNumberOnY + "").length * 7;
-		if (minMargin > leftMargin) { leftMargin = minMargin; }
-	}
 	var footerHeight = 30 + (events ? 3 : this.wMetrics.size()) * 12;
-	var w = widgetDiv.parentNode.clientWidth - leftMargin - 30, 
+	var w = widgetDiv.parentNode.clientWidth - 60, 
 		h = (this.wHeight == null ? 80 : this.wHeight) + footerHeight - 5,
 		S=2;
 
@@ -77,7 +65,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 		.canvas(widgetDiv)
 		.width(w)
 		.height(h)
-		.left(leftMargin)
+		.left(20)
 		.right(20)
 		.bottom(footerHeight)
 		.top(5)
@@ -92,17 +80,6 @@ SonarWidgets.Timeline.prototype.render = function() {
 		.anchor("bottom")
 		.add(pv.Label)
 		.text(x.tickFormat);
-
-	/* Y-axis and ticks. */
-	if (show_y_axis) { 
-		vis.add(pv.Rule)
-		.data(y[0].ticks(5))
-		.bottom(y[0])
-		.strokeStyle(function(d) {return d ? "#eee" : "#000";})
-		.anchor("left")
-		.add(pv.Label)
-		.text(y[0].tickFormat); 
-	}
 
 	/* A panel for each data series. */
 	var panel = vis.add(pv.Panel)

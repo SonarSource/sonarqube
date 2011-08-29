@@ -32,7 +32,7 @@ import org.sonar.api.web.WidgetPropertyType;
         @WidgetProperty(key = "metric2", type = WidgetPropertyType.METRIC),
         @WidgetProperty(key = "metric3", type = WidgetPropertyType.METRIC),
         @WidgetProperty(key = "hideEvents", type = WidgetPropertyType.BOOLEAN),
-        @WidgetProperty(key = "chartHeight", type = WidgetPropertyType.INTEGER)
+        @WidgetProperty(key = "chartHeight", type = WidgetPropertyType.INTEGER, defaultValue = "80")
     }
 )
 public class TimelineWidget extends AbstractRubyTemplate implements RubyRailsWidget {
