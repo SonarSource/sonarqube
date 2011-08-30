@@ -1,1 +1,33 @@
-Checks for redundant modifiers in interface and annotation definitions.
+<p>
+  Checks for redundant modifiers in:
+</p>
+<ol style="list-style-type: decimal;">
+  <li>interface and annotation definitions,</li>
+  <li>the final modifier on methods of final classes, and </li>
+  <li>
+    inner <tt>interface</tt> declarations that are declared
+    as <tt>static</tt>
+  </li>
+</ol>
+<p>
+  Rationale: The Java Language Specification strongly
+  discourages the usage of "public" and "abstract" for method
+  declarations in interface definitions as a matter of style.
+</p>
+
+<p>
+  Variables in interfaces and annotations are automatically
+  public, static and final, so these modifiers are redundant as
+  well.
+</p>
+
+<p>
+  As annotations are a form of interface, their fields are also
+  automatically public, static and final just as their
+  annotation fields are automatically public and abstract.
+</p>
+
+<p>
+  Final classes by definition can not be extended so the final
+  modifier on the method of a final class is redundant.
+</p>
