@@ -1,0 +1,90 @@
+<% if @snapshot.root? %>
+<h1><%= message('project_history.page_title') -%></h1>
+<br/>
+
+<script>
+  function updateSelectBox() {
+    var inputs = document.getElementsByName("snapshot_ids[]");
+    var selected = false;
+    for (i=0; i<inputs.length; i++) {
+      if (inputs[i].checked) { selected = true; break;}
+    }
+    $('operation-select-box').disabled = !selected;
+  }
+</script>
+
+<form action="<%= ApplicationController.root_context -%>/project/snapshot_history" method="POST" id="snapshots-form">
+<input type="hidden" name="id" value="<%= @project.id -%>"/>
+<table class="width100 data">
+  <thead>
+    <tr>
+      <th class="thin nowrap"><%= message('project_history.col.year') -%></th>
+      <th class="thin nowrap"><%= message('project_history.col.month') -%></th>
+      <th style="width: 18px"></th>
+      <th class="nowrap"><%= message('project_history.col.time') -%></th>
+      <th class="nowrap"><%= message('project_history.col.events') -%></th>
+      <th class="thin nowrap center"><%= message('project_history.col.action') -%></th>
+      <th class="thin nowrap">
+        <select id="operation-select-box" name="operation" onChange="$('snapshots-form').submit()" disabled>
+	      <option value="" selected></option>
+	      <option value="delete"><%= message('project_history.delete') -%></option>
+	      <option value="recover"><%= message('project_history.recover') -%></option>
+	    </select>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <% 
+      current_year = nil
+      current_month = nil 
+      @snapshots.each do |snapshot|
+        number_of_events = snapshot.events.size
+        time = snapshot.created_at
+    %>
+    <tr class="<%= cycle 'even','odd' -%>">
+      <td class="thin nowrap"><%= time.year unless time.year == current_year -%></td>
+      <td class="thin nowrap"><%= l(time, :format => '%B').capitalize unless time.month == current_month -%></td>
+      <td style="width: 18px">
+        <% if snapshot.status == 'U' %>
+            <img src="<%= image_path '/images/exclamation.png' -%>" title="<%= message('project_history.snapshot_will_be_deleted_next_analysis') -%>">
+        <% end %>
+      </td>
+      <td class="nowrap"><%= l time, :format => :long -%></td>
+      <td>
+        <%= snapshot.events.map{|e| e.name}.join(', ') -%>
+      </td>
+      <td class="thin nowrap center">
+        <% 
+          unless snapshot.islast
+            button_value, operation, class_style, confirm_message = nil
+            if snapshot.status == 'P'
+              button_value = message('project_history.delete_snapshot')
+              operation = 'delete'
+              class_style = 'action red-button'
+              confirm_message = message('project_history.sure_to_delete_snapshot')
+            else
+              button_value = message('project_history.recover_snapshot') 
+              operation = 'recover' 
+              class_style = 'action'
+            end  
+        %>
+          <input type="submit" value="<%= button_value-%>" id="delete_exclusions" class="<%= class_style -%>"
+               onclick="if (<%= confirm_message ? "confirm('"+confirm_message+"')" : 'true'-%>) { var f = document.createElement('form'); f.style.display = 'none'; this.parentNode.appendChild(f); f.method = 'POST'; f.action = '<%= url_for :action => "snapshot_history", :id => @project.id, :snapshot_ids => [snapshot.id], :operation => operation -%>';f.submit(); };return false;">
+        <% end %>
+      </td>
+      <td class="center">
+        <% unless snapshot.islast %>
+          <input id="snapshot_ids" name="snapshot_ids[]" type="checkbox" value="<%= snapshot.id -%>" onClick="updateSelectBox()" />
+        <% end %>
+      </td>
+    </tr>
+    <%
+        current_year = time.year
+        current_month = time.month 
+      end 
+    %>
+  </tbody>
+</table>
+</form>
+
+<% end %>

@@ -47,6 +47,34 @@ class ProjectController < ApplicationController
     redirect_to_default
   end
 
+  def history
+    @project=Project.by_key(params[:id])
+    return access_denied unless is_admin?(@project)
+
+    if !@project.project?
+      redirect_to :action => 'index', :id => params[:id]
+    end
+    
+    @snapshot=@project.last_snapshot
+    @snapshots = Snapshot.find(:all, :conditions => ["project_id=?", @project.id], 
+                               :include => 'events', :order => 'snapshots.created_at DESC')
+  end
+
+  def snapshot_history
+    project=Project.by_key(params[:id])
+    return access_denied unless is_admin?(@project)
+    
+    sids = params[:snapshot_ids]
+    delete_operation = params[:operation] == "delete"
+    unless sids.empty?
+      status = delete_operation ? 'U' : 'P'
+      Snapshot.update_all("status='"+status+"'", ["id IN (?) or root_snapshot_id IN (?)", sids, sids])
+      flash[:notice] = message(delete_operation ? 'project_history.x_snapshots_deleted' : 'project_history.x_snapshots_recovered', :params => sids.size)
+    end
+    
+    redirect_to :action => 'history', :id => project.id
+  end
+
   def links
     @project=Project.by_key(params[:id])
     return access_denied unless is_admin?(@project)
