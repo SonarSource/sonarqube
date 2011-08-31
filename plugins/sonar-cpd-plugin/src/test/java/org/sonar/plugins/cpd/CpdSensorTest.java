@@ -38,7 +38,7 @@ public class CpdSensorTest {
 
     Project project = createJavaProject().setConfiguration(conf);
 
-    CpdSensor sensor = new CpdSensor(new SonarEngine(), new PmdEngine(new CpdMapping[0]));
+    CpdSensor sensor = new CpdSensor(new SonarEngine(null, null), new PmdEngine(new CpdMapping[0]));
     assertTrue(sensor.isSkipped(project));
   }
 
@@ -46,7 +46,7 @@ public class CpdSensorTest {
   public void doNotSkipByDefault() {
     Project project = createJavaProject().setConfiguration(new PropertiesConfiguration());
 
-    CpdSensor sensor = new CpdSensor(new SonarEngine(), new PmdEngine(new CpdMapping[0]));
+    CpdSensor sensor = new CpdSensor(new SonarEngine(null, null), new PmdEngine(new CpdMapping[0]));
     assertFalse(sensor.isSkipped(project));
   }
 
@@ -59,7 +59,7 @@ public class CpdSensorTest {
     Project phpProject = createPhpProject().setConfiguration(conf);
     Project javaProject = createJavaProject().setConfiguration(conf);
 
-    CpdSensor sensor = new CpdSensor(new SonarEngine(), new PmdEngine(new CpdMapping[0]));
+    CpdSensor sensor = new CpdSensor(new SonarEngine(null, null), new PmdEngine(new CpdMapping[0]));
     assertTrue(sensor.isSkipped(phpProject));
     assertFalse(sensor.isSkipped(javaProject));
   }

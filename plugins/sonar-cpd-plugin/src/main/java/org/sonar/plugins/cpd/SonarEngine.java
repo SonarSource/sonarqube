@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.database.model.ResourceModel;
+import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.InputFile;
@@ -36,6 +39,8 @@ import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.utils.Logs;
+import org.sonar.batch.index.ResourcePersister;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.detector.original.OriginalCloneDetectionAlgorithm;
@@ -49,6 +54,8 @@ import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
 import org.sonar.duplications.token.TokenQueue;
+import org.sonar.plugins.cpd.index.CombinedCloneIndex;
+import org.sonar.plugins.cpd.index.DbCloneIndex;
 
 import com.google.common.collect.Lists;
 
@@ -56,8 +63,28 @@ public class SonarEngine implements CpdEngine {
 
   private static final int BLOCK_SIZE = 13;
 
+  private final ResourcePersister resourcePersister;
+  private final DatabaseSession dbSession;
+
+  public SonarEngine(ResourcePersister resourcePersister, DatabaseSession dbSession) {
+    this.resourcePersister = resourcePersister;
+    this.dbSession = dbSession;
+  }
+
   public boolean isLanguageSupported(Language language) {
     return Java.INSTANCE.equals(language);
+  }
+
+  private static boolean isCrossProject(Project project) {
+    return project.getConfiguration().getBoolean("sonar.cpd.cross_project", false);
+  }
+
+  private static String getFullKey(Project project, Resource resource) {
+    return new StringBuilder(ResourceModel.KEY_SIZE)
+        .append(project.getKey())
+        .append(':')
+        .append(resource.getKey())
+        .toString();
   }
 
   public void analyse(Project project, SensorContext context) {
@@ -68,6 +95,13 @@ public class SonarEngine implements CpdEngine {
 
     // Create index
     CloneIndex index = new PackedMemoryCloneIndex();
+    if (isCrossProject(project)) {
+      Logs.INFO.info("Enabled cross-project analysis");
+      Snapshot currentSnapshot = resourcePersister.getSnapshot(project);
+      Snapshot lastSnapshot = resourcePersister.getLastSnapshot(currentSnapshot, false);
+      DbCloneIndex db = new DbCloneIndex(dbSession, currentSnapshot.getId(), lastSnapshot == null ? null : lastSnapshot.getId());
+      index = new CombinedCloneIndex(index, db);
+    }
 
     TokenChunker tokenChunker = JavaTokenProducer.build();
     StatementChunker statementChunker = JavaStatementBuilder.build();
@@ -78,7 +112,7 @@ public class SonarEngine implements CpdEngine {
       TokenQueue tokenQueue = tokenChunker.chunk(file);
       List<Statement> statements = statementChunker.chunk(tokenQueue);
       Resource resource = getResource(inputFile);
-      List<Block> blocks = blockChunker.chunk(resource.getKey(), statements);
+      List<Block> blocks = blockChunker.chunk(getFullKey(project, resource), statements);
       for (Block block : blocks) {
         index.insert(block);
       }
@@ -88,7 +122,7 @@ public class SonarEngine implements CpdEngine {
     for (InputFile inputFile : inputFiles) {
       Resource resource = getResource(inputFile);
 
-      List<Block> fileBlocks = Lists.newArrayList(index.getByResourceId(resource.getKey()));
+      List<Block> fileBlocks = Lists.newArrayList(index.getByResourceId(getFullKey(project, resource)));
       List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(index, fileBlocks);
       if (!clones.isEmpty()) {
         // Save
