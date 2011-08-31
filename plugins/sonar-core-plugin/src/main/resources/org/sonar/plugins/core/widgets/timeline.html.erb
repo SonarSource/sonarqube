@@ -84,7 +84,9 @@
     js_events = "["
     events.keys().sort.each() do |e_date|
       e_details = events[e_date]
-      js_events += "{\"d\":d("
+      js_events += "{\"sid\":"
+      js_events += e_details[0].snapshot_id.to_s
+      js_events += ",\"d\":d("
       js_events += e_date.year.to_s
       js_events += ","
       # Need to decrease by 1 the month as the JS Date object start months at 0 (= January)
@@ -101,8 +103,6 @@
       e_details.each() do |e|
         js_events += "{\"n\":\""
         js_events += e.name
-        js_events +=  "\",\"ld\":\""
-        js_events += l e_date, :format => :long
         js_events += "\"},"
       end 
       js_events += "]},"
