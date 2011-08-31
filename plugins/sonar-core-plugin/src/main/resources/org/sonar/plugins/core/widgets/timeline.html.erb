@@ -45,6 +45,12 @@
         js_data += (m_date.month - 1).to_s
         js_data += ","
         js_data += m_date.day.to_s
+        js_data += ","
+        js_data += m_date.hour.to_s
+        js_data += ","
+        js_data += m_date.min.to_s
+        js_data += ","
+        js_data += m_date.sec.to_s
         js_data += "),\"y\":" 
         js_data += sprintf( "%0.02f", metric_data[:value])
         js_data +=  "},"
@@ -53,7 +59,7 @@
           js_snapshots += "{\"sid\":"
           js_snapshots += metric_data[:sid]
           js_snapshots += ",\"d\":\""
-          js_snapshots += human_short_date(m_date)
+          js_snapshots += l m_date, :format => :long
           js_snapshots += "\"},"
         end
       end
@@ -85,12 +91,18 @@
       js_events += (e_date.month - 1).to_s
       js_events += ","
       js_events += e_date.day.to_s
+      js_events += ","
+      js_events += e_date.hour.to_s
+      js_events += ","
+      js_events += e_date.min.to_s
+      js_events += ","
+      js_events += e_date.sec.to_s
       js_events += "),\"l\":["
       e_details.each() do |e|
         js_events += "{\"n\":\""
         js_events += e.name
         js_events +=  "\",\"ld\":\""
-        js_events += human_short_date(e_date)
+        js_events += l e_date, :format => :long
         js_events += "\"},"
       end 
       js_events += "]},"
@@ -118,8 +130,8 @@
 
 	<div id="timeline-chart-<%= widget.id -%>"></div>
 	<script type="text/javascript+protovis">
-	  function d(y,m,d) {
-	    return new Date(y,m,d);
+	  function d(y,m,d,h,min,s) {
+	    return new Date(y,m,d,h,min,s);
 	  }
 	  var data = <%= js_data -%>;
 	  var snapshots = <%= js_snapshots -%>;
