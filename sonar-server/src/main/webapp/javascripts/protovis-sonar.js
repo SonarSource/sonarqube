@@ -47,15 +47,15 @@ SonarWidgets.Timeline.prototype.render = function() {
 	var show_y_axis = (data.length==1)
 	
 	/* Sizing and scales. */
-	var footerHeight = 4 + Math.max(this.wMetrics.size(), events ? 2 : 1) * 18;
-	var w = widgetDiv.parentNode.clientWidth - 60, 
-		h = (this.wHeight == null ? 80 : this.wHeight) + footerHeight,
-		S=2;
+	var headerHeight = 4 + Math.max(this.wMetrics.size(), events ? 2 : 1) * 18;
+	var w = widgetDiv.parentNode.clientWidth - 60; 
+	var	h = (this.wHeight == null ? 80 : this.wHeight) + headerHeight;
+	var yMaxHeight = h-headerHeight;
 
 	var x = pv.Scale.linear(pv.blend(pv.map(data, function(d) {return d;})), function(d) {return d.x}).range(0, w);
 	var y = new Array(data.length);
 	for(var i = 0; i < data.length; i++){
-		y[i]=pv.Scale.linear(data[i], function(d) {return d.y;}).range(20, h-footerHeight)
+		y[i]=pv.Scale.linear(data[i], function(d) {return d.y;}).range(20, yMaxHeight);
 	}
 	var interpolate = "linear"; /* cardinal or linear */
 	var idx = this.wData[0].size() - 1;
@@ -89,7 +89,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 	var line = panel.add(pv.Line)
 		.data(function(array) {return array;})
 		.left(function(d) {return x(d.x);})
-		.bottom(function(d) {return y[this.parent.index](d.y);})
+		.bottom(function(d) {var yAxis = y[this.parent.index](d.y); return isNaN(yAxis) ? yMaxHeight : yAxis;})
 		.interpolate(function() {return interpolate;})
 		.lineWidth(2);
 
