@@ -64,12 +64,12 @@ class ProjectController < ApplicationController
     project=Project.by_key(params[:id])
     return access_denied unless is_admin?(@project)
     
-    sids = params[:snapshot_ids]
+    sid = params[:snapshot_id]
     delete_operation = params[:operation] == "delete"
-    unless sids.empty?
+    if sid
       status = delete_operation ? 'U' : 'P'
-      Snapshot.update_all("status='"+status+"'", ["id IN (?) or root_snapshot_id IN (?)", sids, sids])
-      flash[:notice] = message(delete_operation ? 'project_history.x_snapshots_deleted' : 'project_history.x_snapshots_recovered', :params => sids.size)
+      Snapshot.update_all("status='"+status+"'", ["id=? or root_snapshot_id=(?)", sid, sid])
+      flash[:notice] = message(delete_operation ? 'project_history.snapshot_deleted' : 'project_history.snapshot_recovered')
     end
     
     redirect_to :action => 'history', :id => project.id
