@@ -25,16 +25,17 @@ class CreateCloneBlocks < ActiveRecord::Migration
 
   def self.up
     create_table :clone_blocks do |t|
+      t.column :project_snapshot_id, :integer, :null => false
       t.column :snapshot_id, :integer, :null => false
       t.column :hash, :string, :null => false, :limit => 50
-      t.column :resource_key, :string, :null => false, :limit => 400
       t.column :index_in_file, :integer, :null => false
       t.column :start_line, :integer, :null => false
       t.column :end_line, :integer, :null => false
     end
 
+    add_index :clone_blocks, :project_snapshot_id, :name => 'clone_blocks_project_snapshot'
+    add_index :clone_blocks, :snapshot_id, :name => 'clone_blocks_snapshot'
     add_index :clone_blocks, :hash, :name => 'clone_blocks_hash'
-    add_index :clone_blocks, [:snapshot_id, :resource_key], :name => 'clone_blocks_resource'
   end
 
 end

@@ -24,6 +24,7 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.*;
 import org.sonar.api.design.DependencyDto;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.jpa.entity.CloneBlock;
 
 import javax.persistence.Query;
 import java.util.List;
@@ -58,6 +59,7 @@ public final class PurgeUtils {
     deleteSources(session, snapshotIds);
     deleteViolations(session, snapshotIds);
     deleteDependencies(session, snapshotIds);
+    deleteCloneBlocks(session, snapshotIds);
     deleteSnapshots(session, snapshotIds);
   }
 
@@ -94,6 +96,13 @@ public final class PurgeUtils {
    */
   public static  void deleteViolations(DatabaseSession session, List<Integer> snapshotIds) {
     executeQuery(session, "delete violations", snapshotIds, "delete from " + RuleFailureModel.class.getSimpleName() + " e where e.snapshotId in (:ids)");
+  }
+
+  /**
+   * @since 2.11
+   */
+  private static void deleteCloneBlocks(DatabaseSession session, List<Integer> snapshotIds) {
+    executeQuery(session, "delete clone blocks", snapshotIds, "delete from " + CloneBlock.class.getSimpleName() + " e where e.snapshotId in (:ids)");
   }
 
   /**

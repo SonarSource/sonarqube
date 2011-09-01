@@ -21,6 +21,7 @@ package org.sonar.plugins.cpd;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -30,7 +31,6 @@ import java.util.Set;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.InputFile;
@@ -45,19 +45,15 @@ import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.detector.original.OriginalCloneDetectionAlgorithm;
 import org.sonar.duplications.index.CloneGroup;
-import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePart;
-import org.sonar.duplications.index.PackedMemoryCloneIndex;
 import org.sonar.duplications.java.JavaStatementBuilder;
 import org.sonar.duplications.java.JavaTokenProducer;
 import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
 import org.sonar.duplications.token.TokenQueue;
-import org.sonar.plugins.cpd.index.CombinedCloneIndex;
 import org.sonar.plugins.cpd.index.DbCloneIndex;
-
-import com.google.common.collect.Lists;
+import org.sonar.plugins.cpd.index.SonarCloneIndex;
 
 public class SonarEngine implements CpdEngine {
 
@@ -94,13 +90,12 @@ public class SonarEngine implements CpdEngine {
     }
 
     // Create index
-    CloneIndex index = new PackedMemoryCloneIndex();
+    final SonarCloneIndex index;
     if (isCrossProject(project)) {
       Logs.INFO.info("Enabled cross-project analysis");
-      Snapshot currentSnapshot = resourcePersister.getSnapshot(project);
-      Snapshot lastSnapshot = resourcePersister.getLastSnapshot(currentSnapshot, false);
-      DbCloneIndex db = new DbCloneIndex(dbSession, currentSnapshot.getId(), lastSnapshot == null ? null : lastSnapshot.getId());
-      index = new CombinedCloneIndex(index, db);
+      index = new SonarCloneIndex(new DbCloneIndex(dbSession, resourcePersister, project));
+    } else {
+      index = new SonarCloneIndex();
     }
 
     TokenChunker tokenChunker = JavaTokenProducer.build();
@@ -108,21 +103,22 @@ public class SonarEngine implements CpdEngine {
     BlockChunker blockChunker = new BlockChunker(BLOCK_SIZE);
 
     for (InputFile inputFile : inputFiles) {
+      Resource resource = getResource(inputFile);
+      String resourceKey = getFullKey(project, resource);
+
       File file = inputFile.getFile();
       TokenQueue tokenQueue = tokenChunker.chunk(file);
       List<Statement> statements = statementChunker.chunk(tokenQueue);
-      Resource resource = getResource(inputFile);
-      List<Block> blocks = blockChunker.chunk(getFullKey(project, resource), statements);
-      for (Block block : blocks) {
-        index.insert(block);
-      }
+      List<Block> blocks = blockChunker.chunk(resourceKey, statements);
+      index.insert(resource, blocks);
     }
 
     // Detect
     for (InputFile inputFile : inputFiles) {
       Resource resource = getResource(inputFile);
+      String resourceKey = getFullKey(project, resource);
 
-      List<Block> fileBlocks = Lists.newArrayList(index.getByResourceId(getFullKey(project, resource)));
+      Collection<Block> fileBlocks = index.getByResource(resource, resourceKey);
       List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(index, fileBlocks);
       if (!clones.isEmpty()) {
         // Save

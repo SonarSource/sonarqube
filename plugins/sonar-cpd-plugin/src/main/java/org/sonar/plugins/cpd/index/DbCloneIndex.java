@@ -24,48 +24,88 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Query;
+
+import org.hibernate.ejb.HibernateQuery;
+import org.hibernate.transform.Transformers;
 import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
+import org.sonar.batch.index.ResourcePersister;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
-import org.sonar.duplications.index.AbstractCloneIndex;
 import org.sonar.jpa.entity.CloneBlock;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class DbCloneIndex extends AbstractCloneIndex {
+public class DbCloneIndex {
 
-  private final Map<ByteArray, List<Block>> cache = Maps.newHashMap();
+  private final Map<ByteArray, Collection<Block>> cache = Maps.newHashMap();
 
-  private DatabaseSession session;
-  private int currentSnapshotId;
-  private Integer lastSnapshotId;
+  private final DatabaseSession session;
+  private final ResourcePersister resourcePersister;
+  private final int currentProjectSnapshotId;
+  private final Integer lastSnapshotId;
 
-  public DbCloneIndex(DatabaseSession session, Integer currentSnapshotId, Integer lastSnapshotId) {
+  public DbCloneIndex(DatabaseSession session, ResourcePersister resourcePersister, Project currentProject) {
     this.session = session;
-    this.currentSnapshotId = currentSnapshotId;
-    this.lastSnapshotId = lastSnapshotId;
+    this.resourcePersister = resourcePersister;
+    Snapshot currentSnapshot = resourcePersister.getSnapshotOrFail(currentProject);
+    Snapshot lastSnapshot = resourcePersister.getLastSnapshot(currentSnapshot, false);
+    this.currentProjectSnapshotId = currentSnapshot.getId();
+    this.lastSnapshotId = lastSnapshot == null ? null : lastSnapshot.getId();
   }
 
-  public void prepareCache(String resourceKey) {
-    String sql = "SELECT block.id, hash, block.snapshot_id, resource_key, index_in_file, start_line, end_line FROM clone_blocks AS block, snapshots AS snapshot" +
-        " WHERE block.snapshot_id=snapshot.id AND snapshot.islast=true" +
-        " AND hash IN ( SELECT hash FROM clone_blocks WHERE resource_key = :resource_key AND snapshot_id = :current_snapshot_id )";
+  /**
+   * For tests.
+   */
+  DbCloneIndex(DatabaseSession session, ResourcePersister resourcePersister, Integer currentProjectSnapshotId, Integer prevSnapshotId) {
+    this.session = session;
+    this.resourcePersister = resourcePersister;
+    this.currentProjectSnapshotId = currentProjectSnapshotId;
+    this.lastSnapshotId = prevSnapshotId;
+  }
+
+  int getSnapshotIdFor(Resource resource) {
+    return resourcePersister.getSnapshotOrFail(resource).getId();
+  }
+
+  public void prepareCache(Resource resource) {
+    int resourceSnapshotId = getSnapshotIdFor(resource);
+
+    // Order of columns is important - see code below!
+    String sql = "SELECT hash, resource.kee, index_in_file, start_line, end_line" +
+        " FROM clone_blocks AS block, snapshots AS snapshot, projects AS resource" +
+        " WHERE block.snapshot_id=snapshot.id AND snapshot.islast=true AND snapshot.project_id=resource.id" +
+        " AND hash IN ( SELECT hash FROM clone_blocks WHERE snapshot_id = :resource_snapshot_id AND project_snapshot_id = :current_project_snapshot_id )";
     if (lastSnapshotId != null) {
       // Filter for blocks from previous snapshot of current project
-      sql += " AND snapshot.id != " + lastSnapshotId;
+      sql += " AND block.project_snapshot_id != :last_project_snapshot_id";
     }
-    List<CloneBlock> blocks = session.getEntityManager()
-        .createNativeQuery(sql, CloneBlock.class)
-        .setParameter("resource_key", resourceKey)
-        .setParameter("current_snapshot_id", currentSnapshotId)
-        .getResultList();
+    Query query = session.getEntityManager().createNativeQuery(sql)
+        .setParameter("resource_snapshot_id", resourceSnapshotId)
+        .setParameter("current_project_snapshot_id", currentProjectSnapshotId);
+    if (lastSnapshotId != null) {
+      query.setParameter("last_project_snapshot_id", lastSnapshotId);
+    }
+    // Ugly hack for mapping results of custom SQL query into plain list (MyBatis is coming soon)
+    ((HibernateQuery) query).getHibernateQuery().setResultTransformer(Transformers.TO_LIST);
+    List<List<Object>> blocks = query.getResultList();
 
     cache.clear();
-    for (CloneBlock dbBlock : blocks) {
-      Block block = new Block(dbBlock.getResourceKey(), new ByteArray(dbBlock.getHash()), dbBlock.getIndexInFile(), dbBlock.getStartLine(), dbBlock.getEndLine());
+    for (List<Object> dbBlock : blocks) {
+      String hash = (String) dbBlock.get(0);
+      String resourceKey = (String) dbBlock.get(1);
+      int indexInFile = (Integer) dbBlock.get(2);
+      int startLine = (Integer) dbBlock.get(3);
+      int endLine = (Integer) dbBlock.get(4);
 
-      List<Block> sameHash = cache.get(block.getBlockHash());
+      Block block = new Block(resourceKey, new ByteArray(hash), indexInFile, startLine, endLine);
+
+      // Group blocks by hash
+      Collection<Block> sameHash = cache.get(block.getBlockHash());
       if (sameHash == null) {
         sameHash = Lists.newArrayList();
         cache.put(block.getBlockHash(), sameHash);
@@ -74,28 +114,28 @@ public class DbCloneIndex extends AbstractCloneIndex {
     }
   }
 
-  public Collection<Block> getByResourceId(String resourceId) {
-    throw new UnsupportedOperationException();
-  }
-
-  public Collection<Block> getBySequenceHash(ByteArray sequenceHash) {
-    List<Block> result = cache.get(sequenceHash);
+  public Collection<Block> getByHash(ByteArray hash) {
+    Collection<Block> result = cache.get(hash);
     if (result != null) {
       return result;
     } else {
-      // not in cache
       return Collections.emptyList();
     }
   }
 
-  public void insert(Block block) {
-    CloneBlock dbBlock = new CloneBlock(currentSnapshotId,
-        block.getBlockHash().toString(),
-        block.getResourceId(),
-        block.getIndexInFile(),
-        block.getFirstLineNumber(),
-        block.getLastLineNumber());
-    session.save(dbBlock);
+  public void insert(Resource resource, Collection<Block> blocks) {
+    int resourceSnapshotId = getSnapshotIdFor(resource);
+    for (Block block : blocks) {
+      CloneBlock dbBlock = new CloneBlock(
+          currentProjectSnapshotId,
+          resourceSnapshotId,
+          block.getBlockHash().toString(),
+          block.getIndexInFile(),
+          block.getFirstLineNumber(),
+          block.getLastLineNumber());
+      session.save(dbBlock);
+    }
+    session.commit();
   }
 
 }

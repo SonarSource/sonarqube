@@ -25,8 +25,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.sonar.api.database.model.ResourceModel;
-
 /**
  * @since 2.11
  */
@@ -44,11 +42,11 @@ public class CloneBlock {
   @Column(name = "snapshot_id", updatable = false, nullable = false)
   private Integer snapshotId;
 
+  @Column(name = "project_snapshot_id", updatable = false, nullable = false)
+  private Integer projectSnapshotId;
+
   @Column(name = "hash", updatable = false, nullable = false, length = BLOCK_HASH_SIZE)
   private String hash;
-
-  @Column(name = "resource_key", updatable = false, nullable = false, length = ResourceModel.KEY_SIZE)
-  private String resourceKey;
 
   @Column(name = "index_in_file", updatable = false, nullable = false)
   private Integer indexInFile;
@@ -62,11 +60,11 @@ public class CloneBlock {
   public CloneBlock() {
   }
 
-  public CloneBlock(Integer snapshotId, String hash, String resourceKey, Integer indexInFile, Integer startLine, Integer endLine) {
+  public CloneBlock(Integer projectSnapshotId, Integer snapshotId, String hash, Integer indexInFile, Integer startLine, Integer endLine) {
+    this.projectSnapshotId = projectSnapshotId;
     this.snapshotId = snapshotId;
     this.hash = hash;
     this.indexInFile = indexInFile;
-    this.resourceKey = resourceKey;
     this.startLine = startLine;
     this.endLine = endLine;
   }
@@ -79,8 +77,8 @@ public class CloneBlock {
     return snapshotId;
   }
 
-  public String getResourceKey() {
-    return resourceKey;
+  public Integer getProjectSnapshotId() {
+    return projectSnapshotId;
   }
 
   public String getHash() {

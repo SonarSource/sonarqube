@@ -21,12 +21,16 @@ package org.sonar.plugins.cpd.index;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.Resource;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
@@ -35,35 +39,35 @@ public class DbCloneIndexTest extends AbstractDbUnitTestCase {
 
   private DbCloneIndex index;
 
-  @Before
-  public void setUp() {
-    index = new DbCloneIndex(getSession(), 5, 4);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void shouldNotGetByResource() {
-    index.getByResourceId("foo");
-  }
-
   @Test
   public void shouldGetByHash() {
-    setupData("fixture");
+    Resource resource = new JavaFile("foo");
+    index = spy(new DbCloneIndex(getSession(), null, 9, 7));
+    doReturn(10).when(index).getSnapshotIdFor(resource);
+    setupData("shouldGetByHash");
 
-    index.prepareCache("foo");
-    Collection<Block> blocks = index.getBySequenceHash(new ByteArray("aa"));
+    index.prepareCache(resource);
+    Collection<Block> blocks = index.getByHash(new ByteArray("aa"));
     Iterator<Block> blocksIterator = blocks.iterator();
 
     assertThat(blocks.size(), is(1));
 
     Block block = blocksIterator.next();
-    assertThat(block.getResourceId(), is("bar-last"));
+    assertThat("block resourceId", block.getResourceId(), is("bar-last"));
+    assertThat("block hash", block.getBlockHash(), is(new ByteArray("aa")));
+    assertThat("block index in file", block.getIndexInFile(), is(0));
+    assertThat("block start line", block.getFirstLineNumber(), is(1));
+    assertThat("block end line", block.getLastLineNumber(), is(2));
   }
 
   @Test
   public void shouldInsert() {
-    setupData("fixture");
+    Resource resource = new JavaFile("foo");
+    index = spy(new DbCloneIndex(getSession(), null, 1, null));
+    doReturn(2).when(index).getSnapshotIdFor(resource);
+    setupData("shouldInsert");
 
-    index.insert(new Block("baz", new ByteArray("bb"), 0, 0, 1));
+    index.insert(resource, Arrays.asList(new Block("foo", new ByteArray("bb"), 0, 1, 2)));
 
     checkTables("shouldInsert", "clone_blocks");
   }

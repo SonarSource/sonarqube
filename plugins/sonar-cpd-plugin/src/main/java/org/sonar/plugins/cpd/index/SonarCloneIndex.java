@@ -22,38 +22,60 @@ package org.sonar.plugins.cpd.index;
 import java.util.Collection;
 import java.util.List;
 
+import org.sonar.api.resources.Resource;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.AbstractCloneIndex;
 import org.sonar.duplications.index.CloneIndex;
+import org.sonar.duplications.index.PackedMemoryCloneIndex;
 
 import com.google.common.collect.Lists;
 
-public class CombinedCloneIndex extends AbstractCloneIndex {
+public class SonarCloneIndex extends AbstractCloneIndex {
 
-  private final CloneIndex mem;
+  private final CloneIndex mem = new PackedMemoryCloneIndex();
   private final DbCloneIndex db;
 
-  public CombinedCloneIndex(CloneIndex mem, DbCloneIndex db) {
-    this.mem = mem;
+  public SonarCloneIndex() {
+    this(null);
+  }
+
+  public SonarCloneIndex(DbCloneIndex db) {
     this.db = db;
   }
 
-  public Collection<Block> getByResourceId(String resourceId) {
-    db.prepareCache(resourceId);
-    return mem.getByResourceId(resourceId);
+  public void insert(Resource resource, Collection<Block> blocks) {
+    for (Block block : blocks) {
+      mem.insert(block);
+    }
+    if (db != null) {
+      db.insert(resource, blocks);
+    }
+  }
+
+  public Collection<Block> getByResource(Resource resource, String resourceKey) {
+    if (db != null) {
+      db.prepareCache(resource);
+    }
+    return mem.getByResourceId(resourceKey);
   }
 
   public Collection<Block> getBySequenceHash(ByteArray hash) {
-    List<Block> result = Lists.newArrayList();
-    result.addAll(mem.getBySequenceHash(hash));
-    result.addAll(db.getBySequenceHash(hash));
-    return result;
+    if (db == null) {
+      return mem.getBySequenceHash(hash);
+    } else {
+      List<Block> result = Lists.newArrayList(mem.getBySequenceHash(hash));
+      result.addAll(db.getByHash(hash));
+      return result;
+    }
+  }
+
+  public Collection<Block> getByResourceId(String resourceId) {
+    throw new UnsupportedOperationException();
   }
 
   public void insert(Block block) {
-    mem.insert(block);
-    db.insert(block);
+    throw new UnsupportedOperationException();
   }
 
 }
