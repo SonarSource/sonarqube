@@ -31,8 +31,8 @@
         time = snapshot.created_at
     %>
     <tr class="<%= cycle 'even','odd' -%>">
-      <td class="thin nowrap"><%= time.year unless time.year == current_year -%></td>
-      <td class="thin nowrap"><%= l(time, :format => '%B').capitalize unless time.month == current_month -%></td>
+      <td class="thin nowrap"><b><%= time.year unless time.year == current_year -%></b></td>
+      <td class="thin nowrap"><b><%= l(time, :format => '%B').capitalize unless time.month == current_month -%></b></td>
       <td class="thin nowrap" style="padding-left: 20px;">
         <%= snapshot.events.map{|e| e.name}.join(', ') -%>
       </td>
