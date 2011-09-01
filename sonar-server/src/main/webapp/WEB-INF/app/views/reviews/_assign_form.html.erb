@@ -1,11 +1,16 @@
+<%
+  assignee_check_script = "if ($('autocompleteText-assignee_login').value != '' && $('assignee_login').value == '') { alert($('autocompleteText-assignee_login').value + '" + message('reviews.user_does_not_exist') + "'); return false;}"
+%>
+
 <form method="post"
-      onsubmit="if ($('assignee_login').value != '') { new Ajax.Updater('review', '<%= url_for :action => 'assign' -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); };return false;">
+      onsubmit="<%= assignee_check_script -%> new Ajax.Updater('review', '<%= url_for :action => 'assign' -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); return false;">
   <%= hidden_field_tag :id, params[:review_id] -%>
   <%= user_autocomplete_field "assignee_login", "" -%>
   &nbsp;&nbsp;
   <%= submit_to_remote "submit_btn", message('assign'), 
          :url => { :action => 'assign' },
-         :update => "review" -%>
+         :update => "review",
+         :before => assignee_check_script -%>
   &nbsp;&nbsp;
   <%= link_to_remote message('cancel'), 
          :url => { :action => 'show', :id => params[:review_id] },
