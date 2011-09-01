@@ -41,10 +41,10 @@ SonarWidgets.Timeline.prototype.render = function() {
 	var snapshots = this.wSnapshots;
 	var translations = this.wTranslations;
 	var events = this.wEvents;
-	var widgetDiv = document.getElementById(this.wDivId);
 	
+	var widgetDiv = document.getElementById(this.wDivId);
 	var footerFont = "10.5px Arial,Helvetica,sans-serif";
-	var show_y_axis = (data.length==1)
+	var show_y_axis = (trendData.size()==1)
 	
 	/* Sizing and scales. */
 	var headerHeight = 4 + Math.max(this.wMetrics.size(), events ? 2 : 1) * 18;
@@ -52,10 +52,10 @@ SonarWidgets.Timeline.prototype.render = function() {
 	var	h = (this.wHeight == null ? 80 : this.wHeight) + headerHeight;
 	var yMaxHeight = h-headerHeight;
 
-	var x = pv.Scale.linear(pv.blend(pv.map(data, function(d) {return d;})), function(d) {return d.x}).range(0, w);
-	var y = new Array(data.length);
-	for(var i = 0; i < data.length; i++){
-		y[i]=pv.Scale.linear(data[i], function(d) {return d.y;}).range(20, yMaxHeight);
+	var x = pv.Scale.linear(pv.blend(pv.map(trendData, function(d) {return d;})), function(d) {return d.x}).range(0, w);
+	var y = new Array(trendData.size());
+	for(var i = 0; i < trendData.size(); i++){
+		y[i]=pv.Scale.linear(trendData[i], function(d) {return d.y;}).range(20, yMaxHeight);
 	}
 	var interpolate = "linear"; /* cardinal or linear */
 	var idx = this.wData[0].size() - 1;
@@ -154,7 +154,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 		})
 		.event("mousemove", function() {
 			var mx = x.invert(vis.mouse().x);
-			idx = pv.search(data[0].map(function(d) {return d.x;}), mx);
+			idx = pv.search(trendData[0].map(function(d) {return d.x;}), mx);
 			idx = idx < 0 ? (-idx - 2) : idx;
 			idx = idx < 0 ? 0 : idx;
 			return vis;

@@ -38,7 +38,7 @@
       js_data += "["
       metric_data_map[metric_id].each() do |metric_data|
         m_date = Time.parse(metric_data[:date])
-        js_data += "{\"x\":d("
+        js_data += "{x:d("
         js_data += m_date.year.to_s
         js_data += ","
         # Need to decrease by 1 the month as the JS Date object start months at 0 (= January)
@@ -51,24 +51,24 @@
         js_data += m_date.min.to_s
         js_data += ","
         js_data += m_date.sec.to_s
-        js_data += "),\"y\":" 
+        js_data += "),y:" 
         js_data += sprintf( "%0.02f", metric_data[:value])
         js_data +=  "},"
         if index == 0
           # we fill the js_snapshots array (no need to do this more than once)
-          js_snapshots += "{\"sid\":"
+          js_snapshots += "{sid:"
           js_snapshots += metric_data[:sid]
-          js_snapshots += ",\"d\":\""
+          js_snapshots += ",d:\""
           js_snapshots += l m_date, :format => :long
           js_snapshots += "\"},"
         end
       end
-      js_data += "],"
+      js_data = js_data.chomp(',') + "],"
     end
   end
-  js_data += "]"
-  js_snapshots += "]"
-  js_metrics += "]"
+  js_data = js_data.chomp(',') + "]"
+  js_snapshots = js_snapshots.chomp(',') + "]"
+  js_metrics = js_metrics.chomp(',') + "]"
   
   # Prepare also event structure if required
   unless widget_properties["hideEvents"]
@@ -84,9 +84,9 @@
     js_events = "["
     events.keys().sort.each() do |e_date|
       e_details = events[e_date]
-      js_events += "{\"sid\":"
+      js_events += "{sid:"
       js_events += e_details[0].snapshot_id.to_s
-      js_events += ",\"d\":d("
+      js_events += ",d:d("
       js_events += e_date.year.to_s
       js_events += ","
       # Need to decrease by 1 the month as the JS Date object start months at 0 (= January)
@@ -99,15 +99,15 @@
       js_events += e_date.min.to_s
       js_events += ","
       js_events += e_date.sec.to_s
-      js_events += "),\"l\":["
+      js_events += "),l:["
       e_details.each() do |e|
-        js_events += "{\"n\":\""
+        js_events += "{n:\""
         js_events += e.name
         js_events += "\"},"
       end 
-      js_events += "]},"
+      js_events = js_events.chomp(',') + "]},"
     end
-    js_events += "]"
+    js_events = js_events.chomp(',') + "]"
   end
   
   # And prepare translations for labels
