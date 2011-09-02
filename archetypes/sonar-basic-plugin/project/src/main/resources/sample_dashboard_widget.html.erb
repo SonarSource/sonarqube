@@ -13,15 +13,15 @@
 <div class="dashbox">
 	<h3>Help</h3>
 	  <p>
-      Read configuration : <%= configuration('sonar.jdbc.username') -%>
+      <%= message('read.configuration')%><%= configuration('sonar.jdbc.username') -%>
     </p>
 
    	<p>
-	    Sample of Jfree Eastwood chart : <br/>
+	    <%= message('sample.jfreechart')%><br/>
 		<%= gchart('cht=bhs&chco=FF0000,00FF00,0000FF&chs=200x125&chd=s:FOE,THE,Bar&chxt=x,y&chxl=1:|Dec|Nov|Oct|0:||20K||60K||100K|') -%>
 	  </p>
 	<p>
-		Widget properties:
+		<%= message('widget.properties')%>
 		<table>
 		  <tr>
 		    <td>max:</td>

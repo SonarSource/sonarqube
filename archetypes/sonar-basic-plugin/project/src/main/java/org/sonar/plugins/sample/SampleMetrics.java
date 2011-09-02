@@ -9,15 +9,23 @@ import java.util.Arrays;
 
 public class SampleMetrics implements Metrics {
 
-  public static final Metric MESSAGE = new Metric("message_key", "Message",
-    "This is a metric to store a well known message", Metric.ValueType.STRING, -1, false,
-    CoreMetrics.DOMAIN_GENERAL);
+  public static final String MESSAGE_KEY = "message_key";
+  public static final Metric MESSAGE = new Metric.Builder(MESSAGE_KEY, "Message", Metric.ValueType.STRING)
+    .setDescription("This is a metric to store a well known message")
+    .setDirection(Metric.DIRECTION_BETTER)
+    .setQualitative(false)
+    .setDomain(CoreMetrics.DOMAIN_GENERAL)
+    .create();
+  
 
-
-  public static final Metric RANDOM = new Metric("random", "Random",
-    "Random value", Metric.ValueType.FLOAT, Metric.DIRECTION_BETTER, false,
-    CoreMetrics.DOMAIN_GENERAL);
-
+  public static final String RANDOM_KEY = "random";
+  public static final Metric RANDOM = new Metric.Builder(RANDOM_KEY, "Random", Metric.ValueType.FLOAT)
+  .setDescription("Random value")
+  .setDirection(Metric.DIRECTION_BETTER)
+  .setQualitative(false)
+  .setDomain(CoreMetrics.DOMAIN_GENERAL)
+  .create();
+  
   // getMetrics() method is defined in the Metrics interface and is used by
   // Sonar to retrieve the list of new Metric
   public List<Metric> getMetrics() {
