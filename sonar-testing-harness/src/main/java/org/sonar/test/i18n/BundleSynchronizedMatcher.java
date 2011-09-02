@@ -28,6 +28,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -35,6 +36,7 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.sonar.test.TestUtils;
@@ -102,14 +104,33 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
       }
     }
     if ( !nonExistingKeys.isEmpty()) {
-      details.append("\n\nAlso, the following keys do not exist in the default bundle:");
+      details.append("\n\nThe following keys do not exist in the default bundle:");
       for (String key : nonExistingKeys) {
         details.append("\n\t- " + key);
       }
     }
     details.append("\n\n=======================");
 
+    printReport(details.toString());
+
     description.appendText(details.toString());
+  }
+
+  private void printReport(String details) {
+    File dumpFile = new File("target/l10n/" + bundleName + ".report.txt");
+    if (dumpFile.exists()) {
+      dumpFile.delete();
+    }
+    dumpFile.getParentFile().mkdirs();
+    FileWriter writer = null;
+    try {
+      writer = new FileWriter(dumpFile);
+      writer.write(details);
+    } catch (IOException e) {
+      System.out.println("Unable to write the report to 'target/l10n/" + bundleName + ".report.txt'.");
+    } finally {
+      IOUtils.closeQuietly(writer);
+    }
   }
 
   protected Collection<String> retrieveMissingKeys(File bundle, File defaultBundle) throws IOException {
