@@ -91,13 +91,15 @@ public class DuplicationsPanel extends Composite {
       
       panel.add(table);
       int rowCounter = 1;
+
+      String projectKey = resource.getKey().substring(0, resource.getKey().lastIndexOf(':'));
       for (int i = 0; i < duplicationsXML.getLength(); i++) {
         Element duplicationXML = (Element) duplicationsXML.item(i);
         String lines = duplicationXML.getAttribute("lines");
         String startLine = duplicationXML.getAttribute("start");
         String targetStartLine = duplicationXML.getAttribute("target-start");
         String targetResourceKey = duplicationXML.getAttribute("target-resource");
-        renderDuplication(rowCounter, i, table, lines, startLine, targetStartLine, targetResourceKey, resource);
+        renderDuplication(rowCounter, i, table, lines, startLine, targetStartLine, targetResourceKey, resource, projectKey);
         rowCounter+=2;
       }
     }
@@ -121,7 +123,7 @@ public class DuplicationsPanel extends Composite {
       return table;
     }
 
-    private void renderDuplication(int row, int duplicationCounter, FlexTable table, String lines, String startLine, String targetStartLine, String targetResourceKey, final Resource resource) {
+    private void renderDuplication(int row, int duplicationCounter, FlexTable table, String lines, String startLine, String targetStartLine, String targetResourceKey, final Resource resource, String projectKey) {
       String style = (duplicationCounter % 2 == 0) ? "odd" : "even";
       
       SourcePanel src = new DefaultSourcePanel(resource, new Integer(startLine), new Integer(lines));
@@ -137,9 +139,18 @@ public class DuplicationsPanel extends Composite {
         targetResourceKey = "Same file";
       }
       if (targetResourceKey.contains(":")) {
-        targetResourceKey = targetResourceKey.substring(targetResourceKey.lastIndexOf(':') + 1);
+        int i = targetResourceKey.lastIndexOf(':');
+        String targetProjectKey = targetResourceKey.substring(0, i);
+        String targetFileKey = targetResourceKey.substring(i + 1);
+        if (targetProjectKey.equals(projectKey)) {
+          // same project
+          targetResourceKey = targetFileKey;
+        } else {
+          // another project
+          targetResourceKey = targetProjectKey + "<br/>" + targetFileKey;
+        }
       }
-      table.setText(row, 3, targetResourceKey);
+      table.setHTML(row, 3, targetResourceKey);
       table.setText(row, 4, targetStartLine);
       setRowStyle(row, table, style, false);
       
