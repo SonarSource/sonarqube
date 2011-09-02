@@ -76,17 +76,19 @@ public class DbCloneIndex {
     int resourceSnapshotId = getSnapshotIdFor(resource);
 
     // Order of columns is important - see code below!
-    String sql = "SELECT hash, resource.kee, index_in_file, start_line, end_line" +
-        " FROM clone_blocks AS block, snapshots AS snapshot, projects AS resource" +
-        " WHERE block.snapshot_id=snapshot.id AND snapshot.islast=true AND snapshot.project_id=resource.id" +
-        " AND hash IN ( SELECT hash FROM clone_blocks WHERE snapshot_id = :resource_snapshot_id AND project_snapshot_id = :current_project_snapshot_id )";
+    String sql = "SELECT to_blocks.hash, resource.kee, to_blocks.index_in_file, to_blocks.start_line, to_blocks.end_line" +
+        " FROM clone_blocks AS to_blocks, clone_blocks AS from_blocks, snapshots AS snapshot, projects AS resource" +
+        " WHERE from_blocks.snapshot_id = :resource_snapshot_id" +
+        " AND to_blocks.hash = from_blocks.hash" +
+        " AND to_blocks.snapshot_id = snapshot.id" +
+        " AND snapshot.islast = true" +
+        " AND snapshot.project_id = resource.id";
     if (lastSnapshotId != null) {
       // Filter for blocks from previous snapshot of current project
-      sql += " AND block.project_snapshot_id != :last_project_snapshot_id";
+      sql += " AND to_blocks.project_snapshot_id != :last_project_snapshot_id";
     }
     Query query = session.getEntityManager().createNativeQuery(sql)
-        .setParameter("resource_snapshot_id", resourceSnapshotId)
-        .setParameter("current_project_snapshot_id", currentProjectSnapshotId);
+        .setParameter("resource_snapshot_id", resourceSnapshotId);
     if (lastSnapshotId != null) {
       query.setParameter("last_project_snapshot_id", lastSnapshotId);
     }
