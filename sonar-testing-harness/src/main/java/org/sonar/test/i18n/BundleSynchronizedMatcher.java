@@ -94,6 +94,18 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
   }
 
   public void describeTo(Description description) {
+    // report file
+    File dumpFile = new File("target/l10n/" + bundleName + ".report.txt");
+
+    // prepare message
+    StringBuilder details = prepareDetailsMessage(dumpFile);
+    description.appendText(details.toString());
+
+    // print report in target directory
+    printReport(dumpFile, details.toString());
+  }
+
+  private StringBuilder prepareDetailsMessage(File dumpFile) {
     StringBuilder details = new StringBuilder("\n=======================\n'");
     details.append(bundleName);
     details.append("' is not synchronized.");
@@ -109,15 +121,12 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
         details.append("\n\t- " + key);
       }
     }
-    details.append("\n\n=======================");
-
-    printReport(details.toString());
-
-    description.appendText(details.toString());
+    details.append("\n\nSee report file located at: " + dumpFile.getAbsolutePath());
+    details.append("\n=======================");
+    return details;
   }
 
-  private void printReport(String details) {
-    File dumpFile = new File("target/l10n/" + bundleName + ".report.txt");
+  private void printReport(File dumpFile, String details) {
     if (dumpFile.exists()) {
       dumpFile.delete();
     }
