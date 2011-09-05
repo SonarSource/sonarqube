@@ -48,7 +48,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 	
 	/* Sizing and scales. */
 	var headerHeight = 4 + Math.max(this.wMetrics.size(), events ? 2 : 1) * 18;
-	var w = widgetDiv.parentNode.clientWidth - 60; 
+	var w = widgetDiv.parentNode.offsetWidth - 60; 
 	var	h = (this.wHeight == null ? 80 : this.wHeight) + headerHeight;
 	var yMaxHeight = h-headerHeight;
 
