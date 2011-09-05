@@ -2,22 +2,13 @@
 <h1><%= message('project_history.page_title') -%></h1>
 <br/>
 
-<div class="help">
-  <h3><%= message('project_history.note') -%></h3>
-  <p>
-    <%= message('project_history.note_detail') -%>
-  </p>  
-</div>
-<br/>
-
 <table class="data" style="width:1%">
   <thead>
     <tr>
       <th class="thin nowrap"><%= message('project_history.col.year') -%></th>
       <th class="thin nowrap"><%= message('project_history.col.month') -%></th>
       <th class="thin nowrap" style="padding-left: 20px;"><%= message('project_history.col.events') -%></th>
-      <th style="min-width: 20px; padding-left: 30px;"> </th>
-      <th class="thin nowrap"><%= message('project_history.col.time') -%></th>
+      <th class="thin nowrap" style="padding-left: 20px;"><%= message('project_history.col.time') -%></th>
       <th class="thin nowrap center"><%= message('project_history.col.action') -%></th>
     </tr>
   </thead>
@@ -25,7 +16,6 @@
     <% 
       current_year = nil
       current_month = nil
-      last_snapshot_found = false
       @snapshots.each do |snapshot|
         number_of_events = snapshot.events.size
         time = snapshot.created_at
@@ -36,35 +26,17 @@
       <td class="thin nowrap" style="padding-left: 20px;">
         <%= snapshot.events.map{|e| e.name}.join(', ') -%>
       </td>
-      <td class="right" style="padding-left: 30px;">
-        <% if last_snapshot_found && snapshot.status == 'U' %>
-            <img src="<%= image_path '/images/exclamation.png' -%>" title="<%= message('project_history.snapshot_will_be_deleted_next_analysis') -%>">
-        <% end %>
-      </td>
-      <td class="thin nowrap"><%= l time, :format => :long -%></td>
+      <td class="thin nowrap" style="padding-left: 20px;"><%= l time, :format => :long -%></td>
       <td class="thin nowrap center" style="padding-left:10px; padding-right:10px">
         <%
           cell_content = nil;
           if snapshot.islast?
-            last_snapshot_found = true
             cell_content = "<b>" + message('project_history.last_snapshot') + "</b>"
-          elsif !last_snapshot_found
-            # the current snapshot is older than the last snapshot (the one that #islast == true), so this means that it represents
-            # an analysis that is currently running => no action should be taken
-            cell_content = "<i>" + message('project_history.currently_analysing') + "</i>"
           else
-            # this is a past snapshot, let's see if it could be deleted or recovered
-            if snapshot.status == 'P'
-              cell_content = button_to( message('project_history.delete_snapshot'), 
-                                        { :action => "snapshot_history", :id => @project.id, :snapshot_id => [snapshot.id], :operation => "delete" }, 
+            cell_content = button_to( message('project_history.delete_snapshot'), 
+                                        { :action => "delete_snapshot_history", :id => @project.id, :snapshot_id => [snapshot.id] }, 
                                         :class => 'action red-button', 
-                                        :method => :delete)
-            else
-              cell_content = button_to( message('project_history.recover_snapshot'), 
-                                        { :action => "snapshot_history", :id => @project.id, :snapshot_id => [snapshot.id], :operation => "recover" }, 
-                                        :class => 'action',
-                                        :method => :delete)
-            end  
+                                        :confirm => message('project_history.are_you_sure_delete_snapshot_x', :params => l(time, :format => :long)) )  
           end
         %>
         <%= cell_content -%>

@@ -56,20 +56,18 @@ class ProjectController < ApplicationController
     end
     
     @snapshot=@project.last_snapshot
-    @snapshots = Snapshot.find(:all, :conditions => ["project_id=?", @project.id], 
+    @snapshots = Snapshot.find(:all, :conditions => ["status='P' AND project_id=?", @project.id], 
                                :include => 'events', :order => 'snapshots.created_at DESC')
   end
 
-  def snapshot_history
+  def delete_snapshot_history
     project=Project.by_key(params[:id])
     return access_denied unless is_admin?(@project)
     
     sid = params[:snapshot_id]
-    delete_operation = params[:operation] == "delete"
     if sid
-      status = delete_operation ? 'U' : 'P'
-      Snapshot.update_all("status='"+status+"'", ["id=? or root_snapshot_id=(?)", sid, sid])
-      flash[:notice] = message(delete_operation ? 'project_history.snapshot_deleted' : 'project_history.snapshot_recovered')
+      Snapshot.update_all("status='U'", ["id=? or root_snapshot_id=(?)", sid, sid])
+      flash[:notice] = message('project_history.snapshot_deleted')
     end
     
     redirect_to :action => 'history', :id => project.id
