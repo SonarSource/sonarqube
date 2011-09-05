@@ -42,13 +42,13 @@ SonarWidgets.Timeline.prototype.render = function() {
 	var translations = this.wTranslations;
 	var events = this.wEvents;
 	
-	var widgetDiv = document.getElementById(this.wDivId);
+	var widgetDiv = $(this.wDivId);
 	var footerFont = "10.5px Arial,Helvetica,sans-serif";
 	var show_y_axis = (trendData.size()==1)
 	
 	/* Sizing and scales. */
 	var headerHeight = 4 + Math.max(this.wMetrics.size(), events ? 2 : 1) * 18;
-	var w = widgetDiv.parentNode.offsetWidth - 60; 
+	var w = widgetDiv.getOffsetParent().getWidth() - 60; 
 	var	h = (this.wHeight == null ? 80 : this.wHeight) + headerHeight;
 	var yMaxHeight = h-headerHeight;
 
