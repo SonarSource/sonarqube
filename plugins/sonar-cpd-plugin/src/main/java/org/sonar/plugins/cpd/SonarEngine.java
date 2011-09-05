@@ -62,6 +62,13 @@ public class SonarEngine implements CpdEngine {
   private final ResourcePersister resourcePersister;
   private final DatabaseSession dbSession;
 
+  /**
+   * For dry run, where is no access to database.
+   */
+  public SonarEngine() {
+    this(null, null);
+  }
+
   public SonarEngine(ResourcePersister resourcePersister, DatabaseSession dbSession) {
     this.resourcePersister = resourcePersister;
     this.dbSession = dbSession;
@@ -71,8 +78,12 @@ public class SonarEngine implements CpdEngine {
     return Java.INSTANCE.equals(language);
   }
 
-  private static boolean isCrossProject(Project project) {
-    return project.getConfiguration().getBoolean("sonar.cpd.cross_project", false);
+  /**
+   * @return true, if was enabled by user and database is available
+   */
+  private boolean isCrossProject(Project project) {
+    return project.getConfiguration().getBoolean("sonar.cpd.cross_project", false)
+        && resourcePersister != null && dbSession != null;
   }
 
   private static String getFullKey(Project project, Resource resource) {
@@ -92,9 +103,10 @@ public class SonarEngine implements CpdEngine {
     // Create index
     final SonarCloneIndex index;
     if (isCrossProject(project)) {
-      Logs.INFO.info("Enabled cross-project analysis");
+      Logs.INFO.info("Cross-project analysis enabled");
       index = new SonarCloneIndex(new DbCloneIndex(dbSession, resourcePersister, project));
     } else {
+      Logs.INFO.info("Cross-project analysis disabled");
       index = new SonarCloneIndex();
     }
 
