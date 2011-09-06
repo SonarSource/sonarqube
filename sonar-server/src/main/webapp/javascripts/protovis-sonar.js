@@ -1,5 +1,51 @@
 window.SonarWidgets = {}
 
+
+//******************* TIMELINE CHART ******************* //
+/*
+ * Displays the evolution of metrics on a line chart, displaying related events.
+ * 
+ * Parameters of the Timeline class:
+ *   - data: array of arrays, each containing maps {x,y} where x is a (JS) date and y is a number value (representing a metric value at
+ *           a given time). The {x,y} maps must be sorted by ascending date.
+ *   - metrics: array of metric names. The order is important as it defines which array of the "data" parameter represents which metric.
+ *   - snapshots: array of maps {sid,d} where sid is the snapshot id and d is the locale-formatted date of the snapshot. The {sid,d} 
+ *                maps must be sorted by ascending date.
+ *   - events: array of maps {sid,d,l[{n}]} where sid is the snapshot id corresponding to an event, d is the (JS) date of the event, and l
+ *             is an array containing the different event names for this date.
+ *   - translations: array of l10n words/expressions to display in the chart
+ *   - height: height of the chart area (notice header excluded). Defaults to 80.
+ * 
+ * Example: displays 2 metrics:
+ * 
+<code>
+function d(y,m,d,h,min,s) {
+  return new Date(y,m,d,h,min,s);
+}
+var data = [
+            [{x:d(2011,5,15,0,1,0),y:912.00},{x:d(2011,6,21,0,1,0)],
+            [{x:d(2011,5,15,0,1,0),y:52.20},{x:d(2011,6,21,0,1,0),y:52.10}]
+           ];
+var metrics = ["Lines of code","Rules compliance"];
+var snapshots = [{sid:1,d:"June 15, 2011 00:01"},{sid:30,d:"July 21, 2011 00:01"}];
+var events = [
+               {sid:1,d:d(2011,5,15,0,1,0),l:[{n:"0.6-SNAPSHOT"},{n:"Sun checks"}]},
+               {sid:30,d:d(2011,6,21,0,1,0),l:[{n:"0.7-SNAPSHOT"}]}
+             ];
+var translations = {"date":"Date"};
+
+var timeline = new SonarWidgets.Timeline('timeline-chart-20')
+                               .height(160)
+                               .data(data)
+                               .snapshots(snapshots)
+                               .metrics(metrics)
+                               .translations(translations)
+                               .events(events);
+timeline.render();
+</code>
+ * 
+ */
+
 SonarWidgets.Timeline = function (divId) {
 	this.wDivId = divId;
 	this.wHeight;
