@@ -36,7 +36,7 @@ import java.util.Map;
 
 public class WeightedViolationsDecorator implements Decorator {
 
-  private Map<RulePriority, Integer> weights;
+  private Map<RulePriority, Double> weights;
 
 
   @DependsUpon
@@ -55,7 +55,7 @@ public class WeightedViolationsDecorator implements Decorator {
   /**
    * for unit tests
    */
-  protected WeightedViolationsDecorator(Map<RulePriority, Integer> weights) {
+  protected WeightedViolationsDecorator(Map<RulePriority, Double> weights) {
     this.weights = weights;
   }
 
@@ -78,7 +78,7 @@ public class WeightedViolationsDecorator implements Decorator {
     for (RuleMeasure violations : context.getMeasures(MeasuresFilters.rules(CoreMetrics.VIOLATIONS))) {
       if (MeasureUtils.hasValue(violations)) {
         violationsByPriority.add(violations.getRulePriority(), violations.getValue().intValue());
-        double add = (int) weights.get(violations.getRulePriority()) * violations.getValue();
+        double add = (double) weights.get(violations.getRulePriority()) * violations.getValue();
         debt += add;
       }
     }

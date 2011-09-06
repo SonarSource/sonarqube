@@ -53,19 +53,19 @@ public class WeightedViolationsDecoratorTest {
     );
   }
 
-  private Map<RulePriority, Integer> createWeights() {
-    Map<RulePriority, Integer> weights = new HashMap();
-    weights.put(RulePriority.BLOCKER, 10);
-    weights.put(RulePriority.CRITICAL, 5);
-    weights.put(RulePriority.MAJOR, 2);
-    weights.put(RulePriority.MINOR, 1);
-    weights.put(RulePriority.INFO, 0);
+  private Map<RulePriority, Double> createWeights() {
+    Map<RulePriority, Double> weights = new HashMap();
+    weights.put(RulePriority.BLOCKER, 10d);
+    weights.put(RulePriority.CRITICAL, 5d);
+    weights.put(RulePriority.MAJOR, 2d);
+    weights.put(RulePriority.MINOR, 1d);
+    weights.put(RulePriority.INFO, 0d);
     return weights;
   }
 
   @Test
   public void weightedViolations() {
-    Map<RulePriority, Integer> weights = createWeights();
+    Map<RulePriority, Double> weights = createWeights();
 
     WeightedViolationsDecorator decorator = new WeightedViolationsDecorator(weights);
     DecoratorContext context = mock(DecoratorContext.class);
@@ -80,7 +80,7 @@ public class WeightedViolationsDecoratorTest {
 
   @Test
   public void doNotSaveZero() {
-    Map<RulePriority, Integer> weights = createWeights();
+    Map<RulePriority, Double> weights = createWeights();
 
     WeightedViolationsDecorator decorator = new WeightedViolationsDecorator(weights);
     DecoratorContext context = mock(DecoratorContext.class);

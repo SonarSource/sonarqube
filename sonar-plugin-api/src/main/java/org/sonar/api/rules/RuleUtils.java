@@ -40,14 +40,14 @@ public final class RuleUtils {
    * @param configuration the Sonar configuration
    * @return a map
    */
-  public static Map<RulePriority, Integer> getPriorityWeights(final Configuration configuration) {
+  public static Map<RulePriority, Double> getPriorityWeights(final Configuration configuration) {
     String levelWeight = configuration.getString(CoreProperties.CORE_RULE_WEIGHTS_PROPERTY, CoreProperties.CORE_RULE_WEIGHTS_DEFAULT_VALUE);
 
-    Map<RulePriority, Integer> weights = KeyValueFormat.parse(levelWeight, new KeyValueFormat.RulePriorityNumbersPairTransformer());
+    Map<RulePriority, Double> weights = KeyValueFormat.parse(levelWeight, new KeyValueFormat.RulePriorityNumbersPairTransformer());
 
     for (RulePriority priority : RulePriority.values()) {
       if (!weights.containsKey(priority)) {
-        weights.put(priority, 1);
+        weights.put(priority, 1d);
       }
     }
     return weights;
