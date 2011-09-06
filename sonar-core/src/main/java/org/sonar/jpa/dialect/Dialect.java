@@ -40,6 +40,11 @@ public interface Dialect {
   String getActiveRecordDialectCode();
 
   /**
+   * @return the activerecord-jdbc adapter. See the property 'adapter' in database.yml
+   */
+  String getActiveRecordJdbcAdapter();
+
+  /**
    * Used to autodetect a dialect for a given driver URL
    *
    * @param jdbcConnectionURL a jdbc driver url such as jdbc:mysql://localhost:3306/sonar

@@ -198,19 +198,8 @@ module ::ArJdbc
     def modify_types(tp)
       tp[:primary_key] = "NUMBER(38) NOT NULL PRIMARY KEY"
       tp[:integer] = { :name => "NUMBER", :limit => 38 }
-
-      # sonar
-      tp[:datetime] = { :name => "TIMESTAMP" }
-      tp[:timestamp] = { :name => "TIMESTAMP" }
-      # /sonar
-
       tp[:time] = { :name => "DATE" }
       tp[:date] = { :name => "DATE" }
-
-      # sonar
-      # New type
-      tp[:big_integer] = { :name => "NUMBER", :limit => 38 }
-      # /sonar
       tp
     end
 

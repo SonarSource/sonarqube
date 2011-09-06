@@ -1,0 +1,230 @@
+--- !ruby/object:Gem::Specification 
+name: activerecord-oracle_enhanced-adapter
+version: !ruby/object:Gem::Version 
+  prerelease: 
+  segments: 
+    - 1
+    - 4
+    - 0
+  version: 1.4.0
+platform: ruby
+authors: 
+  - Raimonds Simanovskis
+autorequire: 
+bindir: bin
+cert_chain: []
+
+date: 2011-08-08 00:00:00 +02:00
+default_executable: 
+dependencies: 
+  - !ruby/object:Gem::Dependency 
+    name: jeweler
+    prerelease: false
+    requirement: &id001 !ruby/object:Gem::Requirement 
+      none: false
+      requirements: 
+        - - ~>
+          - !ruby/object:Gem::Version 
+            version: 1.5.1
+    type: :development
+    version_requirements: *id001
+  - !ruby/object:Gem::Dependency 
+    name: rspec
+    prerelease: false
+    requirement: &id002 !ruby/object:Gem::Requirement 
+      none: false
+      requirements: 
+        - - ~>
+          - !ruby/object:Gem::Version 
+            version: "2.4"
+    type: :development
+    version_requirements: *id002
+  - !ruby/object:Gem::Dependency 
+    name: activerecord
+    prerelease: false
+    requirement: &id003 !ruby/object:Gem::Requirement 
+      none: false
+      requirements: 
+        - - ">="
+          - !ruby/object:Gem::Version 
+            version: "0"
+    type: :development
+    version_requirements: *id003
+  - !ruby/object:Gem::Dependency 
+    name: activemodel
+    prerelease: false
+    requirement: &id004 !ruby/object:Gem::Requirement 
+      none: false
+      requirements: 
+        - - ">="
+          - !ruby/object:Gem::Version 
+            version: "0"
+    type: :development
+    version_requirements: *id004
+  - !ruby/object:Gem::Dependency 
+    name: activesupport
+    prerelease: false
+    requirement: &id005 !ruby/object:Gem::Requirement 
+      none: false
+      requirements: 
+        - - ">="
+          - !ruby/object:Gem::Version 
+            version: "0"
+    type: :development
+    version_requirements: *id005
+  - !ruby/object:Gem::Dependency 
+    name: actionpack
+    prerelease: false
+    requirement: &id006 !ruby/object:Gem::Requirement 
+      none: false
+      requirements: 
+        - - ">="
+          - !ruby/object:Gem::Version 
+            version: "0"
+    type: :development
+    version_requirements: *id006
+  - !ruby/object:Gem::Dependency 
+    name: railties
+    prerelease: false
+    requirement: &id007 !ruby/object:Gem::Requirement 
+      none: false
+      requirements: 
+        - - ">="
+          - !ruby/object:Gem::Version 
+            version: "0"
+    type: :development
+    version_requirements: *id007
+  - !ruby/object:Gem::Dependency 
+    name: arel
+    prerelease: false
+    requirement: &id008 !ruby/object:Gem::Requirement 
+      none: false
+      requirements: 
+        - - ">="
+          - !ruby/object:Gem::Version 
+            version: "0"
+    type: :development
+    version_requirements: *id008
+  - !ruby/object:Gem::Dependency 
+    name: ruby-plsql
+    prerelease: false
+    requirement: &id009 !ruby/object:Gem::Requirement 
+      none: false
+      requirements: 
+        - - ">="
+          - !ruby/object:Gem::Version 
+            version: 0.4.4
+    type: :development
+    version_requirements: *id009
+  - !ruby/object:Gem::Dependency 
+    name: ruby-oci8
+    prerelease: false
+    requirement: &id010 !ruby/object:Gem::Requirement 
+      none: false
+      requirements: 
+        - - ~>
+          - !ruby/object:Gem::Version 
+            version: 2.0.4
+    type: :development
+    version_requirements: *id010
+description: |
+  Oracle "enhanced" ActiveRecord adapter contains useful additional methods for working with new and legacy Oracle databases.
+  This adapter is superset of original ActiveRecord Oracle adapter.
+
+email: raimonds.simanovskis@gmail.com
+executables: []
+
+extensions: []
+
+extra_rdoc_files: 
+  - README.md
+files: 
+  - .rspec
+  - Gemfile
+  - History.txt
+  - License.txt
+  - README.md
+  - RUNNING_TESTS.md
+  - Rakefile
+  - VERSION
+  - activerecord-oracle_enhanced-adapter.gemspec
+  - lib/active_record/connection_adapters/emulation/oracle_adapter.rb
+  - lib/active_record/connection_adapters/oracle_enhanced.rake
+  - lib/active_record/connection_adapters/oracle_enhanced_activerecord_patches.rb
+  - lib/active_record/connection_adapters/oracle_enhanced_adapter.rb
+  - lib/active_record/connection_adapters/oracle_enhanced_base_ext.rb
+  - lib/active_record/connection_adapters/oracle_enhanced_column.rb
+  - lib/active_record/connection_adapters/oracle_enhanced_connection.rb
+  - lib/active_record/connection_adapters/oracle_enhanced_context_index.rb
+  - lib/active_record/connection_adapters/oracle_enhanced_core_ext.rb
+  - lib/active_record/connection_adapters/oracle_enhanced_cpk.rb
+  - lib/active_record/connection_adapters/oracle_enhanced_dirty.rb
+  - lib/active_record/connection_adapters/oracle_enhanced_jdbc_connection.rb
+  - lib/active_record/connection_adapters/oracle_enhanced_oci_connection.rb
+  - lib/active_record/connection_adapters/oracle_enhanced_procedures.rb
+  - lib/active_record/connection_adapters/oracle_enhanced_schema_definitions.rb
+  - lib/active_record/connection_adapters/oracle_enhanced_schema_dumper.rb
+  - lib/active_record/connection_adapters/oracle_enhanced_schema_statements.rb
+  - lib/active_record/connection_adapters/oracle_enhanced_schema_statements_ext.rb
+  - lib/active_record/connection_adapters/oracle_enhanced_structure_dump.rb
+  - lib/active_record/connection_adapters/oracle_enhanced_tasks.rb
+  - lib/active_record/connection_adapters/oracle_enhanced_version.rb
+  - lib/activerecord-oracle_enhanced-adapter.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_adapter_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_connection_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_context_index_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_core_ext_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_cpk_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_data_types_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_dbms_output_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_dirty_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_emulate_oracle_adapter_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_procedures_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_schema_dump_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_schema_statements_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_structure_dump_spec.rb
+  - spec/spec_helper.rb
+has_rdoc: true
+homepage: http://github.com/rsim/oracle-enhanced
+licenses: []
+
+post_install_message: 
+rdoc_options: []
+
+require_paths: 
+  - lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  none: false
+  requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        version: "0"
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  none: false
+  requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        version: "0"
+requirements: []
+
+rubyforge_project: 
+rubygems_version: 1.5.1
+signing_key: 
+specification_version: 3
+summary: Oracle enhanced adapter for ActiveRecord
+test_files: 
+  - spec/active_record/connection_adapters/oracle_enhanced_adapter_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_connection_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_context_index_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_core_ext_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_cpk_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_data_types_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_dbms_output_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_dirty_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_emulate_oracle_adapter_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_procedures_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_schema_dump_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_schema_statements_spec.rb
+  - spec/active_record/connection_adapters/oracle_enhanced_structure_dump_spec.rb
+  - spec/spec_helper.rb
+

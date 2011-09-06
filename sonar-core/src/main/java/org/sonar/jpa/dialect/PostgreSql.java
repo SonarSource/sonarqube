@@ -37,6 +37,10 @@ public class PostgreSql implements Dialect {
     return "postgre";
   }
 
+  public String getActiveRecordJdbcAdapter() {
+    return "jdbc";
+  }
+
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
     return PostgreSQLWithDecimalDialect.class;
   }

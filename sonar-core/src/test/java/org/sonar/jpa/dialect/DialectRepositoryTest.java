@@ -63,8 +63,12 @@ public class DialectRepositoryTest {
     }
     
     public String getActiveRecordDialectCode() {
-      return null;
+      return "test";
     }
+
+    public String getActiveRecordJdbcAdapter() {
+    return "jdbc";
+  }
   }
 
 }
