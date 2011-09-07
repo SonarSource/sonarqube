@@ -21,10 +21,12 @@ package org.sonar.plugins.core.widgets;
 
 import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.RubyRailsWidget;
+import org.sonar.api.web.WidgetCategory;
 import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
 
+@WidgetCategory({ "History" })
 @WidgetProperties(
     {
         @WidgetProperty(key = "numberOfColumns", type = WidgetPropertyType.INTEGER, defaultValue = "4"),
@@ -47,7 +49,7 @@ public class TimeMachineWidget extends AbstractRubyTemplate implements RubyRails
   }
 
   public String getTitle() {
-    return "Time Machine";
+    return "History Table";
   }
 
   @Override
