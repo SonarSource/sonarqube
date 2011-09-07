@@ -56,7 +56,7 @@
         if index == 0
           # we fill the js_snapshots array (no need to do this more than once)
           js_snapshots += "{sid:"
-          js_snapshots += metric_data[:sid]
+          js_snapshots += metric_data[:sid].to_s
           js_snapshots += ",d:\""
           js_snapshots += l m_date, :format => :long
           js_snapshots += "\"},"
