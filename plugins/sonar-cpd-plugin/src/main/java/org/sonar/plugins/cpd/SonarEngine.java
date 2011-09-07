@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
@@ -52,12 +54,12 @@ import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
 import org.sonar.duplications.token.TokenQueue;
-import org.sonar.plugins.cpd.index.DbCloneIndex;
-import org.sonar.plugins.cpd.index.SonarCloneIndex;
+import org.sonar.plugins.cpd.index.DbDuplicationsIndex;
+import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 
-public class SonarEngine implements CpdEngine {
+public class SonarEngine extends CpdEngine {
 
-  private static final int BLOCK_SIZE = 13;
+  private static final int BLOCK_SIZE = 10;
 
   private final ResourcePersister resourcePersister;
   private final DatabaseSession dbSession;
@@ -74,6 +76,7 @@ public class SonarEngine implements CpdEngine {
     this.dbSession = dbSession;
   }
 
+  @Override
   public boolean isLanguageSupported(Language language) {
     return Java.INSTANCE.equals(language);
   }
@@ -83,7 +86,8 @@ public class SonarEngine implements CpdEngine {
    */
   private boolean isCrossProject(Project project) {
     return project.getConfiguration().getBoolean("sonar.cpd.cross_project", false)
-        && resourcePersister != null && dbSession != null;
+        && resourcePersister != null && dbSession != null
+        && StringUtils.isBlank(project.getConfiguration().getString(CoreProperties.PROJECT_BRANCH_PROPERTY));
   }
 
   private static String getFullKey(Project project, Resource resource) {
@@ -94,6 +98,7 @@ public class SonarEngine implements CpdEngine {
         .toString();
   }
 
+  @Override
   public void analyse(Project project, SensorContext context) {
     List<InputFile> inputFiles = project.getFileSystem().mainFiles(project.getLanguageKey());
     if (inputFiles.isEmpty()) {
@@ -101,13 +106,13 @@ public class SonarEngine implements CpdEngine {
     }
 
     // Create index
-    final SonarCloneIndex index;
+    final SonarDuplicationsIndex index;
     if (isCrossProject(project)) {
       Logs.INFO.info("Cross-project analysis enabled");
-      index = new SonarCloneIndex(new DbCloneIndex(dbSession, resourcePersister, project));
+      index = new SonarDuplicationsIndex(new DbDuplicationsIndex(dbSession, resourcePersister, project));
     } else {
       Logs.INFO.info("Cross-project analysis disabled");
-      index = new SonarCloneIndex();
+      index = new SonarDuplicationsIndex();
     }
 
     TokenChunker tokenChunker = JavaTokenProducer.build();

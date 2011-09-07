@@ -35,14 +35,14 @@ import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-public class DbCloneIndexTest extends AbstractDbUnitTestCase {
+public class DbDuplicationsIndexTest extends AbstractDbUnitTestCase {
 
-  private DbCloneIndex index;
+  private DbDuplicationsIndex index;
 
   @Test
   public void shouldGetByHash() {
     Resource resource = new JavaFile("foo");
-    index = spy(new DbCloneIndex(getSession(), null, 9, 7));
+    index = spy(new DbDuplicationsIndex(getSession(), null, 9, 7));
     doReturn(10).when(index).getSnapshotIdFor(resource);
     setupData("shouldGetByHash");
 
@@ -63,13 +63,13 @@ public class DbCloneIndexTest extends AbstractDbUnitTestCase {
   @Test
   public void shouldInsert() {
     Resource resource = new JavaFile("foo");
-    index = spy(new DbCloneIndex(getSession(), null, 1, null));
+    index = spy(new DbDuplicationsIndex(getSession(), null, 1, null));
     doReturn(2).when(index).getSnapshotIdFor(resource);
     setupData("shouldInsert");
 
     index.insert(resource, Arrays.asList(new Block("foo", new ByteArray("bb"), 0, 1, 2)));
 
-    checkTables("shouldInsert", "clone_blocks");
+    checkTables("shouldInsert", "duplications_index");
   }
 
 }

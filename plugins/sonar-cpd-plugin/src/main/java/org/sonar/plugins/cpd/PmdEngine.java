@@ -33,7 +33,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 import org.sonar.duplications.cpd.CPD;
 
-public class PmdEngine implements CpdEngine {
+public class PmdEngine extends CpdEngine {
 
   private CpdMapping[] mappings;
 
@@ -41,6 +41,7 @@ public class PmdEngine implements CpdEngine {
     this.mappings = mappings;
   }
 
+  @Override
   public boolean isLanguageSupported(Language language) {
     return getMapping(language) != null;
   }
@@ -54,6 +55,7 @@ public class PmdEngine implements CpdEngine {
     return null;
   }
 
+  @Override
   public void analyse(Project project, SensorContext context) {
     CpdMapping mapping = getMapping(project.getLanguage());
     CPD cpd = executeCPD(project, mapping, project.getFileSystem().getSourceCharset());

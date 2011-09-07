@@ -29,8 +29,8 @@ import javax.persistence.Table;
  * @since 2.11
  */
 @Entity
-@Table(name = "clone_blocks")
-public class CloneBlock {
+@Table(name = "duplications_index")
+public class DuplicationBlock {
 
   public static final int BLOCK_HASH_SIZE = 50;
 
@@ -57,10 +57,10 @@ public class CloneBlock {
   @Column(name = "end_line", updatable = false, nullable = false)
   private Integer endLine;
 
-  public CloneBlock() {
+  public DuplicationBlock() {
   }
 
-  public CloneBlock(Integer projectSnapshotId, Integer snapshotId, String hash, Integer indexInFile, Integer startLine, Integer endLine) {
+  public DuplicationBlock(Integer projectSnapshotId, Integer snapshotId, String hash, Integer indexInFile, Integer startLine, Integer endLine) {
     this.projectSnapshotId = projectSnapshotId;
     this.snapshotId = snapshotId;
     this.hash = hash;

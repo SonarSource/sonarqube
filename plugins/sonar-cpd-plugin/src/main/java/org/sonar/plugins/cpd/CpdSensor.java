@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.Logs;
 
 public class CpdSensor implements Sensor {
 
@@ -75,7 +76,9 @@ public class CpdSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
-    getEngine(project).analyse(project, context);
+    CpdEngine engine = getEngine(project);
+    Logs.INFO.info("{} would be used", engine);
+    engine.analyse(project, context);
   }
 
   @Override

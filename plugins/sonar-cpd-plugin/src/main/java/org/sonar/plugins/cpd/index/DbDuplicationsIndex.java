@@ -35,12 +35,12 @@ import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
-import org.sonar.jpa.entity.CloneBlock;
+import org.sonar.jpa.entity.DuplicationBlock;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class DbCloneIndex {
+public class DbDuplicationsIndex {
 
   private final Map<ByteArray, Collection<Block>> cache = Maps.newHashMap();
 
@@ -49,7 +49,7 @@ public class DbCloneIndex {
   private final int currentProjectSnapshotId;
   private final Integer lastSnapshotId;
 
-  public DbCloneIndex(DatabaseSession session, ResourcePersister resourcePersister, Project currentProject) {
+  public DbDuplicationsIndex(DatabaseSession session, ResourcePersister resourcePersister, Project currentProject) {
     this.session = session;
     this.resourcePersister = resourcePersister;
     Snapshot currentSnapshot = resourcePersister.getSnapshotOrFail(currentProject);
@@ -61,7 +61,7 @@ public class DbCloneIndex {
   /**
    * For tests.
    */
-  DbCloneIndex(DatabaseSession session, ResourcePersister resourcePersister, Integer currentProjectSnapshotId, Integer prevSnapshotId) {
+  DbDuplicationsIndex(DatabaseSession session, ResourcePersister resourcePersister, Integer currentProjectSnapshotId, Integer prevSnapshotId) {
     this.session = session;
     this.resourcePersister = resourcePersister;
     this.currentProjectSnapshotId = currentProjectSnapshotId;
@@ -77,18 +77,19 @@ public class DbCloneIndex {
 
     // Order of columns is important - see code below!
     String sql = "SELECT to_blocks.hash, resource.kee, to_blocks.index_in_file, to_blocks.start_line, to_blocks.end_line" +
-        " FROM clone_blocks AS to_blocks, clone_blocks AS from_blocks, snapshots AS snapshot, projects AS resource" +
+        " FROM duplications_index to_blocks, duplications_index from_blocks, snapshots snapshot, projects resource" +
         " WHERE from_blocks.snapshot_id = :resource_snapshot_id" +
         " AND to_blocks.hash = from_blocks.hash" +
         " AND to_blocks.snapshot_id = snapshot.id" +
-        " AND snapshot.islast = true" +
+        " AND snapshot.islast = :is_last" +
         " AND snapshot.project_id = resource.id";
     if (lastSnapshotId != null) {
       // Filter for blocks from previous snapshot of current project
       sql += " AND to_blocks.project_snapshot_id != :last_project_snapshot_id";
     }
     Query query = session.getEntityManager().createNativeQuery(sql)
-        .setParameter("resource_snapshot_id", resourceSnapshotId);
+        .setParameter("resource_snapshot_id", resourceSnapshotId)
+        .setParameter("is_last", Boolean.TRUE);
     if (lastSnapshotId != null) {
       query.setParameter("last_project_snapshot_id", lastSnapshotId);
     }
@@ -128,7 +129,7 @@ public class DbCloneIndex {
   public void insert(Resource resource, Collection<Block> blocks) {
     int resourceSnapshotId = getSnapshotIdFor(resource);
     for (Block block : blocks) {
-      CloneBlock dbBlock = new CloneBlock(
+      DuplicationBlock dbBlock = new DuplicationBlock(
           currentProjectSnapshotId,
           resourceSnapshotId,
           block.getBlockHash().toString(),

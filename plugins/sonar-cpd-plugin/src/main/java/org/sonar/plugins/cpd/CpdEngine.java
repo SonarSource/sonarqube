@@ -24,10 +24,15 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 
-public interface CpdEngine extends BatchExtension {
+public abstract class CpdEngine implements BatchExtension {
 
-  boolean isLanguageSupported(Language language);
+  abstract boolean isLanguageSupported(Language language);
 
-  void analyse(Project project, SensorContext context);
+  abstract void analyse(Project project, SensorContext context);
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
+  }
 
 }

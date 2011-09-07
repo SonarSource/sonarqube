@@ -19,15 +19,20 @@
  */
 package org.sonar.plugins.dbcleaner.api;
 
-import org.apache.commons.configuration.Configuration;
-import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.model.*;
-import org.sonar.api.design.DependencyDto;
-import org.sonar.api.utils.TimeProfiler;
-import org.sonar.jpa.entity.CloneBlock;
+import java.util.List;
 
 import javax.persistence.Query;
-import java.util.List;
+
+import org.apache.commons.configuration.Configuration;
+import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.database.model.MeasureData;
+import org.sonar.api.database.model.MeasureModel;
+import org.sonar.api.database.model.RuleFailureModel;
+import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.database.model.SnapshotSource;
+import org.sonar.api.design.DependencyDto;
+import org.sonar.api.utils.TimeProfiler;
+import org.sonar.jpa.entity.DuplicationBlock;
 
 /**
  * @since 2.5
@@ -59,7 +64,7 @@ public final class PurgeUtils {
     deleteSources(session, snapshotIds);
     deleteViolations(session, snapshotIds);
     deleteDependencies(session, snapshotIds);
-    deleteCloneBlocks(session, snapshotIds);
+    deleteDuplicationBlocks(session, snapshotIds);
     deleteSnapshots(session, snapshotIds);
   }
 
@@ -101,8 +106,8 @@ public final class PurgeUtils {
   /**
    * @since 2.11
    */
-  private static void deleteCloneBlocks(DatabaseSession session, List<Integer> snapshotIds) {
-    executeQuery(session, "delete clone blocks", snapshotIds, "delete from " + CloneBlock.class.getSimpleName() + " e where e.snapshotId in (:ids)");
+  private static void deleteDuplicationBlocks(DatabaseSession session, List<Integer> snapshotIds) {
+    executeQuery(session, "delete duplication blocks", snapshotIds, "delete from " + DuplicationBlock.class.getSimpleName() + " e where e.snapshotId in (:ids)");
   }
 
   /**

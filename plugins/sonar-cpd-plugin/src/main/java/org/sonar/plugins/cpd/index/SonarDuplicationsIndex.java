@@ -31,16 +31,16 @@ import org.sonar.duplications.index.PackedMemoryCloneIndex;
 
 import com.google.common.collect.Lists;
 
-public class SonarCloneIndex extends AbstractCloneIndex {
+public class SonarDuplicationsIndex extends AbstractCloneIndex {
 
   private final CloneIndex mem = new PackedMemoryCloneIndex();
-  private final DbCloneIndex db;
+  private final DbDuplicationsIndex db;
 
-  public SonarCloneIndex() {
+  public SonarDuplicationsIndex() {
     this(null);
   }
 
-  public SonarCloneIndex(DbCloneIndex db) {
+  public SonarDuplicationsIndex(DbDuplicationsIndex db) {
     this.db = db;
   }
 

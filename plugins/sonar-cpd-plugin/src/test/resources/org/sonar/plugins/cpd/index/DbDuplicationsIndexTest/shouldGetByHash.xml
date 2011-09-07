@@ -22,22 +22,22 @@
 
   <!-- Old snapshot of another project -->
   <!-- bar-old -->
-  <clone_blocks id="1" project_snapshot_id="1" snapshot_id="2" hash="bb" index_in_file="0" start_line="0" end_line="0" />
+  <duplications_index id="1" project_snapshot_id="1" snapshot_id="2" hash="bb" index_in_file="0" start_line="0" end_line="0" />
 
   <!-- Last snapshot of another project -->
   <!-- bar-last -->
-  <clone_blocks id="2" project_snapshot_id="3" snapshot_id="4" hash="aa" index_in_file="0" start_line="1" end_line="2" />
+  <duplications_index id="2" project_snapshot_id="3" snapshot_id="4" hash="aa" index_in_file="0" start_line="1" end_line="2" />
 
   <!-- Old snapshot of current project -->
   <!-- foo-old -->
-  <clone_blocks id="3" project_snapshot_id="5" snapshot_id="6" hash="bb" index_in_file="0" start_line="0" end_line="0" />
+  <duplications_index id="3" project_snapshot_id="5" snapshot_id="6" hash="bb" index_in_file="0" start_line="0" end_line="0" />
 
   <!-- Last snapshot of current project -->
   <!-- foo-last -->
-  <clone_blocks id="4" project_snapshot_id="7" snapshot_id="8" hash="bb" index_in_file="0" start_line="0" end_line="0" />
+  <duplications_index id="4" project_snapshot_id="7" snapshot_id="8" hash="bb" index_in_file="0" start_line="0" end_line="0" />
 
   <!-- New snapshot of current project -->
   <!-- foo -->
-  <clone_blocks id="5" project_snapshot_id="9" snapshot_id="10" hash="aa" index_in_file="0" start_line="0" end_line="0" />
+  <duplications_index id="5" project_snapshot_id="9" snapshot_id="10" hash="aa" index_in_file="0" start_line="0" end_line="0" />
 
 </dataset>

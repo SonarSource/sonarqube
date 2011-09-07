@@ -21,10 +21,10 @@
 #
 # Sonar 2.11
 #
-class CreateCloneBlocks < ActiveRecord::Migration
+class CreateDuplicationsIndex < ActiveRecord::Migration
 
   def self.up
-    create_table :clone_blocks do |t|
+    create_table :duplications_index do |t|
       t.column :project_snapshot_id, :integer, :null => false
       t.column :snapshot_id, :integer, :null => false
       t.column :hash, :string, :null => false, :limit => 50
@@ -33,9 +33,9 @@ class CreateCloneBlocks < ActiveRecord::Migration
       t.column :end_line, :integer, :null => false
     end
 
-    add_index :clone_blocks, :project_snapshot_id, :name => 'clone_blocks_project_snapshot'
-    add_index :clone_blocks, :snapshot_id, :name => 'clone_blocks_snapshot'
-    add_index :clone_blocks, :hash, :name => 'clone_blocks_hash'
+    add_index :duplications_index, :project_snapshot_id, :name => 'duplications_index_psid'
+    add_index :duplications_index, :snapshot_id, :name => 'duplications_index_sid'
+    add_index :duplications_index, :hash, :name => 'duplications_index_hash'
   end
 
 end
