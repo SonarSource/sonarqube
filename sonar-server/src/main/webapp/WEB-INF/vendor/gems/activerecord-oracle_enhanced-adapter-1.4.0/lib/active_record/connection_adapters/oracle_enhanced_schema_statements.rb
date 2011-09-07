@@ -113,7 +113,9 @@ module ActiveRecord
       # clear cached indexes when adding new index
       def add_index(table_name, column_name, options = {}) #:nodoc:
         column_names = Array(column_name)
-        index_name   = index_name(table_name, :column => column_names)
+		# sonar - see below
+        index_name   = nil
+		# /sonar
 
         if Hash === options # legacy support, since this param was a string
           index_type = options[:unique] ? "UNIQUE" : ""
@@ -122,6 +124,11 @@ module ActiveRecord
         else
           index_type = options
         end
+        
+		# sonar - move the call to index_name() in order to remove the log "Oracle enhanced shortened index name" even if the index name 
+		# is explicitly set by migrations with the :name option
+        index_name   = index_name(table_name, :column => column_names) unless index_name
+		# /sonar
 
         if index_name.to_s.length > index_name_length
           raise ArgumentError, "Index name '#{index_name}' on table '#{table_name}' is too long; the limit is #{index_name_length} characters"
