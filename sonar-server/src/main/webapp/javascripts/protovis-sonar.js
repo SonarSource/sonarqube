@@ -13,7 +13,6 @@ window.SonarWidgets = {}
  *                maps must be sorted by ascending date.
  *   - events: array of maps {sid,d,l[{n}]} where sid is the snapshot id corresponding to an event, d is the (JS) date of the event, and l
  *             is an array containing the different event names for this date.
- *   - translations: array of l10n words/expressions to display in the chart
  *   - height: height of the chart area (notice header excluded). Defaults to 80.
  * 
  * Example: displays 2 metrics:
@@ -32,14 +31,12 @@ var events = [
                {sid:1,d:d(2011,5,15,0,1,0),l:[{n:"0.6-SNAPSHOT"},{n:"Sun checks"}]},
                {sid:30,d:d(2011,6,21,0,1,0),l:[{n:"0.7-SNAPSHOT"}]}
              ];
-var translations = {"date":"Date"};
 
 var timeline = new SonarWidgets.Timeline('timeline-chart-20')
                                .height(160)
                                .data(data)
                                .snapshots(snapshots)
                                .metrics(metrics)
-                               .translations(translations)
                                .events(events);
 timeline.render();
 </code>
@@ -52,7 +49,6 @@ SonarWidgets.Timeline = function (divId) {
 	this.wData;
 	this.wSnapshots;
 	this.wMetrics;
-	this.wTranslations;
 	this.wEvents;
 	this.height = function(height) {
 		this.wHeight = height;
@@ -70,10 +66,6 @@ SonarWidgets.Timeline = function (divId) {
 		this.wMetrics = metrics;
 		return this;
 	}
-	this.translations = function(translations) {
-		this.wTranslations = translations;
-		return this;
-	}
 	this.events = function(events) {
 		this.wEvents = events;
 		return this;
@@ -85,7 +77,6 @@ SonarWidgets.Timeline.prototype.render = function() {
 	var trendData = this.wData;
 	var metrics = this.wMetrics;
 	var snapshots = this.wSnapshots;
-	var translations = this.wTranslations;
 	var events = this.wEvents;
 	
 	var widgetDiv = $(this.wDivId);
@@ -159,7 +150,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 		.left(w/2)
 		.top(16)
 		.font(footerFont)
-		.text(function() {return translations.date + ": " + snapshots[idx].d;});
+		.text(function() {return snapshots[idx].d;});
 	
 	/* The event labels */
 	if (events) {

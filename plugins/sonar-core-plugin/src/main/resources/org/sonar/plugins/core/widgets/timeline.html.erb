@@ -108,11 +108,6 @@
     end
     js_events = js_events.chomp(',') + "]"
   end
-  
-  # And prepare translations for labels
-  js_translations = "{"
-  js_translations += "\"date\":\"" + message("date") + "\""
-  js_translations += "}"
     
 %>
 
@@ -135,14 +130,12 @@
 	  var data = <%= js_data -%>;
 	  var snapshots = <%= js_snapshots -%>;
 	  var metrics = <%= js_metrics -%>;
-	  var translations = <%= js_translations -%>;
 	  var events = <%= js_events ? js_events : "null" -%>;
 	  var timeline = new SonarWidgets.Timeline('timeline-chart-<%= widget.id -%>')
 	  						.height(<%= chartHeight -%>)
 	  						.data(data)
 	  						.snapshots(snapshots)
 	  						.metrics(metrics)
-	  						.translations(translations)
 	  						.events(events);
 	  timeline.render();
 	
