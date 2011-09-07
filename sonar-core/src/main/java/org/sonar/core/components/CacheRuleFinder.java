@@ -23,6 +23,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleQuery;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import java.util.Map;
@@ -41,34 +42,28 @@ public final class CacheRuleFinder extends DefaultRuleFinder {
     Rule rule = rulesById.get(ruleId);
     if (rule==null) {
       rule = doFindById(ruleId);
-      addToCache(rule);
+      loadRepository(rule.getRepositoryKey());
     }
     return rule;
   }
 
   @Override
-  public Rule findByKey(String repositoryKey, String key) {
-    Map<String,Rule> repoRules = rulesByKey.get(repositoryKey);
-    Rule rule = null;
-    if (repoRules!=null) {
-      rule = repoRules.get(key);
-    }
-    if (rule == null) {
-      rule = doFindByKey(repositoryKey, key);
-      addToCache(rule);
-    }
-    return rule;
+  public Rule findByKey(String repositoryKey, String ruleKey) {
+    Map<String,Rule> repository = loadRepository(repositoryKey);
+    return repository.get(ruleKey);
   }
 
-  private void addToCache(Rule rule) {
-    if (rule != null) {
-      rulesById.put(rule.getId(), rule);
-      Map<String, Rule> repoRules = rulesByKey.get(rule.getKey());
-      if (repoRules==null) {
-        repoRules = Maps.newHashMap();
-        rulesByKey.put(rule.getRepositoryKey(), repoRules);
+  private Map<String,Rule> loadRepository(String repositoryKey) {
+    Map<String,Rule> repository = rulesByKey.get(repositoryKey);
+    if (repository==null) {
+      repository = Maps.newHashMap();
+      rulesByKey.put(repositoryKey, repository);
+
+      for (Rule rule : findAll(RuleQuery.create().withRepositoryKey(repositoryKey))) {
+        repository.put(rule.getKey(), rule);
+        rulesById.put(rule.getId(), rule);
       }
-      repoRules.put(rule.getKey(), rule);
     }
+    return repository;
   }
 }
