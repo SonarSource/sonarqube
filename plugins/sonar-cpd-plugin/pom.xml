@@ -34,11 +34,6 @@
       </exclusions>
     </dependency>
 
-    <dependency>
-      <groupId>org.codehaus.sonar.gsoc</groupId>
-      <artifactId>sonar-gsoc-duplications</artifactId>
-      <version>1.0-SNAPSHOT</version>
-    </dependency>
     <!-- For ResourcePersister and database access -->
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
