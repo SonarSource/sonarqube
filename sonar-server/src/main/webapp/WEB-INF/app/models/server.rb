@@ -25,7 +25,7 @@ class Server
   
   def system_info
     system_info=[]
-    add_property(system_info, 'System date') {format_date(java.util.Date.new())}
+    add_property(system_info, 'System date') {java.util.Date.new()}
     add_property(system_info, 'JVM Vendor') {java.lang.management.ManagementFactory.getRuntimeMXBean().getVmVendor()}
     add_property(system_info, 'JVM Name') {java.lang.management.ManagementFactory.getRuntimeMXBean().getVmName()}
     add_property(system_info, 'JVM Version') {java.lang.management.ManagementFactory.getRuntimeMXBean().getVmVersion() }
