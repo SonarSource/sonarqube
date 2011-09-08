@@ -19,19 +19,20 @@
  */
 package org.sonar.plugins.cpd;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import net.sourceforge.pmd.cpd.TokenEntry;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.duplications.cpd.Match;
-
-import java.io.File;
-import java.util.*;
 
 public class CpdAnalyser {
 
@@ -83,7 +84,7 @@ public class CpdAnalyser {
     }
 
     for (DuplicationsData data : duplicationsData.values()) {
-      data.saveUsing(context);
+      data.save();
     }
   }
 
@@ -96,50 +97,4 @@ public class CpdAnalyser {
     return data;
   }
 
-  private static final class DuplicationsData {
-
-    protected Set<Integer> duplicatedLines = new HashSet<Integer>();
-    protected double duplicatedBlocks = 0;
-    protected Resource resource;
-    private SensorContext context;
-    private List<StringBuilder> duplicationXMLEntries = new ArrayList<StringBuilder>();
-
-    private DuplicationsData(Resource resource, SensorContext context) {
-      this.context = context;
-      this.resource = resource;
-    }
-
-    protected void cumulate(Resource targetResource, int targetDuplicationStartLine, int duplicationStartLine, int duplicatedLines) {
-      StringBuilder xml = new StringBuilder();
-      xml.append("<duplication lines=\"").append(duplicatedLines).append("\" start=\"").append(duplicationStartLine)
-          .append("\" target-start=\"").append(targetDuplicationStartLine).append("\" target-resource=\"")
-          .append(context.saveResource(targetResource)).append("\"/>");
-
-      duplicationXMLEntries.add(xml);
-
-      for (int duplicatedLine = duplicationStartLine; duplicatedLine < duplicationStartLine + duplicatedLines; duplicatedLine++) {
-        this.duplicatedLines.add(duplicatedLine);
-      }
-    }
-
-    protected void incrementDuplicatedBlock() {
-      duplicatedBlocks++;
-    }
-
-    protected void saveUsing(SensorContext context) {
-      context.saveMeasure(resource, CoreMetrics.DUPLICATED_FILES, 1d);
-      context.saveMeasure(resource, CoreMetrics.DUPLICATED_LINES, (double) duplicatedLines.size());
-      context.saveMeasure(resource, CoreMetrics.DUPLICATED_BLOCKS, duplicatedBlocks);
-      context.saveMeasure(resource, new Measure(CoreMetrics.DUPLICATIONS_DATA, getDuplicationXMLData()));
-    }
-
-    private String getDuplicationXMLData() {
-      StringBuilder duplicationXML = new StringBuilder("<duplications>");
-      for (StringBuilder xmlEntry : duplicationXMLEntries) {
-        duplicationXML.append(xmlEntry);
-      }
-      duplicationXML.append("</duplications>");
-      return duplicationXML.toString();
-    }
-  }
 }

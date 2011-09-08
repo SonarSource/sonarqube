@@ -23,13 +23,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -37,8 +32,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
@@ -152,11 +145,11 @@ public class SonarEngine extends CpdEngine {
       List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(index, fileBlocks);
       if (!clones.isEmpty()) {
         // Save
-        DuplicationsData data = new DuplicationsData();
+        DuplicationsData data = new DuplicationsData(resource, context);
         for (CloneGroup clone : clones) {
           poplulateData(data, clone);
         }
-        data.save(context, resource);
+        data.save();
       }
     }
   }
@@ -180,73 +173,6 @@ public class SonarEngine extends CpdEngine {
         data.incrementDuplicatedBlock();
         data.cumulate(origin.getResourceId(), origin.getLineStart(), part.getLineStart(), originLines);
       }
-    }
-  }
-
-  // TODO Godin: reuse this class for PMD-CPD
-  private static final class DuplicationsData {
-
-    protected Set<Integer> duplicatedLines = new HashSet<Integer>();
-    protected double duplicatedBlocks = 0;
-    private List<XmlEntry> duplicationXMLEntries = new ArrayList<XmlEntry>();
-
-    private static final class XmlEntry {
-      protected StringBuilder xml;
-      protected int startLine;
-      protected int lines;
-
-      private XmlEntry(int startLine, int lines, StringBuilder xml) {
-        this.xml = xml;
-        this.startLine = startLine;
-        this.lines = lines;
-      }
-    }
-
-    private DuplicationsData() {
-    }
-
-    protected void cumulate(String targetResource, int targetDuplicationStartLine, int duplicationStartLine, int duplicatedLines) {
-      StringBuilder xml = new StringBuilder();
-      xml.append("<duplication lines=\"").append(duplicatedLines).append("\" start=\"").append(duplicationStartLine)
-          .append("\" target-start=\"").append(targetDuplicationStartLine).append("\" target-resource=\"")
-          .append(targetResource).append("\"/>");
-
-      duplicationXMLEntries.add(new XmlEntry(duplicationStartLine, duplicatedLines, xml));
-
-      for (int duplicatedLine = duplicationStartLine; duplicatedLine < duplicationStartLine + duplicatedLines; duplicatedLine++) {
-        this.duplicatedLines.add(duplicatedLine);
-      }
-    }
-
-    protected void incrementDuplicatedBlock() {
-      duplicatedBlocks++;
-    }
-
-    protected void save(SensorContext context, Resource resource) {
-      context.saveMeasure(resource, CoreMetrics.DUPLICATED_FILES, 1d);
-      context.saveMeasure(resource, CoreMetrics.DUPLICATED_LINES, (double) duplicatedLines.size());
-      context.saveMeasure(resource, CoreMetrics.DUPLICATED_BLOCKS, duplicatedBlocks);
-      context.saveMeasure(resource, new Measure(CoreMetrics.DUPLICATIONS_DATA, getDuplicationXMLData()));
-    }
-
-    private String getDuplicationXMLData() {
-      StringBuilder duplicationXML = new StringBuilder("<duplications>");
-
-      Comparator<XmlEntry> comp = new Comparator<XmlEntry>() {
-        public int compare(XmlEntry o1, XmlEntry o2) {
-          if (o1.startLine == o2.startLine) {
-            return o2.lines - o1.lines;
-          }
-          return o1.startLine - o2.startLine;
-        }
-      };
-      Collections.sort(duplicationXMLEntries, comp);
-
-      for (XmlEntry xmlEntry : duplicationXMLEntries) {
-        duplicationXML.append(xmlEntry.xml);
-      }
-      duplicationXML.append("</duplications>");
-      return duplicationXML.toString();
     }
   }
 
