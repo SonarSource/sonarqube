@@ -42,12 +42,17 @@ SonarWidgets.StackArea.prototype.render = function() {
 	var widgetDiv = $(this.wDivId);
 	var headerFont = "10.5px Arial,Helvetica,sans-serif";
 	
-	/* Sizing and scales. */
-	var headerHeight = 40;
-	var w = widgetDiv.getOffsetParent().getWidth() - 60; 
-	var	h = (this.wHeight == null ? 120 : this.wHeight) + headerHeight;
-
-	var x = pv.Scale.linear(pv.blend(pv.map(trendData, function(d) {return d;})), function(d) {return d.x}).range(0, w);
+	/* Computes the total of the trendData of each date */
+	var total = [];
+	for (i=0; i<trendData[0].size(); i++) {
+		total[i] = 0;
+		for (j=0; j<metrics.size();j++) {
+			total[i] += trendData[j][i].y;
+		}
+		total[i] = "" + Math.round(total[i]*10)/10
+	}
+	
+	/* Computes the highest Y value */
 	var maxY = 0;
 	for (i=0; i<trendData[0].size(); i++) {
 		var currentYSum = 0;
@@ -56,6 +61,18 @@ SonarWidgets.StackArea.prototype.render = function() {
 		}
 		if (currentYSum > maxY) { maxY = currentYSum;}
 	}
+	
+	/* Computes minimum width of left margin according to the max Y value so that the Y-axis is correctly displayed */
+	var leftMargin = 20;
+	minMargin = (Math.round(maxY) + "").length * 7;
+	if (minMargin > leftMargin) { leftMargin = minMargin; }
+	
+	/* Sizing and scales. */
+	var headerHeight = 40;
+	var w = widgetDiv.getOffsetParent().getWidth() - leftMargin - 40; 
+	var	h = (this.wHeight == null ? 200 : this.wHeight) + headerHeight;
+
+	var x = pv.Scale.linear(pv.blend(pv.map(trendData, function(d) {return d;})), function(d) {return d.x}).range(0, w);
 	var y = pv.Scale.linear(0, maxY).range(0, h-headerHeight);
 	var idx_numbers = trendData[0].size();
 	var idx = idx_numbers - 1;
@@ -65,7 +82,7 @@ SonarWidgets.StackArea.prototype.render = function() {
 		.canvas(widgetDiv)
 		.width(w)
 		.height(h)
-		.left(20)
+		.left(leftMargin)
 		.right(20)
 		.bottom(30)
 		.top(20)
@@ -83,7 +100,7 @@ SonarWidgets.StackArea.prototype.render = function() {
 	
 	/* Y-axis and ticks. */
 	vis.add(pv.Rule)
-	    .data(y.ticks())
+	    .data(y.ticks(6))
 	    .bottom(y)
 	    .strokeStyle("rgba(128,128,128,.2)")
 	    .anchor("left")
@@ -98,9 +115,7 @@ SonarWidgets.StackArea.prototype.render = function() {
 	    .layer
 	    .add(pv.Area)
 	    .fillStyle(function() {return colors[this.parent.index % colors.size()][0];})
-	    .strokeStyle("rgba(128,128,128,.8)")
-	    .add(pv.Dot)
-	    .radius(1);
+	    .strokeStyle("rgba(128,128,128,.8)");
 	
 	/* Stack labels. */
 	vis.add(pv.Panel)
@@ -116,9 +131,16 @@ SonarWidgets.StackArea.prototype.render = function() {
 	    .textStyle("#FFF")
 	    .text(function(d) {return metrics[this.parent.index] + ": " + d.y;});
 	
-	/* The date of the selected dot in the header. */
+	/* The total cost of the selected dot in the header. */
 	vis.add(pv.Label)
 		.left(8)
+		.top(16)
+		.font(headerFont)
+		.text(function() {return "Total: " + total[idx];});
+	
+	/* The date of the selected dot in the header. */
+	vis.add(pv.Label)
+		.left(w/2)
 		.top(16)
 		.font(headerFont)
 		.text(function() {return snapshots[idx].ld;});
@@ -137,14 +159,14 @@ SonarWidgets.StackArea.prototype.render = function() {
 		.add(pv.Dot)
 		.bottom(-6)
 		.shape("triangle")
-		.angle(3.14159265)
+		.angle(pv.radians(180))
 		.strokeStyle("grey")
 		.visible(function(s) {return s.e.size() > 0;})
 		.fillStyle(function() {return this.index == idx ? eventHoverColor : eventColor;})
 		.add(pv.Dot)
 		.radius(3)
 		.visible(function(s) {return s.e.size() > 0 && this.index == idx;})
-		.left(16)
+		.left(w/2+8)
 		.top(24)
 		.shape("triangle")
 		.fillStyle(function() {return this.index == idx ? eventHoverColor : eventColor;})
