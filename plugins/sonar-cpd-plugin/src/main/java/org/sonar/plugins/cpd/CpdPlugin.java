@@ -31,38 +31,51 @@ import org.sonar.plugins.cpd.decorators.SumDuplicationsDecorator;
 
 @Properties({
     @Property(
+        key = CoreProperties.CPD_ENGINE,
+        defaultValue = CoreProperties.CPD_ENGINE_DEFAULT_VALUE,
+        name = "Engine",
+        description = "Engine for detection of duplications. Possible values: sonar, pmd.",
+        project = true,
+        module = true,
+        global = true,
+        category = CoreProperties.CATEGORY_DUPLICATIONS),
+    @Property(
+        key = CoreProperties.CPD_CROSS_RPOJECT,
+        defaultValue = CoreProperties.CPD_CROSS_RPOJECT_DEFAULT_VALUE + "",
+        name = "(Sonar) Detection across projects",
+        description = "",
+        project = true,
+        module = true,
+        global = true,
+        category = CoreProperties.CATEGORY_DUPLICATIONS),
+    @Property(
         key = CoreProperties.CPD_MINIMUM_TOKENS_PROPERTY,
         defaultValue = CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE + "",
-        name = "Minimum tokens",
+        name = "(PMD) Minimum tokens",
         description = "The number of duplicate tokens above which a block is considered as a duplication.",
         project = true,
         module = true,
-        global = true),
+        global = true,
+        category = CoreProperties.CATEGORY_DUPLICATIONS),
     @Property(
         key = CoreProperties.CPD_IGNORE_LITERALS_PROPERTY,
         defaultValue = CoreProperties.CPD_IGNORE_LITERALS_DEFAULT_VALUE + "",
-        name = "Ignore literals",
-        description = "if true, CPD ignores literal value differences when evaluating a duplicate block. " +
+        name = "(PMD) Ignore literals",
+        description = "if true, PMD-CPD ignores literal value differences when evaluating a duplicate block. " +
             "This means that foo=\"first string\"; and foo=\"second string\"; will be seen as equivalent.",
         project = true,
         module = true,
-        global = true),
+        global = true,
+        category = CoreProperties.CATEGORY_DUPLICATIONS),
     @Property(
         key = CoreProperties.CPD_IGNORE_IDENTIFIERS_PROPERTY,
         defaultValue = CoreProperties.CPD_IGNORE_IDENTIFIERS_DEFAULT_VALUE + "",
-        name = "Ignore identifiers",
+        name = "(PMD) Ignore identifiers",
         description = "Similar to 'Ignore literals' but for identifiers; i.e., variable names, methods names, and so forth.",
         project = true,
         module = true,
-        global = true),
-    @Property(
-        key = CoreProperties.CPD_SKIP_PROPERTY,
-        defaultValue = "false",
-        name = "Skip detection of duplicated code",
-        description = "Searching for duplicated code is memory hungry therefore for very big projects it can be necessary to turn the functionality off.",
-        project = true,
-        module = true,
-        global = true)
+        global = true,
+        category = CoreProperties.CATEGORY_DUPLICATIONS)
 })
 public class CpdPlugin extends SonarPlugin {
 

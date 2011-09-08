@@ -22,6 +22,7 @@ package org.sonar.plugins.cpd;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
@@ -66,13 +67,13 @@ public class CpdSensor implements Sensor {
 
   boolean isSonarEngineEnabled(Project project) {
     Configuration conf = project.getConfiguration();
-    return StringUtils.equalsIgnoreCase(conf.getString("sonar.cpd.engine", "sonar"), "sonar");
+    return StringUtils.equalsIgnoreCase(conf.getString(CoreProperties.CPD_ENGINE, CoreProperties.CPD_ENGINE_DEFAULT_VALUE), "sonar");
   }
 
   boolean isSkipped(Project project) {
     Configuration conf = project.getConfiguration();
     return conf.getBoolean("sonar.cpd." + project.getLanguageKey() + ".skip",
-        conf.getBoolean("sonar.cpd.skip", false));
+        conf.getBoolean(CoreProperties.CPD_SKIP_PROPERTY, false));
   }
 
   public void analyse(Project project, SensorContext context) {

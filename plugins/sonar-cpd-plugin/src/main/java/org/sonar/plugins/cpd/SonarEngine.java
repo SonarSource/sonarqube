@@ -82,7 +82,7 @@ public class SonarEngine extends CpdEngine {
    * @return true, if was enabled by user and database is available
    */
   private boolean isCrossProject(Project project) {
-    return project.getConfiguration().getBoolean("sonar.cpd.cross_project", false)
+    return project.getConfiguration().getBoolean(CoreProperties.CPD_CROSS_RPOJECT, CoreProperties.CPD_CROSS_RPOJECT_DEFAULT_VALUE)
         && resourcePersister != null && dbSession != null
         && StringUtils.isBlank(project.getConfiguration().getString(CoreProperties.PROJECT_BRANCH_PROPERTY));
   }

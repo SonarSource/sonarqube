@@ -19,8 +19,6 @@
  */
 package org.sonar.api;
 
-import org.sonar.api.resources.ProjectFileSystem;
-
 /**
  * CoreProperties is used to group various properties of Sonar as well
  * as default values of configuration in a single place
@@ -38,6 +36,11 @@ public interface CoreProperties {
    * @since 2.11
    */
   String CATEGORY_CODE_COVERAGE = "codeCoverage";
+
+  /**
+   * @since 2.11
+   */
+  String CATEGORY_DUPLICATIONS = "duplications";
 
   /**
    * @since 2.11
@@ -81,7 +84,7 @@ public interface CoreProperties {
   String PROJECT_DESCRIPTION_PROPERTY = "sonar.projectDescription";
 
   /**
-   * To determine value of this property use {@link ProjectFileSystem#getSourceCharset()}.
+   * To determine value of this property use {@link org.sonar.api.resources.ProjectFileSystem#getSourceCharset()}.
    * 
    * @since 2.6
    */
@@ -159,6 +162,28 @@ public interface CoreProperties {
   String CPD_IGNORE_IDENTIFIERS_PROPERTY = "sonar.cpd.ignore_identifiers";
   String CPD_IGNORE_IDENTIFIERS_DEFAULT_VALUE = "false";
   String CPD_SKIP_PROPERTY = "sonar.cpd.skip";
+
+  /**
+   * @since 2.11
+   */
+  String CPD_ENGINE = "sonar.cpd.engine";
+
+  /**
+   * @since 2.11
+   * @see #CPD_ENGINE
+   */
+  String CPD_ENGINE_DEFAULT_VALUE = "sonar";
+
+  /**
+   * @since 2.11
+   */
+  String CPD_CROSS_RPOJECT = "sonar.cpd.cross_project";
+
+  /**
+   * @since 2.11
+   * @see #CPD_CROSS_RPOJECT
+   */
+  boolean CPD_CROSS_RPOJECT_DEFAULT_VALUE = false;
 
   /* Design */
 
