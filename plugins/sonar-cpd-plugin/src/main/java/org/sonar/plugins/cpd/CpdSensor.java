@@ -64,9 +64,9 @@ public class CpdSensor implements Sensor {
     }
   }
 
-  private boolean isSonarEngineEnabled(Project project) {
+  boolean isSonarEngineEnabled(Project project) {
     Configuration conf = project.getConfiguration();
-    return StringUtils.equalsIgnoreCase(conf.getString("sonar.cpd.engine", "pmd"), "sonar");
+    return StringUtils.equalsIgnoreCase(conf.getString("sonar.cpd.engine", "sonar"), "sonar");
   }
 
   boolean isSkipped(Project project) {

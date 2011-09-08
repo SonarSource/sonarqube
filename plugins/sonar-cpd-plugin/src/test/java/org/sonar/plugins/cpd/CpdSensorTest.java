@@ -19,13 +19,13 @@
  */
 package org.sonar.plugins.cpd;
 
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.resources.Project;
 
@@ -38,7 +38,7 @@ public class CpdSensorTest {
 
     Project project = createJavaProject().setConfiguration(conf);
 
-    CpdSensor sensor = new CpdSensor(new SonarEngine(null, null), new PmdEngine(new CpdMapping[0]));
+    CpdSensor sensor = new CpdSensor(new SonarEngine(), new PmdEngine(new CpdMapping[0]));
     assertTrue(sensor.isSkipped(project));
   }
 
@@ -46,7 +46,7 @@ public class CpdSensorTest {
   public void doNotSkipByDefault() {
     Project project = createJavaProject().setConfiguration(new PropertiesConfiguration());
 
-    CpdSensor sensor = new CpdSensor(new SonarEngine(null, null), new PmdEngine(new CpdMapping[0]));
+    CpdSensor sensor = new CpdSensor(new SonarEngine(), new PmdEngine(new CpdMapping[0]));
     assertFalse(sensor.isSkipped(project));
   }
 
@@ -59,41 +59,20 @@ public class CpdSensorTest {
     Project phpProject = createPhpProject().setConfiguration(conf);
     Project javaProject = createJavaProject().setConfiguration(conf);
 
-    CpdSensor sensor = new CpdSensor(new SonarEngine(null, null), new PmdEngine(new CpdMapping[0]));
+    CpdSensor sensor = new CpdSensor(new SonarEngine(), new PmdEngine(new CpdMapping[0]));
     assertTrue(sensor.isSkipped(phpProject));
     assertFalse(sensor.isSkipped(javaProject));
   }
 
   @Test
-  public void defaultMinimumTokens() {
-    Project project = createJavaProject().setConfiguration(new PropertiesConfiguration());
-
-    PmdEngine sensor = new PmdEngine(new CpdMapping[0]);
-    assertEquals(CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE, sensor.getMinimumTokens(project));
-  }
-
-  @Test
-  public void generalMinimumTokens() {
+  public void engine() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.cpd.minimumTokens", "33");
     Project project = createJavaProject().setConfiguration(conf);
+    CpdSensor sensor = new CpdSensor(new SonarEngine(), new PmdEngine(new CpdMapping[0]));
 
-    PmdEngine sensor = new PmdEngine(new CpdMapping[0]);
-    assertEquals(33, sensor.getMinimumTokens(project));
-  }
-
-  @Test
-  public void minimumTokensByLanguage() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.cpd.minimumTokens", "100");
-    conf.setProperty("sonar.cpd.php.minimumTokens", "33");
-
-    Project phpProject = createPhpProject().setConfiguration(conf);
-    Project javaProject = createJavaProject().setConfiguration(conf);
-
-    PmdEngine sensor = new PmdEngine(new CpdMapping[0]);
-    assertEquals(100, sensor.getMinimumTokens(javaProject));
-    assertEquals(33, sensor.getMinimumTokens(phpProject));
+    assertThat(sensor.isSonarEngineEnabled(project), is(true));
+    conf.setProperty("sonar.cpd.engine", "pmd");
+    assertThat(sensor.isSonarEngineEnabled(project), is(false));
   }
 
   private Project createJavaProject() {
@@ -103,4 +82,5 @@ public class CpdSensorTest {
   private Project createPhpProject() {
     return new Project("php_project").setLanguageKey("php");
   }
+
 }
