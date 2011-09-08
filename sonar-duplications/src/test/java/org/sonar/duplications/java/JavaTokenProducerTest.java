@@ -42,12 +42,6 @@ import org.sonar.duplications.token.TokenQueue;
 
 import com.google.common.collect.Lists;
 
-/**
- * See <a href="http://java.sun.com/docs/books/jls/third_edition/html/lexical.html">The Java Language Specification, Third Edition: Lexical Structure</a>
- * 
- * TODO Java 7 features: Binary Integer Literals, Using Underscore Characters in Numeric Literals
- * TODO add more complex example
- */
 public class JavaTokenProducerTest {
 
   private TokenChunker chunker = JavaTokenProducer.build();
@@ -130,6 +124,24 @@ public class JavaTokenProducerTest {
     assertThat(chunk("0xFF"), isNumericLiteral());
     assertThat(chunk("0xFFl"), isNumericLiteral());
     assertThat(chunk("0xFFL"), isNumericLiteral());
+
+    assertThat(chunk("0XFF"), isNumericLiteral());
+    assertThat(chunk("0XFFl"), isNumericLiteral());
+    assertThat(chunk("0XFFL"), isNumericLiteral());
+  }
+
+  /**
+   * New in Java 7.
+   */
+  @Test
+  public void shouldNormalizeBinaryIntegerLiteral() {
+    assertThat(chunk("0b10"), isNumericLiteral());
+    assertThat(chunk("0b10l"), isNumericLiteral());
+    assertThat(chunk("0b10L"), isNumericLiteral());
+
+    assertThat(chunk("0B10"), isNumericLiteral());
+    assertThat(chunk("0B10l"), isNumericLiteral());
+    assertThat(chunk("0B10L"), isNumericLiteral());
   }
 
   /**
@@ -204,6 +216,26 @@ public class JavaTokenProducerTest {
     assertThat(chunk("0XAFp1f"), isNumericLiteral());
     assertThat(chunk("0xAFp+1d"), isNumericLiteral());
     assertThat(chunk("0XAFp-1D"), isNumericLiteral());
+  }
+
+  /**
+   * New in Java 7.
+   */
+  @Test
+  public void shouldNormalizeNumericLiteralsWithUnderscores() {
+    assertThat(chunk("54_3L"), isNumericLiteral());
+    assertThat(chunk("07_7L"), isNumericLiteral());
+    assertThat(chunk("0b1_0L"), isNumericLiteral());
+    assertThat(chunk("0xF_FL"), isNumericLiteral());
+
+    assertThat(chunk("1_234."), isNumericLiteral());
+    assertThat(chunk("1_2.3_4"), isNumericLiteral());
+    assertThat(chunk(".1_234"), isNumericLiteral());
+    assertThat(chunk("1_234e1_0"), isNumericLiteral());
+
+    assertThat(chunk("0xA_F."), isNumericLiteral());
+    assertThat(chunk("0xA_F.B_C"), isNumericLiteral());
+    assertThat(chunk("0x1.ffff_ffff_ffff_fP1_023"), isNumericLiteral());
   }
 
   /**
