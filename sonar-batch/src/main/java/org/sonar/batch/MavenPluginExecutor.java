@@ -26,7 +26,7 @@ import org.sonar.api.resources.Project;
 
 public interface MavenPluginExecutor extends BatchComponent {
 
-  void execute(Project project, String goal);
+  void execute(Project project, ProjectDefinition def, String goal);
 
   MavenPluginHandler execute(Project project, ProjectDefinition def, MavenPluginHandler handler);
 

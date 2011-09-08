@@ -35,17 +35,14 @@ public abstract class AbstractMavenPluginExecutor implements MavenPluginExecutor
   public final MavenPluginHandler execute(Project project, ProjectDefinition projectDefinition, MavenPluginHandler handler) {
     for (String goal : handler.getGoals()) {
       MavenPlugin plugin = MavenPlugin.getPlugin(project.getPom(), handler.getGroupId(), handler.getArtifactId());
-      execute(project, getGoal(handler.getGroupId(), handler.getArtifactId(), (plugin!=null && plugin.getPlugin()!=null ? plugin.getPlugin().getVersion() : null), goal));
+      execute(project,
+          projectDefinition,
+          getGoal(handler.getGroupId(), handler.getArtifactId(), (plugin != null && plugin.getPlugin() != null ? plugin.getPlugin().getVersion() : null), goal));
     }
-
-    if (project.getPom()!=null) {
-      MavenProjectConverter.synchronizeFileSystem(project.getPom(), projectDefinition);
-    }
-
     return handler;
   }
 
-  public final void execute(Project project, String goal) {
+  public final void execute(Project project, ProjectDefinition projectDefinition, String goal) {
     TimeProfiler profiler = new TimeProfiler().start("Execute " + goal);
     ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
     try {
@@ -56,6 +53,10 @@ public abstract class AbstractMavenPluginExecutor implements MavenPluginExecutor
       // Reset original ClassLoader that may have been changed during Maven Execution (see SONAR-1800)
       Thread.currentThread().setContextClassLoader(currentClassLoader);
       profiler.stop();
+    }
+
+    if (project.getPom() != null) {
+      MavenProjectConverter.synchronizeFileSystem(project.getPom(), projectDefinition);
     }
   }
 

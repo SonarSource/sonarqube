@@ -19,32 +19,38 @@
  */
 package org.sonar.batch.phases;
 
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.MavenPluginExecutor;
-
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
 
 public class MavenPhaseExecutorTest {
 
   @Test
   public void doNothingIfNoPhase() {
+    ProjectDefinition projectDef = ProjectDefinition.create();
     MavenPluginExecutor mavenPluginExecutor = mock(MavenPluginExecutor.class);
-    MavenPhaseExecutor phaseExecutor = new MavenPhaseExecutor(mavenPluginExecutor);
+    MavenPhaseExecutor phaseExecutor = new MavenPhaseExecutor(projectDef, mavenPluginExecutor);
 
 
     Project project = new Project("key");
     phaseExecutor.execute(project);
 
-    verify(mavenPluginExecutor, never()).execute(eq(project), anyString());
+    verify(mavenPluginExecutor, never()).execute(eq(project), eq(projectDef), anyString());
   }
 
   @Test
   public void executePhase() {
+    ProjectDefinition projectDef = ProjectDefinition.create();
     MavenPluginExecutor mavenPluginExecutor = mock(MavenPluginExecutor.class);
-    MavenPhaseExecutor phaseExecutor = new MavenPhaseExecutor(mavenPluginExecutor);
+    MavenPhaseExecutor phaseExecutor = new MavenPhaseExecutor(projectDef, mavenPluginExecutor);
 
     Project project = new Project("key");
     PropertiesConfiguration conf = new PropertiesConfiguration();
@@ -53,6 +59,6 @@ public class MavenPhaseExecutorTest {
 
     phaseExecutor.execute(project);
 
-    verify(mavenPluginExecutor).execute(project, "myphase");
+    verify(mavenPluginExecutor).execute(project, projectDef, "myphase");
   }
 }
