@@ -24,14 +24,21 @@ import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 import org.sonar.duplications.DuplicationsTestUtil;
 import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenChunker;
+import org.sonar.duplications.token.TokenQueue;
 
 import com.google.common.collect.Lists;
 
@@ -265,10 +272,22 @@ public class JavaTokenProducerTest {
   @Test
   public void realExamples() {
     File testFile = DuplicationsTestUtil.findFile("/java/MessageResources.java");
-    assertThat(chunker.chunk(testFile).size(), greaterThan(0));
+    assertThat(chunk(testFile).size(), greaterThan(0));
 
     testFile = DuplicationsTestUtil.findFile("/java/RequestUtils.java");
-    assertThat(chunker.chunk(testFile).size(), greaterThan(0));
+    assertThat(chunk(testFile).size(), greaterThan(0));
+  }
+
+  private TokenQueue chunk(File file) {
+    Reader reader = null;
+    try {
+      reader = new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8"));
+      return chunker.chunk(reader);
+    } catch (FileNotFoundException e) {
+      throw new RuntimeException(e);
+    } finally {
+      IOUtils.closeQuietly(reader);
+    }
   }
 
   private static Matcher<List<Token>> isNumericLiteral() {

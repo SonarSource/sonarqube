@@ -24,8 +24,14 @@ import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.duplications.DuplicationsTestUtil;
 import org.sonar.duplications.statement.Statement;
@@ -150,11 +156,20 @@ public class JavaStatementBuilderTest {
 
   @Test
   public void realExamples() {
-    File testFile = DuplicationsTestUtil.findFile("/java/MessageResources.java");
-    assertThat(statementChunker.chunk(tokenChunker.chunk(testFile)).size(), greaterThan(0));
+    assertThat(chunk(DuplicationsTestUtil.findFile("/java/MessageResources.java")).size(), greaterThan(0));
+    assertThat(chunk(DuplicationsTestUtil.findFile("/java/RequestUtils.java")).size(), greaterThan(0));
+  }
 
-    testFile = DuplicationsTestUtil.findFile("/java/RequestUtils.java");
-    assertThat(statementChunker.chunk(tokenChunker.chunk(testFile)).size(), greaterThan(0));
+  private List<Statement> chunk(File file) {
+    Reader reader = null;
+    try {
+      reader = new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8"));
+      return statementChunker.chunk(tokenChunker.chunk(reader));
+    } catch (FileNotFoundException e) {
+      throw new RuntimeException(e);
+    } finally {
+      IOUtils.closeQuietly(reader);
+    }
   }
 
 }

@@ -23,7 +23,7 @@ import java.io.File;
 
 public class DuplicationsTestUtil {
 
-  public static final File fileDir = new File("src/test/files/");
+  private static final File fileDir = new File("src/test/files/");
 
   public static File findFile(String relativePathToFile) {
     return new File(fileDir, relativePathToFile);

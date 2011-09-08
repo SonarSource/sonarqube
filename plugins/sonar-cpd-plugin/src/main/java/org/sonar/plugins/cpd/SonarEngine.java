@@ -19,7 +19,10 @@
  */
 package org.sonar.plugins.cpd;
 
-import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
@@ -42,6 +46,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.Logs;
+import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
@@ -53,7 +58,6 @@ import org.sonar.duplications.java.JavaTokenProducer;
 import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
-import org.sonar.duplications.token.TokenQueue;
 import org.sonar.plugins.cpd.index.DbDuplicationsIndex;
 import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 
@@ -123,9 +127,18 @@ public class SonarEngine extends CpdEngine {
       Resource resource = getResource(inputFile);
       String resourceKey = getFullKey(project, resource);
 
-      File file = inputFile.getFile();
-      TokenQueue tokenQueue = tokenChunker.chunk(file);
-      List<Statement> statements = statementChunker.chunk(tokenQueue);
+      List<Statement> statements;
+
+      Reader reader = null;
+      try {
+        reader = new InputStreamReader(new FileInputStream(inputFile.getFile()), project.getFileSystem().getSourceCharset());
+        statements = statementChunker.chunk(tokenChunker.chunk(reader));
+      } catch (FileNotFoundException e) {
+        throw new SonarException(e);
+      } finally {
+        IOUtils.closeQuietly(reader);
+      }
+
       List<Block> blocks = blockChunker.chunk(resourceKey, statements);
       index.insert(resource, blocks);
     }
