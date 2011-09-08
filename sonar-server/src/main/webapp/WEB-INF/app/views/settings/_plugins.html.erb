@@ -44,7 +44,7 @@
           </thead>
           <tbody>
           <%
-             @properties_per_category.keys.sort.each do |category|
+             @properties_per_category.keys.sort_by{|category| message("property.category.#{category}", :default => category)}.each do |category|
                unless @properties_per_category[category].empty?
           %>
               <tr class="select <%= cycle('even', 'odd', :name => 'category') -%> <%= 'selected' if @category==category -%>" id="select_<%= category -%>">
