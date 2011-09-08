@@ -33,7 +33,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.MissingResourceException;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
@@ -163,17 +165,38 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
   }
 
   protected File getBundleFileFromGithub(String defaultBundleName) {
-    File bundle = new File("target/l10n/download/" + defaultBundleName);
+    File localBundle = new File("target/l10n/download/" + defaultBundleName);
     try {
-      saveUrl(remote_file_path + defaultBundleName, bundle);
+      String sonarVersion = getSonarVersionFromBundle();
+      String remoteFile = computeGitHubURL(defaultBundleName, sonarVersion);
+      saveUrlToLocalFile(remoteFile, localBundle);
     } catch (MalformedURLException e) {
       fail("Could not download the original core bundle at: " + remote_file_path + defaultBundleName);
     } catch (IOException e) {
       fail("Could not download the original core bundle at: " + remote_file_path + defaultBundleName);
     }
-    assertThat("File 'target/tmp/" + defaultBundleName + "' has been downloaded but does not exist.", bundle, notNullValue());
-    assertThat("File 'target/tmp/" + defaultBundleName + "' has been downloaded but does not exist.", bundle.exists(), is(true));
-    return bundle;
+    assertThat("File 'target/tmp/" + defaultBundleName + "' has been downloaded but does not exist.", localBundle, notNullValue());
+    assertThat("File 'target/tmp/" + defaultBundleName + "' has been downloaded but does not exist.", localBundle.exists(), is(true));
+    return localBundle;
+  }
+
+  protected String computeGitHubURL(String defaultBundleName, String sonarVersion) {
+    String computedURL = remote_file_path + defaultBundleName;
+    if (sonarVersion != null && !sonarVersion.startsWith("${") && !sonarVersion.contains("-SNAPSHOT")) {
+      computedURL = computedURL.replace("/master/", "/" + sonarVersion + "/");
+    }
+    return computedURL;
+  }
+
+  protected String getSonarVersionFromBundle() {
+    String version = null;
+    try {
+      ResourceBundle bundle = ResourceBundle.getBundle("version");
+      version = bundle.getString("sonar.version");
+    } catch (MissingResourceException e) {
+      // no problem, we won't use any specific version
+    }
+    return version;
   }
 
   protected File getBundleFileFromClasspath(String bundleName) {
@@ -194,7 +217,7 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
     return CORE_BUNDLES.contains(defaultBundleName);
   }
 
-  private void saveUrl(String url, File localFile) throws MalformedURLException, IOException {
+  private void saveUrlToLocalFile(String url, File localFile) throws MalformedURLException, IOException {
     if (localFile.exists()) {
       localFile.delete();
     }

@@ -25,7 +25,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.sonar.test.i18n.I18nMatchers.isBundleSynchronized;
+import static org.sonar.test.i18n.I18nMatchers.isBundleUpToDate;
 
 import java.io.File;
 import java.util.Collection;
@@ -48,18 +48,18 @@ public class BundleSynchronizedTest {
   // The case of a Sonar plugin that embeds all the bundles for every language
   public void testBundlesInsideSonarPlugin() {
     // synchronized bundle
-    assertThat("myPlugin_fr_CA.properties", isBundleSynchronized());
+    assertThat("myPlugin_fr_CA.properties", isBundleUpToDate());
     assertFalse(new File("target/l10n/myPlugin_fr_CA.properties.report.txt").exists());
     // missing keys
     try {
-      assertThat("myPlugin_fr.properties", isBundleSynchronized());
+      assertThat("myPlugin_fr.properties", isBundleUpToDate());
       assertTrue(new File("target/l10n/myPlugin_fr.properties.report.txt").exists());
     } catch (AssertionError e) {
       assertThat(e.getMessage(), containsString("Missing keys are:\n\t- second.prop"));
     }
     // unnecessary many keys
     try {
-      assertThat("myPlugin_fr_QB.properties", isBundleSynchronized());
+      assertThat("myPlugin_fr_QB.properties", isBundleUpToDate());
       assertTrue(new File("target/l10n/myPlugin_fr_QB.properties.report.txt").exists());
     } catch (AssertionError e) {
       assertThat(e.getMessage(), containsString("The following keys do not exist in the default bundle:\n\t- fourth.prop"));
@@ -126,5 +126,17 @@ public class BundleSynchronizedTest {
 
     diffs = matcher.retrieveMissingKeys(qbBundle, defaultBundle);
     assertThat(diffs.size(), is(0));
+  }
+
+  @Test
+  public void testComputeGitHubURL() throws Exception {
+    assertThat(
+        matcher.computeGitHubURL("core.properties", null),
+        is("https://raw.github.com/SonarSource/sonar/master/plugins/sonar-l10n-en-plugin/src/main/resources/org/sonar/l10n/core.properties"));
+    assertThat(
+        matcher.computeGitHubURL("core.properties", "2.11-SNAPSHOT"),
+        is("https://raw.github.com/SonarSource/sonar/master/plugins/sonar-l10n-en-plugin/src/main/resources/org/sonar/l10n/core.properties"));
+    assertThat(matcher.computeGitHubURL("core.properties", "2.10"),
+        is("https://raw.github.com/SonarSource/sonar/2.10/plugins/sonar-l10n-en-plugin/src/main/resources/org/sonar/l10n/core.properties"));
   }
 }
