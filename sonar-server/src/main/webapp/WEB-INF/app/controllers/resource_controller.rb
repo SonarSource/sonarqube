@@ -55,10 +55,14 @@ class ResourceController < ApplicationController
   def load_extensions
     @extensions=[]
     java_facade.getResourceTabs(@resource.scope, @resource.qualifier, @resource.language).each do |tab|
-      tab.getUserRoles().each do |role|
-        if has_role?(role, @resource)
-          @extensions<<tab
-          break
+      if tab.getUserRoles().empty?
+        @extensions<<tab
+      else
+        tab.getUserRoles().each do |role|
+          if has_role?(role, @resource)
+            @extensions<<tab
+            break
+          end
         end
       end
     end
@@ -69,7 +73,6 @@ class ResourceController < ApplicationController
     elsif !params[:metric].blank?
       metric=Metric.by_key(params[:metric])
       @extension=@extensions.find{|extension| extension.getDefaultTabForMetrics().include?(metric.key)}
-
     end
     @extension=@extensions.find{|extension| extension.isDefaultTab()} if @extension==nil
   end
