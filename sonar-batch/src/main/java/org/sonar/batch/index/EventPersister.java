@@ -46,7 +46,7 @@ public final class EventPersister {
   }
 
   public void deleteEvent(Event event) {
-    session.remove(event);
+    session.removeWithoutFlush(event);
     session.commit();
   }
 
