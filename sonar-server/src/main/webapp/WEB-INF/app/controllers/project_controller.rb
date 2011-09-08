@@ -40,7 +40,7 @@ class ProjectController < ApplicationController
   def delete
     if params[:id]
       @project = Project.by_key(params[:id])
-      if @project && is_admin?(@project)
+      if @project && @project.project? && is_admin?(@project)
         Project.delete_project(@project)
       end
     end

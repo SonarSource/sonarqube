@@ -56,16 +56,15 @@ class Api::ProjectsController < Api::ApiController
   # curl -X DELETE  http://localhost:9000/api/projects/<key> -v -u admin:admin
   #
   def destroy
-    begin
-      if params[:id].present?
-        project = Project.by_key(params[:id])
-        Project.delete_project(project)
-      end
-      render_success("Project deleted")
-    rescue Exception => e
-      logger.error("Fails to execute #{request.url} : #{e.message}")
-      render_error(e.message, 500)
-    end
+    bad_request("Missing project key") unless params[:id].present?
+     
+    project = Project.by_key(params[:id])
+    bad_request("Not valid project") unless project
+    access_denied unless is_admin?(project)
+    bad_request("Not valid project") unless project.project?
+      
+    Project.delete_project(project)
+    render_success("Project deleted")
   end
   
   private
