@@ -124,11 +124,11 @@ SonarWidgets.StackArea.prototype.render = function() {
 	    .extend(area)
 	    .fillStyle(null)
 	    .strokeStyle(null)
-	    .anchor(function() {return idx == 0 ? "left" : (idx == idx_numbers-1 ? "right" : "center");})
+	    .anchor(function() {return (idx == idx_numbers-1 || vis.mouse().x > w*4/5) ? "right" : (vis.mouse().x < w/5 ? "left" : "center");})
 	    .add(pv.Label)
 	    .visible(function(d) {return this.index == idx && d.y != 0;})
 	    .font(function(d) { return Math.round(5 + Math.sqrt(y(d.y))) + "px sans-serif";})
-	    .textStyle("#FFF")
+	    .textStyle("#DDD")
 	    .text(function(d) {return metrics[this.parent.index] + ": " + d.y;});
 	
 	/* The total cost of the selected dot in the header. */
