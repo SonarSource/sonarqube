@@ -24,7 +24,7 @@ import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 
 public final class FakeMavenPluginExecutor implements MavenPluginExecutor {
-  public void execute(Project project, String goal) {
+  public void execute(Project project, ProjectDefinition projectDef, String goal) {
     // do nothing
   }
 

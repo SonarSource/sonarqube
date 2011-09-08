@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.bootstrap;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
@@ -26,13 +29,10 @@ import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.MavenPluginExecutor;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 public class BootstrapModuleTest {
 
   class MyMavenPluginExecutor implements MavenPluginExecutor {
-    public void execute(Project project, String goal) {
+    public void execute(Project project, ProjectDefinition projectDef, String goal) {
     }
 
     public MavenPluginHandler execute(Project project, ProjectDefinition projectDef, MavenPluginHandler handler) {
