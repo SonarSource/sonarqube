@@ -78,7 +78,7 @@ public class CpdSensor implements Sensor {
 
   public void analyse(Project project, SensorContext context) {
     CpdEngine engine = getEngine(project);
-    Logs.INFO.info("{} would be used", engine);
+    Logs.INFO.info("{} is used", engine);
     engine.analyse(project, context);
   }
 
