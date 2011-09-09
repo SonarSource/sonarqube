@@ -72,7 +72,14 @@
   # Prepare also event structure if required
   unless widget_properties["hideEvents"]
     events = {}
-    Event.find(:all, :conditions => {:resource_id => @resource.id}, :order => 'event_date').each() do |event|
+    unless from_date
+      # find the oldest date
+      metric_data_map.values.each() do |metric_data_array|
+        first_date = Time.parse(metric_data_array[0][:date])
+        from_date = first_date if !from_date || from_date > first_date  
+      end
+    end
+    Event.find(:all, :conditions => ["resource_id=? AND event_date>=?", @resource.id, from_date], :order => 'event_date').each() do |event|
       if events[event.event_date]
         events[event.event_date] << event
       else

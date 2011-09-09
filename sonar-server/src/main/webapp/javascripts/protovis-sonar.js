@@ -302,7 +302,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 		.height(h)
 		.left(20)
 		.right(20)
-		.bottom(20)
+		.bottom(30)
 		.top(5)
 		.strokeStyle("#CCC");
 
@@ -310,8 +310,8 @@ SonarWidgets.Timeline.prototype.render = function() {
 	vis.add(pv.Rule)
 		.data(x.ticks())
 		.left(x)
-		.bottom(-5)
-		.height(5)
+		.bottom(-10)
+		.height(10)
 		.anchor("bottom")
 		.add(pv.Label)
 		.text(x.tickFormat);
@@ -361,8 +361,9 @@ SonarWidgets.Timeline.prototype.render = function() {
 		.bottom(0)
 		.anchor("top")
 		.add(pv.Dot)
-		.bottom(6)
+		.bottom(-6)
 		.shape("triangle")
+		.angle(pv.radians(180))
 		.strokeStyle("grey")
 		.fillStyle(function(e) {return e.sid == snapshots[idx].sid ? eventHoverColor : eventColor;})
 		.add(pv.Dot)
@@ -382,7 +383,8 @@ SonarWidgets.Timeline.prototype.render = function() {
 	/* An invisible bar to capture events (without flickering). */
 	vis.add(pv.Bar)
 		.fillStyle("rgba(0,0,0,.001)")
-		.width(w+10)
+		.width(w+30)
+		.height(h+30)
 		.event("mouseout", function() {
 			i = -1;
 			return vis;
