@@ -5,7 +5,7 @@
 <% else %>
 <% end %>
 <p>
-  TODO....
+  Speech sur l'utilité de la clé....
 </p>
 
 <% form_tag :action => :save do %>
@@ -25,7 +25,7 @@
     <% end %>
     <tr>
       <td colspan="3">
-        <%= submit_tag message('server_key_configuration.save'), :disable_with => message('server_key_configuration.saving') %>
+        <%= submit_tag message('server_key_configuration.generate_button'), :disable_with => message('server_key_configuration.generating_button') %>
       </td>
     </tr>
     </tfoot>
@@ -41,7 +41,7 @@
     </tr>
     <tr class="odd">
       <td style="padding:  10px">
-        <h3>IP Address</h3>
+        <h3>Fixed IP Address</h3>
         <p class="marginbottom10">The IP address is .... Choose one of the following:</p>
         <ul class="marginbottom10 bullet">
             <% @valid_addresses.each_with_index do |ip_address, index| %>
