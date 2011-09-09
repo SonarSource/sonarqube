@@ -32,7 +32,7 @@ class UsersController < ApplicationController
     if user.save
       flash[:notice] = 'User is created.'
     end
-    
+
     to_index(user.errors, nil);
   end
 
@@ -68,12 +68,18 @@ class UsersController < ApplicationController
     redirect_to(:action => 'index', :id => params[:id])
   end
 
+  def change_password
+    @users = User.find(:all, :include => 'groups', :order => 'name')
+    @user = User.find(params[:id])
+    render :action => 'index', :id => params[:id]
+  end
+
   def update
     user = User.find(params[:id])
 
     if user.login!=params[:user][:login]
       flash[:error] = 'Login can not be changed.'
-      
+
     elsif user.update_attributes(params[:user])
       flash[:notice] = 'User was successfully updated.'
     end
@@ -100,7 +106,7 @@ class UsersController < ApplicationController
 
   def set_groups
     @user = User.find(params[:id])
-    
+
     if  @user.set_groups(params[:groups])
       flash[:notice] = 'User is updated.'
     end
@@ -115,7 +121,7 @@ class UsersController < ApplicationController
 
     redirect_to(:action => 'index', :id => id)
   end
-  
+
   def toggle_edit_mode()
     current_user.toggle_edit_mode
     redirect_back_or_default(:controller => 'project')
@@ -129,11 +135,11 @@ class UsersController < ApplicationController
     user.groups<<default_group if default_group
     user
   end
-  
+
   def autocomplete
     @users = User.find(:all, :conditions => ["UPPER(name) like ?", params[:user_name_start].clone.upcase+"%"])
     @char_count = params[:user_name_start].size
     render :partial => 'autocomplete'
   end
-  
+
 end
