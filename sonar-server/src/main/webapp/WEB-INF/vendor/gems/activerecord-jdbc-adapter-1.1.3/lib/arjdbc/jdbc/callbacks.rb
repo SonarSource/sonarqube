@@ -37,7 +37,12 @@ module ActiveRecord
       end
 
       def on_checkout
-        reconnect!
+        #sonar
+        # Why do we try to reconnect ? It opens two connections instead of a single one.
+        # Commenting the reconnection allows to have a single JDBC connection per HTTP request
+        # https://jira.codehaus.org/browse/SONAR-2784
+        #reconnect!
+        #/sonar
       end
     end
   end

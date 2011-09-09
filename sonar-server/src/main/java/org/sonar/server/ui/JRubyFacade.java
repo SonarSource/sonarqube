@@ -284,8 +284,13 @@ public final class JRubyFacade {
     return getContainer().getComponent(ServerKeyGenerator.class).generate(organization, ipAddress);
   }
 
-  public Connection getConnection() throws SQLException {
-    return getContainer().getComponent(DatabaseConnector.class).getConnection();
+  public Connection getConnection() {
+    try {
+      return getContainer().getComponent(DatabaseConnector.class).getConnection();
+    } catch (Exception e) {
+      /* activerecord does not correctly manage exceptions when connection can not be opened. */
+      return null;
+    }
   }
 
   public Object getCoreComponentByClassname(String className) {

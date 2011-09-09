@@ -13,6 +13,8 @@ module ActiveRecord
           config[:connection_alive_sql] ||= "select 1"
 
           # sonar
+          # ActiveRecord must transfer the responsibility of connection pool to the Sonar,
+          # even if JNDI datasource is not used.
           @jndi_connection = true
           # /sonar
           @connection = nil
