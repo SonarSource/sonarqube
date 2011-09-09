@@ -63,7 +63,7 @@ SonarWidgets.StackArea.prototype.render = function() {
 	}
 	
 	/* Computes minimum width of left margin according to the max Y value so that the Y-axis is correctly displayed */
-	var leftMargin = 20;
+	var leftMargin = 25;
 	minMargin = (Math.round(maxY) + "").length * 7;
 	if (minMargin > leftMargin) { leftMargin = minMargin; }
 	
@@ -76,6 +76,14 @@ SonarWidgets.StackArea.prototype.render = function() {
 	var y = pv.Scale.linear(0, maxY).range(0, h-headerHeight);
 	var idx_numbers = trendData[0].size();
 	var idx = idx_numbers - 1;
+	
+	function computeIdx(xPixels) {
+		var mx = x.invert(xPixels);
+		var i = pv.search(trendData[0].map(function(d) {return d.x;}), mx);
+		i = i < 0 ? (-i - 2) : i;
+		i = i < 0 ? 0 : i;
+		return i;
+	}
 
 	/* The root panel. */
 	var vis = new pv.Panel()
@@ -118,13 +126,15 @@ SonarWidgets.StackArea.prototype.render = function() {
 	    .strokeStyle("rgba(128,128,128,.8)");
 	
 	/* Stack labels. */
+	var firstIdx = computeIdx(w/5);
+	var lastIdx = computeIdx(w*4/5);
 	vis.add(pv.Panel)
 	    .extend(area.parent)
 	    .add(pv.Area)
 	    .extend(area)
 	    .fillStyle(null)
 	    .strokeStyle(null)
-	    .anchor(function() {return (idx == idx_numbers-1 || vis.mouse().x > w*4/5) ? "right" : (vis.mouse().x < w/5 ? "left" : "center");})
+	    .anchor(function() {return (idx==idx_numbers-1 || idx > lastIdx) ? "right" : ((idx==0 || idx < firstIdx) ? "left" : "center");})
 	    .add(pv.Label)
 	    .visible(function(d) {return this.index == idx && d.y != 0;})
 	    .font(function(d) { return Math.round(5 + Math.sqrt(y(d.y))) + "px sans-serif";})
@@ -187,10 +197,7 @@ SonarWidgets.StackArea.prototype.render = function() {
 			return vis;
 		})
 		.event("mousemove", function() {
-			var mx = x.invert(vis.mouse().x);
-			idx = pv.search(trendData[0].map(function(d) {return d.x;}), mx);
-			idx = idx < 0 ? (-idx - 2) : idx;
-			idx = idx < 0 ? 0 : idx;
+			idx = computeIdx(vis.mouse().x);
 			return vis;
 		});
 	
