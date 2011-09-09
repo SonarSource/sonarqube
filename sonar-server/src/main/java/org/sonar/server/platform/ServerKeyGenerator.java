@@ -19,14 +19,18 @@
  */
 package org.sonar.server.platform;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.Logs;
 
 import java.io.UnsupportedEncodingException;
-import java.net.*;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Enumeration;
+import java.util.List;
 
 /**
  * @since 2.11
@@ -50,34 +54,15 @@ public class ServerKeyGenerator {
     this.acceptPrivateAddress = acceptPrivateAddress;
   }
 
-  public String generate(String organization, String baseUrl) {
+  public String generate(String organization, String ipAddress) {
     String key = null;
-    if (StringUtils.isNotBlank(organization) && StringUtils.isNotBlank(baseUrl)) {
-      InetAddress address = extractAddressFromUrl(baseUrl);
-      if (address != null && isFixed(address) && isOwner(address)) {
-        key = toKey(organization, address);
+    if (StringUtils.isNotBlank(organization) && StringUtils.isNotBlank(ipAddress)) {
+      InetAddress inetAddress = toValidAddress(ipAddress);
+      if (inetAddress != null) {
+        key = toKey(organization, inetAddress);
       }
     }
     return key;
-  }
-
-  boolean isOwner(InetAddress address) {
-    try {
-      Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
-      while (networkInterfaces.hasMoreElements()) {
-        NetworkInterface networkInterface = networkInterfaces.nextElement();
-        Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
-        while (addresses.hasMoreElements()) {
-          InetAddress ownedAddress = addresses.nextElement();
-          if (ownedAddress.equals(address)) {
-            return true;
-          }
-        }
-      }
-    } catch (SocketException e) {
-      LoggerFactory.getLogger(ServerKeyGenerator.class).error("Fail to verify server key. Network interfaces can't be browsed.", e);
-    }
-    return false;
   }
 
   boolean isFixed(InetAddress address) {
@@ -85,22 +70,6 @@ public class ServerKeyGenerator {
     // Link local addresses are in the range 169.254/16 (IPv4) or fe80::/10 (IPv6). They are "autoconfiguration" addresses.
     // They can assigned pseudorandomly, so they don't guarantee to be the same between two server startups.
     return acceptPrivateAddress || (!address.isLoopbackAddress() && !address.isLinkLocalAddress());
-  }
-
-  InetAddress extractAddressFromUrl(String baseUrl) {
-    if (StringUtils.isBlank(baseUrl)) {
-      return null;
-    }
-    try {
-      URL url = new URL(baseUrl);
-      return InetAddress.getByName(url.getHost());
-
-    } catch (MalformedURLException e) {
-      throw new IllegalArgumentException("Server base URL is malformed: " + baseUrl, e);
-
-    } catch (UnknownHostException e) {
-      throw new IllegalArgumentException("Server base URL is unknown: " + baseUrl, e);
-    }
   }
 
   String toKey(String organization, InetAddress address) {
@@ -111,5 +80,40 @@ public class ServerKeyGenerator {
     } catch (UnsupportedEncodingException e) {
       throw new IllegalArgumentException("Organization is not UTF-8 encoded: " + organization, e);
     }
+  }
+
+  public InetAddress toValidAddress(String ipAddress) {
+    if (StringUtils.isNotBlank(ipAddress)) {
+      List<InetAddress> validAddresses = getAvailableAddresses();
+      try {
+        InetAddress address = InetAddress.getByName(ipAddress);
+        if (validAddresses.contains(address)) {
+          return address;
+        }
+      } catch (UnknownHostException e) {
+        // ignore, not valid property
+      }
+    }
+    return null;
+  }
+
+  public List<InetAddress> getAvailableAddresses() {
+    List<InetAddress> result = Lists.newArrayList();
+    try {
+      Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+      while (networkInterfaces.hasMoreElements()) {
+        NetworkInterface networkInterface = networkInterfaces.nextElement();
+        Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
+        while (addresses.hasMoreElements()) {
+          InetAddress ownedAddress = addresses.nextElement();
+          if (isFixed(ownedAddress)) {
+            result.add(ownedAddress);
+          }
+        }
+      }
+    } catch (SocketException e) {
+      LoggerFactory.getLogger(ServerKeyGenerator.class).error("Fail to browse network interfaces", e);
+    }
+    return result;
   }
 }

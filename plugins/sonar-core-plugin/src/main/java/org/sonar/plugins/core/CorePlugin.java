@@ -45,17 +45,10 @@ import java.util.List;
 
 @Properties({
     @Property(
-        key = CoreProperties.ORGANIZATION,
-        name = "Organization",
-        description = "Identify your installation. Required to generate the server key and to benefit from licensed plugins. Server must be restarted for the change to take effect.",
-        global = true,
-        category = CoreProperties.CATEGORY_GENERAL
-    ),
-    @Property(
         key = CoreProperties.SERVER_BASE_URL,
         defaultValue = CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE,
         name = "Server base URL",
-        description = "HTTP address of the Sonar server, such as <i>http://yourhost.yourdomain/sonar</i>. This value is used i.e. to create links in emails and to generate server key.",
+        description = "HTTP URL of this Sonar server, such as <i>http://yourhost.yourdomain/sonar</i>. This value is used i.e. to create links in emails.",
         project = false,
         global = true,
         category = CoreProperties.CATEGORY_GENERAL),

@@ -63,31 +63,20 @@ public class ServerKeyGeneratorTest {
   }
 
   @Test
-  public void shouldBeAddressOwner() throws UnknownHostException {
-    assertThat(new ServerKeyGenerator().isOwner(InetAddress.getByName("sonarsource.com")), Is.is(false));
-    assertThat(new ServerKeyGenerator().isOwner(InetAddress.getByName("localhost")), Is.is(true));
-    assertThat(new ServerKeyGenerator().isOwner(InetAddress.getByName("127.0.0.1")), Is.is(true));
-  }
-
-  @Test
   public void keyShouldBeUniquePerOrganization() {
     ServerKeyGenerator generator = new ServerKeyGenerator(true);
-    String k1 = generator.generate("Corp One", "http://localhost:9000");
-    String k2 = generator.generate("Corp Two", "http://localhost:9000");
+
+    String k1 = generator.generate("Corp One", "127.0.0.1");
+    String k2 = generator.generate("Corp Two", "127.0.0.1");
     assertThat(StringUtils.equals(k1, k2), Is.is(false));
   }
 
   @Test
   public void keyShouldBeReproducible() {
     ServerKeyGenerator generator = new ServerKeyGenerator(true);
-    String k1 = generator.generate("SonarSource", "http://localhost:9000");
-    String k2 = generator.generate("SonarSource", "http://localhost:9000");
+    String k1 = generator.generate("SonarSource", "127.0.0.1");
+    String k2 = generator.generate("SonarSource", "127.0.0.1");
     assertThat(StringUtils.equals(k1, k2), Is.is(true));
   }
 
-  @Test
-  public void shouldExtractAddressFromUrl() {
-    assertThat(new ServerKeyGenerator().extractAddressFromUrl("https://localhost:9000").getHostAddress(), Is.is("127.0.0.1"));
-    assertThat(new ServerKeyGenerator().extractAddressFromUrl("http://sonarsource.com/sonar").getHostName(), Is.is("sonarsource.com"));
-  }
 }

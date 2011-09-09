@@ -44,11 +44,13 @@ import org.sonar.server.filters.FilterExecutor;
 import org.sonar.server.filters.FilterResult;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.ServerKeyGenerator;
 import org.sonar.server.plugins.*;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.updatecenter.common.Version;
 
+import java.net.InetAddress;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -272,6 +274,14 @@ public final class JRubyFacade {
 
   public String getConfigurationValue(String key) {
     return getContainer().getComponent(Configuration.class).getString(key, null);
+  }
+
+  public List<InetAddress> getValidInetAddressesForServerKey() {
+    return getContainer().getComponent(ServerKeyGenerator.class).getAvailableAddresses();
+  }
+
+  public String generateServerKey(String organization, String ipAddress) {
+    return getContainer().getComponent(ServerKeyGenerator.class).generate(organization, ipAddress);
   }
 
   public Connection getConnection() throws SQLException {

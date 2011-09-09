@@ -30,6 +30,7 @@ class EmailConfigurationController < ApplicationController
     @smtp_password = Property.value(configuration::SMTP_PASSWORD, nil, configuration::SMTP_PASSWORD_DEFAULT)
     @email_from = Property.value(configuration::FROM, nil, configuration::FROM_DEFAULT)
     @email_prefix = Property.value(configuration::PREFIX, nil, configuration::PREFIX_DEFAULT)
+    params[:layout]='false'
   end
 
   def save

@@ -20,6 +20,8 @@
 class SettingsController < ApplicationController
 
   SECTION=Navigation::SECTION_CONFIGURATION
+  
+  SPECIAL_CATEGORIES=['email', 'server_key']
 
   verify :method => :post, :only => ['update'], :redirect_to => {:action => :index}
 
@@ -79,6 +81,9 @@ class SettingsController < ApplicationController
         @properties_per_category[category]||=[]
         @properties_per_category[category]<<property
       end
+    end
+    SPECIAL_CATEGORIES.each do |category|
+      @properties_per_category[category]=[]
     end
   end
 end

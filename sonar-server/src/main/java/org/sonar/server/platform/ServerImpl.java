@@ -43,16 +43,14 @@ public final class ServerImpl extends Server {
    * This component can't use Configuration because of startup sequence. It must be started before plugins.
    */
   private DatabaseSessionFactory dbSessionFactory;
-  private ServerKeyGenerator keyGenerator;
 
   public ServerImpl(DatabaseSessionFactory dbSessionFactory) {
-    this(dbSessionFactory, new ServerKeyGenerator(), new Date());
+    this(dbSessionFactory, new Date());
   }
 
-  ServerImpl(DatabaseSessionFactory dbSessionFactory, ServerKeyGenerator keyGenerator, Date startedAt) {
+  ServerImpl(DatabaseSessionFactory dbSessionFactory, Date startedAt) {
     this.dbSessionFactory = dbSessionFactory;
     this.startedAt = startedAt;
-    this.keyGenerator = keyGenerator;
   }
 
   public void start() {
@@ -70,11 +68,8 @@ public final class ServerImpl extends Server {
 
   public String getKey() {
     DatabaseSession session = dbSessionFactory.getSession();
-    Property organization = session.getSingleResult(Property.class, "key", CoreProperties.ORGANIZATION);
-    Property baseUrl = session.getSingleResult(Property.class, "key", CoreProperties.SERVER_BASE_URL);
-    return keyGenerator.generate(
-        organization != null ? organization.getValue() : null,
-        baseUrl != null ? baseUrl.getValue() : null);
+    Property serverKey = session.getSingleResult(Property.class, "key", CoreProperties.SERVER_KEY);
+    return (serverKey!= null ? serverKey.getValue() : null);
   }
 
   public String getId() {

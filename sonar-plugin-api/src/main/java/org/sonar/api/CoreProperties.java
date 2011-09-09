@@ -245,5 +245,10 @@ public interface CoreProperties {
   /**
    * @since 2.11
    */
-  String SERVER_KEY = "sonar.serverKey.secured";
+  String SERVER_KEY = "sonar.server_key";
+
+  /**
+   * @since 2.11
+   */
+  String SERVER_KEY_IP_ADDRESS = "sonar.server_key.ip_address";
 }

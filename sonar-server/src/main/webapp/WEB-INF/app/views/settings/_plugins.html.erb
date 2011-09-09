@@ -44,8 +44,8 @@
           </thead>
           <tbody>
           <%
-             @properties_per_category.keys.sort_by{|category| message("property.category.#{category}", :default => category)}.each do |category|
-               unless @properties_per_category[category].empty?
+             @properties_per_category.keys.sort_by{|category| message("property.category.#{category}", :default => category).upcase}.each do |category|
+               if !@properties_per_category[category].empty? || SettingsController::SPECIAL_CATEGORIES.include?(category)
           %>
               <tr class="select <%= cycle('even', 'odd', :name => 'category') -%> <%= 'selected' if @category==category -%>" id="select_<%= category -%>">
                 <td><%= link_to message("property.category.#{category}", :default => category), :overwrite_params => {:category => category} -%></td>
@@ -59,10 +59,14 @@
       </td>
 
       <td class="column">
-        <% if @category && @properties_per_category[@category] && !@properties_per_category[@category].empty?
-          category_name = message("property.category.#{@category}", :default => @category)
+        <% if @category && @properties_per_category[@category]
+             category_name = message("property.category.#{@category}", :default => @category)
+             if SettingsController::SPECIAL_CATEGORIES.include?(@category)
         %>
-
+           <%= render :partial => 'special', :locals => {:url => url_for(:controller => "#{@category}_configuration")} -%>
+        <%
+             elsif !@properties_per_category[@category].empty?
+        %>
           <% form_tag :controller => :settings, :action => :update do %>
             <%= hidden_field_tag('category', @category) -%>
             <% if @project %>
@@ -83,7 +87,7 @@
                    value = Property.value(property.key(), (@project ? @project.id : nil), '')
               %>
                 <tr class="<%= cycle('even', 'odd', :name => 'properties') -%>">
-                  <td style="padding:  10px">
+                  <td style="padding: 10px">
                     <h3>
                       <%= message("property.#{property.key()}.name", :default => property.name()) -%>
                       <% if property.project() %>
@@ -120,7 +124,9 @@
             <% save_message=message('settings.save_category', :params => [category_name]) %>
             <%= submit_tag(save_message, :disable_with => save_message, :id => 'save') -%>
           <% end %>
-        <% end %>
+        <% end
+        end
+        %>
       </td>
     </tr>
   </table>
