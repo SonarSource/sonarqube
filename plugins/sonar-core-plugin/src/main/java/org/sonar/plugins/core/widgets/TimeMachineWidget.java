@@ -55,6 +55,5 @@ public class TimeMachineWidget extends AbstractRubyTemplate implements RubyRails
   @Override
   protected String getTemplatePath() {
     return "/org/sonar/plugins/core/widgets/time_machine.html.erb";
-    //return "/Users/fbellingard/Documents/Sonar/repos/sonar/plugins/sonar-core-plugin/src/main/resources/org/sonar/plugins/core/widgets/time_machine.html.erb";
   }
 }

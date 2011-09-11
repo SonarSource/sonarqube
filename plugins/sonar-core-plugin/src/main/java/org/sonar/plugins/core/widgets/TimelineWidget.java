@@ -49,6 +49,5 @@ public class TimelineWidget extends AbstractRubyTemplate implements RubyRailsWid
   @Override
   protected String getTemplatePath() {
     return "/org/sonar/plugins/core/widgets/timeline.html.erb";
-    //return "/Users/fbellingard/Documents/Sonar/repos/sonar/plugins/sonar-core-plugin/src/main/resources/org/sonar/plugins/core/widgets/timeline.html.erb";
   }
 }
