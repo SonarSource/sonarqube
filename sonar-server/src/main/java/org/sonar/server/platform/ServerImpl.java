@@ -66,10 +66,10 @@ public final class ServerImpl extends Server {
     }
   }
 
-  public String getKey() {
+  public String getPermanentServerId() {
     DatabaseSession session = dbSessionFactory.getSession();
-    Property serverKey = session.getSingleResult(Property.class, "key", CoreProperties.SERVER_KEY);
-    return (serverKey!= null ? serverKey.getValue() : null);
+    Property serverId = session.getSingleResult(Property.class, "key", CoreProperties.PERMANENT_SERVER_ID);
+    return (serverId!= null ? serverId.getValue() : null);
   }
 
   public String getId() {

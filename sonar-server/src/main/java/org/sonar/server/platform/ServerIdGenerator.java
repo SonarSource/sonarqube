@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * @since 2.11
  */
-public class ServerKeyGenerator {
+public class ServerIdGenerator {
 
   /**
    * Increment this version each time the algorithm is changed. Do not exceed 9.
@@ -46,23 +46,23 @@ public class ServerKeyGenerator {
 
   private final boolean acceptPrivateAddress;
 
-  public ServerKeyGenerator() {
+  public ServerIdGenerator() {
     this(false);
   }
 
-  ServerKeyGenerator(boolean acceptPrivateAddress) {
+  ServerIdGenerator(boolean acceptPrivateAddress) {
     this.acceptPrivateAddress = acceptPrivateAddress;
   }
 
-  public String generate(String organization, String ipAddress) {
-    String key = null;
-    if (StringUtils.isNotBlank(organization) && StringUtils.isNotBlank(ipAddress)) {
+  public String generate(String organisation, String ipAddress) {
+    String id = null;
+    if (StringUtils.isNotBlank(organisation) && StringUtils.isNotBlank(ipAddress)) {
       InetAddress inetAddress = toValidAddress(ipAddress);
       if (inetAddress != null) {
-        key = toKey(organization, inetAddress);
+        id = toId(organisation, inetAddress);
       }
     }
-    return key;
+    return id;
   }
 
   boolean isFixed(InetAddress address) {
@@ -72,13 +72,13 @@ public class ServerKeyGenerator {
     return acceptPrivateAddress || (!address.isLoopbackAddress() && !address.isLinkLocalAddress());
   }
 
-  String toKey(String organization, InetAddress address) {
-    String key = new StringBuilder().append(organization).append("-").append(address.getHostAddress()).toString();
+  String toId(String organisation, InetAddress address) {
+    String id = new StringBuilder().append(organisation).append("-").append(address.getHostAddress()).toString();
     try {
-      return VERSION + DigestUtils.shaHex(key.getBytes("UTF-8")).substring(0, CHECKSUM_SIZE);
+      return VERSION + DigestUtils.shaHex(id.getBytes("UTF-8")).substring(0, CHECKSUM_SIZE);
 
     } catch (UnsupportedEncodingException e) {
-      throw new IllegalArgumentException("Organization is not UTF-8 encoded: " + organization, e);
+      throw new IllegalArgumentException("Organisation is not UTF-8 encoded: " + organisation, e);
     }
   }
 
@@ -112,7 +112,7 @@ public class ServerKeyGenerator {
         }
       }
     } catch (SocketException e) {
-      LoggerFactory.getLogger(ServerKeyGenerator.class).error("Fail to browse network interfaces", e);
+      LoggerFactory.getLogger(ServerIdGenerator.class).error("Fail to browse network interfaces", e);
     }
     return result;
   }

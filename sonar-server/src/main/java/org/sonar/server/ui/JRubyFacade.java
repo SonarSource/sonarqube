@@ -44,7 +44,7 @@ import org.sonar.server.filters.FilterExecutor;
 import org.sonar.server.filters.FilterResult;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.platform.ServerKeyGenerator;
+import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.plugins.*;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
@@ -52,7 +52,6 @@ import org.sonar.updatecenter.common.Version;
 
 import java.net.InetAddress;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -276,12 +275,12 @@ public final class JRubyFacade {
     return getContainer().getComponent(Configuration.class).getString(key, null);
   }
 
-  public List<InetAddress> getValidInetAddressesForServerKey() {
-    return getContainer().getComponent(ServerKeyGenerator.class).getAvailableAddresses();
+  public List<InetAddress> getValidInetAddressesForServerId() {
+    return getContainer().getComponent(ServerIdGenerator.class).getAvailableAddresses();
   }
 
-  public String generateServerKey(String organization, String ipAddress) {
-    return getContainer().getComponent(ServerKeyGenerator.class).generate(organization, ipAddress);
+  public String generateServerId(String organisation, String ipAddress) {
+    return getContainer().getComponent(ServerIdGenerator.class).generate(organisation, ipAddress);
   }
 
   public Connection getConnection() {

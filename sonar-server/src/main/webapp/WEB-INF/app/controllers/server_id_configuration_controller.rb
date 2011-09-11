@@ -17,37 +17,42 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class ServerKeyConfigurationController < ApplicationController
+class ServerIdConfigurationController < ApplicationController
 
   SECTION=Navigation::SECTION_CONFIGURATION
-  PROPERTY_SERVER_KEY = 'sonar.server_key'
-  PROPERTY_IP_ADDRESS = 'sonar.server_key.ip_address'
-  PROPERTY_ORGANIZATION = 'sonar.organization'
+  PROPERTY_SERVER_ID = 'sonar.server_id'
+  PROPERTY_IP_ADDRESS = 'sonar.server_id.ip_address'
+  PROPERTY_ORGANISATION = 'sonar.organisation'
 
   before_filter :admin_required
-  verify :method => :post, :only => [:save], :redirect_to => {:action => :index}
+  verify :method => :post, :only => [:generate], :redirect_to => {:action => :index}
 
   def index
-    @server_key = Property.value(PROPERTY_SERVER_KEY)
-    @organization = Property.value(PROPERTY_ORGANIZATION)
+    @server_id = Property.value(PROPERTY_SERVER_ID)
+    @organisation = Property.value(PROPERTY_ORGANISATION)
     @address = Property.value(PROPERTY_IP_ADDRESS)
-    @valid_addresses = java_facade.getValidInetAddressesForServerKey()
+    @valid_addresses = java_facade.getValidInetAddressesForServerId()
+    @bad_id = false
+    if @server_id.present?
+      id = java_facade.generateServerId(@organisation, @address)
+      @bad_id = (@server_id != id)
+    end
     params[:layout]='false'
   end
 
-  def save
-    organization = params[:organization]
-    Property.set(PROPERTY_ORGANIZATION, organization)
+  def generate
+    organisation = params[:organisation]
+    Property.set(PROPERTY_ORGANISATION, organisation)
 
     ip_address=params[:address]
     Property.set(PROPERTY_IP_ADDRESS, ip_address)
 
-    key = java_facade.generate_server_key(organization, ip_address)
-    if key
-      Property.set(PROPERTY_SERVER_KEY, key)
+    id = java_facade.generateServerId(organisation, ip_address)
+    if id
+      Property.set(PROPERTY_SERVER_ID, id)
     else
-      Property.clear(PROPERTY_SERVER_KEY)
-      flash[:error] = 'Please set valid organization and IP address'
+      Property.clear(PROPERTY_SERVER_ID)
+      flash[:error] = Api::Utils.message('server_id_configuration.generation_error')
     end
   
     redirect_to :action => 'index'

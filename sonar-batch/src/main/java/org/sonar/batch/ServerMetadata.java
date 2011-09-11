@@ -63,7 +63,7 @@ public class ServerMetadata extends Server {
   }
 
   @Override
-  public String getKey() {
-    return conf.getString(CoreProperties.SERVER_KEY);
+  public String getPermanentServerId() {
+    return conf.getString(CoreProperties.PERMANENT_SERVER_ID);
   }
 }

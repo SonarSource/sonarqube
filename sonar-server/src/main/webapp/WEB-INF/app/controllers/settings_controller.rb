@@ -21,7 +21,7 @@ class SettingsController < ApplicationController
 
   SECTION=Navigation::SECTION_CONFIGURATION
   
-  SPECIAL_CATEGORIES=['email', 'server_key']
+  SPECIAL_CATEGORIES=['email', 'server_id']
 
   verify :method => :post, :only => ['update'], :redirect_to => {:action => :index}
 

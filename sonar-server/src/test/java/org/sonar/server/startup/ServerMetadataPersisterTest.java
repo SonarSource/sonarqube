@@ -79,7 +79,7 @@ public class ServerMetadataPersisterTest extends AbstractDbUnitTestCase {
   private Server newServer() throws ParseException {
     Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm").parse("2010-05-18 17:59");
     Server server = mock(Server.class);
-    when(server.getKey()).thenReturn("1abcdef");
+    when(server.getPermanentServerId()).thenReturn("1abcdef");
     when(server.getId()).thenReturn("123");
     when(server.getVersion()).thenReturn("2.2");
     when(server.getStartedAt()).thenReturn(date);

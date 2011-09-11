@@ -240,15 +240,15 @@ public interface CoreProperties {
   /**
    * @since 2.11
    */
-  String ORGANIZATION = "sonar.organization";
+  String ORGANISATION = "sonar.organisation";
 
   /**
    * @since 2.11
    */
-  String SERVER_KEY = "sonar.server_key";
+  String PERMANENT_SERVER_ID = "sonar.server_id";
 
   /**
    * @since 2.11
    */
-  String SERVER_KEY_IP_ADDRESS = "sonar.server_key.ip_address";
+  String SERVER_ID_IP_ADDRESS = "sonar.server_id.ip_address";
 }

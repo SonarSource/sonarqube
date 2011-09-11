@@ -1,0 +1,60 @@
+<h3 class="marginbottom10"><%= message('server_id_configuration.page') -%></h3>
+
+<% if @server_id %>
+  <p>
+    <big><b><span class="<%= @bad_id ? 'error' : 'notice' -%>"><%= @server_id -%></span></b></big>
+    <% if @bad_id %>
+      <span class="error"><%= message('server_id_configuration.bad_id') -%></span>
+    <% end %>
+  </p>
+  <br/>
+<% end %>
+
+<p>
+  <%= message('server_id_configuration.information') -%>
+</p>
+
+<% form_tag :action => 'generate' do %>
+  <table class="data marginbottom10">
+    <thead>
+    <tr>
+      <th></th>
+    </tr>
+    </thead>
+    <tfoot>
+    <tr>
+      <td colspan="3">
+        <%= submit_tag message('server_id_configuration.generate_button'), :disable_with => message('server_id_configuration.generating_button') %>
+      </td>
+    </tr>
+    </tfoot>
+    <tbody>
+    <tr class="even">
+      <td style="padding:  10px">
+        <h3><%= message('server_id_configuration.organisation.title') -%></h3>
+
+        <p class="marginbottom10"><%= message('server_id_configuration.organisation.desc') -%></p>
+
+        <p>
+          <input type="text" name="organisation" value="<%= @organisation -%>"/>
+        </p>
+      </td>
+    </tr>
+    <tr class="odd">
+      <td style="padding:  10px">
+        <h3><%= message('server_id_configuration.ip.title') -%></h3>
+
+        <p class="marginbottom10"><%= message('server_id_configuration.ip.desc') -%></p>
+        <ul class="marginbottom10 bullet">
+          <% @valid_addresses.each_with_index do |ip_address, index| %>
+            <li><span class="address_<%= index -%>"><%= ip_address.getHostAddress() -%></span></li>
+          <% end %>
+        </ul>
+        <p>
+          <input type="text" name="address" value="<%= @address -%>"/>
+        </p>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+<% end %>

@@ -44,5 +44,5 @@ public abstract class Server implements BatchComponent, ServerComponent {
   /**
    * @since 2.10
    */
-  public abstract String getKey();
+  public abstract String getPermanentServerId();
 }

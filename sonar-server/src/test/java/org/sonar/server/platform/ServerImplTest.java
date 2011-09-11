@@ -27,8 +27,6 @@ import java.io.IOException;
 import java.util.Date;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ServerImplTest extends AbstractDbUnitTestCase {
 
@@ -68,12 +66,12 @@ public class ServerImplTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void shouldLoadServerKeyFromDatabase() {
-    setupData("shouldLoadServerKeyFromDatabase");
+  public void shouldLoadServerIdFromDatabase() {
+    setupData("shouldLoadServerIdFromDatabase");
 
     ServerImpl server = new ServerImpl(getSessionFactory(), new Date());
     server.start();
 
-    assertThat(server.getKey(), Is.is("abcde"));
+    assertThat(server.getPermanentServerId(), Is.is("abcde"));
   }
 }

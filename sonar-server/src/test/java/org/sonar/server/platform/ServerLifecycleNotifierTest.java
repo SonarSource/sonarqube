@@ -100,7 +100,7 @@ class FakeServer extends Server {
     return null;
   }
 
-  public String getKey() {
+  public String getPermanentServerId() {
     return null;
   }
 }
