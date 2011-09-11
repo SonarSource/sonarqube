@@ -42,7 +42,7 @@ public class ServerIdGeneratorTest {
   @Test
   public void idShouldHaveTenCharacters() {
     String id = new ServerIdGenerator().toId("SonarSource", localhost);
-    assertThat(id.length(), Is.is(10)); // first character is version + 9 characters for checksum
+    assertThat(id.length(), Is.is(15)); // first character is version + 14 characters for checksum
     assertThat(StringUtils.isBlank(id), Is.is(false));
   }
 

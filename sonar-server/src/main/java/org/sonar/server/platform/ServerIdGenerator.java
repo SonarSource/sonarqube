@@ -42,7 +42,7 @@ public class ServerIdGenerator {
    */
   static final String VERSION = "1";
 
-  static final int CHECKSUM_SIZE = 9;
+  static final int CHECKSUM_SIZE = 14;
 
   private final boolean acceptPrivateAddress;
 
