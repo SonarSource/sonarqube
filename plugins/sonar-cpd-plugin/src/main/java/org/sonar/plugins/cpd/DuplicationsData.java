@@ -21,6 +21,7 @@ package org.sonar.plugins.cpd;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -67,7 +68,7 @@ public class DuplicationsData {
   }
 
   private String getDuplicationXMLData() {
-    Collections.sort(duplicationXMLEntries);
+    Collections.sort(duplicationXMLEntries, COMPARATOR);
     StringBuilder duplicationXML = new StringBuilder("<duplications>");
     for (XmlEntry xmlEntry : duplicationXMLEntries) {
       duplicationXML.append(xmlEntry.toString());
@@ -76,10 +77,16 @@ public class DuplicationsData {
     return duplicationXML.toString();
   }
 
-  /**
-   * Note: this class has a natural ordering that is inconsistent with equals.
-   */
-  private static final class XmlEntry implements Comparable<XmlEntry> {
+  private static final Comparator<XmlEntry> COMPARATOR = new Comparator<XmlEntry>() {
+    public int compare(XmlEntry o1, XmlEntry o2) {
+      if (o1.startLine == o2.startLine) {
+        return o1.lines - o2.lines;
+      }
+      return o1.startLine - o2.startLine;
+    }
+  };
+
+  private static final class XmlEntry {
     private String target;
     private int targetStartLine;
     private int startLine;
@@ -99,13 +106,6 @@ public class DuplicationsData {
           .append("\" target-start=\"").append(targetStartLine)
           .append("\" target-resource=\"").append(target).append("\"/>")
           .toString();
-    }
-
-    public int compareTo(XmlEntry o) {
-      if (startLine == o.startLine) {
-        return lines - o.lines;
-      }
-      return startLine - o.startLine;
     }
   }
 
