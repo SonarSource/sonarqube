@@ -115,6 +115,10 @@ public class JndiDatabaseConnector extends AbstractDatabaseConnector {
         properties.setProperty(key, dsConfig.getString(key));
       }
 
+      // This property is required by the Ruby Oracle enhanced adapter.
+      // It directly uses the Connection implementation provided by the Oracle driver
+      properties.setProperty("accessToUnderlyingConnectionAllowed", "true");
+
       datasource = BasicDataSourceFactory.createDataSource(properties);
       CustomHibernateConnectionProvider.datasource = datasource;
     } catch (Exception e) {

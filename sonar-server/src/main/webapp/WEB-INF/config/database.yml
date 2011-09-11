@@ -1,18 +1,13 @@
 base: &base
   adapter: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDialect().getActiveRecordJdbcAdapter() %>
-<% jndi_name = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.jndiName')
-   if jndi_name
-%>
-  # JNDI settings
-  jndi: <%= jndi_name %>
 <%
-  else
+  jndi_name = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.jndiName')
+  unless jndi_name
 %>
   # JDBC settings
   username: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.username' ) || 'sonar' %>
   password: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.password') || 'sonar' %>
   url: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.url') %>
-  connection_alive_sql: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.validationQuery') %>
 <%
   end
 %>
@@ -24,6 +19,15 @@ base: &base
   # PostgreSQL
   schema_search_path: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.postgreSearchPath') %>
 
+  # Oracle
+<%
+  schema = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.hibernate.default_schema')
+  if schema
+%>
+  schema: <%= schema %>
+<%
+  end
+%>
 development:
   <<: *base
 

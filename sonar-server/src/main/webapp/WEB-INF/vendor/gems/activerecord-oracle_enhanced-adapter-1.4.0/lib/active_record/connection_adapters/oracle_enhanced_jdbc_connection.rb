@@ -1,39 +1,39 @@
-begin
-  require "java"
-  require "jruby"
-
-  # ojdbc6.jar or ojdbc5.jar file should be in JRUBY_HOME/lib or should be in ENV['PATH'] or load path
-
-  java_version = java.lang.System.getProperty("java.version")
-  ojdbc_jar = if java_version =~ /^1.5/
-    "ojdbc5.jar"
-  elsif java_version >= '1.6'
-    "ojdbc6.jar"
-  else
-    nil
-  end
-
-  unless ojdbc_jar.nil? || ENV_JAVA['java.class.path'] =~ Regexp.new(ojdbc_jar)
-    # On Unix environment variable should be PATH, on Windows it is sometimes Path
-    env_path = (ENV["PATH"] || ENV["Path"] || '').split(/[:;]/)
-    # Look for JDBC driver at first in lib subdirectory (application specific JDBC file version)
-    # then in Ruby load path and finally in environment PATH
-    if ojdbc_jar_path = ['./lib'].concat($LOAD_PATH).concat(env_path).find{|d| File.exists?(File.join(d,ojdbc_jar))}
-      require File.join(ojdbc_jar_path,ojdbc_jar)
-    end
-  end
-
-  java.sql.DriverManager.registerDriver Java::oracle.jdbc.OracleDriver.new
-
-  # set tns_admin property from TNS_ADMIN environment variable
-  if !java.lang.System.get_property("oracle.net.tns_admin") && ENV["TNS_ADMIN"]
-    java.lang.System.set_property("oracle.net.tns_admin", ENV["TNS_ADMIN"])
-  end
-
-rescue LoadError, NameError
-  # JDBC driver is unavailable.
-  raise LoadError, "ERROR: ActiveRecord oracle_enhanced adapter could not load Oracle JDBC driver. Please install #{ojdbc_jar || "Oracle JDBC"} library."
-end
+#begin
+#  require "java"
+#  require "jruby"
+#
+#  # ojdbc6.jar or ojdbc5.jar file should be in JRUBY_HOME/lib or should be in ENV['PATH'] or load path
+#
+#  java_version = java.lang.System.getProperty("java.version")
+#  ojdbc_jar = if java_version =~ /^1.5/
+#    "ojdbc5.jar"
+#  elsif java_version >= '1.6'
+#    "ojdbc6.jar"
+#  else
+#    nil
+#  end
+#
+#  unless ojdbc_jar.nil? || ENV_JAVA['java.class.path'] =~ Regexp.new(ojdbc_jar)
+#    # On Unix environment variable should be PATH, on Windows it is sometimes Path
+#    env_path = (ENV["PATH"] || ENV["Path"] || '').split(/[:;]/)
+#    # Look for JDBC driver at first in lib subdirectory (application specific JDBC file version)
+#    # then in Ruby load path and finally in environment PATH
+#    if ojdbc_jar_path = ['./lib'].concat($LOAD_PATH).concat(env_path).find{|d| File.exists?(File.join(d,ojdbc_jar))}
+#      require File.join(ojdbc_jar_path,ojdbc_jar)
+#    end
+#  end
+#
+#  java.sql.DriverManager.registerDriver Java::oracle.jdbc.OracleDriver.new
+#
+#  # set tns_admin property from TNS_ADMIN environment variable
+#  if !java.lang.System.get_property("oracle.net.tns_admin") && ENV["TNS_ADMIN"]
+#    java.lang.System.set_property("oracle.net.tns_admin", ENV["TNS_ADMIN"])
+#  end
+#
+#rescue LoadError, NameError
+#  # JDBC driver is unavailable.
+#  raise LoadError, "ERROR: ActiveRecord oracle_enhanced adapter could not load Oracle JDBC driver. Please install #{ojdbc_jar || "Oracle JDBC"} library."
+#end
 
 
 module ActiveRecord
@@ -55,85 +55,20 @@ module ActiveRecord
         new_connection(@config)
       end
 
+      #sonar
       # modified method to support JNDI connections
       def new_connection(config)
-        username = nil
-
-        if config[:jndi]
-          jndi = config[:jndi].to_s
-          ctx = javax.naming.InitialContext.new
-          ds = nil
-
-          # tomcat needs first lookup method, oc4j (and maybe other application servers) need second method
-          begin
-            env = ctx.lookup('java:/comp/env')
-            ds = env.lookup(jndi)
-          rescue
-            ds = ctx.lookup(jndi)
-          end
-
-          # check if datasource supports pooled connections, otherwise use default
-          if ds.respond_to?(:pooled_connection)
-            @raw_connection = ds.pooled_connection
-          else
-            @raw_connection = ds.connection
-          end
-
-          # get Oracle JDBC connection when using DBCP in Tomcat or jBoss
-          if @raw_connection.respond_to?(:getInnermostDelegate)
-            @pooled_connection = @raw_connection
-            @raw_connection = @raw_connection.innermost_delegate
-          elsif @raw_connection.respond_to?(:getUnderlyingConnection)
-            @pooled_connection = @raw_connection
-            @raw_connection = @raw_connection.underlying_connection            
-          end
-
-          config[:driver] ||= @raw_connection.meta_data.connection.java_class.name
-          username = @raw_connection.meta_data.user_name
+        @raw_connection = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConnection()
+        if @raw_connection.respond_to?(:getInnermostDelegate)
+          @pooled_connection = @raw_connection
+          @raw_connection = @raw_connection.innermost_delegate
+        elsif @raw_connection.respond_to?(:getUnderlyingConnection)
+          @pooled_connection = @raw_connection
+          @raw_connection = @raw_connection.underlying_connection
         else
-          # to_s needed if username, password or database is specified as number in database.yml file
-          username = config[:username] && config[:username].to_s
-          password = config[:password] && config[:password].to_s
-          database = config[:database] && config[:database].to_s
-          host, port = config[:host], config[:port]
-          privilege = config[:privilege] && config[:privilege].to_s
-
-          # connection using TNS alias
-          if database && !host && !config[:url] && ENV['TNS_ADMIN']
-            url = "jdbc:oracle:thin:@#{database || 'XE'}"
-          else
-            url = config[:url] || "jdbc:oracle:thin:@#{host || 'localhost'}:#{port || 1521}:#{database || 'XE'}"
-          end
-
-          prefetch_rows = config[:prefetch_rows] || 100
-          # get session time_zone from configuration or from TZ environment variable
-          time_zone = config[:time_zone] || ENV['TZ'] || java.util.TimeZone.default.getID
-
-          properties = java.util.Properties.new
-          properties.put("user", username)
-          properties.put("password", password)
-          properties.put("defaultRowPrefetch", "#{prefetch_rows}") if prefetch_rows
-          properties.put("internal_logon", privilege) if privilege
-
-          @raw_connection = java.sql.DriverManager.getConnection(url, properties)
-
-          # Set session time zone to current time zone
-          @raw_connection.setSessionTimeZone(time_zone)
-
-          # Set default number of rows to prefetch
-          # @raw_connection.setDefaultRowPrefetch(prefetch_rows) if prefetch_rows
+          raise ArgumentError, "JDBC Datasource not supported. Please use Commons DBCP or Tomcat Connection Pool"
         end
-
-        cursor_sharing = config[:cursor_sharing] || 'force'
-        exec "alter session set cursor_sharing = #{cursor_sharing}"
-
-        # Initialize NLS parameters
-        OracleEnhancedAdapter::DEFAULT_NLS_PARAMETERS.each do |key, default_value|
-          value = config[key] || ENV[key.to_s.upcase] || default_value
-          if value
-            exec "alter session set #{key} = '#{value}'"
-          end
-        end
+        username = @raw_connection.meta_data.user_name
 
         self.autocommit = true
 
@@ -142,6 +77,7 @@ module ActiveRecord
 
         @raw_connection
       end
+      #/sonar
 
       def logoff
         @active = false
@@ -225,22 +161,22 @@ module ActiveRecord
 
       def exec_no_retry(sql)
         case sql
-        when /\A\s*(UPDATE|INSERT|DELETE)/i
-          s = @raw_connection.prepareStatement(sql)
-          s.executeUpdate
-        # it is safer for CREATE and DROP statements not to use PreparedStatement
-        # as it does not allow creation of triggers with :NEW in their definition
-        when /\A\s*(CREATE|DROP)/i
-          s = @raw_connection.createStatement()
-          # this disables SQL92 syntax processing of {...} which can result in statement execution errors
-          # if sql contains {...} in strings or comments
-          s.setEscapeProcessing(false)
-          s.execute(sql)
-          true
-        else
-          s = @raw_connection.prepareStatement(sql)
-          s.execute
-          true
+          when /\A\s*(UPDATE|INSERT|DELETE)/i
+            s = @raw_connection.prepareStatement(sql)
+            s.executeUpdate
+          # it is safer for CREATE and DROP statements not to use PreparedStatement
+          # as it does not allow creation of triggers with :NEW in their definition
+          when /\A\s*(CREATE|DROP)/i
+            s = @raw_connection.createStatement()
+            # this disables SQL92 syntax processing of {...} which can result in statement execution errors
+            # if sql contains {...} in strings or comments
+            s.setEscapeProcessing(false)
+            s.execute(sql)
+            true
+          else
+            s = @raw_connection.prepareStatement(sql)
+            s.execute
+            true
         end
       ensure
         s.close rescue nil
@@ -273,7 +209,7 @@ module ActiveRecord
             # else
             #   nil
             # end
-            
+
             # Workaround with CallableStatement
             s = @raw_connection.prepareCall("BEGIN #{sql}; END;")
             s.registerOutParameter(1, java.sql.Types::BIGINT)
@@ -300,34 +236,34 @@ module ActiveRecord
         def bind_param(position, value, col_type = nil)
           java_value = ruby_to_java_value(value, col_type)
           case value
-          when Integer
-            @raw_statement.setLong(position, java_value)
-          when Float
-            @raw_statement.setFloat(position, java_value)
-          when BigDecimal
-            @raw_statement.setBigDecimal(position, java_value)
-          when String
-            case col_type
-            when :text
-              @raw_statement.setClob(position, java_value)
-            when :binary
-              @raw_statement.setBlob(position, java_value)
-            when :raw
-              @raw_statement.setString(position, OracleEnhancedAdapter.encode_raw(java_value))
+            when Integer
+              @raw_statement.setLong(position, java_value)
+            when Float
+              @raw_statement.setFloat(position, java_value)
+            when BigDecimal
+              @raw_statement.setBigDecimal(position, java_value)
+            when String
+              case col_type
+                when :text
+                  @raw_statement.setClob(position, java_value)
+                when :binary
+                  @raw_statement.setBlob(position, java_value)
+                when :raw
+                  @raw_statement.setString(position, OracleEnhancedAdapter.encode_raw(java_value))
+                else
+                  @raw_statement.setString(position, java_value)
+              end
+            when Date, DateTime
+              @raw_statement.setDATE(position, java_value)
+            when Time
+              @raw_statement.setTimestamp(position, java_value)
+            when NilClass
+              # TODO: currently nil is always bound as NULL with VARCHAR type.
+              # When nils will actually be used by ActiveRecord as bound parameters
+              # then need to pass actual column type.
+              @raw_statement.setNull(position, java.sql.Types::VARCHAR)
             else
-              @raw_statement.setString(position, java_value)
-            end
-          when Date, DateTime
-            @raw_statement.setDATE(position, java_value)
-          when Time
-            @raw_statement.setTimestamp(position, java_value)
-          when NilClass
-            # TODO: currently nil is always bound as NULL with VARCHAR type.
-            # When nils will actually be used by ActiveRecord as bound parameters
-            # then need to pass actual column type.
-            @raw_statement.setNull(position, java.sql.Types::VARCHAR)
-          else
-            raise ArgumentError, "Don't know how to bind variable with type #{value.class}"
+              raise ArgumentError, "Don't know how to bind variable with type #{value.class}"
           end
         end
 
@@ -352,8 +288,8 @@ module ActiveRecord
         def get_metadata
           metadata = @raw_result_set.getMetaData
           column_count = metadata.getColumnCount
-          @column_names = (1..column_count).map{|i| metadata.getColumnName(i)}
-          @column_types = (1..column_count).map{|i| metadata.getColumnTypeName(i).to_sym}
+          @column_names = (1..column_count).map { |i| metadata.getColumnName(i) }
+          @column_types = (1..column_count).map { |i| metadata.getColumnTypeName(i).to_sym }
         end
 
         def get_col_names
@@ -366,7 +302,7 @@ module ActiveRecord
             row_values = []
             @column_types.each_with_index do |column_type, i|
               row_values <<
-                @connection.get_ruby_value_from_result_set(@raw_result_set, i+1, column_type, get_lob_value)
+                  @connection.get_ruby_value_from_result_set(@raw_result_set, i+1, column_type, get_lob_value)
             end
             row_values
           else
@@ -395,29 +331,29 @@ module ActiveRecord
 
         def ruby_to_java_value(value, col_type = nil)
           case value
-          when Fixnum, Float
-            value
-          when String
-            case col_type
-            when :text
-              clob = Java::OracleSql::CLOB.createTemporary(@connection.raw_connection, false, Java::OracleSql::CLOB::DURATION_SESSION)
-              clob.setString(1, value)
-              clob
-            when :binary
-              blob = Java::OracleSql::BLOB.createTemporary(@connection.raw_connection, false, Java::OracleSql::BLOB::DURATION_SESSION)
-              blob.setBytes(1, value.to_java_bytes)
-              blob
+            when Fixnum, Float
+              value
+            when String
+              case col_type
+                when :text
+                  clob = Java::OracleSql::CLOB.createTemporary(@connection.raw_connection, false, Java::OracleSql::CLOB::DURATION_SESSION)
+                  clob.setString(1, value)
+                  clob
+                when :binary
+                  blob = Java::OracleSql::BLOB.createTemporary(@connection.raw_connection, false, Java::OracleSql::BLOB::DURATION_SESSION)
+                  blob.setBytes(1, value.to_java_bytes)
+                  blob
+                else
+                  value
+              end
+            when BigDecimal
+              java.math.BigDecimal.new(value.to_s)
+            when Date, DateTime
+              Java::oracle.sql.DATE.new(value.strftime("%Y-%m-%d %H:%M:%S"))
+            when Time
+              Java::java.sql.Timestamp.new(value.year-1900, value.month-1, value.day, value.hour, value.min, value.sec, value.usec * 1000)
             else
               value
-            end
-          when BigDecimal
-            java.math.BigDecimal.new(value.to_s)
-          when Date, DateTime
-            Java::oracle.sql.DATE.new(value.strftime("%Y-%m-%d %H:%M:%S"))
-          when Time
-            Java::java.sql.Timestamp.new(value.year-1900, value.month-1, value.day, value.hour, value.min, value.sec, value.usec * 1000)
-          else
-            value
           end
         end
 
@@ -468,58 +404,58 @@ module ActiveRecord
         if is_binary
           lob.setBytes(1, value.to_java_bytes)
         else
-          lob.setString(1,value)
+          lob.setString(1, value)
         end
       end
 
       # Return NativeException / java.sql.SQLException error code
       def error_code(exception)
         case exception
-        when NativeException
-          exception.cause.getErrorCode
-        else
-          nil
+          when NativeException
+            exception.cause.getErrorCode
+          else
+            nil
         end
       end
 
       def get_ruby_value_from_result_set(rset, i, type_name, get_lob_value = true)
         case type_name
-        when :NUMBER
-          d = rset.getNUMBER(i)
-          if d.nil?
-            nil
-          elsif d.isInt
-            Integer(d.stringValue)
-          else
-            BigDecimal.new(d.stringValue)
-          end
-        when :VARCHAR2, :CHAR, :LONG, :NVARCHAR2, :NCHAR
-          rset.getString(i)
-        when :DATE
-          if dt = rset.getDATE(i)
-            d = dt.dateValue
-            t = dt.timeValue
-            if OracleEnhancedAdapter.emulate_dates && t.hours == 0 && t.minutes == 0 && t.seconds == 0
-              Date.new(d.year + 1900, d.month + 1, d.date)
+          when :NUMBER
+            d = rset.getNUMBER(i)
+            if d.nil?
+              nil
+            elsif d.isInt
+              Integer(d.stringValue)
             else
-              Time.send(Base.default_timezone, d.year + 1900, d.month + 1, d.date, t.hours, t.minutes, t.seconds)
+              BigDecimal.new(d.stringValue)
             end
+          when :VARCHAR2, :CHAR, :LONG, :NVARCHAR2, :NCHAR
+            rset.getString(i)
+          when :DATE
+            if dt = rset.getDATE(i)
+              d = dt.dateValue
+              t = dt.timeValue
+              if OracleEnhancedAdapter.emulate_dates && t.hours == 0 && t.minutes == 0 && t.seconds == 0
+                Date.new(d.year + 1900, d.month + 1, d.date)
+              else
+                Time.send(Base.default_timezone, d.year + 1900, d.month + 1, d.date, t.hours, t.minutes, t.seconds)
+              end
+            else
+              nil
+            end
+          when :TIMESTAMP, :TIMESTAMPTZ, :TIMESTAMPLTZ, :"TIMESTAMP WITH TIME ZONE", :"TIMESTAMP WITH LOCAL TIME ZONE"
+            ts = rset.getTimestamp(i)
+            ts && Time.send(Base.default_timezone, ts.year + 1900, ts.month + 1, ts.date, ts.hours, ts.minutes, ts.seconds,
+                            ts.nanos / 1000)
+          when :CLOB
+            get_lob_value ? lob_to_ruby_value(rset.getClob(i)) : rset.getClob(i)
+          when :BLOB
+            get_lob_value ? lob_to_ruby_value(rset.getBlob(i)) : rset.getBlob(i)
+          when :RAW
+            raw_value = rset.getRAW(i)
+            raw_value && raw_value.getBytes.to_a.pack('C*')
           else
             nil
-          end
-        when :TIMESTAMP, :TIMESTAMPTZ, :TIMESTAMPLTZ, :"TIMESTAMP WITH TIME ZONE", :"TIMESTAMP WITH LOCAL TIME ZONE"
-          ts = rset.getTimestamp(i)
-          ts && Time.send(Base.default_timezone, ts.year + 1900, ts.month + 1, ts.date, ts.hours, ts.minutes, ts.seconds,
-            ts.nanos / 1000)
-        when :CLOB
-          get_lob_value ? lob_to_ruby_value(rset.getClob(i)) : rset.getClob(i)
-        when :BLOB
-          get_lob_value ? lob_to_ruby_value(rset.getBlob(i)) : rset.getBlob(i)
-        when :RAW
-          raw_value = rset.getRAW(i)
-          raw_value && raw_value.getBytes.to_a.pack('C*')
-        else
-          nil
         end
       end
 
@@ -527,18 +463,18 @@ module ActiveRecord
 
       def lob_to_ruby_value(val)
         case val
-        when ::Java::OracleSql::CLOB
-          if val.isEmptyLob
-            nil
-          else
-            val.getSubString(1, val.length)
-          end
-        when ::Java::OracleSql::BLOB
-          if val.isEmptyLob
-            nil
-          else
-            String.from_java_bytes(val.getBytes(1, val.length))
-          end
+          when ::Java::OracleSql::CLOB
+            if val.isEmptyLob
+              nil
+            else
+              val.getSubString(1, val.length)
+            end
+          when ::Java::OracleSql::BLOB
+            if val.isEmptyLob
+              nil
+            else
+              String.from_java_bytes(val.getBytes(1, val.length))
+            end
         end
       end
 

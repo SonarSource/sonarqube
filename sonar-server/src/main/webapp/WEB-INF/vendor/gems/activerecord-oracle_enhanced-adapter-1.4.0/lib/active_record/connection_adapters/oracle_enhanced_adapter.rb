@@ -108,6 +108,16 @@ module ActiveRecord
     # 
     class OracleEnhancedAdapter < AbstractAdapter
 
+
+      #sonar
+      # Callback to close the connection when HTTP request is processed
+      self.checkin :on_checkin
+
+      def on_checkin
+        disconnect!
+      end
+      #/sonar
+
       ##
       # :singleton-method:
       # By default, the OracleEnhancedAdapter will consider all columns of type <tt>NUMBER(1)</tt>
