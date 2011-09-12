@@ -76,13 +76,13 @@ public class DbDuplicationsIndex {
     int resourceSnapshotId = getSnapshotIdFor(resource);
 
     // Order of columns is important - see code below!
-    String sql = "SELECT to_blocks.hash, resource.kee, to_blocks.index_in_file, to_blocks.start_line, to_blocks.end_line" +
-        " FROM duplications_index to_blocks, duplications_index from_blocks, snapshots snapshot, projects resource" +
+    String sql = "SELECT to_blocks.hash, res.kee, to_blocks.index_in_file, to_blocks.start_line, to_blocks.end_line" +
+        " FROM duplications_index to_blocks, duplications_index from_blocks, snapshots snapshot, projects res" +
         " WHERE from_blocks.snapshot_id = :resource_snapshot_id" +
         " AND to_blocks.hash = from_blocks.hash" +
         " AND to_blocks.snapshot_id = snapshot.id" +
         " AND snapshot.islast = :is_last" +
-        " AND snapshot.project_id = resource.id";
+        " AND snapshot.project_id = res.id";
     if (lastSnapshotId != null) {
       // Filter for blocks from previous snapshot of current project
       sql += " AND to_blocks.project_snapshot_id != :last_project_snapshot_id";
