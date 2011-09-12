@@ -41,7 +41,7 @@ public class BundleSynchronizedTest {
 
   @Before
   public void test() throws Exception {
-    matcher = new BundleSynchronizedMatcher();
+    matcher = new BundleSynchronizedMatcher(null);
   }
 
   @Test
@@ -70,10 +70,10 @@ public class BundleSynchronizedTest {
   // The case of a Sonar Language Pack that translates the Core bundles
   public void testBundlesOfLanguagePack() {
     // synchronized bundle
-    assertThat("core_fr_CA.properties", new BundleSynchronizedMatcher(GITHUB_RAW_FILE_PATH));
+    assertThat("core_fr_CA.properties", new BundleSynchronizedMatcher(null, GITHUB_RAW_FILE_PATH));
     // missing keys
     try {
-      assertThat("core_fr.properties", new BundleSynchronizedMatcher(GITHUB_RAW_FILE_PATH));
+      assertThat("core_fr.properties", new BundleSynchronizedMatcher(null, GITHUB_RAW_FILE_PATH));
     } catch (AssertionError e) {
       assertThat(e.getMessage(), containsString("Missing keys are:\n\t- second.prop"));
     }
@@ -91,7 +91,7 @@ public class BundleSynchronizedTest {
 
   @Test
   public void testGetBundleFileFromGithub() throws Exception {
-    matcher = new BundleSynchronizedMatcher(GITHUB_RAW_FILE_PATH);
+    matcher = new BundleSynchronizedMatcher(null, GITHUB_RAW_FILE_PATH);
     matcher.getBundleFileFromGithub("core.properties");
     assertTrue(new File("target/l10n/download/core.properties").exists());
   }

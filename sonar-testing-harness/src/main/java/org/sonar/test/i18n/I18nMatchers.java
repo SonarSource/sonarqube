@@ -37,11 +37,43 @@ public final class I18nMatchers {
   private I18nMatchers() {
   }
 
-  public static BundleSynchronizedMatcher isBundleUpToDate() {
-    return new BundleSynchronizedMatcher();
+  /**
+   * Returns a matcher which checks that a translation bundle is up to date with the corresponding English Core bundle.
+   * <ul>
+   * <li>If a version of Sonar is specified, then the check is done against this version of the bundle found on Sonar Github repository.</li>
+   * <li>If sonarVersion is set to NULL, the check is done against the latest version of this bundle found on Github (master branch).</li>
+   * </ul>
+   * 
+   * @param sonarVersion
+   *          the version of the bundle to check against, or NULL to check against the latest source on GitHub
+   * @return the matcher
+   */
+  public static BundleSynchronizedMatcher isBundleUpToDate(String sonarVersion) {
+    return new BundleSynchronizedMatcher(sonarVersion);
   }
 
-  public static void assertAllBundlesUpToDate() {
+  /**
+   * Returns a matcher which checks that a translation bundle is up to date with the corresponding default one found in the same folder. <br>
+   * <br>
+   * This matcher is used for Sonar plugins that embed their own translations.
+   * 
+   * @return the matcher
+   */
+  public static BundleSynchronizedMatcher isBundleUpToDate() {
+    return new BundleSynchronizedMatcher(null);
+  }
+
+  /**
+   * Checks that all the Core translation bundles found on the classpath are up to date with the corresponding English ones.
+   * <ul>
+   * <li>If a version of Sonar is specified, then the check is done against this version of the bundles found on Sonar Github repository.</li>
+   * <li>If sonarVersion is set to NULL, the check is done against the latest version of this bundles found on Github (master branch).</li>
+   * </ul>
+   * 
+   * @param sonarVersion
+   *          the version of the bundles to check against, or NULL to check against the latest source on GitHub
+   */
+  public static void assertAllBundlesUpToDate(String sonarVersion) {
     File bundleFolder = TestUtils.getResource(BundleSynchronizedMatcher.L10N_PATH);
     if (bundleFolder == null || !bundleFolder.isDirectory()) {
       fail("No bundle found in '" + BundleSynchronizedMatcher.L10N_PATH + "'");
@@ -53,7 +85,7 @@ public final class I18nMatchers {
       String bundleName = bundle.getName();
       if (bundleName.indexOf('_') > 0) {
         try {
-          assertThat(bundleName, isBundleUpToDate());
+          assertThat(bundleName, isBundleUpToDate(sonarVersion));
         } catch (AssertionError e) {
           failedAssertionMessages.put(bundleName, e.getMessage());
         }
@@ -69,7 +101,14 @@ public final class I18nMatchers {
       message.append(StringUtils.join(failedAssertionMessages.values(), "\n\n"));
       fail(message.toString());
     }
+  }
 
+  /**
+   * Checks that all the translation bundles found on the classpath are up to date with the corresponding default one found in the same
+   * folder.
+   */
+  public static void assertAllBundlesUpToDate() {
+    assertAllBundlesUpToDate(null);
   }
 
 }
