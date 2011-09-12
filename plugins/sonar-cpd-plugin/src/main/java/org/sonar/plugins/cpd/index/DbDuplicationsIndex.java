@@ -101,9 +101,9 @@ public class DbDuplicationsIndex {
     for (List<Object> dbBlock : blocks) {
       String hash = (String) dbBlock.get(0);
       String resourceKey = (String) dbBlock.get(1);
-      int indexInFile = (Integer) dbBlock.get(2);
-      int startLine = (Integer) dbBlock.get(3);
-      int endLine = (Integer) dbBlock.get(4);
+      int indexInFile = ((Number) dbBlock.get(2)).intValue();
+      int startLine = ((Number) dbBlock.get(3)).intValue();
+      int endLine = ((Number) dbBlock.get(4)).intValue();
 
       Block block = new Block(resourceKey, new ByteArray(hash), indexInFile, startLine, endLine);
 
