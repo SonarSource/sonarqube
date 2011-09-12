@@ -42,6 +42,7 @@
         action_name = 'update'
         title = 'Edit user'
         if params[:action] == 'change_password'
+          action_name = 'update_password'
           title = 'Change password'
         end
       end
@@ -69,12 +70,19 @@
           <td class="left" valign="top">Email:<br/><%= f.text_field :email, :size => 30, :maxLength => 100 %></td>
         </tr>
         <% end %>
-        <% if params[:action] == 'change_password' || !@user.id %>
+        <% if !@user.id %>
         <tr>
           <td class="left" valign="top">Password:<br/><%= f.password_field :password, :size => 30, :maxLength => 50 %></td>
         </tr>
         <tr>
           <td class="left" valign="top">Confirm password:<br/><%= f.password_field :password_confirmation, :size => 30, :maxLength => 50 %></td>
+        </tr>
+        <% elsif params[:action] == 'change_password' %>
+        <tr>
+          <td class="left" valign="top">New password:<br/><%= f.password_field :password, :size => 30, :maxLength => 50 %></td>
+        </tr>
+        <tr>
+          <td class="left" valign="top">Confirm new password:<br/><%= f.password_field :password_confirmation, :size => 30, :maxLength => 50 %></td>
         </tr>
         <% end %>
         <tr>

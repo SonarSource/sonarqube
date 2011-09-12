@@ -74,6 +74,19 @@ class UsersController < ApplicationController
     render :action => 'index', :id => params[:id]
   end
 
+  def update_password
+    user = User.find(params[:id])
+
+    if params[:user][:password].blank?
+      flash[:error] = 'Password required.'
+
+    elsif user.update_attributes(:password => params[:user][:password], :password_confirmation => params[:user][:password_confirmation])
+      flash[:notice] = 'Password was successfully updated.'
+    end
+
+    to_index(user.errors, nil);
+  end
+
   def update
     user = User.find(params[:id])
 
