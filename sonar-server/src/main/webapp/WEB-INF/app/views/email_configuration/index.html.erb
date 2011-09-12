@@ -45,7 +45,7 @@
     <tfoot>
     <tr>
       <td colspan="3">
-        <%= submit_tag message('email_configuration.save_settings'), :disable_with => message('email_configuration.saving_settings') %>
+        <%= submit_tag message('email_configuration.save_settings'), :disable_with => message('email_configuration.saving_settings'), :id => 'submit_save' %>
       </td>
     </tr>
     </tfoot>
@@ -64,7 +64,7 @@
     <tfoot>
     <tr>
       <td colspan="3">
-        <%= submit_tag message('email_configuration.test.send'), :disable_with => message('email_configuration.test.sending') %>
+        <%= submit_tag message('email_configuration.test.send'), :disable_with => message('email_configuration.test.sending'), :id => 'submit_test' %>
       </td>
     </tr>
     </tfoot>
