@@ -6,7 +6,7 @@
     metric=widget_properties["metric#{index}"]
     if metric
       metric_data_map[metric.id] = []
-      metric_name_map[metric.id] = message('metric.' + metric.name + '.name')
+      metric_name_map[metric.id] = metric.short_name
     end
   end
   if metric_data_map.empty?
