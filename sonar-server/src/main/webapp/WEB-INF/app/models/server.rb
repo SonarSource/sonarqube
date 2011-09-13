@@ -59,7 +59,7 @@ class Server
 
   def sonar_info
     sonar_info=[]
-    add_property(sonar_info, 'Server Key') {sonar_property(ServerIdConfigurationController::PROPERTY_SERVER_ID)}
+    add_property(sonar_info, 'Server ID') {sonar_property(ServerIdConfigurationController::PROPERTY_SERVER_ID)}
     add_property(sonar_info, 'Version') {org.sonar.server.platform.Platform.getServer().getVersion()}
     add_property(sonar_info, 'Started at') {org.sonar.server.platform.Platform.getServer().getStartedAt()}
     add_property(sonar_info, 'Database') {"#{jdbc_metadata. getDatabaseProductName()} #{jdbc_metadata. getDatabaseProductVersion()}"}

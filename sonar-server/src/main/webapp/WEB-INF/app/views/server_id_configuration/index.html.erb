@@ -2,7 +2,7 @@
 
 <% if @server_id %>
   <p>
-    <big><b><span class="<%= @bad_id ? 'error' : 'notice' -%>"><%= @server_id -%></span></b></big>
+    <big><b><span class="<%= @bad_id ? 'error' : 'notice' -%>" id="server_id"><%= @server_id -%></span></b></big>
     <% if @bad_id %>
       <span class="error"><%= message('server_id_configuration.bad_id') -%></span>
     <% end %>
@@ -24,7 +24,7 @@
     <tfoot>
     <tr>
       <td colspan="3">
-        <%= submit_tag message('server_id_configuration.generate_button'), :disable_with => message('server_id_configuration.generating_button') %>
+        <%= submit_tag message('server_id_configuration.generate_button'), :disable_with => message('server_id_configuration.generating_button'), :id => 'generate-button' -%>
       </td>
     </tr>
     </tfoot>
@@ -47,7 +47,7 @@
         <p class="marginbottom10"><%= message('server_id_configuration.ip.desc') -%></p>
         <ul class="marginbottom10 bullet">
           <% @valid_addresses.each_with_index do |ip_address, index| %>
-            <li><span class="address_<%= index -%>"><%= ip_address.getHostAddress() -%></span></li>
+            <li><span id="address_<%= index -%>"><%= ip_address.getHostAddress() -%></span></li>
           <% end %>
         </ul>
         <p>
