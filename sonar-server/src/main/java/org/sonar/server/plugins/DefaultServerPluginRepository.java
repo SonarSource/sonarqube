@@ -125,7 +125,7 @@ public class DefaultServerPluginRepository implements ServerPluginRepository {
     for (Plugin plugin : plugins) {
       container.as(Characteristics.CACHE).addComponent(plugin);
       for (Object extension : plugin.getExtensions()) {
-        installExtension(container, extension);
+        installExtension(container, extension, true);
       }
     }
     installExtensionProviders(container);
@@ -138,18 +138,22 @@ public class DefaultServerPluginRepository implements ServerPluginRepository {
       if (obj != null) {
         if (obj instanceof Iterable) {
           for (Object extension : (Iterable) obj) {
-            installExtension(container, extension);
+            installExtension(container, extension, false);
           }
         } else {
-          installExtension(container, obj);
+          installExtension(container, obj, false);
         }
       }
     }
   }
 
-  void installExtension(MutablePicoContainer container, Object extension) {
+  void installExtension(MutablePicoContainer container, Object extension, boolean acceptProvider) {
     if (isType(extension, ServerExtension.class)) {
-      container.as(Characteristics.CACHE).addComponent(getExtensionKey(extension), extension);
+      if (!acceptProvider && (isType(extension, ExtensionProvider.class) || extension instanceof ExtensionProvider)) {
+        LoggerFactory.getLogger(getClass()).error("ExtensionProvider can not include providers itself: " + extension);
+      } else {
+        container.as(Characteristics.CACHE).addComponent(getExtensionKey(extension), extension);
+      }
     }
   }
 

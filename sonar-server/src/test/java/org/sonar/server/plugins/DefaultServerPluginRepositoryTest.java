@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.*;
 import org.sonar.api.platform.PluginMetadata;
+import org.sonar.batch.Batch;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 
 import java.io.File;
@@ -86,7 +87,7 @@ public class DefaultServerPluginRepositoryTest {
   }
 
   @Test
-  public void shouldInvokeServerExtensionProviderss() {
+  public void shouldInvokeServerExtensionProviders() {
     DefaultServerPluginRepository repository = new DefaultServerPluginRepository(mock(PluginDeployer.class));
 
     TransientPicoContainer container = new TransientPicoContainer();
@@ -95,6 +96,17 @@ public class DefaultServerPluginRepositoryTest {
     assertThat(container.getComponents(Extension.class).size(), is(2));// provider + FakeServerExtension
     assertThat(container.getComponents(FakeServerExtension.class).size(), is(1));
     assertThat(container.getComponents(FakeBatchExtension.class).size(), is(0));
+  }
+
+  @Test
+  public void shouldNotSupportProvidersOfProviders() {
+    DefaultServerPluginRepository repository = new DefaultServerPluginRepository(mock(PluginDeployer.class));
+
+    TransientPicoContainer container = new TransientPicoContainer();
+    repository.registerExtensions(container, Arrays.<Plugin>asList(new FakePlugin(Arrays.<Class>asList(SuperExtensionProvider.class))));
+
+    assertThat(container.getComponents(FakeBatchExtension.class).size(), is(0));
+    assertThat(container.getComponents(FakeServerExtension.class).size(), is(0));
   }
 
   @Test
@@ -173,6 +185,14 @@ public class DefaultServerPluginRepositoryTest {
     @Override
     public Object provide() {
       return Arrays.asList(FakeBatchExtension.class, FakeServerExtension.class);
+    }
+  }
+
+  public static class SuperExtensionProvider extends ExtensionProvider implements ServerExtension {
+
+    @Override
+    public Object provide() {
+      return FakeExtensionProvider.class;
     }
   }
 }
