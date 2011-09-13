@@ -59,23 +59,11 @@ module ActiveRecord
         end
 
         def configure_jdbc
-          unless config[:driver] && config[:url]
-            raise ::ActiveRecord::ConnectionNotEstablished, "jdbc adapter requires driver class and url"
-          end
-
-          driver = config[:driver].to_s
-          user   = config[:username].to_s
-          pass   = config[:password].to_s
-          url    = configure_url
           # sonar
-          #jdbc_driver = (config[:driver_instance] ||= JdbcDriver.new(driver))
-          # /sonar
           @connection_factory = JdbcConnectionFactory.impl do
-            # sonar
-            #jdbc_driver.connection(url, user, pass)
             ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConnection()
-            # /sonar
           end
+          # /sonar
         end
       end
 

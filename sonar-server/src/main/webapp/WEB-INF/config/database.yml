@@ -17,8 +17,12 @@ base: &base
   pool: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.maxActive') || 10 %>
 
   # PostgreSQL
-  schema_search_path: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.postgreSearchPath') %>
-
+<%
+  search_path = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.postgreSearchPath')
+  if search_path
+%>
+  schema_search_path: <%= search_path %>
+<% end %>
   # Oracle
 <%
   schema = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.hibernate.default_schema')
