@@ -64,7 +64,8 @@ SonarWidgets.StackArea.prototype.render = function() {
 	
 	/* Computes minimum width of left margin according to the max Y value so that the Y-axis is correctly displayed */
 	var leftMargin = 25;
-	minMargin = (Math.round(maxY) + "").length * 7;
+	var maxYLength = (Math.round(maxY) + "").length;
+	minMargin = maxYLength * 7 + Math.floor(maxYLength /3) * 2; // first part is for numbers and second for commas (1000-separator)
 	if (minMargin > leftMargin) { leftMargin = minMargin; }
 	
 	/* Sizing and scales. */
