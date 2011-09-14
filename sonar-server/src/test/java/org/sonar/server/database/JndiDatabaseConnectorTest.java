@@ -28,31 +28,25 @@ import org.sonar.api.database.DatabaseProperties;
 import org.sonar.jpa.entity.SchemaMigration;
 
 import javax.naming.Context;
-import javax.naming.spi.InitialContextFactory;
 import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.util.Hashtable;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 public class JndiDatabaseConnectorTest {
 
-  private Configuration conf;
   private String currentInitialContextFacto;
   private JndiDatabaseConnector connector;
   private int emfCreationCounter;
 
   @Before
   public void setup() {
-    conf = new PropertiesConfiguration();
-    conf.setProperty(DatabaseProperties.PROP_JNDI_NAME, "jdbc/sonar");
+    Configuration conf = new PropertiesConfiguration();
     conf.setProperty(DatabaseProperties.PROP_DIALECT, DatabaseProperties.DIALECT_HSQLDB);
+    conf.setProperty(DatabaseProperties.PROP_URL, "jdbc:hsqldb:mem:sonar");
+    conf.setProperty(DatabaseProperties.PROP_DRIVER, "org.hsqldb.jdbcDriver");
     currentInitialContextFacto = System.getProperty(Context.INITIAL_CONTEXT_FACTORY);
     connector = getTestJndiConnector(conf);
-    System.setProperty(Context.INITIAL_CONTEXT_FACTORY, TestInitialContextFactory.class.getName());
   }
 
   @After
@@ -75,16 +69,6 @@ public class JndiDatabaseConnectorTest {
     assertEquals(2, emfCreationCounter);
   }
 
-  @Test
-  public void transactionIsolationCorrectlySet() throws Exception {
-    int fakeTransactionIsolation = 9;
-    conf.setProperty(DatabaseProperties.PROP_ISOLATION, fakeTransactionIsolation);
-    connector.start();
-    Connection c = connector.getConnection();
-    // start method call get a connection to test it, so total number is 2
-    verify(c, times(2)).setTransactionIsolation(fakeTransactionIsolation);
-  }
-
   private JndiDatabaseConnector getTestJndiConnector(Configuration conf) {
     JndiDatabaseConnector connector = new JndiDatabaseConnector(conf) {
       @Override
@@ -102,28 +86,5 @@ public class JndiDatabaseConnectorTest {
     return connector;
   }
 
-  public static class TestInitialContextFactory implements InitialContextFactory {
-
-    private Connection c;
-
-    public Context getInitialContext(Hashtable env) {
-      Context envContext = mock(Context.class);
-      Context context = mock(Context.class);
-      DataSource ds = mock(DataSource.class);
-      DatabaseMetaData m = mock(DatabaseMetaData.class);
-      c = mock(Connection.class);
-      try {
-        when(envContext.lookup(JndiDatabaseConnector.JNDI_ENV_CONTEXT)).thenReturn(context);
-        when(context.lookup("jdbc/sonar")).thenReturn(ds);
-        when(ds.getConnection()).thenReturn(c);
-        when(m.getURL()).thenReturn("jdbc:test");
-        when(c.getMetaData()).thenReturn(m);
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-
-      return envContext;
-    }
-  }
 
 }

@@ -38,7 +38,6 @@ public interface DatabaseProperties {
   String PROP_HIBERNATE_GENERATE_STATISTICS = "sonar.jdbc.hibernate.generate_statistics";
   String PROP_DIALECT = "sonar.jdbc.dialect";
   String PROP_DIALECT_CLASS = "sonar.jdbc.dialectClass";
-  String PROP_JNDI_NAME = "sonar.jdbc.jndiName";
   String PROP_EMBEDDED_PORT = "sonar.embeddedDatabase.port";
   String PROP_HIBERNATE_DEFAULT_SCHEMA = "sonar.hibernate.default_schema";
 

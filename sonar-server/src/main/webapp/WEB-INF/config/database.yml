@@ -1,17 +1,8 @@
 base: &base
   adapter: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDialect().getActiveRecordJdbcAdapter() %>
-<%
-  jndi_name = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.jndiName')
-  unless jndi_name
-%>
-  # JDBC settings
   username: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.username' ) || 'sonar' %>
   password: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.password') || 'sonar' %>
   url: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.url') %>
-<%
-  end
-%>
-  # Generic settings
   dialect: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDialect().getActiveRecordDialectCode() %>
   driver: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.driverClassName') %>
   pool: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.maxActive') || 10 %>
