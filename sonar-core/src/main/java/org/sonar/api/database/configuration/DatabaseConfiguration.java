@@ -48,6 +48,11 @@ public class DatabaseConfiguration extends BaseConfiguration {
   public void load() {
     clear();
 
+    // Ugly workaround before the move to myBatis
+    // Session is not up-to-date when Ruby on Rails inserts new rows in its own transaction. Seems like
+    // Hibernate keeps a cache...
+    getSession().commit();
+
     List<Property> properties = getSession()
         .createQuery("from " + Property.class.getSimpleName() + " p where p.resourceId is null and p.userId is null")
         .getResultList();
