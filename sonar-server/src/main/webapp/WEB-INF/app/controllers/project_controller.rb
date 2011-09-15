@@ -51,7 +51,7 @@ class ProjectController < ApplicationController
     @project=Project.by_key(params[:id])
     return access_denied unless is_admin?(@project)
 
-    if !@project.project?
+    if !(@project.project? || @project.view? || @project.subview?)
       redirect_to :action => 'index', :id => params[:id]
     end
     
