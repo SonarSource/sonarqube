@@ -210,6 +210,10 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>2.8</version>
+          <configuration>
+            <author>false</author>
+            <linksource>true</linksource>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -388,18 +392,6 @@
               <Version>${project.version}</Version>
             </manifestEntries>
           </archive>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <excludePackageNames>
-            net.*:org.sonar.application:org.sonar.server:org.sonar.graph:org.sonar.batch:org.sonar.channel:org.sonar.java:org.sonar.maven*:org.sonar.plugins.*:org.sonar.colorizer:org.sonar.squid:org.sonar.core:org.sonar.jpa:org.sonar.duplications:org.sonar.markdown:com.*
-          </excludePackageNames>
-          <author>false</author>
-          <linksource>true</linksource>
-          <reportOutputDirectory>${project.reporting.outputDirectory}/${project.version}/apidocs</reportOutputDirectory>
         </configuration>
       </plugin>
       <plugin>
@@ -1102,6 +1094,26 @@
                 </goals>
               </execution>
             </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
+    <profile>
+      <id>javadoc</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+              <configuration>
+                <excludePackageNames>
+            net.*:org.sonar.application:org.sonar.server:org.sonar.graph:org.sonar.batch:org.sonar.channel:org.sonar.java:org.sonar.maven*:org.sonar.plugins.*:org.sonar.colorizer:org.sonar.squid:org.sonar.core:org.sonar.jpa:org.sonar.duplications:org.sonar.markdown:com.*
+              </excludePackageNames>
+              <author>false</author>
+              <linksource>true</linksource>
+              <reportOutputDirectory>${project.reporting.outputDirectory}/${project.version}/apidocs</reportOutputDirectory>
+            </configuration>
           </plugin>
         </plugins>
       </build>
