@@ -42,6 +42,7 @@ public class ResourceUnmarshaller extends AbstractUnmarshaller<Resource> {
         .setKey(utils.getString(json, "key"))
         .setName(utils.getString(json, "name"))
         .setLongName(utils.getString(json, "lname"))
+        .setCopy(utils.getInteger(json, "copy"))
         .setScope(utils.getString(json, "scope"))
         .setQualifier(utils.getString(json, "qualifier"))
         .setLanguage(utils.getString(json, "lang"))
