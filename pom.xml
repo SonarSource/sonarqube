@@ -934,7 +934,7 @@
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>4.8.2</version>
+        <version>4.9</version>
       </dependency>
       <dependency>
         <groupId>xerces</groupId>
