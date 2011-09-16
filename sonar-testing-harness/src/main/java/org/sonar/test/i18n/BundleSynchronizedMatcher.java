@@ -19,29 +19,22 @@
  */
 package org.sonar.test.i18n;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collection;
-import java.util.Properties;
-import java.util.Set;
-
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.sonar.test.TestUtils;
 
-import com.google.common.collect.Lists;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class BundleSynchronizedMatcher extends BaseMatcher<String> {
 
@@ -54,8 +47,8 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
   // we use this variable to be able to unit test this class without looking at the real Github core bundles that change all the time
   private String remote_file_path;
   private String bundleName;
-  private Collection<String> missingKeys;
-  private Collection<String> nonExistingKeys;
+  private SortedMap<String, String> missingKeys;
+  private SortedMap<String, String> nonExistingKeys;
 
   public BundleSynchronizedMatcher(String sonarVersion) {
     this(sonarVersion, GITHUB_RAW_FILE_PATH);
@@ -67,7 +60,7 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
   }
 
   public boolean matches(Object arg0) {
-    if ( !(arg0 instanceof String)) {
+    if (!(arg0 instanceof String)) {
       return false;
     }
     bundleName = (String) arg0;
@@ -86,8 +79,8 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
 
     // and now let's compare
     try {
-      missingKeys = retrieveMissingKeys(bundle, defaultBundle);
-      nonExistingKeys = retrieveMissingKeys(defaultBundle, bundle);
+      missingKeys = retrieveMissingTranslations(bundle, defaultBundle);
+      nonExistingKeys = retrieveMissingTranslations(defaultBundle, bundle);
       return missingKeys.isEmpty() && nonExistingKeys.isEmpty();
     } catch (IOException e) {
       fail("An error occured while reading the bundles: " + e.getMessage());
@@ -111,21 +104,20 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
     StringBuilder details = new StringBuilder("\n=======================\n'");
     details.append(bundleName);
     details.append("' is not synchronized.");
-    if ( !missingKeys.isEmpty()) {
-      details.append("\n\n Missing keys are:");
-      for (String key : missingKeys) {
-        details.append("\n\t- " + key);
-      }
-    }
-    if ( !nonExistingKeys.isEmpty()) {
-      details.append("\n\nThe following keys do not exist in the default bundle:");
-      for (String key : nonExistingKeys) {
-        details.append("\n\t- " + key);
-      }
-    }
+    print("\n\n Missing translations are:", missingKeys, details);
+    print("\n\nThe following translations do not exist in the reference bundle:", nonExistingKeys, details);
     details.append("\n\nSee report file located at: " + dumpFile.getAbsolutePath());
     details.append("\n=======================");
     return details;
+  }
+
+  private void print(String title, SortedMap<String, String> translations, StringBuilder to) {
+    if (!translations.isEmpty()) {
+      to.append(title);
+      for (Map.Entry<String, String> entry : translations.entrySet()) {
+        to.append("\n").append(entry.getKey()).append("=").append(entry.getValue());
+      }
+    }
   }
 
   private void printReport(File dumpFile, String details) {
@@ -144,24 +136,32 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
     }
   }
 
-  protected Collection<String> retrieveMissingKeys(File bundle, File defaultBundle) throws IOException {
-    Collection<String> missingKeys = Lists.newArrayList();
+  protected SortedMap<String, String> retrieveMissingTranslations(File bundle, File referenceBundle) throws IOException {
+    SortedMap<String, String> missingKeys = Maps.newTreeMap();
 
-    Properties bundleProps = new Properties();
-    bundleProps.load(new FileInputStream(bundle));
-    Set<Object> bundleKeys = bundleProps.keySet();
+    Properties bundleProps = loadProperties(bundle);
+    Properties referenceProperties = loadProperties(referenceBundle);
 
-    Properties defaultBundleProps = new Properties();
-    defaultBundleProps.load(new FileInputStream(defaultBundle));
-    Set<Object> defaultBundleKeys = defaultBundleProps.keySet();
-
-    for (Object key : defaultBundleKeys) {
-      if ( !bundleKeys.contains(key)) {
-        missingKeys.add(key.toString());
+    for (Map.Entry<Object, Object> entry : referenceProperties.entrySet()) {
+      String key = (String) entry.getKey();
+      if (!bundleProps.containsKey(key)) {
+        missingKeys.put(key, (String) entry.getValue());
       }
     }
 
     return missingKeys;
+  }
+
+  private Properties loadProperties(File f) throws IOException {
+    Properties props = new Properties();
+    FileInputStream input = new FileInputStream(f);
+    try {
+      props.load(input);
+      return props;
+      
+    } finally {
+      IOUtils.closeQuietly(input);
+    }
   }
 
   protected File getBundleFileFromGithub(String defaultBundleName) {

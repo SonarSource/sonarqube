@@ -29,6 +29,7 @@ import static org.sonar.test.i18n.I18nMatchers.isBundleUpToDate;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.SortedMap;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -55,14 +56,14 @@ public class BundleSynchronizedTest {
       assertThat("myPlugin_fr.properties", isBundleUpToDate());
       assertTrue(new File("target/l10n/myPlugin_fr.properties.report.txt").exists());
     } catch (AssertionError e) {
-      assertThat(e.getMessage(), containsString("Missing keys are:\n\t- second.prop"));
+      assertThat(e.getMessage(), containsString("Missing translations are:\nsecond.prop"));
     }
     // unnecessary many keys
     try {
       assertThat("myPlugin_fr_QB.properties", isBundleUpToDate());
       assertTrue(new File("target/l10n/myPlugin_fr_QB.properties.report.txt").exists());
     } catch (AssertionError e) {
-      assertThat(e.getMessage(), containsString("The following keys do not exist in the default bundle:\n\t- fourth.prop"));
+      assertThat(e.getMessage(), containsString("The following translations do not exist in the reference bundle:\nfourth.prop"));
     }
   }
 
@@ -75,7 +76,7 @@ public class BundleSynchronizedTest {
     try {
       assertThat("core_fr.properties", new BundleSynchronizedMatcher(null, GITHUB_RAW_FILE_PATH));
     } catch (AssertionError e) {
-      assertThat(e.getMessage(), containsString("Missing keys are:\n\t- second.prop"));
+      assertThat(e.getMessage(), containsString("Missing translations are:\nsecond.prop"));
     }
   }
 
@@ -120,11 +121,11 @@ public class BundleSynchronizedTest {
     File frBundle = TestUtils.getResource(BundleSynchronizedMatcher.L10N_PATH + "myPlugin_fr.properties");
     File qbBundle = TestUtils.getResource(BundleSynchronizedMatcher.L10N_PATH + "myPlugin_fr_QB.properties");
 
-    Collection<String> diffs = matcher.retrieveMissingKeys(frBundle, defaultBundle);
+    SortedMap<String, String> diffs = matcher.retrieveMissingTranslations(frBundle, defaultBundle);
     assertThat(diffs.size(), is(1));
-    assertThat(diffs, hasItem("second.prop"));
+    assertThat(diffs.keySet(), hasItem("second.prop"));
 
-    diffs = matcher.retrieveMissingKeys(qbBundle, defaultBundle);
+    diffs = matcher.retrieveMissingTranslations(qbBundle, defaultBundle);
     assertThat(diffs.size(), is(0));
   }
 
