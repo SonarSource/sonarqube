@@ -66,7 +66,7 @@ class ProjectController < ApplicationController
     
     sid = params[:snapshot_id]
     if sid
-      Snapshot.update_all("status='U'", ["id=? or root_snapshot_id=(?)", sid, sid])
+      Snapshot.update_all("status='U'", ["id=? or root_snapshot_id=(?)", sid.to_i, sid.to_i])
       flash[:notice] = message('project_history.snapshot_deleted')
     end
     
