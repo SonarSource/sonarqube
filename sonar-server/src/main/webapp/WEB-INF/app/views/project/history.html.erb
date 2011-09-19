@@ -34,7 +34,7 @@
             cell_content = "<b>" + message('project_history.last_snapshot') + "</b>"
           else
             cell_content = button_to( message('project_history.delete_snapshot'), 
-                                        { :action => "delete_snapshot_history", :id => @project.id, :snapshot_id => [snapshot.id] }, 
+                                        { :action => "delete_snapshot_history", :id => @project.id, :snapshot_id => snapshot.id }, 
                                         :class => 'action red-button', 
                                         :confirm => message('project_history.are_you_sure_delete_snapshot_x', :params => l(time, :format => :long)) )  
           end
