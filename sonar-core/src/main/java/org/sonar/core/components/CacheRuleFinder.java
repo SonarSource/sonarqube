@@ -40,22 +40,24 @@ public final class CacheRuleFinder extends DefaultRuleFinder {
   @Override
   public Rule findById(int ruleId) {
     Rule rule = rulesById.get(ruleId);
-    if (rule==null) {
+    if (rule == null) {
       rule = doFindById(ruleId);
-      loadRepository(rule.getRepositoryKey());
+      if (rule != null) {
+        loadRepository(rule.getRepositoryKey());
+      }
     }
     return rule;
   }
 
   @Override
   public Rule findByKey(String repositoryKey, String ruleKey) {
-    Map<String,Rule> repository = loadRepository(repositoryKey);
+    Map<String, Rule> repository = loadRepository(repositoryKey);
     return repository.get(ruleKey);
   }
 
-  private Map<String,Rule> loadRepository(String repositoryKey) {
-    Map<String,Rule> repository = rulesByKey.get(repositoryKey);
-    if (repository==null) {
+  private Map<String, Rule> loadRepository(String repositoryKey) {
+    Map<String, Rule> repository = rulesByKey.get(repositoryKey);
+    if (repository == null) {
       repository = Maps.newHashMap();
       rulesByKey.put(repositoryKey, repository);
 
