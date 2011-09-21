@@ -83,6 +83,10 @@ class Snapshot < ActiveRecord::Base
     first_snapshot=Snapshot.find(:first, :conditions => snapshot_conditions, :order => 'snapshots.created_at ASC')
     last_snapshot=resource.last_snapshot
     
+    if first_snapshot==last_snapshot
+      return [last_snapshot]
+    end
+    
     # Look for the number_of_columns-2 last snapshots to display  (they must have 'Version' events)
     version_snapshots = []
     if number_of_columns > 2
