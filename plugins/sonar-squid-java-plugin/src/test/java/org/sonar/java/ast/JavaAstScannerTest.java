@@ -67,6 +67,26 @@ public class JavaAstScannerTest {
     assertEquals(0, prj.getInt(Metric.CLASSES));
   }
 
+  /**
+   * SONAR-1908
+   */
+  @Test(expected = AnalysisException.class)
+  public void testUnicodeEscape() {
+    // see
+    // https://sourceforge.net/tracker/?func=detail&aid=3296452&group_id=29721&atid=397078
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/special_cases/parsingErrors/UnicodeEscape.java"));
+  }
+
+  /**
+   * SONAR-1836: bug in Checkstyle 5.2 - 5.4
+   */
+  @Test
+  public void testLineCommentAtTheEndOfFile() {
+    squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/special_cases/parsingErrors/LineCommentAtTheEndOfFile.java"));
+    SourceProject prj = squid.aggregate();
+    assertEquals(1, prj.getInt(Metric.CLASSES));
+  }
+
   @Test
   public void testEmptyClassWithComment() {
     squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/special_cases/emptyFiles/ClassWithOnlyComment.java"));
