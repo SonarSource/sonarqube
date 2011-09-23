@@ -19,6 +19,7 @@
  */
 package org.sonar.java.bytecode;
 
+import org.codehaus.classworlds.ClassWorld;
 import org.junit.Test;
 import org.sonar.java.ast.SquidTestUtils;
 
@@ -37,6 +38,25 @@ public class ClassworldsClassLoaderTest {
     // check that the method create() can be executed more than once
     assertThat(ClassworldsClassLoader.create(Collections.<File>emptyList()), not(nullValue()));
     assertThat(ClassworldsClassLoader.create(Collections.<File>emptyList()), not(nullValue()));
+  }
+
+  /**
+   * See SONAR-2824:
+   * ClassLoader created by {@link ClassworldsClassLoader},
+   * should be able to load classes only from JDK and from provided list of JAR-files,
+   * thus it shouldn't be able to load class {@link ClassWorld}.
+   */
+  @Test
+  public void shouldBeIsolated() throws ClassNotFoundException {
+    ClassLoader classloader = ClassworldsClassLoader.create(Collections.EMPTY_LIST);
+    try {
+      classloader.loadClass(ClassWorld.class.getName());
+      fail();
+    } catch (ClassNotFoundException e) {
+      // ok
+    }
+    assertThat(classloader.loadClass("java.lang.Integer"), not(nullValue()));
+    assertThat(classloader.getResource("java/lang/Integer.class"), not(nullValue()));
   }
 
   @Test
