@@ -5,7 +5,7 @@
   <groupId>org.codehaus.sonar</groupId>
   <artifactId>sonar</artifactId>
   <packaging>pom</packaging>
-  <version>2.11-SNAPSHOT</version>
+  <version>2.11-RC2</version>
   <name>Sonar</name>
   <url>http://www.sonarsource.org</url>
   <description>Put technical debt under control</description>
