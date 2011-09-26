@@ -76,7 +76,7 @@ public class DbDuplicationsIndex {
     int resourceSnapshotId = getSnapshotIdFor(resource);
 
     // Order of columns is important - see code below!
-    String sql = "SELECT to_blocks.hash, res.kee, to_blocks.index_in_file, to_blocks.start_line, to_blocks.end_line" +
+    String sql = "SELECT DISTINCT to_blocks.hash, res.kee, to_blocks.index_in_file, to_blocks.start_line, to_blocks.end_line" +
         " FROM duplications_index to_blocks, duplications_index from_blocks, snapshots snapshot, projects res" +
         " WHERE from_blocks.snapshot_id = :resource_snapshot_id" +
         " AND to_blocks.hash = from_blocks.hash" +
