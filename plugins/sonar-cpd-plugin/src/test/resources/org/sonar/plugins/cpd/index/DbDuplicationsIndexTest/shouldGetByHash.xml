@@ -40,4 +40,8 @@
   <!-- foo -->
   <duplications_index id="5" project_snapshot_id="9" snapshot_id="10" hash="aa" index_in_file="0" start_line="0" end_line="0" />
 
+  <!-- Note that there is two blocks with same hash for current analysis to verify that we use "SELECT DISTINCT", -->
+  <!-- without "DISTINCT" we will select block from "bar-last" two times. -->
+  <duplications_index id="6" project_snapshot_id="9" snapshot_id="10" hash="aa" index_in_file="1" start_line="1" end_line="1" />
+
 </dataset>
