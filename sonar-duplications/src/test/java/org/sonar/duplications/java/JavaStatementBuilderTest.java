@@ -23,11 +23,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertThat;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.List;
 
@@ -146,12 +142,135 @@ public class JavaStatementBuilderTest {
 
   @Test
   public void shouldHandleArray() {
+    List<Statement> statements = chunk("new Integer[] { 1, 2, 3, 4 };");
+    assertThat(statements.size(), is(2));
+    assertThat(statements.get(0).getValue(), is("newInteger[]"));
+    assertThat(statements.get(1).getValue(), is("{$NUMBER,$NUMBER,$NUMBER,$NUMBER}"));
+  }
+
+  /**
+   * See SONAR-2837
+   */
+  @Test
+  public void shouldHandleMultidimensionalArray() {
     List<Statement> statements = chunk("new Integer[][] { { 1, 2 }, {3, 4} };");
-    assertThat(statements.size(), is(4));
+    assertThat(statements.size(), is(2));
     assertThat(statements.get(0).getValue(), is("newInteger[][]"));
-    assertThat(statements.get(1).getValue(), is("$NUMBER,$NUMBER"));
-    assertThat(statements.get(2).getValue(), is(","));
-    assertThat(statements.get(3).getValue(), is("$NUMBER,$NUMBER"));
+    assertThat(statements.get(1).getValue(), is("{{$NUMBER,$NUMBER},{$NUMBER,$NUMBER}}"));
+
+    statements = chunk("new Integer[][] { null, {3, 4} };");
+    assertThat(statements.size(), is(2));
+    assertThat(statements.get(0).getValue(), is("newInteger[][]"));
+    assertThat(statements.get(1).getValue(), is("{null,{$NUMBER,$NUMBER}}"));
+  }
+
+  @Test
+  public void shouldHandleTryCatch() {
+    List<Statement> statements;
+    statements = chunk("try { } catch (Exception e) { }");
+    assertThat(statements.size(), is(4));
+    assertThat(statements.get(0).getValue(), is("try"));
+    assertThat(statements.get(1).getValue(), is("{}"));
+    assertThat(statements.get(2).getValue(), is("catch(Exceptione)"));
+    assertThat(statements.get(3).getValue(), is("{}"));
+
+    statements = chunk("try { something(); } catch (Exception e) { }");
+    assertThat(statements.size(), is(4));
+    assertThat(statements.get(0).getValue(), is("try"));
+    assertThat(statements.get(1).getValue(), is("something()"));
+    assertThat(statements.get(2).getValue(), is("catch(Exceptione)"));
+    assertThat(statements.get(3).getValue(), is("{}"));
+
+    statements = chunk("try { something(); } catch (Exception e) { onException(); }");
+    assertThat(statements.size(), is(4));
+    assertThat(statements.get(0).getValue(), is("try"));
+    assertThat(statements.get(1).getValue(), is("something()"));
+    assertThat(statements.get(2).getValue(), is("catch(Exceptione)"));
+    assertThat(statements.get(3).getValue(), is("onException()"));
+
+    statements = chunk("try { something(); } catch (Exception1 e) { onException1(); } catch (Exception2 e) { onException2(); }");
+    assertThat(statements.size(), is(6));
+    assertThat(statements.get(0).getValue(), is("try"));
+    assertThat(statements.get(1).getValue(), is("something()"));
+    assertThat(statements.get(2).getValue(), is("catch(Exception1e)"));
+    assertThat(statements.get(3).getValue(), is("onException1()"));
+    assertThat(statements.get(4).getValue(), is("catch(Exception2e)"));
+    assertThat(statements.get(5).getValue(), is("onException2()"));
+  }
+
+  @Test
+  public void shouldHandleTryFinnaly() {
+    List<Statement> statements;
+    statements = chunk("try { } finally { }");
+    assertThat(statements.size(), is(4));
+    assertThat(statements.get(0).getValue(), is("try"));
+    assertThat(statements.get(1).getValue(), is("{}"));
+    assertThat(statements.get(2).getValue(), is("finally"));
+    assertThat(statements.get(3).getValue(), is("{}"));
+
+    statements = chunk("try { something(); } finally { }");
+    assertThat(statements.size(), is(4));
+    assertThat(statements.get(0).getValue(), is("try"));
+    assertThat(statements.get(1).getValue(), is("something()"));
+    assertThat(statements.get(2).getValue(), is("finally"));
+    assertThat(statements.get(3).getValue(), is("{}"));
+
+    statements = chunk("try { something(); } finally { somethingOther(); }");
+    assertThat(statements.size(), is(4));
+    assertThat(statements.get(0).getValue(), is("try"));
+    assertThat(statements.get(1).getValue(), is("something()"));
+    assertThat(statements.get(2).getValue(), is("finally"));
+    assertThat(statements.get(3).getValue(), is("somethingOther()"));
+  }
+
+  @Test
+  public void shouldHandleTryCatchFinally() {
+    List<Statement> statements;
+    statements = chunk("try { } catch (Exception e) {} finally { }");
+    assertThat(statements.size(), is(6));
+    assertThat(statements.get(0).getValue(), is("try"));
+    assertThat(statements.get(1).getValue(), is("{}"));
+    assertThat(statements.get(2).getValue(), is("catch(Exceptione)"));
+    assertThat(statements.get(3).getValue(), is("{}"));
+    assertThat(statements.get(4).getValue(), is("finally"));
+    assertThat(statements.get(5).getValue(), is("{}"));
+
+    statements = chunk("try { something(); } catch (Exception e) { onException(); } finally { somethingOther(); }");
+    assertThat(statements.size(), is(6));
+    assertThat(statements.get(0).getValue(), is("try"));
+    assertThat(statements.get(1).getValue(), is("something()"));
+    assertThat(statements.get(2).getValue(), is("catch(Exceptione)"));
+    assertThat(statements.get(3).getValue(), is("onException()"));
+    assertThat(statements.get(4).getValue(), is("finally"));
+    assertThat(statements.get(5).getValue(), is("somethingOther()"));
+  }
+
+  /**
+   * Java 7.
+   */
+  @Test
+  public void shouldHandleMultiCatch() {
+    List<Statement> statements;
+    statements = chunk("try { } catch (Exception1 | Exception2 e) { }");
+    assertThat(statements.size(), is(4));
+    assertThat(statements.get(0).getValue(), is("try"));
+    assertThat(statements.get(1).getValue(), is("{}"));
+    assertThat(statements.get(2).getValue(), is("catch(Exception1|Exception2e)"));
+    assertThat(statements.get(3).getValue(), is("{}"));
+
+    statements = chunk("try { something(); } catch (Exception1 | Exception2 e) { }");
+    assertThat(statements.size(), is(4));
+    assertThat(statements.get(0).getValue(), is("try"));
+    assertThat(statements.get(1).getValue(), is("something()"));
+    assertThat(statements.get(2).getValue(), is("catch(Exception1|Exception2e)"));
+    assertThat(statements.get(3).getValue(), is("{}"));
+
+    statements = chunk("try { something(); } catch (Exception1 | Exception2 e) { onException(); }");
+    assertThat(statements.size(), is(4));
+    assertThat(statements.get(0).getValue(), is("try"));
+    assertThat(statements.get(1).getValue(), is("something()"));
+    assertThat(statements.get(2).getValue(), is("catch(Exception1|Exception2e)"));
+    assertThat(statements.get(3).getValue(), is("onException()"));
   }
 
   @Test

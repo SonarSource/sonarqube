@@ -19,9 +19,9 @@
  */
 package org.sonar.duplications.java;
 
-import org.sonar.duplications.statement.StatementChunker;
-
 import static org.sonar.duplications.statement.TokenMatcherFactory.*;
+
+import org.sonar.duplications.statement.StatementChunker;
 
 public final class JavaStatementBuilder {
 
@@ -32,8 +32,10 @@ public final class JavaStatementBuilder {
     return StatementChunker.builder()
         .ignore(from("import"), to(";"))
         .ignore(from("package"), to(";"))
+        .statement(new BridgeWithExceptionTokenMatcher("{", "}", ";"))
         .ignore(token("}"))
         .ignore(token("{"))
+        .ignore(token(";"))
         .statement(from("@"), anyToken(), opt(bridge("(", ")")))
         .statement(from("do"))
         .statement(from("if"), bridge("(", ")"))

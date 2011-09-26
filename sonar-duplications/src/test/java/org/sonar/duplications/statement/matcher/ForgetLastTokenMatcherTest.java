@@ -21,32 +21,31 @@ package org.sonar.duplications.statement.matcher;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
 import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenQueue;
 
+import com.google.common.collect.Lists;
+
 public class ForgetLastTokenMatcherTest {
 
   @Test
   public void shouldMatch() {
     TokenQueue tokenQueue = spy(new TokenQueue());
-    List<Token> output = mock(List.class);
-    when(output.size()).thenReturn(4);
+    Token token = new Token("a", 0, 0);
+    List<Token> output = Lists.newArrayList(token);
     ForgetLastTokenMatcher matcher = new ForgetLastTokenMatcher();
 
     assertThat(matcher.matchToken(tokenQueue, output), is(true));
-    verifyNoMoreInteractions(tokenQueue);
-    verify(output).size();
-    verify(output).remove(3);
-    verifyNoMoreInteractions(output);
+    assertThat(output.size(), is(0));
+    verify(tokenQueue).pushForward(eq(Collections.singletonList(token)));
   }
 
 }
