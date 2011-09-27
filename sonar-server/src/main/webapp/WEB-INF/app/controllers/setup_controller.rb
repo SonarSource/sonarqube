@@ -27,21 +27,25 @@ class SetupController < ApplicationController
     
   def index
     if DatabaseVersion.uptodate?
-      render :template => "setup/index" 
+      render :template => 'setup/index'
     elsif ActiveRecord::Base.connected?
-      render :template => "setup/form", :layout => 'nonav'
+      render :template => (DatabaseVersion.upgradable? ? 'setup/form' : 'setup/not_upgradable'), :layout => 'nonav'
     else 
-      render :template => "setup/dbdown", :layout => 'nonav'
+      render :template => 'setup/dbdown', :layout => 'nonav'
     end
   end
 
   def maintenance
-    render :template => "setup/maintenance", :layout => 'nonav'
+    render :template => 'setup/maintenance', :layout => 'nonav'
   end
 
   def setup_database
-    # do not forget that this code is also in /api/server/setup (see api/server_controller.rb)
-    DatabaseVersion.migrate_and_start unless DatabaseVersion.uptodate?
-    redirect_to home_path
+    if !DatabaseVersion.upgradable?
+      render :text => 'Upgrade is not supported. Please use a production-ready database.', :status => 500
+    else
+      # do not forget that this code is also in /api/server/setup (see api/server_controller.rb)
+      DatabaseVersion.upgrade_and_start unless DatabaseVersion.uptodate?
+      redirect_to home_path
+    end
   end
 end

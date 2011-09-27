@@ -66,7 +66,11 @@ class Api::ServerController < Api::ApiController
 
   def setup
     begin
-      DatabaseVersion.migrate_and_start unless DatabaseVersion.uptodate?
+      if !DatabaseVersion.upgradable?
+        raise "Upgrade is not supported. Please use a production-ready database."
+      end
+
+      DatabaseVersion.upgrade_and_start unless DatabaseVersion.uptodate?
       hash={:status => 'ok'}
       respond_to do |format|
         format.json{ render :json => jsonp(hash) }

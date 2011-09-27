@@ -59,7 +59,7 @@ class DatabaseVersion
     $uptodate
   end
 
-  def self.migrate_and_start
+  def self.upgrade_and_start
     ActiveRecord::Migrator.migrate(migrations_path)
     Java::OrgSonarServerPlatform::Platform.getInstance().start()
     load_plugin_webservices()
@@ -72,10 +72,12 @@ class DatabaseVersion
   def self.automatic_setup
     if current_version<=0
       try_restore_structure_dump() if use_structure_dump?
-      migrate_and_start()
+      upgrade_and_start()
     end
     if uptodate?
       load_plugin_webservices()
+    else
+      puts "Server must be upgraded. Please browse /setup"
     end
     uptodate?
   end
@@ -116,5 +118,9 @@ class DatabaseVersion
   def self.use_structure_dump?
     # default value is true
     ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.useStructureDump')!='false'
+  end
+
+  def self.upgradable?
+    dialect()!='derby'
   end
 end
