@@ -25,6 +25,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.*;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -32,12 +33,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
-import org.sonar.api.resources.InputFile;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.ResourcePersister;
@@ -45,6 +41,7 @@ import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.detector.original.OriginalCloneDetectionAlgorithm;
 import org.sonar.duplications.index.CloneGroup;
+import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.java.JavaStatementBuilder;
 import org.sonar.duplications.java.JavaTokenProducer;
@@ -57,6 +54,11 @@ import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 public class SonarEngine extends CpdEngine {
 
   private static final int BLOCK_SIZE = 10;
+
+  /**
+   * Limit of time to analyse one file (in seconds).
+   */
+  private static final int TIMEOUT = 5 * 60;
 
   private final ResourcePersister resourcePersister;
   private final DatabaseSession dbSession;
@@ -137,20 +139,52 @@ public class SonarEngine extends CpdEngine {
     }
 
     // Detect
-    for (InputFile inputFile : inputFiles) {
-      Resource resource = getResource(inputFile);
-      String resourceKey = getFullKey(project, resource);
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    try {
+      for (InputFile inputFile : inputFiles) {
+        Logs.INFO.debug("Detection of duplications for {}", inputFile.getFile());
+        Resource resource = getResource(inputFile);
+        String resourceKey = getFullKey(project, resource);
 
-      Collection<Block> fileBlocks = index.getByResource(resource, resourceKey);
-      List<CloneGroup> clones = OriginalCloneDetectionAlgorithm.detect(index, fileBlocks);
-      if (!clones.isEmpty()) {
-        // Save
-        DuplicationsData data = new DuplicationsData(resource, context);
-        for (CloneGroup clone : clones) {
-          poplulateData(data, clone);
+        Collection<Block> fileBlocks = index.getByResource(resource, resourceKey);
+
+        List<CloneGroup> clones;
+        try {
+          clones = executorService.submit(new Task(index, fileBlocks)).get(TIMEOUT, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+          clones = null;
+          Logs.INFO.warn("Timeout during detection of duplications for " + inputFile.getFile(), e);
+        } catch (InterruptedException e) {
+          throw new SonarException(e);
+        } catch (ExecutionException e) {
+          throw new SonarException(e);
         }
-        data.save();
+
+        if (clones != null && !clones.isEmpty()) {
+          // Save
+          DuplicationsData data = new DuplicationsData(resource, context);
+          for (CloneGroup clone : clones) {
+            poplulateData(data, clone);
+          }
+          data.save();
+        }
       }
+    } finally {
+      executorService.shutdown();
+    }
+  }
+
+  private static class Task implements Callable<List<CloneGroup>> {
+    private final CloneIndex index;
+    private final Collection<Block> fileBlocks;
+
+    public Task(CloneIndex index, Collection<Block> fileBlocks) {
+      this.index = index;
+      this.fileBlocks = fileBlocks;
+    }
+
+    public List<CloneGroup> call() {
+      return OriginalCloneDetectionAlgorithm.detect(index, fileBlocks);
     }
   }
 
