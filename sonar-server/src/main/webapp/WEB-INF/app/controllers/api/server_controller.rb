@@ -66,7 +66,7 @@ class Api::ServerController < Api::ApiController
 
   def setup
     begin
-      if !DatabaseVersion.upgradable?
+      if !DatabaseVersion.production?
         raise "Upgrade is not supported. Please use a production-ready database."
       end
 

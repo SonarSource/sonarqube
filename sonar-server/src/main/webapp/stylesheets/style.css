@@ -1936,3 +1936,6 @@ table.nowrap td, td.nowrap {
 .diffParam {
   font-family: 'Bitstream Vera Sans Mono','Courier',monospace;
 }
+.yellowHighlight {
+  background:#FFFBCC;
+}

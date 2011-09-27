@@ -70,6 +70,9 @@ class DatabaseVersion
   end
 
   def self.automatic_setup
+    if !production?
+      puts 'Derby database should be used for evaluation purpose only'
+    end
     if current_version<=0
       try_restore_structure_dump() if use_structure_dump?
       upgrade_and_start()
@@ -77,7 +80,7 @@ class DatabaseVersion
     if uptodate?
       load_plugin_webservices()
     else
-      puts "Server must be upgraded. Please browse /setup"
+      puts 'Server must be upgraded. Please browse /setup'
     end
     uptodate?
   end
@@ -120,7 +123,10 @@ class DatabaseVersion
     ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.useStructureDump')!='false'
   end
 
-  def self.upgradable?
-    dialect()!='derby'
+  def self.production?
+    @@production ||=
+      begin
+        dialect()!='derby'
+      end
   end
 end

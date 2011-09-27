@@ -28,7 +28,7 @@ class SetupController < ApplicationController
     if DatabaseVersion.uptodate?
       redirect_to home_path
     elsif ActiveRecord::Base.connected?
-      render :template => (DatabaseVersion.upgradable? ? 'setup/form' : 'setup/not_upgradable'), :layout => 'nonav'
+      render :template => (DatabaseVersion.production? ? 'setup/form' : 'setup/not_upgradable'), :layout => 'nonav'
     else 
       render :template => 'setup/dbdown', :layout => 'nonav'
     end
@@ -39,7 +39,7 @@ class SetupController < ApplicationController
   end
 
   def setup_database
-    if !DatabaseVersion.upgradable?
+    if !DatabaseVersion.production?
       render :text => 'Upgrade is not supported. Please use a production-ready database.', :status => 500
     else
       # do not forget that this code is also in /api/server/setup (see api/server_controller.rb)
