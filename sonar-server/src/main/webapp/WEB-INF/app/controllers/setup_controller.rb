@@ -22,12 +22,11 @@ class SetupController < ApplicationController
 
   SECTION=Navigation::SECTION_CONFIGURATION
   
-  # GETs should be safe (see http://www.w3.org/2001/tag/doc/whenToUseGet.html)
   verify :method => :post, :only => [ :setup_database ], :redirect_to => { :action => :index }
     
   def index
     if DatabaseVersion.uptodate?
-      render :template => 'setup/index'
+      redirect_to home_path
     elsif ActiveRecord::Base.connected?
       render :template => (DatabaseVersion.upgradable? ? 'setup/form' : 'setup/not_upgradable'), :layout => 'nonav'
     else 
