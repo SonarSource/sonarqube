@@ -127,17 +127,33 @@ public class JavaStatementBuilderTest {
         "switch (month) {" +
         "  case 1 : monthString=\"January\"; break;" +
         "  case 2 : monthString=\"February\"; break;" +
-        "  default: monthString=\"Invalid\";");
-    assertThat(statements.size(), is(9));
+        "  default: monthString=\"Invalid\";" +
+        "}");
+    assertThat(statements.size(), is(6));
     assertThat(statements.get(0).getValue(), is("switch(month)"));
-    assertThat(statements.get(1).getValue(), is("case$NUMBER:"));
-    assertThat(statements.get(2).getValue(), is("monthString=$CHARS"));
-    assertThat(statements.get(3).getValue(), is("break"));
-    assertThat(statements.get(4).getValue(), is("case$NUMBER:"));
-    assertThat(statements.get(5).getValue(), is("monthString=$CHARS"));
-    assertThat(statements.get(6).getValue(), is("break"));
-    assertThat(statements.get(7).getValue(), is("default:"));
-    assertThat(statements.get(8).getValue(), is("monthString=$CHARS"));
+    assertThat(statements.get(1).getValue(), is("case$NUMBER:monthString=$CHARS"));
+    assertThat(statements.get(2).getValue(), is("break"));
+    assertThat(statements.get(3).getValue(), is("case$NUMBER:monthString=$CHARS"));
+    assertThat(statements.get(4).getValue(), is("break"));
+    assertThat(statements.get(5).getValue(), is("default:monthString=$CHARS"));
+  }
+
+  /**
+   * See SONAR-2782
+   */
+  @Test
+  public void shouldHandleNestedSwitch() {
+    List<Statement> statements = chunk("" +
+        "switch (a) {" +
+        "  case 'a': case 'b': case 'c': something(); break;" +
+        "  case 'd': case 'e': case 'f': somethingOther(); break;" +
+        "}");
+    assertThat(statements.size(), is(5));
+    assertThat(statements.get(0).getValue(), is("switch(a)"));
+    assertThat(statements.get(1).getValue(), is("case$CHARS:case$CHARS:case$CHARS:something()"));
+    assertThat(statements.get(2).getValue(), is("break"));
+    assertThat(statements.get(3).getValue(), is("case$CHARS:case$CHARS:case$CHARS:somethingOther()"));
+    assertThat(statements.get(4).getValue(), is("break"));
   }
 
   @Test
