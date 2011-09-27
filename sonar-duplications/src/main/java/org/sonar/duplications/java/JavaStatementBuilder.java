@@ -43,6 +43,7 @@ public final class JavaStatementBuilder {
         .statement(from("else"))
         .statement(from("for"), bridge("(", ")"))
         .statement(from("while"), bridge("(", ")"))
+        .statement(from("try"), bridge("(", ")"))
         .statement(from("case"), to(";", "{", "}"), forgetLastToken())
         .statement(from("default"), to(";", "{", "}"), forgetLastToken())
         .statement(to(";", "{", "}"), forgetLastToken())
