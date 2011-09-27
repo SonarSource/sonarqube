@@ -26,10 +26,10 @@ class DatabaseVersion
   end
 
   def self.current_version
-    result=0
     begin
       result=ActiveRecord::Migrator.current_version
     rescue
+      result=0
     end
 
     if result==0
@@ -59,7 +59,7 @@ class DatabaseVersion
     $uptodate
   end
 
-  def self.setup
+  def self.migrate_and_start
     ActiveRecord::Migrator.migrate(migrations_path)
     Java::OrgSonarServerPlatform::Platform.getInstance().start()
     load_plugin_webservices()
@@ -71,7 +71,8 @@ class DatabaseVersion
 
   def self.automatic_setup
     if current_version<=0
-      setup
+      try_restore_structure_dump() if use_structure_dump?
+      migrate_and_start()
     end
     if uptodate?
       load_plugin_webservices()
@@ -81,5 +82,39 @@ class DatabaseVersion
 
   def self.connected?
     ActiveRecord::Base.connected?
+  end
+
+  def self.try_restore_structure_dump()
+    begin
+      ddl=IO.readlines("#{RAILS_ROOT}/db/structure/#{dialect}.ddl")
+      sql=IO.readlines("#{RAILS_ROOT}/db/structure/#{dialect}.sql")
+
+      puts "Restore database structure & data"
+      execute_sql_requests(ddl)
+      execute_sql_requests(sql)
+      puts "Database created"
+    rescue
+      # file not found
+      nil
+    end
+  end
+
+  def self.execute_sql_requests(requests)
+    requests.each do |request|
+      unless request.blank? || request.start_with?('--')
+        request.chomp!
+        request.chop! if request.end_with?(';')
+        ActiveRecord::Base.connection.execute(request)
+      end
+    end
+  end
+
+  def self.dialect
+    ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDialect().getActiveRecordDialectCode()
+  end
+
+  def self.use_structure_dump?
+    # default value is true
+    ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.useStructureDump')!='false'
   end
 end

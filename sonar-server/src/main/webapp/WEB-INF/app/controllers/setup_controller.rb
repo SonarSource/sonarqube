@@ -41,7 +41,7 @@ class SetupController < ApplicationController
 
   def setup_database
     # do not forget that this code is also in /api/server/setup (see api/server_controller.rb)
-    DatabaseVersion.setup unless DatabaseVersion.uptodate?
+    DatabaseVersion.migrate_and_start unless DatabaseVersion.uptodate?
     redirect_to home_path
   end
 end

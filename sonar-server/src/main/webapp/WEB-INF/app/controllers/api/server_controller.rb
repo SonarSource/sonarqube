@@ -66,7 +66,7 @@ class Api::ServerController < Api::ApiController
 
   def setup
     begin
-      DatabaseVersion.setup unless DatabaseVersion.uptodate?
+      DatabaseVersion.migrate_and_start unless DatabaseVersion.uptodate?
       hash={:status => 'ok'}
       respond_to do |format|
         format.json{ render :json => jsonp(hash) }
