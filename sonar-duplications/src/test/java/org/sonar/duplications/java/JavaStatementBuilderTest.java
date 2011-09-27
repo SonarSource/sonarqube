@@ -289,6 +289,33 @@ public class JavaStatementBuilderTest {
     assertThat(statements.get(3).getValue(), is("onException()"));
   }
 
+  /**
+   * Java 7.
+   */
+  @Test
+  public void shouldHandleTryWithResource() {
+    List<Statement> statements;
+    statements = chunk("try (FileInputStream in = new FileInputStream()) {}");
+    assertThat(statements.size(), is(2));
+    assertThat(statements.get(0).getValue(), is("try(FileInputStreamin=newFileInputStream())"));
+    assertThat(statements.get(1).getValue(), is("{}"));
+
+    statements = chunk("try (FileInputStream in = new FileInputStream(); FileOutputStream out = new FileOutputStream()) {}");
+    assertThat(statements.size(), is(2));
+    assertThat(statements.get(0).getValue(), is("try(FileInputStreamin=newFileInputStream();FileOutputStreamout=newFileOutputStream())"));
+    assertThat(statements.get(1).getValue(), is("{}"));
+
+    statements = chunk("try (FileInputStream in = new FileInputStream(); FileOutputStream out = new FileOutputStream();) {}");
+    assertThat(statements.size(), is(2));
+    assertThat(statements.get(0).getValue(), is("try(FileInputStreamin=newFileInputStream();FileOutputStreamout=newFileOutputStream();)"));
+    assertThat(statements.get(1).getValue(), is("{}"));
+
+    statements = chunk("try (FileInputStream in = new FileInputStream()) { something(); }");
+    assertThat(statements.size(), is(2));
+    assertThat(statements.get(0).getValue(), is("try(FileInputStreamin=newFileInputStream())"));
+    assertThat(statements.get(1).getValue(), is("something()"));
+  }
+
   @Test
   public void realExamples() {
     assertThat(chunk(DuplicationsTestUtil.findFile("/java/MessageResources.java")).size(), greaterThan(0));
