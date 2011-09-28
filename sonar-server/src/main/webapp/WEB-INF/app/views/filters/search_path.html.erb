@@ -38,7 +38,7 @@
       <% path_name=snapshot.path_name %>
       <%= path_name -%>
     </td>
-    <td><a href="#" onClick="selectPath(<%= snapshot.project_id-%>, '<%= escape_javascript(path_name) -%>')"><%= message('select_verb') -%></a></td>
+    <td><a id="select-<%= u(snapshot.project.key) -%>" href="#" onClick="selectPath(<%= snapshot.project_id-%>, '<%= escape_javascript(path_name) -%>')"><%= message('select_verb') -%></a></td>
   </tr>
   <% end
   end %>
