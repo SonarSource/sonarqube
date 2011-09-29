@@ -16,31 +16,14 @@
 
 <div id="setupform">
 <div id="setupformlogo"><a href="http://www.sonarsource.org"><%= image_tag('sonar.png', :class => 'png') -%></a></div>
-<h1 class="marginbottom10">Upgrade database.</h1>
-<p>
-<h3>Connection</h3>
-<table>
-  <tr>
-    <td width="1%" nowrap>URL: </td>
-    <td><%= configuration('sonar.jdbc.url', '') -%>
-  </tr>
-  <tr>
-    <td width="1%" nowrap>Login: </td>
-    <td><%= configuration('sonar.jdbc.username', '') -%>
-  </tr>
-  <tr>
-    <td width="1%" nowrap>Driver: </td>
-    <td><%= configuration('sonar.jdbc.driverClassName', '') -%>
-  </tr>
-</table>
-</p>
+<h1 class="marginbottom10">Upgrade database</h1>
 <br/>
-<h3>Warnings</h3>
+<h3>Important</h3>
 <p>
   <ul>
     <li><b>Do not refresh this page</b> until the upgrade is finished. It can take several minutes.</li>
     <li>It is recommended to <b>backup database</b> before upgrading.</li>
-    <li><b>Copy the directory /extensions</b> from previous version of Sonar before upgrading.</li>
+    <li><b>Copy the directory /extensions</b> from previous version before upgrading.</li>
   </ul>
 </p>
   <br/>
