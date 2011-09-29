@@ -19,21 +19,16 @@
  */
 package org.sonar.test.i18n;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.sonar.test.i18n.I18nMatchers.isBundleUpToDate;
-
-import java.io.File;
-import java.util.Collection;
-import java.util.SortedMap;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.test.TestUtils;
+
+import java.io.File;
+import java.util.SortedMap;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+import static org.sonar.test.i18n.I18nMatchers.isBundleUpToDate;
 
 public class BundleSynchronizedTest {
 
@@ -58,13 +53,11 @@ public class BundleSynchronizedTest {
     } catch (AssertionError e) {
       assertThat(e.getMessage(), containsString("Missing translations are:\nsecond.prop"));
     }
-    // unnecessary many keys
-    try {
-      assertThat("myPlugin_fr_QB.properties", isBundleUpToDate());
-      assertTrue(new File("target/l10n/myPlugin_fr_QB.properties.report.txt").exists());
-    } catch (AssertionError e) {
-      assertThat(e.getMessage(), containsString("The following translations do not exist in the reference bundle:\nfourth.prop"));
-    }
+  }
+
+  @Test
+  public void shouldNotFailIfNoMissingKeysButAdditionalKeys() {
+    assertThat("noMissingKeys_fr.properties", isBundleUpToDate());
   }
 
   @Test

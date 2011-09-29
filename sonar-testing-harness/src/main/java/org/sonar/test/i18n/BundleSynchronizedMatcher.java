@@ -48,7 +48,7 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
   private String remote_file_path;
   private String bundleName;
   private SortedMap<String, String> missingKeys;
-  private SortedMap<String, String> nonExistingKeys;
+  private SortedMap<String, String> additionalKeys;
 
   public BundleSynchronizedMatcher(String sonarVersion) {
     this(sonarVersion, GITHUB_RAW_FILE_PATH);
@@ -65,12 +65,11 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
     }
     bundleName = (String) arg0;
 
-    // Get the bundle
     File bundle = getBundleFileFromClasspath(bundleName);
 
     // Find the default bundle name which should be compared to
     String defaultBundleName = extractDefaultBundleName(bundleName);
-    File defaultBundle = null;
+    File defaultBundle;
     if (isCoreBundle(defaultBundleName)) {
       defaultBundle = getBundleFileFromGithub(defaultBundleName);
     } else {
@@ -80,8 +79,8 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
     // and now let's compare
     try {
       missingKeys = retrieveMissingTranslations(bundle, defaultBundle);
-      nonExistingKeys = retrieveMissingTranslations(defaultBundle, bundle);
-      return missingKeys.isEmpty() && nonExistingKeys.isEmpty();
+      additionalKeys = retrieveMissingTranslations(defaultBundle, bundle);
+      return missingKeys.isEmpty();
     } catch (IOException e) {
       fail("An error occured while reading the bundles: " + e.getMessage());
       return false;
@@ -103,9 +102,9 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
   private StringBuilder prepareDetailsMessage(File dumpFile) {
     StringBuilder details = new StringBuilder("\n=======================\n'");
     details.append(bundleName);
-    details.append("' is not synchronized.");
+    details.append("' is not up-to-date.");
     print("\n\n Missing translations are:", missingKeys, details);
-    print("\n\nThe following translations do not exist in the reference bundle:", nonExistingKeys, details);
+    print("\n\nThe following translations do not exist in the reference bundle:", additionalKeys, details);
     details.append("\n\nSee report file located at: " + dumpFile.getAbsolutePath());
     details.append("\n=======================");
     return details;
