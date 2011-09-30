@@ -125,7 +125,7 @@ public class SurefireStaxHandler implements XmlStreamHandler {
     String classname = testCaseCursor.getAttrValue("classname");
     String name = testCaseCursor.getAttrValue("name");
     if (StringUtils.contains(classname, "$")) {
-      return StringUtils.substringAfterLast(classname, "$") + "/" + name;
+      return StringUtils.substringAfter(classname, "$") + "/" + name;
     }
     return name;
   }

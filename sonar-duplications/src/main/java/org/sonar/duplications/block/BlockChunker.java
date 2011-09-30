@@ -1,0 +1,87 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2008-2011 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
+package org.sonar.duplications.block;
+
+import java.util.Collections;
+import java.util.List;
+
+import org.sonar.duplications.statement.Statement;
+
+import com.google.common.collect.Lists;
+
+/**
+ * Creates blocks from statements, each block will contain specified number of statements (<code>blockSize</code>) and 64-bits (8-bytes) hash value.
+ * Hash value computed using
+ * <a href="http://en.wikipedia.org/wiki/Rolling_hash#Rabin-Karp_rolling_hash">Rabin-Karp rolling hash</a> :
+ * <blockquote><pre>
+ * s[0]*31^(blockSize-1) + s[1]*31^(blockSize-2) + ... + s[blockSize-1]
+ * </pre></blockquote>
+ * using <code>long</code> arithmetic, where <code>s[i]</code>
+ * is the hash code of <code>String</code> (which is cached) for statement with number i.
+ * Thus running time - O(N), where N - number of statements.
+ * Implementation fully thread-safe.
+ */
+public class BlockChunker {
+
+  private static final long PRIME_BASE = 31;
+
+  private final int blockSize;
+  private final long power;
+
+  public BlockChunker(int blockSize) {
+    this.blockSize = blockSize;
+
+    long pow = 1;
+    for (int i = 0; i < blockSize - 1; i++) {
+      pow = pow * PRIME_BASE;
+    }
+    this.power = pow;
+  }
+
+  public List<Block> chunk(String resourceId, List<Statement> statements) {
+    if (statements.size() < blockSize) {
+      return Collections.emptyList();
+    }
+    Statement[] statementsArr = statements.toArray(new Statement[statements.size()]);
+    List<Block> blocks = Lists.newArrayListWithCapacity(statementsArr.length - blockSize + 1);
+    long hash = 0;
+    int first = 0;
+    int last = 0;
+    for (; last < blockSize - 1; last++) {
+      hash = hash * PRIME_BASE + statementsArr[last].getValue().hashCode();
+    }
+    for (; last < statementsArr.length; last++, first++) {
+      Statement firstStatement = statementsArr[first];
+      Statement lastStatement = statementsArr[last];
+      // add last statement to hash
+      hash = hash * PRIME_BASE + lastStatement.getValue().hashCode();
+      // create block
+      blocks.add(new Block(resourceId, new ByteArray(hash), first, firstStatement.getStartLine(), lastStatement.getEndLine()));
+      // remove first statement from hash
+      hash -= power * firstStatement.getValue().hashCode();
+    }
+    return blocks;
+  }
+
+  public int getBlockSize() {
+    return blockSize;
+  }
+
+}

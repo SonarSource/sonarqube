@@ -19,6 +19,8 @@
  */
 package org.sonar.api.database.model;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.BaseIdentifiable;
 
 import javax.persistence.*;
@@ -83,6 +85,15 @@ public class MeasureData extends BaseIdentifiable {
 
   public void setSnapshotId(Integer snapshotId) {
     this.snapshotId = snapshotId;
+  }
+
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+        .append("snapshotId", snapshotId)
+        .append("mesasure", measure)
+        .append("data", data)
+        .toString();
   }
 }
 

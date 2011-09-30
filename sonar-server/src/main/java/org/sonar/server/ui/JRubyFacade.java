@@ -44,13 +44,14 @@ import org.sonar.server.filters.FilterExecutor;
 import org.sonar.server.filters.FilterResult;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.plugins.*;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.updatecenter.common.Version;
 
+import java.net.InetAddress;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -274,8 +275,21 @@ public final class JRubyFacade {
     return getContainer().getComponent(Configuration.class).getString(key, null);
   }
 
-  public Connection getConnection() throws SQLException {
-    return getContainer().getComponent(DatabaseConnector.class).getConnection();
+  public List<InetAddress> getValidInetAddressesForServerId() {
+    return getContainer().getComponent(ServerIdGenerator.class).getAvailableAddresses();
+  }
+
+  public String generateServerId(String organisation, String ipAddress) {
+    return getContainer().getComponent(ServerIdGenerator.class).generate(organisation, ipAddress);
+  }
+
+  public Connection getConnection() {
+    try {
+      return getContainer().getComponent(DatabaseConnector.class).getConnection();
+    } catch (Exception e) {
+      /* activerecord does not correctly manage exceptions when connection can not be opened. */
+      return null;
+    }
   }
 
   public Object getCoreComponentByClassname(String className) {
@@ -296,7 +310,7 @@ public final class JRubyFacade {
   public Object getComponentByClassname(String pluginKey, String className) {
     Object component = null;
     PicoContainer container = getContainer();
-    Class componentClass = container.getComponent(ServerPluginRepository.class).getClass(pluginKey, className);
+    Class componentClass = container.getComponent(DefaultServerPluginRepository.class).getClass(pluginKey, className);
     if (componentClass != null) {
       component = container.getComponent(componentClass);
     }

@@ -89,11 +89,16 @@ public class Match implements Comparable<Match> {
       second = m2.getIndex();
     }
 
+    @Override
     public int hashCode() {
       return first + 37 * second;
     }
 
+    @Override
     public boolean equals(Object other) {
+      if (!(other instanceof MatchCode)) {
+        return false;
+      }
       MatchCode mc = (MatchCode) other;
       return mc.first == first && mc.second == second;
     }
@@ -145,7 +150,7 @@ public class Match implements Comparable<Match> {
   }
 
   public int compareTo(Match other) {
-    int diff = other.getTokenCount() - getTokenCount();
+    int diff = other.getTokenCount() - getTokenCount(); // NOSONAR Bad practice - Class defines compareTo(...) and uses Object.equals()
     if (diff != 0) {
       return diff;
     }
@@ -160,6 +165,7 @@ public class Match implements Comparable<Match> {
     return marks[1];
   }
 
+  @Override
   public String toString() {
     return "Match: " + EOL + "tokenCount = " + tokenCount + EOL + "marks = " + markSet.size();
   }

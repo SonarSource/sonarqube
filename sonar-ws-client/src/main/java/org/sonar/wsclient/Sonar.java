@@ -93,7 +93,7 @@ public class Sonar {
     connector.execute(query);
   }
 
-  public void delete(DeleteQuery<?> query) {
+  public void delete(DeleteQuery query) {
     connector.execute(query);
   }
 

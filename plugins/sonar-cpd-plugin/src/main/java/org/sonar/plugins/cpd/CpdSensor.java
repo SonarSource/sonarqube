@@ -19,101 +19,67 @@
  */
 package org.sonar.plugins.cpd;
 
-import net.sourceforge.pmd.cpd.AbstractLanguage;
-import net.sourceforge.pmd.cpd.TokenEntry;
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
-import org.sonar.duplications.cpd.CPD;
-
-import java.io.IOException;
-import java.nio.charset.Charset;
+import org.sonar.api.utils.Logs;
 
 public class CpdSensor implements Sensor {
 
-  private CpdMapping[] mappings;
+  private CpdEngine sonarEngine;
+  private CpdEngine pmdEngine;
 
-  public CpdSensor(CpdMapping[] mappings) {
-    this.mappings = mappings;
+  public CpdSensor(SonarEngine sonarEngine, PmdEngine pmdEngine) {
+    this.sonarEngine = sonarEngine;
+    this.pmdEngine = pmdEngine;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    CpdMapping mapping = getMapping(project.getLanguage());
-    if (mapping == null) {
-      LoggerFactory.getLogger(getClass()).info("Detection of duplication code is not supported for {}.", project.getLanguage());
+    if (isSkipped(project)) {
+      LoggerFactory.getLogger(getClass()).info("Detection of duplicated code is skipped");
       return false;
     }
 
-    if (isSkipped(project)) {
-      LoggerFactory.getLogger(getClass()).info("Detection of duplicated code is skipped");
+    if (!getEngine(project).isLanguageSupported(project.getLanguage())) {
+      LoggerFactory.getLogger(getClass()).info("Detection of duplication code is not supported for {}.", project.getLanguage());
       return false;
     }
 
     return true;
   }
 
+  private CpdEngine getEngine(Project project) {
+    if (isSonarEngineEnabled(project)) {
+      if (sonarEngine.isLanguageSupported(project.getLanguage())) {
+        return sonarEngine;
+      } else {
+        // fallback to PMD
+        return pmdEngine;
+      }
+    } else {
+      return pmdEngine;
+    }
+  }
+
+  boolean isSonarEngineEnabled(Project project) {
+    Configuration conf = project.getConfiguration();
+    return StringUtils.equalsIgnoreCase(conf.getString(CoreProperties.CPD_ENGINE, CoreProperties.CPD_ENGINE_DEFAULT_VALUE), "sonar");
+  }
+
   boolean isSkipped(Project project) {
     Configuration conf = project.getConfiguration();
     return conf.getBoolean("sonar.cpd." + project.getLanguageKey() + ".skip",
-        conf.getBoolean("sonar.cpd.skip", false));
+        conf.getBoolean(CoreProperties.CPD_SKIP_PROPERTY, false));
   }
 
   public void analyse(Project project, SensorContext context) {
-    CpdMapping mapping = getMapping(project.getLanguage());
-    CPD cpd = executeCPD(project, mapping, project.getFileSystem().getSourceCharset());
-    saveResults(cpd, mapping, project, context);
-  }
-
-  private CpdMapping getMapping(Language language) {
-    for (CpdMapping cpdMapping : mappings) {
-      if (cpdMapping.getLanguage().equals(language)) {
-        return cpdMapping;
-      }
-    }
-    return null;
-  }
-
-  private void saveResults(CPD cpd, CpdMapping mapping, Project project, SensorContext context) {
-    CpdAnalyser cpdAnalyser = new CpdAnalyser(project, context, mapping);
-    cpdAnalyser.analyse(cpd.getMatches());
-  }
-
-  private CPD executeCPD(Project project, CpdMapping mapping, Charset encoding) {
-    try {
-      CPD cpd = configureCPD(project, mapping, encoding);
-      cpd.go();
-      return cpd;
-
-    } catch (Exception e) {
-      throw new CpdException(e);
-    }
-  }
-
-  private CPD configureCPD(Project project, CpdMapping mapping, Charset encoding) throws IOException {
-    // To avoid a cpd bug generating error as "java.lang.IndexOutOfBoundsException: Index: 259, Size: 248"
-    // See http://sourceforge.net/tracker/?func=detail&atid=479921&aid=1947823&group_id=56262 for more details
-    TokenEntry.clearImages();
-
-    int minTokens = getMinimumTokens(project);
-    AbstractLanguage cpdLanguage = new AbstractLanguage(mapping.getTokenizer()) {
-    };
-
-    CPD cpd = new CPD(minTokens, cpdLanguage);
-    cpd.setEncoding(encoding.name());
-    cpd.setLoadSourceCodeSlices(false);
-    cpd.add(project.getFileSystem().getSourceFiles(project.getLanguage()));
-    return cpd;
-  }
-
-  int getMinimumTokens(Project project) {
-    Configuration conf = project.getConfiguration();
-    return conf.getInt("sonar.cpd." + project.getLanguageKey() + ".minimumTokens",
-        conf.getInt("sonar.cpd.minimumTokens", CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE));
+    CpdEngine engine = getEngine(project);
+    Logs.INFO.info("{} is used", engine);
+    engine.analyse(project, context);
   }
 
   @Override

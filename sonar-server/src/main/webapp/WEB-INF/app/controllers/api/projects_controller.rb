@@ -18,6 +18,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class Api::ProjectsController < Api::ApiController
+
+  before_filter :admin_required, :only => [ :destroy ]
   
   # PARAMETERS
   #   subprojects [true|false] : load sub-projects ? Default is false. Ignored if the parameter key is set.
@@ -49,7 +51,21 @@ class Api::ProjectsController < Api::ApiController
     end
   end
   
-  
+  #
+  # DELETE /api/projects/<key>
+  # curl -X DELETE  http://localhost:9000/api/projects/<key> -v -u admin:admin
+  #
+  def destroy
+    bad_request("Missing project key") unless params[:id].present?
+     
+    project = Project.by_key(params[:id])
+    bad_request("Not valid project") unless project
+    access_denied unless is_admin?(project)
+    bad_request("Not valid project") unless project.project?
+      
+    Project.delete_project(project)
+    render_success("Project deleted")
+  end
   
   private
   

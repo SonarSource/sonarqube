@@ -67,6 +67,36 @@ class Snapshot < ActiveRecord::Base
 
     snapshots.compact.uniq
   end
+  
+  def self.for_timemachine_widget(resource, number_of_columns, options={})
+    if number_of_columns == 1
+      # Display only the latest snapshot
+      return [resource.last_snapshot]
+    end
+    
+    # Get 1rst & latests snapshots of the period
+    snapshot_conditions = ["snapshots.project_id=? AND snapshots.status=? AND snapshots.scope=? AND snapshots.qualifier=?", resource.id, STATUS_PROCESSED, resource.scope, resource.qualifier]
+    if options[:from]
+      snapshot_conditions[0] += " AND snapshots.created_at>=?"
+      snapshot_conditions << options[:from]
+    end
+    first_snapshot=Snapshot.find(:first, :conditions => snapshot_conditions, :order => 'snapshots.created_at ASC')
+    last_snapshot=resource.last_snapshot
+    
+    if first_snapshot==last_snapshot
+      return [last_snapshot]
+    end
+    
+    # Look for the number_of_columns-2 last snapshots to display  (they must have 'Version' events)
+    version_snapshots = []
+    if number_of_columns > 2
+      snapshot_conditions[0] += " AND events.snapshot_id=snapshots.id AND events.category='Version' AND snapshots.id NOT IN (?)"
+      snapshot_conditions << [first_snapshot.id, last_snapshot.id]
+      version_snapshots=Snapshot.find(:all, :conditions => snapshot_conditions, :include => 'events', :order => 'snapshots.created_at ASC').last(number_of_columns-2)
+    end
+    
+    return [first_snapshot] + version_snapshots + [last_snapshot]
+  end
 
   def last?
     islast

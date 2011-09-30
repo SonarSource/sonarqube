@@ -10,26 +10,6 @@
   </distributionManagement>
   <dependencies>
     <dependency>
-      <groupId>org.apache.maven.shared</groupId>
-      <artifactId>maven-dependency-tree</artifactId>
-      <version>1.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-batch</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-  	<dependency>
-	    <groupId>ch.qos.logback</groupId>
-	    <artifactId>logback-classic</artifactId>
-	    <version>0.9.15</version>
-	  </dependency>
-	  <dependency>
-	    <groupId>org.slf4j</groupId>
-	    <artifactId>slf4j-api</artifactId>
-	    <version>1.5.6</version>
-	  </dependency>
-    <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
       <version>2.0.7</version>
@@ -47,13 +27,5 @@
       <version>2.0.7</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>2.4</version>
-    </dependency>
-
-    $dependencies
-    
   </dependencies>
 </project>

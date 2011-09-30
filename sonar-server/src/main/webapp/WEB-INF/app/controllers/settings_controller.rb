@@ -20,26 +20,31 @@
 class SettingsController < ApplicationController
 
   SECTION=Navigation::SECTION_CONFIGURATION
+  
+  SPECIAL_CATEGORIES=['email', 'server_id']
 
-  verify :method => :post, :only => ['update'], :redirect_to => { :action => :index }
+  verify :method => :post, :only => ['update'], :redirect_to => {:action => :index}
 
   def index
-    return access_denied unless is_admin?  
+    return access_denied unless is_admin?
+    load_properties(false)
+    @category ||= 'general'
   end
 
   def update
     if params[:resource_id]
       project=Project.by_key(params[:resource_id])
-      return access_denied unless is_admin?(project)
+      return access_denied unless (project && is_admin?(project))
       resource_id=project.id
     else
       return access_denied unless is_admin?
+      resource_id=nil
     end
 
-    plugins = java_facade.getPluginsMetadata()
-    plugins.each do |plugin|
-      properties=java_facade.getPluginProperties(plugin)
-      properties.each do |property|
+    load_properties(true)
+
+    if @category && @properties_per_category[@category]
+      @properties_per_category[@category].each do |property|
         value=params[property.key()]
         persisted_property = Property.find(:first, :conditions => {:prop_key=> property.key(), :resource_id => resource_id, :user_id => nil})
 
@@ -48,20 +53,37 @@ class SettingsController < ApplicationController
             Property.delete_all('prop_key' => property.key(), 'resource_id' => resource_id, 'user_id' => nil)
           elsif persisted_property.text_value != value.to_s
             persisted_property.text_value = value.to_s
-            persisted_property.save
+            persisted_property.save!
           end
-        elsif !value.blank? 
+        elsif !value.blank?
           Property.create(:prop_key => property.key(), :text_value => value.to_s, :resource_id => resource_id)
         end
       end
+      java_facade.reloadConfiguration()
+      flash[:notice] = 'Parameters updated'
     end
-    java_facade.reloadConfiguration()
 
-    flash[:notice] = 'Parameters updated.'
     if resource_id
-      redirect_to :controller => 'project', :action => 'settings', :id => resource_id
+      redirect_to :controller => 'project', :action => 'settings', :id => resource_id, :category => @category
     else
-      redirect_to :action => 'index'
+      redirect_to :controller => 'settings', :action => 'index', :category => @category
+    end
+  end
+
+  private
+
+  def load_properties(all=true)
+    @category=params[:category]
+    @properties_per_category={}
+    java_facade.getPluginsMetadata().each do |plugin|
+      java_facade.getPluginProperties(plugin).select { |property| all || property.global }.each do |property|
+        category = (property.category().present? ? property.category() : plugin.name())
+        @properties_per_category[category]||=[]
+        @properties_per_category[category]<<property
+      end
+    end
+    SPECIAL_CATEGORIES.each do |category|
+      @properties_per_category[category]=[]
     end
   end
 end

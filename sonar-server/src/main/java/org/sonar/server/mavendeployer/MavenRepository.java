@@ -52,7 +52,7 @@ public class MavenRepository {
   public void start() {
     try {
       Artifact maven2Plugin = Mojo.createMaven2Plugin(serverId, installation.getMaven2Plugin());
-      maven2Plugin.deployTo(rootDir, false);
+      maven2Plugin.deployTo(rootDir);
 
     } catch (IOException e) {
       throw new RuntimeException(e);

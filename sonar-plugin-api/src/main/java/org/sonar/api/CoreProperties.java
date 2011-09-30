@@ -19,8 +19,6 @@
  */
 package org.sonar.api;
 
-import org.sonar.api.resources.ProjectFileSystem;
-
 /**
  * CoreProperties is used to group various properties of Sonar as well
  * as default values of configuration in a single place
@@ -28,6 +26,42 @@ import org.sonar.api.resources.ProjectFileSystem;
  * @since 1.11
  */
 public interface CoreProperties {
+
+  /**
+   * @since 2.11
+   */
+  String CATEGORY_GENERAL = "general";
+
+  /**
+   * @since 2.11
+   */
+  String CATEGORY_CODE_COVERAGE = "codeCoverage";
+
+  /**
+   * @since 2.11
+   */
+  String CATEGORY_DUPLICATIONS = "duplications";
+
+  /**
+   * @since 2.11
+   */
+  String CATEGORY_SECURITY = "security";
+
+  /**
+   * @since 2.11
+   */
+  String CATEGORY_L10N = "localization";
+
+  /**
+   * @since 2.11
+   */
+  String CATEGORY_JAVA = "java";
+
+  /**
+   * @since 2.11
+   */
+  String CATEGORY_DIFFERENTIAL_VIEWS = "differentialViews";
+
 
   /* Global settings */
   String SONAR_HOME = "sonar.home";
@@ -50,7 +84,7 @@ public interface CoreProperties {
   String PROJECT_DESCRIPTION_PROPERTY = "sonar.projectDescription";
 
   /**
-   * To determine value of this property use {@link ProjectFileSystem#getSourceCharset()}.
+   * To determine value of this property use {@link org.sonar.api.resources.ProjectFileSystem#getSourceCharset()}.
    * 
    * @since 2.6
    */
@@ -129,6 +163,28 @@ public interface CoreProperties {
   String CPD_IGNORE_IDENTIFIERS_DEFAULT_VALUE = "false";
   String CPD_SKIP_PROPERTY = "sonar.cpd.skip";
 
+  /**
+   * @since 2.11
+   */
+  String CPD_ENGINE = "sonar.cpd.engine";
+
+  /**
+   * @since 2.11
+   * @see #CPD_ENGINE
+   */
+  String CPD_ENGINE_DEFAULT_VALUE = "sonar";
+
+  /**
+   * @since 2.11
+   */
+  String CPD_CROSS_RPOJECT = "sonar.cpd.cross_project";
+
+  /**
+   * @since 2.11
+   * @see #CPD_CROSS_RPOJECT
+   */
+  boolean CPD_CROSS_RPOJECT_DEFAULT_VALUE = false;
+
   /* Design */
 
   /**
@@ -180,4 +236,19 @@ public interface CoreProperties {
   String TIMEMACHINE_DEFAULT_PERIOD_3 = "30";
   String TIMEMACHINE_DEFAULT_PERIOD_4 = "";
   String TIMEMACHINE_DEFAULT_PERIOD_5 = "";
+
+  /**
+   * @since 2.11
+   */
+  String ORGANISATION = "sonar.organisation";
+
+  /**
+   * @since 2.11
+   */
+  String PERMANENT_SERVER_ID = "sonar.server_id";
+
+  /**
+   * @since 2.11
+   */
+  String SERVER_ID_IP_ADDRESS = "sonar.server_id.ip_address";
 }

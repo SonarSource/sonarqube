@@ -1,0 +1,9 @@
+<dataset>
+
+  <snapshots id="1" status="U" islast="false" project_id="0" />
+  <snapshots id="2" status="U" islast="false" project_id="1" />
+  <projects id="1" kee="foo" enabled="true" scope="FIL" qualifier="CLA" />
+
+  <duplications_index id="1" project_snapshot_id="1" snapshot_id="2" hash="bb" index_in_file="0" start_line="1" end_line="2" />
+
+</dataset>

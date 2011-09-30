@@ -20,7 +20,7 @@
 class Project < ActiveRecord::Base
   include Comparable
   include Resourceable
-  
+
   has_many :snapshots
   has_many :processed_snapshots, :class_name => 'Snapshot', :conditions => "status='#{Snapshot::STATUS_PROCESSED}' AND qualifier<>'LIB'", :order => 'created_at asc'
   has_many :events, :foreign_key => 'resource_id', :order => 'event_date DESC'
@@ -39,33 +39,40 @@ class Project < ActiveRecord::Base
       Project.find(:first, :conditions => {:kee => k})
     end
   end
-  
+
+  def self.delete_project(project)
+    if project
+      Snapshot.update_all(['islast=?', false], ['(root_project_id=? OR project_id=?) AND islast=?', project.id, project.id, true])
+      Project.delete_all(['id=? OR root_id=? or copy_resource_id=?', project.id, project.id, project.id])
+    end
+  end
+
   def project
     root||self
   end
-  
+
   def root_project
-    @root_project ||= 
-      begin
-        parent_module(self)
-      end
+    @root_project ||=
+        begin
+          parent_module(self)
+        end
   end
-  
+
   def last_snapshot
     @last_snapshot ||=
-      begin
-        snapshot=Snapshot.find(:first, :conditions => {:islast => true, :project_id => id})
-        if snapshot
-          snapshot.project=self
+        begin
+          snapshot=Snapshot.find(:first, :conditions => {:islast => true, :project_id => id})
+          if snapshot
+            snapshot.project=self
+          end
+          snapshot
         end
-        snapshot
-      end
   end
-  
+
   def events_with_snapshot
-    events.select{|event| !event.snapshot_id.nil?}
+    events.select { |event| !event.snapshot_id.nil? }
   end
-  
+
   def key
     kee
   end
@@ -73,29 +80,29 @@ class Project < ActiveRecord::Base
   def links
     project_links
   end
-  
+
   def link(type)
     # to_a avoids conflicts with ActiveRecord:Base.find
-    links.to_a.find{ |l| l.link_type==type}
-  end 
-  
-  def custom_links
-    links.select {|l| l.custom?}
+    links.to_a.find { |l| l.link_type==type }
   end
-  
+
+  def custom_links
+    links.select { |l| l.custom? }
+  end
+
   def standard_links
-    links.reject {|l| l.custom?}
+    links.reject { |l| l.custom? }
   end
 
   def chart_measures(metric_id)
     sql = Project.send(:sanitize_sql, ['select s.created_at as created_at, m.value as value ' +
-          ' from project_measures m, snapshots s ' +
-          ' where s.id=m.snapshot_id and ' +
-          " s.status='%s' and " +
-          ' s.project_id=%s and m.metric_id=%s ', Snapshot::STATUS_PROCESSED, self.id, metric_id] ) +
-      ' and m.rule_id IS NULL and m.rule_priority IS NULL' +
-      ' order by s.created_at'
-    create_chart_measures( Project.connection.select_all( sql ), 'created_at', 'value' )
+                                           ' from project_measures m, snapshots s ' +
+                                           ' where s.id=m.snapshot_id and ' +
+                                           " s.status='%s' and " +
+                                           ' s.project_id=%s and m.metric_id=%s ', Snapshot::STATUS_PROCESSED, self.id, metric_id]) +
+        ' and m.rule_id IS NULL and m.rule_priority IS NULL' +
+        ' order by s.created_at'
+    create_chart_measures(Project.connection.select_all(sql), 'created_at', 'value')
   end
 
   def <=>(other)
@@ -113,13 +120,13 @@ class Project < ActiveRecord::Base
   def fullname
     name
   end
-  
+
   def branch
     if project? || module?
       s=kee.split(':')
       if s.size>=3
         return s[2]
-      end 
+      end
     end
     nil
   end
@@ -151,19 +158,19 @@ class Project < ActiveRecord::Base
       # when regular active record impl return string typed objects
       if results.first[date_column_name].class == Time
         results.each do |hash|
-          chart_measures << ChartMeasure.new( hash[date_column_name], hash[value_column_name] )
+          chart_measures << ChartMeasure.new(hash[date_column_name], hash[value_column_name])
         end
       else
         results.each do |hash|
-          chart_measures << ChartMeasure.new( Time.parse( hash[date_column_name] ), hash[value_column_name].to_d )
+          chart_measures << ChartMeasure.new(Time.parse(hash[date_column_name]), hash[value_column_name].to_d)
         end
       end
     end
     chart_measures
   end
-  
+
   def parent_module(current_module)
     current_module.root ? parent_module(current_module.root) : current_module
   end
-  
+
 end

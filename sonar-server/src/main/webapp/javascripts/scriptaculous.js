@@ -1,6 +1,6 @@
-// script.aculo.us builder.js v1.8.3, Thu Oct 08 11:23:33 +0200 2009
+// script.aculo.us builder.js v1.9.0, Thu Dec 23 16:54:48 -0500 2010
 
-// Copyright (c) 2005-2009 Thomas Fuchs (http://script.aculo.us, http://mir.aculo.us)
+// Copyright (c) 2005-2010 Thomas Fuchs (http://script.aculo.us, http://mir.aculo.us)
 //
 // script.aculo.us is freely distributable under the terms of an MIT-style license.
 // For details, see the script.aculo.us web site: http://script.aculo.us/
@@ -134,11 +134,9 @@ var Builder = {
     });
   }
 };
+// script.aculo.us effects.js v1.9.0, Thu Dec 23 16:54:48 -0500 2010
 
-
-// script.aculo.us effects.js v1.8.3, Thu Oct 08 11:23:33 +0200 2009
-
-// Copyright (c) 2005-2009 Thomas Fuchs (http://script.aculo.us, http://mir.aculo.us)
+// Copyright (c) 2005-2010 Thomas Fuchs (http://script.aculo.us, http://mir.aculo.us)
 // Contributors:
 //  Justin Palmer (http://encytemedia.com/)
 //  Mark Pilgrim (http://diveintomark.org/)
@@ -1260,12 +1258,11 @@ $w('getInlineOpacity forceRerendering setContentZoom collectTextNodes collectTex
 
 Element.addMethods(Effect.Methods);
 
+// script.aculo.us controls.js v1.9.0, Thu Dec 23 16:54:48 -0500 2010
 
-// script.aculo.us controls.js v1.8.3, Thu Oct 08 11:23:33 +0200 2009
-
-// Copyright (c) 2005-2009 Thomas Fuchs (http://script.aculo.us, http://mir.aculo.us)
-//           (c) 2005-2009 Ivan Krstic (http://blogs.law.harvard.edu/ivan)
-//           (c) 2005-2009 Jon Tirsen (http://www.tirsen.com)
+// Copyright (c) 2005-2010 Thomas Fuchs (http://script.aculo.us, http://mir.aculo.us)
+//           (c) 2005-2010 Ivan Krstic (http://blogs.law.harvard.edu/ivan)
+//           (c) 2005-2010 Jon Tirsen (http://www.tirsen.com)
 // Contributors:
 //  Richard Livsey
 //  Rahul Bhargava
@@ -1506,10 +1503,10 @@ Autocompleter.Base = Class.create({
     var value = '';
     if (this.options.select) {
       var nodes = $(selectedElement).select('.' + this.options.select) || [];
-      if(nodes.length>0) value = Element.collectTextNodes(nodes[0], this.options.select);      
+      if(nodes.length>0) value = Element.collectTextNodes(nodes[0], this.options.select);
     } else
       value = Element.collectTextNodesIgnoreClass(selectedElement, 'informal');
-    
+
     var bounds = this.getTokenBounds();
     if (bounds[0] != -1) {
       var newValue = this.element.value.substr(0, bounds[0]);
@@ -1521,9 +1518,12 @@ Autocompleter.Base = Class.create({
       this.element.value = value;
     }
     this.oldElementValue = this.element.value;
-    // Following line was commented for SONAR-1688 because in our autosuggest text fields, we use
+
+    // SONAR
+	// Following line was commented for SONAR-1688 because in our autosuggest text fields, we use
     // the onfocus() method to reinitialize the value of the input field to ''.
     //this.element.focus();
+    // /SONAR
 
     if (this.options.afterUpdateElement)
       this.options.afterUpdateElement(this.element, selectedElement);
@@ -2228,11 +2228,9 @@ Form.Element.DelayedObserver = Class.create({
     this.callback(this.element, $F(this.element));
   }
 });
+// script.aculo.us dragdrop.js v1.9.0, Thu Dec 23 16:54:48 -0500 2010
 
-
-// script.aculo.us dragdrop.js v1.8.3, Thu Oct 08 11:23:33 +0200 2009
-
-// Copyright (c) 2005-2009 Thomas Fuchs (http://script.aculo.us, http://mir.aculo.us)
+// Copyright (c) 2005-2010 Thomas Fuchs (http://script.aculo.us, http://mir.aculo.us)
 //
 // script.aculo.us is freely distributable under the terms of an MIT-style license.
 // For details, see the script.aculo.us web site: http://script.aculo.us/
@@ -2606,7 +2604,7 @@ var Draggable = Class.create({
       if (this.options.scroll == window) {
         with(this._getWindowScroll(this.options.scroll)) { p = [ left, top, left+width, top+height ]; }
       } else {
-        p = Position.page(this.options.scroll);
+        p = Position.page(this.options.scroll).toArray();
         p[0] += this.options.scroll.scrollLeft + Position.deltaX;
         p[1] += this.options.scroll.scrollTop + Position.deltaY;
         p.push(p[0]+this.options.scroll.offsetWidth);

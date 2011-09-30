@@ -111,6 +111,19 @@ public class AbstractSurefireParserTest {
     verify(context, never()).saveMeasure(argThat(new IsResource(Scopes.FILE, Qualifiers.FILE, "org.apache.commons.collections.bidimap.AbstractTestBidiMap$TestBidiMapEntrySet")), any(Metric.class), anyDouble());
   }
 
+  @Test
+  public void shouldMergeNestedInnerClasses() throws URISyntaxException {
+    AbstractSurefireParser parser = newParser();
+
+    SensorContext context = mockContext();
+    parser.collect(new Project("foo"), context, getDir("nestedInnerClasses"));
+
+    verify(context).saveMeasure(
+        argThat(new IsResource(Scopes.FILE, Qualifiers.FILE, "org.sonar.plugins.surefire.NestedInnerTest")),
+        eq(CoreMetrics.TESTS),
+        eq(3.0));
+  }
+
 
   private AbstractSurefireParser newParser() {
     return new AbstractSurefireParser() {

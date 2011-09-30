@@ -1,0 +1,53 @@
+<% if @snapshot.root? %>
+<h1><%= message('project_history.page_title') -%></h1>
+<br/>
+
+<table class="data" style="width:1%">
+  <thead>
+    <tr>
+      <th class="thin nowrap"><%= message('project_history.col.year') -%></th>
+      <th class="thin nowrap"><%= message('project_history.col.month') -%></th>
+      <th class="thin nowrap" style="padding-left: 20px;"><%= message('project_history.col.events') -%></th>
+      <th class="thin nowrap" style="padding-left: 20px;"><%= message('project_history.col.time') -%></th>
+      <th class="thin nowrap center"><%= message('project_history.col.action') -%></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% 
+      current_year = nil
+      current_month = nil
+      @snapshots.each do |snapshot|
+        number_of_events = snapshot.events.size
+        time = snapshot.created_at
+    %>
+    <tr class="<%= cycle 'even','odd' -%>">
+      <td class="thin nowrap"><b><%= time.year unless time.year == current_year -%></b></td>
+      <td class="thin nowrap"><b><%= l(time, :format => '%B').capitalize unless time.month == current_month -%></b></td>
+      <td class="thin nowrap" style="padding-left: 20px;">
+        <%= snapshot.events.map{|e| e.name}.join(', ') -%>
+      </td>
+      <td class="thin nowrap" style="padding-left: 20px;"><%= l time, :format => :long -%></td>
+      <td class="thin nowrap center" style="padding-left:10px; padding-right:10px">
+        <%
+          cell_content = nil;
+          if snapshot.islast?
+            cell_content = "<b>" + message('project_history.last_snapshot') + "</b>"
+          else
+            cell_content = button_to( message('project_history.delete_snapshot'), 
+                                        { :action => "delete_snapshot_history", :id => @project.id, :snapshot_id => snapshot.id }, 
+                                        :class => 'action red-button', 
+                                        :confirm => message('project_history.are_you_sure_delete_snapshot_x', :params => l(time, :format => :long)) )  
+          end
+        %>
+        <%= cell_content -%>
+      </td>
+    </tr>
+    <%
+        current_year = time.year
+        current_month = time.month 
+      end 
+    %>
+  </tbody>
+</table>
+
+<% end %>

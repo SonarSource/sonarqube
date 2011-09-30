@@ -27,15 +27,60 @@ class ProjectController < ApplicationController
     redirect_to :overwrite_params => {:controller => :dashboard, :action => 'index'} 
   end
 
+  def deletion
+    @project=Project.by_key(params[:id])
+    return access_denied unless is_admin?(@project)
+
+    @snapshot=@project.last_snapshot
+    if !@project.project?
+      redirect_to :action => 'index', :id => params[:id]
+    end
+  end
+
   def delete
     if params[:id]
       @project = Project.by_key(params[:id])
-      if @project && is_admin?(@project)
-        Snapshot.update_all(['islast=?', false], ['(root_project_id=? OR project_id=?) AND islast=?', @project.id, @project.id, true])
-        Project.delete_all(['id=? OR root_id=? or copy_resource_id=?', @project.id, @project.id, @project.id])
+      if @project && @project.project? && is_admin?(@project)
+        Project.delete_project(@project)
       end
     end
     redirect_to_default
+  end
+
+  def history
+    @project=Project.by_key(params[:id])
+    return access_denied unless is_admin?(@project)
+
+    if !(@project.project? || @project.view? || @project.subview?)
+      redirect_to :action => 'index', :id => params[:id]
+    end
+    
+    @snapshot=@project.last_snapshot
+    @snapshots = Snapshot.find(:all, :conditions => ["status='P' AND project_id=?", @project.id], 
+                               :include => 'events', :order => 'snapshots.created_at DESC')
+  end
+
+  def delete_snapshot_history
+    project=Project.by_key(params[:id])
+    return access_denied unless is_admin?(@project)
+    
+    sid = params[:snapshot_id]
+    if sid
+      Snapshot.update_all("status='U'", ["id=? or root_snapshot_id=(?)", sid.to_i, sid.to_i])
+      flash[:notice] = message('project_history.snapshot_deleted')
+    end
+    
+    redirect_to :action => 'history', :id => project.id
+  end
+
+  def links
+    @project=Project.by_key(params[:id])
+    return access_denied unless is_admin?(@project)
+
+    @snapshot=@project.last_snapshot
+    if !@project.project?
+      redirect_to :action => 'index', :id => params[:id]
+    end
   end
 
   def set_links
@@ -61,9 +106,10 @@ class ProjectController < ApplicationController
     project.save!
 
     flash[:notice] = 'Links updated.'
-    redirect_to :action => 'settings', :id => project.id
+    redirect_to :action => 'links', :id => project.id
   end
 
+  
   def settings
     @project=Project.by_key(params[:id])
     return access_denied unless is_admin?(@project)
@@ -71,6 +117,19 @@ class ProjectController < ApplicationController
     @snapshot=@project.last_snapshot
     if !@project.project? && !@project.module?
       redirect_to :action => 'index', :id => params[:id]
+    end
+
+    @category=params[:category] ||= 'general'
+    @properties_per_category={}
+    java_facade.getPluginsMetadata().each do |plugin|
+      properties=java_facade.getPluginProperties(plugin).select { |property|
+        (@project.module? && property.module()) || (@project.project? && property.project())
+      }
+      properties.each do |property|
+        category = (property.category().present? ? property.category() : plugin.name())
+        @properties_per_category[category]||=[]
+        @properties_per_category[category]<<property
+      end
     end
   end
 
@@ -90,6 +149,16 @@ class ProjectController < ApplicationController
   end
 
 
+  def exclusions
+    @project=Project.by_key(params[:id])
+    return access_denied unless is_admin?(@project)
+  
+    @snapshot=@project.last_snapshot
+    if !@project.project? && !@project.module?
+      redirect_to :action => 'index', :id => params[:id]
+    end
+  end
+
   def set_exclusions
     @project = Project.find(params[:id])
     return access_denied unless is_admin?(@project)
@@ -102,7 +171,7 @@ class ProjectController < ApplicationController
       Property.set('sonar.exclusions', patterns.collect{|x| x.strip}.join(','), @project.id)
     end
     flash[:notice]='Filters added'
-    redirect_to :action => 'settings', :id => @project.id
+    redirect_to :action => 'exclusions', :id => @project.id
   end
 
   def delete_exclusions
@@ -111,7 +180,7 @@ class ProjectController < ApplicationController
     
     Property.clear('sonar.exclusions', @project.id)
     flash[:notice]='Filters deleted'
-    redirect_to :action => 'settings', :id => @project.id
+    redirect_to :action => 'exclusions', :id => @project.id
   end
 
   protected

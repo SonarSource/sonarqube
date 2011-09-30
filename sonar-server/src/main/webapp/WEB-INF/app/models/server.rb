@@ -25,7 +25,7 @@ class Server
   
   def system_info
     system_info=[]
-    add_property(system_info, 'System date') {format_date(java.util.Date.new())}
+    add_property(system_info, 'System date') {java.util.Date.new()}
     add_property(system_info, 'JVM Vendor') {java.lang.management.ManagementFactory.getRuntimeMXBean().getVmVendor()}
     add_property(system_info, 'JVM Name') {java.lang.management.ManagementFactory.getRuntimeMXBean().getVmName()}
     add_property(system_info, 'JVM Version') {java.lang.management.ManagementFactory.getRuntimeMXBean().getVmVersion() }
@@ -59,8 +59,9 @@ class Server
 
   def sonar_info
     sonar_info=[]
+    add_property(sonar_info, 'Server ID') {sonar_property(ServerIdConfigurationController::PROPERTY_SERVER_ID)}
     add_property(sonar_info, 'Version') {org.sonar.server.platform.Platform.getServer().getVersion()}
-    add_property(sonar_info, 'ID') {org.sonar.server.platform.Platform.getServer().getId()}
+    add_property(sonar_info, 'Started at') {org.sonar.server.platform.Platform.getServer().getStartedAt()}
     add_property(sonar_info, 'Database') {"#{jdbc_metadata. getDatabaseProductName()} #{jdbc_metadata. getDatabaseProductVersion()}"}
     add_property(sonar_info, 'Database URL') {sonar_property('sonar.jdbc.url')}
     add_property(sonar_info, 'Database Login') {sonar_property('sonar.jdbc.username')}

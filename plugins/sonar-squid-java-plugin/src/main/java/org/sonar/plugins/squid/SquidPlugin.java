@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.squid;
 
+import org.sonar.api.CoreProperties;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.SonarPlugin;
@@ -34,7 +35,9 @@ import java.util.List;
         name = "Separate accessors",
         description = "Flag whether Squid should separate accessors (getters/setters) from methods. " +
             "In that case, accessors are not counted in metrics such as complexity or API documentation.",
-        project = true, global = true),
+        project = true,
+        global = true,
+        category = CoreProperties.CATEGORY_JAVA),
     @Property(key = SquidPluginProperties.FIELDS_TO_EXCLUDE_FROM_LCOM4_COMPUTATION,
         defaultValue = SquidPluginProperties.FIELDS_TO_EXCLUDE_FROM_LCOM4_COMPUTATION_DEFAULT_VALUE,
         name = "List of fields to exclude from LCOM4 computation",
@@ -42,8 +45,18 @@ import java.util.List;
             "unexpectedly and artificially decrease the LCOM4 measure. "
             + "The best example is a logger used by all methods of a class. " +
             "All field names to exclude from LCOM4 computation must be separated by a comma.",
-        project = true, global = true)})
-public class SquidPlugin extends SonarPlugin {
+        project = true,
+        global = true,
+        category = CoreProperties.CATEGORY_JAVA),
+    @Property(
+        key = CoreProperties.DESIGN_SKIP_DESIGN_PROPERTY,
+        defaultValue = "" + CoreProperties.DESIGN_SKIP_DESIGN_DEFAULT_VALUE,
+        name = "Skip design analysis",
+        project = true,
+        global = true,
+        category = CoreProperties.CATEGORY_JAVA)
+})
+public final class SquidPlugin extends SonarPlugin {
 
   public List getExtensions() {
     return Arrays.asList(SquidSensor.class, SquidRuleRepository.class, JavaSourceImporter.class,

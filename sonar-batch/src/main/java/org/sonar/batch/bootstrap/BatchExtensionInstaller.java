@@ -64,12 +64,14 @@ public final class BatchExtensionInstaller implements BatchComponent {
     List<ExtensionProvider> providers = module.getComponents(ExtensionProvider.class);
     for (ExtensionProvider provider : providers) {
       Object obj = provider.provide();
-      if (obj instanceof Iterable) {
-        for (Object extension : (Iterable) obj) {
-          installExtension(module, extension);
+      if (obj != null) {
+        if (obj instanceof Iterable) {
+          for (Object extension : (Iterable) obj) {
+            installExtension(module, extension);
+          }
+        } else {
+          installExtension(module, obj);
         }
-      } else {
-        installExtension(module, obj);
       }
     }
   }

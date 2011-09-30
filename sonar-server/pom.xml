@@ -4,14 +4,13 @@
   <parent>
     <groupId>org.codehaus.sonar</groupId>
     <artifactId>sonar</artifactId>
-    <version>2.10</version>
+    <version>2.11</version>
   </parent>
   <artifactId>sonar-server</artifactId>
   <packaging>war</packaging>
   <name>Sonar :: Server</name>
 
   <dependencies>
-    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!! TODO Review !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-batch</artifactId>
@@ -260,16 +259,14 @@
           <aggregations>
             <aggregation>
               <includes>
-                <include>**/yahoo-dom-event-min.js</include>
-                <include>**/calendar-min.js</include>
                 <include>**/application-min.js</include>
                 <include>**/prototype-min.js</include>
                 <include>**/scriptaculous-min.js</include>
                 <include>**/tablekit-min.js</include>
                 <include>**/prototip-min.js</include>
-                <include>**/tooltip-min.js</include>
                 <include>**/dashboard-min.js</include>
-
+                <include>**/protovis-min.js</include>
+                <include>**/protovis-sonar-min.js</include>
               </includes>
               <output>${project.build.directory}/${project.build.finalName}/javascripts/sonar.js</output>
             </aggregation>
@@ -315,7 +312,7 @@
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <packagingExcludes>
-            **/*.log,*.iml,WEB-INF/script/,WEB-INF/test/
+            **/*.log,*.iml,WEB-INF/script/,WEB-INF/test/,javascripts/application*.js,javascripts/prototype*.js,javascripts/scriptaculous*.js,javascripts/tablekit*.js,javascripts/tablekit*.js,javascripts/prototip*.js,javascripts/dashboard*.js,javascripts/protovis.js,javascripts/protovis-min.js
           </packagingExcludes>
           <warSourceExcludes>
             **/*
@@ -349,7 +346,7 @@
                   <overWriteIfNewer>true</overWriteIfNewer>
                   <overWriteReleases>true</overWriteReleases>
                   <overWriteSnapshots>true</overWriteSnapshots>
-                  <outputDirectory>${project.build.directory}/sonar-dev-home/extensions/plugins/</outputDirectory>
+                  <outputDirectory>${project.build.directory}/sonar-dev-home/lib/core-plugins/</outputDirectory>
                 </configuration>
               </execution>
             </executions>
@@ -629,44 +626,6 @@
           <artifactId>derbyclient</artifactId>
         </dependency>
       </dependencies>
-    </profile>
-
-    <profile>
-      <id>rdoc</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.jruby.plugins</groupId>
-            <artifactId>jruby-rake-plugin</artifactId>
-            <version>1.4.0</version>
-            <executions>
-              <execution>
-                <id>install-gems</id>
-                <phase>process-resources</phase>
-                <goals>
-                  <goal>install-gems</goal>
-                </goals>
-                <configuration>
-                  <jrubyHome>${env.JRUBY_HOME}</jrubyHome>
-                  <gems>--no-rdoc --no-ri --user-install -v=2.2.2 rails</gems>
-                </configuration>
-              </execution>
-              <execution>
-                <id>rdoc</id>
-                <phase>process-resources</phase>
-                <goals>
-                  <goal>rake</goal>
-                </goals>
-                <configuration>
-                  <jrubyHome>${env.JRUBY_HOME}</jrubyHome>
-                  <launchDirectory>${basedir}/src/main/webapp/WEB-INF</launchDirectory>
-                  <args>rdoc</args>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
 
     <profile>

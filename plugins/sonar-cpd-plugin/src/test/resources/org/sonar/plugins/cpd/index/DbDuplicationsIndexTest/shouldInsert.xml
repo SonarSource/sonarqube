@@ -1,0 +1,7 @@
+<dataset>
+
+  <snapshots id="1" status="U" islast="false" project_id="0" />
+  <snapshots id="2" status="U" islast="false" project_id="1" />
+  <projects id="1" kee="foo" enabled="true" scope="FIL" qualifier="CLA" />
+
+</dataset>

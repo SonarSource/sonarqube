@@ -54,20 +54,32 @@
             <% if (@project.project? || @project.module?) %>
               <li class="<%= 'selected' if request.request_uri.include?('/project/settings') -%>"><a href="<%= ApplicationController.root_context -%>/project/settings/<%= @project.id -%>"><%= message('project_settings.page') -%></a></li>
             <% end %>
+            <% if (@project.project? || @project.module?) %>
+              <li class="<%= 'selected' if request.request_uri.include?('/project/exclusions') -%>"><a href="<%= ApplicationController.root_context -%>/project/exclusions/<%= @project.id -%>"><%= message('project_exclusions.page') -%></a></li>
+            <% end %>
+            <% if (@project.project?) %>
+              <li class="<%= 'selected' if request.request_uri.include?('/project/links') -%>"><a href="<%= ApplicationController.root_context -%>/project/links/<%= @project.id -%>"><%= message('project_links.page') -%></a></li>
+            <% end %>
             <% if (@project.project? || @project.view? || @project.subview?) %>
               <li class="<%= 'selected' if request.request_uri.include?('/project_roles') -%>"><a href="<%= ApplicationController.root_context -%>/project_roles/index?resource=<%= @project.id -%>"><%= message('project_roles.page') -%></a></li>
+              <li class="<%= 'selected' if request.request_uri.include?('/project/history') -%>"><a href="<%= ApplicationController.root_context -%>/project/history/<%= @project.id -%>"><%= message('project_history.page') -%></a></li>
+            <% end %>
+            <% if (@project.project?) %>
+              <li class="<%= 'selected' if request.request_uri.include?('/project/deletion') -%>"><a href="<%= ApplicationController.root_context -%>/project/deletion/<%= @project.id -%>"><%= message('project_deletion.page') -%></a></li>
             <% end %>
           <% end %>
 
         <% elsif selected_section==Navigation::SECTION_CONFIGURATION %>
 
           <li class="<%= 'selected' if request.request_uri.include?('/profiles') || request.request_uri.include?('/rules_configuration') -%>"><a href="<%= ApplicationController.root_context -%>/profiles"><%= message('quality_profiles.page') -%></a></li>
+            <% if current_user %>
+              <li class="<%= 'selected' if controller.controller_path=='account' -%>"><a href="<%= ApplicationController.root_context -%>/account/index"><%= message('my_profile.page') -%></a></li>
+            <% end %>
             <% if is_admin? %>
               <li class="<%= 'selected' if controller.controller_path=='event_categories' -%>"><a href="<%= ApplicationController.root_context -%>/event_categories/index"><%= message('event_categories.page') -%></a></li>
               <li class="<%= 'selected' if controller.controller_path=='metrics' -%>"><a href="<%= ApplicationController.root_context -%>/metrics/index"><%= message('manual_metrics.page') -%></a></li>
               <li class="<%= 'selected' if controller.controller_path=='admin_filters' -%>"><a href="<%= ApplicationController.root_context -%>/admin_filters/index"><%= message('default_filters.page') -%></a></li>
               <li class="<%= 'selected' if controller.controller_path=='admin_dashboards' -%>"><a href="<%= ApplicationController.root_context -%>/admin_dashboards/index"><%= message('default_dashboards.page') -%></a></li>
-              <li class="<%= 'selected' if controller.controller_path=='account' -%>"><a href="<%= ApplicationController.root_context -%>/account/index"><%= message('my_profile.page') -%></a></li>
               <% controller.java_facade.getPages(Navigation::SECTION_CONFIGURATION, nil,nil, nil).each do |page| %>
                 <li class="<%= 'selected' if request.request_uri.include?("plugins/configuration/#{page.getId()}") -%>"><a href="<%= ApplicationController.root_context -%>/plugins/configuration/<%= page.getId() -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) %></a></li>
               <% end %>
@@ -80,7 +92,6 @@
 
               <li class="h2"><%= message('sidebar.system') -%></li>
               <li class="<%= 'selected' if request.request_uri.include?('/settings') -%>"><a href="<%= ApplicationController.root_context -%>/settings/index"><%= message('settings.page') -%></a></li>
-              <li class="<%= 'selected' if controller.controller_path=='email_configuration' -%>"><a href="<%= ApplicationController.root_context -%>/email_configuration"><%= message('email_configuration.page') -%></a></li>
               <li class="<%= 'selected' if controller.controller_path=='backup' -%>"><a href="<%= ApplicationController.root_context -%>/backup"><%= message('backup.page') -%></a></li>
               <li class="<%= 'selected' if controller.controller_path=='system' -%>"><a href="<%= ApplicationController.root_context -%>/system"><%= message('system_info.page') -%></a></li>
               <% update_center_activated = controller.java_facade.getConfigurationValue('sonar.updatecenter.activate') || 'true';
@@ -113,17 +124,7 @@
 <% if footer.getHtml() %><div><%= footer.getHtml().to_s %></div><% end %>
 <% end %>
 <div id="ftlinks">
-  <%= message('layout.powered_by') -%> <a href="http://www.sonarsource.com" target="SonarSource" class="external">SonarSource</a> 
-  - 
-  Open Source <a href="http://www.sonarsource.org/documentation/license/" target="license" class="external">LGPL</a> 
-  - 
-  v.<%= sonar_version -%>
-  -
-  <a href="http://sonar-plugins.codehaus.org" class="external" target="plugins"><%= message('layout.plugins') -%></a>
-  -
-  <a href="http://sonar.codehaus.org/documentation" class="external" target="sonar_doc" class="external"><%= message('layout.documentation') -%></a> 
-  - 
-  <a href="http://sonar.codehaus.org/support/" target="support" class="external"><%= message('layout.ask_a_questions') -%></a> 
+  <%= message('layout.powered_by') -%> <a href="http://www.sonarsource.com" target="SonarSource" class="external">SonarSource</a> - Open Source <a href="http://www.sonarsource.org/documentation/license/" target="license" class="external">LGPL</a> - v.<%= sonar_version -%> - <a href="http://sonar-plugins.codehaus.org" class="external" target="plugins"><%= message('layout.plugins') -%></a> - <a href="http://sonar.codehaus.org/documentation" class="external" target="sonar_doc" class="external"><%= message('layout.documentation') -%></a> - <a href="http://sonar.codehaus.org/support/" target="support" class="external"><%= message('layout.ask_a_questions') -%></a>
   </div>
 </div>
 <% end %>

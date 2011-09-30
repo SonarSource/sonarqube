@@ -41,8 +41,9 @@ class User < ActiveRecord::Base
   validates_length_of       :name, :maximum => 200, :allow_blank => true, :allow_nil => true
   validates_length_of       :email, :maximum => 100, :allow_blank => true, :allow_nil => true
 
-  validates_length_of       :password, :within => 4..40, :if => :password_required?
-  validates_confirmation_of :password, :if => :password_required?
+  # The following two validations not needed, because they come with Authentication::ByPassword - see SONAR-2656
+  #validates_length_of       :password, :within => 4..40, :if => :password_required?
+  #validates_confirmation_of :password, :if => :password_required?
 
   validates_presence_of     :login
   validates_length_of       :login,    :within => 2..40

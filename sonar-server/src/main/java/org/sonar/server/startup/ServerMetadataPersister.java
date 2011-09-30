@@ -39,19 +39,23 @@ public class ServerMetadataPersister {
   public void start() {
     setProperty(CoreProperties.SERVER_ID, server.getId());
     setProperty(CoreProperties.SERVER_VERSION, server.getVersion());
-    if (server.getStartedAt() != null) {
-      setProperty(CoreProperties.SERVER_STARTTIME, new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(server.getStartedAt()));
-    }
+    setProperty(CoreProperties.SERVER_STARTTIME, new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(server.getStartedAt()));
     session.commit();
   }
 
   private void setProperty(String key, String value) {
     Property prop = session.getSingleResult(Property.class, "key", key);
-    if (prop == null) {
-      prop = new Property(key, value);
-    } else {
-      prop.setValue(value);
+
+    if (value == null && prop != null) {
+      session.removeWithoutFlush(prop);
+
+    } else if (value != null) {
+      if (prop == null) {
+        prop = new Property(key, value);
+      } else {
+        prop.setValue(value);
+      }
+      session.saveWithoutFlush(prop);
     }
-    session.save(prop);
   }
 }

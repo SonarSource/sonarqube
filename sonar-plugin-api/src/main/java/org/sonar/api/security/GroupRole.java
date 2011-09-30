@@ -19,6 +19,8 @@
  */
 package org.sonar.api.security;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.BaseIdentifiable;
 
 import javax.persistence.Column;
@@ -80,5 +82,10 @@ public class GroupRole extends BaseIdentifiable {
 
   public boolean isAnyone() {
     return groupId==ANYONE_GROUP_ID;
+  }
+
+  @Override
+  public String toString() {
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 }

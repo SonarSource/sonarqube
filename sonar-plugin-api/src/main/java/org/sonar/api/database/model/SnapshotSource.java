@@ -19,6 +19,9 @@
  */
 package org.sonar.api.database.model;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.BaseIdentifiable;
 import org.sonar.api.database.DatabaseProperties;
 
@@ -78,5 +81,13 @@ public class SnapshotSource extends BaseIdentifiable {
   @Override
   public int hashCode() {
     return snapshotId.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+        .append("snapshot_id", snapshotId)
+        .append("data", StringUtils.abbreviate(data, 1000))
+        .toString();
   }
 }

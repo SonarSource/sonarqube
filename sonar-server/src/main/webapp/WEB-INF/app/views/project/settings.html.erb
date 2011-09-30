@@ -1,13 +1,9 @@
 <div name="settings">
 
-<%= render :partial => 'project/settings/plugins' %>
-<br/>
-<%= render :partial => 'project/settings/exclusions' %>
-<% if @project.project? %>
-<br/>
-<%= render :partial => 'project/settings/links' %>
-<br/>
-<%= render :partial => 'project/settings/delete_project' %>
-<% end %>
+  <h1 class="marginbottom10">Settings</h1>
+  
+  <div class="yui-g widget" id="widget_plugins">
+    <%= render :partial => 'settings/plugins', :locals => {:project=>@project} %>
+  </div>
 
 </div>

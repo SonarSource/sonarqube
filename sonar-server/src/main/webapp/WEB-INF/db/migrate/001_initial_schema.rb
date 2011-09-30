@@ -23,24 +23,46 @@ class InitialSchema < ActiveRecord::Migration
       t.column :name,                :string,    :null => true,  :limit => 256
       t.column :description,         :string,    :null => true,  :limit => 2000
       t.column :enabled,             :boolean,   :null => false, :default => true
+      t.column 'scope', :string, :limit => 3
+      t.column 'qualifier', :string, :limit => 3
+      t.column 'kee', :string, :limit => 400
+      t.column 'root_id', :integer
+      t.column :profile_id, :integer, :null => true
+      t.column :language, :string, :null => true, :limit => 5
+      t.column :copy_resource_id, :integer, :null => true
+      t.column :long_name, :string, :null => true, :limit => 256
     end
 
     create_table :snapshots do |t|
       t.column :created_at,          :datetime,  :null => true, :default => nil
-      t.column :version,             :string,    :null => false, :limit => 32
       t.column :project_id,          :integer,   :null => false
       t.column :parent_snapshot_id, :integer,   :null => true
       t.column :status,             :string,    :null => false, :default => 'U', :limit => 4
-      t.column :purged,             :boolean,   :null => false, :default => false
       t.column :islast,             :boolean,   :null => false, :default => false
-
+      t.column 'scope', :string, :limit => 3
+      t.column 'qualifier', :string, :limit => 3
+      t.column 'root_snapshot_id', :integer
+      t.column 'version', :string, :limit => 60, :null => true
+      t.column :path, :string, :null => true, :limit => 96
+      t.column :depth, :integer, :null => true
+      t.column :root_project_id, :integer, :nullable => true
     end
 
     create_table :metrics do |t|
       t.column :name,                :string,    :null => false, :limit => 64
-      t.column :value_type,          :integer,   :null => false
       t.column :description,         :string,    :null => true, :limit => 255
       t.column :direction,           :integer,   :null => false, :default => 0
+      t.column :domain, :string, :null => true, :limit => 64
+      t.column :short_name, :string, :null => true, :limit => 64
+      t.column :qualitative, :boolean, :null => false, :default => false
+      t.column :val_type, :string, :null => true, :limit => 8
+      t.column :user_managed, :boolean, :null => true, :default => false
+      t.column :enabled, :boolean, :null => true, :default => true
+      t.column :origin, :string, :null => true, :limit => 3
+      t.column 'worst_value', :decimal, :null => true, :precision => 30, :scale => 20
+      t.column 'best_value', :decimal, :null => true, :precision => 30, :scale => 20
+      t.column 'optimized_best_value', :boolean, :null => true
+      t.column 'hidden', :boolean, :null => true
     end
 
     create_table :project_measures do |t|
@@ -49,6 +71,18 @@ class InitialSchema < ActiveRecord::Migration
       t.column :snapshot_id,         :integer,   :null => true
       t.column :rule_id,             :integer
       t.column :rules_category_id,   :integer
+      t.column :text_value, :string, :limit => 96, :null => true
+      t.column 'tendency', :integer, :null => true
+      t.column :measure_date, :datetime, :null => true
+      t.column :project_id, :integer, :null => true
+      t.column :alert_status, :string, :limit => 5, :null => true
+      t.column :alert_text, :string, :null => true, :limit => 4000
+      t.column :url, :string, :null => true, :limit => 2000
+      t.column :description, :string, :null => true, :limit => 4000
+      t.column :rule_priority, :integer, :null => true
+      t.column :diff_value_1, :decimal, :null => true, :precision => 30, :scale => 20
+      t.column :diff_value_2, :decimal, :null => true, :precision => 30, :scale => 20
+      t.column :diff_value_3, :decimal, :null => true, :precision => 30, :scale => 20
     end
 
     create_table :rules_categories do |t|
@@ -57,12 +91,13 @@ class InitialSchema < ActiveRecord::Migration
     end
 
     create_table :rules do |t|
-      t.column :name,                :string,    :null => false, :limit => 128
+      t.column :name,                :string,    :null => false, :limit => 192
       t.column :rules_category_id,   :integer,   :null => false
       t.column :plugin_rule_key,     :string,    :null => false, :limit => 200
       t.column :plugin_config_key,   :string,    :null => false, :limit => 200
       t.column :plugin_name,         :string,    :null => false, :limit => 255
       t.column :description,         :text
+      t.column :priority, :integer, :null => true
     end
 
     create_table :rule_failures do |t|
@@ -70,6 +105,7 @@ class InitialSchema < ActiveRecord::Migration
       t.column :rule_id,             :integer,   :null => false
       t.column :failure_level,       :integer,   :null => false
       t.column :message,             :string,    :limit => 500
+      t.column :line, :integer, :null => true
     end
 
     create_table :rules_parameters do |t|

@@ -21,7 +21,11 @@ package org.sonar.server.platform;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.database.configuration.Property;
 import org.sonar.api.platform.Server;
+import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,28 +35,41 @@ import java.util.Properties;
 
 public final class ServerImpl extends Server {
 
-  private final String id;
-  private final String version;
+  private String id;
+  private String version;
   private final Date startedAt;
 
-  public ServerImpl() {
+  /**
+   * This component can't use Configuration because of startup sequence. It must be started before plugins.
+   */
+  private DatabaseSessionFactory dbSessionFactory;
+
+  public ServerImpl(DatabaseSessionFactory dbSessionFactory) {
+    this(dbSessionFactory, new Date());
+  }
+
+  ServerImpl(DatabaseSessionFactory dbSessionFactory, Date startedAt) {
+    this.dbSessionFactory = dbSessionFactory;
+    this.startedAt = startedAt;
+  }
+
+  public void start() {
     try {
-      this.startedAt = new Date();
-      this.id = new SimpleDateFormat("yyyyMMddHHmmss").format(startedAt);
-      this.version = loadVersionFromManifest("/META-INF/maven/org.codehaus.sonar/sonar-plugin-api/pom.properties");
-      if (StringUtils.isBlank(this.version)) {
+      id = new SimpleDateFormat("yyyyMMddHHmmss").format(startedAt);
+      version = loadVersionFromManifest("/META-INF/maven/org.codehaus.sonar/sonar-plugin-api/pom.properties");
+      if (StringUtils.isBlank(version)) {
         throw new ServerStartException("Unknown Sonar version");
       }
 
     } catch (IOException e) {
-      throw new ServerStartException("Can not load Sonar metadata", e);
+      throw new ServerStartException("Can not load metadata", e);
     }
   }
 
-  public ServerImpl(String id, String version, Date startedAt) {
-    this.id = id;
-    this.version = version;
-    this.startedAt = startedAt;
+  public String getPermanentServerId() {
+    DatabaseSession session = dbSessionFactory.getSession();
+    Property serverId = session.getSingleResult(Property.class, "key", CoreProperties.PERMANENT_SERVER_ID);
+    return (serverId!= null ? serverId.getValue() : null);
   }
 
   public String getId() {

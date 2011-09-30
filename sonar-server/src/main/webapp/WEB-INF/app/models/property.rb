@@ -86,6 +86,6 @@ class Property < ActiveRecord::Base
   private
 
   def self.reload_java_configuration
-    Java::OrgSonarServerUi::JRubyFacade.new.reloadConfiguration()
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().reloadConfiguration()
   end
 end

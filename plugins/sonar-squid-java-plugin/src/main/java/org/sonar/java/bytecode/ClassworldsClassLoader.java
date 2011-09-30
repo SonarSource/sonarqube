@@ -45,7 +45,7 @@ public final class ClassworldsClassLoader {
   public static ClassLoader create(Collection<File> bytecodeFilesOrDirectories) {
     try {
       ClassWorld world = new ClassWorld();
-      ClassRealm realm = world.newRealm("squid.project");
+      ClassRealm realm = world.newRealm("squid.project", null /* explicit declaration that parent should be bootstrap class loader */);
 
       for (File bytecode : bytecodeFilesOrDirectories) {
         URL url = getURL(bytecode);

@@ -22,8 +22,6 @@ package org.sonar.server.plugins;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +32,10 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.core.plugins.PluginFileExtractor;
-import org.sonar.core.plugins.RemotePlugin;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.ServerStartException;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -73,7 +69,6 @@ public class PluginDeployer implements ServerComponent {
 
     deployPlugins();
 
-    generateIndexFile();
     profiler.stop();
   }
 
@@ -147,24 +142,6 @@ public class PluginDeployer implements ServerComponent {
       registerPlugin(file, true, false);
     }
   }
-
-
-  private void generateIndexFile() throws IOException {
-    File indexFile = fileSystem.getPluginsIndex();
-    FileUtils.forceMkdir(indexFile.getParentFile());
-    FileWriter writer = new FileWriter(indexFile, false);
-    try {
-      for (PluginMetadata metadata : pluginByKeys.values()) {
-        writer.append(RemotePlugin.create((DefaultPluginMetadata)metadata).marshal());
-        writer.append(CharUtils.LF);
-      }
-      writer.flush();
-
-    } finally {
-      IOUtils.closeQuietly(writer);
-    }
-  }
-
 
   public void uninstall(String pluginKey) {
     PluginMetadata metadata = pluginByKeys.get(pluginKey);

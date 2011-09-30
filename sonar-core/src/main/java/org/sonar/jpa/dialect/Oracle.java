@@ -38,6 +38,10 @@ public class Oracle implements Dialect {
     return "oracle";
   }
 
+  public String getActiveRecordJdbcAdapter() {
+    return "oracle_enhanced";
+  }
+
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
     return Oracle10gWithDecimalDialect.class;
   }

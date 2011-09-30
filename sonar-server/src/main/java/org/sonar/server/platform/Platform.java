@@ -137,14 +137,15 @@ public final class Platform {
   private void startCoreComponents() {
     coreContainer = rootContainer.makeChildContainer();
     coreContainer.as(Characteristics.CACHE).addComponent(PluginDeployer.class);
-    coreContainer.as(Characteristics.CACHE).addComponent(ServerPluginRepository.class);
-    coreContainer.as(Characteristics.CACHE).addComponent(ServerImpl.class);
+    coreContainer.as(Characteristics.CACHE).addComponent(DefaultServerPluginRepository.class);
     coreContainer.as(Characteristics.CACHE).addComponent(DefaultServerFileSystem.class);
     coreContainer.as(Characteristics.CACHE).addComponent(ThreadLocalDatabaseSessionFactory.class);
     coreContainer.as(Characteristics.CACHE).addComponent(HttpDownloader.class);
     coreContainer.as(Characteristics.CACHE).addComponent(UpdateCenterClient.class);
     coreContainer.as(Characteristics.CACHE).addComponent(UpdateCenterMatrixFactory.class);
     coreContainer.as(Characteristics.CACHE).addComponent(PluginDownloader.class);
+    coreContainer.as(Characteristics.CACHE).addComponent(ServerIdGenerator.class);
+    coreContainer.as(Characteristics.CACHE).addComponent(ServerImpl.class);
     coreContainer.as(Characteristics.NO_CACHE).addComponent(FilterExecutor.class);
     coreContainer.as(Characteristics.NO_CACHE).addAdapter(new DatabaseSessionProvider());
     coreContainer.start();
@@ -159,7 +160,7 @@ public final class Platform {
   private void startServiceComponents() {
     servicesContainer = coreContainer.makeChildContainer();
 
-    ServerPluginRepository pluginRepository = servicesContainer.getComponent(ServerPluginRepository.class);
+    DefaultServerPluginRepository pluginRepository = servicesContainer.getComponent(DefaultServerPluginRepository.class);
     pluginRepository.registerExtensions(servicesContainer);
 
     servicesContainer.as(Characteristics.CACHE).addComponent(DefaultModelFinder.class); // depends on plugins
@@ -216,6 +217,7 @@ public final class Platform {
       startupContainer.as(Characteristics.CACHE).addComponent(ServerMetadataPersister.class);
       startupContainer.as(Characteristics.CACHE).addComponent(RegisterQualityModels.class);
       startupContainer.as(Characteristics.CACHE).addComponent(DeleteDeprecatedMeasures.class);
+      startupContainer.as(Characteristics.CACHE).addComponent(GeneratePluginIndex.class);
       startupContainer.start();
 
       startupContainer.getComponent(ServerLifecycleNotifier.class).notifyStart();

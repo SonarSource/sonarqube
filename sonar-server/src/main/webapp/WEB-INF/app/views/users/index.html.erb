@@ -24,6 +24,7 @@
               </td>
               <td class="left" valign="top">
                 <%= link_to "edit", { :id => user.id, :action => 'edit'}, :id => "edit-#{u user.login}" %> |
+                <%= link_to "change password", { :id => user.id, :action => 'change_password'}, :id => "change-password-#{u user.login}" %> |
                 <%= link_to "delete", {:action => 'destroy', :id => user.id}, {:confirm => "Warning : are you sure to delete this user ?", :method => 'delete', :id => "delete-#{u user.login}"} %>
               </td>
             </tr>
@@ -34,15 +35,19 @@
     </td>
     <td class="sep"> </td>
     <td valign="top" align="right" width="210">
-        <%
-        action_name = 'create'
-        title='Add new user'
-        if @user.id
-          action_name = 'update'
-          title='Edit user'
+      <%
+      action_name = 'create'
+      title = 'Add new user'
+      if @user.id
+        action_name = 'update'
+        title = 'Edit user'
+        if params[:action] == 'change_password'
+          action_name = 'update_password'
+          title = 'Change password'
         end
-         %>
-    <% form_for :user, @user, :url => { :id => @user.id, :action => action_name}, :html => { :method => @user.id.nil?? :post : :put } do |f| %>
+      end
+      %>
+      <% form_for :user, @user, :url => { :id => @user.id, :action => action_name}, :html => { :method => @user.id.nil?? :post : :put } do |f| %>
       <table class="admintable" width="100%">
         <tr>
             <td class="left" valign="top"><h1><%= title %></h1></td>
@@ -52,34 +57,42 @@
             <% if @user.id %>
               <%= @user.login %>
               <%= f.hidden_field :login %>
-
             <% else %>
               <br/><%= f.text_field :login, :size => 30, :maxLength => 40 %>
             <% end %>
           </td>
-
         </tr>
+        <% if params[:action] != 'change_password' %>
         <tr>
           <td class="left" valign="top">Name:<br/><%= f.text_field :name, :size => 30, :maxLength => 200 %></td>
         </tr>
         <tr>
           <td class="left" valign="top">Email:<br/><%= f.text_field :email, :size => 30, :maxLength => 100 %></td>
         </tr>
+        <% end %>
+        <% if !@user.id %>
         <tr>
           <td class="left" valign="top">Password:<br/><%= f.password_field :password, :size => 30, :maxLength => 50 %></td>
         </tr>
         <tr>
           <td class="left" valign="top">Confirm password:<br/><%= f.password_field :password_confirmation, :size => 30, :maxLength => 50 %></td>
-          </tr>
+        </tr>
+        <% elsif params[:action] == 'change_password' %>
+        <tr>
+          <td class="left" valign="top">New password:<br/><%= f.password_field :password, :size => 30, :maxLength => 50 %></td>
+        </tr>
+        <tr>
+          <td class="left" valign="top">Confirm new password:<br/><%= f.password_field :password_confirmation, :size => 30, :maxLength => 50 %></td>
+        </tr>
+        <% end %>
         <tr>
           <td class="left"  nowrap="nowrap" valign="top" colspan="2">
             <%= submit_tag @user.id.nil?? 'Create':'Update' %>
             <%= link_to 'cancel', { :controller => 'users', :action => 'index'}, { :class => 'action' } %><br/>
           </td>
         </tr>
-
       </table>
-        <% end %>
+      <% end %>
     </td>
   </tr>
 </table>

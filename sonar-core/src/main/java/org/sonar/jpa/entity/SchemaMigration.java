@@ -19,15 +19,17 @@
  */
 package org.sonar.jpa.entity;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
+import javax.persistence.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import javax.persistence.*;
-
 @Entity
-@Table(name = SchemaMigration.TABLE_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = { "version" }) })
+@Table(name = SchemaMigration.TABLE_NAME, uniqueConstraints = {@UniqueConstraint(columnNames = {"version"})})
 public class SchemaMigration {
 
   public final static int VERSION_UNKNOWN = -1;
@@ -40,7 +42,7 @@ public class SchemaMigration {
       - complete the Derby DDL file used for unit tests : sonar-testing-harness/src/main/resources/org/sonar/test/persistence/sonar-test.ddl
 
    */
-  public static final int LAST_VERSION = 216;
+  public static final int LAST_VERSION = 217;
 
   public final static String TABLE_NAME = "schema_migrations";
 
@@ -101,5 +103,10 @@ public class SchemaMigration {
         // why does close() throw a checked-exception ???
       }
     }
+  }
+
+  @Override
+  public String toString() {
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 }

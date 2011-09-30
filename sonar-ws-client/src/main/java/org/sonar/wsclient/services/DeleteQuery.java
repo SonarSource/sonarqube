@@ -24,6 +24,6 @@ package org.sonar.wsclient.services;
  *
  * @since 2.2
  */
-public abstract class DeleteQuery<MODEL extends Model> extends AbstractQuery<MODEL> {
+public abstract class DeleteQuery extends AbstractQuery {
 
 }

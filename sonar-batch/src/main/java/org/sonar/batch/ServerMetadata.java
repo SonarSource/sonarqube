@@ -31,43 +31,39 @@ import java.util.Date;
 
 public class ServerMetadata extends Server {
 
-  private String id;
-  private String version;
-  private String url;
-  private Date startTime;
+  private Configuration conf;
 
   public ServerMetadata(Configuration conf) {
-    id = conf.getString(CoreProperties.SERVER_ID);
-    version = conf.getString(CoreProperties.SERVER_VERSION);
-    url = getURL(conf);
+    this.conf = conf;
+  }
+
+  public String getId() {
+    return conf.getString(CoreProperties.SERVER_ID);
+  }
+
+  public String getVersion() {
+    return conf.getString(CoreProperties.SERVER_VERSION);
+  }
+
+  public Date getStartedAt() {
     String dateString = conf.getString(CoreProperties.SERVER_STARTTIME);
-    if (dateString!=null) {
+    if (dateString != null) {
       try {
-        this.startTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(dateString);
+        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(dateString);
 
       } catch (ParseException e) {
         LoggerFactory.getLogger(getClass()).error("The property " + CoreProperties.SERVER_STARTTIME + " is badly formatted.", e);
       }
     }
-  }
-
-  public static String getURL(Configuration conf) {
-    return StringUtils.removeEnd(conf.getString("sonar.host.url", "http://localhost:9000"), "/");
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  public String getVersion() {
-    return version;
-  }
-
-  public Date getStartedAt() {
-    return startTime;
+    return null;
   }
 
   public String getURL() {
-    return url;
+    return StringUtils.removeEnd(conf.getString("sonar.host.url", "http://localhost:9000"), "/");
+  }
+
+  @Override
+  public String getPermanentServerId() {
+    return conf.getString(CoreProperties.PERMANENT_SERVER_ID);
   }
 }

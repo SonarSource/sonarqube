@@ -1,130 +1,133 @@
 <style type="text/css">
-#plugins .plugin {
+  #plugins .plugin {
     padding: 5px;
     border: 1px solid #ddd;
     background-color: #fff;
-    }
-#plugins .plugin h2 {
-  margin-left: 10px;
-  font-size: 122%;
-  color: #333;
-}
-#plugins .plugin h3 {
-  margin-left: 5px;
-}
-#plugins .plugin p {
+  }
+
+  #plugins .plugin h2 {
+    margin-left: 10px;
+    font-size: 122%;
+    color: #333;
+  }
+
+  #plugins .plugin h3 {
+    margin-left: 5px;
+  }
+
+  #plugins .plugin p {
     padding: 5px 5px;
-    }
-#plugins .plugin img {
+  }
+
+  #plugins .plugin img {
     padding: 5px 0 0 5px;
-    }
+  }
 </style>
-<div id="plugins">
-    <% form_tag :controller => :settings, :action => :update do
-      plugins = controller.java_facade.getPluginsMetadata().sort {|p1,p2| p1.getName() <=> p2.getName()}
-      plugin_properties={}
-      plugins.each do |plugin|
-        properties = controller.java_facade.getPluginProperties(plugin).select do |property|
-          (project && project.module? && property.module()) or (project && project.project? && property.project()) or (project.nil? && property.global)
-        end
-        plugin_properties[plugin]=properties
-      end
-
-    %>
-    <% if project %>
-        <input type="hidden" name="resource_id" value="<%= project.id -%>" ></input>
-    <% end %>
-        <table width="100%">
-            <tr>
-                <td width="1%" nowrap class="column first">
-                    <table class="data selector">
-                      <thead><tr><th>
-                      <span>Select plugin</span>
-                      </th></tr></thead>
-                        <tbody>
-                            <% plugins.each do |plugin|
-                                 if plugin_properties[plugin].empty?
-                                   # we display only plugins with properties
-                                   next
-                                 end
-                            %>
-                                <tr class="select <%= cycle('even', 'odd', :name => 'plugins') -%>" id="select_<%= plugin.getKey() -%>">
-                                    <td><a href="#" onclick="showPlugin('<%= plugin.getKey() -%>')"><%= h(plugin.getName()) -%></a></td>
-                                </tr>
-                            <% end %>
-                        </tbody>
-                    </table>
-                    <br/>
-                    <%= submit_tag('Save parameters') %>
-                </td>
-                <td class="column">
-
-                    <%
-                      values = Property.hash(project ? project.id : nil)
-                      plugins.each do |plugin|
-                        properties = plugin_properties[plugin]
-                    %>
-                        <div class="plugin" id="plugin_<%= plugin.getKey() -%>" style="display: none;">
-                            <table class="spaced">
-                            <% unless plugin.getDescription().blank? %>
-                            <tr><td class="odd">
-                              <p><%= plugin.getDescription() %></p>
-                            </td></tr>
-                            <% end %>
-
-
-                            <% properties.each do |property|
-                                 value= values[property.key()] || ''
-                                 css = cycle('even', 'odd', :name => plugin.getKey())
-                            %>
-                            <tr class="<%= css -%>">
-                              <td>
-                                <h3><%= property.name() %> <% if property.project() %><span class="note">[<%= property.key() -%>]</span><% end %></h3>
-                                <p><%= property.description() %></p>
-                                <p>
-                                <% span_id = "text_" + property.key().gsub('.', '_') %>
-                                <% textfield = text_field_tag property.key(), value, :size => '20' %>
-                                <% textfield += link_to_function(image_tag("zoom.png"), "replaceTextField('#{span_id}', '#{property.key()}')", :id => "toggle_text", :class => 'nolink') %>
-                                <% textarea = text_area_tag property.key(), value, :size => "100x10" %>
-                                <span id="<%= span_id %>"><%= (value.length < 50) ? textfield : textarea %></span>
-
-                                <% unless property.defaultValue().blank? %>
-                                  <% if project.nil? %>
-                                    <span class="note">Default : <%= h property.defaultValue() -%></span>
-                                  <% else %>
-                                    <span class="note">Default : <%= h Property.value(property.key(), nil, property.defaultValue()) -%></span>
-                                  <% end %>
-                                <% end %>
-                                </p>
-                              </td>
-                            </tr>
-
-                            <% end %>
-                            </table>
-                        </div>
-                    <% end %>
-                </td>
-            </tr>
-        </table>
-    <% end %>
-</div>
-
 <script type="text/javascript">
     function replaceTextField(span_id, key) {
       var text_field_value = $F(key);
       var text_area = '<textarea cols="100" id="' + key + '" name="' + key + '" rows="10">' + text_field_value + '</textarea>';
       $(span_id).replace(text_area);
     }
-    function showPlugin(id) {
-      $$('.plugin').each(function(element) {
-        element.hide();
-      });
-      $$('.select').each(function(element) {
-        element.removeClassName('selected');
-      });
-      $('plugin_' + id).show();
-      $('select_' + id).addClassName('selected');
-      return false;
-    }
-    showPlugin('core');
 </script>
+<div id="plugins">
+  <table width="100%">
+    <tr>
+      <td width="1%" nowrap class="column first">
+        <table class="data selector">
+          <thead>
+          <tr>
+            <th>
+              <span>Category</span>
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <%
+             @properties_per_category.keys.sort_by{|category| message("property.category.#{category}", :default => category).upcase}.each do |category|
+               if !@properties_per_category[category].empty? || SettingsController::SPECIAL_CATEGORIES.include?(category)
+          %>
+              <tr class="select <%= cycle('even', 'odd', :name => 'category') -%> <%= 'selected' if @category==category -%>" id="select_<%= category -%>">
+                <td><%= link_to message("property.category.#{category}", :default => category), :overwrite_params => {:category => category} -%></td>
+              </tr>
+            <% end
+               end
+            %>
+          </tbody>
+        </table>
+        <br/>
+      </td>
+
+      <td class="column">
+        <% if @category && @properties_per_category[@category]
+             category_name = message("property.category.#{@category}", :default => @category)
+             if SettingsController::SPECIAL_CATEGORIES.include?(@category)
+        %>
+           <%= render :partial => 'special', :locals => {:url => url_for(:controller => "#{@category}_configuration")} -%>
+        <%
+             elsif !@properties_per_category[@category].empty?
+        %>
+          <% form_tag :controller => :settings, :action => :update do %>
+            <%= hidden_field_tag('category', @category) -%>
+            <% if @project %>
+              <input type="hidden" name="resource_id" value="<%= @project.id -%>"/>
+            <% end %>
+            <table class="data marginbottom10">
+              <thead>
+              <tr>
+                <th>
+                  <span><%= h(category_name) -%></span>
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              <%
+                 if @properties_per_category[@category]
+                 @properties_per_category[@category].each do |property|
+                   value = Property.value(property.key(), (@project ? @project.id : nil), '')
+              %>
+                <tr class="<%= cycle('even', 'odd', :name => 'properties') -%>">
+                  <td style="padding: 10px">
+                    <h3>
+                      <%= message("property.#{property.key()}.name", :default => property.name()) -%>
+                      <% if property.project() %>
+                        <br/><span class="note"><%= property.key() -%></span>
+                      <% end %>
+                    </h3>
+                    <%
+                       desc=message("property.#{property.key()}.description", :default => property.description())
+                       if desc.present? %>
+                      <p class="marginbottom10"><%= desc -%></p>
+                    <% end %>
+                    <p>
+                      <% span_id = "text_" + property.key().gsub('.', '_') %>
+                      <% textfield = text_field_tag property.key(), value, :size => '20' %>
+                      <% textfield += link_to_function(image_tag("zoom.png"), "replaceTextField('#{span_id}', '#{property.key()}')", :id => "toggle_text", :class => 'nolink') %>
+                      <% textarea = text_area_tag property.key(), value, :size => "100x10" %>
+                      <span id="<%= span_id %>"><%= (value.length < 50) ? textfield : textarea %></span>
+
+                      <% unless property.defaultValue().blank? %>
+                        <% if @project %>
+                          <span class="note">Default : <%= h Property.value(property.key(), nil, property.defaultValue()) -%></span>
+                        <% else %>
+                          <span class="note">Default : <%= h property.defaultValue() -%></span>
+                        <% end %>
+                      <% end %>
+                    </p>
+                  </td>
+                </tr>
+              <%   end
+                end
+              %>
+              </tbody>
+            </table>
+            <% save_message=message('settings.save_category', :params => [category_name]) %>
+            <%= submit_tag(save_message, :disable_with => save_message, :id => 'save') -%>
+          <% end %>
+        <% end
+        end
+        %>
+      </td>
+    </tr>
+  </table>
+</div>

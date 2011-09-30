@@ -95,7 +95,7 @@ class DashboardController < ApplicationController
     if dashboard.editable_by?(current_user)
       definition=java_facade.getWidget(params[:widget])
       if definition
-        first_column_widgets=dashboard.widgets.select{|w| w.column_index==1}
+        first_column_widgets=dashboard.widgets.select{|w| w.column_index==1}.sort_by{|w| w.row_index}
         new_widget=dashboard.widgets.create(:widget_key => definition.getId(),
                                            :name => definition.getTitle(),
                                            :column_index => 1,

@@ -35,6 +35,10 @@ public class HsqlDb implements Dialect {
     return "hsqldb";
   }
 
+  public String getActiveRecordJdbcAdapter() {
+    return "jdbc";
+  }
+
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
     return HSQLDialect.class;
   }

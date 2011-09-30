@@ -116,12 +116,31 @@ public class ViolationTrackingDecorator implements Decorator {
               pastViolationsByRule, referenceViolationsMap);
         }
       }
+
+      // Last check: match violation if same rule and same checksum but different line and different message
+      // See https://jira.codehaus.org/browse/SONAR-2812
+      for (Violation newViolation : newViolations) {
+        if (isNotAlreadyMapped(newViolation, referenceViolationsMap)) {
+          mapViolation(newViolation,
+              findPastViolationWithSameChecksum(newViolation, pastViolationsByRule.get(newViolation.getRule().getId())),
+              pastViolationsByRule, referenceViolationsMap);
+        }
+      }
     }
     return referenceViolationsMap;
   }
 
   private boolean isNotAlreadyMapped(Violation newViolation, Map<Violation, RuleFailureModel> violationMap) {
     return !violationMap.containsKey(newViolation);
+  }
+
+  private RuleFailureModel findPastViolationWithSameChecksum(Violation newViolation, Collection<RuleFailureModel> pastViolations) {
+    for (RuleFailureModel pastViolation : pastViolations) {
+      if (isSameChecksum(newViolation, pastViolation)) {
+        return pastViolation;
+      }
+    }
+    return null;
   }
 
   private RuleFailureModel findPastViolationWithSameLineAndMessage(Violation newViolation, Collection<RuleFailureModel> pastViolations) {

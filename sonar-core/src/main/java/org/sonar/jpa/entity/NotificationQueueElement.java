@@ -20,6 +20,8 @@
 package org.sonar.jpa.entity;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.SonarException;
 
@@ -98,4 +100,8 @@ public class NotificationQueueElement {
     }
   }
 
+  @Override
+  public String toString() {
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
+  }
 }

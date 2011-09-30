@@ -130,8 +130,9 @@ public class CpdAnalyserTest {
     verify(context).saveMeasure(
         eq(resource1),
         argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA, "<duplications>"
+            + "<duplication lines=\"100\" start=\"5\" target-start=\"15\" target-resource=\"key3\"/>"
             + "<duplication lines=\"200\" start=\"5\" target-start=\"15\" target-resource=\"key2\"/>"
-            + "<duplication lines=\"100\" start=\"5\" target-start=\"15\" target-resource=\"key3\"/>" + "</duplications>")));
+            + "</duplications>")));
 
     verify(context).saveMeasure(resource2, CoreMetrics.DUPLICATED_FILES, 1d);
     verify(context).saveMeasure(resource2, CoreMetrics.DUPLICATED_LINES, 200d);

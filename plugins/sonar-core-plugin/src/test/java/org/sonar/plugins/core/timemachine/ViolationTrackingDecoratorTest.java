@@ -102,6 +102,18 @@ public class ViolationTrackingDecoratorTest {
     assertThat(mapping.get(newViolation), equalTo(referenceViolation));
   }
 
+  /**
+   * See https://jira.codehaus.org/browse/SONAR-2812
+   */
+  @Test
+  public void sameChecksumAndRuleButDifferentLineAndDifferentMessage() {
+    Violation newViolation = newViolation("new message", 1, 50, "checksum1");
+    RuleFailureModel referenceViolation = newReferenceViolation("old message", 2, 50, "checksum1");
+
+    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
+    assertThat(mapping.get(newViolation), equalTo(referenceViolation));
+  }
+
   @Test
   public void shouldCreateNewViolationWhenSameRuleSameMessageButDifferentLineAndChecksum() {
     Violation newViolation = newViolation("message", 1, 50, "checksum1");

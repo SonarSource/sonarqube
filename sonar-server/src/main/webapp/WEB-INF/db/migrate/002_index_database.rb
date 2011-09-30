@@ -27,6 +27,8 @@ class IndexDatabase < ActiveRecord::Migration
     add_index :rules_parameters, :rule_id, :name => 'rules_parameters_rule_id'
 
     add_index :snapshots, :project_id, :name => 'snapshot_project_id'
+    add_index :snapshots, :parent_snapshot_id, :name => 'snapshots_parent'
+    add_index :snapshots, :root_snapshot_id, :name => 'snapshots_root'
     
     add_index :metrics, :name, :unique => true, :name => 'metrics_unique_name'       
   end

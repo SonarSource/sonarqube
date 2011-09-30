@@ -14,24 +14,27 @@
 %>
 <title><%= title %></title>
 <% if ENV['RAILS_ENV'] == 'production'
-%><%= stylesheet_link_tag 'sonar', :media => 'all' %><%= javascript_include_tag 'sonar'
-%><% else %>
+%><%= stylesheet_link_tag 'sonar', :media => 'all' -%><%= javascript_include_tag 'sonar'
+-%><% else %>
 <%= stylesheet_link_tag 'yui-2.6.0.css', :media => 'all' %>
 <%= stylesheet_link_tag 'calendar', :media => 'all' %>
 <%= stylesheet_link_tag 'style', :media => 'all' %>
 <%= stylesheet_link_tag 'sonar-colorizer', :media => 'all' %>
 <%= stylesheet_link_tag 'dashboard', :media => 'all' %>
-<%= javascript_include_tag 'calendar/yahoo-dom-event.js' %>
-<%= javascript_include_tag 'calendar/calendar.js' %>
 <%= javascript_include_tag 'application' %>
 <%= javascript_include_tag 'prototype' %>
 <%= javascript_include_tag 'scriptaculous' %>
 <%= javascript_include_tag 'tablekit' %>
 <%= javascript_include_tag 'prototip' %>
 <%= javascript_include_tag 'dashboard' %>
+<%= javascript_include_tag 'protovis' %>
+<%= javascript_include_tag 'protovis-sonar' %>
 <% end %>
 <!--[if lte IE 6]>
 <link href="<%= ApplicationController.root_context -%>/ie6/index" media="all" rel="stylesheet" type="text/css" />
+<![endif]-->
+<!--[if lt IE 9]>
+<%= javascript_include_tag 'protovis-msie-shim' -%>
 <![endif]-->
 <link rel="shortcut icon" type="image/x-icon" href="<%= image_path('favicon.ico') -%>" />
 <%

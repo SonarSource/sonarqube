@@ -30,6 +30,19 @@ class Sonar::ColumnsView
 
   attr_accessor :id, :name, :col_type, :position, :sort_default
 
+  def name(translate=true)
+    return @name unless translate
+    
+    i18n_key = @id
+    return @name if i18n_key.nil?
+    
+    if metric_column?
+      i18n_key = 'metric.' + i18n_key + '.name'
+    end
+    
+    Api::Utils.message(i18n_key, :default => @name)
+  end
+  
   def project_column?
     @col_type == TYPE_PROJECT
   end

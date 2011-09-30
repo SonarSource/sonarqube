@@ -21,6 +21,7 @@ package org.sonar.batch.phases;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.MavenPluginExecutor;
 
@@ -29,15 +30,17 @@ public class MavenPhaseExecutor implements BatchComponent {
   public static final String PROP_PHASE = "sonar.phase";
 
   private MavenPluginExecutor executor;
+  private ProjectDefinition projectDef;
 
-  public MavenPhaseExecutor(MavenPluginExecutor executor) {
+  public MavenPhaseExecutor(ProjectDefinition projectDef, MavenPluginExecutor executor) {
+    this.projectDef = projectDef;
     this.executor = executor;
   }
 
   public void execute(Project project) {
     String mavenPhase = (String) project.getProperty(PROP_PHASE);
     if (!StringUtils.isBlank(mavenPhase)) {
-      executor.execute(project, mavenPhase);
+      executor.execute(project, projectDef, mavenPhase);
     }
   }
 }

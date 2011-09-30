@@ -19,6 +19,9 @@
  */
 package org.sonar.jpa.entity;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -90,5 +93,10 @@ public final class ManualMeasure {
 
   public String getUserLogin() {
     return userLogin;
+  }
+
+  @Override
+  public String toString() {
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 }

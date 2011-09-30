@@ -28,7 +28,7 @@ import org.sonar.api.platform.PluginMetadata;
 import java.io.File;
 import java.util.List;
 
-public final class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginMetadata> {
+public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginMetadata> {
   private File file;
   private List<File> deployedFiles = Lists.newArrayList();
   private List<File> deprecatedExtensions = Lists.newArrayList();

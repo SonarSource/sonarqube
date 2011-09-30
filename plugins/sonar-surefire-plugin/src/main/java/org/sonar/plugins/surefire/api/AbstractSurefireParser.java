@@ -91,7 +91,7 @@ public abstract class AbstractSurefireParser {
     for (String classname : index.getClassnames()) {
       if (StringUtils.contains(classname, "$")) {
         // Surefire reports classes whereas sonar supports files
-        String parentClassName = StringUtils.substringBeforeLast(classname, "$");
+        String parentClassName = StringUtils.substringBefore(classname, "$");
         index.merge(classname, parentClassName);
       }
     }

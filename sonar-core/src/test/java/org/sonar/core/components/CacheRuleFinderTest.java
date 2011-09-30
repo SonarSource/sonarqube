@@ -24,6 +24,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -39,6 +40,13 @@ public class CacheRuleFinderTest extends AbstractDbUnitTestCase {
     deleteRules();
 
     assertThat(finder.findById(3), notNullValue());
+  }
+
+  @Test
+  public void shouldNotFailIfUnknownRuleId() {
+    setupData("shared");
+    RuleFinder finder = new CacheRuleFinder(getSessionFactory());
+    assertThat(finder.findById(33456816), nullValue());
   }
 
   @Test
