@@ -3,7 +3,10 @@
 #set( $symbol_escape = '\' )
 package ${package};
 
-import org.sonar.api.Plugin;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
+
+import org.sonar.api.SonarPlugin;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,36 +14,17 @@ import java.util.List;
 /**
  * This class is the entry point for all extensions
  */
-public class SamplePlugin implements Plugin {
+@Properties({ 
+    @Property(key = SamplePlugin.MY_PROPERTY,
+    name = "Plugin Property",
+    description = "A property for the plugin")})
+public class SamplePlugin extends SonarPlugin {
 
-  /**
-   * @deprecated this is not used anymore
-   */
-  public String getKey() {
-    return "sample";
-  }
-
-  /**
-   * @deprecated this is not used anymore
-   */
-  public String getName() {
-    return "My Sonar plugin";
-  }
-
-  /**
-   * @deprecated this is not used anymore
-   */
-  public String getDescription() {
-    return "You shouldn't expect too much from this plugin except displaying the Hello World message.";
-  }
+  public static final String MY_PROPERTY = "sonar.sample.myproperty";
 
   // This is where you're going to declare all your Sonar extensions
   public List getExtensions() {
     return Arrays.asList(SampleMetrics.class, SampleSensor.class, SampleDashboardWidget.class);
   }
 
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
-  }
 }

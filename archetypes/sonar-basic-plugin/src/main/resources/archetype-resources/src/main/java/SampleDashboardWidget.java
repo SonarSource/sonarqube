@@ -8,21 +8,21 @@ import org.sonar.api.web.*;
 @UserRole(UserRole.USER)
 @Description("Show how to use Ruby Widget API")
 @WidgetProperties({
-        @WidgetProperty(key="param1",
-                        description="This is a mandatory parameter",
-                        optional=false
-        ),
-        @WidgetProperty(key="max",
-                        description="max threshold",
-                        type=WidgetPropertyType.INTEGER,
-                        defaultValue="80"
-        ),
-        @WidgetProperty(key="param2",
-                        description="This is an optional parameter"
-        ),
-        @WidgetProperty(key="floatprop",
-                        description="test description"
-        )
+  @WidgetProperty(key="param1",
+    description="This is a mandatory parameter",
+    optional=false
+  ),
+  @WidgetProperty(key="max",
+    description="max threshold",
+    type=WidgetPropertyType.INTEGER,
+    defaultValue="80"
+  ),
+  @WidgetProperty(key="param2",
+    description="This is an optional parameter"
+  ),
+  @WidgetProperty(key="floatprop",
+    description="test description"
+  )
 })
 public class SampleDashboardWidget extends AbstractRubyTemplate implements RubyRailsWidget {
 
