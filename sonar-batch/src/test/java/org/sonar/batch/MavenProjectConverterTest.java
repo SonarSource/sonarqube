@@ -46,7 +46,7 @@ public class MavenProjectConverterTest {
     MavenProject root = new MavenProject();
     root.setFile(new File("/foo/pom.xml"));
     root.getBuild().setDirectory("target");
-    root.getModules().add("module");
+    root.getModules().add("module/pom.xml");
     MavenProject module = new MavenProject();
     module.setFile(new File("/foo/module/pom.xml"));
     module.getBuild().setDirectory("target");

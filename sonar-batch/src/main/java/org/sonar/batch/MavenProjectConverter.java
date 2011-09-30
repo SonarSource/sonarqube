@@ -19,15 +19,16 @@
  */
 package org.sonar.batch;
 
-import com.google.common.collect.Maps;
-import org.apache.maven.project.MavenProject;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.utils.SonarException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.maven.project.MavenProject;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.utils.SonarException;
+
+import com.google.common.collect.Maps;
 
 public final class MavenProjectConverter {
 
@@ -36,29 +37,46 @@ public final class MavenProjectConverter {
   }
 
   public static ProjectDefinition convert(List<MavenProject> poms, MavenProject root) {
-    Map<String, MavenProject> paths = Maps.newHashMap(); // projects by canonical path
+    Map<String, MavenProject> paths = Maps.newHashMap(); // projects by canonical path to pom.xml
     Map<MavenProject, ProjectDefinition> defs = Maps.newHashMap();
 
     try {
       for (MavenProject pom : poms) {
-        String basedir = pom.getBasedir().getCanonicalPath();
-        paths.put(basedir, pom);
+        paths.put(pom.getFile().getCanonicalPath(), pom);
         defs.put(pom, convert(pom));
       }
 
       for (Map.Entry<String, MavenProject> entry : paths.entrySet()) {
         MavenProject pom = entry.getValue();
-        for (Object moduleId : pom.getModules()) {
-          File modulePath = new File(pom.getBasedir(), (String) moduleId);
+        for (Object m : pom.getModules()) {
+          String moduleId = (String) m;
+          File modulePath = new File(pom.getBasedir(), moduleId);
+          if (modulePath.exists() && modulePath.isDirectory()) {
+            modulePath = new File(modulePath, "pom.xml");
+          }
           MavenProject module = paths.get(modulePath.getCanonicalPath());
-          defs.get(pom).addSubProject(defs.get(module));
+
+          ProjectDefinition parentProject = defs.get(pom);
+          ProjectDefinition subProject = defs.get(module);
+          if (parentProject == null) {
+            throw new IllegalStateException();
+          }
+          if (subProject == null) {
+            throw new IllegalStateException();
+          }
+          parentProject.addSubProject(subProject);
         }
       }
     } catch (IOException e) {
       throw new SonarException(e);
     }
 
-    return defs.get(root);
+    ProjectDefinition rootProject = defs.get(root);
+    if (rootProject == null) {
+      throw new IllegalStateException();
+    }
+
+    return rootProject;
   }
 
   /**
