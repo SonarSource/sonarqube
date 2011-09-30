@@ -162,6 +162,7 @@ public class EmailNotificationChannel extends NotificationChannel {
         email.addHeader(LIST_ARCHIVE_HEADER, configuration.getServerBaseURL());
       }
       // Set general information
+      email.setCharset("UTF-8");
       email.setFrom(configuration.getFrom(), StringUtils.defaultIfBlank(emailMessage.getFrom(), FROM_NAME_DEFAULT));
       email.addTo(emailMessage.getTo(), " ");
       String subject = StringUtils.defaultIfBlank(StringUtils.trimToEmpty(configuration.getPrefix()) + " ", "")

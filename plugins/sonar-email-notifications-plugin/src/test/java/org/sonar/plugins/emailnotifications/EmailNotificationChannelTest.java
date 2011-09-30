@@ -22,6 +22,7 @@ package org.sonar.plugins.emailnotifications;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -88,18 +89,25 @@ public class EmailNotificationChannelTest {
     assertThat(server.getReceivedEmailSize(), is(1));
     SmtpMessage email = (SmtpMessage) server.getReceivedEmail().next();
 
+    assertThat(email.getHeaderValue("Content-Type"), is("text/plain; charset=UTF-8"));
+
     assertThat(email.getHeaderValue("From"), is("Sonar <server@nowhere>"));
     assertThat(email.getHeaderValue("To"), is("<user@nowhere>"));
     assertThat(email.getHeaderValue("Subject"), is("[SONAR] Test Message from Sonar"));
     assertThat(email.getBody(), is("This is a test message from Sonar."));
   }
 
-  @Test(expected = EmailException.class)
+  @Test
   public void shouldThrowAnExceptionWhenUnableToSendTestEmail() throws Exception {
     configure();
     server.stop();
 
-    channel.sendTestEmail("user@nowhere", "Test Message from Sonar", "This is a test message from Sonar.");
+    try {
+      channel.sendTestEmail("user@nowhere", "Test Message from Sonar", "This is a test message from Sonar.");
+      fail();
+    } catch (EmailException e) {
+      // expected
+    }
   }
 
   @Test
@@ -126,6 +134,8 @@ public class EmailNotificationChannelTest {
     assertThat(server.getReceivedEmailSize(), is(1));
     SmtpMessage email = (SmtpMessage) server.getReceivedEmail().next();
 
+    assertThat(email.getHeaderValue("Content-Type"), is("text/plain; charset=UTF-8"));
+
     assertThat(email.getHeaderValue("In-Reply-To"), is("<reviews/view/1@nemo.sonarsource.org>"));
     assertThat(email.getHeaderValue("References"), is("<reviews/view/1@nemo.sonarsource.org>"));
 
@@ -149,6 +159,8 @@ public class EmailNotificationChannelTest {
 
     assertThat(server.getReceivedEmailSize(), is(1));
     SmtpMessage email = (SmtpMessage) server.getReceivedEmail().next();
+
+    assertThat(email.getHeaderValue("Content-Type"), is("text/plain; charset=UTF-8"));
 
     assertThat(email.getHeaderValue("In-Reply-To"), nullValue());
     assertThat(email.getHeaderValue("References"), nullValue());
