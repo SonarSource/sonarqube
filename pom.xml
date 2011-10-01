@@ -74,21 +74,6 @@
     </snapshotRepository>
   </distributionManagement>
 
-  <repositories>
-    <repository>
-      <!-- for checkstyle 5.1-->
-      <id>sonar</id>
-      <name>Sonar</name>
-      <url>http://repository.sonarsource.org/content/repositories/sonar</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-
   <properties>
     <!--
     Warning before upgrading Derby to 10.8 : new conversion from BOOLEAN to CHAR.
@@ -367,6 +352,20 @@
                   </excludes>
                   <searchTransitive>true</searchTransitive>
                 </bannedDependencies>
+              </rules>
+            </configuration>
+          </execution>
+          <execution>
+            <id>enforce-no-repositories</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireNoRepositories>
+                  <!-- Also see SONAR-2849 -->
+                  <message>The rules for repo1.maven.org are that pom.xml files should not include repository definitions.</message>
+                </requireNoRepositories>
               </rules>
             </configuration>
           </execution>
