@@ -79,13 +79,13 @@
 	     <%= message('created') -%>:
        </td>
 	   <td  class="val">
-         <%= l(review.created_at, :format => "%m/%b/%y %H:%M") -%>
+         <%= l(review.created_at) -%>
        </td>
 	   <td class="key">
 		  <%= message('updated') -%>:
 	   </td>
 	   <td  class="val">
-  		  <%= l(review.updated_at, :format => "%m/%b/%y %H:%M") -%>
+  		  <%= l(review.updated_at) -%>
 	   </td>
 	 </tr>
 	<% if review.rule %>
