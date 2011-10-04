@@ -19,38 +19,38 @@
  */
 package org.sonar.batch;
 
-import org.apache.commons.configuration.*;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.maven.project.MavenProject;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
-import org.sonar.api.utils.SonarException;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class ProjectConfigurator {
+public class ProjectConfigurator implements BatchComponent {
 
   private DatabaseSession databaseSession;
+  private Settings settings;
 
-  public ProjectConfigurator(DatabaseSession databaseSession) {
+  public ProjectConfigurator(DatabaseSession databaseSession, Settings settings) {
     this.databaseSession = databaseSession;
+    this.settings = settings;
   }
 
   public Project create(ProjectDefinition definition) {
-    Configuration configuration = getStartupConfiguration(definition);
-    Project project = new Project(definition.getKey(), loadProjectBranch(configuration), definition.getName())
-        .setDescription(StringUtils.defaultString(definition.getDescription(), ""))
-        .setPackaging("jar");
+    Project project = new Project(definition.getKey(), loadProjectBranch(), definition.getName());
+
     // For backward compatibility we must set POM and actual packaging
+    project.setDescription(StringUtils.defaultString(definition.getDescription()));
+    project.setPackaging("jar");
+    
     for (Object component : definition.getContainerExtensions()) {
       if (component instanceof MavenProject) {
         MavenProject pom = (MavenProject) component;
@@ -61,39 +61,25 @@ public class ProjectConfigurator {
     return project;
   }
 
-  Configuration getStartupConfiguration(ProjectDefinition project) {
-    CompositeConfiguration configuration = new CompositeConfiguration();
-    configuration.addConfiguration(new SystemConfiguration());
-    configuration.addConfiguration(new EnvironmentConfiguration());
-    configuration.addConfiguration(new MapConfiguration(project.getProperties()));
-    return configuration;
+  String loadProjectBranch() {
+    return settings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
   }
 
-  String loadProjectBranch(Configuration configuration) {
-    return configuration.getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
-  }
-
-  public void configure(Project project, ProjectDefinition def) {
-    ProjectConfiguration projectConfiguration = new ProjectConfiguration(databaseSession, def);
-    configure(project, projectConfiguration);
-  }
-
-  void configure(Project project, Configuration projectConfiguration) {
-    Date analysisDate = loadAnalysisDate(projectConfiguration);
-    project.setConfiguration(projectConfiguration)
-        .setExclusionPatterns(loadExclusionPatterns(projectConfiguration))
+  public ProjectConfigurator configure(Project project) {
+    Date analysisDate = loadAnalysisDate();
+    project
+        .setConfiguration(new PropertiesConfiguration()) // will be populated by ProjectSettings
+        .setExclusionPatterns(loadExclusionPatterns())
         .setAnalysisDate(analysisDate)
         .setLatestAnalysis(isLatestAnalysis(project.getKey(), analysisDate))
-        .setAnalysisVersion(loadAnalysisVersion(projectConfiguration))
-        .setAnalysisType(loadAnalysisType(projectConfiguration))
-        .setLanguageKey(loadLanguageKey(projectConfiguration));
+        .setAnalysisVersion(loadAnalysisVersion())
+        .setAnalysisType(loadAnalysisType())
+        .setLanguageKey(loadLanguageKey());
+    return this;
   }
 
-  static String[] loadExclusionPatterns(Configuration configuration) {
-    String[] exclusionPatterns = configuration.getStringArray(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY);
-    if (exclusionPatterns == null) {
-      exclusionPatterns = new String[0];
-    }
+  String[] loadExclusionPatterns() {
+    String[] exclusionPatterns = settings.getStringArray(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY);
     for (int i = 0; i < exclusionPatterns.length; i++) {
       exclusionPatterns[i] = StringUtils.trim(exclusionPatterns[i]);
     }
@@ -109,28 +95,18 @@ public class ProjectConfigurator {
     return true;
   }
 
-  Date loadAnalysisDate(Configuration configuration) {
-    String formattedDate = configuration.getString(CoreProperties.PROJECT_DATE_PROPERTY);
-    if (formattedDate == null) {
-      return new Date();
+  Date loadAnalysisDate() {
+    Date date = settings.getDate(CoreProperties.PROJECT_DATE_PROPERTY);
+    if (date == null) {
+      date = new Date();
     }
-
-    DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    try {
-      // see SONAR-908 make sure that a time is defined for the date.
-      Date date = DateUtils.setHours(format.parse(formattedDate), 0);
-      return DateUtils.setMinutes(date, 1);
-
-    } catch (ParseException e) {
-      throw new SonarException("The property " + CoreProperties.PROJECT_DATE_PROPERTY
-          + " does not respect the format yyyy-MM-dd (for example 2008-05-23) : " + formattedDate, e);
-    }
+    return date;
   }
 
-  Project.AnalysisType loadAnalysisType(Configuration configuration) {
-    String value = configuration.getString(CoreProperties.DYNAMIC_ANALYSIS_PROPERTY);
+  Project.AnalysisType loadAnalysisType() {
+    String value = settings.getString(CoreProperties.DYNAMIC_ANALYSIS_PROPERTY);
     if (value == null) {
-      return (configuration.getBoolean("sonar.light", false) ? Project.AnalysisType.STATIC : Project.AnalysisType.DYNAMIC);
+      return ("true".equals(settings.getString("sonar.light")) ? Project.AnalysisType.STATIC : Project.AnalysisType.DYNAMIC);
     }
     if ("true".equals(value)) {
       return Project.AnalysisType.DYNAMIC;
@@ -141,11 +117,11 @@ public class ProjectConfigurator {
     return Project.AnalysisType.STATIC;
   }
 
-  String loadAnalysisVersion(Configuration configuration) {
-    return configuration.getString(CoreProperties.PROJECT_VERSION_PROPERTY);
+  String loadAnalysisVersion() {
+    return settings.getString(CoreProperties.PROJECT_VERSION_PROPERTY);
   }
 
-  String loadLanguageKey(Configuration configuration) {
-    return configuration.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY, Java.KEY);
+  String loadLanguageKey() {
+    return StringUtils.defaultIfBlank(settings.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY), Java.KEY);
   }
 }

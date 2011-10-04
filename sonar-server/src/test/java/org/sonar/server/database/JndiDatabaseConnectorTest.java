@@ -24,8 +24,10 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.jpa.entity.SchemaMigration;
+import org.sonar.server.configuration.ServerSettings;
 
 import javax.naming.Context;
 import javax.persistence.EntityManagerFactory;
@@ -41,7 +43,7 @@ public class JndiDatabaseConnectorTest {
 
   @Before
   public void setup() {
-    Configuration conf = new PropertiesConfiguration();
+    Settings conf = new Settings();
     conf.setProperty(DatabaseProperties.PROP_DIALECT, DatabaseProperties.DIALECT_HSQLDB);
     conf.setProperty(DatabaseProperties.PROP_URL, "jdbc:hsqldb:mem:sonar");
     conf.setProperty(DatabaseProperties.PROP_DRIVER, "org.hsqldb.jdbcDriver");
@@ -69,7 +71,7 @@ public class JndiDatabaseConnectorTest {
     assertEquals(2, emfCreationCounter);
   }
 
-  private JndiDatabaseConnector getTestJndiConnector(Configuration conf) {
+  private JndiDatabaseConnector getTestJndiConnector(Settings conf) {
     JndiDatabaseConnector connector = new JndiDatabaseConnector(conf) {
       @Override
       protected int loadVersion() {

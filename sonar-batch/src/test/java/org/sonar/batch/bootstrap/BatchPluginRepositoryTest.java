@@ -26,6 +26,7 @@ import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.core.plugins.RemotePlugin;
 
 import java.io.File;
@@ -57,7 +58,7 @@ public class BatchPluginRepositoryTest {
     ArtifactDownloader downloader = mock(ArtifactDownloader.class);
     when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFiles("sonar-checkstyle-plugin-2.8.jar"));
 
-    repository = new BatchPluginRepository(downloader, new PropertiesConfiguration());
+    repository = new BatchPluginRepository(downloader, new Settings());
 
     repository.doStart(Arrays.asList(checkstyle));
 
@@ -77,7 +78,7 @@ public class BatchPluginRepositoryTest {
     when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFiles("sonar-checkstyle-plugin-2.8.jar"));
     when(downloader.downloadPlugin(checkstyleExt)).thenReturn(copyFiles("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"));
 
-    repository = new BatchPluginRepository(downloader, new PropertiesConfiguration());
+    repository = new BatchPluginRepository(downloader, new Settings());
 
     repository.doStart(Arrays.asList(checkstyle, checkstyleExt));
 
@@ -97,7 +98,7 @@ public class BatchPluginRepositoryTest {
     ArtifactDownloader downloader = mock(ArtifactDownloader.class);
     when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFiles("sonar-checkstyle-plugin-2.8.jar", "checkstyle-ext.xml"));
 
-    repository = new BatchPluginRepository(downloader, new PropertiesConfiguration());
+    repository = new BatchPluginRepository(downloader, new Settings());
 
     repository.doStart(Arrays.asList(checkstyle));
 
@@ -117,9 +118,9 @@ public class BatchPluginRepositoryTest {
     when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFiles("sonar-checkstyle-plugin-2.8.jar"));
     when(downloader.downloadPlugin(checkstyleExt)).thenReturn(copyFiles("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"));
 
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle");
-    repository = new BatchPluginRepository(downloader, conf);
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle");
+    repository = new BatchPluginRepository(downloader, settings);
 
     repository.doStart(Arrays.asList(checkstyle, checkstyleExt));
 
@@ -142,41 +143,41 @@ public class BatchPluginRepositoryTest {
 
   @Test
   public void shouldAlwaysAcceptIfNoWhiteListAndBlackList() {
-    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), new PropertiesConfiguration());
+    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), new Settings());
     assertThat(repository.isAccepted("pmd"), Matchers.is(true));
   }
 
   @Test
   public void whiteListShouldTakePrecedenceOverBlackList() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
-    conf.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "cobertura,pmd");
-    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), conf);
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
+    settings.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "cobertura,pmd");
+    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), settings);
 
     assertThat(repository.isAccepted("pmd"), Matchers.is(true));
   }
 
   @Test
   public void corePluginShouldAlwaysBeInWhiteList() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
-    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), conf);
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
+    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), settings);
     assertThat(repository.isAccepted("core"), Matchers.is(true));
   }
 
   @Test
   public void corePluginShouldNeverBeInBlackList() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "core,findbugs");
-    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), conf);
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "core,findbugs");
+    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), settings);
     assertThat(repository.isAccepted("core"), Matchers.is(true));
   }
 
   @Test
   public void shouldCheckWhitelist() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
-    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), conf);
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
+    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), settings);
 
     assertThat(repository.isAccepted("checkstyle"), Matchers.is(true));
     assertThat(repository.isAccepted("pmd"), Matchers.is(true));
@@ -185,9 +186,9 @@ public class BatchPluginRepositoryTest {
 
   @Test
   public void shouldCheckBlackListIfNoWhiteList() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
-    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), conf);
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
+    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), settings);
 
     assertThat(repository.isAccepted("checkstyle"), Matchers.is(false));
     assertThat(repository.isAccepted("pmd"), Matchers.is(false));

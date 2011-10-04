@@ -19,13 +19,15 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.apache.commons.configuration.Configuration;
-import org.sonar.api.Plugin;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.batch.FakeMavenPluginExecutor;
 import org.sonar.batch.MavenPluginExecutor;
 import org.sonar.batch.ServerMetadata;
+import org.sonar.batch.config.BatchSettings;
+import org.sonar.batch.config.BatchSettingsEnhancer;
 import org.sonar.jpa.session.DatabaseSessionProvider;
 import org.sonar.jpa.session.DriverDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
@@ -37,52 +39,52 @@ import java.net.URLClassLoader;
  */
 public class BootstrapModule extends Module {
 
-  private Configuration configuration;
   private Object[] boostrapperComponents;
   private ProjectReactor reactor;
 
-  public BootstrapModule(ProjectReactor reactor, Configuration configuration, Object... boostrapperComponents) {
+  public BootstrapModule(ProjectReactor reactor, Object... boostrapperComponents) {
     this.reactor = reactor;
-    this.configuration = configuration;
     this.boostrapperComponents = boostrapperComponents;
   }
 
   @Override
   protected void configure() {
-    addComponent(reactor);
-    addComponent(configuration);// this configuration does not access database
-    addComponent(DryRun.class);
-    addComponent(ServerMetadata.class);// registered here because used by BootstrapClassLoader
-    addComponent(TempDirectories.class);// registered here because used by BootstrapClassLoader
-    addComponent(HttpDownloader.class);// registered here because used by BootstrapClassLoader
-    addComponent(ArtifactDownloader.class);// registered here because used by BootstrapClassLoader
-    addComponent(JdbcDriverHolder.class);
+    addCoreSingleton(reactor);
+    addCoreSingleton(new PropertiesConfiguration());
+    addCoreSingleton(BatchSettings.class);
+    addCoreSingleton(DryRun.class);
+    addCoreSingleton(ServerMetadata.class);// registered here because used by BootstrapClassLoader
+    addCoreSingleton(TempDirectories.class);// registered here because used by BootstrapClassLoader
+    addCoreSingleton(HttpDownloader.class);// registered here because used by BootstrapClassLoader
+    addCoreSingleton(ArtifactDownloader.class);// registered here because used by BootstrapClassLoader
+    addCoreSingleton(JdbcDriverHolder.class);
 
-    URLClassLoader bootstrapClassLoader = getComponent(JdbcDriverHolder.class).getClassLoader();
+    URLClassLoader bootstrapClassLoader = getComponentByType(JdbcDriverHolder.class).getClassLoader();
     // set as the current context classloader for hibernate, else it does not find the JDBC driver.
     Thread.currentThread().setContextClassLoader(bootstrapClassLoader);
 
-    addComponent(new DriverDatabaseConnector(configuration, bootstrapClassLoader));
-    addComponent(ThreadLocalDatabaseSessionFactory.class);
+    addCoreSingleton(new DriverDatabaseConnector(getComponentByType(Settings.class), bootstrapClassLoader));
+    addCoreSingleton(ThreadLocalDatabaseSessionFactory.class);
     addAdapter(new DatabaseSessionProvider());
     for (Object component : boostrapperComponents) {
-      addComponent(component);
+      addCoreSingleton(component);
     }
     if (!isMavenPluginExecutorRegistered()) {
-      addComponent(FakeMavenPluginExecutor.class);
+      addCoreSingleton(FakeMavenPluginExecutor.class);
     }
 
-    // LIMITATION : list of plugins to download is currently loaded from database. It should be loaded from
-    // remote HTTP index.
-    addComponent(BatchPluginRepository.class);
-    addComponent(BatchExtensionInstaller.class);
-    addComponent(ProjectExtensionInstaller.class);
+    addCoreSingleton(BatchPluginRepository.class);
+    addCoreSingleton(BatchExtensionInstaller.class);
+    addCoreSingleton(ProjectExtensionInstaller.class);
+    addCoreSingleton(BatchSettingsEnhancer.class);
   }
 
   boolean isMavenPluginExecutorRegistered() {
-    for (Object component : boostrapperComponents) {
-      if (component instanceof Class && MavenPluginExecutor.class.isAssignableFrom((Class<?>) component)) {
-        return true;
+    if (boostrapperComponents != null) {
+      for (Object component : boostrapperComponents) {
+        if (component instanceof Class && MavenPluginExecutor.class.isAssignableFrom((Class<?>) component)) {
+          return true;
+        }
       }
     }
     return false;
@@ -90,19 +92,8 @@ public class BootstrapModule extends Module {
 
   @Override
   protected void doStart() {
-    addPlugins();
-    boolean dryRun = getComponent(DryRun.class).isEnabled();
+    boolean dryRun = getComponentByType(DryRun.class).isEnabled();
     Module batchComponents = installChild(new BatchModule(dryRun));
     batchComponents.start();
-  }
-
-  private void addPlugins() {
-    // Plugins have been loaded during the startup of BatchPluginRepository.
-    // In a perfect world BatchPluginRepository should be a factory which injects new components into container, but
-    // (it seems that) this feature does not exist in PicoContainer.
-    // Limitation: the methods start() and stop() are not called on org.sonar.api.Plugin instances.
-    for (Plugin plugin : getComponent(BatchPluginRepository.class).getPlugins()) {
-      addComponent(plugin);
-    }
   }
 }

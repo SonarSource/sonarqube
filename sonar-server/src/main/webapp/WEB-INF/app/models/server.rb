@@ -123,7 +123,7 @@ class Server
   end
   
   def sonar_property(key)
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getContainer().getComponent(Java::OrgApacheCommonsConfiguration::Configuration.java_class).getProperty(key)
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getContainer().getComponentByType(Java::OrgApacheCommonsConfiguration::Configuration.java_class).getProperty(key)
   end
   
   def jdbc_metadata

@@ -19,10 +19,11 @@
  */
 package org.sonar.server.database;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.derby.drda.NetworkServerControl;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
@@ -33,6 +34,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.sql.SQLOutput;
 import java.util.Properties;
 
 public class EmbeddedDatabase {
@@ -46,9 +48,9 @@ public class EmbeddedDatabase {
   private Properties dbProps;
   private PrintWriter dbLog;
 
-  public EmbeddedDatabase(Configuration configuration) {
-    this.dbHome = autodetectDataDirectory(configuration);
-    this.dbProps = getDefaultProperties(configuration);
+  public EmbeddedDatabase(Settings settings) {
+    this.dbHome = getDataDirectory(settings);
+    this.dbProps = getDefaultProperties(settings);
   }
 
   public EmbeddedDatabase(File dbHome, Properties dbProps) {
@@ -60,10 +62,10 @@ public class EmbeddedDatabase {
     return dbHome;
   }
 
-  protected File autodetectDataDirectory(Configuration configuration) {
-    String dirName = configuration.getString(DatabaseProperties.PROP_EMBEDDED_DATA_DIR);
-    if (dirName == null) {
-      File sonarHome = new File(configuration.getString(CoreProperties.SONAR_HOME));
+  protected File getDataDirectory(Settings settings) {
+    String dirName = settings.getString(DatabaseProperties.PROP_EMBEDDED_DATA_DIR);
+    if (StringUtils.isBlank(dirName)) {
+      File sonarHome = new File(settings.getString(CoreProperties.SONAR_HOME));
       if (!sonarHome.isDirectory() || !sonarHome.exists()) {
         throw new ServerStartException("Sonar home directory does not exist");
       }
@@ -171,15 +173,15 @@ public class EmbeddedDatabase {
     }
   }
 
-  public static Properties getDefaultProperties(Configuration configuration) {
+  public static Properties getDefaultProperties(Settings settings) {
     Properties props = new Properties();
     props.setProperty("derby.drda.startNetworkServer", "true");
-    props.setProperty("derby.drda.host", configuration.getString("sonar.derby.drda.host", "localhost"));
-    props.setProperty("derby.drda.portNumber", configuration.getString("sonar.derby.drda.portNumber", "1527"));
-    props.setProperty("derby.drda.maxThreads", configuration.getString("sonar.derby.drda.maxThreads", "20"));
-    props.setProperty("derby.drda.minThreads", configuration.getString("sonar.derby.drda.minThreads", "2"));
-    props.setProperty("derby.drda.logConnections", configuration.getString("sonar.derby.drda.logConnections", "false"));
-    props.setProperty("derby.stream.error.logSeverityLevel", configuration.getString("sonar.derby.stream.error.logSeverityLevel", "20000"));
+    props.setProperty("derby.drda.host", StringUtils.defaultIfBlank(settings.getString("sonar.derby.drda.host"), "localhost"));
+    props.setProperty("derby.drda.portNumber", StringUtils.defaultIfBlank(settings.getString("sonar.derby.drda.portNumber"), "1527"));
+    props.setProperty("derby.drda.maxThreads", StringUtils.defaultIfBlank(settings.getString("sonar.derby.drda.maxThreads"), "20"));
+    props.setProperty("derby.drda.minThreads", StringUtils.defaultIfBlank(settings.getString("sonar.derby.drda.minThreads"), "2"));
+    props.setProperty("derby.drda.logConnections", StringUtils.defaultIfBlank(settings.getString("sonar.derby.drda.logConnections"), "false"));
+    props.setProperty("derby.stream.error.logSeverityLevel", StringUtils.defaultIfBlank(settings.getString("sonar.derby.stream.error.logSeverityLevel"), "20000"));
     props.setProperty("derby.connection.requireAuthentication", "true");
     props.setProperty("derby.user." + DEFAULT_USER, DEFAULT_PWD);
     return props;

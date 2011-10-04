@@ -133,8 +133,4 @@ public class ProjectTreeTest extends AbstractDbUnitTestCase {
     return new Project("org.example:" + artifactId).setPom(pom).setConfiguration(new PropertiesConfiguration());
   }
 
-
-  private ProjectConfigurator newConfigurator() {
-    return new ProjectConfigurator(getSession());
-  }
 }

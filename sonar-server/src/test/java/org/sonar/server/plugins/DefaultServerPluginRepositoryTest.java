@@ -23,10 +23,11 @@ import org.apache.commons.io.FileUtils;
 import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Test;
-import org.picocontainer.containers.TransientPicoContainer;
-import org.sonar.api.*;
+import org.sonar.api.BatchExtension;
+import org.sonar.api.ExtensionProvider;
+import org.sonar.api.ServerExtension;
+import org.sonar.api.SonarPlugin;
 import org.sonar.api.platform.PluginMetadata;
-import org.sonar.batch.Batch;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 
 import java.io.File;
@@ -34,7 +35,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.Assert.assertFalse;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
@@ -72,41 +72,6 @@ public class DefaultServerPluginRepositoryTest {
     assertThat(repository.getClass("artifactsize", "org.sonar.plugins.artifactsize.ArtifactSizeMetrics"), not(nullValue()));
     assertThat(repository.getClass("artifactsize", "org.Unknown"), nullValue());
     assertThat(repository.getClass("other", "org.sonar.plugins.artifactsize.ArtifactSizeMetrics"), nullValue());
-  }
-
-  @Test
-  public void shouldRegisterServerExtensions() {
-    DefaultServerPluginRepository repository = new DefaultServerPluginRepository(mock(PluginDeployer.class));
-
-    TransientPicoContainer container = new TransientPicoContainer();
-    repository.registerExtensions(container, Arrays.<Plugin>asList(new FakePlugin(Arrays.<Class>asList(FakeBatchExtension.class, FakeServerExtension.class))));
-
-    assertThat(container.getComponents(Extension.class).size(), is(1));
-    assertThat(container.getComponents(FakeServerExtension.class).size(), is(1));
-    assertThat(container.getComponents(FakeBatchExtension.class).size(), is(0));
-  }
-
-  @Test
-  public void shouldInvokeServerExtensionProviders() {
-    DefaultServerPluginRepository repository = new DefaultServerPluginRepository(mock(PluginDeployer.class));
-
-    TransientPicoContainer container = new TransientPicoContainer();
-    repository.registerExtensions(container, Arrays.<Plugin>asList(new FakePlugin(Arrays.<Class>asList(FakeExtensionProvider.class))));
-
-    assertThat(container.getComponents(Extension.class).size(), is(2));// provider + FakeServerExtension
-    assertThat(container.getComponents(FakeServerExtension.class).size(), is(1));
-    assertThat(container.getComponents(FakeBatchExtension.class).size(), is(0));
-  }
-
-  @Test
-  public void shouldNotSupportProvidersOfProviders() {
-    DefaultServerPluginRepository repository = new DefaultServerPluginRepository(mock(PluginDeployer.class));
-
-    TransientPicoContainer container = new TransientPicoContainer();
-    repository.registerExtensions(container, Arrays.<Plugin>asList(new FakePlugin(Arrays.<Class>asList(SuperExtensionProvider.class))));
-
-    assertThat(container.getComponents(FakeBatchExtension.class).size(), is(0));
-    assertThat(container.getComponents(FakeServerExtension.class).size(), is(0));
   }
 
   @Test

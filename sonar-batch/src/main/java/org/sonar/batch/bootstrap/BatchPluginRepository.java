@@ -22,7 +22,6 @@ package org.sonar.batch.bootstrap;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +29,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
+import org.sonar.api.config.Settings;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
 import org.sonar.core.plugins.PluginClassloaders;
@@ -51,14 +51,14 @@ public class BatchPluginRepository implements PluginRepository {
   private Set<String> blackList = null;
   private PluginClassloaders classLoaders;
 
-  public BatchPluginRepository(ArtifactDownloader artifactDownloader, Configuration configuration) {
+  public BatchPluginRepository(ArtifactDownloader artifactDownloader, Settings settings) {
     this.artifactDownloader = artifactDownloader;
-    if (configuration.getString(CoreProperties.BATCH_INCLUDE_PLUGINS) != null) {
-      whiteList = Sets.newTreeSet(Arrays.asList(configuration.getStringArray(CoreProperties.BATCH_INCLUDE_PLUGINS)));
+    if (settings.hasKey(CoreProperties.BATCH_INCLUDE_PLUGINS)) {
+      whiteList = Sets.newTreeSet(Arrays.asList(settings.getStringArray(CoreProperties.BATCH_INCLUDE_PLUGINS)));
       LOG.info("Include plugins: " + Joiner.on(", ").join(whiteList));
     }
-    if (configuration.getString(CoreProperties.BATCH_EXCLUDE_PLUGINS) != null) {
-      blackList = Sets.newTreeSet(Arrays.asList(configuration.getStringArray(CoreProperties.BATCH_EXCLUDE_PLUGINS)));
+    if (settings.hasKey(CoreProperties.BATCH_EXCLUDE_PLUGINS)) {
+      blackList = Sets.newTreeSet(Arrays.asList(settings.getStringArray(CoreProperties.BATCH_EXCLUDE_PLUGINS)));
       LOG.info("Exclude plugins: " + Joiner.on(", ").join(blackList));
     }
     // TODO reactivate somewhere else:  LOG.info("Execution environment: {} {}", environment.getKey(), environment.getVersion());
@@ -132,5 +132,15 @@ public class BatchPluginRepository implements PluginRepository {
       return whiteList.contains(pluginKey);
     }
     return blackList == null || !blackList.contains(pluginKey);
+  }
+
+  public Map<PluginMetadata,Plugin> getPluginsByMetadata() {
+    Map<PluginMetadata, Plugin> result = Maps.newHashMap();
+    for (Map.Entry<String, PluginMetadata> entry : metadataByKey.entrySet()) {
+      String pluginKey = entry.getKey();
+      PluginMetadata metadata = entry.getValue();
+      result.put(metadata, pluginsByKey.get(pluginKey));
+    }
+    return result;
   }
 }

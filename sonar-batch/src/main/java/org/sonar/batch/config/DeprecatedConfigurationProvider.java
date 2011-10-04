@@ -17,21 +17,17 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.configuration;
+package org.sonar.batch.config;
 
-public class ConfigurationException extends RuntimeException {
-  public ConfigurationException() {
-  }
+import org.apache.commons.configuration.Configuration;
+import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.resources.Project;
 
-  public ConfigurationException(String s) {
-    super(s);
-  }
+public class DeprecatedConfigurationProvider extends ProviderAdapter {
 
-  public ConfigurationException(String s, Throwable throwable) {
-    super(s, throwable);
-  }
-
-  public ConfigurationException(Throwable throwable) {
-    super(throwable);
+  public Configuration provide(Project project, ProjectSettings settings) {//NOSONAR the parameter ProjectSettings is declared to be sure that it is initialized
+    // configuration is valid because it has been updated by ProjectSettings
+    return project.getConfiguration();
   }
 }
+

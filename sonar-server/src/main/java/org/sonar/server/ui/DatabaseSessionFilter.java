@@ -33,7 +33,7 @@ public class DatabaseSessionFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
     chain.doFilter(request, response);
 
-    DatabaseSessionFactory sessionFactory = Platform.getInstance().getContainer().getComponent(DatabaseSessionFactory.class);
+    DatabaseSessionFactory sessionFactory = Platform.getInstance().getContainer().getComponentByType(DatabaseSessionFactory.class);
     if (sessionFactory != null) {
       sessionFactory.clear();
     }

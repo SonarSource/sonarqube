@@ -77,7 +77,7 @@ public final class ProjectExtensionInstaller implements BatchComponent {
         ExtensionUtils.checkDryRun(extension, dryRun.isEnabled()) &&
         !isDeactivatedCoverageExtension(extension, project, pluginKey) &&
         !isMavenExtensionOnEmulatedMavenProject(extension, project)) {
-      module.addComponent(extension);
+      module.addCoreSingleton(extension);
       return extension;
     }
     return null;

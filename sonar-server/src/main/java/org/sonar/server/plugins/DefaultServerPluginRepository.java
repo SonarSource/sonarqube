@@ -20,16 +20,15 @@
 package org.sonar.server.plugins;
 
 import com.google.common.collect.Sets;
-import org.picocontainer.Characteristics;
-import org.picocontainer.MutablePicoContainer;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.*;
+import org.sonar.api.Plugin;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.ServerPluginRepository;
 import org.sonar.core.plugins.PluginClassloaders;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,7 +48,8 @@ public class DefaultServerPluginRepository implements ServerPluginRepository {
   }
 
   public void start() {
-    pluginsByKey = classloaders.init(deployer.getMetadata());
+    Collection<PluginMetadata> metadata = deployer.getMetadata();
+    pluginsByKey = classloaders.init(metadata);
   }
 
   public void stop() {
@@ -117,55 +117,4 @@ public class DefaultServerPluginRepository implements ServerPluginRepository {
     return deployer.getMetadata(pluginKey);
   }
 
-  public void registerExtensions(MutablePicoContainer container) {
-    registerExtensions(container, getPlugins());
-  }
-
-  void registerExtensions(MutablePicoContainer container, Collection<Plugin> plugins) {
-    for (Plugin plugin : plugins) {
-      container.as(Characteristics.CACHE).addComponent(plugin);
-      for (Object extension : plugin.getExtensions()) {
-        installExtension(container, extension, true);
-      }
-    }
-    installExtensionProviders(container);
-  }
-
-  void installExtensionProviders(MutablePicoContainer container) {
-    List<ExtensionProvider> providers = container.getComponents(ExtensionProvider.class);
-    for (ExtensionProvider provider : providers) {
-      Object obj = provider.provide();
-      if (obj != null) {
-        if (obj instanceof Iterable) {
-          for (Object extension : (Iterable) obj) {
-            installExtension(container, extension, false);
-          }
-        } else {
-          installExtension(container, obj, false);
-        }
-      }
-    }
-  }
-
-  void installExtension(MutablePicoContainer container, Object extension, boolean acceptProvider) {
-    if (isType(extension, ServerExtension.class)) {
-      if (!acceptProvider && (isType(extension, ExtensionProvider.class) || extension instanceof ExtensionProvider)) {
-        LoggerFactory.getLogger(getClass()).error("ExtensionProvider can not include providers itself: " + extension);
-      } else {
-        container.as(Characteristics.CACHE).addComponent(getExtensionKey(extension), extension);
-      }
-    }
-  }
-
-  static boolean isType(Object extension, Class<? extends Extension> extensionClass) {
-    Class clazz = (extension instanceof Class ? (Class) extension : extension.getClass());
-    return extensionClass.isAssignableFrom(clazz);
-  }
-
-  static Object getExtensionKey(Object component) {
-    if (component instanceof Class) {
-      return component;
-    }
-    return component.getClass().getCanonicalName() + "-" + component.toString();
-  }
 }

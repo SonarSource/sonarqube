@@ -70,9 +70,9 @@ public class ProjectExtensionInstallerTest {
 
     installer.install(module, new Project("foo"));
 
-    assertThat(module.getComponent(BatchService.class), nullValue());
-    assertThat(module.getComponent(ProjectService.class), not(nullValue()));
-    assertThat(module.getComponent(ServerService.class), nullValue());
+    assertThat(module.getComponentByType(BatchService.class), nullValue());
+    assertThat(module.getComponentByType(ProjectService.class), not(nullValue()));
+    assertThat(module.getComponentByType(ServerService.class), nullValue());
   }
 
   @Test
@@ -90,8 +90,8 @@ public class ProjectExtensionInstallerTest {
 
     installer.install(module, new Project("foo"));
 
-    assertThat(module.getComponent(MavenService.class), nullValue());
-    assertThat(module.getComponent(BuildToolService.class), not(nullValue()));
+    assertThat(module.getComponentByType(MavenService.class), nullValue());
+    assertThat(module.getComponentByType(BuildToolService.class), not(nullValue()));
   }
 
 

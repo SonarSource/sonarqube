@@ -30,8 +30,6 @@ public final class CheckstyleConstants {
   public static final String FILTERS_KEY = "sonar.checkstyle.filters";
 
   public static final String FILTERS_DEFAULT_VALUE = "<module name=\"SuppressionCommentFilter\"/>";
-  public static final String GENERATE_XML_KEY = "sonar.checkstyle.generateXml";
-  public static final boolean GENERATE_XML_DEFAULT_VALUE = false;
 
   private CheckstyleConstants() {
   }

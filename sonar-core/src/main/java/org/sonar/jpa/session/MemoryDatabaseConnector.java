@@ -19,8 +19,7 @@
  */
 package org.sonar.jpa.session;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.jpa.entity.SchemaMigration;
 
@@ -37,7 +36,7 @@ public class MemoryDatabaseConnector extends DriverDatabaseConnector {
 
   private int version;
 
-  public MemoryDatabaseConnector(Configuration config) {
+  public MemoryDatabaseConnector(Settings config) {
     super(config);
     version = SchemaMigration.LAST_VERSION;
   }
@@ -51,8 +50,8 @@ public class MemoryDatabaseConnector extends DriverDatabaseConnector {
     this.version = version;
   }
 
-  protected static Configuration getInMemoryConfiguration(boolean createSchema) {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
+  protected static Settings getInMemoryConfiguration(boolean createSchema) {
+    Settings conf = new Settings();
     conf.setProperty(DatabaseProperties.PROP_URL, URL);
     conf.setProperty(DatabaseProperties.PROP_DRIVER, DRIVER);
     conf.setProperty(DatabaseProperties.PROP_USER, USER);

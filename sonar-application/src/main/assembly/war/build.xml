@@ -32,17 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
       <fileset dir="../extensions/jdbc-driver" includes="**/*.jar"/>
     </copy>
 
-    <!-- sonar properties -->
-    <copy todir="build/sonar-server/WEB-INF/classes/conf" file="../conf/sonar.properties" overwrite="true"
-          failonerror="true"/>
-
-    <condition property="sonarhome.found">
-      <isfileselected file="build/sonar-server/WEB-INF/classes/conf/sonar.properties">
-        <contains text="sonar.home"/>
-      </isfileselected>
-    </condition>
-
-    <antcall target="append-sonar-home"/>
+    <replace file="build/sonar-server/WEB-INF/classes/sonar-war.properties" token="#sonar.home=" value="sonar.home=${sonarHome}" />
 
     <!-- copy the logback config -->
     <copy todir="build/sonar-server/WEB-INF/classes">
@@ -75,10 +65,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
       * supported web servers are Jetty and Tomcat 5.x/6.x/7.x
       * the web application uses the Sonar home directory. For this reason it must be deployed on this host only.
       * the war file must be rebuilt when :
-      - configuration is updated (files in the directory conf/)
-      - the Sonar home directory is moved to other location
-      - sonar is upgraded to a new version
-      It does not have to be rebuilt when a plugin is removed or installed.
+        - logback configuration is updated (conf/logback.xml)
+        - the Sonar home directory is moved to other location
+        - sonar is upgraded to a new version
       -----------------------------------------------------------------------------------------------------------
     </echo>
   </target>
@@ -87,12 +76,4 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
     <delete dir="build"/>
     <delete file="sonar.war"/>
   </target>
-
-  <target name="append-sonar-home" unless="sonarhome.found">
-    <echo>Setting home to: ${sonarHome}</echo>
-    <echo file="build/sonar-server/WEB-INF/classes/conf/sonar.properties" append="yes">
-      sonar.home=${sonarHome}
-    </echo>
-  </target>
-
 </project>

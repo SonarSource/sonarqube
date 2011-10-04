@@ -19,16 +19,20 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.Extension;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.api.batch.CoverageExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
+import org.sonar.api.platform.PluginMetadata;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
-import java.util.List;
+import java.util.Map;
 
 public final class BatchExtensionInstaller implements BatchComponent {
 
@@ -43,40 +47,63 @@ public final class BatchExtensionInstaller implements BatchComponent {
   }
 
   public void install(Module module) {
-    for (Plugin plugin : pluginRepository.getPlugins()) {
+    ListMultimap<PluginMetadata, Object> installedExtensionsByPlugin = ArrayListMultimap.create();
+    for (Map.Entry<PluginMetadata, Plugin> entry : pluginRepository.getPluginsByMetadata().entrySet()) {
+      PluginMetadata metadata = entry.getKey();
+      Plugin plugin = entry.getValue();
+      
+      module.addExtension(metadata, plugin);
+
       for (Object extension : plugin.getExtensions()) {
-        installExtension(module, extension);
+        if (installExtension(module, metadata, extension)) {
+          installedExtensionsByPlugin.put(metadata, extension);
+        } else {
+          module.declareExtension(metadata, extension);
+        }
       }
     }
-    installExtensionProviders(module);
+    for (Map.Entry<PluginMetadata, Object> entry : installedExtensionsByPlugin.entries()) {
+      PluginMetadata plugin = entry.getKey();
+      Object extension = entry.getValue();
+      if (isExtensionProvider(extension)) {
+        ExtensionProvider provider = (ExtensionProvider) module.getComponentByKey(extension);
+        installProvider(module, plugin, provider);
+      }
+    }
     installMetrics(module);
+  }
+
+  static boolean isExtensionProvider(Object extension) {
+    return isType(extension, ExtensionProvider.class) || extension instanceof ExtensionProvider;
+  }
+
+  static boolean isType(Object extension, Class<? extends Extension> extensionClass) {
+    Class clazz = (extension instanceof Class ? (Class) extension : extension.getClass());
+    return extensionClass.isAssignableFrom(clazz);
   }
 
   private void installMetrics(Module module) {
     for (Metrics metrics : module.getComponents(Metrics.class)) {
       for (Metric metric : metrics.getMetrics()) {
-        module.addComponent(metric.getKey(), metric);
+        module.addCoreSingleton(metric);
       }
     }
   }
 
-  void installExtensionProviders(Module module) {
-    List<ExtensionProvider> providers = module.getComponents(ExtensionProvider.class);
-    for (ExtensionProvider provider : providers) {
-      Object obj = provider.provide();
-      if (obj != null) {
-        if (obj instanceof Iterable) {
-          for (Object extension : (Iterable) obj) {
-            installExtension(module, extension);
-          }
-        } else {
-          installExtension(module, obj);
+  private void installProvider(Module module, PluginMetadata plugin, ExtensionProvider provider) {
+    Object obj = provider.provide();
+    if (obj != null) {
+      if (obj instanceof Iterable) {
+        for (Object ext : (Iterable) obj) {
+          installExtension(module, plugin, ext);
         }
+      } else {
+        installExtension(module, plugin, obj);
       }
     }
   }
 
-  void installExtension(Module module, Object extension) {
+  boolean installExtension(Module module, PluginMetadata plugin, Object extension) {
     if (ExtensionUtils.isBatchExtension(extension) &&
         ExtensionUtils.isSupportedEnvironment(extension, environment) &&
         ExtensionUtils.checkDryRun(extension, dryRun.isEnabled()) &&
@@ -84,7 +111,9 @@ public final class BatchExtensionInstaller implements BatchComponent {
       if (ExtensionUtils.isType(extension, CoverageExtension.class)) {
         throw new IllegalArgumentException("Instantiation strategy " + InstantiationStrategy.PER_BATCH + " is not supported on CoverageExtension components: " + extension);
       }
-      module.addComponent(extension);
+      module.addExtension(plugin, extension);
+      return true;
     }
+    return false;
   }
 }

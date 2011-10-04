@@ -19,17 +19,11 @@
  */
 package org.sonar.server.notifications;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.configuration.Configuration;
-import org.sonar.api.ServerComponent;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Sets;
+import org.sonar.api.*;
+import org.sonar.api.config.Settings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
@@ -38,22 +32,30 @@ import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.notifications.DefaultNotificationManager;
 import org.sonar.jpa.entity.NotificationQueueElement;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.SetMultimap;
-import com.google.common.collect.Sets;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @since 2.10
  */
+@org.sonar.api.Properties({
+    @Property(
+        key = NotificationService.PROPERTY_DELAY,
+        defaultValue = "60",
+        name = "Delay of notifications, in seconds",
+        project = false,
+        global = false)
+})
 public class NotificationService implements ServerComponent {
 
   private static final TimeProfiler TIME_PROFILER = new TimeProfiler(Logs.INFO).setLevelToDebug();
 
-  private static final String DELAY = "sonar.notifications.delay";
-  private static final long DELAY_DEFAULT = 60;
+  public static final String PROPERTY_DELAY = "sonar.notifications.delay";
 
   private ScheduledExecutorService executorService;
-  private long delay;
+  private long delayInSeconds;
 
   private DefaultNotificationManager manager;
   private NotificationChannel[] channels;
@@ -64,13 +66,13 @@ public class NotificationService implements ServerComponent {
   /**
    * Default constructor when no channels.
    */
-  public NotificationService(Configuration configuration, DefaultNotificationManager manager, NotificationDispatcher[] dispatchers) {
-    this(configuration, manager, dispatchers, new NotificationChannel[0]);
+  public NotificationService(Settings settings, DefaultNotificationManager manager, NotificationDispatcher[] dispatchers) {
+    this(settings, manager, dispatchers, new NotificationChannel[0]);
     Logs.INFO.warn("There is no channels - all notifications would be ignored!");
   }
 
-  public NotificationService(Configuration configuration, DefaultNotificationManager manager, NotificationDispatcher[] dispatchers, NotificationChannel[] channels) {
-    delay = configuration.getLong(DELAY, DELAY_DEFAULT);
+  public NotificationService(Settings settings, DefaultNotificationManager manager, NotificationDispatcher[] dispatchers, NotificationChannel[] channels) {
+    delayInSeconds = settings.getLong(PROPERTY_DELAY);
     this.manager = manager;
     this.channels = channels;
     this.dispatchers = dispatchers;
@@ -82,8 +84,8 @@ public class NotificationService implements ServerComponent {
       public void run() {
         processQueue();
       }
-    }, 0, delay, TimeUnit.SECONDS);
-    Logs.INFO.info("Notification service started (delay {} sec.)", delay);
+    }, 0, delayInSeconds, TimeUnit.SECONDS);
+    Logs.INFO.info("Notification service started (delay {} sec.)", delayInSeconds);
   }
 
   public void stop() {

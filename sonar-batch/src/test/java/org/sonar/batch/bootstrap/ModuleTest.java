@@ -22,6 +22,7 @@ package org.sonar.batch.bootstrap;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -33,10 +34,10 @@ public class ModuleTest {
   public void shouldInitModule() {
     Module module = new FakeModule(FakeService.class).init();
 
-    FakeService service = module.getComponent(FakeService.class);
+    FakeService service = module.getComponentByType(FakeService.class);
     assertThat(service, not(nullValue()));
     assertThat(service.started, is(false));
-    assertThat(module.getContainer(), not(nullValue()));
+    assertThat(module.container, notNullValue());
   }
 
   @Test
@@ -44,7 +45,7 @@ public class ModuleTest {
     Module module = new FakeModule(FakeService.class).init();
     module.start();
 
-    FakeService service = module.getComponent(FakeService.class);
+    FakeService service = module.getComponentByType(FakeService.class);
     assertThat(service.started, is(true));
 
     module.stop();
@@ -68,7 +69,7 @@ public class ModuleTest {
   public void componentsShouldBeSingletons() {
     Module module = new FakeModule(FakeService.class).init();
 
-    assertThat(module.getComponent(FakeService.class) == module.getComponent(FakeService.class), is(true));
+    assertThat(module.getComponentByType(FakeService.class) == module.getComponentByType(FakeService.class), is(true));
   }
 
   @Test
@@ -78,16 +79,16 @@ public class ModuleTest {
 
     Module child = parent.installChild(new FakeModule(ChildService.class));
 
-    assertThat(parent.getComponent(ChildService.class), Matchers.nullValue());// child not accessible from parent
-    assertThat(child.getComponent(FakeService.class), not(nullValue()));
-    assertThat(child.getComponent(ChildService.class).started, is(false));
-    assertThat(child.getComponent(ChildService.class).dependency, not(nullValue()));
+    assertThat(parent.getComponentByType(ChildService.class), Matchers.nullValue());// child not accessible from parent
+    assertThat(child.getComponentByType(FakeService.class), not(nullValue()));
+    assertThat(child.getComponentByType(ChildService.class).started, is(false));
+    assertThat(child.getComponentByType(ChildService.class).dependency, not(nullValue()));
 
     child.start();
-    assertThat(child.getComponent(ChildService.class).started, is(true));
+    assertThat(child.getComponentByType(ChildService.class).started, is(true));
 
     child.stop();
-    assertThat(child.getComponent(ChildService.class).started, is(false));
+    assertThat(child.getComponentByType(ChildService.class).started, is(false));
   }
 
   public static class FakeModule extends Module {
@@ -100,7 +101,7 @@ public class ModuleTest {
     @Override
     protected void configure() {
       for (Class component : components) {
-        addComponent(component);
+        addCoreSingleton(component);
       }
     }
 

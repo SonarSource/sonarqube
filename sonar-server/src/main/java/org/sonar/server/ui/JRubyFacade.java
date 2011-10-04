@@ -20,9 +20,10 @@
 package org.sonar.server.ui;
 
 import org.apache.commons.configuration.Configuration;
-import org.picocontainer.PicoContainer;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.Property;
+import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.Settings;
+import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.profiles.ProfileExporter;
@@ -36,8 +37,8 @@ import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.jpa.dialect.Dialect;
 import org.sonar.jpa.session.DatabaseConnector;
 import org.sonar.markdown.Markdown;
+import org.sonar.server.configuration.ServerSettings;
 import org.sonar.server.configuration.Backup;
-import org.sonar.server.configuration.CoreConfiguration;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.filters.Filter;
 import org.sonar.server.filters.FilterExecutor;
@@ -66,52 +67,51 @@ public final class JRubyFacade {
   }
 
   public FilterResult executeFilter(Filter filter) {
-    return getContainer().getComponent(FilterExecutor.class).execute(filter);
+    return getContainer().getComponentByType(FilterExecutor.class).execute(filter);
   }
 
   // UPDATE CENTER ------------------------------------------------------------
 
   public void downloadPlugin(String pluginKey, String pluginVersion) {
-    getContainer().getComponent(PluginDownloader.class).download(pluginKey, Version.create(pluginVersion));
+    getContainer().getComponentByType(PluginDownloader.class).download(pluginKey, Version.create(pluginVersion));
   }
 
   public void cancelPluginDownloads() {
-    getContainer().getComponent(PluginDownloader.class).cancelDownloads();
+    getContainer().getComponentByType(PluginDownloader.class).cancelDownloads();
   }
 
   public List<String> getPluginDownloads() {
-    return getContainer().getComponent(PluginDownloader.class).getDownloads();
+    return getContainer().getComponentByType(PluginDownloader.class).getDownloads();
   }
 
   public void uninstallPlugin(String pluginKey) {
-    getContainer().getComponent(PluginDeployer.class).uninstall(pluginKey);
+    getContainer().getComponentByType(PluginDeployer.class).uninstall(pluginKey);
   }
 
   public void cancelPluginUninstalls() {
-    getContainer().getComponent(PluginDeployer.class).cancelUninstalls();
+    getContainer().getComponentByType(PluginDeployer.class).cancelUninstalls();
   }
 
   public List<String> getPluginUninstalls() {
-    return getContainer().getComponent(PluginDeployer.class).getUninstalls();
+    return getContainer().getComponentByType(PluginDeployer.class).getUninstalls();
   }
 
   public UpdateCenterMatrix getUpdateCenterMatrix(boolean forceReload) {
-    return getContainer().getComponent(UpdateCenterMatrixFactory.class).getMatrix(forceReload);
+    return getContainer().getComponentByType(UpdateCenterMatrixFactory.class).getMatrix(forceReload);
   }
 
   // PLUGINS ------------------------------------------------------------------
 
-  public Property[] getPluginProperties(PluginMetadata metadata) {
-    PluginRepository repository = getContainer().getComponent(PluginRepository.class);
-    return repository.getProperties(repository.getPlugin(metadata.getKey()));
+  public PropertyDefinitions getPropertyDefinitions() {
+    return getContainer().getComponentByType(PropertyDefinitions.class);
   }
 
   public boolean hasPlugin(String key) {
-    return getContainer().getComponent(PluginRepository.class).getPlugin(key) != null;
+    return getContainer().getComponentByType(PluginRepository.class).getPlugin(key) != null;
   }
 
   public Collection<PluginMetadata> getPluginsMetadata() {
-    return getContainer().getComponent(PluginRepository.class).getMetadata();
+    return getContainer().getComponentByType(PluginRepository.class).getMetadata();
   }
 
 
@@ -119,7 +119,7 @@ public final class JRubyFacade {
 
   public String colorizeCode(String code, String language) {
     try {
-      return getContainer().getComponent(CodeColorizers.class).toHtml(code, language);
+      return getContainer().getComponentByType(CodeColorizers.class).toHtml(code, language);
 
     } catch (Exception e) {
       LoggerFactory.getLogger(getClass()).error("Can not highlight the code, language= " + language, e);
@@ -133,89 +133,89 @@ public final class JRubyFacade {
 
 
   public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage) {
-    return getContainer().getComponent(Views.class).getWidgets(resourceScope, resourceQualifier, resourceLanguage);
+    return getContainer().getComponentByType(Views.class).getWidgets(resourceScope, resourceQualifier, resourceLanguage);
   }
 
   public List<ViewProxy<Widget>> getWidgets() {
-    return getContainer().getComponent(Views.class).getWidgets();
+    return getContainer().getComponentByType(Views.class).getWidgets();
   }
 
   public ViewProxy<Widget> getWidget(String id) {
-    return getContainer().getComponent(Views.class).getWidget(id);
+    return getContainer().getComponentByType(Views.class).getWidget(id);
   }
 
   public List<ViewProxy<Page>> getPages(String section, String resourceScope, String resourceQualifier, String resourceLanguage) {
-    return getContainer().getComponent(Views.class).getPages(section, resourceScope, resourceQualifier, resourceLanguage);
+    return getContainer().getComponentByType(Views.class).getPages(section, resourceScope, resourceQualifier, resourceLanguage);
   }
 
   public List<ViewProxy<Page>> getResourceTabs() {
-    return getContainer().getComponent(Views.class).getPages(NavigationSection.RESOURCE_TAB, null, null, null);
+    return getContainer().getComponentByType(Views.class).getPages(NavigationSection.RESOURCE_TAB, null, null, null);
   }
 
   public List<ViewProxy<Page>> getResourceTabs(String scope, String qualifier, String language) {
-    return getContainer().getComponent(Views.class).getPages(NavigationSection.RESOURCE_TAB, scope, qualifier, language);
+    return getContainer().getComponentByType(Views.class).getPages(NavigationSection.RESOURCE_TAB, scope, qualifier, language);
   }
 
   public List<ViewProxy<Page>> getResourceTabsForMetric(String scope, String qualifier, String language, String metric) {
-    return getContainer().getComponent(Views.class).getPagesForMetric(NavigationSection.RESOURCE_TAB, scope, qualifier, language, metric);
+    return getContainer().getComponentByType(Views.class).getPagesForMetric(NavigationSection.RESOURCE_TAB, scope, qualifier, language, metric);
   }
 
   public ViewProxy<Page> getPage(String id) {
-    return getContainer().getComponent(Views.class).getPage(id);
+    return getContainer().getComponentByType(Views.class).getPage(id);
   }
 
   public Collection<RubyRailsWebservice> getRubyRailsWebservices() {
-    return getContainer().getComponents(RubyRailsWebservice.class);
+    return getContainer().getComponentsByType(RubyRailsWebservice.class);
   }
 
   public Collection<Language> getLanguages() {
-    return getContainer().getComponents(Language.class);
+    return getContainer().getComponentsByType(Language.class);
   }
 
   public Dialect getDialect() {
-    return getContainer().getComponent(DatabaseConnector.class).getDialect();
+    return getContainer().getComponentByType(DatabaseConnector.class).getDialect();
   }
 
   /* PROFILES CONSOLE : RULES AND METRIC THRESHOLDS */
 
   public List<RuleRepository> getRuleRepositories() {
-    return getContainer().getComponent(RulesConsole.class).getRepositories();
+    return getContainer().getComponentByType(RulesConsole.class).getRepositories();
   }
 
   public RuleRepository getRuleRepository(String repositoryKey) {
-    return getContainer().getComponent(RulesConsole.class).getRepository(repositoryKey);
+    return getContainer().getComponentByType(RulesConsole.class).getRepository(repositoryKey);
   }
 
   public Set<RuleRepository> getRuleRepositoriesByLanguage(String languageKey) {
-    return getContainer().getComponent(RulesConsole.class).getRepositoriesByLanguage(languageKey);
+    return getContainer().getComponentByType(RulesConsole.class).getRepositoriesByLanguage(languageKey);
   }
 
   public String backupProfile(int profileId) {
-    return getContainer().getComponent(ProfilesConsole.class).backupProfile(profileId);
+    return getContainer().getComponentByType(ProfilesConsole.class).backupProfile(profileId);
   }
 
   public ValidationMessages restoreProfile(String xmlBackup) {
-    return getContainer().getComponent(ProfilesConsole.class).restoreProfile(xmlBackup);
+    return getContainer().getComponentByType(ProfilesConsole.class).restoreProfile(xmlBackup);
   }
 
   public List<ProfileExporter> getProfileExportersForLanguage(String language) {
-    return getContainer().getComponent(ProfilesConsole.class).getProfileExportersForLanguage(language);
+    return getContainer().getComponentByType(ProfilesConsole.class).getProfileExportersForLanguage(language);
   }
 
   public List<ProfileImporter> getProfileImportersForLanguage(String language) {
-    return getContainer().getComponent(ProfilesConsole.class).getProfileImportersForLanguage(language);
+    return getContainer().getComponentByType(ProfilesConsole.class).getProfileImportersForLanguage(language);
   }
 
   public String exportProfile(int profileId, String exporterKey) {
-    return getContainer().getComponent(ProfilesConsole.class).exportProfile(profileId, exporterKey);
+    return getContainer().getComponentByType(ProfilesConsole.class).exportProfile(profileId, exporterKey);
   }
 
   public ValidationMessages importProfile(String profileName, String language, String importerKey, String fileContent) {
-    return getContainer().getComponent(ProfilesConsole.class).importProfile(profileName, language, importerKey, fileContent);
+    return getContainer().getComponentByType(ProfilesConsole.class).importProfile(profileName, language, importerKey, fileContent);
   }
 
   public String getProfileExporterMimeType(String exporterKey) {
-    return getContainer().getComponent(ProfilesConsole.class).getProfileExporter(exporterKey).getMimeType();
+    return getContainer().getComponentByType(ProfilesConsole.class).getProfileExporter(exporterKey).getMimeType();
   }
 
   public void renameProfile(int profileId, String newProfileName) {
@@ -256,36 +256,40 @@ public final class JRubyFacade {
   }
 
   public List<Footer> getWebFooters() {
-    return getContainer().getComponents(Footer.class);
+    return getContainer().getComponentsByType(Footer.class);
   }
 
   public Backup getBackup() {
-    return getContainer().getComponent(Backup.class);
+    return getContainer().getComponentByType(Backup.class);
   }
 
   private ProfilesManager getProfilesManager() {
-    return getContainer().getComponent(ProfilesManager.class);
+    return getContainer().getComponentByType(ProfilesManager.class);
   }
 
   public void reloadConfiguration() {
-    getContainer().getComponent(CoreConfiguration.class).reload();
+    getContainer().getComponentByType(ServerSettings.class).load();
+  }
+
+  public Settings getSettings() {
+    return getContainer().getComponentByType(Settings.class);
   }
 
   public String getConfigurationValue(String key) {
-    return getContainer().getComponent(Configuration.class).getString(key, null);
+    return getContainer().getComponentByType(Configuration.class).getString(key, null);
   }
 
   public List<InetAddress> getValidInetAddressesForServerId() {
-    return getContainer().getComponent(ServerIdGenerator.class).getAvailableAddresses();
+    return getContainer().getComponentByType(ServerIdGenerator.class).getAvailableAddresses();
   }
 
   public String generateServerId(String organisation, String ipAddress) {
-    return getContainer().getComponent(ServerIdGenerator.class).generate(organisation, ipAddress);
+    return getContainer().getComponentByType(ServerIdGenerator.class).generate(organisation, ipAddress);
   }
 
   public Connection getConnection() {
     try {
-      return getContainer().getComponent(DatabaseConnector.class).getConnection();
+      return getContainer().getComponentByType(DatabaseConnector.class).getConnection();
     } catch (Exception e) {
       /* activerecord does not correctly manage exceptions when connection can not be opened. */
       return null;
@@ -299,7 +303,7 @@ public final class JRubyFacade {
 
     try {
       Class aClass = Class.forName(className);
-      return getContainer().getComponent(aClass);
+      return getContainer().getComponentByType(aClass);
 
     } catch (ClassNotFoundException e) {
       LoggerFactory.getLogger(getClass()).error("Component not found: " + className, e);
@@ -309,61 +313,61 @@ public final class JRubyFacade {
 
   public Object getComponentByClassname(String pluginKey, String className) {
     Object component = null;
-    PicoContainer container = getContainer();
-    Class componentClass = container.getComponent(DefaultServerPluginRepository.class).getClass(pluginKey, className);
+    ComponentContainer container = getContainer();
+    Class componentClass = container.getComponentByType(DefaultServerPluginRepository.class).getClass(pluginKey, className);
     if (componentClass != null) {
-      component = container.getComponent(componentClass);
+      component = container.getComponentByType(componentClass);
     }
     return component;
   }
 
   public String getMessage(String rubyLocale, String key, String defaultValue, Object... parameters) {
     if (i18n == null) {
-      i18n = getContainer().getComponent(JRubyI18n.class);
+      i18n = getContainer().getComponentByType(JRubyI18n.class);
     }
     return i18n.message(rubyLocale, key, defaultValue, parameters);
   }
 
   public String getRuleName(String rubyLocale, String repositoryKey, String key) {
     if (i18n == null) {
-      i18n = getContainer().getComponent(JRubyI18n.class);
+      i18n = getContainer().getComponentByType(JRubyI18n.class);
     }
     return i18n.getRuleName(rubyLocale, repositoryKey, key);
   }
 
   public String getRuleDescription(String rubyLocale, String repositoryKey, String key) {
     if (i18n == null) {
-      i18n = getContainer().getComponent(JRubyI18n.class);
+      i18n = getContainer().getComponentByType(JRubyI18n.class);
     }
     return i18n.getRuleDescription(rubyLocale, repositoryKey, key);
   }
 
   public String getRuleParamDescription(String rubyLocale, String repositoryKey, String key, String paramKey) {
     if (i18n == null) {
-      i18n = getContainer().getComponent(JRubyI18n.class);
+      i18n = getContainer().getComponentByType(JRubyI18n.class);
     }
     return i18n.getRuleParamDescription(rubyLocale, repositoryKey, key, paramKey);
   }
 
   public List<RuleI18nManager.RuleKey> searchRuleName(String rubyLocale, String searchText) {
     if (i18n == null) {
-      i18n = getContainer().getComponent(JRubyI18n.class);
+      i18n = getContainer().getComponentByType(JRubyI18n.class);
     }
     return i18n.searchRuleName(rubyLocale, searchText);
   }
 
   public String getJsL10nDictionnary(String rubyLocale) {
     if (i18n == null) {
-      i18n = getContainer().getComponent(JRubyI18n.class);
+      i18n = getContainer().getComponentByType(JRubyI18n.class);
     }
     return i18n.getJsDictionnary(rubyLocale);
   }
 
   public ReviewsNotificationManager getReviewsNotificationManager() {
-    return getContainer().getComponent(ReviewsNotificationManager.class);
+    return getContainer().getComponentByType(ReviewsNotificationManager.class);
   }
 
-  public PicoContainer getContainer() {
+  public ComponentContainer getContainer() {
     return Platform.getInstance().getContainer();
   }
 }

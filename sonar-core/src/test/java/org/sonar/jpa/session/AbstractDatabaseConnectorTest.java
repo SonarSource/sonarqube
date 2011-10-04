@@ -24,6 +24,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.jpa.dialect.HsqlDb;
 import org.sonar.jpa.dialect.Oracle;
@@ -49,7 +50,7 @@ public class AbstractDatabaseConnectorTest {
 
   @Test
   public void useConfiguredDialectByDefault() {
-    Configuration conf = MemoryDatabaseConnector.getInMemoryConfiguration(false);
+    Settings conf = MemoryDatabaseConnector.getInMemoryConfiguration(false);
     conf.setProperty(DatabaseProperties.PROP_DIALECT, DatabaseProperties.DIALECT_ORACLE);
 
     TestDatabaseConnector connector = new TestDatabaseConnector(conf);
@@ -60,7 +61,7 @@ public class AbstractDatabaseConnectorTest {
 
   @Test
   public void getHibernateProperties() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
+    Settings conf = new Settings();
     conf.setProperty("sonar.foo", "foo value");
 
     // all properties prefixed by sonar.hibernate are propagated to hibernate configuration (the prefix "sonar." is removed)
@@ -84,7 +85,7 @@ public class AbstractDatabaseConnectorTest {
 
   private class TestDatabaseConnector extends AbstractDatabaseConnector {
 
-    public TestDatabaseConnector(Configuration configuration) {
+    public TestDatabaseConnector(Settings configuration) {
       super(configuration, false);
     }
 

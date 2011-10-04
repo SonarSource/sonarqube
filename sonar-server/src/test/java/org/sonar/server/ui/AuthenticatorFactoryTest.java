@@ -19,9 +19,9 @@
  */
 package org.sonar.server.ui;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.security.LoginPasswordAuthenticator;
 
 import static org.hamcrest.Matchers.is;
@@ -33,48 +33,48 @@ public class AuthenticatorFactoryTest {
 
   @Test
   public void doNotFailIfNoAuthenticationPlugins() {
-    AuthenticatorFactory factory = new AuthenticatorFactory(new PropertiesConfiguration());
+    AuthenticatorFactory factory = new AuthenticatorFactory(new Settings());
     assertThat(factory.getAuthenticator(), nullValue());
   }
 
   @Test
   public void startSelectedAuthenticator() {
-    PropertiesConfiguration configuration = new PropertiesConfiguration();
-    configuration.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, FakeAuthenticator.class.getName());
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, FakeAuthenticator.class.getName());
 
     LoginPasswordAuthenticator authenticator = new FakeAuthenticator();
-    AuthenticatorFactory factory = new AuthenticatorFactory(configuration, new LoginPasswordAuthenticator[]{authenticator});
+    AuthenticatorFactory factory = new AuthenticatorFactory(settings, new LoginPasswordAuthenticator[]{authenticator});
     factory.start();
     assertThat(factory.getAuthenticator(), is(authenticator));
   }
 
   @Test(expected = ConnectionException.class)
   public void authenticatorDoesNotStart() {
-    PropertiesConfiguration configuration = new PropertiesConfiguration();
-    configuration.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, FailAuthenticator.class.getName());
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, FailAuthenticator.class.getName());
 
-    AuthenticatorFactory factory = new AuthenticatorFactory(configuration, new LoginPasswordAuthenticator[]{new FakeAuthenticator(), new FailAuthenticator()});
+    AuthenticatorFactory factory = new AuthenticatorFactory(settings, new LoginPasswordAuthenticator[]{new FakeAuthenticator(), new FailAuthenticator()});
     factory.start();
     factory.getAuthenticator();
   }
 
   @Test(expected = AuthenticatorNotFoundException.class)
   public void authenticatorNotFound() {
-    PropertiesConfiguration configuration = new PropertiesConfiguration();
-    configuration.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, "foo");
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, "foo");
 
-    AuthenticatorFactory factory = new AuthenticatorFactory(configuration, new LoginPasswordAuthenticator[]{new FakeAuthenticator(), new FailAuthenticator()});
+    AuthenticatorFactory factory = new AuthenticatorFactory(settings, new LoginPasswordAuthenticator[]{new FakeAuthenticator(), new FailAuthenticator()});
     factory.start();
     factory.getAuthenticator();
   }
 
   @Test
   public void ignoreStartupFailure() {
-    PropertiesConfiguration configuration = new PropertiesConfiguration();
-    configuration.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, FailAuthenticator.class.getName());
-    configuration.setProperty(CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE, Boolean.TRUE.toString());
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, FailAuthenticator.class.getName());
+    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE, Boolean.TRUE);
 
-    AuthenticatorFactory factory = new AuthenticatorFactory(configuration, new LoginPasswordAuthenticator[]{new FakeAuthenticator(), new FailAuthenticator()});
+    AuthenticatorFactory factory = new AuthenticatorFactory(settings, new LoginPasswordAuthenticator[]{new FakeAuthenticator(), new FailAuthenticator()});
     factory.start();
     assertThat(factory.getAuthenticator(), not(nullValue()));
   }

@@ -121,15 +121,12 @@ class ProjectController < ApplicationController
 
     @category=params[:category] ||= 'general'
     @properties_per_category={}
-    java_facade.getPluginsMetadata().each do |plugin|
-      properties=java_facade.getPluginProperties(plugin).select { |property|
-        (@project.module? && property.module()) || (@project.project? && property.project())
-      }
-      properties.each do |property|
-        category = (property.category().present? ? property.category() : plugin.name())
-        @properties_per_category[category]||=[]
-        @properties_per_category[category]<<property
-      end
+    definitions = java_facade.getPropertyDefinitions()
+    properties = definitions.getProperties().select {|property| (@project.module? && property.module()) || (@project.project? && property.project())}
+    properties.each do |property|
+      category = definitions.getCategory(property.key())
+      @properties_per_category[category]||=[]
+      @properties_per_category[category]<<property
     end
   end
 

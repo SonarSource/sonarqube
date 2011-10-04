@@ -19,13 +19,10 @@
  */
 package org.sonar.server.platform;
 
-import org.apache.commons.configuration.CompositeConfiguration;
-import org.apache.commons.configuration.Configuration;
-import org.picocontainer.Characteristics;
-import org.picocontainer.MutablePicoContainer;
+import org.apache.commons.configuration.BaseConfiguration;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugins;
-import org.sonar.api.database.configuration.DatabaseConfiguration;
+import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.Server;
 import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.XMLProfileParser;
@@ -53,8 +50,8 @@ import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.jpa.session.DatabaseSessionProvider;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
 import org.sonar.server.charts.ChartFactory;
+import org.sonar.server.configuration.ServerSettings;
 import org.sonar.server.configuration.Backup;
-import org.sonar.server.configuration.ConfigurationLogger;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.database.EmbeddedDatabaseFactory;
 import org.sonar.server.database.JndiDatabaseConnector;
@@ -72,6 +69,8 @@ import org.sonar.server.ui.CodeColorizers;
 import org.sonar.server.ui.JRubyI18n;
 import org.sonar.server.ui.Views;
 
+import javax.servlet.ServletContext;
+
 /**
  * @since 2.2
  */
@@ -79,9 +78,9 @@ public final class Platform {
 
   private static final Platform INSTANCE = new Platform();
 
-  private MutablePicoContainer rootContainer;// level 1 : only database connectors
-  private MutablePicoContainer coreContainer;// level 2 : level 1 + core components
-  private MutablePicoContainer servicesContainer;// level 3 : level 2 + plugin extensions + core components that depend on plugin extensions
+  private ComponentContainer rootContainer;// level 1 : only database connectors
+  private ComponentContainer coreContainer;// level 2 : level 1 + core components
+  private ComponentContainer servicesContainer;// level 3 : level 2 + plugin extensions + core components that depend on plugin extensions
 
   private boolean connected = false;
   private boolean started = false;
@@ -93,10 +92,10 @@ public final class Platform {
   private Platform() {
   }
 
-  public void init(Configuration conf) {
+  public void init(ServletContext servletContext) {
     if (!connected) {
       try {
-        startDatabaseConnectors(conf);
+        startDatabaseConnectors(servletContext);
         connected = true;
 
       } catch (Exception e) {
@@ -116,117 +115,117 @@ public final class Platform {
     }
   }
 
-  private void startDatabaseConnectors(Configuration configuration) {
-    rootContainer = IocContainer.buildPicoContainer();
-    ConfigurationLogger.log(configuration);
-
-    rootContainer.as(Characteristics.CACHE).addComponent(configuration);
-    rootContainer.as(Characteristics.CACHE).addComponent(EmbeddedDatabaseFactory.class);
-    rootContainer.as(Characteristics.CACHE).addComponent(JndiDatabaseConnector.class);
-    rootContainer.as(Characteristics.CACHE).addComponent(DefaultServerUpgradeStatus.class);
-    rootContainer.start();
-
-    // Platform is already starting, so it's registered after the container startup
+  private void startDatabaseConnectors(ServletContext servletContext) {
+    rootContainer = new ComponentContainer();
+    rootContainer.addSingleton(servletContext);
+    rootContainer.addSingleton(IocContainer.class); // for backward compatibility
+    rootContainer.addSingleton(new BaseConfiguration());
+    rootContainer.addSingleton(ServerSettings.class);
+    rootContainer.addSingleton(EmbeddedDatabaseFactory.class);
+    rootContainer.addSingleton(JndiDatabaseConnector.class);
+    rootContainer.addSingleton(DefaultServerUpgradeStatus.class);
+    rootContainer.startComponents();
   }
 
   private boolean isUpToDateDatabase() {
-    JndiDatabaseConnector databaseConnector = getContainer().getComponent(JndiDatabaseConnector.class);
+    JndiDatabaseConnector databaseConnector = getContainer().getComponentByType(JndiDatabaseConnector.class);
     return databaseConnector.isOperational();
   }
 
   private void startCoreComponents() {
-    coreContainer = rootContainer.makeChildContainer();
-    coreContainer.as(Characteristics.CACHE).addComponent(PluginDeployer.class);
-    coreContainer.as(Characteristics.CACHE).addComponent(DefaultServerPluginRepository.class);
-    coreContainer.as(Characteristics.CACHE).addComponent(DefaultServerFileSystem.class);
-    coreContainer.as(Characteristics.CACHE).addComponent(ThreadLocalDatabaseSessionFactory.class);
-    coreContainer.as(Characteristics.CACHE).addComponent(HttpDownloader.class);
-    coreContainer.as(Characteristics.CACHE).addComponent(UpdateCenterClient.class);
-    coreContainer.as(Characteristics.CACHE).addComponent(UpdateCenterMatrixFactory.class);
-    coreContainer.as(Characteristics.CACHE).addComponent(PluginDownloader.class);
-    coreContainer.as(Characteristics.CACHE).addComponent(ServerIdGenerator.class);
-    coreContainer.as(Characteristics.CACHE).addComponent(ServerImpl.class);
-    coreContainer.as(Characteristics.NO_CACHE).addComponent(FilterExecutor.class);
-    coreContainer.as(Characteristics.NO_CACHE).addAdapter(new DatabaseSessionProvider());
-    coreContainer.start();
+    coreContainer = rootContainer.createChild();
+    coreContainer.addSingleton(PluginDeployer.class);
+    coreContainer.addSingleton(DefaultServerPluginRepository.class);
+    coreContainer.addSingleton(ServerExtensionInstaller.class);
+    coreContainer.addSingleton(DefaultServerFileSystem.class);
+    coreContainer.addSingleton(ThreadLocalDatabaseSessionFactory.class);
+    coreContainer.addPicoAdapter(new DatabaseSessionProvider());
+    coreContainer.startComponents();
 
-    DatabaseConfiguration dbConfiguration = new DatabaseConfiguration(coreContainer.getComponent(DatabaseSessionFactory.class));
-    coreContainer.getComponent(CompositeConfiguration.class).addConfiguration(dbConfiguration);
+    DatabaseSessionFactory sessionFactory = coreContainer.getComponentByType(DatabaseSessionFactory.class);
+    ServerSettings serverSettings = coreContainer.getComponentByType(ServerSettings.class);
+    serverSettings.setSessionFactory(sessionFactory);
+    serverSettings.load();
   }
 
   /**
    * plugin extensions + all the components that depend on plugin extensions
    */
   private void startServiceComponents() {
-    servicesContainer = coreContainer.makeChildContainer();
+    servicesContainer = coreContainer.createChild();
+    ServerExtensionInstaller extensionRegistrar = servicesContainer.getComponentByType(ServerExtensionInstaller.class);
+    extensionRegistrar.registerExtensions(servicesContainer);
 
-    DefaultServerPluginRepository pluginRepository = servicesContainer.getComponent(DefaultServerPluginRepository.class);
-    pluginRepository.registerExtensions(servicesContainer);
-
-    servicesContainer.as(Characteristics.CACHE).addComponent(DefaultModelFinder.class); // depends on plugins
-    servicesContainer.as(Characteristics.CACHE).addComponent(DefaultModelManager.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(Plugins.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(ChartFactory.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(Languages.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(Views.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(CodeColorizers.class);
-    servicesContainer.as(Characteristics.NO_CACHE).addComponent(RulesDao.class);
-    servicesContainer.as(Characteristics.NO_CACHE).addComponent(MeasuresDao.class);
-    servicesContainer.as(Characteristics.NO_CACHE).addComponent(org.sonar.api.database.daos.MeasuresDao.class);
-    servicesContainer.as(Characteristics.NO_CACHE).addComponent(ProfilesDao.class);
-    servicesContainer.as(Characteristics.NO_CACHE).addComponent(DaoFacade.class);
-    servicesContainer.as(Characteristics.NO_CACHE).addComponent(DefaultRulesManager.class);
-    servicesContainer.as(Characteristics.NO_CACHE).addComponent(ProfilesManager.class);
-    servicesContainer.as(Characteristics.NO_CACHE).addComponent(Backup.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(AuthenticatorFactory.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(ServerLifecycleNotifier.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(AnnotationProfileParser.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(XMLProfileParser.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(XMLProfileSerializer.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(AnnotationRuleParser.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(XMLRuleParser.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(DefaultRuleFinder.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(DefaultMetricFinder.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(ProfilesConsole.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(RulesConsole.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(JRubyI18n.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(DefaultUserFinder.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(I18nManager.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(RuleI18nManager.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(GwtI18n.class);
+    servicesContainer.addSingleton(HttpDownloader.class);
+    servicesContainer.addSingleton(UpdateCenterClient.class);
+    servicesContainer.addSingleton(UpdateCenterMatrixFactory.class);
+    servicesContainer.addSingleton(PluginDownloader.class);
+    servicesContainer.addSingleton(ServerIdGenerator.class);
+    servicesContainer.addSingleton(ServerImpl.class);
+    servicesContainer.addComponent(FilterExecutor.class, false);
+    servicesContainer.addSingleton(DefaultModelFinder.class); // depends on plugins
+    servicesContainer.addSingleton(DefaultModelManager.class);
+    servicesContainer.addSingleton(Plugins.class);
+    servicesContainer.addSingleton(ChartFactory.class);
+    servicesContainer.addSingleton(Languages.class);
+    servicesContainer.addSingleton(Views.class);
+    servicesContainer.addSingleton(CodeColorizers.class);
+    servicesContainer.addComponent(RulesDao.class, false);
+    servicesContainer.addComponent(MeasuresDao.class, false);
+    servicesContainer.addComponent(org.sonar.api.database.daos.MeasuresDao.class, false);
+    servicesContainer.addComponent(ProfilesDao.class, false);
+    servicesContainer.addComponent(DaoFacade.class, false);
+    servicesContainer.addComponent(DefaultRulesManager.class, false);
+    servicesContainer.addComponent(ProfilesManager.class, false);
+    servicesContainer.addComponent(Backup.class, false);
+    servicesContainer.addSingleton(AuthenticatorFactory.class);
+    servicesContainer.addSingleton(ServerLifecycleNotifier.class);
+    servicesContainer.addSingleton(AnnotationProfileParser.class);
+    servicesContainer.addSingleton(XMLProfileParser.class);
+    servicesContainer.addSingleton(XMLProfileSerializer.class);
+    servicesContainer.addSingleton(AnnotationRuleParser.class);
+    servicesContainer.addSingleton(XMLRuleParser.class);
+    servicesContainer.addSingleton(DefaultRuleFinder.class);
+    servicesContainer.addSingleton(DefaultMetricFinder.class);
+    servicesContainer.addSingleton(ProfilesConsole.class);
+    servicesContainer.addSingleton(RulesConsole.class);
+    servicesContainer.addSingleton(JRubyI18n.class);
+    servicesContainer.addSingleton(DefaultUserFinder.class);
+    servicesContainer.addSingleton(I18nManager.class);
+    servicesContainer.addSingleton(RuleI18nManager.class);
+    servicesContainer.addSingleton(GwtI18n.class);
 
     // Notifications
-    servicesContainer.as(Characteristics.CACHE).addComponent(NotificationService.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(DefaultNotificationManager.class);
-    servicesContainer.as(Characteristics.CACHE).addComponent(ReviewsNotificationManager.class);
+    servicesContainer.addSingleton(NotificationService.class);
+    servicesContainer.addSingleton(DefaultNotificationManager.class);
+    servicesContainer.addSingleton(ReviewsNotificationManager.class);
 
-    servicesContainer.start();
+    servicesContainer.startComponents();
   }
 
   private void executeStartupTasks() {
-    MutablePicoContainer startupContainer = servicesContainer.makeChildContainer();
+    ComponentContainer startupContainer = servicesContainer.createChild();
     try {
-      startupContainer.as(Characteristics.CACHE).addComponent(MavenRepository.class);
-      startupContainer.as(Characteristics.CACHE).addComponent(GwtPublisher.class);
-      startupContainer.as(Characteristics.CACHE).addComponent(RegisterMetrics.class);
-      startupContainer.as(Characteristics.CACHE).addComponent(RegisterRules.class);
-      startupContainer.as(Characteristics.CACHE).addComponent(RegisterProvidedProfiles.class);
-      startupContainer.as(Characteristics.CACHE).addComponent(EnableProfiles.class);
-      startupContainer.as(Characteristics.CACHE).addComponent(ActivateDefaultProfiles.class);
-      startupContainer.as(Characteristics.CACHE).addComponent(JdbcDriverDeployer.class);
-      startupContainer.as(Characteristics.CACHE).addComponent(ServerMetadataPersister.class);
-      startupContainer.as(Characteristics.CACHE).addComponent(RegisterQualityModels.class);
-      startupContainer.as(Characteristics.CACHE).addComponent(DeleteDeprecatedMeasures.class);
-      startupContainer.as(Characteristics.CACHE).addComponent(GeneratePluginIndex.class);
-      startupContainer.start();
+      startupContainer.addSingleton(MavenRepository.class);
+      startupContainer.addSingleton(GwtPublisher.class);
+      startupContainer.addSingleton(RegisterMetrics.class);
+      startupContainer.addSingleton(RegisterRules.class);
+      startupContainer.addSingleton(RegisterProvidedProfiles.class);
+      startupContainer.addSingleton(EnableProfiles.class);
+      startupContainer.addSingleton(ActivateDefaultProfiles.class);
+      startupContainer.addSingleton(JdbcDriverDeployer.class);
+      startupContainer.addSingleton(ServerMetadataPersister.class);
+      startupContainer.addSingleton(RegisterQualityModels.class);
+      startupContainer.addSingleton(DeleteDeprecatedMeasures.class);
+      startupContainer.addSingleton(GeneratePluginIndex.class);
+      startupContainer.startComponents();
 
-      startupContainer.getComponent(ServerLifecycleNotifier.class).notifyStart();
+      startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();
 
     } finally {
-      startupContainer.stop();
-      servicesContainer.removeChildContainer(startupContainer);
-      startupContainer = null;
-      servicesContainer.getComponent(DatabaseSessionFactory.class).clear();
+      startupContainer.stopComponents();
+      servicesContainer.removeChild();
+      servicesContainer.getComponentByType(DatabaseSessionFactory.class).clear();
     }
   }
 
@@ -234,7 +233,7 @@ public final class Platform {
     if (rootContainer != null) {
       try {
         TimeProfiler profiler = new TimeProfiler().start("Stop sonar");
-        rootContainer.stop();
+        rootContainer.stopComponents();
         rootContainer = null;
         connected = false;
         started = false;
@@ -245,7 +244,7 @@ public final class Platform {
     }
   }
 
-  public MutablePicoContainer getContainer() {
+  public ComponentContainer getContainer() {
     if (servicesContainer != null) {
       return servicesContainer;
     }
@@ -256,7 +255,7 @@ public final class Platform {
   }
 
   public Object getComponent(Object key) {
-    return getContainer().getComponent(key);
+    return getContainer().getComponentByKey(key);
   }
 
   /**

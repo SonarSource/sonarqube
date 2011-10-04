@@ -21,7 +21,9 @@ package org.sonar.server.database;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.cfg.Environment;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 import org.sonar.jpa.entity.SchemaMigration;
@@ -31,13 +33,14 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 public class JndiDatabaseConnector extends AbstractDatabaseConnector {
 
   private DataSource datasource = null;
 
-  public JndiDatabaseConnector(Configuration configuration) {
+  public JndiDatabaseConnector(Settings configuration) {
     super(configuration, false);
   }
 
@@ -72,10 +75,9 @@ public class JndiDatabaseConnector extends AbstractDatabaseConnector {
     try {
       Logs.INFO.info("Creating JDBC datasource");
       Properties properties = new Properties();
-      Configuration dsConfig = getConfiguration().subset("sonar.jdbc");
-      for (Iterator<String> it = dsConfig.getKeys(); it.hasNext(); ) {
-        String key = it.next();
-        properties.setProperty(key, dsConfig.getString(key));
+      List<String> jdbcKeys = configuration.getKeysStartingWith("sonar.jdbc.");
+      for (String jdbcKey : jdbcKeys) {
+        properties.setProperty(StringUtils.removeStart(jdbcKey, "sonar.jdbc."), configuration.getString(jdbcKey));
       }
 
       // This property is required by the Ruby Oracle enhanced adapter.
@@ -92,9 +94,6 @@ public class JndiDatabaseConnector extends AbstractDatabaseConnector {
   public Connection getConnection() throws SQLException {
     if (datasource != null) {
       Connection connection = datasource.getConnection();
-      if (getTransactionIsolation() != null) {
-        connection.setTransactionIsolation(getTransactionIsolation());
-      }
       return connection;
     }
     return null;

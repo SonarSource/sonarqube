@@ -19,12 +19,12 @@
  */
 package org.sonar.server.ui;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.config.Settings;
 import org.sonar.api.security.LoginPasswordAuthenticator;
 
 public class AuthenticatorFactory implements ServerComponent {
@@ -37,17 +37,17 @@ public class AuthenticatorFactory implements ServerComponent {
   private boolean ignoreStartupFailure;
   private LoginPasswordAuthenticator[] authenticators;
 
-  public AuthenticatorFactory(Configuration configuration, LoginPasswordAuthenticator[] authenticators) {
-    classname = configuration.getString(CoreProperties.CORE_AUTHENTICATOR_CLASS);
-    ignoreStartupFailure = configuration.getBoolean(CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE, false);
+  public AuthenticatorFactory(Settings settings, LoginPasswordAuthenticator[] authenticators) {
+    classname = settings.getString(CoreProperties.CORE_AUTHENTICATOR_CLASS);
+    ignoreStartupFailure = settings.getBoolean(CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE);
     this.authenticators = authenticators;
   }
 
   /**
    * This constructor is used when there aren't any authentication plugins.
    */
-  public AuthenticatorFactory(Configuration configuration) {
-    this(configuration, null);
+  public AuthenticatorFactory(Settings settings) {
+    this(settings, null);
   }
 
   /**

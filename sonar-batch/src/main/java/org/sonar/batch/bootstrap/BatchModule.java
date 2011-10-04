@@ -25,7 +25,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.ServerHttpClient;
 import org.sonar.batch.DefaultResourceCreationLock;
-import org.sonar.batch.ProjectConfiguration;
+import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.components.*;
 import org.sonar.batch.index.*;
@@ -48,55 +48,55 @@ public class BatchModule extends Module {
 
   @Override
   protected void configure() {
-    addComponent(ProjectConfiguration.class);
-    addComponent(ProjectTree.class);
-    addComponent(DefaultResourceCreationLock.class);
-    addComponent(DefaultIndex.class);
+    addCoreSingleton(ProjectTree.class);
+    addCoreSingleton(ProjectConfigurator.class);
+    addCoreSingleton(DefaultResourceCreationLock.class);
+    addCoreSingleton(DefaultIndex.class);
 
     if (dryRun) {
-      addComponent(ReadOnlyPersistenceManager.class);
+      addCoreSingleton(ReadOnlyPersistenceManager.class);
     } else {
-      addComponent(DefaultPersistenceManager.class);
-      addComponent(DependencyPersister.class);
-      addComponent(EventPersister.class);
-      addComponent(LinkPersister.class);
-      addComponent(MeasurePersister.class);
-      addComponent(MemoryOptimizer.class);
-      addComponent(DefaultResourcePersister.class);
-      addComponent(SourcePersister.class);
+      addCoreSingleton(DefaultPersistenceManager.class);
+      addCoreSingleton(DependencyPersister.class);
+      addCoreSingleton(EventPersister.class);
+      addCoreSingleton(LinkPersister.class);
+      addCoreSingleton(MeasurePersister.class);
+      addCoreSingleton(MemoryOptimizer.class);
+      addCoreSingleton(DefaultResourcePersister.class);
+      addCoreSingleton(SourcePersister.class);
     }
 
-    addComponent(Plugins.class);
-    addComponent(ServerHttpClient.class);
-    addComponent(MeasuresDao.class);
-    addComponent(CacheRuleFinder.class);
-    addComponent(CacheMetricFinder.class);
-    addComponent(PastSnapshotFinderByDate.class);
-    addComponent(PastSnapshotFinderByDays.class);
-    addComponent(PastSnapshotFinderByPreviousAnalysis.class);
-    addComponent(PastSnapshotFinderByVersion.class);
-    addComponent(PastMeasuresLoader.class);
-    addComponent(PastSnapshotFinder.class);
-    addComponent(DefaultNotificationManager.class);
-    addComponent(DefaultUserFinder.class);
+    addCoreSingleton(Plugins.class);
+    addCoreSingleton(ServerHttpClient.class);
+    addCoreSingleton(MeasuresDao.class);
+    addCoreSingleton(CacheRuleFinder.class);
+    addCoreSingleton(CacheMetricFinder.class);
+    addCoreSingleton(PastSnapshotFinderByDate.class);
+    addCoreSingleton(PastSnapshotFinderByDays.class);
+    addCoreSingleton(PastSnapshotFinderByPreviousAnalysis.class);
+    addCoreSingleton(PastSnapshotFinderByVersion.class);
+    addCoreSingleton(PastMeasuresLoader.class);
+    addCoreSingleton(PastSnapshotFinder.class);
+    addCoreSingleton(DefaultNotificationManager.class);
+    addCoreSingleton(DefaultUserFinder.class);
     addCoreMetrics();
     addBatchExtensions();
   }
 
   private void addBatchExtensions() {
-    BatchExtensionInstaller installer = getComponent(BatchExtensionInstaller.class);
+    BatchExtensionInstaller installer = getComponentByType(BatchExtensionInstaller.class);
     installer.install(this);
   }
 
   void addCoreMetrics() {
     for (Metric metric : CoreMetrics.getMetrics()) {
-      addComponent(metric.getKey(), metric);
+      addCoreSingleton(metric);
     }
   }
 
   @Override
   protected void doStart() {
-    ProjectTree projectTree = getComponent(ProjectTree.class);
+    ProjectTree projectTree = getComponentByType(ProjectTree.class);
     analyze(projectTree.getRootProject());
   }
 
@@ -110,7 +110,7 @@ public class BatchModule extends Module {
       projectComponents.start();
     } finally {
       projectComponents.stop();
-      uninstallChild(projectComponents);
+      uninstallChild();
     }
   }
 }

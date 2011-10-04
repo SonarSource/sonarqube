@@ -176,7 +176,38 @@ import java.util.List;
         project = true,
         global = false,
         defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_5,
-        category = CoreProperties.CATEGORY_DIFFERENTIAL_VIEWS)
+        category = CoreProperties.CATEGORY_DIFFERENTIAL_VIEWS),
+
+
+    // SERVER-SIDE TECHNICAL PROPERTIES
+
+    @Property(
+        key = "sonar.useStructureDump",
+        name = "Use Structure Dump",
+        description = "Used when creating database schema",
+        project = false,
+        global = false,
+        defaultValue = "true"),
+    @Property(
+        key = "sonar.authenticator.downcase",
+        name = "Downcase login",
+        description = "Downcase login during user authentication, typically for Active Directory",
+        project = false,
+        global = false,
+        defaultValue = "false"),
+    @Property(
+        key = CoreProperties.CORE_AUTHENTICATOR_CREATE_USERS,
+        name = "Create user accounts",
+        description = "Create accounts when authenticating users via an external system",
+        project = false,
+        global = false,
+        defaultValue = "false"),
+    @Property(
+        key = CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE,
+        name = "Ignore failures during authenticator startup",
+        defaultValue = "false",
+        project = false,
+        global = false)
 })
 public class CorePlugin extends SonarPlugin {
 

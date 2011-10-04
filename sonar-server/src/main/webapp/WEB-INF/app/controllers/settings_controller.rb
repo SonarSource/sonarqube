@@ -75,13 +75,13 @@ class SettingsController < ApplicationController
   def load_properties(all=true)
     @category=params[:category]
     @properties_per_category={}
-    java_facade.getPluginsMetadata().each do |plugin|
-      java_facade.getPluginProperties(plugin).select { |property| all || property.global }.each do |property|
-        category = (property.category().present? ? property.category() : plugin.name())
-        @properties_per_category[category]||=[]
-        @properties_per_category[category]<<property
-      end
+    definitions = java_facade.getPropertyDefinitions()
+    definitions.getProperties().select {|property| property.global}.each do |property|
+      category = definitions.getCategory(property.key())
+      @properties_per_category[category]||=[]
+      @properties_per_category[category]<<property
     end
+
     SPECIAL_CATEGORIES.each do |category|
       @properties_per_category[category]=[]
     end

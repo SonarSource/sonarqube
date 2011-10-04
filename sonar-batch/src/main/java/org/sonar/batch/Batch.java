@@ -30,11 +30,11 @@ public final class Batch {
   private Module bootstrapModule;
 
   /**
-   * @deprecated since 2.9. Replaced by the factory method.
+   * @deprecated since 2.9. Replaced by the factory method. Use by Ant Task 1.1
    */
   @Deprecated
   public Batch(Configuration configuration, Object... bootstrapperComponents) {
-    this.bootstrapModule = new BootstrapModule(extractProjectReactor(bootstrapperComponents), configuration, bootstrapperComponents).init();
+    this.bootstrapModule = new BootstrapModule(extractProjectReactor(bootstrapperComponents), bootstrapperComponents).init();
   }
 
   static ProjectReactor extractProjectReactor(Object[] components) {
@@ -54,12 +54,12 @@ public final class Batch {
     return deprecatedReactor.toProjectReactor();
   }
 
-  private Batch(ProjectReactor reactor, Configuration configuration, Object... bootstrapperComponents) {
-    this.bootstrapModule = new BootstrapModule(reactor, configuration, bootstrapperComponents).init();
+  private Batch(ProjectReactor reactor, Object... bootstrapperComponents) {
+    this.bootstrapModule = new BootstrapModule(reactor, bootstrapperComponents).init();
   }
 
   public static Batch create(ProjectReactor projectReactor, Configuration configuration, Object... bootstrapperComponents) {
-    return new Batch(projectReactor, configuration, bootstrapperComponents);
+    return new Batch(projectReactor, bootstrapperComponents);
   }
 
   /**

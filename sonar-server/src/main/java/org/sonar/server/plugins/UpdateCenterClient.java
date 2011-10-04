@@ -19,10 +19,12 @@
  */
 package org.sonar.server.plugins;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.Logs;
 import org.sonar.updatecenter.common.UpdateCenter;
@@ -32,17 +34,32 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
-import java.util.Properties;
+
 
 /**
  * HTTP client to load data from the remote update center hosted at http://update.sonarsource.org.
  *
  * @since 2.4
  */
+@Properties({
+    @Property(
+        key = "sonar.updatecenter.activate",
+        defaultValue = "true",
+        name = "Enable Update Center",
+        project = false,
+        global = false, // hidden from UI
+        category = "Update Center"),
+    @Property(
+        key = UpdateCenterClient.URL_PROPERTY,
+        defaultValue = "http://update.sonarsource.org/update-center.properties",
+        name = "Update Center URL",
+        project = false,
+        global = false, // hidden from UI
+        category = "Update Center")
+})
 public class UpdateCenterClient implements ServerComponent {
 
   public static final String URL_PROPERTY = "sonar.updatecenter.url";
-  public static final String DEFAULT_URL = "http://update.sonarsource.org/update-center.properties";
   public static final int PERIOD_IN_MILLISECONDS = 60 * 60 * 1000;
 
   private URI uri;
@@ -59,8 +76,8 @@ public class UpdateCenterClient implements ServerComponent {
     Logs.INFO.info("Update center: " + uri + " (" + downloader.getProxySynthesis(uri) + ")");
   }
 
-  public UpdateCenterClient(HttpDownloader downloader, Configuration configuration) throws URISyntaxException {
-    this(downloader, new URI(configuration.getString(URL_PROPERTY, DEFAULT_URL)));
+  public UpdateCenterClient(HttpDownloader downloader, Settings configuration) throws URISyntaxException {
+    this(downloader, new URI(configuration.getString(URL_PROPERTY)));
   }
 
   public UpdateCenter getCenter() {
@@ -88,7 +105,7 @@ public class UpdateCenterClient implements ServerComponent {
     try {
       input = downloader.openStream(uri);
       if (input != null) {
-        Properties properties = new Properties();
+        java.util.Properties properties = new java.util.Properties();
         properties.load(input);
         return UpdateCenterDeserializer.fromProperties(properties);
       }

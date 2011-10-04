@@ -23,6 +23,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 
 import java.sql.SQLException;
@@ -43,11 +44,10 @@ public class DriverDatabaseConnectorTest {
 
   @Test(expected = DatabaseException.class)
   public void failsIfUnvalidConfiguration() throws SQLException {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
+    Settings conf = new Settings();
     conf.setProperty(DatabaseProperties.PROP_URL, "jdbc:foo:bar//xxx");
     conf.setProperty(DatabaseProperties.PROP_DRIVER, MemoryDatabaseConnector.DRIVER);
     conf.setProperty(DatabaseProperties.PROP_USER, "sa");
-    conf.setProperty(DatabaseProperties.PROP_PASSWORD, null);
     connector = new DriverDatabaseConnector(conf);
     try {
       connector.start();
@@ -81,7 +81,7 @@ public class DriverDatabaseConnectorTest {
 
   @Test
   public void deprecatedParametersAreStillValid() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
+    Settings conf = new Settings();
     conf.setProperty(DatabaseProperties.PROP_DRIVER_DEPRECATED, MemoryDatabaseConnector.DRIVER);
     conf.setProperty(DatabaseProperties.PROP_USER_DEPRECATED, "freddy");
     connector = new DriverDatabaseConnector(conf);

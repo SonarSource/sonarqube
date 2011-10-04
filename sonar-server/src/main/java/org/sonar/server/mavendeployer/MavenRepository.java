@@ -19,10 +19,10 @@
  */
 package org.sonar.server.mavendeployer;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.FileUtils;
+import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
-import org.sonar.server.configuration.CoreConfiguration;
+import org.sonar.server.configuration.ServerSettings;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
 import java.io.File;
@@ -34,10 +34,10 @@ public class MavenRepository {
   private final String serverId;
   private File rootDir;
 
-  public MavenRepository(Configuration configuration, DefaultServerFileSystem fileSystem, Server server) throws IOException {
+  public MavenRepository(Settings settings, DefaultServerFileSystem fileSystem, Server server) throws IOException {
     this.installation = fileSystem;
     this.serverId = server.getId();
-    initRootDir(configuration);
+    initRootDir(settings);
   }
 
   /**
@@ -60,8 +60,8 @@ public class MavenRepository {
   }
 
 
-  private void initRootDir(Configuration configuration) throws IOException {
-    this.rootDir = new File(configuration.getString(CoreConfiguration.DEPLOY_DIR), "maven");
+  private void initRootDir(Settings settings) throws IOException {
+    this.rootDir = new File(settings.getString(ServerSettings.DEPLOY_DIR), "maven");
     File orgDir = new File(rootDir, "/org/");
     if (orgDir.exists()) {
       FileUtils.forceDelete(orgDir);

@@ -29,16 +29,21 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.rules.DefaultRulesManager;
+import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.*;
 import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.batch.config.DeprecatedConfigurationProvider;
+import org.sonar.batch.config.ProjectSettings;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.phases.Phases;
 import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.core.components.DefaultModelFinder;
-import org.sonar.jpa.dao.*;
+import org.sonar.jpa.dao.DaoFacade;
+import org.sonar.jpa.dao.ProfilesDao;
+import org.sonar.jpa.dao.RulesDao;
 
 import java.util.Arrays;
 
@@ -62,49 +67,52 @@ public class ProjectModule extends Module {
 
 
   private void addProjectComponents() {
-    ProjectDefinition projectDefinition = getComponent(ProjectTree.class).getProjectDefinition(project);
-    addComponent(projectDefinition);
-    for (Object component : projectDefinition.getContainerExtensions()) {
-      addComponent(component);
-    }
+    ProjectDefinition projectDefinition = getComponentByType(ProjectTree.class).getProjectDefinition(project);
+    addCoreSingleton(projectDefinition);
+    addCoreSingleton(project);
+    addCoreSingleton(project.getConfiguration());
+    addCoreSingleton(ProjectSettings.class);
+    addAdapter(new DeprecatedConfigurationProvider());
+    addCoreSingleton(IocContainer.class);
 
-    addComponent(project);
-    addComponent(project.getConfiguration());
-    addComponent(DefaultProjectClasspath.class);
-    addComponent(DefaultProjectFileSystem2.class);
-    addComponent(DaoFacade.class);
-    addComponent(RulesDao.class);
+    for (Object component : projectDefinition.getContainerExtensions()) {
+      addCoreSingleton(component);
+    }
+    addCoreSingleton(DefaultProjectClasspath.class);
+    addCoreSingleton(DefaultProjectFileSystem2.class);
+    addCoreSingleton(DaoFacade.class);
+    addCoreSingleton(RulesDao.class);
 
     if (!dryRun) {
       // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
-      addComponent(getComponent(DefaultResourcePersister.class).getSnapshot(project));
+      addCoreSingleton(getComponentByType(DefaultResourcePersister.class).getSnapshot(project));
     }
-    addComponent(TimeMachineConfiguration.class);
-    addComponent(org.sonar.api.database.daos.MeasuresDao.class);
-    addComponent(ProfilesDao.class);
-    addComponent(DefaultRulesManager.class);
-    addComponent(DefaultSensorContext.class);
-    addComponent(Languages.class);
-    addComponent(BatchExtensionDictionnary.class);
-    addComponent(DefaultTimeMachine.class);
-    addComponent(ViolationFilters.class);
-    addComponent(ResourceFilters.class);
-    addComponent(DefaultModelFinder.class);
-    addComponent(ProfileLoader.class, DefaultProfileLoader.class);
+    addCoreSingleton(TimeMachineConfiguration.class);
+    addCoreSingleton(org.sonar.api.database.daos.MeasuresDao.class);
+    addCoreSingleton(ProfilesDao.class);
+    addCoreSingleton(DefaultRulesManager.class);
+    addCoreSingleton(DefaultSensorContext.class);
+    addCoreSingleton(Languages.class);
+    addCoreSingleton(BatchExtensionDictionnary.class);
+    addCoreSingleton(DefaultTimeMachine.class);
+    addCoreSingleton(ViolationFilters.class);
+    addCoreSingleton(ResourceFilters.class);
+    addCoreSingleton(DefaultModelFinder.class);
+    addCoreSingleton(DefaultProfileLoader.class);
     addAdapter(new ProfileProvider());
   }
 
   private void addCoreComponents() {
-    addComponent(EventBus.class);
-    addComponent(Phases.class);
-    addComponent(PhasesTimeProfiler.class);
+    addCoreSingleton(EventBus.class);
+    addCoreSingleton(Phases.class);
+    addCoreSingleton(PhasesTimeProfiler.class);
     for (Class clazz : Phases.getPhaseClasses(dryRun)) {
-      addComponent(clazz);
+      addCoreSingleton(clazz);
     }
   }
 
   private void addProjectPluginExtensions() {
-    ProjectExtensionInstaller installer = getComponent(ProjectExtensionInstaller.class);
+    ProjectExtensionInstaller installer = getComponentByType(ProjectExtensionInstaller.class);
     installer.install(this, project);
   }
 
@@ -124,22 +132,22 @@ public class ProjectModule extends Module {
    */
   @Override
   protected void doStart() {
-    Language language = getComponent(Languages.class).get(project.getLanguageKey());
+    Language language = getComponentByType(Languages.class).get(project.getLanguageKey());
     if (language == null) {
       throw new SonarException("Language with key '" + project.getLanguageKey() + "' not found");
     }
     project.setLanguage(language);
 
-    DefaultIndex index = getComponent(DefaultIndex.class);
+    DefaultIndex index = getComponentByType(DefaultIndex.class);
     index.setCurrentProject(project,
-        getComponent(ResourceFilters.class),
-        getComponent(ViolationFilters.class),
-        getComponent(RulesProfile.class));
+        getComponentByType(ResourceFilters.class),
+        getComponentByType(ViolationFilters.class),
+        getComponentByType(RulesProfile.class));
 
     // TODO See http://jira.codehaus.org/browse/SONAR-2126
     // previously MavenProjectBuilder was responsible for creation of ProjectFileSystem
-    project.setFileSystem(getComponent(ProjectFileSystem.class));
+    project.setFileSystem(getComponentByType(ProjectFileSystem.class));
 
-    getComponent(Phases.class).execute(project);
+    getComponentByType(Phases.class).execute(project);
   }
 }

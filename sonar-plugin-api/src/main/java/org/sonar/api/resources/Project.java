@@ -420,7 +420,9 @@ public class Project extends Resource {
 
   /**
    * @return the project configuration
+   * @deprecated since 2.12. The component org.sonar.api.config.Settings must be used.
    */
+  @Deprecated
   public Configuration getConfiguration() {
     return configuration;
   }

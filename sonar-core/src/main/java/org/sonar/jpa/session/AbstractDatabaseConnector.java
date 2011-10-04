@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.cfg.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.Logs;
 import org.sonar.jpa.dialect.Dialect;
@@ -36,6 +37,7 @@ import javax.persistence.Persistence;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -43,29 +45,20 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
   protected static final Logger LOG_SQL = LoggerFactory.getLogger("org.hibernate.SQL");
   protected static final Logger LOG = LoggerFactory.getLogger(AbstractDatabaseConnector.class);
 
-  private Configuration configuration = null;
+  protected Settings configuration = null;
   private EntityManagerFactory factory = null;
   private int databaseVersion = SchemaMigration.VERSION_UNKNOWN;
   private boolean operational = false;
   private boolean started = false;
   private boolean startsFailIfSchemaOutdated;
-  private Integer transactionIsolation = null;
   private Dialect dialect = null;
 
-  protected AbstractDatabaseConnector(Configuration configuration, boolean startsFailIfSchemaOutdated) {
+  protected AbstractDatabaseConnector(Settings configuration, boolean startsFailIfSchemaOutdated) {
     this.configuration = configuration;
     this.startsFailIfSchemaOutdated = startsFailIfSchemaOutdated;
   }
 
   protected AbstractDatabaseConnector() {
-  }
-
-  public Configuration getConfiguration() {
-    return configuration;
-  }
-
-  public void setConfiguration(Configuration configuration) {
-    this.configuration = configuration;
   }
 
   public String getDialectId() {
@@ -86,18 +79,8 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
     return started;
   }
 
-  /**
-   * Get the JDBC transaction isolation defined by the configuration
-   *
-   * @return JDBC transaction isolation
-   */
-  public final Integer getTransactionIsolation() {
-    return transactionIsolation;
-  }
-
   public void start() {
     if (!started) {
-      transactionIsolation = configuration.getInteger(DatabaseProperties.PROP_ISOLATION, null /* use driver default setting */);
       String jdbcConnectionUrl = testConnection();
       dialect = DialectRepository.find(configuration.getString("sonar.jdbc.dialect"), jdbcConnectionUrl);
       LoggerFactory.getLogger("org.sonar.INFO").info("Database dialect class " + dialect.getClass().getName());
@@ -152,21 +135,15 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
 
   protected Properties getHibernateProperties() {
     Properties props = new Properties();
-    if (transactionIsolation != null) {
-      props.put("hibernate.connection.isolation", Integer.toString(transactionIsolation));
-    }
-    props.put("hibernate.hbm2ddl.auto", getConfiguration().getString(DatabaseProperties.PROP_HIBERNATE_HBM2DLL, "validate"));
+    props.put("hibernate.hbm2ddl.auto", StringUtils.defaultString(configuration.getString(DatabaseProperties.PROP_HIBERNATE_HBM2DLL), "validate"));
     props.put(Environment.DIALECT, getDialectClass());
 
-    props.put("hibernate.generate_statistics", getConfiguration().getBoolean(DatabaseProperties.PROP_HIBERNATE_GENERATE_STATISTICS, false));
+    props.put("hibernate.generate_statistics", configuration.getBoolean(DatabaseProperties.PROP_HIBERNATE_GENERATE_STATISTICS));
     props.put("hibernate.show_sql", Boolean.valueOf(LOG_SQL.isDebugEnabled()).toString());
 
-    Configuration subset = getConfiguration().subset("sonar.hibernate");
-    for (Iterator keys = subset.getKeys(); keys.hasNext();) {
-      String key = (String) keys.next();
-      if (StringUtils.isNotBlank((String) subset.getProperty(key))) {
-        props.put("hibernate." + key, subset.getProperty(key));
-      }
+    List<String> hibernateKeys = configuration.getKeysStartingWith("sonar.hibernate.");
+    for (String hibernateKey : hibernateKeys) {
+      props.put(StringUtils.removeStart(hibernateKey, "sonar."), configuration.getString(hibernateKey));
     }
 
     // custom impl setup

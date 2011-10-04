@@ -19,14 +19,14 @@
  */
 package org.sonar.server.platform;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.utils.Logs;
 import org.sonar.jpa.session.DatabaseConnector;
-import org.sonar.server.configuration.CoreConfiguration;
+import org.sonar.server.configuration.ServerSettings;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,11 +45,11 @@ public class DefaultServerFileSystem implements ServerFileSystem {
   private File deployDir;
   private File homeDir;
 
-  public DefaultServerFileSystem(DatabaseConnector databaseConnector, Configuration configuration) {
+  public DefaultServerFileSystem(DatabaseConnector databaseConnector, Settings settings) {
     this.databaseConnector = databaseConnector;
-    this.homeDir = new File(configuration.getString(CoreProperties.SONAR_HOME));
+    this.homeDir = new File(settings.getString(CoreProperties.SONAR_HOME));
 
-    String deployPath = configuration.getString(CoreConfiguration.DEPLOY_DIR);
+    String deployPath = settings.getString(ServerSettings.DEPLOY_DIR);
     if (StringUtils.isNotBlank(deployPath)) {
       this.deployDir = new File(deployPath);
     }

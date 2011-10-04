@@ -22,7 +22,6 @@ package org.sonar.maven3;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
-import org.apache.commons.configuration.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
@@ -43,6 +42,7 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.Batch;
 import org.sonar.batch.MavenProjectConverter;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
+
 import java.io.InputStream;
 
 /**
@@ -140,7 +140,7 @@ public final class SonarMojo extends AbstractMojo {
     ProjectDefinition def = MavenProjectConverter.convert(session.getSortedProjects(), project);
     ProjectReactor reactor = new ProjectReactor(def);
 
-    Batch batch = Batch.create(reactor, getInitialConfiguration(),
+    Batch batch = Batch.create(reactor, null,
         session, getLog(), lifecycleExecutor, artifactFactory,
         localRepository, artifactMetadataSource, artifactCollector, dependencyTreeBuilder,
         projectBuilder, getEnvironmentInformation(), Maven3PluginExecutor.class);
@@ -170,11 +170,4 @@ public final class SonarMojo extends AbstractMojo {
     }
   }
 
-  private Configuration getInitialConfiguration() {
-    CompositeConfiguration configuration = new CompositeConfiguration();
-    configuration.addConfiguration(new SystemConfiguration());
-    configuration.addConfiguration(new EnvironmentConfiguration());
-    configuration.addConfiguration(new MapConfiguration(project.getModel().getProperties()));
-    return configuration;
-  }
 }

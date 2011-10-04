@@ -19,9 +19,9 @@
  */
 package org.sonar.batch;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 
 import java.text.ParseException;
 
@@ -32,13 +32,13 @@ public class ServerMetadataTest {
 
   @Test
   public void testLoadProperties() throws ParseException {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty(CoreProperties.SERVER_ID, "123");
-    conf.setProperty(CoreProperties.SERVER_VERSION, "2.2");
-    conf.setProperty(CoreProperties.SERVER_STARTTIME, "2010-05-18T17:59:00+0000");
-    conf.setProperty("sonar.host.url", "http://foo.com");
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.SERVER_ID, "123");
+    settings.setProperty(CoreProperties.SERVER_VERSION, "2.2");
+    settings.setProperty(CoreProperties.SERVER_STARTTIME, "2010-05-18T17:59:00+0000");
+    settings.setProperty("sonar.host.url", "http://foo.com");
 
-    ServerMetadata server = new ServerMetadata(conf);
+    ServerMetadata server = new ServerMetadata(settings);
 
     assertThat(server.getId(), is("123"));
     assertThat(server.getVersion(), is("2.2"));
@@ -52,10 +52,10 @@ public class ServerMetadataTest {
    */
   @Test
   public void urlMustNotEndWithSlash() throws ParseException {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.host.url", "http://localhost:80/");
+    Settings settings = new Settings();
+    settings.setProperty("sonar.host.url", "http://localhost:80/");
 
-    ServerMetadata server = new ServerMetadata(conf);
+    ServerMetadata server = new ServerMetadata(settings);
     assertThat(server.getURL(), is("http://localhost:80"));
   }
 }

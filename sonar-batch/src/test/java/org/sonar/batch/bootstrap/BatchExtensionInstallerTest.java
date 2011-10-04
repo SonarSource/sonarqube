@@ -19,14 +19,17 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.collect.Maps;
 import org.junit.Test;
 import org.sonar.api.*;
 import org.sonar.api.batch.CoverageExtension;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.platform.PluginMetadata;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
@@ -36,51 +39,53 @@ import static org.mockito.Mockito.when;
 
 public class BatchExtensionInstallerTest {
 
+  private static final PluginMetadata METADATA = mock(PluginMetadata.class);
+
+  private static Map<PluginMetadata, Plugin> newPlugin(final Class... classes) {
+    Map<PluginMetadata, Plugin> result = Maps.newHashMap();
+    result.put(METADATA,
+        new SonarPlugin() {
+          public List getExtensions() {
+            return Arrays.asList(classes);
+          }
+        }
+    );
+    return result;
+  }
+
   @Test
   public void shouldInstallExtensionsWithBatchInstantiationStrategy() {
     BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
-    when(pluginRepository.getPlugins()).thenReturn(Arrays.asList((Plugin) new SonarPlugin() {
-      public List getExtensions() {
-        return Arrays.asList(BatchService.class, ProjectService.class, ServerService.class);
-      }
-    }));
+    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(BatchService.class, ProjectService.class, ServerService.class));
     Module module = new FakeModule().init();
     BatchExtensionInstaller installer = new BatchExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new DryRun(false));
 
     installer.install(module);
 
-    assertThat(module.getComponent(BatchService.class), not(nullValue()));
-    assertThat(module.getComponent(ProjectService.class), nullValue());
-    assertThat(module.getComponent(ServerService.class), nullValue());
+    assertThat(module.getComponentByType(BatchService.class), not(nullValue()));
+    assertThat(module.getComponentByType(ProjectService.class), nullValue());
+    assertThat(module.getComponentByType(ServerService.class), nullValue());
   }
 
   @Test
   public void shouldInstallProvidersWithBatchInstantiationStrategy() {
     BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
-    when(pluginRepository.getPlugins()).thenReturn(Arrays.asList((Plugin) new SonarPlugin(){
-      public List getExtensions() {
-        return Arrays.asList(BatchServiceProvider.class, ProjectServiceProvider.class);
-      }
-    }));
+    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(BatchServiceProvider.class, ProjectServiceProvider.class));
     Module module = new FakeModule().init();
     BatchExtensionInstaller installer = new BatchExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new DryRun(false));
 
     installer.install(module);
 
-    assertThat(module.getComponent(BatchService.class), not(nullValue()));
-    assertThat(module.getComponent(ProjectService.class), nullValue());
-    assertThat(module.getComponent(ServerService.class), nullValue());
+    assertThat(module.getComponentByType(BatchService.class), not(nullValue()));
+    assertThat(module.getComponentByType(ProjectService.class), nullValue());
+    assertThat(module.getComponentByType(ServerService.class), nullValue());
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void shouldNotSupportCoverageExtensionsWithBatchInstantiationStrategy() {
     // the reason is that CoverageExtensions currently depend on Project
     BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
-    when(pluginRepository.getPlugins()).thenReturn(Arrays.asList((Plugin) new SonarPlugin(){
-      public List getExtensions() {
-        return Arrays.asList(InvalidCoverageExtension.class);
-      }
-    }));
+    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(InvalidCoverageExtension.class));
     Module module = new FakeModule().init();
     BatchExtensionInstaller installer = new BatchExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new DryRun(false));
 

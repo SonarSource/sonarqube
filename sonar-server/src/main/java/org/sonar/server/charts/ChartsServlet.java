@@ -50,7 +50,7 @@ public class ChartsServlet extends HttpServlet {
       deprecatedDoGet(request, response);
 
     } else {
-      ChartFactory chartFactory = Platform.getInstance().getContainer().getComponent(ChartFactory.class);
+      ChartFactory chartFactory = Platform.getInstance().getContainer().getComponentByType(ChartFactory.class);
       Chart chart = chartFactory.getChart(request.getParameter("ck"));
       if (chart != null) {
         BufferedImage image = chart.generateImage(getParams(request));

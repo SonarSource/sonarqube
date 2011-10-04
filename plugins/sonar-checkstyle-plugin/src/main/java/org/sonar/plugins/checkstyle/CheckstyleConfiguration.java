@@ -23,13 +23,14 @@ import com.puppycrawl.tools.checkstyle.ConfigurationLoader;
 import com.puppycrawl.tools.checkstyle.DefaultConfiguration;
 import com.puppycrawl.tools.checkstyle.PropertiesExpander;
 import com.puppycrawl.tools.checkstyle.api.CheckstyleException;
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharEncoding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.Property;
+import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.ProjectFileSystem;
@@ -41,16 +42,22 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
+@org.sonar.api.Properties({
+    @Property(key = CheckstyleConfiguration.PROPERTY_GENERATE_XML,
+        defaultValue = "false",
+        name = "Generate XML Report",
+        project = false, global = false)})
 public class CheckstyleConfiguration implements BatchExtension {
 
   private static final Logger LOG = LoggerFactory.getLogger(CheckstyleConfiguration.class);
+  public static final String PROPERTY_GENERATE_XML = "sonar.checkstyle.generateXml";
 
   private CheckstyleProfileExporter confExporter;
   private RulesProfile profile;
-  private Configuration conf;
+  private Settings conf;
   private ProjectFileSystem fileSystem;
 
-  public CheckstyleConfiguration(Configuration conf, CheckstyleProfileExporter confExporter, RulesProfile profile, ProjectFileSystem fileSystem) {
+  public CheckstyleConfiguration(Settings conf, CheckstyleProfileExporter confExporter, RulesProfile profile, ProjectFileSystem fileSystem) {
     this.conf = conf;
     this.confExporter = confExporter;
     this.profile = profile;
@@ -79,7 +86,7 @@ public class CheckstyleConfiguration implements BatchExtension {
   }
 
   public File getTargetXMLReport() {
-    if (conf.getBoolean(CheckstyleConstants.GENERATE_XML_KEY, CheckstyleConstants.GENERATE_XML_DEFAULT_VALUE)) {
+    if (conf.getBoolean(PROPERTY_GENERATE_XML)) {
       return new File(fileSystem.getSonarWorkingDirectory(), "checkstyle-result.xml");
     }
     return null;
@@ -112,7 +119,7 @@ public class CheckstyleConfiguration implements BatchExtension {
   }
 
   public Locale getLocale() {
-    return new Locale(conf.getString(CoreProperties.CORE_VIOLATION_LOCALE_PROPERTY, CoreProperties.CORE_VIOLATION_LOCALE_DEFAULT_VALUE));
+    return new Locale(conf.getString(CoreProperties.CORE_VIOLATION_LOCALE_PROPERTY));
   }
 
   public Charset getCharset() {

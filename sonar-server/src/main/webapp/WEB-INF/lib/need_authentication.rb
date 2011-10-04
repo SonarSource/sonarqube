@@ -92,8 +92,8 @@ module NeedAuthentication
 
         # Downcase login (typically for Active Directory)
         # Note that login in Sonar DB is case-sensitive, however in this case authentication and automatic user creation will always happen with downcase login
-        downcase = java_facade.getConfigurationValue('sonar.authenticator.downcase')
-        if downcase == 'true'
+        downcase = java_facade.getSettings().getBoolean('sonar.authenticator.downcase')
+        if downcase
           login = login.downcase
         end
 
@@ -101,12 +101,12 @@ module NeedAuthentication
         user = User.find_by_login(login)
 
         # Automatically create a user in the sonar db if authentication has been successfully done
-        create_user = java_facade.getConfigurationValue('sonar.authenticator.createUsers')
-        if !user && create_user=='true'
+        create_user = java_facade.getSettings().getBoolean('sonar.authenticator.createUsers')
+        if !user && create_user
           user=User.new(:login => login, :name => login, :email => '', :password => password, :password_confirmation => password)
           user.save!
 
-          default_group_name = java_facade.getConfigurationValue('sonar.defaultGroup') || 'sonar-users'
+          default_group_name = java_facade.getSettings().getString('sonar.defaultGroup')
           default_group=Group.find_by_name(default_group_name)
           if default_group
             user.groups<<default_group

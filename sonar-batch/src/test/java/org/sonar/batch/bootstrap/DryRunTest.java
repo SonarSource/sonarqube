@@ -19,27 +19,27 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.hamcrest.core.Is;
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 
 import static org.junit.Assert.assertThat;
 
 public class DryRunTest {
 
   @Test
-  public void shouldReadConfiguration() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.dryRun", "true");
-    assertThat(new DryRun(conf).isEnabled(), Is.is(true));
+  public void shouldReadSettings() {
+    Settings settings = Settings.createForComponent(DryRun.class);
+    settings.setProperty("sonar.dryRun", true);
+    assertThat(new DryRun(settings).isEnabled(), Is.is(true));
 
-    conf.setProperty("sonar.dryRun", "false");
-    assertThat(new DryRun(conf).isEnabled(), Is.is(false));
+    settings.setProperty("sonar.dryRun", false);
+    assertThat(new DryRun(settings).isEnabled(), Is.is(false));
   }
 
   @Test
   public void shouldNotEnableDryRunByDefault() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    assertThat(new DryRun(conf).isEnabled(), Is.is(false));
+    Settings settings = Settings.createForComponent(DryRun.class);
+    assertThat(new DryRun(settings).isEnabled(), Is.is(false));
   }
 }

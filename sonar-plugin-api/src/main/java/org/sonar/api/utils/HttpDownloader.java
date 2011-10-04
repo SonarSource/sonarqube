@@ -21,13 +21,12 @@ package org.sonar.api.utils;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 
 import java.io.File;
@@ -39,7 +38,7 @@ import java.util.List;
 
 /**
  * This component downloads HTTP files
- * 
+ *
  * @since 2.2
  */
 public class HttpDownloader implements BatchComponent, ServerComponent {
@@ -48,30 +47,23 @@ public class HttpDownloader implements BatchComponent, ServerComponent {
 
   private String userAgent;
 
-  public HttpDownloader(Server server, Configuration configuration) {
-    this(configuration, server.getVersion());
+  public HttpDownloader(Server server, Settings settings) {
+    this(settings, server.getVersion());
   }
 
-  public HttpDownloader(Configuration configuration) {
-    this(configuration, null);
+  public HttpDownloader(Settings settings) {
+    this(settings, null);
   }
 
-  /**
-   * Should be package protected for unit tests only, but public is still required for jacoco 0.2.
-   */
-  public HttpDownloader() {
-    this(new PropertiesConfiguration(), null);
-  }
-
-  private HttpDownloader(Configuration configuration, String userAgent) {
-    initProxy(configuration);
+  private HttpDownloader(Settings settings, String userAgent) {
+    initProxy(settings);
     initUserAgent(userAgent);
   }
 
-  private void initProxy(Configuration configuration) {
-    propagateProxySystemProperties(configuration);
-    if (requiresProxyAuthentication(configuration)) {
-      registerProxyCredentials(configuration);
+  private void initProxy(Settings settings) {
+    propagateProxySystemProperties(settings);
+    if (requiresProxyAuthentication(settings)) {
+      registerProxyCredentials(settings);
     }
   }
 
@@ -99,27 +91,27 @@ public class HttpDownloader implements BatchComponent, ServerComponent {
     return Joiner.on(", ").join(descriptions);
   }
 
-  private void registerProxyCredentials(Configuration configuration) {
-    Authenticator.setDefault(new ProxyAuthenticator(configuration.getString("http.proxyUser"), configuration
+  private void registerProxyCredentials(Settings settings) {
+    Authenticator.setDefault(new ProxyAuthenticator(settings.getString("http.proxyUser"), settings
         .getString("http.proxyPassword")));
   }
 
-  private boolean requiresProxyAuthentication(Configuration configuration) {
-    return configuration.getString("http.proxyUser") != null;
+  private boolean requiresProxyAuthentication(Settings settings) {
+    return settings.getString("http.proxyUser") != null;
   }
 
-  private void propagateProxySystemProperties(Configuration configuration) {
-    propagateSystemProperty(configuration, "http.proxyHost");
-    propagateSystemProperty(configuration, "http.proxyPort");
-    propagateSystemProperty(configuration, "http.nonProxyHosts");
-    propagateSystemProperty(configuration, "http.auth.ntlm.domain");
-    propagateSystemProperty(configuration, "socksProxyHost");
-    propagateSystemProperty(configuration, "socksProxyPort");
+  private void propagateProxySystemProperties(Settings settings) {
+    propagateSystemProperty(settings, "http.proxyHost");
+    propagateSystemProperty(settings, "http.proxyPort");
+    propagateSystemProperty(settings, "http.nonProxyHosts");
+    propagateSystemProperty(settings, "http.auth.ntlm.domain");
+    propagateSystemProperty(settings, "socksProxyHost");
+    propagateSystemProperty(settings, "socksProxyPort");
   }
 
-  private void propagateSystemProperty(Configuration configuration, String key) {
-    if (configuration.getString(key) != null) {
-      System.setProperty(key, configuration.getString(key));
+  private void propagateSystemProperty(Settings settings, String key) {
+    if (settings.getString(key) != null) {
+      System.setProperty(key, settings.getString(key));
     }
   }
 

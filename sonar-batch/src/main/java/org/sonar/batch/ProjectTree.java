@@ -21,13 +21,13 @@ package org.sonar.batch;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
 
 import java.io.IOException;
@@ -42,14 +42,15 @@ public class ProjectTree {
   private Map<ProjectDefinition, Project> projectsByDef;
 
   public ProjectTree(ProjectReactor projectReactor, //NOSONAR the unused parameter 'builders' is used for the startup order of components
-                     DatabaseSession databaseSession,
+                     ProjectConfigurator projectConfigurator,
                      /* Must be executed after ProjectBuilders */ ProjectBuilder[] builders) {
-    this(projectReactor, databaseSession);
+    this(projectReactor, projectConfigurator);
   }
 
-  public ProjectTree(ProjectReactor projectReactor, DatabaseSession databaseSession) {
-    configurator = new ProjectConfigurator(databaseSession);
+  public ProjectTree(ProjectReactor projectReactor, //NOSONAR the unused parameter 'builders' is used for the startup order of components
+                     ProjectConfigurator projectConfigurator) {
     this.projectReactor = projectReactor;
+    this.configurator = projectConfigurator;
   }
 
   ProjectTree(ProjectConfigurator configurator) {
@@ -79,8 +80,8 @@ public class ProjectTree {
     }
 
     // Configure
-    for (Map.Entry<ProjectDefinition, Project> entry : projectsByDef.entrySet()) {
-      configurator.configure(entry.getValue(), entry.getKey());
+    for (Project project : projects) {
+      configurator.configure(project);
     }
 
     applyExclusions();
@@ -91,8 +92,8 @@ public class ProjectTree {
       String[] excludedArtifactIds = project.getConfiguration().getStringArray("sonar.skippedModules");
       String[] includedArtifactIds = project.getConfiguration().getStringArray("sonar.includedModules");
 
-      Set<String> includedModulesIdSet = new HashSet<String>();
-      Set<String> excludedModulesIdSet = new HashSet<String>();
+      Set<String> includedModulesIdSet = Sets.newHashSet();
+      Set<String> excludedModulesIdSet = Sets.newHashSet();
 
       if (includedArtifactIds != null) {
         includedModulesIdSet.addAll(Arrays.asList(includedArtifactIds));

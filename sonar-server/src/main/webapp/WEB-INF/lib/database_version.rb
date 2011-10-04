@@ -119,8 +119,10 @@ class DatabaseVersion
   end
 
   def self.use_structure_dump?
-    # default value is true
-    ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.useStructureDump')!='false'
+    # Important : default value is not loaded at this time by org.sonar.api.config.PropertyDefinitions.
+    # That's why the Settings component does not return the default value (true) when
+    # the property is not set.
+    ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getSettings().getString('sonar.useStructureDump')!='false'
   end
 
   def self.production?

@@ -19,10 +19,9 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.picocontainer.Characteristics;
 import org.picocontainer.ComponentAdapter;
-import org.picocontainer.MutablePicoContainer;
-import org.sonar.api.utils.IocContainer;
+import org.sonar.api.platform.ComponentContainer;
+import org.sonar.api.platform.PluginMetadata;
 
 import java.util.List;
 
@@ -33,20 +32,19 @@ import java.util.List;
  */
 public abstract class Module {
 
-  private MutablePicoContainer container;
-
+  ComponentContainer container;
 
   /**
    * @return this
    */
   public final Module init() {
-    return init(IocContainer.buildPicoContainer());
+    return init(new ComponentContainer());
   }
 
   /**
    * @return this
    */
-  private Module init(MutablePicoContainer container) {
+  private Module init(ComponentContainer container) {
     this.container = container;
     configure();
     return this;
@@ -68,24 +66,23 @@ public abstract class Module {
    * @return installed module
    */
   public final Module installChild(Module child) {
-    MutablePicoContainer childContainer = container.makeChildContainer();
+    ComponentContainer childContainer = container.createChild();
     // register container as a component, because it used for example in BatchExtensionDictionnary,
     // but in fact this is anti-pattern - http://picocontainer.codehaus.org/container-dependency-antipattern.html
-    childContainer.addComponent(new IocContainer(childContainer));
-    childContainer.setName(child.toString());
+    //childContainer.addComponent(new IocContainer(childContainer));
     child.init(childContainer);
     return child;
   }
 
-  public final void uninstallChild(Module child) {
-    container.removeChildContainer(child.container);
+  public final void uninstallChild() {
+    container.removeChild();
   }
 
   /**
    * @return this
    */
   public final Module start() {
-    container.start();
+    container.startComponents();
     doStart();
     return this;
   }
@@ -100,7 +97,7 @@ public abstract class Module {
   public final Module stop() {
     try {
       doStop();
-      container.stop();
+      container.stopComponents();
     } catch (Exception e) {
       // ignore
     }
@@ -113,39 +110,43 @@ public abstract class Module {
 
   /**
    * Implementation of this method must not contain conditional logic and just should contain several invocations of
-   * {@link #addComponent(Object)}, {@link #addComponent(Object, Object)} or {@link #addAdapter(ComponentAdapter)}.
+   * {@link #addCoreSingleton(Object)}, {@link #addComponent(Object, Object)} or {@link #addAdapter(ComponentAdapter)}.
    */
   protected abstract void configure();
 
-  protected final void addComponent(Object component) {
-    if (component instanceof Class) {
-      container.as(Characteristics.CACHE).addComponent(component);
-    } else {
-      container.as(Characteristics.CACHE).addComponent(component.getClass().getCanonicalName() + "-" + component.toString(), component);
-    }
+  protected final void addCoreSingleton(Object component) {
+    container.addSingleton(component);
   }
 
-  protected final void addComponent(Object componentKey, Object component) {
-    container.as(Characteristics.CACHE).addComponent(componentKey, component);
+  protected final void declareExtension(PluginMetadata plugin, Object extension) {
+    container.declareExtension(plugin, extension);
+  }
+
+  protected final void addExtension(PluginMetadata plugin, Object extension) {
+    container.addExtension(plugin, extension);
   }
 
   protected final void addAdapter(ComponentAdapter<?> componentAdapter) {
-    container.addAdapter(componentAdapter);
+    container.addPicoAdapter(componentAdapter);
   }
 
-  public final <T> T getComponent(Class<T> componentType) {
-    return container.getComponent(componentType);
+  public final <T> T getComponentByType(Class<T> componentType) {
+    return container.getComponentByType(componentType);
+  }
+
+  public final Object getComponentByKey(Object key) {
+    return container.getComponentByKey(key);
   }
 
   public final <T> List<T> getComponents(Class<T> componentType) {
-    return container.getComponents(componentType);
+    return container.getComponentsByType(componentType);
   }
 
-  /**
-   * TODO should not be used and should be removed
-   */
-  public final MutablePicoContainer getContainer() {
-    return container;
-  }
+//  /**
+//   * TODO should not be used and should be removed
+//   */
+//  public final MutablePicoContainer getContainer() {
+//    return container;
+//  }
 
 }

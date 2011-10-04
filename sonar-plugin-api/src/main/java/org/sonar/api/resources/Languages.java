@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.ArrayUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
@@ -36,7 +37,7 @@ import org.sonar.api.ServerComponent;
  */
 public class Languages implements BatchComponent, ServerComponent {
 
-  private final Map<String, Language> map = new HashMap<String, Language>();
+  private final Map<String, Language> map = Maps.newHashMap();
 
   /**
    * Creates a list of languages

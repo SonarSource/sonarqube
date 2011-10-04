@@ -25,18 +25,24 @@ import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.behaviors.OptInCaching;
 import org.picocontainer.lifecycle.ReflectionLifecycleStrategy;
 import org.picocontainer.monitors.NullComponentMonitor;
+import org.sonar.api.platform.ComponentContainer;
 
 
 /**
  * Proxy to inject the container as a component$
  *
  * @since 1.10
+ * @deprecated since 2.12. To be replaced by {@link org.sonar.api.platform.ComponentContainer}
  */
 public class IocContainer {
   private final MutablePicoContainer pico;
 
   public IocContainer(MutablePicoContainer pico) {
     this.pico = pico;
+  }
+
+  public IocContainer(ComponentContainer container) {
+    this.pico = container.getPicoContainer();
   }
 
   public MutablePicoContainer getPicoContainer() {

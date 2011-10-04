@@ -1,0 +1,125 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2008-2011 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
+package org.sonar.core.config;
+
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.text.StrSubstitutor;
+import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.database.configuration.Property;
+import org.sonar.api.database.model.ResourceModel;
+import org.sonar.jpa.session.DatabaseSessionFactory;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+
+/**
+ * @since 2.12
+ */
+public final class ConfigurationUtils {
+
+  private ConfigurationUtils() {
+  }
+
+  public static void copyProperties(Properties from, Map<String, String> to) {
+    for (Map.Entry<Object, Object> entry : from.entrySet()) {
+      String key = (String) entry.getKey();
+      to.put(key, entry.getValue().toString());
+    }
+  }
+
+  public static Properties openProperties(File file) throws IOException {
+    FileInputStream input = FileUtils.openInputStream(file);
+    return openInputStream(input);
+  }
+
+  /**
+   * Note that the input stream is closed in this method.
+   */
+  public static Properties openInputStream(InputStream input) throws IOException {
+    try {
+      Properties p = new Properties();
+      p.load(input);
+      return p;
+
+    } finally {
+      IOUtils.closeQuietly(input);
+    }
+  }
+
+  public static Properties interpolateEnvVariables(Properties properties) {
+    return interpolateVariables(properties, System.getenv());
+  }
+
+  public static Properties interpolateVariables(Properties properties, Map<String, String> variables) {
+    Properties result = new Properties();
+    Enumeration keys = properties.keys();
+    while (keys.hasMoreElements()) {
+      String key = (String) keys.nextElement();
+      String value = (String) properties.get(key);
+      String interpolatedValue = StrSubstitutor.replace(value, variables, "${env:", "}");
+      result.setProperty(key, interpolatedValue);
+    }
+    return result;
+  }
+
+  public static List<Property> getProjectProperties(DatabaseSessionFactory dbFactory, String moduleKey) {
+    DatabaseSession session = prepareDbSession(dbFactory);
+    ResourceModel resource = session.getSingleResult(ResourceModel.class, "key", moduleKey);
+    if (resource != null) {
+      return session
+          .createQuery("from " + Property.class.getSimpleName() + " p where p.resourceId=:resourceId and p.userId is null")
+          .setParameter("resourceId", resource.getId())
+          .getResultList();
+
+    }
+    return Collections.emptyList();
+  }
+
+  public static List<Property> getGlobalProperties(DatabaseSessionFactory dbFactory) {
+    DatabaseSession session = prepareDbSession(dbFactory);
+    return session
+        .createQuery("from " + Property.class.getSimpleName() + " p where p.resourceId is null and p.userId is null")
+        .getResultList();
+
+  }
+
+  private static DatabaseSession prepareDbSession(DatabaseSessionFactory dbFactory) {
+    DatabaseSession session = dbFactory.getSession();
+    // Ugly workaround before the move to myBatis
+    // Session is not up-to-date when Ruby on Rails inserts new rows in its own transaction. Seems like
+    // Hibernate keeps a cache...
+    session.commit();
+    return session;
+  }
+
+  public static void copyToCommonsConfiguration(Map<String,String> input, Configuration commonsConfig) {
+    // update deprecated configuration
+    commonsConfig.clear();
+    for (Map.Entry<String, String> entry : input.entrySet()) {
+      String key = entry.getKey();
+      commonsConfig.setProperty(key, entry.getValue());
+    }
+  }
+}

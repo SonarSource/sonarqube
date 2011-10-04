@@ -19,14 +19,17 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.apache.commons.configuration.Configuration;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.Property;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.Logs;
 
-public class DryRun {
+@Property(key="sonar.dryRun", defaultValue = "false", name="Dry Run")
+public class DryRun implements BatchComponent {
   private boolean enabled;
 
-  public DryRun(Configuration conf) {
-    enabled = conf.getBoolean("sonar.dryRun", Boolean.FALSE);
+  public DryRun(Settings settings) {
+    enabled = settings.getBoolean("sonar.dryRun");
     if (enabled) {
       Logs.INFO.info("Dry run");
     }

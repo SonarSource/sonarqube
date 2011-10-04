@@ -23,14 +23,12 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ClassUtils;
-import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.PicoContainer;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
+import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.AnnotationUtils;
-import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.dag.DirectAcyclicGraph;
 
 import java.lang.annotation.Annotation;
@@ -45,14 +43,10 @@ import java.util.List;
  */
 public class BatchExtensionDictionnary {
 
-  private MutablePicoContainer picoContainer;
+  private ComponentContainer componentContainer;
 
-  public BatchExtensionDictionnary(IocContainer iocContainer) {
-    this.picoContainer = iocContainer.getPicoContainer();
-  }
-
-  public BatchExtensionDictionnary(MutablePicoContainer picoContainer) {
-    this.picoContainer = picoContainer;
+  public BatchExtensionDictionnary(ComponentContainer componentContainer) {
+    this.componentContainer = componentContainer;
   }
 
   public <T> Collection<T> select(Class<T> type) {
@@ -88,14 +82,14 @@ public class BatchExtensionDictionnary {
 
   private List<BatchExtension> getExtensions() {
     List<BatchExtension> extensions = Lists.newArrayList();
-    completeBatchExtensions(picoContainer, extensions);
+    completeBatchExtensions(componentContainer, extensions);
     return extensions;
   }
 
-  private void completeBatchExtensions(PicoContainer picoContainer, List<BatchExtension> extensions) {
-    if (picoContainer!=null) {
-      extensions.addAll(picoContainer.getComponents(BatchExtension.class));
-      completeBatchExtensions(picoContainer.getParent(), extensions);
+  private static void completeBatchExtensions(ComponentContainer container, List<BatchExtension> extensions) {
+    if (container != null) {
+      extensions.addAll(container.getComponentsByType(BatchExtension.class));
+      completeBatchExtensions(container.getParent(), extensions);
     }
   }
 
@@ -212,7 +206,7 @@ public class BatchExtensionDictionnary {
       if (result != null) {
         //TODO add arrays/collections of objects/classes
         if (result instanceof Class) {
-          results.addAll(picoContainer.getComponents((Class) result));
+          results.addAll(componentContainer.getComponentsByType((Class) result));
 
         } else if (result instanceof Collection) {
           results.addAll((Collection) result);

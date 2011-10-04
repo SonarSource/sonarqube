@@ -19,15 +19,14 @@
  */
 package org.sonar.api.utils;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.SystemUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mortbay.jetty.testing.ServletTester;
+import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 
 import java.io.File;
@@ -37,10 +36,8 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assume.assumeThat;
 import static org.junit.internal.matchers.StringContains.containsString;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
@@ -161,20 +158,20 @@ public class HttpDownloaderTest {
 
   @Test
   public void downloadBytes() throws URISyntaxException {
-    byte[] bytes = new HttpDownloader().download(new URI(baseUrl));
+    byte[] bytes = new HttpDownloader(new Settings()).download(new URI(baseUrl));
     assertThat(bytes.length, greaterThan(10));
   }
 
   @Test
   public void downloadPlainText() throws URISyntaxException {
-    String text = new HttpDownloader().downloadPlainText(new URI(baseUrl), "UTF-8");
+    String text = new HttpDownloader(new Settings()).downloadPlainText(new URI(baseUrl), "UTF-8");
     assertThat(text.length(), greaterThan(10));
   }
 
   @Test(expected = SonarException.class)
   public void failIfServerDown() throws URISyntaxException {
     // I hope that the port 1 is not used !
-    new HttpDownloader().download(new URI("http://localhost:1/unknown"));
+    new HttpDownloader(new Settings()).download(new URI("http://localhost:1/unknown"));
   }
 
   @Test
@@ -184,7 +181,7 @@ public class HttpDownloaderTest {
     FileUtils.cleanDirectory(toDir);
     File toFile = new File(toDir, "downloadToFile.txt");
 
-    new HttpDownloader().download(new URI(baseUrl), toFile);
+    new HttpDownloader(new Settings()).download(new URI(baseUrl), toFile);
     assertThat(toFile.exists(), is(true));
     assertThat(toFile.length(), greaterThan(10l));
   }
@@ -198,7 +195,7 @@ public class HttpDownloaderTest {
 
     try {
       // I hope that the port 1 is not used !
-      new HttpDownloader().download(new URI("http://localhost:1/unknown"), toFile);
+      new HttpDownloader(new Settings()).download(new URI("http://localhost:1/unknown"), toFile);
     } catch (SonarException e) {
       assertThat(toFile.exists(), is(false));
     }
@@ -209,7 +206,7 @@ public class HttpDownloaderTest {
     Server server = mock(Server.class);
     when(server.getVersion()).thenReturn("2.2");
 
-    byte[] bytes = new HttpDownloader(server, new PropertiesConfiguration()).download(new URI(baseUrl));
+    byte[] bytes = new HttpDownloader(server, new Settings()).download(new URI(baseUrl));
     Properties props = new Properties();
     props.load(IOUtils.toInputStream(new String(bytes)));
     assertThat(props.getProperty("agent"), is("Sonar 2.2"));
@@ -217,7 +214,7 @@ public class HttpDownloaderTest {
 
   @Test
   public void followRedirect() throws URISyntaxException {
-    byte[] bytes = new HttpDownloader().download(new URI(baseUrl + "/redirect/"));
+    byte[] bytes = new HttpDownloader(new Settings()).download(new URI(baseUrl + "/redirect/"));
     assertThat(new String(bytes), containsString("count"));
   }
 

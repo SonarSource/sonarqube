@@ -19,29 +19,20 @@
  */
 package org.sonar.server.notifications;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
-import org.apache.commons.configuration.BaseConfiguration;
-import org.apache.commons.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.Settings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.core.notifications.DefaultNotificationManager;
 import org.sonar.jpa.entity.NotificationQueueElement;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 public class NotificationServiceTest {
 
@@ -51,9 +42,7 @@ public class NotificationServiceTest {
   private NotificationChannel emailChannel;
   private NotificationChannel gtalkChannel;
 
-  private NotificationDispatcher commentOnReviewAssignedToMe;
   private String assignee;
-  private NotificationDispatcher commentOnReviewCreatedByMe;
   private String creator;
 
   private DefaultNotificationManager manager;
@@ -67,7 +56,7 @@ public class NotificationServiceTest {
     gtalkChannel = mock(NotificationChannel.class);
     when(gtalkChannel.getKey()).thenReturn("gtalk");
 
-    commentOnReviewAssignedToMe = mock(NotificationDispatcher.class);
+    NotificationDispatcher commentOnReviewAssignedToMe = mock(NotificationDispatcher.class);
     when(commentOnReviewAssignedToMe.getKey()).thenReturn("comment on review assigned to me");
     doAnswer(new Answer<Object>() {
       public Object answer(InvocationOnMock invocation) throws Throwable {
@@ -76,7 +65,7 @@ public class NotificationServiceTest {
       }
     }).when(commentOnReviewAssignedToMe).dispatch(any(Notification.class), any(NotificationDispatcher.Context.class));
 
-    commentOnReviewCreatedByMe = mock(NotificationDispatcher.class);
+    NotificationDispatcher commentOnReviewCreatedByMe = mock(NotificationDispatcher.class);
     when(commentOnReviewCreatedByMe.getKey()).thenReturn("comment on review created by me");
     doAnswer(new Answer<Object>() {
       public Object answer(InvocationOnMock invocation) throws Throwable {
@@ -85,12 +74,12 @@ public class NotificationServiceTest {
       }
     }).when(commentOnReviewCreatedByMe).dispatch(any(Notification.class), any(NotificationDispatcher.Context.class));
 
-    NotificationDispatcher[] dispatchers = new NotificationDispatcher[] { commentOnReviewAssignedToMe, commentOnReviewCreatedByMe };
+    NotificationDispatcher[] dispatchers = new NotificationDispatcher[] {commentOnReviewAssignedToMe, commentOnReviewCreatedByMe};
     NotificationChannel[] channels = new NotificationChannel[] { emailChannel, gtalkChannel };
     manager = mock(DefaultNotificationManager.class);
-    Configuration configuration = new BaseConfiguration();
-    configuration.setProperty("sonar.notifications.delay", "1"); // delay 1 second
-    service = spy(new NotificationService(configuration, manager, dispatchers, channels));
+    Settings settings = new Settings(new PropertyDefinitions(NotificationService.class));
+    settings.setProperty("sonar.notifications.delay", 1L); // delay 1 second
+    service = spy(new NotificationService(settings, manager, dispatchers, channels));
     doReturn(false).when(manager).isEnabled(any(String.class), any(String.class), any(String.class));
   }
 

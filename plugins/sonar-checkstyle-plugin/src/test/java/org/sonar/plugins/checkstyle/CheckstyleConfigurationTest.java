@@ -19,9 +19,9 @@
  */
 package org.sonar.plugins.checkstyle;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.MavenTestUtils;
@@ -46,12 +46,6 @@ public class CheckstyleConfigurationTest {
 
     assertThat(xmlFile.exists(), is(true));
     assertThat(FileUtils.readFileToString(xmlFile), is("<conf/>"));
-  }
-
-  @Test
-  public void shouldGetDefaultLocaleForMessages() {
-    CheckstyleConfiguration configuration = new CheckstyleConfiguration(new PropertiesConfiguration(), null, null, null);
-    assertThat(configuration.getLocale(), is(Locale.ENGLISH));
   }
 
   public class FakeExporter extends CheckstyleProfileExporter {

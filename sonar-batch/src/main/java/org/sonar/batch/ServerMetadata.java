@@ -19,10 +19,10 @@
  */
 package org.sonar.batch;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 
 import java.text.ParseException;
@@ -31,22 +31,22 @@ import java.util.Date;
 
 public class ServerMetadata extends Server {
 
-  private Configuration conf;
+  private Settings settings;
 
-  public ServerMetadata(Configuration conf) {
-    this.conf = conf;
+  public ServerMetadata(Settings settings) {
+    this.settings = settings;
   }
 
   public String getId() {
-    return conf.getString(CoreProperties.SERVER_ID);
+    return settings.getString(CoreProperties.SERVER_ID);
   }
 
   public String getVersion() {
-    return conf.getString(CoreProperties.SERVER_VERSION);
+    return settings.getString(CoreProperties.SERVER_VERSION);
   }
 
   public Date getStartedAt() {
-    String dateString = conf.getString(CoreProperties.SERVER_STARTTIME);
+    String dateString = settings.getString(CoreProperties.SERVER_STARTTIME);
     if (dateString != null) {
       try {
         return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(dateString);
@@ -59,11 +59,11 @@ public class ServerMetadata extends Server {
   }
 
   public String getURL() {
-    return StringUtils.removeEnd(conf.getString("sonar.host.url", "http://localhost:9000"), "/");
+    return StringUtils.removeEnd(StringUtils.defaultIfBlank(settings.getString("sonar.host.url"), "http://localhost:9000"), "/");
   }
 
   @Override
   public String getPermanentServerId() {
-    return conf.getString(CoreProperties.PERMANENT_SERVER_ID);
+    return settings.getString(CoreProperties.PERMANENT_SERVER_ID);
   }
 }

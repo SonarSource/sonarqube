@@ -27,7 +27,6 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.api.ServerExtension;
-import org.sonar.api.utils.IocContainer;
 
 import java.util.Arrays;
 import java.util.Collection;

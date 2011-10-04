@@ -19,21 +19,21 @@
  */
 package org.sonar.server.database;
 
-import org.apache.commons.configuration.Configuration;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 
 public class EmbeddedDatabaseFactory {
-  private Configuration configuration;
+  private Settings settings;
   private EmbeddedDatabase embeddedDatabase;
 
-  public EmbeddedDatabaseFactory(Configuration configuration) {
-    this.configuration = configuration;
+  public EmbeddedDatabaseFactory(Settings settings) {
+    this.settings = settings;
   }
 
   public void start() {
-    String jdbcUrl = configuration.getString(DatabaseProperties.PROP_URL);
-    if ((jdbcUrl!=null) && jdbcUrl.startsWith("jdbc:derby://") && jdbcUrl.contains("create=true") && embeddedDatabase==null) {
-      embeddedDatabase = new EmbeddedDatabase(configuration);
+    String jdbcUrl = settings.getString(DatabaseProperties.PROP_URL);
+    if (jdbcUrl != null && jdbcUrl.startsWith("jdbc:derby://") && jdbcUrl.contains("create=true") && embeddedDatabase == null) {
+      embeddedDatabase = new EmbeddedDatabase(settings);
       embeddedDatabase.start();
     }
   }

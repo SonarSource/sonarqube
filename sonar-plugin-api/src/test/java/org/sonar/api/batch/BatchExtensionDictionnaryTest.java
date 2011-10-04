@@ -21,16 +21,12 @@ package org.sonar.api.batch;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
-import org.picocontainer.Characteristics;
-import org.picocontainer.DefaultPicoContainer;
-import org.picocontainer.PicoContainer;
-import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -44,10 +40,9 @@ import static org.mockito.Mockito.mock;
 public class BatchExtensionDictionnaryTest {
 
   private BatchExtensionDictionnary newSelector(BatchExtension... extensions) {
-    TransientPicoContainer iocContainer = new TransientPicoContainer();
-    int key = 0;
+    ComponentContainer iocContainer = new ComponentContainer();
     for (BatchExtension extension : extensions) {
-      iocContainer.addComponent(key++, extension);
+      iocContainer.addSingleton(extension);
     }
     return new BatchExtensionDictionnary(iocContainer);
   }
@@ -67,14 +62,14 @@ public class BatchExtensionDictionnaryTest {
 
   @Test
   public void shouldSearchInParentContainers() {
-    TransientPicoContainer grandParent = new TransientPicoContainer();
-    grandParent.as(Characteristics.CACHE).addComponent("ncloc", CoreMetrics.NCLOC);
+    ComponentContainer grandParent = new ComponentContainer();
+    grandParent.addSingleton(CoreMetrics.NCLOC);
 
-    DefaultPicoContainer parent = (DefaultPicoContainer)grandParent.makeChildContainer();
-    parent.as(Characteristics.CACHE).addComponent("coverage", CoreMetrics.COVERAGE);
+    ComponentContainer parent = grandParent.createChild();
+    parent.addSingleton(CoreMetrics.COVERAGE);
 
-    DefaultPicoContainer child = (DefaultPicoContainer)parent.makeChildContainer();
-    child.as(Characteristics.CACHE).addComponent("complexity", CoreMetrics.COMPLEXITY);
+    ComponentContainer child = parent.createChild();
+    child.addSingleton(CoreMetrics.COMPLEXITY);
 
     BatchExtensionDictionnary dictionnary = new BatchExtensionDictionnary(child);
     assertThat(dictionnary.select(Metric.class).size(), is(3));

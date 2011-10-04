@@ -19,17 +19,13 @@
  */
 package org.sonar.server.platform;
 
-import org.apache.commons.configuration.Configuration;
-import org.sonar.server.configuration.ConfigurationFactory;
-
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 public final class PlatformLifecycleListener implements ServletContextListener {
 
   public void contextInitialized(ServletContextEvent event) {
-    Configuration configuration = new ConfigurationFactory().getConfiguration(event);
-    Platform.getInstance().init(configuration);
+    Platform.getInstance().init(event.getServletContext());
     Platform.getInstance().start();
   }
 

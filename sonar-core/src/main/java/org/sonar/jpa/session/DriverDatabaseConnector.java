@@ -19,8 +19,8 @@
  */
 package org.sonar.jpa.session;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 
 import java.sql.Connection;
@@ -35,20 +35,20 @@ public class DriverDatabaseConnector extends AbstractDatabaseConnector {
   private ClassLoader classloader;
   private boolean driverProxyRegistered = false;
 
-  public DriverDatabaseConnector(Configuration configuration) {
+  public DriverDatabaseConnector(Settings configuration) {
     super(configuration, true);
     this.classloader = getClass().getClassLoader();
   }
 
-  public DriverDatabaseConnector(Configuration configuration, ClassLoader classloader) {
+  public DriverDatabaseConnector(Settings configuration, ClassLoader classloader) {
     super(configuration, true);
     this.classloader = classloader;
   }
 
   public String getDriver() {
-    String driver = getConfiguration().getString(DatabaseProperties.PROP_DRIVER);
+    String driver = configuration.getString(DatabaseProperties.PROP_DRIVER);
     if (driver == null) {
-      driver = getConfiguration().getString(DatabaseProperties.PROP_DRIVER_DEPRECATED);
+      driver = configuration.getString(DatabaseProperties.PROP_DRIVER_DEPRECATED);
     }
     if (driver == null) {
       driver = DatabaseProperties.PROP_DRIVER_DEFAULT_VALUE;
@@ -57,13 +57,13 @@ public class DriverDatabaseConnector extends AbstractDatabaseConnector {
   }
 
   public String getUrl() {
-    return getConfiguration().getString(DatabaseProperties.PROP_URL, DatabaseProperties.PROP_URL_DEFAULT_VALUE);
+    return StringUtils.defaultString(configuration.getString(DatabaseProperties.PROP_URL), DatabaseProperties.PROP_URL_DEFAULT_VALUE);
   }
 
   public String getUsername() {
-    String username = getConfiguration().getString(DatabaseProperties.PROP_USER);
+    String username = configuration.getString(DatabaseProperties.PROP_USER);
     if (username == null) {
-      username = getConfiguration().getString(DatabaseProperties.PROP_USER_DEPRECATED);
+      username = configuration.getString(DatabaseProperties.PROP_USER_DEPRECATED);
     }
     if (username == null) {
       username = DatabaseProperties.PROP_USER_DEFAULT_VALUE;
@@ -72,7 +72,7 @@ public class DriverDatabaseConnector extends AbstractDatabaseConnector {
   }
 
   public String getPassword() {
-    return getConfiguration().getString(DatabaseProperties.PROP_PASSWORD, DatabaseProperties.PROP_PASSWORD_DEFAULT_VALUE);
+    return StringUtils.defaultString(configuration.getString(DatabaseProperties.PROP_PASSWORD), DatabaseProperties.PROP_PASSWORD_DEFAULT_VALUE);
   }
 
   public Connection getConnection() throws SQLException {

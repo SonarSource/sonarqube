@@ -19,12 +19,12 @@
  */
 package org.sonar.server.database;
 
-import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.derby.jdbc.ClientDriver;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,7 +52,7 @@ public class EmbeddedDatabaseTest {
     if (testPort == null) {
       testPort = Integer.toString(findFreeServerPort());
     }
-    defaultProps = EmbeddedDatabase.getDefaultProperties(new CompositeConfiguration());
+    defaultProps = EmbeddedDatabase.getDefaultProperties(new Settings());
     defaultProps.put("derby.drda.portNumber", testPort); // changing the defaut port
     driverUrl = "jdbc:derby://localhost:" + testPort + "/sonar;create=true;user=sonar;password=sonar";
   }

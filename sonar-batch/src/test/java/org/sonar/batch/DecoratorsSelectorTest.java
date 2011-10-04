@@ -21,12 +21,12 @@ package org.sonar.batch;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Test;
-import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.measures.*;
+import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 
@@ -75,11 +75,9 @@ public class DecoratorsSelectorTest {
   }
 
   private BatchExtensionDictionnary newDictionnary(Object... extensions) {
-    TransientPicoContainer ioc = new TransientPicoContainer();
-    int index = 0;
+    ComponentContainer ioc = new ComponentContainer();
     for (Object extension : extensions) {
-      ioc.addComponent("" + index, extension);
-      index++;
+      ioc.addSingleton(extension);
     }
     return new BatchExtensionDictionnary(ioc);
   }
