@@ -31,7 +31,7 @@ module WidgetPropertiesHelper
       check_box_tag definition.key(), "true", val=='true'
 
     elsif definition.type.name()==WidgetProperty::TYPE_METRIC
-      select_tag definition.key(), options_grouped_by_domain(Metric.all.select{|m| m.display?}, val, :include_empty => true)
+      select_tag definition.key(), options_grouped_by_domain(Metric.all.select{|m| m.display?}.sort_by{|m| m.short_name}, val, :include_empty => true)
 
     elsif definition.type.name()==WidgetProperty::TYPE_STRING
       text_field_tag definition.key(), val, :size => 10
