@@ -19,12 +19,13 @@
  */
 package org.sonar.maven3;
 
+import java.util.Arrays;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.lifecycle.LifecycleExecutor;
 import org.apache.maven.project.MavenProject;
+import org.sonar.api.utils.SonarException;
 import org.sonar.batch.AbstractMavenPluginExecutor;
-
-import java.util.Arrays;
 
 public class Maven3PluginExecutor extends AbstractMavenPluginExecutor {
 
@@ -46,6 +47,9 @@ public class Maven3PluginExecutor extends AbstractMavenPluginExecutor {
     projectSession.getRequest().setGoals(Arrays.asList(goal));
     projectSession.getRequest().setInteractiveMode(false);
     lifecycleExecutor.execute(projectSession);
+    if (projectSession.getResult().hasExceptions()) {
+      throw new SonarException("Exception during execution of " + goal);
+    }
   }
 
 }
