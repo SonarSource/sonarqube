@@ -17,27 +17,26 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
 package org.sonar.squid.api;
-
-import java.text.MessageFormat;
-import java.util.Locale;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.check.Message;
+
+import java.text.MessageFormat;
+import java.util.Locale;
 
 public class CheckMessage implements Message {
 
   private Integer line;
   private Double cost;
   private SourceCode sourceCode;
-  private CodeCheck codeCheck;
+  private Object checker;
   private String defaultMessage;
   private Object[] messageArguments;
   private Boolean bypassExclusion;
 
-  public CheckMessage(CodeCheck rule, String message, Object... messageArguments) {
-    this.codeCheck = rule;
+  public CheckMessage(Object checker, String message, Object... messageArguments) {
+    this.checker = checker;
     this.defaultMessage = message;
     this.messageArguments = messageArguments;
   }
@@ -74,8 +73,8 @@ public class CheckMessage implements Message {
     return bypassExclusion == null ? false : bypassExclusion;
   }
 
-  public CodeCheck getChecker() {
-    return codeCheck;
+  public Object getChecker() {
+    return checker;
   }
 
   public String getDefaultMessage() {
@@ -92,7 +91,7 @@ public class CheckMessage implements Message {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this).append("source", sourceCode).append("check", codeCheck).append("msg", defaultMessage)
+    return new ToStringBuilder(this).append("source", sourceCode).append("checker", checker).append("msg", defaultMessage)
         .append("line", line).toString();
   }
 

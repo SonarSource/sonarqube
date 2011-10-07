@@ -17,9 +17,12 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
 package org.sonar.squid.api;
 
+/**
+ * @deprecated since 2.12. See https://jira.codehaus.org/browse/SONAR-2875
+ */
+@Deprecated
 public interface CodeCheck extends CodeVisitor {
 
   String getKey();

@@ -22,9 +22,9 @@ package org.sonar.java.bytecode.check;
 import org.sonar.java.bytecode.visitor.BytecodeVisitor;
 import org.sonar.squid.api.CodeCheck;
 
-public abstract class BytecodeCheck extends BytecodeVisitor implements CodeCheck {
+public abstract class BytecodeCheck extends BytecodeVisitor {
 
-  public String getKey() {
-    return getClass().getSimpleName();
-  }
+//  public String getKey() {
+//    return getClass().getSimpleName();
+//  }
 }

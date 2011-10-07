@@ -17,7 +17,6 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
 package org.sonar.check;
 
 import java.util.Locale;
@@ -28,9 +27,6 @@ import java.util.Locale;
 @Deprecated
 public interface Message {
 
-  /**
-   * Return the checker which logged the message. The checker class must be annotated with <code>@Check</code>
-   */
   Object getChecker();
 
   Integer getLine();

@@ -17,23 +17,22 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
 package org.sonar.java.ast.check;
+
+import com.puppycrawl.tools.checkstyle.api.DetailAST;
+import com.puppycrawl.tools.checkstyle.api.TokenTypes;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.java.ast.visitor.AstUtils;
+import org.sonar.java.ast.visitor.JavaAstVisitor;
+import org.sonar.squid.api.CheckMessage;
+import org.sonar.squid.api.SourceFile;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.sonar.check.Priority;
-import org.sonar.check.Rule;
-import org.sonar.java.ast.visitor.AstUtils;
-import org.sonar.squid.api.CheckMessage;
-import org.sonar.squid.api.SourceFile;
-
-import com.puppycrawl.tools.checkstyle.api.DetailAST;
-import com.puppycrawl.tools.checkstyle.api.TokenTypes;
-
 @Rule(key = "AvoidBreakOutsideSwitch", priority = Priority.MAJOR)
-public class BreakCheck extends JavaAstCheck {
+public class BreakCheck extends JavaAstVisitor {
 
   @Override
   public List<Integer> getWantedTokens() {

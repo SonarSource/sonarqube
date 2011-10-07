@@ -17,28 +17,23 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
 package org.sonar.java.ast.check;
 
-import java.util.List;
-
+import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.java.PatternUtils;
+import org.sonar.java.ast.visitor.JavaAstVisitor;
 import org.sonar.java.ast.visitor.PublicApiVisitor;
-import org.sonar.squid.api.CheckMessage;
-import org.sonar.squid.api.SourceClass;
-import org.sonar.squid.api.SourceCode;
-import org.sonar.squid.api.SourceFile;
-import org.sonar.squid.api.SourceMethod;
+import org.sonar.squid.api.*;
 
-import com.puppycrawl.tools.checkstyle.api.DetailAST;
+import java.util.List;
 
 @Rule(key = "UndocumentedApi", priority = Priority.MAJOR)
-public class UndocumentedApiCheck extends JavaAstCheck {
+public class UndocumentedApiCheck extends JavaAstVisitor {
 
   @RuleProperty
   private String forClasses = "";
