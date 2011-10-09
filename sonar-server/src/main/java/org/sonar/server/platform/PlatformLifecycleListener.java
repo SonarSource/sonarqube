@@ -19,18 +19,28 @@
  */
 package org.sonar.server.platform;
 
+import org.sonar.core.config.Logback;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import java.io.File;
 
 public final class PlatformLifecycleListener implements ServletContextListener {
 
   public void contextInitialized(ServletContextEvent event) {
-    Logback.configure();
+    configureLogback();
     Platform.getInstance().init(event.getServletContext());
     Platform.getInstance().start();
   }
 
   public void contextDestroyed(ServletContextEvent event) {
     Platform.getInstance().stop();
+  }
+
+  /**
+   * Configure Logback with $SONAR_HOME/conf/logback.xml
+   */
+  private void configureLogback() {
+    Logback.configure(new File(SonarHome.getHome(), "conf/logback.xml"));
   }
 }

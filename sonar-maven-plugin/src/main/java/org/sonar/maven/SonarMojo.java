@@ -19,11 +19,6 @@
  */
 package org.sonar.maven;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.core.joran.spi.JoranException;
-import org.apache.commons.configuration.*;
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -38,13 +33,12 @@ import org.apache.maven.plugin.PluginManager;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.Batch;
 import org.sonar.batch.MavenProjectConverter;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import java.io.InputStream;
+import org.sonar.core.config.Logback;
 
 /**
  * @goal sonar
@@ -81,7 +75,7 @@ public final class SonarMojo extends AbstractMojo {
 
   /**
    * The artifact factory to use.
-   * 
+   *
    * @component
    * @required
    * @readonly
@@ -90,7 +84,7 @@ public final class SonarMojo extends AbstractMojo {
 
   /**
    * The artifact repository to use.
-   * 
+   *
    * @parameter expression="${localRepository}"
    * @required
    * @readonly
@@ -99,7 +93,7 @@ public final class SonarMojo extends AbstractMojo {
 
   /**
    * The artifact metadata source to use.
-   * 
+   *
    * @component
    * @required
    * @readonly
@@ -108,7 +102,7 @@ public final class SonarMojo extends AbstractMojo {
 
   /**
    * The artifact collector to use.
-   * 
+   *
    * @component
    * @required
    * @readonly
@@ -117,7 +111,7 @@ public final class SonarMojo extends AbstractMojo {
 
   /**
    * The dependency tree builder to use.
-   * 
+   *
    * @component
    * @required
    * @readonly
@@ -139,7 +133,7 @@ public final class SonarMojo extends AbstractMojo {
   private RuntimeInformation runtimeInformation;
 
   public void execute() throws MojoExecutionException, MojoFailureException {
-    initLogging();
+    configureLogback();
     executeBatch();
   }
 
@@ -159,29 +153,8 @@ public final class SonarMojo extends AbstractMojo {
     return new EnvironmentInformation("Maven", mavenVersion);
   }
 
-  private void initLogging() throws MojoExecutionException {
-    LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-    JoranConfigurator jc = new JoranConfigurator();
-    jc.setContext(context);
-    context.reset();
-    InputStream input = getClass().getResourceAsStream("/org/sonar/batch/logback.xml");
+  private void configureLogback() {
     System.setProperty("ROOT_LOGGER_LEVEL", getLog().isDebugEnabled() ? "DEBUG" : "INFO");
-    try {
-      jc.doConfigure(input);
-
-    } catch (JoranException e) {
-      throw new MojoExecutionException("can not initialize logging", e);
-
-    } finally {
-      IOUtils.closeQuietly(input);
-    }
-  }
-
-  private Configuration getInitialConfiguration() {
-    CompositeConfiguration configuration = new CompositeConfiguration();
-    configuration.addConfiguration(new SystemConfiguration());
-    configuration.addConfiguration(new EnvironmentConfiguration());
-    configuration.addConfiguration(new MapConfiguration(project.getModel().getProperties()));
-    return configuration;
+    Logback.configure("/org/sonar/maven/logback.xml");
   }
 }

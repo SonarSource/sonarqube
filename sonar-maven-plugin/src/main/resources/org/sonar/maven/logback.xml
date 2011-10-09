@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration debug="false">
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>[%level] %d{HH:mm:ss.SSS} %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- Include definition of loggers. The appender STDOUT is not shared in sonar-batch because
+   format is slightly different between Maven and Ant logs -->
+  <include resource="/org/sonar/batch/logback-base.xml"/>
+
+</configuration>

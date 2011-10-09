@@ -17,36 +17,59 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.platform;
+package org.sonar.core.config;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
- * Configure Logback with $SONAR_HOME/conf/logback.xml
+ * Configure Logback
  *
  * @since 2.12
  */
-final class Logback {
+public final class Logback {
 
-  static void configure() {
-    configure(new File(SonarHome.getHome(), "conf/logback.xml"));
+  public static void configure(String classloaderPath) {
+    InputStream input = Logback.class.getResourceAsStream(classloaderPath);
+    if (input == null) {
+      throw new IllegalArgumentException("Logback configuration not found in classloader: " + classloaderPath);
+    }
+    configure(input);
   }
 
-  static void configure(File logbackFile) {
+  public static void configure(File logbackFile) {
+    try {
+      FileInputStream input = FileUtils.openInputStream(logbackFile);
+      configure(input);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Fail to load the Logback configuration: " + logbackFile, e);
+    }
+  }
+
+  /**
+   * Note that this method closes the input stream
+   */
+  private static void configure(InputStream input) {
     LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
     try {
       JoranConfigurator configurator = new JoranConfigurator();
       configurator.setContext(lc);
       lc.reset();
-      configurator.doConfigure(logbackFile);
+      configurator.doConfigure(input);
     } catch (JoranException e) {
       // StatusPrinter will handle this
+    } finally {
+      IOUtils.closeQuietly(input);
     }
     StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
   }
