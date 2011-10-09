@@ -47,7 +47,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
       * supported web servers are Jetty and Tomcat 5.x/6.x/7.x
       * the web application uses the Sonar home directory. For this reason it must be deployed on this host only.
       * the war file must be rebuilt when :
-        - logback configuration is updated (conf/logback.xml)
         - the Sonar home directory is moved to other location
         - sonar is upgraded to a new version
       -----------------------------------------------------------------------------------------------------------
