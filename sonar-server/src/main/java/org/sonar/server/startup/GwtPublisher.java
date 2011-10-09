@@ -29,7 +29,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.web.GwtExtension;
-import org.sonar.server.configuration.ServerSettings;
+import org.sonar.server.platform.ServerSettings;
 
 import java.io.File;
 import java.io.IOException;

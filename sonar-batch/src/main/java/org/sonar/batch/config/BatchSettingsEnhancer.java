@@ -44,7 +44,7 @@ public final class BatchSettingsEnhancer {
   public void start() {
     String projectKey = reactor.getRoot().getKey();
     setIfNotDefined(ConfigurationUtils.getProjectProperties(dbFactory, projectKey));
-    setIfNotDefined(ConfigurationUtils.getGlobalProperties(dbFactory));
+    setIfNotDefined(ConfigurationUtils.getGeneralProperties(dbFactory));
     settings.updateDeprecatedCommonsConfiguration();
   }
 

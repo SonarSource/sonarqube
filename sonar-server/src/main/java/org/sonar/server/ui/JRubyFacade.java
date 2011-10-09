@@ -37,7 +37,7 @@ import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.jpa.dialect.Dialect;
 import org.sonar.jpa.session.DatabaseConnector;
 import org.sonar.markdown.Markdown;
-import org.sonar.server.configuration.ServerSettings;
+import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.filters.Filter;

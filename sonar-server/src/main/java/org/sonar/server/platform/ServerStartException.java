@@ -21,18 +21,11 @@ package org.sonar.server.platform;
 
 public class ServerStartException extends RuntimeException {
 
-  public ServerStartException() {
-  }
-
   public ServerStartException(String s) {
     super(s);
   }
 
   public ServerStartException(String s, Throwable throwable) {
     super(s, throwable);
-  }
-
-  public ServerStartException(Throwable throwable) {
-    super(throwable);
   }
 }

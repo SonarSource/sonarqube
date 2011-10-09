@@ -22,7 +22,7 @@ package org.sonar.server.mavendeployer;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
-import org.sonar.server.configuration.ServerSettings;
+import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
 import java.io.File;

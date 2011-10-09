@@ -17,27 +17,29 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.configuration;
+package org.sonar.server.platform;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.configuration.Property;
 import org.sonar.core.config.ConfigurationUtils;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import javax.servlet.ServletContext;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 
 /**
- * Load settings from environment, conf/sonar.properties and database
+ * Load settings in the following order (the last override the first) :
+ * <ol>
+ * <li>general settings persisted in database</li>
+ * <li>file $SONAR_HOME/conf/sonar.properties</li>
+ * <li>environment variables</li>
+ * <li>system properties</li>
+ * </ol>
  *
  * @since 2.12
  */
@@ -47,15 +49,20 @@ public class ServerSettings extends Settings {
 
   private DatabaseSessionFactory sessionFactory;
   private Configuration deprecatedConfiguration;
-  private File sonarHome;
   private File deployDir;
 
   public ServerSettings(PropertyDefinitions definitions, Configuration deprecatedConfiguration, ServletContext servletContext) {
     super(definitions);
     this.deprecatedConfiguration = deprecatedConfiguration;
-    this.sonarHome = getSonarHome();
     this.deployDir = getDeployDir(servletContext);
     load();
+  }
+
+  ServerSettings(PropertyDefinitions definitions, Configuration deprecatedConfiguration, File deployDir, File sonarHome) {
+    super(definitions);
+    this.deprecatedConfiguration = deprecatedConfiguration;
+    this.deployDir = deployDir;
+    load(sonarHome);
   }
 
   public ServerSettings setSessionFactory(DatabaseSessionFactory sessionFactory) {
@@ -64,15 +71,19 @@ public class ServerSettings extends Settings {
   }
 
   public ServerSettings load() {
+    return load(SonarHome.getHome());
+  }
+
+  ServerSettings load(File sonarHome) {
     clear();
     setProperty(CoreProperties.SONAR_HOME, sonarHome.getAbsolutePath());
     setProperty(DEPLOY_DIR, deployDir.getAbsolutePath());
-
-    // order is important
+    
+    // order is important : the last override the first
     loadDatabaseSettings();
+    loadPropertiesFile(sonarHome);
     addEnvironmentVariables();
     addSystemProperties();
-    loadPropertiesFile();
 
     // update deprecated configuration
     ConfigurationUtils.copyToCommonsConfiguration(properties, deprecatedConfiguration);
@@ -82,21 +93,14 @@ public class ServerSettings extends Settings {
 
   private void loadDatabaseSettings() {
     if (sessionFactory != null) {
-      DatabaseSession session = sessionFactory.getSession();
-
-      // Ugly workaround before the move to myBatis
-      // Session is not up-to-date when Ruby on Rails inserts new rows in its own transaction. Seems like
-      // Hibernate keeps a cache...
-      session.commit();
-      List<Property> properties = session.createQuery("from " + Property.class.getSimpleName() + " p where p.resourceId is null and p.userId is null").getResultList();
-
+      List<Property> properties = ConfigurationUtils.getGeneralProperties(sessionFactory);
       for (Property property : properties) {
         setProperty(property.getKey(), property.getValue());
       }
     }
   }
 
-  private void loadPropertiesFile() {
+  private void loadPropertiesFile(File sonarHome) {
     File propertiesFile = new File(sonarHome, "conf/sonar.properties");
     if (!propertiesFile.isFile() || !propertiesFile.exists()) {
       throw new IllegalStateException("Properties file does not exist: " + propertiesFile);
@@ -106,7 +110,6 @@ public class ServerSettings extends Settings {
       Properties p = ConfigurationUtils.openProperties(propertiesFile);
       p = ConfigurationUtils.interpolateEnvVariables(p);
       addProperties(p);
-
     } catch (Exception e) {
       throw new IllegalStateException("Fail to load configuration file: " + propertiesFile, e);
     }
@@ -122,35 +125,5 @@ public class ServerSettings extends Settings {
       throw new IllegalArgumentException("Web app directory does not exist: " + dir);
     }
     return dir;
-  }
-
-  static File getSonarHome() {
-    String home = System.getProperty("sonar.home");
-    if (StringUtils.isBlank(home)) {
-      home = System.getenv("SONAR_HOME");
-      if (StringUtils.isBlank(home)) {
-        Properties warProps = openWarProperties();
-        home = warProps.getProperty("sonar.home");
-      }
-    }
-
-    if (StringUtils.isBlank(home)) {
-      throw new IllegalStateException("Please set location to SONAR_HOME");
-    }
-
-    File dir = new File(home);
-    if (!dir.isDirectory() || !dir.exists()) {
-      throw new IllegalStateException("SONAR_HOME is not valid: " + home);
-    }
-    return dir;
-  }
-
-  private static Properties openWarProperties() {
-    try {
-      InputStream input = ServerSettings.class.getResourceAsStream("/sonar-war.properties");
-      return ConfigurationUtils.openInputStream(input);
-    } catch (IOException e) {
-      throw new IllegalStateException("Fail to load the file sonar-war.properties", e);
-    }
   }
 }

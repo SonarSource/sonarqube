@@ -19,18 +19,35 @@
  */
 package org.sonar.server.platform;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
+import org.slf4j.LoggerFactory;
 
-public final class PlatformLifecycleListener implements ServletContextListener {
+import java.io.File;
 
-  public void contextInitialized(ServletContextEvent event) {
-    Logback.configure();
-    Platform.getInstance().init(event.getServletContext());
-    Platform.getInstance().start();
+/**
+ * Configure Logback with $SONAR_HOME/conf/logback.xml
+ *
+ * @since 2.12
+ */
+final class Logback {
+
+  static void configure() {
+    configure(new File(SonarHome.getHome(), "conf/logback.xml"));
   }
 
-  public void contextDestroyed(ServletContextEvent event) {
-    Platform.getInstance().stop();
+  static void configure(File logbackFile) {
+    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    try {
+      JoranConfigurator configurator = new JoranConfigurator();
+      configurator.setContext(lc);
+      lc.reset();
+      configurator.doConfigure(logbackFile);
+    } catch (JoranException e) {
+      // StatusPrinter will handle this
+    }
+    StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
   }
 }

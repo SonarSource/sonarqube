@@ -26,7 +26,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.utils.Logs;
 import org.sonar.jpa.session.DatabaseConnector;
-import org.sonar.server.configuration.ServerSettings;
 
 import java.io.File;
 import java.io.IOException;

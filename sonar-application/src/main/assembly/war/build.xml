@@ -32,25 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
       <fileset dir="../extensions/jdbc-driver" includes="**/*.jar"/>
     </copy>
 
-    <replace file="build/sonar-server/WEB-INF/classes/sonar-war.properties" token="#sonar.home=" value="sonar.home=${sonarHome}" />
-
-    <!-- copy the logback config -->
-    <copy todir="build/sonar-server/WEB-INF/classes">
-      <fileset dir="../conf" includes="logback.xml"/>
-    </copy>
-
-    <!-- remove appenders configured for standalone mode -->
-    <replace file="build/sonar-server/WEB-INF/classes/logback.xml">
-      <replacetoken><![CDATA[<appender-ref ref="SONAR_FILE"/>]]></replacetoken>
-      <replacevalue><![CDATA[<appender-ref ref="SONAR_WAR"/>]]></replacevalue>
-    </replace>
-    <replace file="build/sonar-server/WEB-INF/classes/logback.xml">
-      <replacetoken><![CDATA[<appender-ref ref="PROFILING_FILE"/>]]></replacetoken>
-      <replacevalue><![CDATA[<appender-ref ref="SONAR_WAR"/>]]></replacevalue>
-    </replace>
-
-    <!-- see SONAR-1811. The appender SONAR_FILE must be removed from logback configuration -->
-    <replaceregexp file="build/sonar-server/WEB-INF/classes/logback.xml" match="SONAR_STANDALONE/(.*)/SONAR_STANDALONE" replace="" byline="false" flags="gs"/>
+    <replace file="build/sonar-server/WEB-INF/classes/sonar-war.properties" token="#SONAR_HOME=" value="SONAR_HOME=${sonarHome}" />
 
     <war destfile="sonar.war" webxml="build/sonar-server/WEB-INF/web.xml">
       <fileset dir="build/sonar-server"/>

@@ -19,15 +19,12 @@
  */
 package org.sonar.server.database;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.jpa.entity.SchemaMigration;
-import org.sonar.server.configuration.ServerSettings;
 
 import javax.naming.Context;
 import javax.persistence.EntityManagerFactory;

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.database;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.cfg.Environment;
@@ -32,7 +31,6 @@ import org.sonar.jpa.session.AbstractDatabaseConnector;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 

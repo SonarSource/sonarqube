@@ -29,7 +29,6 @@ import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.webapp.WebAppContext;
 import org.mortbay.thread.QueuedThreadPool;
 import org.mortbay.xml.XmlConfiguration;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -85,11 +84,12 @@ public class JettyEmbedder {
         try {
           server.stop();
         } catch (Exception e) {
-          LoggerFactory.getLogger(getClass()).error("Can not stop the Jetty server", e);
+          System.err.println("Can not stop the Jetty server");
+          e.printStackTrace();
         }
       }
     });
-    LoggerFactory.getLogger("org.sonar.INFO").info("Sonar started: " + toString());
+//    LoggerFactory.getLogger("org.sonar.INFO").info("Sonar started: " + toString());
   }
 
   private Server configureProgrammatically() throws URISyntaxException, IOException {
@@ -123,7 +123,7 @@ public class JettyEmbedder {
     connector.setAcceptors(2);
     connector.setConfidentialPort(8443);
     if (ajp13Port > 0) {
-      LoggerFactory.getLogger("org.sonar.INFO").info("AJP13 connector is on port " + ajp13Port);
+      System.out.println("AJP13 connector is on port " + ajp13Port);
       Connector ajpConnector = new Ajp13SocketConnector();
       ajpConnector.setPort(ajp13Port);
       server.addConnector(ajpConnector);

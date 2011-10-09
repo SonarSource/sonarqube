@@ -2,72 +2,42 @@
 
 <configuration debug="false">
 
-  <!-- appender used when deploying Sonar WAR on a JEE server -->
-  <appender name="SONAR_WAR" class="ch.qos.logback.core.ConsoleAppender">
-    <!-- avoid to log 404 file not found messages from the rails file servlet -->
-    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-      <evaluator name="mavenRepoFileNotFound">
-        <expression>message.startsWith("files: File not found: /maven")</expression>
-      </evaluator>
-      <OnMismatch>NEUTRAL</OnMismatch>
-      <OnMatch>DENY</OnMatch>
-    </filter>
-    <layout class="ch.qos.logback.classic.PatternLayout">
-      <pattern>
-        %d{yyyy.MM.dd HH:mm:ss} %-5level %logger{20} %X %msg%n
-      </pattern>
-    </layout>
-  </appender>
-
-  <!-- SONAR_STANDALONE/ -->
-  <!-- do not edit/remove the previous comment -->
   <appender name="SONAR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <File>../../logs/sonar.log</File>
+    <File>${SONAR_HOME}/logs/sonar.log</File>
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-      <param name="FileNamePattern" value="../../logs/sonar.%i.log"/>
+      <param name="FileNamePattern" value="${SONAR_HOME}/logs/sonar.%i.log"/>
       <param name="MinIndex" value="1"/>
       <param name="MaxIndex" value="3"/>
     </rollingPolicy>
     <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
       <param name="MaxFileSize" value="5MB"/>
     </triggeringPolicy>
-    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-      <evaluator name="mavenRepoFileNotFound">
-        <expression>message.startsWith("files: File not found: /maven")</expression>
-      </evaluator>
-      <OnMismatch>NEUTRAL</OnMismatch>
-      <OnMatch>DENY</OnMatch>
-    </filter>
-    <layout class="ch.qos.logback.classic.PatternLayout">
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
       <pattern>
         %d{yyyy.MM.dd HH:mm:ss} %-5level %logger{20} %X %msg%n
       </pattern>
-    </layout>
+    </encoder>
   </appender>
 
   <!-- appender used to profile Sonar Server -->
   <appender name="PROFILING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <File>../../logs/profiling.log</File>
+    <File>${SONAR_HOME}/logs/profiling.log</File>
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-      <param name="FileNamePattern" value="../../logs/profiling.%i.log"/>
+      <param name="FileNamePattern" value="${SONAR_HOME}/logs/profiling.%i.log"/>
       <param name="MinIndex" value="1"/>
       <param name="MaxIndex" value="3"/>
     </rollingPolicy>
     <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
       <param name="MaxFileSize" value="5MB"/>
     </triggeringPolicy>
-    <layout class="ch.qos.logback.classic.PatternLayout">
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
       <pattern>
         %d{yyyy.MM.dd HH:mm:ss} %-5level %logger{20} %X %msg%n
       </pattern>
-    </layout>
+    </encoder>
   </appender>
 
-  <!-- do not edit/remove the following comment -->
-  <!-- /SONAR_STANDALONE -->
-
-
-  <!-- 
+    <!--
     Profiling of JRuby on Rails requests . Uncomment in order to log HTTP and SQL requests.
     Execute the following command to get the HTTP requests with execution time > 10s :
     grep 'rails  Completed in [0-9]\{5,\}ms' < profiling.log

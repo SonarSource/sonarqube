@@ -34,7 +34,6 @@ public final class StartServer {
   }
 
   public static void main(String[] args) throws Exception {
-    configureLogback();
     configureHome();
 
     Properties configuration = getConfiguration();
@@ -51,7 +50,7 @@ public final class StartServer {
 
   private static void configureRequestLogs(JettyEmbedder jetty, Properties configuration) {
     String filenamePattern = configuration.getProperty("sonar.web.jettyRequestLogs");
-    if (filenamePattern!=null) {
+    if (filenamePattern != null) {
       jetty.configureRequestLogs(filenamePattern);
     }
   }
@@ -64,12 +63,7 @@ public final class StartServer {
 
   private static void configureHome() throws URISyntaxException {
     File confFile = new File(StartServer.class.getResource("/conf/sonar.properties").toURI());
-    System.setProperty("sonar.home", confFile.getParentFile().getParentFile().getAbsolutePath());
-  }
-
-  private static void configureLogback() throws URISyntaxException {
-    File confFile = new File(StartServer.class.getResource("/conf/logback.xml").toURI());
-    System.setProperty("logback.configurationFile", confFile.getAbsolutePath()); 
-    System.setProperty("logback.ContextSelector", "JNDI");
+    System.setProperty("SONAR_HOME" /* see constant org.sonar.server.platform.SonarHome.PROPERTY */,
+        confFile.getParentFile().getParentFile().getAbsolutePath());
   }
 }

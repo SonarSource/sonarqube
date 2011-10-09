@@ -64,7 +64,7 @@ public interface CoreProperties {
 
 
   /* Global settings */
-  String SONAR_HOME = "sonar.home";
+  String SONAR_HOME = "SONAR_HOME";
   String PROJECT_BRANCH_PROPERTY = "sonar.branch";
   String PROJECT_VERSION_PROPERTY = "sonar.projectVersion";
 

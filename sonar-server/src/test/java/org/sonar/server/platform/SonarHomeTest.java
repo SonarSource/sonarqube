@@ -19,18 +19,11 @@
  */
 package org.sonar.server.platform;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import org.junit.Test;
 
-public final class PlatformLifecycleListener implements ServletContextListener {
+public class SonarHomeTest {
+  @Test
+  public void iDontKnowHowToSimplyTestThisClass() {
 
-  public void contextInitialized(ServletContextEvent event) {
-    Logback.configure();
-    Platform.getInstance().init(event.getServletContext());
-    Platform.getInstance().start();
-  }
-
-  public void contextDestroyed(ServletContextEvent event) {
-    Platform.getInstance().stop();
   }
 }

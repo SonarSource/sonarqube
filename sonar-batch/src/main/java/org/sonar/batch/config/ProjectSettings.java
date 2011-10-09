@@ -73,7 +73,7 @@ public class ProjectSettings extends Settings {
   }
 
   private void loadDatabaseGlobalSettings() {
-    List<Property> props = ConfigurationUtils.getGlobalProperties(dbFactory);
+    List<Property> props = ConfigurationUtils.getGeneralProperties(dbFactory);
     for (Property dbProperty : props) {
       setProperty(dbProperty.getKey(), dbProperty.getValue());
     }

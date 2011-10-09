@@ -50,7 +50,6 @@ import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.jpa.session.DatabaseSessionProvider;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
 import org.sonar.server.charts.ChartFactory;
-import org.sonar.server.configuration.ServerSettings;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.database.EmbeddedDatabaseFactory;

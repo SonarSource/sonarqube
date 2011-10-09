@@ -51,13 +51,13 @@ public final class ConfigurationUtils {
 
   public static Properties openProperties(File file) throws IOException {
     FileInputStream input = FileUtils.openInputStream(file);
-    return openInputStream(input);
+    return readInputStream(input);
   }
 
   /**
    * Note that the input stream is closed in this method.
    */
-  public static Properties openInputStream(InputStream input) throws IOException {
+  public static Properties readInputStream(InputStream input) throws IOException {
     try {
       Properties p = new Properties();
       p.load(input);
@@ -97,7 +97,7 @@ public final class ConfigurationUtils {
     return Collections.emptyList();
   }
 
-  public static List<Property> getGlobalProperties(DatabaseSessionFactory dbFactory) {
+  public static List<Property> getGeneralProperties(DatabaseSessionFactory dbFactory) {
     DatabaseSession session = prepareDbSession(dbFactory);
     return session
         .createQuery("from " + Property.class.getSimpleName() + " p where p.resourceId is null and p.userId is null")
