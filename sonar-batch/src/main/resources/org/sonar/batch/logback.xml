@@ -3,8 +3,6 @@
 
   <!--
   This file is directly loaded by Sonar Ant Task 1.1 and Sonar Runner 1.1.
-  Inclusion of logback-base.xml is not supported by these 2 versions, so loggers must
-  be duplicated.
   -->
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
