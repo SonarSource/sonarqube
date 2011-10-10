@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 
 import java.io.IOException;
@@ -40,17 +41,21 @@ public class ProjectTree {
 
   private List<Project> projects;
   private Map<ProjectDefinition, Project> projectsByDef;
+  private Settings settings;
 
   public ProjectTree(ProjectReactor projectReactor, //NOSONAR the unused parameter 'builders' is used for the startup order of components
                      ProjectConfigurator projectConfigurator,
+                     Settings settings,
                      /* Must be executed after ProjectBuilders */ ProjectBuilder[] builders) {
-    this(projectReactor, projectConfigurator);
+    this(projectReactor, projectConfigurator, settings);
   }
 
   public ProjectTree(ProjectReactor projectReactor, //NOSONAR the unused parameter 'builders' is used for the startup order of components
-                     ProjectConfigurator projectConfigurator) {
+                     ProjectConfigurator projectConfigurator,
+                     Settings settings) {
     this.projectReactor = projectReactor;
     this.configurator = projectConfigurator;
+    this.settings = settings;
   }
 
   ProjectTree(ProjectConfigurator configurator) {
@@ -89,8 +94,8 @@ public class ProjectTree {
 
   void applyExclusions() {
     for (Project project : projects) {
-      String[] excludedArtifactIds = project.getConfiguration().getStringArray("sonar.skippedModules");
-      String[] includedArtifactIds = project.getConfiguration().getStringArray("sonar.includedModules");
+      String[] excludedArtifactIds = settings.getStringArray("sonar.skippedModules");
+      String[] includedArtifactIds = settings.getStringArray("sonar.includedModules");
 
       Set<String> includedModulesIdSet = Sets.newHashSet();
       Set<String> excludedModulesIdSet = Sets.newHashSet();
