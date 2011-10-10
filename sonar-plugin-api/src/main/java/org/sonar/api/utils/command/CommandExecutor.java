@@ -19,15 +19,15 @@
  */
 package org.sonar.api.utils.command;
 
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.concurrent.*;
+
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Synchronously execute a native command line. It's much more limited than the Apache Commons Exec library.
@@ -51,6 +51,8 @@ public final class CommandExecutor {
   public int execute(Command command, long timeoutMilliseconds) {
     ExecutorService executorService = null;
     Process process = null;
+    StreamGobbler outputGobbler = null;
+    StreamGobbler errorGobbler = null;
     try {
       LoggerFactory.getLogger(getClass()).debug("Executing command: " + command);
       ProcessBuilder builder = new ProcessBuilder(command.toStrings());
@@ -60,16 +62,15 @@ public final class CommandExecutor {
       process = builder.start();
 
       // consume and display the error and output streams
-      StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream());
-      StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream());
+      outputGobbler = new StreamGobbler(process.getInputStream());
+      errorGobbler = new StreamGobbler(process.getErrorStream());
       outputGobbler.start();
       errorGobbler.start();
 
       final Process finalProcess = process;
       Callable<Integer> call = new Callable<Integer>() {
         public Integer call() throws Exception {
-          finalProcess.waitFor();
-          return finalProcess.exitValue();
+          return finalProcess.waitFor();
         }
       };
 
@@ -85,9 +86,35 @@ public final class CommandExecutor {
       throw new CommandException(command, e);
 
     } finally {
+      if (outputGobbler != null) {
+        waitUntilFinish(outputGobbler);
+      }
+
+      if (errorGobbler != null) {
+        waitUntilFinish(errorGobbler);
+      }
+
+      if (process != null) {
+        closeStreams(process);
+      }
+
       if (executorService != null) {
         executorService.shutdown();
       }
+    }
+  }
+
+  private void closeStreams(Process process) {
+    IOUtils.closeQuietly(process.getInputStream());
+    IOUtils.closeQuietly(process.getOutputStream());
+    IOUtils.closeQuietly(process.getErrorStream());
+  }
+
+  private void waitUntilFinish(StreamGobbler thread) {
+    try {
+      thread.join();
+    } catch (InterruptedException e) {
+      // ignore
     }
   }
 
@@ -95,9 +122,11 @@ public final class CommandExecutor {
     InputStream is;
 
     StreamGobbler(InputStream is) {
+      super("ProcessStreamGobbler");
       this.is = is;
     }
 
+    @Override
     public void run() {
       Logger logger = LoggerFactory.getLogger(CommandExecutor.class);
       InputStreamReader isr = new InputStreamReader(is);
