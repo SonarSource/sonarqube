@@ -75,7 +75,6 @@ public class BootstrapModule extends Module {
 
     addCoreSingleton(BatchPluginRepository.class);
     addCoreSingleton(BatchExtensionInstaller.class);
-    addCoreSingleton(ProjectExtensionInstaller.class);
     addCoreSingleton(BatchSettingsEnhancer.class);
   }
 

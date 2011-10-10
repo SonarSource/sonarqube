@@ -112,8 +112,9 @@ public class ProjectModule extends Module {
   }
 
   private void addProjectPluginExtensions() {
+    addCoreSingleton(ProjectExtensionInstaller.class);
     ProjectExtensionInstaller installer = getComponentByType(ProjectExtensionInstaller.class);
-    installer.install(this, project);
+    installer.install(this);
   }
 
 

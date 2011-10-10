@@ -28,6 +28,7 @@ import org.sonar.api.*;
 import org.sonar.api.batch.CoverageExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.SupportedEnvironment;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
@@ -66,9 +67,9 @@ public class ProjectExtensionInstallerTest {
     });
     when(pluginRepository.getPluginsByKey()).thenReturn(pluginsMap);
     Module module = new FakeModule().init();
-    ProjectExtensionInstaller installer = new ProjectExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new DryRun(false));
+    ProjectExtensionInstaller installer = new ProjectExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new DryRun(false), new Project("foo"), null);
 
-    installer.install(module, new Project("foo"));
+    installer.install(module);
 
     assertThat(module.getComponentByType(BatchService.class), nullValue());
     assertThat(module.getComponentByType(ProjectService.class), not(nullValue()));
@@ -86,24 +87,16 @@ public class ProjectExtensionInstallerTest {
     });
     when(pluginRepository.getPluginsByKey()).thenReturn(pluginsMap);
     Module module = new FakeModule().init();
-    ProjectExtensionInstaller installer = new ProjectExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new DryRun(false));
+    ProjectExtensionInstaller installer = new ProjectExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new DryRun(false), new Project("foo"), null);
 
-    installer.install(module, new Project("foo"));
+    installer.install(module);
 
     assertThat(module.getComponentByType(MavenService.class), nullValue());
     assertThat(module.getComponentByType(BuildToolService.class), not(nullValue()));
   }
 
-
-  @Test
-  public void shouldRegisterOnlyCoberturaExtensionByDefault() {
-    assertThat(ProjectExtensionInstaller.isDeactivatedCoverageExtension(FakeCoverageExtension.class, newJavaProject(null), "cobertura"), is(false));
-    assertThat(ProjectExtensionInstaller.isDeactivatedCoverageExtension(FakeCoverageExtension.class, newJavaProject(null), "clover"), is(true));
-  }
-
-  private static Project newJavaProject(Configuration conf) {
+  private static Project newJavaProject() {
     Project project = new Project("foo").setLanguageKey(Java.KEY).setAnalysisType(Project.AnalysisType.DYNAMIC);
-    project.setConfiguration(conf != null ? conf : new PropertiesConfiguration());
     return project;
   }
 
@@ -113,22 +106,22 @@ public class ProjectExtensionInstallerTest {
 
   @Test
   public void shouldRegisterCustomCoverageExtension() {
-    Configuration conf = new PropertiesConfiguration();
+    Settings conf = new Settings();
     conf.setProperty(CoreProperties.CORE_COVERAGE_PLUGIN_PROPERTY, "clover,phpunit");
 
-    assertThat(ProjectExtensionInstaller.isDeactivatedCoverageExtension(FakeCoverageExtension.class, newJavaProject(conf), "cobertura"), is(true));
-    assertThat(ProjectExtensionInstaller.isDeactivatedCoverageExtension(FakeCoverageExtension.class, newJavaProject(conf), "clover"), is(false));
-    assertThat(ProjectExtensionInstaller.isDeactivatedCoverageExtension(FakeCoverageExtension.class, newJavaProject(conf), "phpunit"), is(false));
-    assertThat(ProjectExtensionInstaller.isDeactivatedCoverageExtension(FakeCoverageExtension.class, newJavaProject(conf), "other"), is(true));
+    assertThat(ProjectExtensionInstaller.isDeactivatedCoverageExtension(FakeCoverageExtension.class, "cobertura", newJavaProject(), conf), is(true));
+    assertThat(ProjectExtensionInstaller.isDeactivatedCoverageExtension(FakeCoverageExtension.class, "clover", newJavaProject(), conf), is(false));
+    assertThat(ProjectExtensionInstaller.isDeactivatedCoverageExtension(FakeCoverageExtension.class, "phpunit", newJavaProject(), conf), is(false));
+    assertThat(ProjectExtensionInstaller.isDeactivatedCoverageExtension(FakeCoverageExtension.class, "other", newJavaProject(), conf), is(true));
   }
 
   @Test
   public void shouldNotCheckCoverageExtensionsOnNonJavaProjects() {
-    Configuration conf = new PropertiesConfiguration();
+    Settings conf = new Settings();
     conf.setProperty(CoreProperties.CORE_COVERAGE_PLUGIN_PROPERTY, "cobertura");
 
-    assertThat(ProjectExtensionInstaller.isDeactivatedCoverageExtension(FakeCoverageExtension.class, newGroovyProject(), "groovy"), is(false));
-    assertThat(ProjectExtensionInstaller.isDeactivatedCoverageExtension(FakeCoverageExtension.class, newJavaProject(null), "groovy"), is(true));
+    assertThat(ProjectExtensionInstaller.isDeactivatedCoverageExtension(FakeCoverageExtension.class, "groovy", newGroovyProject(), conf), is(false));
+    assertThat(ProjectExtensionInstaller.isDeactivatedCoverageExtension(FakeCoverageExtension.class, "groovy", newJavaProject(), conf), is(true));
 
   }
 

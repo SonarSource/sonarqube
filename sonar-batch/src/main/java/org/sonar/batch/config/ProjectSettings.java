@@ -49,7 +49,7 @@ public class ProjectSettings extends Settings {
 
   public ProjectSettings load() {
     clear();
-
+    
     // order is important -> bottom-up. The last one overrides all the others.
     loadDatabaseGlobalSettings();
     loadDatabaseProjectSettings(projectDefinition);
