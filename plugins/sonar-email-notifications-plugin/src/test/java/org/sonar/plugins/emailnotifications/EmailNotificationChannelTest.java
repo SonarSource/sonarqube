@@ -142,7 +142,7 @@ public class EmailNotificationChannelTest {
     assertThat(email.getHeaderValue("List-ID"), is("Sonar <sonar.nemo.sonarsource.org>"));
     assertThat(email.getHeaderValue("List-Archive"), is("http://nemo.sonarsource.org"));
 
-    assertThat(email.getHeaderValue("From"), is("Full Username <server@nowhere>"));
+    assertThat(email.getHeaderValue("From"), is("\"Full Username (Sonar)\" <server@nowhere>"));
     assertThat(email.getHeaderValue("To"), is("<user@nowhere>"));
     assertThat(email.getHeaderValue("Subject"), is("[SONAR] Review #3"));
     assertThat(email.getBody(), is("I'll take care of this violation."));

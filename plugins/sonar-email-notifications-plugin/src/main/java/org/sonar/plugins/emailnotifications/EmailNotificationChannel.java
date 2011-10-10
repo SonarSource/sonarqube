@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.emailnotifications;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
@@ -31,9 +34,6 @@ import org.sonar.api.security.UserFinder;
 import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * References:
@@ -163,7 +163,8 @@ public class EmailNotificationChannel extends NotificationChannel {
       }
       // Set general information
       email.setCharset("UTF-8");
-      email.setFrom(configuration.getFrom(), StringUtils.defaultIfBlank(emailMessage.getFrom(), FROM_NAME_DEFAULT));
+      String from = StringUtils.isBlank(emailMessage.getFrom()) ? FROM_NAME_DEFAULT : emailMessage.getFrom() + " (Sonar)";
+      email.setFrom(configuration.getFrom(), from);
       email.addTo(emailMessage.getTo(), " ");
       String subject = StringUtils.defaultIfBlank(StringUtils.trimToEmpty(configuration.getPrefix()) + " ", "")
           + StringUtils.defaultString(emailMessage.getSubject(), SUBJECT_DEFAULT);
