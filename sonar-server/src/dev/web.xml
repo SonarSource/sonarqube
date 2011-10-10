@@ -27,13 +27,6 @@
     <param-value>3</param-value>
   </context-param>
 
-  <env-entry>
-    <description>JNDI logback context</description>
-    <env-entry-name>logback/context-name</env-entry-name>
-    <env-entry-type>java.lang.String</env-entry-type>
-    <env-entry-value>Sonar</env-entry-value>
-  </env-entry>
-
   <filter>
     <filter-name>DatabaseSessionFilter</filter-name>
     <filter-class>org.sonar.server.ui.DatabaseSessionFilter</filter-class>
@@ -90,9 +83,6 @@
   </listener>
   <listener>
     <listener-class>org.jruby.rack.rails.RailsServletContextListener</listener-class>
-  </listener>
-  <listener>
-    <listener-class>ch.qos.logback.classic.selector.servlet.ContextDetachingSCL</listener-class>
   </listener>
 
 </web-app>
