@@ -134,7 +134,11 @@ public class FindbugsExecutor implements BatchExtension {
     }
 
     public Object call() throws Exception {
-      engine.execute();
+      try {
+        engine.execute();
+      } finally {
+        engine.dispose();
+      }
       return null;
     }
   }
