@@ -39,7 +39,7 @@ public class ChecksBridge extends Bridge {
     Set<CheckMessage> messages = squidFile.getCheckMessages();
     if (messages != null) {
       for (CheckMessage checkMessage : messages) {
-        ActiveRule rule = checkFactory.getActiveRule(checkMessage.getChecker());
+        ActiveRule rule = checkFactory.getActiveRule(checkMessage.getCheck());
         Violation violation = Violation.create(rule, sonarFile);
         violation.setLineId(checkMessage.getLine());
         violation.setMessage(checkMessage.getText(Locale.ENGLISH));

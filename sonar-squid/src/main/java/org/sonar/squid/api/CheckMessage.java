@@ -30,13 +30,13 @@ public class CheckMessage implements Message {
   private Integer line;
   private Double cost;
   private SourceCode sourceCode;
-  private Object checker;
+  private Object check;
   private String defaultMessage;
   private Object[] messageArguments;
   private Boolean bypassExclusion;
 
-  public CheckMessage(Object checker, String message, Object... messageArguments) {
-    this.checker = checker;
+  public CheckMessage(Object check, String message, Object... messageArguments) {
+    this.check = check;
     this.defaultMessage = message;
     this.messageArguments = messageArguments;
   }
@@ -45,8 +45,8 @@ public class CheckMessage implements Message {
    * @deprecated replaced by the other constructor since 2.12. See SONAR-2875.
    */
   @Deprecated
-  public CheckMessage(CodeCheck checker, String message, Object... messageArguments) {
-    this((Object)checker, message, messageArguments);
+  public CheckMessage(CodeCheck check, String message, Object... messageArguments) {
+    this((Object)check, message, messageArguments);
   }
 
   public void setSourceCode(SourceCode sourceCode) {
@@ -81,8 +81,16 @@ public class CheckMessage implements Message {
     return bypassExclusion == null ? false : bypassExclusion;
   }
 
-  public Object getChecker() {
-    return checker;
+  /**
+   * @deprecated replaced by getCheck() since 2.12. Warning, to be called only if check is CodeCheck.
+   */
+  @Deprecated
+  public CodeCheck getChecker() {
+    return (CodeCheck)check;
+  }
+
+  public Object getCheck() {
+    return check;
   }
 
   public String getDefaultMessage() {
@@ -99,7 +107,7 @@ public class CheckMessage implements Message {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this).append("source", sourceCode).append("checker", checker).append("msg", defaultMessage)
+    return new ToStringBuilder(this).append("source", sourceCode).append("check", check).append("msg", defaultMessage)
         .append("line", line).toString();
   }
 
