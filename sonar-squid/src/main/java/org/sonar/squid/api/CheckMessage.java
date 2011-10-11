@@ -41,6 +41,14 @@ public class CheckMessage implements Message {
     this.messageArguments = messageArguments;
   }
 
+  /**
+   * @deprecated replaced by the other constructor since 2.12. See SONAR-2875.
+   */
+  @Deprecated
+  public CheckMessage(CodeCheck checker, String message, Object... messageArguments) {
+    this((Object)checker, message, messageArguments);
+  }
+
   public void setSourceCode(SourceCode sourceCode) {
     this.sourceCode = sourceCode;
   }
