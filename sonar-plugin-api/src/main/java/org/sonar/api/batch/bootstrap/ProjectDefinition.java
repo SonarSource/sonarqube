@@ -101,7 +101,7 @@ public final class ProjectDefinition implements BatchComponent {
    * @since 2.12
    */
   public ProjectDefinition setProperties(Properties properties) {
-    properties.putAll(properties);
+    this.properties.putAll(properties);
     return this;
   }
 
