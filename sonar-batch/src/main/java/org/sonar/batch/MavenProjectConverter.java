@@ -84,8 +84,11 @@ public final class MavenProjectConverter {
    */
   static ProjectDefinition convert(MavenProject pom) {
     String key = new StringBuilder().append(pom.getGroupId()).append(":").append(pom.getArtifactId()).toString();
-    ProjectDefinition definition = ProjectDefinition.create(pom.getModel().getProperties());
-    definition.setKey(key)
+    ProjectDefinition definition = ProjectDefinition.create();
+    // IMPORTANT NOTE : reference on properties from POM model must not be saved, instead they should be copied explicitly - see SONAR-2896
+    definition
+        .setProperties(pom.getModel().getProperties())
+        .setKey(key)
         .setVersion(pom.getVersion())
         .setName(pom.getName())
         .setDescription(pom.getDescription())

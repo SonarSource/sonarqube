@@ -58,6 +58,13 @@ public final class ProjectDefinition implements BatchComponent {
     this.properties = p;
   }
 
+  /**
+   * @deprecated in 2.12, because it uses external object to represent internal state.
+   * To ensure backward-compatibility with Ant task this method cannot clone properties,
+   * so other callers must explicitly make clone of properties before passing into this method.
+   * Thus better to use {@link #create()} with combination of other methods like {@link #setProperties(Properties)} and {@link #setProperty(String, String)}.
+   */
+  @Deprecated
   public static ProjectDefinition create(Properties properties) {
     return new ProjectDefinition(properties);
   }
@@ -74,6 +81,7 @@ public final class ProjectDefinition implements BatchComponent {
   public File getBaseDir() {
     return baseDir;
   }
+
   public ProjectDefinition setWorkDir(File workDir) {
     this.workDir = workDir;
     return this;
@@ -85,6 +93,16 @@ public final class ProjectDefinition implements BatchComponent {
 
   public Properties getProperties() {
     return properties;
+  }
+
+  /**
+   * Copies specified properties into this object.
+   * 
+   * @since 2.12
+   */
+  public ProjectDefinition setProperties(Properties properties) {
+    properties.putAll(properties);
+    return this;
   }
 
   public ProjectDefinition setProperty(String key, String value) {
@@ -204,7 +222,6 @@ public final class ProjectDefinition implements BatchComponent {
     return Arrays.asList(StringUtils.split(sources, SEPARATOR));
   }
 
-
   public List<String> getTestDirs() {
     String sources = properties.getProperty(TEST_DIRS_PROPERTY, "");
     return Arrays.asList(StringUtils.split(sources, SEPARATOR));
@@ -246,7 +263,6 @@ public final class ProjectDefinition implements BatchComponent {
     return this;
   }
 
-
   /**
    * Adding source files is possible only if no source directories have been set.
    * Absolute path or relative path from project base dir.
@@ -273,7 +289,6 @@ public final class ProjectDefinition implements BatchComponent {
     return Arrays.asList(StringUtils.split(sources, SEPARATOR));
   }
 
-
   public List<String> getBinaries() {
     String sources = properties.getProperty(BINARIES_PROPERTY, "");
     return Arrays.asList(StringUtils.split(sources, SEPARATOR));
@@ -292,7 +307,6 @@ public final class ProjectDefinition implements BatchComponent {
   public ProjectDefinition addBinaryDir(File f) {
     return addBinaryDir(f.getAbsolutePath());
   }
-
 
   public List<String> getLibraries() {
     String sources = properties.getProperty(LIBRARIES_PROPERTY, "");
