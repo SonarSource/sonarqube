@@ -1838,6 +1838,10 @@ table.data, table.spaced, .gwt-SourcePanel .sources {
   width: 100%;
 }
 
+table.data td.barchart {
+  width: 100px;
+}
+
 table.without-header {
   border-top: 1px solid #ddd;
 }

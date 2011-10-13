@@ -1,0 +1,86 @@
+<%
+  limit = widget_properties["numberOfLines"]
+  unless limit
+    limit = 5
+  end
+
+  metric = Metric.find(:first, :conditions => "name = 'weighted_violations'")
+  
+  snapshots_conditions = ["snapshots.scope = 'FIL'"]
+  snapshots_values = {}
+  snapshots_conditions << "(snapshots.qualifier = 'CLA' OR snapshots.qualifier = 'FIL' OR snapshots.qualifier = 'TRK')"
+  snapshots_conditions << "project_measures.rule_id IS NULL"
+  snapshots_conditions << "project_measures.characteristic_id IS NULL"
+  snapshots_conditions << "snapshots.path LIKE :path"
+  snapshots_values[:path] = "#{@snapshot.path}#{@snapshot.id}.%"
+  snapshots_conditions << "project_measures.metric_id = :m_id"
+  snapshots_values[:m_id] = metric.id
+  snapshots_conditions << "snapshots.root_project_id = :root_id"
+  snapshots_values[:root_id] = @snapshot.root_project_id
+
+  snapshots=Snapshot.find(:all, 
+                          :conditions => [snapshots_conditions.join(' AND '), snapshots_values], 
+                          :include => ['project', 'measures'],
+                          :order => "project_measures.value DESC",
+                          :limit => limit)
+%>
+
+<div class="line-block">
+  <div style="float:right">
+    <a href="<%= url_for_drilldown(metric) -%>"><%= message('widget.hotspot_metric.more') -%></a>
+  </div>
+  <h3><%= message('widget.hotspot_most_violated_resources.name') -%></h3>
+</div>
+
+<table id="most-violated-resources-<%= widget.id -%>" class="data">
+  <thead><tr><th colspan="11"/></tr></thead>
+  <tbody>
+<%
+  snapshots.each do |s|
+    resource = s.resource
+    violations_per_severity={}
+    s.measure(metric).text_value.split(';').each do |part|
+      fields=part.split('=')
+      violations_per_severity[fields[0]]=fields[1]
+    end
+%>
+    <tr class="<%= cycle 'even','odd' -%>">
+      <td>
+        <%= link_to_resource(resource, resource.name) -%>
+      </td>
+      <td class="small right">
+        <%= image_tag('priority/BLOCKER.png') -%>
+      </td>
+      <td class="small left">
+        <%= violations_per_severity["BLOCKER"] ? violations_per_severity["BLOCKER"].to_s : "0" -%>
+      </td>
+      <td class="small right">
+        <%= image_tag('priority/CRITICAL.png') -%>
+      </td>
+      <td class="small left">
+        <%= violations_per_severity["CRITICAL"] ? violations_per_severity["CRITICAL"].to_s : "0" -%>
+      </td>
+      <td class="small right">
+        <%= image_tag('priority/MAJOR.png') -%>
+      </td>
+      <td class="small left">
+        <%= violations_per_severity["MAJOR"] ? violations_per_severity["MAJOR"].to_s : "0" -%>
+      </td>
+      <td class="small right">
+        <%= image_tag('priority/MINOR.png') -%>
+      </td>
+      <td class="small left">
+        <%= violations_per_severity["MINOR"] ? violations_per_severity["MINOR"].to_s : "0" -%>
+      </td>
+      <td class="small right">
+        <%= image_tag('priority/INFO.png') -%>
+      </td>
+      <td class="small left">
+        <%= violations_per_severity["INFO"] ? violations_per_severity["INFO"].to_s : "0" -%>
+      </td>    
+    </tr>
+<%
+  end
+%>
+  </tbody>
+</table>
