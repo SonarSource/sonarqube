@@ -43,10 +43,18 @@ class WidgetController < ApplicationController
   end
 
   def load_widget
-    @widget=Widget.find(:first, :conditions => {:widget_key => params[:id]})
-    if @widget
-      @widget_definition = java_facade.getWidget(@widget.key)
-      @dashboard_configuration=Api::DashboardConfiguration.new(nil, :period_index => params[:period], :snapshot => @snapshot)
+    widget_key = params[:id]
+    @widget_definition = java_facade.getWidget(widget_key)
+    @widget=Widget.new(:widget_key => widget_key)
+    
+    @widget_definition.getWidgetProperties().each do |property_definition|
+      @widget.properties<<WidgetProperty.new(
+          :kee => property_definition.key(),
+          :value_type => property_definition.type().toString(),
+          :text_value => params[property_definition.key()] || property_definition.defaultValue
+      )
     end
+
+    @dashboard_configuration=Api::DashboardConfiguration.new(nil, :period_index => params[:period], :snapshot => @snapshot)
   end
 end
