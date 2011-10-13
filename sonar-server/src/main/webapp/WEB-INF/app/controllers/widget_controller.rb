@@ -45,7 +45,7 @@ class WidgetController < ApplicationController
   def load_widget
     widget_key = params[:id]
     @widget_definition = java_facade.getWidget(widget_key)
-    @widget=Widget.new(:widget_key => widget_key)
+    @widget=Widget.new(:widget_key => widget_key, :id => 1)
     
     @widget_definition.getWidgetProperties().each do |property_definition|
       @widget.properties<<WidgetProperty.new(

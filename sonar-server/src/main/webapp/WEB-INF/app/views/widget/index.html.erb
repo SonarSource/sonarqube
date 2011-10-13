@@ -1,28 +1,30 @@
-<div class="<%= @widget_definition.getId() %>" style="height:100%;">
-  <%
-     begin
-       widget_body=render :inline => @widget_definition.getTarget().getTemplate(), :locals => {:widget_properties => @widget.properties_as_hash, :widget => @widget, :dashboard_configuration => @dashboard_configuration}
-     rescue => error
-       logger.error(message('dashboard.cannot_render_widget_x', :params => [@widget_definition.getId(), error]))
-       logger.error(error.backtrace.join("\n"))
-       widget_body=""
-     end
-
-     if widget_body.include?('<')
-  %>
+<div id="block_1" class="block">
+  <div class="<%= @widget_definition.getId() %>" style="height:100%;">
     <%
-       default_layout=(@widget_definition.getWidgetLayout().name()=='DEFAULT')
-       if default_layout
+       begin
+         widget_body=render :inline => @widget_definition.getTarget().getTemplate(), :locals => {:widget_properties => @widget.properties_as_hash, :widget => @widget, :dashboard_configuration => @dashboard_configuration}
+       rescue => error
+         logger.error(message('dashboard.cannot_render_widget_x', :params => [@widget_definition.getId(), error]))
+         logger.error(error.backtrace.join("\n"))
+         widget_body=""
+       end
+
+       if widget_body.include?('<')
     %>
-      <div class="widget">
-    <% end %>
-    <%= widget_body -%>
-    <% if default_layout %>
-      <div class="clear"></div>
-      </div>
-    <% end %>
-  <%
-     end
-  %>
-  <div style="clear: both;"></div>
+      <%
+         default_layout=(@widget_definition.getWidgetLayout().name()=='DEFAULT')
+         if default_layout
+      %>
+        <div class="widget">
+      <% end %>
+      <%= widget_body -%>
+      <% if default_layout %>
+        <div class="clear"></div>
+        </div>
+      <% end %>
+    <%
+       end
+    %>
+    <div style="clear: both;"></div>
+  </div>
 </div>
