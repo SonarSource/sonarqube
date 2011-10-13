@@ -32,9 +32,8 @@ import com.google.common.collect.Maps;
 
 public final class MavenProjectConverter {
 
-  private MavenProjectConverter() {
-    // only static methods
-  }
+  private static final String UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE = "Unable to determine structure of project." +
+      " Probably you use Maven Advanced Reactor Options, which is not supported by Sonar and should not be used.";
 
   public static ProjectDefinition convert(List<MavenProject> poms, MavenProject root) {
     Map<String, MavenProject> paths = Maps.newHashMap(); // projects by canonical path to pom.xml
@@ -59,10 +58,10 @@ public final class MavenProjectConverter {
           ProjectDefinition parentProject = defs.get(pom);
           ProjectDefinition subProject = defs.get(module);
           if (parentProject == null) {
-            throw new IllegalStateException();
+            throw new IllegalStateException(UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE);
           }
           if (subProject == null) {
-            throw new IllegalStateException();
+            throw new IllegalStateException(UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE);
           }
           parentProject.addSubProject(subProject);
         }
@@ -73,7 +72,7 @@ public final class MavenProjectConverter {
 
     ProjectDefinition rootProject = defs.get(root);
     if (rootProject == null) {
-      throw new IllegalStateException();
+      throw new IllegalStateException(UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE);
     }
 
     return rootProject;
@@ -114,5 +113,9 @@ public final class MavenProjectConverter {
       }
     }
     return file;
+  }
+
+  private MavenProjectConverter() {
+    // only static methods
   }
 }

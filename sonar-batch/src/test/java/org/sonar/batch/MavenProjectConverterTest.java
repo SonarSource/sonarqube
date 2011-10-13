@@ -19,6 +19,19 @@
  */
 package org.sonar.batch;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Properties;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -29,18 +42,25 @@ import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Properties;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-
 public class MavenProjectConverterTest {
+
+  /**
+   * See SONAR-2681
+   */
+  public void shouldThrowExceptionWhenUnableToDetermineProjectStructure() {
+    MavenProject root = new MavenProject();
+    root.setFile(new File("/foo/pom.xml"));
+    root.getBuild().setDirectory("target");
+    root.getModules().add("module/pom.xml");
+
+    try {
+      MavenProjectConverter.convert(Arrays.asList(root), root);
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage(), containsString("Advanced Reactor Options"));
+    }
+  }
+
   @Test
   public void shouldConvertModules() {
     MavenProject root = new MavenProject();
