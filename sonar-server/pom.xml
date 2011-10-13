@@ -467,6 +467,12 @@
           <version>${project.version}</version>
           <scope>provided</scope>
         </dependency>
+        <dependency>
+          <groupId>org.codehaus.sonar.plugins</groupId>
+          <artifactId>sonar-jacoco-plugin</artifactId>
+          <version>${project.version}</version>
+          <scope>provided</scope>
+        </dependency>
       </dependencies>
     </profile>
 

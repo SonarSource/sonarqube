@@ -1,0 +1,32 @@
+<%
+   it_coverage_measure=measure('it_coverage')
+   if it_coverage_measure %>
+  <table width="100%">
+    <tr>
+      <td valign="top" width="100%">
+        <div class="dashbox">
+          <p class="title">IT Code coverage</p>
+
+          <p>
+            <span class="big"><%= format_measure(it_coverage_measure, :suffix => '', :url => url_for_drilldown('it_coverage'), :default => '-') %></span>
+            <%= dashboard_configuration.selected_period? ? format_variation(it_coverage_measure) : trend_icon(it_coverage_measure) -%>
+          </p>
+          <% it_line_coverage=measure('it_line_coverage')
+             if it_line_coverage %>
+            <p>
+              <%= format_measure(it_line_coverage, :suffix => ' IT line coverage', :url => url_for_drilldown('it_uncovered_lines', :highlight => 'it_line_coverage')) %>
+              <%= dashboard_configuration.selected_period? ? format_variation(it_line_coverage) : trend_icon(it_line_coverage) -%>
+            </p>
+          <% end %>
+          <% it_branch_coverage=measure('it_branch_coverage')
+             if it_branch_coverage %>
+            <p>
+              <%= format_measure(it_branch_coverage, :suffix => ' IT branch coverage', :url => url_for_drilldown('it_uncovered_conditions', :highlight => 'it_branch_coverage')) %>
+              <%= dashboard_configuration.selected_period? ? format_variation(it_branch_coverage) : trend_icon(it_branch_coverage) -%>
+            </p>
+          <% end %>
+        </div>
+      </td>
+    </tr>
+  </table>
+<% end %>
