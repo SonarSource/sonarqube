@@ -19,26 +19,29 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.junit.Test;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
+import org.junit.Test;
 
-public class BootstrapClassLoaderTest {
+public class JdbcDriverHolderTest {
 
   @Test
   public void testClassLoader() throws URISyntaxException {
     /* foo.jar has just one file /foo/foo.txt */
     assertNull(getClass().getClassLoader().getResource("foo/foo.txt"));
 
-    URL url = getClass().getResource("/org/sonar/batch/bootstrap/BootstrapClassLoaderTest/foo.jar");
+    URL url = getClass().getResource("/org/sonar/batch/bootstrap/JdbcDriverHolderTest/foo.jar");
     JdbcDriverHolder classloader = new JdbcDriverHolder(new File(url.toURI()));
     assertNotNull(classloader.getClassLoader());
     assertNotNull(classloader.getClassLoader().getResource("foo/foo.txt"));
 
+    classloader.stop();
+    assertNull(classloader.getClassLoader());
   }
+
 }

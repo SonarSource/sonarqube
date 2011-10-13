@@ -19,17 +19,17 @@
  */
 package org.sonar.api.batch.bootstrap;
 
-import org.hamcrest.CoreMatchers;
-import org.junit.Test;
-import org.sonar.api.CoreProperties;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import org.hamcrest.CoreMatchers;
+import org.junit.Test;
+import org.sonar.api.CoreProperties;
 
 public class ProjectDefinitionTest {
 
@@ -37,6 +37,27 @@ public class ProjectDefinitionTest {
   public void shouldSetKey() {
     ProjectDefinition def = ProjectDefinition.create();
     def.setKey("mykey");
+    assertThat(def.getKey(), is("mykey"));
+  }
+
+  @Test
+  public void shouldSetVersion() {
+    ProjectDefinition def = ProjectDefinition.create();
+    def.setVersion("2.0-SNAPSHOT");
+    assertThat(def.getVersion(), is("2.0-SNAPSHOT"));
+  }
+
+  /**
+   * Compatibility with Ant task.
+   */
+  @Test
+  public void shouldNotCloneProperties() {
+    Properties props = new Properties();
+
+    ProjectDefinition def = ProjectDefinition.create(props);
+    assertThat(def.getKey(), nullValue());
+
+    props.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "mykey");
     assertThat(def.getKey(), is("mykey"));
   }
 
@@ -60,7 +81,8 @@ public class ProjectDefinitionTest {
   public void shouldGetKeyFromProperties() {
     Properties props = new Properties();
     props.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "foo");
-    ProjectDefinition def = ProjectDefinition.create(props);
+    ProjectDefinition def = ProjectDefinition.create();
+    def.setProperties(props);
     assertThat(def.getKey(), is("foo"));
   }
 
