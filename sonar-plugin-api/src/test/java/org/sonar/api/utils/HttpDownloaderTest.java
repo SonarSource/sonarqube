@@ -21,6 +21,7 @@ package org.sonar.api.utils;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -38,12 +39,12 @@ import java.util.Properties;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeThat;
 import static org.junit.internal.matchers.StringContains.containsString;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Ignore("Temporarily deactivated because it sometimes freezes on Windows")
 public class HttpDownloaderTest {
 
   private static ServletTester tester;
@@ -51,6 +52,8 @@ public class HttpDownloaderTest {
 
   @BeforeClass
   public static void startServer() throws Exception {
+    assumeThat(SystemUtils.IS_OS_WINDOWS, is(false)); // Temporarily deactivated on Windows because of frequent freezes
+
     tester = new ServletTester();
     tester.setContextPath("/");
     tester.addServlet(RedirectServlet.class, "/redirect/");

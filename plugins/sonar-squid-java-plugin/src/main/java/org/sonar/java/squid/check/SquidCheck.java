@@ -17,7 +17,6 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
 package org.sonar.java.squid.check;
 
 import org.sonar.java.squid.visitor.SquidVisitor;
@@ -26,10 +25,6 @@ import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.api.SourceMethod;
 
 public class SquidCheck implements SquidVisitor {
-//
-//  public String getKey() {
-//    return getClass().getSimpleName();
-//  }
 
   public void visitFile(SourceFile sourceFile) {
   }

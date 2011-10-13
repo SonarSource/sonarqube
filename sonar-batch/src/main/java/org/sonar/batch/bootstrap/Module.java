@@ -67,9 +67,6 @@ public abstract class Module {
    */
   public final Module installChild(Module child) {
     ComponentContainer childContainer = container.createChild();
-    // register container as a component, because it used for example in BatchExtensionDictionnary,
-    // but in fact this is anti-pattern - http://picocontainer.codehaus.org/container-dependency-antipattern.html
-    //childContainer.addComponent(new IocContainer(childContainer));
     child.init(childContainer);
     return child;
   }
@@ -110,7 +107,7 @@ public abstract class Module {
 
   /**
    * Implementation of this method must not contain conditional logic and just should contain several invocations of
-   * {@link #addCoreSingleton(Object)}, {@link #addComponent(Object, Object)} or {@link #addAdapter(ComponentAdapter)}.
+   * {@link #addCoreSingleton(Object)}, {@link #addExtension(org.sonar.api.platform.PluginMetadata, Object)} or {@link #addAdapter(ComponentAdapter)}.
    */
   protected abstract void configure();
 
@@ -141,12 +138,4 @@ public abstract class Module {
   public final <T> List<T> getComponents(Class<T> componentType) {
     return container.getComponentsByType(componentType);
   }
-
-//  /**
-//   * TODO should not be used and should be removed
-//   */
-//  public final MutablePicoContainer getContainer() {
-//    return container;
-//  }
-
 }

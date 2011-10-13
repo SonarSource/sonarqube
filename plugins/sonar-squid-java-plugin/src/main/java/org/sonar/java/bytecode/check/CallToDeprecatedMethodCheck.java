@@ -24,11 +24,12 @@ import org.sonar.check.Rule;
 import org.sonar.java.bytecode.asm.AsmClass;
 import org.sonar.java.bytecode.asm.AsmEdge;
 import org.sonar.java.bytecode.asm.AsmMethod;
+import org.sonar.java.bytecode.visitor.BytecodeVisitor;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 
 @Rule(key = "CallToDeprecatedMethod", priority = Priority.MINOR)
-public class CallToDeprecatedMethodCheck extends BytecodeCheck {
+public class CallToDeprecatedMethodCheck extends BytecodeVisitor {
 
   private AsmClass asmClass;
 

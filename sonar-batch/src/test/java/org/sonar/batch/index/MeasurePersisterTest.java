@@ -126,12 +126,6 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  @Ignore("to do")
-  public void shouldInsertDataMeasure() {
-
-  }
-
-  @Test
   public void shouldDelaySaving() {
     measurePersister.setDelayedMode(true);
 
