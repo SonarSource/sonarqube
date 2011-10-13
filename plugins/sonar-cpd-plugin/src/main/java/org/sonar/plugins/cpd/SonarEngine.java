@@ -119,6 +119,7 @@ public class SonarEngine extends CpdEngine {
     BlockChunker blockChunker = new BlockChunker(BLOCK_SIZE);
 
     for (InputFile inputFile : inputFiles) {
+      Logs.INFO.debug("Populating index from {}", inputFile.getFile());
       Resource resource = getResource(inputFile);
       String resourceKey = getFullKey(project, resource);
 
