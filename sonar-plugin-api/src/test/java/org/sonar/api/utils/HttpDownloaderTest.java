@@ -24,7 +24,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mortbay.jetty.testing.ServletTester;
 import org.sonar.api.config.Settings;
@@ -155,8 +154,10 @@ public class HttpDownloaderTest {
 
 	We'll have to check if Jetty 7 resolves this toString() issue.
     */
-    Thread.sleep(1000);
-    tester.stop();
+    if (tester != null) {
+      Thread.sleep(1000);
+      tester.stop();
+    }
   }
 
   @Test
