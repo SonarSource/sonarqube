@@ -74,7 +74,6 @@ class Server
     add_property(sonar_info, 'Automatic User Creation') {sonar_property(org.sonar.api.CoreProperties.CORE_AUTHENTICATOR_CREATE_USERS)}
     add_property(sonar_info, 'Allow Users to Sign Up') {sonar_property(org.sonar.api.CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY)}
     add_property(sonar_info, 'Force Authentication') {sonar_property(org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY)}
-    add_property(sonar_info, 'Google Analytics Account') {sonar_property('sonar.google-analytics.account')}
     sonar_info
   end
   

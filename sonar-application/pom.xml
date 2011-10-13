@@ -130,12 +130,6 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
-      <artifactId>sonar-googleanalytics-plugin</artifactId>
-      <version>${project.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-findbugs-plugin</artifactId>
       <version>${project.version}</version>
       <scope>runtime</scope>
