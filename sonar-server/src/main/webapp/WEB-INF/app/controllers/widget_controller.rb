@@ -38,6 +38,7 @@ class WidgetController < ApplicationController
 
   def load_resource
     @resource=Project.by_key(params[:resource])
+    @project=@resource
     return access_denied unless has_role?(:user, @resource)
     @snapshot = @resource.last_snapshot
   end
