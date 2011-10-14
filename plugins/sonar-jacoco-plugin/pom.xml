@@ -87,12 +87,6 @@
 
   <build>
     <plugins>
-      <!-- TODO Godin: investigate why doesn't work without declaration of this plugin here -->
-      <plugin>
-        <groupId>org.codehaus.sonar</groupId>
-        <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <extensions>true</extensions>
-      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>gwt-maven-plugin</artifactId>

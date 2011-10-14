@@ -93,7 +93,6 @@
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <extensions>true</extensions>
         <configuration>
           <pluginName>Squid for Java</pluginName>
           <pluginClass>org.sonar.plugins.squid.SquidPlugin</pluginClass>

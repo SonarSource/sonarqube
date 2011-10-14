@@ -58,7 +58,6 @@
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <extensions>true</extensions>
         <configuration>
           <pluginKey>design</pluginKey>
           <pluginName>Design</pluginName>

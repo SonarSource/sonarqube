@@ -143,7 +143,6 @@
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <extensions>true</extensions>
         <configuration>
           <pluginKey>core</pluginKey>
           <pluginName>Core</pluginName>
@@ -152,7 +151,6 @@
             <![CDATA[Provides all common components required to cover all languages.]]></pluginDescription>
         </configuration>
       </plugin>
-
     </plugins>
   </build>
 </project>

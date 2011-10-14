@@ -52,7 +52,6 @@
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <extensions>true</extensions>
         <configuration>
           <pluginName>Email notifications</pluginName>
           <pluginClass>org.sonar.plugins.emailnotifications.EmailNotificationsPlugin</pluginClass>

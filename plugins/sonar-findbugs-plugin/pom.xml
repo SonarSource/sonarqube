@@ -16,12 +16,12 @@
   <properties>
     <findbugs.version>1.3.9</findbugs.version>
   </properties>
-  
+
   <!-- IMPORTANT!
   xalan should be excluded everywhere, because contains Apache BCEL,
   but FindBugs requires its own version of BCEL - see http://findbugs.sourceforge.net/FAQ.html#q2  
   -->
-  
+
   <dependencyManagement>
     <!-- Change versions for dependencies provided by sonar-plugin-api -->
     <dependencies>
@@ -32,7 +32,7 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-  
+
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>

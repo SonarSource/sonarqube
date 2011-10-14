@@ -93,7 +93,6 @@
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <extensions>true</extensions>
         <configuration>
           <pluginKey>checkstyle</pluginKey>
           <pluginName>Checkstyle</pluginName>
