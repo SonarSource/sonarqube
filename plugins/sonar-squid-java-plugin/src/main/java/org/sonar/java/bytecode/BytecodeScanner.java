@@ -21,6 +21,7 @@ package org.sonar.java.bytecode;
 
 import org.sonar.java.bytecode.asm.*;
 import org.sonar.java.bytecode.asm.AsmClassProvider.DETAIL_LEVEL;
+import org.sonar.java.bytecode.loader.SquidClassLoader;
 import org.sonar.java.bytecode.visitor.*;
 import org.sonar.squid.api.CodeScanner;
 import org.sonar.squid.api.CodeVisitor;
@@ -45,7 +46,10 @@ public class BytecodeScanner extends CodeScanner<BytecodeVisitor> {
 
   public BytecodeScanner scan(Collection<File> bytecodeFilesOrDirectories) {
     Collection<SourceCode> classes = indexer.search(new QueryByType(SourceClass.class));
-    return scan(classes, new AsmClassProviderImpl(ClassworldsClassLoader.create(bytecodeFilesOrDirectories)));
+    ClassLoader classLoader = ClassworldsClassLoader.create(bytecodeFilesOrDirectories);
+    scan(classes, new AsmClassProviderImpl(classLoader));
+    ((SquidClassLoader) classLoader).close(); // TODO unchecked cast
+    return this;
   }
 
   public BytecodeScanner scanDirectory(File bytecodeDirectory) {

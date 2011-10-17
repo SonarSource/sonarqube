@@ -29,6 +29,7 @@ import org.codehaus.classworlds.ClassRealm;
 import org.codehaus.classworlds.ClassWorld;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.java.bytecode.loader.SquidClassLoader;
 
 public final class ClassworldsClassLoader {
 
@@ -43,6 +44,14 @@ public final class ClassworldsClassLoader {
   }
 
   public static ClassLoader create(Collection<File> bytecodeFilesOrDirectories) {
+    try {
+      return new SquidClassLoader(bytecodeFilesOrDirectories);
+    } catch (Exception e) {
+      throw new IllegalStateException("Can not create classloader", e);
+    }
+  }
+
+  public static ClassLoader createUsingClassWorld(Collection<File> bytecodeFilesOrDirectories) {
     try {
       ClassWorld world = new ClassWorld();
       ClassRealm realm = world.newRealm("squid.project", null /* explicit declaration that parent should be bootstrap class loader */);

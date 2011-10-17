@@ -64,6 +64,7 @@ public class ClassworldsClassLoaderTest {
     File dir = SquidTestUtils.getFile("/bytecode/bin/");
     ClassLoader classloader = ClassworldsClassLoader.create(dir);
     assertThat(classloader.loadClass("tags.TagName"), not(nullValue()));
+    assertThat(classloader.getResource("tags/TagName.class"), not(nullValue()));
 
     try {
       classloader.loadClass("tags.Unknown");
