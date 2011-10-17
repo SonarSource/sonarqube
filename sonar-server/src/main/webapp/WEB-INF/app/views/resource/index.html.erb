@@ -118,6 +118,6 @@
 </table>
 
   <% if @filtered && !has_displayed_lines %>
-  <p>No lines match your filter criteria.</p>
+  <p><%= message('no_lines_match_your_filter_criteria') -%></p>
   <% end %>
 <% end %>
