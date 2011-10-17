@@ -27,7 +27,7 @@
                             :conditions => [snapshots_conditions.join(' AND '), snapshots_values], 
                             :include => ['project', 'measures'],
                             :order => "project_measures.value #{'DESC' if metric.direction<0}",
-                            :limit => limit)  
+                            :limit => limit)
   end
 %>
 
@@ -48,7 +48,11 @@
   <thead><tr><th colspan="3"/></tr></thead>
   <tbody>
 <%
-  metric_max_value = snapshots.first.measure(metric).value
+  if metric.direction > 0
+    metric_max_value = snapshots.last.measure(metric).value
+  else
+    metric_max_value = snapshots.first.measure(metric).value
+  end
   snapshots.each do |s|
     measure = s.measure(metric)
     resource = s.resource
