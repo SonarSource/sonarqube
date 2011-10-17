@@ -22,7 +22,10 @@
   end
   snapshots=Snapshot.for_timemachine_widget(@resource, numberOfColumns, options)
   sids = snapshots.collect{|s| s.id}.uniq
-  measures=ProjectMeasure.find(:all, :conditions => {:snapshot_id => sids, :metric_id => metric_ids})
+  measures=ProjectMeasure.find(:all, 
+                               :conditions => ["snapshot_id IN (:snapshot_id) AND metric_id IN (:metric_id) AND rule_id IS NULL AND characteristic_id IS NULL", 
+                                               {:snapshot_id => sids, :metric_id => metric_ids}]
+                               )
 
   # And prepare the rows to display
   snapshot_by_id={}
