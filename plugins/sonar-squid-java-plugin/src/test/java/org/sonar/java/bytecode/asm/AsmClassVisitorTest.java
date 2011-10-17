@@ -21,7 +21,7 @@ package org.sonar.java.bytecode.asm;
 
 import org.junit.Test;
 import org.sonar.java.ast.SquidTestUtils;
-import org.sonar.java.bytecode.ClassworldsClassLoader;
+import org.sonar.java.bytecode.ClassLoaderBuilder;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -30,7 +30,7 @@ import static org.junit.Assert.assertTrue;
 
 public class AsmClassVisitorTest {
 
-  private static AsmClassProvider asmClassProvider = new AsmClassProviderImpl(ClassworldsClassLoader.create(SquidTestUtils.getFile("/bytecode/bin/")));
+  private static AsmClassProvider asmClassProvider = new AsmClassProviderImpl(ClassLoaderBuilder.create(SquidTestUtils.getFile("/bytecode/bin/")));
 
   @Test
   public void testVisit() {
