@@ -13,7 +13,6 @@
     metric_ids << ncloc.id
   end
   numberOfColumns = widget_properties["numberOfColumns"].to_i == 0 ? 4 : widget_properties["numberOfColumns"].to_i
-  displaySparkLine = widget_properties["displaySparkLine"]
   
   # Retrieve the measures for each metric on each snapshot
   options = {}
@@ -55,6 +54,9 @@
       rows<<row
     end
   end
+  
+  # Should display the sparkline?
+  displaySparkLine = widget_properties["displaySparkLine"] if snapshot_by_id.size > 1
 %>
 
 <div class="widget-matrix">
