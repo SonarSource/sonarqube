@@ -640,7 +640,8 @@ table.form td {
   vertical-align: top;
 }
 table.form td.keyCell {
-  width: 140px;
+  min-width: 140px;
+  white-space: nowrap;  
   text-align: right;
   font-weight: bold;
   vertical-align: top;
