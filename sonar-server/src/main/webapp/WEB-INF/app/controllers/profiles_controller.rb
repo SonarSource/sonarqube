@@ -180,9 +180,14 @@ class ProfilesController < ApplicationController
     else
       profile = Profile.find_by_name_and_language(CGI::unescape(params[:name]), language)
     end
-    exporter_key = params[:format]
-    result = java_facade.exportProfile(profile.id, exporter_key)
-    send_data(result, :type => java_facade.getProfileExporterMimeType(exporter_key), :disposition => 'inline')
+    if (params[:format].blank?)
+      result = java_facade.backupProfile(profile.id)
+      send_data(result, :type => 'text/xml', :disposition => 'inline')
+    else
+      exporter_key = params[:format]
+      result = java_facade.exportProfile(profile.id, exporter_key)
+      send_data(result, :type => java_facade.getProfileExporterMimeType(exporter_key), :disposition => 'inline')
+    end
   end
 
   #
