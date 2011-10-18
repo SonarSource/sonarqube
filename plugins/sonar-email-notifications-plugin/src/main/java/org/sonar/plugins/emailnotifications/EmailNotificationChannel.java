@@ -96,7 +96,7 @@ public class EmailNotificationChannel extends NotificationChannel {
   public void deliver(Notification notification, String username) {
     User user = userFinder.findByLogin(username);
     if (StringUtils.isBlank(user.getEmail())) {
-      LOG.info("Email not defined for user: " + username);
+      LOG.debug("Email not defined for user: " + username);
       return;
     }
     EmailMessage emailMessage = format(notification);
@@ -122,7 +122,7 @@ public class EmailNotificationChannel extends NotificationChannel {
    */
   void deliver(EmailMessage emailMessage) {
     if (StringUtils.isBlank(configuration.getSmtpHost())) {
-      LOG.info("SMTP host was not configured - email will not be sent");
+      LOG.debug("SMTP host was not configured - email will not be sent");
       return;
     }
     try {
@@ -138,7 +138,7 @@ public class EmailNotificationChannel extends NotificationChannel {
     Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 
     try {
-      LOG.info("Sending email: {}", emailMessage);
+      LOG.debug("Sending email: {}", emailMessage);
       String host = null;
       try {
         host = new URL(configuration.getServerBaseURL()).getHost();
