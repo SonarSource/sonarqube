@@ -47,9 +47,9 @@ public class FilterExecutor implements ServerComponent {
     
     String sql = null;
     try {
-      TimeProfiler profiler = new TimeProfiler(FilterExecutor.class).start("Build/execute SQL query");
+      TimeProfiler profiler = new TimeProfiler(FilterExecutor.class).setLevelToDebug().start("Build/execute SQL query");
       sql = toSql(filter);
-      LOG.info("SQL: " + sql);
+      LOG.debug("SQL: " + sql);
       Query query = session.getEntityManager().createNativeQuery(sql);
       setHqlParameters(filter, query);
       FilterResult result = new FilterResult(filter, query.getResultList());
