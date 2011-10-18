@@ -132,6 +132,11 @@ public final class SonarMojo extends AbstractMojo {
    */
   private RuntimeInformation runtimeInformation;
 
+  /**
+   * @parameter expression="${sonar.verbose}"  default-value="false"
+   */
+  private boolean verbose;
+
   public void execute() throws MojoExecutionException, MojoFailureException {
     configureLogback();
     executeBatch();
@@ -154,7 +159,10 @@ public final class SonarMojo extends AbstractMojo {
   }
 
   private void configureLogback() {
-    System.setProperty("ROOT_LOGGER_LEVEL", getLog().isDebugEnabled() ? "DEBUG" : "INFO");
+    boolean debugMode = (verbose || getLog().isDebugEnabled());
+
+    // this system property is required by the logback configuration
+    System.setProperty("ROOT_LOGGER_LEVEL", debugMode ? "DEBUG" : "INFO");
     Logback.configure("/org/sonar/maven/logback.xml");
   }
 }
