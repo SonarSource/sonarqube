@@ -869,9 +869,10 @@
         <version>1.2</version>
       </dependency>
       <dependency>
+        <!-- do not upgrade to 1.6.4 due to Solaris incompatibility. See https://jira.codehaus.org/browse/SONAR-2915 -->
         <groupId>org.jruby</groupId>
         <artifactId>jruby-complete</artifactId>
-        <version>1.6.4</version>
+        <version>1.6.1</version>
       </dependency>
       <dependency>
         <groupId>geronimo-spec</groupId>
