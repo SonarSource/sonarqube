@@ -168,11 +168,17 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
     return result;
   }
 
+  /**
+   * @deprecated in 2.6, use {@link #mainFiles(String...)} instead
+   */
   @Deprecated
   public List<File> getSourceFiles(Language... langs) {
     return toFiles(mainFiles(getLanguageKeys(langs)));
   }
 
+  /**
+   * @deprecated in 2.6, use {@link #mainFiles(String...)} instead
+   */
   @Deprecated
   public List<File> getJavaSourceFiles() {
     return getSourceFiles(Java.INSTANCE);
@@ -182,11 +188,17 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
     return !mainFiles(Java.KEY).isEmpty();
   }
 
+  /**
+   * @deprecated in 2.6, use {@link #testFiles(String...)} instead
+   */
   @Deprecated
   public List<File> getTestFiles(Language... langs) {
     return toFiles(testFiles(getLanguageKeys(langs)));
   }
 
+  /**
+   * @deprecated in 2.6
+   */
   @Deprecated
   public boolean hasTestFiles(Language lang) {
     return !testFiles(lang.getKey()).isEmpty();

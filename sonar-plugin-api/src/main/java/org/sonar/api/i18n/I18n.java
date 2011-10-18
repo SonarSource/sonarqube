@@ -42,6 +42,6 @@ public interface I18n extends ServerComponent {
    * @param parameters   the parameters used to format the message from the translated pattern.
    * @return the message formatted with the translated pattern and the given parameters
    */
-  public abstract String message(final Locale locale, final String key, final String defaultValue, final Object... parameters);
+  String message(final Locale locale, final String key, final String defaultValue, final Object... parameters);
 
 }
