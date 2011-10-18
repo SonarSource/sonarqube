@@ -89,7 +89,7 @@
     <%
       rows.select{|row| row.metric.val_type != Metric::VALUE_TYPE_DISTRIB}.each do |row|
     %>
-    <tr class="<%= cycle 'even','odd' -%>">
+    <tr class="<%= cycle 'even','odd', :name => ('time_machine' + widget.id.to_s) -%>">
       <td width="1%" nowrap="nowrap" class="left text">
         <%= row.metric.short_name %>
       </td>

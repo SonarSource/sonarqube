@@ -44,7 +44,7 @@
       violations_per_severity[fields[0]]=fields[1]
     end
 %>
-    <tr class="<%= cycle 'even','odd' -%>">
+    <tr class="<%= cycle 'even','odd', :name => ('hotspot_most_violated_resources' + widget.id.to_s) -%>">
       <td>
         <%= link_to_resource(resource, resource.name) -%>
       </td>

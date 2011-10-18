@@ -89,8 +89,8 @@
       measures.each do |m|
         rule = m.rule
     %>
-        <tr class="<%= cycle 'even','odd' -%>">
-          <td>
+        <tr class="<%= cycle 'even','odd', :name => ('hotspot_most_violated_rules' + widget.id.to_s) -%>">
+          <td class="thin">
             <a href="<%= url_for(:controller => 'drilldown', :action => 'violations', :id => @resource.key, :priority => Sonar::RulePriority.to_s(m.rule_priority)) -%>">
               <%= image_tag('priority/' + m.rule_priority.to_s + '.png') -%>
             </a>

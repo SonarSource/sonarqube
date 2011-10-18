@@ -9,7 +9,7 @@
   end
   title = widget_properties["title"]
   unless title && !title.blank?
-    title = message('widget.hotspot_metric.hotspots_for_x', :params => metric.short_name)
+    title = message('widget.hotspot_metric.hotspots_by_x', :params => metric.short_name)
   end
   
   snapshots = nil
@@ -57,12 +57,12 @@
     measure = s.measure(metric)
     resource = s.resource
 %>
-    <tr class="<%= cycle 'even','odd' -%>">
+    <tr class="<%= cycle 'even','odd', :name => ('hotspot_metric' + widget.id.to_s) -%>">
       <td>
         <%= link_to_resource(resource, resource.name) -%>
       </td>
       <td class="right">
-        <%= measure.formatted_value -%>
+        <%= format_measure(measure) -%>
       </td>
       <td class="barchart">
         <div class="barchart" style="width: <%= (measure.value*100/metric_max_value).round.to_i -%>%">
