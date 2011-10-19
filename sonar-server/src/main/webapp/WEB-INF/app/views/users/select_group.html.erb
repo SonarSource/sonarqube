@@ -10,7 +10,7 @@
           <td style="padding: 5px 0pt;" valign="top">
             <h2>Not member of</h2>
             <select name="from" id="from" size="20" style="margin: 5px 0pt; width: 300px;" multiple="multiple">
-              <% @user.available_groups.each do |group| %>
+              <% @user.available_groups.sort.each do |group| %>
                 <option value="<%= group.id -%>"><%= group.name %></option>
               <% end %>
 
@@ -26,7 +26,7 @@
             <h2>Member of</h2>
 
             <select name="groups[]" id="to" size="20" multiple="multiple" style="margin: 5px 0pt; width: 300px;">
-              <%= options_from_collection_for_select(@user.groups, "id", "name") %>
+              <%= options_from_collection_for_select(@user.groups.sort, "id", "name") %>
             </select><br>
 
             <div style="padding: 5px 0pt;">

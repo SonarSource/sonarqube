@@ -370,7 +370,11 @@ TableKit.Sortable = {
 	_coltypecache : {}
 };
 
-TableKit.Sortable.detectors = $A($w('date-iso date date-eu date-au time currency datasize number casesensitivetext text')); // setting it here because Safari complained when I did it above...
+//sonar
+// Do not use case-sensitive sort except if explicitely defined
+//TableKit.Sortable.detectors = $A($w('date-iso date date-eu date-au time currency datasize number text casesensitivetext')); // setting it here because Safari complained when I did it above...
+TableKit.Sortable.detectors = $A($w('date-iso date date-eu date-au time currency datasize number text')); // setting it here because Safari complained when I did it above...
+// /sonar
 
 TableKit.Sortable.Type = Class.create();
 TableKit.Sortable.Type.prototype = {
@@ -522,7 +526,7 @@ TableKit.Sortable.addSortType(
 			return TableKit.Sortable.Type.compare(new Date(ds + a),new Date(ds + b));
 		}}),
 	new TableKit.Sortable.Type('currency',{
-		pattern : /^[$£¥€¤]/, // dollar,pound,yen,euro,generic currency symbol
+		pattern : /^[$ï¿½ï¿½ï¿½ï¿½]/, // dollar,pound,yen,euro,generic currency symbol
 		normal : function(v) {
 			return v ? parseFloat(v.replace(/[^-\d\.]/g,'')) : 0;
 		}})

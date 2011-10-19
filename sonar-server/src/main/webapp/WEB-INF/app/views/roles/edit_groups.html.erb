@@ -14,17 +14,17 @@
 <br/>
 <div>
   <form action="<%= url_for :action => 'grant_groups' -%>" method="post">
-    <input name="resource" value="<%= params[:resource] -%>" type="hidden"></input>
-    <input name="role" value="<%= @role -%>" type="hidden"></input>
-    <input name="redirect" value="<%= params[:redirect] -%>" type="hidden"></input>
+    <input name="resource" value="<%= params[:resource] -%>" type="hidden"/>
+    <input name="role" value="<%= @role -%>" type="hidden"/>
+    <input name="redirect" value="<%= params[:redirect] -%>" type="hidden"/>
     <table>
       <tbody>
         <tr>
           <td style="padding: 5px 0pt;" valign="top">
             <h2>Ungranted groups</h2>
             <select name="from" id="from" size="20" style="margin: 5px 0pt; width: 300px;" multiple="multiple">
-              <% ungranted_groups.each do |group| %>
-                <option value="<%= group ? group.id : '' -%>"><%= group_name(group) %></option>
+              <% ungranted_groups.sort.each do |group| %>
+                <option value="<%= group ? group.id : '' -%>"><%= group_name(group) -%></option>
               <% end %>
             </select>
           </td>
@@ -38,8 +38,8 @@
             <h2>Role: <%= role_name(@role) -%></h2>
 
             <select name="groups[]" id="to" size="20" multiple="multiple" style="margin: 5px 0pt; width: 300px;">
-              <% granted_groups.each do |group| %>
-                <option value="<%= group ? group.id : '' -%>"><%= group_name(group) %></option>
+              <% granted_groups.sort.each do |group| %>
+                <option value="<%= group ? group.id : '' -%>"><%= group_name(group) -%></option>
               <% end %>
             </select><br>
 

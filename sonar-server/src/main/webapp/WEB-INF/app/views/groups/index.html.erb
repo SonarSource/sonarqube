@@ -3,10 +3,10 @@
     <td valign="top">
       <h1 class="marginbottom10">Groups</h1>
 
-      <table class="data width100" id="groups">
+      <table class="data width100 sortable" id="groups">
         <thead>
           <tr>
-            <th class="left">Name</th>
+            <th class="left sortfirstasc">Name</th>
             <th class="left">Description</th>
             <th class="left">Members</th>
             <th class="left" nowrap>Operations</th>
@@ -30,6 +30,7 @@
         <% end %>
         </tbody>
       </table>
+       <script>TableKit.Sortable.init('groups');</script>
     </td>
     <td class="sep"> </td>
     <td valign="top" align="right" width="210">

@@ -26,7 +26,7 @@ class AdminDashboardsController < ApplicationController
   before_filter :load_default_dashboards
 
   def index
-    @default_dashboards=::Dashboard.find(:all, :conditions => {:shared => true})
+    @default_dashboards=::Dashboard.find(:all, :conditions => {:shared => true}).sort{|a,b| a.name.downcase<=>b.name.downcase}
     ids=@actives.map{|af| af.dashboard_id}
     if !ids.nil? && !ids.empty?
       @default_dashboards=@default_dashboards.reject!{|f| ids.include?(f.id) }

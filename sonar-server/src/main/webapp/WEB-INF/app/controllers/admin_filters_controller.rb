@@ -27,7 +27,7 @@ class AdminFiltersController < ApplicationController
   before_filter :load_active_filters
 
   def index
-    @shared_filters=::Filter.find(:all, :conditions => {:shared => true})
+    @shared_filters=::Filter.find(:all, :conditions => {:shared => true}).sort{|a,b| a.name.downcase<=>b.name.downcase}
     ids=@actives.map{|af| af.filter_id}
     @shared_filters.reject!{|f| ids.include?(f.id) }
   end

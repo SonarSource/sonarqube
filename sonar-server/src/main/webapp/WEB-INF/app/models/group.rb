@@ -41,7 +41,8 @@ class Group < ActiveRecord::Base
   end
 
   def <=>(other)
-    return 1 if other.nil?
-    name<=>other.name
+    return -1 if name.nil?
+    return 1 if other.nil? || other.name.nil?
+    name.downcase<=>other.name.downcase
   end
 end

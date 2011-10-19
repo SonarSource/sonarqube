@@ -14,17 +14,17 @@
 <br/>
 <div id="main_content">
   <form action="<%= url_for :action => 'grant_users' -%>" method="post">
-    <input name="resource" value="<%= params[:resource] -%>" type="hidden">
-    <input name="role" value="<%= @role -%>" type="hidden">
-    <input name="redirect" value="<%= params[:redirect] -%>" type="hidden"></input>
+    <input name="resource" value="<%= params[:resource] -%>" type="hidden"/>
+    <input name="role" value="<%= @role -%>" type="hidden" />
+    <input name="redirect" value="<%= params[:redirect] -%>" type="hidden" />
     <table>
       <tbody>
         <tr>
           <td style="padding: 5px 0pt;" valign="top">
             <h2>Ungranted users</h2>
-            <select name="from" id="from" size="20" style="margin: 5px 0pt; width: 300px;" multiple="multiple">
-              <% ungranted_users.each do |user| %>
-                <option value="<%= user.id -%>"><%= user.login %></option>
+            <select name="from" id="from" size="30" style="margin: 5px 0pt; width: 300px;" multiple="multiple">
+              <% ungranted_users.sort.each do |user| %>
+                <option value="<%= user.id -%>"><%= user.name -%></option>
               <% end %>
             </select>
           </td>
@@ -37,8 +37,8 @@
           <td class="box" style="padding: 5px 10px;" valign="top">
             <h2>Role: <%= role_name(@role) -%></h2>
 
-            <select name="users[]" id="to" size="20" multiple="multiple" style="margin: 5px 0pt; width: 300px;">
-              <%= options_from_collection_for_select(granted_users, "id", "login") %>
+            <select name="users[]" id="to" size="30" multiple="multiple" style="margin: 5px 0pt; width: 300px;">
+              <%= options_from_collection_for_select(granted_users, "id", "name") %>
             </select><br>
 
             <div style="padding: 5px 0pt;">

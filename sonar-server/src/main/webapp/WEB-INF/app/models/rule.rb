@@ -58,8 +58,10 @@ class Rule < ActiveRecord::Base
     !parent_id.nil?
   end
 
-  def <=>(rule)
-    name<=>rule.name
+  def <=>(other)
+    return -1 if other.nil?
+    return 1 if other.name.nil?
+    name.downcase<=>other.name.downcase
   end
 
   def name
@@ -222,7 +224,7 @@ class Rule < ActiveRecord::Base
     end
 
     includes=(options[:include_parameters] ? :rules_parameters : nil)
-    rules = Rule.find(:all, :include => includes, :conditions => [conditions.join(" AND "), values]).sort_by { |rule| rule.name }
+    rules = Rule.find(:all, :include => includes, :conditions => [conditions.join(" AND "), values]).sort
     filter(rules, options)
   end
 

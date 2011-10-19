@@ -52,7 +52,7 @@ class UsersController < ApplicationController
   end
 
   def index
-    @users = User.find(:all, :include => 'groups', :order => 'name')
+    @users = User.find(:all, :include => 'groups')
     if params[:id]
       @user = User.find(params[:id])
     else
@@ -69,7 +69,7 @@ class UsersController < ApplicationController
   end
 
   def change_password
-    @users = User.find(:all, :include => 'groups', :order => 'name')
+    @users = User.find(:all, :include => 'groups')
     @user = User.find(params[:id])
     render :action => 'index', :id => params[:id]
   end

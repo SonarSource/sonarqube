@@ -61,7 +61,6 @@ class User < ActiveRecord::Base
     result.blank? ? login : result
   end
 
-
   def email=(value)
     write_attribute :email, (value ? value.downcase : nil)
   end
@@ -79,7 +78,9 @@ class User < ActiveRecord::Base
   end
 
   def <=>(other)
-    name<=>other.name
+    return -1 if name.nil?
+    return 1 if other.name.nil?
+    name.downcase<=>other.name.downcase
   end
 
 
