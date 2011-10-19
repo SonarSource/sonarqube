@@ -43,7 +43,7 @@
     grep 'rails  Completed in [0-9]\{5,\}ms' < profiling.log
    -->
   <logger name="rails"  additivity="false">
-    <level value="INFO"/>
+    <level value="WARN"/>
     <appender-ref ref="PROFILING_FILE"/>
   </logger> 
 
