@@ -32,6 +32,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.test.SimpleProjectFileSystem;
 
 import java.io.File;
+import java.util.Locale;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -99,6 +100,12 @@ public class FindbugsConfigurationTest {
     assertThat(conf.getTimeout()).as("default timeout").isEqualTo(600000);
     settings.setProperty(CoreProperties.FINDBUGS_TIMEOUT_PROPERTY, 1);
     assertThat(conf.getTimeout()).isEqualTo(1);
+  }
+
+  @Test
+  public void should_return_locale() {
+    settings.setProperty(CoreProperties.CORE_VIOLATION_LOCALE_PROPERTY, "fr");
+    assertThat(conf.getLocale()).isEqualTo(Locale.FRENCH);
   }
 
   @Test

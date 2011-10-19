@@ -23,11 +23,13 @@ import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
+import java.util.Locale;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -63,7 +65,9 @@ public class FindbugsExecutorTest {
     Project project = mock(Project.class);
     ProjectFileSystem fs = mock(ProjectFileSystem.class);
     when(project.getFileSystem()).thenReturn(fs);
-    FindbugsConfiguration conf = new FindbugsConfiguration(project, null, null, null, null);
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.CORE_VIOLATION_LOCALE_PROPERTY, CoreProperties.CORE_VIOLATION_LOCALE_DEFAULT_VALUE);
+    FindbugsConfiguration conf = new FindbugsConfiguration(project, settings, null, null, null);
 
     new FindbugsExecutor(conf).execute();
   }
@@ -80,6 +84,7 @@ public class FindbugsExecutorTest {
     when(conf.getExcludesFilters()).thenReturn(Lists.newArrayList(new File("test-resources/findbugs-exclude.xml"), new File("test-resources/fake-file.xml")));
     when(conf.getEffort()).thenReturn("default");
     when(conf.getTimeout()).thenReturn(CoreProperties.FINDBUGS_TIMEOUT_DEFAULT_VALUE);
+    when(conf.getLocale()).thenReturn(Locale.ENGLISH);
     return conf;
   }
 

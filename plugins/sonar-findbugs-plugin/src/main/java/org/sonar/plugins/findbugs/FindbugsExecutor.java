@@ -40,6 +40,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -67,6 +68,10 @@ public class FindbugsExecutor implements BatchExtension {
     SecurityManager currentSecurityManager = System.getSecurityManager();
     ClassLoader initialClassLoader = Thread.currentThread().getContextClassLoader();
     Thread.currentThread().setContextClassLoader(FindBugs2.class.getClassLoader());
+
+    // This is a dirty workaround, but unfortunately there is no other way to specify locale for FindBugs - see SONAR-2594
+    Locale initialLocale = Locale.getDefault();
+    Locale.setDefault(configuration.getLocale());
 
     OutputStream xmlOutput = null;
     Collection<Plugin> customPlugins = null;
@@ -126,6 +131,7 @@ public class FindbugsExecutor implements BatchExtension {
       executorService.shutdown();
       IOUtils.closeQuietly(xmlOutput);
       Thread.currentThread().setContextClassLoader(initialClassLoader);
+      Locale.setDefault(initialLocale);
     }
   }
 
