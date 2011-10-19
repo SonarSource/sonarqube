@@ -90,11 +90,7 @@ public class JndiDatabaseConnector extends AbstractDatabaseConnector {
   }
 
   public Connection getConnection() throws SQLException {
-    if (datasource != null) {
-      Connection connection = datasource.getConnection();
-      return connection;
-    }
-    return null;
+    return datasource != null ? datasource.getConnection() : null;
   }
 
   @Override

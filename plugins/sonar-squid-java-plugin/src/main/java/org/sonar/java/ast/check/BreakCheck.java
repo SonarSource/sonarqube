@@ -36,7 +36,7 @@ public class BreakCheck extends JavaAstVisitor {
 
   @Override
   public List<Integer> getWantedTokens() {
-    return wantedTokens;
+    return WANTED_TOKENS;
   }
 
   @Override
@@ -50,6 +50,6 @@ public class BreakCheck extends JavaAstVisitor {
     }
   }
 
-  private static final List<Integer> wantedTokens = Arrays.asList(TokenTypes.LITERAL_BREAK);
+  private static final List<Integer> WANTED_TOKENS = Arrays.asList(TokenTypes.LITERAL_BREAK);
 
 }

@@ -84,7 +84,7 @@ public class RemotePlugin {
   }
 
   public String getPluginFilename() {
-    return (filenames.size()>0 ? filenames.get(0) : null);
+    return (!filenames.isEmpty() ? filenames.get(0) : null);
   }
 
   @Override

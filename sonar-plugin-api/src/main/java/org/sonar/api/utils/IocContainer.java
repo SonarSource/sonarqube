@@ -34,6 +34,7 @@ import org.sonar.api.platform.ComponentContainer;
  * @since 1.10
  * @deprecated since 2.12. To be replaced by {@link org.sonar.api.platform.ComponentContainer}
  */
+@Deprecated
 public class IocContainer {
   private final MutablePicoContainer pico;
 

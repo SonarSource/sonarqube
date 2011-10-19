@@ -35,7 +35,7 @@ import java.util.Collection;
 
 public class InitializersExecutor {
 
-  private static final Logger logger = LoggerFactory.getLogger(SensorsExecutor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SensorsExecutor.class);
 
   private MavenPluginExecutor mavenExecutor;
 
@@ -52,14 +52,14 @@ public class InitializersExecutor {
 
   public void execute() {
     Collection<Initializer> initializers = selector.select(Initializer.class, project, true);
-    if (logger.isDebugEnabled()) {
-      logger.debug("Initializers : {}", StringUtils.join(initializers, " -> "));
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Initializers : {}", StringUtils.join(initializers, " -> "));
     }
 
     for (Initializer initializer : initializers) {
       executeMavenPlugin(initializer);
 
-      TimeProfiler profiler = new TimeProfiler(logger).start("Initializer " + initializer);
+      TimeProfiler profiler = new TimeProfiler(LOG).start("Initializer " + initializer);
       initializer.execute(project);
       profiler.stop();
     }
@@ -69,7 +69,7 @@ public class InitializersExecutor {
     if (sensor instanceof DependsUponMavenPlugin) {
       MavenPluginHandler handler = ((DependsUponMavenPlugin) sensor).getMavenPluginHandler(project);
       if (handler != null) {
-        TimeProfiler profiler = new TimeProfiler(logger).start("Execute maven plugin " + handler.getArtifactId());
+        TimeProfiler profiler = new TimeProfiler(LOG).start("Execute maven plugin " + handler.getArtifactId());
         mavenExecutor.execute(project, projectDef, handler);
         profiler.stop();
       }

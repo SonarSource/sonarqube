@@ -36,7 +36,7 @@ public class ContinueCheck extends JavaAstVisitor {
 
   @Override
   public List<Integer> getWantedTokens() {
-    return wantedTokens;
+    return WANTED_TOKENS;
   }
 
   @Override
@@ -49,6 +49,6 @@ public class ContinueCheck extends JavaAstVisitor {
     sourceFile.log(message);
   }
 
-  private static final List<Integer> wantedTokens = Arrays.asList(TokenTypes.LITERAL_CONTINUE);
+  private static final List<Integer> WANTED_TOKENS = Arrays.asList(TokenTypes.LITERAL_CONTINUE);
 
 }
