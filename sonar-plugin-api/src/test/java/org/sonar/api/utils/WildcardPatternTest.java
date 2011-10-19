@@ -37,6 +37,26 @@ public class WildcardPatternTest {
   }
 
   @Test
+  public void examples() {
+    assertTrue(match("org/T?st.java", "org/Test.java"));
+    assertTrue(match("org/T?st.java", "org/Tost.java"));
+
+    assertTrue(match("org/*.java", "org/Foo.java"));
+    assertTrue(match("org/*.java", "org/Bar.java"));
+
+    assertTrue(match("org/**", "org/Foo.java"));
+    assertTrue(match("org/**", "org/foo/bar.jsp"));
+
+    assertTrue(match("org/**/Test.java", "org/Test.java"));
+    assertTrue(match("org/**/Test.java", "org/foo/Test.java"));
+    assertTrue(match("org/**/Test.java", "org/foo/bar/Test.java"));
+
+    assertTrue(match("org/**/*.java", "org/Foo.java"));
+    assertTrue(match("org/**/*.java", "org/foo/Bar.java"));
+    assertTrue(match("org/**/*.java", "org/foo/bar/Baz.java"));
+  }
+
+  @Test
   public void javaResourcesShouldMatchWildcards() {
     assertTrue(match("Foo", "Foo", "."));
     assertFalse(match("Foo", "Bar", "."));
@@ -114,12 +134,50 @@ public class WildcardPatternTest {
     assertFalse(match("**/app/**", "com/application/MyService"));
   }
 
+  /**
+   * See SONAR-2762
+   */
+  @Test
+  public void shouldEscapeRegexpSpecificCharacters() {
+    assertFalse(match("**/*$*", "foo/bar"));
+    assertTrue(match("**/*$*", "foo/bar$baz"));
+
+    assertFalse(match("a+", "aa"));
+    assertTrue(match("a+", "a+"));
+
+    assertFalse(match("[ab]", "a"));
+    assertTrue(match("[ab]", "[ab]"));
+  }
+
+  @Test
+  public void backslash() {
+    assertFalse("backslash is not an escape character", match("\\n", "\n"));
+    assertTrue("backslash is the same as forward slash", match("foo\\bar", "foo/bar"));
+  }
+
+  @Test
+  public void shouldIgnoreStartingSlash() {
+    assertTrue(match("/foo", "foo"));
+    assertTrue(match("\\foo", "foo"));
+  }
+
+  /**
+   * Godin: in my opinion this is invalid pattern, however it might be constructed by {@link org.sonar.api.resources.JavaFile#matchFilePattern(String)},
+   * so it should be supported at least for now for backward compatibility.
+   */
+  @Test
+  public void cornerCase() {
+    assertTrue(match("org/**.*", "org.sonar.commons.Foo.java", "."));
+  }
+
   @Test
   public void multiplePatterns() {
-    WildcardPattern[] patterns = new WildcardPattern[] { WildcardPattern.create("Foo"), WildcardPattern.create("Bar") };
+    WildcardPattern[] patterns = WildcardPattern.create(new String[] { "Foo", "Bar" });
     assertTrue(WildcardPattern.match(patterns, "Foo"));
     assertTrue(WildcardPattern.match(patterns, "Bar"));
     assertFalse(WildcardPattern.match(patterns, "Other"));
+
+    assertThat(WildcardPattern.create((String[]) null).length, is(0));
   }
 
   @Test

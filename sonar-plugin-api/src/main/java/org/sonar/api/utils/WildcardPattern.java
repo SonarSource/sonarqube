@@ -19,18 +19,49 @@
  */
 package org.sonar.api.utils;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
+ * Implementation of Ant-style matching patterns.
+ * Contrary to other implementations (like AntPathMatcher from Spring Framework) it is based on {@link Pattern Java Regular Expressions}.
+ * To increase performance it holds an internal cache of all processed patterns.
+ * <p>
+ * Following rules are applied:
+ * <ul>
+ * <li>? matches single character</li>
+ * <li>* matches zero or more characters</li>
+ * <li>** matches zero or more 'directories'</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Some examples of patterns:
+ * <ul>
+ * <li><code>org/T?st.java</code> - matches <code>org/Test.java</code> and also <code>org/Tost.java</code></li>
+ * <li><code>org/*.java</code> - matches all <code>.java</code> files in the <code>org</code> directory,
+ * i.e. <code>org/Foo.java</code> or <code>org/Bar.java</code></li>
+ * <li><code>org/**</code> - matches everything underneath the <code>org</code> directory,
+ * i.e <code>org/Foo.java</code> or <code>org/foo/bar.jsp</code></li>
+ * <li><code>org/&#42;&#42;/Test.java</code> - matches all <code>Test.java</code> files underneath the <code>org</code> directory,
+ * i.e. <code>org/Test.java</code> or <code>org/foo/Test.java</code> or <code>org/foo/bar/Test.java</code></li>
+ * <li><code>org/&#42;&#42;/*.java</code> - matches all <code>.java</code> files underneath the <code>org</code> directory,
+ * i.e. <code>org/Foo.java</code> or <code>org/foo/Bar.java</code> or <code>org/foo/bar/Baz.java</code></li>
+ * </ul>
+ * </p>
+ * <p>
+ * Another implementation, which is also based on Java Regular Expressions, can be found in
+ * <a href="https://github.com/JetBrains/intellij-community/blob/59fa7d3aa565b01ecf0fb067a4336af2c174bf5b/platform/util/src/com/intellij/openapi/util/io/FileUtil.java#L865">FileUtil</a>
+ * from IntelliJ OpenAPI.
+ * </p>
+ * 
  * @since 1.10
  */
 public class WildcardPattern {
 
-  private static final Map<String, WildcardPattern> patterns = new HashMap<String, WildcardPattern>();
+  private static final Map<String, WildcardPattern> CACHE = new HashMap<String, WildcardPattern>();
 
   private Pattern pattern;
   private String stringRepresentation;
@@ -40,50 +71,63 @@ public class WildcardPattern {
     this.pattern = Pattern.compile(toRegexp(pattern, directorySeparator));
   }
 
-  public boolean match(String value) {
-    return pattern.matcher(removeSlahesToIgnore(value)).matches();
-  }
+  private static String toRegexp(String antPattern, String directorySeparator) {
+    final String escapedDirectorySeparator = '\\' + directorySeparator;
 
-  private String toRegexp(String wildcardPattern, String directorySeparator) {
-    String patternStr = removeSlahesToIgnore(wildcardPattern);
-    patternStr = StringUtils.replace(patternStr, "**/**", "**");
-    patternStr = StringUtils.replace(patternStr, "**/", "(&/|)");
-    patternStr = StringUtils.replace(patternStr, "/**", "/&");
-    patternStr = StringUtils.replace(patternStr, "**", "&");
-    StringBuilder sb = new StringBuilder();
+    final StringBuilder sb = new StringBuilder(antPattern.length());
 
-    for (char c : patternStr.toCharArray()) {
-      switch (c) {
-        case '&':
-          sb.append(".*");
-          break;
-        case '*':
-          sb.append("[^\\").append(directorySeparator).append("]*");
-          break;
-        case '?':
-          sb.append("[^\\").append(directorySeparator).append("]");
-          break;
-        case '.':
-          sb.append("\\.");
-          break;
-        case '/':
-          sb.append("\\").append(directorySeparator);
-          break;
-        default:
-          sb.append(c);
+    sb.append('^');
+
+    int i = antPattern.startsWith("/") || antPattern.startsWith("\\") ? 1 : 0;
+    while (i < antPattern.length()) {
+      final char ch = antPattern.charAt(i);
+
+      if (ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == '^' || ch == '$' || ch == '.' || ch == '{' || ch == '}' || ch == '+' || ch == '|') {
+        // Escape regexp-specific characters
+        sb.append('\\').append(ch);
+      } else if (ch == '*') {
+        if (i + 1 < antPattern.length() && antPattern.charAt(i + 1) == '*') {
+          // Double asterisk
+          // Zero or more directories
+          if (i + 2 < antPattern.length() && isSlash(antPattern.charAt(i + 2))) {
+            sb.append("(?:.*").append(escapedDirectorySeparator).append("|)");
+            i += 2;
+          } else {
+            sb.append(".*");
+            i += 1;
+          }
+        } else {
+          // Single asterisk
+          // Zero or more characters excluding directory separator
+          sb.append("[^").append(escapedDirectorySeparator).append("]*?");
+        }
+      } else if (ch == '?') {
+        // Any single character excluding directory separator
+        sb.append("[^").append(escapedDirectorySeparator).append("]");
+      } else if (isSlash(ch)) {
+        // Directory separator
+        sb.append(escapedDirectorySeparator);
+      } else {
+        // Single character
+        sb.append(ch);
       }
+
+      i++;
     }
+
+    sb.append('$');
 
     return sb.toString();
   }
 
-  private String removeSlahesToIgnore(String wildcardPattern) {
-    String patternStr = StringUtils.removeStart(wildcardPattern, "/");
-    return StringUtils.removeEnd(patternStr, "/");
+  private static boolean isSlash(char ch) {
+    return ch == '/' || ch == '\\';
   }
 
   /**
-   * This method is overridden since version 2.5-RC2.
+   * Returns string representation of this pattern.
+   * 
+   * @since 2.5
    */
   @Override
   public String toString() {
@@ -91,6 +135,17 @@ public class WildcardPattern {
   }
 
   /**
+   * Returns true if specified value matches this pattern.
+   */
+  public boolean match(String value) {
+    value = StringUtils.removeStart(value, "/");
+    value = StringUtils.removeEnd(value, "/");
+    return pattern.matcher(value).matches();
+  }
+
+  /**
+   * Returns true if specified value matches one of specified patterns.
+   * 
    * @since 2.4
    */
   public static boolean match(WildcardPattern[] patterns, String value) {
@@ -102,10 +157,20 @@ public class WildcardPattern {
     return false;
   }
 
+  /**
+   * Creates pattern with "/" as a directory separator.
+   * 
+   * @see #create(String, String)
+   */
   public static WildcardPattern create(String pattern) {
     return create(pattern, "/");
   }
 
+  /**
+   * Creates array of patterns with "/" as a directory separator.
+   * 
+   * @see #create(String, String)
+   */
   public static WildcardPattern[] create(String[] patterns) {
     if (patterns == null) {
       return new WildcardPattern[0];
@@ -117,12 +182,25 @@ public class WildcardPattern {
     return exclusionPAtterns;
   }
 
+  /**
+   * Creates pattern with specified separator for directories.
+   * <p>
+   * This is used to match Java-classes, i.e. <code>org.foo.Bar</code> against <code>org/**</code>.
+   * <b>However usage of character other than "/" as a directory separator is misleading and should be avoided,
+   * so method {@link #create(String)} is preferred over this one.</b>
+   * </p>
+   * <p>
+   * Also note that no matter whether forward or backward slashes were used in the <code>antPattern</code>
+   * the returned pattern will use <code>directorySeparator</code>.
+   * Thus to match Windows-style path "dir\file.ext" against pattern "dir/file.ext" normalization should be performed.
+   * </p>
+   */
   public static WildcardPattern create(String pattern, String directorySeparator) {
     String key = pattern + directorySeparator;
-    WildcardPattern wildcardPattern = patterns.get(key);
+    WildcardPattern wildcardPattern = CACHE.get(key);
     if (wildcardPattern == null) {
       wildcardPattern = new WildcardPattern(pattern, directorySeparator);
-      patterns.put(key, wildcardPattern);
+      CACHE.put(key, wildcardPattern);
     }
     return wildcardPattern;
   }
