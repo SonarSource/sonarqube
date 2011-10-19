@@ -41,6 +41,7 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -63,6 +64,10 @@ public class FindbugsExecutor implements BatchExtension {
     TimeProfiler profiler = new TimeProfiler().start("Execute Findbugs " + FindbugsVersion.getVersion());
     ClassLoader initialClassLoader = Thread.currentThread().getContextClassLoader();
     Thread.currentThread().setContextClassLoader(FindBugs2.class.getClassLoader());
+
+    // This is a dirty workaround, but unfortunately there is no other way to specify locale for FindBugs - see SONAR-2594
+    Locale initialLocale = Locale.getDefault();
+    Locale.setDefault(configuration.getLocale());
 
     OutputStream xmlOutput = null;
     ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -122,6 +127,7 @@ public class FindbugsExecutor implements BatchExtension {
       executorService.shutdown();
       IOUtils.closeQuietly(xmlOutput);
       Thread.currentThread().setContextClassLoader(initialClassLoader);
+      Locale.setDefault(initialLocale);
     }
   }
 

@@ -35,6 +35,7 @@ import org.sonar.plugins.findbugs.xml.Match;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @since 2.4
@@ -119,6 +120,10 @@ public class FindbugsConfiguration implements BatchExtension {
 
   public long getTimeout() {
     return project.getConfiguration().getLong(CoreProperties.FINDBUGS_TIMEOUT_PROPERTY, CoreProperties.FINDBUGS_TIMEOUT_DEFAULT_VALUE);
+  }
+
+  public Locale getLocale() {
+    return new Locale(project.getConfiguration().getString(CoreProperties.CORE_VIOLATION_LOCALE_PROPERTY, CoreProperties.CORE_VIOLATION_LOCALE_DEFAULT_VALUE));
   }
 
   private File jsr305Lib;
