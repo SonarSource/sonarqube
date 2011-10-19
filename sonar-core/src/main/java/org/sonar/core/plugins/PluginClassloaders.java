@@ -137,7 +137,7 @@ public class PluginClassloaders {
       ClassRealm base = world.getRealm(plugin.getBasePlugin());
       if (base == null) {
         // Ignored, because base plugin is not installed
-        LOG.debug("Exclude plugin " + plugin.getKey() + " because base plugin is not installed: " + plugin.getBasePlugin());
+        LOG.warn("Plugin " + plugin.getKey() + " is ignored because base plugin is not installed: " + plugin.getBasePlugin());
         return false;
       }
       base.createChildRealm(plugin.getKey()); // we create new realm to be able to return it by key without conversion to baseKey
@@ -175,7 +175,6 @@ public class PluginClassloaders {
    * Exports specified packages from given ClassRealm to all others.
    */
   private void export(ClassRealm realm, String... packages) {
-    Logs.INFO.debug("Exporting " + Arrays.toString(packages) + " from " + realm.getId());
     for (Object o : world.getRealms()) {
       ClassRealm dep = (ClassRealm) o;
       if (!StringUtils.equals(dep.getId(), realm.getId())) {
