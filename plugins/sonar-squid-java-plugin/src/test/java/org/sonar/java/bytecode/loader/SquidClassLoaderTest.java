@@ -20,16 +20,22 @@
 package org.sonar.java.bytecode.loader;
 
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.junit.Test;
 import org.sonar.java.ast.SquidTestUtils;
+
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 
 public class SquidClassLoaderTest {
 
@@ -47,8 +53,8 @@ public class SquidClassLoaderTest {
     } catch (ClassNotFoundException e) {
       // ok
     }
-    assertThat(classLoader.loadClass("java.lang.Integer"), not(nullValue()));
-    assertThat(classLoader.getResource("java/lang/Integer.class"), not(nullValue()));
+    assertThat(classLoader.loadClass("java.lang.Integer"), notNullValue());
+    assertThat(classLoader.getResource("java/lang/Integer.class"), notNullValue());
   }
 
   @Test
@@ -56,8 +62,10 @@ public class SquidClassLoaderTest {
     File jar = SquidTestUtils.getFile("/bytecode/lib/hello.jar");
     SquidClassLoader classLoader = new SquidClassLoader(Arrays.asList(jar));
 
-    assertThat(classLoader.loadClass("org.sonar.tests.Hello"), not(nullValue()));
-    assertThat(classLoader.getResource("org/sonar/tests/Hello.class"), not(nullValue()));
+    assertThat(classLoader.loadClass("org.sonar.tests.Hello"), notNullValue());
+    assertThat(classLoader.getResource("org/sonar/tests/Hello.class"), notNullValue());
+    List<URL> resources = Lists.newArrayList(Iterators.forEnumeration(classLoader.findResources("org/sonar/tests/Hello.class")));
+    assertThat(resources.size(), is(1));
     try {
       classLoader.loadClass("foo.Unknown");
       fail();
@@ -83,8 +91,10 @@ public class SquidClassLoaderTest {
     File dir = SquidTestUtils.getFile("/bytecode/bin/");
     SquidClassLoader classLoader = new SquidClassLoader(Arrays.asList(dir));
 
-    assertThat(classLoader.loadClass("tags.TagName"), not(nullValue()));
-    assertThat(classLoader.getResource("tags/TagName.class"), not(nullValue()));
+    assertThat(classLoader.loadClass("tags.TagName"), notNullValue());
+    assertThat(classLoader.getResource("tags/TagName.class"), notNullValue());
+    List<URL> resources = Lists.newArrayList(Iterators.forEnumeration(classLoader.findResources("tags/TagName.class")));
+    assertThat(resources.size(), is(1));
     try {
       classLoader.loadClass("tags.Unknown");
       fail();
@@ -95,10 +105,23 @@ public class SquidClassLoaderTest {
     classLoader.close();
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void findResourcesNotSupported() throws Exception {
-    SquidClassLoader classLoader = new SquidClassLoader(Collections.EMPTY_LIST);
-    classLoader.findResources("");
+  @Test
+  public void testFindResources() throws Exception {
+    File dir = SquidTestUtils.getFile("/bytecode/bin/");
+    SquidClassLoader classLoader = new SquidClassLoader(Arrays.asList(dir, dir));
+
+    List<URL> resources = Lists.newArrayList(Iterators.forEnumeration(classLoader.findResources("tags/TagName.class")));
+    assertThat(resources.size(), is(2));
+
+    classLoader.close();
+  }
+
+  @Test
+  public void closeCanBeCalledMultipleTimes() throws Exception {
+    File jar = SquidTestUtils.getFile("/bytecode/lib/hello.jar");
+    SquidClassLoader classLoader = new SquidClassLoader(Arrays.asList(jar));
+    classLoader.close();
+    classLoader.close();
   }
 
 }

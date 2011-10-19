@@ -21,12 +21,35 @@ package org.sonar.java.bytecode.loader;
 
 import java.net.URL;
 
+/**
+ * Specifies resource loading behavior.
+ */
 interface Loader {
 
+  /**
+   * Finds the resource with the given name.
+   * 
+   * @param name resource name
+   * @return an <tt>URL</tt> object for reading the resource, or
+   *          <tt>null</tt> if the resource could not be found
+   * @throws IllegalStateException if loader has been closed
+   */
   URL findResource(String name);
 
+  /**
+   * Loads bytes of the resource with the given name.
+   * 
+   * @param name resource name
+   * @return an array of <tt>byte</tt>s, or
+   *         <tt>null</tt> if the resource could not be found or could not be loaded for some reason
+   * @throws IllegalStateException if loader has been closed
+   */
   byte[] loadBytes(String name);
 
+  /**
+   * Closes this loader, so that it can no longer be used to load new resources.
+   * If loader is already closed, then invoking this method has no effect.
+   */
   void close();
 
 }

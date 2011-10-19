@@ -30,13 +30,19 @@ import org.apache.commons.io.IOUtils;
 
 class FileSystemLoader implements Loader {
 
-  private final File baseDir;
+  private File baseDir;
 
   public FileSystemLoader(File baseDir) {
+    if (baseDir == null) {
+      throw new IllegalArgumentException("baseDir can't be null");
+    }
     this.baseDir = baseDir;
   }
 
   public URL findResource(String name) {
+    if (baseDir == null) {
+      throw new IllegalStateException("Loader closed");
+    }
     File file = new File(baseDir, name);
     if (file.exists() && file.isFile()) {
       try {
@@ -49,6 +55,9 @@ class FileSystemLoader implements Loader {
   }
 
   public byte[] loadBytes(String name) {
+    if (baseDir == null) {
+      throw new IllegalStateException("Loader closed");
+    }
     File file = new File(baseDir, name);
     if (!file.exists()) {
       return null;
@@ -65,7 +74,7 @@ class FileSystemLoader implements Loader {
   }
 
   public void close() {
-    // nothing to do
+    baseDir = null;
   }
 
 }

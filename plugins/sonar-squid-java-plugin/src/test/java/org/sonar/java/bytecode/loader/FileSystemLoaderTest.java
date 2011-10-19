@@ -20,48 +20,41 @@
 package org.sonar.java.bytecode.loader;
 
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.net.URL;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.java.ast.SquidTestUtils;
 
-public class JarLoaderTest {
+public class FileSystemLoaderTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void shouldThrowIllegalArgumentException() throws Exception {
-    new JarLoader(null);
+    new FileSystemLoader(null);
   }
 
   @Test
   public void testFindResource() throws Exception {
-    File jar = SquidTestUtils.getFile("/bytecode/lib/hello.jar");
-    JarLoader loader = new JarLoader(jar);
+    File dir = SquidTestUtils.getFile("/bytecode/bin/");
+    FileSystemLoader loader = new FileSystemLoader(dir);
 
     assertThat(loader.findResource("notfound"), nullValue());
 
-    URL url = loader.findResource("META-INF/MANIFEST.MF");
+    URL url = loader.findResource("tags/TagName.class");
     assertThat(url, notNullValue());
-    assertThat(url.toString(), allOf(startsWith("jar:"), endsWith("hello.jar!/META-INF/MANIFEST.MF")));
-
-    InputStream is = url.openStream();
-    try {
-      assertThat(IOUtils.readLines(is), hasItem("Manifest-Version: 1.0"));
-    } finally {
-      IOUtils.closeQuietly(is);
-    }
+    assertThat(url.toString(), allOf(startsWith("file:"), endsWith("TagName.class")));
 
     loader.close();
 
     try {
-      loader.findResource("META-INF/MANIFEST.MF");
+      loader.findResource("tags/TagName.class");
       fail();
     } catch (IllegalStateException e) {
       // ok
@@ -70,20 +63,17 @@ public class JarLoaderTest {
 
   @Test
   public void testLoadBytes() throws Exception {
-    File jar = SquidTestUtils.getFile("/bytecode/lib/hello.jar");
-    JarLoader loader = new JarLoader(jar);
+    File dir = SquidTestUtils.getFile("/bytecode/bin/");
+    FileSystemLoader loader = new FileSystemLoader(dir);
 
     assertThat(loader.loadBytes("notfound"), nullValue());
 
-    byte[] bytes = loader.loadBytes("META-INF/MANIFEST.MF");
-    assertThat(bytes, notNullValue());
-    ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-    assertThat(IOUtils.readLines(is), hasItem("Manifest-Version: 1.0"));
+    assertThat(loader.loadBytes("tags/TagName.class"), notNullValue());
 
     loader.close();
 
     try {
-      loader.loadBytes("META-INF/MANIFEST.MF");
+      loader.loadBytes("tags/TagName.class");
       fail();
     } catch (IllegalStateException e) {
       // ok
@@ -92,8 +82,8 @@ public class JarLoaderTest {
 
   @Test
   public void closeCanBeCalledMultipleTimes() throws Exception {
-    File jar = SquidTestUtils.getFile("/bytecode/lib/hello.jar");
-    JarLoader loader = new JarLoader(jar);
+    File dir = SquidTestUtils.getFile("/bytecode/bin/");
+    FileSystemLoader loader = new FileSystemLoader(dir);
     loader.close();
     loader.close();
   }

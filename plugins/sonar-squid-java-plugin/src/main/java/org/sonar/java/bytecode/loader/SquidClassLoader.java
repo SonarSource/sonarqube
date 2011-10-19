@@ -19,6 +19,7 @@
  */
 package org.sonar.java.bytecode.loader;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -27,7 +28,12 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 
-public class SquidClassLoader extends ClassLoader {
+import com.google.common.collect.Iterators;
+
+/**
+ * Class loader, which is able to load classes from a list of JAR files and directories.
+ */
+public class SquidClassLoader extends ClassLoader implements Closeable {
 
   private final List<Loader> loaders;
 
@@ -79,9 +85,22 @@ public class SquidClassLoader extends ClassLoader {
 
   @Override
   protected Enumeration<URL> findResources(String name) throws IOException {
-    throw new UnsupportedOperationException();
+    List<URL> result = new ArrayList<URL>();
+    for (Loader loader : loaders) {
+      URL url = loader.findResource(name);
+      if (url != null) {
+        result.add(url);
+      }
+    }
+    return Iterators.asEnumeration(result.iterator());
   }
 
+  /**
+   * Closes this class loader, so that it can no longer be used to load new classes or resources.
+   * Any classes or resources that are already loaded, are still accessible.
+   * 
+   * If class loader is already closed, then invoking this method has no effect.
+   */
   public void close() {
     for (Loader loader : loaders) {
       loader.close();

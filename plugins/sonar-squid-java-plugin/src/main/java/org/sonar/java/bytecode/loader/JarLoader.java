@@ -36,7 +36,13 @@ class JarLoader implements Loader {
   private final JarFile jarFile;
   private final URL jarUrl;
 
+  /**
+   * @throws IOException if an I/O error has occurred
+   */
   public JarLoader(File file) throws IOException {
+    if (file == null) {
+      throw new IllegalArgumentException("file can't be null");
+    }
     jarFile = new JarFile(file);
     jarUrl = new URL("jar", "", -1, file.getAbsolutePath() + "!/");
   }
@@ -100,10 +106,7 @@ class JarLoader implements Loader {
 
         @Override
         public InputStream getInputStream() throws IOException {
-          if (jarFile != null) {
-            return jarFile.getInputStream(entry);
-          }
-          throw new IOException("JarLoader has been closed");
+          return jarFile.getInputStream(entry);
         }
       };
     }
