@@ -23,7 +23,6 @@ import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.nio.CharBuffer;
 
 import org.apache.commons.io.IOUtils;
 
@@ -135,6 +134,13 @@ public class CodeBuffer implements CharSequence {
     return intAt(0);
   }
 
+  /**
+   * Do not use in new code. Used to close the stream
+   */
+  @Deprecated
+  public final void close() {
+  }
+  
   /**
    * @return the current line of the cursor
    */

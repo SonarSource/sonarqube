@@ -43,14 +43,9 @@ public final class Markdown {
 
   private String convert(String input) {
     CodeReader reader = new CodeReader(input);
-    try {
-      MarkdownOutput output = new MarkdownOutput();
-      dispatcher.consume(reader, output);
-      return output.toString();
-
-    } finally {
-      reader.close();
-    }
+    MarkdownOutput output = new MarkdownOutput();
+    dispatcher.consume(reader, output);
+    return output.toString();
   }
 
   public static String convertToHtml(String input) {

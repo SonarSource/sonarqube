@@ -35,6 +35,26 @@ public class CodeReaderConfiguration {
   private List<CodeReaderFilter<?>> codeReaderFilters = new ArrayList<CodeReaderFilter<?>>();
 
   /**
+   * Do not use in new code. Used to get the buffer capacity
+   * 
+   * @return the constant Integer.MAX_VALUE
+   */
+  @Deprecated
+  public int getBufferCapacity() {
+    return Integer.MAX_VALUE;
+  }
+
+  /**
+   * Do not use in new code. Used to set the buffer capacity. Now has no effect
+   * 
+   * @param bufferCapacity
+   *          the bufferCapacity to set
+   */
+  @Deprecated
+  public void setBufferCapacity(int bufferCapacity) {
+  }
+  
+  /**
    * @return the tabWidth
    */
   public int getTabWidth() {
