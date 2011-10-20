@@ -1004,6 +1004,13 @@
 
   <developers>
     <developer>
+      <id>dinesh.bolkensteyn</id>
+      <name>Dinesh Bolkensteyn</name>
+      <email>dinesh.bolkensteyn@sonarsource.com</email>
+      <organization>SonarSource</organization>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
       <id>evgeny.mandrikov</id>
       <name>Evgeny Mandrikov</name>
       <email>evgeny.mandrikov@sonarsource.com</email>
