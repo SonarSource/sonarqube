@@ -52,7 +52,6 @@ public class TokenizerDispatcher {
       }
       colorizedCode.append((char) code.pop());
     }
-    code.close();
   }
 
   private void cloneNotThreadSafeTokenizers() {
