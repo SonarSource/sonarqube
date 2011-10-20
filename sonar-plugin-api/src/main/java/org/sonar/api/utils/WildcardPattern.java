@@ -42,13 +42,13 @@ import org.apache.commons.lang.StringUtils;
  * <ul>
  * <li><code>org/T?st.java</code> - matches <code>org/Test.java</code> and also <code>org/Tost.java</code></li>
  * <li><code>org/*.java</code> - matches all <code>.java</code> files in the <code>org</code> directory,
- * i.e. <code>org/Foo.java</code> or <code>org/Bar.java</code></li>
- * <li><code>org/**</code> - matches everything underneath the <code>org</code> directory,
- * i.e <code>org/Foo.java</code> or <code>org/foo/bar.jsp</code></li>
+ * e.g. <code>org/Foo.java</code> or <code>org/Bar.java</code></li>
+ * <li><code>org/**</code> - matches all files underneath the <code>org</code> directory,
+ * e.g. <code>org/Foo.java</code> or <code>org/foo/bar.jsp</code></li>
  * <li><code>org/&#42;&#42;/Test.java</code> - matches all <code>Test.java</code> files underneath the <code>org</code> directory,
- * i.e. <code>org/Test.java</code> or <code>org/foo/Test.java</code> or <code>org/foo/bar/Test.java</code></li>
+ * e.g. <code>org/Test.java</code> or <code>org/foo/Test.java</code> or <code>org/foo/bar/Test.java</code></li>
  * <li><code>org/&#42;&#42;/*.java</code> - matches all <code>.java</code> files underneath the <code>org</code> directory,
- * i.e. <code>org/Foo.java</code> or <code>org/foo/Bar.java</code> or <code>org/foo/bar/Baz.java</code></li>
+ * e.g. <code>org/Foo.java</code> or <code>org/foo/Bar.java</code> or <code>org/foo/bar/Baz.java</code></li>
  * </ul>
  * </p>
  * <p>

@@ -6,8 +6,8 @@
   <div class="yui-u first">
     <p>Changes will be applied during next code analysis.</p>
     <% form_for( 'set_exclusions', :url => { :action => 'set_exclusions', :id => @project.id } ) do |form| 
-	   pattern_index=0
-	%>
+       pattern_index=0
+    %>
     <table class="spaced">
       <% patterns = Property.value('sonar.exclusions', @project.id, '').split(',')
          patterns.each do |pattern|
@@ -25,7 +25,6 @@
       </td></tr>
       <tr><td class=left>
         <input name="patterns[]" size="50" value="" type="text" id="exclusion_pattern_<%= pattern_index + 1-%>"><br/>
-        <span class="note"><ul><li>com/mycompany/**/*.java</li><li>**/*Dummy.java</li></ul></span>
       </td></tr>
       <tr><td class=left>
         <%= submit_tag( "Save exclusion filters", :id => 'submit_exclusions') %>
@@ -39,6 +38,8 @@
   <div class="yui-u">
     <div class="help">
       <h2>Wildcards</h2>
+      <p>
+      Following rules are applied:
       <table class="data">
         <thead><tr><th colspan="2"></th></tr></thead>
         <tr class="odd">
@@ -54,6 +55,62 @@
           <td>Match a single character</td>
         </tr>
       </table>
+      </p>
+      <p>
+      Examples:
+      <table class="data">
+        <thead>
+        <tr>
+          <th>Filter</th>
+          <th>Description</th>
+          <th>Matches</th>
+        </tr>
+        </thead>
+        <tr class="odd">
+          <td>org/mycompany/*.java</td>
+          <td>matches all <code>.java</code> files in the <code>org/mycompany</code> directory</td>
+          <td><ul>
+            <li>org/mycompany/Foo.java</li>
+            <li>org/mycompany/Bar.java</li>
+          </ul></td>
+        </tr>
+        <tr class="even">
+          <td>org/*Model*.java</td>
+          <td>matches all <code>.java</code> files with <code>Model</code> in filename and in the <code>org</code> directory</td>
+          <td><ul>
+            <li>org/Model.java</li>
+            <li>org/FirstModel.java</li>
+            <li>org/ModelTest.java</li>
+          </ul></td>
+        </tr>
+        <tr class="odd">
+          <td>org/**</td>
+          <td>matches all files underneath the <code>org</code> directory</td>
+          <td><ul>
+            <li>org/Foo.java</li>
+            <li>org/foo/bar.jsp</li>
+          </ul></td>
+        </tr>
+        <tr class="even">
+          <td>org/**/Dummy.java</td>
+          <td>matches all <code>Dummy.java</code> files underneath the <code>org</code> directory</td>
+          <td><ul>
+            <li>org/Dummy.java</li>
+            <li>org/foo/Dummy.java</li>
+            <li>org/foo/bar/Dummy.java</li>
+          </ul></td>
+        </tr>
+        <tr class="odd">
+          <td>org/**/*.java</td>
+          <td>matches all <code>.java</code> files underneath the <code>org</code> directory</td>
+          <td><ul>
+            <li>org/Foo.java</li>
+            <li>org/foo/Bar.java</li>
+            <li>org/foo/bar/Baz.java</li>
+          </ul></td>
+        </tr>
+      </table>
+      </p>
     </div>
   </div>
 </div>
