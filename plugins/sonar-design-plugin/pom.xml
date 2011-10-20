@@ -80,9 +80,7 @@
               </modules>
               <skip>${skipGwt}</skip>
               <webappDirectory>${project.build.directory}/classes</webappDirectory>
-
-              <!-- do not break on two lines -->
-              <extraJvmArgs>${extraJvmArgs}</extraJvmArgs>
+              <extraJvmArgs>${gwt.extraJvmArgs}</extraJvmArgs>
             </configuration>
             <goals>
               <goal>compile</goal>
