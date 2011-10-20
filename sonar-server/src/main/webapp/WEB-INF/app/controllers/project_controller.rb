@@ -29,7 +29,7 @@ class ProjectController < ApplicationController
 
   def deletion
     @project=Project.by_key(params[:id])
-    return access_denied unless is_admin?(@project)
+    access_denied unless is_admin?(@project)
 
     @snapshot=@project.last_snapshot
     if !@project.project?
@@ -49,7 +49,7 @@ class ProjectController < ApplicationController
 
   def history
     @project=Project.by_key(params[:id])
-    return access_denied unless is_admin?(@project)
+    access_denied unless is_admin?(@project)
 
     if !(@project.project? || @project.view? || @project.subview?)
       redirect_to :action => 'index', :id => params[:id]
@@ -62,7 +62,7 @@ class ProjectController < ApplicationController
 
   def delete_snapshot_history
     project=Project.by_key(params[:id])
-    return access_denied unless is_admin?(@project)
+    access_denied unless is_admin?(@project)
     
     sid = params[:snapshot_id]
     if sid
@@ -75,7 +75,7 @@ class ProjectController < ApplicationController
 
   def links
     @project=Project.by_key(params[:id])
-    return access_denied unless is_admin?(@project)
+    access_denied unless is_admin?(@project)
 
     @snapshot=@project.last_snapshot
     if !@project.project?
@@ -85,7 +85,7 @@ class ProjectController < ApplicationController
 
   def set_links
     project = Project.by_key(params[:project_id])
-    return access_denied unless is_admin?(project)
+    access_denied unless is_admin?(project)
 
     project.links.clear
 
@@ -112,7 +112,7 @@ class ProjectController < ApplicationController
   
   def settings
     @project=Project.by_key(params[:id])
-    return access_denied unless is_admin?(@project)
+    access_denied unless is_admin?(@project)
 
     @snapshot=@project.last_snapshot
     if !@project.project? && !@project.module?
@@ -148,7 +148,7 @@ class ProjectController < ApplicationController
 
   def exclusions
     @project=Project.by_key(params[:id])
-    return access_denied unless is_admin?(@project)
+    access_denied unless is_admin?(@project)
   
     @snapshot=@project.last_snapshot
     if !@project.project? && !@project.module?
@@ -158,7 +158,7 @@ class ProjectController < ApplicationController
 
   def set_exclusions
     @project = Project.find(params[:id])
-    return access_denied unless is_admin?(@project)
+    access_denied unless is_admin?(@project)
 
     patterns=params['patterns'].reject{|p| p.blank?}.uniq
     if patterns.empty?
@@ -173,7 +173,7 @@ class ProjectController < ApplicationController
 
   def delete_exclusions
     @project = Project.find(params[:id])
-    return access_denied unless is_admin?(@project)
+    access_denied unless is_admin?(@project)
     
     Property.clear('sonar.exclusions', @project.id)
     flash[:notice]='Filters deleted'

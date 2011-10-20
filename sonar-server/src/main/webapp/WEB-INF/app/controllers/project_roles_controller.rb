@@ -26,24 +26,24 @@ class ProjectRolesController < ApplicationController
 
   def index
     @project=Project.by_key(params[:resource])
-    return access_denied unless is_admin?(@project)
+    access_denied unless is_admin?(@project)
   end
 
   def edit_users
     @project=Project.by_key(params[:resource])
-    return access_denied unless is_admin?(@project)
+    access_denied unless is_admin?(@project)
     @role = params[:role]
   end
 
   def edit_groups
     @project=Project.by_key(params[:resource])
-    return access_denied unless is_admin?(@project)
+    access_denied unless is_admin?(@project)
     @role = params[:role]
   end
 
   def grant_users
     project=Project.by_key(params[:resource])
-    return access_denied unless is_admin?(project)
+    access_denied unless is_admin?(project)
 
     UserRole.grant_users(params[:users], params[:role], project.id)
     redirect_to(:action => 'index', :resource => project.id)
@@ -51,7 +51,7 @@ class ProjectRolesController < ApplicationController
 
   def grant_groups
     project=Project.by_key(params[:resource])
-    return access_denied unless is_admin?(project)
+    access_denied unless is_admin?(project)
 
     GroupRole.grant_groups(params[:groups], params[:role], project.id)
     redirect_to(:action => 'index', :resource => project.id)

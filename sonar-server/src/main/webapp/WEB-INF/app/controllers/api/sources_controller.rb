@@ -31,7 +31,7 @@ class Api::SourcesController < Api::RestController
         return
       end
     end
-    return access_denied unless has_role?(:codeviewer, @resource)
+    access_denied unless has_role?(:codeviewer, @resource)
 
     source = @resource.last_snapshot.source
     if !source

@@ -32,7 +32,7 @@ class ComponentsController < ApplicationController
     @components_configuration = Sonar::ComponentsConfiguration.new
 
     @project = Project.by_key(params[:id])
-    return access_denied unless has_role?(:user, @project)
+    access_denied unless has_role?(:user, @project)
     @snapshot = @project.last_snapshot
     @snapshots = Snapshot.find(:all, :include => 'project', :conditions => ['snapshots.parent_snapshot_id=? and snapshots.qualifier<>? and projects.qualifier<>?', @snapshot.id, Snapshot::QUALIFIER_UNIT_TEST_CLASS, Snapshot::QUALIFIER_UNIT_TEST_CLASS])
     

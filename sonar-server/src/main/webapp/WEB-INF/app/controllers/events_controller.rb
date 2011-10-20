@@ -25,7 +25,7 @@ class EventsController < ApplicationController
   # GET /events.xml?rid=123
   def index
     @resource=Project.by_key(params[:rid])
-    return access_denied unless has_role?(:user, @resource)
+    access_denied unless has_role?(:user, @resource)
 
     @events = Event.find(:all, :conditions => {:resource_id => @resource.id}, :order => 'created_at')
 
@@ -39,7 +39,7 @@ class EventsController < ApplicationController
   # GET /events/1.xml
   def show
     @event = Event.find(params[:id])
-    return access_denied unless has_role?(:user, @event.resource)
+    access_denied unless has_role?(:user, @event.resource)
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @event }
@@ -75,7 +75,7 @@ class EventsController < ApplicationController
   # POST /events.xml
   def create
     @event = Event.new(params[:event])
-    return access_denied unless is_admin?(@event.resource)
+    access_denied unless is_admin?(@event.resource)
     respond_to do |format|
       if @event.save
         flash[:notice] = 'Event is created.'
@@ -94,7 +94,7 @@ class EventsController < ApplicationController
   # PUT /events/1.xml
   def update
     @event = Event.find(params[:id])
-    return access_denied unless is_admin?(@event.resource)
+    access_denied unless is_admin?(@event.resource)
     respond_to do |format|
       if @event.update_attributes(params[:event])
         flash[:notice] = 'Event was successfully updated.'
@@ -113,7 +113,7 @@ class EventsController < ApplicationController
   # DELETE /events/1.xml
   def destroy
     @event = Event.find(params[:id])
-    return access_denied unless is_admin?(@event.resource)
+    access_denied unless is_admin?(@event.resource)
     @event.destroy
     flash[:notice] = 'Event is deleted.'
 

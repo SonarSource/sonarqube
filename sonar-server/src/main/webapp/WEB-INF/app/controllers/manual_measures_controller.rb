@@ -69,7 +69,7 @@ class ManualMeasuresController < ApplicationController
   def load_resource
     @resource=Project.by_key(params[:id])
     return redirect_to home_path unless @resource
-    return access_denied unless has_role?(:admin, @resource)
+    access_denied unless has_role?(:admin, @resource)
     @snapshot=@resource.last_snapshot
   end
 

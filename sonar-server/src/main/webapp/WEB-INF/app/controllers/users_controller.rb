@@ -33,13 +33,11 @@ class UsersController < ApplicationController
       flash[:notice] = 'User is created.'
     end
 
-    to_index(user.errors, nil);
+    to_index(user.errors, nil)
   end
 
   def signup
-    unless request.post? && Property.value('sonar.allowUsersToSignUp')=='true'
-      return access_denied
-    end
+    access_denied unless request.post? && Property.value('sonar.allowUsersToSignUp')=='true'
 
     cookies.delete :auth_token
     @user=prepare_user
@@ -84,7 +82,7 @@ class UsersController < ApplicationController
       flash[:notice] = 'Password was successfully updated.'
     end
 
-    to_index(user.errors, nil);
+    to_index(user.errors, nil)
   end
 
   def update
@@ -97,7 +95,7 @@ class UsersController < ApplicationController
       flash[:notice] = 'User was successfully updated.'
     end
 
-    to_index(user.errors, nil);
+    to_index(user.errors, nil)
   end
 
   def destroy
@@ -110,7 +108,7 @@ class UsersController < ApplicationController
       flash[:notice] = 'User is deleted.'
     end
 
-    to_index(@user.errors, nil);
+    to_index(@user.errors, nil)
   end
 
   def select_group

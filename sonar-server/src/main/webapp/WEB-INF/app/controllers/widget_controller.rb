@@ -23,31 +23,38 @@ class WidgetController < ApplicationController
   SECTION=Navigation::SECTION_RESOURCE
 
   def index
-    begin
-      load_widget
-      load_resource
-      params[:layout]='false'
-      render :action => 'index'
-
-    rescue Exception => e
-      render :text => e
-    end
+    load_resource
+    load_widget
+    params[:layout]='false'
+    render :action => 'index'
   end
-
+ 
   private
 
   def load_resource
     @resource=Project.by_key(params[:resource])
+    not_found('Unknown resource') unless @resource
+    
     @project=@resource
-    return access_denied unless has_role?(:user, @resource)
+    access_denied unless has_role?(:user, @resource)
     @snapshot = @resource.last_snapshot
   end
 
   def load_widget
-    widget_key = params[:id]
+    widget_key=params[:id]
     @widget_definition = java_facade.getWidget(widget_key)
+    not_found('Unknown widget') unless @widget_definition
+
+    authorized=(@widget_definition.getUserRoles().size==0)
+    unless authorized
+      @widget_definition.getUserRoles().each do |role|
+        authorized=(role=='user') || (role=='viewer') || has_role?(role, @resource)
+        break if authorized
+      end
+    end
+    access_denied unless authorized
+
     @widget=Widget.new(:widget_key => widget_key, :id => 1)
-    
     @widget_definition.getWidgetProperties().each do |property_definition|
       @widget.properties<<WidgetProperty.new(
           :kee => property_definition.key(),
@@ -55,7 +62,7 @@ class WidgetController < ApplicationController
           :text_value => params[property_definition.key()] || property_definition.defaultValue
       )
     end
-
     @dashboard_configuration=Api::DashboardConfiguration.new(nil, :period_index => params[:period], :snapshot => @snapshot)
+    @widget_width = params[:widget_width] || '350px'
   end
 end

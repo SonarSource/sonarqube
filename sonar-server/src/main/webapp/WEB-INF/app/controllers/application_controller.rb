@@ -24,6 +24,21 @@ class ApplicationController < ActionController::Base
   
   before_filter :check_database_version, :set_locale, :check_authentication
 
+  rescue_from Errors::BadRequest do |error|
+    render :text => error.message, :status => 400
+  end
+
+  rescue_from Errors::NotFound do |error|
+    render :text => error.message, :status => 404
+  end
+
+  rescue_from ActiveRecord::RecordNotFound do |error|
+    render :text => error.message, :status => 404
+  end
+
+  # See lib/authenticated_system.rb#access_denied()
+  rescue_from Errors::AccessDenied, :with => :rescue_from_access_denied
+
   def self.root_context
     ActionController::Base.relative_url_root || ''
   end
@@ -91,7 +106,7 @@ class ApplicationController < ActionController::Base
 
   def check_authentication
     if current_user.nil? && Property.value('sonar.forceAuthentication')=='true'
-      return access_denied
+      access_denied
     end
   end
   
@@ -99,5 +114,30 @@ class ApplicationController < ActionController::Base
   def message(key, options={})
     Api::Utils.message(key, options)
   end
-  
+
+
+
+
+
+  #
+  #
+  # ERROR HANDLING
+  #
+  #
+
+  # The request is invalid. An accompanying error message explains why : missing mandatory property, bad value, ...
+  def bad_request(message)
+    raise Errors::BadRequest.new(message)
+  end
+
+  # The resource requested, such as a project, a dashboard or a filter, does not exist
+  def not_found(message)
+    raise Errors::NotFound.new(message)
+  end
+
+  # Authentication credentials are missing/incorrect or user has not the required permissions
+  def access_denied
+    raise Errors::AccessDenied
+  end
+
 end

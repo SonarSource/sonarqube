@@ -32,7 +32,7 @@ class TimemachineController < ApplicationController
     return redirect_to home_url unless @project
     @snapshot=@project.last_snapshot
 
-    return access_denied unless is_user?(@snapshot)
+    access_denied unless is_user?(@snapshot)
 
     if params[:sid]
       @sids = params[:sid].split(',').collect {|s| s.to_i}

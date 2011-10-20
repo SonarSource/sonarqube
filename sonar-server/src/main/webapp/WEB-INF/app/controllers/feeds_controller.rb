@@ -40,7 +40,7 @@ class FeedsController < ApplicationController
   
   def project
     @project=Project.by_key(params[:id])
-    return access_denied unless is_user?(@project)
+    access_denied unless is_user?(@project)
 
     @category=params[:category]
     conditions={:resource_id => @project.id}

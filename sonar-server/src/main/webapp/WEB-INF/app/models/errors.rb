@@ -17,20 +17,14 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class Api::ResourceRestController < Api::RestController
-  
-  before_filter :load_resource
-  
-  def load_resource
-    resource_id=params[:resource]
-    if resource_id
-      @resource=Project.by_key(resource_id)
-      if @resource.nil?
-        rest_status_ko("Resource [#{resource_id}] not found", 404)
-        return
-      end
-      access_denied unless is_user?(@resource)
+module Errors
+
+  class AccessDenied < StandardError
+    def initialize
+      super('Unauthorized')
     end
   end
- 
+  class BadRequest < StandardError; end
+  class NotFound < StandardError; end
+
 end

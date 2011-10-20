@@ -27,7 +27,7 @@ class ChartsController < ApplicationController
     
   def trends
     resource=Project.by_key(params[:id])
-    return access_denied unless has_role?(:user, resource)
+    access_denied unless has_role?(:user, resource)
 
 
     metric_keys=params[:metrics]

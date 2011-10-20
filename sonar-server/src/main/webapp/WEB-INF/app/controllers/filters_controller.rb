@@ -82,9 +82,7 @@ class FiltersController < ApplicationController
 
   def edit
     @filter=::Filter.find(params[:id])
-    unless editable_filter?(@filter)
-      return access_denied
-    end
+    access_denied unless editable_filter?(@filter)
 
     options=params
     options[:user]=current_user
@@ -94,9 +92,7 @@ class FiltersController < ApplicationController
 
   def update
     @filter=::Filter.find(params[:id])
-    unless editable_filter?(@filter)
-      return access_denied
-    end
+    access_denied unless editable_filter?(@filter)
 
     load_filter_from_params(@filter, params)
 
@@ -217,9 +213,7 @@ class FiltersController < ApplicationController
     column=FilterColumn.find(params[:id])
     filter=column.filter
 
-    unless editable_filter?(filter)
-      return access_denied
-    end
+    access_denied unless editable_filter?(filter)
 
     if column.deletable?
       column.destroy
@@ -232,9 +226,7 @@ class FiltersController < ApplicationController
 
   def add_column
     filter=::Filter.find(params[:id])
-    unless editable_filter?(filter)
-      return access_denied
-    end
+    access_denied unless editable_filter?(filter)
     filter.clean_columns_order() # clean the columns which are badly ordered (see SONAR-1902)
 
     fields=params[:column].split(',')
@@ -251,9 +243,7 @@ class FiltersController < ApplicationController
     column=FilterColumn.find(params[:id])
     filter=column.filter
 
-    unless editable_filter?(filter)
-      return access_denied
-    end
+    access_denied unless editable_filter?(filter)
 
     filter.clean_columns_order() # clean the columns which are badly ordered (see SONAR-1902)
     target_column=filter.column_by_id(params[:id].to_i)
@@ -271,9 +261,7 @@ class FiltersController < ApplicationController
     column=FilterColumn.find(params[:id])
     filter=column.filter
 
-    unless editable_filter?(filter)
-      return access_denied
-    end
+    access_denied unless editable_filter?(filter)
 
     filter.clean_columns_order() # clean the columns which are badly ordered (see SONAR-1902)
     target_column=filter.column_by_id(params[:id].to_i)
@@ -291,9 +279,7 @@ class FiltersController < ApplicationController
     column=FilterColumn.find(params[:id])
     filter=column.filter
 
-    unless editable_filter?(filter)
-      return access_denied
-    end
+    access_denied unless editable_filter?(filter)
 
     filter.columns.each do |col|
       if col==column
@@ -315,9 +301,7 @@ class FiltersController < ApplicationController
   #---------------------------------------------------------------------
   def set_view
     filter=::Filter.find(params[:id])
-    unless editable_filter?(filter)
-      return access_denied
-    end
+    access_denied unless editable_filter?(filter)
 
     filter.default_view=params[:view]
     filter.save
@@ -326,9 +310,7 @@ class FiltersController < ApplicationController
 
   def set_columns
     filter=::Filter.find(params[:id])
-    unless editable_filter?(filter)
-      return access_denied
-    end
+    access_denied unless editable_filter?(filter)
 
     filter.columns.clear
     params[:columns].each do |colstring|
@@ -341,9 +323,7 @@ class FiltersController < ApplicationController
 
   def set_page_size
     filter=::Filter.find(params[:id])
-    unless editable_filter?(filter)
-      return access_denied
-    end
+    access_denied unless editable_filter?(filter)
 
     size=[::Filter::MAX_PAGE_SIZE, params[:size].to_i].min
     size=[::Filter::MIN_PAGE_SIZE, size].max
@@ -389,9 +369,7 @@ class FiltersController < ApplicationController
   #---------------------------------------------------------------------
   def treemap
     @filter=::Filter.find(params[:id])
-    unless viewable_filter?(@filter)
-      return access_denied
-    end
+    access_denied unless viewable_filter?(@filter)
 
     @size_metric=Metric.by_key(params[:size_metric])
     @color_metric=Metric.by_key(params[:color_metric])

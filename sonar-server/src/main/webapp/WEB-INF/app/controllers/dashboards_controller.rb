@@ -36,7 +36,7 @@ class DashboardsController < ApplicationController
       redirect_to home_path
       return false
     end
-    return access_denied unless has_role?(:user, @resource)
+    access_denied unless has_role?(:user, @resource)
     @snapshot = @resource.last_snapshot
     @project=@resource  # variable name used in old widgets
   end

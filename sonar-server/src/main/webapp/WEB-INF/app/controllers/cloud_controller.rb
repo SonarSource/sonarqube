@@ -27,7 +27,7 @@ class CloudController < ApplicationController
     if @project.nil?
       return render :text => "Resource [#{project_key}] not found", :status => 404
     end
-    return access_denied unless has_role?(:user, @project)
+    access_denied unless has_role?(:user, @project)
     @snapshot=@project.last_snapshot
 
     @size_metric=Metric.by_key(params[:size]||'ncloc')

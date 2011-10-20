@@ -21,25 +21,20 @@ require 'json'
 require 'time'
 class Api::ApiController < ApplicationController
 
-  class ApiException < Exception
-    attr_reader :code, :msg
-
-    def initialize(code, msg)
-      @code = code
-      @msg = msg
-    end
+  rescue_from Errors::BadRequest do |error|
+    render_error(400, error.message)
   end
 
-  rescue_from ApiException do |exception|
-    render_error(exception.msg, exception.code)
+  rescue_from Errors::NotFound do |error|
+    render_error(404, error.message)
   end
 
-  rescue_from ActiveRecord::RecordInvalid do |exception|
-    render_error(exception.message, 400)
+  rescue_from ActiveRecord::RecordInvalid do |error|
+    render_error(400, error.message)
   end
 
-  rescue_from ActiveRecord::RecordNotFound do |exception|
-    render_error(exception.message, 404)
+  rescue_from ActiveRecord::RecordNotFound do |error|
+    render_error(404, error.message)
   end
 
   protected
@@ -87,46 +82,36 @@ class Api::ApiController < ApplicationController
 
 
 
-  #----------------------------------------------------------------------------
-  # ERRORS
-  #----------------------------------------------------------------------------
-  def not_found(message)
-    raise ApiException.new(404, message)
-  end
+  #
+  #
+  # Error handling is different than in ApplicationController
+  #
+  #
 
-  def bad_request(message)
-    raise ApiException.new(400, message)
-  end
-
-  def access_denied
-    raise ApiException.new(401, 'Unauthorized')
-  end
-
-  def render_error(msg, http_status=400)
+  def render_error(status, message=nil)
     respond_to do |format|
-      format.json { render :json => error_to_json(msg, http_status), :status => http_status }
-      format.xml { render :xml => error_to_xml(msg, http_status), :status => http_status }
-      format.text { render :text => msg, :status => http_status }
+      format.json { render :json => error_to_json(status, message), :status => status }
+      format.xml { render :xml => error_to_xml(status, message), :status => status }
+      format.text { render :text => message, :status => status }
     end
   end
 
-  def error_to_json(msg, error_code=nil)
-    hash={}
-    hash[:err_code]=error_code if error_code
-    hash[:err_msg]=msg if msg
+  def error_to_json(status, message=nil)
+    hash={:err_code => status}
+    hash[:err_msg]=message if message
     jsonp(hash)
   end
 
-  def error_to_xml(msg, error_code=nil)
+  def error_to_xml(status, message=nil)
     xml = Builder::XmlMarkup.new(:indent => 0)
     xml.error do
-      xml.code(error_code) if error_code
-      xml.msg(msg) if msg
+      xml.code(status)
+      xml.msg(message) if message
     end
   end
 
-  def render_success(msg)
-    render_error(msg, 200)
+  def render_success(message=nil)
+    render_error(200, message)
   end
 
 end

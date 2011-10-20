@@ -26,7 +26,7 @@ class SettingsController < ApplicationController
   verify :method => :post, :only => ['update'], :redirect_to => {:action => :index}
 
   def index
-    return access_denied unless is_admin?
+    access_denied unless is_admin?
     load_properties(false)
     @category ||= 'general'
   end
@@ -34,10 +34,10 @@ class SettingsController < ApplicationController
   def update
     if params[:resource_id]
       project=Project.by_key(params[:resource_id])
-      return access_denied unless (project && is_admin?(project))
+      access_denied unless (project && is_admin?(project))
       resource_id=project.id
     else
-      return access_denied unless is_admin?
+      access_denied unless is_admin?
       resource_id=nil
     end
 
