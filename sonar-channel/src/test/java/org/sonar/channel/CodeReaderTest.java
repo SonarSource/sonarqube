@@ -84,24 +84,6 @@ public class CodeReaderTest {
   }
 
   @Test
-  public void testPeekToAndReachingTheBufferLimit() {
-    CodeReaderConfiguration configuration = new CodeReaderConfiguration();
-    configuration.setBufferCapacity(10);
-    CodeReader reader = new CodeReader("word1 word2 word2", configuration);
-    for (int i = 0; i < 6; i++) {
-      reader.pop();
-    }
-    StringBuilder result = new StringBuilder();
-    reader.peekTo(new EndMatcher() {
-
-      public boolean match(int endFlag) {
-        return ' ' == (char) endFlag;
-      }
-    }, result);
-    assertEquals("word2", result.toString());
-  }
-
-  @Test
   public void testPopToWithRegex() {
     CodeReader reader = new CodeReader(new StringReader("123ABC"));
     StringBuilder token = new StringBuilder();

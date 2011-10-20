@@ -117,20 +117,6 @@ public class CodeBufferTest {
   }
 
   @Test
-  public void testPush() {
-    CodeReader reader = new CodeReader("12", defaulConfiguration);
-    assertEquals('1', (char) reader.pop());
-    reader.push("a");
-    assertEquals('a', (char) reader.peek());
-    reader.push("45");
-    assertEquals("45a2", new String(reader.peek(4)));
-    for (int i = 0; i < 4; i++) {
-      reader.pop();
-    }
-    assertEquals( -1, reader.pop());
-  }
-
-  @Test
   public void testCharAtIndexOutOfBoundsException() {
     CodeBuffer reader = new CodeBuffer("12345", defaulConfiguration);
     assertEquals(reader.charAt(5), (char) -1);
@@ -207,14 +193,6 @@ public class CodeBufferTest {
     codeBuffer.pop();
     codeBuffer.pop();
     assertThat(codeBuffer.length(), is(4));
-  }
-
-  @Test
-  public void theLengthShouldBeIntegerMaxValueWhenTheBufferCantContainAllCharacters() {
-    String myCode = "myCode";
-    CodeReaderConfiguration conf = new CodeReaderConfiguration();
-    conf.setBufferCapacity(2);
-    assertThat(new CodeBuffer(myCode, conf).length(), is(Integer.MAX_VALUE));
   }
 
   @Test

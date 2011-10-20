@@ -23,6 +23,7 @@ import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.CharBuffer;
 
 import org.apache.commons.io.IOUtils;
 
@@ -38,13 +39,10 @@ import org.apache.commons.io.IOUtils;
  */
 public class CodeBuffer implements CharSequence {
 
-  private final Reader code;
   private int lastChar = -1;
   private Cursor cursor;
-  private int bufferCapacity;
   private char[] buffer;
   private int bufferPosition = 0;
-  private int bufferSize = 0;
   private static final char LF = '\n';
   private static final char CR = '\r';
   private int tabWidth;
@@ -52,22 +50,41 @@ public class CodeBuffer implements CharSequence {
   private boolean recordingMode = false;
   private StringBuilder recordedCharacters = new StringBuilder();
 
+  protected CodeBuffer(String code, CodeReaderConfiguration configuration) {
+    this(new StringReader(code), configuration);
+  }
+  
   protected CodeBuffer(Reader initialCodeReader, CodeReaderConfiguration configuration) {
     lastChar = -1;
     cursor = new Cursor();
-    bufferCapacity = configuration.getBufferCapacity();
     tabWidth = configuration.getTabWidth();
-    buffer = new char[bufferCapacity];
+    
+    /* Setup the filters on the reader */
     Reader reader = initialCodeReader;
     for (CodeReaderFilter<?> codeReaderFilter : configuration.getCodeReaderFilters()) {
       reader = new Filter(reader, codeReaderFilter, configuration);
     }
-    this.code = reader;
-    fillBuffer();
+    
+    /* Buffer the whole reader */
+    fillBuffer(reader);
+    
+    /* Clean-up */
+    IOUtils.closeQuietly(reader);
   }
-
-  protected CodeBuffer(String code, CodeReaderConfiguration configuration) {
-    this(new StringReader(code), configuration);
+  
+  private void fillBuffer(Reader reader) {
+    try {
+      StringBuilder sb = new StringBuilder();
+      char[] buffer = new char[4096];
+      int read;
+      while ((read = reader.read(buffer)) != -1) {
+        sb.append(buffer, 0, read);
+      }
+      this.buffer = new char[sb.length()];
+      sb.getChars(0, sb.length(), this.buffer, 0);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
@@ -76,16 +93,13 @@ public class CodeBuffer implements CharSequence {
    * @return the next character or -1 if the end of the stream is reached
    */
   public final int pop() {
-    if (bufferPosition == bufferSize) {
-      fillBuffer();
-    }
-    if (bufferSize == 0) {
+    if (bufferPosition >= buffer.length) {
       return -1;
     }
     int character = buffer[bufferPosition++];
     updateCursorPosition(character);
     if (recordingMode) {
-      recordedCharacters.append((char) character);
+      recordedCharacters.append((char)character);
     }
     lastChar = character;
     return character;
@@ -100,24 +114,6 @@ public class CodeBuffer implements CharSequence {
       cursor.column += tabWidth;
     } else {
       cursor.column++;
-    }
-  }
-
-  private int fillBuffer() {
-    try {
-      int offset = bufferSize - bufferPosition;
-      if (offset != 0) {
-        System.arraycopy(buffer, bufferPosition, buffer, 0, bufferSize - bufferPosition);
-      }
-      bufferPosition = 0;
-      int numberOfChars = code.read(buffer, offset, bufferCapacity - offset);
-      if (numberOfChars == -1) {
-        numberOfChars = 0;
-      }
-      bufferSize = numberOfChars + offset;
-      return offset;
-    } catch (IOException e) {
-      throw new ChannelException(e.getMessage(), e);
     }
   }
 
@@ -137,38 +133,6 @@ public class CodeBuffer implements CharSequence {
    */
   public final int peek() {
     return intAt(0);
-  }
-
-  /**
-   * Pushes a character sequence onto the top of this CodeBuffer. This characters will be then the first to be read.
-   * 
-   * @param chars
-   *          the character sequences to push into the CodeBuffer
-   */
-  public void push(CharSequence chars) {
-    int length = chars.length();
-    if (bufferPosition >= length) {
-      for (int index = 0; index < length; index++) {
-        buffer[bufferPosition + index - length] = chars.charAt(index);
-      }
-      bufferPosition -= length;
-    } else {
-      char[] extendedBuffer = new char[buffer.length - bufferPosition + length];
-      for (int index = 0; index < length; index++) {
-        extendedBuffer[index] = chars.charAt(index);
-      }
-      System.arraycopy(buffer, bufferPosition, extendedBuffer, length, bufferSize - bufferPosition);
-      buffer = extendedBuffer;
-      bufferSize = bufferSize + length - bufferPosition;
-      bufferPosition = 0;
-    }
-  }
-
-  /**
-   * Close the stream
-   */
-  public final void close() {
-    IOUtils.closeQuietly(code);
   }
 
   /**
@@ -219,33 +183,26 @@ public class CodeBuffer implements CharSequence {
    * Returns the character at the specified index after the cursor without consuming it
    * 
    * @param index
-   *          the index of the character to be returned
+   *          the relative index of the character to be returned
    * @return the desired character
    * @see java.lang.CharSequence#charAt(int)
    */
   public final char charAt(int index) {
-    return (char) intAt(index);
+    return (char)intAt(index);
   }
 
   protected final int intAt(int index) {
-    if (bufferPosition + index > bufferSize - 1) {
-      fillBuffer();
-    }
-    if (bufferPosition + index > bufferSize - 1) {
+    if (bufferPosition + index >= buffer.length) {
       return -1;
     }
     return buffer[bufferPosition + index];
   }
 
   /**
-   * Warning : this method returns Integer.MAX_VALUE when the buffer is fully used
-   * as the length of the stream can't be known before having consumed all characters.
-   * 
-   * Integer.MAX_VALUE is returned to prevent regular expression matchers to stop consuming the stream of characters (see
-   * http://jira.codehaus.org/browse/SONAR-2010)
+   * Returns the relative length of the string (i.e. excluding the popped chars)
    */
   public final int length() {
-    return (bufferSize == bufferCapacity ? Integer.MAX_VALUE : bufferSize - bufferPosition);
+    return buffer.length - bufferPosition;
   }
 
   public final CharSequence subSequence(int start, int end) {

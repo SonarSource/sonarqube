@@ -33,7 +33,28 @@ public class RegexChannelTest {
     dispatcher.consume(new CodeReader("my word"), output);
     assertThat(output.toString(), is("<w>my</w> <w>word</w>"));
   }
+  
+  @Test
+  public void shouldMatchTokenLongerThanBuffer() {
+    ChannelDispatcher<StringBuilder> dispatcher = ChannelDispatcher.builder().addChannel(new MyLiteralChannel()).build();
+    StringBuilder output = new StringBuilder();
+    
+    dispatcher.consume(new CodeReader("\"bonjour\""), output);
+    assertThat(output.toString(), is("<literal>\"bonjour\"</literal>"));
+  }
 
+  private static class MyLiteralChannel extends RegexChannel<StringBuilder> {
+
+    public MyLiteralChannel() {
+      super("\"[^\"]*+\"");
+    }
+
+    @Override
+    protected void consume(CharSequence token, StringBuilder output) {
+      output.append("<literal>" + token + "</literal>");
+    }
+  }
+  
   private static class MyWordChannel extends RegexChannel<StringBuilder> {
 
     public MyWordChannel() {

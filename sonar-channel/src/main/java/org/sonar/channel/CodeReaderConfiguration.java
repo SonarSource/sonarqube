@@ -28,30 +28,11 @@ import java.util.List;
  */
 public class CodeReaderConfiguration {
 
-  public final static int DEFAULT_BUFFER_CAPACITY = 8000;
-
   public final static int DEFAULT_TAB_WIDTH = 1;
-
-  private int bufferCapacity = DEFAULT_BUFFER_CAPACITY;
 
   private int tabWidth = DEFAULT_TAB_WIDTH;
 
   private List<CodeReaderFilter<?>> codeReaderFilters = new ArrayList<CodeReaderFilter<?>>();
-
-  /**
-   * @return the bufferCapacity
-   */
-  public int getBufferCapacity() {
-    return bufferCapacity;
-  }
-
-  /**
-   * @param bufferCapacity
-   *          the bufferCapacity to set
-   */
-  public void setBufferCapacity(int bufferCapacity) {
-    this.bufferCapacity = bufferCapacity;
-  }
 
   /**
    * @return the tabWidth
@@ -96,7 +77,6 @@ public class CodeReaderConfiguration {
 
   public CodeReaderConfiguration cloneWithoutCodeReaderFilters() {
     CodeReaderConfiguration clone = new CodeReaderConfiguration();
-    clone.setBufferCapacity(bufferCapacity);
     clone.setTabWidth(tabWidth);
     return clone;
   }

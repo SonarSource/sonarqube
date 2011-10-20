@@ -73,6 +73,7 @@ public final class ChannelCodeReaderFilter<OUTPUT> extends CodeReaderFilter<OUTP
    */
   @Override
   public int read(char[] filteredBuffer, int offset, int length) throws IOException {
+    if (internalCodeReader.peek() == -1) return -1;
     int initialOffset = offset;
     while (offset < filteredBuffer.length) {
       if (internalCodeReader.peek() == -1) {
