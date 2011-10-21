@@ -21,9 +21,9 @@ package org.sonar.duplications.token;
 
 import java.io.Reader;
 import java.io.StringReader;
+
 import org.sonar.channel.ChannelDispatcher;
 import org.sonar.channel.CodeReader;
-import org.sonar.channel.CodeReaderConfiguration;
 import org.sonar.duplications.DuplicationsException;
 
 public final class TokenChunker {

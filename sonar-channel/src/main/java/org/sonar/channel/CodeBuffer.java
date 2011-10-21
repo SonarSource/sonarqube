@@ -53,40 +53,28 @@ public class CodeBuffer implements CharSequence {
     this(new StringReader(code), configuration);
   }
   
+  /**
+   * Note that this constructor will read everything from reader and will close it.
+   */
   protected CodeBuffer(Reader initialCodeReader, CodeReaderConfiguration configuration) {
     Reader reader = null;
-    
+
     try {
       lastChar = -1;
       cursor = new Cursor();
       tabWidth = configuration.getTabWidth();
-      
+
       /* Setup the filters on the reader */
       reader = initialCodeReader;
       for (CodeReaderFilter<?> codeReaderFilter : configuration.getCodeReaderFilters()) {
         reader = new Filter(reader, codeReaderFilter, configuration);
       }
-      
-      fillBuffer(reader);
-    }
-    finally {
-      if (reader != null) IOUtils.closeQuietly(reader);
-    }
-  }
-  
-  private void fillBuffer(Reader reader) {
-    try {
-      StringBuilder sb = new StringBuilder();
-      char[] buffer = new char[4096];
-      int read = reader.read(buffer);
-      while(read != -1 && read != 0) {
-        sb.append(buffer, 0, read);
-        read = reader.read(buffer);
-      }
-      this.buffer = new char[sb.length()];
-      sb.getChars(0, sb.length(), this.buffer, 0);
+
+      buffer = IOUtils.toCharArray(reader);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new ChannelException(e.getMessage(), e);
+    } finally {
+      IOUtils.closeQuietly(reader);
     }
   }
 
@@ -243,6 +231,7 @@ public class CodeBuffer implements CharSequence {
       return column;
     }
 
+    @Override
     public Cursor clone() {
       Cursor clone = new Cursor();
       clone.column = column;
@@ -272,7 +261,8 @@ public class CodeBuffer implements CharSequence {
 
     @Override
     public int read(char[] cbuf, int off, int len) throws IOException {
-      return codeReaderFilter.read(cbuf, off, len);
+      int read = codeReaderFilter.read(cbuf, off, len);
+      return read == 0 ? -1 : read;
     }
 
     @Override

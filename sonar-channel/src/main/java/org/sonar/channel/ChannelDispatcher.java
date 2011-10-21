@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 public class ChannelDispatcher<OUTPUT> extends Channel<OUTPUT> {
 
-  private static final Logger logger = LoggerFactory.getLogger(ChannelDispatcher.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ChannelDispatcher.class);
   private final boolean failIfNoChannelToConsumeOneCharacter;
 
   @SuppressWarnings("rawtypes")
@@ -79,13 +79,13 @@ public class ChannelDispatcher<OUTPUT> extends Channel<OUTPUT> {
         }
       }
       if ( !characterConsumed) {
-        if (logger.isDebugEnabled() || failIfNoChannelToConsumeOneCharacter) {
+        if (LOG.isDebugEnabled() || failIfNoChannelToConsumeOneCharacter) {
           String message = "None of the channel has been able to handle character '" + (char) code.peek() + "' (decimal value "
               + code.peek() + ") at line " + code.getLinePosition() + ", column " + code.getColumnPosition();
           if (failIfNoChannelToConsumeOneCharacter) {
             throw new IllegalStateException(message);
           }
-          logger.debug(message);
+          LOG.debug(message);
         }
         code.pop();
       }

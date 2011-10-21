@@ -257,11 +257,29 @@ public class CodeBufferTest {
     assertThat(code.pop(), is( -1));
   }
 
+  /**
+   * Backward compatibility with a COBOL plugin: filter returns 0 instead of -1, when end of the stream has been reached.
+   */
+  @Test(timeout = 1000)
+  public void testWrongEndOfStreamFilter() {
+    CodeReaderConfiguration configuration = new CodeReaderConfiguration();
+    configuration.setCodeReaderFilters(new WrongEndOfStreamFilter());
+    new CodeBuffer("foo", configuration);
+  }
+
+  class WrongEndOfStreamFilter extends CodeReaderFilter<Object> {
+    @Override
+    public int read(char[] filteredBuffer, int offset, int length) throws IOException {
+      return 0;
+    }
+  }
+
   class ReplaceNumbersFilter extends CodeReaderFilter<Object> {
 
     private Pattern pattern = Pattern.compile("\\d");
     private String REPLACEMENT = "-";
 
+    @Override
     public int read(char[] cbuf, int off, int len) throws IOException {
       char[] tempBuffer = new char[cbuf.length];
       int charCount = getReader().read(tempBuffer, off, len);
@@ -278,6 +296,7 @@ public class CodeBufferTest {
     private Pattern pattern = Pattern.compile("[a-zA-Z]");
     private String REPLACEMENT = "*";
 
+    @Override
     public int read(char[] cbuf, int off, int len) throws IOException {
       char[] tempBuffer = new char[cbuf.length];
       int charCount = getReader().read(tempBuffer, off, len);
