@@ -21,7 +21,9 @@ package org.sonar.core.i18n;
 
 import com.google.common.collect.Maps;
 import org.hamcrest.core.Is;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.net.URL;
@@ -35,9 +37,25 @@ import static org.junit.Assert.assertThat;
 import static org.sonar.core.i18n.I18nManager.BUNDLE_PACKAGE;
 
 public class I18nManagerTest {
+
+  private static Locale defaultLocale;
   private I18nManager manager;
   private ClassLoader coreClassLoader;
   private ClassLoader sqaleClassLoader;
+
+  /**
+   * See http://jira.codehaus.org/browse/SONAR-2927
+   */
+  @BeforeClass
+  public static void fixDefaultLocaleBug() {
+    defaultLocale = Locale.getDefault();
+    Locale.setDefault(Locale.ENGLISH);
+  }
+
+  @AfterClass
+  public static void revertFix() {
+    Locale.setDefault(defaultLocale);
+  }
 
   @Before
   public void init() {
