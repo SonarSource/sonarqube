@@ -54,21 +54,24 @@ public class CodeBuffer implements CharSequence {
   }
   
   protected CodeBuffer(Reader initialCodeReader, CodeReaderConfiguration configuration) {
-    lastChar = -1;
-    cursor = new Cursor();
-    tabWidth = configuration.getTabWidth();
+    Reader reader = null;
     
-    /* Setup the filters on the reader */
-    Reader reader = initialCodeReader;
-    for (CodeReaderFilter<?> codeReaderFilter : configuration.getCodeReaderFilters()) {
-      reader = new Filter(reader, codeReaderFilter, configuration);
+    try {
+      lastChar = -1;
+      cursor = new Cursor();
+      tabWidth = configuration.getTabWidth();
+      
+      /* Setup the filters on the reader */
+      reader = initialCodeReader;
+      for (CodeReaderFilter<?> codeReaderFilter : configuration.getCodeReaderFilters()) {
+        reader = new Filter(reader, codeReaderFilter, configuration);
+      }
+      
+      fillBuffer(reader);
     }
-    
-    /* Buffer the whole reader */
-    fillBuffer(reader);
-    
-    /* Clean-up */
-    IOUtils.closeQuietly(reader);
+    finally {
+      if (reader != null) IOUtils.closeQuietly(reader);
+    }
   }
   
   private void fillBuffer(Reader reader) {
@@ -135,7 +138,7 @@ public class CodeBuffer implements CharSequence {
   }
 
   /**
-   * Do not use in new code. Used to close the stream
+   * @deprecated in 2.12, do not use anymore.
    */
   @Deprecated
   public final void close() {

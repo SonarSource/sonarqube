@@ -27,6 +27,12 @@ import java.util.List;
  * Configuration parameters used by a CodeReader to handle some specificities.
  */
 public class CodeReaderConfiguration {
+  
+  /**
+   * @deprecated in 2.12, do not use anymore.
+   */
+  @Deprecated
+  public final static int DEFAULT_BUFFER_CAPACITY = 8000;
 
   public final static int DEFAULT_TAB_WIDTH = 1;
 
@@ -35,8 +41,7 @@ public class CodeReaderConfiguration {
   private List<CodeReaderFilter<?>> codeReaderFilters = new ArrayList<CodeReaderFilter<?>>();
 
   /**
-   * Do not use in new code. Used to get the buffer capacity
-   * 
+   * @deprecated in 2.12, do not use anymore.
    * @return the constant Integer.MAX_VALUE
    */
   @Deprecated
@@ -45,8 +50,7 @@ public class CodeReaderConfiguration {
   }
 
   /**
-   * Do not use in new code. Used to set the buffer capacity. Now has no effect
-   * 
+   * @deprecated in 2.12, do not use anymore.
    * @param bufferCapacity
    *          the bufferCapacity to set
    */
