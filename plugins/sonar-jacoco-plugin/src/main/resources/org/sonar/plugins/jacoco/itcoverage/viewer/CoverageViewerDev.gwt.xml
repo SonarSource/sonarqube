@@ -1,5 +1,4 @@
 <module>
-  <inherits name="org.sonar.plugins.jacoco.itcoverage.viewer.CoverageViewer"/>
   <inherits name="org.sonar.SonarDev"/>
 
   <entry-point class="org.sonar.plugins.jacoco.itcoverage.viewer.client.CoverageViewer"/>
