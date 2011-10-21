@@ -93,8 +93,7 @@ table#columns td {
         </tr>
         <% unless @filter.advanced_search? %>
         <tr id="advanced-search-link">
-          <td align="right"><a href="#" onClick="$('advanced-search').show();$('advanced-search-link').hide();return false;"><%= message('filters.advanced_search') -%></a></td>
-          <td></td>
+          <td colspan="2"><a href="#" onClick="$('advanced-search').show();$('advanced-search-link').hide();return false;"><%= message('filters.advanced_search') -%></a></td>
         </tr>
         <% end %>
       </tbody>
