@@ -78,9 +78,10 @@ public class CodeBuffer implements CharSequence {
     try {
       StringBuilder sb = new StringBuilder();
       char[] buffer = new char[4096];
-      int read;
-      while ((read = reader.read(buffer)) != -1) {
+      int read = reader.read(buffer);
+      while(read != -1 && read != 0) {
         sb.append(buffer, 0, read);
+        read = reader.read(buffer);
       }
       this.buffer = new char[sb.length()];
       sb.getChars(0, sb.length(), this.buffer, 0);
