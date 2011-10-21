@@ -2,14 +2,17 @@
 <h1><%= message('project_history.page_title') -%></h1>
 <br/>
 
-<table class="data" style="width:1%">
+<table id="project-history" class="data" style="width:1%">
   <thead>
     <tr>
       <th class="thin nowrap"><%= message('project_history.col.year') -%></th>
       <th class="thin nowrap"><%= message('project_history.col.month') -%></th>
-      <th class="thin nowrap" style="padding-left: 20px;"><%= message('project_history.col.events') -%></th>
-      <th class="thin nowrap" style="padding-left: 20px;"><%= message('project_history.col.time') -%></th>
-      <th class="thin nowrap center"><%= message('project_history.col.action') -%></th>
+      <th class="thin nowrap"></th>
+      <th class="thin nowrap"></th>
+      <th class="thin nowrap"><%= message('project_history.col.time') -%></th>
+      <th class="thin nowrap" style="padding-left: 20px;"><%= message('project_history.col.action') -%></th>
+      <th class="nowrap" style="padding-left: 20px; min-width: 100px;"><%= message('project_history.col.version') -%></th>
+      <th class="nowrap" style="padding-left: 20px; min-width: 100px;"><%= message('project_history.col.events') -%></th>
     </tr>
   </thead>
   <tbody>
@@ -17,16 +20,28 @@
       current_year = nil
       current_month = nil
       @snapshots.each do |snapshot|
-        number_of_events = snapshot.events.size
         time = snapshot.created_at
+        version_event = snapshot.event(EventCategory::KEY_VERSION)
+        alert_event = snapshot.event(EventCategory::KEY_ALERT)
+        profile_event = snapshot.event(EventCategory::KEY_PROFILE)
+        other_events = snapshot.events.select{|e| e.category!=EventCategory::KEY_VERSION && e.category!=EventCategory::KEY_ALERT && e.category!=EventCategory::KEY_PROFILE}
     %>
     <tr class="<%= cycle 'even','odd' -%>">
+    
       <td class="thin nowrap"><b><%= time.year unless time.year == current_year -%></b></td>
+    
       <td class="thin nowrap"><b><%= l(time, :format => '%B').capitalize unless time.month == current_month -%></b></td>
-      <td class="thin nowrap" style="padding-left: 20px;">
-        <%= snapshot.events.map{|e| e.name}.join(', ') -%>
+
+      <td class="thin nowrap">
+        <%= image_tag "event_alert.png", :alt => (message('project_history.col.alert') + ": " + alert_event.name + ". " + alert_event.description) if alert_event -%>
       </td>
-      <td class="thin nowrap" style="padding-left: 20px;"><%= l time, :format => :long -%></td>
+
+      <td class="thin nowrap">
+        <%= image_tag "event_profile.png", :alt => message('project_history.col.profile') + ": " + profile_event.description if profile_event -%>
+      </td>
+
+      <td class="thin nowrap"><%= l time, :format => :long -%></td>
+
       <td class="thin nowrap center" style="padding-left:10px; padding-right:10px">
         <%
           cell_content = nil;
@@ -40,6 +55,58 @@
           end
         %>
         <%= cell_content -%>
+      </td>
+      
+      <td class="thin nowrap" style="padding-left: 20px;">
+          <table class="max-width">
+            <tr id="version_<%= snapshot.id -%>">
+              <td class="max-width"><%= version_event.name if version_event -%></td>
+              <td class="small" style="padding-left:20px">
+                <a href="#" onclick="$('version_<%= snapshot.id -%>').hide();$('version_<%= snapshot.id -%>_form').show();"><%= version_event ? message('project_history.rename_version') : message('project_history.create_version') -%></a>
+                <% if version_event %>
+                  <%= link_to ( message('project_history.remove_version'),  
+        		                { :action => 'delete_version', :sid => snapshot.id},
+        		                :confirm => message('project_history.do_you_want_to_remove_version', :params => version_event.name) ) -%>
+                <% end %>
+              </td>
+            </tr>
+            <tr id="version_<%= snapshot.id -%>_form" style="display:none;">
+              <td coslpan="2" class="admin">
+                <% form_tag( {:action => 'update_version', :sid => snapshot.id }) do -%>
+                  <input id="version_name_<%= snapshot.id -%>" name="version_name" type="text" value="<%= version_event ? version_event.name : '' -%>" 
+                         onKeyUp="if (this.value=='') $('save_version_<%= snapshot.id -%>').disabled='true'; else $('save_version_<%= snapshot.id -%>').disabled='';"/>
+                  <%= submit_tag message('save'), :id => 'save_version_' + snapshot.id.to_s %>
+                  <a href="#" onclick="$('version_<%= snapshot.id -%>').show();$('version_<%= snapshot.id -%>_form').hide();"><%= message('cancel') -%></a>
+                <% end %>
+              </td>
+            </tr>
+          </table>
+      </td>
+      
+      <td class="thin nowrap" style="padding-left: 20px;">
+        <table class="max-width">
+          <% other_events.each do |event| %>
+	        <tr>
+	          <td class="max-width"><%= event.name -%></td>
+	          <td class="small" style="padding-left:20px">
+                <%= link_to_remote ( message('project_history.edit_event'),
+                                     :url => { :action => 'edit_event', :id => event.id},
+                                     :update => "event_#{snapshot.id}_form" ) %>
+                <%= link_to ( message('project_history.remove_version'),  
+	   		                  { :action => 'delete_event', :id => event.id},
+	    		              :confirm => message('project_history.do_you_want_to_remove_version', :params => event.name) ) -%>
+	          </td>
+	        </tr>
+	      <% end %>
+	        <tr>
+	          <td colspan="2" class="small right">
+	            <%= link_to_remote ( message('project_history.create_event'),
+                                     :url => { :action => 'new_event', :sid => snapshot.id},
+                                     :update => "event_#{snapshot.id}_form" ) %>
+	          </td>
+	        </tr>
+        </table>
+        <div id="event_<%= snapshot.id -%>_form"></div>
       </td>
     </tr>
     <%

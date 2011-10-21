@@ -1,4 +1,3 @@
-<% show_admin_actions=is_admin?(@snapshot) %>
 <h3><%= message('events') -%> &nbsp;&nbsp;
 <select class="small" id="select_category" onchange="<%= remote_function(:update => 'events_portlet', :url => { :controller => :project, :action => :events, :id => @snapshot.id },
   :with => "'category=' + $F('select_category')", :method => 'get') -%>">
@@ -32,12 +31,6 @@
 <a href="#" class="nolink" title="<%= h event.description -%>" alt="<%= h event.description -%>"><img src="<%= ApplicationController.root_context -%>/images/information.png" /></a>
         <% end %>
     </td>
-    <td>
-        <% if show_admin_actions %>
-        <%= link_to_remote message('edit'), {:url => edit_event_path(event), :method => :get, :update => "event_form", :complete => "$('event_form').show();"}, :class => 'action', :id => "edit_event_#{h event.name}" %>
-        <%= link_to message('delete'), event, :confirm => message('are_you_sure'), :method => :delete, :class => 'action',:id => "delete_event_#{h event.name}" %>
-        <% end %>
-    </td>
 </tr>
 <%   index+=1
    end
@@ -51,10 +44,3 @@
 <% if index>=max_rows %>
       <a href="#" onclick="$('all_events').show();$('show_more_events').hide()" id="show_more_events" class="action"><%= message('show_more') -%></a>
 <% end %>
-
-
-<% if show_admin_actions %>
-<%= link_to_remote message('events.add_an_event'), {:url => { :controller => 'events', :action => "new", :rid => @snapshot.project_id, :sid => @snapshot.id },
-    :update => "event_form", :success => "$('event_form').show();"}, {:class => 'action'} %>
-<% end %>
-<div id="event_form" />

@@ -657,8 +657,9 @@ table.form td img {
   border-bottom: 1px dashed #FFD324;
   height: 1px;
 }
-
-
+table#project-history > tbody > tr > td {
+  vertical-align: top;
+}
 
 /* OPERATIONS */
 #page-operations {

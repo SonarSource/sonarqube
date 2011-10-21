@@ -180,7 +180,129 @@ class ProjectController < ApplicationController
     redirect_to :action => 'exclusions', :id => @project.id
   end
 
+  def update_version
+    snapshot=Snapshot.find(params[:sid])
+    return access_denied unless is_admin?(snapshot)
+  
+    unless params[:version_name].blank?
+      snapshots = find_project_snapshots(snapshot.id)
+      if snapshot.event(EventCategory::KEY_VERSION)
+        # We update all the related events
+        Event.update_all( {:name => params[:version_name]},
+                          ["category = ? AND snapshot_id IN (?)", EventCategory::KEY_VERSION, snapshots.map{|s| s.id}])
+        flash[:notice] = message('project_history.version_updated', :params => params[:version_name])
+      else
+        # We create an event for every concerned snapshot
+        snapshots.each do |snapshot|
+          event = Event.create!(:name => params[:version_name], :snapshot => snapshot, 
+                            :resource_id => snapshot.project_id, :category => EventCategory::KEY_VERSION,
+                            :event_date => snapshot.created_at)
+        end
+        flash[:notice] = message('project_history.version_created', :params => params[:version_name])
+      end
+      # And we update all the related snapshots to have a version attribute in sync with the new name
+      snapshots.each do |snapshot|
+        snapshot.version = params[:version_name]
+        snapshot.save!
+      end
+    end
+  
+    redirect_to :action => 'history', :id => snapshot.root_project_id
+  end
+
+  def delete_version
+    snapshot=Snapshot.find(params[:sid])
+    return access_denied unless is_admin?(snapshot)
+    
+    event = snapshot.event(EventCategory::KEY_VERSION)
+    old_version_name = event.name
+    events = find_events(event)
+    Event.delete(events.map {|e| e.id})
+  
+    flash[:notice] = message('project_history.version_removed', :params => old_version_name)
+    redirect_to :action => 'history', :id => snapshot.root_project_id
+  end
+
+  def new_event
+    snapshot=Snapshot.find(params[:sid])
+    return access_denied unless is_admin?(snapshot)
+    
+    @event = Event.new(:snapshot => snapshot, :resource => snapshot.resource)
+    @categories=EventCategory.categories
+    render :partial => 'edit_event'
+  end
+
+  def create_event
+    event = Event.new(params[:event])
+    return access_denied unless is_admin?(event.resource)
+        
+    snapshots = find_project_snapshots(event.snapshot_id)
+    snapshots.each do |snapshot|
+      e = Event.new(params[:event])
+      e.snapshot = snapshot
+      e.resource_id = snapshot.project_id
+      e.event_date = event.snapshot.created_at
+      e.save!
+    end
+    flash[:notice] = message('project_history.event_created', :params => event.name)
+    redirect_to :action => 'history', :id => event.resource_id
+  end
+
+  def edit_event
+    @event = Event.find(params[:id])
+    return access_denied unless is_admin?(@event.resource)
+  
+    @categories=EventCategory.categories
+    render :partial => 'edit_event'
+  end
+  
+  def update_event
+    event = Event.find(params[:event][:id])
+    return access_denied unless is_admin?(event.resource)
+     
+    events = find_events(event)
+    events.each do |event|
+      event.name = params[:event][:name]
+      event.category = params[:event][:category]
+      event.save!
+    end
+    flash[:notice] = message('project_history.event_updated')
+    redirect_to :action => 'history', :id => event.resource_id
+  end
+
+  def delete_event
+    event = Event.find(params[:id])
+    return access_denied unless is_admin?(event.resource)
+    
+    name = event.name
+    resource_id = event.resource_id
+    events = find_events(event)
+    Event.delete(events.map {|e| e.id})
+      
+    flash[:notice] = message('project_history.event_deleted', :params => name)
+    redirect_to :action => 'history', :id => resource_id
+  end
+
   protected
+  
+  def find_project_snapshots(root_snapshot_id)
+    snapshots = Snapshot.find(:all, :include => 'events', :conditions => ["(root_snapshot_id = ? OR id = ?) AND scope = 'PRJ'", root_snapshot_id, root_snapshot_id])
+  end
+  
+  # Returns all an array that contains the given event + all the events that are the same, but which are attached on the submodules
+  def find_events(event)
+    events = []
+    name = event.name
+    category = event.category
+    description = event.description
+    snapshots = find_project_snapshots(event.snapshot_id)
+    snapshots.each do |snapshot|
+      snapshot.events.reject {|e| e.name!=name || e.category!=category}.each do |event|
+        events << event
+      end
+    end
+    events
+  end
 
   def redirect_to_default
     redirect_to home_path

@@ -21,7 +21,6 @@ class Event < ActiveRecord::Base
 
   validates_presence_of    :event_date
   validates_length_of      :name, :within => 1..50
-  validates_length_of      :category, :within => 1..50
 
   belongs_to :resource, :class_name => 'Project', :foreign_key => 'resource_id'
   belongs_to :snapshot
@@ -36,7 +35,10 @@ class Event < ActiveRecord::Base
     end
   end
 
+  #
+  # TODO: Remove this code when everything has been checked on the Event handling, both on the UI and the WS API
+  #
   def populate_snapshot
-    self.snapshot=Snapshot.snapshot_by_date(resource_id, event_date)
+    self.snapshot=Snapshot.snapshot_by_date(resource_id, event_date) unless self.snapshot
   end
 end
