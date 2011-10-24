@@ -28,6 +28,7 @@ import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.resources.Java;
 import org.sonar.plugins.core.batch.ExcludedResourceFilter;
 import org.sonar.plugins.core.batch.MavenInitializer;
+import org.sonar.plugins.core.batch.ProjectFileSystemLogger;
 import org.sonar.plugins.core.charts.DistributionAreaChart;
 import org.sonar.plugins.core.charts.DistributionBarChart;
 import org.sonar.plugins.core.charts.XradarChart;
@@ -214,6 +215,8 @@ public class CorePlugin extends SonarPlugin {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public List getExtensions() {
     List extensions = Lists.newLinkedList();
+
+    extensions.add(ProjectFileSystemLogger.class);
 
     // maven
     extensions.add(MavenInitializer.class);

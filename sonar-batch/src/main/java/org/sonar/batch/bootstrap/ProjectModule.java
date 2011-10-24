@@ -45,8 +45,6 @@ import org.sonar.jpa.dao.DaoFacade;
 import org.sonar.jpa.dao.ProfilesDao;
 import org.sonar.jpa.dao.RulesDao;
 
-import java.util.Arrays;
-
 public class ProjectModule extends Module {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectModule.class);
   private Project project;
@@ -121,11 +119,6 @@ public class ProjectModule extends Module {
   private void logSettings() {
     // TODO move these logs in a dedicated component
     LOG.info("-------------  Analyzing {}", project.getName());
-
-    String[] exclusionPatterns = project.getExclusionPatterns();
-    if (exclusionPatterns != null && exclusionPatterns.length > 0) {
-      LOG.info("Excluded sources : {}", Arrays.toString(exclusionPatterns));
-    }
   }
 
   /**
