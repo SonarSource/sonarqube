@@ -399,6 +399,8 @@ public class DefaultIndex extends SonarIndex {
   public Event addEvent(Resource resource, String name, String description, String category, Date date) {
     Event event = new Event(name, description, category);
     event.setDate(date);
+    event.setCreatedAt(new Date());
+    
     persistence.saveEvent(resource, event);
     return null;
   }
