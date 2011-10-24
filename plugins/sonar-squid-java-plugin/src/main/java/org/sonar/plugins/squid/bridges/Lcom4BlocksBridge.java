@@ -121,9 +121,9 @@ public class Lcom4BlocksBridge extends Bridge {
 
       private int compareType(AsmResource asmResource1, AsmResource asmResource2) {
         if (asmResource1 instanceof AsmField) {
-          return (asmResource2 instanceof AsmField ? 0 : -1);
+          return (asmResource2 instanceof AsmField) ? 0 : -1;
         }
-        return (asmResource2 instanceof AsmMethod ? 0 : 1);
+        return (asmResource2 instanceof AsmMethod) ? 0 : 1;
       }
     });
 

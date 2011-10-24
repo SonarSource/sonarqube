@@ -48,23 +48,29 @@ public class LCOM4Visitor extends BytecodeVisitor {
     unrelatedBlocks = new ArrayList<Set<AsmResource>>();
   }
 
-  public void visitMethod(AsmMethod asmMethod) {
+  public void processMethod(AsmMethod asmMethod) {
     if (isMethodElligibleForLCOM4Computation(asmMethod)) {
       ensureBlockIsCreated(asmMethod);
       for (AsmEdge edge : asmMethod.getOutgoingEdges()) {
         if (isCallToInternalFieldOrMethod(edge) && isNotCallToExcludedFieldFromLcom4Calculation(edge.getTo())) {
-          AsmResource toResource = edge.getTo();
+          AsmResource toResource = getAccessedFieldOrMethod(edge.getTo());
           linkAsmResources(asmMethod, toResource);
         }
       }
-    } else if (asmMethod.isAccessor()) {
-      linkAsmResources(asmMethod, asmMethod.getAccessedField());
     }
   }
-
+  
+  private AsmResource getAccessedFieldOrMethod(AsmResource resource) {
+    if (resource instanceof AsmMethod && ((AsmMethod)resource).isAccessor()) {
+      return ((AsmMethod)resource).getAccessedField();
+    } else {
+      return resource;
+    }
+  }
+  
   private boolean isNotCallToExcludedFieldFromLcom4Calculation(AsmResource to) {
     if (to instanceof AsmField) {
-      AsmField field = (AsmField) to;
+      AsmField field = (AsmField)to;
       return !fieldsToExcludeFromLcom4Calculation.contains(field.getName());
     }
     return true;
@@ -76,6 +82,10 @@ public class LCOM4Visitor extends BytecodeVisitor {
   }
 
   public void leaveClass(AsmClass asmClass) {
+    for (AsmMethod asmMethod: asmClass.getMethods()) {
+      processMethod(asmMethod);
+    }
+    
     int lcom4 = unrelatedBlocks.size();
     if (lcom4 == 0) {
       lcom4 = 1;
@@ -105,21 +115,20 @@ public class LCOM4Visitor extends BytecodeVisitor {
     blockA.addAll(blockB);
     unrelatedBlocks.remove(blockB);
   }
-
+  
   private boolean isCallToInternalFieldOrMethod(AsmEdge edge) {
-    return edge.getTargetAsmClass() == asmClass
-        && (edge.getUsage() == SourceCodeEdgeUsage.CALLS_FIELD || edge.getUsage() == SourceCodeEdgeUsage.CALLS_METHOD);
+    return edge.getTargetAsmClass() == asmClass && (edge.getUsage() == SourceCodeEdgeUsage.CALLS_FIELD || edge.getTargetAsmClass() == asmClass && edge.getUsage() == SourceCodeEdgeUsage.CALLS_METHOD);
   }
 
-  private Set<AsmResource> getOrCreateResourceBlock(AsmResource fromResource) {
-    for (Set<AsmResource> block : unrelatedBlocks) {
-      if (block.contains(fromResource)) {
+  private Set<AsmResource> getOrCreateResourceBlock(AsmResource resource) {
+    for (Set<AsmResource> block: unrelatedBlocks) {
+      if (block.contains(resource)) {
         return block;
       }
     }
-    
+
     Set<AsmResource> block = new HashSet<AsmResource>();
-    block.add(fromResource);
+    block.add(resource);
     unrelatedBlocks.add(block);
     return block;
   }
