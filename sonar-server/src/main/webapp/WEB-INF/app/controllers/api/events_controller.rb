@@ -210,7 +210,6 @@ class Api::EventsController < Api::ApiController
     hash[:c]=event.category
     hash[:dt]=Api::Utils.format_datetime(event.event_date) if event.event_date
     hash[:ds]=event.description if event.description
-    hash[:data]=event.data if event.data
     hash
   end
 
@@ -230,7 +229,6 @@ class Api::EventsController < Api::ApiController
       xml.category(event.category)
       xml.date(Api::Utils.format_datetime(event.event_date)) if event.event_date
       xml.description(event.description) if event.description
-      xml.data(event.data) if event.data
     end
   end
 

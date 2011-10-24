@@ -37,10 +37,10 @@ public class Event extends BaseIdentifiable {
   public static final String CATEGORY_ALERT = "Alert";
   public static final String CATEGORY_PROFILE = "Profile";
 
-  @Column(name = "name", updatable = true, nullable = true, length = 50)
+  @Column(name = "name", updatable = true, nullable = true, length = 400)
   private String name;
 
-  @Column(name = "description", updatable = true, nullable = true, length = 3072)
+  @Column(name = "description", updatable = true, nullable = true, length = 4000)
   private String description;
 
   @Column(name = "category", updatable = true, nullable = true, length = 50)
@@ -58,9 +58,6 @@ public class Event extends BaseIdentifiable {
 
   @Column(name = "resource_id", updatable = true, nullable = true)
   private Integer resourceId;
-
-  @Column(name = "data", updatable = true, nullable = true, length = 4000)
-  private String data;
 
   public Event() {
   }
@@ -160,15 +157,6 @@ public class Event extends BaseIdentifiable {
 
   public Event setResourceId(Integer resourceId) {
     this.resourceId = resourceId;
-    return this;
-  }
-
-  public String getData() {
-    return data;
-  }
-
-  public Event setData(String data) {
-    this.data = data;
     return this;
   }
 
