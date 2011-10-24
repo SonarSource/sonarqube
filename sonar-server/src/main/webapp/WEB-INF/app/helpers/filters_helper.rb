@@ -92,6 +92,14 @@ module FiltersHelper
 
 
     #----- SORTING DIRECTION
+    if filter_context.ascending_sort.nil?
+      java_filter.setAscendingSort(filter.sorted_column.ascending?)
+    else
+      filter.sorted_column.ascending=filter_context.ascending_sort
+      java_filter.setAscendingSort(filter.sorted_column.ascending?)
+    end
+
+
     if filter_context.ascending_sort
       filter.sorted_column.ascending=filter_context.ascending_sort
     end
