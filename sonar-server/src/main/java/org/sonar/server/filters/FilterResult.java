@@ -33,7 +33,7 @@ public class FilterResult {
     this.rows = new ArrayList(rows);
     this.filter = filter;
   }
-  
+
   /**
    * @return a list of arrays
    */
@@ -71,7 +71,7 @@ public class FilterResult {
 
   public void sort() {
     if (filter.isSorted()) {
-      Comparator comparator = new RowComparator(SORTED_COLUMN_INDEX);
+      Comparator comparator = (filter.isTextSort() ? new StringIgnoreCaseComparator(SORTED_COLUMN_INDEX) : new NumericComparator(SORTED_COLUMN_INDEX));
       if (!filter.isAscendingSort()) {
         comparator = new ReverseComparator(comparator);
       }
@@ -81,14 +81,14 @@ public class FilterResult {
 
   public void removeUnvalidRows() {
     int numberOfCriteria = filter.getMeasureCriteria().size();
-    if (numberOfCriteria>0) {
+    if (numberOfCriteria > 0) {
       int fromColumnIndex = (filter.isSorted() ? SORTED_COLUMN_INDEX + 1 : SORTED_COLUMN_INDEX);
-      for (Iterator<Object[]> it=rows.iterator() ; it.hasNext() ; ) {
+      for (Iterator<Object[]> it = rows.iterator(); it.hasNext(); ) {
         Object[] row = it.next();
         boolean remove = false;
-        for (int index=0 ; index<numberOfCriteria ; index++) {
-          if (row[fromColumnIndex+index]==null) {
-            remove=true;
+        for (int index = 0; index < numberOfCriteria; index++) {
+          if (row[fromColumnIndex + index] == null) {
+            remove = true;
           }
         }
         if (remove) {
@@ -98,11 +98,11 @@ public class FilterResult {
     }
   }
 
-  static final class RowComparator implements Comparator, Serializable {
+  static final class NumericComparator implements Comparator, Serializable {
     private static final long serialVersionUID = 4627704879575964978L;
     private int index;
 
-    RowComparator(int index) {
+    NumericComparator(int index) {
       this.index = index;
     }
 
@@ -110,6 +110,26 @@ public class FilterResult {
       Comparable c1 = (Comparable) ((Object[]) a1)[index];
       Object o2 = ((Object[]) a2)[index];
       return (c1 == null ? -1 : (o2 == null ? 1 : c1.compareTo(o2)));
+    }
+  }
+
+  static final class StringIgnoreCaseComparator implements Comparator, Serializable {
+    private int index;
+
+    StringIgnoreCaseComparator(int index) {
+      this.index = index;
+    }
+
+    public int compare(Object o1, Object o2) {
+      String s1 = (String)((Object[]) o1)[index];
+      if (s1 == null) {
+        return -1;
+      }
+      String s2 = (String)((Object[]) o2)[index];
+      if (s2 == null) {
+        return 1;
+      }
+      return s1.compareToIgnoreCase(s2);
     }
   }
 }

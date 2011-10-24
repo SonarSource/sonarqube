@@ -34,7 +34,7 @@ public class FilterResultTest {
   @Test
   public void sortWithNullElements() {
     List<String[]> list = Arrays.asList(new String[]{"foo"}, new String[]{null}, new String[]{"bar"}, new String[]{null}, new String[]{null}, new String[]{"toto"});
-    Collections.sort(list, new FilterResult.RowComparator(0));
+    Collections.sort(list, new FilterResult.NumericComparator(0));
 
     assertThat(list.get(0)[0], nullValue());
     assertThat(list.get(1)[0], nullValue());

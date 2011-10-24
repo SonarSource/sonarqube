@@ -26,7 +26,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
 
 import java.util.List;
 import java.util.Set;
@@ -59,7 +58,7 @@ public class Filter {
   private boolean sortedByName;
   private boolean sortedByDate;
   private boolean sortedByVersion;
-  private boolean useMeasureValueToSort = true; // only if sortedMetricId is not null
+  private boolean isNumericMetric = true;
   private boolean ascendingSort = true;
 
   public Filter setPath(Integer rootSnapshotId, Integer snapshotId, String snapshotPath, boolean isViewContext) {
@@ -174,18 +173,22 @@ public class Filter {
     return sortedMetricId;
   }
 
-  public boolean useMeasureValueToSort() {
-    return useMeasureValueToSort;
+  public boolean isNumericMetric() {
+    return isNumericMetric;
   }
 
-  public Filter setSortedMetricId(Integer id) {
-    return setSortedMetricId(id, true, false);
+  public boolean isTextSort() {
+    return !isNumericMetric || sortedByLanguage || sortedByName || sortedByVersion;
   }
+
+//  public Filter setSortedMetricId(Integer id) {
+//    return setSortedMetricId(id, true, false);
+//  }
 
   public Filter setSortedMetricId(Integer id, boolean isNumericValue, Boolean isVariation) {
     unsetSorts();
     this.sortedMetricId = id;
-    this.useMeasureValueToSort = isNumericValue;
+    this.isNumericMetric = isNumericValue;
     this.sortedByMeasureVariation = isVariation;
     return this;
   }
@@ -240,7 +243,7 @@ public class Filter {
     this.sortedByName = false;
     this.sortedMetricId = null;
     this.sortedByVersion = false;
-    this.useMeasureValueToSort = true;
+    this.isNumericMetric = true;
   }
 
   public List<MeasureCriterion> getMeasureCriteria() {
@@ -353,7 +356,7 @@ public class Filter {
 
   String getColumnToSort() {
     String col = "text_value";
-    if (useMeasureValueToSort()) {
+    if (isNumericMetric()) {
       col = (sortedByMeasureVariation == Boolean.TRUE ? getVariationColumn(periodIndex) : "value");
     }
     return col;
@@ -375,8 +378,9 @@ public class Filter {
   }
 
   public static Filter createForAllQualifiers() {
-    return new Filter().setQualifiers(Resource.QUALIFIER_VIEW, Resource.QUALIFIER_SUBVIEW,
-        Resource.QUALIFIER_PROJECT, Resource.QUALIFIER_MODULE, Resource.QUALIFIER_DIRECTORY, Resource.QUALIFIER_PACKAGE,
-        Resource.QUALIFIER_FILE, Resource.QUALIFIER_CLASS, Qualifiers.UNIT_TEST_FILE, Resource.QUALIFIER_LIB);
+    return new Filter().setQualifiers(
+        Qualifiers.VIEW, Qualifiers.SUBVIEW,
+        Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.DIRECTORY, Qualifiers.PACKAGE,
+        Qualifiers.FILE, Qualifiers.CLASS, Qualifiers.UNIT_TEST_FILE, Qualifiers.LIBRARY, Qualifiers.PARAGRAPH);
   }
 }

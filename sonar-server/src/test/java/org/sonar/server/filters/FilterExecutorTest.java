@@ -21,6 +21,7 @@ package org.sonar.server.filters;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import org.sonar.api.resources.Resource;
 
@@ -129,8 +130,8 @@ public class FilterExecutorTest extends AbstractDbUnitTestCase {
     setupData("shared", "measures");
     FilterExecutor executor = new FilterExecutor(getSession());
     Filter filter = new Filter()
-        .setQualifiers(Sets.newHashSet(Resource.QUALIFIER_CLASS))
-        .setSortedMetricId(2);
+        .setQualifiers(Sets.newHashSet(Qualifiers.CLASS))
+        .setSortedMetricId(2, true, false);
 
     FilterResult result = executor.execute(filter);
     assertSortedSnapshotIds(result, 6, 5);
@@ -141,8 +142,8 @@ public class FilterExecutorTest extends AbstractDbUnitTestCase {
     setupData("shared", "measures");
     FilterExecutor executor = new FilterExecutor(getSession());
     Filter filter = new Filter()
-        .setQualifiers(Sets.newHashSet(Resource.QUALIFIER_CLASS))
-        .setSortedMetricId(2)
+        .setQualifiers(Sets.newHashSet(Qualifiers.CLASS))
+        .setSortedMetricId(2, true, false)
         .setAscendingSort(false);
 
     FilterResult result = executor.execute(filter);
@@ -154,7 +155,7 @@ public class FilterExecutorTest extends AbstractDbUnitTestCase {
     setupData("shared", "measures");
     FilterExecutor executor = new FilterExecutor(getSession());
     Filter filter = new Filter()
-        .setQualifiers(Sets.newHashSet(Resource.QUALIFIER_CLASS))
+        .setQualifiers(Sets.newHashSet(Qualifiers.CLASS))
         .addMeasureCriterion(new MeasureCriterion(2, ">", 50.0, false));
 
     FilterResult result = executor.execute(filter);
@@ -166,7 +167,7 @@ public class FilterExecutorTest extends AbstractDbUnitTestCase {
     setupData("shared", "measures");
     FilterExecutor executor = new FilterExecutor(getSession());
     Filter filter = new Filter()
-        .setQualifiers(Sets.newHashSet(Resource.QUALIFIER_CLASS))
+        .setQualifiers(Sets.newHashSet(Qualifiers.CLASS))
         .addMeasureCriterion(new MeasureCriterion(2, ">", 50.0, false))
         .addMeasureCriterion(new MeasureCriterion(1, ">", 100.0, false));
 
@@ -179,7 +180,7 @@ public class FilterExecutorTest extends AbstractDbUnitTestCase {
     setupData("shared", "measures");
     FilterExecutor executor = new FilterExecutor(getSession());
     Filter filter = new Filter()
-        .setQualifiers(Sets.newHashSet(Resource.QUALIFIER_CLASS))
+        .setQualifiers(Sets.newHashSet(Qualifiers.CLASS))
         .addMeasureCriterion(new MeasureCriterion(2, ">", 50.0, false))
         .addMeasureCriterion(new MeasureCriterion(1, "<", 100.0, false));
 
@@ -192,10 +193,10 @@ public class FilterExecutorTest extends AbstractDbUnitTestCase {
     setupData("shared", "measures");
     FilterExecutor executor = new FilterExecutor(getSession());
     Filter filter = new Filter()
-        .setQualifiers(Sets.newHashSet(Resource.QUALIFIER_CLASS))
+        .setQualifiers(Sets.newHashSet(Qualifiers.CLASS))
         .addMeasureCriterion(new MeasureCriterion(2, ">", 5.0, false))
         .addMeasureCriterion(new MeasureCriterion(1, ">", 5.0, false))
-        .setSortedMetricId(2); // sort by coverage
+        .setSortedMetricId(2, true, false); // sort by coverage
 
     FilterResult result = executor.execute(filter);
     assertSnapshotIds(result, 6, 5);
@@ -206,10 +207,10 @@ public class FilterExecutorTest extends AbstractDbUnitTestCase {
     setupData("shared", "measures");
     FilterExecutor executor = new FilterExecutor(getSession());
     Filter filter = new Filter()
-        .setQualifiers(Sets.newHashSet(Resource.QUALIFIER_CLASS))
+        .setQualifiers(Sets.newHashSet(Qualifiers.CLASS))
         .addMeasureCriterion(new MeasureCriterion(2, ">", 5.0, false)) // filter on coverage
         .addMeasureCriterion(new MeasureCriterion(1, ">", 5.0, false)) // filter on lines
-        .setSortedMetricId(2) // sort by coverage
+        .setSortedMetricId(2, true, false) // sort by coverage
         .setAscendingSort(false);
 
     FilterResult result = executor.execute(filter);
@@ -237,7 +238,7 @@ public class FilterExecutorTest extends AbstractDbUnitTestCase {
     setupData("shared", "measures");
     FilterExecutor executor = new FilterExecutor(getSession());
     Filter filter = new Filter()
-        .setQualifiers(Sets.newHashSet(Resource.QUALIFIER_CLASS))
+        .setQualifiers(Sets.newHashSet(Qualifiers.CLASS))
         .addMeasureCriterion(new MeasureCriterion(3, ">", 0.0, false)); // filter on duplicated lines
 
     FilterResult result = executor.execute(filter);
@@ -249,7 +250,7 @@ public class FilterExecutorTest extends AbstractDbUnitTestCase {
     setupData("shared", "measures");
     FilterExecutor executor = new FilterExecutor(getSession());
     Filter filter = new Filter()
-        .setQualifiers(Sets.newHashSet(Resource.QUALIFIER_CLASS))
+        .setQualifiers(Sets.newHashSet(Qualifiers.CLASS))
         .addMeasureCriterion(new MeasureCriterion(1, ">", 0.0, false)) // filter on lines
         .addMeasureCriterion(new MeasureCriterion(3, ">", 0.0, false)); // filter on duplicated lines
 
@@ -262,8 +263,8 @@ public class FilterExecutorTest extends AbstractDbUnitTestCase {
     setupData("shared", "measures");
     FilterExecutor executor = new FilterExecutor(getSession());
     Filter filter = new Filter()
-        .setQualifiers(Sets.newHashSet(Resource.QUALIFIER_CLASS))
-        .setSortedMetricId(3); // sort by duplicated lines
+        .setQualifiers(Sets.newHashSet(Qualifiers.CLASS))
+        .setSortedMetricId(3, true, false); // sort by duplicated lines
 
     FilterResult result = executor.execute(filter);
     assertSnapshotIds(result, 5, 6);
@@ -274,9 +275,9 @@ public class FilterExecutorTest extends AbstractDbUnitTestCase {
     setupData("shared", "measures");
     FilterExecutor executor = new FilterExecutor(getSession());
     Filter filter = new Filter()
-        .setQualifiers(Sets.newHashSet(Resource.QUALIFIER_CLASS))
+        .setQualifiers(Sets.newHashSet(Qualifiers.CLASS))
         .addMeasureCriterion(new MeasureCriterion(1, ">", 0.0, false)) // lines > 0
-        .setSortedMetricId(2); // sort by coverage
+        .setSortedMetricId(2, true, false); // sort by coverage
 
     FilterResult result = executor.execute(filter);
     assertSnapshotIds(result, 6, 5);
@@ -287,7 +288,7 @@ public class FilterExecutorTest extends AbstractDbUnitTestCase {
     setupData("shared", "measures");
     FilterExecutor executor = new FilterExecutor(getSession());
     Filter filter = new Filter()
-        .setQualifiers(Sets.newHashSet(Resource.QUALIFIER_CLASS))
+        .setQualifiers(Sets.newHashSet(Qualifiers.CLASS))
         .addMeasureCriterion(new MeasureCriterion(1, ">", 400.0, false)) // lines > 400
         .addMeasureCriterion(new MeasureCriterion(1, "<", 600.0, false)); // lines > 400
 
