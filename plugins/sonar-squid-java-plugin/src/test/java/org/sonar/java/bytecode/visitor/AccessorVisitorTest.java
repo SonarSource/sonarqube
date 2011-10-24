@@ -28,6 +28,7 @@ import org.sonar.java.bytecode.asm.AsmClassProvider;
 import org.sonar.java.bytecode.asm.AsmClassProviderImpl;
 import org.sonar.java.bytecode.asm.AsmMethod;
 
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 public class AccessorVisitorTest {
@@ -47,11 +48,21 @@ public class AccessorVisitorTest {
   }
 
   @Test
-  public void testAccessorMethods() {
+  public void testIsAccessor() {
     assertTrue(javaBean.getMethod("getName()Ljava/lang/String;").isAccessor());
     assertTrue(javaBean.getMethod("setName(Ljava/lang/String;)V").isAccessor());
     assertTrue(javaBean.getMethod("setFrench(Z)V").isAccessor());
     assertTrue(javaBean.getMethod("isFrench()Z").isAccessor());
     assertFalse(javaBean.getMethod("anotherMethod()V").isAccessor());
   }
+  
+  @Test
+  public void testAccessedField() {
+    assertThat(javaBean.getMethod("getName()Ljava/lang/String;").getAccessedField().getName(), is("name"));
+    assertThat(javaBean.getMethod("setName(Ljava/lang/String;)V").getAccessedField().getName(), is("name"));
+    assertThat(javaBean.getMethod("setFrench(Z)V").getAccessedField().getName(), is("french"));
+    assertThat(javaBean.getMethod("isFrench()Z").getAccessedField().getName(), is("french"));
+    assertNull(javaBean.getMethod("anotherMethod()V").getAccessedField());
+  }
+  
 }

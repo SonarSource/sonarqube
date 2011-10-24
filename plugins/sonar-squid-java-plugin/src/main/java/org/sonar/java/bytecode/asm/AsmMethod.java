@@ -31,7 +31,7 @@ public class AsmMethod extends AsmResource {
   private boolean inherited = false;
   private boolean empty = false;
   private boolean bodyLoaded = true;
-  private boolean accessor = false;
+  private AsmField accessedField = null;
   private String signature;
   private AsmMethod implementationLinkage = null;
 
@@ -140,11 +140,15 @@ public class AsmMethod extends AsmResource {
   }
 
   public boolean isAccessor() {
-    return accessor;
+    return accessedField != null;
+  }
+  
+  public AsmField getAccessedField() {
+    return accessedField;
   }
 
-  public void setAccessor(boolean accessor) {
-    this.accessor = accessor;
+  public void setAccessedField(AsmField accessedField) {
+    this.accessedField = accessedField;
   }
 
   @Override

@@ -20,6 +20,7 @@
 package org.sonar.java.bytecode.visitor;
 
 import org.sonar.java.bytecode.asm.AsmClass;
+import org.sonar.java.bytecode.asm.AsmField;
 import org.sonar.java.bytecode.asm.AsmMethod;
 
 public class AccessorVisitor extends BytecodeVisitor {
@@ -32,8 +33,9 @@ public class AccessorVisitor extends BytecodeVisitor {
 
   public void visitMethod(AsmMethod asmMethod) {
     String propertyName = extractPropertyNameFromMethodName(asmMethod);
-    if (propertyName != null && asmClass.getField(propertyName) != null) {
-      asmMethod.setAccessor(true);
+    AsmField accessedField = asmClass.getField(propertyName);
+    if (propertyName != null && accessedField != null) {
+      asmMethod.setAccessedField(accessedField);
     }
   }
 

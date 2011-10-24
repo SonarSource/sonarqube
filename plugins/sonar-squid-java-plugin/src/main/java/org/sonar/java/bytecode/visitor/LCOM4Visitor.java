@@ -50,13 +50,15 @@ public class LCOM4Visitor extends BytecodeVisitor {
 
   public void visitMethod(AsmMethod asmMethod) {
     if (isMethodElligibleForLCOM4Computation(asmMethod)) {
-      Set<AsmResource> block = getResourceBlockOrCreateIt(asmMethod);
+      ensureBlockIsCreated(asmMethod);
       for (AsmEdge edge : asmMethod.getOutgoingEdges()) {
         if (isCallToInternalFieldOrMethod(edge) && isNotCallToExcludedFieldFromLcom4Calculation(edge.getTo())) {
           AsmResource toResource = edge.getTo();
-          mergeAsmResourceToBlock(block, toResource);
+          linkAsmResources(asmMethod, toResource);
         }
       }
+    } else if (asmMethod.isAccessor()) {
+      linkAsmResources(asmMethod, asmMethod.getAccessedField());
     }
   }
 
@@ -87,19 +89,21 @@ public class LCOM4Visitor extends BytecodeVisitor {
       getSourceFile(asmClass).addData(Metric.LCOM4_BLOCKS, unrelatedBlocks);
     }
   }
-
-  private void mergeAsmResourceToBlock(Set<AsmResource> block, AsmResource toResource) {
-    if (block.contains(toResource)) {
+  
+  private void ensureBlockIsCreated(AsmResource resource) {
+    getOrCreateResourceBlock(resource);
+  }
+  
+  private void linkAsmResources(AsmResource resourceA, AsmResource resourceB) {
+    Set<AsmResource> blockA = getOrCreateResourceBlock(resourceA);
+    Set<AsmResource> blockB = getOrCreateResourceBlock(resourceB);
+    
+    if (blockA == blockB) {
       return;
     }
-    Set<AsmResource> otherBlock = getResourceBlock(toResource);
-    if (otherBlock == null) {
-      block.add(toResource);
-
-    } else {
-      block.addAll(otherBlock);
-      unrelatedBlocks.remove(otherBlock);
-    }
+    
+    blockA.addAll(blockB);
+    unrelatedBlocks.remove(blockB);
   }
 
   private boolean isCallToInternalFieldOrMethod(AsmEdge edge) {
@@ -107,23 +111,16 @@ public class LCOM4Visitor extends BytecodeVisitor {
         && (edge.getUsage() == SourceCodeEdgeUsage.CALLS_FIELD || edge.getUsage() == SourceCodeEdgeUsage.CALLS_METHOD);
   }
 
-  private Set<AsmResource> getResourceBlockOrCreateIt(AsmResource fromResource) {
-    Set<AsmResource> block = getResourceBlock(fromResource);
-    if (block != null) {
-      return block;
-    }
-    block = new HashSet<AsmResource>();
-    block.add(fromResource);
-    unrelatedBlocks.add(block);
-    return block;
-  }
-
-  private Set<AsmResource> getResourceBlock(AsmResource fromResource) {
+  private Set<AsmResource> getOrCreateResourceBlock(AsmResource fromResource) {
     for (Set<AsmResource> block : unrelatedBlocks) {
       if (block.contains(fromResource)) {
         return block;
       }
     }
-    return null;
+    
+    Set<AsmResource> block = new HashSet<AsmResource>();
+    block.add(fromResource);
+    unrelatedBlocks.add(block);
+    return block;
   }
 }

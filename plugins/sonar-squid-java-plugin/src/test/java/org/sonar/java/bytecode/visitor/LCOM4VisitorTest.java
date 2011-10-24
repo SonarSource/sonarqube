@@ -54,5 +54,10 @@ public class LCOM4VisitorTest {
   public void testLCOM4Visitor() {
     assertThat(squid.search("LCOM4Exclusions").getInt(Metric.LCOM4), is(2));
   }
+  
+  @Test
+  public void testLCOM4AccessorMethodAndField() {
+    assertThat(squid.search("LCOM4AccessorMethodAndField").getInt(Metric.LCOM4), is(1));
+  }
 
 }
