@@ -19,15 +19,14 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import java.util.Iterator;
+
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.core.NotDryRun;
-
-import java.util.Iterator;
 
 @NotDryRun
 public class VersionEventsSensor implements Sensor {
@@ -57,14 +56,6 @@ public class VersionEventsSensor implements Sensor {
           context.deleteEvent(event);
           event = null;
         }
-      }
-
-      if (event != null && !event.isLinkedToSnapshot() &&
-          event.getDate() != null && project.getAnalysisDate() != null &&
-          DateUtils.isSameDay(event.getDate(), project.getAnalysisDate())) {
-        it.remove();
-        context.deleteEvent(event);
-        context.createEvent(project, event.getName(), event.getDescription(), event.getCategory(), null);
       }
     }
   }

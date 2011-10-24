@@ -19,16 +19,14 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import org.junit.Test;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.*;
-import org.sonar.api.batch.Event;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -36,11 +34,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
+import org.junit.Test;
+import org.sonar.api.batch.Event;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
+
 public class VersionEventsSensorTest {
 
   private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
   private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyyMMdd HH:mm");
-
 
   @Test
   public void shouldDoNothingIfNoVersion() {
@@ -104,25 +107,6 @@ public class VersionEventsSensorTest {
     verify(context).deleteEvent(snapshotVersion);
     verify(context).createEvent(eq(project), eq("1.5"), (String) isNull(), eq(Event.CATEGORY_VERSION), (Date) isNull());
   }
-
-  @Test
-  public void shouldAssociateExistingEventsToSnapshot() throws ParseException {
-    Event christmas = mockEvent("christmas", "20081225");
-    Event newYear = mockEvent("newYear", "20090101");
-    Event valentine = mockEvent("valentine", "20090214");
-    SensorContext context = mock(SensorContext.class);
-    Project project = mock(Project.class);
-    when(project.getAnalysisVersion()).thenReturn("1.5");
-    when(project.getAnalysisDate()).thenReturn(dateTimeFormat.parse("20090101 15:34"));
-    when(context.getEvents(project)).thenReturn(new ArrayList(Arrays.asList(christmas, newYear, valentine)));
-
-    VersionEventsSensor sensor = new VersionEventsSensor();
-    sensor.analyse(project, context);
-
-    verify(context).deleteEvent(newYear);
-    verify(context).createEvent(eq(project), eq("newYear"), (String) isNull(), (String) isNull(), (Date) isNull());
-  }
-
 
   private Event mockVersionEvent(String version) {
     Event event = mock(Event.class);

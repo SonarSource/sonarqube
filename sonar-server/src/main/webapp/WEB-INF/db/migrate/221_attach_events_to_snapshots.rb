@@ -22,21 +22,27 @@
 # Sonar 2.12
 #
 class AttachEventsToSnapshots < ActiveRecord::Migration
-
+  
   def self.up
+    logger = RAILS_DEFAULT_LOGGER
     Event.find(:all, :conditions => "snapshot_id IS NULL").each do |event|
-      next_snapshot = Snapshot.find(:first, :conditions => ["created_at >= ? AND project_id = ?", event.event_date, event.resource_id], :order => :created_at)
-      if next_snapshot && (event.category!='Version' || !next_snapshot.event('Version'))
-        event.snapshot = next_snapshot
-        event.event_date = next_snapshot.created_at
-        event.save!
-      else
-       previous_snapshot = Snapshot.find(:last, :conditions => ["created_at <= ? AND project_id = ?", event.event_date, event.resource_id], :order => :created_at)
-       if previous_snapshot && (event.category!='Version' || !previous_snapshot.event('Version'))
-         event.snapshot = previous_snapshot
-         event.event_date = previous_snapshot.created_at
-         event.save!
-       end
+      begin
+        next_snapshot = Snapshot.find(:first, :conditions => ["created_at >= ? AND project_id = ?", event.event_date, event.resource_id], :order => :created_at)
+        if next_snapshot && (event.category!='Version' || !next_snapshot.event('Version'))
+          event.snapshot = next_snapshot
+          event.event_date = next_snapshot.created_at
+          event.save
+        else
+          previous_snapshot = Snapshot.find(:last, :conditions => ["created_at <= ? AND project_id = ?", event.event_date, event.resource_id], :order => :created_at)
+          if previous_snapshot && (event.category!='Version' || !previous_snapshot.event('Version'))
+            event.snapshot = previous_snapshot
+            event.event_date = previous_snapshot.created_at
+            event.save
+          end
+        end
+      rescue Exception => e
+        # do nothing and leave this event as is.
+        logger.warn("The following event could not be attached to a snapshot, and therefore won't be used in the future: " + event.name)
       end
     end
   end
