@@ -186,8 +186,14 @@ class ProjectController < ApplicationController
   
     unless params[:version_name].blank?
       snapshots = find_project_snapshots(snapshot.id)
+      # We update all the related snapshots to have a version attribute in sync with the new name
+      snapshots.each do |snapshot|
+        snapshot.version = params[:version_name]
+        snapshot.save!
+      end
+      # And then we update/create the event on each snapshot
       if snapshot.event(EventCategory::KEY_VERSION)
-        # We update all the related events
+        # This is an update: we update all the related events
         Event.update_all( {:name => params[:version_name]},
                           ["category = ? AND snapshot_id IN (?)", EventCategory::KEY_VERSION, snapshots.map{|s| s.id}])
         flash[:notice] = message('project_history.version_updated', :params => params[:version_name])
@@ -199,11 +205,6 @@ class ProjectController < ApplicationController
                             :event_date => snapshot.created_at)
         end
         flash[:notice] = message('project_history.version_created', :params => params[:version_name])
-      end
-      # And we update all the related snapshots to have a version attribute in sync with the new name
-      snapshots.each do |snapshot|
-        snapshot.version = params[:version_name]
-        snapshot.save!
       end
     end
   
@@ -241,7 +242,7 @@ class ProjectController < ApplicationController
       e = Event.new(params[:event])
       e.snapshot = snapshot
       e.resource_id = snapshot.project_id
-      e.event_date = event.snapshot.created_at
+      e.event_date = snapshot.created_at
       e.save!
     end
     flash[:notice] = message('project_history.event_created', :params => event.name)

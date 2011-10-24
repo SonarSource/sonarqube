@@ -110,13 +110,12 @@ class Api::EventsController < Api::ApiController
   #
   # POST /api/events
   # Required parameters :
+  # - resource (id or key) - must be a root project.
   # - name
   # - category
   #
   # Optional parameters :
-  # - resource (id or key)
   # - description
-  # - data
   # - dateTime (ISO format : 2010-12-25T23:59:59+0100)
   #
   # Example :
@@ -125,21 +124,49 @@ class Api::EventsController < Api::ApiController
   def create
     begin
       load_resource(:admin, params[:resource])
-
-      date=parse_datetime(params[:dateTime], true)
+      raise "Resource must be a root project" unless @resource.qualifier=='TRK'
       
-      event=Event.new(
-        :name => params[:name],
-        :description => params[:description],
-        :event_date => date,
-        :category => params[:category],
-        :resource_id => (@resource ? @resource.id : nil),
-        :data => params[:data]
-      )
-      event.save!
+      root_snapshot=nil
+      if (params[:dateTime])
+        # try to find a snapshot on that day
+        date = parse_datetime(params[:dateTime], true)
+        root_snapshot = Snapshot.find(:last, :conditions => ["project_id = ? AND created_at >= ? AND created_at <= ?", @resource.id, date, date + 1.day], :order => :created_at)
+        raise "No snapshot exists for given date" unless root_snapshot
+      else
+        root_snapshot = Snapshot.find(:last, :conditions => ["project_id = ?", @resource.id], :order => :created_at)
+      end
+      
+      raise "A version already exists on this resource." if params[:category]==EventCategory::KEY_VERSION && root_snapshot.event(EventCategory::KEY_VERSION)
+      
+      # Create events for the root project and every submodule
+      event_to_return = nil
+      name = params[:name]
+      desc = params[:description]
+      category = params[:category]
+      snapshots = Snapshot.find(:all, :include => 'events', :conditions => ["(root_snapshot_id = ? OR id = ?) AND scope = 'PRJ'", root_snapshot.id, root_snapshot.id])
+      snapshots.each do |snapshot|
+        # if this is a 'Version' event, must propagate the version number to the snapshot
+        if category==EventCategory::KEY_VERSION
+          snapshot.version = name
+          snapshot.save!
+        end
+        # and then create the event linked to the updated snapshot        
+        event=Event.new(
+          :name => name,
+          :description => desc,
+          :category => category,
+          :snapshot => snapshot,
+          :resource_id => snapshot.project_id,
+          :event_date => snapshot.created_at
+        )
+        event.save!
+        event_to_return = event if snapshot.project_id = @resource.id
+      end
+      
+      
       respond_to do |format|
-        format.json { render :json => jsonp(events_to_json([event])) }
-        format.xml  { render :xml => events_to_xml([event]) }
+        format.json { render :json => jsonp(events_to_json([event_to_return])) }
+        format.xml  { render :xml => events_to_xml([event_to_return]) }
         format.text { render :text => text_not_supported }
       end
 
@@ -158,7 +185,19 @@ class Api::EventsController < Api::ApiController
     begin
       event=Event.find(params[:id])
       load_resource(:admin, event.resource_id)
-      event.delete
+      
+      events = []
+      name = event.name
+      category = event.category
+      description = event.description
+      snapshots = Snapshot.find(:all, :include => 'events', :conditions => ["(root_snapshot_id = ? OR id = ?) AND scope = 'PRJ'", event.snapshot_id, event.snapshot_id])
+      snapshots.each do |snapshot|
+        snapshot.events.reject {|e| e.name!=name || e.category!=category}.each do |event|
+          events << event
+        end
+      end
+      Event.delete(events.map {|e| e.id})
+      
       render_success("Event deleted")
       
     rescue ActiveRecord::RecordNotFound => e
