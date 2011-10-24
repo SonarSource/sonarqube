@@ -50,7 +50,7 @@ module AuthenticatedSystem
     #   skip_before_filter :login_required
     #
     def login_required
-      authorized? || rescue_from_access_denied
+      authorized? || render_access_denied
     end
 
     # Redirect as appropriate when an access request fails.
@@ -61,7 +61,7 @@ module AuthenticatedSystem
     # behavior in case the user is not authorized
     # to access the requested action.  For example, a popup window might
     # simply close itself.
-    def rescue_from_access_denied
+    def render_access_denied
       respond_to do |format|
         format.html do
           store_location

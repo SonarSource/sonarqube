@@ -24,20 +24,16 @@ class ApplicationController < ActionController::Base
   
   before_filter :check_database_version, :set_locale, :check_authentication
 
-  rescue_from Errors::BadRequest do |error|
-    render :text => error.message, :status => 400
+  unless ActionController::Base.consider_all_requests_local
+    rescue_from Exception, :with => :render_error
+    rescue_from Errors::BadRequest, :with => :render_bad_request
+    rescue_from ActionController::UnknownAction, :with => :render_not_found
+    rescue_from ActionController::RoutingError, :with => :render_not_found
+    rescue_from ActionController::UnknownController, :with => :render_not_found
+    rescue_from ActiveRecord::RecordNotFound, :with => :render_not_found
+    rescue_from Errors::NotFound, :with => :render_not_found
+    rescue_from Errors::AccessDenied, :with => :render_access_denied # See lib/authenticated_system.rb#access_denied()
   end
-
-  rescue_from Errors::NotFound do |error|
-    render :text => error.message, :status => 404
-  end
-
-  rescue_from ActiveRecord::RecordNotFound do |error|
-    render :text => error.message, :status => 404
-  end
-
-  # See lib/authenticated_system.rb#access_denied()
-  rescue_from Errors::AccessDenied, :with => :rescue_from_access_denied
 
   def self.root_context
     ActionController::Base.relative_url_root || ''
@@ -88,14 +84,7 @@ class ApplicationController < ActionController::Base
       redirect_to :controller => 'maintenance', :action => 'index'
     end
   end
-  
-  # Do not log common errors like 404.
-  # See http://maintainable.com/articles/rails_logging_tips
-  EXCEPTIONS_NOT_LOGGED = ['ActionController::UnknownAction','ActionController::RoutingError']
-  def log_error(exc)
-    super unless EXCEPTIONS_NOT_LOGGED.include?(exc.class.name)
-  end
-  
+
   def set_locale
     if params[:locale]
       I18n.locale = request.compatible_language_from(available_locales, [params[:locale]])
@@ -138,6 +127,19 @@ class ApplicationController < ActionController::Base
   # Authentication credentials are missing/incorrect or user has not the required permissions
   def access_denied
     raise Errors::AccessDenied
+  end
+
+  def render_not_found(error)
+    render :file => "#{Rails.public_path}/404.html", :status => 404
+  end
+
+  def render_bad_request(error)
+    render :text => error.message, :status => 400
+  end
+
+  def render_error(error)
+    logger.error("Fail to render: #{request.url}", error)
+    render :file => "#{Rails.public_path}/500.html", :status => 500
   end
 
 end
