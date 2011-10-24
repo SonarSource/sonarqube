@@ -157,7 +157,7 @@ public final class ProjectDefinition implements BatchComponent {
 
   public List<String> getSourceDirs() {
     String sources = properties.getProperty(SOURCE_DIRS_PROPERTY, "");
-    return Arrays.asList(StringUtils.split(sources, SEPARATOR));
+    return trim(StringUtils.split(sources, SEPARATOR));
   }
 
   /**
@@ -219,12 +219,12 @@ public final class ProjectDefinition implements BatchComponent {
 
   public List<String> getSourceFiles() {
     String sources = properties.getProperty(SOURCE_FILES_PROPERTY, "");
-    return Arrays.asList(StringUtils.split(sources, SEPARATOR));
+    return trim(StringUtils.split(sources, SEPARATOR));
   }
 
   public List<String> getTestDirs() {
     String sources = properties.getProperty(TEST_DIRS_PROPERTY, "");
-    return Arrays.asList(StringUtils.split(sources, SEPARATOR));
+    return trim(StringUtils.split(sources, SEPARATOR));
   }
 
   /**
@@ -286,12 +286,12 @@ public final class ProjectDefinition implements BatchComponent {
 
   public List<String> getTestFiles() {
     String sources = properties.getProperty(TEST_FILES_PROPERTY, "");
-    return Arrays.asList(StringUtils.split(sources, SEPARATOR));
+    return trim(StringUtils.split(sources, SEPARATOR));
   }
 
   public List<String> getBinaries() {
     String sources = properties.getProperty(BINARIES_PROPERTY, "");
-    return Arrays.asList(StringUtils.split(sources, SEPARATOR));
+    return trim(StringUtils.split(sources, SEPARATOR));
   }
 
   /**
@@ -310,7 +310,7 @@ public final class ProjectDefinition implements BatchComponent {
 
   public List<String> getLibraries() {
     String sources = properties.getProperty(LIBRARIES_PROPERTY, "");
-    return Arrays.asList(StringUtils.split(sources, SEPARATOR));
+    return trim(StringUtils.split(sources, SEPARATOR));
   }
 
   /**
@@ -360,5 +360,13 @@ public final class ProjectDefinition implements BatchComponent {
    */
   public List<ProjectDefinition> getSubProjects() {
     return subProjects;
+  }
+
+  private static List<String> trim(String[] strings) {
+    List<String> result = Lists.newArrayList();
+    for (String s : strings) {
+      result.add(StringUtils.trim(s));
+    }
+    return result;
   }
 }

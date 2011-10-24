@@ -95,6 +95,23 @@ public class ProjectDefinitionTest {
     assertThat(def.getLibraries().size(), is(0));
   }
 
+  /**
+   * See SONAR-2879
+   */
+  @Test
+  public void shouldTrimPaths() {
+    ProjectDefinition def = ProjectDefinition.create();
+    def.setProperty(ProjectDefinition.SOURCE_DIRS_PROPERTY, "src1, src2 , with whitespace");
+    def.setProperty(ProjectDefinition.TEST_DIRS_PROPERTY, "test1, test2 , with whitespace");
+    def.setProperty(ProjectDefinition.BINARIES_PROPERTY, "bin1, bin2 , with whitespace");
+    def.setProperty(ProjectDefinition.LIBRARIES_PROPERTY, "lib1, lib2 , with whitespace");
+
+    assertFiles(def.getSourceDirs(), "src1", "src2", "with whitespace");
+    assertFiles(def.getTestDirs(), "test1", "test2", "with whitespace");
+    assertFiles(def.getBinaries(), "bin1", "bin2", "with whitespace");
+    assertFiles(def.getLibraries(), "lib1", "lib2", "with whitespace");
+  }
+
   @Test
   public void shouldAddDirectoriesAsPath() {
     ProjectDefinition def = ProjectDefinition.create();
@@ -132,7 +149,6 @@ public class ProjectDefinitionTest {
 
     assertFiles(def.getSourceFiles(), "src/main/java/foo/Bar.java", "src/main/java/hello/World.java");
     assertFiles(def.getTestFiles(), "src/test/java/foo/BarTest.java", "src/test/java/hello/WorldTest.java");
-
   }
 
   @Test
