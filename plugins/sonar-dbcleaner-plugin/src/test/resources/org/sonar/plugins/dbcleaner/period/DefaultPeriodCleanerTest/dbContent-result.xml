@@ -152,16 +152,16 @@
   
 
   <events id="1" name="Version 0.9" resource_id="1" snapshot_id="1" category="Version" description="[null]"
-          event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]" data="[null]"/>
+          event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]"/>
 
   <events id="2" name="Version 1.0-SNAPSHOT" resource_id="1" snapshot_id="130" category="Version" description="[null]"
-          event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]" data="[null]"/>
+          event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]"/>
 
   <events id="3" name="Version 1.1-SNAPSHOT" resource_id="1" snapshot_id="520" category="Version" description="[null]"
-          event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]" data="[null]"/>
+          event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]"/>
 
   <events id="4" name="Version 1.2-SNAPSHOT" resource_id="1" snapshot_id="530" category="Version" description="[null]"
-          event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]" data="[null]"/>
+          event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]"/>
 
 
 </dataset>

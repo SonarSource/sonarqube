@@ -33,6 +33,17 @@ public final class SourceChecksum {
     // only static methods
   }
 
+  /**
+   * @param line line number (first line has number 1)
+   * @return checksum or null if checksum not exists for line
+   */
+  public static String getChecksumForLine(List<String> checksums, Integer line) {
+    if (line == null || line < 1 || line > checksums.size()) {
+      return null;
+    }
+    return checksums.get(line - 1);
+  }
+
   public static List<String> lineChecksumsOfFile(String file) {
     List<String> result = Lists.newArrayList();
     if (file != null) {

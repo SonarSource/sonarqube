@@ -74,7 +74,7 @@ public class ViolationTrackingDecorator implements Decorator {
     List<Violation> result = Lists.newArrayList();
     List<String> checksums = SourceChecksum.lineChecksumsOfFile(index.getSource(context.getResource()));
     for (Violation violation : context.getViolations()) {
-      violation.setChecksum(getChecksumForLine(checksums, violation.getLineId()));
+      violation.setChecksum(SourceChecksum.getChecksumForLine(checksums, violation.getLineId()));
       result.add(violation);
     }
     return result;
@@ -171,14 +171,10 @@ public class ViolationTrackingDecorator implements Decorator {
   }
 
   private boolean isSameChecksum(Violation newViolation, RuleFailureModel pastViolation) {
-    return pastViolation.getChecksum() != null
-        && StringUtils.equals(pastViolation.getChecksum(), newViolation.getChecksum());
+    return StringUtils.equals(pastViolation.getChecksum(), newViolation.getChecksum());
   }
 
   private boolean isSameLine(Violation newViolation, RuleFailureModel pastViolation) {
-    if (pastViolation.getLine() == null && newViolation.getLineId() == null) {
-      return true;
-    }
     return ObjectUtils.equals(pastViolation.getLine(), newViolation.getLineId());
   }
 
@@ -199,16 +195,6 @@ public class ViolationTrackingDecorator implements Decorator {
       newViolation.setNew(true);
       newViolation.setCreatedAt(project.getAnalysisDate());
     }
-  }
-
-  /**
-   * @return checksum or null if checksum not exists for line
-   */
-  private String getChecksumForLine(List<String> checksums, Integer line) {
-    if (line == null || line < 1 || line > checksums.size()) {
-      return null;
-    }
-    return checksums.get(line - 1);
   }
 
   @Override

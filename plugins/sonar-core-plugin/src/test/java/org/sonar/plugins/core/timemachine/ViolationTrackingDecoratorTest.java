@@ -31,7 +31,6 @@ import org.sonar.api.utils.DateUtils;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
@@ -62,7 +61,22 @@ public class ViolationTrackingDecoratorTest {
     Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation1, newViolation2),
         Lists.newArrayList(referenceViolation1, referenceViolation2));
     assertThat(mapping.get(newViolation1), equalTo(referenceViolation1));
+    assertThat(newViolation1.isNew(), is(false));
     assertThat(mapping.get(newViolation2), equalTo(referenceViolation2));
+    assertThat(newViolation2.isNew(), is(false));
+  }
+
+  /**
+   * See SONAR-2928
+   */
+  @Test
+  public void sameRuleAndNullLineAndChecksumButDifferentMessages() {
+    Violation newViolation = newViolation("new message", null, 50, "checksum1");
+    RuleFailureModel referenceViolation = newReferenceViolation("old message", null, 50, "checksum1");
+
+    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
+    assertThat(mapping.get(newViolation), equalTo(referenceViolation));
+    assertThat(newViolation.isNew(), is(false));
   }
 
   @Test
@@ -72,6 +86,7 @@ public class ViolationTrackingDecoratorTest {
 
     Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
     assertThat(mapping.get(newViolation), equalTo(referenceViolation));
+    assertThat(newViolation.isNew(), is(false));
   }
 
   @Test
@@ -91,6 +106,7 @@ public class ViolationTrackingDecoratorTest {
 
     Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
     assertThat(mapping.get(newViolation), is(nullValue()));
+    assertThat(newViolation.isNew(), is(true));
   }
 
   @Test
@@ -100,6 +116,7 @@ public class ViolationTrackingDecoratorTest {
 
     Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
     assertThat(mapping.get(newViolation), equalTo(referenceViolation));
+    assertThat(newViolation.isNew(), is(false));
   }
 
   /**
@@ -112,6 +129,7 @@ public class ViolationTrackingDecoratorTest {
 
     Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
     assertThat(mapping.get(newViolation), equalTo(referenceViolation));
+    assertThat(newViolation.isNew(), is(false));
   }
 
   @Test
@@ -121,6 +139,7 @@ public class ViolationTrackingDecoratorTest {
 
     Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
     assertThat(mapping.get(newViolation), is(nullValue()));
+    assertThat(newViolation.isNew(), is(true));
   }
 
   @Test
@@ -137,7 +156,7 @@ public class ViolationTrackingDecoratorTest {
   public void shouldCompareViolationsWithDatabaseFormat() {
     // violation messages are trimmed and can be abbreviated when persisted in database.
     // Comparing violation messages must use the same format.
-    Violation newViolation = newViolation("message", 1, 50, "checksum1");
+    Violation newViolation = newViolation(" message ", 1, 50, "checksum1");
     RuleFailureModel referenceViolation = newReferenceViolation("       message       ", 1, 50, "checksum2");
 
     Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
@@ -170,24 +189,26 @@ public class ViolationTrackingDecoratorTest {
     assertThat(newViolation.isNew(), is(false));
   }
 
-  private Violation newViolation(String message, int lineId, int ruleId) {
+  private Violation newViolation(String message, Integer lineId, int ruleId) {
     Rule rule = Rule.create().setKey("rule");
     rule.setId(ruleId);
     return Violation.create(rule, null).setLineId(lineId).setMessage(message);
   }
 
-  private Violation newViolation(String message, int lineId, int ruleId, String lineChecksum) {
+  private Violation newViolation(String message, Integer lineId, int ruleId, String lineChecksum) {
     return newViolation(message, lineId, ruleId).setChecksum(lineChecksum);
   }
 
-  private RuleFailureModel newReferenceViolation(String message, int lineId, int ruleId, String lineChecksum) {
+  private RuleFailureModel newReferenceViolation(String message, Integer lineId, int ruleId, String lineChecksum) {
     RuleFailureModel referenceViolation = new RuleFailureModel();
-    referenceViolation.setId(lineId + ruleId);
+    referenceViolation.setId(violationId++);
     referenceViolation.setLine(lineId);
     referenceViolation.setMessage(message);
     referenceViolation.setRuleId(ruleId);
     referenceViolation.setChecksum(lineChecksum);
     return referenceViolation;
   }
+
+  private int violationId = 0;
 
 }
