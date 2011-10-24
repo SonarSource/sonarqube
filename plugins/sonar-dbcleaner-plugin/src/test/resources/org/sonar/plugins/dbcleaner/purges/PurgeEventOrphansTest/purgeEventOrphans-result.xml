@@ -5,12 +5,12 @@
             enabled="true" language="java" copy_resource_id="[null]" profile_id="[null]"/>
 
   <!-- global event -->
-  <events id="1" name="Upgrade" resource_id="[null]" snapshot_id="[null]" category="SYSTEM" description="[null]" event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]" data="[null]" />
+  <events id="1" name="Upgrade" resource_id="[null]" snapshot_id="[null]" category="SYSTEM" description="[null]" event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]" />
 
   <!-- project event -->
-  <events id="2" name="Version 1.0" resource_id="1" snapshot_id="[null]" category="VERSION" description="[null]" event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]" data="[null]"/>
+  <events id="2" name="Version 1.0" resource_id="1" snapshot_id="[null]" category="VERSION" description="[null]" event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]"/>
 
   <!-- orphan : the project does not exist-->
-  <!--<events id="3" name="Version 0.9" resource_id="5" snapshot_id="[null]" category="VERSION" description="[null]" event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]" data="[null]"/> -->
+  <!--<events id="3" name="Version 0.9" resource_id="5" snapshot_id="[null]" category="VERSION" description="[null]" event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]"/> -->
 
 </dataset>
