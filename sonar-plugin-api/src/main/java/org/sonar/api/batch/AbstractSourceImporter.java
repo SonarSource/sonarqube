@@ -25,7 +25,6 @@ import org.sonar.api.resources.*;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 
@@ -81,9 +80,9 @@ public abstract class AbstractSourceImporter implements Sensor {
             String source = FileUtils.readFileToString(file, sourcesEncoding.name());
             context.saveSource(resource, source);
           }
-        } catch (IOException e) {
+        } catch (Exception e) {
           throw new SonarException("Unable to read and import the source file : '" + file.getAbsolutePath() + "' with the charset : '"
-              + sourcesEncoding.name() + "'. You should check the property " + CoreProperties.ENCODING_PROPERTY, e);
+              + sourcesEncoding.name() + "'.", e);
         }
       }
     }

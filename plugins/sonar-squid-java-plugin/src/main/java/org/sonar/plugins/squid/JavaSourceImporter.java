@@ -30,7 +30,6 @@ import org.sonar.api.resources.*;
 import org.sonar.api.utils.SonarException;
 import org.sonar.java.api.JavaUtils;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 
@@ -84,7 +83,7 @@ public final class JavaSourceImporter implements Sensor {
         context.saveSource(javaFile, source);
       }
 
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new SonarException("Unable to read and import the source file : '" + inputFile.getFile().getAbsolutePath() + "' with the charset : '"
           + sourcesEncoding.name() + "'.", e);
     }
