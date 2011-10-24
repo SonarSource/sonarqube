@@ -19,14 +19,23 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import org.junit.Test;
-
-import java.util.List;
-
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
+import java.util.List;
+
+import org.junit.Test;
+
 public class SourceChecksumTest {
+  @Test
+  public void shouldGetChecksumForLine() {
+    List<String> checksums = SourceChecksum.lineChecksumsOfFile("line");
+    assertThat(SourceChecksum.getChecksumForLine(checksums, null), nullValue());
+    assertThat(SourceChecksum.getChecksumForLine(checksums, 0), nullValue());
+    assertThat(SourceChecksum.getChecksumForLine(checksums, 1), notNullValue());
+    assertThat(SourceChecksum.getChecksumForLine(checksums, 2), nullValue());
+  }
+
   /**
    * See http://jira.codehaus.org/browse/SONAR-2358
    */
