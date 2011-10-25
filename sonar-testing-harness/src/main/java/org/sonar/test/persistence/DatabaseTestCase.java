@@ -93,7 +93,7 @@ public abstract class DatabaseTestCase {
   @AfterClass
   public static void stopDatabase() throws Exception {
     try {
-      DriverManager.getConnection(JDBC_URL + ";shutdown=true");
+      DriverManager.getConnection(JDBC_URL + ";drop=true");
       databaseTester.onTearDown();
     } catch (Exception e) {
       // silently fail

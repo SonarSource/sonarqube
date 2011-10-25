@@ -64,6 +64,7 @@ public class RuleMapperTest {
     if (databaseTester != null) {
       databaseTester.onTearDown();
     }
+    database.stop();
   }
 
   @Test

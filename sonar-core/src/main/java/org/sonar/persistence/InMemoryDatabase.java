@@ -21,36 +21,37 @@ package org.sonar.persistence;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.ibatis.io.Resources;
 
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
 import java.util.Properties;
 
+/**
+ * Derby in-memory database, used for unit tests only.
+ *
+ * @since 2.12
+ */
 public class InMemoryDatabase implements Database {
 
   private BasicDataSource datasource;
 
-  public void start() {
+  public InMemoryDatabase start() {
     startDatabase();
     executeDdl();
+    return this;
   }
 
-  private void startDatabase() {
+  void startDatabase() {
     try {
       Properties properties = new Properties();
       properties.put("driverClassName", "org.apache.derby.jdbc.EmbeddedDriver");
       properties.put("username", "sonar");
       properties.put("password", "sonar");
       properties.put("url", "jdbc:derby:memory:sonar;create=true;user=sonar;password=sonar");
+      properties.put("maxActive", "1");
+      properties.put("maxIdle", "1");
       datasource = (BasicDataSource) BasicDataSourceFactory.createDataSource(properties);
 
     } catch (Exception e) {
@@ -58,33 +59,37 @@ public class InMemoryDatabase implements Database {
     }
   }
 
-  private void executeDdl() {
+  void executeDdl() {
+    Connection connection = null;
     try {
-      Connection connection = datasource.getConnection();
-      List<String> lines = IOUtils.readLines(getClass().getResourceAsStream("/org/sonar/persistence/master_derby.ddl"));
-      for (String line : lines) {
-        if (StringUtils.isNotBlank(line) && !StringUtils.startsWith(line, "--")) {
-          Statement statement = connection.createStatement();
-          statement.execute(line);
-          statement.close();
+      connection = datasource.getConnection();
+      DdlUtils.execute(connection, "derby");
+
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to execute DDL", e);
+      
+    } finally {
+      if (connection != null) {
+        try {
+          connection.close();
+        } catch (SQLException e) {
+          // crazy close method !
         }
       }
-      connection.commit();
-    } catch (Exception e) {
-      e.printStackTrace();
     }
   }
 
-  public void stop() {
+  public InMemoryDatabase stop() {
     try {
       if (datasource != null) {
         datasource.close();
       }
-      DriverManager.getConnection("jdbc:derby:memory:sonar;shutdown=true;user=sonar;password=sonar");
+      DriverManager.getConnection("jdbc:derby:memory:sonar;drop=true");
 
     } catch (SQLException e) {
-      throw new IllegalStateException("Fail to stop Derby", e);
+      // silently ignore stop failure
     }
+    return this;
   }
 
   public DataSource getDataSource() {

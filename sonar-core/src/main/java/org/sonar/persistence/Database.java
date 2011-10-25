@@ -22,10 +22,11 @@ package org.sonar.persistence;
 import javax.sql.DataSource;
 
 /**
+ *
  * @since 2.12
  */
 public interface Database {
-  void start();
-  void stop();
+  Database start();
+  Database stop();
   DataSource getDataSource();
 }

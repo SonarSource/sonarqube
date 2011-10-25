@@ -47,12 +47,13 @@ public class DefaultDatabase implements Database {
     this.settings = settings;
   }
 
-  public final void start() {
+  public final DefaultDatabase start() {
     try {
       doBeforeStart();
 
       LOG.info("Create JDBC datasource");
       datasource = (BasicDataSource) BasicDataSourceFactory.createDataSource(getCommonsDbcpProperties());
+      return this;
 
     } catch (Exception e) {
       throw new IllegalStateException("Fail to connect to database", e);
@@ -62,7 +63,7 @@ public class DefaultDatabase implements Database {
   protected void doBeforeStart() {
   }
 
-  public final void stop() {
+  public final DefaultDatabase stop() {
     doBeforeStop();
     if (datasource != null) {
       try {
@@ -71,6 +72,7 @@ public class DefaultDatabase implements Database {
         throw new IllegalStateException("Fail to stop JDBC connection pool", e);
       }
     }
+    return this;
   }
 
   protected void doBeforeStop() {

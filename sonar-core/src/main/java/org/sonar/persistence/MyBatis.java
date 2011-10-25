@@ -25,10 +25,10 @@ import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.*;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
-import org.sonar.persistence.model.DuplicationMapper;
-import org.sonar.persistence.model.RuleMapper;
 import org.sonar.persistence.model.Duplication;
+import org.sonar.persistence.model.DuplicationMapper;
 import org.sonar.persistence.model.Rule;
+import org.sonar.persistence.model.RuleMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,6 +46,7 @@ public class MyBatis {
     Configuration conf = new Configuration();
     conf.setEnvironment(new Environment("production", createTransactionFactory(), database.getDataSource()));
     conf.setUseGeneratedKeys(true);
+    conf.setLazyLoadingEnabled(false);
 
     loadMapper(conf, DuplicationMapper.class, "Duplication", Duplication.class);
     loadMapper(conf, RuleMapper.class, "Rule", Rule.class);
