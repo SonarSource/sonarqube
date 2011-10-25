@@ -96,6 +96,17 @@
   </dependencySets>
 
   <fileSets>
+    <!-- Configuration Files -->
+    <fileSet>
+      <directory>src/main/assembly</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>conf/**</include>
+      </includes>
+      <!-- See SONAR-2580 - for better readability of configuration files on Windows: -->
+      <lineEnding>dos</lineEnding>
+      <fileMode>0644</fileMode>
+    </fileSet>
     <!-- Windows Scripts -->
     <fileSet>
       <directory>src/main/assembly</directory>
@@ -124,6 +135,7 @@
       <directory>src/main/assembly</directory>
       <outputDirectory>/</outputDirectory>
       <excludes>
+        <exclude>conf/**</exclude>
         <exclude>**/*.bat</exclude>
         <exclude>**/*.cmd</exclude>
         <exclude>**/*.sh</exclude>
