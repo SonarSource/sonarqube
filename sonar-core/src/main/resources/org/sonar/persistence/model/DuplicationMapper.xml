@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.persistence.model.DuplicationMapper">
+
+	<select id="selectById" parameterType="long" resultType="Duplication">
+		select id, name from duplications where id = #{id}
+	</select>
+
+	<select id="selectAll" resultType="Duplication">
+		select id, name from duplications 
+	</select>
+
+	<insert id="create" keyColumn="id" useGeneratedKeys="true" parameterType="Duplication">
+		insert into duplications(name) values (#{name})
+	</insert>
+
+	<update id="update" parameterType="Duplication">
+		update duplications set name = #{name} where id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="long">
+		delete from duplications where id = #{id}
+	</delete>
+
+
+</mapper>
+

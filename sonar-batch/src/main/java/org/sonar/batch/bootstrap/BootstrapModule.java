@@ -21,7 +21,6 @@ package org.sonar.batch.bootstrap;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.batch.FakeMavenPluginExecutor;
 import org.sonar.batch.MavenPluginExecutor;
@@ -29,8 +28,10 @@ import org.sonar.batch.ServerMetadata;
 import org.sonar.batch.config.BatchSettings;
 import org.sonar.batch.config.BatchSettingsEnhancer;
 import org.sonar.jpa.session.DatabaseSessionProvider;
-import org.sonar.jpa.session.DriverDatabaseConnector;
+import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
+import org.sonar.persistence.DefaultDatabase;
+import org.sonar.persistence.MyBatis;
 
 import java.net.URLClassLoader;
 
@@ -63,7 +64,9 @@ public class BootstrapModule extends Module {
     // set as the current context classloader for hibernate, else it does not find the JDBC driver.
     Thread.currentThread().setContextClassLoader(bootstrapClassLoader);
 
-    addCoreSingleton(new DriverDatabaseConnector(getComponentByType(Settings.class), bootstrapClassLoader));
+    addCoreSingleton(BatchDatabase.class);
+    addCoreSingleton(MyBatis.class);
+    addCoreSingleton(DefaultDatabaseConnector.class);
     addCoreSingleton(ThreadLocalDatabaseSessionFactory.class);
     addAdapter(new DatabaseSessionProvider());
     for (Object component : boostrapperComponents) {

@@ -46,9 +46,9 @@ import org.sonar.jpa.dao.DaoFacade;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.dao.ProfilesDao;
 import org.sonar.jpa.dao.RulesDao;
-import org.sonar.jpa.session.DatabaseSessionFactory;
-import org.sonar.jpa.session.DatabaseSessionProvider;
-import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
+import org.sonar.jpa.session.*;
+import org.sonar.persistence.DefaultDatabase;
+import org.sonar.persistence.MyBatis;
 import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
@@ -121,13 +121,15 @@ public final class Platform {
     rootContainer.addSingleton(new BaseConfiguration());
     rootContainer.addSingleton(ServerSettings.class);
     rootContainer.addSingleton(EmbeddedDatabaseFactory.class);
-    rootContainer.addSingleton(JndiDatabaseConnector.class);
+    rootContainer.addSingleton(DefaultDatabase.class);
+    rootContainer.addSingleton(MyBatis.class);
+    rootContainer.addSingleton(DefaultDatabaseConnector.class);
     rootContainer.addSingleton(DefaultServerUpgradeStatus.class);
     rootContainer.startComponents();
   }
 
   private boolean isUpToDateDatabase() {
-    JndiDatabaseConnector databaseConnector = getContainer().getComponentByType(JndiDatabaseConnector.class);
+    DefaultDatabaseConnector databaseConnector = getContainer().getComponentByType(DefaultDatabaseConnector.class);
     return databaseConnector.isOperational();
   }
 
