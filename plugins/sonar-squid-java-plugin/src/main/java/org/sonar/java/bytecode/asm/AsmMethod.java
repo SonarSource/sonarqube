@@ -142,8 +142,8 @@ public class AsmMethod extends AsmResource {
   
   private void ensureAccessorComputed() {
     if (accessFieldComputed) return;
+    accessFieldComputed = true; // Set accessFieldComputed to true before calling setAccessedField() to prevent infinite recursion on recursive methods.
     setAccessedField();
-    accessFieldComputed = true;
   }
   
   private void setAccessedField() {

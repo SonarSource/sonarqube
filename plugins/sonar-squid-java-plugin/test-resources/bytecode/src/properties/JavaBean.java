@@ -9,6 +9,8 @@ public class JavaBean {
   ArrayList<String> firstNames = new ArrayList<String>();
   private static String staticMember;
   private String FirstName;
+  private int myIncrement = 1;
+  private int myDifferentIncrement = 2;
   
   public String getName() {
     return name;
@@ -66,6 +68,49 @@ public class JavaBean {
   
   public String getFirstName() {
     return FirstName;
+  }
+  
+  public String getFirstNameAndOneArgument(String argument) {
+    return FirstName + " " + argument;
+  }
+  
+  public int recursiveAbs(int value) {
+    if (value < 0) {
+      return recursiveAbs(value + myIncrement);
+    } else return value;
+  }
+  
+  public int recursiveAbsNotAccessor(int value) {
+    if (value < 0) {
+      return recursiveAbs(value + myIncrement);
+    } else {
+      iShouldBeAStaticSetter();
+      return value;
+    }
+  }
+  
+  public int recursiveAbsSameIncrementA(int value) {
+    if (value < 0) {
+      return recursiveAbsSameIncrementB(value + myIncrement);
+    } else return value;
+  }
+  
+  public int recursiveAbsSameIncrementB(int value) {
+    if (value < 0) {
+      return recursiveAbsSameIncrementA(value + myIncrement);
+    } else return value;
+  }
+  
+  public int recursiveAbsDifferentIncrementA(int value) {
+    if (value < 0) {
+      return recursiveAbsDifferentIncrementB(value + myIncrement);
+    } else return value;
+  }
+  
+  public int recursiveAbsDifferentIncrementB(int value) {
+    if (value < 0) {
+      return recursiveAbsSameIncrementA(value + myDifferentIncrement);
+    } else return value;
   }
   
 }
