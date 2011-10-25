@@ -19,6 +19,8 @@
  */
 package org.sonar.batch;
 
+import java.util.Date;
+
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.project.MavenProject;
@@ -31,8 +33,7 @@ import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
-
-import java.util.Date;
+import org.sonar.api.utils.SonarException;
 
 public class ProjectConfigurator implements BatchComponent {
 
@@ -50,7 +51,7 @@ public class ProjectConfigurator implements BatchComponent {
     // For backward compatibility we must set POM and actual packaging
     project.setDescription(StringUtils.defaultString(definition.getDescription()));
     project.setPackaging("jar");
-    
+
     for (Object component : definition.getContainerExtensions()) {
       if (component instanceof MavenProject) {
         MavenProject pom = (MavenProject) component;
@@ -96,7 +97,14 @@ public class ProjectConfigurator implements BatchComponent {
   }
 
   Date loadAnalysisDate() {
-    Date date = settings.getDate(CoreProperties.PROJECT_DATE_PROPERTY);
+    Date date = null;
+    try {
+      // sonar.projectDate may have been specified as a time
+      date = settings.getDateTime(CoreProperties.PROJECT_DATE_PROPERTY);
+    } catch (SonarException e) {
+      // this is probably just a date
+      date = settings.getDate(CoreProperties.PROJECT_DATE_PROPERTY);
+    }
     if (date == null) {
       date = new Date();
     }

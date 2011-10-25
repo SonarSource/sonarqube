@@ -111,6 +111,16 @@ public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
     assertEquals("30012005", new SimpleDateFormat("ddMMyyyy").format(project.getAnalysisDate()));
   }
 
+  @Test
+  public void analysisTimestampCouldBeExplicitlySet() {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2005-01-30T08:45:10+0000");
+    Project project = new Project("key");
+    new ProjectConfigurator(getSession(), settings).configure(project);
+
+    assertEquals("30012005-4510", new SimpleDateFormat("ddMMyyyy-mmss").format(project.getAnalysisDate()));
+  }
+
   @Test(expected = RuntimeException.class)
   public void failIfAnalyisDateIsNotValid() {
     Settings configuration = new Settings();
