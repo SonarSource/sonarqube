@@ -19,10 +19,9 @@
  */
 package org.sonar.persistence.model;
 
-import org.sonar.persistence.model.Rule;
-
 import java.util.List;
 
 public interface RuleMapper {
   List<Rule> selectAll();
+  Rule selectById(Long id);
 }

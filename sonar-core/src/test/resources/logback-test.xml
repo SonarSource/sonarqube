@@ -4,20 +4,12 @@
 
   <appender name="STDOUT"
             class="ch.qos.logback.core.ConsoleAppender">
-    <layout class="ch.qos.logback.classic.PatternLayout">
+    <encoder>
       <pattern>
         %d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n
       </pattern>
-    </layout>
+    </encoder>
   </appender>
-
-  <!-- logger name="org.sonar.DBSTATISTICS">
-    <level value="INFO"/>
-  </logger>
--->
-  <!--<logger name="org.hibernate.SQL">-->
-    <!--<level value="INFO"/>-->
-  <!--</logger>-->
 
   <root>
     <level value="WARN"/>

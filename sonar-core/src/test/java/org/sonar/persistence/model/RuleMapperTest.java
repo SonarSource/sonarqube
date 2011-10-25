@@ -23,7 +23,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.dbunit.DataSourceDatabaseTester;
 import org.dbunit.IDatabaseTester;
-import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.CompositeDataSet;
 import org.dbunit.dataset.IDataSet;
@@ -31,9 +30,7 @@ import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.hamcrest.core.Is;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.sonar.persistence.InMemoryDatabase;
 import org.sonar.persistence.MyBatis;
 
@@ -44,23 +41,23 @@ import static org.junit.Assert.assertThat;
 
 public class RuleMapperTest {
 
-  protected IDatabaseTester databaseTester;
-  private MyBatis myBatis;
-  private InMemoryDatabase database;
+  protected static IDatabaseTester databaseTester;
+  private static MyBatis myBatis;
+  private static InMemoryDatabase database;
 
-  @Before
-  public final void startDatabase() throws Exception {
+  @BeforeClass
+  public static void startDatabase() throws Exception {
     database = new InMemoryDatabase();
     myBatis = new MyBatis(database);
-    
+
     database.start();
     myBatis.start();
 
     databaseTester = new DataSourceDatabaseTester(database.getDataSource());
   }
 
-  @After
-  public final void stopDatabase() throws Exception {
+  @AfterClass
+  public static void stopDatabase() throws Exception {
     if (databaseTester != null) {
       databaseTester.onTearDown();
     }
@@ -78,6 +75,21 @@ public class RuleMapperTest {
     assertThat(rules.size(), Is.is(1));
     Rule rule = rules.get(0);
     assertThat(rule.getId(), Is.is(1L));
+    assertThat(rule.getName(), Is.is("Avoid Null"));
+    assertThat(rule.getDescription(), Is.is("Should avoid NULL"));
+    assertThat(rule.isEnabled(), Is.is(true));
+    assertThat(rule.getRepositoryKey(), Is.is("checkstyle"));
+  }
+
+  @Test
+  public void testSelectById() throws Exception {
+    setupData("selectById");
+    SqlSession sqlSession = myBatis.openSession();
+    RuleMapper ruleMapper = sqlSession.getMapper(RuleMapper.class);
+    Rule rule = ruleMapper.selectById(2L);
+    sqlSession.close();
+
+    assertThat(rule.getId(), Is.is(2L));
     assertThat(rule.getName(), Is.is("Avoid Null"));
     assertThat(rule.getDescription(), Is.is("Should avoid NULL"));
     assertThat(rule.isEnabled(), Is.is(true));
@@ -116,9 +128,6 @@ public class RuleMapperTest {
 
     databaseTester.setDataSet(compositeDataSet);
     IDatabaseConnection connection = databaseTester.getConnection();
-    DatabaseConfig config = connection.getConfig();
-    //config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, new Db2DataTypeFactory());
-
     DatabaseOperation.CLEAN_INSERT.execute(connection, databaseTester.getDataSet());
 
     connection.getConnection().commit();
