@@ -54,6 +54,11 @@ public class AccessorVisitorTest {
     assertTrue(javaBean.getMethod("setFrench(Z)V").isAccessor());
     assertTrue(javaBean.getMethod("isFrench()Z").isAccessor());
     assertFalse(javaBean.getMethod("anotherMethod()V").isAccessor());
+    assertTrue(javaBean.getMethod("addFirstName(Ljava/lang/String;)V").isAccessor());
+    assertTrue(javaBean.getMethod("getNameOrDefault()Ljava/lang/String;").isAccessor());
+    assertTrue(javaBean.getMethod("accessorWithABunchOfCalls()V").isAccessor());
+    assertFalse(javaBean.getMethod("iShouldBeAStaticSetter()V").isAccessor());
+    assertTrue(javaBean.getMethod("getFirstName()Ljava/lang/String;").isAccessor());
   }
   
   @Test
@@ -63,6 +68,11 @@ public class AccessorVisitorTest {
     assertThat(javaBean.getMethod("setFrench(Z)V").getAccessedField().getName(), is("french"));
     assertThat(javaBean.getMethod("isFrench()Z").getAccessedField().getName(), is("french"));
     assertNull(javaBean.getMethod("anotherMethod()V").getAccessedField());
+    assertThat(javaBean.getMethod("addFirstName(Ljava/lang/String;)V").getAccessedField().getName(), is("firstNames"));
+    assertThat(javaBean.getMethod("getNameOrDefault()Ljava/lang/String;").getAccessedField().getName(), is("name"));
+    assertThat(javaBean.getMethod("accessorWithABunchOfCalls()V").getAccessedField().getName(), is("firstNames"));
+    assertNull(javaBean.getMethod("iShouldBeAStaticSetter()V").getAccessedField());
+    assertThat(javaBean.getMethod("getFirstName()Ljava/lang/String;").getAccessedField().getName(), is("FirstName"));
   }
   
 }

@@ -74,11 +74,11 @@ public class BytecodeVisitorsTest {
 
   @Test
   public void testLCOM4Visitor() {
-    assertEquals(3, squid.search("tags/impl/Todo").getInt(Metric.LCOM4));
-    assertEquals(3, squid.search("tags/impl/Todo.java").getInt(Metric.LCOM4));
+    assertEquals(2, squid.search("tags/impl/Todo").getInt(Metric.LCOM4));
+    assertEquals(2, squid.search("tags/impl/Todo.java").getInt(Metric.LCOM4));
 
     List<Set<AsmResource>> lcom4Blocks = (List<Set<AsmResource>>) squid.search("tags/impl/Todo.java").getData(Metric.LCOM4_BLOCKS);
-    assertEquals(3, lcom4Blocks.size());
+    assertEquals(2, lcom4Blocks.size());
 
     assertEquals(1, squid.search("tags/Tag").getInt(Metric.LCOM4));
     assertEquals(1, squid.search("tags/TagName").getInt(Metric.LCOM4));
@@ -86,8 +86,8 @@ public class BytecodeVisitorsTest {
 
   @Test
   public void testRFCVisitor() {
-    assertEquals(9, todo.getInt(Metric.RFC));
-    assertEquals(9, squid.search("tags/impl/Todo.java").getInt(Metric.RFC));
+    assertEquals(8, todo.getInt(Metric.RFC));
+    assertEquals(8, squid.search("tags/impl/Todo.java").getInt(Metric.RFC));
     assertEquals(5, sourceFile.getInt(Metric.RFC));
   }
 

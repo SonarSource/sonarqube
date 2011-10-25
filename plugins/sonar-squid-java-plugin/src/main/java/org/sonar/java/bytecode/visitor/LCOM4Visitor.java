@@ -118,7 +118,7 @@ public class LCOM4Visitor extends BytecodeVisitor {
   }
   
   private boolean isCallToInternalFieldOrMethod(AsmEdge edge) {
-    return edge.getTargetAsmClass() == asmClass && (edge.getUsage() == SourceCodeEdgeUsage.CALLS_FIELD || edge.getTargetAsmClass() == asmClass && edge.getUsage() == SourceCodeEdgeUsage.CALLS_METHOD);
+    return edge.getTargetAsmClass() == asmClass && (edge.getUsage() == SourceCodeEdgeUsage.CALLS_FIELD || edge.getUsage() == SourceCodeEdgeUsage.CALLS_METHOD);
   }
 
   private Set<AsmResource> getOrCreateResourceBlock(AsmResource resource) {

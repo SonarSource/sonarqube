@@ -19,38 +19,49 @@
  */
 package org.sonar.java.bytecode.visitor;
 
-import org.sonar.java.bytecode.asm.AsmClass;
-import org.sonar.java.bytecode.asm.AsmField;
-import org.sonar.java.bytecode.asm.AsmMethod;
+import org.sonar.java.bytecode.asm.*;
+import org.sonar.squid.api.SourceCodeEdgeUsage;
 
 public class AccessorVisitor extends BytecodeVisitor {
-
+  
   private AsmClass asmClass;
-
+  
   public void visitClass(AsmClass asmClass) {
     this.asmClass = asmClass;
   }
 
   public void visitMethod(AsmMethod asmMethod) {
-    String propertyName = extractPropertyNameFromMethodName(asmMethod);
-    AsmField accessedField = asmClass.getField(propertyName);
-    if (propertyName != null && accessedField != null) {
-      asmMethod.setAccessedField(accessedField);
-    }
+    if (asmMethod.isConstructor()) return;
+    
+    AsmField accessedField = getAccessedField(asmMethod);
+    asmMethod.setAccessedField(accessedField);
   }
-
-  private String extractPropertyNameFromMethodName(AsmMethod asmMethod) {
-    String propertyName;
-    String methodName = asmMethod.getName();
-    if (methodName.length() > 3 && (methodName.startsWith("get") || methodName.startsWith("set"))) {
-      propertyName = methodName.substring(3);
-    } else if (methodName.length() > 2 && methodName.startsWith("is")) {
-      propertyName = methodName.substring(2);
-    } else {
-      return null;
+  
+  private AsmField getAccessedField(AsmMethod asmMethod) {
+    AsmField accessedField = null;
+    
+    for (AsmEdge edge: asmMethod.getOutgoingEdges()) {
+      if (isCallToNonStaticInternalField(edge)) {
+        if (accessedField != null && accessedField != edge.getTo()) {
+          accessedField = null;
+          break;
+        }
+        accessedField = (AsmField)edge.getTo();
+      } else if (isCallToNonStaticInternalMethod(edge)) {
+        accessedField = null;
+        break;
+      }
     }
-    byte[] bytes = propertyName.getBytes();
-    bytes[0] = (byte) Character.toLowerCase((char) bytes[0]);
-    return new String(bytes);
+    
+    return accessedField;
   }
+  
+  private boolean isCallToNonStaticInternalField(AsmEdge edge) {
+    return edge.getTargetAsmClass() == asmClass && edge.getUsage() == SourceCodeEdgeUsage.CALLS_FIELD && !((AsmField)edge.getTo()).isStatic();
+  }
+  
+  private boolean isCallToNonStaticInternalMethod(AsmEdge edge) {
+    return edge.getTargetAsmClass() == asmClass && edge.getUsage() == SourceCodeEdgeUsage.CALLS_METHOD && !((AsmMethod)edge.getTo()).isStatic();
+  }
+  
 }
