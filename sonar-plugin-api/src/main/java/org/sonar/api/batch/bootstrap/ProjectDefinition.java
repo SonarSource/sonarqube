@@ -25,7 +25,6 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 

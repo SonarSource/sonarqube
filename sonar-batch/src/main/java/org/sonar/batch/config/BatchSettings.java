@@ -25,8 +25,6 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.core.config.ConfigurationUtils;
 
-import java.util.Map;
-
 /**
  * @since 2.12
  */

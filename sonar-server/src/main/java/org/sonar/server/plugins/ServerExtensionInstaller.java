@@ -21,7 +21,6 @@ package org.sonar.server.plugins;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Maps;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Extension;
 import org.sonar.api.ExtensionProvider;

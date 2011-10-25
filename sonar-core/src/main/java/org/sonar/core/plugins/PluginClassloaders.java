@@ -29,12 +29,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugin;
 import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;

@@ -34,7 +34,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
-import java.sql.SQLOutput;
 import java.util.Properties;
 
 public class EmbeddedDatabase {

@@ -19,7 +19,6 @@
  */
 package org.sonar.jpa.session;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.cfg.Environment;
 import org.slf4j.Logger;
