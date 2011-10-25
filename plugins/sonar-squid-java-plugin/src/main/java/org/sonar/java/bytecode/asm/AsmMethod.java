@@ -150,17 +150,29 @@ public class AsmMethod extends AsmResource {
     if (!isConstructor()) {
       for (AsmEdge edge: getOutgoingEdges()) {
         if (isCallToNonStaticInternalField(edge)) {
-          if (accessedField != null && accessedField != edge.getTo()) {
+          if (isFieldAccesingDifferentField((AsmField)edge.getTo())) {
             accessedField = null;
             break;
           }
           accessedField = (AsmField)edge.getTo();
         } else if (isCallToNonStaticInternalMethod(edge)) {
-          accessedField = null;
-          break;
+          AsmMethod method = (AsmMethod)edge.getTo();
+          if (isMethodNotAccessorOrAccessingDifferentField(method)) {
+            accessedField = null;
+            break;
+          }
+          accessedField = method.getAccessedField();
         }
       }
     }
+  }
+
+  private boolean isMethodNotAccessorOrAccessingDifferentField(AsmMethod method) {
+    return !method.isAccessor() || (accessedField != null && accessedField != method.getAccessedField());
+  }
+
+  private boolean isFieldAccesingDifferentField(AsmField field) {
+    return accessedField != null && accessedField != field;
   }
   
   private boolean isCallToNonStaticInternalField(AsmEdge edge) {

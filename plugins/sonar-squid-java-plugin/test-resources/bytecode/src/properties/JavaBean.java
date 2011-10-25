@@ -10,8 +10,16 @@ public class JavaBean {
   private static String staticMember;
   private String FirstName;
   
-  public String getName(){
+  public String getName() {
     return name;
+  }
+  
+  public String getNameIndirect() {
+    return getName();
+  }
+  
+  public String getNameOrEmpty() {
+    return (getName() == null) ? "" : name;
   }
   
   public void setName(String name){

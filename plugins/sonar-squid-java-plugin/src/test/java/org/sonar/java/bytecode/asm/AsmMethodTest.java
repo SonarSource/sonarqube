@@ -62,6 +62,8 @@ public class AsmMethodTest {
   @Test
   public void testIsAccessor() {
     assertTrue(javaBean.getMethod("getName()Ljava/lang/String;").isAccessor());
+    assertTrue(javaBean.getMethod("getNameIndirect()Ljava/lang/String;").isAccessor());
+    assertTrue(javaBean.getMethod("getNameOrEmpty()Ljava/lang/String;").isAccessor());
     assertTrue(javaBean.getMethod("setName(Ljava/lang/String;)V").isAccessor());
     assertTrue(javaBean.getMethod("setFrench(Z)V").isAccessor());
     assertTrue(javaBean.getMethod("isFrench()Z").isAccessor());
@@ -76,6 +78,8 @@ public class AsmMethodTest {
   @Test
   public void testGetAccessedField() {
     assertThat(javaBean.getMethod("getName()Ljava/lang/String;").getAccessedField().getName(), is("name"));
+    assertThat(javaBean.getMethod("getNameIndirect()Ljava/lang/String;").getAccessedField().getName(), is("name"));
+    assertThat(javaBean.getMethod("getNameOrEmpty()Ljava/lang/String;").getAccessedField().getName(), is("name"));
     assertThat(javaBean.getMethod("setName(Ljava/lang/String;)V").getAccessedField().getName(), is("name"));
     assertThat(javaBean.getMethod("setFrench(Z)V").getAccessedField().getName(), is("french"));
     assertThat(javaBean.getMethod("isFrench()Z").getAccessedField().getName(), is("french"));
