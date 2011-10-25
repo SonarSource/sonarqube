@@ -48,7 +48,7 @@ public class LCOM4Visitor extends BytecodeVisitor {
     unrelatedBlocks = new ArrayList<Set<AsmResource>>();
   }
 
-  public void processMethod(AsmMethod asmMethod) {
+  public void visitMethod(AsmMethod asmMethod) {
     if (isMethodElligibleForLCOM4Computation(asmMethod)) {
       ensureBlockIsCreated(asmMethod);
       for (AsmEdge edge : asmMethod.getOutgoingEdges()) {
@@ -82,10 +82,6 @@ public class LCOM4Visitor extends BytecodeVisitor {
   }
 
   public void leaveClass(AsmClass asmClass) {
-    for (AsmMethod asmMethod: asmClass.getMethods()) {
-      processMethod(asmMethod);
-    }
-    
     int lcom4 = unrelatedBlocks.size();
     if (lcom4 == 0) {
       lcom4 = 1;

@@ -31,6 +31,7 @@ public class AsmMethod extends AsmResource {
   private boolean inherited = false;
   private boolean empty = false;
   private boolean bodyLoaded = true;
+  private boolean accessFieldComputed = false;
   private AsmField accessedField = null;
   private String signature;
   private AsmMethod implementationLinkage = null;
@@ -138,17 +139,45 @@ public class AsmMethod extends AsmResource {
   void setEmpty(boolean empty) {
     this.empty = empty;
   }
-
-  public boolean isAccessor() {
-    return accessedField != null;
+  
+  private void ensureAccessorComputed() {
+    if (accessFieldComputed) return;
+    setAccessedField();
+    accessFieldComputed = true;
+  }
+  
+  private void setAccessedField() {
+    if (!isConstructor()) {
+      for (AsmEdge edge: getOutgoingEdges()) {
+        if (isCallToNonStaticInternalField(edge)) {
+          if (accessedField != null && accessedField != edge.getTo()) {
+            accessedField = null;
+            break;
+          }
+          accessedField = (AsmField)edge.getTo();
+        } else if (isCallToNonStaticInternalMethod(edge)) {
+          accessedField = null;
+          break;
+        }
+      }
+    }
+  }
+  
+  private boolean isCallToNonStaticInternalField(AsmEdge edge) {
+    return edge.getTargetAsmClass() == (AsmClass)getParent() && edge.getUsage() == SourceCodeEdgeUsage.CALLS_FIELD && !((AsmField)edge.getTo()).isStatic();
+  }
+  
+  private boolean isCallToNonStaticInternalMethod(AsmEdge edge) {
+    return edge.getTargetAsmClass() == (AsmClass)getParent() && edge.getUsage() == SourceCodeEdgeUsage.CALLS_METHOD && !((AsmMethod)edge.getTo()).isStatic();
   }
   
   public AsmField getAccessedField() {
+    ensureAccessorComputed();
     return accessedField;
   }
-
-  public void setAccessedField(AsmField accessedField) {
-    this.accessedField = accessedField;
+  
+  public boolean isAccessor() {
+    return getAccessedField() != null;
   }
 
   @Override

@@ -19,17 +19,26 @@
  */
 package org.sonar.java.bytecode.asm;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.sonar.java.ast.SquidTestUtils;
+import org.sonar.java.bytecode.ClassLoaderBuilder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 public class AsmMethodTest {
 
+  private static AsmClass javaBean;
   private AsmClass stringClass = new AsmClass("java/lang/String");
   private AsmClass numberClass = new AsmClass("java/lang/Number");
 
+  @BeforeClass
+  public static void init() {
+    AsmClassProvider asmClassProvider = new AsmClassProviderImpl(ClassLoaderBuilder.create(SquidTestUtils.getFile("/bytecode/bin/")));
+    javaBean = asmClassProvider.getClass("properties/JavaBean");
+  }
+  
   @Test
   public void testAsmMethod() {
     AsmMethod method = new AsmMethod(new AsmClass("java/lang/String"), "toString()Ljava/lang/String;");
@@ -48,6 +57,34 @@ public class AsmMethodTest {
     assertEquals(new AsmMethod(stringClass, "firstMethod()V").hashCode(), new AsmMethod(stringClass, "firstMethod()V").hashCode());
     assertFalse(new AsmMethod(stringClass, "firstMethod()V").hashCode() == new AsmMethod(stringClass, "secondMethod()V").hashCode());
     assertFalse(new AsmMethod(stringClass, "firstMethod()V").hashCode() == new AsmMethod(numberClass, "firstMethod()V").hashCode());
+  }
+  
+  @Test
+  public void testIsAccessor() {
+    assertTrue(javaBean.getMethod("getName()Ljava/lang/String;").isAccessor());
+    assertTrue(javaBean.getMethod("setName(Ljava/lang/String;)V").isAccessor());
+    assertTrue(javaBean.getMethod("setFrench(Z)V").isAccessor());
+    assertTrue(javaBean.getMethod("isFrench()Z").isAccessor());
+    assertFalse(javaBean.getMethod("anotherMethod()V").isAccessor());
+    assertTrue(javaBean.getMethod("addFirstName(Ljava/lang/String;)V").isAccessor());
+    assertTrue(javaBean.getMethod("getNameOrDefault()Ljava/lang/String;").isAccessor());
+    assertTrue(javaBean.getMethod("accessorWithABunchOfCalls()V").isAccessor());
+    assertFalse(javaBean.getMethod("iShouldBeAStaticSetter()V").isAccessor());
+    assertTrue(javaBean.getMethod("getFirstName()Ljava/lang/String;").isAccessor());
+  }
+  
+  @Test
+  public void testGetAccessedField() {
+    assertThat(javaBean.getMethod("getName()Ljava/lang/String;").getAccessedField().getName(), is("name"));
+    assertThat(javaBean.getMethod("setName(Ljava/lang/String;)V").getAccessedField().getName(), is("name"));
+    assertThat(javaBean.getMethod("setFrench(Z)V").getAccessedField().getName(), is("french"));
+    assertThat(javaBean.getMethod("isFrench()Z").getAccessedField().getName(), is("french"));
+    assertNull(javaBean.getMethod("anotherMethod()V").getAccessedField());
+    assertThat(javaBean.getMethod("addFirstName(Ljava/lang/String;)V").getAccessedField().getName(), is("firstNames"));
+    assertThat(javaBean.getMethod("getNameOrDefault()Ljava/lang/String;").getAccessedField().getName(), is("name"));
+    assertThat(javaBean.getMethod("accessorWithABunchOfCalls()V").getAccessedField().getName(), is("firstNames"));
+    assertNull(javaBean.getMethod("iShouldBeAStaticSetter()V").getAccessedField());
+    assertThat(javaBean.getMethod("getFirstName()Ljava/lang/String;").getAccessedField().getName(), is("FirstName"));
   }
 
 }

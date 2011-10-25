@@ -91,7 +91,6 @@ public class BytecodeScanner extends CodeScanner<BytecodeVisitor> {
   @Override
   public Collection<Class<? extends BytecodeVisitor>> getVisitorClasses() {
     List<Class<? extends BytecodeVisitor>> visitorClasses = new ArrayList<Class<? extends BytecodeVisitor>>();
-    visitorClasses.add(AccessorVisitor.class);
     visitorClasses.add(DITVisitor.class);
     visitorClasses.add(RFCVisitor.class);
     visitorClasses.add(NOCVisitor.class);
