@@ -63,7 +63,7 @@
               <td class="max-width"><%= version_event.name if version_event -%></td>
               <td class="small" style="padding-left:20px">
                 <a href="#" onclick="$('version_<%= snapshot.id -%>').hide();$('version_<%= snapshot.id -%>_form').show();"><%= version_event ? message('project_history.rename_version') : message('project_history.create_version') -%></a>
-                <% if version_event %>
+                <% if version_event && !snapshot.islast? %>
                   <%= link_to ( message('project_history.remove_version'),  
         		                { :action => 'delete_version', :sid => snapshot.id},
         		                :confirm => message('project_history.do_you_want_to_remove_version', :params => version_event.name) ) -%>

@@ -22,6 +22,8 @@ package org.sonar.plugins.dbcleaner.purges;
 import org.sonar.api.batch.Event;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
+import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.database.model.SnapshotSource;
 import org.sonar.plugins.dbcleaner.api.Purge;
 import org.sonar.plugins.dbcleaner.api.PurgeContext;
 import org.sonar.plugins.dbcleaner.api.PurgeUtils;
@@ -37,8 +39,16 @@ public final class PurgeEventOrphans extends Purge {
   }
 
   public void purge(PurgeContext context) {
-    Query query = getSession().createQuery("SELECT e.id FROM " + Event.class.getSimpleName() +
-        " e WHERE e.resourceId IS NOT NULL AND NOT EXISTS(FROM " + ResourceModel.class.getSimpleName() + " r WHERE r.id=e.resourceId)");
+    String selectEventsSql = "SELECT e.id FROM " + Event.class.getSimpleName() + " e WHERE (";
+    selectEventsSql += "e.resourceId IS NOT NULL AND NOT EXISTS(FROM " + ResourceModel.class.getSimpleName()
+        + " r WHERE r.id=e.resourceId)";
+    selectEventsSql += ") OR (";
+    selectEventsSql += "e.snapshot IS NULL";
+    selectEventsSql += ") OR (";
+    selectEventsSql += "e.snapshot IS NOT NULL AND NOT EXISTS(FROM " + Snapshot.class.getSimpleName() + " s WHERE s.id=e.snapshot)";
+    selectEventsSql += ")";
+
+    Query query = getSession().createQuery(selectEventsSql);
     final List<Integer> eventIds = query.getResultList();
     PurgeUtils.executeQuery(getSession(), "", eventIds, "DELETE FROM " + Event.class.getSimpleName() + " WHERE id in (:ids)");
   }

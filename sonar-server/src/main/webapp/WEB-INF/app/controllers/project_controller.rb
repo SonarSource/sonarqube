@@ -229,7 +229,8 @@ class ProjectController < ApplicationController
     return access_denied unless is_admin?(snapshot)
     
     @event = Event.new(:snapshot => snapshot, :resource => snapshot.resource)
-    @categories=EventCategory.categories
+    @categories=EventCategory.categories(false)
+    @categories << EventCategory.other_category
     render :partial => 'edit_event'
   end
 
@@ -253,7 +254,8 @@ class ProjectController < ApplicationController
     @event = Event.find(params[:id])
     return access_denied unless is_admin?(@event.resource)
   
-    @categories=EventCategory.categories
+    @categories=EventCategory.categories(false)
+    @categories << EventCategory.other_category
     render :partial => 'edit_event'
   end
   
@@ -262,10 +264,10 @@ class ProjectController < ApplicationController
     return access_denied unless is_admin?(event.resource)
      
     events = find_events(event)
-    events.each do |event|
-      event.name = params[:event][:name]
-      event.category = params[:event][:category]
-      event.save!
+    events.each do |e|
+      e.name = params[:event][:name]
+      e.category = params[:event][:category]
+      e.save!
     end
     flash[:notice] = message('project_history.event_updated')
     redirect_to :action => 'history', :id => event.resource_id

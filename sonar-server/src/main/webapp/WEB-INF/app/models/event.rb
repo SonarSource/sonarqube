@@ -20,7 +20,8 @@
 class Event < ActiveRecord::Base
 
   validates_presence_of    :event_date
-  validates_length_of      :name, :within => 1..50
+  validates_length_of      :name, :within => 1..400
+  validates_length_of      :category, :within => 1..50
 
   belongs_to :resource, :class_name => 'Project', :foreign_key => 'resource_id'
   belongs_to :snapshot

@@ -13,7 +13,7 @@
             </td>
             <td class="left" nowrap="nowrap" valign="top">
                 <span class="comments"><%= message('category') -%> (<%= link_to message('configure').downcase, {:controller=> 'event_categories', :action => 'index'}, :class => 'action' %>)</span><br>
-                <%= f.select(:category, @categories.collect {|c| [ message('event.category.' + c.name, :default => c.name), c.name ] }, {:include_blank => true}) %>
+                <%= f.select(:category, @categories.collect {|c| [ message('event.category.' + c.name, :default => c.name), c.name ] }) %>
             </td>
         </tr>
         <tr>
