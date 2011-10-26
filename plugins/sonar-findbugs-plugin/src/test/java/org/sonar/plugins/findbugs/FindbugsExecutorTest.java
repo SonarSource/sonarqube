@@ -26,9 +26,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.util.Locale;
 
-import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
@@ -66,7 +64,6 @@ public class FindbugsExecutorTest {
     Project project = mock(Project.class);
     ProjectFileSystem fs = mock(ProjectFileSystem.class);
     when(project.getFileSystem()).thenReturn(fs);
-    when(project.getConfiguration()).thenReturn(new BaseConfiguration());
     FindbugsConfiguration conf = new FindbugsConfiguration(project, null, null, null);
 
     new FindbugsExecutor(conf).execute();
@@ -83,7 +80,6 @@ public class FindbugsExecutorTest {
     when(conf.saveIncludeConfigXml()).thenReturn(new File("test-resources/findbugs-include.xml"));
     when(conf.getEffort()).thenReturn("default");
     when(conf.getTimeout()).thenReturn(CoreProperties.FINDBUGS_TIMEOUT_DEFAULT_VALUE);
-    when(conf.getLocale()).thenReturn(Locale.ENGLISH);
     return conf;
   }
 
