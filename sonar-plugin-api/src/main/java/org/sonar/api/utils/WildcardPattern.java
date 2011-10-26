@@ -62,6 +62,7 @@ import org.apache.commons.lang.StringUtils;
 public class WildcardPattern {
 
   private static final Map<String, WildcardPattern> CACHE = new HashMap<String, WildcardPattern>();
+  private static final String SPECIAL_CHARS = "()[]^$.{}+|";
 
   private Pattern pattern;
   private String stringRepresentation;
@@ -82,7 +83,7 @@ public class WildcardPattern {
     while (i < antPattern.length()) {
       final char ch = antPattern.charAt(i);
 
-      if (ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == '^' || ch == '$' || ch == '.' || ch == '{' || ch == '}' || ch == '+' || ch == '|') {
+      if (SPECIAL_CHARS.indexOf(ch) != -1) {
         // Escape regexp-specific characters
         sb.append('\\').append(ch);
       } else if (ch == '*') {

@@ -147,6 +147,8 @@ public class WildcardPatternTest {
 
     assertFalse(match("[ab]", "a"));
     assertTrue(match("[ab]", "[ab]"));
+
+    assertTrue("all regexp-specific characters", match("()[]^$.{}+|", "()[]^$.{}+|"));
   }
 
   @Test

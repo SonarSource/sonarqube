@@ -59,6 +59,8 @@ public class StringArrayReader extends Reader {
           case CR_PLUS_LF:
             content.append("\r\n");
             break;
+          default:
+            throw new IllegalStateException(); // should never happen
         }
       }
     }

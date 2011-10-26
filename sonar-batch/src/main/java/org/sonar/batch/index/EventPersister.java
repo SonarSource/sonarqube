@@ -22,7 +22,6 @@ package org.sonar.batch.index;
 import org.sonar.api.batch.Event;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 
 import java.util.Collections;
