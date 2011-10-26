@@ -24,13 +24,18 @@ import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
 import static org.junit.Assert.assertThat;
 
 public class DefaultDatabaseTest {
+
+  static {
+    DerbyUtils.fixDerbyLogs();
+  }
+
+
   @Test
   public void shouldLoadDefaultValues() {
     DefaultDatabase db = new DefaultDatabase(new Settings());
@@ -100,11 +105,7 @@ public class DefaultDatabaseTest {
       assertThat(db.getDialect().getId(), Is.is("derby"));
       assertThat(((BasicDataSource) db.getDataSource()).getMaxActive(), Is.is(1));
     } finally {
-      try {
-        DriverManager.getConnection("jdbc:derby:memory:sonar;drop=true");
-      } catch (Exception e) {
-        // silently ignore
-      }
+      DerbyUtils.dropInMemoryDatabase();
     }
   }
 }

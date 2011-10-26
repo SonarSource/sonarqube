@@ -32,6 +32,7 @@ import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
 import org.sonar.persistence.DefaultDatabase;
 import org.sonar.persistence.MyBatis;
+import org.sonar.persistence.dao.DaoUtils;
 
 import java.net.URLClassLoader;
 
@@ -68,6 +69,9 @@ public class BootstrapModule extends Module {
     addCoreSingleton(MyBatis.class);
     addCoreSingleton(DefaultDatabaseConnector.class);
     addCoreSingleton(ThreadLocalDatabaseSessionFactory.class);
+    for (Class daoClass : DaoUtils.getDaoClasses()) {
+      addCoreSingleton(daoClass);
+    }
     addAdapter(new DatabaseSessionProvider());
     for (Object component : boostrapperComponents) {
       addCoreSingleton(component);

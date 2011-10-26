@@ -50,8 +50,10 @@ public class MyBatis implements BatchComponent, ServerComponent {
     conf.setUseGeneratedKeys(true);
     conf.setLazyLoadingEnabled(false);
 
-    loadMapper(conf, DuplicationMapper.class, "Duplication", Duplication.class);
-    loadMapper(conf, RuleMapper.class, "Rule", Rule.class);
+    loadAlias(conf, "Duplication", Duplication.class);
+    loadAlias(conf, "Rule", Rule.class);
+    loadMapper(conf, DuplicationMapper.class);
+    loadMapper(conf, RuleMapper.class);
 
     sessionFactory = new SqlSessionFactoryBuilder().build(conf);
     return this;
@@ -69,11 +71,11 @@ public class MyBatis implements BatchComponent, ServerComponent {
     return sessionFactory.openSession(type);
   }
 
-  private void loadMapper(Configuration conf, Class mapperClass, String alias, Class dtoClass) throws IOException {
+
+  private void loadMapper(Configuration conf, Class mapperClass) throws IOException {
     // trick to use database-specific XML files for a single Mapper Java interface
-    InputStream input = getClass().getResourceAsStream("/" + StringUtils.replace(mapperClass.getName(), ".", "/") + ".xml");
+    InputStream input = getPathToMapper(mapperClass);
     try {
-      conf.getTypeAliasRegistry().registerAlias(alias, dtoClass);
       XMLMapperBuilder mapperParser = new XMLMapperBuilder(input, conf, mapperClass.getName(), conf.getSqlFragments());
       mapperParser.parse();
       conf.addLoadedResource(mapperClass.getName());
@@ -81,6 +83,18 @@ public class MyBatis implements BatchComponent, ServerComponent {
     } finally {
       IOUtils.closeQuietly(input);
     }
+  }
+
+  private InputStream getPathToMapper(Class mapperClass) {
+    InputStream input = getClass().getResourceAsStream("/" + StringUtils.replace(mapperClass.getName(), ".", "/") + "-" + database.getDialect().getId() + ".xml");
+    if (input == null) {
+      input = getClass().getResourceAsStream("/" + StringUtils.replace(mapperClass.getName(), ".", "/") + ".xml");
+    }
+    return input;
+  }
+
+  private void loadAlias(Configuration conf, String alias, Class dtoClass) {
+    conf.getTypeAliasRegistry().registerAlias(alias, dtoClass);
   }
 
   private static JdbcTransactionFactory createTransactionFactory() {

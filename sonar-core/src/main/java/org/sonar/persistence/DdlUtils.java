@@ -45,6 +45,7 @@ public final class DdlUtils {
   }
 
   /**
+   * TODO to be replaced by mybatis ScriptRunner
    * The connection is commited in this method but not closed.
    */
   public static void execute(Connection connection, String dialect) {

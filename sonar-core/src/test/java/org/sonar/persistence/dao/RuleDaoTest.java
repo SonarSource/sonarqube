@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.persistence.model;
+package org.sonar.persistence.dao;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.session.SqlSession;
@@ -31,28 +31,32 @@ import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.hamcrest.core.Is;
 import org.junit.*;
+import org.junit.Rule;
+import org.sonar.persistence.DerbyUtils;
 import org.sonar.persistence.InMemoryDatabase;
 import org.sonar.persistence.MyBatis;
+import org.sonar.persistence.model.*;
 
 import java.io.InputStream;
 import java.util.List;
 
 import static org.junit.Assert.assertThat;
 
-public class RuleMapperTest {
+public class RuleDaoTest {
 
   protected static IDatabaseTester databaseTester;
-  private static MyBatis myBatis;
   private static InMemoryDatabase database;
+  private static RuleDao dao;
 
   @BeforeClass
   public static void startDatabase() throws Exception {
     database = new InMemoryDatabase();
-    myBatis = new MyBatis(database);
+    MyBatis myBatis = new MyBatis(database);
 
     database.start();
     myBatis.start();
 
+    dao = new RuleDao(myBatis);
     databaseTester = new DataSourceDatabaseTester(database.getDataSource());
   }
 
@@ -67,13 +71,10 @@ public class RuleMapperTest {
   @Test
   public void testSelectAll() throws Exception {
     setupData("selectAll");
-    SqlSession sqlSession = myBatis.openSession();
-    RuleMapper ruleMapper = sqlSession.getMapper(RuleMapper.class);
-    List<Rule> rules = ruleMapper.selectAll();
-    sqlSession.close();
+    List<org.sonar.persistence.model.Rule> rules = dao.selectAll();
 
     assertThat(rules.size(), Is.is(1));
-    Rule rule = rules.get(0);
+    org.sonar.persistence.model.Rule rule = rules.get(0);
     assertThat(rule.getId(), Is.is(1L));
     assertThat(rule.getName(), Is.is("Avoid Null"));
     assertThat(rule.getDescription(), Is.is("Should avoid NULL"));
@@ -84,10 +85,7 @@ public class RuleMapperTest {
   @Test
   public void testSelectById() throws Exception {
     setupData("selectById");
-    SqlSession sqlSession = myBatis.openSession();
-    RuleMapper ruleMapper = sqlSession.getMapper(RuleMapper.class);
-    Rule rule = ruleMapper.selectById(2L);
-    sqlSession.close();
+    org.sonar.persistence.model.Rule rule = dao.selectById(2L);
 
     assertThat(rule.getId(), Is.is(2L));
     assertThat(rule.getName(), Is.is("Avoid Null"));

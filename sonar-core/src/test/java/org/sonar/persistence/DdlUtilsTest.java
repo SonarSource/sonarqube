@@ -21,6 +21,7 @@ package org.sonar.persistence;
 
 import org.apache.derby.jdbc.EmbeddedDriver;
 import org.hamcrest.core.Is;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -32,6 +33,10 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 
 public class DdlUtilsTest {
+
+  static {
+    DerbyUtils.fixDerbyLogs();
+  }
 
   @Test
   public void shouldSupportOnlyDerby() {
@@ -56,9 +61,6 @@ public class DdlUtilsTest {
     connection.close();
     assertThat(tables, greaterThan(30));
 
-    try {
-      DriverManager.getConnection("jdbc:derby:memory:sonar;drop=true");
-    } catch (Exception e) {
-    }
+    DerbyUtils.dropInMemoryDatabase();
   }
 }

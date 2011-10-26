@@ -19,41 +19,14 @@
  */
 package org.sonar.persistence.dao;
 
-import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
-import org.sonar.persistence.MyBatis;
-import org.sonar.persistence.model.Rule;
-import org.sonar.persistence.model.RuleMapper;
-
+import java.util.Arrays;
 import java.util.List;
 
-public class RuleDao implements BatchComponent, ServerComponent {
-
-  private MyBatis mybatis;
-
-  public RuleDao(MyBatis mybatis) {
-    this.mybatis = mybatis;
+public final class DaoUtils {
+  private DaoUtils() {
   }
 
-  public List<Rule> selectAll() {
-    SqlSession sqlSession = mybatis.openSession();
-    try {
-      RuleMapper mapper = sqlSession.getMapper(RuleMapper.class);
-      return mapper.selectAll();
-    } finally {
-      sqlSession.close();
-    }
+  public static List<Class> getDaoClasses() {
+    return Arrays.<Class>asList(RuleDao.class, DuplicationDao.class);
   }
-
-  public Rule selectById(Long id) {
-    SqlSession sqlSession = mybatis.openSession();
-    try {
-      RuleMapper mapper = sqlSession.getMapper(RuleMapper.class);
-      return mapper.selectById(id);
-    } finally {
-      sqlSession.close();
-    }
-  }
-
 }

@@ -33,6 +33,10 @@ import static org.junit.Assert.assertThat;
 
 public class InMemoryDatabaseTest {
 
+  static {
+    DerbyUtils.fixDerbyLogs();
+  }
+
   @Test
   public void shouldExecuteDdlAtStartup() throws SQLException {
     int tables = 0;

@@ -34,6 +34,11 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 public class MyBatisTest {
+
+  static {
+    DerbyUtils.fixDerbyLogs();
+  }
+  
   private static MyBatis myBatis;
   private static InMemoryDatabase database;
 

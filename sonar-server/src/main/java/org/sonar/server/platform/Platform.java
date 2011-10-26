@@ -50,6 +50,7 @@ import org.sonar.jpa.session.*;
 import org.sonar.persistence.DatabaseMigrator;
 import org.sonar.persistence.DefaultDatabase;
 import org.sonar.persistence.MyBatis;
+import org.sonar.persistence.dao.DaoUtils;
 import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
@@ -127,6 +128,9 @@ public final class Platform {
     rootContainer.addSingleton(DefaultDatabaseConnector.class);
     rootContainer.addSingleton(DefaultServerUpgradeStatus.class);
     rootContainer.addSingleton(DatabaseMigrator.class);
+    for (Class daoClass : DaoUtils.getDaoClasses()) {
+      rootContainer.addSingleton(daoClass);
+    }
     rootContainer.startComponents();
   }
 
