@@ -26,6 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
+import org.sonar.jpa.dialect.Dialect;
+import org.sonar.jpa.dialect.DialectRepository;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -42,6 +44,7 @@ public class DefaultDatabase implements Database {
 
   private Settings settings;
   private BasicDataSource datasource;
+  private Dialect dialect;
 
   public DefaultDatabase(Settings settings) {
     this.settings = settings;
@@ -51,13 +54,27 @@ public class DefaultDatabase implements Database {
     try {
       doBeforeStart();
 
-      LOG.info("Create JDBC datasource");
-      datasource = (BasicDataSource) BasicDataSourceFactory.createDataSource(getCommonsDbcpProperties());
+      Properties properties = getProperties();
+      dialect = initDialect(properties);
+      datasource = initDatasource(properties);
       return this;
 
     } catch (Exception e) {
       throw new IllegalStateException("Fail to connect to database", e);
     }
+  }
+
+  BasicDataSource initDatasource(Properties properties) throws Exception {
+    LOG.info("Create JDBC datasource");
+    return (BasicDataSource) BasicDataSourceFactory.createDataSource(extractCommonsDbcpProperties(properties));
+  }
+
+  Dialect initDialect(Properties properties) {
+    Dialect result = DialectRepository.find(properties.getProperty("sonar.jdbc.dialect"), properties.getProperty("sonar.jdbc.url"));
+    if (result != null && "derby".equals(result.getId())) {
+      LoggerFactory.getLogger(getClass()).warn("Derby database should be used for evaluation purpose only");
+    }
+    return result;
   }
 
   protected void doBeforeStart() {
@@ -77,6 +94,10 @@ public class DefaultDatabase implements Database {
 
   protected void doBeforeStop() {
 
+  }
+
+  public final Dialect getDialect() {
+    return dialect;
   }
 
   public final DataSource getDataSource() {
@@ -104,10 +125,9 @@ public class DefaultDatabase implements Database {
     }
   }
 
-  Properties getCommonsDbcpProperties() {
+  static Properties extractCommonsDbcpProperties(Properties properties) {
     Properties result = new Properties();
-    Properties props = getProperties();
-    for (Map.Entry<Object, Object> entry : props.entrySet()) {
+    for (Map.Entry<Object, Object> entry : properties.entrySet()) {
       String key = (String) entry.getKey();
       if (StringUtils.startsWith(key, "sonar.jdbc.")) {
         result.setProperty(StringUtils.removeStart(key, "sonar.jdbc."), (String) entry.getValue());

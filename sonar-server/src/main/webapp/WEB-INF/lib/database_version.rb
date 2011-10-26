@@ -70,9 +70,6 @@ class DatabaseVersion
   end
 
   def self.automatic_setup
-    if !production?
-      puts 'Derby database should be used for evaluation purpose only'
-    end
     if current_version<=0
       try_restore_structure_dump() if use_structure_dump?
       upgrade_and_start()
@@ -90,18 +87,7 @@ class DatabaseVersion
   end
 
   def self.try_restore_structure_dump()
-    begin
-      ddl=IO.readlines("#{RAILS_ROOT}/db/structure/#{dialect}.ddl")
-      sql=IO.readlines("#{RAILS_ROOT}/db/structure/#{dialect}.sql")
-
-      puts "Restore database structure & data"
-      execute_sql_requests(ddl)
-      execute_sql_requests(sql)
-      puts "Database created"
-    rescue
-      # file not found
-      nil
-    end
+    ::Java::OrgSonarServerUi::JRubyFacade.getInstance().createDatabase()
   end
 
   def self.execute_sql_requests(requests)

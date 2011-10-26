@@ -21,6 +21,8 @@ package org.sonar.persistence;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
+import org.sonar.jpa.dialect.Derby;
+import org.sonar.jpa.dialect.Dialect;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -94,5 +96,9 @@ public class InMemoryDatabase implements Database {
 
   public DataSource getDataSource() {
     return datasource;
+  }
+
+  public Dialect getDialect() {
+    return new Derby();
   }
 }

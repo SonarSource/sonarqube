@@ -37,6 +37,8 @@ import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.jpa.dialect.Dialect;
 import org.sonar.jpa.session.DatabaseConnector;
 import org.sonar.markdown.Markdown;
+import org.sonar.persistence.Database;
+import org.sonar.persistence.DatabaseMigrator;
 import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
@@ -171,9 +173,13 @@ public final class JRubyFacade {
   public Collection<Language> getLanguages() {
     return getContainer().getComponentsByType(Language.class);
   }
-
+  
   public Dialect getDialect() {
-    return getContainer().getComponentByType(DatabaseConnector.class).getDialect();
+    return getContainer().getComponentByType(Database.class).getDialect();
+  }
+
+  public boolean createDatabase() {
+    return getContainer().getComponentByType(DatabaseMigrator.class).createDatabase();
   }
 
   /* PROFILES CONSOLE : RULES AND METRIC THRESHOLDS */

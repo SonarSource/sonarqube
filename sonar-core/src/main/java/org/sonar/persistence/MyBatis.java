@@ -25,6 +25,8 @@ import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.*;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.ServerComponent;
 import org.sonar.persistence.model.Duplication;
 import org.sonar.persistence.model.DuplicationMapper;
 import org.sonar.persistence.model.Rule;
@@ -33,7 +35,7 @@ import org.sonar.persistence.model.RuleMapper;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class MyBatis {
+public class MyBatis implements BatchComponent, ServerComponent {
 
   private Database database;
   private SqlSessionFactory sessionFactory;

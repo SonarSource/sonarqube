@@ -44,6 +44,9 @@ public final class DdlUtils {
     return "derby".equals(dialect);
   }
 
+  /**
+   * The connection is commited in this method but not closed.
+   */
   public static void execute(Connection connection, String dialect) {
     if (!supportsDialect(dialect)) {
       throw new IllegalArgumentException("Unsupported dialect: " + dialect);

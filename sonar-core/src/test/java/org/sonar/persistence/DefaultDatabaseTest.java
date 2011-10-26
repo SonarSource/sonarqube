@@ -19,10 +19,13 @@
  */
 package org.sonar.persistence;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Properties;
 
 import static org.junit.Assert.assertThat;
@@ -52,28 +55,24 @@ public class DefaultDatabaseTest {
   }
 
   @Test
-  public void shouldGetCommonsDbcpProperties() {
-    Settings settings = new Settings();
-    settings.setProperty("sonar.jdbc.driverClassName", "my.Driver");
-    settings.setProperty("sonar.jdbc.username", "me");
-    settings.setProperty("sonar.jdbc.maxActive", "5");
+  public void shouldExtractCommonsDbcpProperties() {
+    Properties props = new Properties();
+    props.setProperty("sonar.jdbc.driverClassName", "my.Driver");
+    props.setProperty("sonar.jdbc.username", "me");
+    props.setProperty("sonar.jdbc.maxActive", "5");
 
-    DefaultDatabase db = new DefaultDatabase(settings);
-    Properties props = db.getCommonsDbcpProperties();
+    Properties commonsDbcpProps = DefaultDatabase.extractCommonsDbcpProperties(props);
 
-    assertThat(props.getProperty("username"), Is.is("me"));
-    assertThat(props.getProperty("driverClassName"), Is.is("my.Driver"));
-    assertThat(props.getProperty("maxActive"), Is.is("5"));
-
-    // default value
-    assertThat(props.getProperty("password"), Is.is("sonar"));
+    assertThat(commonsDbcpProps.getProperty("username"), Is.is("me"));
+    assertThat(commonsDbcpProps.getProperty("driverClassName"), Is.is("my.Driver"));
+    assertThat(commonsDbcpProps.getProperty("maxActive"), Is.is("5"));
   }
 
   @Test
   public void shouldCompleteProperties() {
     Settings settings = new Settings();
 
-    DefaultDatabase db = new DefaultDatabase(settings){
+    DefaultDatabase db = new DefaultDatabase(settings) {
       @Override
       protected void doCompleteProperties(Properties properties) {
         properties.setProperty("sonar.jdbc.maxActive", "2");
@@ -83,5 +82,29 @@ public class DefaultDatabaseTest {
     Properties props = db.getProperties();
 
     assertThat(props.getProperty("sonar.jdbc.maxActive"), Is.is("2"));
+  }
+
+  @Test
+  public void shouldStart() throws SQLException {
+    Settings settings = new Settings();
+    settings.setProperty("sonar.jdbc.url", "jdbc:derby:memory:sonar;create=true;user=sonar;password=sonar");
+    settings.setProperty("sonar.jdbc.driverClassName", "org.apache.derby.jdbc.EmbeddedDriver");
+    settings.setProperty("sonar.jdbc.username", "sonar");
+    settings.setProperty("sonar.jdbc.password", "sonar");
+    settings.setProperty("sonar.jdbc.maxActive", "1");
+
+    try {
+      DefaultDatabase db = new DefaultDatabase(settings);
+      db.start();
+
+      assertThat(db.getDialect().getId(), Is.is("derby"));
+      assertThat(((BasicDataSource) db.getDataSource()).getMaxActive(), Is.is(1));
+    } finally {
+      try {
+        DriverManager.getConnection("jdbc:derby:memory:sonar;drop=true");
+      } catch (Exception e) {
+        // silently ignore
+      }
+    }
   }
 }

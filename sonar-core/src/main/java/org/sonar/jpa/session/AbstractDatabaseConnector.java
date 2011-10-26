@@ -82,7 +82,6 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
     if (!started) {
       String jdbcConnectionUrl = testConnection();
       dialect = DialectRepository.find(configuration.getString("sonar.jdbc.dialect"), jdbcConnectionUrl);
-      LoggerFactory.getLogger("org.sonar.INFO").info("Database dialect class " + dialect.getClass().getName());
       started = true;
     }
     if (!operational) {

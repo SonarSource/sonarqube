@@ -19,6 +19,8 @@
  */
 package org.sonar.persistence;
 
+import org.sonar.jpa.dialect.Dialect;
+
 import javax.sql.DataSource;
 
 /**
@@ -29,4 +31,5 @@ public interface Database {
   Database start();
   Database stop();
   DataSource getDataSource();
+  Dialect getDialect();
 }
