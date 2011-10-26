@@ -71,12 +71,13 @@ public class AsmMethodTest {
     assertTrue(javaBean.getMethod("addFirstName(Ljava/lang/String;)V").isAccessor());
     assertTrue(javaBean.getMethod("getNameOrDefault()Ljava/lang/String;").isAccessor());
     assertTrue(javaBean.getMethod("accessorWithABunchOfCalls()V").isAccessor());
+    assertFalse(javaBean.getMethod("accessNameAndDumpStuffSoNotAccessor()V").isAccessor());
     assertFalse(javaBean.getMethod("iShouldBeAStaticSetter()V").isAccessor());
     assertTrue(javaBean.getMethod("getFirstName()Ljava/lang/String;").isAccessor());
     assertTrue(javaBean.getMethod("getFirstNameAndOneArgument(Ljava/lang/String;)Ljava/lang/String;").isAccessor());
-    assertTrue(javaBean.getMethod("recursiveAbs(I)I").isAccessor());
+    assertFalse(javaBean.getMethod("recursiveAbs(I)I").isAccessor());
     assertFalse(javaBean.getMethod("recursiveAbsNotAccessor(I)I").isAccessor());
-    assertTrue(javaBean.getMethod("recursiveAbsSameIncrementA(I)I").isAccessor());
+    assertFalse(javaBean.getMethod("recursiveAbsSameIncrementA(I)I").isAccessor());
     assertFalse(javaBean.getMethod("recursiveAbsDifferentIncrementA(I)I").isAccessor());
   }
   
@@ -95,7 +96,7 @@ public class AsmMethodTest {
     assertNull(javaBean.getMethod("iShouldBeAStaticSetter()V").getAccessedField());
     assertThat(javaBean.getMethod("getFirstName()Ljava/lang/String;").getAccessedField().getName(), is("FirstName"));
     assertThat(javaBean.getMethod("getFirstNameAndOneArgument(Ljava/lang/String;)Ljava/lang/String;").getAccessedField().getName(), is("FirstName"));
-    assertThat(javaBean.getMethod("recursiveAbs(I)I").getAccessedField().getName(), is("myIncrement"));
+    assertNull(javaBean.getMethod("recursiveAbs(I)I").getAccessedField());
     assertNull(javaBean.getMethod("recursiveAbsNotAccessor(I)I").getAccessedField());
   }
 

@@ -62,6 +62,17 @@ public class JavaBean {
     firstNames.addAll(myList);
   }
   
+  public void dumpStuff() {
+    System.out.println("Stuff 1");
+    System.out.println("Stuff 2");
+    System.out.println("Stuff 3");
+  }
+  
+  public void accessNameAndDumpStuffSoNotAccessor() {
+    this.name = "BusinessEnabler";
+    dumpStuff();
+  }
+  
   public void iShouldBeAStaticSetter() {
     staticMember = "Hello!";
   }
@@ -111,6 +122,15 @@ public class JavaBean {
     if (value < 0) {
       return recursiveAbsSameIncrementA(value + myDifferentIncrement);
     } else return value;
+  }
+  
+  public void fakeRec() {
+    int a = myDifferentIncrement;
+    fakeRec();
+  }
+  
+  public void trueRec() {
+    trueRec();
   }
   
 }

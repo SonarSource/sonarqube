@@ -31,7 +31,9 @@ public class AsmMethod extends AsmResource {
   private boolean inherited = false;
   private boolean empty = false;
   private boolean bodyLoaded = true;
-  private boolean accessFieldComputed = false;
+  private boolean accessedFieldComputed = false;
+  private boolean accessedFieldBeingComputed = false;
+  private boolean accessedFieldIsThisMethodRecursive = false;
   private AsmField accessedField = null;
   private String signature;
   private AsmMethod implementationLinkage = null;
@@ -140,13 +142,31 @@ public class AsmMethod extends AsmResource {
     this.empty = empty;
   }
   
-  private void ensureAccessorComputed() {
-    if (accessFieldComputed) return;
-    accessFieldComputed = true; // Set accessFieldComputed to true before calling setAccessedField() to prevent infinite recursion on recursive methods.
-    setAccessedField();
+  public boolean isAccessor() {
+    return getAccessedField() != null;
   }
   
-  private void setAccessedField() {
+  public AsmField getAccessedField() {
+    if (accessedFieldComputed) return accessedField;
+    if (accessedFieldBeingComputed) {
+      // Do not set accessedField here, because the pending computeAccessedField() will overwrite it anyway
+      accessedFieldIsThisMethodRecursive = true;
+      return null;
+    } else {
+      accessedFieldBeingComputed = true; // Prevents infinite recursion on recursive methods.
+      computeAccessedField();
+      if (accessedFieldIsThisMethodRecursive) {
+        // We already returned null previously during the computation, so we must return null for consistency
+        accessedField = null;
+      }
+      accessedFieldComputed = true;
+      accessedFieldBeingComputed = false;
+      
+      return accessedField;
+    }
+  }
+  
+  private void computeAccessedField() {
     if (!isConstructor()) {
       for (AsmEdge edge: getOutgoingEdges()) {
         if (isCallToNonStaticInternalField(edge)) {
@@ -181,15 +201,6 @@ public class AsmMethod extends AsmResource {
   
   private boolean isCallToNonStaticInternalMethod(AsmEdge edge) {
     return edge.getTargetAsmClass() == (AsmClass)getParent() && edge.getUsage() == SourceCodeEdgeUsage.CALLS_METHOD && !((AsmMethod)edge.getTo()).isStatic();
-  }
-  
-  public AsmField getAccessedField() {
-    ensureAccessorComputed();
-    return accessedField;
-  }
-  
-  public boolean isAccessor() {
-    return getAccessedField() != null;
   }
 
   @Override
