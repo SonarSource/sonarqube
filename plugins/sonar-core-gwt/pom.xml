@@ -59,7 +59,6 @@
           <execution>
             <configuration>
               <modules>
-                <module>org.sonar.plugins.core.duplicationsviewer.DuplicationsViewer${gwt.permutationSuffix}</module>
                 <module>org.sonar.plugins.core.testdetailsviewer.TestsViewer${gwt.permutationSuffix}</module>
                 <module>org.sonar.plugins.core.hotspots.GwtHotspots${gwt.permutationSuffix}</module>
               </modules>
