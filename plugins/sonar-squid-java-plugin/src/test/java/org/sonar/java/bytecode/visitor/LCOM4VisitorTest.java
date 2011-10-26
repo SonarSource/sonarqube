@@ -65,5 +65,9 @@ public class LCOM4VisitorTest {
     assertThat(squid.search("LCOM4WithWorkers").getInt(Metric.LCOM4), is(1));
   }
 
+  @Test
+  public void testLCOM4WithIsolatedMethods() {
+    assertThat(squid.search("LCOM4WithIsolatedMethods").getInt(Metric.LCOM4), is(1));
+  }
   
 }

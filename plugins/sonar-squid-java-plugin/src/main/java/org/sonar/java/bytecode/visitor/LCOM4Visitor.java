@@ -19,10 +19,7 @@
  */
 package org.sonar.java.bytecode.visitor;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.sonar.java.bytecode.asm.AsmClass;
 import org.sonar.java.bytecode.asm.AsmEdge;
@@ -80,8 +77,22 @@ public class LCOM4Visitor extends BytecodeVisitor {
     return !asmMethod.isAbstract() && !asmMethod.isStatic() && !asmMethod.isConstructor() && !asmMethod.isEmpty()
         && !asmMethod.isAccessor() && asmMethod.isBodyLoaded();
   }
+  
+  private void removeIsolatedMethodBlocks() {
+    Iterator<Set<AsmResource>> iterator = unrelatedBlocks.iterator();
+    
+    while (iterator.hasNext()) {
+      Set<AsmResource> block = iterator.next();
+      if (block.size() == 1) {
+        iterator.remove();
+      }
+    }
+    
+  }
 
   public void leaveClass(AsmClass asmClass) {
+    removeIsolatedMethodBlocks();
+    
     int lcom4 = unrelatedBlocks.size();
     if (lcom4 == 0) {
       lcom4 = 1;

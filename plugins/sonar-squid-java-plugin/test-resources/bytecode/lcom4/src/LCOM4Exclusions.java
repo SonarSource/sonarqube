@@ -2,7 +2,8 @@
 
 public abstract class LCOM4Exclusions implements Runnable {
   
-  public static String field;
+  public static String field1;
+  public static String field2;
 
   public LCOM4Exclusions(){}
   
@@ -13,10 +14,14 @@ public abstract class LCOM4Exclusions implements Runnable {
   public abstract void doAbstractWork();
   
   public void run(){
-    int i =0;
+    run2();
+  }
+  
+  public void run2(){
+    run();
   }
   
   public boolean equals(Object object){
-    return false;
+    return (field1 == null) ? false : field1.equals(field2);
   }
 }
