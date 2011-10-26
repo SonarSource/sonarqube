@@ -19,7 +19,8 @@
  */
 package org.sonar.plugins.core;
 
-import com.google.common.collect.Lists;
+import java.util.List;
+
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
@@ -33,16 +34,53 @@ import org.sonar.plugins.core.charts.DistributionAreaChart;
 import org.sonar.plugins.core.charts.DistributionBarChart;
 import org.sonar.plugins.core.charts.XradarChart;
 import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
-import org.sonar.plugins.core.duplicationsviewer.DuplicationsViewerDefinition;
 import org.sonar.plugins.core.hotspots.Hotspots;
 import org.sonar.plugins.core.metrics.UserManagedMetrics;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
-import org.sonar.plugins.core.sensors.*;
+import org.sonar.plugins.core.sensors.BranchCoverageDecorator;
+import org.sonar.plugins.core.sensors.CheckAlertThresholds;
+import org.sonar.plugins.core.sensors.CloseReviewsDecorator;
+import org.sonar.plugins.core.sensors.CommentDensityDecorator;
+import org.sonar.plugins.core.sensors.CoverageDecorator;
+import org.sonar.plugins.core.sensors.DirectoriesDecorator;
+import org.sonar.plugins.core.sensors.FilesDecorator;
+import org.sonar.plugins.core.sensors.GenerateAlertEvents;
+import org.sonar.plugins.core.sensors.LineCoverageDecorator;
+import org.sonar.plugins.core.sensors.ManualMeasureDecorator;
+import org.sonar.plugins.core.sensors.ProfileEventsSensor;
+import org.sonar.plugins.core.sensors.ProfileSensor;
+import org.sonar.plugins.core.sensors.ProjectLinksSensor;
+import org.sonar.plugins.core.sensors.UnitTestDecorator;
+import org.sonar.plugins.core.sensors.VersionEventsSensor;
+import org.sonar.plugins.core.sensors.ViolationsDecorator;
+import org.sonar.plugins.core.sensors.ViolationsDensityDecorator;
+import org.sonar.plugins.core.sensors.WeightedViolationsDecorator;
 import org.sonar.plugins.core.testdetailsviewer.TestsViewerDefinition;
-import org.sonar.plugins.core.timemachine.*;
-import org.sonar.plugins.core.widgets.*;
+import org.sonar.plugins.core.timemachine.NewCoverageAggregator;
+import org.sonar.plugins.core.timemachine.NewCoverageFileAnalyzer;
+import org.sonar.plugins.core.timemachine.NewViolationsDecorator;
+import org.sonar.plugins.core.timemachine.ReferenceAnalysis;
+import org.sonar.plugins.core.timemachine.TendencyDecorator;
+import org.sonar.plugins.core.timemachine.TimeMachineConfigurationPersister;
+import org.sonar.plugins.core.timemachine.VariationDecorator;
+import org.sonar.plugins.core.timemachine.ViolationPersisterDecorator;
+import org.sonar.plugins.core.timemachine.ViolationTrackingDecorator;
+import org.sonar.plugins.core.widgets.AlertsWidget;
+import org.sonar.plugins.core.widgets.CodeCoverageWidget;
+import org.sonar.plugins.core.widgets.CommentsDuplicationsWidget;
+import org.sonar.plugins.core.widgets.ComplexityWidget;
+import org.sonar.plugins.core.widgets.CustomMeasuresWidget;
+import org.sonar.plugins.core.widgets.DescriptionWidget;
+import org.sonar.plugins.core.widgets.EventsWidget;
+import org.sonar.plugins.core.widgets.HotspotMetricWidget;
+import org.sonar.plugins.core.widgets.HotspotMostViolatedResourcesWidget;
+import org.sonar.plugins.core.widgets.HotspotMostViolatedRulesWidget;
+import org.sonar.plugins.core.widgets.RulesWidget;
+import org.sonar.plugins.core.widgets.SizeWidget;
+import org.sonar.plugins.core.widgets.TimeMachineWidget;
+import org.sonar.plugins.core.widgets.TimelineWidget;
 
-import java.util.List;
+import com.google.common.collect.Lists;
 
 @Properties({
     @Property(
@@ -228,7 +266,6 @@ public class CorePlugin extends SonarPlugin {
     extensions.add(UserManagedMetrics.class);
 
     // pages
-    extensions.add(DuplicationsViewerDefinition.class);
     extensions.add(TestsViewerDefinition.class);
     extensions.add(Hotspots.class);
 

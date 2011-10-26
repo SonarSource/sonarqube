@@ -58,9 +58,9 @@
   <tbody>
 <%
   if metric.direction > 0
-    metric_max_value = snapshots.last.measure(metric).value
+    metric_max_value = measures.last.value
   else
-    metric_max_value = snapshots.first.measure(metric).value
+    metric_max_value = measures.first.value
   end
   measures.each do |measure|
     resource = snapshots_by_id[measure.snapshot_id].resource

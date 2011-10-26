@@ -1,0 +1,90 @@
+<% if @duplication_groups.empty? %>
+
+  <%= message('duplications.no_duplicated_block') -%>
+
+<% else %>
+
+  <table id="duplicationsTable" class="data max-width">
+    <thead>
+      <tr>
+        <th class="thin nowrap"><%= message('duplications.blocks') -%></th>
+        <th class="thin nowrap"><%= message('duplications.number_of_lines') -%></th>
+        <th class="thin nowrap"><%= message('duplications.from_line') -%></th>
+        <th class="thin nowrap"><%= message('duplications.file') -%></th>
+        <th><%= message('duplications.details') -%></th>
+        <th class="thin nowrap"></th>
+      </tr>
+    </thead>
+    
+    <tbody>
+    <% 
+      @duplication_groups.each_with_index do |group, group_index|
+        group_size = group.size()
+        row_style = cycle 'even','odd', :name => ('duplications')
+    %>
+      <tr class="<%= row_style -%>">
+        <td rowspan="<%= group_size+2 -%>" class="center">
+          <br/><b><%= group_size -%></b>
+        </td>
+        <td colspan="4" style="height:2px"></td>
+        <td rowspan="<%= group_size+2 -%>"></td>
+      </tr>
+    <%
+        group.each_with_index do |dup, index|
+          resource = dup[:resource]
+          from_line = dup[:from_line].to_i
+          to_line = from_line+5
+          update_snippet_script = "new Ajax.Updater('source-#{group_index}', '#{url_for :action => :show_duplication_snippet, :params => {:id => resource.id, :from_line => from_line, :to_line => to_line}}', {asynchronous:true, evalScripts:true}); return false;"
+          groupClass = "group" + group_index.to_s
+          groupRowClass = "row" + group_index.to_s + "-" + index.to_s
+    %>
+      <tr class="hoverable <%= row_style -%>">        
+        <td class="center group-item">
+          <div class="<%= groupClass -%> <%= groupRowClass -%> clickable <%= 'selected' if resource==@resource -%>" 
+               onclick="updateDuplicationLines(this, '<%= groupClass -%>', '<%= groupRowClass -%>'); <%= update_snippet_script -%>" style="border-right-width: 0px;">
+          <%= dup[:lines_count] -%>
+          <div>
+        </td>
+        <td class="center group-item">
+          <div class="group<%= group_index -%> <%= groupRowClass -%> clickable <%= 'selected' if resource==@resource -%>" 
+               onclick="updateDuplicationLines(this, '<%= groupClass -%>', '<%= groupRowClass -%>'); <%= update_snippet_script -%>" style="border-right-width: 0px;border-left-width: 0px;">
+            <%= from_line -%>
+          </div>
+        </td>
+        <td class="left group-item">
+          <% if resource==@resource
+               cell_content = resource.name
+             else
+               cell_content = link_to_resource(resource, resource.name)
+             end
+          %>
+          <div class="group<%= group_index -%> <%= groupRowClass -%> clickable <%= 'selected' if resource==@resource -%>" 
+               onclick="updateDuplicationLines(this, '<%= groupClass -%>', '<%= groupRowClass -%>'); <%= update_snippet_script -%>" style="padding-right: 20px; border-right-width: 0px;border-left-width: 0px;">
+            <%= cell_content -%>
+          <div>
+        </td>
+        
+        <% if index==0 %>
+        <td rowspan="<%= group_size+1 -%>" class="source-snippet">
+          <div id="source-<%= group_index -%>">
+            <%= render :partial => 'duplications_source_snippet', :locals => {:resource => resource, :from_line => from_line, :to_line => to_line} -%>            
+          </div>
+        </td>
+        <% end %>
+      </tr>
+    <% 
+        end
+    %>
+      <tr class="<%= row_style -%>" style="padding-bottom:100px">
+        <td colspan="3"></td>
+      </tr>
+      <tr class="<%= row_style -%>">
+        <td colspan="6" style="height:4px"></td>
+      </tr>
+    <%
+      end 
+    %>
+    </tbody>
+  </table>  
+
+<% end %>

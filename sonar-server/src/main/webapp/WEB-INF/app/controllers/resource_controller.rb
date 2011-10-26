@@ -17,10 +17,14 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
+require "rexml/document"
+
 class ResourceController < ApplicationController
 
+  include REXML
+
   SECTION=Navigation::SECTION_RESOURCE
-  helper :dashboard
+  helper :dashboard, SourceHelper
   
   def index
     @resource = Project.by_key(params[:id])
@@ -38,12 +42,23 @@ class ResourceController < ApplicationController
           render_coverage()
         elsif (@extension.getId()=='source')
           render_source()
+        elsif (@extension.getId()=='duplications')
+          render_duplications()
         else
           render_extension()
         end
       else
         render_nothing()
       end
+    else
+      access_denied
+    end
+  end
+  
+  def show_duplication_snippet
+    @resource = Project.by_key(params[:id])
+    if (@resource && has_role?(:user, @resource))
+      render :partial => 'duplications_source_snippet', :locals => {:resource => @resource, :from_line => params[:from_line].to_i, :to_line => params[:to_line].to_i}
     else
       access_denied
     end
@@ -165,7 +180,24 @@ class ResourceController < ApplicationController
     end
     render :action => 'index', :layout => !request.xhr?
   end
-
+  
+  
+  def render_duplications
+    duplications_data = @snapshot.measure('duplications_data');
+    
+    @duplication_groups = []
+    if duplications_data && duplications_data.measure_data && duplications_data.measure_data.data
+      dups = Document.new duplications_data.measure_data.data.to_s
+      dups.elements.each("duplications/duplication") do |dup|
+        group = []
+        group << {:lines_count => dup.attributes['lines'], :from_line => dup.attributes['start'], :resource => @resource}
+        group << {:lines_count => dup.attributes['lines'], :from_line => dup.attributes['target-start'], :resource => Project.by_key(dup.attributes['target-resource'])}
+        @duplication_groups << group
+      end
+    end
+    
+    render :action => 'index', :layout => !request.xhr?
+  end
   
   
   def render_violations

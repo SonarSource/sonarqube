@@ -917,6 +917,44 @@ span.rulename a:hover {
 
 
 
+/* DUPLICATIONS */
+
+#duplicationsTable > tbody > tr {
+  padding-top: 2px;
+}
+
+#duplicationsTable td.group-item {
+  padding: 0px;
+  height: 1px;
+}
+
+#duplicationsTable td.group-item > div {
+  padding: 3px;
+  margin: 2px 0px;
+}
+
+#duplicationsTable td.group-item > div.selected {
+  background-color: #fff;
+  border: 1px solid #DDDDDD;
+}
+
+#duplicationsTable td.source-snippet {
+  background-color: #ddd;
+  border: 1px solid #DDDDDD;
+  padding: 0px;
+}
+
+#duplicationsTable td.source-snippet > div {
+  padding: 2px;
+  background-color: #fff;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+
+
 /* REVIEWS */
 div#review .actions{
   visibility: hidden;
@@ -1903,7 +1941,7 @@ ul.horizontal li {
   float: left;
   position: relative;
 }
-table.nowrap td, td.nowrap {
+table.nowrap td, td.nowrap, th.nowrap {
   white-space: nowrap;
 }
 .background-gray {

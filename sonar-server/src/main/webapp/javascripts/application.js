@@ -90,6 +90,17 @@ function hideElement( elementId ) {
    	return false;
 }
 
+function updateDuplicationLines(selectedDiv, groupClass, groupRowClass) {
+  divs = $$('.'+groupClass);
+  for ( i = 0; i < divs.size(); i++) {
+	  divs[i].removeClassName('selected');
+  }
+  divs = $$('.'+groupRowClass);
+  for ( i = 0; i < divs.size(); i++) {
+	  divs[i].addClassName('selected');
+  }
+}
+
 var projects;
 function autocompleteProjects(APIURL, projectURL, searchInput, searchResult) {
   if (projects != null) return;

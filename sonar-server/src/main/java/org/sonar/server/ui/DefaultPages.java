@@ -28,7 +28,7 @@ import org.sonar.api.web.*;
  */
 public final class DefaultPages {
 
-  private static final View[] PAGES = { new SourceTab(), new CoverageTab(), new ViolationsTab() };
+  private static final View[] PAGES = { new SourceTab(), new CoverageTab(), new ViolationsTab(), new DuplicationsTab() };
 
   private DefaultPages() {
   }
@@ -101,6 +101,25 @@ public final class DefaultPages {
 
     public String getTitle() {
       return "Violations";
+    }
+  }
+
+  @NavigationSection(NavigationSection.RESOURCE_TAB)
+  @DefaultTab(metrics = {CoreMetrics.DUPLICATED_LINES_KEY, CoreMetrics.DUPLICATED_BLOCKS_KEY, CoreMetrics.DUPLICATED_FILES_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY})
+  @ResourceQualifier({Qualifiers.FILE, Qualifiers.CLASS})
+  @UserRole(UserRole.CODEVIEWER)
+  private static final class DuplicationsTab implements RubyRailsPage {
+    public String getTemplate() {
+      //not used, hardcoded in BrowseController
+      return "browse/index";
+    }
+
+    public String getId() {
+      return "duplications";
+    }
+
+    public String getTitle() {
+      return "Duplications";
     }
   }
 }
