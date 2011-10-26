@@ -18,10 +18,7 @@
   <!-- orphan : the project does not exist-->
   <!--events id="3" name="Version 0.9" resource_id="5" snapshot_id="[null]" category="VERSION" description="[null]" event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]"/-->
 
-  <!-- orphan : the resource exists but not the snapshot -->
-  <!--events id="4" name="Version 1.0" resource_id="1" snapshot_id="2" category="VERSION" description="[null]" event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]"/-->
-
   <!-- "correct" event that is attached to an existing resource and existing snapshot -->
-  <events id="5" name="Version 1.0" resource_id="1" snapshot_id="1" category="VERSION" description="[null]" event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]"/>
+  <events id="4" name="Version 1.0" resource_id="1" snapshot_id="1" category="VERSION" description="[null]" event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]"/>
 
 </dataset>

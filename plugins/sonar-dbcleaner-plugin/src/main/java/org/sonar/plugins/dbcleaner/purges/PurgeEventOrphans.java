@@ -44,8 +44,6 @@ public final class PurgeEventOrphans extends Purge {
         + " r WHERE r.id=e.resourceId)";
     selectEventsSql += ") OR (";
     selectEventsSql += "e.snapshot IS NULL";
-    selectEventsSql += ") OR (";
-    selectEventsSql += "e.snapshot IS NOT NULL AND NOT EXISTS(FROM " + Snapshot.class.getSimpleName() + " s WHERE s.id=e.snapshot)";
     selectEventsSql += ")";
 
     Query query = getSession().createQuery(selectEventsSql);

@@ -24,6 +24,7 @@ import java.util.List;
 import javax.persistence.Query;
 
 import org.apache.commons.configuration.Configuration;
+import org.sonar.api.batch.Event;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.MeasureData;
 import org.sonar.api.database.model.MeasureModel;
@@ -65,6 +66,7 @@ public final class PurgeUtils {
     deleteViolations(session, snapshotIds);
     deleteDependencies(session, snapshotIds);
     deleteDuplicationBlocks(session, snapshotIds);
+    deleteEvents(session, snapshotIds);
     deleteSnapshots(session, snapshotIds);
   }
 
@@ -108,6 +110,13 @@ public final class PurgeUtils {
    */
   private static void deleteDuplicationBlocks(DatabaseSession session, List<Integer> snapshotIds) {
     executeQuery(session, "delete duplication blocks", snapshotIds, "delete from " + DuplicationBlock.class.getSimpleName() + " e where e.snapshotId in (:ids)");
+  }
+
+  /**
+   * Delete EVENTS table
+   */
+  public static  void deleteEvents(DatabaseSession session, List<Integer> snapshotIds) {
+    executeQuery(session, "delete events", snapshotIds, "delete from " + Event.class.getSimpleName() + " e where e.snapshot.id in (:ids)");
   }
 
   /**
