@@ -39,8 +39,15 @@ public class RegexChannelTest {
     ChannelDispatcher<StringBuilder> dispatcher = ChannelDispatcher.builder().addChannel(new MyLiteralChannel()).build();
     StringBuilder output = new StringBuilder();
     
-    dispatcher.consume(new CodeReader("\"bonjour\""), output);
-    assertThat(output.toString(), is("<literal>\"bonjour\"</literal>"));
+    CodeReaderConfiguration codeReaderConfiguration = new CodeReaderConfiguration();
+    codeReaderConfiguration.setBufferCapacity(2);
+    
+    int literalLength = 100000;
+    String veryLongLiteral = String.format(String.format("%%0%dd", literalLength), 0).replace("0", "a");
+    
+    assertThat(veryLongLiteral.length(), is(100000));
+    dispatcher.consume(new CodeReader("\">" + veryLongLiteral + "<\"", codeReaderConfiguration), output);
+    assertThat(output.toString(), is("<literal>\">" + veryLongLiteral + "<\"</literal>"));
   }
 
   private static class MyLiteralChannel extends RegexChannel<StringBuilder> {
