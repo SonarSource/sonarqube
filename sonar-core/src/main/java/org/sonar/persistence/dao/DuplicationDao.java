@@ -19,80 +19,45 @@
  */
 package org.sonar.persistence.dao;
 
+import java.util.Collection;
+import java.util.List;
+
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.persistence.MyBatis;
-import org.sonar.persistence.model.Duplication;
 import org.sonar.persistence.model.DuplicationMapper;
-
-import java.util.List;
+import org.sonar.persistence.model.DuplicationUnit;
 
 public class DuplicationDao implements BatchComponent, ServerComponent {
 
-  private MyBatis mybatis;
+  private final MyBatis mybatis;
 
   public DuplicationDao(MyBatis mybatis) {
     this.mybatis = mybatis;
   }
 
-  public Duplication selectById(Long id) {
+  public List<DuplicationUnit> selectCandidates(int resourceSnapshotId, Integer lastSnapshotId) {
     SqlSession sqlSession = mybatis.openSession();
     try {
       DuplicationMapper mapper = sqlSession.getMapper(DuplicationMapper.class);
-      return mapper.selectById(id);
-
+      return mapper.selectCandidates(resourceSnapshotId, lastSnapshotId);
     } finally {
       sqlSession.close();
     }
   }
 
-  public List<Duplication> selectAll() {
-    SqlSession sqlSession = mybatis.openSession();
-    try {
-      DuplicationMapper mapper = sqlSession.getMapper(DuplicationMapper.class);
-      return mapper.selectAll();
-    } finally {
-      sqlSession.close();
-    }
-  }
-
-  public Integer insert(Duplication duplication) {
+  public void insert(Collection<DuplicationUnit> units) {
     SqlSession session = mybatis.openSession();
-    Integer status = null;
     try {
       DuplicationMapper mapper = session.getMapper(DuplicationMapper.class);
-      status = mapper.insert(duplication);
+      for (DuplicationUnit unit : units) {
+        mapper.insert(unit);
+      }
       session.commit();
     } finally {
       session.close();
     }
-    return status;
   }
 
-  public Integer update(Duplication duplication) {
-    SqlSession session = mybatis.openSession();
-    Integer status = null;
-    try {
-      DuplicationMapper mapper = session.getMapper(DuplicationMapper.class);
-      status = mapper.update(duplication);
-      session.commit();
-    } finally {
-      session.close();
-    }
-    return status;
-  }
-
-  public Integer delete(Long id) {
-    SqlSession session = mybatis.openSession();
-    Integer status = null;
-    try {
-      DuplicationMapper mapper = session.getMapper(DuplicationMapper.class);
-      status = mapper.delete(id);
-      session.commit();
-    } finally {
-      session.close();
-    }
-    return status;
-  }
 }

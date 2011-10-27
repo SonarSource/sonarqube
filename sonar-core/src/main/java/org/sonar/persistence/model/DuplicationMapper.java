@@ -19,20 +19,17 @@
  */
 package org.sonar.persistence.model;
 
-import org.sonar.persistence.model.Duplication;
-
 import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
 
 public interface DuplicationMapper {
 
-  Duplication selectById(Long id);
+  List<DuplicationUnit> selectCandidates(
+      @Param("resource_snapshot_id") int resourceSnapshotId,
+      @Param("last_project_snapshot_id") Integer lastSnapshotId);
 
-  List<Duplication> selectAll();
+  void insert(DuplicationUnit unit);
 
-  Integer insert(Duplication duplication);
-
-  Integer update(Duplication duplication);
-
-  Integer delete(Long id);
 }
 

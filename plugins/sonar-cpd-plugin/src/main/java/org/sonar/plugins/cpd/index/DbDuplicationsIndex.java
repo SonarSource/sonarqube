@@ -24,18 +24,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Query;
-
-import org.hibernate.ejb.HibernateQuery;
-import org.hibernate.transform.Transformers;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
-import org.sonar.jpa.entity.DuplicationBlock;
+import org.sonar.persistence.dao.DuplicationDao;
+import org.sonar.persistence.model.DuplicationUnit;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -44,13 +40,14 @@ public class DbDuplicationsIndex {
 
   private final Map<ByteArray, Collection<Block>> cache = Maps.newHashMap();
 
-  private final DatabaseSession session;
   private final ResourcePersister resourcePersister;
   private final int currentProjectSnapshotId;
   private final Integer lastSnapshotId;
 
-  public DbDuplicationsIndex(DatabaseSession session, ResourcePersister resourcePersister, Project currentProject) {
-    this.session = session;
+  private DuplicationDao dao;
+
+  public DbDuplicationsIndex(ResourcePersister resourcePersister, Project currentProject, DuplicationDao dao) {
+    this.dao = dao;
     this.resourcePersister = resourcePersister;
     Snapshot currentSnapshot = resourcePersister.getSnapshotOrFail(currentProject);
     Snapshot lastSnapshot = resourcePersister.getLastSnapshot(currentSnapshot, false);
@@ -61,8 +58,8 @@ public class DbDuplicationsIndex {
   /**
    * For tests.
    */
-  DbDuplicationsIndex(DatabaseSession session, ResourcePersister resourcePersister, Integer currentProjectSnapshotId, Integer prevSnapshotId) {
-    this.session = session;
+  DbDuplicationsIndex(DuplicationDao dao, ResourcePersister resourcePersister, Integer currentProjectSnapshotId, Integer prevSnapshotId) {
+    this.dao = dao;
     this.resourcePersister = resourcePersister;
     this.currentProjectSnapshotId = currentProjectSnapshotId;
     this.lastSnapshotId = prevSnapshotId;
@@ -74,37 +71,17 @@ public class DbDuplicationsIndex {
 
   public void prepareCache(Resource resource) {
     int resourceSnapshotId = getSnapshotIdFor(resource);
-
-    // Order of columns is important - see code below!
-    String sql = "SELECT DISTINCT to_blocks.hash, res.kee, to_blocks.index_in_file, to_blocks.start_line, to_blocks.end_line" +
-        " FROM duplications_index to_blocks, duplications_index from_blocks, snapshots snapshot, projects res" +
-        " WHERE from_blocks.snapshot_id = :resource_snapshot_id" +
-        " AND to_blocks.hash = from_blocks.hash" +
-        " AND to_blocks.snapshot_id = snapshot.id" +
-        " AND snapshot.islast = :is_last" +
-        " AND snapshot.project_id = res.id";
-    if (lastSnapshotId != null) {
-      // Filter for blocks from previous snapshot of current project
-      sql += " AND to_blocks.project_snapshot_id != :last_project_snapshot_id";
-    }
-    Query query = session.getEntityManager().createNativeQuery(sql)
-        .setParameter("resource_snapshot_id", resourceSnapshotId)
-        .setParameter("is_last", Boolean.TRUE);
-    if (lastSnapshotId != null) {
-      query.setParameter("last_project_snapshot_id", lastSnapshotId);
-    }
-    // Ugly hack for mapping results of custom SQL query into plain list (MyBatis is coming soon)
-    ((HibernateQuery) query).getHibernateQuery().setResultTransformer(Transformers.TO_LIST);
-    List<List<Object>> blocks = query.getResultList();
-
+    List<DuplicationUnit> units = dao.selectCandidates(resourceSnapshotId, lastSnapshotId);
     cache.clear();
-    for (List<Object> dbBlock : blocks) {
-      String hash = (String) dbBlock.get(0);
-      String resourceKey = (String) dbBlock.get(1);
-      int indexInFile = ((Number) dbBlock.get(2)).intValue();
-      int startLine = ((Number) dbBlock.get(3)).intValue();
-      int endLine = ((Number) dbBlock.get(4)).intValue();
+    // TODO Godin: maybe remove conversion of units to blocks?
+    for (DuplicationUnit unit : units) {
+      String hash = unit.getHash();
+      String resourceKey = unit.getResourceKey();
+      int indexInFile = unit.getIndexInFile();
+      int startLine = unit.getStartLine();
+      int endLine = unit.getEndLine();
 
+      // TODO Godin: in fact we could work directly with id instead of key - this will allow to decrease memory consumption
       Block block = new Block(resourceKey, new ByteArray(hash), indexInFile, startLine, endLine);
 
       // Group blocks by hash
@@ -128,17 +105,21 @@ public class DbDuplicationsIndex {
 
   public void insert(Resource resource, Collection<Block> blocks) {
     int resourceSnapshotId = getSnapshotIdFor(resource);
+
+    // TODO Godin: maybe remove conversion of blocks to units?
+    List<DuplicationUnit> units = Lists.newArrayList();
     for (Block block : blocks) {
-      DuplicationBlock dbBlock = new DuplicationBlock(
+      DuplicationUnit unit = new DuplicationUnit(
           currentProjectSnapshotId,
           resourceSnapshotId,
           block.getBlockHash().toString(),
           block.getIndexInFile(),
           block.getFirstLineNumber(),
           block.getLastLineNumber());
-      session.save(dbBlock);
+      units.add(unit);
     }
-    session.commit();
+
+    dao.insert(units);
   }
 
 }
