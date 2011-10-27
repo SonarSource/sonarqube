@@ -56,9 +56,12 @@ class ResourceController < ApplicationController
   end
   
   def show_duplication_snippet
-    @resource = Project.by_key(params[:id])
-    if (@resource && has_role?(:user, @resource))
-      render :partial => 'duplications_source_snippet', :locals => {:resource => @resource, :from_line => params[:from_line].to_i, :to_line => params[:to_line].to_i}
+    resource = Project.by_key(params[:id])
+    if (resource && has_role?(:user, resource))
+      original_resource = Project.by_key(params[:original_resource_id])
+      render :partial => 'duplications_source_snippet', 
+             :locals => {:resource => resource, :original_resource => original_resource, :from_line => params[:from_line].to_i, :to_line => params[:to_line].to_i, :lines_count => params[:lines_count].to_i, 
+                         :source_div => params[:source_div], :external => resource.root_id != original_resource.root_id}
     else
       access_denied
     end
@@ -185,6 +188,7 @@ class ResourceController < ApplicationController
   def render_duplications
     duplications_data = @snapshot.measure('duplications_data');
     
+    # create duplication groups
     @duplication_groups = []
     if duplications_data && duplications_data.measure_data && duplications_data.measure_data.data
       dups = Document.new duplications_data.measure_data.data.to_s
@@ -195,6 +199,13 @@ class ResourceController < ApplicationController
         @duplication_groups << group
       end
     end
+    
+    # And sort them 
+    # TODO => still needs to be sorted with inner dups before outer dups in a single block (can test only when new table available)
+    @duplication_groups.each do |group|
+      group.sort! {|dup1, dup2| dup1[:from_line].to_i <=> dup2[:from_line].to_i}
+    end
+    @duplication_groups.sort! {|group1, group2| group1[0][:from_line].to_i <=> group2[0][:from_line].to_i}
     
     render :action => 'index', :layout => !request.xhr?
   end

@@ -32,22 +32,25 @@
     <%
         group.each_with_index do |dup, index|
           resource = dup[:resource]
+          external = resource.root_id != @resource.root_id
+          lines_count = dup[:lines_count].to_i
           from_line = dup[:from_line].to_i
-          to_line = from_line+5
-          update_snippet_script = "new Ajax.Updater('source-#{group_index}', '#{url_for :action => :show_duplication_snippet, :params => {:id => resource.id, :from_line => from_line, :to_line => to_line}}', {asynchronous:true, evalScripts:true}); return false;"
-          groupClass = "group" + group_index.to_s
-          groupRowClass = "row" + group_index.to_s + "-" + index.to_s
+          to_line = from_line + (lines_count > 5 ? 5 : lines_count)
+          group_class = "group#{group_index}"
+          group_row_class = "row#{group_index}-#{index}"
+          source_div = "source-#{group_index}"
+          update_snippet_script = "updateDuplicationLines('#{url_for :action => :show_duplication_snippet, :params => {:id => resource.id, :original_resource_id => @resource.id, :from_line => from_line, :lines_count => lines_count, :source_div => source_div}}','#{group_class}', '#{group_row_class}', '#{source_div}', #{lines_count}, #{from_line}, #{to_line});"
     %>
       <tr class="hoverable <%= row_style -%>">        
         <td class="center group-item">
-          <div class="<%= groupClass -%> <%= groupRowClass -%> clickable <%= 'selected' if resource==@resource -%>" 
-               onclick="updateDuplicationLines(this, '<%= groupClass -%>', '<%= groupRowClass -%>'); <%= update_snippet_script -%>" style="border-right-width: 0px;">
-          <%= dup[:lines_count] -%>
+          <div class="<%= group_class -%> <%= group_row_class -%> clickable <%= 'selected' if resource==@resource -%>" 
+               onclick="<%= update_snippet_script -%>" style="border-right-width: 0px; margin-left: 2px;">
+          <%= lines_count -%>
           <div>
         </td>
         <td class="center group-item">
-          <div class="group<%= group_index -%> <%= groupRowClass -%> clickable <%= 'selected' if resource==@resource -%>" 
-               onclick="updateDuplicationLines(this, '<%= groupClass -%>', '<%= groupRowClass -%>'); <%= update_snippet_script -%>" style="border-right-width: 0px;border-left-width: 0px;">
+          <div class="<%= group_class -%> <%= group_row_class -%> clickable <%= 'selected' if resource==@resource -%>" 
+               onclick="<%= update_snippet_script -%>" style="border-right-width: 0px;border-left-width: 0px;">
             <%= from_line -%>
           </div>
         </td>
@@ -55,19 +58,22 @@
           <% if resource==@resource
                cell_content = resource.name
              else
-               cell_content = link_to_resource(resource, resource.name)
+               cell_content = link_to_resource(resource, resource.name, {:line => from_line})
              end
           %>
-          <div class="group<%= group_index -%> <%= groupRowClass -%> clickable <%= 'selected' if resource==@resource -%>" 
-               onclick="updateDuplicationLines(this, '<%= groupClass -%>', '<%= groupRowClass -%>'); <%= update_snippet_script -%>" style="padding-right: 20px; border-right-width: 0px;border-left-width: 0px;">
+          <div class="<%= group_class -%> <%= group_row_class -%> clickable nowrap <%= 'selected' if resource==@resource -%>" 
+               onclick="<%= update_snippet_script -%>" style="padding-right: 20px; border-right-width: 0px;border-left-width: 0px;">
             <%= cell_content -%>
-          <div>
+            <% if external %>
+              <%= image_tag "links/external.png" -%>
+            <% end %>
+          </div>
         </td>
         
         <% if index==0 %>
         <td rowspan="<%= group_size+1 -%>" class="source-snippet">
-          <div id="source-<%= group_index -%>">
-            <%= render :partial => 'duplications_source_snippet', :locals => {:resource => resource, :from_line => from_line, :to_line => to_line} -%>            
+          <div id="<%= source_div -%>">
+            <%= render :partial => 'duplications_source_snippet', :locals => {:resource => resource, :original_resource => @resource, :from_line => from_line, :to_line => to_line, :lines_count => lines_count, :source_div => source_div, :external => external} -%>
           </div>
         </td>
         <% end %>

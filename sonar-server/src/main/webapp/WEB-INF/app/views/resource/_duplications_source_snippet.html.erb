@@ -1,2 +1,36 @@
-<%= resource.key -%>
-<%= snapshot_source_to_html(resource.last_snapshot, {:line_range => (from_line)..(to_line)}) -%>            
+<div class="<%= 'expanded' if to_line == from_line + lines_count -%>">
+  <div style="line-height:20px; margin-left:24px;">
+    <% 
+      if external 
+        parent_project = resource.project 
+    %>
+      <%= link_to_resource(parent_project, parent_project.path_name, {:dashboard => true}) -%>
+      <%= image_tag "links/external.png" -%>
+      <br/>
+    <% 
+      end 
+    %>
+    <b><%= resource.name(true) -%></b>
+  </div>
+  
+  <%= snapshot_source_to_html(resource.last_snapshot, {:line_range => (from_line)..(to_line)}) -%>
+  
+  <% if lines_count > 5 %>
+  <div class="small" style="line-height:20px; margin-left:24px;">
+    <% 
+      if to_line < from_line + lines_count
+        link_text =  message('duplications.expand')
+        to_line = from_line + lines_count
+      else
+        link_text =  message('duplications.collapse')
+        to_line = from_line + 5
+      end 
+    %> 
+    <%= link_to_remote link_text, 
+                       :url => {:action => :show_duplication_snippet, :params => {:id => resource.id, :original_resource_id => original_resource.id, :from_line => from_line, :to_line => to_line, :lines_count => lines_count, :source_div => source_div}},
+                       :update => source_div,
+                       :before => "$('#{source_div}').addClassName('loading');",
+                       :complete => "$('#{source_div}').removeClassName('loading');" -%>
+  </div>
+  <% end %>
+</div>

@@ -255,6 +255,10 @@ div#sidebar .selected a, div#sidebar .selected a:hover, div#sidebar.selected a:v
   text-align: center;
 }
 
+.nowrap {
+  white-space: nowrap;
+}
+
 code {
   font-size: 93%;
 }
@@ -641,7 +645,7 @@ table.form td {
 }
 table.form td.keyCell {
   width: 1%;
-  white-space: nowrap;  
+  white-space: nowrap; 
   text-align: right;
   font-weight: bold;
   vertical-align: top;
