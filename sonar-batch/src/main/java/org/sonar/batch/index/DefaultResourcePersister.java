@@ -193,11 +193,12 @@ public final class DefaultResourcePersister implements ResourcePersister {
   }
 
   public Snapshot getLastSnapshot(Snapshot snapshot, boolean onlyOlder) {
-    String hql = "SELECT s FROM " + Snapshot.class.getSimpleName() + " s WHERE s.last=true AND s.resourceId=:resourceId";
+    String hql = "SELECT s FROM " + Snapshot.class.getSimpleName() + " s WHERE s.last=:last AND s.resourceId=:resourceId";
     if (onlyOlder) {
       hql += " AND s.createdAt<:date";
     }
     Query query = session.createQuery(hql);
+    query.setParameter("last", true);
     query.setParameter("resourceId", snapshot.getResourceId());
     if (onlyOlder) {
       query.setParameter("date", snapshot.getCreatedAt());

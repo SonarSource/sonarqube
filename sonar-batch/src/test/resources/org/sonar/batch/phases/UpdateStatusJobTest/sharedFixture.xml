@@ -1,5 +1,5 @@
 <dataset>
-  <rules_categories id="1" name="category one" description="[null]"/>
+  <rules_categories id="1" name="category one" description="One"/>
   <rules id="1" name="foo" plugin_config_key="checker/foo" plugin_rule_key="checkstyle.rule1"
          plugin_name="maven-checkstyle-plugin" description="description" cardinality="SINGLE" parent_id="[null]"/>
  

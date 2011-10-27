@@ -1,5 +1,5 @@
 <dataset>
-  <rules_categories id="6" name="Efficiency" description="[null]" />
+  <rules_categories id="6" name="Efficiency" description="Efficiency" />
 
   <!-- CHECKSTYLE -->
 

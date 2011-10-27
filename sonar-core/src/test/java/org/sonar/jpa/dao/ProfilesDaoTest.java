@@ -44,9 +44,9 @@ public class ProfilesDaoTest extends AbstractDbUnitTestCase {
     RulesProfile testProfile = new RulesProfile("not default", "java", false, false);
     getSession().save(testDefaultProfile, testProfile);
 
-    ResourceModel testResourceWithProfile = new ResourceModel(ResourceModel.SCOPE_PROJECT, "withProfile", "qual", null, "test");
+    ResourceModel testResourceWithProfile = new ResourceModel(ResourceModel.SCOPE_PROJECT, "withProfile", "TRK", null, "test");
     testResourceWithProfile.setRulesProfile(testProfile);
-    ResourceModel testResourceWithNoProfile = new ResourceModel(ResourceModel.SCOPE_PROJECT, "withoutProfile", "qual", null, "test");
+    ResourceModel testResourceWithNoProfile = new ResourceModel(ResourceModel.SCOPE_PROJECT, "withoutProfile", "TRK", null, "test");
     getSession().save(testResourceWithProfile, testResourceWithNoProfile);
 
     assertNull(profilesDao.getActiveProfile("wrongLanguage", "withoutProfile"));

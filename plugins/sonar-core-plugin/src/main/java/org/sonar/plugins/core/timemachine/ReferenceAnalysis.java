@@ -47,9 +47,10 @@ public class ReferenceAnalysis implements BatchExtension {
   }
 
   Snapshot getSnapshot(Resource resource) {
-    Query query = session.createQuery("from " + Snapshot.class.getSimpleName() + " s where s.last=true and s.resourceId=(select r.id from "
+    Query query = session.createQuery("from " + Snapshot.class.getSimpleName() + " s where s.last=:last and s.resourceId=(select r.id from "
         + ResourceModel.class.getSimpleName() + " r where r.key=:key)");
     query.setParameter("key", resource.getEffectiveKey());
+    query.setParameter("last", Boolean.TRUE);
     return session.getSingleResult(query, null);
   }
 }

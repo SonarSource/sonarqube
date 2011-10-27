@@ -1,6 +1,6 @@
 <dataset>
 
-  <rules_categories id="1" name="category one" description="[null]"/>
+  <rules_categories id="1" name="category one" description="one"/>
 
   <!-- Rules -->
   <rules id="1" name="new1" description="test1" plugin_config_key="checker/new1"

@@ -49,9 +49,10 @@ public final class PurgeUnprocessed extends Purge {
     final Date beforeDate = DateUtils.addHours(new Date(), -minimumPeriodInHours);
     Logs.INFO.info("Deleting unprocessed data before " + beforeDate);
 
-    Query query = getSession().createQuery("SELECT s.id FROM " + Snapshot.class.getSimpleName() + " s WHERE s.last=false AND status=:status AND s.createdAt<:date");
+    Query query = getSession().createQuery("SELECT s.id FROM " + Snapshot.class.getSimpleName() + " s WHERE s.last=:last AND status=:status AND s.createdAt<:date");
     query.setParameter("status", Snapshot.STATUS_UNPROCESSED);
     query.setParameter("date", beforeDate);
+    query.setParameter("last", Boolean.FALSE);
     List<Integer> snapshotIds = query.getResultList();
 
     PurgeUtils.deleteSnapshotsData(getSession(), snapshotIds);

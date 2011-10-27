@@ -6,8 +6,8 @@
            enabled="true" worst_value="0" optimized_best_value="true" best_value="100" direction="1" hidden="false"/>
 
 
-  <rules_categories id="1" name="Efficiency" description="[null]"/>
-  <rules_categories id="6" name="Usability" description="[null]"/>
+  <rules_categories id="1" name="Efficiency" description="Efficiency"/>
+  <rules_categories id="6" name="Usability" description="Usability"/>
 
   <rules id="30" name="Check Header" plugin_rule_key="com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck"
          plugin_config_key="Checker/Treewalker/HeaderCheck" plugin_name="checkstyle" description="[null]" priority="4" enabled="true"

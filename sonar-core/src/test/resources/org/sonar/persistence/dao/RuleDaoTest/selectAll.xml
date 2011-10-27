@@ -1,5 +1,5 @@
 <dataset>
 
-  <RULES id="1" plugin_rule_key="AvoidNull" plugin_name="checkstyle" name="Avoid Null" description="Should avoid NULL" enabled="1" />
+  <RULES id="1" plugin_rule_key="AvoidNull" plugin_name="checkstyle" name="Avoid Null" description="Should avoid NULL" enabled="true" />
 
 </dataset>

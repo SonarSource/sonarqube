@@ -23,7 +23,7 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.Logs;
 import org.sonar.plugins.dbcleaner.api.Purge;
 import org.sonar.plugins.dbcleaner.api.PurgeContext;
@@ -50,9 +50,10 @@ public final class PurgeEntities extends Purge {
     final Date beforeDate = DateUtils.addHours(new Date(), -minimumPeriodInHours);
     Logs.INFO.info("Deleting files data before " + beforeDate);
 
-    Query query = getSession().createQuery("SELECT s.id FROM " + Snapshot.class.getSimpleName() + " s WHERE s.last=false AND scope=:scope AND s.createdAt<:date");
-    query.setParameter("scope", Resource.SCOPE_ENTITY);
+    Query query = getSession().createQuery("SELECT s.id FROM " + Snapshot.class.getSimpleName() + " s WHERE s.last=:last AND scope=:scope AND s.createdAt<:date");
+    query.setParameter("scope", Scopes.FILE);
     query.setParameter("date", beforeDate);
+    query.setParameter("last", Boolean.FALSE);
     List<Integer> snapshotIds = query.getResultList();
 
     PurgeUtils.deleteSnapshotsData(getSession(), snapshotIds);

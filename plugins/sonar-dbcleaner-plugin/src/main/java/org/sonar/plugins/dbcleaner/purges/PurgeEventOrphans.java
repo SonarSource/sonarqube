@@ -22,15 +22,12 @@ package org.sonar.plugins.dbcleaner.purges;
 import org.sonar.api.batch.Event;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
-import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.database.model.SnapshotSource;
 import org.sonar.plugins.dbcleaner.api.Purge;
 import org.sonar.plugins.dbcleaner.api.PurgeContext;
 import org.sonar.plugins.dbcleaner.api.PurgeUtils;
 
-import java.util.List;
-
 import javax.persistence.Query;
+import java.util.List;
 
 public final class PurgeEventOrphans extends Purge {
 

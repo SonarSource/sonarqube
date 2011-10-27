@@ -53,13 +53,15 @@ public final class PurgeDisabledResources extends Purge {
   }
 
   private List<Integer> getResourceIds() {
-    Query query = getSession().createQuery("SELECT r.id FROM " + ResourceModel.class.getSimpleName() + " r WHERE r.enabled=false");
+    Query query = getSession().createQuery("SELECT r.id FROM " + ResourceModel.class.getSimpleName() + " r WHERE r.enabled=:enabled");
+    query.setParameter("enabled", Boolean.FALSE);
     return query.getResultList();
   }
 
   private List<Integer> getSnapshotIds() {
     Query query = getSession().createQuery("SELECT s.id FROM " + Snapshot.class.getSimpleName() + " s WHERE " +
-        " EXISTS (FROM " + ResourceModel.class.getSimpleName() + " r WHERE r.id=s.resourceId AND r.enabled=false)");
+        " EXISTS (FROM " + ResourceModel.class.getSimpleName() + " r WHERE r.id=s.resourceId AND r.enabled=:enabled)");
+    query.setParameter("enabled", Boolean.FALSE);
     return query.getResultList();
   }
 }

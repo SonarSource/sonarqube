@@ -51,9 +51,9 @@ public class DatabaseSessionTest extends AbstractDbUnitTestCase {
 
   @Test
   public void performaceTestOnBatchInserts() throws Exception {
-
+    getSession().save(project1);
     Snapshot snapshot = new Snapshot(project1, true, "", new Date(1));
-    getSession().save(project1, snapshot);
+    getSession().save(snapshot);
     getSession().save(CoreMetrics.CLASSES);
     getSession().commit();
 
@@ -110,7 +110,7 @@ public class DatabaseSessionTest extends AbstractDbUnitTestCase {
 
   @Test
   public void testGetResultsWithMultipleResults() {
-    ResourceModel project3 = new ResourceModel(ResourceModel.SCOPE_PROJECT, "mygroup:myartifact3", "TEST", null, "my name 3");
+    ResourceModel project3 = new ResourceModel(ResourceModel.SCOPE_PROJECT, "mygroup:myartifact3", "BRC", null, "my name 3");
     getSession().save(project1, project2, project3);
 
     List<ResourceModel> hits = getSession().getResults(ResourceModel.class, "qualifier", "JAV");

@@ -32,7 +32,6 @@ import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.server.platform.ServerStartException;
 
 import javax.persistence.Query;
-
 import java.util.List;
 import java.util.Map;
 
@@ -86,7 +85,8 @@ public class RegisterMetrics {
     Query query = session.createQuery("delete from " + Alert.class.getSimpleName() + " a where NOT EXISTS(FROM Metric m WHERE m=a.metric))");
     query.executeUpdate();
 
-    query = session.createQuery("delete from " + Alert.class.getSimpleName() + " a where NOT EXISTS(FROM Metric m WHERE m=a.metric and m.enabled=true))");
+    query = session.createQuery("delete from " + Alert.class.getSimpleName() + " a where NOT EXISTS(FROM Metric m WHERE m=a.metric and m.enabled=:enabled))");
+    query.setParameter("enabled", Boolean.TRUE);
     query.executeUpdate();
     session.commit();
   }

@@ -57,14 +57,14 @@ public final class EnableProfiles {
 
   private void enableProfilesOnKnownLanguages(Set<String> languages, DatabaseSession session) {
     Query query = session.createQuery("update " + RulesProfile.class.getSimpleName() + " set enabled=:enabled where language in (:languages)");
-    query.setParameter("enabled", true);
+    query.setParameter("enabled", Boolean.TRUE);
     query.setParameter("languages", languages);
     query.executeUpdate();
   }
 
   private void disableProfilesOnMissingLanguages(Set<String> languages, DatabaseSession session) {
     Query query = session.createQuery("update " + RulesProfile.class.getSimpleName() + " set enabled=:enabled where language not in (:languages)");
-    query.setParameter("enabled", false);
+    query.setParameter("enabled", Boolean.FALSE);
     query.setParameter("languages", languages);
     query.executeUpdate();
   }
