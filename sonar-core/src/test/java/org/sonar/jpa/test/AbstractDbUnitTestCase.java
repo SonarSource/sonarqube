@@ -21,16 +21,12 @@ package org.sonar.jpa.test;
 
 import org.apache.commons.io.IOUtils;
 import org.dbunit.Assertion;
+import org.dbunit.DataSourceDatabaseTester;
 import org.dbunit.DatabaseUnitException;
 import org.dbunit.IDatabaseTester;
-import org.dbunit.JdbcDatabaseTester;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.IDatabaseConnection;
-import org.dbunit.dataset.CompositeDataSet;
-import org.dbunit.dataset.DataSetException;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ITable;
-import org.dbunit.dataset.ReplacementDataSet;
+import org.dbunit.dataset.*;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.ext.hsqldb.HsqldbDataTypeFactory;
@@ -39,10 +35,15 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.sonar.api.database.DatabaseSession;
+import org.sonar.jpa.dao.DaoFacade;
+import org.sonar.jpa.dao.MeasuresDao;
+import org.sonar.jpa.dao.ProfilesDao;
+import org.sonar.jpa.dao.RulesDao;
 import org.sonar.jpa.session.DatabaseSessionFactory;
-import org.sonar.jpa.dao.*;
+import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.JpaDatabaseSession;
 import org.sonar.jpa.session.MemoryDatabaseConnector;
+import org.sonar.persistence.HsqlDatabase;
 
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -52,32 +53,31 @@ import static org.junit.Assert.fail;
 
 public abstract class AbstractDbUnitTestCase {
 
-  private MemoryDatabaseConnector dbConnector;
+  private DefaultDatabaseConnector dbConnector;
   private JpaDatabaseSession session;
   private DaoFacade dao;
   protected IDatabaseTester databaseTester;
   protected IDatabaseConnection connection;
+  private HsqlDatabase database;
 
   @Before
-  public final void startDatabase() throws Exception {
-    if (dbConnector == null) {
-      dbConnector = new MemoryDatabaseConnector();
-      dbConnector.start();
-      session = new JpaDatabaseSession(dbConnector);
-      session.start();
-    }
+  public void startDatabase() throws Exception {
+    database = new HsqlDatabase();
+    database.start();
+    dbConnector = new MemoryDatabaseConnector(database);
+    dbConnector.start();
+    session = new JpaDatabaseSession(dbConnector);
+    session.start();
 
-    databaseTester = new JdbcDatabaseTester(MemoryDatabaseConnector.DRIVER, MemoryDatabaseConnector.URL, MemoryDatabaseConnector.USER,
-        MemoryDatabaseConnector.PASSWORD);
-    databaseTester.onTearDown();
+    databaseTester = new DataSourceDatabaseTester(database.getDataSource());
   }
 
   @After
-  public final void stopDatabase() {
-    if (dbConnector != null) {
-      dbConnector.stop();
-      session.stop();
-    }
+  public void stopDatabase() throws Exception {
+    databaseTester.onTearDown();
+    dbConnector.stop();
+    database.stop();
+
   }
 
   public DaoFacade getDao() {
@@ -149,9 +149,9 @@ public abstract class AbstractDbUnitTestCase {
   }
 
   protected final void checkTables(String testName, String... tables) {
-    checkTables(testName, new String[] {}, tables);
+    checkTables(testName, new String[]{}, tables);
   }
-  
+
   protected final void checkTables(String testName, String[] excludedColumnNames, String... tables) {
     getSession().commit();
     try {

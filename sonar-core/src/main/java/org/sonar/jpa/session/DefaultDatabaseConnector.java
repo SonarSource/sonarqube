@@ -19,23 +19,17 @@
  */
 package org.sonar.jpa.session;
 
-import org.hibernate.cfg.Environment;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
 import org.sonar.jpa.entity.SchemaMigration;
 import org.sonar.persistence.Database;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Properties;
 
 public class DefaultDatabaseConnector extends AbstractDatabaseConnector {
 
-  private Database database;
-
-  public DefaultDatabaseConnector(Database database, Settings configuration) {
-    super(configuration, false);
-    this.database = database;
+  public DefaultDatabaseConnector(Database database) {
+    super(database);
   }
 
   @Override
@@ -58,13 +52,6 @@ public class DefaultDatabaseConnector extends AbstractDatabaseConnector {
     }
   }
 
-  @Override
-  public void stop() {
-    database = null;
-    super.stop();
-  }
-
-
   private void createDatasource() {
     try {
       CustomHibernateConnectionProvider.datasource = database.getDataSource();
@@ -76,10 +63,4 @@ public class DefaultDatabaseConnector extends AbstractDatabaseConnector {
   public Connection getConnection() throws SQLException {
     return database != null && database.getDataSource() != null ? database.getDataSource().getConnection() : null;
   }
-
-  @Override
-  public void setupEntityManagerFactory(Properties factoryProps) {
-    factoryProps.put(Environment.CONNECTION_PROVIDER, CustomHibernateConnectionProvider.class.getName());
-  }
-
 }

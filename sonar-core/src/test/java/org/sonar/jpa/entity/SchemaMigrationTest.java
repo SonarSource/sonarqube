@@ -21,7 +21,10 @@ package org.sonar.jpa.entity;
 
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.sonar.api.config.Settings;
+import org.sonar.api.database.DatabaseProperties;
 import org.sonar.jpa.session.MemoryDatabaseConnector;
+import org.sonar.persistence.HsqlDatabase;
 
 import java.sql.Connection;
 
@@ -32,7 +35,10 @@ public class SchemaMigrationTest {
 
   @Test
   public void currentVersionShouldBeUnknownWhenSchemaIsEmpty() throws Exception {
-    MemoryDatabaseConnector connector = new MemoryDatabaseConnector(SchemaMigration.VERSION_UNKNOWN);
+    HsqlDatabase hsqlDatabase = new HsqlDatabase();
+    hsqlDatabase.start();
+
+    MemoryDatabaseConnector connector = new MemoryDatabaseConnector(hsqlDatabase, SchemaMigration.VERSION_UNKNOWN);
     connector.start();
 
     Connection connection = Mockito.mock(Connection.class);
@@ -44,11 +50,15 @@ public class SchemaMigrationTest {
         connection.close();
       }
     }
+    connector.stop();
+    hsqlDatabase.stop();
   }
 
   @Test
   public void versionShouldBeLoadedFromSchemaMigrationsTable() throws Exception {
-    MemoryDatabaseConnector connector = new MemoryDatabaseConnector(30);
+    HsqlDatabase hsqlDatabase = new HsqlDatabase();
+    hsqlDatabase.start();
+    MemoryDatabaseConnector connector = new MemoryDatabaseConnector(hsqlDatabase, 30);
     connector.start();
 
     Connection connection = null;
@@ -61,5 +71,7 @@ public class SchemaMigrationTest {
         connection.close();
       }
     }
+    connector.stop();
+    hsqlDatabase.stop();
   }
 }

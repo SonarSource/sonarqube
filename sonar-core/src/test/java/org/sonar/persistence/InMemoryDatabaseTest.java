@@ -64,8 +64,8 @@ public class InMemoryDatabaseTest {
     InMemoryDatabase db = new InMemoryDatabase();
     try {
       db.startDatabase();
-      assertThat(((BasicDataSource)db.getDataSource()).getMaxActive(), Is.is(1));
-      assertThat(((BasicDataSource)db.getDataSource()).getMaxIdle(), Is.is(1));
+      assertThat(((BasicDataSource)db.getDataSource()).getMaxActive(), Is.is(2));
+      assertThat(((BasicDataSource)db.getDataSource()).getMaxIdle(), Is.is(2));
 
     } finally {
       db.stop();

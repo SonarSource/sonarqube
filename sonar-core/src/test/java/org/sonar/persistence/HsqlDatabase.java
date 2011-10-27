@@ -24,6 +24,7 @@ import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.hibernate.cfg.Environment;
 import org.sonar.jpa.dialect.Derby;
 import org.sonar.jpa.dialect.Dialect;
+import org.sonar.jpa.dialect.HsqlDb;
 import org.sonar.jpa.session.CustomHibernateConnectionProvider;
 
 import javax.sql.DataSource;
@@ -33,59 +34,37 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 /**
- * Derby in-memory database, used for unit tests only.
+ * In-memory database used for Hibernate unit tests only. For information MyBatis tests use Derby.
  *
  * @since 2.12
  */
-public class InMemoryDatabase implements Database {
+public class HsqlDatabase implements Database {
 
   private BasicDataSource datasource;
 
-  public InMemoryDatabase start() {
+  public HsqlDatabase start() {
     startDatabase();
-    createSchema();
     return this;
   }
 
   void startDatabase() {
     try {
       Properties properties = new Properties();
-      properties.put("driverClassName", "org.apache.derby.jdbc.EmbeddedDriver");
-      properties.put("username", "sonar");
-      properties.put("password", "sonar");
-      properties.put("url", "jdbc:derby:memory:sonar;create=true;user=sonar;password=sonar");
+      properties.put("driverClassName", "org.hsqldb.jdbcDriver");
+      properties.put("username", "sa");
+      properties.put("password", "");
+      properties.put("url", "jdbc:hsqldb:mem:sonar");
 
-      // limit to 2 because of Hibernate and MyBatis
-      properties.put("maxActive", "2");
-      properties.put("maxIdle", "2");
+      properties.put("maxActive", "3");
+      properties.put("maxIdle", "3");
       datasource = (BasicDataSource) BasicDataSourceFactory.createDataSource(properties);
 
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to start Derby", e);
+      throw new IllegalStateException("Fail to start HSQL", e);
     }
   }
 
-  void createSchema() {
-    Connection connection = null;
-    try {
-      connection = datasource.getConnection();
-      DdlUtils.createSchema(connection, "derby");
-
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to create schema", e);
-
-    } finally {
-      if (connection != null) {
-        try {
-          connection.close();
-        } catch (SQLException e) {
-          // crazy close method !
-        }
-      }
-    }
-  }
-
-  public InMemoryDatabase stop() {
+  public HsqlDatabase stop() {
     try {
       if (datasource != null) {
         datasource.close();
@@ -103,12 +82,12 @@ public class InMemoryDatabase implements Database {
   }
 
   public Dialect getDialect() {
-    return new Derby();
+    return new HsqlDb();
   }
 
   public Properties getHibernateProperties() {
     Properties properties = new Properties();
-    properties.put("hibernate.hbm2ddl.auto", "validate");
+    properties.put("hibernate.hbm2ddl.auto", "create-drop");
     properties.put(Environment.DIALECT, getDialect().getHibernateDialectClass().getName());
     properties.put(Environment.CONNECTION_PROVIDER, CustomHibernateConnectionProvider.class.getName());
     return properties;

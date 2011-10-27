@@ -19,49 +19,36 @@
  */
 package org.sonar.jpa.session;
 
-import org.apache.commons.lang.StringUtils;
-import org.hibernate.cfg.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.config.Settings;
-import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.Logs;
 import org.sonar.jpa.dialect.Dialect;
-import org.sonar.jpa.dialect.DialectRepository;
 import org.sonar.jpa.entity.SchemaMigration;
+import org.sonar.persistence.Database;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 public abstract class AbstractDatabaseConnector implements DatabaseConnector {
-  protected static final Logger LOG_SQL = LoggerFactory.getLogger("org.hibernate.SQL");
   protected static final Logger LOG = LoggerFactory.getLogger(AbstractDatabaseConnector.class);
 
-  protected Settings configuration = null;
+  protected Database database;
   private EntityManagerFactory factory = null;
   private int databaseVersion = SchemaMigration.VERSION_UNKNOWN;
   private boolean operational = false;
   private boolean started = false;
-  private boolean startsFailIfSchemaOutdated;
-  private Dialect dialect = null;
 
-  protected AbstractDatabaseConnector(Settings configuration, boolean startsFailIfSchemaOutdated) {
-    this.configuration = configuration;
-    this.startsFailIfSchemaOutdated = startsFailIfSchemaOutdated;
-  }
-
-  protected AbstractDatabaseConnector() {
+  protected AbstractDatabaseConnector(Database database) {
+    this.database = database;
   }
 
   public String getDialectId() {
-    return dialect.getId();
+    return database.getDialect().getId();
   }
 
   /**
@@ -80,15 +67,11 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
 
   public void start() {
     if (!started) {
-      String jdbcConnectionUrl = testConnection();
-      dialect = DialectRepository.find(configuration.getString("sonar.jdbc.dialect"), jdbcConnectionUrl);
+      testConnection();
       started = true;
     }
     if (!operational) {
       boolean upToDate = upToDateSchemaVersion();
-      if (!upToDate && startsFailIfSchemaOutdated) {
-        throw new DatabaseException(databaseVersion, SchemaMigration.LAST_VERSION);
-      }
       if (upToDate) {
         Logs.INFO.info("Initializing Hibernate");
         factory = createEntityManagerFactory();
@@ -104,9 +87,8 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
     }
     operational = false;
     started = false;
+    database = null;
   }
-
-  public abstract void setupEntityManagerFactory(Properties factoryProps);
 
   public EntityManagerFactory getEntityManagerFactory() {
     return factory;
@@ -118,7 +100,7 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
 
   protected EntityManagerFactory createEntityManagerFactory() {
     // other settings are stored into /META-INF/persistence.xml
-    Properties props = getHibernateProperties();
+    Properties props = database.getHibernateProperties();
     logHibernateSettings(props);
     return Persistence.createEntityManagerFactory("sonar", props);
   }
@@ -129,25 +111,6 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
         LOG.debug(entry.getKey() + ": " + entry.getValue());
       }
     }
-  }
-
-  protected Properties getHibernateProperties() {
-    Properties props = new Properties();
-    props.put("hibernate.hbm2ddl.auto", StringUtils.defaultString(configuration.getString(DatabaseProperties.PROP_HIBERNATE_HBM2DLL), "validate"));
-    props.put(Environment.DIALECT, getDialectClass());
-
-    props.put("hibernate.generate_statistics", configuration.getBoolean(DatabaseProperties.PROP_HIBERNATE_GENERATE_STATISTICS));
-    props.put("hibernate.show_sql", Boolean.valueOf(LOG_SQL.isDebugEnabled()).toString());
-
-    List<String> hibernateKeys = configuration.getKeysStartingWith("sonar.hibernate.");
-    for (String hibernateKey : hibernateKeys) {
-      props.put(StringUtils.removeStart(hibernateKey, "sonar."), configuration.getString(hibernateKey));
-    }
-
-    // custom impl setup
-    setupEntityManagerFactory(props);
-
-    return props;
   }
 
   public EntityManager createEntityManager() {
@@ -205,15 +168,6 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
   }
 
   public final Dialect getDialect() {
-    return dialect;
+    return database.getDialect();
   }
-
-  public final String getDialectClass() {
-    String dialectClass = configuration.getString(DatabaseProperties.PROP_DIALECT_CLASS);
-    if (dialectClass == null && dialect != null) {
-      dialectClass = dialect.getHibernateDialectClass().getName();
-    }
-    return dialectClass;
-  }
-
 }

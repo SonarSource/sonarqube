@@ -22,12 +22,14 @@ package org.sonar.persistence;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.cfg.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.jpa.dialect.Dialect;
 import org.sonar.jpa.dialect.DialectRepository;
+import org.sonar.jpa.session.CustomHibernateConnectionProvider;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -98,6 +100,20 @@ public class DefaultDatabase implements Database {
 
   public final Dialect getDialect() {
     return dialect;
+  }
+
+  public Properties getHibernateProperties() {
+    Properties props = new Properties();
+
+    List<String> hibernateKeys = settings.getKeysStartingWith("sonar.hibernate.");
+    for (String hibernateKey : hibernateKeys) {
+      props.put(StringUtils.removeStart(hibernateKey, "sonar."), settings.getString(hibernateKey));
+    }
+    props.put(Environment.DIALECT, getDialect().getHibernateDialectClass().getName());
+    props.put("hibernate.generate_statistics", settings.getBoolean(DatabaseProperties.PROP_HIBERNATE_GENERATE_STATISTICS));
+    props.put("hibernate.hbm2ddl.auto", "validate");
+    props.put(Environment.CONNECTION_PROVIDER, CustomHibernateConnectionProvider.class.getName());
+    return props;
   }
 
   public final DataSource getDataSource() {

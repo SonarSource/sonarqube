@@ -19,20 +19,16 @@
  */
 package org.sonar.persistence;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.io.output.NullWriter;
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.jdbc.ScriptRunner;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.PrintWriter;
 import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Util class to create Sonar database tables
- * 
+ *
  * @since 2.12
  */
 public final class DdlUtils {
@@ -45,50 +41,29 @@ public final class DdlUtils {
   }
 
   /**
-   * TODO to be replaced by mybatis ScriptRunner
    * The connection is commited in this method but not closed.
    */
-  public static void execute(Connection connection, String dialect) {
-    if (!supportsDialect(dialect)) {
-      throw new IllegalArgumentException("Unsupported dialect: " + dialect);
-    }
-    List<String> lines = loadStatementsForDialect(dialect);
-    for (String line : lines) {
-      if (StringUtils.isNotBlank(line) && !StringUtils.startsWith(line, "--")) {
-        try {
-          Statement statement = connection.createStatement();
-          statement.execute(line);
-          statement.close();
-        } catch (Exception e) {
-          throw new IllegalStateException("Fail to execute DDL: " + line, e);
-        }
-      }
-    }
+  public static void createSchema(Connection connection, String dialect) {
+    executeScript(connection, "org/sonar/persistence/schema-" + dialect + ".ddl");
+    executeScript(connection, "org/sonar/persistence/rows-" + dialect + ".sql");
+  }
+
+  private static void executeScript(Connection connection, String path) {
+    ScriptRunner scriptRunner = newScriptRunner(connection);
     try {
+      scriptRunner.runScript(Resources.getResourceAsReader(path));
       connection.commit();
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to commit DDL", e);
-    }
 
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to restore: " + path, e);
+    }
   }
 
-  private static List<String> loadStatementsForDialect(String dialect) {
-    List<String> lines = new ArrayList<String>();
-    lines.addAll(loadStatements("/org/sonar/persistence/schema-" + dialect + ".ddl"));
-    lines.addAll(loadStatements("/org/sonar/persistence/rows-" + dialect + ".sql"));
-    return lines;
-  }
-
-  private static List<String> loadStatements(String path) {
-    InputStream input = DdlUtils.class.getResourceAsStream(path);
-    try {
-      return IOUtils.readLines(input);
-
-    } catch (IOException e) {
-      throw new IllegalStateException("Fail to load DDL file from classloader: " + path, e);
-    } finally {
-
-      IOUtils.closeQuietly(input);
-    }
+  private static ScriptRunner newScriptRunner(Connection connection) {
+    ScriptRunner scriptRunner = new ScriptRunner(connection);
+    scriptRunner.setDelimiter(";");
+    scriptRunner.setStopOnError(true);
+    scriptRunner.setLogWriter(new PrintWriter(new NullWriter()));
+    return scriptRunner;
   }
 }

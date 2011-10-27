@@ -49,7 +49,7 @@ public class DatabaseMigrator implements ServerComponent {
       SqlSession session = myBatis.openSession();
       Connection connection = session.getConnection();
       try {
-        DdlUtils.execute(connection, database.getDialect().getId());
+        DdlUtils.createSchema(connection, database.getDialect().getId());
       } finally {
         session.close();
       }

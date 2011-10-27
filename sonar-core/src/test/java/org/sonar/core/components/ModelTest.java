@@ -32,7 +32,6 @@ public class ModelTest extends AbstractDbUnitTestCase {
 
   @Test
   public void saveModelAndCharacteristics() {
-    setupData("saveModelAndCharacteristics");
     Model model = Model.createByName("fake");
     model.createCharacteristicByName("Efficiency");
     model.createCharacteristicByName("Usability");
@@ -51,7 +50,6 @@ public class ModelTest extends AbstractDbUnitTestCase {
    */
   @Test
   public void saveTreeOfCharacteristics() {
-    setupData("testTreeOfCharacteristics");
     Model model = Model.createByName("fake");
 
     Characteristic efficiency = model.createCharacteristicByName("Efficiency");
@@ -77,7 +75,6 @@ public class ModelTest extends AbstractDbUnitTestCase {
    */
   @Test
   public void testGraphOfCharacteristics() {
-    setupData("testGraphOfCharacteristics");
     Model model = Model.createByName("fake");
 
     Characteristic level1a = model.createCharacteristicByName("level1a");

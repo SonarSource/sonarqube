@@ -40,7 +40,7 @@ public final class PurgeDeprecatedLast extends Purge {
 
   public void purge(PurgeContext context) {
     Query query = getSession().createQuery("SELECT s.id FROM " + Snapshot.class.getSimpleName() +
-        " s WHERE s.last=last AND s.rootId IS NOT NULL AND NOT EXISTS(FROM " + Snapshot.class.getSimpleName() + " s2 WHERE s2.id=s.rootId AND s2.last=true)");
+        " s WHERE s.last=:last AND s.rootId IS NOT NULL AND NOT EXISTS(FROM " + Snapshot.class.getSimpleName() + " s2 WHERE s2.id=s.rootId AND s2.last=:last)");
     query.setParameter("last", Boolean.TRUE);
     List<Integer> snapshotIds = query.getResultList();
 

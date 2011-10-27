@@ -47,17 +47,18 @@ public class DdlUtilsTest {
   }
 
   @Test
-  public void shouldExecuteDerbyDdl() throws SQLException {
+  public void shouldCreateDerbySchema() throws SQLException {
     int tables = 0;
     DriverManager.registerDriver(new EmbeddedDriver());
     Connection connection = DriverManager.getConnection("jdbc:derby:memory:sonar;create=true");
-    DdlUtils.execute(connection, "derby");
+    DdlUtils.createSchema(connection, "derby");
 
     ResultSet resultSet = connection.getMetaData().getTables("", null, null, new String[]{"TABLE"});
     while (resultSet.next()) {
       tables++;
     }
     resultSet.close();
+    connection.commit();
     connection.close();
     assertThat(tables, greaterThan(30));
 

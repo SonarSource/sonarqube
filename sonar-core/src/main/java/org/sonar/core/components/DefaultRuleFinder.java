@@ -67,8 +67,9 @@ public class DefaultRuleFinder implements RuleFinder {
   }
 
   private Query createHqlQuery(DatabaseSession session, RuleQuery query) {
-    StringBuilder hql = new StringBuilder().append("from ").append(Rule.class.getSimpleName()).append(" where enabled=true ");
+    StringBuilder hql = new StringBuilder().append("from ").append(Rule.class.getSimpleName()).append(" where enabled=:enabled ");
     Map<String,Object> params = new HashMap<String,Object>();
+    params.put("enabled", Boolean.TRUE);
     if (StringUtils.isNotBlank(query.getRepositoryKey())) {
       hql.append("AND pluginName=:repositoryKey ");
       params.put("repositoryKey", query.getRepositoryKey());

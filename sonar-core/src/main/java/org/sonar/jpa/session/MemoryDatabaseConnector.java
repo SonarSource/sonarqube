@@ -19,48 +19,23 @@
  */
 package org.sonar.jpa.session;
 
-import org.sonar.api.config.Settings;
-import org.sonar.api.database.DatabaseProperties;
 import org.sonar.jpa.entity.SchemaMigration;
+import org.sonar.persistence.Database;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import java.sql.Connection;
 
-public class MemoryDatabaseConnector extends DriverDatabaseConnector {
-  public static final String DRIVER = "org.hsqldb.jdbcDriver";
-  public static final String URL = "jdbc:hsqldb:mem:sonar";
-  public static final String USER = "sa";
-  public static final String PASSWORD = "";
-  public static final int ISOLATION = Connection.TRANSACTION_READ_UNCOMMITTED;
-
+public class MemoryDatabaseConnector extends DefaultDatabaseConnector {
   private int version;
 
-  public MemoryDatabaseConnector(Settings config) {
-    super(config);
+  public MemoryDatabaseConnector(Database database) {
+    super(database);
     version = SchemaMigration.LAST_VERSION;
   }
 
-  public MemoryDatabaseConnector() {
-    this(getInMemoryConfiguration(true));
-  }
-
-  public MemoryDatabaseConnector(int version) {
-    this(getInMemoryConfiguration(true));
+  public MemoryDatabaseConnector(Database database, int version) {
+    this(database);
     this.version = version;
-  }
-
-  protected static Settings getInMemoryConfiguration(boolean createSchema) {
-    Settings conf = new Settings();
-    conf.setProperty(DatabaseProperties.PROP_URL, URL);
-    conf.setProperty(DatabaseProperties.PROP_DRIVER, DRIVER);
-    conf.setProperty(DatabaseProperties.PROP_USER, USER);
-    conf.setProperty(DatabaseProperties.PROP_PASSWORD, PASSWORD);
-    conf.setProperty(DatabaseProperties.PROP_ISOLATION, ISOLATION);
-    if (createSchema) {
-      conf.setProperty(DatabaseProperties.PROP_HIBERNATE_HBM2DLL, "create-drop");
-    }
-    return conf;
   }
 
   @Override
@@ -71,14 +46,9 @@ public class MemoryDatabaseConnector extends DriverDatabaseConnector {
       if (!isStarted()) {
         throw ex;
       }
-      setEntityManagerFactory(createEntityManagerFactory());
-      setupSchemaVersion(version);
     }
-  }
-
-  @Override
-  protected EntityManagerFactory createEntityManagerFactory() {
-    return super.createEntityManagerFactory();
+    setEntityManagerFactory(createEntityManagerFactory());
+    setupSchemaVersion(version);
   }
 
   protected void setupSchemaVersion(int version) {

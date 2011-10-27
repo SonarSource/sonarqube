@@ -23,14 +23,6 @@ import javax.persistence.PersistenceException;
 
 public class DatabaseException extends PersistenceException {
 
-  public DatabaseException(Throwable throwable) {
-    super(throwable);
-  }
-
-  public DatabaseException(String message) {
-    super(message);
-  }
-
   public DatabaseException(String message, Throwable cause) {
     super(message, cause);
   }
