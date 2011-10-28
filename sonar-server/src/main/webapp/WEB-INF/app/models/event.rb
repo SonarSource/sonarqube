@@ -35,7 +35,24 @@ class Event < ActiveRecord::Base
       name
     end
   end
-
+  
+  #
+  # For a given snapshot, checks if an event with the same name & category
+  # exists in the history of the corresponding resource (= in any existing 
+  # processed snapshot for this resource).
+  #
+  def self.already_exists(snapshot_id, event_name, event_category)
+    snapshot = Snapshot.find(snapshot_id.to_i)
+    snapshots = Snapshot.find(:all, :conditions => ["status='P' AND project_id=?", snapshot.project_id], :include => 'events')
+    snapshots.each do |snapshot|
+      snapshot.events.each do |event|
+        return true if event.name==event_name && event.category==event_category
+      end
+    end
+    
+    return false
+  end
+  
   #
   # TODO: Remove this code when everything has been checked on the Event handling, both on the UI and the WS API
   #

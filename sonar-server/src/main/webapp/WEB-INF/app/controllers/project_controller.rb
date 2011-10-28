@@ -185,26 +185,30 @@ class ProjectController < ApplicationController
     return access_denied unless is_admin?(snapshot)
   
     unless params[:version_name].blank?
-      snapshots = find_project_snapshots(snapshot.id)
-      # We update all the related snapshots to have a version attribute in sync with the new name
-      snapshots.each do |snapshot|
-        snapshot.version = params[:version_name]
-        snapshot.save!
-      end
-      # And then we update/create the event on each snapshot
-      if snapshot.event(EventCategory::KEY_VERSION)
-        # This is an update: we update all the related events
-        Event.update_all( {:name => params[:version_name]},
-                          ["category = ? AND snapshot_id IN (?)", EventCategory::KEY_VERSION, snapshots.map{|s| s.id}])
-        flash[:notice] = message('project_history.version_updated', :params => params[:version_name])
+      if Event.already_exists(snapshot.id, params[:version_name], EventCategory::KEY_VERSION)
+        flash[:error] = message('project_history.version_already_exists', :params => params[:version_name])
       else
-        # We create an event for every concerned snapshot
+        snapshots = find_project_snapshots(snapshot.id)
+        # We update all the related snapshots to have a version attribute in sync with the new name
         snapshots.each do |snapshot|
-          event = Event.create!(:name => params[:version_name], :snapshot => snapshot, 
-                            :resource_id => snapshot.project_id, :category => EventCategory::KEY_VERSION,
-                            :event_date => snapshot.created_at)
+          snapshot.version = params[:version_name]
+          snapshot.save!
         end
-        flash[:notice] = message('project_history.version_created', :params => params[:version_name])
+        # And then we update/create the event on each snapshot
+        if snapshot.event(EventCategory::KEY_VERSION)
+          # This is an update: we update all the related events
+          Event.update_all( {:name => params[:version_name]},
+                            ["category = ? AND snapshot_id IN (?)", EventCategory::KEY_VERSION, snapshots.map{|s| s.id}])
+          flash[:notice] = message('project_history.version_updated', :params => params[:version_name])
+        else
+          # We create an event for every concerned snapshot
+          snapshots.each do |snapshot|
+            event = Event.create!(:name => params[:version_name], :snapshot => snapshot, 
+                              :resource_id => snapshot.project_id, :category => EventCategory::KEY_VERSION,
+                              :event_date => snapshot.created_at)
+          end
+          flash[:notice] = message('project_history.version_created', :params => params[:version_name])
+        end
       end
     end
   
@@ -237,16 +241,21 @@ class ProjectController < ApplicationController
   def create_event
     event = Event.new(params[:event])
     return access_denied unless is_admin?(event.resource)
-        
-    snapshots = find_project_snapshots(event.snapshot_id)
-    snapshots.each do |snapshot|
-      e = Event.new(params[:event])
-      e.snapshot = snapshot
-      e.resource_id = snapshot.project_id
-      e.event_date = snapshot.created_at
-      e.save!
+    
+    if Event.already_exists(event.snapshot_id, event.name, event.category)
+      flash[:error] = message('project_history.event_already_exists', :params => [event.name, event.category])
+    else
+      snapshots = find_project_snapshots(event.snapshot_id)
+      snapshots.each do |snapshot|
+        e = Event.new(params[:event])
+        e.snapshot = snapshot
+        e.resource_id = snapshot.project_id
+        e.event_date = snapshot.created_at
+        e.save!
+      end
+      flash[:notice] = message('project_history.event_created', :params => event.name)
     end
-    flash[:notice] = message('project_history.event_created', :params => event.name)
+    
     redirect_to :action => 'history', :id => event.resource_id
   end
 
@@ -262,14 +271,19 @@ class ProjectController < ApplicationController
   def update_event
     event = Event.find(params[:event][:id])
     return access_denied unless is_admin?(event.resource)
-     
-    events = find_events(event)
-    events.each do |e|
-      e.name = params[:event][:name]
-      e.category = params[:event][:category]
-      e.save!
+    
+    if Event.already_exists(event.snapshot_id, params[:event][:name], params[:event][:category])
+      flash[:error] = message('project_history.event_already_exists', :params => [event.name, event.category])
+    else
+      events = find_events(event)
+      events.each do |e|
+        e.name = params[:event][:name]
+        e.category = params[:event][:category]
+        e.save!
+      end
+      flash[:notice] = message('project_history.event_updated')
     end
-    flash[:notice] = message('project_history.event_updated')
+    
     redirect_to :action => 'history', :id => event.resource_id
   end
 

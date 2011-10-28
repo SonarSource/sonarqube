@@ -137,6 +137,7 @@ class Api::EventsController < Api::ApiController
       end
       
       raise "A version already exists on this resource." if params[:category]==EventCategory::KEY_VERSION && root_snapshot.event(EventCategory::KEY_VERSION)
+      raise "An event '#{params[:name]}' (category '#{params[:category]}') already exists on this resource." if Event.already_exists(@resource.last_snapshot.id, params[:name], params[:category])
       
       # Create events for the root project and every submodule
       event_to_return = nil
