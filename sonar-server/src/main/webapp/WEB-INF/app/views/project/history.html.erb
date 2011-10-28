@@ -26,7 +26,7 @@
         profile_event = snapshot.event(EventCategory::KEY_PROFILE)
         other_events = snapshot.events.select{|e| e.category!=EventCategory::KEY_VERSION && e.category!=EventCategory::KEY_ALERT && e.category!=EventCategory::KEY_PROFILE}
     %>
-    <tr class="<%= cycle 'even','odd' -%>">
+    <tr class="<%= cycle 'even','odd' -%>" id="<%= snapshot.id -%>">
     
       <td class="thin nowrap"><b><%= time.year unless time.year == current_year -%></b></td>
     
