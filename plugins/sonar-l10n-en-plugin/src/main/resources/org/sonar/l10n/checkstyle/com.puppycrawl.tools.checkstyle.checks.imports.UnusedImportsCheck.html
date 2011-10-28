@@ -1,1 +1,53 @@
-Checks for unused import statements.
+<p>
+  Checks for unused import statements. Checkstyle uses a simple but
+  very reliable algorithm to report on unused import statements. An
+  import statement is considered unused if:
+</p>
+
+<ul>
+  <li>
+    It is not referenced in the file. The algorithm does not support
+    wild-card imports like <tt>import java.io.*;</tt>. Most IDE's provide very sophisticated checks
+    for imports that handle wild-card imports.
+  </li>
+
+  <li>
+    It is a duplicate of another import. This is when a class is
+    imported more than once.
+  </li>
+
+  <li>
+    The class imported is from the <tt>java.lang</tt>
+    package. For example importing <tt>java.lang.String</tt>.
+  </li>
+
+  <li>
+    The class imported is from the same package.
+  </li>
+  <li>
+    <b>Optionally:</b> it is referenced in Javadoc comments. This check
+    is off by default, as it is considered bad practice to introduce
+    a compile time dependency for documentation purposes only.
+    As an example, the import <tt>java.util.Date</tt> would be
+    considered referenced with the Javadoc comment
+    <tt>{@link Date}</tt>. The alternative to avoid introducing a
+    compile time dependency would be to write the Javadoc comment as
+    <tt>{@link java.util.Date}</tt>.
+  </li>
+
+</ul>
+<p>
+  The main limitation of this check is handling the case where
+  an imported type has the same name as a declaration, such as a
+  member variable.
+</p>
+<p>
+  For example, in the following case the import <tt>java.awt.Component</tt> will not be flagged as
+  unused:
+</p>
+<pre>import java.awt.Component;
+class FooBar {
+    private Object Component; // IMHO bad practise
+    ...
+}
+</pre>

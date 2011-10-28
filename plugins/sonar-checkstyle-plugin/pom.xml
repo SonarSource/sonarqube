@@ -14,7 +14,7 @@
   <description>Checkstyle is a code analyser to help programmers write Java code that adheres to a coding standard.</description>
 
   <properties>
-    <checkstyle.version>5.1</checkstyle.version>
+    <checkstyle.version>5.4</checkstyle.version>
   </properties>
 
   <repositories>
@@ -39,14 +39,10 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>checkstyle</groupId>
+      <groupId>com.puppycrawl.tools</groupId>
       <artifactId>checkstyle</artifactId>
       <version>${checkstyle.version}</version>
       <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
         <exclusion>
           <groupId>com.google.collections</groupId>
           <artifactId>google-collections</artifactId>
