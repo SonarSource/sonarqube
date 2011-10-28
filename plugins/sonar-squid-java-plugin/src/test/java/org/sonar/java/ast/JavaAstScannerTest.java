@@ -70,7 +70,7 @@ public class JavaAstScannerTest {
   /**
    * SONAR-1908
    */
-  @Test(expected = AnalysisException.class)
+  @Test
   public void testUnicodeEscape() {
     // see
     // https://sourceforge.net/tracker/?func=detail&aid=3296452&group_id=29721&atid=397078

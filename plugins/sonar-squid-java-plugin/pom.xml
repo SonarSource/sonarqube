@@ -55,9 +55,9 @@
       <version>3.2</version>
     </dependency>
     <dependency>
-      <groupId>checkstyle</groupId>
-      <artifactId>checkstyle</artifactId>
-      <version>5.1</version>
+      <groupId>com.sonarsource.checkstyle</groupId>
+      <artifactId>checkstyle-java7</artifactId>
+      <version>5.1.1</version>
       <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>
