@@ -458,6 +458,9 @@
           <runOrder>random</runOrder>
           <systemPropertyVariables>
             <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
+            
+            <!-- derby embedded database is used by unit tests -->
+            <derby.stream.error.file>target/derby.log</derby.stream.error.file>
           </systemPropertyVariables>
         </configuration>
       </plugin>
