@@ -27,9 +27,7 @@ import org.sonar.jpa.dialect.Dialect;
 import org.sonar.jpa.session.CustomHibernateConnectionProvider;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Properties;
 
 /**
@@ -39,21 +37,27 @@ import java.util.Properties;
  */
 public class InMemoryDatabase implements Database {
 
-  private BasicDataSource datasource;
+  private static BasicDataSource datasource;
 
   public InMemoryDatabase start() {
-    startDatabase();
-    createSchema();
+    if (datasource == null) {
+      startDatabase();
+      createSchema();
+    }
+    truncateTables();
     return this;
   }
 
+  /**
+   * IMPORTANT: DB name changed from "sonar" to "sonar2" in order to not conflict with {@link org.sonar.test.persistence.DatabaseTestCase}
+   */
   void startDatabase() {
     try {
       Properties properties = new Properties();
       properties.put("driverClassName", "org.apache.derby.jdbc.EmbeddedDriver");
       properties.put("username", "sonar");
       properties.put("password", "sonar");
-      properties.put("url", "jdbc:derby:memory:sonar;create=true;user=sonar;password=sonar");
+      properties.put("url", "jdbc:derby:memory:sonar2;create=true;user=sonar;password=sonar");
 
       // limit to 2 because of Hibernate and MyBatis
       properties.put("maxActive", "2");
@@ -75,26 +79,58 @@ public class InMemoryDatabase implements Database {
       throw new IllegalStateException("Fail to create schema", e);
 
     } finally {
-      if (connection != null) {
-        try {
-          connection.close();
-        } catch (SQLException e) {
-          // crazy close method !
-        }
+      closeQuietly(connection);
+    }
+  }
+
+  private void truncateTables() {
+    Connection connection = null;
+    try {
+      connection = datasource.getConnection();
+
+      DatabaseMetaData meta = connection.getMetaData();
+
+      ResultSet res = meta.getTables(null, null, null, new String[] { "TABLE" });
+      while (res.next()) {
+        String tableName = res.getString("TABLE_NAME");
+        connection.prepareStatement("TRUNCATE TABLE " + tableName).execute();
+      }
+      res.close();
+
+      // See https://issues.apache.org/jira/browse/DERBY-5403
+      res = meta.getColumns(null, null, null, "ID");
+      while (res.next()) {
+        String tableName = res.getString("TABLE_NAME");
+        connection.prepareStatement("ALTER TABLE " + tableName + " ALTER COLUMN ID RESTART WITH 1").execute();
+      }
+      res.close();
+
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to truncate tables", e);
+
+    } finally {
+      closeQuietly(connection); // Important, otherwise tests can stuck
+    }
+  }
+
+  void stopDatabase() {
+    try {
+      if (datasource != null) {
+        datasource.close();
+      }
+      DriverManager.getConnection("jdbc:derby:;shutdown=true");
+
+    } catch (SQLException e) {
+      // See http://db.apache.org/derby/docs/dev/getstart/rwwdactivity3.html
+      // XJ015 indicates successful shutdown of Derby
+      // 08006 successful shutdown of a single database
+      if (!"XJ015".equals(e.getSQLState())) {
+        throw new IllegalStateException("Fail to stop Derby", e);
       }
     }
   }
 
   public InMemoryDatabase stop() {
-    try {
-      if (datasource != null) {
-        datasource.close();
-      }
-      DriverManager.getConnection("jdbc:derby:memory:sonar;drop=true");
-
-    } catch (SQLException e) {
-      // silently ignore stop failure
-    }
     return this;
   }
 
@@ -113,4 +149,15 @@ public class InMemoryDatabase implements Database {
     properties.put(Environment.CONNECTION_PROVIDER, CustomHibernateConnectionProvider.class.getName());
     return properties;
   }
+
+  private static void closeQuietly(Connection connection) {
+    if (connection != null) {
+      try {
+        connection.close();
+      } catch (SQLException e) {
+        // ignore
+      }
+    }
+  }
+
 }

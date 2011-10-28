@@ -23,7 +23,6 @@ import org.sonar.jpa.entity.SchemaMigration;
 import org.sonar.persistence.Database;
 
 import javax.persistence.EntityManager;
-import java.sql.Connection;
 
 public class MemoryDatabaseConnector extends DefaultDatabaseConnector {
   private int version;

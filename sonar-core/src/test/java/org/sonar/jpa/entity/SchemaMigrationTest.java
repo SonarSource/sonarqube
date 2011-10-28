@@ -21,15 +21,12 @@ package org.sonar.jpa.entity;
 
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.api.config.Settings;
-import org.sonar.api.database.DatabaseProperties;
 import org.sonar.jpa.session.MemoryDatabaseConnector;
 import org.sonar.persistence.HsqlDatabase;
 
 import java.sql.Connection;
 
 import static org.junit.Assert.assertEquals;
-
 
 public class SchemaMigrationTest {
 

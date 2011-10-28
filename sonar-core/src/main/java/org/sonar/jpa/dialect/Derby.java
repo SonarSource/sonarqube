@@ -60,6 +60,13 @@ public class Derby implements Dialect {
 
       // Not possible to do alter column types in Derby
       registerColumnType(Types.BIGINT, "integer");
+
+      registerColumnType(Types.BIT, "boolean");
+    }
+
+    @Override
+    public String toBooleanValueString(boolean bool) {
+      return bool ? "true" : "false";
     }
 
     /**

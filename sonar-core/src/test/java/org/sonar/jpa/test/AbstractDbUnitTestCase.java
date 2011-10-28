@@ -19,6 +19,13 @@
  */
 package org.sonar.jpa.test;
 
+import static org.junit.Assert.fail;
+
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.apache.commons.io.IOUtils;
 import org.dbunit.Assertion;
 import org.dbunit.DataSourceDatabaseTester;
@@ -31,9 +38,7 @@ import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.ext.hsqldb.HsqldbDataTypeFactory;
 import org.dbunit.operation.DatabaseOperation;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.*;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.jpa.dao.DaoFacade;
 import org.sonar.jpa.dao.MeasuresDao;
@@ -43,29 +48,33 @@ import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.JpaDatabaseSession;
 import org.sonar.jpa.session.MemoryDatabaseConnector;
+import org.sonar.persistence.Database;
 import org.sonar.persistence.HsqlDatabase;
-
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.sql.SQLException;
-
-import static org.junit.Assert.fail;
+import org.sonar.persistence.InMemoryDatabase;
 
 public abstract class AbstractDbUnitTestCase {
+
+  private static final boolean USE_HSQL = false;
 
   private DefaultDatabaseConnector dbConnector;
   private JpaDatabaseSession session;
   private DaoFacade dao;
   protected IDatabaseTester databaseTester;
   protected IDatabaseConnection connection;
-  private HsqlDatabase database;
+  private Database database;
 
   @Before
   public void startDatabase() throws Exception {
-    database = new HsqlDatabase();
+    if (USE_HSQL) {
+      database = new HsqlDatabase();
+    } else {
+      database = new InMemoryDatabase();
+    }
+
     database.start();
     dbConnector = new MemoryDatabaseConnector(database);
     dbConnector.start();
+
     session = new JpaDatabaseSession(dbConnector);
     session.start();
 
@@ -75,9 +84,13 @@ public abstract class AbstractDbUnitTestCase {
   @After
   public void stopDatabase() throws Exception {
     databaseTester.onTearDown();
+    // Important: close the connection and session, otherwise tests can stuck
+    if (connection != null) {
+      connection.close();
+    }
+    session.stop();
     dbConnector.stop();
     database.stop();
-
   }
 
   public DaoFacade getDao() {
@@ -136,20 +149,46 @@ public abstract class AbstractDbUnitTestCase {
 
       databaseTester.setDataSet(compositeDataSet);
       connection = databaseTester.getConnection();
-      connection.getConnection().prepareStatement("set referential_integrity FALSE").execute(); // HSQL DB
-      DatabaseConfig config = connection.getConfig();
-      config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, new HsqldbDataTypeFactory());
+
+      if (USE_HSQL) {
+        connection.getConnection().prepareStatement("set referential_integrity FALSE").execute(); // HSQL DB
+        DatabaseConfig config = connection.getConfig();
+        config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, new HsqldbDataTypeFactory());
+      }
 
       DatabaseOperation.CLEAN_INSERT.execute(connection, databaseTester.getDataSet());
 
-      connection.getConnection().prepareStatement("set referential_integrity TRUE").execute(); // HSQL DB
+      if (USE_HSQL) {
+        connection.getConnection().prepareStatement("set referential_integrity TRUE").execute(); // HSQL DB
+      } else {
+        resetDerbySequence(compositeDataSet);
+      }
+
     } catch (Exception e) {
       throw translateException("Could not setup DBUnit data", e);
     }
   }
 
+  private void resetDerbySequence(CompositeDataSet compositeDataSet) throws DataSetException, SQLException {
+    for (ITable table : compositeDataSet.getTables()) {
+      ITableMetaData tableMetaData = table.getTableMetaData();
+      String tableName = tableMetaData.getTableName();
+      for (Column column : tableMetaData.getColumns()) {
+        if ("id".equalsIgnoreCase(column.getColumnName())) { // TODO hard-coded value
+          String maxSql = "SELECT MAX(id) FROM " + tableName;
+          ResultSet res = connection.getConnection().prepareStatement(maxSql).executeQuery();
+          res.next();
+          int max = res.getInt(1);
+          res.close();
+          String alterSql = "ALTER TABLE " + tableName + " ALTER COLUMN id RESTART WITH " + (max + 1);
+          connection.getConnection().prepareStatement(alterSql).execute();
+        }
+      }
+    }
+  }
+
   protected final void checkTables(String testName, String... tables) {
-    checkTables(testName, new String[]{}, tables);
+    checkTables(testName, new String[] {}, tables);
   }
 
   protected final void checkTables(String testName, String[] excludedColumnNames, String... tables) {

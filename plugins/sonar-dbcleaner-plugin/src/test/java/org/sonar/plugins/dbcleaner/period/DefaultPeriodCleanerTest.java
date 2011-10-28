@@ -32,16 +32,14 @@ public class DefaultPeriodCleanerTest extends AbstractDbUnitTestCase {
 
   DefaultPeriodCleaner cleaner;
 
+  Project project;
+  Periods periods;
+
   @Before
   public void init() {
     cleaner = new DefaultPeriodCleaner(getSession());
-  }
 
-  @Test
-  public void integrationTests() {
-    setupData("dbContent");
-
-    Project project = new Project("myproject");
+    project = new Project("myproject");
     project.setConfiguration(new PropertiesConfiguration());
 
     GregorianCalendar calendar = new GregorianCalendar(2010, 10, 1);
@@ -50,12 +48,19 @@ public class DefaultPeriodCleanerTest extends AbstractDbUnitTestCase {
     Date dateToStartKeepingOneSnapshotByMonth = calendar.getTime();
     calendar.set(2010, 2, 1);
     Date dateToStartDeletingAllSnapshots = calendar.getTime();
-    Periods periods = new Periods(dateToStartKeepingOneSnapshotByWeek, dateToStartKeepingOneSnapshotByMonth, dateToStartDeletingAllSnapshots);
+    periods = new Periods(dateToStartKeepingOneSnapshotByWeek, dateToStartKeepingOneSnapshotByMonth, dateToStartDeletingAllSnapshots);
+  }
 
+  @Test
+  public void integrationTests() {
+    setupData("dbContent");
     cleaner.purge(project, 1010, periods);
     checkTables("dbContent", "snapshots");
+  }
 
-    //After a first run, no more snapshot should be deleted
+  @Test
+  public void test() {
+    // After a first run, no more snapshot should be deleted
     setupData("dbContent-result");
     cleaner.purge(project, 1010, periods);
     checkTables("dbContent");

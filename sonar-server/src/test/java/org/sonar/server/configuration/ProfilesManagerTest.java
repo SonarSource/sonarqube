@@ -44,7 +44,7 @@ public class ProfilesManagerTest extends AbstractDbUnitTestCase {
     testDefaultProfile.setDefaultProfile(true);
     testDefaultProfile.setProvided(true);
     RulesProfile testProfile = RulesProfile.create("not default", "java");
-    ResourceModel testResourceWithProfile = new ResourceModel(ResourceModel.SCOPE_PROJECT, "withProfile", "qual", null, "test");
+    ResourceModel testResourceWithProfile = new ResourceModel(ResourceModel.SCOPE_PROJECT, "withProfile", "TRK", null, "test");
     testResourceWithProfile.setRulesProfile(testProfile);
     getSession().save(testDefaultProfile, testProfile, testResourceWithProfile);
 
@@ -71,7 +71,7 @@ public class ProfilesManagerTest extends AbstractDbUnitTestCase {
     test1.setProvided(true);
     RulesProfile test2 = RulesProfile.create("test2", "java");
 
-    ResourceModel testResourceWithProfile = new ResourceModel(ResourceModel.SCOPE_PROJECT, "withProfile", "qual", null, "test");
+    ResourceModel testResourceWithProfile = new ResourceModel(ResourceModel.SCOPE_PROJECT, "withProfile", "TRK", null, "test");
     testResourceWithProfile.setRulesProfile(test1);
     getSession().save(test1, test2, testResourceWithProfile);
 
