@@ -123,7 +123,9 @@
   <p><%= message('no_lines_match_your_filter_criteria') -%></p>
   <% end %>
   
-<% else %>
+<% end %>
+
+<% if @duplication_groups %>
 
   <%= render :partial => 'duplications' -%>
   
