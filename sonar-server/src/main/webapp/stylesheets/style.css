@@ -578,7 +578,7 @@ table.data th img, table.data td img {
 
 table.sortable .sortcol {
   cursor: pointer;
-  padding-right: 15px;
+  padding-left: 15px;
   background-repeat: no-repeat;
   background-position: right center;
   text-decoration: underline;
@@ -586,11 +586,16 @@ table.sortable .sortcol {
 
 table.sortable .sortasc {
   background-image: url('../images/bullet_arrow_up.gif');
-  background-position: right center;
+  background-position: left center;
 }
 
 table.sortable .sortdesc {
   background-image: url('../images/bullet_arrow_down.gif');
+  background-position: left center;
+}
+
+table.sortable .righticon {
+  padding-right: 15px;
   background-position: right center;
 }
 

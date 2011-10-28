@@ -29,7 +29,7 @@
   <th class="nosort"></th>
   <th class="left text <%= 'sortfirstasc' if @components_configuration.sorted_by_project_name? -%>"><%= message('name') -%></th>
   <% configured_columns.each do |column| %>
-     <th class="<%= column.get_table_header_css %>"><%= column.name %></th>
+     <th class="<%= column.get_table_header_css %> righticon"><%= column.name %></th>
   <% end %>
 </tr>
 </thead>
