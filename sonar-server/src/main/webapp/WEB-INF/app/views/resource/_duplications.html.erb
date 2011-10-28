@@ -43,13 +43,13 @@
     %>
       <tr class="hoverable <%= row_style -%>">        
         <td class="center group-item">
-          <div class="<%= group_class -%> <%= group_row_class -%> clickable <%= 'selected' if resource==@resource -%>" 
+          <div class="<%= group_class -%> <%= group_row_class -%> clickable <%= 'selected' if index==0 -%>" 
                onclick="<%= update_snippet_script -%>" style="border-right-width: 0px; margin-left: 2px;">
           <%= lines_count -%>
           <div>
         </td>
         <td class="center group-item">
-          <div class="<%= group_class -%> <%= group_row_class -%> clickable <%= 'selected' if resource==@resource -%>" 
+          <div class="<%= group_class -%> <%= group_row_class -%> clickable <%= 'selected' if index==0 -%>" 
                onclick="<%= update_snippet_script -%>" style="border-right-width: 0px;border-left-width: 0px;">
             <%= from_line -%>
           </div>
@@ -61,7 +61,7 @@
                cell_content = link_to_resource(resource, resource.name, {:line => from_line})
              end
           %>
-          <div class="<%= group_class -%> <%= group_row_class -%> clickable nowrap <%= 'selected' if resource==@resource -%>" 
+          <div class="<%= group_class -%> <%= group_row_class -%> clickable nowrap <%= 'selected' if index==0 -%>" 
                onclick="<%= update_snippet_script -%>" style="padding-right: 20px; border-right-width: 0px;border-left-width: 0px;">
             <%= cell_content -%>
             <% if external %>
