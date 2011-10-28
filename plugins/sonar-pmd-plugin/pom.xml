@@ -14,9 +14,24 @@
   <description>PMD is a tool that looks for potential problems like possible bugs, dead code, suboptimal code, overcomplicated expressions or duplicate code.</description>
 
   <properties>
-    <pmd.version>4.2.5</pmd.version>
+    <pmd.version>4.2.5.1</pmd.version>
   </properties>
 
+  <repositories>
+    <!-- for patched version of PMD (support of Java7) -->
+    <repository>
+      <id>sonar</id>
+      <name>Sonar</name>
+      <url>http://repository.sonarsource.org/content/repositories/sonar</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+  
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
@@ -29,8 +44,8 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>pmd</groupId>
-      <artifactId>pmd</artifactId>
+      <groupId>com.sonarsource.pmd</groupId>
+      <artifactId>pmd-java7</artifactId>
       <version>${pmd.version}</version>
       <exclusions>
         <exclusion>
@@ -90,6 +105,19 @@
           <pluginDescription><![CDATA[Analyze Java code with <a href="http://pmd.sourceforge.net/">PMD</a> ${pmd.version}.]]></pluginDescription>
           <pluginClass>org.sonar.plugins.pmd.PmdPlugin</pluginClass>
         </configuration>
+      </plugin>
+      <plugin>
+        <!-- TODO remove (see SONAR-2938) -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-no-repositories</id>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
