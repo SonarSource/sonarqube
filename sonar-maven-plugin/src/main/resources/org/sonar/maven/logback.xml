@@ -21,11 +21,6 @@
     <level value="WARN"/>
   </logger>
   
-  <!-- set INFO to activate SQL statistics. NOT RECOMMENDED  -->
-  <logger name="org.sonar.DBSTATISTICS">
-    <level value="ERROR"/>
-  </logger>
-
   <logger name="net.sf.ehcache">
     <level value="WARN"/>
   </logger>

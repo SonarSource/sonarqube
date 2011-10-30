@@ -24,10 +24,6 @@
   	<level value="ERROR"/>
   </logger>
   
-  <logger name="org.sonar.DBSTATISTICS">
-  	<level value="INFO"/>
-  </logger>
-  
   <logger name="org.sonar.INFO">
   	<level value="INFO"/>
   </logger>

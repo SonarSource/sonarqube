@@ -66,11 +66,6 @@
     <level value="WARN"/>
   </logger>
 
-  <!-- set INFO to activate Hibernate SQL statistics. NOT RECOMMENDED  -->
-  <logger name="org.sonar.DBSTATISTICS">
-    <level value="ERROR"/>
-  </logger>
-
   <root>
     <level value="INFO"/>
     <appender-ref ref="SONAR_FILE"/>
