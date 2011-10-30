@@ -88,8 +88,6 @@ public final class TempDirectories {
   public void stop() {
     directoriesByKey.clear();
 
-    LoggerFactory.getLogger(getClass()).debug("Delete temporary directories");
-
     // Deleting temp directory does not work on MS Windows and Sun JVM because URLClassLoader locks JARs and resources.
     // The workaround is that sonar deletes orphans itself.
 

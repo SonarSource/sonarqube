@@ -3,7 +3,7 @@
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>[%level] [%d{HH:mm:ss.SSS}] %msg%n</pattern>
+      <pattern>[%level] [%d{HH:mm:ss.SSS}] %logger %msg%n</pattern>
     </encoder>
   </appender>
 
@@ -14,6 +14,11 @@
   <!-- set DEBUG to activate SQL logs. NOT RECOMMENDED  -->
   <logger name="org.hibernate.SQL">
     <level value="ERROR"/>
+  </logger>
+
+  <!-- BeanUtils generate to many DEBUG logs when sonar.verbose is set -->
+  <logger name="org.apache.commons.beanutils.converters">
+    <level value="WARN"/>
   </logger>
 
   <!-- set INFO to activate SQL statistics. NOT RECOMMENDED  -->

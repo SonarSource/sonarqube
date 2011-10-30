@@ -16,6 +16,11 @@
     <level value="ERROR"/>
   </logger>
 
+  <!-- BeanUtils generate to many DEBUG logs when sonar.verbose is set -->
+  <logger name="org.apache.commons.beanutils.converters">
+    <level value="WARN"/>
+  </logger>
+  
   <!-- set INFO to activate SQL statistics. NOT RECOMMENDED  -->
   <logger name="org.sonar.DBSTATISTICS">
     <level value="ERROR"/>
