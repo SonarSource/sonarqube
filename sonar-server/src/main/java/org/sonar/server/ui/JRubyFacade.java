@@ -369,6 +369,10 @@ public final class JRubyFacade {
     return i18n.getJsDictionnary(rubyLocale);
   }
 
+  public void logError(String message) {
+    LoggerFactory.getLogger(getClass()).error(message);
+  }
+
   public ReviewsNotificationManager getReviewsNotificationManager() {
     return getContainer().getComponentByType(ReviewsNotificationManager.class);
   }

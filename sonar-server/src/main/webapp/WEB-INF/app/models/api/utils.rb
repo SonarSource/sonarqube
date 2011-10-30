@@ -66,4 +66,12 @@ class Api::Utils
     params = options[:params]||[]
     Java::OrgSonarServerUi::JRubyFacade.getInstance().getMessage(I18n.locale, key, default, params.to_java)
   end
+
+  def self.exception_message(exception)
+    result = (exception.respond_to?(:message) ? "#{exception.message}\n" : "#{message}\n")
+    if exception.respond_to? :backtrace
+      result << "\t" + exception.backtrace.join("\n\t") + "\n"
+    end
+    result
+  end
 end

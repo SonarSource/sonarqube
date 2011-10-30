@@ -138,7 +138,9 @@ class ApplicationController < ActionController::Base
   end
 
   def render_error(error)
-    logger.error("Fail to render: #{request.url}", error)
+    # Ruby on Rails has a single logger "rails", so it's not possible to distinguish profiling logs
+    # from error logs. For this reason a standard SLF4J logger is used instead of logger.error().
+    java_facade.logError("Fail to render: #{request.url}\n#{Api::Utils.exception_message(error)}")
     render :file => "#{Rails.public_path}/500.html", :status => 500
   end
 
