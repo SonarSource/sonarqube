@@ -180,7 +180,10 @@ class ProfilesController < ApplicationController
     else
       profile = Profile.find_by_name_and_language(CGI::unescape(params[:name]), language)
     end
+    not_found('Profile not found') unless profile
+    
     if (params[:format].blank?)
+      # standard sonar format
       result = java_facade.backupProfile(profile.id)
       send_data(result, :type => 'text/xml', :disposition => 'inline')
     else
