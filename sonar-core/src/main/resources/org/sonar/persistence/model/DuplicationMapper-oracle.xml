@@ -18,7 +18,7 @@
 
   <insert id="insert" parameterType="DuplicationUnit" keyColumn="id" useGeneratedKeys="true">
     INSERT INTO duplications_index (id, snapshot_id, project_snapshot_id, hash, index_in_file, start_line, end_line)
-    VALUES (select DUPLICATIONS_INDEX_SEQ.nextval, #{snapshotId}, #{projectSnapshotId}, #{hash}, #{indexInFile}, #{startLine}, #{endLine})
+    VALUES (duplications_index_seq.NEXTVAL, #{snapshotId}, #{projectSnapshotId}, #{hash}, #{indexInFile}, #{startLine}, #{endLine})
   </insert>
 
 </mapper>
