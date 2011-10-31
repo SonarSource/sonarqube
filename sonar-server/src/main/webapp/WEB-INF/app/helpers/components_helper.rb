@@ -50,7 +50,7 @@ module ComponentsHelper
     elsif column.metric_column?
       measure = item_by_metric_id(measures_by_snapshot[snapshot], column.id )
       measure_param = measure.value if measure
-      content=html_measure(measure, nil, true, nil, nil, true, false)
+      content = format_measure(measure) + trend_icon(measure, :empty => true)
     end
 
     "<#{html_node} #{"nowrap='nowrap'" if nowrap} #{"x='#{measure_param}'" if measure_param} class='right'>" + content + "</#{html_node}>"
