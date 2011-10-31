@@ -271,7 +271,7 @@
         <artifactId>maven-enforcer-plugin</artifactId>
         <executions>
           <execution>
-            <id>enforce-plugin-versions</id>
+            <id>enforce-rules</id>
             <goals>
               <goal>enforce</goal>
             </goals>
@@ -283,59 +283,19 @@
                   <banRelease>true</banRelease>
                   <phases>clean,deploy</phases>
                 </requirePluginVersions>
-              </rules>
-            </configuration>
-          </execution>
-          <execution>
-            <id>enforce-dependency-versions</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
                 <requireReleaseDeps>
                   <message>No SNAPSHOT versions allowed for dependencies</message>
                   <onlyWhenRelease>true</onlyWhenRelease>
                 </requireReleaseDeps>
-              </rules>
-            </configuration>
-          </execution>
-          <execution>
-            <id>enforce-java-version</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
                 <requireJavaVersion>
                   <message>To build this project JDK ${jdk.min.version} (or upper) is required. Please install it.
                   </message>
                   <version>${jdk.min.version}</version>
                 </requireJavaVersion>
-              </rules>
-            </configuration>
-          </execution>
-          <execution>
-            <id>enforce-maven-version</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
                 <requireMavenVersion>
                   <version>(,2.1.0),(2.1.0,2.2.0),(2.2.0,)</version>
                   <message>Maven 2.1.0 and 2.2.0 produce incorrect GPG signatures and checksums respectively.</message>
                 </requireMavenVersion>
-              </rules>
-            </configuration>
-          </execution>
-          <execution>
-            <id>enforce-banned-dependencies</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
                 <bannedDependencies>
                   <!-- See SONAR-2512 -->
                   <message>commons-beanutils:commons-beanutils should be used instead</message>
@@ -356,6 +316,7 @@
             </configuration>
           </execution>
           <execution>
+            <!-- TODO Merge with execution enforce-rules as soon as we will remove exclusions for this rule - see SONAR-2938 -->
             <id>enforce-no-repositories</id>
             <goals>
               <goal>enforce</goal>
