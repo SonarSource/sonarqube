@@ -1,25 +1,16 @@
 // JS scripts used in the duplication tab of the resource viewer
 
-function updateDuplicationLines(url, groupClass, groupRowClass, sourceDivId, linesCount, fromLine, toLine) {
-  // handle first the style of the selectable rows
-  divs = $$('.'+groupClass);
-  for ( i = 0; i < divs.size(); i++) {
-	  divs[i].removeClassName('selected');
-  }
-  divs = $$('.'+groupRowClass);
-  for ( i = 0; i < divs.size(); i++) {
-	  divs[i].addClassName('selected');
-  }
-  
-  // then show that a request is pending
-  $(sourceDivId).addClassName('loading');
-  
-  // and send the Ajax request
-  if ($(sourceDivId).childElements()[0].hasClassName('expanded')) {
-	toLine = fromLine + linesCount;
+function updateDuplicationLines(url, groupId, itemId, linesCount, fromLine, toLine) {
+  $$('#duplGroup_' + groupId + ' p.selected').invoke('removeClassName', 'selected');
+  $('duplCount-' + groupId + '-' + itemId).addClassName('selected');
+  $('duplFrom-' + groupId + '-' + itemId).addClassName('selected');
+  $('duplName-' + groupId + '-' + itemId).addClassName('selected');
+  $('duplLoading-' + groupId).addClassName('loading');
+
+  if ($('source-' + groupId).childElements()[0].hasClassName('expanded')) {
+	  toLine = fromLine + linesCount;
   }
   
-  new Ajax.Updater(sourceDivId, url + "&to_line=" + toLine, {asynchronous:true, evalScripts:true, onComplete:function(request){$(sourceDivId).removeClassName('loading');}});
-  
+  new Ajax.Updater('source-' + groupId, url + "&to_line=" + toLine + "&from_line=" + fromLine + "&lines_count=" + linesCount + "&group_index=" + groupId, {asynchronous:true, evalScripts:true});
   return false;
 }

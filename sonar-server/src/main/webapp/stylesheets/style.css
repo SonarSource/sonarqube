@@ -724,6 +724,7 @@ ul.operations li img {
   border-top: 1px solid #DDD;
   border-bottom: 1px solid #DDD;
   margin: 0;
+  background-color: #FFF;
 }
 .sources2 td.lid {
   background-color: #ECECEC;
@@ -928,40 +929,46 @@ span.rulename a:hover {
 
 /* DUPLICATIONS */
 
-#duplicationsTable > tbody > tr {
-  padding-top: 2px;
+#duplications {
+  max-width: 100%;
+}
+#duplications td.item {
+  text-align: right;
+  vertical-align: top;
+  padding: 0;
+}
+#duplications td.item p {
+  padding: 3px 10px;
 }
 
-#duplicationsTable td.group-item {
-  padding: 0px;
-  height: 1px;
+#duplications td.fileItem {
+  text-align: left;
+  vertical-align: top;
+  padding: 0;
+  white-space: nowrap;
+}
+#duplications td.fileItem p {
+  padding: 3px 10px;
+}
+#duplications td.item p.selected, #duplications td.fileItem p.selected {
+  background-color: #EFEFEF;
+  border-top: 1px solid #DDD;
+  border-bottom: 1px solid #DDD;
+  padding: 3px 10px;
+}
+#duplications td.fileItem p.selected a {
+  text-decoration: none;
 }
 
-#duplicationsTable td.group-item > div {
+#duplications td.sourceItem {
+  padding: 0 10px;
+  background-color: #EFEFEF;
+  border: 1px solid #DDD;
+  border-left: none;
+}
+#duplications td.sourceItem p {
   padding: 3px;
-  margin: 2px 0px;
 }
-
-#duplicationsTable td.group-item > div.selected {
-  background-color: #fff;
-  border: 1px solid #DDDDDD;
-}
-
-#duplicationsTable td.source-snippet {
-  background-color: #ddd;
-  border: 1px solid #DDDDDD;
-  padding: 0px;
-}
-
-#duplicationsTable td.source-snippet > div {
-  padding: 2px;
-  background-color: #fff;
-}
-
-.clickable {
-  cursor: pointer;
-}
-
 
 
 /* REVIEWS */

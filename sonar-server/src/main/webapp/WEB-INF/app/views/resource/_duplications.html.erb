@@ -4,7 +4,7 @@
 
 <% else %>
 
-  <table id="duplicationsTable" class="data max-width">
+  <table id="duplications" class="data">
     <thead>
       <tr>
         <th class="thin nowrap"><%= message('duplications.blocks') -%></th>
@@ -12,85 +12,75 @@
         <th class="thin nowrap"><%= message('duplications.from_line') -%></th>
         <th class="thin nowrap"><%= message('duplications.file') -%></th>
         <th><%= message('duplications.details') -%></th>
-        <th class="thin nowrap"></th>
       </tr>
     </thead>
-    
+
     <tbody>
-    <% 
+    <%
       @duplication_groups.each_with_index do |group, group_index|
-        group_size = group.size()
-        row_style = cycle 'even','odd', :name => ('duplications')
     %>
-      <tr class="<%= row_style -%>">
-        <td rowspan="<%= group_size+2 -%>" class="center">
-          <br/><b><%= group_size -%></b>
+      <tr>
+        <td colspan="5" style="height: 10px"> </td>
+      </tr>
+      <tr id="duplGroup_<%= group_index -%>">
+        <td class="item">
+          <p><b><%=  group.size() -%></b></p>
         </td>
-        <td colspan="4" style="height:2px"></td>
-        <td rowspan="<%= group_size+2 -%>"></td>
+
+        <td class="item">
+          <% group.each_with_index do |dup, index| %>
+            <p id="duplCount-<%= group_index -%>-<%= index -%>" class="<%= 'selected' if index==0 -%>"><%= dup[:lines_count].to_i -%></p>
+          <% end %>
+        </td>
+
+        <td class="item">
+          <% group.each_with_index do |dup, index| %>
+            <p id="duplFrom-<%= group_index -%>-<%= index -%>" class="<%= 'selected' if index==0 -%>"><%= dup[:from_line].to_i -%></p>
+          <% end %>
+        </td>
+
+        <td class="fileItem">
+          <% group.each_with_index do |dup, index|
+            resource = dup[:resource]
+            external = resource.root_id != @resource.root_id
+            lines_count = dup[:lines_count].to_i
+            from_line = dup[:from_line].to_i
+            to_line = from_line + (lines_count > 5 ? 5 : lines_count)
+            lines_count = dup[:lines_count].to_i
+            update_snippet_script = "updateDuplicationLines('#{url_for :action => :show_duplication_snippet, :params => {:id => resource.id, :original_resource_id => @resource.id}}',#{group_index}, #{index}, #{lines_count}, #{from_line}, #{to_line});"
+          %>
+            <p id="duplName-<%= group_index -%>-<%= index -%>" class="<%= 'selected' if index==0 -%>">
+              <a href="#" onclick="<%= update_snippet_script -%>"><%= resource.name -%></a>
+              <%= image_tag "links/external.png" if external -%>
+            </p>
+          <% end %>
+
+        </td>
+
+        <td class="sourceItem">
+          <%
+            duplication = group[0]
+            resource = duplication[:resource]
+            from_line = duplication[:from_line].to_i
+            lines_count = duplication[:lines_count].to_i
+            external = resource.root_id != @resource.root_id
+            to_line = from_line + (lines_count > 5 ? 5 : lines_count)
+          %>
+          <div id="source-<%= group_index -%>">
+            <%= render :partial => 'duplications_source_snippet', :locals => {:resource => resource, :original_resource => @resource, :from_line => from_line, :to_line => to_line, :lines_count => lines_count, :external => external, :group_index => group_index} -%>
+          </div>
+        </td>
+      </tr>
+
+
+      <tr>
+        <td colspan="5" style="border-bottom: 1px solid #DDD;height: 10px"></td>
       </tr>
     <%
-        group.each_with_index do |dup, index|
-          resource = dup[:resource]
-          external = resource.root_id != @resource.root_id
-          lines_count = dup[:lines_count].to_i
-          from_line = dup[:from_line].to_i
-          to_line = from_line + (lines_count > 5 ? 5 : lines_count)
-          group_class = "group#{group_index}"
-          group_row_class = "row#{group_index}-#{index}"
-          source_div = "source-#{group_index}"
-          update_snippet_script = "updateDuplicationLines('#{url_for :action => :show_duplication_snippet, :params => {:id => resource.id, :original_resource_id => @resource.id, :from_line => from_line, :lines_count => lines_count, :source_div => source_div}}','#{group_class}', '#{group_row_class}', '#{source_div}', #{lines_count}, #{from_line}, #{to_line});"
-    %>
-      <tr class="hoverable <%= row_style -%>">        
-        <td class="center group-item">
-          <div class="<%= group_class -%> <%= group_row_class -%> clickable <%= 'selected' if index==0 -%>" 
-               onclick="<%= update_snippet_script -%>" style="border-right-width: 0px; margin-left: 2px;">
-          <%= lines_count -%>
-          <div>
-        </td>
-        <td class="center group-item">
-          <div class="<%= group_class -%> <%= group_row_class -%> clickable <%= 'selected' if index==0 -%>" 
-               onclick="<%= update_snippet_script -%>" style="border-right-width: 0px;border-left-width: 0px;">
-            <%= from_line -%>
-          </div>
-        </td>
-        <td class="left group-item">
-          <% if resource==@resource
-               cell_content = resource.name
-             else
-               cell_content = link_to_resource(resource, resource.name, {:line => from_line})
-             end
-          %>
-          <div class="<%= group_class -%> <%= group_row_class -%> clickable nowrap <%= 'selected' if index==0 -%>" 
-               onclick="<%= update_snippet_script -%>" style="padding-right: 20px; border-right-width: 0px;border-left-width: 0px;">
-            <%= cell_content -%>
-            <% if external %>
-              <%= image_tag "links/external.png" -%>
-            <% end %>
-          </div>
-        </td>
-        
-        <% if index==0 %>
-        <td rowspan="<%= group_size+1 -%>" class="source-snippet">
-          <div id="<%= source_div -%>">
-            <%= render :partial => 'duplications_source_snippet', :locals => {:resource => resource, :original_resource => @resource, :from_line => from_line, :to_line => to_line, :lines_count => lines_count, :source_div => source_div, :external => external} -%>
-          </div>
-        </td>
-        <% end %>
-      </tr>
-    <% 
         end
     %>
-      <tr class="<%= row_style -%>" style="padding-bottom:100px">
-        <td colspan="3"></td>
-      </tr>
-      <tr class="<%= row_style -%>">
-        <td colspan="6" style="height:4px"></td>
-      </tr>
-    <%
-      end 
-    %>
     </tbody>
-  </table>  
+
+  </table>
 
 <% end %>

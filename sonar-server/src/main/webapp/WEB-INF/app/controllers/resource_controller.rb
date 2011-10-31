@@ -61,7 +61,7 @@ class ResourceController < ApplicationController
       original_resource = Project.by_key(params[:original_resource_id])
       render :partial => 'duplications_source_snippet', 
              :locals => {:resource => resource, :original_resource => original_resource, :from_line => params[:from_line].to_i, :to_line => params[:to_line].to_i, :lines_count => params[:lines_count].to_i, 
-                         :source_div => params[:source_div], :external => resource.root_id != original_resource.root_id}
+                         :group_index => params[:group_index], :external => (resource.root_id != original_resource.root_id)}
     else
       access_denied
     end
