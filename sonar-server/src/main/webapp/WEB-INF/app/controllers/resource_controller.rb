@@ -131,53 +131,58 @@ class ResourceController < ApplicationController
 
   def render_coverage
     load_sources()
-    @display_coverage=true
-    @expandable=(@lines!=nil)
+    @display_coverage = true
+    @display_it_coverage = (! @snapshot.measure('it_coverage').nil?)
+    @expandable = (@lines!=nil)
     if @lines
-      @hits_by_line=load_distribution('coverage_line_hits_data')
-      @conditions_by_line=load_distribution('conditions_by_line')
-      @covered_conditions_by_line=load_distribution('covered_conditions_by_line')
+      metric = Metric.by_key(params[:coverage_filter]||params[:metric])
+      @coverage_filter = (metric ? metric.key : 'coverage')
+      it_prefix = (@coverage_filter.start_with?('it_') ? 'it_' : '')
+
+      @hits_by_line = load_distribution("#{it_prefix}coverage_line_hits_data")
+      @conditions_by_line = load_distribution("#{it_prefix}conditions_by_line")
+      @covered_conditions_by_line = load_distribution("#{it_prefix}covered_conditions_by_line")
 
       @hits_by_line.each_pair do |line_id,hits|
-        line=@lines[line_id-1]
+        line = @lines[line_id-1]
         if line
-          line.hits=hits.to_i
-          line.conditions=@conditions_by_line[line_id].to_i
-          line.covered_conditions=@covered_conditions_by_line[line_id].to_i
+          line.hits = hits.to_i
+          line.conditions = @conditions_by_line[line_id].to_i
+          line.covered_conditions = @covered_conditions_by_line[line_id].to_i
         end
       end
 
-      if @snapshot.measure('conditions_by_line').nil?
+      if @snapshot.measure("#{it_prefix}conditions_by_line").nil?
         # TODO remove this code when branch_coverage_hits_data is fully removed from CoreMetrics
-        deprecated_branches_by_line=load_distribution('branch_coverage_hits_data')
+        deprecated_branches_by_line = load_distribution("#{it_prefix}branch_coverage_hits_data")
         deprecated_branches_by_line.each_pair do |line_id,label|
-          line=@lines[line_id-1]
+          line = @lines[line_id-1]
           if line
-            line.deprecated_conditions_label=label
+            line.deprecated_conditions_label = label
           end
         end
       end
 
-      to=(@period && @snapshot.period_datetime(@period) ? Java::JavaUtil::Date.new(@snapshot.period_datetime(@period).to_f * 1000) : nil)
-      metric=Metric.by_key(params[:coverage_filter]||params[:metric])
-      @coverage_filter=(metric ? metric.key : 'coverage')
-      @filtered=true
+      to = (@period && @snapshot.period_datetime(@period) ? Java::JavaUtil::Date.new(@snapshot.period_datetime(@period).to_f * 1000) : nil)
+      @filtered = true
       if ('lines_to_cover'==@coverage_filter || 'coverage'==@coverage_filter || 'line_coverage'==@coverage_filter ||
-          'new_lines_to_cover'==@coverage_filter || 'new_coverage'==@coverage_filter || 'new_line_coverage'==@coverage_filter)
-        @coverage_filter='lines_to_cover'
+          'new_lines_to_cover'==@coverage_filter || 'new_coverage'==@coverage_filter || 'new_line_coverage'==@coverage_filter ||
+          'it_lines_to_cover'==@coverage_filter || 'it_coverage'==@coverage_filter || 'it_line_coverage'==@coverage_filter)
+        @coverage_filter = "#{it_prefix}lines_to_cover"
         filter_lines{|line| line.hits && line.after(to)}
 
-      elsif 'uncovered_lines'==@coverage_filter || 'new_uncovered_lines'==@coverage_filter
-        @coverage_filter='uncovered_lines'
+      elsif 'uncovered_lines'==@coverage_filter || 'new_uncovered_lines'==@coverage_filter || 'it_uncovered_lines'==@coverage_filter
+        @coverage_filter = "#{it_prefix}uncovered_lines"
         filter_lines{|line| line.hits && line.hits==0 && line.after(to)}
 
       elsif 'conditions_to_cover'==@coverage_filter || 'branch_coverage'==@coverage_filter ||
-            'new_conditions_to_cover'==@coverage_filter || 'new_branch_coverage'==@coverage_filter
-        @coverage_filter='conditions_to_cover'
+            'new_conditions_to_cover'==@coverage_filter || 'new_branch_coverage'==@coverage_filter ||
+            'it_conditions_to_cover'==@coverage_filter || 'it_branch_coverage'==@coverage_filter
+        @coverage_filter="#{it_prefix}conditions_to_cover"
         filter_lines{|line| line.conditions && line.conditions>0 && line.after(to)}
 
-      elsif 'uncovered_conditions'==@coverage_filter || 'new_uncovered_conditions'==@coverage_filter
-        @coverage_filter='uncovered_conditions'
+      elsif 'uncovered_conditions'==@coverage_filter || 'new_uncovered_conditions'==@coverage_filter || 'it_uncovered_conditions'==@coverage_filter
+        @coverage_filter="#{it_prefix}uncovered_conditions"
         filter_lines{|line| line.conditions && line.covered_conditions && line.covered_conditions<line.conditions && line.after(to)}
       end
     end

@@ -68,18 +68,24 @@ class Metric < ActiveRecord::Base
     }.compact.uniq.sort
   end
 
-  def self.i18n_domain_for(to_translate)
-    return nil if to_translate.nil?
+  # Localized domain name
+  def self.domain_for(domain_key)
+    return nil if domain_key.nil?
     
-    localeMap = Metric.i18n_domain_cache[to_translate]
+    localeMap = Metric.i18n_domain_cache[domain_key]
     locale = I18n.locale
     
-    return localeMap[locale] if not localeMap.nil? and localeMap.has_key?(locale)
+    return localeMap[locale] if localeMap && localeMap.has_key?(locale)
     
-    i18n_key = 'metric_domain.' + to_translate
-    result = Api::Utils.message(i18n_key, :default => to_translate)
+    i18n_key = 'metric_domain.' + domain_key
+    result = Api::Utils.message(i18n_key, :default => domain_key)
     localeMap[locale] = result if localeMap
     result
+  end
+
+  def self.name_for(metric_key)
+    m=by_key(metric_key)
+    m ? m.short_name : nil
   end
  
   def key
@@ -89,7 +95,7 @@ class Metric < ActiveRecord::Base
   def domain(translate=true)
     default_string = read_attribute(:domain)
     return default_string unless translate
-    Metric.i18n_domain_for(default_string)
+    Metric.domain_for(default_string)
   end
  
   def domain=(value)

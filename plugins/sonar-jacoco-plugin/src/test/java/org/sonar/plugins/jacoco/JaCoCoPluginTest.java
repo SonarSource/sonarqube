@@ -19,35 +19,15 @@
  */
 package org.sonar.plugins.jacoco;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
-
-import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author Evgeny Mandrikov
- */
+import static org.hamcrest.Matchers.greaterThan;
+import static org.junit.Assert.assertThat;
+
 public class JaCoCoPluginTest {
-  private JaCoCoPlugin plugin = new JaCoCoPlugin();
-
-  @Before
-  public void setUp() {
-    plugin = new JaCoCoPlugin();
-  }
-
-  @Test
-  public void testPluginDefition() {
-    assertThat(plugin.getKey(), is("jacoco"));
-    assertThat(plugin.getName(), notNullValue());
-    assertThat(plugin.getDescription(), notNullValue());
-    assertThat(plugin.toString(), is("jacoco"));
-  }
 
   @Test
   public void testExtensions() {
-    assertThat(plugin.getExtensions().size(), greaterThan(0));
+    assertThat(new JaCoCoPlugin().getExtensions().size(), greaterThan(0));
   }
 }

@@ -67,10 +67,20 @@
         <% if @display_coverage %>
         <td class="<%= 'first' if first -%>">
           <select id="coverage_filter" name="coverage_filter" onchange="applyOptions()">
-            <option value="lines_to_cover" <%= 'selected' if @coverage_filter=='lines_to_cover' -%>><%= message('metric.lines_to_cover.name') -%></option>
-            <option value="uncovered_lines" <%= 'selected' if @coverage_filter=='uncovered_lines' -%>><%= message('metric.uncovered_lines.name') -%></option>
-            <option value="conditions_to_cover" <%= 'selected' if @coverage_filter=='conditions_to_cover' -%>><%= message('metric.conditions_to_cover.name') -%></option>
-            <option value="uncovered_conditions" <%= 'selected' if @coverage_filter=='uncovered_conditions' -%>><%= message('metric.uncovered_conditions.name') -%></option>
+            <optgroup label="<%= h message('coverage_tab.unit_tests') -%>">
+              <option value="lines_to_cover" <%= 'selected' if @coverage_filter=='lines_to_cover' -%>><%= Metric.name_for('lines_to_cover') -%></option>
+              <option value="uncovered_lines" <%= 'selected' if @coverage_filter=='uncovered_lines' -%>><%= Metric.name_for('uncovered_lines') -%></option>
+              <option value="conditions_to_cover" <%= 'selected' if @coverage_filter=='conditions_to_cover' -%>><%= Metric.name_for('conditions_to_cover') -%></option>
+              <option value="uncovered_conditions" <%= 'selected' if @coverage_filter=='uncovered_conditions' -%>><%= Metric.name_for('uncovered_conditions') -%></option>
+            </optgroup>
+            <% if @display_it_coverage %>
+            <optgroup label="<%= h message('coverage_tab.integration_tests') -%>">
+              <option value="it_lines_to_cover" <%= 'selected' if @coverage_filter=='it_lines_to_cover' -%>><%= Metric.name_for('it_lines_to_cover') -%></option>
+              <option value="it_uncovered_lines" <%= 'selected' if @coverage_filter=='it_uncovered_lines' -%>><%= Metric.name_for('it_uncovered_lines') -%></option>
+              <option value="it_conditions_to_cover" <%= 'selected' if @coverage_filter=='it_conditions_to_cover' -%>><%= Metric.name_for('it_conditions_to_cover') -%></option>
+              <option value="it_uncovered_conditions" <%= 'selected' if @coverage_filter=='it_uncovered_conditions' -%>><%= Metric.name_for('it_uncovered_conditions') -%></option>
+            </optgroup>
+            <% end %>
           </select>
         </td>
       <%   first=false

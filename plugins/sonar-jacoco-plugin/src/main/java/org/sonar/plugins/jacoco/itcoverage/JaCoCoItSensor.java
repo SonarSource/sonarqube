@@ -72,25 +72,25 @@ public class JaCoCoItSensor implements Sensor {
     private Measure convertForIT(Measure measure) {
       Measure itMeasure = null;
       if (CoreMetrics.LINES_TO_COVER.equals(measure.getMetric())) {
-        itMeasure = new Measure(JaCoCoItMetrics.IT_LINES_TO_COVER, measure.getValue());
+        itMeasure = new Measure(CoreMetrics.IT_LINES_TO_COVER, measure.getValue());
 
       } else if (CoreMetrics.UNCOVERED_LINES.equals(measure.getMetric())) {
-        itMeasure = new Measure(JaCoCoItMetrics.IT_UNCOVERED_LINES, measure.getValue());
+        itMeasure = new Measure(CoreMetrics.IT_UNCOVERED_LINES, measure.getValue());
 
       } else if (CoreMetrics.COVERAGE_LINE_HITS_DATA.equals(measure.getMetric())) {
-        itMeasure = new Measure(JaCoCoItMetrics.IT_COVERAGE_LINE_HITS_DATA, measure.getData());
+        itMeasure = new Measure(CoreMetrics.IT_COVERAGE_LINE_HITS_DATA, measure.getData());
 
       } else if (CoreMetrics.CONDITIONS_TO_COVER.equals(measure.getMetric())) {
-        itMeasure = new Measure(JaCoCoItMetrics.IT_CONDITIONS_TO_COVER, measure.getValue());
+        itMeasure = new Measure(CoreMetrics.IT_CONDITIONS_TO_COVER, measure.getValue());
 
       } else if (CoreMetrics.UNCOVERED_CONDITIONS.equals(measure.getMetric())) {
-        itMeasure = new Measure(JaCoCoItMetrics.IT_UNCOVERED_CONDITIONS, measure.getValue());
+        itMeasure = new Measure(CoreMetrics.IT_UNCOVERED_CONDITIONS, measure.getValue());
 
       } else if (CoreMetrics.COVERED_CONDITIONS_BY_LINE.equals(measure.getMetric())) {
-        itMeasure = new Measure(JaCoCoItMetrics.IT_COVERED_CONDITIONS_BY_LINE, measure.getData());
+        itMeasure = new Measure(CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE, measure.getData());
 
       } else if (CoreMetrics.CONDITIONS_BY_LINE.equals(measure.getMetric())) {
-        itMeasure = new Measure(JaCoCoItMetrics.IT_CONDITIONS_BY_LINE, measure.getData());
+        itMeasure = new Measure(CoreMetrics.IT_CONDITIONS_BY_LINE, measure.getData());
       }
       return itMeasure;
     }

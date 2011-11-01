@@ -21,6 +21,7 @@ package org.sonar.plugins.jacoco.itcoverage;
 
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.MeasureUtils;
 import org.sonar.api.measures.Metric;
 
@@ -34,27 +35,27 @@ public class ItCoverageDecorator extends AbstractCoverageDecorator {
 
   @Override
   protected Metric getTargetMetric() {
-    return JaCoCoItMetrics.IT_COVERAGE;
+    return CoreMetrics.IT_COVERAGE;
   }
 
   @DependsUpon
   public List<Metric> dependsUponMetrics() {
-    return Arrays.asList(JaCoCoItMetrics.IT_LINES_TO_COVER, JaCoCoItMetrics.IT_UNCOVERED_LINES, JaCoCoItMetrics.IT_CONDITIONS_TO_COVER, JaCoCoItMetrics.IT_UNCOVERED_CONDITIONS);
+    return Arrays.asList(CoreMetrics.IT_LINES_TO_COVER, CoreMetrics.IT_UNCOVERED_LINES, CoreMetrics.IT_CONDITIONS_TO_COVER, CoreMetrics.IT_UNCOVERED_CONDITIONS);
   }
 
   @Override
   protected Double countCoveredElements(DecoratorContext context) {
-    double uncoveredLines = MeasureUtils.getValue(context.getMeasure(JaCoCoItMetrics.IT_UNCOVERED_LINES), 0.0);
-    double lines = MeasureUtils.getValue(context.getMeasure(JaCoCoItMetrics.IT_LINES_TO_COVER), 0.0);
-    double uncoveredConditions = MeasureUtils.getValue(context.getMeasure(JaCoCoItMetrics.IT_UNCOVERED_CONDITIONS), 0.0);
-    double conditions = MeasureUtils.getValue(context.getMeasure(JaCoCoItMetrics.IT_CONDITIONS_TO_COVER), 0.0);
+    double uncoveredLines = MeasureUtils.getValue(context.getMeasure(CoreMetrics.IT_UNCOVERED_LINES), 0.0);
+    double lines = MeasureUtils.getValue(context.getMeasure(CoreMetrics.IT_LINES_TO_COVER), 0.0);
+    double uncoveredConditions = MeasureUtils.getValue(context.getMeasure(CoreMetrics.IT_UNCOVERED_CONDITIONS), 0.0);
+    double conditions = MeasureUtils.getValue(context.getMeasure(CoreMetrics.IT_CONDITIONS_TO_COVER), 0.0);
     return lines + conditions - uncoveredConditions - uncoveredLines;
   }
 
   @Override
   protected Double countElements(DecoratorContext context) {
-    double lines = MeasureUtils.getValue(context.getMeasure(JaCoCoItMetrics.IT_LINES_TO_COVER), 0.0);
-    double conditions = MeasureUtils.getValue(context.getMeasure(JaCoCoItMetrics.IT_CONDITIONS_TO_COVER), 0.0);
+    double lines = MeasureUtils.getValue(context.getMeasure(CoreMetrics.IT_LINES_TO_COVER), 0.0);
+    double conditions = MeasureUtils.getValue(context.getMeasure(CoreMetrics.IT_CONDITIONS_TO_COVER), 0.0);
     return lines + conditions;
   }
 

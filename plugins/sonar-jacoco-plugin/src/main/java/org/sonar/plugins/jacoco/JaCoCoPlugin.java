@@ -19,14 +19,13 @@
  */
 package org.sonar.plugins.jacoco;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
+import org.sonar.api.SonarPlugin;
 import org.sonar.plugins.jacoco.itcoverage.*;
-import org.sonar.plugins.jacoco.itcoverage.viewer.CoverageViewerDefinition;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Properties({
     @Property(
@@ -87,20 +86,7 @@ import org.sonar.plugins.jacoco.itcoverage.viewer.CoverageViewerDefinition;
         module = true,
         project = true
     ) })
-public class JaCoCoPlugin implements Plugin {
-
-  public String getKey() {
-    return "jacoco";
-  }
-
-  public String getName() {
-    return "JaCoCo";
-  }
-
-  public String getDescription() {
-    return "<a href='http://www.eclemma.org/jacoco/'>JaCoCo</a> calculates coverage of unit tests." +
-        " Set the parameter 'Code coverage plugin' to <code>jacoco</code> in the General plugin.";
-  }
+public class JaCoCoPlugin extends SonarPlugin {
 
   public List getExtensions() {
     return Arrays.asList(
@@ -115,18 +101,10 @@ public class JaCoCoPlugin implements Plugin {
         JaCoCoSensor.class,
 
         // Integration tests
-        JaCoCoItMetrics.class,
         JaCoCoItSensor.class,
         ItCoverageWidget.class,
         ItCoverageDecorator.class,
         ItLineCoverageDecorator.class,
-        ItBranchCoverageDecorator.class,
-        CoverageViewerDefinition.class);
+        ItBranchCoverageDecorator.class);
   }
-
-  @Override
-  public String toString() {
-    return getKey();
-  }
-
 }

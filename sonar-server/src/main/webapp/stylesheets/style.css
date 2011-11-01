@@ -902,11 +902,11 @@ span.rulename a:hover {
   padding-right: 7px;
 }
 .tab_header td.name {
-  font-weight: bold;
   text-align: left;
   white-space: nowrap;
 }
 .tab_header td.value {
+  font-weight: bold;
   text-align: right;
   white-space: nowrap;
 }
