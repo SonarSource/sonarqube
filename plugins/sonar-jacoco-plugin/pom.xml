@@ -14,7 +14,7 @@
   <packaging>sonar-plugin</packaging>
 
   <name>Sonar :: Plugins :: JaCoCo</name>
-  <description>JaCoCo is an alternative to Clover and Cobertura to measure coverage by unit tests.</description>
+  <description>JaCoCo is an alternative to Clover and Cobertura to measure coverage by unit tests</description>
   <url>http://docs.codehaus.org/display/SONAR/JaCoCo+Plugin</url>
   <inceptionYear>2010</inceptionYear>
   <organization>
@@ -59,11 +59,6 @@
       <artifactId>sonar-plugin-api</artifactId>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-gwt-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
     <!-- Would be provided by environment -->
     <dependency>
       <groupId>org.apache.ant</groupId>
@@ -87,25 +82,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>gwt-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <configuration>
-              <modules>
-                <module>org.sonar.plugins.jacoco.itcoverage.viewer.CoverageViewer${gwt.permutationSuffix}</module>
-              </modules>
-              <skip>${skipGwt}</skip>
-              <webappDirectory>${project.build.directory}/classes</webappDirectory>
-              <extraJvmArgs>${gwt.extraJvmArgs}</extraJvmArgs>
-            </configuration>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-dev-maven-plugin</artifactId>
