@@ -25,6 +25,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -166,9 +167,10 @@ public class DuplicationDaoTest {
   }
 
   private final void checkTables(String testName, String[] excludedColumnNames, String... tables) {
-    // getSession().commit();
+    IDatabaseConnection connection = null;
     try {
-      IDataSet dataSet = getCurrentDataSet();
+      connection = databaseTester.getConnection();
+      IDataSet dataSet = connection.createDataSet();
       IDataSet expectedDataSet = getExpectedData(testName);
       for (String table : tables) {
         ITable filteredTable = DefaultColumnFilter.excludedColumnsTable(dataSet.getTable(table), excludedColumnNames);
@@ -178,6 +180,16 @@ public class DuplicationDaoTest {
       throw translateException("Error while checking results", e);
     } catch (DatabaseUnitException e) {
       fail(e.getMessage());
+    } catch (Exception e) {
+      throw translateException("Error while checking results", e);
+    } finally {
+      if (connection != null) {
+        try {
+          connection.close();
+        } catch (SQLException e) {
+          throw translateException("Error while checking results", e);
+        }
+      }
     }
   }
 
