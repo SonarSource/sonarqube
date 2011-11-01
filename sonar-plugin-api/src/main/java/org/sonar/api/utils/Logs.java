@@ -34,6 +34,8 @@ public final class Logs {
 
   /**
    * This logger is always activated with level INFO
+   * @deprecated default level is INFO since version 2.12. Please use your own logger.
    */
+  @Deprecated
   public static final Logger INFO = LoggerFactory.getLogger("org.sonar.INFO");
 }

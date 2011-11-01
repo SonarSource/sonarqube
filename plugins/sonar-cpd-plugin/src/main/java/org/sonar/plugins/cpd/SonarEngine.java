@@ -19,21 +19,14 @@
  */
 package org.sonar.plugins.cpd;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.*;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.resources.*;
-import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.duplications.block.Block;
@@ -51,7 +44,17 @@ import org.sonar.persistence.dao.DuplicationDao;
 import org.sonar.plugins.cpd.index.DbDuplicationsIndex;
 import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.*;
+
 public class SonarEngine extends CpdEngine {
+
+  private static final Logger LOG = LoggerFactory.getLogger(SonarEngine.class);
 
   private static final int BLOCK_SIZE = 10;
 
@@ -85,16 +88,16 @@ public class SonarEngine extends CpdEngine {
    */
   private boolean isCrossProject(Project project) {
     return project.getConfiguration().getBoolean(CoreProperties.CPD_CROSS_RPOJECT, CoreProperties.CPD_CROSS_RPOJECT_DEFAULT_VALUE)
-        && resourcePersister != null && dao != null
-        && StringUtils.isBlank(project.getConfiguration().getString(CoreProperties.PROJECT_BRANCH_PROPERTY));
+      && resourcePersister != null && dao != null
+      && StringUtils.isBlank(project.getConfiguration().getString(CoreProperties.PROJECT_BRANCH_PROPERTY));
   }
 
   private static String getFullKey(Project project, Resource resource) {
     return new StringBuilder(ResourceModel.KEY_SIZE)
-        .append(project.getKey())
-        .append(':')
-        .append(resource.getKey())
-        .toString();
+      .append(project.getKey())
+      .append(':')
+      .append(resource.getKey())
+      .toString();
   }
 
   @Override
@@ -107,10 +110,10 @@ public class SonarEngine extends CpdEngine {
     // Create index
     final SonarDuplicationsIndex index;
     if (isCrossProject(project)) {
-      Logs.INFO.info("Cross-project analysis enabled");
+      LOG.info("Cross-project analysis enabled");
       index = new SonarDuplicationsIndex(new DbDuplicationsIndex(resourcePersister, project, dao));
     } else {
-      Logs.INFO.info("Cross-project analysis disabled");
+      LOG.info("Cross-project analysis disabled");
       index = new SonarDuplicationsIndex();
     }
 
@@ -119,7 +122,7 @@ public class SonarEngine extends CpdEngine {
     BlockChunker blockChunker = new BlockChunker(BLOCK_SIZE);
 
     for (InputFile inputFile : inputFiles) {
-      Logs.INFO.debug("Populating index from {}", inputFile.getFile());
+      LOG.debug("Populating index from {}", inputFile.getFile());
       Resource resource = getResource(inputFile);
       String resourceKey = getFullKey(project, resource);
 
@@ -143,7 +146,7 @@ public class SonarEngine extends CpdEngine {
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     try {
       for (InputFile inputFile : inputFiles) {
-        Logs.INFO.debug("Detection of duplications for {}", inputFile.getFile());
+        LOG.debug("Detection of duplications for {}", inputFile.getFile());
         Resource resource = getResource(inputFile);
         String resourceKey = getFullKey(project, resource);
 
@@ -154,7 +157,7 @@ public class SonarEngine extends CpdEngine {
           clones = executorService.submit(new Task(index, fileBlocks)).get(TIMEOUT, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
           clones = null;
-          Logs.INFO.warn("Timeout during detection of duplications for " + inputFile.getFile(), e);
+          LOG.warn("Timeout during detection of duplications for " + inputFile.getFile(), e);
         } catch (InterruptedException e) {
           throw new SonarException(e);
         } catch (ExecutionException e) {
