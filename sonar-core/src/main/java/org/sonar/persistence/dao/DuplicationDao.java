@@ -22,6 +22,7 @@ package org.sonar.persistence.dao;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
@@ -47,12 +48,16 @@ public class DuplicationDao implements BatchComponent, ServerComponent {
     }
   }
 
+  /**
+   * Insert rows in the table DUPLICATIONS_INDEX.
+   * Note that generated ids are not returned.
+   */
   public void insert(Collection<DuplicationUnit> units) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(ExecutorType.BATCH);
     try {
       DuplicationMapper mapper = session.getMapper(DuplicationMapper.class);
       for (DuplicationUnit unit : units) {
-        mapper.insert(unit);
+        mapper.batchInsert(unit);
       }
       session.commit();
     } finally {

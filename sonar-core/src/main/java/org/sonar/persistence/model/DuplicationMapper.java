@@ -29,7 +29,7 @@ public interface DuplicationMapper {
       @Param("resource_snapshot_id") int resourceSnapshotId,
       @Param("last_project_snapshot_id") Integer lastSnapshotId);
 
-  void insert(DuplicationUnit unit);
+  void batchInsert(DuplicationUnit unit);
 
 }
 
