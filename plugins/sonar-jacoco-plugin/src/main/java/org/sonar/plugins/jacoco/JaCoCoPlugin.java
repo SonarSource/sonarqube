@@ -102,9 +102,6 @@ public class JaCoCoPlugin extends SonarPlugin {
 
         // Integration tests
         JaCoCoItSensor.class,
-        ItCoverageWidget.class,
-        ItCoverageDecorator.class,
-        ItLineCoverageDecorator.class,
-        ItBranchCoverageDecorator.class);
+        ItCoverageWidget.class);
   }
 }

@@ -44,8 +44,9 @@ public final class NewCoverageAggregator implements Decorator {
 
   @DependedUpon
   public List<Metric> generatesNewCoverageMetrics() {
-    return Arrays.asList(CoreMetrics.NEW_LINES_TO_COVER, CoreMetrics.NEW_UNCOVERED_LINES,
-        CoreMetrics.NEW_CONDITIONS_TO_COVER, CoreMetrics.NEW_UNCOVERED_CONDITIONS);
+    return Arrays.asList(
+      CoreMetrics.NEW_LINES_TO_COVER, CoreMetrics.NEW_UNCOVERED_LINES, CoreMetrics.NEW_CONDITIONS_TO_COVER, CoreMetrics.NEW_UNCOVERED_CONDITIONS,
+      CoreMetrics.NEW_IT_LINES_TO_COVER, CoreMetrics.NEW_IT_UNCOVERED_LINES, CoreMetrics.NEW_IT_CONDITIONS_TO_COVER, CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS);
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
@@ -55,6 +56,10 @@ public final class NewCoverageAggregator implements Decorator {
       aggregate(context, CoreMetrics.NEW_UNCOVERED_LINES, maxPeriods);
       aggregate(context, CoreMetrics.NEW_CONDITIONS_TO_COVER, maxPeriods);
       aggregate(context, CoreMetrics.NEW_UNCOVERED_CONDITIONS, maxPeriods);
+      aggregate(context, CoreMetrics.NEW_IT_LINES_TO_COVER, maxPeriods);
+      aggregate(context, CoreMetrics.NEW_IT_UNCOVERED_LINES, maxPeriods);
+      aggregate(context, CoreMetrics.NEW_IT_CONDITIONS_TO_COVER, maxPeriods);
+      aggregate(context, CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS, maxPeriods);
     }
   }
 

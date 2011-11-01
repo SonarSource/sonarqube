@@ -23,50 +23,44 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.batch.components.TimeMachineConfiguration;
 
-import java.util.List;
+public class NewItCoverageFileAnalyzer extends AbstractNewCoverageFileAnalyzer {
 
-public class NewCoverageFileAnalyzer extends AbstractNewCoverageFileAnalyzer {
-
-  public NewCoverageFileAnalyzer(TimeMachineConfiguration timeMachineConfiguration) {
+  public NewItCoverageFileAnalyzer(TimeMachineConfiguration timeMachineConfiguration) {
     super(timeMachineConfiguration);
-  }
-
-  NewCoverageFileAnalyzer(List<PeriodStruct> structs) {
-    super(structs);
   }
 
   @Override
   public Metric getCoverageLineHitsDataMetric() {
-    return CoreMetrics.COVERAGE_LINE_HITS_DATA;
+    return CoreMetrics.IT_COVERAGE_LINE_HITS_DATA;
   }
 
   @Override
   public Metric getConditionsByLineMetric() {
-    return CoreMetrics.CONDITIONS_BY_LINE;
+    return CoreMetrics.IT_CONDITIONS_BY_LINE;
   }
 
   @Override
   public Metric getCoveredConditionsByLineMetric() {
-    return CoreMetrics.COVERED_CONDITIONS_BY_LINE;
+    return CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE;
   }
 
   @Override
   public Metric getNewLinesToCoverMetric() {
-    return CoreMetrics.NEW_LINES_TO_COVER;
+    return CoreMetrics.NEW_IT_LINES_TO_COVER;
   }
 
   @Override
   public Metric getNewUncoveredLinesMetric() {
-    return CoreMetrics.NEW_UNCOVERED_LINES;
+    return CoreMetrics.NEW_IT_UNCOVERED_LINES;
   }
 
   @Override
   public Metric getNewConditionsToCoverMetric() {
-    return CoreMetrics.NEW_CONDITIONS_TO_COVER;
+    return CoreMetrics.NEW_IT_CONDITIONS_TO_COVER;
   }
 
   @Override
   public Metric getNewUncoveredConditionsMetric() {
-    return CoreMetrics.NEW_UNCOVERED_CONDITIONS;
+    return CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS;
   }
 }

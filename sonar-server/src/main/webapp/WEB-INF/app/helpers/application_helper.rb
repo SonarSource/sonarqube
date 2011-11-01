@@ -542,9 +542,8 @@ module ApplicationHelper
         end
         html="<span class='#{css_class}'>#{formatted_val}</span>"
       end
-    else
-      html = options[:default].to_s
     end
+    html = options[:default].to_s if html.nil? && options[:default]
     html
   end
 end

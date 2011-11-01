@@ -268,6 +268,9 @@ public class CorePlugin extends SonarPlugin {
     extensions.add(LineCoverageDecorator.class);
     extensions.add(CoverageDecorator.class);
     extensions.add(BranchCoverageDecorator.class);
+    extensions.add(ItLineCoverageDecorator.class);
+    extensions.add(ItCoverageDecorator.class);
+    extensions.add(ItBranchCoverageDecorator.class);
     extensions.add(ApplyProjectRolesDecorator.class);
     extensions.add(ExcludedResourceFilter.class);
     extensions.add(CommentDensityDecorator.class);
@@ -286,6 +289,7 @@ public class CorePlugin extends SonarPlugin {
     extensions.add(NewViolationsDecorator.class);
     extensions.add(TimeMachineConfigurationPersister.class);
     extensions.add(NewCoverageFileAnalyzer.class);
+    extensions.add(NewItCoverageFileAnalyzer.class);
     extensions.add(NewCoverageAggregator.class);
 
     return extensions;
