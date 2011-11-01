@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export MAVEN_OPTS='-Xmx512m'
+export MAVEN_OPTS='-Xmx256m'
 
 echo '-------------------------------------------------'
 echo ''
