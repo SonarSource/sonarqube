@@ -19,6 +19,7 @@
  */
 package org.sonar.server.filters;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -43,7 +44,8 @@ public class DateCriterionTest {
   public void testDaysAgo() throws ParseException {
     DateCriterion criterion = new DateCriterion().setDate(3);
     Date date = criterion.getDate();
-    assertTrue(date.before(new Date(System.currentTimeMillis() - 2 * DAYS)));
-    assertTrue(date.after(new Date(System.currentTimeMillis() - 4 * DAYS)));
+    assertThat(date.getMinutes(), is(0));
+    assertThat(date.getHours(), is(0));
+    assertThat(DateUtils.isSameDay(date, DateUtils.addDays(new Date(), -3)), is(true));
   }
 }
