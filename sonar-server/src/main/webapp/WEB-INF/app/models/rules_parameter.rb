@@ -114,7 +114,8 @@ class RulesParameter < ActiveRecord::Base
   end
 
   def to_hash_json(active_rule)
-    json = {'name' => name, 'description' => description}
+    json = {'name' => name}
+    json['description']=description if description
     if active_rule
       active_parameter = active_rule.active_param_by_param_id(id)
       json['value'] = active_parameter.value if active_parameter
@@ -125,7 +126,7 @@ class RulesParameter < ActiveRecord::Base
   def to_xml(active_rule, xml)
     xml.param do
       xml.name(name)
-      xml.description { xml.cdata!(description) }
+      xml.description { xml.cdata!(description) } if description
       if active_rule
         active_parameter = active_rule.active_param_by_param_id(id)
         xml.value(active_parameter.value) if active_parameter
