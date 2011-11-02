@@ -232,7 +232,8 @@ public class CorePlugin extends SonarPlugin {
 
     // widgets
     extensions.add(AlertsWidget.class);
-    extensions.add(CodeCoverageWidget.class);
+    extensions.add(CoverageWidget.class);
+    extensions.add(ItCoverageWidget.class);
     extensions.add(CommentsDuplicationsWidget.class);
     extensions.add(DescriptionWidget.class);
     extensions.add(ComplexityWidget.class);

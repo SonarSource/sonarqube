@@ -21,21 +21,23 @@ package org.sonar.plugins.core.widgets;
 
 import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.RubyRailsWidget;
+import org.sonar.api.web.UserRole;
 import org.sonar.api.web.WidgetCategory;
 
 @WidgetCategory({ "Tests" })
-public class CodeCoverageWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+@UserRole(UserRole.USER)
+public class ItCoverageWidget extends AbstractRubyTemplate implements RubyRailsWidget {
 
   public String getId() {
-    return "code_coverage";
+    return "it-coverage";
   }
 
   public String getTitle() {
-    return "Code coverage";
+    return "Coverage by Integration Tests";
   }
 
   @Override
   protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/code_coverage.html.erb";
+    return "/org/sonar/plugins/core/widgets/it_coverage.html.erb";
   }
 }

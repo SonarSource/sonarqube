@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.jacoco.itcoverage;
+package org.sonar.plugins.jacoco;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.Sensor;
@@ -26,15 +26,13 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
-import org.sonar.plugins.jacoco.AbstractAnalyzer;
-import org.sonar.plugins.jacoco.JacocoConfiguration;
 
 import java.util.Collection;
 
 /**
  * Note that this class can't extend {@link org.sonar.api.batch.AbstractCoverageExtension}, because in this case this extension will be
  * disabled under Sonar 2.3, if JaCoCo is not defined as the default code coverage plugin.
- * 
+ *
  * @author Evgeny Mandrikov
  */
 public class JaCoCoItSensor implements Sensor {

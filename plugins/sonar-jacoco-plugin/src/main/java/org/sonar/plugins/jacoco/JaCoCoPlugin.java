@@ -22,7 +22,6 @@ package org.sonar.plugins.jacoco;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.SonarPlugin;
-import org.sonar.plugins.jacoco.itcoverage.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -99,9 +98,7 @@ public class JaCoCoPlugin extends SonarPlugin {
         JaCoCoMavenPluginHandler.class,
         // Unit tests
         JaCoCoSensor.class,
-
         // Integration tests
-        JaCoCoItSensor.class,
-        ItCoverageWidget.class);
+        JaCoCoItSensor.class);
   }
 }
