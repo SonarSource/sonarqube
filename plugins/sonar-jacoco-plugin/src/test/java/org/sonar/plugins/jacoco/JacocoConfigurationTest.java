@@ -19,21 +19,23 @@
  */
 package org.sonar.plugins.jacoco;
 
+import org.hamcrest.Matchers;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.Settings;
+
+import java.io.File;
+
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.apache.commons.configuration.BaseConfiguration;
-import org.apache.commons.configuration.Configuration;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.File;
-
 public class JacocoConfigurationTest {
 
-  private Configuration configuration;
+  private Settings configuration;
   private JacocoConfiguration jacocoConfiguration;
 
   @Before
@@ -41,7 +43,7 @@ public class JacocoConfigurationTest {
     JaCoCoAgentDownloader downloader = mock(JaCoCoAgentDownloader.class);
     when(downloader.getAgentJarFile()).thenReturn(new File("jacocoagent.jar"));
 
-    configuration = new BaseConfiguration();
+    configuration = new Settings(new PropertyDefinitions(JacocoConfiguration.class));
 
     jacocoConfiguration = new JacocoConfiguration(configuration, downloader);
   }
@@ -51,18 +53,18 @@ public class JacocoConfigurationTest {
     assertThat(jacocoConfiguration.getReportPath(), is("target/jacoco.exec"));
     assertThat(jacocoConfiguration.getJvmArgument(), is("-javaagent:jacocoagent.jar=destfile=target/jacoco.exec"));
 
-    assertThat(jacocoConfiguration.getItReportPath(), is(""));
+    assertThat(jacocoConfiguration.getItReportPath(), nullValue());
 
-    assertThat(jacocoConfiguration.getAntTargets(), is(new String[] {}));
+    assertThat(jacocoConfiguration.getAntTargets(), is(new String[]{}));
   }
 
   @Test
   public void shouldReturnAntTargets() {
     configuration.setProperty(JacocoConfiguration.ANT_TARGETS_PROPERTY, "test");
-    assertThat(jacocoConfiguration.getAntTargets(), is(new String[] { "test" }));
+    assertThat(jacocoConfiguration.getAntTargets(), is(new String[]{"test"}));
 
     configuration.setProperty(JacocoConfiguration.ANT_TARGETS_PROPERTY, "test1,test2");
-    assertThat(jacocoConfiguration.getAntTargets(), is(new String[] { "test1", "test2" }));
+    assertThat(jacocoConfiguration.getAntTargets(), is(new String[]{"test1", "test2"}));
   }
 
   @Test

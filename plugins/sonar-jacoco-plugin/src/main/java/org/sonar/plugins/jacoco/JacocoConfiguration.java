@@ -19,11 +19,72 @@
  */
 package org.sonar.plugins.jacoco;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.jacoco.core.runtime.AgentOptions;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
+import org.sonar.api.config.Settings;
 
+@Properties({
+    @Property(
+        key = JacocoConfiguration.REPORT_PATH_PROPERTY,
+        name = "File with execution data",
+        defaultValue = JacocoConfiguration.REPORT_PATH_DEFAULT_VALUE,
+        description = "Path (absolute or relative) to the file with execution data.",
+        global = false,
+        module = true,
+        project = true
+    ),
+    @Property(
+        key = JacocoConfiguration.INCLUDES_PROPERTY,
+        name = "Includes",
+        description = "A list of class names that should be included in execution analysis." +
+            " The list entries are separated by a colon (:) and may use wildcard characters (* and ?)." +
+            " Except for performance optimization or technical corner cases this option is normally not required.",
+        global = true,
+        project = true,
+        module = true
+    ),
+    @Property(
+        key = JacocoConfiguration.EXCLUDES_PROPERTY,
+        name = "Excludes",
+        description = "A list of class names that should be excluded from execution analysis." +
+            " The list entries are separated by a colon (:) and may use wildcard characters (* and ?)." +
+            " Except for performance optimization or technical corner cases this option is normally not required.",
+        global = true,
+        project = true,
+        module = true
+    ),
+    @Property(
+        key = JacocoConfiguration.EXCLCLASSLOADER_PROPERTY,
+        name = "Excluded class loaders",
+        description = "A list of class loader names that should be excluded from execution analysis." +
+            " The list entries are separated by a colon (:) and may use wildcard characters (* and ?)." +
+            " This option might be required in case of special frameworks that conflict with JaCoCo code" +
+            " instrumentation, in particular class loaders that do not have access to the Java runtime classes.",
+        global = true,
+        project = true,
+        module = true
+    ),
+    @Property(
+        key = JacocoConfiguration.IT_REPORT_PATH_PROPERTY,
+        name = "File with execution data for integration tests",
+        defaultValue = JacocoConfiguration.IT_REPORT_PATH_DEFAULT_VALUE,
+        description = "Path (absolute or relative) to the file with execution data.",
+        global = false,
+        module = true,
+        project = true
+    ),
+    @Property(
+        key = JacocoConfiguration.ANT_TARGETS_PROPERTY,
+        name = "Ant targets",
+        defaultValue = JacocoConfiguration.ANT_TARGETS_DEFAULT_VALUE,
+        description = "Comma separated list of Ant targets for execution of tests.",
+        global = true,
+        module = true,
+        project = true
+    )})
 public class JacocoConfiguration implements BatchExtension {
 
   public static final String REPORT_PATH_PROPERTY = "sonar.jacoco.reportPath";
@@ -36,34 +97,34 @@ public class JacocoConfiguration implements BatchExtension {
   public static final String ANT_TARGETS_PROPERTY = "sonar.jacoco.antTargets";
   public static final String ANT_TARGETS_DEFAULT_VALUE = "";
 
-  private Configuration configuration;
+  private Settings settings;
   private JaCoCoAgentDownloader downloader;
 
-  public JacocoConfiguration(Configuration configuration, JaCoCoAgentDownloader downloader) {
-    this.configuration = configuration;
+  public JacocoConfiguration(Settings settings, JaCoCoAgentDownloader downloader) {
+    this.settings = settings;
     this.downloader = downloader;
   }
 
   public String getReportPath() {
-    return configuration.getString(REPORT_PATH_PROPERTY, REPORT_PATH_DEFAULT_VALUE);
+    return settings.getString(REPORT_PATH_PROPERTY);
   }
 
   public String getItReportPath() {
-    return configuration.getString(IT_REPORT_PATH_PROPERTY, IT_REPORT_PATH_DEFAULT_VALUE);
+    return settings.getString(IT_REPORT_PATH_PROPERTY);
   }
 
   public String getJvmArgument() {
     AgentOptions options = new AgentOptions();
     options.setDestfile(getReportPath());
-    String includes = configuration.getString(INCLUDES_PROPERTY);
+    String includes = settings.getString(INCLUDES_PROPERTY);
     if (StringUtils.isNotBlank(includes)) {
       options.setIncludes(includes);
     }
-    String excludes = configuration.getString(EXCLUDES_PROPERTY);
+    String excludes = settings.getString(EXCLUDES_PROPERTY);
     if (StringUtils.isNotBlank(excludes)) {
       options.setExcludes(excludes);
     }
-    String exclclassloader = configuration.getString(EXCLCLASSLOADER_PROPERTY);
+    String exclclassloader = settings.getString(EXCLCLASSLOADER_PROPERTY);
     if (StringUtils.isNotBlank(exclclassloader)) {
       options.setExclClassloader(exclclassloader);
     }
@@ -71,6 +132,6 @@ public class JacocoConfiguration implements BatchExtension {
   }
 
   public String[] getAntTargets() {
-    return configuration.getStringArray(ANT_TARGETS_PROPERTY);
+    return settings.getStringArray(ANT_TARGETS_PROPERTY);
   }
 }

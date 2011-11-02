@@ -33,6 +33,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenSurefireUtils;
+import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.MavenTestUtils;
 
@@ -48,9 +50,7 @@ public class JaCoCoMavenPluginHandlerTest {
   public void setUp() throws Exception {
     JaCoCoAgentDownloader downloader = mock(JaCoCoAgentDownloader.class);
     when(downloader.getAgentJarFile()).thenReturn(new File("jacocoagent.jar"));
-    Project project = mock(Project.class);
-    when(project.getConfiguration()).thenReturn(new BaseConfiguration());
-    configuration = spy(new JacocoConfiguration(project.getConfiguration(), downloader));
+    configuration = spy(new JacocoConfiguration(new Settings(new PropertyDefinitions(JacocoConfiguration.class)), downloader));
 
     handler = new JaCoCoMavenPluginHandler(configuration);
   }
