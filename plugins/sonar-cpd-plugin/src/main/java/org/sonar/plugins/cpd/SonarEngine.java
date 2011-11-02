@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.database.model.ResourceModel;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.*;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.ResourcePersister;
@@ -49,7 +51,9 @@ import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.*;
 
 public class SonarEngine extends CpdEngine {
@@ -164,14 +168,7 @@ public class SonarEngine extends CpdEngine {
           throw new SonarException(e);
         }
 
-        if (clones != null && !clones.isEmpty()) {
-          // Save
-          DuplicationsData data = new DuplicationsData(resource, context);
-          for (CloneGroup clone : clones) {
-            poplulateData(data, clone);
-          }
-          data.save();
-        }
+        save(context, resource, clones);
       }
     } finally {
       executorService.shutdown();
@@ -196,22 +193,43 @@ public class SonarEngine extends CpdEngine {
     return JavaFile.fromRelativePath(inputFile.getRelativePath(), false);
   }
 
-  private void poplulateData(DuplicationsData data, CloneGroup clone) {
-    ClonePart origin = clone.getOriginPart();
-    int originLines = origin.getLineEnd() - origin.getLineStart() + 1;
-
-    data.incrementDuplicatedBlock();
-    for (ClonePart part : clone.getCloneParts()) {
-      if (part.equals(origin)) {
-        continue;
-      }
-      data.cumulate(part.getResourceId(), part.getLineStart(), origin.getLineStart(), originLines);
-
-      if (part.getResourceId().equals(origin.getResourceId())) {
-        data.incrementDuplicatedBlock();
-        data.cumulate(origin.getResourceId(), origin.getLineStart(), part.getLineStart(), originLines);
+  static void save(SensorContext context, Resource resource, List<CloneGroup> clones) {
+    if (clones == null || clones.isEmpty()) {
+      return;
+    }
+    // Calculate number of lines and blocks
+    Set<Integer> duplicatedLines = new HashSet<Integer>();
+    double duplicatedBlocks = 0;
+    for (CloneGroup clone : clones) {
+      ClonePart origin = clone.getOriginPart();
+      for (ClonePart part : clone.getCloneParts()) {
+        if (part.getResourceId().equals(origin.getResourceId())) {
+          duplicatedBlocks++;
+          for (int duplicatedLine = part.getLineStart(); duplicatedLine < part.getLineStart() + part.getLines(); duplicatedLine++) {
+            duplicatedLines.add(duplicatedLine);
+          }
+        }
       }
     }
+    // Build XML
+    StringBuilder xml = new StringBuilder();
+    xml.append("<duplications>");
+    for (CloneGroup clone : clones) {
+      xml.append("<g>");
+      for (ClonePart part : clone.getCloneParts()) {
+        xml.append("<b s=\"").append(part.getLineStart())
+            .append("\" l=\"").append(part.getLines())
+            .append("\" r=\"").append(part.getResourceId())
+            .append("\"/>");
+      }
+      xml.append("</g>");
+    }
+    xml.append("</duplications>");
+    // Save
+    context.saveMeasure(resource, CoreMetrics.DUPLICATED_FILES, 1d);
+    context.saveMeasure(resource, CoreMetrics.DUPLICATED_LINES, (double) duplicatedLines.size());
+    context.saveMeasure(resource, CoreMetrics.DUPLICATED_BLOCKS, duplicatedBlocks);
+    context.saveMeasure(resource, new Measure(CoreMetrics.DUPLICATIONS_DATA, xml.toString()));
   }
 
 }
