@@ -24,7 +24,11 @@
 class AddIndexOnDependenciesProjectSnapshot < ActiveRecord::Migration
 
   def self.up
-    add_index('dependencies', 'project_snapshot_id', :name => 'deps_prj_sid')
+    begin
+      add_index('dependencies', 'project_snapshot_id', :name => 'deps_prj_sid')
+    rescue
+      # already exists
+    end
   end
 
 end
