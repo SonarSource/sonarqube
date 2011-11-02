@@ -147,7 +147,9 @@ public class AsmMethod extends AsmResource {
   }
   
   public AsmField getAccessedField() {
-    if (accessedFieldComputed) return accessedField;
+    if (accessedFieldComputed) {
+      return accessedField;
+    }
     if (accessedFieldBeingComputed) {
       // Do not set accessedField here, because the pending computeAccessedField() will overwrite it anyway
       accessedFieldIsThisMethodRecursive = true;
