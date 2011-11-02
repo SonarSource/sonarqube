@@ -633,7 +633,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric NEW_IT_COVERAGE = new Metric.Builder(NEW_IT_COVERAGE_KEY, "New IT coverage", Metric.ValueType.PERCENT)
+  public static final Metric NEW_IT_COVERAGE = new Metric.Builder(NEW_IT_COVERAGE_KEY, "New Coverage by IT", Metric.ValueType.PERCENT)
     .setDescription("Integration Tests Coverage of new/changed code")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
@@ -650,7 +650,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric IT_LINES_TO_COVER = new Metric.Builder(IT_LINES_TO_COVER_KEY, "IT Lines to cover", Metric.ValueType.INT)
+  public static final Metric IT_LINES_TO_COVER = new Metric.Builder(IT_LINES_TO_COVER_KEY, "IT Lines to Cover", Metric.ValueType.INT)
     .setDescription("Lines to cover by Integration Tests")
     .setDirection(Metric.DIRECTION_BETTER)
     .setDomain(DOMAIN_INTEGRATION_TESTS)
@@ -667,7 +667,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric NEW_IT_LINES_TO_COVER = new Metric.Builder(NEW_IT_LINES_TO_COVER_KEY, "New lines to cover by IT", Metric.ValueType.INT)
+  public static final Metric NEW_IT_LINES_TO_COVER = new Metric.Builder(NEW_IT_LINES_TO_COVER_KEY, "New Lines to Cover by IT", Metric.ValueType.INT)
     .setDescription("New lines to cover by Integration Tests")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
@@ -683,7 +683,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric IT_UNCOVERED_LINES = new Metric.Builder(IT_UNCOVERED_LINES_KEY, "IT Uncovered lines", Metric.ValueType.INT)
+  public static final Metric IT_UNCOVERED_LINES = new Metric.Builder(IT_UNCOVERED_LINES_KEY, "IT Uncovered Lines", Metric.ValueType.INT)
     .setDescription("IT uncovered lines")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
@@ -699,7 +699,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric NEW_IT_UNCOVERED_LINES = new Metric.Builder(NEW_IT_UNCOVERED_LINES_KEY, "New uncovered lines by IT", Metric.ValueType.INT)
+  public static final Metric NEW_IT_UNCOVERED_LINES = new Metric.Builder(NEW_IT_UNCOVERED_LINES_KEY, "New Uncovered Lines by IT", Metric.ValueType.INT)
     .setDescription("New uncovered lines by Integration Tests")
     .setDirection(Metric.DIRECTION_WORST)
     .setDomain(DOMAIN_INTEGRATION_TESTS)
@@ -730,7 +730,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric NEW_IT_LINE_COVERAGE = new Metric.Builder(NEW_IT_LINE_COVERAGE_KEY, "New line coverage by IT", Metric.ValueType.PERCENT)
+  public static final Metric NEW_IT_LINE_COVERAGE = new Metric.Builder(NEW_IT_LINE_COVERAGE_KEY, "New Line Coverage by IT", Metric.ValueType.PERCENT)
     .setDescription("Line Coverage by Integration Tests of added/changed code")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
@@ -747,7 +747,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric IT_COVERAGE_LINE_HITS_DATA = new Metric.Builder(IT_COVERAGE_LINE_HITS_DATA_KEY, "IT Coverage hits data", Metric.ValueType.DATA)
+  public static final Metric IT_COVERAGE_LINE_HITS_DATA = new Metric.Builder(IT_COVERAGE_LINE_HITS_DATA_KEY, "IT Coverage Hits Data", Metric.ValueType.DATA)
     .setDescription("IT Code coverage line hits data")
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(false)
@@ -762,7 +762,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric IT_CONDITIONS_TO_COVER = new Metric.Builder(IT_CONDITIONS_TO_COVER_KEY, "IT Branches to cover", Metric.ValueType.INT)
+  public static final Metric IT_CONDITIONS_TO_COVER = new Metric.Builder(IT_CONDITIONS_TO_COVER_KEY, "IT Branches to Cover", Metric.ValueType.INT)
     .setDescription("IT Conditions to cover")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(false)
@@ -779,7 +779,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric NEW_IT_CONDITIONS_TO_COVER = new Metric.Builder(NEW_IT_CONDITIONS_TO_COVER_KEY, "New conditions to cover by IT", Metric.ValueType.INT)
+  public static final Metric NEW_IT_CONDITIONS_TO_COVER = new Metric.Builder(NEW_IT_CONDITIONS_TO_COVER_KEY, "New Conditions to Cover by IT", Metric.ValueType.INT)
     .setDescription("New conditions to cover by Integration Tests")
     .setDomain(DOMAIN_INTEGRATION_TESTS)
     .setFormula(new SumChildValuesFormula(false))
@@ -793,7 +793,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric IT_UNCOVERED_CONDITIONS = new Metric.Builder(IT_UNCOVERED_CONDITIONS_KEY, "IT Uncovered branches", Metric.ValueType.INT)
+  public static final Metric IT_UNCOVERED_CONDITIONS = new Metric.Builder(IT_UNCOVERED_CONDITIONS_KEY, "IT Uncovered Branches", Metric.ValueType.INT)
     .setDescription("IT Uncovered conditions")
     .setDirection(Metric.DIRECTION_WORST)
     .setDomain(DOMAIN_INTEGRATION_TESTS)
@@ -808,7 +808,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric NEW_IT_UNCOVERED_CONDITIONS = new Metric.Builder(NEW_IT_UNCOVERED_CONDITIONS_KEY, "New uncovered conditions by IT", Metric.ValueType.INT)
+  public static final Metric NEW_IT_UNCOVERED_CONDITIONS = new Metric.Builder(NEW_IT_UNCOVERED_CONDITIONS_KEY, "New Uncovered Conditions by IT", Metric.ValueType.INT)
     .setDescription("New uncovered conditions by Integration Tests")
     .setDirection(Metric.DIRECTION_WORST)
     .setDomain(DOMAIN_INTEGRATION_TESTS)
@@ -824,7 +824,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric IT_BRANCH_COVERAGE = new Metric.Builder(IT_BRANCH_COVERAGE_KEY, "IT Branch coverage", Metric.ValueType.PERCENT)
+  public static final Metric IT_BRANCH_COVERAGE = new Metric.Builder(IT_BRANCH_COVERAGE_KEY, "IT Branch Coverage", Metric.ValueType.PERCENT)
     .setDescription("IT Branch coverage")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
@@ -841,7 +841,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric NEW_IT_BRANCH_COVERAGE = new Metric.Builder(NEW_IT_BRANCH_COVERAGE_KEY, "New branch coverage by IT", Metric.ValueType.PERCENT)
+  public static final Metric NEW_IT_BRANCH_COVERAGE = new Metric.Builder(NEW_IT_BRANCH_COVERAGE_KEY, "New Branch Coverage by IT", Metric.ValueType.PERCENT)
     .setDescription("Branch coverage by Integration Tests of new/changed code")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
@@ -858,7 +858,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric IT_CONDITIONS_BY_LINE = new Metric.Builder(IT_CONDITIONS_BY_LINE_KEY, "IT Branches by line", Metric.ValueType.DATA)
+  public static final Metric IT_CONDITIONS_BY_LINE = new Metric.Builder(IT_CONDITIONS_BY_LINE_KEY, "IT Branches by Line", Metric.ValueType.DATA)
     .setDomain(DOMAIN_INTEGRATION_TESTS)
     .create();
 
@@ -870,7 +870,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric IT_COVERED_CONDITIONS_BY_LINE = new Metric.Builder(IT_COVERED_CONDITIONS_BY_LINE_KEY, "IT Covered branches by line", Metric.ValueType.DATA)
+  public static final Metric IT_COVERED_CONDITIONS_BY_LINE = new Metric.Builder(IT_COVERED_CONDITIONS_BY_LINE_KEY, "IT Covered Branches by Line", Metric.ValueType.DATA)
     .setDomain(DOMAIN_INTEGRATION_TESTS)
     .create();
 

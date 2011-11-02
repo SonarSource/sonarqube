@@ -33,7 +33,7 @@ public class ItCoverageWidget extends AbstractRubyTemplate implements RubyRailsW
   }
 
   public String getTitle() {
-    return "Coverage by Integration Tests";
+    return "Integration Test Coverage";
   }
 
   @Override

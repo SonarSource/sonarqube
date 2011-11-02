@@ -4,7 +4,7 @@
 %>
 <table width="100%">
 	<tr>
-		<td nowrap>
+		<td nowrap width="50%">
       <div class="dashbox">
         <p class="title"><%= message('widget.it_coverage.name') -%></p>
         <p>
@@ -25,8 +25,11 @@
             <%= dashboard_configuration.selected_period? ? format_variation(it_branch_coverage) : trend_icon(it_branch_coverage) -%>
           </p>
         <% end %>
-
-        <%
+      </div>
+    </td>
+    <td nowrap>
+      <div class="dashbox">
+    <%
         if dashboard_configuration.selected_period?
           new_lines_to_cover_measure=measure('new_it_lines_to_cover')
           if new_lines_to_cover_measure
@@ -35,7 +38,7 @@
               new_coverage=measure('new_it_coverage')
               new_line_coverage=measure('new_it_line_coverage')
               new_branch_coverage=measure('new_it_branch_coverage')
-        %>  <br/>
+        %>
             <h3><%= message('widget.it_coverage.on_new_code') -%>: </h3>
             <% if new_lines.to_i==0 %>
               <p><%= message('widget.it_coverage.no_new_lines_to_cover') -%></p>
@@ -64,7 +67,7 @@
           end
         end
         %>
-      </div>
+        </div>
     </td>
 </tr>
 </table>
