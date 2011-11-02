@@ -16,7 +16,11 @@
     %>
      <p>
        <%= qualifier_icon(resource) -%>
-       <%= link_to_resource(resource, resource.name(true), {:line => from_line}) -%>
+       <% if resource == original_resource %>
+         <%= resource.name(true) -%>
+       <% else %>
+         <%= link_to_resource(resource, resource.name(true), {:line => from_line}) -%>
+       <% end %>
        <span id="duplLoading-<%= group_index -%>"></span>
      </p>
     <% end %>

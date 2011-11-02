@@ -198,33 +198,80 @@ class ResourceController < ApplicationController
     duplications_data = @snapshot.measure('duplications_data');
     
     # create duplication groups
-    resource_by_id = {}
     @duplication_groups = []
     if duplications_data && duplications_data.measure_data && duplications_data.measure_data.data
       dups = Document.new duplications_data.measure_data.data.to_s
-      dups.elements.each("duplications/duplication") do |dup|
-        group = []
-        target_id = dup.attributes['target-resource']
-        target_resource = resource_by_id[target_id]
-        unless target_resource
-          # we use the resource_by_id map for optimization
-          target_resource = Project.by_key(target_id)
-          resource_by_id[target_id] = target_resource
-        end
-        group << {:lines_count => dup.attributes['lines'], :from_line => dup.attributes['start'], :resource => @resource}
-        group << {:lines_count => dup.attributes['lines'], :from_line => dup.attributes['target-start'], :resource => target_resource}
-        @duplication_groups << group
+      if (XPath.match(dups, "//g").size() > 1)
+        parse_duplications(dups, @duplication_groups)
+      else
+        parse_duplications_old_format(dups, @duplication_groups)
       end
     end
     
     # And sort them 
-    # TODO => still needs to be sorted with inner dups before outer dups in a single block (can test only when new table available)
-#    @duplication_groups.each do |group|
-#      group.sort! {|dup1, dup2| dup1[:from_line].to_i <=> dup2[:from_line].to_i}
-#    end
+    @duplication_groups.each do |group|
+      group.sort! do |dup1, dup2|
+        r1 = dup1[:resource]
+        r2 = dup2[:resource]
+        if r1 == r2
+          # if duplication on same file => order by starting line
+          dup1[:from_line].to_i <=> dup2[:from_line].to_i
+        elsif r1 == @resource
+          # the current resource must be displayed first
+          -1
+        elsif r2 == @resource
+          # the current resource must be displayed first
+          1
+        elsif r1.project == @resource.project && r2.project != @resource.project
+          # if resource is in the same project, this it must be displayed first
+          -1
+        elsif r2.project == @resource.project && r1.project != @resource.project
+          # if resource is in the same project, this it must be displayed first
+          1
+        else
+          dup1[:from_line].to_i <=> dup2[:from_line].to_i
+        end
+      end
+    end
     @duplication_groups.sort! {|group1, group2| group1[0][:from_line].to_i <=> group2[0][:from_line].to_i}
     
     render :action => 'index', :layout => !request.xhr?
+  end
+
+  def parse_duplications(dups, duplication_groups)
+    resource_by_key = {}
+    resource_by_key[@resource.key] = @resource
+    dups.elements.each("duplications/g") do |group|
+      dup_group = []
+      group.each_element("b") do |block|
+        resource_key = block.attributes['r']
+        resource = resource_by_key[resource_key]
+        unless resource
+          # we use the resource_by_key map for optimization
+          resource = Project.by_key(resource_key)
+          resource_by_key[resource_key] = resource
+        end
+        dup_group << {:resource => resource, :lines_count => block.attributes['l'], :from_line => block.attributes['s']}
+      end
+      duplication_groups << dup_group
+    end
+  end
+  
+  def parse_duplications_old_format(dups, duplication_groups)
+    resource_by_key = {}
+    dups.elements.each("duplications/duplication") do |dup|
+      group = []
+      target_key = dup.attributes['target-resource']
+      target_resource = resource_by_key[target_key]
+      unless target_resource
+        # we use the resource_by_id map for optimization
+        target_resource = Project.by_key(target_key)
+        resource_by_key[target_key] = target_resource
+      end
+      group << {:lines_count => dup.attributes['lines'], :from_line => dup.attributes['start'], :resource => @resource}
+      group << {:lines_count => dup.attributes['lines'], :from_line => dup.attributes['target-start'], :resource => target_resource}
+      duplication_groups << group
+    end
   end
   
   
