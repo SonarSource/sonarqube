@@ -86,7 +86,7 @@ class EventCategory
   end
 
   def self.defaults
-    @@defaults ||= [
+    [
       EventCategory.new(KEY_VERSION, 'Application version'),
       EventCategory.new(KEY_ALERT, 'Alert'),
       EventCategory.new(KEY_PROFILE, 'Profile change'),
@@ -95,7 +95,7 @@ class EventCategory
   end
 
   def self.other_category
-    self.defaults[3]
+    EventCategory.new(KEY_OTHER, 'Other events')
   end
 
   def self.categories(include_defaults=false)
