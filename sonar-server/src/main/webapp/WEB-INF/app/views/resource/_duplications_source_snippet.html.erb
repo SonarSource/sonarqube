@@ -21,7 +21,7 @@
      </p>
     <% end %>
 
-  <%= snapshot_source_to_html(resource.last_snapshot, {:line_range => (from_line)..(to_line)}) -%>
+  <%= snapshot_source_to_html(resource.last_snapshot, {:line_range => from_line..to_line}) -%>
   
   <% if lines_count > 5 %>
   <p class="small">

@@ -35,7 +35,7 @@ module SourceHelper
     revisions_by_line={}
     authors_by_line={}
     dates_by_line={}
-    if options[:display_scm]||nil
+    unless options[:display_scm]==false
       panel.display_scm=(snapshot.measure('last_commit_datetimes_by_line')!=nil)
       authors_by_line=load_distribution(snapshot,'authors_by_line')
       revisions_by_line=load_distribution(snapshot,'revisions_by_line')
