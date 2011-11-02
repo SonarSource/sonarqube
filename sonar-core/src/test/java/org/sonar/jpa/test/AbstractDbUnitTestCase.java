@@ -49,10 +49,15 @@ import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.JpaDatabaseSession;
 import org.sonar.jpa.session.MemoryDatabaseConnector;
 import org.sonar.persistence.Database;
+import org.sonar.persistence.DerbyUtils;
 import org.sonar.persistence.HsqlDatabase;
 import org.sonar.persistence.InMemoryDatabase;
 
 public abstract class AbstractDbUnitTestCase {
+
+  static {
+    DerbyUtils.fixDerbyLogs();
+  }
 
   private static final boolean USE_HSQL = false;
 

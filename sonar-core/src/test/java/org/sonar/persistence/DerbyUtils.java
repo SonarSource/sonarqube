@@ -33,7 +33,9 @@ public final class DerbyUtils {
   };
 
   /**
-   * The embedded derby still creates the file derby.log in the execution directory. This method moves it to target/tmp-test.
+   * Disables Derby log.
+   * Note: in order to work properly this method should be called before Derby boot.
+   * See http://db.apache.org/derby/docs/10.7/ref/rrefproper33027.html
    */
   public static void fixDerbyLogs() {
     System.setProperty("derby.stream.error.field", "org.sonar.persistence.DerbyUtils.DEV_NULL");
