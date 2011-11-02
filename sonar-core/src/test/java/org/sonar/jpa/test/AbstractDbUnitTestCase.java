@@ -48,10 +48,7 @@ import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.JpaDatabaseSession;
 import org.sonar.jpa.session.MemoryDatabaseConnector;
-import org.sonar.persistence.Database;
-import org.sonar.persistence.DerbyUtils;
-import org.sonar.persistence.HsqlDatabase;
-import org.sonar.persistence.InMemoryDatabase;
+import org.sonar.persistence.*;
 
 public abstract class AbstractDbUnitTestCase {
 
@@ -64,9 +61,10 @@ public abstract class AbstractDbUnitTestCase {
   private DefaultDatabaseConnector dbConnector;
   private JpaDatabaseSession session;
   private DaoFacade dao;
-  protected IDatabaseTester databaseTester;
-  protected IDatabaseConnection connection;
+  private IDatabaseTester databaseTester;
+  private IDatabaseConnection connection;
   private Database database;
+  private MyBatis myBatis;
 
   @Before
   public void startDatabase() throws Exception {
@@ -75,8 +73,11 @@ public abstract class AbstractDbUnitTestCase {
     } else {
       database = new InMemoryDatabase();
     }
-
     database.start();
+
+    myBatis = new MyBatis(database);
+    myBatis.start();
+
     dbConnector = new MemoryDatabaseConnector(database);
     dbConnector.start();
 
@@ -96,6 +97,10 @@ public abstract class AbstractDbUnitTestCase {
     session.stop();
     dbConnector.stop();
     database.stop();
+  }
+
+  protected MyBatis getMyBatis() {
+    return myBatis;
   }
 
   public DaoFacade getDao() {
@@ -271,16 +276,6 @@ public abstract class AbstractDbUnitTestCase {
     runtimeException.setStackTrace(cause.getStackTrace());
     return runtimeException;
   }
-
-  /*public static class HsqlDataTypeFactory extends DefaultDataTypeFactory {
-
-    public DataType createDataType(int sqlType, String sqlTypeName) throws DataTypeException {
-      if (sqlType == Types.BOOLEAN) {
-        return DataType.BOOLEAN;
-      }
-      return super.createDataType(sqlType, sqlTypeName);
-    }
-  }*/
 
   protected Long getHQLCount(final Class<?> hqlClass) {
     String hqlCount = "SELECT count(o) from " + hqlClass.getSimpleName() + " o";

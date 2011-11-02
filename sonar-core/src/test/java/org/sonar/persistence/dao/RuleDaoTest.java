@@ -19,53 +19,22 @@
  */
 package org.sonar.persistence.dao;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.ibatis.session.SqlSession;
-import org.dbunit.DataSourceDatabaseTester;
-import org.dbunit.IDatabaseTester;
-import org.dbunit.database.IDatabaseConnection;
-import org.dbunit.dataset.CompositeDataSet;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ReplacementDataSet;
-import org.dbunit.dataset.xml.FlatXmlDataSet;
-import org.dbunit.operation.DatabaseOperation;
-import org.hamcrest.core.Is;
-import org.junit.*;
-import org.junit.Rule;
-import org.sonar.persistence.DerbyUtils;
-import org.sonar.persistence.InMemoryDatabase;
-import org.sonar.persistence.MyBatis;
-import org.sonar.persistence.model.*;
-
-import java.io.InputStream;
-import java.util.List;
-
 import static org.junit.Assert.assertThat;
 
-public class RuleDaoTest {
+import java.util.List;
 
-  protected static IDatabaseTester databaseTester;
-  private static InMemoryDatabase database;
+import org.hamcrest.core.Is;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.jpa.test.AbstractDbUnitTestCase;
+
+public class RuleDaoTest extends AbstractDbUnitTestCase {
+
   private static RuleDao dao;
 
-  @BeforeClass
-  public static void startDatabase() throws Exception {
-    database = new InMemoryDatabase();
-    MyBatis myBatis = new MyBatis(database);
-
-    database.start();
-    myBatis.start();
-
-    dao = new RuleDao(myBatis);
-    databaseTester = new DataSourceDatabaseTester(database.getDataSource());
-  }
-
-  @AfterClass
-  public static void stopDatabase() throws Exception {
-    if (databaseTester != null) {
-      databaseTester.onTearDown();
-    }
-    database.stop();
+  @Before
+  public void createDao() throws Exception {
+    dao = new RuleDao(getMyBatis());
   }
 
   @Test
@@ -92,45 +61,6 @@ public class RuleDaoTest {
     assertThat(rule.getDescription(), Is.is("Should avoid NULL"));
     assertThat(rule.isEnabled(), Is.is(true));
     assertThat(rule.getRepositoryKey(), Is.is("checkstyle"));
-  }
-
-  protected final void setupData(String... testNames) throws Exception {
-    InputStream[] streams = new InputStream[testNames.length];
-    try {
-      for (int i = 0; i < testNames.length; i++) {
-        String className = getClass().getName();
-        className = String.format("/%s/%s.xml", className.replace(".", "/"), testNames[i]);
-        streams[i] = getClass().getResourceAsStream(className);
-        if (streams[i] == null) {
-          throw new RuntimeException("Test not found :" + className);
-        }
-      }
-
-      setupData(streams);
-
-    } finally {
-      for (InputStream stream : streams) {
-        IOUtils.closeQuietly(stream);
-      }
-    }
-  }
-
-  protected final void setupData(InputStream... dataSetStream) throws Exception {
-    IDataSet[] dataSets = new IDataSet[dataSetStream.length];
-    for (int i = 0; i < dataSetStream.length; i++) {
-      ReplacementDataSet dataSet = new ReplacementDataSet(new FlatXmlDataSet(dataSetStream[i]));
-      dataSet.addReplacementObject("[null]", null);
-      dataSets[i] = dataSet;
-    }
-    CompositeDataSet compositeDataSet = new CompositeDataSet(dataSets);
-
-    databaseTester.setDataSet(compositeDataSet);
-    IDatabaseConnection connection = databaseTester.getConnection();
-    DatabaseOperation.CLEAN_INSERT.execute(connection, databaseTester.getDataSet());
-
-    connection.getConnection().commit();
-    connection.close();
-
   }
 
 }

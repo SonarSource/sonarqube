@@ -1,7 +1,7 @@
 -- Version 2.11
 
 -- All the rows inserted during Rails migrations. Rows inserted during server startup tasks (Java) are excluded : rules, profiles, metrics, ...
--- Note: do not split a request on multiple lines and do not end with ;
+
 INSERT INTO ACTIVE_DASHBOARDS(ID, DASHBOARD_ID, USER_ID, ORDER_INDEX) VALUES (1, 1, null, 1);
 ALTER TABLE ACTIVE_DASHBOARDS ALTER COLUMN ID RESTART WITH 2;
 
