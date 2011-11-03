@@ -86,17 +86,9 @@ public final class CommandExecutor {
       throw new CommandException(command, e);
 
     } finally {
-      if (outputGobbler != null) {
-        waitUntilFinish(outputGobbler);
-      }
-
-      if (errorGobbler != null) {
-        waitUntilFinish(errorGobbler);
-      }
-
-      if (process != null) {
-        closeStreams(process);
-      }
+      waitUntilFinish(outputGobbler);
+      waitUntilFinish(errorGobbler);
+      closeStreams(process);
 
       if (executorService != null) {
         executorService.shutdown();
@@ -105,16 +97,20 @@ public final class CommandExecutor {
   }
 
   private void closeStreams(Process process) {
-    IOUtils.closeQuietly(process.getInputStream());
-    IOUtils.closeQuietly(process.getOutputStream());
-    IOUtils.closeQuietly(process.getErrorStream());
+    if (process != null) {
+      IOUtils.closeQuietly(process.getInputStream());
+      IOUtils.closeQuietly(process.getOutputStream());
+      IOUtils.closeQuietly(process.getErrorStream());
+    }
   }
 
   private void waitUntilFinish(StreamGobbler thread) {
-    try {
-      thread.join();
-    } catch (InterruptedException e) {
-      // ignore
+    if (thread != null) {
+      try {
+        thread.join();
+      } catch (InterruptedException e) {
+        // ignore
+      }
     }
   }
 

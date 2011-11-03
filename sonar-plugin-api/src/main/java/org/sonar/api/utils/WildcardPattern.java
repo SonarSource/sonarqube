@@ -53,7 +53,7 @@ import org.apache.commons.lang.StringUtils;
  * </p>
  * <p>
  * Another implementation, which is also based on Java Regular Expressions, can be found in
- * <a href="https://github.com/JetBrains/intellij-community/blob/59fa7d3aa565b01ecf0fb067a4336af2c174bf5b/platform/util/src/com/intellij/openapi/util/io/FileUtil.java#L865">FileUtil</a>
+ * <a href="https://github.com/JetBrains/intellij-community/blob/idea/107.743/platform/util/src/com/intellij/openapi/util/io/FileUtil.java#L847">FileUtil</a>
  * from IntelliJ OpenAPI.
  * </p>
  * 
