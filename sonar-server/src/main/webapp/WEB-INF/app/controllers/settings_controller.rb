@@ -27,44 +27,42 @@ class SettingsController < ApplicationController
 
   def index
     access_denied unless is_admin?
-    load_properties(false)
+    load_properties(nil)
     @category ||= 'general'
   end
 
   def update
+    project=nil
     if params[:resource_id]
       project=Project.by_key(params[:resource_id])
       access_denied unless (project && is_admin?(project))
-      resource_id=project.id
     else
       access_denied unless is_admin?
-      resource_id=nil
     end
 
-    load_properties(true)
+    load_properties(project)
 
     if @category && @properties_per_category[@category]
       @properties_per_category[@category].each do |property|
         value=params[property.key()]
-        persisted_property = Property.find(:first, :conditions => {:prop_key=> property.key(), :resource_id => resource_id, :user_id => nil})
-
+        persisted_property = Property.find(:first, :conditions => {:prop_key=> property.key(), :resource_id => (project ? project.id : nil), :user_id => nil})
         if persisted_property
           if value.empty?
-            Property.delete_all('prop_key' => property.key(), 'resource_id' => resource_id, 'user_id' => nil)
+            Property.delete_all('prop_key' => property.key(), 'resource_id' => (project ? project.id : nil), 'user_id' => nil)
           elsif persisted_property.text_value != value.to_s
             persisted_property.text_value = value.to_s
             persisted_property.save!
           end
         elsif !value.blank?
-          Property.create(:prop_key => property.key(), :text_value => value.to_s, :resource_id => resource_id)
+          Property.create(:prop_key => property.key(), :text_value => value.to_s, :resource_id => (project ? project.id : nil))
         end
       end
       java_facade.reloadConfiguration()
       flash[:notice] = 'Parameters updated'
     end
 
-    if resource_id
-      redirect_to :controller => 'project', :action => 'settings', :id => resource_id, :category => @category
+    if project
+      redirect_to :controller => 'project', :action => 'settings', :id => project.id, :category => @category
     else
       redirect_to :controller => 'settings', :action => 'index', :category => @category
     end
@@ -72,11 +70,13 @@ class SettingsController < ApplicationController
 
   private
 
-  def load_properties(all=true)
+  def load_properties(project)
     @category=params[:category]
     @properties_per_category={}
     definitions = java_facade.getPropertyDefinitions()
-    definitions.getProperties().select {|property| property.global}.each do |property|
+    definitions.getProperties().select {|property|
+      (project.nil? && property.global) || (project && project.module? && property.module()) || (project && project.project? && property.project())
+    }.each do |property|
       category = definitions.getCategory(property.key())
       @properties_per_category[category]||=[]
       @properties_per_category[category]<<property
