@@ -106,7 +106,6 @@
                    </td>
                    <td class="left last">
 	                  <%= barchart(:width => 70, :percent => (100 * value / max).to_i, :color => (@period ? '#cc0000' : '#777'))  if max>0 %>
-	                  <!--[if IE]> &nbsp; &nbsp; <![endif]-->
 	               </td>
                </tr>
            <% end %>
@@ -159,7 +158,6 @@
    </td>
    <td class="right last" nowrap>
        <%= @period ? format_variation(measure, :period => @period, :style => 'light') : measure.formatted_value -%>
-       <!--[if IE]> &nbsp; &nbsp; <![endif]-->
    </td>
 </tr>
 <% end %>
