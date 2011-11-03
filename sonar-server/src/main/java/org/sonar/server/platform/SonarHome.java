@@ -39,6 +39,10 @@ import java.util.Properties;
  */
 final class SonarHome {
 
+  private SonarHome() {
+    // only static methods
+  }
+
   static final String PROPERTY = "SONAR_HOME";
   private static File home;
 

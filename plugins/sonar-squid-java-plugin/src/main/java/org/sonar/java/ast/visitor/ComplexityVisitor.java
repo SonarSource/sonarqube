@@ -32,7 +32,7 @@ public class ComplexityVisitor extends JavaAstVisitor {
 
   @Override
   public List<Integer> getWantedTokens() {
-    return wantedTokens;
+    return WANTED_TOKENS;
   }
 
   @Override
@@ -41,6 +41,6 @@ public class ComplexityVisitor extends JavaAstVisitor {
     res.setMeasure(Metric.COMPLEXITY, res.getInt(Metric.COMPLEXITY) + res.getInt(Metric.BRANCHES) + 1);
   }
 
-  private static final List<Integer> wantedTokens = Arrays.asList(TokenTypes.CTOR_DEF, TokenTypes.METHOD_DEF, TokenTypes.INSTANCE_INIT,
+  private static final List<Integer> WANTED_TOKENS = Arrays.asList(TokenTypes.CTOR_DEF, TokenTypes.METHOD_DEF, TokenTypes.INSTANCE_INIT,
       TokenTypes.STATIC_INIT);
 }

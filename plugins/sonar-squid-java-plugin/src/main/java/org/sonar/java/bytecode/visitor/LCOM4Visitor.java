@@ -115,8 +115,7 @@ public class LCOM4Visitor extends BytecodeVisitor {
     Set<AsmResource> blockA = getOrCreateResourceBlock(resourceA);
     Set<AsmResource> blockB = getOrCreateResourceBlock(resourceB);
     
-    // getOrCreateResourceBlock() returns the same block instance if resourceA and resourceB are identical or already in the same block
-    if (blockA == blockB) { // NOSONAR false-positive Compare Objects With Equals
+    if (blockA.equals(blockB)) {
       return;
     }
     

@@ -39,6 +39,10 @@ import java.io.InputStream;
  */
 public final class Logback {
 
+  private Logback() {
+    // only static methods
+  }
+
   public static void configure(String classloaderPath) {
     InputStream input = Logback.class.getResourceAsStream(classloaderPath);
     if (input == null) {

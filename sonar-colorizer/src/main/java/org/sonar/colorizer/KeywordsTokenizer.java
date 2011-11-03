@@ -37,12 +37,12 @@ public class KeywordsTokenizer extends NotThreadSafeTokenizer {
   private boolean caseInsensitive = false;
   private Matcher matcher;
   private final StringBuilder tmpBuilder = new StringBuilder();
-  private final static String defaultRegex = "[a-zA-Z_][a-zA-Z0-9_]*+";
+  private final static String DEFAULT_REGEX = "[a-zA-Z_][a-zA-Z0-9_]*+";
 
   private Set<String> keywords = new HashSet<String>();
 
   public KeywordsTokenizer(String tagBefore, String tagAfter, Set<String> keywords) {
-    this(tagBefore, tagAfter, keywords, defaultRegex);
+    this(tagBefore, tagAfter, keywords, DEFAULT_REGEX);
   }
 
   public KeywordsTokenizer(String tagBefore, String tagAfter, Set<String> keywords, String regex) {
@@ -56,7 +56,7 @@ public class KeywordsTokenizer extends NotThreadSafeTokenizer {
     this.tagBefore = tagBefore;
     this.tagAfter = tagAfter;
     Collections.addAll(this.keywords, keywords);
-    this.matcher = Pattern.compile(defaultRegex).matcher("");
+    this.matcher = Pattern.compile(DEFAULT_REGEX).matcher("");
   }
 
   public boolean consume(CodeReader code, HtmlCodeBuilder codeBuilder) {

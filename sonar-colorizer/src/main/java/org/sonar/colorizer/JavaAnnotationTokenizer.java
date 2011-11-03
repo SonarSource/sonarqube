@@ -32,8 +32,7 @@ public class JavaAnnotationTokenizer extends Tokenizer {
     this.tagAfter = tagAfter;
   }
 
-  private static final EndMatcher endTokenMatcher = new EndMatcher() {
-
+  private static final EndMatcher END_TOKEN_MATCHER = new EndMatcher() {
     public boolean match(int endFlag) {
       return !Character.isJavaIdentifierPart(endFlag);
     }
@@ -43,7 +42,7 @@ public class JavaAnnotationTokenizer extends Tokenizer {
   public boolean consume(CodeReader code, HtmlCodeBuilder codeBuilder) {
     if (code.peek() == '@') {
       codeBuilder.appendWithoutTransforming(tagBefore);
-      code.popTo(endTokenMatcher, codeBuilder);
+      code.popTo(END_TOKEN_MATCHER, codeBuilder);
       codeBuilder.appendWithoutTransforming(tagAfter);
       return true;
     } else {
