@@ -69,7 +69,9 @@ public final class DefaultPages {
 
     /* integration tests */
     CoreMetrics.IT_COVERAGE_KEY, CoreMetrics.IT_LINES_TO_COVER_KEY, CoreMetrics.IT_UNCOVERED_LINES_KEY, CoreMetrics.IT_LINE_COVERAGE_KEY,
-    CoreMetrics.IT_CONDITIONS_TO_COVER_KEY, CoreMetrics.IT_UNCOVERED_CONDITIONS_KEY, CoreMetrics.IT_BRANCH_COVERAGE_KEY
+    CoreMetrics.IT_CONDITIONS_TO_COVER_KEY, CoreMetrics.IT_UNCOVERED_CONDITIONS_KEY, CoreMetrics.IT_BRANCH_COVERAGE_KEY,
+    CoreMetrics.NEW_IT_COVERAGE_KEY, CoreMetrics.NEW_IT_UNCOVERED_LINES_KEY, CoreMetrics.NEW_IT_LINE_COVERAGE_KEY,
+    CoreMetrics.NEW_IT_LINES_TO_COVER_KEY, CoreMetrics.NEW_IT_BRANCH_COVERAGE_KEY, CoreMetrics.NEW_IT_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS_KEY
   })
   @UserRole(UserRole.CODEVIEWER)
   private static final class CoverageTab implements RubyRailsPage {
