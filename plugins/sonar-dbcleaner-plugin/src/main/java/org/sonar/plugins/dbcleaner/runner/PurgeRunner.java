@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.dbcleaner.runner;
 
+import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.PostJob;
@@ -80,18 +81,43 @@ public final class PurgeRunner implements PostJob {
   private void executeDeprecatedPurges(DefaultPurgeContext context) {
     TimeProfiler profiler = new TimeProfiler();
     for (org.sonar.api.batch.Purge purge : deprecatedPurges) {
-      profiler.start("Purge " + purge.getClass().getName());
-      purge.purge(context);
-      profiler.stop();
+      try {
+        profiler.start("Purge " + purge.getClass().getName());
+        purge.purge(context);
+        session.commit();// force hibernate to commit, so we're sure that the potential raised exception comes from this purge
+        profiler.stop();
+
+      } catch (javax.persistence.PersistenceException e) {
+        // Temporary workaround for MySQL deadlocks. The exception must not fail the build
+        // See https://jira.codehaus.org/browse/SONAR-2961 and https://jira.codehaus.org/browse/SONAR-2190
+        LOG.warn("Fail to execute purge: " + purge, e);
+
+      } catch (HibernateException e) {
+        // Temporary workaround for MySQL deadlocks. The exception must not fail the build
+        // See https://jira.codehaus.org/browse/SONAR-2961 and https://jira.codehaus.org/browse/SONAR-2190
+        LOG.warn("Fail to execute purge: " + purge, e);
+      }
     }
   }
 
   private void executePurges(DefaultPurgeContext context) {
     TimeProfiler profiler = new TimeProfiler();
     for (Purge purge : purges) {
-      profiler.start("Purge " + purge.getClass().getName());
-      purge.purge(context);
-      profiler.stop();
+      try {
+        profiler.start("Purge " + purge.getClass().getName());
+        purge.purge(context);
+        session.commit(); // force hibernate to commit, so we're sure that the potential raised exception comes from this purge
+        profiler.stop();
+      } catch (javax.persistence.PersistenceException e) {
+        // Temporary workaround for MySQL deadlocks. The exception must not fail the build
+        // See https://jira.codehaus.org/browse/SONAR-2961 and https://jira.codehaus.org/browse/SONAR-2190
+        LOG.warn("Fail to execute purge: " + purge, e);
+
+      } catch (HibernateException e) {
+        // Temporary workaround for MySQL deadlocks. The exception must not fail the build
+        // See https://jira.codehaus.org/browse/SONAR-2961 and https://jira.codehaus.org/browse/SONAR-2190
+        LOG.warn("Fail to execute purge: " + purge, e);
+      }
     }
   }
 
@@ -106,8 +132,8 @@ public final class PurgeRunner implements PostJob {
 
   private Snapshot getPreviousLastSnapshot() {
     Query query = session.createQuery(
-        "SELECT s FROM " + Snapshot.class.getSimpleName() + " s " +
-            "WHERE s.status=:status AND s.resourceId=:resourceId AND s.createdAt<:date AND s.id <> :sid ORDER BY s.createdAt DESC");
+      "SELECT s FROM " + Snapshot.class.getSimpleName() + " s " +
+        "WHERE s.status=:status AND s.resourceId=:resourceId AND s.createdAt<:date AND s.id <> :sid ORDER BY s.createdAt DESC");
     query.setParameter("status", Snapshot.STATUS_PROCESSED);
     query.setParameter("resourceId", snapshot.getResourceId());
     query.setParameter("date", snapshot.getCreatedAt());

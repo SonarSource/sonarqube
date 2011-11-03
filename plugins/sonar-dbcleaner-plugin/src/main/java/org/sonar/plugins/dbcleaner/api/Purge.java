@@ -46,4 +46,8 @@ public abstract class Purge implements BatchExtension {
    */
   public abstract void purge(PurgeContext context);
 
+  @Override
+  public String toString() {
+    return getClass().getName();
+  }
 }

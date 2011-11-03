@@ -22,18 +22,19 @@ package org.sonar.plugins.dbcleaner.runner;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import org.sonar.plugins.dbcleaner.api.Purge;
 import org.sonar.plugins.dbcleaner.api.PurgeContext;
 
+import javax.persistence.PersistenceException;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PurgeRunnerTest extends AbstractDbUnitTestCase {
 
@@ -117,5 +118,20 @@ public class PurgeRunnerTest extends AbstractDbUnitTestCase {
 
     when(project.isRoot()).thenReturn(false);
     assertFalse(PurgeRunner.shouldExecuteOn(project));
+  }
+
+  /**
+   * See https://jira.codehaus.org/browse/SONAR-2961
+   * Temporarily ignore MySQL deadlocks
+   */
+  @Test
+  public void shouldIgnoreDeadlocks() {
+    Purge purge = mock(Purge.class);
+    doThrow(new PersistenceException()).when(purge).purge((PurgeContext)anyObject());
+
+    PurgeRunner runner = new PurgeRunner(getSession(), new Project(""), new Snapshot(), new Purge[]{purge});
+    runner.purge();// must not raise any exceptions
+
+    verify(purge).purge((PurgeContext)anyObject());
   }
 }
