@@ -19,14 +19,14 @@
     <% 
       current_year = nil
       current_month = nil
-      @snapshots.each do |snapshot|
+      @snapshots.each_with_index do |snapshot, index|
         time = snapshot.created_at
         version_event = snapshot.event(EventCategory::KEY_VERSION)
         alert_event = snapshot.event(EventCategory::KEY_ALERT)
         profile_event = snapshot.event(EventCategory::KEY_PROFILE)
         other_events = snapshot.events.select{|e| e.category!=EventCategory::KEY_VERSION && e.category!=EventCategory::KEY_ALERT && e.category!=EventCategory::KEY_PROFILE}
     %>
-    <tr class="<%= cycle 'even','odd' -%>" id="<%= snapshot.id -%>">
+    <tr class="<%= cycle 'even','odd' -%>">
     
       <td class="thin nowrap"><b><%= time.year unless time.year == current_year -%></b></td>
     
@@ -59,10 +59,12 @@
       
       <td class="thin nowrap" style="padding-left: 20px;">
           <table class="max-width">
-            <tr id="version_<%= snapshot.id -%>">
+            <tr id="version_<%= index -%>">
               <td class="max-width"><%= version_event.name if version_event -%></td>
               <td class="small" style="padding-left:20px">
-                <a href="#" onclick="$('version_<%= snapshot.id -%>').hide();$('version_<%= snapshot.id -%>_form').show();"><%= version_event ? message('project_history.rename_version') : message('project_history.create_version') -%></a>
+                <a id="version_<%= index -%>_change" href="#" onclick="$('version_<%= index -%>').hide();$('version_<%= index -%>_form').show();">
+                  <%= version_event ? message('project_history.rename_version') : message('project_history.create_version') -%>
+                </a>
                 <% if version_event && !snapshot.islast? %>
                   <%= link_to( message('project_history.remove_version'),  
         		                { :action => 'delete_version', :sid => snapshot.id},
@@ -70,13 +72,13 @@
                 <% end %>
               </td>
             </tr>
-            <tr id="version_<%= snapshot.id -%>_form" style="display:none;">
+            <tr id="version_<%= index -%>_form" style="display:none;">
               <td coslpan="2" class="admin">
                 <% form_tag( {:action => 'update_version', :sid => snapshot.id }) do -%>
-                  <input id="version_name_<%= snapshot.id -%>" name="version_name" type="text" value="<%= version_event ? version_event.name : '' -%>" 
-                         onKeyUp="if (this.value=='') $('save_version_<%= snapshot.id -%>').disabled='true'; else $('save_version_<%= snapshot.id -%>').disabled='';"/>
-                  <%= submit_tag message('save'), :id => 'save_version_' + snapshot.id.to_s %>
-                  <a href="#" onclick="$('version_<%= snapshot.id -%>').show();$('version_<%= snapshot.id -%>_form').hide();"><%= message('cancel') -%></a>
+                  <input id="version_name_<%= index -%>" name="version_name" type="text" value="<%= version_event ? version_event.name : '' -%>" 
+                         onKeyUp="if (this.value=='') $('save_version_<%= index -%>').disabled='true'; else $('save_version_<%= index -%>').disabled='';"/>
+                  <%= submit_tag message('save'), :id => 'save_version_' + index.to_s %>
+                  <a href="#" onclick="$('version_<%= index -%>').show();$('version_<%= index -%>_form').hide();"><%= message('cancel') -%></a>
                 <% end %>
               </td>
             </tr>
