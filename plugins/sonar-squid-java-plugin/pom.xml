@@ -14,7 +14,7 @@
   <description>Squid analyzer for Java.</description>
 
   <repositories>
-    <!-- for checkstyle 5.1 -->
+    <!-- for checkstyle 5.1.x -->
     <repository>
       <id>sonar</id>
       <name>Sonar</name>
@@ -57,7 +57,7 @@
     <dependency>
       <groupId>com.sonarsource.checkstyle</groupId>
       <artifactId>checkstyle-java7</artifactId>
-      <version>5.1.1</version>
+      <version>5.1.2</version>
       <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>

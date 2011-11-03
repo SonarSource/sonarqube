@@ -14,7 +14,7 @@
   <description>PMD is a tool that looks for potential problems like possible bugs, dead code, suboptimal code, overcomplicated expressions or duplicate code.</description>
 
   <properties>
-    <pmd.version>4.2.5.1</pmd.version>
+    <pmd.version>4.2.5.2</pmd.version>
   </properties>
 
   <repositories>

@@ -14,11 +14,11 @@
   <description>Checkstyle is a code analyser to help programmers write Java code that adheres to a coding standard.</description>
 
   <properties>
-    <checkstyle.version>5.1.1</checkstyle.version>
+    <checkstyle.version>5.1.2</checkstyle.version>
   </properties>
 
   <repositories>
-    <!-- for checkstyle 5.1 -->
+    <!-- for checkstyle 5.1.x -->
     <repository>
       <id>sonar</id>
       <name>Sonar</name>
