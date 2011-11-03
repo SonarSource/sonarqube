@@ -201,7 +201,7 @@ class ResourceController < ApplicationController
     @duplication_groups = []
     if duplications_data && duplications_data.measure_data && duplications_data.measure_data.data
       dups = Document.new duplications_data.measure_data.data.to_s
-      if (XPath.match(dups, "//g").size() > 1)
+      if (XPath.match(dups, "//g").size() > 0)
         parse_duplications(dups, @duplication_groups)
       else
         parse_duplications_old_format(dups, @duplication_groups)
