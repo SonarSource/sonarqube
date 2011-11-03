@@ -114,6 +114,7 @@ public class FilterResult {
   }
 
   static final class StringIgnoreCaseComparator implements Comparator, Serializable {
+    private static final long serialVersionUID = 963926659201833101L;
     private int index;
 
     StringIgnoreCaseComparator(int index) {

@@ -45,7 +45,10 @@ public class ProfilesBackup implements Backupable {
     this.session = session;
   }
 
-  protected ProfilesBackup(Collection<RulesProfile> profiles) {
+  /**
+   * for unit tests
+   */
+  ProfilesBackup(Collection<RulesProfile> profiles) {
     this.profiles = profiles;
   }
 
@@ -200,7 +203,7 @@ public class ProfilesBackup implements Backupable {
         while (reader.hasMoreChildren()) {
           reader.moveDown();
           valuesRule.put(reader.getNodeName(), reader.getValue());
-          if (reader.getNodeName().equals("params")) {
+          if ("params".equals(reader.getNodeName())) {
             while (reader.hasMoreChildren()) {
               reader.moveDown();
               Map<String, String> valuesParam = readNode(reader);

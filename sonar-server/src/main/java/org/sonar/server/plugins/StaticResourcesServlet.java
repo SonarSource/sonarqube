@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 public class StaticResourcesServlet extends HttpServlet {
 
   private static final Logger LOG = LoggerFactory.getLogger(StaticResourcesServlet.class);
+  private static final long serialVersionUID = -2577454614650178426L;
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)

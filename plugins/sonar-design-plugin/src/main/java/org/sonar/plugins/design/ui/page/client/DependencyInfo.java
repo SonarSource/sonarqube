@@ -37,7 +37,7 @@ import org.sonar.wsclient.services.Resource;
 
 import java.util.List;
 
-public class DependencyInfo extends Composite {
+public final class DependencyInfo extends Composite {
 
   private static DependencyInfo INSTANCE = new DependencyInfo();
 

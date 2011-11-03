@@ -50,12 +50,12 @@ public class GwtPublisher {
     this.settings = settings;
   }
 
-  protected GwtPublisher(GwtExtension[] extensions, File outputDir) {
+  GwtPublisher(GwtExtension[] extensions, File outputDir) {
     this.extensions = extensions;
     this.outputDir = outputDir;
   }
 
-  protected GwtPublisher() {
+  GwtPublisher() {
   }
 
   public void start() {

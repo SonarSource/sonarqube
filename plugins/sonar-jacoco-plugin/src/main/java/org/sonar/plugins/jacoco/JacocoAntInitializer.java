@@ -26,6 +26,7 @@ import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.resources.Project;
 
 import java.util.Hashtable;
+import java.util.Map;
 
 @SupportedEnvironment("ant")
 public class JacocoAntInitializer extends Initializer implements CoverageExtension {
@@ -48,7 +49,7 @@ public class JacocoAntInitializer extends Initializer implements CoverageExtensi
 
   @Override
   public void execute(org.sonar.api.resources.Project project) {
-    Hashtable<String, Target> hastable = antProject.getTargets();
+    Map<String, Target> hastable = antProject.getTargets();
     String jvmArg = configuration.getJvmArgument();
     String[] names = configuration.getAntTargets();
     for (String name : names) {

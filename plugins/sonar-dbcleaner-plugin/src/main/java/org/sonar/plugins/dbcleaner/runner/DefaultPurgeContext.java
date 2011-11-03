@@ -61,6 +61,9 @@ public final class DefaultPurgeContext implements org.sonar.api.batch.PurgeConte
     return project;
   }
 
+  /**
+   * @deprecated 
+   */
   @Deprecated
   public Integer getLastSnapshotId() {
     return currentSid;

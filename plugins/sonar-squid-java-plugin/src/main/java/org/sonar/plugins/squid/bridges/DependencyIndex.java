@@ -25,4 +25,5 @@ import org.sonar.graph.Edge;
 import java.util.HashMap;
 
 public final class DependencyIndex extends HashMap<Edge, Dependency> {
+  private static final long serialVersionUID = -3915853089587077911L;
 }

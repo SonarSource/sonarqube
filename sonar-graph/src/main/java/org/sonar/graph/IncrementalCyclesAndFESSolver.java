@@ -26,7 +26,6 @@ import java.util.Set;
 public class IncrementalCyclesAndFESSolver<V> {
 
   private Set<Cycle> cycles = new HashSet<Cycle>();
-  private Set<Edge> edgesToExclude = new HashSet<Edge>();
   private long searchCyclesCalls = 0;
   private static final int DEFAULT_MAX_SEARCH_DEPTH_AT_FIRST = 3;
   private static final int DEFAULT_MAX_CYCLES_TO_FOUND_BY_ITERATION = 100;
@@ -46,7 +45,7 @@ public class IncrementalCyclesAndFESSolver<V> {
     searchCyclesCalls += cycleDetector.getSearchCyclesCalls();
     cycles.addAll(cycleDetector.getCycles());
     solver = new MinimumFeedbackEdgeSetSolver(cycles);
-    edgesToExclude = solver.getEdges();
+    Set<Edge> edgesToExclude = solver.getEdges();
 
     do {
       iterations++;

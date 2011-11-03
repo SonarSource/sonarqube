@@ -25,8 +25,6 @@ import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
@@ -143,20 +141,20 @@ public class RulesProfile implements Cloneable {
     this.name = s;
     return this;
   }
-  
+
   public int getVersion() {
     return version;
   }
-  
+
   public RulesProfile setVersion(int version) {
     this.version = version;
     return this;
   }
-  
+
   public Boolean getUsed() {
     return used;
   }
-  
+
   public RulesProfile setUsed(Boolean used) {
     this.used = used;
     return this;
@@ -308,6 +306,7 @@ public class RulesProfile implements Cloneable {
 
   /**
    * Note: disabled rules are excluded.
+   *
    * @return the list of active rules for a given severity
    */
   public List<ActiveRule> getActiveRules(RulePriority severity) {
@@ -344,6 +343,7 @@ public class RulesProfile implements Cloneable {
 
   /**
    * Note: disabled rules are excluded.
+   *
    * @return an active rule from a plugin key and a rule key if the rule is activated, null otherwise
    */
   public ActiveRule getActiveRule(String repositoryKey, String ruleKey) {

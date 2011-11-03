@@ -55,7 +55,7 @@ public class WeightedViolationsDecorator implements Decorator {
   /**
    * for unit tests
    */
-  protected WeightedViolationsDecorator(Map<RulePriority, Integer> weights) {
+  WeightedViolationsDecorator(Map<RulePriority, Integer> weights) {
     this.weights = weights;
   }
 

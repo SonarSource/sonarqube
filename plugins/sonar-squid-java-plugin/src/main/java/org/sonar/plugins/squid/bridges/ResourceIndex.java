@@ -39,6 +39,8 @@ import java.util.HashMap;
 
 public final class ResourceIndex extends HashMap<SourceCode, Resource> {
 
+  private static final long serialVersionUID = -918346378374943773L;
+
   public ResourceIndex loadSquidResources(Squid squid, SensorContext context, Project project) {
     loadSquidProject(squid, project);
     loadSquidPackages(squid, context);

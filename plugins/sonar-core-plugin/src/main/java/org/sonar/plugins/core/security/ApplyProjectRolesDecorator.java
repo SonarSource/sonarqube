@@ -29,7 +29,7 @@ public class ApplyProjectRolesDecorator implements Decorator {
 
   private RoleManager roleManager;
 
-  protected ApplyProjectRolesDecorator(RoleManager roleManager) {
+  ApplyProjectRolesDecorator(RoleManager roleManager) {
     this.roleManager = roleManager;
   }
 

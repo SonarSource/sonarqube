@@ -67,6 +67,7 @@ public final class DateUtils {
   }
 
   static class ThreadSafeDateFormat extends DateFormat {
+    private static final long serialVersionUID = -8856468429474634301L;
     private final String format;
 
     ThreadSafeDateFormat(String format) {

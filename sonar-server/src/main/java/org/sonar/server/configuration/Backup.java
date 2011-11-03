@@ -61,7 +61,10 @@ public class Backup {
     backupables.add(new ProfilesBackup(session));
   }
 
-  protected Backup(List<Backupable> backupables) {
+  /**
+   * For unit tests
+   */
+  Backup(List<Backupable> backupables) {
     this();
     this.backupables = backupables;
   }

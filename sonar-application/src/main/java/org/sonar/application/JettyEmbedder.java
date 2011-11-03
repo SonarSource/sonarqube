@@ -175,7 +175,7 @@ public class JettyEmbedder {
     return null;
   }
 
-  protected Server getServer() {
+  Server getServer() {
     return server;
   }
 

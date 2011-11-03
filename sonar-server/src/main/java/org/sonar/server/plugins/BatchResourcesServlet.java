@@ -44,6 +44,7 @@ import javax.servlet.http.HttpServletResponse;
 public class BatchResourcesServlet extends HttpServlet {
 
   private static final Logger LOG = LoggerFactory.getLogger(BatchResourcesServlet.class);
+  private static final long serialVersionUID = -2100128371794649028L;
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
