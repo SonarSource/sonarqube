@@ -55,7 +55,7 @@ public class MavenRepository {
       maven2Plugin.deployTo(rootDir);
 
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException("Fail to deploy Maven 2 plugin to: " + rootDir, e);
     }
   }
 
