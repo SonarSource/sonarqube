@@ -21,18 +21,18 @@ package org.sonar.batch;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.bootstrap.ProjectFilter;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class ProjectTree {
 
@@ -41,21 +41,21 @@ public class ProjectTree {
 
   private List<Project> projects;
   private Map<ProjectDefinition, Project> projectsByDef;
-  private Settings settings;
+  private ProjectFilter projectFilter;
 
   public ProjectTree(ProjectReactor projectReactor, //NOSONAR the unused parameter 'builders' is used for the startup order of components
                      ProjectConfigurator projectConfigurator,
-                     Settings settings,
+                     ProjectFilter projectFilter,
                      /* Must be executed after ProjectBuilders */ ProjectBuilder[] builders) {
-    this(projectReactor, projectConfigurator, settings);
+    this(projectReactor, projectConfigurator, projectFilter);
   }
 
   public ProjectTree(ProjectReactor projectReactor, //NOSONAR the unused parameter 'builders' is used for the startup order of components
                      ProjectConfigurator projectConfigurator,
-                     Settings settings) {
+                     ProjectFilter projectFilter) {
     this.projectReactor = projectReactor;
     this.configurator = projectConfigurator;
-    this.settings = settings;
+    this.projectFilter = projectFilter;
   }
 
   ProjectTree(ProjectConfigurator configurator) {
@@ -93,76 +93,19 @@ public class ProjectTree {
   }
 
   void applyExclusions() {
-    for (Project project : projects) {
-      String[] excludedArtifactIds = settings.getStringArray("sonar.skippedModules");
-      String[] includedArtifactIds = settings.getStringArray("sonar.includedModules");
-
-      Set<String> includedModulesIdSet = Sets.newHashSet();
-      Set<String> excludedModulesIdSet = Sets.newHashSet();
-
-      if (includedArtifactIds != null) {
-        includedModulesIdSet.addAll(Arrays.asList(includedArtifactIds));
-      }
-
-      if (excludedArtifactIds != null) {
-        excludedModulesIdSet.addAll(Arrays.asList(excludedArtifactIds));
-        includedModulesIdSet.removeAll(excludedModulesIdSet);
-      }
-
-      if (!includedModulesIdSet.isEmpty()) {
-        for (Project currentProject : projects) {
-          if (!includedModulesIdSet.contains(getArtifactId(currentProject))) {
-            exclude(currentProject);
-          }
-        }
-      } else {
-        for (String excludedArtifactId : excludedModulesIdSet) {
-          Project excludedProject = getProjectByArtifactId(excludedArtifactId);
-          exclude(excludedProject);
-        }
-      }
-    }
-
     for (Iterator<Project> it = projects.iterator(); it.hasNext(); ) {
       Project project = it.next();
-      if (project.isExcluded()) {
-        LoggerFactory.getLogger(getClass()).info("Module {} is excluded from analysis", project.getName());
+      if (projectFilter.isExcluded(project)) {
+        project.setExcluded(true);
+        LoggerFactory.getLogger(getClass()).info("Project {} excluded", project.getName());
         project.removeFromParent();
         it.remove();
       }
     }
   }
 
-  private void exclude(Project project) {
-    if (project != null) {
-      project.setExcluded(true);
-      for (Project module : project.getModules()) {
-        exclude(module);
-      }
-    }
-  }
-
   public List<Project> getProjects() {
     return projects;
-  }
-
-  private String getArtifactId(Project project) {
-    String key = project.getKey();
-    if (StringUtils.isNotBlank(project.getBranch())) {
-      // remove branch part
-      key = StringUtils.removeEnd(project.getKey(), ":" + project.getBranch());
-    }
-    return StringUtils.substringAfterLast(key, ":");
-  }
-
-  public Project getProjectByArtifactId(String artifactId) {
-    for (Project project : projects) {
-      // TODO see http://jira.codehaus.org/browse/SONAR-2324
-      if (StringUtils.equals(getArtifactId(project), artifactId)) {
-        return project;
-      }
-    }
-    return null;
   }
 
   public Project getRootProject() {

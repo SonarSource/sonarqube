@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.config;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
@@ -49,17 +50,24 @@ public class ProjectSettings extends Settings {
 
   public ProjectSettings load() {
     clear();
-    
+
     // order is important -> bottom-up. The last one overrides all the others.
     loadDatabaseGlobalSettings();
     loadDatabaseProjectSettings(projectDefinition);
-    addProperties(projectDefinition.getProperties());
+    loadBuildProperties();
     addEnvironmentVariables();
     addSystemProperties();
 
     updateDeprecatedCommonsConfiguration();
 
     return this;
+  }
+
+  private void loadBuildProperties() {
+    List<ProjectDefinition> orderedProjects = getOrderedProjects(projectDefinition);
+    for (ProjectDefinition p : orderedProjects) {
+      addProperties(p.getProperties());
+    }
   }
 
   private void loadDatabaseProjectSettings(ProjectDefinition projectDef) {
@@ -83,4 +91,16 @@ public class ProjectSettings extends Settings {
     ConfigurationUtils.copyToCommonsConfiguration(properties, deprecatedCommonsConf);
   }
 
+  /**
+   * From root to module
+   */
+  static List<ProjectDefinition> getOrderedProjects(ProjectDefinition project) {
+    List<ProjectDefinition> result = Lists.newArrayList();
+    ProjectDefinition pd = project;
+    while (pd != null) {
+      result.add(0, pd);
+      pd = pd.getParent();
+    }
+    return result;
+  }
 }

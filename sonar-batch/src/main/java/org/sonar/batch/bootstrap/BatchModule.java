@@ -49,6 +49,7 @@ public class BatchModule extends Module {
   @Override
   protected void configure() {
     addCoreSingleton(ProjectTree.class);
+    addCoreSingleton(ProjectFilter.class);
     addCoreSingleton(ProjectConfigurator.class);
     addCoreSingleton(DefaultResourceCreationLock.class);
     addCoreSingleton(DefaultIndex.class);
