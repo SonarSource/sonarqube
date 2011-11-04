@@ -115,7 +115,10 @@ public class LCOM4Visitor extends BytecodeVisitor {
     Set<AsmResource> blockA = getOrCreateResourceBlock(resourceA);
     Set<AsmResource> blockB = getOrCreateResourceBlock(resourceB);
     
-    if (blockA.equals(blockB)) {
+    // getOrCreateResourceBlock() returns the same block instance if resourceA and resourceB are identical or already in the same block 
+    // TODO: Avoid this violation by using a Disjoint Union Set which is also more efficient performance-wise
+    //       See: http://en.wikipedia.org/wiki/Disjoint-set_data_structure
+    if (blockA == blockB) { // NOSONAR false-positive Compare Objects With Equals 
       return;
     }
     
