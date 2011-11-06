@@ -26,7 +26,7 @@ import java.awt.*;
 public class CustomBarRenderer extends BarRenderer {
 
   private static final long serialVersionUID = -1598934457150811079L;
-  public static final Paint[] COLORS = new Paint[]{Color.red, Color.blue, Color.green,
+  public static final transient Paint[] COLORS = new Paint[]{Color.red, Color.blue, Color.green,
       Color.yellow, Color.orange, Color.cyan,
       Color.magenta, Color.blue};
 
