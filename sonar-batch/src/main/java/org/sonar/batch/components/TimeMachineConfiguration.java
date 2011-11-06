@@ -34,7 +34,6 @@ import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.PastSnapshotFinder;
 
 import javax.persistence.Query;
-import java.util.Collections;
 import java.util.List;
 
 public class TimeMachineConfiguration implements BatchExtension {

@@ -20,7 +20,6 @@
 package org.sonar.wsclient.unmarshallers;
 
 import org.sonar.wsclient.services.AbstractQuery;
-import org.sonar.wsclient.services.Query;
 
 /**
  * @since 2.10

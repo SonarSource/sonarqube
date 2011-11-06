@@ -42,9 +42,7 @@ public class NoSonarFilterLoader extends Bridge {
   @Override
   public void onFile(SourceFile squidFile, Resource sonarFile) {
     if (noSonarFilter != null) {
-      // lines with NOSONAR tag
       Set<Integer> ignoredLines = new HashSet<Integer>(squidFile.getNoSonarTagLines());
-      // classes and methods with annotation SuppressWarnings
       new SquidVisitorNotifier(squidFile, new SuppressWarningsVisitor(ignoredLines)).notifyVisitors();
 
       noSonarFilter.addResource(sonarFile, ignoredLines);

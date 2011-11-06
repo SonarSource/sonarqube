@@ -19,8 +19,6 @@
  */
 package org.sonar.api.rules;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.Logs;

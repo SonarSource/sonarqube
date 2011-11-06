@@ -20,7 +20,6 @@
 package org.sonar.wsclient.services;
 
 import java.util.Date;
-import java.util.Locale;
 
 /**
  * @since 2.2

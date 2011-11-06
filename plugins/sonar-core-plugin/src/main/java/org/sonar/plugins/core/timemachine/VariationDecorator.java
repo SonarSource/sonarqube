@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;

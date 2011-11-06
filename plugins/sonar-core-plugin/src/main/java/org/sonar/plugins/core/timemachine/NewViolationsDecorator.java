@@ -32,7 +32,6 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
-import org.sonar.core.NotDryRun;
 
 import java.util.*;
 

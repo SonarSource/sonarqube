@@ -33,7 +33,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.batch.MavenPluginExecutor;
 
 import java.util.Collection;
-import java.util.List;
 
 public class PostJobsExecutor implements BatchComponent {
   private static final Logger LOG = LoggerFactory.getLogger(PostJobsExecutor.class);

@@ -23,22 +23,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class FindbugsCategory {
-  private final static Map<String, String> findbugsToSonar = new HashMap<String, String>();
+  private final static Map<String, String> FINDBUGS_TO_SONAR = new HashMap<String, String>();
 
   static {
-    findbugsToSonar.put("BAD_PRACTICE", "Bad practice");
-    findbugsToSonar.put("CORRECTNESS", "Correctness");
-    findbugsToSonar.put("MT_CORRECTNESS", "Multithreaded correctness");
-    findbugsToSonar.put("I18N", "Internationalization");
-    findbugsToSonar.put("EXPERIMENTAL", "Experimental");
-    findbugsToSonar.put("MALICIOUS_CODE", "Malicious code");
-    findbugsToSonar.put("PERFORMANCE", "Performance");
-    findbugsToSonar.put("SECURITY", "Security");
-    findbugsToSonar.put("STYLE", "Style");
+    FINDBUGS_TO_SONAR.put("BAD_PRACTICE", "Bad practice");
+    FINDBUGS_TO_SONAR.put("CORRECTNESS", "Correctness");
+    FINDBUGS_TO_SONAR.put("MT_CORRECTNESS", "Multithreaded correctness");
+    FINDBUGS_TO_SONAR.put("I18N", "Internationalization");
+    FINDBUGS_TO_SONAR.put("EXPERIMENTAL", "Experimental");
+    FINDBUGS_TO_SONAR.put("MALICIOUS_CODE", "Malicious code");
+    FINDBUGS_TO_SONAR.put("PERFORMANCE", "Performance");
+    FINDBUGS_TO_SONAR.put("SECURITY", "Security");
+    FINDBUGS_TO_SONAR.put("STYLE", "Style");
   }
 
   public static String findbugsToSonar(String findbugsCategKey) {
-    return findbugsToSonar.get(findbugsCategKey);
+    return FINDBUGS_TO_SONAR.get(findbugsCategKey);
   }
 
   private FindbugsCategory() {

@@ -23,7 +23,6 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
