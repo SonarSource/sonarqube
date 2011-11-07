@@ -79,8 +79,7 @@ class JarLoader implements Loader {
     try {
       jarFile.close();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      // ignore
     }
   }
 
