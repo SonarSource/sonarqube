@@ -54,7 +54,7 @@ public class DefaultDatabaseConnector extends AbstractDatabaseConnector {
 
   private void createDatasource() {
     try {
-      CustomHibernateConnectionProvider.datasource = database.getDataSource();
+      CustomHibernateConnectionProvider.setDatasourceForConfig(database.getDataSource());
     } catch (Exception e) {
       throw new SonarException("Fail to connect to database", e);
     }

@@ -29,6 +29,9 @@ import java.util.Set;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 
+/**
+ * Note: this class has a natural ordering that is inconsistent with equals
+ */
 public final class FeedbackCycle implements Iterable<FeedbackEdge>, Comparable<FeedbackCycle> {
 
   private List<FeedbackEdge> orderedFeedbackEdges;
@@ -89,7 +92,7 @@ public final class FeedbackCycle implements Iterable<FeedbackEdge>, Comparable<F
   }
 
   public int compareTo(FeedbackCycle feedbackCycle) {
-    if (getTotalOccurrencesOfEdgesInCycle() < feedbackCycle.getTotalOccurrencesOfEdgesInCycle()) {
+    if (getTotalOccurrencesOfEdgesInCycle() < feedbackCycle.getTotalOccurrencesOfEdgesInCycle()) {//NOSONAR this class has a natural ordering that is inconsistent with equals
       return -1;
     }
     if (getTotalOccurrencesOfEdgesInCycle() == feedbackCycle.getTotalOccurrencesOfEdgesInCycle()) {

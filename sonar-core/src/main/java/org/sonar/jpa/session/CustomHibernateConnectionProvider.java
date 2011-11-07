@@ -26,11 +26,15 @@ import java.util.Properties;
 
 public class CustomHibernateConnectionProvider extends InjectedDataSourceConnectionProvider {
 
-  static DataSource datasource;
-  
+  private static DataSource datasourceForConfig;
+
+  static void setDatasourceForConfig(DataSource ds) {
+    CustomHibernateConnectionProvider.datasourceForConfig = ds;
+  }
+
   @Override
   public void configure(Properties props) {
-    setDataSource(datasource);
+    setDataSource(datasourceForConfig);
     super.configure(props);
   }
 }

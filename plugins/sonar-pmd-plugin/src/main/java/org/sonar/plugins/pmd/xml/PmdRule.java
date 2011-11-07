@@ -22,7 +22,7 @@ package org.sonar.plugins.pmd.xml;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PmdRule implements Comparable<String> {
+public class PmdRule {
 
   private String ref;
 

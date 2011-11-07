@@ -76,7 +76,11 @@ public class RuleMeasure extends Measure {
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj.getClass().equals(RuleMeasure.class))) {
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj.getClass().equals(RuleMeasure.class))) {//NOSONAR should be refactored but kept in the current state
+      // for the moment.
       return false;
     }
     if (this == obj) {
