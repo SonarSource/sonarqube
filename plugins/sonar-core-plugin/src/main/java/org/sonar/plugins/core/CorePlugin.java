@@ -262,6 +262,7 @@ public class CorePlugin extends SonarPlugin {
     extensions.add(UnitTestDecorator.class);
     extensions.add(VersionEventsSensor.class);
     extensions.add(CheckAlertThresholds.class);
+    extensions.add(GlobalAlertDecorator.class);
     extensions.add(GenerateAlertEvents.class);
     extensions.add(ViolationsDecorator.class);
     extensions.add(WeightedViolationsDecorator.class);
