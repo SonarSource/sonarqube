@@ -181,10 +181,6 @@ public class Filter {
     return !isNumericMetric || sortedByLanguage || sortedByName || sortedByVersion;
   }
 
-//  public Filter setSortedMetricId(Integer id) {
-//    return setSortedMetricId(id, true, false);
-//  }
-
   public Filter setSortedMetricId(Integer id, boolean isNumericValue, Boolean isVariation) {
     unsetSorts();
     this.sortedMetricId = id;

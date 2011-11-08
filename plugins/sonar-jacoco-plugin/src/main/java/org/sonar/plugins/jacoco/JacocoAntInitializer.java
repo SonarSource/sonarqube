@@ -44,7 +44,6 @@ public class JacocoAntInitializer extends Initializer implements CoverageExtensi
   @Override
   public boolean shouldExecuteOnProject(org.sonar.api.resources.Project project) {
     return project.getAnalysisType().equals(Project.AnalysisType.DYNAMIC);
-    // TODO return project.getAnalysisType().equals(Project.AnalysisType.DYNAMIC) && project.getFileSystem().hasTestFiles(Java.INSTANCE);
   }
 
   @Override
@@ -66,7 +65,6 @@ public class JacocoAntInitializer extends Initializer implements CoverageExtensi
           }
         }
         // Execute target
-        // TODO antProject.getExecutor().executeTargets(antProject, new String[] { "test" });
         target.performTasks();
       }
     }
