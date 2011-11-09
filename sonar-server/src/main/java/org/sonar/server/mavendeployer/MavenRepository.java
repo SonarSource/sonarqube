@@ -20,11 +20,10 @@
 package org.sonar.server.mavendeployer;
 
 import org.apache.commons.io.FileUtils;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
-import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.DefaultServerFileSystem;
+import org.sonar.server.platform.ServerSettings;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +55,6 @@ public class MavenRepository {
       maven2Plugin.deployTo(rootDir);
 
     } catch (Exception e) {
-      LoggerFactory.getLogger(getClass()).error("Fail to deploy Maven 2 plugin to: " + rootDir, e);
       throw new IllegalStateException("Fail to deploy Maven 2 plugin to: " + rootDir, e);
     }
   }

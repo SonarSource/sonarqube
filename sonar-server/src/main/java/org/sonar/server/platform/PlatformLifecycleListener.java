@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform;
 
+import org.slf4j.LoggerFactory;
 import org.sonar.core.config.Logback;
 
 import javax.servlet.ServletContextEvent;
@@ -29,8 +30,14 @@ public final class PlatformLifecycleListener implements ServletContextListener {
 
   public void contextInitialized(ServletContextEvent event) {
     configureLogback();
-    Platform.getInstance().init(event.getServletContext());
-    Platform.getInstance().start();
+    try {
+      Platform.getInstance().init(event.getServletContext());
+      Platform.getInstance().start();
+    } catch (Exception e) {
+      // full stacktrace is lost by jruby-rack. It must be logged now.
+      LoggerFactory.getLogger(getClass()).error("Fail to start server", e);
+      throw new IllegalStateException("Fail to start server", e);
+    }
   }
 
   public void contextDestroyed(ServletContextEvent event) {
