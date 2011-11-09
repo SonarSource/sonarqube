@@ -95,7 +95,7 @@ public class RuleI18nManager implements ServerComponent {
   }
 
   static boolean isRuleProperty(String propertyKey) {
-    return StringUtils.startsWith(propertyKey, RULE_PREFIX) && StringUtils.endsWith(propertyKey, NAME_SUFFIX) && propertyKey.indexOf(".param.") < 0;
+    return StringUtils.startsWith(propertyKey, RULE_PREFIX) && StringUtils.endsWith(propertyKey, NAME_SUFFIX) && !propertyKey.contains(".param.");
   }
 
   public static class RuleKey {
