@@ -113,10 +113,11 @@ public class InMemoryDatabase implements Database {
     }
   }
 
-  void stopDatabase() {
+  public static void stopDatabase() {
     try {
       if (datasource != null) {
         datasource.close();
+        datasource = null;
       }
       DriverManager.getConnection("jdbc:derby:;shutdown=true");
 

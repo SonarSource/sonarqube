@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.persistence.InMemoryDatabase;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,12 +51,18 @@ public class EmbeddedDatabaseTest {
 
   @Before
   public void setUp() throws Exception {
+    // This test doesn't work if InMemoryDatabase is active
+    try {
+      InMemoryDatabase.stopDatabase();
+    } catch (Exception e) {
+    }
+
     windowsCleanup();
     if (testPort == null) {
       testPort = Integer.toString(findFreeServerPort());
     }
     defaultProps = EmbeddedDatabase.getDefaultProperties(new Settings());
-    defaultProps.put("derby.drda.portNumber", testPort); // changing the defaut port
+    defaultProps.put("derby.drda.portNumber", testPort); // changing the default port
     driverUrl = "jdbc:derby://localhost:" + testPort + "/sonar;create=true;user=sonar;password=sonar";
   }
 
@@ -84,10 +91,9 @@ public class EmbeddedDatabaseTest {
     return port;
   }
 
-  @Ignore
   @Test
-  public void shouldStart() throws Exception {
-    database = new EmbeddedDatabase(new File(TEST_ROOT_DIR + TEST_DB_DIR_PREFIX + "Start" + testPort), defaultProps);
+  public void shouldStartAndStop() throws Exception {
+    database = new EmbeddedDatabase(new File(TEST_ROOT_DIR + TEST_DB_DIR_PREFIX + testPort), defaultProps);
     database.start();
     ClientDriver.class.newInstance();
     Connection conn;
@@ -95,12 +101,12 @@ public class EmbeddedDatabaseTest {
       conn = DriverManager.getConnection(driverUrl);
       conn.close();
     } catch (Exception ex) {
-      fail("Unable to connect");
+      fail("Unable to connect after start");
     }
     try {
       conn = DriverManager.getConnection("jdbc:derby://localhost:" + testPort + "/sonar;user=foo;password=bar");
       conn.close();
-      fail("Able to connect");
+      fail("Able to connect with wrong username and password");
     } catch (Exception ex) {
     }
 
@@ -109,26 +115,11 @@ public class EmbeddedDatabaseTest {
     assertTrue(testDb.isDirectory());
 
     database.stop();
-  }
 
-  @Test
-  public void shouldStop() throws Exception {
-    database = new EmbeddedDatabase(new File(TEST_ROOT_DIR + TEST_DB_DIR_PREFIX + "Stop" + testPort), defaultProps);
-    database.start();
-    ClientDriver.class.newInstance();
-    Connection conn;
     try {
       conn = DriverManager.getConnection(driverUrl);
       conn.close();
-    } catch (Exception ex) {
-      fail("Unable to connect to " + driverUrl);
-    }
-
-    database.stop();
-    try {
-      conn = DriverManager.getConnection(driverUrl);
-      conn.close();
-      fail("Able to connect");
+      fail("Able to connect after stop");
     } catch (Exception ex) {
     }
   }
