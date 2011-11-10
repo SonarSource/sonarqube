@@ -109,12 +109,18 @@ public final class Platform {
 
   public void start() {
     if (!started && isUpToDateDatabase()) {
-      TimeProfiler profiler = new TimeProfiler().start("Start services");
-      startCoreComponents();
-      startServiceComponents();
-      executeStartupTasks();
-      started = true;
-      profiler.stop();
+      try {
+        TimeProfiler profiler = new TimeProfiler().start("Start services");
+        startCoreComponents();
+        startServiceComponents();
+        executeStartupTasks();
+        started = true;
+        profiler.stop();
+      } catch (Exception e) {
+        // full stacktrace is lost by jruby. It must be logged now.
+        LoggerFactory.getLogger(getClass()).error("Fail to start server", e);
+        throw new IllegalStateException("Fail to start server", e);
+      }
     }
   }
 
