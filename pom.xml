@@ -663,6 +663,11 @@
         </exclusions>
       </dependency>
       <dependency>
+        <groupId>org.mybatis</groupId>
+        <artifactId>mybatis</artifactId>
+        <version>3.0.6</version>
+      </dependency>
+      <dependency>
         <groupId>org.picocontainer</groupId>
         <artifactId>picocontainer</artifactId>
         <version>2.10.2</version>
