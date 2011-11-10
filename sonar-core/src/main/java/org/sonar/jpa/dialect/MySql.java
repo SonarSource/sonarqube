@@ -30,8 +30,10 @@ import java.sql.Types;
  */
 public class MySql implements Dialect {
 
+  public static final String ID = "mysql";
+
   public String getId() {
-    return "mysql";
+    return ID;
   }
 
   public String getActiveRecordDialectCode() {

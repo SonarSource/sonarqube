@@ -31,7 +31,21 @@ import java.util.Properties;
 public interface Database {
   Database start();
   Database stop();
+
+  /**
+   * Returns the configured datasource. Null as long as start() is not executed.
+   */
   DataSource getDataSource();
+
+  /**
+   * @return the dialect or null if start() has not been executed
+   */
   Dialect getDialect();
+
+  /**
+   * @return the schema or null if not defined or if start() has not been executed
+   */
+  String getSchema();
+  
   Properties getHibernateProperties();
 }

@@ -85,6 +85,10 @@ public class HsqlDatabase implements Database {
     return new HsqlDb();
   }
 
+  public String getSchema() {
+    return null;
+  }
+
   public Properties getHibernateProperties() {
     Properties properties = new Properties();
     properties.put("hibernate.hbm2ddl.auto", "create-drop");

@@ -29,8 +29,10 @@ import java.sql.Types;
  */
 public class PostgreSql implements Dialect {
 
+  public static final String ID = "postgresql";
+
   public String getId() {
-    return "postgresql";
+    return ID;
   }
 
   public String getActiveRecordDialectCode() {

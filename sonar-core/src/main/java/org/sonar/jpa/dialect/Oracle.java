@@ -30,8 +30,10 @@ import java.sql.Types;
  */
 public class Oracle implements Dialect {
 
+  public static final String ID = "oracle";
+
   public String getId() {
-    return "oracle";
+    return ID;
   }
 
   public String getActiveRecordDialectCode() {

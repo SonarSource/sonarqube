@@ -33,7 +33,7 @@ import org.sonar.persistence.model.DuplicationUnit;
 
 import com.google.common.collect.Lists;
 
-public class DuplicationDaoTest extends AbstractDbUnitTestCase {
+public class DuplicationDaoTest extends DaoTestCase {
 
   private DuplicationDao dao;
 

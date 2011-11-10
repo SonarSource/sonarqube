@@ -29,6 +29,8 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.jpa.dialect.Dialect;
 import org.sonar.jpa.dialect.DialectRepository;
+import org.sonar.jpa.dialect.Oracle;
+import org.sonar.jpa.dialect.PostgreSql;
 import org.sonar.jpa.session.CustomHibernateConnectionProvider;
 
 import javax.sql.DataSource;
@@ -47,6 +49,7 @@ public class DefaultDatabase implements Database {
   private Settings settings;
   private BasicDataSource datasource;
   private Dialect dialect;
+  private String schema;
 
   public DefaultDatabase(Settings settings) {
     this.settings = settings;
@@ -58,12 +61,23 @@ public class DefaultDatabase implements Database {
 
       Properties properties = getProperties();
       dialect = initDialect(properties);
+      schema = initSchema(properties, dialect);
       datasource = initDatasource(properties);
       return this;
 
     } catch (Exception e) {
       throw new IllegalStateException("Fail to connect to database", e);
     }
+  }
+
+  private String initSchema(Properties properties, Dialect dialect) {
+    if (dialect.getId().equals(PostgreSql.ID)) {
+      return properties.getProperty("sonar.jdbc.postgreSearchPath", "public");
+    }
+    if (dialect.getId().equals(Oracle.ID)) {
+      return properties.getProperty("sonar.hibernate.default_schema", "sonar");
+    }
+    return null;
   }
 
   BasicDataSource initDatasource(Properties properties) throws Exception {
@@ -100,6 +114,10 @@ public class DefaultDatabase implements Database {
 
   public final Dialect getDialect() {
     return dialect;
+  }
+
+  public String getSchema() {
+    return schema;
   }
 
   public Properties getHibernateProperties() {

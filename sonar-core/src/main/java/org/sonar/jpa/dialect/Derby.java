@@ -31,8 +31,10 @@ import java.sql.Types;
  */
 public class Derby implements Dialect {
 
+  public static final String ID = "derby";
+
   public String getId() {
-    return "derby";
+    return ID;
   }
 
   public String getActiveRecordDialectCode() {

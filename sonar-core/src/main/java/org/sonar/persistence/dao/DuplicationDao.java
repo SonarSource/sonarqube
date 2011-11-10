@@ -19,9 +19,12 @@
  */
 package org.sonar.persistence.dao;
 
+import java.sql.BatchUpdateException;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.ibatis.exceptions.PersistenceException;
+import org.apache.ibatis.executor.BatchExecutorException;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
@@ -60,6 +63,7 @@ public class DuplicationDao implements BatchComponent, ServerComponent {
         mapper.batchInsert(unit);
       }
       session.commit();
+      
     } finally {
       session.close();
     }

@@ -49,6 +49,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     conf.setEnvironment(new Environment("production", createTransactionFactory(), database.getDataSource()));
     conf.setUseGeneratedKeys(true);
     conf.setLazyLoadingEnabled(false);
+    loadSchemaVariable(conf);
 
     loadAlias(conf, "DuplicationUnit", DuplicationUnit.class);
     loadAlias(conf, "Rule", Rule.class);
@@ -57,6 +58,15 @@ public class MyBatis implements BatchComponent, ServerComponent {
 
     sessionFactory = new SqlSessionFactoryBuilder().build(conf);
     return this;
+  }
+
+  private void loadSchemaVariable(Configuration conf) {
+    String schema = database.getSchema();
+    if (StringUtils.isNotBlank(schema)) {
+      conf.getVariables().setProperty("_schema", schema + ".");
+    } else {
+      conf.getVariables().setProperty("_schema", "");
+    }
   }
 
   public SqlSessionFactory getSessionFactory() {

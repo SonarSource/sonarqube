@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-public class RuleDaoTest extends AbstractDbUnitTestCase {
+public class RuleDaoTest extends DaoTestCase {
 
   private static RuleDao dao;
 

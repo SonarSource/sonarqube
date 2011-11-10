@@ -28,8 +28,10 @@ import java.sql.Types;
 
 public class MsSql implements Dialect {
 
+  public static final String ID = "mssql";
+
   public String getId() {
-    return "mssql";
+    return ID;
   }
 
   public String getActiveRecordDialectCode() {
