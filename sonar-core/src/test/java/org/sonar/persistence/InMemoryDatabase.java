@@ -37,6 +37,10 @@ import java.util.Properties;
  */
 public class InMemoryDatabase implements Database {
 
+  static {
+    DerbyUtils.fixDerbyLogs();
+  }
+
   private static BasicDataSource datasource;
 
   public InMemoryDatabase start() {
@@ -49,7 +53,7 @@ public class InMemoryDatabase implements Database {
   }
 
   /**
-   * IMPORTANT: DB name changed from "sonar" to "sonar2" in order to not conflict with {@link org.sonar.test.persistence.DatabaseTestCase}
+   * IMPORTANT: DB name changed from "sonar" to "sonar2" in order to not conflict with {@link DefaultDatabaseTest}
    */
   void startDatabase() {
     try {
@@ -89,11 +93,12 @@ public class InMemoryDatabase implements Database {
       connection = datasource.getConnection();
 
       DatabaseMetaData meta = connection.getMetaData();
+      Statement statement = connection.createStatement();
 
       ResultSet res = meta.getTables(null, null, null, new String[] { "TABLE" });
       while (res.next()) {
         String tableName = res.getString("TABLE_NAME");
-        connection.prepareStatement("TRUNCATE TABLE " + tableName).execute();
+        statement.executeUpdate("TRUNCATE TABLE " + tableName);
       }
       res.close();
 
@@ -101,10 +106,11 @@ public class InMemoryDatabase implements Database {
       res = meta.getColumns(null, null, null, "ID");
       while (res.next()) {
         String tableName = res.getString("TABLE_NAME");
-        connection.prepareStatement("ALTER TABLE " + tableName + " ALTER COLUMN ID RESTART WITH 1").execute();
+        statement.executeUpdate("ALTER TABLE " + tableName + " ALTER COLUMN ID RESTART WITH 1");
       }
       res.close();
 
+      statement.close();
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to truncate tables", e);
 

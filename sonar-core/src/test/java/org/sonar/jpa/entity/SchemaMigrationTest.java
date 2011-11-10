@@ -20,9 +20,9 @@
 package org.sonar.jpa.entity;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.sonar.jpa.session.MemoryDatabaseConnector;
-import org.sonar.persistence.HsqlDatabase;
+import org.sonar.persistence.Database;
+import org.sonar.persistence.InMemoryDatabase;
 
 import java.sql.Connection;
 
@@ -32,13 +32,13 @@ public class SchemaMigrationTest {
 
   @Test
   public void currentVersionShouldBeUnknownWhenSchemaIsEmpty() throws Exception {
-    HsqlDatabase hsqlDatabase = new HsqlDatabase();
-    hsqlDatabase.start();
+    Database database = new InMemoryDatabase();
+    database.start();
 
-    MemoryDatabaseConnector connector = new MemoryDatabaseConnector(hsqlDatabase, SchemaMigration.VERSION_UNKNOWN);
+    MemoryDatabaseConnector connector = new MemoryDatabaseConnector(database, SchemaMigration.VERSION_UNKNOWN);
     connector.start();
 
-    Connection connection = Mockito.mock(Connection.class);
+    Connection connection = null;
     try {
       connection = connector.getConnection();
       assertEquals(SchemaMigration.VERSION_UNKNOWN, SchemaMigration.getCurrentVersion(connection));
@@ -48,14 +48,14 @@ public class SchemaMigrationTest {
       }
     }
     connector.stop();
-    hsqlDatabase.stop();
+    database.stop();
   }
 
   @Test
   public void versionShouldBeLoadedFromSchemaMigrationsTable() throws Exception {
-    HsqlDatabase hsqlDatabase = new HsqlDatabase();
-    hsqlDatabase.start();
-    MemoryDatabaseConnector connector = new MemoryDatabaseConnector(hsqlDatabase, 30);
+    Database database = new InMemoryDatabase();
+    database.start();
+    MemoryDatabaseConnector connector = new MemoryDatabaseConnector(database, 30);
     connector.start();
 
     Connection connection = null;
@@ -69,6 +69,6 @@ public class SchemaMigrationTest {
       }
     }
     connector.stop();
-    hsqlDatabase.stop();
+    database.stop();
   }
 }

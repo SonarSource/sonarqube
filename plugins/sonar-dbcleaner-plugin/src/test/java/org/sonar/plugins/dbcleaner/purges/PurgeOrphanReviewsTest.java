@@ -25,22 +25,22 @@ import static org.junit.Assert.assertThat;
 import java.sql.Statement;
 
 import org.junit.Test;
-import org.sonar.test.persistence.DatabaseTestCase;
+import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-public class PurgeOrphanReviewsTest extends DatabaseTestCase {
+public class PurgeOrphanReviewsTest extends AbstractDbUnitTestCase {
 
   @Test
   public void shouldCloseReviewWithoutCorrespondingViolation() throws Exception {
     setupData("purgeOrphanReviews");
 
-    Statement stmt = getConnection().createStatement();
+    Statement stmt = getConnection().getConnection().createStatement();
     int count = stmt.executeUpdate(new PurgeOrphanReviews(null).getDeleteReviewsSqlRequest());
     assertThat(count, is(1));
 
     count = stmt.executeUpdate(new PurgeOrphanReviews(null).getDeleteReviewCommentsSqlRequest());
     assertThat(count, is(1));
 
-    assertTables("purgeOrphanReviews", "reviews");
+    checkTables("purgeOrphanReviews", "reviews");
   }
 
 }

@@ -52,10 +52,6 @@ import org.sonar.persistence.*;
 
 public abstract class AbstractDbUnitTestCase {
 
-  static {
-    DerbyUtils.fixDerbyLogs();
-  }
-
   private static final boolean USE_HSQL = false;
 
   private DefaultDatabaseConnector dbConnector;
