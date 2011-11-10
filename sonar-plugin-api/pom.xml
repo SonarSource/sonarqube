@@ -176,11 +176,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.mortbay.jetty</groupId>
       <artifactId>jetty-servlet-tester</artifactId>
       <scope>test</scope>

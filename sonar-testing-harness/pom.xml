@@ -60,10 +60,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-plugin-api</artifactId>
       <version>${project.version}</version>

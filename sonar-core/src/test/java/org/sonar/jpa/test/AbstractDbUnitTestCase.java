@@ -19,26 +19,19 @@
  */
 package org.sonar.jpa.test;
 
-import static org.junit.Assert.fail;
-
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import org.apache.commons.io.IOUtils;
 import org.dbunit.Assertion;
 import org.dbunit.DataSourceDatabaseTester;
 import org.dbunit.DatabaseUnitException;
 import org.dbunit.IDatabaseTester;
-import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.*;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
-import org.dbunit.ext.hsqldb.HsqldbDataTypeFactory;
 import org.dbunit.operation.DatabaseOperation;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.jpa.dao.DaoFacade;
 import org.sonar.jpa.dao.MeasuresDao;
@@ -48,11 +41,18 @@ import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.JpaDatabaseSession;
 import org.sonar.jpa.session.MemoryDatabaseConnector;
-import org.sonar.persistence.*;
+import org.sonar.persistence.Database;
+import org.sonar.persistence.InMemoryDatabase;
+import org.sonar.persistence.MyBatis;
+
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import static org.junit.Assert.fail;
 
 public abstract class AbstractDbUnitTestCase {
-
-  private static final boolean USE_HSQL = false;
 
   private DefaultDatabaseConnector dbConnector;
   private JpaDatabaseSession session;
@@ -64,11 +64,7 @@ public abstract class AbstractDbUnitTestCase {
 
   @Before
   public void startDatabase() throws Exception {
-    if (USE_HSQL) {
-      database = new HsqlDatabase();
-    } else {
-      database = new InMemoryDatabase();
-    }
+    database = new InMemoryDatabase();
     database.start();
 
     myBatis = new MyBatis(database);
@@ -156,19 +152,8 @@ public abstract class AbstractDbUnitTestCase {
       databaseTester.setDataSet(compositeDataSet);
       connection = databaseTester.getConnection();
 
-      if (USE_HSQL) {
-        connection.getConnection().prepareStatement("set referential_integrity FALSE").execute(); // HSQL DB
-        DatabaseConfig config = connection.getConfig();
-        config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, new HsqldbDataTypeFactory());
-      }
-
       DatabaseOperation.CLEAN_INSERT.execute(connection, databaseTester.getDataSet());
-
-      if (USE_HSQL) {
-        connection.getConnection().prepareStatement("set referential_integrity TRUE").execute(); // HSQL DB
-      } else {
-        resetDerbySequence(compositeDataSet);
-      }
+      resetDerbySequence(compositeDataSet);
 
     } catch (Exception e) {
       throw translateException("Could not setup DBUnit data", e);
@@ -194,7 +179,7 @@ public abstract class AbstractDbUnitTestCase {
   }
 
   protected final void checkTables(String testName, String... tables) {
-    checkTables(testName, new String[] {}, tables);
+    checkTables(testName, new String[]{}, tables);
   }
 
   protected final void checkTables(String testName, String[] excludedColumnNames, String... tables) {

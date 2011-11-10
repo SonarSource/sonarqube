@@ -32,8 +32,6 @@ public class PurgeDeletedResourcesTest extends AbstractDbUnitTestCase {
     setupData("sharedFixture", "purgeDeletedResources");
 
     final Connection c = getConnection().getConnection();
-    // TODO Godin: next line was here with HSQL
-    //c.prepareStatement("SET REFERENTIAL_INTEGRITY FALSE; ").execute();
     c.prepareStatement("delete from projects where id=3").executeUpdate();
     c.commit();
 

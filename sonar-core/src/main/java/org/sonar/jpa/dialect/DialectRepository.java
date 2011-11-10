@@ -88,6 +88,6 @@ public final class DialectRepository {
   }
 
   private static List<Dialect> getSupportedDialects() {
-    return Arrays.asList(new Derby(), new HsqlDb(), new MySql(), new Oracle(), new PostgreSql(), new MsSql());
+    return Arrays.asList(new Derby(), new MySql(), new Oracle(), new PostgreSql(), new MsSql());
   }
 }

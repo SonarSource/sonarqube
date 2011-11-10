@@ -44,6 +44,11 @@ public interface DatabaseProperties {
 
   String PROP_EMBEDDED_DATA_DIR = "sonar.embeddedDatabase.dataDir";
   String DIALECT_DERBY = "derby";
+  
+  /**
+   * @deprecated not supported anymore since v.2.13.
+   */
+  @Deprecated
   String DIALECT_HSQLDB = "hsqldb";
   String DIALECT_MYSQL = "mysql";
   String DIALECT_POSTGRESQL = "postgresql";
