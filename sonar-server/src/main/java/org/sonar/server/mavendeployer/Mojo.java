@@ -21,6 +21,7 @@ package org.sonar.server.mavendeployer;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.utils.TempFileUtils;
 import org.sonar.api.utils.ZipUtils;
 
 import java.io.File;
@@ -43,7 +44,7 @@ public final class Mojo extends Artifact {
 
   @Override
   protected void copyTo(File toDir) throws IOException {
-    File tmpDir = prepareTmpDir();
+    File tmpDir = TempFileUtils.createTempDirectory("sonar-server-");
     try {
       copyTo(toDir, tmpDir);
 
@@ -67,16 +68,6 @@ public final class Mojo extends Artifact {
     String before = StringUtils.substringBefore(metadata, "<version>");
     String after = StringUtils.substringAfter(metadata, "</version>");
     return before + "<version>" + version + "</version>" + after;
-  }
-
-  private File prepareTmpDir() throws IOException {
-    File tmpDir = new File(System.getProperty("java.io.tmpdir"), "sonar-" + version);
-    if (tmpDir.exists()) {
-      FileUtils.cleanDirectory(tmpDir);
-    } else {
-      FileUtils.forceMkdir(tmpDir);
-    }
-    return tmpDir;
   }
 
   private void destroyTmpDir(File tmpDir) {
