@@ -44,7 +44,7 @@ public abstract class AbstractAnalyzer {
   public final void analyse(Project project, SensorContext context) {
     final File buildOutputDir = project.getFileSystem().getBuildOutputDir();
     if (!buildOutputDir.exists()) {
-      JaCoCoUtils.LOG.info("Can't find build output directory: {}. Skipping JaCoCo analysis.", buildOutputDir);
+      JaCoCoUtils.LOG.info("Project coverage is set to 0% as build output directory doesn't exists: {}", buildOutputDir);
       return;
     }
     String path = getReportPath(project);
@@ -61,7 +61,7 @@ public abstract class AbstractAnalyzer {
     ExecutionDataStore executionDataStore = new ExecutionDataStore();
 
     if (jacocoExecutionData == null || !jacocoExecutionData.exists() || !jacocoExecutionData.isFile()) {
-      JaCoCoUtils.LOG.info("Can't find JaCoCo execution data : {}. Project coverage is set to 0%.", jacocoExecutionData);
+      JaCoCoUtils.LOG.info("Project coverage is set to 0% as no JaCoCo execution data has been dumped: {}", jacocoExecutionData);
     } else {
       JaCoCoUtils.LOG.info("Analysing {}", jacocoExecutionData);
       ExecutionDataReader reader = new ExecutionDataReader(new FileInputStream(jacocoExecutionData));
