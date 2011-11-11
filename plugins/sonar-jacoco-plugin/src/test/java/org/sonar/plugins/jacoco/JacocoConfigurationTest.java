@@ -51,7 +51,7 @@ public class JacocoConfigurationTest {
   @Test
   public void defaults() {
     assertThat(jacocoConfiguration.getReportPath(), is("target/jacoco.exec"));
-    assertThat(jacocoConfiguration.getJvmArgument(), is("-javaagent:jacocoagent.jar=destfile=target/jacoco.exec"));
+    assertThat(jacocoConfiguration.getJvmArgument(), is("-javaagent:jacocoagent.jar=destfile=target/jacoco.exec,excludes=*_javassist_*"));
 
     assertThat(jacocoConfiguration.getItReportPath(), nullValue());
 
@@ -79,7 +79,7 @@ public class JacocoConfigurationTest {
     configuration.setProperty(JacocoConfiguration.REPORT_PATH_PROPERTY, "jacoco.exec");
 
     assertThat(jacocoConfiguration.getReportPath(), is("jacoco.exec"));
-    assertThat(jacocoConfiguration.getJvmArgument(), is("-javaagent:jacocoagent.jar=destfile=jacoco.exec"));
+    assertThat(jacocoConfiguration.getJvmArgument(), is("-javaagent:jacocoagent.jar=destfile=jacoco.exec,excludes=*_javassist_*"));
   }
 
   @Test
