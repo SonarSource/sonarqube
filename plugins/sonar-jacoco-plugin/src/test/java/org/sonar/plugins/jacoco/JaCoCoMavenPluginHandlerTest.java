@@ -72,7 +72,7 @@ public class JaCoCoMavenPluginHandlerTest {
     handler.configure(project, plugin);
 
     verify(configuration).getJvmArgument();
-    assertThat(plugin.getParameter("argLine"), is("-javaagent:jacocoagent.jar=destfile=target/jacoco.exec"));
+    assertThat(plugin.getParameter("argLine"), is("-javaagent:jacocoagent.jar=destfile=target/jacoco.exec,excludes=*_javassist_*"));
     assertThat(plugin.getParameter("testFailureIgnore"), is("true"));
   }
 
@@ -84,7 +84,7 @@ public class JaCoCoMavenPluginHandlerTest {
     handler.configure(project, plugin);
 
     verify(configuration).getJvmArgument();
-    assertThat(plugin.getParameter("argLine"), is("-javaagent:jacocoagent.jar=destfile=target/jacoco.exec -esa"));
+    assertThat(plugin.getParameter("argLine"), is("-javaagent:jacocoagent.jar=destfile=target/jacoco.exec,excludes=*_javassist_* -esa"));
     assertThat(plugin.getParameter("testFailureIgnore"), is("true"));
   }
 

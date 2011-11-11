@@ -49,6 +49,7 @@ import org.sonar.api.config.Settings;
     @Property(
         key = JacocoConfiguration.EXCLUDES_PROPERTY,
         name = "Excludes",
+        defaultValue = JacocoConfiguration.EXCLUDES_DEFAULT_VALUE,
         description = "A list of class names that should be excluded from execution analysis." +
             " The list entries are separated by a colon (:) and may use wildcard characters (* and ?)." +
             " Except for performance optimization or technical corner cases this option is normally not required.",
@@ -93,6 +94,15 @@ public class JacocoConfiguration implements BatchExtension {
   public static final String IT_REPORT_PATH_DEFAULT_VALUE = "";
   public static final String INCLUDES_PROPERTY = "sonar.jacoco.includes";
   public static final String EXCLUDES_PROPERTY = "sonar.jacoco.excludes";
+
+  /**
+   * Hibernate uses Javassist to modify entity classes and without exclusion of such classes from JaCoCo exception might be thrown:
+   * <pre>
+   * Javassist Enhancement failed: org.sonar.api.profiles.Alert
+   * java.lang.VerifyError: (class: org/sonar/api/profiles/Alert_$$_javassist_3, method: <clinit> signature: ()V) Illegal local variable number
+   * </pre>
+   */
+  public static final String EXCLUDES_DEFAULT_VALUE = "*_javassist_*";
   public static final String EXCLCLASSLOADER_PROPERTY = "sonar.jacoco.exclclassloader";
   public static final String ANT_TARGETS_PROPERTY = "sonar.jacoco.antTargets";
   public static final String ANT_TARGETS_DEFAULT_VALUE = "";
