@@ -19,9 +19,8 @@
  */
 package org.sonar.plugins.core.batch;
 
-import org.apache.commons.configuration.Configuration;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ResourceFilter;
+import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 
@@ -30,10 +29,10 @@ import org.sonar.api.resources.ResourceUtils;
  */
 public class ExcludedResourceFilter implements ResourceFilter {
 
-  private Configuration conf;
+  private Project project;
 
-  public ExcludedResourceFilter(Configuration conf) {
-    this.conf = conf;
+  public ExcludedResourceFilter(Project project) {
+    this.project = project;
   }
 
   public boolean isIgnored(Resource resource) {
@@ -42,7 +41,7 @@ public class ExcludedResourceFilter implements ResourceFilter {
       return false;
     }
 
-    String[] patterns = getExclusionPatterns();
+    String[] patterns = project.getExclusionPatterns();
     if (patterns != null) {
       for (String pattern : patterns) {
         if (resource.matchFilePattern(pattern)) {
@@ -51,9 +50,5 @@ public class ExcludedResourceFilter implements ResourceFilter {
       }
     }
     return false;
-  }
-
-  String[] getExclusionPatterns() {
-    return conf.getStringArray(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY);
   }
 }

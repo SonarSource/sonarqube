@@ -33,7 +33,6 @@ import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.*;
 import org.sonar.batch.components.TimeMachineConfiguration;
-import org.sonar.batch.config.DeprecatedConfigurationProvider;
 import org.sonar.batch.config.ProjectSettings;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
@@ -70,7 +69,6 @@ public class ProjectModule extends Module {
     addCoreSingleton(project);
     addCoreSingleton(project.getConfiguration());
     addCoreSingleton(ProjectSettings.class);
-    addAdapter(new DeprecatedConfigurationProvider());
     addCoreSingleton(IocContainer.class);
 
     for (Object component : projectDefinition.getContainerExtensions()) {
@@ -134,9 +132,9 @@ public class ProjectModule extends Module {
 
     DefaultIndex index = getComponentByType(DefaultIndex.class);
     index.setCurrentProject(project,
-        getComponentByType(ResourceFilters.class),
-        getComponentByType(ViolationFilters.class),
-        getComponentByType(RulesProfile.class));
+      getComponentByType(ResourceFilters.class),
+      getComponentByType(ViolationFilters.class),
+      getComponentByType(RulesProfile.class));
 
     // TODO See http://jira.codehaus.org/browse/SONAR-2126
     // previously MavenProjectBuilder was responsible for creation of ProjectFileSystem

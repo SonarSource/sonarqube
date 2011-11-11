@@ -37,44 +37,6 @@ import static org.junit.Assert.assertTrue;
 public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
 
   @Test
-  public void testNoExclusionPatterns() {
-    Project project = new Project("key");
-    new ProjectConfigurator(getSession(), new Settings()).configure(project);
-    assertThat(project.getExclusionPatterns().length, is(0));
-  }
-
-  @Test
-  public void testManyExclusionPatterns() {
-    Settings settings = new Settings();
-    settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*,foo,*/bar");
-
-    Project project = new Project("key");
-    new ProjectConfigurator(getSession(), settings).configure(project);
-
-    assertThat(project.getExclusionPatterns().length, is(3));
-    assertThat(project.getExclusionPatterns()[0], is("**/*"));
-    assertThat(project.getExclusionPatterns()[1], is("foo"));
-    assertThat(project.getExclusionPatterns()[2], is("*/bar"));
-  }
-
-  /**
-   * See http://jira.codehaus.org/browse/SONAR-2261
-   * Note that several exclusions separated by comma would be correctly trimmed by commons-configuration library.
-   * So issue is only with a single pattern, which contains spaces.
-   */
-  @Test
-  public void trimExclusionPatterns() {
-    Settings configuration = new Settings();
-    configuration.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, " foo ");
-
-    Project project = new Project("key");
-    new ProjectConfigurator(getSession(), configuration).configure(project);
-
-    assertThat(project.getExclusionPatterns().length, is(1));
-    assertThat(project.getExclusionPatterns()[0], is("foo"));
-  }
-
-  @Test
   public void getLanguageFromConfiguration() {
     Settings configuration = new Settings();
     configuration.setProperty(CoreProperties.PROJECT_LANGUAGE_PROPERTY, "foo");

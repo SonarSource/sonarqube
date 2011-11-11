@@ -22,6 +22,7 @@ package org.sonar.plugins.core.batch;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 
@@ -35,7 +36,8 @@ public class ExcludedResourceFilterTest {
   @Test
   public void doNotFailIfNoPatterns() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
-    ExcludedResourceFilter filter = new ExcludedResourceFilter(conf);
+    Project project = new Project("foo").setConfiguration(conf);
+    ExcludedResourceFilter filter = new ExcludedResourceFilter(project);
     assertThat(filter.isIgnored(mock(Resource.class)), is(false));
   }
 
@@ -43,7 +45,8 @@ public class ExcludedResourceFilterTest {
   public void noPatternsMatch() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
     conf.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, new String[]{"**/foo/*.java", "**/bar/*"});
-    ExcludedResourceFilter filter = new ExcludedResourceFilter(conf);
+    Project project = new Project("foo").setConfiguration(conf);
+    ExcludedResourceFilter filter = new ExcludedResourceFilter(project);
     assertThat(filter.isIgnored(mock(Resource.class)), is(false));
   }
 
@@ -54,7 +57,8 @@ public class ExcludedResourceFilterTest {
   public void ignoreResourceIfMatchesPattern() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
     conf.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, new String[]{"**/foo/*.java", "**/bar/*"});
-    ExcludedResourceFilter filter = new ExcludedResourceFilter(conf);
+    Project project = new Project("foo").setConfiguration(conf);
+    ExcludedResourceFilter filter = new ExcludedResourceFilter(project);
 
     Resource resource = mock(Resource.class);
     when(resource.matchFilePattern("**/bar/*")).thenReturn(true);
@@ -66,7 +70,8 @@ public class ExcludedResourceFilterTest {
   public void doNotExcludeUnitTestFiles() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
     conf.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, new String[]{"**/foo/*.java", "**/bar/*"});
-    ExcludedResourceFilter filter = new ExcludedResourceFilter(conf);
+    Project project = new Project("foo").setConfiguration(conf);
+    ExcludedResourceFilter filter = new ExcludedResourceFilter(project);
 
     Resource unitTest = mock(Resource.class);
     when(unitTest.getQualifier()).thenReturn(Qualifiers.UNIT_TEST_FILE);

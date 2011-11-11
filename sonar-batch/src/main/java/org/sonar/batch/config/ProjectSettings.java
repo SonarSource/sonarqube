@@ -29,6 +29,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.core.config.ConfigurationUtils;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -88,7 +89,19 @@ public class ProjectSettings extends Settings {
   }
 
   private void updateDeprecatedCommonsConfiguration() {
+    System.out.println("---------- SETTINGS -------------");
+    for (String s : properties.keySet()) {
+      System.out.println(s + "=" + properties.get(s));
+    }
     ConfigurationUtils.copyToCommonsConfiguration(properties, deprecatedCommonsConf);
+
+    System.out.println("---------- DEP CONF -------------");
+    Iterator keys = deprecatedCommonsConf.getKeys();
+    while(keys.hasNext()) {
+      String key = (String)keys.next();
+      System.out.println(key + "=" + deprecatedCommonsConf.getString(key));
+    }
+    System.out.println("----------------------------------");
   }
 
   /**
