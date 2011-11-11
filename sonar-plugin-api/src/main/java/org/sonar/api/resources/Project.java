@@ -101,7 +101,6 @@ public class Project extends Resource {
   private String languageKey;
   private Date analysisDate;
   private AnalysisType analysisType;
-  private String[] exclusionPatterns;
   private String analysisVersion;
   private boolean latestAnalysis;
 
@@ -363,15 +362,21 @@ public class Project extends Resource {
    * Patterns of resource exclusion as defined in project settings page.
    */
   public String[] getExclusionPatterns() {
-    return exclusionPatterns;
+    String[] exclusions = configuration.getStringArray(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY);
+    for (int index=0 ; index<exclusions.length ; index++) {
+      // http://jira.codehaus.org/browse/SONAR-2261 - exclusion must be trimmed
+      exclusions[index]=StringUtils.trim(exclusions[index]);
+    }
+    return exclusions;
   }
 
   /**
    * Set exclusion patterns. Configuration is not saved, so this method must be used ONLY IN UNIT TESTS.
+   * @deprecated
    */
+  @Deprecated
   public Project setExclusionPatterns(String[] s) {
-    this.exclusionPatterns = s;
-    return this;
+    throw new UnsupportedOperationException("Unsupported since version 2.12");
   }
 
   /**

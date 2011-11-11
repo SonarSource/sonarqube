@@ -19,13 +19,20 @@
  */
 package org.sonar.api.resources;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.Is;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.test.MavenTestUtils;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.internal.matchers.IsCollectionContaining.hasItems;
 
 public class ProjectTest {
   @Test
@@ -46,5 +53,43 @@ public class ProjectTest {
   public void createFromMavenIds() {
     Project project = Project.createFromMavenIds("my", "artifact");
     assertThat(project.getKey(), is("my:artifact"));
+  }
+
+  /**
+   * See http://jira.codehaus.org/browse/SONAR-2261
+   * Note that several exclusions separated by comma would be correctly trimmed by commons-configuration library.
+   * So issue is only with a single pattern, which contains spaces.
+   */
+  @Test
+  public void shouldTrimExclusionPatterns() {
+    Configuration conf = new PropertiesConfiguration();
+    conf.setProperty("sonar.exclusions", "  **/*Foo.java   , **/Bar.java    ");
+    Project project = new Project("foo").setConfiguration(conf);
+
+    String[] exclusions = project.getExclusionPatterns();
+
+    assertThat(exclusions.length, Is.is(2));
+    assertThat(exclusions[0], Is.is("**/*Foo.java"));
+    assertThat(exclusions[1], Is.is("**/Bar.java"));
+  }
+
+  @Test
+  public void testNoExclusionPatterns() {
+    Project project = new Project("key").setConfiguration(new PropertiesConfiguration());
+
+    MatcherAssert.assertThat(project.getExclusionPatterns().length, Is.is(0));
+  }
+
+  @Test
+  public void testManyExclusionPatterns() {
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    conf.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*,foo,*/bar");
+
+    Project project = new Project("key").setConfiguration(conf);
+
+    MatcherAssert.assertThat(project.getExclusionPatterns().length, Is.is(3));
+    MatcherAssert.assertThat(project.getExclusionPatterns()[0], Is.is("**/*"));
+    MatcherAssert.assertThat(project.getExclusionPatterns()[1], Is.is("foo"));
+    MatcherAssert.assertThat(project.getExclusionPatterns()[2], Is.is("*/bar"));
   }
 }

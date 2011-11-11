@@ -27,6 +27,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.maven.project.MavenProject;
@@ -78,7 +79,9 @@ public class DefaultProjectFileSystemTest {
     final DefaultProjectFileSystem fs = newDefaultProjectFileSystem(project);
     assertThat(fs.hasJavaSourceFiles(), is(true));
 
-    project.setExclusionPatterns(new String[] { "**/*.java" });
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    conf.setProperty("sonar.exclusions", "**/*.java");
+    project.setConfiguration(conf);
     assertThat(fs.hasJavaSourceFiles(), is(false));
   }
 
@@ -92,7 +95,9 @@ public class DefaultProjectFileSystemTest {
 
   @Test
   public void applyExclusionPatternsToSourceFiles() {
-    project.setExclusionPatterns(new String[] { "**/B*.java" });
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    conf.setProperty("sonar.exclusions", "**/B*.java");
+    project.setConfiguration(conf);
 
     final DefaultProjectFileSystem fs = newDefaultProjectFileSystem(project);
 
@@ -105,7 +110,9 @@ public class DefaultProjectFileSystemTest {
    */
   @Test
   public void exclusionPatternOnAjFiles() {
-    project.setExclusionPatterns(new String[] { "**/*.aj" });
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    conf.setProperty("sonar.exclusions", "**/*.aj");
+    project.setConfiguration(conf);
 
     final DefaultProjectFileSystem fs = newDefaultProjectFileSystem(project);
 
@@ -116,7 +123,9 @@ public class DefaultProjectFileSystemTest {
 
   @Test
   public void doNotApplyExclusionPatternsToTestFiles() {
-    project.setExclusionPatterns(new String[] { "**/B*.java" });
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    conf.setProperty("sonar.exclusions", "**/B*.java");
+    project.setConfiguration(conf);
 
     final DefaultProjectFileSystem fs = newDefaultProjectFileSystem(project);
 

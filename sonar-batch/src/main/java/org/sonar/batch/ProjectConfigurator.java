@@ -70,21 +70,12 @@ public class ProjectConfigurator implements BatchComponent {
     Date analysisDate = loadAnalysisDate();
     project
         .setConfiguration(new PropertiesConfiguration()) // will be populated by ProjectSettings
-        .setExclusionPatterns(loadExclusionPatterns())
         .setAnalysisDate(analysisDate)
         .setLatestAnalysis(isLatestAnalysis(project.getKey(), analysisDate))
         .setAnalysisVersion(loadAnalysisVersion())
         .setAnalysisType(loadAnalysisType())
         .setLanguageKey(loadLanguageKey());
     return this;
-  }
-
-  String[] loadExclusionPatterns() {
-    String[] exclusionPatterns = settings.getStringArray(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY);
-    for (int i = 0; i < exclusionPatterns.length; i++) {
-      exclusionPatterns[i] = StringUtils.trim(exclusionPatterns[i]);
-    }
-    return exclusionPatterns;
   }
 
   boolean isLatestAnalysis(String projectKey, Date analysisDate) {
