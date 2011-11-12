@@ -89,19 +89,7 @@ public class ProjectSettings extends Settings {
   }
 
   private void updateDeprecatedCommonsConfiguration() {
-    System.out.println("---------- SETTINGS -------------");
-    for (String s : properties.keySet()) {
-      System.out.println(s + "=" + properties.get(s));
-    }
     ConfigurationUtils.copyToCommonsConfiguration(properties, deprecatedCommonsConf);
-
-    System.out.println("---------- DEP CONF -------------");
-    Iterator keys = deprecatedCommonsConf.getKeys();
-    while(keys.hasNext()) {
-      String key = (String)keys.next();
-      System.out.println(key + "=" + deprecatedCommonsConf.getString(key));
-    }
-    System.out.println("----------------------------------");
   }
 
   /**
