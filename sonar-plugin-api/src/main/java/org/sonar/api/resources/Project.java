@@ -372,11 +372,10 @@ public class Project extends Resource {
 
   /**
    * Set exclusion patterns. Configuration is not saved, so this method must be used ONLY IN UNIT TESTS.
-   * @deprecated
    */
-  @Deprecated
   public Project setExclusionPatterns(String[] s) {
-    throw new UnsupportedOperationException("Unsupported since version 2.12");
+    configuration.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, StringUtils.join(s, ","));
+    return this;
   }
 
   /**

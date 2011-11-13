@@ -92,4 +92,15 @@ public class ProjectTest {
     MatcherAssert.assertThat(project.getExclusionPatterns()[1], Is.is("foo"));
     MatcherAssert.assertThat(project.getExclusionPatterns()[2], Is.is("*/bar"));
   }
+
+  @Test
+  public void testSetExclusionPatterns() {
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    Project project = new Project("key").setConfiguration(conf);
+
+    project.setExclusionPatterns(new String[]{"**/*Foo.java", "**/*Bar.java"});
+    MatcherAssert.assertThat(project.getExclusionPatterns().length, Is.is(2));
+    MatcherAssert.assertThat(project.getExclusionPatterns()[0], Is.is("**/*Foo.java"));
+    MatcherAssert.assertThat(project.getExclusionPatterns()[1], Is.is("**/*Bar.java"));
+  }
 }
