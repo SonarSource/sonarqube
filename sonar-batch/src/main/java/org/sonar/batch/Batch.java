@@ -65,11 +65,14 @@ public final class Batch {
 
   /**
    * Used by Gradle 1.0
-   * @deprecated 
+   *
+   * @deprecated
    */
   @Deprecated
   public static Batch create(ProjectReactor projectReactor, Configuration configuration, Object... bootstrapperComponents) {
-    projectReactor.getRoot().setProperties(convertToProperties(configuration));
+    if (configuration != null) {
+      projectReactor.getRoot().setProperties(convertToProperties(configuration));
+    }
     return new Batch(projectReactor, bootstrapperComponents);
   }
 
@@ -77,7 +80,7 @@ public final class Batch {
     Properties props = new Properties();
     Iterator keys = configuration.getKeys();
     while (keys.hasNext()) {
-      String key = (String)keys.next();
+      String key = (String) keys.next();
       // Configuration#getString() automatically splits strings by comma separator.
       String value = StringUtils.join(configuration.getStringArray(key), ",");
       props.setProperty(key, value);
