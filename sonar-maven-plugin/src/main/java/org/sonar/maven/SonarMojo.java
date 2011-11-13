@@ -146,8 +146,7 @@ public final class SonarMojo extends AbstractMojo {
     ProjectDefinition def = MavenProjectConverter.convert(session.getSortedProjects(), project);
     ProjectReactor reactor = new ProjectReactor(def);
 
-    Batch batch = Batch.create(reactor, null,
-        session, getLog(), lifecycleExecutor, pluginManager, artifactFactory,
+    Batch batch = new Batch(reactor, session, getLog(), lifecycleExecutor, pluginManager, artifactFactory,
         localRepository, artifactMetadataSource, artifactCollector, dependencyTreeBuilder,
         projectBuilder, getEnvironmentInformation(), Maven2PluginExecutor.class);
     batch.execute();

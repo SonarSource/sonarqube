@@ -20,20 +20,29 @@
 package org.sonar.batch;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.BootstrapModule;
 import org.sonar.batch.bootstrap.Module;
 import org.sonar.batch.bootstrapper.Reactor;
 
+import java.util.Iterator;
+import java.util.Properties;
+
 public final class Batch {
 
   private Module bootstrapModule;
 
+  public Batch(ProjectReactor reactor, Object... bootstrapperComponents) {
+    this.bootstrapModule = new BootstrapModule(reactor, bootstrapperComponents).init();
+  }
+
   /**
-   * @deprecated since 2.9. Replaced by the factory method. Use by Ant Task 1.1
+   * @deprecated since 2.9 because commons-configuration is replaced by ProjectDefinition#properties. Used by Ant Task 1.1
    */
   @Deprecated
-  public Batch(Configuration configuration, Object... bootstrapperComponents) {
+  public Batch(Configuration configuration, Object... bootstrapperComponents) {//NOSONAR configuration is not needed
+    // because it's already included in ProjectDefinition.
     this.bootstrapModule = new BootstrapModule(extractProjectReactor(bootstrapperComponents), bootstrapperComponents).init();
   }
 
@@ -54,12 +63,26 @@ public final class Batch {
     return deprecatedReactor.toProjectReactor();
   }
 
-  private Batch(ProjectReactor reactor, Object... bootstrapperComponents) {
-    this.bootstrapModule = new BootstrapModule(reactor, bootstrapperComponents).init();
+  /**
+   * Used by Gradle 1.0
+   * @deprecated 
+   */
+  @Deprecated
+  public static Batch create(ProjectReactor projectReactor, Configuration configuration, Object... bootstrapperComponents) {
+    projectReactor.getRoot().setProperties(convertToProperties(configuration));
+    return new Batch(projectReactor, bootstrapperComponents);
   }
 
-  public static Batch create(ProjectReactor projectReactor, Configuration configuration, Object... bootstrapperComponents) {
-    return new Batch(projectReactor, bootstrapperComponents);
+  static Properties convertToProperties(Configuration configuration) {
+    Properties props = new Properties();
+    Iterator keys = configuration.getKeys();
+    while (keys.hasNext()) {
+      String key = (String)keys.next();
+      // Configuration#getString() automatically splits strings by comma separator.
+      String value = StringUtils.join(configuration.getStringArray(key), ",");
+      props.setProperty(key, value);
+    }
+    return props;
   }
 
   /**

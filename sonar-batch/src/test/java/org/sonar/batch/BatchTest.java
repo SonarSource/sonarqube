@@ -19,8 +19,13 @@
  */
 package org.sonar.batch;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.Module;
+
+import java.util.Properties;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -59,4 +64,17 @@ public class BatchTest {
     }
   }
 
+  @Test
+  public void shouldConvertCommonsConfigurationToProperties() {
+    PropertiesConfiguration commonsConf = new PropertiesConfiguration();
+    commonsConf.setProperty("foo", "Foo");
+    commonsConf.setProperty("list", "One,Two");
+    assertThat(commonsConf.getString("list"), is("One"));
+    assertThat(commonsConf.getStringArray("list")[0], is("One"));
+    assertThat(commonsConf.getStringArray("list")[1], is("Two"));
+
+    Properties props = Batch.convertToProperties(commonsConf);
+    assertThat(props.getProperty("foo"), is("Foo"));
+    assertThat(props.getProperty("list"), is("One,Two"));
+  }
 }
