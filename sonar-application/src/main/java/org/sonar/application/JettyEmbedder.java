@@ -89,7 +89,6 @@ public class JettyEmbedder {
         }
       }
     });
-//    LoggerFactory.getLogger("org.sonar.INFO").info("Sonar started: " + toString());
   }
 
   private Server configureProgrammatically() throws URISyntaxException, IOException {

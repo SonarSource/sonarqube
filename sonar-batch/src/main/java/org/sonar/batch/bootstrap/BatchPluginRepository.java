@@ -61,7 +61,6 @@ public class BatchPluginRepository implements PluginRepository {
       blackList = Sets.newTreeSet(Arrays.asList(settings.getStringArray(CoreProperties.BATCH_EXCLUDE_PLUGINS)));
       LOG.info("Exclude plugins: " + Joiner.on(", ").join(blackList));
     }
-    // TODO reactivate somewhere else:  LOG.info("Execution environment: {} {}", environment.getKey(), environment.getVersion());
   }
 
   public void start() {
@@ -77,7 +76,7 @@ public class BatchPluginRepository implements PluginRepository {
         List<File> extensionFiles = pluginFiles.subList(1, pluginFiles.size());
         PluginMetadata metadata = extractor.installInSameLocation(pluginFiles.get(0), remote.isCore(), extensionFiles);
         if (StringUtils.isBlank(metadata.getBasePlugin()) || isAccepted(metadata.getBasePlugin())) {
-          // TODO log when excluding plugin
+          LOG.debug("Excluded plugin: " + metadata.getKey());
           metadataByKey.put(metadata.getKey(), metadata);
         }
       }
