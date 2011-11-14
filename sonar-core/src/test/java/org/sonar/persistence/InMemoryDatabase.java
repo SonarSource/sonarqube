@@ -149,6 +149,10 @@ public class InMemoryDatabase implements Database {
     return new Derby();
   }
 
+  public String getSchema() {
+    return null;
+  }
+
   public Properties getHibernateProperties() {
     Properties properties = new Properties();
     properties.put("hibernate.hbm2ddl.auto", "validate");

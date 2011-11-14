@@ -42,5 +42,7 @@ public interface Database {
    */
   Dialect getDialect();
 
+  String getSchema();
+
   Properties getHibernateProperties();
 }

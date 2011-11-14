@@ -28,10 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
-import org.sonar.jpa.dialect.Dialect;
-import org.sonar.jpa.dialect.DialectRepository;
-import org.sonar.jpa.dialect.Oracle;
-import org.sonar.jpa.dialect.PostgreSql;
+import org.sonar.jpa.dialect.*;
 import org.sonar.jpa.session.CustomHibernateConnectionProvider;
 
 import javax.sql.DataSource;
@@ -50,6 +47,7 @@ public class DefaultDatabase implements Database {
   private Settings settings;
   private BasicDataSource datasource;
   private Dialect dialect;
+  private String schema;
 
   public DefaultDatabase(Settings settings) {
     this.settings = settings;
@@ -61,7 +59,8 @@ public class DefaultDatabase implements Database {
 
       Properties properties = getProperties();
       dialect = initDialect(properties);
-      datasource = initDatasource(properties, dialect);
+      schema = initSchema(properties, dialect);
+      datasource = initDatasource(properties, dialect, schema);
       return this;
 
     } catch (Exception e) {
@@ -69,18 +68,29 @@ public class DefaultDatabase implements Database {
     }
   }
 
-  BasicDataSource initDatasource(Properties properties, Dialect dialect) throws Exception {
-    LOG.info("Create JDBC datasource");
-    BasicDataSource result = (BasicDataSource) BasicDataSourceFactory.createDataSource(extractCommonsDbcpProperties(properties));
-    result.setConnectionInitSqls(getConnectionInitStatements(properties, dialect));
+  static Dialect initDialect(Properties properties) {
+    Dialect result = DialectRepository.find(properties.getProperty("sonar.jdbc.dialect"), properties.getProperty("sonar.jdbc.url"));
+    if (result != null && Derby.ID.equals(result.getId())) {
+      LoggerFactory.getLogger(DefaultDatabase.class).warn("Derby database should be used for evaluation purpose only");
+    }
     return result;
   }
 
-  Dialect initDialect(Properties properties) {
-    Dialect result = DialectRepository.find(properties.getProperty("sonar.jdbc.dialect"), properties.getProperty("sonar.jdbc.url"));
-    if (result != null && "derby".equals(result.getId())) {
-      LoggerFactory.getLogger(getClass()).warn("Derby database should be used for evaluation purpose only");
+  static String initSchema(Properties properties, Dialect dialect) {
+    String result = null;
+    if (PostgreSql.ID.equals(dialect.getId())) {
+      result = getSchemaPropertyValue(properties, "sonar.jdbc.postgreSearchPath");
+
+    } else if (Oracle.ID.equals(dialect.getId())) {
+      result = getSchemaPropertyValue(properties, "sonar.hibernate.default_schema");
     }
+    return StringUtils.isNotBlank(result) ? result : null;
+  }
+
+  static BasicDataSource initDatasource(Properties properties, Dialect dialect, String schema) throws Exception {
+    LOG.info("Create JDBC datasource");
+    BasicDataSource result = (BasicDataSource) BasicDataSourceFactory.createDataSource(extractCommonsDbcpProperties(properties));
+    result.setConnectionInitSqls(getConnectionInitStatements(dialect, schema));
     return result;
   }
 
@@ -107,6 +117,10 @@ public class DefaultDatabase implements Database {
     return dialect;
   }
 
+  public final String getSchema() {
+    return schema;
+  }
+
   public Properties getHibernateProperties() {
     Properties props = new Properties();
 
@@ -118,6 +132,10 @@ public class DefaultDatabase implements Database {
     props.put("hibernate.generate_statistics", settings.getBoolean(DatabaseProperties.PROP_HIBERNATE_GENERATE_STATISTICS));
     props.put("hibernate.hbm2ddl.auto", "validate");
     props.put(Environment.CONNECTION_PROVIDER, CustomHibernateConnectionProvider.class.getName());
+
+    if (schema!=null) {
+      props.put("hibernate.default_schema", schema);
+    }
     return props;
   }
 
@@ -161,23 +179,20 @@ public class DefaultDatabase implements Database {
     return result;
   }
 
-  static List<String> getConnectionInitStatements(Properties properties, Dialect dialect) {
+  static List<String> getConnectionInitStatements(Dialect dialect, String schema) {
     List<String> result = Lists.newArrayList();
-    if (PostgreSql.ID.equals(dialect.getId())) {
-      String searchPath = getSchema(properties, "sonar.jdbc.postgreSearchPath");
-      if (StringUtils.isNotBlank(searchPath)) {
-        result.add("SET SEARCH_PATH TO " + searchPath);
-      }
-    } else if (Oracle.ID.equals(dialect.getId())) {
-      String schema = getSchema(properties, "sonar.hibernate.default_schema");
-      if (StringUtils.isNotBlank(schema)) {
+    if (StringUtils.isNotBlank(schema)) {
+      if (PostgreSql.ID.equals(dialect.getId())) {
+        result.add("SET SEARCH_PATH TO " + schema);
+
+      } else if (Oracle.ID.equals(dialect.getId())) {
         result.add("ALTER SESSION SET CURRENT SCHEMA = " + schema);
       }
     }
     return result;
   }
 
-  static String getSchema(Properties props, String deprecatedKey) {
+  static String getSchemaPropertyValue(Properties props, String deprecatedKey) {
     String value = props.getProperty("sonar.jdbc.schema");
     if (StringUtils.isBlank(value) && deprecatedKey != null) {
       value = props.getProperty(deprecatedKey);

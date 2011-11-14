@@ -173,9 +173,9 @@ public final class JRubyFacade {
   public Collection<Language> getLanguages() {
     return getContainer().getComponentsByType(Language.class);
   }
-  
-  public Dialect getDialect() {
-    return getContainer().getComponentByType(Database.class).getDialect();
+
+  public Database getDatabase() {
+    return getContainer().getComponentByType(Database.class);
   }
 
   public boolean createDatabase() {

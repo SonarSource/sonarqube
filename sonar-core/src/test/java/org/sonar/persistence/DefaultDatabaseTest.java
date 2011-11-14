@@ -23,6 +23,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.jpa.dialect.MySql;
 import org.sonar.jpa.dialect.Oracle;
 import org.sonar.jpa.dialect.PostgreSql;
 
@@ -30,6 +31,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class DefaultDatabaseTest {
@@ -117,10 +119,7 @@ public class DefaultDatabaseTest {
    */
   @Test
   public void shouldChangePostgreSearchPath() {
-    Properties props = new Properties();
-    props.setProperty("sonar.jdbc.postgreSearchPath", "my_schema");
-
-    List<String> statements = DefaultDatabase.getConnectionInitStatements(props, new PostgreSql());
+    List<String> statements = DefaultDatabase.getConnectionInitStatements(new PostgreSql(), "my_schema");
 
     assertThat(statements.size(), Is.is(1));
     assertThat(statements.get(0), Is.is("SET SEARCH_PATH TO my_schema"));
@@ -128,7 +127,7 @@ public class DefaultDatabaseTest {
 
   @Test
   public void shouldNotChangePostgreSearchPathByDefault() {
-    List<String> statements = DefaultDatabase.getConnectionInitStatements(new Properties(), new PostgreSql());
+    List<String> statements = DefaultDatabase.getConnectionInitStatements(new PostgreSql(), null);
 
     assertThat(statements.size(), Is.is(0));
   }
@@ -138,10 +137,7 @@ public class DefaultDatabaseTest {
    */
   @Test
   public void shouldAlterOracleSession() {
-    Properties props = new Properties();
-    props.setProperty("sonar.hibernate.default_schema", "my_schema");
-
-    List<String> statements = DefaultDatabase.getConnectionInitStatements(props, new Oracle());
+    List<String> statements = DefaultDatabase.getConnectionInitStatements(new Oracle(), "my_schema");
 
     assertThat(statements.size(), Is.is(1));
     assertThat(statements.get(0), Is.is("ALTER SESSION SET CURRENT SCHEMA = my_schema"));
@@ -149,30 +145,72 @@ public class DefaultDatabaseTest {
 
   @Test
   public void shouldNotAlterOracleSessionByDefault() {
-    List<String> statements = DefaultDatabase.getConnectionInitStatements(new Properties(), new Oracle());
+    List<String> statements = DefaultDatabase.getConnectionInitStatements(new Oracle(), null);
 
     assertThat(statements.size(), Is.is(0));
   }
 
   @Test
-  public void shouldSupportGenericSchemaPropertyForPostgreSQL() {
+  public void shouldInitPostgresqlSchema() {
     Properties props = new Properties();
     props.setProperty("sonar.jdbc.schema", "my_schema");
 
-    List<String> statements = DefaultDatabase.getConnectionInitStatements(props, new PostgreSql());
+    String schema = DefaultDatabase.initSchema(props, new PostgreSql());
 
-    assertThat(statements.size(), Is.is(1));
-    assertThat(statements.get(0), Is.is("SET SEARCH_PATH TO my_schema"));
+    assertThat(schema, Is.is("my_schema"));
   }
 
   @Test
-  public void shouldSupportGenericSchemaPropertyForOracle() {
+  public void shouldInitPostgresqlSchemaWithDeprecatedProperty() {
+    Properties props = new Properties();
+    props.setProperty("sonar.jdbc.postgreSearchPath", "my_schema");
+
+    String schema = DefaultDatabase.initSchema(props, new PostgreSql());
+
+    assertThat(schema, Is.is("my_schema"));
+  }
+
+  @Test
+  public void shouldNotInitPostgresqlSchemaByDefault() {
+    String schema = DefaultDatabase.initSchema(new Properties(), new PostgreSql());
+
+    assertThat(schema, nullValue());
+  }
+
+  @Test
+  public void shouldInitOracleSchema() {
     Properties props = new Properties();
     props.setProperty("sonar.jdbc.schema", "my_schema");
 
-    List<String> statements = DefaultDatabase.getConnectionInitStatements(props, new Oracle());
+    String schema = DefaultDatabase.initSchema(props, new Oracle());
 
-    assertThat(statements.size(), Is.is(1));
-    assertThat(statements.get(0), Is.is("ALTER SESSION SET CURRENT SCHEMA = my_schema"));
+    assertThat(schema, Is.is("my_schema"));
+  }
+
+  @Test
+  public void shouldInitOracleSchemaWithDeprecatedProperty() {
+    Properties props = new Properties();
+    props.setProperty("sonar.hibernate.default_schema", "my_schema");
+
+    String schema = DefaultDatabase.initSchema(props, new Oracle());
+
+    assertThat(schema, Is.is("my_schema"));
+  }
+
+  @Test
+  public void shouldNotInitOracleSchemaByDefault() {
+    String schema = DefaultDatabase.initSchema(new Properties(), new Oracle());
+
+    assertThat(schema, nullValue());
+  }
+
+  @Test
+  public void shouldNotSchemaOnOtherDatabases() {
+    Properties props = new Properties();
+    props.setProperty("sonar.jdbc.schema", "my_schema");
+
+    String schema = DefaultDatabase.initSchema(props, new MySql());
+
+    assertThat(schema, nullValue());
   }
 }

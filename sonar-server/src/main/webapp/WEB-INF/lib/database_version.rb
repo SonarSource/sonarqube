@@ -101,7 +101,7 @@ class DatabaseVersion
   end
 
   def self.dialect
-    ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDialect().getActiveRecordDialectCode()
+    ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDialect().getActiveRecordDialectCode()
   end
 
   def self.use_structure_dump?

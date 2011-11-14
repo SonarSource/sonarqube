@@ -55,7 +55,7 @@ end
 
 class ActiveRecord::Migration
   def self.alter_to_big_primary_key(tablename)
-    dialect = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDialect().getActiveRecordDialectCode()
+    dialect = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDialect().getActiveRecordDialectCode()
     case dialect
     when "postgre"
       execute "ALTER TABLE #{tablename} ALTER COLUMN id TYPE bigint"
@@ -74,7 +74,7 @@ class ActiveRecord::Migration
   end
 
   def self.alter_to_big_integer(tablename, columnname, indexname=nil)
-    dialect = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDialect().getActiveRecordDialectCode()
+    dialect = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDialect().getActiveRecordDialectCode()
     case dialect
      when "sqlserver"
      		execute "DROP INDEX #{indexname} on #{tablename}" if indexname
