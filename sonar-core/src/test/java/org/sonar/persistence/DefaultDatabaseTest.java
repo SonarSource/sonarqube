@@ -140,7 +140,7 @@ public class DefaultDatabaseTest {
     List<String> statements = DefaultDatabase.getConnectionInitStatements(new Oracle(), "my_schema");
 
     assertThat(statements.size(), Is.is(1));
-    assertThat(statements.get(0), Is.is("ALTER SESSION SET CURRENT SCHEMA = my_schema"));
+    assertThat(statements.get(0), Is.is("ALTER SESSION SET CURRENT_SCHEMA = my_schema"));
   }
 
   @Test

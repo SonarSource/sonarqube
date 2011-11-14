@@ -186,7 +186,7 @@ public class DefaultDatabase implements Database {
         result.add("SET SEARCH_PATH TO " + schema);
 
       } else if (Oracle.ID.equals(dialect.getId())) {
-        result.add("ALTER SESSION SET CURRENT SCHEMA = " + schema);
+        result.add("ALTER SESSION SET CURRENT_SCHEMA = " + schema);
       }
     }
     return result;
