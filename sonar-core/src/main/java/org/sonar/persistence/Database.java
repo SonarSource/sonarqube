@@ -42,10 +42,5 @@ public interface Database {
    */
   Dialect getDialect();
 
-  /**
-   * @return the schema or null if not defined or if start() has not been executed
-   */
-  String getSchema();
-  
   Properties getHibernateProperties();
 }

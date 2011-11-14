@@ -23,8 +23,11 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.jpa.dialect.Oracle;
+import org.sonar.jpa.dialect.PostgreSql;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Properties;
 
 import static org.junit.Assert.assertThat;
@@ -107,5 +110,69 @@ public class DefaultDatabaseTest {
     } finally {
       DerbyUtils.dropInMemoryDatabase();
     }
+  }
+
+  /**
+   * Avoid conflicts with other schemas
+   */
+  @Test
+  public void shouldChangePostgreSearchPath() {
+    Properties props = new Properties();
+    props.setProperty("sonar.jdbc.postgreSearchPath", "my_schema");
+
+    List<String> statements = DefaultDatabase.getConnectionInitStatements(props, new PostgreSql());
+
+    assertThat(statements.size(), Is.is(1));
+    assertThat(statements.get(0), Is.is("SET SEARCH_PATH TO my_schema"));
+  }
+
+  @Test
+  public void shouldNotChangePostgreSearchPathByDefault() {
+    List<String> statements = DefaultDatabase.getConnectionInitStatements(new Properties(), new PostgreSql());
+
+    assertThat(statements.size(), Is.is(0));
+  }
+
+  /**
+   * Avoid conflicts with other schemas
+   */
+  @Test
+  public void shouldAlterOracleSession() {
+    Properties props = new Properties();
+    props.setProperty("sonar.hibernate.default_schema", "my_schema");
+
+    List<String> statements = DefaultDatabase.getConnectionInitStatements(props, new Oracle());
+
+    assertThat(statements.size(), Is.is(1));
+    assertThat(statements.get(0), Is.is("ALTER SESSION SET CURRENT SCHEMA = my_schema"));
+  }
+
+  @Test
+  public void shouldNotAlterOracleSessionByDefault() {
+    List<String> statements = DefaultDatabase.getConnectionInitStatements(new Properties(), new Oracle());
+
+    assertThat(statements.size(), Is.is(0));
+  }
+
+  @Test
+  public void shouldSupportGenericSchemaPropertyForPostgreSQL() {
+    Properties props = new Properties();
+    props.setProperty("sonar.jdbc.schema", "my_schema");
+
+    List<String> statements = DefaultDatabase.getConnectionInitStatements(props, new PostgreSql());
+
+    assertThat(statements.size(), Is.is(1));
+    assertThat(statements.get(0), Is.is("SET SEARCH_PATH TO my_schema"));
+  }
+
+  @Test
+  public void shouldSupportGenericSchemaPropertyForOracle() {
+    Properties props = new Properties();
+    props.setProperty("sonar.jdbc.schema", "my_schema");
+
+    List<String> statements = DefaultDatabase.getConnectionInitStatements(props, new Oracle());
+
+    assertThat(statements.size(), Is.is(1));
+    assertThat(statements.get(0), Is.is("ALTER SESSION SET CURRENT SCHEMA = my_schema"));
   }
 }

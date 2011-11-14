@@ -5,7 +5,7 @@
 
   <select id="selectCandidates" parameterType="map" resultType="DuplicationUnit">
     SELECT DISTINCT to_blocks.hash hash, res.kee resourceKey, to_blocks.index_in_file indexInFile, to_blocks.start_line startLine, to_blocks.end_line endLine
-    FROM ${_schema}duplications_index to_blocks, ${_schema}duplications_index from_blocks, ${_schema}snapshots snapshot, ${_schema}projects res
+    FROM duplications_index to_blocks, duplications_index from_blocks, snapshots snapshot, projects res
     WHERE from_blocks.snapshot_id = #{resource_snapshot_id}
     AND to_blocks.hash = from_blocks.hash
     AND to_blocks.snapshot_id = snapshot.id
@@ -17,7 +17,7 @@
   </select>
 
   <insert id="batchInsert" parameterType="DuplicationUnit" keyColumn="id" useGeneratedKeys="false">
-    INSERT INTO ${_schema}duplications_index (snapshot_id, project_snapshot_id, hash, index_in_file, start_line, end_line)
+    INSERT INTO duplications_index (snapshot_id, project_snapshot_id, hash, index_in_file, start_line, end_line)
     VALUES (#{snapshotId}, #{projectSnapshotId}, #{hash}, #{indexInFile}, #{startLine}, #{endLine})
   </insert>
 
