@@ -11,7 +11,11 @@ class ActiveRecord::Base
       config[:url] << config[:pg_params] if config[:pg_params]
       config[:driver] ||= "org.postgresql.Driver"
       conn = jdbc_connection(config)
-      conn.execute("SET SEARCH_PATH TO #{config[:schema_search_path]}") if config[:schema_search_path]
+
+      #sonar
+      # Not required because connection is already initialized by the pool (Commons DBCP)
+      #conn.execute("SET SEARCH_PATH TO #{config[:schema_search_path]}") if config[:schema_search_path]
+      #/sonar
       conn
     end
     alias_method :jdbcpostgresql_connection, :postgresql_connection

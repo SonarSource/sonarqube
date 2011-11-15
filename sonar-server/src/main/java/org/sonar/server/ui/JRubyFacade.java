@@ -295,7 +295,7 @@ public final class JRubyFacade {
 
   public Connection getConnection() {
     try {
-      return getContainer().getComponentByType(DatabaseConnector.class).getConnection();
+      return getContainer().getComponentByType(Database.class).getDataSource().getConnection();
     } catch (Exception e) {
       /* activerecord does not correctly manage exceptions when connection can not be opened. */
       return null;
