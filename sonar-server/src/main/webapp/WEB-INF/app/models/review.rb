@@ -24,7 +24,6 @@ class Review < ActiveRecord::Base
   belongs_to :project, :class_name => "Project", :foreign_key => "project_id"
   has_many :review_comments, :order => "created_at", :dependent => :destroy
   alias_attribute :comments, :review_comments
-  belongs_to :rule_failure, :foreign_key => 'rule_failure_permanent_id', :primary_key => 'permanent_id'
   
   validates_presence_of :user, :message => "can't be empty"
   validates_presence_of :status, :message => "can't be empty"
@@ -44,6 +43,15 @@ class Review < ActiveRecord::Base
     @rule ||= 
       begin
         rule_failure ? rule_failure.rule : nil
+      end
+  end
+  
+  def rule_failure
+    @rule_failure ||=
+      begin
+        # We need to manually run this DB request as the real relation Reviews-RuleFailures is 1:n but we want only 1 violation
+        # (more than 1 violation can have the same "permanent_id" when several analyses are run in a small time frame)
+        RuleFailure.find(:last, :conditions => {:permanent_id => rule_failure_permanent_id}, :order => 'id asc')
       end
   end
 
