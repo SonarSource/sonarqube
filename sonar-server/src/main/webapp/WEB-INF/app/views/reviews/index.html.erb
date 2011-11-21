@@ -81,7 +81,8 @@ function launchSearch(columnName, link) {
           <span class="note"><%= message('identifier_abbreviated') -%></span><br/>
           <%= text_field_tag "review_id", @id, :size => 10, :onkeyup => "reviewIdFieldModified(this)" -%>
           <br/>
-          <br/>
+          <span class="note"><%= message('page_size') -%></span><br/>
+          <%= text_field_tag "page_size", @page_size, { :class => "max-width" } -%>
           <br/>
           <br/>
           <div style="width:100%; text-align: right">
@@ -132,9 +133,19 @@ function launchSearch(columnName, link) {
       </tr>
       </thead>
       <tfoot>
-      <tr>
-        <td colspan="6"><%= @reviews.size -%> <%= message('results') -%>
-      </tr>
+        <tr>
+          <td colspan="6">
+            <%= @reviews.size -%> <%= message('results').downcase -%>
+	        <% if @page_count %>
+	          |
+	          <%= link_to_if @page_id>1, 'previous', {:overwrite_params => {:page_id => @page_id-1}} %>
+	          <% for index in 1..@page_count %>
+	            <%= link_to_unless index==@page_id, index.to_s, {:overwrite_params => {:page_id => index}} %>
+	          <% end %>
+	          <%= link_to_if @page_id<@page_count, 'next', {:overwrite_params => {:page_id => 1+@page_id}} %>
+	        <% end %>
+          </td>
+        </tr>
       </tfoot>
       <tbody>
       <%
@@ -155,8 +166,10 @@ function launchSearch(columnName, link) {
               <%= comment.excerpt -%>
 	        </div>            
           </td>
-          <td><%= review.project.name -%>
-            <br/><span class="note"><%= review.resource.long_name -%></span></td>
+          <td>
+            <span class="nowrap"><%= review.project.name -%></span>
+            <br/>
+            <span class="note"><%= review.resource.name -%></span></td>
           <td><%= review.assignee ? h(review.assignee.name) : '-' -%></td>
           <td><%= distance_of_time_in_words_to_now(review.updated_at) -%></td>
         </tr>
