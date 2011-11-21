@@ -39,6 +39,9 @@ public class ChidamberKemererBridge extends Bridge {
   }
 
   static double getLcom4(SourceFile squidFile) {
+    // Squid API does not support null values, so sometimes it returns LCOM4 values with value 0. It occurs
+    // for example with files without any classes, like package-info.java.
+    // Minimum value must be 1.
     return Math.max(squidFile.getDouble(Metric.LCOM4), 1.0);
   }
 }
