@@ -110,7 +110,7 @@ public interface CoreProperties {
   /* Cobertura */
   String COBERTURA_PLUGIN = "cobertura";
   String COBERTURA_REPORT_PATH_PROPERTY = "sonar.cobertura.reportPath";
-  String COBERTURA_MAXMEM_PROPERTY = "sonar.cobertura.maxmen";
+  String COBERTURA_MAXMEM_PROPERTY = "sonar.cobertura.maxmem";
   String COBERTURA_MAXMEM_DEFAULT_VALUE = "64m";
 
   /* Sonar Core */
