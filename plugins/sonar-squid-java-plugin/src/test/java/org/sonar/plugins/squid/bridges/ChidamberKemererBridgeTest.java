@@ -23,13 +23,15 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
+import org.sonar.squid.api.SourceFile;
+import org.sonar.squid.measures.Metric;
+import org.sonar.squid.measures.MetricDef;
 
 public class ChidamberKemererBridgeTest extends BridgeTestCase {
 
@@ -57,5 +59,19 @@ public class ChidamberKemererBridgeTest extends BridgeTestCase {
     verify(context).saveMeasure(eq(new JavaFile("org.apache.struts.config.BaseConfig")), eq(CoreMetrics.LCOM4), anyDouble());
     verify(context, never()).saveMeasure(eq(new JavaPackage("org.apache.struts.config")), eq(CoreMetrics.LCOM4), anyDouble());
     verify(context, never()).saveMeasure(eq(project), eq(CoreMetrics.LCOM4), anyDouble());
+  }
+
+  @Test
+  public void lcom4ShouldBeGreaterThanZero() {
+    SourceFile sourceFile = mock(SourceFile.class);
+
+    when(sourceFile.getDouble(Metric.LCOM4)).thenReturn(2.0);
+    assertThat(ChidamberKemererBridge.getLcom4(sourceFile), is(2.0));
+
+    when(sourceFile.getDouble(Metric.LCOM4)).thenReturn(1.0);
+    assertThat(ChidamberKemererBridge.getLcom4(sourceFile), is(1.0));
+
+    when(sourceFile.getDouble(Metric.LCOM4)).thenReturn(0.0);
+    assertThat(ChidamberKemererBridge.getLcom4(sourceFile), is(1.0));
   }
 }
