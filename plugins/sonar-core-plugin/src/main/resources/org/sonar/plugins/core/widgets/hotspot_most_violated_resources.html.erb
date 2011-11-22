@@ -53,7 +53,7 @@
 %>
     <tr class="<%= cycle 'even','odd', :name => ('hotspot_most_violated_resources' + widget.id.to_s) -%>">
       <td>
-        <%= link_to_resource(resource, resource.name) -%>
+        <%= link_to_resource(resource, resource.name, {:tab => :violations}) -%>
       </td>
       <td class="small right">
         <%= image_tag('priority/BLOCKER.png') -%>
