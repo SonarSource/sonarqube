@@ -65,7 +65,10 @@ public class CoberturaMavenPluginHandler implements MavenPluginHandler {
       }
       coberturaPlugin.addParameter("instrumentation/excludes/exclude", pattern);
     }
-    coberturaPlugin.setParameter("maxmem", project.getConfiguration().getString(CoreProperties.COBERTURA_MAXMEM_PROPERTY,
-        CoreProperties.COBERTURA_MAXMEM_DEFAULT_VALUE));
+    // http://jira.codehaus.org/browse/SONAR-2897: there used to be a typo in the parameter name (was "sonar.cobertura.maxmen")
+    coberturaPlugin.setParameter(
+        "maxmem",
+        project.getConfiguration().getString(CoreProperties.COBERTURA_MAXMEM_PROPERTY,
+            project.getConfiguration().getString("sonar.cobertura.maxmen", CoreProperties.COBERTURA_MAXMEM_DEFAULT_VALUE)));
   }
 }

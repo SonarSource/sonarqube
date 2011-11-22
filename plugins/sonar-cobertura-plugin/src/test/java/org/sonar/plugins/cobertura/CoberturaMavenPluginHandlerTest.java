@@ -24,6 +24,8 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.maven.project.MavenProject;
 import org.junit.Before;
@@ -33,6 +35,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.plugins.cobertura.api.CoberturaUtils;
 
 public class CoberturaMavenPluginHandlerTest {
+
   protected CoberturaMavenPluginHandler handler;
 
   @Before
@@ -73,6 +76,21 @@ public class CoberturaMavenPluginHandlerTest {
     assertThat(coberturaPlugin.getParameters("instrumentation/excludes/exclude")[0], is("**/Foo.class"));
     assertThat(coberturaPlugin.getParameters("instrumentation/excludes/exclude")[1], is("com/*Test.*"));
     assertThat(coberturaPlugin.getParameters("instrumentation/excludes/exclude")[2], is("com/*.class"));
+  }
 
+  @Test
+  // http://jira.codehaus.org/browse/SONAR-2897: there used to be a typo in the parameter name (was "sonar.cobertura.maxmen")
+  public void checkOldParamNameCompatibility() {
+    Configuration conf = new BaseConfiguration();
+    conf.setProperty("sonar.cobertura.maxmen", "FOO");
+    Project project = mock(Project.class);
+    when(project.getConfiguration()).thenReturn(conf);
+    when(project.getPom()).thenReturn(new MavenProject());
+    when(project.getExclusionPatterns()).thenReturn(new String[0]);
+
+    MavenPlugin coberturaPlugin = new MavenPlugin(CoberturaUtils.COBERTURA_GROUP_ID, CoberturaUtils.COBERTURA_ARTIFACT_ID, null);
+    handler.configure(project, coberturaPlugin);
+
+    assertThat(coberturaPlugin.getParameter("maxmem"), is("FOO"));
   }
 }
