@@ -48,7 +48,9 @@
         if metric_count_per_snapshot_id[metric_data[:sid]]==total_number_of_metrics
           m_date = metric_data[:date]
           # Only Oracle returns a Time object, so let's parse this string if it's not a Time instance
-          m_date = Time.parse(metric_data[:date]) unless m_date.is_a? Time 
+          m_date = Time.parse(metric_data[:date]) unless m_date.is_a? Time
+          m_value = sprintf( "%0.02f", metric_data[:value])
+          m_value_localized = (m_value.end_with? '.00') ? number_with_precision(metric_data[:value], :precision => 0).to_s : number_with_precision(metric_data[:value], :precision => 2).to_s
           js_data += "{x:d("
           js_data += m_date.year.to_s
           js_data += ","
@@ -63,8 +65,10 @@
           js_data += ","
           js_data += m_date.sec.to_s
           js_data += "),y:" 
-          js_data += sprintf( "%0.02f", metric_data[:value])
-          js_data +=  "},"
+          js_data += m_value
+          js_data +=  ",yl:\""
+          js_data += m_value_localized
+          js_data +=  "\"},"
           if index == 0
             # we fill the js_snapshots array (no need to do this more than once)
             js_snapshots += "{sid:"

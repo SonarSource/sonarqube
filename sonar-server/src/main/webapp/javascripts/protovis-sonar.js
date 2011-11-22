@@ -213,8 +213,8 @@ SonarWidgets.StackArea.prototype.render = function() {
  * Displays the evolution of metrics on a line chart, displaying related events.
  * 
  * Parameters of the Timeline class:
- *   - data: array of arrays, each containing maps {x,y} where x is a (JS) date and y is a number value (representing a metric value at
- *           a given time). The {x,y} maps must be sorted by ascending date.
+ *   - data: array of arrays, each containing maps {x,y,yl} where x is a (JS) date, y is a number value (representing a metric value at
+ *           a given time), and yl the localized value of y. The {x,y, yl} maps must be sorted by ascending date.
  *   - metrics: array of metric names. The order is important as it defines which array of the "data" parameter represents which metric.
  *   - snapshots: array of maps {sid,d} where sid is the snapshot id and d is the locale-formatted date of the snapshot. The {sid,d} 
  *                maps must be sorted by ascending date.
@@ -229,8 +229,8 @@ function d(y,m,d,h,min,s) {
   return new Date(y,m,d,h,min,s);
 }
 var data = [
-            [{x:d(2011,5,15,0,1,0),y:912.00},{x:d(2011,6,21,0,1,0)],
-            [{x:d(2011,5,15,0,1,0),y:52.20},{x:d(2011,6,21,0,1,0),y:52.10}]
+            [{x:d(2011,5,15,0,1,0),y:912.00,yl:"912"},{x:d(2011,6,21,0,1,0),y:152.10,yl:"152.10"}],
+            [{x:d(2011,5,15,0,1,0),y:52.20,yi:"52.20"},{x:d(2011,6,21,0,1,0),y:1452.10,yi:"1,452.10"}]
            ];
 var metrics = ["Lines of code","Rules compliance"];
 var snapshots = [{sid:1,d:"June 15, 2011 00:01"},{sid:30,d:"July 21, 2011 00:01"}];
@@ -336,7 +336,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 		.interpolate(function() {return interpolate;})
 		.lineWidth(2);
 
-	/* The mouseover dots and label in footer. */
+	/* The mouseover dots and label in header. */
 	line.add(pv.Dot)
 		.data(function(d) {return [d[idx]];})
 		.fillStyle(function() {return line.strokeStyle();})
@@ -349,7 +349,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 		.top(function() {return 10 + this.parent.index * 14;})
 		.anchor("right").add(pv.Label)
 		.font(headerFont)
-		.text(function(d) {return metrics[this.parent.index] + ": " + d.y.toFixed(2);});
+		.text(function(d) {return metrics[this.parent.index] + ": " + d.yl;});
 	
 	/* The date of the selected dot in the header. */
 	vis.add(pv.Label)
