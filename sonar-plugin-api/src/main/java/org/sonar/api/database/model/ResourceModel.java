@@ -62,7 +62,7 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
   @Column(name = "scope", updatable = true, nullable = false, length = 3)
   private String scope;
 
-  @Column(name = "qualifier", updatable = true, nullable = false, length = 3)
+  @Column(name = "qualifier", updatable = true, nullable = false, length = 10)
   private String qualifier;
 
   @Column(name = "kee", updatable = false, nullable = false, length = KEY_SIZE)

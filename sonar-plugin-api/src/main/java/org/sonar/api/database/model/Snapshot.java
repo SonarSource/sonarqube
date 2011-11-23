@@ -71,7 +71,7 @@ public class Snapshot extends BaseIdentifiable {
   @Column(name = "depth", updatable = true, nullable = true)
   private Integer depth;
 
-  @Column(name = "qualifier", updatable = true, nullable = true, length = 3)
+  @Column(name = "qualifier", updatable = true, nullable = true, length = 10)
   private String qualifier;
 
   @Column(name = "root_snapshot_id", updatable = true, nullable = true)
