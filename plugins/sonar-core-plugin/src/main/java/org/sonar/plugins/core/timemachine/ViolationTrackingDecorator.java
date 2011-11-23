@@ -80,7 +80,7 @@ public class ViolationTrackingDecorator implements Decorator {
     return result;
   }
 
-  RuleFailureModel getReferenceViolation(Violation violation) {
+  public RuleFailureModel getReferenceViolation(Violation violation) {
     return referenceViolationsMap.get(violation);
   }
 

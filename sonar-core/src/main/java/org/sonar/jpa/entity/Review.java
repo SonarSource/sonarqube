@@ -135,6 +135,30 @@ public final class Review {
     this.resolution = resolution;
   }
 
+  public Integer getRuleFailurePermamentId() {
+    return permanentId;
+  }
+
+  public void setRuleFailurePermamentId(Integer permanentId) {
+    this.permanentId = permanentId;
+  }
+
+  public Integer getResourceLine() {
+    return resourceLine;
+  }
+
+  public void setResourceLine(Integer resourceLine) {
+    this.resourceLine = resourceLine;
+  }
+  
+  public Date getUpdatedAt() {
+    return updatedAt;
+  }
+  
+  public void setUpdatedAt(Date updatedAt) {
+    this.updatedAt = updatedAt;
+  }
+
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);

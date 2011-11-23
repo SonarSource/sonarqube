@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorBarriers;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
@@ -41,13 +42,15 @@ import org.sonar.core.NotDryRun;
 import org.sonar.jpa.entity.Review;
 
 /**
- * Decorator that currently only closes a review when its corresponding violation has been fixed.
+ * Decorator that handles the life cycle of a review (for instance, closes a review when its corresponding violation has been fixed).
  */
 @NotDryRun
 @DependsUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
+@DependedUpon(CloseReviewsDecorator.REVIEW_LIFECYCLE_BARRIER)
 public class CloseReviewsDecorator implements Decorator {
 
   private static final Logger LOG = LoggerFactory.getLogger(CloseReviewsDecorator.class);
+  public static final String REVIEW_LIFECYCLE_BARRIER = "REVIEW_LIFECYCLE_BARRIER";
 
   private Project project;
   private ResourcePersister resourcePersister;
