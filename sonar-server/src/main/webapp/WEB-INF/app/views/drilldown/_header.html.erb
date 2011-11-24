@@ -10,7 +10,7 @@
     if (display_title==undefined) {
       display_title=true;
     }
-    new Ajax.Updater('resource_container', '<%= ApplicationController.root_context-%>/resource/index/' + resourceId + '?metric=<%= @metric.id if @metric -%>&rule=<%= @rule ? @rule.id : params[:priority] -%>&period=<%= @period -%>&display_title=' + display_title, {asynchronous:true, evalScripts:true});
+    new Ajax.Updater('resource_container', '<%= ApplicationController.root_context-%>/resource/index/' + resourceId + '?metric=<%= @metric.id if @metric -%>&rule=<%= @rule ? @rule.id : @severity -%>&period=<%= @period -%>&display_title=' + display_title, {asynchronous:true, evalScripts:true});
     return false;
   }
 

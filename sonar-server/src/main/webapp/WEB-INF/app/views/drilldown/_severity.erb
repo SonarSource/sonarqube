@@ -4,7 +4,7 @@
   <td>
     <%= link_to message("severity.#{severity}"), {:controller => 'drilldown', :action => 'violations', :id => @project.id, :severity => (selected ? nil : severity), :period => @period} %>
   </td>
-  <td style="padding-left: 10px;" align="right">
+  <td style="padding-left: 10px;" align="right" nowrap>
 	  <%= @period ? format_variation(measure, :index => @period, :style => 'light') : format_measure(measure) -%>
   </td>
   <td align="left">
