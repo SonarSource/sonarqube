@@ -58,7 +58,7 @@ public class RuleMeasure extends Measure {
     this.rulePriority = rulePriority;
   }
 
-/**
+  /**
    * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
    */
   @Deprecated
@@ -88,10 +88,9 @@ public class RuleMeasure extends Measure {
     }
     RuleMeasure other = (RuleMeasure) obj;
     return new EqualsBuilder()
-        .append(getMetric(), other.getMetric())
-        .append(rule, other.rule)
-        .append(rulePriority, other.rulePriority)
-        .isEquals();
+      .append(getMetric(), other.getMetric())
+      .append(rule, other.rule)
+      .isEquals();
   }
 
   @Override
@@ -102,34 +101,33 @@ public class RuleMeasure extends Measure {
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37).
-        append(getMetric()).
-        append(rule).
-        append(rulePriority).
-        toHashCode();
+      append(getMetric()).
+      append(rule).
+      toHashCode();
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this).
-        append("id", getId()).
-        append("metric", metric).
-        append("value", value).
-        append("data", data).
-        append("description", description).
-        append("alertStatus", alertStatus).
-        append("alertText", alertText).
-        append("tendency", tendency).
-        append("rule", rule).
-        append("priority", rulePriority).
-        toString();
+      append("id", getId()).
+      append("metric", metric).
+      append("rule", rule).
+      append("value", value).
+      append("data", data).
+      append("description", description).
+      append("alertStatus", alertStatus).
+      append("alertText", alertText).
+      append("tendency", tendency).
+      append("severity", rulePriority).
+      toString();
   }
 
   public static RuleMeasure createForRule(Metric metric, Rule rule, Double value) {
-    return (RuleMeasure) new RuleMeasure(metric, rule, null, null).setValue(value);
+    return new RuleMeasure(metric, rule, null, null).setValue(value);
   }
 
   public static RuleMeasure createForPriority(Metric metric, RulePriority priority, Double value) {
-    return (RuleMeasure) new RuleMeasure(metric, null, priority, null).setValue(value);
+    return new RuleMeasure(metric, null, priority, null).setValue(value);
   }
 
   /**

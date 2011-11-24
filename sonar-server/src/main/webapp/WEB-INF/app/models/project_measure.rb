@@ -227,8 +227,16 @@ class ProjectMeasure < ActiveRecord::Base
     metric.short_name
   end
 
+  # Deprecated in v.2.13. Replaced by severity()
   def rule_priority_text
-    rule_priority ? Sonar::RulePriority.to_s(rule_priority) : nil
+    severity
+  end
+
+  def severity
+    @severity ||=
+      begin
+        rule_priority ? Sonar::RulePriority.to_s(rule_priority) : nil
+      end
   end
 
   def key
@@ -237,8 +245,6 @@ class ProjectMeasure < ActiveRecord::Base
         "#{metric_key}_rule_#{rule_id}"
       elsif characteristic_id
         "#{metric_key}_c_#{characteristic_id}"
-      else
-        "#{metric_key}_#{rule_priority_text}"
       end
     else
       metric_key

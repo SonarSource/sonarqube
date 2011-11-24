@@ -78,9 +78,11 @@ class DrilldownController < ApplicationController
       metric_prefix = 'new_'
     end
 
-    @priority_id=(params[:priority].blank? ? nil : Sonar::RulePriority.id(params[:priority]))
-    if @rule.nil? && @priority_id
-      @metric = Metric::by_key("#{metric_prefix}#{params[:priority].downcase}_violations")
+    @severity = params[:severity] || params[:priority]
+    rule_severity = params[:rule_sev] || @severity
+    if rule_severity
+      # Filter resources by severity
+      @metric = Metric::by_key("#{metric_prefix}#{rule_severity.downcase}_violations")
     else
       @metric = Metric::by_key("#{metric_prefix}violations")
     end
@@ -112,6 +114,25 @@ class DrilldownController < ApplicationController
     @highlighted_resource=@drilldown.highlighted_resource
     if @highlighted_resource.nil? && @drilldown.columns.empty?
       @highlighted_resource=@project
+    end
+
+
+    #
+    # Initialize filter by rule
+    #
+    if @severity
+      # Filter on severity -> filter rule measures by the selected metric
+      @rule_measures = @snapshot.rule_measures(@metric)
+    else
+      # No filter -> loads all the rules
+      metrics=[
+        Metric.by_key("#{metric_prefix}blocker_violations"),
+        Metric.by_key("#{metric_prefix}critical_violations"),
+        Metric.by_key("#{metric_prefix}major_violations"),
+        Metric.by_key("#{metric_prefix}minor_violations"),
+        Metric.by_key("#{metric_prefix}info_violations")
+      ]
+      @rule_measures = @snapshot.rule_measures(metrics)
     end
 
     @display_viewers=display_violation_viewers?(@drilldown.highlighted_snapshot || @snapshot)

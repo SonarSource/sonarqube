@@ -19,42 +19,26 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import com.google.common.collect.Maps;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
-import org.sonar.api.measures.RuleMeasure;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.Rule;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.test.IsMeasure;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
 
 import static org.mockito.Mockito.*;
 
-
 public class WeightedViolationsDecoratorTest {
 
-  private List<RuleMeasure> createViolationsMeasures() {
-    return Arrays.asList(
-        // categ 3
-        new RuleMeasure(CoreMetrics.VIOLATIONS, new Rule(), RulePriority.INFO, 3).setValue(40.0),
-        new RuleMeasure(CoreMetrics.VIOLATIONS, new Rule(), RulePriority.CRITICAL, 3).setValue(80.0),
-        new RuleMeasure(CoreMetrics.VIOLATIONS, new Rule(), RulePriority.BLOCKER, 3).setValue(90.0),
-
-        // categ 4
-        new RuleMeasure(CoreMetrics.VIOLATIONS, new Rule(), RulePriority.INFO, 4).setValue(10.0),
-        new RuleMeasure(CoreMetrics.VIOLATIONS, new Rule(), RulePriority.BLOCKER, 4).setValue(10.0)
-    );
-  }
-
   private Map<RulePriority, Integer> createWeights() {
-    Map<RulePriority, Integer> weights = new HashMap();
+    Map<RulePriority, Integer> weights = Maps.newHashMap();
     weights.put(RulePriority.BLOCKER, 10);
     weights.put(RulePriority.CRITICAL, 5);
     weights.put(RulePriority.MAJOR, 2);
@@ -66,13 +50,13 @@ public class WeightedViolationsDecoratorTest {
   @Test
   public void weightedViolations() {
     Map<RulePriority, Integer> weights = createWeights();
-
-    WeightedViolationsDecorator decorator = new WeightedViolationsDecorator(weights);
+    WeightedViolationsDecorator decorator = new WeightedViolationsDecorator();
     DecoratorContext context = mock(DecoratorContext.class);
+    when(context.getMeasure(CoreMetrics.INFO_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.INFO_VIOLATIONS, 50.0));
+    when(context.getMeasure(CoreMetrics.CRITICAL_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.CRITICAL_VIOLATIONS, 80.0));
+    when(context.getMeasure(CoreMetrics.BLOCKER_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.BLOCKER_VIOLATIONS, 100.0));
 
-    when(context.getMeasures((MeasuresFilter) anyObject())).thenReturn(createViolationsMeasures());
-
-    decorator.decorate(mock(Resource.class), context);
+    decorator.decorate(context, weights);
 
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.WEIGHTED_VIOLATIONS, (double) (100 * 10 + 80 * 5 + 50 * 0))));
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.WEIGHTED_VIOLATIONS, "INFO=50;CRITICAL=80;BLOCKER=100")));
@@ -81,15 +65,10 @@ public class WeightedViolationsDecoratorTest {
   @Test
   public void doNotSaveZero() {
     Map<RulePriority, Integer> weights = createWeights();
-
-    WeightedViolationsDecorator decorator = new WeightedViolationsDecorator(weights);
+    WeightedViolationsDecorator decorator = new WeightedViolationsDecorator();
     DecoratorContext context = mock(DecoratorContext.class);
-
-    when(context.getMeasures((MeasuresFilter) anyObject())).thenReturn(Arrays.asList());
-
-    decorator.decorate(mock(Resource.class), context);
+    decorator.decorate(context, weights);
 
     verify(context, never()).saveMeasure((Measure) anyObject());
   }
-
 }

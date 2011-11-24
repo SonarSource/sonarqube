@@ -39,56 +39,98 @@ import java.util.Map;
 @DependsUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
 public class ViolationsDecorator implements Decorator {
 
-  // temporary data for current resource
-  private Multiset<Rule> rules = HashMultiset.create();
-  private Multiset<RulePriority> severities = HashMultiset.create();
-  private Map<Rule, RulePriority> ruleToSeverity = Maps.newHashMap();
-  private int total = 0;
-
   public boolean shouldExecuteOnProject(Project project) {
     return true;
-  }
-
-  @DependedUpon
-  public List<Metric> generatesViolationsMetrics() {
-    return Arrays.asList(CoreMetrics.VIOLATIONS,
-        CoreMetrics.BLOCKER_VIOLATIONS, CoreMetrics.CRITICAL_VIOLATIONS, CoreMetrics.MAJOR_VIOLATIONS, CoreMetrics.MINOR_VIOLATIONS, CoreMetrics.INFO_VIOLATIONS);
-  }
-
-  public void decorate(Resource resource, DecoratorContext context) {
-    if (shouldDecorateResource(resource)) {
-      resetCounters();
-      countViolations(context);
-      saveTotalViolations(context);
-      saveViolationsBySeverity(context);
-      saveViolationsByRule(context);
-    }
   }
 
   private boolean shouldDecorateResource(Resource resource) {
     return !ResourceUtils.isUnitTestClass(resource);
   }
 
-  private void resetCounters() {
-    rules.clear();
-    severities.clear();
-    ruleToSeverity.clear();
-    total = 0;
+  @DependedUpon
+  public List<Metric> generatesViolationsMetrics() {
+    return Arrays.asList(CoreMetrics.VIOLATIONS,
+      CoreMetrics.BLOCKER_VIOLATIONS,
+      CoreMetrics.CRITICAL_VIOLATIONS,
+      CoreMetrics.MAJOR_VIOLATIONS,
+      CoreMetrics.MINOR_VIOLATIONS,
+      CoreMetrics.INFO_VIOLATIONS);
   }
 
-  private void saveViolationsBySeverity(DecoratorContext context) {
+  public void decorate(Resource resource, DecoratorContext context) {
+    if (shouldDecorateResource(resource)) {
+      computeTotalViolations(context);
+      computeViolationsPerSeverities(context);
+      computeViolationsPerRules(context);
+    }
+  }
+
+  private void computeTotalViolations(DecoratorContext context) {
+    if (context.getMeasure(CoreMetrics.VIOLATIONS) == null) {
+      Collection<Measure> childrenViolations = context.getChildrenMeasures(CoreMetrics.VIOLATIONS);
+      Double sum = MeasureUtils.sum(true, childrenViolations);
+      context.saveMeasure(CoreMetrics.VIOLATIONS, sum + context.getViolations().size());
+    }
+  }
+
+  private void computeViolationsPerSeverities(DecoratorContext context) {
+    Multiset<RulePriority> severitiesBag = HashMultiset.create();
+    for (Violation violation : context.getViolations()) {
+      severitiesBag.add(violation.getSeverity());
+    }
+
     for (RulePriority severity : RulePriority.values()) {
-      Metric metric = getMetricForSeverity(severity);
+      Metric metric = severityToMetric(severity);
       if (context.getMeasure(metric) == null) {
         Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.metric(metric));
-        double sum = MeasureUtils.sum(true, children) + severities.count(severity);
-        context.saveMeasure(new Measure(metric, sum));
+        int sum = MeasureUtils.sum(true, children).intValue() + severitiesBag.count(severity);
+        context.saveMeasure(metric, (double) sum);
       }
     }
   }
 
-  private Metric getMetricForSeverity(RulePriority severity) {
-    Metric metric = null;
+  private void computeViolationsPerRules(DecoratorContext context) {
+    Map<RulePriority, Multiset<Rule>> rulesPerSeverity = Maps.newHashMap();
+    for (Violation violation : context.getViolations()) {
+      Multiset<Rule> rulesBag = initRules(rulesPerSeverity, violation.getSeverity());
+      rulesBag.add(violation.getRule());
+    }
+
+    for (RulePriority severity : RulePriority.values()) {
+      Metric metric = severityToMetric(severity);
+
+      Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.rules(metric));
+      for (Measure child : children) {
+        RuleMeasure childRuleMeasure = (RuleMeasure) child;
+        Rule rule = childRuleMeasure.getRule();
+        if (rule != null && MeasureUtils.hasValue(childRuleMeasure)) {
+          Multiset<Rule> rulesBag = initRules(rulesPerSeverity, severity);
+          rulesBag.add(rule, childRuleMeasure.getIntValue());
+        }
+      }
+
+      Multiset<Rule> rulesBag = rulesPerSeverity.get(severity);
+      if (rulesBag != null) {
+        for (Multiset.Entry<Rule> entry : rulesBag.entrySet()) {
+          RuleMeasure measure = RuleMeasure.createForRule(metric, entry.getElement(), (double) entry.getCount());
+          measure.setRulePriority(severity);
+          context.saveMeasure(measure);
+        }
+      }
+    }
+  }
+
+  private Multiset<Rule> initRules(Map<RulePriority, Multiset<Rule>> rulesPerSeverity, RulePriority severity) {
+    Multiset<Rule> rulesBag = rulesPerSeverity.get(severity);
+    if (rulesBag == null) {
+      rulesBag = HashMultiset.create();
+      rulesPerSeverity.put(severity, rulesBag);
+    }
+    return rulesBag;
+  }
+
+  static Metric severityToMetric(RulePriority severity) {
+    Metric metric;
     if (severity.equals(RulePriority.BLOCKER)) {
       metric = CoreMetrics.BLOCKER_VIOLATIONS;
     } else if (severity.equals(RulePriority.CRITICAL)) {
@@ -99,44 +141,10 @@ public class ViolationsDecorator implements Decorator {
       metric = CoreMetrics.MINOR_VIOLATIONS;
     } else if (severity.equals(RulePriority.INFO)) {
       metric = CoreMetrics.INFO_VIOLATIONS;
+    } else {
+      throw new IllegalArgumentException("Unsupported severity: " + severity);
     }
     return metric;
-  }
-
-  private void saveViolationsByRule(DecoratorContext context) {
-    Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.rules(CoreMetrics.VIOLATIONS));
-    for (Measure childMeasure : children) {
-      RuleMeasure childRuleMeasure = (RuleMeasure) childMeasure;
-      Rule rule = childRuleMeasure.getRule();
-      if (rule != null && MeasureUtils.hasValue(childRuleMeasure)) {
-        rules.add(rule, childRuleMeasure.getValue().intValue());
-        ruleToSeverity.put(childRuleMeasure.getRule(), childRuleMeasure.getRulePriority());
-      }
-    }
-    for (Multiset.Entry<Rule> entry : rules.entrySet()) {
-      Rule rule = entry.getElement();
-      RuleMeasure measure = RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule, (double) entry.getCount());
-      measure.setRulePriority(ruleToSeverity.get(rule));
-      context.saveMeasure(measure);
-    }
-  }
-
-  private void saveTotalViolations(DecoratorContext context) {
-    if (context.getMeasure(CoreMetrics.VIOLATIONS) == null) {
-      Collection<Measure> childrenViolations = context.getChildrenMeasures(CoreMetrics.VIOLATIONS);
-      Double sum = MeasureUtils.sum(true, childrenViolations) + total;
-      context.saveMeasure(new Measure(CoreMetrics.VIOLATIONS, sum));
-    }
-  }
-
-  private void countViolations(DecoratorContext context) {
-    List<Violation> violations = context.getViolations();
-    for (Violation violation : violations) {
-      rules.add(violation.getRule());
-      severities.add(violation.getSeverity());
-      ruleToSeverity.put(violation.getRule(), violation.getSeverity());
-    }
-    total = violations.size();
   }
 
   @Override

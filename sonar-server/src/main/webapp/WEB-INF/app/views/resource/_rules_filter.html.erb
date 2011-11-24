@@ -1,24 +1,36 @@
 <%
   if @period
-      blocker_violations = @snapshot.measure('new_blocker_violations')
-	    critical_violations = @snapshot.measure('new_critical_violations')
-	    major_violations = @snapshot.measure('new_major_violations')
-	    minor_violations = @snapshot.measure('new_minor_violations')
-	    info_violations = @snapshot.measure('new_info_violations')
-	    violation_metric_key='new_violations'
+    blocker_violations = @snapshot.measure('new_blocker_violations')
+	  critical_violations = @snapshot.measure('new_critical_violations')
+	  major_violations = @snapshot.measure('new_major_violations')
+	  minor_violations = @snapshot.measure('new_minor_violations')
+	  info_violations = @snapshot.measure('new_info_violations')
+	  metrics = [
+      Metric.by_key("new_blocker_violations"),
+      Metric.by_key("new_critical_violations"),
+      Metric.by_key("new_major_violations"),
+      Metric.by_key("new_minor_violations"),
+      Metric.by_key("new_info_violations")
+    ]
 	else
 	  blocker_violations = @snapshot.measure('blocker_violations')
-	    critical_violations = @snapshot.measure('critical_violations')
-	    major_violations = @snapshot.measure('major_violations')
-	    minor_violations = @snapshot.measure('minor_violations')
-	    info_violations = @snapshot.measure('info_violations')
-	    violation_metric_key='violations'
+	  critical_violations = @snapshot.measure('critical_violations')
+	  major_violations = @snapshot.measure('major_violations')
+	  minor_violations = @snapshot.measure('minor_violations')
+	  info_violations = @snapshot.measure('info_violations')
+	  metrics = [
+      Metric.by_key("blocker_violations"),
+      Metric.by_key("critical_violations"),
+      Metric.by_key("major_violations"),
+      Metric.by_key("minor_violations"),
+      Metric.by_key("info_violations")
+    ]
 	end
 
    rule_counts={}
    rules=[]
-   rule_measures=ProjectMeasure.find(:all, :include => 'rule', :conditions => ['metric_id=? AND snapshot_id=? AND rule_id IS NOT NULL AND characteristic_id IS NULL', Metric.by_key(violation_metric_key).id, @snapshot.id])
-   rule_measures.each do |rule_measure|
+
+   @snapshot.rule_measures(metrics).each do |rule_measure|
      count=(@period ? rule_measure.variation(@period) : rule_measure.value)
      if count && count.to_i>0
       rule_counts[rule_measure.rule_id]=count.to_i
@@ -39,7 +51,7 @@
          value=(@period ? blocker_violations.variation(@period) : blocker_violations.value)
          if value && value>0
     %>
-      <option value="<%= Sonar::RulePriority::BLOCKER.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::BLOCKER.to_s -%>><%= message('blocker') -%> (<%= blocker_violations.format_numeric_value(value) -%>)</option>
+      <option value="<%= Sonar::RulePriority::BLOCKER.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::BLOCKER.to_s -%>><%= message('severity.BLOCKER') -%> (<%= blocker_violations.format_numeric_value(value) -%>)</option>
     <%   end
     end %>
 
@@ -47,7 +59,7 @@
          value=(@period ? critical_violations.variation(@period) : critical_violations.value)
          if value && value>0
     %>
-      <option value="<%= Sonar::RulePriority::CRITICAL.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::CRITICAL.to_s -%>><%= message('critical') -%> (<%= critical_violations.format_numeric_value(value) -%>)</option>
+      <option value="<%= Sonar::RulePriority::CRITICAL.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::CRITICAL.to_s -%>><%= message('severity.CRITICAL') -%> (<%= critical_violations.format_numeric_value(value) -%>)</option>
     <%   end
        end
     %>
@@ -56,7 +68,7 @@
          value=(@period ? major_violations.variation(@period) : major_violations.value)
          if value && value>0
     %>
-      <option value="<%= Sonar::RulePriority::MAJOR.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::MAJOR.to_s -%>><%= message('major') -%> (<%= major_violations.format_numeric_value(value) -%>)</option>
+      <option value="<%= Sonar::RulePriority::MAJOR.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::MAJOR.to_s -%>><%= message('severity.MAJOR') -%> (<%= major_violations.format_numeric_value(value) -%>)</option>
     <%   end
        end
     %>
@@ -65,7 +77,7 @@
          value=(@period ? minor_violations.variation(@period) : minor_violations.value)
          if value && value>0
     %>
-      <option value="<%= Sonar::RulePriority::MINOR.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::MINOR.to_s -%>><%= message('minor') -%> (<%= minor_violations.format_numeric_value(value) -%>)</option>
+      <option value="<%= Sonar::RulePriority::MINOR.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::MINOR.to_s -%>><%= message('severity.MINOR') -%> (<%= minor_violations.format_numeric_value(value) -%>)</option>
     <%   end
        end
     %>
@@ -74,7 +86,7 @@
          value=(@period ? info_violations.variation(@period) : info_violations.value)
          if value && value>0
     %>
-      <option value="<%= Sonar::RulePriority::INFO.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::INFO.to_s -%>><%= message('info') -%> (<%= info_violations.format_numeric_value(value) -%>)</option>
+      <option value="<%= Sonar::RulePriority::INFO.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::INFO.to_s -%>><%= message('severity.INFO') -%> (<%= info_violations.format_numeric_value(value) -%>)</option>
     <%   end
        end
     %>

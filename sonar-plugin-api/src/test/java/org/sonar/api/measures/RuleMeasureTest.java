@@ -29,7 +29,7 @@ import static org.junit.Assert.assertFalse;
 public class RuleMeasureTest {
 
   @Test
-  public void equals() {
+  public void shouldEquals() {
     assertEquals(
         RuleMeasure.createForPriority(CoreMetrics.CLASSES, RulePriority.CRITICAL, 4.5),
         RuleMeasure.createForPriority(CoreMetrics.CLASSES, RulePriority.CRITICAL, 3.4));
@@ -41,19 +41,14 @@ public class RuleMeasureTest {
   }
 
   @Test
-  public void notEquals() {
+  public void shouldNotEquals() {
     assertNotEquals(
-        RuleMeasure.createForPriority(CoreMetrics.CLASSES, RulePriority.CRITICAL, 4.5),
-        RuleMeasure.createForPriority(CoreMetrics.CLASSES, RulePriority.BLOCKER, 3.4));
+        RuleMeasure.createForRule(CoreMetrics.BLOCKER_VIOLATIONS, new Rule("pmd", "abc1"), 4.5),
+        RuleMeasure.createForRule(CoreMetrics.BLOCKER_VIOLATIONS, new Rule("pmd", "def2"), 3.4));
 
     assertNotEquals(
-        RuleMeasure.createForRule(CoreMetrics.CLASSES, new Rule("pmd", "abc1"), 4.5),
-        RuleMeasure.createForRule(CoreMetrics.CLASSES, new Rule("pmd", "def2"), 3.4));
-
-    assertNotEquals(
-        RuleMeasure.createForPriority(CoreMetrics.CLASSES, RulePriority.CRITICAL, 4.5),
-        RuleMeasure.createForRule(CoreMetrics.CLASSES, new Rule("pmd", "abc1"), 3.4));
-
+        RuleMeasure.createForRule(CoreMetrics.INFO_VIOLATIONS, new Rule("pmd", "abc1"), 4.5),
+        RuleMeasure.createForRule(CoreMetrics.BLOCKER_VIOLATIONS, new Rule("pmd", "abc1"), 3.4));
   }
 
   private void assertNotEquals(RuleMeasure rm1, RuleMeasure rm2) {

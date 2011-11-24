@@ -53,18 +53,6 @@ public class MeasuresFiltersTest {
   }
 
   @Test
-  public void rulePriority() {
-    MeasuresFilter<RuleMeasure> filter = MeasuresFilters.rulePriority(CoreMetrics.VIOLATIONS, RulePriority.CRITICAL);
-    List<Measure> measures = Arrays.asList(
-        RuleMeasure.createForPriority(CoreMetrics.VIOLATIONS, RulePriority.CRITICAL, 50.0),
-        RuleMeasure.createForPriority(CoreMetrics.VIOLATIONS, RulePriority.BLOCKER, 10.0),
-        RuleMeasure.createForPriority(CoreMetrics.COVERAGE, RulePriority.CRITICAL, 400.0),
-        new Measure(CoreMetrics.VIOLATIONS, 500.0));
-
-    assertThat(filter.filter(measures).getValue(), is(50.0));
-  }
-
-  @Test
   public void rule() {
     Rule rule1 = new Rule("pmd", "key1");
     Rule rule2 = new Rule("pmd", "key2");

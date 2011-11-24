@@ -47,24 +47,25 @@
   <table class="spaced">
   <% column.measures.each do |measure|
 	  resource=column.resource(measure)
-      clazz = cycle("even hoverable", "odd hoverable", :name => "col_#{column.scope}")
-      clazz = clazz + ' selected' if column.selected_snapshot && column.selected_snapshot.project_id==resource.id
+      selected = column.selected_snapshot && column.selected_snapshot.project_id==resource.id
+      clazz = cycle("even", "odd", :name => "col_#{column.scope}")
+      clazz = clazz + ' selected' if selected
     %>
       <tr class="<%= clazz -%>">
         <td nowrap>
           <%
           if resource.entity?
             if resource.copy_resource_id %>
-              <%= qualifier_icon(resource) %>
+              <%= qualifier_icon(resource) -%>
               <%= link_to(resource.name, {:only_path => true, :overwrite_params => {:rids => nil, :id => resource.copy_resource_id}}) -%>
             <% else %>
-              <%= qualifier_icon(resource) %>
+              <%= qualifier_icon(resource) -%>
               <a href="#" onclick="d(<%= resource.id -%>)" alt="<%= resource.name(true) -%>" title="<%= resource.name(true) -%>"><%= resource.name(false) -%></a>
           <%   end
           else %>
-            <%= link_to(image_tag('zoom.png'), {:id => resource.id, :metric => @metric.id}, {:class => 'nolink'})  %>
-            <%= qualifier_icon(resource) %>
-            <%= link_to(resource.name, {:only_path => true, :overwrite_params => {:rids => rids + [resource.id]}}) -%>
+            <%= link_to(image_tag('zoom.png'), {:id => resource.id, :metric => @metric.id}, {:class => 'nolink'})  -%>
+            <%= qualifier_icon(resource) -%>
+            <%= link_to(resource.name, {:only_path => true, :overwrite_params => {:rids => (selected ? rids-[resource.id] : rids+[resource.id])}}) -%>
           <% end %>
         </td>
         <td class="right last" >

@@ -27,6 +27,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
@@ -38,6 +39,7 @@ import java.util.List;
 
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class ViolationsDecoratorTest {
@@ -61,14 +63,14 @@ public class ViolationsDecoratorTest {
   }
 
   @Test
-  public void countViolations() {
-    when(resource.getScope()).thenReturn(Resource.SCOPE_SET);
+  public void shouldCountViolations() {
+    when(resource.getScope()).thenReturn(Scopes.PROJECT);
     when(context.getViolations()).thenReturn(createViolations());
     when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure>emptyList());
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.VIOLATIONS, 4.0)));
+    verify(context).saveMeasure(CoreMetrics.VIOLATIONS, 4.0);
   }
 
   /**
@@ -76,7 +78,7 @@ public class ViolationsDecoratorTest {
    */
   @Test
   public void shouldNotCountViolationsIfMeasureAlreadyExists() {
-    when(resource.getScope()).thenReturn(Resource.SCOPE_SET);
+    when(resource.getScope()).thenReturn(Scopes.PROJECT);
     when(context.getViolations()).thenReturn(createViolations());
     when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure>emptyList());
     when(context.getMeasure(CoreMetrics.VIOLATIONS)).thenReturn(new Measure(CoreMetrics.VIOLATIONS, 3000.0));
@@ -84,71 +86,75 @@ public class ViolationsDecoratorTest {
 
     decorator.decorate(resource, context);
 
-    verify(context, never()).saveMeasure(argThat(new IsMeasure(CoreMetrics.VIOLATIONS, 4.0)));// not changed
-    verify(context, never()).saveMeasure(argThat(new IsMeasure(CoreMetrics.MAJOR_VIOLATIONS)));// not changed
-    verify(context, times(1)).saveMeasure(argThat(new IsMeasure(CoreMetrics.CRITICAL_VIOLATIONS)));// did not exist
+    verify(context, never()).saveMeasure(eq(CoreMetrics.VIOLATIONS), anyDouble());// not changed
+    verify(context, never()).saveMeasure(eq(CoreMetrics.MAJOR_VIOLATIONS), anyDouble());// not changed
+    verify(context, times(1)).saveMeasure(eq(CoreMetrics.CRITICAL_VIOLATIONS), anyDouble());// did not exist
   }
 
   @Test
-  public void resetCountersAfterExecution() {
-    when(resource.getScope()).thenReturn(Resource.SCOPE_SET);
-    when(context.getViolations()).thenReturn(createViolations());
-    when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure>emptyList());
-
-    decorator.decorate(resource, context);
-    decorator.decorate(resource, context);
-
-    // we must not have 8 violations !
-    verify(context, times(2)).saveMeasure(argThat(new IsMeasure(CoreMetrics.VIOLATIONS, 4.0)));
-    verify(context, never()).saveMeasure(argThat(new IsMeasure(CoreMetrics.VIOLATIONS, 8.0)));
-  }
-
-  @Test
-  public void saveZeroOnProjects() {
-    when(resource.getScope()).thenReturn(Resource.SCOPE_SET);
+  public void shouldSaveZeroOnProjects() {
+    when(resource.getScope()).thenReturn(Scopes.PROJECT);
     when(context.getViolations()).thenReturn(Collections.<Violation>emptyList());
     when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure>emptyList());
 
     decorator.decorate(resource, context);
 
-    verify(context, atLeast(1)).saveMeasure(argThat(new IsMeasure(CoreMetrics.VIOLATIONS, 0.0)));
+    verify(context).saveMeasure(CoreMetrics.VIOLATIONS, 0.0);
   }
 
   @Test
-  public void saveZeroOnDirectories() {
-    when(resource.getScope()).thenReturn(Resource.SCOPE_SPACE);
+  public void shouldSaveZeroOnDirectories() {
+    when(resource.getScope()).thenReturn(Scopes.DIRECTORY);
     when(context.getViolations()).thenReturn(Collections.<Violation>emptyList());
     when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure>emptyList());
 
     decorator.decorate(resource, context);
 
-    verify(context, atLeast(1)).saveMeasure(argThat(new IsMeasure(CoreMetrics.VIOLATIONS, 0.0)));
+    verify(context).saveMeasure(CoreMetrics.VIOLATIONS, 0.0);
   }
 
   @Test
   public void shouldCountViolationsBySeverity() {
-    when(resource.getScope()).thenReturn(Resource.SCOPE_SET);
+    when(resource.getScope()).thenReturn(Scopes.PROJECT);
     when(context.getViolations()).thenReturn(createViolations());
     when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure>emptyList());
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.BLOCKER_VIOLATIONS, 0.0)));
-    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.CRITICAL_VIOLATIONS, 2.0)));
-    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.MAJOR_VIOLATIONS, 1.0)));
-    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.MINOR_VIOLATIONS, 1.0)));
-    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.INFO_VIOLATIONS, 0.0)));
+    verify(context).saveMeasure(CoreMetrics.BLOCKER_VIOLATIONS, 0.0);
+    verify(context).saveMeasure(CoreMetrics.CRITICAL_VIOLATIONS, 2.0);
+    verify(context).saveMeasure(CoreMetrics.MAJOR_VIOLATIONS, 1.0);
+    verify(context).saveMeasure(CoreMetrics.MINOR_VIOLATIONS, 1.0);
+    verify(context).saveMeasure(CoreMetrics.INFO_VIOLATIONS, 0.0);
   }
 
   @Test
-  public void ruleViolations() {
-    when(context.getViolations()).thenReturn(createViolations());
+  public void shouldCountViolationsPerRule() {
+    List<Violation> violations = Lists.newArrayList();
+    violations.add(Violation.create(ruleA1, resource).setSeverity(RulePriority.CRITICAL));
+    violations.add(Violation.create(ruleA1, resource).setSeverity(RulePriority.CRITICAL));
+    violations.add(Violation.create(ruleA2, resource).setSeverity(RulePriority.MAJOR));
+    when(context.getViolations()).thenReturn(violations);
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.VIOLATIONS, ruleA1, RulePriority.CRITICAL, 2.0)));
-    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.VIOLATIONS, ruleA2, RulePriority.MAJOR, 1.0)));
-    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.VIOLATIONS, ruleB1, RulePriority.MINOR, 1.0)));
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.CRITICAL_VIOLATIONS, ruleA1, 2.0)));
+    verify(context, never()).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.MAJOR_VIOLATIONS, ruleA1, 0.0)));
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.MAJOR_VIOLATIONS, ruleA2, 1.0)));
+  }
+
+  @Test
+  public void sameRuleShouldHaveDifferentSeverities() {
+    List<Violation> violations = Lists.newArrayList();
+    violations.add(Violation.create(ruleA1, resource).setSeverity(RulePriority.CRITICAL));
+    violations.add(Violation.create(ruleA1, resource).setSeverity(RulePriority.CRITICAL));
+    violations.add(Violation.create(ruleA1, resource).setSeverity(RulePriority.MINOR));
+    when(context.getViolations()).thenReturn(violations);
+
+    decorator.decorate(resource, context);
+
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.CRITICAL_VIOLATIONS, ruleA1, 2.0)));
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.MINOR_VIOLATIONS, ruleA1, 1.0)));
   }
 
   private List<Violation> createViolations() {

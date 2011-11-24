@@ -50,34 +50,27 @@
 	%>
     <h3><%= message('violations_drilldown.col.severity') -%></h3>
     <table class="spacedicon" style="border: 1px solid #ccc;">
-	  <%= render :partial => 'rule_priority', :locals => {:css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_BLOCKER, :max => max, :measure => blocker_violations }%>
-  	  <%= render :partial => 'rule_priority', :locals => {:css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_CRITICAL, :max => max, :measure => critical_violations }%>
-	  <%= render :partial => 'rule_priority', :locals => {:css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_MAJOR, :max => max, :measure => major_violations }%>
-	  <%= render :partial => 'rule_priority', :locals => {:css => 'odd', :priority_id => Sonar::RulePriority::PRIORITY_MINOR, :max => max, :measure => minor_violations }%>
-	  <%= render :partial => 'rule_priority', :locals => {:css => 'even', :priority_id => Sonar::RulePriority::PRIORITY_INFO, :max => max, :measure => info_violations }%>
+	    <%= render :partial => 'severity', :locals => {:css => 'even', :severity => 'BLOCKER', :max => max, :measure => blocker_violations }%>
+  	  <%= render :partial => 'severity', :locals => {:css => 'odd', :severity => 'CRITICAL', :max => max, :measure => critical_violations }%>
+	    <%= render :partial => 'severity', :locals => {:css => 'even', :severity => 'MAJOR', :max => max, :measure => major_violations }%>
+	    <%= render :partial => 'severity', :locals => {:css => 'odd', :severity => 'MINOR', :max => max, :measure => minor_violations }%>
+	    <%= render :partial => 'severity', :locals => {:css => 'even', :severity => 'INFO', :max => max, :measure => info_violations }%>
     </table>
   </td>
   <td class="column" align="left" style="white-space: normal;">
    <h3><%= message('violations_drilldown.col.rule') -%></h3>
    <div class="scrollable">
-       <table class="spacedicon" width="100%" id="col_rules">
+     <table class="spacedicon" width="100%" id="col_rules">
 	      <%
-	        if @period
-	          rule_measures=@snapshot.rule_measures(Metric.by_key('new_violations'), @priority_id)
-	        else
-	          rule_measures=@snapshot.rule_measures(Metric.by_key('violations'), @priority_id)
-	        end
 	        max=0
 	        rule_index=0
-			    rule_measures.each do |m|
+			    @rule_measures.each do |m|
 			      value = m.send(value_column) if m
 			      max=value if value && value>max
 			    end
-	        rule_ids=rule_measures.collect{ |measure| measure.rule_id}.uniq
+	        rule_ids=@rule_measures.collect{ |measure| measure.rule_id}.uniq
 	        rules = (rule_ids.empty? ? [] : Rule.find(rule_ids))
-          rules_hash={}
-          rules.each { |rule| rules_hash[rule.id]=rule }
-          rule_measures.sort do|x,y|
+          @rule_measures.sort do|x,y|
             val=y.rule_priority<=>x.rule_priority
             if val==0
               x_value=x.send(value_column)
@@ -89,17 +82,18 @@
           end.each do |rule_measure|
             value = rule_measure.send(value_column)
 		        next if value.nil? || value==0
-            rule=rules_hash[rule_measure.rule_id]
+            rule=rule_measure.rule
             clazz = cycle('even', 'odd', :name => 'rules')
-            clazz = clazz + ' selected' if @rule && @rule.id==rule_measure.rule_id
+            selected = @rule && @rule.id==rule_measure.rule_id
+            clazz = clazz + ' selected' if selected
             rule_index+=1
 		   %>
                <tr class="<%= clazz -%>">
 	               <td width="1%" nowrap>
                     <a id="<%= "rule#{rule_index}" -%>" title="<%= message('violations_drilldown.click_for_more_on_x', :params => [rule.plugin_name, rule.plugin_rule_key]) -%>" onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => rule.key, :layout => 'false' -%>"><img src="<%= ApplicationController.root_context -%>/images/priority/<%= rule_measure.rule_priority -%>.png" /></a>
-		           </td>
+                 </td>
 	               <td>
-	                  <%= link_to(rule.name, {:overwrite_params => {:rule => rule.key, :sid => nil, :priority => Sonar::RulePriority.to_s(@priority_id)}}, :title => "#{rule.plugin_name}: #{rule.plugin_rule_key}") %>
+	                  <%= link_to(rule.name, {:rule => (selected ? nil : rule.key), :rule_sev => (selected ? nil : rule_measure.severity), :sid => nil, :severity => @severity, :period => @period, :rids => (selected ? nil : @selected_rids)}, :title => "#{rule.plugin_name}: #{rule.plugin_rule_key}") -%>
                    </td>
                    <td class="right" nowrap="nowrap">
                        <span><%= @period ? format_variation(rule_measure, :period => @period, :style => 'light') : rule_measure.formatted_value -%></span>
@@ -133,7 +127,8 @@
  column.measures.each do |measure|
    resource=column.resource(measure)
    clazz = cycle('even', 'odd', :name => "col_#{column.scope}")
-   if column.selected_snapshot && column.selected_snapshot.project_id==resource.id
+   selected = column.selected_snapshot && column.selected_snapshot.project_id==resource.id
+   if selected
      clazz += ' selected'
      paths << [h(resource.name), @selected_rids-[resource.id]]
    end
@@ -143,17 +138,17 @@
    <%
    if resource.entity?
      if resource.copy_resource_id %>
-       <%= qualifier_icon(resource) %>
+       <%= qualifier_icon(resource) -%>
        <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => nil, :id => resource.copy_resource_id}}) -%>
      <% else %>
-       <%= qualifier_icon(resource) %>
-       <a href="#" onclick="d(<%= resource.id -%>, '<%= @period_index -%>', '<%= @rule ? @rule.key : params[:priority] -%>');" alt="<%= resource.name(true) -%>" title="<%= resource.name(true) -%>"><%= resource.name(false) %></a>
+       <%= qualifier_icon(resource) -%>
+       <a href="#" onclick="d(<%= resource.id -%>, '<%= @period_index -%>', '<%= @rule ? @rule.key : @severity -%>');" alt="<%= resource.name(true) -%>" title="<%= resource.name(true) -%>"><%= resource.name(false) %></a>
    <%
-     end
+        end
    else %>
      <%= link_to(image_tag('zoom.png'), {:id => resource.id}, {:class => 'nolink'}) %>
      <%= qualifier_icon(resource) %>
-     <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => rids + [resource.id]}}) -%>
+     <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => (selected ? rids-[resource.id] : rids+[resource.id])}}) -%>
    <% end %>
    </td>
    <td class="right last" nowrap>
@@ -169,23 +164,7 @@
    end %>
 </tr>
 </table>
-<br/>
-<div style="font-size: 85%;background-color: #eee;color: #777;padding: 4px 5px;border: 1px solid #ddd;margin-bottom: 20px;">
-<b><%= message('violations_drilldown.path') -%>:</b>
-<% if @priority_id %>
-<%= Sonar::RulePriority.to_s(@priority_id, true) %> <%= link_to message('clear_verb'), {:overwrite_params => {:priority => nil}} %>
-<% else %>
-<%= message('violations_drilldown.any_severity') -%>
-<% end %>&nbsp;&raquo;&nbsp;
-<% if @rule %>
-<%= h @rule.name %> <%= link_to message('clear_verb'), {:overwrite_params => {:rule => nil}} %>
-<% else %>
-<%= message('violations_drilldown.any_rule') -%>
-<% end %>&nbsp;&raquo;&nbsp;
-<% paths.each do |path| %>
-<%= path[0] %> <%= link_to message('clear_verb'), {:overwrite_params => {:rids => path[1]}} %>&nbsp;&raquo;&nbsp;
-<% end %>
-</div>
+
 <script>
 $$('#col_rules tr.selected').each(function(item) {item.scrollIntoView(true);});
 <% @drilldown.columns.each do |column| %>

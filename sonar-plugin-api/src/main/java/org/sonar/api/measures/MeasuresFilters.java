@@ -106,10 +106,6 @@ public final class MeasuresFilters {
     };
   }
 
-  public static MeasuresFilter<RuleMeasure> rulePriority(final Metric metric, final RulePriority priority) {
-    return new RulePriorityFilter(metric, priority);
-  }
-
   /**
    * @deprecated  since 2.5. See http://jira.codehaus.org/browse/SONAR-2007
    */
@@ -201,21 +197,6 @@ public final class MeasuresFilters {
         }
       }
       return null;
-    }
-  }
-
-  private static class RulePriorityFilter extends AbstractRuleMeasureFilter<RuleMeasure> {
-    private RulePriority priority;
-
-    protected RulePriorityFilter(Metric metric, RulePriority priority) {
-      super(metric);
-      this.priority = priority;
-    }
-
-    @Override
-    boolean doApply(RuleMeasure measure) {
-      return measure.getRule() == null
-          && priority.equals(measure.getRulePriority());
     }
   }
 

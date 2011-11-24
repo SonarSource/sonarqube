@@ -100,12 +100,12 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
 
     // first past analysis
     when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot1)).thenReturn(Arrays.asList(
-        new Object[]{NCLOC_ID, null, null, null, 180.0},
-        new Object[]{COVERAGE_ID, null, null, null, 75.0}));
+        new Object[]{NCLOC_ID, null, null, 180.0},
+        new Object[]{COVERAGE_ID, null, null, 75.0}));
 
     // second past analysis
     when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot3)).thenReturn(Arrays.<Object[]>asList(
-        new Object[]{NCLOC_ID, null, null, null, 240.0}));
+        new Object[]{NCLOC_ID, null, null, 240.0}));
 
     // current analysis
     DecoratorContext context = mock(DecoratorContext.class);
@@ -142,15 +142,15 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
 
     // first past analysis
     when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot1)).thenReturn(Arrays.asList(
-        new Object[]{VIOLATIONS_ID, null, null, null, 180.0},//total
-        new Object[]{VIOLATIONS_ID, null, rule1.getId(), RulePriority.BLOCKER.ordinal(), 100.0},// rule 1
-        new Object[]{VIOLATIONS_ID, null, rule2.getId(), RulePriority.MAJOR.ordinal(), 80.0})); // rule 2
+        new Object[]{VIOLATIONS_ID, null, null, 180.0},//total
+        new Object[]{VIOLATIONS_ID, null, rule1.getId(), 100.0},// rule 1
+        new Object[]{VIOLATIONS_ID, null, rule2.getId(), 80.0})); // rule 2
 
     // current analysis
     DecoratorContext context = mock(DecoratorContext.class);
     Measure violations = newMeasure(VIOLATIONS, 200.0);
-    Measure violationsRule1 = new RuleMeasure(VIOLATIONS, rule1, RulePriority.BLOCKER, null).setValue(130.0);
-    Measure violationsRule2 = new RuleMeasure(VIOLATIONS, rule2, RulePriority.MAJOR, null).setValue(70.0);
+    Measure violationsRule1 = RuleMeasure.createForRule(VIOLATIONS, rule1, 130.0);
+    Measure violationsRule2 = RuleMeasure.createForRule(VIOLATIONS, rule2, 70.0);
     when(context.getMeasures(Matchers.<MeasuresFilter>anyObject())).thenReturn(Arrays.asList(violations, violationsRule1, violationsRule2));
 
     VariationDecorator decorator = new VariationDecorator(pastMeasuresLoader, mock(MetricFinder.class), Arrays.asList(pastSnapshot1), false);

@@ -91,12 +91,12 @@
     %>
         <tr class="<%= cycle 'even','odd', :name => ('hotspot_most_violated_rules' + widget.id.to_s) -%>">
           <td class="thin">
-            <a href="<%= url_for(:controller => 'drilldown', :action => 'violations', :id => @resource.key, :priority => Sonar::RulePriority.to_s(m.rule_priority)) -%>">
+            <a href="<%= url_for(:controller => 'drilldown', :action => 'violations', :id => @resource.key, :severity => m.severity) -%>">
               <%= image_tag('priority/' + m.rule_priority.to_s + '.png') -%>
             </a>
           </td>
           <td>
-            <a href="<%= url_for(:controller => 'drilldown', :action => 'violations', :id => @resource.key, :rule => rule.key) -%>"><%= rule.name -%></a>
+            <a href="<%= url_for(:controller => 'drilldown', :action => 'violations', :id => @resource.key, :rule => rule.key, :rule_sev => m.severity) -%>"><%= rule.name -%></a>
           </td>
           <td class="right">
             <%= m.formatted_value -%>

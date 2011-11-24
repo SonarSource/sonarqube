@@ -140,7 +140,7 @@ public class NewViolationsDecoratorTest {
   }
 
   @Test
-  public void priorityViolations() {
+  public void severityViolations() {
     when(context.getViolations()).thenReturn(createViolations());
 
     decorator.decorate(resource, context);
@@ -160,9 +160,9 @@ public class NewViolationsDecoratorTest {
     decorator.decorate(resource, context);
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
-    verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_VIOLATIONS, rule1, RulePriority.CRITICAL, 1.0, 1.0)));
-    verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_VIOLATIONS, rule2, RulePriority.MAJOR, 0.0, 1.0)));
-    verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_VIOLATIONS, rule3, RulePriority.MINOR, 0.0, 1.0)));
+    verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_CRITICAL_VIOLATIONS, rule1, 1.0, 1.0)));
+    verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_MAJOR_VIOLATIONS, rule2, 0.0, 1.0)));
+    verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_MINOR_VIOLATIONS, rule3, 0.0, 1.0)));
   }
 
   private List<Violation> createViolations() {
@@ -179,14 +179,12 @@ public class NewViolationsDecoratorTest {
   private class IsVariationRuleMeasure extends BaseMatcher<Measure> {
     private Metric metric = null;
     private Rule rule = null;
-    private RulePriority priority = null;
     private Double var1 = null;
     private Double var2 = null;
 
-    public IsVariationRuleMeasure(Metric metric, Rule rule, RulePriority priority, Double var1, Double var2) {
+    public IsVariationRuleMeasure(Metric metric, Rule rule, Double var1, Double var2) {
       this.metric = metric;
       this.rule = rule;
-      this.priority = priority;
       this.var1 = var1;
       this.var2 = var2;
     }
@@ -197,10 +195,9 @@ public class NewViolationsDecoratorTest {
       }
       RuleMeasure m = (RuleMeasure) o;
       return ObjectUtils.equals(metric, m.getMetric()) &&
-          ObjectUtils.equals(rule, m.getRule()) &&
-          ObjectUtils.equals(priority, m.getRulePriority()) &&
-          ObjectUtils.equals(var1, m.getVariation1()) &&
-          ObjectUtils.equals(var2, m.getVariation2());
+        ObjectUtils.equals(rule, m.getRule()) &&
+        ObjectUtils.equals(var1, m.getVariation1()) &&
+        ObjectUtils.equals(var2, m.getVariation2());
     }
 
     public void describeTo(Description arg0) {
@@ -224,8 +221,9 @@ public class NewViolationsDecoratorTest {
       }
       Measure m = (Measure) o;
       return ObjectUtils.equals(metric, m.getMetric()) &&
-          ObjectUtils.equals(var1, m.getVariation1()) &&
-          ObjectUtils.equals(var2, m.getVariation2());
+        ObjectUtils.equals(var1, m.getVariation1()) &&
+        ObjectUtils.equals(var2, m.getVariation2()) &&
+        !(m instanceof RuleMeasure);
     }
 
     public void describeTo(Description o) {

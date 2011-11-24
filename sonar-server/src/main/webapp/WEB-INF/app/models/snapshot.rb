@@ -27,9 +27,9 @@ class Snapshot < ActiveRecord::Base
   belongs_to :root_snapshot, :class_name => 'Snapshot', :foreign_key => 'root_snapshot_id'
   belongs_to :characteristic
 
-  has_many :measures, :class_name => 'ProjectMeasure', :conditions => 'rule_id IS NULL AND rule_priority IS NULL AND characteristic_id IS NULL'
-  has_many :rulemeasures, :class_name => 'ProjectMeasure', :conditions => '(rule_id IS NOT NULL OR rule_priority IS NOT NULL) AND characteristic_id IS NULL'
-  has_many :characteristic_measures, :class_name => 'ProjectMeasure', :conditions => 'rule_id IS NULL AND rule_priority IS NULL AND characteristic_id IS NOT NULL'
+  has_many :measures, :class_name => 'ProjectMeasure', :conditions => 'rule_id IS NULL AND characteristic_id IS NULL'
+  has_many :rulemeasures, :class_name => 'ProjectMeasure', :conditions => 'rule_id IS NOT NULL AND characteristic_id IS NULL', :include => 'rule'
+  has_many :characteristic_measures, :class_name => 'ProjectMeasure', :conditions => 'rule_id IS NULL AND characteristic_id IS NOT NULL'
   
   has_many :events, :dependent => :destroy, :order => 'event_date DESC'
   has_one :source, :class_name => 'SnapshotSource', :dependent => :destroy
@@ -175,18 +175,15 @@ class Snapshot < ActiveRecord::Base
     m ? m.formatted_value : nil
   end
 
-  def rule_measures(metric=nil, rule_priority=nil)
+  def rule_measures(metrics=nil, rule=nil)
+    if metrics
+      metric_ids=[metrics].flatten.map{|metric| metric.id}
+    end
     rulemeasures.select do |m|
-      m.rule_id && (metric ? m.metric_id==metric.id : true) && (rule_priority ? m.rule_priority==rule_priority : true)
+      (metric_ids.nil? || metric_ids.include?(m.metric_id)) && (rule.nil? || m.rule_id==rule.id)
     end
   end
   
-  def rule_priority_measures(metric_key)
-    rulemeasures.select do |measure|
-      measure.rule_id.nil? && measure.rule_priority && measure.metric && measure.metric.key==metric_key
-    end
-  end
-
   def self.snapshot_by_date(resource_id, date)
     if resource_id && date
       Snapshot.find(:first, :conditions => ['created_at>=? and created_at<? and project_id=?', date.beginning_of_day, date.end_of_day, resource_id], :order => 'created_at desc')

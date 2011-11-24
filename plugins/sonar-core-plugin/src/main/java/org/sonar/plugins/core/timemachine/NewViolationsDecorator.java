@@ -20,6 +20,7 @@
 package org.sonar.plugins.core.timemachine;
 
 import com.google.common.collect.*;
+import com.sun.xml.internal.bind.v2.util.QNameMap;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.*;
 import org.sonar.api.measures.*;
@@ -40,11 +41,6 @@ public class NewViolationsDecorator implements Decorator {
 
   private TimeMachineConfiguration timeMachineConfiguration;
 
-  // temporary data for current resource
-  private Map<Rule, RulePriority> ruleToLevel = Maps.newHashMap();
-  private Multimap<RulePriority, Violation> violationsBySeverity = ArrayListMultimap.create();
-  private Multimap<Rule, Violation> violationsByRule = ArrayListMultimap.create();
-
   public NewViolationsDecorator(TimeMachineConfiguration timeMachineConfiguration) {
     this.timeMachineConfiguration = timeMachineConfiguration;
   }
@@ -56,42 +52,30 @@ public class NewViolationsDecorator implements Decorator {
   @DependedUpon
   public List<Metric> generatesMetric() {
     return Arrays.asList(
-        CoreMetrics.NEW_VIOLATIONS, CoreMetrics.NEW_BLOCKER_VIOLATIONS, CoreMetrics.NEW_CRITICAL_VIOLATIONS,
-        CoreMetrics.NEW_MAJOR_VIOLATIONS, CoreMetrics.NEW_MINOR_VIOLATIONS, CoreMetrics.NEW_INFO_VIOLATIONS);
+      CoreMetrics.NEW_VIOLATIONS,
+      CoreMetrics.NEW_BLOCKER_VIOLATIONS,
+      CoreMetrics.NEW_CRITICAL_VIOLATIONS,
+      CoreMetrics.NEW_MAJOR_VIOLATIONS,
+      CoreMetrics.NEW_MINOR_VIOLATIONS,
+      CoreMetrics.NEW_INFO_VIOLATIONS);
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
     if (shouldDecorateResource(resource, context)) {
-      prepareCurrentResourceViolations(context);
-      saveNewViolations(context);
-      saveNewViolationsBySeverity(context);
-      saveNewViolationsByRule(context);
-      clearCache();
+      computeNewViolations(context);
+      computeNewViolationsPerSeverity(context);
+      computeNewViolationsPerRule(context);
     }
   }
 
   private boolean shouldDecorateResource(Resource resource, DecoratorContext context) {
     return
-        (StringUtils.equals(Scopes.PROJECT, resource.getScope()) || StringUtils.equals(Scopes.DIRECTORY, resource.getScope()) || StringUtils.equals(Scopes.FILE, resource.getScope()))
-            && !ResourceUtils.isUnitTestClass(resource) && context.getMeasure(CoreMetrics.NEW_VIOLATIONS) == null;
+      (StringUtils.equals(Scopes.PROJECT, resource.getScope()) || StringUtils.equals(Scopes.DIRECTORY, resource.getScope()) || StringUtils.equals(Scopes.FILE, resource.getScope()))
+        && !ResourceUtils.isUnitTestClass(resource)
+        && context.getMeasure(CoreMetrics.NEW_VIOLATIONS) == null;
   }
 
-
-  private void clearCache() {
-    ruleToLevel.clear();
-    violationsBySeverity.clear();
-    violationsByRule.clear();
-  }
-
-  private void prepareCurrentResourceViolations(DecoratorContext context) {
-    for (Violation violation : context.getViolations()) {
-      violationsBySeverity.put(violation.getSeverity(), violation);
-      violationsByRule.put(violation.getRule(), violation);
-      ruleToLevel.put(violation.getRule(), violation.getSeverity());
-    }
-  }
-
-  private void saveNewViolations(DecoratorContext context) {
+  private void computeNewViolations(DecoratorContext context) {
     Measure measure = new Measure(CoreMetrics.NEW_VIOLATIONS);
     for (PastSnapshot pastSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
       int variationIndex = pastSnapshot.getIndex();
@@ -103,13 +87,18 @@ public class NewViolationsDecorator implements Decorator {
     context.saveMeasure(measure);
   }
 
-  private void saveNewViolationsBySeverity(DecoratorContext context) {
-    for (RulePriority priority : RulePriority.values()) {
-      Metric metric = getMetricForSeverity(priority);
+  private void computeNewViolationsPerSeverity(DecoratorContext context) {
+    ListMultimap<RulePriority, Violation> violationsPerSeverities = ArrayListMultimap.create();
+    for (Violation violation : context.getViolations()) {
+      violationsPerSeverities.put(violation.getSeverity(), violation);
+    }
+
+    for (RulePriority severity : RulePriority.values()) {
+      Metric metric = severityToMetric(severity);
       Measure measure = new Measure(metric);
       for (PastSnapshot pastSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
         int variationIndex = pastSnapshot.getIndex();
-        int count = countViolations(violationsBySeverity.get(priority), pastSnapshot.getTargetDate());
+        int count = countViolations(violationsPerSeverities.get(severity), pastSnapshot.getTargetDate());
         Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.metric(metric));
         double sum = sumChildren(variationIndex, children) + count;
         measure.setVariation(variationIndex, sum);
@@ -118,31 +107,41 @@ public class NewViolationsDecorator implements Decorator {
     }
   }
 
-  private void saveNewViolationsByRule(DecoratorContext context) {
-    ListMultimap<Rule, Measure> childrenByRule = ArrayListMultimap.create();
-    Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.rules(CoreMetrics.NEW_VIOLATIONS));
-    for (Measure childMeasure : children) {
-      RuleMeasure childRuleMeasure = (RuleMeasure) childMeasure;
-      Rule rule = childRuleMeasure.getRule();
-      if (rule != null) {
-        childrenByRule.put(rule, childMeasure);
-        ruleToLevel.put(childRuleMeasure.getRule(), childRuleMeasure.getRulePriority());
+  private void computeNewViolationsPerRule(DecoratorContext context) {
+    for (RulePriority severity : RulePriority.values()) {
+      Metric metric = severityToMetric(severity);
+      ListMultimap<Rule, Measure> childMeasuresPerRule = ArrayListMultimap.create();
+      ListMultimap<Rule, Violation> violationsPerRule = ArrayListMultimap.create();
+      Set<Rule> rules = Sets.newHashSet();
+           
+      Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.rules(metric));
+      for (Measure child : children) {
+        RuleMeasure childRuleMeasure = (RuleMeasure) child;
+        Rule rule = childRuleMeasure.getRule();
+        if (rule != null) {
+          childMeasuresPerRule.put(rule, childRuleMeasure);
+          rules.add(rule);
+        }
       }
-    }
 
-    Set<Rule> rules = Sets.newHashSet(violationsByRule.keys());
-    rules.addAll(childrenByRule.keys());
-
-    for (Rule rule : rules) {
-      RuleMeasure measure = RuleMeasure.createForRule(CoreMetrics.NEW_VIOLATIONS, rule, null);
-      measure.setRulePriority(ruleToLevel.get(rule));
-      for (PastSnapshot pastSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
-        int variationIndex = pastSnapshot.getIndex();
-        int count = countViolations(violationsByRule.get(rule), pastSnapshot.getTargetDate());
-        double sum = sumChildren(variationIndex, childrenByRule.get(rule)) + count;
-        measure.setVariation(variationIndex, sum);
+      for (Violation violation : context.getViolations()) {
+        if (violation.getSeverity().equals(severity)) {
+          rules.add(violation.getRule());
+          violationsPerRule.put(violation.getRule(), violation);
+        }
       }
-      context.saveMeasure(measure);
+
+      for (Rule rule : rules) {
+        RuleMeasure measure = RuleMeasure.createForRule(metric, rule, null);
+        measure.setRulePriority(severity);
+        for (PastSnapshot pastSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
+          int variationIndex = pastSnapshot.getIndex();
+          int count = countViolations(violationsPerRule.get(rule), pastSnapshot.getTargetDate());
+          double sum = sumChildren(variationIndex, childMeasuresPerRule.get(rule)) + count;
+          measure.setVariation(variationIndex, sum);
+        }
+        context.saveMeasure(measure);
+      }
     }
   }
 
@@ -177,7 +176,7 @@ public class NewViolationsDecorator implements Decorator {
     return violation.getCreatedAt() != null && violation.getCreatedAt().after(date);
   }
 
-  private Metric getMetricForSeverity(RulePriority severity) {
+  private Metric severityToMetric(RulePriority severity) {
     Metric metric;
     if (severity.equals(RulePriority.BLOCKER)) {
       metric = CoreMetrics.NEW_BLOCKER_VIOLATIONS;
@@ -190,7 +189,7 @@ public class NewViolationsDecorator implements Decorator {
     } else if (severity.equals(RulePriority.INFO)) {
       metric = CoreMetrics.NEW_INFO_VIOLATIONS;
     } else {
-      throw new IllegalArgumentException("Not supported severity: " + severity);
+      throw new IllegalArgumentException("Unsupported severity: " + severity);
     }
     return metric;
   }
