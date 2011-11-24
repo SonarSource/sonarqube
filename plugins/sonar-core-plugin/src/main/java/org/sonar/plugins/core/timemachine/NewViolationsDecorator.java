@@ -19,8 +19,9 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import com.google.common.collect.*;
-import com.sun.xml.internal.bind.v2.util.QNameMap;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.*;
 import org.sonar.api.measures.*;
@@ -113,7 +114,7 @@ public class NewViolationsDecorator implements Decorator {
       ListMultimap<Rule, Measure> childMeasuresPerRule = ArrayListMultimap.create();
       ListMultimap<Rule, Violation> violationsPerRule = ArrayListMultimap.create();
       Set<Rule> rules = Sets.newHashSet();
-           
+
       Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.rules(metric));
       for (Measure child : children) {
         RuleMeasure childRuleMeasure = (RuleMeasure) child;
