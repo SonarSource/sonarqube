@@ -135,14 +135,14 @@ function launchSearch(columnName, link) {
       <tfoot>
         <tr>
           <td colspan="6">
-            <%= @reviews.size -%> <%= message('results').downcase -%>
+            <%= @total_number -%> <%= message('results').downcase -%>
 	        <% if @page_count %>
 	          |
-	          <%= link_to_if @page_id>1, 'previous', {:overwrite_params => {:page_id => @page_id-1}} %>
+	          <%= link_to_if @page_id>1, message('paging_previous'), {:overwrite_params => {:page_id => @page_id-1}} %>
 	          <% for index in 1..@page_count %>
 	            <%= link_to_unless index==@page_id, index.to_s, {:overwrite_params => {:page_id => index}} %>
 	          <% end %>
-	          <%= link_to_if @page_id<@page_count, 'next', {:overwrite_params => {:page_id => 1+@page_id}} %>
+	          <%= link_to_if @page_id<@page_count, message('paging_next'), {:overwrite_params => {:page_id => 1+@page_id}} %>
 	        <% end %>
           </td>
         </tr>

@@ -40,6 +40,10 @@ import org.sonar.plugins.core.sensors.*;
 import org.sonar.plugins.core.testdetailsviewer.TestsViewerDefinition;
 import org.sonar.plugins.core.timemachine.*;
 import org.sonar.plugins.core.widgets.*;
+import org.sonar.plugins.core.widgets.reviews.FalsePositiveReviewsWidget;
+import org.sonar.plugins.core.widgets.reviews.MyReviewsWidget;
+import org.sonar.plugins.core.widgets.reviews.ProjectReviewsWidget;
+import org.sonar.plugins.core.widgets.reviews.ReviewsPerDeveloperWidget;
 
 import java.util.List;
 
@@ -246,6 +250,10 @@ public class CorePlugin extends SonarPlugin {
     extensions.add(HotspotMetricWidget.class);
     extensions.add(HotspotMostViolatedResourcesWidget.class);
     extensions.add(HotspotMostViolatedRulesWidget.class);
+    extensions.add(MyReviewsWidget.class);
+    extensions.add(ProjectReviewsWidget.class);
+    extensions.add(FalsePositiveReviewsWidget.class);
+    extensions.add(ReviewsPerDeveloperWidget.class);
 
     // chart
     extensions.add(XradarChart.class);

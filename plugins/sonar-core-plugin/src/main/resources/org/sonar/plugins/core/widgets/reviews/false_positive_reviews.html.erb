@@ -1,0 +1,21 @@
+<% 
+  if has_role?(:user, @project)
+    limit = widget_properties["numberOfLines"]
+    unless limit
+      limit = 5
+    end
+%>
+
+<h3><%= message('widget.false_positive_reviews.name') -%></h3>
+
+<div id="reviews-widget-<%= widget.id -%>">
+  <%= render :partial => 'project/widgets/reviews/reviews_list', 
+             :locals => {:assignee_login => '', 
+                         :project_key => @project.key,
+                         :statuses => 'RESOLVED',
+                         :resolution => 'FALSE-POSITIVE',
+                         :limit => limit,
+                         :widget_id => widget.id.to_s} %>
+</div>
+
+<% end %>

@@ -41,9 +41,9 @@
 %>
 
 
-<% unless snapshots %>
+<% unless snapshots && !snapshots.empty? %>
   <h3><%= title -%></h3>
-  <span style="color: #777777; font-size: 93%; font-style:italic"><%= message('widget.hotspot_metric.cannot_display_not_numeric_metric') -%></span>
+  <span class="empty_widget"><%= message('widget.hotspot_metric.cannot_display_not_numeric_metric') -%></span>
 <% else %>
 
 <div class="line-block">

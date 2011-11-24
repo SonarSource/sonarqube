@@ -1,0 +1,65 @@
+<% 
+    options = {}
+    options['statuses'] = 'OPEN,REOPENED'
+    options['projects'] = @project.key
+    reviews = Review.search(options)
+    
+    reviews_by_dev = {}
+    counter_no_assignee = 0
+    reviews.each do |review|
+      dev = review.assignee
+      if dev
+        counter = reviews_by_dev[dev]
+        if counter
+          reviews_by_dev[dev] = counter+1
+        else
+          reviews_by_dev[dev] = 1
+        end
+      else
+        counter_no_assignee += 1
+      end
+    end
+    
+    div_id = "review-per-dev-widget-#{widget.id.to_s}"
+%>
+
+<h3><%= message('widget.reviews_per_developer.name') -%></h3>
+
+<div id="<%= div_id -%>">
+
+  <table class="data width100">
+    <thead>
+      <tr>
+        <th coslpan="5">
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <% 
+        reviews_by_dev.sort{|h1,h2| h2[1] <=> h1[1]}.each do |dev, count|
+      %>
+        <tr class="<%= cycle 'even', 'odd', :name => (div_id) -%>">
+          <td>
+            <%= link_to dev.name, 
+                        :controller => "reviews", :action => "index", :statuses => ['OPEN','REOPENED'], :assignee_login => dev.login -%>
+          </td>
+          <td>
+            <%= count.to_s -%>
+          </td>
+        </tr>
+      <%
+        end
+      %>
+        <tr class="<%= cycle 'even', 'odd', :name => (div_id) -%>">
+          <td>
+            <%= link_to message('widget.reviews_per_developer.not_assigned'), 
+                        :controller => "reviews", :action => "index", :statuses => ['OPEN','REOPENED'], :assignee_login => '' -%>
+          </td>
+          <td>
+            <%= counter_no_assignee.to_s -%>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+</div>

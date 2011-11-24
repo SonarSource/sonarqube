@@ -1285,6 +1285,12 @@ div.autocomplete strong {
   vertical-align: bottom;
 }
 
+span.empty_widget {
+  color: #777777;
+  font-size: 93%;
+  font-style:italic;
+}
+
 .dashbox {
   float: left;
   vertical-align: top;
