@@ -49,7 +49,7 @@ public class CoberturaMavenInitializerTest {
   @Before
   public void setUp() {
     project = mock(Project.class);
-    initializer = new CoberturaMavenInitializer(new CoberturaMavenPluginHandler());
+    initializer = new CoberturaMavenInitializer(new CoberturaMavenPluginHandler(null));
   }
 
   @Test

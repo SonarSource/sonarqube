@@ -52,7 +52,6 @@ public class UpdateReviewsDecorator implements Decorator {
   private ResourcePersister resourcePersister;
   private DatabaseSession databaseSession;
   private ViolationTrackingDecorator violationTrackingDecorator;
-  private Query searchReviewsQuery;
   private Query updateReviewQuery;
   private Map<Integer, Violation> violationsPerPermanentId;
 
@@ -92,7 +91,7 @@ public class UpdateReviewsDecorator implements Decorator {
     // prepare the DB native queries
     updateReviewQuery = databaseSession
         .createNativeQuery("UPDATE reviews SET title=?, resource_line=?, updated_at=CURRENT_TIMESTAMP WHERE id=?");
-    searchReviewsQuery = databaseSession.getEntityManager().createNativeQuery(
+    Query searchReviewsQuery = databaseSession.getEntityManager().createNativeQuery(
         "SELECT * FROM reviews WHERE status!='CLOSED' AND resource_id=?", Review.class);
     // and iterate over the reviews that we find
     List<Review> reviews = searchReviewsQuery.setParameter(1, resourceId).getResultList();

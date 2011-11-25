@@ -24,13 +24,12 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.apache.commons.configuration.BaseConfiguration;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.maven.project.MavenProject;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.maven.MavenPlugin;
+import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.cobertura.api.CoberturaUtils;
 
@@ -40,20 +39,19 @@ public class CoberturaMavenPluginHandlerTest {
 
   @Before
   public void before() {
-    handler = new CoberturaMavenPluginHandler();
+    handler = new CoberturaMavenPluginHandler(new Settings(new PropertyDefinitions(CoberturaPlugin.class)));
   }
 
   @Test
   public void notFixedVersion() {
     // first of all, version was fixed : see http://jira.codehaus.org/browse/SONAR-1055
     // but it's more reasonable to let users change the version : see http://jira.codehaus.org/browse/SONAR-1310
-    assertThat(new CoberturaMavenPluginHandler().isFixedVersion(), is(false));
+    assertThat(new CoberturaMavenPluginHandler(null).isFixedVersion(), is(false));
   }
 
   @Test
   public void activateXmlFormat() {
     Project project = mock(Project.class);
-    when(project.getConfiguration()).thenReturn(new PropertiesConfiguration());
     when(project.getPom()).thenReturn(new MavenProject());
     when(project.getExclusionPatterns()).thenReturn(new String[0]);
 
@@ -66,7 +64,6 @@ public class CoberturaMavenPluginHandlerTest {
   @Test
   public void setCoberturaExclusions() {
     Project project = mock(Project.class);
-    when(project.getConfiguration()).thenReturn(new PropertiesConfiguration());
     when(project.getPom()).thenReturn(new MavenProject());
     when(project.getExclusionPatterns()).thenReturn(new String[] { "**/Foo.java", "com/*Test.*", "com/*" });
 
@@ -81,15 +78,17 @@ public class CoberturaMavenPluginHandlerTest {
   @Test
   // http://jira.codehaus.org/browse/SONAR-2897: there used to be a typo in the parameter name (was "sonar.cobertura.maxmen")
   public void checkOldParamNameCompatibility() {
-    Configuration conf = new BaseConfiguration();
-    conf.setProperty("sonar.cobertura.maxmen", "FOO");
+    Settings settings = new Settings(new PropertyDefinitions(CoberturaPlugin.class));
+    settings.setProperty("sonar.cobertura.maxmen", "FOO");
+    CoberturaMavenPluginHandler coberturaMavenPluginHandler = new CoberturaMavenPluginHandler(settings);
+
     Project project = mock(Project.class);
-    when(project.getConfiguration()).thenReturn(conf);
     when(project.getPom()).thenReturn(new MavenProject());
     when(project.getExclusionPatterns()).thenReturn(new String[0]);
 
     MavenPlugin coberturaPlugin = new MavenPlugin(CoberturaUtils.COBERTURA_GROUP_ID, CoberturaUtils.COBERTURA_ARTIFACT_ID, null);
-    handler.configure(project, coberturaPlugin);
+
+    coberturaMavenPluginHandler.configure(project, coberturaPlugin);
 
     assertThat(coberturaPlugin.getParameter("maxmem"), is("FOO"));
   }
