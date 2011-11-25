@@ -31,7 +31,7 @@ import java.util.List;
 
 /**
  * see SONAR-522
- * 
+ *
  * @since 1.11
  */
 public final class PurgeRuleMeasures extends Purge {

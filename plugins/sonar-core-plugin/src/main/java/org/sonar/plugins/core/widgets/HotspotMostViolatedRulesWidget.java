@@ -19,14 +19,9 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
-import org.sonar.api.web.WidgetCategory;
-import org.sonar.api.web.WidgetProperties;
-import org.sonar.api.web.WidgetProperty;
-import org.sonar.api.web.WidgetPropertyType;
+import org.sonar.api.web.*;
 
-@WidgetCategory({ "Hotspots" })
+@WidgetCategory({"Hotspots"})
 @WidgetProperties(
     {
         @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5"),
@@ -44,6 +39,6 @@ public class HotspotMostViolatedRulesWidget extends AbstractRubyTemplate impleme
 
   @Override
   protected String getTemplatePath() {
-    return "/Users/sbrandhof/projects/github/sonar/plugins/sonar-core-plugin/src/main/resources/org/sonar/plugins/core/widgets/hotspot_most_violated_rules.html.erb";
+    return "/org/sonar/plugins/core/widgets/hotspot_most_violated_rules.html.erb";
   }
 }
