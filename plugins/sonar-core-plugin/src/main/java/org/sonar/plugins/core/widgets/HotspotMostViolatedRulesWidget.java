@@ -30,7 +30,7 @@ import org.sonar.api.web.WidgetPropertyType;
 @WidgetProperties(
     {
         @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5"),
-        @WidgetProperty(key = "defaultSeverity", type = WidgetPropertyType.STRING)
+        @WidgetProperty(key = "defaultSeverity", type = WidgetPropertyType.STRING, description = "Values: BLOCKER, CRITICAL, MAJOR, MINOR, INFO")
     }
 )
 public class HotspotMostViolatedRulesWidget extends AbstractRubyTemplate implements RubyRailsWidget {
@@ -44,6 +44,6 @@ public class HotspotMostViolatedRulesWidget extends AbstractRubyTemplate impleme
 
   @Override
   protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/hotspot_most_violated_rules.html.erb";
+    return "/Users/sbrandhof/projects/github/sonar/plugins/sonar-core-plugin/src/main/resources/org/sonar/plugins/core/widgets/hotspot_most_violated_rules.html.erb";
   }
 }

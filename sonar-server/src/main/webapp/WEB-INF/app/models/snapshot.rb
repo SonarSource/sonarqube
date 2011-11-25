@@ -179,8 +179,12 @@ class Snapshot < ActiveRecord::Base
     if metrics
       metric_ids=[metrics].flatten.map{|metric| metric.id}
     end
-    rulemeasures.select do |m|
-      (metric_ids.nil? || metric_ids.include?(m.metric_id)) && (rule.nil? || m.rule_id==rule.id)
+    if metrics || rule
+      rulemeasures.select do |m|
+        (metric_ids.nil? || metric_ids.include?(m.metric_id)) && (rule.nil? || m.rule_id==rule.id)
+      end
+    else
+      rulemeasures
     end
   end
   

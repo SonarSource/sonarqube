@@ -43,15 +43,8 @@
                     alert_status="[null]" description="[null]"/>
 
   <!--<project_measures characteristic_id="[null]" url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]" variation_value_5="[null]"-->
-                    <!--rule_priority="4"-->
-                    <!--alert_text="[null]" ID="2" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="2" RULES_CATEGORY_ID="[null]"-->
-                    <!--RULE_ID="[null]"-->
-                    <!--text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"-->
-                    <!--alert_status="[null]" description="[null]"/>-->
-
-  <!--<project_measures characteristic_id="[null]" url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]" variation_value_5="[null]"-->
-                    <!--rule_priority="[null]"-->
-                    <!--alert_text="[null]" ID="3" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="3" RULES_CATEGORY_ID="[null]"-->
+                    <!--rule_priority="2"-->
+                    <!--alert_text="[null]" ID="2" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="3" RULES_CATEGORY_ID="[null]"-->
                     <!--RULE_ID="1"-->
                     <!--text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"-->
                     <!--alert_status="[null]" description="[null]"/>-->
@@ -60,32 +53,23 @@
   <!-- last measures -->
   <project_measures characteristic_id="[null]" url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]" variation_value_5="[null]"
                     rule_priority="[null]"
-                    alert_text="[null]" ID="4" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="4" RULES_CATEGORY_ID="[null]"
+                    alert_text="[null]" ID="3" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="4" RULES_CATEGORY_ID="[null]"
                     RULE_ID="[null]"
                     text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
                     alert_status="[null]" description="[null]"/>
 
   <project_measures characteristic_id="[null]" url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]" variation_value_5="[null]"
-                    rule_priority="[null]"
-                    alert_text="[null]" ID="5" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="5" rules_category_id="[null]"
+                    rule_priority="2"
+                    alert_text="[null]" ID="4" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="5" rules_category_id="[null]"
                     RULE_ID="1"
-                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
-                    alert_status="[null]" description="[null]"/>
-
-  <project_measures characteristic_id="[null]" url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]" variation_value_5="[null]"
-                    rule_priority="4"
-                    alert_text="[null]" ID="6" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="6" RULES_CATEGORY_ID="[null]"
-                    RULE_ID="[null]"
                     text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
                     alert_status="[null]" description="[null]"/>
 
   <!-- old measure data -->
   <measure_data id="1" measure_id="1" snapshot_id="1" data="[null]"/>
   <!--<measure_data id="2" measure_id="2" snapshot_id="2" data="[null]"/>-->
-  <!--<measure_data id="3" measure_id="3" snapshot_id="3" data="[null]"/>-->
 
   <!-- last measure data -->
+  <measure_data id="3" measure_id="3" snapshot_id="3" data="[null]"/>
   <measure_data id="4" measure_id="4" snapshot_id="4" data="[null]"/>
-  <measure_data id="5" measure_id="5" snapshot_id="5" data="[null]"/>
-  <measure_data id="6" measure_id="6" snapshot_id="6" data="[null]"/>
 </dataset>

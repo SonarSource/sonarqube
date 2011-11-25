@@ -48,7 +48,7 @@ public final class PurgeRuleMeasures extends Purge {
 
   private void purge(Integer sid) {
     Query query = getSession().createQuery("SELECT m.id FROM " + MeasureModel.class.getSimpleName() + " m, " + Snapshot.class.getSimpleName() + " s WHERE s.id = m.snapshotId and " +
-        "(s.rootId=:rootSid OR s.id=:rootSid) and (m.ruleId is not null or m.rulePriority is not null)");
+        "(s.rootId=:rootSid OR s.id=:rootSid) and m.ruleId is not null");
     query.setParameter("rootSid", sid);
     List<Integer> measureIds = query.getResultList();
     PurgeUtils.deleteMeasuresById(getSession(), measureIds);
