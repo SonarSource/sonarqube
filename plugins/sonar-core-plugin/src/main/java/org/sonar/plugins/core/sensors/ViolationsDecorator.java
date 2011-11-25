@@ -80,7 +80,7 @@ public class ViolationsDecorator implements Decorator {
     }
 
     for (RulePriority severity : RulePriority.values()) {
-      Metric metric = severityToMetric(severity);
+      Metric metric = SeverityUtils.severityToViolationMetric(severity);
       if (context.getMeasure(metric) == null) {
         Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.metric(metric));
         int sum = MeasureUtils.sum(true, children).intValue() + severitiesBag.count(severity);
@@ -97,7 +97,7 @@ public class ViolationsDecorator implements Decorator {
     }
 
     for (RulePriority severity : RulePriority.values()) {
-      Metric metric = severityToMetric(severity);
+      Metric metric = SeverityUtils.severityToViolationMetric(severity);
 
       Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.rules(metric));
       for (Measure child : children) {
@@ -127,24 +127,6 @@ public class ViolationsDecorator implements Decorator {
       rulesPerSeverity.put(severity, rulesBag);
     }
     return rulesBag;
-  }
-
-  static Metric severityToMetric(RulePriority severity) {
-    Metric metric;
-    if (severity.equals(RulePriority.BLOCKER)) {
-      metric = CoreMetrics.BLOCKER_VIOLATIONS;
-    } else if (severity.equals(RulePriority.CRITICAL)) {
-      metric = CoreMetrics.CRITICAL_VIOLATIONS;
-    } else if (severity.equals(RulePriority.MAJOR)) {
-      metric = CoreMetrics.MAJOR_VIOLATIONS;
-    } else if (severity.equals(RulePriority.MINOR)) {
-      metric = CoreMetrics.MINOR_VIOLATIONS;
-    } else if (severity.equals(RulePriority.INFO)) {
-      metric = CoreMetrics.INFO_VIOLATIONS;
-    } else {
-      throw new IllegalArgumentException("Unsupported severity: " + severity);
-    }
-    return metric;
   }
 
   @Override

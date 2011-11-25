@@ -21,7 +21,6 @@ package org.sonar.api.measures;
 
 import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RulePriority;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -57,8 +56,8 @@ public final class MeasuresFilters {
         }
         for (Measure measure : measures) {
           if (measure.getClass().equals(Measure.class) &&
-              measure.getMetricKey().equals(metricKey) &&
-              measure.getCharacteristic()==null) {
+            measure.getMetricKey().equals(metricKey) &&
+            measure.getCharacteristic() == null) {
             return measure;
           }
         }
@@ -76,9 +75,9 @@ public final class MeasuresFilters {
         }
         for (Measure measure : measures) {
           if (measure.getClass().equals(Measure.class) &&
-              measure.getMetric().equals(metric) &&
-              measure.getCharacteristic()!=null &&
-              measure.getCharacteristic().equals(characteristic)) {
+            measure.getMetric().equals(metric) &&
+            measure.getCharacteristic() != null &&
+            measure.getCharacteristic().equals(characteristic)) {
             return measure;
           }
         }
@@ -86,14 +85,14 @@ public final class MeasuresFilters {
       }
     };
   }
-  
+
   /**
    * @since 2.0
    */
   public static MeasuresFilter<Measure> measure(final Measure measure) {
     return new MeasuresFilter<Measure>() {
       public Measure filter(Collection<Measure> measures) {
-        if (measures==null) {
+        if (measures == null) {
           return null;
         }
         for (Measure m : measures) {
@@ -107,7 +106,7 @@ public final class MeasuresFilters {
   }
 
   /**
-   * @deprecated  since 2.5. See http://jira.codehaus.org/browse/SONAR-2007
+   * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2007
    */
   @Deprecated
   public static MeasuresFilter<RuleMeasure> ruleCategory(final Metric metric, final Integer category) {
@@ -136,8 +135,8 @@ public final class MeasuresFilters {
 
       private boolean apply(Measure measure) {
         return measure instanceof RuleMeasure
-            && metric.equals(measure.getMetric())
-            && ((RuleMeasure) measure).getRule() != null;
+          && metric.equals(measure.getMetric())
+          && ((RuleMeasure) measure).getRule() != null;
       }
 
       public Collection<RuleMeasure> filter(Collection<Measure> measures) {
@@ -181,8 +180,8 @@ public final class MeasuresFilters {
 
     private boolean apply(Measure measure) {
       return measure instanceof RuleMeasure
-          && filterOnMetricKey().equals(measure.getMetricKey())
-          && doApply((RuleMeasure) measure);
+        && filterOnMetricKey().equals(measure.getMetricKey())
+        && doApply((RuleMeasure) measure);
     }
 
     abstract boolean doApply(RuleMeasure ruleMeasure);
@@ -228,7 +227,7 @@ public final class MeasuresFilters {
     @Override
     boolean doApply(RuleMeasure measure) {
       return measure.getRule() != null
-          && rule.equals(measure.getRule());
+        && rule.equals(measure.getRule());
     }
   }
 }

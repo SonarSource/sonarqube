@@ -66,7 +66,7 @@ public final class Batch {
   /**
    * Used by Gradle 1.0
    *
-   * @deprecated
+   * @deprecated in version 2.12
    */
   @Deprecated
   public static Batch create(ProjectReactor projectReactor, Configuration configuration, Object... bootstrapperComponents) {

@@ -69,7 +69,7 @@ public class RegisterMetrics {
   private void checkMetrics(Map<String, Metrics> metricsByRepository, Metrics metrics) {
     for (Metric metric : metrics.getMetrics()) {
       String metricKey = metric.getKey();
-      if (CoreMetrics.metrics.contains(metric)) {
+      if (CoreMetrics.getMetrics().contains(metric)) {
         throw new ServerStartException("The following metric is already defined in sonar: " + metricKey);
       }
       Metrics anotherRepository = metricsByRepository.get(metricKey);

@@ -1423,7 +1423,7 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_GENERAL)
     .create();
 
-  public static List<Metric> metrics = Lists.newLinkedList();
+  private static final List<Metric> metrics = Lists.newLinkedList();
 
   public static List<Metric> getMetrics() {
     if (metrics.isEmpty()) {

@@ -66,7 +66,7 @@ public class WeightedViolationsDecorator implements Decorator {
     Multiset<RulePriority> distribution = TreeMultiset.create();
 
     for (RulePriority severity : RulePriority.values()) {
-      Measure measure = context.getMeasure(severityToMetric(severity));
+      Measure measure = context.getMeasure(SeverityUtils.severityToViolationMetric(severity));
       if (measure != null && MeasureUtils.hasValue(measure)) {
         distribution.add(severity, measure.getIntValue());
         double add = weights.get(severity) * measure.getIntValue();
@@ -76,24 +76,6 @@ public class WeightedViolationsDecorator implements Decorator {
 
     Measure debtMeasure = new Measure(CoreMetrics.WEIGHTED_VIOLATIONS, debt, KeyValueFormat.format(distribution));
     saveMeasure(context, debtMeasure);
-  }
-
-  static Metric severityToMetric(RulePriority severity) {
-    Metric metric;
-    if (severity.equals(RulePriority.BLOCKER)) {
-      metric = CoreMetrics.BLOCKER_VIOLATIONS;
-    } else if (severity.equals(RulePriority.CRITICAL)) {
-      metric = CoreMetrics.CRITICAL_VIOLATIONS;
-    } else if (severity.equals(RulePriority.MAJOR)) {
-      metric = CoreMetrics.MAJOR_VIOLATIONS;
-    } else if (severity.equals(RulePriority.MINOR)) {
-      metric = CoreMetrics.MINOR_VIOLATIONS;
-    } else if (severity.equals(RulePriority.INFO)) {
-      metric = CoreMetrics.INFO_VIOLATIONS;
-    } else {
-      throw new IllegalArgumentException("Unsupported severity: " + severity);
-    }
-    return metric;
   }
 
 
