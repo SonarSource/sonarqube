@@ -12,6 +12,12 @@
     options['projects'] = project_key
     options['resolutions'] = resolution
     options['sort'] = 'updated_at'
+    if params[:period]
+      from_date = @dashboard_configuration.from_datetime
+      options['from'] = from_date
+      to_date = @snapshot.created_at
+      options['to'] = to_date
+    end
     reviews = Review.search(options)
     
     # table pagination
@@ -37,14 +43,14 @@
 
     <table id="reviews-widget-list-<%= widget_id -%>" class="data width100">
       <thead>
-      <tr>
-        <th coslpan="5">
-        </th>
-      </tr>
+        <tr>
+          <th coslpan="4">
+          </th>
+        </tr>
       </thead>
       <tfoot>
         <tr>
-          <td colspan="6">
+          <td colspan="4">
             <%= total_number -%> <%= message('results').downcase -%>
 	        <% 
 	          if page_count
@@ -53,23 +59,25 @@
 	            link_params[:action] = 'widget_reviews_list'
 	            link_params[:assignee_login] = assignee_login if assignee_login && !assignee_login.blank?
 	            link_params[:project_key] = project_key
+	            link_params[:snapshot_id] = @snapshot.id
 	            link_params[:statuses] = statuses
 	            link_params[:resolution] = resolution if resolution && !resolution.blank?
 	            link_params[:limit] = limit
 	            link_params[:widget_id] = widget_id
+	            link_params[:period] = params[:period]
 	        %>
 	          |
-	          <%= link_to_remote (message('paging_previous'),
+	          <%=link_to_remote (message('paging_previous'),
 	                              :update => "reviews-widget-#{widget_id}",
 	                              :url => {:params => link_params.merge({:page_id => page_id-1})})  if page_id>1 %>
 	          <%= message('paging_previous') unless page_id>1 %>
 	          <% for index in 1..page_count %>
 	            <%= index.to_s if index==page_id %>
-	            <%= link_to_remote (index.to_s,
+	            <%=link_to_remote (index.to_s,
 	                               :update => "reviews-widget-#{widget_id}",
 	                               :url => {:params => link_params.merge({:page_id => index})}) unless index==page_id %>
 	          <% end %>
-	          <%= link_to_remote (message('paging_next'),
+	          <%=link_to_remote (message('paging_next'),
 	                              :update => "reviews-widget-#{widget_id}", 
 	                              :url => {:params => link_params.merge({:page_id => page_id+1})}) if page_id<page_count %>
 	          <%= message('paging_next') unless page_id<page_count %>

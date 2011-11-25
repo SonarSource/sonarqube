@@ -29,7 +29,8 @@ import org.sonar.api.web.WidgetPropertyType;
 @WidgetCategory({ "Reviews" })
 @WidgetProperties(
     {
-        @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5")
+        @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5", 
+                        description="Maximum number of reviews displayed at the same time.")
     }
 )
 public class ProjectReviewsWidget extends AbstractRubyTemplate implements RubyRailsWidget {

@@ -300,12 +300,13 @@ class ReviewsController < ApplicationController
   
   # GET
   def widget_reviews_list
-    project = Project.by_key params[:project_key]
-    unless project && has_role?(:user, project)
+    @snapshot = Snapshot.find(params[:snapshot_id])
+    unless @snapshot && has_role?(:user, @snapshot)
       render :text => "<b>Cannot access the reviews of this project</b>: access denied."
       return
     end
     
+    @dashboard_configuration=Api::DashboardConfiguration.new(nil, :period_index => params[:period], :snapshot => @snapshot) if params[:period]
     render :partial => 'project/widgets/reviews/reviews_list'
   end
 
@@ -329,6 +330,8 @@ class ReviewsController < ApplicationController
     @id = params[:review_id] || ''
     @sort = params[:sort]
     @asc = params[:asc] == "true"
+    @from = params[:from]
+    @to = params[:to]
   end
 
   def filter_any(array)
@@ -357,6 +360,12 @@ class ReviewsController < ApplicationController
     end
     if @false_positives
       options['false_positives']=@false_positives
+    end
+    if @from
+      options['from']=@from
+    end
+    if @to
+      options['to']=@to
     end
     unless @id  == ''
       if is_number? @id

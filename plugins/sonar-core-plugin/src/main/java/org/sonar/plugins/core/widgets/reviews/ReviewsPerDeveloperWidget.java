@@ -22,9 +22,6 @@ package org.sonar.plugins.core.widgets.reviews;
 import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.WidgetCategory;
-import org.sonar.api.web.WidgetProperties;
-import org.sonar.api.web.WidgetProperty;
-import org.sonar.api.web.WidgetPropertyType;
 
 @WidgetCategory({ "Reviews" })
 public class ReviewsPerDeveloperWidget extends AbstractRubyTemplate implements RubyRailsWidget {

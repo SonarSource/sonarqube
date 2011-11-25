@@ -298,6 +298,18 @@ class Review < ActiveRecord::Base
         values[:assignees]=assignees.map{|user_id| user_id.to_i}
       end
     end
+    
+    from=options['from']
+    if from
+      conditions << 'created_at >= :from'
+      values[:from] = from
+    end
+
+    to=options['to']
+    if from
+      conditions << 'created_at <= :to'
+      values[:to] = to
+    end
 
     sort=options['sort']
     asc=options['asc']

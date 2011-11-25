@@ -2,35 +2,51 @@
     options = {}
     options['statuses'] = 'OPEN,REOPENED'
     options['projects'] = @project.key
+    if params[:period]
+      from_date = dashboard_configuration.from_datetime
+      options['from'] = from_date
+      to_date = @snapshot.created_at
+      options['to'] = to_date
+    end
     reviews = Review.search(options)
     
-    reviews_by_dev = {}
-    counter_no_assignee = 0
-    reviews.each do |review|
-      dev = review.assignee
-      if dev
-        counter = reviews_by_dev[dev]
-        if counter
-          reviews_by_dev[dev] = counter+1
+    unless reviews.empty?
+      reviews_by_dev = {}
+      counter_no_assignee = 0
+      reviews.each do |review|
+        dev = review.assignee
+        if dev
+          counter = reviews_by_dev[dev]
+          if counter
+            reviews_by_dev[dev] = counter+1
+          else
+            reviews_by_dev[dev] = 1
+          end
         else
-          reviews_by_dev[dev] = 1
+          counter_no_assignee += 1
         end
-      else
-        counter_no_assignee += 1
       end
+      counter_max = reviews_by_dev.values.max
+      counter_max = counter_no_assignee if counter_no_assignee > counter_max
+      
+      div_id = "review-per-dev-widget-#{widget.id.to_s}"
     end
-    
-    div_id = "review-per-dev-widget-#{widget.id.to_s}"
 %>
 
 <h3><%= message('widget.reviews_per_developer.name') -%></h3>
+
+<% if reviews.size ==0 %>
+
+  <span class="empty_widget"><%= message('widget.my_reviews.no_review') -%></span>
+
+<% else %>
 
 <div id="<%= div_id -%>">
 
   <table class="data width100">
     <thead>
       <tr>
-        <th coslpan="5">
+        <th coslpan="3">
         </th>
       </tr>
     </thead>
@@ -39,27 +55,44 @@
         reviews_by_dev.sort{|h1,h2| h2[1] <=> h1[1]}.each do |dev, count|
       %>
         <tr class="<%= cycle 'even', 'odd', :name => (div_id) -%>">
-          <td>
+          <td class="max-width">
             <%= link_to dev.name, 
-                        :controller => "reviews", :action => "index", :statuses => ['OPEN','REOPENED'], :assignee_login => dev.login -%>
+                        :controller => "reviews", :action => "index", :statuses => ['OPEN','REOPENED'], :assignee_login => dev.login, 
+                        :projects => [@project.id], :from => from_date, :to => to_date -%>
           </td>
-          <td>
-            <%= count.to_s -%>
+          <td class="nowrap">
+            <%= '+' if params[:period] && !params[:period].blank? -%><%= count.to_s -%>
           </td>
+          <% if counter_max > 0 %>
+            <td>
+              <%= barchart(:width => 100, :percent => (100 * count / counter_max).to_i) %>
+            </td>
+          <% end %>
         </tr>
       <%
         end
+        # And now show the unassigned reviews counter
+        unless counter_no_assignee==0
       %>
         <tr class="<%= cycle 'even', 'odd', :name => (div_id) -%>">
-          <td>
+          <td class="max-width">
             <%= link_to message('widget.reviews_per_developer.not_assigned'), 
-                        :controller => "reviews", :action => "index", :statuses => ['OPEN','REOPENED'], :assignee_login => '' -%>
+                        :controller => "reviews", :action => "index", :statuses => ['OPEN','REOPENED'], :assignee_login => '', 
+                        :projects => [@project.id], :from => from_date, :to => to_date -%>
           </td>
-          <td>
-            <%= counter_no_assignee.to_s -%>
+          <td class="nowrap">
+            <%= '+' if params[:period] && !params[:period].blank? -%><%= counter_no_assignee.to_s -%>
           </td>
+          <% if counter_max > 0 %>
+            <td>
+              <%= barchart(:width => 100, :percent => (100 * counter_no_assignee / counter_max).to_i) %>
+            </td>
+          <% end %>
         </tr>
+      <% end %>
     </tbody>
   </table>
 
 </div>
+
+<% end %>
