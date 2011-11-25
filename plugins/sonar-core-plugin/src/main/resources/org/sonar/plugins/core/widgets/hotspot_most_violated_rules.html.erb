@@ -1,6 +1,6 @@
 <%
-  limit = widget_properties["numberOfLines"] || 5
-   metric_prefix = dashboard_configuration.selected_period? ? 'new_' : ''
+  limit = widget_properties["numberOfLines"].to_i==0 ? 5 : widget_properties["numberOfLines"].to_i
+  metric_prefix = dashboard_configuration.selected_period? ? 'new_' : ''
   value_column = (dashboard_configuration.selected_period? ? "variation_value_#{dashboard_configuration.period_index}" : 'value')
   measures_by_severity = {}
   all_measures=[]

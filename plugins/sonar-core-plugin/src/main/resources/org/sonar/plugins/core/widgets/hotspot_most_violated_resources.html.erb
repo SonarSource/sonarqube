@@ -1,9 +1,6 @@
 <%
-  limit = widget_properties["numberOfLines"]
-  unless limit
-    limit = 5
-  end
-
+  limit = widget_properties["numberOfLines"].to_i==0 ? 5 : widget_properties["numberOfLines"].to_i
+  
   metric = Metric.find(:first, :conditions => "name = 'weighted_violations'")
   
   snapshots_conditions=["snapshots.scope = 'FIL'", "snapshots.islast=:islast"]

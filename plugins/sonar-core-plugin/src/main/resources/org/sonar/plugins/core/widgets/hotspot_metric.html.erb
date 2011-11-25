@@ -3,10 +3,7 @@
   unless metric
     metric = Metric.find(:first, :conditions => "name = 'ncloc'")
   end
-  limit = widget_properties["numberOfLines"]
-  unless limit
-    limit = 5
-  end
+  limit = widget_properties["numberOfLines"].to_i==0 ? 5 : widget_properties["numberOfLines"].to_i
   title = widget_properties["title"]
   unless title && !title.blank?
     title = message('widget.hotspot_metric.hotspots_by_x', :params => metric.short_name)

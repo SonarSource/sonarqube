@@ -2,7 +2,7 @@
     options = {}
     options['statuses'] = 'OPEN,REOPENED'
     options['projects'] = @project.key
-    if params[:period]
+    if @dashboard_configuration.selected_period?
       from_date = dashboard_configuration.from_datetime
       options['from'] = from_date
       to_date = @snapshot.created_at
@@ -61,7 +61,7 @@
                         :projects => [@project.id], :from => from_date, :to => to_date -%>
           </td>
           <td class="nowrap">
-            <%= '+' if params[:period] && !params[:period].blank? -%><%= count.to_s -%>
+            <%= '+' if @dashboard_configuration.selected_period? -%><%= count.to_s -%>
           </td>
           <% if counter_max > 0 %>
             <td>
@@ -81,7 +81,7 @@
                         :projects => [@project.id], :from => from_date, :to => to_date -%>
           </td>
           <td class="nowrap">
-            <%= '+' if params[:period] && !params[:period].blank? -%><%= counter_no_assignee.to_s -%>
+            <%= '+' if @dashboard_configuration.selected_period? -%><%= counter_no_assignee.to_s -%>
           </td>
           <% if counter_max > 0 %>
             <td>

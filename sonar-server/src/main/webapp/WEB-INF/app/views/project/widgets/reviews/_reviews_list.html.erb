@@ -12,7 +12,7 @@
     options['projects'] = project_key
     options['resolutions'] = resolution
     options['sort'] = 'updated_at'
-    if params[:period]
+    if @dashboard_configuration.selected_period?
       from_date = @dashboard_configuration.from_datetime
       options['from'] = from_date
       to_date = @snapshot.created_at

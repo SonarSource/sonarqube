@@ -1,9 +1,6 @@
 <% 
   if current_user && has_role?(:user, @project)
-    limit = widget_properties["numberOfLines"]
-    unless limit
-      limit = 5
-    end
+    limit = widget_properties["numberOfLines"].to_i == 0 ? 5 : widget_properties["numberOfLines"].to_i
 %>
 
 <h3><%= message('widget.my_reviews.name') -%></h3>
