@@ -21,7 +21,8 @@ package org.sonar.server.ui;
 
 import org.junit.Test;
 import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.Page;
 import org.sonar.api.web.View;
@@ -32,7 +33,6 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItem;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -69,7 +69,7 @@ public class ViewsTest {
     final Views views = new Views(VIEWS);
     List resourceViewers = views.getPages(NavigationSection.RESOURCE_TAB);
     assertThat(resourceViewers.size(), is(1 + 4 /* default */));
-    assertThat(resourceViewers.contains(new ViewProxy((View)FAKE_TAB)), is(true));
+    assertThat(resourceViewers.contains(new ViewProxy((View) FAKE_TAB)), is(true));
   }
 
   @Test
@@ -136,20 +136,20 @@ public class ViewsTest {
   @Test
   public void checkResourceScope() {
     ViewProxy proxy = mock(ViewProxy.class);
-    assertThat(Views.acceptResourceScope(proxy, Project.SCOPE_ENTITY), is(true));
+    assertThat(Views.acceptResourceScope(proxy, Scopes.FILE), is(true));
 
-    when(proxy.getResourceScopes()).thenReturn(new String[]{Project.SCOPE_SET, Project.SCOPE_ENTITY});
-    assertThat(Views.acceptResourceScope(proxy, Project.SCOPE_ENTITY), is(true));
-    assertThat(Views.acceptResourceScope(proxy, Project.SCOPE_SPACE), is(false));
+    when(proxy.getResourceScopes()).thenReturn(new String[]{Scopes.PROJECT, Scopes.FILE});
+    assertThat(Views.acceptResourceScope(proxy, Scopes.FILE), is(true));
+    assertThat(Views.acceptResourceScope(proxy, Scopes.DIRECTORY), is(false));
   }
 
   @Test
   public void checkResourceQualifier() {
     ViewProxy proxy = mock(ViewProxy.class);
-    assertThat(Views.acceptResourceQualifier(proxy, Project.SCOPE_ENTITY), is(true));
+    assertThat(Views.acceptResourceQualifier(proxy, Scopes.FILE), is(true));
 
-    when(proxy.getResourceQualifiers()).thenReturn(new String[]{Project.QUALIFIER_CLASS, Project.QUALIFIER_FILE});
-    assertThat(Views.acceptResourceQualifier(proxy, Project.QUALIFIER_FILE), is(true));
-    assertThat(Views.acceptResourceQualifier(proxy, Project.QUALIFIER_PACKAGE), is(false));
+    when(proxy.getResourceQualifiers()).thenReturn(new String[]{Qualifiers.CLASS, Qualifiers.FILE});
+    assertThat(Views.acceptResourceQualifier(proxy, Qualifiers.FILE), is(true));
+    assertThat(Views.acceptResourceQualifier(proxy, Qualifiers.PACKAGE), is(false));
   }
 }
