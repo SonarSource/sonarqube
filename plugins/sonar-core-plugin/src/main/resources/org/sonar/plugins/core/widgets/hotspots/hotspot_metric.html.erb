@@ -1,36 +1,36 @@
 <%
-  metric = widget_properties["metric"]
-  metric = Metric.by_key('ncloc') unless metric
-  limit = widget_properties["numberOfLines"] || 5
-  title = widget_properties["title"]
-  title = message('widget.hotspot_metric.hotspots_by_x', :params => metric.short_name) if title && !title.blank?
-  
-  snapshots = nil
-  if metric.numeric?    
-    snapshots_conditions=["snapshots.scope = 'FIL'", "snapshots.islast=:islast", "snapshots.status = 'P'"]
-    snapshots_values={:islast => true}
-    snapshots_conditions << '(snapshots.id=:sid OR (snapshots.root_snapshot_id=:root_sid AND snapshots.path LIKE :path))'
-    snapshots_values[:sid]=@snapshot.id
-    snapshots_values[:root_sid] = (@snapshot.root_snapshot_id || @snapshot.id)
-    snapshots_values[:path]="#{@snapshot.path}#{@snapshot.id}.%"
-        
-    measures_conditions = ["project_measures.rule_id IS NULL", "project_measures.characteristic_id IS NULL"]
-    measures_values = {}
-    measures_conditions << "project_measures.metric_id = :m_id"
-    measures_values[:m_id] = metric.id
-    
-    measures=ProjectMeasure.find(:all,
-                                 :joins => :snapshot, 
-                                 :conditions => [ (snapshots_conditions + measures_conditions).join(' AND '), snapshots_values.merge(measures_values)],
-                                 :order => "project_measures.value #{'DESC' if metric.direction<0}",
-                                 :limit => limit)
-    
-    snapshots=Snapshot.find(measures.map {|m| m.snapshot_id}, :include => 'project')
-    snapshots_by_id = {}
-    snapshots.each do |s|
-      snapshots_by_id[s.id]=s
-    end
-  end
+   metric = widget_properties["metric"]
+   metric = Metric.by_key('ncloc') unless metric
+   limit = widget_properties["numberOfLines"] || 5
+   title = widget_properties["title"]
+   title = message('widget.hotspot_metric.hotspots_by_x', :params => metric.short_name) if title.blank?
+
+   snapshots = nil
+   if metric.numeric?
+     snapshots_conditions=["snapshots.scope = 'FIL'", "snapshots.islast=:islast", "snapshots.status = 'P'"]
+     snapshots_values={:islast => true}
+     snapshots_conditions << '(snapshots.id=:sid OR (snapshots.root_snapshot_id=:root_sid AND snapshots.path LIKE :path))'
+     snapshots_values[:sid]=@snapshot.id
+     snapshots_values[:root_sid] = (@snapshot.root_snapshot_id || @snapshot.id)
+     snapshots_values[:path]="#{@snapshot.path}#{@snapshot.id}.%"
+
+     measures_conditions = ["project_measures.rule_id IS NULL", "project_measures.characteristic_id IS NULL"]
+     measures_values = {}
+     measures_conditions << "project_measures.metric_id = :m_id"
+     measures_values[:m_id] = metric.id
+
+     measures=ProjectMeasure.find(:all,
+                                  :joins => :snapshot,
+                                  :conditions => [(snapshots_conditions + measures_conditions).join(' AND '), snapshots_values.merge(measures_values)],
+                                  :order => "project_measures.value #{'DESC' if metric.direction<0}",
+                                  :limit => limit)
+
+     snapshots=Snapshot.find(measures.map { |m| m.snapshot_id }, :include => 'project')
+     snapshots_by_id = {}
+     snapshots.each do |s|
+       snapshots_by_id[s.id]=s
+     end
+   end
 %>
 
 
@@ -39,42 +39,46 @@
   <span class="empty_widget"><%= message('widget.hotspot_metric.cannot_display_not_numeric_metric') -%></span>
 <% else %>
 
-<div class="line-block">
-  <div style="float:right">
-    <a href="<%= url_for_drilldown(metric) -%>"><%= message('widget.hotspot_metric.more') -%></a>
+  <div class="line-block">
+    <div style="float:right">
+      <a href="<%= url_for_drilldown(metric) -%>"><%= message('widget.hotspot_metric.more') -%></a>
+    </div>
+    <h3><%= title -%></h3>
   </div>
-  <h3><%= title -%></h3>
-</div>
 
-<table id="hotspots-<%= metric.name-%>-<%= widget.id -%>" class="data">
-  <thead><tr><th colspan="3"/></tr></thead>
-  <tbody>
-<%
-  if metric.direction > 0
-    metric_max_value = measures.last.value
-  else
-    metric_max_value = measures.first.value
-  end
-  measures.each do |measure|
-    resource = snapshots_by_id[measure.snapshot_id].resource
-%>
-    <tr class="<%= cycle 'even','odd', :name => ('hotspot_metric' + widget.id.to_s) -%>">
-      <td>
-        <%= link_to_resource(resource, resource.name, {:metric => metric.name}) -%>
-      </td>
-      <td class="right">
-        <%= format_measure(measure) -%>
-      </td>
-      <td class="barchart">
-        <div class="barchart" style="width: <%= (measure.value*100/metric_max_value).round.to_i -%>%">
-          <div style="width: 100%;background-color:#777;"></div>
-        </div>
-      </td>    
+  <table id="hotspots-<%= metric.name -%>-<%= widget.id -%>" class="data">
+    <thead>
+    <tr>
+      <th colspan="3"/>
     </tr>
-<%
-  end
-%>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+    <%
+       if metric.direction > 0
+         metric_max_value = measures.last.value
+       else
+         metric_max_value = measures.first.value
+       end
+       measures.each do |measure|
+         resource = snapshots_by_id[measure.snapshot_id].resource
+    %>
+      <tr class="<%= cycle 'even', 'odd', :name => ('hotspot_metric' + widget.id.to_s) -%>">
+        <td>
+          <%= link_to_resource(resource, resource.name, {:metric => metric.name}) -%>
+        </td>
+        <td class="right">
+          <%= format_measure(measure) -%>
+        </td>
+        <td class="barchart">
+          <div class="barchart" style="width: <%= (measure.value*100/metric_max_value).round.to_i -%>%">
+            <div style="width: 100%;background-color:#777;"></div>
+          </div>
+        </td>
+      </tr>
+    <%
+       end
+    %>
+    </tbody>
+  </table>
 
 <% end %>
