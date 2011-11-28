@@ -121,11 +121,11 @@ public class KeyValueFormatTest {
 
   @Test
   public void shouldConvertPriority() {
-    assertThat(KeyValueFormat.PriorityConverter.INSTANCE.format(RulePriority.BLOCKER), is("BLOCKER"));
-    assertThat(KeyValueFormat.PriorityConverter.INSTANCE.format(null), is(""));
+    assertThat(KeyValueFormat.newPriorityConverter().format(RulePriority.BLOCKER), is("BLOCKER"));
+    assertThat(KeyValueFormat.newPriorityConverter().format(null), is(""));
 
-    assertThat(KeyValueFormat.PriorityConverter.INSTANCE.parse("MAJOR"), is(RulePriority.MAJOR));
-    assertThat(KeyValueFormat.PriorityConverter.INSTANCE.parse(""), nullValue());
+    assertThat(KeyValueFormat.newPriorityConverter().parse("MAJOR"), is(RulePriority.MAJOR));
+    assertThat(KeyValueFormat.newPriorityConverter().parse(""), nullValue());
   }
 
   @Test

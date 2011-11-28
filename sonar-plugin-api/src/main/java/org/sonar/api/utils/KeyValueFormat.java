@@ -55,7 +55,7 @@ public final class KeyValueFormat {
   }
 
   public static final class StringConverter extends Converter<String> {
-    static final StringConverter INSTANCE = new StringConverter();
+    private static final StringConverter INSTANCE = new StringConverter();
 
     private StringConverter() {
     }
@@ -71,8 +71,12 @@ public final class KeyValueFormat {
     }
   }
 
+  public static StringConverter newStringConverter() {
+    return StringConverter.INSTANCE;
+  }
+
   public static final class ToStringConverter extends Converter<Object> {
-    static final ToStringConverter INSTANCE = new ToStringConverter();
+    private static final ToStringConverter INSTANCE = new ToStringConverter();
 
     private ToStringConverter() {
     }
@@ -88,8 +92,12 @@ public final class KeyValueFormat {
     }
   }
 
+  public static ToStringConverter newToStringConverter() {
+    return ToStringConverter.INSTANCE;
+  }
+
   public static final class IntegerConverter extends Converter<Integer> {
-    static final IntegerConverter INSTANCE = new IntegerConverter();
+    private static final IntegerConverter INSTANCE = new IntegerConverter();
 
     private IntegerConverter() {
     }
@@ -105,8 +113,12 @@ public final class KeyValueFormat {
     }
   }
 
+  public static IntegerConverter newIntegerConverter() {
+    return IntegerConverter.INSTANCE;
+  }
+
   public static final class PriorityConverter extends Converter<RulePriority> {
-    static final PriorityConverter INSTANCE = new PriorityConverter();
+    private static final PriorityConverter INSTANCE = new PriorityConverter();
 
     private PriorityConverter() {
     }
@@ -122,8 +134,12 @@ public final class KeyValueFormat {
     }
   }
 
+  public static PriorityConverter newPriorityConverter() {
+    return PriorityConverter.INSTANCE;
+  }
+
   public static final class DoubleConverter extends Converter<Double> {
-    static final DoubleConverter INSTANCE = new DoubleConverter();
+    private static final DoubleConverter INSTANCE = new DoubleConverter();
 
     private DoubleConverter() {
     }
@@ -139,14 +155,22 @@ public final class KeyValueFormat {
     }
   }
 
+  public static DoubleConverter newDoubleConverter() {
+    return DoubleConverter.INSTANCE;
+  }
+
   public static class DateConverter extends Converter<Date> {
     private SimpleDateFormat dateFormat;
 
+    /**
+     * @deprecated in version 2.13. Replaced by {@link org.sonar.api.utils.KeyValueFormat#newDateConverter()}
+     */
+    @Deprecated
     public DateConverter() {
       this(DateUtils.DATE_FORMAT);
     }
 
-    DateConverter(String format) {
+    private DateConverter(String format) {
       this.dateFormat = new SimpleDateFormat(format);
     }
 
@@ -165,6 +189,22 @@ public final class KeyValueFormat {
     }
   }
 
+  public static DateConverter newDateConverter() {
+    return new DateConverter(DateUtils.DATE_FORMAT);
+  }
+
+  public static DateConverter newDateTimeConverter() {
+    return new DateConverter(DateUtils.DATETIME_FORMAT);
+  }
+
+  public static DateConverter newDateConverter(String format) {
+    return new DateConverter(format);
+  }
+
+  /**
+   * @deprecated in version 2.13. Replaced by {@link org.sonar.api.utils.KeyValueFormat#newDateTimeConverter()}
+   */
+  @Deprecated
   public static class DateTimeConverter extends DateConverter {
     public DateTimeConverter() {
       super(DateUtils.DATETIME_FORMAT);
@@ -186,56 +226,56 @@ public final class KeyValueFormat {
   }
 
   public static Map parse(String data) {
-    return parse(data, StringConverter.INSTANCE, StringConverter.INSTANCE);
+    return parse(data, newStringConverter(), newStringConverter());
   }
 
   /**
    * @since 2.7
    */
   public static Map<String, Integer> parseStringInt(String data) {
-    return parse(data, StringConverter.INSTANCE, IntegerConverter.INSTANCE);
+    return parse(data, newStringConverter(), newIntegerConverter());
   }
 
   /**
    * @since 2.7
    */
   public static Map<String, Double> parseStringDouble(String data) {
-    return parse(data, StringConverter.INSTANCE, DoubleConverter.INSTANCE);
+    return parse(data, newStringConverter(), newDoubleConverter());
   }
 
   /**
    * @since 2.7
    */
   public static Map<Integer, String> parseIntString(String data) {
-    return parse(data, IntegerConverter.INSTANCE, StringConverter.INSTANCE);
+    return parse(data, newIntegerConverter(), newStringConverter());
   }
 
   /**
    * @since 2.7
    */
   public static Map<Integer, Double> parseIntDouble(String data) {
-    return parse(data, IntegerConverter.INSTANCE, DoubleConverter.INSTANCE);
+    return parse(data, newIntegerConverter(), newDoubleConverter());
   }
 
   /**
    * @since 2.7
    */
   public static Map<Integer, Date> parseIntDate(String data) {
-    return parse(data, IntegerConverter.INSTANCE, new DateConverter());
+    return parse(data, newIntegerConverter(), newDateConverter());
   }
 
   /**
    * @since 2.7
    */
   public static Map<Integer, Integer> parseIntInt(String data) {
-    return parse(data, IntegerConverter.INSTANCE, IntegerConverter.INSTANCE);
+    return parse(data, newIntegerConverter(), newIntegerConverter());
   }
 
   /**
    * @since 2.7
    */
   public static Map<Integer, Date> parseIntDateTime(String data) {
-    return parse(data, IntegerConverter.INSTANCE, new DateTimeConverter());
+    return parse(data, newIntegerConverter(), newDateTimeConverter());
   }
 
   /**
@@ -253,7 +293,7 @@ public final class KeyValueFormat {
         String[] keyValue = StringUtils.split(pair, FIELD_SEPARATOR);
         String key = keyValue[0];
         String value = (keyValue.length == 2 ? keyValue[1] : "0");
-        multiset.add(keyConverter.parse(key), IntegerConverter.INSTANCE.parse(value));
+        multiset.add(keyConverter.parse(key), new IntegerConverter().parse(value));
       }
     }
     return multiset;
@@ -264,14 +304,14 @@ public final class KeyValueFormat {
    * @since 2.7
    */
   public static Multiset<Integer> parseIntegerMultiset(String data) {
-    return parseMultiset(data, IntegerConverter.INSTANCE);
+    return parseMultiset(data, newIntegerConverter());
   }
 
   /**
    * @since 2.7
    */
   public static Multiset<String> parseMultiset(String data) {
-    return parseMultiset(data, StringConverter.INSTANCE);
+    return parseMultiset(data, newStringConverter());
   }
 
   /**
@@ -322,7 +362,7 @@ public final class KeyValueFormat {
       }
       sb.append(keyConverter.format(entry.getElement()));
       sb.append(FIELD_SEPARATOR);
-      sb.append(IntegerConverter.INSTANCE.format(entry.getCount()));
+      sb.append(new IntegerConverter().format(entry.getCount()));
       first = false;
     }
     return sb.toString();
@@ -340,46 +380,47 @@ public final class KeyValueFormat {
    * @since 2.7
    */
   public static String format(Map map) {
-    return format(map, ToStringConverter.INSTANCE, ToStringConverter.INSTANCE);
+    return format(map, newToStringConverter(), newToStringConverter());
   }
 
   /**
    * @since 2.7
    */
   public static String formatIntString(Map<Integer, String> map) {
-    return format(map, IntegerConverter.INSTANCE, StringConverter.INSTANCE);
+    return format(map, newIntegerConverter(), newStringConverter());
   }
 
   /**
    * @since 2.7
    */
   public static String formatIntDouble(Map<Integer, Double> map) {
-    return format(map, IntegerConverter.INSTANCE, DoubleConverter.INSTANCE);
+    return format(map, newIntegerConverter(), newDoubleConverter());
   }
 
   /**
    * @since 2.7
    */
   public static String formatIntDate(Map<Integer, Date> map) {
-    return format(map, IntegerConverter.INSTANCE, new DateConverter());
+    return format(map, newIntegerConverter(), newDateConverter());
   }
 
   /**
    * @since 2.7
    */
   public static String formatIntDateTime(Map<Integer, Date> map) {
-    return format(map, IntegerConverter.INSTANCE, new DateTimeConverter());
+    return format(map, newIntegerConverter(), newDateTimeConverter());
   }
 
   /**
    * @since 2.7
    */
   public static String formatStringInt(Map<String, Integer> map) {
-    return format(map, StringConverter.INSTANCE, IntegerConverter.INSTANCE);
+    return format(map, newStringConverter(), newIntegerConverter());
   }
 
   /**
    * Limitation: there's currently no methods to parse into Multimap.
+   *
    * @since 2.7
    */
   public static <K, V> String format(Multimap<K, V> map, Converter<K> keyConverter, Converter<V> valueConverter) {
@@ -394,9 +435,8 @@ public final class KeyValueFormat {
   }
 
   public static String format(Multiset multiset) {
-    return formatEntries(multiset.entrySet(), ToStringConverter.INSTANCE);
+    return formatEntries(multiset.entrySet(), newToStringConverter());
   }
-
 
 
   /**
@@ -441,6 +481,7 @@ public final class KeyValueFormat {
 
   /**
    * Implementation of Transformer<String, Double>
+   *
    * @deprecated since 2.7 replaced by Converter
    */
   @Deprecated
@@ -452,6 +493,7 @@ public final class KeyValueFormat {
 
   /**
    * Implementation of Transformer<Double, Double>
+   *
    * @deprecated since 2.7. Replaced by Converter
    */
   @Deprecated
@@ -463,6 +505,7 @@ public final class KeyValueFormat {
 
   /**
    * Implementation of Transformer<Integer, Integer>
+   *
    * @deprecated since 2.7. Replaced by Converter
    */
   @Deprecated
@@ -475,6 +518,7 @@ public final class KeyValueFormat {
 
   /**
    * Implementation of Transformer<RulePriority, Integer>
+   *
    * @deprecated since 2.7. Replaced by Converter
    */
   @Deprecated
