@@ -36,7 +36,6 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.api.rules.RuleUtils;
 import org.sonar.api.utils.KeyValueFormat;
 
 import java.util.Arrays;
@@ -56,7 +55,7 @@ import java.util.Map;
 public class WeightedViolationsDecorator implements Decorator {
 
   private Settings settings;
-  private Map<RulePriority,Integer> weightsBySeverity;
+  private Map<RulePriority, Integer> weightsBySeverity;
 
   public WeightedViolationsDecorator(Settings settings) {
     this.settings = settings;
