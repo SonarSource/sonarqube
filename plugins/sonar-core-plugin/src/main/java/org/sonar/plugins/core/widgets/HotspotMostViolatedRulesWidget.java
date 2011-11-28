@@ -39,6 +39,6 @@ public class HotspotMostViolatedRulesWidget extends AbstractRubyTemplate impleme
 
   @Override
   protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/hotspot_most_violated_rules.html.erb";
+    return "/org/sonar/plugins/core/widgets/hotspots/hotspot_most_violated_rules.html.erb";
   }
 }

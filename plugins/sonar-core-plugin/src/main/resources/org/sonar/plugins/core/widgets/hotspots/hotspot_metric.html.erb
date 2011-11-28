@@ -1,17 +1,13 @@
 <%
   metric = widget_properties["metric"]
-  unless metric
-    metric = Metric.find(:first, :conditions => "name = 'ncloc'")
-  end
-  limit = widget_properties["numberOfLines"].to_i==0 ? 5 : widget_properties["numberOfLines"].to_i
+  metric = Metric.by_key('ncloc') unless metric
+  limit = widget_properties["numberOfLines"] || 5
   title = widget_properties["title"]
-  unless title && !title.blank?
-    title = message('widget.hotspot_metric.hotspots_by_x', :params => metric.short_name)
-  end
+  title = message('widget.hotspot_metric.hotspots_by_x', :params => metric.short_name) if title && !title.blank?
   
   snapshots = nil
   if metric.numeric?    
-    snapshots_conditions=["snapshots.scope = 'FIL'", "snapshots.islast=:islast"]
+    snapshots_conditions=["snapshots.scope = 'FIL'", "snapshots.islast=:islast", "snapshots.status = 'P'"]
     snapshots_values={:islast => true}
     snapshots_conditions << '(snapshots.id=:sid OR (snapshots.root_snapshot_id=:root_sid AND snapshots.path LIKE :path))'
     snapshots_values[:sid]=@snapshot.id

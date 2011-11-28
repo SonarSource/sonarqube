@@ -44,6 +44,6 @@ public class HotspotMostViolatedResourcesWidget extends AbstractRubyTemplate imp
 
   @Override
   protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/hotspot_most_violated_resources.html.erb";
+    return "/org/sonar/plugins/core/widgets/hotspots/hotspot_most_violated_resources.html.erb";
   }
 }

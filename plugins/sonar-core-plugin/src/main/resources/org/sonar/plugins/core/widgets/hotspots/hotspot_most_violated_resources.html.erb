@@ -1,9 +1,9 @@
 <%
-  limit = widget_properties["numberOfLines"].to_i==0 ? 5 : widget_properties["numberOfLines"].to_i
+  limit = widget_properties["numberOfLines"] || 5
   
-  metric = Metric.find(:first, :conditions => "name = 'weighted_violations'")
+  metric = Metric.by_key('weighted_violations')
   
-  snapshots_conditions=["snapshots.scope = 'FIL'", "snapshots.islast=:islast"]
+  snapshots_conditions=["snapshots.scope = 'FIL'", "snapshots.islast=:islast", "snapshots.status = 'P'"]
   snapshots_values={:islast => true}
   snapshots_conditions << "(snapshots.qualifier = 'CLA' OR snapshots.qualifier = 'FIL' OR snapshots.qualifier = 'TRK')"
   snapshots_conditions << '(snapshots.id=:sid OR (snapshots.root_snapshot_id=:root_sid AND snapshots.path LIKE :path))'
@@ -37,7 +37,7 @@
 </div>
 
 <table id="most-violated-resources-<%= widget.id -%>" class="data">
-  <thead><tr><th colspan="11"/></tr></thead>
+  <thead><tr><th colspan="11"></th></tr></thead>
   <tbody>
 <%
   measures.each do |measure|

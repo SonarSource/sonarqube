@@ -45,6 +45,6 @@ public class HotspotMetricWidget extends AbstractRubyTemplate implements RubyRai
 
   @Override
   protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/hotspot_metric.html.erb";
+    return "/org/sonar/plugins/core/widgets/hotspots/hotspot_metric.html.erb";
   }
 }
