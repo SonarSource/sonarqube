@@ -19,7 +19,7 @@
        			               {:controller => "columns", :action => "left", :id => column.id, :rid => @project.id}, :class => 'nolink') if column.position > 0 %>
         <%= link_to( image_tag("bin_closed.png", :alt => message('remove_column'), :id => "remove_" + column.id),
 	  	                     {:controller => "columns", :action => "delete", :id => column.id, :rid => @project.id}, :class => 'nolink') %>
- 		    <%= link_to( image_tag("controls/resultset_next.png", :alt => message('move_left'), :id => "move_right_" + column.id),
+ 		    <%= link_to( image_tag("controls/resultset_next.png", :alt => message('move_right'), :id => "move_right_" + column.id),
        			               {:controller => "columns", :action => "right", :id => column.id, :rid => @project.id}, :class => 'nolink') if column.position != configured_columns.size - 1 %>
       </th>
     <% end %>
