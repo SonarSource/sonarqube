@@ -79,6 +79,7 @@ public class ViolationPersisterDecorator implements Decorator {
       model.setPermanentId(referenceViolation.getPermanentId());
     }
     model.setSnapshotId(snapshot.getId());
+    model.setResourceId(snapshot.getResourceId());
     session.saveWithoutFlush(model);
 
     if (model.getPermanentId() == null) {

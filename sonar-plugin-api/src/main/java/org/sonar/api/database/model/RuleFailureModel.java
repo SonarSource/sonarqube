@@ -38,6 +38,9 @@ public class RuleFailureModel extends BaseIdentifiable {
   @Column(name = "snapshot_id", nullable = true)
   protected Integer snapshotId;
 
+  @Column(name = "resource_id", nullable = true)
+  protected Integer resourceId;
+
   @Column(name = "rule_id", updatable = false, nullable = false)
   private Integer ruleId;
 
@@ -115,8 +118,17 @@ public class RuleFailureModel extends BaseIdentifiable {
     return snapshotId;
   }
 
-  public void setSnapshotId(Integer snapshotId) {
-    this.snapshotId = snapshotId;
+  public void setSnapshotId(Integer i) {
+    this.snapshotId = i;
+  }
+
+  public Integer getResourceId() {
+    return resourceId;
+  }
+
+  public RuleFailureModel setResourceId(Integer i) {
+    this.resourceId = i;
+    return this;
   }
 
   public void setPriority(RulePriority priority) {

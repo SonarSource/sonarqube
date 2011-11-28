@@ -46,9 +46,13 @@ class RuleFailure < ActiveRecord::Base
 
   def html_message
     @html_message ||=
-      begin
-        message ? Api::Utils.split_newlines(ERB::Util.html_escape(message)).join('<br/>') : ''
-      end
+        begin
+          message ? Api::Utils.split_newlines(ERB::Util.html_escape(message)).join('<br/>') : ''
+        end
+  end
+
+  def resource
+    resource_id ? read_attribute('resource_id') : snapshot.resource
   end
 
   def to_json(include_review=false, convert_markdown=false)
@@ -62,15 +66,15 @@ class RuleFailure < ActiveRecord::Base
       json['createdAt'] = Api::Utils.format_datetime(created_at)
     end
     json['rule'] = {
-      :key => rule.key,
-      :name => rule.name
+        :key => rule.key,
+        :name => rule.name
     }
     json['resource'] = {
-      :key => snapshot.project.key,
-      :name => snapshot.project.name,
-      :scope => snapshot.project.scope,
-      :qualifier => snapshot.project.qualifier,
-      :language => snapshot.project.language
+        :key => snapshot.project.key,
+        :name => snapshot.project.name,
+        :scope => snapshot.project.scope,
+        :qualifier => snapshot.project.qualifier,
+        :language => snapshot.project.language
     }
     json['review'] = review.to_json(convert_markdown) if include_review && review
     json
@@ -104,11 +108,11 @@ class RuleFailure < ActiveRecord::Base
   def build_review(options={})
     if review.nil?
       self.review=Review.new(
-        {:status => Review::STATUS_OPEN,
-        :severity => Sonar::RulePriority.to_s(failure_level),
-        :resource_line => line,
-        :resource => snapshot.resource,
-        :title => title}.merge(options))
+          {:status => Review::STATUS_OPEN,
+           :severity => Sonar::RulePriority.to_s(failure_level),
+           :resource_line => line,
+           :resource => snapshot.resource,
+           :title => title}.merge(options))
     end
   end
 
