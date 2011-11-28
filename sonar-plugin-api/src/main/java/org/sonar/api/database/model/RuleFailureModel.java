@@ -35,7 +35,7 @@ public class RuleFailureModel extends BaseIdentifiable {
 
   public static final int MESSAGE_COLUMN_SIZE = 4000;
 
-  @Column(name = "snapshot_id")
+  @Column(name = "snapshot_id", nullable = true)
   protected Integer snapshotId;
 
   @Column(name = "rule_id", updatable = false, nullable = false)
