@@ -52,12 +52,12 @@ public class DependenciesTable extends Composite {
   private Panel createIncomingColumn(Data data) {
     FlexTable grid = new FlexTable();
     grid.setStyleName("col");
-    grid.setWidget(0, 1, new HTML("<b>" + Dictionary.getDictionary("l10n").get("depsTab.afferentCouplings") + "</b>: " + data.getResource().getMeasureIntValue("ca")));
+    grid.setWidget(0, 1, new HTML(Dictionary.getDictionary("l10n").get("depsTab.afferentCouplings") + ": <b>" + data.getResource().getMeasureIntValue("ca") + "</b>"));
     grid.getRowFormatter().setStyleName(0, "coltitle");
 
     int row = 1;
     for (Dependency dependency : data.getDependencies()) {
-      if (data.getResourceId()==dependency.getToId()) {
+      if (data.getResourceId() == dependency.getToId()) {
         addDependencyRow(grid, row, dependency.getFromId(), dependency.getFromName() + " (" + dependency.getWeight() + ")");
         grid.setWidget(row, 0, Icons.forQualifier(dependency.getFromQualifier()).createImage());
         row++;
@@ -70,12 +70,12 @@ public class DependenciesTable extends Composite {
   private Panel createOutgoingColumn(Data data) {
     FlexTable grid = new FlexTable();
     grid.setStyleName("col");
-    grid.setWidget(0, 1, new HTML("<b>" + Dictionary.getDictionary("l10n").get("depsTab.efferentCouplings") + "</b>: " + data.getResource().getMeasureIntValue("ce")));
+    grid.setWidget(0, 1, new HTML(Dictionary.getDictionary("l10n").get("depsTab.efferentCouplings") + ": <b>" + data.getResource().getMeasureIntValue("ce") + "</b>"));
     grid.getRowFormatter().setStyleName(0, "coltitle");
 
     int row = 1;
     for (Dependency dependency : data.getDependencies()) {
-      if (data.getResourceId()==dependency.getFromId()) {
+      if (data.getResourceId() == dependency.getFromId()) {
         addDependencyRow(grid, row, dependency.getToId(), dependency.getToName() + " (" + dependency.getWeight() + ")");
         grid.setWidget(row, 0, Icons.forQualifier(dependency.getToQualifier()).createImage());
         row++;
