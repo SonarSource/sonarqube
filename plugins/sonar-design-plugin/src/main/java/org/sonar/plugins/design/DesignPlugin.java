@@ -23,7 +23,6 @@ import com.google.common.collect.Lists;
 import org.sonar.api.SonarPlugin;
 import org.sonar.plugins.design.batch.*;
 import org.sonar.plugins.design.ui.dependencies.GwtDependenciesTab;
-import org.sonar.plugins.design.ui.lcom4.GwtLcom4Tab;
 import org.sonar.plugins.design.ui.libraries.GwtLibrariesPage;
 import org.sonar.plugins.design.ui.page.GwtDesignPage;
 import org.sonar.plugins.design.ui.widgets.ChidamberKemererWidget;
@@ -51,7 +50,6 @@ public class DesignPlugin extends SonarPlugin {
     extensions.add(FileDesignWidget.class);
     extensions.add(PackageDesignWidget.class);
     extensions.add(ChidamberKemererWidget.class);
-    extensions.add(GwtLcom4Tab.class);
 
     return extensions;
   }

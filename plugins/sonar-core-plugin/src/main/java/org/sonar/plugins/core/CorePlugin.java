@@ -39,6 +39,7 @@ import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.*;
 import org.sonar.plugins.core.testdetailsviewer.TestsViewerDefinition;
 import org.sonar.plugins.core.timemachine.*;
+import org.sonar.plugins.core.web.Lcom4Viewer;
 import org.sonar.plugins.core.widgets.*;
 import org.sonar.plugins.core.widgets.reviews.FalsePositiveReviewsWidget;
 import org.sonar.plugins.core.widgets.reviews.MyReviewsWidget;
@@ -207,7 +208,7 @@ import java.util.List;
 })
 public class CorePlugin extends SonarPlugin {
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public List getExtensions() {
     List extensions = Lists.newLinkedList();
 
@@ -225,6 +226,7 @@ public class CorePlugin extends SonarPlugin {
     // pages
     extensions.add(TestsViewerDefinition.class);
     extensions.add(Hotspots.class);
+    extensions.add(Lcom4Viewer.class);
 
     // widgets
     extensions.add(AlertsWidget.class);

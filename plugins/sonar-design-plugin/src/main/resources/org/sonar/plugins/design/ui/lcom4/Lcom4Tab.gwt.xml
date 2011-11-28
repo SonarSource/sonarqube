@@ -1,8 +1,0 @@
-<module>
-  <inherits name="com.google.gwt.user.User"/>
-  <inherits name="com.google.gwt.json.JSON"/>
-  <inherits name="com.google.gwt.http.HTTP"/>
-  <inherits name="org.sonar.Sonar"/>
-  <stylesheet src="lcom4.css"/>
-  <entry-point class="org.sonar.plugins.design.ui.lcom4.client.Lcom4Tab"/>
-</module>

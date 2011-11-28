@@ -17,26 +17,29 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.design.ui.lcom4;
+package org.sonar.plugins.core.web;
 
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.*;
-import org.sonar.plugins.design.ui.lcom4.client.Lcom4Tab;
 
-@ResourceLanguage(Java.KEY)
-@ResourceQualifier({Resource.QUALIFIER_CLASS})
-@DefaultTab(metrics = {CoreMetrics.LCOM4_KEY})
-@NavigationSection({NavigationSection.RESOURCE_TAB})
+@NavigationSection(NavigationSection.RESOURCE_TAB)
 @UserRole(UserRole.CODEVIEWER)
-public class GwtLcom4Tab extends GwtPage {
+@ResourceLanguage(Java.KEY)
+@ResourceQualifier(Qualifiers.CLASS)
+@DefaultTab(metrics = {"lcom4", "lcom4_blocks"})
+public class Lcom4Viewer extends AbstractRubyTemplate implements RubyRailsPage {
+
+  public String getId() {
+    return "lcom4_viewer";
+  }
 
   public String getTitle() {
     return "LCOM4";
   }
 
-  public String getGwtId() {
-    return Lcom4Tab.GWT_ID;
+  @Override
+  protected String getTemplatePath() {
+    return "/org/sonar/plugins/core/web/lcom4_viewer.html.erb";
   }
 }
