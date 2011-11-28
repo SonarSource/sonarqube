@@ -19,44 +19,35 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import com.google.common.collect.Maps;
+import org.hamcrest.core.Is;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.MeasuresFilter;
-import org.sonar.api.measures.Metric;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.test.IsMeasure;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class WeightedViolationsDecoratorTest {
 
-  private Map<RulePriority, Integer> createWeights() {
-    Map<RulePriority, Integer> weights = Maps.newHashMap();
-    weights.put(RulePriority.BLOCKER, 10);
-    weights.put(RulePriority.CRITICAL, 5);
-    weights.put(RulePriority.MAJOR, 2);
-    weights.put(RulePriority.MINOR, 1);
-    weights.put(RulePriority.INFO, 0);
-    return weights;
-  }
-
   @Test
-  public void weightedViolations() {
-    Map<RulePriority, Integer> weights = createWeights();
-    WeightedViolationsDecorator decorator = new WeightedViolationsDecorator();
+  public void testWeightedViolations() {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.CORE_RULE_WEIGHTS_PROPERTY, "BLOCKER=10;CRITICAL=5;MAJOR=2;MINOR=1;INFO=0");
+    WeightedViolationsDecorator decorator = new WeightedViolationsDecorator(settings);
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getMeasure(CoreMetrics.INFO_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.INFO_VIOLATIONS, 50.0));
     when(context.getMeasure(CoreMetrics.CRITICAL_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.CRITICAL_VIOLATIONS, 80.0));
     when(context.getMeasure(CoreMetrics.BLOCKER_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.BLOCKER_VIOLATIONS, 100.0));
 
-    decorator.decorate(context, weights);
+    decorator.start();
+    decorator.decorate(context);
 
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.WEIGHTED_VIOLATIONS, (double) (100 * 10 + 80 * 5 + 50 * 0))));
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.WEIGHTED_VIOLATIONS, "INFO=50;CRITICAL=80;BLOCKER=100")));
@@ -64,11 +55,38 @@ public class WeightedViolationsDecoratorTest {
 
   @Test
   public void doNotSaveZero() {
-    Map<RulePriority, Integer> weights = createWeights();
-    WeightedViolationsDecorator decorator = new WeightedViolationsDecorator();
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.CORE_RULE_WEIGHTS_PROPERTY, "BLOCKER=10;CRITICAL=5;MAJOR=2;MINOR=1;INFO=0");
     DecoratorContext context = mock(DecoratorContext.class);
-    decorator.decorate(context, weights);
+
+    WeightedViolationsDecorator decorator = new WeightedViolationsDecorator(settings);
+    decorator.start();
+    decorator.decorate(context);
 
     verify(context, never()).saveMeasure((Measure) anyObject());
+  }
+
+  @Test
+  public void shouldLoadSeverityWeightsAtStartup() {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.CORE_RULE_WEIGHTS_PROPERTY, "BLOCKER=2;CRITICAL=1;MAJOR=0;MINOR=0;INFO=0");
+    
+    WeightedViolationsDecorator decorator = new WeightedViolationsDecorator(settings);
+    decorator.start();
+
+    assertThat(decorator.getWeightsBySeverity().get(RulePriority.BLOCKER), Is.is(2));
+    assertThat(decorator.getWeightsBySeverity().get(RulePriority.CRITICAL), Is.is(1));
+    assertThat(decorator.getWeightsBySeverity().get(RulePriority.MAJOR), Is.is(0));
+  }
+
+  @Test
+  public void weightsSettingShouldBeOptional() {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.CORE_RULE_WEIGHTS_PROPERTY, "BLOCKER=2");
+
+    WeightedViolationsDecorator decorator = new WeightedViolationsDecorator(settings);
+    decorator.start();
+
+    assertThat(decorator.getWeightsBySeverity().get(RulePriority.MAJOR), Is.is(1));
   }
 }

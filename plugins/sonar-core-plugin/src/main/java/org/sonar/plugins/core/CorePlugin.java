@@ -98,14 +98,6 @@ import java.util.List;
         global = false,
         category = CoreProperties.CATEGORY_GENERAL),
     @Property(
-        key = CoreProperties.CORE_RULE_WEIGHTS_PROPERTY,
-        defaultValue = CoreProperties.CORE_RULE_WEIGHTS_DEFAULT_VALUE,
-        name = "Rules weight",
-        description = "A weight is associated to each priority to calculate the Rules Compliance Index.",
-        project = false,
-        global = true,
-        category = CoreProperties.CATEGORY_GENERAL),
-    @Property(
         key = CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY,
         defaultValue = "" + CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE,
         name = "Force user authentication",
