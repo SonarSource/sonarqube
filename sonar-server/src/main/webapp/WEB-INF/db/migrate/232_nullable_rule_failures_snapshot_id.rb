@@ -28,7 +28,7 @@ class NullableRuleFailuresSnapshotId < ActiveRecord::Migration
     dialect = ActiveRecord::Base.configurations[ENV['RAILS_ENV']]["dialect"]
 
     if dialect == 'sqlserver'
-      remove_index 'rule_failures', 'snapshot_id', :name => 'rule_failure_snapshot_id'
+      remove_index 'rule_failures', :name => 'rule_failure_snapshot_id'
     end
 
     change_column 'rule_failures', 'snapshot_id', :integer, :null => true

@@ -27,7 +27,7 @@ class IncreaseQualifierSize < ActiveRecord::Migration
     dialect = ActiveRecord::Base.configurations[ ENV['RAILS_ENV'] ]["dialect"]
 
     if dialect == 'sqlserver'
-      remove_index :snapshots, :qualifier, :name => 'snapshots_qualifier'
+      remove_index :snapshots, :name => 'snapshots_qualifier'
     end
 
     change_column('snapshots', 'qualifier', :string, :limit => 10, :null => true)
