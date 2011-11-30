@@ -63,4 +63,14 @@ public class PostgreSql implements Dialect {
     }
   }
 
+  public String getDefaultDriverClassName() {
+    return "org.postgresql.Driver";
+  }
+
+  public String getConnectionInitStatement(String schema) {
+    if (StringUtils.isNotBlank(schema)) {
+      return "SET SEARCH_PATH TO " + schema;
+    }
+    return null;
+  }
 }

@@ -23,12 +23,10 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.jpa.dialect.MySql;
 import org.sonar.jpa.dialect.Oracle;
 import org.sonar.jpa.dialect.PostgreSql;
 
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Properties;
 
 import static org.hamcrest.Matchers.nullValue;
@@ -44,6 +42,8 @@ public class DefaultDatabaseTest {
   @Test
   public void shouldLoadDefaultValues() {
     DefaultDatabase db = new DefaultDatabase(new Settings());
+    db.initSettings();
+
     Properties props = db.getProperties();
     assertThat(props.getProperty("sonar.jdbc.username"), Is.is("sonar"));
     assertThat(props.getProperty("sonar.jdbc.password"), Is.is("sonar"));
@@ -58,6 +58,7 @@ public class DefaultDatabaseTest {
     settings.setProperty("sonar.jdbc.user", "me");
 
     DefaultDatabase db = new DefaultDatabase(settings);
+    db.initSettings();
     Properties props = db.getProperties();
 
     assertThat(props.getProperty("sonar.jdbc.username"), Is.is("me"));
@@ -88,6 +89,7 @@ public class DefaultDatabaseTest {
         properties.setProperty("sonar.jdbc.maxActive", "2");
       }
     };
+    db.initSettings();
 
     Properties props = db.getProperties();
 
@@ -114,103 +116,83 @@ public class DefaultDatabaseTest {
     }
   }
 
-  /**
-   * Avoid conflicts with other schemas
-   */
-  @Test
-  public void shouldChangePostgreSearchPath() {
-    List<String> statements = DefaultDatabase.getConnectionInitStatements(new PostgreSql(), "my_schema");
-
-    assertThat(statements.size(), Is.is(1));
-    assertThat(statements.get(0), Is.is("SET SEARCH_PATH TO my_schema"));
-  }
 
   @Test
-  public void shouldNotChangePostgreSearchPathByDefault() {
-    List<String> statements = DefaultDatabase.getConnectionInitStatements(new PostgreSql(), null);
+  public void shouldInitSchema() {
+    Settings settings = new Settings();
+    settings.setProperty("sonar.jdbc.schema", "my_schema");
 
-    assertThat(statements.size(), Is.is(0));
-  }
+    DefaultDatabase database = new DefaultDatabase(settings);
+    database.initSettings();
 
-  /**
-   * Avoid conflicts with other schemas
-   */
-  @Test
-  public void shouldAlterOracleSession() {
-    List<String> statements = DefaultDatabase.getConnectionInitStatements(new Oracle(), "my_schema");
-
-    assertThat(statements.size(), Is.is(1));
-    assertThat(statements.get(0), Is.is("ALTER SESSION SET CURRENT_SCHEMA = my_schema"));
-  }
-
-  @Test
-  public void shouldNotAlterOracleSessionByDefault() {
-    List<String> statements = DefaultDatabase.getConnectionInitStatements(new Oracle(), null);
-
-    assertThat(statements.size(), Is.is(0));
-  }
-
-  @Test
-  public void shouldInitPostgresqlSchema() {
-    Properties props = new Properties();
-    props.setProperty("sonar.jdbc.schema", "my_schema");
-
-    String schema = DefaultDatabase.initSchema(props, new PostgreSql());
-
-    assertThat(schema, Is.is("my_schema"));
+    assertThat(database.getSchema(), Is.is("my_schema"));
   }
 
   @Test
   public void shouldInitPostgresqlSchemaWithDeprecatedProperty() {
-    Properties props = new Properties();
-    props.setProperty("sonar.jdbc.postgreSearchPath", "my_schema");
+    Settings settings = new Settings();
+    settings.setProperty("sonar.jdbc.dialect", PostgreSql.ID);
+    settings.setProperty("sonar.jdbc.postgreSearchPath", "my_schema");
 
-    String schema = DefaultDatabase.initSchema(props, new PostgreSql());
+    DefaultDatabase database = new DefaultDatabase(settings);
+    database.initSettings();
 
-    assertThat(schema, Is.is("my_schema"));
+    assertThat(database.getSchema(), Is.is("my_schema"));
   }
 
   @Test
   public void shouldNotInitPostgresqlSchemaByDefault() {
-    String schema = DefaultDatabase.initSchema(new Properties(), new PostgreSql());
+    Settings settings = new Settings();
+    settings.setProperty("sonar.jdbc.dialect", PostgreSql.ID);
 
-    assertThat(schema, nullValue());
-  }
+    DefaultDatabase database = new DefaultDatabase(settings);
+    database.initSettings();
 
-  @Test
-  public void shouldInitOracleSchema() {
-    Properties props = new Properties();
-    props.setProperty("sonar.jdbc.schema", "my_schema");
-
-    String schema = DefaultDatabase.initSchema(props, new Oracle());
-
-    assertThat(schema, Is.is("my_schema"));
+    assertThat(database.getSchema(), nullValue());
   }
 
   @Test
   public void shouldInitOracleSchemaWithDeprecatedProperty() {
-    Properties props = new Properties();
-    props.setProperty("sonar.hibernate.default_schema", "my_schema");
+    Settings settings = new Settings();
+    settings.setProperty("sonar.jdbc.dialect", Oracle.ID);
+    settings.setProperty("sonar.hibernate.default_schema", "my_schema");
 
-    String schema = DefaultDatabase.initSchema(props, new Oracle());
+    DefaultDatabase database = new DefaultDatabase(settings);
+    database.initSettings();
 
-    assertThat(schema, Is.is("my_schema"));
+    assertThat(database.getSchema(), Is.is("my_schema"));
   }
 
   @Test
   public void shouldNotInitOracleSchemaByDefault() {
-    String schema = DefaultDatabase.initSchema(new Properties(), new Oracle());
+    Settings settings = new Settings();
+    settings.setProperty("sonar.jdbc.dialect", Oracle.ID);
 
-    assertThat(schema, nullValue());
+    DefaultDatabase database = new DefaultDatabase(settings);
+    database.initSettings();
+
+    assertThat(database.getSchema(), nullValue());
   }
 
   @Test
-  public void shouldNotSchemaOnOtherDatabases() {
-    Properties props = new Properties();
-    props.setProperty("sonar.jdbc.schema", "my_schema");
+  public void shouldGuessDialectFromUrl() {
+    Settings settings = new Settings();
+    settings.setProperty("sonar.jdbc.url", "jdbc:postgresql://localhost/sonar");
 
-    String schema = DefaultDatabase.initSchema(props, new MySql());
+    DefaultDatabase database = new DefaultDatabase(settings);
+    database.initSettings();
 
-    assertThat(schema, nullValue());
+    assertThat(database.getDialect().getId(), Is.is(PostgreSql.ID));
+  }
+
+  @Test
+  public void shouldGuessDefaultDriver() {
+    Settings settings = new Settings();
+    settings.setProperty("sonar.jdbc.url", "jdbc:postgresql://localhost/sonar");
+
+    DefaultDatabase database = new DefaultDatabase(settings);
+    database.initSettings();
+
+    assertThat(database.getProperties().getProperty("sonar.jdbc.driverClassName"), Is.is("org.postgresql.Driver"));
   }
 }

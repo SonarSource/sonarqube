@@ -19,7 +19,6 @@
  */
 package org.sonar.persistence;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.apache.commons.lang.StringUtils;
@@ -33,6 +32,7 @@ import org.sonar.jpa.session.CustomHibernateConnectionProvider;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -47,7 +47,7 @@ public class DefaultDatabase implements Database {
   private Settings settings;
   private BasicDataSource datasource;
   private Dialect dialect;
-  private String schema;
+  private Properties properties;
 
   public DefaultDatabase(Settings settings) {
     this.settings = settings;
@@ -56,11 +56,8 @@ public class DefaultDatabase implements Database {
   public final DefaultDatabase start() {
     try {
       doBeforeStart();
-
-      Properties properties = getProperties();
-      dialect = initDialect(properties);
-      schema = initSchema(properties, dialect);
-      datasource = initDatasource(properties, dialect, schema);
+      initSettings();
+      initDatasource();
       return this;
 
     } catch (Exception e) {
@@ -68,30 +65,56 @@ public class DefaultDatabase implements Database {
     }
   }
 
-  static Dialect initDialect(Properties properties) {
-    Dialect result = DialectRepository.find(properties.getProperty("sonar.jdbc.dialect"), properties.getProperty("sonar.jdbc.url"));
-    if (result != null && Derby.ID.equals(result.getId())) {
+  void initSettings() {
+    initProperties();
+    initDialect();
+    initSchema();
+  }
+
+  private void initProperties() {
+    properties = new Properties();
+    completeProperties(settings, properties, "sonar.jdbc.");
+    completeProperties(settings, properties, "sonar.hibernate.");
+    completeDefaultProperties(properties);
+    doCompleteProperties(properties);
+  }
+
+  private void initDialect() {
+    dialect = DialectRepository.find(properties.getProperty("sonar.jdbc.dialect"), properties.getProperty("sonar.jdbc.url"));
+    if (dialect == null) {
+      throw new IllegalStateException("Can not guess the JDBC dialect. Please check the property sonar.jdbc.url.");
+    }
+    if (Derby.ID.equals(dialect.getId())) {
       LoggerFactory.getLogger(DefaultDatabase.class).warn("Derby database should be used for evaluation purpose only");
     }
-    return result;
+    if (!properties.containsKey("sonar.jdbc.driverClassName")) {
+      properties.setProperty("sonar.jdbc.driverClassName", dialect.getDefaultDriverClassName());
+    }
   }
 
-  static String initSchema(Properties properties, Dialect dialect) {
-    String result = null;
+  private void initSchema() {
+    String deprecatedSchema = null;
     if (PostgreSql.ID.equals(dialect.getId())) {
-      result = getSchemaPropertyValue(properties, "sonar.jdbc.postgreSearchPath");
+      // this property has been deprecated in version 2.13
+      deprecatedSchema = getSchemaPropertyValue(properties, "sonar.jdbc.postgreSearchPath");
 
     } else if (Oracle.ID.equals(dialect.getId())) {
-      result = getSchemaPropertyValue(properties, "sonar.hibernate.default_schema");
+      // this property has been deprecated in version 2.13
+      deprecatedSchema = getSchemaPropertyValue(properties, "sonar.hibernate.default_schema");
     }
-    return StringUtils.isNotBlank(result) ? result : null;
+    if (StringUtils.isNotBlank(deprecatedSchema)) {
+      properties.setProperty("sonar.jdbc.schema", deprecatedSchema);
+    }
   }
 
-  static BasicDataSource initDatasource(Properties properties, Dialect dialect, String schema) throws Exception {
+  private void initDatasource() throws Exception {
     LOG.info("Create JDBC datasource");
-    BasicDataSource result = (BasicDataSource) BasicDataSourceFactory.createDataSource(extractCommonsDbcpProperties(properties));
-    result.setConnectionInitSqls(getConnectionInitStatements(dialect, schema));
-    return result;
+    datasource = (BasicDataSource) BasicDataSourceFactory.createDataSource(extractCommonsDbcpProperties(properties));
+
+    String initStatement = dialect.getConnectionInitStatement(getSchema());
+    if (StringUtils.isNotBlank(initStatement)) {
+      datasource.setConnectionInitSqls(Arrays.asList(initStatement));
+    }
   }
 
   protected void doBeforeStart() {
@@ -118,7 +141,7 @@ public class DefaultDatabase implements Database {
   }
 
   public final String getSchema() {
-    return schema;
+    return properties.getProperty("sonar.jdbc.schema");
   }
 
   public Properties getHibernateProperties() {
@@ -133,7 +156,8 @@ public class DefaultDatabase implements Database {
     props.put("hibernate.hbm2ddl.auto", "validate");
     props.put(Environment.CONNECTION_PROVIDER, CustomHibernateConnectionProvider.class.getName());
 
-    if (schema!=null) {
+    String schema = getSchema();
+    if (StringUtils.isNotBlank(schema)) {
       props.put("hibernate.default_schema", schema);
     }
     return props;
@@ -144,11 +168,6 @@ public class DefaultDatabase implements Database {
   }
 
   public final Properties getProperties() {
-    Properties properties = new Properties();
-    completeProperties(settings, properties, "sonar.jdbc.");
-    completeProperties(settings, properties, "sonar.hibernate.");
-    completeDefaultProperties(properties);
-    doCompleteProperties(properties);
     return properties;
   }
 
@@ -179,19 +198,6 @@ public class DefaultDatabase implements Database {
     return result;
   }
 
-  static List<String> getConnectionInitStatements(Dialect dialect, String schema) {
-    List<String> result = Lists.newArrayList();
-    if (StringUtils.isNotBlank(schema)) {
-      if (PostgreSql.ID.equals(dialect.getId())) {
-        result.add("SET SEARCH_PATH TO " + schema);
-
-      } else if (Oracle.ID.equals(dialect.getId())) {
-        result.add("ALTER SESSION SET CURRENT_SCHEMA = " + schema);
-      }
-    }
-    return result;
-  }
-
   static String getSchemaPropertyValue(Properties props, String deprecatedKey) {
     String value = props.getProperty("sonar.jdbc.schema");
     if (StringUtils.isBlank(value) && deprecatedKey != null) {
@@ -201,7 +207,7 @@ public class DefaultDatabase implements Database {
   }
 
   private static void completeDefaultProperties(Properties props) {
-    completeDefaultProperty(props, DatabaseProperties.PROP_DRIVER, props.getProperty(DatabaseProperties.PROP_DRIVER_DEPRECATED, DatabaseProperties.PROP_DRIVER_DEFAULT_VALUE));
+    completeDefaultProperty(props, DatabaseProperties.PROP_DRIVER, props.getProperty(DatabaseProperties.PROP_DRIVER_DEPRECATED));
     completeDefaultProperty(props, DatabaseProperties.PROP_URL, DatabaseProperties.PROP_URL_DEFAULT_VALUE);
     completeDefaultProperty(props, DatabaseProperties.PROP_USER, props.getProperty(DatabaseProperties.PROP_USER_DEPRECATED, DatabaseProperties.PROP_USER_DEFAULT_VALUE));
     completeDefaultProperty(props, DatabaseProperties.PROP_PASSWORD, DatabaseProperties.PROP_PASSWORD_DEFAULT_VALUE);
@@ -209,7 +215,7 @@ public class DefaultDatabase implements Database {
   }
 
   private static void completeDefaultProperty(Properties props, String key, String defaultValue) {
-    if (props.getProperty(key) == null) {
+    if (props.getProperty(key) == null && defaultValue != null) {
       props.setProperty(key, defaultValue);
     }
   }

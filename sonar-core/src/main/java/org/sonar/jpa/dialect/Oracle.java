@@ -66,4 +66,14 @@ public class Oracle implements Dialect {
     }
   }
 
+  public String getDefaultDriverClassName() {
+    return "oracle.jdbc.OracleDriver";
+  }
+
+  public String getConnectionInitStatement(String schema) {
+    if (StringUtils.isNotBlank(schema)) {
+      return "ALTER SESSION SET CURRENT_SCHEMA = " + schema;
+    }
+    return null;
+  }
 }

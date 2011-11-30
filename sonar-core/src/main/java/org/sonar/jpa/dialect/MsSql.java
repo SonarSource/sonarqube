@@ -70,5 +70,12 @@ public class MsSql implements Dialect {
     }
   }
 
+  public String getDefaultDriverClassName() {
+    return "net.sourceforge.jtds.jdbc.Driver";
+  }
+
+  public String getConnectionInitStatement(String schema) {
+    return null;
+  }
 }
 

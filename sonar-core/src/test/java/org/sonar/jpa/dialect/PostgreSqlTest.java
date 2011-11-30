@@ -19,9 +19,11 @@
  */
 package org.sonar.jpa.dialect;
 
+import org.hamcrest.core.Is;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 public class PostgreSqlTest {
@@ -30,4 +32,20 @@ public class PostgreSqlTest {
     assertThat(new PostgreSql().matchesJdbcURL("jdbc:postgresql://localhost/sonar"), is(true));
     assertThat(new PostgreSql().matchesJdbcURL("jdbc:hsql:foo"), is(false));
   }
+
+  /**
+   * Avoid conflicts with other schemas
+   */
+  @Test
+  public void shouldChangePostgreSearchPath() {
+    String initStatement = new PostgreSql().getConnectionInitStatement("my_schema");
+
+    assertThat(initStatement, Is.is("SET SEARCH_PATH TO my_schema"));
+  }
+
+  @Test
+  public void shouldNotChangePostgreSearchPathByDefault() {
+    assertNull(new PostgreSql().getConnectionInitStatement(null));
+  }
+
 }

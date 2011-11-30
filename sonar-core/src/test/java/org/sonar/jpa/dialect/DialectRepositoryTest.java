@@ -20,55 +20,64 @@
 package org.sonar.jpa.dialect;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.SonarException;
 
+import static org.junit.Assert.assertEquals;
+
 public class DialectRepositoryTest {
-  
+
   @Test
   public void testFindById() {
     Dialect d = DialectRepository.find(DatabaseProperties.DIALECT_MYSQL, null);
     assertEquals(MySql.class, d.getClass());
   }
-  
+
   @Test
   public void testFindByJdbcUrl() {
     Dialect d = DialectRepository.find(null, "jdbc:mysql:foo:bar");
     assertEquals(MySql.class, d.getClass());
   }
-  
+
   @Test
   public void testFindClassName() {
     Dialect d = DialectRepository.find(TestDialect.class.getName(), null);
     assertEquals(TestDialect.class, d.getClass());
   }
-  
-  @Test(expected=SonarException.class)
+
+  @Test(expected = SonarException.class)
   public void testFindNoMatch() {
     DialectRepository.find("foo", "bar");
   }
-  
+
   public static class TestDialect implements Dialect {
     public boolean matchesJdbcURL(String jdbcConnectionURL) {
       return false;
     }
-    
+
+    public String getDefaultDriverClassName() {
+      return null;
+    }
+
+    public String getConnectionInitStatement(String schema) {
+      return null;
+    }
+
     public String getId() {
       return "testDialect";
     }
-    
+
     public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
       return null;
     }
-    
+
     public String getActiveRecordDialectCode() {
       return "test";
     }
 
     public String getActiveRecordJdbcAdapter() {
-    return "jdbc";
-  }
+      return "jdbc";
+    }
   }
 
 }

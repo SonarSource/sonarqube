@@ -53,6 +53,14 @@ public class Derby implements Dialect {
     return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:derby:");
   }
 
+  public String getDefaultDriverClassName() {
+    return "org.apache.derby.jdbc.ClientDriver";
+  }
+
+  public String getConnectionInitStatement(String schema) {
+    return null;
+  }
+
   public static class DerbyWithDecimalDialect extends DerbyDialect {
     public DerbyWithDecimalDialect() {
       super();

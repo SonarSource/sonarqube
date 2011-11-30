@@ -62,4 +62,11 @@ public class MySql implements Dialect {
     }
   }
 
+  public String getDefaultDriverClassName() {
+    return "com.mysql.jdbc.Driver";
+  }
+
+  public String getConnectionInitStatement(String schema) {
+    return null;
+  }
 }

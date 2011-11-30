@@ -52,4 +52,10 @@ public interface Dialect {
    */
   boolean matchesJdbcURL(String jdbcConnectionURL);
 
+  /**
+   * @since 2.13
+   */
+  String getDefaultDriverClassName();
+
+  String getConnectionInitStatement(String schema);
 }
