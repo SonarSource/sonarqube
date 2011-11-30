@@ -72,7 +72,7 @@ public class CheckstyleSquidBridge extends Check {
   public static void setInputFiles(Collection<InputFile> inputFiles) {
     inputFilesByPath.clear();
     for (InputFile inputFile : inputFiles) {
-      inputFilesByPath.put(inputFile.getFile(), inputFile);
+      inputFilesByPath.put(inputFile.getFile().getAbsoluteFile(), inputFile);
     }
   }
 

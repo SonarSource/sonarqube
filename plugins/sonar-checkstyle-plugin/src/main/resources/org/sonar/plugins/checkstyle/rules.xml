@@ -93,7 +93,9 @@
     <name><![CDATA[Equals Avoid Null]]></name>
     <configKey><![CDATA[Checker/TreeWalker/EqualsAvoidNull]]></configKey>
 
-
+    <param key="ignoreEqualsIgnoreCase" type="b">
+      <defaultValue>false</defaultValue>
+    </param>
   </rule>
 
 
@@ -278,17 +280,12 @@
     <param key="format" type="r">
       <defaultValue>^Abstract.*$|^.*Factory$</defaultValue>
     </param>
-    <!--
-    Not supported yet
     <param key="ignoreModifier" type="b">
-      
       <defaultValue>false</defaultValue>
     </param>
     <param key="ignoreName" type="b">
-      
       <defaultValue>false</defaultValue>
     </param>
-    -->
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck">
     <priority>MAJOR</priority>
@@ -339,9 +336,13 @@
     <name><![CDATA[Avoid Star Import]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AvoidStarImport]]></configKey>
 
-
     <param key="excludes" type="s{}">
-
+    </param>
+    <param key="allowClassImports" type="b">
+      <defaultValue>false</defaultValue>
+    </param>
+    <param key="allowStaticMemberImports" type="b">
+      <defaultValue>false</defaultValue>
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.metrics.BooleanExpressionComplexityCheck">
@@ -424,7 +425,9 @@
     <name><![CDATA[Declaration Order]]></name>
     <configKey><![CDATA[Checker/TreeWalker/DeclarationOrder]]></configKey>
 
-
+    <param key="ignoreConstructors" type="b" />
+    <param key="ignoreMethods" type="b" />
+    <param key="ignoreModifiers" type="b" />
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.DefaultComesLastCheck">
     <priority>MAJOR</priority>
@@ -634,9 +637,9 @@
     <name><![CDATA[Illegal Throws]]></name>
     <configKey><![CDATA[Checker/TreeWalker/IllegalThrows]]></configKey>
 
-
     <param key="illegalClassNames" type="s{}">
-
+    </param>
+    <param key="ignoredMethodNames" type="s{}">
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.IllegalTokenCheck">
@@ -933,12 +936,15 @@
     <name><![CDATA[Magic Number]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MagicNumber]]></configKey>
 
-
     <param key="tokens" type="s[NUM_DOUBLE,NUM_FLOAT,NUM_INT,NUM_LONG]">
-
     </param>
     <param key="ignoreNumbers" type="i{}">
-
+    </param>
+    <param key="ignoreHashCodeMethod" type="b">
+      <defaultValue>false</defaultValue>
+    </param>
+    <param key="ignoreAnnotation" type="b">
+      <defaultValue>false</defaultValue>
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.naming.MemberNameCheck">
@@ -1177,7 +1183,7 @@
     <name><![CDATA[Package Declaration]]></name>
     <configKey><![CDATA[Checker/TreeWalker/PackageDeclaration]]></configKey>
 
-
+    <param key="ignoreDirectoryName" type="b" />
   </rule>
 
   <rule key="com.puppycrawl.tools.checkstyle.checks.naming.PackageNameCheck">
@@ -1239,9 +1245,7 @@
     <name><![CDATA[Redundant Modifier]]></name>
     <configKey><![CDATA[Checker/TreeWalker/RedundantModifier]]></configKey>
 
-
-    <param key="tokens" type="s[METHOD_DEF,VARIABLE_DEF,ANNOTATION_FIELD_DEF]">
-
+    <param key="tokens" type="s[METHOD_DEF,VARIABLE_DEF,ANNOTATION_FIELD_DEF,INTERFACE_DEF]">
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.RedundantThrowsCheck">
@@ -1519,7 +1523,9 @@
     <name><![CDATA[Unused Imports]]></name>
     <configKey><![CDATA[Checker/TreeWalker/UnusedImports]]></configKey>
 
-
+    <param key="processJavadoc" type="b">
+      <defaultValue>false</defaultValue>
+    </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.UpperEllCheck">
     <priority>MINOR</priority>
@@ -1588,5 +1594,53 @@
     <param key="tagSeverity" type="s[ignore,info,warning,error]">
 
     </param>
+  </rule>
+
+  <rule key="com.puppycrawl.tools.checkstyle.checks.design.InnerTypeLastCheck">
+    <priority>INFO</priority>
+    <name><![CDATA[Inner Type Last]]></name>
+    <configKey><![CDATA[Checker/TreeWalker/InnerTypeLast]]></configKey>
+  </rule>
+
+  <rule key="com.puppycrawl.tools.checkstyle.checks.OuterTypeFilenameCheck">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Outer Type Filename]]></name>
+    <configKey><![CDATA[Checker/TreeWalker/OuterTypeFilename]]></configKey>
+  </rule>
+
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.NestedForDepthCheck">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Nested For Depth]]></name>
+    <configKey><![CDATA[Checker/TreeWalker/NestedForDepth]]></configKey>
+    <param key="max" type="i">
+      <defaultValue>1</defaultValue>
+    </param>
+  </rule>
+
+  <rule key="com.puppycrawl.tools.checkstyle.checks.sizes.MethodCountCheck">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Method Count]]></name>
+    <configKey><![CDATA[Checker/TreeWalker/MethodCount]]></configKey>
+    <param key="maxTotal" type="i">
+      <defaultValue>100</defaultValue>
+    </param>
+    <param key="maxPrivate" type="i">
+      <defaultValue>100</defaultValue>
+    </param>
+    <param key="maxPackage" type="i">
+      <defaultValue>100</defaultValue>
+    </param>
+    <param key="maxProtected" type="i">
+      <defaultValue>100</defaultValue>
+    </param>
+    <param key="maxPublic" type="i">
+      <defaultValue>100</defaultValue>
+    </param>
+  </rule>
+
+  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.OneStatementPerLineCheck">
+    <priority>MAJOR</priority>
+    <name><![CDATA[One Statement Per Line]]></name>
+    <configKey><![CDATA[Checker/TreeWalker/OneStatementPerLine]]></configKey>
   </rule>
 </rules>

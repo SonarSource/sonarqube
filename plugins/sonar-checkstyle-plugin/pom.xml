@@ -14,23 +14,8 @@
   <description>Checkstyle is a code analyser to help programmers write Java code that adheres to a coding standard.</description>
 
   <properties>
-    <checkstyle.version>5.1.2</checkstyle.version>
+    <checkstyle.version>5.5</checkstyle.version>
   </properties>
-
-  <repositories>
-    <!-- for checkstyle 5.1.x -->
-    <repository>
-      <id>sonar</id>
-      <name>Sonar</name>
-      <url>http://repository.sonarsource.org/content/repositories/sonar</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
 
   <dependencies>
     <dependency>
@@ -39,8 +24,8 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.sonarsource.checkstyle</groupId>
-      <artifactId>checkstyle-java7</artifactId>
+      <groupId>com.puppycrawl.tools</groupId>
+      <artifactId>checkstyle</artifactId>
       <version>${checkstyle.version}</version>
       <exclusions>
         <exclusion>
@@ -67,6 +52,11 @@
           <!-- See SONAR-2512 -->
           <groupId>commons-beanutils</groupId>
           <artifactId>commons-beanutils-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <!-- Checkstyle 5.5 declares this dependency, whereas 5.1 not -->
+          <groupId>com.sun</groupId>
+          <artifactId>tools</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -105,20 +95,6 @@
       </testResource>
     </testResources>
     <plugins>
-      <plugin>
-        <!-- TODO remove (see SONAR-2938) -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>enforce-no-repositories</id>
-            <configuration>
-              <skip>true</skip>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
