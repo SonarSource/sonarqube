@@ -1,4 +1,40 @@
 <rules>
+  <!-- PMD 4.3 -->
+  <rule key="DontCallThreadRun">
+    <priority>MAJOR</priority>
+    <configKey>rulesets/basic.xml/DontCallThreadRun</configKey>
+  </rule>
+  <rule key="GuardDebugLogging">
+    <priority>MAJOR</priority>
+    <configKey>rulesets/logging-jakarta-commons.xml/GuardDebugLogging</configKey>
+  </rule>
+
+  <!-- PMD 4.2.6 -->
+  <rule key="GenericsNaming">
+    <priority>MAJOR</priority>
+    <configKey>rulesets/naming.xml/GenericsNaming</configKey>
+  </rule>
+  <rule key="AvoidCatchingGenericException">
+    <priority>MAJOR</priority>
+    <configKey>rulesets/strictexception.xml/AvoidCatchingGenericException</configKey>
+  </rule>
+  <rule key="AvoidLosingExceptionInformation">
+    <priority>MAJOR</priority>
+    <configKey>rulesets/strictexception.xml/AvoidLosingExceptionInformation</configKey>
+  </rule>
+  <rule key="AvoidLiteralsInIfCondition">
+    <priority>MAJOR</priority>
+    <configKey>rulesets/controversial.xml/AvoidLiteralsInIfCondition</configKey>
+  </rule>
+  <rule key="UseConcurrentHashMap">
+    <priority>MAJOR</priority>
+    <configKey>rulesets/controversial.xml/UseConcurrentHashMap</configKey>
+  </rule>
+  <rule key="DoNotHardCodeSDCard">
+    <priority>MAJOR</priority>
+    <configKey>rulesets/android.xml/DoNotHardCodeSDCard</configKey>
+  </rule>
+
   <!-- PMD 4.2.5 -->
   <rule key="AvoidThrowingNewInstanceOfSameException">
     <priority>MAJOR</priority>

@@ -24,7 +24,7 @@
     <dependency>
       <groupId>pmd</groupId>
       <artifactId>pmd</artifactId>
-      <version>4.2.5</version>
+      <version>4.3</version>
       <scope>test</scope>
     </dependency>
     <dependency>
