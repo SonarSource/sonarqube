@@ -1,29 +1,29 @@
 <%
-  limit = widget_properties["numberOfLines"] || 5
-  metric_prefix = dashboard_configuration.selected_period? ? 'new_' : ''
-  value_column = (dashboard_configuration.selected_period? ? "variation_value_#{dashboard_configuration.period_index}" : 'value')
-  measures_by_severity = {}
-  all_measures=[]
+   limit = widget_properties["numberOfLines"] || 5
+   metric_prefix = dashboard_configuration.selected_period? ? 'new_' : ''
+   value_column = (dashboard_configuration.selected_period? ? "variation_value_#{dashboard_configuration.period_index}" : 'value')
+   measures_by_severity = {}
+   all_measures=[]
 
-  Api::Severity::KEYS.each do |key|
-    rule_measures = @snapshot.rule_measures(Metric.by_key("#{metric_prefix}#{key.downcase}_violations"))
-    sorted_measures = rule_measures.select{|a|
-      val = a.send(value_column)
-      val && val>0
-    }.sort {|a,b| b.send(value_column) <=> a.send(value_column)}[0...limit]
-    measures_by_severity[key] = sorted_measures
-    all_measures.concat(sorted_measures)
-  end
-  measures_by_severity['']=all_measures.sort {|a,b| b.send(value_column) <=> a.send(value_column)}[0...limit]
+   Api::Severity::KEYS.each do |key|
+     rule_measures = @snapshot.rule_measures(Metric.by_key("#{metric_prefix}#{key.downcase}_violations"))
+     sorted_measures = rule_measures.select { |a|
+       val = a.send(value_column)
+       val && val>0
+     }.sort { |a, b| b.send(value_column) <=> a.send(value_column) }[0...limit]
+     measures_by_severity[key] = sorted_measures
+     all_measures.concat(sorted_measures)
+   end
+   measures_by_severity['']=all_measures.sort { |a, b| b.send(value_column) <=> a.send(value_column) }[0...limit]
 
-  default_severity = widget_properties['defaultSeverity']||''
-  default_severity = '' unless Api::Severity::KEYS.include?(default_severity)
+   default_severity = widget_properties['defaultSeverity']||''
+   default_severity = '' unless Api::Severity::KEYS.include?(default_severity)
 %>
 
 <script type="text/javascript">
   function showMostViolatedRules<%= widget.id -%>(severity) {
     divs = $$('#widget-<%= widget.id-%> div.hotspot');
-    for (i=0; i<divs.size(); i++) {
+    for (i = 0; i < divs.size(); i++) {
       divs[i].hide();
     }
     $('most-violated-rules-<%= widget.id -%>-' + severity).show();
@@ -34,7 +34,9 @@
   <div style="float:right">
     <a href="<%= url_for(:controller => 'drilldown', :action => 'violations', :id => @resource.key) -%>"><%= message('widget.hotspot_metric.more') -%></a>
   </div>
-  <h3><%= message('widget.hotspot_most_violated_rules.name') -%>
+  <h3>
+    <%= message(dashboard_configuration.selected_period? ? 'widget.hotspot_most_violated_rules.name_when_period' : 'widget.hotspot_most_violated_rules.name') -%>
+
     <select class="small" style="margin-left: 20px" onchange="showMostViolatedRules<%= widget.id -%>(this.value);">
       <option value="" <%= 'selected' if default_severity=='' -%>><%= message('widget.hotspot_most_violated_rules.any_severity') -%></option>
       <% Api::Severity::KEYS.each do |key| %>
@@ -45,59 +47,63 @@
 </div>
 
 
-<div id="widget-<%= widget.id-%>">
-<%
-  measures_by_severity.each do |severity, measures|
-    if measures.empty?
-%>
+<div id="widget-<%= widget.id -%>">
+  <%
+     measures_by_severity.each do |severity, measures|
+       if measures.empty?
+  %>
 
-  <div id="most-violated-rules-<%= widget.id -%>-<%= severity -%>" class="hotspot" style="padding-top:10px">
-      <span class="empty_widget"><%= message('widget.hotspot_most_violated_rules.no_violation_for_severity') -%></span>
-  </div>
+      <div id="most-violated-rules-<%= widget.id -%>-<%= severity -%>" class="hotspot" style="padding-top:10px">
+        <span class="empty_widget"><%= message('widget.hotspot_most_violated_rules.no_violation_for_severity') -%></span>
+      </div>
 
-<%
-    else
-%>
-
-  <div id="most-violated-rules-<%= widget.id -%>-<%= severity -%>" class="hotspot">
-    <table class="data">
-      <thead><tr><th colspan="3"></th></tr></thead>
-      <tbody>
     <%
-      max_value = measures.first.send(value_column)
-      measures.each do |m|
-        rule = m.rule
-        value = m.send(value_column)
+       else
     %>
-        <tr class="<%= cycle 'even','odd', :name => ("hotspot_most_violated_rules-#{widget.id}-#{severity}") -%>">
-          <td class="thin">
-            <a href="<%= url_for(:controller => 'drilldown', :action => 'violations', :id => @resource.key, :severity => m.severity) -%>">
-              <%= image_tag('priority/' + m.severity + '.png') -%>
-            </a>
-          </td>
-          <td>
-            <a href="<%= url_for(:controller => 'drilldown', :action => 'violations', :id => @resource.key, :rule => rule.key, :rule_sev => m.severity) -%>"><%= rule.name -%></a>
-          </td>
-          <td class="right">
-            <%= dashboard_configuration.selected_period? ? format_variation(m) : format_measure(m) -%>
-          </td>
-          <td class="barchart">
-            <div class="barchart" style="width: <%= (value*100/max_value).round.to_i -%>%">
-              <div style="width: 100%;background-color:#777;"></div>
-            </div>
-          </td>    
-        </tr>
-    <%
-      end
-    %>
-      </tbody>
-    </table>
-  </div>
 
-<%
-    end 
-  end
-%>
+      <div id="most-violated-rules-<%= widget.id -%>-<%= severity -%>" class="hotspot">
+        <table class="data">
+          <thead>
+          <tr>
+            <th colspan="3"></th>
+          </tr>
+          </thead>
+          <tbody>
+          <%
+             max_value = measures.first.send(value_column)
+             measures.each do |m|
+               rule = m.rule
+               value = m.send(value_column)
+          %>
+            <tr class="<%= cycle 'even', 'odd', :name => ("hotspot_most_violated_rules-#{widget.id}-#{severity}") -%>">
+              <td class="thin">
+                <a href="<%= url_for(:controller => 'drilldown', :action => 'violations', :id => @resource.key, :severity => m.severity) -%>">
+                  <%= image_tag('priority/' + m.severity + '.png') -%>
+                </a>
+              </td>
+              <td>
+                <a href="<%= url_for(:controller => 'drilldown', :action => 'violations', :id => @resource.key, :rule => rule.key, :rule_sev => m.severity, :period => dashboard_configuration.period_index) -%>"><%= rule.name -%></a>
+              </td>
+              <td class="right">
+                <%= dashboard_configuration.selected_period? ? format_variation(m) : format_measure(m) -%>
+              </td>
+              <td class="barchart">
+                <div class="barchart" style="width: <%= (value*100/max_value).round.to_i -%>%">
+                  <div style="width: 100%;background-color:#777;"></div>
+                </div>
+              </td>
+            </tr>
+          <%
+             end
+          %>
+          </tbody>
+        </table>
+      </div>
+
+    <%
+       end
+       end
+    %>
 </div>
 <script type="text/javascript">
   showMostViolatedRules<%= widget.id -%>("<%= default_severity -%>");

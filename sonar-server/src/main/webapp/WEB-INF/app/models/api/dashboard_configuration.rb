@@ -23,8 +23,9 @@ class Api::DashboardConfiguration
 
   def initialize(dashboard, options={})
     @dashboard=dashboard
-    @period_index=options[:period_index].to_i
-    @selected_period=(@period_index>0)
+    @period_index=(options[:period_index].present? ? options[:period_index].to_i : nil)
+
+    @selected_period=(@period_index && @period_index>0)
     @snapshot=options[:snapshot]
   end
 
