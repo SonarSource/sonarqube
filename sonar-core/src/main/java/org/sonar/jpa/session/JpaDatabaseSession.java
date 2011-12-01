@@ -19,15 +19,15 @@
  */
 package org.sonar.jpa.session;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
-
-import java.util.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import java.util.*;
 
 public class JpaDatabaseSession extends DatabaseSession {
 
@@ -226,7 +226,7 @@ public class JpaDatabaseSession extends DatabaseSession {
     return getQueryForCriterias(entityClass, false, null).getResultList();
   }
 
-  private Query getQueryForCriterias(Class<?> entityClass, boolean raiseError, Object... criterias) {
+  Query getQueryForCriterias(Class<?> entityClass, boolean raiseError, Object... criterias) {
     if (criterias == null && raiseError) {
       throw new IllegalStateException("criterias parameter must be provided");
     }
@@ -234,7 +234,7 @@ public class JpaDatabaseSession extends DatabaseSession {
     StringBuilder hql = new StringBuilder("SELECT o FROM ").append(entityClass.getSimpleName()).append(" o");
     if (criterias != null) {
       hql.append(" WHERE ");
-      Map<String, Object> mappedCriterias = new HashMap<String, Object>();
+      Map<String, Object> mappedCriterias = Maps.newHashMap();
       for (int i = 0; i < criterias.length; i += 2) {
         mappedCriterias.put((String) criterias[i], criterias[i + 1]);
       }
@@ -242,7 +242,9 @@ public class JpaDatabaseSession extends DatabaseSession {
       Query query = getEntityManager().createQuery(hql.toString());
 
       for (Map.Entry<String, Object> entry : mappedCriterias.entrySet()) {
-        query.setParameter(entry.getKey(), entry.getValue());
+        if (entry.getValue() != null) {
+          query.setParameter(entry.getKey(), entry.getValue());
+        }
       }
       return query;
     }
@@ -250,9 +252,14 @@ public class JpaDatabaseSession extends DatabaseSession {
   }
 
   private void buildCriteriasHQL(StringBuilder hql, Map<String, Object> mappedCriterias) {
-    for (Iterator<String> i = mappedCriterias.keySet().iterator(); i.hasNext();) {
+    for (Iterator<String> i = mappedCriterias.keySet().iterator(); i.hasNext(); ) {
       String criteria = i.next();
-      hql.append("o.").append(criteria).append("=:").append(criteria);
+      hql.append("o.").append(criteria);
+      if (mappedCriterias.get(criteria) == null) {
+        hql.append(" IS NULL");
+      } else {
+        hql.append("=:").append(criteria);
+      }
       if (i.hasNext()) {
         hql.append(" AND ");
       }
