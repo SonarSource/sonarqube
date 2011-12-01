@@ -40,7 +40,7 @@ public class OracleTest {
   public void shouldChangeOracleSchema() {
     String initStatement = new Oracle().getConnectionInitStatement("my_schema");
 
-    assertThat(initStatement, Is.is("ALTER SESSION SET CURRENT_SCHEMA = my_schema"));
+    assertThat(initStatement, Is.is("ALTER SESSION SET CURRENT_SCHEMA = \"my_schema\""));
   }
 
   @Test

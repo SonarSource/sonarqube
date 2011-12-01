@@ -72,7 +72,7 @@ public class Oracle implements Dialect {
 
   public String getConnectionInitStatement(String schema) {
     if (StringUtils.isNotBlank(schema)) {
-      return "ALTER SESSION SET CURRENT_SCHEMA = " + schema;
+      return "ALTER SESSION SET CURRENT_SCHEMA = \"" + schema + "\"";
     }
     return null;
   }
