@@ -78,7 +78,9 @@ public abstract class DaoTestCase {
 
   @After
   public void tearDownDbUnit() throws Exception {
-    databaseTester.onTearDown();
+    if (databaseTester != null) {
+      databaseTester.onTearDown();
+    }
     if (connection != null) {
       connection.close();
     }
@@ -94,10 +96,10 @@ public abstract class DaoTestCase {
   private void truncateTables() throws SQLException {
     Connection connection = myBatis.openSession().getConnection();
     Statement statement = connection.createStatement();
-    LoggerFactory.getLogger(getClass()).info("Truncate tables and reset primary keys");
     for (String table : DatabaseUtils.TABLE_NAMES) {
       // 1. truncate
       String truncateCommand = databaseCommands.truncate(table);
+      LoggerFactory.getLogger(getClass()).info("Execute: " + truncateCommand);
       statement.executeUpdate(truncateCommand);
       connection.commit();
 
