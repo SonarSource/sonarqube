@@ -32,6 +32,7 @@ import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.*;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.persistence.Database;
 import org.sonar.persistence.DefaultDatabase;
@@ -51,14 +52,14 @@ public abstract class DaoTestCase {
   private static Database database;
   private static MyBatis myBatis;
   private static DatabaseCommands databaseCommands;
-  
+
   private IDatabaseTester databaseTester;
   private IDatabaseConnection connection;
 
   @BeforeClass
   public static void startDatabase() throws Exception {
     Settings settings = new Settings();
-    settings.setProperties((Map)System.getProperties());
+    settings.setProperties((Map) System.getProperties());
     if (settings.hasKey("sonar.jdbc.dialect")) {
       database = new DefaultDatabase(settings);
     } else {
@@ -116,7 +117,10 @@ public abstract class DaoTestCase {
     Statement statement = connection.createStatement();
     for (String table : tables) {
       // 1. truncate
-      statement.executeUpdate(databaseCommands.truncate(table));
+
+      String truncateCommand = databaseCommands.truncate(table);
+      LoggerFactory.getLogger(getClass()).info("Execute: " + truncateCommand);
+      statement.executeUpdate(truncateCommand);
       connection.commit();
 
       // 2. reset primary keys
