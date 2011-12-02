@@ -135,7 +135,6 @@ class RuleFailure < ActiveRecord::Base
     checksum = nil
     level = Sonar::RulePriority.id(options['severity']||Severity::MAJOR)
     RuleFailure.create!(
-        :resource => resource,
         :snapshot => resource.last_snapshot,
         :rule => rule,
         :failure_level => level,

@@ -22,10 +22,8 @@ require 'json'
 
 class Api::ReviewsController < Api::ApiController
 
-  # GETs should be safe (see http://www.w3.org/2001/tag/doc/whenToUseGet.html)
-  verify :method => :put, :only => [ :add_comment, :reassign, :resolve, :reopen ]
-  verify :method => :post, :only => [ :create ]
-  #verify :method => :delete, :only => [ :destroy ]
+  verify :method => :put, :only => [:add_comment, :reassign, :resolve, :reopen]
+  verify :method => :post, :only => [:create]
 
   #
   # --- Search reviews ---
@@ -47,75 +45,96 @@ class Api::ReviewsController < Api::ApiController
     render_reviews(reviews, params[:output] == 'HTML')
   end
 
+  # Review of an existing violation or create a new violation.
   #
-  # --- Creation of a review ---
   # Since 2.9
-  #
   # POST /api/reviews
-  # Required parameters:
-  # - 'violation_id' : the violation on which the review shoul be created
-  # - 'status' : the initial status (can be 'OPEN' or 'RESOLVED')
-  # - 'comment' : the text of the comment
   #
-  # Optional parameters :
-  # - 'resolution' : if status 'RESOLVED', then resolution must be provided (can be 'FIXED' or 'FALSE-POSITIVE')
-  # - 'assignee' : login used to create a review directly assigned
+  # ==== Requirements
   #
-  # Example :
-  # - POST "/api/reviews/?violation_id=1&status=OPEN&assignee=admin&comment=Please%20fix%20this"
-  # - POST "/api/reviews/?violation_id=2&status=RESOLVED&resolution=FALSE-POSITIVE&comment=No%20violation%20here"
-  # - POST "/api/reviews/?violation_id=3&status=RESOLVED&resolution=FIXED&assignee=admin&comment=This%20violation%20was%20fixed%20by%20me"
+  # * If the violation must be created on a given line of a file, then source code must be available. It
+  # means that it's not compatible with the property sonar.importSources=false.
+  #
+  # * Requires the USER role on the related project
+  #
+  # ==== Parameters
+  #
+  # To review an existing violation :
+  # * 'violation_id' : the violation on which the review should be created
+  #
+  # To create a violation :
+  # * 'category' : the name of the rule in the repository "review". If it does not exist then the rule is created.
+  # * 'resource' : id or key of the resource to review
+  # * 'line' : optional line. It starts from 1. If 0 then no specific line. Default value is 0.
+  # * 'severity' : BLOCKER, CRITICAL, MAJOR, MINOR or INFO. Default value is MAJOR.
+  # * 'cost' : optional numeric cost
+  #
+  # Other parameters :
+  # * 'status' : the initial status (can be 'OPEN' or 'RESOLVED')
+  # * 'comment' : the text of the comment
+  # * 'resolution' (optional) : if status 'RESOLVED', then resolution must be provided (can be 'FIXED' or 'FALSE-POSITIVE')
+  # * 'assignee' (optional) : login used to create a review directly assigned
+  #
+  # ==== Examples
+  #
+  # * Create a manual violation : POST /api/reviews?resource=MyFile&line=18&status=OPEN&category=Performance%20Issue
+  # * Review an existing violation : POST /api/reviews?violation_id=1&status=OPEN&assignee=admin&comment=Please%20fix%20this
+  # * Flag an existing violation as false-positive : POST /api/reviews/?violation_id=2&status=RESOLVED&resolution=FALSE-POSITIVE&comment=No%20violation%20here
+  # * Resolve an existing violation : POST /api/reviews/?violation_id=3&status=RESOLVED&resolution=FIXED&assignee=admin&comment=This%20violation%20was%20fixed%20by%20me
   #
   def create
-    begin
-      # 1- Get some parameters and check some of them
-      convert_markdown=(params[:output]=='HTML')
-      assignee = find_user(params[:assignee])
-      status = params[:status]
-      resolution = params[:resolution]
-      comment = params[:comment] || request.raw_post
-      violation_id = params[:violation_id]
-      raise "No 'violation_id' parameter has been provided." unless violation_id && !violation_id.blank?
-      raise "No 'status' parameter has been provided." unless status && !status.blank?
-      raise "No 'comment' parameter has been provided." unless comment && !comment.blank?
+    # Validate parameters
+    convert_markdown=(params[:output]=='HTML')
+    assignee = find_user(params[:assignee])
+    status = params[:status]
+    resolution = params[:resolution]
+    comment = params[:comment] || request.raw_post
+    bad_request("Missing parameter 'status'") if status.blank?
+    bad_request("Missing parameter 'comment'") if comment.blank?
+    review = nil
 
-      Review.transaction do
-        # 2- Create the review
-        violation = RuleFailure.find(violation_id, :include => ['snapshot', 'review'])
-        unless has_rights_to_modify?(violation.snapshot)
-          access_denied
-          return
-        end
-        raise "Violation #" + violation.id.to_s + " already has a review." if violation.review
+    Review.transaction do
+      if params[:violation_id].present?
+        # Review an existing violation
+        violation = RuleFailure.find(params[:violation_id], :include => :rule)
+        access_denied unless has_rights_to_modify?(violation.resource)
+        bad_request("Violation is already reviewed") if violation.review
         sanitize_violation(violation)
-        violation.create_review!(:assignee => assignee, :user => current_user)
-        review = violation.review
+        violation.create_review!(:assignee => assignee, :user => current_user, :manual_violation => false)
 
-        # 3- Set status
-        if status == Review::STATUS_OPEN
-          review.create_comment(:user => current_user, :text => comment)
-        elsif status == Review::STATUS_RESOLVED
-          if resolution == 'FALSE-POSITIVE'
-            review.set_false_positive(true, :user => current_user, :text => comment, :violation_id => violation_id)
-          elsif resolution == 'FIXED'
-            review.create_comment(:user => current_user, :text => comment)
-            review.resolve(current_user)
-          else
-            raise "Incorrect resolution."
-          end
-        else
-          raise "Incorrect status."
-        end
+      else
+        # Manually create a violation and review it
+        bad_request("Missing parameter 'category'") if params[:category].blank?
+        bad_request("Missing parameter 'resource'") if params[:resource].blank?
+        resource = Project.by_key(params[:resource])
+        access_denied unless resource && has_rights_to_modify?(resource)
+        bad_request("Resource does not exist") unless resource.last_snapshot
 
-        # 4- And finally send back the review
-        render_reviews([review], convert_markdown)
+        rule = Review.find_or_create_rule(params[:category])
+        violation = RuleFailure.create_manual!(resource, rule, params)
+        violation.create_review!(:assignee => assignee, :user => current_user, :manual_violation => true)
       end
-    rescue ApiException => e
-      render_error(e.msg, e.code)
 
-    rescue Exception => e
-      render_error(e.message, 400)
+      # Set review status
+      review = violation.review
+      if status == Review::STATUS_OPEN
+        review.create_comment(:user => current_user, :text => comment)
+      elsif status == Review::STATUS_RESOLVED
+        if resolution == Review::RESOLUTION_FALSE_POSITIVE
+          review.set_false_positive(true, :user => current_user, :text => comment, :violation_id => violation.id)
+        elsif resolution == Review::RESOLUTION_FIXED
+          review.create_comment(:user => current_user, :text => comment)
+          review.resolve(current_user)
+        else
+          bad_request("Incorrect resolution")
+        end
+      else
+        bad_request("Incorrect status")
+      end
     end
+
+    # 5- And finally send back the review
+    render_reviews([review], convert_markdown)
   end
 
   #
@@ -210,10 +229,10 @@ class Api::ReviewsController < Api::ApiController
         if !review.isOpen? && !review.isReopened?
           raise "Only open review can be resolved."
         end
-        if resolution == 'FALSE-POSITIVE'
+        if resolution == Review::RESOLUTION_FALSE_POSITIVE
           raise "Comment must be provided." unless comment && !comment.blank?
           review.set_false_positive(true, :user => current_user, :text => comment)
-        elsif resolution == 'FIXED'
+        elsif resolution == Review::RESOLUTION_FIXED
           review.create_comment(:user => current_user, :text => comment) unless comment.blank?
           review.resolve(current_user)
         else
@@ -249,7 +268,7 @@ class Api::ReviewsController < Api::ApiController
         if !review.isResolved?
           raise "Only resolved review can be reopened."
         end
-        if review.resolution == 'FALSE-POSITIVE'
+        if review.resolution == Review::RESOLUTION_FALSE_POSITIVE
           raise "Comment must be provided." unless comment && !comment.blank?
           review.set_false_positive(false, :user => current_user, :text => comment)
         else
@@ -272,13 +291,13 @@ class Api::ReviewsController < Api::ApiController
     raise "No 'id' parameter has been provided." unless id
     review = Review.find(id, :include => ['project'])
     raise ApiException.new(401, 'Unauthorized') unless has_rights_to_modify?(review.project)
-    return review
+    review
   end
 
   def render_reviews(reviews, convert_markdown)
     respond_to do |format|
       format.json { render :json => jsonp(Review.reviews_to_json(reviews, convert_markdown)) }
-      format.xml {render :xml => Review.reviews_to_xml(reviews, convert_markdown)}
+      format.xml { render :xml => Review.reviews_to_xml(reviews, convert_markdown) }
       format.text { render :text => text_not_supported }
     end
   end

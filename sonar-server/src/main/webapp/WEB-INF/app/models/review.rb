@@ -413,9 +413,9 @@ class Review < ActiveRecord::Base
 
   def self.find_or_create_rule(rule_category)
     key = rule_category.strip.downcase.sub(/\s+/, '_')
-    rule = find(:first, :conditions => {:enabled => true, :plugin_name => RULE_REPOSITORY_KEY, :plugin_rule_key => key})
+    rule = Rule.find(:first, :conditions => {:enabled => true, :plugin_name => RULE_REPOSITORY_KEY, :plugin_rule_key => key})
     unless rule
-      rule = create!(:enabled => true, :plugin_name => RULE_REPOSITORY_KEY, :plugin_rule_key => key, :name => rule_category)
+      rule = Rule.create!(:enabled => true, :plugin_name => RULE_REPOSITORY_KEY, :plugin_rule_key => key, :name => rule_category)
     end
     rule
   end
