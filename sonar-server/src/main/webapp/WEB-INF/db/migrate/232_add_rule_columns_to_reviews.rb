@@ -20,22 +20,13 @@
 
 #
 # Sonar 2.13
-# http://jira.codehaus.org/browse/SONAR-1974
 #
-class NullableRuleFailuresSnapshotId < ActiveRecord::Migration
+class AddRuleColumnsToReviews < ActiveRecord::Migration
 
   def self.up
-    dialect = ActiveRecord::Base.configurations[ENV['RAILS_ENV']]["dialect"]
-
-    if dialect == 'sqlserver'
-      remove_index 'rule_failures', :name => 'rule_failure_snapshot_id'
-    end
-
-    change_column 'rule_failures', 'snapshot_id', :integer, :null => true
-
-    if dialect == 'sqlserver'
-      add_index 'rule_failures', 'snapshot_id', :name => 'rule_failure_snapshot_id'
-    end
+    add_column 'reviews', 'rule_id', :integer, :null => true
+    add_column 'reviews', 'manual_violation', :boolean, :null => true
+    Review.reset_column_information
   end
 
 end

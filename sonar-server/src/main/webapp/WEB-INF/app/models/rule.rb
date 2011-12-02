@@ -19,7 +19,7 @@
 #
 class Rule < ActiveRecord::Base
 
-  validates_presence_of :name, :plugin_rule_key, :plugin_config_key, :plugin_name
+  validates_presence_of :name, :plugin_rule_key, :plugin_name
 
   has_many :rules_parameters
   has_many :rule_failures
@@ -216,7 +216,7 @@ class Rule < ActiveRecord::Base
       additional_keys.each do |java_rule_key|
         search_text_conditions<<" OR (plugin_name='#{java_rule_key.getRepositoryKey()}' AND plugin_rule_key='#{java_rule_key.getKey()}')"
       end
-      
+
       search_text_conditions<<')'
       conditions << search_text_conditions
       values[:searchtext] = "%" << searchtext.clone.upcase << "%"
@@ -278,5 +278,12 @@ class Rule < ActiveRecord::Base
     rules
   end
 
-
+  def self.find_or_create_for_review(name)
+    key = name.strip.downcase.sub(/\s+/, '_')
+    rule = find(:first, :conditions => {:enabled => true, :plugin_name => REVIEW_REPOSITORY, :plugin_rule_key => key})
+    unless rule
+      rule = create!(:enabled => true, :plugin_name => REVIEW_REPOSITORY, :plugin_rule_key => key, :name => name)
+    end
+    rule
+  end
 end

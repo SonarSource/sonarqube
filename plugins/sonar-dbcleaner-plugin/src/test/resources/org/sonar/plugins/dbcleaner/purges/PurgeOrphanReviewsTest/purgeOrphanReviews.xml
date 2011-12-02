@@ -6,34 +6,38 @@
 
   <!-- project1 has been removed from UI -->
   <!--<projects long_name="[null]" id="2" scope="PRJ" qualifier="TRK" kee="project1" name="project1"-->
-            <!--root_id="[null]"-->
-            <!--description="[null]"-->
-            <!--enabled="true" language="java" copy_resource_id="[null]"/>-->
+  <!--root_id="[null]"-->
+  <!--description="[null]"-->
+  <!--enabled="true" language="java" copy_resource_id="[null]"/>-->
 
   <reviews
-  			id="1"
-  			status="OPEN"
-  			rule_failure_permanent_id="1"
-  			resource_id="555"
-  			project_id="1"
-  			created_at="[null]" updated_at="[null]" user_id="[null]" assignee_id="[null]" title="[null]" resolution="[null]" severity="[null]" resource_line="[null]"/>
+      id="1"
+      status="OPEN"
+      rule_failure_permanent_id="1"
+      resource_id="555"
+      project_id="1"
+      created_at="[null]" updated_at="[null]" user_id="[null]" assignee_id="[null]" title="[null]" resolution="[null]" severity="[null]" resource_line="[null]"
+      rule_id="[null]"
+      manual_violation="false"/>
   <reviews
-  			id="2"
-  			status="CLOSED"
-  			rule_failure_permanent_id="2"
-  			resource_id="666"
-  			project_id="2"
-  			created_at="[null]" updated_at="[null]" user_id="[null]" assignee_id="[null]" title="[null]" resolution="[null]" severity="[null]" resource_line="[null]"/>
-  			
+      id="2"
+      status="CLOSED"
+      rule_failure_permanent_id="2"
+      resource_id="666"
+      project_id="2"
+      created_at="[null]" updated_at="[null]" user_id="[null]" assignee_id="[null]" title="[null]" resolution="[null]" severity="[null]" resource_line="[null]"
+      rule_id="[null]"
+      manual_violation="false"/>
+
   <review_comments
-  			id="1"
-  			review_id="1"
-  			created_at="[null]" updated_at="[null]" user_id="[null]" review_text=""/>
-  			
+      id="1"
+      review_id="1"
+      created_at="[null]" updated_at="[null]" user_id="[null]" review_text=""/>
+
   <review_comments
-  			id="2"
-  			review_id="2"
-  			created_at="[null]" updated_at="[null]" user_id="[null]" review_text=""/>
+      id="2"
+      review_id="2"
+      created_at="[null]" updated_at="[null]" user_id="[null]" review_text=""/>
 
 
 </dataset>

@@ -23,6 +23,8 @@ class RuleFailure < ActiveRecord::Base
   belongs_to :rule
   belongs_to :snapshot
   has_one :review, :primary_key => "permanent_id", :foreign_key => "rule_failure_permanent_id", :order => "created_at"
+  after_save :update_permanent_id
+  validates_presence_of :rule, :snapshot
 
   # first line of message
   def title
@@ -51,8 +53,12 @@ class RuleFailure < ActiveRecord::Base
         end
   end
 
+  def severity
+    Sonar::RulePriority.to_s(failure_level)
+  end
+
   def resource
-    resource_id ? read_attribute('resource_id') : snapshot.resource
+    snapshot.resource
   end
 
   def to_json(include_review=false, convert_markdown=false)
@@ -60,7 +66,7 @@ class RuleFailure < ActiveRecord::Base
     json['id'] = id
     json['message'] = plain_message if plain_message
     json['line'] = line if line && line>=1
-    json['priority'] = Sonar::RulePriority.to_s(failure_level).upcase
+    json['priority'] = severity
     json['switchedOff']=true if switched_off?
     if created_at
       json['createdAt'] = Api::Utils.format_datetime(created_at)
@@ -70,11 +76,11 @@ class RuleFailure < ActiveRecord::Base
         :name => rule.name
     }
     json['resource'] = {
-        :key => snapshot.project.key,
-        :name => snapshot.project.name,
-        :scope => snapshot.project.scope,
-        :qualifier => snapshot.project.qualifier,
-        :language => snapshot.project.language
+        :key => resource.key,
+        :name => resource.name,
+        :scope => resource.scope,
+        :qualifier => resource.qualifier,
+        :language => resource.language
     }
     json['review'] = review.to_json(convert_markdown) if include_review && review
     json
@@ -85,7 +91,7 @@ class RuleFailure < ActiveRecord::Base
       xml.id(id)
       xml.message(plain_message) if plain_message
       xml.line(line) if line && line>=1
-      xml.priority(Sonar::RulePriority.to_s(failure_level))
+      xml.priority(severity)
       xml.switchedOff(true) if switched_off?
       if created_at
         xml.createdAt(Api::Utils.format_datetime(created_at))
@@ -95,29 +101,56 @@ class RuleFailure < ActiveRecord::Base
         xml.name(rule.name)
       end
       xml.resource do
-        xml.key(snapshot.project.key)
-        xml.name(snapshot.project.name)
-        xml.scope(snapshot.project.scope)
-        xml.qualifier(snapshot.project.qualifier)
-        xml.language(snapshot.project.language)
+        xml.key(resource.key)
+        xml.name(resource.name)
+        xml.scope(resource.scope)
+        xml.qualifier(resource.qualifier)
+        xml.language(resource.language)
       end
       review.to_xml(xml, convert_markdown) if include_review && review
     end
   end
 
   def build_review(options={})
-    if review.nil?
+    if self.review.nil?
       self.review=Review.new(
           {:status => Review::STATUS_OPEN,
-           :severity => Sonar::RulePriority.to_s(failure_level),
+           :severity => severity,
            :resource_line => line,
-           :resource => snapshot.resource,
-           :title => title}.merge(options))
+           :resource => resource,
+           :title => title,
+           :rule => rule,
+           :manual_violation => false
+          }.merge(options))
     end
   end
 
   def create_review!(options={})
     build_review(options)
     self.review.save!
+  end
+
+  def self.create_manual!(resource, rule, options={})
+    line = options['line']
+    checksum = nil
+    level = Sonar::RulePriority.id(options['severity']||Severity::MAJOR)
+    RuleFailure.create!(
+        :resource => resource,
+        :snapshot => resource.last_snapshot,
+        :rule => rule,
+        :failure_level => level,
+        :message => options['message'],
+        :cost => (options['cost'] ? options['cost'].to_f : nil),
+        :switched_off => false,
+        :line => line,
+        :checksum => checksum)
+  end
+
+  private
+  def update_permanent_id
+    if self.permanent_id.nil? && self.id
+      self.permanent_id = self.id
+      save!
+    end
   end
 end

@@ -1,109 +1,125 @@
 <dataset>
 
   <!-- Component 555 -->
-  <snapshots 
-             id="11" 
-             project_id="555"
-             status="P" islast="false"/>
-  <snapshots 
-             id="111" 
-             project_id="555"
-             status="P" islast="false"/>
+  <snapshots
+      id="11"
+      project_id="555"
+      status="P" islast="false"/>
+  <snapshots
+      id="111"
+      project_id="555"
+      status="P" islast="false"/>
   <!-- Component 666 -->
-  <snapshots 
-             id="22" 
-             project_id="666"
-             status="P" islast="false"/>
-  <snapshots 
-             id="222" 
-             project_id="666"
-             status="P" islast="false"/>
+  <snapshots
+      id="22"
+      project_id="666"
+      status="P" islast="false"/>
+  <snapshots
+      id="222"
+      project_id="666"
+      status="P" islast="false"/>
 
   <!-- Violations on previous analysis -->
-  <rule_failures 
-             id="1"
-             permanent_id="1"
-             snapshot_id="11"
-             rule_id="1" failure_level="1"/>
-  <rule_failures 
-             id="2"
-             permanent_id="2"
-             snapshot_id="22"
-             rule_id="1" failure_level="1"/>
-  <rule_failures 
-             id="3"
-             permanent_id="3"
-             snapshot_id="22"
-             rule_id="1" failure_level="1"/>
+  <rule_failures
+      id="1"
+      permanent_id="1"
+      snapshot_id="11"
+      rule_id="1" failure_level="1"/>
+  <rule_failures
+      id="2"
+      permanent_id="2"
+      snapshot_id="22"
+      rule_id="1" failure_level="1"/>
+  <rule_failures
+      id="3"
+      permanent_id="3"
+      snapshot_id="22"
+      rule_id="1" failure_level="1"/>
   <!-- Violations on new analysis -->
   <!-- Violation #1 still exists -->
-  <rule_failures 
-             id="4"
-             permanent_id="1"
-             snapshot_id="111"
-             rule_id="1" failure_level="1"/>
+  <rule_failures
+      id="4"
+      permanent_id="1"
+      snapshot_id="111"
+      rule_id="1" failure_level="1"/>
   <!-- Violation #2 has been fixed -->
   <!-- Violation #3 still exists -->
-  <rule_failures 
-             id="5"
-             permanent_id="3"
-             snapshot_id="222"
-             rule_id="1" failure_level="1"/>
+  <rule_failures
+      id="5"
+      permanent_id="3"
+      snapshot_id="222"
+      rule_id="1" failure_level="1"/>
 
   <!-- Existing reviews -->
   <!--
   Note that DbUnit uses the first tag for a table to define the columns to be populated.
   So that's why "resolution", "created_at", "updated_at", "project_id", "resource_line", "severity" and "user_id" columns here.
-  --> 
+  -->
   <reviews
-  			id="1"
-  			status="OPEN"
-  			rule_failure_permanent_id="1"
-  			resolution="[null]"
-            created_at="[null]"
-            updated_at="[null]"
-            project_id="[null]"
-            resource_line="[null]"
-            severity="[null]"
-            user_id="[null]"
-  			resource_id="555"/>
-        
+      id="1"
+      status="OPEN"
+      rule_failure_permanent_id="1"
+      resolution="[null]"
+      created_at="[null]"
+      updated_at="[null]"
+      project_id="[null]"
+      resource_line="[null]"
+      severity="[null]"
+      user_id="[null]"
+      resource_id="555"
+      rule_id="[null]"
+      manual_violation="false"/>
+
   <reviews
-  			id="2"
-  			status="OPEN"
-  			rule_failure_permanent_id="2"
-  			resource_id="666"/>
+      id="2"
+      status="OPEN"
+      rule_failure_permanent_id="2"
+      resource_id="666"
+      rule_id="[null]"
+      manual_violation="false"/>
   <reviews
-  			id="3"
-  			status="OPEN"
-  			rule_failure_permanent_id="3"
-  			resource_id="666"/>
+      id="3"
+      status="OPEN"
+      rule_failure_permanent_id="3"
+      resource_id="666"
+      rule_id="[null]"
+      manual_violation="false"/>
   <reviews
-  			id="4"
-  			status="CLOSED"
-  			rule_failure_permanent_id="2"
-  			resource_id="666"/>
+      id="4"
+      status="CLOSED"
+      rule_failure_permanent_id="2"
+      resource_id="666"
+      rule_id="[null]"
+      manual_violation="false"/>
   <reviews
-  			id="5"
-  			status="REOPENED"
-  			rule_failure_permanent_id="3"
-  			resource_id="666"/>
+      id="5"
+      status="REOPENED"
+      rule_failure_permanent_id="3"
+      resource_id="666"
+      rule_id="[null]"
+      manual_violation="false"/>
   <reviews
-  			id="6"
-  			status="RESOLVED"
-  			resolution="FIXED"
-  			rule_failure_permanent_id="3"
-  			resource_id="666"/>
+      id="6"
+      status="RESOLVED"
+      resolution="FIXED"
+      rule_failure_permanent_id="3"
+      resource_id="666"
+      rule_id="[null]"
+      manual_violation="false"/>
   <reviews
-  			id="7"
-  			status="REOPENED"
-  			rule_failure_permanent_id="2"
-  			resource_id="666"/>
+      id="7"
+      status="REOPENED"
+      rule_failure_permanent_id="2"
+      resource_id="666"
+      rule_id="[null]"
+      manual_violation="false"/>
   <reviews
-  			id="8"
-  			status="RESOLVED"
-  			resolution="FIXED"
-  			rule_failure_permanent_id="2"
-  			resource_id="666"/>
+      id="8"
+      status="RESOLVED"
+      resolution="FIXED"
+      rule_failure_permanent_id="2"
+      resource_id="666"
+      rule_id="[null]"
+      manual_violation="false"/>
 
 </dataset>

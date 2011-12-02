@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.persistence.model.ReviewMapper">
+
+  <resultMap id="reviewResultMap" type="Review">
+    <result property="createdAt" column="created_at"/>
+    <result property="updatedAt" column="updated_at"/>
+    <result property="userId" column="user_id"/>
+    <result property="assigneeId" column="assignee_id"/>
+    <result property="violationPermanentId" column="rule_failure_permanent_id"/>
+    <result property="projectId" column="project_id"/>
+    <result property="resourceId" column="resource_id"/>
+    <result property="line" column="resource_line"/>
+    <result property="ruleId" column="rule_id"/>
+    <result property="manualViolation" column="manual_violation"/>
+  </resultMap>
+
+  <sql id="reviewColumns">id, created_at, updated_at, user_id, assignee_id, title,status,resolution,rule_failure_permanent_id,project_id, resource_id, resource_line, severity, rule_id,
+    manual_violation
+  </sql>
+
+  <select id="selectById" parameterType="long" resultMap="reviewResultMap">
+    select
+    <include refid="reviewColumns"/>
+    from REVIEWS where id=#{id}
+  </select>
+
+  <select id="selectByResource" parameterType="int" resultMap="reviewResultMap">
+    select
+    <include refid="reviewColumns"/>
+    from REVIEWS where resource_id=#{id}
+  </select>
+
+  <select id="selectByQuery" parameterType="org.sonar.persistence.model.ReviewQuery" resultMap="reviewResultMap">
+    select
+    <include refid="reviewColumns"/>
+    from REVIEWS
+    <where>
+      <if test="userId != null">user_id = #{userId}</if>
+      <if test="violationPermanentId != null">AND rule_failure_permanent_id = #{violationPermanentId}</if>
+      <if test="ruleId != null">AND rule_id = #{ruleId}</if>
+      <if test="resourceId != null">AND resource_id = #{resourceId}</if>
+      <if test="status != null">AND status = #{status}</if>
+      <if test="manualViolation != null">AND manual_violation = #{manualViolation}</if>
+      <if test="resolution != null">AND resolution = #{resolution}</if>
+    </where>
+  </select>
+
+</mapper>
+

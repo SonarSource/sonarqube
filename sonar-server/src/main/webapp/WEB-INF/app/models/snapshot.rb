@@ -30,7 +30,7 @@ class Snapshot < ActiveRecord::Base
   has_many :measures, :class_name => 'ProjectMeasure', :conditions => 'rule_id IS NULL AND characteristic_id IS NULL'
   has_many :rulemeasures, :class_name => 'ProjectMeasure', :conditions => 'rule_id IS NOT NULL AND characteristic_id IS NULL', :include => 'rule'
   has_many :characteristic_measures, :class_name => 'ProjectMeasure', :conditions => 'rule_id IS NULL AND characteristic_id IS NOT NULL'
-  
+
   has_many :events, :dependent => :destroy, :order => 'event_date DESC'
   has_one :source, :class_name => 'SnapshotSource', :dependent => :destroy
   has_many :violations, :class_name => 'RuleFailure'
@@ -39,12 +39,12 @@ class Snapshot < ActiveRecord::Base
   STATUS_PROCESSED = 'P'
 
   def self.last_enabled_projects
-    Snapshot.find(:all, 
-      :include => 'project',
-      :conditions => ['snapshots.islast=? and projects.scope=? and projects.qualifier=? and snapshots.scope=? and snapshots.qualifier=?',
-        true, Project::SCOPE_SET, Project::QUALIFIER_PROJECT, Project::SCOPE_SET, Project::QUALIFIER_PROJECT])
+    Snapshot.find(:all,
+                  :include => 'project',
+                  :conditions => ['snapshots.islast=? and projects.scope=? and projects.qualifier=? and snapshots.scope=? and snapshots.qualifier=?',
+                                  true, Project::SCOPE_SET, Project::QUALIFIER_PROJECT, Project::SCOPE_SET, Project::QUALIFIER_PROJECT])
   end
-  
+
   def self.for_timemachine_matrix(resource)
     # http://jira.codehaus.org/browse/SONAR-1850
     # Conditions on scope and qualifier are required to exclude library snapshots.
@@ -54,26 +54,26 @@ class Snapshot < ActiveRecord::Base
     #   3. project A has 2 snapshots : the first one with qualifier=TRK has measures, the second one with qualifier LIB has no measures. Its version must not be used in time machine
     # That's why the 2 following SQL requests check the qualifiers (and optionally scopes, just to be sure)
     snapshots=Snapshot.find(:all, :conditions => ["snapshots.project_id=? AND events.snapshot_id=snapshots.id AND snapshots.status=? AND snapshots.scope=? AND snapshots.qualifier=?", resource.id, STATUS_PROCESSED, resource.scope, resource.qualifier],
-       :include => 'events',
-       :order => 'snapshots.created_at ASC')
+                            :include => 'events',
+                            :order => 'snapshots.created_at ASC')
 
     snapshots<<resource.last_snapshot if snapshots.empty?
-    
-    snapshots=snapshots[-5,5] if snapshots.size>=5
+
+    snapshots=snapshots[-5, 5] if snapshots.size>=5
 
     snapshots.insert(0, Snapshot.find(:first,
-         :conditions => ["project_id=? AND status=? AND scope=? AND qualifier=?", resource.id, STATUS_PROCESSED, resource.scope, resource.qualifier],
-         :include => 'project', :order => 'snapshots.created_at ASC', :limit => 1))
+                                      :conditions => ["project_id=? AND status=? AND scope=? AND qualifier=?", resource.id, STATUS_PROCESSED, resource.scope, resource.qualifier],
+                                      :include => 'project', :order => 'snapshots.created_at ASC', :limit => 1))
 
     snapshots.compact.uniq
   end
-  
+
   def self.for_timemachine_widget(resource, number_of_columns, options={})
     if number_of_columns == 1
       # Display only the latest snapshot
       return [resource.last_snapshot]
     end
-    
+
     # Get 1rst & latests snapshots of the period
     snapshot_conditions = ["snapshots.project_id=? AND snapshots.status=? AND snapshots.scope=? AND snapshots.qualifier=?", resource.id, STATUS_PROCESSED, resource.scope, resource.qualifier]
     if options[:from]
@@ -82,11 +82,11 @@ class Snapshot < ActiveRecord::Base
     end
     first_snapshot=Snapshot.find(:first, :conditions => snapshot_conditions, :order => 'snapshots.created_at ASC')
     last_snapshot=resource.last_snapshot
-    
+
     if first_snapshot==last_snapshot
       return [last_snapshot]
     end
-    
+
     # Look for the number_of_columns-2 last snapshots to display  (they must have 'Version' events)
     version_snapshots = []
     if number_of_columns > 2
@@ -94,7 +94,7 @@ class Snapshot < ActiveRecord::Base
       snapshot_conditions << [first_snapshot.id, last_snapshot.id]
       version_snapshots=Snapshot.find(:all, :conditions => snapshot_conditions, :include => 'events', :order => 'snapshots.created_at ASC').last(number_of_columns-2)
     end
-    
+
     return [first_snapshot] + version_snapshots + [last_snapshot]
   end
 
@@ -104,20 +104,20 @@ class Snapshot < ActiveRecord::Base
 
   def root_snapshot
     @root_snapshot ||=
-      (root_snapshot_id ? Snapshot.find(root_snapshot_id) : self)
+        (root_snapshot_id ? Snapshot.find(root_snapshot_id) : self)
   end
-  
+
   def project_snapshot
     @project_snapshot ||=
-    begin
-      if scope==Project::SCOPE_SET
-        self
-      elsif parent_snapshot_id
-        parent_snapshot.project_snapshot
-      else
-        nil
-      end
-    end
+        begin
+          if scope==Project::SCOPE_SET
+            self
+          elsif parent_snapshot_id
+            parent_snapshot.project_snapshot
+          else
+            nil
+          end
+        end
   end
 
   def root?
@@ -130,14 +130,14 @@ class Snapshot < ActiveRecord::Base
 
   def user_events
     categories=EventCategory.categories(true)
-    category_names=categories.map{|cat| cat.name}
+    category_names=categories.map { |cat| cat.name }
     Event.find(:all, :conditions => ["snapshot_id=? AND category IS NOT NULL", id], :order => 'event_date desc').select do |event|
       category_names.include?(event.category)
     end
   end
 
   def event(category)
-    result=events.select{|e| e.category==category}
+    result=events.select { |e| e.category==category }
     if result.empty?
       nil
     else
@@ -177,7 +177,7 @@ class Snapshot < ActiveRecord::Base
 
   def rule_measures(metrics=nil, rule=nil)
     if metrics
-      metric_ids=[metrics].flatten.map{|metric| metric.id}
+      metric_ids=[metrics].flatten.map { |metric| metric.id }
     end
     if metrics || rule
       rulemeasures.select do |m|
@@ -187,7 +187,7 @@ class Snapshot < ActiveRecord::Base
       rulemeasures
     end
   end
-  
+
   def self.snapshot_by_date(resource_id, date)
     if resource_id && date
       Snapshot.find(:first, :conditions => ['created_at>=? and created_at<? and project_id=?', date.beginning_of_day, date.end_of_day, resource_id], :order => 'created_at desc')
@@ -198,6 +198,10 @@ class Snapshot < ActiveRecord::Base
 
   def resource
     project
+  end
+
+  def resource_id
+    project_id
   end
 
   def periods?
@@ -235,18 +239,18 @@ class Snapshot < ActiveRecord::Base
   def period_datetime(period_index)
     project_snapshot.send "period#{period_index}_date"
   end
-  
+
   private
 
   def measures_hash
     @measures_hash ||=
-      begin
-        hash = {}
-        measures.each do |measure|
-          hash[measure.metric_id]=measure
+        begin
+          hash = {}
+          measures.each do |measure|
+            hash[measure.metric_id]=measure
+          end
+          hash
         end
-        hash
-      end
   end
 
 end

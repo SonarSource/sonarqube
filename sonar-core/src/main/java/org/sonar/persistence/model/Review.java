@@ -17,79 +17,39 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.jpa.entity;
+package org.sonar.persistence.model;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-
-import javax.persistence.*;
 import java.util.Date;
 
-@Entity
-@Table(name = "reviews")
-public final class Review {
-
-  @Id
-  @Column(name = "id")
-  @GeneratedValue
+/**
+ * @since 2.13
+ */
+public class Review {
   private Long id;
-
-  @Column(name = "user_id")
   private Integer userId;
-
-  @Column(name = "assignee_id")
   private Integer assigneeId;
-
-  @Column(name = "title")
   private String title;
-
-  @Column(name = "status")
   private String status;
-
-  @Column(name = "resolution")
   private String resolution;
-
-  @Column(name = "rule_failure_permanent_id")
-  private Integer permanentId;
-
-  @Column(name = "project_id")
+  private Integer violationPermanentId;
   private Integer projectId;
-
-  @Column(name = "resource_id")
   private Integer resourceId;
-
-  @Column(name = "resource_line")
-  private Integer resourceLine;
-
-  @Column(name = "created_at")
+  private Integer line;
   private Date createdAt;
-
-  @Column(name = "updated_at")
   private Date updatedAt;
-
-  @Column(name = "severity")
   private String severity;
-
-  @Column(name = "rule_id")
   private Integer ruleId;
-
-  @Column(name = "manual_violation")
   private Boolean manualViolation;
 
-  /**
-   * @return id of review
-   */
   public Long getId() {
     return id;
   }
 
-  public void setId(Long id) {
+  public Review setId(Long id) {
     this.id = id;
+    return this;
   }
 
-  /**
-   * @return id of user, who created this review
-   */
   public Integer getUserId() {
     return userId;
   }
@@ -99,25 +59,20 @@ public final class Review {
     return this;
   }
 
-  /**
-   * @return id of assigned user or null, if not assigned
-   */
   public Integer getAssigneeId() {
     return assigneeId;
   }
 
-  public Review setAssigneeId(Integer assigneeId) {
+  public void setAssigneeId(Integer assigneeId) {
     this.assigneeId = assigneeId;
-    return this;
   }
 
   public String getTitle() {
     return title;
   }
 
-  public Review setTitle(String title) {
+  public void setTitle(String title) {
     this.title = title;
-    return this;
   }
 
   public String getStatus() {
@@ -136,20 +91,44 @@ public final class Review {
     this.resolution = resolution;
   }
 
-  public Integer getRuleFailurePermamentId() {
-    return permanentId;
+  public Integer getViolationPermanentId() {
+    return violationPermanentId;
   }
 
-  public void setRuleFailurePermamentId(Integer permanentId) {
-    this.permanentId = permanentId;
+  public void setViolationPermanentId(Integer violationPermanentId) {
+    this.violationPermanentId = violationPermanentId;
   }
 
-  public Integer getResourceLine() {
-    return resourceLine;
+  public Integer getProjectId() {
+    return projectId;
   }
 
-  public void setResourceLine(Integer resourceLine) {
-    this.resourceLine = resourceLine;
+  public void setProjectId(Integer projectId) {
+    this.projectId = projectId;
+  }
+
+  public Integer getResourceId() {
+    return resourceId;
+  }
+
+  public void setResourceId(Integer resourceId) {
+    this.resourceId = resourceId;
+  }
+
+  public Integer getLine() {
+    return line;
+  }
+
+  public void setLine(Integer line) {
+    this.line = line;
+  }
+
+  public Date getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(Date createdAt) {
+    this.createdAt = createdAt;
   }
 
   public Date getUpdatedAt() {
@@ -160,9 +139,27 @@ public final class Review {
     this.updatedAt = updatedAt;
   }
 
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  public String getSeverity() {
+    return severity;
   }
 
+  public void setSeverity(String severity) {
+    this.severity = severity;
+  }
+
+  public Integer getRuleId() {
+    return ruleId;
+  }
+
+  public void setRuleId(Integer ruleId) {
+    this.ruleId = ruleId;
+  }
+
+  public Boolean getManualViolation() {
+    return manualViolation;
+  }
+
+  public void setManualViolation(Boolean manualViolation) {
+    this.manualViolation = manualViolation;
+  }
 }

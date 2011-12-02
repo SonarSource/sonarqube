@@ -19,14 +19,13 @@
  */
 package org.sonar.persistence.dao;
 
-import static org.junit.Assert.assertThat;
-
-import java.util.List;
-
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
+
+import java.util.List;
+
+import static org.junit.Assert.assertThat;
 
 public class RuleDaoTest extends DaoTestCase {
 
@@ -53,7 +52,7 @@ public class RuleDaoTest extends DaoTestCase {
 
   @Test
   public void testSelectById() throws Exception {
-    setupData("selectById");
+    setupData("select");
     org.sonar.persistence.model.Rule rule = dao.selectById(2L);
 
     assertThat(rule.getId(), Is.is(2L));

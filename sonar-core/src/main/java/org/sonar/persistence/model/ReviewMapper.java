@@ -17,16 +17,17 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.persistence.dao;
+package org.sonar.persistence.model;
 
-import java.util.Arrays;
 import java.util.List;
 
-public final class DaoUtils {
-  private DaoUtils() {
-  }
+/**
+ * @since 2.13
+ */
+public interface ReviewMapper {
+  Review selectById(long id);
 
-  public static List<Class> getDaoClasses() {
-    return Arrays.<Class>asList(RuleDao.class, DuplicationDao.class, ReviewDao.class);
-  }
+  List<Review> selectByResource(int resourceId);
+
+  List<Review> selectByQuery(ReviewQuery query);
 }

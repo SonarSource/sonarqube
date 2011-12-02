@@ -22,41 +22,46 @@ class Review < ActiveRecord::Base
   belongs_to :assignee, :class_name => "User", :foreign_key => "assignee_id"
   belongs_to :resource, :class_name => "Project", :foreign_key => "resource_id"
   belongs_to :project, :class_name => "Project", :foreign_key => "project_id"
+  belongs_to :rule
   has_many :review_comments, :order => "created_at", :dependent => :destroy
   alias_attribute :comments, :review_comments
-  
+
   validates_presence_of :user, :message => "can't be empty"
   validates_presence_of :status, :message => "can't be empty"
-  
+
   before_save :assign_project
-  
+
   STATUS_OPEN = 'OPEN'
   STATUS_RESOLVED = 'RESOLVED'
   STATUS_REOPENED = 'REOPENED'
   STATUS_CLOSED = 'CLOSED'
-    
+
+  RESOLUTION_FALSE_POSITIVE = 'FALSE-POSITIVE'
+  RESOLUTION_FIXED = 'FIXED'
+
+  RULE_REPOSITORY_KEY = 'review'
+
   def on_project?
     resource_id==project_id
   end
-  
+
   def rule
-    @rule ||= 
-      begin
-        rule_failure ? rule_failure.rule : nil
-      end
-  end
-  
-  def rule_failure
-    @rule_failure ||=
-      begin
-        # We need to manually run this DB request as the real relation Reviews-RuleFailures is 1:n but we want only 1 violation
-        # (more than 1 violation can have the same "permanent_id" when several analyses are run in a small time frame)
-        RuleFailure.find(:last, :conditions => {:permanent_id => rule_failure_permanent_id}, :order => 'id asc')
-      end
+    @rule ||=
+        begin
+          rule_failure ? rule_failure.rule : nil
+        end
   end
 
-  
-  
+  def rule_failure
+    @rule_failure ||=
+        begin
+          # We need to manually run this DB request as the real relation Reviews-RuleFailures is 1:n but we want only 1 violation
+          # (more than 1 violation can have the same "permanent_id" when several analyses are run in a small time frame)
+          RuleFailure.find(:first, :conditions => {:permanent_id => rule_failure_permanent_id}, :order => 'id desc')
+        end
+  end
+
+
   #
   #
   # REVIEW CORE METHODS
@@ -66,8 +71,8 @@ class Review < ActiveRecord::Base
   # params are mandatory:
   # - :user
   # - :text
-  def create_comment(params={})
-    comment = comments.create!(params)
+  def create_comment(options={})
+    comment = comments.create!(options)
     touch
     notification_manager.notifyChanged(id.to_i, comment.user.login.to_java, to_java_map, to_java_map("comment" => comment.text))
   end
@@ -110,15 +115,15 @@ class Review < ActiveRecord::Base
 
   def to_java_map(params = {})
     map = java.util.HashMap.new({
-      "project" => project.long_name.to_java,
-      "resource" => resource.long_name.to_java,
-      "title" => title.to_java,
-      "creator" => user == nil ? nil : user.login.to_java,
-      "assignee" => assignee == nil ? nil : assignee.login.to_java,
-      "status" => status.to_java,
-      "resolution" => resolution.to_java
-    })
-    params.each_pair do |k,v|
+                                    "project" => project.long_name.to_java,
+                                    "resource" => resource.long_name.to_java,
+                                    "title" => title.to_java,
+                                    "creator" => user == nil ? nil : user.login.to_java,
+                                    "assignee" => assignee == nil ? nil : assignee.login.to_java,
+                                    "status" => status.to_java,
+                                    "resolution" => resolution.to_java
+                                })
+    params.each_pair do |k, v|
       map.put(k.to_java, v.to_java)
     end
     map
@@ -142,7 +147,7 @@ class Review < ActiveRecord::Base
   def resolve(current_user)
     old = self.to_java_map
     self.status = STATUS_RESOLVED
-    self.resolution = 'FIXED'
+    self.resolution = RESOLUTION_FIXED
     self.save!
     notification_manager.notifyChanged(id.to_i, current_user.login.to_java, old, to_java_map)
   end
@@ -158,7 +163,7 @@ class Review < ActiveRecord::Base
         violation.switched_off=is_false_positive
         violation.save!
       else
-        RuleFailure.find( :all, :conditions => [ "permanent_id = ?", self.rule_failure_permanent_id ] ).each do |violation|
+        RuleFailure.find(:all, :conditions => ["permanent_id = ?", self.rule_failure_permanent_id]).each do |violation|
           violation.switched_off=is_false_positive
           violation.save!
         end
@@ -167,54 +172,54 @@ class Review < ActiveRecord::Base
       old = self.to_java_map
       self.assignee = nil
       self.status = is_false_positive ? STATUS_RESOLVED : STATUS_REOPENED
-      self.resolution = is_false_positive ? 'FALSE-POSITIVE' : nil
+      self.resolution = is_false_positive ? RESOLUTION_FALSE_POSITIVE : nil
       self.save!
       notification_manager.notifyChanged(id.to_i, comment.user.login.to_java, old, to_java_map("comment" => comment.text))
     end
   end
 
   def false_positive
-    resolution == 'FALSE-POSITIVE'
+    resolution == RESOLUTION_FALSE_POSITIVE
   end
-  
+
   def can_change_false_positive_flag?
-    (status == STATUS_RESOLVED && resolution == 'FALSE-POSITIVE') || status == STATUS_OPEN || status == STATUS_REOPENED
+    (status == STATUS_RESOLVED && resolution == RESOLUTION_FALSE_POSITIVE) || status == STATUS_OPEN || status == STATUS_REOPENED
   end
 
   def isResolved?
     status == STATUS_RESOLVED
   end
-  
+
   def isClosed?
     status == STATUS_CLOSED
   end
-  
+
   def isReopened?
     status == STATUS_REOPENED
   end
-  
+
   def isOpen?
     status == STATUS_OPEN
   end
-  
+
   #
   #
   # SEARCH METHODS
   #
   #  
-  
+
   def self.search(options={})
     conditions=[]
     values={}
-    
+
     # --- 'review_type' is deprecated since 2.9 ---
     # Following code just for backward compatibility
     review_type = options['review_type']
     if review_type
-      if review_type == 'FALSE_POSITIVE'
-        conditions << "resolution='FALSE-POSITIVE'"
+      if review_type == RESOLUTION_FALSE_POSITIVE
+        conditions << "resolution='#{RESOLUTION_FALSE_POSITIVE}'"
       else
-        conditions << "(resolution<>'FALSE-POSITIVE' OR resolution IS NULL)"
+        conditions << "(resolution<>'#{RESOLUTION_FALSE_POSITIVE}' OR resolution IS NULL)"
       end
     end
     # --- End of code for backward compatibility code ---
@@ -222,9 +227,9 @@ class Review < ActiveRecord::Base
     # --- For UI
     false_positives = options['false_positives']
     if false_positives == "only"
-      conditions << "resolution='FALSE-POSITIVE'"
+      conditions << "resolution='#{RESOLUTION_FALSE_POSITIVE}'"
     elsif false_positives == "without"
-      conditions << "(resolution<>'FALSE-POSITIVE' OR resolution IS NULL)"
+      conditions << "(resolution<>'#{RESOLUTION_FALSE_POSITIVE}' OR resolution IS NULL)"
     end
     # --- End
 
@@ -242,7 +247,7 @@ class Review < ActiveRecord::Base
       values[:id]=options['id'].to_i
     elsif ids && ids.size>0 && !ids[0].blank?
       conditions << 'id in (:ids)'
-      values[:ids]=ids.map{|id| id.to_i}
+      values[:ids]=ids.map { |id| id.to_i }
     end
 
     projects=options['projects'].split(',') if options['projects']
@@ -272,7 +277,7 @@ class Review < ActiveRecord::Base
       conditions << 'status in (:statuses)'
       values[:statuses]=statuses
     end
-    
+
     severities=options['severities'].split(',') if options['severities']
     if severities && severities.size>0 && !severities[0].blank?
       conditions << 'severity in (:severities)'
@@ -285,7 +290,7 @@ class Review < ActiveRecord::Base
       unless Api::Utils.is_number?(authors[0])
         values[:authors]=User.logins_to_ids(authors)
       else
-        values[:authors]=authors.map{|user_id| user_id.to_i}
+        values[:authors]=authors.map { |user_id| user_id.to_i }
       end
     end
 
@@ -295,10 +300,10 @@ class Review < ActiveRecord::Base
       unless Api::Utils.is_number?(assignees[0])
         values[:assignees]=User.logins_to_ids(assignees)
       else
-        values[:assignees]=assignees.map{|user_id| user_id.to_i}
+        values[:assignees]=assignees.map { |user_id| user_id.to_i }
       end
     end
-    
+
     from=options['from']
     if from
       conditions << 'created_at >= :from'
@@ -313,7 +318,7 @@ class Review < ActiveRecord::Base
 
     sort=options['sort']
     asc=options['asc']
-    if sort 
+    if sort
       if asc
         sort += ' ASC, reviews.updated_at DESC'
       else
@@ -322,18 +327,17 @@ class Review < ActiveRecord::Base
     else
       sort = 'reviews.updated_at DESC'
     end
-    
-    Review.find(:all, :include => [ 'review_comments', 'project', 'assignee', 'resource', 'user' ], :conditions => [conditions.join(' AND '), values], :order => sort, :limit => 200)
+
+    Review.find(:all, :include => ['review_comments', 'project', 'assignee', 'resource', 'user'], :conditions => [conditions.join(' AND '), values], :order => sort, :limit => 200)
   end
 
-  
-  
+
   #
   #
   # XML AND JSON UTILITY METHODS
   #
   #
-  
+
   def self.reviews_to_xml(reviews, convert_markdown=false)
     xml = Builder::XmlMarkup.new(:indent => 0)
     xml.instruct!
@@ -355,7 +359,7 @@ class Review < ActiveRecord::Base
       xml.status(status)
       xml.resolution(resolution) if resolution
       xml.severity(severity)
-      xml.resource(resource.kee)  if resource
+      xml.resource(resource.kee) if resource
       xml.line(resource_line) if resource_line && resource_line>0
       xml.violationId(rule_failure_permanent_id) if rule_failure_permanent_id
       xml.comments do
@@ -364,7 +368,7 @@ class Review < ActiveRecord::Base
             xml.id(comment.id.to_i)
             xml.author(comment.user.login)
             xml.updatedAt(Api::Utils.format_datetime(comment.updated_at))
-            if convert_markdown 
+            if convert_markdown
               xml.text(comment.html_text)
             else
               xml.text(comment.plain_text)
@@ -376,7 +380,7 @@ class Review < ActiveRecord::Base
   end
 
   def self.reviews_to_json(reviews, convert_markdown=false)
-    JSON(reviews.collect{|review| review.to_json(convert_markdown)})
+    JSON(reviews.collect { |review| review.to_json(convert_markdown) })
   end
 
   def to_json(convert_markdown=false)
@@ -396,14 +400,24 @@ class Review < ActiveRecord::Base
     comments = []
     review_comments.each do |comment|
       comments << {
-        'id' => comment.id.to_i,
-        'author' => comment.user.login,
-        'updatedAt' => Api::Utils.format_datetime(comment.updated_at),
-        'text' => convert_markdown ? comment.html_text : comment.plain_text
+          'id' => comment.id.to_i,
+          'author' => comment.user.login,
+          'updatedAt' => Api::Utils.format_datetime(comment.updated_at),
+          'text' => convert_markdown ? comment.html_text : comment.plain_text
       }
     end
     json['comments'] = comments
     json
+  end
+
+
+  def self.find_or_create_rule(rule_category)
+    key = rule_category.strip.downcase.sub(/\s+/, '_')
+    rule = find(:first, :conditions => {:enabled => true, :plugin_name => RULE_REPOSITORY_KEY, :plugin_rule_key => key})
+    unless rule
+      rule = create!(:enabled => true, :plugin_name => RULE_REPOSITORY_KEY, :plugin_rule_key => key, :name => rule_category)
+    end
+    rule
   end
 
   #
@@ -412,11 +426,12 @@ class Review < ActiveRecord::Base
   #
   #
   private
-  
+
   def assign_project
     if self.project.nil? && self.resource
       self.project=self.resource.root_project
     end
   end
-  
+
+
 end

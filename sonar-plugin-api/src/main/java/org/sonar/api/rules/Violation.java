@@ -37,13 +37,15 @@ public class Violation {
   private Integer lineId;
   private Double cost;
   private Date createdAt;
-  private boolean switchedOff=false;
+  private boolean switchedOff = false;
   private String checksum;
-  private boolean isNew=false;
+  private boolean isNew = false;
+  private boolean isManual = false;
+  private Integer permanentId;
 
   /**
    * Creates of a violation from a rule. Will need to define the resource later on
-   * 
+   *
    * @deprecated since 2.3. Use the factory method create()
    */
   @Deprecated
@@ -53,11 +55,9 @@ public class Violation {
 
   /**
    * Creates a fully qualified violation
-   * 
-   * @param rule
-   *          the rule that has been violated
-   * @param resource
-   *          the resource the violation should be attached to
+   *
+   * @param rule     the rule that has been violated
+   * @param resource the resource the violation should be attached to
    * @deprecated since 2.3. Use the factory method create()
    */
   @Deprecated
@@ -72,7 +72,7 @@ public class Violation {
 
   /**
    * Sets the resource the violation applies to
-   * 
+   *
    * @return the current object
    */
   public Violation setResource(Resource resource) {
@@ -86,7 +86,7 @@ public class Violation {
 
   /**
    * Sets the rule violated
-   * 
+   *
    * @return the current object
    */
   public Violation setRule(Rule rule) {
@@ -100,7 +100,7 @@ public class Violation {
 
   /**
    * Sets the violation message
-   * 
+   *
    * @return the current object
    */
   public Violation setMessage(String message) {
@@ -118,7 +118,7 @@ public class Violation {
 
   /**
    * Sets the violation line.
-   * 
+   *
    * @param lineId line number (numeration starts from 1), or <code>null</code> if violation doesn't belong to concrete line
    * @return the current object
    */
@@ -150,7 +150,7 @@ public class Violation {
 
   /**
    * For internal use only.
-   * 
+   *
    * @since 2.5
    */
   public Violation setSeverity(RulePriority severity) {
@@ -168,7 +168,7 @@ public class Violation {
 
   /**
    * For internal use only
-   * 
+   *
    * @deprecated since 2.5 use {@link #setSeverity(RulePriority)} instead. See http://jira.codehaus.org/browse/SONAR-1829
    */
   @Deprecated
@@ -190,7 +190,7 @@ public class Violation {
    * have methods whose complexity is greater than 10. Without this field "cost", the same violation is created with a method whose
    * complexity is 15 and a method whose complexity is 100. If the cost to fix one point of complexity is 0.05h, then 15mn is necessary to
    * fix the method whose complexity is 15, and 3h5mn is required to fix the method whose complexity is 100.
-   * 
+   *
    * @since 2.4
    */
   public Violation setCost(Double d) {
@@ -211,7 +211,7 @@ public class Violation {
 
   /**
    * For internal use only
-   * 
+   *
    * @since 2.5
    */
   public Violation setCreatedAt(Date createdAt) {
@@ -222,12 +222,11 @@ public class Violation {
   /**
    * Switches off the current violation. This is a kind of "mute", which means the violation exists but won't be counted as an active
    * violation (and thus, won't be counted in the total number of violations). It's usually used for false-positives.
-   *
+   * <p/>
    * The extensions which call this method must be executed
-   * 
+   *
+   * @param b if true, the violation is considered OFF
    * @since 2.8
-   * @param b
-   *          if true, the violation is considered OFF
    */
   public Violation setSwitchedOff(boolean b) {
     this.switchedOff = b;
@@ -236,7 +235,7 @@ public class Violation {
 
   /**
    * Tells whether this violation is ON or OFF.
-   * 
+   *
    * @since 2.8
    */
   public boolean isSwitchedOff() {
@@ -263,6 +262,7 @@ public class Violation {
    * (the "previous" analysis).
    * This method must be used only by post-jobs and decorators depending on the barrier
    * {@link org.sonar.api.batch.DecoratorBarriers#END_OF_VIOLATION_TRACKING}
+   *
    * @since 2.9
    */
   public boolean isNew() {
@@ -271,10 +271,47 @@ public class Violation {
 
   /**
    * For internal use only. MUST NOT BE SET FROM PLUGINS.
+   *
    * @since 2.9
    */
   public Violation setNew(boolean b) {
     isNew = b;
+    return this;
+  }
+
+  /**
+   * @since 2.13
+   */
+  public boolean isManual() {
+    return isManual;
+  }
+
+  /**
+   * For internal use only. MUST NOT BE SET FROM PLUGINS.
+   *
+   * @since 2.13
+   */
+  public Violation setManual(boolean b) {
+    isManual = b;
+    return this;
+  }
+
+  /**
+   * For internal use only. MUST NOT BE SET FROM PLUGINS.
+   *
+   * @since 2.13
+   */
+  public Integer getPermanentId() {
+    return permanentId;
+  }
+
+  /**
+   * For internal use only. MUST NOT BE SET FROM PLUGINS.
+   *
+   * @since 2.13
+   */
+  public Violation setPermanentId(Integer i) {
+    this.permanentId = i;
     return this;
   }
 

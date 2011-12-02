@@ -2,13 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.sonar.persistence.model.RuleMapper">
-
-	<select id="selectAll" resultType="Rule">
-		select id, plugin_rule_key as "ruleKey", plugin_name as "repositoryKey", description, enabled, name from RULES
-	</select>
+  <select id="selectAll" resultType="Rule">
+    select id, plugin_rule_key as "ruleKey", plugin_name as "repositoryKey", description, enabled, name from RULES
+  </select>
 
   <select id="selectById" parameterType="long" resultType="Rule">
-		select id, plugin_rule_key as "ruleKey", plugin_name as "repositoryKey", description, enabled, name from RULES WHERE id=#{id}
-	</select>
+    select id, plugin_rule_key as "ruleKey", plugin_name as "repositoryKey", description, enabled, name from RULES WHERE id=#{id}
+  </select>
 </mapper>
 

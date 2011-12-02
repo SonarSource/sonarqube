@@ -19,51 +19,50 @@
  */
 package org.sonar.persistence.dao;
 
-import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.persistence.MyBatis;
-import org.sonar.persistence.model.DuplicationMapper;
-import org.sonar.persistence.model.DuplicationUnit;
+import org.sonar.persistence.model.Review;
+import org.sonar.persistence.model.ReviewMapper;
+import org.sonar.persistence.model.ReviewQuery;
 
-import java.util.Collection;
 import java.util.List;
 
-public class DuplicationDao implements BatchComponent, ServerComponent {
-
+public class ReviewDao implements BatchComponent, ServerComponent {
   private final MyBatis mybatis;
 
-  public DuplicationDao(MyBatis mybatis) {
+  public ReviewDao(MyBatis mybatis) {
     this.mybatis = mybatis;
   }
 
-  public List<DuplicationUnit> selectCandidates(int resourceSnapshotId, Integer lastSnapshotId) {
+  public Review selectById(long id) {
     SqlSession sqlSession = mybatis.openSession();
     try {
-      DuplicationMapper mapper = sqlSession.getMapper(DuplicationMapper.class);
-      return mapper.selectCandidates(resourceSnapshotId, lastSnapshotId);
+      ReviewMapper mapper = sqlSession.getMapper(ReviewMapper.class);
+      return mapper.selectById(id);
     } finally {
       sqlSession.close();
     }
   }
 
-  /**
-   * Insert rows in the table DUPLICATIONS_INDEX.
-   * Note that generated ids are not returned.
-   */
-  public void insert(Collection<DuplicationUnit> units) {
-    SqlSession session = mybatis.openSession(ExecutorType.BATCH);
+  public List<Review> selectByResource(int resourceId) {
+    SqlSession sqlSession = mybatis.openSession();
     try {
-      DuplicationMapper mapper = session.getMapper(DuplicationMapper.class);
-      for (DuplicationUnit unit : units) {
-        mapper.batchInsert(unit);
-      }
-      session.commit();
-
+      ReviewMapper mapper = sqlSession.getMapper(ReviewMapper.class);
+      return mapper.selectByResource(resourceId);
     } finally {
-      session.close();
+      sqlSession.close();
     }
   }
 
+  public List<Review> selectByQuery(ReviewQuery query) {
+    SqlSession sqlSession = mybatis.openSession();
+    try {
+      ReviewMapper mapper = sqlSession.getMapper(ReviewMapper.class);
+      return mapper.selectByQuery(query);
+    } finally {
+      sqlSession.close();
+    }
+  }
 }
