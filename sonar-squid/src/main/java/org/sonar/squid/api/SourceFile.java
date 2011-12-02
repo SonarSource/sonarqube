@@ -26,6 +26,7 @@ import java.util.Set;
 public class SourceFile extends SourceCode {
 
   private Set<Integer> noSonarTagLines = new HashSet<Integer>();
+  private Set<Integer> commentedOutCodeLines = new HashSet<Integer>();
 
   public SourceFile(String key) {
     super(key);
@@ -51,5 +52,19 @@ public class SourceFile extends SourceCode {
 
   public void addNoSonarTagLine(int line) {
     noSonarTagLines.add(line);
+  }
+
+  /**
+   * @since 2.13
+   */
+  public Set<Integer> getCommentedOutCodeLines() {
+    return commentedOutCodeLines;
+  }
+
+  /**
+   * @since 2.13
+   */
+  public void addCommentedOutCodeLines(Set<Integer> commentedOutCodeLines) {
+    this.commentedOutCodeLines.addAll(commentedOutCodeLines);
   }
 }

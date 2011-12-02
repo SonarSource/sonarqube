@@ -58,6 +58,7 @@ public final class SquidRuleRepository extends RuleRepository {
         // AST checks
         UndocumentedApiCheck.class, ContinueCheck.class, BreakCheck.class,
         // Squid checks
-        DITCheck.class, ClassComplexityCheck.class, MethodComplexityCheck.class, NoSonarCheck.class, EmptyFileCheck.class);
+        DITCheck.class, ClassComplexityCheck.class, MethodComplexityCheck.class, NoSonarCheck.class, EmptyFileCheck.class,
+        CommentedOutCodeLineCheck.class);
   }
 }

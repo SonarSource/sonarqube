@@ -49,9 +49,9 @@ public class CommentVisitor extends JavaAstVisitor {
 
   @Override
   public void visitFile(DetailAST ast) {
-
     SourceFile file = (SourceFile) peekSourceCode();
     file.addNoSonarTagLines(getSource().getNoSonarTagLines());
+    file.addCommentedOutCodeLines(getSource().getCommentedOutCodeLines());
     file.setMeasure(Metric.HEADER_COMMENT_LINES, getSource().getMeasure(Metric.HEADER_COMMENT_LINES));
     file.setMeasure(Metric.COMMENTED_OUT_CODE_LINES, getSource().getMeasure(Metric.COMMENTED_OUT_CODE_LINES));
     file.setMeasure(Metric.COMMENT_LINES, getSource().getMeasure(Metric.COMMENT_LINES));
