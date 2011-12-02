@@ -21,7 +21,7 @@ class ComponentsController < ApplicationController
 
   helper :metrics, :components
 
-  verify :method => :post, :only => :update_default_treemap_metrics  
+  verify :method => :post, :only => :update_default_treemap_metrics
 
   before_filter :admin_required, :only => :update_default_treemap_metrics
 
@@ -32,10 +32,11 @@ class ComponentsController < ApplicationController
     @components_configuration = Sonar::ComponentsConfiguration.new
 
     @project = Project.by_key(params[:id])
+    not_found("Project not found") unless @project
     access_denied unless has_role?(:user, @project)
     @snapshot = @project.last_snapshot
     @snapshots = Snapshot.find(:all, :include => 'project', :conditions => ['snapshots.parent_snapshot_id=? and snapshots.qualifier<>? and projects.qualifier<>?', @snapshot.id, Snapshot::QUALIFIER_UNIT_TEST_CLASS, Snapshot::QUALIFIER_UNIT_TEST_CLASS])
-    
+
     @columns = @components_configuration.selected_columns
     metrics = @components_configuration.homepage_metrics
 
@@ -54,9 +55,9 @@ class ComponentsController < ApplicationController
     render(:update) do |page|
       page.replace_html 'treemap', @treemap.generate_html
       page.replace_html 'treemap_gradient', :partial => 'components/treemap_gradient',
-        :locals => { :color_metric => @treemap.color_metric}
+                        :locals => {:color_metric => @treemap.color_metric}
       page.replace_html 'treemap_set_default', :partial => 'components/treemap_set_default',
-        :locals => { :controller => 'components', :size_metric => params[:size_metric], :color_metric => params[:color_metric], :rid => @snapshot.project_id }
+                        :locals => {:controller => 'components', :size_metric => params[:size_metric], :color_metric => params[:color_metric], :rid => @snapshot.project_id}
     end
   end
 
@@ -70,13 +71,13 @@ class ComponentsController < ApplicationController
 
   def refresh_configure
     render :update do |page|
-      page.replace_html("rule_id_#{@rule.id}", :partial => 'rule', :locals => { :rule => @rule })
+      page.replace_html("rule_id_#{@rule.id}", :partial => 'rule', :locals => {:rule => @rule})
     end
   end
 
   def measures_by_snapshot(snapshots, measures)
     snapshot_by_id = {}
-    snapshots.each {|s| snapshot_by_id[s.id]=s}
+    snapshots.each { |s| snapshot_by_id[s.id]=s }
     hash={}
     measures.each do |m|
       if m && m.snapshot_id && snapshot_by_id[m.snapshot_id]
@@ -88,9 +89,9 @@ class ComponentsController < ApplicationController
   end
 
   def component_measures(snapshots, metrics)
-    sids = snapshots.collect{|s| s.id}
+    sids = snapshots.collect { |s| s.id }
     if sids && sids.size>0
-      mids = metrics.collect{|metric| metric.id}
+      mids = metrics.collect { |metric| metric.id }
       measures=[]
 
       page_size=950
@@ -100,11 +101,11 @@ class ComponentsController < ApplicationController
       page_count.times do |page_index|
         page_sids=sids[page_index*page_size...(page_index+1)*page_size]
         measures.concat(ProjectMeasure.find(:all, :conditions => {
-          'snapshot_id' => page_sids,
-          'metric_id' => mids,
-          'rule_id' => nil,
-          'rule_priority' => nil,
-          'characteristic_id' => nil}))
+            'snapshot_id' => page_sids,
+            'metric_id' => mids,
+            'rule_id' => nil,
+            'rule_priority' => nil,
+            'characteristic_id' => nil}))
       end
       measures
     else

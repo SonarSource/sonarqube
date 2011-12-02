@@ -37,7 +37,7 @@ class DrilldownController < ApplicationController
     else
       selected_rids=[]
     end
-    selected_rids=selected_rids.map{|r|r.to_i}
+    selected_rids=selected_rids.map { |r| r.to_i }
 
 
     # options
@@ -96,16 +96,16 @@ class DrilldownController < ApplicationController
     else
       @selected_rids=[]
     end
-    @selected_rids=@selected_rids.map{|r|r.to_i}
+    @selected_rids=@selected_rids.map { |r| r.to_i }
 
 
     # options for Drilldown
     options={:exclude_zero_value => true, :period => @period}
     if @rule
-      params[:rule]=@rule.key  # workaround for SONAR-1767 : the javascript hash named "rp" in the HTML source must contain the rule key, but not the rule id
+      params[:rule]=@rule.key # workaround for SONAR-1767 : the javascript hash named "rp" in the HTML source must contain the rule key, but not the rule id
       options[:rule_id]=@rule.id
     end
-    
+
     # load data
     @drilldown = Drilldown.new(@project, @metric, @selected_rids, options)
     @snapshot=@drilldown.snapshot
@@ -126,11 +126,11 @@ class DrilldownController < ApplicationController
     else
       # No filter -> loads all the rules
       metrics=[
-        Metric.by_key("#{metric_prefix}blocker_violations"),
-        Metric.by_key("#{metric_prefix}critical_violations"),
-        Metric.by_key("#{metric_prefix}major_violations"),
-        Metric.by_key("#{metric_prefix}minor_violations"),
-        Metric.by_key("#{metric_prefix}info_violations")
+          Metric.by_key("#{metric_prefix}blocker_violations"),
+          Metric.by_key("#{metric_prefix}critical_violations"),
+          Metric.by_key("#{metric_prefix}major_violations"),
+          Metric.by_key("#{metric_prefix}minor_violations"),
+          Metric.by_key("#{metric_prefix}info_violations")
       ]
       @rule_measures = @snapshot.rule_measures(metrics)
     end
@@ -143,9 +143,8 @@ class DrilldownController < ApplicationController
   def init_project
     project_key = params[:id]
     @project = project_key ? Project.by_key(project_key) : nil
-    if @project.nil?
-      render :text => "Project [#{project_key}] not found", :status => 404
-    end
+    # For security reasons, we must not return 404 not found. It would be an information that the resource exists.
+    not_found("Resource not found") unless @project
   end
 
   def select_metric(metric_key, default_key)
@@ -176,7 +175,7 @@ class DrilldownController < ApplicationController
     hash
   end
 
-  def display_metric_viewers?(resource,metric_key)
+  def display_metric_viewers?(resource, metric_key)
     return true if resource.file?
     java_facade.getResourceTabsForMetric(resource.scope, resource.qualifier, resource.language, metric_key).each do |tab|
       tab.getUserRoles().each do |role|

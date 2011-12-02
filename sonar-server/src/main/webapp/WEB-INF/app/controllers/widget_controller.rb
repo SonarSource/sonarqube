@@ -28,15 +28,15 @@ class WidgetController < ApplicationController
     params[:layout]='false'
     render :action => 'index'
   end
- 
+
   private
 
   def load_resource
     @resource=Project.by_key(params[:resource])
-    not_found('Unknown resource') unless @resource
-    
-    @project=@resource
+    not_found("Resource not found") unless @resource
     access_denied unless has_role?(:user, @resource)
+
+    @project=@resource
     @snapshot = @resource.last_snapshot
   end
 

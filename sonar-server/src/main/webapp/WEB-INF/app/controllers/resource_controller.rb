@@ -25,46 +25,43 @@ class ResourceController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
   helper :dashboard, SourceHelper
-  
+
   def index
     @resource = Project.by_key(params[:id])
+    not_found("Resource not found") unless @resource
+    access_denied unless has_role?(:user, @resource)
 
-    if (@resource && has_role?(:user, @resource))
-      params[:layout]='false'
-      @snapshot=@resource.last_snapshot
+    params[:layout]='false'
+    @snapshot=@resource.last_snapshot
 
-      load_extensions()
+    load_extensions()
 
-      if @extension
-        if (@extension.getId()=='violations')
-          render_violations()
-        elsif (@extension.getId()=='coverage')
-          render_coverage()
-        elsif (@extension.getId()=='source')
-          render_source()
-        elsif (@extension.getId()=='duplications')
-          render_duplications()
-        else
-          render_extension()
-        end
+    if @extension
+      if (@extension.getId()=='violations')
+        render_violations()
+      elsif (@extension.getId()=='coverage')
+        render_coverage()
+      elsif (@extension.getId()=='source')
+        render_source()
+      elsif (@extension.getId()=='duplications')
+        render_duplications()
       else
-        render_nothing()
+        render_extension()
       end
     else
-      access_denied
+      render_nothing()
     end
   end
-  
+
   def show_duplication_snippet
     resource = Project.by_key(params[:id])
-    if (resource && has_role?(:user, resource))
-      original_resource = Project.by_key(params[:original_resource_id])
-      render :partial => 'duplications_source_snippet', 
-             :locals => {:resource => resource, :original_resource => original_resource, :from_line => params[:from_line].to_i, :to_line => params[:to_line].to_i, :lines_count => params[:lines_count].to_i, 
-                         :group_index => params[:group_index], :external => (resource.root_id != original_resource.root_id)}
-    else
-      access_denied
-    end
+    not_found("Resource not found") unless resource
+    access_denied unless has_role?(:user, resource)
+
+    original_resource = Project.by_key(params[:original_resource_id])
+    render :partial => 'duplications_source_snippet',
+           :locals => {:resource => resource, :original_resource => original_resource, :from_line => params[:from_line].to_i, :to_line => params[:to_line].to_i, :lines_count => params[:lines_count].to_i,
+                       :group_index => params[:group_index], :external => (resource.root_id != original_resource.root_id)}
   end
 
 
@@ -86,13 +83,13 @@ class ResourceController < ApplicationController
     end
 
     if !params[:tab].blank?
-      @extension=@extensions.find{|extension| extension.getId()==params[:tab]}
+      @extension=@extensions.find { |extension| extension.getId()==params[:tab] }
 
     elsif !params[:metric].blank?
       metric=Metric.by_key(params[:metric])
-      @extension=@extensions.find{|extension| extension.getDefaultTabForMetrics().include?(metric.key)}
+      @extension=@extensions.find { |extension| extension.getDefaultTabForMetrics().include?(metric.key) }
     end
-    @extension=@extensions.find{|extension| extension.isDefaultTab()} if @extension==nil
+    @extension=@extensions.find { |extension| extension.isDefaultTab() } if @extension==nil
   end
 
   def load_sources
@@ -112,7 +109,7 @@ class ResourceController < ApplicationController
         line.author=@authors_by_line[index+1]
 
         date_string=@dates_by_line[index+1]
-        line.datetime=(date_string ? Java::OrgSonarApiUtils::DateUtils.parseDateTime(date_string): nil)
+        line.datetime=(date_string ? Java::OrgSonarApiUtils::DateUtils.parseDateTime(date_string) : nil)
       end
     end
   end
@@ -132,7 +129,7 @@ class ResourceController < ApplicationController
   def render_coverage
     load_sources()
     @display_coverage = true
-    @display_it_coverage = (! @snapshot.measure('it_coverage').nil?)
+    @display_it_coverage = (!@snapshot.measure('it_coverage').nil?)
     @expandable = (@lines!=nil)
     if @lines
       metric = Metric.by_key(params[:coverage_filter]||params[:metric])
@@ -143,7 +140,7 @@ class ResourceController < ApplicationController
       @conditions_by_line = load_distribution("#{it_prefix}conditions_by_line")
       @covered_conditions_by_line = load_distribution("#{it_prefix}covered_conditions_by_line")
 
-      @hits_by_line.each_pair do |line_id,hits|
+      @hits_by_line.each_pair do |line_id, hits|
         line = @lines[line_id-1]
         if line
           line.hits = hits.to_i
@@ -155,7 +152,7 @@ class ResourceController < ApplicationController
       if @snapshot.measure("#{it_prefix}conditions_by_line").nil?
         # TODO remove this code when branch_coverage_hits_data is fully removed from CoreMetrics
         deprecated_branches_by_line = load_distribution("#{it_prefix}branch_coverage_hits_data")
-        deprecated_branches_by_line.each_pair do |line_id,label|
+        deprecated_branches_by_line.each_pair do |line_id, label|
           line = @lines[line_id-1]
           if line
             line.deprecated_conditions_label = label
@@ -170,33 +167,33 @@ class ResourceController < ApplicationController
           'it_lines_to_cover'==@coverage_filter || 'it_coverage'==@coverage_filter || 'it_line_coverage'==@coverage_filter ||
           'new_it_lines_to_cover'==@coverage_filter || 'new_it_coverage'==@coverage_filter || 'new_it_line_coverage'==@coverage_filter)
         @coverage_filter = "#{it_prefix}lines_to_cover"
-        filter_lines{|line| line.hits && line.after(to)}
+        filter_lines { |line| line.hits && line.after(to) }
 
       elsif ('uncovered_lines'==@coverage_filter || 'new_uncovered_lines'==@coverage_filter ||
-            'it_uncovered_lines'==@coverage_filter || 'new_it_uncovered_lines'==@coverage_filter)
+          'it_uncovered_lines'==@coverage_filter || 'new_it_uncovered_lines'==@coverage_filter)
         @coverage_filter = "#{it_prefix}uncovered_lines"
-        filter_lines{|line| line.hits && line.hits==0 && line.after(to)}
+        filter_lines { |line| line.hits && line.hits==0 && line.after(to) }
 
       elsif ('conditions_to_cover'==@coverage_filter || 'branch_coverage'==@coverage_filter ||
-            'new_conditions_to_cover'==@coverage_filter || 'new_branch_coverage'==@coverage_filter ||
-            'it_conditions_to_cover'==@coverage_filter || 'it_branch_coverage'==@coverage_filter ||
-            'new_it_conditions_to_cover' == @coverage_filter || 'new_it_branch_coverage'==@coverage_filter)
+          'new_conditions_to_cover'==@coverage_filter || 'new_branch_coverage'==@coverage_filter ||
+          'it_conditions_to_cover'==@coverage_filter || 'it_branch_coverage'==@coverage_filter ||
+          'new_it_conditions_to_cover' == @coverage_filter || 'new_it_branch_coverage'==@coverage_filter)
         @coverage_filter="#{it_prefix}conditions_to_cover"
-        filter_lines{|line| line.conditions && line.conditions>0 && line.after(to)}
+        filter_lines { |line| line.conditions && line.conditions>0 && line.after(to) }
 
       elsif ('uncovered_conditions' == @coverage_filter || 'new_uncovered_conditions' == @coverage_filter ||
-            'it_uncovered_conditions'==@coverage_filter || 'new_it_uncovered_conditions' == @coverage_filter)
+          'it_uncovered_conditions'==@coverage_filter || 'new_it_uncovered_conditions' == @coverage_filter)
         @coverage_filter="#{it_prefix}uncovered_conditions"
-        filter_lines{|line| line.conditions && line.covered_conditions && line.covered_conditions<line.conditions && line.after(to)}
+        filter_lines { |line| line.conditions && line.covered_conditions && line.covered_conditions<line.conditions && line.after(to) }
       end
     end
     render :action => 'index', :layout => !request.xhr?
   end
-  
-  
+
+
   def render_duplications
     duplications_data = @snapshot.measure('duplications_data');
-    
+
     # create duplication groups
     @duplication_groups = []
     if duplications_data && duplications_data.measure_data && duplications_data.measure_data.data
@@ -207,7 +204,7 @@ class ResourceController < ApplicationController
         parse_duplications_old_format(dups, @duplication_groups)
       end
     end
-    
+
     # And sort them 
     @duplication_groups.each do |group|
       group.sort! do |dup1, dup2|
@@ -233,8 +230,8 @@ class ResourceController < ApplicationController
         end
       end
     end
-    @duplication_groups.sort! {|group1, group2| group1[0][:from_line].to_i <=> group2[0][:from_line].to_i}
-    
+    @duplication_groups.sort! { |group1, group2| group1[0][:from_line].to_i <=> group2[0][:from_line].to_i }
+
     render :action => 'index', :layout => !request.xhr?
   end
 
@@ -256,7 +253,7 @@ class ResourceController < ApplicationController
       duplication_groups << dup_group
     end
   end
-  
+
   def parse_duplications_old_format(dups, duplication_groups)
     resource_by_key = {}
     dups.elements.each("duplications/duplication") do |dup|
@@ -273,8 +270,8 @@ class ResourceController < ApplicationController
       duplication_groups << group
     end
   end
-  
-  
+
+
   def render_violations
     load_sources()
     @display_violations=true
@@ -314,7 +311,7 @@ class ResourceController < ApplicationController
       end
     end
 
-    RuleFailure.find(:all, :include => ['rule', 'review' ], :conditions => [conditions] + values, :order => 'failure_level DESC').each do |violation|
+    RuleFailure.find(:all, :include => ['rule', 'review'], :conditions => [conditions] + values, :order => 'failure_level DESC').each do |violation|
       # sorted by severity => from blocker to info
       if violation.line && violation.line>0 && @lines
         @lines[violation.line-1].add_violation(violation)
@@ -324,12 +321,12 @@ class ResourceController < ApplicationController
     end
 
     if !@expanded && @lines
-      filter_lines{|line| line.violations?}
+      filter_lines { |line| line.violations? }
     end
     render :action => 'index', :layout => !request.xhr?
   end
-  
-  
+
+
   def render_source
     load_sources()
     filter_lines_by_date()
@@ -350,7 +347,7 @@ class ResourceController < ApplicationController
   end
 
   def filter_lines(&block)
-    @lines.each_with_index do |line,index|
+    @lines.each_with_index do |line, index|
       if yield(line)
         for i in index-4...index
           @lines[i].flag_as_highlight_context() if i>=0
@@ -429,15 +426,15 @@ class ResourceController < ApplicationController
     def deprecated_conditions_label=(label)
       if label
         @deprecated_conditions_label=label
-          if label=='0%'
-            @conditions=2
-            @covered_conditions=0
-          elsif label=='100%'
-            @conditions=2
-            @covered_conditions=2
-          else
-            @conditions=2
-            @covered_conditions=1
+        if label=='0%'
+          @conditions=2
+          @covered_conditions=0
+        elsif label=='100%'
+          @conditions=2
+          @covered_conditions=2
+        else
+          @conditions=2
+          @covered_conditions=1
         end
       end
     end

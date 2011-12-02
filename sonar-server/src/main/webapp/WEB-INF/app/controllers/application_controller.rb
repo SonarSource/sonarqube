@@ -18,31 +18,30 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class ApplicationController < ActionController::Base
-  
+
   include AuthenticatedSystem
   include NeedAuthorization::Helper
-  
+
   before_filter :check_database_version, :set_locale, :check_authentication
 
-  unless ActionController::Base.consider_all_requests_local
-    rescue_from Exception, :with => :render_error
-    rescue_from Errors::BadRequest, :with => :render_bad_request
-    rescue_from ActionController::UnknownAction, :with => :render_not_found
-    rescue_from ActionController::RoutingError, :with => :render_not_found
-    rescue_from ActionController::UnknownController, :with => :render_not_found
-    rescue_from ActiveRecord::RecordNotFound, :with => :render_not_found
-    rescue_from Errors::NotFound, :with => :render_not_found
-    rescue_from Errors::AccessDenied, :with => :render_access_denied # See lib/authenticated_system.rb#access_denied()
-  end
+  rescue_from Exception, :with => :render_error
+  rescue_from Errors::BadRequest, :with => :render_bad_request
+  rescue_from ActionController::UnknownAction, :with => :render_not_found
+  rescue_from ActionController::RoutingError, :with => :render_not_found
+  rescue_from ActionController::UnknownController, :with => :render_not_found
+  rescue_from ActiveRecord::RecordInvalid, :with => :render_error
+  rescue_from ActiveRecord::RecordNotFound, :with => :render_not_found
+  rescue_from Errors::NotFound, :with => :render_not_found
+  rescue_from Errors::AccessDenied, :with => :render_access_denied # See lib/authenticated_system.rb#access_denied()
 
   def self.root_context
     ActionController::Base.relative_url_root || ''
   end
-    
+
   def java_facade
     Java::OrgSonarServerUi::JRubyFacade.getInstance()
   end
-  
+
   def available_locales
     # see config/initializers/available_locales.rb
     AVAILABLE_LOCALES
@@ -98,14 +97,11 @@ class ApplicationController < ActionController::Base
       access_denied
     end
   end
-  
+
   # i18n
   def message(key, options={})
     Api::Utils.message(key, options)
   end
-
-
-
 
 
   #

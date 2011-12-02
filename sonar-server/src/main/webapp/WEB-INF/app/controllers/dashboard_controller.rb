@@ -38,7 +38,7 @@ class DashboardController < ApplicationController
     # TODO display error page if no dashboard or no resource
     load_resource()
     load_dashboard()
-      load_widget_definitions()
+    load_widget_definitions()
     unless @dashboard
       redirect_to home_path
     end
@@ -56,7 +56,7 @@ class DashboardController < ApplicationController
       dashboard.column_layout=params[:layout]
       dashboard.save!
       columns=dashboard.column_layout.split('-')
-      dashboard.widgets.find(:all, :conditions => ["column_index > ?",columns.size()]).each do |widget|
+      dashboard.widgets.find(:all, :conditions => ["column_index > ?", columns.size()]).each do |widget|
         widget.column_index=columns.size()
         widget.save
       end
@@ -83,7 +83,7 @@ class DashboardController < ApplicationController
         end
       end
     end
-    @dashboard.widgets.reject{|w| all_ids.include?(w.id)}.each do |w|
+    @dashboard.widgets.reject { |w| all_ids.include?(w.id) }.each do |w|
       w.destroy
     end
     render :json => {:status => 'ok'}
@@ -95,12 +95,12 @@ class DashboardController < ApplicationController
     if dashboard.editable_by?(current_user)
       definition=java_facade.getWidget(params[:widget])
       if definition
-        first_column_widgets=dashboard.widgets.select{|w| w.column_index==1}.sort_by{|w| w.row_index}
+        first_column_widgets=dashboard.widgets.select { |w| w.column_index==1 }.sort_by { |w| w.row_index }
         new_widget=dashboard.widgets.create(:widget_key => definition.getId(),
-                                           :name => definition.getTitle(),
-                                           :column_index => 1,
-                                           :row_index => 1,
-                                           :configured => !definition.hasRequiredProperties())
+                                            :name => definition.getTitle(),
+                                            :column_index => 1,
+                                            :row_index => 1,
+                                            :configured => !definition.hasRequiredProperties())
         widget_id=new_widget.id
         first_column_widgets.each_with_index do |w, index|
           w.row_index=index+2
@@ -133,7 +133,7 @@ class DashboardController < ApplicationController
     if errors_by_property_key.empty?
       widget.configured=true
       widget.save
-      widget.properties.each {|p| p.save}
+      widget.properties.each { |p| p.save }
       render :update do |page|
         page.redirect_to(url_for(:action => :configure, :did => widget.dashboard_id, :id => params[:id]))
       end
@@ -181,17 +181,13 @@ class DashboardController < ApplicationController
 
   def load_resource
     @resource=Project.by_key(params[:id])
-    if @resource.nil?
-      # TODO display error page
-      redirect_to home_path
-      return false
-    end
+    not_found("Resource not found") unless @resource
     access_denied unless has_role?(:user, @resource)
     @snapshot = @resource.last_snapshot
-    @project=@resource  # variable name used in old widgets
+    @project=@resource # variable name used in old widgets
   end
 
-  def load_authorized_widget_definitions()
+  def load_authorized_widget_definitions
     if @resource
       @widget_definitions = java_facade.getWidgets(@resource.scope, @resource.qualifier, @resource.language)
       @widget_definitions=@widget_definitions.select do |widget|
@@ -210,10 +206,10 @@ class DashboardController < ApplicationController
   def load_widget_definitions(filter_on_category=nil)
     @widget_definitions=java_facade.getWidgets()
     @widget_categories=[]
-    @widget_definitions.each {|definition| @widget_categories<<definition.getWidgetCategories()}
+    @widget_definitions.each { |definition| @widget_categories<<definition.getWidgetCategories() }
     @widget_categories=@widget_categories.flatten.uniq.sort
     unless filter_on_category.blank?
-      @widget_definitions=@widget_definitions.select{|definition| definition.getWidgetCategories().to_a.include?(filter_on_category)}
+      @widget_definitions=@widget_definitions.select { |definition| definition.getWidgetCategories().to_a.include?(filter_on_category) }
     end
   end
 

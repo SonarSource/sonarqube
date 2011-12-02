@@ -24,7 +24,7 @@ class Plugins::ResourceController < ApplicationController
 
   def index
     @project = ::Project.by_key(params[:id])
-    return redirect_to home_url if @project.nil?
+    not_found("Not found") unless @project
 
     @snapshot=@project.last_snapshot
 
@@ -32,7 +32,7 @@ class Plugins::ResourceController < ApplicationController
     @page_proxy=java_facade.getPage(page_id)
 
     return redirect_to(home_path) unless @page_proxy
-    
+
     authorized=@page_proxy.getUserRoles().size==0
     unless authorized
       @page_proxy.getUserRoles().each do |role|

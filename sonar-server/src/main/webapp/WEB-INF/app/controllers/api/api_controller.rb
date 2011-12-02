@@ -30,22 +30,6 @@ class Api::ApiController < ApplicationController
     end
   end
 
-  #
-  # Override the error handling defined in parent ApplicationController
-  #
-  rescue_from Exception, :with => :render_error
-  rescue_from ApiException, :with => :render_error
-  rescue_from Errors::BadRequest, :with => :render_bad_request
-  rescue_from ActionController::UnknownAction, :with => :render_not_found
-  rescue_from ActionController::RoutingError, :with => :render_not_found
-  rescue_from ActionController::UnknownController, :with => :render_not_found
-  rescue_from ActiveRecord::RecordNotFound, :with => :render_not_found
-  rescue_from Errors::NotFound, :with => :render_not_found
-  rescue_from Errors::AccessDenied, :with => :render_access_denied
-
-  
-  protected
-
   def text_not_supported
     "Not supported"
   end
@@ -94,8 +78,9 @@ class Api::ApiController < ApplicationController
   #
   #
 
-  def render_error(message, status)
-    logger.error("Fail to render: #{request.url}", message) if status==500
+  def render_error(exception, status=500)
+    message = exception.respond_to?('message') ? Api::Utils.exception_message(exception) : exception.to_s
+    java_facade.logError("Fail to render: #{request.url}\n#{message}") if status==500
     respond_to do |format|
       format.json { render :json => error_to_json(status, message), :status => status }
       format.xml { render :xml => error_to_xml(status, message), :status => status }
@@ -103,12 +88,14 @@ class Api::ApiController < ApplicationController
     end
   end
 
-  def render_not_found(error)
-    render_error(error.message, 404)
+  def render_not_found(exception)
+    message = exception.respond_to?('message') ? exception.message : exception.to_s
+    render_error(message, 404)
   end
 
-  def render_bad_request(error)
-    render_error(error.message, 400)
+  def render_bad_request(exception)
+    message = exception.respond_to?('message') ? exception.message : exception.to_s
+    render_error(message, 400)
   end
 
   def render_access_denied
