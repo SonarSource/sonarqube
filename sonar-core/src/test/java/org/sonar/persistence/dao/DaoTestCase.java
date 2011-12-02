@@ -99,7 +99,7 @@ public abstract class DaoTestCase {
     DatabaseMetaData meta = connection.getMetaData();
     Statement statement = connection.createStatement();
 
-    ResultSet res = meta.getTables(null, null, null, new String[]{"TABLE"});
+    ResultSet res = meta.getTables(null, database.getSchema(), null, new String[]{"TABLE"});
     List<String> tables = Lists.newArrayList();
     while (res.next()) {
       String tableName = res.getString("TABLE_NAME");
