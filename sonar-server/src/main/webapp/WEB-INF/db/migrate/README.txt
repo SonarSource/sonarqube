@@ -6,7 +6,7 @@ HOW TO ADD A MIGRATION
   + sonar-core/src/main/resources/org/sonar/persistence/rows-derby.sql :
     - add "INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES ('<THE MIGRATION ID>')"
 * Update the migration id defined in sonar-core/src/main/java/org/sonar/jpa/entity/SchemaMigration.java
-
+* If a table is addded or removed, then edit sonar-core/src/main/java/org/sonar/persistence/DatabaseUtils.java
 
 
 

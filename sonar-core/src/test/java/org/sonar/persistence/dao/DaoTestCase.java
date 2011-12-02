@@ -19,7 +19,6 @@
  */
 package org.sonar.persistence.dao;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.dbunit.Assertion;
 import org.dbunit.DataSourceDatabaseTester;
@@ -34,15 +33,13 @@ import org.dbunit.operation.DatabaseOperation;
 import org.junit.*;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
-import org.sonar.persistence.Database;
-import org.sonar.persistence.DefaultDatabase;
-import org.sonar.persistence.InMemoryDatabase;
-import org.sonar.persistence.MyBatis;
+import org.sonar.persistence.*;
 
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.sql.*;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Map;
 
 import static org.junit.Assert.fail;
@@ -94,32 +91,13 @@ public abstract class DaoTestCase {
     }
   }
 
-  private List<String> listTables() throws SQLException {
-    Connection connection = myBatis.openSession().getConnection();
-    DatabaseMetaData meta = connection.getMetaData();
-    Statement statement = connection.createStatement();
-
-    ResultSet res = meta.getTables(null, database.getSchema(), null, new String[]{"TABLE"});
-    List<String> tables = Lists.newArrayList();
-    while (res.next()) {
-      String tableName = res.getString("TABLE_NAME");
-      tables.add(tableName.toLowerCase());
-    }
-    res.close();
-    statement.close();
-    connection.close();
-    return tables;
-  }
-
   private void truncateTables() throws SQLException {
-    List<String> tables = listTables();
     Connection connection = myBatis.openSession().getConnection();
     Statement statement = connection.createStatement();
-    for (String table : tables) {
+    LoggerFactory.getLogger(getClass()).info("Truncate tables and reset primary keys");
+    for (String table : DatabaseUtils.TABLE_NAMES) {
       // 1. truncate
-
       String truncateCommand = databaseCommands.truncate(table);
-      LoggerFactory.getLogger(getClass()).info("Execute: " + truncateCommand);
       statement.executeUpdate(truncateCommand);
       connection.commit();
 
