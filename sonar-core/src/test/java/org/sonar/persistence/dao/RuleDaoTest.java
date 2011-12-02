@@ -52,7 +52,7 @@ public class RuleDaoTest extends DaoTestCase {
 
   @Test
   public void testSelectById() throws Exception {
-    setupData("select");
+    setupData("selectById");
     org.sonar.persistence.model.Rule rule = dao.selectById(2L);
 
     assertThat(rule.getId(), Is.is(2L));
