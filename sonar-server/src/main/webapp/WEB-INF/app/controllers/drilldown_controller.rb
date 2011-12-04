@@ -70,12 +70,12 @@ class DrilldownController < ApplicationController
     @rule=Rule.by_key_or_id(params[:rule])
 
     # variation measures
-    if params[:period].blank?
-      @period=nil
-      metric_prefix = ''
-    else
+    if params[:period].present? && params[:period].to_i>0
       @period=params[:period].to_i
       metric_prefix = 'new_'
+    else
+      @period=nil
+      metric_prefix = ''
     end
 
     @severity = params[:severity] || params[:priority]
