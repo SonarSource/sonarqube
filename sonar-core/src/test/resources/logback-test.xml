@@ -15,7 +15,7 @@
     <level value="WARN"/>
   </logger>
 
-  <logger name="org.dbunit.database.DatabaseDataSet">
+  <logger name="org.dbunit">
     <level value="WARN"/>
   </logger>
 
