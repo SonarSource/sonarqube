@@ -64,7 +64,7 @@ class Api::ViolationsController < Api::ResourceRestController
       rule_ids=params[:rules].split(',').map do |key_or_id|
         Rule.to_i(key_or_id)
       end.compact
-      conditions << 'rule_id IN (:rule_ids)'
+      conditions << 'rule_failures.rule_id IN (:rule_ids)'
       values[:rule_ids] = rule_ids
     end
     if params[:priorities]
@@ -75,10 +75,10 @@ class Api::ViolationsController < Api::ResourceRestController
     end
     
     if params[:switched_off] == "true"
-      conditions << 'switched_off=:switched_off'
+      conditions << 'rule_failures.switched_off=:switched_off'
       values[:switched_off] = true
     else
-      conditions << '(switched_off IS NULL OR switched_off=:switched_off)'
+      conditions << '(rule_failures.switched_off IS NULL OR rule_failures.switched_off=:switched_off)'
       values[:switched_off] = false
     end
 
