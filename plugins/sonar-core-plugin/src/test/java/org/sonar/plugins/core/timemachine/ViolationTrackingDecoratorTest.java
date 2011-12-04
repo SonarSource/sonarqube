@@ -49,7 +49,21 @@ public class ViolationTrackingDecoratorTest {
     when(project.getAnalysisDate()).thenReturn(analysisDate);
     decorator = new ViolationTrackingDecorator(project, null, null);
   }
-  
+
+  @Test
+  public void permanentIdShouldBeThePrioritaryFieldToCheck() {
+    RuleFailureModel referenceViolation1 = newReferenceViolation("message", 10, 1, "checksum1").setPermanentId(100);
+    RuleFailureModel referenceViolation2 = newReferenceViolation("message", 18, 1, "checksum2").setPermanentId(200);
+    Violation newViolation = newViolation("message", 10, 1, "checksum1"); // exactly the fields of referenceViolation1
+    newViolation.setPermanentId(200);
+
+    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation),
+        Lists.newArrayList(referenceViolation1, referenceViolation2));
+
+    assertThat(mapping.get(newViolation), equalTo(referenceViolation2));// same permanent id
+    assertThat(newViolation.isNew(), is(false));
+  }
+
   @Test
   public void checksumShouldHaveGreaterPriorityThanLine() {
     RuleFailureModel referenceViolation1 = newReferenceViolation("message", 1, 50, "checksum1");

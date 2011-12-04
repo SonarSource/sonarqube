@@ -19,6 +19,9 @@
  */
 package org.sonar.persistence.model;
 
+/**
+ * @since 2.13
+ */
 public final class ReviewQuery {
   private Boolean manualViolation;
   private Integer resourceId;

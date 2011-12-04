@@ -90,11 +90,21 @@ public class ViolationTrackingDecorator implements Decorator {
       pastViolationsByRule.put(pastViolation.getRuleId(), pastViolation);
     }
 
-    // Try first to match violations on same rule with same line and with same checkum (but not necessarily with same message)
+    // Match the permanent id of the violation. This id is for example set explicitly when injecting manual violations
     for (Violation newViolation : newViolations) {
       mapViolation(newViolation,
-          findPastViolationWithSameLineAndChecksum(newViolation, pastViolationsByRule.get(newViolation.getRule().getId())),
+          findPastViolationWithSamePermanentId(newViolation, pastViolationsByRule.get(newViolation.getRule().getId())),
           pastViolationsByRule, referenceViolationsMap);
+    }
+
+
+    // Try first to match violations on same rule with same line and with same checkum (but not necessarily with same message)
+    for (Violation newViolation : newViolations) {
+      if (isNotAlreadyMapped(newViolation, referenceViolationsMap)) {
+        mapViolation(newViolation,
+            findPastViolationWithSameLineAndChecksum(newViolation, pastViolationsByRule.get(newViolation.getRule().getId())),
+            pastViolationsByRule, referenceViolationsMap);
+      }
     }
 
     // If each new violation matches an old one we can stop the matching mechanism
@@ -170,6 +180,15 @@ public class ViolationTrackingDecorator implements Decorator {
     return null;
   }
 
+  private RuleFailureModel findPastViolationWithSamePermanentId(Violation newViolation, Collection<RuleFailureModel> pastViolations) {
+    for (RuleFailureModel pastViolation : pastViolations) {
+      if (isSamePermanentId(newViolation, pastViolation)) {
+        return pastViolation;
+      }
+    }
+    return null;
+  }
+
   private boolean isSameChecksum(Violation newViolation, RuleFailureModel pastViolation) {
     return StringUtils.equals(pastViolation.getChecksum(), newViolation.getChecksum());
   }
@@ -182,6 +201,10 @@ public class ViolationTrackingDecorator implements Decorator {
     return StringUtils.equals(RuleFailureModel.abbreviateMessage(newViolation.getMessage()), pastViolation.getMessage());
   }
 
+  private boolean isSamePermanentId(Violation newViolation, RuleFailureModel pastViolation) {
+    return newViolation.getPermanentId() != null && newViolation.getPermanentId().equals(pastViolation.getPermanentId());
+  }
+
   private void mapViolation(Violation newViolation, RuleFailureModel pastViolation,
                             Multimap<Integer, RuleFailureModel> pastViolationsByRule, Map<Violation, RuleFailureModel> violationMap) {
     if (pastViolation != null) {
@@ -190,7 +213,7 @@ public class ViolationTrackingDecorator implements Decorator {
       newViolation.setNew(false);
       pastViolationsByRule.remove(newViolation.getRule().getId(), pastViolation);
       violationMap.put(newViolation, pastViolation);
-      
+
     } else {
       newViolation.setNew(true);
       newViolation.setCreatedAt(project.getAnalysisDate());

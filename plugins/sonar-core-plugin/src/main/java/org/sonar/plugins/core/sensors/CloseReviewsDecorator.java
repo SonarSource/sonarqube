@@ -19,15 +19,9 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorBarriers;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.*;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.database.model.User;
@@ -40,6 +34,8 @@ import org.sonar.api.security.UserFinder;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.core.NotDryRun;
 import org.sonar.jpa.entity.Review;
+
+import java.util.List;
 
 /**
  * Decorator that handles the life cycle of a review (for instance, closes a review when its corresponding violation has been fixed).
@@ -92,13 +88,17 @@ public class CloseReviewsDecorator implements Decorator {
    */
   protected int closeReviews(Resource resource, int resourceId, int snapshotId) {
     String conditions = " WHERE status!='CLOSED' AND resource_id=" + resourceId
-        + " AND rule_failure_permanent_id NOT IN " + "(SELECT permanent_id FROM rule_failures WHERE snapshot_id=" + snapshotId
+        + " AND manual_violation=:manualViolation AND rule_failure_permanent_id NOT IN " + "(SELECT permanent_id FROM rule_failures WHERE snapshot_id=" + snapshotId
         + " AND permanent_id IS NOT NULL)";
-    List<Review> reviews = databaseSession.getEntityManager().createNativeQuery("SELECT * FROM reviews " + conditions, Review.class).getResultList();
+    List<Review> reviews = databaseSession.getEntityManager().createNativeQuery("SELECT * FROM reviews " + conditions, Review.class)
+        .setParameter("manualViolation", false)
+        .getResultList();
     for (Review review : reviews) {
       notifyClosed(resource, review);
     }
-    int rowUpdated = databaseSession.createNativeQuery("UPDATE reviews SET status='CLOSED', updated_at=CURRENT_TIMESTAMP" + conditions).executeUpdate();
+    int rowUpdated = databaseSession.createNativeQuery("UPDATE reviews SET status='CLOSED', updated_at=CURRENT_TIMESTAMP" + conditions)
+        .setParameter("manualViolation", false)
+        .executeUpdate();
     LOG.debug("- {} reviews set to 'closed' on resource #{}", rowUpdated, resourceId);
     return rowUpdated;
   }
