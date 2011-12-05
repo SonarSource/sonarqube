@@ -1,0 +1,91 @@
+<dataset>
+
+  <snapshots
+    id="11"
+    project_id="555"
+    status="P" islast="false"/>
+
+  <!-- Automatic violations -->
+  <rule_failures
+    id="1"
+    permanent_id="1"
+    snapshot_id="11"
+    rule_id="1"
+    failure_level="1"/>
+
+
+  <!-- Manual violations -->
+  <rule_failures
+    id="2"
+    permanent_id="2"
+    snapshot_id="22"
+    rule_id="2"
+    failure_level="4"/>
+
+  <rule_failures
+    id="3"
+    permanent_id="3"
+    snapshot_id="22"
+    rule_id="2"
+    failure_level="4"/>
+
+
+  <!--
+
+  Reviews on automatic violation
+
+  -->
+  <reviews
+    id="1"
+    status="CLOSED"
+    rule_failure_permanent_id="1"
+    resolution="[null]"
+    created_at="[null]"
+    updated_at="[null]"
+    project_id="[null]"
+    resource_line="[null]"
+    severity="MINOR"
+    user_id="[null]"
+    resource_id="555"
+    rule_id="1"
+    manual_violation="false"/>
+
+  <!--
+
+  Reviews on manual violations
+
+  -->
+
+  <!-- to be closed -->
+  <reviews
+    id="2"
+    status="RESOLVED"
+    rule_failure_permanent_id="2"
+    resolution="FIXED"
+    created_at="[null]"
+    updated_at="[null]"
+    project_id="[null]"
+    resource_line="18"
+    severity="BLOCKER"
+    user_id="[null]"
+    resource_id="555"
+    rule_id="2"
+    manual_violation="true"/>
+
+  <!-- to keep opened -->
+  <reviews
+    id="3"
+    status="OPEN"
+    rule_failure_permanent_id="3"
+    resolution="[null]"
+    created_at="[null]"
+    updated_at="[null]"
+    project_id="[null]"
+    resource_line="18"
+    severity="BLOCKER"
+    user_id="[null]"
+    resource_id="555"
+    rule_id="2"
+    manual_violation="true"/>
+
+</dataset>

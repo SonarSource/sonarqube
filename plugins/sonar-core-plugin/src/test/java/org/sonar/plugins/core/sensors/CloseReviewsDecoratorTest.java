@@ -19,24 +19,20 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import junit.framework.ComparisonFailure;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationManager;
 import org.sonar.api.resources.Project;
 import org.sonar.api.security.UserFinder;
+import org.sonar.jpa.entity.Review;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 public class CloseReviewsDecoratorTest extends AbstractDbUnitTestCase {
 
@@ -62,14 +58,14 @@ public class CloseReviewsDecoratorTest extends AbstractDbUnitTestCase {
   public void shouldCloseReviewWithoutCorrespondingViolation() throws Exception {
     setupData("fixture");
 
-    int count = reviewsDecorator.closeReviews(null, 666, 222);
+    int count = reviewsDecorator.closeReviewsOnResolvedViolations(null, 666, 222);
 
     assertThat(count, is(3));
     verify(notificationManager, times(3)).scheduleForSending(any(Notification.class));
-    checkTables("shouldCloseReviewWithoutCorrespondingViolation", new String[] { "updated_at" }, new String[] { "reviews" });
+    checkTables("shouldCloseReviewWithoutCorrespondingViolation", new String[]{"updated_at"}, "reviews");
 
     try {
-      checkTables("shouldCloseReviewWithoutCorrespondingViolation", new String[] { "reviews" });
+      checkTables("shouldCloseReviewWithoutCorrespondingViolation", "reviews");
       fail("'updated_at' columns are identical whereas they should be different.");
     } catch (ComparisonFailure e) {
       // "updated_at" column must be different, so the comparison should raise this exception
@@ -81,20 +77,35 @@ public class CloseReviewsDecoratorTest extends AbstractDbUnitTestCase {
     setupData("fixture");
 
     // First we close the reviews for which the violations have been fixed (this is because we use the same "fixture"...)
-    reviewsDecorator.closeReviews(null, 666, 222);
+    reviewsDecorator.closeReviewsOnResolvedViolations(null, 666, 222);
 
     // And now we reopen the reviews that still have a violation
-    int count = reviewsDecorator.reopenReviews(null, 666);
+    int count = reviewsDecorator.reopenReviewsOnUnresolvedViolations(null, 666);
 
     assertThat(count, is(1));
     verify(notificationManager, times(4)).scheduleForSending(any(Notification.class));
-    checkTables("shouldReopenResolvedReviewWithNonFixedViolation", new String[] { "updated_at" }, new String[] { "reviews" });
+    checkTables("shouldReopenResolvedReviewWithNonFixedViolation", new String[]{"updated_at"}, "reviews");
 
     try {
-      checkTables("shouldReopenResolvedReviewWithNonFixedViolation", new String[] { "reviews" });
+      checkTables("shouldReopenResolvedReviewWithNonFixedViolation", "reviews");
       fail("'updated_at' columns are identical whereas they should be different.");
     } catch (ComparisonFailure e) {
       // "updated_at" column must be different, so the comparison should raise this exception
     }
+  }
+
+  @Test
+  public void shouldCloseResolvedManualViolations() throws Exception {
+    setupData("shouldCloseResolvedManualViolations");
+
+    int count = reviewsDecorator.closeReviewsOnResolvedViolations(null, 555, 11);
+    assertThat(count, is(1));
+
+    verify(notificationManager, times(1)).scheduleForSending(any(Notification.class));
+
+    getSession().commit();
+    assertThat(getSession().getSingleResult(Review.class, "id", 1L).getStatus(), is("CLOSED")); // automatic violation not changed
+    assertThat(getSession().getSingleResult(Review.class, "id", 2L).getStatus(), is("CLOSED")); // manual violation resolved -> closed
+    assertThat(getSession().getSingleResult(Review.class, "id", 3L).getStatus(), is("OPEN"));   // manual violation not changed
   }
 }

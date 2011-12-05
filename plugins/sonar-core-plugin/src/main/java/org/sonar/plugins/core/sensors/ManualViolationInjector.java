@@ -32,7 +32,6 @@ import org.sonar.persistence.dao.ReviewDao;
 import org.sonar.persistence.model.Review;
 import org.sonar.persistence.model.ReviewQuery;
 
-
 import java.util.List;
 
 @Phase(name = Phase.Name.PRE)
@@ -52,13 +51,13 @@ public class ManualViolationInjector implements Decorator {
 
   public void decorate(Resource resource, DecoratorContext context) {
     if (resource.getId() != null) {
-      ReviewQuery query = ReviewQuery.create().setManualViolation(true).setResourceId(resource.getId()).setStatus(Review.STATUS_OPEN);
+      ReviewQuery query = ReviewQuery.create().setManualViolation(true).setResourceId(resource.getId()).setStatus(Review.STATUS_OPENED);
       List<Review> reviews = reviewDao.selectByQuery(query);
       for (Review review : reviews) {
-        if (review.getRuleId()==null) {
+        if (review.getRuleId() == null) {
           LoggerFactory.getLogger(getClass()).warn("No rule is defined on the review with id: " + review.getId());
         }
-        if (review.getViolationPermanentId()==null) {
+        if (review.getViolationPermanentId() == null) {
           LoggerFactory.getLogger(getClass()).warn("Permanent id of manual violation is missing on the review with id: " + review.getId());
         }
         Violation violation = Violation.create(ruleFinder.findById(review.getRuleId()), resource);
