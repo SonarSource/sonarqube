@@ -27,8 +27,6 @@ import org.sonar.jpa.dao.ProfilesDao;
 public class DefaultProfileLoader implements ProfileLoader {
   static final String PARAM_PROFILE = "sonar.profile";
 
-  private RulesProfile profile;
-
   private ProfilesDao dao;
 
   public DefaultProfileLoader(ProfilesDao dao) {
@@ -37,6 +35,7 @@ public class DefaultProfileLoader implements ProfileLoader {
 
   public RulesProfile load(Project project) {
     String profileName = (String) project.getProperty(PARAM_PROFILE);
+    RulesProfile profile;
     if (profileName == null) {
       Project root = project.getRoot();
       profile = dao.getActiveProfile(root.getLanguageKey(), root.getKey());
@@ -58,7 +57,6 @@ public class DefaultProfileLoader implements ProfileLoader {
       activeRule.getRule().getParams().size();
     }
     profile.getAlerts().size();
-
     return profile;
   }
 
