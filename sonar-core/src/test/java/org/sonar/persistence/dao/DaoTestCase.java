@@ -31,7 +31,6 @@ import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.*;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.persistence.*;
 
@@ -99,7 +98,6 @@ public abstract class DaoTestCase {
     for (String table : DatabaseUtils.TABLE_NAMES) {
       // 1. truncate
       String truncateCommand = databaseCommands.truncate(table);
-      LoggerFactory.getLogger(getClass()).info("Execute: " + truncateCommand);
       statement.executeUpdate(truncateCommand);
       connection.commit();
 

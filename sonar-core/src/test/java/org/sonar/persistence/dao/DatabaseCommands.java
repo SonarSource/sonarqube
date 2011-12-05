@@ -44,7 +44,6 @@ abstract class DatabaseCommands {
   }
 
 
-  
   static final DatabaseCommands DERBY = new DatabaseCommands(new DefaultDataTypeFactory()) {
     @Override
     String truncate(String table) {
@@ -56,7 +55,7 @@ abstract class DatabaseCommands {
       return "ALTER TABLE " + table + " ALTER COLUMN ID RESTART WITH 1";
     }
   };
-  
+
   static final DatabaseCommands MSSQL = new DatabaseCommands(new MsSqlDataTypeFactory()) {
     @Override
     String truncate(String table) {
@@ -89,7 +88,7 @@ abstract class DatabaseCommands {
 
     @Override
     String resetPrimaryKey(String table) {
-      return "ALTER SEQUENCE " + table + "_SEQ INCREMENT BY - MINVALUE 1;";
+      return "ALTER SEQUENCE " + table + "_SEQ INCREMENT BY 1 MINVALUE 1";
     }
   };
 
