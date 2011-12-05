@@ -179,10 +179,9 @@ public class BatchExtensionDictionnary {
     if (annotation != null) {
       if (annotation.annotationType().isAssignableFrom(DependsUpon.class)) {
         results.addAll(Arrays.asList(((DependsUpon) annotation).value()));
-        results.addAll(Arrays.asList(((DependsUpon) annotation).classes()));
+
       } else if (annotation.annotationType().isAssignableFrom(DependedUpon.class)) {
         results.addAll(Arrays.asList(((DependedUpon) annotation).value()));
-        results.addAll(Arrays.asList(((DependedUpon) annotation).classes()));
       }
     }
 

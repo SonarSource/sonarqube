@@ -25,19 +25,8 @@ import org.sonar.api.utils.SonarException;
  * @since 1.10
  */
 public class CyclicDependenciesException extends SonarException {
-  public CyclicDependenciesException() {
-  }
-
   public CyclicDependenciesException(String s) {
     super(s);
-  }
-
-  public CyclicDependenciesException(String s, Throwable throwable) {
-    super(s, throwable);
-  }
-
-  public CyclicDependenciesException(Throwable throwable) {
-    super(throwable);
   }
 }
 

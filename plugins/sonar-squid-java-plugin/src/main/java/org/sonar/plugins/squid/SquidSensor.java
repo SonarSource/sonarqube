@@ -38,7 +38,7 @@ import java.util.List;
 
 @Phase(name = Phase.Name.PRE)
 @DependsUpon(JavaUtils.BARRIER_BEFORE_SQUID)
-@DependedUpon(value = JavaUtils.BARRIER_AFTER_SQUID, classes = NoSonarFilter.class)
+@DependedUpon(value = JavaUtils.BARRIER_AFTER_SQUID)
 public class SquidSensor implements Sensor {
 
   private NoSonarFilter noSonarFilter;
@@ -65,10 +65,10 @@ public class SquidSensor implements Sensor {
 
   private void analyzeMainSources(Project project, SensorContext context) {
     boolean analyzePropertyAccessors = project.getConfiguration().getBoolean(SquidPluginProperties.SQUID_ANALYSE_ACCESSORS_PROPERTY,
-        SquidPluginProperties.SQUID_ANALYSE_ACCESSORS_DEFAULT_VALUE);
+      SquidPluginProperties.SQUID_ANALYSE_ACCESSORS_DEFAULT_VALUE);
     String fieldNamesToExcludeFromLcom4Computation = project.getConfiguration().getString(
-        SquidPluginProperties.FIELDS_TO_EXCLUDE_FROM_LCOM4_COMPUTATION,
-        SquidPluginProperties.FIELDS_TO_EXCLUDE_FROM_LCOM4_COMPUTATION_DEFAULT_VALUE);
+      SquidPluginProperties.FIELDS_TO_EXCLUDE_FROM_LCOM4_COMPUTATION,
+      SquidPluginProperties.FIELDS_TO_EXCLUDE_FROM_LCOM4_COMPUTATION_DEFAULT_VALUE);
     Charset charset = project.getFileSystem().getSourceCharset();
 
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, SquidConstants.REPOSITORY_KEY, SquidRuleRepository.getCheckClasses());
@@ -91,7 +91,7 @@ public class SquidSensor implements Sensor {
 
   /**
    * Visibility has been relaxed to make the code testable.
-   * 
+   *
    * @return collection of jar-files and directories with classes for analysis
    */
   protected Collection<File> getBytecodeFiles(Project project) {

@@ -37,9 +37,4 @@ public @interface DependedUpon {
    */
   String[] value() default {};
 
-  /**
-   * Used only on classes. Must be keep empty on methods.
-   */
-  Class[] classes() default {};
-
 }

@@ -19,11 +19,11 @@
  */
 package org.sonar.api.checks;
 
+import com.google.common.collect.Maps;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.rules.ViolationFilter;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,7 +32,7 @@ import java.util.Set;
  */
 public class NoSonarFilter implements ViolationFilter {
 
-  private final Map<Resource, Set<Integer>> noSonarLinesByResource = new HashMap<Resource, Set<Integer>>();
+  private final Map<Resource, Set<Integer>> noSonarLinesByResource = Maps.newHashMap();
 
   public void addResource(Resource resource, Set<Integer> noSonarLines) {
     if (resource != null && noSonarLines != null) {
