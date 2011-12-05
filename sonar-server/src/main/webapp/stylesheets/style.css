@@ -827,6 +827,12 @@ ul.operations li img {
   padding: 2px 0.5em 0 0.5em;
   vertical-align: top;
   font-size: 85%;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
 }
 
 .sources2 td.lid a {
@@ -941,24 +947,23 @@ span.rulename a:hover {
   width: 100%;
   border-right: 1px solid #DDD;
 }
-
 .sources2 td.line pre {
   font-size: 12px;
   font-family: monospace;
   margin-left: 1em;
 }
-
-.sources2 td.section {
-  border-top: 1px solid #DDD;
-  border-bottom: 1px solid #DDD;
-}
-
 .sources2 td.ind {
   border-right: 1px solid #DDD;
   min-width: 1.5em;
   padding: 0 0.3em;
   text-align: center;
   vertical-align: middle;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
 }
 
 .sources2 td.ok {
