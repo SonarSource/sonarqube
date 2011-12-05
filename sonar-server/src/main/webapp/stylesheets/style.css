@@ -834,7 +834,6 @@ ul.operations li img {
   -o-user-select: none;
   user-select: none;
 }
-
 .sources2 td.lid a {
   text-decoration: none;
   color: #AAA;
@@ -950,7 +949,9 @@ span.rulename a:hover {
 .sources2 td.line pre {
   font-size: 12px;
   font-family: monospace;
-  margin-left: 1em;
+}
+.sources2 td.line:hover {
+  background-color: #ECECEC;
 }
 .sources2 td.ind {
   border-right: 1px solid #DDD;
@@ -989,9 +990,7 @@ span.rulename a:hover {
 .sources2 td.violations {
   background-color: #FFF;
   padding: 10px;
-  border-bottom: 1px solid #DDD;
   border-right: 1px solid #DDD;
-  border-top: 1px solid #DDD;
 }
 
 #source_title {

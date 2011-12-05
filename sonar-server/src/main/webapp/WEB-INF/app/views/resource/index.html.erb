@@ -79,7 +79,7 @@
     <%   end
        end
     %>
-    <td class="lid <%= ' section' if line.violations? -%>" id="L<%= index+1 -%>"><a name="L<%= index+1 -%>" href="#L<%= index+1 -%>"><%= index + 1 -%></a></td>
+    <td class="lid" id="L<%= index+1 -%>"><a name="L<%= index+1 -%>" href="#L<%= index+1 -%>"><%= index + 1 -%></a></td>
 
     <% if @display_coverage  %>
       <% if line.highlighted? %>
@@ -105,7 +105,7 @@
       <% if @scm_available %>
       <td class="scm"></td>
       <% end %>
-      <td class="lid section"></td>
+      <td class="lid"></td>
       <td class="violations">
         <% line.violations.each_with_index do |violation, index| %>
           <%= render :partial => 'violation', :locals => {:violation => violation} -%>
