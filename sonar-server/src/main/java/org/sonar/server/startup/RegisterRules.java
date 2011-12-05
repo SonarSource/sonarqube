@@ -36,7 +36,7 @@ import java.util.*;
 public final class RegisterRules {
 
   private DatabaseSessionFactory sessionFactory;
-  private List<RuleRepository> repositories = new ArrayList<RuleRepository>();
+  private List<RuleRepository> repositories = Lists.newArrayList();
 
   public RegisterRules(DatabaseSessionFactory sessionFactory, RuleRepository[] repos) {
     this.sessionFactory = sessionFactory;
@@ -68,12 +68,12 @@ public final class RegisterRules {
   private void disableDeprecatedUserRules(DatabaseSession session) {
     List<Integer> deprecatedUserRuleIds = Lists.newLinkedList();
     deprecatedUserRuleIds.addAll(session.createQuery(
-        "SELECT r.id FROM " + Rule.class.getSimpleName() +
-            " r WHERE r.parent IS NOT NULL AND NOT EXISTS(FROM " + Rule.class.getSimpleName() + " p WHERE r.parent=p)").getResultList());
+      "SELECT r.id FROM " + Rule.class.getSimpleName() +
+        " r WHERE r.parent IS NOT NULL AND NOT EXISTS(FROM " + Rule.class.getSimpleName() + " p WHERE r.parent=p)").getResultList());
 
     deprecatedUserRuleIds.addAll(session.createQuery(
-        "SELECT r.id FROM " + Rule.class.getSimpleName() +
-            " r WHERE r.parent IS NOT NULL AND EXISTS(FROM " + Rule.class.getSimpleName() + " p WHERE r.parent=p and p.enabled=false)").getResultList());
+      "SELECT r.id FROM " + Rule.class.getSimpleName() +
+        " r WHERE r.parent IS NOT NULL AND EXISTS(FROM " + Rule.class.getSimpleName() + " p WHERE r.parent=p and p.enabled=false)").getResultList());
 
     for (Integer deprecatedUserRuleId : deprecatedUserRuleIds) {
       Rule rule = session.getSingleResult(Rule.class, "id", deprecatedUserRuleId);
@@ -84,7 +84,8 @@ public final class RegisterRules {
   }
 
   private void disableAllRules(DatabaseSession session) {
-    session.createQuery("UPDATE " + Rule.class.getSimpleName() + " SET enabled=false WHERE parent IS NULL").executeUpdate();
+    // the hardcoded repository "review" is used for manual violations
+    session.createQuery("UPDATE " + Rule.class.getSimpleName() + " SET enabled=false WHERE parent IS NULL AND pluginName<>'review'").executeUpdate();
   }
 
   private void registerRepository(RuleRepository repository, DatabaseSession session) {
@@ -145,9 +146,9 @@ public final class RegisterRules {
         if (rule.getParam(persistedParam.getKey()) == null) {
           it.remove();
           session
-              .createQuery("delete from " + ActiveRuleParam.class.getSimpleName() + " where ruleParam=:param")
-              .setParameter("param", persistedParam)
-              .executeUpdate();
+            .createQuery("delete from " + ActiveRuleParam.class.getSimpleName() + " where ruleParam=:param")
+            .setParameter("param", persistedParam)
+            .executeUpdate();
         }
       }
     }
