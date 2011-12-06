@@ -20,8 +20,7 @@
 package org.sonar.persistence.dao;
 
 import org.apache.commons.lang.StringUtils;
-import org.dbunit.dataset.datatype.DefaultDataTypeFactory;
-import org.dbunit.dataset.datatype.IDataTypeFactory;
+import org.dbunit.dataset.datatype.*;
 import org.dbunit.ext.mssql.MsSqlDataTypeFactory;
 import org.dbunit.ext.mysql.MySqlDataTypeFactory;
 import org.dbunit.ext.oracle.Oracle10DataTypeFactory;
@@ -42,6 +41,14 @@ abstract class DatabaseCommands {
   abstract String truncate(String table);
 
   abstract List<String> resetPrimaryKey(String table);
+  
+  Object getTrue() {
+    return Boolean.TRUE;
+  }
+
+  Object getFalse() {
+      return Boolean.FALSE;
+    }
 
   final IDataTypeFactory dbUnitFactory() {
     return dbUnitFactory;
@@ -97,6 +104,16 @@ abstract class DatabaseCommands {
         "DROP SEQUENCE " + sequence,
         "CREATE SEQUENCE " + sequence + " INCREMENT BY 1 MINVALUE 1 START WITH 1"
       );
+    }
+
+    @Override
+    Object getTrue() {
+      return 1;
+    }
+
+    @Override
+    Object getFalse() {
+      return 0;
     }
   };
 

@@ -148,6 +148,8 @@ public abstract class DaoTestCase {
       for (int i = 0; i < dataSetStream.length; i++) {
         ReplacementDataSet dataSet = new ReplacementDataSet(new FlatXmlDataSet(dataSetStream[i]));
         dataSet.addReplacementObject("[null]", null);
+        dataSet.addReplacementObject("[false]", databaseCommands.getFalse());
+        dataSet.addReplacementObject("[true]", databaseCommands.getTrue());
         dataSets[i] = dataSet;
       }
       CompositeDataSet compositeDataSet = new CompositeDataSet(dataSets);
@@ -208,6 +210,8 @@ public abstract class DaoTestCase {
     try {
       ReplacementDataSet dataSet = new ReplacementDataSet(new FlatXmlDataSet(stream));
       dataSet.addReplacementObject("[null]", null);
+      dataSet.addReplacementObject("[false]", databaseCommands.getFalse());
+      dataSet.addReplacementObject("[true]", databaseCommands.getTrue());
       return dataSet;
     } catch (Exception e) {
       throw translateException("Could not read the dataset stream", e);

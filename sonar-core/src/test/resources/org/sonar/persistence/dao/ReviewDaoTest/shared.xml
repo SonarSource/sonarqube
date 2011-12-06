@@ -14,7 +14,7 @@
       user_id="300"
       resource_id="400"
       rule_id="500"
-      manual_violation="true"/>
+      manual_violation="[true]"/>
 
   <reviews
       id="101"
@@ -29,7 +29,7 @@
       user_id="300"
       resource_id="400"
       rule_id="505"
-      manual_violation="false"/>
+      manual_violation="[false]"/>
 
 
   <!-- Second resource -->
@@ -46,6 +46,6 @@
       user_id="300"
       resource_id="401"
       rule_id="500"
-      manual_violation="true"/>
+      manual_violation="[true]"/>
 
 </dataset>
