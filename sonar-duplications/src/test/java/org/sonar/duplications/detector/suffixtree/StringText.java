@@ -17,20 +17,21 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.detector.original;
+package org.sonar.duplications.detector.suffixtree;
 
-import java.util.List;
+import org.sonar.duplications.detector.suffixtree.AbstractText;
+import org.sonar.duplications.detector.suffixtree.Text;
 
-import org.sonar.duplications.block.Block;
-import org.sonar.duplications.detector.DetectorTestCase;
-import org.sonar.duplications.index.CloneGroup;
-import org.sonar.duplications.index.CloneIndex;
+/**
+ * Implementation of {@link Text} based on {@link String}.
+ */
+public class StringText extends AbstractText {
 
-public class OriginalCloneDetectionAlgorithmTest extends DetectorTestCase {
-
-  @Override
-  protected List<CloneGroup> detect(CloneIndex index, List<Block> fileBlocks) {
-    return OriginalCloneDetectionAlgorithm.detect(index, fileBlocks);
+  public StringText(String text) {
+    super(text.length());
+    for (int i = 0; i < text.length(); i++) {
+      symbols.add(Character.valueOf(text.charAt(i)));
+    }
   }
 
 }

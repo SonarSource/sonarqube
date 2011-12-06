@@ -17,20 +17,29 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.duplications.detector.original;
+package org.sonar.duplications.detector.suffixtree;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import org.sonar.duplications.block.Block;
-import org.sonar.duplications.detector.DetectorTestCase;
-import org.sonar.duplications.index.CloneGroup;
-import org.sonar.duplications.index.CloneIndex;
+public abstract class AbstractText implements Text {
 
-public class OriginalCloneDetectionAlgorithmTest extends DetectorTestCase {
+  protected final List<Object> symbols;
 
-  @Override
-  protected List<CloneGroup> detect(CloneIndex index, List<Block> fileBlocks) {
-    return OriginalCloneDetectionAlgorithm.detect(index, fileBlocks);
+  public AbstractText(int size) {
+    this.symbols = new ArrayList<Object>(size);
+  }
+
+  public int length() {
+    return symbols.size();
+  }
+
+  public Object symbolAt(int index) {
+    return symbols.get(index);
+  }
+
+  public List<Object> sequence(int fromIndex, int toIndex) {
+    return symbols.subList(fromIndex, toIndex);
   }
 
 }
