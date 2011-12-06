@@ -103,7 +103,9 @@ public abstract class DaoTestCase {
 
       // 2. reset primary keys
       try {
-        statement.executeUpdate(databaseCommands.resetPrimaryKey(table));
+        for (String resetCommand : databaseCommands.resetPrimaryKey(table)) {
+          statement.executeUpdate(resetCommand);
+        }
         connection.commit();
       } catch (Exception e) {
         // this table has no primary key

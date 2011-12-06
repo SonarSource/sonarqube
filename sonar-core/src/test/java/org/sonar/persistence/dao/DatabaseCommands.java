@@ -27,6 +27,9 @@ import org.dbunit.ext.oracle.Oracle10DataTypeFactory;
 import org.dbunit.ext.postgresql.PostgresqlDataTypeFactory;
 import org.sonar.jpa.dialect.*;
 
+import java.util.Arrays;
+import java.util.List;
+
 abstract class DatabaseCommands {
 
   private IDataTypeFactory dbUnitFactory;
@@ -37,7 +40,7 @@ abstract class DatabaseCommands {
 
   abstract String truncate(String table);
 
-  abstract String resetPrimaryKey(String table);
+  abstract List<String> resetPrimaryKey(String table);
 
   final IDataTypeFactory dbUnitFactory() {
     return dbUnitFactory;
@@ -51,8 +54,8 @@ abstract class DatabaseCommands {
     }
 
     @Override
-    String resetPrimaryKey(String table) {
-      return "ALTER TABLE " + table + " ALTER COLUMN ID RESTART WITH 1";
+    List<String> resetPrimaryKey(String table) {
+      return Arrays.asList("ALTER TABLE " + table + " ALTER COLUMN ID RESTART WITH 1");
     }
   };
 
@@ -63,8 +66,8 @@ abstract class DatabaseCommands {
     }
 
     @Override
-    String resetPrimaryKey(String table) {
-      return "DBCC CHECKIDENT('" + table + "', RESEED, 1)";
+    List<String> resetPrimaryKey(String table) {
+      return Arrays.asList("DBCC CHECKIDENT('" + table + "', RESEED, 1)");
     }
   };
 
@@ -75,8 +78,8 @@ abstract class DatabaseCommands {
     }
 
     @Override
-    String resetPrimaryKey(String table) {
-      return "ALTER TABLE " + table + " AUTO_INCREMENT = 1";
+    List<String> resetPrimaryKey(String table) {
+      return Arrays.asList("ALTER TABLE " + table + " AUTO_INCREMENT = 1");
     }
   };
 
@@ -87,8 +90,11 @@ abstract class DatabaseCommands {
     }
 
     @Override
-    String resetPrimaryKey(String table) {
-      return "ALTER SEQUENCE " + table + "_SEQ INCREMENT BY 1 MINVALUE 1";
+    List<String> resetPrimaryKey(String table) {
+      return Arrays.asList(
+        "DROP SEQUENCE " + table + "_SEQ",
+        "CREATE SEQUENCE " + table + "_SEQ INCREMENT BY 1 MINVALUE 1 START WITH 1 NOORDER CACHE"
+      );
     }
   };
 
@@ -99,8 +105,8 @@ abstract class DatabaseCommands {
     }
 
     @Override
-    String resetPrimaryKey(String table) {
-      return "ALTER SEQUENCE " + table + "_id_seq RESTART WITH 1";
+    List<String> resetPrimaryKey(String table) {
+      return Arrays.asList("ALTER SEQUENCE " + table + "_id_seq RESTART WITH 1");
     }
   };
 
