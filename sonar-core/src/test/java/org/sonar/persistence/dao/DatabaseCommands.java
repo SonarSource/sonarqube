@@ -19,6 +19,7 @@
  */
 package org.sonar.persistence.dao;
 
+import org.apache.commons.lang.StringUtils;
 import org.dbunit.dataset.datatype.DefaultDataTypeFactory;
 import org.dbunit.dataset.datatype.IDataTypeFactory;
 import org.dbunit.ext.mssql.MsSqlDataTypeFactory;
@@ -91,9 +92,10 @@ abstract class DatabaseCommands {
 
     @Override
     List<String> resetPrimaryKey(String table) {
+      String sequence = StringUtils.upperCase(table) + "_SEQ";
       return Arrays.asList(
-        "DROP SEQUENCE " + table + "_SEQ",
-        "CREATE SEQUENCE " + table + "_SEQ INCREMENT BY 1 MINVALUE 1 START WITH 1 NOORDER CACHE"
+        "DROP SEQUENCE " + sequence,
+        "CREATE SEQUENCE " + sequence + " INCREMENT BY 1 MINVALUE 1 START WITH 1"
       );
     }
   };
