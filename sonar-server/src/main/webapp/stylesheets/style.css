@@ -838,7 +838,6 @@ ul.operations li img {
   text-decoration: none;
   color: #AAA;
 }
-
 .sources2 td.scm {
   border-right: 1px solid #DDD;
   border-left: 1px solid #DDD;
@@ -851,34 +850,52 @@ ul.operations li img {
   padding: 0 0.3em;
   white-space: nowrap;
 }
-
+.sources2 tr.row td.plus {
+  background-color: #ECECEC;
+  border-left: 1px solid #DDD;
+  padding: 0;
+  width: 16px;
+}
+.sources2 tr.row:hover td.plus {
+  background: url("../images/add.png") no-repeat scroll left 50% #ECECEC;
+}
+.sources2 td.plus a {
+  display: block;
+  cursor: pointer;
+  height: 16px;
+  width: 16px;
+}
+.sources2 td.nothing {
+  border-left: 1px solid #DDD;
+  background-color: #ECECEC;
+  padding: 2px 0.5em 0;
+}
 .sources2 span.date, .sources2 span.date a {
   color: #AAA;
   font-size: 85%;
   text-decoration: none;
 }
-
 .sources2 span.author, .sources2 span.author a {
   font-size: 85%;
 }
-
 .sources2 div.violation, #global_violations div.violation {
   background-color: #FFF;
   margin: 0;
   border: 1px solid #DDD;
 }
-
 .sources2 div.violation .actions, #global_violations div.violation .actions {
   visibility: hidden;
 }
-
 .sources2 div.violation:hover .actions, #global_violations div.violation:hover .actions {
   visibility: visible;
 }
-
 .sources2 div.violation .actions form, #global_violations div.violation .actions form {
   display: inline;
   visibility: visible;
+}
+.sources2 td.reviewForm {
+  width: 100%;
+  padding: 10px;
 }
 
 div.vtitle {
@@ -969,8 +986,6 @@ span.rulename a:hover {
 
 .sources2 td.ok {
   background-color: #ACE97C;
-  border-top: 1px solid #6EC563;
-  border-bottom: 1px solid #6EC563;
 }
 
 .sources2 td.warn {

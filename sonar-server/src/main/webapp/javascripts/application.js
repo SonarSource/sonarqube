@@ -1,61 +1,6 @@
-// Place your application-specific JavaScript functions and classes here
-// This file is automatically included by javascript_include_tag :defaults
-function registerAjaxErrors() {
-	var Messages = {
-	  lastMessageId: 0,
-	  lastRequestLastMessageId: 0,
-	 
-	  onComplete: function(request, transport, json) {
-	    this.extractMessages(json);
-	  },
-	 
-	  onFailure: function(request, transport, json) {
-	    this.extractMessages(json);
-	  },
-	 
-	  extractMessages: function(json) {
-	    target = json['target'];
-	    if ( target == null ) {
-	    	target = 'messages';
-	    }
-
-	    for (msgClass in json) {
-	      if ( msgClass == 'target' ) continue;
-	      msgsOfClass = typeof( json[msgClass] ) == 'string' ? new Array(json[msgClass]) : json[msgClass];
-	      for (var i = 0; i < msgsOfClass.length; i++) {
-	        this.displayMessage(target,msgClass, msgsOfClass[i]);
-	      }
-	    }
-	    this.lastRequestLastMessageId = this.lastMessageId;
-	  },
-	 
-	  displayMessage: function(target, msgClass, msgText) {
-	    if (this.lastMessageId == this.lastRequestLastMessageId) {
-	      msgEls = $A($(target).getElementsByTagName('li'));
-	      for (var i = 0; i < msgEls.length; i++) {
-	        Effect.Fade(msgEls[i].id, { afterFinish: function() {Element.remove(msgEls[i]);} } );
-	      }
-	    }
-	 
-	    msgId = 'message-' + ++this.lastMessageId;
-	    liEl = document.createElement('li');
-	    liEl.setAttribute('id', msgId);
-	    liEl.setAttribute('class', msgClass);
-	    liEl.setAttribute('title', "Click to close.");
-	    liEl.setAttribute('onclick', 'Element.remove(this);');
-	    liEl.setAttribute('style', 'cursor: pointer;');
-	    liEl.appendChild( document.createTextNode(msgText) );
-	 
-	    $(target).appendChild(liEl);
-	  }
-	};
-	 
-	Ajax.Responders.register(Messages);
-}
 function displayImage(imageId, imageUrl) {
   var newImage = new Image();
   newImage.src = imageUrl;
-  //$(imageId).src = '../../images/loading.gif';
   new PeriodicalExecuter(function(pe) {
     if (newImage.complete) {
       $(imageId).src = imageUrl;
@@ -243,4 +188,4 @@ var SelectBox = {
             box.options[i].selected = 'selected';
         }
     }
-}
+};

@@ -1,0 +1,31 @@
+<tr id="createViolationForm<%= @line -%>">
+  <% for index in 0...@colspan %>
+    <td class="nothing"></td>
+  <% end %>
+  <td class="violations">
+    <form action="<%= ApplicationController.root_context -%>/resource/create_violation" method="POST">
+      <input type="hidden" name="resource" value="<%= params[:resource] -%>">
+      <input type="hidden" name="line" value="<%= @line -%>">
+
+      <div class="violation">
+        <div class="vtitle">
+          <select name="severity">
+            <% Severity::SEVERITIES.each do |severity| %>
+              <option value="<%= severity -%>" <%= 'selected' if severity==Severity::MAJOR -%>><%= message("severity.#{severity}") -%></option>
+            <% end %>
+          </select>
+          &nbsp;
+          <img src="/dev/images/sep12.png">
+          &nbsp;
+          Rule: <input type="text" name="category" size="50" maxlength="50">
+        </div>
+
+        <div class="discussionComment first">
+          <textarea name="message" class="width100"></textarea>
+          <br/>
+          <input type="submit" value="Create Violation"> <a href="#" onclick="return hVF(<%= @line -%>)">Cancel</a>
+        </div>
+      </div>
+    </form>
+  </td>
+</tr>

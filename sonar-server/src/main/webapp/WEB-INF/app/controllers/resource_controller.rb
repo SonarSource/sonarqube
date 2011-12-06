@@ -26,6 +26,8 @@ class ResourceController < ApplicationController
   SECTION=Navigation::SECTION_RESOURCE
   helper :dashboard, SourceHelper
 
+  verify :method => :post, :only => [:create_violation]
+
   def index
     @resource = Project.by_key(params[:id])
     not_found("Resource not found") unless @resource
@@ -64,6 +66,30 @@ class ResourceController < ApplicationController
                        :group_index => params[:group_index], :external => (resource.root_id != original_resource.root_id)}
   end
 
+  # Ajax request to display a form to create a review anywhere in source code
+  #
+  #== Parameters
+  #
+  # * 'resource'
+  # * 'line'
+  def show_create_violation_form
+    @line = params[:line].to_i
+    @colspan = params[:colspan].to_i
+    render :partial => 'resource/create_violation_form'
+  end
+
+  def create_violation
+    resource = Project.by_key(params[:resource])
+    access_denied unless resource && current_user
+    rule = Review.find_or_create_rule(params[:category])
+    violation = RuleFailure.create_manual!(resource, rule, params)
+    violation.create_review!(
+        :assignee => current_user,
+        :user => current_user,
+        :status => Review::STATUS_OPEN,
+        :manual_violation => true)
+    redirect_to :action => 'index', :id => resource.id
+  end
 
   private
 
@@ -95,7 +121,7 @@ class ResourceController < ApplicationController
   def load_sources
     @period = params[:period].to_i unless params[:period].blank?
     @expanded=(params[:expand]=='true')
-
+    @display_manual_violation_form=(current_user && has_role?(:user, @snapshot))
     if @snapshot.source
       source_lines=@snapshot.source.syntax_highlighted_lines()
       init_scm()
@@ -254,6 +280,7 @@ class ResourceController < ApplicationController
     end
   end
 
+  # Format before sonar 2.12
   def parse_duplications_old_format(dups, duplication_groups)
     resource_by_key = {}
     dups.elements.each("duplications/duplication") do |dup|

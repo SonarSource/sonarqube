@@ -1,0 +1,26 @@
+<script type="text/javascript">
+  // show form to create violations
+  function sVF(resource, line, colspan) {
+    row = $('createViolationForm' + line);
+    if (row == null) {
+      new Ajax.Updater(
+          'pos' + line,
+          '<%= ApplicationController.root_context -%>/resource/show_create_violation_form',
+          {
+            parameters: {resource: resource, line: line, colspan: colspan},
+            asynchronous:true,
+            insertion: 'after'
+          });
+    }
+    return false;
+  }
+
+  // hide review form
+  function hVF(line) {
+    row = $('createViolationForm' + line);
+    if (row != null) {
+      row.remove();
+    }
+    return false;
+  }
+</script>

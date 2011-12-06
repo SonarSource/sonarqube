@@ -7,32 +7,32 @@
     
     <%= image_tag("priority/" + violation.failure_level.to_s + '.png') -%>
     &nbsp;
-    <%= image_tag("sep12.png") -%>
+    <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
     &nbsp;
     <span class="rulename" <%= 'style="text-decoration: line-through"' if violation.review && violation.review.isResolved? %> >
       <a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => violation.rule.key, :layout => 'false' -%>"><%= h(violation.rule.name) -%></a>
     </span>
     &nbsp;
-    <%= image_tag("sep12.png") -%>
+    <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
     &nbsp;
     <% if violation.created_at %>
 	  <span class="violation_date"><%= distance_of_time_in_words_to_now(violation.created_at) -%></span>
       &nbsp;
     <% end %>
     <% if violation.switched_off? %>
-      <%= image_tag("sep12.png") -%>
+      <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
       &nbsp;
       <span class="falsePositive"><%= message('false_positive') -%></span>
       &nbsp;
     <% end %>
     <% if violation.review && violation.review.isReopened? %>
-      <%= image_tag("sep12.png") -%>
+      <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
       &nbsp;
       <span class="review-reopened"><%= message('reopened') -%></span>
       &nbsp;
     <% end %>
     <% if violation.review && violation.review.assignee_id %>
-      <%= image_tag("sep12.png") -%>
+      <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
       &nbsp;
       <%= message('assigned_to') -%>: <%= h(violation.review.assignee.name) -%>
       &nbsp;
@@ -40,7 +40,7 @@
     
     <% if current_user %>
     <span class="actions" id="vActions<%= violation.id -%>">
-      <%= image_tag("sep12.png") -%>
+      <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
         <% 
           if violation.review 
             unless violation.switched_off?
@@ -95,7 +95,7 @@
     <% if is_last_comment && current_user %>
       <span class="actions" id="commentActions<%= violation.id -%>">
         &nbsp;&nbsp;
-        <%= image_tag("sep12.png") -%>
+        <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
         &nbsp;&nbsp;
         <%= link_to_remote message('add_comment'),
       		:url => { :controller => "reviews", :action => "violation_comment_form", :id => violation.id },

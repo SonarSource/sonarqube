@@ -1,3 +1,4 @@
+<%= render :partial => 'resource/javascript' -%>
 <%= render :partial => 'header' -%>
 
 
@@ -64,13 +65,12 @@
 	      <%
 	        max=0
 	        rule_index=0
+          already_selected=false
 			    @rule_measures.each do |m|
 			      value = m.send(value_column) if m
 			      max=value if value && value>max
 			    end
-	        rule_ids=@rule_measures.collect{ |measure| measure.rule_id}.uniq
-	        rules = (rule_ids.empty? ? [] : Rule.find(rule_ids))
-          @rule_measures.sort do|x,y|
+	        @rule_measures.sort do|x,y|
             val=y.rule_priority<=>x.rule_priority
             if val==0
               x_value=x.send(value_column)
@@ -84,7 +84,8 @@
 		        next if value.nil? || value==0
             rule=rule_measure.rule
             clazz = cycle('even', 'odd', :name => 'rules')
-            selected = @rule && @rule.id==rule_measure.rule_id
+            selected = !already_selected && @rule && @rule.id==rule_measure.rule_id && (@rule_severity.nil? || @rule_severity==rule_measure.severity)
+            already_selected = true if selected
             clazz = clazz + ' selected' if selected
             rule_index+=1
 		   %>

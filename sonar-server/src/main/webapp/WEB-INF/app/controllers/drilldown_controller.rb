@@ -79,10 +79,10 @@ class DrilldownController < ApplicationController
     end
 
     @severity = params[:severity] || params[:priority]
-    rule_severity = params[:rule_sev] || @severity
-    if rule_severity
+    @rule_severity = params[:rule_sev] || @severity
+    if @rule_severity
       # Filter resources by severity
-      @metric = Metric::by_key("#{metric_prefix}#{rule_severity.downcase}_violations")
+      @metric = Metric::by_key("#{metric_prefix}#{@rule_severity.downcase}_violations")
     else
       @metric = Metric::by_key("#{metric_prefix}violations")
     end
