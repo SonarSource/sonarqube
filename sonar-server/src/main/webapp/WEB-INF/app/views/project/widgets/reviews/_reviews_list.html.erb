@@ -54,6 +54,7 @@
             <%= total_number -%> <%= message('results').downcase -%>
 	        <% 
 	          if page_count
+	            page_count = 20 if page_count>20
 	            link_params = {}
 	            link_params[:controller] = 'reviews'
 	            link_params[:action] = 'widget_reviews_list'
@@ -67,17 +68,17 @@
 	            link_params[:period] = params[:period]
 	        %>
 	          |
-	          <%=link_to_remote (message('paging_previous'),
+	          <%= link_to_remote(message('paging_previous'),
 	                              :update => "reviews-widget-#{widget_id}",
 	                              :url => {:params => link_params.merge({:page_id => page_id-1})})  if page_id>1 %>
 	          <%= message('paging_previous') unless page_id>1 %>
 	          <% for index in 1..page_count %>
 	            <%= index.to_s if index==page_id %>
-	            <%=link_to_remote (index.to_s,
+	            <%= link_to_remote(index.to_s,
 	                               :update => "reviews-widget-#{widget_id}",
 	                               :url => {:params => link_params.merge({:page_id => index})}) unless index==page_id %>
 	          <% end %>
-	          <%=link_to_remote (message('paging_next'),
+	          <%= link_to_remote(message('paging_next'),
 	                              :update => "reviews-widget-#{widget_id}", 
 	                              :url => {:params => link_params.merge({:page_id => page_id+1})}) if page_id<page_count %>
 	          <%= message('paging_next') unless page_id<page_count %>

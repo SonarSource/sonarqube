@@ -306,7 +306,7 @@ class ReviewsController < ApplicationController
       return
     end
     
-    @dashboard_configuration=Api::DashboardConfiguration.new(nil, :period_index => params[:period], :snapshot => @snapshot) if params[:period]
+    @dashboard_configuration=Api::DashboardConfiguration.new(nil, :period_index => params[:period], :snapshot => @snapshot)
     render :partial => 'project/widgets/reviews/reviews_list'
   end
 

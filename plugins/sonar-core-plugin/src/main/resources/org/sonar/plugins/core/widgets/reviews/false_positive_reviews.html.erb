@@ -3,7 +3,15 @@
     limit = widget_properties["numberOfLines"].to_i == 0 ? 5 : widget_properties["numberOfLines"].to_i
 %>
 
-<h3><%= message('widget.false_positive_reviews.name') -%></h3>
+<div class="line-block">
+  <div style="float:right">
+    <a href="<%= url_for :controller => 'reviews', :action => 'index', :projects => [@project.id], :false_positives => 'only',
+                         :assignee_login => '', :statuses => [''] -%>">
+      <%= message('widgets.more') -%>
+    </a>
+  </div>
+  <h3><%= message('widget.false_positive_reviews.name') -%></h3>
+</div>
 
 <div id="reviews-widget-<%= widget.id -%>">
   <%= render :partial => 'project/widgets/reviews/reviews_list', 

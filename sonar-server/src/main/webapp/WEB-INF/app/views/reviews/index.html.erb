@@ -103,8 +103,20 @@ function launchSearch(columnName, link) {
      if @reviews && !@reviews.empty?
   %>
     <% if @false_positives=='only' %>
-    <div style="color:#777777; font-size:93%; padding: 4px 0px 4px 10px;"><span class="falsePositive"><%= message('reviews.showing_false_positives_only') -%></span></div>
+      <div style="color:#777777; font-size:93%; padding: 4px 0px 4px 10px;"><span class="falsePositive"><%= message('reviews.showing_false_positives_only') -%></span></div>
     <% end %>
+    <% 
+      if params[:from] && params[:to]
+        from = Time.parse(params[:from])
+        to = Time.parse(params[:to])
+    %>
+      <div style="color:#777777; font-size:93%; padding: 4px 0px 4px 10px;">
+        <span style="background-color: #FFF6BF; padding-left: 5px; padding-right: 5px;">
+          <%= message('reviews.reviews_filtered_by_date_x_to_y', :params => [l(from, :format => '%d %B %Y'), l(to, :format => '%d %B %Y')] ) -%>
+        </span>
+      </div>
+    <% end %>
+    
     <table id="reviews-list" class="data width100">
       <thead>
       <tr>
