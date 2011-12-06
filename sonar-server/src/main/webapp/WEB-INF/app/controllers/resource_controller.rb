@@ -24,7 +24,8 @@ class ResourceController < ApplicationController
   include REXML
 
   SECTION=Navigation::SECTION_RESOURCE
-  helper :dashboard, SourceHelper
+  helper :dashboard
+  helper SourceHelper
 
   verify :method => :post, :only => [:create_violation]
 
@@ -39,7 +40,7 @@ class ResourceController < ApplicationController
     load_extensions()
 
     if @extension
-      if (@extension.getId()=='violations')
+      if @extension.getId()=='violations'
         render_violations()
       elsif (@extension.getId()=='coverage')
         render_coverage()
@@ -67,28 +68,38 @@ class ResourceController < ApplicationController
   end
 
   # Ajax request to display a form to create a review anywhere in source code
-  #
-  #== Parameters
-  #
-  # * 'resource'
-  # * 'line'
   def show_create_violation_form
     @line = params[:line].to_i
     @colspan = params[:colspan].to_i
+    @from = params[:from]
     render :partial => 'resource/create_violation_form'
   end
 
   def create_violation
     resource = Project.by_key(params[:resource])
     access_denied unless resource && current_user
-    rule = Review.find_or_create_rule(params[:category])
-    violation = RuleFailure.create_manual!(resource, rule, params)
-    violation.create_review!(
+
+    bad_request('Empty rule') if params[:category].blank?
+    bad_request('Empty message') if params[:message].blank?
+    bad_request('Missing severity') if params[:severity].blank?
+
+    Review.transaction do
+      rule = Review.find_or_create_rule(params[:category])
+      violation = RuleFailure.create_manual!(resource, rule, params)
+      violation.create_review!(
         :assignee => current_user,
         :user => current_user,
         :status => Review::STATUS_OPEN,
         :manual_violation => true)
-    redirect_to :action => 'index', :id => resource.id
+    end
+
+    if params[:from]=='drilldown'
+      render :js => "d(#{resource.id})"
+    else
+      render :update do |page|
+        page.redirect_to :controller => 'resource', :action => 'index', :id => resource.key, :tab => 'violations'
+      end
+    end
   end
 
   private
@@ -108,10 +119,10 @@ class ResourceController < ApplicationController
       end
     end
 
-    if !params[:tab].blank?
+    if params[:tab].present?
       @extension=@extensions.find { |extension| extension.getId()==params[:tab] }
 
-    elsif !params[:metric].blank?
+      elsif !params[:metric].blank?
       metric=Metric.by_key(params[:metric])
       @extension=@extensions.find { |extension| extension.getDefaultTabForMetrics().include?(metric.key) }
     end

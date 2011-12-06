@@ -3,29 +3,40 @@
     <td class="nothing"></td>
   <% end %>
   <td class="violations">
-    <form action="<%= ApplicationController.root_context -%>/resource/create_violation" method="POST">
+    <% form_remote_tag :url => "#{ApplicationController.root_context}/resource/create_violation", :failure => "$('errorViolationForm#{@line}').update(request.responseText);$('errorViolationForm#{@line}').show()" do -%>
       <input type="hidden" name="resource" value="<%= params[:resource] -%>">
       <input type="hidden" name="line" value="<%= @line -%>">
+      <input type="hidden" name="from" value="<%= @from -%>">
 
       <div class="violation">
         <div class="vtitle">
-          <select name="severity">
+          <select name="severity" class="withIcons">
             <% Severity::SEVERITIES.each do |severity| %>
-              <option value="<%= severity -%>" <%= 'selected' if severity==Severity::MAJOR -%>><%= message("severity.#{severity}") -%></option>
+              <option class="sev_<%= severity -%>" value="<%= severity -%>" <%= 'selected' if severity==Severity::MAJOR -%>><%= message("severity.#{severity}") -%></option>
             <% end %>
           </select>
           &nbsp;
-          <img src="/dev/images/sep12.png">
+          <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
           &nbsp;
-          Rule: <input type="text" name="category" size="50" maxlength="50">
+          Rule: <input type="text" name="category" size="80">
         </div>
 
         <div class="discussionComment first">
-          <textarea name="message" class="width100"></textarea>
-          <br/>
+          <table class="width100">
+            <tr>
+              <td style="vertical-align:top">
+                <textarea rows="5" name="message" style="width: 100%"></textarea>
+              </td>
+              <td class="sep"></td>
+              <td style="vertical-align:top;width: 90px">
+                <%= render :partial => 'markdown/help' -%>
+              </td>
+            </tr>
+          </table>
+          <div class="error" id="errorViolationForm<%= @line-%>" style="display: none"></div>
           <input type="submit" value="Create Violation"> <a href="#" onclick="return hVF(<%= @line -%>)">Cancel</a>
         </div>
       </div>
-    </form>
+    <% end %>
   </td>
 </tr>

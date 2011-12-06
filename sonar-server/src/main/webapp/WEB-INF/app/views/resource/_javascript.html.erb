@@ -7,7 +7,7 @@
           'pos' + line,
           '<%= ApplicationController.root_context -%>/resource/show_create_violation_form',
           {
-            parameters: {resource: resource, line: line, colspan: colspan},
+            parameters: {resource: resource, line: line, colspan: colspan, from: '<%= from -%>'},
             asynchronous:true,
             insertion: 'after'
           });

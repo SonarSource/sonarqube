@@ -68,7 +68,7 @@ class Api::Utils
   end
 
   def self.exception_message(exception)
-    result = (exception.respond_to?(:message) ? "#{exception.message}\n" : "#{message}\n")
+    result = (exception.respond_to?(:message) ? "#{exception.message}\n" : "#{exception}\n")
     if exception.respond_to? :backtrace
       result << "\t" + exception.backtrace.join("\n\t") + "\n"
     end

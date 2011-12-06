@@ -1,5 +1,5 @@
 <%= render :partial => 'tabs' -%>
-<%= render :partial => 'resource/javascript' -%>
+<%= render :partial => 'resource/javascript', :locals => {:from => 'resource'} -%>
 <%= render :partial => "resource/header_#{@extension.getId()}" -%>
 
 <% if @display_violations && @global_violations && @global_violations.size>0 -%>

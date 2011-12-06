@@ -129,7 +129,7 @@ module UsersHelper
     param_id_value = param_value
     
     unless param_id_value.blank?
-      user = User.find(:all, :conditions => [ "login = ?", param_id_value ]).first
+      user = User.find(:first, :conditions => [ "login = ?", param_id_value ])
       param_displayed_value = user.name if user
       param_displayed_value += " (#{message('me').downcase})" if user && current_user && current_user.login == param_id_value
     end
