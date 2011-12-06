@@ -33,7 +33,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
-import org.sonar.duplications.detector.original.OriginalCloneDetectionAlgorithm;
+import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePart;
@@ -185,7 +185,7 @@ public class SonarEngine extends CpdEngine {
     }
 
     public List<CloneGroup> call() {
-      return OriginalCloneDetectionAlgorithm.detect(index, fileBlocks);
+      return SuffixTreeCloneDetectionAlgorithm.detect(index, fileBlocks);
     }
   }
 

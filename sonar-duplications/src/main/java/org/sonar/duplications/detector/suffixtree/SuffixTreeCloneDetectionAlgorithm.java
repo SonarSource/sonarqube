@@ -77,6 +77,7 @@ public final class SuffixTreeCloneDetectionAlgorithm {
     }
 
     GeneralisedHashText text = new GeneralisedHashText();
+    // TODO Godin: maybe we can reduce size of tree and so memory consumption by removing non-repeatable blocks
     List<Block> sortedFileBlocks = Lists.newArrayList(fileBlocks);
     Collections.sort(sortedFileBlocks, BLOCK_COMPARATOR);
     text.addAll(sortedFileBlocks);
