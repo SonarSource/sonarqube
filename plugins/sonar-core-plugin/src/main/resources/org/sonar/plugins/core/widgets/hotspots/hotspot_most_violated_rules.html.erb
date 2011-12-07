@@ -32,12 +32,14 @@
 
 <div class="line-block">
   <div style="float:right">
-    <a href="<%= url_for(:controller => 'drilldown', :action => 'violations', :id => @resource.key) -%>"><%= message('widget.hotspot_metric.more') -%></a>
+    <a href="#" onclick="window.location.href='<%= url_for(:controller => 'drilldown', :action => 'violations') -%>?id=<%= @resource.key -%>&period=<%= dashboard_configuration.period_index -%>&severity=' + $F('select-severity_<%= widget.id -%>') ">
+      <%= message('widget.hotspot_metric.more') -%>
+    </a>
   </div>
   <h3>
     <%= message(dashboard_configuration.selected_period? ? 'widget.hotspot_most_violated_rules.name_when_period' : 'widget.hotspot_most_violated_rules.name') -%>
 
-    <select class="small" style="margin-left: 20px" onchange="showMostViolatedRules<%= widget.id -%>(this.value);">
+    <select class="small" style="margin-left: 20px" onchange="showMostViolatedRules<%= widget.id -%>(this.value);" id="select-severity_<%= widget.id -%>">
       <option value="" <%= 'selected' if default_severity=='' -%>><%= message('widget.hotspot_most_violated_rules.any_severity') -%></option>
       <% Api::Severity::KEYS.each do |key| %>
         <option value="<%= key -%>" <%= 'selected' if default_severity==key -%>><%= message("severity.#{key}") -%></option>
