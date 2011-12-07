@@ -99,8 +99,8 @@
         <% if column.on_metric? && column.metric
              measure = @filter_context.measure(snapshot, column.metric)
         %>
-          <% if column.variation %>
-            <%= format_variation(measure, :index => @filter_context.period_index, :style => (column.metric.on_new_code? ? 'none' : 'light')) -%>
+          <% if column.variation || column.metric.on_new_code? %>
+            <%= format_variation(measure, :index => @filter_context.period_index, :style => 'light') -%>
           <% else %>
             <%= format_measure(measure) -%>
             <% if @filter_context.selected_period? %>
