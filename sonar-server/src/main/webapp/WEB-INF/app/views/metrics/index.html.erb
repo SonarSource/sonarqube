@@ -9,7 +9,7 @@
             <th class="left">Description</th>
             <th class="left">Domain</th>
             <th class="left">Type</th>
-            <th class="left nosort" colspan="2">Operations</th>
+            <th class="left nosort">Operations</th>
           </tr>
         </thead>
         <tbody>
@@ -20,14 +20,12 @@
           <td class="left"><%= h metric.description -%></td>
           <td class="left" ><%= metric.domain -%></td>
           <td class="left" ><%= metric.value_type_name -%></td>
-            <td class="left" width="1%" nowrap>
+          <td class="right thin nowrap">
             <% if is_admin? && metric.updatable_online? %>
-              <%= button_to 'Edit', {:action => 'index', :id => metric.id}, {:class => 'action', :id => "edit_#{h(metric.short_name)}", :method => 'get'} %>
+              <%= link_to 'Edit', {:action => 'index', :id => metric.id}, {:class => 'action', :id => "edit_#{h(metric.short_name)}", :method => 'get'} %>
             <% end %>
-          </td>
-          <td class="left">
             <% if is_admin? && metric.updatable_online? %>
-              <%= button_to 'Delete', {:action => 'delete_from_web', :id => metric.id}, {:confirm => "Warning : all the measures will be deleted.", :class => 'action', :id => "delete_#{h(metric.short_name)}"} %>
+              <%= link_to 'Delete', {:action => 'delete_from_web', :id => metric.id}, {:confirm => "Warning : all the measures will be deleted.", :id => "delete_#{h(metric.short_name)}"} %>
             <% end %>
           </td>
         </tr>

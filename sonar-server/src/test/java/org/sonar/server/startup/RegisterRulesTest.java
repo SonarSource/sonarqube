@@ -164,9 +164,9 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void shouldNotDisableReviewRules() {
-    // the hardcoded repository "review" is used for manual violations
-    setupData("shouldNotDisableReviewRules");
+  public void shouldNotDisableManualRules() {
+    // the hardcoded repository "manual" is used for manual violations
+    setupData("shouldNotDisableManualRules");
 
     RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[]{new FakeRepository()});
     task.start();

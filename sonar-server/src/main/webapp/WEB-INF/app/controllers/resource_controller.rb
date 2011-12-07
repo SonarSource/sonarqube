@@ -72,7 +72,7 @@ class ResourceController < ApplicationController
     @line = params[:line].to_i
     @colspan = params[:colspan].to_i
     @from = params[:from]
-    @rules = Rule.find(:all, :conditions => ['enabled=? and plugin_name=?', true, Review::RULE_REPOSITORY_KEY], :order => 'name')
+    @rules = Rule.manual_rules
     @html_id="#{params[:resource]}_#{@line}"
     render :partial => 'resource/create_violation_form'
   end
@@ -88,8 +88,8 @@ class ResourceController < ApplicationController
     bad_request(message('code_viewer.create_violation.missing_severity')) if params[:severity].blank?
 
     Review.transaction do
-      rule = Review.find_or_create_rule(rule_id_or_name)
-      violation = RuleFailure.create_manual!(resource, rule, params)
+      rule = Rule.find_or_create_manual_rule(rule_id_or_name)
+      violation = rule.create_violation!(resource, params)
       violation.create_review!(
         :assignee => current_user,
         :user => current_user,

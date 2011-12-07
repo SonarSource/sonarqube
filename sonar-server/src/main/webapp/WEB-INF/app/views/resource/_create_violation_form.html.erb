@@ -33,17 +33,7 @@
         </div>
 
         <div class="discussionComment first">
-          <table class="width100">
-            <tr>
-              <td style="vertical-align:top">
-                <textarea rows="5" name="message" style="width: 100%"></textarea>
-              </td>
-              <td class="sep"></td>
-              <td style="vertical-align:top;width: 90px">
-                <%= render :partial => 'markdown/help' -%>
-              </td>
-            </tr>
-          </table>
+          <textarea rows="5" name="message" style="width: 100%"></textarea>
           <div class="error" id="errorViolationForm<%= @line -%>" style="display: none"></div>
           <input type="submit" value="<%= message('code_viewer.create_violation.submit') -%>">
           <a href="#" onclick="return hVF(<%= @line -%>)"><%= message('cancel') -%></a>

@@ -78,6 +78,7 @@
             <% if is_admin? %>
               <li class="<%= 'selected' if controller.controller_path=='event_categories' -%>"><a href="<%= ApplicationController.root_context -%>/event_categories/index"><%= message('event_categories.page') -%></a></li>
               <li class="<%= 'selected' if controller.controller_path=='metrics' -%>"><a href="<%= ApplicationController.root_context -%>/metrics/index"><%= message('manual_metrics.page') -%></a></li>
+              <li class="<%= 'selected' if controller.controller_path=='manual_rules' -%>"><a href="<%= ApplicationController.root_context -%>/manual_rules/index"><%= message('manual_rules.page') -%></a></li>
               <li class="<%= 'selected' if controller.controller_path=='admin_filters' -%>"><a href="<%= ApplicationController.root_context -%>/admin_filters/index"><%= message('default_filters.page') -%></a></li>
               <li class="<%= 'selected' if controller.controller_path=='admin_dashboards' -%>"><a href="<%= ApplicationController.root_context -%>/admin_dashboards/index"><%= message('default_dashboards.page') -%></a></li>
               <% controller.java_facade.getPages(Navigation::SECTION_CONFIGURATION, nil,nil, nil).each do |page| %>

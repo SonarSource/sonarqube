@@ -39,8 +39,6 @@ class Review < ActiveRecord::Base
   RESOLUTION_FALSE_POSITIVE = 'FALSE-POSITIVE'
   RESOLUTION_FIXED = 'FIXED'
 
-  RULE_REPOSITORY_KEY = 'review'
-
   def on_project?
     resource_id==project_id
   end
@@ -408,20 +406,6 @@ class Review < ActiveRecord::Base
     end
     json['comments'] = comments
     json
-  end
-
-
-  def self.find_or_create_rule(rule_id_or_name)
-    if Api::Utils.is_integer?(rule_id_or_name)
-      rule = Rule.find(:first, :conditions => {:enabled => true, :plugin_name => RULE_REPOSITORY_KEY, :id => rule_id_or_name.to_i})
-    else
-      key = rule_id_or_name.strip.downcase.sub(/\s+/, '_')
-      rule = Rule.find(:first, :conditions => {:enabled => true, :plugin_name => RULE_REPOSITORY_KEY, :plugin_rule_key => key})
-      unless rule
-        rule = Rule.create!(:enabled => true, :plugin_name => RULE_REPOSITORY_KEY, :plugin_rule_key => key, :name => rule_id_or_name)
-      end
-    end
-    rule
   end
 
   #

@@ -19,7 +19,10 @@
 #
 class Rule < ActiveRecord::Base
 
-  validates_presence_of :name, :plugin_rule_key, :plugin_name
+  MANUAL_REPOSITORY_KEY = 'manual'
+
+  validates_presence_of :name, :plugin_name
+  validates_presence_of :plugin_rule_key, :if => 'name.present?'
 
   has_many :rules_parameters
   has_many :rule_failures
@@ -66,11 +69,11 @@ class Rule < ActiveRecord::Base
 
   def name
     @l10n_name ||=
-        begin
-          result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleName(I18n.locale, repository_key, plugin_rule_key)
-          result = read_attribute(:name) unless result
-          result
-        end
+      begin
+        result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleName(I18n.locale, repository_key, plugin_rule_key)
+        result = read_attribute(:name) unless result
+        result
+      end
   end
 
   def name=(value)
@@ -79,11 +82,11 @@ class Rule < ActiveRecord::Base
 
   def description
     @l10n_description ||=
-        begin
-          result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleDescription(I18n.locale, repository_key, plugin_rule_key)
-          result = read_attribute(:description) unless result
-          result
-        end
+      begin
+        result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleDescription(I18n.locale, repository_key, plugin_rule_key)
+        result = read_attribute(:description) unless result
+        result
+      end
   end
 
   def description=(value)
@@ -121,6 +124,43 @@ class Rule < ActiveRecord::Base
     end
     rule
   end
+
+  def self.manual_rules
+    Rule.find(:all, :conditions => ['enabled=? and plugin_name=?', true, MANUAL_REPOSITORY_KEY], :order => 'name')
+  end
+
+  def self.manual_rule(id)
+    Rule.find(:first, :conditions => ['enabled=? and plugin_name=? and id=?', true, MANUAL_REPOSITORY_KEY, id])
+  end
+
+  def self.find_or_create_manual_rule(rule_id_or_name)
+    if Api::Utils.is_integer?(rule_id_or_name)
+      rule = Rule.find(:first, :conditions => {:enabled => true, :plugin_name => MANUAL_REPOSITORY_KEY, :id => rule_id_or_name.to_i})
+    else
+      key = rule_id_or_name.strip.downcase.sub(/\s+/, '_')
+      rule = Rule.find(:first, :conditions => {:enabled => true, :plugin_name => MANUAL_REPOSITORY_KEY, :plugin_rule_key => key})
+      unless rule
+        rule = Rule.create!(:enabled => true, :plugin_name => MANUAL_REPOSITORY_KEY, :plugin_rule_key => key, :name => rule_id_or_name)
+      end
+    end
+    rule
+  end
+
+  def create_violation!(resource, options={})
+    line = options['line']
+    checksum = nil
+    level = Sonar::RulePriority.id(options['severity']||Severity::MAJOR)
+    RuleFailure.create!(
+      :snapshot => resource.last_snapshot,
+      :rule => self,
+      :failure_level => level,
+      :message => options['message'],
+      :cost => (options['cost'] ? options['cost'].to_f : nil),
+      :switched_off => false,
+      :line => line,
+      :checksum => checksum)
+  end
+
 
   def to_hash_json(profile)
     json = {'title' => name, 'key' => key, 'plugin' => plugin_name, 'config_key' => config_key}
@@ -276,14 +316,5 @@ class Rule < ActiveRecord::Base
       end
     end
     rules
-  end
-
-  def self.find_or_create_for_review(name)
-    key = name.strip.downcase.sub(/\s+/, '_')
-    rule = find(:first, :conditions => {:enabled => true, :plugin_name => REVIEW_REPOSITORY, :plugin_rule_key => key})
-    unless rule
-      rule = create!(:enabled => true, :plugin_name => REVIEW_REPOSITORY, :plugin_rule_key => key, :name => name)
-    end
-    rule
   end
 end

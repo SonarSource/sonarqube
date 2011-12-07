@@ -84,8 +84,8 @@ public final class RegisterRules {
   }
 
   private void disableAllRules(DatabaseSession session) {
-    // the hardcoded repository "review" is used for manual violations
-    session.createQuery("UPDATE " + Rule.class.getSimpleName() + " SET enabled=false WHERE parent IS NULL AND pluginName<>'review'").executeUpdate();
+    // the hardcoded repository "manual" is used for manual violations
+    session.createQuery("UPDATE " + Rule.class.getSimpleName() + " SET enabled=false WHERE parent IS NULL AND pluginName<>'manual'").executeUpdate();
   }
 
   private void registerRepository(RuleRepository repository, DatabaseSession session) {

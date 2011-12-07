@@ -130,21 +130,6 @@ class RuleFailure < ActiveRecord::Base
     self.review.save!
   end
 
-  def self.create_manual!(resource, rule, options={})
-    line = options['line']
-    checksum = nil
-    level = Sonar::RulePriority.id(options['severity']||Severity::MAJOR)
-    RuleFailure.create!(
-        :snapshot => resource.last_snapshot,
-        :rule => rule,
-        :failure_level => level,
-        :message => options['message'],
-        :cost => (options['cost'] ? options['cost'].to_f : nil),
-        :switched_off => false,
-        :line => line,
-        :checksum => checksum)
-  end
-
   private
   def update_permanent_id
     if self.permanent_id.nil? && self.id

@@ -1,6 +1,6 @@
 <dataset>
 
-  <rules id="1" plugin_rule_key="PerformanceIssue" plugin_name="review" plugin_config_key="[null]" name="Performance Issue" description="[null]"
+  <rules id="1" plugin_rule_key="PerformanceIssue" plugin_name="manual" plugin_config_key="[null]" name="Performance Issue" description="[null]"
          enabled="true" priority="[null]" cardinality="SINGLE" parent_id="[null]"/>
 
   <rules id="2" plugin_rule_key="IllegalExceptionCheck" plugin_name="checkstyle" plugin_config_key="[null]" name="Illegal Exception" description="[null]"
