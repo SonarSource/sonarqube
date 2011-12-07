@@ -1,14 +1,3 @@
-function displayImage(imageId, imageUrl) {
-  var newImage = new Image();
-  newImage.src = imageUrl;
-  new PeriodicalExecuter(function(pe) {
-    if (newImage.complete) {
-      $(imageId).src = imageUrl;
-      fixTransparencyForImg($(imageId));
-      pe.stop();
-    }
-  }, 0.5);
-}
 function showMessage(div_id,message) {
   $(div_id + 'msg').innerHTML=message;
   $(div_id).show();
@@ -22,30 +11,6 @@ function warning(message) {
 function info(message) {
   showMessage('info', message);
 }
-
-function displayElement( elementId ) {
-   	$( elementId ).style.visibility='visible';
-   	$( elementId ).style.display='inline';
-   	return false;
-}
-
-function hideElement( elementId ) {
-   	$( elementId ).style.visibility='hidden';
-   	$( elementId ).style.display='none';
-   	return false;
-}
-
-function updateDuplicationLines(selectedDiv, groupClass, groupRowClass) {
-  divs = $$('.'+groupClass);
-  for ( i = 0; i < divs.size(); i++) {
-	  divs[i].removeClassName('selected');
-  }
-  divs = $$('.'+groupRowClass);
-  for ( i = 0; i < divs.size(); i++) {
-	  divs[i].addClassName('selected');
-  }
-}
-
 var projects;
 function autocompleteProjects(APIURL, projectURL, searchInput, searchResult) {
   if (projects != null) return;
@@ -144,7 +109,6 @@ var SelectBox = {
     },
     move: function(from, to) {
         var from_box = document.getElementById(from);
-        var to_box = document.getElementById(to);
         var option;
         for (var i = 0; (option = from_box.options[i]); i++) {
             if (option.selected && SelectBox.cache_contains(from, option.value)) {
@@ -157,7 +121,6 @@ var SelectBox = {
     },
     move_all: function(from, to) {
         var from_box = document.getElementById(from);
-        var to_box = document.getElementById(to);
         var option;
         for (var i = 0; (option = from_box.options[i]); i++) {
             if (SelectBox.cache_contains(from, option.value)) {
