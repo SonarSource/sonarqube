@@ -106,14 +106,32 @@ public class Settings implements BatchComponent, ServerComponent {
     return null;
   }
 
+  /**
+   * Value is splitted by comma and trimmed.
+   *
+   * Examples :
+   * <ul>
+   *   <li>"one,two,three " -> ["one", "two", "three"]</li>
+   *   <li>"  one, two, three " -> ["one", "two", "three"]</li>
+   *   <li>"one, , three" -> ["one", "", "three"]</li>
+   * </ul>
+   */
   public final String[] getStringArray(String key) {
     return getStringArrayBySeparator(key, ",");
   }
 
+  /**
+   * Value is splitted and trimmed.
+   */
   public final String[] getStringArrayBySeparator(String key, String separator) {
     String value = getString(key);
     if (value != null) {
-      return StringUtils.splitByWholeSeparator(value, separator);
+        String[] strings = StringUtils.splitByWholeSeparator(value, separator);
+        String[] result = new String[strings.length];
+        for (int index=0 ; index<strings.length ; index++) {
+            result[index]=StringUtils.trim(strings[index]);
+        }
+        return result;
     }
     return ArrayUtils.EMPTY_STRING_ARRAY;
   }
@@ -127,8 +145,6 @@ public class Settings implements BatchComponent, ServerComponent {
     }
     return result;
   }
-
-
 
   public final Settings appendProperty(String key, String value) {
     String newValue = properties.get(key);

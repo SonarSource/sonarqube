@@ -95,6 +95,28 @@ public class SettingsTest {
   }
 
   @Test
+  public void shouldTrimArray() {
+    Settings settings = new Settings();
+    settings.setProperty("foo", "  one,  two, three  ");
+    String[] array = settings.getStringArray("foo");
+    assertThat(array.length, is(3));
+    assertThat(array[0], is("one"));
+    assertThat(array[1], is("two"));
+    assertThat(array[2], is("three"));
+  }
+
+  @Test
+  public void shouldKeepEmptyValuesWhenSplitting() {
+    Settings settings = new Settings();
+    settings.setProperty("foo", "  one,  , two");
+    String[] array = settings.getStringArray("foo");
+    assertThat(array.length, is(3));
+    assertThat(array[0], is("one"));
+    assertThat(array[1], is(""));
+    assertThat(array[2], is("two"));
+  }
+
+  @Test
   public void testDefaultValueOfGetString() {
     Settings settings = new Settings(definitions);
     assertThat(settings.getString("hello"), is("world"));
@@ -117,7 +139,7 @@ public class SettingsTest {
     assertThat(settings.getDefaultValue("foo"), is("bar"));
   }
 
-  @Property(key="foo", name="Foo", defaultValue = "bar")
+  @Property(key = "foo", name = "Foo", defaultValue = "bar")
   public static class MyComponent {
 
   }
