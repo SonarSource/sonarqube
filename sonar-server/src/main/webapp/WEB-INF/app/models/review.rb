@@ -47,18 +47,18 @@ class Review < ActiveRecord::Base
 
   def rule
     @rule ||=
-        begin
-          rule_failure ? rule_failure.rule : nil
-        end
+      begin
+        rule_failure ? rule_failure.rule : nil
+      end
   end
 
   def rule_failure
     @rule_failure ||=
-        begin
-          # We need to manually run this DB request as the real relation Reviews-RuleFailures is 1:n but we want only 1 violation
-          # (more than 1 violation can have the same "permanent_id" when several analyses are run in a small time frame)
-          RuleFailure.find(:first, :conditions => {:permanent_id => rule_failure_permanent_id}, :order => 'id desc')
-        end
+      begin
+        # We need to manually run this DB request as the real relation Reviews-RuleFailures is 1:n but we want only 1 violation
+        # (more than 1 violation can have the same "permanent_id" when several analyses are run in a small time frame)
+        RuleFailure.find(:first, :conditions => {:permanent_id => rule_failure_permanent_id}, :order => 'id desc')
+      end
   end
 
 
@@ -115,13 +115,13 @@ class Review < ActiveRecord::Base
 
   def to_java_map(params = {})
     map = java.util.HashMap.new({
-                                    "project" => project.long_name.to_java,
-                                    "resource" => resource.long_name.to_java,
-                                    "title" => title.to_java,
-                                    "creator" => user == nil ? nil : user.login.to_java,
-                                    "assignee" => assignee == nil ? nil : assignee.login.to_java,
-                                    "status" => status.to_java,
-                                    "resolution" => resolution.to_java
+                                  "project" => project.long_name.to_java,
+                                  "resource" => resource.long_name.to_java,
+                                  "title" => title.to_java,
+                                  "creator" => user == nil ? nil : user.login.to_java,
+                                  "assignee" => assignee == nil ? nil : assignee.login.to_java,
+                                  "status" => status.to_java,
+                                  "resolution" => resolution.to_java
                                 })
     params.each_pair do |k, v|
       map.put(k.to_java, v.to_java)
@@ -400,10 +400,10 @@ class Review < ActiveRecord::Base
     comments = []
     review_comments.each do |comment|
       comments << {
-          'id' => comment.id.to_i,
-          'author' => comment.user.login,
-          'updatedAt' => Api::Utils.format_datetime(comment.updated_at),
-          'text' => convert_markdown ? comment.html_text : comment.plain_text
+        'id' => comment.id.to_i,
+        'author' => comment.user.login,
+        'updatedAt' => Api::Utils.format_datetime(comment.updated_at),
+        'text' => convert_markdown ? comment.html_text : comment.plain_text
       }
     end
     json['comments'] = comments
@@ -411,11 +411,15 @@ class Review < ActiveRecord::Base
   end
 
 
-  def self.find_or_create_rule(rule_category)
-    key = rule_category.strip.downcase.sub(/\s+/, '_')
-    rule = Rule.find(:first, :conditions => {:enabled => true, :plugin_name => RULE_REPOSITORY_KEY, :plugin_rule_key => key})
-    unless rule
-      rule = Rule.create!(:enabled => true, :plugin_name => RULE_REPOSITORY_KEY, :plugin_rule_key => key, :name => rule_category)
+  def self.find_or_create_rule(rule_id_or_name)
+    if Api::Utils.is_integer?(rule_id_or_name)
+      rule = Rule.find(:first, :conditions => {:enabled => true, :plugin_name => RULE_REPOSITORY_KEY, :id => rule_id_or_name.to_i})
+    else
+      key = rule_id_or_name.strip.downcase.sub(/\s+/, '_')
+      rule = Rule.find(:first, :conditions => {:enabled => true, :plugin_name => RULE_REPOSITORY_KEY, :plugin_rule_key => key})
+      unless rule
+        rule = Rule.create!(:enabled => true, :plugin_name => RULE_REPOSITORY_KEY, :plugin_rule_key => key, :name => rule_id_or_name)
+      end
     end
     rule
   end

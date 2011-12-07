@@ -18,7 +18,18 @@
           &nbsp;
           <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
           &nbsp;
-          Rule: <input type="text" name="category" size="80">
+          <select id="select-rule-<%= @html_id -%>" name="rule" onkeyup="this.blur();this.focus();" onchange="if ($F(this)=='') {$('new_rule_<%= @html_id -%>').show()} else {$('new_rule_<%= @html_id -%>').hide()}">
+            <option value=""><%= message('code_viewer.create_violation.new_rule') -%></option>
+            <% unless @rules.empty? %>
+              <optgroup label="<%= message('code_viewer.create_violation.rules') -%>">
+                <% @rules.each do |rule| %>
+                  <option value="<%= rule.id -%>"><%= h rule.name -%></option>
+                <% end %>
+              </optgroup>
+            <% end %>
+          </select>
+
+          <input type="text" name="new_rule" size="50" id="new_rule_<%= @html_id -%>">
         </div>
 
         <div class="discussionComment first">
@@ -33,10 +44,14 @@
               </td>
             </tr>
           </table>
-          <div class="error" id="errorViolationForm<%= @line-%>" style="display: none"></div>
-          <input type="submit" value="Create Violation"> <a href="#" onclick="return hVF(<%= @line -%>)">Cancel</a>
+          <div class="error" id="errorViolationForm<%= @line -%>" style="display: none"></div>
+          <input type="submit" value="<%= message('code_viewer.create_violation.submit') -%>">
+          <a href="#" onclick="return hVF(<%= @line -%>)"><%= message('cancel') -%></a>
         </div>
       </div>
     <% end %>
   </td>
 </tr>
+<script type="text/javascript">
+  Form.Element.activate('select-rule-<%= @html_id -%>');
+</script>

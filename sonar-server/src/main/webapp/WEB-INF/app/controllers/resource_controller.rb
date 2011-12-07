@@ -72,6 +72,8 @@ class ResourceController < ApplicationController
     @line = params[:line].to_i
     @colspan = params[:colspan].to_i
     @from = params[:from]
+    @rules = Rule.find(:all, :conditions => ['enabled=? and plugin_name=?', true, Review::RULE_REPOSITORY_KEY], :order => 'name')
+    @html_id="#{params[:resource]}_#{@line}"
     render :partial => 'resource/create_violation_form'
   end
 
@@ -79,12 +81,14 @@ class ResourceController < ApplicationController
     resource = Project.by_key(params[:resource])
     access_denied unless resource && current_user
 
-    bad_request('Empty rule') if params[:category].blank?
-    bad_request('Empty message') if params[:message].blank?
-    bad_request('Missing severity') if params[:severity].blank?
+    rule_id_or_name = params[:rule]
+    rule_id_or_name = params[:new_rule] if rule_id_or_name.blank?
+    bad_request(message('code_viewer.create_violation.missing_rule')) if rule_id_or_name.blank?
+    bad_request(message('code_viewer.create_violation.missing_message')) if params[:message].blank?
+    bad_request(message('code_viewer.create_violation.missing_severity')) if params[:severity].blank?
 
     Review.transaction do
-      rule = Review.find_or_create_rule(params[:category])
+      rule = Review.find_or_create_rule(rule_id_or_name)
       violation = RuleFailure.create_manual!(resource, rule, params)
       violation.create_review!(
         :assignee => current_user,

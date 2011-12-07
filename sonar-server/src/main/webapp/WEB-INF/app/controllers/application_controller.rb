@@ -29,7 +29,7 @@ class ApplicationController < ActionController::Base
   rescue_from ActionController::UnknownAction, :with => :render_not_found
   rescue_from ActionController::RoutingError, :with => :render_not_found
   rescue_from ActionController::UnknownController, :with => :render_not_found
-  rescue_from ActiveRecord::RecordInvalid, :with => :render_error
+  rescue_from ActiveRecord::RecordInvalid, :with => :render_bad_request
   rescue_from ActiveRecord::RecordNotFound, :with => :render_not_found
   rescue_from Errors::NotFound, :with => :render_not_found
   rescue_from Errors::AccessDenied, :with => :render_access_denied # See lib/authenticated_system.rb#access_denied()

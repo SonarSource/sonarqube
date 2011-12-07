@@ -63,7 +63,7 @@ class Api::ReviewsController < Api::ApiController
   # * 'violation_id' : the violation on which the review should be created
   #
   # To create a violation :
-  # * 'category' : the name of the rule in the repository "review". If it does not exist then the rule is created.
+  # * 'rule_name' : the name of the rule in the repository "review". If it does not exist then the rule is created.
   # * 'resource' : id or key of the resource to review
   # * 'line' : optional line. It starts from 1. If 0 then no specific line. Default value is 0.
   # * 'severity' : BLOCKER, CRITICAL, MAJOR, MINOR or INFO. Default value is MAJOR.
@@ -77,7 +77,7 @@ class Api::ReviewsController < Api::ApiController
   #
   # ==== Examples
   #
-  # * Create a manual violation : POST /api/reviews?resource=MyFile&line=18&status=OPEN&category=Performance%20Issue
+  # * Create a manual violation : POST /api/reviews?resource=MyFile&line=18&status=OPEN&rule_name=Performance%20Issue
   # * Review an existing violation : POST /api/reviews?violation_id=1&status=OPEN&assignee=admin&comment=Please%20fix%20this
   # * Flag an existing violation as false-positive : POST /api/reviews/?violation_id=2&status=RESOLVED&resolution=FALSE-POSITIVE&comment=No%20violation%20here
   # * Resolve an existing violation : POST /api/reviews/?violation_id=3&status=RESOLVED&resolution=FIXED&assignee=admin&comment=This%20violation%20was%20fixed%20by%20me
@@ -104,13 +104,13 @@ class Api::ReviewsController < Api::ApiController
 
       else
         # Manually create a violation and review it
-        bad_request("Missing parameter 'category'") if params[:category].blank?
+        bad_request("Missing parameter 'rule_name'") if params[:rule_name].blank?
         bad_request("Missing parameter 'resource'") if params[:resource].blank?
         resource = Project.by_key(params[:resource])
         access_denied unless resource && has_rights_to_modify?(resource)
         bad_request("Resource does not exist") unless resource.last_snapshot
 
-        rule = Review.find_or_create_rule(params[:category])
+        rule = Review.find_or_create_rule(params[:rule_name])
         violation = RuleFailure.create_manual!(resource, rule, params)
         violation.create_review!(:assignee => assignee, :user => current_user, :manual_violation => true)
       end
