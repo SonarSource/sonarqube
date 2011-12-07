@@ -20,11 +20,14 @@
 package org.sonar.persistence.dao;
 
 import org.apache.commons.lang.StringUtils;
-import org.dbunit.dataset.datatype.*;
+import org.dbunit.dataset.datatype.DefaultDataTypeFactory;
+import org.dbunit.dataset.datatype.IDataTypeFactory;
+import org.dbunit.ext.mssql.InsertIdentityOperation;
 import org.dbunit.ext.mssql.MsSqlDataTypeFactory;
 import org.dbunit.ext.mysql.MySqlDataTypeFactory;
 import org.dbunit.ext.oracle.Oracle10DataTypeFactory;
 import org.dbunit.ext.postgresql.PostgresqlDataTypeFactory;
+import org.dbunit.operation.DatabaseOperation;
 import org.sonar.jpa.dialect.*;
 
 import java.util.Arrays;
@@ -41,19 +44,22 @@ abstract class DatabaseCommands {
   abstract String truncate(String table);
 
   abstract List<String> resetPrimaryKey(String table);
-  
+
   Object getTrue() {
     return Boolean.TRUE;
   }
 
   Object getFalse() {
-      return Boolean.FALSE;
-    }
+    return Boolean.FALSE;
+  }
 
-  final IDataTypeFactory dbUnitFactory() {
+  IDataTypeFactory getDbUnitFactory() {
     return dbUnitFactory;
   }
 
+  DatabaseOperation getDbunitDatabaseOperation() {
+    return DatabaseOperation.CLEAN_INSERT;
+  }
 
   static final DatabaseCommands DERBY = new DatabaseCommands(new DefaultDataTypeFactory()) {
     @Override
@@ -76,6 +82,11 @@ abstract class DatabaseCommands {
     @Override
     List<String> resetPrimaryKey(String table) {
       return Arrays.asList("DBCC CHECKIDENT('" + table + "', RESEED, 1)");
+    }
+
+    @Override
+    DatabaseOperation getDbunitDatabaseOperation() {
+      return new InsertIdentityOperation(DatabaseOperation.CLEAN_INSERT);
     }
   };
 

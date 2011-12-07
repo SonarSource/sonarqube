@@ -29,6 +29,7 @@ import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.*;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
+import org.dbunit.ext.mssql.InsertIdentityOperation;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.*;
 import org.sonar.api.config.Settings;
@@ -157,8 +158,8 @@ public abstract class DaoTestCase {
       databaseTester.setDataSet(compositeDataSet);
       connection = databaseTester.getConnection();
 
-      connection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, databaseCommands.dbUnitFactory());
-      DatabaseOperation.CLEAN_INSERT.execute(connection, databaseTester.getDataSet());
+      connection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, databaseCommands.getDbUnitFactory());
+      databaseCommands.getDbunitDatabaseOperation().execute(connection, databaseTester.getDataSet());
 
     } catch (Exception e) {
       throw translateException("Could not setup DBUnit data", e);
