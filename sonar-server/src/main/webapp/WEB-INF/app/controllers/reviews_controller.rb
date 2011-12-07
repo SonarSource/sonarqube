@@ -330,8 +330,8 @@ class ReviewsController < ApplicationController
     @id = params[:review_id] || ''
     @sort = params[:sort]
     @asc = params[:asc] == "true"
-    @from = params[:from]
-    @to = params[:to]
+    @from = Time.parse(params[:from]) if params[:from]
+    @to = Time.parse(params[:to]) if params[:to]
   end
 
   def filter_any(array)

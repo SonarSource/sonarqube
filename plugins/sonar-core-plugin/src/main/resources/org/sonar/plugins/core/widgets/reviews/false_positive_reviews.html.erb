@@ -1,12 +1,17 @@
 <% 
   if has_role?(:user, @project)
     limit = widget_properties["numberOfLines"].to_i == 0 ? 5 : widget_properties["numberOfLines"].to_i
+    
+    if @dashboard_configuration.selected_period?
+      from_date = @dashboard_configuration.from_datetime
+      to_date = @snapshot.created_at
+    end
 %>
 
 <div class="line-block">
   <div style="float:right">
     <a href="<%= url_for :controller => 'reviews', :action => 'index', :projects => [@project.id], :false_positives => 'only',
-                         :assignee_login => '', :statuses => [''] -%>">
+                         :assignee_login => '', :statuses => [''], :from => from_date, :to => to_date -%>">
       <%= message('widgets.more') -%>
     </a>
   </div>
