@@ -305,7 +305,7 @@
             **/*.log,*.iml,WEB-INF/script/,WEB-INF/test/,
             javascripts/application*.js,javascripts/prototype*.js,javascripts/scriptaculous*.js,javascripts/tablekit*.js,javascripts/tablekit*.js,
             javascripts/prototip*.js,javascripts/dashboard*.js,javascripts/protovis.js,javascripts/protovis-min.js,javascripts/protovis-sonar*.js,
-            javascripts/protovis-msie-shim-min.js,javascripts/duplications*.js,protovis-msie-shim-min.js,
+            javascripts/protovis-msie-min.js,javascripts/duplications*.js,protovis-msie-min.js,
             stylesheets/yui-2.6.0*.css,stylesheets/calendar*.css,stylesheets/style*.css,stylesheets/sonar-colorizer*.css,stylesheets/dashboard*.css
           </packagingExcludes>
           <warSourceExcludes>
