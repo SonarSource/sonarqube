@@ -79,12 +79,12 @@
           %>
             <tr class="<%= cycle 'even', 'odd', :name => ("hotspot_most_violated_rules-#{widget.id}-#{severity}") -%>">
               <td class="thin">
-                <a href="<%= url_for(:controller => 'drilldown', :action => 'violations', :id => @resource.key, :severity => m.severity) -%>">
-                  <%= image_tag('priority/' + m.severity + '.png') -%>
-                </a>
+                <%= image_tag('priority/' + m.severity + '.png') -%>
               </td>
               <td>
-                <a href="<%= url_for(:controller => 'drilldown', :action => 'violations', :id => @resource.key, :rule => rule.key, :rule_sev => m.severity, :period => dashboard_configuration.period_index) -%>"><%= rule.name -%></a>
+                <a href="<%= url_for(:controller => 'drilldown', :action => 'violations', :id => @resource.key, :rule => rule.key, :rule_sev => m.severity, :period => dashboard_configuration.period_index) -%>">
+                  <%= h rule.name -%>
+                </a>
               </td>
               <td class="right">
                 <%= dashboard_configuration.selected_period? ? format_variation(m) : format_measure(m) -%>
