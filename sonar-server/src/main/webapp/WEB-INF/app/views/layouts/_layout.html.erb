@@ -1,6 +1,6 @@
 <%
    selected_section = controller.class::SECTION
-   @project=@resource unless @project
+   @project=@resource unless @project || selected_section==Navigation::SECTION_HOME
 %>
 <div id="container">
   <div id="hd">
