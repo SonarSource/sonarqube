@@ -23,19 +23,19 @@
   <select id="selectById" parameterType="long" resultMap="reviewResultMap">
     select
     <include refid="reviewColumns"/>
-    from REVIEWS where id=#{id}
+    from reviews where id=#{id}
   </select>
 
   <select id="selectByResource" parameterType="int" resultMap="reviewResultMap">
     select
     <include refid="reviewColumns"/>
-    from REVIEWS where resource_id=#{id}
+    from reviews where resource_id=#{id}
   </select>
 
   <select id="selectByQuery" parameterType="org.sonar.persistence.model.ReviewQuery" resultMap="reviewResultMap">
     select
     <include refid="reviewColumns"/>
-    from REVIEWS
+    from reviews
     <where>
       <if test="userId != null">user_id = #{userId}</if>
       <if test="violationPermanentId != null">AND rule_failure_permanent_id = #{violationPermanentId}</if>
