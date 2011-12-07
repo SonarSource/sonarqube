@@ -15,6 +15,7 @@ target/
 *.iws
 *.iml
 *.ipr
+.idea/
 
 # Eclipse
 .classpath
