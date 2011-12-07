@@ -16,6 +16,7 @@ target/
 *.iml
 *.ipr
 .idea/
+sonar-server/src/main/webapp/WEB-INF/.rakeTasks
 
 # Eclipse
 .classpath
