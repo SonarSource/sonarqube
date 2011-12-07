@@ -112,6 +112,52 @@ public class SuffixTreeCloneDetectionAlgorithmTest extends DetectorTestCase {
         newClonePart("x", 14, 2)));
   }
 
+  /**
+   * Given:
+   * <pre>
+   * a: 1 2 3 4
+   * b: 4 3 2
+   * c: 4 3 1
+   * </pre>
+   * Expected:
+   * <pre>
+   * a-c (1)
+   * a-b (2)
+   * a-b-c (3)
+   * a-b-c (4)
+   * <pre>
+   */
+  @Test
+  public void myTest3() {
+    CloneIndex index = createIndex(
+        newBlocks("b", "4 3 2"),
+        newBlocks("c", "4 3 1")
+        );
+    List<Block> fileBlocks = newBlocks("a", "1 2 3 4");
+    List<CloneGroup> result = detect(index, fileBlocks);
+
+    print(result);
+    assertEquals(4, result.size());
+
+    assertThat(result, hasCloneGroup(1,
+        newClonePart("a", 0, 1),
+        newClonePart("c", 2, 1)));
+
+    assertThat(result, hasCloneGroup(1,
+        newClonePart("a", 1, 1),
+        newClonePart("b", 2, 1)));
+
+    assertThat(result, hasCloneGroup(1,
+        newClonePart("a", 2, 1),
+        newClonePart("b", 1, 1),
+        newClonePart("c", 1, 1)));
+
+    assertThat(result, hasCloneGroup(1,
+        newClonePart("a", 3, 1),
+        newClonePart("b", 0, 1),
+        newClonePart("c", 0, 1)));
+  }
+
   @Override
   protected List<CloneGroup> detect(CloneIndex index, List<Block> fileBlocks) {
     return SuffixTreeCloneDetectionAlgorithm.detect(index, fileBlocks);

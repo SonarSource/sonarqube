@@ -25,9 +25,8 @@ import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+
+import com.google.common.collect.*;
 
 public final class SuffixTreeCloneDetectionAlgorithm {
 
@@ -35,7 +34,7 @@ public final class SuffixTreeCloneDetectionAlgorithm {
     if (fileBlocks.isEmpty()) {
       return Collections.EMPTY_LIST;
     }
-    GeneralisedHashText text = retrieveFromIndex(cloneIndex, fileBlocks);
+    TextSet text = createTextSet(cloneIndex, fileBlocks);
     if (text == null) {
       return Collections.EMPTY_LIST;
     }
@@ -47,14 +46,47 @@ public final class SuffixTreeCloneDetectionAlgorithm {
   private SuffixTreeCloneDetectionAlgorithm() {
   }
 
-  private static GeneralisedHashText retrieveFromIndex(CloneIndex index, Collection<Block> fileBlocks) {
-    String originResourceId = fileBlocks.iterator().next().getResourceId();
-
+  private static TextSet createTextSet(CloneIndex index, Collection<Block> fileBlocks) {
     Set<ByteArray> hashes = Sets.newHashSet();
     for (Block fileBlock : fileBlocks) {
       hashes.add(fileBlock.getBlockHash());
     }
 
+    String originResourceId = fileBlocks.iterator().next().getResourceId();
+    Map<String, List<Block>> fromIndex = retrieveFromIndex(index, originResourceId, hashes);
+
+    if (fromIndex.isEmpty() && hashes.size() == fileBlocks.size()) { // optimization for the case when there is no duplications
+      return null;
+    }
+
+    return createTextSet(fileBlocks, fromIndex);
+  }
+
+  private static TextSet createTextSet(Collection<Block> fileBlocks, Map<String, List<Block>> fromIndex) {
+    TextSet.Builder textSetBuilder = TextSet.builder();
+    // TODO Godin: maybe we can reduce size of tree and so memory consumption by removing non-repeatable blocks
+    List<Block> sortedFileBlocks = Lists.newArrayList(fileBlocks);
+    Collections.sort(sortedFileBlocks, BLOCK_COMPARATOR);
+    textSetBuilder.add(sortedFileBlocks);
+
+    for (List<Block> list : fromIndex.values()) {
+      Collections.sort(list, BLOCK_COMPARATOR);
+
+      int i = 0;
+      while (i < list.size()) {
+        int j = i + 1;
+        while ((j < list.size()) && (list.get(j).getIndexInFile() == list.get(j - 1).getIndexInFile() + 1)) {
+          j++;
+        }
+        textSetBuilder.add(list.subList(i, j));
+        i = j;
+      }
+    }
+
+    return textSetBuilder.build();
+  }
+
+  private static Map<String, List<Block>> retrieveFromIndex(CloneIndex index, String originResourceId, Set<ByteArray> hashes) {
     Map<String, List<Block>> collection = Maps.newHashMap();
     for (ByteArray hash : hashes) {
       Collection<Block> blocks = index.getBySequenceHash(hash);
@@ -71,36 +103,7 @@ public final class SuffixTreeCloneDetectionAlgorithm {
         }
       }
     }
-
-    if (collection.isEmpty() && hashes.size() == fileBlocks.size()) { // optimization for the case when there is no duplications
-      return null;
-    }
-
-    GeneralisedHashText text = new GeneralisedHashText();
-    // TODO Godin: maybe we can reduce size of tree and so memory consumption by removing non-repeatable blocks
-    List<Block> sortedFileBlocks = Lists.newArrayList(fileBlocks);
-    Collections.sort(sortedFileBlocks, BLOCK_COMPARATOR);
-    text.addAll(sortedFileBlocks);
-    text.addTerminator();
-
-    for (List<Block> list : collection.values()) {
-      Collections.sort(list, BLOCK_COMPARATOR);
-
-      int i = 0;
-      while (i < list.size()) {
-        int j = i + 1;
-        while ((j < list.size()) && (list.get(j).getIndexInFile() == list.get(j - 1).getIndexInFile() + 1)) {
-          j++;
-        }
-        text.addAll(list.subList(i, j));
-        text.addTerminator();
-        i = j;
-      }
-    }
-
-    text.finish();
-
-    return text;
+    return collection;
   }
 
   private static final Comparator<Block> BLOCK_COMPARATOR = new Comparator<Block>() {

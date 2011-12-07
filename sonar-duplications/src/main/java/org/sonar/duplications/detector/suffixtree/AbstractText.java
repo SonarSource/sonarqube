@@ -30,6 +30,10 @@ public abstract class AbstractText implements Text {
     this.symbols = new ArrayList<Object>(size);
   }
 
+  public AbstractText(List<Object> symbols) {
+    this.symbols = symbols;
+  }
+
   public int length() {
     return symbols.size();
   }

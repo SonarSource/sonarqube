@@ -37,7 +37,7 @@ import com.google.common.collect.Lists;
  */
 public class DuplicationsCollector implements Search.Collector {
 
-  private final GeneralisedHashText text;
+  private final TextSet text;
   private final String originResourceId;
 
   /**
@@ -51,7 +51,7 @@ public class DuplicationsCollector implements Search.Collector {
   private ClonePart origin;
   private final List<ClonePart> parts = Lists.newArrayList();
 
-  public DuplicationsCollector(GeneralisedHashText text) {
+  public DuplicationsCollector(TextSet text) {
     this.text = text;
     this.originResourceId = text.getBlock(0).getResourceId();
   }
@@ -162,9 +162,9 @@ public class DuplicationsCollector implements Search.Collector {
     // if (!first.getOriginPart().getResourceId().equals(second.getOriginPart().getResourceId())) {
     // return false;
     // }
-    if (first.getCloneUnitLength() > second.getCloneUnitLength()) {
-      return false;
-    }
+    // if (first.getCloneUnitLength() > second.getCloneUnitLength()) {
+    // return false;
+    // }
     List<ClonePart> firstParts = first.getCloneParts();
     List<ClonePart> secondParts = second.getCloneParts();
     return SortedListsUtils.contains(secondParts, firstParts, new ContainsInComparator(first.getCloneUnitLength(), second.getCloneUnitLength()))

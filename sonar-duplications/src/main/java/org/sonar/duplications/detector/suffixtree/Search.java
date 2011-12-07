@@ -31,7 +31,7 @@ public final class Search {
   private final List<Node> innerNodes = new ArrayList<Node>();
 
   public static void perform(TextSet text, Collector reporter) {
-    new Search(SuffixTree.create(text), text.lens, reporter).compute();
+    new Search(SuffixTree.create(text), text.getLens(), reporter).compute();
   }
 
   private Search(SuffixTree tree, int[] lens, Collector reporter) {

@@ -19,26 +19,67 @@
  */
 package org.sonar.duplications.detector.suffixtree;
 
+import java.util.List;
+
+import org.sonar.duplications.block.Block;
+
+import com.google.common.collect.Lists;
+
 /**
  * Simplifies construction of <a href="http://en.wikipedia.org/wiki/Generalised_suffix_tree">generalised suffix-tree</a>.
  */
 public class TextSet extends AbstractText {
 
-  int[] lens;
+  public static class Builder {
 
-  public TextSet(int size) {
-    super(100); // FIXME
+    private List<Object> symbols = Lists.newArrayList();
+    private List<Integer> sizes = Lists.newArrayList();
 
-    lens = new int[size];
+    private Builder() {
+    }
+
+    public void add(List<Block> list) {
+      symbols.addAll(list);
+      symbols.add(new Terminator(sizes.size()));
+      sizes.add(symbols.size());
+    }
+
+    public TextSet build() {
+      int[] lens = new int[sizes.size()];
+      for (int i = 0; i < sizes.size(); i++) {
+        lens[i] = sizes.get(i);
+      }
+      return new TextSet(symbols, lens);
+    }
+
   }
 
-  public TextSet(Text... text) {
-    this(text.length);
-    for (int i = 0; i < text.length; i++) {
-      symbols.addAll(text[i].sequence(0, text[i].length()));
-      symbols.add(new Terminator(i));
-      lens[i] = symbols.size();
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  private int[] lens;
+
+  private TextSet(List<Object> symbols, int[] lens) {
+    super(symbols);
+    this.lens = lens;
+  }
+
+  public int[] getLens() {
+    return lens;
+  }
+
+  @Override
+  public Object symbolAt(int index) {
+    Object obj = super.symbolAt(index);
+    if (obj instanceof Block) {
+      return ((Block) obj).getBlockHash();
     }
+    return obj;
+  }
+
+  public Block getBlock(int index) {
+    return (Block) super.symbolAt(index);
   }
 
   public static class Terminator {
