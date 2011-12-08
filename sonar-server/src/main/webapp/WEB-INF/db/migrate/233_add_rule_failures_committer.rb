@@ -24,7 +24,7 @@
 class AddRuleFailuresCommitter < ActiveRecord::Migration
 
   def self.up
-    add_column 'rule_failures', 'committer', :string, :null => true, :limit => 40
+    add_column 'rule_failures', 'committer', :string, :null => true, :limit => 100
   end
 
 end

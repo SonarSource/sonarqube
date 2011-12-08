@@ -67,7 +67,7 @@ public class RuleFailureModel extends BaseIdentifiable {
   @Column(name = "switched_off", updatable = true, nullable = true)
   private Boolean switchedOff = Boolean.FALSE;
 
-  @Column(name = "committer", updatable = true, nullable = true, length = 40)
+  @Column(name = "committer", updatable = true, nullable = true, length = 100)
   private String committer;
 
   @Column(name = "overridden_severity", updatable = true, nullable = true)
