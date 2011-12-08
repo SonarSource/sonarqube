@@ -28,28 +28,28 @@ import com.google.common.collect.Lists;
 /**
  * Simplifies construction of <a href="http://en.wikipedia.org/wiki/Generalised_suffix_tree">generalised suffix-tree</a>.
  */
-public class TextSet extends AbstractText {
+public final class TextSet extends AbstractText {
 
-  public static class Builder {
+  public static final class Builder {
 
     private List<Object> symbols = Lists.newArrayList();
-    private List<Integer> sizes = Lists.newArrayList();
+    private Integer lengthOfOrigin;
+    private int count;
 
     private Builder() {
     }
 
     public void add(List<Block> list) {
       symbols.addAll(list);
-      symbols.add(new Terminator(sizes.size()));
-      sizes.add(symbols.size());
+      symbols.add(new Terminator(count));
+      count++;
+      if (lengthOfOrigin == null) {
+        lengthOfOrigin = symbols.size();
+      }
     }
 
     public TextSet build() {
-      int[] lens = new int[sizes.size()];
-      for (int i = 0; i < sizes.size(); i++) {
-        lens[i] = sizes.get(i);
-      }
-      return new TextSet(symbols, lens);
+      return new TextSet(symbols, lengthOfOrigin);
     }
 
   }
@@ -58,15 +58,15 @@ public class TextSet extends AbstractText {
     return new Builder();
   }
 
-  private int[] lens;
+  private final int lengthOfOrigin;
 
-  private TextSet(List<Object> symbols, int[] lens) {
+  private TextSet(List<Object> symbols, int lengthOfOrigin) {
     super(symbols);
-    this.lens = lens;
+    this.lengthOfOrigin = lengthOfOrigin;
   }
 
-  public int[] getLens() {
-    return lens;
+  public boolean isInsideOrigin(int pos) {
+    return pos < lengthOfOrigin;
   }
 
   @Override

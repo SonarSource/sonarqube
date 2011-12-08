@@ -19,6 +19,9 @@
  */
 package org.sonar.duplications.detector.suffixtree;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import org.sonar.duplications.detector.suffixtree.Edge;
 import org.sonar.duplications.detector.suffixtree.Node;
 import org.sonar.duplications.detector.suffixtree.SuffixTree;
@@ -29,6 +32,9 @@ import com.google.common.base.Objects;
 public class StringSuffixTree {
 
   private final SuffixTree suffixTree;
+  private int numberOfEdges;
+  private int numberOfInnerNodes;
+  private int numberOfLeafs;
 
   public static StringSuffixTree create(String text) {
     return new StringSuffixTree(text);
@@ -36,6 +42,34 @@ public class StringSuffixTree {
 
   private StringSuffixTree(String text) {
     suffixTree = SuffixTree.create(new StringText(text));
+
+    Queue<Node> queue = new LinkedList<Node>();
+    queue.add(suffixTree.getRootNode());
+    while (!queue.isEmpty()) {
+      Node node = queue.remove();
+      if (node.getEdges().isEmpty()) {
+        numberOfLeafs++;
+      } else {
+        numberOfInnerNodes++;
+        for (Edge edge : node.getEdges()) {
+          numberOfEdges++;
+          queue.add(edge.getEndNode());
+        }
+      }
+    }
+    numberOfInnerNodes--; // without root
+  }
+
+  public int getNumberOfEdges() {
+    return numberOfEdges;
+  }
+
+  public int getNumberOfInnerNodes() {
+    return numberOfInnerNodes;
+  }
+
+  public int getNumberOfLeafs() {
+    return numberOfLeafs;
   }
 
   public int indexOf(String str) {

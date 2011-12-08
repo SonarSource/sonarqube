@@ -19,10 +19,10 @@
  */
 package org.sonar.duplications.detector.original;
 
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sonar.duplications.detector.ContainsInComparator;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.utils.FastStringComparator;
@@ -115,40 +115,8 @@ final class Filter {
     }
     List<ClonePart> firstParts = first.getCloneParts();
     List<ClonePart> secondParts = second.getCloneParts();
-    return SortedListsUtils.contains(secondParts, firstParts, new ContainsInComparator(first.getCloneUnitLength(), second.getCloneUnitLength()))
-        && SortedListsUtils.contains(firstParts, secondParts, RESOURCE_ID_COMPARATOR);
-  }
-
-  private static final Comparator<ClonePart> RESOURCE_ID_COMPARATOR = new Comparator<ClonePart>() {
-    public int compare(ClonePart o1, ClonePart o2) {
-      return FastStringComparator.INSTANCE.compare(o1.getResourceId(), o2.getResourceId());
-    }
-  };
-
-  private static final class ContainsInComparator implements Comparator<ClonePart> {
-    private final int l1, l2;
-
-    public ContainsInComparator(int l1, int l2) {
-      this.l1 = l1;
-      this.l2 = l2;
-    }
-
-    public int compare(ClonePart o1, ClonePart o2) {
-      int c = FastStringComparator.INSTANCE.compare(o1.getResourceId(), o2.getResourceId());
-      if (c == 0) {
-        if (o2.getUnitStart() <= o1.getUnitStart()) {
-          if (o1.getUnitStart() + l1 <= o2.getUnitStart() + l2) {
-            return 0; // match found - stop search
-          } else {
-            return 1; // continue search
-          }
-        } else {
-          return -1; // o1 < o2 by unitStart - stop search
-        }
-      } else {
-        return c;
-      }
-    }
+    return SortedListsUtils.contains(secondParts, firstParts, new ContainsInComparator(second.getCloneUnitLength(), first.getCloneUnitLength()))
+        && SortedListsUtils.contains(firstParts, secondParts, ContainsInComparator.RESOURCE_ID_COMPARATOR);
   }
 
 }

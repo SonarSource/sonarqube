@@ -29,9 +29,12 @@ import java.util.List;
 
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
+import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.detector.DetectorTestCase;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
+
+import com.google.common.collect.Lists;
 
 public class SuffixTreeCloneDetectionAlgorithmTest extends DetectorTestCase {
 
@@ -48,6 +51,35 @@ public class SuffixTreeCloneDetectionAlgorithmTest extends DetectorTestCase {
   }
 
   /**
+   * See SONAR-3060
+   * <p>
+   * In case when file contains a lot of duplicated blocks suffix-tree works better than original algorithm,
+   * which works more than 5 minutes for this example.
+   * </p><p>
+   * However should be noted that current implementation with suffix-tree also is not optimal,
+   * even if it works for this example couple of seconds,
+   * because duplications should be filtered in order to remove fully-covered.
+   * Moreover - height of the tree grows, depending on the number of blocks, which might lead to StackOverflowError,
+   * because algorithm uses recursion.
+   * But such cases nearly never appear in real-world, so current implementation is acceptable for the moment.
+   * </p>
+   */
+  @Test
+  public void huge() {
+    CloneIndex index = createIndex();
+    List<Block> fileBlocks = Lists.newArrayList();
+    int indexInFile = 0;
+    for (int i = 0; i < 5000; i++) {
+      Block block = newBlock("x", new ByteArray("01"), indexInFile);
+      fileBlocks.add(block);
+      indexInFile++;
+    }
+    List<CloneGroup> result = detect(index, fileBlocks);
+
+    assertEquals(1, result.size());
+  }
+
+  /**
    * Given:
    * <pre>
    * x: a 2 b 2 c 2 2 2
@@ -57,6 +89,7 @@ public class SuffixTreeCloneDetectionAlgorithmTest extends DetectorTestCase {
    * x-x (2 2)
    * x-x-x-x-x (2)
    * <pre>
+   * TODO Godin: however would be better to receive only (2)
    */
   @Test
   public void myTest() {
@@ -80,6 +113,9 @@ public class SuffixTreeCloneDetectionAlgorithmTest extends DetectorTestCase {
   }
 
   /**
+   * This test and associated with it suffix-tree demonstrates that without filtering in {@link DuplicationsCollector#endOfGroup()}
+   * possible to construct {@link CloneGroup}, which is fully covered by another {@link CloneGroup}.
+   * 
    * Given:
    * <pre>
    * x: a 2 3 b 2 3 c 2 3 d 2 3 2 3 2 3
@@ -89,6 +125,7 @@ public class SuffixTreeCloneDetectionAlgorithmTest extends DetectorTestCase {
    * x-x (2 3 2 3)
    * x-x-x-x-x-x (2 3)
    * <pre>
+   * TODO Godin: however would be better to receive only (2 3)
    */
   @Test
   public void myTest2() {
@@ -113,6 +150,9 @@ public class SuffixTreeCloneDetectionAlgorithmTest extends DetectorTestCase {
   }
 
   /**
+   * This test and associated with it suffix-tree demonstrates that without check of origin in {@link Search}
+   * possible to construct {@link CloneGroup} with a wrong origin.
+   * 
    * Given:
    * <pre>
    * a: 1 2 3 4

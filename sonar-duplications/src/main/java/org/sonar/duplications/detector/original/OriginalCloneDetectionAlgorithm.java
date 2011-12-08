@@ -206,18 +206,22 @@ public final class OriginalCloneDetectionAlgorithm {
 
     for (int i = 0; i < pairs.size(); i++) {
       Block[] pair = pairs.get(i);
-      ClonePart part = new ClonePart(pair[0].getResourceId(), pair[0].getIndexInFile(), pair[0].getFirstLineNumber(), pair[1].getLastLineNumber());
-      parts.add(part);
+      Block firstBlock = pair[0];
+      Block lastBlock = pair[1];
+      ClonePart part = new ClonePart(firstBlock.getResourceId(),
+          firstBlock.getIndexInFile(),
+          firstBlock.getFirstLineNumber(),
+          lastBlock.getLastLineNumber());
 
       if (originResourceId.equals(part.getResourceId())) {
         if (origin == null) {
           origin = part;
-        } else {
-          if (part.getUnitStart() < origin.getUnitStart()) {
-            origin = part;
-          }
+        } else if (part.getUnitStart() < origin.getUnitStart()) {
+          origin = part;
         }
       }
+
+      parts.add(part);
     }
 
     filter.add(new CloneGroup(cloneLength, origin, parts));

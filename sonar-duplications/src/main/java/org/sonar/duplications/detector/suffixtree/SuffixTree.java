@@ -22,9 +22,24 @@ package org.sonar.duplications.detector.suffixtree;
 import com.google.common.base.Objects;
 
 /**
- * The implementation of the algorithm for constructing suffix-tree based on
- * <a href="http://illya-keeplearning.blogspot.com/search/label/suffix%20tree">Java-port</a> of
+ * Provides algorithm to construct suffix tree.
+ * <p>
+ * Suffix tree for the string S of length n is defined as a tree such that:
+ * <ul>
+ * <li>the paths from the root to the leaves have a one-to-one relationship with the suffixes of S,</li>
+ * <li>edges spell non-empty strings,</li>
+ * <li>and all internal nodes (except perhaps the root) have at least two children.</li>
+ * </ul>
+ * Since such a tree does not exist for all strings, S is padded with a terminal symbol not seen in the string (usually denoted $).
+ * This ensures that no suffix is a prefix of another, and that there will be n leaf nodes, one for each of the n suffixes of S.
+ * Since all internal non-root nodes are branching, there can be at most n −  1 such nodes, and n + (n − 1) + 1 = 2n nodes in total.
+ * All internal nodes and leafs have incoming edge, so number of edges equal to number of leafs plus number of inner nodes,
+ * thus at most 2n - 1.
+ * Construction takes O(n) time.
+ * </p><p>
+ * This implementation was adapted from <a href="http://illya-keeplearning.blogspot.com/search/label/suffix%20tree">Java-port</a> of
  * <a href="http://marknelson.us/1996/08/01/suffix-trees/">Mark Nelson's C++ implementation of Ukkonen's algorithm</a>.
+ * </p>
  */
 public final class SuffixTree {
 

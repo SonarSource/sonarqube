@@ -32,21 +32,18 @@ public class SortedListsUtilsTest {
 
   @Test
   public void testContains() {
-    List<Integer> c1 = Arrays.asList(1, 2, 3);
-    List<Integer> c2 = Arrays.asList(1, 2);
-    List<Integer> c3 = Arrays.asList(1, 3);
+    assertThat(contains(Arrays.asList(1, 2, 3), Arrays.asList(1, 2)), is(true));
+    assertThat(contains(Arrays.asList(1, 2), Arrays.asList(1, 2, 3)), is(false));
 
-    assertThat(SortedListsUtils.contains(c1, c1, IntegerComparator.INSTANCE), is(true));
-    assertThat(SortedListsUtils.contains(c1, c2, IntegerComparator.INSTANCE), is(true));
-    assertThat(SortedListsUtils.contains(c1, c3, IntegerComparator.INSTANCE), is(true));
+    assertThat(contains(Arrays.asList(1, 2, 3), Arrays.asList(1, 3)), is(true));
+    assertThat(contains(Arrays.asList(1, 3), Arrays.asList(1, 2, 3)), is(false));
 
-    assertThat(SortedListsUtils.contains(c2, c1, IntegerComparator.INSTANCE), is(false));
-    assertThat(SortedListsUtils.contains(c2, c2, IntegerComparator.INSTANCE), is(true));
-    assertThat(SortedListsUtils.contains(c2, c3, IntegerComparator.INSTANCE), is(false));
+    assertThat(contains(Arrays.asList(1, 2, 3), Arrays.asList(1, 2, 2, 3)), is(true));
+    assertThat(contains(Arrays.asList(1, 2, 2, 3), Arrays.asList(1, 2, 3)), is(true));
+  }
 
-    assertThat(SortedListsUtils.contains(c3, c1, IntegerComparator.INSTANCE), is(false));
-    assertThat(SortedListsUtils.contains(c3, c2, IntegerComparator.INSTANCE), is(false));
-    assertThat(SortedListsUtils.contains(c3, c3, IntegerComparator.INSTANCE), is(true));
+  private static boolean contains(List<Integer> a, List<Integer> b) {
+    return SortedListsUtils.contains(a, b, IntegerComparator.INSTANCE);
   }
 
   private static class IntegerComparator implements Comparator<Integer> {

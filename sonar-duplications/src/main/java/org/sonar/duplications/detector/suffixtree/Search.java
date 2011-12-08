@@ -24,19 +24,19 @@ import java.util.*;
 public final class Search {
 
   private final SuffixTree tree;
-  private final int[] lens;
+  private final TextSet text;
   private final Collector reporter;
 
   private final List<Integer> list = new ArrayList<Integer>();
   private final List<Node> innerNodes = new ArrayList<Node>();
 
   public static void perform(TextSet text, Collector reporter) {
-    new Search(SuffixTree.create(text), text.getLens(), reporter).compute();
+    new Search(SuffixTree.create(text), text, reporter).compute();
   }
 
-  private Search(SuffixTree tree, int[] lens, Collector reporter) {
+  private Search(SuffixTree tree, TextSet text, Collector reporter) {
     this.tree = tree;
-    this.lens = lens;
+    this.text = text;
     this.reporter = reporter;
   }
 
@@ -102,11 +102,17 @@ public final class Search {
     }
   }
 
+  /**
+   * TODO Godin: in fact computations here are the same as in {@link #report(Node)},
+   * so maybe would be better to remove this duplication,
+   * however it should be noted that this check can't be done in {@link Collector#endOfGroup()},
+   * because it might lead to creation of unnecessary new objects
+   */
   private boolean containsOrigin(Node node) {
     for (int i = node.startSize; i < node.endSize; i++) {
       int start = tree.text.length() - list.get(i);
       int end = start + node.depth;
-      if (end < lens[0]) {
+      if (text.isInsideOrigin(end)) {
         return true;
       }
     }
@@ -114,23 +120,42 @@ public final class Search {
   }
 
   private void report(Node node) {
+    reporter.startOfGroup(node.endSize - node.startSize, node.depth);
     for (int i = node.startSize; i < node.endSize; i++) {
       int start = tree.text.length() - list.get(i);
       int end = start + node.depth;
-      reporter.part(start, end, node.depth);
+      reporter.part(start, end);
     }
     reporter.endOfGroup();
   }
 
-  public interface Collector {
+  public static abstract class Collector {
 
     /**
+     * Invoked at the beginning of processing for current node.
+     * <p>
+     * Length - is a depth of node. And nodes are visited in descending order of depth,
+     * thus we guaranty that length will not increase between two sequential calls of this method
+     * (can be equal or less than previous value).
+     * </p>
+     * 
+     * @param size number of parts in group
+     * @param length length of each part in group
+     */
+    abstract void startOfGroup(int size, int length);
+
+    /**
+     * Invoked as many times as leafs in the subtree, where current node is root.
+     * 
      * @param start start position in generalised text
      * @param end end position in generalised text
      */
-    void part(int start, int end, int len);
+    abstract void part(int start, int end);
 
-    void endOfGroup();
+    /**
+     * Invoked at the end of processing for current node.
+     */
+    abstract void endOfGroup();
 
   }
 

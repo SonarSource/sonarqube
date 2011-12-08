@@ -20,14 +20,12 @@
 package org.sonar.duplications.detector.suffixtree;
 
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
 import org.sonar.duplications.block.Block;
+import org.sonar.duplications.detector.ContainsInComparator;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
-import org.sonar.duplications.utils.FastStringComparator;
 import org.sonar.duplications.utils.SortedListsUtils;
 
 import com.google.common.collect.Lists;
@@ -35,21 +33,16 @@ import com.google.common.collect.Lists;
 /**
  * Implementation of {@link Search.Collector}, which constructs {@link CloneGroup}s.
  */
-public class DuplicationsCollector implements Search.Collector {
+public class DuplicationsCollector extends Search.Collector {
 
   private final TextSet text;
   private final String originResourceId;
 
-  /**
-   * Note that LinkedList should provide better performance here, because of use of operation remove.
-   * 
-   * @see #filter(CloneGroup)
-   */
-  private final List<CloneGroup> filtered = Lists.newLinkedList();
+  private final List<CloneGroup> filtered = Lists.newArrayList();
 
   private int length;
   private ClonePart origin;
-  private final List<ClonePart> parts = Lists.newArrayList();
+  private List<ClonePart> parts;
 
   public DuplicationsCollector(TextSet text) {
     this.text = text;
@@ -63,8 +56,21 @@ public class DuplicationsCollector implements Search.Collector {
     return filtered;
   }
 
-  public void part(int start, int end, int len) {
-    length = len;
+  @Override
+  public void startOfGroup(int size, int length) {
+    this.length = length;
+    this.parts = Lists.newArrayListWithCapacity(size);
+  }
+
+  /**
+   * Constructs ClonePart and saves it for future processing in {@link #endOfGroup()}.
+   * 
+   * @param start number of first block from text for this part
+   * @param end number of last block from text for this part
+   * @param len number of blocks in this part
+   */
+  @Override
+  public void part(int start, int end) {
     Block firstBlock = text.getBlock(start);
     Block lastBlock = text.getBlock(end - 1);
 
@@ -86,56 +92,46 @@ public class DuplicationsCollector implements Search.Collector {
     parts.add(part);
   }
 
+  /**
+   * Constructs CloneGroup and saves it.
+   */
+  @Override
   public void endOfGroup() {
-    Collections.sort(parts, CLONEPART_COMPARATOR);
+    Collections.sort(parts, ContainsInComparator.CLONEPART_COMPARATOR);
     CloneGroup group = new CloneGroup(length, origin, parts);
     filter(group);
 
-    parts.clear();
+    parts = null;
     origin = null;
   }
 
+  /**
+   * Saves CloneGroup, if it is not included into previously saved.
+   * <p>
+   * Current CloneGroup can not include none of CloneGroup, which were constructed before.
+   * Proof:
+   * According to an order of visiting nodes in suffix tree - length of earlier >= length of current.
+   * If length of earlier > length of current, then earlier not contained in current.
+   * If length of earlier = length of current, then earlier can be contained in current only
+   * when current has exactly the same and maybe some additional CloneParts as earlier,
+   * what in his turn will mean that two inner-nodes on same depth will satisfy condition
+   * current.startSize <= earlier.startSize <= earlier.endSize <= current.endSize , which is not possible for different inner-nodes on same depth.
+   * </p>
+   * Thus this method checks only that none of CloneGroup, which was constructed before, does not include current CloneGroup.
+   */
   private void filter(CloneGroup current) {
-    Iterator<CloneGroup> i = filtered.iterator();
-    while (i.hasNext()) {
-      CloneGroup earlier = i.next();
-      // Note that following two conditions cannot be true together - proof by contradiction:
-      // let C be the current clone and A and B were found earlier
-      // then since relation is transitive - (A in C) and (C in B) => (A in B)
-      // so A should be filtered earlier
+    for (CloneGroup earlier : filtered) {
       if (containsIn(current, earlier)) {
-        // current clone fully covered by clone, which was found earlier
         return;
       }
-      // TODO Godin: must prove that this is unused
-      // if (containsIn(earlier, current)) {
-      // // current clone fully covers clone, which was found earlier
-      // i.remove();
-      // }
     }
     filtered.add(current);
   }
 
-  private static final Comparator<ClonePart> CLONEPART_COMPARATOR = new Comparator<ClonePart>() {
-    public int compare(ClonePart o1, ClonePart o2) {
-      int c = RESOURCE_ID_COMPARATOR.compare(o1, o2);
-      if (c == 0) {
-        return o1.getUnitStart() - o2.getUnitStart();
-      }
-      return c;
-    }
-  };
-
-  private static final Comparator<ClonePart> RESOURCE_ID_COMPARATOR = new Comparator<ClonePart>() {
-    public int compare(ClonePart o1, ClonePart o2) {
-      return FastStringComparator.INSTANCE.compare(o1.getResourceId(), o2.getResourceId());
-    }
-  };
-
   /**
-   * Checks that second clone contains first one.
+   * Checks that second CloneGroup includes first one.
    * <p>
-   * Clone A is contained in another clone B, if every part pA from A has part pB in B,
+   * CloneGroup A is included in another CloneGroup B, if every part pA from A has part pB in B,
    * which satisfy the conditions:
    * <pre>
    * (pA.resourceId == pB.resourceId) and (pB.unitStart <= pA.unitStart) and (pA.unitEnd <= pB.unitEnd)
@@ -145,7 +141,7 @@ public class DuplicationsCollector implements Search.Collector {
    * <pre>
    * pB.resourceId == pA.resourceId
    * </pre>
-   * So this relation is:
+   * Inclusion is the partial order, thus this relation is:
    * <ul>
    * <li>reflexive - A in A</li>
    * <li>transitive - (A in B) and (B in C) => (A in C)</li>
@@ -153,48 +149,17 @@ public class DuplicationsCollector implements Search.Collector {
    * </ul>
    * </p>
    * <p>
-   * This method uses the fact that all parts already sorted by resourceId and unitStart (see {@link #CLONEPART_COMPARATOR}),
+   * This method uses the fact that all parts already sorted by resourceId and unitStart (see {@link ContainsInComparator#CLONEPART_COMPARATOR}),
    * so running time - O(|A|+|B|).
    * </p>
    */
   private static boolean containsIn(CloneGroup first, CloneGroup second) {
-    // TODO Godin: must prove that this is unused
-    // if (!first.getOriginPart().getResourceId().equals(second.getOriginPart().getResourceId())) {
-    // return false;
-    // }
-    // if (first.getCloneUnitLength() > second.getCloneUnitLength()) {
-    // return false;
-    // }
     List<ClonePart> firstParts = first.getCloneParts();
     List<ClonePart> secondParts = second.getCloneParts();
-    return SortedListsUtils.contains(secondParts, firstParts, new ContainsInComparator(first.getCloneUnitLength(), second.getCloneUnitLength()))
-        && SortedListsUtils.contains(firstParts, secondParts, RESOURCE_ID_COMPARATOR);
-  }
-
-  private static class ContainsInComparator implements Comparator<ClonePart> {
-    private final int l1, l2;
-
-    public ContainsInComparator(int l1, int l2) {
-      this.l1 = l1;
-      this.l2 = l2;
-    }
-
-    public int compare(ClonePart o1, ClonePart o2) {
-      int c = RESOURCE_ID_COMPARATOR.compare(o1, o2);
-      if (c == 0) {
-        if (o2.getUnitStart() <= o1.getUnitStart()) {
-          if (o1.getUnitStart() + l1 <= o2.getUnitStart() + l2) {
-            return 0; // match found - stop search
-          } else {
-            return 1; // continue search
-          }
-        } else {
-          return -1; // o1 < o2 by unitStart - stop search
-        }
-      } else {
-        return c;
-      }
-    }
+    // TODO Godin: according to tests seems that if first part of condition is true, then second part can not be false
+    // if this can be proved, then second part can be removed
+    return SortedListsUtils.contains(secondParts, firstParts, new ContainsInComparator(second.getCloneUnitLength(), first.getCloneUnitLength()))
+        && SortedListsUtils.contains(firstParts, secondParts, ContainsInComparator.RESOURCE_ID_COMPARATOR);
   }
 
 }
