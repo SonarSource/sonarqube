@@ -522,7 +522,7 @@ module ApplicationHelper
           return m.format_numeric_value(val)
         end
 
-        formatted_val=(val>=0 ? "+" : "") + m.format_numeric_value(val, :variation => true)
+        formatted_val= m.format_numeric_value(val, :variation => true)
         css_class=''
         if options[:color]||true
           css_class='var'
@@ -538,7 +538,11 @@ module ApplicationHelper
           end
         end
         if options[:style]!='light'
+          formatted_val=(val>=0 ? "+" : "") + formatted_val
           formatted_val="<b>(#{formatted_val})</b>"
+        else
+          # if zero, then we do not put a '+' before in the 'light' case
+          formatted_val=(val>0 ? "+" : "") + formatted_val
         end
         html="<span class='#{css_class}'>#{formatted_val}</span>"
       end
