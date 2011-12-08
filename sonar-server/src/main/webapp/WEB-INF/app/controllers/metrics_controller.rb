@@ -19,14 +19,13 @@
 #
 class MetricsController < ApplicationController
 
-  # GETs should be safe (see http://www.w3.org/2001/tag/doc/whenToUseGet.html)
   before_filter :admin_required
 
   SECTION=Navigation::SECTION_CONFIGURATION
-  
+
   def index
-    @metrics = Metric.all.select {|metric| metric.user_managed?}
-    @domains = Metric.all.map {|metric| metric.domain(false)}.compact.uniq.sort
+    @metrics = Metric.all.select { |metric| metric.user_managed? }
+    @domains = Metric.all.map { |metric| metric.domain(false) }.compact.uniq.sort
     if params['id']
       @metric=Metric.find(params['id'].to_i)
       params['domain']=@metric.domain(false)
@@ -35,7 +34,7 @@ class MetricsController < ApplicationController
     end
     render :action => 'index'
   end
- 
+
   def save_from_web
     if params[:id]
       metric = Metric.find(params[:id].to_i)
