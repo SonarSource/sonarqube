@@ -42,12 +42,17 @@
       <td colspan="<%= filter.columns.size + 1 -%>">
         <span id="results_count"><%= pluralize(@filter_context.size, message('result').downcase) %></span>
 
-        <% if @filter_context.page_count>1 %>
+        <% 
+          if @filter_context.page_count>1
+            max_pages = @filter_context.page_count
+            max_pages = 20 if @filter_context.page_count > 20 
+        %>
           |
           <%= link_to_if @filter_context.page_id>1, message('paging_previous'), {:overwrite_params => {:page_id => @filter_context.page_id-1}} %>
-          <% for index in 1..@filter_context.page_count %>
+          <% for index in 1..max_pages %>
             <%= link_to_unless index==@filter_context.page_id, index.to_s, {:overwrite_params => {:page_id => index}} %>
           <% end %>
+          <%= '...' if @filter_context.page_count > 20 -%>
           <%= link_to_if @filter_context.page_id<@filter_context.page_count, message('paging_next'), {:overwrite_params => {:page_id => 1+@filter_context.page_id}} %>
         <% end %>
 
