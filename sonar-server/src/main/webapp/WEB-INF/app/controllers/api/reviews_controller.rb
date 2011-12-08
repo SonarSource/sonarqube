@@ -63,7 +63,7 @@ class Api::ReviewsController < Api::ApiController
   # * 'violation_id' : the violation on which the review should be created
   #
   # To create a violation :
-  # * 'rule_name' : the name of the rule in the repository "review". If it does not exist then the rule is created.
+  # * 'rule_name' : the name of the rule in the repository "manual". If it does not exist then the rule is created.
   # * 'resource' : id or key of the resource to review
   # * 'line' : optional line. It starts from 1. If 0 then no specific line. Default value is 0.
   # * 'severity' : BLOCKER, CRITICAL, MAJOR, MINOR or INFO. Default value is MAJOR.
@@ -110,7 +110,8 @@ class Api::ReviewsController < Api::ApiController
         access_denied unless resource && has_rights_to_modify?(resource)
         bad_request("Resource does not exist") unless resource.last_snapshot
 
-        rule = Rule.find_or_create_manual_rule(params[:rule_name])
+        rule = Rule.find_or_create_manual_rule(params[:rule_name], has_role?(:admin))
+        access_denied unless rule
         violation = rule.create_violation!(resource, params)
         violation.create_review!(:assignee => assignee, :user => current_user, :manual_violation => true)
       end

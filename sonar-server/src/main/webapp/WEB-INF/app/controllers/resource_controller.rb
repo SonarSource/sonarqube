@@ -80,14 +80,17 @@ class ResourceController < ApplicationController
     access_denied unless resource && current_user
 
     rule_id_or_name = params[:rule]
-    rule_id_or_name = params[:new_rule] if rule_id_or_name.blank?
+    if rule_id_or_name.blank?
+      access_denied if params[:new_rule].present? && !has_role?(:admin)
+      rule_id_or_name = params[:new_rule]
+    end
     bad_request(message('code_viewer.create_violation.missing_rule')) if rule_id_or_name.blank?
     bad_request(message('code_viewer.create_violation.missing_message')) if params[:message].blank?
     bad_request(message('code_viewer.create_violation.missing_severity')) if params[:severity].blank?
 
     violation = nil
     Review.transaction do
-      rule = Rule.find_or_create_manual_rule(rule_id_or_name)
+      rule = Rule.find_or_create_manual_rule(rule_id_or_name, true)
       violation = rule.create_violation!(resource, params)
       violation.create_review!(
           :assignee => current_user,

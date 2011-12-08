@@ -48,8 +48,9 @@ class ManualRulesController < ApplicationController
 
       else
         # Create rule
-        rule=Rule.find_or_create_manual_rule(params[:name])
+        rule=Rule.find_or_create_manual_rule(params[:name], true)
       end
+      rule.name=(params[:name])
       rule.description=params[:description]
       rule.save!
     rescue Exception => e

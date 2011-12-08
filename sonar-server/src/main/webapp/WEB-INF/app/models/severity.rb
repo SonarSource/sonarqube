@@ -18,13 +18,13 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 
-class Severity
+module Severity
 
   INFO = "INFO"
   MINOR = "MINOR"
   MAJOR = "MAJOR"
   CRITICAL = "CRITICAL"
   BLOCKER = "BLOCKER"
-  
-  SEVERITIES=[INFO,MINOR,MAJOR,CRITICAL,BLOCKER]
+
+  KEYS=[BLOCKER, CRITICAL, MAJOR, MINOR, INFO]
 end
