@@ -52,8 +52,8 @@
           <% for index in 1..max_pages %>
             <%= link_to_unless index==@filter_context.page_id, index.to_s, {:overwrite_params => {:page_id => index}} %>
           <% end %>
-          <%= '...' if @filter_context.page_count > 20 -%>
-          <%= link_to_if @filter_context.page_id<@filter_context.page_count, message('paging_next'), {:overwrite_params => {:page_id => 1+@filter_context.page_id}} %>
+          <%= '... ' if @filter_context.page_count>20 -%>
+          <%= link_to_if @filter_context.page_id<20, message('paging_next'), {:overwrite_params => {:page_id => 1+@filter_context.page_id}} %>
         <% end %>
 
         <% if @filter.projects_homepage? %>
