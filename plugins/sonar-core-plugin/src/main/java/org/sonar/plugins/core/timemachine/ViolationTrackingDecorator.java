@@ -210,6 +210,7 @@ public class ViolationTrackingDecorator implements Decorator {
     if (pastViolation != null) {
       newViolation.setCreatedAt(pastViolation.getCreatedAt());
       newViolation.setSwitchedOff(pastViolation.isSwitchedOff());
+      newViolation.setCommitter(pastViolation.getCommitter());
       newViolation.setNew(false);
       pastViolationsByRule.remove(newViolation.getRule().getId(), pastViolation);
       violationMap.put(newViolation, pastViolation);

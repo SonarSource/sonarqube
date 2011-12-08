@@ -35,7 +35,7 @@ import org.sonar.core.NotDryRun;
 import java.util.List;
 
 @NotDryRun
-@DependedUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
+@Phase(name = Phase.Name.POST)
 public class ViolationPersisterDecorator implements Decorator {
 
   private ViolationTrackingDecorator tracker;
@@ -100,6 +100,7 @@ public class ViolationPersisterDecorator implements Decorator {
     model.setChecksum(violation.getChecksum());
     model.setCreatedAt(violation.getCreatedAt());
     model.setSwitchedOff(violation.isSwitchedOff());
+    model.setCommitter(violation.getCommitter());
     return model;
   }
 }

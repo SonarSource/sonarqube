@@ -42,6 +42,7 @@ public class Violation {
   private boolean isNew = false;
   private boolean isManual = false;
   private Integer permanentId;
+  private String committer;
 
   /**
    * Creates of a violation from a rule. Will need to define the resource later on
@@ -312,6 +313,23 @@ public class Violation {
    */
   public Violation setPermanentId(Integer i) {
     this.permanentId = i;
+    return this;
+  }
+
+  /**
+   * @since 2.13
+   */
+  public String getCommitter() {
+    return committer;
+  }
+
+  /**
+   * For internal use only.
+   * 
+   * @since 2.13
+   */
+  public Violation setCommitter(String committer) {
+    this.committer = committer;
     return this;
   }
 
