@@ -70,8 +70,6 @@ class ResourceController < ApplicationController
   # Ajax request to display a form to create a review anywhere in source code
   def show_create_violation_form
     @line = params[:line].to_i
-    @colspan = params[:colspan].to_i
-    @from = params[:from]
     @rules = Rule.manual_rules
     @html_id="#{params[:resource]}_#{@line}"
     render :partial => 'resource/create_violation_form'
@@ -87,23 +85,18 @@ class ResourceController < ApplicationController
     bad_request(message('code_viewer.create_violation.missing_message')) if params[:message].blank?
     bad_request(message('code_viewer.create_violation.missing_severity')) if params[:severity].blank?
 
+    violation = nil
     Review.transaction do
       rule = Rule.find_or_create_manual_rule(rule_id_or_name)
       violation = rule.create_violation!(resource, params)
       violation.create_review!(
-        :assignee => current_user,
-        :user => current_user,
-        :status => Review::STATUS_OPEN,
-        :manual_violation => true)
+          :assignee => current_user,
+          :user => current_user,
+          :status => Review::STATUS_OPEN,
+          :manual_violation => true)
     end
 
-    if params[:from]=='drilldown'
-      render :js => "d(#{resource.id})"
-    else
-      render :update do |page|
-        page.redirect_to :controller => 'resource', :action => 'index', :id => resource.key, :tab => 'violations'
-      end
-    end
+    render :partial => 'resource/violation', :locals => {:violation => violation}
   end
 
   private
@@ -126,7 +119,7 @@ class ResourceController < ApplicationController
     if params[:tab].present?
       @extension=@extensions.find { |extension| extension.getId()==params[:tab] }
 
-      elsif !params[:metric].blank?
+    elsif !params[:metric].blank?
       metric=Metric.by_key(params[:metric])
       @extension=@extensions.find { |extension| extension.getDefaultTabForMetrics().include?(metric.key) }
     end

@@ -1,5 +1,5 @@
 <%= render :partial => 'tabs' -%>
-<%= render :partial => 'resource/javascript', :locals => {:from => 'resource'} -%>
+<%= render :partial => 'resource/javascript' -%>
 <%= render :partial => "resource/header_#{@extension.getId()}" -%>
 
 <% if @display_violations && @global_violations && @global_violations.size>0 -%>
@@ -17,10 +17,21 @@
   <table id="sources" class="sources2 code" cellpadding="0" cellspacing="0" border="0">
     <%
        colspan=2
-       colspan+=1 if @display_manual_violation_form
-       colspan+=1 if @scm_available
-       colspan+=2 if @display_coverage
-       violation_form_colspan=(@scm_available ? 3 : 2)
+       gray_colspan=1
+       white_colspan=0
+       if @display_manual_violation_form
+         colspan+=1
+         gray_colspan+=1
+       end
+       if @scm_available
+         colspan+=1
+         gray_colspan+=1
+       end
+       if @display_coverage
+         colspan+=2
+         white_colspan+=2
+       end
+
        current_revision=nil
        previous_hidden=false
        first_section=true
@@ -68,7 +79,7 @@
       %>
       <tr class="row" id="pos<%= index+1 -%>">
         <% if @display_manual_violation_form %>
-          <td class="plus"><a onclick="return sVF(<%= @resource.id -%>,<%= index + 1 -%>,<%= violation_form_colspan -%>)"></a></td>
+          <td class="plus"><a onclick="return sVF(<%= @resource.id -%>,<%= index + 1 -%>,<%= gray_colspan -%>,<%= white_colspan -%>)"></a></td>
         <%
            end
            if @scm_available
@@ -109,7 +120,7 @@
       <% if @display_violations && line.violations? %>
         <tr>
           <% if @display_manual_violation_form %>
-            <td class="nothing"></td>
+            <td class="gray"></td>
           <% end
              if @scm_available %>
             <td class="scm"></td>
