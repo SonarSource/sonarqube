@@ -11,7 +11,8 @@
     permanent_id="1"
     snapshot_id="11"
     rule_id="1"
-    failure_level="1"/>
+    failure_level="1"
+    overridden_severity="[null]"/>
 
 
   <!-- Manual violations -->
@@ -20,14 +21,16 @@
     permanent_id="2"
     snapshot_id="22"
     rule_id="2"
-    failure_level="4"/>
+    failure_level="4"
+    overridden_severity="[null]"/>
 
   <rule_failures
     id="3"
     permanent_id="3"
     snapshot_id="22"
     rule_id="2"
-    failure_level="4"/>
+    failure_level="4"
+    overridden_severity="[null]"/>
 
 
   <!--

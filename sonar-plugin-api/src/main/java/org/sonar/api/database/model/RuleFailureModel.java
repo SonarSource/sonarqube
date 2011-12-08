@@ -70,6 +70,9 @@ public class RuleFailureModel extends BaseIdentifiable {
   @Column(name = "committer", updatable = true, nullable = true, length = 40)
   private String committer;
 
+  @Column(name = "overridden_severity", updatable = true, nullable = true)
+  private Boolean overriddenSeverity;
+
   public String getMessage() {
     return message;
   }
@@ -177,8 +180,18 @@ public class RuleFailureModel extends BaseIdentifiable {
     return committer;
   }
 
-  public void setCommitter(String committer) {
+  public RuleFailureModel setCommitter(String committer) {
     this.committer = committer;
+    return this;
+  }
+
+  public Boolean getOverriddenSeverity() {
+    return overriddenSeverity;
+  }
+
+  public RuleFailureModel setOverriddenSeverity(Boolean overriddenSeverity) {
+    this.overriddenSeverity = overriddenSeverity;
+    return this;
   }
 
   @Override
@@ -191,13 +204,13 @@ public class RuleFailureModel extends BaseIdentifiable {
     }
     RuleFailureModel other = (RuleFailureModel) obj;
     return new EqualsBuilder()
-        .append(getId(), other.getId()).isEquals();
+      .append(getId(), other.getId()).isEquals();
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37).
-        append(getId()).toHashCode();
+      append(getId()).toHashCode();
   }
 
   @Override

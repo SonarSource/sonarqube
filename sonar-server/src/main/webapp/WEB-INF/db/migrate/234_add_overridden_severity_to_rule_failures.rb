@@ -18,8 +18,13 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 
-class Api::Severity
+#
+# Sonar 2.13
+#
+class AddOverriddenSeverityToRuleFailures < ActiveRecord::Migration
 
-  KEYS = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']
+  def self.up
+    add_column 'rule_failures', 'overridden_severity', :boolean, :null => true
+  end
 
 end
