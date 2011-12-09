@@ -23,8 +23,8 @@ package org.sonar.api.batch;
  * Barriers are used to define the order of execution of Decorators. Decorators must be annotated with the following :
  *
  * <ul>
- *   <li{@code @DependsUpon(BARRIER)} in order to be executed after BARRIER
- *   <li{@code @DependedUpon(BARRIER)} in order to be executed before BARRIER
+ *   <li>{@code @DependsUpon(BARRIER)} in order to be executed after BARRIER</li>
+ *   <li>{@code @DependedUpon(BARRIER)} in order to be executed before BARRIER</li>
  * </ul>
  *
  * @since 2.3
@@ -53,18 +53,28 @@ public interface DecoratorBarriers {
    */
   String START_VIOLATION_TRACKING = "START_VIOLATION_TRACKING";
 
-  /*
-  * This barrier is after {@code END_OF_VIOLATIONS_GENERATION} and {@code START_VIOLATION_TRACKING}.
-  * Decorators executed after this barrier ({@code @DependsUpon(value=DecoratorBarriers.END_OF_VIOLATION_TRACKING})
-  * can benefit from all the features of violation tracking :
-  * <ul>
-  *   <li>{@code Violation#getCreatedAt()}</li>
-  *   <li>{@code Violation#isSwitchedOff()}, usually to know if a violation has been flagged as false-positives in UI</li>
-  * </ul>
-  *
-  * @since 2.8
-  */
+  /**
+   * This barrier is after {@code END_OF_VIOLATIONS_GENERATION} and {@code START_VIOLATION_TRACKING}.
+   * Decorators executed after this barrier ({@code @DependsUpon(value=DecoratorBarriers.END_OF_VIOLATION_TRACKING})
+   * can benefit from all the features of violation tracking :
+   * <ul>
+   *   <li>{@code Violation#getCreatedAt()}</li>
+   *   <li>{@code Violation#isSwitchedOff()}, usually to know if a violation has been flagged as false-positives in UI</li>
+   * </ul>
+   *
+   * @since 2.8
+   */
   String END_OF_VIOLATION_TRACKING = "END_OF_VIOLATION_TRACKING";
+
+  /**
+   * @since 2.13
+   */
+  String START_VIOLATION_PERSISTENCE = "START_VIOLATION_PERSISTENCE";
+
+  /**
+   * @since 2.13
+   */
+  String END_OF_VIOLATION_PERSISTENCE = "END_OF_VIOLATION_PERSISTENCE";
 
   /**
    * Any kinds of time machine data are calculated before this barrier. Decorators executed after this barrier can use

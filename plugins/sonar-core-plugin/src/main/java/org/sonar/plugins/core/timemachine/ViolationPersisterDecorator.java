@@ -35,7 +35,8 @@ import org.sonar.core.NotDryRun;
 import java.util.List;
 
 @NotDryRun
-@Phase(name = Phase.Name.POST)
+@DependsUpon({ DecoratorBarriers.END_OF_VIOLATION_TRACKING, DecoratorBarriers.START_VIOLATION_PERSISTENCE })
+@DependedUpon(DecoratorBarriers.END_OF_VIOLATION_PERSISTENCE)
 public class ViolationPersisterDecorator implements Decorator {
 
   private ViolationTrackingDecorator tracker;
@@ -52,11 +53,6 @@ public class ViolationPersisterDecorator implements Decorator {
 
   public boolean shouldExecuteOnProject(Project project) {
     return true;
-  }
-
-  @DependsUpon
-  public Class dependsOnTracker() {
-    return ViolationTrackingDecorator.class;
   }
 
   public void decorate(Resource resource, DecoratorContext context) {

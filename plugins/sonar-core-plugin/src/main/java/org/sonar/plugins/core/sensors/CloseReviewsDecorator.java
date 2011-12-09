@@ -41,7 +41,7 @@ import java.util.List;
  * Decorator that handles the life cycle of a review (for instance, closes a review when its corresponding violation has been fixed).
  */
 @NotDryRun
-@DependsUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
+@DependsUpon(DecoratorBarriers.END_OF_VIOLATION_PERSISTENCE)
 @DependedUpon(CloseReviewsDecorator.REVIEW_LIFECYCLE_BARRIER)
 public class CloseReviewsDecorator implements Decorator {
 
