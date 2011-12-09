@@ -25,7 +25,7 @@ import java.text.*;
 import java.util.Date;
 
 /**
- * Parses and formats ISO 8601 dates. See http://en.wikipedia.org/wiki/ISO_8601.
+ * Parses and formats <a href="http://en.wikipedia.org/wiki/ISO_8601">ISO 8601</a> dates.
  * This class is thread-safe.
  * 
  * @since 2.7
@@ -48,22 +48,30 @@ public final class DateUtils {
     return THREAD_SAFE_DATETIME_FORMAT.format(d);
   }
 
+  /**
+   * @param s string in format {@link #DATE_FORMAT}
+   * @throws SonarException when string cannot be parsed
+   */
   public static Date parseDate(String s) {
-    try {
-      return THREAD_SAFE_DATE_FORMAT.parse(s);
-
-    } catch (ParseException e) {
-      throw new SonarException("The date '" + s + "' does not respect format '" + DATE_FORMAT + "'", e);
+    ParsePosition pos = new ParsePosition(0);
+    Date result = THREAD_SAFE_DATE_FORMAT.parse(s, pos);
+    if (pos.getIndex() != s.length()) {
+      throw new SonarException("The date '" + s + "' does not respect format '" + DATE_FORMAT + "'");
     }
+    return result;
   }
 
+  /**
+   * @param s string in format {@link #DATETIME_FORMAT}
+   * @throws SonarException when string cannot be parsed
+   */
   public static Date parseDateTime(String s) {
-    try {
-      return THREAD_SAFE_DATETIME_FORMAT.parse(s);
-
-    } catch (ParseException e) {
-      throw new SonarException("The date '" + s + "' does not respect format '" + DATETIME_FORMAT + "'", e);
+    ParsePosition pos = new ParsePosition(0);
+    Date result = THREAD_SAFE_DATETIME_FORMAT.parse(s, pos);
+    if (pos.getIndex() != s.length()) {
+      throw new SonarException("The date '" + s + "' does not respect format '" + DATETIME_FORMAT + "'");
     }
+    return result;
   }
 
   static class ThreadSafeDateFormat extends DateFormat {

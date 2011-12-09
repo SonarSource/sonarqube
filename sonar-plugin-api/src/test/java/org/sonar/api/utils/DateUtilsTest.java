@@ -20,14 +20,10 @@
 package org.sonar.api.utils;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.junit.Test;
 
-import java.text.ParseException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
@@ -48,6 +44,11 @@ public class DateUtilsTest {
     DateUtils.parseDate("2010/05/18");
   }
 
+  @Test(expected = SonarException.class)
+  public void shouldNotParseDate2() {
+    DateUtils.parseDate("1986-12-04foo");
+  }
+
   @Test
   public void shouldParseDateTime() {
     Date date = DateUtils.parseDateTime("2010-05-18T15:50:45+0100");
@@ -57,6 +58,11 @@ public class DateUtilsTest {
   @Test(expected = SonarException.class)
   public void shouldNotParseDateTime() {
     DateUtils.parseDate("2010/05/18 10:55");
+  }
+
+  @Test(expected = SonarException.class)
+  public void shouldNotParseDateTime2() {
+    DateUtils.parseDateTime("1986-12-04T01:02:03+0300foo");
   }
 
   @Test
