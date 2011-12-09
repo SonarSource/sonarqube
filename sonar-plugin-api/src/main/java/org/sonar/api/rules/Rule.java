@@ -396,7 +396,17 @@ public final class Rule {
 
   @Override
   public String toString() {
-    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
+    // Note that ReflectionToStringBuilder will not work here - see SONAR-3077
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+        .append("id", id)
+        .append("name", name)
+        .append("key", key)
+        .append("configKey", configKey)
+        .append("plugin", pluginName)
+        .append("enabled", enabled)
+        .append("priority", priority)
+        .append("cardinality", cardinality)
+        .toString();
   }
 
   private String removeNewLineCharacters(String text) {
