@@ -22,9 +22,9 @@ class ReviewsController < ApplicationController
 
   SECTION=Navigation::SECTION_HOME
 
-  verify :method => :post, 
+  verify :method => :post,
          :only => [:assign, :flag_as_false_positive, :save_comment, :delete_comment, :change_status,
-                   :violation_assign, :violation_flag_as_false_positive,:violation_save_comment, :violation_delete_comment, :violation_change_status], 
+                   :violation_assign, :violation_flag_as_false_positive, :violation_save_comment, :violation_delete_comment, :violation_change_status],
          :redirect_to => {:action => :error_not_post}
   helper SourceHelper, UsersHelper
 
@@ -32,7 +32,7 @@ class ReviewsController < ApplicationController
     init_params()
     search_reviews()
   end
-  
+
   # Used for the permalink, e.g. http://localhost:9000/reviews/view/1
   def view
     @review = Review.find(params[:id], :include => ['project'])
@@ -133,7 +133,7 @@ class ReviewsController < ApplicationController
       render :text => "<b>Cannot delete the comment</b> : access denied."
       return
     end
-    
+
     if @review
       @review.delete_comment(current_user, params[:comment_id].to_i)
     end
@@ -148,7 +148,7 @@ class ReviewsController < ApplicationController
       return
     end
 
-    if @review.isResolved?
+    if @review.resolved?
       @review.reopen(current_user)
     else
       # for the moment, if a review is not open, it can only be "RESOLVED"
@@ -168,7 +168,7 @@ class ReviewsController < ApplicationController
   # GET
   def display_violation
     violation = RuleFailure.find(params[:id])
-    render :partial => "resource/violation", :locals => { :violation => violation }
+    render :partial => "resource/violation", :locals => {:violation => violation}
   end
 
   # GET
@@ -190,7 +190,7 @@ class ReviewsController < ApplicationController
     violation.review.reassign(current_user, assignee)
     violation.save
 
-    render :partial => "resource/violation", :locals => { :violation => violation }
+    render :partial => "resource/violation", :locals => {:violation => violation}
   end
 
   # GET
@@ -206,7 +206,7 @@ class ReviewsController < ApplicationController
       return
     end
     sanitize_violation(violation)
-    
+
     unless params[:comment].blank?
       if violation.review.nil?
         violation.build_review(:user_id => current_user.id)
@@ -216,7 +216,7 @@ class ReviewsController < ApplicationController
       violation=RuleFailure.find(params[:id])
     end
 
-    render :partial => "resource/violation", :locals => { :violation => violation }
+    render :partial => "resource/violation", :locals => {:violation => violation}
   end
 
   # GET
@@ -240,8 +240,8 @@ class ReviewsController < ApplicationController
     unless violation.review
       assignee = findUserByLogin(params[:assignee_login]) unless params[:assignee_login].blank?
       violation.create_review!(
-          :assignee => assignee,
-          :user => current_user)
+        :assignee => assignee,
+        :user => current_user)
     end
 
     unless params[:text].blank?
@@ -252,7 +252,7 @@ class ReviewsController < ApplicationController
       end
     end
 
-    render :partial => "resource/violation", :locals => { :violation => violation }
+    render :partial => "resource/violation", :locals => {:violation => violation}
   end
 
   # POST
@@ -266,9 +266,9 @@ class ReviewsController < ApplicationController
     if violation.review
       violation.review.delete_comment(current_user, params[:comment_id].to_i)
     end
-    render :partial => "resource/violation", :locals => { :violation => violation }
+    render :partial => "resource/violation", :locals => {:violation => violation}
   end
-  
+
   # POST
   def violation_change_status
     violation = RuleFailure.find(params[:id], :include => 'snapshot')
@@ -277,18 +277,18 @@ class ReviewsController < ApplicationController
       return
     end
     sanitize_violation(violation)
-    
+
     if violation.review
       review = violation.review
-      if review.isResolved?
+      if review.resolved?
         review.reopen(current_user)
       else
         # for the moment, if a review is not open, it can only be "RESOLVED"
         review.resolve(current_user)
       end
-    end    
+    end
 
-    render :partial => "resource/violation", :locals => { :violation => violation }
+    render :partial => "resource/violation", :locals => {:violation => violation}
   end
 
 
@@ -297,7 +297,7 @@ class ReviewsController < ApplicationController
   # ACTIONS FROM THE REVIEW WIDGETS
   #
   #
-  
+
   # GET
   def widget_reviews_list
     @snapshot = Snapshot.find(params[:snapshot_id])
@@ -305,20 +305,19 @@ class ReviewsController < ApplicationController
       render :text => "<b>Cannot access the reviews of this project</b>: access denied."
       return
     end
-    
+
     @dashboard_configuration=Api::DashboardConfiguration.new(nil, :period_index => params[:period], :snapshot => @snapshot)
     render :partial => 'project/widgets/reviews/reviews_list'
   end
 
 
-
   ## -------------- PRIVATE -------------- ##
   private
-  
+
   def findUserByLogin(login)
-    User.find(:all, :conditions => [ "login = ?", login ]).first
+    User.find(:all, :conditions => ["login = ?", login]).first
   end
-  
+
   def init_params
     default_user = (current_user ? current_user.login : '')
     @assignee_login = params[:assignee_login] || default_user
@@ -367,7 +366,7 @@ class ReviewsController < ApplicationController
     if @to
       options['to']=@to
     end
-    unless @id  == ''
+    unless @id == ''
       if is_number? @id
         options['id'] = @id
       else
@@ -376,13 +375,13 @@ class ReviewsController < ApplicationController
     end
     options['sort'] = @sort unless @sort.blank?
     options['asc'] = @asc
-    
+
     found_reviews = Review.search(options)
     @reviews = select_authorized(:user, found_reviews, :project)
     if found_reviews.size != @reviews.size
       @security_exclusions = true
     end
-    
+
     # table pagination
     @page_size = 20
     @page_size = params[:page_size].to_i if is_number?(params[:page_size]) && params[:page_size].to_i > 5
@@ -401,7 +400,7 @@ class ReviewsController < ApplicationController
   def is_number?(s)
     true if Float(s) rescue false
   end
-  
+
   def has_rights_to_modify?(object)
     current_user && has_role?(:user, object)
   end

@@ -155,7 +155,7 @@ class Api::ReviewsController < Api::ApiController
       review = get_review(params[:id])
       review.transaction do
         comment = params[:comment] || request.raw_post
-        if review.isClosed?
+        if review.closed?
           raise "Closed review can not be commented."
         end
         raise "Comment must be provided." unless comment && !comment.blank?
@@ -187,7 +187,7 @@ class Api::ReviewsController < Api::ApiController
       review = get_review(params[:id])
       review.transaction do
         assignee = params[:assignee]
-        if !review.isOpen? && !review.isReopened?
+        if !review.open? && !review.reopened?
           raise "Only open review can be reassigned."
         end
         if assignee.blank?
@@ -227,7 +227,7 @@ class Api::ReviewsController < Api::ApiController
       review.transaction do
         resolution = params[:resolution]
         comment = params[:comment] || request.raw_post
-        if !review.isOpen? && !review.isReopened?
+        if !review.open? && !review.reopened?
           raise "Only open review can be resolved."
         end
         if resolution == Review::RESOLUTION_FALSE_POSITIVE
@@ -266,7 +266,7 @@ class Api::ReviewsController < Api::ApiController
       review = get_review(params[:id])
       review.transaction do
         comment = params[:comment] || request.raw_post
-        if !review.isResolved?
+        if !review.resolved?
           raise "Only resolved review can be reopened."
         end
         if review.resolution == Review::RESOLUTION_FALSE_POSITIVE

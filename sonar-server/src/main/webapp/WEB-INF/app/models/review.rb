@@ -184,19 +184,19 @@ class Review < ActiveRecord::Base
     (status == STATUS_RESOLVED && resolution == RESOLUTION_FALSE_POSITIVE) || status == STATUS_OPEN || status == STATUS_REOPENED
   end
 
-  def isResolved?
+  def resolved?
     status == STATUS_RESOLVED
   end
 
-  def isClosed?
+  def closed?
     status == STATUS_CLOSED
   end
 
-  def isReopened?
+  def reopened?
     status == STATUS_REOPENED
   end
 
-  def isOpen?
+  def open?
     status == STATUS_OPEN
   end
 
