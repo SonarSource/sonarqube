@@ -20,21 +20,23 @@
 package org.sonar.api.rules;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.*;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.check.Cardinality;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.persistence.*;
 
 @Entity
 @Table(name = "rules")
 public final class Rule {
 
   private final static RulesCategory NONE = new RulesCategory("none");
-  
+
   @Id
   @Column(name = "id")
   @GeneratedValue
@@ -76,7 +78,7 @@ public final class Rule {
   @JoinColumn(name = "parent_id", updatable = true, nullable = true)
   private Rule parent = null;
 
-  @org.hibernate.annotations.Cascade({ org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN })
+  @org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN})
   @OneToMany(mappedBy = "rule")
   private List<RuleParam> params = new ArrayList<RuleParam>();
 
@@ -90,10 +92,10 @@ public final class Rule {
 
   /**
    * Creates rule with minimum set of info
-   * 
+   *
    * @param pluginName the plugin name indicates which plugin the rule belongs to
-   * @param key the key should be unique within a plugin, but it is even more careful for the time being that it is unique across the
-   *          application
+   * @param key        the key should be unique within a plugin, but it is even more careful for the time being that it is unique across the
+   *                   application
    * @deprecated since 2.3. Use the factory method {@link #create()}
    */
   @Deprecated
@@ -105,13 +107,13 @@ public final class Rule {
 
   /**
    * Creates a fully qualified rule
-   * 
-   * @param pluginKey the plugin the rule belongs to
-   * @param key the key should be unique within a plugin, but it is even more careful for the time being that it is unique across the
-   *          application
-   * @param name the name displayed in the UI
+   *
+   * @param pluginKey     the plugin the rule belongs to
+   * @param key           the key should be unique within a plugin, but it is even more careful for the time being that it is unique across the
+   *                      application
+   * @param name          the name displayed in the UI
    * @param rulesCategory the ISO category the rule belongs to
-   * @param severity this is the severity associated to the rule
+   * @param severity      this is the severity associated to the rule
    * @deprecated since 2.3. Use the factory method {@link #create()}
    */
   @Deprecated
@@ -281,15 +283,15 @@ public final class Rule {
 
   public RuleParam createParameter() {
     RuleParam parameter = new RuleParam()
-        .setRule(this);
+      .setRule(this);
     params.add(parameter);
     return parameter;
   }
 
   public RuleParam createParameter(String key) {
     RuleParam parameter = new RuleParam()
-        .setKey(key)
-        .setRule(this);
+      .setKey(key)
+      .setRule(this);
     params.add(parameter);
     return parameter;
   }
@@ -332,7 +334,7 @@ public final class Rule {
 
   /**
    * Sets the rule priority. If null, uses the default priority
-   * 
+   *
    * @deprecated since 2.5 use {@link #setSeverity(RulePriority)} instead. See http://jira.codehaus.org/browse/SONAR-1829
    */
   @Deprecated
@@ -381,32 +383,32 @@ public final class Rule {
     }
     Rule other = (Rule) obj;
     return new EqualsBuilder()
-        .append(pluginName, other.getRepositoryKey())
-        .append(key, other.getKey())
-        .isEquals();
+      .append(pluginName, other.getRepositoryKey())
+      .append(key, other.getKey())
+      .isEquals();
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
-        .append(pluginName)
-        .append(key)
-        .toHashCode();
+      .append(pluginName)
+      .append(key)
+      .toHashCode();
   }
 
   @Override
   public String toString() {
     // Note that ReflectionToStringBuilder will not work here - see SONAR-3077
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-        .append("id", id)
-        .append("name", name)
-        .append("key", key)
-        .append("configKey", configKey)
-        .append("plugin", pluginName)
-        .append("enabled", enabled)
-        .append("priority", priority)
-        .append("cardinality", cardinality)
-        .toString();
+      .append("id", id)
+      .append("name", name)
+      .append("key", key)
+      .append("configKey", configKey)
+      .append("plugin", pluginName)
+      .append("enabled", enabled)
+      .append("severity", priority)
+      .append("cardinality", cardinality)
+      .toString();
   }
 
   private String removeNewLineCharacters(String text) {
@@ -430,6 +432,7 @@ public final class Rule {
 
   /**
    * Create with all required fields
+   *
    * @since 2.10
    */
   public static Rule create(String repositoryKey, String key) {
