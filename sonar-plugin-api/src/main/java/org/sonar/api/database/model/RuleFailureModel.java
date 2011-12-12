@@ -70,9 +70,6 @@ public class RuleFailureModel extends BaseIdentifiable {
   @Column(name = "committer", updatable = true, nullable = true, length = 100)
   private String committer;
 
-  @Column(name = "overridden_severity", updatable = true, nullable = true)
-  private Boolean overriddenSeverity;
-
   public String getMessage() {
     return message;
   }
@@ -182,15 +179,6 @@ public class RuleFailureModel extends BaseIdentifiable {
 
   public RuleFailureModel setCommitter(String committer) {
     this.committer = committer;
-    return this;
-  }
-
-  public Boolean getOverriddenSeverity() {
-    return overriddenSeverity;
-  }
-
-  public RuleFailureModel setOverriddenSeverity(Boolean overriddenSeverity) {
-    this.overriddenSeverity = overriddenSeverity;
     return this;
   }
 

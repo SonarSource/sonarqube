@@ -12,7 +12,7 @@
     snapshot_id="11"
     rule_id="1"
     failure_level="1"
-    overridden_severity="[null]"/>
+    />
 
 
   <!-- Manual violations -->
@@ -22,7 +22,7 @@
     snapshot_id="22"
     rule_id="2"
     failure_level="4"
-    overridden_severity="[null]"/>
+    />
 
   <rule_failures
     id="3"
@@ -30,7 +30,7 @@
     snapshot_id="22"
     rule_id="2"
     failure_level="4"
-    overridden_severity="[null]"/>
+    />
 
 
   <!--
@@ -51,7 +51,8 @@
     user_id="[null]"
     resource_id="555"
     rule_id="1"
-    manual_violation="false"/>
+    manual_violation="false"
+    manual_severity="false"/>
 
   <!--
 
@@ -73,7 +74,8 @@
     user_id="[null]"
     resource_id="555"
     rule_id="2"
-    manual_violation="true"/>
+    manual_violation="true"
+    manual_severity="false"/>
 
   <!-- to keep opened -->
   <reviews
@@ -89,6 +91,7 @@
     user_id="[null]"
     resource_id="555"
     rule_id="2"
-    manual_violation="true"/>
+    manual_violation="true"
+    manual_severity="false"/>
 
 </dataset>

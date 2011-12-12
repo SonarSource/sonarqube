@@ -29,28 +29,28 @@ class RuleFailure < ActiveRecord::Base
   # first line of message
   def title
     @title||=
-        begin
-          if message.blank?
-            rule.name
-          else
-            parts=Api::Utils.split_newlines(message)
-            parts.size==0 ? rule.name : parts[0]
-          end
+      begin
+        if message.blank?
+          rule.name
+        else
+          parts=Api::Utils.split_newlines(message)
+          parts.size==0 ? rule.name : parts[0]
         end
+      end
   end
 
   def plain_message
     @plain_message ||=
-        begin
-          Api::Utils.convert_string_to_unix_newlines(message)
-        end
+      begin
+        Api::Utils.convert_string_to_unix_newlines(message)
+      end
   end
 
   def html_message
     @html_message ||=
-        begin
-          message ? Api::Utils.split_newlines(ERB::Util.html_escape(message)).join('<br/>') : ''
-        end
+      begin
+        message ? Api::Utils.split_newlines(ERB::Util.html_escape(message)).join('<br/>') : ''
+      end
   end
 
   def severity
@@ -72,15 +72,15 @@ class RuleFailure < ActiveRecord::Base
       json['createdAt'] = Api::Utils.format_datetime(created_at)
     end
     json['rule'] = {
-        :key => rule.key,
-        :name => rule.name
+      :key => rule.key,
+      :name => rule.name
     }
     json['resource'] = {
-        :key => resource.key,
-        :name => resource.name,
-        :scope => resource.scope,
-        :qualifier => resource.qualifier,
-        :language => resource.language
+      :key => resource.key,
+      :name => resource.name,
+      :scope => resource.scope,
+      :qualifier => resource.qualifier,
+      :language => resource.language
     }
     json['review'] = review.to_json(convert_markdown) if include_review && review
     json
@@ -114,14 +114,16 @@ class RuleFailure < ActiveRecord::Base
   def build_review(options={})
     if self.review.nil?
       self.review=Review.new(
-          {:status => Review::STATUS_OPEN,
-           :severity => severity,
-           :resource_line => line,
-           :resource => resource,
-           :title => title,
-           :rule => rule,
-           :manual_violation => false
-          }.merge(options))
+        {
+          :status => Review::STATUS_OPEN,
+          :severity => severity,
+          :resource_line => line,
+          :resource => resource,
+          :title => title,
+          :rule => rule,
+          :manual_violation => false,
+          :manual_severity => false
+        }.merge(options))
     end
   end
 

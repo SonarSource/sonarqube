@@ -49,6 +49,7 @@ public class Review {
   private String severity;
   private Integer ruleId;
   private Boolean manualViolation;
+  private Boolean manualSeverity;
 
   public Long getId() {
     return id;
@@ -182,6 +183,15 @@ public class Review {
 
   public Review setManualViolation(Boolean b) {
     this.manualViolation = b;
+    return this;
+  }
+
+  public Boolean getManualSeverity() {
+    return manualSeverity;
+  }
+
+  public Review setManualSeverity(Boolean b) {
+    this.manualSeverity = b;
     return this;
   }
 

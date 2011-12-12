@@ -19,6 +19,8 @@
  */
 package org.sonar.persistence.model;
 
+import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 /**
@@ -30,4 +32,6 @@ public interface ReviewMapper {
   List<Review> selectByResource(int resourceId);
 
   List<Review> selectByQuery(ReviewQuery query);
+
+  List<Review> selectCloseables(@Param("resourceId") int resourceId, @Param("snapshotId") int snapshotId);
 }

@@ -21,10 +21,10 @@
 #
 # Sonar 2.13
 #
-class AddOverriddenSeverityToRuleFailures < ActiveRecord::Migration
+class AddManualSeverityToReviews < ActiveRecord::Migration
 
   def self.up
-    add_column 'rule_failures', 'overridden_severity', :boolean, :null => true
+    add_column 'reviews', 'manual_severity', :boolean, :null => true
   end
 
 end

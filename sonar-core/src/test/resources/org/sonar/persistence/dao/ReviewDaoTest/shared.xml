@@ -2,50 +2,53 @@
 
   <!-- First resource -->
   <reviews
-      id="100"
-      status="OPEN"
-      rule_failure_permanent_id="1"
-      resolution="RESOLVE"
-      created_at="[null]"
-      updated_at="[null]"
-      project_id="20"
-      resource_line="200"
-      severity="BLOCKER"
-      user_id="300"
-      resource_id="400"
-      rule_id="500"
-      manual_violation="[true]"/>
+    id="100"
+    status="OPEN"
+    rule_failure_permanent_id="1"
+    resolution="RESOLVE"
+    created_at="[null]"
+    updated_at="[null]"
+    project_id="20"
+    resource_line="200"
+    severity="BLOCKER"
+    user_id="300"
+    resource_id="400"
+    rule_id="500"
+    manual_violation="[true]"
+    manual_severity="[false]"/>
 
   <reviews
-      id="101"
-      status="CLOSED"
-      rule_failure_permanent_id="1"
-      resolution="RESOLVE"
-      created_at="[null]"
-      updated_at="[null]"
-      project_id="30"
-      resource_line="120"
-      severity="MAJOR"
-      user_id="300"
-      resource_id="400"
-      rule_id="505"
-      manual_violation="[false]"/>
+    id="101"
+    status="CLOSED"
+    rule_failure_permanent_id="1"
+    resolution="RESOLVE"
+    created_at="[null]"
+    updated_at="[null]"
+    project_id="30"
+    resource_line="120"
+    severity="MAJOR"
+    user_id="300"
+    resource_id="400"
+    rule_id="505"
+    manual_violation="[false]"
+    manual_severity="[false]"/>
 
 
   <!-- Second resource -->
   <reviews
-      id="102"
-      status="OPEN"
-      rule_failure_permanent_id="1"
-      resolution="RESOLVE"
-      created_at="[null]"
-      updated_at="[null]"
-      project_id="20"
-      resource_line="200"
-      severity="BLOCKER"
-      user_id="300"
-      resource_id="401"
-      rule_id="500"
-      manual_violation="[true]"/>
+    id="102"
+    status="OPEN"
+    rule_failure_permanent_id="1"
+    resolution="RESOLVE"
+    created_at="[null]"
+    updated_at="[null]"
+    project_id="20"
+    resource_line="200"
+    severity="BLOCKER"
+    user_id="300"
+    resource_id="401"
+    rule_id="500"
+    manual_violation="[true]"
+    manual_severity="[false]"/>
 
 </dataset>

@@ -47,5 +47,19 @@
     </where>
   </select>
 
+  <select id="selectCloseables" parameterType="map" resultMap="reviewResultMap">
+    select
+    <include refid="reviewColumns"/>
+    from reviews
+    <where>
+      resource_id=#{resourceId} AND
+      (
+      (manual_violation=false AND status!='CLOSED' AND rule_failure_permanent_id NOT IN (SELECT permanent_id FROM rule_failures WHERE snapshot_id=#{snapshotId} AND permanent_id IS NOT NULL))
+      OR
+      (manual_violation=true AND status='RESOLVED')
+      )
+    </where>
+  </select>
+
 </mapper>
 
