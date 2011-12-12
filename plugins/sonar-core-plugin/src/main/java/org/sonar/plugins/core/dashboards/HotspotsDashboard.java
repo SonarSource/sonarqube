@@ -45,7 +45,7 @@ public class HotspotsDashboard extends AbstractDashboard implements Dashboard {
 
   @Override
   public String getName() {
-    return "Hotspots [NEW]";
+    return "Hotspots";
   }
   
   @Override

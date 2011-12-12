@@ -168,6 +168,7 @@ class DashboardsController < ApplicationController
 
   def load_dashboard_from_params(dashboard)
     dashboard.name=params[:name]
+    dashboard.kee=dashboard.name.strip.downcase.sub(/\s+/, '_')
     dashboard.description=params[:description]
     dashboard.shared=(params[:shared].present? && is_admin?)
     dashboard.user_id=current_user.id

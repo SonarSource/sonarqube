@@ -31,6 +31,18 @@ class Dashboard < ActiveRecord::Base
   validates_length_of :column_layout, :maximum => 20, :allow_blank => false, :allow_nil => false
   validates_uniqueness_of :name, :scope => :user_id
 
+  def name
+    default_name = read_attribute(:name)
+    default_name = Api::Utils.message('dashboard.' + read_attribute(:kee) + '.name', :default => default_name) if read_attribute(:kee)
+    default_name
+  end
+
+  def description
+    default_description = read_attribute(:description)
+    default_description = Api::Utils.message('dashboard.' + read_attribute(:kee) + '.description', :default => default_description) if read_attribute(:kee)
+    default_description
+  end
+  
   def shared?
     read_attribute(:shared) || false
   end
