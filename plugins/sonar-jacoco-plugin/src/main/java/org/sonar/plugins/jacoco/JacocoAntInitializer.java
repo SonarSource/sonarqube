@@ -25,7 +25,6 @@ import org.sonar.api.batch.Initializer;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.resources.Project;
 
-import java.util.Hashtable;
 import java.util.Map;
 
 @SupportedEnvironment("ant")

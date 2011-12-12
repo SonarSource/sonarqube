@@ -34,12 +34,9 @@ import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.api.web.*;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.jpa.dialect.Dialect;
-import org.sonar.jpa.session.DatabaseConnector;
 import org.sonar.markdown.Markdown;
 import org.sonar.persistence.Database;
 import org.sonar.persistence.DatabaseMigrator;
-import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.filters.Filter;
@@ -48,6 +45,7 @@ import org.sonar.server.filters.FilterResult;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerIdGenerator;
+import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.plugins.*;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
@@ -250,7 +248,7 @@ public final class JRubyFacade {
 
   public void ruleSeverityChanged(int parentProfileId, int activeRuleId, int oldSeverityId, int newSeverityId, String userName) {
     getProfilesManager().ruleSeverityChanged(parentProfileId, activeRuleId, RulePriority.values()[oldSeverityId],
-        RulePriority.values()[newSeverityId], userName);
+      RulePriority.values()[newSeverityId], userName);
   }
 
   public void ruleDeactivated(int parentProfileId, int deactivatedRuleId, String userName) {

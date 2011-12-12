@@ -32,15 +32,15 @@ public final class Iso9126RulesCategories {
   }
 
   public static final RulesCategory RELIABILITY = new RulesCategory("Reliability",
-      "The extent to which the project can be expected to perform its intended function with rescission. Some examples : are loop indexes range tested? Is input data checked for range errors ? Is divide-by-zero avoided ? Is exception handling provided ?");
+    "The extent to which the project can be expected to perform its intended function with rescission. Some examples : are loop indexes range tested? Is input data checked for range errors ? Is divide-by-zero avoided ? Is exception handling provided ?");
   public static final RulesCategory EFFICIENCY = new RulesCategory("Efficiency",
-      "The extent to which the project fulfills its purpose without waste of resources. This means resources in the sense of memory utilisation and processor speed.");
+    "The extent to which the project fulfills its purpose without waste of resources. This means resources in the sense of memory utilisation and processor speed.");
   public static final RulesCategory PORTABILITY = new RulesCategory("Portability",
-      "The extent to which the project can be operated easily and well on multiple computer configurations. Portability can mean both between different hardware setups and between different operating systems -- such as running on both Mac OS X and GNU/Linux.");
+    "The extent to which the project can be operated easily and well on multiple computer configurations. Portability can mean both between different hardware setups and between different operating systems -- such as running on both Mac OS X and GNU/Linux.");
   public static final RulesCategory USABILITY = new RulesCategory("Usability",
-      "The extent to which the project can be understood, learned, operated, attractive and compliant with usability regulations and guidelines. It commonly relies on naming conventions and formatting rules.");
+    "The extent to which the project can be understood, learned, operated, attractive and compliant with usability regulations and guidelines. It commonly relies on naming conventions and formatting rules.");
   public static final RulesCategory MAINTAINABILITY = new RulesCategory("Maintainability",
-      "The extent to which the project facilitates updating to satisfy new requirements. Thus the the project which is maintainable should be not complex.");
+    "The extent to which the project facilitates updating to satisfy new requirements. Thus the the project which is maintainable should be not complex.");
 
   public static final List<RulesCategory> ALL = Collections.unmodifiableList(Arrays.asList(RELIABILITY, EFFICIENCY, PORTABILITY, USABILITY, MAINTAINABILITY));
 }

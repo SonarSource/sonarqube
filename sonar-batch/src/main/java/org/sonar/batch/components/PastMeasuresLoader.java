@@ -58,7 +58,7 @@ public class PastMeasuresLoader implements BatchExtension {
   }
 
   public List<Object[]> getPastMeasures(Resource resource, PastSnapshot projectPastSnapshot) {
-    if (projectPastSnapshot != null && projectPastSnapshot.getProjectSnapshot()!=null) {
+    if (projectPastSnapshot != null && projectPastSnapshot.getProjectSnapshot() != null) {
       return getPastMeasures(resource.getEffectiveKey(), projectPastSnapshot.getProjectSnapshot());
     }
     return Collections.emptyList();
@@ -66,32 +66,33 @@ public class PastMeasuresLoader implements BatchExtension {
 
   public List<Object[]> getPastMeasures(String resourceKey, Snapshot projectPastSnapshot) {
     String sql = "select m.metric_id, m.characteristic_id, m.rule_id, m.value from project_measures m, snapshots s" +
-        " where m.snapshot_id=s.id and m.metric_id in (:metricIds) " +
-        " and (s.root_snapshot_id=:rootSnapshotId or s.id=:rootSnapshotId) and s.status=:status and s.project_id=(select p.id from projects p where p.kee=:resourceKey and p.qualifier<>:lib)";
+      " where m.snapshot_id=s.id and m.metric_id in (:metricIds) " +
+      "       and (s.root_snapshot_id=:rootSnapshotId or s.id=:rootSnapshotId) " +
+      "       and s.status=:status and s.project_id=(select p.id from projects p where p.kee=:resourceKey and p.qualifier<>:lib)";
     return session.createNativeQuery(sql)
-        .setParameter("metricIds", metricByIds.keySet())
-        .setParameter("rootSnapshotId", ObjectUtils.defaultIfNull(projectPastSnapshot.getRootId(), projectPastSnapshot.getId()))
-        .setParameter("resourceKey", resourceKey)
-        .setParameter("lib", Qualifiers.LIBRARY)
-        .setParameter("status", Snapshot.STATUS_PROCESSED)
-        .getResultList();
+      .setParameter("metricIds", metricByIds.keySet())
+      .setParameter("rootSnapshotId", ObjectUtils.defaultIfNull(projectPastSnapshot.getRootId(), projectPastSnapshot.getId()))
+      .setParameter("resourceKey", resourceKey)
+      .setParameter("lib", Qualifiers.LIBRARY)
+      .setParameter("status", Snapshot.STATUS_PROCESSED)
+      .getResultList();
   }
 
   public static int getMetricId(Object[] row) {
     // can be BigDecimal on Oracle
-    return ((Number)row[0]).intValue();
+    return ((Number) row[0]).intValue();
   }
 
   public static Integer getCharacteristicId(Object[] row) {
     // can be BigDecimal on Oracle
     Number number = (Number) row[1];
-    return number!=null ? number.intValue() : null;
+    return number != null ? number.intValue() : null;
   }
 
   public static Integer getRuleId(Object[] row) {
     // can be BigDecimal on Oracle
     Number number = (Number) row[2];
-    return number!=null ? number.intValue() : null;
+    return number != null ? number.intValue() : null;
   }
 
   public static boolean hasValue(Object[] row) {

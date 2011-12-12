@@ -68,9 +68,8 @@ public class RulesBackup implements Backupable {
   }
 
   private List<Rule> getUserRules() {
-    List<Rule> rules = rulesDao.getRules();
     List<Rule> userRules = Lists.newArrayList();
-    for (Rule rule : rules) {
+    for (Rule rule : rulesDao.getRules()) {
       if (rule.getParent() != null) {
         userRules.add(rule);
       }

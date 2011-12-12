@@ -90,7 +90,10 @@ public class CloseReviewsDecorator implements Decorator {
   protected int closeReviewsOnResolvedViolations(Resource resource, int resourceId, int snapshotId) {
     String conditions = " WHERE resource_id=" + resourceId + " AND "
       + "( "
-      + "  (manual_violation=:automaticViolation AND status!='CLOSED' AND rule_failure_permanent_id NOT IN " + "(SELECT permanent_id FROM rule_failures WHERE snapshot_id=" + snapshotId + " AND permanent_id IS NOT NULL))"
+      + "  ( "
+      + "    manual_violation=:automaticViolation AND status!='CLOSED' AND "
+      + "    rule_failure_permanent_id NOT IN (SELECT permanent_id FROM rule_failures WHERE snapshot_id=" + snapshotId + " AND permanent_id IS NOT NULL)"
+      + "  )"
       + "  OR "
       + "  (manual_violation=:manualViolation AND status='RESOLVED')"
       + ")";

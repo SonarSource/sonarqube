@@ -58,7 +58,8 @@ public final class DependencyInfo extends Composite {
 
   public void showOrPopup(String dependencyId) {
     if (popupMode) {
-      Window.open(Links.urlForResourcePage(Configuration.getResourceId(), DesignPage.GWT_ID, "layout=false&depId=" + dependencyId), "dependency", Links.DEFAULT_POPUP_HTML_FEATURES);
+      Window.open(Links.urlForResourcePage(Configuration.getResourceId(), DesignPage.GWT_ID, "layout=false&depId=" + dependencyId),
+        "dependency", Links.DEFAULT_POPUP_HTML_FEATURES);
 
     } else {
       INSTANCE.show(dependencyId);
@@ -68,7 +69,7 @@ public final class DependencyInfo extends Composite {
   public void show(String dependencyId) {
     panel.clear();
     currentDependencyId = dependencyId;
-    if (dependencyId !=null) {
+    if (dependencyId != null) {
       panel.add(loading);
       loadDependency(dependencyId);
     }

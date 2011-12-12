@@ -19,6 +19,7 @@
  */
 package org.sonar.jpa.dialect;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.MappingException;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.id.PersistentIdentifierGenerator;
@@ -36,7 +37,7 @@ public class OracleSequenceGenerator extends SequenceGenerator {
 
   @Override
   public void configure(Type type, Properties params, Dialect dialect)
-      throws MappingException {
+    throws MappingException {
 
     String tableName = params.getProperty(PersistentIdentifierGenerator.TABLE);
 
@@ -46,7 +47,7 @@ public class OracleSequenceGenerator extends SequenceGenerator {
       sequenceNameBuilder.append(tableName);
       sequenceNameBuilder.append(SEQUENCE_NAME_SUFFIX);
 
-      params.setProperty(SEQUENCE, sequenceNameBuilder.toString().toUpperCase());
+      params.setProperty(SEQUENCE, StringUtils.upperCase(sequenceNameBuilder.toString()));
     }
 
     super.configure(type, params, dialect);

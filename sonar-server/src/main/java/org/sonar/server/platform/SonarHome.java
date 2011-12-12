@@ -55,22 +55,22 @@ final class SonarHome {
   }
 
   static File locate() {
-    String home = System.getProperty(PROPERTY);
-    if (StringUtils.isBlank(home)) {
-      home = System.getenv(PROPERTY);
-      if (StringUtils.isBlank(home)) {
-        home = openWarProperties().getProperty(PROPERTY);
+    String value = System.getProperty(PROPERTY);
+    if (StringUtils.isBlank(value)) {
+      value = System.getenv(PROPERTY);
+      if (StringUtils.isBlank(value)) {
+        value = openWarProperties().getProperty(PROPERTY);
       }
     }
 
-    if (StringUtils.isBlank(home)) {
-      throw new IllegalStateException("Sonar home is not defined. " +
+    if (StringUtils.isBlank(value)) {
+      throw new IllegalStateException("Sonar value is not defined. " +
           "Please set the environment variable/system property " + PROPERTY + " or edit the file WEB-INF/classes/sonar-war.properties");
     }
 
-    File dir = new File(home);
+    File dir = new File(value);
     if (!dir.isDirectory() || !dir.exists()) {
-      throw new IllegalStateException(PROPERTY + " is not valid: " + home + ". Please fix the environment variable/system property SONAR_HOME or " +
+      throw new IllegalStateException(PROPERTY + " is not valid: " + value + ". Please fix the environment variable/system property SONAR_HOME or " +
           "the file WEB-INF/classes/sonar-war.properties");
     }
     return dir;

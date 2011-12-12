@@ -29,7 +29,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.core.config.ConfigurationUtils;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
-import java.util.Iterator;
 import java.util.List;
 
 /**

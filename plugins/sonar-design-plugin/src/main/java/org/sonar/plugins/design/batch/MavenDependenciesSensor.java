@@ -54,7 +54,8 @@ public class MavenDependenciesSensor implements Sensor {
   private DependencyTreeBuilder treeBuilder;
   private SonarIndex index;
 
-  public MavenDependenciesSensor(ArtifactRepository localRepository, ArtifactFactory artifactFactory, ArtifactMetadataSource artifactMetadataSource, ArtifactCollector artifactCollector, DependencyTreeBuilder treeBuilder, SonarIndex index) {
+  public MavenDependenciesSensor(ArtifactRepository localRepository, ArtifactFactory artifactFactory, ArtifactMetadataSource artifactMetadataSource,
+                                 ArtifactCollector artifactCollector, DependencyTreeBuilder treeBuilder, SonarIndex index) {
     this.localRepository = localRepository;
     this.artifactFactory = artifactFactory;
     this.artifactMetadataSource = artifactMetadataSource;
