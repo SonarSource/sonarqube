@@ -19,6 +19,9 @@
  */
 package org.sonar.persistence.dao;
 
+import com.google.common.collect.Lists;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.persistence.model.Review;
@@ -26,8 +29,7 @@ import org.sonar.persistence.model.ReviewQuery;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -96,5 +98,44 @@ public class ReviewDaoTest extends DaoTestCase {
     assertThat(reviews.size(), is(1));
     assertThat(reviews.get(0).getId(), is(100L));
     assertThat(reviews.get(0).getManualViolation(), is(Boolean.TRUE));
+  }
+
+  /**
+   * Oracle limitation of IN statements....
+   */
+  @Test
+  public void shouldPartitionFiltersOnPermanentId() {
+    setupData("shouldPartitionFiltersOnPermanentId");
+    List<Integer> permanentIds = Lists.newArrayList();
+    for (int index = 1; index < 3500; index++) {
+      permanentIds.add(index);
+    }
+    ReviewQuery query = ReviewQuery.create().setViolationPermanentIds(permanentIds);
+
+    List<Review> reviews = dao.selectByQuery(query);
+
+    assertThat(reviews.size(), is(3));
+    assertThat(reviews, hasItem(new ReviewMatcherByViolationPermanentId(100)));
+    assertThat(reviews, hasItem(new ReviewMatcherByViolationPermanentId(1300)));
+    assertThat(reviews, hasItem(new ReviewMatcherByViolationPermanentId(3200)));
+  }
+
+  static class ReviewMatcherByViolationPermanentId extends BaseMatcher<Review> {
+    Integer expectedId;
+
+    ReviewMatcherByViolationPermanentId(Integer expectedId) {
+      this.expectedId = expectedId;
+    }
+
+    public boolean matches(Object o) {
+      Review review = (Review) o;
+      System.out.println(review.getViolationPermanentId());
+
+      return expectedId.equals(review.getViolationPermanentId());
+    }
+
+    public void describeTo(Description description) {
+      description.appendText("violationPermanentId").appendValue(expectedId);
+    }
   }
 }

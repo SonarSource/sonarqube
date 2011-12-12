@@ -38,11 +38,16 @@
     from reviews
     <where>
       <if test="userId != null">user_id = #{userId}</if>
-      <if test="violationPermanentId != null">AND rule_failure_permanent_id = #{violationPermanentId}</if>
+      <if test="violationPermanentIds != null">AND rule_failure_permanent_id in
+        <foreach item="permanentId" index="index" collection="violationPermanentIds"
+        open="(" separator="," close=")"> #{permanentId}
+        </foreach>
+      </if>
       <if test="ruleId != null">AND rule_id = #{ruleId}</if>
       <if test="resourceId != null">AND resource_id = #{resourceId}</if>
       <if test="status != null">AND status = #{status}</if>
       <if test="manualViolation != null">AND manual_violation = #{manualViolation}</if>
+      <if test="manualSeverity != null">AND manual_severity = #{manualSeverity}</if>
       <if test="resolution != null">AND resolution = #{resolution}</if>
     </where>
   </select>

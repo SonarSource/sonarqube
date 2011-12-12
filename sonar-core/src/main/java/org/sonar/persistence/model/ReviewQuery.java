@@ -19,19 +19,37 @@
  */
 package org.sonar.persistence.model;
 
+import com.google.common.collect.Lists;
+import org.sonar.persistence.DatabaseUtils;
+
+import java.util.Collection;
+import java.util.List;
+
 /**
  * @since 2.13
  */
 public final class ReviewQuery {
   private Boolean manualViolation;
+  private Boolean manualSeverity;
   private Integer resourceId;
   private Integer userId;
-  private Integer violationPermanentId;
+  private List<Integer> violationPermanentIds;
   private Integer ruleId;
   private String status;
   private String resolution;
 
   private ReviewQuery() {
+  }
+
+  private ReviewQuery(ReviewQuery other, List<Integer> permanentIds) {
+    this.manualViolation = other.manualViolation;
+    this.manualSeverity = other.manualSeverity;
+    this.resourceId = other.resourceId;
+    this.userId = other.userId;
+    this.violationPermanentIds = permanentIds;
+    this.ruleId = other.ruleId;
+    this.status = other.status;
+    this.resolution = other.resolution;
   }
 
   public static ReviewQuery create() {
@@ -74,12 +92,12 @@ public final class ReviewQuery {
     return this;
   }
 
-  public Integer getViolationPermanentId() {
-    return violationPermanentId;
+  public Collection<Integer> getViolationPermanentIds() {
+    return violationPermanentIds;
   }
 
-  public ReviewQuery setViolationPermanentId(Integer violationPermanentId) {
-    this.violationPermanentId = violationPermanentId;
+  public ReviewQuery setViolationPermanentIds(List<Integer> l) {
+    this.violationPermanentIds = l;
     return this;
   }
 
@@ -99,5 +117,28 @@ public final class ReviewQuery {
   public ReviewQuery setResolution(String resolution) {
     this.resolution = resolution;
     return this;
+  }
+
+  public Boolean getManualSeverity() {
+    return manualSeverity;
+  }
+
+  public ReviewQuery setManualSeverity(boolean b) {
+    this.manualSeverity = b;
+    return this;
+  }
+
+  public boolean needToPartitionQuery() {
+    return violationPermanentIds != null && violationPermanentIds.size() > DatabaseUtils.MAX_IN_ELEMENTS;
+  }
+
+  public ReviewQuery[] partition() {
+    List<List<Integer>> partitions = Lists.partition(violationPermanentIds, DatabaseUtils.MAX_IN_ELEMENTS);
+    ReviewQuery[] result = new ReviewQuery[partitions.size()];
+    for (int index = 0; index < partitions.size(); index++) {
+      result[index] = new ReviewQuery(this, partitions.get(index));
+    }
+
+    return result;
   }
 }

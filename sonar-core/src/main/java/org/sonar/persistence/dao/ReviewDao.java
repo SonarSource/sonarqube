@@ -19,6 +19,7 @@
  */
 package org.sonar.persistence.dao;
 
+import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
@@ -60,7 +61,17 @@ public class ReviewDao implements BatchComponent, ServerComponent {
     SqlSession sqlSession = mybatis.openSession();
     try {
       ReviewMapper mapper = sqlSession.getMapper(ReviewMapper.class);
-      return mapper.selectByQuery(query);
+      List<Review> result;
+      if (query.needToPartitionQuery()) {
+        result = Lists.newArrayList();
+        for (ReviewQuery partitionedQuery : query.partition()) {
+          result.addAll(mapper.selectByQuery(partitionedQuery));
+        }
+
+      } else {
+        result = mapper.selectByQuery(query);
+      }
+      return result;
     } finally {
       sqlSession.close();
     }

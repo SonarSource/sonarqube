@@ -209,6 +209,7 @@ public class ViolationTrackingDecorator implements Decorator {
                             Multimap<Integer, RuleFailureModel> pastViolationsByRule, Map<Violation, RuleFailureModel> violationMap) {
     if (pastViolation != null) {
       newViolation.setCreatedAt(pastViolation.getCreatedAt());
+      newViolation.setPermanentId(pastViolation.getPermanentId());
       newViolation.setSwitchedOff(pastViolation.isSwitchedOff());
       newViolation.setCommitter(pastViolation.getCommitter());
       newViolation.setNew(false);

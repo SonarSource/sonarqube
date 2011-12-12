@@ -23,6 +23,11 @@ package org.sonar.persistence;
  * @since 2.13
  */
 public final class DatabaseUtils {
+  /**
+   * Oracle: number of elements in IN statements is limited.
+   */
+  public static final int MAX_IN_ELEMENTS = 1000;
+
   private DatabaseUtils() {
   }
 
