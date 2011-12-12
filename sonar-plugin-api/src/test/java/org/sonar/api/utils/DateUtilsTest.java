@@ -45,7 +45,7 @@ public class DateUtilsTest {
   }
 
   @Test(expected = SonarException.class)
-  public void shouldNotParseDate2() {
+  public void shouldNotParseDateIfAdditionnalCharacters() {
     DateUtils.parseDate("1986-12-04foo");
   }
 
@@ -61,7 +61,7 @@ public class DateUtilsTest {
   }
 
   @Test(expected = SonarException.class)
-  public void shouldNotParseDateTime2() {
+  public void shouldNotParseIfAdditionnalCharacters() {
     DateUtils.parseDateTime("1986-12-04T01:02:03+0300foo");
   }
 

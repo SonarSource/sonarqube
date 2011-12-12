@@ -21,13 +21,16 @@ package org.sonar.api.utils;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
-import java.text.*;
+import java.text.DateFormat;
+import java.text.FieldPosition;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
  * Parses and formats <a href="http://en.wikipedia.org/wiki/ISO_8601">ISO 8601</a> dates.
  * This class is thread-safe.
- * 
+ *
  * @since 2.7
  */
 public final class DateUtils {
@@ -82,11 +85,11 @@ public final class DateUtils {
       this.format = format;
     }
 
-    private final transient ThreadLocal cache = new ThreadLocal() {
-      public Object get() {
-        Reference softRef = (Reference) super.get();
+    private final transient ThreadLocal<Reference<DateFormat>> cache = new ThreadLocal<Reference<DateFormat>>() {
+      public Reference<DateFormat> get() {
+        Reference<DateFormat> softRef = super.get();
         if (softRef == null || softRef.get() == null) {
-          softRef = new SoftReference(new SimpleDateFormat(format));
+          softRef = new SoftReference<DateFormat>(new SimpleDateFormat(format));
           super.set(softRef);
         }
         return softRef;
