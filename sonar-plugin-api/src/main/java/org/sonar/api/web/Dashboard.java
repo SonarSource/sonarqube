@@ -19,19 +19,35 @@
  */
 package org.sonar.api.web;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+/**
+ * A dashboard is a set of predefined and potentially parameterized widgets.
+ * 
+ * As a "Template" extension, a dashboard will get created in the DB only once, when its plugin executes for the first time.
+ * 
+ * @since 2.13
+ */
+public interface Dashboard extends Template {
 
-@Retention(RetentionPolicy.RUNTIME)
-public @interface WidgetProperty {
+  /**
+   * Returns the name of the dashboard.
+   * 
+   * @return the name
+   */
+  String getName();
 
-  String key();
+  /**
+   * Returns the description of the dashboard.
+   * 
+   * @return the description
+   */
+  String getDescription();
 
-  WidgetPropertyType type() default WidgetPropertyType.STRING;
+  /**
+   * Returns the layout for the dashboard.
+   * 
+   * @see DashboardLayouts for the possible values.
+   * @return the layout
+   */
+  String getLayout();
 
-  String defaultValue() default "";
-
-  String description() default "";
-
-  boolean optional() default true;
 }

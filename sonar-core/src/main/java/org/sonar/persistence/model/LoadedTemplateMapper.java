@@ -17,21 +17,14 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.web;
+package org.sonar.persistence.model;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import org.apache.ibatis.annotations.Param;
 
-@Retention(RetentionPolicy.RUNTIME)
-public @interface WidgetProperty {
+public interface LoadedTemplateMapper {
 
-  String key();
+  LoadedTemplate selectByKeyAndType(@Param("key") String key, @Param("type") String type);
+  
+  void insert(LoadedTemplate template);
 
-  WidgetPropertyType type() default WidgetPropertyType.STRING;
-
-  String defaultValue() default "";
-
-  String description() default "";
-
-  boolean optional() default true;
 }

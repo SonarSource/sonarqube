@@ -19,18 +19,37 @@
  */
 package org.sonar.persistence;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.*;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
-import org.sonar.persistence.model.*;
-
-import java.io.IOException;
-import java.io.InputStream;
+import org.sonar.persistence.model.ActiveDashboard;
+import org.sonar.persistence.model.ActiveDashboardMapper;
+import org.sonar.persistence.model.Dashboard;
+import org.sonar.persistence.model.DashboardMapper;
+import org.sonar.persistence.model.DuplicationMapper;
+import org.sonar.persistence.model.DuplicationUnit;
+import org.sonar.persistence.model.LoadedTemplate;
+import org.sonar.persistence.model.LoadedTemplateMapper;
+import org.sonar.persistence.model.Review;
+import org.sonar.persistence.model.ReviewMapper;
+import org.sonar.persistence.model.Rule;
+import org.sonar.persistence.model.RuleMapper;
+import org.sonar.persistence.model.Widget;
+import org.sonar.persistence.model.WidgetMapper;
+import org.sonar.persistence.model.WidgetProperty;
+import org.sonar.persistence.model.WidgetPropertyMapper;
 
 public class MyBatis implements BatchComponent, ServerComponent {
 
@@ -47,17 +66,27 @@ public class MyBatis implements BatchComponent, ServerComponent {
     conf.setUseGeneratedKeys(true);
     conf.setLazyLoadingEnabled(false);
 
+    loadAlias(conf, "ActiveDashboard", ActiveDashboard.class);
+    loadAlias(conf, "Dashboard", Dashboard.class);
     loadAlias(conf, "DuplicationUnit", DuplicationUnit.class);
-    loadAlias(conf, "Rule", Rule.class);
+    loadAlias(conf, "LoadedTemplate", LoadedTemplate.class);
     loadAlias(conf, "Review", Review.class);
+    loadAlias(conf, "Rule", Rule.class);
+    loadAlias(conf, "Widget", Widget.class);
+    loadAlias(conf, "WidgetProperty", WidgetProperty.class);
+
+    loadMapper(conf, ActiveDashboardMapper.class);
+    loadMapper(conf, DashboardMapper.class);
     loadMapper(conf, DuplicationMapper.class);
-    loadMapper(conf, RuleMapper.class);
+    loadMapper(conf, LoadedTemplateMapper.class);
     loadMapper(conf, ReviewMapper.class);
+    loadMapper(conf, RuleMapper.class);
+    loadMapper(conf, WidgetMapper.class);
+    loadMapper(conf, WidgetPropertyMapper.class);
 
     sessionFactory = new SqlSessionFactoryBuilder().build(conf);
     return this;
   }
-
 
   public SqlSessionFactory getSessionFactory() {
     return sessionFactory;
@@ -70,7 +99,6 @@ public class MyBatis implements BatchComponent, ServerComponent {
   public SqlSession openSession(ExecutorType type) {
     return sessionFactory.openSession(type);
   }
-
 
   private void loadMapper(Configuration conf, Class mapperClass) throws IOException {
     // trick to use database-specific XML files for a single Mapper Java interface
@@ -86,7 +114,8 @@ public class MyBatis implements BatchComponent, ServerComponent {
   }
 
   private InputStream getPathToMapper(Class mapperClass) {
-    InputStream input = getClass().getResourceAsStream("/" + StringUtils.replace(mapperClass.getName(), ".", "/") + "-" + database.getDialect().getId() + ".xml");
+    InputStream input = getClass().getResourceAsStream(
+        "/" + StringUtils.replace(mapperClass.getName(), ".", "/") + "-" + database.getDialect().getId() + ".xml");
     if (input == null) {
       input = getClass().getResourceAsStream("/" + StringUtils.replace(mapperClass.getName(), ".", "/") + ".xml");
     }

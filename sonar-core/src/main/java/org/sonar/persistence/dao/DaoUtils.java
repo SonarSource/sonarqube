@@ -23,10 +23,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class DaoUtils {
+
   private DaoUtils() {
   }
 
-  public static List<Class> getDaoClasses() {
-    return Arrays.<Class>asList(RuleDao.class, DuplicationDao.class, ReviewDao.class);
+  public static List<Class<?>> getDaoClasses() {
+    return Arrays.<Class<?>> asList(RuleDao.class, DuplicationDao.class, ReviewDao.class, ActiveDashboardDao.class, DashboardDao.class,
+        LoadedTemplateDao.class);
   }
 }

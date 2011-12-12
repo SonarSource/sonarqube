@@ -19,19 +19,25 @@
  */
 package org.sonar.api.web;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
+/**
+ * Annotation used to specify the list of widgets associated to a dashboard template.
+ * 
+ * @see AbstractDashboard
+ * @since 2.13
+ */
 @Retention(RetentionPolicy.RUNTIME)
-public @interface WidgetProperty {
+@Target(ElementType.TYPE)
+public @interface DashboardWidgets {
 
-  String key();
-
-  WidgetPropertyType type() default WidgetPropertyType.STRING;
-
-  String defaultValue() default "";
-
-  String description() default "";
-
-  boolean optional() default true;
+  /**
+   * List of {@link DashboardWidget} definitions.
+   * 
+   * @return
+   */
+  DashboardWidget[] value() default {};
 }

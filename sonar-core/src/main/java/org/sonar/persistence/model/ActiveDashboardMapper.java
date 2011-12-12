@@ -17,21 +17,12 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.web;
+package org.sonar.persistence.model;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+public interface ActiveDashboardMapper {
 
-@Retention(RetentionPolicy.RUNTIME)
-public @interface WidgetProperty {
+  void insert(ActiveDashboard activeDashboard);
 
-  String key();
+  Integer selectMaxOrderIndexForNullUser();
 
-  WidgetPropertyType type() default WidgetPropertyType.STRING;
-
-  String defaultValue() default "";
-
-  String description() default "";
-
-  boolean optional() default true;
 }

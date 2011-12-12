@@ -52,6 +52,7 @@ public final class DatabaseUtils {
     "groups",
     "groups_users",
     "group_roles",
+    "loaded_templates",
     "manual_measures",
     "measure_data",
     "metrics",

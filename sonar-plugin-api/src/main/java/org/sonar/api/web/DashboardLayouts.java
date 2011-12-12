@@ -19,19 +19,17 @@
  */
 package org.sonar.api.web;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+/**
+ * Possible layouts for a dashboard.
+ * 
+ * @since 2.13
+ */
+public class DashboardLayouts {
 
-@Retention(RetentionPolicy.RUNTIME)
-public @interface WidgetProperty {
+  public static final String ONE_COLUMN = "100%";
+  public static final String TWO_COLUMNS = "50%-50%";
+  public static final String TWO_COLUMNS_30_70 = "30%-70%";
+  public static final String TWO_COLUMNS_70_30 = "70%-30%";
+  public static final String TREE_COLUMNS = "33%-33%-33%";
 
-  String key();
-
-  WidgetPropertyType type() default WidgetPropertyType.STRING;
-
-  String defaultValue() default "";
-
-  String description() default "";
-
-  boolean optional() default true;
 }

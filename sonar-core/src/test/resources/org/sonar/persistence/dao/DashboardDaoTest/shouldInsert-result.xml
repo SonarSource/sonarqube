@@ -1,0 +1,33 @@
+<dataset>
+
+  <dashboards
+      id="1"
+      kee="d-key"
+      user_id="6"
+      name="My Dashboard"
+      description="This is a dashboard"
+      column_layout="100%"
+      shared="true"
+      created_at="1970-01-02 11:17:36.789"
+      updated_at="1970-01-02 11:17:36.789"/>
+
+  <widgets
+      id="1"
+      dashboard_id="1"
+      widget_key="code_coverage"
+      name="Code coverage"
+      description="Widget for code coverage"
+      column_index="13"
+      row_index="14"
+      configured="true"
+      created_at="1970-01-02 11:17:36.789"
+      updated_at="1970-01-02 11:17:36.789"/>
+
+  <widget_properties
+      id="1"
+      widget_id="1"
+      kee="displayITs"
+      text_value="true"
+      value_type="BOOLEAN"/>  
+
+</dataset>

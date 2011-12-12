@@ -19,19 +19,26 @@
  */
 package org.sonar.api.web;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import org.sonar.api.ServerExtension;
 
-@Retention(RetentionPolicy.RUNTIME)
-public @interface WidgetProperty {
+/**
+ * A template defines a server extension that will be run only once to initialize and store some data in the database.
+ * 
+ * @since 2.13
+ */
+public interface Template extends ServerExtension {
 
-  String key();
+  /**
+   * Returns the identifier of this template.
+   * 
+   * @return the id
+   */
+  String getId();
 
-  WidgetPropertyType type() default WidgetPropertyType.STRING;
-
-  String defaultValue() default "";
-
-  String description() default "";
-
-  boolean optional() default true;
+  /**
+   * Returns the kind of template.
+   * 
+   * @return the type
+   */
+  String getType();
 }
