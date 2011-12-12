@@ -60,7 +60,6 @@
             <configuration>
               <modules>
                 <module>org.sonar.plugins.core.testdetailsviewer.TestsViewer${gwt.permutationSuffix}</module>
-                <module>org.sonar.plugins.core.hotspots.GwtHotspots${gwt.permutationSuffix}</module>
               </modules>
               <skip>${skipGwt}</skip>
               <webappDirectory>${project.build.directory}/classes</webappDirectory>

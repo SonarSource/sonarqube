@@ -35,7 +35,6 @@ import org.sonar.plugins.core.charts.XradarChart;
 import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
 import org.sonar.plugins.core.dashboards.HotspotsDashboard;
 import org.sonar.plugins.core.dashboards.SonarMainDashboard;
-import org.sonar.plugins.core.hotspots.Hotspots;
 import org.sonar.plugins.core.metrics.UserManagedMetrics;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.*;
@@ -227,7 +226,6 @@ public class CorePlugin extends SonarPlugin {
 
     // pages
     extensions.add(TestsViewerDefinition.class);
-    extensions.add(Hotspots.class);
     extensions.add(Lcom4Viewer.class);
 
     // widgets

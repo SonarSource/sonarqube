@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
  * @since 2.13
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target(ElementType.ANNOTATION_TYPE)
 public @interface DashboardWidget {
 
   /**
