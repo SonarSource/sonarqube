@@ -5,7 +5,7 @@
     if @dashboard_configuration.selected_period?
       from_date = dashboard_configuration.from_datetime
       options['from'] = from_date
-      to_date = @snapshot.created_at
+      to_date = DateTime.now
       options['to'] = to_date
     end
     reviews = Review.search(options)

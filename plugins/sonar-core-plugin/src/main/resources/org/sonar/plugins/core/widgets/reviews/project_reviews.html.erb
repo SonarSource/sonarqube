@@ -4,7 +4,7 @@
     
     if @dashboard_configuration.selected_period?
       from_date = @dashboard_configuration.from_datetime
-      to_date = @snapshot.created_at
+      to_date = DateTime.now
     end
 %>
 
