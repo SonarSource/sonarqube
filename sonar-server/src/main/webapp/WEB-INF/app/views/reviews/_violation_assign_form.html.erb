@@ -2,8 +2,6 @@
   assignee_check_script = "if ($('autocompleteText-assignee_login').value != '' && $('assignee_login').value == '') { alert($('autocompleteText-assignee_login').value + '" + message('reviews.user_does_not_exist') + "'); return false;}"
 %>
 
-<%= image_tag("sep12.png") -%>
-&nbsp;&nbsp;
 <form method="post"
       onsubmit="<%= assignee_check_script -%> new Ajax.Updater('vId<%= params[:violation_id] -%>', '<%= url_for :action => 'violation_assign' -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); return false;">
   <%= hidden_field_tag :id, params[:violation_id] -%>

@@ -915,37 +915,27 @@ div.vtitle {
   margin: 0;
   padding: 0 0 0 10px;
   line-height: 2.2em;
-  text-shadow: 0 1px 0 #FFF;
   color: #777
 }
-
-.falsePositive {
+span.vSubtitle {
+  color: #777;
+}
+span.falsePositive {
   background-color: #FFF6BF;
   padding-left: 5px;
   padding-right: 5px;
 }
 
-.review-reopened {
+span.reviewReopened {
   background-color: #FDC596;
   padding-left: 5px;
   padding-right: 5px;
 }
-
-div.vtitle a.action {
-  color: #777;
-}
-
 span.rulename, span.rulename a {
   color: #4183C4;
   text-decoration: none;
   font-weight: bold;
 }
-
-span.violation_date {
-  color: #777;
-  font-size: 90%;
-}
-
 div.review_permalink {
   float: right;
   color: #333333;

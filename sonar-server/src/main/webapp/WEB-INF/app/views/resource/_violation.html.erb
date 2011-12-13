@@ -1,83 +1,107 @@
-<div id="vId<%= violation.id -%>">
+<div id="vId<%= violation.id -%>" onmouseover="sVA(<%= violation.id -%>)" onmouseout="hVA(<%= violation.id -%>)">
   <div class="violation">
     <div class="vtitle">
       <% if violation.review %>
-        <div class="review_permalink"><span class="review_permalink"><%= link_to "Review #"+violation.review.id.to_s, :controller => "reviews", :action => "view", :id => violation.review.id -%></span>
+        <div class="review_permalink">
+          <span class="review_permalink"><%= link_to "Review #"+violation.review.id.to_s, :controller => "reviews", :action => "view", :id => violation.review.id -%></span>
         </div>
       <% end %>
 
-      <%= image_tag("priority/" + violation.failure_level.to_s + '.png') -%>
+      <img src="<%= ApplicationController.root_context -%>/images/priority/<%= violation.failure_level -%>.png">
+      &nbsp;
+      <% if violation.review && violation.review.manual_severity && violation.review.severity!=violation.severity %>
+        <img src="<%= ApplicationController.root_context -%>/images/priority/<%= violation.review.severity -%>.png">
+        &nbsp;
+      <% end %>
+
+      <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
+      &nbsp;
+      <span class="rulename" <%= 'style="text-decoration: line-through"' if violation.review && violation.review.resolved? %> >
+        <a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => violation.rule.key, :layout => 'false' -%>"><%= h(violation.rule.name) -%></a>
+      </span>
       &nbsp;
       <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
       &nbsp;
-    <span class="rulename" <%= 'style="text-decoration: line-through"' if violation.review && violation.review.resolved? %> >
-      <a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => violation.rule.key, :layout => 'false' -%>"><%= h(violation.rule.name) -%></a>
-    </span>
-      &nbsp;
-      <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
-      &nbsp;
-      <% if violation.created_at %>
-        <span class="violation_date"><%= distance_of_time_in_words_to_now(violation.created_at) -%></span>
-        &nbsp;
-      <% end %>
-      <% if violation.switched_off? %>
-        <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
-        &nbsp;
-        <span class="falsePositive"><%= message('false_positive') -%></span>
-        &nbsp;
-      <% end %>
-      <% if violation.review && violation.review.reopened? %>
-        <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
-        &nbsp;
-        <span class="review-reopened"><%= message('reopened') -%></span>
-        &nbsp;
-      <% end %>
-      <% if violation.review && violation.review.assignee_id %>
-        <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
-        &nbsp;
-        <%= message('assigned_to') -%>: <%= h(violation.review.assignee.name) -%>
-        &nbsp;
-      <% end %>
+
+      <span id="vSubtitle<%= violation.id -%>">
+        <% if violation.created_at %>
+          <span><%= distance_of_time_in_words_to_now(violation.created_at) -%></span>
+          &nbsp;
+        <% end %>
+        <% if violation.switched_off? %>
+          <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
+          &nbsp;
+          <span class="falsePositive"><%= message('false_positive') -%></span>
+          &nbsp;
+        <% end %>
+        <% if violation.review && violation.review.reopened? %>
+          <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
+          &nbsp;
+          <span class="reviewReopened"><%= message('reopened') -%></span>
+          &nbsp;
+        <% end %>
+        <% if violation.review && violation.review.assignee_id %>
+          <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
+          &nbsp;
+          <%= message('assigned_to') -%>: <%= h(violation.review.assignee.name) -%>
+          &nbsp;
+        <% end %>
+      </span>
 
       <% if current_user %>
-    <span class="actions" id="vActions<%= violation.id -%>">
-      <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
-      <%
-         if violation.review
-           unless violation.switched_off?
-      %>
-        &nbsp;
-          <%= link_to_remote (violation.review.resolved? ? message('reopen') : message('resolve')),
-                             :url => {:controller => "reviews", :action => "violation_change_status", :id => violation.id},
-                             :update => "vId" + violation.id.to_s,
-                             :confirm => violation.review.resolved? ? message('reviews.do_you_want_to_reopen') : message('reviews.do_you_want_to_resolve') -%>
+        <span style="display:none" id="vActions<%= violation.id -%>">
+          <%
+             if violation.review
+               unless violation.switched_off?
+          %>
+              <%= button_to_remote (violation.review.resolved? ? message('reopen') : message('resolve')),
+                                   {
+                                     :url => {:controller => "reviews", :action => "violation_change_status", :id => violation.id},
+                                     :update => "vId" + violation.id.to_s,
+                                     :confirm => violation.review.resolved? ? message('reviews.do_you_want_to_reopen') : message('reviews.do_you_want_to_resolve')
+                                   },
+                                   :name => (violation.review.resolved? ? 'bReopen' : 'bResolve') -%>
 
-          <% unless violation.review && violation.review.resolved? %>
-		        &nbsp;
-            <%= link_to_remote (violation.review.assignee_id ? message('reassign') : message('assign')),
-                               :url => {:controller => "reviews", :action => "violation_assign_form", :violation_id => violation.id},
-                               :update => "vActions" + violation.id.to_s,
-                               :complete => "$('vActions" + violation.id.to_s + "').show();$('commentActions" + violation.id.to_s + "').hide();$('assignee_login').focus();" -%>
-		<%
-       end
-       end
-       else
-    %>
-        &nbsp;
-        <%= link_to_remote message('review_verb'),
-                           :url => {:controller => "reviews", :action => "violation_comment_form", :id => violation.id},
-                           :update => "reviewForm" + violation.id.to_s,
-                           :complete => "$('reviewForm" + violation.id.to_s + "').show();$('commentText" + violation.id.to_s + "').focus();$('vActions#{violation.id}').hide();" -%>
-        <% end %>
+              <% unless violation.review && violation.review.resolved? %>
+                <%= button_to_remote (violation.review.assignee_id ? message('reassign') : message('assign')),
+                                     {
+                                       :url => {:controller => "reviews", :action => "violation_assign_form", :violation_id => violation.id},
+                                       :update => "reviewForm" + violation.id.to_s,
+                                       :complete => "$('reviewForm" + violation.id.to_s + "').show();$('commentActions" + violation.id.to_s + "').hide();$('assignee_login').focus();"
+                                     },
+                                     :name => (violation.review.assignee_id ? 'bReassign' : 'bAssign') -%>
+              <%
+                 end
+                 end
+                 else
+              %>
+            <%= button_to_remote message('review_verb'),
+                                 {
+                                   :url => {:controller => "reviews", :action => "violation_comment_form", :id => violation.id},
+                                   :update => "reviewForm" + violation.id.to_s,
+                                   :complete => "$('reviewForm" + violation.id.to_s + "').show();$('commentText" + violation.id.to_s + "').focus();$('vActions#{violation.id}').hide();"
+                                 },
+                                 :name => 'bReview' -%>
+          <% end %>
 
-      &nbsp;
-      <% if (!violation.review) || (violation.review && violation.review.can_change_false_positive_flag?) %>
-        <%= link_to_remote (violation.switched_off? ? message('reviews.unflag_as_false_positive') : message('reviews.flag_as_false_positive')),
-                           :url => {:controller => "reviews", :action => "violation_false_positive_form", :id => violation.id, :false_positive => !violation.switched_off?},
-                           :update => "reviewForm" + violation.id.to_s,
-                           :complete => "$('reviewForm" + violation.id.to_s + "').show();$('commentText" + violation.id.to_s + "').focus();$('vActions" + violation.id.to_s + "').hide();$('commentActions" + violation.id.to_s + "').hide();" -%>
-        <% end %>
-    </span>
+          <% if (!violation.review) || (violation.review && violation.review.can_change_false_positive_flag?) %>
+            <%= button_to_remote (violation.switched_off? ? message('reviews.unflag_as_false_positive') : message('reviews.flag_as_false_positive')),
+                                 {
+                                   :url => {:controller => "reviews", :action => "violation_false_positive_form", :id => violation.id, :false_positive => !violation.switched_off?},
+                                   :update => "reviewForm" + violation.id.to_s,
+                                   :complete => "$('reviewForm" + violation.id.to_s + "').show();$('commentText" + violation.id.to_s + "').focus();$('vActions" + violation.id.to_s + "').hide();$('commentActions" + violation.id.to_s + "').hide();"
+                                 },
+                                 :name => 'bFalsePositive' -%>
+          <% end %>
+
+          <%= button_to_remote message('reviews.change_severity'),
+                               {
+                                 :url => {:controller => "reviews", :action => "violation_change_severity_form", :id => violation.id},
+                                 :update => "reviewForm" + violation.id.to_s,
+                                 :complete => "$('reviewForm" + violation.id.to_s + "').show();$('selectSeverity" + violation.id.to_s + "').focus();$('vActions" + violation.id.to_s + "').hide();$('commentActions" + violation.id.to_s + "').hide();"
+                               },
+                               :name => 'bChangeSeverity' -%>
+        </span>
       <% end %>
 
     </div>
@@ -92,7 +116,8 @@
            is_last_comment=(comment_index==violation.review.comments.size-1)
     %>
         <div class="discussionComment">
-          <h4><%= image_tag("reviews/comment.png") -%> &nbsp;<b><%= review_comment.user.name -%></b> (<%= distance_of_time_in_words_to_now(review_comment.created_at) -%>)
+          <h4><%= image_tag("reviews/comment.png") -%> &nbsp;<b><%= review_comment.user.name -%></b>
+            (<%= distance_of_time_in_words_to_now(review_comment.created_at) -%>)
             <% if is_last_comment && current_user %>
       <span class="actions" id="commentActions<%= violation.id -%>">
         &nbsp;&nbsp;

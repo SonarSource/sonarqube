@@ -1,4 +1,16 @@
 <script type="text/javascript">
+  // show violation actions
+  function sVA(violation_id) {
+    $('vSubtitle' + violation_id).hide();
+    $('vActions' + violation_id).show()
+  }
+
+  // hide violation actions
+  function hVA(violation_id) {
+      $('vSubtitle' + violation_id).show();
+      $('vActions' + violation_id).hide()
+    }
+
   // show form to create violations
   function sVF(resource, line, gray_colspan, white_colspan) {
     row = $('createViolationForm' + line);

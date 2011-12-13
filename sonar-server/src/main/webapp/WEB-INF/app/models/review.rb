@@ -50,6 +50,10 @@ class Review < ActiveRecord::Base
       end
   end
 
+  def violation
+    rule_failure
+  end
+
   def rule_failure
     @rule_failure ||=
       begin
@@ -111,20 +115,18 @@ class Review < ActiveRecord::Base
     Java::OrgSonarServerUi::JRubyFacade.getInstance().getReviewsNotificationManager()
   end
 
-  def to_java_map(params = {})
-    map = java.util.HashMap.new({
-                                  "project" => project.long_name.to_java,
-                                  "resource" => resource.long_name.to_java,
-                                  "title" => title.to_java,
-                                  "creator" => user == nil ? nil : user.login.to_java,
-                                  "assignee" => assignee == nil ? nil : assignee.login.to_java,
-                                  "status" => status.to_java,
-                                  "resolution" => resolution.to_java
-                                })
-    params.each_pair do |k, v|
-      map.put(k.to_java, v.to_java)
-    end
-    map
+  def to_java_map(options = {})
+    java.util.HashMap.new(
+      {
+        "project" => project.long_name.to_java,
+        "resource" => resource.long_name.to_java,
+        "title" => title.to_java,
+        "creator" => user == nil ? nil : user.login.to_java,
+        "assignee" => assignee == nil ? nil : assignee.login.to_java,
+        "status" => status.to_java,
+        "resolution" => resolution.to_java,
+        "severity" => severity.to_java
+      }.merge(options))
   end
 
   def reassign(current_user, assignee)
@@ -150,29 +152,25 @@ class Review < ActiveRecord::Base
     notification_manager.notifyChanged(id.to_i, current_user.login.to_java, old, to_java_map)
   end
 
-  # params are mandatory:
+  # Parameters:
   # - :user (mandatory)
-  # - :text (mandatory)
-  # - :violation_id (optional: the violation to switch off - if not provided, a search will be done on rule_failure_permanent_id)
-  def set_false_positive(is_false_positive, params={})
-    if params[:user] && params[:text]
-      if params[:violation_id]
-        violation = RuleFailure.find(params[:violation_id])
-        violation.switched_off=is_false_positive
-        violation.save!
-      else
-        RuleFailure.find(:all, :conditions => ["permanent_id = ?", self.rule_failure_permanent_id]).each do |violation|
-          violation.switched_off=is_false_positive
-          violation.save!
-        end
+  # - :text (optional)
+  def set_false_positive(is_false_positive, options={})
+    if options[:user]
+      if violation.nil?
+        bad_request('This review does not relate to a violation')
       end
-      comment = comments.create!(:user => params[:user], :text => params[:text])
+      violation.switched_off=is_false_positive
+      violation.save!
+      if options[:text].present?
+        comments.create!(:user => options[:user], :text => options[:text])
+      end
       old = self.to_java_map
       self.assignee = nil
       self.status = is_false_positive ? STATUS_RESOLVED : STATUS_REOPENED
       self.resolution = is_false_positive ? RESOLUTION_FALSE_POSITIVE : nil
       self.save!
-      notification_manager.notifyChanged(id.to_i, comment.user.login.to_java, old, to_java_map("comment" => comment.text))
+      notification_manager.notifyChanged(id.to_i, options[:user].login.to_java, old, to_java_map("comment" => options[:text]))
     end
   end
 
@@ -182,6 +180,17 @@ class Review < ActiveRecord::Base
 
   def can_change_false_positive_flag?
     (status == STATUS_RESOLVED && resolution == RESOLUTION_FALSE_POSITIVE) || status == STATUS_OPEN || status == STATUS_REOPENED
+  end
+
+  def set_severity(new_severity, user, options={})
+    if options[:text].present?
+      comments.create!(:user => user, :text => options[:text])
+    end
+    old = self.to_java_map
+    self.manual_severity=true
+    self.severity=new_severity
+    self.save!
+    notification_manager.notifyChanged(id.to_i, user.login.to_java, old, to_java_map("comment" => options[:text]))
   end
 
   def resolved?

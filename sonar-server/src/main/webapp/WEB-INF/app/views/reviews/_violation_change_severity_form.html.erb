@@ -1,0 +1,14 @@
+<form method="POST" action="violation_change_severity">
+  <input type="hidden" name="id" value="<%= params[:id] -%>"/>
+
+  <%= message('reviews.new_severity_label') -%>
+  <select name="severity" class="withIcons" id="selectSeverity<%= params[:id] -%>">
+    <% Severity::KEYS.each do |severity| %>
+      <option class="sev_<%= severity -%>" value="<%= severity -%>" <%= 'selected' if severity==Severity::MAJOR -%>><%= message("severity.#{severity}") -%></option>
+    <% end %>
+  </select>
+  <textarea id="commentText<%= params[:id] -%>" rows="4" name="comment" style="width: 100%"></textarea>
+  <%= submit_to_remote "submit_btn"+params[:id], message('reviews.change_severity_submit'), :url => {:action => 'violation_change_severity'}, :html => {:id => "submit_btn"+params[:id]}, :update => 'vId'+params[:id] -%>
+  &nbsp;
+  <%= link_to_remote message('cancel'), :url => {:action => 'display_violation', :id => params[:id]}, :update => 'vId' + params[:id] -%>
+</form>

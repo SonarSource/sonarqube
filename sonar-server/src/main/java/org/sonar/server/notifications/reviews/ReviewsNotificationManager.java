@@ -54,6 +54,7 @@ public class ReviewsNotificationManager implements ServerComponent {
         .setFieldValue("title", newValues.get("title"))
         .setFieldValue("author", author)
         .setFieldValue("creator", newValues.get("creator"))
+        .setFieldValue("severity", newValues.get("severity"))
         .setFieldValue("assignee", newValues.get("assignee"));
     Set<String> fields = Sets.newHashSet();
     fields.addAll(oldValues.keySet());

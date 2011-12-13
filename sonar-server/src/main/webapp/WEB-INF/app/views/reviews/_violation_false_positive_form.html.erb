@@ -13,8 +13,8 @@
     <input type="hidden" name="false_positive" value="true"/>
   <% end %>
   <h3><%= title -%></h3>
-  <textarea id="commentText<%= params[:id] -%>"  rows="8" name="comment" style="width: 100%" onkeyup="if (this.value=='') $('submit_btn<%= params[:id] -%>').disabled='true'; else $('submit_btn<%= params[:id] -%>').disabled='';"></textarea>
-  <%= submit_to_remote "submit_btn"+params[:id], button, :url => { :action => 'violation_flag_as_false_positive' }, :html => { :id => "submit_btn"+params[:id], :disabled => "true" }, :update => 'vId'+params[:id] -%>
+  <textarea id="commentText<%= params[:id] -%>"  rows="4" name="comment" style="width: 100%"></textarea>
+  <%= submit_to_remote "submit_btn"+params[:id], button, :url => { :action => 'violation_flag_as_false_positive' }, :html => { :id => "submit_btn"+params[:id]}, :update => 'vId'+params[:id] -%>
   &nbsp;
   <%= link_to_remote message('cancel'), :url => {:action => 'display_violation', :id => params[:id]}, :update => 'vId' + params[:id] -%>
 </form>

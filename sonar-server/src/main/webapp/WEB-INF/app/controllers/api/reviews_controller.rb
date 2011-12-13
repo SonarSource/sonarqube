@@ -122,7 +122,7 @@ class Api::ReviewsController < Api::ApiController
         review.create_comment(:user => current_user, :text => comment)
       elsif status == Review::STATUS_RESOLVED
         if resolution == Review::RESOLUTION_FALSE_POSITIVE
-          review.set_false_positive(true, :user => current_user, :text => comment, :violation_id => violation.id)
+          review.set_false_positive(true, :user => current_user, :text => comment)
         elsif resolution == Review::RESOLUTION_FIXED
           review.create_comment(:user => current_user, :text => comment)
           review.resolve(current_user)

@@ -1,13 +1,14 @@
 <%
   button=(@comment ? message('update_comment') : message('add_comment'))
-  
+
+  assignee_check_script = ''
   if @violation.review.nil? || @violation.review.comments.size==0
     # This is the first comment, we must ask for the assignee
     assignee_check_script = "if ($('autocompleteText-assignee_login').value != '' && $('assignee_login').value == '') { alert($('autocompleteText-assignee_login').value + '" + message('reviews.user_does_not_exist') + "'); return false;}"
   end  
 %>
 <form method="POST"
-      onsubmit="<%= assignee_check_script if assignee_check_script -%> new Ajax.Updater('vId<%= params[:id] -%>', '<%= url_for :action => 'violation_save_comment' -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)});return false;">
+      onsubmit="<%= assignee_check_script -%> new Ajax.Updater('vId<%= params[:id] -%>', '<%= url_for :action => 'violation_save_comment' -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)});return false;">
   <input type="hidden" name="id" value="<%= params[:id] -%>"/>
   <% if @comment %>
     <input type="hidden" name="comment_id" value="<%= @comment.id -%>"/>
